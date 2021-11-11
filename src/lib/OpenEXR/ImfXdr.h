@@ -1,37 +1,7 @@
-///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
-// Digital Ltd. LLC
-// 
-// All rights reserved.
-// 
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-// *       Redistributions of source code must retain the above copyright
-// notice, this list of conditions and the following disclaimer.
-// *       Redistributions in binary form must reproduce the above
-// copyright notice, this list of conditions and the following disclaimer
-// in the documentation and/or other materials provided with the
-// distribution.
-// *       Neither the name of Industrial Light & Magic nor the names of
-// its contributors may be used to endorse or promote products derived
-// from this software without specific prior written permission. 
-// 
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+// SPDX-License-Identifier: BSD-3-Clause
+// Copyright (c) Contributors to the OpenEXR Project.
 //
-///////////////////////////////////////////////////////////////////////////
-
 
 #ifndef INCLUDED_IMF_XDR_H
 #define INCLUDED_IMF_XDR_H
@@ -103,12 +73,12 @@
 //
 //----------------------------------------------------------------------------
 
-#include "ImfInt64.h"
-#include "IexMathExc.h"
-#include "half.h"
-#include <limits.h>
-
 #include "ImfNamespace.h"
+
+#include "IexMathExc.h"
+#include <half.h>
+#include <limits.h>
+#include <cstdint>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
@@ -153,19 +123,12 @@ write (T &out, unsigned int v);
 
 template <class S, class T>
 void
-write (T &out, signed long v);
+write (T &out, int64_t v);
 
 template <class S, class T>
 void
-write (T &out, unsigned long v);
+write (T &out, uint64_t v);
 
-#if ULONG_MAX != 18446744073709551615LU
-
-    template <class S, class T>
-    void
-    write (T &out, Int64 v);
-
-#endif
 
 template <class S, class T>
 void
@@ -236,19 +199,11 @@ read (T &in, unsigned int &v);
 
 template <class S, class T>
 void
-read (T &in, signed long &v);
+read (T &in, int64_t &v);
 
 template <class S, class T>
 void
-read (T &in, unsigned long &v);
-
-#if ULONG_MAX != 18446744073709551615LU
-
-    template <class S, class T>
-    void
-    read (T &in, Int64 &v);
-
-#endif
+read (T &in, uint64_t &v);
 
 template <class S, class T>
 void
@@ -418,7 +373,7 @@ write (T &out, unsigned int v)
 
 template <class S, class T>
 void
-write (T &out, signed long v)
+write (T &out, int64_t v)
 {
     signed char b[8];
 
@@ -426,44 +381,17 @@ write (T &out, signed long v)
     b[1] = (signed char) (v >> 8);
     b[2] = (signed char) (v >> 16);
     b[3] = (signed char) (v >> 24);
-
-    #if LONG_MAX == 2147483647
-
-	if (v >= 0)
-	{
-	    b[4] = 0;
-	    b[5] = 0;
-	    b[6] = 0;
-	    b[7] = 0;
-	}
-	else
-	{
-	    b[4] = ~0;
-	    b[5] = ~0;
-	    b[6] = ~0;
-	    b[7] = ~0;
-	}
-
-    #elif LONG_MAX == 9223372036854775807L
-
-	b[4] = (signed char) (v >> 32);
-	b[5] = (signed char) (v >> 40);
-	b[6] = (signed char) (v >> 48);
-	b[7] = (signed char) (v >> 56);
-
-    #else
-	
-	#error write<T> (T &out, signed long v) not implemented
-
-    #endif
+    b[4] = (signed char) (v >> 32);
+    b[5] = (signed char) (v >> 40);
+    b[6] = (signed char) (v >> 48);
+    b[7] = (signed char) (v >> 56);
 
     writeSignedChars<S> (out, b, 8);
 }
 
-
 template <class S, class T>
 void
-write (T &out, unsigned long v)
+write (T &out, uint64_t v)
 {
     unsigned char b[8];
 
@@ -471,52 +399,15 @@ write (T &out, unsigned long v)
     b[1] = (unsigned char) (v >> 8);
     b[2] = (unsigned char) (v >> 16);
     b[3] = (unsigned char) (v >> 24);
-
-    #if ULONG_MAX == 4294967295U
-
-	b[4] = 0;
-	b[5] = 0;
-	b[6] = 0;
-	b[7] = 0;
-
-    #elif ULONG_MAX == 18446744073709551615LU
-
-	b[4] = (unsigned char) (v >> 32);
-	b[5] = (unsigned char) (v >> 40);
-	b[6] = (unsigned char) (v >> 48);
-	b[7] = (unsigned char) (v >> 56);
-
-    #else
-	
-	#error write<T> (T &out, unsigned long v) not implemented
-
-    #endif
+    b[4] = (unsigned char) (v >> 32);
+    b[5] = (unsigned char) (v >> 40);
+    b[6] = (unsigned char) (v >> 48);
+    b[7] = (unsigned char) (v >> 56);
 
     writeUnsignedChars<S> (out, b, 8);
 }
 
 
-#if ULONG_MAX != 18446744073709551615LU
-
-    template <class S, class T>
-    void
-    write (T &out, Int64 v)
-    {
-        unsigned char b[8];
-
-        b[0] = (unsigned char) (v);
-        b[1] = (unsigned char) (v >> 8);
-        b[2] = (unsigned char) (v >> 16);
-        b[3] = (unsigned char) (v >> 24);
-        b[4] = (unsigned char) (v >> 32);
-        b[5] = (unsigned char) (v >> 40);
-        b[6] = (unsigned char) (v >> 48);
-        b[7] = (unsigned char) (v >> 56);
-
-        writeUnsignedChars<S> (out, b, 8);
-    }
-
-#endif
 
 
 template <class S, class T>
@@ -541,7 +432,7 @@ template <class S, class T>
 void
 write (T &out, double v)
 {
-    union {Int64 i; double d;} u;
+    union {uint64_t i; double d;} u;
     u.d = v;
 
     unsigned char b[8];
@@ -699,106 +590,41 @@ read (T &in, unsigned int &v)
 
 template <class S, class T>
 void
-read (T &in, signed long &v)
+read (T &in, int64_t &v)
 {
     signed char b[8];
 
     readSignedChars<S> (in, b, 8);
 
-    #if LONG_MAX == 2147483647
+	v =  (static_cast <int64_t> (b[0])        & 0x00000000000000ff) |
+	    ((static_cast <int64_t> (b[1]) << 8)  & 0x000000000000ff00) |
+	    ((static_cast <int64_t> (b[2]) << 16) & 0x0000000000ff0000) |
+	    ((static_cast <int64_t> (b[3]) << 24) & 0x00000000ff000000) |
+	    ((static_cast <int64_t> (b[4]) << 32) & 0x000000ff00000000) |
+	    ((static_cast <int64_t> (b[5]) << 40) & 0x0000ff0000000000) |
+	    ((static_cast <int64_t> (b[6]) << 48) & 0x00ff000000000000) |
+             (static_cast <int64_t> (b[7]) << 56);
 
-        v =  (static_cast <unsigned long> (b[0])        & 0x000000ff) |
-            ((static_cast <unsigned long> (b[1]) << 8)  & 0x0000ff00) |
-            ((static_cast <unsigned long> (b[2]) << 16) & 0x00ff0000) |
-             (static_cast <unsigned long> (b[3]) << 24);
-
-	if (( b[4] ||  b[5] ||  b[6] ||  b[7]) &&
-	    (~b[4] || ~b[5] || ~b[6] || ~b[7]))
-	{
-	    throw IEX_NAMESPACE::OverflowExc ("Long int overflow - read a large "
-				    "64-bit integer in a 32-bit process.");
-	}
-
-    #elif LONG_MAX == 9223372036854775807L
-
-	v =  (static_cast <unsigned long> (b[0])        & 0x00000000000000ff) |
-	    ((static_cast <unsigned long> (b[1]) << 8)  & 0x000000000000ff00) |
-	    ((static_cast <unsigned long> (b[2]) << 16) & 0x0000000000ff0000) |
-	    ((static_cast <unsigned long> (b[3]) << 24) & 0x00000000ff000000) |
-	    ((static_cast <unsigned long> (b[4]) << 32) & 0x000000ff00000000) |
-	    ((static_cast <unsigned long> (b[5]) << 40) & 0x0000ff0000000000) |
-	    ((static_cast <unsigned long> (b[6]) << 48) & 0x00ff000000000000) |
-             (static_cast <unsigned long> (b[7]) << 56);
-
-    #else
-
-	#error read<T> (T &in, signed long &v) not implemented
-
-    #endif
 }
 
 
 template <class S, class T>
 void
-read (T &in, unsigned long &v)
+read (T &in, uint64_t &v)
 {
     unsigned char b[8];
 
     readUnsignedChars<S> (in, b, 8);
 
-    #if ULONG_MAX == 4294967295U
-
-	v =  (b[0]        & 0x000000ff) |
-	    ((b[1] << 8)  & 0x0000ff00) |
-	    ((b[2] << 16) & 0x00ff0000) |
-	     (b[3] << 24);
-
-	if (b[4] || b[5] || b[6] || b[7])
-	{
-	    throw IEX_NAMESPACE::OverflowExc ("Long int overflow - read a large "
-				    "64-bit integer in a 32-bit process.");
-	}
-
-    #elif ULONG_MAX == 18446744073709551615LU
-
-	v =  ((unsigned long) b[0]        & 0x00000000000000ff) |
-	    (((unsigned long) b[1] << 8)  & 0x000000000000ff00) |
-	    (((unsigned long) b[2] << 16) & 0x0000000000ff0000) |
-	    (((unsigned long) b[3] << 24) & 0x00000000ff000000) |
-	    (((unsigned long) b[4] << 32) & 0x000000ff00000000) |
-	    (((unsigned long) b[5] << 40) & 0x0000ff0000000000) |
-	    (((unsigned long) b[6] << 48) & 0x00ff000000000000) |
-	     ((unsigned long) b[7] << 56);
-
-    #else
-
-	#error read<T> (T &in, unsigned long &v) not implemented
-
-    #endif
+    v =  ((uint64_t) b[0]        & 0x00000000000000ffLL) |
+        (((uint64_t) b[1] << 8)  & 0x000000000000ff00LL) |
+        (((uint64_t) b[2] << 16) & 0x0000000000ff0000LL) |
+        (((uint64_t) b[3] << 24) & 0x00000000ff000000LL) |
+        (((uint64_t) b[4] << 32) & 0x000000ff00000000LL) |
+        (((uint64_t) b[5] << 40) & 0x0000ff0000000000LL) |
+        (((uint64_t) b[6] << 48) & 0x00ff000000000000LL) |
+        ((uint64_t) b[7] << 56);
 }
-
-
-#if ULONG_MAX != 18446744073709551615LU
-
-    template <class S, class T>
-    void
-    read (T &in, Int64 &v)
-    {
-        unsigned char b[8];
-
-        readUnsignedChars<S> (in, b, 8);
-
-        v =  ((Int64) b[0]        & 0x00000000000000ffLL) |
-	    (((Int64) b[1] << 8)  & 0x000000000000ff00LL) |
-	    (((Int64) b[2] << 16) & 0x0000000000ff0000LL) |
-	    (((Int64) b[3] << 24) & 0x00000000ff000000LL) |
-	    (((Int64) b[4] << 32) & 0x000000ff00000000LL) |
-	    (((Int64) b[5] << 40) & 0x0000ff0000000000LL) |
-	    (((Int64) b[6] << 48) & 0x00ff000000000000LL) |
-	    ((Int64) b[7] << 56);
-    }
-
-#endif
 
 
 template <class S, class T>
@@ -828,16 +654,16 @@ read (T &in, double &v)
 
     readUnsignedChars<S> (in, b, 8);
 
-    union {Int64 i; double d;} u;
+    union {uint64_t i; double d;} u;
 
-    u.i = ((Int64) b[0]        & 0x00000000000000ffULL) |
-	 (((Int64) b[1] << 8)  & 0x000000000000ff00ULL) |
-	 (((Int64) b[2] << 16) & 0x0000000000ff0000ULL) |
-	 (((Int64) b[3] << 24) & 0x00000000ff000000ULL) |
-	 (((Int64) b[4] << 32) & 0x000000ff00000000ULL) |
-	 (((Int64) b[5] << 40) & 0x0000ff0000000000ULL) |
-	 (((Int64) b[6] << 48) & 0x00ff000000000000ULL) |
-	  ((Int64) b[7] << 56);
+    u.i = ((uint64_t) b[0]        & 0x00000000000000ffULL) |
+	 (((uint64_t) b[1] << 8)  & 0x000000000000ff00ULL) |
+	 (((uint64_t) b[2] << 16) & 0x0000000000ff0000ULL) |
+	 (((uint64_t) b[3] << 24) & 0x00000000ff000000ULL) |
+	 (((uint64_t) b[4] << 32) & 0x000000ff00000000ULL) |
+	 (((uint64_t) b[5] << 40) & 0x0000ff0000000000ULL) |
+	 (((uint64_t) b[6] << 48) & 0x00ff000000000000ULL) |
+	  ((uint64_t) b[7] << 56);
 
     v = u.d;
 }

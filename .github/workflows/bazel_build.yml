@@ -1,0 +1,52 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright (c) Contributors to the OpenEXR Project.
+#
+# GitHub Actions workflow file
+# https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions
+
+name: Bazel
+
+on:
+  push:
+    # Versioned branches and tags are ignored for OpenEXR <= 1.x.x
+    branches-ignore:
+      - RB-2.*
+    tags-ignore:
+      - v1.*
+      - v2.*
+    # Jobs are skipped when ONLY Markdown (*.md) files are changed
+    paths-ignore:
+      - '**.md'
+  pull_request:
+    branches-ignore:
+      - RB-2.*
+    tags-ignore:
+      - v1.*
+      - v2.*
+    paths-ignore:
+      - '**.md'
+
+jobs:
+  build:
+    name: Linux Ubuntu 20.04 Bazel build <GCC 9.3.0>
+    runs-on: ubuntu-20.04
+    
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Mount bazel cache
+      uses: actions/cache@v2
+      with:
+        path: "/home/runner/.cache/bazel"
+        key: bazel
+
+    - name: Install bazelisk
+      run: |
+        curl -LO "https://github.com/bazelbuild/bazelisk/releases/download/v1.10.1/bazelisk-linux-amd64"
+        mkdir -p "${GITHUB_WORKSPACE}/bin/"
+        mv bazelisk-linux-amd64 "${GITHUB_WORKSPACE}/bin/bazel"
+        chmod +x "${GITHUB_WORKSPACE}/bin/bazel"
+
+    - name: Build
+      run: |
+        "${GITHUB_WORKSPACE}/bin/bazel" build //...

@@ -1,6 +1,6 @@
 //
 // SPDX-License-Identifier: BSD-3-Clause
-// Copyright Contributors to the OpenEXR Project. See LICENSE file for details.
+// Copyright (c) Contributors to the OpenEXR Project. See LICENSE file for details.
 // 
 
 #if defined(_WIN32) || defined(_WIN64)
@@ -20,10 +20,8 @@
 #define bswap_32(x) swap32(x)
 #elif defined(__NetBSD__)
 #include <sys/types.h>
-#include <machine/bswap.h>
-#if defined(__BSWAP_RENAME) && !defined(__bswap_32)
+#include <sys/bswap.h>
 #define bswap_32(x) bswap32(x)
-#endif
 #else
 #include <byteswap.h>
 #endif

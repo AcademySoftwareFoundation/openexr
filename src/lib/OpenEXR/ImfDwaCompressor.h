@@ -1,35 +1,7 @@
-///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2009-2014 DreamWorks Animation LLC. 
+// SPDX-License-Identifier: BSD-3-Clause
+// Copyright (c) DreamWorks Animation LLC and Contributors of the OpenEXR Project
 //
-// All rights reserved.
-//
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-// *       Redistributions of source code must retain the above copyright
-// notice, this list of conditions and the following disclaimer.
-// *       Redistributions in binary form must reproduce the above
-// copyright notice, this list of conditions and the following disclaimer
-// in the documentation and/or other materials provided with the
-// distribution.
-// *       Neither the name of DreamWorks Animation nor the names of
-// its contributors may be used to endorse or promote products derived
-// from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-///////////////////////////////////////////////////////////////////////////
 
 #ifndef INCLUDED_IMF_DWA_COMRESSOR_H
 #define INCLUDED_IMF_DWA_COMRESSOR_H
@@ -40,14 +12,15 @@
 //
 //------------------------------------------------------------------------------
 
-#include <vector>
-#include <half.h>
+#include "ImfCompressor.h"
 
-#include "ImfInt64.h"
 #include "ImfZip.h"
 #include "ImfChannelList.h"
-#include "ImfCompressor.h"
-#include "ImfNamespace.h"
+
+#include <half.h>
+
+#include <vector>
+#include <cstdint>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
@@ -62,13 +35,11 @@ class DwaCompressor: public Compressor
     };
 
 
-    IMF_EXPORT
     DwaCompressor (const Header &hdr, 
                    int           maxScanLineSize,
                    int           numScanLines,    // ideally is a multiple of 8
                    AcCompression acCompression);
 
-    IMF_EXPORT
     virtual ~DwaCompressor ();
 
     DwaCompressor (const DwaCompressor& other) = delete;
@@ -76,37 +47,30 @@ class DwaCompressor: public Compressor
     DwaCompressor (DwaCompressor&& other) = delete;
     DwaCompressor& operator = (DwaCompressor&& other) = delete;
     
-    IMF_EXPORT
     virtual int numScanLines () const;
 
-    IMF_EXPORT
     virtual OPENEXR_IMF_NAMESPACE::Compressor::Format format () const;
 
-    IMF_EXPORT
     virtual int compress (const char *inPtr,
                           int         inSize,
                           int         minY,
                           const char *&outPtr);
 
-    IMF_EXPORT
     virtual int compressTile (const char              *inPtr,
                               int                     inSize,
                               IMATH_NAMESPACE::Box2i  range,
                               const char              *&outPtr);
 
-    IMF_EXPORT
     virtual int uncompress (const char *inPtr,
                             int         inSize,
                             int         minY,
                             const char *&outPtr);
 
-    IMF_EXPORT
     virtual int uncompressTile (const char             *inPtr,
                                 int                    inSize,
                                 IMATH_NAMESPACE::Box2i range,
                                 const char             *&outPtr);
 
-    IMF_EXPORT
     static void initializeFuncs ();
 
   private:
@@ -169,19 +133,20 @@ class DwaCompressor: public Compressor
     std::vector<CscChannelSet> _cscSets;
     std::vector<Classifier>    _channelRules;
 
-    char             *_packedAcBuffer;
-    size_t            _packedAcBufferSize;
-    char             *_packedDcBuffer;
-    size_t            _packedDcBufferSize;
-    char             *_rleBuffer;
-    size_t            _rleBufferSize;
-    char             *_outBuffer;
-    size_t            _outBufferSize;
-    char             *_planarUncBuffer[NUM_COMPRESSOR_SCHEMES];
-    size_t            _planarUncBufferSize[NUM_COMPRESSOR_SCHEMES];
+    char*             _packedAcBuffer;
+    uint64_t          _packedAcBufferSize;
+    char*             _packedDcBuffer;
+    uint64_t          _packedDcBufferSize;
+    char*             _rleBuffer;
+    uint64_t          _rleBufferSize;
+    char*             _outBuffer;
+    uint64_t          _outBufferSize;
+    char*             _planarUncBuffer[NUM_COMPRESSOR_SCHEMES];
+    uint64_t          _planarUncBufferSize[NUM_COMPRESSOR_SCHEMES];
 
-    Zip              *_zip;
-    float             _dwaCompressionLevel;
+    Zip*  _zip;
+    int   _zipLevel;
+    float _dwaCompressionLevel;
 
     int compress (const char              *inPtr,
                   int                     inSize,

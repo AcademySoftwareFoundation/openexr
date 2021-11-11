@@ -1,37 +1,7 @@
-///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
-// Digital Ltd. LLC
-// 
-// All rights reserved.
-// 
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-// *       Redistributions of source code must retain the above copyright
-// notice, this list of conditions and the following disclaimer.
-// *       Redistributions in binary form must reproduce the above
-// copyright notice, this list of conditions and the following disclaimer
-// in the documentation and/or other materials provided with the
-// distribution.
-// *       Neither the name of Industrial Light & Magic nor the names of
-// its contributors may be used to endorse or promote products derived
-// from this software without specific prior written permission. 
-// 
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+// SPDX-License-Identifier: BSD-3-Clause
+// Copyright (c) Contributors to the OpenEXR Project.
 //
-///////////////////////////////////////////////////////////////////////////
-
 
 #ifndef INCLUDED_IMF_TILED_OUTPUT_FILE_H
 #define INCLUDED_IMF_TILED_OUTPUT_FILE_H
@@ -42,15 +12,13 @@
 //
 //-----------------------------------------------------------------------------
 
-#include "ImfHeader.h"
-#include "ImfFrameBuffer.h"
-#include "ImathBox.h"
-#include "ImfTileDescription.h"
+#include "ImfForward.h"
+
 #include "ImfThreading.h"
 #include "ImfGenericOutputFile.h"
-#include "ImfForward.h"
-#include "ImfNamespace.h"
-#include "ImfExport.h"
+#include "ImfTileDescription.h"
+
+#include <ImathBox.h>
 
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
@@ -59,7 +27,7 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 struct PreviewRgba;
 
 
-class TiledOutputFile : public GenericOutputFile
+class IMF_EXPORT_TYPE TiledOutputFile : public GenericOutputFile
 {
   public:
 
@@ -491,7 +459,7 @@ class TiledOutputFile : public GenericOutputFile
 				    int offset,
 				    int length,
 				    char c);
-    struct Data;
+    struct IMF_HIDDEN Data;
 
   private:
 
@@ -501,6 +469,7 @@ class TiledOutputFile : public GenericOutputFile
     // and lineOffsetsPosition which have been acquired from
     // the constructor of MultiPartOutputFile as well.
     // ----------------------------------------------------------------
+    IMF_HIDDEN
     TiledOutputFile (const OutputPartData* part);
 
     TiledOutputFile (const TiledOutputFile &) = delete;
@@ -508,11 +477,14 @@ class TiledOutputFile : public GenericOutputFile
     TiledOutputFile (TiledOutputFile &&) = delete;
     TiledOutputFile & operator = (TiledOutputFile &&) = delete;
 
+    IMF_HIDDEN
     void		initialize (const Header &header);
 
+    IMF_HIDDEN
     bool		isValidTile (int dx, int dy,
 				     int lx, int ly) const;
 
+    IMF_HIDDEN
     size_t		bytesPerLineForTile (int dx, int dy,
 					     int lx, int ly) const;
 

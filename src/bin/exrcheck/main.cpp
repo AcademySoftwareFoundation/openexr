@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: BSD-3-Clause
-// Copyright Contributors to the OpenEXR Project.
+// Copyright (c) Contributors to the OpenEXR Project.
 
 #include <ImfCheckFile.h>
-
+#include <ImathConfig.h>
 
 #include <iostream>
 #include <fstream>
@@ -30,12 +30,14 @@ usageMessage (const char argv0[])
     cerr << "  -m : avoid excessive memory allocation (some files will not be fully checked)\n";
     cerr << "  -t : avoid spending excessive time (some files will not be fully checked)\n";
     cerr << "  -s : use stream API instead of file API\n";
+    cerr << "  -c : add core library checks\n";
+    cerr << "  -v : print OpenEXR and Imath software libary version info\n";
 
 }
 
 
 bool
-exrCheck(const char* filename, bool reduceMemory, bool reduceTime, bool useStream)
+exrCheck(const char* filename, bool reduceMemory, bool reduceTime, bool useStream, bool enableCoreCheck)
 {
   if (useStream)
   {
@@ -43,25 +45,39 @@ exrCheck(const char* filename, bool reduceMemory, bool reduceTime, bool useStrea
       // open file as stream, check size
       //
       ifstream instream(filename,ifstream::binary);
+
+      if ( ! instream )
+      {
+          cerr << "internal error: bad file '" << filename << "' for in-memory stream" << endl;
+          return true;
+      }
+
       instream.seekg(0,instream.end);
       streampos length = instream.tellg();
       instream.seekg(0,instream.beg);
+
+      const uintptr_t kMaxSize = uintptr_t(-1) / 4;
+      if (length < 0 || length > (streampos)kMaxSize)
+      {
+          cerr << "internal error: bad file length " << length << " for in-memory stream" << endl;
+          return true;
+      }
 
       //
       // read into memory
       //
       vector<char> data(length);
       instream.read( data.data() , length);
-      if (instream.bad())
+      if (instream.gcount() != length)
       {
           cerr << "internal error: failed to read file " << filename << endl;
-
+          return true;
       }
-      return checkOpenEXRFile( data.data() , length , reduceMemory , reduceTime);
+      return checkOpenEXRFile ( data.data(), length, reduceMemory, reduceTime, enableCoreCheck);
   }
   else
   {
-      return checkOpenEXRFile( filename , reduceMemory , reduceTime);
+      return checkOpenEXRFile ( filename, reduceMemory, reduceTime, enableCoreCheck);
   }
 
 }
@@ -77,6 +93,7 @@ main(int argc, char **argv)
 
     bool reduceMemory = false;
     bool reduceTime = false;
+    bool enableCoreCheck = false;
     bool badFileFound = false;
     bool useStream = false;
     for (int i = 1; i < argc; ++i)
@@ -98,6 +115,21 @@ main(int argc, char **argv)
         {
             useStream = true;
         }
+        else if (!strcmp (argv[i],"-c"))
+        {
+            enableCoreCheck = true;
+        }
+        else if (!strcmp (argv[i],"-v"))
+        {
+            std::cout << OPENEXR_PACKAGE_STRING
+                      << " Lib API: " << OPENEXR_LIB_VERSION_STRING
+                      << ", " << IMATH_PACKAGE_STRING
+#if defined(IMATH_LIB_VERSION_STRING)
+                      << " Lib API: " << IMATH_LIB_VERSION_STRING
+#endif
+                      << std::endl;
+            exit(0);
+        }
         else
         {
 
@@ -114,7 +146,7 @@ main(int argc, char **argv)
             cout << " file " << argv[i] << ' ';
             cout.flush();
 
-            bool hasError = exrCheck(argv[i],reduceMemory,reduceTime,useStream);
+            bool hasError = exrCheck (argv[i], reduceMemory, reduceTime, useStream, enableCoreCheck);
             if (hasError)
             {
                 cout << "bad\n";

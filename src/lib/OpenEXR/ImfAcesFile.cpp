@@ -1,36 +1,7 @@
-///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2007, Industrial Light & Magic, a division of Lucas
-// Digital Ltd. LLC
-// 
-// All rights reserved.
-// 
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-// *       Redistributions of source code must retain the above copyright
-// notice, this list of conditions and the following disclaimer.
-// *       Redistributions in binary form must reproduce the above
-// copyright notice, this list of conditions and the following disclaimer
-// in the documentation and/or other materials provided with the
-// distribution.
-// *       Neither the name of Industrial Light & Magic nor the names of
-// its contributors may be used to endorse or promote products derived
-// from this software without specific prior written permission. 
-// 
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+// SPDX-License-Identifier: BSD-3-Clause
+// Copyright (c) Contributors to the OpenEXR Project.
 //
-///////////////////////////////////////////////////////////////////////////
 
 //-----------------------------------------------------------------------------
 //
@@ -56,10 +27,10 @@ const Chromaticities &
 acesChromaticities ()
 {
     static const Chromaticities acesChr 
-	    (V2f (0.73470,  0.26530),	// red
-	     V2f (0.00000,  1.00000),	// green
-	     V2f (0.00010, -0.07700),	// blue
-	     V2f (0.32168,  0.33767));	// white
+	    (V2f (0.73470f,  0.26530f),  // red
+	     V2f (0.00000f,  1.00000f),  // green
+	     V2f (0.00010f, -0.07700f),  // blue
+	     V2f (0.32168f,  0.33767f)); // white
 
     return acesChr;
 }
@@ -432,16 +403,16 @@ AcesInputFile::Data::initColorConversion ()
     //
 
     static const M44f bradfordCPM
-	    (0.895100, -0.750200,  0.038900,  0.000000,
-	     0.266400,  1.713500, -0.068500,  0.000000,
-	    -0.161400,  0.036700,  1.029600,  0.000000,
-	     0.000000,  0.000000,  0.000000,  1.000000);
+	    (0.895100f, -0.750200f,  0.038900f,  0.000000f,
+	     0.266400f,  1.713500f, -0.068500f,  0.000000f,
+	    -0.161400f,  0.036700f,  1.029600f,  0.000000f,
+	     0.000000f,  0.000000f,  0.000000f,  1.000000f);
 
     const static M44f inverseBradfordCPM
-	    (0.986993,  0.432305, -0.008529,  0.000000,
-	    -0.147054,  0.518360,  0.040043,  0.000000,
-	     0.159963,  0.049291,  0.968487,  0.000000,
-	     0.000000,  0.000000,  0.000000,  1.000000);
+	    (0.986993f,  0.432305f, -0.008529f,  0.000000f,
+	    -0.147054f,  0.518360f,  0.040043f,  0.000000f,
+	     0.159963f,  0.049291f,  0.968487f,  0.000000f,
+	     0.000000f,  0.000000f,  0.000000f,  1.000000f);
 
     //
     // Convert the white points of the two RGB spaces to XYZ

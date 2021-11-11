@@ -1,0 +1,9 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright (c) Contributors to the OpenEXR Project.
+
+build --symlink_prefix=/ # Out of source build
+
+# Uncomment this to treat C++ compile warnings as errors
+#build --cxxopt=-Wall
+#build --cxxopt=-Werror
+#build --cxxopt=-Wextra

@@ -1,36 +1,7 @@
-///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2014, Industrial Light & Magic, a division of Lucas
-// Digital Ltd. LLC
-// 
-// All rights reserved.
-// 
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-// *       Redistributions of source code must retain the above copyright
-// notice, this list of conditions and the following disclaimer.
-// *       Redistributions in binary form must reproduce the above
-// copyright notice, this list of conditions and the following disclaimer
-// in the documentation and/or other materials provided with the
-// distribution.
-// *       Neither the name of Industrial Light & Magic nor the names of
-// its contributors may be used to endorse or promote products derived
-// from this software without specific prior written permission. 
-// 
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+// SPDX-License-Identifier: BSD-3-Clause
+// Copyright (c) Contributors to the OpenEXR Project.
 //
-///////////////////////////////////////////////////////////////////////////
 
 #ifndef INCLUDED_IMF_DEEP_IMAGE_LEVEL_H
 #define INCLUDED_IMF_DEEP_IMAGE_LEVEL_H
@@ -46,10 +17,12 @@
 //
 //----------------------------------------------------------------------------
 
+#include "ImfUtilExport.h"
+#include "ImfNamespace.h"
+
 #include "ImfDeepImageChannel.h"
 #include "ImfSampleCountChannel.h"
 #include "ImfImageLevel.h"
-#include "ImfUtilExport.h"
 
 #include <string>
 #include <map>
@@ -58,7 +31,7 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 class DeepImage;
 
-class DeepImageLevel : public ImageLevel
+class IMFUTIL_EXPORT_TYPE DeepImageLevel : public ImageLevel
 {
   public:
 
@@ -155,46 +128,58 @@ class DeepImageLevel : public ImageLevel
     // The constructor and destructor are private.
     // Deep image levels exist only as part of a deep image.
     //
-
+    IMF_HIDDEN
      DeepImageLevel (DeepImage& image,
                      int xLevelNumber,
                      int yLevelNumber,
                      const IMATH_NAMESPACE::Box2i& dataWindow);
 
+    IMF_HIDDEN
     ~DeepImageLevel ();
 
+    IMF_HIDDEN
     void         setSamplesToZero (size_t i,
                                    unsigned int oldNumSamples,
                                    unsigned int newNumSamples);
 
+    IMF_HIDDEN
     void         moveSampleList (size_t i,
                                  unsigned int oldNumSamples,
                                  unsigned int newNumSamples,
                                  size_t newSampleListPosition);
 
+    IMF_HIDDEN
     void         moveSamplesToNewBuffer (const unsigned int * oldNumSamples,
                                          const unsigned int * newNumSamples,
                                          const size_t * newSampleListPositions);
 
+    IMF_HIDDEN
     void         initializeSampleLists ();
 
+    IMF_HIDDEN
     virtual void resize (const IMATH_NAMESPACE::Box2i& dataWindow);
 
+    IMF_HIDDEN
     virtual void shiftPixels (int dx, int dy);
 
+    IMF_HIDDEN
     virtual void insertChannel (const std::string& name,
                                 PixelType type,
                                 int xSampling,
                                 int ySampling,
                                 bool pLinear);
 
+    IMF_HIDDEN
     virtual void eraseChannel (const std::string& name);
 
+    IMF_HIDDEN
     virtual void clearChannels ();
 
+    IMF_HIDDEN
     virtual void renameChannel (const std::string &oldName,
                                 const std::string &newName);
 
+    IMF_HIDDEN
     virtual void renameChannels (const RenamingMap &oldToNewNames);
 
     ChannelMap          _channels;
@@ -202,7 +187,7 @@ class DeepImageLevel : public ImageLevel
 };
 
 
-class DeepImageLevel::Iterator
+class IMFUTIL_EXPORT_TYPE DeepImageLevel::Iterator
 {
   public:
 
@@ -240,7 +225,7 @@ class DeepImageLevel::Iterator
 };
 
 
-class DeepImageLevel::ConstIterator
+class IMFUTIL_EXPORT_TYPE DeepImageLevel::ConstIterator
 {
   public:
 
@@ -292,7 +277,7 @@ template <class T>
 TypedDeepImageChannel<T> *
 DeepImageLevel::findTypedChannel (const std::string& name)
 {
-    return dynamic_cast <TypedDeepImageChannel<T>*> (findChannel (name));
+    return dynamic_cast <TypedDeepImageChannel<T> *> (findChannel (name));
 }
 
 
@@ -300,7 +285,7 @@ template <class T>
 const TypedDeepImageChannel<T> *
 DeepImageLevel::findTypedChannel (const std::string& name) const
 {
-    return dynamic_cast <const TypedDeepImageChannel<T>*> (findChannel (name));
+    return dynamic_cast <const TypedDeepImageChannel<T> *> (findChannel (name));
 }
 
 

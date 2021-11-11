@@ -1,37 +1,7 @@
-///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
-// Digital Ltd. LLC
-// 
-// All rights reserved.
-// 
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-// *       Redistributions of source code must retain the above copyright
-// notice, this list of conditions and the following disclaimer.
-// *       Redistributions in binary form must reproduce the above
-// copyright notice, this list of conditions and the following disclaimer
-// in the documentation and/or other materials provided with the
-// distribution.
-// *       Neither the name of Industrial Light & Magic nor the names of
-// its contributors may be used to endorse or promote products derived
-// from this software without specific prior written permission. 
-// 
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+// SPDX-License-Identifier: BSD-3-Clause
+// Copyright (c) Contributors to the OpenEXR Project.
 //
-///////////////////////////////////////////////////////////////////////////
-
 
 //-----------------------------------------------------------------------------
 //
@@ -43,10 +13,10 @@
 #include "Iex.h"
 #include <ImfMisc.h>
 #include <ImfChannelList.h>
+#include <ImfHeader.h>
 #include <ImfTileDescription.h>
 #include <algorithm>
-
-#include "ImfNamespace.h"
+#include <limits>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
@@ -137,7 +107,7 @@ calculateBytesPerLine (const Header &header,
                        int minY, int maxY,
                        std::vector<int>& xOffsets,
                        std::vector<int>& yOffsets,
-                       std::vector<Int64>& bytesPerLine)
+                       std::vector<uint64_t>& bytesPerLine)
 {
     const ChannelList &channels = header.channels();
 
@@ -303,7 +273,7 @@ calculateNumTiles (int *numTiles,
     for (int i = 0; i < numLevels; i++)
     {
         // use 64 bits to avoid int overflow if size is large.
-        Int64 l = levelSize (min, max, i, rmode);
+        uint64_t l = levelSize (min, max, i, rmode);
         numTiles[i] = (l + size - 1) / size;
     }
 }
@@ -366,7 +336,7 @@ getTiledChunkOffsetTableSize(const Header& header)
         //
         // Calculate lineOffsetSize.
         //
-        Int64 lineOffsetSize = 0;
+        uint64_t lineOffsetSize = 0;
         const TileDescription &desc = header.tileDescription();
         switch (desc.mode)
         {
@@ -374,8 +344,8 @@ getTiledChunkOffsetTableSize(const Header& header)
             case MIPMAP_LEVELS:
                 for (int i = 0; i < numXLevels; i++)
                 {
-                    lineOffsetSize += static_cast<Int64>(numXTiles[i]) * static_cast<Int64>(numYTiles[i]);
-                    if ( lineOffsetSize > static_cast<Int64>(std::numeric_limits<int>::max()) )
+                    lineOffsetSize += static_cast<uint64_t>(numXTiles[i]) * static_cast<uint64_t>(numYTiles[i]);
+                    if ( lineOffsetSize > static_cast<uint64_t>(std::numeric_limits<int>::max()) )
                     {
                         throw IEX_NAMESPACE::LogicExc("Maximum number of tiles exceeded");
                     }
@@ -386,8 +356,8 @@ getTiledChunkOffsetTableSize(const Header& header)
                 {
                     for (int j = 0; j < numYLevels; j++)
                     {
-                        lineOffsetSize += static_cast<Int64>(numXTiles[i]) * static_cast<Int64>(numYTiles[j]);
-                        if ( lineOffsetSize > static_cast<Int64>(std::numeric_limits<int>::max()) )
+                        lineOffsetSize += static_cast<uint64_t>(numXTiles[i]) * static_cast<uint64_t>(numYTiles[j]);
+                        if ( lineOffsetSize > static_cast<uint64_t>(std::numeric_limits<int>::max()) )
                         {
                             throw IEX_NAMESPACE::LogicExc("Maximum number of tiles exceeded");
                         }

@@ -3,25 +3,19 @@
 ## Download
 
 To build the latest release of OpenEXR, begin by downloading the
-source from the Releases page
-https://github.com/AcademySoftwareFoundation/openexr/tarball/v2.5.1.
+source from the GitHub Releases page: 
+https://github.com/AcademySoftwareFoundation/openexr/releases.
 
 To build from the latest development version, which may not be stable,
-download the master branch via
-https://github.com/AcademySoftwareFoundation/openexr/tarball/master, and extract the
-contents via ``tar``.
+clone the GitHub repo and build from the master branch:
 
-You can download the repository tarball file either via a browser, or
-on the Linux/macOS via the command line using ``wget`` or ``curl``:
+    % git clone https://github.com/AcademySoftwareFoundation/openexr
+
+You can alternatively download the repository tarball file either via
+a browser, or on the Linux/macOS via the command line using ``wget``
+or ``curl``:
 
     % curl -L https://github.com/AcademySoftwareFoundation/openexr/tarball/master | tar xv
-
-This will produce a source directory named
-``openexr-openexr-<abbreviated-SHA-1-checksum>``.
-
-Alternatively, clone the GitHub repo directly via:
-
-    % git clone https://github.com/AcademySoftwareFoundation/openexr.git
 
 In the instructions that follow, we will refer to the top-level
 directory of the source code tree as ``$source_directory``.
@@ -30,16 +24,15 @@ directory of the source code tree as ``$source_directory``.
 
 Make sure these are installed on your system before building OpenEXR:
 
-* OpenEXR requires CMake version 3.10 or newer
-  - NB: CMake 3.12 is required for configuring to build static and
-    shared libraries in the same config (object library support)
+* OpenEXR requires CMake version 3.12 or newer
 * C++ compiler that supports C++11
 * Zlib (auto compiled if not found)
 * Imath (auto compiled if not found)
 
-The instructions that follow describe building OpenEXR with CMake, but
-you can also build and install OpenEXR via the autoconf
-bootstrap/configure utilities, described below.
+The instructions that follow describe building OpenEXR with CMake.
+
+Note that as of OpenEXR 3, the Gnu autoconf bootstrap/configure build
+system is no longer supported.
 
 ## Linux/macOS Quick Start
 
@@ -77,6 +70,36 @@ can specify a local install directory to cmake via the
 ``CMAKE_INSTALL_PREFIX`` variable:
 
     % cmake .. -DCMAKE_INSTALL_PREFIX=$install_directory
+
+## Porting Applications from OpenEXR v2 to v3
+
+See the [porting
+guide](https://github.com/AcademySoftwareFoundation/Imath/blob/master/docs/PortingGuide2-3.md)
+for details about differences from previous releases and how to
+address them. Also refer to the porting guide for details about
+changes to Imath.
+
+## Documentation
+
+The OpenEXR technical documentation at
+[openexr.readthedocs.io](https://openexr.readthedocs.io) is generated
+via [Sphinx](https://www.sphinx-doc.org) with the
+[Breathe](https://breathe.readthedocs.io) extension using information
+extracted from header comments by [Doxgen](https://www.doxygen.nl).
+
+To build the documentation locally from the source headers and
+``.rst`` files, set the CMake option ``DOCS=ON``. This adds
+``Doxygen`` and ``Sphinx`` CMake targets. Local documentation
+generation is off by default.
+
+Building the documentation requires that sphinx, breathe, and doxygen
+are installed.
+
+Note that the [openexr.readthedocs.io](https://openexr.readthedocs.io)
+documentation takes the place of the formerly distributed .pdf
+documents in the ``docs`` folder, although readthedocs supports
+downloading of documentation in pdf format, for those who prefer it
+that way.
 
 ## Library Names
 
@@ -119,20 +142,15 @@ the directory in which to install OpenEXR:
 
 The libraries in OpenEXR follow the standard cmake setting of
 ``BUILD_SHARED_LIBS`` to control whether to build static or shared
-libraries. However, there also exists an option
-``OPENEXR_BUILD_BOTH_STATIC_SHARED`` to enable building both shared
-and static libraries as part of one configuration, in addition to
-other customization options. Please see cmake/OpenEXRSetup.cmake for
-these options.
+libraries.
+
+Please see cmake/OpenEXRSetup.cmake for other customization options.
 
 ## Custom Namespaces
 
 If you are interested in controlling custom namespace declarations or
 similar options, you are encouraged to look at the ``CMakeLists.txt``
-infrastructure. In particular, there has been an attempt to centralize
-the settings into a common place to more easily see all of them in a
-text editor. For IlmBase, this is config/IlmBaseSetup.cmake inside the
-IlmBase tree. For OpenEXR, the settings will similarly be found in
+infrastructure. The settings can be found in
 ``cmake/OpenEXRSetup.cmake``. As per usual, these settings can also be
 seen and/or edited using any of the various gui editors for working
 with cmake such as ``ccmake``, ``cmake-gui``, as well as some of the
@@ -199,70 +217,49 @@ You can customize these options three ways:
 
 ### Library Naming Options:
 
-* **ILMBASE\_LIB\_SUFFIX**
-
-  Append the given string to the end of all the IlmBase libraries. Default is ``-<major>_<minor>`` version string. Please see the section on library names
-
 * **OPENEXR\_LIB\_SUFFIX**
 
   Append the given string to the end of all the OpenEXR libraries. Default is ``-<major>_<minor>`` version string. Please see the section on library names
 
 ### Namespace Options:
 
-* **ILMBASE\_IEX\_NAMESPACE**
-
-  Public namespace alias for Iex. Default is ``Iex``.
-
-* **ILMBASE\_ILMTHREAD\_NAMESPACE**
-
-  Public namespace alias for IlmThread. Default is ``IlmThread``.
-
-* **ILMBASE\_IMATH\_NAMESPACE**
- 
-  Public namespace alias for Imath. Default is ``Imath``.
-
-* **ILMBASE\_INTERNAL\_IEX\_NAMESPACE**
- 
-  Real namespace for Iex that will end up in compiled symbols. Default is ``Iex\_<major>\_<minor>``.
-
-* **ILMBASE\_INTERNAL\_ILMTHREAD\_NAMESPACE**
- 
-  Real namespace for IlmThread that will end up in compiled symbols. Default is ``IlmThread\_<major>\_<minor>``.
-
-* **ILMBASE\_INTERNAL\_IMATH\_NAMESPACE**
- 
-  Real namespace for Imath that will end up in compiled symbols. Default is ``Imath\_<major>\_<minor>``.
-
-* **ILMBASE\_NAMESPACE\_CUSTOM**
- 
-  Whether the namespace has been customized (so external users know)
-
 * **OPENEXR\_IMF\_NAMESPACE**
  
-  Public namespace alias for Imath. Default is ``Imf``.
+  Public namespace alias for OpenEXR. Default is ``Imf``.
 
 * **OPENEXR\_INTERNAL\_IMF\_NAMESPACE**
  
-  Real namespace for Imath that will end up in compiled symbols. Default is ``Imf\_<major>\_<minor>``.
+  Real namespace for OpenEXR that will end up in compiled symbols. Default is ``Imf\_<major>\_<minor>``.
 
 * **OPENEXR\_NAMESPACE\_CUSTOM**
  
   Whether the namespace has been customized (so external users know)
 
-### Linting Options:
 
-These linting options are experimental, and primarily for developer-only use at this time.
+* **IEX\_NAMESPACE**
 
-* **ILMBASE\_USE\_CLANG\_TIDY**
+  Public namespace alias for Iex. Default is ``Iex``.
+
+* **IEX\_INTERNAL\_NAMESPACE**
  
-  Enable clang-tidy for IlmBase libraries, if it is available. Default is OFF.
+  Real namespace for Iex that will end up in compiled symbols. Default is ``Iex\_<major>\_<minor>``.
 
-* **OPENEXR\_USE\_CLANG\_TIDY**
+* **IEX\_NAMESPACE\_CUSTOM**
  
-  Enable clang-tidy for OpenEXR libraries, if it is available. Default is OFF.
+  Whether the namespace has been customized (so external users know)
 
-### Testing Options:
 
+* **ILMTHREAD\_NAMESPACE**
+
+  Public namespace alias for IlmThread. Default is ``IlmThread``.
+
+* **ILMTHREAD\_INTERNAL\_NAMESPACE**
+ 
+  Real namespace for IlmThread that will end up in compiled symbols. Default is ``IlmThread\_<major>\_<minor>``.
+
+* **ILMTHREAD\_NAMESPACE\_CUSTOM**
+ 
+  Whether the namespace has been customized (so external users know)
 
 * **BUILD\_TESTING**
  

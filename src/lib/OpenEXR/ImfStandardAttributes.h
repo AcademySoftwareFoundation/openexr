@@ -1,37 +1,7 @@
-///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
-// Digital Ltd. LLC
-// 
-// All rights reserved.
-// 
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-// *       Redistributions of source code must retain the above copyright
-// notice, this list of conditions and the following disclaimer.
-// *       Redistributions in binary form must reproduce the above
-// copyright notice, this list of conditions and the following disclaimer
-// in the documentation and/or other materials provided with the
-// distribution.
-// *       Neither the name of Industrial Light & Magic nor the names of
-// its contributors may be used to endorse or promote products derived
-// from this software without specific prior written permission. 
-// 
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+// SPDX-License-Identifier: BSD-3-Clause
+// Copyright (c) Contributors to the OpenEXR Project.
 //
-///////////////////////////////////////////////////////////////////////////
-
 
 #ifndef INCLUDED_IMF_STANDARD_ATTRIBUTES_H
 #define INCLUDED_IMF_STANDARD_ATTRIBUTES_H
@@ -69,24 +39,44 @@
 #include "ImfVecAttribute.h"
 #include "ImfNamespace.h"
 #include "ImfExport.h"
+#include "ImfIDManifestAttribute.h"
 
 #define IMF_ADD_SUFFIX(suffix) add##suffix
 #define IMF_HAS_SUFFIX(suffix) has##suffix
 #define IMF_NAME_ATTRIBUTE(name) name##Attribute
 
-#define IMF_STD_ATTRIBUTE_DEF(name,suffix,object)                            \
-                                                                             \
-    OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER                              \
-    IMF_EXPORT void           IMF_ADD_SUFFIX(suffix) (Header &header, const object &v); \
-    IMF_EXPORT bool           IMF_HAS_SUFFIX(suffix) (const Header &header);     \
-    IMF_EXPORT const TypedAttribute<object> &                                \
-                              IMF_NAME_ATTRIBUTE(name) (const Header &header); \
-    IMF_EXPORT TypedAttribute<object> &                                      \
-                              IMF_NAME_ATTRIBUTE(name) (Header &header);     \
-    IMF_EXPORT const object &                                                \
-                              name (const Header &header);                   \
-    IMF_EXPORT object &       name (Header &header);                         \
-    OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT                               \
+#define IMF_STD_ATTRIBUTE_DEF(name, suffix, object)                            \
+                                                                               \
+    OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER                                \
+    IMF_EXPORT void IMF_ADD_SUFFIX (suffix) (                                  \
+        Header & header, const object& v);                                     \
+    IMF_EXPORT bool  IMF_HAS_SUFFIX (suffix) (const Header& header);           \
+    IMF_EXPORT const TypedAttribute<object>& IMF_NAME_ATTRIBUTE (name) (       \
+        const Header& header);                                                 \
+    IMF_EXPORT TypedAttribute<object>& IMF_NAME_ATTRIBUTE (name) (             \
+        Header & header);                                                      \
+    IMF_EXPORT const object& name (const Header& header);                      \
+    IMF_EXPORT object& name (Header& header);                                  \
+    OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
+
+#define IMF_STD_ATTRIBUTE_DEF_DEPRECATED(name, suffix, object, msg)            \
+                                                                               \
+    OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER                                \
+    OPENEXR_DEPRECATED (msg)                                                   \
+    IMF_EXPORT void IMF_ADD_SUFFIX (suffix) (                                  \
+        Header & header, const object& v);                                     \
+    OPENEXR_DEPRECATED (msg)                                                   \
+    IMF_EXPORT bool IMF_HAS_SUFFIX (suffix) (const Header& header);            \
+    OPENEXR_DEPRECATED (msg)                                                   \
+    IMF_EXPORT const TypedAttribute<object>& IMF_NAME_ATTRIBUTE (name) (       \
+        const Header& header);                                                 \
+    OPENEXR_DEPRECATED (msg)                                                   \
+    IMF_EXPORT TypedAttribute<object>& IMF_NAME_ATTRIBUTE (name) (             \
+        Header & header);                                                      \
+    OPENEXR_DEPRECATED (msg)                                                   \
+    IMF_EXPORT const object&            name (const Header& header);           \
+    OPENEXR_DEPRECATED (msg) IMF_EXPORT object& name (Header& header);         \
+    OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
 //
 // chromaticities -- for RGB images, specifies the CIE (x,y)
@@ -379,8 +369,17 @@ IMF_STD_ATTRIBUTE_DEF
 // dwaCompressionLevel -- sets the quality level for images compressed
 // with the DWAA or DWAB method.
 //
+// DEPRECATED: use the methods directly in the header
+IMF_STD_ATTRIBUTE_DEF_DEPRECATED (
+    dwaCompressionLevel,
+    DwaCompressionLevel,
+    float,
+    "use compression method in ImfHeader")
 
-IMF_STD_ATTRIBUTE_DEF (dwaCompressionLevel, DwaCompressionLevel, float)
+//
+// ID Manifest
+//
 
+IMF_STD_ATTRIBUTE_DEF( idManifest,IDManifest,CompressedIDManifest)
 
 #endif

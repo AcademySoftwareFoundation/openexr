@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: BSD-3-Clause
-# Copyright Contributors to the OpenEXR Project.
+# Copyright (c) Contributors to the OpenEXR Project.
 #
 # GitHub Actions workflow file
 # https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions
@@ -42,12 +42,12 @@ jobs:
   # TODO: Add ARM build. Add sanitize build.
 
   linux:
-    name: 'Linux CentOS 7 VFX CY${{ matrix.vfx-cy }} 
-      <${{ matrix.compiler-desc }} 
-       config=${{ matrix.build-type }}, 
-       shared=${{ matrix.build-shared }}, 
-       threads=${{ matrix.threads-enabled }}, 
-       cxx=${{ matrix.cxx-standard }}>'
+    name: 'Linux ${{ matrix.label }}VFXP-${{ matrix.vfx-cy }} centos7
+       <${{ matrix.compiler-desc }},
+       C++${{ matrix.cxx-standard }},
+       config=${{ matrix.build-type }},
+       shared=${{ matrix.build-shared }},
+       threads=${{ matrix.threads-enabled }}>'
     # GH-hosted VM. The build runs in CentOS 7 'container' defined below.
     runs-on: ubuntu-latest
     container:
@@ -56,144 +56,195 @@ jobs:
       image: aswf/ci-openexr:${{ matrix.vfx-cy }}
     strategy:
       matrix:
-        build: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+        build: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
         include:
           # -------------------------------------------------------------------
-          # GCC, VFX CY2020
+          # VFX CY2022 - GCC, Release
           # -------------------------------------------------------------------
           # Shared, Release
           - build: 1
             build-type: Release
             build-shared: 'ON'
-            cxx-standard: 14
+            cxx-standard: 17
             cxx-compiler: g++
             cc-compiler: gcc
-            compiler-desc: GCC 6.3.1
+            compiler-desc: gcc9.3.1
+            label: 
             threads-enabled: 'ON'
-            vfx-cy: 2020
+            vfx-cy: 2022
             exclude-tests:
-          # Shared, Debug
+
+          # -------------------------------------------------------------------
+          # VFX CY2021 - GCC
+          # -------------------------------------------------------------------
+          # Shared, Release
           - build: 2
-            build-type: Debug
+            build-type: Release
             build-shared: 'ON'
-            cxx-standard: 14
+            cxx-standard: 17
             cxx-compiler: g++
             cc-compiler: gcc
-            compiler-desc: GCC 6.3.1
+            compiler-desc: gcc9.3.1
+            label: 
             threads-enabled: 'ON'
-            vfx-cy: 2020
+            vfx-cy: 2021
             exclude-tests:
-          # Static, Release
+
+          # Shared, Release, Threads OFF
           - build: 3
             build-type: Release
             build-shared: 'ON'
-            cxx-standard: 14
+            cxx-standard: 17
             cxx-compiler: g++
             cc-compiler: gcc
-            compiler-desc: GCC 6.3.1
-            threads-enabled: 'ON'
-            vfx-cy: 2020
+            compiler-desc: gcc9.3.1
+            label: 
+            threads-enabled: 'OFF'
+            vfx-cy: 2021
             exclude-tests:
-          # Static, Debug
+
+          # Shared, Debug
           - build: 4
             build-type: Debug
-            build-shared: 'OFF'
-            cxx-standard: 14
+            build-shared: 'ON'
+            cxx-standard: 17
             cxx-compiler: g++
             cc-compiler: gcc
-            compiler-desc: GCC 6.3.1
+            compiler-desc: gcc9.3.1
+            label: 
             threads-enabled: 'ON'
-            vfx-cy: 2020
+            vfx-cy: 2021
             exclude-tests:
-          # -------------------------------------------------------------------
-          # GCC, VFX CY2019
-          # -------------------------------------------------------------------
-          #
+
+          # Static, Release
           - build: 5
             build-type: Release
             build-shared: 'ON'
-            cxx-standard: 14
+            cxx-standard: 17
             cxx-compiler: g++
             cc-compiler: gcc
-            compiler-desc: GCC 6.3.1
+            compiler-desc: gcc9.3.1
+            label: 
             threads-enabled: 'ON'
-            vfx-cy: 2019
-            exclude-tests: 
-          # -------------------------------------------------------------------
-          # Clang, VFX CY2020
-          # -------------------------------------------------------------------
-          # Release
-          - build: 6
-            build-type: Release
-            build-shared: 'ON'
-            cxx-standard: 14
-            cxx-compiler: clang++
-            cc-compiler: clang
-            compiler-desc: Clang 7
-            threads-enabled: 'ON'
-            vfx-cy: 2020
+            vfx-cy: 2021
             exclude-tests:
-          # Debug
-          - build: 7
-            build-type: Debug
-            build-shared: 'ON'
-            cxx-standard: 14
-            cxx-compiler: clang++
-            cc-compiler: clang
-            compiler-desc: Clang 7
-            threads-enabled: 'ON'
-            vfx-cy: 2020
-            exclude-tests:
-          # Static, Release
-          - build: 8
-            build-type: Release
-            build-shared: 'ON'
-            cxx-standard: 14
-            cxx-compiler: clang++
-            cc-compiler: clang
-            compiler-desc: Clang 7
-            threads-enabled: 'ON'
-            vfx-cy: 2020
-            exclude-tests:
+
           # Static, Debug
-          - build: 9
+          - build: 6
             build-type: Debug
             build-shared: 'OFF'
-            cxx-standard: 14
-            cxx-compiler: clang++
-            cc-compiler: clang
-            compiler-desc: Clang 7
+            cxx-standard: 17
+            cxx-compiler: g++
+            cc-compiler: gcc
+            compiler-desc: gcc9.3.1
+            label: 
             threads-enabled: 'ON'
-            vfx-cy: 2020
+            vfx-cy: 2021
             exclude-tests:
+
           # -------------------------------------------------------------------
-          # Clang, VFX CY2019
+          # VFX CY2021 - Clang
           # -------------------------------------------------------------------
-          # 
-          - build: 10
+          # Release
+          - build: 7
             build-type: Release
             build-shared: 'ON'
-            cxx-standard: 14
+            cxx-standard: 17
             cxx-compiler: clang++
             cc-compiler: clang
-            compiler-desc: Clang 7
+            compiler-desc: clang10
+            label: 
             threads-enabled: 'ON'
-            vfx-cy: 2019
+            vfx-cy: 2021
             exclude-tests:
+
+          # Debug
+          - build: 8
+            build-type: Debug
+            build-shared: 'ON'
+            cxx-standard: 17
+            cxx-compiler: clang++
+            cc-compiler: clang
+            compiler-desc: clang10
+            label: 
+            threads-enabled: 'ON'
+            vfx-cy: 2021
+            exclude-tests:
+
+          # Static, Release
+          - build: 9
+            build-type: Release
+            build-shared: 'ON'
+            cxx-standard: 17
+            cxx-compiler: clang++
+            cc-compiler: clang
+            compiler-desc: clang10
+            label: 
+            threads-enabled: 'ON'
+            vfx-cy: 2021
+            exclude-tests:
+
+          # Static, Debug
+          - build: 10
+            build-type: Debug
+            build-shared: 'OFF'
+            cxx-standard: 17
+            cxx-compiler: clang++
+            cc-compiler: clang
+            compiler-desc: clang10
+            label: 
+            threads-enabled: 'ON'
+            vfx-cy: 2021
+            exclude-tests:
+
           # -------------------------------------------------------------------
-          # Other config variants
+          # VFX CY2020 - GCC, Release
           # -------------------------------------------------------------------
-          # 
+          # Shared, Release
           - build: 11
             build-type: Release
             build-shared: 'ON'
             cxx-standard: 14
             cxx-compiler: g++
             cc-compiler: gcc
-            compiler-desc: GCC 6.3.1
-            threads-enabled: 'OFF'
+            compiler-desc: gcc6.3.1
+            label: 
+            threads-enabled: 'ON'
             vfx-cy: 2020
             exclude-tests:
+
+          # -------------------------------------------------------------------
+          # VFX CY2019 - GCC, Release
+          # -------------------------------------------------------------------
+          # Shared, Release
+          - build: 12
+            build-type: Release
+            build-shared: 'ON'
+            cxx-standard: 14
+            cxx-compiler: g++
+            cc-compiler: gcc
+            compiler-desc: gcc6.3.1
+            label: 
+            threads-enabled: 'ON'
+            vfx-cy: 2019
+            exclude-tests: 
+
+          # -------------------------------------------------------------------
+          # Legacy - VFX CY2019 - C++11
+          # -------------------------------------------------------------------
+          # Shared, Release
+          - build: 13
+            build-type: Release
+            build-shared: 'ON'
+            cxx-standard: 11
+            cxx-compiler: g++
+            cc-compiler: gcc
+            compiler-desc: gcc6.3.1
+            label: 'Legacy '
+            threads-enabled: 'ON'
+            vfx-cy: 2019
+            exclude-tests:
+
     env:
       CXX: ${{ matrix.cxx-compiler }}
       CC: ${{ matrix.cc-compiler }}
@@ -204,27 +255,44 @@ jobs:
         run: |
           mkdir _install
           mkdir _build
+          mkdir _examples
       - name: Configure
         run: |
-          cmake ../. \
+          cmake .. \
                 -DCMAKE_INSTALL_PREFIX=../_install \
                 -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} \
                 -DCMAKE_CXX_STANDARD=${{ matrix.cxx-standard }} \
                 -DCMAKE_CXX_FLAGS=${{ matrix.cxx-flags }} \
                 -DCMAKE_VERBOSE_MAKEFILE:BOOL='OFF' \
                 -DBUILD_SHARED_LIBS=${{ matrix.build-shared }} \
-                -DOPENEXR_BUILD_UTILS='ON' \
+                -DOPENEXR_BUILD_TOOLS='ON' \
                 -DOPENEXR_RUN_FUZZ_TESTS='OFF' \
-                -DOPENEXR_ENABLE_THREADING=${{ matrix.threads-enabled }} \
-                -DPYTHON_EXECUTABLE=$(which python) 
+                -DOPENEXR_ENABLE_THREADING=${{ matrix.threads-enabled }}
         working-directory: _build
       - name: Build
         run: |
           cmake --build . \
                 --target install \
-                --config ${{ matrix.build-type }} \
-                -- -j4
+                --config ${{ matrix.build-type }}
         working-directory: _build
+      - name: Validate
+        run: |
+          share/ci/scripts/linux/validate_openexr_libs.sh _install 
+      - name: Examples
+        run: |
+          # Make sure we can build the examples when configured as a
+          # standalone application linking against the just-installed
+          # OpenEXR library.
+          cmake ../src/examples \
+                -DCMAKE_PREFIX_PATH=../../_install \
+                -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} \
+                -DCMAKE_CXX_STANDARD=${{ matrix.cxx-standard }} \
+                -DCMAKE_CXX_FLAGS=${{ matrix.cxx-flags }}
+          cmake --build . \
+                --config ${{ matrix.build-type }}
+          # Confirm the examples program runs
+          ./OpenEXRExamples
+        working-directory: _examples
       - name: Test
         run: |
           ctest -T Test ${{ matrix.exclude-tests }} \
@@ -237,52 +305,52 @@ jobs:
   # ---------------------------------------------------------------------------
   # macOS
   # ---------------------------------------------------------------------------
+  # TODO: Add ARM64/x86_64 (universal 2) build
+  
   macos:
-    name: 'macOS 10.15 
-      <AppleClang 11.0 
-       config=${{ matrix.build-type }}, 
-       shared=${{ matrix.build-shared }}, 
-       cxx=${{ matrix.cxx-standard }}, 
+    name: 'Mac VFXP-2021 macos-${{ matrix.osver }}
+      <${{ matrix.compiler-desc }},
+       C++${{ matrix.cxx-standard }},
+       config=${{ matrix.build-type }},
+       shared=${{ matrix.build-shared }},
+       cxx=${{ matrix.cxx-standard }},
        docs=${{ matrix.build-docs }}>'
-    runs-on: macos-10.15
+    runs-on: macos-${{ matrix.osver }}
     strategy:
       matrix:
-        build: [1, 2, 3, 4, 5]
+        build: [1, 2, 3]
         include:
-          # C++11, Release
+          # -------------------------------------------------------------------
+          # VFX CY2021 - C++17 
+          # -------------------------------------------------------------------
+          # Shared, Release
           - build: 1
             build-type: Release
             build-shared: 'ON'
-            build-docs: 'ON'
-            cxx-standard: 11
+            build-docs: 'OFF'
+            compiler-desc: AppleClang11.0
+            cxx-standard: 17
+            osver: 10.15
             exclude-tests:
-          # Debug
+
+          # Static, Release
           - build: 2
-            build-type: Debug
-            build-shared: 'ON'
-            build-docs: 'OFF'
-            cxx-standard: 11
-            exclude-tests:
-          # C++14
-          - build: 3
-            build-type: Release
-            build-shared: 'ON'
-            build-docs: 'OFF'
-            cxx-standard: 14
-            exclude-tests:
-          # Static
-          - build: 4
             build-type: Release
             build-shared: 'OFF'
             build-docs: 'OFF'
-            cxx-standard: 14
+            compiler-desc: AppleClang11.0
+            cxx-standard: 17
+            osver: 10.15
             exclude-tests:
-          # Static, Debug
-          - build: 5
-            build-type: Release
+
+          # Shared, Debug
+          - build: 3
+            build-type: Debug
             build-shared: 'ON'
             build-docs: 'OFF'
-            cxx-standard: 14
+            compiler-desc: AppleClang11.0
+            cxx-standard: 17
+            osver: 10.15
             exclude-tests:
     steps:
       - name: Checkout
@@ -291,25 +359,40 @@ jobs:
         run: |
           mkdir _install
           mkdir _build
+          mkdir _examples
       - name: Configure
         run: |
-          cmake ../. \
+          cmake .. \
                 -DCMAKE_INSTALL_PREFIX=../_install \
                 -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} \
                 -DCMAKE_CXX_STANDARD=${{ matrix.cxx-standard }} \
                 -DCMAKE_CXX_FLAGS=${{ matrix.cxx-flags }} \
                 -DCMAKE_VERBOSE_MAKEFILE:BOOL='OFF' \
                 -DBUILD_SHARED_LIBS=${{ matrix.build-shared }} \
-                -DOPENEXR_BUILD_UTILS='ON' \
+                -DOPENEXR_BUILD_TOOLS='ON' \
                 -DOPENEXR_RUN_FUZZ_TESTS='OFF'
         working-directory: _build
       - name: Build
         run: |
           cmake --build . \
                 --target install \
-                --config ${{ matrix.build-type }} \
-                -- -j2
+                --config ${{ matrix.build-type }}
         working-directory: _build
+      - name: Examples
+        run: |
+          # Make sure we can build the examples when configured as a
+          # standalone application linking against the just-installed
+          # OpenEXR library.
+          cmake ../src/examples \
+                -DCMAKE_PREFIX_PATH=../../_install \
+                -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} \
+                -DCMAKE_CXX_STANDARD=${{ matrix.cxx-standard }} \
+                -DCMAKE_CXX_FLAGS=${{ matrix.cxx-flags }}
+          cmake --build . \
+                --config ${{ matrix.build-type }}
+          # Confirm the examples program runs
+          ./OpenEXRExamples
+        working-directory: _examples
       - name: Test
         run: |
           ctest -T Test ${{matrix.exclude-tests }} \
@@ -324,8 +407,8 @@ jobs:
   # ---------------------------------------------------------------------------
   # TODO: Debug mode is catatonically slow under windows
   windows:
-    name: 'Windows 2019 
-      <MSVC 16.4 
+    name: 'Windows VFXP-2021
+      <${{ matrix.compiler-desc }},
        config=${{ matrix.build-type }}, 
        shared=${{ matrix.build-shared }}, 
        cxx=${{ matrix.cxx-standard }}, 
@@ -333,37 +416,31 @@ jobs:
     runs-on: windows-2019
     strategy:
       matrix:
-        #build: [1, 2, 3, 4]
-        build: [1, 2, 3, 4]
+        build: [1, 2]
         include:
-          # C++11, Shared, Release
+          # -------------------------------------------------------------------
+          # VFX CY2021 - C++17
+          # -------------------------------------------------------------------
+          # Shared, Release
           - build: 1
             build-type: Release
             build-shared: 'ON'
-            build-docs: 'ON'
-            cxx-standard: 11
-            exclude-tests:
-          # C++14, Shared, Release
+            build-docs: 'OFF'
+            compiler-desc: msvc16.11
+            cxx-standard: 17
+            vfx-cy: 2021
+            exclude-tests: ''
+
+          # Static, Release
           - build: 2
             build-type: Release
-            build-shared: 'ON'
-            build-docs: 'OFF'
-            cxx-standard: 14
-            exclude-tests: ''
-          # C++11, Static, Release
-          - build: 3
-            build-type: Release
             build-shared: 'OFF'
             build-docs: 'OFF'
-            cxx-standard: 14
+            compiler-desc: msvc16.11
+            cxx-standard: 17
+            vfx-cy: 2021
             exclude-tests: ''
-          # C++14, Static, Release
-          - build: 4
-            build-type: Release
-            build-shared: 'OFF'
-            build-docs: 'OFF'
-            cxx-standard: 14
-            exclude-tests: ''
+
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -371,6 +448,7 @@ jobs:
         run: |
           mkdir _install
           mkdir _build
+          mkdir _examples
         shell: bash
       ## - name: Install Dependences
       ##   run: |
@@ -380,14 +458,14 @@ jobs:
       ##   shell: powershell
       - name: Configure
         run: |
-          cmake ../. \
+          cmake .. \
                 -DCMAKE_INSTALL_PREFIX=../_install \
                 -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} \
                 -DCMAKE_CXX_STANDARD=${{ matrix.cxx-standard }} \
                 -DCMAKE_CXX_FLAGS=${{ matrix.cxx-flags }} \
                 -DCMAKE_VERBOSE_MAKEFILE:BOOL='OFF' \
                 -DBUILD_SHARED_LIBS=${{ matrix.build-shared }} \
-                -DOPENEXR_BUILD_UTILS='ON' \
+                -DOPENEXR_BUILD_TOOLS='ON' \
                 -DOPENEXR_RUN_FUZZ_TESTS='OFF' 
         shell: bash
         working-directory: _build
@@ -398,6 +476,22 @@ jobs:
                 --config ${{ matrix.build-type }}
         shell: bash
         working-directory: _build
+      ## - name: Examples
+      ##  run: |
+      ##    # Make sure we can build the examples when configured as a
+      ##    # standalone application linking against the just-installed
+      ##    # OpenEXR library.
+      ##    cmake ../src/examples \
+      ##          -DCMAKE_PREFIX_PATH=../../_install \
+      ##          -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} \
+      ##          -DCMAKE_CXX_STANDARD=${{ matrix.cxx-standard }} \
+      ##          -DCMAKE_CXX_FLAGS=${{ matrix.cxx-flags }}
+      ##    cmake --build . \
+      ##          --config ${{ matrix.build-type }}
+      ##    # Confirm the examples program runs
+      ##    ./OpenEXRExamples
+      ##  shell: bash
+      ##  working-directory: _examples
       - name: Test
         run: |
           ctest -T Test ${{ matrix.exclude-tests }} \

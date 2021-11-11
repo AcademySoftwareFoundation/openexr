@@ -1,37 +1,7 @@
-///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2003, Industrial Light & Magic, a division of Lucas
-// Digital Ltd. LLC
-// 
-// All rights reserved.
-// 
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-// *       Redistributions of source code must retain the above copyright
-// notice, this list of conditions and the following disclaimer.
-// *       Redistributions in binary form must reproduce the above
-// copyright notice, this list of conditions and the following disclaimer
-// in the documentation and/or other materials provided with the
-// distribution.
-// *       Neither the name of Industrial Light & Magic nor the names of
-// its contributors may be used to endorse or promote products derived
-// from this software without specific prior written permission. 
-// 
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+// SPDX-License-Identifier: BSD-3-Clause
+// Copyright (c) Contributors to the OpenEXR Project.
 //
-///////////////////////////////////////////////////////////////////////////
-
 
 //-----------------------------------------------------------------------------
 //
@@ -43,6 +13,15 @@
 #include <ImfChromaticities.h>
 #include "ImfNamespace.h"
 #include <string.h>
+
+#include <stdexcept>
+#include <float.h>
+
+#if defined(_MSC_VER)
+// suppress warning about non-exported base classes
+#pragma warning (disable : 4251)
+#endif
+
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
@@ -90,34 +69,59 @@ RGBtoXYZ (const Chromaticities &chroma, float Y)
     // X and Z values of RGB value (1, 1, 1), or "white"
     //
 
+    // prevent a division that rounds to zero
+    if (std::abs(chroma.white.y) <= 1.f && std::abs(chroma.white.x * Y) >= std::abs(chroma.white.y) * FLT_MAX)
+    {
+        throw std::invalid_argument("Bad chromaticities: white.y cannot be zero");
+    }
+
     float X = chroma.white.x * Y / chroma.white.y;
     float Z = (1 - chroma.white.x - chroma.white.y) * Y / chroma.white.y;
 
     //
-    // Scale factors for matrix rows
+    // Scale factors for matrix rows, compute numerators and common denominator
     //
 
     float d = chroma.red.x   * (chroma.blue.y  - chroma.green.y) +
 	      chroma.blue.x  * (chroma.green.y - chroma.red.y) +
 	      chroma.green.x * (chroma.red.y   - chroma.blue.y);
 
-    float Sr = (X * (chroma.blue.y - chroma.green.y) -
+
+
+    float SrN = (X * (chroma.blue.y - chroma.green.y) -
 	        chroma.green.x * (Y * (chroma.blue.y - 1) +
 		chroma.blue.y  * (X + Z)) +
 		chroma.blue.x  * (Y * (chroma.green.y - 1) +
-		chroma.green.y * (X + Z))) / d;
+		chroma.green.y * (X + Z)));
 
-    float Sg = (X * (chroma.red.y - chroma.blue.y) +
+
+    float SgN = (X * (chroma.red.y - chroma.blue.y) +
 		chroma.red.x   * (Y * (chroma.blue.y - 1) +
 		chroma.blue.y  * (X + Z)) -
 		chroma.blue.x  * (Y * (chroma.red.y - 1) +
-		chroma.red.y   * (X + Z))) / d;
+		chroma.red.y   * (X + Z)));
 
-    float Sb = (X * (chroma.green.y - chroma.red.y) -
+    float SbN = (X * (chroma.green.y - chroma.red.y) -
 		chroma.red.x   * (Y * (chroma.green.y - 1) +
 		chroma.green.y * (X + Z)) +
 		chroma.green.x * (Y * (chroma.red.y - 1) +
-		chroma.red.y   * (X + Z))) / d;
+		chroma.red.y   * (X + Z)));
+
+
+    if ( std::abs(d)<1.f && (std::abs(SrN) >= std::abs(d)* FLT_MAX || std::abs(SgN) >= std::abs(d)* FLT_MAX || std::abs(SbN) >= std::abs(d)* FLT_MAX) )
+    {
+        // cannot generate matrix if all RGB primaries have the same y value
+        // or if they all have the an x value of zero
+        // in both cases, the primaries are colinear, which makes them unusable
+        throw std::invalid_argument("Bad chromaticities: RGBtoXYZ matrix is degenerate");
+    }
+
+
+
+    float Sr = SrN / d;
+    float Sg = SgN / d;
+    float Sb = SbN / d;
+
 
     //
     // Assemble the matrix

@@ -1,37 +1,7 @@
-///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
-// Digital Ltd. LLC
-// 
-// All rights reserved.
-// 
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-// *       Redistributions of source code must retain the above copyright
-// notice, this list of conditions and the following disclaimer.
-// *       Redistributions in binary form must reproduce the above
-// copyright notice, this list of conditions and the following disclaimer
-// in the documentation and/or other materials provided with the
-// distribution.
-// *       Neither the name of Industrial Light & Magic nor the names of
-// its contributors may be used to endorse or promote products derived
-// from this software without specific prior written permission. 
-// 
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+// SPDX-License-Identifier: BSD-3-Clause
+// Copyright (c) Contributors to the OpenEXR Project.
 //
-///////////////////////////////////////////////////////////////////////////
-
 
 
 //-----------------------------------------------------------------------------
@@ -60,6 +30,10 @@ using namespace std;
 using namespace IMATH_NAMESPACE;
 
 
+#if defined(_MSC_VER)
+#pragma warning (disable : 4996)
+#endif
+
 class C_IStream: public IStream
 {
   public:
@@ -68,8 +42,8 @@ class C_IStream: public IStream
 	IStream (fileName), _file (file) {}
 
     virtual bool	read (char c[/*n*/], int n);
-    virtual Int64	tellg ();
-    virtual void	seekg (Int64 pos);
+    virtual uint64_t	tellg ();
+    virtual void	seekg (uint64_t pos);
     virtual void	clear ();
 
   private:
@@ -86,8 +60,8 @@ class C_OStream: public OStream
 	OStream (fileName), _file (file) {}
 
     virtual void	write (const char c[/*n*/], int n);
-    virtual Int64	tellp ();
-    virtual void	seekp (Int64 pos);
+    virtual uint64_t	tellp ();
+    virtual void	seekp (uint64_t pos);
 
   private:
 
@@ -116,7 +90,7 @@ C_IStream::read (char c[/*n*/], int n)
 }
 
 
-Int64
+uint64_t
 C_IStream::tellg ()
 {
     return ftell (_file);
@@ -124,10 +98,10 @@ C_IStream::tellg ()
 
 
 void
-C_IStream::seekg (Int64 pos)
+C_IStream::seekg (uint64_t pos)
 {
     clearerr (_file);
-    fseek (_file, pos, SEEK_SET);
+    fseek (_file, static_cast<long>(pos), SEEK_SET);
 }
 
 
@@ -148,7 +122,7 @@ C_OStream::write (const char c[/*n*/], int n)
 }
 
 
-Int64
+uint64_t
 C_OStream::tellp ()
 {
     return ftell (_file);
@@ -156,10 +130,10 @@ C_OStream::tellp ()
 
 
 void
-C_OStream::seekp (Int64 pos)
+C_OStream::seekp (uint64_t pos)
 {
     clearerr (_file);
-    fseek (_file, pos, SEEK_SET);
+    fseek (_file, static_cast<long>(pos), SEEK_SET);
 }
 
 

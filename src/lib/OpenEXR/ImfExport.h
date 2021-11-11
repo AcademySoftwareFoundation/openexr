@@ -1,46 +1,66 @@
-///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2012, Industrial Light & Magic, a division of Lucas
-// Digital Ltd. LLC
-// 
-// All rights reserved.
-// 
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-// *       Redistributions of source code must retain the above copyright
-// notice, this list of conditions and the following disclaimer.
-// *       Redistributions in binary form must reproduce the above
-// copyright notice, this list of conditions and the following disclaimer
-// in the documentation and/or other materials provided with the
-// distribution.
-// *       Neither the name of Industrial Light & Magic nor the names of
-// its contributors may be used to endorse or promote products derived
-// from this software without specific prior written permission. 
-// 
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+// SPDX-License-Identifier: BSD-3-Clause
+// Copyright (c) Contributors to the OpenEXR Project.
 //
-///////////////////////////////////////////////////////////////////////////
 
+#ifndef INCLUDED_IMFEXPORT_H
+#define INCLUDED_IMFEXPORT_H
+
+#include "OpenEXRConfig.h"
+
+/// \addtogroup ExportMacros
+/// @{
+
+// are we making a DLL under windows (might be msvc or mingw or others)
 #if defined(OPENEXR_DLL)
-    #if defined(OPENEXR_EXPORTS)
-	    #define IMF_EXPORT __declspec(dllexport)
-        #define IMF_EXPORT_CONST extern __declspec(dllexport)
-    #else
-	    #define IMF_EXPORT __declspec(dllimport)
-	    #define IMF_EXPORT_CONST extern __declspec(dllimport)
-    #endif
-#else
-    #define IMF_EXPORT
-    #define IMF_EXPORT_CONST extern const
-#endif
+
+// when building as a DLL for windows, typical dllexport / import case
+// where we need to switch depending on whether we are compiling
+// internally or not
+#  if defined(OPENEXR_EXPORTS)
+#    define IMF_EXPORT __declspec(dllexport)
+
+     // mingw needs the export when the extern is defined
+#    if defined(__MINGW32__)
+#      define IMF_EXPORT_EXTERN_TEMPLATE IMF_EXPORT
+#      define IMF_EXPORT_TEMPLATE_INSTANCE
+       // for mingw windows, we need to cause this to export the
+       // typeinfo tables (but you don't need to have the
+       // complementary import, because might be a local template too!)
+#      define IMF_EXPORT_TEMPLATE_TYPE IMF_EXPORT
+#    else
+       // for normal msvc, need to export the actual instantiation in
+       // the cpp code, and none of the others
+#      define IMF_EXPORT_EXTERN_TEMPLATE
+#      define IMF_EXPORT_TEMPLATE_INSTANCE IMF_EXPORT
+#      define IMF_EXPORT_TEMPLATE_TYPE
+#    endif
+
+#  else // OPENEXR_EXPORTS
+#    define IMF_EXPORT __declspec(dllimport)
+#    define IMF_EXPORT_EXTERN_TEMPLATE IMF_EXPORT
+#    define IMF_EXPORT_TEMPLATE_INSTANCE
+#    define IMF_EXPORT_TEMPLATE_TYPE
+#  endif
+
+// DLLs don't support these types of visibility controls, just leave them as empty
+#  define IMF_EXPORT_TYPE
+#  define IMF_EXPORT_ENUM
+#  define IMF_HIDDEN
+
+#else // not an OPENEXR_DLL
+
+// just pass these through from the top level config
+#  define IMF_EXPORT OPENEXR_EXPORT
+#  define IMF_HIDDEN OPENEXR_HIDDEN
+#  define IMF_EXPORT_ENUM OPENEXR_EXPORT_ENUM
+#  define IMF_EXPORT_TYPE OPENEXR_EXPORT_TYPE
+#  define IMF_EXPORT_TEMPLATE_TYPE OPENEXR_EXPORT_TEMPLATE_TYPE
+#  define IMF_EXPORT_EXTERN_TEMPLATE OPENEXR_EXPORT_EXTERN_TEMPLATE
+#  define IMF_EXPORT_TEMPLATE_INSTANCE OPENEXR_EXPORT_TEMPLATE_INSTANCE
+
+#endif // OPENEXR_DLL
+
+/// @}
+
+#endif // INCLUDED_IMFEXPORT_H

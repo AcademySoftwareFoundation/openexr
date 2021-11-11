@@ -1,42 +1,22 @@
-///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2014, Industrial Light & Magic, a division of Lucas
-// Digital Ltd. LLC
-// 
-// All rights reserved.
-// 
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-// *       Redistributions of source code must retain the above copyright
-// notice, this list of conditions and the following disclaimer.
-// *       Redistributions in binary form must reproduce the above
-// copyright notice, this list of conditions and the following disclaimer
-// in the documentation and/or other materials provided with the
-// distribution.
-// *       Neither the name of Industrial Light & Magic nor the names of
-// its contributors may be used to endorse or promote products derived
-// from this software without specific prior written permission. 
-// 
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+// SPDX-License-Identifier: BSD-3-Clause
+// Copyright (c) Contributors to the OpenEXR Project.
 //
-///////////////////////////////////////////////////////////////////////////
 
 //----------------------------------------------------------------------------
 //
 //      class FlatImageChannel
 //
 //----------------------------------------------------------------------------
+#include "ImfUtilExport.h"
+#include <ImathExport.h>
+#include <ImathNamespace.h>
+
+IMATH_INTERNAL_NAMESPACE_HEADER_ENTER
+class IMFUTIL_EXPORT_TYPE half;
+IMATH_INTERNAL_NAMESPACE_HEADER_EXIT
+
+#define COMPILING_IMF_FLAT_IMAGE_CHANNEL
 
 #include "ImfFlatImageChannel.h"
 #include "ImfFlatImageLevel.h"
@@ -85,6 +65,101 @@ FlatImageChannel::resize ()
 {
     ImageChannel::resize();
 }
+
+
+//-----------------------------------------------------------------------------
+
+
+template <class T>
+TypedFlatImageChannel<T>::TypedFlatImageChannel
+    (FlatImageLevel &level,
+     int xSampling,
+     int ySampling,
+     bool pLinear)
+:
+    FlatImageChannel (level, xSampling, ySampling, pLinear),
+    _pixels (0),
+    _base (0)
+{
+    resize();
+}
+
+
+template <class T>
+TypedFlatImageChannel<T>::~TypedFlatImageChannel ()
+{
+    delete [] _pixels;
+}
+
+
+template <>
+inline PixelType
+FlatHalfChannel::pixelType () const
+{
+    return HALF;
+}
+
+
+template <>
+inline PixelType
+FlatFloatChannel::pixelType () const
+{
+    return FLOAT;
+}
+
+
+template <>
+inline PixelType
+FlatUIntChannel::pixelType () const
+{
+    return UINT;
+}
+
+
+template <class T>
+Slice
+TypedFlatImageChannel<T>::slice () const
+{
+    return Slice (pixelType(),                 // type
+                  (char *) _base,              // base
+                  sizeof (T),                  // xStride
+                  pixelsPerRow() * sizeof (T), // yStride
+                  xSampling(),
+                  ySampling());
+}
+
+
+template <class T>
+void
+TypedFlatImageChannel<T>::resize ()
+{
+    delete [] _pixels;
+    _pixels = 0;
+
+    FlatImageChannel::resize();  // may throw an exception
+
+    _pixels = new T [numPixels()];
+
+    for (size_t i = 0; i < numPixels(); ++i)
+        _pixels[i] = T (0);
+
+    resetBasePointer ();
+}
+
+
+template <class T>
+void
+TypedFlatImageChannel<T>::resetBasePointer ()
+{
+    _base = _pixels -
+            (level().dataWindow().min.y / ySampling()) * pixelsPerRow() -
+            (level().dataWindow().min.x / xSampling());
+}
+
+
+template class IMFUTIL_EXPORT_TEMPLATE_INSTANCE TypedFlatImageChannel<half>;
+template class IMFUTIL_EXPORT_TEMPLATE_INSTANCE TypedFlatImageChannel<float>;
+template class IMFUTIL_EXPORT_TEMPLATE_INSTANCE TypedFlatImageChannel<unsigned int>;
 
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

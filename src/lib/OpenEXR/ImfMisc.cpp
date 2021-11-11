@@ -1,37 +1,7 @@
-///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
-// Digital Ltd. LLC
-// 
-// All rights reserved.
-// 
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-// *       Redistributions of source code must retain the above copyright
-// notice, this list of conditions and the following disclaimer.
-// *       Redistributions in binary form must reproduce the above
-// copyright notice, this list of conditions and the following disclaimer
-// in the documentation and/or other materials provided with the
-// distribution.
-// *       Neither the name of Industrial Light & Magic nor the names of
-// its contributors may be used to endorse or promote products derived
-// from this software without specific prior written permission. 
-// 
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+// SPDX-License-Identifier: BSD-3-Clause
+// Copyright (c) Contributors to the OpenEXR Project.
 //
-///////////////////////////////////////////////////////////////////////////
-
 
 
 //-----------------------------------------------------------------------------
@@ -161,7 +131,7 @@ bytesPerDeepLineTable (const Header &header,
     {
         const int ySampling = abs(c.channel().ySampling);
         const int xSampling = abs(c.channel().xSampling);
-        const int pixelSize = pixelTypeSize (c.channel().type);
+        const uint64_t pixelSize = pixelTypeSize (c.channel().type);
 
         // Here we transform from the domain over all pixels into the domain
         // of actual samples.  We want to sample points in [minY, maxY] where
@@ -178,12 +148,22 @@ bytesPerDeepLineTable (const Header &header,
 
         for (int y = sampleMinY; y <= sampleMaxY; y+=ySampling)
         {
-            int nBytes = 0;
+            uint64_t nBytes = 0;
             for (int x = sampleMinX; x <= sampleMaxX; x += xSampling)
             {
                 nBytes += pixelSize *
-                          sampleCount(base, xStride, yStride, x, y);
+                          static_cast<uint64_t>(sampleCount(base, xStride, yStride, x, y));
             }
+
+            //
+            // architectures where size_t is smaller than 64 bits may overflow
+            // (scanlines with more than 2^32 bytes are not currently supported so this should not occur with valid files)
+            //
+            if( static_cast<uint64_t>(bytesPerLine[y - dataWindow.min.y]) + nBytes > SIZE_MAX)
+            {
+                throw IEX_NAMESPACE::IoExc("Scanline size too large");
+            }
+
             bytesPerLine[y - dataWindow.min.y] += nBytes;
         }
     }
@@ -191,8 +171,12 @@ bytesPerDeepLineTable (const Header &header,
     size_t maxBytesPerLine = 0;
 
     for (int y = minY; y <= maxY; ++y)
+    {
         if (maxBytesPerLine < bytesPerLine[y - dataWindow.min.y])
+        {
             maxBytesPerLine = bytesPerLine[y - dataWindow.min.y];
+        }
+    }
 
     return maxBytesPerLine;
 }
@@ -1858,12 +1842,17 @@ getScanlineChunkOffsetTableSize(const Header& header)
 {
     const Box2i &dataWindow = header.dataWindow();
 
-    int linesInBuffer = numLinesInBuffer ( header.compression() );
 
-    int lineOffsetSize = (dataWindow.max.y - dataWindow.min.y +
+    //
+    // use int64_t types to prevent overflow in lineOffsetSize for images with
+    // extremely high dataWindows
+    //
+    int64_t linesInBuffer = numLinesInBuffer ( header.compression() );
+
+    int64_t lineOffsetSize = (static_cast <int64_t>(dataWindow.max.y) - static_cast <int64_t>(dataWindow.min.y) +
                           linesInBuffer) / linesInBuffer;
 
-    return lineOffsetSize;
+    return static_cast <int>(lineOffsetSize);
 }
 
 //
@@ -1873,7 +1862,7 @@ int
 getTiledChunkOffsetTableSize(const Header& header);
 
 int
-getChunkOffsetTableSize(const Header& header,bool)
+getChunkOffsetTableSize(const Header& header)
 {
     //
     // if there is a type in the header which indicates the part is not a currently supported type,

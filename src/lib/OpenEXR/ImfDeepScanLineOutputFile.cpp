@@ -1,37 +1,7 @@
-///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2011, Industrial Light & Magic, a division of Lucas
-// Digital Ltd. LLC
+// SPDX-License-Identifier: BSD-3-Clause
+// Copyright (c) Contributors to the OpenEXR Project.
 //
-// All rights reserved.
-//
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-// *       Redistributions of source code must retain the above copyright
-// notice, this list of conditions and the following disclaimer.
-// *       Redistributions in binary form must reproduce the above
-// copyright notice, this list of conditions and the following disclaimer
-// in the documentation and/or other materials provided with the
-// distribution.
-// *       Neither the name of Industrial Light & Magic nor the names of
-// its contributors may be used to endorse or promote products derived
-// from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-///////////////////////////////////////////////////////////////////////////
-
 
 //-----------------------------------------------------------------------------
 //
@@ -133,11 +103,11 @@ struct LineBuffer
     Array< Array<char> >  buffer;
     Array<char>           consecutiveBuffer;
     const char *          dataPtr;
-    Int64                 uncompressedDataSize;
-    Int64                 dataSize;
+    uint64_t              uncompressedDataSize;
+    uint64_t              dataSize;
     Array<char>           sampleCountTableBuffer;
     const char *          sampleCountTablePtr;
-    Int64                 sampleCountTableSize;
+    uint64_t              sampleCountTableSize;
     Compressor*           sampleCountTableCompressor;
     int                   minY;                 // the min y scanline stored
     int                   maxY;                 // the max y scanline stored
@@ -192,7 +162,7 @@ struct DeepScanLineOutputFile::Data
     Header                      header;                // the image header
     int                         version;               // file format version
     bool                        multipart;             // from a multipart file
-    Int64                       previewPosition;       // file position for preview
+    uint64_t                    previewPosition;       // file position for preview
     DeepFrameBuffer             frameBuffer;           // framebuffer to write into
     int                         currentScanLine;       // next scanline to be written
     int                         missingScanLines;      // number of lines to write
@@ -201,13 +171,13 @@ struct DeepScanLineOutputFile::Data
     int                         maxX;                  // data window's max x coord
     int                         minY;                  // data window's min y coord
     int                         maxY;                  // data window's max x coord
-    vector<Int64>               lineOffsets;           // stores offsets in file for
+    vector<uint64_t>            lineOffsets;           // stores offsets in file for
                                                        // each scanline
     vector<size_t>              bytesPerLine;          // combined size of a line over
                                                        // all channels
     Compressor::Format          format;                // compressor's data format
     vector<OutSliceInfo*>       slices;                // info about channels in file
-    Int64                       lineOffsetsPosition;   // file position for line
+    uint64_t                    lineOffsetsPosition;   // file position for line
                                                        // offset table
 
     vector<LineBuffer*>         lineBuffers;           // each holds one line buffer
@@ -223,7 +193,7 @@ struct DeepScanLineOutputFile::Data
     Array<unsigned int>         lineSampleCount;       // the number of samples
                                                        // in each line
 
-    Int64                       maxSampleCountTableSize;
+    uint64_t                    maxSampleCountTableSize;
                                                        // the max size in bytes for a pixel
                                                        // sample count table
     OutputStreamMutex*  _streamData;
@@ -293,12 +263,12 @@ DeepScanLineOutputFile::Data::getLineBuffer (int number)
 
 namespace {
 
-Int64
-writeLineOffsets (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os, const vector<Int64> &lineOffsets)
+uint64_t
+writeLineOffsets (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os, const vector<uint64_t> &lineOffsets)
 {
-    Int64 pos = os.tellp();
+    uint64_t pos = os.tellp();
 
-    if (pos == static_cast<Int64>(-1))
+    if (pos == static_cast<uint64_t>(-1))
         IEX_NAMESPACE::throwErrnoExc ("Cannot determine current file position (%T).");
 
     for (unsigned int i = 0; i < lineOffsets.size(); i++)
@@ -313,10 +283,10 @@ writePixelData (OutputStreamMutex *filedata,
                 DeepScanLineOutputFile::Data *partdata,
                 int lineBufferMinY,
                 const char pixelData[],
-                Int64 packedDataSize,
-                Int64 unpackedDataSize,
+                uint64_t packedDataSize,
+                uint64_t unpackedDataSize,
                 const char sampleCountTableData[],
-                Int64 sampleCountTableSize)
+                uint64_t sampleCountTableSize)
 {
     //
     // Store a block of pixel data in the output file, and try
@@ -324,7 +294,7 @@ writePixelData (OutputStreamMutex *filedata,
     // without calling tellp() (tellp() can be fairly expensive).
     //
 
-    Int64 currentPosition = filedata->currentPosition;
+    uint64_t currentPosition = filedata->currentPosition;
     filedata->currentPosition = 0;
 
     if (currentPosition == 0)
@@ -376,13 +346,13 @@ writePixelData (OutputStreamMutex *filedata,
     // Write the packed pixel sample count table.
     //
 
-    filedata->os->write (sampleCountTableData, sampleCountTableSize);
+    filedata->os->write (sampleCountTableData, static_cast<int>(sampleCountTableSize));
 
     //
     // Write the compressed data.
     //
 
-    filedata->os->write (pixelData, packedDataSize);
+    filedata->os->write (pixelData, static_cast<int>(packedDataSize));
 
     //
     // Update stream position.
@@ -390,9 +360,9 @@ writePixelData (OutputStreamMutex *filedata,
 
     filedata->currentPosition = currentPosition      +
                                 Xdr::size<int>()     +  // y coordinate
-                                Xdr::size<Int64>()   +  // packed sample count table size
-                                Xdr::size<Int64>()   +  // packed data size
-                                Xdr::size<Int64>()   +  // unpacked data size
+                                Xdr::size<uint64_t>()   +  // packed sample count table size
+                                Xdr::size<uint64_t>()   +  // packed data size
+                                Xdr::size<uint64_t>()   +  // unpacked data size
                                 sampleCountTableSize +  // pixel sample count table
                                 packedDataSize;         // pixel data
 
@@ -603,7 +573,7 @@ LineBufferTask::execute ()
         {
             // (TODO) don't do this all the time.
             _lineBuffer->buffer[i - _lineBuffer->minY].resizeErase(
-                            _ofd->bytesPerLine[i - _ofd->minY]);
+                            static_cast<long>(_ofd->bytesPerLine[i - _ofd->minY]));
 
             for (int j = _ofd->minX; j <= _ofd->maxX; j++)
                 _ofd->lineSampleCount[i - _ofd->minY] += _ofd->getSampleCount(j, i);
@@ -686,15 +656,15 @@ LineBufferTask::execute ()
         // Copy all data into a consecutive buffer.
         //
 
-        Int64 totalBytes = 0;
-        Int64 maxBytesPerLine = 0;
+        uint64_t totalBytes = 0;
+        uint64_t maxBytesPerLine = 0;
         for (int i = 0; i < _lineBuffer->maxY - _lineBuffer->minY + 1; i++)
         {
             totalBytes += _lineBuffer->buffer[i].size();
-            if (Int64(_lineBuffer->buffer[i].size()) > maxBytesPerLine)
+            if (uint64_t(_lineBuffer->buffer[i].size()) > maxBytesPerLine)
                 maxBytesPerLine = _lineBuffer->buffer[i].size();
         }
-        _lineBuffer->consecutiveBuffer.resizeErase(totalBytes);
+        _lineBuffer->consecutiveBuffer.resizeErase(static_cast<long>(totalBytes));
 
         int pos = 0;
         for (int i = 0; i < _lineBuffer->maxY - _lineBuffer->minY + 1; i++)
@@ -715,7 +685,7 @@ LineBufferTask::execute ()
         //
 
         char* ptr = _lineBuffer->sampleCountTableBuffer;
-        Int64 tableDataSize = 0;
+        uint64_t tableDataSize = 0;
         for (int i = _lineBuffer->minY; i <= _lineBuffer->maxY; i++)
         {
             int count = 0;
@@ -732,7 +702,7 @@ LineBufferTask::execute ()
           _lineBuffer->sampleCountTableSize =
                   _lineBuffer->sampleCountTableCompressor->compress (
                                                       _lineBuffer->sampleCountTableBuffer,
-                                                      tableDataSize,
+                                                      static_cast<int>(tableDataSize),
                                                       _lineBuffer->minY,
                                                       _lineBuffer->sampleCountTablePtr);
        }
@@ -765,8 +735,8 @@ LineBufferTask::execute ()
         {
             const char *compPtr;
 
-            Int64 compSize = compressor->compress (_lineBuffer->dataPtr,
-                                                 _lineBuffer->dataSize,
+            uint64_t compSize = compressor->compress (_lineBuffer->dataPtr,
+                                                 static_cast<int>(_lineBuffer->dataSize),
                                                  _lineBuffer->minY, compPtr);
 
             if (compSize < _lineBuffer->dataSize)
@@ -784,7 +754,7 @@ LineBufferTask::execute ()
                 //
 
                 convertToXdr (_ofd, _lineBuffer->consecutiveBuffer, _lineBuffer->minY,
-                              _lineBuffer->maxY, _lineBuffer->dataSize);
+                              _lineBuffer->maxY, static_cast<int>(_lineBuffer->dataSize));
             }
         }
 
@@ -974,7 +944,7 @@ DeepScanLineOutputFile::initialize (const Header &header)
     for (size_t i = 0; i < _data->lineBuffers.size(); ++i)
     {
         _data->lineBuffers[i] = new LineBuffer (_data->linesInBuffer);
-        _data->lineBuffers[i]->sampleCountTableBuffer.resizeErase(_data->maxSampleCountTableSize);
+        _data->lineBuffers[i]->sampleCountTableBuffer.resizeErase(static_cast<long>(_data->maxSampleCountTableSize));
 
         _data->lineBuffers[i]->sampleCountTableCompressor =
         newCompressor (_data->header.compression(),
@@ -987,10 +957,10 @@ DeepScanLineOutputFile::initialize (const Header &header)
 DeepScanLineOutputFile::~DeepScanLineOutputFile ()
 {
     {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
         std::lock_guard<std::mutex> lock(*_data->_streamData);
 #endif
-        Int64 originalPosition = _data->_streamData->os->tellp();
+        uint64_t originalPosition = _data->_streamData->os->tellp();
 
         if (_data->lineOffsetsPosition > 0)
         {
@@ -1048,7 +1018,7 @@ DeepScanLineOutputFile::header () const
 void
 DeepScanLineOutputFile::setFrameBuffer (const DeepFrameBuffer &frameBuffer)
 {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (*_data->_streamData);
 #endif
     //
@@ -1099,8 +1069,8 @@ DeepScanLineOutputFile::setFrameBuffer (const DeepFrameBuffer &frameBuffer)
     else
     {
         _data->sampleCountSliceBase = sampleCountSlice.base;
-        _data->sampleCountXStride = sampleCountSlice.xStride;
-        _data->sampleCountYStride = sampleCountSlice.yStride;
+        _data->sampleCountXStride = static_cast<int>(sampleCountSlice.xStride);
+        _data->sampleCountYStride = static_cast<int>(sampleCountSlice.yStride);
     }
 
     //
@@ -1168,7 +1138,7 @@ DeepScanLineOutputFile::setFrameBuffer (const DeepFrameBuffer &frameBuffer)
 const DeepFrameBuffer &
 DeepScanLineOutputFile::frameBuffer () const
 {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (*_data->_streamData);
 #endif
     return _data->frameBuffer;
@@ -1180,7 +1150,7 @@ DeepScanLineOutputFile::writePixels (int numScanLines)
 {
     try
     {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
         std::lock_guard<std::mutex> lock (*_data->_streamData);
 #endif
         if (_data->slices.size() == 0)
@@ -1404,7 +1374,7 @@ DeepScanLineOutputFile::writePixels (int numScanLines)
 int
 DeepScanLineOutputFile::currentScanLine () const
 {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (*_data->_streamData);
 #endif
     return _data->currentScanLine;
@@ -1418,7 +1388,7 @@ DeepScanLineOutputFile::copyPixels (DeepScanLineInputPart &in)
 }
 
 
-// helper structure to read Int64 from non 8 byte aligned addresses
+// helper structure to read uint64_t from non 8 byte aligned addresses
 namespace
 {
 struct I64Bytes
@@ -1427,17 +1397,17 @@ struct I64Bytes
 };
 
 
-union bytesOrInt64
+union bytesOruint64_t
 {
     I64Bytes b;
-    Int64 i;
+    uint64_t i;
 };
 }
 
 void
 DeepScanLineOutputFile::copyPixels (DeepScanLineInputFile &in)
 {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (*_data->_streamData);
 #endif
     //
@@ -1499,7 +1469,7 @@ DeepScanLineOutputFile::copyPixels (DeepScanLineInputFile &in)
     
     while (_data->missingScanLines > 0)
     {
-        Int64 dataSize = (Int64) data.size();
+        uint64_t dataSize = (uint64_t) data.size();
         in.rawPixelData(_data->currentScanLine, &data[0], dataSize);
         if(dataSize > data.size())
         {
@@ -1510,15 +1480,15 @@ DeepScanLineOutputFile::copyPixels (DeepScanLineInputFile &in)
 
         // extract header from block to pass to writePixelData
         
-        bytesOrInt64 tmp;
+        bytesOruint64_t tmp;
         memcpy(&tmp.b,&data[4],8);
-        Int64 packedSampleCountSize = tmp.i;
+        uint64_t packedSampleCountSize = tmp.i;
 
         memcpy(&tmp.b,&data[12],8);
-        Int64 packedDataSize = tmp.i;
+        uint64_t packedDataSize = tmp.i;
 
         memcpy(&tmp.b,&data[20],8);
-        Int64 unpackedDataSize = tmp.i;
+        uint64_t unpackedDataSize = tmp.i;
 
         const char * sampleCountTable = &data[0]+28;
         const char * pixelData = sampleCountTable + packedSampleCountSize;
@@ -1540,7 +1510,7 @@ DeepScanLineOutputFile::copyPixels (DeepScanLineInputFile &in)
 void
 DeepScanLineOutputFile::updatePreviewImage (const PreviewRgba newPixels[])
 {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (*_data->_streamData);
 #endif
     if (_data->previewPosition <= 0)
@@ -1568,7 +1538,7 @@ DeepScanLineOutputFile::updatePreviewImage (const PreviewRgba newPixels[])
     // preview image, and jump back to the saved file position.
     //
 
-    Int64 savedPosition = _data->_streamData->os->tellp();
+    uint64_t savedPosition = _data->_streamData->os->tellp();
 
     try
     {

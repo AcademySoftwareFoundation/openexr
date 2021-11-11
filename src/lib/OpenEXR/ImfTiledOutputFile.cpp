@@ -1,36 +1,7 @@
-///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
-// Digital Ltd. LLC
-// 
-// All rights reserved.
-// 
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-// *       Redistributions of source code must retain the above copyright
-// notice, this list of conditions and the following disclaimer.
-// *       Redistributions in binary form must reproduce the above
-// copyright notice, this list of conditions and the following disclaimer
-// in the documentation and/or other materials provided with the
-// distribution.
-// *       Neither the name of Industrial Light & Magic nor the names of
-// its contributors may be used to endorse or promote products derived
-// from this software without specific prior written permission. 
-// 
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+// SPDX-License-Identifier: BSD-3-Clause
+// Copyright (c) Contributors to the OpenEXR Project.
 //
-///////////////////////////////////////////////////////////////////////////
 
 //-----------------------------------------------------------------------------
 //
@@ -46,6 +17,8 @@
 #include <ImfTileDescriptionAttribute.h>
 #include <ImfPreviewImageAttribute.h>
 #include <ImfChannelList.h>
+#include <ImfFrameBuffer.h>
+#include <ImfHeader.h>
 #include <ImfMisc.h>
 #include <ImfTiledMisc.h>
 #include <ImfStdIO.h>
@@ -71,7 +44,7 @@
 
 #include "ImfNamespace.h"
 
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
 #    include <mutex>
 #endif
 
@@ -248,7 +221,7 @@ struct TiledOutputFile::Data
     bool                multipart;              // part came from a multipart file
     TileDescription	tileDesc;		// describes the tile layout
     FrameBuffer		frameBuffer;		// framebuffer to write into
-    Int64		previewPosition;
+    uint64_t		previewPosition;
     LineOrder		lineOrder;		// the file's lineorder
     int			minX;			// data window's min x coord
     int			maxX;			// data window's max x coord
@@ -273,7 +246,7 @@ struct TiledOutputFile::Data
     vector<TileBuffer*> tileBuffers;
     size_t		tileBufferSize;         // size of a tile buffer
 
-    Int64		tileOffsetsPosition;	// position of the tile index
+    uint64_t		tileOffsetsPosition;	// position of the tile index
     
     TileMap		tileMap;
     TileCoord		nextTileToWrite;
@@ -458,7 +431,7 @@ writeTileData (OutputStreamMutex *streamData,
     // without calling tellp() (tellp() can be fairly expensive).
     //
 
-    Int64 currentPosition = streamData->currentPosition;
+    uint64_t currentPosition = streamData->currentPosition;
     streamData->currentPosition = 0;
 
     if (currentPosition == 0)
@@ -1077,10 +1050,10 @@ TiledOutputFile::~TiledOutputFile ()
     if (_data)
     {
         {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
             std::lock_guard<std::mutex> lock(*_streamData);
 #endif
-            Int64 originalPosition = _streamData->os->tellp();
+            uint64_t originalPosition = _streamData->os->tellp();
 
             if (_data->tileOffsetsPosition > 0)
             {
@@ -1134,7 +1107,7 @@ TiledOutputFile::header () const
 void	
 TiledOutputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
 {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (*_streamData);
 #endif
     //
@@ -1217,7 +1190,7 @@ TiledOutputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
 const FrameBuffer &
 TiledOutputFile::frameBuffer () const
 {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (*_streamData);
 #endif
     return _data->frameBuffer;
@@ -1230,7 +1203,7 @@ TiledOutputFile::writeTiles (int dx1, int dx2, int dy1, int dy2,
 {
     try
     {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
         std::lock_guard<std::mutex> lock (*_streamData);
 #endif
         if (_data->slices.size() == 0)
@@ -1442,7 +1415,7 @@ TiledOutputFile::writeTile (int dx, int dy, int l)
 void	
 TiledOutputFile::copyPixels (TiledInputFile &in)
 {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (*_streamData);
 #endif
     //
@@ -1798,7 +1771,7 @@ TiledOutputFile::isValidTile (int dx, int dy, int lx, int ly) const
 void
 TiledOutputFile::updatePreviewImage (const PreviewRgba newPixels[])
 {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (*_streamData);
 #endif
     if (_data->previewPosition <= 0)
@@ -1826,7 +1799,7 @@ TiledOutputFile::updatePreviewImage (const PreviewRgba newPixels[])
     // preview image, and jump back to the saved file position.
     //
 
-    Int64 savedPosition = _streamData->os->tellp();
+    uint64_t savedPosition = _streamData->os->tellp();
 
     try
     {
@@ -1851,10 +1824,10 @@ TiledOutputFile::breakTile
      int length,
      char c)
 {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (*_streamData);
 #endif
-    Int64 position = _data->tileOffsets (dx, dy, lx, ly);
+    uint64_t position = _data->tileOffsets (dx, dy, lx, ly);
 
     if (!position)
 	THROW (IEX_NAMESPACE::ArgExc,

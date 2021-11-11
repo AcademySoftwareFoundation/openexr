@@ -1,36 +1,7 @@
-///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2012, Industrial Light & Magic, a division of Lucas
-// Digital Ltd. LLC
-// 
-// All rights reserved.
-// 
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-// *       Redistributions of source code must retain the above copyright
-// notice, this list of conditions and the following disclaimer.
-// *       Redistributions in binary form must reproduce the above
-// copyright notice, this list of conditions and the following disclaimer
-// in the documentation and/or other materials provided with the
-// distribution.
-// *       Neither the name of Industrial Light & Magic nor the names of
-// its contributors may be used to endorse or promote products derived
-// from this software without specific prior written permission. 
-// 
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+// SPDX-License-Identifier: BSD-3-Clause
+// Copyright (c) Contributors to the OpenEXR Project.
 //
-///////////////////////////////////////////////////////////////////////////
 
 #ifdef NDEBUG
 #    undef NDEBUG
@@ -46,6 +17,8 @@
 #include <ImfGenericOutputFile.h>
 #include <ImfArray.h>
 #include <ImfChannelList.h>
+#include <ImfFrameBuffer.h>
+#include <ImfHeader.h>
 #include <ImfOutputPart.h>
 #include <ImfInputPart.h>
 #include <ImfTiledOutputPart.h>
@@ -53,6 +26,7 @@
 #include <ImfBoxAttribute.h>
 #include <ImfChromaticitiesAttribute.h>
 #include <ImfTimeCodeAttribute.h>
+#include <ImfFloatAttribute.h>
 #include <ImfIntAttribute.h>
 #include <ImfPartType.h>
 #include <IexBaseExc.h>
@@ -174,9 +148,11 @@ void
 testDisplayWindow (const vector<Header> & hs, const std::string & fn)
 {
     vector<Header> headers(hs);
+    headers[0].channels().insert("Dummy",Channel());
     IMATH_NAMESPACE::Box2i newDisplayWindow = headers[0].displayWindow();
     Header newHeader (newDisplayWindow.size().x+10, newDisplayWindow.size().y+10);
     newHeader.setType (headers[0].type());
+    newHeader.channels() = headers[0].channels();
     newHeader.setName (headers[0].name() + string("_newHeader"));
     headers.push_back (newHeader);
     testMultiPartOutputFileForExpectedFailure (headers,
@@ -196,6 +172,7 @@ testPixelAspectRatio (const vector<Header> & hs, const std::string & fn)
                       headers[0].pixelAspectRatio() + 1.f);
     newHeader.setType (headers[0].type());
     newHeader.setName (headers[0].name() + string("_newHeader"));
+    newHeader.channels().insert("Dummy",Channel());
     headers.push_back (newHeader);
     testMultiPartOutputFileForExpectedFailure (headers,
                                                fn,
@@ -211,6 +188,7 @@ testTimeCode (const vector<Header> & hs, const std::string & fn)
 
     Header newHeader (headers[0]);
     newHeader.setName (headers[0].name() + string("_newHeader"));
+    newHeader.channels().insert("Dummy",Channel());
 
 
     //
@@ -251,6 +229,7 @@ testChromaticities (const vector<Header> & hs, const std::string & fn)
 
     Header newHeader (headers[0]);
     newHeader.setName (headers[0].name() + string("_newHeader"));
+    newHeader.channels().insert("Dummy",Channel());
 
     Chromaticities c;
     ChromaticitiesAttribute ca(c);
@@ -359,6 +338,7 @@ testHeaders (const std::string & fn)
     // expect this to fail - header has no image attribute type
     //
     Header h;
+    h.channels().insert("Dummy",Channel());
     headers.push_back (h);
     testMultiPartOutputFileForExpectedFailure (headers,
                                                fn,
@@ -415,7 +395,9 @@ testHeaders (const std::string & fn)
         ia.push_back(ta);
         headers[i].insert(IntAttribute::staticTypeName(), ta);
     }
-
+    vector<FloatAttribute> ifa;
+    ifa.push_back( FloatAttribute( 3.14f ) );
+    headers[0].insert(FloatAttribute::staticTypeName(), ifa.back());
 
     // write out the file
     remove(fn.c_str());

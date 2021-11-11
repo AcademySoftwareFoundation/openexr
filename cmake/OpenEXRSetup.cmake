@@ -1,11 +1,11 @@
 # SPDX-License-Identifier: BSD-3-Clause
-# Copyright Contributors to the OpenEXR Project.
+# Copyright (c) Contributors to the OpenEXR Project.
 
 include(GNUInstallDirs)
 
 if(NOT "${CMAKE_PROJECT_NAME}" STREQUAL "${PROJECT_NAME}")
   set(OPENEXR_IS_SUBPROJECT ON)
-  message(NOTICE "OpenEXR is configuring as a cmake sub project")
+  message(STATUS "OpenEXR is configuring as a cmake subproject")
 endif()
 
 ########################
@@ -21,20 +21,21 @@ set(OPENEXR_CXX_STANDARD "${tmp}" CACHE STRING "C++ standard to compile against"
 set(tmp)
 
 set(OPENEXR_NAMESPACE_CUSTOM "0" CACHE STRING "Whether the namespace has been customized (so external users know)")
-set(OPENEXR_INTERNAL_IMF_NAMESPACE "Imf_${OPENEXR_VERSION_API}" CACHE STRING "Real namespace for Imath that will end up in compiled symbols")
+set(OPENEXR_INTERNAL_IMF_NAMESPACE "Imf_${OPENEXR_VERSION_API}" CACHE STRING "Real namespace for OpenEXR that will end up in compiled symbols")
 set(OPENEXR_IMF_NAMESPACE "Imf" CACHE STRING "Public namespace alias for OpenEXR")
-set(OPENEXR_PACKAGE_NAME "OpenEXR ${OPENEXR_VERSION}" CACHE STRING "Public string / label for displaying package")
+set(OPENEXR_PACKAGE_NAME "OpenEXR ${OPENEXR_VERSION}${OPENEXR_VERSION_RELEASE_TYPE}" CACHE STRING "Public string / label for displaying package")
 
 # Namespace-related settings, allows one to customize the
 # namespace generated, and to version the namespaces
-set(ILMBASE_NAMESPACE_CUSTOM "0" CACHE STRING "Whether the namespace has been customized (so external users know)")
-set(ILMBASE_INTERNAL_IEX_NAMESPACE "Iex_${ILMBASE_VERSION_API}" CACHE STRING "Real namespace for Iex that will end up in compiled symbols")
-set(ILMBASE_INTERNAL_ILMTHREAD_NAMESPACE "IlmThread_${ILMBASE_VERSION_API}" CACHE STRING "Real namespace for IlmThread that will end up in compiled symbols")
-set(ILMBASE_IEX_NAMESPACE "Iex" CACHE STRING "Public namespace alias for Iex")
-set(ILMBASE_ILMTHREAD_NAMESPACE "IlmThread" CACHE STRING "Public namespace alias for IlmThread")
-set(ILMBASE_PACKAGE_NAME "IlmBase ${ILMBASE_VERSION}" CACHE STRING "Public string / label for displaying package")
+set(ILMTHREAD_NAMESPACE_CUSTOM "0" CACHE STRING "Whether the namespace has been customized (so external users know)")
+set(ILMTHREAD_INTERNAL_NAMESPACE "IlmThread_${OPENEXR_VERSION_API}" CACHE STRING "Real namespace for IlmThread that will end up in compiled symbols")
+set(ILMTHREAD_NAMESPACE "IlmThread" CACHE STRING "Public namespace alias for IlmThread")
 
-# Whether to generate and install a pkg-config file OpenEXR.pc and IlmBase.pc
+set(IEX_NAMESPACE_CUSTOM "0" CACHE STRING "Whether the namespace has been customized (so external users know)")
+set(IEX_INTERNAL_NAMESPACE "Iex_${OPENEXR_VERSION_API}" CACHE STRING "Real namespace for Iex that will end up in compiled symbols")
+set(IEX_NAMESPACE "Iex" CACHE STRING "Public namespace alias for Iex")
+
+# Whether to generate and install a pkg-config file OpenEXR.pc
 if (WIN32)
 option(OPENEXR_INSTALL_PKG_CONFIG "Install OpenEXR.pc file" OFF)
 else()
@@ -45,6 +46,8 @@ endif()
 # are still used, just processed immediately
 option(OPENEXR_ENABLE_THREADING "Enables threaded processing of requests" ON)
 
+option(OPENEXR_USE_DEFAULT_VISIBILITY "Makes the compile use default visibility (by default compiles tidy, hidden-by-default)"     OFF)
+
 # This is primarily for the auto array that enables a stack
 # object (if you enable this) that contains member to avoid double allocations
 option(OPENEXR_ENABLE_LARGE_STACK "Enables code to take advantage of large stack support"     OFF)
@@ -53,7 +56,7 @@ option(OPENEXR_ENABLE_LARGE_STACK "Enables code to take advantage of large stack
 ## Build related options
 
 # Whether to build & install the various command line utility programs
-option(OPENEXR_BUILD_UTILS "Enables building of utility programs" ON)
+option(OPENEXR_BUILD_TOOLS "Enables building of utility programs" ON)
 
 # This is a variable here for use in controlling where include files are 
 # installed. Care must be taken when changing this, as many things
@@ -68,14 +71,12 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 # (if you should choose to install those)
 set(CMAKE_DEBUG_POSTFIX "_d" CACHE STRING "Suffix for debug builds")
 
-# Usual cmake option to build shared libraries or not
-option(BUILD_SHARED_LIBS "Build shared library" ON)
-# This allows a "double library" setup, where we compile both
-# a dynamic and shared library
-option(OPENEXR_BUILD_BOTH_STATIC_SHARED  "Build both static and shared libraries in one step (otherwise follows BUILD_SHARED_LIBS)" OFF)
-if (OPENEXR_BUILD_BOTH_STATIC_SHARED)
-  set(BUILD_SHARED_LIBS ON)
+if(NOT OPENEXR_IS_SUBPROJECT)
+  # Usual cmake option to build shared libraries or not, only overriden if OpenEXR is a top level project,
+  # in general this setting should be explicitly configured by the end user
+  option(BUILD_SHARED_LIBS "Build shared library" ON)
 endif()
+
 # Suffix to append to root name, this helps with version management
 # but can be turned off if you don't care, or otherwise customized
 set(OPENEXR_LIB_SUFFIX "-${OPENEXR_VERSION_API}" CACHE STRING "string added to the end of all the libraries")
@@ -147,27 +148,27 @@ endif()
 # so we know how to add the thread stuff to the pkg-config package
 # which is the only (but good) reason.
 if(OPENEXR_ENABLE_THREADING)
-
   if(NOT TARGET Threads::Threads)
-    set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
-    set(THREADS_PREFER_PTHREAD_FLAG TRUE)
+    set(THREADS_PREFER_PTHREAD_FLAG ON)
     find_package(Threads)
     if(NOT Threads_FOUND)
-      message(FATAL_ERROR "Unable to find a threading library which is required for OpenEXR")
+      message(FATAL_ERROR "Unable to find a threading library, disable with OPENEXR_ENABLE_THREADING=OFF")
     endif()
   endif()
 endif()
 
 option(OPENEXR_FORCE_INTERNAL_ZLIB "Force using an internal zlib" OFF)
 if (NOT OPENEXR_FORCE_INTERNAL_ZLIB)
-  find_package(ZLIB QUIET)
+  if(NOT TARGET ZLIB::ZLIB)
+    find_package(ZLIB QUIET)
+  endif()
 endif()
-if(OPENEXR_FORCE_INTERNAL_ZLIB OR NOT ZLIB_FOUND)
+if(OPENEXR_FORCE_INTERNAL_ZLIB OR NOT TARGET ZLIB::ZLIB)
   set(zlib_VER "1.2.11")
   if(OPENEXR_FORCE_INTERNAL_ZLIB)
-    message(NOTICE "Compiling internal copy of zlib version ${zlib_VER}")
+    message(STATUS "Compiling internal copy of zlib version ${zlib_VER}")
   else()
-    message(NOTICE "ZLIB library not found, compiling ${zlib_VER}")
+    message(STATUS "zlib library not found, compiling ${zlib_VER}")
   endif()
 
   # Unfortunately, zlib has an ancient cmake setup which does not include
@@ -220,7 +221,7 @@ if(OPENEXR_FORCE_INTERNAL_ZLIB OR NOT ZLIB_FOUND)
   endif()
 
   if(NOT (APPLE OR WIN32) AND BUILD_SHARED_LIBS AND NOT OPENEXR_FORCE_INTERNAL_ZLIB)
-    add_library(zlib_shared SHARED IMPORTED)
+    add_library(zlib_shared SHARED IMPORTED GLOBAL)
     add_dependencies(zlib_shared zlib_external)
     set_property(TARGET zlib_shared PROPERTY
       IMPORTED_LOCATION "${zlib_INTERNAL_DIR}/lib/${CMAKE_SHARED_LIBRARY_PREFIX}${zliblibname}${CMAKE_SHARED_LIBRARY_SUFFIX}"
@@ -228,7 +229,7 @@ if(OPENEXR_FORCE_INTERNAL_ZLIB OR NOT ZLIB_FOUND)
     target_include_directories(zlib_shared INTERFACE "${zlib_INTERNAL_DIR}/include")
   endif()
 
-  add_library(zlib_static STATIC IMPORTED)
+  add_library(zlib_static STATIC IMPORTED GLOBAL)
   add_dependencies(zlib_static zlib_external)
   set_property(TARGET zlib_static PROPERTY
     IMPORTED_LOCATION "${zlib_INTERNAL_DIR}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}${zlibstaticlibname}${CMAKE_STATIC_LIBRARY_SUFFIX}"
@@ -246,21 +247,29 @@ endif()
 # Find or install Imath
 #######################################
 
+option(OPENEXR_FORCE_INTERNAL_IMATH "Force using an internal imath" OFF)
 # Check to see if Imath is installed outside of the current build directory.
-set(CMAKE_IGNORE_PATH "${CMAKE_CURRENT_BINARY_DIR}/_deps/imath-src/config;${CMAKE_CURRENT_BINARY_DIR}/_deps/imath-build/config")
-find_package(Imath QUIET)
-set(CMAKE_IGNORE_PATH)
+set(IMATH_REPO "https://github.com/AcademySoftwareFoundation/Imath.git" CACHE STRING
+    "Repo for auto-build of Imath")
+set(IMATH_TAG "master" CACHE STRING
+  "Tag for auto-build of Imath (branch, tag, or SHA)")
+if(NOT OPENEXR_FORCE_INTERNAL_IMATH)
+  #TODO: ^^ Release should not clone from master, this is a place holder
+  set(CMAKE_IGNORE_PATH "${CMAKE_CURRENT_BINARY_DIR}/_deps/imath-src/config;${CMAKE_CURRENT_BINARY_DIR}/_deps/imath-build/config")
+  find_package(Imath 3.1)
+  set(CMAKE_IGNORE_PATH)
+endif()
 
 if(NOT TARGET Imath::Imath AND NOT Imath_FOUND)
-  if (${CMAKE_VERSION} VERSION_LESS "3.11.0")
-    message(FATAL_ERROR "CMake 3.11 or newer is required for FetchContent, you must manually install Imath if you are using an earlier version of CMake")
+  if(OPENEXR_FORCE_INTERNAL_IMATH)
+    message(STATUS "Imath forced internal, installing from ${IMATH_REPO} (${IMATH_TAG})")
+  else()
+    message(STATUS "Imath was not found, installing from ${IMATH_REPO} (${IMATH_TAG})")
   endif()
-  message(NOTICE "Imath was not found, installing from github")
-  
   include(FetchContent)
   FetchContent_Declare(Imath
-    GIT_REPOSITORY https://github.com/AcademySoftwareFoundation/Imath.git
-    GIT_TAG origin/master #TODO: Release should not clone from master, this is a place holder
+    GIT_REPOSITORY ${IMATH_REPO}
+    GIT_TAG ${IMATH_TAG}
     GIT_SHALLOW ON
       )
     
@@ -270,4 +279,16 @@ if(NOT TARGET Imath::Imath AND NOT Imath_FOUND)
     # hrm, cmake makes Imath lowercase for the properties (to imath)
     add_subdirectory(${imath_SOURCE_DIR} ${imath_BINARY_DIR})
   endif()
+  # the install creates this but if we're using the library locally we
+  # haven't installed the header files yet, so need to extract those
+  # and make a variable for header only usage
+  if(NOT TARGET Imath::ImathConfig)
+    get_target_property(imathinc Imath INTERFACE_INCLUDE_DIRECTORIES)
+    get_target_property(imathconfinc ImathConfig INTERFACE_INCLUDE_DIRECTORIES)
+    list(APPEND imathinc ${imathconfinc})
+    set(IMATH_HEADER_ONLY_INCLUDE_DIRS ${imathinc})
+    message(STATUS "Imath interface dirs ${IMATH_HEADER_ONLY_INCLUDE_DIRS}")
+  endif()
+else()
+  message(STATUS "Using Imath from ${Imath_DIR}")
 endif()

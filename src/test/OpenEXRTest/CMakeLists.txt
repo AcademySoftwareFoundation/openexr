@@ -1,12 +1,14 @@
 # SPDX-License-Identifier: BSD-3-Clause
-# Copyright Contributors to the OpenEXR Project.
+# Copyright (c) Contributors to the OpenEXR Project.
 
 add_executable(OpenEXRTest
   compareB44.cpp
   compareDwa.cpp
   compareFloat.cpp
   main.cpp
+  random.cpp
   testAttributes.cpp
+  testB44ExpLogTable.cpp
   testBackwardCompatibility.cpp
   testBadTypeAttributes.cpp
   testChannels.cpp
@@ -23,11 +25,14 @@ add_executable(OpenEXRTest
   testDeepScanLineMultipleRead.cpp
   testDeepTiledBasic.cpp
   testDwaCompressorSimd.cpp
+  testDwaLookups.cpp
   testExistingStreams.cpp
   testFutureProofing.cpp
   testHuf.cpp
+  testIDManifest.cpp
   testInputPart.cpp
   testIsComplete.cpp
+  testLargeDataWindowOffsets.cpp
   testLineOrder.cpp
   testLut.cpp
   testMagic.cpp
@@ -59,28 +64,20 @@ add_executable(OpenEXRTest
   testWav.cpp
   testXdr.cpp
   testYca.cpp
-  testLargeDataWindowOffsets.cpp
-  testB44ExpLogTable.cpp
-  testDwaLookups.cpp
-  random.cpp
 )
 target_compile_definitions(OpenEXRTest PRIVATE ILM_IMF_TEST_IMAGEDIR="${CMAKE_CURRENT_SOURCE_DIR}/")
 target_link_libraries(OpenEXRTest OpenEXR::OpenEXR)
 set_target_properties(OpenEXRTest PROPERTIES
   RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
 )
-if(WIN32 AND (BUILD_SHARED_LIBS OR OPENEXR_BUILD_BOTH_STATIC_SHARED))
+if(WIN32 AND BUILD_SHARED_LIBS)
   target_compile_definitions(OpenEXRTest PRIVATE OPENEXR_DLL)
 endif()
 
-#add_test(NAME OpenEXR.Core COMMAND $<TARGET_FILE:OpenEXRTest> core)
-#add_test(NAME OpenEXR.Basic COMMAND $<TARGET_FILE:OpenEXRTest> basic)
-#add_test(NAME OpenEXR.Deep COMMAND $<TARGET_FILE:OpenEXRTest> deep)
-#add_test(NAME OpenEXR.Multi COMMAND $<TARGET_FILE:OpenEXRTest> multi)
-
 function(DEFINE_OPENEXR_TESTS)
   foreach(curtest IN LISTS ARGN)
-    add_test(NAME OpenEXR.${curtest} COMMAND $<TARGET_FILE:OpenEXRTest> ${curtest})
+    # CMAKE_CROSSCOMPILING_EMULATOR is necessary to support cross-compiling (ex: to win32 from mingw and running tests with wine)
+    add_test(NAME OpenEXR.${curtest} COMMAND ${CMAKE_CROSSCOMPILING_EMULATOR} $<TARGET_FILE:OpenEXRTest> ${curtest})
   endforeach()
 endfunction()
 
@@ -139,4 +136,5 @@ define_openexr_tests(
  testWav
  testXdr
  testYca
+ testIDManifest
 )

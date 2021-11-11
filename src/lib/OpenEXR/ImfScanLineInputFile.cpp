@@ -1,37 +1,7 @@
-///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
-// Digital Ltd. LLC
-// 
-// All rights reserved.
-// 
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-// *       Redistributions of source code must retain the above copyright
-// notice, this list of conditions and the following disclaimer.
-// *       Redistributions in binary form must reproduce the above
-// copyright notice, this list of conditions and the following disclaimer
-// in the documentation and/or other materials provided with the
-// distribution.
-// *       Neither the name of Industrial Light & Magic nor the names of
-// its contributors may be used to endorse or promote products derived
-// from this software without specific prior written permission. 
-// 
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+// SPDX-License-Identifier: BSD-3-Clause
+// Copyright (c) Contributors to the OpenEXR Project.
 //
-///////////////////////////////////////////////////////////////////////////
-
 
 //-----------------------------------------------------------------------------
 //
@@ -44,18 +14,19 @@
 #include "ImfMisc.h"
 #include "ImfStdIO.h"
 #include "ImfCompressor.h"
-#include "ImathBox.h"
-#include "ImathFun.h"
-#include <ImfXdr.h>
-#include <ImfConvert.h>
-#include <ImfThreading.h>
-#include <ImfPartType.h>
+#include <ImathBox.h>
+#include <ImathFun.h>
+#include "ImfXdr.h"
+#include "ImfConvert.h"
+#include "ImfInputPartData.h"
+#include "ImfInputStreamMutex.h"
+#include "ImfThreading.h"
+#include "ImfPartType.h"
 #include "IlmThreadPool.h"
 #include "IlmThreadSemaphore.h"
 #include "Iex.h"
 #include "ImfVersion.h"
 #include "ImfOptimizedPixelReading.h"
-#include "ImfNamespace.h"
 #include "ImfStandardAttributes.h"
 
 #include <algorithm>
@@ -208,7 +179,7 @@ struct sliceOptimizationData
 
 
 struct ScanLineInputFile::Data
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
     : public std::mutex
 #endif
 {
@@ -220,7 +191,7 @@ struct ScanLineInputFile::Data
     int			maxX;		    // data window's max x coord
     int			minY;		    // data window's min y coord
     int			maxY;		    // data window's max x coord
-    vector<Int64>	lineOffsets;	    // stores offsets in file for
+    vector<uint64_t>	lineOffsets;	    // stores offsets in file for
 					    // each line
     bool		fileIsComplete;	    // True if no scanlines are missing
     					    // in the file
@@ -290,15 +261,15 @@ namespace {
 void
 reconstructLineOffsets (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is,
 			LineOrder lineOrder,
-			vector<Int64> &lineOffsets)
+			vector<uint64_t> &lineOffsets)
 {
-    Int64 position = is.tellg();
+    uint64_t position = is.tellg();
 
     try
     {
 	for (unsigned int i = 0; i < lineOffsets.size(); i++)
 	{
-	    Int64 lineOffset = is.tellg();
+	    uint64_t lineOffset = is.tellg();
 
 	    int y;
 	    OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (is, y);
@@ -337,7 +308,7 @@ reconstructLineOffsets (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is,
 void
 readLineOffsets (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is,
 		 LineOrder lineOrder,
-		 vector<Int64> &lineOffsets,
+		 vector<uint64_t> &lineOffsets,
 		 bool &complete)
 {
     for (unsigned int i = 0; i < lineOffsets.size(); i++)
@@ -392,7 +363,7 @@ readPixelData (InputStreamMutex *streamData,
     if (lineBufferNumber < 0 || lineBufferNumber >= int(ifd->lineOffsets.size()))
         THROW (IEX_NAMESPACE::InputExc, "Invalid scan line " << minY << " requested or missing.");
 
-    Int64 lineOffset = ifd->lineOffsets[lineBufferNumber];
+    uint64_t lineOffset = ifd->lineOffsets[lineBufferNumber];
 
     if (lineOffset == 0)
 	THROW (IEX_NAMESPACE::InputExc, "Scan line " << minY << " is missing.");
@@ -1144,9 +1115,9 @@ void ScanLineInputFile::initialize(const Header& header)
         //
         if (lineOffsetSize * _data->linesInBuffer > gLargeChunkTableSize)
         {
-            Int64 pos = _streamData->is->tellg();
-            _streamData->is->seekg(pos + (lineOffsetSize-1)*sizeof(Int64));
-            Int64 temp;
+            uint64_t pos = _streamData->is->tellg();
+            _streamData->is->seekg(pos + (lineOffsetSize-1)*sizeof(uint64_t));
+            uint64_t temp;
             OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (*_streamData->is, temp);
             _streamData->is->seekg(pos);
 
@@ -1424,7 +1395,7 @@ detectOptimizationMode (const vector<sliceOptimizationData>& optData)
 void	
 ScanLineInputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
 {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (*_streamData);
 #endif
 
@@ -1630,7 +1601,7 @@ ScanLineInputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
 const FrameBuffer &
 ScanLineInputFile::frameBuffer () const
 {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (*_streamData);
 #endif
     return _data->frameBuffer;
@@ -1658,7 +1629,7 @@ ScanLineInputFile::readPixels (int scanLine1, int scanLine2)
 {
     try
     {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
         std::lock_guard<std::mutex> lock (*_streamData);
 #endif
         if (_data->slices.size() == 0)
@@ -1783,7 +1754,7 @@ ScanLineInputFile::rawPixelData (int firstScanLine,
 {
     try
     {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
         std::lock_guard<std::mutex> lock (*_streamData);
 #endif
 	if (firstScanLine < _data->minY || firstScanLine > _data->maxY)
@@ -1821,7 +1792,7 @@ void ScanLineInputFile::rawPixelDataToBuffer(int scanLine,
 
   try 
   {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (*_streamData);
 #endif
     if (scanLine < _data->minY || scanLine > _data->maxY) 

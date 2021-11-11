@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: BSD-3-Clause
-# Copyright Contributors to the OpenEXR Project.
+# Copyright (c) Contributors to the OpenEXR Project.
 
 option(OPENEXR_RUN_FUZZ_TESTS  "Controls whether to include the fuzz tests (slow) in default test cases, there is a custom fuzz target" OFF)
 if(OPENEXR_RUN_FUZZ_TESTS)
@@ -18,7 +18,8 @@ if(OPENEXR_RUN_FUZZ_TESTS)
 
 function(DEFINE_OPENEXR_FUZZ_TESTS)
   foreach(curtest IN LISTS ARGN)
-    add_test(NAME OpenEXR.Fuzz.${curtest} COMMAND $<TARGET_FILE:OpenEXRFuzzTest> ${curtest})
+    # CMAKE_CROSSCOMPILING_EMULATOR is necessary to support cross-compiling (ex: to win32 from mingw and running tests with wine)
+    add_test(NAME OpenEXR.Fuzz.${curtest} COMMAND ${CMAKE_CROSSCOMPILING_EMULATOR} $<TARGET_FILE:OpenEXRFuzzTest> ${curtest})
     set_tests_properties(OpenEXR.Fuzz.${curtest} PROPERTIES TIMEOUT 36000)
   endforeach()
 endfunction()
@@ -28,8 +29,6 @@ endfunction()
     testFuzzDeepScanLines
     testFuzzDeepTiles
   )
-  #add_test(NAME OpenEXR.Fuzz COMMAND $<TARGET_FILE:OpenEXRFuzzTest>)
-  #set_tests_properties(OpenEXR.Fuzz PROPERTIES TIMEOUT 36000)
 
   add_custom_target(fuzz $<TARGET_FILE:OpenEXRFuzzTest>)
   add_dependencies(fuzz OpenEXRFuzzTest)

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: BSD-3-Clause
-// Copyright Contributors to the OpenEXR Project.
+// Copyright (c) Contributors to the OpenEXR Project.
 
 #pragma once
 
@@ -10,6 +10,9 @@
 #include <string>
 
 #ifdef _WIN32
+# ifndef NOMINMAX
+#  define NOMINMAX
+# endif
 # define VC_EXTRALEAN
 # include <string.h>
 # include <windows.h>

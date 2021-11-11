@@ -1,36 +1,7 @@
-///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2007, Industrial Light & Magic, a division of Lucas
-// Digital Ltd. LLC
-// 
-// All rights reserved.
-// 
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-// *       Redistributions of source code must retain the above copyright
-// notice, this list of conditions and the following disclaimer.
-// *       Redistributions in binary form must reproduce the above
-// copyright notice, this list of conditions and the following disclaimer
-// in the documentation and/or other materials provided with the
-// distribution.
-// *       Neither the name of Industrial Light & Magic nor the names of
-// its contributors may be used to endorse or promote products derived
-// from this software without specific prior written permission. 
-// 
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+// SPDX-License-Identifier: BSD-3-Clause
+// Copyright (c) Contributors to the OpenEXR Project.
 //
-///////////////////////////////////////////////////////////////////////////
 
 #ifdef NDEBUG
 #    undef NDEBUG
@@ -56,7 +27,7 @@ using namespace IMATH_NAMESPACE;
 
 namespace {
 
-Int64
+uint64_t
 lengthOfFile (const char fileName[])
 {
     ifstream ifs;
@@ -74,8 +45,8 @@ lengthOfFile (const char fileName[])
 void
 fuzzFile (const char goodFile[],
           const char brokenFile[],
-	  Int64 offset,
-	  Int64 windowSize,
+	  uint64_t offset,
+	  uint64_t windowSize,
 	  Rand48 &random,
 	  double fuzzAmount)
 {
@@ -91,7 +62,7 @@ fuzzFile (const char goodFile[],
 	THROW_ERRNO ("Cannot open file " << goodFile << " (%T).");
 
     ifs.seekg (0, ios_base::end);
-    Int64 fileLength = ifs.tellg();
+    uint64_t fileLength = ifs.tellg();
     ifs.seekg (0, ios_base::beg);
 
     Array<char> data (fileLength);
@@ -105,7 +76,7 @@ fuzzFile (const char goodFile[],
     // in a window of size windowSize, starting at the specified offset.
     // 
 
-    for (Int64 i = offset; i < offset + windowSize; ++i)
+    for (uint64_t i = offset; i < offset + windowSize; ++i)
     {
 	if (random.nextf() < fuzzAmount)
 	    data[i] = char (random.nexti());
@@ -160,9 +131,9 @@ fuzzFile (const char goodFile[],
     //
 
     {
-	Int64 fileSize = lengthOfFile (goodFile);
-	Int64 windowSize = fileSize * 2 / nSlidingWindow;
-	Int64 lastWindowOffset = fileSize - windowSize;
+	uint64_t fileSize = lengthOfFile (goodFile);
+	uint64_t windowSize = fileSize * 2 / nSlidingWindow;
+	uint64_t lastWindowOffset = fileSize - windowSize;
 
 	cout << "sliding " << windowSize << "-byte window" << endl;
 
@@ -171,7 +142,7 @@ fuzzFile (const char goodFile[],
 	    if (i % 100 == 0)
 		cout << i << "\r" << flush;
 
-	    Int64 offset = lastWindowOffset * i / (nSlidingWindow - 1);
+	    uint64_t offset = lastWindowOffset * i / (nSlidingWindow - 1);
 	    double fuzzAmount = random.nextf (0.0, 0.1);
 
 	    fuzzFile (goodFile, brokenFile,
@@ -185,7 +156,7 @@ fuzzFile (const char goodFile[],
     }
 
     {
-	Int64 windowSize = 2048;
+	uint64_t windowSize = 2048;
 
 	cout << windowSize << "-byte window at start of file" << endl;
 

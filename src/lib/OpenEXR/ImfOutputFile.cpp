@@ -1,41 +1,7 @@
 //
-///\todo: version needs fixing!
+// SPDX-License-Identifier: BSD-3-Clause
+// Copyright (c) Contributors to the OpenEXR Project.
 //
-
-///////////////////////////////////////////////////////////////////////////
-//
-// Copyright (c) 2004, Industrial Light & Magic, a division of Lucas
-// Digital Ltd. LLC
-// 
-// All rights reserved.
-// 
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-// *       Redistributions of source code must retain the above copyright
-// notice, this list of conditions and the following disclaimer.
-// *       Redistributions in binary form must reproduce the above
-// copyright notice, this list of conditions and the following disclaimer
-// in the documentation and/or other materials provided with the
-// distribution.
-// *       Neither the name of Industrial Light & Magic nor the names of
-// its contributors may be used to endorse or promote products derived
-// from this software without specific prior written permission. 
-// 
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-///////////////////////////////////////////////////////////////////////////
-
 
 //-----------------------------------------------------------------------------
 //
@@ -43,24 +9,27 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfOutputFile.h>
-#include <ImfInputFile.h>
-#include <ImfChannelList.h>
-#include <ImfMisc.h>
-#include <ImfStdIO.h>
-#include <ImfCompressor.h>
-#include "ImathBox.h"
-#include "ImathFun.h"
-#include <ImfArray.h>
+#include "ImfOutputFile.h"
+#include "ImfInputFile.h"
+#include "ImfChannelList.h"
+#include "ImfHeader.h"
+
+#include "ImfMisc.h"
+#include "ImfStdIO.h"
+#include "ImfCompressor.h"
+#include <ImathBox.h>
+#include <ImathFun.h>
+#include "ImfArray.h"
+#include "ImfFrameBuffer.h"
 #include "ImfXdr.h"
-#include <ImfPreviewImageAttribute.h>
-#include <ImfPartType.h>
+#include "ImfPreviewImageAttribute.h"
+#include "ImfPartType.h"
 #include "IlmThreadPool.h"
 #include "ImfOutputStreamMutex.h"
 #include "IlmThreadSemaphore.h"
 #include "Iex.h"
 #include "ImfInputPart.h"
-#include "ImfNamespace.h"
+
 #include "ImfOutputPartData.h"
 
 #include <string>
@@ -178,7 +147,7 @@ struct OutputFile::Data
     Header		 header;		// the image header
     bool                 multiPart;		// is the file multipart?
     int			 version;               // version attribute \todo NOT BEING WRITTEN PROPERLY
-    Int64		 previewPosition;       // file position for preview
+    uint64_t		 previewPosition;       // file position for preview
     FrameBuffer		 frameBuffer;           // framebuffer to write into
     int			 currentScanLine;       // next scanline to be written
     int			 missingScanLines;      // number of lines to write
@@ -187,7 +156,7 @@ struct OutputFile::Data
     int			 maxX;			// data window's max x coord
     int			 minY;			// data window's min y coord
     int			 maxY;			// data window's max x coord
-    vector<Int64>	 lineOffsets;		// stores offsets in file for
+    vector<uint64_t>	 lineOffsets;		// stores offsets in file for
 						// each scanline
     vector<size_t>	 bytesPerLine;          // combined size of a line over
                                                 // all channels
@@ -195,7 +164,7 @@ struct OutputFile::Data
                                                 // its linebuffer
     Compressor::Format	 format;                // compressor's data format
     vector<OutSliceInfo> slices;		// info about channels in file
-    Int64		 lineOffsetsPosition;   // file position for line
+    uint64_t		 lineOffsetsPosition;   // file position for line
                                                 // offset table
 
     vector<LineBuffer*>  lineBuffers;           // each holds one line buffer
@@ -250,12 +219,12 @@ OutputFile::Data::getLineBuffer (int number)
 
 namespace {
 
-Int64
-writeLineOffsets (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os, const vector<Int64> &lineOffsets)
+uint64_t
+writeLineOffsets (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os, const vector<uint64_t> &lineOffsets)
 {
-    Int64 pos = os.tellp();
+    uint64_t pos = os.tellp();
 
-    if (pos == static_cast<Int64>(-1))
+    if (pos == static_cast<uint64_t>(-1))
 	IEX_NAMESPACE::throwErrnoExc ("Cannot determine current file position (%T).");
     
     for (unsigned int i = 0; i < lineOffsets.size(); i++)
@@ -278,7 +247,7 @@ writePixelData (OutputStreamMutex *filedata,
     // without calling tellp() (tellp() can be fairly expensive).
     //
 
-    Int64 currentPosition = filedata->currentPosition;
+    uint64_t currentPosition = filedata->currentPosition;
     filedata->currentPosition = 0;
 
     if (currentPosition == 0)
@@ -861,10 +830,10 @@ OutputFile::~OutputFile ()
     if (_data)
     {
         {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
             std::lock_guard<std::mutex> lock(*_data->_streamData);
 #endif
-            Int64 originalPosition = _data->_streamData->os->tellp();
+            uint64_t originalPosition = _data->_streamData->os->tellp();
 
             if (_data->lineOffsetsPosition > 0)
             {
@@ -919,7 +888,7 @@ OutputFile::header () const
 void	
 OutputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
 {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (*_data->_streamData);
 #endif
     //
@@ -1012,7 +981,7 @@ OutputFile::setFrameBuffer (const FrameBuffer &frameBuffer)
 const FrameBuffer &
 OutputFile::frameBuffer () const
 {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (*_data->_streamData);
 #endif
     return _data->frameBuffer;
@@ -1024,7 +993,7 @@ OutputFile::writePixels (int numScanLines)
 {
     try
     {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
         std::lock_guard<std::mutex> lock (*_data->_streamData);
 #endif
         if (_data->slices.size() == 0)
@@ -1248,7 +1217,7 @@ OutputFile::writePixels (int numScanLines)
 int	
 OutputFile::currentScanLine () const
 {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (*_data->_streamData);
 #endif
     return _data->currentScanLine;
@@ -1258,7 +1227,7 @@ OutputFile::currentScanLine () const
 void	
 OutputFile::copyPixels (InputFile &in)
 {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (*_data->_streamData);
 #endif
     //
@@ -1349,7 +1318,7 @@ OutputFile::copyPixels( InputPart & in)
 void
 OutputFile::updatePreviewImage (const PreviewRgba newPixels[])
 {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (*_data->_streamData);
 #endif
     if (_data->previewPosition <= 0)
@@ -1377,7 +1346,7 @@ OutputFile::updatePreviewImage (const PreviewRgba newPixels[])
     // preview image, and jump back to the saved file position.
     //
 
-    Int64 savedPosition = _data->_streamData->os->tellp();
+    uint64_t savedPosition = _data->_streamData->os->tellp();
 
     try
     {
@@ -1397,10 +1366,10 @@ OutputFile::updatePreviewImage (const PreviewRgba newPixels[])
 void	
 OutputFile::breakScanLine  (int y, int offset, int length, char c)
 {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (*_data->_streamData);
 #endif
-    Int64 position = 
+    uint64_t position = 
 	_data->lineOffsets[(y - _data->minY) / _data->linesInBuffer];
 
     if (!position)

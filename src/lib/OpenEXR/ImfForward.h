@@ -1,40 +1,7 @@
-
-
-///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2011, Industrial Light & Magic, a division of Lucas
-// Digital Ltd. LLC
+// SPDX-License-Identifier: BSD-3-Clause
+// Copyright (c) Contributors to the OpenEXR Project.
 //
-// Portions (c) 2012 Weta Digital Ltd
-// 
-// All rights reserved.
-// 
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-// *       Redistributions of source code must retain the above copyright
-// notice, this list of conditions and the following disclaimer.
-// *       Redistributions in binary form must reproduce the above
-// copyright notice, this list of conditions and the following disclaimer
-// in the documentation and/or other materials provided with the
-// distribution.
-// *       Neither the name of Industrial Light & Magic nor the names of
-// its contributors may be used to endorse or promote products derived
-// from this software without specific prior written permission. 
-// 
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-///////////////////////////////////////////////////////////////////////////
 
 #ifndef INCLUDED_IMF_FORWARD_H
 #define INCLUDED_IMF_FORWARD_H
@@ -45,55 +12,56 @@
 //
 ////////////////////////////////////////////////////////////////////
 
+#include "ImfExport.h"
 #include "ImfNamespace.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 
 // classes for basic types;
-template<class T> class Array;
-template<class T> class Array2D;
-struct Channel;
-class  ChannelList;
-struct Chromaticities;
+template<class T> class IMF_EXPORT_TEMPLATE_TYPE Array;
+template<class T> class IMF_EXPORT_TEMPLATE_TYPE Array2D;
+struct IMF_EXPORT_TYPE Channel;
+class  IMF_EXPORT_TYPE ChannelList;
+struct IMF_EXPORT_TYPE Chromaticities;
 
 // attributes used in headers are TypedAttributes
-class Attribute;
+class IMF_EXPORT_TYPE Attribute;
 
-class Header;
+class IMF_EXPORT_TYPE Header;
 
 // file handling classes
-class OutputFile;
-class TiledInputFile;
-class ScanLineInputFile;
-class InputFile;
-class TiledOutputFile;
-class DeepScanLineInputFile;
-class DeepScanLineOutputFile;
-class DeepTiledInputFile;
-class DeepTiledOutputFile;
-class AcesInputFile;
-class AcesOutputFile;
-class TiledInputPart;
-class TiledInputFile;
-class TileOffsets;
+class IMF_EXPORT_TYPE OutputFile;
+class IMF_EXPORT_TYPE TiledInputFile;
+class IMF_EXPORT_TYPE ScanLineInputFile;
+class IMF_EXPORT_TYPE InputFile;
+class IMF_EXPORT_TYPE TiledOutputFile;
+class IMF_EXPORT_TYPE DeepScanLineInputFile;
+class IMF_EXPORT_TYPE DeepScanLineOutputFile;
+class IMF_EXPORT_TYPE DeepTiledInputFile;
+class IMF_EXPORT_TYPE DeepTiledOutputFile;
+class IMF_EXPORT_TYPE AcesInputFile;
+class IMF_EXPORT_TYPE AcesOutputFile;
+class IMF_EXPORT_TYPE TiledInputPart;
+class IMF_EXPORT_TYPE TiledInputFile;
+class IMF_EXPORT_TYPE TileOffsets;
 
 // multipart file handling
-class GenericInputFile;
-class GenericOutputFile;
-class MultiPartInputFile;
-class MultiPartOutputFile;
+class IMF_EXPORT_TYPE GenericInputFile;
+class IMF_EXPORT_TYPE GenericOutputFile;
+class IMF_EXPORT_TYPE MultiPartInputFile;
+class IMF_EXPORT_TYPE MultiPartOutputFile;
 
-class InputPart;
-class TiledInputPart;
-class DeepScanLineInputPart;
-class DeepTiledInputPart;
+class IMF_EXPORT_TYPE InputPart;
+class IMF_EXPORT_TYPE TiledInputPart;
+class IMF_EXPORT_TYPE DeepScanLineInputPart;
+class IMF_EXPORT_TYPE DeepTiledInputPart;
 
-class OutputPart;
-class ScanLineOutputPart;
-class TiledOutputPart;
-class DeepScanLineOutputPart;
-class DeepTiledOutputPart;
+class IMF_EXPORT_TYPE OutputPart;
+class IMF_EXPORT_TYPE ScanLineOutputPart;
+class IMF_EXPORT_TYPE TiledOutputPart;
+class IMF_EXPORT_TYPE DeepScanLineOutputPart;
+class IMF_EXPORT_TYPE DeepTiledOutputPart;
 
 
 // internal use only
@@ -104,21 +72,24 @@ struct InputStreamMutex;
 
 // frame buffers
 
-class  FrameBuffer;
-class  DeepFrameBuffer;
-struct DeepSlice;
+class  IMF_EXPORT_TYPE FrameBuffer;
+class  IMF_EXPORT_TYPE DeepFrameBuffer;
+struct IMF_EXPORT_TYPE DeepSlice;
 
 // compositing
-class DeepCompositing;
-class CompositeDeepScanLine;
+class IMF_EXPORT_TYPE DeepCompositing;
+class IMF_EXPORT_TYPE CompositeDeepScanLine;
 
 // preview image
-class PreviewImage;
-struct PreviewRgba;
+class IMF_EXPORT_TYPE PreviewImage;
+struct IMF_EXPORT_TYPE PreviewRgba;
 
 // streams
-class OStream;
-class IStream;
+class IMF_EXPORT_TYPE OStream;
+class IMF_EXPORT_TYPE IStream;
+
+class IMF_EXPORT_TYPE IDManifest;
+class IMF_EXPORT_TYPE CompressedIDManifest;
 
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT

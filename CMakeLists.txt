@@ -1,18 +1,17 @@
 # SPDX-License-Identifier: BSD-3-Clause
-# Copyright Contributors to the OpenEXR Project.
+# Copyright (c) Contributors to the OpenEXR Project.
 
 # We require this to get object library link library support
-if(OPENEXR_BUILD_BOTH_STATIC_SHARED OR ILMBASE_BUILD_BOTH_STATIC_SHARED)
-  if (${CMAKE_VERSION} VERSION_LESS "3.12.0")
-    message(FATAL_ERROR "CMake 3.12 or newer is required for object library support when building both static and shared libraries")
-  endif()
-  cmake_minimum_required(VERSION 3.12)
-else()
-  cmake_minimum_required(VERSION 3.10)
-endif()
+cmake_minimum_required(VERSION 3.12)
 
 if(POLICY CMP0074)
+  # enable find_package(<Package>) to use <Package>_ROOT as a hint
   cmake_policy(SET CMP0074 NEW)
+endif()
+
+if(POLICY CMP0077)
+  # enable variables set outside to override options
+  cmake_policy(SET CMP0077 NEW)
 endif()
 
 #######################################
@@ -20,13 +19,47 @@ endif()
 # configuration files
 #######################################
 
-include(cmake/OpenEXRVersion.cmake)
+project(OpenEXR VERSION 3.1.0 LANGUAGES C CXX)
 
-project(OpenEXR VERSION ${OPENEXR_VERSION} LANGUAGES C CXX)
+set(OPENEXR_VERSION_RELEASE_TYPE "-dev" CACHE STRING "Extra version tag string for OpenEXR build, such as -dev, -beta1, etc.")
+
+set(OPENEXR_VERSION ${OpenEXR_VERSION})
+set(OPENEXR_VERSION_API "${OpenEXR_VERSION_MAJOR}_${OpenEXR_VERSION_MINOR}")
+
+# Library/shared-object version using libtool versioning policy.
+# See https://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
+#
+# Library API version (CMake's library VERSION attribute) is of the
+# form CURRENT.REVISION.AGE; the CMake SOVERSION attribute corresonds
+# to just CURRENT. These produce a .so and a symlink symlink, e.g.:
+# libOpenEXR-3_1.so.29 -> libOpenEXR-3_1.so.29.0.0
+#                    ^                       ^ ^ ^
+#                    |                       | | |
+#                    CURRENT                 | | AGE
+#                                            | REVISION 
+#                                            CURRENT
+# When updating:
+#   1. no API change: CURRENT.REVISION+1.AGE
+#   2. API added:     CURRENT+1.0.AGE+1
+#   3. API changed:   CURRENT+1.0.0
+#
+set(OPENEXR_LIBTOOL_CURRENT 29)
+set(OPENEXR_LIBTOOL_REVISION 0)
+set(OPENEXR_LIBTOOL_AGE 0)
+set(OPENEXR_LIB_VERSION "${OPENEXR_LIBTOOL_CURRENT}.${OPENEXR_LIBTOOL_REVISION}.${OPENEXR_LIBTOOL_AGE}")
+set(OPENEXR_LIB_SOVERSION ${OPENEXR_LIBTOOL_CURRENT})
+
+option(OPENEXR_INSTALL "Install OpenEXR libraries" ON)
+option(OPENEXR_INSTALL_TOOLS "Install OpenEXR tools" ON)
+if(OPENEXR_INSTALL_TOOLS AND NOT OPENEXR_INSTALL)
+  message(SEND_ERROR "OPENEXR_INSTALL_TOOLS requires OPENEXR_INSTALL")
+endif()
 
 include(cmake/LibraryDefine.cmake)
 include(cmake/OpenEXRSetup.cmake)
 add_subdirectory(cmake)
+
+message(STATUS "Configure ${OPENEXR_PACKAGE_NAME}, library API version: ${OPENEXR_LIB_VERSION}")
 
 # Hint: This can be set to enable custom find_package
 # search paths, probably best to set it when configuring
@@ -49,8 +82,8 @@ set(OpenEXR_DIR "${CMAKE_CURRENT_BINARY_DIR}/cmake" CACHE PATH "" FORCE)
 # Can be empty since we already defined the targets in add_subdirectory
 file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/cmake/OpenEXRTargets.cmake" "# Dummy file")
 
-option(INSTALL_OPENEXR_EXAMPLES "Install OpenEXR examples" ON)
-if(INSTALL_OPENEXR_EXAMPLES)
+option(OPENEXR_INSTALL_EXAMPLES "Install OpenEXR examples" ON)
+if(OPENEXR_INSTALL_EXAMPLES)
   add_subdirectory( src/examples )
 endif()
 
@@ -88,3 +121,10 @@ endif()
 if(NOT OPENEXR_IS_SUBPROJECT)
   include(cmake/clang-format.cmake)
 endif()
+
+option(DOCS "Set ON to build html documentation")
+if (DOCS AND NOT OPENEXR_IS_SUBPROJECT)
+  option(INSTALL_DOCS "Set ON to install html documentation" ON)
+  add_subdirectory(docs)
+endif()
+

@@ -1,37 +1,7 @@
-///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2002, Industrial Light & Magic, a division of Lucas
-// Digital Ltd. LLC
-// 
-// All rights reserved.
-// 
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-// *       Redistributions of source code must retain the above copyright
-// notice, this list of conditions and the following disclaimer.
-// *       Redistributions in binary form must reproduce the above
-// copyright notice, this list of conditions and the following disclaimer
-// in the documentation and/or other materials provided with the
-// distribution.
-// *       Neither the name of Industrial Light & Magic nor the names of
-// its contributors may be used to endorse or promote products derived
-// from this software without specific prior written permission. 
-// 
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+// SPDX-License-Identifier: BSD-3-Clause
+// Copyright (c) Contributors to the OpenEXR Project.
 //
-///////////////////////////////////////////////////////////////////////////
-
 
 
 
@@ -46,13 +16,14 @@
 //-----------------------------------------------------------------------------
 
 #include <ImfHuf.h>
-#include <ImfInt64.h>
 #include "ImfAutoArray.h"
 #include "ImfFastHuf.h"
 #include "Iex.h"
 #include <cstring>
 #include <cassert>
 #include <algorithm>
+#include <cstdint>
+
 
 
 using namespace std;
@@ -145,22 +116,22 @@ invalidTableEntry ()
 }
 
 
-inline Int64
-hufLength (Int64 code)
+inline uint64_t
+hufLength (uint64_t code)
 {
     return code & 63;
 }
 
 
-inline Int64
-hufCode (Int64 code)
+inline uint64_t
+hufCode (uint64_t code)
 {
     return code >> 6;
 }
 
 
 inline void
-outputBits (int nBits, Int64 bits, Int64 &c, int &lc, char *&out)
+outputBits (int nBits, uint64_t bits, uint64_t &c, int &lc, char *&out)
 {
     c <<= nBits;
     lc += nBits;
@@ -172,8 +143,8 @@ outputBits (int nBits, Int64 bits, Int64 &c, int &lc, char *&out)
 }
 
 
-inline Int64
-getBits (int nBits, Int64 &c, int &lc, const char *&in)
+inline uint64_t
+getBits (int nBits, uint64_t &c, int &lc, const char *&in)
 {
     while (lc < nBits)
     {
@@ -208,13 +179,13 @@ getBits (int nBits, Int64 &c, int &lc, const char *&in)
 
 #if !defined (OPENEXR_IMF_HAVE_LARGE_STACK)
 void
-hufCanonicalCodeTable (Int64 *hcode)
+hufCanonicalCodeTable (uint64_t *hcode)
 #else
 void
-hufCanonicalCodeTable (Int64 hcode[HUF_ENCSIZE])
+hufCanonicalCodeTable (uint64_t hcode[HUF_ENCSIZE])
 #endif
 {
-    Int64 n[59];
+    uint64_t n[59];
 
     //
     // For each i from 0 through 58, count the
@@ -234,11 +205,11 @@ hufCanonicalCodeTable (Int64 hcode[HUF_ENCSIZE])
     // store that code in n[i].
     //
 
-    Int64 c = 0;
+    uint64_t c = 0;
 
     for (int i = 58; i > 0; --i)
     {
-	Int64 nc = ((c + n[i]) >> 1);
+	uint64_t nc = ((c + n[i]) >> 1);
 	n[i] = c;
 	c = nc;
     }
@@ -277,7 +248,7 @@ hufCanonicalCodeTable (Int64 hcode[HUF_ENCSIZE])
 
 struct FHeapCompare
 {
-    bool operator () (Int64 *a, Int64 *b)
+    bool operator () (uint64_t *a, uint64_t *b)
     {
         return ((*a > *b) || ((*a == *b) && (a > b)));
     }
@@ -286,7 +257,7 @@ struct FHeapCompare
 
 void
 hufBuildEncTable
-    (Int64*	frq,	// io: input frequencies [HUF_ENCSIZE], output table
+    (uint64_t*	frq,	// io: input frequencies [HUF_ENCSIZE], output table
      int*	im,	//  o: min frq index
      int*	iM)	//  o: max frq index
 {
@@ -312,7 +283,7 @@ hufBuildEncTable
     //
 
     AutoArray <int, HUF_ENCSIZE> hlink;
-    AutoArray <Int64 *, HUF_ENCSIZE> fHeap;
+    AutoArray <uint64_t *, HUF_ENCSIZE> fHeap;
 
     *im = 0;
 
@@ -374,8 +345,8 @@ hufBuildEncTable
 
     make_heap (&fHeap[0], &fHeap[nf], FHeapCompare());
 
-    AutoArray <Int64, HUF_ENCSIZE> scode;
-    memset (scode, 0, sizeof (Int64) * HUF_ENCSIZE);
+    AutoArray <uint64_t, HUF_ENCSIZE> scode;
+    memset (scode, 0, sizeof (uint64_t) * HUF_ENCSIZE);
 
     while (nf > 1)
     {
@@ -453,7 +424,7 @@ hufBuildEncTable
     //
 
     hufCanonicalCodeTable (scode);
-    memcpy (frq, scode, sizeof (Int64) * HUF_ENCSIZE);
+    memcpy (frq, scode, sizeof (uint64_t) * HUF_ENCSIZE);
 }
 
 
@@ -480,13 +451,13 @@ const int LONGEST_LONG_RUN   = 255 + SHORTEST_LONG_RUN;
 
 void
 hufPackEncTable
-    (const Int64*	hcode,		// i : encoding table [HUF_ENCSIZE]
+    (const uint64_t*	hcode,		// i : encoding table [HUF_ENCSIZE]
      int		im,		// i : min hcode index
      int		iM,		// i : max hcode index
      char**		pcode)		//  o: ptr to packed table (updated)
 {
     char *p = *pcode;
-    Int64 c = 0;
+    uint64_t c = 0;
     int lc = 0;
 
     for (; im <= iM; im++)
@@ -540,12 +511,12 @@ hufUnpackEncTable
      int		ni,		// i : input size (in bytes)
      int		im,		// i : min hcode index
      int		iM,		// i : max hcode index
-     Int64*		hcode)		//  o: encoding table [HUF_ENCSIZE]
+     uint64_t*		hcode)		//  o: encoding table [HUF_ENCSIZE]
 {
-    memset (hcode, 0, sizeof (Int64) * HUF_ENCSIZE);
+    memset (hcode, 0, sizeof (uint64_t) * HUF_ENCSIZE);
 
     const char *p = *pcode;
-    Int64 c = 0;
+    uint64_t c = 0;
     int lc = 0;
 
     for (; im <= iM; im++)
@@ -553,9 +524,9 @@ hufUnpackEncTable
 	if (p - *pcode > ni)
 	    unexpectedEndOfTable();
 
-	Int64 l = hcode[im] = getBits (6, c, lc, p); // code length
+	uint64_t l = hcode[im] = getBits (6, c, lc, p); // code length
 
-	if (l == (Int64) LONG_ZEROCODE_RUN)
+	if (l == (uint64_t) LONG_ZEROCODE_RUN)
 	{
 	    if (p - *pcode > ni)
 		unexpectedEndOfTable();
@@ -570,7 +541,7 @@ hufUnpackEncTable
 
 	    im--;
 	}
-	else if (l >= (Int64) SHORT_ZEROCODE_RUN)
+	else if (l >= (uint64_t) SHORT_ZEROCODE_RUN)
 	{
 	    int zerun = l - SHORT_ZEROCODE_RUN + 2;
 
@@ -617,7 +588,7 @@ hufClearDecTable
 
 void
 hufBuildDecTable
-    (const Int64*	hcode,		// i : encoding table
+    (const uint64_t*	hcode,		// i : encoding table
      int		im,		// i : min index in hcode
      int		iM,		// i : max index in hcode
      HufDec *		hdecod)		//  o: (allocated by caller)
@@ -630,7 +601,7 @@ hufBuildDecTable
 
     for (; im <= iM; im++)
     {
-	Int64 c = hufCode (hcode[im]);
+	uint64_t c = hufCode (hcode[im]);
 	int l = hufLength (hcode[im]);
 
 	if (c >> l)
@@ -689,7 +660,7 @@ hufBuildDecTable
 
 	    HufDec *pl = hdecod + (c << (HUF_DECBITS - l));
 
-	    for (Int64 i = 1 << (HUF_DECBITS - l); i > 0; i--, pl++)
+	    for (uint64_t i = 1 << (HUF_DECBITS - l); i > 0; i--, pl++)
 	    {
 		if (pl->len || pl->p)
 		{
@@ -732,15 +703,15 @@ hufFreeDecTable (HufDec *hdecod)	// io: Decoding table
 //
 
 inline void
-outputCode (Int64 code, Int64 &c, int &lc, char *&out)
+outputCode (uint64_t code, uint64_t &c, int &lc, char *&out)
 {
     outputBits (hufLength (code), hufCode (code), c, lc, out);
 }
 
 
 inline void
-sendCode (Int64 sCode, int runCount, Int64 runCode,
-	  Int64 &c, int &lc, char *&out)
+sendCode (uint64_t sCode, int runCount, uint64_t runCode,
+	  uint64_t &c, int &lc, char *&out)
 {
     //
     // Output a run of runCount instances of the symbol sCount.
@@ -770,14 +741,14 @@ sendCode (Int64 sCode, int runCount, Int64 runCode,
 
 int
 hufEncode				// return: output size (in bits)
-    (const Int64*  	    hcode,	// i : encoding table
+    (const uint64_t*  	    hcode,	// i : encoding table
      const unsigned short*  in,		// i : uncompressed input buffer
      const int     	    ni,		// i : input buffer size (in bytes)
      int           	    rlc,	// i : rl code
      char*         	    out)	//  o: compressed output buffer
 {
     char *outStart = out;
-    Int64 c = 0;	// bits not yet written to out
+    uint64_t c = 0;	// bits not yet written to out
     int lc = 0;		// number of valid bits in c (LSB)
     int s = in[0];
     int cs = 0;
@@ -873,7 +844,7 @@ hufEncode				// return: output size (in bits)
 
 void
 hufDecode
-    (const Int64 * 	hcode,	// i : encoding table
+    (const uint64_t * 	hcode,	// i : encoding table
      const HufDec * 	hdecod,	// i : decoding table
      const char* 	in,	// i : compressed input buffer
      int		ni,	// i : input size (in bits)
@@ -881,7 +852,7 @@ hufDecode
      int		no,	// i : expected output size (in bytes)
      unsigned short*	out)	//  o: uncompressed output buffer
 {
-    Int64 c = 0;
+    uint64_t c = 0;
     int lc = 0;
     unsigned short * outb = out;
     unsigned short * oe = out + no;
@@ -938,7 +909,7 @@ hufDecode
 		    if (lc >= l)
 		    {
 			if (hufCode (hcode[pl.p[j]]) ==
-				((c >> (lc - l)) & ((Int64(1) << l) - 1)))
+				((c >> (lc - l)) & ((uint64_t(1) << l) - 1)))
 			{
 			    //
 			    // Found : get long code
@@ -991,12 +962,12 @@ hufDecode
 
 #if !defined (OPENEXR_IMF_HAVE_LARGE_STACK)
 void
-countFrequencies (Int64 *freq,
+countFrequencies (uint64_t *freq,
 		  const unsigned short data[/*n*/],
 		  int n)
 #else
 void
-countFrequencies (Int64 freq[HUF_ENCSIZE],
+countFrequencies (uint64_t freq[HUF_ENCSIZE],
 		  const unsigned short data[/*n*/],
 		  int n)
 #endif
@@ -1048,7 +1019,7 @@ hufCompress (const unsigned short raw[],
     if (nRaw == 0)
 	return 0;
 
-    AutoArray <Int64, HUF_ENCSIZE> freq;
+    AutoArray <uint64_t, HUF_ENCSIZE> freq;
 
     countFrequencies (freq, raw, nRaw);
 
@@ -1119,11 +1090,19 @@ hufUncompress (const char compressed[],
     if (FastHufDecoder::enabled() && nBits > 128)
     {
         FastHufDecoder fhd (ptr, nCompressed - (ptr - compressed), im, iM, iM);
+
+        // must be nBytes remaining in buffer
+        if( ptr-compressed  + nBytes > static_cast<uint64_t>(nCompressed))
+        {
+            notEnoughData();
+            return;
+        }
+
         fhd.decode ((unsigned char*)ptr, nBits, raw, nRaw);
     }
     else
     {
-        AutoArray <Int64, HUF_ENCSIZE> freq;
+        AutoArray <uint64_t, HUF_ENCSIZE> freq;
         AutoArray <HufDec, HUF_DECSIZE> hdec;
 
         hufClearDecTable (hdec);

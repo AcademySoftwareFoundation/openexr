@@ -1,36 +1,7 @@
-///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2014, Industrial Light & Magic, a division of Lucas
-// Digital Ltd. LLC
-// 
-// All rights reserved.
-// 
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-// *       Redistributions of source code must retain the above copyright
-// notice, this list of conditions and the following disclaimer.
-// *       Redistributions in binary form must reproduce the above
-// copyright notice, this list of conditions and the following disclaimer
-// in the documentation and/or other materials provided with the
-// distribution.
-// *       Neither the name of Industrial Light & Magic nor the names of
-// its contributors may be used to endorse or promote products derived
-// from this software without specific prior written permission. 
-// 
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+// SPDX-License-Identifier: BSD-3-Clause
+// Copyright (c) Contributors to the OpenEXR Project.
 //
-///////////////////////////////////////////////////////////////////////////
 
 #ifndef INCLUDED_IMF_FLAT_IMAGE_LEVEL_H
 #define INCLUDED_IMF_FLAT_IMAGE_LEVEL_H
@@ -57,7 +28,7 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 class FlatImage;
 
-class FlatImageLevel : public ImageLevel
+class IMFUTIL_EXPORT_TYPE FlatImageLevel : public ImageLevel
 {
   public:
     
@@ -144,38 +115,46 @@ class FlatImageLevel : public ImageLevel
     // The constructor and destructor are private.
     // Image levels exist only as part of an image.
     //
-
+    IMFUTIL_HIDDEN
     FlatImageLevel (FlatImage& image,
                     int xLevelNumber,
                     int yLevelNumber,
                     const IMATH_NAMESPACE::Box2i& dataWindow);
 
+    IMFUTIL_HIDDEN
     virtual ~FlatImageLevel ();
 
+    IMFUTIL_HIDDEN
     virtual void    resize (const IMATH_NAMESPACE::Box2i& dataWindow);
 
+    IMFUTIL_HIDDEN
     virtual void    shiftPixels (int dx, int dy);
 
+    IMFUTIL_HIDDEN
     virtual void    insertChannel (const std::string& name,
                                    PixelType type,
                                    int xSampling,
                                    int ySampling,
                                    bool pLinear);
 
+    IMFUTIL_HIDDEN
     virtual void    eraseChannel (const std::string& name);
 
+    IMFUTIL_HIDDEN
     virtual void    clearChannels ();
 
+    IMFUTIL_HIDDEN
     virtual void    renameChannel (const std::string &oldName,
                                    const std::string &newName);
 
+    IMFUTIL_HIDDEN
     virtual void    renameChannels (const RenamingMap &oldToNewNames);
 
     ChannelMap      _channels;
 };
 
 
-class FlatImageLevel::Iterator
+class IMFUTIL_EXPORT_TYPE FlatImageLevel::Iterator
 {
   public:
 
@@ -213,7 +192,7 @@ class FlatImageLevel::Iterator
 };
 
 
-class FlatImageLevel::ConstIterator
+class IMFUTIL_EXPORT_TYPE FlatImageLevel::ConstIterator
 {
   public:
 
@@ -266,7 +245,7 @@ template <class T>
 TypedFlatImageChannel<T> *
 FlatImageLevel::findTypedChannel (const std::string& name)
 {
-    return dynamic_cast <TypedFlatImageChannel<T>*> (findChannel (name));
+    return dynamic_cast <TypedFlatImageChannel<T> *> (findChannel (name));
 }
 
 
@@ -274,7 +253,7 @@ template <class T>
 const TypedFlatImageChannel<T> *
 FlatImageLevel::findTypedChannel (const std::string& name) const
 {
-    return dynamic_cast <const TypedFlatImageChannel<T>*> (findChannel (name));
+    return dynamic_cast <const TypedFlatImageChannel<T> *> (findChannel (name));
 }
 
 

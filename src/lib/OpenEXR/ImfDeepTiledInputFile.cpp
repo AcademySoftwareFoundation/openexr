@@ -1,36 +1,7 @@
-///////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2011, Industrial Light & Magic, a division of Lucas
-// Digital Ltd. LLC
+// SPDX-License-Identifier: BSD-3-Clause
+// Copyright (c) Contributors to the OpenEXR Project.
 //
-// All rights reserved.
-//
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-// *       Redistributions of source code must retain the above copyright
-// notice, this list of conditions and the following disclaimer.
-// *       Redistributions in binary form must reproduce the above
-// copyright notice, this list of conditions and the following disclaimer
-// in the documentation and/or other materials provided with the
-// distribution.
-// *       Neither the name of Industrial Light & Magic nor the names of
-// its contributors may be used to endorse or promote products derived
-// from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-///////////////////////////////////////////////////////////////////////////
 
 //-----------------------------------------------------------------------------
 //
@@ -38,21 +9,23 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfDeepTiledInputFile.h>
-#include <ImfTileDescriptionAttribute.h>
-#include <ImfChannelList.h>
-#include <ImfMisc.h>
-#include <ImfTiledMisc.h>
-#include <ImfStdIO.h>
-#include <ImfCompressor.h>
-#include "ImathBox.h"
-#include <ImfXdr.h>
-#include <ImfConvert.h>
-#include <ImfVersion.h>
-#include <ImfTileOffsets.h>
-#include <ImfThreading.h>
-#include <ImfPartType.h>
-#include <ImfMultiPartInputFile.h>
+#include "ImfDeepTiledInputFile.h"
+
+#include "ImfDeepFrameBuffer.h"
+#include "ImfTileDescriptionAttribute.h"
+#include "ImfChannelList.h"
+#include "ImfMisc.h"
+#include "ImfTiledMisc.h"
+#include "ImfStdIO.h"
+#include "ImfCompressor.h"
+
+#include "ImfXdr.h"
+#include "ImfConvert.h"
+#include "ImfVersion.h"
+#include "ImfTileOffsets.h"
+#include "ImfThreading.h"
+#include "ImfPartType.h"
+#include "ImfMultiPartInputFile.h"
 #include "IlmThreadPool.h"
 #include "IlmThreadSemaphore.h"
 #include "ImfInputStreamMutex.h"
@@ -62,11 +35,9 @@
 
 #include <algorithm>
 #include <assert.h>
-#include <limits>
 #include <string>
 #include <vector>
-
-#include "ImfNamespace.h"
+#include <limits>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
@@ -142,8 +113,8 @@ struct TileBuffer
     Array2D<unsigned int>       sampleCount;
     const char *                uncompressedData;
     char *                      buffer;
-    Int64                         dataSize;
-    Int64                         uncompressedDataSize;
+    uint64_t                    dataSize;
+    uint64_t                    uncompressedDataSize;
     Compressor *                compressor;
     Compressor::Format          format;
     int                         dx;
@@ -200,7 +171,7 @@ class MultiPartInputFile;
 //
 
 struct DeepTiledInputFile::Data
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
     : public std::mutex
 #endif
 {
@@ -258,7 +229,7 @@ struct DeepTiledInputFile::Data
 
     Compressor*     sampleCountTableComp;           // the decompressor for sample count table
 
-    Int64           maxSampleCountTableSize;        // the max size in bytes for a pixel
+    uint64_t        maxSampleCountTableSize;        // the max size in bytes for a pixel
                                                     // sample count table
     int             combinedSampleSize;             // total size of all channels combined to check sampletable size
     static const int gLargeChunkTableSize = 1024*1024;
@@ -333,8 +304,8 @@ int&
 DeepTiledInputFile::Data::getSampleCount(int x, int y)
 {
     return sampleCount(sampleCountSliceBase,
-                       sampleCountXStride,
-                       sampleCountYStride,
+                       static_cast<int>(sampleCountXStride),
+                       static_cast<int>(sampleCountYStride),
                        x, y);
 }
 
@@ -343,23 +314,23 @@ void
 DeepTiledInputFile::Data::validateStreamSize()
 {
     const Box2i &dataWindow = header.dataWindow();
-    Int64 tileWidth = header.tileDescription().xSize;
-    Int64 tileHeight = header.tileDescription().ySize;
+    uint64_t tileWidth = header.tileDescription().xSize;
+    uint64_t tileHeight = header.tileDescription().ySize;
 
-    Int64 tilesX = (static_cast<Int64>(dataWindow.max.x+1-dataWindow.min.x) + tileWidth -1) / tileWidth;
+    uint64_t tilesX = (static_cast<uint64_t>(dataWindow.max.x+1-dataWindow.min.x) + tileWidth -1) / tileWidth;
 
-    Int64 tilesY = (static_cast<Int64>(dataWindow.max.y+1-dataWindow.min.y) + tileHeight -1) / tileHeight;
+    uint64_t tilesY = (static_cast<uint64_t>(dataWindow.max.y+1-dataWindow.min.y) + tileHeight -1) / tileHeight;
 
 
-    Int64 chunkCount = tilesX*tilesY;
+    uint64_t chunkCount = tilesX*tilesY;
     if ( chunkCount > gLargeChunkTableSize)
     {
 
         if (chunkCount > gLargeChunkTableSize)
         {
-            Int64 pos = _streamData->is->tellg();
-            _streamData->is->seekg(pos + (chunkCount-1)*sizeof(Int64));
-            Int64 temp;
+            uint64_t pos = _streamData->is->tellg();
+            _streamData->is->seekg(pos + (chunkCount-1)*sizeof(uint64_t));
+            uint64_t temp;
             OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (*_streamData->is, temp);
             _streamData->is->seekg(pos);
 
@@ -377,8 +348,8 @@ readTileData (InputStreamMutex *streamData,
               int dx, int dy,
               int lx, int ly,
               char *&buffer,
-              Int64 &dataSize,
-              Int64 &unpackedDataSize)
+              uint64_t &dataSize,
+              uint64_t &unpackedDataSize)
 {
     //
     // Read a single tile block from the file and into the array pointed
@@ -392,7 +363,7 @@ readTileData (InputStreamMutex *streamData,
     // seek to that position if necessary
     //
 
-    Int64 tileOffset = ifd->tileOffsets (dx, dy, lx, ly);
+    uint64_t tileOffset = ifd->tileOffsets (dx, dy, lx, ly);
 
     if (tileOffset == 0)
     {
@@ -445,7 +416,7 @@ readTileData (InputStreamMutex *streamData,
     Xdr::read <StreamIO> (*streamData->is, levelX);
     Xdr::read <StreamIO> (*streamData->is, levelY);
 
-    Int64 tableSize;
+    uint64_t tableSize;
     Xdr::read <StreamIO> (*streamData->is, tableSize);
 
     Xdr::read <StreamIO> (*streamData->is, dataSize);
@@ -456,7 +427,7 @@ readTileData (InputStreamMutex *streamData,
     // Skip the pixel sample count table because we have read this data.
     //
 
-    Xdr::skip <StreamIO> (*streamData->is, tableSize);
+    Xdr::skip <StreamIO> (*streamData->is, static_cast<int>(tableSize));
 
 
     if (tileXCoord != dx)
@@ -476,14 +447,14 @@ readTileData (InputStreamMutex *streamData,
     //
 
     if (streamData->is->isMemoryMapped ())
-        buffer = streamData->is->readMemoryMapped (dataSize);
+        buffer = streamData->is->readMemoryMapped (static_cast<int>(dataSize));
     else
     {
         // (TODO) check if the packed data size is too big?
         // (TODO) better memory management here. Don't delete buffer everytime.
         if (buffer != 0) delete[] buffer;
         buffer = new char[dataSize];
-        streamData->is->read (buffer, dataSize);
+        streamData->is->read (buffer, static_cast<int>(dataSize));
     }
 
     //
@@ -493,7 +464,7 @@ readTileData (InputStreamMutex *streamData,
     //
 
     streamData->currentPosition = tileOffset + 4 * Xdr::size<int>() +
-                                  3 * Xdr::size<Int64>()            +
+                                  3 * Xdr::size<uint64_t>()            +
                                   tableSize                         +
                                   dataSize;
 }
@@ -615,12 +586,12 @@ TileBufferTask::execute ()
         // Uncompress the data, if necessary
         //
 
-        if (_tileBuffer->compressor && _tileBuffer->dataSize < static_cast<Int64>(sizeOfTile))
+        if (_tileBuffer->compressor && _tileBuffer->dataSize < static_cast<uint64_t>(sizeOfTile))
         {
             _tileBuffer->format = _tileBuffer->compressor->format();
 
             _tileBuffer->dataSize = _tileBuffer->compressor->uncompressTile
-                (_tileBuffer->buffer, _tileBuffer->dataSize,
+                (_tileBuffer->buffer, static_cast<int>(_tileBuffer->dataSize),
                  tileRange, _tileBuffer->uncompressedData);
         }
         else
@@ -638,7 +609,7 @@ TileBufferTask::execute ()
 	// sanity check data size: the uncompressed data should be exactly 
 	// 'sizeOfTile' (if it's less, the file is corrupt and there'll be a buffer overrun)
 	//
-        if (_tileBuffer->dataSize != static_cast<Int64>(sizeOfTile))
+        if (_tileBuffer->dataSize != static_cast<uint64_t>(sizeOfTile))
 	{
 		THROW (IEX_NAMESPACE::InputExc, "size mismatch when reading deep tile: expected " << sizeOfTile << "bytes of uncompressed data but got " << _tileBuffer->dataSize);
 	}
@@ -868,6 +839,7 @@ DeepTiledInputFile::DeepTiledInputFile (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream 
         }
         else
         {
+
             _data->_streamData = new InputStreamMutex();
             _data->_streamData->is = &is;
             _data->header.readFrom (*_data->_streamData->is, _data->version);
@@ -960,7 +932,7 @@ DeepTiledInputFile::compatibilityInitialize(OPENEXR_IMF_INTERNAL_NAMESPACE::IStr
 void
 DeepTiledInputFile::multiPartInitialize(InputPartData* part)
 {
-    if (isTiled(part->header.type()) == false)
+    if (part->header.type() != DEEPTILE)
         THROW (IEX_NAMESPACE::ArgExc, "Can't build a DeepTiledInputFile from a part of type " << part->header.type());
 
     _data->_streamData = part->mutex;
@@ -977,9 +949,18 @@ DeepTiledInputFile::multiPartInitialize(InputPartData* part)
 void
 DeepTiledInputFile::initialize ()
 {
+
+    if (_data->header.type() != DEEPTILE)
+    {
+        throw IEX_NAMESPACE::ArgExc ("Expected a deep tiled file but the file is not deep tiled.");
+    }
+
     if (_data->partNumber == -1)
-        if (_data->header.type() != DEEPTILE)
-            throw IEX_NAMESPACE::ArgExc ("Expected a deep tiled file but the file is not deep tiled.");
+    {
+        if (!isNonImage (_data->version))
+            throw IEX_NAMESPACE::ArgExc ("Expected a deep tiled file but the file is not a deep image.");
+    }
+
    if(_data->header.version()!=1)
    {
        THROW(IEX_NAMESPACE::ArgExc, "Version " << _data->header.version() << " not supported for deeptiled images in this version of the library");
@@ -1000,6 +981,24 @@ DeepTiledInputFile::initialize ()
 
     _data->tileDesc = _data->header.tileDescription();
     _data->lineOrder = _data->header.lineOrder();
+
+
+   _data->maxSampleCountTableSize = static_cast<size_t>(_data->tileDesc.ySize) *
+                                    static_cast<size_t>(_data->tileDesc.xSize) *
+                                    sizeof(int);
+
+
+    //
+    // impose limit of 2^32 bytes of storage for maxSampleCountTableSize
+    // (disallow files with very large tile areas that would otherwise cause excessive memory allocation)
+    //
+
+
+   if(_data->maxSampleCountTableSize > std::numeric_limits<unsigned int>::max())
+   {
+       THROW(IEX_NAMESPACE::ArgExc, "Deep tile size exceeds maximum permitted area");
+   }
+
 
     //
     // Save the dataWindow information
@@ -1034,11 +1033,8 @@ DeepTiledInputFile::initialize ()
     for (size_t i = 0; i < _data->tileBuffers.size(); i++)
         _data->tileBuffers[i] = new TileBuffer ();
 
-    _data->maxSampleCountTableSize = static_cast<size_t>(_data->tileDesc.ySize) *
-                                     static_cast<size_t>(_data->tileDesc.xSize) *
-                                     sizeof(int);
 
-    _data->sampleCountTableBuffer.resizeErase(_data->maxSampleCountTableSize);
+    _data->sampleCountTableBuffer.resizeErase(static_cast<int>(_data->maxSampleCountTableSize));
 
     _data->sampleCountTableComp = newCompressor(_data->header.compression(),
                                                 _data->maxSampleCountTableSize,
@@ -1114,7 +1110,7 @@ DeepTiledInputFile::version () const
 void
 DeepTiledInputFile::setFrameBuffer (const DeepFrameBuffer &frameBuffer)
 {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (*_data->_streamData);
 #endif
     //
@@ -1263,7 +1259,7 @@ DeepTiledInputFile::setFrameBuffer (const DeepFrameBuffer &frameBuffer)
 const DeepFrameBuffer &
 DeepTiledInputFile::frameBuffer () const
 {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (*_data->_streamData);
 #endif
     return _data->frameBuffer;
@@ -1286,7 +1282,7 @@ DeepTiledInputFile::readTiles (int dx1, int dx2, int dy1, int dy2, int lx, int l
 
     try
     {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
         std::lock_guard<std::mutex> lock (*_data->_streamData);
 #endif
         if (_data->slices.size() == 0)
@@ -1418,13 +1414,13 @@ void
 DeepTiledInputFile::rawTileData (int &dx, int &dy,
                              int &lx, int &ly,
                              char * pixelData,
-                             Int64 &pixelDataSize) const
+                             uint64_t &pixelDataSize) const
 {
      if (!isValidTile (dx, dy, lx, ly))
                throw IEX_NAMESPACE::ArgExc ("Tried to read a tile outside "
                                    "the image file's data window.");
     
-     Int64 tileOffset = _data->tileOffsets (dx, dy, lx, ly);
+     uint64_t tileOffset = _data->tileOffsets (dx, dy, lx, ly);
                                    
      if(tileOffset == 0)
      {
@@ -1432,7 +1428,7 @@ DeepTiledInputFile::rawTileData (int &dx, int &dy,
         lx << ", " << ly << ") is missing.");
      }
      
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
      std::lock_guard<std::mutex> lock(*_data->_streamData);
 #endif
      if (_data->_streamData->is->tellg() != tileOffset)
@@ -1463,8 +1459,8 @@ DeepTiledInputFile::rawTileData (int &dx, int &dy,
      Xdr::read <StreamIO> (*_data->_streamData->is, levelX);
      Xdr::read <StreamIO> (*_data->_streamData->is, levelY);
      
-     Int64 sampleCountTableSize;
-     Int64 packedDataSize;
+     uint64_t sampleCountTableSize;
+     uint64_t packedDataSize;
      Xdr::read <StreamIO> (*_data->_streamData->is, sampleCountTableSize);
      
      Xdr::read <StreamIO> (*_data->_streamData->is, packedDataSize);
@@ -1486,7 +1482,7 @@ DeepTiledInputFile::rawTileData (int &dx, int &dy,
      
      // total requirement for reading all the data
      
-     Int64 totalSizeRequired=40+sampleCountTableSize+packedDataSize;
+     uint64_t totalSizeRequired=40+sampleCountTableSize+packedDataSize;
      
      bool big_enough = totalSizeRequired<=pixelDataSize;
      
@@ -1510,14 +1506,14 @@ DeepTiledInputFile::rawTileData (int &dx, int &dy,
      *(int *) (pixelData+4) = dy;
      *(int *) (pixelData+8) = levelX;
      *(int *) (pixelData+12) = levelY;
-     *(Int64 *) (pixelData+16) =sampleCountTableSize;
-     *(Int64 *) (pixelData+24) = packedDataSize;
+     *(uint64_t *) (pixelData+16) =sampleCountTableSize;
+     *(uint64_t *) (pixelData+24) = packedDataSize;
      
      // didn't read the unpackedsize - do that now
-     Xdr::read<StreamIO> (*_data->_streamData->is, *(Int64 *) (pixelData+32));
+     Xdr::read<StreamIO> (*_data->_streamData->is, *(uint64_t *) (pixelData+32));
      
      // read the actual data
-     _data->_streamData->is->read(pixelData+40, sampleCountTableSize+packedDataSize);
+     _data->_streamData->is->read(pixelData+40, static_cast<int>(sampleCountTableSize+packedDataSize));
      
      
      if(!isMultiPart(_data->version))
@@ -1737,11 +1733,11 @@ DeepTiledInputFile::readPixelSampleCounts (int dx1, int dx2,
                                            int dy1, int dy2,
                                            int lx,  int ly)
 {
-    Int64 savedFilePos = 0;
+    uint64_t savedFilePos = 0;
 
     try
     {
-#if ILMBASE_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
         std::lock_guard<std::mutex> lock (*_data->_streamData);
 #endif
         savedFilePos = _data->_streamData->is->tellg();
@@ -1828,7 +1824,7 @@ DeepTiledInputFile::readPixelSampleCounts (int dx1, int dx2,
                 if (lyInFile != ly)
                     throw IEX_NAMESPACE::InputExc ("Unexpected tile y level number coordinate.");
 
-                Int64 tableSize, dataSize, unpackedDataSize;
+                uint64_t tableSize, dataSize, unpackedDataSize;
                 Xdr::read <StreamIO> (*_data->_streamData->is, tableSize);
                 Xdr::read <StreamIO> (*_data->_streamData->is, dataSize);
                 Xdr::read <StreamIO> (*_data->_streamData->is, unpackedDataSize);
@@ -1850,7 +1846,7 @@ DeepTiledInputFile::readPixelSampleCounts (int dx1, int dx2,
                 // @TODO refactor the compressor code to ensure full 64-bit support.
                 //
 
-                Int64 compressorMaxDataSize = static_cast<Int64>(std::numeric_limits<int>::max());
+                uint64_t compressorMaxDataSize = static_cast<uint64_t>(std::numeric_limits<int>::max());
                 if (dataSize         > compressorMaxDataSize ||
                     unpackedDataSize > compressorMaxDataSize ||
                     tableSize        > compressorMaxDataSize)
@@ -1867,7 +1863,7 @@ DeepTiledInputFile::readPixelSampleCounts (int dx1, int dx2,
                 // Read and uncompress the pixel sample count table.
                 //
 
-                _data->_streamData->is->read(_data->sampleCountTableBuffer, tableSize);
+                _data->_streamData->is->read(_data->sampleCountTableBuffer, static_cast<int>(tableSize));
 
                 const char* readPtr;
 
@@ -1878,7 +1874,7 @@ DeepTiledInputFile::readPixelSampleCounts (int dx1, int dx2,
                         THROW(IEX_NAMESPACE::ArgExc,"Deep scanline data corrupt at tile " << dx << ',' << dy << ',' << lx << ',' <<  ly << " (sampleCountTableDataSize error)");
                     }
                     _data->sampleCountTableComp->uncompress(_data->sampleCountTableBuffer,
-                                                            tableSize,
+                                                            static_cast<int>(tableSize),
                                                             tileRange.min.y,
                                                             readPtr);
                 }
