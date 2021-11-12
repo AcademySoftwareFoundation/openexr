@@ -58,14 +58,14 @@ mergeOverlappingSamples (float a1, float c1, // Opacity and color of first sampl
         static const float MAX = numeric_limits<float>::max();
 
         float u1 = -log1p (-a1);
-        float v1 = (u1 < a1 \* MAX)? u1 / a1: 1;
+        float v1 = (u1 < a1 * MAX)? u1 / a1: 1;
 
         float u2 = -log1p (-a2);
-        float v2 = (u2 < a2 \* MAX)? u2 / a2: 1;
+        float v2 = (u2 < a2 * MAX)? u2 / a2: 1;
 
         float u = u1 + u2;
-        float w = (u > 1 \|\| am < u \* MAX)? am / u: 1;
+        float w = (u > 1 || am < u * MAX)? am / u: 1;
 
-        cm = (c1 \* v1 + c2 \* v2) \* w;
+        cm = (c1 * v1 + c2 * v2) * w;
     }
 }
