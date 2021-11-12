@@ -39,7 +39,7 @@ mergeOverlappingSamples (float a1, float c1, // Opacity and color of first sampl
     a1 = max (0.0f, min (a1, 1.0f));
     a2 = max (0.0f, min (a2, 1.0f));
 
-    am = a1 + a2 - a1 \* a2;
+    am = a1 + a2 - a1 * a2;
 
     if (a1 == 1 && a2 == 1)
     {
