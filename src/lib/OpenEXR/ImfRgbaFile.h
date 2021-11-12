@@ -292,8 +292,6 @@ class IMF_EXPORT_TYPE RgbaInputFile
     RgbaInputFile (const char name[], int numThreads = globalThreadCount());
 
 
-    IMF_EXPORT
-    RgbaInputFile (int partNumber, const char name[], int numThreads = globalThreadCount());
 
 
     //-----------------------------------------------------------
@@ -324,6 +322,41 @@ class IMF_EXPORT_TYPE RgbaInputFile
 		   int numThreads = globalThreadCount());
 
 
+
+    //--------------------------------------------------------------
+    // Constructors -- the same as the previous, but the specified
+    // part is opened instead of the first (or only) part within the file
+    //--------------------------------------------------------------
+
+
+    IMF_EXPORT
+    RgbaInputFile (int partNumber,
+                   const char name[],
+                   int numThreads = globalThreadCount());
+
+    IMF_EXPORT
+    RgbaInputFile (int partNumber,
+                   const char name[],
+                   const std::string &layerName,
+                   int numThreads = globalThreadCount());
+
+
+    IMF_EXPORT
+    RgbaInputFile (int partNumber,
+                   OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is,
+                   int numThreads = globalThreadCount());
+
+
+    IMF_EXPORT
+    RgbaInputFile (int partNumber,
+                   OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is,
+		   const std::string &layerName,
+		   int numThreads = globalThreadCount());
+
+
+
+
+
     //-----------
     // Destructor
     //-----------
@@ -347,7 +380,9 @@ class IMF_EXPORT_TYPE RgbaInputFile
 
 
     //----------------------------------------------------------------
-    // Switch to a different layer -- subsequent calls to readPixels()
+    // Switch to a different layer within the current part
+    //
+    // subsequent calls to readPixels()
     // will read channels layerName.R, layerName.G, etc.
     // After each call to setLayerName(), setFrameBuffer() must be
     // called at least once before the next call to readPixels().
@@ -356,6 +391,29 @@ class IMF_EXPORT_TYPE RgbaInputFile
     IMF_EXPORT
     void			setLayerName (const std::string &layerName);
 
+
+
+
+    //-------------------------------
+    // Return number of parts in file
+    //-------------------------------
+    IMF_EXPORT
+    int                         parts() const;
+
+    //----------------------------------------------------------------
+    // Switch to a different part  -- subsequent calls to readPixels()
+    // will read channels from given part
+    // After each call to setPart() or setPartAndLayer(), setFrameBuffer() must be
+    // called at least once before the next call to readPixels().
+    //----------------------------------------------------------------
+
+    IMF_EXPORT
+    void                        setPart(int part);
+
+    //--------------------------
+    // Equivalent to 'setPart(part) ; setLayerName(layerName);'
+    //----------------------------
+    void                        setPartAndLayer(int part,const std::string& layerName);
 
     //-------------------------------------------
     // Read pixel data (see class Imf::InputFile)
@@ -413,10 +471,10 @@ class IMF_EXPORT_TYPE RgbaInputFile
 
     class IMF_HIDDEN FromYca;
 
-    InputFile *			_inputFile;
-    FromYca *			_fromYca;
+    MultiPartInputFile*         _multiPartFile;
+    InputPart*                  _inputPart;
+    FromYca*			_fromYca;
     std::string			_channelNamePrefix;
-    MultiPartInputFile* _multiPartFile = nullptr;
 };
 
 
