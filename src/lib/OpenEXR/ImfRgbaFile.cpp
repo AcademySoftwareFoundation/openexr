@@ -1451,7 +1451,15 @@ RgbaInputFile::readPixels (int scanLine)
 bool
 RgbaInputFile::isComplete () const
 {
-    return _inputPart->isComplete();
+    for (int i = 0 ; i < _multiPartFile->parts() ; ++i)
+    {
+        if (!_multiPartFile->partComplete(i))
+        {
+            return false;
+        }
+    }
+    return true;
+
 }
 
 
