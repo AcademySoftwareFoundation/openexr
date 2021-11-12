@@ -413,6 +413,7 @@ class IMF_EXPORT_TYPE RgbaInputFile
     //--------------------------
     // Equivalent to 'setPart(part) ; setLayerName(layerName);'
     //----------------------------
+    IMF_EXPORT
     void                        setPartAndLayer(int part,const std::string& layerName);
 
     //-------------------------------------------
@@ -421,6 +422,7 @@ class IMF_EXPORT_TYPE RgbaInputFile
 
     IMF_EXPORT
     void			readPixels (int scanLine1, int scanLine2);
+
     IMF_EXPORT
     void			readPixels (int scanLine);
 
