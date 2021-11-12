@@ -66,19 +66,19 @@ splitVolumeSample (float a, float c, // Opacity and color of original sample
 
         if (a > numeric_limits<float>::min())
         {
-            af = -expm1 (xf \* log1p (-a));
-            cf = (af / a) \* c;
+            af = -expm1 (xf * log1p (-a));
+            cf = (af / a) * c;
 
-            ab = -expm1 (xb \* log1p (-a));
-            cb = (ab / a) \* c;
+            ab = -expm1 (xb * log1p (-a));
+            cb = (ab / a) * c;
         }
         else
         {
-            af = a \* xf;
-            cf = c \* xf;
+            af = a * xf;
+            cf = c * xf;
 
-            ab = a \* xb;
-            cb = c \* xb;
+            ab = a * xb;
+            cb = c * xb;
         }
     }
 }
