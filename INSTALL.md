@@ -18,7 +18,7 @@ or ``curl``:
     % curl -L https://github.com/AcademySoftwareFoundation/openexr/tarball/master | tar xv
 
 In the instructions that follow, we will refer to the top-level
-directory of the source code tree as ``$source_directory``.
+directory of the source code tree as ``$openexr_source_directory``.
 
 ## Prerequisites
 
@@ -26,8 +26,8 @@ Make sure these are installed on your system before building OpenEXR:
 
 * OpenEXR requires CMake version 3.12 or newer
 * C++ compiler that supports C++11
-* Zlib (auto compiled if not found)
-* Imath (auto compiled if not found)
+* zlib 
+* Imath (auto fetched by CMake if not found)
 
 The instructions that follow describe building OpenEXR with CMake.
 
@@ -41,7 +41,7 @@ which we will refer to as ``$build_directory``.
 
     % mkdir $build_directory
     % cd $build_directory
-    % cmake $source_directory
+    % cmake $openexr_source_directory
     % make
     % make install
 
@@ -69,7 +69,7 @@ installs the headers, libraries, and programs into ``/usr/local``, but you
 can specify a local install directory to cmake via the
 ``CMAKE_INSTALL_PREFIX`` variable:
 
-    % cmake .. -DCMAKE_INSTALL_PREFIX=$install_directory
+    % cmake .. -DCMAKE_INSTALL_PREFIX=$openexr_install_directory
 
 ## Porting Applications from OpenEXR v2 to v3
 
@@ -114,35 +114,42 @@ If you are building dynamic libraries, once you have configured, built,
 and installed the libraries, you should see the following pattern of
 symlinks and files in the install lib folder:
 
-    libHalf.so -> libHalf-$LIB_SUFFIX.so
-    libHalf-$LIB_SUFFIX.so -> libHalf-$LIB_SUFFIX.so.$SO_MAJOR_VERSION
-    libHalf-$LIB_SUFFIX.so.$SO_MAJOR_VERSION -> libHalf-$LIB_SUFFIX.so.$SO_FULL_VERSION
-    libHalf-$LIB_SUFFIX.so.$SO_FULL_VERSION (actual file)
+    libOpenEXR.so -> libOpenEXR-3_1.so
+    libOpenEXR-3_1.so -> libOpenEXR-3_1.so.30
+    libOpenEXR-3_1.so.30 -> libOpenEXR-3_1.so.30.3.0
+    libOpenEXR-3_1.so.30.3.0 (the shared object file)
+    
+The ``-3_1`` suffix encodes the major and minor version, which can be
+configured via the ``OPENEXR_LIB_SUFFIX`` CMake setting. The "30"
+corresponds to the "so version", or in ``libtool`` terminology the
+``current` shared object version; the "3" denotes the ``libtool``
+revision, and the "0" denotes the ``libtool`` age.
 
-You can configure the LIB_SUFFIX, although it defaults to the library
-major and minor version, so in the case of a 2.3 library, it would default
-to 2_3. You would then link your programs against this versioned library
-to have maximum safety (i.e. `-lHalf-2_3`), and the pkg-config and cmake
-configuration files included with find_package should set this up.
+## Imath Dependency
 
-## Sub-Libraries
-
-OpenEXR consists of a number of libraries - OpenEXR, OpenEXRUtil,
-IlmThread, Iex, and IexMath. To build and install OpenEXR, take care
-to set the ``CMAKE_SYSTEM_PREFIX`` to the directory in which you
-installed any custom Imath and/or zlib and ``CMAKE_INSTALL_PREFIX`` to
-the directory in which to install OpenEXR:
+OpenEXR depends on
+[Imath](https://github.com/AcademySoftwareFoundation/Imath). If a
+suitable installation of Imath cannot be found, CMake will
+automatically download it at configuration time. To link against an
+existing installation of Imath, add the Imath directory to the
+``CMAKE_PREFIX_PATH`` setting:
  
     % mkdir $build_directory
     % cd $build_directory
-    % cmake -DCMAKE_SYSTEM_PREFIX=$install_directory \ 
-            -DCMAKE_INSTALL_PREFIX=$install_directory \ 
-            $source_directory/OpenEXR
+    % cmake -DCMAKE_PREFIX_PATH=$imath_install_directory \
+            -DCMAKE_INSTALL_PREFIX=$openexr_install_destination \
+            $openexr_source_directory
     % cmake --build . --target install --config Release
 
-The libraries in OpenEXR follow the standard cmake setting of
-``BUILD_SHARED_LIBS`` to control whether to build static or shared
-libraries.
+Alternatively, you can specify the ``Imath_DIR`` variable:
+
+    % cmake -DImath_DIR=$imath_config_directory \
+            -DCMAKE_INSTALL_PREFIX=$openexr_install_destination \
+            $openexr_source_directory
+
+Note that ``Imath_DIR`` should be set to the directory that includes
+the ``ImathConfig.cmake`` file, which is typically the
+``lib/cmake/Imath`` folder of the root install directory.
 
 Please see cmake/OpenEXRSetup.cmake for other customization options.
 
@@ -191,7 +198,7 @@ The default CMake configuration options are stored in
 ``cmake/OpenEXRSetup.cmake``. To see a complete set of option
 variables, run:
 
-    % cmake -LAH $source_directory
+    % cmake -LAH $openexr_source_directory
 
 You can customize these options three ways:
 
@@ -199,111 +206,118 @@ You can customize these options three ways:
 2. Use the UI ``cmake-gui`` or ``ccmake``.
 2. Specify them as command-line arguments when you invoke cmake.
 
-### Verbose Output Options:
-
-* **CMAKE\_EXPORT\_COMPILE\_COMMANDS**
-
-  Enable/Disable output of compile commands during generation. Default is OFF.
-
-* **CMAKE\_VERBOSE\_MAKEFILE**
-
-  Echo all compile commands during make. Default is OFF.
-
-### Compiler Options:
-
-* **OPENEXR\_CXX\_STANDARD**
-
-  C++ standard to compile against. This obeys the global ``CMAKE_CXX_STANDARD`` but doesn’t force the global setting to enable sub-project inclusion. Default is ``14``.
-
 ### Library Naming Options:
 
-* **OPENEXR\_LIB\_SUFFIX**
+``OPENEXR_LIB_SUFFIX``
+  Append the given string to the end of all the OpenEXR
+  libraries. Default is ``-<major>_<minor>`` version string. Please
+  see the section on library names
 
-  Append the given string to the end of all the OpenEXR libraries. Default is ``-<major>_<minor>`` version string. Please see the section on library names
+### Imath Dependency:
 
+``CMAKE_PREFIX_PATH`` The standard CMake path in which to
+  search for dependencies, Imath in particular.  A comma-separated
+  path. Add the root directory where Imath is installed.
+
+``Imath_DIR``
+  The config directory where Imath is installed. An alternative to
+  using ``CMAKE_PREFIX_PATH``.  Note that ``Imath_DIR`` should
+  be set to the directory that includes the ``ImathConfig.cmake``
+  file, which is typically the ``lib/cmake/Imath`` folder of the root
+  install directory.
+  
 ### Namespace Options:
 
-* **OPENEXR\_IMF\_NAMESPACE**
- 
+``OPENEXR_IMF_NAMESPACE``
   Public namespace alias for OpenEXR. Default is ``Imf``.
 
-* **OPENEXR\_INTERNAL\_IMF\_NAMESPACE**
- 
-  Real namespace for OpenEXR that will end up in compiled symbols. Default is ``Imf\_<major>\_<minor>``.
+``OPENEXR_INTERNAL_IMF_NAMESPACE``
+  Real namespace for OpenEXR that will end up in compiled
+  symbols. Default is ``Imf_<major>_<minor>``.
 
-* **OPENEXR\_NAMESPACE\_CUSTOM**
- 
+``OPENEXR_NAMESPACE_CUSTOM``
   Whether the namespace has been customized (so external users know)
 
-
-* **IEX\_NAMESPACE**
-
+``IEX_NAMESPACE``
   Public namespace alias for Iex. Default is ``Iex``.
 
-* **IEX\_INTERNAL\_NAMESPACE**
- 
-  Real namespace for Iex that will end up in compiled symbols. Default is ``Iex\_<major>\_<minor>``.
+``IEX_INTERNAL_NAMESPACE``
+  Real namespace for Iex that will end up in compiled symbols. Default
+  is ``Iex_<major>_<minor>``.
 
-* **IEX\_NAMESPACE\_CUSTOM**
- 
+``IEX_NAMESPACE_CUSTOM``
   Whether the namespace has been customized (so external users know)
 
-
-* **ILMTHREAD\_NAMESPACE**
-
+``ILMTHREAD_NAMESPACE``
   Public namespace alias for IlmThread. Default is ``IlmThread``.
 
-* **ILMTHREAD\_INTERNAL\_NAMESPACE**
- 
-  Real namespace for IlmThread that will end up in compiled symbols. Default is ``IlmThread\_<major>\_<minor>``.
+``ILMTHREAD_INTERNAL_NAMESPACE``
+  Real namespace for IlmThread that will end up in compiled
+  symbols. Default is ``IlmThread_<major>_<minor>``.
 
-* **ILMTHREAD\_NAMESPACE\_CUSTOM**
- 
+``ILMTHREAD_NAMESPACE_CUSTOM``
   Whether the namespace has been customized (so external users know)
 
-* **BUILD\_TESTING**
- 
-  Build the testing tree. Default is ON.  Note that this causes the test suite to be compiled, but it is not executed.
+### Component Options:
 
-* **OPENEXR\_RUN\_FUZZ\_TESTS**
- 
-  Controls whether to include the fuzz tests (very slow). Default is OFF.
+``BUILD_TESTING`` Build the testing tree. Default is ``ON``.  Note that
+  this causes the test suite to be compiled, but it is not
+  executed. To execute the suite, run "make test".
+
+``OPENEXR_RUN_FUZZ_TESTS``
+  Controls whether to include the fuzz tests (very slow). Default is ``OFF``.
+
+``OPENEXR_BUILD_TOOLS``
+  Build and install the binary programs (exrheader, exrinfo, exrmakepreview, etc). Default is ``ON``.
+  
+``OPENEXR_INSTALL_EXAMPLES``
+  Build and install the example code. Default is ``ON``.
 
 ### Additional CMake Options:
 
-See the cmake documentation for more information (https://cmake.org/cmake/help/v3.12/)
+See the cmake documentation for more information
+(https://cmake.org/cmake/help/v3.12/)
 
-* **CMAKE\_BUILD\_TYPE**
+``CMAKE_BUILD_TYPE``
+  For builds when not using a multi-configuration generator. Available
+  values: ``Debug``, ``Release``, ``RelWithDebInfo``, ``MinSizeRel``
 
-  For builds when not using a multi-configuration generator. Available values: ``Debug``, ``Release``, ``RelWithDebInfo``, ``MinSizeRel``
-
-* **BUILD\_SHARED\_LIBS**
-
+``BUILD_SHARED_LIBS``
   This is the primary control whether to build static libraries or
   shared libraries / dlls (side note: technically a convention, hence
-  not an official ``CMAKE\_`` variable, it is defined within cmake and
+  not an official ``CMAKE_`` variable, it is defined within cmake and
   used everywhere to control this static / shared behavior)
 
-* For forcing particular compilers to match VFX platform requirements
+``OPENEXR_CXX_STANDARD``
+  C++ standard to compile against. This obeys the global
+  ``CMAKE_CXX_STANDARD`` but doesn’t force the global setting to
+  enable sub-project inclusion. Default is ``14``.
 
-  ** CMAKE\_CXX\_COMPILER**
+``CMAKE_CXX_COMPILER``
+  The C++ compiler.        
 
-  ** CMAKE\_C\_COMPILER**
+``CMAKE_C_COMPILER``
+  The C compiler.
+  
+``CMAKE_INSTALL_RPATH``
+  For non-standard install locations where you don’t want to have to
+  set ``LD_LIBRARY_PATH`` to use them
 
-  ** CMAKE\_LINKER**
+``CMAKE_EXPORT_COMPILE_COMMANDS``
+  Enable/Disable output of compile commands during generation. Default is ``OFF``.
 
-     All the related cmake compiler flags (i.e. CMAKE\_CXX_FLAGS, CMAKE_CXX_FLAGS_DEBUG)
-
-  ** CMAKE\_INSTALL\_RPATH**
-
-     For non-standard install locations where you don’t want to have to set ``LD_LIBRARY_PATH`` to use them
+``CMAKE_VERBOSE_MAKEFILE``
+  Echo all compile commands during make. Default is ``OFF``.
 
 ## Cmake Tips and Tricks:
 
-If you have ninja (https://ninja-build.org/) installed, it is faster than make. You can generate ninja files using cmake when doing the initial generation:
+If you have ninja (https://ninja-build.org/) installed, it is faster
+than make. You can generate ninja files using cmake when doing the
+initial generation:
 
     % cmake -G “Ninja” ..
 
-If you would like to confirm compile flags, you don’t have to specify the verbose configuration up front, you can instead run
+If you would like to confirm compile flags, you don’t have to specify
+the verbose configuration up front, you can instead run
 
     % make VERBOSE=1
