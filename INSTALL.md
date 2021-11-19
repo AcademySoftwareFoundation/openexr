@@ -121,9 +121,11 @@ symlinks and files in the install lib folder:
     
 The ``-3_1`` suffix encodes the major and minor version, which can be
 configured via the ``OPENEXR_LIB_SUFFIX`` CMake setting. The "30"
-corresponds to the "so version", or in ``libtool`` terminology the
-``current` shared object version; the "3" denotes the ``libtool``
-revision, and the "0" denotes the ``libtool`` age.
+corresponds to the so version, or in ``libtool`` terminology the
+_current_ shared object version; the "3" denotes the ``libtool``
+_revision_, and the "0" denotes the ``libtool`` _age_. See the
+[``libtool``](https://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html#Updating-version-info)
+documentation for more details.
 
 ## Imath Dependency
 
@@ -143,15 +145,19 @@ existing installation of Imath, add the Imath directory to the
 
 Alternatively, you can specify the ``Imath_DIR`` variable:
 
+    % mkdir $build_directory
+    % cd $build_directory
     % cmake -DImath_DIR=$imath_config_directory \
             -DCMAKE_INSTALL_PREFIX=$openexr_install_destination \
             $openexr_source_directory
+    % cmake --build . --target install --config Release
 
-Note that ``Imath_DIR`` should be set to the directory that includes
+Note that ``Imath_DIR`` should point to the directory that includes
 the ``ImathConfig.cmake`` file, which is typically the
-``lib/cmake/Imath`` folder of the root install directory.
+``lib/cmake/Imath`` folder of the root install directory where Imath
+is installed.
 
-Please see cmake/OpenEXRSetup.cmake for other customization options.
+Please see ``cmake/OpenEXRSetup.cmake`` for other customization options.
 
 ## Custom Namespaces
 
@@ -166,8 +172,8 @@ IDEs in common use.
 ## Cross Compiling / Specifying Specific Compilers
 
 When trying to either cross-compile for a different platform, or for
-tasks such as specifying a compiler set to match the VFX reference
-platform (https://vfxplatform.com/), cmake provides the idea of a
+tasks such as specifying a compiler set to match the [VFX reference
+platform](https://vfxplatform.com), cmake provides the idea of a
 toolchain which may be useful instead of having to remember a chain of
 configuration options. It also means that platform-specific compiler
 names and options are out of the main cmake file, providing better
@@ -209,17 +215,21 @@ You can customize these options three ways:
 ### Library Naming Options:
 
 ``OPENEXR_LIB_SUFFIX``
+
   Append the given string to the end of all the OpenEXR
   libraries. Default is ``-<major>_<minor>`` version string. Please
   see the section on library names
 
 ### Imath Dependency:
 
-``CMAKE_PREFIX_PATH`` The standard CMake path in which to
+``CMAKE_PREFIX_PATH``
+
+  The standard CMake path in which to
   search for dependencies, Imath in particular.  A comma-separated
   path. Add the root directory where Imath is installed.
 
 ``Imath_DIR``
+
   The config directory where Imath is installed. An alternative to
   using ``CMAKE_PREFIX_PATH``.  Note that ``Imath_DIR`` should
   be set to the directory that includes the ``ImathConfig.cmake``
@@ -229,48 +239,63 @@ You can customize these options three ways:
 ### Namespace Options:
 
 ``OPENEXR_IMF_NAMESPACE``
+
   Public namespace alias for OpenEXR. Default is ``Imf``.
 
 ``OPENEXR_INTERNAL_IMF_NAMESPACE``
+
   Real namespace for OpenEXR that will end up in compiled
   symbols. Default is ``Imf_<major>_<minor>``.
 
 ``OPENEXR_NAMESPACE_CUSTOM``
+
   Whether the namespace has been customized (so external users know)
 
 ``IEX_NAMESPACE``
+
   Public namespace alias for Iex. Default is ``Iex``.
 
 ``IEX_INTERNAL_NAMESPACE``
+
   Real namespace for Iex that will end up in compiled symbols. Default
   is ``Iex_<major>_<minor>``.
 
 ``IEX_NAMESPACE_CUSTOM``
+
   Whether the namespace has been customized (so external users know)
 
 ``ILMTHREAD_NAMESPACE``
+
   Public namespace alias for IlmThread. Default is ``IlmThread``.
 
 ``ILMTHREAD_INTERNAL_NAMESPACE``
+
   Real namespace for IlmThread that will end up in compiled
   symbols. Default is ``IlmThread_<major>_<minor>``.
 
 ``ILMTHREAD_NAMESPACE_CUSTOM``
+
   Whether the namespace has been customized (so external users know)
 
 ### Component Options:
 
-``BUILD_TESTING`` Build the testing tree. Default is ``ON``.  Note that
+``BUILD_TESTING``
+
+  Build the testing tree. Default is ``ON``.  Note that
   this causes the test suite to be compiled, but it is not
   executed. To execute the suite, run "make test".
 
 ``OPENEXR_RUN_FUZZ_TESTS``
+
   Controls whether to include the fuzz tests (very slow). Default is ``OFF``.
 
 ``OPENEXR_BUILD_TOOLS``
-  Build and install the binary programs (exrheader, exrinfo, exrmakepreview, etc). Default is ``ON``.
+
+  Build and install the binary programs (exrheader, exrinfo,
+  exrmakepreview, etc). Default is ``ON``.
   
 ``OPENEXR_INSTALL_EXAMPLES``
+
   Build and install the example code. Default is ``ON``.
 
 ### Additional CMake Options:
@@ -279,34 +304,43 @@ See the cmake documentation for more information
 (https://cmake.org/cmake/help/v3.12/)
 
 ``CMAKE_BUILD_TYPE``
+
   For builds when not using a multi-configuration generator. Available
   values: ``Debug``, ``Release``, ``RelWithDebInfo``, ``MinSizeRel``
 
 ``BUILD_SHARED_LIBS``
+
   This is the primary control whether to build static libraries or
   shared libraries / dlls (side note: technically a convention, hence
   not an official ``CMAKE_`` variable, it is defined within cmake and
   used everywhere to control this static / shared behavior)
 
 ``OPENEXR_CXX_STANDARD``
+
   C++ standard to compile against. This obeys the global
   ``CMAKE_CXX_STANDARD`` but doesn’t force the global setting to
   enable sub-project inclusion. Default is ``14``.
 
 ``CMAKE_CXX_COMPILER``
+
   The C++ compiler.        
 
 ``CMAKE_C_COMPILER``
+
   The C compiler.
   
 ``CMAKE_INSTALL_RPATH``
+
   For non-standard install locations where you don’t want to have to
   set ``LD_LIBRARY_PATH`` to use them
 
 ``CMAKE_EXPORT_COMPILE_COMMANDS``
-  Enable/Disable output of compile commands during generation. Default is ``OFF``.
+
+  Enable/Disable output of compile commands during generation. Default
+  is ``OFF``.
 
 ``CMAKE_VERBOSE_MAKEFILE``
+
   Echo all compile commands during make. Default is ``OFF``.
 
 ## Cmake Tips and Tricks:
