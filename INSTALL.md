@@ -238,63 +238,63 @@ You can customize these options three ways:
   
 ### Namespace Options:
 
-``OPENEXR_IMF_NAMESPACE``
+* ``OPENEXR_IMF_NAMESPACE``
 
   Public namespace alias for OpenEXR. Default is ``Imf``.
 
-``OPENEXR_INTERNAL_IMF_NAMESPACE``
+* ``OPENEXR_INTERNAL_IMF_NAMESPACE``
 
   Real namespace for OpenEXR that will end up in compiled
   symbols. Default is ``Imf_<major>_<minor>``.
 
-``OPENEXR_NAMESPACE_CUSTOM``
+* ``OPENEXR_NAMESPACE_CUSTOM``
 
   Whether the namespace has been customized (so external users know)
 
-``IEX_NAMESPACE``
+* ``IEX_NAMESPACE``
 
   Public namespace alias for Iex. Default is ``Iex``.
 
-``IEX_INTERNAL_NAMESPACE``
+* ``IEX_INTERNAL_NAMESPACE``
 
   Real namespace for Iex that will end up in compiled symbols. Default
   is ``Iex_<major>_<minor>``.
 
-``IEX_NAMESPACE_CUSTOM``
+* ``IEX_NAMESPACE_CUSTOM``
 
   Whether the namespace has been customized (so external users know)
 
-``ILMTHREAD_NAMESPACE``
+* ``ILMTHREAD_NAMESPACE``
 
   Public namespace alias for IlmThread. Default is ``IlmThread``.
 
-``ILMTHREAD_INTERNAL_NAMESPACE``
+* ``ILMTHREAD_INTERNAL_NAMESPACE``
 
   Real namespace for IlmThread that will end up in compiled
   symbols. Default is ``IlmThread_<major>_<minor>``.
 
-``ILMTHREAD_NAMESPACE_CUSTOM``
+* ``ILMTHREAD_NAMESPACE_CUSTOM``
 
   Whether the namespace has been customized (so external users know)
 
 ### Component Options:
 
-``BUILD_TESTING``
+* ``BUILD_TESTING``
 
   Build the testing tree. Default is ``ON``.  Note that
   this causes the test suite to be compiled, but it is not
   executed. To execute the suite, run "make test".
 
-``OPENEXR_RUN_FUZZ_TESTS``
+* ``OPENEXR_RUN_FUZZ_TESTS``
 
   Controls whether to include the fuzz tests (very slow). Default is ``OFF``.
 
-``OPENEXR_BUILD_TOOLS``
+* ``OPENEXR_BUILD_TOOLS``
 
   Build and install the binary programs (exrheader, exrinfo,
   exrmakepreview, etc). Default is ``ON``.
   
-``OPENEXR_INSTALL_EXAMPLES``
+* ``OPENEXR_INSTALL_EXAMPLES``
 
   Build and install the example code. Default is ``ON``.
 
@@ -303,43 +303,43 @@ You can customize these options three ways:
 See the cmake documentation for more information
 (https://cmake.org/cmake/help/v3.12/)
 
-``CMAKE_BUILD_TYPE``
+* ``CMAKE_BUILD_TYPE``
 
   For builds when not using a multi-configuration generator. Available
   values: ``Debug``, ``Release``, ``RelWithDebInfo``, ``MinSizeRel``
 
-``BUILD_SHARED_LIBS``
+* ``BUILD_SHARED_LIBS``
 
   This is the primary control whether to build static libraries or
   shared libraries / dlls (side note: technically a convention, hence
   not an official ``CMAKE_`` variable, it is defined within cmake and
   used everywhere to control this static / shared behavior)
 
-``OPENEXR_CXX_STANDARD``
+* ``OPENEXR_CXX_STANDARD``
 
   C++ standard to compile against. This obeys the global
   ``CMAKE_CXX_STANDARD`` but doesn’t force the global setting to
   enable sub-project inclusion. Default is ``14``.
 
-``CMAKE_CXX_COMPILER``
+* ``CMAKE_CXX_COMPILER``
 
   The C++ compiler.        
 
-``CMAKE_C_COMPILER``
+* ``CMAKE_C_COMPILER``
 
   The C compiler.
   
-``CMAKE_INSTALL_RPATH``
+* ``CMAKE_INSTALL_RPATH``
 
   For non-standard install locations where you don’t want to have to
   set ``LD_LIBRARY_PATH`` to use them
 
-``CMAKE_EXPORT_COMPILE_COMMANDS``
+* ``CMAKE_EXPORT_COMPILE_COMMANDS``
 
   Enable/Disable output of compile commands during generation. Default
   is ``OFF``.
 
-``CMAKE_VERBOSE_MAKEFILE``
+* ``CMAKE_VERBOSE_MAKEFILE``
 
   Echo all compile commands during make. Default is ``OFF``.
 
