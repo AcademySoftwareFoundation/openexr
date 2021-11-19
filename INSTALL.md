@@ -214,7 +214,7 @@ You can customize these options three ways:
 
 ### Library Naming Options:
 
-``OPENEXR_LIB_SUFFIX``
+* ``OPENEXR_LIB_SUFFIX``
 
   Append the given string to the end of all the OpenEXR
   libraries. Default is ``-<major>_<minor>`` version string. Please
@@ -222,13 +222,13 @@ You can customize these options three ways:
 
 ### Imath Dependency:
 
-``CMAKE_PREFIX_PATH``
+* ``CMAKE_PREFIX_PATH``
 
   The standard CMake path in which to
   search for dependencies, Imath in particular.  A comma-separated
   path. Add the root directory where Imath is installed.
 
-``Imath_DIR``
+* ``Imath_DIR``
 
   The config directory where Imath is installed. An alternative to
   using ``CMAKE_PREFIX_PATH``.  Note that ``Imath_DIR`` should
