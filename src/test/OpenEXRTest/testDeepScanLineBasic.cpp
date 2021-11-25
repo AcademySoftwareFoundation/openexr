@@ -33,12 +33,7 @@ using namespace ILMTHREAD_NAMESPACE;
 namespace
 {
 
-const int width = 273;
-const int height = 173;
-const int minX = 10;
-const int minY = 11;
-const Box2i dataWindow(V2i(minX, minY), V2i(minX + width - 1, minY + height - 1));
-const Box2i displayWindow(V2i(0, 0), V2i(minX + width * 2, minY + height * 2));
+
 
 vector<int> channelTypes;
 Array2D<unsigned int> sampleCount;
@@ -47,7 +42,10 @@ Header header;
 void generateRandomFile (const std::string filename,
                          int channelCount,
                          Compression compression,
-                         bool bulkWrite)
+                         bool bulkWrite,
+                         const Box2i& dataWindow,
+                         const Box2i& displayWindow
+                        )
 {
     cout << "generating " << flush;
     header = Header(displayWindow, dataWindow,
@@ -58,6 +56,10 @@ void generateRandomFile (const std::string filename,
                     compression);
 
     cout << "compression " << compression << " " << flush;
+
+    int width = dataWindow.max.x - dataWindow.min.x+1;
+    int height = dataWindow.max.y - dataWindow.min.y+1;
+
 
     //
     // Add channels.
@@ -133,6 +135,10 @@ void generateRandomFile (const std::string filename,
 
     file.setFrameBuffer(frameBuffer);
 
+    int maxSamples = 10;
+
+    bool bigFile = width>1000 || height>1000;
+
     cout << "writing " << flush;
     if (bulkWrite)
     {
@@ -145,23 +151,41 @@ void generateRandomFile (const std::string filename,
 
             for (int j = 0; j < width; j++)
             {
-                sampleCount[i][j] = random_int(10) + 1;
+                int samples = random_int(maxSamples);
+
+                // big files write very sparse data for efficiency: most pixels have no samples
+
+                if(bigFile && (i%63!=0 || j%63!=0))
+                {
+                    samples=0;
+                }
+                sampleCount[i][j] = samples;
+
+
                 for (int k = 0; k < channelCount; k++)
                 {
-                    if (channelTypes[k] == 0)
-                        data[k][i][j] = new unsigned int[sampleCount[i][j]];
-                    if (channelTypes[k] == 1)
-                        data[k][i][j] = new half[sampleCount[i][j]];
-                    if (channelTypes[k] == 2)
-                        data[k][i][j] = new float[sampleCount[i][j]];
-                    for (unsigned int l = 0; l < sampleCount[i][j]; l++)
+                    if( samples>0 )
                     {
+
                         if (channelTypes[k] == 0)
-                            ((unsigned int*)data[k][i][j])[l] = (i * width + j) % 2049;
+                            data[k][i][j] = new unsigned int[sampleCount[i][j]];
                         if (channelTypes[k] == 1)
-                            ((half*)data[k][i][j])[l] = (i * width + j) % 2049;
+                            data[k][i][j] = new half[sampleCount[i][j]];
                         if (channelTypes[k] == 2)
-                            ((float*)data[k][i][j])[l] = (i * width + j) % 2049;
+                            data[k][i][j] = new float[sampleCount[i][j]];
+                        for (unsigned int l = 0; l < sampleCount[i][j]; l++)
+                        {
+                            if (channelTypes[k] == 0)
+                                ((unsigned int*)data[k][i][j])[l] = (i * width + j) % 2049;
+                            if (channelTypes[k] == 1)
+                                ((half*)data[k][i][j])[l] = (i * width + j) % 2049;
+                            if (channelTypes[k] == 2)
+                                ((float*)data[k][i][j])[l] = (i * width + j) % 2049;
+                        }
+                    }
+                    else
+                    {
+                       data[k][i][j] = nullptr;
                     }
                 }
             }
@@ -180,25 +204,42 @@ void generateRandomFile (const std::string filename,
 
             for (int j = 0; j < width; j++)
             {
-                sampleCount[i][j] = random_int(10) + 1;
+                int samples = random_int(maxSamples);
+
+                // big files write very sparse data for efficiency: most pixels have no samples
+                if(bigFile && (i%63!=0 || j%63!=0))
+                {
+                    samples=0;
+                }
+                sampleCount[i][j] = samples;
+
                 for (int k = 0; k < channelCount; k++)
                 {
-                    if (channelTypes[k] == 0)
-                        data[k][i][j] = new unsigned int[sampleCount[i][j]];
-                    if (channelTypes[k] == 1)
-                        data[k][i][j] = new half[sampleCount[i][j]];
-                    if (channelTypes[k] == 2)
-                        data[k][i][j] = new float[sampleCount[i][j]];
-                    for (unsigned int l = 0; l < sampleCount[i][j]; l++)
+
+                    if(samples>0)
                     {
                         if (channelTypes[k] == 0)
-                            ((unsigned int*)data[k][i][j])[l] = (i * width + j) % 2049;
+                            data[k][i][j] = new unsigned int[sampleCount[i][j]];
                         if (channelTypes[k] == 1)
-                            ((half*)data[k][i][j])[l] = (i * width + j) % 2049;
+                            data[k][i][j] = new half[sampleCount[i][j]];
                         if (channelTypes[k] == 2)
-                            ((float*)data[k][i][j])[l] = (i * width + j) % 2049;
+                            data[k][i][j] = new float[sampleCount[i][j]];
+                        for (unsigned int l = 0; l < sampleCount[i][j]; l++)
+                        {
+                            if (channelTypes[k] == 0)
+                                ((unsigned int*)data[k][i][j])[l] = (i * width + j) % 2049;
+                            if (channelTypes[k] == 1)
+                                ((half*)data[k][i][j])[l] = (i * width + j) % 2049;
+                            if (channelTypes[k] == 2)
+                                ((float*)data[k][i][j])[l] = (i * width + j) % 2049;
+                        }
+                    }
+                    else
+                    {
+                        data[k][i][j] = nullptr;
                     }
                 }
+
             }
             file.writePixels(1);
         }
@@ -243,6 +284,12 @@ void readFile (const std::string & filename,
     assert (fileHeader.compression() == header.compression());
     assert (fileHeader.channels() == header.channels());
     assert (fileHeader.type() == header.type());
+
+    const Box2i& dataWindow = fileHeader.dataWindow();
+
+    int width = dataWindow.max.x - dataWindow.min.x+1;
+    int height = dataWindow.max.y - dataWindow.min.y+1;
+
 
     Array2D<unsigned int> localSampleCount;
     localSampleCount.resizeErase(height, width);
@@ -348,7 +395,7 @@ void readFile (const std::string & filename,
             {
                 for (int k = 0; k < channelCount; k++)
                 {
-                    if(!randomChannels || read_channel[k]==1)
+                    if(  localSampleCount[i][j]>0 && (!randomChannels || read_channel[k]==1))
                     {
                                 if (channelTypes[k] == 0)
                                     data[k][i][j] = new unsigned int[localSampleCount[i][j]];
@@ -356,6 +403,10 @@ void readFile (const std::string & filename,
                                     data[k][i][j] = new half[localSampleCount[i][j]];
                                 if (channelTypes[k] == 2)
                                     data[k][i][j] = new float[localSampleCount[i][j]];
+                    }
+                    else
+                    {
+                        data[k][i][j] = nullptr;
                     }
                 }
                 for( int f = 0 ; f < fillChannels ; ++f )
@@ -383,7 +434,7 @@ void readFile (const std::string & filename,
             {
                 for (int k = 0; k < channelCount; k++)
                 {
-                    if( !randomChannels || read_channel[k]==1)
+                    if( localSampleCount[i][j]>0 && (!randomChannels || read_channel[k]==1))
                     {
                                 if (channelTypes[k] == 0)
                                     data[k][i][j] = new unsigned int[localSampleCount[i][j]];
@@ -391,6 +442,10 @@ void readFile (const std::string & filename,
                                     data[k][i][j] = new half[localSampleCount[i][j]];
                                 if (channelTypes[k] == 2)
                                     data[k][i][j] = new float[localSampleCount[i][j]];
+                    }
+                    else
+                    {
+                        data[k][i][j] = nullptr;
                     }
                 }
                 for( int f = 0 ; f < fillChannels ; ++f )
@@ -465,7 +520,8 @@ void readFile (const std::string & filename,
        }
 }
 
-void readWriteTest(const std::string & tempDir, int channelCount, int testTimes)
+void readWriteTest(const std::string & tempDir, int channelCount, int testTimes,
+                                     const Box2i& dataWindow,const Box2i& displayWindow)
 {
     cout << "Testing files with " << channelCount << " channels " << testTimes << " times."
          << endl << flush;
@@ -489,14 +545,14 @@ void readWriteTest(const std::string & tempDir, int channelCount, int testTimes)
                 break;
         }
 
-        generateRandomFile (filename, channelCount, compression, false);
+        generateRandomFile (filename, channelCount, compression, false , dataWindow,displayWindow);
         readFile (filename, channelCount, false , false );
 	if (channelCount>1)
 	    readFile (filename, channelCount, false , true );
         remove (filename.c_str());
         cout << endl << flush;
 
-        generateRandomFile (filename, channelCount, compression, true);
+        generateRandomFile (filename, channelCount, compression, true, dataWindow,displayWindow);
         readFile (filename, channelCount, true , false );
 	if (channelCount>1)
 	    readFile (filename, channelCount, true , true );
@@ -580,6 +636,23 @@ void testCompressionTypeChecks()
 
 }; // namespace
 
+namespace small
+{
+const int width = 273;
+const int height = 173;
+const int minX = 10;
+const int minY = 11;
+}
+
+namespace large
+{
+const int width = 10000;
+const int height = 5000;
+const int minX = -22;
+const int minY = -12;
+}
+
+
 void testDeepScanLineBasic (const std::string &tempDir)
 {
     try
@@ -593,10 +666,20 @@ void testDeepScanLineBasic (const std::string &tempDir)
 
         
         testCompressionTypeChecks();
-	
-        readWriteTest (tempDir, 1, 100);
-	    readWriteTest (tempDir, 3,  50);
-        readWriteTest (tempDir,10,  10);
+
+        const Box2i largeDataWindow(V2i(large::minX, large::minY), V2i(large::minX + large::width - 1, large::minY + large::height - 1));
+        const Box2i largeDisplayWindow(V2i(0, 0), V2i(large::minX + large::width * 2, large::minY + large::height * 2));
+
+        readWriteTest (tempDir, 1, 3 , largeDataWindow , largeDisplayWindow);
+
+        const Box2i dataWindow(V2i(small::minX, small::minY), V2i(small::minX + small::width - 1, small::minY + small::height - 1));
+        const Box2i displayWindow(V2i(0, 0), V2i(small::minX + small::width * 2, small::minY + small::height * 2));
+
+        readWriteTest (tempDir, 1,  50 , dataWindow , displayWindow);
+        readWriteTest (tempDir, 3,  25 , dataWindow , displayWindow);
+        readWriteTest (tempDir,10,  10 , dataWindow , displayWindow);
+
+
 
         ThreadPool::globalThreadPool().setNumThreads(numThreads);
 
