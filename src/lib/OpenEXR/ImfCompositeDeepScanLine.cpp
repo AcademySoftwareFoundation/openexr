@@ -238,6 +238,20 @@ CompositeDeepScanLine::setFrameBuffer(const FrameBuffer& fr)
     
     for(FrameBuffer::ConstIterator q=fr.begin();q!=fr.end();q++)
     {
+
+        //
+        // Frame buffer must have xSampling and ySampling set to 1
+        // (Sampling in FrameBuffers must match sampling in file,
+        //  and Header::sanityCheck enforces sampling in deep files is 1)
+        //
+
+        if(q.slice().xSampling!=1 || q.slice().ySampling!=1)
+        {
+             THROW (IEX_NAMESPACE::ArgExc, "X and/or y subsampling factors "
+				"of \"" << q.name() << "\" channel in framebuffer "
+				"are not 1");
+        }
+
         string name(q.name());
         if(name=="ZBack")
         {
