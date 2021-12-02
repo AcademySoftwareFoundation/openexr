@@ -126,7 +126,7 @@ struct LineBuffer
     int                 number;
     bool                hasException;
     string              exception;
-
+    Array2D<unsigned int> _tempCountBuffer;
     LineBuffer ();
     ~LineBuffer ();
 
@@ -197,8 +197,11 @@ struct DeepScanLineInputFile::Data
     MultiPartInputFile*         multiPartFile;      // for multipart files opened as single part
     bool                        memoryMapped;       // if the stream is memory mapped
 
+    bool                        bigFile;            // if file has large dataWindow, do not use 'sampleCount' cache; read samples
+                                                    // each time
+
     Array2D<unsigned int>       sampleCount;        // the number of samples
-                                                    // in each pixel
+                                                    // in each pixel unless bigFile is true
 
     Array<unsigned int>         lineSampleCount;    // the number of samples
                                                     // in each line
@@ -247,6 +250,7 @@ DeepScanLineInputFile::Data::Data (int numThreads):
         multiPartBackwardSupport(false),
         multiPartFile(NULL),
         memoryMapped(false),
+        bigFile(false),
         frameBufferValid(false),
         _streamData(NULL),
         _deleteStream(false)
@@ -414,7 +418,7 @@ readPixelData (InputStreamMutex *streamData,
     // if necessary.
     //
 
-    if (!isMultiPart(ifd->version))
+    if (!isMultiPart(ifd->version) && !ifd->bigFile)
     {
         if (ifd->nextLineBufferMinY != minY)
             streamData->is->seekg (lineOffset);
@@ -424,6 +428,7 @@ readPixelData (InputStreamMutex *streamData,
         //
         // In a multi-part file, the file pointer may have been moved by
         // other parts, so we have to ask tellg() where we are.
+        // big files also move the pointer since they have re-read the sampleCount buffer
         //
         if (streamData->is->tellg() != ifd->lineOffsets[lineBufferNumber])
             streamData->is->seekg (lineOffset);
@@ -513,6 +518,185 @@ readPixelData (InputStreamMutex *streamData,
     else
         ifd->nextLineBufferMinY = minY - ifd->linesInBuffer;
 }
+
+
+
+void
+readSampleCountForLineBlock(InputStreamMutex* streamData,
+                            DeepScanLineInputFile::Data* data,
+                            int lineBlockId,
+                            Array2D<unsigned int>* sampleCountBuffer,
+                            int sampleCountMinY,
+                            bool writeToSlice
+                           )
+{
+    streamData->is->seekg(data->lineOffsets[lineBlockId]);
+
+    if (isMultiPart(data->version))
+    {
+        int partNumber;
+        OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (*streamData->is, partNumber);
+
+        if (partNumber != data->partNumber)
+            throw IEX_NAMESPACE::ArgExc("Unexpected part number.");
+    }
+
+    int minY;
+    OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (*streamData->is, minY);
+
+    //
+    // Check the correctness of minY.
+    //
+
+    if (minY != data->minY + lineBlockId * data->linesInBuffer)
+        throw IEX_NAMESPACE::ArgExc("Unexpected data block y coordinate.");
+
+    int maxY;
+    maxY = min(minY + data->linesInBuffer - 1, data->maxY);
+
+    uint64_t sampleCountTableDataSize;
+    OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (*streamData->is, sampleCountTableDataSize);
+
+
+
+    if(sampleCountTableDataSize>static_cast<uint64_t>(data->maxSampleCountTableSize))
+    {
+        THROW (IEX_NAMESPACE::ArgExc, "Bad sampleCountTableDataSize read from chunk "<< lineBlockId << ": expected " << data->maxSampleCountTableSize << " or less, got "<< sampleCountTableDataSize);
+    }
+
+    uint64_t packedDataSize;
+    uint64_t unpackedDataSize;
+    OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (*streamData->is, packedDataSize);
+    OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (*streamData->is, unpackedDataSize);
+
+
+
+    //
+    // We make a check on the data size requirements here.
+    // Whilst we wish to store 64bit sizes on disk, not all the compressors
+    // have been made to work with such data sizes and are still limited to
+    // using signed 32 bit (int) for the data size. As such, this version
+    // insists that we validate that the data size does not exceed the data
+    // type max limit.
+    // @TODO refactor the compressor code to ensure full 64-bit support.
+    //
+
+    uint64_t compressorMaxDataSize = static_cast<uint64_t>(std::numeric_limits<int>::max());
+    if (packedDataSize         > compressorMaxDataSize ||
+        unpackedDataSize > compressorMaxDataSize ||
+        sampleCountTableDataSize        > compressorMaxDataSize)
+    {
+        THROW (IEX_NAMESPACE::ArgExc, "This version of the library does not"
+            << "support the allocation of data with size  > "
+            << compressorMaxDataSize
+            << " file table size    :" << sampleCountTableDataSize
+            << " file unpacked size :" << unpackedDataSize
+            << " file packed size   :" << packedDataSize << ".\n");
+    }
+
+
+    streamData->is->read(data->sampleCountTableBuffer, static_cast<int>(sampleCountTableDataSize));
+
+    const char* readPtr;
+
+    //
+    // If the sample count table is compressed, we'll uncompress it.
+    //
+
+
+    if (sampleCountTableDataSize < static_cast<uint64_t>(data->maxSampleCountTableSize))
+    {
+        if(!data->sampleCountTableComp)
+        {
+            THROW(IEX_NAMESPACE::ArgExc,"Deep scanline data corrupt at chunk " << lineBlockId << " (sampleCountTableDataSize error)");
+        }
+        data->sampleCountTableComp->uncompress(data->sampleCountTableBuffer,
+                                               static_cast<int>(sampleCountTableDataSize),
+                                               minY,
+                                               readPtr);
+    }
+    else readPtr = data->sampleCountTableBuffer;
+
+    char* base = data->sampleCountSliceBase;
+    int xStride = data->sampleCountXStride;
+    int yStride = data->sampleCountYStride;
+
+    // total number of samples in block: used to check samplecount table doesn't
+    // reference more data than exists
+
+    size_t cumulative_total_samples=0;
+
+    for (int y = minY; y <= maxY; y++)
+    {
+        int yInDataWindow = y - data->minY;
+        data->lineSampleCount[yInDataWindow] = 0;
+
+        int lastAccumulatedCount = 0;
+        for (int x = data->minX; x <= data->maxX; x++)
+        {
+            int accumulatedCount, count;
+
+            //
+            // Read the sample count for pixel (x, y).
+            //
+
+            Xdr::read <CharPtrIO> (readPtr, accumulatedCount);
+
+            // sample count table should always contain monotonically
+            // increasing values.
+            if (accumulatedCount < lastAccumulatedCount)
+            {
+                THROW(IEX_NAMESPACE::ArgExc,"Deep scanline sampleCount data corrupt at chunk " << lineBlockId << " (negative sample count detected)");
+            }
+
+            count = accumulatedCount - lastAccumulatedCount;
+            lastAccumulatedCount = accumulatedCount;
+
+            //
+            // Store the data in internal data structure.
+            //
+
+            if(sampleCountBuffer)
+            {
+               (*sampleCountBuffer)[y-sampleCountMinY][x - data->minX] = count;
+            }
+            data->lineSampleCount[yInDataWindow] += count;
+
+            //
+            // Store the data in external slice
+            //
+            if (writeToSlice)
+            {
+               sampleCount(base, xStride, yStride, x, y) = count;
+            }
+        }
+        cumulative_total_samples+=data->lineSampleCount[yInDataWindow];
+        if(cumulative_total_samples*data->combinedSampleSize > unpackedDataSize)
+        {
+            THROW(IEX_NAMESPACE::ArgExc,"Deep scanline sampleCount data corrupt at chunk " << lineBlockId << ": pixel data only contains " << unpackedDataSize
+            << " bytes of data but table references at least " << cumulative_total_samples*data->combinedSampleSize << " bytes of sample data" );
+        }
+
+        data->gotSampleCount[y - data->minY] = true;
+    }
+}
+
+
+void
+fillSampleCountFromCache(int y, DeepScanLineInputFile::Data* data)
+{
+    int yInDataWindow = y - data->minY;
+    char* base = data->sampleCountSliceBase;
+    int xStride = data->sampleCountXStride;
+    int yStride = data->sampleCountYStride;
+
+    for (int x = data->minX; x <= data->maxX; x++)
+    {
+        unsigned int count = data->sampleCount[yInDataWindow][x - data->minX];
+        sampleCount(base, xStride, yStride, x, y) = count;
+    }
+}
+
 
 //
 // A LineBufferTask encapsulates the task uncompressing a set of
@@ -706,9 +890,22 @@ LineBufferTask::execute ()
 
                     int width = (_ifd->maxX - _ifd->minX + 1);
 
-                    ptrdiff_t base = reinterpret_cast<ptrdiff_t>(&_ifd->sampleCount[0][0]);
-                    base -= sizeof(unsigned int)*_ifd->minX;
-                    base -= sizeof(unsigned int)*static_cast<ptrdiff_t>(_ifd->minY) * static_cast<ptrdiff_t>(width);
+
+                    ptrdiff_t base;
+
+                    if( _ifd->bigFile)
+                    {
+                        base = reinterpret_cast<ptrdiff_t>(&_lineBuffer->_tempCountBuffer[0][0]);
+                        base -= sizeof(unsigned int)*_ifd->minX;
+                        base -= sizeof(unsigned int)*static_cast<ptrdiff_t>(_lineBuffer->minY) * static_cast<ptrdiff_t>(width);
+                    }
+                    else
+                    {
+                        base = reinterpret_cast<ptrdiff_t>(&_ifd->sampleCount[0][0]);
+                        base -= sizeof(unsigned int)*_ifd->minX;
+                        base -= sizeof(unsigned int)*static_cast<ptrdiff_t>(_ifd->minY) * static_cast<ptrdiff_t>(width);
+
+                    }
 
                     copyIntoDeepFrameBuffer (readPtr, slice.base,
                                              reinterpret_cast<char*>(base),
@@ -777,6 +974,32 @@ newLineBufferTask
             lineBuffer->number = number;
             lineBuffer->uncompressedData = 0;
 
+            if (ifd->bigFile)
+            {
+
+                if (lineBuffer->_tempCountBuffer.height() != ifd->linesInBuffer ||
+                    lineBuffer->_tempCountBuffer.width() != ifd->maxX - ifd->minX + 1)
+                {
+                   lineBuffer->_tempCountBuffer.resizeErase(ifd->linesInBuffer,ifd->maxX - ifd->minX + 1);
+                }
+
+                //
+                // read sample counts into internal 'tempCountBuffer' only, not into external buffer
+                //
+
+                int lineBlockId = ( lineBuffer->minY - ifd->minY ) / ifd->linesInBuffer;
+
+
+                readSampleCountForLineBlock(ifd->_streamData,
+                                           ifd,
+                                           lineBlockId,
+                                           &lineBuffer->_tempCountBuffer,
+                                           lineBuffer->minY,
+                                           false
+                                           );
+
+            }
+
             readPixelData (ifd->_streamData, ifd, lineBuffer->minY,
                            lineBuffer->buffer,
                            lineBuffer->packedDataSize,
@@ -816,6 +1039,16 @@ newLineBufferTask
                                scanLineMin, scanLineMax);
 }
 
+//
+// when handling files with dataWindows with a large number of pixels,
+// the sampleCount values are not precached and Data::sampleCount is not asigned
+// instead, the sampleCount is read every time readPixels() is called
+// and sample counts are stored in LineBuffer::_tempCountBuffer instead
+// (A square image that is 16k by 16k pixels has gBigFileDataWindowSize pixels,
+//  andthe sampleCount table would take 1GiB of memory to store)
+//
+const uint64_t gBigFileDataWindowSize = (1<<28);
+
 } // namespace
 
 
@@ -853,8 +1086,18 @@ void DeepScanLineInputFile::initialize(const Header& header)
         _data->minY = dataWindow.min.y;
         _data->maxY = dataWindow.max.y;
 
-        _data->sampleCount.resizeErase(_data->maxY - _data->minY + 1,
-                                       _data->maxX - _data->minX + 1);
+
+        if ( static_cast<uint64_t>(_data->maxX-_data->minX+1)*
+             static_cast<uint64_t>(_data->maxY-_data->minY+1)
+              > gBigFileDataWindowSize)
+        {
+            _data->bigFile = true;
+        }
+        else
+        {
+          _data->sampleCount.resizeErase(_data->maxY - _data->minY + 1,
+                                         _data->maxX - _data->minX + 1);
+        }
         _data->lineSampleCount.resizeErase(_data->maxY - _data->minY + 1);
 
         Compressor* compressor = newCompressor(_data->header.compression(),
@@ -1513,6 +1756,9 @@ union bytesOruint64_t
     uint64_t i;
 };
 }
+
+
+
 void
 DeepScanLineInputFile::rawPixelData (int firstScanLine,
                                      char *pixelData,
@@ -1902,171 +2148,6 @@ void DeepScanLineInputFile::readPixelSampleCounts (const char* rawPixelData,
 
 
 
-namespace
-{
-
-void
-readSampleCountForLineBlock(InputStreamMutex* streamData,
-                            DeepScanLineInputFile::Data* data,
-                            int lineBlockId)
-{
-    streamData->is->seekg(data->lineOffsets[lineBlockId]);
-
-    if (isMultiPart(data->version))
-    {
-        int partNumber;
-        OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (*streamData->is, partNumber);
-
-        if (partNumber != data->partNumber)
-            throw IEX_NAMESPACE::ArgExc("Unexpected part number.");
-    }
-
-    int minY;
-    OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (*streamData->is, minY);
-
-    //
-    // Check the correctness of minY.
-    //
-
-    if (minY != data->minY + lineBlockId * data->linesInBuffer)
-        throw IEX_NAMESPACE::ArgExc("Unexpected data block y coordinate.");
-
-    int maxY;
-    maxY = min(minY + data->linesInBuffer - 1, data->maxY);
-
-    uint64_t sampleCountTableDataSize;
-    OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (*streamData->is, sampleCountTableDataSize);
-
-    
-    
-    if(sampleCountTableDataSize>static_cast<uint64_t>(data->maxSampleCountTableSize))
-    {
-        THROW (IEX_NAMESPACE::ArgExc, "Bad sampleCountTableDataSize read from chunk "<< lineBlockId << ": expected " << data->maxSampleCountTableSize << " or less, got "<< sampleCountTableDataSize);
-    }
-    
-    uint64_t packedDataSize;
-    uint64_t unpackedDataSize;
-    OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (*streamData->is, packedDataSize);
-    OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (*streamData->is, unpackedDataSize);
-
-    
-    
-    //
-    // We make a check on the data size requirements here.
-    // Whilst we wish to store 64bit sizes on disk, not all the compressors
-    // have been made to work with such data sizes and are still limited to
-    // using signed 32 bit (int) for the data size. As such, this version
-    // insists that we validate that the data size does not exceed the data
-    // type max limit.
-    // @TODO refactor the compressor code to ensure full 64-bit support.
-    //
-
-    uint64_t compressorMaxDataSize = static_cast<uint64_t>(std::numeric_limits<int>::max());
-    if (packedDataSize         > compressorMaxDataSize ||
-        unpackedDataSize > compressorMaxDataSize ||
-        sampleCountTableDataSize        > compressorMaxDataSize)
-    {
-        THROW (IEX_NAMESPACE::ArgExc, "This version of the library does not"
-            << "support the allocation of data with size  > "
-            << compressorMaxDataSize
-            << " file table size    :" << sampleCountTableDataSize
-            << " file unpacked size :" << unpackedDataSize
-            << " file packed size   :" << packedDataSize << ".\n");
-    }
-
-
-    streamData->is->read(data->sampleCountTableBuffer, static_cast<int>(sampleCountTableDataSize));
-    
-    const char* readPtr;
-
-    //
-    // If the sample count table is compressed, we'll uncompress it.
-    //
-
-
-    if (sampleCountTableDataSize < static_cast<uint64_t>(data->maxSampleCountTableSize))
-    {
-        if(!data->sampleCountTableComp)
-        {
-            THROW(IEX_NAMESPACE::ArgExc,"Deep scanline data corrupt at chunk " << lineBlockId << " (sampleCountTableDataSize error)");
-        }
-        data->sampleCountTableComp->uncompress(data->sampleCountTableBuffer,
-                                               static_cast<int>(sampleCountTableDataSize),
-                                               minY,
-                                               readPtr);
-    }
-    else readPtr = data->sampleCountTableBuffer;
-
-    char* base = data->sampleCountSliceBase;
-    int xStride = data->sampleCountXStride;
-    int yStride = data->sampleCountYStride;
-
-    // total number of samples in block: used to check samplecount table doesn't
-    // reference more data than exists
-    
-    size_t cumulative_total_samples=0;
-    
-    for (int y = minY; y <= maxY; y++)
-    {
-        int yInDataWindow = y - data->minY;
-        data->lineSampleCount[yInDataWindow] = 0;
-
-        int lastAccumulatedCount = 0;
-        for (int x = data->minX; x <= data->maxX; x++)
-        {
-            int accumulatedCount, count;
-
-            //
-            // Read the sample count for pixel (x, y).
-            //
-
-            Xdr::read <CharPtrIO> (readPtr, accumulatedCount);
-            
-            // sample count table should always contain monotonically
-            // increasing values.
-            if (accumulatedCount < lastAccumulatedCount)
-            {
-                THROW(IEX_NAMESPACE::ArgExc,"Deep scanline sampleCount data corrupt at chunk " << lineBlockId << " (negative sample count detected)");
-            }
-
-            count = accumulatedCount - lastAccumulatedCount;
-            lastAccumulatedCount = accumulatedCount;
-
-            //
-            // Store the data in both internal and external data structure.
-            //
-
-            data->sampleCount[yInDataWindow][x - data->minX] = count;
-            data->lineSampleCount[yInDataWindow] += count;
-            sampleCount(base, xStride, yStride, x, y) = count;
-        }
-        cumulative_total_samples+=data->lineSampleCount[yInDataWindow];
-        if(cumulative_total_samples*data->combinedSampleSize > unpackedDataSize)
-        {
-            THROW(IEX_NAMESPACE::ArgExc,"Deep scanline sampleCount data corrupt at chunk " << lineBlockId << ": pixel data only contains " << unpackedDataSize 
-            << " bytes of data but table references at least " << cumulative_total_samples*data->combinedSampleSize << " bytes of sample data" );            
-        }
-        data->gotSampleCount[y - data->minY] = true;
-    }
-}
-
-
-void
-fillSampleCountFromCache(int y, DeepScanLineInputFile::Data* data)
-{
-    int yInDataWindow = y - data->minY;
-    char* base = data->sampleCountSliceBase;
-    int xStride = data->sampleCountXStride;
-    int yStride = data->sampleCountYStride;
-    
-    for (int x = data->minX; x <= data->maxX; x++)
-    {
-        unsigned int count = data->sampleCount[yInDataWindow][x - data->minX];    
-        sampleCount(base, xStride, yStride, x, y) = count;
-    }
-}
-
-} // namespace
 
 void
 DeepScanLineInputFile::readPixelSampleCounts (int scanline1, int scanline2)
@@ -2095,18 +2176,28 @@ DeepScanLineInputFile::readPixelSampleCounts (int scanline1, int scanline2)
         for (int i = scanLineMin; i <= scanLineMax; i++)
         {
             //
-            // if scanline is already read, it'll be in the cache
+            // if scanline is already read, and file is small enough to cache, count data will be in the cache
             // otherwise, read from file, store in cache and in caller's framebuffer
             //
-            if (_data->gotSampleCount[i - _data->minY])
+            if ( !_data->bigFile && _data->gotSampleCount[i - _data->minY])
             {
                 fillSampleCountFromCache(i,_data);
-                                         
-            }else{
+            }
+            else
+            {
 
                 int lineBlockId = ( i - _data->minY ) / _data->linesInBuffer;
 
-                readSampleCountForLineBlock ( _data->_streamData, _data, lineBlockId );
+
+                //
+                // read samplecount data into external buffer
+                // also cache to internal buffer unless in bigFile mode
+                //
+                readSampleCountForLineBlock ( _data->_streamData, _data, lineBlockId,
+                                              _data->bigFile ? nullptr : &_data->sampleCount,
+                                              _data->minY,
+                                              true
+                );
 
                 int minYInLineBuffer = lineBlockId * _data->linesInBuffer + _data->minY;
                 int maxYInLineBuffer = min ( minYInLineBuffer + _data->linesInBuffer - 1, _data->maxY );
