@@ -292,9 +292,6 @@ class IMF_EXPORT_TYPE RgbaInputFile
     RgbaInputFile (const char name[], int numThreads = globalThreadCount());
 
 
-    IMF_EXPORT
-    RgbaInputFile (int partNumber, const char name[], int numThreads = globalThreadCount());
-
 
     //-----------------------------------------------------------
     // Constructor -- attaches the new RgbaInputFile object to a

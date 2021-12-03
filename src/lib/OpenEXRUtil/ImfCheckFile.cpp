@@ -81,63 +81,66 @@ getStep( const Box2i &dw , bool reduceTime)
 //
 // read image or part using the Rgba interface
 //
-template<class T> bool
-readRgba(T& in, bool reduceMemory , bool reduceTime)
+bool
+readRgba(RgbaInputFile& in, bool reduceMemory , bool reduceTime)
 {
 
     bool threw = false;
 
-    try
+    for(int part = 0 ; part < in.parts() ; ++part)
     {
-        const Box2i &dw = in.dataWindow();
-
-        uint64_t w = static_cast<uint64_t>(dw.max.x) - static_cast<uint64_t>(dw.min.x) + 1;
-        int dx = dw.min.x;
-        uint64_t bytesPerPixel = calculateBytesPerPixel(in.header());
-        uint64_t numLines = numLinesInBuffer(in.header().compression());
-
-
-        if (reduceMemory && w*bytesPerPixel*numLines > gMaxBytesPerScanline )
+        in.setPart(part);
+        try
         {
-            return false;
-        }
+            const Box2i &dw = in.dataWindow();
 
-        Array<Rgba> pixels (w);
-        intptr_t base = reinterpret_cast<intptr_t>(&pixels[0]);
-        in.setFrameBuffer (reinterpret_cast<Rgba*>(base - dx*sizeof(Rgba)), 1, 0);
+            uint64_t w = static_cast<uint64_t>(dw.max.x) - static_cast<uint64_t>(dw.min.x) + 1;
+            int dx = dw.min.x;
+            uint64_t bytesPerPixel = calculateBytesPerPixel(in.header());
+            uint64_t numLines = numLinesInBuffer(in.header().compression());
 
-        int step = getStep( dw , reduceTime );
 
-        //
-        // try reading scanlines. Continue reading scanlines
-        // even if an exception is encountered
-        //
-        for (int y = dw.min.y; y <= dw.max.y; y+=step )
-        {
-            try
+            if (reduceMemory && w*bytesPerPixel*numLines > gMaxBytesPerScanline )
             {
-               in.readPixels (y);
+                return false;
             }
-            catch(...)
-            {
-                threw = true;
 
-                //
-                // in reduceTime mode, fail immediately - the file is corrupt
-                //
-                if (reduceTime)
+            Array<Rgba> pixels (w);
+            intptr_t base = reinterpret_cast<intptr_t>(&pixels[0]);
+            in.setFrameBuffer (reinterpret_cast<Rgba*>(base - dx*sizeof(Rgba)), 1, 0);
+
+            int step = getStep( dw , reduceTime );
+
+            //
+            // try reading scanlines. Continue reading scanlines
+            // even if an exception is encountered
+            //
+            for (int y = dw.min.y; y <= dw.max.y; y+=step )
+            {
+                try
                 {
-                    return threw;
+                in.readPixels (y);
                 }
+                catch(...)
+                {
+                    threw = true;
 
+                    //
+                    // in reduceTime mode, fail immediately - the file is corrupt
+                    //
+                    if (reduceTime)
+                    {
+                        return threw;
+                    }
+
+                }
             }
         }
+        catch(...)
+        {
+            threw = true;
+        }
     }
-    catch(...)
-    {
-        threw = true;
-    }
-
     return threw;
 }
 
