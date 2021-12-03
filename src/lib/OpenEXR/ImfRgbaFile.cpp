@@ -1162,8 +1162,6 @@ RgbaInputFile::RgbaInputFile (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is, int n
 {
 }
 
-
-
 RgbaInputFile::RgbaInputFile (const char name[], const string &layerName, int numThreads) : RgbaInputFile( 0 , name , layerName,numThreads)
 {
 }
@@ -1285,7 +1283,6 @@ RgbaInputFile::RgbaInputFile (int partNumber,
 
 RgbaInputFile::~RgbaInputFile ()
 {
-
     if (_inputPart)
     {
         delete _inputPart;

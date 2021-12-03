@@ -156,7 +156,7 @@ If :math:`S_{i}\left( Z \right) < S_{i}\left( \text{ZBack} \right)`,
 then sample number ``i`` in all other channels covers the half open
 interval
 :math:`S_{i}\left( Z \right) \leq z < S_{i}\left( \text{ZBack} \right)`.
-Sample number :math:`\text{i\ }` is called a **volume sample**.
+Sample number ``i`` is called a **volume sample**.
 :math:`S_{i}\left( Z \right)` is the sample’s **front**
 and\ :math:`\ S_{i}\left( \text{ZBack} \right)` is the sample’s
 **back**.
