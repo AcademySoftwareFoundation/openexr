@@ -802,6 +802,12 @@ LineBufferTask::execute ()
                 _lineBuffer->packedDataSize = _lineBuffer->compressor->uncompress
                     (_lineBuffer->buffer, static_cast<int>(_lineBuffer->packedDataSize),
                      _lineBuffer->minY, _lineBuffer->uncompressedData);
+
+               if(_lineBuffer->unpackedDataSize != _lineBuffer->packedDataSize)
+               {
+                    THROW (IEX_NAMESPACE::InputExc, "Incorrect size for decompressed data. Expected " << _lineBuffer->unpackedDataSize << " got " << _lineBuffer->packedDataSize << " bytes");
+               }
+
             }
             else
             {
