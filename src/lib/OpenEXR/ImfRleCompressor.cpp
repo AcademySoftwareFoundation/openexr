@@ -24,6 +24,10 @@ RleCompressor::RleCompressor (const Header &hdr, size_t maxScanLineSize):
     _tmpBuffer (0),
     _outBuffer (0)
 {
+    if(maxScanLineSize > std::numeric_limits<int>::max())
+    {
+            throw IEX_NAMESPACE::OverflowExc ("ScanLine size too large for RleCompressor");
+    }
     _tmpBuffer = new char [maxScanLineSize];
     _outBuffer = new char [uiMult (maxScanLineSize, size_t (3)) / 2];
 }
