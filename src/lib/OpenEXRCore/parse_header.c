@@ -227,13 +227,6 @@ read_text (
     {
         rv = scratch->sequential_read (scratch, &b, 1);
         if (rv != EXR_ERR_SUCCESS) return rv;
-        if (b > 0 && (b > 126 || (b < ' ' && b != '\t')))
-        {
-            continue;
-            //return EXR_GETFILE(file)->print_error(
-            //    file, EXR_ERR_FILE_BAD_HEADER,
-            //    "Invalid non-printable character %d (0x%02X) encountered parsing attribute text", (int)b, (int)b );
-        }
         text[namelen] = b;
         if (b == '\0') break;
         ++namelen;
@@ -1688,19 +1681,9 @@ pull_attr (
     uint8_t*         strptr = NULL;
     const int32_t    maxlen = ctxt->max_name_length;
 
-    if (init_byte > 0 &&
-        (init_byte > 126 || (init_byte < ' ' && init_byte != '\t')))
-    {
-        namelen = 0;
-        //return EXR_GETFILE(f)->print_error(
-        //    f, EXR_ERR_FILE_BAD_HEADER,
-        //    "Invalid non-printable character %d (0x%02X) encountered parsing text", (int)init_byte, (int)init_byte );
-    }
-    else
-    {
-        name[0] = (char) init_byte;
-        namelen = 1;
-    }
+    name[0] = (char) init_byte;
+    namelen = 1;
+
     rv = read_text (ctxt, name, &namelen, maxlen, scratch, "attribute name");
     if (rv != EXR_ERR_SUCCESS) return rv;
     rv = read_text (ctxt, type, &typelen, maxlen, scratch, "attribute type");
