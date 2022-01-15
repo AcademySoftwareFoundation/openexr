@@ -478,28 +478,30 @@ hufPackEncTable (
 static exr_result_t
 hufUnpackEncTable (
     const uint8_t** pcode, // io: ptr to packed table (updated)
-    uint64_t        ni,    // i : input size (in bytes)
+    uint64_t*       nLeft, // io: input size (in bytes), bytes left
     uint32_t        im,    // i : min hcode index
     uint32_t        iM,    // i : max hcode index
-    uint64_t*       hcode)       //  o: encoding table [HUF_ENCSIZE]
+    uint64_t*       hcode) // o : encoding table [HUF_ENCSIZE]
 {
     memset (hcode, 0, sizeof (uint64_t) * HUF_ENCSIZE);
 
     const uint8_t* p  = *pcode;
     uint64_t       c  = 0;
+    uint64_t       ni = *nLeft;
+    uint64_t       nr;
     uint32_t       lc = 0;
 
     for (; im <= iM; im++)
     {
-        if ((((uintptr_t) p) - ((uintptr_t) *pcode)) > ni)
-            return EXR_ERR_OUT_OF_MEMORY;
+        nr = (((uintptr_t) p) - ((uintptr_t) *pcode));
+        if (nr > ni) return EXR_ERR_OUT_OF_MEMORY;
 
         uint64_t l = hcode[im] = getBits (6, &c, &lc, &p); // code length
 
         if (l == (uint64_t) LONG_ZEROCODE_RUN)
         {
-            if ((((uintptr_t) p) - ((uintptr_t) *pcode)) > ni)
-                return EXR_ERR_OUT_OF_MEMORY;
+            nr = (((uintptr_t) p) - ((uintptr_t) *pcode));
+            if (nr > ni) return EXR_ERR_OUT_OF_MEMORY;
 
             uint64_t zerun = getBits (8, &c, &lc, &p) + SHORTEST_LONG_RUN;
 
@@ -523,6 +525,8 @@ hufUnpackEncTable (
         }
     }
 
+    nr = (((uintptr_t) p) - ((uintptr_t) *pcode));
+    *nLeft -= nr;
     *pcode = p;
 
     hufCanonicalCodeTable (hcode);
@@ -602,8 +606,11 @@ hufBuildDecTable (
                 pl->p       = (uint32_t*) internal_exr_alloc (
                     sizeof (uint32_t) * pl->lit);
 
-                for (uint32_t i = 0; i < pl->lit - 1; ++i)
-                    pl->p[i] = p[i];
+                if (pl->p)
+                {
+                    for (uint32_t i = 0; i < pl->lit - 1; ++i)
+                        pl->p[i] = p[i];
+                }
 
                 internal_exr_free (p);
             }
@@ -611,6 +618,8 @@ hufBuildDecTable (
             {
                 pl->p = (uint32_t*) internal_exr_alloc (sizeof (uint32_t));
             }
+
+            if (!pl->p) return EXR_ERR_OUT_OF_MEMORY;
 
             pl->p[pl->lit - 1] = im;
         }
@@ -819,32 +828,33 @@ hufDecode (
 
         while (lc >= HUF_DECBITS)
         {
-            const HufDec pl = hdecod[(c >> (lc - HUF_DECBITS)) & HUF_DECMASK];
+            uint64_t      decoffset = (c >> (lc - HUF_DECBITS)) & HUF_DECMASK;
+            const HufDec* pl        = hdecod + decoffset;
 
-            if (pl.len)
+            if (pl->len)
             {
                 //
                 // Get short code
                 //
 
-                if (pl.len > lc) return EXR_ERR_CORRUPT_CHUNK;
+                if (pl->len > lc) return EXR_ERR_CORRUPT_CHUNK;
 
-                lc -= pl.len;
-                getCode (pl.lit, rlc, c, lc, in, out, outb, oe)
+                lc -= pl->len;
+                getCode (pl->lit, rlc, c, lc, in, out, outb, oe)
             }
             else
             {
-                uint32_t j;
-
-                if (!pl.p) return EXR_ERR_CORRUPT_CHUNK; // wrong code
+                uint32_t        j;
+                const uint32_t* decbuf = pl->p;
+                if (!pl->p) return EXR_ERR_CORRUPT_CHUNK; // wrong code
 
                 //
                 // Search long code
                 //
 
-                for (j = 0; j < pl.lit; j++)
+                for (j = 0; j < pl->lit; j++)
                 {
-                    int l = hufLength (hcode[pl.p[j]]);
+                    int l = hufLength (hcode[decbuf[j]]);
 
                     while (lc < l && in < ie) // get more bits
                     {
@@ -853,7 +863,7 @@ hufDecode (
 
                     if (lc >= l)
                     {
-                        if (hufCode (hcode[pl.p[j]]) ==
+                        if (hufCode (hcode[decbuf[j]]) ==
                             ((c >> (lc - l)) & (((uint64_t) (1) << l) - 1)))
                         {
                             //
@@ -862,12 +872,12 @@ hufDecode (
 
                             lc -= l;
                             getCode (
-                                pl.p[j], rlc, c, lc, in, out, outb, oe) break;
+                                decbuf[j], rlc, c, lc, in, out, outb, oe) break;
                         }
                     }
                 }
 
-                if (j == pl.lit) return EXR_ERR_CORRUPT_CHUNK;
+                if (j == pl->lit) return EXR_ERR_CORRUPT_CHUNK;
             }
         }
     }
@@ -882,20 +892,20 @@ hufDecode (
 
     while (lc > 0)
     {
-        const HufDec pl = hdecod[(c << (HUF_DECBITS - lc)) & HUF_DECMASK];
+        uint64_t      decoffset = (c << (HUF_DECBITS - lc)) & HUF_DECMASK;
+        const HufDec* pl        = hdecod + decoffset;
 
-        if (pl.len)
+        if (pl->len)
         {
-            if (pl.len > lc) return EXR_ERR_CORRUPT_CHUNK;
-            lc -= pl.len;
-            getCode (pl.lit, rlc, c, lc, in, out, outb, oe)
+            if (pl->len > lc) return EXR_ERR_CORRUPT_CHUNK;
+            lc -= pl->len;
+            getCode (pl->lit, rlc, c, lc, in, out, outb, oe)
         }
         else
             return EXR_ERR_CORRUPT_CHUNK;
     }
 
-    if (out != oe)
-        return EXR_ERR_OUT_OF_MEMORY;
+    if (out != oe) return EXR_ERR_OUT_OF_MEMORY;
     return EXR_ERR_SUCCESS;
 }
 
@@ -919,7 +929,7 @@ writeUInt (uint8_t* b, uint32_t i)
 static inline uint32_t
 readUInt (const uint8_t* b)
 {
-     return (
+    return (
         ((uint32_t) b[0]) | (((uint32_t) b[1]) << 8u) |
         (((uint32_t) b[2]) << 16u) | (((uint32_t) b[3]) << 24u));
 }
@@ -1071,12 +1081,13 @@ internal_huf_decompress (
     else
 #endif
     {
-        uint64_t* freq  = (uint64_t*) spare;
-        HufDec*   hdec  = (HufDec*) (freq + HUF_ENCSIZE);
-        uint64_t  nLeft = nCompressed - 20;
+        uint64_t* freq     = (uint64_t*) spare;
+        HufDec*   hdec     = (HufDec*) (freq + HUF_ENCSIZE);
+        uint64_t  nLeft    = nCompressed - 20;
+        uint64_t  nTableSz = 0;
 
         hufClearDecTable (hdec);
-        hufUnpackEncTable (&ptr, nLeft, im, iM, freq);
+        hufUnpackEncTable (&ptr, &nLeft, im, iM, freq);
 
         if (nBits > 8 * nLeft) return EXR_ERR_CORRUPT_CHUNK;
 
