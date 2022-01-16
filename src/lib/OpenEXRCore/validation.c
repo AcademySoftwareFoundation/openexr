@@ -7,43 +7,194 @@
 
 #include <limits.h>
 #include <math.h>
+#include <stdio.h>
 
 /**************************************/
 
 static exr_result_t
 validate_req_attr (
-    struct _internal_exr_context* f, struct _internal_exr_part* curpart)
+    struct _internal_exr_context* f,
+    struct _internal_exr_part*    curpart,
+    int                           adddefault)
 {
+    exr_result_t rv = EXR_ERR_SUCCESS;
     if (!curpart->channels)
         return f->print_error (
             f, EXR_ERR_MISSING_REQ_ATTR, "'channels' attribute not found");
     if (!curpart->compression)
-        return f->print_error (
-            f, EXR_ERR_MISSING_REQ_ATTR, "'compression' attribute not found");
+    {
+        if (adddefault)
+        {
+            rv = exr_attr_list_add_static_name (
+                (exr_context_t) f,
+                &(curpart->attributes),
+                "compression",
+                EXR_ATTR_COMPRESSION,
+                0,
+                NULL,
+                &(curpart->compression));
+            if (rv != EXR_ERR_SUCCESS) return rv;
+            curpart->compression->uc = (uint8_t) EXR_COMPRESSION_ZIP;
+            curpart->comp_type       = EXR_COMPRESSION_ZIP;
+        }
+        else
+        {
+            return f->print_error (
+                f,
+                EXR_ERR_MISSING_REQ_ATTR,
+                "'compression' attribute not found");
+        }
+    }
+
     if (!curpart->dataWindow)
-        return f->print_error (
-            f, EXR_ERR_MISSING_REQ_ATTR, "'dataWindow' attribute not found");
+    {
+        if (adddefault)
+        {
+            exr_attr_box2i_t defdw = { 0, 0, 63, 63 };
+            rv                     = exr_attr_list_add_static_name (
+                (exr_context_t) f,
+                &(curpart->attributes),
+                "dataWindow",
+                EXR_ATTR_BOX2I,
+                0,
+                NULL,
+                &(curpart->dataWindow));
+            if (rv != EXR_ERR_SUCCESS) return rv;
+            *(curpart->dataWindow->box2i) = defdw;
+            curpart->data_window          = defdw;
+
+            rv = internal_exr_compute_tile_information (f, curpart, 1);
+        }
+        else
+        {
+            return f->print_error (
+                f,
+                EXR_ERR_MISSING_REQ_ATTR,
+                "'dataWindow' attribute not found");
+        }
+    }
+
     if (!curpart->displayWindow)
-        return f->print_error (
-            f, EXR_ERR_MISSING_REQ_ATTR, "'displayWindow' attribute not found");
+    {
+        if (adddefault)
+        {
+            exr_attr_box2i_t defdw = { 0, 0, 63, 63 };
+            rv                     = exr_attr_list_add_static_name (
+                (exr_context_t) f,
+                &(curpart->attributes),
+                "displayWindow",
+                EXR_ATTR_BOX2I,
+                0,
+                NULL,
+                &(curpart->displayWindow));
+            if (rv != EXR_ERR_SUCCESS) return rv;
+            *(curpart->displayWindow->box2i) = defdw;
+            curpart->display_window          = defdw;
+        }
+        else
+        {
+            return f->print_error (
+                f,
+                EXR_ERR_MISSING_REQ_ATTR,
+                "'displayWindow' attribute not found");
+        }
+    }
+
     if (!curpart->lineOrder)
-        return f->print_error (
-            f, EXR_ERR_MISSING_REQ_ATTR, "'lineOrder' attribute not found");
+    {
+        if (adddefault)
+        {
+            rv = exr_attr_list_add_static_name (
+                (exr_context_t) f,
+                &(curpart->attributes),
+                "lineOrder",
+                EXR_ATTR_LINEORDER,
+                0,
+                NULL,
+                &(curpart->lineOrder));
+            if (rv != EXR_ERR_SUCCESS) return rv;
+            curpart->lineOrder->uc = (uint8_t) EXR_LINEORDER_INCREASING_Y;
+            curpart->lineorder     = EXR_LINEORDER_INCREASING_Y;
+        }
+        else
+        {
+            return f->print_error (
+                f, EXR_ERR_MISSING_REQ_ATTR, "'lineOrder' attribute not found");
+        }
+    }
+
     if (!curpart->pixelAspectRatio)
-        return f->print_error (
-            f,
-            EXR_ERR_MISSING_REQ_ATTR,
-            "'pixelAspectRatio' attribute not found");
+    {
+        if (adddefault)
+        {
+            rv = exr_attr_list_add_static_name (
+                (exr_context_t) f,
+                &(curpart->attributes),
+                "pixelAspectRatio",
+                EXR_ATTR_FLOAT,
+                0,
+                NULL,
+                &(curpart->pixelAspectRatio));
+            if (rv != EXR_ERR_SUCCESS) return rv;
+            curpart->pixelAspectRatio->f = 1.f;
+        }
+        else
+        {
+            return f->print_error (
+                f,
+                EXR_ERR_MISSING_REQ_ATTR,
+                "'pixelAspectRatio' attribute not found");
+        }
+    }
+
     if (!curpart->screenWindowCenter)
-        return f->print_error (
-            f,
-            EXR_ERR_MISSING_REQ_ATTR,
-            "'screenWindowCenter' attribute not found");
+    {
+        if (adddefault)
+        {
+            exr_attr_v2f_t defswc = { 0.f, 0.f };
+            rv                    = exr_attr_list_add_static_name (
+                (exr_context_t) f,
+                &(curpart->attributes),
+                "screenWindowCenter",
+                EXR_ATTR_V2F,
+                0,
+                NULL,
+                &(curpart->screenWindowCenter));
+            if (rv != EXR_ERR_SUCCESS) return rv;
+            *(curpart->screenWindowCenter->v2f) = defswc;
+        }
+        else
+        {
+            return f->print_error (
+                f,
+                EXR_ERR_MISSING_REQ_ATTR,
+                "'screenWindowCenter' attribute not found");
+        }
+    }
+
     if (!curpart->screenWindowWidth)
-        return f->print_error (
-            f,
-            EXR_ERR_MISSING_REQ_ATTR,
-            "'screenWindowWidth' attribute not found");
+    {
+        if (adddefault)
+        {
+            rv = exr_attr_list_add_static_name (
+                (exr_context_t) f,
+                &(curpart->attributes),
+                "screenWindowWidth",
+                EXR_ATTR_FLOAT,
+                0,
+                NULL,
+                &(curpart->screenWindowWidth));
+            if (rv != EXR_ERR_SUCCESS) return rv;
+            curpart->screenWindowWidth->f = 1.f;
+        }
+        else
+        {
+            return f->print_error (
+                f,
+                EXR_ERR_MISSING_REQ_ATTR,
+                "'screenWindowWidth' attribute not found");
+        }
+    }
 
     if (f->is_multipart || f->has_nonimage_data)
     {
@@ -69,7 +220,7 @@ validate_req_attr (
                 "'chunkCount' attribute for multipart / deep file not found");
     }
 
-    return EXR_ERR_SUCCESS;
+    return rv;
 }
 
 /**************************************/
@@ -195,10 +346,12 @@ validate_channels (
     dw = curpart->data_window;
     w  = (int64_t) dw.max.x - (int64_t) dw.min.x + 1;
     h  = (int64_t) dw.max.y - (int64_t) dw.min.y + 1;
+
     for (int c = 0; c < channels->num_channels; ++c)
     {
         int32_t xsamp = channels->entries[c].x_sampling;
         int32_t ysamp = channels->entries[c].y_sampling;
+
         if (xsamp < 1)
             return f->print_error (
                 f,
@@ -431,7 +584,7 @@ internal_exr_validate_read_part (
 {
     exr_result_t rv;
 
-    rv = validate_req_attr (f, curpart);
+    rv = validate_req_attr (f, curpart, 1);
     if (rv != EXR_ERR_SUCCESS) return rv;
 
     rv = validate_image_dimensions (f, curpart);
@@ -460,7 +613,7 @@ internal_exr_validate_write_part (
 {
     exr_result_t rv;
 
-    rv = validate_req_attr (f, curpart);
+    rv = validate_req_attr (f, curpart, 0);
     if (rv != EXR_ERR_SUCCESS) return rv;
 
     rv = validate_image_dimensions (f, curpart);
