@@ -1174,12 +1174,13 @@ RgbaInputFile::RgbaInputFile (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is,
 
 RgbaInputFile::RgbaInputFile (int partNumber, const char name[], int numThreads) :
     _multiPartFile (new MultiPartInputFile (name, numThreads)),
-    _inputPart(new InputPart(*_multiPartFile,partNumber)),
+    _inputPart (nullptr),
     _fromYca (nullptr),
     _channelNamePrefix ("")
 {
     try
     {
+       _inputPart = new InputPart(*_multiPartFile,partNumber);
        RgbaChannels rgbaChannels = channels();
        if (rgbaChannels & WRITE_C)
 	  _fromYca = new FromYca (*_inputPart, rgbaChannels);
@@ -1200,12 +1201,13 @@ RgbaInputFile::RgbaInputFile (int partNumber, const char name[], int numThreads)
 
 RgbaInputFile::RgbaInputFile (int partNumber, OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is, int numThreads) :
      _multiPartFile (new MultiPartInputFile (is, numThreads)),
-    _inputPart(new InputPart(*_multiPartFile,partNumber)),
+     _inputPart(nullptr),
     _fromYca (nullptr),
     _channelNamePrefix ("")
 {
     try
     {
+      _inputPart = new InputPart(*_multiPartFile,partNumber);
        RgbaChannels rgbaChannels = channels();
        if (rgbaChannels & WRITE_C)
 	  _fromYca = new FromYca (*_inputPart, rgbaChannels);
@@ -1229,12 +1231,13 @@ RgbaInputFile::RgbaInputFile (int partNumber,
 			      int numThreads)
 :
     _multiPartFile (new MultiPartInputFile (name, numThreads)),
-    _inputPart( new InputPart(*_multiPartFile,partNumber)),
-    _fromYca (0),
-    _channelNamePrefix (prefixFromLayerName (layerName, _inputPart->header()))
+    _inputPart (nullptr),
+    _fromYca (0)
 {
     try
     {
+        _inputPart = new InputPart(*_multiPartFile,partNumber);
+        _channelNamePrefix = prefixFromLayerName (layerName, _inputPart->header());
          RgbaChannels rgbaChannels = channels();
 
          if (rgbaChannels & WRITE_C)
@@ -1258,12 +1261,13 @@ RgbaInputFile::RgbaInputFile (int partNumber,
 			      int numThreads)
 :
     _multiPartFile (new MultiPartInputFile (is, numThreads)),
-    _inputPart( new InputPart(*_multiPartFile,partNumber)),
-    _fromYca (0),
-    _channelNamePrefix (prefixFromLayerName (layerName, _inputPart->header()))
+    _inputPart(nullptr),
+    _fromYca (0)
 {
     try
     {
+       _inputPart = new InputPart(*_multiPartFile,partNumber);
+       _channelNamePrefix = prefixFromLayerName (layerName, _inputPart->header());
        RgbaChannels rgbaChannels = channels();
 
        if (rgbaChannels & WRITE_C)
