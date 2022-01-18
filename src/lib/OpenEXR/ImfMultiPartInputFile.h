@@ -111,8 +111,6 @@ class IMF_EXPORT_TYPE MultiPartInputFile : public GenericInputFile
     friend class ScanLineInputFile;
     friend class DeepScanLineInputFile;
     friend class DeepTiledInputFile;
-
-    friend class RgbaInputFile;
 };
 
 

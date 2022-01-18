@@ -12,7 +12,7 @@
 
 #include <ImfRgbaFile.h>
 #include <ImfOutputFile.h>
-#include <ImfInputFile.h>
+#include <ImfInputPart.h>
 #include <ImfMultiPartInputFile.h>
 #include <ImfChannelList.h>
 #include <ImfRgbaYca.h>
@@ -790,7 +790,7 @@ class RgbaInputFile::FromYca: public std::mutex
 {
   public:
 
-     FromYca (InputFile &inputFile, RgbaChannels rgbaChannels);
+     FromYca (InputPart &inputFile, RgbaChannels rgbaChannels);
     ~FromYca ();
 
     FromYca (const FromYca& other) = delete;
@@ -813,7 +813,7 @@ class RgbaInputFile::FromYca: public std::mutex
     void		readYCAScanLine (int y, Rgba buf[]);
     void		padTmpBuf ();
 
-    InputFile &		_inputFile;
+    InputPart &		_inputPart;
     bool		_readC;
     int			_xMin;
     int			_yMin;
@@ -833,14 +833,14 @@ class RgbaInputFile::FromYca: public std::mutex
 };
 
 
-RgbaInputFile::FromYca::FromYca (InputFile &inputFile,
+RgbaInputFile::FromYca::FromYca (InputPart &inputFile,
 				 RgbaChannels rgbaChannels)
 :
-    _inputFile (inputFile)
+    _inputPart (inputFile)
 {
     _readC = (rgbaChannels & WRITE_C)? true: false;
 
-    const Box2i dw = _inputFile.header().dataWindow();
+    const Box2i dw = _inputPart.header().dataWindow();
 
     _xMin = dw.min.x;
     _yMin = dw.min.y;
@@ -848,8 +848,8 @@ RgbaInputFile::FromYca::FromYca (InputFile &inputFile,
     _width  = dw.max.x - dw.min.x + 1;
     _height = dw.max.y - dw.min.y + 1;
     _currentScanLine = dw.min.y - N - 2;
-    _lineOrder = _inputFile.header().lineOrder();
-    _yw = ywFromHeader (_inputFile.header());
+    _lineOrder = _inputPart.header().lineOrder();
+    _yw = ywFromHeader (_inputPart.header());
 
     ptrdiff_t pad = cachePadding (_width * sizeof (Rgba)) / sizeof (Rgba);
 
@@ -925,7 +925,7 @@ RgbaInputFile::FromYca::setFrameBuffer (Rgba *base,
 			  1,					// ySampling
 			  1.0));				// fillValue
 
-	_inputFile.setFrameBuffer (fb);
+	_inputPart.setFrameBuffer (fb);
     }
 
     _fbBase = base;
@@ -960,7 +960,7 @@ RgbaInputFile::FromYca::readPixels (int scanLine)
     {
 	THROW (IEX_NAMESPACE::ArgExc, "No frame buffer was specified as the "
 			    "pixel data destination for image file "
-			    "\"" << _inputFile.fileName() << "\".");
+			    "\"" << _inputPart.fileName() << "\".");
     }
 
     //
@@ -1114,7 +1114,7 @@ RgbaInputFile::FromYca::readYCAScanLine (int y, Rgba *buf)
     // Read scan line y into _tmpBuf.
     //
 
-    _inputFile.readPixels (y);
+    _inputPart.readPixels (y);
 
     //
     // Reconstruct missing chroma samples and copy
@@ -1153,80 +1153,144 @@ RgbaInputFile::FromYca::padTmpBuf ()
 }
 
 
-RgbaInputFile::RgbaInputFile (const char name[], int numThreads):
-    _inputFile (new InputFile (name, numThreads)),
-    _fromYca (0),
-    _channelNamePrefix ("")
+RgbaInputFile::RgbaInputFile ( const char name[], int numThreads): RgbaInputFile(0 , name, numThreads)
 {
-    RgbaChannels rgbaChannels = channels();
-
-    if (rgbaChannels & WRITE_C)
-	_fromYca = new FromYca (*_inputFile, rgbaChannels);
 }
 
 
-RgbaInputFile::RgbaInputFile (int partNumber, const char name[], int numThreads):
-    _inputFile (0),
-    _fromYca (0),
-    _channelNamePrefix ("")
+RgbaInputFile::RgbaInputFile (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is, int numThreads): RgbaInputFile( 0 , is , numThreads)
 {
-    _multiPartFile = new MultiPartInputFile(name, numThreads);
-    _inputFile = _multiPartFile->getInputPart<InputFile>(partNumber);
-    RgbaChannels rgbaChannels = channels();
-
-    if (rgbaChannels & (WRITE_Y | WRITE_C))
-	_fromYca = new FromYca (*_inputFile, rgbaChannels);
 }
 
-
-RgbaInputFile::RgbaInputFile (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is, int numThreads):
-    _inputFile (new InputFile (is, numThreads)),
-    _fromYca (0),
-    _channelNamePrefix ("")
+RgbaInputFile::RgbaInputFile (const char name[], const string &layerName, int numThreads) : RgbaInputFile( 0 , name , layerName,numThreads)
 {
-    RgbaChannels rgbaChannels = channels();
-
-    if (rgbaChannels & WRITE_C)
-	_fromYca = new FromYca (*_inputFile, rgbaChannels);
 }
-
-
-RgbaInputFile::RgbaInputFile (const char name[],
-			      const string &layerName,
-			      int numThreads)
-:
-    _inputFile (new InputFile (name, numThreads)),
-    _fromYca (0),
-    _channelNamePrefix (prefixFromLayerName (layerName, _inputFile->header()))
-{
-    RgbaChannels rgbaChannels = channels();
-
-    if (rgbaChannels & WRITE_C)
-	_fromYca = new FromYca (*_inputFile, rgbaChannels);
-}
-
 
 RgbaInputFile::RgbaInputFile (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is,
 			      const string &layerName,
+			      int numThreads) : RgbaInputFile( 0 , is , layerName , numThreads)
+{
+}
+
+RgbaInputFile::RgbaInputFile (int partNumber, const char name[], int numThreads) :
+    _multiPartFile (new MultiPartInputFile (name, numThreads)),
+    _inputPart(new InputPart(*_multiPartFile,partNumber)),
+    _fromYca (nullptr),
+    _channelNamePrefix ("")
+{
+    try
+    {
+       RgbaChannels rgbaChannels = channels();
+       if (rgbaChannels & WRITE_C)
+	  _fromYca = new FromYca (*_inputPart, rgbaChannels);
+    }
+    catch(...)
+    {
+        if (_inputPart)
+        {
+            delete _inputPart;
+        }
+        delete _multiPartFile;
+        throw;
+    }
+}
+
+
+
+
+RgbaInputFile::RgbaInputFile (int partNumber, OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is, int numThreads) :
+     _multiPartFile (new MultiPartInputFile (is, numThreads)),
+    _inputPart(new InputPart(*_multiPartFile,partNumber)),
+    _fromYca (nullptr),
+    _channelNamePrefix ("")
+{
+    try
+    {
+       RgbaChannels rgbaChannels = channels();
+       if (rgbaChannels & WRITE_C)
+	  _fromYca = new FromYca (*_inputPart, rgbaChannels);
+    }
+    catch(...)
+    {
+        if (_inputPart)
+        {
+            delete _inputPart;
+        }
+        delete _multiPartFile;
+        throw;
+    }
+}
+
+
+
+RgbaInputFile::RgbaInputFile (int partNumber,
+                              const char name[],
+			      const string &layerName,
 			      int numThreads)
 :
-    _inputFile (new InputFile (is, numThreads)),
+    _multiPartFile (new MultiPartInputFile (name, numThreads)),
+    _inputPart( new InputPart(*_multiPartFile,partNumber)),
     _fromYca (0),
-    _channelNamePrefix (prefixFromLayerName (layerName, _inputFile->header()))
+    _channelNamePrefix (prefixFromLayerName (layerName, _inputPart->header()))
 {
-    RgbaChannels rgbaChannels = channels();
+    try
+    {
+         RgbaChannels rgbaChannels = channels();
 
-    if (rgbaChannels & WRITE_C)
-	_fromYca = new FromYca (*_inputFile, rgbaChannels);
+         if (rgbaChannels & WRITE_C)
+	   _fromYca = new FromYca (*_inputPart, rgbaChannels);
+    }
+    catch(...)
+    {
+        if(_inputPart)
+        {
+            delete _inputPart;
+        }
+        delete _multiPartFile;
+        throw;
+    }
+}
+
+
+RgbaInputFile::RgbaInputFile (int partNumber,
+                              OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is,
+			      const string &layerName,
+			      int numThreads)
+:
+    _multiPartFile (new MultiPartInputFile (is, numThreads)),
+    _inputPart( new InputPart(*_multiPartFile,partNumber)),
+    _fromYca (0),
+    _channelNamePrefix (prefixFromLayerName (layerName, _inputPart->header()))
+{
+    try
+    {
+       RgbaChannels rgbaChannels = channels();
+
+       if (rgbaChannels & WRITE_C)
+	_fromYca = new FromYca (*_inputPart, rgbaChannels);
+    }
+    catch(...)
+    {
+        if(_inputPart)
+        {
+            delete _inputPart;
+        }
+        delete _multiPartFile;
+        throw;
+    }
 }
 
 
 RgbaInputFile::~RgbaInputFile ()
 {
+    if (_inputPart)
+    {
+        delete _inputPart;
+    }
     if (_multiPartFile)
+    {
         delete _multiPartFile;
-    else
-        delete _inputFile;
+    }
     delete _fromYca;
 }
 
@@ -1289,7 +1353,7 @@ RgbaInputFile::setFrameBuffer (Rgba *base, size_t xStride, size_t yStride)
 			  1, 1,		// xSampling, ySampling
 			  1.0));	// fillValue
 
-	_inputFile->setFrameBuffer (fb);
+	_inputPart->setFrameBuffer (fb);
     }
 }
 
@@ -1300,17 +1364,41 @@ RgbaInputFile::setLayerName (const string &layerName)
     delete _fromYca;
     _fromYca = 0;
 
-    _channelNamePrefix = prefixFromLayerName (layerName, _inputFile->header());
+    _channelNamePrefix = prefixFromLayerName (layerName, _inputPart->header());
 
     RgbaChannels rgbaChannels = channels();
 
     if (rgbaChannels & WRITE_C)
-	_fromYca = new FromYca (*_inputFile, rgbaChannels);
+	_fromYca = new FromYca (*_inputPart, rgbaChannels);
 
     FrameBuffer fb;
-    _inputFile->setFrameBuffer (fb);
+    _inputPart->setFrameBuffer (fb);
 }
 
+void
+RgbaInputFile::setPartAndLayer(int part,const string& layerName)
+{
+    delete _fromYca;
+    _fromYca = nullptr;
+    delete _inputPart;
+    _inputPart = new InputPart(*_multiPartFile,part);
+    _channelNamePrefix = prefixFromLayerName (layerName, _inputPart->header());;
+
+
+    RgbaChannels rgbaChannels = channels();
+
+    if (rgbaChannels & WRITE_C)
+	_fromYca = new FromYca (*_inputPart, rgbaChannels);
+
+    FrameBuffer fb;
+    _inputPart->setFrameBuffer (fb);
+}
+
+void
+RgbaInputFile::setPart(int part)
+{
+    setPartAndLayer(part,"");
+}
 
 void	
 RgbaInputFile::readPixels (int scanLine1, int scanLine2)
@@ -1322,7 +1410,7 @@ RgbaInputFile::readPixels (int scanLine1, int scanLine2)
     }
     else
     {
-	_inputFile->readPixels (scanLine1, scanLine2);
+	_inputPart->readPixels (scanLine1, scanLine2);
 
         if (channels() & WRITE_Y)
         {
@@ -1330,8 +1418,8 @@ RgbaInputFile::readPixels (int scanLine1, int scanLine2)
             // Luma channel has been written into red channel
             // Duplicate into green and blue channel to create gray image
             //
-            const Slice* s = _inputFile->frameBuffer().findSlice(_channelNamePrefix + "Y");
-            Box2i dataWindow = _inputFile->header().dataWindow();
+            const Slice* s = _inputPart->frameBuffer().findSlice(_channelNamePrefix + "Y");
+            Box2i dataWindow = _inputPart->header().dataWindow();
             intptr_t base = reinterpret_cast<intptr_t>(s->base);
 
             for( int scanLine = scanLine1  ; scanLine <= scanLine2 ; scanLine++ )
@@ -1360,92 +1448,107 @@ RgbaInputFile::readPixels (int scanLine)
 bool
 RgbaInputFile::isComplete () const
 {
-    return _inputFile->isComplete();
+    for (int i = 0 ; i < _multiPartFile->parts() ; ++i)
+    {
+        if (!_multiPartFile->partComplete(i))
+        {
+            return false;
+        }
+    }
+    return true;
+
 }
 
 
 const Header &
 RgbaInputFile::header () const
 {
-    return _inputFile->header();
+    return _inputPart->header();
 }
 
+int
+RgbaInputFile::parts() const
+{
+    return _multiPartFile->parts();
+}
 
 const char *
 RgbaInputFile::fileName () const
 {
-    return _inputFile->fileName();
+    return _inputPart->fileName();
 }
 
 
 const FrameBuffer &	
 RgbaInputFile::frameBuffer () const
 {
-    return _inputFile->frameBuffer();
+    return _inputPart->frameBuffer();
 }
 
 
 const IMATH_NAMESPACE::Box2i &
 RgbaInputFile::displayWindow () const
 {
-    return _inputFile->header().displayWindow();
+    return _inputPart->header().displayWindow();
 }
 
 
 const IMATH_NAMESPACE::Box2i &
 RgbaInputFile::dataWindow () const
 {
-    return _inputFile->header().dataWindow();
+    return _inputPart->header().dataWindow();
 }
 
 
 float	
 RgbaInputFile::pixelAspectRatio () const
 {
-    return _inputFile->header().pixelAspectRatio();
+    return _inputPart->header().pixelAspectRatio();
 }
 
 
 const IMATH_NAMESPACE::V2f	
 RgbaInputFile::screenWindowCenter () const
 {
-    return _inputFile->header().screenWindowCenter();
+    return _inputPart->header().screenWindowCenter();
 }
 
 
 float	
 RgbaInputFile::screenWindowWidth () const
 {
-    return _inputFile->header().screenWindowWidth();
+    return _inputPart->header().screenWindowWidth();
 }
 
 
 LineOrder
 RgbaInputFile::lineOrder () const
 {
-    return _inputFile->header().lineOrder();
+    return _inputPart->header().lineOrder();
 }
 
 
 Compression
 RgbaInputFile::compression () const
 {
-    return _inputFile->header().compression();
+    return _inputPart->header().compression();
 }
 
 
 RgbaChannels	
 RgbaInputFile::channels () const
 {
-    return rgbaChannels (_inputFile->header().channels(), _channelNamePrefix);
+    return rgbaChannels (_inputPart->header().channels(), _channelNamePrefix);
 }
 
 
 int
 RgbaInputFile::version () const
 {
-    return _inputFile->version();
+    return _inputPart->version();
 }
+
+
 
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT
