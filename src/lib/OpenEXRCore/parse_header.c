@@ -2002,6 +2002,8 @@ internal_exr_compute_tile_information (
         w = ((int64_t) dw.max.x) - ((int64_t) dw.min.x) + 1;
         h = ((int64_t) dw.max.y) - ((int64_t) dw.min.y) + 1;
 
+        if (tiledesc->x_size == 0 || tiledesc->y_size == 0)
+            return ctxt->standard_error (ctxt, EXR_ERR_INVALID_ATTR);
         switch (EXR_GET_TILE_LEVEL_MODE ((*tiledesc)))
         {
             case EXR_TILE_ONE_LEVEL: numX = numY = 1; break;
@@ -2032,7 +2034,9 @@ internal_exr_compute_tile_information (
                 }
                 break;
             case EXR_TILE_LAST_TYPE:
-            default: return -1;
+            default:
+                return ctxt->standard_error (
+                    ctxt, EXR_ERR_INVALID_ATTR);
         }
 
         curpart->num_tile_levels_x = numX;
