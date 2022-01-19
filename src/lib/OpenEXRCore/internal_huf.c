@@ -494,14 +494,14 @@ hufUnpackEncTable (
     for (; im <= iM; im++)
     {
         nr = (((uintptr_t) p) - ((uintptr_t) *pcode));
-        if (nr > ni) return EXR_ERR_OUT_OF_MEMORY;
+        if (lc < 6 && nr >= ni) return EXR_ERR_OUT_OF_MEMORY;
 
         uint64_t l = hcode[im] = getBits (6, &c, &lc, &p); // code length
 
         if (l == (uint64_t) LONG_ZEROCODE_RUN)
         {
             nr = (((uintptr_t) p) - ((uintptr_t) *pcode));
-            if (nr > ni) return EXR_ERR_OUT_OF_MEMORY;
+            if (lc < 8 && nr >= ni) return EXR_ERR_OUT_OF_MEMORY;
 
             uint64_t zerun = getBits (8, &c, &lc, &p) + SHORTEST_LONG_RUN;
 
