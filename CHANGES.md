@@ -1,5 +1,6 @@
 # OpenEXR Release Notes
 
+* [Version 3.1.4](#version-314-january-26-2022) January 27, 2022
 * [Version 3.1.3](#version-313-october-27-2021) October 27, 2021
 * [Version 3.1.2](#version-312-october-4-2021) October 4, 2021
 * [Version 3.1.1](#version-311-august-2-2021) August 2, 2021
@@ -52,6 +53,76 @@
 * [Version 1.0.2](#version-102)
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
+
+## Version 3.1.4 (January 26, 2022)
+
+Patch release that addresses various issues:
+
+* Several bug fixes to properly reject invalid input upon read 
+* A check to enable SSE2 when building with Visual Studio
+* A check to fix building with VisualStudio on ARM64
+* Update the automatically-downloaded version of Imath to v3.1.4
+* Miscellaneous documentation improvements
+
+This addresses one public security vulnerability:
+
+* [CVE-2021-45942](https://nvd.nist.gov/vuln/detail/CVE-2021-45942) Heap-buffer-overflow in Imf_3_1::LineCompositeTask::execute
+
+Specific OSS-fuzz issues:
+
+* OSS-fuzz [43763](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=43763) Heap-buffer-overflow in internal_huf_decompress
+* OSS-fuzz [43745](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=43745) Floating-point-exception in internal_exr_compute_tile_information
+* OSS-fuzz [43744](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=43744) Divide-by-zero in internal_exr_compute_tile_information
+* OSS-fuzz [42197](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=42197) Out-of-memory in openexr_exrcheck_fuzzer
+* OSS-fuzz [42001](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=42001) Timeout in openexr_exrcheck_fuzzer
+* OSS-fuzz [41999](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=41999) Heap-buffer-overflow in Imf_3_1::LineCompositeTask::execute
+* OSS-fuzz [41669](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=41669) Integer-overflow in Imf_3_1::rleUncompress
+* OSS-fuzz [41625](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=41625) Heap-buffer-overflow in uncompress_b44_impl
+* OSS-fuzz [41416](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=41416) Heap-buffer-overflow in Imf_3_1::LineCompositeTask::execute
+* OSS-fuzz [41075](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=41075) Integer-overflow in Imf_3_1::copyIntoDeepFrameBuffer
+* OSS-fuzz [40704](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=40704) Crash in Imf_3_1::DeepTiledInputFile::readPixelSampleCounts
+* OSS-fuzz [40702](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=40702) Null-dereference in bool Imf_3_1::readDeepTile<Imf_3_1::DeepTiledInputFile>
+* OSS-fuzz [40701](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=40701) Null-dereference in bool Imf_3_1::readDeepTile<Imf_3_1::DeepTiledInputPart>
+* OSS-fuzz [40423](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=40423) Out-of-memory in openexr_exrcheck_fuzzer
+* OSS-fuzz [40234](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=40234) Heap-buffer-overflow in generic_unpack
+* OSS-fuzz [40231](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=40231) Heap-buffer-overflow in hufDecode
+* OSS-fuzz [40091](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=40091) Heap-buffer-overflow in hufDecode
+
+Merged Pull Requests:
+
+* [1218](https://github.com/AcademySoftwareFoundation/openexr/pull/1218)
+OSS-Fuzz pass 15jan2022
+* [1217](https://github.com/AcademySoftwareFoundation/openexr/pull/1217)
+Added missing check _M_IX86 or _M_X64 when using __lzcnt.
+* [1216](https://github.com/AcademySoftwareFoundation/openexr/pull/1216)
+Corrected the check to enable SSE2 when building with Visual Studio.
+* [1214](https://github.com/AcademySoftwareFoundation/openexr/pull/1214)
+prevent overflow in allocation of RLE buufer
+* [1213](https://github.com/AcademySoftwareFoundation/openexr/pull/1213)
+add check for decompressed deepscanline datasize
+* [1209](https://github.com/AcademySoftwareFoundation/openexr/pull/1209)
+enforce xSampling/ySampling==1 in CompositeDeepScanLine
+* [1208](https://github.com/AcademySoftwareFoundation/openexr/pull/1208)
+Reduce memory consumption with very large deepscanline images
+* [1206](https://github.com/AcademySoftwareFoundation/openexr/pull/1206)
+Update INSTALL.md
+* [1205](https://github.com/AcademySoftwareFoundation/openexr/pull/1205)
+DeepScanlineInputFile now uses chunk size test from DeepTiledInputFile
+* [1200](https://github.com/AcademySoftwareFoundation/openexr/pull/1200)
+Corrected Deep Docs & Example Code
+* [1199](https://github.com/AcademySoftwareFoundation/openexr/pull/1199)
+Fix C++ DeepTile reading in Imf::CheckFile
+* [1195](https://github.com/AcademySoftwareFoundation/openexr/pull/1195)
+Fix bugs in ImfCheckFile.cpp:readDeepTile()
+* [1193](https://github.com/AcademySoftwareFoundation/openexr/pull/1193)
+mention multipart files in multiview doc
+* [1191](https://github.com/AcademySoftwareFoundation/openexr/pull/1191)
+Replace Doxygen/Sphinx targets with "docs"
+* [1190](https://github.com/AcademySoftwareFoundation/openexr/pull/1190)
+Add Compression section to "Reading and Writing Image Files" doc
+* [1189](https://github.com/AcademySoftwareFoundation/openexr/pull/1189)
+Fix typo in readthedocs url
+
 
 ## Version 3.1.3 (October 27, 2021)
 
