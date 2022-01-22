@@ -764,11 +764,16 @@ hufEncode (
     c = (c << 8) | (uint64_t) (*in++);                                         \
     lc += 8
 
-#define getCode(po, rlc, c, lc, in, out, ob, oe)                               \
+#define getCode(po, rlc, c, lc, in, ie, out, ob, oe)                           \
+    do                                                                         \
     {                                                                          \
         if (po == rlc)                                                         \
         {                                                                      \
-            if (lc < 8) { getChar (c, lc, in); }                               \
+            if (lc < 8)                                                        \
+            {                                                                  \
+                if (in >= ie) return EXR_ERR_OUT_OF_MEMORY;                    \
+                getChar (c, lc, in);                                           \
+            }                                                                  \
                                                                                \
             lc -= 8;                                                           \
                                                                                \
@@ -792,7 +797,7 @@ hufEncode (
         {                                                                      \
             return EXR_ERR_CORRUPT_CHUNK;                                      \
         }                                                                      \
-    }
+    } while (0)
 
 //
 // Decode (uncompress) ni bits based on encoding & decoding tables:
@@ -840,7 +845,7 @@ hufDecode (
                 if (pl->len > lc) return EXR_ERR_CORRUPT_CHUNK;
 
                 lc -= pl->len;
-                getCode (pl->lit, rlc, c, lc, in, out, outb, oe)
+                getCode (pl->lit, rlc, c, lc, in, ie, out, outb, oe);
             }
             else
             {
@@ -872,7 +877,8 @@ hufDecode (
 
                             lc -= l;
                             getCode (
-                                decbuf[j], rlc, c, lc, in, out, outb, oe) break;
+                                decbuf[j], rlc, c, lc, in, ie, out, outb, oe);
+                            break;
                         }
                     }
                 }
@@ -899,7 +905,7 @@ hufDecode (
         {
             if (pl->len > lc) return EXR_ERR_CORRUPT_CHUNK;
             lc -= pl->len;
-            getCode (pl->lit, rlc, c, lc, in, out, outb, oe)
+            getCode (pl->lit, rlc, c, lc, in, ie, out, outb, oe);
         }
         else
             return EXR_ERR_CORRUPT_CHUNK;
@@ -1092,7 +1098,8 @@ internal_huf_decompress (
         if (nBits > 8 * nLeft) return EXR_ERR_CORRUPT_CHUNK;
 
         rv = hufBuildDecTable (freq, im, iM, hdec);
-        hufDecode (freq, hdec, ptr, nBits, iM, nRaw, raw);
+        if (rv == EXR_ERR_SUCCESS)
+            rv = hufDecode (freq, hdec, ptr, nBits, iM, nRaw, raw);
 
         hufFreeDecTable (hdec);
     }
