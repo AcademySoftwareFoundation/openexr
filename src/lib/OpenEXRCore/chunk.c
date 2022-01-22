@@ -439,6 +439,12 @@ exr_read_scanline_chunk_info (
                 fsize);
         }
     }
+
+    if (cinfo->packed_size == 0 && cinfo->unpacked_size > 0)
+        return pctxt->report_error (
+            pctxt,
+            EXR_ERR_INVALID_ARGUMENT,
+            "Invalid packed size of 0");
     return EXR_ERR_SUCCESS;
 }
 
@@ -942,6 +948,13 @@ exr_read_tile_chunk_info (
         cinfo->sample_count_data_offset = 0;
         cinfo->sample_count_table_size  = 0;
     }
+
+    if (cinfo->packed_size == 0 && cinfo->unpacked_size > 0)
+        return pctxt->report_error (
+            pctxt,
+            EXR_ERR_INVALID_ARGUMENT,
+            "Invalid packed size of 0");
+
     return EXR_ERR_SUCCESS;
 }
 
