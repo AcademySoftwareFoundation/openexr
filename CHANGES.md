@@ -92,7 +92,8 @@ Specific OSS-fuzz issues:
 
 Merged Pull Requests:
 
-
+* [1225](https://github.com/AcademySoftwareFoundation/openexr/pull/1225)
+Bazel build: Update Imath
 * [1224](https://github.com/AcademySoftwareFoundation/openexr/pull/1224)
 Add error check to prevent corrupt files trying to unpack 
 * [1223](https://github.com/AcademySoftwareFoundation/openexr/pull/1223)
