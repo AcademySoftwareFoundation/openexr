@@ -70,6 +70,8 @@ This addresses one public security vulnerability:
 
 Specific OSS-fuzz issues:
 
+* OSS-fuzz [43961](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=43961) Heap-buffer-overflow in generic_unpack
+* OSS-fuzz [43916](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=43916) Heap-buffer-overflow in hufDecode
 * OSS-fuzz [43763](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=43763) Heap-buffer-overflow in internal_huf_decompress
 * OSS-fuzz [43745](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=43745) Floating-point-exception in internal_exr_compute_tile_information
 * OSS-fuzz [43744](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=43744) Divide-by-zero in internal_exr_compute_tile_information
@@ -90,6 +92,13 @@ Specific OSS-fuzz issues:
 
 Merged Pull Requests:
 
+
+* [1224](https://github.com/AcademySoftwareFoundation/openexr/pull/1224)
+Add error check to prevent corrupt files trying to unpack 
+* [1223](https://github.com/AcademySoftwareFoundation/openexr/pull/1223)
+Fix issues with a a "short" huf table and checking boundary conditions, missing return value
+* [1222](https://github.com/AcademySoftwareFoundation/openexr/pull/1222)
+Fix OSS Fuzz 43763, 43745 
 * [1218](https://github.com/AcademySoftwareFoundation/openexr/pull/1218)
 OSS-Fuzz pass 15jan2022
 * [1217](https://github.com/AcademySoftwareFoundation/openexr/pull/1217)
