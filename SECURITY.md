@@ -16,6 +16,7 @@ post patches as quickly as possible.
 
 These vulnerabilities are present in the given versions:
 
+* [CVE-2021-45942](https://nvd.nist.gov/vuln/detail/CVE-2021-45942) 3.1.0, 3.1.1, 3.1.2, 3.1.3
 * [CVE-2021-20296](https://nvd.nist.gov/vuln/detail/CVE-2021-20296) 2.4.0, 2.4.1, 2.4.2, 2.5.0, 2.5.1, 2.5.2, 2.5.3 
 * [CVE-2021-3479](https://nvd.nist.gov/vuln/detail/CVE-2021-3479) 2.4.0, 2.4.1, 2.4.2, 2.5.0, 2.5.1, 2.5.2, 2.5.3 
 * [CVE-2021-3478](https://nvd.nist.gov/vuln/detail/CVE-2021-3478) 2.4.0, 2.4.1, 2.4.2, 2.5.0, 2.5.1, 2.5.2, 2.5.3 
