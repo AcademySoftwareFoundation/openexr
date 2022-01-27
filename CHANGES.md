@@ -1,5 +1,7 @@
 # OpenEXR Release Notes
 
+* [Version 3.1.4](#version-314-january-26-2022) January 27, 2022
+* [Version 3.1.3](#version-313-october-27-2021) October 27, 2021
 * [Version 3.1.2](#version-312-october-4-2021) October 4, 2021
 * [Version 3.1.1](#version-311-august-2-2021) August 2, 2021
 * [Version 3.1.0](#version-310-july-22-2021) July 22, 2021
