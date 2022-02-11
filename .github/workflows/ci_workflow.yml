@@ -58,8 +58,9 @@ jobs:
       matrix:
         build: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
         include:
+
           # -------------------------------------------------------------------
-          # VFX CY2022 - GCC, Release
+          # VFX CY2022 - GCC
           # -------------------------------------------------------------------
           # Shared, Release
           - build: 1
@@ -74,10 +75,7 @@ jobs:
             vfx-cy: 2022
             exclude-tests:
 
-          # -------------------------------------------------------------------
-          # VFX CY2021 - GCC
-          # -------------------------------------------------------------------
-          # Shared, Release
+          # Shared, Release, Threads OFF
           - build: 2
             build-type: Release
             build-shared: 'ON'
@@ -86,25 +84,12 @@ jobs:
             cc-compiler: gcc
             compiler-desc: gcc9.3.1
             label: 
-            threads-enabled: 'ON'
-            vfx-cy: 2021
-            exclude-tests:
-
-          # Shared, Release, Threads OFF
-          - build: 3
-            build-type: Release
-            build-shared: 'ON'
-            cxx-standard: 17
-            cxx-compiler: g++
-            cc-compiler: gcc
-            compiler-desc: gcc9.3.1
-            label: 
             threads-enabled: 'OFF'
-            vfx-cy: 2021
+            vfx-cy: 2022
             exclude-tests:
 
           # Shared, Debug
-          - build: 4
+          - build: 3
             build-type: Debug
             build-shared: 'ON'
             cxx-standard: 17
@@ -113,11 +98,11 @@ jobs:
             compiler-desc: gcc9.3.1
             label: 
             threads-enabled: 'ON'
-            vfx-cy: 2021
+            vfx-cy: 2022
             exclude-tests:
 
           # Static, Release
-          - build: 5
+          - build: 4
             build-type: Release
             build-shared: 'ON'
             cxx-standard: 17
@@ -126,11 +111,11 @@ jobs:
             compiler-desc: gcc9.3.1
             label: 
             threads-enabled: 'ON'
-            vfx-cy: 2021
+            vfx-cy: 2022
             exclude-tests:
 
           # Static, Debug
-          - build: 6
+          - build: 5
             build-type: Debug
             build-shared: 'OFF'
             cxx-standard: 17
@@ -139,14 +124,14 @@ jobs:
             compiler-desc: gcc9.3.1
             label: 
             threads-enabled: 'ON'
-            vfx-cy: 2021
+            vfx-cy: 2022
             exclude-tests:
 
           # -------------------------------------------------------------------
           # VFX CY2021 - Clang
           # -------------------------------------------------------------------
           # Release
-          - build: 7
+          - build: 6
             build-type: Release
             build-shared: 'ON'
             cxx-standard: 17
@@ -155,11 +140,11 @@ jobs:
             compiler-desc: clang10
             label: 
             threads-enabled: 'ON'
-            vfx-cy: 2021
+            vfx-cy: 2022
             exclude-tests:
 
           # Debug
-          - build: 8
+          - build: 7
             build-type: Debug
             build-shared: 'ON'
             cxx-standard: 17
@@ -168,11 +153,11 @@ jobs:
             compiler-desc: clang10
             label: 
             threads-enabled: 'ON'
-            vfx-cy: 2021
+            vfx-cy: 2022
             exclude-tests:
 
           # Static, Release
-          - build: 9
+          - build: 8
             build-type: Release
             build-shared: 'ON'
             cxx-standard: 17
@@ -181,17 +166,33 @@ jobs:
             compiler-desc: clang10
             label: 
             threads-enabled: 'ON'
-            vfx-cy: 2021
+            vfx-cy: 2022
             exclude-tests:
 
           # Static, Debug
-          - build: 10
+          - build: 9
             build-type: Debug
             build-shared: 'OFF'
             cxx-standard: 17
             cxx-compiler: clang++
             cc-compiler: clang
             compiler-desc: clang10
+            label: 
+            threads-enabled: 'ON'
+            vfx-cy: 2022
+            exclude-tests:
+
+          # -------------------------------------------------------------------
+          # VFX CY2021 - GCC, Release
+          # -------------------------------------------------------------------
+          # Shared, Release
+          - build: 10
+            build-type: Release
+            build-shared: 'ON'
+            cxx-standard: 17
+            cxx-compiler: g++
+            cc-compiler: gcc
+            compiler-desc: gcc9.3.1
             label: 
             threads-enabled: 'ON'
             vfx-cy: 2021
@@ -308,7 +309,7 @@ jobs:
   # TODO: Add ARM64/x86_64 (universal 2) build
   
   macos:
-    name: 'Mac VFXP-2021 macos-${{ matrix.osver }}
+    name: 'Mac VFXP-2022 macos-${{ matrix.osver }}
       <${{ matrix.compiler-desc }},
        C++${{ matrix.cxx-standard }},
        config=${{ matrix.build-type }},
@@ -321,7 +322,7 @@ jobs:
         build: [1, 2, 3]
         include:
           # -------------------------------------------------------------------
-          # VFX CY2021 - C++17 
+          # VFX CY2022 - C++17 
           # -------------------------------------------------------------------
           # Shared, Release
           - build: 1
@@ -407,7 +408,7 @@ jobs:
   # ---------------------------------------------------------------------------
   # TODO: Debug mode is catatonically slow under windows
   windows:
-    name: 'Windows VFXP-2021
+    name: 'Windows VFXP-2022
       <${{ matrix.compiler-desc }},
        config=${{ matrix.build-type }}, 
        shared=${{ matrix.build-shared }}, 
@@ -419,7 +420,7 @@ jobs:
         build: [1, 2]
         include:
           # -------------------------------------------------------------------
-          # VFX CY2021 - C++17
+          # VFX CY2022 - C++17
           # -------------------------------------------------------------------
           # Shared, Release
           - build: 1
