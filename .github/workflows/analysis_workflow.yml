@@ -19,14 +19,14 @@ jobs:
   # ---------------------------------------------------------------------------
 
   linux_sonarcloud:
-    name: 'SonarCloud Linux CentOS 7 VFX CY2021 <GCC 6.3.1>'
+    name: 'SonarCloud Linux CentOS 7 VFX CY2022 <GCC 9.3.1>'
     if: github.repository == 'AcademySoftwareFoundation/openexr'
     # GH-hosted VM. The build runs in CentOS 7 'container' defined below.
     runs-on: ubuntu-latest
     container:
       # DockerHub: https://hub.docker.com/u/aswf
       # Source: https://github.com/AcademySoftwareFoundation/aswf-docker
-      image: aswf/ci-openexr:2021
+      image: aswf/ci-openexr:2022
     env:
       CXX: g++
       CC: gcc
@@ -87,14 +87,14 @@ jobs:
   #  Valgrind memcheck test
   # ------------------------------------------------------------------------------
   linux_valgrind:
-    name: 'Valgrind Linux CentOS 7 VFX CY2021 <GCC 6.3.1>'
+    name: 'Valgrind Linux CentOS 7 VFX CY2022 <GCC 9.3.1>'
     if: github.repository == 'AcademySoftwareFoundation/openexr'
     # GH-hosted VM. The build runs in CentOS 7 'container' defined below.
     runs-on: ubuntu-latest
     container:
       # DockerHub: https://hub.docker.com/u/aswf
       # Source: https://github.com/AcademySoftwareFoundation/aswf-docker
-      image: aswf/ci-openexr:2021
+      image: aswf/ci-openexr:2022
     env:
       CXX: g++
       CC: gcc
@@ -152,14 +152,14 @@ jobs:
   #  Fuzz test
   # ------------------------------------------------------------------------------
   linux_fuzz:
-    name: 'Fuzz Test ${{ matrix.build-descrip }} Linux CentOS 7 VFX CY2021 <GCC 6.3.1>'
+    name: 'Fuzz Test ${{ matrix.build-descrip }} Linux CentOS 7 VFX CY2022 <GCC 9.3.1>'
     if: github.repository == 'AcademySoftwareFoundation/openexr'
     # GH-hosted VM. The build runs in CentOS 7 'container' defined below.
     runs-on: ubuntu-latest
     container:
       # DockerHub: https://hub.docker.com/u/aswf
       # Source: https://github.com/AcademySoftwareFoundation/aswf-docker
-      image: aswf/ci-openexr:2021
+      image: aswf/ci-openexr:2022
     strategy:
       matrix:
         build: [1, 2]
