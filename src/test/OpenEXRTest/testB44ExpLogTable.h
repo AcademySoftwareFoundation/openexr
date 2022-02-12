@@ -4,4 +4,3 @@
 //
 
 void testB44ExpLogTable (const std::string&);
-

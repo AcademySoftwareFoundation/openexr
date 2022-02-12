@@ -7,9 +7,9 @@
 #define INCLUDED_IMFNAMESPACE_H
 
 //
-// The purpose of this file is to have all of the Imath symbols defined within 
+// The purpose of this file is to have all of the Imath symbols defined within
 // the OPENEXR_IMF_INTERNAL_NAMESPACE namespace rather than the standard Imath
-// namespace. Those symbols are made available to client code through the 
+// namespace. Those symbols are made available to client code through the
 // OPENEXR_IMF_NAMESPACE in addition to the OPENEXR_IMF_INTERNAL_NAMESPACE.
 //
 // To ensure source code compatibility, the OPENEXR_IMF_NAMESPACE defaults to
@@ -48,13 +48,12 @@
 //
 #include "OpenEXRConfig.h"
 
-
 #ifndef OPENEXR_IMF_NAMESPACE
-#define OPENEXR_IMF_NAMESPACE Imf
+#    define OPENEXR_IMF_NAMESPACE Imf
 #endif
 
 #ifndef OPENEXR_IMF_INTERNAL_NAMESPACE
-#define OPENEXR_IMF_INTERNAL_NAMESPACE OPENEXR_IMF_NAMESPACE
+#    define OPENEXR_IMF_INTERNAL_NAMESPACE OPENEXR_IMF_NAMESPACE
 #endif
 
 //
@@ -65,9 +64,11 @@
 // namespace.
 //
 
-namespace OPENEXR_IMF_INTERNAL_NAMESPACE {}
-namespace OPENEXR_IMF_NAMESPACE {
-     using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;
+namespace OPENEXR_IMF_INTERNAL_NAMESPACE
+{}
+namespace OPENEXR_IMF_NAMESPACE
+{
+using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;
 }
 
 //
@@ -76,11 +77,14 @@ namespace OPENEXR_IMF_NAMESPACE {
 // project source code.
 //
 
-#define OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER namespace OPENEXR_IMF_INTERNAL_NAMESPACE {
+#define OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER                            \
+    namespace OPENEXR_IMF_INTERNAL_NAMESPACE                                   \
+    {
 #define OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT }
 
-#define OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER namespace OPENEXR_IMF_INTERNAL_NAMESPACE {
+#define OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER                            \
+    namespace OPENEXR_IMF_INTERNAL_NAMESPACE                                   \
+    {
 #define OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT }
-
 
 #endif /* INCLUDED_IMFNAMESPACE_H */

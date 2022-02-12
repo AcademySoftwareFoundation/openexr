@@ -481,7 +481,7 @@ hufUnpackEncTable (
     uint64_t*       nLeft, // io: input size (in bytes), bytes left
     uint32_t        im,    // i : min hcode index
     uint32_t        iM,    // i : max hcode index
-    uint64_t*       hcode) // o : encoding table [HUF_ENCSIZE]
+    uint64_t*       hcode)       // o : encoding table [HUF_ENCSIZE]
 {
     memset (hcode, 0, sizeof (uint64_t) * HUF_ENCSIZE);
 
@@ -1065,11 +1065,11 @@ internal_huf_decompress (
     nBytes = (((uint64_t) (nBits) + 7)) / 8;
     if (ptr + nBytes > compressed + nCompressed) return EXR_ERR_OUT_OF_MEMORY;
 
-    //
-    // Fast decoder needs at least 2x64-bits of compressed data, and
-    // needs to be run-able on this platform. Otherwise, fall back
-    // to the original decoder
-    //
+        //
+        // Fast decoder needs at least 2x64-bits of compressed data, and
+        // needs to be run-able on this platform. Otherwise, fall back
+        // to the original decoder
+        //
 #if 0
     if (FastHufDecoder::enabled () && nBits > 128)
     {

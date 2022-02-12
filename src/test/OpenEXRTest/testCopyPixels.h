@@ -3,10 +3,6 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
-
-
-
 #include <string>
 
-void testCopyPixels (const std::string &tempDir);
-
+void testCopyPixels (const std::string& tempDir);

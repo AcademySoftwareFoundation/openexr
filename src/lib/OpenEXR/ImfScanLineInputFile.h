@@ -19,19 +19,18 @@
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
-
 class IMF_EXPORT_TYPE ScanLineInputFile : public GenericInputFile
 {
-  public:
-
+public:
     //------------
     // Constructor
     //------------
 
     IMF_EXPORT
-    ScanLineInputFile (const Header &header, OPENEXR_IMF_INTERNAL_NAMESPACE::IStream *is,
-                       int numThreads = globalThreadCount());
-
+    ScanLineInputFile (
+        const Header&                            header,
+        OPENEXR_IMF_INTERNAL_NAMESPACE::IStream* is,
+        int numThreads = globalThreadCount ());
 
     //-----------------------------------------
     // Destructor -- deallocates internal data
@@ -42,34 +41,30 @@ class IMF_EXPORT_TYPE ScanLineInputFile : public GenericInputFile
     virtual ~ScanLineInputFile ();
 
     ScanLineInputFile (const ScanLineInputFile& other) = delete;
-    ScanLineInputFile& operator = (const ScanLineInputFile& other) = delete;
-    ScanLineInputFile (ScanLineInputFile&& other) = delete;
-    ScanLineInputFile& operator = (ScanLineInputFile&& other) = delete;
-
+    ScanLineInputFile& operator= (const ScanLineInputFile& other) = delete;
+    ScanLineInputFile (ScanLineInputFile&& other)                 = delete;
+    ScanLineInputFile& operator= (ScanLineInputFile&& other) = delete;
 
     //------------------------
     // Access to the file name
     //------------------------
 
     IMF_EXPORT
-    const char *	fileName () const;
-
+    const char* fileName () const;
 
     //--------------------------
     // Access to the file header
     //--------------------------
 
     IMF_EXPORT
-    const Header &	header () const;
-
+    const Header& header () const;
 
     //----------------------------------
     // Access to the file format version
     //----------------------------------
 
     IMF_EXPORT
-    int			version () const;
-
+    int version () const;
 
     //-----------------------------------------------------------
     // Set the current frame buffer -- copies the FrameBuffer
@@ -83,16 +78,14 @@ class IMF_EXPORT_TYPE ScanLineInputFile : public GenericInputFile
     //-----------------------------------------------------------
 
     IMF_EXPORT
-    void		setFrameBuffer (const FrameBuffer &frameBuffer);
-
+    void setFrameBuffer (const FrameBuffer& frameBuffer);
 
     //-----------------------------------
     // Access to the current frame buffer
     //-----------------------------------
 
     IMF_EXPORT
-    const FrameBuffer &	frameBuffer () const;
-
+    const FrameBuffer& frameBuffer () const;
 
     //---------------------------------------------------------------
     // Check if the file is complete:
@@ -104,10 +97,8 @@ class IMF_EXPORT_TYPE ScanLineInputFile : public GenericInputFile
     //---------------------------------------------------------------
 
     IMF_EXPORT
-    bool		isComplete () const;
+    bool isComplete () const;
 
-    
-    
     //---------------------------------------------------------------
     // Check if SSE optimisation is enabled
     //
@@ -121,12 +112,9 @@ class IMF_EXPORT_TYPE ScanLineInputFile : public GenericInputFile
     // Calling before setFrameBuffer will throw an exception
     //
     //---------------------------------------------------------------
-    
+
     IMF_EXPORT
-    bool                isOptimizationEnabled () const;
-    
-    
-    
+    bool isOptimizationEnabled () const;
 
     //---------------------------------------------------------------
     // Read pixel data:
@@ -151,10 +139,9 @@ class IMF_EXPORT_TYPE ScanLineInputFile : public GenericInputFile
     //---------------------------------------------------------------
 
     IMF_EXPORT
-    void		readPixels (int scanLine1, int scanLine2);
+    void readPixels (int scanLine1, int scanLine2);
     IMF_EXPORT
-    void		readPixels (int scanLine);
-
+    void readPixels (int scanLine);
 
     //----------------------------------------------
     // Read a block of raw pixel data from the file,
@@ -163,42 +150,37 @@ class IMF_EXPORT_TYPE ScanLineInputFile : public GenericInputFile
     //----------------------------------------------
 
     IMF_EXPORT
-    void		rawPixelData (int firstScanLine,
-				      const char *&pixelData,
-				      int &pixelDataSize);
+    void rawPixelData (
+        int firstScanLine, const char*& pixelData, int& pixelDataSize);
 
-   
     //----------------------------------------------
-    // Read a scanline's worth of raw pixel data 
-    // from the file, without uncompressing it, and 
-    // store in an external buffer, pixelData. 
-    // pixelData should be pre-allocated with space 
-    // for pixelDataSize chars. 
+    // Read a scanline's worth of raw pixel data
+    // from the file, without uncompressing it, and
+    // store in an external buffer, pixelData.
+    // pixelData should be pre-allocated with space
+    // for pixelDataSize chars.
     //
-    // This function can be used to separate the 
-    // reading of a raw scan line from the 
+    // This function can be used to separate the
+    // reading of a raw scan line from the
     // decompression of that scan line, for
     // example to allow multiple scan lines to be
     // decompressed in parallel by an application's
-    // own threads, where it is not convenient to 
+    // own threads, where it is not convenient to
     // use the threading within the library.
     //----------------------------------------------
 
     IMF_EXPORT
-    void                rawPixelDataToBuffer(int scanLine,
-					     char *pixelData,
-					     int &pixelDataSize) const;
-    
-  
+    void rawPixelDataToBuffer (
+        int scanLine, char* pixelData, int& pixelDataSize) const;
+
     struct IMF_HIDDEN Data;
 
-  private:
+private:
+    Data* _data;
 
-    Data *		_data;
+    InputStreamMutex* _streamData;
 
-    InputStreamMutex*   _streamData;
-
-    IMF_HIDDEN ScanLineInputFile   (InputPartData* part);
+    IMF_HIDDEN ScanLineInputFile (InputPartData* part);
 
     IMF_HIDDEN void initialize (const Header& header);
 
@@ -206,11 +188,6 @@ class IMF_EXPORT_TYPE ScanLineInputFile : public GenericInputFile
     friend class InputFile;
 };
 
-
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
-
-
-
-
 
 #endif

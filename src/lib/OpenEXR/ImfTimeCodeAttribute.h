@@ -6,7 +6,6 @@
 #ifndef INCLUDED_IMF_TIME_CODE_ATTRIBUTE_H
 #define INCLUDED_IMF_TIME_CODE_ATTRIBUTE_H
 
-
 //-----------------------------------------------------------------------------
 //
 //	class TimeCodeAttribute
@@ -21,17 +20,14 @@
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
-
-typedef TypedAttribute<OPENEXR_IMF_INTERNAL_NAMESPACE::TimeCode> TimeCodeAttribute;
+typedef TypedAttribute<OPENEXR_IMF_INTERNAL_NAMESPACE::TimeCode>
+    TimeCodeAttribute;
 
 #ifndef COMPILING_IMF_TIMECODE_ATTRIBUTE
-extern template class IMF_EXPORT_EXTERN_TEMPLATE TypedAttribute<OPENEXR_IMF_INTERNAL_NAMESPACE::TimeCode>;
+extern template class IMF_EXPORT_EXTERN_TEMPLATE
+    TypedAttribute<OPENEXR_IMF_INTERNAL_NAMESPACE::TimeCode>;
 #endif
 
-
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
-
-
-
 
 #endif

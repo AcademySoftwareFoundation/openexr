@@ -3,10 +3,8 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
-
 #ifndef INCLUDED_IMF_ACES_FILE_H
 #define INCLUDED_IMF_ACES_FILE_H
-
 
 //-----------------------------------------------------------------------------
 //
@@ -47,26 +45,24 @@
 //
 //-----------------------------------------------------------------------------
 
-#include "ImfHeader.h"
-#include "ImfRgba.h"
-#include "ImathVec.h"
 #include "ImathBox.h"
-#include "ImfThreading.h"
-#include "ImfNamespace.h"
+#include "ImathVec.h"
 #include "ImfExport.h"
 #include "ImfForward.h"
+#include "ImfHeader.h"
+#include "ImfNamespace.h"
+#include "ImfRgba.h"
+#include "ImfThreading.h"
 
 #include <string>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
-
 //
 // ACES red, green, blue and white-point chromaticities.
 //
 
-const Chromaticities &	acesChromaticities ();
-
+const Chromaticities& acesChromaticities ();
 
 //
 // ACES output file.
@@ -74,18 +70,17 @@ const Chromaticities &	acesChromaticities ();
 
 class IMF_EXPORT_TYPE AcesOutputFile
 {
-  public:
-
+public:
     //---------------------------------------------------
     // Constructor -- header is constructed by the caller
     //---------------------------------------------------
 
     IMF_EXPORT
-    AcesOutputFile (const std::string &name,
-		    const Header &header,
-		    RgbaChannels rgbaChannels = WRITE_RGBA,
-                    int numThreads = globalThreadCount());
-
+    AcesOutputFile (
+        const std::string& name,
+        const Header&      header,
+        RgbaChannels       rgbaChannels = WRITE_RGBA,
+        int                numThreads   = globalThreadCount ());
 
     //----------------------------------------------------
     // Constructor -- header is constructed by the caller,
@@ -94,11 +89,11 @@ class IMF_EXPORT_TYPE AcesOutputFile
     //----------------------------------------------------
 
     IMF_EXPORT
-    AcesOutputFile (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os,
-		    const Header &header,
-		    RgbaChannels rgbaChannels = WRITE_RGBA,
-                    int numThreads = globalThreadCount());
-
+    AcesOutputFile (
+        OPENEXR_IMF_INTERNAL_NAMESPACE::OStream& os,
+        const Header&                            header,
+        RgbaChannels                             rgbaChannels = WRITE_RGBA,
+        int numThreads = globalThreadCount ());
 
     //----------------------------------------------------------------
     // Constructor -- header data are explicitly specified as function
@@ -106,17 +101,18 @@ class IMF_EXPORT_TYPE AcesOutputFile
     //----------------------------------------------------------------
 
     IMF_EXPORT
-    AcesOutputFile (const std::string &name,
-		    const IMATH_NAMESPACE::Box2i &displayWindow,
-		    const IMATH_NAMESPACE::Box2i &dataWindow = IMATH_NAMESPACE::Box2i(),
-		    RgbaChannels rgbaChannels = WRITE_RGBA,
-		    float pixelAspectRatio = 1,
-		    const IMATH_NAMESPACE::V2f screenWindowCenter = IMATH_NAMESPACE::V2f (0, 0),
-		    float screenWindowWidth = 1,
-		    LineOrder lineOrder = INCREASING_Y,
-		    Compression compression = PIZ_COMPRESSION,
-                    int numThreads = globalThreadCount());
-
+    AcesOutputFile (
+        const std::string&            name,
+        const IMATH_NAMESPACE::Box2i& displayWindow,
+        const IMATH_NAMESPACE::Box2i& dataWindow   = IMATH_NAMESPACE::Box2i (),
+        RgbaChannels                  rgbaChannels = WRITE_RGBA,
+        float                         pixelAspectRatio = 1,
+        const IMATH_NAMESPACE::V2f    screenWindowCenter =
+            IMATH_NAMESPACE::V2f (0, 0),
+        float       screenWindowWidth = 1,
+        LineOrder   lineOrder         = INCREASING_Y,
+        Compression compression       = PIZ_COMPRESSION,
+        int         numThreads        = globalThreadCount ());
 
     //-----------------------------------------------
     // Constructor -- like the previous one, but both
@@ -125,17 +121,18 @@ class IMF_EXPORT_TYPE AcesOutputFile
     //-----------------------------------------------
 
     IMF_EXPORT
-    AcesOutputFile (const std::string &name,
-		    int width,
-		    int height,
-		    RgbaChannels rgbaChannels = WRITE_RGBA,
-		    float pixelAspectRatio = 1,
-		    const IMATH_NAMESPACE::V2f screenWindowCenter = IMATH_NAMESPACE::V2f (0, 0),
-		    float screenWindowWidth = 1,
-		    LineOrder lineOrder = INCREASING_Y,
-		    Compression compression = PIZ_COMPRESSION,
-                    int numThreads = globalThreadCount());
-
+    AcesOutputFile (
+        const std::string&         name,
+        int                        width,
+        int                        height,
+        RgbaChannels               rgbaChannels     = WRITE_RGBA,
+        float                      pixelAspectRatio = 1,
+        const IMATH_NAMESPACE::V2f screenWindowCenter =
+            IMATH_NAMESPACE::V2f (0, 0),
+        float       screenWindowWidth = 1,
+        LineOrder   lineOrder         = INCREASING_Y,
+        Compression compression       = PIZ_COMPRESSION,
+        int         numThreads        = globalThreadCount ());
 
     //-----------
     // Destructor
@@ -143,7 +140,6 @@ class IMF_EXPORT_TYPE AcesOutputFile
 
     IMF_EXPORT
     virtual ~AcesOutputFile ();
-
 
     //------------------------------------------------
     // Define a frame buffer as the pixel data source:
@@ -154,10 +150,7 @@ class IMF_EXPORT_TYPE AcesOutputFile
     //------------------------------------------------
 
     IMF_EXPORT
-    void			setFrameBuffer (const Rgba *base,
-						size_t xStride,
-						size_t yStride);
-
+    void setFrameBuffer (const Rgba* base, size_t xStride, size_t yStride);
 
     //-------------------------------------------------
     // Write pixel data (see class Imf::OutputFile)
@@ -165,55 +158,50 @@ class IMF_EXPORT_TYPE AcesOutputFile
     //-------------------------------------------------
 
     IMF_EXPORT
-    void            writePixels (int numScanLines = 1);
+    void writePixels (int numScanLines = 1);
     IMF_EXPORT
-    int             currentScanLine () const;
-
+    int currentScanLine () const;
 
     //--------------------------
     // Access to the file header
     //--------------------------
 
     IMF_EXPORT
-    const Header &		header () const;
+    const Header& header () const;
     IMF_EXPORT
-    const IMATH_NAMESPACE::Box2i &	displayWindow () const;
+    const IMATH_NAMESPACE::Box2i& displayWindow () const;
     IMF_EXPORT
-    const IMATH_NAMESPACE::Box2i &	dataWindow () const;
+    const IMATH_NAMESPACE::Box2i& dataWindow () const;
     IMF_EXPORT
-    float			pixelAspectRatio () const;
+    float pixelAspectRatio () const;
     IMF_EXPORT
-    const IMATH_NAMESPACE::V2f		screenWindowCenter () const;
+    const IMATH_NAMESPACE::V2f screenWindowCenter () const;
     IMF_EXPORT
-    float			screenWindowWidth () const;
+    float screenWindowWidth () const;
     IMF_EXPORT
-    LineOrder			lineOrder () const;
+    LineOrder lineOrder () const;
     IMF_EXPORT
-    Compression			compression () const;
+    Compression compression () const;
     IMF_EXPORT
-    RgbaChannels		channels () const;
-
+    RgbaChannels channels () const;
 
     // --------------------------------------------------------------------
     // Update the preview image (see Imf::OutputFile::updatePreviewImage())
     // --------------------------------------------------------------------
 
     IMF_EXPORT
-    void			updatePreviewImage (const PreviewRgba[]);
+    void updatePreviewImage (const PreviewRgba[]);
 
-
-  private:
-
-    AcesOutputFile (const AcesOutputFile &) = delete;
-    AcesOutputFile & operator = (const AcesOutputFile &) = delete;
-    AcesOutputFile (AcesOutputFile &&) = delete;
-    AcesOutputFile & operator = (AcesOutputFile &&) = delete;
+private:
+    AcesOutputFile (const AcesOutputFile&) = delete;
+    AcesOutputFile& operator= (const AcesOutputFile&) = delete;
+    AcesOutputFile (AcesOutputFile&&)                 = delete;
+    AcesOutputFile& operator= (AcesOutputFile&&) = delete;
 
     class IMF_HIDDEN Data;
 
-    Data *			_data;
+    Data* _data;
 };
-
 
 //
 // ACES input file
@@ -221,17 +209,15 @@ class IMF_EXPORT_TYPE AcesOutputFile
 
 class IMF_EXPORT_TYPE AcesInputFile
 {
-  public:
-
+public:
     //-------------------------------------------------------
     // Constructor -- opens the file with the specified name,
     // destructor will automatically close the file.
     //-------------------------------------------------------
 
     IMF_EXPORT
-    AcesInputFile (const std::string &name,
-		   int numThreads = globalThreadCount());
-
+    AcesInputFile (
+        const std::string& name, int numThreads = globalThreadCount ());
 
     //-----------------------------------------------------------
     // Constructor -- attaches the new AcesInputFile object to a
@@ -241,9 +227,9 @@ class IMF_EXPORT_TYPE AcesInputFile
     //-----------------------------------------------------------
 
     IMF_EXPORT
-    AcesInputFile (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is,
-		   int numThreads = globalThreadCount());
-
+    AcesInputFile (
+        OPENEXR_IMF_INTERNAL_NAMESPACE::IStream& is,
+        int numThreads = globalThreadCount ());
 
     //-----------
     // Destructor
@@ -251,7 +237,6 @@ class IMF_EXPORT_TYPE AcesInputFile
 
     IMF_EXPORT
     virtual ~AcesInputFile ();
-
 
     //-----------------------------------------------------
     // Define a frame buffer as the pixel data destination:
@@ -262,10 +247,7 @@ class IMF_EXPORT_TYPE AcesInputFile
     //-----------------------------------------------------
 
     IMF_EXPORT
-    void			setFrameBuffer (Rgba *base,
-						size_t xStride,
-						size_t yStride);
-
+    void setFrameBuffer (Rgba* base, size_t xStride, size_t yStride);
 
     //--------------------------------------------
     // Read pixel data (see class Imf::InputFile)
@@ -273,62 +255,55 @@ class IMF_EXPORT_TYPE AcesInputFile
     //--------------------------------------------
 
     IMF_EXPORT
-    void			readPixels (int scanLine1, int scanLine2);
+    void readPixels (int scanLine1, int scanLine2);
     IMF_EXPORT
-    void			readPixels (int scanLine);
-
+    void readPixels (int scanLine);
 
     //--------------------------
     // Access to the file header
     //--------------------------
 
     IMF_EXPORT
-    const Header &		header () const;
+    const Header& header () const;
     IMF_EXPORT
-    const IMATH_NAMESPACE::Box2i &	displayWindow () const;
+    const IMATH_NAMESPACE::Box2i& displayWindow () const;
     IMF_EXPORT
-    const IMATH_NAMESPACE::Box2i &	dataWindow () const;
+    const IMATH_NAMESPACE::Box2i& dataWindow () const;
     IMF_EXPORT
-    float			pixelAspectRatio () const;
+    float pixelAspectRatio () const;
     IMF_EXPORT
-    const IMATH_NAMESPACE::V2f		screenWindowCenter () const;
+    const IMATH_NAMESPACE::V2f screenWindowCenter () const;
     IMF_EXPORT
-    float			screenWindowWidth () const;
+    float screenWindowWidth () const;
     IMF_EXPORT
-    LineOrder			lineOrder () const;
+    LineOrder lineOrder () const;
     IMF_EXPORT
-    Compression			compression () const;
+    Compression compression () const;
     IMF_EXPORT
-    RgbaChannels		channels () const;
+    RgbaChannels channels () const;
     IMF_EXPORT
-    const char *                fileName () const;
+    const char* fileName () const;
     IMF_EXPORT
-    bool			isComplete () const;
-
+    bool isComplete () const;
 
     //----------------------------------
     // Access to the file format version
     //----------------------------------
 
     IMF_EXPORT
-    int				version () const;
+    int version () const;
 
-  private:
-
-    AcesInputFile (const AcesInputFile &) = delete;
-    AcesInputFile & operator = (const AcesInputFile &) = delete;
-    AcesInputFile (AcesInputFile &&) = delete;
-    AcesInputFile & operator = (AcesInputFile &&) = delete;
+private:
+    AcesInputFile (const AcesInputFile&) = delete;
+    AcesInputFile& operator= (const AcesInputFile&) = delete;
+    AcesInputFile (AcesInputFile&&)                 = delete;
+    AcesInputFile& operator= (AcesInputFile&&) = delete;
 
     class IMF_HIDDEN Data;
 
-    Data *			_data;
+    Data* _data;
 };
 
-
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
-
-
-
 
 #endif

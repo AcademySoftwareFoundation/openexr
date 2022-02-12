@@ -314,7 +314,8 @@ default_write_func (
         error_cb (
             ctxt,
             EXR_ERR_WRITE_IO,
-            "Unable to write %" PRIu64 " bytes to stream, wrote %" PRId64 ": %s",
+            "Unable to write %" PRIu64 " bytes to stream, wrote %" PRId64
+            ": %s",
             sz,
             retsz,
             strerror (errno));
@@ -457,7 +458,7 @@ make_temp_filename (struct _internal_exr_context* ret)
             strncpy (
                 tmpname + nPrev + tlen,
                 srcfile + nPrev,
-                (uint64_t)(ret->filename.length) - nPrev);
+                (uint64_t) (ret->filename.length) - nPrev);
             tmpname[newlen] = '\0';
         }
         else

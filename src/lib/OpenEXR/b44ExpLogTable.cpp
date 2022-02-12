@@ -21,9 +21,9 @@
 //---------------------------------------------------------------------------
 
 #include <half.h>
-#include <math.h>
-#include <iostream>
 #include <iomanip>
+#include <iostream>
+#include <math.h>
 
 using namespace std;
 
@@ -41,64 +41,62 @@ main ()
 #endif
 
     cout << "//\n"
-	    "// This is an automatically generated file.\n"
-	    "// Do not edit.\n"
-	    "//\n\n";
+            "// This is an automatically generated file.\n"
+            "// Do not edit.\n"
+            "//\n\n";
 
     const int iMax = (1 << 16);
 
     cout << "const unsigned short expTable[] =\n"
-	    "{\n"
-	    "    ";
+            "{\n"
+            "    ";
 
     for (int i = 0; i < iMax; i++)
     {
-	half h;
-	h.setBits (i);
+        half h;
+        h.setBits (i);
 
-	if (!h.isFinite())
-	    h = 0;
-	else if (h >= 8 * log (HALF_MAX))
-	    h = HALF_MAX;
-	else
-	    h = exp (h / 8);
+        if (!h.isFinite ())
+            h = 0;
+        else if (h >= 8 * log (HALF_MAX))
+            h = HALF_MAX;
+        else
+            h = exp (h / 8);
 
-	cout << "0x" << setfill ('0') << setw (4) << h.bits() << ", ";
+        cout << "0x" << setfill ('0') << setw (4) << h.bits () << ", ";
 
-	if (i % 8 == 7)
-	{
-	    cout << "\n";
+        if (i % 8 == 7)
+        {
+            cout << "\n";
 
-	    if (i < iMax - 1)
-		cout << "    ";
-	}
+            if (i < iMax - 1) cout << "    ";
+        }
     }
 
     cout << "};\n\n";
 
     cout << "const unsigned short logTable[] =\n"
-	    "{\n"
-	    "    ";
+            "{\n"
+            "    ";
 
     for (int i = 0; i < iMax; i++)
     {
-	half h;
-	h.setBits (i);
+        half h;
+        h.setBits (i);
 
-	if (!h.isFinite() || h < 0)
-	    h = 0;
-	else
-	    h = 8 * log (h);
+        if (!h.isFinite () || h < 0)
+            h = 0;
+        else
+            h = 8 * log (h);
 
-	cout << "0x" << setfill ('0') << setw (4) << h.bits() << ", ";
+        cout << "0x" << setfill ('0') << setw (4) << h.bits () << ", ";
 
-	if (i % 8 == 7)
-	{
-	    cout << "\n";
+        if (i % 8 == 7)
+        {
+            cout << "\n";
 
-	    if (i < iMax - 1)
-		cout << "    ";
-	}
+            if (i < iMax - 1) cout << "    ";
+        }
     }
 
     cout << "};\n";

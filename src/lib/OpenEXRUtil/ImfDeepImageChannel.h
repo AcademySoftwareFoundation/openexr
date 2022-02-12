@@ -16,12 +16,12 @@
 //
 //----------------------------------------------------------------------------
 
-#include "ImfUtilExport.h"
 #include "ImfNamespace.h"
+#include "ImfUtilExport.h"
 
 #include "ImfImageChannel.h"
-#include "ImfSampleCountChannel.h"
 #include "ImfImageLevel.h"
+#include "ImfSampleCountChannel.h"
 
 #include "ImfDeepFrameBuffer.h"
 
@@ -41,61 +41,55 @@ class SampleCountChannel;
 // of the level.
 //
 
-class IMFUTIL_EXPORT_TYPE DeepImageChannel: public ImageChannel
+class IMFUTIL_EXPORT_TYPE DeepImageChannel : public ImageChannel
 {
-  public:
-
+public:
     //
     // Construct an OpenEXR frame buffer slice for this channel.
     // This function is needed reading an image from an OpenEXR
     // file and for saving an image in an OpenEXR file.
-    // 
+    //
 
-    virtual DeepSlice           slice () const = 0;
+    virtual DeepSlice slice () const = 0;
 
     //
     // Access to the image level to which this channel belongs.
     //
 
-	IMFUTIL_EXPORT DeepImageLevel &            deepLevel();
-	IMFUTIL_EXPORT const DeepImageLevel &      deepLevel() const;
-
+    IMFUTIL_EXPORT DeepImageLevel&       deepLevel ();
+    IMFUTIL_EXPORT const DeepImageLevel& deepLevel () const;
 
     //
     // Access to the sample count channel for this deep channel.
     //
 
-	IMFUTIL_EXPORT SampleCountChannel &        sampleCounts();
-	IMFUTIL_EXPORT const SampleCountChannel &  sampleCounts() const;
+    IMFUTIL_EXPORT SampleCountChannel&       sampleCounts ();
+    IMFUTIL_EXPORT const SampleCountChannel& sampleCounts () const;
 
-
-  protected:
-
+protected:
     friend class DeepImageLevel;
 
-    IMFUTIL_EXPORT DeepImageChannel (DeepImageLevel &level, bool pLinear);
-    IMFUTIL_EXPORT virtual ~DeepImageChannel();
+    IMFUTIL_EXPORT DeepImageChannel (DeepImageLevel& level, bool pLinear);
+    IMFUTIL_EXPORT virtual ~DeepImageChannel ();
 
     DeepImageChannel (const DeepImageChannel& other) = delete;
-    DeepImageChannel& operator = (const DeepImageChannel& other) = delete;
-    DeepImageChannel (DeepImageChannel&& other) = delete;
-    DeepImageChannel& operator = (DeepImageChannel&& other) = delete;
+    DeepImageChannel& operator= (const DeepImageChannel& other) = delete;
+    DeepImageChannel (DeepImageChannel&& other)                 = delete;
+    DeepImageChannel& operator= (DeepImageChannel&& other) = delete;
 
-    virtual void setSamplesToZero
-                        (size_t i,
-                         unsigned int oldNumSamples,
-                         unsigned int newNumSamples) = 0;
+    virtual void setSamplesToZero (
+        size_t i, unsigned int oldNumSamples, unsigned int newNumSamples) = 0;
 
-    virtual void moveSampleList
-                        (size_t i,
-                         unsigned int oldNumSamples,
-                         unsigned int newNumSamples,
-                         size_t newSampleListPosition) = 0;
+    virtual void moveSampleList (
+        size_t       i,
+        unsigned int oldNumSamples,
+        unsigned int newNumSamples,
+        size_t       newSampleListPosition) = 0;
 
-    virtual void moveSamplesToNewBuffer
-                        (const unsigned int * oldNumSamples,
-                         const unsigned int * newNumSamples,
-                         const size_t * newSampleListPositions) = 0;
+    virtual void moveSamplesToNewBuffer (
+        const unsigned int* oldNumSamples,
+        const unsigned int* newNumSamples,
+        const size_t*       newSampleListPositions) = 0;
 
     virtual void initializeSampleLists () = 0;
 
@@ -104,27 +98,24 @@ class IMFUTIL_EXPORT_TYPE DeepImageChannel: public ImageChannel
     virtual void resetBasePointer () = 0;
 };
 
-
 template <class T>
-class IMFUTIL_EXPORT_TEMPLATE_TYPE TypedDeepImageChannel: public DeepImageChannel
+class IMFUTIL_EXPORT_TEMPLATE_TYPE TypedDeepImageChannel
+    : public DeepImageChannel
 {
-  public:
-    
+public:
     //
     // The OpenEXR pixel type of this channel (HALF, FLOAT or UINT).
     //
 
-    virtual PixelType   pixelType () const;
+    virtual PixelType pixelType () const;
 
-    
     //
     // Construct an OpenEXR frame buffer slice for this channel.
     // This function is needed reading an image from an OpenEXR
     // file and for saving an image in an OpenEXR file.
-    // 
+    //
 
-    virtual DeepSlice   slice () const;
-
+    virtual DeepSlice slice () const;
 
     //
     // Access to the pixel at pixel space location (x, y), without bounds
@@ -135,9 +126,8 @@ class IMFUTIL_EXPORT_TEMPLATE_TYPE TypedDeepImageChannel: public DeepImageChanne
     // number of samples in this array is sampleCounts().at(x,y).
     //
 
-    T *                 operator () (int x, int y);
-    const T *           operator () (int x, int y) const;
-
+    T*       operator() (int x, int y);
+    const T* operator() (int x, int y) const;
 
     //
     // Access to the pixel at pixel space location (x, y), with bounds
@@ -145,8 +135,8 @@ class IMFUTIL_EXPORT_TEMPLATE_TYPE TypedDeepImageChannel: public DeepImageChanne
     // image level throws an Iex::ArgExc exception.
     //
 
-    T *                 at (int x, int y);
-    const T *           at (int x, int y) const;
+    T*       at (int x, int y);
+    const T* at (int x, int y) const;
 
     //
     // Faster access to all pixels in a single horizontal row of the
@@ -158,41 +148,39 @@ class IMFUTIL_EXPORT_TEMPLATE_TYPE TypedDeepImageChannel: public DeepImageChanne
     // row(r)[i] is sampleCounts().row(r)[i].
     //
 
-    T * const *         row (int r);
-    const T * const *   row (int r) const;
+    T* const*       row (int r);
+    const T* const* row (int r) const;
 
-  private:
-    
+private:
     friend class DeepImageLevel;
 
     IMFUTIL_HIDDEN
-    TypedDeepImageChannel (DeepImageLevel &level, bool pLinear);
+    TypedDeepImageChannel (DeepImageLevel& level, bool pLinear);
     IMFUTIL_HIDDEN
     virtual ~TypedDeepImageChannel ();
 
     TypedDeepImageChannel (const TypedDeepImageChannel& other) = delete;
-    TypedDeepImageChannel& operator = (const TypedDeepImageChannel& other) = delete;    
+    TypedDeepImageChannel&
+    operator= (const TypedDeepImageChannel& other)        = delete;
     TypedDeepImageChannel (TypedDeepImageChannel&& other) = delete;
-    TypedDeepImageChannel& operator = (TypedDeepImageChannel&& other) = delete;    
+    TypedDeepImageChannel& operator= (TypedDeepImageChannel&& other) = delete;
 
     IMFUTIL_HIDDEN
-    virtual void setSamplesToZero
-                            (size_t i,
-                             unsigned int oldNumSamples,
-                             unsigned int newNumSamples);
+    virtual void setSamplesToZero (
+        size_t i, unsigned int oldNumSamples, unsigned int newNumSamples);
 
     IMFUTIL_HIDDEN
-    virtual void moveSampleList
-                            (size_t i,
-                             unsigned int oldNumSamples,
-                             unsigned int newNumSamples,
-                             size_t newSampleListPosition);
+    virtual void moveSampleList (
+        size_t       i,
+        unsigned int oldNumSamples,
+        unsigned int newNumSamples,
+        size_t       newSampleListPosition);
 
     IMFUTIL_HIDDEN
-    virtual void moveSamplesToNewBuffer
-                            (const unsigned int * oldNumSamples,
-                             const unsigned int * newNumSamples,
-                             const size_t * newSampleListPositions);
+    virtual void moveSamplesToNewBuffer (
+        const unsigned int* oldNumSamples,
+        const unsigned int* newNumSamples,
+        const size_t*       newSampleListPositions);
 
     IMFUTIL_HIDDEN
     virtual void initializeSampleLists ();
@@ -203,17 +191,16 @@ class IMFUTIL_EXPORT_TEMPLATE_TYPE TypedDeepImageChannel: public DeepImageChanne
     IMFUTIL_HIDDEN
     virtual void resetBasePointer ();
 
-    T **    _sampleListPointers;    // Array of pointers to per-pixel
-                                    //sample lists
+    T** _sampleListPointers; // Array of pointers to per-pixel
+                             //sample lists
 
-    T **    _base;                  // Base pointer for faster access
-                                    // to entries in _sampleListPointers
+    T** _base; // Base pointer for faster access
+               // to entries in _sampleListPointers
 
-    T *     _sampleBuffer;          // Contiguous memory block that
-                                    // contains all sample lists for
-                                    // this channel
+    T* _sampleBuffer; // Contiguous memory block that
+                      // contains all sample lists for
+                      // this channel
 };
-
 
 //
 // Channel typedefs for the pixel data types supported by OpenEXR.
@@ -228,58 +215,56 @@ typedef TypedDeepImageChannel<unsigned int> DeepUIntChannel;
 //-----------------------------------------------------------------------------
 
 template <class T>
-inline T *
-TypedDeepImageChannel<T>::operator () (int x, int y)
+inline T*
+TypedDeepImageChannel<T>::operator() (int x, int y)
 {
-    return _base[y * pixelsPerRow() + x];
+    return _base[y * pixelsPerRow () + x];
 }
 
-
 template <class T>
-inline const T *
-TypedDeepImageChannel<T>::operator () (int x, int y) const
+inline const T*
+TypedDeepImageChannel<T>::operator() (int x, int y) const
 {
-    return _base[y * pixelsPerRow() + x];
+    return _base[y * pixelsPerRow () + x];
 }
 
-
 template <class T>
-inline T *
+inline T*
 TypedDeepImageChannel<T>::at (int x, int y)
 {
     boundsCheck (x, y);
-    return _base[y * pixelsPerRow() + x];
+    return _base[y * pixelsPerRow () + x];
 }
 
-
 template <class T>
-inline const T *
+inline const T*
 TypedDeepImageChannel<T>::at (int x, int y) const
 {
     boundsCheck (x, y);
-    return _base[y * pixelsPerRow() + x];
+    return _base[y * pixelsPerRow () + x];
 }
 
-
 template <class T>
-inline T * const *
+inline T* const*
 TypedDeepImageChannel<T>::row (int r)
 {
-    return _base + r * pixelsPerRow();
+    return _base + r * pixelsPerRow ();
 }
 
-
 template <class T>
-inline const T * const *
+inline const T* const*
 TypedDeepImageChannel<T>::row (int r) const
 {
-    return _base + r * pixelsPerRow();
+    return _base + r * pixelsPerRow ();
 }
 
 #ifndef COMPILING_IMF_DEEP_IMAGE_CHANNEL
-extern template class IMFUTIL_EXPORT_EXTERN_TEMPLATE TypedDeepImageChannel<half>;
-extern template class IMFUTIL_EXPORT_EXTERN_TEMPLATE TypedDeepImageChannel<float>;
-extern template class IMFUTIL_EXPORT_EXTERN_TEMPLATE TypedDeepImageChannel<unsigned int>;
+extern template class IMFUTIL_EXPORT_EXTERN_TEMPLATE
+    TypedDeepImageChannel<half>;
+extern template class IMFUTIL_EXPORT_EXTERN_TEMPLATE
+    TypedDeepImageChannel<float>;
+extern template class IMFUTIL_EXPORT_EXTERN_TEMPLATE
+    TypedDeepImageChannel<unsigned int>;
 #endif
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT

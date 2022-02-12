@@ -3,7 +3,6 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
-
 //-----------------------------------------------------------------------------
 //
 //	class RleCompressor
@@ -11,34 +10,33 @@
 //-----------------------------------------------------------------------------
 
 #include "ImfRleCompressor.h"
-#include "ImfCheckedArithmetic.h"
-#include "ImfRle.h"
 #include "Iex.h"
+#include "ImfCheckedArithmetic.h"
 #include "ImfNamespace.h"
+#include "ImfRle.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
-RleCompressor::RleCompressor (const Header &hdr, size_t maxScanLineSize):
-    Compressor (hdr),
-    _maxScanLineSize (maxScanLineSize),
-    _tmpBuffer (0),
-    _outBuffer (0)
+RleCompressor::RleCompressor (const Header& hdr, size_t maxScanLineSize)
+    : Compressor (hdr)
+    , _maxScanLineSize (maxScanLineSize)
+    , _tmpBuffer (0)
+    , _outBuffer (0)
 {
-    if(maxScanLineSize > std::numeric_limits<int>::max())
+    if (maxScanLineSize > std::numeric_limits<int>::max ())
     {
-            throw IEX_NAMESPACE::OverflowExc ("ScanLine size too large for RleCompressor");
+        throw IEX_NAMESPACE::OverflowExc (
+            "ScanLine size too large for RleCompressor");
     }
-    _tmpBuffer = new char [maxScanLineSize];
-    _outBuffer = new char [uiMult (maxScanLineSize, size_t (3)) / 2];
+    _tmpBuffer = new char[maxScanLineSize];
+    _outBuffer = new char[uiMult (maxScanLineSize, size_t (3)) / 2];
 }
-
 
 RleCompressor::~RleCompressor ()
 {
-    delete [] _tmpBuffer;
-    delete [] _outBuffer;
+    delete[] _tmpBuffer;
+    delete[] _outBuffer;
 }
-
 
 int
 RleCompressor::numScanLines () const
@@ -50,12 +48,9 @@ RleCompressor::numScanLines () const
     return 1;
 }
 
-
 int
-RleCompressor::compress (const char *inPtr,
-			 int inSize,
-			 int minY,
-			 const char *&outPtr)
+RleCompressor::compress (
+    const char* inPtr, int inSize, int minY, const char*& outPtr)
 {
     //
     // Special case �- empty input buffer
@@ -63,8 +58,8 @@ RleCompressor::compress (const char *inPtr,
 
     if (inSize == 0)
     {
-	outPtr = _outBuffer;
-	return 0;
+        outPtr = _outBuffer;
+        return 0;
     }
 
     //
@@ -72,22 +67,22 @@ RleCompressor::compress (const char *inPtr,
     //
 
     {
-	char *t1 = _tmpBuffer;
-	char *t2 = _tmpBuffer + (inSize + 1) / 2;
-	const char *stop = inPtr + inSize;
+        char*       t1   = _tmpBuffer;
+        char*       t2   = _tmpBuffer + (inSize + 1) / 2;
+        const char* stop = inPtr + inSize;
 
-	while (true)
-	{
-	    if (inPtr < stop)
-		*(t1++) = *(inPtr++);
-	    else
-		break;
+        while (true)
+        {
+            if (inPtr < stop)
+                *(t1++) = *(inPtr++);
+            else
+                break;
 
-	    if (inPtr < stop)
-		*(t2++) = *(inPtr++);
-	    else
-		break;
-	}
+            if (inPtr < stop)
+                *(t2++) = *(inPtr++);
+            else
+                break;
+        }
     }
 
     //
@@ -95,17 +90,17 @@ RleCompressor::compress (const char *inPtr,
     //
 
     {
-	unsigned char *t = (unsigned char *) _tmpBuffer + 1;
-	unsigned char *stop = (unsigned char *) _tmpBuffer + inSize;
-	int p = t[-1];
+        unsigned char* t    = (unsigned char*) _tmpBuffer + 1;
+        unsigned char* stop = (unsigned char*) _tmpBuffer + inSize;
+        int            p    = t[-1];
 
-	while (t < stop)
-	{
-	    int d = int (t[0]) - p + (128 + 256);
-	    p = t[0];
-	    t[0] = d;
-	    ++t;
-	}
+        while (t < stop)
+        {
+            int d = int (t[0]) - p + (128 + 256);
+            p     = t[0];
+            t[0]  = d;
+            ++t;
+        }
     }
 
     //
@@ -113,15 +108,12 @@ RleCompressor::compress (const char *inPtr,
     //
 
     outPtr = _outBuffer;
-    return rleCompress (inSize, _tmpBuffer, (signed char *) _outBuffer);
+    return rleCompress (inSize, _tmpBuffer, (signed char*) _outBuffer);
 }
 
-
 int
-RleCompressor::uncompress (const char *inPtr,
-			   int inSize,
-			   int minY,
-			   const char *&outPtr)
+RleCompressor::uncompress (
+    const char* inPtr, int inSize, int minY, const char*& outPtr)
 {
     //
     // Special case �- empty input buffer
@@ -129,8 +121,8 @@ RleCompressor::uncompress (const char *inPtr,
 
     if (inSize == 0)
     {
-	outPtr = _outBuffer;
-	return 0;
+        outPtr = _outBuffer;
+        return 0;
     }
 
     //
@@ -139,11 +131,11 @@ RleCompressor::uncompress (const char *inPtr,
 
     int outSize;
 
-    if (0 == (outSize = rleUncompress (inSize, _maxScanLineSize,
-				       (const signed char *) inPtr,
-				       _tmpBuffer)))
+    if (0 ==
+        (outSize = rleUncompress (
+             inSize, _maxScanLineSize, (const signed char*) inPtr, _tmpBuffer)))
     {
-	throw IEX_NAMESPACE::InputExc ("Data decoding (rle) failed.");
+        throw IEX_NAMESPACE::InputExc ("Data decoding (rle) failed.");
     }
 
     //
@@ -151,15 +143,15 @@ RleCompressor::uncompress (const char *inPtr,
     //
 
     {
-	unsigned char *t = (unsigned char *) _tmpBuffer + 1;
-	unsigned char *stop = (unsigned char *) _tmpBuffer + outSize;
+        unsigned char* t    = (unsigned char*) _tmpBuffer + 1;
+        unsigned char* stop = (unsigned char*) _tmpBuffer + outSize;
 
-	while (t < stop)
-	{
-	    int d = int (t[-1]) + int (t[0]) - 128;
-	    t[0] = d;
-	    ++t;
-	}
+        while (t < stop)
+        {
+            int d = int (t[-1]) + int (t[0]) - 128;
+            t[0]  = d;
+            ++t;
+        }
     }
 
     //
@@ -167,28 +159,27 @@ RleCompressor::uncompress (const char *inPtr,
     //
 
     {
-	const char *t1 = _tmpBuffer;
-	const char *t2 = _tmpBuffer + (outSize + 1) / 2;
-	char *s = _outBuffer;
-	char *stop = s + outSize;
+        const char* t1   = _tmpBuffer;
+        const char* t2   = _tmpBuffer + (outSize + 1) / 2;
+        char*       s    = _outBuffer;
+        char*       stop = s + outSize;
 
-	while (true)
-	{
-	    if (s < stop)
-		*(s++) = *(t1++);
-	    else
-		break;
+        while (true)
+        {
+            if (s < stop)
+                *(s++) = *(t1++);
+            else
+                break;
 
-	    if (s < stop)
-		*(s++) = *(t2++);
-	    else
-		break;
-	}
+            if (s < stop)
+                *(s++) = *(t2++);
+            else
+                break;
+        }
     }
 
     outPtr = _outBuffer;
     return outSize;
 }
-
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

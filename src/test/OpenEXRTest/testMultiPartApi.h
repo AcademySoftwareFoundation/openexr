@@ -8,6 +8,6 @@
 
 #include <string>
 
-void testMultiPartApi (const std::string & tempDir);
+void testMultiPartApi (const std::string& tempDir);
 
 #endif /* TESTMULTIPARTAPI_H_ */

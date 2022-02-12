@@ -7,7 +7,6 @@
 #define TESTDWACOMPRESSORSIMD_H_
 
 #include <string>
-void testDwaCompressorSimd(const std::string&);
+void testDwaCompressorSimd (const std::string&);
 
 #endif /* TESTDWACOMPRESSORSIMD_H_ */
-

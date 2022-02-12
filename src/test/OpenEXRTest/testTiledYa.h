@@ -5,5 +5,4 @@
 
 #include <string>
 
-void testTiledYa (const std::string &tempDir);
-
+void testTiledYa (const std::string& tempDir);

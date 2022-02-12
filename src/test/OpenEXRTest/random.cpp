@@ -2,8 +2,8 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 
 #include "random.h"
-#include <random>
 #include <assert.h>
+#include <random>
 
 static std::default_random_engine generator;
 
@@ -19,8 +19,8 @@ random_reseed (int s)
 int
 random_int (int range)
 {
-    std::uniform_int_distribution<int> distribution (0, range-1);
-    int i = distribution (generator);
+    std::uniform_int_distribution<int> distribution (0, range - 1);
+    int                                i = distribution (generator);
     assert (0 <= i && i < range);
     return i;
 }
@@ -33,9 +33,7 @@ float
 random_float (float range)
 {
     std::uniform_real_distribution<float> distribution (0, range);
-    float f = distribution (generator);
+    float                                 f = distribution (generator);
     assert (0 <= f && f < range);
     return f;
 }
-
-    

@@ -7,22 +7,22 @@
 #    undef NDEBUG
 #endif
 
-#include <ImfOutputFile.h>
-#include <ImfInputFile.h>
-#include <ImfChannelList.h>
+#include "half.h"
 #include <ImfArray.h>
+#include <ImfChannelList.h>
 #include <ImfFrameBuffer.h>
 #include <ImfHeader.h>
+#include <ImfInputFile.h>
+#include <ImfOutputFile.h>
 #include <ImfVersion.h>
-#include "half.h"
 
 #include <ImfBoxAttribute.h>
 #include <ImfChannelListAttribute.h>
-#include <ImfCompressionAttribute.h>
 #include <ImfChromaticitiesAttribute.h>
-#include <ImfFloatAttribute.h>
-#include <ImfEnvmapAttribute.h>
+#include <ImfCompressionAttribute.h>
 #include <ImfDoubleAttribute.h>
+#include <ImfEnvmapAttribute.h>
+#include <ImfFloatAttribute.h>
 #include <ImfIntAttribute.h>
 #include <ImfLineOrderAttribute.h>
 #include <ImfMatrixAttribute.h>
@@ -31,11 +31,9 @@
 #include <ImfStringVectorAttribute.h>
 #include <ImfVecAttribute.h>
 
-
-#include <stdio.h>
 #include <assert.h>
+#include <stdio.h>
 #include <string.h>
-
 
 using namespace std;
 namespace IMF = OPENEXR_IMF_NAMESPACE;
@@ -44,17 +42,17 @@ using namespace IMF;
 namespace IMATH = IMATH_NAMESPACE;
 using namespace IMATH;
 
-
 namespace
 {
 
 static const int IMAGE_2K_HEIGHT = 1152;
-static const int IMAGE_2K_WIDTH = 2048;
+static const int IMAGE_2K_WIDTH  = 2048;
 
-static const char* CHANNEL_NAMES[] = {"R", "G", "B", "A"};
-static const char* CHANNEL_NAMES_LEFT[] = {"left.R", "left.G", "left.B", "left.A"};
+static const char* CHANNEL_NAMES[]      = {"R", "G", "B", "A"};
+static const char* CHANNEL_NAMES_LEFT[] = {
+    "left.R", "left.G", "left.B", "left.A"};
 
-static const half ALPHA_DEFAULT_VALUE(1.0f);
+static const half ALPHA_DEFAULT_VALUE (1.0f);
 
 #define RGB_FILENAME "imf_optimized_aces_rgb.exr"
 #define RGBA_FILENAME "imf_optimized_aces_rgba.exr"
@@ -63,30 +61,22 @@ static const half ALPHA_DEFAULT_VALUE(1.0f);
 
 typedef enum EImageType
 {
-    IMAGE_TYPE_RGB         = 1,
-    IMAGE_TYPE_RGBA        = 2,
-    IMAGE_TYPE_OTHER        =3
+    IMAGE_TYPE_RGB   = 1,
+    IMAGE_TYPE_RGBA  = 2,
+    IMAGE_TYPE_OTHER = 3
 } EImageType;
 
 int
-getNbChannels(EImageType pImageType)
+getNbChannels (EImageType pImageType)
 {
     int retVal = 0;
 
-    switch(pImageType)
+    switch (pImageType)
     {
-        case IMAGE_TYPE_RGB:
-            retVal = 3;
-            break;
-        case IMAGE_TYPE_RGBA:
-            retVal = 4;
-            break;
-        case IMAGE_TYPE_OTHER:
-            retVal = 2;
-            break;
-        default:
-            retVal = 0;
-            break;
+        case IMAGE_TYPE_RGB: retVal = 3; break;
+        case IMAGE_TYPE_RGBA: retVal = 4; break;
+        case IMAGE_TYPE_OTHER: retVal = 2; break;
+        default: retVal = 0; break;
     }
 
     return retVal;
@@ -98,9 +88,9 @@ getNbChannels(EImageType pImageType)
 void
 generatePixel (int i, int j, half* rgbaValue, bool pIsLeft)
 {
-    float redValue = 0.0f;
+    float redValue   = 0.0f;
     float greenValue = 0.0f;
-    float blueValue = 0.0f;
+    float blueValue  = 0.0f;
     float alphaValue = 0.0f;
 
     // These formulas are arbitrary but generate results that vary
@@ -108,21 +98,20 @@ generatePixel (int i, int j, half* rgbaValue, bool pIsLeft)
     // pixels are read/written correctly, because if we had only one
     // value for the whole image, the tests would still pass if we read
     // only one pixel and copied it all across the buffer.
-    if(pIsLeft)
+    if (pIsLeft)
     {
-        redValue = ((i + j) % 10 + 0.004f * j) / 10.0f;
+        redValue   = ((i + j) % 10 + 0.004f * j) / 10.0f;
         greenValue = ((j + j) % 10 + 0.006f * i) / 10.0f;
-        blueValue = ((j * j + i) % 10 + 0.003f * j) / 10.0f;
+        blueValue  = ((j * j + i) % 10 + 0.003f * j) / 10.0f;
         alphaValue = ALPHA_DEFAULT_VALUE;
     }
     else
     {
-        redValue = ((i * j) % 10 + 0.005f * j) / 10.0f;
+        redValue   = ((i * j) % 10 + 0.005f * j) / 10.0f;
         greenValue = ((i + i) % 10 + 0.007f * i) / 10.0f;
-        blueValue = ((i * i + j) % 10 + 0.006f * j) / 10.0f;
+        blueValue  = ((i * i + j) % 10 + 0.006f * j) / 10.0f;
         alphaValue = ALPHA_DEFAULT_VALUE;
     }
-
 
     rgbaValue[0] = redValue;
     rgbaValue[1] = greenValue;
@@ -135,22 +124,24 @@ generatePixel (int i, int j, half* rgbaValue, bool pIsLeft)
 // Used to fill the pixels in a buffer before writing them to a file.
 //
 void
-fillPixels (const int& pImageHeight,
-            const int& pImageWidth,
-            Array2D<half>& pPixels,
-            int pNbChannels,
-            bool pIsLeft)
+fillPixels (
+    const int&     pImageHeight,
+    const int&     pImageWidth,
+    Array2D<half>& pPixels,
+    int            pNbChannels,
+    bool           pIsLeft)
 {
-    for(int i = 0; i < pImageHeight; ++i)
+    for (int i = 0; i < pImageHeight; ++i)
     {
-        for(int j = 0; j < pImageWidth; ++j)
+        for (int j = 0; j < pImageWidth; ++j)
         {
             half rgbaValue[4];
 
-            generatePixel(i, j, &rgbaValue[0], pIsLeft);
-            memcpy( (void*)&pPixels[i][j * pNbChannels],
-                    &rgbaValue[0],
-                    pNbChannels * sizeof(half));
+            generatePixel (i, j, &rgbaValue[0], pIsLeft);
+            memcpy (
+                (void*) &pPixels[i][j * pNbChannels],
+                &rgbaValue[0],
+                pNbChannels * sizeof (half));
         }
     }
 }
@@ -161,37 +152,37 @@ fillPixels (const int& pImageHeight,
 // properly.
 //
 void
-validatePixels (const int& pImageHeight,
-                const int& pImageWidth,
-                Array2D<half>& pPixels,
-                int pNbChannels,
-                bool pIsLeft)
+validatePixels (
+    const int&     pImageHeight,
+    const int&     pImageWidth,
+    Array2D<half>& pPixels,
+    int            pNbChannels,
+    bool           pIsLeft)
 {
-    for(int i = 0; i < pImageHeight; ++i)
+    for (int i = 0; i < pImageHeight; ++i)
     {
-        for(int j = 0; j < pImageWidth; ++j)
+        for (int j = 0; j < pImageWidth; ++j)
         {
-            int retVal = -1;
+            int  retVal = -1;
             half rgbaValue[4];
-            generatePixel(i, j, &rgbaValue[0], pIsLeft);
+            generatePixel (i, j, &rgbaValue[0], pIsLeft);
 
-            retVal = memcmp ((void*)&pPixels[i][j * pNbChannels],
-                             (void*)&rgbaValue[0],
-                             pNbChannels * sizeof(half));
+            retVal = memcmp (
+                (void*) &pPixels[i][j * pNbChannels],
+                (void*) &rgbaValue[0],
+                pNbChannels * sizeof (half));
 
-            if(retVal != 0)
+            if (retVal != 0)
             {
                 cout << "ERROR at pixel [" << i << ";" << j << "]" << endl;
-                cout << "\tExpected [" << rgbaValue[0] << ", "
-                        << rgbaValue[1] << ", "
-                        << rgbaValue[2] << "] " << endl;
+                cout << "\tExpected [" << rgbaValue[0] << ", " << rgbaValue[1]
+                     << ", " << rgbaValue[2] << "] " << endl;
 
-                cout << "\tReceived ["      << pPixels[i][j * pNbChannels] << ", "
-                        << pPixels[i][j * pNbChannels + 1] << ", "
-                        << pPixels[i][j * pNbChannels + 2] << "]" << endl;
-                assert(retVal == 0);
+                cout << "\tReceived [" << pPixels[i][j * pNbChannels] << ", "
+                     << pPixels[i][j * pNbChannels + 1] << ", "
+                     << pPixels[i][j * pNbChannels + 2] << "]" << endl;
+                assert (retVal == 0);
             }
-
         }
     }
 }
@@ -200,35 +191,39 @@ validatePixels (const int& pImageHeight,
 //  Write pixels to a file (mono version)
 //
 void
-writePixels (const char pFilename[],
-             const int& pImageHeight,
-             const int& pImageWidth,
-             Array2D<half>& pPixels,
-             int pNbChannels,
-             Compression pCompression)
+writePixels (
+    const char     pFilename[],
+    const int&     pImageHeight,
+    const int&     pImageWidth,
+    Array2D<half>& pPixels,
+    int            pNbChannels,
+    Compression    pCompression)
 {
-    Header header (pImageWidth,
-                   pImageHeight,
-                   1.0f,
-                   V2f(0.0f,0.0f),
-                   1.0f,
-                   INCREASING_Y,
-                   pCompression);
-    for(int i = 0; i < pNbChannels; ++i)
+    Header header (
+        pImageWidth,
+        pImageHeight,
+        1.0f,
+        V2f (0.0f, 0.0f),
+        1.0f,
+        INCREASING_Y,
+        pCompression);
+    for (int i = 0; i < pNbChannels; ++i)
     {
-        header.channels().insert (CHANNEL_NAMES[i], Channel(HALF));
+        header.channels ().insert (CHANNEL_NAMES[i], Channel (HALF));
     }
 
-    OutputFile lFile(pFilename, header);
+    OutputFile  lFile (pFilename, header);
     FrameBuffer lOutputFrameBuffer;
 
-    for(int i = 0; i < pNbChannels; ++i)
+    for (int i = 0; i < pNbChannels; ++i)
     {
-        lOutputFrameBuffer.insert (CHANNEL_NAMES[i],
-                Slice (HALF,
-                        (char *) &pPixels[0][i],
-                        sizeof (pPixels[0][0]) * pNbChannels,
-                        sizeof (pPixels[0][0]) * pNbChannels * pImageWidth));
+        lOutputFrameBuffer.insert (
+            CHANNEL_NAMES[i],
+            Slice (
+                HALF,
+                (char*) &pPixels[0][i],
+                sizeof (pPixels[0][0]) * pNbChannels,
+                sizeof (pPixels[0][0]) * pNbChannels * pImageWidth));
     }
 
     lFile.setFrameBuffer (lOutputFrameBuffer);
@@ -239,48 +234,55 @@ writePixels (const char pFilename[],
 //  Write pixels to a file (stereo version)
 //
 void
-writePixels (const char pFilename[],
-             const int& pImageHeight,
-             const int& pImageWidth,
-             Array2D<half>& pPixels,
-             Array2D<half>& pPixelsLeft,
-             int pNbChannels,
-             Compression pCompression)
+writePixels (
+    const char     pFilename[],
+    const int&     pImageHeight,
+    const int&     pImageWidth,
+    Array2D<half>& pPixels,
+    Array2D<half>& pPixelsLeft,
+    int            pNbChannels,
+    Compression    pCompression)
 {
-    Header header (pImageWidth,
-                   pImageHeight,
-                   1.0f,
-                   V2f(0.0f,0.0f),
-                   1.0f,
-                   INCREASING_Y,
-                   pCompression);
-    for(int i = 0; i < pNbChannels; ++i)
+    Header header (
+        pImageWidth,
+        pImageHeight,
+        1.0f,
+        V2f (0.0f, 0.0f),
+        1.0f,
+        INCREASING_Y,
+        pCompression);
+    for (int i = 0; i < pNbChannels; ++i)
     {
-        header.channels().insert (CHANNEL_NAMES[i], Channel(HALF));
-        header.channels().insert (CHANNEL_NAMES_LEFT[i], Channel(HALF));
+        header.channels ().insert (CHANNEL_NAMES[i], Channel (HALF));
+        header.channels ().insert (CHANNEL_NAMES_LEFT[i], Channel (HALF));
     }
 
     StringVector multiView;
     multiView.push_back ("right");
     multiView.push_back ("left");
-    header.insert("multiView", IMF::TypedAttribute<IMF::StringVector>(multiView));
+    header.insert (
+        "multiView", IMF::TypedAttribute<IMF::StringVector> (multiView));
 
-    OutputFile lFile(pFilename, header);
+    OutputFile  lFile (pFilename, header);
     FrameBuffer lOutputFrameBuffer;
 
-    for(int i = 0; i < pNbChannels; ++i)
+    for (int i = 0; i < pNbChannels; ++i)
     {
-        lOutputFrameBuffer.insert (CHANNEL_NAMES[i],
-                Slice (HALF,
-                        (char *) &pPixels[0][i],
-                        sizeof (pPixels[0][0]) * pNbChannels,
-                        sizeof (pPixels[0][0]) * pNbChannels * pImageWidth));
+        lOutputFrameBuffer.insert (
+            CHANNEL_NAMES[i],
+            Slice (
+                HALF,
+                (char*) &pPixels[0][i],
+                sizeof (pPixels[0][0]) * pNbChannels,
+                sizeof (pPixels[0][0]) * pNbChannels * pImageWidth));
 
-        lOutputFrameBuffer.insert (CHANNEL_NAMES_LEFT[i],
-                Slice (HALF,
-                        (char *) &pPixelsLeft[0][i],
-                        sizeof (pPixelsLeft[0][0]) * pNbChannels,
-                        sizeof (pPixelsLeft[0][0]) * pNbChannels * pImageWidth));
+        lOutputFrameBuffer.insert (
+            CHANNEL_NAMES_LEFT[i],
+            Slice (
+                HALF,
+                (char*) &pPixelsLeft[0][i],
+                sizeof (pPixelsLeft[0][0]) * pNbChannels,
+                sizeof (pPixelsLeft[0][0]) * pNbChannels * pImageWidth));
     }
 
     lFile.setFrameBuffer (lOutputFrameBuffer);
@@ -293,52 +295,56 @@ writePixels (const char pFilename[],
 void
 readPixels (const char pFilename[], int pNbChannels, Array2D<half>& pPixels)
 {
-    InputFile lFile(pFilename);
-    IMATH::Box2i lDataWindow = lFile.header().dataWindow();
+    InputFile    lFile (pFilename);
+    IMATH::Box2i lDataWindow = lFile.header ().dataWindow ();
 
     int lWidth = lDataWindow.max.x - lDataWindow.min.x + 1;
 
     FrameBuffer lInputFrameBuffer;
 
-    for(int i = 0; i < pNbChannels; ++i)
+    for (int i = 0; i < pNbChannels; ++i)
     {
-        lInputFrameBuffer.insert (CHANNEL_NAMES[i],
-                Slice (HALF,
-                        (char *) &pPixels[0][i],
-                        sizeof (pPixels[0][0]) * pNbChannels,
-                        sizeof (pPixels[0][0]) * pNbChannels * lWidth,
-                        1,
-                        1,
-                        ALPHA_DEFAULT_VALUE));
+        lInputFrameBuffer.insert (
+            CHANNEL_NAMES[i],
+            Slice (
+                HALF,
+                (char*) &pPixels[0][i],
+                sizeof (pPixels[0][0]) * pNbChannels,
+                sizeof (pPixels[0][0]) * pNbChannels * lWidth,
+                1,
+                1,
+                ALPHA_DEFAULT_VALUE));
     }
 
     lFile.setFrameBuffer (lInputFrameBuffer);
-    
-    bool is_optimized = lFile.isOptimizationEnabled();
-    if(is_optimized)
+
+    bool is_optimized = lFile.isOptimizationEnabled ();
+    if (is_optimized)
     {
         cout << " optimization enabled\n";
-        
-        if(pNbChannels==2)
+
+        if (pNbChannels == 2)
         {
             cerr << " error: isOptimizationEnabled returned TRUE, but "
-            "optimization not known to work for two channel images\n";
-            assert(pNbChannels!=2);
+                    "optimization not known to work for two channel images\n";
+            assert (pNbChannels != 2);
         }
-            
-    }else{
+    }
+    else
+    {
         cout << " optimization disabled\n";
 #ifdef IMF_HAVE_SSE2
-        if(pNbChannels!=2)
+        if (pNbChannels != 2)
         {
             cerr << " error: isOptimizationEnabled returned FALSE, but "
-            "should work for " << pNbChannels << "channel images\n";
-            assert(pNbChannels==2);
+                    "should work for "
+                 << pNbChannels << "channel images\n";
+            assert (pNbChannels == 2);
         }
-        
+
 #endif
     }
-    
+
     lFile.readPixels (lDataWindow.min.y, lDataWindow.max.y);
 }
 
@@ -346,37 +352,42 @@ readPixels (const char pFilename[], int pNbChannels, Array2D<half>& pPixels)
 //  Read pixels from a file (stereo version).
 //
 void
-readPixels (const char pFilename[],
-            int pNbChannels,
-            Array2D<half>& pPixels,
-            Array2D<half>& pPixelsLeft)
+readPixels (
+    const char     pFilename[],
+    int            pNbChannels,
+    Array2D<half>& pPixels,
+    Array2D<half>& pPixelsLeft)
 {
-    InputFile lFile(pFilename);
-    IMATH::Box2i lDataWindow = lFile.header().dataWindow();
+    InputFile    lFile (pFilename);
+    IMATH::Box2i lDataWindow = lFile.header ().dataWindow ();
 
     int lWidth = lDataWindow.max.x - lDataWindow.min.x + 1;
 
     FrameBuffer lInputFrameBuffer;
 
-    for(int i = 0; i < pNbChannels; ++i)
+    for (int i = 0; i < pNbChannels; ++i)
     {
-        lInputFrameBuffer.insert (CHANNEL_NAMES[i],
-                Slice (HALF,
-                        (char *) &pPixels[0][i],
-                        sizeof (pPixels[0][0]) * pNbChannels,
-                        sizeof (pPixels[0][0]) * pNbChannels * lWidth,
-                        1,
-                        1,
-                        ALPHA_DEFAULT_VALUE));
+        lInputFrameBuffer.insert (
+            CHANNEL_NAMES[i],
+            Slice (
+                HALF,
+                (char*) &pPixels[0][i],
+                sizeof (pPixels[0][0]) * pNbChannels,
+                sizeof (pPixels[0][0]) * pNbChannels * lWidth,
+                1,
+                1,
+                ALPHA_DEFAULT_VALUE));
 
-        lInputFrameBuffer.insert (CHANNEL_NAMES_LEFT[i],
-                Slice (HALF,
-                        (char *) &pPixelsLeft[0][i],
-                        sizeof (pPixelsLeft[0][0]) * pNbChannels,
-                        sizeof (pPixelsLeft[0][0]) * pNbChannels * lWidth,
-                        1,
-                        1,
-                        ALPHA_DEFAULT_VALUE));
+        lInputFrameBuffer.insert (
+            CHANNEL_NAMES_LEFT[i],
+            Slice (
+                HALF,
+                (char*) &pPixelsLeft[0][i],
+                sizeof (pPixelsLeft[0][0]) * pNbChannels,
+                sizeof (pPixelsLeft[0][0]) * pNbChannels * lWidth,
+                1,
+                1,
+                ALPHA_DEFAULT_VALUE));
     }
 
     lFile.setFrameBuffer (lInputFrameBuffer);
@@ -387,46 +398,40 @@ readPixels (const char pFilename[],
 // Allocate an array of pixels, fill them with values and then write
 // them to a file.
 void
-writeFile (const char pFilename[],
-           int pHeight,
-           int pWidth,
-           EImageType pImageType,
-           bool pIsStereo,
-           Compression pCompression)
+writeFile (
+    const char  pFilename[],
+    int         pHeight,
+    int         pWidth,
+    EImageType  pImageType,
+    bool        pIsStereo,
+    Compression pCompression)
 {
-    const int lNbChannels = getNbChannels (pImageType);
+    const int     lNbChannels = getNbChannels (pImageType);
     Array2D<half> lPixels;
 
     lPixels.resizeErase (pHeight, pWidth * lNbChannels);
     fillPixels (pHeight, pWidth, lPixels, lNbChannels, false);
 
-    if(pIsStereo)
+    if (pIsStereo)
     {
         Array2D<half> lPixelsLeft;
 
         lPixelsLeft.resizeErase (pHeight, pWidth * lNbChannels);
-        fillPixels (pHeight,
-                    pWidth,
-                    lPixelsLeft,
-                    lNbChannels,
-                    true);
+        fillPixels (pHeight, pWidth, lPixelsLeft, lNbChannels, true);
 
-        writePixels (pFilename,
-                     pHeight,
-                     pWidth,
-                     lPixels,
-                     lPixelsLeft,
-                     lNbChannels,
-                     pCompression);
+        writePixels (
+            pFilename,
+            pHeight,
+            pWidth,
+            lPixels,
+            lPixelsLeft,
+            lNbChannels,
+            pCompression);
     }
     else
     {
-        writePixels (pFilename,
-                    pHeight,
-                    pWidth,
-                    lPixels,
-                    lNbChannels,
-                    pCompression);
+        writePixels (
+            pFilename, pHeight, pWidth, lPixels, lNbChannels, pCompression);
     }
 }
 
@@ -435,22 +440,21 @@ writeFile (const char pFilename[],
 // same as what was used to fill them before writing.
 //
 void
-readValidateFile (const char pFilename[],
-                  int pHeight,
-                  int pWidth,
-                  EImageType
-                  pImageType,
-                  bool pIsStereo)
+readValidateFile (
+    const char pFilename[],
+    int        pHeight,
+    int        pWidth,
+    EImageType pImageType,
+    bool       pIsStereo)
 {
-    const int lNbChannels = getNbChannels(pImageType);
+    const int lNbChannels = getNbChannels (pImageType);
 
     Array2D<half> lPixels;
-    lPixels.resizeErase(pHeight, pWidth * lNbChannels);
+    lPixels.resizeErase (pHeight, pWidth * lNbChannels);
     //readPixels(pFilename, lNbChannels, lPixels);
     //writePixels("pkTest.exr", pHeight, pWidth, lPixels, lNbChannels, NO_COMPRESSION);
 
-
-    if(pIsStereo)
+    if (pIsStereo)
     {
         Array2D<half> lPixelsLeft;
         lPixelsLeft.resizeErase (pHeight, pWidth * lNbChannels);
@@ -469,17 +473,18 @@ readValidateFile (const char pFilename[],
 // confirm the optimization flag returns false for non-RGB files
 //
 void
-testNonOptimized (const std::string & tempDir)
+testNonOptimized (const std::string& tempDir)
 {
-    const int pHeight = IMAGE_2K_HEIGHT - 1;
-    const int pWidth  =  IMAGE_2K_WIDTH - 1;
-    std::string fn = tempDir +  RGB_FILENAME;
-    const char* filename  = fn.c_str();
+    const int   pHeight  = IMAGE_2K_HEIGHT - 1;
+    const int   pWidth   = IMAGE_2K_WIDTH - 1;
+    std::string fn       = tempDir + RGB_FILENAME;
+    const char* filename = fn.c_str ();
 
-    remove(filename);
-    writeFile (filename,  pHeight, pWidth, IMAGE_TYPE_OTHER,  false, NO_COMPRESSION);
-    readValidateFile(filename,pHeight,pWidth,IMAGE_TYPE_OTHER,false);
-    remove(filename);
+    remove (filename);
+    writeFile (
+        filename, pHeight, pWidth, IMAGE_TYPE_OTHER, false, NO_COMPRESSION);
+    readValidateFile (filename, pHeight, pWidth, IMAGE_TYPE_OTHER, false);
+    remove (filename);
 }
 
 //
@@ -493,63 +498,67 @@ testNonOptimized (const std::string & tempDir)
 // to write the file.
 //
 void
-testAllCombinations (bool isAligned,
-                     bool isStereo,
-                     Compression pCompression,
-                     const std::string & tempDir)
+testAllCombinations (
+    bool               isAligned,
+    bool               isStereo,
+    Compression        pCompression,
+    const std::string& tempDir)
 {
-    std::string pRgb  = isStereo ?  RGB_STEREO_FILENAME :
-                                    RGB_FILENAME;
-    pRgb = tempDir + pRgb;
-    std::string pRgba = isStereo ?  RGBA_STEREO_FILENAME :
-                                    RGBA_FILENAME;
-    pRgba = tempDir + pRgba;
+    std::string pRgb  = isStereo ? RGB_STEREO_FILENAME : RGB_FILENAME;
+    pRgb              = tempDir + pRgb;
+    std::string pRgba = isStereo ? RGBA_STEREO_FILENAME : RGBA_FILENAME;
+    pRgba             = tempDir + pRgba;
 
-    const char * pRgbFilename  = pRgb.c_str();
-    const char * pRgbaFilename = pRgba.c_str();
+    const char* pRgbFilename  = pRgb.c_str ();
+    const char* pRgbaFilename = pRgba.c_str ();
 
     const int pHeight = isAligned ? IMAGE_2K_HEIGHT : IMAGE_2K_HEIGHT - 1;
-    const int pWidth  = isAligned ? IMAGE_2K_WIDTH  : IMAGE_2K_WIDTH  - 1;
+    const int pWidth  = isAligned ? IMAGE_2K_WIDTH : IMAGE_2K_WIDTH - 1;
 
-    remove(pRgbFilename);
-    remove(pRgbaFilename);
+    remove (pRgbFilename);
+    remove (pRgbaFilename);
 
-    writeFile (pRgbFilename,  pHeight, pWidth, IMAGE_TYPE_RGB,  isStereo, pCompression);
-    writeFile (pRgbaFilename, pHeight, pWidth, IMAGE_TYPE_RGBA, isStereo, pCompression);
+    writeFile (
+        pRgbFilename, pHeight, pWidth, IMAGE_TYPE_RGB, isStereo, pCompression);
+    writeFile (
+        pRgbaFilename,
+        pHeight,
+        pWidth,
+        IMAGE_TYPE_RGBA,
+        isStereo,
+        pCompression);
 
     cout << "\t\tRGB file to RGB framebuffer" << endl;
-    readValidateFile (pRgbFilename,  pHeight, pWidth, IMAGE_TYPE_RGB,  isStereo);
-    
-    
+    readValidateFile (pRgbFilename, pHeight, pWidth, IMAGE_TYPE_RGB, isStereo);
+
     cout << "\t\tRGB file to RGB framebuffer" << endl;
-    readValidateFile (pRgbFilename,  pHeight, pWidth, IMAGE_TYPE_RGB,  isStereo);
+    readValidateFile (pRgbFilename, pHeight, pWidth, IMAGE_TYPE_RGB, isStereo);
 
     cout << "\t\tRGB file to RGBA framebuffer" << endl;
-    readValidateFile (pRgbFilename,  pHeight, pWidth, IMAGE_TYPE_RGBA, isStereo);
+    readValidateFile (pRgbFilename, pHeight, pWidth, IMAGE_TYPE_RGBA, isStereo);
 
     cout << "\t\tRGBA file to RGB framebuffer" << endl;
-    readValidateFile (pRgbaFilename, pHeight, pWidth, IMAGE_TYPE_RGB,  isStereo);
+    readValidateFile (pRgbaFilename, pHeight, pWidth, IMAGE_TYPE_RGB, isStereo);
 
     cout << "\t\tRGBA file to RGBA framebuffer" << endl;
-    readValidateFile (pRgbaFilename, pHeight, pWidth, IMAGE_TYPE_RGBA, isStereo);
+    readValidateFile (
+        pRgbaFilename, pHeight, pWidth, IMAGE_TYPE_RGBA, isStereo);
 
-    remove(pRgbFilename);
-    remove(pRgbaFilename);
-
+    remove (pRgbFilename);
+    remove (pRgbaFilename);
 }
 
 } // anonymous namespace
 
-
 void
-testOptimized (const std::string & tempDir)
-{    
+testOptimized (const std::string& tempDir)
+{
     try
     {
         // Test all combinations
         // Aligned file with no compression
         // Unaligned file with no compression
-        // Aligned file with zip compression 
+        // Aligned file with zip compression
         // Unaligned file with zip compression
         //
         // Other algorithms are not necessary because we are not testing
@@ -557,12 +566,12 @@ testOptimized (const std::string & tempDir)
         // with a compressed file.
         // MONO
         cout << "\nTesting optimized code path for rgb(a) images-- "
-                "2048x1152 (alignment respected) UNCOMPRESSED" << endl;
+                "2048x1152 (alignment respected) UNCOMPRESSED"
+             << endl;
 
-                         
         cout << "\tNON-OPTIMIZABLE file" << endl;
-        testNonOptimized(tempDir);
-                
+        testNonOptimized (tempDir);
+
         cout << "\tALIGNED -- MONO -- NO COMPRESSION" << endl;
         testAllCombinations (true, false, NO_COMPRESSION, tempDir);
 
@@ -574,7 +583,6 @@ testOptimized (const std::string & tempDir)
 
         cout << "\tUNALIGNED -- MONO -- ZIP COMPRESSION" << endl;
         testAllCombinations (false, false, ZIP_COMPRESSION, tempDir);
-
 
         //// STEREO
         cout << "\tALIGNED -- STEREO -- NO COMPRESSION" << endl;
@@ -591,10 +599,9 @@ testOptimized (const std::string & tempDir)
 
         cout << "RGB(A) files validation complete \n" << endl;
     }
-    catch (const std::exception &e)
+    catch (const std::exception& e)
     {
-	    cerr << "ERROR -- caught exception: " << e.what() << endl;
-	    assert (false);
+        cerr << "ERROR -- caught exception: " << e.what () << endl;
+        assert (false);
     }
-
 }

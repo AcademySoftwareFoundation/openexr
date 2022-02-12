@@ -376,8 +376,8 @@ testOpenDeep (const std::string& tempdir)
 
     fn += "randomtempdeep.exr";
 
-    int         chancounts[] = { 1, 3, 10, 0 };
-    Compression comps[] = { NO_COMPRESSION, RLE_COMPRESSION, ZIPS_COMPRESSION };
+    int         chancounts[] = {1, 3, 10, 0};
+    Compression comps[] = {NO_COMPRESSION, RLE_COMPRESSION, ZIPS_COMPRESSION};
     for (int c = 0; chancounts[c] > 0; ++c)
     {
         for (int cp = 0; cp < 3; ++cp)
@@ -414,11 +414,11 @@ testReadDeep (const std::string& tempdir)
 
     fn += "randomtempdeep.exr";
 
-    int         chancounts[] = { 1, 3, 10, 0 };
-    Compression comps[] = { NO_COMPRESSION, RLE_COMPRESSION, ZIPS_COMPRESSION };
+    int         chancounts[] = {1, 3, 10, 0};
+    Compression comps[] = {NO_COMPRESSION, RLE_COMPRESSION, ZIPS_COMPRESSION};
     std::vector<uint8_t> packed;
     std::vector<uint8_t> sampdata;
-    exr_chunk_info_t cinfo;
+    exr_chunk_info_t     cinfo;
 
     for (int c = 0; chancounts[c] > 0; ++c)
     {
@@ -437,41 +437,49 @@ testReadDeep (const std::string& tempdir)
 
             EXRCORE_TEST_RVAL (exr_start_read (&f, fn.c_str (), &cinit));
 
-            EXRCORE_TEST_RVAL (exr_read_scanline_chunk_info (f, 0, minY + height / 2, &cinfo));
-            packed.resize(cinfo.packed_size);
-            sampdata.resize(cinfo.sample_count_table_size);
-            EXRCORE_TEST_RVAL (exr_read_deep_chunk (f, 0, &cinfo, &packed[0], &sampdata[0]));
+            EXRCORE_TEST_RVAL (
+                exr_read_scanline_chunk_info (f, 0, minY + height / 2, &cinfo));
+            packed.resize (cinfo.packed_size);
+            sampdata.resize (cinfo.sample_count_table_size);
+            EXRCORE_TEST_RVAL (
+                exr_read_deep_chunk (f, 0, &cinfo, &packed[0], &sampdata[0]));
             if (comps[cp] == NO_COMPRESSION)
             {
-                const uint32_t *sampcount = reinterpret_cast<const uint32_t *>( sampdata.data() );
-                size_t N = sampdata.size() / sizeof(uint32_t);
-                EXRCORE_TEST(N == width);
+                const uint32_t* sampcount =
+                    reinterpret_cast<const uint32_t*> (sampdata.data ());
+                size_t N = sampdata.size () / sizeof (uint32_t);
+                EXRCORE_TEST (N == width);
                 size_t bps = 0;
-                for (auto &c: channelTypes)
+                for (auto& c: channelTypes)
                 {
-                    if (c == 0) bps += sizeof(uint32_t);
-                    if (c == 1) bps += sizeof(uint16_t);
-                    if (c == 2) bps += sizeof(float);
+                    if (c == 0) bps += sizeof (uint32_t);
+                    if (c == 1) bps += sizeof (uint16_t);
+                    if (c == 2) bps += sizeof (float);
                 }
-                EXRCORE_TEST(packed.size() == (sampcount[N-1]) * bps);
+                EXRCORE_TEST (packed.size () == (sampcount[N - 1]) * bps);
             }
 
-            EXRCORE_TEST_RVAL (exr_read_scanline_chunk_info (f, 0, minY + height / 4, &cinfo));
-            packed.resize(cinfo.packed_size);
-            sampdata.resize(cinfo.sample_count_table_size);
+            EXRCORE_TEST_RVAL (
+                exr_read_scanline_chunk_info (f, 0, minY + height / 4, &cinfo));
+            packed.resize (cinfo.packed_size);
+            sampdata.resize (cinfo.sample_count_table_size);
             // we support reading the two bits separately
-            EXRCORE_TEST_RVAL (exr_read_deep_chunk (f, 0, &cinfo, &packed[0], NULL));
-            EXRCORE_TEST_RVAL (exr_read_deep_chunk (f, 0, &cinfo, NULL, &sampdata[0]));
+            EXRCORE_TEST_RVAL (
+                exr_read_deep_chunk (f, 0, &cinfo, &packed[0], NULL));
+            EXRCORE_TEST_RVAL (
+                exr_read_deep_chunk (f, 0, &cinfo, NULL, &sampdata[0]));
 
             exr_finish (&f);
 
             generateRandomTileFile (fn, chancounts[c], comps[cp]);
             EXRCORE_TEST_RVAL (exr_start_read (&f, fn.c_str (), &cinit));
 
-            EXRCORE_TEST_RVAL (exr_read_tile_chunk_info (f, 0, 0, 1, 0, 0, &cinfo));
-            packed.resize(cinfo.packed_size);
-            sampdata.resize(cinfo.sample_count_table_size);
-            EXRCORE_TEST_RVAL (exr_read_deep_chunk (f, 0, &cinfo, &packed[0], &sampdata[0]));
+            EXRCORE_TEST_RVAL (
+                exr_read_tile_chunk_info (f, 0, 0, 1, 0, 0, &cinfo));
+            packed.resize (cinfo.packed_size);
+            sampdata.resize (cinfo.sample_count_table_size);
+            EXRCORE_TEST_RVAL (
+                exr_read_deep_chunk (f, 0, &cinfo, &packed[0], &sampdata[0]));
 
             exr_finish (&f);
         }

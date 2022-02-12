@@ -1,14 +1,16 @@
 void
-writeTiledRgbaMIP2 (const char fileName[],
-                    int width, int height,
-                    int tileWidth, int tileHeight)
+writeTiledRgbaMIP2 (
+    const char fileName[], int width, int height, int tileWidth, int tileHeight)
 {
-    TiledRgbaOutputFile out (fileName,
-                             width, height,
-                             tileWidth, tileHeight,
-                             MIPMAP_LEVELS,
-                             ROUND_DOWN,
-                             WRITE_RGBA);
+    TiledRgbaOutputFile out (
+        fileName,
+        width,
+        height,
+        tileWidth,
+        tileHeight,
+        MIPMAP_LEVELS,
+        ROUND_DOWN,
+        WRITE_RGBA);
 
     Array2D<Rgba> pixels (tileHeight, tileWidth);
 
@@ -23,14 +25,13 @@ writeTiledRgbaMIP2 (const char fileName[],
 
                 generatePixels (pixels, width, height, range, level);
 
-                out.setFrameBuffer (&pixels[-range.min.y][-range.min.x],
-                                    1,          // xStride
-                                    tileWidth); // yStride
+                out.setFrameBuffer (
+                    &pixels[-range.min.y][-range.min.x],
+                    1,          // xStride
+                    tileWidth); // yStride
 
                 out.writeTile (tileX, tileY, level);
             }
         }
     }
 }
-
-

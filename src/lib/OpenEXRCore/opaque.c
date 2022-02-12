@@ -16,7 +16,7 @@ int
 exr_attr_opaquedata_init (
     exr_context_t ctxt, exr_attr_opaquedata_t* u, size_t b)
 {
-    exr_attr_opaquedata_t nil = { 0 };
+    exr_attr_opaquedata_t nil = {0};
 
     INTERN_EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
 
@@ -71,7 +71,7 @@ exr_attr_opaquedata_destroy (exr_context_t ctxt, exr_attr_opaquedata_t* ud)
 
     if (ud)
     {
-        exr_attr_opaquedata_t nil = { 0 };
+        exr_attr_opaquedata_t nil = {0};
         if (ud->packed_data && ud->packed_alloc_size > 0)
             pctxt->free_fn (ud->packed_data);
 
@@ -110,8 +110,8 @@ exr_attr_opaquedata_unpack (
     exr_context_t ctxt, exr_attr_opaquedata_t* u, int32_t* sz, void** unpacked)
 {
     exr_result_t rv;
-    int32_t tmpusz;
-    void *tmpuptr;
+    int32_t      tmpusz;
+    void*        tmpuptr;
 
     INTERN_EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
 
@@ -137,11 +137,7 @@ exr_attr_opaquedata_unpack (
             EXR_ERR_INVALID_ARGUMENT,
             "No unpack provider specified for opaque data");
     rv = u->unpack_func_ptr (
-        ctxt,
-        u->packed_data,
-        u->size,
-        &(tmpusz),
-        &(tmpuptr));
+        ctxt, u->packed_data, u->size, &(tmpusz), &(tmpuptr));
     if (rv == EXR_ERR_SUCCESS)
     {
         u->unpacked_size = tmpusz;
@@ -291,7 +287,7 @@ exr_attr_opaquedata_set_packed (
             "Opaque data given invalid negative size (%d)",
             sz);
 
-    nmem = pctxt->alloc_fn ((size_t)sz);
+    nmem = pctxt->alloc_fn ((size_t) sz);
     if (!nmem) return pctxt->standard_error (pctxt, EXR_ERR_OUT_OF_MEMORY);
 
     if (u->unpacked_data)
@@ -314,7 +310,7 @@ exr_attr_opaquedata_set_packed (
     u->packed_data       = nmem;
     u->size              = sz;
     u->packed_alloc_size = sz;
-    if (packed) memcpy ((void*) u->packed_data, packed, (size_t)sz);
+    if (packed) memcpy ((void*) u->packed_data, packed, (size_t) sz);
 
     return EXR_ERR_SUCCESS;
 }

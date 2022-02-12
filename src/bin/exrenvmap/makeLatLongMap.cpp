@@ -3,7 +3,6 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
-
 //-----------------------------------------------------------------------------
 //
 //	function makeLatLongMap() -- makes latitude-longitude environment maps
@@ -12,40 +11,39 @@
 
 #include <makeLatLongMap.h>
 
-#include <resizeImage.h>
-#include <ImfRgbaFile.h>
-#include <ImfTiledRgbaFile.h>
-#include <ImfStandardAttributes.h>
 #include "Iex.h"
-#include <iostream>
+#include <ImfRgbaFile.h>
+#include <ImfStandardAttributes.h>
+#include <ImfTiledRgbaFile.h>
 #include <algorithm>
-
+#include <iostream>
+#include <resizeImage.h>
 
 #include "namespaceAlias.h"
 using namespace IMF;
 using namespace std;
 using namespace IMATH;
 
-
 void
-makeLatLongMap (EnvmapImage &image1,
-		Header &header,
-		RgbaChannels channels,
-	        const char outFileName[],
-	        int tileWidth,
-	        int tileHeight,
-	        LevelMode levelMode,
-	        LevelRoundingMode roundingMode,
-		Compression compression,
-	        int mapWidth,
-	        float filterRadius,
-	        int numSamples,
-	        bool verbose)
+makeLatLongMap (
+    EnvmapImage&      image1,
+    Header&           header,
+    RgbaChannels      channels,
+    const char        outFileName[],
+    int               tileWidth,
+    int               tileHeight,
+    LevelMode         levelMode,
+    LevelRoundingMode roundingMode,
+    Compression       compression,
+    int               mapWidth,
+    float             filterRadius,
+    int               numSamples,
+    bool              verbose)
 {
     if (levelMode == RIPMAP_LEVELS)
     {
-	throw IEX::NoImplExc ("Cannot generate ripmap "
-			      "latitude-longitude environments.");
+        throw IEX::NoImplExc ("Cannot generate ripmap "
+                              "latitude-longitude environments.");
     }
 
     //
@@ -55,20 +53,22 @@ makeLatLongMap (EnvmapImage &image1,
 
     int mapHeight = mapWidth / 2;
 
-    header.dataWindow() = Box2i (V2i (0, 0), V2i (mapWidth - 1, mapHeight - 1));
-    header.displayWindow() = header.dataWindow();
-    header.compression() = compression;
+    header.dataWindow () =
+        Box2i (V2i (0, 0), V2i (mapWidth - 1, mapHeight - 1));
+    header.displayWindow () = header.dataWindow ();
+    header.compression ()   = compression;
 
     addEnvmap (header, ENVMAP_LATLONG);
 
-    TiledRgbaOutputFile out (outFileName,
-			     header,
-			     channels,
-			     tileWidth, tileHeight,
-			     levelMode,
-			     roundingMode);
-    if (verbose)
-	cout << "writing file " << outFileName << endl;
+    TiledRgbaOutputFile out (
+        outFileName,
+        header,
+        channels,
+        tileWidth,
+        tileHeight,
+        levelMode,
+        roundingMode);
+    if (verbose) cout << "writing file " << outFileName << endl;
 
     //
     // Generate the pixels for the various levels of the latitude-longitude
@@ -78,27 +78,25 @@ makeLatLongMap (EnvmapImage &image1,
     // level.
     //
 
-    EnvmapImage image2;
-    EnvmapImage *iptr1 = &image1;
-    EnvmapImage *iptr2 = &image2;
-    
-    for (int level = 0; level < out.numLevels(); ++level)
+    EnvmapImage  image2;
+    EnvmapImage* iptr1 = &image1;
+    EnvmapImage* iptr2 = &image2;
+
+    for (int level = 0; level < out.numLevels (); ++level)
     {
-	if (verbose)
-	    cout << "level " << level << endl;
+        if (verbose) cout << "level " << level << endl;
 
-	Box2i dw = out.dataWindowForLevel (level);
-	resizeLatLong (*iptr1, *iptr2, dw, filterRadius, numSamples);
+        Box2i dw = out.dataWindowForLevel (level);
+        resizeLatLong (*iptr1, *iptr2, dw, filterRadius, numSamples);
 
-	out.setFrameBuffer (&(iptr2->pixels()[0][0]), 1, dw.max.x + 1);
+        out.setFrameBuffer (&(iptr2->pixels ()[0][0]), 1, dw.max.x + 1);
 
-	for (int tileY = 0; tileY < out.numYTiles (level); ++tileY)
-	    for (int tileX = 0; tileX < out.numXTiles (level); ++tileX)
-		out.writeTile (tileX, tileY, level);
+        for (int tileY = 0; tileY < out.numYTiles (level); ++tileY)
+            for (int tileX = 0; tileX < out.numXTiles (level); ++tileX)
+                out.writeTile (tileX, tileY, level);
 
-	swap (iptr1, iptr2);
+        swap (iptr1, iptr2);
     }
 
-    if (verbose)
-	cout << "done." << endl;
+    if (verbose) cout << "done." << endl;
 }

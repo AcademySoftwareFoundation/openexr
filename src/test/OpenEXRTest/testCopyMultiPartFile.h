@@ -8,6 +8,6 @@
 
 #include <string>
 
-void testCopyMultiPartFile (const std::string & tempDir);
+void testCopyMultiPartFile (const std::string& tempDir);
 
 #endif /* TESTCOPYMULTIPARTFILE_H_ */

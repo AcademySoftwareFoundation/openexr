@@ -7,6 +7,6 @@
 #define TESTRLE_H_
 
 #include <string>
-void testRle(const std::string&);
+void testRle (const std::string&);
 
 #endif /* TESTRLE_H_ */

@@ -143,13 +143,13 @@ default_write_chunk (exr_encode_pipeline_t* encode)
 
 exr_result_t
 exr_encoding_initialize (
-    exr_const_context_t           ctxt,
-    int                           part_index,
+    exr_const_context_t     ctxt,
+    int                     part_index,
     const exr_chunk_info_t* cinfo,
-    exr_encode_pipeline_t*        encode)
+    exr_encode_pipeline_t*  encode)
 {
     exr_result_t          rv;
-    exr_encode_pipeline_t nil = { 0 };
+    exr_encode_pipeline_t nil = {0};
 
     EXR_PROMOTE_CONST_CONTEXT_AND_PART_OR_ERROR (ctxt, part_index);
     if (!cinfo || !encode)
@@ -177,9 +177,9 @@ exr_encoding_initialize (
 
     if (rv == EXR_ERR_SUCCESS)
     {
-        encode->part_index  = part_index;
-        encode->context     = ctxt;
-        encode->chunk = *cinfo;
+        encode->part_index = part_index;
+        encode->context    = ctxt;
+        encode->chunk      = *cinfo;
     }
     return EXR_UNLOCK_WRITE_AND_RETURN_PCTXT (rv);
 }
@@ -220,10 +220,10 @@ exr_encoding_choose_default_routines (
 
 exr_result_t
 exr_encoding_update (
-    exr_const_context_t           ctxt,
-    int                           part_index,
+    exr_const_context_t     ctxt,
+    int                     part_index,
     const exr_chunk_info_t* cinfo,
-    exr_encode_pipeline_t*        encode)
+    exr_encode_pipeline_t*  encode)
 {
     exr_result_t rv;
 
@@ -427,7 +427,7 @@ exr_encoding_destroy (exr_const_context_t ctxt, exr_encode_pipeline_t* encode)
     INTERN_EXR_PROMOTE_CONST_CONTEXT_OR_ERROR (ctxt);
     if (encode)
     {
-        exr_encode_pipeline_t nil = { 0 };
+        exr_encode_pipeline_t nil = {0};
         if (encode->channels != encode->_quick_chan_store)
             pctxt->free_fn (encode->channels);
 

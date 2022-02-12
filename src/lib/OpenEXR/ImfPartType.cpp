@@ -3,32 +3,37 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
-#include <ImfPartType.h>
 #include "ImfNamespace.h"
+#include <ImfPartType.h>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 using std::string;
 
-bool isImage(const string& name)
+bool
+isImage (const string& name)
 {
     return (name == SCANLINEIMAGE || name == TILEDIMAGE);
 }
 
-bool isTiled(const string& name)
+bool
+isTiled (const string& name)
 {
     return (name == TILEDIMAGE || name == DEEPTILE);
 }
 
-bool isDeepData(const string& name)
+bool
+isDeepData (const string& name)
 {
     return (name == DEEPTILE || name == DEEPSCANLINE);
 }
 
-bool isSupportedType(const string& name)
+bool
+isSupportedType (const string& name)
 {
-    return (name == SCANLINEIMAGE || name == TILEDIMAGE ||
-            name == DEEPSCANLINE || name == DEEPTILE);
+    return (
+        name == SCANLINEIMAGE || name == TILEDIMAGE || name == DEEPSCANLINE ||
+        name == DEEPTILE);
 }
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

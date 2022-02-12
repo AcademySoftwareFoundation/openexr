@@ -12,7 +12,7 @@
 //-----------------------------------------------------------------------------
 //
 //	class TimeCode
-// 	
+//
 // 	A TimeCode object stores time and control codes as described
 // 	in SMPTE standard 12M-1999.  A TimeCode object contains the
 // 	following fields:
@@ -85,163 +85,151 @@
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
-   
 class IMF_EXPORT_TYPE TimeCode
 {
-  public:
-
+public:
     //---------------------
     // Bit packing variants
     //---------------------
 
     enum IMF_EXPORT_ENUM Packing
     {
-	TV60_PACKING,		// packing for 60-field television
-	TV50_PACKING,		// packing for 50-field television
-	FILM24_PACKING		// packing for 24-frame film
+        TV60_PACKING,  // packing for 60-field television
+        TV50_PACKING,  // packing for 50-field television
+        FILM24_PACKING // packing for 24-frame film
     };
-
 
     //-------------------------------------
     // Constructors and assignment operator
     //-------------------------------------
 
     IMF_EXPORT
-    TimeCode ();  // all fields set to 0 or false
+    TimeCode (); // all fields set to 0 or false
 
     IMF_EXPORT
-    TimeCode (int hours,
-	      int minutes,
-	      int seconds,
-	      int frame,
-	      bool dropFrame = false,
-	      bool colorFrame = false,
-	      bool fieldPhase = false,
-	      bool bgf0 = false,
-	      bool bgf1 = false,
-	      bool bgf2 = false,
-	      int binaryGroup1 = 0,
-	      int binaryGroup2 = 0,
-	      int binaryGroup3 = 0,
-	      int binaryGroup4 = 0,
-	      int binaryGroup5 = 0,
-	      int binaryGroup6 = 0,
-	      int binaryGroup7 = 0,
-	      int binaryGroup8 = 0);
+    TimeCode (
+        int  hours,
+        int  minutes,
+        int  seconds,
+        int  frame,
+        bool dropFrame    = false,
+        bool colorFrame   = false,
+        bool fieldPhase   = false,
+        bool bgf0         = false,
+        bool bgf1         = false,
+        bool bgf2         = false,
+        int  binaryGroup1 = 0,
+        int  binaryGroup2 = 0,
+        int  binaryGroup3 = 0,
+        int  binaryGroup4 = 0,
+        int  binaryGroup5 = 0,
+        int  binaryGroup6 = 0,
+        int  binaryGroup7 = 0,
+        int  binaryGroup8 = 0);
 
     IMF_EXPORT
-    TimeCode (unsigned int timeAndFlags,
-	      unsigned int userData = 0,
-	      Packing packing = TV60_PACKING);
+    TimeCode (
+        unsigned int timeAndFlags,
+        unsigned int userData = 0,
+        Packing      packing  = TV60_PACKING);
 
     IMF_EXPORT
-    TimeCode (const TimeCode &other);
+    TimeCode (const TimeCode& other);
 
     ~TimeCode () = default;
 
     IMF_EXPORT
-    TimeCode & operator = (const TimeCode &other);
-
+    TimeCode& operator= (const TimeCode& other);
 
     //----------------------------
     // Access to individual fields
     //----------------------------
 
     IMF_EXPORT
-    int		hours () const;
+    int hours () const;
     IMF_EXPORT
-    void	setHours (int value);
+    void setHours (int value);
 
     IMF_EXPORT
-    int		minutes () const;
+    int minutes () const;
     IMF_EXPORT
-    void	setMinutes (int value);
+    void setMinutes (int value);
 
     IMF_EXPORT
-    int		seconds () const;
+    int seconds () const;
     IMF_EXPORT
-    void	setSeconds (int value);
+    void setSeconds (int value);
 
     IMF_EXPORT
-    int		frame () const;
+    int frame () const;
     IMF_EXPORT
-    void	setFrame (int value);
+    void setFrame (int value);
 
     IMF_EXPORT
-    bool	dropFrame () const;
+    bool dropFrame () const;
     IMF_EXPORT
-    void	setDropFrame (bool value);
+    void setDropFrame (bool value);
 
     IMF_EXPORT
-    bool	colorFrame () const;
+    bool colorFrame () const;
     IMF_EXPORT
-    void	setColorFrame (bool value);
+    void setColorFrame (bool value);
 
     IMF_EXPORT
-    bool	fieldPhase () const;
+    bool fieldPhase () const;
     IMF_EXPORT
-    void	setFieldPhase (bool value);
+    void setFieldPhase (bool value);
 
     IMF_EXPORT
-    bool	bgf0 () const;
+    bool bgf0 () const;
     IMF_EXPORT
-    void	setBgf0 (bool value);
+    void setBgf0 (bool value);
 
     IMF_EXPORT
-    bool	bgf1 () const;
+    bool bgf1 () const;
     IMF_EXPORT
-    void	setBgf1 (bool value);
+    void setBgf1 (bool value);
 
     IMF_EXPORT
-    bool	bgf2 () const;
+    bool bgf2 () const;
     IMF_EXPORT
-    void	setBgf2 (bool value);
+    void setBgf2 (bool value);
 
     IMF_EXPORT
-    int		binaryGroup (int group) const; // group must be between 1 and 8
+    int binaryGroup (int group) const; // group must be between 1 and 8
     IMF_EXPORT
-    void	setBinaryGroup (int group, int value);
+    void setBinaryGroup (int group, int value);
 
-    
     //---------------------------------
     // Access to packed representations
     //---------------------------------
 
     IMF_EXPORT
-    unsigned int	timeAndFlags (Packing packing = TV60_PACKING) const;
+    unsigned int timeAndFlags (Packing packing = TV60_PACKING) const;
 
     IMF_EXPORT
-    void		setTimeAndFlags (unsigned int value,
-					 Packing packing = TV60_PACKING);
+    void setTimeAndFlags (unsigned int value, Packing packing = TV60_PACKING);
 
     IMF_EXPORT
-    unsigned int	userData () const;
+    unsigned int userData () const;
 
     IMF_EXPORT
-    void		setUserData (unsigned int value);
-    
-    
+    void setUserData (unsigned int value);
+
     //---------
     // Equality
     //---------
-    
-    IMF_EXPORT
-    bool		operator == (const TimeCode &v) const;    
-    IMF_EXPORT
-    bool		operator != (const TimeCode &v) const;
-    
-  private:
 
-    unsigned int	_time;
-    unsigned int	_user;
+    IMF_EXPORT
+    bool operator== (const TimeCode& v) const;
+    IMF_EXPORT
+    bool operator!= (const TimeCode& v) const;
+
+private:
+    unsigned int _time;
+    unsigned int _user;
 };
 
-
-
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
-
-
-
-
 
 #endif

@@ -3,7 +3,6 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
-
 //-----------------------------------------------------------------------------
 //
 //	Code examples that show how class InputFile and class OutputFile
@@ -12,12 +11,12 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfOutputFile.h>
-#include <ImfInputFile.h>
-#include <ImfChannelList.h>
-#include <ImfStringAttribute.h>
-#include <ImfMatrixAttribute.h>
 #include <ImfArray.h>
+#include <ImfChannelList.h>
+#include <ImfInputFile.h>
+#include <ImfMatrixAttribute.h>
+#include <ImfOutputFile.h>
+#include <ImfStringAttribute.h>
 
 #include "drawImage.h"
 
@@ -30,13 +29,13 @@ using namespace IMF;
 using namespace std;
 using namespace IMATH_NAMESPACE;
 
-
 void
-writeGZ1 (const char fileName[],
-	  const half *gPixels,
-	  const float *zPixels,
-	  int width,
-	  int height)
+writeGZ1 (
+    const char   fileName[],
+    const half*  gPixels,
+    const float* zPixels,
+    int          width,
+    int          height)
 {
     //
     // Write an image with only a G (green) and a Z (depth) channel,
@@ -50,37 +49,41 @@ writeGZ1 (const char fileName[],
     //
 
     Header header (width, height);
-    header.channels().insert ("G", Channel (IMF::HALF));
-    header.channels().insert ("Z", Channel (IMF::FLOAT));
+    header.channels ().insert ("G", Channel (IMF::HALF));
+    header.channels ().insert ("Z", Channel (IMF::FLOAT));
 
     OutputFile file (fileName, header);
 
     FrameBuffer frameBuffer;
 
-    frameBuffer.insert ("G",					// name
-		        Slice (IMF::HALF,			// type
-			       (char *) gPixels,		// base
-			       sizeof (*gPixels) * 1,		// xStride
-			       sizeof (*gPixels) * width));	// yStride
+    frameBuffer.insert (
+        "G", // name
+        Slice (
+            IMF::HALF,                   // type
+            (char*) gPixels,             // base
+            sizeof (*gPixels) * 1,       // xStride
+            sizeof (*gPixels) * width)); // yStride
 
-    frameBuffer.insert ("Z",					// name
-			Slice (IMF::FLOAT,			// type
-			       (char *) zPixels,		// base
-			       sizeof (*zPixels) * 1,		// xStride
-			       sizeof (*zPixels) * width));	// yStride
+    frameBuffer.insert (
+        "Z", // name
+        Slice (
+            IMF::FLOAT,                  // type
+            (char*) zPixels,             // base
+            sizeof (*zPixels) * 1,       // xStride
+            sizeof (*zPixels) * width)); // yStride
 
     file.setFrameBuffer (frameBuffer);
     file.writePixels (height);
 }
 
-
 void
-writeGZ2 (const char fileName[],
-	  const half *gPixels,
-	  const float *zPixels,
-	  int width,
-	  int height,
-	  const Box2i &dataWindow)
+writeGZ2 (
+    const char   fileName[],
+    const half*  gPixels,
+    const float* zPixels,
+    int          width,
+    int          height,
+    const Box2i& dataWindow)
 {
     //
     // Write an image with only a G (green) and a Z (depth) channel,
@@ -96,37 +99,42 @@ writeGZ2 (const char fileName[],
     //
 
     Header header (width, height);
-    header.dataWindow() = dataWindow;
-    header.channels().insert ("G", Channel (IMF::HALF));
-    header.channels().insert ("Z", Channel (IMF::FLOAT));
+    header.dataWindow () = dataWindow;
+    header.channels ().insert ("G", Channel (IMF::HALF));
+    header.channels ().insert ("Z", Channel (IMF::FLOAT));
 
     OutputFile file (fileName, header);
 
     FrameBuffer frameBuffer;
 
-    frameBuffer.insert ("G",					// name
-			Slice (IMF::HALF,			// type
-			       (char *) gPixels,		// base
-			       sizeof (*gPixels) * 1,		// xStride
-			       sizeof (*gPixels) * width));	// yStride
+    frameBuffer.insert (
+        "G", // name
+        Slice (
+            IMF::HALF,                   // type
+            (char*) gPixels,             // base
+            sizeof (*gPixels) * 1,       // xStride
+            sizeof (*gPixels) * width)); // yStride
 
-    frameBuffer.insert ("Z",					// name
-			Slice (IMF::FLOAT,			// type
-			       (char *) zPixels,		// base
-			       sizeof (*zPixels) * 1,		// xStride
-			       sizeof (*zPixels) * width));	// yStride
+    frameBuffer.insert (
+        "Z", // name
+        Slice (
+            IMF::FLOAT,                  // type
+            (char*) zPixels,             // base
+            sizeof (*zPixels) * 1,       // xStride
+            sizeof (*zPixels) * width)); // yStride
 
     file.setFrameBuffer (frameBuffer);
     file.writePixels (dataWindow.max.y - dataWindow.min.y + 1);
 }
 
-
 void
-readGZ1 (const char fileName[],
-	 Array2D<half> &rPixels,
-	 Array2D<half> &gPixels,
-	 Array2D<float> &zPixels,
-	 int &width, int &height)
+readGZ1 (
+    const char      fileName[],
+    Array2D<half>&  rPixels,
+    Array2D<half>&  gPixels,
+    Array2D<float>& zPixels,
+    int&            width,
+    int&            height)
 {
     //
     // Read an image using class InputFile.  Try to read two
@@ -144,9 +152,9 @@ readGZ1 (const char fileName[],
 
     InputFile file (fileName);
 
-    Box2i dw = file.header().dataWindow();
-    width  = dw.max.x - dw.min.x + 1;
-    height = dw.max.y - dw.min.y + 1;
+    Box2i dw = file.header ().dataWindow ();
+    width    = dw.max.x - dw.min.x + 1;
+    height   = dw.max.y - dw.min.y + 1;
 
     rPixels.resizeErase (height, width);
     gPixels.resizeErase (height, width);
@@ -188,11 +196,8 @@ readGZ1 (const char fileName[],
     file.readPixels (dw.min.y, dw.max.y);
 }
 
-
 void
-readGZ2 (const char fileName[],
-	 Array2D<GZ> &pixels,
-	 int &width, int &height)
+readGZ2 (const char fileName[], Array2D<GZ>& pixels, int& width, int& height)
 {
     //
     // Read an image using class InputFile.  Try to read one channel,
@@ -207,32 +212,35 @@ readGZ2 (const char fileName[],
 
     InputFile file (fileName);
 
-    Box2i dw = file.header().dataWindow();
-    width  = dw.max.x - dw.min.x + 1;
-    height = dw.max.y - dw.min.y + 1;
-    int dx = dw.min.x;
-    int dy = dw.min.y;
+    Box2i dw = file.header ().dataWindow ();
+    width    = dw.max.x - dw.min.x + 1;
+    height   = dw.max.y - dw.min.y + 1;
+    int dx   = dw.min.x;
+    int dy   = dw.min.y;
 
     pixels.resizeErase (height, width);
 
     FrameBuffer frameBuffer;
 
-    frameBuffer.insert ("G",					 // name
-                        Slice (IMF::HALF,			 // type
-			       (char *) &pixels[-dy][-dx].g,	 // base
-				sizeof (pixels[0][0]) * 1,	 // xStride
-				sizeof (pixels[0][0]) * width)); // yStride
+    frameBuffer.insert (
+        "G", // name
+        Slice (
+            IMF::HALF,                       // type
+            (char*) &pixels[-dy][-dx].g,     // base
+            sizeof (pixels[0][0]) * 1,       // xStride
+            sizeof (pixels[0][0]) * width)); // yStride
 
-    frameBuffer.insert ("Z",					 // name
-                        Slice (IMF::FLOAT,			 // type
-			       (char *) &pixels[-dy][-dx].z,	 // base
-				sizeof (pixels[0][0]) * 1,	 // xStride
-				sizeof (pixels[0][0]) * width)); // yStride
+    frameBuffer.insert (
+        "Z", // name
+        Slice (
+            IMF::FLOAT,                      // type
+            (char*) &pixels[-dy][-dx].z,     // base
+            sizeof (pixels[0][0]) * 1,       // xStride
+            sizeof (pixels[0][0]) * width)); // yStride
 
     file.setFrameBuffer (frameBuffer);
     file.readPixels (dw.min.y, dw.max.y);
 }
-
 
 void
 generalInterfaceExamples ()
@@ -253,8 +261,13 @@ generalInterfaceExamples ()
 
     cout << "writing cropped image" << endl;
 
-    writeGZ2 ("gz2.exr", &gp[0][0], &zp[0][0], w, h,
-	      Box2i (V2i (w/6, h/6), V2i (w/2, h/2)));
+    writeGZ2 (
+        "gz2.exr",
+        &gp[0][0],
+        &zp[0][0],
+        w,
+        h,
+        Box2i (V2i (w / 6, h / 6), V2i (w / 2, h / 2)));
 
     cout << "reading file into separate per-channel buffers" << endl;
 

@@ -6,7 +6,6 @@
 #ifndef INCLUDED_IMF_CHROMATICITIES_ATTRIBUTE_H
 #define INCLUDED_IMF_CHROMATICITIES_ATTRIBUTE_H
 
-
 //-----------------------------------------------------------------------------
 //
 //	class ChromaticitiesAttribute
@@ -18,14 +17,14 @@
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
-
-typedef TypedAttribute<OPENEXR_IMF_INTERNAL_NAMESPACE::Chromaticities> ChromaticitiesAttribute;
+typedef TypedAttribute<OPENEXR_IMF_INTERNAL_NAMESPACE::Chromaticities>
+    ChromaticitiesAttribute;
 
 #ifndef COMPILING_IMF_CHROMATICITIES_ATTRIBUTE
-extern template class IMF_EXPORT_EXTERN_TEMPLATE TypedAttribute<OPENEXR_IMF_INTERNAL_NAMESPACE::Chromaticities>;
+extern template class IMF_EXPORT_EXTERN_TEMPLATE
+    TypedAttribute<OPENEXR_IMF_INTERNAL_NAMESPACE::Chromaticities>;
 #endif
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
-
 
 #endif

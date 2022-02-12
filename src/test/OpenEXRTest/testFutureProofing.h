@@ -7,6 +7,6 @@
 #define TESTFUTUREPROOFING_H_
 
 #include <string>
-void testFutureProofing  (const std::string & tempDir);
+void testFutureProofing (const std::string& tempDir);
 
 #endif

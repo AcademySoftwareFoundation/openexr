@@ -12,26 +12,24 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfTileDescription.h>
-#include <ImfCompression.h>
-#include <readInputImage.h>
 #include "namespaceAlias.h"
+#include <ImfCompression.h>
+#include <ImfTileDescription.h>
+#include <readInputImage.h>
 
+void makeLatLongMap (
+    EnvmapImage&           image,
+    IMF::Header&           header,
+    IMF::RgbaChannels      channels,
+    const char             outFileName[],
+    int                    tileWidth,
+    int                    tileHeight,
+    IMF::LevelMode         levelMode,
+    IMF::LevelRoundingMode roundingMode,
+    IMF::Compression       compresssion,
+    int                    mapWidth,
+    float                  filterRadius,
+    int                    numSamples,
+    bool                   verbose);
 
-void
-makeLatLongMap (EnvmapImage &image,
-                IMF::Header &header,
-                IMF::RgbaChannels channels,
-                const char outFileName[],
-                int tileWidth,
-                int tileHeight,
-                IMF::LevelMode levelMode,
-                IMF::LevelRoundingMode roundingMode,
-                IMF::Compression compresssion,
-                int mapWidth,
-                float filterRadius,
-                int numSamples,
-                bool verbose);
-
-
-#endif  // INCLUDED_MAKE_LATLONG_MAP_H
+#endif // INCLUDED_MAKE_LATLONG_MAP_H

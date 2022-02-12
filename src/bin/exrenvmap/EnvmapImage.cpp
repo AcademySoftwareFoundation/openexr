@@ -3,7 +3,6 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
-
 //-----------------------------------------------------------------------------
 //
 //	class EnvmapImage
@@ -13,42 +12,39 @@
 #include "EnvmapImage.h"
 #include <ImathFun.h>
 
-
 #include "namespaceAlias.h"
 using namespace IMF;
 using namespace IMATH;
 
-
-EnvmapImage::EnvmapImage ():
-    _type (ENVMAP_LATLONG),
-    _dataWindow (V2i (0, 0), V2i (0, 0)),
-    _pixels (1, 1)
+EnvmapImage::EnvmapImage ()
+    : _type (ENVMAP_LATLONG)
+    , _dataWindow (V2i (0, 0), V2i (0, 0))
+    , _pixels (1, 1)
 {
-    clear();
+    clear ();
 }
 
-
-EnvmapImage::EnvmapImage (Envmap type, const Box2i &dataWindow):
-    _type (type),
-    _dataWindow (dataWindow),
-    _pixels (dataWindow.max.y - dataWindow.min.y + 1,
-	     dataWindow.max.x - dataWindow.min.x + 1)
+EnvmapImage::EnvmapImage (Envmap type, const Box2i& dataWindow)
+    : _type (type)
+    , _dataWindow (dataWindow)
+    , _pixels (
+          dataWindow.max.y - dataWindow.min.y + 1,
+          dataWindow.max.x - dataWindow.min.x + 1)
 {
-    clear();
+    clear ();
 }
-
 
 void
-EnvmapImage::resize (Envmap type, const Box2i &dataWindow)
+EnvmapImage::resize (Envmap type, const Box2i& dataWindow)
 {
-    _pixels.resizeEraseUnsafe (dataWindow.max.y - dataWindow.min.y + 1,
-			       dataWindow.max.x - dataWindow.min.x + 1);
-    _type = type;
+    _pixels.resizeEraseUnsafe (
+        dataWindow.max.y - dataWindow.min.y + 1,
+        dataWindow.max.x - dataWindow.min.x + 1);
+    _type       = type;
     _dataWindow = dataWindow;
 
-    clear();
+    clear ();
 }
-
 
 void
 EnvmapImage::clear ()
@@ -58,68 +54,61 @@ EnvmapImage::clear ()
 
     for (int y = 0; y < h; ++y)
     {
-	for (int x = 0; x < w; ++x)
-	{
-	    Rgba &p = _pixels[y][x];
+        for (int x = 0; x < w; ++x)
+        {
+            Rgba& p = _pixels[y][x];
 
-	    p.r = 0;
-	    p.g = 0;
-	    p.b = 0;
-	    p.a = 0;
-	}
+            p.r = 0;
+            p.g = 0;
+            p.b = 0;
+            p.a = 0;
+        }
     }
 }
 
-
-Envmap		
+Envmap
 EnvmapImage::type () const
 {
     return _type;
 }
 
-
-const Box2i &
+const Box2i&
 EnvmapImage::dataWindow () const
 {
     return _dataWindow;
 }
 
-
-Array2D<Rgba> &
+Array2D<Rgba>&
 EnvmapImage::pixels ()
 {
     return _pixels;
 }
 
-
-const Array2D<Rgba> &
+const Array2D<Rgba>&
 EnvmapImage::pixels () const
 {
     return _pixels;
 }
 
-
-
-namespace {
+namespace
+{
 
 V2f
-dirToPosLatLong (const Box2i &dataWindow, const V3f &dir)
+dirToPosLatLong (const Box2i& dataWindow, const V3f& dir)
 {
     return LatLongMap::pixelPosition (dataWindow, dir);
 }
 
-
 V2f
-dirToPosCube (const Box2i &dataWindow, const V3f &dir)
+dirToPosCube (const Box2i& dataWindow, const V3f& dir)
 {
     CubeMapFace face;
-    V2f posInFace;
+    V2f         posInFace;
     CubeMap::faceAndPixelPosition (dir, dataWindow, face, posInFace);
     return CubeMap::pixelPosition (face, dataWindow, posInFace);
 }
 
 } // namespace
-
 
 Rgba
 EnvmapImage::filteredLookup (V3f d, float r, int n) const
@@ -129,33 +118,33 @@ EnvmapImage::filteredLookup (V3f d, float r, int n) const
     // from the environment map, clustered around direction d, and
     // combine the samples with a tent filter.
     //
-    
+
     //
     // Depending on the type of map, pick an appropriate function
     // to convert 3D directions to 2D pixel poitions.
     //
 
-    V2f (* dirToPos) (const Box2i &, const V3f &);
+    V2f (*dirToPos) (const Box2i&, const V3f&);
 
     if (_type == ENVMAP_LATLONG)
-	dirToPos = dirToPosLatLong;
+        dirToPos = dirToPosLatLong;
     else
-	dirToPos = dirToPosCube;
+        dirToPos = dirToPosCube;
 
     //
     // Pick two vectors, dx and dy, of length r, that are orthogonal
     // to the lookup direction, d, and to each other.
     //
 
-    d.normalize();
+    d.normalize ();
     V3f dx, dy;
 
     if (abs (d.x) > 0.707f)
-	dx = (d % V3f (0, 1, 0)).normalized() * r;
+        dx = (d % V3f (0, 1, 0)).normalized () * r;
     else
-	dx = (d % V3f (1, 0, 0)).normalized() * r;
+        dx = (d % V3f (1, 0, 0)).normalized () * r;
 
-    dy = (d % dx).normalized() * r;
+    dy = (d % dx).normalized () * r;
 
     //
     // Take n by n point samples from the map, and add them up.
@@ -172,26 +161,26 @@ EnvmapImage::filteredLookup (V3f d, float r, int n) const
 
     for (int y = 0; y < n; ++y)
     {
-	float ry = float (2 * y + 2) / float (n + 1) - 1;
-	float wy = 1 - abs (ry);
-	V3f ddy (ry * dy);
+        float ry = float (2 * y + 2) / float (n + 1) - 1;
+        float wy = 1 - abs (ry);
+        V3f   ddy (ry * dy);
 
-	for (int x = 0; x < n; ++x)
-	{
-	    float rx = float (2 * x + 2) / float (n + 1) - 1;
-	    float wx = 1 - abs (rx);
-	    V3f ddx (rx * dx);
-	    
-	    Rgba s = sample (dirToPos (_dataWindow, d + ddx + ddy));
+        for (int x = 0; x < n; ++x)
+        {
+            float rx = float (2 * x + 2) / float (n + 1) - 1;
+            float wx = 1 - abs (rx);
+            V3f   ddx (rx * dx);
 
-	    float w = wx * wy;
-	    wt += w;
+            Rgba s = sample (dirToPos (_dataWindow, d + ddx + ddy));
 
-	    cr += s.r * w;
-	    cg += s.g * w;
-	    cb += s.b * w;
-	    ca += s.a * w;
-	}
+            float w = wx * wy;
+            wt += w;
+
+            cr += s.r * w;
+            cg += s.g * w;
+            cb += s.b * w;
+            ca += s.a * w;
+        }
     }
 
     wt = 1 / wt;
@@ -206,25 +195,24 @@ EnvmapImage::filteredLookup (V3f d, float r, int n) const
     return c;
 }
 
-
 Rgba
-EnvmapImage::sample (const V2f &pos) const
+EnvmapImage::sample (const V2f& pos) const
 {
     //
     // Point-sample the environment map image at 2D position pos.
     // Interpolate bilinearly between the four nearest pixels.
     //
 
-    int x1 = IMATH::floor (pos.x);
-    int x2 = x1 + 1;
+    int   x1 = IMATH::floor (pos.x);
+    int   x2 = x1 + 1;
     float sx = x2 - pos.x;
     float tx = 1 - sx;
 
     x1 = clamp (x1, _dataWindow.min.x, _dataWindow.max.x) - _dataWindow.min.x;
     x2 = clamp (x2, _dataWindow.min.x, _dataWindow.max.x) - _dataWindow.min.x;
 
-    int y1 = IMATH::floor (pos.y);
-    int y2 = y1 + 1;
+    int   y1 = IMATH::floor (pos.y);
+    int   y2 = y1 + 1;
     float sy = y2 - pos.y;
     float ty = 1 - sy;
 

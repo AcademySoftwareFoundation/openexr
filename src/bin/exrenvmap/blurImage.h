@@ -20,9 +20,6 @@
 
 #include <readInputImage.h>
 
-
-void
-blurImage (EnvmapImage &image, bool verbose);
-
+void blurImage (EnvmapImage& image, bool verbose);
 
 #endif

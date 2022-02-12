@@ -1,14 +1,16 @@
 void
-writeTiledRgbaRIP1 (const char fileName[],
-                    int width, int height,
-                    int tileWidth, int tileHeight)
+writeTiledRgbaRIP1 (
+    const char fileName[], int width, int height, int tileWidth, int tileHeight)
 {
-    TiledRgbaOutputFile out (fileName,
-                             width, height,
-                             tileWidth, tileHeight,
-                             RIPMAP_LEVELS,
-                             ROUND_DOWN,
-                             WRITE_RGBA);
+    TiledRgbaOutputFile out (
+        fileName,
+        width,
+        height,
+        tileWidth,
+        tileHeight,
+        RIPMAP_LEVELS,
+        ROUND_DOWN,
+        WRITE_RGBA);
 
     Array2D<Rgba> pixels (height, width);
 
@@ -20,10 +22,13 @@ writeTiledRgbaRIP1 (const char fileName[],
         {
             generatePixels (pixels, width, height, xLevel, yLevel);
 
-            out.writeTiles (0, out.numXTiles (xLevel) - 1,
-                            0, out.numYTiles (yLevel) – 1,
-                            xLevel,
-                            yLevel);
+            out.writeTiles (
+                0,
+                out.numXTiles (xLevel) - 1,
+                0,
+                out.numYTiles (yLevel) – 1,
+                xLevel,
+                yLevel);
         }
     }
 }

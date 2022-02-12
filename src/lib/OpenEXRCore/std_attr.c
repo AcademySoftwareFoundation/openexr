@@ -3,5 +3,4 @@
 ** Copyright Contributors to the OpenEXR Project.
 */
 
-
 #include "openexr_std_attr.h"

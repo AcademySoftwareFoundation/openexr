@@ -8,6 +8,6 @@
 
 #include <string>
 
-void testCopyDeepTiled (const std::string & tempDir);
+void testCopyDeepTiled (const std::string& tempDir);
 
 #endif /* TESTCOPYDEEPTILED_H_ */

@@ -46,16 +46,17 @@ struct IMF_EXPORT_TYPE DeepSlice : public Slice
     // Constructor
     //------------
     IMF_EXPORT
-    DeepSlice (PixelType type = HALF,
-               char * base = 0,
-               size_t xStride = 0,
-               size_t yStride = 0,
-               size_t sampleStride = 0,
-               int xSampling = 1,
-               int ySampling = 1,
-               double fillValue = 0.0,
-               bool xTileCoords = false,
-               bool yTileCoords = false);
+    DeepSlice (
+        PixelType type         = HALF,
+        char*     base         = 0,
+        size_t    xStride      = 0,
+        size_t    yStride      = 0,
+        size_t    sampleStride = 0,
+        int       xSampling    = 1,
+        int       ySampling    = 1,
+        double    fillValue    = 0.0,
+        bool      xTileCoords  = false,
+        bool      yTileCoords  = false);
 };
 
 //-----------------
@@ -64,20 +65,16 @@ struct IMF_EXPORT_TYPE DeepSlice : public Slice
 
 class IMF_EXPORT_TYPE DeepFrameBuffer
 {
-  public:
-
-
+public:
     //------------
     // Add a slice
     //------------
 
     IMF_EXPORT
-    void                        insert (const char name[],
-                                        const DeepSlice &slice);
+    void insert (const char name[], const DeepSlice& slice);
 
     IMF_EXPORT
-    void                        insert (const std::string &name,
-                                        const DeepSlice &slice);
+    void insert (const std::string& name, const DeepSlice& slice);
 
     //----------------------------------------------------------------
     // Access to existing slices:
@@ -92,68 +89,66 @@ class IMF_EXPORT_TYPE DeepFrameBuffer
     //----------------------------------------------------------------
 
     IMF_EXPORT
-    DeepSlice &                 operator [] (const char name[]);
+    DeepSlice& operator[] (const char name[]);
     IMF_EXPORT
-    const DeepSlice &           operator [] (const char name[]) const;
+    const DeepSlice& operator[] (const char name[]) const;
 
     IMF_EXPORT
-    DeepSlice &                 operator [] (const std::string &name);
+    DeepSlice& operator[] (const std::string& name);
     IMF_EXPORT
-    const DeepSlice &           operator [] (const std::string &name) const;
+    const DeepSlice& operator[] (const std::string& name) const;
 
     IMF_EXPORT
-    DeepSlice *                 findSlice (const char name[]);
+    DeepSlice* findSlice (const char name[]);
     IMF_EXPORT
-    const DeepSlice *           findSlice (const char name[]) const;
+    const DeepSlice* findSlice (const char name[]) const;
 
     IMF_EXPORT
-    DeepSlice *                 findSlice (const std::string &name);
+    DeepSlice* findSlice (const std::string& name);
     IMF_EXPORT
-    const DeepSlice *           findSlice (const std::string &name) const;
-
+    const DeepSlice* findSlice (const std::string& name) const;
 
     //-----------------------------------------
     // Iterator-style access to existing slices
     //-----------------------------------------
 
-    typedef std::map <Name, DeepSlice> SliceMap;
+    typedef std::map<Name, DeepSlice> SliceMap;
 
     class Iterator;
     class ConstIterator;
 
     IMF_EXPORT
-    Iterator                    begin ();
+    Iterator begin ();
     IMF_EXPORT
-    ConstIterator               begin () const;
+    ConstIterator begin () const;
 
     IMF_EXPORT
-    Iterator                    end ();
+    Iterator end ();
     IMF_EXPORT
-    ConstIterator               end () const;
+    ConstIterator end () const;
 
     IMF_EXPORT
-    Iterator                    find (const char name[]);
+    Iterator find (const char name[]);
     IMF_EXPORT
-    ConstIterator               find (const char name[]) const;
+    ConstIterator find (const char name[]) const;
 
     IMF_EXPORT
-    Iterator                    find (const std::string &name);
+    Iterator find (const std::string& name);
     IMF_EXPORT
-    ConstIterator               find (const std::string &name) const;
+    ConstIterator find (const std::string& name) const;
 
     //----------------------------------------------------
     // Public function for accessing a sample count slice.
     //----------------------------------------------------
 
     IMF_EXPORT
-    void                        insertSampleCountSlice(const Slice & slice);
+    void insertSampleCountSlice (const Slice& slice);
     IMF_EXPORT
-    const Slice &               getSampleCountSlice() const;
+    const Slice& getSampleCountSlice () const;
 
-  private:
-
-    SliceMap                    _map;
-    Slice                       _sampleCounts;
+private:
+    SliceMap _map;
+    Slice    _sampleCounts;
 };
 
 //----------
@@ -162,183 +157,160 @@ class IMF_EXPORT_TYPE DeepFrameBuffer
 
 class IMF_EXPORT_TYPE DeepFrameBuffer::Iterator
 {
-  public:
-
+public:
     IMF_EXPORT
     Iterator ();
     IMF_EXPORT
-    Iterator (const DeepFrameBuffer::SliceMap::iterator &i);
+    Iterator (const DeepFrameBuffer::SliceMap::iterator& i);
 
     IMF_EXPORT
-    Iterator &                  operator ++ ();
+    Iterator& operator++ ();
     IMF_EXPORT
-    Iterator                    operator ++ (int);
+    Iterator operator++ (int);
 
     IMF_EXPORT
-    const char *                name () const;
+    const char* name () const;
     IMF_EXPORT
-    DeepSlice &                 slice () const;
+    DeepSlice& slice () const;
 
-  private:
-
+private:
     friend class DeepFrameBuffer::ConstIterator;
 
     DeepFrameBuffer::SliceMap::iterator _i;
 };
 
-
 class IMF_EXPORT_TYPE DeepFrameBuffer::ConstIterator
 {
-  public:
-
+public:
     IMF_EXPORT
     ConstIterator ();
     IMF_EXPORT
-    ConstIterator (const DeepFrameBuffer::SliceMap::const_iterator &i);
+    ConstIterator (const DeepFrameBuffer::SliceMap::const_iterator& i);
     IMF_EXPORT
-    ConstIterator (const DeepFrameBuffer::Iterator &other);
+    ConstIterator (const DeepFrameBuffer::Iterator& other);
 
     IMF_EXPORT
-    ConstIterator &             operator ++ ();
+    ConstIterator& operator++ ();
     IMF_EXPORT
-    ConstIterator               operator ++ (int);
+    ConstIterator operator++ (int);
 
     IMF_EXPORT
-    const char *                name () const;
+    const char* name () const;
     IMF_EXPORT
-    const DeepSlice &           slice () const;
+    const DeepSlice& slice () const;
 
-  private:
-
-    friend bool operator == (const ConstIterator &, const ConstIterator &);
-    friend bool operator != (const ConstIterator &, const ConstIterator &);
+private:
+    friend bool operator== (const ConstIterator&, const ConstIterator&);
+    friend bool operator!= (const ConstIterator&, const ConstIterator&);
 
     DeepFrameBuffer::SliceMap::const_iterator _i;
 };
-
 
 //-----------------
 // Inline Functions
 //-----------------
 
-inline
-DeepFrameBuffer::Iterator::Iterator (): _i()
+inline DeepFrameBuffer::Iterator::Iterator () : _i ()
 {
     // empty
 }
 
-
-inline
-DeepFrameBuffer::Iterator::Iterator (const DeepFrameBuffer::SliceMap::iterator &i):
-    _i (i)
+inline DeepFrameBuffer::Iterator::Iterator (
+    const DeepFrameBuffer::SliceMap::iterator& i)
+    : _i (i)
 {
     // empty
 }
 
-
-inline DeepFrameBuffer::Iterator &
-DeepFrameBuffer::Iterator::operator ++ ()
+inline DeepFrameBuffer::Iterator&
+DeepFrameBuffer::Iterator::operator++ ()
 {
     ++_i;
     return *this;
 }
 
-
 inline DeepFrameBuffer::Iterator
-DeepFrameBuffer::Iterator::operator ++ (int)
+DeepFrameBuffer::Iterator::operator++ (int)
 {
     Iterator tmp = *this;
     ++_i;
     return tmp;
 }
 
-
-inline const char *
+inline const char*
 DeepFrameBuffer::Iterator::name () const
 {
     return *_i->first;
 }
 
-
-inline DeepSlice &
+inline DeepSlice&
 DeepFrameBuffer::Iterator::slice () const
 {
     return _i->second;
 }
 
-
-inline
-DeepFrameBuffer::ConstIterator::ConstIterator (): _i()
+inline DeepFrameBuffer::ConstIterator::ConstIterator () : _i ()
 {
     // empty
 }
 
-inline
-DeepFrameBuffer::ConstIterator::ConstIterator
-    (const DeepFrameBuffer::SliceMap::const_iterator &i): _i (i)
+inline DeepFrameBuffer::ConstIterator::ConstIterator (
+    const DeepFrameBuffer::SliceMap::const_iterator& i)
+    : _i (i)
 {
     // empty
 }
 
-
-inline
-DeepFrameBuffer::ConstIterator::ConstIterator (const DeepFrameBuffer::Iterator &other):
-    _i (other._i)
+inline DeepFrameBuffer::ConstIterator::ConstIterator (
+    const DeepFrameBuffer::Iterator& other)
+    : _i (other._i)
 {
     // empty
 }
 
-inline DeepFrameBuffer::ConstIterator &
-DeepFrameBuffer::ConstIterator::operator ++ ()
+inline DeepFrameBuffer::ConstIterator&
+DeepFrameBuffer::ConstIterator::operator++ ()
 {
     ++_i;
     return *this;
 }
 
-
 inline DeepFrameBuffer::ConstIterator
-DeepFrameBuffer::ConstIterator::operator ++ (int)
+DeepFrameBuffer::ConstIterator::operator++ (int)
 {
     ConstIterator tmp = *this;
     ++_i;
     return tmp;
 }
 
-
-inline const char *
+inline const char*
 DeepFrameBuffer::ConstIterator::name () const
 {
     return *_i->first;
 }
 
-inline const DeepSlice &
+inline const DeepSlice&
 DeepFrameBuffer::ConstIterator::slice () const
 {
     return _i->second;
 }
 
-
 inline bool
-operator == (const DeepFrameBuffer::ConstIterator &x,
-             const DeepFrameBuffer::ConstIterator &y)
+operator== (
+    const DeepFrameBuffer::ConstIterator& x,
+    const DeepFrameBuffer::ConstIterator& y)
 {
     return x._i == y._i;
 }
 
-
 inline bool
-operator != (const DeepFrameBuffer::ConstIterator &x,
-             const DeepFrameBuffer::ConstIterator &y)
+operator!= (
+    const DeepFrameBuffer::ConstIterator& x,
+    const DeepFrameBuffer::ConstIterator& y)
 {
     return !(x == y);
 }
 
-
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
-
-
-
-
-
 
 #endif /* IMFDEEPFRAMEBUFFER_H_ */

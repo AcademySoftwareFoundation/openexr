@@ -3,10 +3,6 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
-
-
-
 #include <string>
 
-void testAttributes (const std::string &tempDir);
-
+void testAttributes (const std::string& tempDir);

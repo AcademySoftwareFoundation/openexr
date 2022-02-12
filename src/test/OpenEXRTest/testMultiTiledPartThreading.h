@@ -8,6 +8,6 @@
 
 #include <string>
 
-void testMultiTiledPartThreading (const std::string & tempDir);
+void testMultiTiledPartThreading (const std::string& tempDir);
 
 #endif /* TESTMULTITILEDPARTTHREADING_H_ */

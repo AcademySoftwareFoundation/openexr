@@ -13,7 +13,7 @@
 static exr_result_t
 default_pack_deep (exr_encode_pipeline_t* encode)
 {
-    (void)encode;
+    (void) encode;
     return EXR_ERR_INVALID_ARGUMENT;
 }
 
@@ -34,8 +34,7 @@ default_pack (exr_encode_pipeline_t* encode)
         {
             exr_coding_channel_info_t* encc = (encode->channels + c);
 
-            if (encc->height == 0)
-                continue;
+            if (encc->height == 0) continue;
 
             cdata      = encc->encode_from_ptr;
             w          = encc->width;
@@ -65,7 +64,8 @@ default_pack (exr_encode_pipeline_t* encode)
                             uint16_t* dst = (uint16_t*) dstbuffer;
                             for (int x = 0; x < w; ++x)
                             {
-                                unaligned_store16( dst, *((const uint16_t*) cdata) );
+                                unaligned_store16 (
+                                    dst, *((const uint16_t*) cdata));
                                 ++dst;
                                 cdata += pixincrement;
                             }
@@ -77,7 +77,7 @@ default_pack (exr_encode_pipeline_t* encode)
                             {
                                 uint16_t cval =
                                     float_to_half (*((const float*) cdata));
-                                unaligned_store16( dst, cval );
+                                unaligned_store16 (dst, cval);
                                 ++dst;
                                 cdata += pixincrement;
                             }
@@ -89,7 +89,7 @@ default_pack (exr_encode_pipeline_t* encode)
                             {
                                 uint16_t cval =
                                     uint_to_half (*((const uint32_t*) cdata));
-                                unaligned_store16( dst, cval );
+                                unaligned_store16 (dst, cval);
                                 ++dst;
                                 cdata += pixincrement;
                             }
@@ -107,7 +107,7 @@ default_pack (exr_encode_pipeline_t* encode)
                             {
                                 uint32_t fint = half_to_float_int (
                                     *((const uint16_t*) cdata));
-                                unaligned_store32( dst, fint );
+                                unaligned_store32 (dst, fint);
                                 ++dst;
                                 cdata += pixincrement;
                             }
@@ -117,7 +117,8 @@ default_pack (exr_encode_pipeline_t* encode)
                             uint32_t* dst = (uint32_t*) dstbuffer;
                             for (int x = 0; x < w; ++x)
                             {
-                                unaligned_store32( dst, *((const uint32_t*) cdata) );
+                                unaligned_store32 (
+                                    dst, *((const uint32_t*) cdata));
                                 ++dst;
                                 cdata += pixincrement;
                             }
@@ -129,7 +130,7 @@ default_pack (exr_encode_pipeline_t* encode)
                             {
                                 uint32_t fint = uint_to_float_int (
                                     *((const uint32_t*) cdata));
-                                unaligned_store32( dst, fint );
+                                unaligned_store32 (dst, fint);
                                 ++dst;
                                 cdata += pixincrement;
                             }
@@ -146,7 +147,7 @@ default_pack (exr_encode_pipeline_t* encode)
                             for (int x = 0; x < w; ++x)
                             {
                                 uint16_t tmp = *((const uint16_t*) cdata);
-                                unaligned_store32( dst, half_to_uint(tmp) );
+                                unaligned_store32 (dst, half_to_uint (tmp));
                                 ++dst;
                                 cdata += pixincrement;
                             }
@@ -157,7 +158,7 @@ default_pack (exr_encode_pipeline_t* encode)
                             for (int x = 0; x < w; ++x)
                             {
                                 float tmp = *((const float*) cdata);
-                                unaligned_store32( dst, float_to_uint(tmp) );
+                                unaligned_store32 (dst, float_to_uint (tmp));
                                 ++dst;
                                 cdata += pixincrement;
                             }
@@ -167,7 +168,8 @@ default_pack (exr_encode_pipeline_t* encode)
                             uint32_t* dst = (uint32_t*) dstbuffer;
                             for (int x = 0; x < w; ++x)
                             {
-                                unaligned_store32( dst, *((const uint32_t*) cdata) );
+                                unaligned_store32 (
+                                    dst, *((const uint32_t*) cdata));
                                 ++dst;
                                 cdata += pixincrement;
                             }
@@ -191,7 +193,7 @@ default_pack (exr_encode_pipeline_t* encode)
 internal_exr_pack_fn
 internal_exr_match_encode (exr_encode_pipeline_t* encode, int isdeep)
 {
-    (void)encode;
+    (void) encode;
     if (isdeep) return &default_pack_deep;
 
     return &default_pack;

@@ -3,7 +3,6 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
-
 #ifndef INCLUDED_IMF_DEEP_SCAN_LINE_OUTPUT_FILE_H
 #define INCLUDED_IMF_DEEP_SCAN_LINE_OUTPUT_FILE_H
 
@@ -13,23 +12,21 @@
 //
 //-----------------------------------------------------------------------------
 
-#include "ImfHeader.h"
-#include "ImfFrameBuffer.h"
-#include "ImfThreading.h"
-#include "ImfGenericOutputFile.h"
-#include "ImfNamespace.h"
-#include "ImfForward.h"
 #include "ImfExport.h"
+#include "ImfForward.h"
+#include "ImfFrameBuffer.h"
+#include "ImfGenericOutputFile.h"
+#include "ImfHeader.h"
+#include "ImfNamespace.h"
+#include "ImfThreading.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
-
 
 struct PreviewRgba;
 
 class DeepScanLineOutputFile : public GenericOutputFile
 {
-  public:
-
+public:
     //-----------------------------------------------------------
     // Constructor -- opens the file and writes the file header.
     // The file header is also copied into the DeepScanLineOutputFile
@@ -42,9 +39,10 @@ class DeepScanLineOutputFile : public GenericOutputFile
     //-----------------------------------------------------------
 
     IMF_EXPORT
-    DeepScanLineOutputFile (const char fileName[], const Header &header,
-                int numThreads = globalThreadCount());
-
+    DeepScanLineOutputFile (
+        const char    fileName[],
+        const Header& header,
+        int           numThreads = globalThreadCount ());
 
     //------------------------------------------------------------
     // Constructor -- attaches the new DeepScanLineOutputFile object
@@ -59,9 +57,10 @@ class DeepScanLineOutputFile : public GenericOutputFile
     //------------------------------------------------------------
 
     IMF_EXPORT
-    DeepScanLineOutputFile (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os, const Header &header,
-                int numThreads = globalThreadCount());
-
+    DeepScanLineOutputFile (
+        OPENEXR_IMF_INTERNAL_NAMESPACE::OStream& os,
+        const Header&                            header,
+        int numThreads = globalThreadCount ());
 
     //-------------------------------------------------
     // Destructor
@@ -74,22 +73,19 @@ class DeepScanLineOutputFile : public GenericOutputFile
     IMF_EXPORT
     virtual ~DeepScanLineOutputFile ();
 
-
     //------------------------
     // Access to the file name
     //------------------------
 
     IMF_EXPORT
-    const char *        fileName () const;
-
+    const char* fileName () const;
 
     //--------------------------
     // Access to the file header
     //--------------------------
 
     IMF_EXPORT
-    const Header &      header () const;
-
+    const Header& header () const;
 
     //-------------------------------------------------------
     // Set the current frame buffer -- copies the FrameBuffer
@@ -103,16 +99,14 @@ class DeepScanLineOutputFile : public GenericOutputFile
     //-------------------------------------------------------
 
     IMF_EXPORT
-    void                setFrameBuffer (const DeepFrameBuffer &frameBuffer);
-
+    void setFrameBuffer (const DeepFrameBuffer& frameBuffer);
 
     //-----------------------------------
     // Access to the current frame buffer
     //-----------------------------------
 
     IMF_EXPORT
-    const DeepFrameBuffer & frameBuffer () const;
-
+    const DeepFrameBuffer& frameBuffer () const;
 
     //-------------------------------------------------------------------
     // Write pixel data:
@@ -128,8 +122,7 @@ class DeepScanLineOutputFile : public GenericOutputFile
     //-------------------------------------------------------------------
 
     IMF_EXPORT
-    void                writePixels (int numScanLines = 1);
-
+    void writePixels (int numScanLines = 1);
 
     //------------------------------------------------------------------
     // Access to the current scan line:
@@ -153,8 +146,7 @@ class DeepScanLineOutputFile : public GenericOutputFile
     //------------------------------------------------------------------
 
     IMF_EXPORT
-    int                 currentScanLine () const;
-
+    int currentScanLine () const;
 
     //--------------------------------------------------------------
     // Shortcut to copy all pixels from an InputFile into this file,
@@ -165,14 +157,13 @@ class DeepScanLineOutputFile : public GenericOutputFile
     //--------------------------------------------------------------
 
     IMF_EXPORT
-    void                copyPixels (DeepScanLineInputFile &in);
-    
+    void copyPixels (DeepScanLineInputFile& in);
+
     // --------------------------------------------------------------
     // Shortcut to copy pixels from a given part of a multipart file
     // --------------------------------------------------------------
     IMF_EXPORT
-    void                copyPixels (DeepScanLineInputPart &in);
-
+    void copyPixels (DeepScanLineInputPart& in);
 
     //--------------------------------------------------------------
     // Updating the preview image:
@@ -193,13 +184,11 @@ class DeepScanLineOutputFile : public GenericOutputFile
     //--------------------------------------------------------------
 
     IMF_EXPORT
-    void                updatePreviewImage (const PreviewRgba newPixels[]);
-
+    void updatePreviewImage (const PreviewRgba newPixels[]);
 
     struct Data;
 
-  private:
-
+private:
     //------------------------------------------------------------
     // Constructor -- attaches the OutputStreamMutex to the
     // given one from MultiPartOutputFile. Set the previewPosition
@@ -208,17 +197,15 @@ class DeepScanLineOutputFile : public GenericOutputFile
     //------------------------------------------------------------
     DeepScanLineOutputFile (const OutputPartData* part);
 
-    DeepScanLineOutputFile (const DeepScanLineOutputFile &) = delete;
-    DeepScanLineOutputFile & operator = (const DeepScanLineOutputFile &) = delete;
-    DeepScanLineOutputFile (DeepScanLineOutputFile &&) = delete;
-    DeepScanLineOutputFile & operator = (DeepScanLineOutputFile &&) = delete;
+    DeepScanLineOutputFile (const DeepScanLineOutputFile&) = delete;
+    DeepScanLineOutputFile& operator= (const DeepScanLineOutputFile&) = delete;
+    DeepScanLineOutputFile (DeepScanLineOutputFile&&)                 = delete;
+    DeepScanLineOutputFile& operator= (DeepScanLineOutputFile&&) = delete;
 
-    void                initialize (const Header &header);
-    void                initializeLineBuffer();
+    void initialize (const Header& header);
+    void initializeLineBuffer ();
 
-    Data *              _data;
-
-
+    Data* _data;
 
     friend class MultiPartOutputFile;
 };

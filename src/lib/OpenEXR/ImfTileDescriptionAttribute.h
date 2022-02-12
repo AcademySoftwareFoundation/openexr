@@ -20,12 +20,13 @@
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
-typedef TypedAttribute<OPENEXR_IMF_INTERNAL_NAMESPACE::TileDescription> TileDescriptionAttribute;
+typedef TypedAttribute<OPENEXR_IMF_INTERNAL_NAMESPACE::TileDescription>
+    TileDescriptionAttribute;
 
 #ifndef COMPILING_IMF_STRING_VECTOR_ATTRIBUTE
-extern template class IMF_EXPORT_EXTERN_TEMPLATE TypedAttribute<OPENEXR_IMF_INTERNAL_NAMESPACE::TileDescription>;
+extern template class IMF_EXPORT_EXTERN_TEMPLATE
+    TypedAttribute<OPENEXR_IMF_INTERNAL_NAMESPACE::TileDescription>;
 #endif
-
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 

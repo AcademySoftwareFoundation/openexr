@@ -8,6 +8,6 @@
 
 #include <string>
 
-void testDeepTiledBasic (const std::string & tempDir);
+void testDeepTiledBasic (const std::string& tempDir);
 
 #endif /* TESTDEEPTILEDBASIC_H_ */

@@ -9,29 +9,29 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfDeepScanLineOutputFile.h>
-#include <ImfDeepScanLineInputFile.h>
-#include <ImfDeepScanLineInputPart.h>
-#include <ImfChannelList.h>
-#include <ImfMisc.h>
-#include <ImfStdIO.h>
-#include <ImfCompressor.h>
 #include "ImathBox.h"
 #include "ImathFun.h"
-#include <ImfArray.h>
-#include <ImfXdr.h>
-#include <ImfPreviewImageAttribute.h>
-#include <ImfPartType.h>
 #include "ImfDeepFrameBuffer.h"
-#include "ImfOutputStreamMutex.h"
 #include "ImfOutputPartData.h"
+#include "ImfOutputStreamMutex.h"
+#include <ImfArray.h>
+#include <ImfChannelList.h>
+#include <ImfCompressor.h>
+#include <ImfDeepScanLineInputFile.h>
+#include <ImfDeepScanLineInputPart.h>
+#include <ImfDeepScanLineOutputFile.h>
+#include <ImfMisc.h>
+#include <ImfPartType.h>
+#include <ImfPreviewImageAttribute.h>
+#include <ImfStdIO.h>
+#include <ImfXdr.h>
 
+#include "Iex.h"
 #include "IlmThreadPool.h"
 #include "IlmThreadSemaphore.h"
-#include "Iex.h"
 
-#include <assert.h>
 #include <algorithm>
+#include <assert.h>
 #include <fstream>
 #include <string>
 #include <vector>
@@ -40,187 +40,180 @@
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
-using IMATH_NAMESPACE::Box2i;
-using IMATH_NAMESPACE::divp;
-using IMATH_NAMESPACE::modp;
-using std::string;
-using std::vector;
-using std::min;
-using std::max;
 using ILMTHREAD_NAMESPACE::Semaphore;
 using ILMTHREAD_NAMESPACE::Task;
 using ILMTHREAD_NAMESPACE::TaskGroup;
 using ILMTHREAD_NAMESPACE::ThreadPool;
+using IMATH_NAMESPACE::Box2i;
+using IMATH_NAMESPACE::divp;
+using IMATH_NAMESPACE::modp;
+using std::max;
+using std::min;
+using std::string;
+using std::vector;
 
-namespace {
-
+namespace
+{
 
 struct OutSliceInfo
 {
-    PixelType                    type;
-    const char *                 base;
-    ptrdiff_t                    sampleStride;
-    ptrdiff_t                    xStride;
-    ptrdiff_t                    yStride;
-    int                          xSampling;
-    int                          ySampling;
-    bool                         zero;
+    PixelType   type;
+    const char* base;
+    ptrdiff_t   sampleStride;
+    ptrdiff_t   xStride;
+    ptrdiff_t   yStride;
+    int         xSampling;
+    int         ySampling;
+    bool        zero;
 
-    OutSliceInfo (PixelType type = HALF,
-                  const char * base =NULL,
-                  ptrdiff_t sampleStride = 0,
-                  ptrdiff_t xStride = 0,
-                  ptrdiff_t yStride =0,
-                  int xSampling = 1,
-                  int ySampling = 1,
-                  bool zero = false);
+    OutSliceInfo (
+        PixelType   type         = HALF,
+        const char* base         = NULL,
+        ptrdiff_t   sampleStride = 0,
+        ptrdiff_t   xStride      = 0,
+        ptrdiff_t   yStride      = 0,
+        int         xSampling    = 1,
+        int         ySampling    = 1,
+        bool        zero         = false);
 };
 
-
-OutSliceInfo::OutSliceInfo (PixelType t,
-                            const char * base,
-                            ptrdiff_t spstride,
-                            ptrdiff_t xst,
-                            ptrdiff_t yst,
-                            int xsm, int ysm,
-                            bool z)
-:
-    type (t),
-    base (base),
-    sampleStride (spstride),
-    xStride(xst),
-    yStride(yst),
-    xSampling (xsm),
-    ySampling (ysm),
-    zero (z)
+OutSliceInfo::OutSliceInfo (
+    PixelType   t,
+    const char* base,
+    ptrdiff_t   spstride,
+    ptrdiff_t   xst,
+    ptrdiff_t   yst,
+    int         xsm,
+    int         ysm,
+    bool        z)
+    : type (t)
+    , base (base)
+    , sampleStride (spstride)
+    , xStride (xst)
+    , yStride (yst)
+    , xSampling (xsm)
+    , ySampling (ysm)
+    , zero (z)
 {
     // empty
 }
 
-
 struct LineBuffer
 {
-    Array< Array<char> >  buffer;
-    Array<char>           consecutiveBuffer;
-    const char *          dataPtr;
-    uint64_t              uncompressedDataSize;
-    uint64_t              dataSize;
-    Array<char>           sampleCountTableBuffer;
-    const char *          sampleCountTablePtr;
-    uint64_t              sampleCountTableSize;
-    Compressor*           sampleCountTableCompressor;
-    int                   minY;                 // the min y scanline stored
-    int                   maxY;                 // the max y scanline stored
-    int                   scanLineMin;          // the min y scanline writing out
-    int                   scanLineMax;          // the max y scanline writing out
-    Compressor *          compressor;
-    bool                  partiallyFull;        // has incomplete data
-    bool                  hasException;
-    string                exception;
+    Array<Array<char>> buffer;
+    Array<char>        consecutiveBuffer;
+    const char*        dataPtr;
+    uint64_t           uncompressedDataSize;
+    uint64_t           dataSize;
+    Array<char>        sampleCountTableBuffer;
+    const char*        sampleCountTablePtr;
+    uint64_t           sampleCountTableSize;
+    Compressor*        sampleCountTableCompressor;
+    int                minY;        // the min y scanline stored
+    int                maxY;        // the max y scanline stored
+    int                scanLineMin; // the min y scanline writing out
+    int                scanLineMax; // the max y scanline writing out
+    Compressor*        compressor;
+    bool               partiallyFull; // has incomplete data
+    bool               hasException;
+    string             exception;
 
     LineBuffer (int linesInBuffer);
     ~LineBuffer ();
 
-    void                  wait () {_sem.wait();}
-    void                  post () {_sem.post();}
+    void wait () { _sem.wait (); }
+    void post () { _sem.post (); }
 
-  private:
-
-    Semaphore             _sem;
+private:
+    Semaphore _sem;
 };
 
-
-LineBuffer::LineBuffer (int linesInBuffer) :
-    dataPtr (0),
-    dataSize (0),
-    sampleCountTablePtr (0),
-    sampleCountTableCompressor (0),
-    compressor (0),
-    partiallyFull (false),
-    hasException (false),
-    exception (),
-    _sem (1)
+LineBuffer::LineBuffer (int linesInBuffer)
+    : dataPtr (0)
+    , dataSize (0)
+    , sampleCountTablePtr (0)
+    , sampleCountTableCompressor (0)
+    , compressor (0)
+    , partiallyFull (false)
+    , hasException (false)
+    , exception ()
+    , _sem (1)
 {
-    buffer.resizeErase(linesInBuffer);
+    buffer.resizeErase (linesInBuffer);
 }
-
 
 LineBuffer::~LineBuffer ()
 {
-    if (compressor != 0)
-        delete compressor;
+    if (compressor != 0) delete compressor;
 
-    if (sampleCountTableCompressor != 0)
-        delete sampleCountTableCompressor;
+    if (sampleCountTableCompressor != 0) delete sampleCountTableCompressor;
 }
 
 } // namespace
 
-
 struct DeepScanLineOutputFile::Data
 {
-    Header                      header;                // the image header
-    int                         version;               // file format version
-    bool                        multipart;             // from a multipart file
-    uint64_t                    previewPosition;       // file position for preview
-    DeepFrameBuffer             frameBuffer;           // framebuffer to write into
-    int                         currentScanLine;       // next scanline to be written
-    int                         missingScanLines;      // number of lines to write
-    LineOrder                   lineOrder;             // the file's lineorder
-    int                         minX;                  // data window's min x coord
-    int                         maxX;                  // data window's max x coord
-    int                         minY;                  // data window's min y coord
-    int                         maxY;                  // data window's max x coord
-    vector<uint64_t>            lineOffsets;           // stores offsets in file for
-                                                       // each scanline
-    vector<size_t>              bytesPerLine;          // combined size of a line over
-                                                       // all channels
-    Compressor::Format          format;                // compressor's data format
-    vector<OutSliceInfo*>       slices;                // info about channels in file
-    uint64_t                    lineOffsetsPosition;   // file position for line
-                                                       // offset table
+    Header           header;                   // the image header
+    int              version;                  // file format version
+    bool             multipart;                // from a multipart file
+    uint64_t         previewPosition;          // file position for preview
+    DeepFrameBuffer  frameBuffer;              // framebuffer to write into
+    int              currentScanLine;          // next scanline to be written
+    int              missingScanLines;         // number of lines to write
+    LineOrder        lineOrder;                // the file's lineorder
+    int              minX;                     // data window's min x coord
+    int              maxX;                     // data window's max x coord
+    int              minY;                     // data window's min y coord
+    int              maxY;                     // data window's max x coord
+    vector<uint64_t> lineOffsets;              // stores offsets in file for
+                                               // each scanline
+    vector<size_t> bytesPerLine;               // combined size of a line over
+                                               // all channels
+    Compressor::Format    format;              // compressor's data format
+    vector<OutSliceInfo*> slices;              // info about channels in file
+    uint64_t              lineOffsetsPosition; // file position for line
+                                               // offset table
 
-    vector<LineBuffer*>         lineBuffers;           // each holds one line buffer
-    int                         linesInBuffer;         // number of scanlines each
-                                                       // buffer holds
-    int                         partNumber;            // the output part number
+    vector<LineBuffer*> lineBuffers;   // each holds one line buffer
+    int                 linesInBuffer; // number of scanlines each
+                                       // buffer holds
+    int partNumber;                    // the output part number
 
-    char*                       sampleCountSliceBase;  // the pointer to the number
-                                                       // of samples in each pixel
-    int                         sampleCountXStride;    // the x stride for sampleCountSliceBase
-    int                         sampleCountYStride;    // the y stride for sampleCountSliceBase
+    char* sampleCountSliceBase; // the pointer to the number
+                                // of samples in each pixel
+    int sampleCountXStride;     // the x stride for sampleCountSliceBase
+    int sampleCountYStride;     // the y stride for sampleCountSliceBase
 
-    Array<unsigned int>         lineSampleCount;       // the number of samples
-                                                       // in each line
+    Array<unsigned int> lineSampleCount; // the number of samples
+                                         // in each line
 
-    uint64_t                    maxSampleCountTableSize;
-                                                       // the max size in bytes for a pixel
-                                                       // sample count table
-    OutputStreamMutex*  _streamData;
-    bool                _deleteStream;
+    uint64_t maxSampleCountTableSize;
+    // the max size in bytes for a pixel
+    // sample count table
+    OutputStreamMutex* _streamData;
+    bool               _deleteStream;
 
     Data (int numThreads);
     ~Data ();
 
     Data (const Data& other) = delete;
-    Data& operator = (const Data& other) = delete;
-    Data (Data&& other) = delete;
-    Data& operator = (Data&& other) = delete;
+    Data& operator= (const Data& other) = delete;
+    Data (Data&& other)                 = delete;
+    Data& operator= (Data&& other) = delete;
 
-    inline LineBuffer *         getLineBuffer (int number);// hash function from line
-                                                           // buffer indices into our
-                                                           // vector of line buffers
+    inline LineBuffer* getLineBuffer (int number); // hash function from line
+                                                   // buffer indices into our
+                                                   // vector of line buffers
 
-    inline int&                 getSampleCount(int x, int y); // get the number of samples
-                                                              // in each pixel
+    inline int& getSampleCount (int x, int y); // get the number of samples
+                                               // in each pixel
 };
 
-
-DeepScanLineOutputFile::Data::Data (int numThreads):
-    lineOffsetsPosition (0),
-    partNumber (-1) ,
-    _streamData(NULL),
-    _deleteStream(false)
+DeepScanLineOutputFile::Data::Data (int numThreads)
+    : lineOffsetsPosition (0)
+    , partNumber (-1)
+    , _streamData (NULL)
+    , _deleteStream (false)
 {
     //
     // We need at least one lineBuffer, but if threading is used,
@@ -228,65 +221,63 @@ DeepScanLineOutputFile::Data::Data (int numThreads):
     //
 
     lineBuffers.resize (max (1, 2 * numThreads));
-    for (size_t i = 0; i < lineBuffers.size(); i++)
+    for (size_t i = 0; i < lineBuffers.size (); i++)
         lineBuffers[i] = 0;
 }
 
-
 DeepScanLineOutputFile::Data::~Data ()
 {
-    for (size_t i = 0; i < lineBuffers.size(); i++)
-        if (lineBuffers[i] != 0)
-            delete lineBuffers[i];
+    for (size_t i = 0; i < lineBuffers.size (); i++)
+        if (lineBuffers[i] != 0) delete lineBuffers[i];
 
-    for (size_t i = 0; i < slices.size(); i++)
+    for (size_t i = 0; i < slices.size (); i++)
         delete slices[i];
 }
 
-
 int&
-DeepScanLineOutputFile::Data::getSampleCount(int x, int y)
+DeepScanLineOutputFile::Data::getSampleCount (int x, int y)
 {
-    return sampleCount(sampleCountSliceBase,
-                       sampleCountXStride,
-                       sampleCountYStride,
-                       x, y);
+    return sampleCount (
+        sampleCountSliceBase, sampleCountXStride, sampleCountYStride, x, y);
 }
-
 
 LineBuffer*
 DeepScanLineOutputFile::Data::getLineBuffer (int number)
 {
-    return lineBuffers[number % lineBuffers.size()];
+    return lineBuffers[number % lineBuffers.size ()];
 }
 
-
-namespace {
+namespace
+{
 
 uint64_t
-writeLineOffsets (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os, const vector<uint64_t> &lineOffsets)
+writeLineOffsets (
+    OPENEXR_IMF_INTERNAL_NAMESPACE::OStream& os,
+    const vector<uint64_t>&                  lineOffsets)
 {
-    uint64_t pos = os.tellp();
+    uint64_t pos = os.tellp ();
 
-    if (pos == static_cast<uint64_t>(-1))
-        IEX_NAMESPACE::throwErrnoExc ("Cannot determine current file position (%T).");
+    if (pos == static_cast<uint64_t> (-1))
+        IEX_NAMESPACE::throwErrnoExc (
+            "Cannot determine current file position (%T).");
 
-    for (unsigned int i = 0; i < lineOffsets.size(); i++)
-        OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::write <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (os, lineOffsets[i]);
+    for (unsigned int i = 0; i < lineOffsets.size (); i++)
+        OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::write<
+            OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (os, lineOffsets[i]);
 
     return pos;
 }
 
-
 void
-writePixelData (OutputStreamMutex *filedata,
-                DeepScanLineOutputFile::Data *partdata,
-                int lineBufferMinY,
-                const char pixelData[],
-                uint64_t packedDataSize,
-                uint64_t unpackedDataSize,
-                const char sampleCountTableData[],
-                uint64_t sampleCountTableSize)
+writePixelData (
+    OutputStreamMutex*            filedata,
+    DeepScanLineOutputFile::Data* partdata,
+    int                           lineBufferMinY,
+    const char                    pixelData[],
+    uint64_t                      packedDataSize,
+    uint64_t                      unpackedDataSize,
+    const char                    sampleCountTableData[],
+    uint64_t                      sampleCountTableSize)
 {
     //
     // Store a block of pixel data in the output file, and try
@@ -294,20 +285,20 @@ writePixelData (OutputStreamMutex *filedata,
     // without calling tellp() (tellp() can be fairly expensive).
     //
 
-    uint64_t currentPosition = filedata->currentPosition;
+    uint64_t currentPosition  = filedata->currentPosition;
     filedata->currentPosition = 0;
 
-    if (currentPosition == 0)
-        currentPosition = filedata->os->tellp();
+    if (currentPosition == 0) currentPosition = filedata->os->tellp ();
 
-    partdata->lineOffsets[(partdata->currentScanLine - partdata->minY) / partdata->linesInBuffer] =
-        currentPosition;
+    partdata->lineOffsets
+        [(partdata->currentScanLine - partdata->minY) /
+         partdata->linesInBuffer] = currentPosition;
 
-    #ifdef DEBUG
+#ifdef DEBUG
 
-        assert (filedata->os->tellp() == currentPosition);
+    assert (filedata->os->tellp () == currentPosition);
 
-    #endif
+#endif
 
     //
     // Write the optional part number.
@@ -315,85 +306,98 @@ writePixelData (OutputStreamMutex *filedata,
 
     if (partdata->multipart)
     {
-        OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::write <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (*filedata->os, partdata->partNumber);
+        OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::write<
+            OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (
+            *filedata->os, partdata->partNumber);
     }
 
     //
     // Write the y coordinate of the first scanline in the chunk.
     //
 
-    OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::write <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (*filedata->os, lineBufferMinY);
+    OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::write<
+        OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (
+        *filedata->os, lineBufferMinY);
 
     //
     // Write the packed size of the pixel sample count table.
     //
 
-    OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::write <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (*filedata->os, sampleCountTableSize);
+    OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::write<
+        OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (
+        *filedata->os, sampleCountTableSize);
 
     //
     // Write the packed pixel data size.
     //
 
-    OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::write <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (*filedata->os, packedDataSize);
+    OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::write<
+        OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (
+        *filedata->os, packedDataSize);
 
     //
     // Write the unpacked pixel data size.
     //
 
-    OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::write <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (*filedata->os, unpackedDataSize);
+    OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::write<
+        OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (
+        *filedata->os, unpackedDataSize);
 
     //
     // Write the packed pixel sample count table.
     //
 
-    filedata->os->write (sampleCountTableData, static_cast<int>(sampleCountTableSize));
+    filedata->os->write (
+        sampleCountTableData, static_cast<int> (sampleCountTableSize));
 
     //
     // Write the compressed data.
     //
 
-    filedata->os->write (pixelData, static_cast<int>(packedDataSize));
+    filedata->os->write (pixelData, static_cast<int> (packedDataSize));
 
     //
     // Update stream position.
     //
 
-    filedata->currentPosition = currentPosition      +
-                                Xdr::size<int>()     +  // y coordinate
-                                Xdr::size<uint64_t>()   +  // packed sample count table size
-                                Xdr::size<uint64_t>()   +  // packed data size
-                                Xdr::size<uint64_t>()   +  // unpacked data size
-                                sampleCountTableSize +  // pixel sample count table
-                                packedDataSize;         // pixel data
+    filedata->currentPosition =
+        currentPosition + Xdr::size<int> () + // y coordinate
+        Xdr::size<uint64_t> () +              // packed sample count table size
+        Xdr::size<uint64_t> () +              // packed data size
+        Xdr::size<uint64_t> () +              // unpacked data size
+        sampleCountTableSize +                // pixel sample count table
+        packedDataSize;                       // pixel data
 
     if (partdata->multipart)
     {
-        filedata->currentPosition += Xdr::size<int>();  // optional part number
+        filedata->currentPosition += Xdr::size<int> (); // optional part number
     }
 }
 
-
 inline void
-writePixelData (OutputStreamMutex* filedata,
-                DeepScanLineOutputFile::Data *partdata,
-                const LineBuffer *lineBuffer)
+writePixelData (
+    OutputStreamMutex*            filedata,
+    DeepScanLineOutputFile::Data* partdata,
+    const LineBuffer*             lineBuffer)
 {
-    writePixelData (filedata, partdata,
-                    lineBuffer->minY,
-                    lineBuffer->dataPtr,
-                    lineBuffer->dataSize,
-                    lineBuffer->uncompressedDataSize,
-                    lineBuffer->sampleCountTablePtr,
-                    lineBuffer->sampleCountTableSize);
+    writePixelData (
+        filedata,
+        partdata,
+        lineBuffer->minY,
+        lineBuffer->dataPtr,
+        lineBuffer->dataSize,
+        lineBuffer->uncompressedDataSize,
+        lineBuffer->sampleCountTablePtr,
+        lineBuffer->sampleCountTableSize);
 }
 
-
 void
-convertToXdr (DeepScanLineOutputFile::Data *ofd,
-              Array<char> &lineBuffer,
-              int lineBufferMinY,
-              int lineBufferMaxY,
-              int inSize)
+convertToXdr (
+    DeepScanLineOutputFile::Data* ofd,
+    Array<char>&                  lineBuffer,
+    int                           lineBufferMinY,
+    int                           lineBufferMaxY,
+    int                           inSize)
 {
     //
     // Convert the contents of a lineBuffer from the machine's native
@@ -421,13 +425,13 @@ convertToXdr (DeepScanLineOutputFile::Data *ofd,
         // We will write to writePtr from readPtr.
         //
 
-        const char *readPtr = writePtr;
+        const char* readPtr = writePtr;
 
         //
         // Iterate over all slices in the file.
         //
 
-        for (unsigned int i = 0; i < ofd->slices.size(); ++i)
+        for (unsigned int i = 0; i < ofd->slices.size (); ++i)
         {
             //
             // Test if scan line y of this channel is
@@ -435,10 +439,9 @@ convertToXdr (DeepScanLineOutputFile::Data *ofd,
             // data only if y % ySampling == 0).
             //
 
-            const OutSliceInfo &slice = *ofd->slices[i];
+            const OutSliceInfo& slice = *ofd->slices[i];
 
-            if (modp (y, slice.ySampling) != 0)
-                continue;
+            if (modp (y, slice.ySampling) != 0) continue;
 
             //
             // Find the number of sampled pixels, dMaxX-dMinX+1, for
@@ -457,44 +460,38 @@ convertToXdr (DeepScanLineOutputFile::Data *ofd,
     }
 }
 
-
 //
 // A LineBufferTask encapsulates the task of copying a set of scanlines
 // from the user's frame buffer into a LineBuffer object, compressing
 // the data if necessary.
 //
 
-class LineBufferTask: public Task
+class LineBufferTask : public Task
 {
-  public:
-
-    LineBufferTask (TaskGroup *group,
-                    DeepScanLineOutputFile::Data *ofd,
-                    int number,
-                    int scanLineMin,
-                    int scanLineMax);
+public:
+    LineBufferTask (
+        TaskGroup*                    group,
+        DeepScanLineOutputFile::Data* ofd,
+        int                           number,
+        int                           scanLineMin,
+        int                           scanLineMax);
 
     virtual ~LineBufferTask ();
 
-    virtual void        execute ();
+    virtual void execute ();
 
-  private:
-
-    DeepScanLineOutputFile::Data *  _ofd;
-    LineBuffer *        _lineBuffer;
+private:
+    DeepScanLineOutputFile::Data* _ofd;
+    LineBuffer*                   _lineBuffer;
 };
 
-
-LineBufferTask::LineBufferTask
-    (TaskGroup *group,
-     DeepScanLineOutputFile::Data *ofd,
-     int number,
-     int scanLineMin,
-     int scanLineMax)
-:
-    Task (group),
-    _ofd (ofd),
-    _lineBuffer (_ofd->getLineBuffer(number))
+LineBufferTask::LineBufferTask (
+    TaskGroup*                    group,
+    DeepScanLineOutputFile::Data* ofd,
+    int                           number,
+    int                           scanLineMin,
+    int                           scanLineMax)
+    : Task (group), _ofd (ofd), _lineBuffer (_ofd->getLineBuffer (number))
 {
     //
     // Wait for the lineBuffer to become available
@@ -511,8 +508,8 @@ LineBufferTask::LineBufferTask
 
         _lineBuffer->minY = _ofd->minY + number * _ofd->linesInBuffer;
 
-        _lineBuffer->maxY = min (_lineBuffer->minY + _ofd->linesInBuffer - 1,
-                                 _ofd->maxY);
+        _lineBuffer->maxY =
+            min (_lineBuffer->minY + _ofd->linesInBuffer - 1, _ofd->maxY);
 
         _lineBuffer->partiallyFull = true;
     }
@@ -520,7 +517,6 @@ LineBufferTask::LineBufferTask
     _lineBuffer->scanLineMin = max (_lineBuffer->minY, scanLineMin);
     _lineBuffer->scanLineMax = min (_lineBuffer->maxY, scanLineMax);
 }
-
 
 LineBufferTask::~LineBufferTask ()
 {
@@ -530,7 +526,6 @@ LineBufferTask::~LineBufferTask ()
 
     _lineBuffer->post ();
 }
-
 
 void
 LineBufferTask::execute ()
@@ -547,14 +542,14 @@ LineBufferTask::execute ()
         if (_ofd->lineOrder == INCREASING_Y)
         {
             yStart = _lineBuffer->scanLineMin;
-            yStop = _lineBuffer->scanLineMax + 1;
-            dy = 1;
+            yStop  = _lineBuffer->scanLineMax + 1;
+            dy     = 1;
         }
         else
         {
             yStart = _lineBuffer->scanLineMax;
-            yStop = _lineBuffer->scanLineMin - 1;
-            dy = -1;
+            yStop  = _lineBuffer->scanLineMin - 1;
+            dy     = -1;
         }
 
         //
@@ -562,21 +557,24 @@ LineBufferTask::execute ()
         // And calculate the sample counts for each line.
         //
 
-        bytesPerDeepLineTable (_ofd->header,
-                               _lineBuffer->scanLineMin,
-                               _lineBuffer->scanLineMax,
-                               _ofd->sampleCountSliceBase,
-                               _ofd->sampleCountXStride,
-                               _ofd->sampleCountYStride,
-                               _ofd->bytesPerLine);
-        for (int i = _lineBuffer->scanLineMin; i <= _lineBuffer->scanLineMax; i++)
+        bytesPerDeepLineTable (
+            _ofd->header,
+            _lineBuffer->scanLineMin,
+            _lineBuffer->scanLineMax,
+            _ofd->sampleCountSliceBase,
+            _ofd->sampleCountXStride,
+            _ofd->sampleCountYStride,
+            _ofd->bytesPerLine);
+        for (int i = _lineBuffer->scanLineMin; i <= _lineBuffer->scanLineMax;
+             i++)
         {
             // (TODO) don't do this all the time.
-            _lineBuffer->buffer[i - _lineBuffer->minY].resizeErase(
-                            static_cast<long>(_ofd->bytesPerLine[i - _ofd->minY]));
+            _lineBuffer->buffer[i - _lineBuffer->minY].resizeErase (
+                static_cast<long> (_ofd->bytesPerLine[i - _ofd->minY]));
 
             for (int j = _ofd->minX; j <= _ofd->maxX; j++)
-                _ofd->lineSampleCount[i - _ofd->minY] += _ofd->getSampleCount(j, i);
+                _ofd->lineSampleCount[i - _ofd->minY] +=
+                    _ofd->getSampleCount (j, i);
         }
 
         //
@@ -592,22 +590,21 @@ LineBufferTask::execute ()
             // them in _ofd->lineBuffer.
             //
 
-            char *writePtr = &_lineBuffer->buffer[y - _lineBuffer->minY][0];
+            char* writePtr = &_lineBuffer->buffer[y - _lineBuffer->minY][0];
             //
             // Iterate over all image channels.
             //
 
-            for (unsigned int i = 0; i < _ofd->slices.size(); ++i)
+            for (unsigned int i = 0; i < _ofd->slices.size (); ++i)
             {
                 //
                 // Test if scan line y of this channel contains any data
                 // (the scan line contains data only if y % ySampling == 0).
                 //
 
-                const OutSliceInfo &slice = *_ofd->slices[i];
+                const OutSliceInfo& slice = *_ofd->slices[i];
 
-                if (modp (y, slice.ySampling) != 0)
-                    continue;
+                if (modp (y, slice.ySampling) != 0) continue;
 
                 //
                 // Fill the line buffer with with pixel data.
@@ -620,24 +617,33 @@ LineBufferTask::execute ()
                     // Store zeroes in _lineBuffer->buffer.
                     //
 
-                    fillChannelWithZeroes (writePtr, _ofd->format, slice.type,
-                                           _ofd->lineSampleCount[y - _ofd->minY]);
+                    fillChannelWithZeroes (
+                        writePtr,
+                        _ofd->format,
+                        slice.type,
+                        _ofd->lineSampleCount[y - _ofd->minY]);
                 }
                 else
                 {
 
-                    copyFromDeepFrameBuffer (writePtr, slice.base,
-                                             _ofd->sampleCountSliceBase,
-                                             _ofd->sampleCountXStride,
-                                             _ofd->sampleCountYStride,
-                                             y, _ofd->minX, _ofd->maxX,
-                                             0, 0,//offsets for samplecount
-                                             0, 0,//offsets for data
-                                             slice.sampleStride, 
-                                             slice.xStride,
-                                             slice.yStride,
-                                             _ofd->format,
-                                             slice.type);
+                    copyFromDeepFrameBuffer (
+                        writePtr,
+                        slice.base,
+                        _ofd->sampleCountSliceBase,
+                        _ofd->sampleCountXStride,
+                        _ofd->sampleCountYStride,
+                        y,
+                        _ofd->minX,
+                        _ofd->maxX,
+                        0,
+                        0, //offsets for samplecount
+                        0,
+                        0, //offsets for data
+                        slice.sampleStride,
+                        slice.xStride,
+                        slice.yStride,
+                        _ofd->format,
+                        slice.type);
                 }
             }
         }
@@ -649,73 +655,75 @@ LineBufferTask::execute ()
         // we compress the linebuffer and write it out.
         //
 
-        if (y >= _lineBuffer->minY && y <= _lineBuffer->maxY)
-            return;
+        if (y >= _lineBuffer->minY && y <= _lineBuffer->maxY) return;
 
         //
         // Copy all data into a consecutive buffer.
         //
 
-        uint64_t totalBytes = 0;
+        uint64_t totalBytes      = 0;
         uint64_t maxBytesPerLine = 0;
         for (int i = 0; i < _lineBuffer->maxY - _lineBuffer->minY + 1; i++)
         {
-            totalBytes += _lineBuffer->buffer[i].size();
-            if (uint64_t(_lineBuffer->buffer[i].size()) > maxBytesPerLine)
-                maxBytesPerLine = _lineBuffer->buffer[i].size();
+            totalBytes += _lineBuffer->buffer[i].size ();
+            if (uint64_t (_lineBuffer->buffer[i].size ()) > maxBytesPerLine)
+                maxBytesPerLine = _lineBuffer->buffer[i].size ();
         }
-        _lineBuffer->consecutiveBuffer.resizeErase(static_cast<long>(totalBytes));
+        _lineBuffer->consecutiveBuffer.resizeErase (
+            static_cast<long> (totalBytes));
 
         int pos = 0;
         for (int i = 0; i < _lineBuffer->maxY - _lineBuffer->minY + 1; i++)
         {
-            memcpy(_lineBuffer->consecutiveBuffer + pos,
-                   &_lineBuffer->buffer[i][0],
-                   _lineBuffer->buffer[i].size());
-            pos += _lineBuffer->buffer[i].size();
+            memcpy (
+                _lineBuffer->consecutiveBuffer + pos,
+                &_lineBuffer->buffer[i][0],
+                _lineBuffer->buffer[i].size ());
+            pos += _lineBuffer->buffer[i].size ();
         }
 
         _lineBuffer->dataPtr = _lineBuffer->consecutiveBuffer;
 
-        _lineBuffer->dataSize = totalBytes;
+        _lineBuffer->dataSize             = totalBytes;
         _lineBuffer->uncompressedDataSize = _lineBuffer->dataSize;
 
         //
         // Compress the pixel sample count table.
         //
 
-        char* ptr = _lineBuffer->sampleCountTableBuffer;
+        char*    ptr           = _lineBuffer->sampleCountTableBuffer;
         uint64_t tableDataSize = 0;
         for (int i = _lineBuffer->minY; i <= _lineBuffer->maxY; i++)
         {
             int count = 0;
             for (int j = _ofd->minX; j <= _ofd->maxX; j++)
             {
-                count += _ofd->getSampleCount(j, i);
-                Xdr::write <CharPtrIO> (ptr, count);
+                count += _ofd->getSampleCount (j, i);
+                Xdr::write<CharPtrIO> (ptr, count);
                 tableDataSize += sizeof (int);
             }
         }
 
-       if(_lineBuffer->sampleCountTableCompressor)
-       {
-          _lineBuffer->sampleCountTableSize =
-                  _lineBuffer->sampleCountTableCompressor->compress (
-                                                      _lineBuffer->sampleCountTableBuffer,
-                                                      static_cast<int>(tableDataSize),
-                                                      _lineBuffer->minY,
-                                                      _lineBuffer->sampleCountTablePtr);
-       }
+        if (_lineBuffer->sampleCountTableCompressor)
+        {
+            _lineBuffer->sampleCountTableSize =
+                _lineBuffer->sampleCountTableCompressor->compress (
+                    _lineBuffer->sampleCountTableBuffer,
+                    static_cast<int> (tableDataSize),
+                    _lineBuffer->minY,
+                    _lineBuffer->sampleCountTablePtr);
+        }
 
         //
         // If we can't make data shrink (or we weren't compressing), then just use the raw data.
         //
 
-        if (!_lineBuffer->sampleCountTableCompressor || 
+        if (!_lineBuffer->sampleCountTableCompressor ||
             _lineBuffer->sampleCountTableSize >= tableDataSize)
         {
             _lineBuffer->sampleCountTableSize = tableDataSize;
-            _lineBuffer->sampleCountTablePtr = _lineBuffer->sampleCountTableBuffer;
+            _lineBuffer->sampleCountTablePtr =
+                _lineBuffer->sampleCountTableBuffer;
         }
 
         //
@@ -723,26 +731,26 @@ LineBufferTask::execute ()
         //
 
         // (TODO) don't do this all the time.
-        if (_lineBuffer->compressor != 0)
-            delete _lineBuffer->compressor;
-        _lineBuffer->compressor = newCompressor (_ofd->header.compression(),
-                                                 maxBytesPerLine,
-                                                 _ofd->header);
+        if (_lineBuffer->compressor != 0) delete _lineBuffer->compressor;
+        _lineBuffer->compressor = newCompressor (
+            _ofd->header.compression (), maxBytesPerLine, _ofd->header);
 
-        Compressor *compressor = _lineBuffer->compressor;
+        Compressor* compressor = _lineBuffer->compressor;
 
         if (compressor)
         {
-            const char *compPtr;
+            const char* compPtr;
 
-            uint64_t compSize = compressor->compress (_lineBuffer->dataPtr,
-                                                 static_cast<int>(_lineBuffer->dataSize),
-                                                 _lineBuffer->minY, compPtr);
+            uint64_t compSize = compressor->compress (
+                _lineBuffer->dataPtr,
+                static_cast<int> (_lineBuffer->dataSize),
+                _lineBuffer->minY,
+                compPtr);
 
             if (compSize < _lineBuffer->dataSize)
             {
                 _lineBuffer->dataSize = compSize;
-                _lineBuffer->dataPtr = compPtr;
+                _lineBuffer->dataPtr  = compPtr;
             }
             else if (_ofd->format == Compressor::NATIVE)
             {
@@ -753,18 +761,22 @@ LineBufferTask::execute ()
                 // to Xdr.
                 //
 
-                convertToXdr (_ofd, _lineBuffer->consecutiveBuffer, _lineBuffer->minY,
-                              _lineBuffer->maxY, static_cast<int>(_lineBuffer->dataSize));
+                convertToXdr (
+                    _ofd,
+                    _lineBuffer->consecutiveBuffer,
+                    _lineBuffer->minY,
+                    _lineBuffer->maxY,
+                    static_cast<int> (_lineBuffer->dataSize));
             }
         }
 
         _lineBuffer->partiallyFull = false;
     }
-    catch (std::exception &e)
+    catch (std::exception& e)
     {
         if (!_lineBuffer->hasException)
         {
-            _lineBuffer->exception = e.what ();
+            _lineBuffer->exception    = e.what ();
             _lineBuffer->hasException = true;
         }
     }
@@ -772,7 +784,7 @@ LineBufferTask::execute ()
     {
         if (!_lineBuffer->hasException)
         {
-            _lineBuffer->exception = "unrecognized exception";
+            _lineBuffer->exception    = "unrecognized exception";
             _lineBuffer->hasException = true;
         }
     }
@@ -780,39 +792,39 @@ LineBufferTask::execute ()
 
 } // namespace
 
-
-DeepScanLineOutputFile::DeepScanLineOutputFile
-    (const char fileName[],
-     const Header &header,
-     int numThreads)
-:
-    _data (new Data (numThreads))
+DeepScanLineOutputFile::DeepScanLineOutputFile (
+    const char fileName[], const Header& header, int numThreads)
+    : _data (new Data (numThreads))
 {
-    _data->_streamData=new OutputStreamMutex ();
-    _data->_deleteStream=true;
+    _data->_streamData   = new OutputStreamMutex ();
+    _data->_deleteStream = true;
     try
     {
-        header.sanityCheck();
+        header.sanityCheck ();
         _data->_streamData->os = new StdOFStream (fileName);
         initialize (header);
-        _data->_streamData->currentPosition = _data->_streamData->os->tellp();
+        _data->_streamData->currentPosition = _data->_streamData->os->tellp ();
 
         // Write header and empty offset table to the file.
-        writeMagicNumberAndVersionField(*_data->_streamData->os, _data->header);
+        writeMagicNumberAndVersionField (
+            *_data->_streamData->os, _data->header);
         _data->previewPosition =
-                _data->header.writeTo (*_data->_streamData->os);
+            _data->header.writeTo (*_data->_streamData->os);
         _data->lineOffsetsPosition =
-                writeLineOffsets (*_data->_streamData->os, _data->lineOffsets);
-        _data->multipart=false;// not multipart; only one header
+            writeLineOffsets (*_data->_streamData->os, _data->lineOffsets);
+        _data->multipart = false; // not multipart; only one header
     }
-    catch (IEX_NAMESPACE::BaseExc &e)
+    catch (IEX_NAMESPACE::BaseExc& e)
     {
         delete _data->_streamData->os;
         delete _data->_streamData;
         delete _data;
 
-        REPLACE_EXC (e, "Cannot open image file "
-                     "\"" << fileName << "\". " << e.what());
+        REPLACE_EXC (
+            e,
+            "Cannot open image file "
+            "\"" << fileName
+                 << "\". " << e.what ());
         throw;
     }
     catch (...)
@@ -824,39 +836,41 @@ DeepScanLineOutputFile::DeepScanLineOutputFile
     }
 }
 
+DeepScanLineOutputFile::DeepScanLineOutputFile (
+    OPENEXR_IMF_INTERNAL_NAMESPACE::OStream& os,
+    const Header&                            header,
+    int                                      numThreads)
+    : _data (new Data (numThreads))
 
-DeepScanLineOutputFile::DeepScanLineOutputFile
-    (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os,
-     const Header &header,
-     int numThreads)
-:
-    _data (new Data (numThreads))
-    
 {
     _data->_streamData   = new OutputStreamMutex ();
     _data->_deleteStream = false;
     try
     {
-        header.sanityCheck();
+        header.sanityCheck ();
         _data->_streamData->os = &os;
         initialize (header);
-        _data->_streamData->currentPosition = _data->_streamData->os->tellp();
+        _data->_streamData->currentPosition = _data->_streamData->os->tellp ();
 
         // Write header and empty offset table to the file.
-        writeMagicNumberAndVersionField(*_data->_streamData->os, _data->header);
+        writeMagicNumberAndVersionField (
+            *_data->_streamData->os, _data->header);
         _data->previewPosition =
-                _data->header.writeTo (*_data->_streamData->os);
+            _data->header.writeTo (*_data->_streamData->os);
         _data->lineOffsetsPosition =
-                writeLineOffsets (*_data->_streamData->os, _data->lineOffsets);
-	_data->multipart=false;
+            writeLineOffsets (*_data->_streamData->os, _data->lineOffsets);
+        _data->multipart = false;
     }
-    catch (IEX_NAMESPACE::BaseExc &e)
+    catch (IEX_NAMESPACE::BaseExc& e)
     {
         delete _data->_streamData;
         delete _data;
 
-        REPLACE_EXC (e, "Cannot open image file "
-                     "\"" << os.fileName() << "\". " << e.what());
+        REPLACE_EXC (
+            e,
+            "Cannot open image file "
+            "\"" << os.fileName ()
+                 << "\". " << e.what ());
         throw;
     }
     catch (...)
@@ -867,28 +881,32 @@ DeepScanLineOutputFile::DeepScanLineOutputFile
     }
 }
 
-DeepScanLineOutputFile::DeepScanLineOutputFile(const OutputPartData* part)
+DeepScanLineOutputFile::DeepScanLineOutputFile (const OutputPartData* part)
 {
     try
     {
-        if (part->header.type() != DEEPSCANLINE)
-            throw IEX_NAMESPACE::ArgExc("Can't build a DeepScanLineOutputFile from a type-mismatched part.");
+        if (part->header.type () != DEEPSCANLINE)
+            throw IEX_NAMESPACE::ArgExc (
+                "Can't build a DeepScanLineOutputFile from a type-mismatched part.");
 
-        _data = new Data (part->numThreads);
-        _data->_streamData = part->mutex;
-        _data->_deleteStream=false;
+        _data                = new Data (part->numThreads);
+        _data->_streamData   = part->mutex;
+        _data->_deleteStream = false;
         initialize (part->header);
-        _data->partNumber = part->partNumber;
+        _data->partNumber          = part->partNumber;
         _data->lineOffsetsPosition = part->chunkOffsetTablePosition;
-        _data->previewPosition = part->previewPosition;
-	_data->multipart=part->multipart;
+        _data->previewPosition     = part->previewPosition;
+        _data->multipart           = part->multipart;
     }
-    catch (IEX_NAMESPACE::BaseExc &e)
+    catch (IEX_NAMESPACE::BaseExc& e)
     {
         delete _data;
 
-        REPLACE_EXC (e, "Cannot initialize output part "
-                     "\"" << part->partNumber << "\". " << e.what());
+        REPLACE_EXC (
+            e,
+            "Cannot initialize output part "
+            "\"" << part->partNumber
+                 << "\". " << e.what ());
         throw;
     }
     catch (...)
@@ -899,68 +917,66 @@ DeepScanLineOutputFile::DeepScanLineOutputFile(const OutputPartData* part)
 }
 
 void
-DeepScanLineOutputFile::initialize (const Header &header)
+DeepScanLineOutputFile::initialize (const Header& header)
 {
     _data->header = header;
 
-    _data->header.setType(DEEPSCANLINE);
-    
-    const Box2i &dataWindow = header.dataWindow();
+    _data->header.setType (DEEPSCANLINE);
 
-    _data->currentScanLine = (header.lineOrder() == INCREASING_Y)?
-                                 dataWindow.min.y: dataWindow.max.y;
+    const Box2i& dataWindow = header.dataWindow ();
+
+    _data->currentScanLine = (header.lineOrder () == INCREASING_Y)
+                                 ? dataWindow.min.y
+                                 : dataWindow.max.y;
 
     _data->missingScanLines = dataWindow.max.y - dataWindow.min.y + 1;
-    _data->lineOrder = header.lineOrder();
-    _data->minX = dataWindow.min.x;
-    _data->maxX = dataWindow.max.x;
-    _data->minY = dataWindow.min.y;
-    _data->maxY = dataWindow.max.y;
+    _data->lineOrder        = header.lineOrder ();
+    _data->minX             = dataWindow.min.x;
+    _data->maxX             = dataWindow.max.x;
+    _data->minY             = dataWindow.min.y;
+    _data->maxY             = dataWindow.max.y;
 
-    _data->lineSampleCount.resizeErase(_data->maxY - _data->minY + 1);
+    _data->lineSampleCount.resizeErase (_data->maxY - _data->minY + 1);
 
-    Compressor* compressor = newCompressor (_data->header.compression(),
-                                            0,
-                                            _data->header);
-    _data->format = defaultFormat (compressor);
+    Compressor* compressor =
+        newCompressor (_data->header.compression (), 0, _data->header);
+    _data->format        = defaultFormat (compressor);
     _data->linesInBuffer = numLinesInBuffer (compressor);
-    if (compressor != 0)
-        delete compressor;
+    if (compressor != 0) delete compressor;
 
-    int lineOffsetSize = (_data->maxY - _data->minY +
-                          _data->linesInBuffer) / _data->linesInBuffer;
+    int lineOffsetSize = (_data->maxY - _data->minY + _data->linesInBuffer) /
+                         _data->linesInBuffer;
 
-
-    _data->header.setChunkCount(lineOffsetSize);
+    _data->header.setChunkCount (lineOffsetSize);
 
     _data->lineOffsets.resize (lineOffsetSize);
 
     _data->bytesPerLine.resize (_data->maxY - _data->minY + 1);
 
-    _data->maxSampleCountTableSize = min(_data->linesInBuffer, _data->maxY - _data->minY + 1) *
-                                     (_data->maxX - _data->minX + 1) *
-                                     sizeof(unsigned int);
+    _data->maxSampleCountTableSize =
+        min (_data->linesInBuffer, _data->maxY - _data->minY + 1) *
+        (_data->maxX - _data->minX + 1) * sizeof (unsigned int);
 
-    for (size_t i = 0; i < _data->lineBuffers.size(); ++i)
+    for (size_t i = 0; i < _data->lineBuffers.size (); ++i)
     {
         _data->lineBuffers[i] = new LineBuffer (_data->linesInBuffer);
-        _data->lineBuffers[i]->sampleCountTableBuffer.resizeErase(static_cast<long>(_data->maxSampleCountTableSize));
+        _data->lineBuffers[i]->sampleCountTableBuffer.resizeErase (
+            static_cast<long> (_data->maxSampleCountTableSize));
 
-        _data->lineBuffers[i]->sampleCountTableCompressor =
-        newCompressor (_data->header.compression(),
-                               _data->maxSampleCountTableSize,
-                               _data->header);
+        _data->lineBuffers[i]->sampleCountTableCompressor = newCompressor (
+            _data->header.compression (),
+            _data->maxSampleCountTableSize,
+            _data->header);
     }
 }
-
 
 DeepScanLineOutputFile::~DeepScanLineOutputFile ()
 {
     {
 #if ILMTHREAD_THREADING_ENABLED
-        std::lock_guard<std::mutex> lock(*_data->_streamData);
+        std::lock_guard<std::mutex> lock (*_data->_streamData);
 #endif
-        uint64_t originalPosition = _data->_streamData->os->tellp();
+        uint64_t originalPosition = _data->_streamData->os->tellp ();
 
         if (_data->lineOffsetsPosition > 0)
         {
@@ -974,7 +990,8 @@ DeepScanLineOutputFile::~DeepScanLineOutputFile ()
                 //
                 _data->_streamData->os->seekp (originalPosition);
             }
-            catch (...) //NOSONAR - suppress vulnerability reports from SonarCloud.
+            catch (
+                ...) //NOSONAR - suppress vulnerability reports from SonarCloud.
             {
                 //
                 // We cannot safely throw any exceptions from here.
@@ -986,37 +1003,32 @@ DeepScanLineOutputFile::~DeepScanLineOutputFile ()
         }
     }
 
-    if (_data->_deleteStream)
-        delete _data->_streamData->os;
+    if (_data->_deleteStream) delete _data->_streamData->os;
 
     //
     // (TODO) we should have a way to tell if the stream data is owned by this file or
     // by a parent multipart file.
     //
 
-    if (_data->partNumber == -1)
-        delete _data->_streamData;
+    if (_data->partNumber == -1) delete _data->_streamData;
 
     delete _data;
 }
 
-
-const char *
+const char*
 DeepScanLineOutputFile::fileName () const
 {
-    return _data->_streamData->os->fileName();
+    return _data->_streamData->os->fileName ();
 }
 
-
-const Header &
+const Header&
 DeepScanLineOutputFile::header () const
 {
     return _data->header;
 }
 
-
 void
-DeepScanLineOutputFile::setFrameBuffer (const DeepFrameBuffer &frameBuffer)
+DeepScanLineOutputFile::setFrameBuffer (const DeepFrameBuffer& frameBuffer)
 {
 #if ILMTHREAD_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (*_data->_streamData);
@@ -1026,33 +1038,42 @@ DeepScanLineOutputFile::setFrameBuffer (const DeepFrameBuffer &frameBuffer)
     // is compatible with the image file header.
     //
 
-    const ChannelList &channels = _data->header.channels();
+    const ChannelList& channels = _data->header.channels ();
 
-    for (ChannelList::ConstIterator i = channels.begin();
-         i != channels.end();
+    for (ChannelList::ConstIterator i = channels.begin (); i != channels.end ();
          ++i)
     {
-        DeepFrameBuffer::ConstIterator j = frameBuffer.find (i.name());
+        DeepFrameBuffer::ConstIterator j = frameBuffer.find (i.name ());
 
-        if (j == frameBuffer.end())
-            continue;
+        if (j == frameBuffer.end ()) continue;
 
-        if (i.channel().type != j.slice().type)
+        if (i.channel ().type != j.slice ().type)
         {
-            THROW (IEX_NAMESPACE::ArgExc, "Pixel type of \"" << i.name() << "\" channel "
-                                "of output file \"" << fileName() << "\" is "
-                                "not compatible with the frame buffer's "
-                                "pixel type.");
+            THROW (
+                IEX_NAMESPACE::ArgExc,
+                "Pixel type of \"" << i.name ()
+                                   << "\" channel "
+                                      "of output file \""
+                                   << fileName ()
+                                   << "\" is "
+                                      "not compatible with the frame buffer's "
+                                      "pixel type.");
         }
 
-        if (i.channel().xSampling != j.slice().xSampling ||
-            i.channel().ySampling != j.slice().ySampling)
+        if (i.channel ().xSampling != j.slice ().xSampling ||
+            i.channel ().ySampling != j.slice ().ySampling)
         {
-            THROW (IEX_NAMESPACE::ArgExc, "X and/or y subsampling factors "
-                                "of \"" << i.name() << "\" channel "
-                                "of output file \"" << fileName() << "\" are "
-                                "not compatible with the frame buffer's "
-                                "subsampling factors.");
+            THROW (
+                IEX_NAMESPACE::ArgExc,
+                "X and/or y subsampling factors "
+                "of \""
+                    << i.name ()
+                    << "\" channel "
+                       "of output file \""
+                    << fileName ()
+                    << "\" are "
+                       "not compatible with the frame buffer's "
+                       "subsampling factors.");
         }
     }
 
@@ -1061,16 +1082,17 @@ DeepScanLineOutputFile::setFrameBuffer (const DeepFrameBuffer &frameBuffer)
     // (TODO) Support for different sampling rates?
     //
 
-    const Slice& sampleCountSlice = frameBuffer.getSampleCountSlice();
+    const Slice& sampleCountSlice = frameBuffer.getSampleCountSlice ();
     if (sampleCountSlice.base == 0)
     {
-        throw IEX_NAMESPACE::ArgExc ("Invalid base pointer, please set a proper sample count slice.");
+        throw IEX_NAMESPACE::ArgExc (
+            "Invalid base pointer, please set a proper sample count slice.");
     }
     else
     {
         _data->sampleCountSliceBase = sampleCountSlice.base;
-        _data->sampleCountXStride = static_cast<int>(sampleCountSlice.xStride);
-        _data->sampleCountYStride = static_cast<int>(sampleCountSlice.yStride);
+        _data->sampleCountXStride = static_cast<int> (sampleCountSlice.xStride);
+        _data->sampleCountYStride = static_cast<int> (sampleCountSlice.yStride);
     }
 
     //
@@ -1083,27 +1105,27 @@ DeepScanLineOutputFile::setFrameBuffer (const DeepFrameBuffer &frameBuffer)
 
     vector<OutSliceInfo*> slices;
 
-    for (ChannelList::ConstIterator i = channels.begin();
-         i != channels.end();
+    for (ChannelList::ConstIterator i = channels.begin (); i != channels.end ();
          ++i)
     {
-        DeepFrameBuffer::ConstIterator j = frameBuffer.find (i.name());
+        DeepFrameBuffer::ConstIterator j = frameBuffer.find (i.name ());
 
-        if (j == frameBuffer.end())
+        if (j == frameBuffer.end ())
         {
             //
             // Channel i is not present in the frame buffer.
             // In the file, channel i will contain only zeroes.
             //
 
-            slices.push_back (new OutSliceInfo (i.channel().type,
-                                                NULL,// base
-                                                0,// sampleStride,
-                                                0,// xStride
-                                                0,// yStride
-                                                i.channel().xSampling,
-                                                i.channel().ySampling,
-                                                true)); // zero
+            slices.push_back (new OutSliceInfo (
+                i.channel ().type,
+                NULL, // base
+                0,    // sampleStride,
+                0,    // xStride
+                0,    // yStride
+                i.channel ().xSampling,
+                i.channel ().ySampling,
+                true)); // zero
         }
         else
         {
@@ -1111,15 +1133,15 @@ DeepScanLineOutputFile::setFrameBuffer (const DeepFrameBuffer &frameBuffer)
             // Channel i is present in the frame buffer.
             //
 
-            slices.push_back (new OutSliceInfo (j.slice().type,
-                                                j.slice().base,                      
-                                                j.slice().sampleStride,
-                                                j.slice().xStride,
-                                                j.slice().yStride,
-                                                j.slice().xSampling,
-                                                j.slice().ySampling,
-                                                false)); // zero
-
+            slices.push_back (new OutSliceInfo (
+                j.slice ().type,
+                j.slice ().base,
+                j.slice ().sampleStride,
+                j.slice ().xStride,
+                j.slice ().yStride,
+                j.slice ().xSampling,
+                j.slice ().ySampling,
+                false)); // zero
         }
     }
 
@@ -1129,13 +1151,12 @@ DeepScanLineOutputFile::setFrameBuffer (const DeepFrameBuffer &frameBuffer)
 
     _data->frameBuffer = frameBuffer;
 
-    for (size_t i = 0; i < _data->slices.size(); i++)
+    for (size_t i = 0; i < _data->slices.size (); i++)
         delete _data->slices[i];
     _data->slices = slices;
 }
 
-
-const DeepFrameBuffer &
+const DeepFrameBuffer&
 DeepScanLineOutputFile::frameBuffer () const
 {
 #if ILMTHREAD_THREADING_ENABLED
@@ -1143,7 +1164,6 @@ DeepScanLineOutputFile::frameBuffer () const
 #endif
     return _data->frameBuffer;
 }
-
 
 void
 DeepScanLineOutputFile::writePixels (int numScanLines)
@@ -1153,9 +1173,9 @@ DeepScanLineOutputFile::writePixels (int numScanLines)
 #if ILMTHREAD_THREADING_ENABLED
         std::lock_guard<std::mutex> lock (*_data->_streamData);
 #endif
-        if (_data->slices.size() == 0)
+        if (_data->slices.size () == 0)
             throw IEX_NAMESPACE::ArgExc ("No frame buffer specified "
-                               "as pixel data source.");
+                                         "as pixel data source.");
 
         //
         // Maintain two iterators:
@@ -1163,8 +1183,8 @@ DeepScanLineOutputFile::writePixels (int numScanLines)
         //     nextCompressBuffer: next linebuffer to compress
         //
 
-        int first = (_data->currentScanLine - _data->minY) /
-                         _data->linesInBuffer;
+        int first =
+            (_data->currentScanLine - _data->minY) / _data->linesInBuffer;
 
         int nextWriteBuffer = first;
         int nextCompressBuffer;
@@ -1192,69 +1212,78 @@ DeepScanLineOutputFile::writePixels (int numScanLines)
             if (_data->lineOrder == INCREASING_Y)
             {
                 int last = (_data->currentScanLine + (numScanLines - 1) -
-                            _data->minY) / _data->linesInBuffer;
+                            _data->minY) /
+                           _data->linesInBuffer;
 
                 scanLineMin = _data->currentScanLine;
                 scanLineMax = _data->currentScanLine + numScanLines - 1;
 
-                int numTasks = max (min ((int)_data->lineBuffers.size(),
-                                         last - first + 1),
-                                    1);
+                int numTasks = max (
+                    min ((int) _data->lineBuffers.size (), last - first + 1),
+                    1);
 
                 for (int i = 0; i < numTasks; i++)
                 {
-                    ThreadPool::addGlobalTask
-                        (new LineBufferTask (&taskGroup, _data, first + i,
-                                             scanLineMin, scanLineMax));
+                    ThreadPool::addGlobalTask (new LineBufferTask (
+                        &taskGroup,
+                        _data,
+                        first + i,
+                        scanLineMin,
+                        scanLineMax));
                 }
 
                 nextCompressBuffer = first + numTasks;
-                stop = last + 1;
-                step = 1;
+                stop               = last + 1;
+                step               = 1;
             }
             else
             {
                 int last = (_data->currentScanLine - (numScanLines - 1) -
-                            _data->minY) / _data->linesInBuffer;
+                            _data->minY) /
+                           _data->linesInBuffer;
 
                 scanLineMax = _data->currentScanLine;
                 scanLineMin = _data->currentScanLine - numScanLines + 1;
 
-                int numTasks = max (min ((int)_data->lineBuffers.size(),
-                                         first - last + 1),
-                                    1);
+                int numTasks = max (
+                    min ((int) _data->lineBuffers.size (), first - last + 1),
+                    1);
 
                 for (int i = 0; i < numTasks; i++)
                 {
-                    ThreadPool::addGlobalTask
-                        (new LineBufferTask (&taskGroup, _data, first - i,
-                                             scanLineMin, scanLineMax));
+                    ThreadPool::addGlobalTask (new LineBufferTask (
+                        &taskGroup,
+                        _data,
+                        first - i,
+                        scanLineMin,
+                        scanLineMax));
                 }
 
                 nextCompressBuffer = first - numTasks;
-                stop = last - 1;
-                step = -1;
+                stop               = last - 1;
+                step               = -1;
             }
 
             while (true)
             {
                 if (_data->missingScanLines <= 0)
                 {
-                    throw IEX_NAMESPACE::ArgExc ("Tried to write more scan lines "
-                                       "than specified by the data window.");
+                    throw IEX_NAMESPACE::ArgExc (
+                        "Tried to write more scan lines "
+                        "than specified by the data window.");
                 }
 
                 //
                 // Wait until the next line buffer is ready to be written
                 //
 
-                LineBuffer *writeBuffer =
+                LineBuffer* writeBuffer =
                     _data->getLineBuffer (nextWriteBuffer);
 
-                writeBuffer->wait();
+                writeBuffer->wait ();
 
-                int numLines = writeBuffer->scanLineMax -
-                               writeBuffer->scanLineMin + 1;
+                int numLines =
+                    writeBuffer->scanLineMax - writeBuffer->scanLineMin + 1;
 
                 _data->missingScanLines -= numLines;
 
@@ -1265,9 +1294,9 @@ DeepScanLineOutputFile::writePixels (int numScanLines)
 
                 if (writeBuffer->partiallyFull)
                 {
-                    _data->currentScanLine = _data->currentScanLine +
-                                             step * numLines;
-                    writeBuffer->post();
+                    _data->currentScanLine =
+                        _data->currentScanLine + step * numLines;
+                    writeBuffer->post ();
 
                     return;
                 }
@@ -1279,46 +1308,48 @@ DeepScanLineOutputFile::writePixels (int numScanLines)
                 writePixelData (_data->_streamData, _data, writeBuffer);
                 nextWriteBuffer += step;
 
-                _data->currentScanLine = _data->currentScanLine +
-                                         step * numLines;
+                _data->currentScanLine =
+                    _data->currentScanLine + step * numLines;
 
-                #ifdef DEBUG
+#ifdef DEBUG
 
-                    assert (_data->currentScanLine ==
-                            ((_data->lineOrder == INCREASING_Y) ?
-                             writeBuffer->scanLineMax + 1:
-                             writeBuffer->scanLineMin - 1));
+                assert (
+                    _data->currentScanLine ==
+                    ((_data->lineOrder == INCREASING_Y)
+                         ? writeBuffer->scanLineMax + 1
+                         : writeBuffer->scanLineMin - 1));
 
-                #endif
+#endif
 
                 //
                 // Release the lock on the line buffer
                 //
 
-                writeBuffer->post();
+                writeBuffer->post ();
 
                 //
                 // If this was the last line buffer in the scanline range
                 //
 
-                if (nextWriteBuffer == stop)
-                    break;
+                if (nextWriteBuffer == stop) break;
 
                 //
                 // If there are no more line buffers to compress,
                 // then only continue to write out remaining lineBuffers
                 //
 
-                if (nextCompressBuffer == stop)
-                    continue;
+                if (nextCompressBuffer == stop) continue;
 
                 //
                 // Add nextCompressBuffer as a compression task
                 //
 
-                ThreadPool::addGlobalTask
-                    (new LineBufferTask (&taskGroup, _data, nextCompressBuffer,
-                                         scanLineMin, scanLineMax));
+                ThreadPool::addGlobalTask (new LineBufferTask (
+                    &taskGroup,
+                    _data,
+                    nextCompressBuffer,
+                    scanLineMin,
+                    scanLineMax));
 
                 //
                 // Update the next line buffer we need to compress
@@ -1347,11 +1378,11 @@ DeepScanLineOutputFile::writePixels (int numScanLines)
         // ignore all others.)
         //
 
-        const string *exception = 0;
+        const string* exception = 0;
 
-        for (size_t i = 0; i < _data->lineBuffers.size(); ++i)
+        for (size_t i = 0; i < _data->lineBuffers.size (); ++i)
         {
-            LineBuffer *lineBuffer = _data->lineBuffers[i];
+            LineBuffer* lineBuffer = _data->lineBuffers[i];
 
             if (lineBuffer->hasException && !exception)
                 exception = &lineBuffer->exception;
@@ -1359,17 +1390,18 @@ DeepScanLineOutputFile::writePixels (int numScanLines)
             lineBuffer->hasException = false;
         }
 
-        if (exception)
-            throw IEX_NAMESPACE::IoExc (*exception);
+        if (exception) throw IEX_NAMESPACE::IoExc (*exception);
     }
-    catch (IEX_NAMESPACE::BaseExc &e)
+    catch (IEX_NAMESPACE::BaseExc& e)
     {
-        REPLACE_EXC (e, "Failed to write pixel data to image "
-                     "file \"" << fileName() << "\". " << e.what());
+        REPLACE_EXC (
+            e,
+            "Failed to write pixel data to image "
+            "file \""
+                << fileName () << "\". " << e.what ());
         throw;
     }
 }
-
 
 int
 DeepScanLineOutputFile::currentScanLine () const
@@ -1380,13 +1412,11 @@ DeepScanLineOutputFile::currentScanLine () const
     return _data->currentScanLine;
 }
 
-
 void
-DeepScanLineOutputFile::copyPixels (DeepScanLineInputPart &in)
+DeepScanLineOutputFile::copyPixels (DeepScanLineInputPart& in)
 {
-    copyPixels(*in.file);
+    copyPixels (*in.file);
 }
-
 
 // helper structure to read uint64_t from non 8 byte aligned addresses
 namespace
@@ -1396,16 +1426,15 @@ struct I64Bytes
     uint8_t b[8];
 };
 
-
 union bytesOruint64_t
 {
     I64Bytes b;
     uint64_t i;
 };
-}
+} // namespace
 
 void
-DeepScanLineOutputFile::copyPixels (DeepScanLineInputFile &in)
+DeepScanLineOutputFile::copyPixels (DeepScanLineInputFile& in)
 {
 #if ILMTHREAD_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (*_data->_streamData);
@@ -1415,97 +1444,140 @@ DeepScanLineOutputFile::copyPixels (DeepScanLineInputFile &in)
     // headers are compatible.
     //
 
-    const Header &hdr = _data->header;
-    const Header &inHdr = in.header();
+    const Header& hdr   = _data->header;
+    const Header& inHdr = in.header ();
 
-    if(!inHdr.hasType() || inHdr.type()!=DEEPSCANLINE)
+    if (!inHdr.hasType () || inHdr.type () != DEEPSCANLINE)
     {
-        THROW (IEX_NAMESPACE::ArgExc, "Cannot copy pixels from image "
-                            "file \"" << in.fileName() << "\" to image "
-                            "file \"" << fileName() << "\": the input needs to be a deep scanline image");
+        THROW (
+            IEX_NAMESPACE::ArgExc,
+            "Cannot copy pixels from image "
+            "file \""
+                << in.fileName ()
+                << "\" to image "
+                   "file \""
+                << fileName ()
+                << "\": the input needs to be a deep scanline image");
     }
-    if (!(hdr.dataWindow() == inHdr.dataWindow()))
-        THROW (IEX_NAMESPACE::ArgExc, "Cannot copy pixels from image "
-                            "file \"" << in.fileName() << "\" to image "
-                            "file \"" << fileName() << "\". "
-                            "The files have different data windows.");
+    if (!(hdr.dataWindow () == inHdr.dataWindow ()))
+        THROW (
+            IEX_NAMESPACE::ArgExc,
+            "Cannot copy pixels from image "
+            "file \""
+                << in.fileName ()
+                << "\" to image "
+                   "file \""
+                << fileName ()
+                << "\". "
+                   "The files have different data windows.");
 
-    if (!(hdr.lineOrder() == inHdr.lineOrder()))
-        THROW (IEX_NAMESPACE::ArgExc, "Quick pixel copy from image "
-                            "file \"" << in.fileName() << "\" to image "
-                            "file \"" << fileName() << "\" failed. "
-                            "The files have different line orders.");
+    if (!(hdr.lineOrder () == inHdr.lineOrder ()))
+        THROW (
+            IEX_NAMESPACE::ArgExc,
+            "Quick pixel copy from image "
+            "file \""
+                << in.fileName ()
+                << "\" to image "
+                   "file \""
+                << fileName ()
+                << "\" failed. "
+                   "The files have different line orders.");
 
-    if (!(hdr.compression() == inHdr.compression()))
-        THROW (IEX_NAMESPACE::ArgExc, "Quick pixel copy from image "
-                            "file \"" << in.fileName() << "\" to image "
-                            "file \"" << fileName() << "\" failed. "
-                            "The files use different compression methods.");
+    if (!(hdr.compression () == inHdr.compression ()))
+        THROW (
+            IEX_NAMESPACE::ArgExc,
+            "Quick pixel copy from image "
+            "file \""
+                << in.fileName ()
+                << "\" to image "
+                   "file \""
+                << fileName ()
+                << "\" failed. "
+                   "The files use different compression methods.");
 
-    if (!(hdr.channels() == inHdr.channels()))
-        THROW (IEX_NAMESPACE::ArgExc, "Quick pixel copy from image "
-                            "file \"" << in.fileName() << "\" to image "
-                            "file \"" << fileName() << "\" failed.  "
-                            "The files have different channel lists.");
+    if (!(hdr.channels () == inHdr.channels ()))
+        THROW (
+            IEX_NAMESPACE::ArgExc,
+            "Quick pixel copy from image "
+            "file \""
+                << in.fileName ()
+                << "\" to image "
+                   "file \""
+                << fileName ()
+                << "\" failed.  "
+                   "The files have different channel lists.");
 
     //
     // Verify that no pixel data have been written to this file yet.
     //
 
-    const Box2i &dataWindow = hdr.dataWindow();
+    const Box2i& dataWindow = hdr.dataWindow ();
 
     if (_data->missingScanLines != dataWindow.max.y - dataWindow.min.y + 1)
-        THROW (IEX_NAMESPACE::LogicExc, "Quick pixel copy from image "
-                              "file \"" << in.fileName() << "\" to image "
-                              "file \"" << fileName() << "\" failed. "
-                              "\"" << fileName() << "\" already contains "
-                              "pixel data.");
+        THROW (
+            IEX_NAMESPACE::LogicExc,
+            "Quick pixel copy from image "
+            "file \""
+                << in.fileName ()
+                << "\" to image "
+                   "file \""
+                << fileName ()
+                << "\" failed. "
+                   "\""
+                << fileName ()
+                << "\" already contains "
+                   "pixel data.");
 
     //
     // Copy the pixel data.
     //
 
-    vector<char> data(4096);
-    
+    vector<char> data (4096);
+
     while (_data->missingScanLines > 0)
     {
-        uint64_t dataSize = (uint64_t) data.size();
-        in.rawPixelData(_data->currentScanLine, &data[0], dataSize);
-        if(dataSize > data.size())
+        uint64_t dataSize = (uint64_t) data.size ();
+        in.rawPixelData (_data->currentScanLine, &data[0], dataSize);
+        if (dataSize > data.size ())
         {
             // block wasn't big enough - go again with enough memory this time
-            data.resize(dataSize);
-            in.rawPixelData(_data->currentScanLine, &data[0], dataSize);
+            data.resize (dataSize);
+            in.rawPixelData (_data->currentScanLine, &data[0], dataSize);
         }
 
         // extract header from block to pass to writePixelData
-        
+
         bytesOruint64_t tmp;
-        memcpy(&tmp.b,&data[4],8);
+        memcpy (&tmp.b, &data[4], 8);
         uint64_t packedSampleCountSize = tmp.i;
 
-        memcpy(&tmp.b,&data[12],8);
+        memcpy (&tmp.b, &data[12], 8);
         uint64_t packedDataSize = tmp.i;
 
-        memcpy(&tmp.b,&data[20],8);
+        memcpy (&tmp.b, &data[20], 8);
         uint64_t unpackedDataSize = tmp.i;
 
-        const char * sampleCountTable = &data[0]+28;
-        const char * pixelData = sampleCountTable + packedSampleCountSize;
-        
-        
-        writePixelData (_data->_streamData, _data, lineBufferMinY (_data->currentScanLine,
-                                               _data->minY,
-                                               _data->linesInBuffer),
-                        pixelData, packedDataSize, unpackedDataSize,sampleCountTable,packedSampleCountSize);
+        const char* sampleCountTable = &data[0] + 28;
+        const char* pixelData        = sampleCountTable + packedSampleCountSize;
 
-        _data->currentScanLine += (_data->lineOrder == INCREASING_Y)?
-                                   _data->linesInBuffer: -_data->linesInBuffer;
+        writePixelData (
+            _data->_streamData,
+            _data,
+            lineBufferMinY (
+                _data->currentScanLine, _data->minY, _data->linesInBuffer),
+            pixelData,
+            packedDataSize,
+            unpackedDataSize,
+            sampleCountTable,
+            packedSampleCountSize);
+
+        _data->currentScanLine += (_data->lineOrder == INCREASING_Y)
+                                      ? _data->linesInBuffer
+                                      : -_data->linesInBuffer;
 
         _data->missingScanLines -= _data->linesInBuffer;
     }
 }
-
 
 void
 DeepScanLineOutputFile::updatePreviewImage (const PreviewRgba newPixels[])
@@ -1514,20 +1586,24 @@ DeepScanLineOutputFile::updatePreviewImage (const PreviewRgba newPixels[])
     std::lock_guard<std::mutex> lock (*_data->_streamData);
 #endif
     if (_data->previewPosition <= 0)
-        THROW (IEX_NAMESPACE::LogicExc, "Cannot update preview image pixels. "
-                              "File \"" << fileName() << "\" does not "
-                              "contain a preview image.");
+        THROW (
+            IEX_NAMESPACE::LogicExc,
+            "Cannot update preview image pixels. "
+            "File \""
+                << fileName ()
+                << "\" does not "
+                   "contain a preview image.");
 
     //
     // Store the new pixels in the header's preview image attribute.
     //
 
-    PreviewImageAttribute &pia =
-        _data->header.typedAttribute <PreviewImageAttribute> ("preview");
+    PreviewImageAttribute& pia =
+        _data->header.typedAttribute<PreviewImageAttribute> ("preview");
 
-    PreviewImage &pi = pia.value();
-    PreviewRgba *pixels = pi.pixels();
-    int numPixels = pi.width() * pi.height();
+    PreviewImage& pi        = pia.value ();
+    PreviewRgba*  pixels    = pi.pixels ();
+    int           numPixels = pi.width () * pi.height ();
 
     for (int i = 0; i < numPixels; ++i)
         pixels[i] = newPixels[i];
@@ -1538,7 +1614,7 @@ DeepScanLineOutputFile::updatePreviewImage (const PreviewRgba newPixels[])
     // preview image, and jump back to the saved file position.
     //
 
-    uint64_t savedPosition = _data->_streamData->os->tellp();
+    uint64_t savedPosition = _data->_streamData->os->tellp ();
 
     try
     {
@@ -1546,13 +1622,15 @@ DeepScanLineOutputFile::updatePreviewImage (const PreviewRgba newPixels[])
         pia.writeValueTo (*_data->_streamData->os, _data->version);
         _data->_streamData->os->seekp (savedPosition);
     }
-    catch (IEX_NAMESPACE::BaseExc &e)
+    catch (IEX_NAMESPACE::BaseExc& e)
     {
-        REPLACE_EXC (e, "Cannot update preview image pixels for "
-                     "file \"" << fileName() << "\". " << e.what());
+        REPLACE_EXC (
+            e,
+            "Cannot update preview image pixels for "
+            "file \""
+                << fileName () << "\". " << e.what ());
         throw;
     }
 }
-
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

@@ -28,98 +28,83 @@ using namespace std;
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
-
-DeepImageChannel::DeepImageChannel
-    (DeepImageLevel &level,
-     bool pLinear)
-:
-    ImageChannel (level, 1, 1, pLinear)
+DeepImageChannel::DeepImageChannel (DeepImageLevel& level, bool pLinear)
+    : ImageChannel (level, 1, 1, pLinear)
 {
     // empty
 }
-
 
 DeepImageChannel::~DeepImageChannel ()
 {
     // empty
 }
 
-DeepImageLevel &
+DeepImageLevel&
 DeepImageChannel::deepLevel ()
 {
-    return static_cast <DeepImageLevel &> (level());
+    return static_cast<DeepImageLevel&> (level ());
 }
 
-
-const DeepImageLevel &
+const DeepImageLevel&
 DeepImageChannel::deepLevel () const
 {
-    return static_cast <const DeepImageLevel &> (level());
+    return static_cast<const DeepImageLevel&> (level ());
 }
 
-
-SampleCountChannel &
+SampleCountChannel&
 DeepImageChannel::sampleCounts ()
 {
-    return deepLevel().sampleCounts();
+    return deepLevel ().sampleCounts ();
 }
 
-
-const SampleCountChannel &
+const SampleCountChannel&
 DeepImageChannel::sampleCounts () const
 {
-    return deepLevel().sampleCounts();
+    return deepLevel ().sampleCounts ();
 }
-
 
 void
 DeepImageChannel::resize ()
 {
-    ImageChannel::resize();
+    ImageChannel::resize ();
 }
 
 //-----------------------------------------------------------------------------
 
 template <class T>
-TypedDeepImageChannel<T>::TypedDeepImageChannel
-    (DeepImageLevel &level,
-     bool pLinear)
-:
-    DeepImageChannel (level, pLinear),
-    _sampleListPointers (0),
-    _base (0),
-    _sampleBuffer (0)
+TypedDeepImageChannel<T>::TypedDeepImageChannel (
+    DeepImageLevel& level, bool pLinear)
+    : DeepImageChannel (level, pLinear)
+    , _sampleListPointers (0)
+    , _base (0)
+    , _sampleBuffer (0)
 {
-    resize();
+    resize ();
 }
 
-
-template <class T>
-TypedDeepImageChannel<T>::~TypedDeepImageChannel ()
+template <class T> TypedDeepImageChannel<T>::~TypedDeepImageChannel ()
 {
-    delete [] _sampleListPointers;
-    delete [] _sampleBuffer;
+    delete[] _sampleListPointers;
+    delete[] _sampleBuffer;
 }
-
 
 template <class T>
 DeepSlice
 TypedDeepImageChannel<T>::slice () const
 {
-    return DeepSlice (pixelType(),                  // type
-                      (char *) _base,               // base
-                      sizeof (T*),                  // xStride
-                      pixelsPerRow() * sizeof (T*), // yStride
-                      sizeof (T),                   // sampleStride
-                      xSampling(),
-                      ySampling());
+    return DeepSlice (
+        pixelType (),                  // type
+        (char*) _base,                 // base
+        sizeof (T*),                   // xStride
+        pixelsPerRow () * sizeof (T*), // yStride
+        sizeof (T),                    // sampleStride
+        xSampling (),
+        ySampling ());
 }
 template <class T>
 void
-TypedDeepImageChannel<T>::setSamplesToZero
-    (size_t i,
-     unsigned int oldNumSamples,
-     unsigned int newNumSamples)
+TypedDeepImageChannel<T>::setSamplesToZero (
+    size_t i, unsigned int oldNumSamples, unsigned int newNumSamples)
 {
     //
     // Expand the size of a sample list for a single pixel and
@@ -137,19 +122,18 @@ TypedDeepImageChannel<T>::setSamplesToZero
         _sampleListPointers[i][j] = 0;
 }
 
-
 template <class T>
 void
-TypedDeepImageChannel<T>::moveSampleList
-    (size_t i,
-     unsigned int oldNumSamples,
-     unsigned int newNumSamples,
-     size_t newSampleListPosition)
+TypedDeepImageChannel<T>::moveSampleList (
+    size_t       i,
+    unsigned int oldNumSamples,
+    unsigned int newNumSamples,
+    size_t       newSampleListPosition)
 {
     //
     // Resize the sample list for a single pixel and move it to a new
     // position in the sample buffer for this channel.
-    // 
+    //
     // i                        The position of the affected pixel in
     //                          the channel's _sampleListPointers.
     //
@@ -168,8 +152,8 @@ TypedDeepImageChannel<T>::moveSampleList
     //                          sample buffer.
     //
 
-    T * oldSampleList = _sampleListPointers[i];
-    T * newSampleList = _sampleBuffer + newSampleListPosition;
+    T* oldSampleList = _sampleListPointers[i];
+    T* newSampleList = _sampleBuffer + newSampleListPosition;
 
     if (oldNumSamples > newNumSamples)
     {
@@ -188,13 +172,12 @@ TypedDeepImageChannel<T>::moveSampleList
     _sampleListPointers[i] = newSampleList;
 }
 
-
 template <class T>
 void
-TypedDeepImageChannel<T>::moveSamplesToNewBuffer
-    (const unsigned int * oldNumSamples,
-     const unsigned int * newNumSamples,
-     const size_t * newSampleListPositions)
+TypedDeepImageChannel<T>::moveSamplesToNewBuffer (
+    const unsigned int* oldNumSamples,
+    const unsigned int* newNumSamples,
+    const size_t*       newSampleListPositions)
 {
     //
     // Allocate a new sample buffer for this channel.
@@ -217,13 +200,13 @@ TypedDeepImageChannel<T>::moveSamplesToNewBuffer
     //                          new sample buffer.
     //
 
-    T * oldSampleBuffer = _sampleBuffer;
-    _sampleBuffer = new T [sampleCounts().sampleBufferSize()];
+    T* oldSampleBuffer = _sampleBuffer;
+    _sampleBuffer      = new T[sampleCounts ().sampleBufferSize ()];
 
-    for (size_t i = 0; i < numPixels(); ++i)
+    for (size_t i = 0; i < numPixels (); ++i)
     {
-        T * oldSampleList = _sampleListPointers[i];
-        T * newSampleList = _sampleBuffer + newSampleListPositions[i];
+        T* oldSampleList = _sampleListPointers[i];
+        T* newSampleList = _sampleBuffer + newSampleListPositions[i];
 
         if (oldNumSamples[i] > newNumSamples[i])
         {
@@ -242,9 +225,8 @@ TypedDeepImageChannel<T>::moveSamplesToNewBuffer
         _sampleListPointers[i] = newSampleList;
     }
 
-    delete [] oldSampleBuffer;
+    delete[] oldSampleBuffer;
 }
-
 
 template <class T>
 void
@@ -255,19 +237,19 @@ TypedDeepImageChannel<T>::initializeSampleLists ()
     // construct zero-filled sample lists for the pixels.
     //
 
-    delete [] _sampleBuffer;
+    delete[] _sampleBuffer;
 
-    _sampleBuffer = 0;          // set to 0 to prevent double deletion
-                                // in case of an exception
+    _sampleBuffer = 0; // set to 0 to prevent double deletion
+                       // in case of an exception
 
-    const unsigned int * numSamples = sampleCounts().numSamples();
-    const size_t * sampleListPositions = sampleCounts().sampleListPositions();
+    const unsigned int* numSamples    = sampleCounts ().numSamples ();
+    const size_t* sampleListPositions = sampleCounts ().sampleListPositions ();
 
-    _sampleBuffer = new T [sampleCounts().sampleBufferSize()];
-    
-    resetBasePointer();
+    _sampleBuffer = new T[sampleCounts ().sampleBufferSize ()];
 
-    for (size_t i = 0; i < numPixels(); ++i)
+    resetBasePointer ();
+
+    for (size_t i = 0; i < numPixels (); ++i)
     {
         _sampleListPointers[i] = _sampleBuffer + sampleListPositions[i];
 
@@ -280,24 +262,22 @@ template <class T>
 void
 TypedDeepImageChannel<T>::resize ()
 {
-    DeepImageChannel::resize();
+    DeepImageChannel::resize ();
 
-    delete [] _sampleListPointers;
+    delete[] _sampleListPointers;
     _sampleListPointers = 0;
-    _sampleListPointers = new T * [numPixels()];
-    initializeSampleLists();
+    _sampleListPointers = new T*[numPixels ()];
+    initializeSampleLists ();
 }
-
 
 template <class T>
 void
 TypedDeepImageChannel<T>::resetBasePointer ()
 {
     _base = _sampleListPointers -
-            level().dataWindow().min.y * pixelsPerRow() -
-            level().dataWindow().min.x;
+            level ().dataWindow ().min.y * pixelsPerRow () -
+            level ().dataWindow ().min.x;
 }
-
 
 template <>
 PixelType
@@ -306,14 +286,12 @@ TypedDeepImageChannel<half>::pixelType () const
     return HALF;
 }
 
-
 template <>
 PixelType
 TypedDeepImageChannel<float>::pixelType () const
 {
     return FLOAT;
 }
-
 
 template <>
 PixelType
@@ -322,10 +300,9 @@ TypedDeepImageChannel<unsigned int>::pixelType () const
     return UINT;
 }
 
-
 template class IMFUTIL_EXPORT_TEMPLATE_INSTANCE TypedDeepImageChannel<half>;
 template class IMFUTIL_EXPORT_TEMPLATE_INSTANCE TypedDeepImageChannel<float>;
-template class IMFUTIL_EXPORT_TEMPLATE_INSTANCE TypedDeepImageChannel<unsigned int>;
-
+template class IMFUTIL_EXPORT_TEMPLATE_INSTANCE
+    TypedDeepImageChannel<unsigned int>;
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

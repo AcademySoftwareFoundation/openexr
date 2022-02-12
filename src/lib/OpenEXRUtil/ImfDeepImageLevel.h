@@ -17,15 +17,15 @@
 //
 //----------------------------------------------------------------------------
 
-#include "ImfUtilExport.h"
 #include "ImfNamespace.h"
+#include "ImfUtilExport.h"
 
 #include "ImfDeepImageChannel.h"
-#include "ImfSampleCountChannel.h"
 #include "ImfImageLevel.h"
+#include "ImfSampleCountChannel.h"
 
-#include <string>
 #include <map>
+#include <string>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
@@ -33,17 +33,15 @@ class DeepImage;
 
 class IMFUTIL_EXPORT_TYPE DeepImageLevel : public ImageLevel
 {
-  public:
-
+public:
     //
     // Access to the image to which the level belongs.
     //
 
     IMFUTIL_EXPORT
-    DeepImage &                 deepImage ();
+    DeepImage& deepImage ();
     IMFUTIL_EXPORT
-    const DeepImage &           deepImage () const;
-
+    const DeepImage& deepImage () const;
 
     //
     // Access to deep channels by name:
@@ -64,63 +62,59 @@ class IMFUTIL_EXPORT_TYPE DeepImageLevel : public ImageLevel
     //                          exception if no such channel exists.
     //
 
-	
     IMFUTIL_EXPORT
-    DeepImageChannel *          findChannel (const std::string& name);
-	IMFUTIL_EXPORT
-    const DeepImageChannel *    findChannel (const std::string& name) const;
+    DeepImageChannel* findChannel (const std::string& name);
+    IMFUTIL_EXPORT
+    const DeepImageChannel* findChannel (const std::string& name) const;
 
     IMFUTIL_EXPORT
-    DeepImageChannel &          channel (const std::string& name);
+    DeepImageChannel& channel (const std::string& name);
     IMFUTIL_EXPORT
-    const DeepImageChannel &    channel (const std::string& name) const;
+    const DeepImageChannel& channel (const std::string& name) const;
 
     template <class T>
-    TypedDeepImageChannel<T> *       findTypedChannel
-                                        (const std::string& name);
+    TypedDeepImageChannel<T>* findTypedChannel (const std::string& name);
 
     template <class T>
-    const TypedDeepImageChannel<T> * findTypedChannel
-                                        (const std::string& name) const;
+    const TypedDeepImageChannel<T>*
+    findTypedChannel (const std::string& name) const;
 
     template <class T>
-    TypedDeepImageChannel<T> &       typedChannel
-                                        (const std::string& name);
+    TypedDeepImageChannel<T>& typedChannel (const std::string& name);
 
     template <class T>
-    const TypedDeepImageChannel<T> & typedChannel
-                                        (const std::string& name) const;
-    
+    const TypedDeepImageChannel<T>&
+    typedChannel (const std::string& name) const;
+
     //
     // Iterator-style access to deep channels
     //
 
-    typedef std::map <std::string, DeepImageChannel *> ChannelMap;
+    typedef std::map<std::string, DeepImageChannel*> ChannelMap;
 
-	class Iterator;
-	class ConstIterator;
+    class Iterator;
+    class ConstIterator;
 
-	IMFUTIL_EXPORT
-    Iterator        begin();
-	IMFUTIL_EXPORT
-    ConstIterator   begin() const;
+    IMFUTIL_EXPORT
+    Iterator begin ();
+    IMFUTIL_EXPORT
+    ConstIterator begin () const;
 
-	IMFUTIL_EXPORT
-    Iterator        end();
-	IMFUTIL_EXPORT
-    ConstIterator   end() const;
+    IMFUTIL_EXPORT
+    Iterator end ();
+    IMFUTIL_EXPORT
+    ConstIterator end () const;
 
     //
     // Access to the sample count channel
     //
 
-	IMFUTIL_EXPORT
-    SampleCountChannel &            sampleCounts();
-	IMFUTIL_EXPORT
-    const SampleCountChannel &      sampleCounts() const;
+    IMFUTIL_EXPORT
+    SampleCountChannel& sampleCounts ();
+    IMFUTIL_EXPORT
+    const SampleCountChannel& sampleCounts () const;
 
-  private:
-    
+private:
     friend class DeepImage;
     friend class SampleCountChannel;
 
@@ -129,32 +123,34 @@ class IMFUTIL_EXPORT_TYPE DeepImageLevel : public ImageLevel
     // Deep image levels exist only as part of a deep image.
     //
     IMF_HIDDEN
-     DeepImageLevel (DeepImage& image,
-                     int xLevelNumber,
-                     int yLevelNumber,
-                     const IMATH_NAMESPACE::Box2i& dataWindow);
+    DeepImageLevel (
+        DeepImage&                    image,
+        int                           xLevelNumber,
+        int                           yLevelNumber,
+        const IMATH_NAMESPACE::Box2i& dataWindow);
 
     IMF_HIDDEN
     ~DeepImageLevel ();
 
     IMF_HIDDEN
-    void         setSamplesToZero (size_t i,
-                                   unsigned int oldNumSamples,
-                                   unsigned int newNumSamples);
+    void setSamplesToZero (
+        size_t i, unsigned int oldNumSamples, unsigned int newNumSamples);
 
     IMF_HIDDEN
-    void         moveSampleList (size_t i,
-                                 unsigned int oldNumSamples,
-                                 unsigned int newNumSamples,
-                                 size_t newSampleListPosition);
+    void moveSampleList (
+        size_t       i,
+        unsigned int oldNumSamples,
+        unsigned int newNumSamples,
+        size_t       newSampleListPosition);
 
     IMF_HIDDEN
-    void         moveSamplesToNewBuffer (const unsigned int * oldNumSamples,
-                                         const unsigned int * newNumSamples,
-                                         const size_t * newSampleListPositions);
+    void moveSamplesToNewBuffer (
+        const unsigned int* oldNumSamples,
+        const unsigned int* newNumSamples,
+        const size_t*       newSampleListPositions);
 
     IMF_HIDDEN
-    void         initializeSampleLists ();
+    void initializeSampleLists ();
 
     IMF_HIDDEN
     virtual void resize (const IMATH_NAMESPACE::Box2i& dataWindow);
@@ -163,11 +159,12 @@ class IMFUTIL_EXPORT_TYPE DeepImageLevel : public ImageLevel
     virtual void shiftPixels (int dx, int dy);
 
     IMF_HIDDEN
-    virtual void insertChannel (const std::string& name,
-                                PixelType type,
-                                int xSampling,
-                                int ySampling,
-                                bool pLinear);
+    virtual void insertChannel (
+        const std::string& name,
+        PixelType          type,
+        int                xSampling,
+        int                ySampling,
+        bool               pLinear);
 
     IMF_HIDDEN
     virtual void eraseChannel (const std::string& name);
@@ -176,36 +173,32 @@ class IMFUTIL_EXPORT_TYPE DeepImageLevel : public ImageLevel
     virtual void clearChannels ();
 
     IMF_HIDDEN
-    virtual void renameChannel (const std::string &oldName,
-                                const std::string &newName);
+    virtual void
+    renameChannel (const std::string& oldName, const std::string& newName);
 
     IMF_HIDDEN
-    virtual void renameChannels (const RenamingMap &oldToNewNames);
+    virtual void renameChannels (const RenamingMap& oldToNewNames);
 
-    ChannelMap          _channels;
-    SampleCountChannel  _sampleCounts;
+    ChannelMap         _channels;
+    SampleCountChannel _sampleCounts;
 };
-
 
 class IMFUTIL_EXPORT_TYPE DeepImageLevel::Iterator
 {
-  public:
-
+public:
     IMFUTIL_EXPORT
     Iterator ();
     IMFUTIL_EXPORT
     Iterator (const DeepImageLevel::ChannelMap::iterator& i);
-
 
     //
     // Advance the iterator
     //
 
     IMFUTIL_EXPORT
-    Iterator &              operator ++ ();
+    Iterator& operator++ ();
     IMFUTIL_EXPORT
-    Iterator                operator ++ (int);
-
+    Iterator operator++ (int);
 
     //
     // Access to the channel to which the iterator points,
@@ -213,22 +206,19 @@ class IMFUTIL_EXPORT_TYPE DeepImageLevel::Iterator
     //
 
     IMFUTIL_EXPORT
-    const std::string &     name () const;
+    const std::string& name () const;
     IMFUTIL_EXPORT
-    DeepImageChannel &      channel () const;
+    DeepImageChannel& channel () const;
 
-  private:
-
+private:
     friend class DeepImageLevel::ConstIterator;
 
     DeepImageLevel::ChannelMap::iterator _i;
 };
 
-
 class IMFUTIL_EXPORT_TYPE DeepImageLevel::ConstIterator
 {
-  public:
-
+public:
     IMFUTIL_EXPORT
     ConstIterator ();
     IMFUTIL_EXPORT
@@ -236,16 +226,14 @@ class IMFUTIL_EXPORT_TYPE DeepImageLevel::ConstIterator
     IMFUTIL_EXPORT
     ConstIterator (const DeepImageLevel::Iterator& other);
 
-
     //
     // Advance the iterator
     //
 
     IMFUTIL_EXPORT
-    ConstIterator &             operator ++ ();
+    ConstIterator& operator++ ();
     IMFUTIL_EXPORT
-    ConstIterator               operator ++ (int);
-
+    ConstIterator operator++ (int);
 
     //
     // Access to the channel to which the iterator points,
@@ -253,192 +241,167 @@ class IMFUTIL_EXPORT_TYPE DeepImageLevel::ConstIterator
     //
 
     IMFUTIL_EXPORT
-    const std::string &         name () const;
+    const std::string& name () const;
     IMFUTIL_EXPORT
-    const DeepImageChannel &    channel () const;
+    const DeepImageChannel& channel () const;
 
-  private:
+private:
+    friend bool operator== (const ConstIterator&, const ConstIterator&);
 
-    friend bool operator ==
-        (const ConstIterator &, const ConstIterator &);
-
-    friend bool operator !=
-        (const ConstIterator &, const ConstIterator &);
+    friend bool operator!= (const ConstIterator&, const ConstIterator&);
 
     DeepImageLevel::ChannelMap::const_iterator _i;
 };
-
 
 //-----------------------------------------------------------------------------
 // Implementation of inline functions
 //-----------------------------------------------------------------------------
 
 template <class T>
-TypedDeepImageChannel<T> *
+TypedDeepImageChannel<T>*
 DeepImageLevel::findTypedChannel (const std::string& name)
 {
-    return dynamic_cast <TypedDeepImageChannel<T> *> (findChannel (name));
+    return dynamic_cast<TypedDeepImageChannel<T>*> (findChannel (name));
 }
 
-
 template <class T>
-const TypedDeepImageChannel<T> *
+const TypedDeepImageChannel<T>*
 DeepImageLevel::findTypedChannel (const std::string& name) const
 {
-    return dynamic_cast <const TypedDeepImageChannel<T> *> (findChannel (name));
+    return dynamic_cast<const TypedDeepImageChannel<T>*> (findChannel (name));
 }
 
-
 template <class T>
-TypedDeepImageChannel<T> &
+TypedDeepImageChannel<T>&
 DeepImageLevel::typedChannel (const std::string& name)
 {
-    TypedDeepImageChannel<T> * ptr = findTypedChannel<T> (name);
+    TypedDeepImageChannel<T>* ptr = findTypedChannel<T> (name);
 
-    if (ptr == 0)
-        throwBadChannelNameOrType (name);
+    if (ptr == 0) throwBadChannelNameOrType (name);
 
     return *ptr;
 }
-
 
 template <class T>
-const TypedDeepImageChannel<T> &
+const TypedDeepImageChannel<T>&
 DeepImageLevel::typedChannel (const std::string& name) const
 {
-    const TypedDeepImageChannel<T> * ptr = findTypedChannel<T> (name);
+    const TypedDeepImageChannel<T>* ptr = findTypedChannel<T> (name);
 
-    if (ptr == 0)
-        throwBadChannelNameOrType (name);
+    if (ptr == 0) throwBadChannelNameOrType (name);
 
     return *ptr;
 }
 
-
-inline SampleCountChannel &
+inline SampleCountChannel&
 DeepImageLevel::sampleCounts ()
 {
     return _sampleCounts;
 }
 
-
-inline const SampleCountChannel &
+inline const SampleCountChannel&
 DeepImageLevel::sampleCounts () const
 {
     return _sampleCounts;
 }
 
-
-inline
-DeepImageLevel::Iterator::Iterator (): _i()
+inline DeepImageLevel::Iterator::Iterator () : _i ()
 {
     // empty
 }
 
-
-inline
-DeepImageLevel::Iterator::Iterator
-    (const DeepImageLevel::ChannelMap::iterator& i)
-:
-    _i (i)
+inline DeepImageLevel::Iterator::Iterator (
+    const DeepImageLevel::ChannelMap::iterator& i)
+    : _i (i)
 {
     // empty
 }
 
-
-inline DeepImageLevel::Iterator &                
-DeepImageLevel::Iterator::operator ++ ()
+inline DeepImageLevel::Iterator&
+DeepImageLevel::Iterator::operator++ ()
 {
     ++_i;
     return *this;
 }
 
-
-inline DeepImageLevel::Iterator  
-DeepImageLevel::Iterator::operator ++ (int)
+inline DeepImageLevel::Iterator
+DeepImageLevel::Iterator::operator++ (int)
 {
     Iterator tmp = *this;
     ++_i;
     return tmp;
 }
 
-
-inline const std::string &
+inline const std::string&
 DeepImageLevel::Iterator::name () const
 {
     return _i->first;
 }
 
-
-inline DeepImageChannel &        
+inline DeepImageChannel&
 DeepImageLevel::Iterator::channel () const
 {
     return *_i->second;
 }
 
-
-inline
-DeepImageLevel::ConstIterator::ConstIterator (): _i()
+inline DeepImageLevel::ConstIterator::ConstIterator () : _i ()
 {
     // empty
 }
 
-inline
-DeepImageLevel::ConstIterator::ConstIterator
-    (const DeepImageLevel::ChannelMap::const_iterator& i): _i (i)
+inline DeepImageLevel::ConstIterator::ConstIterator (
+    const DeepImageLevel::ChannelMap::const_iterator& i)
+    : _i (i)
 {
     // empty
 }
 
-
-inline
-DeepImageLevel::ConstIterator::ConstIterator
-    (const DeepImageLevel::Iterator& other): _i (other._i)
+inline DeepImageLevel::ConstIterator::ConstIterator (
+    const DeepImageLevel::Iterator& other)
+    : _i (other._i)
 {
     // empty
 }
 
-inline DeepImageLevel::ConstIterator &
-DeepImageLevel::ConstIterator::operator ++ ()
+inline DeepImageLevel::ConstIterator&
+DeepImageLevel::ConstIterator::operator++ ()
 {
     ++_i;
     return *this;
 }
 
-
-inline DeepImageLevel::ConstIterator             
-DeepImageLevel::ConstIterator::operator ++ (int)
+inline DeepImageLevel::ConstIterator
+DeepImageLevel::ConstIterator::operator++ (int)
 {
     ConstIterator tmp = *this;
     ++_i;
     return tmp;
 }
 
-
-inline const std::string &
+inline const std::string&
 DeepImageLevel::ConstIterator::name () const
 {
     return _i->first;
 }
 
-inline const DeepImageChannel &  
+inline const DeepImageChannel&
 DeepImageLevel::ConstIterator::channel () const
 {
     return *_i->second;
 }
 
-
 inline bool
-operator == (const DeepImageLevel::ConstIterator& x,
-             const DeepImageLevel::ConstIterator& y)
+operator== (
+    const DeepImageLevel::ConstIterator& x,
+    const DeepImageLevel::ConstIterator& y)
 {
     return x._i == y._i;
 }
 
-
 inline bool
-operator != (const DeepImageLevel::ConstIterator& x,
-             const DeepImageLevel::ConstIterator& y)
+operator!= (
+    const DeepImageLevel::ConstIterator& x,
+    const DeepImageLevel::ConstIterator& y)
 {
     return !(x == y);
 }

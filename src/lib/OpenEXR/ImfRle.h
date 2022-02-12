@@ -6,8 +6,8 @@
 #ifndef INCLUDED_IMF_RLE_H_
 #define INCLUDED_IMF_RLE_H_
 
-#include "ImfNamespace.h"
 #include "ImfExport.h"
+#include "ImfNamespace.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
@@ -26,8 +26,8 @@ int rleCompress (int inLength, const char in[], signed char out[]);
 //
 
 IMF_EXPORT
-int rleUncompress (int inLength, int maxLength,
-                                 const signed char in[], char out[]);
+int
+rleUncompress (int inLength, int maxLength, const signed char in[], char out[]);
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 

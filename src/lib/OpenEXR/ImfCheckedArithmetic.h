@@ -22,11 +22,15 @@
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 template <bool b> struct StaticAssertionFailed;
-template <> struct StaticAssertionFailed <true> {};
+template <> struct StaticAssertionFailed<true>
+{};
 
-#define IMF_STATIC_ASSERT(x) \
-    do {StaticAssertionFailed <x> staticAssertionFailed; ((void) staticAssertionFailed);} while (false)
-
+#define IMF_STATIC_ASSERT(x)                                                   \
+    do                                                                         \
+    {                                                                          \
+        StaticAssertionFailed<x> staticAssertionFailed;                        \
+        ((void) staticAssertionFailed);                                        \
+    } while (false)
 
 template <class T>
 inline T
@@ -36,15 +40,15 @@ uiMult (T a, T b)
     // Unsigned integer multiplication
     //
 
-    IMF_STATIC_ASSERT (!std::numeric_limits<T>::is_signed &&
-                        std::numeric_limits<T>::is_integer);
+    IMF_STATIC_ASSERT (
+        !std::numeric_limits<T>::is_signed &&
+        std::numeric_limits<T>::is_integer);
 
-    if (a > 0 && b > std::numeric_limits<T>::max() / a)
+    if (a > 0 && b > std::numeric_limits<T>::max () / a)
         throw IEX_NAMESPACE::OverflowExc ("Integer multiplication overflow.");
 
     return a * b;
 }
-
 
 template <class T>
 inline T
@@ -54,15 +58,14 @@ uiDiv (T a, T b)
     // Unsigned integer division
     //
 
-    IMF_STATIC_ASSERT (!std::numeric_limits<T>::is_signed &&
-                        std::numeric_limits<T>::is_integer);
+    IMF_STATIC_ASSERT (
+        !std::numeric_limits<T>::is_signed &&
+        std::numeric_limits<T>::is_integer);
 
-    if (b == 0)
-        throw IEX_NAMESPACE::DivzeroExc ("Integer division by zero.");
+    if (b == 0) throw IEX_NAMESPACE::DivzeroExc ("Integer division by zero.");
 
     return a / b;
 }
-
 
 template <class T>
 inline T
@@ -72,15 +75,15 @@ uiAdd (T a, T b)
     // Unsigned integer addition
     //
 
-    IMF_STATIC_ASSERT (!std::numeric_limits<T>::is_signed &&
-                        std::numeric_limits<T>::is_integer);
+    IMF_STATIC_ASSERT (
+        !std::numeric_limits<T>::is_signed &&
+        std::numeric_limits<T>::is_integer);
 
-    if (a > std::numeric_limits<T>::max() - b)
+    if (a > std::numeric_limits<T>::max () - b)
         throw IEX_NAMESPACE::OverflowExc ("Integer addition overflow.");
 
     return a + b;
 }
-
 
 template <class T>
 inline T
@@ -90,15 +93,15 @@ uiSub (T a, T b)
     // Unsigned integer subtraction
     //
 
-    IMF_STATIC_ASSERT (!std::numeric_limits<T>::is_signed &&
-                        std::numeric_limits<T>::is_integer);
+    IMF_STATIC_ASSERT (
+        !std::numeric_limits<T>::is_signed &&
+        std::numeric_limits<T>::is_integer);
 
     if (a < b)
         throw IEX_NAMESPACE::UnderflowExc ("Integer subtraction underflow.");
 
     return a - b;
 }
-
 
 template <class T>
 inline size_t
@@ -118,19 +121,18 @@ checkArraySize (T n, size_t s)
     //      size_t (n).
     //
 
-    IMF_STATIC_ASSERT (!std::numeric_limits<T>::is_signed &&
-                        std::numeric_limits<T>::is_integer);
+    IMF_STATIC_ASSERT (
+        !std::numeric_limits<T>::is_signed &&
+        std::numeric_limits<T>::is_integer);
 
     IMF_STATIC_ASSERT (sizeof (T) <= sizeof (size_t));
 
-    if (size_t (n) > std::numeric_limits<size_t>::max() / s)
+    if (size_t (n) > std::numeric_limits<size_t>::max () / s)
         throw IEX_NAMESPACE::OverflowExc ("Integer multiplication overflow.");
 
     return size_t (n);
 }
 
-
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
-
 
 #endif

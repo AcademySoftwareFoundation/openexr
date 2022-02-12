@@ -3,46 +3,42 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
-
 //---------------------------------------------------------------------
 //
 //	Constructors and destructors for our exception base class.
 //
 //---------------------------------------------------------------------
 
-#include "IexExport.h"
 #include "IexBaseExc.h"
-#include "IexMacros.h"
 #include "IexErrnoExc.h"
+#include "IexExport.h"
+#include "IexMacros.h"
 #include "IexMathExc.h"
 
 #ifdef _WIN32
-#include <windows.h>
+#    include <windows.h>
 #endif
 
 #include <stdlib.h>
 
 #if defined(_MSC_VER)
-#pragma warning (disable : 4996)
+#    pragma warning(disable : 4996)
 #endif
-
 
 IEX_INTERNAL_NAMESPACE_SOURCE_ENTER
 
-
-namespace {
+namespace
+{
 
 StackTracer currentStackTracer = 0;
 
 } // namespace
 
-
-void	
+void
 setStackTracer (StackTracer stackTracer)
 {
     currentStackTracer = stackTracer;
 }
-
 
 StackTracer
 stackTracer ()
@@ -50,142 +46,127 @@ stackTracer ()
     return currentStackTracer;
 }
 
+BaseExc::BaseExc (const char* s)
+    : _message (s ? s : "")
+    , _stackTrace (currentStackTracer ? currentStackTracer () : std::string ())
+{}
 
-BaseExc::BaseExc (const char* s) :
-    _message (s? s : ""),
-    _stackTrace (currentStackTracer? currentStackTracer(): std::string())
-{
-}
-
-
-BaseExc::BaseExc (const std::string &s) :
-    _message (s),
-    _stackTrace (currentStackTracer? currentStackTracer(): std::string())
+BaseExc::BaseExc (const std::string& s)
+    : _message (s)
+    , _stackTrace (currentStackTracer ? currentStackTracer () : std::string ())
 {
     // empty
 }
 
-
-BaseExc::BaseExc (std::string &&s) :
-    _message (std::move (s)),
-    _stackTrace (currentStackTracer? currentStackTracer(): std::string())
+BaseExc::BaseExc (std::string&& s)
+    : _message (std::move (s))
+    , _stackTrace (currentStackTracer ? currentStackTracer () : std::string ())
 {
     // empty
 }
 
-
-BaseExc::BaseExc (std::stringstream &s) :
-    _message (s.str()),
-    _stackTrace (currentStackTracer? currentStackTracer(): std::string())
+BaseExc::BaseExc (std::stringstream& s)
+    : _message (s.str ())
+    , _stackTrace (currentStackTracer ? currentStackTracer () : std::string ())
 {
     // empty
 }
 
-BaseExc::BaseExc (const BaseExc &be)
-    : _message (be._message),
-      _stackTrace (be._stackTrace)
-{
-}
+BaseExc::BaseExc (const BaseExc& be)
+    : _message (be._message), _stackTrace (be._stackTrace)
+{}
 
 BaseExc::~BaseExc () noexcept
-{
-}
+{}
 
-BaseExc &
-BaseExc::operator = (const BaseExc& be)
+BaseExc&
+BaseExc::operator= (const BaseExc& be)
 {
     if (this != &be)
     {
-        _message = be._message;
+        _message    = be._message;
         _stackTrace = be._stackTrace;
     }
 
     return *this;
 }
 
-BaseExc &
-BaseExc::operator = (BaseExc&& be) noexcept
+BaseExc&
+BaseExc::operator= (BaseExc&& be) noexcept
 {
     if (this != &be)
     {
-        _message = std::move (be._message);
+        _message    = std::move (be._message);
         _stackTrace = std::move (be._stackTrace);
     }
     return *this;
 }
 
-const char *
+const char*
 BaseExc::what () const noexcept
 {
-    return _message.c_str();
+    return _message.c_str ();
 }
 
-
-BaseExc &
-BaseExc::assign (std::stringstream &s)
+BaseExc&
+BaseExc::assign (std::stringstream& s)
 {
-    _message.assign (s.str());
+    _message.assign (s.str ());
     return *this;
 }
 
-BaseExc &
-BaseExc::append (std::stringstream &s)
+BaseExc&
+BaseExc::append (std::stringstream& s)
 {
-    _message.append (s.str());
+    _message.append (s.str ());
     return *this;
 }
 
-const std::string &
-BaseExc::message() const noexcept
+const std::string&
+BaseExc::message () const noexcept
 {
-	return _message;
+    return _message;
 }
 
-BaseExc &
-BaseExc::operator = (std::stringstream &s)
+BaseExc&
+BaseExc::operator= (std::stringstream& s)
 {
     return assign (s);
 }
 
-
-BaseExc &
-BaseExc::operator += (std::stringstream &s)
+BaseExc&
+BaseExc::operator+= (std::stringstream& s)
 {
     return append (s);
 }
 
-
-BaseExc &
-BaseExc::assign (const char *s)
+BaseExc&
+BaseExc::assign (const char* s)
 {
-    _message.assign(s);
+    _message.assign (s);
     return *this;
 }
 
-
-BaseExc &
-BaseExc::operator = (const char *s)
+BaseExc&
+BaseExc::operator= (const char* s)
 {
-    return assign(s);
+    return assign (s);
 }
 
-
-BaseExc &
-BaseExc::append (const char *s)
+BaseExc&
+BaseExc::append (const char* s)
 {
-    _message.append(s);
+    _message.append (s);
     return *this;
 }
 
-
-BaseExc &
-BaseExc::operator += (const char *s)
+BaseExc&
+BaseExc::operator+= (const char* s)
 {
-    return append(s);
+    return append (s);
 }
 
-
-const std::string &
+const std::string&
 BaseExc::stackTrace () const noexcept
 {
     return _stackTrace;
@@ -369,22 +350,19 @@ DEFINE_EXC_EXP_IMPL (IEX_EXPORT, InvalidFpOpExc, MathExc)
 
 IEX_INTERNAL_NAMESPACE_SOURCE_EXIT
 
-
 #ifdef _WIN32
 
-#pragma optimize("", off)
+#    pragma optimize("", off)
 void
-iex_debugTrap()
+iex_debugTrap ()
 {
-    if (0 != getenv("IEXDEBUGTHROW"))
-        ::DebugBreak();
+    if (0 != getenv ("IEXDEBUGTHROW")) ::DebugBreak ();
 }
 #else
 void
-iex_debugTrap()
+iex_debugTrap ()
 {
     // how to in Linux?
-    if (0 != ::getenv("IEXDEBUGTHROW"))
-        __builtin_trap();
+    if (0 != ::getenv ("IEXDEBUGTHROW")) __builtin_trap ();
 }
 #endif

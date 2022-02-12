@@ -5,7 +5,4 @@
 
 #include <string>
 
-void testStandardAttributes (const std::string &tempDir);
-
-
-
+void testStandardAttributes (const std::string& tempDir);

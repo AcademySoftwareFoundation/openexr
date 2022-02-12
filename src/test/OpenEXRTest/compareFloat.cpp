@@ -25,15 +25,15 @@ equivalent (float f1, float f2, Compression comp)
 
     union
     {
-	float		f;
-	unsigned int	i;
+        float        f;
+        unsigned int i;
     } u1, u2;
 
     u1.f = f1;
     u2.f = f2;
 
     if (comp == PXR24_COMPRESSION)
-	return (u2.i >> 8) - (u1.i >> 8) < 2;
+        return (u2.i >> 8) - (u1.i >> 8) < 2;
     else
-	return u2.i == u1.i;
+        return u2.i == u1.i;
 }

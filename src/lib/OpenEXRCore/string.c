@@ -15,7 +15,7 @@
 exr_result_t
 exr_attr_string_init (exr_context_t ctxt, exr_attr_string_t* s, int32_t len)
 {
-    exr_attr_string_t nil = { 0 };
+    exr_attr_string_t nil = {0};
     INTERN_EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
 
     if (len < 0)
@@ -46,7 +46,7 @@ exr_result_t
 exr_attr_string_init_static_with_length (
     exr_context_t ctxt, exr_attr_string_t* s, const char* v, int32_t len)
 {
-    exr_attr_string_t nil = { 0 };
+    exr_attr_string_t nil = {0};
     INTERN_EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
 
     if (len < 0)
@@ -127,9 +127,9 @@ exr_attr_string_create_with_length (
 #    pragma warning(disable : 4996)
 #endif
             if (d)
-                strncpy (outs, d, (size_t)len);
+                strncpy (outs, d, (size_t) len);
             else
-                memset (outs, 0, (size_t)len);
+                memset (outs, 0, (size_t) len);
 #ifdef _MSC_VER
 #    pragma warning(pop)
 #endif
@@ -145,7 +145,7 @@ exr_result_t
 exr_attr_string_create (exr_context_t ctxt, exr_attr_string_t* s, const char* d)
 {
     size_t  fulllen = 0;
-    int32_t len = 0;
+    int32_t len     = 0;
     if (d)
     {
         fulllen = strlen (d);
@@ -215,7 +215,7 @@ exr_result_t
 exr_attr_string_set (exr_context_t ctxt, exr_attr_string_t* s, const char* d)
 {
     size_t  fulllen = 0;
-    int32_t len = 0;
+    int32_t len     = 0;
     if (d)
     {
         fulllen = strlen (d);
@@ -241,7 +241,7 @@ exr_attr_string_destroy (exr_context_t ctxt, exr_attr_string_t* s)
 
     if (s)
     {
-        exr_attr_string_t nil = { 0 };
+        exr_attr_string_t nil = {0};
         if (s->str && s->alloc_size > 0)
             pctxt->free_fn ((char*) (uintptr_t) s->str);
         *s = nil;

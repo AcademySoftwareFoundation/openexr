@@ -11,8 +11,8 @@
 #include "openexr_base.h"
 #include "openexr_errors.h"
 
-#include "openexr_context.h"
 #include "openexr_attr.h"
+#include "openexr_context.h"
 
 #include "openexr_part.h"
 

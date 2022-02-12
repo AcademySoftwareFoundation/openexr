@@ -3,11 +3,6 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
-
-
-
 #include <string>
 
-void testIsComplete (const std::string &tempDir);
-
-
+void testIsComplete (const std::string& tempDir);

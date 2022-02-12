@@ -20,7 +20,8 @@ using namespace std;
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
-namespace {
+namespace
+{
 
 double
 frac (double x, double e)
@@ -28,29 +29,21 @@ frac (double x, double e)
     return x - floor (x + e);
 }
 
-
 double
 square (double x)
 {
     return x * x;
 }
 
-
 double
 denom (double x, double e)
 {
-    if (e > frac (x, e))
-    {
-        return 1;
-    }
+    if (e > frac (x, e)) { return 1; }
     else
     {
-	double r = frac (1 / x, e);
-	
-        if (e > r)
-        {
-            return floor (1 / x + e);
-        }
+        double r = frac (1 / x, e);
+
+        if (e > r) { return floor (1 / x + e); }
         else
         {
             return denom (frac (1 / r, e), e / square (x * r)) +
@@ -61,38 +54,36 @@ denom (double x, double e)
 
 } // namespace
 
-
 Rational::Rational (double x)
 {
     int sign;
 
     if (x >= 0)
     {
-	sign = 1;	// positive
+        sign = 1; // positive
     }
     else if (x < 0)
     {
-	sign = -1;	// negative
-	x = -x;
+        sign = -1; // negative
+        x    = -x;
     }
     else
     {
-	n = 0;		// NaN
-	d = 0;
-	return;
+        n = 0; // NaN
+        d = 0;
+        return;
     }
 
     if (x >= (1U << 31) - 0.5)
     {
-	n = sign;	// infinity
-	d = 0;
-	return;
+        n = sign; // infinity
+        d = 0;
+        return;
     }
 
-    double e = (x < 1? 1: x) / (1U << 30);
-    d = (unsigned int) denom (x, e);
-    n = sign * (int) floor (x * d + 0.5);
+    double e = (x < 1 ? 1 : x) / (1U << 30);
+    d        = (unsigned int) denom (x, e);
+    n        = sign * (int) floor (x * d + 0.5);
 }
-
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

@@ -3,7 +3,6 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
-
 //-----------------------------------------------------------------------------
 //
 //	exrmakepreview -- a program that inserts a
@@ -13,13 +12,12 @@
 
 #include "makePreview.h"
 
-#include <iostream>
 #include <exception>
+#include <iostream>
 #include <stdlib.h>
 #include <string.h>
 
 using namespace std;
-
 
 void
 usageMessage (const char argv0[], bool verbose = false)
@@ -28,121 +26,116 @@ usageMessage (const char argv0[], bool verbose = false)
 
     if (verbose)
     {
-	cerr << "\n"
-		"Reads an OpenEXR image from infile, generates a preview\n"
-		"image, adds it to the image's header, and saves the result\n"
-		"in outfile.  Infile and outfile must not refer to the same\n"
-		"file (the program cannot edit an image file \"in place\").\n"
-		"\n"
-		"Options:\n"
-		"\n"
-		"-w x      sets the width of the preview image to x pixels\n"
-		"          (default is 100)\n"
-		"\n"
-		"-e s      adjusts the preview image's exposure by s f-stops\n"
-		"          (default is 0).  Positive values make the image\n"
-		"          brighter, negative values make it darker.\n"
-		"\n"
-		"-v        verbose mode\n"
-		"\n"
-		"-h        prints this message\n";
+        cerr << "\n"
+                "Reads an OpenEXR image from infile, generates a preview\n"
+                "image, adds it to the image's header, and saves the result\n"
+                "in outfile.  Infile and outfile must not refer to the same\n"
+                "file (the program cannot edit an image file \"in place\").\n"
+                "\n"
+                "Options:\n"
+                "\n"
+                "-w x      sets the width of the preview image to x pixels\n"
+                "          (default is 100)\n"
+                "\n"
+                "-e s      adjusts the preview image's exposure by s f-stops\n"
+                "          (default is 0).  Positive values make the image\n"
+                "          brighter, negative values make it darker.\n"
+                "\n"
+                "-v        verbose mode\n"
+                "\n"
+                "-h        prints this message\n";
 
-	 cerr << endl;
+        cerr << endl;
     }
 
     exit (1);
 }
 
-
 int
-main(int argc, char **argv)
+main (int argc, char** argv)
 {
-    const char *inFile = 0;
-    const char *outFile = 0;
-    int previewWidth = 100;
-    float exposure = 0;
-    bool verbose = false;
+    const char* inFile       = 0;
+    const char* outFile      = 0;
+    int         previewWidth = 100;
+    float       exposure     = 0;
+    bool        verbose      = false;
 
     //
     // Parse the command line.
     //
 
-    if (argc < 2)
-	usageMessage (argv[0], true);
+    if (argc < 2) usageMessage (argv[0], true);
 
     int i = 1;
 
     while (i < argc)
     {
-	if (!strcmp (argv[i], "-w"))
-	{
-	    //
-	    // Set preview image width
-	    //
+        if (!strcmp (argv[i], "-w"))
+        {
+            //
+            // Set preview image width
+            //
 
-	    if (i > argc - 2)
-		usageMessage (argv[0]);
+            if (i > argc - 2) usageMessage (argv[0]);
 
-	    previewWidth = strtol (argv[i + 1], 0, 0);
-	    i += 2;
-	}
-	else if (!strcmp (argv[i], "-e"))
-	{
-	    //
-	    // Set preview image width
-	    //
+            previewWidth = strtol (argv[i + 1], 0, 0);
+            i += 2;
+        }
+        else if (!strcmp (argv[i], "-e"))
+        {
+            //
+            // Set preview image width
+            //
 
-	    if (i > argc - 2)
-		usageMessage (argv[0]);
+            if (i > argc - 2) usageMessage (argv[0]);
 
-	    exposure = strtod (argv[i + 1], 0);
-	    i += 2;
-	}
-	else if (!strcmp (argv[i], "-v"))
-	{
-	    //
-	    // Verbose mode
-	    //
+            exposure = strtod (argv[i + 1], 0);
+            i += 2;
+        }
+        else if (!strcmp (argv[i], "-v"))
+        {
+            //
+            // Verbose mode
+            //
 
-	    verbose = true;
-	    i += 1;
-	}
-	else if (!strcmp (argv[i], "-h"))
-	{
-	    //
-	    // Print help message
-	    //
+            verbose = true;
+            i += 1;
+        }
+        else if (!strcmp (argv[i], "-h"))
+        {
+            //
+            // Print help message
+            //
 
-	    usageMessage (argv[0], true);
-	}
-	else
-	{
-	    //
-	    // Image file name
-	    //
+            usageMessage (argv[0], true);
+        }
+        else
+        {
+            //
+            // Image file name
+            //
 
-	    if (inFile == 0)
-		inFile = argv[i];
-	    else
-		outFile = argv[i];
+            if (inFile == 0)
+                inFile = argv[i];
+            else
+                outFile = argv[i];
 
-	    i += 1;
-	}
+            i += 1;
+        }
     }
 
-    if (inFile == 0 || outFile == 0)
-	usageMessage (argv[0]);
+    if (inFile == 0 || outFile == 0) usageMessage (argv[0]);
 
     if (!strcmp (inFile, outFile))
     {
-	cerr << "Input and output cannot be the same file." << endl;
-	return 1;
+        cerr << "Input and output cannot be the same file." << endl;
+        return 1;
     }
 
     if (previewWidth <= 0)
     {
-	cerr << "Preview image width must be greather than zero." << endl;
-	return 1;
+        cerr << "Preview image width must be greather than zero." << endl;
+        return 1;
     }
 
     //
@@ -153,12 +146,12 @@ main(int argc, char **argv)
 
     try
     {
-	makePreview (inFile, outFile, previewWidth, exposure, verbose);
+        makePreview (inFile, outFile, previewWidth, exposure, verbose);
     }
-    catch (const exception &e)
+    catch (const exception& e)
     {
-	cerr << e.what() << endl;
-	exitStatus = 1;
+        cerr << e.what () << endl;
+        exitStatus = 1;
     }
 
     return exitStatus;

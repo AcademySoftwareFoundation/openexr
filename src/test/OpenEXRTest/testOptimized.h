@@ -3,8 +3,6 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
-
 #include <string>
 
-void testOptimized (const std::string &tempDir);
-
+void testOptimized (const std::string& tempDir);

@@ -3,7 +3,6 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
-
 //-----------------------------------------------------------------------------
 //
 //	Code examples that show how implement custom low-level
@@ -15,9 +14,9 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfRgbaFile.h>
-#include <ImfIO.h>
 #include "Iex.h"
+#include <ImfIO.h>
+#include <ImfRgbaFile.h>
 
 #include "drawImage.h"
 
@@ -29,50 +28,45 @@ using namespace IMF;
 using namespace std;
 using namespace IMATH_NAMESPACE;
 
-
 #if defined(_MSC_VER)
-#pragma warning (disable : 4996)
+#    pragma warning(disable : 4996)
 #endif
 
-class C_IStream: public IStream
+class C_IStream : public IStream
 {
-  public:
+public:
+    C_IStream (FILE* file, const char fileName[])
+        : IStream (fileName), _file (file)
+    {}
 
-    C_IStream (FILE *file, const char fileName[]):
-	IStream (fileName), _file (file) {}
+    virtual bool     read (char c[/*n*/], int n);
+    virtual uint64_t tellg ();
+    virtual void     seekg (uint64_t pos);
+    virtual void     clear ();
 
-    virtual bool	read (char c[/*n*/], int n);
-    virtual uint64_t	tellg ();
-    virtual void	seekg (uint64_t pos);
-    virtual void	clear ();
-
-  private:
-
-    FILE *		_file;
+private:
+    FILE* _file;
 };
 
-
-class C_OStream: public OStream
+class C_OStream : public OStream
 {
-  public:
+public:
+    C_OStream (FILE* file, const char fileName[])
+        : OStream (fileName), _file (file)
+    {}
 
-    C_OStream (FILE *file, const char fileName[]):
-	OStream (fileName), _file (file) {}
+    virtual void     write (const char c[/*n*/], int n);
+    virtual uint64_t tellp ();
+    virtual void     seekp (uint64_t pos);
 
-    virtual void	write (const char c[/*n*/], int n);
-    virtual uint64_t	tellp ();
-    virtual void	seekp (uint64_t pos);
-
-  private:
-
-    FILE *		_file;
+private:
+    FILE* _file;
 };
-
 
 bool
 C_IStream::read (char c[/*n*/], int n)
 {
-    if (n != static_cast<int>(fread (c, 1, n, _file)))
+    if (n != static_cast<int> (fread (c, 1, n, _file)))
     {
         //
         // fread() failed, but the return value does not distinguish
@@ -81,7 +75,7 @@ C_IStream::read (char c[/*n*/], int n)
         //
 
         if (ferror (_file))
-            IEX_NAMESPACE::throwErrnoExc();
+            IEX_NAMESPACE::throwErrnoExc ();
         else
             throw IEX_NAMESPACE::InputExc ("Unexpected end of file.");
     }
@@ -89,21 +83,18 @@ C_IStream::read (char c[/*n*/], int n)
     return feof (_file);
 }
 
-
 uint64_t
 C_IStream::tellg ()
 {
     return ftell (_file);
 }
 
-
 void
 C_IStream::seekg (uint64_t pos)
 {
     clearerr (_file);
-    fseek (_file, static_cast<long>(pos), SEEK_SET);
+    fseek (_file, static_cast<long> (pos), SEEK_SET);
 }
-
 
 void
 C_IStream::clear ()
@@ -111,16 +102,14 @@ C_IStream::clear ()
     clearerr (_file);
 }
 
-
 void
 C_OStream::write (const char c[/*n*/], int n)
 {
     clearerr (_file);
 
-    if (n != static_cast<int>(fwrite (c, 1, n, _file)))
-        IEX_NAMESPACE::throwErrnoExc();
+    if (n != static_cast<int> (fwrite (c, 1, n, _file)))
+        IEX_NAMESPACE::throwErrnoExc ();
 }
-
 
 uint64_t
 C_OStream::tellp ()
@@ -128,21 +117,20 @@ C_OStream::tellp ()
     return ftell (_file);
 }
 
-
 void
 C_OStream::seekp (uint64_t pos)
 {
     clearerr (_file);
-    fseek (_file, static_cast<long>(pos), SEEK_SET);
+    fseek (_file, static_cast<long> (pos), SEEK_SET);
 }
 
-
 void
-writeRgbaFILE (FILE *cfile,
-	       const char fileName[],
-	       const Rgba *pixels,
-	       int width,
-	       int height)
+writeRgbaFILE (
+    FILE*       cfile,
+    const char  fileName[],
+    const Rgba* pixels,
+    int         width,
+    int         height)
 {
     //
     // Store an RGBA image in a C stdio file that has already been opened:
@@ -153,20 +141,19 @@ writeRgbaFILE (FILE *cfile,
     //	- store the pixels in the file
     //
 
-
-    C_OStream ostr (cfile, fileName);
+    C_OStream      ostr (cfile, fileName);
     RgbaOutputFile file (ostr, Header (width, height), WRITE_RGBA);
     file.setFrameBuffer (pixels, 1, width);
     file.writePixels (height);
 }
 
-
 void
-readRgbaFILE (FILE *cfile,
-	      const char fileName[],
-	      Array2D<Rgba> &pixels,
-	      int &width,
-	      int &height)
+readRgbaFILE (
+    FILE*          cfile,
+    const char     fileName[],
+    Array2D<Rgba>& pixels,
+    int&           width,
+    int&           height)
 {
     //
     // Read an RGBA image from a C stdio file that has already been opened:
@@ -178,9 +165,9 @@ readRgbaFILE (FILE *cfile,
     //	- read the pixels from the file
     //
 
-    C_IStream istr (cfile, fileName);
+    C_IStream     istr (cfile, fileName);
     RgbaInputFile file (istr);
-    Box2i dw = file.dataWindow();
+    Box2i         dw = file.dataWindow ();
 
     width  = dw.max.x - dw.min.x + 1;
     height = dw.max.y - dw.min.y + 1;
@@ -190,16 +177,15 @@ readRgbaFILE (FILE *cfile,
     file.readPixels (dw.min.y, dw.max.y);
 }
 
-
 void
 lowLevelIoExamples ()
 {
     cout << "\nCustom low-level file I/O\n" << endl;
     cout << "drawing image" << endl;
 
-    int w = 800;
-    int h = 600;
-    const char *fileName = "rgba4.exr";
+    int         w        = 800;
+    int         h        = 600;
+    const char* fileName = "rgba4.exr";
 
     Array2D<Rgba> p (h, w);
     drawImage1 (p, w, h);
@@ -217,50 +203,50 @@ lowLevelIoExamples ()
     cout << "writing image" << endl;
 
     {
-	FILE *file = fopen (fileName, "wb");
+        FILE* file = fopen (fileName, "wb");
 
-	if (file == 0)
-	{
-	    THROW_ERRNO ("Cannot open file " << fileName << " (%T).");
-	}
-	else
-	{
-	    try
-	    {
-		writeRgbaFILE (file, fileName, &p[0][0], w, h);
-	    }
-	    catch (...)
-	    {
-		fclose (file);
-		throw;
-	    }
+        if (file == 0)
+        {
+            THROW_ERRNO ("Cannot open file " << fileName << " (%T).");
+        }
+        else
+        {
+            try
+            {
+                writeRgbaFILE (file, fileName, &p[0][0], w, h);
+            }
+            catch (...)
+            {
+                fclose (file);
+                throw;
+            }
 
-	    fclose (file);
-	}
+            fclose (file);
+        }
     }
 
     cout << "reading image" << endl;
 
     {
-	FILE *file = fopen (fileName, "rb");
+        FILE* file = fopen (fileName, "rb");
 
-	if (file == 0)
-	{
-	    THROW_ERRNO ("Cannot open file " << fileName << " (%T).");
-	}
-	else
-	{
-	    try
-	    {
-		readRgbaFILE (file, fileName, p, w, h);
-	    }
-	    catch (...)
-	    {
-		fclose (file);
-		throw;
-	    }
+        if (file == 0)
+        {
+            THROW_ERRNO ("Cannot open file " << fileName << " (%T).");
+        }
+        else
+        {
+            try
+            {
+                readRgbaFILE (file, fileName, p, w, h);
+            }
+            catch (...)
+            {
+                fclose (file);
+                throw;
+            }
 
-	    fclose (file);
-	}
+            fclose (file);
+        }
     }
 }

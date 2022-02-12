@@ -3,10 +3,6 @@
 // Copyright (c) Weta Digital, Ltd and Contributors to the OpenEXR Project.
 //
 
-
-
-
 #include <string>
 
-void testMultiView (const std::string &tempDir);
-
+void testMultiView (const std::string& tempDir);

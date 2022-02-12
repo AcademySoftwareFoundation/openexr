@@ -7,6 +7,6 @@
 #define TESTPARTHELPER_H_
 
 #include <string>
-void testPartHelper (const std::string & tempDir);
+void testPartHelper (const std::string& tempDir);
 
 #endif /* TESTPARTHELPER_H_ */

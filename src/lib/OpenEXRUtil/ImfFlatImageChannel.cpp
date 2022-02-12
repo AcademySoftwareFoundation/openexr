@@ -28,69 +28,52 @@ using namespace std;
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
-
-FlatImageChannel::FlatImageChannel
-    (FlatImageLevel &level,
-     int xSampling,
-     int ySampling,
-     bool pLinear)
-:
-    ImageChannel (level, xSampling, ySampling, pLinear)
+FlatImageChannel::FlatImageChannel (
+    FlatImageLevel& level, int xSampling, int ySampling, bool pLinear)
+    : ImageChannel (level, xSampling, ySampling, pLinear)
 {
     // empty
 }
-
 
 FlatImageChannel::~FlatImageChannel ()
 {
     // empty
 }
 
-FlatImageLevel &
+FlatImageLevel&
 FlatImageChannel::flatLevel ()
 {
-    return static_cast <FlatImageLevel &> (level());
+    return static_cast<FlatImageLevel&> (level ());
 }
 
-
-const FlatImageLevel &
+const FlatImageLevel&
 FlatImageChannel::flatLevel () const
 {
-    return static_cast <const FlatImageLevel &> (level());
+    return static_cast<const FlatImageLevel&> (level ());
 }
-
 
 void
 FlatImageChannel::resize ()
 {
-    ImageChannel::resize();
+    ImageChannel::resize ();
 }
-
 
 //-----------------------------------------------------------------------------
 
-
 template <class T>
-TypedFlatImageChannel<T>::TypedFlatImageChannel
-    (FlatImageLevel &level,
-     int xSampling,
-     int ySampling,
-     bool pLinear)
-:
-    FlatImageChannel (level, xSampling, ySampling, pLinear),
-    _pixels (0),
-    _base (0)
+TypedFlatImageChannel<T>::TypedFlatImageChannel (
+    FlatImageLevel& level, int xSampling, int ySampling, bool pLinear)
+    : FlatImageChannel (level, xSampling, ySampling, pLinear)
+    , _pixels (0)
+    , _base (0)
 {
-    resize();
+    resize ();
 }
 
-
-template <class T>
-TypedFlatImageChannel<T>::~TypedFlatImageChannel ()
+template <class T> TypedFlatImageChannel<T>::~TypedFlatImageChannel ()
 {
-    delete [] _pixels;
+    delete[] _pixels;
 }
-
 
 template <>
 inline PixelType
@@ -99,14 +82,12 @@ FlatHalfChannel::pixelType () const
     return HALF;
 }
 
-
 template <>
 inline PixelType
 FlatFloatChannel::pixelType () const
 {
     return FLOAT;
 }
-
 
 template <>
 inline PixelType
@@ -115,51 +96,48 @@ FlatUIntChannel::pixelType () const
     return UINT;
 }
 
-
 template <class T>
 Slice
 TypedFlatImageChannel<T>::slice () const
 {
-    return Slice (pixelType(),                 // type
-                  (char *) _base,              // base
-                  sizeof (T),                  // xStride
-                  pixelsPerRow() * sizeof (T), // yStride
-                  xSampling(),
-                  ySampling());
+    return Slice (
+        pixelType (),                 // type
+        (char*) _base,                // base
+        sizeof (T),                   // xStride
+        pixelsPerRow () * sizeof (T), // yStride
+        xSampling (),
+        ySampling ());
 }
-
 
 template <class T>
 void
 TypedFlatImageChannel<T>::resize ()
 {
-    delete [] _pixels;
+    delete[] _pixels;
     _pixels = 0;
 
-    FlatImageChannel::resize();  // may throw an exception
+    FlatImageChannel::resize (); // may throw an exception
 
-    _pixels = new T [numPixels()];
+    _pixels = new T[numPixels ()];
 
-    for (size_t i = 0; i < numPixels(); ++i)
+    for (size_t i = 0; i < numPixels (); ++i)
         _pixels[i] = T (0);
 
     resetBasePointer ();
 }
-
 
 template <class T>
 void
 TypedFlatImageChannel<T>::resetBasePointer ()
 {
     _base = _pixels -
-            (level().dataWindow().min.y / ySampling()) * pixelsPerRow() -
-            (level().dataWindow().min.x / xSampling());
+            (level ().dataWindow ().min.y / ySampling ()) * pixelsPerRow () -
+            (level ().dataWindow ().min.x / xSampling ());
 }
-
 
 template class IMFUTIL_EXPORT_TEMPLATE_INSTANCE TypedFlatImageChannel<half>;
 template class IMFUTIL_EXPORT_TEMPLATE_INSTANCE TypedFlatImageChannel<float>;
-template class IMFUTIL_EXPORT_TEMPLATE_INSTANCE TypedFlatImageChannel<unsigned int>;
-
+template class IMFUTIL_EXPORT_TEMPLATE_INSTANCE
+    TypedFlatImageChannel<unsigned int>;
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

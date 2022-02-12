@@ -10,21 +10,23 @@
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
-
 class IMF_EXPORT_TYPE GenericOutputFile
 {
-    public:
-        IMF_EXPORT
-        virtual ~GenericOutputFile();
+public:
+    IMF_EXPORT
+    virtual ~GenericOutputFile ();
 
-    protected:
-        IMF_EXPORT
-        GenericOutputFile();
-        IMF_EXPORT
-        void writeMagicNumberAndVersionField (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream& os, const Header& header);
-        IMF_EXPORT
-        void writeMagicNumberAndVersionField (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream& os, const Header * headers, int parts);
-  
+protected:
+    IMF_EXPORT
+    GenericOutputFile ();
+    IMF_EXPORT
+    void writeMagicNumberAndVersionField (
+        OPENEXR_IMF_INTERNAL_NAMESPACE::OStream& os, const Header& header);
+    IMF_EXPORT
+    void writeMagicNumberAndVersionField (
+        OPENEXR_IMF_INTERNAL_NAMESPACE::OStream& os,
+        const Header*                            headers,
+        int                                      parts);
 };
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT

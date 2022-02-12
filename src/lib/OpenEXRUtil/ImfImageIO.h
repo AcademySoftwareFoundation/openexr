@@ -20,7 +20,6 @@
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
-
 //
 // saveImage (n, h, i, d) or
 // saveImage (n, i)
@@ -47,18 +46,14 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 //
 
 IMFUTIL_EXPORT
-void
-saveImage
-    (const std::string &fileName,
-     const Header &hdr,
-     const Image &img,
-     DataWindowSource dws = USE_IMAGE_DATA_WINDOW);
+void saveImage (
+    const std::string& fileName,
+    const Header&      hdr,
+    const Image&       img,
+    DataWindowSource   dws = USE_IMAGE_DATA_WINDOW);
 
 IMFUTIL_EXPORT
-void
-saveImage
-    (const std::string &fileName,
-     const Image &img);
+void saveImage (const std::string& fileName, const Image& img);
 
 //
 // loadImage (n, h) or
@@ -72,16 +67,10 @@ saveImage
 //
 
 IMFUTIL_EXPORT
-Image *
-loadImage
-    (const std::string &fileName,
-     Header &hdr);
+Image* loadImage (const std::string& fileName, Header& hdr);
 
 IMFUTIL_EXPORT
-Image *
-loadImage
-    (const std::string &fileName);
-
+Image* loadImage (const std::string& fileName);
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 

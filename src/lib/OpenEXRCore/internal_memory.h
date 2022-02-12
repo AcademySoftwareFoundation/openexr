@@ -9,10 +9,11 @@
 #include "openexr_base.h"
 
 #if defined(__GNUC__) || defined(__clang__)
-__attribute__((malloc))
+__attribute__ ((malloc))
 #endif
-void *internal_exr_alloc( size_t bytes );
+void*
+internal_exr_alloc (size_t bytes);
 
-void internal_exr_free( void *ptr );
+void internal_exr_free (void* ptr);
 
 #endif /* OPENEXR_PRIVATE_MEMORY_H */

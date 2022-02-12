@@ -8,6 +8,6 @@
 
 #include <string>
 
-void testMultiPartFileMixingBasic (const std::string & tempDir);
+void testMultiPartFileMixingBasic (const std::string& tempDir);
 
 #endif /* TESTMULTIPARTFILEMIXINGBASIC_H_ */

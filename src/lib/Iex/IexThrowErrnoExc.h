@@ -3,7 +3,6 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
-
 #ifndef INCLUDED_IEXTHROWERRNOEXC_H
 #define INCLUDED_IEXTHROWERRNOEXC_H
 
@@ -18,7 +17,6 @@
 
 IEX_INTERNAL_NAMESPACE_HEADER_ENTER
 
-
 //--------------------------------------------------------------------------
 //
 // Function throwErrnoExc() throws an exception which corresponds to
@@ -27,7 +25,7 @@ IEX_INTERNAL_NAMESPACE_HEADER_ENTER
 // "%T" have been replaced with the output of strerror(oserror()).
 //
 // Example:
-//   
+//
 // If opening file /tmp/output failed with an ENOENT error code,
 // calling
 //
@@ -58,9 +56,9 @@ IEX_INTERNAL_NAMESPACE_HEADER_ENTER
 //
 //--------------------------------------------------------------------------
 
-IEX_EXPORT void throwErrnoExc(const std::string &txt, int errnum);
-IEX_EXPORT void throwErrnoExc(const std::string &txt);
-IEX_EXPORT void throwErrnoExc();
+IEX_EXPORT void throwErrnoExc (const std::string& txt, int errnum);
+IEX_EXPORT void throwErrnoExc (const std::string& txt);
+IEX_EXPORT void throwErrnoExc ();
 
 IEX_INTERNAL_NAMESPACE_HEADER_EXIT
 

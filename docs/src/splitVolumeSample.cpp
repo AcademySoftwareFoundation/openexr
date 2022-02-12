@@ -1,22 +1,27 @@
 #include <algorithm>
-#include <limits>
-#include <cmath>
 #include <cassert>
+#include <cmath>
+#include <limits>
 
 using namespace std;
 
 void
-splitVolumeSample (float a, float c, // Opacity and color of original sample
-                   float zf, float zb, // Front and back of original sample
-                   float z, // Position of split
-                   float& af, float& cf, // Opacity and color of part closer than z
-                   float& ab, float& cb) // Opacity and color of part further away than z
+splitVolumeSample (
+    float  a,
+    float  c, // Opacity and color of original sample
+    float  zf,
+    float  zb, // Front and back of original sample
+    float  z,  // Position of split
+    float& af,
+    float& cf, // Opacity and color of part closer than z
+    float& ab,
+    float& cb) // Opacity and color of part further away than z
 {
     //
     // Given a volume sample whose front and back are at depths zf and
     // zb respectively, split the sample at depth z. Return the opacities
     // and colors of the two parts that result from the split.
-    // 
+    //
     // The code below is written to avoid excessive rounding errors when
     // the opacity of the original sample is very small:
     //
@@ -51,7 +56,7 @@ splitVolumeSample (float a, float c, // Opacity and color of original sample
     //
 
     assert (zb > zf && z >= zf && z <= zb);
-    
+
     a = max (0.0f, min (a, 1.0f));
 
     if (a == 1)
@@ -64,7 +69,7 @@ splitVolumeSample (float a, float c, // Opacity and color of original sample
         float xf = (z - zf) / (zb - zf);
         float xb = (zb - z) / (zb - zf);
 
-        if (a > numeric_limits<float>::min())
+        if (a > numeric_limits<float>::min ())
         {
             af = -expm1 (xf * log1p (-a));
             cf = (af / a) * c;
@@ -82,4 +87,3 @@ splitVolumeSample (float a, float c, // Opacity and color of original sample
         }
     }
 }
- 

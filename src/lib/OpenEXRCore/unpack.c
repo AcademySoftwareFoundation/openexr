@@ -8,8 +8,8 @@
 
 #include "openexr_attr.h"
 
-#include <string.h>
 #include <stdbool.h>
+#include <string.h>
 
 #if defined(__x86_64__) || defined(_M_X64)
 #    ifndef _WIN32
@@ -150,7 +150,8 @@ choose_half_to_float_impl ()
 
     __cpuid (regs, 0);
     if (regs[0] >= 1) { __cpuidex (regs, 1, 0); }
-    else regs[2] = 0;
+    else
+        regs[2] = 0;
 #        else
     unsigned int regs[4];
     __get_cpuid (0, &regs[0], &regs[1], &regs[2], &regs[3]);
@@ -290,8 +291,8 @@ unpack_16bit_3chan_interleave_rev (exr_decode_pipeline_t* decode)
         uint16_t* out = (uint16_t*) out0;
 
         in0 = (const uint16_t*) srcbuffer; // B
-        in1 = in0 + w; // G
-        in2 = in1 + w; // R
+        in1 = in0 + w;                     // G
+        in2 = in1 + w;                     // R
 
         srcbuffer += w * 6; // 3 * sizeof(uint16_t), avoid type conversion
         for (int x = 0; x < w; ++x)
@@ -1156,8 +1157,7 @@ generic_unpack (exr_decode_pipeline_t* decode)
             }
             else if (cdata)
             {
-                cdata +=
-                    ((uint64_t) y) * ((uint64_t) decc->user_line_stride);
+                cdata += ((uint64_t) y) * ((uint64_t) decc->user_line_stride);
             }
             else
             {
@@ -1209,8 +1209,9 @@ generic_unpack_deep_pointers (exr_decode_pipeline_t* decode)
                 continue;
             }
 
-            pdata += ((size_t)y) * (((size_t)decc->user_line_stride) / sizeof (void*));
-            pixstride = ((size_t)decc->user_pixel_stride) / sizeof (void*);
+            pdata += ((size_t) y) *
+                     (((size_t) decc->user_line_stride) / sizeof (void*));
+            pixstride = ((size_t) decc->user_pixel_stride) / sizeof (void*);
 
             for (int x = 0; x < w; ++x)
             {

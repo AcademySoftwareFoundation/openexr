@@ -10,69 +10,69 @@
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
-OutputPart::OutputPart(MultiPartOutputFile& multiPartFile, int partNumber)
+OutputPart::OutputPart (MultiPartOutputFile& multiPartFile, int partNumber)
 {
-    file = multiPartFile.getOutputPart<OutputFile>(partNumber);
+    file = multiPartFile.getOutputPart<OutputFile> (partNumber);
 }
 
-const char *
+const char*
 OutputPart::fileName () const
 {
-    return file->fileName();
+    return file->fileName ();
 }
 
-const Header &
+const Header&
 OutputPart::header () const
 {
-    return file->header();
+    return file->header ();
 }
 
 void
-OutputPart::setFrameBuffer (const FrameBuffer &frameBuffer)
+OutputPart::setFrameBuffer (const FrameBuffer& frameBuffer)
 {
-    file->setFrameBuffer(frameBuffer);
+    file->setFrameBuffer (frameBuffer);
 }
 
-const FrameBuffer &
+const FrameBuffer&
 OutputPart::frameBuffer () const
 {
-    return file->frameBuffer();
+    return file->frameBuffer ();
 }
 
 void
 OutputPart::writePixels (int numScanLines)
 {
-    file->writePixels(numScanLines);
+    file->writePixels (numScanLines);
 }
 
 int
 OutputPart::currentScanLine () const
 {
-    return file->currentScanLine();
+    return file->currentScanLine ();
 }
 
 void
-OutputPart::copyPixels (InputFile &in)
+OutputPart::copyPixels (InputFile& in)
 {
-    file->copyPixels(in);
+    file->copyPixels (in);
 }
 
 void
-OutputPart::copyPixels (InputPart &in)
+OutputPart::copyPixels (InputPart& in)
 {
-    file->copyPixels(in);
+    file->copyPixels (in);
 }
 
 void
 OutputPart::updatePreviewImage (const PreviewRgba newPixels[])
 {
-    file->updatePreviewImage(newPixels);
+    file->updatePreviewImage (newPixels);
 }
 
 void
-OutputPart::breakScanLine  (int y, int offset, int length, char c)
+OutputPart::breakScanLine (int y, int offset, int length, char c)
 {
-    file->breakScanLine(y, offset, length, c);
+    file->breakScanLine (y, offset, length, c);
 }
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

@@ -1,8 +1,5 @@
 void
-writeRgbaMT (const char fileName[],
-             const Rgba *pixels,
-             int width,
-             int height)
+writeRgbaMT (const char fileName[], const Rgba* pixels, int width, int height)
 {
     setGlobalThreadCount (4);
 
@@ -10,6 +7,3 @@ writeRgbaMT (const char fileName[],
     file.setFrameBuffer (pixels, 1, width);
     file.writePixels (height);
 }
-
-
-

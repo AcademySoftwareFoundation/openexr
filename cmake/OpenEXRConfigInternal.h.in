@@ -15,6 +15,9 @@
 // used by any OpenEXR library or application code.
 //
 
+// automated formatting does not handle the cmake tags well
+// clang-format off
+
 #cmakedefine OPENEXR_IMF_HAVE_LINUX_PROCFS 1
 
 //
@@ -43,5 +46,7 @@
 //
 
 #cmakedefine OPENEXR_IMF_HAVE_GCC_INLINE_ASM_AVX 1
+
+// clang-format on
 
 #endif // INCLUDED_OPENEXR_INTERNAL_CONFIG_H

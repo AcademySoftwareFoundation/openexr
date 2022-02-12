@@ -3,10 +3,8 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
-
 #ifndef INCLUDED_IEX_H
 #define INCLUDED_IEX_H
-
 
 //--------------------------------
 //
@@ -14,9 +12,8 @@
 //
 //--------------------------------
 
-
-#include "IexMacros.h"
 #include "IexBaseExc.h"
+#include "IexMacros.h"
 #include "IexMathExc.h"
 #include "IexThrowErrnoExc.h"
 
@@ -25,6 +22,5 @@
 // If you throw ErrnoExc exceptions using the throwErrnoExc() function,
 // you don't need IexErrnoExc.h.  You have to include IexErrnoExc.h
 // only if you want to catch specific subclasses of ErrnoExc.
-
 
 #endif

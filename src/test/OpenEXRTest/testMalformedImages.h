@@ -5,4 +5,4 @@
 
 #include <string>
 
-void testMalformedImages (const std::string &tempDir);
+void testMalformedImages (const std::string& tempDir);

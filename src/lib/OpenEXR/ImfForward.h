@@ -17,13 +17,12 @@
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
-
 // classes for basic types;
-template<class T> class IMF_EXPORT_TEMPLATE_TYPE Array;
-template<class T> class IMF_EXPORT_TEMPLATE_TYPE Array2D;
-struct IMF_EXPORT_TYPE Channel;
-class  IMF_EXPORT_TYPE ChannelList;
-struct IMF_EXPORT_TYPE Chromaticities;
+template <class T> class IMF_EXPORT_TEMPLATE_TYPE Array;
+template <class T> class IMF_EXPORT_TEMPLATE_TYPE Array2D;
+struct IMF_EXPORT_TYPE                            Channel;
+class IMF_EXPORT_TYPE                             ChannelList;
+struct IMF_EXPORT_TYPE                            Chromaticities;
 
 // attributes used in headers are TypedAttributes
 class IMF_EXPORT_TYPE Attribute;
@@ -63,7 +62,6 @@ class IMF_EXPORT_TYPE TiledOutputPart;
 class IMF_EXPORT_TYPE DeepScanLineOutputPart;
 class IMF_EXPORT_TYPE DeepTiledOutputPart;
 
-
 // internal use only
 struct InputPartData;
 struct OutputStreamMutex;
@@ -72,8 +70,8 @@ struct InputStreamMutex;
 
 // frame buffers
 
-class  IMF_EXPORT_TYPE FrameBuffer;
-class  IMF_EXPORT_TYPE DeepFrameBuffer;
+class IMF_EXPORT_TYPE  FrameBuffer;
+class IMF_EXPORT_TYPE  DeepFrameBuffer;
 struct IMF_EXPORT_TYPE DeepSlice;
 
 // compositing
@@ -81,7 +79,7 @@ class IMF_EXPORT_TYPE DeepCompositing;
 class IMF_EXPORT_TYPE CompositeDeepScanLine;
 
 // preview image
-class IMF_EXPORT_TYPE PreviewImage;
+class IMF_EXPORT_TYPE  PreviewImage;
 struct IMF_EXPORT_TYPE PreviewRgba;
 
 // streams
@@ -91,8 +89,6 @@ class IMF_EXPORT_TYPE IStream;
 class IMF_EXPORT_TYPE IDManifest;
 class IMF_EXPORT_TYPE CompressedIDManifest;
 
-
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
-
 
 #endif // include guard

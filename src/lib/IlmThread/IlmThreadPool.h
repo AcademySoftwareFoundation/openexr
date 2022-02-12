@@ -6,15 +6,14 @@
 #ifndef INCLUDED_ILM_THREAD_POOL_H
 #define INCLUDED_ILM_THREAD_POOL_H
 
-
 //-----------------------------------------------------------------------------
 //
 //	class Task, class ThreadPool, class TaskGroup
 //
 //	Class ThreadPool manages a set of worker threads and accepts
 //	tasks for processing.  Tasks added to the thread pool are
-//	executed concurrently by the worker threads.  
-//	
+//	executed concurrently by the worker threads.
+//
 //	Class Task provides an abstract interface for a task which
 //	a ThreadPool works on.  Derived classes need to implement the
 //	execute() function which performs the actual task.
@@ -32,9 +31,9 @@
 //
 //-----------------------------------------------------------------------------
 
-#include "IlmThreadNamespace.h"
-#include "IlmThreadExport.h"
 #include "IlmThreadConfig.h"
+#include "IlmThreadExport.h"
+#include "IlmThreadNamespace.h"
 
 ILMTHREAD_INTERNAL_NAMESPACE_HEADER_ENTER
 
@@ -49,9 +48,9 @@ class Task;
 //-------------------------------------------------------
 class ILMTHREAD_EXPORT_TYPE ThreadPoolProvider
 {
-  public:
-    ILMTHREAD_EXPORT ThreadPoolProvider();
-    ILMTHREAD_EXPORT virtual ~ThreadPoolProvider();
+public:
+    ILMTHREAD_EXPORT ThreadPoolProvider ();
+    ILMTHREAD_EXPORT virtual ~ThreadPoolProvider ();
 
     // as in ThreadPool below
     virtual int numThreads () const = 0;
@@ -65,15 +64,15 @@ class ILMTHREAD_EXPORT_TYPE ThreadPoolProvider
     virtual void finish () = 0;
 
     // Make the provider non-copyable
-    ThreadPoolProvider (const ThreadPoolProvider &) = delete;
-    ThreadPoolProvider &operator= (const ThreadPoolProvider &) = delete;
-    ThreadPoolProvider (ThreadPoolProvider &&) = delete;
-    ThreadPoolProvider &operator= (ThreadPoolProvider &&) = delete;
-};  
+    ThreadPoolProvider (const ThreadPoolProvider&) = delete;
+    ThreadPoolProvider& operator= (const ThreadPoolProvider&) = delete;
+    ThreadPoolProvider (ThreadPoolProvider&&)                 = delete;
+    ThreadPoolProvider& operator= (ThreadPoolProvider&&) = delete;
+};
 
-class ILMTHREAD_EXPORT_TYPE ThreadPool  
+class ILMTHREAD_EXPORT_TYPE ThreadPool
 {
-  public:
+public:
     //-------------------------------------------------------
     // static routine to query how many processors should be
     // used for processing exr files. The user of ThreadPool
@@ -96,7 +95,6 @@ class ILMTHREAD_EXPORT_TYPE ThreadPool
 
     ILMTHREAD_EXPORT ThreadPool (unsigned numThreads = 0);
 
-
     //-----------------------------------------------------------
     // Destructor -- waits for all tasks to complete, joins all
     // the threads to the calling thread, and then destroys them.
@@ -105,7 +103,7 @@ class ILMTHREAD_EXPORT_TYPE ThreadPool
     ILMTHREAD_EXPORT virtual ~ThreadPool ();
     ThreadPool (const ThreadPool&) = delete;
     ThreadPool& operator= (const ThreadPool&) = delete;
-    ThreadPool (ThreadPool&&) = delete;
+    ThreadPool (ThreadPool&&)                 = delete;
     ThreadPool& operator= (ThreadPool&&) = delete;
 
     //--------------------------------------------------------
@@ -115,7 +113,7 @@ class ILMTHREAD_EXPORT_TYPE ThreadPool
     // thread as this will almost certainly cause a deadlock
     // or crash.
     //--------------------------------------------------------
-    
+
     ILMTHREAD_EXPORT int  numThreads () const;
     ILMTHREAD_EXPORT void setNumThreads (int count);
 
@@ -130,7 +128,7 @@ class ILMTHREAD_EXPORT_TYPE ThreadPool
     // thread as this will almost certainly cause a deadlock
     // or crash.
     //--------------------------------------------------------
-    ILMTHREAD_EXPORT void setThreadProvider (ThreadPoolProvider *provider);
+    ILMTHREAD_EXPORT void setThreadProvider (ThreadPoolProvider* provider);
 
     //------------------------------------------------------------
     // Add a task for processing.  The ThreadPool can handle any
@@ -140,65 +138,57 @@ class ILMTHREAD_EXPORT_TYPE ThreadPool
     //------------------------------------------------------------
 
     ILMTHREAD_EXPORT void addTask (Task* task);
-    
 
     //-------------------------------------------
     // Access functions for the global threadpool
     //-------------------------------------------
-    
-    ILMTHREAD_EXPORT static ThreadPool&	globalThreadPool ();
-    ILMTHREAD_EXPORT static void		addGlobalTask (Task* task);
+
+    ILMTHREAD_EXPORT static ThreadPool& globalThreadPool ();
+    ILMTHREAD_EXPORT static void        addGlobalTask (Task* task);
 
     struct ILMTHREAD_HIDDEN Data;
 
-  protected:
-
-    Data *		_data;
+protected:
+    Data* _data;
 };
-
 
 class ILMTHREAD_EXPORT_TYPE Task
 {
-  public:
-
+public:
     ILMTHREAD_EXPORT Task (TaskGroup* g);
     ILMTHREAD_EXPORT virtual ~Task ();
     Task (const Task&) = delete;
-    Task &operator= (const Task&) = delete;
-    Task (Task&&) = delete;
+    Task& operator= (const Task&) = delete;
+    Task (Task&&)                 = delete;
     Task& operator= (Task&&) = delete;
 
-    virtual void	execute () = 0;
+    virtual void execute () = 0;
     ILMTHREAD_EXPORT
-    TaskGroup *		group();
+    TaskGroup* group ();
 
-  protected:
-
-    TaskGroup *		_group;
+protected:
+    TaskGroup* _group;
 };
-
 
 class ILMTHREAD_EXPORT_TYPE TaskGroup
 {
-  public:
-
-    ILMTHREAD_EXPORT TaskGroup();
-    ILMTHREAD_EXPORT ~TaskGroup();
+public:
+    ILMTHREAD_EXPORT TaskGroup ();
+    ILMTHREAD_EXPORT ~TaskGroup ();
 
     TaskGroup (const TaskGroup& other) = delete;
-    TaskGroup& operator = (const TaskGroup& other) = delete;
-    TaskGroup (TaskGroup&& other) = delete;
-    TaskGroup& operator = (TaskGroup&& other) = delete;
-    
+    TaskGroup& operator= (const TaskGroup& other) = delete;
+    TaskGroup (TaskGroup&& other)                 = delete;
+    TaskGroup& operator= (TaskGroup&& other) = delete;
+
     // marks one task as finished
     // should be used by the thread pool provider to notify
     // as it finishes tasks
     ILMTHREAD_EXPORT void finishOneTask ();
 
     struct ILMTHREAD_HIDDEN Data;
-    Data* const		_data;
+    Data* const             _data;
 };
-
 
 ILMTHREAD_INTERNAL_NAMESPACE_HEADER_EXIT
 

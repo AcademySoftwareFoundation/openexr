@@ -3,10 +3,6 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
-
-
-
 #include <string>
 
-void testLineOrder (const std::string &tempDir);
-
+void testLineOrder (const std::string& tempDir);

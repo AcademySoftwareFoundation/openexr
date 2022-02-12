@@ -3,10 +3,6 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
-
-
-
 #include <string>
 
-void testSharedFrameBuffer (const std::string &tempDir);
-
+void testSharedFrameBuffer (const std::string& tempDir);

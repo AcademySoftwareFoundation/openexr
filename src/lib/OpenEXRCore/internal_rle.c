@@ -177,7 +177,7 @@ unpredict_and_reorder (void* out, void* scratch, uint64_t packedbytes)
     while (t1 < stop)
     {
         int d = (int) (t1[-1]) + (int) (t1[0]) - 128;
-        t1[0] = (int8_t)d;
+        t1[0] = (int8_t) d;
         ++t1;
     }
 

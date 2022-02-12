@@ -8,6 +8,6 @@
 
 #include <string>
 
-void testCompositeDeepScanLine (const std::string & tempDir);
+void testCompositeDeepScanLine (const std::string& tempDir);
 
 #endif /* TESTCOMPOSITEDEEPSCANLINE_H_ */

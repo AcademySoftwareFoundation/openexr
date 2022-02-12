@@ -3,5 +3,4 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
-void testDwaLookups(const std::string&);
-
+void testDwaLookups (const std::string&);

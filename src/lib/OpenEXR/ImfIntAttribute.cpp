@@ -3,7 +3,6 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
-
 //-----------------------------------------------------------------------------
 //
 //	class IntAttribute
@@ -13,11 +12,10 @@
 #define COMPILING_IMF_INT_ATTRIBUTE
 #include "ImfIntAttribute.h"
 
-
 #if defined(_MSC_VER)
 // suppress warning about non-exported base classes
-#pragma warning (disable : 4251)
-#pragma warning (disable : 4275)
+#    pragma warning(disable : 4251)
+#    pragma warning(disable : 4275)
 #endif
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
@@ -31,7 +29,7 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 //#endif
 
 template <>
-IMF_EXPORT const char *
+IMF_EXPORT const char*
 IntAttribute::staticTypeName ()
 {
     return "int";
@@ -39,5 +37,4 @@ IntAttribute::staticTypeName ()
 
 template class IMF_EXPORT_TEMPLATE_INSTANCE TypedAttribute<int>;
 
-
-OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT 
+OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

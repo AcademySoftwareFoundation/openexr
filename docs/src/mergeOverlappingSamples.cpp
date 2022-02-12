@@ -1,12 +1,16 @@
 #include <algorithm>
-#include <limits>
-#include <cmath>
 #include <cassert>
+#include <cmath>
+#include <limits>
 using namespace std;
 void
-mergeOverlappingSamples (float a1, float c1, // Opacity and color of first sample
-                         float a2, float c2, // Opacity and color of second sample
-                         float& am, float& cm) // Opacity and color of merged sample
+mergeOverlappingSamples (
+    float  a1,
+    float  c1, // Opacity and color of first sample
+    float  a2,
+    float  c2, // Opacity and color of second sample
+    float& am,
+    float& cm) // Opacity and color of merged sample
 {
     //
     // This function merges two perfectly overlapping volume or point
@@ -41,10 +45,7 @@ mergeOverlappingSamples (float a1, float c1, // Opacity and color of first sampl
 
     am = a1 + a2 - a1 * a2;
 
-    if (a1 == 1 && a2 == 1)
-    {
-        cm = (c1 + c2) / 2;
-    }
+    if (a1 == 1 && a2 == 1) { cm = (c1 + c2) / 2; }
     else if (a1 == 1)
     {
         cm = c1;
@@ -55,16 +56,16 @@ mergeOverlappingSamples (float a1, float c1, // Opacity and color of first sampl
     }
     else
     {
-        static const float MAX = numeric_limits<float>::max();
+        static const float MAX = numeric_limits<float>::max ();
 
         float u1 = -log1p (-a1);
-        float v1 = (u1 < a1 * MAX)? u1 / a1: 1;
+        float v1 = (u1 < a1 * MAX) ? u1 / a1 : 1;
 
         float u2 = -log1p (-a2);
-        float v2 = (u2 < a2 * MAX)? u2 / a2: 1;
+        float v2 = (u2 < a2 * MAX) ? u2 / a2 : 1;
 
         float u = u1 + u2;
-        float w = (u > 1 || am < u * MAX)? am / u: 1;
+        float w = (u > 1 || am < u * MAX) ? am / u : 1;
 
         cm = (c1 * v1 + c2 * v2) * w;
     }

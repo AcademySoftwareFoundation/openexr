@@ -3,8 +3,6 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
-
 #include <string>
 
-void testNativeFormat (const std::string &tempDir);
-
+void testNativeFormat (const std::string& tempDir);

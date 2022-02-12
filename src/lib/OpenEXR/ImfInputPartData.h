@@ -14,27 +14,24 @@
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
-
 struct InputPartData
 {
-        Header                  header;
-        int                     numThreads;
-        int                     partNumber;
-        int                     version;
-        InputStreamMutex*       mutex;
-        std::vector<uint64_t>   chunkOffsets;
-        bool                    completed;
+    Header                header;
+    int                   numThreads;
+    int                   partNumber;
+    int                   version;
+    InputStreamMutex*     mutex;
+    std::vector<uint64_t> chunkOffsets;
+    bool                  completed;
 
-        InputPartData(InputStreamMutex* mutex, const Header &header,
-                      int partNumber, int numThreads, int version);
-
+    InputPartData (
+        InputStreamMutex* mutex,
+        const Header&     header,
+        int               partNumber,
+        int               numThreads,
+        int               version);
 };
 
-
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
-
-
-
-
 
 #endif /* IMFINPUTPARTDATA_H_ */

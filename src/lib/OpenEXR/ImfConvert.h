@@ -23,7 +23,6 @@
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
-
 //---------------------------------------------------------
 // Conversion from half or float to unsigned int:
 //
@@ -43,9 +42,8 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 //
 //---------------------------------------------------------
 
-IMF_EXPORT unsigned int	halfToUint (half h);
-IMF_EXPORT unsigned int	floatToUint (float f);
-
+IMF_EXPORT unsigned int halfToUint (half h);
+IMF_EXPORT unsigned int floatToUint (float f);
 
 //---------------------------------------------------------
 // Conversion from unsigned int or float to half:
@@ -68,11 +66,9 @@ IMF_EXPORT unsigned int	floatToUint (float f);
 //
 //---------------------------------------------------------
 
-IMF_EXPORT half		uintToHalf (unsigned int ui);
-IMF_EXPORT half		floatToHalf (float f);
-
+IMF_EXPORT half uintToHalf (unsigned int ui);
+IMF_EXPORT half floatToHalf (float f);
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
-
 
 #endif

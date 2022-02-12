@@ -4,28 +4,28 @@
 #pragma once
 
 #ifndef INCLUDE_TestUtilFStream_h_
-#define INCLUDE_TestUtilFStream_h_ 1
+#    define INCLUDE_TestUtilFStream_h_ 1
 
-#include <fstream>
-#include <string>
+#    include <fstream>
+#    include <string>
 
-#ifdef _WIN32
-# ifndef NOMINMAX
-#  define NOMINMAX
-# endif
-# define VC_EXTRALEAN
-# include <string.h>
-# include <windows.h>
-# include <io.h>
-# include <fcntl.h>
-# include <sys/types.h>
-# include <sys/stat.h>
-# include <share.h>
-#endif
+#    ifdef _WIN32
+#        ifndef NOMINMAX
+#            define NOMINMAX
+#        endif
+#        define VC_EXTRALEAN
+#        include <fcntl.h>
+#        include <io.h>
+#        include <share.h>
+#        include <string.h>
+#        include <sys/stat.h>
+#        include <sys/types.h>
+#        include <windows.h>
+#    endif
 
 namespace testutil
 {
-#ifdef _WIN32
+#    ifdef _WIN32
 inline std::wstring
 WidenFilename (const char* filename)
 {
@@ -42,8 +42,10 @@ WidenFilename (const char* filename)
 
 // This is a big work around mechanism for compiling using mingw / gcc under windows
 // until mingw 9 where they add the wide filename version of open
-# if (defined(__GLIBCXX__) && !(defined(_GLIBCXX_HAVE_WFOPEN) && defined(_GLIBCXX_USE_WCHAR_T)))
-#  define USE_WIDEN_FILEBUF 1
+#        if (                                                                  \
+            defined(__GLIBCXX__) &&                                            \
+            !(defined(_GLIBCXX_HAVE_WFOPEN) && defined(_GLIBCXX_USE_WCHAR_T)))
+#            define USE_WIDEN_FILEBUF 1
 template <typename CharT, typename TraitsT>
 class WidenFilebuf : public std::basic_filebuf<CharT, TraitsT>
 {
@@ -69,8 +71,7 @@ public:
     using base_filebuf = std::basic_filebuf<CharT, TraitsT>;
     inline base_filebuf* wide_open (std::wstring& fn, std::ios_base::openmode m)
     {
-        if (this->is_open () || fn.empty ())
-            return nullptr;
+        if (this->is_open () || fn.empty ()) return nullptr;
 
         int     fd;
         errno_t e = _wsopen_s (
@@ -79,8 +80,7 @@ public:
             mode_to_flags (m),
             _SH_DENYNO,
             _S_IREAD | _S_IWRITE);
-        if (e != 0)
-            return nullptr;
+        if (e != 0) return nullptr;
 
         // sys_open will do an fdopen internally which will then clean up the fd upon close
         this->_M_file.sys_open (fd, m);
@@ -107,17 +107,17 @@ public:
         return this;
     }
 };
-# endif // __GLIBCXX__
-#endif     // _WIN32
+#        endif // __GLIBCXX__
+#    endif     // _WIN32
 
 template <typename StreamType>
 inline void
 OpenStreamWithUTF8Name (
     StreamType& is, const char* filename, std::ios_base::openmode mode)
 {
-#ifdef _WIN32
+#    ifdef _WIN32
     std::wstring wfn = WidenFilename (filename);
-# ifdef USE_WIDEN_FILEBUF
+#        ifdef USE_WIDEN_FILEBUF
     using CharT   = typename StreamType::char_type;
     using TraitsT = typename StreamType::traits_type;
     using wbuf    = WidenFilebuf<CharT, TraitsT>;
@@ -125,12 +125,12 @@ OpenStreamWithUTF8Name (
         is.setstate (std::ios_base::failbit);
     else
         is.clear ();
-# else
+#        else
     is.rdbuf ()->open (wfn.c_str (), mode);
-# endif
-#else
+#        endif
+#    else
     is.rdbuf ()->open (filename, mode);
-#endif
+#    endif
 }
 
 } // namespace testutil

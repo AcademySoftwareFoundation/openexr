@@ -72,7 +72,7 @@ typedef enum
     EXR_STORAGE_TILED,         /**< Corresponds to type of \c tiledimage. */
     EXR_STORAGE_DEEP_SCANLINE, /**< Corresponds to type of \c deepscanline. */
     EXR_STORAGE_DEEP_TILED,    /**< Corresponds to type of \c deeptile. */
-    EXR_STORAGE_LAST_TYPE      /**< Invalid value, provided for range checking. */
+    EXR_STORAGE_LAST_TYPE /**< Invalid value, provided for range checking. */
 } exr_storage_t;
 
 /** @brief Enum representing what type of tile information is contained. */
@@ -81,7 +81,7 @@ typedef enum
     EXR_TILE_ONE_LEVEL     = 0, /**< Single level of image data. */
     EXR_TILE_MIPMAP_LEVELS = 1, /**< Mipmapped image data. */
     EXR_TILE_RIPMAP_LEVELS = 2, /**< Ripmapped image data. */
-    EXR_TILE_LAST_TYPE          /**< Invalid value, provided for range checking. */
+    EXR_TILE_LAST_TYPE /**< Invalid value, provided for range checking. */
 } exr_tile_level_mode_t;
 
 /** @brief Enum representing how to scale positions between levels. */
@@ -329,8 +329,8 @@ typedef struct
  */
 typedef enum
 {
-    EXR_PERCEPTUALLY_LOGARITHMIC  = 0,
-    EXR_PERCEPTUALLY_LINEAR   = 1
+    EXR_PERCEPTUALLY_LOGARITHMIC = 0,
+    EXR_PERCEPTUALLY_LINEAR      = 1
 } exr_perceptual_treatment_t;
 
 /** Individual channel information. */
@@ -382,7 +382,7 @@ typedef struct
     int32_t packed_alloc_size;
     uint8_t pad[4];
 
-    void*   packed_data;
+    void* packed_data;
 
     /** When an application wants to have custom data, they can store
      * an unpacked form here which will be requested to be destroyed
@@ -421,9 +421,9 @@ typedef struct
 typedef enum
 {
     EXR_ATTR_UNKNOWN =
-        0,           /**< Type indicating an error or uninitialized attribute. */
-    EXR_ATTR_BOX2I,  /**< Integer region definition. @see exr_attr_box2i_t. */
-    EXR_ATTR_BOX2F,  /**< Float region definition. @see exr_attr_box2f_t. */
+        0,          /**< Type indicating an error or uninitialized attribute. */
+    EXR_ATTR_BOX2I, /**< Integer region definition. @see exr_attr_box2i_t. */
+    EXR_ATTR_BOX2F, /**< Float region definition. @see exr_attr_box2f_t. */
     EXR_ATTR_CHLIST, /**< Definition of channels in file @see exr_chlist_entry. */
     EXR_ATTR_CHROMATICITIES, /**< Values to specify color space of colors in file @see exr_attr_chromaticities_t. */
     EXR_ATTR_COMPRESSION,    /**< ``uint8_t`` declaring compression present. */
@@ -466,7 +466,7 @@ typedef enum
  * for those as necessary with the pointers pointing to static strings
  * (not to be freed). Finally, small values are optimized for.
  */
-typedef struct 
+typedef struct
 {
     /** Name of the attribute. */
     const char* name;

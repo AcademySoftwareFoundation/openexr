@@ -3,10 +3,6 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
-
-
-
 #include <string>
 
-void testChannels (const std::string &tempDir);
-
+void testChannels (const std::string& tempDir);

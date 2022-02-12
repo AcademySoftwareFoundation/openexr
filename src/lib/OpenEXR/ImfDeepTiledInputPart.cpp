@@ -5,240 +5,206 @@
 
 #include "ImfDeepTiledInputPart.h"
 
-#include "ImfMultiPartInputFile.h"
 #include "ImfDeepTiledInputFile.h"
+#include "ImfMultiPartInputFile.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
-DeepTiledInputPart::DeepTiledInputPart(MultiPartInputFile& multiPartFile, int partNumber)
+DeepTiledInputPart::DeepTiledInputPart (
+    MultiPartInputFile& multiPartFile, int partNumber)
 {
-    file = multiPartFile.getInputPart<DeepTiledInputFile>(partNumber);
+    file = multiPartFile.getInputPart<DeepTiledInputFile> (partNumber);
 }
 
-
-const char *
+const char*
 DeepTiledInputPart::fileName () const
 {
-    return file->fileName();
+    return file->fileName ();
 }
 
-
-const Header &
+const Header&
 DeepTiledInputPart::header () const
 {
-    return file->header();
+    return file->header ();
 }
-
 
 int
 DeepTiledInputPart::version () const
 {
-    return file->version();
+    return file->version ();
 }
-
 
 void
-DeepTiledInputPart::setFrameBuffer (const DeepFrameBuffer &frameBuffer)
+DeepTiledInputPart::setFrameBuffer (const DeepFrameBuffer& frameBuffer)
 {
-    file->setFrameBuffer(frameBuffer);
+    file->setFrameBuffer (frameBuffer);
 }
 
-
-const DeepFrameBuffer &
+const DeepFrameBuffer&
 DeepTiledInputPart::frameBuffer () const
 {
-    return file->frameBuffer();
+    return file->frameBuffer ();
 }
-
 
 bool
 DeepTiledInputPart::isComplete () const
 {
-    return file->isComplete();
+    return file->isComplete ();
 }
-
 
 unsigned int
 DeepTiledInputPart::tileXSize () const
 {
-    return file->tileXSize();
+    return file->tileXSize ();
 }
-
 
 unsigned int
 DeepTiledInputPart::tileYSize () const
 {
-    return file->tileYSize();
+    return file->tileYSize ();
 }
-
 
 LevelMode
 DeepTiledInputPart::levelMode () const
 {
-    return file->levelMode();
+    return file->levelMode ();
 }
-
 
 LevelRoundingMode
 DeepTiledInputPart::levelRoundingMode () const
 {
-    return file->levelRoundingMode();
+    return file->levelRoundingMode ();
 }
-
 
 int
 DeepTiledInputPart::numLevels () const
 {
-    return file->numLevels();
+    return file->numLevels ();
 }
-
 
 int
 DeepTiledInputPart::numXLevels () const
 {
-    return file->numXLevels();
+    return file->numXLevels ();
 }
-
 
 int
 DeepTiledInputPart::numYLevels () const
 {
-    return file->numYLevels();
+    return file->numYLevels ();
 }
-
 
 bool
 DeepTiledInputPart::isValidLevel (int lx, int ly) const
 {
-    return file->isValidLevel(lx, ly);
+    return file->isValidLevel (lx, ly);
 }
-
 
 int
-DeepTiledInputPart::levelWidth  (int lx) const
+DeepTiledInputPart::levelWidth (int lx) const
 {
-    return file->levelWidth(lx);
+    return file->levelWidth (lx);
 }
-
 
 int
 DeepTiledInputPart::levelHeight (int ly) const
 {
-    return file->levelHeight(ly);
+    return file->levelHeight (ly);
 }
-
 
 int
 DeepTiledInputPart::numXTiles (int lx) const
 {
-    return file->numXTiles(lx);
+    return file->numXTiles (lx);
 }
-
 
 int
 DeepTiledInputPart::numYTiles (int ly) const
 {
-    return file->numYTiles(ly);
+    return file->numYTiles (ly);
 }
-
 
 IMATH_NAMESPACE::Box2i
 DeepTiledInputPart::dataWindowForLevel (int l) const
 {
-    return file->dataWindowForLevel(l);
+    return file->dataWindowForLevel (l);
 }
 
 IMATH_NAMESPACE::Box2i
 DeepTiledInputPart::dataWindowForLevel (int lx, int ly) const
 {
-    return file->dataWindowForLevel(lx, ly);
+    return file->dataWindowForLevel (lx, ly);
 }
-
 
 IMATH_NAMESPACE::Box2i
 DeepTiledInputPart::dataWindowForTile (int dx, int dy, int l) const
 {
-    return file->dataWindowForTile(dx, dy, l);
+    return file->dataWindowForTile (dx, dy, l);
 }
-
 
 IMATH_NAMESPACE::Box2i
-DeepTiledInputPart::dataWindowForTile (int dx, int dy,
-                                       int lx, int ly) const
+DeepTiledInputPart::dataWindowForTile (int dx, int dy, int lx, int ly) const
 {
-    return file->dataWindowForTile(dx, dy, lx, ly);
-}
-
-
-void
-DeepTiledInputPart::readTile  (int dx, int dy, int l)
-{
-    file->readTile(dx, dy, l);
-}
-
-
-void
-DeepTiledInputPart::readTile  (int dx, int dy, int lx, int ly)
-{
-    file->readTile(dx, dy, lx, ly);
-}
-
-
-void
-DeepTiledInputPart::readTiles (int dx1, int dx2, int dy1, int dy2,
-                               int lx, int ly)
-{
-    file->readTiles(dx1, dx2, dy1, dy2, lx, ly);
-}
-
-
-void
-DeepTiledInputPart::readTiles (int dx1, int dx2, int dy1, int dy2,
-                               int l)
-{
-    file->readTiles(dx1, dx2, dy1, dy2, l);
-}
-
-
-void
-DeepTiledInputPart::rawTileData (int &dx, int &dy,
-                                 int &lx, int &ly,
-                                 char * pixelData,
-                                 uint64_t & dataSize) const
-{
-    file->rawTileData(dx, dy, lx, ly, pixelData, dataSize );
-}
-
-
-void
-DeepTiledInputPart::readPixelSampleCount  (int dx, int dy, int l)
-{
-    file->readPixelSampleCount(dx, dy, l);
-}
-
-
-void
-DeepTiledInputPart::readPixelSampleCount  (int dx, int dy, int lx, int ly)
-{
-    file->readPixelSampleCount(dx, dy, lx, ly);
-}
-
-
-void
-DeepTiledInputPart::readPixelSampleCounts (int dx1, int dx2,
-                                          int dy1, int dy2,
-                                          int lx, int ly)
-{
-    file->readPixelSampleCounts(dx1, dx2, dy1, dy2, lx, ly);
+    return file->dataWindowForTile (dx, dy, lx, ly);
 }
 
 void
-DeepTiledInputPart::readPixelSampleCounts (int dx1, int dx2,
-                                          int dy1, int dy2,
-                                          int l)
+DeepTiledInputPart::readTile (int dx, int dy, int l)
 {
-    file->readPixelSampleCounts(dx1, dx2, dy1, dy2, l);
+    file->readTile (dx, dy, l);
 }
 
+void
+DeepTiledInputPart::readTile (int dx, int dy, int lx, int ly)
+{
+    file->readTile (dx, dy, lx, ly);
+}
+
+void
+DeepTiledInputPart::readTiles (
+    int dx1, int dx2, int dy1, int dy2, int lx, int ly)
+{
+    file->readTiles (dx1, dx2, dy1, dy2, lx, ly);
+}
+
+void
+DeepTiledInputPart::readTiles (int dx1, int dx2, int dy1, int dy2, int l)
+{
+    file->readTiles (dx1, dx2, dy1, dy2, l);
+}
+
+void
+DeepTiledInputPart::rawTileData (
+    int& dx, int& dy, int& lx, int& ly, char* pixelData, uint64_t& dataSize)
+    const
+{
+    file->rawTileData (dx, dy, lx, ly, pixelData, dataSize);
+}
+
+void
+DeepTiledInputPart::readPixelSampleCount (int dx, int dy, int l)
+{
+    file->readPixelSampleCount (dx, dy, l);
+}
+
+void
+DeepTiledInputPart::readPixelSampleCount (int dx, int dy, int lx, int ly)
+{
+    file->readPixelSampleCount (dx, dy, lx, ly);
+}
+
+void
+DeepTiledInputPart::readPixelSampleCounts (
+    int dx1, int dx2, int dy1, int dy2, int lx, int ly)
+{
+    file->readPixelSampleCounts (dx1, dx2, dy1, dy2, lx, ly);
+}
+
+void
+DeepTiledInputPart::readPixelSampleCounts (
+    int dx1, int dx2, int dy1, int dy2, int l)
+{
+    file->readPixelSampleCounts (dx1, dx2, dy1, dy2, l);
+}
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

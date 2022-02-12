@@ -3,8 +3,6 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
-
 #include <string>
 
-void testTiledLineOrder (const std::string &tempDir);
-
+void testTiledLineOrder (const std::string& tempDir);

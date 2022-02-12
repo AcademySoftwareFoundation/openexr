@@ -44,7 +44,7 @@ public:
     {}
     void execute () override
     {
-        exr_chunk_info_t      cinfo = { 0 };
+        exr_chunk_info_t      cinfo = {0};
         exr_decode_pipeline_t chunk;
         exr_result_t rv = exr_read_scanline_chunk_info (_f, 0, _y, &cinfo);
         if (rv == EXR_ERR_SUCCESS)
@@ -143,8 +143,8 @@ read_pixels_raw (exr_context_t f)
             ret += linesread * w;
         }
 #else
-        exr_chunk_info_t      cinfo = { 0 };
-        exr_decode_pipeline_t chunk = { 0 };
+        exr_chunk_info_t      cinfo = {0};
+        exr_decode_pipeline_t chunk = {0};
         for (int y = dw.min.y; y <= dw.max.y;)
         {
             exr_result_t rv = exr_read_scanline_chunk_info (f, 0, y, &cinfo);
@@ -289,7 +289,7 @@ read_pixels_raw (MultiPartInputFile* f)
     {
         std::vector<char>  rawBuf;
         const char*        outPtr;
-        InputPart          part{ *f, 0 };
+        InputPart          part{*f, 0};
         const ChannelList& chans      = head.channels ();
         int                layercount = 0;
         int                bpp        = 0;
@@ -309,7 +309,7 @@ read_pixels_raw (MultiPartInputFile* f)
         char* buf  = (char*) data - dw.min.x * bpp - dw.min.y * scanlinebytes;
 
         FrameBuffer frameBuffer;
-        int              chanoffset = 0;
+        int         chanoffset = 0;
         for (auto c = chans.begin (), e = chans.end (); c != e; ++c)
         {
             frameBuffer.insert (

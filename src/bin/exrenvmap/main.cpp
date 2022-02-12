@@ -3,32 +3,31 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
-
 //-----------------------------------------------------------------------------
 //
 //      exrenvmap -- makes OpenEXR environment maps
 //
 //-----------------------------------------------------------------------------
 
-#include <makeCubeMap.h>
-#include <makeLatLongMap.h>
-#include <blurImage.h>
 #include <EnvmapImage.h>
 #include <ImfEnvmap.h>
 #include <ImfHeader.h>
+#include <blurImage.h>
+#include <makeCubeMap.h>
+#include <makeLatLongMap.h>
 
-#include <iostream>
 #include <exception>
-#include <string>
-#include <string.h>
+#include <iostream>
 #include <stdlib.h>
+#include <string.h>
+#include <string>
 
 #include "namespaceAlias.h"
 using namespace IMF;
 using namespace std;
 
-
-namespace {
+namespace
+{
 
 void
 usageMessage (const char argv0[], bool verbose = false)
@@ -123,15 +122,14 @@ usageMessage (const char argv0[], bool verbose = false)
                 "\n"
                 "-h         prints this message\n";
 
-         cerr << endl;
+        cerr << endl;
     }
 
     exit (1);
 }
 
-
 Compression
-getCompression (const string &str)
+getCompression (const string& str)
 {
     Compression c;
 
@@ -182,39 +180,37 @@ getCompression (const string &str)
 
 } // namespace
 
-
 int
-main(int argc, char **argv)
+main (int argc, char** argv)
 {
-    const char *inFile = 0;
-    const char *outFile = 0;
-    Envmap type = ENVMAP_CUBE;
-    Envmap overrideInputType = NUM_ENVMAPTYPES;
-    LevelMode levelMode = ONE_LEVEL;
-    LevelRoundingMode roundingMode = ROUND_DOWN;
-    Compression compression = ZIP_COMPRESSION;
-    int mapWidth = 256;
-    int tileWidth = 64;
-    int tileHeight = 64;
-    float padTop = 0;
-    float padBottom = 0;
-    float filterRadius = 1;
-    int numSamples = 5;
-    bool diffuseBlur = false;
-    bool verbose = false;
+    const char*       inFile            = 0;
+    const char*       outFile           = 0;
+    Envmap            type              = ENVMAP_CUBE;
+    Envmap            overrideInputType = NUM_ENVMAPTYPES;
+    LevelMode         levelMode         = ONE_LEVEL;
+    LevelRoundingMode roundingMode      = ROUND_DOWN;
+    Compression       compression       = ZIP_COMPRESSION;
+    int               mapWidth          = 256;
+    int               tileWidth         = 64;
+    int               tileHeight        = 64;
+    float             padTop            = 0;
+    float             padBottom         = 0;
+    float             filterRadius      = 1;
+    int               numSamples        = 5;
+    bool              diffuseBlur       = false;
+    bool              verbose           = false;
 
     //
     // Parse the command line.
     //
 
-    if (argc < 2)
-        usageMessage (argv[0], true);
+    if (argc < 2) usageMessage (argv[0], true);
 
     int i = 1;
 
     while (i < argc)
     {
-        if (!strcmp (argv[i], "-o"))    
+        if (!strcmp (argv[i], "-o"))
         {
             //
             // generate a ONE_LEVEL image
@@ -274,8 +270,7 @@ main(int argc, char **argv)
             // Set output image width
             //
 
-            if (i > argc - 2)
-                usageMessage (argv[0]);
+            if (i > argc - 2) usageMessage (argv[0]);
 
             mapWidth = strtol (argv[i + 1], 0, 0);
 
@@ -293,8 +288,7 @@ main(int argc, char **argv)
             // Set filter radius and supersampling rate
             //
 
-            if (i > argc - 3)
-                usageMessage (argv[0]);
+            if (i > argc - 3) usageMessage (argv[0]);
 
             filterRadius = strtod (argv[i + 1], 0);
             numSamples   = strtol (argv[i + 2], 0, 0);
@@ -328,8 +322,7 @@ main(int argc, char **argv)
             // Set tile size
             //
 
-            if (i > argc - 3)
-                usageMessage (argv[0]);
+            if (i > argc - 3) usageMessage (argv[0]);
 
             tileWidth  = strtol (argv[i + 1], 0, 0);
             tileHeight = strtol (argv[i + 2], 0, 0);
@@ -348,8 +341,7 @@ main(int argc, char **argv)
             // Set top and bottom padding
             //
 
-            if (i > argc - 3)
-                usageMessage (argv[0]);
+            if (i > argc - 3) usageMessage (argv[0]);
 
             padTop    = strtod (argv[i + 1], 0);
             padBottom = strtod (argv[i + 2], 0);
@@ -386,8 +378,7 @@ main(int argc, char **argv)
             // Set compression method
             //
 
-            if (i > argc - 2)
-                usageMessage (argv[0]);
+            if (i > argc - 2) usageMessage (argv[0]);
 
             compression = getCompression (argv[i + 1]);
             i += 2;
@@ -424,8 +415,7 @@ main(int argc, char **argv)
         }
     }
 
-    if (inFile == 0 || outFile == 0)
-        usageMessage (argv[0]);
+    if (inFile == 0 || outFile == 0) usageMessage (argv[0]);
 
     //
     // Load inFile, convert it, and save the result in outFile.
@@ -435,41 +425,60 @@ main(int argc, char **argv)
 
     try
     {
-        EnvmapImage image;
-        Header header;
+        EnvmapImage  image;
+        Header       header;
         RgbaChannels channels;
 
-        readInputImage (inFile, padTop, padBottom,
-                        overrideInputType, verbose,
-                        image, header, channels);
+        readInputImage (
+            inFile,
+            padTop,
+            padBottom,
+            overrideInputType,
+            verbose,
+            image,
+            header,
+            channels);
 
-        if (diffuseBlur)
-            blurImage (image, verbose);
+        if (diffuseBlur) blurImage (image, verbose);
 
         if (type == ENVMAP_CUBE)
         {
-            makeCubeMap (image, header, channels,
-                         outFile,
-                         tileWidth, tileHeight,
-                         levelMode, roundingMode,
-                         compression, mapWidth,
-                         filterRadius, numSamples,
-                         verbose);
+            makeCubeMap (
+                image,
+                header,
+                channels,
+                outFile,
+                tileWidth,
+                tileHeight,
+                levelMode,
+                roundingMode,
+                compression,
+                mapWidth,
+                filterRadius,
+                numSamples,
+                verbose);
         }
         else
         {
-            makeLatLongMap (image, header, channels,
-                            outFile,
-                            tileWidth, tileHeight,
-                            levelMode, roundingMode,
-                            compression, mapWidth,
-                            filterRadius, numSamples,
-                            verbose);
+            makeLatLongMap (
+                image,
+                header,
+                channels,
+                outFile,
+                tileWidth,
+                tileHeight,
+                levelMode,
+                roundingMode,
+                compression,
+                mapWidth,
+                filterRadius,
+                numSamples,
+                verbose);
         }
     }
-    catch (const exception &e)
+    catch (const exception& e)
     {
-        cerr << e.what() << endl;
+        cerr << e.what () << endl;
         exitStatus = 1;
     }
 

@@ -3,7 +3,6 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
-
 #ifndef INCLUDED_MAKE_MULTI_VIEW_H
 #define INCLUDED_MAKE_MULTI_VIEW_H
 
@@ -14,16 +13,16 @@
 //
 //----------------------------------------------------------------------------
 
+#include "namespaceAlias.h"
 #include <ImfCompression.h>
 #include <string>
 #include <vector>
-#include "namespaceAlias.h"
 
-
-void	makeMultiView (const std::vector <std::string> &viewNames,
-		       const std::vector <const char *> &inFileNames,
-		       const char *outFileName,
-		       IMF::Compression compression,
-		       bool verbose);
+void makeMultiView (
+    const std::vector<std::string>& viewNames,
+    const std::vector<const char*>& inFileNames,
+    const char*                     outFileName,
+    IMF::Compression                compression,
+    bool                            verbose);
 
 #endif

@@ -3,7 +3,6 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
-
 //-----------------------------------------------------------------------------
 //
 //      function makeCubeMap() -- makes cube-face environment maps
@@ -12,38 +11,39 @@
 
 #include <makeCubeMap.h>
 
-#include <resizeImage.h>
-#include <ImfRgbaFile.h>
-#include <ImfTiledRgbaFile.h>
-#include <ImfStandardAttributes.h>
 #include "Iex.h"
-#include <iostream>
+#include <ImfRgbaFile.h>
+#include <ImfStandardAttributes.h>
+#include <ImfTiledRgbaFile.h>
 #include <algorithm>
-#include <string>
+#include <iostream>
+#include <resizeImage.h>
 #include <string.h>
-
+#include <string>
 
 #include "namespaceAlias.h"
 using namespace IMF;
 using namespace std;
 using namespace IMATH;
 
-namespace {
+namespace
+{
 
 void
-makeCubeMapSingleFile (EnvmapImage &image1,
-                       Header &header,
-                       RgbaChannels channels,
-                       const char outFileName[],
-                       int tileWidth,
-                       int tileHeight,
-                       LevelMode levelMode,
-                       LevelRoundingMode roundingMode,
-                       Compression compression,
-                       int mapWidth,
-                       float filterRadius,
-                       int numSamples,
-                       bool verbose)
+makeCubeMapSingleFile (
+    EnvmapImage&      image1,
+    Header&           header,
+    RgbaChannels      channels,
+    const char        outFileName[],
+    int               tileWidth,
+    int               tileHeight,
+    LevelMode         levelMode,
+    LevelRoundingMode roundingMode,
+    Compression       compression,
+    int               mapWidth,
+    float             filterRadius,
+    int               numSamples,
+    bool              verbose)
 {
     if (levelMode == RIPMAP_LEVELS)
         throw IEX::NoImplExc ("Cannot generate ripmap cube-face environments.");
@@ -55,20 +55,22 @@ makeCubeMapSingleFile (EnvmapImage &image1,
 
     int mapHeight = mapWidth * 6;
 
-    header.dataWindow() = Box2i (V2i (0, 0), V2i (mapWidth - 1, mapHeight - 1));
-    header.displayWindow() = header.dataWindow();
-    header.compression() = compression;
+    header.dataWindow () =
+        Box2i (V2i (0, 0), V2i (mapWidth - 1, mapHeight - 1));
+    header.displayWindow () = header.dataWindow ();
+    header.compression ()   = compression;
 
     addEnvmap (header, ENVMAP_CUBE);
 
-    TiledRgbaOutputFile out (outFileName,
-                             header,
-                             channels,
-                             tileWidth, tileHeight,
-                             levelMode,
-                             roundingMode);
-    if (verbose)
-        cout << "writing file " << outFileName << endl;
+    TiledRgbaOutputFile out (
+        outFileName,
+        header,
+        channels,
+        tileWidth,
+        tileHeight,
+        levelMode,
+        roundingMode);
+    if (verbose) cout << "writing file " << outFileName << endl;
 
     //
     // Generate the pixels for the various levels of the cube-face map,
@@ -78,19 +80,18 @@ makeCubeMapSingleFile (EnvmapImage &image1,
     // the previous level.
     //
 
-    EnvmapImage image2;
-    EnvmapImage *iptr1 = &image1;
-    EnvmapImage *iptr2 = &image2;
-    
-    for (int level = 0; level < out.numLevels(); ++level)
+    EnvmapImage  image2;
+    EnvmapImage* iptr1 = &image1;
+    EnvmapImage* iptr2 = &image2;
+
+    for (int level = 0; level < out.numLevels (); ++level)
     {
-        if (verbose)
-            cout << "level " << level << endl;
+        if (verbose) cout << "level " << level << endl;
 
         Box2i dw = out.dataWindowForLevel (level);
         resizeCube (*iptr1, *iptr2, dw, filterRadius, numSamples);
 
-        out.setFrameBuffer (&iptr2->pixels()[0][0], 1, dw.max.x + 1);
+        out.setFrameBuffer (&iptr2->pixels ()[0][0], 1, dw.max.x + 1);
 
         for (int tileY = 0; tileY < out.numYTiles (level); ++tileY)
             for (int tileX = 0; tileX < out.numXTiles (level); ++tileX)
@@ -99,115 +100,116 @@ makeCubeMapSingleFile (EnvmapImage &image1,
         swap (iptr1, iptr2);
     }
 
-    if (verbose)
-        cout << "done." << endl;
+    if (verbose) cout << "done." << endl;
 }
 
-
 void
-makeCubeMapSixFiles (EnvmapImage &image1,
-                     Header &header,
-                     RgbaChannels channels,
-                     const char outFileName[],
-                     int tileWidth,
-                     int tileHeight,
-                     Compression compression,
-                     int mapWidth,
-                     float filterRadius,
-                     int numSamples,
-                     bool verbose)
+makeCubeMapSixFiles (
+    EnvmapImage& image1,
+    Header&      header,
+    RgbaChannels channels,
+    const char   outFileName[],
+    int          tileWidth,
+    int          tileHeight,
+    Compression  compression,
+    int          mapWidth,
+    float        filterRadius,
+    int          numSamples,
+    bool         verbose)
 {
-    static const char *faceNames[] =
-        {"+X", "-X", "+Y", "-Y", "+Z", "-Z"};
+    static const char* faceNames[] = {"+X", "-X", "+Y", "-Y", "+Z", "-Z"};
 
     size_t pos = strchr (outFileName, '%') - outFileName;
 
-    int mapHeight = mapWidth * 6;
+    int         mapHeight = mapWidth * 6;
     const Box2i dw (V2i (0, 0), V2i (mapWidth - 1, mapHeight - 1));
     const Box2i faceDw (V2i (0, 0), V2i (mapWidth - 1, mapWidth - 1));
 
     EnvmapImage image2;
     resizeCube (image1, image2, dw, filterRadius, numSamples);
-    const Rgba *pixels = &(image2.pixels())[0][0];
+    const Rgba* pixels = &(image2.pixels ())[0][0];
 
     for (int i = 0; i < 6; ++i)
     {
         string name = string (outFileName).replace (pos, 1, faceNames[i]);
 
-        if (verbose)
-            cout << "writing file " << name << endl;
+        if (verbose) cout << "writing file " << name << endl;
 
-        TiledRgbaOutputFile out (name.c_str(),
-                                 tileWidth, tileHeight,
-                                 ONE_LEVEL, ROUND_DOWN,
-                                 faceDw,        // displayWindow
-                                 faceDw,        // dataWindow
-                                 channels,
-                                 1,             // pixelAspectRatio
-                                 V2f (0, 0),    // screenWindowCenter
-                                 1,             // screenWindowWidth
-                                 INCREASING_Y,  // lineOrder
-                                 compression);
+        TiledRgbaOutputFile out (
+            name.c_str (),
+            tileWidth,
+            tileHeight,
+            ONE_LEVEL,
+            ROUND_DOWN,
+            faceDw, // displayWindow
+            faceDw, // dataWindow
+            channels,
+            1,            // pixelAspectRatio
+            V2f (0, 0),   // screenWindowCenter
+            1,            // screenWindowWidth
+            INCREASING_Y, // lineOrder
+            compression);
 
         out.setFrameBuffer (pixels, 1, dw.max.x + 1);
 
-        for (int tileY = 0; tileY < out.numYTiles(); ++tileY)
-            for (int tileX = 0; tileX < out.numXTiles(); ++tileX)
-                    out.writeTile (tileX, tileY);
+        for (int tileY = 0; tileY < out.numYTiles (); ++tileY)
+            for (int tileX = 0; tileX < out.numXTiles (); ++tileX)
+                out.writeTile (tileX, tileY);
 
         pixels += mapWidth * mapWidth;
     }
 
-    if (verbose)
-        cout << "done." << endl;
+    if (verbose) cout << "done." << endl;
 }
 
 } //namespace
 
-
 void
-makeCubeMap (EnvmapImage &image1,
-             Header &header,
-             RgbaChannels channels,
-             const char outFileName[],
-             int tileWidth,
-             int tileHeight,
-             LevelMode levelMode,
-             LevelRoundingMode roundingMode,
-             Compression compression,
-             int mapWidth,
-             float filterRadius,
-             int numSamples,
-             bool verbose)
+makeCubeMap (
+    EnvmapImage&      image1,
+    Header&           header,
+    RgbaChannels      channels,
+    const char        outFileName[],
+    int               tileWidth,
+    int               tileHeight,
+    LevelMode         levelMode,
+    LevelRoundingMode roundingMode,
+    Compression       compression,
+    int               mapWidth,
+    float             filterRadius,
+    int               numSamples,
+    bool              verbose)
 {
     if (strchr (outFileName, '%'))
     {
-        makeCubeMapSixFiles (image1,
-                             header,
-                             channels,
-                             outFileName,
-                             tileWidth,
-                             tileHeight,
-                             compression,
-                             mapWidth,
-                             filterRadius,
-                             numSamples,
-                             verbose);
+        makeCubeMapSixFiles (
+            image1,
+            header,
+            channels,
+            outFileName,
+            tileWidth,
+            tileHeight,
+            compression,
+            mapWidth,
+            filterRadius,
+            numSamples,
+            verbose);
     }
     else
     {
-        makeCubeMapSingleFile (image1,
-                               header,
-                               channels,
-                               outFileName,
-                               tileWidth,
-                               tileHeight,
-                               levelMode,
-                               roundingMode,
-                               compression,
-                               mapWidth,
-                               filterRadius,
-                               numSamples,
-                               verbose);
+        makeCubeMapSingleFile (
+            image1,
+            header,
+            channels,
+            outFileName,
+            tileWidth,
+            tileHeight,
+            levelMode,
+            roundingMode,
+            compression,
+            mapWidth,
+            filterRadius,
+            numSamples,
+            verbose);
     }
 }

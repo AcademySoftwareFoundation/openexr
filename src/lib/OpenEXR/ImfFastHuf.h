@@ -17,20 +17,20 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 //
 // Canonical Huffman decoder based on 'On the Implementation of Minimum
 // Redundancy Prefix Codes' by Moffat and Turpin - highly recommended
-// reading as a good description of the problem space, as well as 
+// reading as a good description of the problem space, as well as
 // a fast decoding algorithm.
 //
-// The premise is that instead of working directly with the coded 
+// The premise is that instead of working directly with the coded
 // symbols, we create a new ordering based on the frequency of symbols.
 // Less frequent symbols (and thus longer codes) are ordered earler.
-// We're calling the values in this ordering 'Ids', as oppsed to 
+// We're calling the values in this ordering 'Ids', as oppsed to
 // 'Symbols' - which are the short values we eventually want decoded.
 //
-// With this new ordering, a few small tables can be derived ('base' 
-// and 'offset') which drive the decoding. To cut down on the 
+// With this new ordering, a few small tables can be derived ('base'
+// and 'offset') which drive the decoding. To cut down on the
 // linear scanning of these tables, you can add a small table
 // to directly look up short codes (as you might in a traditional
-// lookup-table driven decoder). 
+// lookup-table driven decoder).
 //
 // The decoder is meant to be compatible with the encoder (and decoder)
 // in ImfHuf.cpp, just faster. For ease of implementation, this decoder
@@ -39,8 +39,7 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 class FastHufDecoder
 {
-  public:
-
+public:
     //
     // Longest compressed code length that ImfHuf supports (58 bits)
     //
@@ -54,56 +53,57 @@ class FastHufDecoder
 
     static const int TABLE_LOOKUP_BITS = 12;
 
-    FastHufDecoder (const char*& table,
-                    int numBytes,
-                    int minSymbol,
-                    int maxSymbol,
-                    int rleSymbol);
+    FastHufDecoder (
+        const char*& table,
+        int          numBytes,
+        int          minSymbol,
+        int          maxSymbol,
+        int          rleSymbol);
 
     ~FastHufDecoder ();
 
     FastHufDecoder (const FastHufDecoder& other) = delete;
-    FastHufDecoder& operator = (const FastHufDecoder& other) = delete;
-    FastHufDecoder (FastHufDecoder&& other) = delete;
-    FastHufDecoder& operator = (FastHufDecoder&& other) = delete;
+    FastHufDecoder& operator= (const FastHufDecoder& other) = delete;
+    FastHufDecoder (FastHufDecoder&& other)                 = delete;
+    FastHufDecoder& operator= (FastHufDecoder&& other) = delete;
 
     static bool enabled ();
 
-    void decode (const unsigned char *src,
-                 int numSrcBits,
-                 unsigned short *dst,
-                 int numDstElems);
+    void decode (
+        const unsigned char* src,
+        int                  numSrcBits,
+        unsigned short*      dst,
+        int                  numDstElems);
 
-  private:
+private:
+    void buildTables (uint64_t*, uint64_t*);
+    void refill (uint64_t&, int, uint64_t&, int&, const unsigned char*&, int&);
+    uint64_t readBits (int, uint64_t&, int&, const char*&);
 
-    void  buildTables (uint64_t*, uint64_t*);
-    void  refill (uint64_t&, int, uint64_t&, int&, const unsigned char *&, int&);
-    uint64_t readBits (int, uint64_t&, int&, const char *&);
+    int _rleSymbol; // RLE symbol written by the encoder.
+                    // This could be 65536, so beware
+                    // when you use shorts to hold things.
 
-    int             _rleSymbol;        // RLE symbol written by the encoder.
-                                       // This could be 65536, so beware
-                                       // when you use shorts to hold things.
+    int _numSymbols; // Number of symbols in the codebook.
 
-    int             _numSymbols;       // Number of symbols in the codebook.
+    unsigned char _minCodeLength; // Minimum code length, in bits.
+    unsigned char _maxCodeLength; // Maximum code length, in bits.
 
-    unsigned char   _minCodeLength;    // Minimum code length, in bits.
-    unsigned char   _maxCodeLength;    // Maximum code length, in bits.
+    int* _idToSymbol; // Maps Ids to symbols. Ids are a symbol
+                      // ordering sorted first in terms of
+                      // code length, and by code within
+                      // the same length. Ids run from 0
+                      // to mNumSymbols-1.
 
-    int            *_idToSymbol;       // Maps Ids to symbols. Ids are a symbol
-                                       // ordering sorted first in terms of 
-                                       // code length, and by code within
-                                       // the same length. Ids run from 0
-                                       // to mNumSymbols-1.
+    uint64_t _ljBase[MAX_CODE_LEN + 1]; // the 'left justified base' table.
+                                        // Takes base[i] (i = code length)
+    // and 'left justifies' it into an uint64_t
 
-    uint64_t _ljBase[MAX_CODE_LEN + 1];   // the 'left justified base' table.
-                                       // Takes base[i] (i = code length)
-                                       // and 'left justifies' it into an uint64_t
-
-    uint64_t _ljOffset[MAX_CODE_LEN +1 ]; // There are some other terms that can 
-                                       // be folded into constants when taking
-                                       // the 'left justified' decode path. This
-                                       // holds those constants, indexed by
-                                       // code length
+    uint64_t _ljOffset[MAX_CODE_LEN + 1]; // There are some other terms that can
+        // be folded into constants when taking
+        // the 'left justified' decode path. This
+        // holds those constants, indexed by
+        // code length
 
     //
     // We can accelerate the 'left justified' processing by running the
@@ -116,11 +116,11 @@ class FastHufDecoder
     // to be bigger than 16 bits.
     //
 
-    int            _tableSymbol[1 << TABLE_LOOKUP_BITS];
-    unsigned char  _tableCodeLen[1 << TABLE_LOOKUP_BITS];
-    uint64_t       _tableMin;
+    int           _tableSymbol[1 << TABLE_LOOKUP_BITS];
+    unsigned char _tableCodeLen[1 << TABLE_LOOKUP_BITS];
+    uint64_t      _tableMin;
 };
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
-#endif 
+#endif

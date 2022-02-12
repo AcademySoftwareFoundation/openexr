@@ -3,8 +3,7 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
-#include "ImfNamespace.h"
 #include "ImfCompression.h"
+#include "ImfNamespace.h"
 
 bool equivalent (float f1, float f2, OPENEXR_IMF_NAMESPACE::Compression comp);
-

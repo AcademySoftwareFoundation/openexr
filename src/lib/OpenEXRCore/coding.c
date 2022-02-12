@@ -136,10 +136,10 @@ internal_coding_update_channel_info (
 
 exr_result_t
 internal_encode_free_buffer (
-    exr_encode_pipeline_t*                  encode,
-    exr_transcoding_pipeline_buffer_id_t    bufid,
-    void**                                  buf,
-    size_t*                                 sz)
+    exr_encode_pipeline_t*               encode,
+    exr_transcoding_pipeline_buffer_id_t bufid,
+    void**                               buf,
+    size_t*                              sz)
 {
     void*  curbuf = *buf;
     size_t cursz  = *sz;
@@ -260,8 +260,7 @@ internal_decode_alloc_buffer (
      * image. Just shortcut here and handle at a higher level where
      * there is more context
      */
-    if (newsz == 0)
-        return EXR_ERR_SUCCESS;
+    if (newsz == 0) return EXR_ERR_SUCCESS;
 
     if (!curbuf || *cursz < newsz)
     {

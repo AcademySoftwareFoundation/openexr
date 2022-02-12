@@ -4,4 +4,3 @@
 //
 
 void rgbaInterfaceTiledExamples ();
-

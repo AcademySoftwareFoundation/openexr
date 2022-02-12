@@ -66,7 +66,7 @@
 #include "IlmThreadNamespace.h"
 
 #if ILMTHREAD_THREADING_ENABLED
-#include <thread>
+#    include <thread>
 #endif
 
 ILMTHREAD_INTERNAL_NAMESPACE_HEADER_ENTER
@@ -78,36 +78,32 @@ ILMTHREAD_INTERNAL_NAMESPACE_HEADER_ENTER
 
 ILMTHREAD_EXPORT bool supportsThreads ();
 
-
 class ILMTHREAD_EXPORT_TYPE Thread
 {
-  public:
-
+public:
     ILMTHREAD_EXPORT Thread ();
     ILMTHREAD_EXPORT virtual ~Thread ();
 
-    ILMTHREAD_EXPORT void         start ();
+    ILMTHREAD_EXPORT void start ();
 
     virtual void run () = 0;
 
     //
     // wait for thread to exit - must be called before deleting thread
     //
-    ILMTHREAD_EXPORT void join();
-    ILMTHREAD_EXPORT bool joinable() const;
+    ILMTHREAD_EXPORT void join ();
+    ILMTHREAD_EXPORT bool joinable () const;
 
-  private:
-
+private:
 #if ILMTHREAD_THREADING_ENABLED
     std::thread _thread;
 #endif
 
-    Thread &operator= (const Thread& t) = delete;
-    Thread &operator= (Thread&& t) = delete;
-    Thread (const Thread& t) = delete;
-    Thread (Thread&& t) = delete;
+    Thread& operator= (const Thread& t) = delete;
+    Thread& operator= (Thread&& t) = delete;
+    Thread (const Thread& t)       = delete;
+    Thread (Thread&& t)            = delete;
 };
-
 
 ILMTHREAD_INTERNAL_NAMESPACE_HEADER_EXIT
 

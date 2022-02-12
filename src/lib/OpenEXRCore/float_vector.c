@@ -16,8 +16,8 @@ exr_result_t
 exr_attr_float_vector_init (
     exr_context_t ctxt, exr_attr_float_vector_t* fv, int32_t nent)
 {
-    exr_attr_float_vector_t nil   = { 0 };
-    size_t                  bytes = (size_t)(nent) * sizeof (float);
+    exr_attr_float_vector_t nil   = {0};
+    size_t                  bytes = (size_t) (nent) * sizeof (float);
 
     INTERN_EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
 
@@ -61,7 +61,7 @@ exr_attr_float_vector_init_static (
     const float*             arr,
     int32_t                  nent)
 {
-    exr_attr_float_vector_t nil = { 0 };
+    exr_attr_float_vector_t nil = {0};
 
     INTERN_EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
 
@@ -109,7 +109,10 @@ exr_attr_float_vector_create (
 
     rv = exr_attr_float_vector_init (ctxt, fv, nent);
     if (rv == EXR_ERR_SUCCESS && nent > 0)
-        memcpy (EXR_CONST_CAST (float*, fv->arr), arr, (size_t)(nent) * sizeof (float));
+        memcpy (
+            EXR_CONST_CAST (float*, fv->arr),
+            arr,
+            (size_t) (nent) * sizeof (float));
     return rv;
 }
 
@@ -121,7 +124,7 @@ exr_attr_float_vector_destroy (exr_context_t ctxt, exr_attr_float_vector_t* fv)
     INTERN_EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
     if (fv)
     {
-        exr_attr_float_vector_t nil = { 0 };
+        exr_attr_float_vector_t nil = {0};
         if (fv->arr && fv->alloc_size > 0)
             pctxt->free_fn (EXR_CONST_CAST (void*, fv->arr));
         *fv = nil;

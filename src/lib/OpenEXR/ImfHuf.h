@@ -3,7 +3,6 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
-
 #ifndef INCLUDED_IMF_HUF_H
 #define INCLUDED_IMF_HUF_H
 
@@ -32,20 +31,18 @@
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
-
-IMF_EXPORT 
-int
-hufCompress (const unsigned short raw[/*nRaw*/],
-	     int nRaw,
-	     char compressed[/*2 * nRaw + 65536*/]);
+IMF_EXPORT
+int hufCompress (
+    const unsigned short raw[/*nRaw*/],
+    int                  nRaw,
+    char                 compressed[/*2 * nRaw + 65536*/]);
 
 IMF_EXPORT
-void
-hufUncompress (const char compressed[/*nCompressed*/],
-	       int nCompressed,
-	       unsigned short raw[/*nRaw*/],
-	       int nRaw);
-
+void hufUncompress (
+    const char     compressed[/*nCompressed*/],
+    int            nCompressed,
+    unsigned short raw[/*nRaw*/],
+    int            nRaw);
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 

@@ -5,5 +5,4 @@
 
 #include <string>
 
-void testYca (const std::string &tempDir);
-
+void testYca (const std::string& tempDir);

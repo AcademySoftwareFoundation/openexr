@@ -10,68 +10,62 @@
 //-----------------------------------------------------------------------------
 
 #include "ImfPreviewImage.h"
-#include "ImfCheckedArithmetic.h"
 #include "Iex.h"
+#include "ImfCheckedArithmetic.h"
 #include "ImfNamespace.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
-
-PreviewImage::PreviewImage (unsigned int width,
-			    unsigned int height,
-			    const PreviewRgba pixels[])
+PreviewImage::PreviewImage (
+    unsigned int width, unsigned int height, const PreviewRgba pixels[])
 {
-    _width = width;
+    _width  = width;
     _height = height;
-    _pixels = new PreviewRgba
-        [checkArraySize (uiMult (_width, _height), sizeof (PreviewRgba))];
+    _pixels = new PreviewRgba[checkArraySize (
+        uiMult (_width, _height), sizeof (PreviewRgba))];
 
     if (pixels)
     {
-	for (unsigned int i = 0; i < _width * _height; ++i)
-	    _pixels[i] = pixels[i];
+        for (unsigned int i = 0; i < _width * _height; ++i)
+            _pixels[i] = pixels[i];
     }
     else
     {
-	for (unsigned int i = 0; i < _width * _height; ++i)
-	    _pixels[i] = PreviewRgba();
+        for (unsigned int i = 0; i < _width * _height; ++i)
+            _pixels[i] = PreviewRgba ();
     }
 }
 
-
-PreviewImage::PreviewImage (const PreviewImage &other):
-    _width (other._width),
-    _height (other._height),
-    _pixels (new PreviewRgba [other._width * other._height])
+PreviewImage::PreviewImage (const PreviewImage& other)
+    : _width (other._width)
+    , _height (other._height)
+    , _pixels (new PreviewRgba[other._width * other._height])
 {
     for (unsigned int i = 0; i < _width * _height; ++i)
-	_pixels[i] = other._pixels[i];
+        _pixels[i] = other._pixels[i];
 }
-
 
 PreviewImage::~PreviewImage ()
 {
-    delete [] _pixels;
+    delete[] _pixels;
 }
 
-
-PreviewImage &
-PreviewImage::operator = (const PreviewImage &other)
+PreviewImage&
+PreviewImage::operator= (const PreviewImage& other)
 {
     if (this != &other)
     {
-        delete [] _pixels;
+        delete[] _pixels;
 
-        _width = other._width;
+        _width  = other._width;
         _height = other._height;
-        _pixels = new PreviewRgba [other._width * other._height];
+        _pixels = new PreviewRgba[other._width * other._height];
 
         for (unsigned int i = 0; i < _width * _height; ++i)
             _pixels[i] = other._pixels[i];
     }
-    
+
     return *this;
 }
-
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

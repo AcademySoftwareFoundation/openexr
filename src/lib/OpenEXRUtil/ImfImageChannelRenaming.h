@@ -14,11 +14,10 @@
 //----------------------------------------------------------------------------
 
 #include "ImfNamespace.h"
-#include <string>
 #include <map>
+#include <string>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
-
 
 //
 // Given a map from old channel names to new channel names,
@@ -27,27 +26,26 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 // map has already been checked for collisions.
 //
 
-typedef std::map <std::string, std::string> RenamingMap;
+typedef std::map<std::string, std::string> RenamingMap;
 
 template <class ChannelMap>
 inline void
-renameChannelsInMap (const RenamingMap &oldToNewNames, ChannelMap &channels)
+renameChannelsInMap (const RenamingMap& oldToNewNames, ChannelMap& channels)
 {
     ChannelMap renamedChannels;
 
-    for (typename ChannelMap::const_iterator i = channels.begin();
-         i != channels.end();
+    for (typename ChannelMap::const_iterator i = channels.begin ();
+         i != channels.end ();
          ++i)
     {
         RenamingMap::const_iterator j = oldToNewNames.find (i->first);
-        std::string newName = (j == oldToNewNames.end())? i->first: j->second;
-        renamedChannels[newName] = i->second;
+        std::string newName           = (j == oldToNewNames.end ()) ? i->first
+                                                                    : j->second;
+        renamedChannels[newName]      = i->second;
     }
 
     channels = renamedChannels;
 }
-
-
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 

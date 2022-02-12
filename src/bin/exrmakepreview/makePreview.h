@@ -12,12 +12,11 @@
 //
 //----------------------------------------------------------------------------
 
-
-void	makePreview (const char inFileName[],
-	             const char outFileName[],
-		     int previewWidth,
-		     float exposure,
-		     bool verbose);
-
+void makePreview (
+    const char inFileName[],
+    const char outFileName[],
+    int        previewWidth,
+    float      exposure,
+    bool       verbose);
 
 #endif

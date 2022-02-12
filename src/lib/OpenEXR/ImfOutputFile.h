@@ -3,7 +3,6 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
-
 #ifndef INCLUDED_IMF_OUTPUT_FILE_H
 #define INCLUDED_IMF_OUTPUT_FILE_H
 
@@ -18,14 +17,11 @@
 #include "ImfGenericOutputFile.h"
 #include "ImfThreading.h"
 
-
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
-
 
 class IMF_EXPORT_TYPE OutputFile : public GenericOutputFile
 {
-  public:
-
+public:
     //-----------------------------------------------------------
     // Constructor -- opens the file and writes the file header.
     // The file header is also copied into the OutputFile object,
@@ -38,9 +34,10 @@ class IMF_EXPORT_TYPE OutputFile : public GenericOutputFile
     //-----------------------------------------------------------
 
     IMF_EXPORT
-    OutputFile (const char fileName[], const Header &header,
-                int numThreads = globalThreadCount());
-
+    OutputFile (
+        const char    fileName[],
+        const Header& header,
+        int           numThreads = globalThreadCount ());
 
     //------------------------------------------------------------
     // Constructor -- attaches the new OutputFile object to a file
@@ -55,9 +52,10 @@ class IMF_EXPORT_TYPE OutputFile : public GenericOutputFile
     //------------------------------------------------------------
 
     IMF_EXPORT
-    OutputFile (OPENEXR_IMF_INTERNAL_NAMESPACE::OStream &os, const Header &header,
-                int numThreads = globalThreadCount());
-
+    OutputFile (
+        OPENEXR_IMF_INTERNAL_NAMESPACE::OStream& os,
+        const Header&                            header,
+        int numThreads = globalThreadCount ());
 
     //-------------------------------------------------
     // Destructor
@@ -70,22 +68,19 @@ class IMF_EXPORT_TYPE OutputFile : public GenericOutputFile
     IMF_EXPORT
     virtual ~OutputFile ();
 
-
     //------------------------
     // Access to the file name
     //------------------------
 
     IMF_EXPORT
-    const char *	fileName () const;
-
+    const char* fileName () const;
 
     //--------------------------
     // Access to the file header
     //--------------------------
 
     IMF_EXPORT
-    const Header &	header () const;
-
+    const Header& header () const;
 
     //-------------------------------------------------------
     // Set the current frame buffer -- copies the FrameBuffer
@@ -99,16 +94,14 @@ class IMF_EXPORT_TYPE OutputFile : public GenericOutputFile
     //-------------------------------------------------------
 
     IMF_EXPORT
-    void		setFrameBuffer (const FrameBuffer &frameBuffer);
-
+    void setFrameBuffer (const FrameBuffer& frameBuffer);
 
     //-----------------------------------
     // Access to the current frame buffer
     //-----------------------------------
 
     IMF_EXPORT
-    const FrameBuffer &	frameBuffer () const;
-
+    const FrameBuffer& frameBuffer () const;
 
     //-------------------------------------------------------------------
     // Write pixel data:
@@ -124,8 +117,7 @@ class IMF_EXPORT_TYPE OutputFile : public GenericOutputFile
     //-------------------------------------------------------------------
 
     IMF_EXPORT
-    void		writePixels (int numScanLines = 1);
-
+    void writePixels (int numScanLines = 1);
 
     //------------------------------------------------------------------
     // Access to the current scan line:
@@ -149,8 +141,7 @@ class IMF_EXPORT_TYPE OutputFile : public GenericOutputFile
     //------------------------------------------------------------------
 
     IMF_EXPORT
-    int			currentScanLine () const;
-
+    int currentScanLine () const;
 
     //--------------------------------------------------------------
     // Shortcut to copy all pixels from an InputFile into this file,
@@ -161,17 +152,15 @@ class IMF_EXPORT_TYPE OutputFile : public GenericOutputFile
     //--------------------------------------------------------------
 
     IMF_EXPORT
-    void		copyPixels (InputFile &in);
-    
+    void copyPixels (InputFile& in);
+
     //-------------------------------------------------------------
     // Shortcut to copy all pixels from an InputPart into this file
     // - equivalent to copyPixel(InputFile &in) but for multipart files
     //---------------------------------------------------------------
-    
-    IMF_EXPORT
-    void                copyPixels (InputPart &in);
-        
 
+    IMF_EXPORT
+    void copyPixels (InputPart& in);
 
     //--------------------------------------------------------------
     // Updating the preview image:
@@ -192,12 +181,11 @@ class IMF_EXPORT_TYPE OutputFile : public GenericOutputFile
     //--------------------------------------------------------------
 
     IMF_EXPORT
-    void		updatePreviewImage (const PreviewRgba newPixels[]);
-
+    void updatePreviewImage (const PreviewRgba newPixels[]);
 
     //---------------------------------------------------------
     // Break a scan line -- for testing and debugging only:
-    // 
+    //
     // breakScanLine(y,p,n,c) introduces an error into the
     // output file by writing n copies of character c, starting
     // p bytes from the beginning of the pixel data block that
@@ -210,13 +198,11 @@ class IMF_EXPORT_TYPE OutputFile : public GenericOutputFile
     //---------------------------------------------------------
 
     IMF_EXPORT
-    void		breakScanLine  (int y, int offset, int length, char c);
-
+    void breakScanLine (int y, int offset, int length, char c);
 
     struct IMF_HIDDEN Data;
 
-  private:
-
+private:
     //------------------------------------------------------------
     // Constructor -- attaches the OutputStreamMutex to the
     // given one from MultiPartOutputFile. Set the previewPosition
@@ -225,22 +211,18 @@ class IMF_EXPORT_TYPE OutputFile : public GenericOutputFile
     //------------------------------------------------------------
     IMF_HIDDEN OutputFile (const OutputPartData* part);
 
-    OutputFile (const OutputFile &) = delete;
-    OutputFile & operator = (const OutputFile &) = delete;
-    OutputFile (OutputFile &&) = delete;
-    OutputFile & operator = (OutputFile &&) = delete;
+    OutputFile (const OutputFile&) = delete;
+    OutputFile& operator= (const OutputFile&) = delete;
+    OutputFile (OutputFile&&)                 = delete;
+    OutputFile& operator= (OutputFile&&) = delete;
 
-    void		initialize (const Header &header);
+    void initialize (const Header& header);
 
-    Data *		_data;
-
+    Data* _data;
 
     friend class MultiPartOutputFile;
-    
 };
 
-
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
-
 
 #endif

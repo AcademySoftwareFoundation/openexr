@@ -3,7 +3,6 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
-
 //-----------------------------------------------------------------------------
 //
 //	class ZipCompressor
@@ -11,37 +10,31 @@
 //-----------------------------------------------------------------------------
 
 #include "ImfZipCompressor.h"
-#include "ImfCheckedArithmetic.h"
 #include "Iex.h"
-#include <zlib.h>
-#include "ImfNamespace.h"
+#include "ImfCheckedArithmetic.h"
 #include "ImfHeader.h"
+#include "ImfNamespace.h"
+#include <zlib.h>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
-
-ZipCompressor::ZipCompressor
-    (const Header &hdr,
-     size_t maxScanLineSize,
-     size_t numScanLines)
-:
-    Compressor (hdr),
-    _maxScanLineSize (maxScanLineSize),
-    _numScanLines (numScanLines),
-    _outBuffer (0),
-    _zip(maxScanLineSize, numScanLines, hdr.zipCompressionLevel())
+ZipCompressor::ZipCompressor (
+    const Header& hdr, size_t maxScanLineSize, size_t numScanLines)
+    : Compressor (hdr)
+    , _maxScanLineSize (maxScanLineSize)
+    , _numScanLines (numScanLines)
+    , _outBuffer (0)
+    , _zip (maxScanLineSize, numScanLines, hdr.zipCompressionLevel ())
 {
     // TODO: Remove this when we can change the ABI
     (void) _maxScanLineSize;
     _outBuffer = new char[_zip.maxCompressedSize ()];
 }
 
-
 ZipCompressor::~ZipCompressor ()
 {
-    delete [] _outBuffer;
+    delete[] _outBuffer;
 }
-
 
 int
 ZipCompressor::numScanLines () const
@@ -49,12 +42,9 @@ ZipCompressor::numScanLines () const
     return _numScanLines;
 }
 
-
 int
-ZipCompressor::compress (const char *inPtr,
-			 int inSize,
-			 int minY,
-			 const char *&outPtr)
+ZipCompressor::compress (
+    const char* inPtr, int inSize, int minY, const char*& outPtr)
 {
     //
     // Special case �- empty input buffer
@@ -62,22 +52,19 @@ ZipCompressor::compress (const char *inPtr,
 
     if (inSize == 0)
     {
-	outPtr = _outBuffer;
-	return 0;
+        outPtr = _outBuffer;
+        return 0;
     }
 
-    int outSize = _zip.compress(inPtr, inSize, _outBuffer);
+    int outSize = _zip.compress (inPtr, inSize, _outBuffer);
 
     outPtr = _outBuffer;
     return outSize;
 }
 
-
 int
-ZipCompressor::uncompress (const char *inPtr,
-			   int inSize,
-			   int minY,
-			   const char *&outPtr)
+ZipCompressor::uncompress (
+    const char* inPtr, int inSize, int minY, const char*& outPtr)
 {
     //
     // Special case �- empty input buffer
@@ -85,15 +72,14 @@ ZipCompressor::uncompress (const char *inPtr,
 
     if (inSize == 0)
     {
-	outPtr = _outBuffer;
-	return 0;
+        outPtr = _outBuffer;
+        return 0;
     }
 
-    int outSize = _zip.uncompress(inPtr, inSize, _outBuffer);
+    int outSize = _zip.uncompress (inPtr, inSize, _outBuffer);
 
     outPtr = _outBuffer;
     return outSize;
 }
-
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

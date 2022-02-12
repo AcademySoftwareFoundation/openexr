@@ -6,7 +6,6 @@
 #ifndef INCLUDED_IEXMATHIEEE_EXC_H
 #define INCLUDED_IEXMATHIEEE_EXC_H
 
-
 //---------------------------------------------------------------------------
 //
 //	Names for the loating point exceptions defined by IEEE standard 754
@@ -18,7 +17,6 @@
 
 IEX_INTERNAL_NAMESPACE_HEADER_ENTER
 
-
 enum IEX_EXPORT_ENUM IeeeExcType
 {
     IEEE_OVERFLOW  = 1,
@@ -27,7 +25,6 @@ enum IEX_EXPORT_ENUM IeeeExcType
     IEEE_INEXACT   = 8,
     IEEE_INVALID   = 16
 };
-
 
 IEX_INTERNAL_NAMESPACE_HEADER_EXIT
 

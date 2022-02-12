@@ -12,21 +12,19 @@
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
-
 #if defined(_MSC_VER)
 // suppress warning about non-exported base classes
-#pragma warning (disable : 4251)
-#pragma warning (disable : 4275)
+#    pragma warning(disable : 4251)
+#    pragma warning(disable : 4275)
 #endif
-
 
 typedef TypedAttribute<OPENEXR_IMF_INTERNAL_NAMESPACE::CompressedIDManifest>
     IDManifestAttribute;
 
 #ifndef COMPILING_IMF_IDMANIFEST_ATTRIBUTE
-extern template class IMF_EXPORT_EXTERN_TEMPLATE TypedAttribute<OPENEXR_IMF_INTERNAL_NAMESPACE::CompressedIDManifest>;
+extern template class IMF_EXPORT_EXTERN_TEMPLATE
+    TypedAttribute<OPENEXR_IMF_INTERNAL_NAMESPACE::CompressedIDManifest>;
 #endif
-
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 

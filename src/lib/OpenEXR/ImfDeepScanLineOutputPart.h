@@ -7,34 +7,31 @@
 #define IMFDEEPSCANLINEOUTPUTPART_H_
 
 #include "ImfDeepScanLineOutputFile.h"
+#include "ImfExport.h"
 #include "ImfMultiPartOutputFile.h"
 #include "ImfNamespace.h"
-#include "ImfExport.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 class DeepScanLineOutputPart
 {
-  public:
-
+public:
     IMF_EXPORT
-    DeepScanLineOutputPart(MultiPartOutputFile& multiPartFile, int partNumber);
+    DeepScanLineOutputPart (MultiPartOutputFile& multiPartFile, int partNumber);
 
     //------------------------
     // Access to the file name
     //------------------------
 
     IMF_EXPORT
-    const char *        fileName () const;
-
+    const char* fileName () const;
 
     //--------------------------
     // Access to the file header
     //--------------------------
 
     IMF_EXPORT
-    const Header &      header () const;
-
+    const Header& header () const;
 
     //-------------------------------------------------------
     // Set the current frame buffer -- copies the FrameBuffer
@@ -48,16 +45,14 @@ class DeepScanLineOutputPart
     //-------------------------------------------------------
 
     IMF_EXPORT
-    void                setFrameBuffer (const DeepFrameBuffer &frameBuffer);
-
+    void setFrameBuffer (const DeepFrameBuffer& frameBuffer);
 
     //-----------------------------------
     // Access to the current frame buffer
     //-----------------------------------
 
     IMF_EXPORT
-    const DeepFrameBuffer & frameBuffer () const;
-
+    const DeepFrameBuffer& frameBuffer () const;
 
     //-------------------------------------------------------------------
     // Write pixel data:
@@ -73,8 +68,7 @@ class DeepScanLineOutputPart
     //-------------------------------------------------------------------
 
     IMF_EXPORT
-    void                writePixels (int numScanLines = 1);
-
+    void writePixels (int numScanLines = 1);
 
     //------------------------------------------------------------------
     // Access to the current scan line:
@@ -98,8 +92,7 @@ class DeepScanLineOutputPart
     //------------------------------------------------------------------
 
     IMF_EXPORT
-    int                 currentScanLine () const;
-
+    int currentScanLine () const;
 
     //--------------------------------------------------------------
     // Shortcut to copy all pixels from an InputFile into this file,
@@ -110,10 +103,9 @@ class DeepScanLineOutputPart
     //--------------------------------------------------------------
 
     IMF_EXPORT
-    void                copyPixels (DeepScanLineInputFile &in);
+    void copyPixels (DeepScanLineInputFile& in);
     IMF_EXPORT
-    void                copyPixels (DeepScanLineInputPart &in);
-
+    void copyPixels (DeepScanLineInputPart& in);
 
     //--------------------------------------------------------------
     // Updating the preview image:
@@ -134,16 +126,12 @@ class DeepScanLineOutputPart
     //--------------------------------------------------------------
 
     IMF_EXPORT
-    void                updatePreviewImage (const PreviewRgba newPixels[]);
+    void updatePreviewImage (const PreviewRgba newPixels[]);
 
-  private:
-      DeepScanLineOutputFile* file;
+private:
+    DeepScanLineOutputFile* file;
 };
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
-
-
-
-
 
 #endif /* IMFDEEPSCANLINEOUTPUTPART_H_ */

@@ -12,26 +12,25 @@
 //
 //-----------------------------------------------------------------------------
 
-#include "readInputImage.h"
 #include "namespaceAlias.h"
+#include "readInputImage.h"
 
-#include <ImfTileDescription.h>
 #include <ImfCompression.h>
+#include <ImfTileDescription.h>
 
-void
-makeCubeMap (EnvmapImage &image,
-             IMF::Header &header,
-             IMF::RgbaChannels channels,
-             const char outFileName[],
-             int tileWidth,
-             int tileHeight,
-             IMF::LevelMode levelMode,
-             IMF::LevelRoundingMode roundingMode,
-             IMF::Compression compression,
-             int mapWidth,
-             float filterRadius,
-             int numSamples,
-             bool verbose);
-
+void makeCubeMap (
+    EnvmapImage&           image,
+    IMF::Header&           header,
+    IMF::RgbaChannels      channels,
+    const char             outFileName[],
+    int                    tileWidth,
+    int                    tileHeight,
+    IMF::LevelMode         levelMode,
+    IMF::LevelRoundingMode roundingMode,
+    IMF::Compression       compression,
+    int                    mapWidth,
+    float                  filterRadius,
+    int                    numSamples,
+    bool                   verbose);
 
 #endif

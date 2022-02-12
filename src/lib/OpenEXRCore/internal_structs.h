@@ -12,8 +12,8 @@
 
 #ifdef ILMTHREAD_THREADING_ENABLED
 #    ifdef _WIN32
-#        include <windows.h>
 #        include <synchapi.h>
+#        include <windows.h>
 #    else
 #        include <pthread.h>
 #    endif
@@ -89,8 +89,8 @@ struct _internal_exr_part
     exr_compression_t comp_type;
     exr_lineorder_t   lineorder;
 
-    int32_t  zip_compression_level;
-    float    dwa_compression_level;
+    int32_t zip_compression_level;
+    float   dwa_compression_level;
 
     int32_t  num_tile_levels_x;
     int32_t  num_tile_levels_y;
@@ -170,7 +170,7 @@ struct _internal_exr_context
     int max_tile_w;
     int max_tile_h;
 
-    int default_zip_level;
+    int   default_zip_level;
     float default_dwa_quality;
 
     void*                         real_user_data;

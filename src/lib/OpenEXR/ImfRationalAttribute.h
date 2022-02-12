@@ -17,13 +17,13 @@
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
-
-typedef TypedAttribute<OPENEXR_IMF_INTERNAL_NAMESPACE::Rational> RationalAttribute;
+typedef TypedAttribute<OPENEXR_IMF_INTERNAL_NAMESPACE::Rational>
+    RationalAttribute;
 
 #ifndef COMPILING_IMF_RATIONAL_ATTRIBUTE
-extern template class IMF_EXPORT_EXTERN_TEMPLATE TypedAttribute<OPENEXR_IMF_INTERNAL_NAMESPACE::Rational>;
+extern template class IMF_EXPORT_EXTERN_TEMPLATE
+    TypedAttribute<OPENEXR_IMF_INTERNAL_NAMESPACE::Rational>;
 #endif
-
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 

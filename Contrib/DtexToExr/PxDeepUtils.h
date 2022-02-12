@@ -7,37 +7,38 @@
 #define _PxDeepUtils_h_
 
 #include <ImfNamespace.h>
-#include <ImfPixelType.h>
 #include <ImfPartType.h>
+#include <ImfPixelType.h>
 
-#include <ImathFun.h>
-#include <ImathVec.h>
 #include <ImathBox.h>
+#include <ImathFun.h>
 #include <ImathMatrix.h>
+#include <ImathVec.h>
 
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <assert.h>
 #include <string.h>
 
-#include <iostream>
+#include <algorithm>
 #include <exception>
+#include <iostream>
 #include <stdexcept>
 #include <string>
-#include <vector>
-#include <algorithm>
 #include <utility>
+#include <vector>
 
+#include <cmath>
 #include <dtex.h>
+#include <float.h>
 #include <half.h>
 #include <math.h>
-#include <float.h>
-#include <cmath>
 #include <sys/types.h>
 
 using std::isfinite;
 
-namespace PxDeep {
+namespace PxDeep
+{
 
 //-*****************************************************************************
 // The large block of comments below explains our working terminology and
@@ -99,7 +100,7 @@ namespace PxDeep {
 // When using viz, we use double precision because the operation
 // 1.0f - ( 1.0f - a ) loses precision, and we want as little of that as
 // possible!
-// 
+//
 //-*****************************************************************************
 // DEPTH RANGES
 //-*****************************************************************************
@@ -135,7 +136,7 @@ namespace PxDeep {
 // sample depth.
 //
 // We sometimes use 'deepViz' to in the code below to refer to 1.0 - deepOpacity
-// 
+//
 //-*****************************************************************************
 // DEEP ALPHA
 //-*****************************************************************************
@@ -144,7 +145,7 @@ namespace PxDeep {
 // the depth function as continuous instead of discrete, Deep Alpha represents
 // the alpha of the FAR side of the sample - from the depth of the sample
 // up to, but not including, the depth of the next sample.
-// 
+//
 // A complication arises when the last continuous deep alpha sample has a
 // non-zero deep alpha, because we don't have enough information to infer
 // where the continuous span that begins at the last sample ends in depth. We
@@ -237,12 +238,13 @@ namespace PxDeep {
 //-*****************************************************************************
 // IEEE 754 floats can be incremented to the "next" positive float
 // in this manner, for positive float inputs.
-inline float IncrementPositiveFloat( float i_a, int32_t i_inc=1 )
+inline float
+IncrementPositiveFloat (float i_a, int32_t i_inc = 1)
 {
     typedef union
     {
         int32_t i;
-        float f;
+        float   f;
     } intfloat;
     intfloat a;
     a.f = i_a;
@@ -253,12 +255,13 @@ inline float IncrementPositiveFloat( float i_a, int32_t i_inc=1 )
 //-*****************************************************************************
 // IEEE 754 floats can be decremented to the "previous" positive float
 // in this manner, for positive float inputs.
-inline float DecrementPositiveFloat( float i_a, int32_t i_inc=1 )
+inline float
+DecrementPositiveFloat (float i_a, int32_t i_inc = 1)
 {
     typedef union
     {
         int32_t i;
-        float f;
+        float   f;
     } intfloat;
     intfloat a;
     a.f = i_a;
@@ -271,97 +274,108 @@ inline float DecrementPositiveFloat( float i_a, int32_t i_inc=1 )
 // isinf(x)      returns 1 if x is positive infinity, and -1 if x is nega-
 //                     tive infinity.
 template <typename T>
-inline bool IsInfinity( T i_f )
+inline bool
+IsInfinity (T i_f)
 {
-    return ( isinf( i_f ) == 1 );
+    return (isinf (i_f) == 1);
 }
 
 //-*****************************************************************************
 // A zero-nan functon, which actually zeros inf as well.
 template <typename T>
-inline T ZeroNAN( T i_f )
+inline T
+ZeroNAN (T i_f)
 {
-    if ( !isfinite( i_f ) ) { return ( T )0; }
-    else { return i_f; }
-}
-
-//-*****************************************************************************
-template <typename T>
-inline T ClampDepth( T i_depth )
-{
-    if ( IsInfinity( i_depth ) )
-    {
-        return PXDU_MAX_DEEP_DEPTH;
-    }
+    if (!isfinite (i_f)) { return (T) 0; }
     else
     {
-        return Imath::clamp( i_depth,
-                             ( T )PXDU_MIN_DEEP_DEPTH,
-                             ( T )PXDU_MAX_DEEP_DEPTH );
+        return i_f;
     }
 }
 
 //-*****************************************************************************
 template <typename T>
-inline T ClampDz( T i_dz )
+inline T
+ClampDepth (T i_depth)
 {
-    return Imath::clamp( ZeroNAN( i_dz ), ( T )0, ( T )PXDU_MAX_DZ );
+    if (IsInfinity (i_depth)) { return PXDU_MAX_DEEP_DEPTH; }
+    else
+    {
+        return Imath::clamp (
+            i_depth, (T) PXDU_MIN_DEEP_DEPTH, (T) PXDU_MAX_DEEP_DEPTH);
+    }
 }
 
 //-*****************************************************************************
 template <typename T>
-inline T ClampNonZeroDz( T i_dz )
+inline T
+ClampDz (T i_dz)
 {
-    return Imath::clamp( ZeroNAN( i_dz ),
-                         ( T )PXDU_DZ_OF_ALPHA_1,
-                         ( T )PXDU_MAX_DZ );
+    return Imath::clamp (ZeroNAN (i_dz), (T) 0, (T) PXDU_MAX_DZ);
 }
 
 //-*****************************************************************************
 template <typename T>
-inline T ClampAlpha( T i_alpha )
+inline T
+ClampNonZeroDz (T i_dz)
 {
-    return Imath::clamp( ZeroNAN( i_alpha ), ( T )0, ( T )1 );
+    return Imath::clamp (
+        ZeroNAN (i_dz), (T) PXDU_DZ_OF_ALPHA_1, (T) PXDU_MAX_DZ);
+}
+
+//-*****************************************************************************
+template <typename T>
+inline T
+ClampAlpha (T i_alpha)
+{
+    return Imath::clamp (ZeroNAN (i_alpha), (T) 0, (T) 1);
 }
 
 //-*****************************************************************************
 // "plausible" in this case means not completely transparent, nor
 // completely opaque.
 template <typename T>
-inline T ClampPlausibleAlpha( T i_alpha )
+inline T
+ClampPlausibleAlpha (T i_alpha)
 {
-    return Imath::clamp( ZeroNAN( i_alpha ),
-                         ( T )PXDU_MIN_NON_TRANSPARENT_ALPHA,
-                         ( T )PXDU_MAX_NON_OPAQUE_ALPHA );
+    return Imath::clamp (
+        ZeroNAN (i_alpha),
+        (T) PXDU_MIN_NON_TRANSPARENT_ALPHA,
+        (T) PXDU_MAX_NON_OPAQUE_ALPHA);
 }
 
 //-*****************************************************************************
 template <typename T>
-inline double ClampViz( T i_viz )
+inline double
+ClampViz (T i_viz)
 {
-    return Imath::clamp( ZeroNAN( i_viz ), ( T )0, ( T )1 );
+    return Imath::clamp (ZeroNAN (i_viz), (T) 0, (T) 1);
 }
 
 //-*****************************************************************************
 // "plausible" in this case means not completely transparent, nor
 // completely opaque.
 template <typename T>
-inline T ClampPlausibleViz( T i_viz )
+inline T
+ClampPlausibleViz (T i_viz)
 {
-    return Imath::clamp( ZeroNAN( i_viz ),
-                         ( T )PXDU_MIN_NON_OPAQUE_VIZ,
-                         ( T )PXDU_MAX_NON_TRANSPARENT_VIZ );
+    return Imath::clamp (
+        ZeroNAN (i_viz),
+        (T) PXDU_MIN_NON_OPAQUE_VIZ,
+        (T) PXDU_MAX_NON_TRANSPARENT_VIZ);
 }
 
 //-*****************************************************************************
 // Plausible density is clamped between min non-zero density
 // and density of alpha 1.
 template <typename T>
-inline T ClampPlausibleDensity( T i_density )
+inline T
+ClampPlausibleDensity (T i_density)
 {
-    return Imath::clamp( ZeroNAN( i_density ),
-                         ( T )PXDU_MIN_NON_ZERO_DENSITY,
-                         ( T )PXDU_DENSITY_OF_ALPHA_1 );
+    return Imath::clamp (
+        ZeroNAN (i_density),
+        (T) PXDU_MIN_NON_ZERO_DENSITY,
+        (T) PXDU_DENSITY_OF_ALPHA_1);
 }
 
 //-*****************************************************************************
@@ -373,7 +387,7 @@ inline T ClampPlausibleDensity( T i_density )
 // viz = exp( -dz * density )
 // log( viz ) = -dz * density
 // density = -log( viz ) / dz
-double DensityFromVizDz( double i_viz, double i_dz );
+double DensityFromVizDz (double i_viz, double i_dz);
 
 //-*****************************************************************************
 // We can often treat "density times dz" as a single quantity without
@@ -381,13 +395,14 @@ double DensityFromVizDz( double i_viz, double i_dz );
 // viz = exp( -densityTimesDz )
 // log( viz ) = -densityTimesDz
 // densityTimesDz = -log( viz )
-double DensityTimesDzFromViz( double i_viz );
+double DensityTimesDzFromViz (double i_viz);
 
 //-*****************************************************************************
 // Plausible density defined above.
-inline double PlausibleDensityFromVizDz( double i_viz, double i_dz )
+inline double
+PlausibleDensityFromVizDz (double i_viz, double i_dz)
 {
-    return ClampPlausibleDensity( DensityFromVizDz( i_viz, i_dz ) );
+    return ClampPlausibleDensity (DensityFromVizDz (i_viz, i_dz));
 }
 
 //-*****************************************************************************
@@ -395,22 +410,24 @@ inline double PlausibleDensityFromVizDz( double i_viz, double i_dz )
 // log( viz ) = -dz * density
 // dz = -log( viz ) / density
 // Note that this is basically the same as the computation above.
-double DzFromVizDensity( double i_viz, double i_density );
+double DzFromVizDensity (double i_viz, double i_density);
 
 //-*****************************************************************************
 // viz = exp( -dz * density ) // valid for all finite numbers.
 // negative densities or dz's will give greater than 1 viz's, which will
 // get clamped!
-inline double VizFromDensityDz( double i_density, double i_dz )
+inline double
+VizFromDensityDz (double i_density, double i_dz)
 {
-    return ClampViz( exp( -ZeroNAN( i_density * i_dz ) ) );
+    return ClampViz (exp (-ZeroNAN (i_density * i_dz)));
 }
 
 //-*****************************************************************************
 // same as above.
-inline double VizFromDensityTimesDz( double i_densityTimesDz )
+inline double
+VizFromDensityTimesDz (double i_densityTimesDz)
 {
-    return ClampViz( exp( -ZeroNAN( i_densityTimesDz ) ) );
+    return ClampViz (exp (-ZeroNAN (i_densityTimesDz)));
 }
 
 //-*****************************************************************************
@@ -422,29 +439,39 @@ inline double VizFromDensityTimesDz( double i_densityTimesDz )
 //-*****************************************************************************
 
 //-*****************************************************************************
-template <typename T>
-Imf::PixelType ImfPixelType();
+template <typename T> Imf::PixelType ImfPixelType ();
 
 template <>
-inline Imf::PixelType ImfPixelType<half>() { return Imf::HALF; }
+inline Imf::PixelType
+ImfPixelType<half> ()
+{
+    return Imf::HALF;
+}
 
 template <>
-inline Imf::PixelType ImfPixelType<float>() { return Imf::FLOAT; }
+inline Imf::PixelType
+ImfPixelType<float> ()
+{
+    return Imf::FLOAT;
+}
 
 template <>
-inline Imf::PixelType ImfPixelType<uint>() { return Imf::UINT; }
+inline Imf::PixelType
+ImfPixelType<uint> ()
+{
+    return Imf::UINT;
+}
 
 //-*****************************************************************************
 // Handy exception macro.
-#define PXDU_THROW( TEXT )                      \
-do                                              \
-{                                               \
-    std::stringstream sstr;                     \
-    sstr << TEXT;                               \
-    std::runtime_error exc( sstr.str() );       \
-    throw( exc );                               \
-}                                               \
-while( 0 )
+#define PXDU_THROW(TEXT)                                                       \
+    do                                                                         \
+    {                                                                          \
+        std::stringstream sstr;                                                \
+        sstr << TEXT;                                                          \
+        std::runtime_error exc (sstr.str ());                                  \
+        throw (exc);                                                           \
+    } while (0)
 
 } // End namespace PxDeep
 

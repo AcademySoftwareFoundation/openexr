@@ -3,7 +3,6 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
-
 #ifndef INCLUDED_IMF_LUT_H
 #define INCLUDED_IMF_LUT_H
 
@@ -31,39 +30,31 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 class HalfLut
 {
-  public:
-
+public:
     //------------
     // Constructor
     //------------
 
-    template <class Function>
-    HalfLut (Function f);
-
+    template <class Function> HalfLut (Function f);
 
     //----------------------------------------------------------------------
     // Apply the table to data[0], data[stride] ... data[(nData-1) * stride]
     //----------------------------------------------------------------------
 
     IMF_EXPORT
-    void apply (half *data,
-		int nData,
-		int stride = 1) const;
-
+    void apply (half* data, int nData, int stride = 1) const;
 
     //---------------------------------------------------------------
     // Apply the table to a frame buffer slice (see ImfFrameBuffer.h)
     //---------------------------------------------------------------
 
     IMF_EXPORT
-    void apply (const Slice &data,
-		const IMATH_NAMESPACE::Box2i &dataWindow) const;
+    void
+    apply (const Slice& data, const IMATH_NAMESPACE::Box2i& dataWindow) const;
 
-  private:
-
-    halfFunction <half>	_lut;
+private:
+    halfFunction<half> _lut;
 };
-
 
 //
 // Lookup table for combined RGBA data.
@@ -71,8 +62,7 @@ class HalfLut
 
 class RgbaLut
 {
-  public:
-
+public:
     //------------
     // Constructor
     //------------
@@ -80,33 +70,28 @@ class RgbaLut
     template <class Function>
     RgbaLut (Function f, RgbaChannels chn = WRITE_RGB);
 
-
     //----------------------------------------------------------------------
     // Apply the table to data[0], data[stride] ... data[(nData-1) * stride]
     //----------------------------------------------------------------------
 
     IMF_EXPORT
-    void apply (Rgba *data,
-		int nData,
-		int stride = 1) const;
-
+    void apply (Rgba* data, int nData, int stride = 1) const;
 
     //-----------------------------------------------------------------------
     // Apply the table to a frame buffer (see RgbaOutpuFile.setFrameBuffer())
     //-----------------------------------------------------------------------
 
     IMF_EXPORT
-    void apply (Rgba *base,
-		int xStride,
-		int yStride,
-		const IMATH_NAMESPACE::Box2i &dataWindow) const;
+    void apply (
+        Rgba*                         base,
+        int                           xStride,
+        int                           yStride,
+        const IMATH_NAMESPACE::Box2i& dataWindow) const;
 
-  private:
-
-    halfFunction <half>	_lut;
-    RgbaChannels	_chn;
+private:
+    halfFunction<half> _lut;
+    RgbaChannels       _chn;
 };
-
 
 //
 // 12bit log rounding reduces data to 20 stops with 200 steps per stop.
@@ -116,9 +101,8 @@ class RgbaLut
 // the center [2000] and that number is near 0.18.
 //
 
-IMF_EXPORT 
+IMF_EXPORT
 half round12log (half x);
-
 
 //
 // Round to n-bit precision (n should be between 0 and 10).
@@ -128,35 +112,43 @@ half round12log (half x);
 
 struct roundNBit
 {
-    roundNBit (int n): n(n) {}
-    half operator () (half x) {return x.round(n);}
-    int n;
+    roundNBit (int n) : n (n) {}
+    half operator() (half x) { return x.round (n); }
+    int  n;
 };
-
 
 //
 // Template definitions
 //
 
-
 template <class Function>
-HalfLut::HalfLut (Function f):
-    _lut(f, -HALF_MAX, HALF_MAX, half (0),
-	 half::posInf(), half::negInf(), half::qNan())
+HalfLut::HalfLut (Function f)
+    : _lut (
+          f,
+          -HALF_MAX,
+          HALF_MAX,
+          half (0),
+          half::posInf (),
+          half::negInf (),
+          half::qNan ())
 {
     // empty
 }
 
-
 template <class Function>
-RgbaLut::RgbaLut (Function f, RgbaChannels chn):
-    _lut(f, -HALF_MAX, HALF_MAX, half (0),
-	 half::posInf(), half::negInf(), half::qNan()),
-    _chn(chn)
+RgbaLut::RgbaLut (Function f, RgbaChannels chn)
+    : _lut (
+          f,
+          -HALF_MAX,
+          HALF_MAX,
+          half (0),
+          half::posInf (),
+          half::negInf (),
+          half::qNan ())
+    , _chn (chn)
 {
     // empty
 }
-
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 

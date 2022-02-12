@@ -13,22 +13,19 @@
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
-
 static const std::string SCANLINEIMAGE = "scanlineimage";
 static const std::string TILEDIMAGE    = "tiledimage";
 static const std::string DEEPSCANLINE  = "deepscanline";
 static const std::string DEEPTILE      = "deeptile";
 
-IMF_EXPORT bool isImage(const std::string& name);
+IMF_EXPORT bool isImage (const std::string& name);
 
-IMF_EXPORT bool isTiled(const std::string& name);
+IMF_EXPORT bool isTiled (const std::string& name);
 
-IMF_EXPORT bool isDeepData(const std::string& name);
+IMF_EXPORT bool isDeepData (const std::string& name);
 
-IMF_EXPORT bool isSupportedType(const std::string& name);
-
+IMF_EXPORT bool isSupportedType (const std::string& name);
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
-
 
 #endif /* IMFPARTTYPE_H_ */

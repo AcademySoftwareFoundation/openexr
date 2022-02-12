@@ -1,16 +1,18 @@
 void
-readGZ1 (const char fileName[],
-         Array2D<half> &rPixels,
-         Array2D<half> &gPixels,
-         Array2D<float> &zPixels,
-         int &width, int &height)
-    
+readGZ1 (
+    const char      fileName[],
+    Array2D<half>&  rPixels,
+    Array2D<half>&  gPixels,
+    Array2D<float>& zPixels,
+    int&            width,
+    int&            height)
+
 {
     InputFile file (fileName);
 
-    Box2i dw = file.header().dataWindow();
-    width = dw.max.x - dw.min.x + 1;
-    height = dw.max.y - dw.min.y + 1;
+    Box2i dw = file.header ().dataWindow ();
+    width    = dw.max.x - dw.min.x + 1;
+    height   = dw.max.y - dw.min.y + 1;
 
     rPixels.resizeErase (height, width);
     gPixels.resizeErase (height, width);
@@ -51,4 +53,3 @@ readGZ1 (const char fileName[],
     file.setFrameBuffer (frameBuffer);
     file.readPixels (dw.min.y, dw.max.y);
 }
-

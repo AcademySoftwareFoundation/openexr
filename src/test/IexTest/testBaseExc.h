@@ -3,7 +3,4 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
-
-
-void testBaseExc();
-
+void testBaseExc ();

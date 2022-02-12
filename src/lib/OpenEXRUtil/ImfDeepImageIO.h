@@ -13,14 +13,13 @@
 //
 //----------------------------------------------------------------------------
 
-#include "ImfUtilExport.h"
 #include "ImfNamespace.h"
+#include "ImfUtilExport.h"
 
 #include "ImfDeepImage.h"
 #include "ImfImageDataWindow.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
-
 
 //
 // saveDeepImage (n, h, i,d) or
@@ -44,18 +43,14 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 //
 
 IMFUTIL_EXPORT
-void
-saveDeepImage
-    (const std::string &fileName,
-     const Header &hdr,
-     const DeepImage &img,
-     DataWindowSource dws = USE_IMAGE_DATA_WINDOW);
+void saveDeepImage (
+    const std::string& fileName,
+    const Header&      hdr,
+    const DeepImage&   img,
+    DataWindowSource   dws = USE_IMAGE_DATA_WINDOW);
 
 IMFUTIL_EXPORT
-void
-saveDeepImage
-    (const std::string &fileName,
-     const DeepImage &img);
+void saveDeepImage (const std::string& fileName, const DeepImage& img);
 
 //
 // loadDeepImage (n, h, i) or
@@ -67,19 +62,10 @@ saveDeepImage
 //
 
 IMFUTIL_EXPORT
-void
-loadDeepImage
-    (const std::string &fileName,
-     Header &hdr,
-     DeepImage &img);
-
+void loadDeepImage (const std::string& fileName, Header& hdr, DeepImage& img);
 
 IMFUTIL_EXPORT
-void
-loadDeepImage
-    (const std::string &fileName,
-     DeepImage &img);
-
+void loadDeepImage (const std::string& fileName, DeepImage& img);
 
 //
 // saveDeepScanLineImage (n, h, i, d) or
@@ -97,19 +83,14 @@ loadDeepImage
 //
 
 IMFUTIL_EXPORT
-void
-saveDeepScanLineImage
-    (const std::string &fileName,
-     const Header &hdr,
-     const DeepImage &img,
-     DataWindowSource dws = USE_IMAGE_DATA_WINDOW);
+void saveDeepScanLineImage (
+    const std::string& fileName,
+    const Header&      hdr,
+    const DeepImage&   img,
+    DataWindowSource   dws = USE_IMAGE_DATA_WINDOW);
 
 IMFUTIL_EXPORT
-void
-saveDeepScanLineImage
-    (const std::string &fileName,
-     const DeepImage &img);
-
+void saveDeepScanLineImage (const std::string& fileName, const DeepImage& img);
 
 //
 // loadDeepScanLineImage (n, h, i) or
@@ -120,17 +101,11 @@ saveDeepScanLineImage
 //
 
 IMFUTIL_EXPORT
-void
-loadDeepScanLineImage
-    (const std::string &fileName,
-     Header &hdr,
-     DeepImage &img);
+void loadDeepScanLineImage (
+    const std::string& fileName, Header& hdr, DeepImage& img);
 
 IMFUTIL_EXPORT
-void
-loadDeepScanLineImage
-    (const std::string &fileName,
-     DeepImage &img);
+void loadDeepScanLineImage (const std::string& fileName, DeepImage& img);
 
 //
 // saveDeepTiledImage (n, h, i, d) or
@@ -154,18 +129,14 @@ loadDeepScanLineImage
 //
 
 IMFUTIL_EXPORT
-void
-saveDeepTiledImage
-    (const std::string &fileName,
-     const Header &hdr,
-     const DeepImage &img,
-     DataWindowSource dws = USE_IMAGE_DATA_WINDOW);
+void saveDeepTiledImage (
+    const std::string& fileName,
+    const Header&      hdr,
+    const DeepImage&   img,
+    DataWindowSource   dws = USE_IMAGE_DATA_WINDOW);
 
 IMFUTIL_EXPORT
-void
-saveDeepTiledImage
-    (const std::string &fileName,
-     const DeepImage &img);
+void saveDeepTiledImage (const std::string& fileName, const DeepImage& img);
 
 //
 // loadDeepTiledImage (n, h, i) or
@@ -177,16 +148,10 @@ saveDeepTiledImage
 
 IMFUTIL_EXPORT
 void
-loadDeepTiledImage
-    (const std::string &fileName,
-     Header &hdr,
-     DeepImage &img);
+loadDeepTiledImage (const std::string& fileName, Header& hdr, DeepImage& img);
 
 IMFUTIL_EXPORT
-void
-loadDeepTiledImage
-    (const std::string &fileName,
-     DeepImage &img);
+void loadDeepTiledImage (const std::string& fileName, DeepImage& img);
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 

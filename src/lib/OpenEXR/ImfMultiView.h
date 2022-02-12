@@ -3,7 +3,6 @@
 // Copyright (c) Weta Digital, Ltd and Contributors to the OpenEXR Project.
 //
 
-
 #ifndef INCLUDED_IMF_MULTIVIEW_H
 #define INCLUDED_IMF_MULTIVIEW_H
 
@@ -64,8 +63,7 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 //
 
 IMF_EXPORT
-std::string defaultViewName (const StringVector &multiView);
-
+std::string defaultViewName (const StringVector& multiView);
 
 //
 // Given the name of a channel, return the name of the view to
@@ -74,9 +72,8 @@ std::string defaultViewName (const StringVector &multiView);
 //
 
 IMF_EXPORT
-std::string viewFromChannelName (const std::string &channel,
-                                 const StringVector &multiView);
-
+std::string
+viewFromChannelName (const std::string& channel, const StringVector& multiView);
 
 //
 // Return whether channel1 and channel2 are the same channel but
@@ -85,26 +82,28 @@ std::string viewFromChannelName (const std::string &channel,
 //
 
 IMF_EXPORT
-bool areCounterparts (const std::string &channel1,
-                      const std::string &channel2,
-                      const StringVector &multiView);
+bool areCounterparts (
+    const std::string&  channel1,
+    const std::string&  channel2,
+    const StringVector& multiView);
 
 //
 // Return a list of all channels belonging to view viewName.
 //
 
 IMF_EXPORT
-ChannelList channelsInView (const std::string &viewName,
-                            const ChannelList &channelList,
-                            const StringVector &multiView);
+ChannelList channelsInView (
+    const std::string&  viewName,
+    const ChannelList&  channelList,
+    const StringVector& multiView);
 
 //
 // Return a list of channels not associated with any view.
 //
 
 IMF_EXPORT
-ChannelList channelsInNoView (const ChannelList &channelList,
-                              const StringVector &multiView);
+ChannelList channelsInNoView (
+    const ChannelList& channelList, const StringVector& multiView);
 
 //
 // Given the name of a channel, return a list of the same channel
@@ -113,9 +112,10 @@ ChannelList channelsInNoView (const ChannelList &channelList,
 //
 
 IMF_EXPORT
-ChannelList channelInAllViews (const std::string &channame,
-                               const ChannelList &channelList,
-                               const StringVector &multiView);
+ChannelList channelInAllViews (
+    const std::string&  channame,
+    const ChannelList&  channelList,
+    const StringVector& multiView);
 
 //
 // Given the name of a channel in one view, return the corresponding
@@ -125,10 +125,11 @@ ChannelList channelInAllViews (const std::string &channame,
 //
 
 IMF_EXPORT
-std::string channelInOtherView (const std::string &channel,
-                                const ChannelList &channelList,
-                                const StringVector &multiView,
-                                const std::string &otherViewName);
+std::string channelInOtherView (
+    const std::string&  channel,
+    const ChannelList&  channelList,
+    const StringVector& multiView,
+    const std::string&  otherViewName);
 
 //
 // Given a channel name that does not include a view name, insert
@@ -138,22 +139,20 @@ std::string channelInOtherView (const std::string &channel,
 //
 
 IMF_EXPORT
-std::string insertViewName (const std::string &channel,
-			    const StringVector &multiView,
-			    int i);
+std::string insertViewName (
+    const std::string& channel, const StringVector& multiView, int i);
 
 //
 // Given a channel name that does may include a view name, return
 // string without the view name. If the string does not contain
 // the view name, return the string unaltered.
-// (Will only remove the viewname if it is in the correct position 
+// (Will only remove the viewname if it is in the correct position
 //  in the string)
 //
 
 IMF_EXPORT
-std::string removeViewName (const std::string &channel,
-		            const std::string &view);
-
+std::string
+removeViewName (const std::string& channel, const std::string& view);
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 

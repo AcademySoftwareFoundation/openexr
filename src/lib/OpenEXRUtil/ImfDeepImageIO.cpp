@@ -10,18 +10,18 @@
 //----------------------------------------------------------------------------
 
 #include "ImfDeepImageIO.h"
+#include <Iex.h>
+#include <ImfChannelList.h>
 #include <ImfDeepScanLineInputFile.h>
 #include <ImfDeepScanLineOutputFile.h>
 #include <ImfDeepTiledInputFile.h>
 #include <ImfDeepTiledOutputFile.h>
-#include <ImfMultiPartInputFile.h>
 #include <ImfHeader.h>
-#include <ImfChannelList.h>
-#include <ImfTestFile.h>
+#include <ImfMultiPartInputFile.h>
 #include <ImfPartType.h>
-#include <Iex.h>
-#include <cstring>
+#include <ImfTestFile.h>
 #include <cassert>
+#include <cstring>
 
 using namespace IMATH_NAMESPACE;
 using namespace IEX_NAMESPACE;
@@ -29,56 +29,58 @@ using namespace std;
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
-
 void
-saveDeepImage
-    (const string &fileName,
-     const Header &hdr,
-     const DeepImage &img,
-     DataWindowSource dws)
+saveDeepImage (
+    const string&    fileName,
+    const Header&    hdr,
+    const DeepImage& img,
+    DataWindowSource dws)
 {
-    if (img.levelMode() != ONE_LEVEL || hdr.hasTileDescription())
+    if (img.levelMode () != ONE_LEVEL || hdr.hasTileDescription ())
         saveDeepTiledImage (fileName, hdr, img, dws);
     else
         saveDeepScanLineImage (fileName, hdr, img, dws);
 }
 
-
 void
-saveDeepImage
-    (const string &fileName,
-     const DeepImage &img)
+saveDeepImage (const string& fileName, const DeepImage& img)
 {
     Header hdr;
-    hdr.displayWindow() = img.dataWindow();
+    hdr.displayWindow () = img.dataWindow ();
     saveDeepImage (fileName, hdr, img);
 }
 
-
 void
-loadDeepImage
-    (const string &fileName,
-     Header &hdr,
-     DeepImage &img)
+loadDeepImage (const string& fileName, Header& hdr, DeepImage& img)
 {
     bool tiled, deep, multiPart;
 
-    if (!isOpenExrFile (fileName.c_str(), tiled, deep, multiPart))
+    if (!isOpenExrFile (fileName.c_str (), tiled, deep, multiPart))
     {
-        THROW (ArgExc, "Cannot load image file " << fileName << ".  "
-                       "The file is not an OpenEXR file.");
+        THROW (
+            ArgExc,
+            "Cannot load image file " << fileName
+                                      << ".  "
+                                         "The file is not an OpenEXR file.");
     }
 
     if (multiPart)
     {
-        THROW (ArgExc, "Cannot load image file " << fileName << ".  "
-                       "Multi-part file loading is not supported.");
+        THROW (
+            ArgExc,
+            "Cannot load image file "
+                << fileName
+                << ".  "
+                   "Multi-part file loading is not supported.");
     }
 
     if (!deep)
     {
-        THROW (ArgExc, "Cannot load flat image file " << fileName << " "
-                       "as a deep image.");
+        THROW (
+            ArgExc,
+            "Cannot load flat image file " << fileName
+                                           << " "
+                                              "as a deep image.");
     }
 
     //XXX TODO: the tiled flag obtained above is unreliable;
@@ -86,11 +88,11 @@ loadDeepImage
     // Can the OpenEXR library be fixed?
 
     {
-        MultiPartInputFile mpi (fileName.c_str());
+        MultiPartInputFile mpi (fileName.c_str ());
 
-        tiled = (mpi.parts() > 0 &&
-                 mpi.header(0).hasType() &&
-                 isTiled (mpi.header(0).type()));
+        tiled =
+            (mpi.parts () > 0 && mpi.header (0).hasType () &&
+             isTiled (mpi.header (0).type ()));
     }
 
     if (tiled)
@@ -99,140 +101,128 @@ loadDeepImage
         loadDeepScanLineImage (fileName, hdr, img);
 }
 
-
 void
-loadDeepImage
-    (const string &fileName,
-     DeepImage &img)
+loadDeepImage (const string& fileName, DeepImage& img)
 {
     Header hdr;
     loadDeepImage (fileName, hdr, img);
 }
 
-
 void
-saveDeepScanLineImage
-    (const string &fileName,
-     const Header &hdr,
-     const DeepImage &img,
-     DataWindowSource dws)
+saveDeepScanLineImage (
+    const string&    fileName,
+    const Header&    hdr,
+    const DeepImage& img,
+    DataWindowSource dws)
 {
     Header newHdr;
 
-    for (Header::ConstIterator i = hdr.begin(); i != hdr.end(); ++i)
+    for (Header::ConstIterator i = hdr.begin (); i != hdr.end (); ++i)
     {
-        if (strcmp (i.name(), "dataWindow") &&
-            strcmp (i.name(), "tiles") && 
-            strcmp (i.name(), "channels"))
+        if (strcmp (i.name (), "dataWindow") && strcmp (i.name (), "tiles") &&
+            strcmp (i.name (), "channels"))
         {
-            newHdr.insert (i.name(), i.attribute());
+            newHdr.insert (i.name (), i.attribute ());
         }
     }
 
-    newHdr.dataWindow() = dataWindowForFile (hdr, img, dws);
+    newHdr.dataWindow () = dataWindowForFile (hdr, img, dws);
 
     //XXX TODO: setting the compression to, for example,  ZIP_COMPRESSION,
     //then the OpenEXR library will save the file, but later it will not be
     //able to read it.  Fix the library!
 
-    newHdr.compression() = ZIPS_COMPRESSION;
+    newHdr.compression () = ZIPS_COMPRESSION;
 
-    const DeepImageLevel &level = img.level();
-    DeepFrameBuffer fb;
+    const DeepImageLevel& level = img.level ();
+    DeepFrameBuffer       fb;
 
-    fb.insertSampleCountSlice (level.sampleCounts().slice());
+    fb.insertSampleCountSlice (level.sampleCounts ().slice ());
 
-    for (DeepImageLevel::ConstIterator i = level.begin(); i != level.end(); ++i)
+    for (DeepImageLevel::ConstIterator i = level.begin (); i != level.end ();
+         ++i)
     {
-        newHdr.channels().insert (i.name(), i.channel().channel());
-        fb.insert (i.name(), i.channel().slice());
+        newHdr.channels ().insert (i.name (), i.channel ().channel ());
+        fb.insert (i.name (), i.channel ().slice ());
     }
 
-    DeepScanLineOutputFile out (fileName.c_str(), newHdr);
+    DeepScanLineOutputFile out (fileName.c_str (), newHdr);
     out.setFrameBuffer (fb);
-    out.writePixels (newHdr.dataWindow().max.y - newHdr.dataWindow().min.y + 1);
+    out.writePixels (
+        newHdr.dataWindow ().max.y - newHdr.dataWindow ().min.y + 1);
 }
 
-
 void
-saveDeepScanLineImage
-    (const string &fileName,
-     const DeepImage &img)
+saveDeepScanLineImage (const string& fileName, const DeepImage& img)
 {
     Header hdr;
-    hdr.displayWindow() = img.dataWindow();
+    hdr.displayWindow () = img.dataWindow ();
     saveDeepScanLineImage (fileName, hdr, img);
 }
 
-
 void
-loadDeepScanLineImage
-    (const string &fileName,
-     Header &hdr,
-     DeepImage &img)
+loadDeepScanLineImage (const string& fileName, Header& hdr, DeepImage& img)
 {
-    DeepScanLineInputFile in (fileName.c_str());
+    DeepScanLineInputFile in (fileName.c_str ());
 
-    const ChannelList &cl = in.header().channels();
+    const ChannelList& cl = in.header ().channels ();
 
-    img.clearChannels();
+    img.clearChannels ();
 
-    for (ChannelList::ConstIterator i = cl.begin(); i != cl.end(); ++i)
-        img.insertChannel (i.name(), i.channel());
+    for (ChannelList::ConstIterator i = cl.begin (); i != cl.end (); ++i)
+        img.insertChannel (i.name (), i.channel ());
 
-    img.resize (in.header().dataWindow(), ONE_LEVEL, ROUND_DOWN);
+    img.resize (in.header ().dataWindow (), ONE_LEVEL, ROUND_DOWN);
 
-    DeepImageLevel &level = img.level();
+    DeepImageLevel& level = img.level ();
     DeepFrameBuffer fb;
 
-    fb.insertSampleCountSlice (level.sampleCounts().slice());
+    fb.insertSampleCountSlice (level.sampleCounts ().slice ());
 
-    for (DeepImageLevel::ConstIterator i = level.begin(); i != level.end(); ++i)
-        fb.insert (i.name(), i.channel().slice());
+    for (DeepImageLevel::ConstIterator i = level.begin (); i != level.end ();
+         ++i)
+        fb.insert (i.name (), i.channel ().slice ());
 
     in.setFrameBuffer (fb);
 
     {
-        SampleCountChannel::Edit edit (level.sampleCounts());
+        SampleCountChannel::Edit edit (level.sampleCounts ());
 
-        in.readPixelSampleCounts
-            (level.dataWindow().min.y, level.dataWindow().max.y);
+        in.readPixelSampleCounts (
+            level.dataWindow ().min.y, level.dataWindow ().max.y);
     }
 
-    in.readPixels (level.dataWindow().min.y, level.dataWindow().max.y);
+    in.readPixels (level.dataWindow ().min.y, level.dataWindow ().max.y);
 
-    for (Header::ConstIterator i = in.header().begin();
-         i != in.header().end();
+    for (Header::ConstIterator i = in.header ().begin ();
+         i != in.header ().end ();
          ++i)
     {
-        if (strcmp (i.name(), "tiles"))
-            hdr.insert (i.name(), i.attribute());
+        if (strcmp (i.name (), "tiles")) hdr.insert (i.name (), i.attribute ());
     }
 }
 
-
 void
-loadDeepScanLineImage
-    (const string &fileName,
-     DeepImage &img)
+loadDeepScanLineImage (const string& fileName, DeepImage& img)
 {
     Header hdr;
     loadDeepScanLineImage (fileName, hdr, img);
 }
 
-
-namespace {
+namespace
+{
 
 void
-saveLevel (DeepTiledOutputFile &out, const DeepImage &img, int x, int y)
+saveLevel (DeepTiledOutputFile& out, const DeepImage& img, int x, int y)
 {
-    const DeepImageLevel &level = img.level (x, y);
-    DeepFrameBuffer fb;
+    const DeepImageLevel& level = img.level (x, y);
+    DeepFrameBuffer       fb;
 
-    fb.insertSampleCountSlice (level.sampleCounts().slice());
+    fb.insertSampleCountSlice (level.sampleCounts ().slice ());
 
-    for (DeepImageLevel::ConstIterator i = level.begin(); i != level.end(); ++i)
-        fb.insert (i.name(), i.channel().slice());
+    for (DeepImageLevel::ConstIterator i = level.begin (); i != level.end ();
+         ++i)
+        fb.insert (i.name (), i.channel ().slice ());
 
     out.setFrameBuffer (fb);
     out.writeTiles (0, out.numXTiles (x) - 1, 0, out.numYTiles (y) - 1, x, y);
@@ -240,119 +230,110 @@ saveLevel (DeepTiledOutputFile &out, const DeepImage &img, int x, int y)
 
 } // namespace
 
-
 void
-saveDeepTiledImage
-    (const string &fileName,
-     const Header &hdr,
-     const DeepImage &img,
-     DataWindowSource dws)
+saveDeepTiledImage (
+    const string&    fileName,
+    const Header&    hdr,
+    const DeepImage& img,
+    DataWindowSource dws)
 {
     Header newHdr;
 
-    for (Header::ConstIterator i = hdr.begin(); i != hdr.end(); ++i)
+    for (Header::ConstIterator i = hdr.begin (); i != hdr.end (); ++i)
     {
-        if (strcmp (i.name(), "dataWindow") &&
-            strcmp (i.name(), "tiles") &&
-            strcmp (i.name(), "channels"))
+        if (strcmp (i.name (), "dataWindow") && strcmp (i.name (), "tiles") &&
+            strcmp (i.name (), "channels"))
         {
-            newHdr.insert (i.name(), i.attribute());
+            newHdr.insert (i.name (), i.attribute ());
         }
     }
 
-    if (hdr.hasTileDescription())
+    if (hdr.hasTileDescription ())
     {
-        newHdr.setTileDescription
-            (TileDescription (hdr.tileDescription().xSize,
-                              hdr.tileDescription().ySize,
-                              img.levelMode(),
-                              img.levelRoundingMode()));
+        newHdr.setTileDescription (TileDescription (
+            hdr.tileDescription ().xSize,
+            hdr.tileDescription ().ySize,
+            img.levelMode (),
+            img.levelRoundingMode ()));
     }
     else
     {
-        newHdr.setTileDescription
-            (TileDescription (64, // xSize
-                              64, // ySize
-                              img.levelMode(),
-                              img.levelRoundingMode()));
+        newHdr.setTileDescription (TileDescription (
+            64, // xSize
+            64, // ySize
+            img.levelMode (),
+            img.levelRoundingMode ()));
     }
 
-    newHdr.dataWindow() = dataWindowForFile (hdr, img, dws);
+    newHdr.dataWindow () = dataWindowForFile (hdr, img, dws);
 
     //XXX TODO: setting the compression to, for example,  ZIP_COMPRESSION,
     //then the OpenEXR library will save the file, but later it will not be
     //able to read it.  Fix the library!
 
-    newHdr.compression() = ZIPS_COMPRESSION;
+    newHdr.compression () = ZIPS_COMPRESSION;
 
-    const DeepImageLevel &level = img.level (0, 0);
+    const DeepImageLevel& level = img.level (0, 0);
 
-    for (DeepImageLevel::ConstIterator i = level.begin(); i != level.end(); ++i)
-        newHdr.channels().insert (i.name(), i.channel().channel());
+    for (DeepImageLevel::ConstIterator i = level.begin (); i != level.end ();
+         ++i)
+        newHdr.channels ().insert (i.name (), i.channel ().channel ());
 
-    DeepTiledOutputFile out (fileName.c_str(), newHdr);
+    DeepTiledOutputFile out (fileName.c_str (), newHdr);
 
-    switch (img.levelMode())
+    switch (img.levelMode ())
     {
-      case ONE_LEVEL:
+        case ONE_LEVEL: saveLevel (out, img, 0, 0); break;
 
-        saveLevel (out, img, 0, 0);
+        case MIPMAP_LEVELS:
 
-        break;
+            for (int x = 0; x < out.numLevels (); ++x)
+                saveLevel (out, img, x, x);
 
-      case MIPMAP_LEVELS:
+            break;
 
-        for (int x = 0; x < out.numLevels(); ++x)
-            saveLevel (out, img, x, x);
+        case RIPMAP_LEVELS:
 
-        break;
+            for (int y = 0; y < out.numYLevels (); ++y)
+                for (int x = 0; x < out.numXLevels (); ++x)
+                    saveLevel (out, img, x, y);
 
-      case RIPMAP_LEVELS:
+            break;
 
-        for (int y = 0; y < out.numYLevels(); ++y)
-            for (int x = 0; x < out.numXLevels(); ++x)
-                saveLevel (out, img, x, y);
-
-        break;
-
-      default:
-
-        assert (false);
+        default: assert (false);
     }
 }
 
-
 void
-saveDeepTiledImage
-    (const string &fileName,
-     const DeepImage &img)
+saveDeepTiledImage (const string& fileName, const DeepImage& img)
 {
     Header hdr;
-    hdr.displayWindow() = img.dataWindow();
+    hdr.displayWindow () = img.dataWindow ();
     saveDeepTiledImage (fileName, hdr, img);
 }
 
-
-namespace {
+namespace
+{
 
 void
-loadLevel (DeepTiledInputFile &in, DeepImage &img, int x, int y)
+loadLevel (DeepTiledInputFile& in, DeepImage& img, int x, int y)
 {
-    DeepImageLevel &level = img.level (x, y);
+    DeepImageLevel& level = img.level (x, y);
     DeepFrameBuffer fb;
 
-    fb.insertSampleCountSlice (level.sampleCounts().slice());
+    fb.insertSampleCountSlice (level.sampleCounts ().slice ());
 
-    for (DeepImageLevel::ConstIterator i = level.begin(); i != level.end(); ++i)
-        fb.insert (i.name(), i.channel().slice());
+    for (DeepImageLevel::ConstIterator i = level.begin (); i != level.end ();
+         ++i)
+        fb.insert (i.name (), i.channel ().slice ());
 
     in.setFrameBuffer (fb);
 
     {
-        SampleCountChannel::Edit edit (level.sampleCounts());
+        SampleCountChannel::Edit edit (level.sampleCounts ());
 
-        in.readPixelSampleCounts
-            (0, in.numXTiles (x) - 1, 0, in.numYTiles (y) - 1, x, y);
+        in.readPixelSampleCounts (
+            0, in.numXTiles (x) - 1, 0, in.numYTiles (y) - 1, x, y);
     }
 
     in.readTiles (0, in.numXTiles (x) - 1, 0, in.numYTiles (y) - 1, x, y);
@@ -360,71 +341,58 @@ loadLevel (DeepTiledInputFile &in, DeepImage &img, int x, int y)
 
 } // namespace
 
-
 void
-loadDeepTiledImage
-    (const string &fileName,
-     Header &hdr,
-     DeepImage &img)
+loadDeepTiledImage (const string& fileName, Header& hdr, DeepImage& img)
 {
-    DeepTiledInputFile in (fileName.c_str());
+    DeepTiledInputFile in (fileName.c_str ());
 
-    const ChannelList &cl = in.header().channels();
+    const ChannelList& cl = in.header ().channels ();
 
-    img.clearChannels();
+    img.clearChannels ();
 
-    for (ChannelList::ConstIterator i = cl.begin(); i != cl.end(); ++i)
-        img.insertChannel (i.name(), i.channel());
+    for (ChannelList::ConstIterator i = cl.begin (); i != cl.end (); ++i)
+        img.insertChannel (i.name (), i.channel ());
 
-    img.resize (in.header().dataWindow(),
-                in.header().tileDescription().mode,
-                in.header().tileDescription().roundingMode);
+    img.resize (
+        in.header ().dataWindow (),
+        in.header ().tileDescription ().mode,
+        in.header ().tileDescription ().roundingMode);
 
-    switch (img.levelMode())
+    switch (img.levelMode ())
     {
-      case ONE_LEVEL:
+        case ONE_LEVEL: loadLevel (in, img, 0, 0); break;
 
-        loadLevel (in, img, 0, 0);
+        case MIPMAP_LEVELS:
 
-        break;
+            for (int x = 0; x < img.numLevels (); ++x)
+                loadLevel (in, img, x, x);
 
-      case MIPMAP_LEVELS:
+            break;
 
-        for (int x = 0; x < img.numLevels(); ++x)
-            loadLevel (in, img, x, x);
+        case RIPMAP_LEVELS:
 
-        break;
+            for (int y = 0; y < img.numYLevels (); ++y)
+                for (int x = 0; x < img.numXLevels (); ++x)
+                    loadLevel (in, img, x, y);
 
-      case RIPMAP_LEVELS:
+            break;
 
-        for (int y = 0; y < img.numYLevels(); ++y)
-            for (int x = 0; x < img.numXLevels(); ++x)
-                loadLevel (in, img, x, y);
-
-        break;
-
-      default:
-
-        assert (false);
+        default: assert (false);
     }
 
-    for (Header::ConstIterator i = in.header().begin();
-         i != in.header().end();
+    for (Header::ConstIterator i = in.header ().begin ();
+         i != in.header ().end ();
          ++i)
     {
-        hdr.insert (i.name(), i.attribute());
+        hdr.insert (i.name (), i.attribute ());
     }
 }
 
-
 void
-loadDeepTiledImage
-    (const string &fileName,
-     DeepImage &img)
+loadDeepTiledImage (const string& fileName, DeepImage& img)
 {
     Header hdr;
     loadDeepTiledImage (fileName, hdr, img);
 }
-
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

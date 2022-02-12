@@ -3,10 +3,6 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
-
-
-
 #include <string>
 
-void testFlatImage (const std::string &tempDir);
-
+void testFlatImage (const std::string& tempDir);

@@ -24,22 +24,22 @@
 //
 //-----------------------------------------------------------------------------
 
-#include "ImfHeader.h"
 #include "ImfBoxAttribute.h"
 #include "ImfChromaticitiesAttribute.h"
-#include "ImfEnvmapAttribute.h"
 #include "ImfDeepImageStateAttribute.h"
+#include "ImfEnvmapAttribute.h"
+#include "ImfExport.h"
 #include "ImfFloatAttribute.h"
+#include "ImfHeader.h"
+#include "ImfIDManifestAttribute.h"
 #include "ImfKeyCodeAttribute.h"
 #include "ImfMatrixAttribute.h"
+#include "ImfNamespace.h"
 #include "ImfRationalAttribute.h"
 #include "ImfStringAttribute.h"
 #include "ImfStringVectorAttribute.h"
 #include "ImfTimeCodeAttribute.h"
 #include "ImfVecAttribute.h"
-#include "ImfNamespace.h"
-#include "ImfExport.h"
-#include "ImfIDManifestAttribute.h"
 
 #define IMF_ADD_SUFFIX(suffix) add##suffix
 #define IMF_HAS_SUFFIX(suffix) has##suffix
@@ -56,7 +56,7 @@
     IMF_EXPORT TypedAttribute<object>& IMF_NAME_ATTRIBUTE (name) (             \
         Header & header);                                                      \
     IMF_EXPORT const object& name (const Header& header);                      \
-    IMF_EXPORT object& name (Header& header);                                  \
+    IMF_EXPORT object&       name (Header& header);                            \
     OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
 #define IMF_STD_ATTRIBUTE_DEF_DEPRECATED(name, suffix, object, msg)            \
@@ -74,7 +74,7 @@
     IMF_EXPORT TypedAttribute<object>& IMF_NAME_ATTRIBUTE (name) (             \
         Header & header);                                                      \
     OPENEXR_DEPRECATED (msg)                                                   \
-    IMF_EXPORT const object&            name (const Header& header);           \
+    IMF_EXPORT const object&                    name (const Header& header);   \
     OPENEXR_DEPRECATED (msg) IMF_EXPORT object& name (Header& header);         \
     OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
@@ -85,7 +85,6 @@
 
 IMF_STD_ATTRIBUTE_DEF (chromaticities, Chromaticities, Chromaticities)
 
-
 //
 // whiteLuminance -- for RGB images, defines the luminance, in Nits
 // (candelas per square meter) of the RGB value (1.0, 1.0, 1.0).
@@ -94,11 +93,10 @@ IMF_STD_ATTRIBUTE_DEF (chromaticities, Chromaticities, Chromaticities)
 // known, then it is possible to convert the image's pixels from RGB
 // to CIE XYZ tristimulus values (see function RGBtoXYZ() in header
 // file ImfChromaticities.h).
-// 
+//
 //
 
 IMF_STD_ATTRIBUTE_DEF (whiteLuminance, WhiteLuminance, float)
-
 
 //
 // adoptedNeutral -- specifies the CIE (x,y) coordinates that should
@@ -109,16 +107,14 @@ IMF_STD_ATTRIBUTE_DEF (whiteLuminance, WhiteLuminance, float)
 
 IMF_STD_ATTRIBUTE_DEF (adoptedNeutral, AdoptedNeutral, IMATH_NAMESPACE::V2f)
 
-
 //
 // renderingTransform, lookModTransform -- specify the names of the
 // CTL functions that implements the intended color rendering and look
 // modification transforms for this image.
-// 
+//
 
 IMF_STD_ATTRIBUTE_DEF (renderingTransform, RenderingTransform, std::string)
 IMF_STD_ATTRIBUTE_DEF (lookModTransform, LookModTransform, std::string)
-
 
 //
 // xDensity -- horizontal output density, in pixels per inch.
@@ -127,13 +123,11 @@ IMF_STD_ATTRIBUTE_DEF (lookModTransform, LookModTransform, std::string)
 
 IMF_STD_ATTRIBUTE_DEF (xDensity, XDensity, float)
 
-
 //
 // owner -- name of the owner of the image
 //
 
 IMF_STD_ATTRIBUTE_DEF (owner, Owner, std::string)
-   
 
 //
 // comments -- additional image information in human-readable
@@ -141,7 +135,6 @@ IMF_STD_ATTRIBUTE_DEF (owner, Owner, std::string)
 //
 
 IMF_STD_ATTRIBUTE_DEF (comments, Comments, std::string)
-
 
 //
 // capDate -- the date when the image was created or captured,
@@ -158,7 +151,6 @@ IMF_STD_ATTRIBUTE_DEF (comments, Comments, std::string)
 
 IMF_STD_ATTRIBUTE_DEF (capDate, CapDate, std::string)
 
-
 //
 // utcOffset -- offset of local time at capDate from
 // Universal Coordinated Time (UTC), in seconds:
@@ -167,7 +159,6 @@ IMF_STD_ATTRIBUTE_DEF (capDate, CapDate, std::string)
 //
 
 IMF_STD_ATTRIBUTE_DEF (utcOffset, UtcOffset, float)
-
 
 //
 // longitude, latitude, altitude -- for images of real objects, the
@@ -181,20 +172,17 @@ IMF_STD_ATTRIBUTE_DEF (longitude, Longitude, float)
 IMF_STD_ATTRIBUTE_DEF (latitude, Latitude, float)
 IMF_STD_ATTRIBUTE_DEF (altitude, Altitude, float)
 
-
 //
 // focus -- the camera's focus distance, in meters
 //
 
 IMF_STD_ATTRIBUTE_DEF (focus, Focus, float)
 
-
 //
 // exposure -- exposure time, in seconds
 //
 
 IMF_STD_ATTRIBUTE_DEF (expTime, ExpTime, float)
-
 
 //
 // aperture -- the camera's lens aperture, in f-stops (focal length
@@ -203,14 +191,12 @@ IMF_STD_ATTRIBUTE_DEF (expTime, ExpTime, float)
 
 IMF_STD_ATTRIBUTE_DEF (aperture, Aperture, float)
 
-
 //
 // isoSpeed -- the ISO speed of the film or image sensor
 // that was used to record the image
 //
 
 IMF_STD_ATTRIBUTE_DEF (isoSpeed, IsoSpeed, float)
-
 
 //
 // envmap -- if this attribute is present, the image represents
@@ -221,7 +207,6 @@ IMF_STD_ATTRIBUTE_DEF (isoSpeed, IsoSpeed, float)
 
 IMF_STD_ATTRIBUTE_DEF (envmap, Envmap, Envmap)
 
-
 //
 // keyCode -- for motion picture film frames.  Identifies film
 // manufacturer, film type, film roll and frame position within
@@ -230,13 +215,11 @@ IMF_STD_ATTRIBUTE_DEF (envmap, Envmap, Envmap)
 
 IMF_STD_ATTRIBUTE_DEF (keyCode, KeyCode, KeyCode)
 
-
 //
 // timeCode -- time and control code
 //
 
 IMF_STD_ATTRIBUTE_DEF (timeCode, TimeCode, TimeCode)
-
 
 //
 // wrapmodes -- determines how texture map images are extrapolated.
@@ -268,7 +251,6 @@ IMF_STD_ATTRIBUTE_DEF (timeCode, TimeCode, TimeCode)
 
 IMF_STD_ATTRIBUTE_DEF (wrapmodes, Wrapmodes, std::string)
 
-
 //
 // framesPerSecond -- defines the nominal playback frame rate for image
 // sequences, in frames per second.  Every image in a sequence should
@@ -287,7 +269,6 @@ IMF_STD_ATTRIBUTE_DEF (wrapmodes, Wrapmodes, std::string)
 
 IMF_STD_ATTRIBUTE_DEF (framesPerSecond, FramesPerSecond, Rational)
 
-
 //
 // multiView -- defines the view names for multi-view image files.
 // A multi-view image contains two or more views of the same scene,
@@ -299,45 +280,42 @@ IMF_STD_ATTRIBUTE_DEF (framesPerSecond, FramesPerSecond, Rational)
 // For details, please see header file ImfMultiView.h
 //
 
-IMF_STD_ATTRIBUTE_DEF (multiView , MultiView, StringVector)
+IMF_STD_ATTRIBUTE_DEF (multiView, MultiView, StringVector)
 
-
-// 
+//
 // worldToCamera -- for images generated by 3D computer graphics rendering,
 // a matrix that transforms 3D points from the world to the camera coordinate
 // space of the renderer.
-// 
+//
 // The camera coordinate space is left-handed.  Its origin indicates the
 // location of the camera.  The positive x and y axes correspond to the
 // "right" and "up" directions in the rendered image.  The positive z
 // axis indicates the camera's viewing direction.  (Objects in front of
 // the camera have positive z coordinates.)
-// 
+//
 // Camera coordinate space in OpenEXR is the same as in Pixar's Renderman.
-// 
+//
 
 IMF_STD_ATTRIBUTE_DEF (worldToCamera, WorldToCamera, IMATH_NAMESPACE::M44f)
 
-
-// 
+//
 // worldToNDC -- for images generated by 3D computer graphics rendering, a
 // matrix that transforms 3D points from the world to the Normalized Device
 // Coordinate (NDC) space of the renderer.
-// 
+//
 // NDC is a 2D coordinate space that corresponds to the image plane, with
 // positive x and pointing to the right and y positive pointing down.  The
 // coordinates (0, 0) and (1, 1) correspond to the upper left and lower right
 // corners of the OpenEXR display window.
-// 
+//
 // To transform a 3D point in word space into a 2D point in NDC space,
 // multiply the 3D point by the worldToNDC matrix and discard the z
 // coordinate.
-// 
+//
 // NDC space in OpenEXR is the same as in Pixar's Renderman.
-// 
+//
 
 IMF_STD_ATTRIBUTE_DEF (worldToNDC, WorldToNDC, IMATH_NAMESPACE::M44f)
-
 
 //
 // deepImageState -- specifies whether the pixels in a deep image are
@@ -345,7 +323,7 @@ IMF_STD_ATTRIBUTE_DEF (worldToNDC, WorldToNDC, IMATH_NAMESPACE::M44f)
 //
 // Note: this attribute can be set by application code that writes a file
 // in order to tell applications that read the file whether the pixel data
-// must be cleaned up prior to image processing operations such as flattening. 
+// must be cleaned up prior to image processing operations such as flattening.
 // The OpenEXR library does not verify that the attribute is consistent with
 // the actual state of the pixels.  Application software may assume that the
 // attribute is valid, as long as the software will not crash or lock up if
@@ -354,16 +332,14 @@ IMF_STD_ATTRIBUTE_DEF (worldToNDC, WorldToNDC, IMATH_NAMESPACE::M44f)
 
 IMF_STD_ATTRIBUTE_DEF (deepImageState, DeepImageState, DeepImageState)
 
-
 //
 // originalDataWindow -- if application software crops an image, then it
 // should save the data window of the original, un-cropped image in the
 // originalDataWindow attribute.
 //
 
-IMF_STD_ATTRIBUTE_DEF
-    (originalDataWindow, OriginalDataWindow, IMATH_NAMESPACE::Box2i)
-
+IMF_STD_ATTRIBUTE_DEF (
+    originalDataWindow, OriginalDataWindow, IMATH_NAMESPACE::Box2i)
 
 //
 // dwaCompressionLevel -- sets the quality level for images compressed
@@ -380,6 +356,6 @@ IMF_STD_ATTRIBUTE_DEF_DEPRECATED (
 // ID Manifest
 //
 
-IMF_STD_ATTRIBUTE_DEF( idManifest,IDManifest,CompressedIDManifest)
+IMF_STD_ATTRIBUTE_DEF (idManifest, IDManifest, CompressedIDManifest)
 
 #endif

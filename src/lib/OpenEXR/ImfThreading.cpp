@@ -15,19 +15,16 @@
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
-
 int
 globalThreadCount ()
 {
-    return ILMTHREAD_NAMESPACE::ThreadPool::globalThreadPool().numThreads();
+    return ILMTHREAD_NAMESPACE::ThreadPool::globalThreadPool ().numThreads ();
 }
-
 
 void
 setGlobalThreadCount (int count)
 {
-    ILMTHREAD_NAMESPACE::ThreadPool::globalThreadPool().setNumThreads (count);
+    ILMTHREAD_NAMESPACE::ThreadPool::globalThreadPool ().setNumThreads (count);
 }
-
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

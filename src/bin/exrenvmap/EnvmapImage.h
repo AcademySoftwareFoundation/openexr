@@ -14,44 +14,36 @@
 
 #include "namespaceAlias.h"
 
-#include <ImfArray.h>
-#include <ImfRgba.h>
-#include <ImfEnvmap.h>
 #include <ImathBox.h>
-
-
+#include <ImfArray.h>
+#include <ImfEnvmap.h>
+#include <ImfRgba.h>
 
 class EnvmapImage
 {
-  public:
+public:
+    EnvmapImage ();
+    EnvmapImage (IMF::Envmap type, const IMATH::Box2i& dataWindow);
 
-      EnvmapImage ();
-      EnvmapImage (IMF::Envmap type, const IMATH::Box2i &dataWindow);
-      
-      void                      resize (IMF::Envmap type,
-                                        const IMATH::Box2i &dataWindow);
+    void resize (IMF::Envmap type, const IMATH::Box2i& dataWindow);
 
-      void                      clear ();
+    void clear ();
 
-      IMF::Envmap               type () const;
-      const IMATH::Box2i &      dataWindow () const;
+    IMF::Envmap         type () const;
+    const IMATH::Box2i& dataWindow () const;
 
-      IMF::Array2D<IMF::Rgba> & pixels ();
-      const IMF::Array2D<IMF::Rgba> &
-                                pixels () const;
-      
-      IMF::Rgba                 filteredLookup (IMATH::V3f direction,
-                                                float radius,
-                                                int numSamples) const;
+    IMF::Array2D<IMF::Rgba>&       pixels ();
+    const IMF::Array2D<IMF::Rgba>& pixels () const;
 
-  private:
-      
-      IMF::Rgba                 sample (const IMATH::V2f &pos) const;
+    IMF::Rgba
+    filteredLookup (IMATH::V3f direction, float radius, int numSamples) const;
 
-      IMF::Envmap               _type;
-      IMATH::Box2i              _dataWindow;
-      IMF::Array2D<IMF::Rgba>   _pixels;
+private:
+    IMF::Rgba sample (const IMATH::V2f& pos) const;
+
+    IMF::Envmap             _type;
+    IMATH::Box2i            _dataWindow;
+    IMF::Array2D<IMF::Rgba> _pixels;
 };
-
 
 #endif

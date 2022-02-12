@@ -18,18 +18,18 @@
 #endif
 
 #if defined(OPENEXR_ENABLE_API_VISIBILITY)
-#include "../../lib/OpenEXRCore/attributes.c"
-#include "../../lib/OpenEXRCore/channel_list.c"
-#include "../../lib/OpenEXRCore/float_vector.c"
-#include "../../lib/OpenEXRCore/internal_attr.h"
-#include "../../lib/OpenEXRCore/internal_xdr.h"
-#include "../../lib/OpenEXRCore/opaque.c"
-#include "../../lib/OpenEXRCore/preview.c"
-#include "../../lib/OpenEXRCore/string.c"
-#include "../../lib/OpenEXRCore/string_vector.c"
+#    include "../../lib/OpenEXRCore/attributes.c"
+#    include "../../lib/OpenEXRCore/channel_list.c"
+#    include "../../lib/OpenEXRCore/float_vector.c"
+#    include "../../lib/OpenEXRCore/internal_attr.h"
+#    include "../../lib/OpenEXRCore/internal_xdr.h"
+#    include "../../lib/OpenEXRCore/opaque.c"
+#    include "../../lib/OpenEXRCore/preview.c"
+#    include "../../lib/OpenEXRCore/string.c"
+#    include "../../lib/OpenEXRCore/string_vector.c"
 #else
-#include "../../lib/OpenEXRCore/internal_attr.h"
-#include "../../lib/OpenEXRCore/internal_xdr.h"
+#    include "../../lib/OpenEXRCore/internal_attr.h"
+#    include "../../lib/OpenEXRCore/internal_xdr.h"
 #endif
 
 int64_t
@@ -109,13 +109,16 @@ testAttrSizes (const std::string& tempdir)
     EXRCORE_TEST (sizeof (exr_attr_v3i_t) == (3 * 4));
     EXRCORE_TEST (sizeof (exr_attr_v3f_t) == (3 * 4));
     EXRCORE_TEST (sizeof (exr_attr_v3d_t) == (3 * 8));
-    EXRCORE_TEST ((offsetof(exr_attr_opaquedata_t, unpack_func_ptr) & alignof (exr_result_t (*) (exr_context_t, const void *, int32_t, int32_t *, void **))) == 0);
+    EXRCORE_TEST (
+        (offsetof (exr_attr_opaquedata_t, unpack_func_ptr) &
+         alignof (exr_result_t (*) (
+             exr_context_t, const void*, int32_t, int32_t*, void**))) == 0);
 }
 
 static void
 testStringHelper (exr_context_t f)
 {
-    exr_attr_string_t s, nil = { 0 };
+    exr_attr_string_t s, nil = {0};
 
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_MISSING_CONTEXT_ARG, exr_attr_string_init (NULL, &s, 1));
@@ -286,7 +289,7 @@ static void
 testStringVectorHelper (exr_context_t f)
 {
     // TODO: Find a good way to test adding until we grow past the memory limit (i.e. INT32_MAX/2 entries)
-    exr_attr_string_vector_t sv, nil = { 0 };
+    exr_attr_string_vector_t sv, nil = {0};
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_MISSING_CONTEXT_ARG,
         exr_attr_string_vector_init (NULL, &sv, 4));
@@ -448,8 +451,8 @@ testAttrStringVectors (const std::string& tempdir)
 static void
 testFloatVectorHelper (exr_context_t f)
 {
-    exr_attr_float_vector_t fv, nil = { 0 };
-    float                   fdata[] = { 1.f, 2.f, 3.f, 4.f };
+    exr_attr_float_vector_t fv, nil = {0};
+    float                   fdata[] = {1.f, 2.f, 3.f, 4.f};
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_MISSING_CONTEXT_ARG, exr_attr_float_vector_init (NULL, &fv, 4));
     EXRCORE_TEST_RVAL_FAIL (
@@ -531,7 +534,7 @@ testAttrFloatVectors (const std::string& tempdir)
 static void
 testChlistHelper (exr_context_t f)
 {
-    exr_attr_chlist_t cl = { 0 };
+    exr_attr_chlist_t cl = {0};
 
     exr_attr_chlist_destroy (f, NULL);
     exr_attr_chlist_destroy (f, &cl);
@@ -556,48 +559,95 @@ testChlistHelper (exr_context_t f)
 
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_MISSING_CONTEXT_ARG,
-        exr_attr_chlist_add (NULL, &cl, "foo", EXR_PIXEL_HALF, EXR_PERCEPTUALLY_LOGARITHMIC, 1, 1));
+        exr_attr_chlist_add (
+            NULL,
+            &cl,
+            "foo",
+            EXR_PIXEL_HALF,
+            EXR_PERCEPTUALLY_LOGARITHMIC,
+            1,
+            1));
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_INVALID_ARGUMENT,
-        exr_attr_chlist_add (f, NULL, "foo", EXR_PIXEL_HALF, EXR_PERCEPTUALLY_LOGARITHMIC, 1, 1));
+        exr_attr_chlist_add (
+            f,
+            NULL,
+            "foo",
+            EXR_PIXEL_HALF,
+            EXR_PERCEPTUALLY_LOGARITHMIC,
+            1,
+            1));
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_INVALID_ARGUMENT,
-        exr_attr_chlist_add (f, &cl, "foo", EXR_PIXEL_LAST_TYPE, EXR_PERCEPTUALLY_LOGARITHMIC, 1, 1));
+        exr_attr_chlist_add (
+            f,
+            &cl,
+            "foo",
+            EXR_PIXEL_LAST_TYPE,
+            EXR_PERCEPTUALLY_LOGARITHMIC,
+            1,
+            1));
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_INVALID_ARGUMENT,
-        exr_attr_chlist_add (f, &cl, "foo", (exr_pixel_type_t) -1, EXR_PERCEPTUALLY_LOGARITHMIC, 1, 1));
+        exr_attr_chlist_add (
+            f,
+            &cl,
+            "foo",
+            (exr_pixel_type_t) -1,
+            EXR_PERCEPTUALLY_LOGARITHMIC,
+            1,
+            1));
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_INVALID_ARGUMENT,
-        exr_attr_chlist_add (f, &cl, "foo", EXR_PIXEL_HALF, (exr_perceptual_treatment_t)2, 1, 1));
+        exr_attr_chlist_add (
+            f,
+            &cl,
+            "foo",
+            EXR_PIXEL_HALF,
+            (exr_perceptual_treatment_t) 2,
+            1,
+            1));
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_INVALID_ARGUMENT,
-        exr_attr_chlist_add (f, &cl, "foo", EXR_PIXEL_HALF, EXR_PERCEPTUALLY_LOGARITHMIC, 0, 1));
+        exr_attr_chlist_add (
+            f, &cl, "foo", EXR_PIXEL_HALF, EXR_PERCEPTUALLY_LOGARITHMIC, 0, 1));
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_INVALID_ARGUMENT,
-        exr_attr_chlist_add (f, &cl, "foo", EXR_PIXEL_HALF, EXR_PERCEPTUALLY_LOGARITHMIC, -1, 1));
+        exr_attr_chlist_add (
+            f,
+            &cl,
+            "foo",
+            EXR_PIXEL_HALF,
+            EXR_PERCEPTUALLY_LOGARITHMIC,
+            -1,
+            1));
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_INVALID_ARGUMENT,
-        exr_attr_chlist_add (f, &cl, "foo", EXR_PIXEL_HALF, EXR_PERCEPTUALLY_LOGARITHMIC, 1, 0));
+        exr_attr_chlist_add (
+            f, &cl, "foo", EXR_PIXEL_HALF, EXR_PERCEPTUALLY_LOGARITHMIC, 1, 0));
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_INVALID_ARGUMENT,
-        exr_attr_chlist_add (f, &cl, "foo", EXR_PIXEL_HALF, EXR_PERCEPTUALLY_LINEAR, 1, -1));
+        exr_attr_chlist_add (
+            f, &cl, "foo", EXR_PIXEL_HALF, EXR_PERCEPTUALLY_LINEAR, 1, -1));
 
-    EXRCORE_TEST_RVAL (
-        exr_attr_chlist_add (f, &cl, "foo", EXR_PIXEL_HALF, EXR_PERCEPTUALLY_LINEAR, 1, 2));
+    EXRCORE_TEST_RVAL (exr_attr_chlist_add (
+        f, &cl, "foo", EXR_PIXEL_HALF, EXR_PERCEPTUALLY_LINEAR, 1, 2));
     EXRCORE_TEST (cl.num_channels == 1);
     EXRCORE_TEST (0 == strcmp (cl.entries[0].name.str, "foo"));
     EXRCORE_TEST (cl.entries[0].pixel_type == EXR_PIXEL_HALF);
-    EXRCORE_TEST (cl.entries[0].p_linear == (uint8_t)EXR_PERCEPTUALLY_LINEAR);
+    EXRCORE_TEST (cl.entries[0].p_linear == (uint8_t) EXR_PERCEPTUALLY_LINEAR);
     EXRCORE_TEST (cl.entries[0].x_sampling == 1);
     EXRCORE_TEST (cl.entries[0].y_sampling == 2);
     EXRCORE_TEST_RVAL (exr_attr_chlist_destroy (f, &cl));
 
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_INVALID_ARGUMENT,
-        exr_attr_chlist_add (f, &cl, "", EXR_PIXEL_HALF, EXR_PERCEPTUALLY_LINEAR, 1, 1));
+        exr_attr_chlist_add (
+            f, &cl, "", EXR_PIXEL_HALF, EXR_PERCEPTUALLY_LINEAR, 1, 1));
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_INVALID_ARGUMENT,
-        exr_attr_chlist_add (f, &cl, NULL, EXR_PIXEL_HALF, EXR_PERCEPTUALLY_LINEAR, 1, 1));
+        exr_attr_chlist_add (
+            f, &cl, NULL, EXR_PIXEL_HALF, EXR_PERCEPTUALLY_LINEAR, 1, 1));
 
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_INVALID_ARGUMENT,
@@ -610,35 +660,77 @@ testChlistHelper (exr_context_t f)
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_INVALID_ARGUMENT,
         exr_attr_chlist_add_with_length (
-            f, &cl, "R", 1, EXR_PIXEL_LAST_TYPE, EXR_PERCEPTUALLY_LINEAR, 1, 1));
+            f,
+            &cl,
+            "R",
+            1,
+            EXR_PIXEL_LAST_TYPE,
+            EXR_PERCEPTUALLY_LINEAR,
+            1,
+            1));
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_INVALID_ARGUMENT,
         exr_attr_chlist_add_with_length (
-            f, &cl, "R", 1, EXR_PIXEL_HALF, (exr_perceptual_treatment_t)7, 1, 1));
+            f,
+            &cl,
+            "R",
+            1,
+            EXR_PIXEL_HALF,
+            (exr_perceptual_treatment_t) 7,
+            1,
+            1));
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_INVALID_ARGUMENT,
         exr_attr_chlist_add_with_length (
-            f, &cl, "R", 1, EXR_PIXEL_FLOAT, EXR_PERCEPTUALLY_LOGARITHMIC, 0, 1));
+            f,
+            &cl,
+            "R",
+            1,
+            EXR_PIXEL_FLOAT,
+            EXR_PERCEPTUALLY_LOGARITHMIC,
+            0,
+            1));
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_INVALID_ARGUMENT,
         exr_attr_chlist_add_with_length (
-            f, &cl, "R", 1, EXR_PIXEL_UINT, EXR_PERCEPTUALLY_LOGARITHMIC, 1, -1));
+            f,
+            &cl,
+            "R",
+            1,
+            EXR_PIXEL_UINT,
+            EXR_PERCEPTUALLY_LOGARITHMIC,
+            1,
+            -1));
     EXRCORE_TEST_RVAL_FAIL_MALLOC (
         EXR_ERR_OUT_OF_MEMORY,
         exr_attr_chlist_add_with_length (
-            f, &cl, "R", 1, EXR_PIXEL_HALF, EXR_PERCEPTUALLY_LOGARITHMIC, 1, 1));
+            f,
+            &cl,
+            "R",
+            1,
+            EXR_PIXEL_HALF,
+            EXR_PERCEPTUALLY_LOGARITHMIC,
+            1,
+            1));
     EXRCORE_TEST_RVAL_FAIL_MALLOC_AFTER (
         1,
         EXR_ERR_OUT_OF_MEMORY,
         exr_attr_chlist_add_with_length (
-            f, &cl, "R", 1, EXR_PIXEL_HALF, EXR_PERCEPTUALLY_LOGARITHMIC, 1, 1));
+            f,
+            &cl,
+            "R",
+            1,
+            EXR_PIXEL_HALF,
+            EXR_PERCEPTUALLY_LOGARITHMIC,
+            1,
+            1));
 
-    EXRCORE_TEST_RVAL (
-        exr_attr_chlist_add (f, &cl, "R", EXR_PIXEL_HALF, EXR_PERCEPTUALLY_LOGARITHMIC, 1, 1));
-    EXRCORE_TEST_RVAL (
-        exr_attr_chlist_add (f, &cl, "G", EXR_PIXEL_FLOAT, EXR_PERCEPTUALLY_LOGARITHMIC, 1, 1));
-    EXRCORE_TEST_RVAL (
-        exr_attr_chlist_add (f, &cl, "B", EXR_PIXEL_UINT, EXR_PERCEPTUALLY_LOGARITHMIC, 1, 1));
+    EXRCORE_TEST_RVAL (exr_attr_chlist_add (
+        f, &cl, "R", EXR_PIXEL_HALF, EXR_PERCEPTUALLY_LOGARITHMIC, 1, 1));
+    EXRCORE_TEST_RVAL (exr_attr_chlist_add (
+        f, &cl, "G", EXR_PIXEL_FLOAT, EXR_PERCEPTUALLY_LOGARITHMIC, 1, 1));
+    EXRCORE_TEST_RVAL (exr_attr_chlist_add (
+        f, &cl, "B", EXR_PIXEL_UINT, EXR_PERCEPTUALLY_LOGARITHMIC, 1, 1));
     EXRCORE_TEST (cl.num_channels == 3);
     EXRCORE_TEST (0 == strcmp (cl.entries[0].name.str, "B"));
     EXRCORE_TEST (0 == strcmp (cl.entries[1].name.str, "G"));
@@ -646,10 +738,11 @@ testChlistHelper (exr_context_t f)
 
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_INVALID_ARGUMENT,
-        exr_attr_chlist_add (f, &cl, "B", EXR_PIXEL_HALF, EXR_PERCEPTUALLY_LOGARITHMIC, 1, 1));
+        exr_attr_chlist_add (
+            f, &cl, "B", EXR_PIXEL_HALF, EXR_PERCEPTUALLY_LOGARITHMIC, 1, 1));
     EXRCORE_TEST (cl.num_channels == 3);
 
-    exr_attr_chlist_t cl2 = { 0 };
+    exr_attr_chlist_t cl2 = {0};
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_MISSING_CONTEXT_ARG,
         exr_attr_chlist_duplicate (NULL, &cl2, &cl));
@@ -698,7 +791,7 @@ static void
 testPreviewHelper (exr_context_t f)
 {
     exr_attr_preview_t p;
-    uint8_t            data1x1[] = { 0xDE, 0xAD, 0xBE, 0xEF };
+    uint8_t            data1x1[] = {0xDE, 0xAD, 0xBE, 0xEF};
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_MISSING_CONTEXT_ARG,
         exr_attr_preview_init (NULL, NULL, 64, 64));
@@ -757,7 +850,7 @@ static void
 testOpaqueHelper (exr_context_t f)
 {
     exr_attr_opaquedata_t o;
-    uint8_t               data4[] = { 0xDE, 0xAD, 0xBE, 0xEF };
+    uint8_t               data4[] = {0xDE, 0xAD, 0xBE, 0xEF};
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_MISSING_CONTEXT_ARG, exr_attr_opaquedata_init (NULL, NULL, 4));
     EXRCORE_TEST_RVAL_FAIL (
@@ -852,7 +945,7 @@ static exr_result_t
 test_unpack (exr_context_t, const void*, int32_t, int32_t* ns, void** ptr)
 {
     if (ns) *ns = 4;
-    static uint8_t data4[] = { 0xDE, 0xAD, 0xBE, 0xEF };
+    static uint8_t data4[] = {0xDE, 0xAD, 0xBE, 0xEF};
     if (ptr) *ptr = data4;
     if (s_unpack_fail > 0) return EXR_ERR_CORRUPT_CHUNK;
     return EXR_ERR_SUCCESS;
@@ -883,7 +976,7 @@ testAttrHandler (const std::string& tempdir)
 
     int32_t nsz = -1;
     void*   packed;
-    uint8_t data4[] = { 0xDE, 0xAD, 0xBE, 0xEF };
+    uint8_t data4[] = {0xDE, 0xAD, 0xBE, 0xEF};
 
     exr_context_t    f   = createDummyFile ("<attr_handler>");
     exr_attribute_t *foo = NULL, *bar = NULL;
@@ -915,7 +1008,11 @@ testAttrHandler (const std::string& tempdir)
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_NAME_TOO_LONG,
         exr_register_attr_type_handler (
-            f, "reallongreallongreallonglongname", &test_unpack, &test_pack, &test_hdlr_destroy));
+            f,
+            "reallongreallongreallonglongname",
+            &test_unpack,
+            &test_pack,
+            &test_hdlr_destroy));
 
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_INVALID_ARGUMENT,
@@ -926,7 +1023,7 @@ testAttrHandler (const std::string& tempdir)
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_INVALID_ARGUMENT,
         exr_register_attr_type_handler (
-        f, "mytype", &test_unpack, &test_pack, &test_hdlr_destroy));
+            f, "mytype", &test_unpack, &test_pack, &test_hdlr_destroy));
     EXRCORE_TEST (foo->opaque->unpack_func_ptr == &test_unpack);
     EXRCORE_TEST (foo->opaque->pack_func_ptr == &test_pack);
     EXRCORE_TEST (foo->opaque->destroy_unpacked_func_ptr == &test_hdlr_destroy);
@@ -1018,7 +1115,7 @@ testAttrHandler (const std::string& tempdir)
 static void
 testAttrListHelper (exr_context_t f)
 {
-    exr_attribute_list_t al = { 0 };
+    exr_attribute_list_t al = {0};
     exr_attribute_t*     out;
     exr_attribute_t*     out2;
     uint8_t*             extra;
@@ -1267,12 +1364,30 @@ testAttrListHelper (exr_context_t f)
     EXRCORE_TEST_RVAL (
         exr_attr_list_add_by_type (f, &al, "d", "chlist", 0, NULL, &out));
     EXRCORE_TEST (out->type == EXR_ATTR_CHLIST);
-    EXRCORE_TEST_RVAL (
-        exr_attr_chlist_add (f, out->chlist, "R", EXR_PIXEL_HALF, EXR_PERCEPTUALLY_LOGARITHMIC, 1, 1));
-    EXRCORE_TEST_RVAL (
-        exr_attr_chlist_add (f, out->chlist, "G", EXR_PIXEL_HALF, EXR_PERCEPTUALLY_LOGARITHMIC, 1, 1));
-    EXRCORE_TEST_RVAL (
-        exr_attr_chlist_add (f, out->chlist, "B", EXR_PIXEL_HALF, EXR_PERCEPTUALLY_LOGARITHMIC, 1, 1));
+    EXRCORE_TEST_RVAL (exr_attr_chlist_add (
+        f,
+        out->chlist,
+        "R",
+        EXR_PIXEL_HALF,
+        EXR_PERCEPTUALLY_LOGARITHMIC,
+        1,
+        1));
+    EXRCORE_TEST_RVAL (exr_attr_chlist_add (
+        f,
+        out->chlist,
+        "G",
+        EXR_PIXEL_HALF,
+        EXR_PERCEPTUALLY_LOGARITHMIC,
+        1,
+        1));
+    EXRCORE_TEST_RVAL (exr_attr_chlist_add (
+        f,
+        out->chlist,
+        "B",
+        EXR_PIXEL_HALF,
+        EXR_PERCEPTUALLY_LOGARITHMIC,
+        1,
+        1));
 
     EXRCORE_TEST_RVAL (exr_attr_list_add_by_type (
         f, &al, "e", "chromaticities", 0, NULL, &out));
@@ -1619,18 +1734,18 @@ testAttrLists (const std::string& tempdir)
 void
 testXDR (const std::string& tempdir)
 {
-    uint64_t v64      = 0x123456789ABCDEF0;
-    uint32_t v32      = 0x12345678;
-    uint16_t v16      = 0x1234;
+    uint64_t v64 = 0x123456789ABCDEF0;
+    uint32_t v32 = 0x12345678;
+    uint16_t v16 = 0x1234;
 #if EXR_HOST_IS_NOT_LITTLE_ENDIAN
-    uint64_t ov64     = 0xF0DEBC9A78563412;
-    uint32_t ov32     = 0x78563412;
-    uint16_t ov16     = 0x3412;
+    uint64_t ov64 = 0xF0DEBC9A78563412;
+    uint32_t ov32 = 0x78563412;
+    uint16_t ov16 = 0x3412;
 #endif
-    uint8_t  v8buf[]  = { 0xAA, 0xBB, 0xCC, 0xDD, 0xEE };
-    uint16_t v16buf[] = { 0xAA00, 0xBB11, 0xCC22, 0xDD33, 0xEE44 };
-    uint32_t v32buf[] = { 0xAA00BB11, 0xCC22DD33 };
-    uint64_t v64buf[] = { 0xAA00BB11CC22DD33, 0xEE44FF5500661177 };
+    uint8_t  v8buf[]  = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE};
+    uint16_t v16buf[] = {0xAA00, 0xBB11, 0xCC22, 0xDD33, 0xEE44};
+    uint32_t v32buf[] = {0xAA00BB11, 0xCC22DD33};
+    uint64_t v64buf[] = {0xAA00BB11CC22DD33, 0xEE44FF5500661177};
 
     EXRCORE_TEST (one_from_native64 (one_to_native64 (v64)) == v64);
     EXRCORE_TEST (one_from_native32 (one_to_native32 (v32)) == v32);
@@ -1640,18 +1755,18 @@ testXDR (const std::string& tempdir)
     EXRCORE_TEST (one_to_native32 (v32) == ov32);
     EXRCORE_TEST (one_to_native16 (v16) == ov16);
 #endif
-    priv_to_native( v8buf, 5, sizeof(uint8_t) );
-    priv_from_native( v8buf, 5, sizeof(uint8_t) );
-    EXRCORE_TEST (v8buf[2] == 0xCC );
-    priv_to_native( v16buf, 5, sizeof(uint16_t) );
-    priv_from_native( v16buf, 5, sizeof(uint16_t) );
-    EXRCORE_TEST (v16buf[2] == 0xCC22 );
-    priv_to_native( v32buf, 2, sizeof(uint32_t) );
-    priv_from_native( v32buf, 2, sizeof(uint32_t) );
-    EXRCORE_TEST (v32buf[1] == 0xCC22DD33 );
-    priv_to_native( v64buf, 2, sizeof(uint64_t) );
-    priv_from_native( v64buf, 2, sizeof(uint64_t) );
-    EXRCORE_TEST (v64buf[0] == 0xAA00BB11CC22DD33 );
+    priv_to_native (v8buf, 5, sizeof (uint8_t));
+    priv_from_native (v8buf, 5, sizeof (uint8_t));
+    EXRCORE_TEST (v8buf[2] == 0xCC);
+    priv_to_native (v16buf, 5, sizeof (uint16_t));
+    priv_from_native (v16buf, 5, sizeof (uint16_t));
+    EXRCORE_TEST (v16buf[2] == 0xCC22);
+    priv_to_native (v32buf, 2, sizeof (uint32_t));
+    priv_from_native (v32buf, 2, sizeof (uint32_t));
+    EXRCORE_TEST (v32buf[1] == 0xCC22DD33);
+    priv_to_native (v64buf, 2, sizeof (uint64_t));
+    priv_from_native (v64buf, 2, sizeof (uint64_t));
+    EXRCORE_TEST (v64buf[0] == 0xAA00BB11CC22DD33);
 }
 
 #if defined(__GNUC__) && __GNUC__ > 7

@@ -9,42 +9,40 @@
 
 #include <ImfMultiView.h>
 
-#include <typeinfo>
-#include <sstream>
-#include <string.h>
 #include <assert.h>
+#include <sstream>
 #include <stdarg.h>
-
+#include <string.h>
+#include <typeinfo>
 
 using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;
 
-
-namespace {
+namespace
+{
 
 ChannelList
-buildList (const char *name, ...)
+buildList (const char* name, ...)
 {
     //
     // nice function to build channel lists
     //
 
     ChannelList list;
-    const char *channelName = name;
+    const char* channelName = name;
 
     va_list ap;
     va_start (ap, name);
 
     while (channelName != 0)
     {
-	list.insert (channelName, Channel());
-	channelName = va_arg (ap, char *);
+        list.insert (channelName, Channel ());
+        channelName = va_arg (ap, char*);
     }
 
     va_end (ap);
     return list;
 }
-
 
 void
 testMultiViewFunctions ()
@@ -81,13 +79,15 @@ testMultiViewFunctions ()
 
     // explicitly specified default view: four sections
 
-    assert (viewFromChannelName ("manx.loghtan.right.shetland",
-				 multiView) == "right");
+    assert (
+        viewFromChannelName ("manx.loghtan.right.shetland", multiView) ==
+        "right");
 
     // non-default view: five sections
 
-    assert (viewFromChannelName ("dorset.down.hebridean.centre.r",
-                                 multiView) == "centre");
+    assert (
+        viewFromChannelName ("dorset.down.hebridean.centre.r", multiView) ==
+        "centre");
 
     // shouldn't happen that we have null channel names
 
@@ -107,8 +107,8 @@ testMultiViewFunctions ()
 
     // four sections with no view name: no view
 
-    assert (viewFromChannelName ("devon.and.cornwall.longwool",
-				 multiView) == "");
+    assert (
+        viewFromChannelName ("devon.and.cornwall.longwool", multiView) == "");
 
     //
     // Test areCounterparts()
@@ -116,155 +116,142 @@ testMultiViewFunctions ()
 
     // two non default channel names in list
 
-    assert (areCounterparts ("right.R",
-			     "centre.R",
-			     multiView) == true);
+    assert (areCounterparts ("right.R", "centre.R", multiView) == true);
 
     // two channel names, both explicit and in list,
     // even though one is default channel
 
-    assert (areCounterparts ("left.R",
-			     "right.R",
-			     multiView) == true);
+    assert (areCounterparts ("left.R", "right.R", multiView) == true);
 
     // default view with non-default view
 
-    assert (areCounterparts ("R",
-			     "left.R",
-			     multiView) == true);
+    assert (areCounterparts ("R", "left.R", multiView) == true);
 
     // as above, but other way round
 
-    assert (areCounterparts ("left.R",
-			     "R",
-			     multiView) == true);
+    assert (areCounterparts ("left.R", "R", multiView) == true);
 
     // same channel name specified in two different ways
 
-    assert (areCounterparts ("right.R",
-			     "R",
-			     multiView) == false);
+    assert (areCounterparts ("right.R", "R", multiView) == false);
 
     // as above, but other way round
 
-    assert (areCounterparts ("R",
-			     "right.R",
-			     multiView) == false);
+    assert (areCounterparts ("R", "right.R", multiView) == false);
 
     // none.R is not in a view
 
-    assert (areCounterparts ("none.R",
-			     "left.R",
-			     multiView) == false);
+    assert (areCounterparts ("none.R", "left.R", multiView) == false);
 
     // as above, but other way round
 
-    assert (areCounterparts ("left.R",
-			     "none.R",
-			     multiView) == false);
+    assert (areCounterparts ("left.R", "none.R", multiView) == false);
 
     // as above, but with default channel
 
-    assert (areCounterparts ("X",
-			     "none.X",
-			     multiView) == false);
+    assert (areCounterparts ("X", "none.X", multiView) == false);
 
     // as above, but other way round
 
-    assert (areCounterparts ("none.B",
-			     "B",
-			     multiView) == false);
+    assert (areCounterparts ("none.B", "B", multiView) == false);
 
     // both not in a view
 
-    assert (areCounterparts ("southdown.none.G",
-			     "wiltshire.horn.G",
-			     multiView) == false);
+    assert (
+        areCounterparts ("southdown.none.G", "wiltshire.horn.G", multiView) ==
+        false);
 
     // as above, but different lengths of names
 
-    assert (areCounterparts ("wiltshire.horn.G",
-			     "cotswold.G",
-			     multiView) == false);
+    assert (
+        areCounterparts ("wiltshire.horn.G", "cotswold.G", multiView) == false);
 
     // three section pairs
 
-    assert (areCounterparts ("wensleydale.left.baa",
-                             "wensleydale.right.baa",
-			     multiView) == true);
+    assert (
+        areCounterparts (
+            "wensleydale.left.baa", "wensleydale.right.baa", multiView) ==
+        true);
 
     // different in first section
 
-    assert (areCounterparts ("wensleydal.left.baa",
-                             "wensleydale.right.baa",
-			     multiView) == false);
+    assert (
+        areCounterparts (
+            "wensleydal.left.baa", "wensleydale.right.baa", multiView) ==
+        false);
 
     // different in last section
 
-    assert (areCounterparts ("wensleydale.left.bah",
-                             "wensleydale.right.baa",
-			     multiView) == false);
+    assert (
+        areCounterparts (
+            "wensleydale.left.bah", "wensleydale.right.baa", multiView) ==
+        false);
 
     // same channel
 
-    assert (areCounterparts ("wensleydale.left.baa",
-                             "wensleydale.left.baa",
-			     multiView) == false);
+    assert (
+        areCounterparts (
+            "wensleydale.left.baa", "wensleydale.left.baa", multiView) ==
+        false);
 
     // second is in no view
 
-    assert (areCounterparts ("wensleydale.right.fell",
-			     "wensleydale.rough.fell",
-			     multiView) == false);
+    assert (
+        areCounterparts (
+            "wensleydale.right.fell", "wensleydale.rough.fell", multiView) ==
+        false);
 
     // first is in no view
 
-    assert (areCounterparts ("wensleydale.rough.fell",
-			     "wensleydale.left.fell",
-			     multiView) == false);
+    assert (
+        areCounterparts (
+            "wensleydale.rough.fell", "wensleydale.left.fell", multiView) ==
+        false);
 
     // four sectons
 
-    assert (areCounterparts ("lincoln.longwool.right.A",
-			     "lincoln.longwool.left.A",
-			     multiView) == true);
+    assert (
+        areCounterparts (
+            "lincoln.longwool.right.A", "lincoln.longwool.left.A", multiView) ==
+        true);
 
     // different in final section
 
-    assert (areCounterparts ("lincoln.longwool.right.B",
-			     "lincoln.longwool.left.A",
-			     multiView) == false);
+    assert (
+        areCounterparts (
+            "lincoln.longwool.right.B", "lincoln.longwool.left.A", multiView) ==
+        false);
 
     // different in second section
 
-    assert (areCounterparts ("lincoln.shortwool.right.A",
-			     "lincoln.longwool.left.A",
-			     multiView) == false);
+    assert (
+        areCounterparts (
+            "lincoln.shortwool.right.A",
+            "lincoln.longwool.left.A",
+            multiView) == false);
 
     // different in first section
 
-    assert (areCounterparts ("cumbria.longwool.right.A",
-			     "lincoln.longwool.left.A",
-			     multiView) == false);
+    assert (
+        areCounterparts (
+            "cumbria.longwool.right.A", "lincoln.longwool.left.A", multiView) ==
+        false);
 
     // enough said
 
-    assert (areCounterparts ("baa.baa.black.sheep",
-			     "lincoln.longwool.left.A",
-			     multiView) == false);
-
+    assert (
+        areCounterparts (
+            "baa.baa.black.sheep", "lincoln.longwool.left.A", multiView) ==
+        false);
 
     // three sections with default - only last is same
 
-    assert (areCounterparts ("portland.left.baa",
-			     "baa",
-			     multiView) == false);
+    assert (areCounterparts ("portland.left.baa", "baa", multiView) == false);
 
     // four sections with default
 
-    assert (areCounterparts ("dorset.down.left.baa",
-			     "baa",
-			     multiView) == false);
+    assert (
+        areCounterparts ("dorset.down.left.baa", "baa", multiView) == false);
 
     //
     // Channel list tests
@@ -272,34 +259,34 @@ testMultiViewFunctions ()
 
     // list of channels in some multiview image
 
-    ChannelList a = buildList
-	("A",
-	 "B",
-	 "C",
-	 "right.jacob",
-	 "shropshire.right.D",
-	 "castlemilk.moorit.right.A",
-	 "black.welsh.mountain.right.A",
-	 "left.A",
-	 "left.B",
-	 "left.C",
-	 "left.jacob",
-	 "shropshire.left.D",
-	 "castlemilk.moorit.left.A",
-	 "black.welsh.mountain.left.A",
-	 "centre.A",
-	 "centre.B",
-	 "centre.C",
-	 "shropshire.centre.D",
-	 "castlemilk.moorit.centre.A",
-	 "none.A",
-	 "none.B",
-	 "none.C",
-	 "none.D",
-	 "none.jacob",
-	 "shropshire.none.D",
-	 "rough.fell",
-	 (char *) 0);
+    ChannelList a = buildList (
+        "A",
+        "B",
+        "C",
+        "right.jacob",
+        "shropshire.right.D",
+        "castlemilk.moorit.right.A",
+        "black.welsh.mountain.right.A",
+        "left.A",
+        "left.B",
+        "left.C",
+        "left.jacob",
+        "shropshire.left.D",
+        "castlemilk.moorit.left.A",
+        "black.welsh.mountain.left.A",
+        "centre.A",
+        "centre.B",
+        "centre.C",
+        "shropshire.centre.D",
+        "castlemilk.moorit.centre.A",
+        "none.A",
+        "none.B",
+        "none.C",
+        "none.D",
+        "none.jacob",
+        "shropshire.none.D",
+        "rough.fell",
+        (char*) 0);
 
     //
     // List of channels in each view
@@ -307,49 +294,49 @@ testMultiViewFunctions ()
 
     // all left channels
 
-    ChannelList realLeft = buildList
-	("left.A",
-	 "left.B",
-	 "left.C",
-	 "left.jacob",
-	 "shropshire.left.D",
-	 "castlemilk.moorit.left.A",
-	 "black.welsh.mountain.left.A",
-	 (char *) 0);
+    ChannelList realLeft = buildList (
+        "left.A",
+        "left.B",
+        "left.C",
+        "left.jacob",
+        "shropshire.left.D",
+        "castlemilk.moorit.left.A",
+        "black.welsh.mountain.left.A",
+        (char*) 0);
 
-    ChannelList realRight = buildList
-	("A",
-	 "B",
-	 "C",
-	 "right.jacob",
-	 "shropshire.right.D",
-	 "castlemilk.moorit.right.A",
-	 "black.welsh.mountain.right.A",
-	 (char *) 0);
+    ChannelList realRight = buildList (
+        "A",
+        "B",
+        "C",
+        "right.jacob",
+        "shropshire.right.D",
+        "castlemilk.moorit.right.A",
+        "black.welsh.mountain.right.A",
+        (char*) 0);
 
     // all the right channels including the default channels
 
-    ChannelList realCentre = buildList
-	("centre.A",
-	 "centre.B",
-	 "centre.C",
-	 "shropshire.centre.D",
-	 "castlemilk.moorit.centre.A",
-	 (char *) 0);
+    ChannelList realCentre = buildList (
+        "centre.A",
+        "centre.B",
+        "centre.C",
+        "shropshire.centre.D",
+        "castlemilk.moorit.centre.A",
+        (char*) 0);
 
     // no jacob channel
     // there IS a jacob channel but it has no counterparts because
     // this is in "no view"
 
-    ChannelList realNone = buildList
-	("none.A",
-	 "none.B",
-	 "none.D",
-	 "none.C",
-	 "none.jacob",
-	 "shropshire.none.D",
-	 "rough.fell",
-	 (char *) 0);
+    ChannelList realNone = buildList (
+        "none.A",
+        "none.B",
+        "none.D",
+        "none.C",
+        "none.jacob",
+        "shropshire.none.D",
+        "rough.fell",
+        (char*) 0);
 
     // have a dummy name just to throw a wolf amongst the sheep
 
@@ -357,7 +344,7 @@ testMultiViewFunctions ()
 
     // no channels
 
-    ChannelList realNull = buildList ((char *) 0);
+    ChannelList realNull = buildList ((char*) 0);
 
     //
     // Test channelsInView()
@@ -385,40 +372,28 @@ testMultiViewFunctions ()
 
     // all no view channels
 
-    assert (channelsInNoView (a, multiView)  == realNone);
-
+    assert (channelsInNoView (a, multiView) == realNone);
 
     //
     // Test channelInAllViews()
     //
 
-    ChannelList realA = buildList
-	("left.A",
-	 "A",
-	 "centre.A",
-	 (char *) 0);
+    ChannelList realA = buildList ("left.A", "A", "centre.A", (char*) 0);
 
-    ChannelList realB = buildList
-	("left.B",
-	 "B",
-	 "centre.B",
-	 (char *) 0);
+    ChannelList realB = buildList ("left.B", "B", "centre.B", (char*) 0);
 
-    ChannelList realJacob = buildList
-	("left.jacob",
-	 "right.jacob",
-	 (char *) 0);
+    ChannelList realJacob = buildList ("left.jacob", "right.jacob", (char*) 0);
 
-    ChannelList realCm = buildList
-	("castlemilk.moorit.left.A",
-	 "castlemillk.moorit.right.A",
-	 "castlemilk.moorit.centre.A",
-	 (char *) 0);
+    ChannelList realCm = buildList (
+        "castlemilk.moorit.left.A",
+        "castlemillk.moorit.right.A",
+        "castlemilk.moorit.centre.A",
+        (char*) 0);
 
-    ChannelList realBwm = buildList
-	("black.welsh.mountain.left.A",
-	 "black.welsh.mountain.right.A",
-	 (char *) 0);
+    ChannelList realBwm = buildList (
+        "black.welsh.mountain.left.A",
+        "black.welsh.mountain.right.A",
+        (char*) 0);
 
     assert (channelInAllViews ("left.A", a, multiView) == realA);
 
@@ -428,56 +403,57 @@ testMultiViewFunctions ()
 
     assert (channelInAllViews ("right.jacob", a, multiView) == realJacob);
 
-    assert (channelInAllViews ("castlemilk.moorit.centre.A",
-			       a, multiView) == realCm);
+    assert (
+        channelInAllViews ("castlemilk.moorit.centre.A", a, multiView) ==
+        realCm);
 
-    assert (channelInAllViews ("black.welsh.mountain.right.A",
-			       a, multiView) == realBwm);
+    assert (
+        channelInAllViews ("black.welsh.mountain.right.A", a, multiView) ==
+        realBwm);
 
     //
     // Test insertViewName()
     //
 
-    assert (insertViewName ("A", multiView, 0) ==
-			    "A");
+    assert (insertViewName ("A", multiView, 0) == "A");
 
-    assert (insertViewName ("mountain.A", multiView, 0) ==
-			    "mountain.right.A");
+    assert (insertViewName ("mountain.A", multiView, 0) == "mountain.right.A");
 
-    assert (insertViewName ("welsh.mountain.A", multiView, 0) ==
-			    "welsh.mountain.right.A");
+    assert (
+        insertViewName ("welsh.mountain.A", multiView, 0) ==
+        "welsh.mountain.right.A");
 
-    assert (insertViewName ("black.welsh.mountain.A", multiView, 0) ==
-			    "black.welsh.mountain.right.A");
+    assert (
+        insertViewName ("black.welsh.mountain.A", multiView, 0) ==
+        "black.welsh.mountain.right.A");
 
-    assert (insertViewName ("A", multiView, 1) ==
-			    "left.A");
+    assert (insertViewName ("A", multiView, 1) == "left.A");
 
-    assert (insertViewName ("mountain.A", multiView, 1) ==
-			    "mountain.left.A");
+    assert (insertViewName ("mountain.A", multiView, 1) == "mountain.left.A");
 
-    assert (insertViewName ("welsh.mountain.A", multiView, 1) ==
-			    "welsh.mountain.left.A");
+    assert (
+        insertViewName ("welsh.mountain.A", multiView, 1) ==
+        "welsh.mountain.left.A");
 
-    assert (insertViewName ("black.welsh.mountain.A", multiView, 1) ==
-			    "black.welsh.mountain.left.A");
+    assert (
+        insertViewName ("black.welsh.mountain.A", multiView, 1) ==
+        "black.welsh.mountain.left.A");
 }
 
-} // namespace 
-
+} // namespace
 
 void
 testMultiView (const std::string&)
 {
     try
     {
-	cout << "Testing multi-view channel list functions" << endl;
-	testMultiViewFunctions();
-	cout << "ok\n" << endl;
+        cout << "Testing multi-view channel list functions" << endl;
+        testMultiViewFunctions ();
+        cout << "ok\n" << endl;
     }
-    catch (const std::exception &e)
+    catch (const std::exception& e)
     {
-	cerr << "ERROR -- caught exception: " << e.what() << endl;
-	assert (false);
+        cerr << "ERROR -- caught exception: " << e.what () << endl;
+        assert (false);
     }
 }

@@ -13,7 +13,6 @@
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
-
 //
 // Class responsible for handling the writing of multipart images.
 //
@@ -22,7 +21,7 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 // * Pixel Aspect Ratio
 // * Time Code
 // * Chromaticities
-// The first header forms the basis for the set of attributes that are shared 
+// The first header forms the basis for the set of attributes that are shared
 // across the constituent parts.
 //
 // Parameters
@@ -33,59 +32,59 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 //                             to copy the values over from the first header.
 //  numThreads - number of threads that should be used in encoding the data.
 //
-    
+
 class IMF_EXPORT_TYPE MultiPartOutputFile : public GenericOutputFile
 {
-    public:
-        IMF_EXPORT
-        MultiPartOutputFile(const char fileName[],
-                            const Header * headers,
-                            int parts,
-                            bool overrideSharedAttributes = false,
-                            int numThreads = globalThreadCount());
-                            
-        IMF_EXPORT
-        MultiPartOutputFile(OStream & os,
-                            const Header * headers,
-                            int parts,
-                            bool overrideSharedAttributes = false,
-                            int numThreads = globalThreadCount());                            
+public:
+    IMF_EXPORT
+    MultiPartOutputFile (
+        const char    fileName[],
+        const Header* headers,
+        int           parts,
+        bool          overrideSharedAttributes = false,
+        int           numThreads               = globalThreadCount ());
 
-        //
-        // return number of parts in file
-        //
-        IMF_EXPORT
-        int parts() const;
-        
-        //
-        // return header for part n
-        // (note: may have additional attributes compared to that passed to constructor)
-        //
-        IMF_EXPORT
-        const Header & header(int n) const;
-                            
-        IMF_EXPORT
-        ~MultiPartOutputFile();
+    IMF_EXPORT
+    MultiPartOutputFile (
+        OStream&      os,
+        const Header* headers,
+        int           parts,
+        bool          overrideSharedAttributes = false,
+        int           numThreads               = globalThreadCount ());
 
-        MultiPartOutputFile(const MultiPartOutputFile& other) = delete;
-        MultiPartOutputFile& operator = (const MultiPartOutputFile& other) = delete;
-        MultiPartOutputFile(MultiPartOutputFile&& other) = delete;
-        MultiPartOutputFile& operator = (MultiPartOutputFile&& other) = delete;
+    //
+    // return number of parts in file
+    //
+    IMF_EXPORT
+    int parts () const;
 
-        struct IMF_HIDDEN Data;
+    //
+    // return header for part n
+    // (note: may have additional attributes compared to that passed to constructor)
+    //
+    IMF_EXPORT
+    const Header& header (int n) const;
 
-    private:
-        Data*                           _data;
+    IMF_EXPORT
+    ~MultiPartOutputFile ();
 
-        template<class T> IMF_HIDDEN T*  getOutputPart(int partNumber);
+    MultiPartOutputFile (const MultiPartOutputFile& other) = delete;
+    MultiPartOutputFile& operator= (const MultiPartOutputFile& other) = delete;
+    MultiPartOutputFile (MultiPartOutputFile&& other)                 = delete;
+    MultiPartOutputFile& operator= (MultiPartOutputFile&& other) = delete;
 
-    
+    struct IMF_HIDDEN Data;
+
+private:
+    Data* _data;
+
+    template <class T> IMF_HIDDEN T* getOutputPart (int partNumber);
+
     friend class OutputPart;
     friend class TiledOutputPart;
     friend class DeepScanLineOutputPart;
     friend class DeepTiledOutputPart;
 };
-
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 

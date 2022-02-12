@@ -8,6 +8,6 @@
 
 #include <string>
 
-void testBadTypeAttributes (const std::string & tempDir);
+void testBadTypeAttributes (const std::string& tempDir);
 
 #endif

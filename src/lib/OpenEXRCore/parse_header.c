@@ -496,7 +496,7 @@ extract_attr_string_vector (
 {
     exr_result_t       rv;
     int32_t            n, nstr, nalloced, nlen, pulled = 0;
-    exr_attr_string_t *nlist, *clist, nil = { 0 };
+    exr_attr_string_t *nlist, *clist, nil = {0};
 
     rv = check_bad_attrsz (ctxt, scratch, attrsz, 1, aname, tname, &n);
     if (rv != EXR_ERR_SUCCESS) return rv;
@@ -771,7 +771,7 @@ check_populate_channels (
     const char*                       tname,
     int32_t                           attrsz)
 {
-    exr_attr_chlist_t tmpchans = { 0 };
+    exr_attr_chlist_t tmpchans = {0};
     exr_result_t      rv;
 
     if (curpart->channels)
@@ -887,7 +887,7 @@ check_populate_dataWindow (
     const char*                       tname,
     int32_t                           attrsz)
 {
-    exr_attr_box2i_t tmpdata = { 0 };
+    exr_attr_box2i_t tmpdata = {0};
     exr_result_t     rv;
 
     if (curpart->dataWindow)
@@ -939,7 +939,7 @@ check_populate_displayWindow (
     const char*                       tname,
     int32_t                           attrsz)
 {
-    exr_attr_box2i_t tmpdata = { 0 };
+    exr_attr_box2i_t tmpdata = {0};
     exr_result_t     rv;
 
     if (curpart->displayWindow)
@@ -1257,7 +1257,7 @@ check_populate_tiles (
     int32_t                           attrsz)
 {
     exr_result_t        rv;
-    exr_attr_tiledesc_t tmpdata = { 0 };
+    exr_attr_tiledesc_t tmpdata = {0};
 
     if (curpart->tiles)
         return ctxt->print_error (
@@ -2034,9 +2034,7 @@ internal_exr_compute_tile_information (
                 }
                 break;
             case EXR_TILE_LAST_TYPE:
-            default:
-                return ctxt->standard_error (
-                    ctxt, EXR_ERR_INVALID_ATTR);
+            default: return ctxt->standard_error (ctxt, EXR_ERR_INVALID_ATTR);
         }
 
         curpart->num_tile_levels_x = numX;

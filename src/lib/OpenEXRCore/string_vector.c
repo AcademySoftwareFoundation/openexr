@@ -15,8 +15,8 @@ exr_result_t
 exr_attr_string_vector_init (
     exr_context_t ctxt, exr_attr_string_vector_t* sv, int32_t nent)
 {
-    exr_attr_string_vector_t nil   = { 0 };
-    exr_attr_string_t        nils  = { 0 };
+    exr_attr_string_vector_t nil   = {0};
+    exr_attr_string_t        nils  = {0};
     size_t                   bytes = (size_t) nent * sizeof (exr_attr_string_t);
     INTERN_EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
 
@@ -64,10 +64,11 @@ exr_attr_string_vector_destroy (
 
     if (sv)
     {
-        exr_attr_string_vector_t nil = { 0 };
+        exr_attr_string_vector_t nil = {0};
         if (sv->alloc_size > 0)
         {
-            exr_attr_string_t* strs = EXR_CONST_CAST(exr_attr_string_t*, sv->strings);
+            exr_attr_string_t* strs =
+                EXR_CONST_CAST (exr_attr_string_t*, sv->strings);
             for (int32_t i = 0; i < sv->n_strings; ++i)
                 exr_attr_string_destroy (ctxt, strs + i);
             if (strs) pctxt->free_fn (strs);
@@ -93,7 +94,7 @@ exr_attr_string_vector_copy (
     {
         rv = exr_attr_string_set_with_length (
             ctxt,
-            EXR_CONST_CAST(exr_attr_string_t*, sv->strings + i),
+            EXR_CONST_CAST (exr_attr_string_t*, sv->strings + i),
             src->strings[i].str,
             src->strings[i].length);
     }
@@ -120,7 +121,7 @@ exr_attr_string_vector_init_entry (
                 sv->n_strings);
 
         return exr_attr_string_init (
-            ctxt, EXR_CONST_CAST(exr_attr_string_t*, sv->strings + idx), len);
+            ctxt, EXR_CONST_CAST (exr_attr_string_t*, sv->strings + idx), len);
     }
 
     return pctxt->print_error (
@@ -159,7 +160,7 @@ exr_attr_string_vector_set_entry_with_length (
             len);
 
     return exr_attr_string_set_with_length (
-        ctxt, EXR_CONST_CAST(exr_attr_string_t*, sv->strings + idx), s, len);
+        ctxt, EXR_CONST_CAST (exr_attr_string_t*, sv->strings + idx), s, len);
 }
 
 /**************************************/
@@ -199,7 +200,7 @@ exr_attr_string_vector_add_entry_with_length (
     nent = sv->n_strings + 1;
     if (nent > sv->alloc_size)
     {
-        if (sv->alloc_size >= (INT32_MAX / (int)sizeof (exr_attr_string_t)))
+        if (sv->alloc_size >= (INT32_MAX / (int) sizeof (exr_attr_string_t)))
             return pctxt->standard_error (pctxt, EXR_ERR_OUT_OF_MEMORY);
 
         size_t  bytes;

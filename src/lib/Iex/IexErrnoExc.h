@@ -3,7 +3,6 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
-
 #ifndef INCLUDED_IEXERRNOEXC_H
 #define INCLUDED_IEXERRNOEXC_H
 

@@ -13,19 +13,17 @@
 //
 //----------------------------------------------------------------------------
 
-#include "ImfUtilExport.h"
 #include "ImfNamespace.h"
+#include "ImfUtilExport.h"
 #include <ImathBox.h>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
-
 
 enum IMFUTIL_EXPORT_ENUM DataWindowSource
 {
     USE_IMAGE_DATA_WINDOW,
     USE_HEADER_DATA_WINDOW
 };
-
 
 //
 // Given the an image, i, an OpenEXR file header, h, and a data window
@@ -39,8 +37,7 @@ class Header;
 
 IMFUTIL_EXPORT
 IMATH_NAMESPACE::Box2i
-dataWindowForFile (const Header &hdr, const Image &img, DataWindowSource dws);
-
+dataWindowForFile (const Header& hdr, const Image& img, DataWindowSource dws);
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 

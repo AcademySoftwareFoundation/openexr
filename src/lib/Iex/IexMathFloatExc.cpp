@@ -17,43 +17,37 @@
 #include "IexMathFpu.h"
 
 #if 0
-    #include <iostream>
-    #define debug(x) (std::cout << x << std::flush)
+#    include <iostream>
+#    define debug(x) (std::cout << x << std::flush)
 #else
-    #define debug(x)
+#    define debug(x)
 #endif
 
 IEX_INTERNAL_NAMESPACE_SOURCE_ENTER
 
-
-namespace {
+namespace
+{
 
 void
 fpeHandler (int type, const char explanation[])
 {
     switch (type)
     {
-      case IEEE_OVERFLOW:
-	throw OverflowExc (explanation);
+        case IEEE_OVERFLOW: throw OverflowExc (explanation);
 
-      case IEEE_UNDERFLOW:
-	throw UnderflowExc (explanation);
+        case IEEE_UNDERFLOW: throw UnderflowExc (explanation);
 
-      case IEEE_DIVZERO:
-	throw DivzeroExc (explanation);
+        case IEEE_DIVZERO: throw DivzeroExc (explanation);
 
-      case IEEE_INEXACT:
-	throw InexactExc (explanation);
+        case IEEE_INEXACT: throw InexactExc (explanation);
 
-      case IEEE_INVALID:
-	throw InvalidFpOpExc (explanation);
+        case IEEE_INVALID: throw InvalidFpOpExc (explanation);
     }
 
     throw MathExc (explanation);
 }
 
 } // namespace
-
 
 void
 mathExcOn (int when)
@@ -64,21 +58,19 @@ mathExcOn (int when)
     setFpExceptionHandler (fpeHandler);
 }
 
-
 int
 getMathExcOn ()
 {
-    int when = fpExceptions();
+    int when = fpExceptions ();
 
     debug ("getMathExcOn () == 0x" << std::hex << when << ")\n");
 
     return when;
 }
 
-MathExcOn::MathExcOn (int when)
-: _changed (false)
+MathExcOn::MathExcOn (int when) : _changed (false)
 {
-    _saved = getMathExcOn();
+    _saved = getMathExcOn ();
 
     if (_saved != when)
     {
@@ -89,15 +81,13 @@ MathExcOn::MathExcOn (int when)
 
 MathExcOn::~MathExcOn ()
 {
-    if (_changed)
-        mathExcOn (_saved);
+    if (_changed) mathExcOn (_saved);
 }
 
 void
-MathExcOn::handleOutstandingExceptions()
+MathExcOn::handleOutstandingExceptions ()
 {
-    handleExceptionsSetInRegisters();
+    handleExceptionsSetInRegisters ();
 }
-
 
 IEX_INTERNAL_NAMESPACE_SOURCE_EXIT

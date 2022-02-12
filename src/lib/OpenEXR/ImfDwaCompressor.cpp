@@ -12,62 +12,62 @@
 // based in channel name. For RGB channels, we want a lossy method
 // described below. But, if we have alpha, we should do something
 // different (and probably using RLE). If we have depth, or velocity,
-// or something else, just fall back to ZIP. The rules for deciding 
+// or something else, just fall back to ZIP. The rules for deciding
 // which strategy to use are setup in initializeDefaultChannelRules().
 // When writing a file, the relevant rules needed to decode are written
-// into the start of the data block, making a self-contained file. 
+// into the start of the data block, making a self-contained file.
 // If initializeDefaultChannelRules() doesn't quite suite your naming
 // conventions, you can adjust the rules without breaking decoder
 // compatability.
 //
 // If we're going to lossy compress R, G, or B channels, it's easier
 // to toss bits in a more perceptual uniform space. One could argue
-// at length as to what constitutes perceptually uniform, expecially 
+// at length as to what constitutes perceptually uniform, expecially
 // when storing either scene/input/focal plane referred and output referred
-// data. 
+// data.
 //
 // We'll compromise. For values <= 1, we use a traditional power function
 // (without any of that straight-line business at the bottom). For values > 1,
 // we want something more like a log function, since power functions blow
-// up. At 1, we want a smooth blend between the functions. So, we use a 
-// piecewise function that does just that - see dwaLookups.cpp for 
+// up. At 1, we want a smooth blend between the functions. So, we use a
+// piecewise function that does just that - see dwaLookups.cpp for
 // a little more detail.
 //
 // Also, if we find that we have R, G, and B channels from the same layer,
 // we can get a bit more compression efficiency by transforming to a Y'CbCr
-// space. We use the 709 transform, but with Cb,Cr = 0 for an input of 
+// space. We use the 709 transform, but with Cb,Cr = 0 for an input of
 // (0, 0, 0), instead of the traditional Cb,Cr = .5. Shifting the zero point
-// makes no sense with large range data. Transforms are done to from 
+// makes no sense with large range data. Transforms are done to from
 // the perceptual space data, not the linear-light space data (R'G'B' ->
 // (Y'CbCr, not RGB -> YCbCr).
 //
 // Next, we forward DCT the data. This is done with a floating
-// point DCT, as we don't really have control over the src range. The 
-// resulting values are dropped to half-float precision. 
+// point DCT, as we don't really have control over the src range. The
+// resulting values are dropped to half-float precision.
 //
-// Now, we need to quantize. Quantization departs from the usual way 
-// of dividing and rounding. Instead, we start with some floating 
-// point "base-error" value. From this, we can derive quantization 
+// Now, we need to quantize. Quantization departs from the usual way
+// of dividing and rounding. Instead, we start with some floating
+// point "base-error" value. From this, we can derive quantization
 // error for each DCT component. Take the standard JPEG quantization
 // tables and normalize them by the smallest value. Then, multiply
 // the normalized quant tables by our base-error value. This gives
 // a range of errors for each DCT component.
 //
-// For each DCT component, we want to find a quantized value that 
+// For each DCT component, we want to find a quantized value that
 // is within +- the per-component error. Pick the quantized value
-// that has the fewest bits set in its' binary representation. 
-// Brute-forcing the search would make for extremly inefficient 
-// compression. Fortunatly, we can precompute a table to assist 
-// with this search. 
+// that has the fewest bits set in its' binary representation.
+// Brute-forcing the search would make for extremly inefficient
+// compression. Fortunatly, we can precompute a table to assist
+// with this search.
 //
 // For each 16-bit float value, there are at most 15 other values with
 // fewer bits set. We can precompute these values in a compact form, since
-// many source values have far fewer that 15 possible quantized values. 
+// many source values have far fewer that 15 possible quantized values.
 // Now, instead of searching the entire range +- the component error,
 // we can just search at most 15 quantization candidates. The search can
-// be accelerated a bit more by sorting the candidates by the 
+// be accelerated a bit more by sorting the candidates by the
 // number of bits set, in increasing order. Then, the search can stop
-// once a candidate is found w/i the per-component quantization 
+// once a candidate is found w/i the per-component quantization
 // error range.
 //
 // The quantization strategy has the side-benefit that there is no
@@ -76,21 +76,21 @@
 //
 // Ok. So we now have quantized values. Time for entropy coding. We
 // can use either static Huffman or zlib/DEFLATE. The static Huffman
-// is more efficient at compacting data, but can have a greater 
-// overhead, especially for smaller tile/strip sizes. 
+// is more efficient at compacting data, but can have a greater
+// overhead, especially for smaller tile/strip sizes.
 //
 // There is some additional fun, like ZIP compressing the DC components
 // instead of Huffman/zlib, which helps make things slightly smaller.
 //
 // Compression level is controlled by setting an int/float/double attribute
-// on the header named "dwaCompressionLevel". This is a thinly veiled name for 
+// on the header named "dwaCompressionLevel". This is a thinly veiled name for
 // the "base-error" value mentioned above. The "base-error" is just
-// dwaCompressionLevel / 100000. The default value of 45.0 is generally 
+// dwaCompressionLevel / 100000. The default value of 45.0 is generally
 // pretty good at generating "visually lossless" values at reasonable
 // data rates. Setting dwaCompressionLevel to 0 should result in no additional
-// quantization at the quantization stage (though there may be 
+// quantization at the quantization stage (though there may be
 // quantization in practice at the CSC/DCT steps). But if you really
-// want lossless compression, there are pleanty of other choices 
+// want lossless compression, there are pleanty of other choices
 // of compressors ;)
 //
 // When dealing with FLOAT source buffers, we first quantize the source
@@ -98,36 +98,35 @@
 //
 //---------------------------------------------------
 
-
 #include "ImfDwaCompressor.h"
 #include "ImfDwaCompressorSimd.h"
 
 #include "ImfChannelList.h"
-#include "ImfStandardAttributes.h"
 #include "ImfHeader.h"
 #include "ImfHuf.h"
-#include "ImfIntAttribute.h"
 #include "ImfIO.h"
+#include "ImfIntAttribute.h"
 #include "ImfMisc.h"
 #include "ImfNamespace.h"
 #include "ImfRle.h"
 #include "ImfSimd.h"
+#include "ImfStandardAttributes.h"
 #include "ImfSystemSpecific.h"
 #include "ImfXdr.h"
 #include "ImfZip.h"
 
-#include "ImathFun.h"
 #include "ImathBox.h"
+#include "ImathFun.h"
 #include "ImathVec.h"
 #include "half.h"
 #include "halfLimits.h"
 
-#include <vector>
-#include <string>
-#include <cctype>
-#include <cassert>
 #include <algorithm>
+#include <cassert>
+#include <cctype>
 #include <limits>
+#include <string>
+#include <vector>
 
 #include <cstddef>
 
@@ -135,63 +134,61 @@
 
 // Windows specific addition to prevent the indirect import of the redefined min/max macros
 #if defined _WIN32 || defined _WIN64
-	#ifdef NOMINMAX
-		#undef NOMINMAX
-	#endif
-	#define NOMINMAX
+#    ifdef NOMINMAX
+#        undef NOMINMAX
+#    endif
+#    define NOMINMAX
 #endif
 #include <zlib.h>
-
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 #include "dwaLookups.h"
 
-namespace {
+namespace
+{
 
-    //
-    // Function pointer to dispatch to an approprate 
-    // convertFloatToHalf64_* impl, based on runtime cpu checking.
-    // Should be initialized in DwaCompressor::initializeFuncs()
-    //
+//
+// Function pointer to dispatch to an approprate
+// convertFloatToHalf64_* impl, based on runtime cpu checking.
+// Should be initialized in DwaCompressor::initializeFuncs()
+//
 
-    void (*convertFloatToHalf64)(unsigned short*, float*) =
-        convertFloatToHalf64_scalar;
+void (*convertFloatToHalf64) (unsigned short*, float*) =
+    convertFloatToHalf64_scalar;
 
-    // 
-    // Function pointer for dispatching a fromHalfZigZag_ impl
-    //
-    
-    void (*fromHalfZigZag)(unsigned short*, float*) =
-        fromHalfZigZag_scalar;
+//
+// Function pointer for dispatching a fromHalfZigZag_ impl
+//
 
-    //
-    // Dispatch the inverse DCT on an 8x8 block, where the last
-    // n rows can be all zeros. The n=0 case converts the full block.
-    //
-    void (*dctInverse8x8_0)(float*) = dctInverse8x8_scalar<0>;
-    void (*dctInverse8x8_1)(float*) = dctInverse8x8_scalar<1>;
-    void (*dctInverse8x8_2)(float*) = dctInverse8x8_scalar<2>;
-    void (*dctInverse8x8_3)(float*) = dctInverse8x8_scalar<3>;
-    void (*dctInverse8x8_4)(float*) = dctInverse8x8_scalar<4>;
-    void (*dctInverse8x8_5)(float*) = dctInverse8x8_scalar<5>;
-    void (*dctInverse8x8_6)(float*) = dctInverse8x8_scalar<6>;
-    void (*dctInverse8x8_7)(float*) = dctInverse8x8_scalar<7>;
-    
+void (*fromHalfZigZag) (unsigned short*, float*) = fromHalfZigZag_scalar;
+
+//
+// Dispatch the inverse DCT on an 8x8 block, where the last
+// n rows can be all zeros. The n=0 case converts the full block.
+//
+void (*dctInverse8x8_0) (float*) = dctInverse8x8_scalar<0>;
+void (*dctInverse8x8_1) (float*) = dctInverse8x8_scalar<1>;
+void (*dctInverse8x8_2) (float*) = dctInverse8x8_scalar<2>;
+void (*dctInverse8x8_3) (float*) = dctInverse8x8_scalar<3>;
+void (*dctInverse8x8_4) (float*) = dctInverse8x8_scalar<4>;
+void (*dctInverse8x8_5) (float*) = dctInverse8x8_scalar<5>;
+void (*dctInverse8x8_6) (float*) = dctInverse8x8_scalar<6>;
+void (*dctInverse8x8_7) (float*) = dctInverse8x8_scalar<7>;
+
 } // namespace
-
 
 struct DwaCompressor::ChannelData
 {
-    std::string         name;
-    CompressorScheme    compression;  
-    int                 xSampling;
-    int                 ySampling;
-    PixelType           type;
-    bool                pLinear;
+    std::string      name;
+    CompressorScheme compression;
+    int              xSampling;
+    int              ySampling;
+    PixelType        type;
+    bool             pLinear;
 
-    int                 width;
-    int                 height;
+    int width;
+    int height;
 
     //
     // Incoming and outgoing data is scanline interleaved, and it's much
@@ -200,119 +197,120 @@ struct DwaCompressor::ChannelData
     // adjacent.
     //
 
-    char               *planarUncBuffer;
-    char               *planarUncBufferEnd;
+    char* planarUncBuffer;
+    char* planarUncBufferEnd;
 
-    char               *planarUncRle[4];
-    char               *planarUncRleEnd[4];
+    char* planarUncRle[4];
+    char* planarUncRleEnd[4];
 
-    PixelType           planarUncType;
-    int                 planarUncSize;
+    PixelType planarUncType;
+    int       planarUncSize;
 };
-
 
 struct DwaCompressor::CscChannelSet
 {
     int idx[3];
 };
 
-
 struct DwaCompressor::Classifier
 {
-    Classifier (std::string suffix,
-                CompressorScheme scheme,
-                PixelType type,
-                int cscIdx,
-                bool caseInsensitive):
-        _suffix(suffix),
-        _scheme(scheme),
-        _type(type),
-        _cscIdx(cscIdx),
-        _caseInsensitive(caseInsensitive)
+    Classifier (
+        std::string      suffix,
+        CompressorScheme scheme,
+        PixelType        type,
+        int              cscIdx,
+        bool             caseInsensitive)
+        : _suffix (suffix)
+        , _scheme (scheme)
+        , _type (type)
+        , _cscIdx (cscIdx)
+        , _caseInsensitive (caseInsensitive)
     {
-        if (caseInsensitive) 
-            std::transform(_suffix.begin(), _suffix.end(), _suffix.begin(), tolower);
+        if (caseInsensitive)
+            std::transform (
+                _suffix.begin (), _suffix.end (), _suffix.begin (), tolower);
     }
 
-    Classifier (const char *&ptr, int size)
+    Classifier (const char*& ptr, int size)
     {
-        if (size <= 0) 
-            throw IEX_NAMESPACE::InputExc("Error uncompressing DWA data"
-                                " (truncated rule).");
-            
+        if (size <= 0)
+            throw IEX_NAMESPACE::InputExc ("Error uncompressing DWA data"
+                                           " (truncated rule).");
+
         {
             // maximum length of string plus one byte for terminating NULL
-            char suffix[Name::SIZE+1];
-            memset (suffix, 0, Name::SIZE+1);
-            Xdr::read<CharPtrIO> (ptr, std::min(size, Name::SIZE-1), suffix);
-            _suffix = std::string(suffix);
+            char suffix[Name::SIZE + 1];
+            memset (suffix, 0, Name::SIZE + 1);
+            Xdr::read<CharPtrIO> (ptr, std::min (size, Name::SIZE - 1), suffix);
+            _suffix = std::string (suffix);
         }
 
-        if (static_cast<size_t>(size) < _suffix.length() + 1 + 2*Xdr::size<char>()) 
-            throw IEX_NAMESPACE::InputExc("Error uncompressing DWA data"
-                                " (truncated rule).");
+        if (static_cast<size_t> (size) <
+            _suffix.length () + 1 + 2 * Xdr::size<char> ())
+            throw IEX_NAMESPACE::InputExc ("Error uncompressing DWA data"
+                                           " (truncated rule).");
 
         char value;
         Xdr::read<CharPtrIO> (ptr, value);
 
-        _cscIdx = (int)(value >> 4) - 1;
-        if (_cscIdx < -1 || _cscIdx >= 3) 
-            throw IEX_NAMESPACE::InputExc("Error uncompressing DWA data"
-                                " (corrupt cscIdx rule).");
+        _cscIdx = (int) (value >> 4) - 1;
+        if (_cscIdx < -1 || _cscIdx >= 3)
+            throw IEX_NAMESPACE::InputExc ("Error uncompressing DWA data"
+                                           " (corrupt cscIdx rule).");
 
-        _scheme = (CompressorScheme)((value >> 2) & 3);
-        if (_scheme < 0 || _scheme >= NUM_COMPRESSOR_SCHEMES) 
-            throw IEX_NAMESPACE::InputExc("Error uncompressing DWA data"
-                                " (corrupt scheme rule).");
+        _scheme = (CompressorScheme) ((value >> 2) & 3);
+        if (_scheme < 0 || _scheme >= NUM_COMPRESSOR_SCHEMES)
+            throw IEX_NAMESPACE::InputExc ("Error uncompressing DWA data"
+                                           " (corrupt scheme rule).");
 
         _caseInsensitive = (value & 1 ? true : false);
 
         Xdr::read<CharPtrIO> (ptr, value);
-        if (value < 0 || value >= NUM_PIXELTYPES) 
-            throw IEX_NAMESPACE::InputExc("Error uncompressing DWA data"
-                                " (corrupt rule).");
-        _type = (PixelType)value;
+        if (value < 0 || value >= NUM_PIXELTYPES)
+            throw IEX_NAMESPACE::InputExc ("Error uncompressing DWA data"
+                                           " (corrupt rule).");
+        _type = (PixelType) value;
     }
 
-    bool match (const std::string &suffix, const PixelType type) const
+    bool match (const std::string& suffix, const PixelType type) const
     {
         if (_type != type) return false;
 
-        if (_caseInsensitive) 
+        if (_caseInsensitive)
         {
-            std::string tmp(suffix);
-            std::transform(tmp.begin(), tmp.end(), tmp.begin(), tolower);
+            std::string tmp (suffix);
+            std::transform (tmp.begin (), tmp.end (), tmp.begin (), tolower);
             return tmp == _suffix;
         }
 
         return suffix == _suffix;
     }
 
-    size_t size () const 
+    size_t size () const
     {
         // string length + \0
-        size_t sizeBytes = _suffix.length() + 1;
+        size_t sizeBytes = _suffix.length () + 1;
 
         // 1 byte for scheme / cscIdx / caseInsensitive, and 1 byte for type
-        sizeBytes += 2 * Xdr::size<char>();
+        sizeBytes += 2 * Xdr::size<char> ();
 
         return sizeBytes;
     }
 
-    void write (char *&ptr) const
+    void write (char*& ptr) const
     {
-        Xdr::write<CharPtrIO> (ptr, _suffix.c_str());
+        Xdr::write<CharPtrIO> (ptr, _suffix.c_str ());
 
         // Encode _cscIdx (-1-3) in the upper 4 bits,
         //        _scheme (0-2)  in the next 2 bits
         //        _caseInsen     in the bottom bit
         unsigned char value = 0;
-        value |= ((unsigned char)(_cscIdx+1)      & 15) << 4;
-        value |= ((unsigned char)_scheme          &  3) << 2;
-        value |=  (unsigned char)_caseInsensitive &  1;
+        value |= ((unsigned char) (_cscIdx + 1) & 15) << 4;
+        value |= ((unsigned char) _scheme & 3) << 2;
+        value |= (unsigned char) _caseInsensitive & 1;
 
         Xdr::write<CharPtrIO> (ptr, value);
-        Xdr::write<CharPtrIO> (ptr, (unsigned char)_type);
+        Xdr::write<CharPtrIO> (ptr, (unsigned char) _type);
     }
 
     std::string      _suffix;
@@ -322,206 +320,191 @@ struct DwaCompressor::Classifier
     bool             _caseInsensitive;
 };
 
-
 //
 // Base class for the LOSSY_DCT decoder classes
 //
 
 class DwaCompressor::LossyDctDecoderBase
 {
-  public:
-
-    LossyDctDecoderBase
-        (char* packedAc,
-         char* packedAcEnd,
-         char* packedDc,
-         const unsigned short *toLinear,
-         int width,
-         int height);
+public:
+    LossyDctDecoderBase (
+        char*                 packedAc,
+        char*                 packedAcEnd,
+        char*                 packedDc,
+        const unsigned short* toLinear,
+        int                   width,
+        int                   height);
 
     virtual ~LossyDctDecoderBase ();
 
-    void execute();
+    void execute ();
 
     //
     // These return number of items, not bytes. Each item
     // is an unsigned short
     //
 
-    int numAcValuesEncoded() const { return _packedAcCount; }
-    int numDcValuesEncoded() const { return _packedDcCount; }
+    int numAcValuesEncoded () const { return _packedAcCount; }
+    int numDcValuesEncoded () const { return _packedDcCount; }
 
-  protected:
-
+protected:
     //
-    // Un-RLE the packed AC components into 
-    // a half buffer. The half block should 
+    // Un-RLE the packed AC components into
+    // a half buffer. The half block should
     // be the full 8x8 block (in zig-zag order
-    // still), not the first AC component. 
+    // still), not the first AC component.
     //
     // currAcComp is advanced as bytes are decoded.
     //
     // This returns the index of the last non-zero
     // value in the buffer - with the index into zig zag
     // order data. If we return 0, we have DC only data.
-    // 
+    //
 
-    int unRleAc (unsigned short*& currAcComp,
-                 unsigned short* acBufferEnd,
-                 unsigned short* halfZigBlock);
-
+    int unRleAc (
+        unsigned short*& currAcComp,
+        unsigned short*  acBufferEnd,
+        unsigned short*  halfZigBlock);
 
     //
     // if NATIVE and XDR are really the same values, we can
     // skip some processing and speed things along
     //
 
-    bool                  _isNativeXdr;
-
+    bool _isNativeXdr;
 
     //
     // Counts of how many items have been packed into the
     // AC and DC buffers
     //
 
-    int                   _packedAcCount;
-    int                   _packedDcCount;
-
+    int _packedAcCount;
+    int _packedDcCount;
 
     //
     // AC and DC buffers to pack
     //
 
-    char*                 _packedAc;
-    char*                 _packedAcEnd;
-    char*                 _packedDc;
+    char* _packedAc;
+    char* _packedAcEnd;
+    char* _packedDc;
 
-
-    // 
+    //
     // half -> half LUT to transform from nonlinear to linear
     //
 
-    const unsigned short *_toLinear;
-
+    const unsigned short* _toLinear;
 
     //
     // image dimensions
     //
 
-    int                   _width;
-    int                   _height;
-
+    int _width;
+    int _height;
 
     //
     // Pointers to the start of each scanlines, to be filled on decode
     // Generally, these will be filled by the subclasses.
     //
 
-    std::vector< std::vector<char *> > _rowPtrs;
+    std::vector<std::vector<char*>> _rowPtrs;
 
-
-    // 
+    //
     // The type of each data that _rowPtrs[i] is referring. Layout
     // is in the same order as _rowPtrs[].
     //
 
-    std::vector<PixelType>             _type;
-    std::vector<SimdAlignedBuffer64f>  _dctData;
+    std::vector<PixelType>            _type;
+    std::vector<SimdAlignedBuffer64f> _dctData;
 };
-
 
 //
 // Used to decode a single channel of LOSSY_DCT data.
 //
 
-class DwaCompressor::LossyDctDecoder: public LossyDctDecoderBase
+class DwaCompressor::LossyDctDecoder : public LossyDctDecoderBase
 {
-  public:
-
+public:
     //
-    // toLinear is a half-float LUT to convert the encoded values 
+    // toLinear is a half-float LUT to convert the encoded values
     // back to linear light. If you want to skip this step, pass
     // in NULL here.
     //
 
-    LossyDctDecoder
-        (std::vector<char *> &rowPtrs,
-         char* packedAc,
-         char* packedAcEnd,
-         char* packedDc,
-         const unsigned short *toLinear,
-         int width,
-         int height,
-         PixelType type)
-    :
-        LossyDctDecoderBase(packedAc, packedAcEnd, packedDc, toLinear, width, height)
+    LossyDctDecoder (
+        std::vector<char*>&   rowPtrs,
+        char*                 packedAc,
+        char*                 packedAcEnd,
+        char*                 packedDc,
+        const unsigned short* toLinear,
+        int                   width,
+        int                   height,
+        PixelType             type)
+        : LossyDctDecoderBase (
+              packedAc, packedAcEnd, packedDc, toLinear, width, height)
     {
-        _rowPtrs.push_back(rowPtrs);
-        _type.push_back(type);
+        _rowPtrs.push_back (rowPtrs);
+        _type.push_back (type);
     }
 
     virtual ~LossyDctDecoder () {}
 };
-
 
 //
 // Used to decode 3 channels of LOSSY_DCT data that
 // are grouped together and color space converted.
 //
 
-class DwaCompressor::LossyDctDecoderCsc: public LossyDctDecoderBase
+class DwaCompressor::LossyDctDecoderCsc : public LossyDctDecoderBase
 {
-  public:
-
+public:
     //
-    // toLinear is a half-float LUT to convert the encoded values 
+    // toLinear is a half-float LUT to convert the encoded values
     // back to linear light. If you want to skip this step, pass
     // in NULL here.
     //
 
-    LossyDctDecoderCsc
-        (std::vector<char *> &rowPtrsR,
-         std::vector<char *> &rowPtrsG,
-         std::vector<char *> &rowPtrsB,
-         char* packedAc,
-         char* packedAcEnd,
-         char* packedDc,
-         const unsigned short *toLinear,
-         int width,
-         int height,
-         PixelType typeR,
-         PixelType typeG,
-         PixelType typeB)
-    :
-        LossyDctDecoderBase(packedAc, packedAcEnd, packedDc, toLinear, width, height)
+    LossyDctDecoderCsc (
+        std::vector<char*>&   rowPtrsR,
+        std::vector<char*>&   rowPtrsG,
+        std::vector<char*>&   rowPtrsB,
+        char*                 packedAc,
+        char*                 packedAcEnd,
+        char*                 packedDc,
+        const unsigned short* toLinear,
+        int                   width,
+        int                   height,
+        PixelType             typeR,
+        PixelType             typeG,
+        PixelType             typeB)
+        : LossyDctDecoderBase (
+              packedAc, packedAcEnd, packedDc, toLinear, width, height)
     {
-        _rowPtrs.push_back(rowPtrsR);
-        _rowPtrs.push_back(rowPtrsG);
-        _rowPtrs.push_back(rowPtrsB);
-        _type.push_back(typeR);
-        _type.push_back(typeG);
-        _type.push_back(typeB);
+        _rowPtrs.push_back (rowPtrsR);
+        _rowPtrs.push_back (rowPtrsG);
+        _rowPtrs.push_back (rowPtrsB);
+        _type.push_back (typeR);
+        _type.push_back (typeG);
+        _type.push_back (typeB);
     }
 
     virtual ~LossyDctDecoderCsc () {}
 };
 
-
-// 
+//
 // Base class for encoding using the lossy DCT scheme
 //
 
 class DwaCompressor::LossyDctEncoderBase
 {
-  public:
-
-    LossyDctEncoderBase
-        (float quantBaseError,
-         char *packedAc,
-         char *packedDc,
-         const unsigned short *toNonlinear,
-         int width,
-         int height);
+public:
+    LossyDctEncoderBase (
+        float                 quantBaseError,
+        char*                 packedAc,
+        char*                 packedDc,
+        const unsigned short* toNonlinear,
+        int                   width,
+        int                   height);
 
     virtual ~LossyDctEncoderBase ();
 
@@ -532,119 +515,106 @@ class DwaCompressor::LossyDctEncoderBase
     // is an unsigned short
     //
 
-    int     numAcValuesEncoded () const {return _numAcComp;}
-    int     numDcValuesEncoded () const {return _numDcComp;}
+    int numAcValuesEncoded () const { return _numAcComp; }
+    int numDcValuesEncoded () const { return _numDcComp; }
 
-  protected:
+protected:
+    void toZigZag (half* dst, half* src);
+    int  countSetBits (unsigned short src);
+    half quantize (half src, float errorTolerance);
+    void rleAc (half* block, unsigned short*& acPtr);
 
-    void    toZigZag (half *dst, half *src);
-    int     countSetBits (unsigned short src);
-    half    quantize (half src, float errorTolerance);
-    void    rleAc (half *block, unsigned short *&acPtr);
+    float _quantBaseError;
 
-    float                      _quantBaseError;
+    int                   _width, _height;
+    const unsigned short* _toNonlinear;
 
-    int                        _width,
-                               _height;
-    const unsigned short      *_toNonlinear;
+    int _numAcComp, _numDcComp;
 
-    int                        _numAcComp,
-                               _numDcComp;
-
-    std::vector< std::vector<const char *> > _rowPtrs;
-    std::vector<PixelType>                   _type;
-    std::vector<SimdAlignedBuffer64f>        _dctData;
-
+    std::vector<std::vector<const char*>> _rowPtrs;
+    std::vector<PixelType>                _type;
+    std::vector<SimdAlignedBuffer64f>     _dctData;
 
     //
     // Pointers to the buffers where AC and DC
-    // DCT components should be packed for 
+    // DCT components should be packed for
     // lossless compression downstream
     //
 
-    char                      *_packedAc;
-    char                      *_packedDc;
-
+    char* _packedAc;
+    char* _packedDc;
 
     //
-    // Our "quantization tables" - the example JPEG tables, 
+    // Our "quantization tables" - the example JPEG tables,
     // normalized so that the smallest value in each is 1.0.
-    // This gives us a relationship between error in DCT 
+    // This gives us a relationship between error in DCT
     // components
     //
 
-    float                      _quantTableY[64];
-    float                      _quantTableCbCr[64];
+    float _quantTableY[64];
+    float _quantTableCbCr[64];
 };
-
-
 
 //
 // Single channel lossy DCT encoder
 //
 
-class DwaCompressor::LossyDctEncoder: public LossyDctEncoderBase
+class DwaCompressor::LossyDctEncoder : public LossyDctEncoderBase
 {
-  public:
-
-    LossyDctEncoder
-        (float quantBaseError,
-         std::vector<const char *> &rowPtrs,
-         char *packedAc,
-         char *packedDc,
-         const unsigned short *toNonlinear,
-         int width,
-         int height,
-         PixelType type)
-    :
-        LossyDctEncoderBase
-            (quantBaseError, packedAc, packedDc, toNonlinear, width, height)
+public:
+    LossyDctEncoder (
+        float                     quantBaseError,
+        std::vector<const char*>& rowPtrs,
+        char*                     packedAc,
+        char*                     packedDc,
+        const unsigned short*     toNonlinear,
+        int                       width,
+        int                       height,
+        PixelType                 type)
+        : LossyDctEncoderBase (
+              quantBaseError, packedAc, packedDc, toNonlinear, width, height)
     {
-        _rowPtrs.push_back(rowPtrs);
-        _type.push_back(type);
+        _rowPtrs.push_back (rowPtrs);
+        _type.push_back (type);
     }
 
     virtual ~LossyDctEncoder () {}
 };
-    
 
 //
 // RGB channel lossy DCT encoder
 //
 
-class DwaCompressor::LossyDctEncoderCsc: public LossyDctEncoderBase
+class DwaCompressor::LossyDctEncoderCsc : public LossyDctEncoderBase
 {
-  public:
-
-    LossyDctEncoderCsc
-        (float quantBaseError,
-         std::vector<const char *> &rowPtrsR,
-         std::vector<const char *> &rowPtrsG,
-         std::vector<const char *> &rowPtrsB,
-         char *packedAc,
-         char *packedDc,
-         const unsigned short *toNonlinear,
-         int width,
-         int height,
-         PixelType typeR,
-         PixelType typeG,
-         PixelType typeB)
-    :
-        LossyDctEncoderBase
-            (quantBaseError, packedAc, packedDc, toNonlinear, width, height)
+public:
+    LossyDctEncoderCsc (
+        float                     quantBaseError,
+        std::vector<const char*>& rowPtrsR,
+        std::vector<const char*>& rowPtrsG,
+        std::vector<const char*>& rowPtrsB,
+        char*                     packedAc,
+        char*                     packedDc,
+        const unsigned short*     toNonlinear,
+        int                       width,
+        int                       height,
+        PixelType                 typeR,
+        PixelType                 typeG,
+        PixelType                 typeB)
+        : LossyDctEncoderBase (
+              quantBaseError, packedAc, packedDc, toNonlinear, width, height)
     {
-        _type.push_back(typeR);
-        _type.push_back(typeG);
-        _type.push_back(typeB);
+        _type.push_back (typeR);
+        _type.push_back (typeG);
+        _type.push_back (typeB);
 
-        _rowPtrs.push_back(rowPtrsR);
-        _rowPtrs.push_back(rowPtrsG);
-        _rowPtrs.push_back(rowPtrsB);
+        _rowPtrs.push_back (rowPtrsR);
+        _rowPtrs.push_back (rowPtrsG);
+        _rowPtrs.push_back (rowPtrsB);
     }
 
     virtual ~LossyDctEncoderCsc () {}
 };
-
 
 // ==============================================================
 //
@@ -652,92 +622,93 @@ class DwaCompressor::LossyDctEncoderCsc: public LossyDctEncoderBase
 //
 // --------------------------------------------------------------
 
-DwaCompressor::LossyDctDecoderBase::LossyDctDecoderBase
-    (char *packedAc,
-     char *packedAcEnd,
-     char *packedDc,
-     const unsigned short *toLinear,
-     int width,
-     int height)
-:
-    _isNativeXdr(false),
-    _packedAcCount(0),
-    _packedDcCount(0),
-    _packedAc(packedAc),
-    _packedAcEnd(packedAcEnd),
-    _packedDc(packedDc),
-    _toLinear(toLinear),
-    _width(width),
-    _height(height)
+DwaCompressor::LossyDctDecoderBase::LossyDctDecoderBase (
+    char*                 packedAc,
+    char*                 packedAcEnd,
+    char*                 packedDc,
+    const unsigned short* toLinear,
+    int                   width,
+    int                   height)
+    : _isNativeXdr (false)
+    , _packedAcCount (0)
+    , _packedDcCount (0)
+    , _packedAc (packedAc)
+    , _packedAcEnd (packedAcEnd)
+    , _packedDc (packedDc)
+    , _toLinear (toLinear)
+    , _width (width)
+    , _height (height)
 {
-    if (_toLinear == 0)
-        _toLinear = dwaCompressorNoOp;
+    if (_toLinear == 0) _toLinear = dwaCompressorNoOp;
 
     _isNativeXdr = GLOBAL_SYSTEM_LITTLE_ENDIAN;
 }
 
-
-DwaCompressor::LossyDctDecoderBase::~LossyDctDecoderBase () {}
-
+DwaCompressor::LossyDctDecoderBase::~LossyDctDecoderBase ()
+{}
 
 void
 DwaCompressor::LossyDctDecoderBase::execute ()
 {
-    size_t numComp        = _rowPtrs.size();
-    int lastNonZero    = 0;
-    int numBlocksX     = (int) ceil ((float)_width  / 8.0f);
-    int numBlocksY     = (int) ceil ((float)_height / 8.0f);
-    int leftoverX      = _width  - (numBlocksX-1) * 8;
-    int leftoverY      = _height - (numBlocksY-1) * 8;
+    size_t numComp     = _rowPtrs.size ();
+    int    lastNonZero = 0;
+    int    numBlocksX  = (int) ceil ((float) _width / 8.0f);
+    int    numBlocksY  = (int) ceil ((float) _height / 8.0f);
+    int    leftoverX   = _width - (numBlocksX - 1) * 8;
+    int    leftoverY   = _height - (numBlocksY - 1) * 8;
 
-    int numFullBlocksX = (int)floor ((float)_width / 8.0f);
+    int numFullBlocksX = (int) floor ((float) _width / 8.0f);
 
-    unsigned short tmpShortNative = 0;
-    unsigned short tmpShortXdr    = 0;
-    const char *tmpConstCharPtr   = 0;
+    unsigned short tmpShortNative  = 0;
+    unsigned short tmpShortXdr     = 0;
+    const char*    tmpConstCharPtr = 0;
 
-    unsigned short* currAcComp = reinterpret_cast<unsigned short*>(_packedAc);
-    unsigned short* acCompEnd = reinterpret_cast<unsigned short*>(_packedAcEnd);
+    unsigned short* currAcComp = reinterpret_cast<unsigned short*> (_packedAc);
+    unsigned short* acCompEnd =
+        reinterpret_cast<unsigned short*> (_packedAcEnd);
 
-    std::vector<unsigned short *>      currDcComp (_rowPtrs.size());
-    std::vector<SimdAlignedBuffer64us> halfZigBlock (_rowPtrs.size());
+    std::vector<unsigned short*>       currDcComp (_rowPtrs.size ());
+    std::vector<SimdAlignedBuffer64us> halfZigBlock (_rowPtrs.size ());
 
-    if (_type.size() != _rowPtrs.size())
-        throw IEX_NAMESPACE::BaseExc ("Row pointers and types mismatch in count");
+    if (_type.size () != _rowPtrs.size ())
+        throw IEX_NAMESPACE::BaseExc (
+            "Row pointers and types mismatch in count");
 
-    if ((_rowPtrs.size() != 3) && (_rowPtrs.size() != 1))
-        throw IEX_NAMESPACE::NoImplExc ("Only 1 and 3 channel encoding is supported");
+    if ((_rowPtrs.size () != 3) && (_rowPtrs.size () != 1))
+        throw IEX_NAMESPACE::NoImplExc (
+            "Only 1 and 3 channel encoding is supported");
 
-    _dctData.resize(numComp);
+    _dctData.resize (numComp);
 
     //
-    // Allocate a temp aligned buffer to hold a rows worth of full 
+    // Allocate a temp aligned buffer to hold a rows worth of full
     // 8x8 half-float blocks
     //
 
-    unsigned char *rowBlockHandle = new unsigned char
-        [numComp * numBlocksX * 64 * sizeof(unsigned short) + _SSE_ALIGNMENT];
+    unsigned char* rowBlockHandle = new unsigned char
+        [numComp * numBlocksX * 64 * sizeof (unsigned short) + _SSE_ALIGNMENT];
 
-    unsigned short *rowBlock[3];
+    unsigned short* rowBlock[3];
 
-    rowBlock[0] = (unsigned short*)rowBlockHandle;
+    rowBlock[0] = (unsigned short*) rowBlockHandle;
 
     for (int i = 0; i < _SSE_ALIGNMENT; ++i)
     {
-        if ((reinterpret_cast<uintptr_t>(rowBlockHandle + i) & _SSE_ALIGNMENT_MASK) == 0)
-            rowBlock[0] = (unsigned short *)(rowBlockHandle + i);
+        if ((reinterpret_cast<uintptr_t> (rowBlockHandle + i) &
+             _SSE_ALIGNMENT_MASK) == 0)
+            rowBlock[0] = (unsigned short*) (rowBlockHandle + i);
     }
 
     for (size_t comp = 1; comp < numComp; ++comp)
         rowBlock[comp] = rowBlock[comp - 1] + numBlocksX * 64;
- 
+
     //
-    // Pack DC components together by common plane, so we can get 
-    // a little more out of differencing them. We'll always have 
+    // Pack DC components together by common plane, so we can get
+    // a little more out of differencing them. We'll always have
     // one component per block, so we can computed offsets.
     //
 
-    currDcComp[0] = (unsigned short *)_packedDc;
+    currDcComp[0] = (unsigned short*) _packedDc;
 
     for (size_t comp = 1; comp < numComp; ++comp)
         currDcComp[comp] = currDcComp[comp - 1] + numBlocksX * numBlocksY;
@@ -746,24 +717,22 @@ DwaCompressor::LossyDctDecoderBase::execute ()
     {
         int maxY = 8;
 
-        if (blocky == numBlocksY-1)
-            maxY = leftoverY;
+        if (blocky == numBlocksY - 1) maxY = leftoverY;
 
         int maxX = 8;
 
         for (int blockx = 0; blockx < numBlocksX; ++blockx)
         {
-            if (blockx == numBlocksX-1)
-                maxX = leftoverX;
+            if (blockx == numBlocksX - 1) maxX = leftoverX;
 
             //
             // If we can detect that the block is constant values
             // (all components only have DC values, and all AC is 0),
             // we can do everything only on 1 value, instead of all
-            // 64. 
+            // 64.
             //
             // This won't really help for regular images, but it is
-            // meant more for layers with large swaths of black 
+            // meant more for layers with large swaths of black
             //
 
             bool blockIsConstant = true;
@@ -775,40 +744,41 @@ DwaCompressor::LossyDctDecoderBase::execute ()
                 // DC component is stored separately
                 //
 
-                #ifdef IMF_HAVE_SSE2
-                    {
-                        __m128i *dst = (__m128i*)halfZigBlock[comp]._buffer;
+#ifdef IMF_HAVE_SSE2
+                {
+                    __m128i* dst = (__m128i*) halfZigBlock[comp]._buffer;
 
-                        dst[7] = _mm_setzero_si128();
-                        dst[6] = _mm_setzero_si128();
-                        dst[5] = _mm_setzero_si128();
-                        dst[4] = _mm_setzero_si128();
-                        dst[3] = _mm_setzero_si128();
-                        dst[2] = _mm_setzero_si128();
-                        dst[1] = _mm_setzero_si128();
-                        dst[0] = _mm_insert_epi16
-                            (_mm_setzero_si128(), *currDcComp[comp]++, 0);
-                    }
-                #else  /* IMF_HAVE_SSE2 */
+                    dst[7] = _mm_setzero_si128 ();
+                    dst[6] = _mm_setzero_si128 ();
+                    dst[5] = _mm_setzero_si128 ();
+                    dst[4] = _mm_setzero_si128 ();
+                    dst[3] = _mm_setzero_si128 ();
+                    dst[2] = _mm_setzero_si128 ();
+                    dst[1] = _mm_setzero_si128 ();
+                    dst[0] = _mm_insert_epi16 (
+                        _mm_setzero_si128 (), *currDcComp[comp]++, 0);
+                }
+#else /* IMF_HAVE_SSE2 */
 
-                    memset (halfZigBlock[comp]._buffer, 0, 64 * 2);
-                    halfZigBlock[comp]._buffer[0] = *currDcComp[comp]++;
+                memset (halfZigBlock[comp]._buffer, 0, 64 * 2);
+                halfZigBlock[comp]._buffer[0] = *currDcComp[comp]++;
 
-                #endif /* IMF_HAVE_SSE2 */
+#endif /* IMF_HAVE_SSE2 */
 
                 _packedDcCount++;
-                
+
                 //
                 // UnRLE the AC. This will modify currAcComp
                 //
 
                 try
                 {
-                   lastNonZero = unRleAc (currAcComp, acCompEnd, halfZigBlock[comp]._buffer);
+                    lastNonZero = unRleAc (
+                        currAcComp, acCompEnd, halfZigBlock[comp]._buffer);
                 }
-                catch(...)
+                catch (...)
                 {
-                    delete [] rowBlockHandle;
+                    delete[] rowBlockHandle;
                     throw;
                 }
 
@@ -820,8 +790,8 @@ DwaCompressor::LossyDctDecoderBase::execute ()
                 {
                     for (int i = 0; i < 64; ++i)
                     {
-                        tmpShortXdr      = halfZigBlock[comp]._buffer[i];
-                        tmpConstCharPtr  = (const char *)&tmpShortXdr;
+                        tmpShortXdr     = halfZigBlock[comp]._buffer[i];
+                        tmpConstCharPtr = (const char*) &tmpShortXdr;
 
                         Xdr::read<CharPtrIO> (tmpConstCharPtr, tmpShortNative);
 
@@ -832,31 +802,31 @@ DwaCompressor::LossyDctDecoderBase::execute ()
                 if (lastNonZero == 0)
                 {
                     //
-                    // DC only case - AC components are all 0   
+                    // DC only case - AC components are all 0
                     //
 
                     half h;
 
                     h.setBits (halfZigBlock[comp]._buffer[0]);
-                    _dctData[comp]._buffer[0] = (float)h;
+                    _dctData[comp]._buffer[0] = (float) h;
 
                     dctInverse8x8DcOnly (_dctData[comp]._buffer);
                 }
                 else
                 {
                     //
-                    // We have some AC components that are non-zero. 
+                    // We have some AC components that are non-zero.
                     // Can't use the 'constant block' optimization
                     //
 
                     blockIsConstant = false;
 
                     //
-                    // Un-Zig zag 
+                    // Un-Zig zag
                     //
 
-                    (*fromHalfZigZag)
-                        (halfZigBlock[comp]._buffer, _dctData[comp]._buffer);
+                    (*fromHalfZigZag) (
+                        halfZigBlock[comp]._buffer, _dctData[comp]._buffer);
 
                     //
                     // Zig-Zag indices in normal layout are as follows:
@@ -871,9 +841,9 @@ DwaCompressor::LossyDctDecoderBase::execute ()
                     // 35  36  48  49  57  58  62  63
                     //
                     // If lastNonZero is less than the first item on
-                    // each row, we know that the whole row is zero and 
+                    // each row, we know that the whole row is zero and
                     // can be skipped in the row-oriented part of the
-                    // iDCT. 
+                    // iDCT.
                     //
                     // The unrolled logic here is:
                     //
@@ -887,21 +857,21 @@ DwaCompressor::LossyDctDecoderBase::execute ()
                     //
 
                     if (lastNonZero < 2)
-                        dctInverse8x8_7(_dctData[comp]._buffer);
+                        dctInverse8x8_7 (_dctData[comp]._buffer);
                     else if (lastNonZero < 3)
-                        dctInverse8x8_6(_dctData[comp]._buffer);
+                        dctInverse8x8_6 (_dctData[comp]._buffer);
                     else if (lastNonZero < 9)
-                        dctInverse8x8_5(_dctData[comp]._buffer);
+                        dctInverse8x8_5 (_dctData[comp]._buffer);
                     else if (lastNonZero < 10)
-                        dctInverse8x8_4(_dctData[comp]._buffer);
+                        dctInverse8x8_4 (_dctData[comp]._buffer);
                     else if (lastNonZero < 20)
-                        dctInverse8x8_3(_dctData[comp]._buffer);
+                        dctInverse8x8_3 (_dctData[comp]._buffer);
                     else if (lastNonZero < 21)
-                        dctInverse8x8_2(_dctData[comp]._buffer);
+                        dctInverse8x8_2 (_dctData[comp]._buffer);
                     else if (lastNonZero < 35)
-                        dctInverse8x8_1(_dctData[comp]._buffer);
+                        dctInverse8x8_1 (_dctData[comp]._buffer);
                     else
-                        dctInverse8x8_0(_dctData[comp]._buffer);
+                        dctInverse8x8_0 (_dctData[comp]._buffer);
                 }
             }
 
@@ -913,21 +883,22 @@ DwaCompressor::LossyDctDecoderBase::execute ()
             {
                 if (!blockIsConstant)
                 {
-                    csc709Inverse64 (_dctData[0]._buffer, 
-                                     _dctData[1]._buffer, 
-                                     _dctData[2]._buffer);
-
+                    csc709Inverse64 (
+                        _dctData[0]._buffer,
+                        _dctData[1]._buffer,
+                        _dctData[2]._buffer);
                 }
                 else
                 {
-                    csc709Inverse (_dctData[0]._buffer[0], 
-                                   _dctData[1]._buffer[0], 
-                                   _dctData[2]._buffer[0]);
+                    csc709Inverse (
+                        _dctData[0]._buffer[0],
+                        _dctData[1]._buffer[0],
+                        _dctData[2]._buffer[0]);
                 }
             }
 
             //
-            // Float -> Half conversion. 
+            // Float -> Half conversion.
             //
             // If the block has a constant value, just convert the first pixel.
             //
@@ -936,41 +907,41 @@ DwaCompressor::LossyDctDecoderBase::execute ()
             {
                 if (!blockIsConstant)
                 {
-                    (*convertFloatToHalf64)
-                        (&rowBlock[comp][blockx*64], _dctData[comp]._buffer);
+                    (*convertFloatToHalf64) (
+                        &rowBlock[comp][blockx * 64], _dctData[comp]._buffer);
                 }
                 else
                 {
-                    #ifdef IMF_HAVE_SSE2
+#ifdef IMF_HAVE_SSE2
 
-                        __m128i *dst = (__m128i*)&rowBlock[comp][blockx*64];
+                    __m128i* dst = (__m128i*) &rowBlock[comp][blockx * 64];
 
-                        dst[0] = _mm_set1_epi16
-                            (((half)_dctData[comp]._buffer[0]).bits());
+                    dst[0] = _mm_set1_epi16 (
+                        ((half) _dctData[comp]._buffer[0]).bits ());
 
-                        dst[1] = dst[0];
-                        dst[2] = dst[0];
-                        dst[3] = dst[0];
-                        dst[4] = dst[0];
-                        dst[5] = dst[0];
-                        dst[6] = dst[0];
-                        dst[7] = dst[0];
+                    dst[1] = dst[0];
+                    dst[2] = dst[0];
+                    dst[3] = dst[0];
+                    dst[4] = dst[0];
+                    dst[5] = dst[0];
+                    dst[6] = dst[0];
+                    dst[7] = dst[0];
 
-                    #else  /* IMF_HAVE_SSE2 */
+#else /* IMF_HAVE_SSE2 */
 
-                        unsigned short *dst = &rowBlock[comp][blockx*64];
+                    unsigned short* dst = &rowBlock[comp][blockx * 64];
 
-                        dst[0] = ((half)_dctData[comp]._buffer[0]).bits();
+                    dst[0] = ((half) _dctData[comp]._buffer[0]).bits ();
 
-                        for (int i = 1; i < 64; ++i)
-                        {
-                            dst[i] = dst[0];
-                        }
+                    for (int i = 1; i < 64; ++i)
+                    {
+                        dst[i] = dst[0];
+                    }
 
-                    #endif /* IMF_HAVE_SSE2 */
+#endif            /* IMF_HAVE_SSE2 */
                 } // blockIsConstant
-            } // comp
-        } // blockx
+            }     // comp
+        }         // blockx
 
         //
         // At this point, we have half-float nonlinear value blocked
@@ -994,13 +965,14 @@ DwaCompressor::LossyDctDecoderBase::execute ()
             // Test if we can use the fast path
             //
 
-        #ifdef IMF_HAVE_SSE2
+#ifdef IMF_HAVE_SSE2
 
             bool fastPath = true;
 
             for (int y = 8 * blocky; y < 8 * blocky + maxY; ++y)
             {
-                if (reinterpret_cast<uintptr_t>(_rowPtrs[comp][y]) & _SSE_ALIGNMENT_MASK)
+                if (reinterpret_cast<uintptr_t> (_rowPtrs[comp][y]) &
+                    _SSE_ALIGNMENT_MASK)
                     fastPath = false;
             }
 
@@ -1011,11 +983,10 @@ DwaCompressor::LossyDctDecoderBase::execute ()
                 // aligned row pointers
                 //
 
-                for (int y=8*blocky; y<8*blocky+maxY; ++y)
+                for (int y = 8 * blocky; y < 8 * blocky + maxY; ++y)
                 {
-                    __m128i *dst = (__m128i *)_rowPtrs[comp][y];
-                    __m128i *src = (__m128i *)&rowBlock[comp][(y & 0x7) * 8];
-
+                    __m128i* dst = (__m128i*) _rowPtrs[comp][y];
+                    __m128i* src = (__m128i*) &rowBlock[comp][(y & 0x7) * 8];
 
                     for (int blockx = 0; blockx < numFullBlocksX; ++blockx)
                     {
@@ -1024,17 +995,17 @@ DwaCompressor::LossyDctDecoderBase::execute ()
                         // Run with multiples of 8
                         //
 
-                        _mm_prefetch ((char *)(src + 16), _MM_HINT_NTA); 
+                        _mm_prefetch ((char*) (src + 16), _MM_HINT_NTA);
 
-                        unsigned short i0  = _mm_extract_epi16 (*src, 0);
-                        unsigned short i1  = _mm_extract_epi16 (*src, 1);
-                        unsigned short i2  = _mm_extract_epi16 (*src, 2);
-                        unsigned short i3  = _mm_extract_epi16 (*src, 3);
+                        unsigned short i0 = _mm_extract_epi16 (*src, 0);
+                        unsigned short i1 = _mm_extract_epi16 (*src, 1);
+                        unsigned short i2 = _mm_extract_epi16 (*src, 2);
+                        unsigned short i3 = _mm_extract_epi16 (*src, 3);
 
-                        unsigned short i4  = _mm_extract_epi16 (*src, 4);
-                        unsigned short i5  = _mm_extract_epi16 (*src, 5);
-                        unsigned short i6  = _mm_extract_epi16 (*src, 6);
-                        unsigned short i7  = _mm_extract_epi16 (*src, 7);
+                        unsigned short i4 = _mm_extract_epi16 (*src, 4);
+                        unsigned short i5 = _mm_extract_epi16 (*src, 5);
+                        unsigned short i6 = _mm_extract_epi16 (*src, 6);
+                        unsigned short i7 = _mm_extract_epi16 (*src, 7);
 
                         i0 = _toLinear[i0];
                         i1 = _toLinear[i1];
@@ -1046,7 +1017,7 @@ DwaCompressor::LossyDctDecoderBase::execute ()
                         i6 = _toLinear[i6];
                         i7 = _toLinear[i7];
 
-                        *dst = _mm_insert_epi16 (_mm_setzero_si128(), i0, 0);
+                        *dst = _mm_insert_epi16 (_mm_setzero_si128 (), i0, 0);
                         *dst = _mm_insert_epi16 (*dst, i1, 1);
                         *dst = _mm_insert_epi16 (*dst, i2, 2);
                         *dst = _mm_insert_epi16 (*dst, i3, 3);
@@ -1064,7 +1035,7 @@ DwaCompressor::LossyDctDecoderBase::execute ()
             else
             {
 
-        #endif /* IMF_HAVE_SSE2 */
+#endif /* IMF_HAVE_SSE2 */
 
                 //
                 // Basic scalar kinda slow path for handling the full X blocks
@@ -1072,11 +1043,11 @@ DwaCompressor::LossyDctDecoderBase::execute ()
 
                 for (int y = 8 * blocky; y < 8 * blocky + maxY; ++y)
                 {
-                    unsigned short *dst = (unsigned short *)_rowPtrs[comp][y];
+                    unsigned short* dst = (unsigned short*) _rowPtrs[comp][y];
 
                     for (int blockx = 0; blockx < numFullBlocksX; ++blockx)
                     {
-                        unsigned short *src =
+                        unsigned short* src =
                             &rowBlock[comp][blockx * 64 + ((y & 0x7) * 8)];
 
                         dst[0] = _toLinear[src[0]];
@@ -1093,11 +1064,10 @@ DwaCompressor::LossyDctDecoderBase::execute ()
                     }
                 }
 
-        #ifdef IMF_HAVE_SSE2
-
+#ifdef IMF_HAVE_SSE2
             }
 
-        #endif /* IMF_HAVE_SSE2 */
+#endif /* IMF_HAVE_SSE2 */
 
             //
             // If we have partial X blocks, deal with all those now
@@ -1109,10 +1079,12 @@ DwaCompressor::LossyDctDecoderBase::execute ()
             {
                 for (int y = 8 * blocky; y < 8 * blocky + maxY; ++y)
                 {
-                    unsigned short *src = (unsigned short *)
-                        &rowBlock[comp][numFullBlocksX * 64 + ((y & 0x7) * 8)];
+                    unsigned short* src =
+                        (unsigned short*) &rowBlock[comp]
+                                                   [numFullBlocksX * 64 +
+                                                    ((y & 0x7) * 8)];
 
-                    unsigned short *dst = (unsigned short *)_rowPtrs[comp][y];
+                    unsigned short* dst = (unsigned short*) _rowPtrs[comp][y];
 
                     dst += 8 * numFullBlocksX;
 
@@ -1123,7 +1095,7 @@ DwaCompressor::LossyDctDecoderBase::execute ()
                 }
             }
         } // comp
-    } // blocky
+    }     // blocky
 
     //
     // Walk over all the channels that are of type FLOAT.
@@ -1133,27 +1105,26 @@ DwaCompressor::LossyDctDecoderBase::execute ()
     for (size_t chan = 0; chan < numComp; ++chan)
     {
 
-        if (_type[chan] != FLOAT)
-            continue;
+        if (_type[chan] != FLOAT) continue;
 
         std::vector<unsigned short> halfXdr (_width);
 
-        for (int y=0; y<_height; ++y)
+        for (int y = 0; y < _height; ++y)
         {
-            char *floatXdrPtr = _rowPtrs[chan][y];
+            char* floatXdrPtr = _rowPtrs[chan][y];
 
-            memcpy(&halfXdr[0], floatXdrPtr, _width*sizeof(unsigned short));
+            memcpy (&halfXdr[0], floatXdrPtr, _width * sizeof (unsigned short));
 
-            const char *halfXdrPtr = (const char *)(&halfXdr[0]);
+            const char* halfXdrPtr = (const char*) (&halfXdr[0]);
 
-            for (int x=0; x<_width; ++x)
+            for (int x = 0; x < _width; ++x)
             {
                 half tmpHalf;
 
                 Xdr::read<CharPtrIO> (halfXdrPtr, tmpHalf);
-                Xdr::write<CharPtrIO> (floatXdrPtr, (float)tmpHalf);
+                Xdr::write<CharPtrIO> (floatXdrPtr, (float) tmpHalf);
 
-                // 
+                //
                 // Xdr::write and Xdr::read will advance the ptrs
                 //
             }
@@ -1163,28 +1134,27 @@ DwaCompressor::LossyDctDecoderBase::execute ()
     delete[] rowBlockHandle;
 }
 
-
 //
-// Un-RLE the packed AC components into 
-// a half buffer. The half block should 
+// Un-RLE the packed AC components into
+// a half buffer. The half block should
 // be the full 8x8 block (in zig-zag order
-// still), not the first AC component. 
+// still), not the first AC component.
 //
 // currAcComp is advanced as bytes are decoded.
 //
 // This returns the index of the last non-zero
 // value in the buffer - with the index into zig zag
 // order data. If we return 0, we have DC only data.
-// 
+//
 // This is assuminging that halfZigBlock is zero'ed
 // prior to calling
 //
 
-int 
-DwaCompressor::LossyDctDecoderBase::unRleAc
-    (unsigned short*& currAcComp,
-     unsigned short*  packedAcEnd,
-     unsigned short*  halfZigBlock)
+int
+DwaCompressor::LossyDctDecoderBase::unRleAc (
+    unsigned short*& currAcComp,
+    unsigned short*  packedAcEnd,
+    unsigned short*  halfZigBlock)
 {
     //
     // Un-RLE the RLE'd blocks. If we find an item whose
@@ -1194,8 +1164,8 @@ DwaCompressor::LossyDctDecoderBase::unRleAc
     // Otherwise, just copy the number verbaitm.
     //
 
-    int lastNonZero          = 0;
-    int dctComp              = 1; 
+    int lastNonZero = 0;
+    int dctComp     = 1;
 
     //
     // Start with a zero'ed block, so we don't have to
@@ -1206,17 +1176,16 @@ DwaCompressor::LossyDctDecoderBase::unRleAc
     {
         if (currAcComp >= packedAcEnd)
         {
-            throw IEX_NAMESPACE::InputExc("Error uncompressing DWA data"
-                                " (packed AC buffer too small).");
+            throw IEX_NAMESPACE::InputExc ("Error uncompressing DWA data"
+                                           " (packed AC buffer too small).");
         }
         if (*currAcComp == 0xff00)
         {
-            // 
+            //
             // End of block
             //
 
             dctComp = 64;
-
         }
         else if ((*currAcComp) >> 8 == 0xff)
         {
@@ -1224,17 +1193,17 @@ DwaCompressor::LossyDctDecoderBase::unRleAc
             // Run detected! Insert 0's.
             //
             // Since the block has been zeroed, just advance the ptr
-            // 
+            //
 
-            dctComp += (*currAcComp) & 0xff; 
+            dctComp += (*currAcComp) & 0xff;
         }
         else
         {
-            // 
+            //
             // Not a run, just copy over the value
             //
 
-            lastNonZero = dctComp;
+            lastNonZero           = dctComp;
             halfZigBlock[dctComp] = *currAcComp;
 
             dctComp++;
@@ -1242,12 +1211,10 @@ DwaCompressor::LossyDctDecoderBase::unRleAc
 
         _packedAcCount++;
         currAcComp++;
-
     }
 
     return lastNonZero;
 }
-
 
 // ==============================================================
 //
@@ -1255,22 +1222,21 @@ DwaCompressor::LossyDctDecoderBase::unRleAc
 //
 // --------------------------------------------------------------
 
-DwaCompressor::LossyDctEncoderBase::LossyDctEncoderBase
-    (float quantBaseError,
-     char *packedAc,
-     char *packedDc,
-     const unsigned short *toNonlinear,
-     int width,
-     int height)
-:
-    _quantBaseError(quantBaseError),
-    _width(width),
-    _height(height),
-    _toNonlinear(toNonlinear),
-    _numAcComp(0),
-    _numDcComp(0),
-    _packedAc(packedAc),
-    _packedDc(packedDc)
+DwaCompressor::LossyDctEncoderBase::LossyDctEncoderBase (
+    float                 quantBaseError,
+    char*                 packedAc,
+    char*                 packedDc,
+    const unsigned short* toNonlinear,
+    int                   width,
+    int                   height)
+    : _quantBaseError (quantBaseError)
+    , _width (width)
+    , _height (height)
+    , _toNonlinear (toNonlinear)
+    , _numAcComp (0)
+    , _numDcComp (0)
+    , _packedAc (packedAc)
+    , _packedDc (packedDc)
 {
     //
     // Here, we take the generic JPEG quantization tables and
@@ -1295,31 +1261,19 @@ DwaCompressor::LossyDctEncoderBase::LossyDctEncoderBase
     // for now, we'll just use statice quantization tables.
     //
 
-    int jpegQuantTableY[] =
-    {
-        16,  11,  10,  16,   24,   40,   51,   61,
-        12,  12,  14,  19,   26,   58,   60,   55,
-        14,  13,  16,  24,   40,   57,   69,   56,
-        14,  17,  22,  29,   51,   87,   80,   62,
-        18,  22,  37,  56,   68,  109,  103,   77,
-        24,  35,  55,  64,   81,  104,  113,   92,
-        49,  64,  78,  87,  103,  121,  120,  101,
-        72,  92,  95,  98,  112,  100,  103,   99
-    };
+    int jpegQuantTableY[] = {
+        16, 11, 10, 16, 24,  40,  51,  61,  12, 12, 14, 19, 26,  58,  60,  55,
+        14, 13, 16, 24, 40,  57,  69,  56,  14, 17, 22, 29, 51,  87,  80,  62,
+        18, 22, 37, 56, 68,  109, 103, 77,  24, 35, 55, 64, 81,  104, 113, 92,
+        49, 64, 78, 87, 103, 121, 120, 101, 72, 92, 95, 98, 112, 100, 103, 99};
 
     int jpegQuantTableYMin = 10;
 
-    int jpegQuantTableCbCr[] =
-    {
-        17,  18,  24,  47,  99,  99,  99,  99,
-        18,  21,  26,  66,  99,  99,  99,  99,
-        24,  26,  56,  99,  99,  99,  99,  99,
-        47,  66,  99,  99,  99,  99,  99,  99,
-        99,  99,  99,  99,  99,  99,  99,  99,
-        99,  99,  99,  99,  99,  99,  99,  99,
-        99,  99,  99,  99,  99,  99,  99,  99,
-        99,  99,  99,  99,  99,  99,  99,  99
-    };
+    int jpegQuantTableCbCr[] = {
+        17, 18, 24, 47, 99, 99, 99, 99, 18, 21, 26, 66, 99, 99, 99, 99,
+        24, 26, 56, 99, 99, 99, 99, 99, 47, 66, 99, 99, 99, 99, 99, 99,
+        99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99,
+        99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99};
 
     int jpegQuantTableCbCrMin = 17;
 
@@ -1331,21 +1285,17 @@ DwaCompressor::LossyDctEncoderBase::LossyDctEncoderBase
         _quantTableCbCr[idx] = static_cast<float> (jpegQuantTableCbCr[idx]) /
                                static_cast<float> (jpegQuantTableCbCrMin);
     }
-    
-    if (_quantBaseError < 0)
-        quantBaseError = 0;
+
+    if (_quantBaseError < 0) quantBaseError = 0;
 }
 
-
-DwaCompressor::LossyDctEncoderBase::~LossyDctEncoderBase () 
-{
-}
-
+DwaCompressor::LossyDctEncoderBase::~LossyDctEncoderBase ()
+{}
 
 //
 // Given three channels of source data, encoding by first applying
 // a color space conversion to a YCbCr space.  Otherwise, if we only
-// have one channel, just encode it as is. 
+// have one channel, just encode it as is.
 //
 // Other numbers of channels are somewhat unexpected at this point,
 // and will throw an exception.
@@ -1354,57 +1304,54 @@ DwaCompressor::LossyDctEncoderBase::~LossyDctEncoderBase ()
 void
 DwaCompressor::LossyDctEncoderBase::execute ()
 {
-    int  numBlocksX   = (int)ceil ((float)_width / 8.0f);
-    int  numBlocksY   = (int)ceil ((float)_height/ 8.0f);
+    int numBlocksX = (int) ceil ((float) _width / 8.0f);
+    int numBlocksY = (int) ceil ((float) _height / 8.0f);
 
-    half halfZigCoef[64]; 
+    half halfZigCoef[64];
     half halfCoef[64];
 
-    std::vector<unsigned short *> currDcComp (_rowPtrs.size());
-    unsigned short               *currAcComp = (unsigned short *)_packedAc;
+    std::vector<unsigned short*> currDcComp (_rowPtrs.size ());
+    unsigned short*              currAcComp = (unsigned short*) _packedAc;
 
-    _dctData.resize (_rowPtrs.size());
+    _dctData.resize (_rowPtrs.size ());
     _numAcComp = 0;
     _numDcComp = 0;
- 
-    assert (_type.size() == _rowPtrs.size());
-    assert ((_rowPtrs.size() == 3) || (_rowPtrs.size() == 1));
 
-    // 
+    assert (_type.size () == _rowPtrs.size ());
+    assert ((_rowPtrs.size () == 3) || (_rowPtrs.size () == 1));
+
+    //
     // Allocate a temp half buffer to quantize into for
     // any FLOAT source channels.
     //
 
     int tmpHalfBufferElements = 0;
 
-    for (unsigned int chan = 0; chan < _rowPtrs.size(); ++chan)
-        if (_type[chan] == FLOAT)
-            tmpHalfBufferElements += _width * _height;
+    for (unsigned int chan = 0; chan < _rowPtrs.size (); ++chan)
+        if (_type[chan] == FLOAT) tmpHalfBufferElements += _width * _height;
 
     std::vector<unsigned short> tmpHalfBuffer (tmpHalfBufferElements);
 
-    char *tmpHalfBufferPtr = 0;
+    char* tmpHalfBufferPtr = 0;
 
-    if (tmpHalfBufferElements)
-        tmpHalfBufferPtr = (char *)&tmpHalfBuffer[0];
+    if (tmpHalfBufferElements) tmpHalfBufferPtr = (char*) &tmpHalfBuffer[0];
 
     //
-    // Run over all the float scanlines, quantizing, 
+    // Run over all the float scanlines, quantizing,
     // and re-assigning _rowPtr[y]. We need to translate
     // FLOAT XDR to HALF XDR.
     //
 
-    for (unsigned int chan = 0; chan < _rowPtrs.size(); ++chan)
+    for (unsigned int chan = 0; chan < _rowPtrs.size (); ++chan)
     {
-        if (_type[chan] != FLOAT)
-            continue;
-    
+        if (_type[chan] != FLOAT) continue;
+
         for (int y = 0; y < _height; ++y)
         {
-            float       src = 0;
-            const char *srcXdr = _rowPtrs[chan][y];
-            char       *dstXdr = tmpHalfBufferPtr;
-           
+            float       src    = 0;
+            const char* srcXdr = _rowPtrs[chan][y];
+            char*       dstXdr = tmpHalfBufferPtr;
+
             for (int x = 0; x < _width; ++x)
             {
 
@@ -1415,31 +1362,31 @@ DwaCompressor::LossyDctEncoderBase::execute ()
                 // avoids introducing Infs which end up getting zeroed later
                 //
                 src = std::max (
-                    std::min ((float) std::numeric_limits<half>::max(), src),
-                              (float)-std::numeric_limits<half>::max());
+                    std::min ((float) std::numeric_limits<half>::max (), src),
+                    (float) -std::numeric_limits<half>::max ());
 
-                Xdr::write<CharPtrIO> (dstXdr, ((half)src).bits());
+                Xdr::write<CharPtrIO> (dstXdr, ((half) src).bits ());
 
                 //
                 // Xdr::read and Xdr::write will advance the ptr
                 //
             }
 
-            _rowPtrs[chan][y] = (const char *)tmpHalfBufferPtr;
+            _rowPtrs[chan][y] = (const char*) tmpHalfBufferPtr;
             tmpHalfBufferPtr += _width * sizeof (unsigned short);
         }
     }
 
     //
-    // Pack DC components together by common plane, so we can get 
-    // a little more out of differencing them. We'll always have 
+    // Pack DC components together by common plane, so we can get
+    // a little more out of differencing them. We'll always have
     // one component per block, so we can computed offsets.
     //
 
-    currDcComp[0] = (unsigned short *)_packedDc;
+    currDcComp[0] = (unsigned short*) _packedDc;
 
-    for (unsigned int chan = 1; chan < _rowPtrs.size(); ++chan)
-        currDcComp[chan] = currDcComp[chan-1] + numBlocksX * numBlocksY;
+    for (unsigned int chan = 1; chan < _rowPtrs.size (); ++chan)
+        currDcComp[chan] = currDcComp[chan - 1] + numBlocksX * numBlocksY;
 
     for (int blocky = 0; blocky < numBlocksY; ++blocky)
     {
@@ -1447,9 +1394,9 @@ DwaCompressor::LossyDctEncoderBase::execute ()
         {
             half           h;
             unsigned short tmpShortXdr, tmpShortNative;
-            char          *tmpCharPtr;
+            char*          tmpCharPtr;
 
-            for (unsigned int chan = 0; chan < _rowPtrs.size(); ++chan)
+            for (unsigned int chan = 0; chan < _rowPtrs.size (); ++chan)
             {
                 //
                 // Break the source into 8x8 blocks. If we don't
@@ -1471,18 +1418,16 @@ DwaCompressor::LossyDctEncoderBase::execute ()
                         int vx = 8 * blockx + x;
                         int vy = 8 * blocky + y;
 
-                        if (vx >= _width)
-                            vx = _width - (vx - (_width - 1));
-                        
-                        if (vx < 0) vx = _width-1;
+                        if (vx >= _width) vx = _width - (vx - (_width - 1));
 
-                        if (vy >=_height)
-                            vy = _height - (vy - (_height - 1));
+                        if (vx < 0) vx = _width - 1;
 
-                        if (vy < 0) vy = _height-1;
-                    
+                        if (vy >= _height) vy = _height - (vy - (_height - 1));
+
+                        if (vy < 0) vy = _height - 1;
+
                         tmpShortXdr =
-                            ((const unsigned short *)(_rowPtrs[chan])[vy])[vx];
+                            ((const unsigned short*) (_rowPtrs[chan])[vy])[vx];
 
                         if (_toNonlinear)
                         {
@@ -1490,38 +1435,39 @@ DwaCompressor::LossyDctEncoderBase::execute ()
                         }
                         else
                         {
-                            const char *tmpConstCharPtr =
-                                (const char *)(&tmpShortXdr);
+                            const char* tmpConstCharPtr =
+                                (const char*) (&tmpShortXdr);
 
-                            Xdr::read<CharPtrIO>
-                                (tmpConstCharPtr, tmpShortNative);
+                            Xdr::read<CharPtrIO> (
+                                tmpConstCharPtr, tmpShortNative);
 
-                            h.setBits(tmpShortNative);
+                            h.setBits (tmpShortNative);
                         }
 
-                        _dctData[chan]._buffer[y * 8 + x] = (float)h;
+                        _dctData[chan]._buffer[y * 8 + x] = (float) h;
                     } // x
-                } // y
-            } // chan
+                }     // y
+            }         // chan
 
             //
             // Color space conversion
             //
 
-            if (_rowPtrs.size() == 3)
+            if (_rowPtrs.size () == 3)
             {
-                csc709Forward64 (_dctData[0]._buffer, 
-                                 _dctData[1]._buffer, 
-                                 _dctData[2]._buffer);
+                csc709Forward64 (
+                    _dctData[0]._buffer,
+                    _dctData[1]._buffer,
+                    _dctData[2]._buffer);
             }
 
-            for (unsigned int chan = 0; chan < _rowPtrs.size(); ++chan)
+            for (unsigned int chan = 0; chan < _rowPtrs.size (); ++chan)
             {
                 //
                 // Forward DCT
                 //
 
-                dctForward8x8(_dctData[chan]._buffer);
+                dctForward8x8 (_dctData[chan]._buffer);
 
                 //
                 // Quantize to half, and zigzag
@@ -1531,32 +1477,32 @@ DwaCompressor::LossyDctEncoderBase::execute ()
                 {
                     for (int i = 0; i < 64; ++i)
                     {
-                        halfCoef[i] =
-                            quantize ((half)_dctData[chan]._buffer[i],
-                                      _quantBaseError*_quantTableY[i]);
+                        halfCoef[i] = quantize (
+                            (half) _dctData[chan]._buffer[i],
+                            _quantBaseError * _quantTableY[i]);
                     }
                 }
                 else
                 {
                     for (int i = 0; i < 64; ++i)
                     {
-                        halfCoef[i] =
-                            quantize ((half)_dctData[chan]._buffer[i],
-                                      _quantBaseError*_quantTableCbCr[i]);
+                        halfCoef[i] = quantize (
+                            (half) _dctData[chan]._buffer[i],
+                            _quantBaseError * _quantTableCbCr[i]);
                     }
                 }
 
                 toZigZag (halfZigCoef, halfCoef);
-                
+
                 //
                 // Convert from NATIVE back to XDR, before we write out
                 //
 
                 for (int i = 0; i < 64; ++i)
                 {
-                    tmpCharPtr = (char *)&tmpShortXdr;
-                    Xdr::write<CharPtrIO>(tmpCharPtr, halfZigCoef[i].bits());
-                    halfZigCoef[i].setBits(tmpShortXdr);
+                    tmpCharPtr = (char*) &tmpShortXdr;
+                    Xdr::write<CharPtrIO> (tmpCharPtr, halfZigCoef[i].bits ());
+                    halfZigCoef[i].setBits (tmpShortXdr);
                 }
 
                 //
@@ -1564,9 +1510,9 @@ DwaCompressor::LossyDctEncoderBase::execute ()
                 // its own.
                 //
 
-                *currDcComp[chan]++ = halfZigCoef[0].bits();
+                *currDcComp[chan]++ = halfZigCoef[0].bits ();
                 _numDcComp++;
-                
+
                 //
                 // Then RLE the AC components (which will record the count
                 // of the resulting number of items)
@@ -1574,41 +1520,26 @@ DwaCompressor::LossyDctEncoderBase::execute ()
 
                 rleAc (halfZigCoef, currAcComp);
             } // chan
-        } // blockx
-    } // blocky              
+        }     // blockx
+    }         // blocky
 }
 
-
-// 
+//
 // Reorder from zig-zag order to normal ordering
 //
 
-void 
-DwaCompressor::LossyDctEncoderBase::toZigZag (half *dst, half *src) 
+void
+DwaCompressor::LossyDctEncoderBase::toZigZag (half* dst, half* src)
 {
-    const int remap[] =
-    {
-         0, 
-         1,  8,
-        16,  9,  2,
-         3, 10, 17, 24,
-        32, 25, 18, 11, 4,
-         5, 12, 19, 26, 33, 40,
-        48, 41, 34, 27, 20, 13, 6,
-         7, 14, 21, 28, 35, 42, 49, 56,
-            57, 50, 43, 36, 29, 22, 15,
-                23, 30, 37, 44, 51, 58,
-                    59, 52, 45, 38, 31,
-                        39, 46, 53, 60,
-                            61, 54, 47,
-                                55, 62,
-                                    63
-    };
+    const int remap[] = {0,  1,  8,  16, 9,  2,  3,  10, 17, 24, 32, 25, 18,
+                         11, 4,  5,  12, 19, 26, 33, 40, 48, 41, 34, 27, 20,
+                         13, 6,  7,  14, 21, 28, 35, 42, 49, 56, 57, 50, 43,
+                         36, 29, 22, 15, 23, 30, 37, 44, 51, 58, 59, 52, 45,
+                         38, 31, 39, 46, 53, 60, 61, 54, 47, 55, 62, 63};
 
-    for (int i=0; i<64; ++i)
+    for (int i = 0; i < 64; ++i)
         dst[i] = src[remap[i]];
 }
-
 
 //
 // Precomputing the bit count runs faster than using
@@ -1621,36 +1552,28 @@ DwaCompressor::LossyDctEncoderBase::toZigZag (half *dst, half *src)
 int
 DwaCompressor::LossyDctEncoderBase::countSetBits (unsigned short src)
 {
-    static const unsigned short numBitsSet[256] =
-    {
-        0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4,
-        1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
-        1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
-        2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
-        1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
-        2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
-        2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
-        3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
-        1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
-        2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
-        2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
-        3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
-        2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
-        3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
-        3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
-        4, 5, 5, 6, 5, 6, 6, 7, 5, 6, 6, 7, 6, 7, 7, 8
-    };
+    static const unsigned short numBitsSet[256] = {
+        0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4, 1, 2, 2, 3, 2, 3, 3, 4,
+        2, 3, 3, 4, 3, 4, 4, 5, 1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
+        2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6, 1, 2, 2, 3, 2, 3, 3, 4,
+        2, 3, 3, 4, 3, 4, 4, 5, 2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
+        2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6, 3, 4, 4, 5, 4, 5, 5, 6,
+        4, 5, 5, 6, 5, 6, 6, 7, 1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
+        2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6, 2, 3, 3, 4, 3, 4, 4, 5,
+        3, 4, 4, 5, 4, 5, 5, 6, 3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
+        2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6, 3, 4, 4, 5, 4, 5, 5, 6,
+        4, 5, 5, 6, 5, 6, 6, 7, 3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
+        4, 5, 5, 6, 5, 6, 6, 7, 5, 6, 6, 7, 6, 7, 7, 8};
 
     return numBitsSet[src & 0xff] + numBitsSet[src >> 8];
 }
 
-
 //
 // Take a DCT coefficient, as well as an acceptable error. Search
-// nearby values within the error tolerance, that have fewer 
+// nearby values within the error tolerance, that have fewer
 // bits set.
 //
-// The list of candidates has been pre-computed and sorted 
+// The list of candidates has been pre-computed and sorted
 // in order of increasing numbers of bits set. This way, we
 // can stop searching as soon as we find a candidate that
 // is within the error tolerance.
@@ -1659,19 +1582,18 @@ DwaCompressor::LossyDctEncoderBase::countSetBits (unsigned short src)
 half
 DwaCompressor::LossyDctEncoderBase::quantize (half src, float errorTolerance)
 {
-    half            tmp;
-    float           srcFloat      = (float)src;
-    int             numSetBits    = countSetBits(src.bits());
-    const unsigned short *closest = closestData + closestDataOffset[src.bits()];
+    half                  tmp;
+    float                 srcFloat   = (float) src;
+    int                   numSetBits = countSetBits (src.bits ());
+    const unsigned short* closest =
+        closestData + closestDataOffset[src.bits ()];
 
-    for (int targetNumSetBits = numSetBits - 1;
-         targetNumSetBits >= 0;
+    for (int targetNumSetBits = numSetBits - 1; targetNumSetBits >= 0;
          --targetNumSetBits)
     {
         tmp.setBits (*closest);
 
-        if (fabs ((float)tmp - srcFloat) < errorTolerance)
-            return tmp;
+        if (fabs ((float) tmp - srcFloat) < errorTolerance) return tmp;
 
         closest++;
     }
@@ -1679,15 +1601,14 @@ DwaCompressor::LossyDctEncoderBase::quantize (half src, float errorTolerance)
     return src;
 }
 
-
 //
-// RLE the zig-zag of the AC components + copy over 
+// RLE the zig-zag of the AC components + copy over
 // into another tmp buffer
 //
 // Try to do a simple RLE scheme to reduce run's of 0's. This
 // differs from the jpeg EOB case, since EOB just indicates that
 // the rest of the block is zero. In our case, we have lots of
-// NaN symbols, which shouldn't be allowed to occur in DCT 
+// NaN symbols, which shouldn't be allowed to occur in DCT
 // coefficents - so we'll use them for encoding runs.
 //
 // If the high byte is 0xff, then we have a run of 0's, of length
@@ -1701,24 +1622,22 @@ DwaCompressor::LossyDctEncoderBase::quantize (half src, float errorTolerance)
 //
 
 void
-DwaCompressor::LossyDctEncoderBase::rleAc
-    (half *block,
-     unsigned short *&acPtr)
+DwaCompressor::LossyDctEncoderBase::rleAc (half* block, unsigned short*& acPtr)
 {
-    int dctComp              = 1; 
+    int            dctComp   = 1;
     unsigned short rleSymbol = 0x0;
 
     while (dctComp < 64)
     {
         int runLen = 1;
-    
+
         //
         // If we don't have a 0, output verbatim
         //
 
-        if (block[dctComp].bits() != rleSymbol)
+        if (block[dctComp].bits () != rleSymbol)
         {
-            *acPtr++ =  block[dctComp].bits();
+            *acPtr++ = block[dctComp].bits ();
             _numAcComp++;
 
             dctComp += runLen;
@@ -1729,8 +1648,8 @@ DwaCompressor::LossyDctEncoderBase::rleAc
         // We're sitting on a 0, so see how big the run is.
         //
 
-        while ((dctComp+runLen < 64) && 
-               (block[dctComp+runLen].bits() == rleSymbol))
+        while ((dctComp + runLen < 64) &&
+               (block[dctComp + runLen].bits () == rleSymbol))
         {
             runLen++;
         }
@@ -1742,13 +1661,13 @@ DwaCompressor::LossyDctEncoderBase::rleAc
         // Originally, we wouldn't have a separate symbol for
         // "end of block". But in some experimentation, it looks
         // like using 0xff00 for "end of block" can save a bit
-        // of space. 
+        // of space.
         //
 
         if (runLen == 1)
         {
-            runLen           = 1;
-            *acPtr++ = block[dctComp].bits();
+            runLen   = 1;
+            *acPtr++ = block[dctComp].bits ();
             _numAcComp++;
 
             //
@@ -1766,11 +1685,11 @@ DwaCompressor::LossyDctEncoderBase::rleAc
         }
         else
         {
-            // 
+            //
             // Signal normal run
             //
 
-            *acPtr++   = 0xff00 | runLen;
+            *acPtr++ = 0xff00 | runLen;
             _numAcComp++;
         }
 
@@ -1782,54 +1701,51 @@ DwaCompressor::LossyDctEncoderBase::rleAc
     }
 }
 
-
 // ==============================================================
 //
 //                     DwaCompressor
 //
 // --------------------------------------------------------------
 
-// 
+//
 // DwaCompressor()
 //
 
-DwaCompressor::DwaCompressor
-    (const Header &hdr,
-     int maxScanLineSize,
-     int numScanLines,
-     AcCompression acCompression)
-:
-    Compressor(hdr),
-    _acCompression(acCompression),
-    _maxScanLineSize(maxScanLineSize),
-    _numScanLines(numScanLines),
-    _channels(hdr.channels()),
-    _packedAcBuffer(nullptr),
-    _packedAcBufferSize(0),
-    _packedDcBuffer(nullptr),
-    _packedDcBufferSize(0),
-    _rleBuffer(nullptr),
-    _rleBufferSize(0),
-    _outBuffer(nullptr),
-    _outBufferSize(0),
-    _zip(nullptr),
-    _zipLevel(hdr.zipCompressionLevel()),
-    _dwaCompressionLevel(hdr.dwaCompressionLevel())
+DwaCompressor::DwaCompressor (
+    const Header& hdr,
+    int           maxScanLineSize,
+    int           numScanLines,
+    AcCompression acCompression)
+    : Compressor (hdr)
+    , _acCompression (acCompression)
+    , _maxScanLineSize (maxScanLineSize)
+    , _numScanLines (numScanLines)
+    , _channels (hdr.channels ())
+    , _packedAcBuffer (nullptr)
+    , _packedAcBufferSize (0)
+    , _packedDcBuffer (nullptr)
+    , _packedDcBufferSize (0)
+    , _rleBuffer (nullptr)
+    , _rleBufferSize (0)
+    , _outBuffer (nullptr)
+    , _outBufferSize (0)
+    , _zip (nullptr)
+    , _zipLevel (hdr.zipCompressionLevel ())
+    , _dwaCompressionLevel (hdr.dwaCompressionLevel ())
 {
-    _min[0] = hdr.dataWindow().min.x;
-    _min[1] = hdr.dataWindow().min.y;
-    _max[0] = hdr.dataWindow().max.x;
-    _max[1] = hdr.dataWindow().max.y;
+    _min[0] = hdr.dataWindow ().min.x;
+    _min[1] = hdr.dataWindow ().min.y;
+    _max[0] = hdr.dataWindow ().max.x;
+    _max[1] = hdr.dataWindow ().max.y;
 
-    for (int i=0; i < NUM_COMPRESSOR_SCHEMES; ++i) 
+    for (int i = 0; i < NUM_COMPRESSOR_SCHEMES; ++i)
     {
-        _planarUncBuffer[i] = 0;
+        _planarUncBuffer[i]     = 0;
         _planarUncBufferSize[i] = 0;
     }
 }
 
-
-DwaCompressor::~DwaCompressor()
+DwaCompressor::~DwaCompressor ()
 {
     delete[] _packedAcBuffer;
     delete[] _packedDcBuffer;
@@ -1837,20 +1753,18 @@ DwaCompressor::~DwaCompressor()
     delete[] _outBuffer;
     delete _zip;
 
-    for (int i=0; i<NUM_COMPRESSOR_SCHEMES; ++i)
+    for (int i = 0; i < NUM_COMPRESSOR_SCHEMES; ++i)
         delete[] _planarUncBuffer[i];
 }
 
-
 int
-DwaCompressor::numScanLines() const
+DwaCompressor::numScanLines () const
 {
     return _numScanLines;
 }
 
-
-OPENEXR_IMF_NAMESPACE::Compressor::Format 
-DwaCompressor::format() const
+OPENEXR_IMF_NAMESPACE::Compressor::Format
+DwaCompressor::format () const
 {
     if (GLOBAL_SYSTEM_LITTLE_ENDIAN)
         return NATIVE;
@@ -1858,64 +1772,59 @@ DwaCompressor::format() const
         return XDR;
 }
 
-
 int
-DwaCompressor::compress
-    (const char *inPtr,
-     int inSize,
-     int minY,
-     const char *&outPtr)
+DwaCompressor::compress (
+    const char* inPtr, int inSize, int minY, const char*& outPtr)
 {
-    return compress
-        (inPtr,
-         inSize, 
-         IMATH_NAMESPACE::Box2i (IMATH_NAMESPACE::V2i (_min[0], minY),
-                                 IMATH_NAMESPACE::V2i (_max[0], minY + numScanLines() - 1)),
-         outPtr);
+    return compress (
+        inPtr,
+        inSize,
+        IMATH_NAMESPACE::Box2i (
+            IMATH_NAMESPACE::V2i (_min[0], minY),
+            IMATH_NAMESPACE::V2i (_max[0], minY + numScanLines () - 1)),
+        outPtr);
 }
 
-
 int
-DwaCompressor::compressTile
-    (const char             *inPtr,
-     int                    inSize,
-     IMATH_NAMESPACE::Box2i range,
-     const char             *&outPtr)
+DwaCompressor::compressTile (
+    const char*            inPtr,
+    int                    inSize,
+    IMATH_NAMESPACE::Box2i range,
+    const char*&           outPtr)
 {
     return compress (inPtr, inSize, range, outPtr);
 }
 
-
-int 
-DwaCompressor::compress
-    (const char             *inPtr,
-     int                    inSize,
-     IMATH_NAMESPACE::Box2i range,
-     const char             *&outPtr)
+int
+DwaCompressor::compress (
+    const char*            inPtr,
+    int                    inSize,
+    IMATH_NAMESPACE::Box2i range,
+    const char*&           outPtr)
 {
-    const char *inDataPtr   = inPtr;
-    char       *packedAcEnd = 0;
-    char       *packedDcEnd = 0; 
-    int         fileVersion = 2;   // Starting with 2, we write the channel
-                                   // classification rules into the file
+    const char* inDataPtr   = inPtr;
+    char*       packedAcEnd = 0;
+    char*       packedDcEnd = 0;
+    int         fileVersion = 2; // Starting with 2, we write the channel
+                                 // classification rules into the file
 
-    if (fileVersion < 2) 
-        initializeLegacyChannelRules();
-    else 
-        initializeDefaultChannelRules();
+    if (fileVersion < 2)
+        initializeLegacyChannelRules ();
+    else
+        initializeDefaultChannelRules ();
 
     size_t outBufferSize = 0;
-    initializeBuffers(outBufferSize);
+    initializeBuffers (outBufferSize);
 
     unsigned short          channelRuleSize = 0;
     std::vector<Classifier> channelRules;
-    if (fileVersion >= 2) 
+    if (fileVersion >= 2)
     {
-        relevantChannelRules(channelRules);
+        relevantChannelRules (channelRules);
 
-        channelRuleSize = Xdr::size<unsigned short>();
-        for (size_t i = 0; i < channelRules.size(); ++i) 
-            channelRuleSize += channelRules[i].size();
+        channelRuleSize = Xdr::size<unsigned short> ();
+        for (size_t i = 0; i < channelRules.size (); ++i)
+            channelRuleSize += channelRules[i].size ();
     }
 
     //
@@ -1923,16 +1832,15 @@ DwaCompressor::compress
     //
 
     outBufferSize += channelRuleSize;
-    if (outBufferSize > _outBufferSize) 
+    if (outBufferSize > _outBufferSize)
     {
         _outBufferSize = outBufferSize;
-        if (_outBuffer != 0)
-            delete[] _outBuffer;       
+        if (_outBuffer != 0) delete[] _outBuffer;
         _outBuffer = new char[outBufferSize];
     }
 
-    char *outDataPtr = &_outBuffer[NUM_SIZES_SINGLE * sizeof(uint64_t) +
-                                   channelRuleSize];
+    char* outDataPtr =
+        &_outBuffer[NUM_SIZES_SINGLE * sizeof (uint64_t) + channelRuleSize];
 
     //
     // We might not be dealing with any color data, in which
@@ -1940,32 +1848,30 @@ DwaCompressor::compress
     // a vector will not be a good thing to do.
     //
 
-    if (_packedAcBuffer)
-        packedAcEnd = _packedAcBuffer;
+    if (_packedAcBuffer) packedAcEnd = _packedAcBuffer;
 
-    if (_packedDcBuffer)
-        packedDcEnd = _packedDcBuffer;
+    if (_packedDcBuffer) packedDcEnd = _packedDcBuffer;
 
-    #define OBIDX(x) (uint64_t *)&_outBuffer[x * sizeof (uint64_t)]
+#define OBIDX(x) (uint64_t*) &_outBuffer[x * sizeof (uint64_t)]
 
-    uint64_t *version                 = OBIDX (VERSION);
-    uint64_t *unknownUncompressedSize = OBIDX (UNKNOWN_UNCOMPRESSED_SIZE);
-    uint64_t *unknownCompressedSize   = OBIDX (UNKNOWN_COMPRESSED_SIZE);
-    uint64_t *acCompressedSize        = OBIDX (AC_COMPRESSED_SIZE);
-    uint64_t *dcCompressedSize        = OBIDX (DC_COMPRESSED_SIZE);
-    uint64_t *rleCompressedSize       = OBIDX (RLE_COMPRESSED_SIZE);
-    uint64_t *rleUncompressedSize     = OBIDX (RLE_UNCOMPRESSED_SIZE);
-    uint64_t *rleRawSize              = OBIDX (RLE_RAW_SIZE);
+    uint64_t* version                 = OBIDX (VERSION);
+    uint64_t* unknownUncompressedSize = OBIDX (UNKNOWN_UNCOMPRESSED_SIZE);
+    uint64_t* unknownCompressedSize   = OBIDX (UNKNOWN_COMPRESSED_SIZE);
+    uint64_t* acCompressedSize        = OBIDX (AC_COMPRESSED_SIZE);
+    uint64_t* dcCompressedSize        = OBIDX (DC_COMPRESSED_SIZE);
+    uint64_t* rleCompressedSize       = OBIDX (RLE_COMPRESSED_SIZE);
+    uint64_t* rleUncompressedSize     = OBIDX (RLE_UNCOMPRESSED_SIZE);
+    uint64_t* rleRawSize              = OBIDX (RLE_RAW_SIZE);
 
-    uint64_t *totalAcUncompressedCount = OBIDX (AC_UNCOMPRESSED_COUNT);
-    uint64_t *totalDcUncompressedCount = OBIDX (DC_UNCOMPRESSED_COUNT);
+    uint64_t* totalAcUncompressedCount = OBIDX (AC_UNCOMPRESSED_COUNT);
+    uint64_t* totalDcUncompressedCount = OBIDX (DC_UNCOMPRESSED_COUNT);
 
-    uint64_t *acCompression            = OBIDX (AC_COMPRESSION);
+    uint64_t* acCompression = OBIDX (AC_COMPRESSION);
 
-    int minX   = range.min.x;
-    int maxX   = std::min(range.max.x, _max[0]);
-    int minY   = range.min.y;
-    int maxY   = std::min(range.max.y, _max[1]);
+    int minX = range.min.x;
+    int maxX = std::min (range.max.x, _max[0]);
+    int minY = range.min.y;
+    int maxY = std::min (range.max.y, _max[1]);
 
     //
     // Zero all the numbers in the chunk header
@@ -1977,18 +1883,18 @@ DwaCompressor::compress
     // Setup the AC compression strategy and the version in the data block,
     // then write the relevant channel classification rules if needed
     //
-    *version       = fileVersion;  
+    *version       = fileVersion;
     *acCompression = _acCompression;
 
     setupChannelData (minX, minY, maxX, maxY);
 
-    if (fileVersion >= 2) 
+    if (fileVersion >= 2)
     {
-        char *writePtr = &_outBuffer[NUM_SIZES_SINGLE * sizeof(uint64_t)];
+        char* writePtr = &_outBuffer[NUM_SIZES_SINGLE * sizeof (uint64_t)];
         Xdr::write<CharPtrIO> (writePtr, channelRuleSize);
-        
-        for (size_t i = 0; i < channelRules.size(); ++i) 
-            channelRules[i].write(writePtr);
+
+        for (size_t i = 0; i < channelRules.size (); ++i)
+            channelRules[i].write (writePtr);
     }
 
     //
@@ -1996,164 +1902,166 @@ DwaCompressor::compress
     // Channels are interleaved by scanline
     //
 
-    std::vector<bool> encodedChannels (_channelData.size());
-    std::vector< std::vector<const char *> > rowPtrs (_channelData.size());
+    std::vector<bool> encodedChannels (_channelData.size ());
+    std::vector<std::vector<const char*>> rowPtrs (_channelData.size ());
 
-    for (unsigned int chan = 0; chan < _channelData.size(); ++chan)
+    for (unsigned int chan = 0; chan < _channelData.size (); ++chan)
         encodedChannels[chan] = false;
 
-    inDataPtr =  inPtr;
+    inDataPtr = inPtr;
 
     for (int y = minY; y <= maxY; ++y)
     {
-        for (unsigned int chan = 0; chan < _channelData.size(); ++chan)
+        for (unsigned int chan = 0; chan < _channelData.size (); ++chan)
         {
 
-            ChannelData *cd = &_channelData[chan];
+            ChannelData* cd = &_channelData[chan];
 
-            if (IMATH_NAMESPACE::modp(y, cd->ySampling) != 0)
-                continue;
+            if (IMATH_NAMESPACE::modp (y, cd->ySampling) != 0) continue;
 
-            rowPtrs[chan].push_back(inDataPtr);
-            inDataPtr += cd->width * OPENEXR_IMF_NAMESPACE::pixelTypeSize(cd->type);
+            rowPtrs[chan].push_back (inDataPtr);
+            inDataPtr +=
+                cd->width * OPENEXR_IMF_NAMESPACE::pixelTypeSize (cd->type);
         }
     }
 
     inDataPtr = inPtr;
 
-    // 
+    //
     // Make a pass over all our CSC sets and try to encode them first
-    // 
+    //
 
-    for (unsigned int csc = 0; csc < _cscSets.size(); ++csc)
+    for (unsigned int csc = 0; csc < _cscSets.size (); ++csc)
     {
 
-        LossyDctEncoderCsc encoder
-            (_dwaCompressionLevel / 100000.f,
-             rowPtrs[_cscSets[csc].idx[0]],
-             rowPtrs[_cscSets[csc].idx[1]],
-             rowPtrs[_cscSets[csc].idx[2]],
-             packedAcEnd,
-             packedDcEnd,
-             dwaCompressorToNonlinear,
-             _channelData[_cscSets[csc].idx[0]].width,
-             _channelData[_cscSets[csc].idx[0]].height,
-             _channelData[_cscSets[csc].idx[0]].type,
-             _channelData[_cscSets[csc].idx[1]].type,
-             _channelData[_cscSets[csc].idx[2]].type);
+        LossyDctEncoderCsc encoder (
+            _dwaCompressionLevel / 100000.f,
+            rowPtrs[_cscSets[csc].idx[0]],
+            rowPtrs[_cscSets[csc].idx[1]],
+            rowPtrs[_cscSets[csc].idx[2]],
+            packedAcEnd,
+            packedDcEnd,
+            dwaCompressorToNonlinear,
+            _channelData[_cscSets[csc].idx[0]].width,
+            _channelData[_cscSets[csc].idx[0]].height,
+            _channelData[_cscSets[csc].idx[0]].type,
+            _channelData[_cscSets[csc].idx[1]].type,
+            _channelData[_cscSets[csc].idx[2]].type);
 
-        encoder.execute();
+        encoder.execute ();
 
-        *totalAcUncompressedCount  += encoder.numAcValuesEncoded();
-        *totalDcUncompressedCount  += encoder.numDcValuesEncoded();
+        *totalAcUncompressedCount += encoder.numAcValuesEncoded ();
+        *totalDcUncompressedCount += encoder.numDcValuesEncoded ();
 
-        packedAcEnd += encoder.numAcValuesEncoded() * sizeof(unsigned short);
-        packedDcEnd += encoder.numDcValuesEncoded() * sizeof(unsigned short);
+        packedAcEnd += encoder.numAcValuesEncoded () * sizeof (unsigned short);
+        packedDcEnd += encoder.numDcValuesEncoded () * sizeof (unsigned short);
 
         encodedChannels[_cscSets[csc].idx[0]] = true;
         encodedChannels[_cscSets[csc].idx[1]] = true;
         encodedChannels[_cscSets[csc].idx[2]] = true;
     }
 
-    for (unsigned int chan = 0; chan < _channelData.size(); ++chan)
+    for (unsigned int chan = 0; chan < _channelData.size (); ++chan)
     {
-        ChannelData *cd = &_channelData[chan];
+        ChannelData* cd = &_channelData[chan];
 
-        if (encodedChannels[chan])
-            continue;
+        if (encodedChannels[chan]) continue;
 
         switch (cd->compression)
         {
-          case LOSSY_DCT:
+            case LOSSY_DCT:
 
-            //
-            // For LOSSY_DCT, treat this just like the CSC'd case,
-            // but only operate on one channel
-            //
+                //
+                // For LOSSY_DCT, treat this just like the CSC'd case,
+                // but only operate on one channel
+                //
 
-            {
-                const unsigned short *nonlinearLut = 0;
-
-                if (!cd->pLinear)
-                    nonlinearLut = dwaCompressorToNonlinear; 
-
-                LossyDctEncoder encoder
-                    (_dwaCompressionLevel / 100000.f,
-                     rowPtrs[chan],
-                     packedAcEnd,
-                     packedDcEnd,
-                     nonlinearLut,
-                     cd->width,
-                     cd->height,
-                     cd->type);
-
-                encoder.execute();
-
-                *totalAcUncompressedCount  += encoder.numAcValuesEncoded();
-                *totalDcUncompressedCount  += encoder.numDcValuesEncoded();
-
-                packedAcEnd +=
-                    encoder.numAcValuesEncoded() * sizeof (unsigned short);
-
-                packedDcEnd +=
-                    encoder.numDcValuesEncoded() * sizeof (unsigned short);
-            }
-
-            break;
-
-          case RLE:
-
-            //
-            // For RLE, bash the bytes up so that the first bytes of each
-            // pixel are contingous, as are the second bytes, and so on.
-            //
-
-            for (unsigned int y = 0; y < rowPtrs[chan].size(); ++y)
-            {
-                const char *row = rowPtrs[chan][y];
-
-                for (int x = 0; x < cd->width; ++x)
                 {
-                    for (int byte = 0;
-                         byte < OPENEXR_IMF_NAMESPACE::pixelTypeSize (cd->type);
-                         ++byte)
-                    {
-                            
-                        *cd->planarUncRleEnd[byte]++ = *row++;
-                    }
+                    const unsigned short* nonlinearLut = 0;
+
+                    if (!cd->pLinear) nonlinearLut = dwaCompressorToNonlinear;
+
+                    LossyDctEncoder encoder (
+                        _dwaCompressionLevel / 100000.f,
+                        rowPtrs[chan],
+                        packedAcEnd,
+                        packedDcEnd,
+                        nonlinearLut,
+                        cd->width,
+                        cd->height,
+                        cd->type);
+
+                    encoder.execute ();
+
+                    *totalAcUncompressedCount += encoder.numAcValuesEncoded ();
+                    *totalDcUncompressedCount += encoder.numDcValuesEncoded ();
+
+                    packedAcEnd +=
+                        encoder.numAcValuesEncoded () * sizeof (unsigned short);
+
+                    packedDcEnd +=
+                        encoder.numDcValuesEncoded () * sizeof (unsigned short);
                 }
 
-                *rleRawSize += cd->width * OPENEXR_IMF_NAMESPACE::pixelTypeSize(cd->type);
-            }
+                break;
 
-            break;
+            case RLE:
 
-          case UNKNOWN:
-           
-            //
-            // Otherwise, just copy data over verbatim
-            //
+                //
+                // For RLE, bash the bytes up so that the first bytes of each
+                // pixel are contingous, as are the second bytes, and so on.
+                //
 
-            {
-                int scanlineSize = cd->width * OPENEXR_IMF_NAMESPACE::pixelTypeSize(cd->type);
-
-                for (unsigned int y = 0; y < rowPtrs[chan].size(); ++y)
+                for (unsigned int y = 0; y < rowPtrs[chan].size (); ++y)
                 {
-                    memcpy (cd->planarUncBufferEnd,
+                    const char* row = rowPtrs[chan][y];
+
+                    for (int x = 0; x < cd->width; ++x)
+                    {
+                        for (int byte = 0;
+                             byte <
+                             OPENEXR_IMF_NAMESPACE::pixelTypeSize (cd->type);
+                             ++byte)
+                        {
+
+                            *cd->planarUncRleEnd[byte]++ = *row++;
+                        }
+                    }
+
+                    *rleRawSize +=
+                        cd->width *
+                        OPENEXR_IMF_NAMESPACE::pixelTypeSize (cd->type);
+                }
+
+                break;
+
+            case UNKNOWN:
+
+                //
+                // Otherwise, just copy data over verbatim
+                //
+
+                {
+                    int scanlineSize =
+                        cd->width *
+                        OPENEXR_IMF_NAMESPACE::pixelTypeSize (cd->type);
+
+                    for (unsigned int y = 0; y < rowPtrs[chan].size (); ++y)
+                    {
+                        memcpy (
+                            cd->planarUncBufferEnd,
                             rowPtrs[chan][y],
                             scanlineSize);
-    
-                    cd->planarUncBufferEnd += scanlineSize;
+
+                        cd->planarUncBufferEnd += scanlineSize;
+                    }
+
+                    *unknownUncompressedSize += cd->planarUncSize;
                 }
 
-                *unknownUncompressedSize += cd->planarUncSize;
-            }
+                break;
 
-            break;
-
-          default:
-
-            assert (false);
+            default: assert (false);
         }
 
         encodedChannels[chan] = true;
@@ -2166,14 +2074,15 @@ DwaCompressor::compress
 
     if (*unknownUncompressedSize > 0)
     {
-        uLongf inSize  = (uLongf)(*unknownUncompressedSize);
+        uLongf inSize  = (uLongf) (*unknownUncompressedSize);
         uLongf outSize = compressBound (inSize);
 
-        if (Z_OK != ::compress2 ((Bytef *)outDataPtr,
-                                 &outSize,
-                                 (const Bytef *)_planarUncBuffer[UNKNOWN],
-                                 inSize,
-                                 9))
+        if (Z_OK != ::compress2 (
+                        (Bytef*) outDataPtr,
+                        &outSize,
+                        (const Bytef*) _planarUncBuffer[UNKNOWN],
+                        inSize,
+                        9))
         {
             throw IEX_NAMESPACE::BaseExc ("Data compression (zlib) failed.");
         }
@@ -2186,102 +2095,101 @@ DwaCompressor::compress
     // Now, pack all the Lossy DCT coefficients into our output
     // buffer, with Huffman encoding.
     //
-    // Also, record the compressed size and the number of 
+    // Also, record the compressed size and the number of
     // uncompressed componentns we have.
     //
 
     if (*totalAcUncompressedCount > 0)
-    { 
+    {
         switch (_acCompression)
         {
-          case STATIC_HUFFMAN:
+            case STATIC_HUFFMAN:
 
-            *acCompressedSize = (int)
-                hufCompress((unsigned short *)_packedAcBuffer,
-                            (int)*totalAcUncompressedCount,
-                            outDataPtr);                
-            break;
+                *acCompressedSize = (int) hufCompress (
+                    (unsigned short*) _packedAcBuffer,
+                    (int) *totalAcUncompressedCount,
+                    outDataPtr);
+                break;
 
-          case DEFLATE:
+            case DEFLATE:
 
             {
                 uLongf destLen = compressBound (
                     (*totalAcUncompressedCount) * sizeof (unsigned short));
 
-                if (Z_OK != ::compress2
-                                ((Bytef *)outDataPtr,
-                                 &destLen,
-                                 (Bytef *)_packedAcBuffer, 
-                                 (uLong)(*totalAcUncompressedCount
-                                                * sizeof (unsigned short)),
-                                 9))
+                if (Z_OK !=
+                    ::compress2 (
+                        (Bytef*) outDataPtr,
+                        &destLen,
+                        (Bytef*) _packedAcBuffer,
+                        (uLong) (*totalAcUncompressedCount * sizeof (unsigned short)),
+                        9))
                 {
-                    throw IEX_NAMESPACE::InputExc ("Data compression (zlib) failed.");
+                    throw IEX_NAMESPACE::InputExc (
+                        "Data compression (zlib) failed.");
                 }
 
-                *acCompressedSize = destLen;        
+                *acCompressedSize = destLen;
             }
 
             break;
 
-          default:
-            
-            assert (false);
+            default: assert (false);
         }
 
         outDataPtr += *acCompressedSize;
     }
 
-    // 
+    //
     // Handle the DC components separately
     //
 
     if (*totalDcUncompressedCount > 0)
     {
-        *dcCompressedSize = _zip->compress
-            (_packedDcBuffer,
-             (int)(*totalDcUncompressedCount) * sizeof (unsigned short),
-             outDataPtr);
+        *dcCompressedSize = _zip->compress (
+            _packedDcBuffer,
+            (int) (*totalDcUncompressedCount) * sizeof (unsigned short),
+            outDataPtr);
 
         outDataPtr += *dcCompressedSize;
     }
 
-    // 
+    //
     // If we have RLE data, first RLE encode it and set the uncompressed
     // size. Then, deflate the results and set the compressed size.
-    //    
+    //
 
     if (*rleRawSize > 0)
     {
-        *rleUncompressedSize = rleCompress
-            ((int)(*rleRawSize),
-             _planarUncBuffer[RLE],
-             (signed char *)_rleBuffer);
+        *rleUncompressedSize = rleCompress (
+            (int) (*rleRawSize),
+            _planarUncBuffer[RLE],
+            (signed char*) _rleBuffer);
 
-        uLongf dstLen = compressBound ((uLongf)*rleUncompressedSize);
+        uLongf dstLen = compressBound ((uLongf) *rleUncompressedSize);
 
-        if (Z_OK != ::compress2
-                        ((Bytef *)outDataPtr, 
-                         &dstLen, 
-                         (Bytef *)_rleBuffer, 
-                         (uLong)(*rleUncompressedSize),
-                         9))
+        if (Z_OK != ::compress2 (
+                        (Bytef*) outDataPtr,
+                        &dstLen,
+                        (Bytef*) _rleBuffer,
+                        (uLong) (*rleUncompressedSize),
+                        9))
         {
             throw IEX_NAMESPACE::BaseExc ("Error compressing RLE'd data.");
         }
-        
-       *rleCompressedSize = dstLen;
-        outDataPtr       += *rleCompressedSize;
+
+        *rleCompressedSize = dstLen;
+        outDataPtr += *rleCompressedSize;
     }
 
-    // 
+    //
     // Flip the counters to XDR format
-    //         
+    //
 
     for (int i = 0; i < NUM_SIZES_SINGLE; ++i)
     {
-        uint64_t  src = *(((uint64_t *)_outBuffer) + i);
-        char  *dst = (char *)(((uint64_t *)_outBuffer) + i);
+        uint64_t src = *(((uint64_t*) _outBuffer) + i);
+        char*    dst = (char*) (((uint64_t*) _outBuffer) + i);
 
         Xdr::write<CharPtrIO> (dst, src);
     }
@@ -2292,64 +2200,60 @@ DwaCompressor::compress
 
     outPtr = _outBuffer;
 
-    return static_cast<int>(outDataPtr - _outBuffer);
+    return static_cast<int> (outDataPtr - _outBuffer);
 }
-
 
 int
-DwaCompressor::uncompress
-    (const char *inPtr,
-     int inSize,
-     int minY,
-     const char *&outPtr)
+DwaCompressor::uncompress (
+    const char* inPtr, int inSize, int minY, const char*& outPtr)
 {
-    return uncompress (inPtr,
-                       inSize,
-                       IMATH_NAMESPACE::Box2i (IMATH_NAMESPACE::V2i (_min[0], minY),
-                       IMATH_NAMESPACE::V2i (_max[0], minY + numScanLines() - 1)),
-                       outPtr);
+    return uncompress (
+        inPtr,
+        inSize,
+        IMATH_NAMESPACE::Box2i (
+            IMATH_NAMESPACE::V2i (_min[0], minY),
+            IMATH_NAMESPACE::V2i (_max[0], minY + numScanLines () - 1)),
+        outPtr);
 }
 
-
-int 
-DwaCompressor::uncompressTile
-    (const char *inPtr,
-     int inSize,
-     IMATH_NAMESPACE::Box2i range,
-     const char *&outPtr)
+int
+DwaCompressor::uncompressTile (
+    const char*            inPtr,
+    int                    inSize,
+    IMATH_NAMESPACE::Box2i range,
+    const char*&           outPtr)
 {
     return uncompress (inPtr, inSize, range, outPtr);
 }
 
-
-int 
-DwaCompressor::uncompress
-    (const char *inPtr,
-     int inSize,
-     IMATH_NAMESPACE::Box2i range,
-     const char *&outPtr)
+int
+DwaCompressor::uncompress (
+    const char*            inPtr,
+    int                    inSize,
+    IMATH_NAMESPACE::Box2i range,
+    const char*&           outPtr)
 {
     int minX = range.min.x;
     int maxX = std::min (range.max.x, _max[0]);
     int minY = range.min.y;
     int maxY = std::min (range.max.y, _max[1]);
 
-    uint64_t iSize = static_cast<uint64_t>( inSize );
-    uint64_t headerSize = NUM_SIZES_SINGLE*sizeof(uint64_t);
-    if (iSize < headerSize) 
+    uint64_t iSize      = static_cast<uint64_t> (inSize);
+    uint64_t headerSize = NUM_SIZES_SINGLE * sizeof (uint64_t);
+    if (iSize < headerSize)
     {
-        throw IEX_NAMESPACE::InputExc("Error uncompressing DWA data"
-                            "(truncated header).");
+        throw IEX_NAMESPACE::InputExc ("Error uncompressing DWA data"
+                                       "(truncated header).");
     }
 
-    // 
+    //
     // Flip the counters from XDR to NATIVE
     //
 
     for (int i = 0; i < NUM_SIZES_SINGLE; ++i)
     {
-        uint64_t   *dst =  (((uint64_t *)inPtr) + i);
-        const char *src = (char *)(((uint64_t *)inPtr) + i);
+        uint64_t*   dst = (((uint64_t*) inPtr) + i);
+        const char* src = (char*) (((uint64_t*) inPtr) + i);
 
         Xdr::read<CharPtrIO> (src, *dst);
     }
@@ -2358,178 +2262,170 @@ DwaCompressor::uncompress
     // Unwind all the counter info
     //
 
-    const uint64_t *inPtr64 = (const uint64_t*) inPtr;
+    const uint64_t* inPtr64 = (const uint64_t*) inPtr;
 
-    uint64_t version                  = *(inPtr64 + VERSION);
-    uint64_t unknownUncompressedSize  = *(inPtr64 + UNKNOWN_UNCOMPRESSED_SIZE);
-    uint64_t unknownCompressedSize    = *(inPtr64 + UNKNOWN_COMPRESSED_SIZE);
-    uint64_t acCompressedSize         = *(inPtr64 + AC_COMPRESSED_SIZE);
-    uint64_t dcCompressedSize         = *(inPtr64 + DC_COMPRESSED_SIZE);
-    uint64_t rleCompressedSize        = *(inPtr64 + RLE_COMPRESSED_SIZE);
-    uint64_t rleUncompressedSize      = *(inPtr64 + RLE_UNCOMPRESSED_SIZE);
-    uint64_t rleRawSize               = *(inPtr64 + RLE_RAW_SIZE);
- 
-    uint64_t totalAcUncompressedCount = *(inPtr64 + AC_UNCOMPRESSED_COUNT); 
-    uint64_t totalDcUncompressedCount = *(inPtr64 + DC_UNCOMPRESSED_COUNT); 
+    uint64_t version                 = *(inPtr64 + VERSION);
+    uint64_t unknownUncompressedSize = *(inPtr64 + UNKNOWN_UNCOMPRESSED_SIZE);
+    uint64_t unknownCompressedSize   = *(inPtr64 + UNKNOWN_COMPRESSED_SIZE);
+    uint64_t acCompressedSize        = *(inPtr64 + AC_COMPRESSED_SIZE);
+    uint64_t dcCompressedSize        = *(inPtr64 + DC_COMPRESSED_SIZE);
+    uint64_t rleCompressedSize       = *(inPtr64 + RLE_COMPRESSED_SIZE);
+    uint64_t rleUncompressedSize     = *(inPtr64 + RLE_UNCOMPRESSED_SIZE);
+    uint64_t rleRawSize              = *(inPtr64 + RLE_RAW_SIZE);
 
-    uint64_t acCompression            = *(inPtr64 + AC_COMPRESSION); 
+    uint64_t totalAcUncompressedCount = *(inPtr64 + AC_UNCOMPRESSED_COUNT);
+    uint64_t totalDcUncompressedCount = *(inPtr64 + DC_UNCOMPRESSED_COUNT);
 
-    uint64_t compressedSize           = unknownCompressedSize + 
-                                     acCompressedSize +
-                                     dcCompressedSize +
-                                     rleCompressedSize;
+    uint64_t acCompression = *(inPtr64 + AC_COMPRESSION);
 
-    const char *dataPtr            = inPtr + NUM_SIZES_SINGLE * sizeof(uint64_t);
+    uint64_t compressedSize = unknownCompressedSize + acCompressedSize +
+                              dcCompressedSize + rleCompressedSize;
+
+    const char* dataPtr = inPtr + NUM_SIZES_SINGLE * sizeof (uint64_t);
 
     /* Both the sum and individual sizes are checked in case of overflow. */
     if (iSize < (headerSize + compressedSize) ||
-        iSize < unknownCompressedSize ||
-        iSize < acCompressedSize ||
-        iSize < dcCompressedSize ||
-        iSize < rleCompressedSize)
+        iSize < unknownCompressedSize || iSize < acCompressedSize ||
+        iSize < dcCompressedSize || iSize < rleCompressedSize)
     {
-        throw IEX_NAMESPACE::InputExc("Error uncompressing DWA data"
-                            "(truncated file).");
+        throw IEX_NAMESPACE::InputExc ("Error uncompressing DWA data"
+                                       "(truncated file).");
     }
 
-    if ((int64_t)unknownUncompressedSize < 0  ||
-        (int64_t)unknownCompressedSize < 0    ||
-        (int64_t)acCompressedSize < 0         ||
-        (int64_t)dcCompressedSize < 0         ||
-        (int64_t)rleCompressedSize < 0        ||
-        (int64_t)rleUncompressedSize < 0      ||
-        (int64_t)rleRawSize < 0               ||
-        (int64_t)totalAcUncompressedCount < 0 ||
-        (int64_t)totalDcUncompressedCount < 0)
+    if ((int64_t) unknownUncompressedSize < 0 ||
+        (int64_t) unknownCompressedSize < 0 || (int64_t) acCompressedSize < 0 ||
+        (int64_t) dcCompressedSize < 0 || (int64_t) rleCompressedSize < 0 ||
+        (int64_t) rleUncompressedSize < 0 || (int64_t) rleRawSize < 0 ||
+        (int64_t) totalAcUncompressedCount < 0 ||
+        (int64_t) totalDcUncompressedCount < 0)
     {
-        throw IEX_NAMESPACE::InputExc("Error uncompressing DWA data"
-                            " (corrupt header).");
+        throw IEX_NAMESPACE::InputExc ("Error uncompressing DWA data"
+                                       " (corrupt header).");
     }
 
-    if (version < 2) 
-        initializeLegacyChannelRules();
+    if (version < 2)
+        initializeLegacyChannelRules ();
     else
     {
         unsigned short ruleSize = 0;
-        Xdr::read<CharPtrIO>(dataPtr, ruleSize);
+        Xdr::read<CharPtrIO> (dataPtr, ruleSize);
 
-        if (ruleSize < Xdr::size<unsigned short>() ) 
-            throw IEX_NAMESPACE::InputExc("Error uncompressing DWA data"
-                                " (corrupt header file).");
+        if (ruleSize < Xdr::size<unsigned short> ())
+            throw IEX_NAMESPACE::InputExc ("Error uncompressing DWA data"
+                                           " (corrupt header file).");
 
         headerSize += ruleSize;
         if (iSize < headerSize + compressedSize)
-            throw IEX_NAMESPACE::InputExc("Error uncompressing DWA data"
-                                " (truncated file).");
+            throw IEX_NAMESPACE::InputExc ("Error uncompressing DWA data"
+                                           " (truncated file).");
 
-        _channelRules.clear();
+        _channelRules.clear ();
         ruleSize -= Xdr::size<unsigned short> ();
-        while (ruleSize > 0) 
+        while (ruleSize > 0)
         {
-            Classifier rule(dataPtr, ruleSize);
-            
-            _channelRules.push_back(rule);
-            ruleSize -= rule.size();
+            Classifier rule (dataPtr, ruleSize);
+
+            _channelRules.push_back (rule);
+            ruleSize -= rule.size ();
         }
     }
 
-
     size_t outBufferSize = 0;
-    initializeBuffers(outBufferSize);
+    initializeBuffers (outBufferSize);
 
     //
     // Allocate _outBuffer, if we haven't done so already
     //
 
-    if (static_cast<size_t>(_maxScanLineSize * numScanLines()) > _outBufferSize) 
+    if (static_cast<size_t> (_maxScanLineSize * numScanLines ()) >
+        _outBufferSize)
     {
-        _outBufferSize = static_cast<size_t>(_maxScanLineSize * numScanLines());
-        if (_outBuffer != 0)
-            delete[] _outBuffer;
-        _outBuffer = new char[_maxScanLineSize * numScanLines()];
+        _outBufferSize =
+            static_cast<size_t> (_maxScanLineSize * numScanLines ());
+        if (_outBuffer != 0) delete[] _outBuffer;
+        _outBuffer = new char[_maxScanLineSize * numScanLines ()];
     }
 
+    char* outBufferEnd = _outBuffer;
 
-    char *outBufferEnd = _outBuffer;
-
-       
     //
     // Find the start of the RLE packed AC components and
-    // the DC components for each channel. This will be handy   
+    // the DC components for each channel. This will be handy
     // if you want to decode the channels in parallel later on.
     //
 
-    char *packedAcBufferEnd = 0; 
+    char* packedAcBufferEnd = 0;
 
-    if (_packedAcBuffer)
-        packedAcBufferEnd = _packedAcBuffer;
+    if (_packedAcBuffer) packedAcBufferEnd = _packedAcBuffer;
 
-    char *packedDcBufferEnd = 0;
+    char* packedDcBufferEnd = 0;
 
-    if (_packedDcBuffer)
-        packedDcBufferEnd = _packedDcBuffer;
+    if (_packedDcBuffer) packedDcBufferEnd = _packedDcBuffer;
 
     //
-    // UNKNOWN data is packed first, followed by the 
-    // Huffman-compressed AC, then the DC values, 
+    // UNKNOWN data is packed first, followed by the
+    // Huffman-compressed AC, then the DC values,
     // and then the zlib compressed RLE data.
     //
-    
-    const char *compressedUnknownBuf = dataPtr;
 
-    const char *compressedAcBuf      = compressedUnknownBuf + 
-                                  static_cast<ptrdiff_t>(unknownCompressedSize);
-    const char *compressedDcBuf      = compressedAcBuf +
-                                  static_cast<ptrdiff_t>(acCompressedSize);
-    const char *compressedRleBuf     = compressedDcBuf + 
-                                  static_cast<ptrdiff_t>(dcCompressedSize);
+    const char* compressedUnknownBuf = dataPtr;
 
-    // 
-    // Sanity check that the version is something we expect. Right now, 
+    const char* compressedAcBuf =
+        compressedUnknownBuf + static_cast<ptrdiff_t> (unknownCompressedSize);
+    const char* compressedDcBuf =
+        compressedAcBuf + static_cast<ptrdiff_t> (acCompressedSize);
+    const char* compressedRleBuf =
+        compressedDcBuf + static_cast<ptrdiff_t> (dcCompressedSize);
+
+    //
+    // Sanity check that the version is something we expect. Right now,
     // we can decode version 0, 1, and 2. v1 adds 'end of block' symbols
-    // to the AC RLE. v2 adds channel classification rules at the 
+    // to the AC RLE. v2 adds channel classification rules at the
     // start of the data block.
     //
 
     if (version > 2)
-        throw IEX_NAMESPACE::InputExc ("Invalid version of compressed data block");    
+        throw IEX_NAMESPACE::InputExc (
+            "Invalid version of compressed data block");
 
-    setupChannelData(minX, minY, maxX, maxY);
+    setupChannelData (minX, minY, maxX, maxY);
 
-    // 
+    //
     // Uncompress the UNKNOWN data into _planarUncBuffer[UNKNOWN]
     //
 
     if (unknownCompressedSize > 0)
     {
-        if (unknownUncompressedSize > _planarUncBufferSize[UNKNOWN]) 
+        if (unknownUncompressedSize > _planarUncBufferSize[UNKNOWN])
         {
-            throw IEX_NAMESPACE::InputExc("Error uncompressing DWA data"
-                                "(corrupt header).");
+            throw IEX_NAMESPACE::InputExc ("Error uncompressing DWA data"
+                                           "(corrupt header).");
         }
 
-        uLongf outSize = (uLongf)unknownUncompressedSize;
+        uLongf outSize = (uLongf) unknownUncompressedSize;
 
-        if (Z_OK != ::uncompress
-                        ((Bytef *)_planarUncBuffer[UNKNOWN],
-                         &outSize,
-                         (Bytef *)compressedUnknownBuf,
-                         (uLong)unknownCompressedSize))
+        if (Z_OK != ::uncompress (
+                        (Bytef*) _planarUncBuffer[UNKNOWN],
+                        &outSize,
+                        (Bytef*) compressedUnknownBuf,
+                        (uLong) unknownCompressedSize))
         {
-            throw IEX_NAMESPACE::BaseExc("Error uncompressing UNKNOWN data.");
+            throw IEX_NAMESPACE::BaseExc ("Error uncompressing UNKNOWN data.");
         }
     }
 
-    // 
+    //
     // Uncompress the AC data into _packedAcBuffer
     //
 
     if (acCompressedSize > 0)
     {
-        if ( !_packedAcBuffer || totalAcUncompressedCount*sizeof(unsigned short) > _packedAcBufferSize)
+        if (!_packedAcBuffer ||
+            totalAcUncompressedCount * sizeof (unsigned short) >
+                _packedAcBufferSize)
         {
-            throw IEX_NAMESPACE::InputExc("Error uncompressing DWA data"
-                                "(corrupt header).");
+            throw IEX_NAMESPACE::InputExc ("Error uncompressing DWA data"
+                                           "(corrupt header).");
         }
 
         //
@@ -2538,42 +2434,42 @@ DwaCompressor::uncompress
 
         switch (acCompression)
         {
-          case STATIC_HUFFMAN:
+            case STATIC_HUFFMAN:
 
-            hufUncompress
-                (compressedAcBuf, 
-                 (int)acCompressedSize, 
-                 (unsigned short *)_packedAcBuffer, 
-                 (int)totalAcUncompressedCount); 
+                hufUncompress (
+                    compressedAcBuf,
+                    (int) acCompressedSize,
+                    (unsigned short*) _packedAcBuffer,
+                    (int) totalAcUncompressedCount);
 
-            break;
+                break;
 
-          case DEFLATE:
-            {
+            case DEFLATE: {
                 uLongf destLen =
-                    (int)(totalAcUncompressedCount) * sizeof (unsigned short);
+                    (int) (totalAcUncompressedCount) * sizeof (unsigned short);
 
-                if (Z_OK != ::uncompress
-                                ((Bytef *)_packedAcBuffer,
-                                 &destLen,
-                                 (Bytef *)compressedAcBuf,
-                                 (uLong)acCompressedSize))
+                if (Z_OK != ::uncompress (
+                                (Bytef*) _packedAcBuffer,
+                                &destLen,
+                                (Bytef*) compressedAcBuf,
+                                (uLong) acCompressedSize))
                 {
-                    throw IEX_NAMESPACE::InputExc ("Data decompression (zlib) failed.");
+                    throw IEX_NAMESPACE::InputExc (
+                        "Data decompression (zlib) failed.");
                 }
 
                 if (totalAcUncompressedCount * sizeof (unsigned short) !=
-                                destLen)
+                    destLen)
                 {
-                    throw IEX_NAMESPACE::InputExc ("AC data corrupt.");     
+                    throw IEX_NAMESPACE::InputExc ("AC data corrupt.");
                 }
             }
             break;
 
-          default:
+            default:
 
-            throw IEX_NAMESPACE::NoImplExc ("Unknown AC Compression");
-            break;
+                throw IEX_NAMESPACE::NoImplExc ("Unknown AC Compression");
+                break;
         }
     }
 
@@ -2583,25 +2479,26 @@ DwaCompressor::uncompress
 
     if (dcCompressedSize > 0)
     {
-        if (totalDcUncompressedCount*sizeof(unsigned short) > _packedDcBufferSize)
+        if (totalDcUncompressedCount * sizeof (unsigned short) >
+            _packedDcBufferSize)
         {
-            throw IEX_NAMESPACE::InputExc("Error uncompressing DWA data"
-                                "(corrupt header).");
+            throw IEX_NAMESPACE::InputExc ("Error uncompressing DWA data"
+                                           "(corrupt header).");
         }
 
-        if (static_cast<uint64_t>(_zip->uncompress
-                    (compressedDcBuf, (int)dcCompressedSize, _packedDcBuffer))
-            != totalDcUncompressedCount * sizeof (unsigned short))
+        if (static_cast<uint64_t> (_zip->uncompress (
+                compressedDcBuf, (int) dcCompressedSize, _packedDcBuffer)) !=
+            totalDcUncompressedCount * sizeof (unsigned short))
         {
-            throw IEX_NAMESPACE::BaseExc("DC data corrupt.");
+            throw IEX_NAMESPACE::BaseExc ("DC data corrupt.");
         }
     }
     else
     {
         // if the compressed size is 0, then the uncompressed size must also be zero
-        if (totalDcUncompressedCount!=0)
+        if (totalDcUncompressedCount != 0)
         {
-             throw IEX_NAMESPACE::BaseExc("DC data corrupt.");
+            throw IEX_NAMESPACE::BaseExc ("DC data corrupt.");
         }
     }
 
@@ -2615,31 +2512,31 @@ DwaCompressor::uncompress
         if (rleUncompressedSize > _rleBufferSize ||
             rleRawSize > _planarUncBufferSize[RLE])
         {
-            throw IEX_NAMESPACE::InputExc("Error uncompressing DWA data"
-                                "(corrupt header).");
+            throw IEX_NAMESPACE::InputExc ("Error uncompressing DWA data"
+                                           "(corrupt header).");
         }
- 
-        uLongf dstLen = (uLongf)rleUncompressedSize;
 
-        if (Z_OK != ::uncompress
-                        ((Bytef *)_rleBuffer,
-                         &dstLen,
-                         (Bytef *)compressedRleBuf,
-                         (uLong)rleCompressedSize))
+        uLongf dstLen = (uLongf) rleUncompressedSize;
+
+        if (Z_OK != ::uncompress (
+                        (Bytef*) _rleBuffer,
+                        &dstLen,
+                        (Bytef*) compressedRleBuf,
+                        (uLong) rleCompressedSize))
         {
-            throw IEX_NAMESPACE::BaseExc("Error uncompressing RLE data.");
+            throw IEX_NAMESPACE::BaseExc ("Error uncompressing RLE data.");
         }
 
         if (dstLen != rleUncompressedSize)
-            throw IEX_NAMESPACE::BaseExc("RLE data corrupted");
+            throw IEX_NAMESPACE::BaseExc ("RLE data corrupted");
 
-        if (static_cast<uint64_t>(rleUncompress
-                ((int)rleUncompressedSize, 
-                 (int)rleRawSize,
-                 (signed char *)_rleBuffer,
-                 _planarUncBuffer[RLE])) != rleRawSize)
-        {        
-            throw IEX_NAMESPACE::BaseExc("RLE data corrupted");
+        if (static_cast<uint64_t> (rleUncompress (
+                (int) rleUncompressedSize,
+                (int) rleRawSize,
+                (signed char*) _rleBuffer,
+                _planarUncBuffer[RLE])) != rleRawSize)
+        {
+            throw IEX_NAMESPACE::BaseExc ("RLE data corrupted");
         }
     }
 
@@ -2647,25 +2544,25 @@ DwaCompressor::uncompress
     // Determine the start of each row in the output buffer
     //
 
-    std::vector<bool> decodedChannels (_channelData.size());
-    std::vector< std::vector<char *> > rowPtrs (_channelData.size());
+    std::vector<bool>               decodedChannels (_channelData.size ());
+    std::vector<std::vector<char*>> rowPtrs (_channelData.size ());
 
-    for (unsigned int chan = 0; chan < _channelData.size(); ++chan)
+    for (unsigned int chan = 0; chan < _channelData.size (); ++chan)
         decodedChannels[chan] = false;
 
     outBufferEnd = _outBuffer;
 
     for (int y = minY; y <= maxY; ++y)
     {
-        for (unsigned int chan = 0; chan < _channelData.size(); ++chan)
+        for (unsigned int chan = 0; chan < _channelData.size (); ++chan)
         {
-            ChannelData *cd = &_channelData[chan];
+            ChannelData* cd = &_channelData[chan];
 
-            if (IMATH_NAMESPACE::modp (y, cd->ySampling) != 0)
-                continue;
+            if (IMATH_NAMESPACE::modp (y, cd->ySampling) != 0) continue;
 
             rowPtrs[chan].push_back (outBufferEnd);
-            outBufferEnd += cd->width * OPENEXR_IMF_NAMESPACE::pixelTypeSize (cd->type);
+            outBufferEnd +=
+                cd->width * OPENEXR_IMF_NAMESPACE::pixelTypeSize (cd->type);
         }
     }
 
@@ -2674,38 +2571,41 @@ DwaCompressor::uncompress
     // be handled together
     //
 
-    for (unsigned int csc = 0; csc < _cscSets.size(); ++csc)
+    for (unsigned int csc = 0; csc < _cscSets.size (); ++csc)
     {
-        int rChan = _cscSets[csc].idx[0];    
-        int gChan = _cscSets[csc].idx[1];    
-        int bChan = _cscSets[csc].idx[2];    
+        int rChan = _cscSets[csc].idx[0];
+        int gChan = _cscSets[csc].idx[1];
+        int bChan = _cscSets[csc].idx[2];
 
-        if (_channelData[rChan].compression != LOSSY_DCT || _channelData[gChan].compression != LOSSY_DCT || _channelData[bChan].compression != LOSSY_DCT)
+        if (_channelData[rChan].compression != LOSSY_DCT ||
+            _channelData[gChan].compression != LOSSY_DCT ||
+            _channelData[bChan].compression != LOSSY_DCT)
         {
-            throw IEX_NAMESPACE::BaseExc("Bad DWA compression type detected");
+            throw IEX_NAMESPACE::BaseExc ("Bad DWA compression type detected");
         }
 
-        LossyDctDecoderCsc decoder
-            (rowPtrs[rChan],
-             rowPtrs[gChan],
-             rowPtrs[bChan],
-             packedAcBufferEnd,
-             packedAcBufferEnd + totalAcUncompressedCount * sizeof (unsigned short),
-             packedDcBufferEnd,
-             dwaCompressorToLinear,
-             _channelData[rChan].width,
-             _channelData[rChan].height,
-             _channelData[rChan].type,
-             _channelData[gChan].type,
-             _channelData[bChan].type);
+        LossyDctDecoderCsc decoder (
+            rowPtrs[rChan],
+            rowPtrs[gChan],
+            rowPtrs[bChan],
+            packedAcBufferEnd,
+            packedAcBufferEnd +
+                totalAcUncompressedCount * sizeof (unsigned short),
+            packedDcBufferEnd,
+            dwaCompressorToLinear,
+            _channelData[rChan].width,
+            _channelData[rChan].height,
+            _channelData[rChan].type,
+            _channelData[gChan].type,
+            _channelData[bChan].type);
 
-        decoder.execute();
+        decoder.execute ();
 
         packedAcBufferEnd +=
-            decoder.numAcValuesEncoded() * sizeof (unsigned short);
+            decoder.numAcValuesEncoded () * sizeof (unsigned short);
 
         packedDcBufferEnd +=
-            decoder.numDcValuesEncoded() * sizeof (unsigned short);
+            decoder.numDcValuesEncoded () * sizeof (unsigned short);
 
         decodedChannels[rChan] = true;
         decodedChannels[gChan] = true;
@@ -2716,135 +2616,142 @@ DwaCompressor::uncompress
     // Setup to handle the remaining channels by themselves
     //
 
-    for (unsigned int chan = 0; chan < _channelData.size(); ++chan)
+    for (unsigned int chan = 0; chan < _channelData.size (); ++chan)
     {
-        if (decodedChannels[chan])
-            continue;
+        if (decodedChannels[chan]) continue;
 
-        ChannelData *cd = &_channelData[chan];
-        int pixelSize = OPENEXR_IMF_NAMESPACE::pixelTypeSize (cd->type);
+        ChannelData* cd = &_channelData[chan];
+        int pixelSize   = OPENEXR_IMF_NAMESPACE::pixelTypeSize (cd->type);
 
         switch (cd->compression)
         {
-          case LOSSY_DCT:
+            case LOSSY_DCT:
 
-            //
-            // Setup a single-channel lossy DCT decoder pointing
-            // at the output buffer
-            //
+                //
+                // Setup a single-channel lossy DCT decoder pointing
+                // at the output buffer
+                //
 
-            {
-                const unsigned short *linearLut = 0;
-
-                if (!cd->pLinear)
-                    linearLut = dwaCompressorToLinear;
-
-                LossyDctDecoder decoder
-                    (rowPtrs[chan],
-                     packedAcBufferEnd,
-                     packedAcBufferEnd + totalAcUncompressedCount * sizeof (unsigned short),
-                     packedDcBufferEnd,
-                     linearLut,
-                     cd->width,
-                     cd->height,
-                     cd->type);
-
-                decoder.execute();   
-
-                packedAcBufferEnd += 
-                    decoder.numAcValuesEncoded() * sizeof (unsigned short);
-
-                packedDcBufferEnd += 
-                    decoder.numDcValuesEncoded() * sizeof (unsigned short);
-            }
-
-            break;
-
-          case RLE:
-
-            //
-            // For the RLE case, the data has been un-RLE'd into
-            // planarUncRleEnd[], but is still split out by bytes.
-            // We need to rearrange the bytes back into the correct
-            // order in the output buffer;
-            //
-
-            {
-                int row = 0;
-
-                for (int y = minY; y <= maxY; ++y)
                 {
-                    if (IMATH_NAMESPACE::modp (y, cd->ySampling) != 0)
-                        continue;
+                    const unsigned short* linearLut = 0;
 
-                    char *dst = rowPtrs[chan][row];
+                    if (!cd->pLinear) linearLut = dwaCompressorToLinear;
 
-                    if (pixelSize == 2)
+                    LossyDctDecoder decoder (
+                        rowPtrs[chan],
+                        packedAcBufferEnd,
+                        packedAcBufferEnd +
+                            totalAcUncompressedCount * sizeof (unsigned short),
+                        packedDcBufferEnd,
+                        linearLut,
+                        cd->width,
+                        cd->height,
+                        cd->type);
+
+                    decoder.execute ();
+
+                    packedAcBufferEnd +=
+                        decoder.numAcValuesEncoded () * sizeof (unsigned short);
+
+                    packedDcBufferEnd +=
+                        decoder.numDcValuesEncoded () * sizeof (unsigned short);
+                }
+
+                break;
+
+            case RLE:
+
+                //
+                // For the RLE case, the data has been un-RLE'd into
+                // planarUncRleEnd[], but is still split out by bytes.
+                // We need to rearrange the bytes back into the correct
+                // order in the output buffer;
+                //
+
+                {
+                    int row = 0;
+
+                    for (int y = minY; y <= maxY; ++y)
                     {
-                        interleaveByte2 (dst, 
-                                         cd->planarUncRleEnd[0],
-                                         cd->planarUncRleEnd[1],
-                                         cd->width);
-                                            
-                        cd->planarUncRleEnd[0] += cd->width;
-                        cd->planarUncRleEnd[1] += cd->width;
-                    }
-                    else
-                    {
-                        for (int x = 0; x < cd->width; ++x)
+                        if (IMATH_NAMESPACE::modp (y, cd->ySampling) != 0)
+                            continue;
+
+                        char* dst = rowPtrs[chan][row];
+
+                        if (pixelSize == 2)
                         {
-                            for (int byte = 0; byte < pixelSize; ++byte)
+                            interleaveByte2 (
+                                dst,
+                                cd->planarUncRleEnd[0],
+                                cd->planarUncRleEnd[1],
+                                cd->width);
+
+                            cd->planarUncRleEnd[0] += cd->width;
+                            cd->planarUncRleEnd[1] += cd->width;
+                        }
+                        else
+                        {
+                            for (int x = 0; x < cd->width; ++x)
                             {
-                               *dst++ = *cd->planarUncRleEnd[byte]++;
+                                for (int byte = 0; byte < pixelSize; ++byte)
+                                {
+                                    *dst++ = *cd->planarUncRleEnd[byte]++;
+                                }
                             }
                         }
-                    }
 
-                    row++;
+                        row++;
+                    }
                 }
-            }
 
-            break;
+                break;
 
-          case UNKNOWN:
+            case UNKNOWN:
 
-            //
-            // In the UNKNOWN case, data is already in planarUncBufferEnd
-            // and just needs to copied over to the output buffer
-            //
+                //
+                // In the UNKNOWN case, data is already in planarUncBufferEnd
+                // and just needs to copied over to the output buffer
+                //
 
-            {
-                int row             = 0;
-                int dstScanlineSize = cd->width * OPENEXR_IMF_NAMESPACE::pixelTypeSize (cd->type);
-
-                for (int y = minY; y <= maxY; ++y)
                 {
-                    if (IMATH_NAMESPACE::modp (y, cd->ySampling) != 0)
-                        continue;
+                    int row = 0;
+                    int dstScanlineSize =
+                        cd->width *
+                        OPENEXR_IMF_NAMESPACE::pixelTypeSize (cd->type);
 
-                    //
-                    // sanity check for buffer data lying within range
-                    //
-                    if ((cd->planarUncBufferEnd + static_cast<size_t>(dstScanlineSize))  > (_planarUncBuffer[UNKNOWN] + _planarUncBufferSize[UNKNOWN]) )
+                    for (int y = minY; y <= maxY; ++y)
                     {
-                        throw IEX_NAMESPACE::InputExc("DWA data corrupt");
-                    }
+                        if (IMATH_NAMESPACE::modp (y, cd->ySampling) != 0)
+                            continue;
 
-                    memcpy (rowPtrs[chan][row],
+                        //
+                        // sanity check for buffer data lying within range
+                        //
+                        if ((cd->planarUncBufferEnd +
+                             static_cast<size_t> (dstScanlineSize)) >
+                            (_planarUncBuffer[UNKNOWN] +
+                             _planarUncBufferSize[UNKNOWN]))
+                        {
+                            throw IEX_NAMESPACE::InputExc ("DWA data corrupt");
+                        }
+
+                        memcpy (
+                            rowPtrs[chan][row],
                             cd->planarUncBufferEnd,
                             dstScanlineSize);
 
-                    cd->planarUncBufferEnd += dstScanlineSize;
-                    row++;
+                        cd->planarUncBufferEnd += dstScanlineSize;
+                        row++;
+                    }
                 }
-            }
 
-            break;
+                break;
 
-          default:
+            default:
 
-            throw IEX_NAMESPACE::NoImplExc ("Unhandled compression scheme case");
-            break;
+                throw IEX_NAMESPACE::NoImplExc (
+                    "Unhandled compression scheme case");
+                break;
         }
 
         decodedChannels[chan] = true;
@@ -2855,13 +2762,12 @@ DwaCompressor::uncompress
     //
 
     outPtr = _outBuffer;
-    return (int)(outBufferEnd - _outBuffer);
+    return (int) (outBufferEnd - _outBuffer);
 }
-
 
 // static
 void
-DwaCompressor::initializeFuncs()
+DwaCompressor::initializeFuncs ()
 {
     convertFloatToHalf64 = convertFloatToHalf64_scalar;
     fromHalfZigZag       = fromHalfZigZag_scalar;
@@ -2876,7 +2782,7 @@ DwaCompressor::initializeFuncs()
     {
         convertFloatToHalf64 = convertFloatToHalf64_f16c;
         fromHalfZigZag       = fromHalfZigZag_f16c;
-    } 
+    }
 
     //
     // Setup inverse DCT implementations
@@ -2891,7 +2797,7 @@ DwaCompressor::initializeFuncs()
     dctInverse8x8_6 = dctInverse8x8_scalar<6>;
     dctInverse8x8_7 = dctInverse8x8_scalar<7>;
 
-    if (cpuId.avx) 
+    if (cpuId.avx)
     {
         dctInverse8x8_0 = dctInverse8x8_avx<0>;
         dctInverse8x8_1 = dctInverse8x8_avx<1>;
@@ -2901,8 +2807,8 @@ DwaCompressor::initializeFuncs()
         dctInverse8x8_5 = dctInverse8x8_avx<5>;
         dctInverse8x8_6 = dctInverse8x8_avx<6>;
         dctInverse8x8_7 = dctInverse8x8_avx<7>;
-    } 
-    else if (cpuId.sse2) 
+    }
+    else if (cpuId.sse2)
     {
         dctInverse8x8_0 = dctInverse8x8_sse2<0>;
         dctInverse8x8_1 = dctInverse8x8_sse2<1>;
@@ -2915,21 +2821,20 @@ DwaCompressor::initializeFuncs()
     }
 }
 
-
 //
 // Handle channel classification and buffer allocation once we know
 // how to classify channels
 //
 
 void
-DwaCompressor::initializeBuffers (size_t &outBufferSize)
+DwaCompressor::initializeBuffers (size_t& outBufferSize)
 {
     classifyChannels (_channels, _channelData, _cscSets);
 
     //
-    // _outBuffer needs to be big enough to hold all our 
+    // _outBuffer needs to be big enough to hold all our
     // compressed data - which could vary depending on what sort
-    // of channels we have. 
+    // of channels we have.
     //
 
     uint64_t maxOutBufferSize  = 0;
@@ -2937,75 +2842,82 @@ DwaCompressor::initializeBuffers (size_t &outBufferSize)
     uint64_t unknownBufferSize = 0;
     uint64_t rleBufferSize     = 0;
 
-    uint64_t maxLossyDctAcSize = static_cast<uint64_t>(ceil ((float)numScanLines() / 8.0f)) *
-                            static_cast<uint64_t>(ceil ((float)(_max[0] - _min[0] + 1) / 8.0f)) *
-                            63 * sizeof (unsigned short);
+    uint64_t maxLossyDctAcSize =
+        static_cast<uint64_t> (ceil ((float) numScanLines () / 8.0f)) *
+        static_cast<uint64_t> (ceil ((float) (_max[0] - _min[0] + 1) / 8.0f)) *
+        63 * sizeof (unsigned short);
 
-    uint64_t maxLossyDctDcSize = static_cast<uint64_t>(ceil ((float)numScanLines() / 8.0f)) *
-                            static_cast<uint64_t>(ceil ((float)(_max[0] - _min[0] + 1) / 8.0f)) *
-                            sizeof (unsigned short);
+    uint64_t maxLossyDctDcSize =
+        static_cast<uint64_t> (ceil ((float) numScanLines () / 8.0f)) *
+        static_cast<uint64_t> (ceil ((float) (_max[0] - _min[0] + 1) / 8.0f)) *
+        sizeof (unsigned short);
 
-    uint64_t pixelCount = static_cast<uint64_t>(numScanLines()) * static_cast<uint64_t>(_max[0] - _min[0] + 1);
+    uint64_t pixelCount = static_cast<uint64_t> (numScanLines ()) *
+                          static_cast<uint64_t> (_max[0] - _min[0] + 1);
 
-    for (unsigned int chan = 0; chan < _channelData.size(); ++chan)
+    for (unsigned int chan = 0; chan < _channelData.size (); ++chan)
     {
         switch (_channelData[chan].compression)
         {
-          case LOSSY_DCT:
+            case LOSSY_DCT:
 
-            //
-            // This is the size of the number of packed
-            // components, plus the requirements for
-            // maximum Huffman encoding size (for STATIC_HUFFMAN)
-            // or for zlib compression (for DEFLATE)
-            //
+                //
+                // This is the size of the number of packed
+                // components, plus the requirements for
+                // maximum Huffman encoding size (for STATIC_HUFFMAN)
+                // or for zlib compression (for DEFLATE)
+                //
 
-            maxOutBufferSize += std::max(
-                            2lu * maxLossyDctAcSize + 65536lu,
-                            static_cast<uint64_t>(compressBound (maxLossyDctAcSize)) );
-            numLossyDctChans++;
-            break;
+                maxOutBufferSize += std::max (
+                    2lu * maxLossyDctAcSize + 65536lu,
+                    static_cast<uint64_t> (compressBound (maxLossyDctAcSize)));
+                numLossyDctChans++;
+                break;
 
-          case RLE:
-            {
+            case RLE: {
                 //
                 // RLE, if gone horribly wrong, could double the size
                 // of the source data.
                 //
 
-                uint64_t rleAmount = 2 * pixelCount * OPENEXR_IMF_NAMESPACE::pixelTypeSize (_channelData[chan].type);
+                uint64_t rleAmount = 2 * pixelCount *
+                                     OPENEXR_IMF_NAMESPACE::pixelTypeSize (
+                                         _channelData[chan].type);
 
                 rleBufferSize += rleAmount;
             }
             break;
 
+            case UNKNOWN:
 
-          case UNKNOWN:
+                unknownBufferSize +=
+                    pixelCount * OPENEXR_IMF_NAMESPACE::pixelTypeSize (
+                                     _channelData[chan].type);
+                break;
 
-            unknownBufferSize += pixelCount * OPENEXR_IMF_NAMESPACE::pixelTypeSize (_channelData[chan].type);
-            break;
+            default:
 
-          default:
-
-            throw IEX_NAMESPACE::NoImplExc ("Unhandled compression scheme case");
-            break;
+                throw IEX_NAMESPACE::NoImplExc (
+                    "Unhandled compression scheme case");
+                break;
         }
     }
 
     //
-    // Also, since the results of the RLE are packed into 
+    // Also, since the results of the RLE are packed into
     // the output buffer, we need the extra room there. But
-    // we're going to zlib compress() the data we pack, 
+    // we're going to zlib compress() the data we pack,
     // which could take slightly more space
     //
 
-    maxOutBufferSize += static_cast<uint64_t>(compressBound (rleBufferSize));
-    
+    maxOutBufferSize += static_cast<uint64_t> (compressBound (rleBufferSize));
+
     //
     // And the same goes for the UNKNOWN data
     //
 
-    maxOutBufferSize += static_cast<uint64_t>(compressBound (unknownBufferSize));
+    maxOutBufferSize +=
+        static_cast<uint64_t> (compressBound (unknownBufferSize));
 
     //
     // Allocate a zip/deflate compressor big enought to hold the DC data
@@ -3013,24 +2925,24 @@ DwaCompressor::initializeBuffers (size_t &outBufferSize)
     // for our output buffer
     //
 
-    if (_zip == 0) 
+    if (_zip == 0)
         _zip = new Zip (maxLossyDctDcSize * numLossyDctChans, _zipLevel);
-    else if (_zip->maxRawSize() < static_cast<size_t>(maxLossyDctDcSize * numLossyDctChans))
+    else if (
+        _zip->maxRawSize () <
+        static_cast<size_t> (maxLossyDctDcSize * numLossyDctChans))
     {
         delete _zip;
         _zip = new Zip (maxLossyDctDcSize * numLossyDctChans, _zipLevel);
     }
 
-
-    maxOutBufferSize += _zip->maxCompressedSize();
+    maxOutBufferSize += _zip->maxCompressedSize ();
 
     //
-    // We also need to reserve space at the head of the buffer to 
+    // We also need to reserve space at the head of the buffer to
     // write out the size of our various packed and compressed data.
     //
 
-    maxOutBufferSize += NUM_SIZES_SINGLE * sizeof (uint64_t); 
-                    
+    maxOutBufferSize += NUM_SIZES_SINGLE * sizeof (uint64_t);
 
     //
     // Later, we're going to hijack outBuffer for the result of
@@ -3046,7 +2958,6 @@ DwaCompressor::initializeBuffers (size_t &outBufferSize)
 
     outBufferSize = maxOutBufferSize;
 
-
     //
     // _packedAcBuffer holds the quantized DCT coefficients prior
     // to Huffman encoding
@@ -3055,8 +2966,7 @@ DwaCompressor::initializeBuffers (size_t &outBufferSize)
     if (maxLossyDctAcSize * numLossyDctChans > _packedAcBufferSize)
     {
         _packedAcBufferSize = maxLossyDctAcSize * numLossyDctChans;
-        if (_packedAcBuffer != 0) 
-            delete[] _packedAcBuffer;
+        if (_packedAcBuffer != 0) delete[] _packedAcBuffer;
         _packedAcBuffer = new char[_packedAcBufferSize];
     }
 
@@ -3067,20 +2977,18 @@ DwaCompressor::initializeBuffers (size_t &outBufferSize)
     if (maxLossyDctDcSize * numLossyDctChans > _packedDcBufferSize)
     {
         _packedDcBufferSize = maxLossyDctDcSize * numLossyDctChans;
-        if (_packedDcBuffer != 0) 
-            delete[] _packedDcBuffer;
-        _packedDcBuffer     = new char[_packedDcBufferSize];
+        if (_packedDcBuffer != 0) delete[] _packedDcBuffer;
+        _packedDcBuffer = new char[_packedDcBufferSize];
     }
 
-    if ( rleBufferSize > _rleBufferSize )
+    if (rleBufferSize > _rleBufferSize)
     {
         _rleBufferSize = rleBufferSize;
-        if (_rleBuffer != 0) 
-            delete[] _rleBuffer;
+        if (_rleBuffer != 0) delete[] _rleBuffer;
         _rleBuffer = new char[rleBufferSize];
     }
 
-    // 
+    //
     // The planar uncompressed buffer will hold float data for LOSSY_DCT
     // compressed values, and whatever the native type is for other
     // channels. We're going to use this to hold data in a planar
@@ -3092,61 +3000,61 @@ DwaCompressor::initializeBuffers (size_t &outBufferSize)
     //
 
     uint64_t planarUncBufferSize[NUM_COMPRESSOR_SCHEMES];
-    for (int i=0; i<NUM_COMPRESSOR_SCHEMES; ++i)
+    for (int i = 0; i < NUM_COMPRESSOR_SCHEMES; ++i)
         planarUncBufferSize[i] = 0;
 
-    for (unsigned int chan = 0; chan < _channelData.size(); ++chan)
+    for (unsigned int chan = 0; chan < _channelData.size (); ++chan)
     {
         switch (_channelData[chan].compression)
         {
-          case LOSSY_DCT:
-            break;
+            case LOSSY_DCT: break;
 
-          case RLE:
-            planarUncBufferSize[RLE] += pixelCount *
-                     OPENEXR_IMF_NAMESPACE::pixelTypeSize (_channelData[chan].type);
-            break;
+            case RLE:
+                planarUncBufferSize[RLE] +=
+                    pixelCount * OPENEXR_IMF_NAMESPACE::pixelTypeSize (
+                                     _channelData[chan].type);
+                break;
 
-          case UNKNOWN: 
-            planarUncBufferSize[UNKNOWN] += pixelCount *
-                     OPENEXR_IMF_NAMESPACE::pixelTypeSize (_channelData[chan].type);
-            break;
+            case UNKNOWN:
+                planarUncBufferSize[UNKNOWN] +=
+                    pixelCount * OPENEXR_IMF_NAMESPACE::pixelTypeSize (
+                                     _channelData[chan].type);
+                break;
 
-          default:
-            throw IEX_NAMESPACE::NoImplExc ("Unhandled compression scheme case");
-            break;
+            default:
+                throw IEX_NAMESPACE::NoImplExc (
+                    "Unhandled compression scheme case");
+                break;
         }
     }
 
     //
-    // UNKNOWN data is going to be zlib compressed, which needs 
+    // UNKNOWN data is going to be zlib compressed, which needs
     // a little extra headroom
     //
 
     if (planarUncBufferSize[UNKNOWN] > 0)
     {
-        planarUncBufferSize[UNKNOWN] =
-                static_cast<uint64_t>( compressBound (planarUncBufferSize[UNKNOWN]) );
+        planarUncBufferSize[UNKNOWN] = static_cast<uint64_t> (
+            compressBound (planarUncBufferSize[UNKNOWN]));
     }
 
     for (int i = 0; i < NUM_COMPRESSOR_SCHEMES; ++i)
     {
-        if ( planarUncBufferSize[i] > _planarUncBufferSize[i])
+        if (planarUncBufferSize[i] > _planarUncBufferSize[i])
         {
             _planarUncBufferSize[i] = planarUncBufferSize[i];
-            if (_planarUncBuffer[i] != 0) 
-                delete[] _planarUncBuffer[i];
+            if (_planarUncBuffer[i] != 0) delete[] _planarUncBuffer[i];
 
-            if (planarUncBufferSize[i] > std::numeric_limits<size_t>::max())
+            if (planarUncBufferSize[i] > std::numeric_limits<size_t>::max ())
             {
-                throw IEX_NAMESPACE::ArgExc("DWA buffers too large");
+                throw IEX_NAMESPACE::ArgExc ("DWA buffers too large");
             }
 
             _planarUncBuffer[i] = new char[planarUncBufferSize[i]];
         }
     }
 }
-
 
 //
 // Setup channel classification rules to use when writing files
@@ -3155,27 +3063,26 @@ DwaCompressor::initializeBuffers (size_t &outBufferSize)
 void
 DwaCompressor::initializeDefaultChannelRules ()
 {
-    _channelRules.clear();
+    _channelRules.clear ();
 
-    _channelRules.push_back (Classifier ("R",     LOSSY_DCT, HALF,   0, false));
-    _channelRules.push_back (Classifier ("R",     LOSSY_DCT, FLOAT,  0, false));
-    _channelRules.push_back (Classifier ("G",     LOSSY_DCT, HALF,   1, false));
-    _channelRules.push_back (Classifier ("G",     LOSSY_DCT, FLOAT,  1, false));
-    _channelRules.push_back (Classifier ("B",     LOSSY_DCT, HALF,   2, false));
-    _channelRules.push_back (Classifier ("B",     LOSSY_DCT, FLOAT,  2, false));
+    _channelRules.push_back (Classifier ("R", LOSSY_DCT, HALF, 0, false));
+    _channelRules.push_back (Classifier ("R", LOSSY_DCT, FLOAT, 0, false));
+    _channelRules.push_back (Classifier ("G", LOSSY_DCT, HALF, 1, false));
+    _channelRules.push_back (Classifier ("G", LOSSY_DCT, FLOAT, 1, false));
+    _channelRules.push_back (Classifier ("B", LOSSY_DCT, HALF, 2, false));
+    _channelRules.push_back (Classifier ("B", LOSSY_DCT, FLOAT, 2, false));
 
-    _channelRules.push_back (Classifier ("Y",     LOSSY_DCT, HALF,  -1, false));
-    _channelRules.push_back (Classifier ("Y",     LOSSY_DCT, FLOAT, -1, false));
-    _channelRules.push_back (Classifier ("BY",    LOSSY_DCT, HALF,  -1, false));
-    _channelRules.push_back (Classifier ("BY",    LOSSY_DCT, FLOAT, -1, false));
-    _channelRules.push_back (Classifier ("RY",    LOSSY_DCT, HALF,  -1, false));
-    _channelRules.push_back (Classifier ("RY",    LOSSY_DCT, FLOAT, -1, false));
+    _channelRules.push_back (Classifier ("Y", LOSSY_DCT, HALF, -1, false));
+    _channelRules.push_back (Classifier ("Y", LOSSY_DCT, FLOAT, -1, false));
+    _channelRules.push_back (Classifier ("BY", LOSSY_DCT, HALF, -1, false));
+    _channelRules.push_back (Classifier ("BY", LOSSY_DCT, FLOAT, -1, false));
+    _channelRules.push_back (Classifier ("RY", LOSSY_DCT, HALF, -1, false));
+    _channelRules.push_back (Classifier ("RY", LOSSY_DCT, FLOAT, -1, false));
 
-    _channelRules.push_back (Classifier ("A",     RLE,       UINT,  -1, false));
-    _channelRules.push_back (Classifier ("A",     RLE,       HALF,  -1, false));
-    _channelRules.push_back (Classifier ("A",     RLE,       FLOAT, -1, false));
+    _channelRules.push_back (Classifier ("A", RLE, UINT, -1, false));
+    _channelRules.push_back (Classifier ("A", RLE, HALF, -1, false));
+    _channelRules.push_back (Classifier ("A", RLE, FLOAT, -1, false));
 }
-
 
 //
 // Setup channel classification rules when reading files with VERSION < 2
@@ -3184,90 +3091,87 @@ DwaCompressor::initializeDefaultChannelRules ()
 void
 DwaCompressor::initializeLegacyChannelRules ()
 {
-    _channelRules.clear();
+    _channelRules.clear ();
 
-    _channelRules.push_back (Classifier ("r",     LOSSY_DCT, HALF,   0, true));
-    _channelRules.push_back (Classifier ("r",     LOSSY_DCT, FLOAT,  0, true));
-    _channelRules.push_back (Classifier ("red",   LOSSY_DCT, HALF,   0, true));
-    _channelRules.push_back (Classifier ("red",   LOSSY_DCT, FLOAT,  0, true));
-    _channelRules.push_back (Classifier ("g",     LOSSY_DCT, HALF,   1, true));
-    _channelRules.push_back (Classifier ("g",     LOSSY_DCT, FLOAT,  1, true));
-    _channelRules.push_back (Classifier ("grn",   LOSSY_DCT, HALF,   1, true));
-    _channelRules.push_back (Classifier ("grn",   LOSSY_DCT, FLOAT,  1, true));
-    _channelRules.push_back (Classifier ("green", LOSSY_DCT, HALF,   1, true));
-    _channelRules.push_back (Classifier ("green", LOSSY_DCT, FLOAT,  1, true));
-    _channelRules.push_back (Classifier ("b",     LOSSY_DCT, HALF,   2, true));
-    _channelRules.push_back (Classifier ("b",     LOSSY_DCT, FLOAT,  2, true));
-    _channelRules.push_back (Classifier ("blu",   LOSSY_DCT, HALF,   2, true));
-    _channelRules.push_back (Classifier ("blu",   LOSSY_DCT, FLOAT,  2, true));
-    _channelRules.push_back (Classifier ("blue",  LOSSY_DCT, HALF,   2, true));
-    _channelRules.push_back (Classifier ("blue",  LOSSY_DCT, FLOAT,  2, true));
+    _channelRules.push_back (Classifier ("r", LOSSY_DCT, HALF, 0, true));
+    _channelRules.push_back (Classifier ("r", LOSSY_DCT, FLOAT, 0, true));
+    _channelRules.push_back (Classifier ("red", LOSSY_DCT, HALF, 0, true));
+    _channelRules.push_back (Classifier ("red", LOSSY_DCT, FLOAT, 0, true));
+    _channelRules.push_back (Classifier ("g", LOSSY_DCT, HALF, 1, true));
+    _channelRules.push_back (Classifier ("g", LOSSY_DCT, FLOAT, 1, true));
+    _channelRules.push_back (Classifier ("grn", LOSSY_DCT, HALF, 1, true));
+    _channelRules.push_back (Classifier ("grn", LOSSY_DCT, FLOAT, 1, true));
+    _channelRules.push_back (Classifier ("green", LOSSY_DCT, HALF, 1, true));
+    _channelRules.push_back (Classifier ("green", LOSSY_DCT, FLOAT, 1, true));
+    _channelRules.push_back (Classifier ("b", LOSSY_DCT, HALF, 2, true));
+    _channelRules.push_back (Classifier ("b", LOSSY_DCT, FLOAT, 2, true));
+    _channelRules.push_back (Classifier ("blu", LOSSY_DCT, HALF, 2, true));
+    _channelRules.push_back (Classifier ("blu", LOSSY_DCT, FLOAT, 2, true));
+    _channelRules.push_back (Classifier ("blue", LOSSY_DCT, HALF, 2, true));
+    _channelRules.push_back (Classifier ("blue", LOSSY_DCT, FLOAT, 2, true));
 
-    _channelRules.push_back (Classifier ("y",     LOSSY_DCT, HALF,  -1, true));
-    _channelRules.push_back (Classifier ("y",     LOSSY_DCT, FLOAT, -1, true));
-    _channelRules.push_back (Classifier ("by",    LOSSY_DCT, HALF,  -1, true));
-    _channelRules.push_back (Classifier ("by",    LOSSY_DCT, FLOAT, -1, true));
-    _channelRules.push_back (Classifier ("ry",    LOSSY_DCT, HALF,  -1, true));
-    _channelRules.push_back (Classifier ("ry",    LOSSY_DCT, FLOAT, -1, true));
-    _channelRules.push_back (Classifier ("a",     RLE,       UINT,  -1, true));
-    _channelRules.push_back (Classifier ("a",     RLE,       HALF,  -1, true));
-    _channelRules.push_back (Classifier ("a",     RLE,       FLOAT, -1, true));
+    _channelRules.push_back (Classifier ("y", LOSSY_DCT, HALF, -1, true));
+    _channelRules.push_back (Classifier ("y", LOSSY_DCT, FLOAT, -1, true));
+    _channelRules.push_back (Classifier ("by", LOSSY_DCT, HALF, -1, true));
+    _channelRules.push_back (Classifier ("by", LOSSY_DCT, FLOAT, -1, true));
+    _channelRules.push_back (Classifier ("ry", LOSSY_DCT, HALF, -1, true));
+    _channelRules.push_back (Classifier ("ry", LOSSY_DCT, FLOAT, -1, true));
+    _channelRules.push_back (Classifier ("a", RLE, UINT, -1, true));
+    _channelRules.push_back (Classifier ("a", RLE, HALF, -1, true));
+    _channelRules.push_back (Classifier ("a", RLE, FLOAT, -1, true));
 }
 
-
-// 
+//
 // Given a set of rules and ChannelData, figure out which rules apply
 //
 
 void
-DwaCompressor::relevantChannelRules (std::vector<Classifier> &rules) const 
+DwaCompressor::relevantChannelRules (std::vector<Classifier>& rules) const
 {
-    rules.clear();
+    rules.clear ();
 
     std::vector<std::string> suffixes;
-    
-    for (size_t cd = 0; cd < _channelData.size(); ++cd) 
+
+    for (size_t cd = 0; cd < _channelData.size (); ++cd)
     {
         std::string suffix  = _channelData[cd].name;
         size_t      lastDot = suffix.find_last_of ('.');
 
         if (lastDot != std::string::npos)
-            suffix = suffix.substr (lastDot+1, std::string::npos);
+            suffix = suffix.substr (lastDot + 1, std::string::npos);
 
-        suffixes.push_back(suffix);
+        suffixes.push_back (suffix);
     }
 
-    
-    for (size_t i = 0; i < _channelRules.size(); ++i) 
+    for (size_t i = 0; i < _channelRules.size (); ++i)
     {
-        for (size_t cd = 0; cd < _channelData.size(); ++cd) 
+        for (size_t cd = 0; cd < _channelData.size (); ++cd)
         {
-            if (_channelRules[i].match (suffixes[cd], _channelData[cd].type ))
+            if (_channelRules[i].match (suffixes[cd], _channelData[cd].type))
             {
                 rules.push_back (_channelRules[i]);
                 break;
             }
-        }       
+        }
     }
 }
-
 
 //
 // Take our initial list of channels, and cache the contents.
 //
 // Determine approprate compression schemes for each channel,
-// and figure out which sets should potentially be CSC'ed 
+// and figure out which sets should potentially be CSC'ed
 // prior to lossy compression.
 //
 
 void
-DwaCompressor::classifyChannels
-    (ChannelList channels,
-     std::vector<ChannelData> &chanData,
-     std::vector<CscChannelSet> &cscData)
+DwaCompressor::classifyChannels (
+    ChannelList                 channels,
+    std::vector<ChannelData>&   chanData,
+    std::vector<CscChannelSet>& cscData)
 {
     //
-    // prefixMap used to map channel name prefixes to 
+    // prefixMap used to map channel name prefixes to
     // potential CSC-able sets of channels.
     //
 
@@ -3276,11 +3180,10 @@ DwaCompressor::classifyChannels
 
     unsigned int numChan = 0;
 
-    for (ChannelList::Iterator c = channels.begin(); c != channels.end(); ++c)
+    for (ChannelList::Iterator c = channels.begin (); c != channels.end (); ++c)
         numChan++;
-    
-    if (numChan)
-        chanData.resize (numChan);
+
+    if (numChan) chanData.resize (numChan);
 
     //
     // Cache the relevant data from the channel structs.
@@ -3288,14 +3191,14 @@ DwaCompressor::classifyChannels
 
     unsigned int offset = 0;
 
-    for (ChannelList::Iterator c = channels.begin(); c != channels.end(); ++c)
+    for (ChannelList::Iterator c = channels.begin (); c != channels.end (); ++c)
     {
-        chanData[offset].name        = std::string (c.name());
+        chanData[offset].name        = std::string (c.name ());
         chanData[offset].compression = UNKNOWN;
-        chanData[offset].xSampling   = c.channel().xSampling;
-        chanData[offset].ySampling   = c.channel().ySampling;
-        chanData[offset].type        = c.channel().type;
-        chanData[offset].pLinear     = c.channel().pLinear;
+        chanData[offset].xSampling   = c.channel ().xSampling;
+        chanData[offset].ySampling   = c.channel ().ySampling;
+        chanData[offset].type        = c.channel ().type;
+        chanData[offset].pLinear     = c.channel ().pLinear;
 
         offset++;
     }
@@ -3305,7 +3208,7 @@ DwaCompressor::classifyChannels
     // compressed by which means.
     //
 
-    for (offset = 0; offset<numChan; ++offset)
+    for (offset = 0; offset < numChan; ++offset)
     {
         std::string prefix  = "";
         std::string suffix  = chanData[offset].name;
@@ -3313,50 +3216,47 @@ DwaCompressor::classifyChannels
 
         if (lastDot != std::string::npos)
         {
-            prefix = suffix.substr (0,         lastDot);
-            suffix = suffix.substr (lastDot+1, std::string::npos);
-        } 
+            prefix = suffix.substr (0, lastDot);
+            suffix = suffix.substr (lastDot + 1, std::string::npos);
+        }
 
         //
-        // Make sure we have an entry in our CSC set map 
+        // Make sure we have an entry in our CSC set map
         //
 
-        std::map<std::string, DwaCompressor::CscChannelSet>::iterator 
-            theSet = prefixMap.find (prefix);
+        std::map<std::string, DwaCompressor::CscChannelSet>::iterator theSet =
+            prefixMap.find (prefix);
 
-        if (theSet == prefixMap.end())
+        if (theSet == prefixMap.end ())
         {
             DwaCompressor::CscChannelSet tmpSet;
 
-            tmpSet.idx[0] = 
-            tmpSet.idx[1] = 
-            tmpSet.idx[2] = -1;
+            tmpSet.idx[0] = tmpSet.idx[1] = tmpSet.idx[2] = -1;
 
             prefixMap[prefix] = tmpSet;
         }
 
-        // 
+        //
         // Check the suffix against the list of classifications
         // we defined previously. If the _cscIdx is not negative,
         // it indicates that we should be part of a CSC group.
         //
 
-        for (std::vector<Classifier>::iterator i = _channelRules.begin();
-             i != _channelRules.end();
+        for (std::vector<Classifier>::iterator i = _channelRules.begin ();
+             i != _channelRules.end ();
              ++i)
         {
-            if ( i->match(suffix, chanData[offset].type) )
+            if (i->match (suffix, chanData[offset].type))
             {
                 chanData[offset].compression = i->_scheme;
 
-                if ( i->_cscIdx >= 0)
-                    prefixMap[prefix].idx[i->_cscIdx] = offset;
+                if (i->_cscIdx >= 0) prefixMap[prefix].idx[i->_cscIdx] = offset;
             }
         }
     }
 
     //
-    // Finally, try and find RGB sets of channels which 
+    // Finally, try and find RGB sets of channels which
     // can be CSC'ed to a Y'CbCr space prior to loss, for
     // better compression.
     //
@@ -3365,16 +3265,16 @@ DwaCompressor::classifyChannels
     // patterns, etc).
     //
 
-    for (std::map<std::string, DwaCompressor::CscChannelSet>::iterator 
-         theItem = prefixMap.begin(); theItem != prefixMap.end();
+    for (std::map<std::string, DwaCompressor::CscChannelSet>::iterator theItem =
+             prefixMap.begin ();
+         theItem != prefixMap.end ();
          ++theItem)
     {
         int red = (*theItem).second.idx[0];
         int grn = (*theItem).second.idx[1];
         int blu = (*theItem).second.idx[2];
 
-        if ((red < 0) || (grn < 0) || (blu < 0))
-            continue;
+        if ((red < 0) || (grn < 0) || (blu < 0)) continue;
 
         if ((chanData[red].xSampling != chanData[grn].xSampling) ||
             (chanData[red].xSampling != chanData[blu].xSampling) ||
@@ -3385,20 +3285,17 @@ DwaCompressor::classifyChannels
         {
             continue;
         }
-        
+
         tmpCscSet.push_back ((*theItem).second);
     }
-    
-    size_t numCsc = tmpCscSet.size();
 
-    if (numCsc)
-        cscData.resize(numCsc);
+    size_t numCsc = tmpCscSet.size ();
+
+    if (numCsc) cscData.resize (numCsc);
 
     for (offset = 0; offset < numCsc; ++offset)
         cscData[offset] = tmpCscSet[offset];
 }
-
-
 
 //
 // Setup some buffer pointers, determine channel sizes, things
@@ -3408,51 +3305,51 @@ DwaCompressor::classifyChannels
 void
 DwaCompressor::setupChannelData (int minX, int minY, int maxX, int maxY)
 {
-    char *planarUncBuffer[NUM_COMPRESSOR_SCHEMES];
+    char* planarUncBuffer[NUM_COMPRESSOR_SCHEMES];
 
-    for (int i=0; i<NUM_COMPRESSOR_SCHEMES; ++i)
+    for (int i = 0; i < NUM_COMPRESSOR_SCHEMES; ++i)
     {
         planarUncBuffer[i] = 0;
 
-        if (_planarUncBuffer[i])
-            planarUncBuffer[i] =  _planarUncBuffer[i];
+        if (_planarUncBuffer[i]) planarUncBuffer[i] = _planarUncBuffer[i];
     }
 
-    for (unsigned int chan = 0; chan < _channelData.size(); ++chan)
+    for (unsigned int chan = 0; chan < _channelData.size (); ++chan)
     {
-        ChannelData *cd = &_channelData[chan];
+        ChannelData* cd = &_channelData[chan];
 
-        cd->width  = OPENEXR_IMF_NAMESPACE::numSamples (cd->xSampling, minX, maxX);
-        cd->height = OPENEXR_IMF_NAMESPACE::numSamples (cd->ySampling, minY, maxY);
-                                
-        cd->planarUncSize =
-            cd->width * cd->height * OPENEXR_IMF_NAMESPACE::pixelTypeSize (cd->type);
-                                  
+        cd->width =
+            OPENEXR_IMF_NAMESPACE::numSamples (cd->xSampling, minX, maxX);
+        cd->height =
+            OPENEXR_IMF_NAMESPACE::numSamples (cd->ySampling, minY, maxY);
+
+        cd->planarUncSize = cd->width * cd->height *
+                            OPENEXR_IMF_NAMESPACE::pixelTypeSize (cd->type);
+
         cd->planarUncBuffer    = planarUncBuffer[cd->compression];
         cd->planarUncBufferEnd = cd->planarUncBuffer;
 
         cd->planarUncRle[0]    = cd->planarUncBuffer;
         cd->planarUncRleEnd[0] = cd->planarUncRle[0];
 
-        for (int byte = 1; byte < OPENEXR_IMF_NAMESPACE::pixelTypeSize(cd->type); ++byte)
+        for (int byte = 1;
+             byte < OPENEXR_IMF_NAMESPACE::pixelTypeSize (cd->type);
+             ++byte)
         {
-            cd->planarUncRle[byte] = 
-                         cd->planarUncRle[byte-1] + cd->width * cd->height;
+            cd->planarUncRle[byte] =
+                cd->planarUncRle[byte - 1] + cd->width * cd->height;
 
-            cd->planarUncRleEnd[byte] =
-                         cd->planarUncRle[byte];
+            cd->planarUncRleEnd[byte] = cd->planarUncRle[byte];
         }
 
         cd->planarUncType = cd->type;
 
-        if (cd->compression == LOSSY_DCT)
-        {
-            cd->planarUncType = FLOAT;
-        }
+        if (cd->compression == LOSSY_DCT) { cd->planarUncType = FLOAT; }
         else
         {
             planarUncBuffer[cd->compression] +=
-                cd->width * cd->height * OPENEXR_IMF_NAMESPACE::pixelTypeSize (cd->planarUncType);
+                cd->width * cd->height *
+                OPENEXR_IMF_NAMESPACE::pixelTypeSize (cd->planarUncType);
         }
     }
 }

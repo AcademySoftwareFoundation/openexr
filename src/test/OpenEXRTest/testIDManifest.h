@@ -6,6 +6,6 @@
 
 #include <string>
 
-void testIDManifest(const std::string &tempDir);
+void testIDManifest (const std::string& tempDir);
 
 #endif

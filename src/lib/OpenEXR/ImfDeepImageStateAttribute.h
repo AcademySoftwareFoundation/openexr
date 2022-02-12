@@ -6,7 +6,6 @@
 #ifndef INCLUDED_IMF_DEEPIMAGESTATE_ATTRIBUTE_H
 #define INCLUDED_IMF_DEEPIMAGESTATE_ATTRIBUTE_H
 
-
 //-----------------------------------------------------------------------------
 //
 //	class DeepImageStateAttribute
@@ -19,12 +18,12 @@
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
-
 typedef TypedAttribute<OPENEXR_IMF_INTERNAL_NAMESPACE::DeepImageState>
     DeepImageStateAttribute;
 
 #ifndef COMPILING_IMF_DEEP_IMAGE_STATE_ATTRIBUTE
-extern template class IMF_EXPORT_EXTERN_TEMPLATE TypedAttribute<OPENEXR_IMF_INTERNAL_NAMESPACE::DeepImageState>;
+extern template class IMF_EXPORT_EXTERN_TEMPLATE
+    TypedAttribute<OPENEXR_IMF_INTERNAL_NAMESPACE::DeepImageState>;
 #endif
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT

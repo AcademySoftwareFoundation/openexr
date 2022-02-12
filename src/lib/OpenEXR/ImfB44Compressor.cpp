@@ -33,7 +33,7 @@
 //               |
 //               | 0
 //               |
-//               v 
+//               v
 //		 4 -------->  5 -------->  6 -------->  7
 //               |     4            8           12
 //               |
@@ -68,57 +68,53 @@
 //-----------------------------------------------------------------------------
 
 #include "ImfB44Compressor.h"
-#include "ImfHeader.h"
 #include "ImfChannelList.h"
-#include "ImfMisc.h"
 #include "ImfCheckedArithmetic.h"
-#include <ImathFun.h>
-#include <ImathBox.h>
+#include "ImfHeader.h"
+#include "ImfMisc.h"
+#include "ImfNamespace.h"
 #include <Iex.h>
+#include <ImathBox.h>
+#include <ImathFun.h>
 #include <ImfIO.h>
 #include <ImfXdr.h>
-#include <string.h>
-#include <assert.h>
 #include <algorithm>
-#include "ImfNamespace.h"
-
+#include <assert.h>
+#include <string.h>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
-
+using IMATH_NAMESPACE::Box2i;
 using IMATH_NAMESPACE::divp;
 using IMATH_NAMESPACE::modp;
-using IMATH_NAMESPACE::Box2i;
 using IMATH_NAMESPACE::V2i;
 using std::min;
 
-namespace {
+namespace
+{
 
 //
 // Lookup tables for
 //	y = exp (x / 8)
-// and 
+// and
 //	x = 8 * log (y)
 //
 
 #include "b44ExpLogTable.h"
 
-
 inline void
 convertFromLinear (unsigned short s[16])
 {
     for (int i = 0; i < 16; ++i)
-	s[i] = expTable[s[i]];
+        s[i] = expTable[s[i]];
 }
-
 
 inline void
 convertToLinear (unsigned short s[16])
 {
     for (int i = 0; i < 16; ++i)
-	s[i] = logTable[s[i]];
+        s[i] = logTable[s[i]];
 }
-
 
 inline int
 shiftAndRound (int x, int shift)
@@ -141,12 +137,12 @@ shiftAndRound (int x, int shift)
     return (x + a + b) >> shift;
 }
 
-
 int
-pack (const unsigned short s[16],
-      unsigned char b[14],
-      bool optFlatFields,
-      bool exactMax)
+pack (
+    const unsigned short s[16],
+    unsigned char        b[14],
+    bool                 optFlatFields,
+    bool                 exactMax)
 {
     //
     // Pack a block of 4 by 4 16-bit pixels (32 bytes) into
@@ -198,14 +194,14 @@ pack (const unsigned short s[16],
 
     for (int i = 0; i < 16; ++i)
     {
-	if ((s[i] & 0x7c00) == 0x7c00)
-	    t[i] = 0x8000;
-	else if (s[i] & 0x8000)
-	    t[i] = ~s[i];
-	else
-	    t[i] = s[i] | 0x8000;
+        if ((s[i] & 0x7c00) == 0x7c00)
+            t[i] = 0x8000;
+        else if (s[i] & 0x8000)
+            t[i] = ~s[i];
+        else
+            t[i] = s[i] | 0x8000;
     }
-    
+
     //
     // Find the maximum, tMax, of t[0] ... t[15].
     //
@@ -213,8 +209,7 @@ pack (const unsigned short s[16],
     unsigned short tMax = 0;
 
     for (int i = 0; i < 16; ++i)
-	if (tMax < t[i])
-	    tMax = t[i];
+        if (tMax < t[i]) tMax = t[i];
 
     //
     // Compute a set of running differences, r[0] ... r[14]:
@@ -250,22 +245,22 @@ pack (const unsigned short s[16],
         // Convert d[0] .. d[15] into running differences
         //
 
-        r[ 0] = d[ 0] - d[ 4] + bias;
-        r[ 1] = d[ 4] - d[ 8] + bias;
-        r[ 2] = d[ 8] - d[12] + bias;
+        r[0] = d[0] - d[4] + bias;
+        r[1] = d[4] - d[8] + bias;
+        r[2] = d[8] - d[12] + bias;
 
-        r[ 3] = d[ 0] - d[ 1] + bias;
-        r[ 4] = d[ 4] - d[ 5] + bias;
-        r[ 5] = d[ 8] - d[ 9] + bias;
-        r[ 6] = d[12] - d[13] + bias;
+        r[3] = d[0] - d[1] + bias;
+        r[4] = d[4] - d[5] + bias;
+        r[5] = d[8] - d[9] + bias;
+        r[6] = d[12] - d[13] + bias;
 
-        r[ 7] = d[ 1] - d[ 2] + bias;
-        r[ 8] = d[ 5] - d[ 6] + bias;
-        r[ 9] = d[ 9] - d[10] + bias;
+        r[7]  = d[1] - d[2] + bias;
+        r[8]  = d[5] - d[6] + bias;
+        r[9]  = d[9] - d[10] + bias;
         r[10] = d[13] - d[14] + bias;
 
-        r[11] = d[ 2] - d[ 3] + bias;
-        r[12] = d[ 6] - d[ 7] + bias;
+        r[11] = d[2] - d[3] + bias;
+        r[12] = d[6] - d[7] + bias;
         r[13] = d[10] - d[11] + bias;
         r[14] = d[14] - d[15] + bias;
 
@@ -274,14 +269,11 @@ pack (const unsigned short s[16],
 
         for (int i = 1; i < 15; ++i)
         {
-            if (rMin > r[i])
-                rMin = r[i];
+            if (rMin > r[i]) rMin = r[i];
 
-            if (rMax < r[i])
-                rMax = r[i];
+            if (rMax < r[i]) rMax = r[i];
         }
-    }
-    while (rMin < 0 || rMax > 0x3f);
+    } while (rMin < 0 || rMax > 0x3f);
 
     if (rMin == bias && rMax == bias && optFlatFields)
     {
@@ -313,146 +305,137 @@ pack (const unsigned short s[16],
     // Pack t[0], shift and r[0] ... r[14] into 14 bytes:
     //
 
-    b[ 0] = (t[0] >> 8);
-    b[ 1] = (unsigned char) t[0];
+    b[0] = (t[0] >> 8);
+    b[1] = (unsigned char) t[0];
 
-    b[ 2] = (unsigned char) ((shift << 2) | (r[ 0] >> 4));
-    b[ 3] = (unsigned char) ((r[ 0] << 4) | (r[ 1] >> 2));
-    b[ 4] = (unsigned char) ((r[ 1] << 6) |  r[ 2]      );
+    b[2] = (unsigned char) ((shift << 2) | (r[0] >> 4));
+    b[3] = (unsigned char) ((r[0] << 4) | (r[1] >> 2));
+    b[4] = (unsigned char) ((r[1] << 6) | r[2]);
 
-    b[ 5] = (unsigned char) ((r[ 3] << 2) | (r[ 4] >> 4));
-    b[ 6] = (unsigned char) ((r[ 4] << 4) | (r[ 5] >> 2));
-    b[ 7] = (unsigned char) ((r[ 5] << 6) |  r[ 6]      );
+    b[5] = (unsigned char) ((r[3] << 2) | (r[4] >> 4));
+    b[6] = (unsigned char) ((r[4] << 4) | (r[5] >> 2));
+    b[7] = (unsigned char) ((r[5] << 6) | r[6]);
 
-    b[ 8] = (unsigned char) ((r[ 7] << 2) | (r[ 8] >> 4));
-    b[ 9] = (unsigned char) ((r[ 8] << 4) | (r[ 9] >> 2));
-    b[10] = (unsigned char) ((r[ 9] << 6) |  r[10]      );
+    b[8]  = (unsigned char) ((r[7] << 2) | (r[8] >> 4));
+    b[9]  = (unsigned char) ((r[8] << 4) | (r[9] >> 2));
+    b[10] = (unsigned char) ((r[9] << 6) | r[10]);
 
     b[11] = (unsigned char) ((r[11] << 2) | (r[12] >> 4));
     b[12] = (unsigned char) ((r[12] << 4) | (r[13] >> 2));
-    b[13] = (unsigned char) ((r[13] << 6) |  r[14]      );
+    b[13] = (unsigned char) ((r[13] << 6) | r[14]);
 
     return 14;
 }
 
-
-inline
-void
+inline void
 unpack14 (const unsigned char b[14], unsigned short s[16])
 {
     //
     // Unpack a 14-byte block into 4 by 4 16-bit pixels.
     //
 
-    #if defined (DEBUG)
-	assert (b[2] != 0xfc);
-    #endif
+#if defined(DEBUG)
+    assert (b[2] != 0xfc);
+#endif
 
-    s[ 0] = (b[0] << 8) | b[1];
+    s[0] = (b[0] << 8) | b[1];
 
-    unsigned short shift = (b[ 2] >> 2);
-    unsigned short bias = (0x20u << shift);
+    unsigned short shift = (b[2] >> 2);
+    unsigned short bias  = (0x20u << shift);
 
-    s[ 4] = s[ 0] + ((((b[ 2] << 4) | (b[ 3] >> 4)) & 0x3fu) << shift) - bias;
-    s[ 8] = s[ 4] + ((((b[ 3] << 2) | (b[ 4] >> 6)) & 0x3fu) << shift) - bias;
-    s[12] = s[ 8] +   ((b[ 4]                       & 0x3fu) << shift) - bias;
-    
-    s[ 1] = s[ 0] +   ((unsigned int) (b[ 5] >> 2)           << shift) - bias;
-    s[ 5] = s[ 4] + ((((b[ 5] << 4) | (b[ 6] >> 4)) & 0x3fu) << shift) - bias;
-    s[ 9] = s[ 8] + ((((b[ 6] << 2) | (b[ 7] >> 6)) & 0x3fu) << shift) - bias;
-    s[13] = s[12] +   ((b[ 7]                       & 0x3fu) << shift) - bias;
-    
-    s[ 2] = s[ 1] +   ((unsigned int)(b[ 8] >> 2)            << shift) - bias;
-    s[ 6] = s[ 5] + ((((b[ 8] << 4) | (b[ 9] >> 4)) & 0x3fu) << shift) - bias;
-    s[10] = s[ 9] + ((((b[ 9] << 2) | (b[10] >> 6)) & 0x3fu) << shift) - bias;
-    s[14] = s[13] +   ((b[10]                       & 0x3fu) << shift) - bias;
-    
-    s[ 3] = s[ 2] +   ((unsigned int)(b[11] >> 2)            << shift) - bias;
-    s[ 7] = s[ 6] + ((((b[11] << 4) | (b[12] >> 4)) & 0x3fu) << shift) - bias;
+    s[4]  = s[0] + ((((b[2] << 4) | (b[3] >> 4)) & 0x3fu) << shift) - bias;
+    s[8]  = s[4] + ((((b[3] << 2) | (b[4] >> 6)) & 0x3fu) << shift) - bias;
+    s[12] = s[8] + ((b[4] & 0x3fu) << shift) - bias;
+
+    s[1]  = s[0] + ((unsigned int) (b[5] >> 2) << shift) - bias;
+    s[5]  = s[4] + ((((b[5] << 4) | (b[6] >> 4)) & 0x3fu) << shift) - bias;
+    s[9]  = s[8] + ((((b[6] << 2) | (b[7] >> 6)) & 0x3fu) << shift) - bias;
+    s[13] = s[12] + ((b[7] & 0x3fu) << shift) - bias;
+
+    s[2]  = s[1] + ((unsigned int) (b[8] >> 2) << shift) - bias;
+    s[6]  = s[5] + ((((b[8] << 4) | (b[9] >> 4)) & 0x3fu) << shift) - bias;
+    s[10] = s[9] + ((((b[9] << 2) | (b[10] >> 6)) & 0x3fu) << shift) - bias;
+    s[14] = s[13] + ((b[10] & 0x3fu) << shift) - bias;
+
+    s[3]  = s[2] + ((unsigned int) (b[11] >> 2) << shift) - bias;
+    s[7]  = s[6] + ((((b[11] << 4) | (b[12] >> 4)) & 0x3fu) << shift) - bias;
     s[11] = s[10] + ((((b[12] << 2) | (b[13] >> 6)) & 0x3fu) << shift) - bias;
-    s[15] = s[14] +   ((b[13]                       & 0x3fu) << shift) - bias;
+    s[15] = s[14] + ((b[13] & 0x3fu) << shift) - bias;
 
     for (int i = 0; i < 16; ++i)
     {
-	if (s[i] & 0x8000)
-	    s[i] &= 0x7fff;
-	else
-	    s[i] = ~s[i];
+        if (s[i] & 0x8000)
+            s[i] &= 0x7fff;
+        else
+            s[i] = ~s[i];
     }
 }
 
-
-inline
-void
+inline void
 unpack3 (const unsigned char b[3], unsigned short s[16])
 {
     //
     // Unpack a 3-byte block into 4 by 4 identical 16-bit pixels.
     //
 
-    #if defined (DEBUG)
-	assert (b[2] == 0xfc);
-    #endif
+#if defined(DEBUG)
+    assert (b[2] == 0xfc);
+#endif
 
     s[0] = (b[0] << 8) | b[1];
 
     if (s[0] & 0x8000)
-	s[0] &= 0x7fff;
+        s[0] &= 0x7fff;
     else
-	s[0] = ~s[0];
+        s[0] = ~s[0];
 
     for (int i = 1; i < 16; ++i)
-	s[i] = s[0];
+        s[i] = s[0];
 }
-
 
 void
 notEnoughData ()
 {
     throw IEX_NAMESPACE::InputExc ("Error decompressing data "
-			 "(input data are shorter than expected).");
+                                   "(input data are shorter than expected).");
 }
-
 
 void
 tooMuchData ()
 {
     throw IEX_NAMESPACE::InputExc ("Error decompressing data "
-			 "(input data are longer than expected).");
+                                   "(input data are longer than expected).");
 }
 
 } // namespace
 
-
 struct B44Compressor::ChannelData
 {
-    unsigned short *	start;
-    unsigned short *	end;
-    int			nx;
-    int			ny;
-    int			ys;
-    PixelType		type;
-    bool		pLinear;
-    int			size;
+    unsigned short* start;
+    unsigned short* end;
+    int             nx;
+    int             ny;
+    int             ys;
+    PixelType       type;
+    bool            pLinear;
+    int             size;
 };
 
-
-B44Compressor::B44Compressor
-    (const Header &hdr,
-     size_t maxScanLineSize,
-     size_t numScanLines,
-     bool optFlatFields)
-:
-    Compressor (hdr),
-    _maxScanLineSize (static_cast<int>(maxScanLineSize)),
-    _optFlatFields (optFlatFields),
-    _format (XDR),
-    _numScanLines (static_cast<int>(numScanLines)),
-    _tmpBuffer (0),
-    _outBuffer (0),
-    _numChans (0),
-    _channels (hdr.channels()),
-    _channelData (0)
+B44Compressor::B44Compressor (
+    const Header& hdr,
+    size_t        maxScanLineSize,
+    size_t        numScanLines,
+    bool          optFlatFields)
+    : Compressor (hdr)
+    , _maxScanLineSize (static_cast<int> (maxScanLineSize))
+    , _optFlatFields (optFlatFields)
+    , _format (XDR)
+    , _numScanLines (static_cast<int> (numScanLines))
+    , _tmpBuffer (0)
+    , _outBuffer (0)
+    , _numChans (0)
+    , _channels (hdr.channels ())
+    , _channelData (0)
 {
     //
     // Allocate buffers for compressed an uncompressed pixel data,
@@ -461,22 +444,20 @@ B44Compressor::B44Compressor
     // if uncompressed pixel data should be in native or Xdr format.
     //
 
-    _tmpBuffer = new unsigned short
-        [checkArraySize (uiMult (maxScanLineSize / sizeof(unsigned short), numScanLines),
-                         sizeof (unsigned short))];
+    _tmpBuffer = new unsigned short[checkArraySize (
+        uiMult (maxScanLineSize / sizeof (unsigned short), numScanLines),
+        sizeof (unsigned short))];
 
-    const ChannelList &channels = header().channels();
-    int numHalfChans = 0;
+    const ChannelList& channels     = header ().channels ();
+    int                numHalfChans = 0;
 
-    for (ChannelList::ConstIterator c = channels.begin();
-	 c != channels.end();
-	 ++c)
+    for (ChannelList::ConstIterator c = channels.begin (); c != channels.end ();
+         ++c)
     {
-	assert (pixelTypeSize (c.channel().type) % pixelTypeSize (HALF) == 0);
-	++_numChans;
+        assert (pixelTypeSize (c.channel ().type) % pixelTypeSize (HALF) == 0);
+        ++_numChans;
 
-	if (c.channel().type == HALF)
-	    ++numHalfChans;
+        if (c.channel ().type == HALF) ++numHalfChans;
     }
 
     //
@@ -485,25 +466,24 @@ B44Compressor::B44Compressor
 
     size_t padding = 12 * numHalfChans * (numScanLines + 3) / 4;
 
-    _outBuffer = new char
-        [uiAdd (uiMult (maxScanLineSize, numScanLines), padding)];
+    _outBuffer =
+        new char[uiAdd (uiMult (maxScanLineSize, numScanLines), padding)];
 
     _channelData = new ChannelData[_numChans];
 
     int i = 0;
 
-    for (ChannelList::ConstIterator c = channels.begin();
-	 c != channels.end();
-	 ++c, ++i)
+    for (ChannelList::ConstIterator c = channels.begin (); c != channels.end ();
+         ++c, ++i)
     {
-	_channelData[i].ys = c.channel().ySampling;
-	_channelData[i].type = c.channel().type;
-	_channelData[i].pLinear = c.channel().pLinear;
-	_channelData[i].size =
-	    pixelTypeSize (c.channel().type) / pixelTypeSize (HALF);
+        _channelData[i].ys      = c.channel ().ySampling;
+        _channelData[i].type    = c.channel ().type;
+        _channelData[i].pLinear = c.channel ().pLinear;
+        _channelData[i].size =
+            pixelTypeSize (c.channel ().type) / pixelTypeSize (HALF);
     }
 
-    const Box2i &dataWindow = hdr.dataWindow();
+    const Box2i& dataWindow = hdr.dataWindow ();
 
     _minX = dataWindow.min.x;
     _maxX = dataWindow.max.x;
@@ -516,18 +496,15 @@ B44Compressor::B44Compressor
 
     assert (sizeof (unsigned short) == pixelTypeSize (HALF));
 
-    if (_numChans == numHalfChans)
-	_format = NATIVE;
+    if (_numChans == numHalfChans) _format = NATIVE;
 }
-
 
 B44Compressor::~B44Compressor ()
 {
-    delete [] _tmpBuffer;
-    delete [] _outBuffer;
-    delete [] _channelData;
+    delete[] _tmpBuffer;
+    delete[] _outBuffer;
+    delete[] _channelData;
 }
-
 
 int
 B44Compressor::numScanLines () const
@@ -535,67 +512,60 @@ B44Compressor::numScanLines () const
     return _numScanLines;
 }
 
-
 Compressor::Format
 B44Compressor::format () const
 {
     return _format;
 }
 
-
 int
-B44Compressor::compress (const char *inPtr,
-			 int inSize,
-			 int minY,
-			 const char *&outPtr)
+B44Compressor::compress (
+    const char* inPtr, int inSize, int minY, const char*& outPtr)
 {
-    return compress (inPtr,
-		     inSize,
-		     Box2i (V2i (_minX, minY),
-			    V2i (_maxX, minY + numScanLines() - 1)),
-		     outPtr);
+    return compress (
+        inPtr,
+        inSize,
+        Box2i (V2i (_minX, minY), V2i (_maxX, minY + numScanLines () - 1)),
+        outPtr);
 }
 
-
 int
-B44Compressor::compressTile (const char *inPtr,
-			     int inSize,
-			     IMATH_NAMESPACE::Box2i range,
-			     const char *&outPtr)
+B44Compressor::compressTile (
+    const char*            inPtr,
+    int                    inSize,
+    IMATH_NAMESPACE::Box2i range,
+    const char*&           outPtr)
 {
     return compress (inPtr, inSize, range, outPtr);
 }
 
-
 int
-B44Compressor::uncompress (const char *inPtr,
-			   int inSize,
-			   int minY,
-			   const char *&outPtr)
+B44Compressor::uncompress (
+    const char* inPtr, int inSize, int minY, const char*& outPtr)
 {
-    return uncompress (inPtr,
-		       inSize,
-		       Box2i (V2i (_minX, minY),
-			      V2i (_maxX, minY + numScanLines() - 1)),
-		       outPtr);
+    return uncompress (
+        inPtr,
+        inSize,
+        Box2i (V2i (_minX, minY), V2i (_maxX, minY + numScanLines () - 1)),
+        outPtr);
 }
 
-
 int
-B44Compressor::uncompressTile (const char *inPtr,
-			       int inSize,
-			       IMATH_NAMESPACE::Box2i range,
-			       const char *&outPtr)
+B44Compressor::uncompressTile (
+    const char*            inPtr,
+    int                    inSize,
+    IMATH_NAMESPACE::Box2i range,
+    const char*&           outPtr)
 {
     return uncompress (inPtr, inSize, range, outPtr);
 }
 
-
 int
-B44Compressor::compress (const char *inPtr,
-			 int inSize,
-			 IMATH_NAMESPACE::Box2i range,
-			 const char *&outPtr)
+B44Compressor::compress (
+    const char*            inPtr,
+    int                    inSize,
+    IMATH_NAMESPACE::Box2i range,
+    const char*&           outPtr)
 {
     //
     // Compress a block of pixel data:  First copy the input pixels
@@ -610,11 +580,11 @@ B44Compressor::compress (const char *inPtr,
 
     if (inSize == 0)
     {
-	//
-	// Special case - empty input buffer.
-	//
+        //
+        // Special case - empty input buffer.
+        //
 
-	return 0;
+        return 0;
     }
 
     //
@@ -627,88 +597,86 @@ B44Compressor::compress (const char *inPtr,
     int maxX = min (range.max.x, _maxX);
     int minY = range.min.y;
     int maxY = min (range.max.y, _maxY);
-    
-    unsigned short *tmpBufferEnd = _tmpBuffer;
-    int i = 0;
 
-    for (ChannelList::ConstIterator c = _channels.begin();
-	 c != _channels.end();
-	 ++c, ++i)
+    unsigned short* tmpBufferEnd = _tmpBuffer;
+    int             i            = 0;
+
+    for (ChannelList::ConstIterator c = _channels.begin ();
+         c != _channels.end ();
+         ++c, ++i)
     {
-	ChannelData &cd = _channelData[i];
+        ChannelData& cd = _channelData[i];
 
-	cd.start = tmpBufferEnd;
-	cd.end = cd.start;
+        cd.start = tmpBufferEnd;
+        cd.end   = cd.start;
 
-	cd.nx = numSamples (c.channel().xSampling, minX, maxX);
-	cd.ny = numSamples (c.channel().ySampling, minY, maxY);
+        cd.nx = numSamples (c.channel ().xSampling, minX, maxX);
+        cd.ny = numSamples (c.channel ().ySampling, minY, maxY);
 
-	tmpBufferEnd += cd.nx * cd.ny * cd.size;
+        tmpBufferEnd += cd.nx * cd.ny * cd.size;
     }
 
     if (_format == XDR)
     {
-	//
-	// The data in the input buffer are in the machine-independent
-	// Xdr format.  Copy the HALF channels into _tmpBuffer and
-	// convert them back into native format for compression.
-	// Copy UINT and FLOAT channels verbatim into _tmpBuffer.
-	//
+        //
+        // The data in the input buffer are in the machine-independent
+        // Xdr format.  Copy the HALF channels into _tmpBuffer and
+        // convert them back into native format for compression.
+        // Copy UINT and FLOAT channels verbatim into _tmpBuffer.
+        //
 
-	for (int y = minY; y <= maxY; ++y)
-	{
-	    for (int i = 0; i < _numChans; ++i)
-	    {
-		ChannelData &cd = _channelData[i];
+        for (int y = minY; y <= maxY; ++y)
+        {
+            for (int i = 0; i < _numChans; ++i)
+            {
+                ChannelData& cd = _channelData[i];
 
-		if (modp (y, cd.ys) != 0)
-		    continue;
+                if (modp (y, cd.ys) != 0) continue;
 
-		if (cd.type == HALF)
-		{
-		    for (int x = cd.nx; x > 0; --x)
-		    {
-			Xdr::read <CharPtrIO> (inPtr, *cd.end);
-			++cd.end;
-		    }
-		}
-		else
-		{
-		    int n = cd.nx * cd.size;
-		    memcpy (cd.end, inPtr, n * sizeof (unsigned short));
-		    inPtr += n * sizeof (unsigned short);
-		    cd.end += n;
-		}
-	    }
-	}
+                if (cd.type == HALF)
+                {
+                    for (int x = cd.nx; x > 0; --x)
+                    {
+                        Xdr::read<CharPtrIO> (inPtr, *cd.end);
+                        ++cd.end;
+                    }
+                }
+                else
+                {
+                    int n = cd.nx * cd.size;
+                    memcpy (cd.end, inPtr, n * sizeof (unsigned short));
+                    inPtr += n * sizeof (unsigned short);
+                    cd.end += n;
+                }
+            }
+        }
     }
     else
     {
-	//
-	// The input buffer contains only HALF channels, and they
-	// are in native, machine-dependent format.  Copy the pixels
-	// into _tmpBuffer.
-	//
+        //
+        // The input buffer contains only HALF channels, and they
+        // are in native, machine-dependent format.  Copy the pixels
+        // into _tmpBuffer.
+        //
 
-	for (int y = minY; y <= maxY; ++y)
-	{
-	    for (int i = 0; i < _numChans; ++i)
-	    {
-		ChannelData &cd = _channelData[i];
+        for (int y = minY; y <= maxY; ++y)
+        {
+            for (int i = 0; i < _numChans; ++i)
+            {
+                ChannelData& cd = _channelData[i];
 
-		#if defined (DEBUG)
-		    assert (cd.type == HALF);
-		#endif
+#if defined(DEBUG)
+                assert (cd.type == HALF);
+#endif
 
-		if (modp (y, cd.ys) != 0)
-		    continue;
+                if (modp (y, cd.ys) != 0) continue;
 
-		int n = cd.nx * cd.size;
-		memcpy (cd.end, inPtr, n * sizeof (unsigned short));
-		inPtr  += n * sizeof (unsigned short);
-		cd.end += n;
-	    }
-	}
+                int n = cd.nx * cd.size;
+                memcpy (cd.end, inPtr, n * sizeof (unsigned short));
+                inPtr += n * sizeof (unsigned short);
+                cd.end += n;
+            }
+        }
     }
 
     //
@@ -717,14 +685,14 @@ B44Compressor::compress (const char *inPtr,
     // and FLOAT channels are in Xdr format.
     //
 
-    #if defined (DEBUG)
+#if defined(DEBUG)
 
-	for (int i = 1; i < _numChans; ++i)
-	    assert (_channelData[i-1].end == _channelData[i].start);
+    for (int i = 1; i < _numChans; ++i)
+        assert (_channelData[i - 1].end == _channelData[i].start);
 
-	assert (_channelData[_numChans-1].end == tmpBufferEnd);
+    assert (_channelData[_numChans - 1].end == tmpBufferEnd);
 
-    #endif
+#endif
 
     //
     // For each HALF channel, split the data in _tmpBuffer into 4x4
@@ -735,109 +703,106 @@ B44Compressor::compress (const char *inPtr,
     // output buffer without further processing.
     //
 
-    char *outEnd = _outBuffer;
+    char* outEnd = _outBuffer;
 
     for (int i = 0; i < _numChans; ++i)
     {
-	ChannelData &cd = _channelData[i];
-	
-	if (cd.type != HALF)
-	{
-	    //
-	    // UINT or FLOAT channel.
-	    //
+        ChannelData& cd = _channelData[i];
 
-	    int n = cd.nx * cd.ny * cd.size * sizeof (unsigned short);
-	    memcpy (outEnd, cd.start, n);
-	    outEnd += n;
+        if (cd.type != HALF)
+        {
+            //
+            // UINT or FLOAT channel.
+            //
 
-	    continue;
-	}
-	
-	//
-	// HALF channel
-	//
+            int n = cd.nx * cd.ny * cd.size * sizeof (unsigned short);
+            memcpy (outEnd, cd.start, n);
+            outEnd += n;
 
-	for (int y = 0; y < cd.ny; y += 4)
-	{
-	    //
-	    // Copy the next 4x4 pixel block into array s.
-	    // If the width, cd.nx, or the height, cd.ny, of
-	    // the pixel data in _tmpBuffer is not divisible
-	    // by 4, then pad the data by repeating the
-	    // rightmost column and the bottom row.
-	    // 
+            continue;
+        }
 
-	    unsigned short *row0 = cd.start + y * cd.nx;
-	    unsigned short *row1 = row0 + cd.nx;
-	    unsigned short *row2 = row1 + cd.nx;
-	    unsigned short *row3 = row2 + cd.nx;
+        //
+        // HALF channel
+        //
 
-	    if (y + 3 >= cd.ny)
-	    {
-		if (y + 1 >= cd.ny)
-		    row1 = row0;
+        for (int y = 0; y < cd.ny; y += 4)
+        {
+            //
+            // Copy the next 4x4 pixel block into array s.
+            // If the width, cd.nx, or the height, cd.ny, of
+            // the pixel data in _tmpBuffer is not divisible
+            // by 4, then pad the data by repeating the
+            // rightmost column and the bottom row.
+            //
 
-		if (y + 2 >= cd.ny)
-		    row2 = row1;
+            unsigned short* row0 = cd.start + y * cd.nx;
+            unsigned short* row1 = row0 + cd.nx;
+            unsigned short* row2 = row1 + cd.nx;
+            unsigned short* row3 = row2 + cd.nx;
 
-		row3 = row2;
-	    }
+            if (y + 3 >= cd.ny)
+            {
+                if (y + 1 >= cd.ny) row1 = row0;
 
-	    for (int x = 0; x < cd.nx; x += 4)
-	    {
-		unsigned short s[16];
+                if (y + 2 >= cd.ny) row2 = row1;
 
-		if (x + 3 >= cd.nx)
-		{
-		    int n = cd.nx - x;
+                row3 = row2;
+            }
 
-		    for (int i = 0; i < 4; ++i)
-		    {
-			int j = min (i, n - 1);
+            for (int x = 0; x < cd.nx; x += 4)
+            {
+                unsigned short s[16];
 
-			s[i +  0] = row0[j];
-			s[i +  4] = row1[j];
-			s[i +  8] = row2[j];
-			s[i + 12] = row3[j];
-		    }
-		}
-		else
-		{
-		    memcpy (&s[ 0], row0, 4 * sizeof (unsigned short));
-		    memcpy (&s[ 4], row1, 4 * sizeof (unsigned short));
-		    memcpy (&s[ 8], row2, 4 * sizeof (unsigned short));
-		    memcpy (&s[12], row3, 4 * sizeof (unsigned short));
-		}
+                if (x + 3 >= cd.nx)
+                {
+                    int n = cd.nx - x;
 
-		row0 += 4;
-		row1 += 4;
-		row2 += 4;
-		row3 += 4;
+                    for (int i = 0; i < 4; ++i)
+                    {
+                        int j = min (i, n - 1);
 
-		//
-		// Compress the contents of array s and append the
-		// results to the output buffer.
-		//
+                        s[i + 0]  = row0[j];
+                        s[i + 4]  = row1[j];
+                        s[i + 8]  = row2[j];
+                        s[i + 12] = row3[j];
+                    }
+                }
+                else
+                {
+                    memcpy (&s[0], row0, 4 * sizeof (unsigned short));
+                    memcpy (&s[4], row1, 4 * sizeof (unsigned short));
+                    memcpy (&s[8], row2, 4 * sizeof (unsigned short));
+                    memcpy (&s[12], row3, 4 * sizeof (unsigned short));
+                }
 
-		if (cd.pLinear)
-		    convertFromLinear (s);
+                row0 += 4;
+                row1 += 4;
+                row2 += 4;
+                row3 += 4;
 
-		outEnd += pack (s, (unsigned char *) outEnd,
-				_optFlatFields, !cd.pLinear);
-	    }
-	}
+                //
+                // Compress the contents of array s and append the
+                // results to the output buffer.
+                //
+
+                if (cd.pLinear) convertFromLinear (s);
+
+                outEnd += pack (
+                    s, (unsigned char*) outEnd, _optFlatFields, !cd.pLinear);
+            }
+        }
     }
 
-    return static_cast<int>(outEnd - _outBuffer);
+    return static_cast<int> (outEnd - _outBuffer);
 }
 
-
 int
-B44Compressor::uncompress (const char *inPtr,
-			   int inSize,
-			   IMATH_NAMESPACE::Box2i range,
-			   const char *&outPtr)
+B44Compressor::uncompress (
+    const char*            inPtr,
+    int                    inSize,
+    IMATH_NAMESPACE::Box2i range,
+    const char*&           outPtr)
 {
     //
     // This function is the reverse of the compress() function,
@@ -851,195 +816,181 @@ B44Compressor::uncompress (const char *inPtr,
 
     outPtr = _outBuffer;
 
-    if (inSize == 0)
-    {
-	return 0;
-    }
+    if (inSize == 0) { return 0; }
 
     int minX = range.min.x;
     int maxX = min (range.max.x, _maxX);
     int minY = range.min.y;
     int maxY = min (range.max.y, _maxY);
-    
-    unsigned short *tmpBufferEnd = _tmpBuffer;
-    int i = 0;
 
-    for (ChannelList::ConstIterator c = _channels.begin();
-	 c != _channels.end();
-	 ++c, ++i)
+    unsigned short* tmpBufferEnd = _tmpBuffer;
+    int             i            = 0;
+
+    for (ChannelList::ConstIterator c = _channels.begin ();
+         c != _channels.end ();
+         ++c, ++i)
     {
-	ChannelData &cd = _channelData[i];
+        ChannelData& cd = _channelData[i];
 
-	cd.start = tmpBufferEnd;
-	cd.end = cd.start;
+        cd.start = tmpBufferEnd;
+        cd.end   = cd.start;
 
-	cd.nx = numSamples (c.channel().xSampling, minX, maxX);
-	cd.ny = numSamples (c.channel().ySampling, minY, maxY);
+        cd.nx = numSamples (c.channel ().xSampling, minX, maxX);
+        cd.ny = numSamples (c.channel ().ySampling, minY, maxY);
 
-	tmpBufferEnd += cd.nx * cd.ny * cd.size;
+        tmpBufferEnd += cd.nx * cd.ny * cd.size;
     }
 
     for (int i = 0; i < _numChans; ++i)
     {
-	ChannelData &cd = _channelData[i];
+        ChannelData& cd = _channelData[i];
 
-	if (cd.type != HALF)
-	{
-	    //
-	    // UINT or FLOAT channel.
-	    //
+        if (cd.type != HALF)
+        {
+            //
+            // UINT or FLOAT channel.
+            //
 
-	    int n = cd.nx * cd.ny * cd.size * sizeof (unsigned short);
+            int n = cd.nx * cd.ny * cd.size * sizeof (unsigned short);
 
-	    if (inSize < n)
-		notEnoughData();
+            if (inSize < n) notEnoughData ();
 
-	    memcpy (cd.start, inPtr, n);
-	    inPtr += n;
-	    inSize -= n;
+            memcpy (cd.start, inPtr, n);
+            inPtr += n;
+            inSize -= n;
 
-	    continue;
-	}
+            continue;
+        }
 
-	//
-	// HALF channel
-	//
+        //
+        // HALF channel
+        //
 
-	for (int y = 0; y < cd.ny; y += 4)
-	{
-	    unsigned short *row0 = cd.start + y * cd.nx;
-	    unsigned short *row1 = row0 + cd.nx;
-	    unsigned short *row2 = row1 + cd.nx;
-	    unsigned short *row3 = row2 + cd.nx;
+        for (int y = 0; y < cd.ny; y += 4)
+        {
+            unsigned short* row0 = cd.start + y * cd.nx;
+            unsigned short* row1 = row0 + cd.nx;
+            unsigned short* row2 = row1 + cd.nx;
+            unsigned short* row3 = row2 + cd.nx;
 
-	    for (int x = 0; x < cd.nx; x += 4)
-	    {
-		unsigned short s[16]; 
+            for (int x = 0; x < cd.nx; x += 4)
+            {
+                unsigned short s[16];
 
-		if (inSize < 3)
-		    notEnoughData();
+                if (inSize < 3) notEnoughData ();
 
                 //
                 // If shift exponent is 63, call unpack14 (ignoring unused bits)
                 //
-		if (((const unsigned char *)inPtr)[2] >= (13<<2) )
-		{
-		    unpack3 ((const unsigned char *)inPtr, s);
-		    inPtr += 3;
-		    inSize -= 3;
-		}
-		else
-		{
-		    if (inSize < 14)
-			notEnoughData();
+                if (((const unsigned char*) inPtr)[2] >= (13 << 2))
+                {
+                    unpack3 ((const unsigned char*) inPtr, s);
+                    inPtr += 3;
+                    inSize -= 3;
+                }
+                else
+                {
+                    if (inSize < 14) notEnoughData ();
 
-		    unpack14 ((const unsigned char *)inPtr, s);
-		    inPtr += 14;
-		    inSize -= 14;
-		}
+                    unpack14 ((const unsigned char*) inPtr, s);
+                    inPtr += 14;
+                    inSize -= 14;
+                }
 
-		if (cd.pLinear)
-		    convertToLinear (s);
+                if (cd.pLinear) convertToLinear (s);
 
-		int n = (x + 3 < cd.nx)?
-			    4 * sizeof (unsigned short) :
-			    (cd.nx - x) * sizeof (unsigned short);
+                int n = (x + 3 < cd.nx) ? 4 * sizeof (unsigned short)
+                                        : (cd.nx - x) * sizeof (unsigned short);
 
-		if (y + 3 < cd.ny)
-		{
-		    memcpy (row0, &s[ 0], n);
-		    memcpy (row1, &s[ 4], n);
-		    memcpy (row2, &s[ 8], n);
-		    memcpy (row3, &s[12], n);
-		}
-		else
-		{
-		    memcpy (row0, &s[ 0], n);
+                if (y + 3 < cd.ny)
+                {
+                    memcpy (row0, &s[0], n);
+                    memcpy (row1, &s[4], n);
+                    memcpy (row2, &s[8], n);
+                    memcpy (row3, &s[12], n);
+                }
+                else
+                {
+                    memcpy (row0, &s[0], n);
 
-		    if (y + 1 < cd.ny)
-			memcpy (row1, &s[ 4], n);
+                    if (y + 1 < cd.ny) memcpy (row1, &s[4], n);
 
-		    if (y + 2 < cd.ny)
-			memcpy (row2, &s[ 8], n);
-		}
+                    if (y + 2 < cd.ny) memcpy (row2, &s[8], n);
+                }
 
-		row0 += 4;
-		row1 += 4;
-		row2 += 4;
-		row3 += 4;
-	    }
-	}
+                row0 += 4;
+                row1 += 4;
+                row2 += 4;
+                row3 += 4;
+            }
+        }
     }
 
-    char *outEnd = _outBuffer;
+    char* outEnd = _outBuffer;
 
     if (_format == XDR)
     {
-	for (int y = minY; y <= maxY; ++y)
-	{
-	    for (int i = 0; i < _numChans; ++i)
-	    {
-		ChannelData &cd = _channelData[i];
+        for (int y = minY; y <= maxY; ++y)
+        {
+            for (int i = 0; i < _numChans; ++i)
+            {
+                ChannelData& cd = _channelData[i];
 
-		if (modp (y, cd.ys) != 0)
-		    continue;
+                if (modp (y, cd.ys) != 0) continue;
 
-		if (cd.type == HALF)
-		{
-		    for (int x = cd.nx; x > 0; --x)
-		    {
-			Xdr::write <CharPtrIO> (outEnd, *cd.end);
-			++cd.end;
-		    }
-		}
-		else
-		{
-		    int n = cd.nx * cd.size;
-		    memcpy (outEnd, cd.end, n * sizeof (unsigned short));
-		    outEnd += n * sizeof (unsigned short);
-		    cd.end += n;
-		}
-	    }
-	}
+                if (cd.type == HALF)
+                {
+                    for (int x = cd.nx; x > 0; --x)
+                    {
+                        Xdr::write<CharPtrIO> (outEnd, *cd.end);
+                        ++cd.end;
+                    }
+                }
+                else
+                {
+                    int n = cd.nx * cd.size;
+                    memcpy (outEnd, cd.end, n * sizeof (unsigned short));
+                    outEnd += n * sizeof (unsigned short);
+                    cd.end += n;
+                }
+            }
+        }
     }
     else
     {
-	for (int y = minY; y <= maxY; ++y)
-	{
-	    for (int i = 0; i < _numChans; ++i)
-	    {
-		ChannelData &cd = _channelData[i];
+        for (int y = minY; y <= maxY; ++y)
+        {
+            for (int i = 0; i < _numChans; ++i)
+            {
+                ChannelData& cd = _channelData[i];
 
-		#if defined (DEBUG)
-		    assert (cd.type == HALF);
-		#endif
+#if defined(DEBUG)
+                assert (cd.type == HALF);
+#endif
 
-		if (modp (y, cd.ys) != 0)
-		    continue;
+                if (modp (y, cd.ys) != 0) continue;
 
-		int n = cd.nx * cd.size;
-		memcpy (outEnd, cd.end, n * sizeof (unsigned short));
-		outEnd += n * sizeof (unsigned short);
-		cd.end += n;
-	    }
-	}
+                int n = cd.nx * cd.size;
+                memcpy (outEnd, cd.end, n * sizeof (unsigned short));
+                outEnd += n * sizeof (unsigned short);
+                cd.end += n;
+            }
+        }
     }
 
-    #if defined (DEBUG)
+#if defined(DEBUG)
 
-	for (int i = 1; i < _numChans; ++i)
-	    assert (_channelData[i-1].end == _channelData[i].start);
+    for (int i = 1; i < _numChans; ++i)
+        assert (_channelData[i - 1].end == _channelData[i].start);
 
-	assert (_channelData[_numChans-1].end == tmpBufferEnd);
+    assert (_channelData[_numChans - 1].end == tmpBufferEnd);
 
-    #endif
+#endif
 
-    if (inSize > 0)
-	tooMuchData();
+    if (inSize > 0) tooMuchData ();
 
     outPtr = _outBuffer;
-    return static_cast<int>(outEnd - _outBuffer);
+    return static_cast<int> (outEnd - _outBuffer);
 }
-
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

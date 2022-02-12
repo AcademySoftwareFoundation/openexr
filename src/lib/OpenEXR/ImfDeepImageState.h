@@ -47,20 +47,18 @@
 #include "ImfExport.h"
 #include "ImfNamespace.h"
 
-
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 enum IMF_EXPORT_ENUM DeepImageState : int
 {
-    DIS_MESSY = 0,
-    DIS_SORTED = 1,
+    DIS_MESSY           = 0,
+    DIS_SORTED          = 1,
     DIS_NON_OVERLAPPING = 2,
-    DIS_TIDY = 3,
+    DIS_TIDY            = 3,
 
-    DIS_NUMSTATES   // Number of different image states
+    DIS_NUMSTATES // Number of different image states
 };
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
-
 
 #endif

@@ -3,8 +3,6 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
-
 #include <string>
 
-void testExistingStreams (const std::string &tempDir);
-
+void testExistingStreams (const std::string& tempDir);

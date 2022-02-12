@@ -1,10 +1,11 @@
 void
-writeRgba3 (const char fileName[],
-            const Rgba *pixels,
-            int width,
-            int height,
-            const char comments[],
-            const M44f &cameraTransform)
+writeRgba3 (
+    const char  fileName[],
+    const Rgba* pixels,
+    int         width,
+    int         height,
+    const char  comments[],
+    const M44f& cameraTransform)
 {
     Header header (width, height);
 

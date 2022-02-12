@@ -1,14 +1,15 @@
 void
-makePreviewImage (const Array2D<Rgba> &pixels,
-                  int width,
-                  int height,
-                  Array2D<PreviewRgba> &previewPixels,
-                  int &previewWidth,
-                  int &previewHeight)
+makePreviewImage (
+    const Array2D<Rgba>&  pixels,
+    int                   width,
+    int                   height,
+    Array2D<PreviewRgba>& previewPixels,
+    int&                  previewWidth,
+    int&                  previewHeight)
 {
     const int N = 8;
 
-    previewWidth = width / N;
+    previewWidth  = width / N;
     previewHeight = height / N;
 
     previewPixels.resizeErase (previewHeight, previewWidth);
@@ -18,8 +19,8 @@ makePreviewImage (const Array2D<Rgba> &pixels,
         for (int x = 0; x < previewWidth; ++x)
         {
 
-            const Rgba &inPixel = pixels[y * N][x * N];
-            PreviewRgba &outPixel = previewPixels[y][x];
+            const Rgba&  inPixel  = pixels[y * N][x * N];
+            PreviewRgba& outPixel = previewPixels[y][x];
 
             outPixel.r = gamma (inPixel.r);
             outPixel.g = gamma (inPixel.g);

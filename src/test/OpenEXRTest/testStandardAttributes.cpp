@@ -7,22 +7,22 @@
 #    undef NDEBUG
 #endif
 
+#include "ImathRandom.h"
+#include <ImfArray.h>
+#include <ImfFramesPerSecond.h>
 #include <ImfRgbaFile.h>
 #include <ImfStandardAttributes.h>
-#include <ImfFramesPerSecond.h>
-#include <ImfArray.h>
-#include "ImathRandom.h"
+#include <assert.h>
 #include <fstream>
 #include <iomanip>
 #include <stdio.h>
-#include <assert.h>
 
 using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;
 using namespace IMATH_NAMESPACE;
 
-
-namespace {
+namespace
+{
 
 void
 convertRGBtoXYZ ()
@@ -30,8 +30,8 @@ convertRGBtoXYZ ()
     cout << "conversion from RGB to XYZ" << endl;
 
     Chromaticities c;
-    float Y = 100;
-    M44f M1 = RGBtoXYZ (c, Y);
+    float          Y  = 100;
+    M44f           M1 = RGBtoXYZ (c, Y);
 
     V3f R1 = V3f (1, 0, 0) * M1;
     V3f G1 = V3f (0, 1, 0) * M1;
@@ -79,7 +79,6 @@ convertRGBtoXYZ ()
     assert (W2.equalWithAbsError (V3f (1, 1, 1), 1e-3F));
 }
 
-
 void
 writeReadChromaticities (const char fileName[])
 {
@@ -87,7 +86,7 @@ writeReadChromaticities (const char fileName[])
 
     cout << "writing, ";
 
-    Chromaticities c1 (V2f (1, 2), V2f (3, 4), V2f (5, 6), V2f (7, 8));
+    Chromaticities   c1 (V2f (1, 2), V2f (3, 4), V2f (5, 6), V2f (7, 8));
     static const int W = 100;
     static const int H = 100;
 
@@ -98,37 +97,36 @@ writeReadChromaticities (const char fileName[])
     assert (hasChromaticities (header) == true);
 
     {
-	RgbaOutputFile out (fileName, header);
-	Rgba pixels[W];
+        RgbaOutputFile out (fileName, header);
+        Rgba           pixels[W];
 
-	for (int i = 0; i < W; ++i)
-	{
-	    pixels[i].r = 1;
-	    pixels[i].g = 1;
-	    pixels[i].b = 1;
-	    pixels[i].a = 1;
-	}
+        for (int i = 0; i < W; ++i)
+        {
+            pixels[i].r = 1;
+            pixels[i].g = 1;
+            pixels[i].b = 1;
+            pixels[i].a = 1;
+        }
 
-	out.setFrameBuffer (pixels, 1, 0);
-	out.writePixels (H);
+        out.setFrameBuffer (pixels, 1, 0);
+        out.writePixels (H);
     }
 
     cout << "reading, comparing" << endl;
 
     {
-	RgbaInputFile in (fileName);
-	const Chromaticities &c2 = chromaticities (in.header());
+        RgbaInputFile         in (fileName);
+        const Chromaticities& c2 = chromaticities (in.header ());
 
-	assert (hasChromaticities (in.header()) == true);
-	assert (c1.red == c2.red);
-	assert (c1.green == c2.green);
-	assert (c1.blue == c2.blue);
-	assert (c1.white == c2.white);
+        assert (hasChromaticities (in.header ()) == true);
+        assert (c1.red == c2.red);
+        assert (c1.green == c2.green);
+        assert (c1.blue == c2.blue);
+        assert (c1.white == c2.white);
     }
 
     remove (fileName);
 }
-
 
 void
 latLongMap (const char fileName1[], const char fileName2[])
@@ -143,81 +141,81 @@ latLongMap (const char fileName1[], const char fileName2[])
     V2f pos;
 
     pos = LatLongMap::latLong (V3f (0, 1, 0));
-    assert (equalWithAbsError (pos.x, float (M_PI/2), 1e-6f));
+    assert (equalWithAbsError (pos.x, float (M_PI / 2), 1e-6f));
 
     pos = LatLongMap::latLong (V3f (0, -1, 0));
-    assert (equalWithAbsError (pos.x, float (-M_PI/2), 1e-6f));
+    assert (equalWithAbsError (pos.x, float (-M_PI / 2), 1e-6f));
 
     pos = LatLongMap::latLong (V3f (0, 0, 1));
     assert (pos.equalWithAbsError (V2f (0, 0), 1e-6f));
 
     pos = LatLongMap::latLong (V3f (1, 0, 0));
-    assert (pos.equalWithAbsError (V2f (0, M_PI/2), 1e-6f));
+    assert (pos.equalWithAbsError (V2f (0, M_PI / 2), 1e-6f));
 
     pos = LatLongMap::latLong (V3f (-1, 0, 0));
-    assert (pos.equalWithAbsError (V2f (0, -M_PI/2), 1e-6f));
+    assert (pos.equalWithAbsError (V2f (0, -M_PI / 2), 1e-6f));
 
     pos = LatLongMap::latLong (V3f (0, 1, 1));
-    assert (pos.equalWithAbsError (V2f (M_PI/4, 0), 1e-6f));
+    assert (pos.equalWithAbsError (V2f (M_PI / 4, 0), 1e-6f));
 
     pos = LatLongMap::latLong (V3f (0, -1, 1));
-    assert (pos.equalWithAbsError (V2f (-M_PI/4, 0), 1e-6f));
+    assert (pos.equalWithAbsError (V2f (-M_PI / 4, 0), 1e-6f));
 
-    pos = LatLongMap::pixelPosition (header.dataWindow(), V2f (M_PI/2, M_PI));
+    pos =
+        LatLongMap::pixelPosition (header.dataWindow (), V2f (M_PI / 2, M_PI));
     assert (pos.equalWithAbsError (V2f (0, 0), 1e-6f * W));
 
-    pos = LatLongMap::pixelPosition(header.dataWindow(), V2f (-M_PI/2, -M_PI));
-    assert (pos.equalWithAbsError (V2f (header.dataWindow().max), 1e-6f * W));
+    pos = LatLongMap::pixelPosition (
+        header.dataWindow (), V2f (-M_PI / 2, -M_PI));
+    assert (pos.equalWithAbsError (V2f (header.dataWindow ().max), 1e-6f * W));
 
     Array2D<Rgba> pixels (H, W);
 
     for (int y = 0; y < H; ++y)
     {
-	for (int x = 0; x < W; ++x)
-	{
-	    Rgba &p = pixels[y][x];
-	    V3f dir = LatLongMap::direction (header.dataWindow(), V2f (x, y));
+        for (int x = 0; x < W; ++x)
+        {
+            Rgba& p = pixels[y][x];
+            V3f dir = LatLongMap::direction (header.dataWindow (), V2f (x, y));
 
-	    p.r = dir.x + 1;
-	    p.g = dir.y + 1;
-	    p.b = dir.z + 1;
-	}
+            p.r = dir.x + 1;
+            p.g = dir.y + 1;
+            p.b = dir.z + 1;
+        }
     }
 
     {
-	RgbaOutputFile out (fileName1, header, WRITE_RGB);
-	out.setFrameBuffer (&pixels[0][0], 1, W);
-	out.writePixels (H);
+        RgbaOutputFile out (fileName1, header, WRITE_RGB);
+        out.setFrameBuffer (&pixels[0][0], 1, W);
+        out.writePixels (H);
     }
 
     Rand48 rand (0);
 
     for (int i = 0; i < W * H * 3; ++i)
     {
-	V3f dir = hollowSphereRand<V3f> (rand);
-	V2f pos = LatLongMap::pixelPosition (header.dataWindow(), dir);
+        V3f dir = hollowSphereRand<V3f> (rand);
+        V2f pos = LatLongMap::pixelPosition (header.dataWindow (), dir);
 
-	Rgba &p = pixels[int (pos.y + 0.5)][int (pos.x + 0.5)];
+        Rgba& p = pixels[int (pos.y + 0.5)][int (pos.x + 0.5)];
 
-	p.r = (dir.x + 1) * 0.8;
-	p.g = (dir.y + 1) * 0.8;
-	p.b = (dir.z + 1) * 0.8;
+        p.r = (dir.x + 1) * 0.8;
+        p.g = (dir.y + 1) * 0.8;
+        p.b = (dir.z + 1) * 0.8;
 
-	V3f dir1 = LatLongMap::direction (header.dataWindow(), pos);
-	assert (dir.equalWithAbsError (dir1.normalized(), 1e-5f));
+        V3f dir1 = LatLongMap::direction (header.dataWindow (), pos);
+        assert (dir.equalWithAbsError (dir1.normalized (), 1e-5f));
     }
 
     {
-	RgbaOutputFile out (fileName2, header, WRITE_RGB);
-	out.setFrameBuffer (&pixels[0][0], 1, W);
-	out.writePixels (H);
+        RgbaOutputFile out (fileName2, header, WRITE_RGB);
+        out.setFrameBuffer (&pixels[0][0], 1, W);
+        out.writePixels (H);
     }
-
 
     remove (fileName1);
     remove (fileName2);
 }
-
 
 void
 cubeMap (const char fileName1[], const char fileName2[])
@@ -230,70 +228,64 @@ cubeMap (const char fileName1[], const char fileName2[])
     Header header (W, H);
     addEnvmap (header, ENVMAP_CUBE);
 
-    int sof = CubeMap::sizeOfFace (header.dataWindow());
+    int sof = CubeMap::sizeOfFace (header.dataWindow ());
 
     assert (sof == N);
 
     for (int face1 = 0; face1 < 6; ++face1)
     {
-	Box2i dw1 = CubeMap::dataWindowForFace (CubeMapFace (face1),
-						header.dataWindow());
+        Box2i dw1 = CubeMap::dataWindowForFace (
+            CubeMapFace (face1), header.dataWindow ());
 
-	assert (dw1.max.x - dw1.min.x == sof - 1);
-	assert (dw1.max.y - dw1.min.y == sof - 1);
-	assert (header.dataWindow().intersects (dw1.min));
-	assert (header.dataWindow().intersects (dw1.max));
+        assert (dw1.max.x - dw1.min.x == sof - 1);
+        assert (dw1.max.y - dw1.min.y == sof - 1);
+        assert (header.dataWindow ().intersects (dw1.min));
+        assert (header.dataWindow ().intersects (dw1.max));
 
-	for (int face2 = face1 + 1; face2 < 6; ++face2)
-	{
-	    Box2i dw2 = CubeMap::dataWindowForFace (CubeMapFace (face2),
-						    header.dataWindow());
-	    assert (!dw1.intersects (dw2));
-	}
+        for (int face2 = face1 + 1; face2 < 6; ++face2)
+        {
+            Box2i dw2 = CubeMap::dataWindowForFace (
+                CubeMapFace (face2), header.dataWindow ());
+            assert (!dw1.intersects (dw2));
+        }
     }
 
     CubeMapFace face;
-    V2f pos;
+    V2f         pos;
 
-    CubeMap::faceAndPixelPosition (V3f (1, 0, 0),
-				   header.dataWindow(),
-				   face, pos);
-    
+    CubeMap::faceAndPixelPosition (
+        V3f (1, 0, 0), header.dataWindow (), face, pos);
+
     assert (face == CUBEFACE_POS_X);
     assert (pos.equalWithAbsError (V2f ((sof - 1), (sof - 1)) / 2, 1e-6 * W));
 
-    CubeMap::faceAndPixelPosition (V3f (-1, 0, 0),
-	                           header.dataWindow(),
-				   face, pos);
-    
+    CubeMap::faceAndPixelPosition (
+        V3f (-1, 0, 0), header.dataWindow (), face, pos);
+
     assert (face == CUBEFACE_NEG_X);
     assert (pos.equalWithAbsError (V2f ((sof - 1), (sof - 1)) / 2, 1e-6 * W));
 
-    CubeMap::faceAndPixelPosition (V3f (0, 1, 0),
-	    			   header.dataWindow(),
-				   face, pos);
-    
+    CubeMap::faceAndPixelPosition (
+        V3f (0, 1, 0), header.dataWindow (), face, pos);
+
     assert (face == CUBEFACE_POS_Y);
     assert (pos.equalWithAbsError (V2f ((sof - 1), (sof - 1)) / 2, 1e-6 * W));
 
-    CubeMap::faceAndPixelPosition (V3f (0, -1, 0),
-	    			   header.dataWindow(),
-				   face, pos);
-    
+    CubeMap::faceAndPixelPosition (
+        V3f (0, -1, 0), header.dataWindow (), face, pos);
+
     assert (face == CUBEFACE_NEG_Y);
     assert (pos.equalWithAbsError (V2f ((sof - 1), (sof - 1)) / 2, 1e-6 * W));
 
-    CubeMap::faceAndPixelPosition (V3f (0, 0, 1),
-	    			   header.dataWindow(),
-				   face, pos);
-    
+    CubeMap::faceAndPixelPosition (
+        V3f (0, 0, 1), header.dataWindow (), face, pos);
+
     assert (face == CUBEFACE_POS_Z);
     assert (pos.equalWithAbsError (V2f ((sof - 1), (sof - 1)) / 2, 1e-6 * W));
 
-    CubeMap::faceAndPixelPosition (V3f (0, 0, -1),
-	    			   header.dataWindow(),
-				   face, pos);
-    
+    CubeMap::faceAndPixelPosition (
+        V3f (0, 0, -1), header.dataWindow (), face, pos);
+
     assert (face == CUBEFACE_NEG_Z);
     assert (pos.equalWithAbsError (V2f ((sof - 1), (sof - 1)) / 2, 1e-6 * W));
 
@@ -301,85 +293,82 @@ cubeMap (const char fileName1[], const char fileName2[])
 
     for (int y = 0; y < H; ++y)
     {
-	for (int x = 0; x < W; ++x)
-	{
-	    Rgba &p = pixels[y][x];
-	    p.r = p.g = p.b = 0;
-	}
+        for (int x = 0; x < W; ++x)
+        {
+            Rgba& p = pixels[y][x];
+            p.r = p.g = p.b = 0;
+        }
     }
 
     for (int face = 0; face < 6; ++face)
     {
-	for (int y = 0; y < sof; ++y)
-	{
-	    for (int x = 0; x < sof; ++x)
-	    {
-		V2f px = CubeMap::pixelPosition (CubeMapFace (face),
-						 header.dataWindow(),
-						 V2f (x, y));
+        for (int y = 0; y < sof; ++y)
+        {
+            for (int x = 0; x < sof; ++x)
+            {
+                V2f px = CubeMap::pixelPosition (
+                    CubeMapFace (face), header.dataWindow (), V2f (x, y));
 
-		Rgba &p = pixels[int (px.y + 0.5)][int (px.x + 0.5)];
+                Rgba& p = pixels[int (px.y + 0.5)][int (px.x + 0.5)];
 
-		V3f dir = CubeMap::direction (CubeMapFace (face),
-			                      header.dataWindow(),
-					      V2f (x, y));
-		dir.normalize();
+                V3f dir = CubeMap::direction (
+                    CubeMapFace (face), header.dataWindow (), V2f (x, y));
+                dir.normalize ();
 
-		p.r = dir.x + 1;
-		p.g = dir.y + 1;
-		p.b = dir.z + 1;
-	    }
-	}
+                p.r = dir.x + 1;
+                p.g = dir.y + 1;
+                p.b = dir.z + 1;
+            }
+        }
     }
 
     {
-	RgbaOutputFile out (fileName1, header, WRITE_RGB);
-	out.setFrameBuffer (&pixels[0][0], 1, W);
-	out.writePixels (H);
+        RgbaOutputFile out (fileName1, header, WRITE_RGB);
+        out.setFrameBuffer (&pixels[0][0], 1, W);
+        out.writePixels (H);
     }
 
     for (int y = 0; y < H; ++y)
     {
-	for (int x = 0; x < W; ++x)
-	{
-	    Rgba &p = pixels[y][x];
-	    assert (p.r != 0 || p.g != 0 || p.b != 0);
-	}
+        for (int x = 0; x < W; ++x)
+        {
+            Rgba& p = pixels[y][x];
+            assert (p.r != 0 || p.g != 0 || p.b != 0);
+        }
     }
 
     Rand48 rand (0);
 
     for (int i = 0; i < W * H * 3; ++i)
     {
-	V3f dir = hollowSphereRand<V3f> (rand);
+        V3f dir = hollowSphereRand<V3f> (rand);
 
-	CubeMapFace face;
-	V2f pif;
+        CubeMapFace face;
+        V2f         pif;
 
-	CubeMap::faceAndPixelPosition (dir, header.dataWindow(), face, pif);
+        CubeMap::faceAndPixelPosition (dir, header.dataWindow (), face, pif);
 
-	V2f pos = CubeMap::pixelPosition (face, header.dataWindow(), pif);
+        V2f pos = CubeMap::pixelPosition (face, header.dataWindow (), pif);
 
-	Rgba &p = pixels[int (pos.y + 0.5)][int (pos.x + 0.5)];
+        Rgba& p = pixels[int (pos.y + 0.5)][int (pos.x + 0.5)];
 
-	p.r = (dir.x + 1) * 0.8;
-	p.g = (dir.y + 1) * 0.8;
-	p.b = (dir.z + 1) * 0.8;
+        p.r = (dir.x + 1) * 0.8;
+        p.g = (dir.y + 1) * 0.8;
+        p.b = (dir.z + 1) * 0.8;
 
-	V3f dir1 = CubeMap::direction (face, header.dataWindow(), pif);
-	assert (dir.equalWithAbsError (dir1.normalized(), 1e-6f));
+        V3f dir1 = CubeMap::direction (face, header.dataWindow (), pif);
+        assert (dir.equalWithAbsError (dir1.normalized (), 1e-6f));
     }
 
     {
-	RgbaOutputFile out (fileName2, header, WRITE_RGB);
-	out.setFrameBuffer (&pixels[0][0], 1, W);
-	out.writePixels (H);
+        RgbaOutputFile out (fileName2, header, WRITE_RGB);
+        out.setFrameBuffer (&pixels[0][0], 1, W);
+        out.writePixels (H);
     }
 
     remove (fileName1);
     remove (fileName2);
 }
-
 
 void
 writeReadKeyCode (const char fileName[])
@@ -388,21 +377,22 @@ writeReadKeyCode (const char fileName[])
 
     cout << "writing, ";
 
-    KeyCode k1 (12,	// filmMfcCode
-	        34,	// filmType
-		123456,	// prefix
-		1234,	// count
-		45,	// perfOffset
-		3,	// perfsPerFrame
-		80);	// perfsPerCount
+    KeyCode k1 (
+        12,     // filmMfcCode
+        34,     // filmType
+        123456, // prefix
+        1234,   // count
+        45,     // perfOffset
+        3,      // perfsPerFrame
+        80);    // perfsPerCount
 
-    assert (k1.filmMfcCode() == 12);
-    assert (k1.filmType() == 34);
-    assert (k1.prefix() == 123456);
-    assert (k1.count() == 1234);
-    assert (k1.perfOffset() == 45);
-    assert (k1.perfsPerFrame() == 3);
-    assert (k1.perfsPerCount() == 80);
+    assert (k1.filmMfcCode () == 12);
+    assert (k1.filmType () == 34);
+    assert (k1.prefix () == 123456);
+    assert (k1.count () == 1234);
+    assert (k1.perfOffset () == 45);
+    assert (k1.perfsPerFrame () == 3);
+    assert (k1.perfsPerCount () == 80);
 
     static const int W = 100;
     static const int H = 100;
@@ -414,40 +404,39 @@ writeReadKeyCode (const char fileName[])
     assert (hasKeyCode (header) == true);
 
     {
-	RgbaOutputFile out (fileName, header);
-	Rgba pixels[W];
+        RgbaOutputFile out (fileName, header);
+        Rgba           pixels[W];
 
-	for (int i = 0; i < W; ++i)
-	{
-	    pixels[i].r = 1;
-	    pixels[i].g = 1;
-	    pixels[i].b = 1;
-	    pixels[i].a = 1;
-	}
+        for (int i = 0; i < W; ++i)
+        {
+            pixels[i].r = 1;
+            pixels[i].g = 1;
+            pixels[i].b = 1;
+            pixels[i].a = 1;
+        }
 
-	out.setFrameBuffer (pixels, 1, 0);
-	out.writePixels (H);
+        out.setFrameBuffer (pixels, 1, 0);
+        out.writePixels (H);
     }
 
     cout << "reading, comparing" << endl;
 
     {
-	RgbaInputFile in (fileName);
-	const KeyCode &k2 = keyCode (in.header());
+        RgbaInputFile  in (fileName);
+        const KeyCode& k2 = keyCode (in.header ());
 
-	assert (hasKeyCode (in.header()) == true);
-	assert (k1.filmMfcCode() == k2.filmMfcCode());
-	assert (k1.filmType() == k2.filmType());
-	assert (k1.prefix() == k2.prefix());
-	assert (k1.count() == k2.count());
-	assert (k1.perfOffset() == k2.perfOffset());
-	assert (k1.perfsPerFrame() == k2.perfsPerFrame());
-	assert (k1.perfsPerCount() == k2.perfsPerCount());
+        assert (hasKeyCode (in.header ()) == true);
+        assert (k1.filmMfcCode () == k2.filmMfcCode ());
+        assert (k1.filmType () == k2.filmType ());
+        assert (k1.prefix () == k2.prefix ());
+        assert (k1.count () == k2.count ());
+        assert (k1.perfOffset () == k2.perfOffset ());
+        assert (k1.perfsPerFrame () == k2.perfsPerFrame ());
+        assert (k1.perfsPerCount () == k2.perfsPerCount ());
     }
 
     remove (fileName);
 }
-
 
 void
 timeCodeMethods ()
@@ -456,185 +445,185 @@ timeCodeMethods ()
 
     TimeCode t;
 
-    assert (t.timeAndFlags() == 0);
-    assert (t.userData() == 0);
+    assert (t.timeAndFlags () == 0);
+    assert (t.userData () == 0);
 
     // Frames
 
     t.setTimeAndFlags (0x00000000);
     t.setFrame (29);
-    assert (t.frame() == 29);
-    assert (t.timeAndFlags() == 0x00000029);
+    assert (t.frame () == 29);
+    assert (t.timeAndFlags () == 0x00000029);
 
     t.setTimeAndFlags (0xffffffff);
     t.setFrame (0);
-    assert (t.frame() == 0);
-    assert (t.timeAndFlags() == 0xffffffc0);
+    assert (t.frame () == 0);
+    assert (t.timeAndFlags () == 0xffffffc0);
 
     // Seconds
 
     t.setTimeAndFlags (0x00000000);
     t.setSeconds (59);
-    assert (t.seconds() == 59);
-    assert (t.timeAndFlags() == 0x00005900);
+    assert (t.seconds () == 59);
+    assert (t.timeAndFlags () == 0x00005900);
 
     t.setTimeAndFlags (0xffffffff);
     t.setSeconds (0);
-    assert (t.seconds() == 0);
-    assert (t.timeAndFlags() == 0xffff80ff);
+    assert (t.seconds () == 0);
+    assert (t.timeAndFlags () == 0xffff80ff);
 
     // Minutes
 
     t.setTimeAndFlags (0x00000000);
     t.setMinutes (59);
-    assert (t.minutes() == 59);
-    assert (t.timeAndFlags() == 0x00590000);
+    assert (t.minutes () == 59);
+    assert (t.timeAndFlags () == 0x00590000);
 
     t.setTimeAndFlags (0xffffffff);
     t.setMinutes (0);
-    assert (t.minutes() == 0);
-    assert (t.timeAndFlags() == 0xff80ffff);
+    assert (t.minutes () == 0);
+    assert (t.timeAndFlags () == 0xff80ffff);
 
     // Hours
 
     t.setTimeAndFlags (0x00000000);
     t.setHours (23);
-    assert (t.hours() == 23);
-    assert (t.timeAndFlags() == 0x23000000);
+    assert (t.hours () == 23);
+    assert (t.timeAndFlags () == 0x23000000);
 
     t.setTimeAndFlags (0xffffffff);
     t.setHours (0);
-    assert (t.hours() == 0);
-    assert (t.timeAndFlags() == 0xc0ffffff);
+    assert (t.hours () == 0);
+    assert (t.timeAndFlags () == 0xc0ffffff);
 
     // Drop frame flag
 
     t.setTimeAndFlags (0x00000000);
     t.setDropFrame (true);
-    assert (t.dropFrame() == true);
-    assert (t.timeAndFlags() == 0x00000040);
+    assert (t.dropFrame () == true);
+    assert (t.timeAndFlags () == 0x00000040);
 
     t.setTimeAndFlags (0xffffffff);
     t.setDropFrame (false);
-    assert (t.dropFrame() == false);
-    assert (t.timeAndFlags() == 0xffffffbf);
+    assert (t.dropFrame () == false);
+    assert (t.timeAndFlags () == 0xffffffbf);
 
     // Color frame flag
 
     t.setTimeAndFlags (0x00000000);
     t.setColorFrame (true);
-    assert (t.colorFrame() == true);
-    assert (t.timeAndFlags() == 0x00000080);
+    assert (t.colorFrame () == true);
+    assert (t.timeAndFlags () == 0x00000080);
 
     t.setTimeAndFlags (0xffffffff);
     t.setColorFrame (false);
-    assert (t.colorFrame() == false);
-    assert (t.timeAndFlags() == 0xffffff7f);
+    assert (t.colorFrame () == false);
+    assert (t.timeAndFlags () == 0xffffff7f);
 
     // Field/phase flag
 
     t.setTimeAndFlags (0x00000000);
     t.setFieldPhase (true);
-    assert (t.fieldPhase() == true);
-    assert (t.timeAndFlags (TimeCode::TV60_PACKING)   == 0x00008000);
-    assert (t.timeAndFlags (TimeCode::TV50_PACKING)   == 0x80000000);
+    assert (t.fieldPhase () == true);
+    assert (t.timeAndFlags (TimeCode::TV60_PACKING) == 0x00008000);
+    assert (t.timeAndFlags (TimeCode::TV50_PACKING) == 0x80000000);
     assert (t.timeAndFlags (TimeCode::FILM24_PACKING) == 0x00008000);
 
     t.setTimeAndFlags (0xffffffff);
     t.setFieldPhase (false);
-    assert (t.fieldPhase() == false);
-    assert (t.timeAndFlags (TimeCode::TV60_PACKING)   == 0xffff7fff);
-    assert (t.timeAndFlags (TimeCode::TV50_PACKING)   == 0x7fffffbf);
+    assert (t.fieldPhase () == false);
+    assert (t.timeAndFlags (TimeCode::TV60_PACKING) == 0xffff7fff);
+    assert (t.timeAndFlags (TimeCode::TV50_PACKING) == 0x7fffffbf);
     assert (t.timeAndFlags (TimeCode::FILM24_PACKING) == 0xffff7f3f);
 
     t.setTimeAndFlags (0x23595929 | 0x00008000, TimeCode::TV60_PACKING);
-    assert (t.timeAndFlags() == (0x23595929 | 0x00008000));
+    assert (t.timeAndFlags () == (0x23595929 | 0x00008000));
 
     t.setTimeAndFlags (0x23595929 | 0x80000000, TimeCode::TV50_PACKING);
-    assert (t.timeAndFlags() == (0x23595929 | 0x00008000));
+    assert (t.timeAndFlags () == (0x23595929 | 0x00008000));
 
     t.setTimeAndFlags (0x23595929 | 0x00008000, TimeCode::FILM24_PACKING);
-    assert (t.timeAndFlags() == (0x23595929 | 0x00008000));
+    assert (t.timeAndFlags () == (0x23595929 | 0x00008000));
 
     // bgf0
 
     t.setTimeAndFlags (0x00000000);
     t.setBgf0 (true);
-    assert (t.bgf0() == true);
-    assert (t.timeAndFlags (TimeCode::TV60_PACKING)   == 0x00800000);
-    assert (t.timeAndFlags (TimeCode::TV50_PACKING)   == 0x00008000);
+    assert (t.bgf0 () == true);
+    assert (t.timeAndFlags (TimeCode::TV60_PACKING) == 0x00800000);
+    assert (t.timeAndFlags (TimeCode::TV50_PACKING) == 0x00008000);
     assert (t.timeAndFlags (TimeCode::FILM24_PACKING) == 0x00800000);
 
     t.setTimeAndFlags (0xffffffff);
     t.setBgf0 (false);
-    assert (t.bgf0() == false);
-    assert (t.timeAndFlags (TimeCode::TV60_PACKING)   == 0xff7fffff);
-    assert (t.timeAndFlags (TimeCode::TV50_PACKING)   == 0xffff7fbf);
+    assert (t.bgf0 () == false);
+    assert (t.timeAndFlags (TimeCode::TV60_PACKING) == 0xff7fffff);
+    assert (t.timeAndFlags (TimeCode::TV50_PACKING) == 0xffff7fbf);
     assert (t.timeAndFlags (TimeCode::FILM24_PACKING) == 0xff7fff3f);
 
     t.setTimeAndFlags (0x23595929 | 0x00800000, TimeCode::TV60_PACKING);
-    assert (t.timeAndFlags() == (0x23595929 | 0x00800000));
+    assert (t.timeAndFlags () == (0x23595929 | 0x00800000));
 
     t.setTimeAndFlags (0x23595929 | 0x00008000, TimeCode::TV50_PACKING);
-    assert (t.timeAndFlags() == (0x23595929 | 0x00800000));
+    assert (t.timeAndFlags () == (0x23595929 | 0x00800000));
 
     t.setTimeAndFlags (0x23595929 | 0x00800000, TimeCode::FILM24_PACKING);
-    assert (t.timeAndFlags() == (0x23595929 | 0x00800000));
+    assert (t.timeAndFlags () == (0x23595929 | 0x00800000));
 
     // bgf1
 
     t.setTimeAndFlags (0x00000000);
     t.setBgf1 (true);
-    assert (t.bgf1() == true);
-    assert (t.timeAndFlags (TimeCode::TV60_PACKING)   == 0x40000000);
-    assert (t.timeAndFlags (TimeCode::TV50_PACKING)   == 0x40000000);
+    assert (t.bgf1 () == true);
+    assert (t.timeAndFlags (TimeCode::TV60_PACKING) == 0x40000000);
+    assert (t.timeAndFlags (TimeCode::TV50_PACKING) == 0x40000000);
     assert (t.timeAndFlags (TimeCode::FILM24_PACKING) == 0x40000000);
 
     t.setTimeAndFlags (0xffffffff);
     t.setBgf1 (false);
-    assert (t.bgf1() == false);
-    assert (t.timeAndFlags (TimeCode::TV60_PACKING)   == 0xbfffffff);
-    assert (t.timeAndFlags (TimeCode::TV50_PACKING)   == 0xbfffffbf);
+    assert (t.bgf1 () == false);
+    assert (t.timeAndFlags (TimeCode::TV60_PACKING) == 0xbfffffff);
+    assert (t.timeAndFlags (TimeCode::TV50_PACKING) == 0xbfffffbf);
     assert (t.timeAndFlags (TimeCode::FILM24_PACKING) == 0xbfffff3f);
 
     t.setTimeAndFlags (0x23595929 | 0x40000000, TimeCode::TV60_PACKING);
-    assert (t.timeAndFlags() == (0x23595929 | 0x40000000));
+    assert (t.timeAndFlags () == (0x23595929 | 0x40000000));
 
     t.setTimeAndFlags (0x23595929 | 0x40000000, TimeCode::TV50_PACKING);
-    assert (t.timeAndFlags() == (0x23595929 | 0x40000000));
+    assert (t.timeAndFlags () == (0x23595929 | 0x40000000));
 
     t.setTimeAndFlags (0x23595929 | 0x40000000, TimeCode::FILM24_PACKING);
-    assert (t.timeAndFlags() == (0x23595929 | 0x40000000));
+    assert (t.timeAndFlags () == (0x23595929 | 0x40000000));
 
     // bgf2
 
     t.setTimeAndFlags (0x00000000);
     t.setBgf2 (true);
-    assert (t.bgf2() == true);
-    assert (t.timeAndFlags (TimeCode::TV60_PACKING)   == 0x80000000);
-    assert (t.timeAndFlags (TimeCode::TV50_PACKING)   == 0x00800000);
+    assert (t.bgf2 () == true);
+    assert (t.timeAndFlags (TimeCode::TV60_PACKING) == 0x80000000);
+    assert (t.timeAndFlags (TimeCode::TV50_PACKING) == 0x00800000);
     assert (t.timeAndFlags (TimeCode::FILM24_PACKING) == 0x80000000);
 
     t.setTimeAndFlags (0xffffffff);
     t.setBgf2 (false);
-    assert (t.bgf2() == false);
-    assert (t.timeAndFlags (TimeCode::TV60_PACKING)   == 0x7fffffff);
-    assert (t.timeAndFlags (TimeCode::TV50_PACKING)   == 0xff7fffbf);
+    assert (t.bgf2 () == false);
+    assert (t.timeAndFlags (TimeCode::TV60_PACKING) == 0x7fffffff);
+    assert (t.timeAndFlags (TimeCode::TV50_PACKING) == 0xff7fffbf);
     assert (t.timeAndFlags (TimeCode::FILM24_PACKING) == 0x7fffff3f);
 
     t.setTimeAndFlags (0x23595929 | 0x80000000, TimeCode::TV60_PACKING);
-    assert (t.timeAndFlags() == (0x23595929 | 0x80000000));
+    assert (t.timeAndFlags () == (0x23595929 | 0x80000000));
 
     t.setTimeAndFlags (0x23595929 | 0x00800000, TimeCode::TV50_PACKING);
-    assert (t.timeAndFlags() == (0x23595929 | 0x80000000));
+    assert (t.timeAndFlags () == (0x23595929 | 0x80000000));
 
     t.setTimeAndFlags (0x23595929 | 0x80000000, TimeCode::FILM24_PACKING);
-    assert (t.timeAndFlags() == (0x23595929 | 0x80000000));
+    assert (t.timeAndFlags () == (0x23595929 | 0x80000000));
 
     // User-defined data
-    
+
     t.setUserData (0x87654321);
-    assert (t.userData() == 0x87654321);
+    assert (t.userData () == 0x87654321);
 
     assert (t.binaryGroup (1) == 1);
     assert (t.binaryGroup (2) == 2);
@@ -653,20 +642,34 @@ timeCodeMethods ()
     t.setBinaryGroup (7, 8);
     t.setBinaryGroup (8, 9);
 
-    assert (t.userData() == 0x98765432);
-    
+    assert (t.userData () == 0x98765432);
+
     // Assignment
 
-    TimeCode t1 (12, 17, 57, 14,	   // hours, minutes, seconds, frame
-		 false, false, false,	   // dropFrame, colorFrame, fieldPhase
-		 false, false, false,	   // bgf0, bgf1, bgf2
-		 1, 2, 3, 4, 5, 6, 7, 8);  // binary groups 1 to 8
+    TimeCode t1 (
+        12,
+        17,
+        57,
+        14, // hours, minutes, seconds, frame
+        false,
+        false,
+        false, // dropFrame, colorFrame, fieldPhase
+        false,
+        false,
+        false, // bgf0, bgf1, bgf2
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8); // binary groups 1 to 8
     t = t1;
 
-    assert (t.timeAndFlags() == 0x12175714);
-    assert (t.userData() == 0x87654321);
+    assert (t.timeAndFlags () == 0x12175714);
+    assert (t.userData () == 0x87654321);
 }
-
 
 void
 writeReadTimeCode (const char fileName[])
@@ -678,7 +681,7 @@ writeReadTimeCode (const char fileName[])
     TimeCode t1 (0x23595829, 0x12345678, TimeCode::FILM24_PACKING);
 
     assert (t1.timeAndFlags (TimeCode::FILM24_PACKING) == 0x23595829);
-    assert (t1.userData() == 0x12345678);
+    assert (t1.userData () == 0x12345678);
 
     static const int W = 100;
     static const int H = 100;
@@ -690,42 +693,40 @@ writeReadTimeCode (const char fileName[])
     assert (hasTimeCode (header) == true);
 
     {
-	RgbaOutputFile out (fileName, header);
-	Rgba pixels[W];
+        RgbaOutputFile out (fileName, header);
+        Rgba           pixels[W];
 
-	for (int i = 0; i < W; ++i)
-	{
-	    pixels[i].r = 1;
-	    pixels[i].g = 1;
-	    pixels[i].b = 1;
-	    pixels[i].a = 1;
-	}
+        for (int i = 0; i < W; ++i)
+        {
+            pixels[i].r = 1;
+            pixels[i].g = 1;
+            pixels[i].b = 1;
+            pixels[i].a = 1;
+        }
 
-	out.setFrameBuffer (pixels, 1, 0);
-	out.writePixels (H);
+        out.setFrameBuffer (pixels, 1, 0);
+        out.writePixels (H);
     }
 
     cout << "reading, comparing" << endl;
 
     {
-	RgbaInputFile in (fileName);
-	const TimeCode &t2 = timeCode (in.header());
+        RgbaInputFile   in (fileName);
+        const TimeCode& t2 = timeCode (in.header ());
 
-	assert (hasTimeCode (in.header()) == true);
-	assert (t1.timeAndFlags() == t2.timeAndFlags());
-	assert (t1.userData() == t2.userData());
+        assert (hasTimeCode (in.header ()) == true);
+        assert (t1.timeAndFlags () == t2.timeAndFlags ());
+        assert (t1.userData () == t2.userData ());
     }
 
     remove (fileName);
 }
 
-
 bool
-equal (const Rational &a, const Rational &b)
+equal (const Rational& a, const Rational& b)
 {
     return a.n == b.n && a.d == b.d;
 }
-
 
 void
 rationalMethods ()
@@ -768,19 +769,18 @@ rationalMethods ()
     Rational r11 (double ((1U << 30) - 1));
     assert (r11 == double ((1U << 30) - 1));
 
-    assert (equal (guessExactFps (23.976), fps_23_976()));
-    assert (equal (guessExactFps (24.000), fps_24()));
-    assert (equal (guessExactFps (25.000), fps_25()));
-    assert (equal (guessExactFps (29.970), fps_29_97()));
-    assert (equal (guessExactFps (30.000), fps_30()));
-    assert (equal (guessExactFps (47.952), fps_47_952()));
-    assert (equal (guessExactFps (48.000), fps_48()));
-    assert (equal (guessExactFps (50.000), fps_50()));
-    assert (equal (guessExactFps (59.940), fps_59_94()));
-    assert (equal (guessExactFps (60.000), fps_60()));
+    assert (equal (guessExactFps (23.976), fps_23_976 ()));
+    assert (equal (guessExactFps (24.000), fps_24 ()));
+    assert (equal (guessExactFps (25.000), fps_25 ()));
+    assert (equal (guessExactFps (29.970), fps_29_97 ()));
+    assert (equal (guessExactFps (30.000), fps_30 ()));
+    assert (equal (guessExactFps (47.952), fps_47_952 ()));
+    assert (equal (guessExactFps (48.000), fps_48 ()));
+    assert (equal (guessExactFps (50.000), fps_50 ()));
+    assert (equal (guessExactFps (59.940), fps_59_94 ()));
+    assert (equal (guessExactFps (60.000), fps_60 ()));
     assert (equal (guessExactFps (70.500), Rational (141, 2)));
 }
-
 
 void
 writeReadRational (const char fileName[])
@@ -800,39 +800,38 @@ writeReadRational (const char fileName[])
     header.insert ("r2", RationalAttribute (r2));
 
     {
-	RgbaOutputFile out (fileName, header);
-	Rgba pixels[W];
+        RgbaOutputFile out (fileName, header);
+        Rgba           pixels[W];
 
-	for (int i = 0; i < W; ++i)
-	{
-	    pixels[i].r = 1;
-	    pixels[i].g = 1;
-	    pixels[i].b = 1;
-	    pixels[i].a = 1;
-	}
+        for (int i = 0; i < W; ++i)
+        {
+            pixels[i].r = 1;
+            pixels[i].g = 1;
+            pixels[i].b = 1;
+            pixels[i].a = 1;
+        }
 
-	out.setFrameBuffer (pixels, 1, 0);
-	out.writePixels (H);
+        out.setFrameBuffer (pixels, 1, 0);
+        out.writePixels (H);
     }
 
     cout << "reading, comparing" << endl;
 
     {
-	RgbaInputFile in (fileName);
+        RgbaInputFile in (fileName);
 
-	const Rational &r3 =
-	    in.header().typedAttribute<RationalAttribute>("r1").value();
+        const Rational& r3 =
+            in.header ().typedAttribute<RationalAttribute> ("r1").value ();
 
-	const Rational &r4 =
-	    in.header().typedAttribute<RationalAttribute>("r2").value();
+        const Rational& r4 =
+            in.header ().typedAttribute<RationalAttribute> ("r2").value ();
 
-	assert (equal (r1, r3));
-	assert (equal (r2, r4));
+        assert (equal (r1, r3));
+        assert (equal (r2, r4));
     }
 
     remove (fileName);
 }
-
 
 void
 generatedFunctions ()
@@ -881,60 +880,58 @@ generatedFunctions ()
     assert (hasOriginalDataWindow (header) == false);
 }
 
-
 } // namespace
 
-
 void
-testStandardAttributes (const std::string &tempDir)
+testStandardAttributes (const std::string& tempDir)
 {
     try
     {
-	cout << "Testing optional standard attributes" << endl;
+        cout << "Testing optional standard attributes" << endl;
 
-	convertRGBtoXYZ();
+        convertRGBtoXYZ ();
 
-	{
-	    std::string filename = tempDir + "imf_test_chromaticities.exr";
-	    writeReadChromaticities (filename.c_str());
-	}
+        {
+            std::string filename = tempDir + "imf_test_chromaticities.exr";
+            writeReadChromaticities (filename.c_str ());
+        }
 
-	{
-	    std::string fn1 = tempDir + "imf_test_latlong1.exr";
-	    std::string fn2 = tempDir + "imf_test_latlong2.exr";
-	    latLongMap (fn1.c_str(), fn2.c_str());
-	}
+        {
+            std::string fn1 = tempDir + "imf_test_latlong1.exr";
+            std::string fn2 = tempDir + "imf_test_latlong2.exr";
+            latLongMap (fn1.c_str (), fn2.c_str ());
+        }
 
-	{
-	    std::string fn1 = tempDir + "imf_test_cube1.exr";
-	    std::string fn2 = tempDir + "imf_test_cube2.exr";
-	    cubeMap (fn1.c_str(), fn2.c_str());
-	}
+        {
+            std::string fn1 = tempDir + "imf_test_cube1.exr";
+            std::string fn2 = tempDir + "imf_test_cube2.exr";
+            cubeMap (fn1.c_str (), fn2.c_str ());
+        }
 
-	{
-	    std::string filename = tempDir + "imf_test_keycode.exr";
-	    writeReadKeyCode (filename.c_str());
-	}
+        {
+            std::string filename = tempDir + "imf_test_keycode.exr";
+            writeReadKeyCode (filename.c_str ());
+        }
 
-	{
-	    timeCodeMethods();
-	    std::string filename = tempDir + "imf_test_timecode.exr";
-	    writeReadTimeCode (filename.c_str());
-	}
+        {
+            timeCodeMethods ();
+            std::string filename = tempDir + "imf_test_timecode.exr";
+            writeReadTimeCode (filename.c_str ());
+        }
 
-	{
-	    rationalMethods();
-	    std::string filename = tempDir + "imf_test_rational.exr";
-	    writeReadRational (filename.c_str());
-	}
+        {
+            rationalMethods ();
+            std::string filename = tempDir + "imf_test_rational.exr";
+            writeReadRational (filename.c_str ());
+        }
 
-	generatedFunctions();
+        generatedFunctions ();
 
-	cout << "ok\n" << endl;
+        cout << "ok\n" << endl;
     }
-    catch (const std::exception &e)
+    catch (const std::exception& e)
     {
-	cerr << "ERROR -- caught exception: " << e.what() << endl;
-	assert (false);
+        cerr << "ERROR -- caught exception: " << e.what () << endl;
+        assert (false);
     }
 }

@@ -23,8 +23,7 @@ exr_get_library_version (int* maj, int* min, int* patch, const char** extra)
 
 /**************************************/
 
-static const char * the_error_code_names[] = 
-{
+static const char* the_error_code_names[] = {
     "EXR_ERR_SUCCESS",
     "EXR_ERR_OUT_OF_MEMORY",
     "EXR_ERR_MISSING_CONTEXT_ARG",
@@ -57,8 +56,7 @@ static const char * the_error_code_names[] =
     "EXR_ERR_USE_TILE_NONDEEP_WRITE",
     "EXR_ERR_INVALID_SAMPLE_DATA",
     "EXR_ERR_FEATURE_NOT_IMPLEMENTED",
-    "EXR_ERR_UNKNOWN"
-};
+    "EXR_ERR_UNKNOWN"};
 static int the_error_code_count =
     sizeof (the_error_code_names) / sizeof (const char*);
 
@@ -97,8 +95,7 @@ static const char* the_default_errors[] = {
     "Use non-deep tile write (sample count table invalid for this part type)",
     "Invalid sample data table value",
     "Feature not yet implemented, please use C++ library",
-    "Unknown error code"
-};
+    "Unknown error code"};
 static int the_default_error_count =
     sizeof (the_default_errors) / sizeof (const char*);
 

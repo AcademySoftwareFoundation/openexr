@@ -3,10 +3,6 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
-
-
-
 #include <string>
 
-void testDeepImage (const std::string &tempDir);
-
+void testDeepImage (const std::string& tempDir);

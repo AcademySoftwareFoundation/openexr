@@ -3,7 +3,6 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
-
 //-----------------------------------------------------------------------------
 //
 //	exrmaketiled -- program that produces tiled
@@ -15,19 +14,18 @@
 
 #include <ImfHeader.h>
 
-#include <iostream>
 #include <exception>
-#include <string>
-#include <string.h>
+#include <iostream>
 #include <stdlib.h>
+#include <string.h>
+#include <string>
 
 #include "namespaceAlias.h"
 using namespace IMF;
 using namespace std;
 
-
-
-namespace {
+namespace
+{
 
 void
 usageMessage (const char argv0[], bool verbose = false)
@@ -37,49 +35,49 @@ usageMessage (const char argv0[], bool verbose = false)
     if (verbose)
     {
         cerr << "\n"
-        "Reads an OpenEXR image from infile, produces a tiled\n"
-        "version of the image, and saves the result in outfile.\n"
-        "\n"
-        "Options:\n"
-        "\n"
-        "-o        produces a ONE_LEVEL image (default)\n"
-        "\n"
-        "-m        produces a MIPMAP_LEVELS multiresolution image\n"
-        "\n"
-        "-r        produces a RIPMAP_LEVELS multiresolution image\n"
-        "\n"
-        "-f c      when a MIPMAP_LEVELS or RIPMAP_LEVELS image\n"
-        "          is produced, image channel c will be resampled\n"
-        "          without low-pass filtering.  This option can\n"
-        "          be specified multiple times to disable low-pass\n"
-        "          filtering for mutiple channels.\n"
-        "\n"
-        "-e x y    when a MIPMAP_LEVELS or RIPMAP_LEVELS image\n"
-        "          is produced, low-pass filtering takes samples\n"
-        "          outside the image's data window.  This requires\n"
-        "          extrapolating the image.  Option -e specifies\n"
-        "          how the image is extrapolated horizontally and\n"
-        "          vertically (black/clamp/periodic/mirror, default\n"
-        "          is clamp).\n"
-        "\n"
-        "-t x y    sets the tile size in the output image to\n"
-        "          x by y pixels (default is 64 by 64)\n"
-        "\n"
-        "-d        sets level size rounding to ROUND_DOWN (default)\n"
-        "\n"
-        "-u        sets level size rounding to ROUND_UP\n"
-        "\n"
-        "-z x      sets the data compression method to x\n"
-        "          (none/rle/zip/piz/pxr24/b44/b44a/dwaa/dwab,\n"
-        "          default is zip)\n"
-        "\n"
-        "-v        verbose mode\n"
-        "\n"
-        "-h        prints this message\n"
-        "\n"
-        "Multipart Options:\n"
-        "\n"
-        "-p i      part number, default is 0\n";
+                "Reads an OpenEXR image from infile, produces a tiled\n"
+                "version of the image, and saves the result in outfile.\n"
+                "\n"
+                "Options:\n"
+                "\n"
+                "-o        produces a ONE_LEVEL image (default)\n"
+                "\n"
+                "-m        produces a MIPMAP_LEVELS multiresolution image\n"
+                "\n"
+                "-r        produces a RIPMAP_LEVELS multiresolution image\n"
+                "\n"
+                "-f c      when a MIPMAP_LEVELS or RIPMAP_LEVELS image\n"
+                "          is produced, image channel c will be resampled\n"
+                "          without low-pass filtering.  This option can\n"
+                "          be specified multiple times to disable low-pass\n"
+                "          filtering for mutiple channels.\n"
+                "\n"
+                "-e x y    when a MIPMAP_LEVELS or RIPMAP_LEVELS image\n"
+                "          is produced, low-pass filtering takes samples\n"
+                "          outside the image's data window.  This requires\n"
+                "          extrapolating the image.  Option -e specifies\n"
+                "          how the image is extrapolated horizontally and\n"
+                "          vertically (black/clamp/periodic/mirror, default\n"
+                "          is clamp).\n"
+                "\n"
+                "-t x y    sets the tile size in the output image to\n"
+                "          x by y pixels (default is 64 by 64)\n"
+                "\n"
+                "-d        sets level size rounding to ROUND_DOWN (default)\n"
+                "\n"
+                "-u        sets level size rounding to ROUND_UP\n"
+                "\n"
+                "-z x      sets the data compression method to x\n"
+                "          (none/rle/zip/piz/pxr24/b44/b44a/dwaa/dwab,\n"
+                "          default is zip)\n"
+                "\n"
+                "-v        verbose mode\n"
+                "\n"
+                "-h        prints this message\n"
+                "\n"
+                "Multipart Options:\n"
+                "\n"
+                "-p i      part number, default is 0\n";
 
         cerr << endl;
     }
@@ -87,9 +85,8 @@ usageMessage (const char argv0[], bool verbose = false)
     exit (1);
 }
 
-
 Compression
-getCompression (const string &str)
+getCompression (const string& str)
 {
     Compression c;
 
@@ -138,16 +135,12 @@ getCompression (const string &str)
     return c;
 }
 
-
 Extrapolation
-getExtrapolation (const string &str)
+getExtrapolation (const string& str)
 {
     Extrapolation e;
 
-    if (str == "black" || str == "BLACK")
-    {
-        e = BLACK;
-    }
+    if (str == "black" || str == "BLACK") { e = BLACK; }
     else if (str == "clamp" || str == "CLAMP")
     {
         e = CLAMP;
@@ -170,45 +163,39 @@ getExtrapolation (const string &str)
 }
 
 void
-getPartNum (int argc,
-            char **argv,
-            int &i,
-            int *j)
+getPartNum (int argc, char** argv, int& i, int* j)
 {
-    if (i > argc - 2)
-        usageMessage (argv[0]);
+    if (i > argc - 2) usageMessage (argv[0]);
 
     *j = strtol (argv[i + 1], 0, 0);
-    cout << "part number: "<< *j << endl;
+    cout << "part number: " << *j << endl;
     i += 2;
 }
 
 } // namespace
 
-
 int
-main(int argc, char **argv)
+main (int argc, char** argv)
 {
-    const char *inFile = 0;
-    const char *outFile = 0;
-    LevelMode mode = ONE_LEVEL;
+    const char*       inFile       = 0;
+    const char*       outFile      = 0;
+    LevelMode         mode         = ONE_LEVEL;
     LevelRoundingMode roundingMode = ROUND_DOWN;
-    Compression compression = ZIP_COMPRESSION;
-    int tileSizeX = 64;
-    int tileSizeY = 64;
-    set<string> doNotFilter;
-    Extrapolation extX = CLAMP;
-    Extrapolation extY = CLAMP;
-    bool verbose = false;
+    Compression       compression  = ZIP_COMPRESSION;
+    int               tileSizeX    = 64;
+    int               tileSizeY    = 64;
+    set<string>       doNotFilter;
+    Extrapolation     extX    = CLAMP;
+    Extrapolation     extY    = CLAMP;
+    bool              verbose = false;
 
     //
     // Parse the command line.
     //
 
-    if (argc < 2)
-        usageMessage (argv[0], true);
+    if (argc < 2) usageMessage (argv[0], true);
 
-    int i = 1;
+    int i       = 1;
     int partnum = 0;
 
     while (i < argc)
@@ -246,8 +233,7 @@ main(int argc, char **argv)
             // Don't low-pass filter the specified image channel
             //
 
-            if (i > argc - 2)
-                usageMessage (argv[0]);
+            if (i > argc - 2) usageMessage (argv[0]);
 
             doNotFilter.insert (argv[i + 1]);
             i += 2;
@@ -258,8 +244,7 @@ main(int argc, char **argv)
             // Set x and y extrapolation method
             //
 
-            if (i > argc - 3)
-                usageMessage (argv[0]);
+            if (i > argc - 3) usageMessage (argv[0]);
 
             extX = getExtrapolation (argv[i + 1]);
             extY = getExtrapolation (argv[i + 2]);
@@ -271,8 +256,7 @@ main(int argc, char **argv)
             // Set tile size
             //
 
-            if (i > argc - 3)
-                usageMessage (argv[0]);
+            if (i > argc - 3) usageMessage (argv[0]);
 
             tileSizeX = strtol (argv[i + 1], 0, 0);
             tileSizeY = strtol (argv[i + 2], 0, 0);
@@ -309,8 +293,7 @@ main(int argc, char **argv)
             // Set compression method
             //
 
-            if (i > argc - 2)
-                usageMessage (argv[0]);
+            if (i > argc - 2) usageMessage (argv[0]);
 
             compression = getCompression (argv[i + 1]);
             i += 2;
@@ -351,8 +334,7 @@ main(int argc, char **argv)
         }
     }
 
-    if (inFile == 0 || outFile == 0)
-        usageMessage (argv[0]);
+    if (inFile == 0 || outFile == 0) usageMessage (argv[0]);
 
     if (!strcmp (inFile, outFile))
     {
@@ -373,35 +355,41 @@ main(int argc, char **argv)
         //
         {
             MultiPartInputFile input (inFile);
-            int parts = input.parts();
+            int                parts = input.parts ();
 
-            if (partnum < 0 || partnum >= parts){
-                cerr << "ERROR: you asked for part " << partnum << " in " << inFile;
+            if (partnum < 0 || partnum >= parts)
+            {
+                cerr << "ERROR: you asked for part " << partnum << " in "
+                     << inFile;
                 cerr << ", which only has " << parts << " parts\n";
-                exit(1);
+                exit (1);
             }
 
             Header h = input.header (partnum);
-            if (h.type() == DEEPTILE || h.type() == DEEPSCANLINE)
+            if (h.type () == DEEPTILE || h.type () == DEEPSCANLINE)
             {
                 cerr << "Cannot make tile for deep data" << endl;
-                exit(1);
+                exit (1);
             }
-
         }
 
-
-
-        makeTiled (inFile, outFile, partnum,
-                   mode, roundingMode, compression,
-                   tileSizeX, tileSizeY,
-                   doNotFilter,
-                   extX, extY,
-                   verbose);
+        makeTiled (
+            inFile,
+            outFile,
+            partnum,
+            mode,
+            roundingMode,
+            compression,
+            tileSizeX,
+            tileSizeY,
+            doNotFilter,
+            extX,
+            extY,
+            verbose);
     }
-    catch (const exception &e)
+    catch (const exception& e)
     {
-        cerr << e.what() << endl;
+        cerr << e.what () << endl;
         exitStatus = 1;
     }
 

@@ -18,97 +18,100 @@
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
-namespace {
+namespace
+{
 
 inline bool
 isNegative (float f)
 {
-    union {float f; int i;} u;
+    union
+    {
+        float f;
+        int   i;
+    } u;
     u.f = f;
     return (u.i & 0x80000000) != 0;
 }
 
-
 inline bool
 isNan (float f)
 {
-    union {float f; int i;} u;
+    union
+    {
+        float f;
+        int   i;
+    } u;
     u.f = f;
     return (u.i & 0x7fffffff) > 0x7f800000;
 }
 
-
 inline bool
 isInfinity (float f)
 {
-    union {float f; int i;} u;
+    union
+    {
+        float f;
+        int   i;
+    } u;
     u.f = f;
     return (u.i & 0x7fffffff) == 0x7f800000;
 }
 
-
 inline bool
 isFinite (float f)
 {
-    union {float f; int i;} u;
+    union
+    {
+        float f;
+        int   i;
+    } u;
     u.f = f;
     return (u.i & 0x7f800000) != 0x7f800000;
 }
 
 } // namespace
 
-
 unsigned int
 halfToUint (half h)
 {
-    if (h.isNegative() || h.isNan())
-	return 0;
+    if (h.isNegative () || h.isNan ()) return 0;
 
-    if (h.isInfinity())
-	return std::numeric_limits <unsigned int>::max();
+    if (h.isInfinity ()) return std::numeric_limits<unsigned int>::max ();
 
-    return static_cast <unsigned int> (h);
+    return static_cast<unsigned int> (h);
 }
-
 
 unsigned int
 floatToUint (float f)
 {
-    if (isNegative (f) || isNan (f))
-	return 0;
+    if (isNegative (f) || isNan (f)) return 0;
 
     if (isInfinity (f) ||
-        f > static_cast <float> (std::numeric_limits <unsigned int>::max()))
-	return std::numeric_limits<unsigned int>::max();
+        f > static_cast<float> (std::numeric_limits<unsigned int>::max ()))
+        return std::numeric_limits<unsigned int>::max ();
 
-    return static_cast <unsigned int> (f);
+    return static_cast<unsigned int> (f);
 }
 
-
-half	
+half
 uintToHalf (unsigned int ui)
 {
-    if (ui >  std::numeric_limits<half>::max())
-	return half::posInf();
+    if (ui > std::numeric_limits<half>::max ()) return half::posInf ();
 
     return half ((float) ui);
 }
 
-
-half	
+half
 floatToHalf (float f)
 {
     if (isFinite (f))
     {
-	if (f >  std::numeric_limits<half>::max())
-	    return half::posInf();
+        if (f > std::numeric_limits<half>::max ()) return half::posInf ();
 
-	if (f < std::numeric_limits<half>::lowest())
-	    return half::negInf();
+        if (f < std::numeric_limits<half>::lowest ()) return half::negInf ();
     }
 
     return half (f);
 }
-
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

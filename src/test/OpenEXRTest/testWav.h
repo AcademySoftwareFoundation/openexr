@@ -3,10 +3,6 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
-
-
-
 #include <string>
 
-void testWav (const std::string &tempDir);
-
+void testWav (const std::string& tempDir);

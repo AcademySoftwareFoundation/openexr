@@ -3,9 +3,6 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
-
 #include <string>
 
-void testConversion (const std::string &tempDir);
-
-
+void testConversion (const std::string& tempDir);

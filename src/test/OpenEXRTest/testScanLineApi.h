@@ -3,8 +3,6 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
-
 #include <string>
 
-void testScanLineApi (const std::string &tempDir);
-
+void testScanLineApi (const std::string& tempDir);

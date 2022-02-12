@@ -7,23 +7,22 @@
 #    undef NDEBUG
 #endif
 
-#include <ImfRgbaFile.h>
-#include <ImfArray.h>
 #include <IlmThread.h>
-#include <stdio.h>
+#include <ImfArray.h>
+#include <ImfRgbaFile.h>
 #include <assert.h>
+#include <stdio.h>
 
 #ifndef ILM_IMF_TEST_IMAGEDIR
-    #define ILM_IMF_TEST_IMAGEDIR
+#    define ILM_IMF_TEST_IMAGEDIR
 #endif
-
 
 using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;
 using namespace IMATH_NAMESPACE;
 
-
-namespace {
+namespace
+{
 
 void
 readImage (const char fileName[], unsigned int correctChecksum)
@@ -32,27 +31,27 @@ readImage (const char fileName[], unsigned int correctChecksum)
 
     OPENEXR_IMF_NAMESPACE::RgbaInputFile in (fileName);
 
-    cout << "version " << in.version() << " " << flush;
+    cout << "version " << in.version () << " " << flush;
 
-    const Box2i &dw = in.dataWindow();
+    const Box2i& dw = in.dataWindow ();
 
-    int w = dw.max.x - dw.min.x + 1;
-    int h = dw.max.y - dw.min.y + 1;
+    int w  = dw.max.x - dw.min.x + 1;
+    int h  = dw.max.y - dw.min.y + 1;
     int dx = dw.min.x;
     int dy = dw.min.y;
 
     Array<OPENEXR_IMF_NAMESPACE::Rgba> pixels (w * h);
     in.setFrameBuffer (pixels - dx - dy * w, 1, w);
-    in.readPixels (in.dataWindow().min.y, in.dataWindow().max.y);
+    in.readPixels (in.dataWindow ().min.y, in.dataWindow ().max.y);
 
     unsigned int checksum = 0;
 
     for (int i = 0; i < w * h; ++i)
     {
-	checksum ^= pixels[i].r.bits();
-	checksum ^= pixels[i].g.bits();
-	checksum ^= pixels[i].b.bits();
-	checksum ^= pixels[i].a.bits();
+        checksum ^= pixels[i].r.bits ();
+        checksum ^= pixels[i].g.bits ();
+        checksum ^= pixels[i].b.bits ();
+        checksum ^= pixels[i].a.bits ();
     }
 
     cout << "checksum = " << checksum << endl;
@@ -60,14 +59,12 @@ readImage (const char fileName[], unsigned int correctChecksum)
     assert (checksum == correctChecksum);
 }
 
-
 bool
 approximatelyEqual (float x, float y)
 {
     float z = (x + 0.01f) / (y + 0.01f);
     return z >= 0.99f && z <= 1.01f;
 }
-
 
 void
 compareImages (const char fileName1[], const char fileName2[])
@@ -77,12 +74,12 @@ compareImages (const char fileName1[], const char fileName2[])
     OPENEXR_IMF_NAMESPACE::RgbaInputFile in1 (fileName1);
     OPENEXR_IMF_NAMESPACE::RgbaInputFile in2 (fileName1);
 
-    assert (in1.dataWindow() == in2.dataWindow());
+    assert (in1.dataWindow () == in2.dataWindow ());
 
-    const Box2i &dw = in1.dataWindow();
+    const Box2i& dw = in1.dataWindow ();
 
-    int w = dw.max.x - dw.min.x + 1;
-    int h = dw.max.y - dw.min.y + 1;
+    int w  = dw.max.x - dw.min.x + 1;
+    int h  = dw.max.y - dw.min.y + 1;
     int dx = dw.min.x;
     int dy = dw.min.y;
 
@@ -92,67 +89,70 @@ compareImages (const char fileName1[], const char fileName2[])
     in1.setFrameBuffer (pixels1 - dx - dy * w, 1, w);
     in2.setFrameBuffer (pixels2 - dx - dy * w, 1, w);
 
-    in1.readPixels (in1.dataWindow().min.y, in1.dataWindow().max.y);
-    in2.readPixels (in2.dataWindow().min.y, in2.dataWindow().max.y);
+    in1.readPixels (in1.dataWindow ().min.y, in1.dataWindow ().max.y);
+    in2.readPixels (in2.dataWindow ().min.y, in2.dataWindow ().max.y);
 
     for (int i = 0; i < w * h; ++i)
     {
-	assert (approximatelyEqual (pixels1[i].r, pixels2[i].r));
-	assert (approximatelyEqual (pixels1[i].g, pixels2[i].g));
-	assert (approximatelyEqual (pixels1[i].b, pixels2[i].b));
-	assert (approximatelyEqual (pixels1[i].a, pixels2[i].a));
+        assert (approximatelyEqual (pixels1[i].r, pixels2[i].r));
+        assert (approximatelyEqual (pixels1[i].g, pixels2[i].g));
+        assert (approximatelyEqual (pixels1[i].b, pixels2[i].b));
+        assert (approximatelyEqual (pixels1[i].a, pixels2[i].a));
     }
 }
 
 } // namespace
-
 
 void
 testSampleImages (const std::string&)
 {
     try
     {
-	cout << "Testing sample image files" << endl;
+        cout << "Testing sample image files" << endl;
 
-	readImage (ILM_IMF_TEST_IMAGEDIR "comp_none.exr", 24988);
-	readImage (ILM_IMF_TEST_IMAGEDIR "comp_rle.exr",  24988);
-	readImage (ILM_IMF_TEST_IMAGEDIR "comp_zips.exr", 24988);
-	readImage (ILM_IMF_TEST_IMAGEDIR "comp_zip.exr",  24988);
-	readImage (ILM_IMF_TEST_IMAGEDIR "comp_piz.exr",  24988);
-        
+        readImage (ILM_IMF_TEST_IMAGEDIR "comp_none.exr", 24988);
+        readImage (ILM_IMF_TEST_IMAGEDIR "comp_rle.exr", 24988);
+        readImage (ILM_IMF_TEST_IMAGEDIR "comp_zips.exr", 24988);
+        readImage (ILM_IMF_TEST_IMAGEDIR "comp_zip.exr", 24988);
+        readImage (ILM_IMF_TEST_IMAGEDIR "comp_piz.exr", 24988);
+
         for (int i = 0; i < 5; i++)
         {
             if (ILMTHREAD_NAMESPACE::supportsThreads ())
             {
                 setGlobalThreadCount (i);
 
-                readImage (ILM_IMF_TEST_IMAGEDIR "lineOrder_increasing.exr",
-			   46515);
+                readImage (
+                    ILM_IMF_TEST_IMAGEDIR "lineOrder_increasing.exr", 46515);
 
-                readImage (ILM_IMF_TEST_IMAGEDIR "lineOrder_decreasing.exr",
-			   46515);
+                readImage (
+                    ILM_IMF_TEST_IMAGEDIR "lineOrder_decreasing.exr", 46515);
             }
         }
 
-	compareImages (ILM_IMF_TEST_IMAGEDIR "comp_b44.exr",
-		       ILM_IMF_TEST_IMAGEDIR "comp_b44_piz.exr");
+        compareImages (
+            ILM_IMF_TEST_IMAGEDIR "comp_b44.exr",
+            ILM_IMF_TEST_IMAGEDIR "comp_b44_piz.exr");
 
-	compareImages (ILM_IMF_TEST_IMAGEDIR "comp_dwaa_v1.exr",
-		       ILM_IMF_TEST_IMAGEDIR "comp_dwaa_piz.exr");
-	compareImages (ILM_IMF_TEST_IMAGEDIR "comp_dwaa_v2.exr",
-		       ILM_IMF_TEST_IMAGEDIR "comp_dwaa_piz.exr");
+        compareImages (
+            ILM_IMF_TEST_IMAGEDIR "comp_dwaa_v1.exr",
+            ILM_IMF_TEST_IMAGEDIR "comp_dwaa_piz.exr");
+        compareImages (
+            ILM_IMF_TEST_IMAGEDIR "comp_dwaa_v2.exr",
+            ILM_IMF_TEST_IMAGEDIR "comp_dwaa_piz.exr");
 
-	compareImages (ILM_IMF_TEST_IMAGEDIR "comp_dwab_v1.exr",
-		       ILM_IMF_TEST_IMAGEDIR "comp_dwab_piz.exr");
-	compareImages (ILM_IMF_TEST_IMAGEDIR "comp_dwab_v2.exr",
-		       ILM_IMF_TEST_IMAGEDIR "comp_dwab_piz.exr");
+        compareImages (
+            ILM_IMF_TEST_IMAGEDIR "comp_dwab_v1.exr",
+            ILM_IMF_TEST_IMAGEDIR "comp_dwab_piz.exr");
+        compareImages (
+            ILM_IMF_TEST_IMAGEDIR "comp_dwab_v2.exr",
+            ILM_IMF_TEST_IMAGEDIR "comp_dwab_piz.exr");
 
-
-	cout << "ok\n" << endl;
+        cout << "ok\n" << endl;
     }
-    catch (const std::exception &e)
+    catch (const std::exception& e)
     {
-	cerr << "ERROR -- caught exception: " << e.what() << endl;
-	assert (false);
+        cerr << "ERROR -- caught exception: " << e.what () << endl;
+        assert (false);
     }
 }

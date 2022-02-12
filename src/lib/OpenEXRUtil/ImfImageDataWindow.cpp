@@ -11,8 +11,8 @@
 
 #include "ImfImageDataWindow.h"
 #include "ImfImage.h"
-#include <ImfHeader.h>
 #include <Iex.h>
+#include <ImfHeader.h>
 #include <algorithm>
 #include <cassert>
 
@@ -22,35 +22,29 @@ using namespace std;
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
-
 Box2i
-dataWindowForFile (const Header &hdr, const Image &img, DataWindowSource dws)
+dataWindowForFile (const Header& hdr, const Image& img, DataWindowSource dws)
 {
     switch (dws)
     {
-      case USE_IMAGE_DATA_WINDOW:
-        
-        return img.dataWindow();
+        case USE_IMAGE_DATA_WINDOW: return img.dataWindow ();
 
-      case USE_HEADER_DATA_WINDOW:
+        case USE_HEADER_DATA_WINDOW:
 
         {
-            if (img.levelMode() != ONE_LEVEL)
+            if (img.levelMode () != ONE_LEVEL)
                 throw ArgExc ("Cannot crop multi-resolution images.");
 
-            const Box2i &hdw = hdr.dataWindow();
-            const Box2i &idw = img.dataWindow();
+            const Box2i& hdw = hdr.dataWindow ();
+            const Box2i& idw = img.dataWindow ();
 
-            return Box2i (V2i (max (hdw.min.x, idw.min.x),
-                               max (hdw.min.y, idw.min.y)),
-                          V2i (min (hdw.max.x, idw.max.x),
-                               min (hdw.max.y, idw.max.y)));
+            return Box2i (
+                V2i (max (hdw.min.x, idw.min.x), max (hdw.min.y, idw.min.y)),
+                V2i (min (hdw.max.x, idw.max.x), min (hdw.max.y, idw.max.y)));
         }
 
-      default:
-        throw ArgExc("Unsupported DataWindowSource.");
+        default: throw ArgExc ("Unsupported DataWindowSource.");
     }
 }
-
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

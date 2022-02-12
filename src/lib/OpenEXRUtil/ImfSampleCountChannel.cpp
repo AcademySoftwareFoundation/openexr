@@ -19,7 +19,8 @@ using namespace IEX_NAMESPACE;
 using namespace std;
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
-namespace {
+namespace
+{
 
 unsigned int
 roundListSizeUp (unsigned int n)
@@ -29,8 +30,7 @@ roundListSizeUp (unsigned int n)
     // with n entries by rounding n up to the next power of two.
     //
 
-    if (n == 0)
-        return 0;
+    if (n == 0) return 0;
 
     unsigned int s = 1;
 
@@ -39,7 +39,6 @@ roundListSizeUp (unsigned int n)
 
     return s;
 }
-
 
 size_t
 roundBufferSizeUp (size_t n)
@@ -52,31 +51,27 @@ roundBufferSizeUp (size_t n)
     return n + n / 2;
 }
 
-
 } // namespace
 
-
-SampleCountChannel::SampleCountChannel (DeepImageLevel& level):
-    ImageChannel (level, 1, 1, false),
-    _numSamples (0),
-    _base (0),
-    _sampleListSizes (0),
-    _sampleListPositions (0),
-    _totalNumSamples (0),
-    _totalSamplesOccupied (0),
-    _sampleBufferSize (0)
+SampleCountChannel::SampleCountChannel (DeepImageLevel& level)
+    : ImageChannel (level, 1, 1, false)
+    , _numSamples (0)
+    , _base (0)
+    , _sampleListSizes (0)
+    , _sampleListPositions (0)
+    , _totalNumSamples (0)
+    , _totalSamplesOccupied (0)
+    , _sampleBufferSize (0)
 {
-    resize();
+    resize ();
 }
-
 
 SampleCountChannel::~SampleCountChannel ()
 {
-    delete [] _numSamples;
-    delete [] _sampleListSizes;
-    delete [] _sampleListPositions;
+    delete[] _numSamples;
+    delete[] _sampleListSizes;
+    delete[] _sampleListPositions;
 }
-
 
 PixelType
 SampleCountChannel::pixelType () const
@@ -84,32 +79,29 @@ SampleCountChannel::pixelType () const
     return UINT;
 }
 
-
 Slice
 SampleCountChannel::slice () const
 {
-    return Slice (UINT,                                     // type
-                  (char *) _base,                           // base
-                  sizeof (unsigned int),                    // xStride
-                  pixelsPerRow() * sizeof (unsigned int),   // yStride
-                  xSampling(),
-                  ySampling());
+    return Slice (
+        UINT,                                    // type
+        (char*) _base,                           // base
+        sizeof (unsigned int),                   // xStride
+        pixelsPerRow () * sizeof (unsigned int), // yStride
+        xSampling (),
+        ySampling ());
 }
 
-
-DeepImageLevel &
+DeepImageLevel&
 SampleCountChannel::deepLevel ()
 {
-    return static_cast <DeepImageLevel &> (level());
+    return static_cast<DeepImageLevel&> (level ());
 }
 
-
-const DeepImageLevel &
+const DeepImageLevel&
 SampleCountChannel::deepLevel () const
 {
-    return static_cast <const DeepImageLevel &> (level());
+    return static_cast<const DeepImageLevel&> (level ());
 }
-
 
 void
 SampleCountChannel::set (int x, int y, unsigned int newNumSamples)
@@ -120,7 +112,7 @@ SampleCountChannel::set (int x, int y, unsigned int newNumSamples)
     // arrays that describe it.
     //
 
-    size_t i = (_base + y * pixelsPerRow() + x) - _numSamples;
+    size_t i = (_base + y * pixelsPerRow () + x) - _numSamples;
 
     if (newNumSamples <= _numSamples[i])
     {
@@ -143,9 +135,7 @@ SampleCountChannel::set (int x, int y, unsigned int newNumSamples)
         // zero.
         //
 
-        deepLevel().setSamplesToZero (i,
-                                      _numSamples[i],
-                                      newNumSamples);
+        deepLevel ().setSamplesToZero (i, _numSamples[i], newNumSamples);
 
         _totalNumSamples += newNumSamples - _numSamples[i];
         _numSamples[i] = newNumSamples;
@@ -164,8 +154,8 @@ SampleCountChannel::set (int x, int y, unsigned int newNumSamples)
         // the sample list from its old location to its new, larger place.
         //
 
-        deepLevel().moveSampleList
-            (i, _numSamples[i], newNumSamples, _totalSamplesOccupied);
+        deepLevel ().moveSampleList (
+            i, _numSamples[i], newNumSamples, _totalSamplesOccupied);
 
         _sampleListPositions[i] = _totalSamplesOccupied;
         _totalSamplesOccupied += newSampleListSize;
@@ -182,24 +172,24 @@ SampleCountChannel::set (int x, int y, unsigned int newNumSamples)
     // sample lists into it.
     //
 
-    unsigned int * oldNumSamples = 0;
-    size_t * oldSampleListPositions = 0;
+    unsigned int* oldNumSamples          = 0;
+    size_t*       oldSampleListPositions = 0;
 
     try
     {
         _totalNumSamples += newNumSamples - _numSamples[i];
 
         oldNumSamples = _numSamples;
-        _numSamples = new unsigned int [numPixels()];
+        _numSamples   = new unsigned int[numPixels ()];
 
-        resetBasePointer();
+        resetBasePointer ();
 
         oldSampleListPositions = _sampleListPositions;
-        _sampleListPositions = new size_t [numPixels()];
+        _sampleListPositions   = new size_t[numPixels ()];
 
         _totalSamplesOccupied = 0;
 
-        for (size_t j = 0; j < numPixels(); ++j)
+        for (size_t j = 0; j < numPixels (); ++j)
         {
             if (j == i)
                 _numSamples[j] = newNumSamples;
@@ -207,85 +197,80 @@ SampleCountChannel::set (int x, int y, unsigned int newNumSamples)
                 _numSamples[j] = oldNumSamples[j];
 
             _sampleListPositions[j] = _totalSamplesOccupied;
-            _sampleListSizes[j] = roundListSizeUp (_numSamples[j]);
+            _sampleListSizes[j]     = roundListSizeUp (_numSamples[j]);
             _totalSamplesOccupied += _sampleListSizes[j];
         }
 
         _sampleBufferSize = roundBufferSizeUp (_totalSamplesOccupied);
 
-        deepLevel().moveSamplesToNewBuffer (oldNumSamples,
-                                            _numSamples,
-                                            _sampleListPositions);
+        deepLevel ().moveSamplesToNewBuffer (
+            oldNumSamples, _numSamples, _sampleListPositions);
 
-        delete [] oldNumSamples;
-        delete [] oldSampleListPositions;
+        delete[] oldNumSamples;
+        delete[] oldSampleListPositions;
     }
     catch (...)
     {
-        delete [] oldNumSamples;
-        delete [] oldSampleListPositions;
+        delete[] oldNumSamples;
+        delete[] oldSampleListPositions;
 
-        level().image().resize (Box2i (V2i (0, 0), V2i (-1, -1)));
+        level ().image ().resize (Box2i (V2i (0, 0), V2i (-1, -1)));
         throw;
     }
 }
 
-
 void
 SampleCountChannel::set (int r, unsigned int newNumSamples[])
 {
-    int x = level().dataWindow().min.x;
-    int y = r + level().dataWindow().min.x;
+    int x = level ().dataWindow ().min.x;
+    int y = r + level ().dataWindow ().min.x;
 
-    for (int i = 0; i < pixelsPerRow(); ++i, ++x)
+    for (int i = 0; i < pixelsPerRow (); ++i, ++x)
         set (x, y, newNumSamples[i]);
 }
-
 
 void
 SampleCountChannel::clear ()
 {
     try
     {
-        for (size_t i = 0; i < numPixels(); ++i)
+        for (size_t i = 0; i < numPixels (); ++i)
         {
-            _numSamples[i] = 0;
-            _sampleListSizes[i] = 0;
+            _numSamples[i]          = 0;
+            _sampleListSizes[i]     = 0;
             _sampleListPositions[i] = 0;
         }
 
-        _totalNumSamples = 0;
+        _totalNumSamples      = 0;
         _totalSamplesOccupied = 0;
-        _sampleBufferSize = roundBufferSizeUp (_totalSamplesOccupied);
+        _sampleBufferSize     = roundBufferSizeUp (_totalSamplesOccupied);
 
-        deepLevel().initializeSampleLists();
+        deepLevel ().initializeSampleLists ();
     }
     catch (...)
     {
-        level().image().resize (Box2i (V2i (0, 0), V2i (-1, -1)));
+        level ().image ().resize (Box2i (V2i (0, 0), V2i (-1, -1)));
         throw;
     }
 }
 
-
-unsigned int *
+unsigned int*
 SampleCountChannel::beginEdit ()
 {
     return _numSamples;
 }
-
 
 void
 SampleCountChannel::endEdit ()
 {
     try
     {
-        _totalNumSamples = 0;
+        _totalNumSamples      = 0;
         _totalSamplesOccupied = 0;
 
-        for (size_t i = 0; i < numPixels(); ++i)
+        for (size_t i = 0; i < numPixels (); ++i)
         {
-            _sampleListSizes[i] = roundListSizeUp (_numSamples[i]);
+            _sampleListSizes[i]     = roundListSizeUp (_numSamples[i]);
             _sampleListPositions[i] = _totalSamplesOccupied;
             _totalNumSamples += _numSamples[i];
             _totalSamplesOccupied += _sampleListSizes[i];
@@ -293,56 +278,52 @@ SampleCountChannel::endEdit ()
 
         _sampleBufferSize = roundBufferSizeUp (_totalSamplesOccupied);
 
-        deepLevel().initializeSampleLists();
+        deepLevel ().initializeSampleLists ();
     }
     catch (...)
     {
-        level().image().resize (Box2i (V2i (0, 0), V2i (-1, -1)));
+        level ().image ().resize (Box2i (V2i (0, 0), V2i (-1, -1)));
         throw;
     }
 }
 
-
 void
 SampleCountChannel::resize ()
 {
-    ImageChannel::resize();
+    ImageChannel::resize ();
 
-    delete [] _numSamples;
-    delete [] _sampleListSizes;
-    delete [] _sampleListPositions;
+    delete[] _numSamples;
+    delete[] _sampleListSizes;
+    delete[] _sampleListPositions;
 
-    _numSamples = 0;            // set to 0 to prevent double
-    _sampleListSizes = 0;       // deletion in case of an exception
+    _numSamples          = 0; // set to 0 to prevent double
+    _sampleListSizes     = 0; // deletion in case of an exception
     _sampleListPositions = 0;
 
-    _numSamples = new unsigned int [numPixels()];
-    _sampleListSizes = new unsigned int [numPixels()];
-    _sampleListPositions = new size_t [numPixels()];
+    _numSamples          = new unsigned int[numPixels ()];
+    _sampleListSizes     = new unsigned int[numPixels ()];
+    _sampleListPositions = new size_t[numPixels ()];
 
-    resetBasePointer();
+    resetBasePointer ();
 
-    for (size_t i = 0; i < numPixels(); ++i)
+    for (size_t i = 0; i < numPixels (); ++i)
     {
-        _numSamples[i] = 0;
-        _sampleListSizes[i] = 0;
+        _numSamples[i]          = 0;
+        _sampleListSizes[i]     = 0;
         _sampleListPositions[i] = 0;
     }
 
-    _totalNumSamples = 0;
+    _totalNumSamples      = 0;
     _totalSamplesOccupied = 0;
 
     _sampleBufferSize = roundBufferSizeUp (_totalSamplesOccupied);
 }
 
-
 void
 SampleCountChannel::resetBasePointer ()
 {
-    _base = _numSamples -
-            level().dataWindow().min.y * pixelsPerRow() -
-            level().dataWindow().min.x;
+    _base = _numSamples - level ().dataWindow ().min.y * pixelsPerRow () -
+            level ().dataWindow ().min.x;
 }
-
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

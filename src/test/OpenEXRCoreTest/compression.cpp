@@ -913,7 +913,7 @@ doDecodeTile (exr_context_t f, pixels& p, int xs, int ys)
 
 ////////////////////////////////////////
 
-static const char* channels[] = { "R", "G", "B", "A", "H" };
+static const char* channels[] = {"R", "G", "B", "A", "H"};
 
 static void
 saveCPP (
@@ -942,7 +942,7 @@ saveCPP (
     hdr.channels ().insert ("F", Channel (IMF::FLOAT, xs, ys));
     {
         FrameBuffer fb;
-        V2i         origin{ dwx, dwy };
+        V2i         origin{dwx, dwy};
         fb.insert (
             "I",
             Slice::Make (
@@ -1052,7 +1052,7 @@ loadCPP (
     InputFile in (filename.c_str ());
     {
         FrameBuffer fb;
-        V2i         origin{ dwx, dwy };
+        V2i         origin{dwx, dwy};
         fb.insert (
             "I",
             Slice::Make (
@@ -1335,7 +1335,7 @@ testWriteRead (
 static void
 testComp (const std::string& tempdir, exr_compression_t comp)
 {
-    pixels p{ IMG_WIDTH, IMG_HEIGHT, IMG_STRIDE_X };
+    pixels p{IMG_WIDTH, IMG_HEIGHT, IMG_STRIDE_X};
 
     p.fillZero ();
     testWriteRead (p, tempdir, comp, "zeroes");
@@ -1361,7 +1361,7 @@ testHUF (const std::string& tempdir)
     std::vector<uint8_t> hspare;
 
     hspare.resize (std::max (esize, dsize));
-    pixels p{ IMG_WIDTH, 1, IMG_STRIDE_X };
+    pixels p{IMG_WIDTH, 1, IMG_STRIDE_X};
 
     p.fillZero ();
     std::vector<uint8_t> encoded;

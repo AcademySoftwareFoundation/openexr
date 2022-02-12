@@ -3,7 +3,6 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
-
 //-----------------------------------------------------------------------------
 //
 //	Code examples that show how to add preview images
@@ -11,21 +10,20 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfRgbaFile.h>
+#include "ImathFun.h"
 #include <ImfArray.h>
 #include <ImfPreviewImage.h>
-#include "ImathFun.h"
+#include <ImfRgbaFile.h>
 
 #include "drawImage.h"
 
-#include <iostream>
 #include <algorithm>
+#include <iostream>
 
 #include "namespaceAlias.h"
 using namespace IMF;
 using namespace std;
 using namespace IMATH_NAMESPACE;
-
 
 unsigned char
 gamma (float x)
@@ -41,14 +39,14 @@ gamma (float x)
     return (unsigned char) IMATH_NAMESPACE::clamp (x, 0.f, 255.f);
 }
 
-
 void
-makePreviewImage (const Array2D <Rgba> &pixels,
-		  int width,
-		  int height,
-		  Array2D <PreviewRgba> &previewPixels,
-		  int &previewWidth,
-		  int &previewHeight)
+makePreviewImage (
+    const Array2D<Rgba>&  pixels,
+    int                   width,
+    int                   height,
+    Array2D<PreviewRgba>& previewPixels,
+    int&                  previewWidth,
+    int&                  previewHeight)
 {
     const int N = 8;
 
@@ -58,25 +56,23 @@ makePreviewImage (const Array2D <Rgba> &pixels,
 
     for (int y = 0; y < previewHeight; ++y)
     {
-	for (int x = 0; x < previewWidth; ++x)
-	{
-	    const Rgba  &inPixel = pixels[y * N][x * N];
-	    PreviewRgba &outPixel = previewPixels[y][x];
+        for (int x = 0; x < previewWidth; ++x)
+        {
+            const Rgba&  inPixel  = pixels[y * N][x * N];
+            PreviewRgba& outPixel = previewPixels[y][x];
 
-	    outPixel.r = gamma (inPixel.r);
-	    outPixel.g = gamma (inPixel.g);
-	    outPixel.b = gamma (inPixel.b);
-	    outPixel.a = int (IMATH_NAMESPACE::clamp (inPixel.a * 255.f, 0.f, 255.f) + 0.5f);
-	}
+            outPixel.r = gamma (inPixel.r);
+            outPixel.g = gamma (inPixel.g);
+            outPixel.b = gamma (inPixel.b);
+            outPixel.a = int (
+                IMATH_NAMESPACE::clamp (inPixel.a * 255.f, 0.f, 255.f) + 0.5f);
+        }
     }
 }
 
-
 void
-writeRgbaWithPreview1 (const char fileName[],
-		       const Array2D <Rgba> &pixels,
-		       int width,
-		       int height)
+writeRgbaWithPreview1 (
+    const char fileName[], const Array2D<Rgba>& pixels, int width, int height)
 {
     //
     // Write an image file with a preview image, version 1:
@@ -90,28 +86,25 @@ writeRgbaWithPreview1 (const char fileName[],
     // - store the main image's pixels in the file
     //
 
-    Array2D <PreviewRgba> previewPixels;
-    int previewWidth;
-    int previewHeight;
+    Array2D<PreviewRgba> previewPixels;
+    int                  previewWidth;
+    int                  previewHeight;
 
-    makePreviewImage (pixels, width, height,
-		      previewPixels, previewWidth, previewHeight);
+    makePreviewImage (
+        pixels, width, height, previewPixels, previewWidth, previewHeight);
 
     Header header (width, height);
 
-    header.setPreviewImage
-	(PreviewImage (previewWidth, previewHeight, &previewPixels[0][0]));
+    header.setPreviewImage (
+        PreviewImage (previewWidth, previewHeight, &previewPixels[0][0]));
 
     RgbaOutputFile file (fileName, header, WRITE_RGBA);
     file.setFrameBuffer (&pixels[0][0], 1, width);
     file.writePixels (height);
 }
 
-
 void
-writeRgbaWithPreview2 (const char fileName[],
-		       int width,
-		       int height)
+writeRgbaWithPreview2 (const char fileName[], int width, int height)
 {
     //
     // Write an image file with a preview image, version 2:
@@ -127,15 +120,15 @@ writeRgbaWithPreview2 (const char fileName[],
     //   image is being rendered
     // - once the main image has been rendered, store the preview
     //   image in the file, overwriting the dummy preview
-    //   
+    //
 
-    Array <Rgba> pixels (width);
+    Array<Rgba> pixels (width);
 
     const int N = 8;
 
-    int previewWidth = width / N;
-    int previewHeight = height / N;
-    Array2D <PreviewRgba> previewPixels (previewHeight, previewWidth);
+    int                  previewWidth  = width / N;
+    int                  previewHeight = height / N;
+    Array2D<PreviewRgba> previewPixels (previewHeight, previewWidth);
 
     Header header (width, height);
     header.setPreviewImage (PreviewImage (previewWidth, previewHeight));
@@ -145,27 +138,28 @@ writeRgbaWithPreview2 (const char fileName[],
 
     for (int y = 0; y < height; ++y)
     {
-	drawImage7 (pixels, width, height, y);
-	file.writePixels (1);
+        drawImage7 (pixels, width, height, y);
+        file.writePixels (1);
 
-	if (y % N == 0)
-	{
-	    for (int x = 0; x < width; x += N)
-	    {
-		const Rgba  &inPixel = pixels[x];
-		PreviewRgba &outPixel = previewPixels[y / N][x / N];
+        if (y % N == 0)
+        {
+            for (int x = 0; x < width; x += N)
+            {
+                const Rgba&  inPixel  = pixels[x];
+                PreviewRgba& outPixel = previewPixels[y / N][x / N];
 
-		outPixel.r = gamma (inPixel.r);
-		outPixel.g = gamma (inPixel.g);
-		outPixel.b = gamma (inPixel.b);
-		outPixel.a = int (IMATH_NAMESPACE::clamp (inPixel.a * 255.f, 0.f, 255.f) + 0.5f);
-	    }
-	}
+                outPixel.r = gamma (inPixel.r);
+                outPixel.g = gamma (inPixel.g);
+                outPixel.b = gamma (inPixel.b);
+                outPixel.a = int (
+                    IMATH_NAMESPACE::clamp (inPixel.a * 255.f, 0.f, 255.f) +
+                    0.5f);
+            }
+        }
     }
 
     file.updatePreviewImage (&previewPixels[0][0]);
 }
-
 
 void
 previewImageExamples ()

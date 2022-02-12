@@ -3,10 +3,6 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
-
-
-
 #include <string>
 
-void testRgbaThreading (const std::string &tempDir);
-
+void testRgbaThreading (const std::string& tempDir);

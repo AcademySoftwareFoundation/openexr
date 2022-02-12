@@ -598,7 +598,6 @@ uncompress_b44_impl (
 
             memcpy (out, tmp, bpl);
 
-            
             bIn += bpl;
             out += bpl;
             scratch += nBytes;

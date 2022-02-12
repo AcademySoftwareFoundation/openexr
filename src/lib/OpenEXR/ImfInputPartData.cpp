@@ -8,15 +8,18 @@
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
-InputPartData::InputPartData(InputStreamMutex* mutex, const Header &header,
-                             int partNumber, int numThreads, int version):
-        header(header),
-        numThreads(numThreads),
-        partNumber(partNumber),
-        version(version),       
-        mutex(mutex),
-        completed(false)
-{
-}
+InputPartData::InputPartData (
+    InputStreamMutex* mutex,
+    const Header&     header,
+    int               partNumber,
+    int               numThreads,
+    int               version)
+    : header (header)
+    , numThreads (numThreads)
+    , partNumber (partNumber)
+    , version (version)
+    , mutex (mutex)
+    , completed (false)
+{}
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

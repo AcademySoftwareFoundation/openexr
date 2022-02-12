@@ -19,44 +19,43 @@ struct _internal_exr_attr_map
 };
 
 static struct _internal_exr_attr_map the_predefined_attr_typenames[] = {
-    { "box2i", 5, EXR_ATTR_BOX2I, sizeof (exr_attr_box2i_t) },
-    { "box2f", 5, EXR_ATTR_BOX2F, sizeof (exr_attr_box2f_t) },
-    { "chlist", 6, EXR_ATTR_CHLIST, sizeof (exr_attr_chlist_t) },
-    { "chromaticities",
-      14,
-      EXR_ATTR_CHROMATICITIES,
-      sizeof (exr_attr_chromaticities_t) },
-    { "compression", 11, EXR_ATTR_COMPRESSION, 0 },
-    { "double", 6, EXR_ATTR_DOUBLE, 0 },
-    { "envmap", 6, EXR_ATTR_ENVMAP, 0 },
-    { "float", 5, EXR_ATTR_FLOAT, 0 },
-    { "floatvector",
-      11,
-      EXR_ATTR_FLOAT_VECTOR,
-      sizeof (exr_attr_float_vector_t) },
-    { "int", 3, EXR_ATTR_INT, 0 },
-    { "keycode", 7, EXR_ATTR_KEYCODE, sizeof (exr_attr_keycode_t) },
-    { "lineOrder", 9, EXR_ATTR_LINEORDER, 0 },
-    { "m33f", 4, EXR_ATTR_M33F, sizeof (exr_attr_m33f_t) },
-    { "m33d", 4, EXR_ATTR_M33D, sizeof (exr_attr_m33d_t) },
-    { "m44f", 4, EXR_ATTR_M44F, sizeof (exr_attr_m44f_t) },
-    { "m44d", 4, EXR_ATTR_M44D, sizeof (exr_attr_m44d_t) },
-    { "preview", 7, EXR_ATTR_PREVIEW, sizeof (exr_attr_preview_t) },
-    { "rational", 8, EXR_ATTR_RATIONAL, sizeof (exr_attr_rational_t) },
-    { "string", 6, EXR_ATTR_STRING, sizeof (exr_attr_string_t) },
-    { "stringvector",
-      12,
-      EXR_ATTR_STRING_VECTOR,
-      sizeof (exr_attr_string_vector_t) },
-    { "tiledesc", 8, EXR_ATTR_TILEDESC, sizeof (exr_attr_tiledesc_t) },
-    { "timecode", 8, EXR_ATTR_TIMECODE, sizeof (exr_attr_timecode_t) },
-    { "v2i", 3, EXR_ATTR_V2I, sizeof (exr_attr_v2i_t) },
-    { "v2f", 3, EXR_ATTR_V2F, sizeof (exr_attr_v2f_t) },
-    { "v2d", 3, EXR_ATTR_V2D, sizeof (exr_attr_v2d_t) },
-    { "v3i", 3, EXR_ATTR_V3I, sizeof (exr_attr_v3i_t) },
-    { "v3f", 3, EXR_ATTR_V3F, sizeof (exr_attr_v3f_t) },
-    { "v3d", 3, EXR_ATTR_V3D, sizeof (exr_attr_v3d_t) }
-};
+    {"box2i", 5, EXR_ATTR_BOX2I, sizeof (exr_attr_box2i_t)},
+    {"box2f", 5, EXR_ATTR_BOX2F, sizeof (exr_attr_box2f_t)},
+    {"chlist", 6, EXR_ATTR_CHLIST, sizeof (exr_attr_chlist_t)},
+    {"chromaticities",
+     14,
+     EXR_ATTR_CHROMATICITIES,
+     sizeof (exr_attr_chromaticities_t)},
+    {"compression", 11, EXR_ATTR_COMPRESSION, 0},
+    {"double", 6, EXR_ATTR_DOUBLE, 0},
+    {"envmap", 6, EXR_ATTR_ENVMAP, 0},
+    {"float", 5, EXR_ATTR_FLOAT, 0},
+    {"floatvector",
+     11,
+     EXR_ATTR_FLOAT_VECTOR,
+     sizeof (exr_attr_float_vector_t)},
+    {"int", 3, EXR_ATTR_INT, 0},
+    {"keycode", 7, EXR_ATTR_KEYCODE, sizeof (exr_attr_keycode_t)},
+    {"lineOrder", 9, EXR_ATTR_LINEORDER, 0},
+    {"m33f", 4, EXR_ATTR_M33F, sizeof (exr_attr_m33f_t)},
+    {"m33d", 4, EXR_ATTR_M33D, sizeof (exr_attr_m33d_t)},
+    {"m44f", 4, EXR_ATTR_M44F, sizeof (exr_attr_m44f_t)},
+    {"m44d", 4, EXR_ATTR_M44D, sizeof (exr_attr_m44d_t)},
+    {"preview", 7, EXR_ATTR_PREVIEW, sizeof (exr_attr_preview_t)},
+    {"rational", 8, EXR_ATTR_RATIONAL, sizeof (exr_attr_rational_t)},
+    {"string", 6, EXR_ATTR_STRING, sizeof (exr_attr_string_t)},
+    {"stringvector",
+     12,
+     EXR_ATTR_STRING_VECTOR,
+     sizeof (exr_attr_string_vector_t)},
+    {"tiledesc", 8, EXR_ATTR_TILEDESC, sizeof (exr_attr_tiledesc_t)},
+    {"timecode", 8, EXR_ATTR_TIMECODE, sizeof (exr_attr_timecode_t)},
+    {"v2i", 3, EXR_ATTR_V2I, sizeof (exr_attr_v2i_t)},
+    {"v2f", 3, EXR_ATTR_V2F, sizeof (exr_attr_v2f_t)},
+    {"v2d", 3, EXR_ATTR_V2D, sizeof (exr_attr_v2d_t)},
+    {"v3i", 3, EXR_ATTR_V3I, sizeof (exr_attr_v3i_t)},
+    {"v3f", 3, EXR_ATTR_V3F, sizeof (exr_attr_v3f_t)},
+    {"v3d", 3, EXR_ATTR_V3D, sizeof (exr_attr_v3d_t)}};
 static int the_predefined_attr_count = sizeof (the_predefined_attr_typenames) /
                                        sizeof (struct _internal_exr_attr_map);
 
@@ -68,22 +67,22 @@ attr_init (struct _internal_exr_context* ctxt, exr_attribute_t* nattr)
     switch (nattr->type)
     {
         case EXR_ATTR_BOX2I: {
-            exr_attr_box2i_t nil = { 0 };
+            exr_attr_box2i_t nil = {0};
             *(nattr->box2i)      = nil;
             break;
         }
         case EXR_ATTR_BOX2F: {
-            exr_attr_box2f_t nil = { 0 };
+            exr_attr_box2f_t nil = {0};
             *(nattr->box2f)      = nil;
             break;
         }
         case EXR_ATTR_CHLIST: {
-            exr_attr_chlist_t nil = { 0 };
+            exr_attr_chlist_t nil = {0};
             *(nattr->chlist)      = nil;
             break;
         }
         case EXR_ATTR_CHROMATICITIES: {
-            exr_attr_chromaticities_t nil = { 0 };
+            exr_attr_chromaticities_t nil = {0};
             *(nattr->chromaticities)      = nil;
             break;
         }
@@ -93,98 +92,98 @@ attr_init (struct _internal_exr_context* ctxt, exr_attribute_t* nattr)
         case EXR_ATTR_DOUBLE: nattr->d = 0.0; break;
         case EXR_ATTR_FLOAT: nattr->f = 0.0f; break;
         case EXR_ATTR_FLOAT_VECTOR: {
-            exr_attr_float_vector_t nil = { 0 };
+            exr_attr_float_vector_t nil = {0};
             *(nattr->floatvector)       = nil;
             break;
         }
         case EXR_ATTR_INT: nattr->i = 0; break;
         case EXR_ATTR_KEYCODE: {
-            exr_attr_keycode_t nil = { 0 };
+            exr_attr_keycode_t nil = {0};
             *(nattr->keycode)      = nil;
             break;
         }
         case EXR_ATTR_M33F: {
-            exr_attr_m33f_t nil = { 0 };
+            exr_attr_m33f_t nil = {0};
             *(nattr->m33f)      = nil;
             break;
         }
         case EXR_ATTR_M33D: {
-            exr_attr_m33d_t nil = { 0 };
+            exr_attr_m33d_t nil = {0};
             *(nattr->m33d)      = nil;
             break;
         }
         case EXR_ATTR_M44F: {
-            exr_attr_m44f_t nil = { 0 };
+            exr_attr_m44f_t nil = {0};
             *(nattr->m44f)      = nil;
             break;
         }
         case EXR_ATTR_M44D: {
-            exr_attr_m44f_t nil = { 0 };
+            exr_attr_m44f_t nil = {0};
             *(nattr->m44f)      = nil;
             break;
         }
         case EXR_ATTR_PREVIEW: {
-            exr_attr_preview_t nil = { 0 };
+            exr_attr_preview_t nil = {0};
             *(nattr->preview)      = nil;
             break;
         }
         case EXR_ATTR_RATIONAL: {
-            exr_attr_rational_t nil = { 0 };
+            exr_attr_rational_t nil = {0};
             *(nattr->rational)      = nil;
             break;
         }
         case EXR_ATTR_STRING: {
-            exr_attr_string_t nil = { 0 };
+            exr_attr_string_t nil = {0};
             *(nattr->string)      = nil;
             break;
         }
         case EXR_ATTR_STRING_VECTOR: {
-            exr_attr_string_vector_t nil = { 0 };
+            exr_attr_string_vector_t nil = {0};
             *(nattr->stringvector)       = nil;
             break;
         }
         case EXR_ATTR_TILEDESC: {
-            exr_attr_tiledesc_t nil = { 0 };
+            exr_attr_tiledesc_t nil = {0};
             *(nattr->tiledesc)      = nil;
             break;
         }
         case EXR_ATTR_TIMECODE: {
-            exr_attr_timecode_t nil = { 0 };
+            exr_attr_timecode_t nil = {0};
             *(nattr->timecode)      = nil;
             break;
         }
         case EXR_ATTR_V2I: {
-            exr_attr_v2i_t nil = { 0 };
+            exr_attr_v2i_t nil = {0};
             *(nattr->v2i)      = nil;
             break;
         }
         case EXR_ATTR_V2F: {
-            exr_attr_v2f_t nil = { 0 };
+            exr_attr_v2f_t nil = {0};
             *(nattr->v2f)      = nil;
             break;
         }
         case EXR_ATTR_V2D: {
-            exr_attr_v2d_t nil = { 0 };
+            exr_attr_v2d_t nil = {0};
             *(nattr->v2d)      = nil;
             break;
         }
         case EXR_ATTR_V3I: {
-            exr_attr_v3i_t nil = { 0 };
+            exr_attr_v3i_t nil = {0};
             *(nattr->v3i)      = nil;
             break;
         }
         case EXR_ATTR_V3F: {
-            exr_attr_v3f_t nil = { 0 };
+            exr_attr_v3f_t nil = {0};
             *(nattr->v3f)      = nil;
             break;
         }
         case EXR_ATTR_V3D: {
-            exr_attr_v3d_t nil = { 0 };
+            exr_attr_v3d_t nil = {0};
             *(nattr->v3d)      = nil;
             break;
         }
         case EXR_ATTR_OPAQUE: {
-            exr_attr_opaquedata_t nil = { 0 };
+            exr_attr_opaquedata_t nil = {0};
             *(nattr->opaque)          = nil;
             break;
         }
@@ -282,7 +281,7 @@ internal_exr_is_standard_type (const char* typen)
 exr_result_t
 exr_attr_list_destroy (exr_context_t ctxt, exr_attribute_list_t* list)
 {
-    exr_attribute_list_t nil = { 0 };
+    exr_attribute_list_t nil = {0};
     exr_result_t         arv;
     exr_result_t         rv = EXR_ERR_SUCCESS;
 
@@ -665,7 +664,7 @@ create_attr_block (
     size_t           attrblocksz = sizeof (exr_attribute_t);
     uint8_t*         ptr;
     exr_attribute_t* nattr;
-    exr_attribute_t  nil = { 0 };
+    exr_attribute_t  nil = {0};
     // not all compilers have this :(
     //const size_t ptralign = _Alignof(void*);
     const size_t ptralign = 8;

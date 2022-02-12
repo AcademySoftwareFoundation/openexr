@@ -172,8 +172,8 @@ EXR_EXPORT exr_result_t exr_get_zip_compression_level (
  * lifetime of the context, so this value will be ignored when
  * reading a file.
  */
-EXR_EXPORT exr_result_t exr_set_zip_compression_level (
-    exr_context_t ctxt, int part_index, int level);
+EXR_EXPORT exr_result_t
+exr_set_zip_compression_level (exr_context_t ctxt, int part_index, int level);
 
 /** @brief Retrieve the dwa compression level used for the specified part.
  *
@@ -194,8 +194,8 @@ EXR_EXPORT exr_result_t exr_get_dwa_compression_level (
  * lifetime of the context, so this value will be ignored when
  * reading a file.
  */
-EXR_EXPORT exr_result_t exr_set_dwa_compression_level (
-    exr_context_t ctxt, int part_index, float level);
+EXR_EXPORT exr_result_t
+exr_set_dwa_compression_level (exr_context_t ctxt, int part_index, float level);
 
 /**************************************/
 
@@ -216,11 +216,11 @@ typedef enum exr_attr_list_access_mode
 
 /** @brief Query a particular attribute by index. */
 EXR_EXPORT exr_result_t exr_get_attribute_by_index (
-    exr_const_context_t            ctxt,
-    int                            part_index,
-    exr_attr_list_access_mode_t    mode,
-    int32_t                        idx,
-    const exr_attribute_t**        outattr);
+    exr_const_context_t         ctxt,
+    int                         part_index,
+    exr_attr_list_access_mode_t mode,
+    int32_t                     idx,
+    const exr_attribute_t**     outattr);
 
 /** @brief Query a particular attribute by name. */
 EXR_EXPORT exr_result_t exr_get_attribute_by_name (
@@ -238,11 +238,11 @@ EXR_EXPORT exr_result_t exr_get_attribute_by_name (
  * attributes, then re-call this function to get the full list.
  */
 EXR_EXPORT exr_result_t exr_get_attribute_list (
-    exr_const_context_t            ctxt,
-    int                            part_index,
-    exr_attr_list_access_mode_t    mode,
-    int32_t*                       count,
-    const exr_attribute_t**        outlist);
+    exr_const_context_t         ctxt,
+    int                         part_index,
+    exr_attr_list_access_mode_t mode,
+    int32_t*                    count,
+    const exr_attribute_t**     outlist);
 
 /** Declare an attribute within the specified part.
  *

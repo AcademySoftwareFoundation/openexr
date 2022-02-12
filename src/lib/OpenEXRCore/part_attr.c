@@ -33,11 +33,11 @@ exr_get_attribute_count (
 
 exr_result_t
 exr_get_attribute_by_index (
-    exr_const_context_t            ctxt,
-    int                            part_index,
-    exr_attr_list_access_mode_t    mode,
-    int32_t                        idx,
-    const exr_attribute_t**        outattr)
+    exr_const_context_t         ctxt,
+    int                         part_index,
+    exr_attr_list_access_mode_t mode,
+    int32_t                     idx,
+    const exr_attribute_t**     outattr)
 {
     exr_attribute_t** srclist;
     EXR_PROMOTE_CONST_CONTEXT_AND_PART_OR_ERROR (ctxt, part_index);
@@ -92,11 +92,11 @@ exr_get_attribute_by_name (
 
 exr_result_t
 exr_get_attribute_list (
-    exr_const_context_t            ctxt,
-    int                            part_index,
-    exr_attr_list_access_mode_t    mode,
-    int32_t*                       count,
-    const exr_attribute_t**        outlist)
+    exr_const_context_t         ctxt,
+    int                         part_index,
+    exr_attr_list_access_mode_t mode,
+    int32_t*                    count,
+    const exr_attribute_t**     outlist)
 {
     exr_attribute_t** srclist;
     EXR_PROMOTE_CONST_CONTEXT_AND_PART_OR_ERROR (ctxt, part_index);
@@ -209,8 +209,9 @@ exr_initialize_required_attr_simple (
     int32_t           height,
     exr_compression_t ctype)
 {
-    exr_attr_box2i_t dispWindow = { .min={ .x=0, .y=0 }, .max={ .x=(width - 1), .y=(height - 1) } };
-    exr_attr_v2f_t   swc        = { .x = 0.f, .y = 0.f };
+    exr_attr_box2i_t dispWindow = {
+        .min = {.x = 0, .y = 0}, .max = {.x = (width - 1), .y = (height - 1)}};
+    exr_attr_v2f_t swc = {.x = 0.f, .y = 0.f};
     return exr_initialize_required_attr (
         ctxt,
         part_index,

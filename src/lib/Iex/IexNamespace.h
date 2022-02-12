@@ -49,11 +49,11 @@
 #include "IexConfig.h"
 
 #ifndef IEX_NAMESPACE
-#define IEX_NAMESPACE Iex
+#    define IEX_NAMESPACE Iex
 #endif
 
 #ifndef IEX_INTERNAL_NAMESPACE
-#define IEX_INTERNAL_NAMESPACE IEX_NAMESPACE
+#    define IEX_INTERNAL_NAMESPACE IEX_NAMESPACE
 #endif
 
 //
@@ -63,9 +63,11 @@
 // IEX_NAMESPACE and pulls the internal symbols into the public namespace.
 //
 
-namespace IEX_INTERNAL_NAMESPACE {}
-namespace IEX_NAMESPACE {
-    using namespace IEX_INTERNAL_NAMESPACE;
+namespace IEX_INTERNAL_NAMESPACE
+{}
+namespace IEX_NAMESPACE
+{
+using namespace IEX_INTERNAL_NAMESPACE;
 }
 
 //
@@ -74,10 +76,14 @@ namespace IEX_NAMESPACE {
 // project source code.
 //
 
-#define IEX_INTERNAL_NAMESPACE_HEADER_ENTER namespace IEX_INTERNAL_NAMESPACE {
+#define IEX_INTERNAL_NAMESPACE_HEADER_ENTER                                    \
+    namespace IEX_INTERNAL_NAMESPACE                                           \
+    {
 #define IEX_INTERNAL_NAMESPACE_HEADER_EXIT }
 
-#define IEX_INTERNAL_NAMESPACE_SOURCE_ENTER namespace IEX_INTERNAL_NAMESPACE {
+#define IEX_INTERNAL_NAMESPACE_SOURCE_ENTER                                    \
+    namespace IEX_INTERNAL_NAMESPACE                                           \
+    {
 #define IEX_INTERNAL_NAMESPACE_SOURCE_EXIT }
 
 #endif // INCLUDED_IEXNAMESPACE_H

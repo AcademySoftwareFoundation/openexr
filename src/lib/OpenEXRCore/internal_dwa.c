@@ -6,8 +6,8 @@
 #include "internal_compress.h"
 #include "internal_decompress.h"
 
-#include "internal_xdr.h"
 #include "internal_structs.h"
+#include "internal_xdr.h"
 
 #include <string.h>
 
@@ -45,10 +45,10 @@ internal_exr_undo_dwaa (
     void*                  uncompressed_data,
     uint64_t               uncompressed_size)
 {
-    (void)compressed_data;
-    (void)comp_buf_size;
-    (void)uncompressed_data;
-    (void)uncompressed_size;
+    (void) compressed_data;
+    (void) comp_buf_size;
+    (void) uncompressed_data;
+    (void) uncompressed_size;
     EXR_PROMOTE_CONST_CONTEXT_AND_PART_OR_ERROR_NO_LOCK (
         decode->context, decode->part_index);
     return pctxt->report_error (
@@ -65,10 +65,10 @@ internal_exr_undo_dwab (
     void*                  uncompressed_data,
     uint64_t               uncompressed_size)
 {
-    (void)compressed_data;
-    (void)comp_buf_size;
-    (void)uncompressed_data;
-    (void)uncompressed_size;
+    (void) compressed_data;
+    (void) comp_buf_size;
+    (void) uncompressed_data;
+    (void) uncompressed_size;
     EXR_PROMOTE_CONST_CONTEXT_AND_PART_OR_ERROR_NO_LOCK (
         decode->context, decode->part_index);
     return pctxt->report_error (

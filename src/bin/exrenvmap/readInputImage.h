@@ -13,24 +13,22 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfRgba.h>
 #include <ImfEnvmap.h>
 #include <ImfForward.h>
+#include <ImfRgba.h>
 
 #include "namespaceAlias.h"
 
 class EnvmapImage;
 
-
-void
-readInputImage (const char inFileName[],
-                float padTop,
-                float padBottom,
-                IMF::Envmap overrideType,
-                bool verbose,
-                EnvmapImage &image,
-                IMF::Header &header,
-                IMF::RgbaChannels &channels);
-
+void readInputImage (
+    const char         inFileName[],
+    float              padTop,
+    float              padBottom,
+    IMF::Envmap        overrideType,
+    bool               verbose,
+    EnvmapImage&       image,
+    IMF::Header&       header,
+    IMF::RgbaChannels& channels);
 
 #endif

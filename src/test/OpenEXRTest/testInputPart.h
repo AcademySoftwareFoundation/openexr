@@ -8,6 +8,6 @@
 
 #include <string>
 
-void testInputPart (const std::string & tempDir);
+void testInputPart (const std::string& tempDir);
 
 #endif /* TESTINPUTPART_H_ */

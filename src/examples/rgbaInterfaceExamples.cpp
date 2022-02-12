@@ -3,7 +3,6 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
-
 //-----------------------------------------------------------------------------
 //
 //	Code examples that show how class RgbaInputFile and
@@ -13,27 +12,23 @@
 //
 //-----------------------------------------------------------------------------
 
+#include <ImfArray.h>
+#include <ImfMatrixAttribute.h>
 #include <ImfRgbaFile.h>
 #include <ImfStringAttribute.h>
-#include <ImfMatrixAttribute.h>
-#include <ImfArray.h>
 
 #include "drawImage.h"
 
-#include <iostream>
 #include <algorithm>
+#include <iostream>
 
 #include "namespaceAlias.h"
 using namespace IMF;
 using namespace std;
 using namespace IMATH_NAMESPACE;
 
-
 void
-writeRgba1 (const char fileName[],
-	    const Rgba *pixels,
-	    int width,
-	    int height)
+writeRgba1 (const char fileName[], const Rgba* pixels, int width, int height)
 {
     //
     // Write an RGBA image using class RgbaOutputFile.
@@ -43,19 +38,18 @@ writeRgba1 (const char fileName[],
     //	- store the pixels in the file
     //
 
-
     RgbaOutputFile file (fileName, width, height, WRITE_RGBA);
     file.setFrameBuffer (pixels, 1, width);
     file.writePixels (height);
 }
 
-
 void
-writeRgba2 (const char fileName[],
-	    const Rgba *pixels,
-	    int width,
-	    int height,
-	    const Box2i &dataWindow)
+writeRgba2 (
+    const char   fileName[],
+    const Rgba*  pixels,
+    int          width,
+    int          height,
+    const Box2i& dataWindow)
 {
     //
     // Write an RGBA image using class RgbaOutputFile.
@@ -67,20 +61,20 @@ writeRgba2 (const char fileName[],
     //	- store the pixels in the file
     //
 
-    Box2i displayWindow (V2i (0, 0), V2i (width - 1, height - 1));
+    Box2i          displayWindow (V2i (0, 0), V2i (width - 1, height - 1));
     RgbaOutputFile file (fileName, displayWindow, dataWindow, WRITE_RGBA);
     file.setFrameBuffer (pixels, 1, width);
     file.writePixels (dataWindow.max.y - dataWindow.min.y + 1);
 }
 
-
 void
-writeRgba3 (const char fileName[],
-	    const Rgba *pixels,
-	    int width,
-	    int height,
-	    const char comments[],
-	    const M44f &cameraTransform)
+writeRgba3 (
+    const char  fileName[],
+    const Rgba* pixels,
+    int         width,
+    int         height,
+    const char  comments[],
+    const M44f& cameraTransform)
 {
     //
     // Write an RGBA image using class RgbaOutputFile.
@@ -101,12 +95,9 @@ writeRgba3 (const char fileName[],
     file.writePixels (height);
 }
 
-
 void
-readRgba1 (const char fileName[],
-	   Array2D<Rgba> &pixels,
-	   int &width,
-	   int &height)
+readRgba1 (
+    const char fileName[], Array2D<Rgba>& pixels, int& width, int& height)
 {
     //
     // Read an RGBA image using class RgbaInputFile:
@@ -118,7 +109,7 @@ readRgba1 (const char fileName[],
     //
 
     RgbaInputFile file (fileName);
-    Box2i dw = file.dataWindow();
+    Box2i         dw = file.dataWindow ();
 
     width  = dw.max.x - dw.min.x + 1;
     height = dw.max.y - dw.min.y + 1;
@@ -127,7 +118,6 @@ readRgba1 (const char fileName[],
     file.setFrameBuffer (&pixels[0][0] - dw.min.x - dw.min.y * width, 1, width);
     file.readPixels (dw.min.y, dw.max.y);
 }
-
 
 void
 readRgba2 (const char fileName[])
@@ -147,24 +137,23 @@ readRgba2 (const char fileName[])
     //
 
     RgbaInputFile file (fileName);
-    Box2i dw = file.dataWindow();
+    Box2i         dw = file.dataWindow ();
 
-    int width  = dw.max.x - dw.min.x + 1;
+    int width = dw.max.x - dw.min.x + 1;
 
     Array2D<Rgba> pixels (10, width);
 
     while (dw.min.y <= dw.max.y)
     {
-	file.setFrameBuffer (&pixels[0][0] - dw.min.x - dw.min.y * width,
-			     1, width);
+        file.setFrameBuffer (
+            &pixels[0][0] - dw.min.x - dw.min.y * width, 1, width);
 
-	file.readPixels (dw.min.y, min (dw.min.y + 9, dw.max.y));
-	// processPixels (pixels)
-	
-	dw.min.y += 10;
+        file.readPixels (dw.min.y, min (dw.min.y + 9, dw.max.y));
+        // processPixels (pixels)
+
+        dw.min.y += 10;
     }
 }
-
 
 void
 readHeader (const char fileName[])
@@ -181,19 +170,17 @@ readHeader (const char fileName[])
 
     RgbaInputFile file (fileName);
 
-    const StringAttribute *comments =
-	file.header().findTypedAttribute <StringAttribute> ("comments");
+    const StringAttribute* comments =
+        file.header ().findTypedAttribute<StringAttribute> ("comments");
 
-    const M44fAttribute *cameraTransform = 
-	file.header().findTypedAttribute <M44fAttribute> ("cameraTransform");
+    const M44fAttribute* cameraTransform =
+        file.header ().findTypedAttribute<M44fAttribute> ("cameraTransform");
 
-    if (comments)
-	cout << "comments\n   " << comments->value() << endl;
+    if (comments) cout << "comments\n   " << comments->value () << endl;
 
     if (cameraTransform)
-	cout << "cameraTransform\n" << cameraTransform->value() << flush;
+        cout << "cameraTransform\n" << cameraTransform->value () << flush;
 }
-
 
 void
 rgbaInterfaceExamples ()
@@ -213,13 +200,16 @@ rgbaInterfaceExamples ()
 
     cout << "writing cropped image" << endl;
 
-    writeRgba2 ("rgba2.exr", &p[0][0], w, h,
-	        Box2i (V2i (w/6, h/6), V2i (w/2, h/2)));
+    writeRgba2 (
+        "rgba2.exr",
+        &p[0][0],
+        w,
+        h,
+        Box2i (V2i (w / 6, h / 6), V2i (w / 2, h / 2)));
 
     cout << "writing image with extra header attributes" << endl;
 
-    writeRgba3 ("rgba3.exr", &p[0][0], w, h,
-	        "may contain peanuts", M44f());
+    writeRgba3 ("rgba3.exr", &p[0][0], w, h, "may contain peanuts", M44f ());
 
     cout << "reading rgba file" << endl;
 

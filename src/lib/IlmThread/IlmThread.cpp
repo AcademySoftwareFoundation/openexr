@@ -11,9 +11,9 @@
 //
 //-----------------------------------------------------------------------------
 
-#include "IlmThreadConfig.h"
 #include "IlmThread.h"
 #include "Iex.h"
+#include "IlmThreadConfig.h"
 
 ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_ENTER
 
@@ -30,27 +30,24 @@ Thread::Thread ()
     // empty
 }
 
-
 Thread::~Thread ()
 {
     // hopefully the thread has basically exited and we are just
     // cleaning up, because run is a virtual function, so the v-table
     // has already been partly destroyed...
-    if ( _thread.joinable () )
-        _thread.join ();
+    if (_thread.joinable ()) _thread.join ();
 }
 
 void
-Thread::join()
+Thread::join ()
 {
-    if ( _thread.joinable () )
-        _thread.join ();
+    if (_thread.joinable ()) _thread.join ();
 }
 
 bool
-Thread::joinable() const
+Thread::joinable () const
 {
-    return _thread.joinable();
+    return _thread.joinable ();
 }
 
 void
@@ -67,38 +64,36 @@ supportsThreads ()
     return false;
 }
 
-
 Thread::Thread ()
 {
-    throw IEX_NAMESPACE::NoImplExc ("Threads not supported / enabled on this platform.");
+    throw IEX_NAMESPACE::NoImplExc (
+        "Threads not supported / enabled on this platform.");
 }
-
 
 Thread::~Thread ()
-{
-}
-
+{}
 
 void
 Thread::start ()
 {
-    throw IEX_NAMESPACE::NoImplExc ("Threads not supported / enabled on this platform.");
+    throw IEX_NAMESPACE::NoImplExc (
+        "Threads not supported / enabled on this platform.");
 }
 
 void
 Thread::join ()
 {
-    throw IEX_NAMESPACE::NoImplExc ("Threads not supported / enabled on this platform.");
+    throw IEX_NAMESPACE::NoImplExc (
+        "Threads not supported / enabled on this platform.");
 }
 
 bool
 Thread::joinable () const
 {
-    throw IEX_NAMESPACE::NoImplExc ("Threads not supported / enabled on this platform.");
+    throw IEX_NAMESPACE::NoImplExc (
+        "Threads not supported / enabled on this platform.");
 }
 
 #endif
 
-
 ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_EXIT
-

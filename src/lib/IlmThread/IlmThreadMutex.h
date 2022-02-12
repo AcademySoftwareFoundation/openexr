@@ -13,12 +13,12 @@
 //
 //-----------------------------------------------------------------------------
 
-#include "IlmThreadExport.h"
 #include "IlmThreadConfig.h"
+#include "IlmThreadExport.h"
 #include "IlmThreadNamespace.h"
 
 #if ILMTHREAD_THREADING_ENABLED
-#include <mutex>
+#    include <mutex>
 #endif
 
 ILMTHREAD_INTERNAL_NAMESPACE_HEADER_ENTER
@@ -31,50 +31,44 @@ using Mutex ILMTHREAD_DEPRECATED ("replace with std::mutex") = std::mutex;
 // to clean up their code.
 class Lock
 {
-  public:
-
+public:
     ILMTHREAD_DEPRECATED ("replace with std::lock_guard or std::unique_lock")
-    Lock (const Mutex& m, bool autoLock = true):
-        _mutex (const_cast<Mutex &>(m)), _locked (false)
+    Lock (const Mutex& m, bool autoLock = true)
+        : _mutex (const_cast<Mutex&> (m)), _locked (false)
     {
         if (autoLock)
         {
-            _mutex.lock();
+            _mutex.lock ();
             _locked = true;
         }
     }
-    
+
     ~Lock ()
     {
-        if (_locked)
-            _mutex.unlock();
+        if (_locked) _mutex.unlock ();
     }
     Lock (const Lock&) = delete;
-    Lock &operator= (const Lock&) = delete;
-    Lock (Lock&&) = delete;
+    Lock& operator= (const Lock&) = delete;
+    Lock (Lock&&)                 = delete;
     Lock& operator= (Lock&&) = delete;
 
     void acquire ()
     {
-        _mutex.lock();
+        _mutex.lock ();
         _locked = true;
     }
-    
+
     void release ()
     {
         _locked = false;
-        _mutex.unlock();
-    }
-    
-    bool locked ()
-    {
-        return _locked;
+        _mutex.unlock ();
     }
 
-  private:
+    bool locked () { return _locked; }
 
-    Mutex & _mutex;
-    bool    _locked;
+private:
+    Mutex& _mutex;
+    bool   _locked;
 };
 #endif
 

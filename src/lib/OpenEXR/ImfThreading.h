@@ -24,7 +24,7 @@
 //	done concurrently through pinelining.  If there are two or more
 //	worker threads, then pipelining as well as concurrent compression
 //	of multiple blocks can be performed.
-// 
+//
 //	Threading in the EXR library is controllable at two granularities:
 //
 //	* The functions in this file query and control the total number
@@ -45,21 +45,18 @@
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
-
 //-----------------------------------------------------------------------------
 // Return the number of Imf-global worker threads used for parallel
 // compression and decompression of OpenEXR files.
 //-----------------------------------------------------------------------------
-    
-IMF_EXPORT int     globalThreadCount ();
 
+IMF_EXPORT int globalThreadCount ();
 
 //-----------------------------------------------------------------------------
 // Change the number of Imf-global worker threads
 //-----------------------------------------------------------------------------
 
-IMF_EXPORT void    setGlobalThreadCount (int count);
-
+IMF_EXPORT void setGlobalThreadCount (int count);
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 

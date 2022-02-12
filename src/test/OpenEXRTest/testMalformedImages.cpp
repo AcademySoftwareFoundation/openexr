@@ -7,49 +7,48 @@
 #    undef NDEBUG
 #endif
 
+#include <IlmThread.h>
 #include <ImfAcesFile.h>
 #include <ImfArray.h>
 #include <ImfRgbaFile.h>
-#include <IlmThread.h>
-#include <stdio.h>
 #include <assert.h>
+#include <stdio.h>
 
 #ifndef ILM_IMF_TEST_IMAGEDIR
-    #define ILM_IMF_TEST_IMAGEDIR
+#    define ILM_IMF_TEST_IMAGEDIR
 #endif
-
 
 using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;
 using namespace IMATH_NAMESPACE;
 
-
-namespace {
+namespace
+{
 
 void
 readImage (const char inFileName[])
 {
-	Array2D<Rgba> p;
-	Header h;
-	Box2i dw;
-	int width;
-	int height;
+    Array2D<Rgba> p;
+    Header        h;
+    Box2i         dw;
+    int           width;
+    int           height;
 
-	{
-		cout << "Reading file " << inFileName << endl;
+    {
+        cout << "Reading file " << inFileName << endl;
 
-		AcesInputFile in (inFileName);
+        AcesInputFile in (inFileName);
 
-		h = in.header();
-		dw = h.dataWindow();
+        h  = in.header ();
+        dw = h.dataWindow ();
 
-		width  = dw.max.x - dw.min.x + 1;
-		height = dw.max.y - dw.min.y + 1;
-		p.resizeErase (height, width);
+        width  = dw.max.x - dw.min.x + 1;
+        height = dw.max.y - dw.min.y + 1;
+        p.resizeErase (height, width);
 
-		in.setFrameBuffer (&p[0][0] - dw.min.x - dw.min.y * width, 1, width);
-		in.readPixels (dw.min.y, dw.max.y);
-	}
+        in.setFrameBuffer (&p[0][0] - dw.min.x - dw.min.y * width, 1, width);
+        in.readPixels (dw.min.y, dw.max.y);
+    }
 }
 
 void
@@ -59,7 +58,7 @@ readBadBoundsImage (const char fileName[])
 
     OPENEXR_IMF_NAMESPACE::RgbaInputFile in (fileName);
 
-    cout << "version " << in.version() << " " << flush;
+    cout << "version " << in.version () << " " << flush;
 
     //const Box2i &dw = in.dataWindow();
 }
@@ -79,7 +78,7 @@ testMalformedImages (const std::string&)
         cerr << "Malformed Images : InputFile : incorrect input file passed\n";
         assert (false);
     }
-    catch (const IEX_NAMESPACE::BaseExc &e)
+    catch (const IEX_NAMESPACE::BaseExc& e)
     {
         // expected behaviour
         caught = true;
@@ -94,7 +93,7 @@ testMalformedImages (const std::string&)
         cerr << "Malformed Images : InputFile : incorrect input file passed\n";
         assert (false);
     }
-    catch (const IEX_NAMESPACE::IoExc &e)
+    catch (const IEX_NAMESPACE::IoExc& e)
     {
         // expected behaviour
         caught = true;
@@ -109,7 +108,7 @@ testMalformedImages (const std::string&)
         cerr << "Malformed Images : InputFile : incorrect input file passed\n";
         assert (false);
     }
-    catch (const IEX_NAMESPACE::InputExc &e)
+    catch (const IEX_NAMESPACE::InputExc& e)
     {
         // expected behaviour
         caught = true;

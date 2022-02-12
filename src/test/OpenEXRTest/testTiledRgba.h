@@ -3,8 +3,6 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
-
 #include <string>
 
-void testTiledRgba (const std::string &tempDir);
-
+void testTiledRgba (const std::string& tempDir);

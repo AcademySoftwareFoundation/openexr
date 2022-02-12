@@ -7,29 +7,29 @@
 #    undef NDEBUG
 #endif
 
+#include <assert.h>
 #include <iostream>
-#include <string>
-#include <vector>
 #include <stdio.h>
 #include <stdlib.h>
-#include <assert.h>
+#include <string>
+#include <vector>
 
-#include "tmpDir.h"
-#include "testInputPart.h"
 #include "random.h"
+#include "testInputPart.h"
+#include "tmpDir.h"
 
 #include <IlmThreadPool.h>
-#include <ImfMultiPartInputFile.h>
-#include <ImfMultiPartOutputFile.h>
 #include <ImfArray.h>
 #include <ImfChannelList.h>
 #include <ImfFrameBuffer.h>
 #include <ImfHeader.h>
-#include <ImfOutputPart.h>
 #include <ImfInputFile.h>
 #include <ImfInputPart.h>
-#include <ImfTiledOutputPart.h>
+#include <ImfMultiPartInputFile.h>
+#include <ImfMultiPartOutputFile.h>
+#include <ImfOutputPart.h>
 #include <ImfPartType.h>
+#include <ImfTiledOutputPart.h>
 //#include <ImfMisc.h>
 
 namespace IMF = OPENEXR_IMF_NAMESPACE;
@@ -40,19 +40,20 @@ using namespace ILMTHREAD_NAMESPACE;
 
 namespace
 {
- 
+
 const int height = 267;
-const int width = 193;
+const int width  = 193;
 
 vector<Header> headers;
-vector<int> pixelTypes;
-vector<int> partTypes;
-vector<int> levelModes;
+vector<int>    pixelTypes;
+vector<int>    partTypes;
+vector<int>    levelModes;
 
 template <class T>
-void fillPixels (Array2D<T> &ph, int width, int height)
+void
+fillPixels (Array2D<T>& ph, int width, int height)
 {
-    ph.resizeErase(height, width);
+    ph.resizeErase (height, width);
     for (int y = 0; y < height; ++y)
         for (int x = 0; x < width; ++x)
         {
@@ -64,9 +65,11 @@ void fillPixels (Array2D<T> &ph, int width, int height)
 }
 
 template <class T>
-void fillPixels (Array2D<unsigned int>& sampleCount, Array2D<T*> &ph, int width, int height)
+void
+fillPixels (
+    Array2D<unsigned int>& sampleCount, Array2D<T*>& ph, int width, int height)
 {
-    ph.resizeErase(height, width);
+    ph.resizeErase (height, width);
     for (int y = 0; y < height; ++y)
         for (int x = 0; x < width; ++x)
         {
@@ -128,28 +131,38 @@ void releasePixels(int type, Array2D<unsigned int*>& uintData, Array2D<float*>& 
 #endif
 
 template <class T>
-bool checkPixels (Array2D<T> &ph, int lx, int rx, int ly, int ry, int width)
+bool
+checkPixels (Array2D<T>& ph, int lx, int rx, int ly, int ry, int width)
 {
     for (int y = ly; y <= ry; ++y)
         for (int x = lx; x <= rx; ++x)
-            if (ph[y][x] != static_cast<T>(((y * width + x) % 2049)))
+            if (ph[y][x] != static_cast<T> (((y * width + x) % 2049)))
             {
                 cout << "value at " << x << ", " << y << ": " << ph[y][x]
-                     << ", should be " << (y * width + x) % 2049 << endl << flush;
+                     << ", should be " << (y * width + x) % 2049 << endl
+                     << flush;
                 return false;
             }
     return true;
 }
 
 template <class T>
-bool checkPixels (Array2D<T> &ph, int width, int height)
+bool
+checkPixels (Array2D<T>& ph, int width, int height)
 {
     return checkPixels<T> (ph, 0, width - 1, 0, height - 1, width);
 }
 
 template <class T>
-bool checkPixels (Array2D<unsigned int>& sampleCount, Array2D<T*> &ph,
-                  int lx, int rx, int ly, int ry, int width)
+bool
+checkPixels (
+    Array2D<unsigned int>& sampleCount,
+    Array2D<T*>&           ph,
+    int                    lx,
+    int                    rx,
+    int                    ly,
+    int                    ry,
+    int                    width)
 {
     for (int y = ly; y <= ry; ++y)
         for (int x = lx; x <= rx; ++x)
@@ -158,8 +171,10 @@ bool checkPixels (Array2D<unsigned int>& sampleCount, Array2D<T*> &ph,
             {
                 if (ph[y][x][i] != (y * width + x) % 2049)
                 {
-                    cout << "value at " << x << ", " << y << ", sample " << i << ": " << ph[y][x][i]
-                         << ", should be " << (y * width + x) % 2049 << endl << flush;
+                    cout << "value at " << x << ", " << y << ", sample " << i
+                         << ": " << ph[y][x][i] << ", should be "
+                         << (y * width + x) % 2049 << endl
+                         << flush;
                     return false;
                 }
             }
@@ -168,7 +183,9 @@ bool checkPixels (Array2D<unsigned int>& sampleCount, Array2D<T*> &ph,
 }
 
 template <class T>
-bool checkPixels (Array2D<unsigned int>& sampleCount, Array2D<T*> &ph, int width, int height)
+bool
+checkPixels (
+    Array2D<unsigned int>& sampleCount, Array2D<T*>& ph, int width, int height)
 {
     return checkPixels<T> (sampleCount, ph, 0, width - 1, 0, height - 1, width);
 }
@@ -195,52 +212,50 @@ bool checkSampleCount(Array2D<unsigned int>& sampleCount, int width, int height)
 }
 #endif
 
-void generateRandomHeaders(int partCount, vector<Header>& headers)
+void
+generateRandomHeaders (int partCount, vector<Header>& headers)
 {
     cout << "Generating headers and data" << endl << flush;
 
-    headers.clear();
+    headers.clear ();
     for (int i = 0; i < partCount; i++)
     {
-        Header header (width, 
-                       height,
-                       1.f, 
-                       IMATH_NAMESPACE::V2f (0, 0), 
-                       1.f, 
-                       INCREASING_Y, 
-                       ZIPS_COMPRESSION);
-                   
-        int pixelType = random_int(3);
-        int partType = random_int(2);
-        
+        Header header (
+            width,
+            height,
+            1.f,
+            IMATH_NAMESPACE::V2f (0, 0),
+            1.f,
+            INCREASING_Y,
+            ZIPS_COMPRESSION);
+
+        int pixelType = random_int (3);
+        int partType  = random_int (2);
+
         pixelTypes[i] = pixelType;
-        partTypes[i] = partType;
+        partTypes[i]  = partType;
 
         stringstream ss;
         ss << i;
-        header.setName(ss.str());
+        header.setName (ss.str ());
 
         switch (pixelType)
         {
             case 0:
-                header.channels().insert("UINT", Channel(IMF::UINT));
+                header.channels ().insert ("UINT", Channel (IMF::UINT));
                 break;
             case 1:
-                header.channels().insert("FLOAT", Channel(IMF::FLOAT));
+                header.channels ().insert ("FLOAT", Channel (IMF::FLOAT));
                 break;
             case 2:
-                header.channels().insert("HALF", Channel(IMF::HALF));
+                header.channels ().insert ("HALF", Channel (IMF::HALF));
                 break;
         }
 
         switch (partType)
         {
-            case 0:
-                header.setType(SCANLINEIMAGE);
-                break;
-            case 1:
-                header.setType(TILEDIMAGE);
-                break;
+            case 0: header.setType (SCANLINEIMAGE); break;
+            case 1: header.setType (TILEDIMAGE); break;
         }
 
         int tileX;
@@ -248,163 +263,177 @@ void generateRandomHeaders(int partCount, vector<Header>& headers)
         int levelMode;
         if (partType == 1)
         {
-            tileX = random_int(width) + 1;
-            tileY = random_int(height) + 1;
-            levelMode = random_int(3);
+            tileX         = random_int (width) + 1;
+            tileY         = random_int (height) + 1;
+            levelMode     = random_int (3);
             levelModes[i] = levelMode;
             LevelMode lm  = NUM_LEVELMODES;
             switch (levelMode)
             {
-                case 0:
-                    lm = ONE_LEVEL;
-                    break;
-                case 1:
-                    lm = MIPMAP_LEVELS;
-                    break;
-                case 2:
-                    lm = RIPMAP_LEVELS;
-                    break;
+                case 0: lm = ONE_LEVEL; break;
+                case 1: lm = MIPMAP_LEVELS; break;
+                case 2: lm = RIPMAP_LEVELS; break;
             }
-            header.setTileDescription(TileDescription(tileX, tileY, lm));
+            header.setTileDescription (TileDescription (tileX, tileY, lm));
         }
 
- 
-        int order = random_int(NUM_LINEORDERS);
-        if(partType==0 || partType ==2)
+        int order = random_int (NUM_LINEORDERS);
+        if (partType == 0 || partType == 2)
         {
             // can't write random scanlines
-            order = random_int(NUM_LINEORDERS-1);
+            order = random_int (NUM_LINEORDERS - 1);
         }
         LineOrder l = NUM_LINEORDERS;
-        switch(order)
+        switch (order)
         {
-             case 0 : 
-                 l = INCREASING_Y;
-                 break;
-             case 1 :
-                  l = DECREASING_Y;
-                 break;
-             case 2 : 
-                  l = RANDOM_Y;
-                  break;
+            case 0: l = INCREASING_Y; break;
+            case 1: l = DECREASING_Y; break;
+            case 2: l = RANDOM_Y; break;
         }
-        
-        header.lineOrder()=l;
-        
+
+        header.lineOrder () = l;
 
         if (partType == 0)
         {
             cout << "pixelType = " << pixelType << " partType = " << partType
-                 << " line order =" << header.lineOrder() << endl << flush;
+                 << " line order =" << header.lineOrder () << endl
+                 << flush;
         }
         else
         {
             cout << "pixelType = " << pixelType << " partType = " << partType
-                 << " tile order =" << header.lineOrder()
-                 << " levelMode = " << levelModes[i] << endl << flush;
+                 << " tile order =" << header.lineOrder ()
+                 << " levelMode = " << levelModes[i] << endl
+                 << flush;
         }
 
-        headers.push_back(header);
+        headers.push_back (header);
     }
 }
 
-void setOutputFrameBuffer(FrameBuffer& frameBuffer, int pixelType,
-                          Array2D<unsigned int>& uData, Array2D<float>& fData,
-                          Array2D<half>& hData, int width)
+void
+setOutputFrameBuffer (
+    FrameBuffer&           frameBuffer,
+    int                    pixelType,
+    Array2D<unsigned int>& uData,
+    Array2D<float>&        fData,
+    Array2D<half>&         hData,
+    int                    width)
 {
     switch (pixelType)
     {
         case 0:
-            frameBuffer.insert ("UINT",
-                                Slice (IMF::UINT,
-                                (char *) (&uData[0][0]),
-                                sizeof (uData[0][0]) * 1,
-                                sizeof (uData[0][0]) * width));
+            frameBuffer.insert (
+                "UINT",
+                Slice (
+                    IMF::UINT,
+                    (char*) (&uData[0][0]),
+                    sizeof (uData[0][0]) * 1,
+                    sizeof (uData[0][0]) * width));
             break;
         case 1:
-            frameBuffer.insert ("FLOAT",
-                                Slice (IMF::FLOAT,
-                                (char *) (&fData[0][0]),
-                                sizeof (fData[0][0]) * 1,
-                                sizeof (fData[0][0]) * width));
+            frameBuffer.insert (
+                "FLOAT",
+                Slice (
+                    IMF::FLOAT,
+                    (char*) (&fData[0][0]),
+                    sizeof (fData[0][0]) * 1,
+                    sizeof (fData[0][0]) * width));
             break;
         case 2:
-            frameBuffer.insert ("HALF",
-                                Slice (IMF::HALF,
-                                (char *) (&hData[0][0]),
-                                sizeof (hData[0][0]) * 1,
-                                sizeof (hData[0][0]) * width));
-            break;
-    }
-}
-
-void setInputFrameBuffer(FrameBuffer& frameBuffer, int pixelType,
-                         Array2D<unsigned int>& uData, Array2D<float>& fData,
-                         Array2D<half>& hData, int width, int height)
-{
-    switch (pixelType)
-    {
-        case 0:
-            uData.resizeErase(height, width);
-            frameBuffer.insert ("UINT",
-                                Slice (IMF::UINT,
-                                (char *) (&uData[0][0]),
-                                sizeof (uData[0][0]) * 1,
-                                sizeof (uData[0][0]) * width,
-                                1, 1,
-                                0));
-            break;
-        case 1:
-            fData.resizeErase(height, width);
-            frameBuffer.insert ("FLOAT",
-                                Slice (IMF::FLOAT,
-                                (char *) (&fData[0][0]),
-                                sizeof (fData[0][0]) * 1,
-                                sizeof (fData[0][0]) * width,
-                                1, 1,
-                                0));
-            break;
-        case 2:
-            hData.resizeErase(height, width);
-            frameBuffer.insert ("HALF",
-                                Slice (IMF::HALF,
-                                (char *) (&hData[0][0]),
-                                sizeof (hData[0][0]) * 1,
-                                sizeof (hData[0][0]) * width,
-                                1, 1,
-                                0));
+            frameBuffer.insert (
+                "HALF",
+                Slice (
+                    IMF::HALF,
+                    (char*) (&hData[0][0]),
+                    sizeof (hData[0][0]) * 1,
+                    sizeof (hData[0][0]) * width));
             break;
     }
 }
 
 void
-generateRandomFile (int partCount, const std::string & fn)
+setInputFrameBuffer (
+    FrameBuffer&           frameBuffer,
+    int                    pixelType,
+    Array2D<unsigned int>& uData,
+    Array2D<float>&        fData,
+    Array2D<half>&         hData,
+    int                    width,
+    int                    height)
+{
+    switch (pixelType)
+    {
+        case 0:
+            uData.resizeErase (height, width);
+            frameBuffer.insert (
+                "UINT",
+                Slice (
+                    IMF::UINT,
+                    (char*) (&uData[0][0]),
+                    sizeof (uData[0][0]) * 1,
+                    sizeof (uData[0][0]) * width,
+                    1,
+                    1,
+                    0));
+            break;
+        case 1:
+            fData.resizeErase (height, width);
+            frameBuffer.insert (
+                "FLOAT",
+                Slice (
+                    IMF::FLOAT,
+                    (char*) (&fData[0][0]),
+                    sizeof (fData[0][0]) * 1,
+                    sizeof (fData[0][0]) * width,
+                    1,
+                    1,
+                    0));
+            break;
+        case 2:
+            hData.resizeErase (height, width);
+            frameBuffer.insert (
+                "HALF",
+                Slice (
+                    IMF::HALF,
+                    (char*) (&hData[0][0]),
+                    sizeof (hData[0][0]) * 1,
+                    sizeof (hData[0][0]) * width,
+                    1,
+                    1,
+                    0));
+            break;
+    }
+}
+
+void
+generateRandomFile (int partCount, const std::string& fn)
 {
     //
     // Init data.
     //
-    Array2D<half> halfData;
-    Array2D<float> floatData;
+    Array2D<half>         halfData;
+    Array2D<float>        floatData;
     Array2D<unsigned int> uintData;
 
-    Array2D<unsigned int> sampleCount;
-    Array2D<half*> deepHalfData;
-    Array2D<float*> deepFloatData;
+    Array2D<unsigned int>  sampleCount;
+    Array2D<half*>         deepHalfData;
+    Array2D<float*>        deepFloatData;
     Array2D<unsigned int*> deepUintData;
 
     vector<GenericOutputFile*> outputfiles;
 
-    pixelTypes.resize(partCount);
-    partTypes.resize(partCount);
-    levelModes.resize(partCount);
+    pixelTypes.resize (partCount);
+    partTypes.resize (partCount);
+    levelModes.resize (partCount);
 
     //
     // Generate headers and data.
     //
-    generateRandomHeaders(partCount, headers);
+    generateRandomHeaders (partCount, headers);
 
-    remove(fn.c_str());
-    MultiPartOutputFile file(fn.c_str(), &headers[0],headers.size());
+    remove (fn.c_str ());
+    MultiPartOutputFile file (fn.c_str (), &headers[0], headers.size ());
 
     //
     // Writing files.
@@ -418,54 +447,65 @@ generateRandomFile (int partCount, const std::string & fn)
     {
         switch (partTypes[i])
         {
-            case 0:
-            {
-                OutputPart part(file, i);
+            case 0: {
+                OutputPart part (file, i);
 
                 FrameBuffer frameBuffer;
 
-                fillPixels <unsigned int> (uintData, width, height);
-                fillPixels <float> (floatData, width, height);
-                fillPixels <half> (halfData, width, height);
+                fillPixels<unsigned int> (uintData, width, height);
+                fillPixels<float> (floatData, width, height);
+                fillPixels<half> (halfData, width, height);
 
-                setOutputFrameBuffer(frameBuffer, pixelTypes[i], uintData, floatData, halfData, width);
+                setOutputFrameBuffer (
+                    frameBuffer,
+                    pixelTypes[i],
+                    uintData,
+                    floatData,
+                    halfData,
+                    width);
 
-                part.setFrameBuffer(frameBuffer);
+                part.setFrameBuffer (frameBuffer);
 
-                part.writePixels(height);
+                part.writePixels (height);
 
                 break;
             }
-            case 1:
-            {
-                TiledOutputPart part(file, i);
+            case 1: {
+                TiledOutputPart part (file, i);
 
-                int numXLevels = part.numXLevels();
-                int numYLevels = part.numYLevels();
+                int numXLevels = part.numXLevels ();
+                int numYLevels = part.numYLevels ();
 
                 for (int xLevel = 0; xLevel < numXLevels; xLevel++)
                     for (int yLevel = 0; yLevel < numYLevels; yLevel++)
                     {
-                        if (!part.isValidLevel(xLevel, yLevel))
-                            continue;
+                        if (!part.isValidLevel (xLevel, yLevel)) continue;
 
-                        int w = part.levelWidth(xLevel);
-                        int h = part.levelHeight(yLevel);
+                        int w = part.levelWidth (xLevel);
+                        int h = part.levelHeight (yLevel);
 
                         FrameBuffer frameBuffer;
 
-                        fillPixels <unsigned int> (uintData, w, h);
-                        fillPixels <float> (floatData, w, h);
-                        fillPixels <half> (halfData, w, h);
-                        setOutputFrameBuffer(frameBuffer, pixelTypes[i],
-                                             uintData, floatData, halfData,
-                                             w);
+                        fillPixels<unsigned int> (uintData, w, h);
+                        fillPixels<float> (floatData, w, h);
+                        fillPixels<half> (halfData, w, h);
+                        setOutputFrameBuffer (
+                            frameBuffer,
+                            pixelTypes[i],
+                            uintData,
+                            floatData,
+                            halfData,
+                            w);
 
-                        part.setFrameBuffer(frameBuffer);
+                        part.setFrameBuffer (frameBuffer);
 
-                        part.writeTiles(0, part.numXTiles(xLevel) - 1,
-                                        0, part.numYTiles(yLevel) - 1,
-                                        xLevel, yLevel);
+                        part.writeTiles (
+                            0,
+                            part.numXTiles (xLevel) - 1,
+                            0,
+                            part.numYTiles (yLevel) - 1,
+                            xLevel,
+                            yLevel);
                     }
 
                 break;
@@ -475,32 +515,33 @@ generateRandomFile (int partCount, const std::string & fn)
 }
 
 void
-readWholeFiles (const std::string & fn)
+readWholeFiles (const std::string& fn)
 {
     Array2D<unsigned int> uData;
-    Array2D<float> fData;
-    Array2D<half> hData;
+    Array2D<float>        fData;
+    Array2D<half>         hData;
 
     Array2D<unsigned int*> deepUData;
-    Array2D<float*> deepFData;
-    Array2D<half*> deepHData;
+    Array2D<float*>        deepFData;
+    Array2D<half*>         deepHData;
 
     Array2D<unsigned int> sampleCount;
 
-    MultiPartInputFile file(fn.c_str());
-    for (int i = 0; i < file.parts(); i++)
+    MultiPartInputFile file (fn.c_str ());
+    for (int i = 0; i < file.parts (); i++)
     {
-        const Header& header = file.header(i);
-        assert (header.displayWindow() == headers[i].displayWindow());
-        assert (header.dataWindow() == headers[i].dataWindow());
-        assert (header.pixelAspectRatio() == headers[i].pixelAspectRatio());
-        assert (header.screenWindowCenter() == headers[i].screenWindowCenter());
-        assert (header.screenWindowWidth() == headers[i].screenWindowWidth());
-        assert (header.lineOrder() == headers[i].lineOrder());
-        assert (header.compression() == headers[i].compression());
-        assert (header.channels() == headers[i].channels());
-        assert (header.name() == headers[i].name());
-        assert (header.type() == headers[i].type());
+        const Header& header = file.header (i);
+        assert (header.displayWindow () == headers[i].displayWindow ());
+        assert (header.dataWindow () == headers[i].dataWindow ());
+        assert (header.pixelAspectRatio () == headers[i].pixelAspectRatio ());
+        assert (
+            header.screenWindowCenter () == headers[i].screenWindowCenter ());
+        assert (header.screenWindowWidth () == headers[i].screenWindowWidth ());
+        assert (header.lineOrder () == headers[i].lineOrder ());
+        assert (header.compression () == headers[i].compression ());
+        assert (header.channels () == headers[i].channels ());
+        assert (header.name () == headers[i].name ());
+        assert (header.type () == headers[i].type ());
     }
 
     cout << "Reading whole files " << flush;
@@ -509,13 +550,13 @@ readWholeFiles (const std::string & fn)
     // Shuffle part numbers.
     //
     vector<int> shuffledPartNumber;
-    int nHeaders = static_cast<int>(headers.size());
+    int         nHeaders = static_cast<int> (headers.size ());
     for (int i = 0; i < nHeaders; i++)
-        shuffledPartNumber.push_back(i);
+        shuffledPartNumber.push_back (i);
     for (int i = 0; i < nHeaders; i++)
     {
-        int a = random_int(nHeaders);
-        int b = random_int(nHeaders);
+        int a = random_int (nHeaders);
+        int b = random_int (nHeaders);
         swap (shuffledPartNumber[a], shuffledPartNumber[b]);
     }
 
@@ -530,24 +571,30 @@ readWholeFiles (const std::string & fn)
         {
             partNumber = shuffledPartNumber[i];
             FrameBuffer frameBuffer;
-            setInputFrameBuffer(frameBuffer, pixelTypes[partNumber],
-                                uData, fData, hData, width, height);
+            setInputFrameBuffer (
+                frameBuffer,
+                pixelTypes[partNumber],
+                uData,
+                fData,
+                hData,
+                width,
+                height);
 
-             InputPart part(file, partNumber);
-             part.setFrameBuffer(frameBuffer);
-             part.readPixels(0, height - 1);
-             switch (pixelTypes[partNumber])
-             {
-                   case 0:
-                        assert(checkPixels<unsigned int>(uData, width, height));
-                        break;
-                   case 1:
-                        assert(checkPixels<float>(fData, width, height));
-                        break;
-                    case 2:
-                        assert(checkPixels<half>(hData, width, height));
-                        break;
-             }
+            InputPart part (file, partNumber);
+            part.setFrameBuffer (frameBuffer);
+            part.readPixels (0, height - 1);
+            switch (pixelTypes[partNumber])
+            {
+                case 0:
+                    assert (checkPixels<unsigned int> (uData, width, height));
+                    break;
+                case 1:
+                    assert (checkPixels<float> (fData, width, height));
+                    break;
+                case 2:
+                    assert (checkPixels<half> (hData, width, height));
+                    break;
+            }
         }
     }
     catch (...)
@@ -558,110 +605,112 @@ readWholeFiles (const std::string & fn)
 }
 
 void
-readFirstPart (const std::string & fn)
+readFirstPart (const std::string& fn)
 {
     Array2D<unsigned int> uData;
-    Array2D<float> fData;
-    Array2D<half> hData;
-    
+    Array2D<float>        fData;
+    Array2D<half>         hData;
+
     Array2D<unsigned int*> deepUData;
-    Array2D<float*> deepFData;
-    Array2D<half*> deepHData;
-    
+    Array2D<float*>        deepFData;
+    Array2D<half*>         deepHData;
+
     Array2D<unsigned int> sampleCount;
-    
+
     cout << "Reading first part " << flush;
     int pixelType = pixelTypes[0];
     //int levelMode = levelModes[0];
 
     int l1, l2;
-    l1 = random_int(height);
-    l2 = random_int(height);
-    if (l1 > l2) swap(l1, l2);
+    l1 = random_int (height);
+    l2 = random_int (height);
+    if (l1 > l2) swap (l1, l2);
 
-    InputFile part(fn.c_str());
+    InputFile part (fn.c_str ());
 
     FrameBuffer frameBuffer;
-    setInputFrameBuffer(frameBuffer, pixelType,
-                        uData, fData, hData, width, height);
+    setInputFrameBuffer (
+        frameBuffer, pixelType, uData, fData, hData, width, height);
 
-    part.setFrameBuffer(frameBuffer);
-    part.readPixels(l1, l2);
+    part.setFrameBuffer (frameBuffer);
+    part.readPixels (l1, l2);
 
     switch (pixelType)
     {
-       case 0:
-          assert(checkPixels<unsigned int>(uData, 0, width - 1, l1, l2, width));
-          break;
-       case 1:
-            assert(checkPixels<float>(fData, 0, width - 1, l1, l2, width));
+        case 0:
+            assert (
+                checkPixels<unsigned int> (uData, 0, width - 1, l1, l2, width));
             break;
-       case 2:
-            assert(checkPixels<half>(hData, 0, width - 1, l1, l2, width));
+        case 1:
+            assert (checkPixels<float> (fData, 0, width - 1, l1, l2, width));
+            break;
+        case 2:
+            assert (checkPixels<half> (hData, 0, width - 1, l1, l2, width));
             break;
     }
 }
 
 void
-readPartialFiles (int randomReadCount, const std::string & fn)
+readPartialFiles (int randomReadCount, const std::string& fn)
 {
     Array2D<unsigned int> uData;
-    Array2D<float> fData;
-    Array2D<half> hData;
+    Array2D<float>        fData;
+    Array2D<half>         hData;
 
     Array2D<unsigned int*> deepUData;
-    Array2D<float*> deepFData;
-    Array2D<half*> deepHData;
+    Array2D<float*>        deepFData;
+    Array2D<half*>         deepHData;
 
     Array2D<unsigned int> sampleCount;
 
     cout << "Reading partial files " << flush;
-    MultiPartInputFile file(fn.c_str());
+    MultiPartInputFile file (fn.c_str ());
 
     for (int i = 0; i < randomReadCount; i++)
     {
-        int partNumber = random_int(file.parts());
+        int partNumber = random_int (file.parts ());
         //int partType = partTypes[partNumber];
         int pixelType = pixelTypes[partNumber];
         //int levelMode = levelModes[partNumber];
 
         int l1, l2;
-        l1 = random_int(height);
-        l2 = random_int(height);
-        
-        if (l1 > l2) swap(l1, l2);
+        l1 = random_int (height);
+        l2 = random_int (height);
 
-        InputPart part(file, partNumber);
+        if (l1 > l2) swap (l1, l2);
+
+        InputPart part (file, partNumber);
 
         FrameBuffer frameBuffer;
-        setInputFrameBuffer(frameBuffer, pixelType,
-                            uData, fData, hData, width, height);
+        setInputFrameBuffer (
+            frameBuffer, pixelType, uData, fData, hData, width, height);
 
-        part.setFrameBuffer(frameBuffer);
-        part.readPixels(l1, l2);
+        part.setFrameBuffer (frameBuffer);
+        part.readPixels (l1, l2);
 
         switch (pixelType)
         {
-              case 0:
-                  assert(checkPixels<unsigned int>(uData, 0, width - 1, l1, l2, width));
-                  break;
-              case 1:
-                  assert(checkPixels<float>(fData, 0, width - 1, l1, l2, width));
-                  break;
-              case 2:
-                  assert(checkPixels<half>(hData, 0, width - 1, l1, l2, width));
-                  break;
+            case 0:
+                assert (checkPixels<unsigned int> (
+                    uData, 0, width - 1, l1, l2, width));
+                break;
+            case 1:
+                assert (
+                    checkPixels<float> (fData, 0, width - 1, l1, l2, width));
+                break;
+            case 2:
+                assert (checkPixels<half> (hData, 0, width - 1, l1, l2, width));
+                break;
         }
     }
 }
 
-
-
 void
-testWriteRead (int partNumber,
-               int runCount,
-               int randomReadCount,
-               const std::string & tempDir)
+testWriteRead (
+    int                partNumber,
+    int                runCount,
+    int                randomReadCount,
+    const std::string& tempDir)
 {
     cout << "Testing file with " << partNumber << " part(s)." << endl << flush;
 
@@ -674,7 +723,7 @@ testWriteRead (int partNumber,
         readFirstPart (fn);
         readPartialFiles (randomReadCount, fn);
 
-        remove (fn.c_str());
+        remove (fn.c_str ());
 
         cout << endl << flush;
     }
@@ -682,30 +731,31 @@ testWriteRead (int partNumber,
 
 } // namespace
 
-
-void testInputPart (const std::string & tempDir)
+void
+testInputPart (const std::string& tempDir)
 {
     try
     {
-        cout << "Testing reading multipart tiles and scanlines with InputPart" << endl;
+        cout << "Testing reading multipart tiles and scanlines with InputPart"
+             << endl;
 
-        random_reseed(1);
+        random_reseed (1);
 
-        int numThreads = ThreadPool::globalThreadPool().numThreads();
-        ThreadPool::globalThreadPool().setNumThreads(4);
+        int numThreads = ThreadPool::globalThreadPool ().numThreads ();
+        ThreadPool::globalThreadPool ().setNumThreads (4);
 
-        testWriteRead ( 1, 1,  5, tempDir);
-        testWriteRead ( 2, 2,  1, tempDir);
-        testWriteRead ( 8, 4,  2, tempDir);
+        testWriteRead (1, 1, 5, tempDir);
+        testWriteRead (2, 2, 1, tempDir);
+        testWriteRead (8, 4, 2, tempDir);
         testWriteRead (50, 3, 11, tempDir);
 
-        ThreadPool::globalThreadPool().setNumThreads(numThreads);
+        ThreadPool::globalThreadPool ().setNumThreads (numThreads);
 
         cout << "ok\n" << endl;
     }
-    catch (const std::exception &e)
+    catch (const std::exception& e)
     {
-        cerr << "ERROR -- caught exception: " << e.what() << endl;
+        cerr << "ERROR -- caught exception: " << e.what () << endl;
         assert (false);
     }
 }

@@ -156,20 +156,16 @@ testReadMeta (const std::string& tempdir)
     EXRCORE_TEST (udata == NULL);
 
     int zlev = -2;
-    EXRCORE_TEST_RVAL (
-        exr_get_zip_compression_level (f, 0, &zlev));
+    EXRCORE_TEST_RVAL (exr_get_zip_compression_level (f, 0, &zlev));
     EXRCORE_TEST (zlev == -1);
     EXRCORE_TEST_RVAL_FAIL (
-        EXR_ERR_NOT_OPEN_WRITE,
-        exr_set_zip_compression_level (f, 0, 4));
+        EXR_ERR_NOT_OPEN_WRITE, exr_set_zip_compression_level (f, 0, 4));
 
     float dlev = -3.f;
-    EXRCORE_TEST_RVAL (
-        exr_get_dwa_compression_level (f, 0, &dlev));
+    EXRCORE_TEST_RVAL (exr_get_dwa_compression_level (f, 0, &dlev));
     EXRCORE_TEST (dlev == 45.f);
     EXRCORE_TEST_RVAL_FAIL (
-        EXR_ERR_NOT_OPEN_WRITE,
-        exr_set_dwa_compression_level (f, 0, 42.f));
+        EXR_ERR_NOT_OPEN_WRITE, exr_set_dwa_compression_level (f, 0, 42.f));
 
     exr_finish (&f);
 }
@@ -321,8 +317,8 @@ testReadScans (const std::string& tempdir)
     EXRCORE_TEST (decoder.channels[1].x_samples == 1);
     EXRCORE_TEST (decoder.channels[1].y_samples == 1);
 
-    std::unique_ptr<uint8_t[]> rptr{ new uint8_t[178 * 2] };
-    std::unique_ptr<uint8_t[]> zptr{ new uint8_t[178 * 4] };
+    std::unique_ptr<uint8_t[]> rptr{new uint8_t[178 * 2]};
+    std::unique_ptr<uint8_t[]> zptr{new uint8_t[178 * 4]};
     memset (rptr.get (), -1, 178 * 2);
     memset (zptr.get (), -1, 178 * 4);
     decoder.channels[0].decode_to_ptr     = rptr.get ();
@@ -508,8 +504,8 @@ testReadTiles (const std::string& tempdir)
     EXRCORE_TEST (decoder.channels[1].x_samples == 1);
     EXRCORE_TEST (decoder.channels[1].y_samples == 1);
 
-    std::unique_ptr<uint8_t[]> gptr{ new uint8_t[24 * 12 * 2] };
-    std::unique_ptr<uint8_t[]> zptr{ new uint8_t[24 * 12 * 4] };
+    std::unique_ptr<uint8_t[]> gptr{new uint8_t[24 * 12 * 2]};
+    std::unique_ptr<uint8_t[]> zptr{new uint8_t[24 * 12 * 4]};
     memset (gptr.get (), 0, 24 * 12 * 2);
     memset (zptr.get (), 0, 24 * 12 * 4);
     decoder.channels[0].decode_to_ptr          = gptr.get ();
@@ -567,8 +563,8 @@ testReadUnpack (const std::string& tempdir)
         exr_decode_pipeline_t decoder;
         EXRCORE_TEST_RVAL (exr_decoding_initialize (f, 0, &cinfo, &decoder));
 
-        std::unique_ptr<float[]>    gptr{ new float[24 * 12] };
-        std::unique_ptr<uint16_t[]> zptr{ new uint16_t[24 * 12] };
+        std::unique_ptr<float[]>    gptr{new float[24 * 12]};
+        std::unique_ptr<uint16_t[]> zptr{new uint16_t[24 * 12]};
         memset (gptr.get (), 0, 24 * 12 * 4);
         memset (zptr.get (), 0, 24 * 12 * 2);
         decoder.channels[0].decode_to_ptr          = (uint8_t*) gptr.get ();

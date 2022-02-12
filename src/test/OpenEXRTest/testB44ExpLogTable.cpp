@@ -4,11 +4,11 @@
 //
 
 #include <ImfNamespace.h>
-#include <half.h>
-#include <math.h>
-#include <iostream>
-#include <iomanip>
 #include <assert.h>
+#include <half.h>
+#include <iomanip>
+#include <iostream>
+#include <math.h>
 
 //
 // This test uses the code from the program that generate the
@@ -31,29 +31,29 @@ testB44ExpLogTable (const string&)
 
     for (int i = 0; i < iMax; i++)
     {
-	half h;
-	h.setBits (i);
+        half h;
+        h.setBits (i);
 
-	if (!h.isFinite())
-	    h = 0;
-	else if (h >= 8 * log (HALF_MAX))
-	    h = HALF_MAX;
-	else
-	    h = exp (h / 8);
+        if (!h.isFinite ())
+            h = 0;
+        else if (h >= 8 * log (HALF_MAX))
+            h = HALF_MAX;
+        else
+            h = exp (h / 8);
 
-        assert (OPENEXR_IMF_INTERNAL_NAMESPACE::expTable[i] == h.bits());
+        assert (OPENEXR_IMF_INTERNAL_NAMESPACE::expTable[i] == h.bits ());
     }
 
     for (int i = 0; i < iMax; i++)
     {
-	half h;
-	h.setBits (i);
+        half h;
+        h.setBits (i);
 
-	if (!h.isFinite() || h < 0)
-	    h = 0;
-	else
-	    h = 8 * log (h);
+        if (!h.isFinite () || h < 0)
+            h = 0;
+        else
+            h = 8 * log (h);
 
-        assert (OPENEXR_IMF_INTERNAL_NAMESPACE::logTable[i] == h.bits());
+        assert (OPENEXR_IMF_INTERNAL_NAMESPACE::logTable[i] == h.bits ());
     }
 }

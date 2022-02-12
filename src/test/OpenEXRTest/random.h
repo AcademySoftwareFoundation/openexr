@@ -5,11 +5,6 @@
 
 #include <limits>
 
-extern int   random_int(int range = std::numeric_limits<int>::max());
-extern float random_float(float range = std::numeric_limits<float>::max());
+extern int   random_int (int range = std::numeric_limits<int>::max ());
+extern float random_float (float range = std::numeric_limits<float>::max ());
 extern void  random_reseed (int s);
-
-
-
-
-

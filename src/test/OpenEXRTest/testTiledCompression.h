@@ -3,8 +3,6 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
-
 #include <string>
 
-void testTiledCompression (const std::string &tempDir);
-
+void testTiledCompression (const std::string& tempDir);

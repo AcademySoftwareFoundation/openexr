@@ -15,8 +15,8 @@
 //
 //----------------------------------------------------------------------------
 
-#include "ImfUtilExport.h"
 #include "ImfImageChannel.h"
+#include "ImfUtilExport.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
@@ -40,35 +40,31 @@ class DeepImageLevel;
 
 class IMFUTIL_EXPORT_TYPE SampleCountChannel : public ImageChannel
 {
-  public:
-
+public:
     //
     // The OpenEXR pixel type of this channel (HALF, FLOAT or UINT).
     //
 
     IMFUTIL_EXPORT
-    virtual PixelType   pixelType () const;
-    
+    virtual PixelType pixelType () const;
 
     //
     // Construct an OpenEXR frame buffer slice for this channel.
     // This function is needed reading an image from an OpenEXR
     // file and for saving an image in an OpenEXR file.
-    // 
+    //
 
     IMFUTIL_EXPORT
-    Slice                   slice () const;
-
+    Slice slice () const;
 
     //
     // Access to the image level to which this channel belongs.
     //
 
     IMFUTIL_EXPORT
-    DeepImageLevel &        deepLevel ();
+    DeepImageLevel& deepLevel ();
     IMFUTIL_EXPORT
-    const DeepImageLevel &  deepLevel () const;
-
+    const DeepImageLevel& deepLevel () const;
 
     //
     // Access to n(x,y), without bounds checking.  Accessing a location
@@ -77,8 +73,7 @@ class IMFUTIL_EXPORT_TYPE SampleCountChannel : public ImageChannel
     //
 
     IMFUTIL_EXPORT
-    const unsigned int &    operator () (int x, int y) const;
-
+    const unsigned int& operator() (int x, int y) const;
 
     //
     // Access to n(x,y), with bounds checking.  Accessing a location outside
@@ -86,7 +81,7 @@ class IMFUTIL_EXPORT_TYPE SampleCountChannel : public ImageChannel
     //
 
     IMFUTIL_EXPORT
-    const unsigned int &    at (int x, int y) const;
+    const unsigned int& at (int x, int y) const;
 
     //
     // Faster access to n(x,y) for all pixels in a single horizontal row of
@@ -97,8 +92,7 @@ class IMFUTIL_EXPORT_TYPE SampleCountChannel : public ImageChannel
     //
 
     IMFUTIL_EXPORT
-    const unsigned int *    row (int r) const;
-
+    const unsigned int* row (int r) const;
 
     //
     // Change the sample counts in one or more pixels:
@@ -134,12 +128,11 @@ class IMFUTIL_EXPORT_TYPE SampleCountChannel : public ImageChannel
     //
 
     IMFUTIL_EXPORT
-	void                set(int x, int y, unsigned int newNumSamples);
+    void set (int x, int y, unsigned int newNumSamples);
     IMFUTIL_EXPORT
-	void                set(int r, unsigned int newNumSamples[]);
+    void set (int r, unsigned int newNumSamples[]);
     IMFUTIL_EXPORT
-	void                clear();
-
+    void clear ();
 
     //
     // OpenEXR file reading support / make sample counts editable:
@@ -177,59 +170,54 @@ class IMFUTIL_EXPORT_TYPE SampleCountChannel : public ImageChannel
     //
 
     IMFUTIL_EXPORT
-	unsigned int *      beginEdit();
+    unsigned int* beginEdit ();
     IMFUTIL_EXPORT
-	void                endEdit();
+    void endEdit ();
 
     class Edit
     {
-      public:
-
+    public:
         //
         // Constructor calls level->beginEdit(),
         // destructor calls level->endEdit().
         //
 
-         IMFUTIL_EXPORT
-         Edit (SampleCountChannel& level);
-         IMFUTIL_EXPORT
+        IMFUTIL_EXPORT
+        Edit (SampleCountChannel& level);
+        IMFUTIL_EXPORT
         ~Edit ();
 
         Edit (const Edit& other) = delete;
-        Edit& operator = (const Edit& other) = delete;
-        Edit (Edit&& other) = delete;
-        Edit& operator = (Edit&& other) = delete;
+        Edit& operator= (const Edit& other) = delete;
+        Edit (Edit&& other)                 = delete;
+        Edit& operator= (Edit&& other) = delete;
 
         //
         // Access to the writable sample count array.
         //
 
         IMFUTIL_EXPORT
-        unsigned int *          sampleCounts () const;
+        unsigned int* sampleCounts () const;
 
-      private:
-
-        SampleCountChannel &    _channel;
-        unsigned int *          _sampleCounts;
+    private:
+        SampleCountChannel& _channel;
+        unsigned int*       _sampleCounts;
     };
-
 
     //
     // Functions that support the implementation of deep image channels.
     //
 
     IMFUTIL_EXPORT
-    const unsigned int *    numSamples () const;
+    const unsigned int* numSamples () const;
     IMFUTIL_EXPORT
-    const unsigned int *    sampleListSizes () const;
+    const unsigned int* sampleListSizes () const;
     IMFUTIL_EXPORT
-    const size_t *          sampleListPositions () const;
+    const size_t* sampleListPositions () const;
     IMFUTIL_EXPORT
-    size_t                  sampleBufferSize () const;
+    size_t sampleBufferSize () const;
 
-
-  private:
-
+private:
     friend class DeepImageLevel;
 
     //
@@ -237,85 +225,74 @@ class IMFUTIL_EXPORT_TYPE SampleCountChannel : public ImageChannel
     // image channels exist only as parts of a deep image level.
     //
 
-    SampleCountChannel (DeepImageLevel &level);
-    virtual ~SampleCountChannel();
+    SampleCountChannel (DeepImageLevel& level);
+    virtual ~SampleCountChannel ();
 
-    virtual void        resize ();
+    virtual void resize ();
 
-    void                resetBasePointer ();
+    void resetBasePointer ();
 
-    unsigned int *  _numSamples;            // Array of per-pixel sample counts
-                                           
-    unsigned int *  _base;                  // Base pointer for faster access
-                                            // to entries in _numSamples
+    unsigned int* _numSamples; // Array of per-pixel sample counts
 
-    unsigned int *  _sampleListSizes;       // Array of allocated sizes of
-                                            // per-pixel sample lists
+    unsigned int* _base; // Base pointer for faster access
+                         // to entries in _numSamples
 
-    size_t *        _sampleListPositions;   // Array of positions of per-pixel
-                                            // sample lists within sample list
-                                            // buffer
+    unsigned int* _sampleListSizes; // Array of allocated sizes of
+                                    // per-pixel sample lists
 
-    size_t          _totalNumSamples;       // Sum of all entries in the
-                                            // _numSamples array
+    size_t* _sampleListPositions; // Array of positions of per-pixel
+                                  // sample lists within sample list
+                                  // buffer
 
-    size_t          _totalSamplesOccupied;  // Total number of samples within
-                                            // sample list buffer that have
-                                            // either been allocated for sample
-                                            // lists or lost to fragmentation
+    size_t _totalNumSamples; // Sum of all entries in the
+                             // _numSamples array
 
-    size_t          _sampleBufferSize;      // Size of the sample list buffer.
+    size_t _totalSamplesOccupied; // Total number of samples within
+                                  // sample list buffer that have
+                                  // either been allocated for sample
+                                  // lists or lost to fragmentation
+
+    size_t _sampleBufferSize; // Size of the sample list buffer.
 };
-
-
 
 //-----------------------------------------------------------------------------
 // Implementation of templates and inline functions
 //-----------------------------------------------------------------------------
 
-inline
-SampleCountChannel::Edit::Edit (SampleCountChannel &channel):
-    _channel (channel),
-    _sampleCounts (channel.beginEdit())
+inline SampleCountChannel::Edit::Edit (SampleCountChannel& channel)
+    : _channel (channel), _sampleCounts (channel.beginEdit ())
 {
     // empty
 }
 
-
-inline
-SampleCountChannel::Edit::~Edit ()
+inline SampleCountChannel::Edit::~Edit ()
 {
-    _channel.endEdit();
+    _channel.endEdit ();
 }
 
-
-inline unsigned int *
+inline unsigned int*
 SampleCountChannel::Edit::sampleCounts () const
 {
     return _sampleCounts;
 }
 
-
-inline const unsigned int *
+inline const unsigned int*
 SampleCountChannel::numSamples () const
 {
     return _numSamples;
 }
 
-
-inline const unsigned int *
+inline const unsigned int*
 SampleCountChannel::sampleListSizes () const
 {
     return _sampleListSizes;
 }
 
-
-inline const size_t *
+inline const size_t*
 SampleCountChannel::sampleListPositions () const
 {
     return _sampleListPositions;
 }
-
 
 inline size_t
 SampleCountChannel::sampleBufferSize () const
@@ -323,28 +300,24 @@ SampleCountChannel::sampleBufferSize () const
     return _sampleBufferSize;
 }
 
-
-inline const unsigned int &
-SampleCountChannel::operator () (int x, int y) const
+inline const unsigned int&
+SampleCountChannel::operator() (int x, int y) const
 {
-    return _base[y * pixelsPerRow() + x];
+    return _base[y * pixelsPerRow () + x];
 }
 
-
-inline const unsigned int &
+inline const unsigned int&
 SampleCountChannel::at (int x, int y) const
 {
     boundsCheck (x, y);
-    return _base[y * pixelsPerRow() + x];
+    return _base[y * pixelsPerRow () + x];
 }
 
-
-inline const unsigned int *
+inline const unsigned int*
 SampleCountChannel::row (int n) const
 {
-    return _base + n * pixelsPerRow();
+    return _base + n * pixelsPerRow ();
 }
-
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 

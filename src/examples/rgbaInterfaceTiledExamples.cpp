@@ -3,7 +3,6 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
-
 //-----------------------------------------------------------------------------
 //
 //	Code examples that show how class TiledRgbaInputFile and
@@ -13,10 +12,10 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfTiledRgbaFile.h>
-#include <ImfStringAttribute.h>
-#include <ImfMatrixAttribute.h>
 #include <ImfArray.h>
+#include <ImfMatrixAttribute.h>
+#include <ImfStringAttribute.h>
+#include <ImfTiledRgbaFile.h>
 
 #include "drawImage.h"
 
@@ -27,44 +26,50 @@ using namespace IMF;
 using namespace std;
 using namespace IMATH_NAMESPACE;
 
-
 void
-writeTiledRgbaONE1 (const char fileName[],
-                    const Rgba *pixels,
-                    int width, int height,
-                    int tileWidth, int tileHeight)
+writeTiledRgbaONE1 (
+    const char  fileName[],
+    const Rgba* pixels,
+    int         width,
+    int         height,
+    int         tileWidth,
+    int         tileHeight)
 {
     //
     // Write a tiled image with one level using an image-sized framebuffer.
     //
 
-    TiledRgbaOutputFile out (fileName,
-                             width, height,		// image size
-                             tileWidth, tileHeight,	// tile size
-                             ONE_LEVEL,			// level mode
-			     ROUND_DOWN,		// rounding mode
-                             WRITE_RGBA);		// channels in file
+    TiledRgbaOutputFile out (
+        fileName,
+        width,
+        height, // image size
+        tileWidth,
+        tileHeight,  // tile size
+        ONE_LEVEL,   // level mode
+        ROUND_DOWN,  // rounding mode
+        WRITE_RGBA); // channels in file
 
     out.setFrameBuffer (pixels, 1, width);
-    out.writeTiles (0, out.numXTiles() - 1, 0, out.numYTiles() - 1);
+    out.writeTiles (0, out.numXTiles () - 1, 0, out.numYTiles () - 1);
 }
 
-
 void
-writeTiledRgbaONE2 (const char fileName[],
-                    int width, int height,
-                    int tileWidth, int tileHeight)
+writeTiledRgbaONE2 (
+    const char fileName[], int width, int height, int tileWidth, int tileHeight)
 {
     //
     // Write a tiled image with one level using a tile-sized framebuffer.
     //
 
-    TiledRgbaOutputFile out (fileName,
-                             width, height,		// image size
-                             tileWidth, tileHeight,	// tile size
-                             ONE_LEVEL,			// level mode
-			     ROUND_DOWN,		// rounding mode
-                             WRITE_RGBA);		// channels in file
+    TiledRgbaOutputFile out (
+        fileName,
+        width,
+        height, // image size
+        tileWidth,
+        tileHeight,  // tile size
+        ONE_LEVEL,   // level mode
+        ROUND_DOWN,  // rounding mode
+        WRITE_RGBA); // channels in file
 
     Array2D<Rgba> pixels (tileHeight, tileWidth);
 
@@ -74,71 +79,83 @@ writeTiledRgbaONE2 (const char fileName[],
         {
             Box2i range = out.dataWindowForTile (tileX, tileY);
 
-            drawImage3 (pixels,
-			width, height,
-                        range.min.x, range.max.x + 1,
-                        range.min.y, range.max.y + 1,
-                        0, 0);
+            drawImage3 (
+                pixels,
+                width,
+                height,
+                range.min.x,
+                range.max.x + 1,
+                range.min.y,
+                range.max.y + 1,
+                0,
+                0);
 
-            out.setFrameBuffer (&pixels[-range.min.y][-range.min.x],
-                                1,		// xStride
-                                tileWidth);	// yStride
+            out.setFrameBuffer (
+                &pixels[-range.min.y][-range.min.x],
+                1,          // xStride
+                tileWidth); // yStride
 
             out.writeTile (tileX, tileY);
         }
     }
 }
 
-
 void
-writeTiledRgbaMIP1 (const char fileName[],
-                    int width, int height,
-                    int tileWidth, int tileHeight)
+writeTiledRgbaMIP1 (
+    const char fileName[], int width, int height, int tileWidth, int tileHeight)
 {
     //
     // Write a tiled image with mipmap levels using an image-sized framebuffer.
     //
 
-    TiledRgbaOutputFile out (fileName,
-                             width, height,		// image size
-                             tileWidth, tileHeight,	// tile size
-                             MIPMAP_LEVELS,		// level mode
-			     ROUND_DOWN,		// rounding mode
-                             WRITE_RGBA);		// channels in file
+    TiledRgbaOutputFile out (
+        fileName,
+        width,
+        height, // image size
+        tileWidth,
+        tileHeight,    // tile size
+        MIPMAP_LEVELS, // level mode
+        ROUND_DOWN,    // rounding mode
+        WRITE_RGBA);   // channels in file
 
     Array2D<Rgba> pixels (height, width);
     out.setFrameBuffer (&pixels[0][0], 1, width);
 
     for (int level = 0; level < out.numLevels (); ++level)
     {
-        drawImage4 (pixels,
-		    out.levelWidth (level), out.levelHeight (level),
-                    0, out.levelWidth (level),
-		    0, out.levelHeight (level),
-                    level, level);
+        drawImage4 (
+            pixels,
+            out.levelWidth (level),
+            out.levelHeight (level),
+            0,
+            out.levelWidth (level),
+            0,
+            out.levelHeight (level),
+            level,
+            level);
 
-	out.writeTiles (0, out.numXTiles (level) - 1,
-			0, out.numYTiles (level) - 1,
-			level);
+        out.writeTiles (
+            0, out.numXTiles (level) - 1, 0, out.numYTiles (level) - 1, level);
     }
 }
 
-
 void
-writeTiledRgbaMIP2 (const char fileName[],
-                    int width, int height,
-                    int tileWidth, int tileHeight)
+writeTiledRgbaMIP2 (
+    const char fileName[], int width, int height, int tileWidth, int tileHeight)
 {
     //
     // Write a tiled image with mipmap levels using a tile-sized framebuffer.
     //
 
-    TiledRgbaOutputFile out (fileName,
-                             width, height,		// image size
-                             tileWidth, tileHeight,	// tile size
-                             MIPMAP_LEVELS,		// level mode
-			     ROUND_DOWN,		// rounding mode
-                             WRITE_RGBA);		// channels in file
+    TiledRgbaOutputFile out (
+        fileName,
+        width,
+        height, // image size
+        tileWidth,
+        tileHeight,    // tile size
+        MIPMAP_LEVELS, // level mode
+        ROUND_DOWN,    // rounding mode
+        WRITE_RGBA);   // channels in file
 
     Array2D<Rgba> pixels (tileHeight, tileWidth);
 
@@ -150,15 +167,21 @@ writeTiledRgbaMIP2 (const char fileName[],
             {
                 Box2i range = out.dataWindowForTile (tileX, tileY, level);
 
-                drawImage4 (pixels,
-			    out.levelWidth (level), out.levelHeight (level),
-                            range.min.x, range.max.x + 1,
-                            range.min.y, range.max.y + 1,
-                            level, level);
+                drawImage4 (
+                    pixels,
+                    out.levelWidth (level),
+                    out.levelHeight (level),
+                    range.min.x,
+                    range.max.x + 1,
+                    range.min.y,
+                    range.max.y + 1,
+                    level,
+                    level);
 
-                out.setFrameBuffer (&pixels[-range.min.y][-range.min.x],
-                                    1,		// xStride
-                                    tileWidth);	// yStride
+                out.setFrameBuffer (
+                    &pixels[-range.min.y][-range.min.x],
+                    1,          // xStride
+                    tileWidth); // yStride
 
                 out.writeTile (tileX, tileY, level);
             }
@@ -166,23 +189,23 @@ writeTiledRgbaMIP2 (const char fileName[],
     }
 }
 
-
-
 void
-writeTiledRgbaRIP1 (const char fileName[],
-                    int width, int height,
-                    int tileWidth, int tileHeight)
+writeTiledRgbaRIP1 (
+    const char fileName[], int width, int height, int tileWidth, int tileHeight)
 {
     //
     // Write a tiled image with ripmap levels using an image-sized framebuffer.
     //
 
-    TiledRgbaOutputFile out (fileName,
-                             width, height,		// image size
-                             tileWidth, tileHeight,	// tile size
-                             RIPMAP_LEVELS,		// level mode
-			     ROUND_DOWN,		// rounding mode
-                             WRITE_RGBA);		// channels in file
+    TiledRgbaOutputFile out (
+        fileName,
+        width,
+        height, // image size
+        tileWidth,
+        tileHeight,    // tile size
+        RIPMAP_LEVELS, // level mode
+        ROUND_DOWN,    // rounding mode
+        WRITE_RGBA);   // channels in file
 
     Array2D<Rgba> pixels (height, width);
     out.setFrameBuffer (&pixels[0][0], 1, width);
@@ -191,59 +214,74 @@ writeTiledRgbaRIP1 (const char fileName[],
     {
         for (int xLevel = 0; xLevel < out.numXLevels (); ++xLevel)
         {
-            drawImage5 (pixels,
-			out.levelWidth (xLevel), out.levelHeight (yLevel),
-                        0, out.levelWidth (xLevel),
-			0, out.levelHeight (yLevel),
-			xLevel, yLevel);
+            drawImage5 (
+                pixels,
+                out.levelWidth (xLevel),
+                out.levelHeight (yLevel),
+                0,
+                out.levelWidth (xLevel),
+                0,
+                out.levelHeight (yLevel),
+                xLevel,
+                yLevel);
 
-	    out.writeTiles (0, out.numXTiles (xLevel) - 1,
-			    0, out.numYTiles (yLevel) - 1,
-			    xLevel,
-			    yLevel);
+            out.writeTiles (
+                0,
+                out.numXTiles (xLevel) - 1,
+                0,
+                out.numYTiles (yLevel) - 1,
+                xLevel,
+                yLevel);
         }
     }
 }
 
-
 void
-writeTiledRgbaRIP2 (const char fileName[],
-                    int width, int height,
-                    int tileWidth, int tileHeight)
+writeTiledRgbaRIP2 (
+    const char fileName[], int width, int height, int tileWidth, int tileHeight)
 {
     //
     // Write a tiled image with ripmap levels using a tile-sized framebuffer.
     //
 
-    TiledRgbaOutputFile out (fileName,
-                             width, height,		// image size
-                             tileWidth, tileHeight,	// tile size
-                             RIPMAP_LEVELS,		// level mode
-			     ROUND_DOWN,		// rounding mode
-                             WRITE_RGBA);		// channels in file
+    TiledRgbaOutputFile out (
+        fileName,
+        width,
+        height, // image size
+        tileWidth,
+        tileHeight,    // tile size
+        RIPMAP_LEVELS, // level mode
+        ROUND_DOWN,    // rounding mode
+        WRITE_RGBA);   // channels in file
 
     Array2D<Rgba> pixels (tileHeight, tileWidth);
 
-    for (int yLevel = 0; yLevel < out.numYLevels(); ++yLevel)
+    for (int yLevel = 0; yLevel < out.numYLevels (); ++yLevel)
     {
-        for (int xLevel = 0; xLevel < out.numXLevels(); ++xLevel)
+        for (int xLevel = 0; xLevel < out.numXLevels (); ++xLevel)
         {
             for (int tileY = 0; tileY < out.numYTiles (yLevel); ++tileY)
             {
                 for (int tileX = 0; tileX < out.numXTiles (xLevel); ++tileX)
                 {
-                    Box2i range = out.dataWindowForTile (tileX, tileY,
-							 xLevel, yLevel);
+                    Box2i range =
+                        out.dataWindowForTile (tileX, tileY, xLevel, yLevel);
 
-                    drawImage5 (pixels ,
-				out.levelWidth(xLevel), out.levelHeight(yLevel),
-                                range.min.x, range.max.x + 1,
-                                range.min.y, range.max.y + 1,
-                                xLevel, yLevel);
+                    drawImage5 (
+                        pixels,
+                        out.levelWidth (xLevel),
+                        out.levelHeight (yLevel),
+                        range.min.x,
+                        range.max.x + 1,
+                        range.min.y,
+                        range.max.y + 1,
+                        xLevel,
+                        yLevel);
 
-                    out.setFrameBuffer (&pixels[-range.min.y][-range.min.x],
-                                        1,		// xStride
-                                        tileWidth);	// yStride
+                    out.setFrameBuffer (
+                        &pixels[-range.min.y][-range.min.x],
+                        1,          // xStride
+                        tileWidth); // yStride
 
                     out.writeTile (tileX, tileY, xLevel, yLevel);
                 }
@@ -252,15 +290,12 @@ writeTiledRgbaRIP2 (const char fileName[],
     }
 }
 
-
 void
-readTiledRgba1 (const char fileName[],
-                Array2D<Rgba> &pixels,
-                int &width,
-                int &height)
+readTiledRgba1 (
+    const char fileName[], Array2D<Rgba>& pixels, int& width, int& height)
 {
     TiledRgbaInputFile in (fileName);
-    Box2i dw = in.dataWindow();
+    Box2i              dw = in.dataWindow ();
 
     width  = dw.max.x - dw.min.x + 1;
     height = dw.max.y - dw.min.y + 1;
@@ -270,9 +305,8 @@ readTiledRgba1 (const char fileName[],
     pixels.resizeErase (height, width);
 
     in.setFrameBuffer (&pixels[-dy][-dx], 1, width);
-    in.readTiles (0, in.numXTiles() - 1, 0, in.numYTiles() - 1);
+    in.readTiles (0, in.numXTiles () - 1, 0, in.numYTiles () - 1);
 }
-
 
 void
 rgbaInterfaceTiledExamples ()
@@ -281,8 +315,8 @@ rgbaInterfaceTiledExamples ()
 
     const int tw = 100;
     const int th = 75;
-    int w = 600;
-    int h = 400;
+    int       w  = 600;
+    int       h  = 400;
 
     cout << "writing tiled image with image-size framebuffer" << endl;
 

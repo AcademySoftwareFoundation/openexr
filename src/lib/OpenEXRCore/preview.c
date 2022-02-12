@@ -15,7 +15,7 @@ exr_result_t
 exr_attr_preview_init (
     exr_context_t ctxt, exr_attr_preview_t* p, uint32_t w, uint32_t h)
 {
-    exr_attr_preview_t nil   = { 0 };
+    exr_attr_preview_t nil   = {0};
     uint64_t           bytes = (uint64_t) w * (uint64_t) h * (uint64_t) 4;
 
     INTERN_EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
@@ -78,7 +78,7 @@ exr_attr_preview_destroy (exr_context_t ctxt, exr_attr_preview_t* p)
 
     if (p)
     {
-        exr_attr_preview_t nil = { 0 };
+        exr_attr_preview_t nil = {0};
         if (p->rgba && p->alloc_size > 0)
             pctxt->free_fn (EXR_CONST_CAST (uint8_t*, p->rgba));
         *p = nil;

@@ -72,9 +72,17 @@ print_attr (const exr_attribute_t* a, int verbose)
                 (double) a->chromaticities->white_y);
             break;
         case EXR_ATTR_COMPRESSION: {
-            static char* compressionnames[] = { "none", "rle",   "zips", "zip",
-                                                "piz",  "pxr24", "b44",  "b44a",
-                                                "dwaa", "dwab" };
+            static char* compressionnames[] = {
+                "none",
+                "rle",
+                "zips",
+                "zip",
+                "piz",
+                "pxr24",
+                "b44",
+                "b44a",
+                "dwaa",
+                "dwab"};
             printf (
                 "'%s'", (a->uc < 10 ? compressionnames[a->uc] : "<UNKNOWN>"));
             if (verbose) printf (" (0x%02X)", a->uc);
@@ -202,10 +210,9 @@ print_attr (const exr_attribute_t* a, int verbose)
             }
             break;
         case EXR_ATTR_TILEDESC: {
-            static const char* lvlModes[] = { "single image",
-                                              "mipmap",
-                                              "ripmap" };
-            uint8_t            lvlMode =
+            static const char* lvlModes[] = {
+                "single image", "mipmap", "ripmap"};
+            uint8_t lvlMode =
                 (uint8_t) EXR_GET_TILE_LEVEL_MODE (*(a->tiledesc));
             uint8_t rndMode =
                 (uint8_t) EXR_GET_TILE_ROUND_MODE (*(a->tiledesc));

@@ -40,26 +40,62 @@
 
 #include "ImfRational.h"
 
-
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
+inline Rational
+fps_23_976 ()
+{
+    return Rational (24000, 1001);
+}
+inline Rational
+fps_24 ()
+{
+    return Rational (24, 1);
+}
+inline Rational
+fps_25 ()
+{
+    return Rational (25, 1);
+}
+inline Rational
+fps_29_97 ()
+{
+    return Rational (30000, 1001);
+}
+inline Rational
+fps_30 ()
+{
+    return Rational (30, 1);
+}
+inline Rational
+fps_47_952 ()
+{
+    return Rational (48000, 1001);
+}
+inline Rational
+fps_48 ()
+{
+    return Rational (48, 1);
+}
+inline Rational
+fps_50 ()
+{
+    return Rational (50, 1);
+}
+inline Rational
+fps_59_94 ()
+{
+    return Rational (60000, 1001);
+}
+inline Rational
+fps_60 ()
+{
+    return Rational (60, 1);
+}
 
-inline Rational	fps_23_976 ()	{return Rational (24000, 1001);}
-inline Rational	fps_24 ()	{return Rational (24, 1);}
-inline Rational	fps_25 ()	{return Rational (25, 1);}
-inline Rational	fps_29_97 ()	{return Rational (30000, 1001);}
-inline Rational	fps_30 ()	{return Rational (30, 1);}
-inline Rational	fps_47_952 ()	{return Rational (48000, 1001);}
-inline Rational	fps_48 ()	{return Rational (48, 1);}
-inline Rational	fps_50 ()	{return Rational (50, 1);}
-inline Rational	fps_59_94 ()	{return Rational (60000, 1001);}
-inline Rational	fps_60 ()	{return Rational (60, 1);}
-
-IMF_EXPORT Rational	guessExactFps (double fps);
-IMF_EXPORT Rational	guessExactFps (const Rational &fps);
-
+IMF_EXPORT Rational guessExactFps (double fps);
+IMF_EXPORT Rational guessExactFps (const Rational& fps);
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
-
 
 #endif

@@ -17,15 +17,15 @@
 
 #include "ImfUtilExport.h"
 
-#include "ImfPixelType.h"
-#include "ImfFrameBuffer.h"
-#include "ImfChannelList.h"
 #include "IexBaseExc.h"
+#include "ImfChannelList.h"
+#include "ImfFrameBuffer.h"
+#include "ImfPixelType.h"
 #include <ImathBox.h>
 #include <half.h>
 
-#include <typeinfo>
 #include <cstring>
+#include <typeinfo>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
@@ -43,75 +43,67 @@ class ImageLevel;
 
 class IMFUTIL_EXPORT_TYPE ImageChannel
 {
-  public:
-
+public:
     //
     // The OpenEXR pixel type of this channel (HALF, FLOAT or UINT).
     //
 
-    virtual PixelType   pixelType () const = 0;
+    virtual PixelType pixelType () const = 0;
 
     //
     // Generate an OpenEXR channel for this image channel.
     //
-    
-    IMFUTIL_EXPORT
-    Channel             channel () const;
 
+    IMFUTIL_EXPORT
+    Channel channel () const;
 
     //
     // Access to x and y sampling rates, "perceptually linear" flag,
     // and the number of pixels that are stored in this channel.
-    // 
+    //
 
-    int                 xSampling () const          {return _xSampling;}
-    int                 ySampling () const          {return _ySampling;}
-    bool                pLinear () const            {return _pLinear;}
-    int                 pixelsPerRow () const       {return _pixelsPerRow;}
-    int                 pixelsPerColumn () const    {return _pixelsPerColumn;}
-    size_t              numPixels () const          {return _numPixels;}
-
+    int    xSampling () const { return _xSampling; }
+    int    ySampling () const { return _ySampling; }
+    bool   pLinear () const { return _pLinear; }
+    int    pixelsPerRow () const { return _pixelsPerRow; }
+    int    pixelsPerColumn () const { return _pixelsPerColumn; }
+    size_t numPixels () const { return _numPixels; }
 
     //
     // Access to the image level to which this channel belongs.
     //
 
-    ImageLevel &        level ()                    {return _level;}
-    const ImageLevel &  level () const              {return _level;}
+    ImageLevel&       level () { return _level; }
+    const ImageLevel& level () const { return _level; }
 
-  protected:
+protected:
+    IMFUTIL_EXPORT
+    ImageChannel (
+        ImageLevel& level, int xSampling, int ySampling, bool pLinear);
 
     IMFUTIL_EXPORT
-    ImageChannel (ImageLevel &level,
-                  int xSampling,
-                  int ySampling,
-                  bool pLinear);
+    virtual ~ImageChannel ();
 
     IMFUTIL_EXPORT
-    virtual ~ImageChannel();
+    virtual void resize ();
 
     IMFUTIL_EXPORT
-    virtual void        resize ();
+    void boundsCheck (int x, int y) const;
 
-    IMFUTIL_EXPORT
-	void                boundsCheck(int x, int y) const;
+private:
+    ImageChannel (const ImageChannel&) = delete;
+    ImageChannel& operator= (const ImageChannel&) = delete;
+    ImageChannel (ImageChannel&&)                 = delete;
+    ImageChannel& operator= (ImageChannel&&) = delete;
 
-  private:
-
-    ImageChannel (const ImageChannel &) = delete;
-    ImageChannel & operator = (const ImageChannel &) = delete;
-    ImageChannel (ImageChannel &&) = delete;
-    ImageChannel & operator = (ImageChannel &&) = delete;
-
-    ImageLevel &        _level;
-    int                 _xSampling;
-    int                 _ySampling;
-    bool                _pLinear;
-    int                 _pixelsPerRow;
-    int                 _pixelsPerColumn;
-    size_t              _numPixels;
+    ImageLevel& _level;
+    int         _xSampling;
+    int         _ySampling;
+    bool        _pLinear;
+    int         _pixelsPerRow;
+    int         _pixelsPerColumn;
+    size_t      _numPixels;
 };
-
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 

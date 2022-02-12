@@ -8,6 +8,6 @@
 
 #include <string>
 
-void testDeepScanLineMultipleRead(const std::string & tempDir);
+void testDeepScanLineMultipleRead (const std::string& tempDir);
 
 #endif /* DEEPSCANLINEMULTIPLEREAD_H_ */

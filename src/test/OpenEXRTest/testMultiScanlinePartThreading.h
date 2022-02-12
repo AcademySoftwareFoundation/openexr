@@ -8,6 +8,6 @@
 
 #include <string>
 
-void testMultiScanlinePartThreading (const std::string & tempDir);
+void testMultiScanlinePartThreading (const std::string& tempDir);
 
 #endif /* TESTMULTISCANLINEPARTTHREADING_H_ */

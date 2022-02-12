@@ -14,29 +14,25 @@
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
-
 class IMF_EXPORT_TYPE DeepTiledOutputPart
 {
-  public:
-
+public:
     IMF_EXPORT
-    DeepTiledOutputPart(MultiPartOutputFile& multiPartFile, int partNumber);
+    DeepTiledOutputPart (MultiPartOutputFile& multiPartFile, int partNumber);
 
     //------------------------
     // Access to the file name
     //------------------------
 
     IMF_EXPORT
-    const char *        fileName () const;
-
+    const char* fileName () const;
 
     //--------------------------
     // Access to the file header
     //--------------------------
 
     IMF_EXPORT
-    const Header &      header () const;
-
+    const Header& header () const;
 
     //-------------------------------------------------------
     // Set the current frame buffer -- copies the FrameBuffer
@@ -50,16 +46,14 @@ class IMF_EXPORT_TYPE DeepTiledOutputPart
     //-------------------------------------------------------
 
     IMF_EXPORT
-    void                setFrameBuffer (const DeepFrameBuffer &frameBuffer);
-
+    void setFrameBuffer (const DeepFrameBuffer& frameBuffer);
 
     //-----------------------------------
     // Access to the current frame buffer
     //-----------------------------------
 
     IMF_EXPORT
-    const DeepFrameBuffer & frameBuffer () const;
-
+    const DeepFrameBuffer& frameBuffer () const;
 
     //-------------------
     // Utility functions:
@@ -72,14 +66,13 @@ class IMF_EXPORT_TYPE DeepTiledOutputPart
     //---------------------------------------------------------
 
     IMF_EXPORT
-    unsigned int        tileXSize () const;
+    unsigned int tileXSize () const;
     IMF_EXPORT
-    unsigned int        tileYSize () const;
+    unsigned int tileYSize () const;
     IMF_EXPORT
-    LevelMode           levelMode () const;
+    LevelMode levelMode () const;
     IMF_EXPORT
-    LevelRoundingMode   levelRoundingMode () const;
-
+    LevelRoundingMode levelRoundingMode () const;
 
     //--------------------------------------------------------------------
     // Number of levels:
@@ -125,14 +118,13 @@ class IMF_EXPORT_TYPE DeepTiledOutputPart
     //--------------------------------------------------------------------
 
     IMF_EXPORT
-    int                 numLevels () const;
+    int numLevels () const;
     IMF_EXPORT
-    int                 numXLevels () const;
+    int numXLevels () const;
     IMF_EXPORT
-    int                 numYLevels () const;
+    int numYLevels () const;
     IMF_EXPORT
-    bool                isValidLevel (int lx, int ly) const;
-
+    bool isValidLevel (int lx, int ly) const;
 
     //---------------------------------------------------------
     // Dimensions of a level:
@@ -153,10 +145,9 @@ class IMF_EXPORT_TYPE DeepTiledOutputPart
     //---------------------------------------------------------
 
     IMF_EXPORT
-    int                 levelWidth  (int lx) const;
+    int levelWidth (int lx) const;
     IMF_EXPORT
-    int                 levelHeight (int ly) const;
-
+    int levelHeight (int ly) const;
 
     //----------------------------------------------------------
     // Number of tiles:
@@ -179,10 +170,9 @@ class IMF_EXPORT_TYPE DeepTiledOutputPart
     //----------------------------------------------------------
 
     IMF_EXPORT
-    int                 numXTiles (int lx = 0) const;
+    int numXTiles (int lx = 0) const;
     IMF_EXPORT
-    int                 numYTiles (int ly = 0) const;
-
+    int numYTiles (int ly = 0) const;
 
     //---------------------------------------------------------
     // Level pixel ranges:
@@ -205,10 +195,9 @@ class IMF_EXPORT_TYPE DeepTiledOutputPart
     //---------------------------------------------------------
 
     IMF_EXPORT
-    IMATH_NAMESPACE::Box2i        dataWindowForLevel (int l = 0) const;
+    IMATH_NAMESPACE::Box2i dataWindowForLevel (int l = 0) const;
     IMF_EXPORT
-    IMATH_NAMESPACE::Box2i        dataWindowForLevel (int lx, int ly) const;
-
+    IMATH_NAMESPACE::Box2i dataWindowForLevel (int lx, int ly) const;
 
     //-------------------------------------------------------------------
     // Tile pixel ranges:
@@ -232,12 +221,11 @@ class IMF_EXPORT_TYPE DeepTiledOutputPart
     //-------------------------------------------------------------------
 
     IMF_EXPORT
-    IMATH_NAMESPACE::Box2i        dataWindowForTile (int dx, int dy,
-                                         int l = 0) const;
+    IMATH_NAMESPACE::Box2i dataWindowForTile (int dx, int dy, int l = 0) const;
 
     IMF_EXPORT
-    IMATH_NAMESPACE::Box2i        dataWindowForTile (int dx, int dy,
-                                         int lx, int ly) const;
+    IMATH_NAMESPACE::Box2i
+    dataWindowForTile (int dx, int dy, int lx, int ly) const;
 
     //------------------------------------------------------------------
     // Write pixel data:
@@ -312,18 +300,15 @@ class IMF_EXPORT_TYPE DeepTiledOutputPart
     //------------------------------------------------------------------
 
     IMF_EXPORT
-    void                writeTile  (int dx, int dy, int l = 0);
+    void writeTile (int dx, int dy, int l = 0);
     IMF_EXPORT
-    void                writeTile  (int dx, int dy, int lx, int ly);
+    void writeTile (int dx, int dy, int lx, int ly);
 
     IMF_EXPORT
-    void                writeTiles (int dx1, int dx2, int dy1, int dy2,
-                                  int lx, int ly);
+    void writeTiles (int dx1, int dx2, int dy1, int dy2, int lx, int ly);
 
     IMF_EXPORT
-    void                writeTiles (int dx1, int dx2, int dy1, int dy2,
-                                  int l = 0);
-
+    void writeTiles (int dx1, int dx2, int dy1, int dy2, int l = 0);
 
     //------------------------------------------------------------------
     // Shortcut to copy all pixels from a TiledInputFile into this file,
@@ -334,12 +319,9 @@ class IMF_EXPORT_TYPE DeepTiledOutputPart
     //------------------------------------------------------------------
 
     IMF_EXPORT
-    void                copyPixels (DeepTiledInputFile &in);
+    void copyPixels (DeepTiledInputFile& in);
     IMF_EXPORT
-    void                copyPixels (DeepTiledInputPart &in);
-    
-
-
+    void copyPixels (DeepTiledInputPart& in);
 
     //--------------------------------------------------------------
     // Updating the preview image:
@@ -360,8 +342,7 @@ class IMF_EXPORT_TYPE DeepTiledOutputPart
     //--------------------------------------------------------------
 
     IMF_EXPORT
-    void                updatePreviewImage (const PreviewRgba newPixels[]);
-
+    void updatePreviewImage (const PreviewRgba newPixels[]);
 
     //-------------------------------------------------------------
     // Break a tile -- for testing and debugging only:
@@ -378,15 +359,11 @@ class IMF_EXPORT_TYPE DeepTiledOutputPart
     //-------------------------------------------------------------
 
     IMF_EXPORT
-    void                breakTile  (int dx, int dy,
-                                  int lx, int ly,
-                                  int offset,
-                                  int length,
-                                  char c);
+    void
+    breakTile (int dx, int dy, int lx, int ly, int offset, int length, char c);
 
-  private:
+private:
     DeepTiledOutputFile* file;
-    
 };
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT

@@ -1,17 +1,15 @@
 // SPDX-License-Identifier: BSD-3-Clause
 // Copyright (c) Contributors to the OpenEXR Project.
 
-
 #ifndef INCLUDED_IMF_CHECKFILE_H
 #define INCLUDED_IMF_CHECKFILE_H
 
-#include "ImfUtilExport.h"
 #include "ImfNamespace.h"
+#include "ImfUtilExport.h"
 
 #include <cstddef>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
-
 
 //
 // attempt to read the given file as an OpenEXR, using various OpenEXR read paths.
@@ -29,27 +27,23 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 //
 //
 
-IMFUTIL_EXPORT bool
-checkOpenEXRFile(const char* fileName,
-                 bool reduceMemory  = false,
-                 bool reduceTime = false,
-                 bool enableCoreCheck = false
-                );
-
+IMFUTIL_EXPORT bool checkOpenEXRFile (
+    const char* fileName,
+    bool        reduceMemory    = false,
+    bool        reduceTime      = false,
+    bool        enableCoreCheck = false);
 
 //
 // overloaded version of checkOpenEXRFile that takes a pointer to in-memory data
 //
 
-IMFUTIL_EXPORT bool
-checkOpenEXRFile(const char* data,
-                 size_t numBytes,
-                 bool reduceMemory = false,
-                 bool reduceTime = false,
-                 bool enableCoreCheck = false
-                );
+IMFUTIL_EXPORT bool checkOpenEXRFile (
+    const char* data,
+    size_t      numBytes,
+    bool        reduceMemory    = false,
+    bool        reduceTime      = false,
+    bool        enableCoreCheck = false);
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
 #endif
-

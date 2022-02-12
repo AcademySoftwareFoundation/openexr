@@ -5,10 +5,10 @@
 
 #include "ImfGenericInputFile.h"
 
+#include <Iex.h>
 #include <ImfIO.h>
 #include <ImfVersion.h>
 #include <ImfXdr.h>
-#include <Iex.h>
 #include <OpenEXRConfig.h>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
@@ -19,7 +19,9 @@ GenericInputFile::~GenericInputFile ()
 GenericInputFile::GenericInputFile ()
 {}
 
-void GenericInputFile::readMagicNumberAndVersionField(OPENEXR_IMF_INTERNAL_NAMESPACE::IStream& is, int& version)
+void
+GenericInputFile::readMagicNumberAndVersionField (
+    OPENEXR_IMF_INTERNAL_NAMESPACE::IStream& is, int& version)
 {
     //
     // Read the magic number and the file format version number.
@@ -28,8 +30,10 @@ void GenericInputFile::readMagicNumberAndVersionField(OPENEXR_IMF_INTERNAL_NAMES
 
     int magic;
 
-    OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (is, magic);
-    OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read <OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (is, version);
+    OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read<
+        OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (is, magic);
+    OPENEXR_IMF_INTERNAL_NAMESPACE::Xdr::read<
+        OPENEXR_IMF_INTERNAL_NAMESPACE::StreamIO> (is, version);
 
     if (magic != MAGIC)
     {
@@ -38,16 +42,23 @@ void GenericInputFile::readMagicNumberAndVersionField(OPENEXR_IMF_INTERNAL_NAMES
 
     if (getVersion (version) != EXR_VERSION)
     {
-        THROW (IEX_NAMESPACE::InputExc, "Cannot read "
-                              "version " << getVersion (version) << " "
-                              "image files.  Current file format version "
-                              "is " << EXR_VERSION << ".");
+        THROW (
+            IEX_NAMESPACE::InputExc,
+            "Cannot read "
+            "version "
+                << getVersion (version)
+                << " "
+                   "image files.  Current file format version "
+                   "is "
+                << EXR_VERSION << ".");
     }
 
     if (!supportsFlags (getFlags (version)))
     {
-        THROW (IEX_NAMESPACE::InputExc, "The file format version number's flag field "
-                              "contains unrecognized flags.");
+        THROW (
+            IEX_NAMESPACE::InputExc,
+            "The file format version number's flag field "
+            "contains unrecognized flags.");
     }
 }
 

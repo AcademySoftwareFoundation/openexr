@@ -10,7 +10,10 @@
 #include "IlmThreadNamespace.h"
 
 #if ILMTHREAD_THREADING_ENABLED
-namespace std { class mutex; }
+namespace std
+{
+class mutex;
+}
 #endif
 
 ILMTHREAD_INTERNAL_NAMESPACE_HEADER_ENTER

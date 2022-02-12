@@ -20,13 +20,13 @@
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
-
-typedef TypedAttribute<OPENEXR_IMF_INTERNAL_NAMESPACE::PreviewImage> PreviewImageAttribute;
+typedef TypedAttribute<OPENEXR_IMF_INTERNAL_NAMESPACE::PreviewImage>
+    PreviewImageAttribute;
 
 #ifndef COMPILING_IMF_PREVIEW_IMAGE_ATTRIBUTE
-extern template class IMF_EXPORT_EXTERN_TEMPLATE TypedAttribute<OPENEXR_IMF_INTERNAL_NAMESPACE::PreviewImage>;
+extern template class IMF_EXPORT_EXTERN_TEMPLATE
+    TypedAttribute<OPENEXR_IMF_INTERNAL_NAMESPACE::PreviewImage>;
 #endif
-
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 

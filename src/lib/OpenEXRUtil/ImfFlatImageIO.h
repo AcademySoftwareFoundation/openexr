@@ -19,7 +19,6 @@
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
-
 //
 // saveFlatImage (n, h, i, d) or
 // saveFlatImage (n, i)
@@ -42,18 +41,14 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 //
 
 IMFUTIL_EXPORT
-void
-saveFlatImage
-    (const std::string &fileName,
-     const Header &hdr,
-     const FlatImage &img,
-     DataWindowSource dws = USE_IMAGE_DATA_WINDOW);
+void saveFlatImage (
+    const std::string& fileName,
+    const Header&      hdr,
+    const FlatImage&   img,
+    DataWindowSource   dws = USE_IMAGE_DATA_WINDOW);
 
 IMFUTIL_EXPORT
-void
-saveFlatImage
-    (const std::string &fileName,
-     const FlatImage &img);
+void saveFlatImage (const std::string& fileName, const FlatImage& img);
 
 //
 // loadFlatImage (n, h, i) or
@@ -65,19 +60,10 @@ saveFlatImage
 //
 
 IMFUTIL_EXPORT
-void
-loadFlatImage
-    (const std::string &fileName,
-     Header &hdr,
-     FlatImage &img);
-
+void loadFlatImage (const std::string& fileName, Header& hdr, FlatImage& img);
 
 IMFUTIL_EXPORT
-void
-loadFlatImage
-    (const std::string &fileName,
-     FlatImage &img);
-
+void loadFlatImage (const std::string& fileName, FlatImage& img);
 
 //
 // saveFlatScanLineImage (n, h, i, d) or
@@ -95,19 +81,14 @@ loadFlatImage
 //
 
 IMFUTIL_EXPORT
-void
-saveFlatScanLineImage
-    (const std::string &fileName,
-     const Header &hdr,
-     const FlatImage &img,
-     DataWindowSource dws = USE_IMAGE_DATA_WINDOW);
+void saveFlatScanLineImage (
+    const std::string& fileName,
+    const Header&      hdr,
+    const FlatImage&   img,
+    DataWindowSource   dws = USE_IMAGE_DATA_WINDOW);
 
 IMFUTIL_EXPORT
-void
-saveFlatScanLineImage
-    (const std::string &fileName,
-     const FlatImage &img);
-
+void saveFlatScanLineImage (const std::string& fileName, const FlatImage& img);
 
 //
 // loadFlatScanLineImage (n, h, i) or
@@ -118,17 +99,11 @@ saveFlatScanLineImage
 //
 
 IMFUTIL_EXPORT
-void
-loadFlatScanLineImage
-    (const std::string &fileName,
-     Header &hdr,
-     FlatImage &img);
+void loadFlatScanLineImage (
+    const std::string& fileName, Header& hdr, FlatImage& img);
 
 IMFUTIL_EXPORT
-void
-loadFlatScanLineImage
-    (const std::string &fileName,
-     FlatImage &img);
+void loadFlatScanLineImage (const std::string& fileName, FlatImage& img);
 
 //
 // saveFlatTiledImage (n, h, i, d) or
@@ -152,18 +127,14 @@ loadFlatScanLineImage
 //
 
 IMFUTIL_EXPORT
-void
-saveFlatTiledImage
-    (const std::string &fileName,
-     const Header &hdr,
-     const FlatImage &img,
-     DataWindowSource dws = USE_IMAGE_DATA_WINDOW);
+void saveFlatTiledImage (
+    const std::string& fileName,
+    const Header&      hdr,
+    const FlatImage&   img,
+    DataWindowSource   dws = USE_IMAGE_DATA_WINDOW);
 
 IMFUTIL_EXPORT
-void
-saveFlatTiledImage
-    (const std::string &fileName,
-     const FlatImage &img);
+void saveFlatTiledImage (const std::string& fileName, const FlatImage& img);
 
 //
 // loadFlatTiledImage (n, h, i) or
@@ -175,16 +146,10 @@ saveFlatTiledImage
 
 IMFUTIL_EXPORT
 void
-loadFlatTiledImage
-    (const std::string &fileName,
-     Header &hdr,
-     FlatImage &img);
+loadFlatTiledImage (const std::string& fileName, Header& hdr, FlatImage& img);
 
 IMFUTIL_EXPORT
-void
-loadFlatTiledImage
-    (const std::string &fileName,
-     FlatImage &img);
+void loadFlatTiledImage (const std::string& fileName, FlatImage& img);
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 

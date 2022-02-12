@@ -195,7 +195,7 @@ save_chlist (struct _internal_exr_context* ctxt, const exr_attribute_t* a)
     if (rv == EXR_ERR_SUCCESS)
     {
         eol = 0;
-        rv = ctxt->do_write (
+        rv  = ctxt->do_write (
             ctxt, &eol, sizeof (uint8_t), &(ctxt->output_file_offset));
     }
     return rv;

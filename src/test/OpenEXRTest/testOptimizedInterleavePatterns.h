@@ -6,6 +6,6 @@
 #ifndef _TEST_OPTIMIZED_INTERLEAVE_PATTERNS_
 #define _TEST_OPTIMIZED_INTERLEAVE_PATTERNS_
 
-void testOptimizedInterleavePatterns (const std::string &tempDir);
+void testOptimizedInterleavePatterns (const std::string& tempDir);
 
 #endif

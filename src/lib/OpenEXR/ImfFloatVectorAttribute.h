@@ -3,8 +3,6 @@
 // Copyright (c) Weta Digital, Ltd and Contributors to the OpenEXR Project.
 //
 
-
-
 #ifndef INCLUDED_IMF_FLOATVECTOR_ATTRIBUTE_H
 #define INCLUDED_IMF_FLOATVECTOR_ATTRIBUTE_H
 
@@ -21,11 +19,9 @@
 
 #include <vector>
 
-
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
-typedef std::vector<float>
-    FloatVector;
+typedef std::vector<float> FloatVector;
 
 typedef TypedAttribute<OPENEXR_IMF_INTERNAL_NAMESPACE::FloatVector>
     FloatVectorAttribute;
@@ -33,7 +29,6 @@ typedef TypedAttribute<OPENEXR_IMF_INTERNAL_NAMESPACE::FloatVector>
 #ifndef COMPILING_IMF_FLOAT_VECTOR_ATTRIBUTE
 extern template class IMF_EXPORT_EXTERN_TEMPLATE TypedAttribute<FloatVector>;
 #endif
-
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 

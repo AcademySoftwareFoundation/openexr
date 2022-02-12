@@ -11,31 +11,28 @@
 
 #include "IexMathFpu.h"
 
-#include <stdint.h>
 #include <IexConfig.h>
+#include <stdint.h>
 #include <stdio.h>
 
 #if 0
-    #include <iostream>
-    #define debug(x) (std::cout << x << std::flush)
+#    include <iostream>
+#    define debug(x) (std::cout << x << std::flush)
 #else
-    #define debug(x)
+#    define debug(x)
 #endif
 
 #include <IexConfigInternal.h>
 #if defined(HAVE_UCONTEXT_H) &&                                                \
-    (defined(IEX_HAVE_SIGCONTEXT_CONTROL_REGISTER_SUPPORT) ||              \
+    (defined(IEX_HAVE_SIGCONTEXT_CONTROL_REGISTER_SUPPORT) ||                  \
      defined(IEX_HAVE_CONTROL_REGISTER_SUPPORT))
 
-#        include <ucontext.h>
-#        include <signal.h>
-#        include <iostream>
-#        include <stdint.h>
-
+#    include <iostream>
+#    include <signal.h>
+#    include <stdint.h>
+#    include <ucontext.h>
 
 IEX_INTERNAL_NAMESPACE_SOURCE_ENTER
-
-
 
 namespace FpuControl
 {
@@ -62,9 +59,7 @@ namespace FpuControl
 //
 //-------------------------------------------------------------------
 
-void restoreControlRegs (const ucontext_t & ucon,
-			 bool clearExceptions = false);
-
+void restoreControlRegs (const ucontext_t& ucon, bool clearExceptions = false);
 
 //------------------------------------------------------------
 //
@@ -73,23 +68,22 @@ void restoreControlRegs (const ucontext_t & ucon,
 //    0 means the exception is enabled.
 //
 //    setExceptionMask returns the previous mask value.  If
-//    the 'exceptions' pointer is non-null, it returns in 
+//    the 'exceptions' pointer is non-null, it returns in
 //    this argument the FPU exception bits.
 //
 //------------------------------------------------------------
 
-const int INVALID_EXC   = (1<<0);
-const int DENORMAL_EXC  = (1<<1);
-const int DIVZERO_EXC   = (1<<2);
-const int OVERFLOW_EXC  = (1<<3);
-const int UNDERFLOW_EXC = (1<<4);
-const int INEXACT_EXC   = (1<<5);
-const int ALL_EXC       = INVALID_EXC  | DENORMAL_EXC  | DIVZERO_EXC |
-                          OVERFLOW_EXC | UNDERFLOW_EXC | INEXACT_EXC;
+const int INVALID_EXC   = (1 << 0);
+const int DENORMAL_EXC  = (1 << 1);
+const int DIVZERO_EXC   = (1 << 2);
+const int OVERFLOW_EXC  = (1 << 3);
+const int UNDERFLOW_EXC = (1 << 4);
+const int INEXACT_EXC   = (1 << 5);
+const int ALL_EXC = INVALID_EXC | DENORMAL_EXC | DIVZERO_EXC | OVERFLOW_EXC |
+                    UNDERFLOW_EXC | INEXACT_EXC;
 
-int setExceptionMask (int mask, int * exceptions = 0);
+int setExceptionMask (int mask, int* exceptions = 0);
 int getExceptionMask ();
-
 
 //---------------------------------------------
 //
@@ -99,7 +93,6 @@ int getExceptionMask ();
 
 int  getExceptions ();
 void clearExceptions ();
-
 
 //------------------------------------------------------------------
 //
@@ -119,21 +112,21 @@ static inline uint16_t
 getSw ()
 {
     uint16_t sw;
-    asm volatile ("fnstsw %0" : "=m" (sw) : );
+    asm volatile("fnstsw %0" : "=m"(sw) :);
     return sw;
 }
 
 static inline void
 setCw (uint16_t cw)
 {
-    asm volatile ("fldcw %0" : : "m" (cw) );
+    asm volatile("fldcw %0" : : "m"(cw));
 }
 
 static inline uint16_t
 getCw ()
 {
     uint16_t cw;
-    asm volatile ("fnstcw %0" : "=m" (cw) : );
+    asm volatile("fnstcw %0" : "=m"(cw) :);
     return cw;
 }
 
@@ -141,14 +134,14 @@ static inline void
 setMxcsr (uint32_t mxcsr, bool clearExceptions)
 {
     mxcsr &= clearExceptions ? 0xffffffc0 : 0xffffffff;
-    asm volatile ("ldmxcsr %0" : : "m" (mxcsr) );
+    asm volatile("ldmxcsr %0" : : "m"(mxcsr));
 }
 
 static inline uint32_t
 getMxcsr ()
 {
     uint32_t mxcsr;
-    asm volatile ("stmxcsr %0" : "=m" (mxcsr) : );
+    asm volatile("stmxcsr %0" : "=m"(mxcsr) :);
     return mxcsr;
 }
 
@@ -165,26 +158,25 @@ calcMask (uint16_t cw, uint32_t mxcsr)
 }
 
 inline int
-setExceptionMask (int mask, int * exceptions)
+setExceptionMask (int mask, int* exceptions)
 {
-    uint16_t cw = getCw ();
+    uint16_t cw    = getCw ();
     uint32_t mxcsr = getMxcsr ();
-    
-    if (exceptions)
-	*exceptions = (mxcsr & ALL_EXC) | (getSw () & ALL_EXC);
+
+    if (exceptions) *exceptions = (mxcsr & ALL_EXC) | (getSw () & ALL_EXC);
 
     int oldmask = calcMask (cw, mxcsr);
 
     //
     // The exception constants are chosen very carefully so that
     // we can do a simple mask and shift operation to insert
-    // them into the control words.  The mask operation is for 
+    // them into the control words.  The mask operation is for
     // safety, in case the user accidentally set some other
     // bits in the exception mask.
     //
 
     mask &= ALL_EXC;
-    cw = (cw & ~ALL_EXC) | mask;
+    cw    = (cw & ~ALL_EXC) | mask;
     mxcsr = (mxcsr & ~(ALL_EXC << 7)) | (mask << 7);
 
     setCw (cw);
@@ -197,7 +189,7 @@ inline int
 getExceptionMask ()
 {
     uint32_t mxcsr = getMxcsr ();
-    uint16_t cw = getCw ();
+    uint16_t cw    = getCw ();
     return calcMask (cw, mxcsr);
 }
 
@@ -211,9 +203,10 @@ void
 clearExceptions ()
 {
     uint32_t mxcsr = getMxcsr () & 0xffffffc0;
-    asm volatile ("ldmxcsr %0\n"
-		  "fnclex"
-		  : : "m" (mxcsr) );
+    asm volatile("ldmxcsr %0\n"
+                 "fnclex"
+                 :
+                 : "m"(mxcsr));
 }
 
 // If the fpe was taken while doing a float-to-int cast using the x87,
@@ -225,19 +218,18 @@ clearExceptions ()
 // precision is in bits 8-9, value 11 == double extended (80-bit)
 //
 const uint16_t cwRestoreMask = ~((3 << 10) | (3 << 8));
-const uint16_t cwRestoreVal = (0 << 10) | (3 << 8);
+const uint16_t cwRestoreVal  = (0 << 10) | (3 << 8);
 
-
-#ifdef IEX_HAVE_CONTROL_REGISTER_SUPPORT
+#    ifdef IEX_HAVE_CONTROL_REGISTER_SUPPORT
 
 inline void
-restoreControlRegs (const ucontext_t & ucon, bool clearExceptions)
+restoreControlRegs (const ucontext_t& ucon, bool clearExceptions)
 {
     setCw ((ucon.uc_mcontext.fpregs->cwd & cwRestoreMask) | cwRestoreVal);
     setMxcsr (ucon.uc_mcontext.fpregs->mxcsr, clearExceptions);
 }
 
-#else
+#    else
 
 //
 // Ugly, the mxcsr isn't defined in GNU libc ucontext_t, but
@@ -246,96 +238,91 @@ restoreControlRegs (const ucontext_t & ucon, bool clearExceptions)
 // <asm/sigcontext.h>
 //
 
-#include <asm/sigcontext.h>
+#        include <asm/sigcontext.h>
 
 inline void
-restoreControlRegs (const ucontext_t & ucon, bool clearExceptions)
+restoreControlRegs (const ucontext_t& ucon, bool clearExceptions)
 {
-#if defined(__GLIBC__) || defined(__i386__)
+#        if defined(__GLIBC__) || defined(__i386__)
     setCw ((ucon.uc_mcontext.fpregs->cw & cwRestoreMask) | cwRestoreVal);
-#else
+#        else
     setCw ((ucon.uc_mcontext.fpregs->cwd & cwRestoreMask) | cwRestoreVal);
-#endif
-    
-    _fpstate * kfp = reinterpret_cast<_fpstate *> (ucon.uc_mcontext.fpregs);
-#if defined(__GLIBC__) || defined(__i386__)
+#        endif
+
+    _fpstate* kfp = reinterpret_cast<_fpstate*> (ucon.uc_mcontext.fpregs);
+#        if defined(__GLIBC__) || defined(__i386__)
     setMxcsr (kfp->magic == 0 ? kfp->mxcsr : 0, clearExceptions);
-#else
+#        else
     setMxcsr (kfp->mxcsr, clearExceptions);
-#endif
+#        endif
 }
 
-#endif
+#    endif
 
 } // namespace FpuControl
 
-
-namespace {
+namespace
+{
 
 volatile FpExceptionHandler fpeHandler = 0;
 
 extern "C" void
-catchSigFpe (int sig, siginfo_t *info, ucontext_t *ucon)
+catchSigFpe (int sig, siginfo_t* info, ucontext_t* ucon)
 {
-    debug ("catchSigFpe (sig = "<< sig << ", ...)\n");
+    debug ("catchSigFpe (sig = " << sig << ", ...)\n");
 
     FpuControl::restoreControlRegs (*ucon, true);
 
-    if (fpeHandler == 0)
-	return;
+    if (fpeHandler == 0) return;
 
     if (info->si_code == SI_USER)
     {
-	fpeHandler (0, "Floating-point exception, caused by "
-		       "a signal sent from another process.");
-	return;
+        fpeHandler (
+            0,
+            "Floating-point exception, caused by "
+            "a signal sent from another process.");
+        return;
     }
 
     if (sig == SIGFPE)
     {
-	switch (info->si_code)
-	{
-	  //
-	  // IEEE 754 floating point exceptions:
-	  //
+        switch (info->si_code)
+        {
+                //
+                // IEEE 754 floating point exceptions:
+                //
 
-	  case FPE_FLTDIV:
-	    fpeHandler (IEEE_DIVZERO, "Floating-point division by zero.");
-	    return;
+            case FPE_FLTDIV:
+                fpeHandler (IEEE_DIVZERO, "Floating-point division by zero.");
+                return;
 
-	  case FPE_FLTOVF:
-	    fpeHandler (IEEE_OVERFLOW, "Floating-point overflow.");
-	    return;
+            case FPE_FLTOVF:
+                fpeHandler (IEEE_OVERFLOW, "Floating-point overflow.");
+                return;
 
-	  case FPE_FLTUND:
-	    fpeHandler (IEEE_UNDERFLOW, "Floating-point underflow.");
-	    return;
+            case FPE_FLTUND:
+                fpeHandler (IEEE_UNDERFLOW, "Floating-point underflow.");
+                return;
 
-	  case FPE_FLTRES:
-	    fpeHandler (IEEE_INEXACT, "Inexact floating-point result.");
-	    return;
+            case FPE_FLTRES:
+                fpeHandler (IEEE_INEXACT, "Inexact floating-point result.");
+                return;
 
-	  case FPE_FLTINV:
-	    fpeHandler (IEEE_INVALID, "Invalid floating-point operation.");
-	    return;
+            case FPE_FLTINV:
+                fpeHandler (IEEE_INVALID, "Invalid floating-point operation.");
+                return;
 
-	  //
-	  // Other arithmetic exceptions which can also
-	  // be trapped by the operating system:
-	  //
+                //
+                // Other arithmetic exceptions which can also
+                // be trapped by the operating system:
+                //
 
-	  case FPE_INTDIV:
-	    fpeHandler (0, "Integer division by zero.");
-	    break;
+            case FPE_INTDIV: fpeHandler (0, "Integer division by zero."); break;
 
-	  case FPE_INTOVF:
-	    fpeHandler (0, "Integer overflow.");
-	    break;
+            case FPE_INTOVF: fpeHandler (0, "Integer overflow."); break;
 
-	  case FPE_FLTSUB:
-	    fpeHandler (0, "Subscript out of range.");
-	    break;
-	}
+            case FPE_FLTSUB: fpeHandler (0, "Subscript out of range."); break;
+        }
     }
 
     fpeHandler (0, "Floating-point exception.");
@@ -348,16 +335,11 @@ setFpExceptions (int when)
 {
     int mask = FpuControl::ALL_EXC;
 
-    if (when & IEEE_OVERFLOW)
-	mask &= ~FpuControl::OVERFLOW_EXC;
-    if (when & IEEE_UNDERFLOW)
-	mask &= ~FpuControl::UNDERFLOW_EXC;
-    if (when & IEEE_DIVZERO)
-	mask &= ~FpuControl::DIVZERO_EXC;
-    if (when & IEEE_INEXACT)
-	mask &= ~FpuControl::INEXACT_EXC;
-    if (when & IEEE_INVALID)
-	mask &= ~FpuControl::INVALID_EXC;
+    if (when & IEEE_OVERFLOW) mask &= ~FpuControl::OVERFLOW_EXC;
+    if (when & IEEE_UNDERFLOW) mask &= ~FpuControl::UNDERFLOW_EXC;
+    if (when & IEEE_DIVZERO) mask &= ~FpuControl::DIVZERO_EXC;
+    if (when & IEEE_INEXACT) mask &= ~FpuControl::INEXACT_EXC;
+    if (when & IEEE_INVALID) mask &= ~FpuControl::INVALID_EXC;
 
     //
     // The Linux kernel apparently sometimes passes
@@ -366,11 +348,10 @@ setFpExceptions (int when)
     //
     // XXX is this still true on 2.4+ kernels?
     //
-    
+
     FpuControl::setExceptionMask (mask);
     FpuControl::clearExceptions ();
 }
-
 
 int
 fpExceptions ()
@@ -379,129 +360,116 @@ fpExceptions ()
 
     int when = 0;
 
-    if (!(mask & FpuControl::OVERFLOW_EXC))
-	when |= IEEE_OVERFLOW;
-    if (!(mask & FpuControl::UNDERFLOW_EXC))
-	when |= IEEE_UNDERFLOW;
-    if (!(mask & FpuControl::DIVZERO_EXC))
-	when |= IEEE_DIVZERO;
-    if (!(mask & FpuControl::INEXACT_EXC))
-	when |= IEEE_INEXACT;
-    if (!(mask & FpuControl::INVALID_EXC))
-	when |= IEEE_INVALID;
+    if (!(mask & FpuControl::OVERFLOW_EXC)) when |= IEEE_OVERFLOW;
+    if (!(mask & FpuControl::UNDERFLOW_EXC)) when |= IEEE_UNDERFLOW;
+    if (!(mask & FpuControl::DIVZERO_EXC)) when |= IEEE_DIVZERO;
+    if (!(mask & FpuControl::INEXACT_EXC)) when |= IEEE_INEXACT;
+    if (!(mask & FpuControl::INVALID_EXC)) when |= IEEE_INVALID;
 
     return when;
 }
 
 void
-handleExceptionsSetInRegisters()
+handleExceptionsSetInRegisters ()
 {
-    if (fpeHandler == 0)
-	return;
+    if (fpeHandler == 0) return;
 
     int mask = FpuControl::getExceptionMask ();
 
-    int exc = FpuControl::getExceptions();
+    int exc = FpuControl::getExceptions ();
 
     if (!(mask & FpuControl::DIVZERO_EXC) && (exc & FpuControl::DIVZERO_EXC))
     {
-        fpeHandler(IEEE_DIVZERO, "Floating-point division by zero.");
+        fpeHandler (IEEE_DIVZERO, "Floating-point division by zero.");
         return;
     }
 
     if (!(mask & FpuControl::OVERFLOW_EXC) && (exc & FpuControl::OVERFLOW_EXC))
     {
-        fpeHandler(IEEE_OVERFLOW, "Floating-point overflow.");
+        fpeHandler (IEEE_OVERFLOW, "Floating-point overflow.");
         return;
     }
 
-    if (!(mask & FpuControl::UNDERFLOW_EXC) && (exc & FpuControl::UNDERFLOW_EXC))
+    if (!(mask & FpuControl::UNDERFLOW_EXC) &&
+        (exc & FpuControl::UNDERFLOW_EXC))
     {
-        fpeHandler(IEEE_UNDERFLOW, "Floating-point underflow.");
+        fpeHandler (IEEE_UNDERFLOW, "Floating-point underflow.");
         return;
     }
 
     if (!(mask & FpuControl::INEXACT_EXC) && (exc & FpuControl::INEXACT_EXC))
     {
-        fpeHandler(IEEE_INEXACT, "Inexact floating-point result.");
+        fpeHandler (IEEE_INEXACT, "Inexact floating-point result.");
         return;
     }
 
     if (!(mask & FpuControl::INVALID_EXC) && (exc & FpuControl::INVALID_EXC))
     {
-        fpeHandler(IEEE_INVALID, "Invalid floating-point operation.");
+        fpeHandler (IEEE_INVALID, "Invalid floating-point operation.");
         return;
     }
 }
-
 
 void
 setFpExceptionHandler (FpExceptionHandler handler)
 {
     if (fpeHandler == 0)
     {
-	struct sigaction action;
-	sigemptyset (&action.sa_mask);
-	action.sa_flags = SA_SIGINFO | SA_NOMASK;
-	action.sa_sigaction = (void (*) (int, siginfo_t *, void *)) catchSigFpe;
-	action.sa_restorer = 0;
+        struct sigaction action;
+        sigemptyset (&action.sa_mask);
+        action.sa_flags     = SA_SIGINFO | SA_NOMASK;
+        action.sa_sigaction = (void (*) (int, siginfo_t*, void*)) catchSigFpe;
+        action.sa_restorer  = 0;
 
-	sigaction (SIGFPE, &action, 0);
+        sigaction (SIGFPE, &action, 0);
     }
 
     fpeHandler = handler;
 }
 
-
 IEX_INTERNAL_NAMESPACE_SOURCE_EXIT
-
 
 #else
 
-#include <signal.h>
-#include <assert.h>
+#    include <assert.h>
+#    include <signal.h>
 
 IEX_INTERNAL_NAMESPACE_SOURCE_ENTER
 
-
-namespace 
+namespace
 {
-	volatile FpExceptionHandler fpeHandler = 0;
-	void fpExc_(int x)
-	{
-	    if (fpeHandler != 0)
-	    {
-		fpeHandler(x, "");
-	    }
-	    else
-	    {
-		assert(0 != "Floating point exception");
-	    }
-	}
+volatile FpExceptionHandler fpeHandler = 0;
+void
+fpExc_ (int x)
+{
+    if (fpeHandler != 0) { fpeHandler (x, ""); }
+    else
+    {
+        assert (0 != "Floating point exception");
+    }
 }
+} // namespace
 
 void
-setFpExceptions( int )
-{
-}
-
+setFpExceptions (int)
+{}
 
 void
 setFpExceptionHandler (FpExceptionHandler handler)
 {
     // improve floating point exception handling nanoscopically above "nothing at all"
     fpeHandler = handler;
-    signal(SIGFPE, fpExc_);
+    signal (SIGFPE, fpExc_);
 }
 
 int
-fpExceptions()
+fpExceptions ()
 {
     return 0;
 }
 
 void
-handleExceptionsSetInRegisters()
+handleExceptionsSetInRegisters ()
 {
     // No implementation on this platform
 }

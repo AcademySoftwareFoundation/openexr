@@ -3,8 +3,4 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
-
-
-
 void testFuzzDeepScanLines (const char* file);
-
