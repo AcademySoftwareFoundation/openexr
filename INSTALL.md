@@ -7,7 +7,7 @@ source from the GitHub Releases page:
 https://github.com/AcademySoftwareFoundation/openexr/releases.
 
 To build from the latest development version, which may not be stable,
-clone the GitHub repo and build from the master branch:
+clone the GitHub repo and build from the ``main`` branch:
 
     % git clone https://github.com/AcademySoftwareFoundation/openexr
 
@@ -15,7 +15,7 @@ You can alternatively download the repository tarball file either via
 a browser, or on the Linux/macOS via the command line using ``wget``
 or ``curl``:
 
-    % curl -L https://github.com/AcademySoftwareFoundation/openexr/tarball/master | tar xv
+    % curl -L https://github.com/AcademySoftwareFoundation/openexr/tarball/main | tar xv
 
 In the instructions that follow, we will refer to the top-level
 directory of the source code tree as ``$openexr_source_directory``.
@@ -74,7 +74,7 @@ can specify a local install directory to cmake via the
 ## Porting Applications from OpenEXR v2 to v3
 
 See the [porting
-guide](https://github.com/AcademySoftwareFoundation/Imath/blob/master/docs/PortingGuide2-3.md)
+guide](https://github.com/AcademySoftwareFoundation/Imath/blob/main/docs/PortingGuide2-3.md)
 for details about differences from previous releases and how to
 address them. Also refer to the porting guide for details about
 changes to Imath.

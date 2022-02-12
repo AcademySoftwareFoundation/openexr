@@ -125,7 +125,7 @@ releveant links.
 
 The OpenEXR CLAs are the standard forms used by Linux Foundation
 projects and [recommended by the ASWF
-TAC](https://github.com/AcademySoftwareFoundation/tac/blob/master/process/contributing.md#contributor-license-agreement-cla).
+TAC](https://github.com/AcademySoftwareFoundation/tac/blob/main/process/contributing.md#contributor-license-agreement-cla).
 
 ### Commit Sign-Off
 
@@ -133,7 +133,7 @@ Every commit must be signed off.  That is, every commit log message
 must include a “`Signed-off-by`” line (generated, for example, with
 “`git commit --signoff`”), indicating that the committer wrote the
 code and has the right to release it under the [BSD-3-Clause](LICENSE.md)
-license. See https://github.com/AcademySoftwareFoundation/tac/blob/master/process/contributing.md#contribution-sign-off for more information on this requirement.
+license. See https://github.com/AcademySoftwareFoundation/tac/blob/main/process/contributing.md#contribution-sign-off for more information on this requirement.
 
 ## Development Workflow
 
@@ -156,21 +156,21 @@ Documentation](https://git-scm.com/doc).
 
 The OpenEXR repository uses a simple branching and merging strategy.
 
-All development work is done directly on the master branch. The master
+All development work is done directly on the ``main`` branch. The ``main``
 branch represents the bleeding-edge of the project and most
 contributions should be done on top of it.
 
-After sufficient work is done on the master branch and the OpenEXR
+After sufficient work is done on the ``main`` branch and the OpenEXR
 leadership determines that a release is due, we will bump the relevant
 internal versioning and tag a commit with the corresponding version
 number, e.g. v2.0.1. Each Minor version also has its own “Release
 Branch”, e.g. RB-1.1. This marks a branch of code dedicated to that
 Major.Minor version, which allows upstream bug fixes to be
-cherry-picked to a given version while still allowing the master
+cherry-picked to a given version while still allowing the ``main``
 branch to continue forward onto higher versions. This basic repository
 structure keeps maintenance low, while remaining simple to understand.
 
-To reiterate, the master branch represents the latest development
+To reiterate, the ``main`` branch represents the latest development
 version, so beware that it may include untested features and is not
 generally stable enough for release.  To retrieve a stable version of
 the source code, use one of the release branches.
@@ -231,7 +231,7 @@ the work.
 
 6. Upon receiving the required number of Committer approvals (as
 outlined in [Required Approvals](#required-approvals)), a Committer
-other than the PR contributor may merge changes into the master
+other than the PR contributor may merge changes into the ``main``
 branch.
 
 ### Code Review and Required Approvals
@@ -495,7 +495,7 @@ each version with three numbers: Major.Minor.Patch, where:
 
 ## Creating a Release
 
-To create a new release from the master branch:
+To create a new release from the ``main`` branch:
 
 1. Update the release notes in ``CHANGES.md``.
 

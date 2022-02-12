@@ -70,7 +70,7 @@ automatically during the OpenEXR build process.  Note that the half
 16-bit floating point data type is included in Imath.
 
 See the [porting
-guide](https://github.com/AcademySoftwareFoundation/Imath/blob/master/docs/PortingGuide2-3.md)
+guide](https://github.com/AcademySoftwareFoundation/Imath/blob/main/docs/PortingGuide2-3.md)
 for details about differences from previous releases and how to
 address them. Also refer to the porting guide for details about
 changes to Imath.

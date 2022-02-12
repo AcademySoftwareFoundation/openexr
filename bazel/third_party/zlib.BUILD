@@ -1,4 +1,4 @@
-# Copied from https://github.com/protocolbuffers/protobuf/blob/master/third_party/zlib.BUILD
+# Copied from https://github.com/protocolbuffers/protobuf/blob/main/third_party/zlib.BUILD
 
 #  Copyright 2008 Google Inc.  All rights reserved.
 #
