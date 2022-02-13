@@ -427,6 +427,23 @@ LineCompositeTask::execute ()
 
 } // namespace
 
+
+namespace {
+int64_t maximumSampleCount = 1<<25;
+}
+
+void CompositeDeepScanLine::setMaximumSampleCount(int64_t c)
+{
+    maximumSampleCount = c;
+}
+
+int64_t CompositeDeepScanLine::getMaximumSampleCount()
+{
+    return maximumSampleCount;
+}
+
+
+
 void
 CompositeDeepScanLine::readPixels (int start, int end)
 {
@@ -507,6 +524,15 @@ CompositeDeepScanLine::readPixels (int start, int end)
         }
         overall_sample_count += total_sizes[ptr];
     }
+
+    if (maximumSampleCount >=0 &&  overall_sample_count > maximumSampleCount)
+    {
+        throw IEX_NAMESPACE::ArgExc (
+            "Cannot composite scanline: total sample count on scanline exceeds "
+            "limit set by CompositeDeepScanLine::setMaximumSampleCount()"
+        );
+    }
+
 
     //
     // allocate arrays for pixel data
@@ -598,5 +624,6 @@ CompositeDeepScanLine::frameBuffer () const
 {
     return _Data->_outputFrameBuffer;
 }
+
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

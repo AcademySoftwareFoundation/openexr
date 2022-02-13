@@ -113,7 +113,14 @@ main (int argc, char** argv)
         }
         else if (!strcmp (argv[i], "-m"))
         {
+            //
+            // note for further memory reduction, calls to the folowing could be added here
+            // CompositeDeepScanLine::setMaximumSampleCount();
+            // Header::setMaxImageSize();
+            // Header::setMaxTileSize();
+
             reduceMemory = true;
+
         }
         else if (!strcmp (argv[i], "-t"))
         {
