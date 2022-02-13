@@ -65,9 +65,9 @@ Resources
 #########
 
 - Download: https://github.com/AcademySoftwareFoundation/openexr
-- Install Help: `INSTALL.md <https://github.com/AcademySoftwareFoundation/openexr/blob/master/INSTALL.md>`_
-- Porting Help: `Imath/OpenEXR Version 2->3 Porting Guide <https://github.com/AcademySoftwareFoundation/Imath/blob/master/docs/PortingGuide2-3.md>`_
-- License: `BSD License <https://github.com/AcademySoftwareFoundation/openexr/blob/master/LICENSE.md>`_
+- Install Help: `INSTALL.md <https://github.com/AcademySoftwareFoundation/openexr/blob/main/INSTALL.md>`_
+- Porting Help: `Imath/OpenEXR Version 2->3 Porting Guide <https://github.com/AcademySoftwareFoundation/Imath/blob/main/docs/PortingGuide2-3.md>`_
+- License: `BSD License <https://github.com/AcademySoftwareFoundation/openexr/blob/main/LICENSE.md>`_
 - Reference images: https://github.com/AcademySoftwareFoundation/openexr-images
 
 About OpenEXR

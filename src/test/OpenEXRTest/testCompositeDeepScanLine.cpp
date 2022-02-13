@@ -499,7 +499,7 @@ make_pattern (data<DATA>& bob, int pattern_number)
 
 template <class T>
 void
-write_file (const char* filename, const data<T>& master, int number_of_parts)
+write_file (const char* filename, const data<T>& main, int number_of_parts)
 {
     vector<Header> headers (number_of_parts);
 
@@ -530,9 +530,9 @@ write_file (const char* filename, const data<T>& master, int number_of_parts)
 
     vector<data<T>> sub_parts (number_of_parts);
 
-    if (number_of_parts > 1) { master.frak (sub_parts); }
+    if (number_of_parts > 1) { main.frak (sub_parts); }
 
-    if (number_of_parts == 1) { master.setHeader (headers[0]); }
+    if (number_of_parts == 1) { main.setHeader (headers[0]); }
     else
     {
 
@@ -546,7 +546,7 @@ write_file (const char* filename, const data<T>& master, int number_of_parts)
     for (int i = 0; i < number_of_parts; i++)
     {
         DeepScanLineOutputPart p (f, i);
-        if (number_of_parts == 1) { master.writeData (p); }
+        if (number_of_parts == 1) { main.writeData (p); }
         else
         {
             sub_parts[i].writeData (p);
@@ -565,9 +565,9 @@ test_parts (
 {
     std::string fn = tempDir + "imf_test_composite_deep_scanline_source.exr";
 
-    data<T> master;
-    make_pattern (master, pattern_number);
-    write_file (fn.c_str (), master, number_of_parts);
+    data<T> main;
+    make_pattern (main, pattern_number);
+    write_file (fn.c_str (), main, number_of_parts);
 
     {
         vector<T>                      data;
@@ -583,7 +583,7 @@ test_parts (
             comp.addSource (parts[i]);
         }
 
-        master.setUpFrameBuffer (
+        main.setUpFrameBuffer (
             data, testbuf, comp.dataWindow (), load_depths);
 
         comp.setFrameBuffer (testbuf);
@@ -609,7 +609,7 @@ test_parts (
             }
         }
 
-        master.checkValues (data, comp.dataWindow (), load_depths);
+        main.checkValues (data, comp.dataWindow (), load_depths);
 
         for (int i = 0; i < number_of_parts; i++)
         {
@@ -623,7 +623,7 @@ test_parts (
         vector<T>    data;
         FrameBuffer  testbuf;
         const Box2i& dataWindow = file.header ().dataWindow ();
-        master.setUpFrameBuffer (data, testbuf, dataWindow, load_depths);
+        main.setUpFrameBuffer (data, testbuf, dataWindow, load_depths);
         file.setFrameBuffer (testbuf);
         if (entire_buffer)
         {
@@ -641,7 +641,7 @@ test_parts (
             }
         }
 
-        master.checkValues (data, dataWindow, load_depths);
+        main.checkValues (data, dataWindow, load_depths);
     }
     remove (fn.c_str ());
 }

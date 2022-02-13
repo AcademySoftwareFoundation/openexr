@@ -143,7 +143,7 @@ each meeting. The meeting chair and the TSC cannot veto or remove items.
 The TSC may invite additional persons to participate in a non-voting capacity.
 
 The meeting chair is responsible for archiving the minutes, stored at 
-https://github.com/AcademySoftwareFoundation/openexr/tree/master/ASWF/tsc-meetings.
+https://wiki.aswf.io/display/OEXR/TSC+Meetings.
 
 Due to the challenges of scheduling a global meeting with participants
 in several time zones, the TSC will seek to resolve as many agenda
