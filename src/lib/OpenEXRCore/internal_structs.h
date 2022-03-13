@@ -35,9 +35,14 @@
 #    include <atomic>
 using atomic_uintptr_t = std::atomic_uintptr_t;
 #else
-#    if defined __has_include
-#        if __has_include(<stdatomic.h>)
-#            define EXR_HAS_STD_ATOMICS 1
+/* msvc, from version 19.31, evaluate __has_include(<stdatomic.h>) to true but
+ * doesn't actually support it yet. Ignoring msvc for now, once we know minimal
+ * version supporting it, we can compare against _MSC_VER. */
+#    if !defined(_MSC_VER)
+#        if defined __has_include
+#            if __has_include(<stdatomic.h>)
+#                define EXR_HAS_STD_ATOMICS 1
+#            endif
 #        endif
 #    endif
 
