@@ -414,13 +414,13 @@ jobs:
        shared=${{ matrix.build-shared }}, 
        cxx=${{ matrix.cxx-standard }}, 
        docs=${{ matrix.build-docs }}>'
-    runs-on: windows-2019
+    runs-on: windows-${{ matrix.osver }}
     strategy:
       matrix:
         build: [1, 2]
         include:
           # -------------------------------------------------------------------
-          # VFX CY2022 - C++17
+          # VFX CY2022 - C++17 - Windows 2019
           # -------------------------------------------------------------------
           # Shared, Release
           - build: 1
@@ -431,6 +431,7 @@ jobs:
             cxx-standard: 17
             vfx-cy: 2021
             exclude-tests: ''
+            osver: 2019
 
           # Static, Release
           - build: 2
@@ -441,6 +442,32 @@ jobs:
             cxx-standard: 17
             vfx-cy: 2021
             exclude-tests: ''
+            osver: 2019
+
+          # -------------------------------------------------------------------
+          # VFX CY2022 - C++17 - Windows 2022
+          # -------------------------------------------------------------------
+          # Shared, Release
+          - build: 3
+            build-type: Release
+            build-shared: 'ON'
+            build-docs: 'OFF'
+            compiler-desc: msvc17.1
+            cxx-standard: 17
+            vfx-cy: 2021
+            exclude-tests: ''
+            osver: 2022
+
+          # Static, Release
+          - build: 4
+            build-type: Release
+            build-shared: 'OFF'
+            build-docs: 'OFF'
+            compiler-desc: msvc17.1
+            cxx-standard: 17
+            vfx-cy: 2021
+            exclude-tests: ''
+            osver: 2022
 
     steps:
       - name: Checkout
