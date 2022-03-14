@@ -417,7 +417,7 @@ jobs:
     runs-on: windows-${{ matrix.osver }}
     strategy:
       matrix:
-        build: [1, 2]
+        build: [1, 2, 3, 4]
         include:
           # -------------------------------------------------------------------
           # VFX CY2022 - C++17 - Windows 2019
