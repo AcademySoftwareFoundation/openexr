@@ -429,7 +429,7 @@ LineCompositeTask::execute ()
 
 
 namespace {
-int64_t maximumSampleCount = 1<<25;
+int64_t maximumSampleCount = 0;
 }
 
 void CompositeDeepScanLine::setMaximumSampleCount(int64_t c)
@@ -525,7 +525,7 @@ CompositeDeepScanLine::readPixels (int start, int end)
         overall_sample_count += total_sizes[ptr];
     }
 
-    if (maximumSampleCount >=0 &&  overall_sample_count > maximumSampleCount)
+    if (maximumSampleCount > 0 &&  overall_sample_count > maximumSampleCount)
     {
         throw IEX_NAMESPACE::ArgExc (
             "Cannot composite scanline: total sample count on scanline exceeds "
