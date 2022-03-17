@@ -251,14 +251,14 @@ restoreControlRegs (const ucontext_t & ucon, bool clearExceptions)
 inline void
 restoreControlRegs (const ucontext_t & ucon, bool clearExceptions)
 {
-#if defined(__GLIBC__) || defined(__i386__)
+#        if defined(__GLIBC__) && defined(__i386__)
     setCw ((ucon.uc_mcontext.fpregs->cw & cwRestoreMask) | cwRestoreVal);
 #else
     setCw ((ucon.uc_mcontext.fpregs->cwd & cwRestoreMask) | cwRestoreVal);
-#endif
-    
-    _fpstate * kfp = reinterpret_cast<_fpstate *> (ucon.uc_mcontext.fpregs);
-#if defined(__GLIBC__) || defined(__i386__)
+#        endif
+
+    _fpstate* kfp = reinterpret_cast<_fpstate*> (ucon.uc_mcontext.fpregs);
+#        if defined(__GLIBC__) && defined(__i386__)
     setMxcsr (kfp->magic == 0 ? kfp->mxcsr : 0, clearExceptions);
 #else
     setMxcsr (kfp->mxcsr, clearExceptions);
