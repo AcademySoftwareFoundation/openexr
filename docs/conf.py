@@ -68,9 +68,6 @@ source_suffix = '.rst'
 # The encoding of source files.
 #source_encoding = 'utf-8-sig'
 
-# The master toctree document.
-master_doc = 'index'
-
 # General information about the project.
 project = 'OpenEXR'
 copyright = '2021, Contributors to the OpenEXR Project'
