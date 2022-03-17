@@ -1,5 +1,6 @@
 # OpenEXR Release Notes
 
+* [Version 2.5.8](#version-258-march-18-2022) March 18, 2022
 * [Version 2.5.7](#version-257-june-16-2021) June 16, 2021
 * [Version 2.5.6](#version-256-may-17-2021) May 17, 2021
 * [Version 2.5.5](#version-255-february-12-2021) February 12, 2021
@@ -41,6 +42,13 @@
 * [Version 1.0.2](#version-102)
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
+
+## Version 2.5.8 (March 18, 2022)
+
+Patch release that backports two fixes:
+
+* [1235](https://github.com/AcademySoftwareFoundation/openexr/pull/1235) Fix MinGW build by dropping export on defaulted KeyCode::~KeyCode
+* [1061](https://github.com/AcademySoftwareFoundation/openexr/pull/1061) Use CMAKE_INSTALL_FULL_LIBDIR/INCLUDEDIR in pkgconfig
 
 ## Version 2.5.7 (June 16, 2021)
 
