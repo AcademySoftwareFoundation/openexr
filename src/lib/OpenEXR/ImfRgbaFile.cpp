@@ -1301,7 +1301,7 @@ void
 RgbaInputFile::setLayerName (const string& layerName)
 {
     delete _fromYca;
-    _fromYca = 0;
+    _fromYca = nullptr;
 
     _channelNamePrefix = prefixFromLayerName (layerName, _inputPart->header ());
 
@@ -1320,6 +1320,8 @@ RgbaInputFile::setPartAndLayer (int part, const string& layerName)
     delete _fromYca;
     _fromYca = nullptr;
     delete _inputPart;
+    _inputPart = nullptr;
+
     _inputPart         = new InputPart (*_multiPartFile, part);
     _channelNamePrefix = prefixFromLayerName (layerName, _inputPart->header ());
     ;
