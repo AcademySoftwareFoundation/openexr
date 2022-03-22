@@ -12,6 +12,7 @@
 * [Version 3.0.1](#version-301-april-1-2021) April 1, 2021
 * [Version 3.0.1-beta](#version-301-beta-march-28-2021) March 28, 2021
 * [Version 3.0.0-beta](#version-300-beta-march-16-2021) March 16, 2021
+* [Version 2.5.8](#version-258-march-18-2022) March 18, 2022
 * [Version 2.5.7](#version-257-june-16-2021) June 16, 2021
 * [Version 2.5.6](#version-256-may-17-2021) May 17, 2021
 * [Version 2.5.5](#version-255-february-12-2021) February 12, 2021
@@ -750,6 +751,13 @@ Specific OSS-fuzz issues addressed include:
 * [796](https://github.com/AcademySoftwareFoundation/openexr/pull/796)  Initial rename of OpenEXR and IlmBase directories and seperation of Test
 * [791](https://github.com/AcademySoftwareFoundation/openexr/pull/791)  Initial removal of all Imath source files and minimal cmake adjustments
 * [769](https://github.com/AcademySoftwareFoundation/openexr/pull/769)  Bugfix/arkellr remove cvsignore files
+
+## Version 2.5.8 (March 18, 2022)
+
+Patch release that backports two fixes:
+
+* [1235](https://github.com/AcademySoftwareFoundation/openexr/pull/1235) Fix MinGW build by dropping export on defaulted KeyCode::~KeyCode
+* [1061](https://github.com/AcademySoftwareFoundation/openexr/pull/1061) Use CMAKE_INSTALL_FULL_LIBDIR/INCLUDEDIR in pkgconfig
 
 ## Version 2.5.7 (June 16, 2021)
 
