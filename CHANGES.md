@@ -1,5 +1,6 @@
 # OpenEXR Release Notes
 
+* [Version 3.1.5](#version-315-March-30-2022) March 30, 2022
 * [Version 3.1.4](#version-314-january-26-2022) January 27, 2022
 * [Version 3.1.3](#version-313-october-27-2021) October 27, 2021
 * [Version 3.1.2](#version-312-october-4-2021) October 4, 2021
@@ -54,6 +55,39 @@
 * [Version 1.0.2](#version-102)
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
+
+## Version 3.1.5 (March 30, 2022)
+
+Patch release that address various bug/build/doc issues:
+
+* Fix build failures on MSVC14 and MSVC 2022
+* Fix build failure on latest 64-bit Ubuntu 
+* Documentation refers to primary branch as "main"
+* Update the CI workflow matrix to VFX-CY2022
+
+Specific OSS-fuzz issues:
+
+* OSS-fuzz [44084](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=44084)
+Out-of-memory in openexr_exrcheck_fuzzer
+
+Merged Pull Requests:
+
+* [1239](https://github.com/AcademySoftwareFoundation/openexr/pull/1239)
+Add #include <algorithm> for MSVC14
+* [1238](https://github.com/AcademySoftwareFoundation/openexr/pull/1238)
+Update release notes for v2.5.8
+* [1237](https://github.com/AcademySoftwareFoundation/openexr/pull/1237)
+Fix MSVC 2022 build
+* [1232](https://github.com/AcademySoftwareFoundation/openexr/pull/1232)
+Fix logic for detecting _libc_fpstate API
+* [1230](https://github.com/AcademySoftwareFoundation/openexr/pull/1230)
+Add maximumSampleCount limit to CompositeDeepScanLine
+* [1229](https://github.com/AcademySoftwareFoundation/openexr/pull/1229)
+Change references to "master" to "main".
+* [1227](https://github.com/AcademySoftwareFoundation/openexr/pull/1227)
+Update CI for VFX reference platform 2022
+* [1219](https://github.com/AcademySoftwareFoundation/openexr/pull/1219)
+Make local build with Imath
 
 ## Version 3.1.4 (January 26, 2022)
 
@@ -119,6 +153,10 @@ Reduce memory consumption with very large deepscanline images
 Update INSTALL.md
 * [1205](https://github.com/AcademySoftwareFoundation/openexr/pull/1205)
 DeepScanlineInputFile now uses chunk size test from DeepTiledInputFile
+* [1203](https://github.com/AcademySoftwareFoundation/openexr/pull/1203)
+Remove deprecated CI scripts
+* [1202](https://github.com/AcademySoftwareFoundation/openexr/pull/1202)
+Missed a backslash in example code correction
 * [1200](https://github.com/AcademySoftwareFoundation/openexr/pull/1200)
 Corrected Deep Docs & Example Code
 * [1199](https://github.com/AcademySoftwareFoundation/openexr/pull/1199)
