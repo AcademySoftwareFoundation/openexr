@@ -7,7 +7,12 @@
 #include "ImfRgbaFile.h"
 #include "ImfArray.h"
 #include "ImfChannelList.h"
+<<<<<<< HEAD
 #include "ImfFrameBuffer.h"
+=======
+#include "ImfCompositeDeepScanLine.h"
+#include "ImfCompressor.h"
+>>>>>>> 8587f4ee... Add maximumSampleCount limit to CompositeDeepScanLine (#1230)
 #include "ImfDeepFrameBuffer.h"
 #include "ImfPartType.h"
 #include "ImfInputFile.h"
@@ -1569,10 +1574,29 @@ bool
 checkOpenEXRFile (const char* fileName, bool reduceMemory, bool reduceTime, bool enableCoreCheck)
 {
     bool threw = false;
+<<<<<<< HEAD
     if ( enableCoreCheck )
         threw = runCoreChecks (fileName, reduceMemory, reduceTime);
     if (!threw)
         threw = runChecks (fileName, reduceMemory, reduceTime);
+=======
+
+    uint64_t oldMaxSampleCount = CompositeDeepScanLine::getMaximumSampleCount();
+
+    if( reduceMemory || reduceTime)
+    {
+        CompositeDeepScanLine::setMaximumSampleCount(1<<20);
+    }
+
+    if (enableCoreCheck)
+    {
+        threw = runCoreChecks (fileName, reduceMemory, reduceTime);
+    }
+    if (!threw) threw = runChecks (fileName, reduceMemory, reduceTime);
+
+    CompositeDeepScanLine::setMaximumSampleCount(oldMaxSampleCount);
+
+>>>>>>> 8587f4ee... Add maximumSampleCount limit to CompositeDeepScanLine (#1230)
     return threw;
 }
 
@@ -1581,13 +1605,27 @@ bool
 checkOpenEXRFile (const char* data, size_t numBytes, bool reduceMemory, bool reduceTime, bool enableCoreCheck)
 {
     bool threw = false;
+<<<<<<< HEAD
     if ( enableCoreCheck )
+=======
+    uint64_t oldMaxSampleCount = CompositeDeepScanLine::getMaximumSampleCount();
+
+    if( reduceMemory || reduceTime)
+    {
+        CompositeDeepScanLine::setMaximumSampleCount(1<<20);
+    }
+
+    if (enableCoreCheck)
+>>>>>>> 8587f4ee... Add maximumSampleCount limit to CompositeDeepScanLine (#1230)
         threw = runCoreChecks (data, numBytes, reduceMemory, reduceTime);
     if (!threw)
     {
         PtrIStream stream (data,numBytes);
         threw = runChecks (stream, reduceMemory, reduceTime);
     }
+
+    CompositeDeepScanLine::setMaximumSampleCount(oldMaxSampleCount);
+
     return threw;
 }
 
