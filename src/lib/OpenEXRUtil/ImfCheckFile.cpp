@@ -5,6 +5,7 @@
 #include "Iex.h"
 #include "ImfArray.h"
 #include "ImfChannelList.h"
+#include "ImfCompositeDeepScanLine.h"
 #include "ImfCompressor.h"
 #include "ImfDeepFrameBuffer.h"
 #include "ImfDeepScanLineInputFile.h"
@@ -1612,9 +1613,22 @@ checkOpenEXRFile (
     bool        enableCoreCheck)
 {
     bool threw = false;
+
+    uint64_t oldMaxSampleCount = CompositeDeepScanLine::getMaximumSampleCount();
+
+    if( reduceMemory || reduceTime)
+    {
+        CompositeDeepScanLine::setMaximumSampleCount(1<<20);
+    }
+
     if (enableCoreCheck)
+    {
         threw = runCoreChecks (fileName, reduceMemory, reduceTime);
+    }
     if (!threw) threw = runChecks (fileName, reduceMemory, reduceTime);
+
+    CompositeDeepScanLine::setMaximumSampleCount(oldMaxSampleCount);
+
     return threw;
 }
 
@@ -1627,6 +1641,13 @@ checkOpenEXRFile (
     bool        enableCoreCheck)
 {
     bool threw = false;
+    uint64_t oldMaxSampleCount = CompositeDeepScanLine::getMaximumSampleCount();
+
+    if( reduceMemory || reduceTime)
+    {
+        CompositeDeepScanLine::setMaximumSampleCount(1<<20);
+    }
+
     if (enableCoreCheck)
         threw = runCoreChecks (data, numBytes, reduceMemory, reduceTime);
     if (!threw)
@@ -1634,6 +1655,9 @@ checkOpenEXRFile (
         PtrIStream stream (data, numBytes);
         threw = runChecks (stream, reduceMemory, reduceTime);
     }
+
+    CompositeDeepScanLine::setMaximumSampleCount(oldMaxSampleCount);
+
     return threw;
 }
 
