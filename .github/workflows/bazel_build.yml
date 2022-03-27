@@ -27,7 +27,7 @@ on:
       - '**.md'
 
 jobs:
-  build:
+  build_and_test_ubuntu:
     name: Linux Ubuntu 20.04 Bazel build <GCC 9.3.0>
     runs-on: ubuntu-20.04
     
