@@ -43,3 +43,20 @@ jobs:
     - name: Build
       run: |
         bazelisk build //...
+
+  build_and_test_windows:
+    name: Windows Server 2022 build <Visual Studio 2022>
+    runs-on: windows-2022
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Mount bazel cache
+      uses: actions/cache@v2
+      with:
+        path: "/home/runner/.cache/bazel"
+        key: bazel
+
+    - name: Build
+      run: |
+        bazelisk build //...
