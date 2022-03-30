@@ -138,7 +138,8 @@ struct _internal_exr_context
     uint8_t has_nonimage_data;
     uint8_t is_multipart;
 
-    uint8_t pad[2];
+    uint8_t strict_header;
+    uint8_t silent_header;
 
     exr_attr_string_t filename;
     exr_attr_string_t tmp_filename;
@@ -344,6 +345,8 @@ exr_result_t internal_exr_add_part (
 void internal_exr_revert_add_part (
     struct _internal_exr_context*, struct _internal_exr_part**, int* new_index);
 
+exr_result_t internal_exr_context_restore_handlers (
+    struct _internal_exr_context* ctxt, exr_result_t rv);
 exr_result_t internal_exr_alloc_context (
     struct _internal_exr_context**   out,
     const exr_context_initializer_t* initializers,
