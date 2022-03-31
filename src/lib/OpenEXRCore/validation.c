@@ -584,7 +584,7 @@ internal_exr_validate_read_part (
 {
     exr_result_t rv;
 
-    rv = validate_req_attr (f, curpart, 1);
+    rv = validate_req_attr (f, curpart, !f->strict_header);
     if (rv != EXR_ERR_SUCCESS) return rv;
 
     rv = validate_image_dimensions (f, curpart);
