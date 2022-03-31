@@ -2161,9 +2161,10 @@ internal_exr_compute_chunk_offset_size (struct _internal_exr_part* curpart)
                         tilecount +=
                             ((int64_t) curpart->tile_level_tile_count_x[lx] *
                              (int64_t) curpart->tile_level_tile_count_y[ly]);
+
+                        if (tilecount > (int64_t) INT_MAX) return -1;
                     }
                 }
-                if (tilecount > (int64_t) INT_MAX) return -1;
                 retval = (int32_t) tilecount;
                 break;
             case EXR_TILE_LAST_TYPE:
