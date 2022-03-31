@@ -11,6 +11,7 @@
 
 #include "internal_constants.h"
 #include "internal_file.h"
+#include "backward_compatibility.h"
 
 #include <IlmThreadConfig.h>
 
@@ -62,6 +63,7 @@ dispatch_read (
         rv = EXR_ERR_SUCCESS;
     else
         rv = EXR_ERR_READ_IO;
+
     return rv;
 }
 
@@ -120,17 +122,48 @@ process_query_size (
 
 /**************************************/
 
+static inline exr_context_initializer_t
+fill_context_data (const exr_context_initializer_t* ctxtdata)
+{
+    exr_context_initializer_t inits = EXR_DEFAULT_CONTEXT_INITIALIZER;
+    if (ctxtdata)
+    {
+        inits.error_handler_fn = ctxtdata->error_handler_fn;
+        inits.alloc_fn         = ctxtdata->alloc_fn;
+        inits.free_fn          = ctxtdata->free_fn;
+        inits.user_data        = ctxtdata->user_data;
+        inits.read_fn          = ctxtdata->read_fn;
+        inits.size_fn          = ctxtdata->size_fn;
+        inits.write_fn         = ctxtdata->write_fn;
+        inits.destroy_fn       = ctxtdata->destroy_fn;
+        inits.max_image_width  = ctxtdata->max_image_width;
+        inits.max_image_height = ctxtdata->max_image_height;
+        inits.max_tile_width   = ctxtdata->max_tile_width;
+        inits.max_tile_height  = ctxtdata->max_tile_height;
+        if (ctxtdata->size >= sizeof (struct _exr_context_initializer_v2))
+        {
+            inits.zip_level   = ctxtdata->zip_level;
+            inits.dwa_quality = ctxtdata->dwa_quality;
+        }
+        if (ctxtdata->size >= sizeof (struct _exr_context_initializer_v3))
+        {
+            inits.flags = ctxtdata->flags;
+        }
+    }
+
+    internal_exr_update_default_handlers (&inits);
+    return inits;
+}
+
+/**************************************/
+
 exr_result_t
 exr_test_file_header (
     const char* filename, const exr_context_initializer_t* ctxtdata)
 {
     exr_result_t                  rv    = EXR_ERR_SUCCESS;
     struct _internal_exr_context* ret   = NULL;
-    exr_context_initializer_t     inits = EXR_DEFAULT_CONTEXT_INITIALIZER;
-
-    if (ctxtdata) inits = *ctxtdata;
-
-    internal_exr_update_default_handlers (&inits);
+    exr_context_initializer_t     inits = fill_context_data (ctxtdata);
 
     if (filename && filename[0] != '\0')
     {
@@ -210,22 +243,19 @@ exr_result_t
 exr_start_read (
     exr_context_t*                   ctxt,
     const char*                      filename,
-    const exr_context_initializer_t* initdata)
+    const exr_context_initializer_t* ctxtdata)
 {
     exr_result_t                  rv    = EXR_ERR_UNKNOWN;
     struct _internal_exr_context* ret   = NULL;
-    exr_context_initializer_t     inits = EXR_DEFAULT_CONTEXT_INITIALIZER;
-
-    if (initdata) inits = *initdata;
-
-    internal_exr_update_default_handlers (&inits);
+    exr_context_initializer_t     inits = fill_context_data (ctxtdata);
 
     if (!ctxt)
     {
-        inits.error_handler_fn (
-            NULL,
-            EXR_ERR_INVALID_ARGUMENT,
-            "Invalid context handle passed to start_read function");
+        if (!(inits.flags & EXR_CONTEXT_FLAG_SILENT_HEADER_PARSE))
+            inits.error_handler_fn (
+                NULL,
+                EXR_ERR_INVALID_ARGUMENT,
+                "Invalid context handle passed to start_read function");
         return EXR_ERR_INVALID_ARGUMENT;
     }
 
@@ -262,10 +292,11 @@ exr_start_read (
     }
     else
     {
-        inits.error_handler_fn (
-            NULL,
-            EXR_ERR_INVALID_ARGUMENT,
-            "Invalid filename passed to start_read function");
+        if (!(inits.flags & EXR_CONTEXT_FLAG_SILENT_HEADER_PARSE))
+            inits.error_handler_fn (
+                NULL,
+                EXR_ERR_INVALID_ARGUMENT,
+                "Invalid filename passed to start_read function");
         rv = EXR_ERR_INVALID_ARGUMENT;
     }
 
@@ -280,15 +311,11 @@ exr_start_write (
     exr_context_t*                   ctxt,
     const char*                      filename,
     exr_default_write_mode_t         default_mode,
-    const exr_context_initializer_t* initdata)
+    const exr_context_initializer_t* ctxtdata)
 {
     int                           rv    = EXR_ERR_UNKNOWN;
     struct _internal_exr_context* ret   = NULL;
-    exr_context_initializer_t     inits = EXR_DEFAULT_CONTEXT_INITIALIZER;
-
-    if (initdata) inits = *initdata;
-
-    internal_exr_update_default_handlers (&inits);
+    exr_context_initializer_t     inits = fill_context_data (ctxtdata);
 
     if (!ctxt)
     {
@@ -355,6 +382,49 @@ exr_start_inplace_header_update (
     (void) filename;
     (void) ctxtdata;
     return EXR_ERR_INVALID_ARGUMENT;
+}
+
+/**************************************/
+
+exr_result_t
+exr_start_memory_write (
+    exr_context_t* ctxt, const exr_context_initializer_t* ctxtdata)
+{
+    int                           rv    = EXR_ERR_UNKNOWN;
+    struct _internal_exr_context* ret   = NULL;
+    exr_context_initializer_t     inits = fill_context_data (ctxtdata);
+
+    if (!ctxt)
+    {
+        inits.error_handler_fn (
+            NULL,
+            EXR_ERR_INVALID_ARGUMENT,
+            "Invalid context handle passed to start_read function");
+        return EXR_ERR_INVALID_ARGUMENT;
+    }
+
+    rv = internal_exr_alloc_context (
+        &ret,
+        &inits,
+        EXR_CONTEXT_WRITE,
+        sizeof (struct _internal_exr_filehandle));
+    if (rv == EXR_ERR_SUCCESS)
+    {
+        ret->do_write = &dispatch_write;
+
+        rv = exr_attr_string_create (
+            (exr_context_t) ret, &(ret->filename), "<memory>");
+
+        if (rv == EXR_ERR_SUCCESS)
+        {
+            if (!inits.write_fn) rv = default_init_write_file (ret);
+
+            if (rv != EXR_ERR_SUCCESS) exr_finish ((exr_context_t*) &ret);
+        }
+    }
+
+    *ctxt = (exr_context_t) ret;
+    return rv;
 }
 
 /**************************************/
