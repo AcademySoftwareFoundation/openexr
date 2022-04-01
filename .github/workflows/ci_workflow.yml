@@ -251,7 +251,7 @@ jobs:
       CC: ${{ matrix.cc-compiler }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Create build directories
         run: |
           mkdir _install
@@ -355,7 +355,7 @@ jobs:
             exclude-tests:
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Create build directories
         run: |
           mkdir _install
@@ -471,7 +471,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Create build directories
         run: |
           mkdir _install

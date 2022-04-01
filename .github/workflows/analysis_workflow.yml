@@ -36,7 +36,7 @@ jobs:
       - name: Setup container
         run: sudo rm -rf /usr/local/lib64/cmake/glew
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 50
       - name: Create build directories
@@ -104,7 +104,7 @@ jobs:
       - name: Setup container
         run: sudo rm -rf /usr/local/lib64/cmake/glew
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 50
       - name: Create build directories
@@ -183,7 +183,7 @@ jobs:
       - name: Setup container
         run: sudo rm -rf /usr/local/lib64/cmake/glew
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 50
       - name: Create build directories
