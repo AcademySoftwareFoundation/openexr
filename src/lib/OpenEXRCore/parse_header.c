@@ -19,6 +19,34 @@
 
 /**************************************/
 
+static exr_result_t
+silent_error (
+    const struct _internal_exr_context* pctxt,
+    exr_result_t                        code,
+    const char*                         msg)
+{
+    return code;
+}
+
+static exr_result_t
+silent_standard_error (
+    const struct _internal_exr_context* pctxt, exr_result_t code)
+{
+    return code;
+}
+
+static exr_result_t
+silent_print_error (
+    const struct _internal_exr_context* pctxt,
+    exr_result_t                        code,
+    const char*                         msg,
+    ...)
+{
+    return code;
+}
+
+/**************************************/
+
 struct _internal_exr_seq_scratch
 {
     uint8_t* scratch;
@@ -2230,6 +2258,7 @@ update_chunk_offsets (
     ctxt->parts[0]->chunk_table_offset =
         scratch->fileoff - (uint64_t) scratch->navail;
     prevpart = ctxt->parts[0];
+
     for (int p = 0; p < ctxt->num_parts; ++p)
     {
         curpart = ctxt->parts[p];
@@ -2369,14 +2398,21 @@ internal_exr_parse_header (struct _internal_exr_context* ctxt)
     uint8_t                          next_byte;
     exr_result_t                     rv = EXR_ERR_UNKNOWN;
 
+    if (ctxt->silent_header)
+    {
+        ctxt->standard_error = &silent_standard_error;
+        ctxt->report_error   = &silent_error;
+        ctxt->print_error    = &silent_print_error;
+    }
     rv = read_magic_and_flags (ctxt, &flags, &initpos);
-    if (rv != EXR_ERR_SUCCESS) return rv;
+    if (rv != EXR_ERR_SUCCESS)
+        return internal_exr_context_restore_handlers (ctxt, rv);
 
     rv = priv_init_scratch (ctxt, &scratch, initpos);
     if (rv != EXR_ERR_SUCCESS)
     {
         priv_destroy_scratch (&scratch);
-        return rv;
+        return internal_exr_context_restore_handlers (ctxt, rv);
     }
 
     curpart = ctxt->parts[0];
@@ -2385,27 +2421,42 @@ internal_exr_parse_header (struct _internal_exr_context* ctxt)
         rv = ctxt->report_error (
             ctxt, EXR_ERR_INVALID_ARGUMENT, "Error during file initialization");
         priv_destroy_scratch (&scratch);
-        return rv;
+        return internal_exr_context_restore_handlers (ctxt, rv);
     }
 
     ctxt->is_singlepart_tiled = (flags & EXR_TILED_FLAG) ? 1 : 0;
-    ctxt->max_name_length     = (flags & EXR_LONG_NAMES_FLAG)
+    if (ctxt->strict_header)
+    {
+        ctxt->max_name_length = (flags & EXR_LONG_NAMES_FLAG)
                                     ? EXR_LONGNAME_MAXLEN
                                     : EXR_SHORTNAME_MAXLEN;
-    ctxt->has_nonimage_data   = (flags & EXR_NON_IMAGE_FLAG) ? 1 : 0;
-    ctxt->is_multipart        = (flags & EXR_MULTI_PART_FLAG) ? 1 : 0;
+    }
+    else
+    {
+        ctxt->max_name_length = EXR_LONGNAME_MAXLEN;
+    }
+    ctxt->has_nonimage_data = (flags & EXR_NON_IMAGE_FLAG) ? 1 : 0;
+    ctxt->is_multipart      = (flags & EXR_MULTI_PART_FLAG) ? 1 : 0;
     if (ctxt->is_singlepart_tiled)
     {
         if (ctxt->has_nonimage_data || ctxt->is_multipart)
         {
-            rv = ctxt->print_error (
-                ctxt,
-                EXR_ERR_FILE_BAD_HEADER,
-                "Invalid combination of version flags: single part found, but also marked as deep (%d) or multipart (%d)",
-                (int) ctxt->has_nonimage_data,
-                (int) ctxt->is_multipart);
-            priv_destroy_scratch (&scratch);
-            return rv;
+            if (ctxt->strict_header)
+            {
+                rv = ctxt->print_error (
+                    ctxt,
+                    EXR_ERR_FILE_BAD_HEADER,
+                    "Invalid combination of version flags: single part found, but also marked as deep (%d) or multipart (%d)",
+                    (int) ctxt->has_nonimage_data,
+                    (int) ctxt->is_multipart);
+                priv_destroy_scratch (&scratch);
+                return internal_exr_context_restore_handlers (ctxt, rv);
+            }
+            else
+            {
+                // assume multipart for now
+                ctxt->is_singlepart_tiled = 0;
+            }
         }
         curpart->storage_mode = EXR_STORAGE_TILED;
     }
@@ -2420,7 +2471,7 @@ internal_exr_parse_header (struct _internal_exr_context* ctxt)
             rv = ctxt->report_error (
                 ctxt, EXR_ERR_FILE_BAD_HEADER, "Unable to extract header byte");
             priv_destroy_scratch (&scratch);
-            return rv;
+            return internal_exr_context_restore_handlers (ctxt, rv);
         }
 
         if (next_byte == '\0')
@@ -2429,7 +2480,7 @@ internal_exr_parse_header (struct _internal_exr_context* ctxt)
             if (rv != EXR_ERR_SUCCESS)
             {
                 priv_destroy_scratch (&scratch);
-                return rv;
+                return internal_exr_context_restore_handlers (ctxt, rv);
             }
 
             if (!ctxt->is_multipart)
@@ -2446,7 +2497,7 @@ internal_exr_parse_header (struct _internal_exr_context* ctxt)
                     EXR_ERR_FILE_BAD_HEADER,
                     "Unable to go to next part definition");
                 priv_destroy_scratch (&scratch);
-                return rv;
+                return internal_exr_context_restore_handlers (ctxt, rv);
             }
 
             if (next_byte == '\0')
@@ -2461,11 +2512,18 @@ internal_exr_parse_header (struct _internal_exr_context* ctxt)
 
         if (rv == EXR_ERR_SUCCESS)
             rv = pull_attr (ctxt, curpart, next_byte, &scratch);
-        if (rv != EXR_ERR_SUCCESS) break;
+        if (rv != EXR_ERR_SUCCESS)
+        {
+            if (ctxt->strict_header)
+            {
+                break;
+            }
+            rv = EXR_ERR_SUCCESS;
+        }
     } while (1);
 
-    if (rv == EXR_ERR_SUCCESS) rv = update_chunk_offsets (ctxt, &scratch);
+    if (rv == EXR_ERR_SUCCESS) { rv = update_chunk_offsets (ctxt, &scratch); }
 
     priv_destroy_scratch (&scratch);
-    return rv;
+    return internal_exr_context_restore_handlers (ctxt, rv);
 }

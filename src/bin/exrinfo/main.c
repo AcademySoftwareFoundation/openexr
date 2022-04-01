@@ -22,7 +22,7 @@ usage (const char* argv0)
 {
     fprintf (
         stderr,
-        "Usage: %s [-v|--verbose] <filename> [<filename> ...]\n\n",
+        "Usage: %s [-v|--verbose] [-a|--all-metadata] [-s|--strict] <filename> [<filename> ...]\n\n",
         argv0);
 }
 
@@ -74,13 +74,18 @@ stdin_reader (
 }
 
 static int
-process_stdin (int verbose)
+process_stdin (int verbose, int allmeta, int strict)
 {
-    int                       rv;
+    int                       failcount = 0;
+    exr_result_t              rv;
     exr_context_t             e     = NULL;
     exr_context_initializer_t cinit = EXR_DEFAULT_CONTEXT_INITIALIZER;
     cinit.error_handler_fn          = &error_handler_cb;
     cinit.read_fn                   = &stdin_reader;
+
+    if (!verbose) cinit.flags |= EXR_CONTEXT_FLAG_SILENT_HEADER_PARSE;
+
+    if (strict) cinit.flags |= EXR_CONTEXT_FLAG_STRICT_HEADER;
 
 #ifdef _WIN32
     _setmode (_fileno (stdin), _O_BINARY);
@@ -88,33 +93,43 @@ process_stdin (int verbose)
     rv = exr_start_read (&e, "<stdin>", &cinit);
     if (rv == EXR_ERR_SUCCESS)
     {
-        exr_print_context_info (e, verbose);
+        exr_print_context_info (e, verbose || allmeta);
         exr_finish (&e);
     }
-    return rv;
+    else
+        ++failcount;
+    return failcount;
 }
 
 static int
-process_file (const char* filename, int verbose)
+process_file (const char* filename, int verbose, int allmeta, int strict)
 {
-    int                       rv;
+    int                       failcount;
+    exr_result_t              rv;
     exr_context_t             e     = NULL;
     exr_context_initializer_t cinit = EXR_DEFAULT_CONTEXT_INITIALIZER;
     cinit.error_handler_fn          = &error_handler_cb;
 
+    if (!verbose) cinit.flags |= EXR_CONTEXT_FLAG_SILENT_HEADER_PARSE;
+
+    if (strict) cinit.flags |= EXR_CONTEXT_FLAG_STRICT_HEADER;
+
     rv = exr_start_read (&e, filename, &cinit);
-    if (rv == 0)
+
+    if (rv == EXR_ERR_SUCCESS)
     {
-        exr_print_context_info (e, verbose);
+        exr_print_context_info (e, verbose || allmeta);
         exr_finish (&e);
     }
-    return rv;
+    else
+        ++failcount;
+    return failcount;
 }
 
 int
 main (int argc, const char* argv[])
 {
-    int rv = 0, nfiles = 0, verbose = 0;
+    int rv = 0, nfiles = 0, verbose = 0, allmeta = 0, strict = 0;
 
     for (int a = 1; a < argc; ++a)
     {
@@ -128,10 +143,18 @@ main (int argc, const char* argv[])
         {
             verbose = 1;
         }
+        else if (!strcmp (argv[a], "-a") || !strcmp (argv[a], "--all-metadata"))
+        {
+            allmeta = 1;
+        }
+        else if (!strcmp (argv[a], "-s") || !strcmp (argv[a], "--strict"))
+        {
+            strict = 1;
+        }
         else if (!strcmp (argv[a], "-"))
         {
             ++nfiles;
-            rv += process_stdin (verbose);
+            rv += process_stdin (verbose, allmeta, strict);
         }
         else if (argv[a][0] == '-')
         {
@@ -141,7 +164,7 @@ main (int argc, const char* argv[])
         else
         {
             ++nfiles;
-            rv += process_file (argv[a], verbose);
+            rv += process_file (argv[a], verbose, allmeta, strict);
         }
     }
 
