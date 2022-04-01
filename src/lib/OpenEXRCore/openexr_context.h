@@ -185,7 +185,7 @@ typedef int64_t (*exr_write_func_ptr_t) (
  * \endcode
  *
  */
-typedef struct _exr_context_initializer_v2
+typedef struct _exr_context_initializer_v3
 {
     /** @brief Size member to tag initializer for version stability.
      *
@@ -313,13 +313,30 @@ typedef struct _exr_context_initializer_v2
      * for all contexts.
      */
     float dwa_quality;
+
+    /** Initialize with a bitwise or of the various context flags
+     */
+    int flags;
 } exr_context_initializer_t;
+
+/** @brief context flag which will enforce strict header validation
+ * checks and may prevent reading of files which could otherwise be
+ * processed.
+ */
+#define EXR_CONTEXT_FLAG_STRICT_HEADER (1 << 0)
+
+/** @brief Disables error messages while parsing headers
+ *
+ * The return values will remain the same, but error reporting will be
+ * skipped. This is only valid for reading contexts
+ */
+#define EXR_CONTEXT_FLAG_SILENT_HEADER_PARSE (1 << 1)
 
 /** @brief Simple macro to initialize the context initializer with default values. */
 #define EXR_DEFAULT_CONTEXT_INITIALIZER                                        \
     {                                                                          \
         sizeof (exr_context_initializer_t), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,   \
-            0, -2, -1.f                                                        \
+            0, -2, -1.f, 0                                                \
     }
 
 /** @} */ /* context function pointer declarations */
