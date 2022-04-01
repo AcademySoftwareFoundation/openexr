@@ -315,6 +315,17 @@ internal_exr_revert_add_part (
 
 /**************************************/
 
+exr_result_t internal_exr_context_restore_handlers(struct _internal_exr_context* ctxt, exr_result_t rv)
+{
+    ctxt->standard_error   = &dispatch_standard_error;
+    ctxt->report_error     = &dispatch_error;
+    ctxt->print_error      = &dispatch_print_error;
+    return rv;
+}
+
+
+/**************************************/
+
 exr_result_t
 internal_exr_alloc_context (
     struct _internal_exr_context**   out,
@@ -394,13 +405,15 @@ internal_exr_alloc_context (
 
         exr_get_default_zip_compression_level (&ret->default_zip_level);
         exr_get_default_dwa_compression_quality (&ret->default_dwa_quality);
-        if (initializers->size >= sizeof(struct _exr_context_initializer_v2))
-        {
-            if (initializers->zip_level >= 0)
-                ret->default_zip_level = initializers->zip_level;
-            if (initializers->dwa_quality >= 0.f)
-                ret->default_dwa_quality = initializers->dwa_quality;
-        }
+        if (initializers->zip_level >= 0)
+            ret->default_zip_level = initializers->zip_level;
+        if (initializers->dwa_quality >= 0.f)
+            ret->default_dwa_quality = initializers->dwa_quality;
+
+        if (initializers->flags & EXR_CONTEXT_FLAG_STRICT_HEADER)
+            ret->strict_header = 1;
+        if (initializers->flags & EXR_CONTEXT_FLAG_SILENT_HEADER_PARSE)
+            ret->silent_header = 1;
 
         ret->file_size       = -1;
         ret->max_name_length = EXR_SHORTNAME_MAXLEN;
