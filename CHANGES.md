@@ -97,8 +97,6 @@ Fix MSVC 2022 build
 Fix logic for detecting _libc_fpstate API
 * [1230](https://github.com/AcademySoftwareFoundation/openexr/pull/1230)
 Add maximumSampleCount limit to CompositeDeepScanLine
-* [1229](https://github.com/AcademySoftwareFoundation/openexr/pull/1229)
-Change references to "master" to "main".
 * [1227](https://github.com/AcademySoftwareFoundation/openexr/pull/1227)
 Update CI for VFX reference platform 2022
 * [1219](https://github.com/AcademySoftwareFoundation/openexr/pull/1219)
