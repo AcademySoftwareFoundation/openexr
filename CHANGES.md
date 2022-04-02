@@ -1,6 +1,6 @@
 # OpenEXR Release Notes
 
-* [Version 3.1.5](#version-315-March-30-2022) March 30, 2022
+* [Version 3.1.5](#version-315-april-7-2022) April 7, 2022
 * [Version 3.1.4](#version-314-january-26-2022) January 27, 2022
 * [Version 3.1.3](#version-313-october-27-2021) October 27, 2021
 * [Version 3.1.2](#version-312-october-4-2021) October 4, 2021
@@ -56,22 +56,37 @@
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
 
-## Version 3.1.5 (March 30, 2022)
+## Version 3.1.5 (April 7, 2022)
 
 Patch release that address various bug/build/doc issues:
 
+* Add backwards-compatibilty flags to the core library to match
+  original behavior of the the c++ library. Fixes reading of certain
+  files by the new core.
 * Fix build failures on MSVC14 and MSVC 2022
 * Fix build failure on latest 64-bit Ubuntu 
 * Documentation refers to primary branch as "main"
 * Update the CI workflow matrix to VFX-CY2022
+* Update auto-fetch Imath version to v3.1.5
 
 Specific OSS-fuzz issues:
 
 * OSS-fuzz [44084](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=44084)
 Out-of-memory in openexr_exrcheck_fuzzer
 
+* OSS-fuzz [45899](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=45899)
+Integer-overflow in internal_exr_compute_chunk_offset_size
+
 Merged Pull Requests:
 
+* [1247](https://github.com/AcademySoftwareFoundation/openexr/pull/1247)
+Update to zlib 1.2.12 and Imath 3.1.5 
+* [1246](https://github.com/AcademySoftwareFoundation/openexr/pull/1246)
+move out of bounds check inside loop 
+* [1245](https://github.com/AcademySoftwareFoundation/openexr/pull/1245)
+Implement corrupt chunk table reconstruction for Core 
+* [1244](https://github.com/AcademySoftwareFoundation/openexr/pull/1244)
+Match cpp header checks 
 * [1239](https://github.com/AcademySoftwareFoundation/openexr/pull/1239)
 Add #include <algorithm> for MSVC14
 * [1238](https://github.com/AcademySoftwareFoundation/openexr/pull/1238)
