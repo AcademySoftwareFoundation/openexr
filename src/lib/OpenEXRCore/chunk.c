@@ -394,7 +394,6 @@ read_and_validate_chunk_leader (
     const struct _internal_exr_context* ctxt,
     const struct _internal_exr_part*    part,
     int                                 partnum,
-    int                                 expecty,
     uint64_t                            offset,
     int*                                indexio,
     uint64_t*                           next_offset)
@@ -409,16 +408,6 @@ read_and_validate_chunk_leader (
     if (part->storage_mode == EXR_STORAGE_SCANLINE ||
         part->storage_mode == EXR_STORAGE_DEEP_SCANLINE)
     {
-        if (expecty != leader.scanline_y)
-        {
-            return ctxt->print_error (
-                ctxt,
-                EXR_ERR_BAD_CHUNK_LEADER,
-                "Invalid y encountered reconstructing chunk table: expect %d, found %d",
-                expecty,
-                leader.scanline_y);
-        }
-
         *indexio = (leader.scanline_y - part->data_window.min.y) /
                    part->lines_per_chunk;
     }
@@ -453,7 +442,7 @@ reconstruct_chunk_table (
     uint64_t                         offset_start, chunk_start, max_offset;
     uint64_t*                        curctable;
     const struct _internal_exr_part* curpart = NULL;
-    int                              maxidx, y, yincr, computed_ci, partnum = 0;
+    int                              maxidx, found_ci, computed_ci, partnum = 0;
 
     curpart      = ctxt->parts[ctxt->num_parts - 1];
     offset_start = curpart->chunk_table_offset;
@@ -493,12 +482,6 @@ reconstruct_chunk_table (
         if (rv != EXR_ERR_SUCCESS) return rv;
     }
 
-    // y and yincr are really only for scanline files, but we'll just
-    // ignore them in the read_and_validate since that has to change
-    // based on type anyway, then we can just have one loop here
-    y     = part->data_window.min.y;
-    yincr = part->lines_per_chunk;
-
     for (int ci = 0; ci < part->chunk_count; ++ci)
     {
         if (chunktable[ci] >= offset_start && chunktable[ci] < max_offset)
@@ -507,26 +490,21 @@ reconstruct_chunk_table (
         }
         chunk_start = offset_start;
         computed_ci = ci;
-
-        rv = read_and_validate_chunk_leader (
-            ctxt, part, partnum, y, chunk_start, &computed_ci, &offset_start);
+        if (part->lineorder == EXR_LINEORDER_DECREASING_Y)
+            computed_ci = part->chunk_count - (ci + 1);
+        found_ci = computed_ci;
+        rv       = read_and_validate_chunk_leader (
+            ctxt, part, partnum, chunk_start, &found_ci, &offset_start);
         if (rv != EXR_ERR_SUCCESS) return rv;
 
         // scanlines can be more strict about the ordering
         if (part->storage_mode == EXR_STORAGE_SCANLINE ||
             part->storage_mode == EXR_STORAGE_DEEP_SCANLINE)
         {
-            if (computed_ci != ci)
-                return ctxt->print_error (
-                    ctxt,
-                    EXR_ERR_BAD_CHUNK_LEADER,
-                    "Mismatch in chunk index reconstructing chunk table: expect %d, found %d",
-                    ci,
-                    computed_ci);
+            if (computed_ci != found_ci) return EXR_ERR_BAD_CHUNK_LEADER;
         }
 
-        chunktable[computed_ci] = chunk_start;
-        y += yincr;
+        chunktable[found_ci] = chunk_start;
     }
 
     return rv;
@@ -553,7 +531,6 @@ extract_chunk_table (
         uintptr_t eptr = 0, nptr = 0;
         int       complete = 1;
         uint64_t  maxoff   = ((uint64_t) -1);
-
         exr_result_t rv;
 
         if (part->chunk_count <= 0)
@@ -582,32 +559,40 @@ extract_chunk_table (
             return rv;
         }
 
-        // could convert table all at once, but need to check if the
-        // file is incomplete (i.e. crashed during write and didn't
-        // get a complete chunk table), so just do them one at a time
-        if (ctxt->file_size > 0) maxoff = (uint64_t) ctxt->file_size;
-        for (size_t ci = 0; ci < part->chunk_count; ++ci)
+        if (!ctxt->disable_chunk_reconstruct)
         {
-            uint64_t cchunk = one_to_native64 (ctable[ci]);
-            if (ctable[ci] < chunkoff || ctable[ci] >= maxoff) complete = 0;
-            ctable[ci] = cchunk;
-        }
-
-        if (!complete)
-        {
-            // TODO: enable this once the strict checks are merged
-            //if (ctxt->strict_mode)
-            //    return ctxt->report_error (
-            //        ctxt,
-            //        EXR_ERR_CORRUPT_CHUNK,
-            //        "corrupt chunk table detected");
-
-            rv = reconstruct_chunk_table (ctxt, part, ctable);
-            if (rv != EXR_ERR_SUCCESS)
+            // could convert table all at once, but need to check if the
+            // file is incomplete (i.e. crashed during write and didn't
+            // get a complete chunk table), so just do them one at a time
+            if (ctxt->file_size > 0) maxoff = (uint64_t) ctxt->file_size;
+            for (size_t ci = 0; ci < part->chunk_count; ++ci)
             {
-                ctxt->free_fn (ctable);
-                return rv;
+                uint64_t cchunk = one_to_native64 (ctable[ci]);
+                if (cchunk < chunkoff || cchunk >= maxoff) complete = 0;
+                ctable[ci] = cchunk;
             }
+
+            if (!complete)
+            {
+                // The c++ side would basically fail as soon as it
+                // failed, but would otherwise swallow all errors, and
+                // then just let the reads fail later. We will do
+                // something similar, except when in strict mode, we
+                // will fail with a corrupt chunk immediately.
+                rv = reconstruct_chunk_table (ctxt, part, ctable);
+                if (rv != EXR_ERR_SUCCESS && ctxt->strict_header)
+                {
+                    ctxt->free_fn (ctable);
+                    return ctxt->report_error (
+                        ctxt,
+                        EXR_ERR_BAD_CHUNK_LEADER,
+                        "Incomplete / corrupt chunk table, unable to reconstruct");
+                }
+            }
+        }
+        else
+        {
+            priv_to_native64 (ctable, part->chunk_count);
         }
 
         nptr = (uintptr_t) ctable;
