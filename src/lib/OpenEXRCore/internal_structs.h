@@ -212,6 +212,7 @@ struct _internal_exr_context
     pthread_mutex_t mutex;
 #    endif
 #endif
+    uint8_t disable_chunk_reconstruct;
 };
 
 #define EXR_CTXT(c) ((struct _internal_exr_context*) (c))
