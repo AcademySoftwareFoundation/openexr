@@ -332,6 +332,14 @@ typedef struct _exr_context_initializer_v3
  */
 #define EXR_CONTEXT_FLAG_SILENT_HEADER_PARSE (1 << 1)
 
+/** @brief Disables reconstruction logic upon corrupt / missing data chunks
+ *
+ * This will disable the reconstruction logic that searches through an
+ * incomplete file, and will instead just return errors at read
+ * time. This is only valid for reading contexts
+ */
+#define EXR_CONTEXT_FLAG_DISABLE_CHUNK_RECONSTRUCTION (1 << 2)
+
 /** @brief Simple macro to initialize the context initializer with default values. */
 #define EXR_DEFAULT_CONTEXT_INITIALIZER                                        \
     {                                                                          \
