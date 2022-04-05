@@ -3,7 +3,6 @@
 // Copyright (c) Weta Digital, Ltd and Contributors to the OpenEXR Project.
 //
 
-
 #ifndef INCLUDED_IMF_COMPOSITEDEEPSCANLINE_H
 #define INCLUDED_IMF_COMPOSITEDEEPSCANLINE_H
 
@@ -11,10 +10,10 @@
 //
 //	Class to composite deep samples into a frame buffer
 //      Initialise with a deep input part or deep inputfile
-//      (also supports multiple files and parts, and will 
+//      (also supports multiple files and parts, and will
 //       composite them together, as long as their sizes and channelmaps agree)
-//       
-//      Then call setFrameBuffer, and readPixels, exactly as for reading 
+//
+//      Then call setFrameBuffer, and readPixels, exactly as for reading
 //      regular scanline images.
 //
 //      Restrictions - source file(s) must contain at least Z and alpha channels
@@ -23,11 +22,11 @@
 //                   - only half and float channels can be requested
 //
 //      This object should not be considered threadsafe
-//  
+//
 //      The default compositing engine will give spurious results with overlapping
-//      volumetric samples - you may derive from DeepCompositing class, override the 
-//      sort_pixel() and composite_pixel() functions, and pass an instance to 
-//      setCompositing(). 
+//      volumetric samples - you may derive from DeepCompositing class, override the
+//      sort_pixel() and composite_pixel() functions, and pass an instance to
+//      setCompositing().
 //
 //-----------------------------------------------------------------------------
 
@@ -39,87 +38,6 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 class IMF_EXPORT_TYPE CompositeDeepScanLine
 {
-<<<<<<< HEAD
-    public:
-        IMF_EXPORT
-        CompositeDeepScanLine();
-        IMF_EXPORT
-        virtual ~CompositeDeepScanLine();
-        
-        /// set the source data as a part
-        ///@note all parts must remain valid until after last interaction with DeepComp
-        IMF_EXPORT
-        void addSource(DeepScanLineInputPart * part);
-        
-        /// set the source data as a file
-        ///@note all file must remain valid until after last interaction with DeepComp
-        IMF_EXPORT
-        void addSource(DeepScanLineInputFile * file);
-        
-        
-        /////////////////////////////////////////
-        //
-        // set the frame buffer for output values
-        // the buffers specified must be large enough
-        // to handle the dataWindow() 
-        //
-        /////////////////////////////////////////
-        IMF_EXPORT
-        void setFrameBuffer(const FrameBuffer & fr);
-        
-        
-        
-        /////////////////////////////////////////
-        //
-        // retrieve frameBuffer
-        //
-        ////////////////////////////////////////
-        IMF_EXPORT
-        const FrameBuffer & frameBuffer() const;
-        
-        
-        //////////////////////////////////////////////////
-        //
-        // read scanlines start to end from the source(s)
-        // storing the result in the frame buffer provided
-        //
-        //////////////////////////////////////////////////
-        
-        IMF_EXPORT
-        void readPixels(int start,int end);
-        
-        IMF_EXPORT
-        int sources() const; // return number of sources
-        
-        /////////////////////////////////////////////////
-        //
-        // retrieve the datawindow
-        // If multiple parts are specified, this will
-        // be the union of the dataWindow of all parts
-        //
-        ////////////////////////////////////////////////
-        
-        IMF_EXPORT
-        const IMATH_NAMESPACE::Box2i & dataWindow() const;
-        
- 
-        //
-        // override default sorting/compositing operation
-        // (otherwise an instance of the base class will be used)
-        //
-        
-        IMF_EXPORT
-        void setCompositing(DeepCompositing *);
-        
-      struct IMF_HIDDEN Data; 
-    private :  
-      struct Data *_Data;
-      
-    CompositeDeepScanLine(const CompositeDeepScanLine &) = delete;
-    CompositeDeepScanLine & operator=(const CompositeDeepScanLine &) = delete;
-    CompositeDeepScanLine(CompositeDeepScanLine &&) = delete;
-    CompositeDeepScanLine & operator=(CompositeDeepScanLine &&) = delete;
-=======
 public:
     IMF_EXPORT
     CompositeDeepScanLine ();
@@ -212,7 +130,6 @@ private:
     CompositeDeepScanLine& operator= (const CompositeDeepScanLine&) = delete;
     CompositeDeepScanLine (CompositeDeepScanLine&&)                 = delete;
     CompositeDeepScanLine& operator= (CompositeDeepScanLine&&) = delete;
->>>>>>> 8587f4ee... Add maximumSampleCount limit to CompositeDeepScanLine (#1230)
 };
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
