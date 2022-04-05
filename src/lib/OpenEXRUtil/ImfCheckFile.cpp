@@ -472,15 +472,22 @@ readDeepScanLine (T& in, bool reduceMemory, bool reduceTime)
 
             //
             // count how many samples are required to store this scanline
+            // in reduceMemory mode, pixels with large sample counts are not read,
+            // but the library needs to allocate memory for them internally
+            // - bufferSize is how much memory this function will allocate
+            // - fileBufferSize tracks how much decompressed data the library will require
             //
             size_t bufferSize = 0;
+            size_t fileBufferSize = 0;
             for (int j = 0; j < w; j++)
             {
                 for (int k = 0; k < channelCount; k++)
                 {
+                    fileBufferSize += localSampleCount[j];
                     //
                     // don't read samples which require a lot of memory in reduceMemory mode
                     //
+
                     if (!reduceMemory || localSampleCount[j] * bytesPerSample <=
                                              gMaxBytesPerDeepPixel)
                     {
@@ -492,7 +499,7 @@ readDeepScanLine (T& in, bool reduceMemory, bool reduceTime)
             //
             // limit total number of samples read in reduceMemory mode
             //
-            if (!reduceMemory || bufferSize < gMaxBytesPerDeepScanline)
+            if (!reduceMemory || fileBufferSize + bufferSize < gMaxBytesPerDeepScanline)
             {
                 //
                 // allocate sample buffer and set per-pixel pointers into buffer
@@ -658,11 +665,15 @@ readDeepTile (T& in, bool reduceMemory, bool reduceTime)
                                     x, y, x, y, xlevel, ylevel);
 
                                 size_t bufferSize = 0;
+                                size_t fileBufferSize = 0;
 
                                 for (int ty = 0; ty < tileHeight; ++ty)
                                 {
                                     for (int tx = 0; tx < tileWidth; ++tx)
                                     {
+                                        fileBufferSize += channelCount *
+                                                localSampleCount[ty][tx];
+
                                         if (!reduceMemory ||
                                             localSampleCount[ty][tx] *
                                                     bytesPerSample <
@@ -678,7 +689,7 @@ readDeepTile (T& in, bool reduceMemory, bool reduceTime)
                                 // skip reading if no data to read, or limiting memory and tile is too large
                                 if (bufferSize > 0 &&
                                     (!reduceMemory ||
-                                     bufferSize * bytesPerSample <
+                                     (fileBufferSize + bufferSize) * bytesPerSample <
                                          gMaxBytesPerDeepPixel))
                                 {
 
