@@ -73,12 +73,17 @@ Specific OSS-fuzz issues:
 
 * OSS-fuzz [44084](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=44084)
 Out-of-memory in openexr_exrcheck_fuzzer
-
 * OSS-fuzz [45899](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=45899)
 Integer-overflow in internal_exr_compute_chunk_offset_size
 
 Merged Pull Requests:
 
+* [1251](https://github.cmo/AcademySoftwareFoundation/openexr/pull/1251)
+Add disable reconstruct flag
+* [1250](https://github.cmo/AcademySoftwareFoundation/openexr/pull/1250)
+handle potential overflow in CheckFile core reading
+* [1249](https://github.cmo/AcademySoftwareFoundation/openexr/pull/1249)
+prevent excessive internal memory in CheckFile deep tests
 * [1247](https://github.com/AcademySoftwareFoundation/openexr/pull/1247)
 Update to zlib 1.2.12 and Imath 3.1.5 
 * [1246](https://github.com/AcademySoftwareFoundation/openexr/pull/1246)
