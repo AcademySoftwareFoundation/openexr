@@ -7,12 +7,8 @@
 #include "ImfRgbaFile.h"
 #include "ImfArray.h"
 #include "ImfChannelList.h"
-<<<<<<< HEAD
-#include "ImfFrameBuffer.h"
-=======
 #include "ImfCompositeDeepScanLine.h"
 #include "ImfCompressor.h"
->>>>>>> 8587f4ee... Add maximumSampleCount limit to CompositeDeepScanLine (#1230)
 #include "ImfDeepFrameBuffer.h"
 #include "ImfPartType.h"
 #include "ImfInputFile.h"
@@ -445,16 +441,23 @@ bool readDeepScanLine(T& in,bool reduceMemory, bool reduceTime)
 
             //
             // count how many samples are required to store this scanline
+            // in reduceMemory mode, pixels with large sample counts are not read,
+            // but the library needs to allocate memory for them internally
+            // - bufferSize is how much memory this function will allocate
+            // - fileBufferSize tracks how much decompressed data the library will require
             //
             size_t bufferSize = 0;
-            for (int j = 0; j < w ; j++)
+            size_t fileBufferSize = 0;
+            for (int j = 0; j < w; j++)
             {
                 for (int k = 0; k < channelCount; k++)
                 {
+                    fileBufferSize += localSampleCount[j];
                     //
                     // don't read samples which require a lot of memory in reduceMemory mode
                     //
-                    if (!reduceMemory || localSampleCount[j]*bytesPerSample <= gMaxBytesPerDeepPixel )
+                    if (!reduceMemory || localSampleCount[j] * bytesPerSample <=
+                                             gMaxBytesPerDeepPixel)
                     {
                         bufferSize += localSampleCount[j];
                     }
@@ -629,12 +632,19 @@ readDeepTile(T& in,bool reduceMemory , bool reduceTime)
 
 
                                 size_t bufferSize = 0;
+                                size_t fileBufferSize = 0;
 
                                 for (int ty = 0 ; ty < tileHeight ; ++ty )
                                 {
                                     for (int tx = 0 ; tx < tileWidth ; ++tx )
                                     {
-                                        if (!reduceMemory || localSampleCount[ty][tx]*bytesPerSample < gMaxBytesPerDeepScanline )
+                                        fileBufferSize += channelCount *
+                                                localSampleCount[ty][tx];
+
+                                        if (!reduceMemory ||
+                                            localSampleCount[ty][tx] *
+                                                    bytesPerSample <
+                                                gMaxBytesPerDeepScanline)
                                         {
                                             bufferSize += channelCount * localSampleCount[ty][tx];
                                         }
@@ -642,7 +652,10 @@ readDeepTile(T& in,bool reduceMemory , bool reduceTime)
                                 }
 
                                 // skip reading if no data to read, or limiting memory and tile is too large
-                                if ( bufferSize>0 && (!reduceMemory || bufferSize*bytesPerSample < gMaxBytesPerDeepPixel ))
+                                if (bufferSize > 0 &&
+                                    (!reduceMemory ||
+                                     (fileBufferSize + bufferSize) * bytesPerSample <
+                                         gMaxBytesPerDeepPixel))
                                 {
 
                                     pixelBuffer.resize( bufferSize );
@@ -1574,12 +1587,6 @@ bool
 checkOpenEXRFile (const char* fileName, bool reduceMemory, bool reduceTime, bool enableCoreCheck)
 {
     bool threw = false;
-<<<<<<< HEAD
-    if ( enableCoreCheck )
-        threw = runCoreChecks (fileName, reduceMemory, reduceTime);
-    if (!threw)
-        threw = runChecks (fileName, reduceMemory, reduceTime);
-=======
 
     uint64_t oldMaxSampleCount = CompositeDeepScanLine::getMaximumSampleCount();
 
@@ -1596,7 +1603,6 @@ checkOpenEXRFile (const char* fileName, bool reduceMemory, bool reduceTime, bool
 
     CompositeDeepScanLine::setMaximumSampleCount(oldMaxSampleCount);
 
->>>>>>> 8587f4ee... Add maximumSampleCount limit to CompositeDeepScanLine (#1230)
     return threw;
 }
 
@@ -1605,9 +1611,6 @@ bool
 checkOpenEXRFile (const char* data, size_t numBytes, bool reduceMemory, bool reduceTime, bool enableCoreCheck)
 {
     bool threw = false;
-<<<<<<< HEAD
-    if ( enableCoreCheck )
-=======
     uint64_t oldMaxSampleCount = CompositeDeepScanLine::getMaximumSampleCount();
 
     if( reduceMemory || reduceTime)
@@ -1616,7 +1619,6 @@ checkOpenEXRFile (const char* data, size_t numBytes, bool reduceMemory, bool red
     }
 
     if (enableCoreCheck)
->>>>>>> 8587f4ee... Add maximumSampleCount limit to CompositeDeepScanLine (#1230)
         threw = runCoreChecks (data, numBytes, reduceMemory, reduceTime);
     if (!threw)
     {
