@@ -1,6 +1,6 @@
 # OpenEXR Release Notes
 
-* [Version 3.1.5](#version-315-april-7-2022) April 7, 2022
+* [Version 3.1.5](#version-315-april-11-2022) April 11, 2022
 * [Version 3.1.4](#version-314-january-26-2022) January 27, 2022
 * [Version 3.1.3](#version-313-october-27-2021) October 27, 2021
 * [Version 3.1.2](#version-312-october-4-2021) October 4, 2021
@@ -56,7 +56,7 @@
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
 
-## Version 3.1.5 (April 7, 2022)
+## Version 3.1.5 (April 11, 2022)
 
 Patch release that address various bug/build/doc issues:
 
@@ -71,10 +71,14 @@ Patch release that address various bug/build/doc issues:
 
 Specific OSS-fuzz issues:
 
-* OSS-fuzz [44084](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=44084)
+* OSS-fuzz [46309](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=46309)
+Heap-buffer-overflow in Imf_3_1::memstream_read
+* OSS-fuzz [46083](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=46083)
 Out-of-memory in openexr_exrcheck_fuzzer
 * OSS-fuzz [45899](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=45899)
 Integer-overflow in internal_exr_compute_chunk_offset_size
+* OSS-fuzz [44084](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=44084)
+Out-of-memory in openexr_exrcheck_fuzzer
 
 Merged Pull Requests:
 
