@@ -15,7 +15,7 @@ if(PYILMBASE_INSTALL_PKG_CONFIG)
   # use a helper function to avoid variable pollution, but pretty simple
   function(pyilmbase_pkg_config_help pcinfile)
     set(prefix ${CMAKE_INSTALL_PREFIX})
-    set(exec_prefix ${CMAKE_INSTALL_BINDIR})
+    set(exec_prefix "\${prefix}")
     set(libdir ${CMAKE_INSTALL_FULL_LIBDIR})
     set(includedir ${CMAKE_INSTALL_FULL_INCLUDEDIR})
     string(TOUPPER "${CMAKE_BUILD_TYPE}" uppercase_CMAKE_BUILD_TYPE)
