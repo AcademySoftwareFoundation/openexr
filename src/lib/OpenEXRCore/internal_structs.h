@@ -35,7 +35,8 @@
 #    include <atomic>
 using atomic_uintptr_t = std::atomic_uintptr_t;
 #else
-#    if defined __has_include
+/* Visual Studio 2022 has stdatomic.h, but does not yet support it when compiling as C. */
+#    if defined __has_include && !defined(_MSC_VER)
 #        if __has_include(<stdatomic.h>)
 #            define EXR_HAS_STD_ATOMICS 1
 #        endif

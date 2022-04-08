@@ -15,7 +15,8 @@
 /**************************************/
 
 /* for testing, we include a bunch of internal stuff into the unit tests which are in c++ */
-#if defined __has_include
+/* Visual Studio 2022 has stdatomic.h, but does not yet support it when compiling as C. */
+#if defined __has_include && !defined(_MSC_VER)
 #    if __has_include(<stdatomic.h>)
 #        define EXR_HAS_STD_ATOMICS 1
 #    endif
