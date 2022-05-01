@@ -34,7 +34,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Mount bazel cache
+    - name: Mount Bazel cache
       uses: actions/cache@v2
       with:
         path: "/home/runner/.cache/bazel"
@@ -51,7 +51,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Mount bazel cache
+    - name: Mount Bazel cache
       uses: actions/cache@v2
       with:
         path: "/home/runner/.cache/bazel"
