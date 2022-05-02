@@ -1270,6 +1270,21 @@ Header::setMaxTileSize (int maxWidth, int maxHeight)
     maxTileHeight = maxHeight;
 }
 
+void
+Header::getMaxImageSize (int& maxWidth, int& maxHeight)
+{
+    maxWidth = maxImageWidth;
+    maxHeight = maxImageHeight;
+}
+
+void
+Header::getMaxTileSize (int& maxWidth, int& maxHeight)
+{
+    maxWidth = maxTileWidth;
+    maxHeight= maxTileHeight;
+}
+
+
 bool
 Header::readsNothing ()
 {

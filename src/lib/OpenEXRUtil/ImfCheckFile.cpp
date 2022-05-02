@@ -565,11 +565,6 @@ readDeepTile (T& in, bool reduceMemory, bool reduceTime)
 
         Box2i dataWindow = fileHeader.dataWindow ();
 
-        //
-        // use uint64_t for dimensions, since dataWindow+1 could overflow int storage
-        //
-        uint64_t height = static_cast<uint64_t> (dataWindow.size ().y) + 1;
-        uint64_t width  = static_cast<uint64_t> (dataWindow.size ().x) + 1;
         int      bytesPerSample = calculateBytesPerPixel (in.header ());
 
         const TileDescription& td         = in.header ().tileDescription ();
@@ -1030,6 +1025,30 @@ template <class T>
 bool
 runChecks (T& source, bool reduceMemory, bool reduceTime)
 {
+
+    //
+    // in reduceMemory/reduceTime mode, limit image size, tile size, and maximum deep samples
+    //
+
+    uint64_t oldMaxSampleCount = CompositeDeepScanLine::getMaximumSampleCount();
+
+    int maxImageWidth , maxImageHeight;
+    Header::getMaxImageSize(maxImageWidth,maxImageHeight);
+
+    int maxTileWidth , maxTileHeight;
+    Header::getMaxImageSize(maxTileWidth,maxTileHeight);
+
+
+    if( reduceMemory || reduceTime)
+    {
+        CompositeDeepScanLine::setMaximumSampleCount(1<<20);
+        Header::setMaxImageSize(2048,2048);
+        Header::setMaxTileSize(512,512);
+    }
+
+
+
+
     //
     // multipart test: also grab the type of the first part to
     // check which other tests are expected to fail
@@ -1048,7 +1067,6 @@ runChecks (T& source, bool reduceMemory, bool reduceTime)
     // If the MultiPartInputFile constructor throws an exception, the first part
     // will assumed to be a wide image
     //
-    bool firstPartWide = true;
     bool largeTiles    = true;
 
     bool threw = false;
@@ -1057,17 +1075,6 @@ runChecks (T& source, bool reduceMemory, bool reduceTime)
         {
             MultiPartInputFile multi (source);
             Box2i              b          = multi.header (0).dataWindow ();
-            uint64_t           imageWidth = static_cast<uint64_t> (b.max.x) -
-                                  static_cast<uint64_t> (b.min.x) + 1ll;
-            uint64_t bytesPerPixel = calculateBytesPerPixel (multi.header (0));
-            uint64_t numLines =
-                numLinesInBuffer (multi.header (0).compression ());
-
-            // confirm first part is small enough to read without using excessive memory
-            if (imageWidth * bytesPerPixel * numLines <= gMaxBytesPerScanline)
-            {
-                firstPartWide = false;
-            }
 
             //
             // significant memory is also required to read a tiled file
@@ -1080,18 +1087,10 @@ runChecks (T& source, bool reduceMemory, bool reduceTime)
             {
                 const TileDescription& tileDescription =
                     multi.header (0).tileDescription ();
-                uint64_t tilesPerScanline =
-                    (imageWidth + tileDescription.xSize - 1ll) /
-                    tileDescription.xSize;
                 uint64_t tileSize =
                     static_cast<uint64_t> (tileDescription.xSize) *
                     static_cast<uint64_t> (tileDescription.ySize);
                 int bytesPerPixel = calculateBytesPerPixel (multi.header (0));
-                if (tileSize * tilesPerScanline * bytesPerPixel >
-                    gMaxTileBytesPerScanline)
-                {
-                    firstPartWide = true;
-                }
 
                 if (tileSize * bytesPerPixel <= gMaxTileBytes)
                 {
@@ -1115,7 +1114,7 @@ runChecks (T& source, bool reduceMemory, bool reduceTime)
     }
 
     // read using both scanline interfaces (unless the image is wide and reduce memory enabled)
-    if (!reduceMemory || !firstPartWide)
+    if (!reduceMemory)
     {
         {
             bool gotThrow = false;
@@ -1163,7 +1162,7 @@ runChecks (T& source, bool reduceMemory, bool reduceTime)
         if (gotThrow && firstPartType == TILEDIMAGE) { threw = true; }
     }
 
-    if (!reduceMemory || !firstPartWide)
+    if (!reduceMemory)
     {
         bool gotThrow = false;
         resetInput (source);
@@ -1194,6 +1193,12 @@ runChecks (T& source, bool reduceMemory, bool reduceTime)
         }
         if (gotThrow && firstPartType == DEEPTILE) { threw = true; }
     }
+
+
+
+    CompositeDeepScanLine::setMaximumSampleCount(oldMaxSampleCount);
+    Header::setMaxImageSize(maxImageWidth,maxImageHeight);
+    Header::setMaxTileSize(maxTileWidth,maxTileHeight);
 
     return threw;
 }
@@ -1621,26 +1626,18 @@ checkOpenEXRFile (
     const char* fileName,
     bool        reduceMemory,
     bool        reduceTime,
-    bool        enableCoreCheck)
+    bool        runCoreCheck)
 {
-    bool threw = false;
 
-    uint64_t oldMaxSampleCount = CompositeDeepScanLine::getMaximumSampleCount();
-
-    if( reduceMemory || reduceTime)
+    if (runCoreCheck)
     {
-        CompositeDeepScanLine::setMaximumSampleCount(1<<20);
+        return runCoreChecks (fileName, reduceMemory, reduceTime);
+    }
+    else
+    {
+        return runChecks (fileName, reduceMemory, reduceTime);
     }
 
-    if (enableCoreCheck)
-    {
-        threw = runCoreChecks (fileName, reduceMemory, reduceTime);
-    }
-    if (!threw) threw = runChecks (fileName, reduceMemory, reduceTime);
-
-    CompositeDeepScanLine::setMaximumSampleCount(oldMaxSampleCount);
-
-    return threw;
 }
 
 bool
@@ -1649,27 +1646,21 @@ checkOpenEXRFile (
     size_t      numBytes,
     bool        reduceMemory,
     bool        reduceTime,
-    bool        enableCoreCheck)
+    bool        runCoreCheck)
 {
-    bool threw = false;
-    uint64_t oldMaxSampleCount = CompositeDeepScanLine::getMaximumSampleCount();
 
-    if( reduceMemory || reduceTime)
-    {
-        CompositeDeepScanLine::setMaximumSampleCount(1<<20);
-    }
 
-    if (enableCoreCheck)
-        threw = runCoreChecks (data, numBytes, reduceMemory, reduceTime);
-    if (!threw)
-    {
+     if (runCoreCheck)
+     {
+        return runCoreChecks (data, numBytes, reduceMemory, reduceTime);
+     }
+     else
+     {
         PtrIStream stream (data, numBytes);
-        threw = runChecks (stream, reduceMemory, reduceTime);
+        return runChecks (stream, reduceMemory, reduceTime);
     }
 
-    CompositeDeepScanLine::setMaximumSampleCount(oldMaxSampleCount);
 
-    return threw;
 }
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT
