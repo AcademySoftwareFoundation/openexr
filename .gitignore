@@ -49,3 +49,4 @@ build/
 build-win/
 build-nuget/
 *~
+.vscode
