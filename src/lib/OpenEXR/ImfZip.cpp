@@ -93,13 +93,14 @@ Zip::compress (const char* raw, int rawSize, char* compressed)
     // Compress the data using zlib
     //
 
-    uLongf outSize = int (ceil (rawSize * 1.01)) + 100;
+    uLong inSize = static_cast<uLong> (rawSize);
+    uLong outSize = compressBound (inSize);
 
     if (Z_OK != ::compress2 (
-                    (Bytef*) compressed,
+                    reinterpret_cast<Bytef*> (compressed),
                     &outSize,
-                    (const Bytef*) _tmpBuffer,
-                    rawSize,
+                    reinterpret_cast<const Bytef*> (_tmpBuffer),
+                    inSize,
                     _zipLevel))
     {
         throw IEX_NAMESPACE::BaseExc ("Data compression (zlib) failed.");
@@ -240,13 +241,14 @@ Zip::uncompress (const char* compressed, int compressedSize, char* raw)
     // Decompress the data using zlib
     //
 
-    uLongf outSize = _maxRawSize;
+    uLong outSize = static_cast<uLong> (_maxRawSize);
+    uLong inSize = static_cast<uLong> (compressedSize);
 
     if (Z_OK != ::uncompress (
-                    (Bytef*) _tmpBuffer,
+                    reinterpret_cast<Bytef*> (_tmpBuffer),
                     &outSize,
-                    (const Bytef*) compressed,
-                    compressedSize))
+                    reinterpret_cast<const Bytef*> (compressed),
+                    inSize))
     {
         throw IEX_NAMESPACE::InputExc ("Data decompression (zlib) failed.");
     }

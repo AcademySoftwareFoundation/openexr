@@ -341,13 +341,14 @@ Pxr24Compressor::compress (
         }
     }
 
-    uLongf outSize = int (ceil ((tmpBufferEnd - _tmpBuffer) * 1.01)) + 100;
+    uLong inBufferSize = static_cast<uLong> (tmpBufferEnd - _tmpBuffer);
+    uLong outSize = compressBound (inBufferSize);
 
     if (Z_OK != ::compress (
-                    (Bytef*) _outBuffer,
+                    reinterpret_cast<Bytef*> (_outBuffer),
                     &outSize,
-                    (const Bytef*) _tmpBuffer,
-                    tmpBufferEnd - _tmpBuffer))
+                    reinterpret_cast<const Bytef*> (_tmpBuffer),
+                    inBufferSize))
     {
         throw IEX_NAMESPACE::BaseExc ("Data compression (zlib) failed.");
     }
@@ -366,11 +367,14 @@ Pxr24Compressor::uncompress (
         return 0;
     }
 
-    uLongf tmpSize = _maxScanLineSize * _numScanLines;
+    uLong tmpSize = static_cast<uLong> (_maxScanLineSize * _numScanLines);
 
     if (Z_OK !=
         ::uncompress (
-            (Bytef*) _tmpBuffer, &tmpSize, (const Bytef*) inPtr, inSize))
+            reinterpret_cast<Bytef*> (_tmpBuffer),
+            &tmpSize,
+            reinterpret_cast<const Bytef*> (inPtr),
+            inSize))
     {
         throw IEX_NAMESPACE::InputExc ("Data decompression (zlib) failed.");
     }
@@ -408,7 +412,7 @@ Pxr24Compressor::uncompress (
                     ptr[3]       = ptr[2] + n;
                     tmpBufferEnd = ptr[3] + n;
 
-                    if ((uLongf) (tmpBufferEnd - _tmpBuffer) > tmpSize)
+                    if (static_cast<uLong> (tmpBufferEnd - _tmpBuffer) > tmpSize)
                         notEnoughData ();
 
                     for (int j = 0; j < n; ++j)
@@ -433,7 +437,7 @@ Pxr24Compressor::uncompress (
                     ptr[1]       = ptr[0] + n;
                     tmpBufferEnd = ptr[1] + n;
 
-                    if ((uLongf) (tmpBufferEnd - _tmpBuffer) > tmpSize)
+                    if (static_cast<uLong> (tmpBufferEnd - _tmpBuffer) > tmpSize)
                         notEnoughData ();
 
                     for (int j = 0; j < n; ++j)
@@ -456,7 +460,7 @@ Pxr24Compressor::uncompress (
                     ptr[2]       = ptr[1] + n;
                     tmpBufferEnd = ptr[2] + n;
 
-                    if ((uLongf) (tmpBufferEnd - _tmpBuffer) > tmpSize)
+                    if (static_cast<uLong> (tmpBufferEnd - _tmpBuffer) > tmpSize)
                         notEnoughData ();
 
                     for (int j = 0; j < n; ++j)
@@ -479,7 +483,7 @@ Pxr24Compressor::uncompress (
         }
     }
 
-    if ((uLongf) (tmpBufferEnd - _tmpBuffer) < tmpSize) tooMuchData ();
+    if (static_cast<uLong> (tmpBufferEnd - _tmpBuffer) < tmpSize) tooMuchData ();
 
     outPtr = _outBuffer;
     return writePtr - _outBuffer;

@@ -136,14 +136,15 @@ doReadWriteManifest (const IDManifest& mfst, const string& fn, bool dump)
     //
     // allocate a buffer which is guaranteed to be big enough for compression
     //
-    uLongf       compressedDataSize = compressBound (str.str ().size ());
+    uLong        sourceDataSize = static_cast<uLong> (str.str ().size ());
+    uLong        compressedDataSize = compressBound (sourceDataSize);
     vector<char> compressed (compressedDataSize);
 
     ::compress (
-        (Bytef*) &compressed[0],
+        reinterpret_cast<Bytef*> (compressed.data ()),
         &compressedDataSize,
-        (const Bytef*) str.str ().c_str (),
-        str.str ().size ());
+        reinterpret_cast<const Bytef*> (str.str ().c_str ()),
+        sourceDataSize);
 
     cerr << "simple zip size: " << compressedDataSize << ' ';
 #endif

@@ -92,7 +92,7 @@ apply_pxr24_impl (exr_encode_pipeline_t* encode)
     uint8_t*       out       = encode->scratch_buffer_1;
     uint64_t       nOut      = 0;
     const uint8_t* lastIn    = encode->packed_buffer;
-    uLongf         compbufsz = encode->compressed_alloc_size;
+    uLong          compbufsz = (uLong) encode->compressed_alloc_size;
 
     for (int y = 0; y < encode->chunk.height; ++y)
     {
@@ -219,7 +219,7 @@ apply_pxr24_impl (exr_encode_pipeline_t* encode)
                     (Bytef*) encode->compressed_buffer,
                     &compbufsz,
                     (const Bytef*) encode->scratch_buffer_1,
-                    nOut))
+                    (uLong) nOut))
     {
         return EXR_ERR_CORRUPT_CHUNK;
     }
@@ -229,7 +229,7 @@ apply_pxr24_impl (exr_encode_pipeline_t* encode)
             encode->compressed_buffer,
             encode->packed_buffer,
             encode->packed_bytes);
-        compbufsz = encode->packed_bytes;
+        compbufsz = (uLong) encode->packed_bytes;
     }
     encode->compressed_bytes = compbufsz;
     return EXR_ERR_SUCCESS;
@@ -262,7 +262,7 @@ undo_pxr24_impl (
     void*                  scratch_data,
     uint64_t               scratch_size)
 {
-    uLongf         outSize = (uLongf) uncompressed_size;
+    uLong          outSize = (uLong) uncompressed_size;
     int            rstat;
     uint8_t*       out    = uncompressed_data;
     uint64_t       nOut   = 0;
