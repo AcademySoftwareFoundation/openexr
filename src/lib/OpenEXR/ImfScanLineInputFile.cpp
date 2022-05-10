@@ -1151,9 +1151,10 @@ ScanLineInputFile::initialize (const Header& header)
 
     _data->linesInBuffer = numLinesInBuffer (comp);
 
-    int lineOffsetSize =
-        (dataWindow.max.y - dataWindow.min.y + _data->linesInBuffer) /
-        _data->linesInBuffer;
+    uint64_t lineOffsetSize =
+        (static_cast<int64_t>(dataWindow.max.y) - static_cast<int64_t>(dataWindow.min.y) + static_cast<int64_t>(_data->linesInBuffer)) /
+        static_cast<int64_t>(_data->linesInBuffer);
+
 
     //
     // avoid allocating excessive memory due to large lineOffsets and bytesPerLine table sizes.
