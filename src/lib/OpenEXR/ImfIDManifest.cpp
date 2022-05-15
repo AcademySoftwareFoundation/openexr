@@ -554,26 +554,29 @@ void IDManifest::init(const char* data, const char* endOfData)
 
 IDManifest::IDManifest(const CompressedIDManifest& compressed)
 {
-   //
-   // decompress the compressed manifest
-   //
-    
-    
-   vector<Bytef> uncomp(compressed._uncompressedDataSize);
-   uLongf outSize = compressed._uncompressedDataSize;
-   if(Z_OK != ::uncompress(&uncomp[0] , &outSize , (const Bytef*) compressed._data, compressed._compressedDataSize))
-   {
-       throw IEX_NAMESPACE::InputExc ("IDManifest decompression (zlib) failed.");
-   }
-   if(outSize!=compressed._uncompressedDataSize)
-   {
-       throw IEX_NAMESPACE::InputExc ("IDManifest decompression (zlib) failed: mismatch in decompressed data size");
-   }
-   
-   init((const char*) &uncomp[0],(const char*) &uncomp[0] + outSize);
-  
-   
-   
+    //
+    // decompress the compressed manifest
+    //
+
+    vector<Bytef> uncomp (compressed._uncompressedDataSize);
+    uLong         outSize = static_cast<uLong> (compressed._uncompressedDataSize);
+    uLong         inSize  = static_cast<uLong> (compressed._compressedDataSize);
+    if (Z_OK != ::uncompress (
+            uncomp.data(),
+            &outSize,
+            reinterpret_cast<const Bytef*> (compressed._data),
+            inSize))
+    {
+        throw IEX_NAMESPACE::InputExc (
+            "IDManifest decompression (zlib) failed.");
+    }
+    if (outSize != compressed._uncompressedDataSize)
+    {
+        throw IEX_NAMESPACE::InputExc (
+            "IDManifest decompression (zlib) failed: mismatch in decompressed data size");
+    }
+
+    init ((const char*) &uncomp[0], (const char*) &uncomp[0] + outSize);
 }
 
 
@@ -1092,27 +1095,28 @@ CompressedIDManifest::CompressedIDManifest(const IDManifest& manifest)
    
  
     std::vector<char> serial;
-    
-    manifest.serialize(serial);
-    
-    uLong outputSize = serial.size();
-   
+
+    manifest.serialize (serial);
+
+    uLong outputSize = static_cast<uLong> (serial.size ());
+
     //
     // allocate a buffer which is guaranteed to be big enough for compression
     //
-   uLongf compressedDataSize = compressBound(outputSize);
-   _data = (unsigned char*) malloc(compressedDataSize);
-   if(Z_OK != ::compress(_data,&compressedDataSize,(Bytef*) &serial[0],outputSize))
-   {
-       throw IEX_NAMESPACE::InputExc("ID manifest compression failed");
-   }
-   
-   // now call realloc to reallocate the buffer to a smaller size - this might free up memory
-   _data = (unsigned char*) realloc(_data,compressedDataSize);
-   
-   _uncompressedDataSize = outputSize;
-   _compressedDataSize = compressedDataSize;
-   
+    uLong compressedDataSize = compressBound (outputSize);
+    _data                     = (unsigned char*) malloc (compressedDataSize);
+    if (Z_OK !=
+        ::compress (
+            _data, &compressedDataSize, reinterpret_cast<Bytef*> (serial.data ()), outputSize))
+    {
+        throw IEX_NAMESPACE::InputExc ("ID manifest compression failed");
+    }
+
+    // now call realloc to reallocate the buffer to a smaller size - this might free up memory
+    _data = (unsigned char*) realloc (_data, compressedDataSize);
+
+    _uncompressedDataSize = outputSize;
+    _compressedDataSize   = compressedDataSize;
 }
 
 IDManifest::ChannelGroupManifest::ChannelGroupManifest() : _lifeTime(IDManifest::LIFETIME_STABLE) , _hashScheme(IDManifest::UNKNOWN) , _encodingScheme(IDManifest::UNKNOWN) , _insertingEntry(false)

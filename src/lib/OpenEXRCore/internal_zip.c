@@ -158,7 +158,7 @@ undo_zip_impl (
     void*       scratch_data,
     uint64_t    scratch_size)
 {
-    uLongf outSize = (uLongf) uncompressed_size;
+    uLong  outSize = (uLong) uncompressed_size;
     int    rstat;
 
     if (scratch_size < uncompressed_size) return EXR_ERR_INVALID_ARGUMENT;
@@ -226,7 +226,7 @@ apply_zip_impl (exr_encode_pipeline_t* encode)
     const uint8_t* raw  = encode->packed_buffer;
     const uint8_t* stop = raw + encode->packed_bytes;
     int            p, level;
-    uLongf         compbufsz = encode->compressed_alloc_size;
+    uLong          compbufsz = (uLong) encode->compressed_alloc_size;
     exr_result_t   rv        = EXR_ERR_SUCCESS;
 
     rv = exr_get_zip_compression_level (
@@ -257,7 +257,7 @@ apply_zip_impl (exr_encode_pipeline_t* encode)
                     (Bytef*) encode->compressed_buffer,
                     &compbufsz,
                     (const Bytef*) encode->scratch_buffer_1,
-                    encode->packed_bytes,
+                    (uLong) encode->packed_bytes,
                     level))
     {
         return EXR_ERR_CORRUPT_CHUNK;

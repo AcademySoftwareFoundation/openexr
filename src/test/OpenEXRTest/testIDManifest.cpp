@@ -131,15 +131,20 @@ namespace
     
 #define COMPARE_WITH_SIMPLE_ZIP    
 #ifdef COMPARE_WITH_SIMPLE_ZIP    
-          //
-          // allocate a buffer which is guaranteed to be big enough for compression
-              //
-                 uLongf compressedDataSize = compressBound(str.str().size());
-                 vector<char> compressed(compressedDataSize);
+        //
+        // allocate a buffer which is guaranteed to be big enough for compression
+        //
+        uLong        sourceDataSize = static_cast<uLong> (str.str ().size ());
+        uLong        compressedDataSize = compressBound (sourceDataSize);
+        vector<char> compressed(compressedDataSize);
 
-                 ::compress((Bytef*) &compressed[0],&compressedDataSize,(const Bytef*) str.str().c_str(),str.str().size());
+        ::compress(
+            reinterpret_cast<Bytef*>(compressed.data ()),
+            &compressedDataSize,
+            reinterpret_cast<const Bytef*> (str.str ().c_str ()),
+            sourceDataSize);
                  
-                 cerr << "simple zip size: " << compressedDataSize << ' ';
+        cerr << "simple zip size: " << compressedDataSize << ' ';
 #endif                 
         
         cerr.flush();
