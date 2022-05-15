@@ -25,13 +25,14 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 // if reduceTime is true and an error is found within the file, then future tests are reduced for speed.
 // This may hide errors within the library.
 //
+// if runCoreCheck is true, only uses the OpenEXRCore (C) API, otherwise uses the OpenEXR (C++) API
 //
 
 IMFUTIL_EXPORT bool checkOpenEXRFile (
     const char* fileName,
     bool        reduceMemory    = false,
     bool        reduceTime      = false,
-    bool        enableCoreCheck = false);
+    bool        runCoreCheck = false);
 
 //
 // overloaded version of checkOpenEXRFile that takes a pointer to in-memory data
@@ -42,7 +43,7 @@ IMFUTIL_EXPORT bool checkOpenEXRFile (
     size_t      numBytes,
     bool        reduceMemory    = false,
     bool        reduceTime      = false,
-    bool        enableCoreCheck = false);
+    bool        runCoreCheck = false);
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 

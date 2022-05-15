@@ -446,6 +446,11 @@ public:
     static void setMaxImageSize (int maxWidth, int maxHeight);
     IMF_EXPORT
     static void setMaxTileSize (int maxWidth, int maxHeight);
+    IMF_EXPORT
+    static void getMaxImageSize (int& maxWidth, int& maxHeight);
+    IMF_EXPORT
+    static void getMaxTileSize (int& maxWidth, int& maxHeight);
+
 
     //
     // Check if the header reads nothing.
