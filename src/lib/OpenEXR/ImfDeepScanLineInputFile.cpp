@@ -1128,9 +1128,21 @@ void DeepScanLineInputFile::initialize(const Header& header)
         for (int i = 0; i < _data->maxY - _data->minY + 1; i++)
             _data->gotSampleCount[i] = false;
 
-        _data->maxSampleCountTableSize = min(_data->linesInBuffer, _data->maxY - _data->minY + 1) *
-                                        (_data->maxX - _data->minX + 1) *
-                                        sizeof(unsigned int);
+        int64_t imageHeight = static_cast<int64_t>(_data->maxY) - static_cast<int64_t>(_data->minY) + 1;
+        int64_t imageWidth = static_cast<int64_t>(_data->maxX) - static_cast<int64_t>(_data->minX) +1;
+
+        int64_t tableSize =  min (static_cast<int64_t>(_data->linesInBuffer), imageHeight) * imageWidth
+            * sizeof (unsigned int);
+
+        if (tableSize>std::numeric_limits<int>::max() )
+        {
+            THROW (IEX_NAMESPACE::ArgExc,
+                   "Deep scanline image size "
+                   << imageWidth << " x " <<  imageHeight
+                   << " exceeds maximum size");
+        }
+        _data->maxSampleCountTableSize =tableSize;
+
 
         _data->sampleCountTableBuffer.resizeErase(_data->maxSampleCountTableSize);
 
