@@ -4,6 +4,7 @@
 #include <ImathConfig.h>
 #include <ImfCheckFile.h>
 
+#include <cstdint>
 #include <fstream>
 #include <iostream>
 #include <string.h>
