@@ -409,8 +409,21 @@ read_and_validate_chunk_leader (
     if (part->storage_mode == EXR_STORAGE_SCANLINE ||
         part->storage_mode == EXR_STORAGE_DEEP_SCANLINE)
     {
-        *indexio = (leader.scanline_y - part->data_window.min.y) /
-                   part->lines_per_chunk;
+        int64_t chunk = (int64_t) leader.scanline_y;
+        chunk -= (int64_t) part->data_window.min.y;
+        chunk /= part->lines_per_chunk;
+        if (chunk < 0 || chunk > INT32_MAX)
+            return ctxt->print_error (
+                ctxt,
+                EXR_ERR_BAD_CHUNK_LEADER,
+                "Invalid chunk index: %" PRId64
+                " reading scanline %d (datawindow min %d) with lines per chunk %d",
+                chunk,
+                leader.scanline_y,
+                part->data_window.min.y,
+                part->lines_per_chunk);
+
+        *indexio = (int) chunk;
     }
     else
     {
