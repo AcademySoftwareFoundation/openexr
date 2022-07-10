@@ -7,6 +7,7 @@
 
 #include "internal_coding.h"
 #include "internal_structs.h"
+#include "internal_util.h"
 #include "internal_xdr.h"
 
 #include <limits.h>
@@ -527,10 +528,10 @@ extract_chunk_table (
         EXR_CONST_CAST (atomic_uintptr_t*, &(part->chunk_table)));
     if (ctable == NULL)
     {
-        int64_t   nread = 0;
-        uintptr_t eptr = 0, nptr = 0;
-        int       complete = 1;
-        uint64_t  maxoff   = ((uint64_t) -1);
+        int64_t      nread = 0;
+        uintptr_t    eptr = 0, nptr = 0;
+        int          complete = 1;
+        uint64_t     maxoff   = ((uint64_t) -1);
         exr_result_t rv;
 
         if (part->chunk_count <= 0)
@@ -590,10 +591,7 @@ extract_chunk_table (
                 }
             }
         }
-        else
-        {
-            priv_to_native64 (ctable, part->chunk_count);
-        }
+        else { priv_to_native64 (ctable, part->chunk_count); }
 
         nptr = (uintptr_t) ctable;
         // see if we win or not
@@ -670,21 +668,11 @@ compute_chunk_unpack_size (
         {
             const exr_attr_chlist_entry_t* curc = (chanlist->entries + c);
             uint64_t chansz = ((curc->pixel_type == EXR_PIXEL_HALF) ? 2 : 4);
-            chansz *= ((uint64_t) width);
+
+            chansz *= (uint64_t) width;
             if (curc->x_sampling > 1) chansz /= ((uint64_t) curc->x_sampling);
-            chansz *= ((uint64_t) height);
-            if (curc->y_sampling > 1)
-            {
-                if (height > 1)
-                {
-                    if (curc->y_sampling > height)
-                        chansz /= ((uint64_t) height);
-                    else
-                        chansz /= ((uint64_t) curc->y_sampling);
-                }
-                else if ((y % ((int) curc->y_sampling)) != 0)
-                    chansz = 0;
-            }
+            chansz *=
+                (uint64_t) compute_sampled_lines (height, curc->y_sampling, y);
             unpacksize += chansz;
         }
     }
@@ -761,10 +749,7 @@ exr_read_scanline_chunk_info (
         cinfo->start_y = dw.min.y;
         cinfo->height -= (dw.min.y - miny);
     }
-    else if ((miny + lpc) > dw.max.y)
-    {
-        cinfo->height = (dw.max.y - miny + 1);
-    }
+    else if ((miny + lpc) > dw.max.y) { cinfo->height = (dw.max.y - miny + 1); }
     cinfo->level_x = 0;
     cinfo->level_y = 0;
 
@@ -932,10 +917,11 @@ exr_read_scanline_chunk_info (
                 pctxt,
                 EXR_ERR_BAD_CHUNK_LEADER,
                 "Preparing to read scanline %d (chunk %d), found corrupt leader: packed size %" PRIu64
-                ", file size %" PRId64,
+                ", file offset %" PRIu64 ", size %" PRId64,
                 y,
                 cidx,
-                (uint64_t) data[rdcnt],
+                cinfo->packed_size,
+                cinfo->data_offset,
                 fsize);
         }
     }
@@ -1637,10 +1623,7 @@ write_scan_chunk (
             /* just in case we look at it again? */
             priv_to_native64 (ctable, part->chunk_count);
         }
-        else
-        {
-            pctxt->last_output_chunk = cidx;
-        }
+        else { pctxt->last_output_chunk = cidx; }
     }
 
     return rv;
@@ -1722,10 +1705,7 @@ exr_write_scanline_chunk_info (
         cinfo->start_y = dw.min.y;
         cinfo->height -= (dw.min.y - miny);
     }
-    else if ((miny + lpc) > dw.max.y)
-    {
-        cinfo->height = (dw.max.y - miny + 1);
-    }
+    else if ((miny + lpc) > dw.max.y) { cinfo->height = (dw.max.y - miny + 1); }
     cinfo->level_x = 0;
     cinfo->level_y = 0;
 
@@ -2060,10 +2040,7 @@ write_tile_chunk (
             /* just in case we look at it again? */
             priv_to_native64 (ctable, part->chunk_count);
         }
-        else
-        {
-            pctxt->last_output_chunk = cidx;
-        }
+        else { pctxt->last_output_chunk = cidx; }
     }
 
     return rv;
