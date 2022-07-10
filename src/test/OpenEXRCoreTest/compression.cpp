@@ -1,6 +1,14 @@
 // SPDX-License-Identifier: BSD-3-Clause
 // Copyright Contributors to the OpenEXR Project.
 
+// Windows specific addition to prevent the indirect import of the redefined min/max macros
+#if defined _WIN32 || defined _WIN64
+#    ifdef NOMINMAX
+#        undef NOMINMAX
+#    endif
+#    define NOMINMAX
+#endif
+
 #include "write.h"
 
 #include "test_value.h"
@@ -11,6 +19,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <algorithm>
 #include <iomanip>
 #include <iostream>
 #include <vector>
