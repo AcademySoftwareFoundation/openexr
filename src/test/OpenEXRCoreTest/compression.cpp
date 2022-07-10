@@ -1355,9 +1355,13 @@ testHUF (const std::string& tempdir)
 {
     uint64_t esize = internal_exr_huf_compress_spare_bytes ();
     uint64_t dsize = internal_exr_huf_decompress_spare_bytes ();
+    // decsize 1 << 16 + 1
+    // decsize 1 << 14
     EXRCORE_TEST (esize == 65537 * (8 + 8 + sizeof (uint64_t*) + 4));
-    EXRCORE_TEST (
-        dsize == (65537 * 8 + (1 << 14) * (sizeof (uint32_t*) + 4 + 4)));
+    const uint64_t hufdecsize = (sizeof (uint32_t*) + sizeof(int32_t) + sizeof(uint32_t));
+    // sizeof(FastHufDecoder) is bother to manually compute, just assume it's ok
+    // if it's returning at least enough for the slow path
+    EXRCORE_TEST (dsize >= (65537 * sizeof(uint64_t) + 16383 * hufdecsize));
 
     std::vector<uint8_t> hspare;
 
@@ -1396,6 +1400,7 @@ testHUF (const std::string& tempdir)
 
     pixels decode = p;
     EXRCORE_TEST_RVAL (internal_huf_decompress (
+        NULL,
         encoded.data (),
         ebytes,
         decode.h.data (),
@@ -1430,6 +1435,7 @@ testHUF (const std::string& tempdir)
         }
     }
     EXRCORE_TEST_RVAL (internal_huf_decompress (
+        NULL,
         encoded.data (),
         ebytes,
         decode.h.data (),
@@ -1464,6 +1470,7 @@ testHUF (const std::string& tempdir)
         }
     }
     EXRCORE_TEST_RVAL (internal_huf_decompress (
+        NULL,
         encoded.data (),
         ebytes,
         decode.h.data (),

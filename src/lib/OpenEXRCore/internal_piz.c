@@ -464,10 +464,7 @@ internal_exr_apply_piz (exr_encode_pipeline_t* encode)
                 if ((cury % curc->y_samples) != 0) continue;
                 tmp += ((uint64_t) (y / curc->y_samples)) * bpl;
             }
-            else
-            {
-                tmp += ((uint64_t) y) * bpl;
-            }
+            else { tmp += ((uint64_t) y) * bpl; }
 
             memcpy (tmp, packed, bpl);
             priv_to_native16 (tmp, nx * (curc->bytes_per_element / 2));
@@ -625,7 +622,13 @@ internal_exr_undo_piz (
 
     wavbuf = decode->scratch_buffer_1;
     rv     = internal_huf_decompress (
-        packed + nBytes, hufbytes, wavbuf, outsz / 2, hufspare, hufSpareBytes);
+        decode,
+        packed + nBytes,
+        hufbytes,
+        wavbuf,
+        outsz / 2,
+        hufspare,
+        hufSpareBytes);
     if (rv != EXR_ERR_SUCCESS) return rv;
 
     //
