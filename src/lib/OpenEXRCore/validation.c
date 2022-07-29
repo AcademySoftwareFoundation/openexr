@@ -420,7 +420,7 @@ validate_part_type (
         if (f->is_singlepart_tiled &&
             curpart->storage_mode != EXR_STORAGE_TILED)
         {
-            // mis-match between type attr and file flag. c++ believed the
+            // mismatch between type attr and file flag. c++ believed the
             // flag first and foremost
             curpart->storage_mode = EXR_STORAGE_TILED;
 

@@ -412,7 +412,7 @@ convertFloatToHalf64_f16c (unsigned short* dst, float* src)
     //
     // Now, it's quite likely that we'll find ourselves in situations
     // where we want to build *without* VEX, in order to maintain
-    // maximum compatability. But to get there with intrinsics,
+    // maximum compatibility. But to get there with intrinsics,
     // we'd need to break out code into a separate file. Bleh.
     // I'll take the asm.
     //
@@ -594,7 +594,7 @@ fromHalfZigZag_scalar (unsigned short* src, float* dst)
 // the even rows are in descending order.
 //
 // If we 'fold' the bottom half up into the top, we can preserve ordered
-// runs accross rows, and still keep all the correct values in columns.
+// runs across rows, and still keep all the correct values in columns.
 // After transposing, we'll need to rotate things back into place.
 // This gives us:
 //
@@ -680,7 +680,7 @@ fromHalfZigZag_f16c (unsigned short* src, float* dst)
 
          /* Reverse the even rows. We're not using PSHUFB as
             * that requires loading an extra constant all the time,
-            * and we're alreadly pretty memory bound.
+            * and we're already pretty memory bound.
             */
 
          "vpshuflw $0x1b, %%xmm0, %%xmm0          \n"
@@ -1288,7 +1288,7 @@ dctInverse8x8_sse2 (float* data)
  * they depend.
  *
  * This should work for the cases where we have 2-8 full rows.
- * the 1-row case is special, and we'll handle it seperately.  
+ * the 1-row case is special, and we'll handle it separately.
  */
 #define IDCT_AVX_BODY \
     /* ==============================================               

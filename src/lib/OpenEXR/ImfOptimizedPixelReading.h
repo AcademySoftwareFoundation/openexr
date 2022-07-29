@@ -30,7 +30,7 @@ public:
 #    ifdef IMF_HAVE_SSE2
 
 //------------------------------------------------------------------------
-// Test for SSE pointer alignemnt
+// Test for SSE pointer alignment
 //------------------------------------------------------------------------
 EXR_FORCEINLINE
 bool

@@ -231,7 +231,7 @@ decompress_data (
             return pctxt->report_error (
                 pctxt,
                 EXR_ERR_INVALID_ARGUMENT,
-                "no compresssion set but still trying to decompress");
+                "no compression set but still trying to decompress");
 
         case EXR_COMPRESSION_RLE:
             rv = internal_exr_undo_rle (

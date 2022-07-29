@@ -166,7 +166,7 @@ private:
     // Populate our cached version of the channel data with
     // data from the real channel list. We want to
     // copy over attributes, determine compression schemes
-    // releveant for the channel type, and find sets of
+    // relevant for the channel type, and find sets of
     // channels to be compressed from Y'CbCr data instead
     // of R'G'B'.
     //

@@ -911,7 +911,7 @@ TileBufferTask::execute ()
                     int yOffsetForData = slice.yTileCoords ? tileRange.min.y
                                                            : 0;
 
-                    // (TOOD) treat sample count offsets differently.
+                    // (TODO) treat sample count offsets differently.
                     copyFromDeepFrameBuffer (
                         writePtr,
                         slice.base,
@@ -1629,7 +1629,7 @@ DeepTiledOutputFile::writeTiles (
         }
 
         //
-        // Exeption handling:
+        // Exception handling:
         //
         // TileBufferTask::execute() may have encountered exceptions, but
         // those exceptions occurred in another thread, not in the thread

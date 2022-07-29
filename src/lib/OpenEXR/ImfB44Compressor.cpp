@@ -214,7 +214,7 @@ pack (
     //
     // Compute a set of running differences, r[0] ... r[14]:
     // Find a shift value such that after rounding off the
-    // rightmost bits and shifting all differenes are between
+    // rightmost bits and shifting all differences are between
     // -32 and +31.  Then bias the differences so that they
     // end up between 0 and 63.
     //
@@ -588,7 +588,7 @@ B44Compressor::compress (
     }
 
     //
-    // For each channel, detemine how many pixels are stored
+    // For each channel, determine how many pixels are stored
     // in the input buffer, and where those pixels will be
     // placed in _tmpBuffer.
     //

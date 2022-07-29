@@ -118,7 +118,7 @@ wav2Encode (
     int  p2  = 2; // == 1 << (level+1)
 
     //
-    // Hierachical loop on smaller dimension n
+    // Hierarchical loop on smaller dimension n
     //
 
     while (p2 <= n)

@@ -48,7 +48,7 @@ struct IMF_EXPORT_TYPE Channel
     // human perception of the quantity represented by this channel
     // is closer to linear or closer to logarithmic.  Compression
     // methods may optimize image quality by adjusting pixel data
-    // quantization acording to this hint.
+    // quantization according to this hint.
     // For example, perception of red, green, blue and luminance is
     // approximately logarithmic; the difference between 0.1 and 0.2
     // is perceived to be roughly the same as the difference between

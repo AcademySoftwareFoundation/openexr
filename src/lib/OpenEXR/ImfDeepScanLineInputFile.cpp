@@ -1100,11 +1100,11 @@ newLineBufferTask (
 
 //
 // when handling files with dataWindows with a large number of pixels,
-// the sampleCount values are not precached and Data::sampleCount is not asigned
-// instead, the sampleCount is read every time readPixels() is called
+// the sampleCount values are not precached and Data::sampleCount is not
+// assigned instead, the sampleCount is read every time readPixels() is called
 // and sample counts are stored in LineBuffer::_tempCountBuffer instead
 // (A square image that is 16k by 16k pixels has gBigFileDataWindowSize pixels,
-//  andthe sampleCount table would take 1GiB of memory to store)
+//  and the sampleCount table would take 1GiB of memory to store)
 //
 const uint64_t gBigFileDataWindowSize = (1 << 28);
 
@@ -1303,7 +1303,7 @@ DeepScanLineInputFile::DeepScanLineInputFile (
     }
 
     //
-    // not multiPart - allocate stream data and intialise as normal
+    // not multiPart - allocate stream data and initialise as normal
     //
     try
     {
@@ -1376,7 +1376,7 @@ DeepScanLineInputFile::DeepScanLineInputFile (
     }
 
     //
-    // not multiPart - allocate stream data and intialise as normal
+    // not multiPart - allocate stream data and initialise as normal
     //
     try
     {
@@ -1764,7 +1764,7 @@ DeepScanLineInputFile::readPixels (int scanLine1, int scanLine2)
         }
 
         //
-        // Exeption handling:
+        // Exception handling:
         //
         // LineBufferTask::execute() may have encountered exceptions, but
         // those exceptions occurred in another thread, not in the thread

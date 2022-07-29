@@ -158,7 +158,7 @@ public:
     //
     // Application code must take make sure that each call to beginEdit()
     // is followed by a corresponding endEdit() call, even if an
-    // exception occurs while the sample counts are acessed.  In order to
+    // exception occurs while the sample counts are accessed.  In order to
     // do that, application code may want to create a temporary Edit
     //  object instead of calling beginEdit() and endEdit() directly.
     //

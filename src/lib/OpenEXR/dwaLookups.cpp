@@ -440,7 +440,7 @@ cpuCount ()
 //
 // This gives us num_bits(input)-1 values per input. If we alloc
 // space for everything, that's like a 2MB table. We can do better
-// by compressing all the values to be contigious and using offset
+// by compressing all the values to be contiguous and using offset
 // pointers.
 //
 // After we've found the candidates with fewer bits set, sort them
