@@ -1158,7 +1158,7 @@ alpha. After reading an OpenEXR image such an application must undo
 the premultiplication by dividing the color channels by alpha. This
 division fails when alpha is zero. The application software could set
 all color channels to zero wherever the alpha channel is zero, but
-this might alter the image in an irreversable way. For example, the
+this might alter the image in an irreversible way. For example, the
 flame on top of a candle would simply disappear and could not be
 recovered.
 

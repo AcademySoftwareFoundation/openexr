@@ -208,7 +208,7 @@ testMultiViewFunctions ()
             "wensleydale.rough.fell", "wensleydale.left.fell", multiView) ==
         false);
 
-    // four sectons
+    // four sections
 
     assert (
         areCounterparts (

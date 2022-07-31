@@ -279,7 +279,7 @@ writeReadMultiPart (
     // MMIFStream (see above).
     //
 
-    cout << "scan-line based mulitpart file:" << endl;
+    cout << "scan-line based multipart file:" << endl;
 
     {
         cout << "writing";
@@ -649,7 +649,7 @@ writeReadMultiPart (int width, int height, const Array2D<Rgba>& p1)
     // with the original data.
     //
 
-    cout << "scan-line based mulitpart stringstream:" << endl;
+    cout << "scan-line based multipart stringstream:" << endl;
 
     std::string strEXRFile;
 

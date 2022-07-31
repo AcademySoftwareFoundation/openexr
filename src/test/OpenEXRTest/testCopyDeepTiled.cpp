@@ -462,7 +462,7 @@ copyFile (const std::string& srcFn, const std::string& cpyFn)
         DeepTiledOutputFile out_file (cpyFn.c_str (), in_file.header ());
         out_file.copyPixels (in_file);
     }
-    // prevent accidentally reading souce instead of copy
+    // prevent accidentally reading source instead of copy
     remove (srcFn.c_str ());
 }
 

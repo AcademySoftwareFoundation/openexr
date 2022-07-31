@@ -41,7 +41,7 @@ rleCompress (int inLength, const char in[], signed char out[])
         if (runEnd - runStart >= MIN_RUN_LENGTH)
         {
             //
-            // Compressable run
+            // Compressible run
             //
 
             *outWrite++ = (runEnd - runStart) - 1;
@@ -51,7 +51,7 @@ rleCompress (int inLength, const char in[], signed char out[])
         else
         {
             //
-            // Uncompressable run
+            // Uncompressible run
             //
 
             while (runEnd < inEnd &&

@@ -55,7 +55,7 @@ namespace
 // map of strings to index of string in table
 typedef std::map<std::string, int> indexedStringSet;
 
-// when handling vectors/sets of strings, the string is got by deferencing the pointer/iterator
+// when handling vectors/sets of strings, the string is got by dereferencing the pointer/iterator
 template <class T>
 size_t
 stringSize (const T& i)

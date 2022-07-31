@@ -50,7 +50,7 @@ usageMessage (const char argv0[], bool verbose = false)
                 "          is produced, image channel c will be resampled\n"
                 "          without low-pass filtering.  This option can\n"
                 "          be specified multiple times to disable low-pass\n"
-                "          filtering for mutiple channels.\n"
+                "          filtering for multiple channels.\n"
                 "\n"
                 "-e x y    when a MIPMAP_LEVELS or RIPMAP_LEVELS image\n"
                 "          is produced, low-pass filtering takes samples\n"

@@ -42,7 +42,7 @@ internal_rle_compress (
         }
         else
         {
-            /* uncompressable */
+            /* uncompressible */
             ++curcount;
             while (rune < end &&
                    ((rune + 1 >= end || *rune != *(rune + 1)) ||

@@ -403,7 +403,7 @@ void
 convertFloatToHalf64_f16c (unsigned short* dst, float* src)
 {
     //
-    // Ordinarly, I'd avoid using inline asm and prefer intrinsics.
+    // Ordinarily, I'd avoid using inline asm and prefer intrinsics.
     // However, in order to get the intrinsics, we need to tell
     // the compiler to generate VEX instructions.
     //

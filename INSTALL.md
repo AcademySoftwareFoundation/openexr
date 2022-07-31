@@ -85,7 +85,7 @@ The OpenEXR technical documentation at
 [openexr.readthedocs.io](https://openexr.readthedocs.io) is generated
 via [Sphinx](https://www.sphinx-doc.org) with the
 [Breathe](https://breathe.readthedocs.io) extension using information
-extracted from header comments by [Doxgen](https://www.doxygen.nl).
+extracted from header comments by [Doxygen](https://www.doxygen.nl).
 
 To build the documentation locally from the source headers and
 ``.rst`` files, set the CMake option ``DOCS=ON``. This adds

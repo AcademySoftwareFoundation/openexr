@@ -264,7 +264,7 @@ FastHufDecoder::~FastHufDecoder ()
 // properly on BE.
 //
 // If you happen to have more obscure hardware, check that the
-// byte swapping in refill() is happening sensable, add an endian
+// byte swapping in refill() is happening sensible, add an endian
 // check if needed, and fix the preprocessor magic here.
 //
 
@@ -439,7 +439,7 @@ FastHufDecoder::buildTables (uint64_t* base, uint64_t* offset)
 // shift in 0's to bufferBack.
 //
 // The refill act takes numBits from the top of bufferBack and sticks
-// them in the bottom of buffer. If there arn't enough bits in bufferBack,
+// them in the bottom of buffer. If there aren't enough bits in bufferBack,
 // it gets refilled (to 64-bits) from the input bitstream.
 //
 
