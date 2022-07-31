@@ -35,7 +35,7 @@ public:
 
 
 //------------------------------------------------------------------------
-// Test for SSE pointer alignemnt
+// Test for SSE pointer alignment
 //------------------------------------------------------------------------
 EXR_FORCEINLINE
 bool

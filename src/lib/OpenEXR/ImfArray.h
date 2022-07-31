@@ -191,7 +191,7 @@ inline
 Array2D<T>::Array2D ():
     _sizeX(0), _sizeY (0), _data (0)
 {
-    // emtpy
+    // empty
 }
 
 
@@ -200,7 +200,7 @@ inline
 Array2D<T>::Array2D (long sizeX, long sizeY):
     _sizeX (sizeX), _sizeY (sizeY), _data (new T[sizeX * sizeY])
 {
-    // emtpy
+    // empty
 }
 
 

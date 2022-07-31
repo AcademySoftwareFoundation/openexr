@@ -27,7 +27,7 @@
 //	values.
 //
 //	For each possible EnvmapAttribute value, this header file also
-//	defines a set of convienience functions to convert between 3D
+//	defines a set of convenience functions to convert between 3D
 //	directions and 2D pixel locations.
 //
 //	Most of the convenience functions defined below require a
