@@ -457,7 +457,7 @@ TileOffsets::operator() (int dx, int dy, int lx, int ly)
     //
     // Looks up the value of the tile with tile coordinate (dx, dy)
     // and level number (lx, ly) in the _offsets array, and returns
-    // the cooresponding offset.
+    // the corresponding offset.
     //
 
     switch (_mode)
@@ -484,7 +484,7 @@ TileOffsets::operator() (int dx, int dy, int lx, int ly) const
     //
     // Looks up the value of the tile with tile coordinate (dx, dy)
     // and level number (lx, ly) in the _offsets array, and returns
-    // the cooresponding offset.
+    // the corresponding offset.
     //
 
     switch (_mode)

@@ -11,7 +11,7 @@
 //	class KeyCode
 //
 // 	A KeyCode object uniquely identifies a motion picture film frame.
-// 	The following fields specifiy film manufacturer, film type, film
+// 	The following fields specify film manufacturer, film type, film
 // 	roll and the frame's position within the roll:
 //
 //	    filmMfcCode		film manufacturer code

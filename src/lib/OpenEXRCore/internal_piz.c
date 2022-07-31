@@ -177,7 +177,7 @@ wav_2D_encode (uint16_t* in, int nx, int ox, int ny, int oy, uint16_t mx)
     int p2  = 2; // == 1 << (level+1)
 
     //
-    // Hierachical loop on smaller dimension n
+    // Hierarchical loop on smaller dimension n
     //
 
     while (p2 <= n)

@@ -1351,7 +1351,7 @@ TiledOutputFile::writeTiles (int dx1, int dx2, int dy1, int dy2, int lx, int ly)
         }
 
         //
-        // Exeption handling:
+        // Exception handling:
         //
         // TileBufferTask::execute() may have encountered exceptions, but
         // those exceptions occurred in another thread, not in the thread

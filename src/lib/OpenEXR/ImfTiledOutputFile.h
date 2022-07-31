@@ -296,7 +296,7 @@ public:
     //   dy must lie in the interval [0, numYTiles(ly) - 1]
     //
     //   lx must lie in the interval [0, numXLevels() - 1]
-    //   ly must lie in the inverval [0, numYLevels() - 1]
+    //   ly must lie in the interval [0, numYLevels() - 1]
     //
     // writeTile(dx, dy, level) is a convenience function
     // used for ONE_LEVEL and MIPMAP_LEVEL files.  It calls

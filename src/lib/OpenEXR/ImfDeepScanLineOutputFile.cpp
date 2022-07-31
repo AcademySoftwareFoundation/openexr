@@ -1364,7 +1364,7 @@ DeepScanLineOutputFile::writePixels (int numScanLines)
         }
 
         //
-        // Exeption handling:
+        // Exception handling:
         //
         // LineBufferTask::execute() may have encountered exceptions, but
         // those exceptions occurred in another thread, not in the thread

@@ -68,7 +68,7 @@ each level of a deep image has a sample count channel with a single value
 per pixel; this value determines how many values each of the other channels
 in the same level has at the same pixel location.
 
-The Image, ImageLevel and ImageChannel classes are abstact base classes.
+The Image, ImageLevel and ImageChannel classes are abstract base classes.
 Two sets of classes, one for flat images and one for deep images, are
 derived from the base classes.  The FlatImageChannel and DeepImageChannel
 classes, derived from ImageChannel, are themselves base classes for the

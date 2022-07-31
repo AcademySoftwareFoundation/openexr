@@ -177,7 +177,7 @@ bufferedReadPixels (InputFile::Data* ifd, int scanLine1, int scanLine2)
     //
     // bufferedReadPixels reads each row of tiles that intersect the
     // scan-line range (scanLine1 to scanLine2). The previous row of
-    // tiles is cached in order to prevent redundent tile reads when
+    // tiles is cached in order to prevent redundant tile reads when
     // accessing scanlines sequentially.
     //
 

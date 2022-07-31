@@ -1328,12 +1328,12 @@ exr_read_chunk (
         return pctxt->report_error (
             pctxt,
             EXR_ERR_INVALID_ARGUMENT,
-            "mis-matched storage type for chunk block info");
+            "mismatched storage type for chunk block info");
     if (cinfo->compression != (uint8_t) part->comp_type)
         return pctxt->report_error (
             pctxt,
             EXR_ERR_INVALID_ARGUMENT,
-            "mis-matched compression type for chunk block info");
+            "mismatched compression type for chunk block info");
 
     dataoffset = cinfo->data_offset;
     if (pctxt->file_size > 0 && dataoffset > (uint64_t) pctxt->file_size)
@@ -1396,12 +1396,12 @@ exr_read_deep_chunk (
         return pctxt->report_error (
             pctxt,
             EXR_ERR_INVALID_ARGUMENT,
-            "mis-matched storage type for chunk block info");
+            "mismatched storage type for chunk block info");
     if (cinfo->compression != (uint8_t) part->comp_type)
         return pctxt->report_error (
             pctxt,
             EXR_ERR_INVALID_ARGUMENT,
-            "mis-matched compression type for chunk block info");
+            "mismatched compression type for chunk block info");
 
     if (pctxt->file_size > 0 &&
         cinfo->sample_count_data_offset > (uint64_t) pctxt->file_size)
