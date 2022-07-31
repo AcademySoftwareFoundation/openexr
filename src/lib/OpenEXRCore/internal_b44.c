@@ -345,10 +345,7 @@ compress_b44_impl (exr_encode_pipeline_t* encode, int flat_field)
                 }
                 tmp += ((uint64_t) (y / curc->y_samples)) * bpl;
             }
-            else
-            {
-                tmp += ((uint64_t) y) * bpl;
-            }
+            else { tmp += ((uint64_t) y) * bpl; }
 
             memcpy (tmp, packed, bpl);
             if (curc->data_type == EXR_PIXEL_HALF) priv_to_native16 (tmp, nx);
@@ -608,6 +605,36 @@ uncompress_b44_impl (
     return EXR_ERR_SUCCESS;
 }
 
+/**************************************/
+
+static uint64_t
+compute_scratch_buffer_size (
+    exr_decode_pipeline_t* decode, uint64_t uncompressed_size)
+{
+    const exr_coding_channel_info_t* curc;
+    int                              nx, ny;
+    uint64_t                         ret  = uncompressed_size;
+    uint64_t                         comp = 0;
+
+    for (int c = 0; c < decode->channel_count; ++c)
+    {
+        curc = decode->channels + c;
+
+        nx = curc->width;
+        ny = curc->height;
+
+        if (nx % 4) nx += 4 - nx % 4;
+        if (ny % 4) ny += 4 - ny % 4;
+
+        comp += (uint64_t) (ny) * (uint64_t) (nx) *
+                (uint64_t) (curc->bytes_per_element);
+    }
+    if (comp > ret) ret = comp;
+    return ret;
+}
+
+/**************************************/
+
 exr_result_t
 internal_exr_undo_b44 (
     exr_decode_pipeline_t* decode,
@@ -622,7 +649,7 @@ internal_exr_undo_b44 (
         EXR_TRANSCODE_BUFFER_SCRATCH1,
         &(decode->scratch_buffer_1),
         &(decode->scratch_alloc_size_1),
-        uncompressed_size);
+        compute_scratch_buffer_size (decode, uncompressed_size));
     if (rv != EXR_ERR_SUCCESS) return rv;
 
     return uncompress_b44_impl (
@@ -647,7 +674,7 @@ internal_exr_undo_b44a (
         EXR_TRANSCODE_BUFFER_SCRATCH1,
         &(decode->scratch_buffer_1),
         &(decode->scratch_alloc_size_1),
-        uncompressed_size);
+        compute_scratch_buffer_size (decode, uncompressed_size));
     if (rv != EXR_ERR_SUCCESS) return rv;
 
     return uncompress_b44_impl (

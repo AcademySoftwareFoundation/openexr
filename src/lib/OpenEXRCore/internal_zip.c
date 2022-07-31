@@ -158,7 +158,7 @@ undo_zip_impl (
     void*       scratch_data,
     uint64_t    scratch_size)
 {
-    uLong  outSize = (uLong) uncompressed_size;
+    uLong  outSize = (uLong) scratch_size;
     int    rstat;
 
     if (scratch_size < uncompressed_size) return EXR_ERR_INVALID_ARGUMENT;
@@ -200,12 +200,16 @@ internal_exr_undo_zip (
     uint64_t               uncompressed_size)
 {
     exr_result_t rv;
+    uint64_t scratchbufsz = uncompressed_size;
+    if ( comp_buf_size > scratchbufsz )
+        scratchbufsz = comp_buf_size;
+
     rv = internal_decode_alloc_buffer (
         decode,
         EXR_TRANSCODE_BUFFER_SCRATCH1,
         &(decode->scratch_buffer_1),
         &(decode->scratch_alloc_size_1),
-        uncompressed_size);
+        scratchbufsz);
     if (rv != EXR_ERR_SUCCESS) return rv;
     return undo_zip_impl (
         compressed_data,
