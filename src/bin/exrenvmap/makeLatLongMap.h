@@ -26,7 +26,7 @@ void makeLatLongMap (
     int                    tileHeight,
     IMF::LevelMode         levelMode,
     IMF::LevelRoundingMode roundingMode,
-    IMF::Compression       compresssion,
+    IMF::Compression       compression,
     int                    mapWidth,
     float                  filterRadius,
     int                    numSamples,
