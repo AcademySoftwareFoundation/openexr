@@ -22,8 +22,8 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 //
 // The premise is that instead of working directly with the coded 
 // symbols, we create a new ordering based on the frequency of symbols.
-// Less frequent symbols (and thus longer codes) are ordered earler.
-// We're calling the values in this ordering 'Ids', as oppsed to 
+// Less frequent symbols (and thus longer codes) are ordered earlier.
+// We're calling the values in this ordering 'Ids', as oppsed to
 // 'Symbols' - which are the short values we eventually want decoded.
 //
 // With this new ordering, a few small tables can be derived ('base' 

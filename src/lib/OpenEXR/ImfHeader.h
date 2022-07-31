@@ -428,7 +428,7 @@ class IMF_EXPORT_TYPE Header
     //-------------------------------------------------------------
     // Sanity check -- examines the header, and throws an exception
     // if it finds something wrong (empty display window, negative
-    // pixel aspect ratio, unknown compression sceme etc.)
+    // pixel aspect ratio, unknown compression scheme etc...)
     //
     // set isTiled to true if you are checking a tiled/multi-res
     // header
@@ -440,7 +440,7 @@ class IMF_EXPORT_TYPE Header
 
 
     //----------------------------------------------------------------
-    // Maximum image size and maximim tile size:
+    // Maximum image size and maximum tile size:
     //
     // sanityCheck() will throw an exception if the width or height of
     // the data window exceeds the maximum image width or height, or

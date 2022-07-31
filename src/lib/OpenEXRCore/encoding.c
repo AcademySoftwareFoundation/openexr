@@ -34,7 +34,7 @@ default_compress_chunk (exr_encode_pipeline_t* encode)
             return pctxt->report_error (
                 pctxt,
                 EXR_ERR_INVALID_ARGUMENT,
-                "no compresssion set but still trying to compress");
+                "no compression set but still trying to compress");
 
         case EXR_COMPRESSION_RLE: rv = internal_exr_apply_rle (encode); break;
         case EXR_COMPRESSION_ZIP:

@@ -126,7 +126,7 @@ pack (const uint16_t s[16], uint8_t b[14], int flatfields, int exactmax)
     //
     // Compute a set of running differences, r[0] ... r[14]:
     // Find a shift value such that after rounding off the
-    // rightmost bits and shifting all differenes are between
+    // rightmost bits and shifting all differences are between
     // -32 and +31.  Then bias the differences so that they
     // end up between 0 and 63.
     //

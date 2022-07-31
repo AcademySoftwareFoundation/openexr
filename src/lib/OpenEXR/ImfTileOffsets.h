@@ -57,7 +57,7 @@ class IMF_EXPORT_TYPE TileOffsets
     //-----------------------------------------------------------
     // populate 'list' with tiles coordinates in the order they appear
     // in the offset table (assumes full table!
-    // each array myst be at leat totalTiles long
+    // each array myst be at least totalTiles long
     //-----------------------------------------------------------
     IMF_EXPORT
     void getTileOrder(int dx_table[], int dy_table[], int lx_table[], int ly_table[]) const;

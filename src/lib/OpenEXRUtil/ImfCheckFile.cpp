@@ -1217,9 +1217,9 @@ bool readCoreScanlinePart(exr_context_t f, int part, bool reduceMemory, bool red
             uint64_t bytes = 0;
             for (int c = 0; c < decoder.channel_count; c++)
             {
-                exr_coding_channel_info_t & outc = decoder.channels[c];
-                // fake addr for default rouines
-                outc.decode_to_ptr = (uint8_t*)0x1000;
+                exr_coding_channel_info_t& outc = decoder.channels[c];
+                // fake addr for default routines
+                outc.decode_to_ptr     = (uint8_t*) 0x1000;
                 outc.user_pixel_stride = outc.user_bytes_per_element;
                 outc.user_line_stride = outc.user_pixel_stride * width;
                 bytes += width * (uint64_t)outc.user_bytes_per_element * (uint64_t)lines_per_chunk;

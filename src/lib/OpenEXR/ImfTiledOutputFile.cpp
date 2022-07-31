@@ -1352,20 +1352,20 @@ TiledOutputFile::writeTiles (int dx1, int dx2, int dy1, int dy2,
 	    //
         }
 
-	//
-	// Exeption handling:
-	//
-	// TileBufferTask::execute() may have encountered exceptions, but
-	// those exceptions occurred in another thread, not in the thread
-	// that is executing this call to TiledOutputFile::writeTiles().
-	// TileBufferTask::execute() has caught all exceptions and stored
-	// the exceptions' what() strings in the tile buffers.
-	// Now we check if any tile buffer contains a stored exception; if
-	// this is the case then we re-throw the exception in this thread.
-	// (It is possible that multiple tile buffers contain stored
-	// exceptions.  We re-throw the first exception we find and
-	// ignore all others.)
-	//
+        //
+        // Exception handling:
+        //
+        // TileBufferTask::execute() may have encountered exceptions, but
+        // those exceptions occurred in another thread, not in the thread
+        // that is executing this call to TiledOutputFile::writeTiles().
+        // TileBufferTask::execute() has caught all exceptions and stored
+        // the exceptions' what() strings in the tile buffers.
+        // Now we check if any tile buffer contains a stored exception; if
+        // this is the case then we re-throw the exception in this thread.
+        // (It is possible that multiple tile buffers contain stored
+        // exceptions.  We re-throw the first exception we find and
+        // ignore all others.)
+        //
 
 	const string *exception = 0;
 
