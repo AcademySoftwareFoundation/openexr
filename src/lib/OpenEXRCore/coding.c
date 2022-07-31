@@ -4,6 +4,7 @@
 */
 
 #include "internal_coding.h"
+#include "internal_util.h"
 
 #include <string.h>
 
@@ -40,16 +41,8 @@ internal_coding_fill_channel_info (
 
         decc->channel_name = curc->name.str;
 
-        if (curc->y_sampling > 1)
-        {
-            if (cinfo->height == 1)
-                decc->height = ((cinfo->start_y % curc->y_sampling) == 0) ? 1
-                                                                          : 0;
-            else
-                decc->height = cinfo->height / curc->y_sampling;
-        }
-        else
-            decc->height = cinfo->height;
+        decc->height = compute_sampled_lines (
+            cinfo->height, curc->y_sampling, cinfo->start_y);
 
         if (curc->x_sampling > 1)
             decc->width = cinfo->width / curc->x_sampling;
@@ -106,16 +99,8 @@ internal_coding_update_channel_info (
 
         ccic->channel_name = curc->name.str;
 
-        if (curc->y_sampling > 1)
-        {
-            if (cinfo->height == 1)
-                ccic->height = ((cinfo->start_y % curc->y_sampling) == 0) ? 1
-                                                                          : 0;
-            else
-                ccic->height = cinfo->height / curc->y_sampling;
-        }
-        else
-            ccic->height = cinfo->height;
+        ccic->height = compute_sampled_lines (
+            cinfo->height, curc->y_sampling, cinfo->start_y);
 
         if (curc->x_sampling > 1)
             ccic->width = cinfo->width / curc->x_sampling;
