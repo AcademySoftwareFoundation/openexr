@@ -6,9 +6,12 @@
 #include "internal_huf.h"
 
 #include "internal_memory.h"
+#include "internal_xdr.h"
+#include "internal_structs.h"
 
 #include <stddef.h>
 #include <stdint.h>
+#include <math.h>
 #include <string.h>
 
 #define HUF_ENCBITS 16
@@ -17,6 +20,11 @@
 #define HUF_ENCSIZE ((1 << HUF_ENCBITS) + 1)
 #define HUF_DECSIZE (1 << HUF_DECBITS)
 #define HUF_DECMASK (HUF_DECSIZE - 1)
+
+#define SHORT_ZEROCODE_RUN 59
+#define LONG_ZEROCODE_RUN 63
+#define SHORTEST_LONG_RUN (2 + LONG_ZEROCODE_RUN - SHORT_ZEROCODE_RUN)
+#define LONGEST_LONG_RUN (255 + SHORTEST_LONG_RUN)
 
 typedef struct _HufDec
 {
@@ -416,11 +424,6 @@ hufBuildEncTable (
 //	  n zeroes (6 or more)	63 n-6	(6 + 8 bits)
 //
 
-#define SHORT_ZEROCODE_RUN 59
-#define LONG_ZEROCODE_RUN 63
-#define SHORTEST_LONG_RUN (2 + LONG_ZEROCODE_RUN - SHORT_ZEROCODE_RUN)
-#define LONGEST_LONG_RUN (255 + SHORTEST_LONG_RUN)
-
 static void
 hufPackEncTable (
     const uint64_t* hcode, // i : encoding table [HUF_ENCSIZE]
@@ -614,10 +617,7 @@ hufBuildDecTable (
 
                 internal_exr_free (p);
             }
-            else
-            {
-                pl->p = (uint32_t*) internal_exr_alloc (sizeof (uint32_t));
-            }
+            else { pl->p = (uint32_t*) internal_exr_alloc (sizeof (uint32_t)); }
 
             if (!pl->p) return EXR_ERR_OUT_OF_MEMORY;
 
@@ -789,14 +789,8 @@ hufEncode (
             while (cs-- > 0)                                                   \
                 *out++ = s;                                                    \
         }                                                                      \
-        else if (out < oe)                                                     \
-        {                                                                      \
-            *out++ = (uint16_t) po;                                            \
-        }                                                                      \
-        else                                                                   \
-        {                                                                      \
-            return EXR_ERR_CORRUPT_CHUNK;                                      \
-        }                                                                      \
+        else if (out < oe) { *out++ = (uint16_t) po; }                         \
+        else { return EXR_ERR_CORRUPT_CHUNK; }                                 \
     } while (0)
 
 //
@@ -942,6 +936,727 @@ readUInt (const uint8_t* b)
 
 /**************************************/
 
+// Longest compressed code length that ImfHuf supports (58 bits)
+#define MAX_CODE_LEN 58
+
+// Number of bits in our acceleration table. Should match all
+// codes up to TABLE_LOOKUP_BITS in length.
+#define TABLE_LOOKUP_BITS 14
+
+#include <inttypes.h>
+
+#ifdef __APPLE__
+#    include <libkern/OSByteOrder.h>
+#    define READ64(c) OSSwapInt64 (*(const uint64_t*) (c));
+#elif defined(linux)
+#    include <byteswap.h>
+#    define READ64(c) bswap_64 (*(const uint64_t*) (c));
+#elif defined(_MSC_VER)
+#    include <stdlib.h>
+#    define READ64(c) _byteswap_uint64 (*(const uint64_t*) (c))
+#else
+#    define READ64(c)                                                          \
+        ((uint64_t) (c)[0] << 56) | ((uint64_t) (c)[1] << 48) |                \
+            ((uint64_t) (c)[2] << 40) | ((uint64_t) (c)[3] << 32) |            \
+            ((uint64_t) (c)[4] << 24) | ((uint64_t) (c)[5] << 16) |            \
+            ((uint64_t) (c)[6] << 8) | ((uint64_t) (c)[7])
+#endif
+
+typedef struct FastHufDecoder
+{
+    int _rleSymbol; // RLE symbol written by the encoder.
+                    // This could be 65536, so beware
+                    // when you use shorts to hold things.
+
+    int _numSymbols; // Number of symbols in the codebook.
+
+    unsigned char _minCodeLength; // Minimum code length, in bits.
+    unsigned char _maxCodeLength; // Maximum code length, in bits.
+
+    int _idToSymbol[65536 + 1]; // Maps Ids to symbols. Ids are a symbol
+                                // ordering sorted first in terms of
+                                // code length, and by code within
+                                // the same length. Ids run from 0
+                                // to mNumSymbols-1.
+
+    uint64_t _ljBase[MAX_CODE_LEN + 1 + 1]; // the 'left justified base' table.
+                                            // Takes base[i] (i = code length)
+    // and 'left justifies' it into an uint64_t
+    // Also includes a sentinel terminator
+
+    uint64_t _ljOffset[MAX_CODE_LEN + 1]; // There are some other terms that can
+        // be folded into constants when taking
+        // the 'left justified' decode path. This
+        // holds those constants, indexed by
+        // code length
+
+    //
+    // We can accelerate the 'left justified' processing by running the
+    // top TABLE_LOOKUP_BITS through a LUT, to find the symbol and code
+    // length. These are those acceleration tables.
+    //
+    // Even though our eventual 'symbols' are ushort's, the encoder adds
+    // a symbol to indicate RLE. So with a dense code book, we could
+    // have 2^16+1 codes, hence 'symbol' could  be bigger than 16 bits.
+    //
+    int _lookupSymbol
+        [1 << TABLE_LOOKUP_BITS]; /* value = (codeLen << 24) | symbol */
+
+    uint64_t _tableMin;
+} FastHufDecoder;
+
+static exr_result_t
+FastHufDecoder_buildTables (
+    const struct _internal_exr_context* pctxt,
+    FastHufDecoder*                     fhd,
+    uint64_t*                           base,
+    uint64_t*                           offset)
+{
+    //
+    // Build the 'left justified' base table, by shifting base left..
+    //
+
+    for (int i = 0; i <= MAX_CODE_LEN; ++i)
+    {
+        if (base[i] != 0xffffffffffffffffULL)
+        {
+            fhd->_ljBase[i] = base[i] << (64 - i);
+        }
+        else
+        {
+            //
+            // Unused code length - insert dummy values
+            //
+
+            fhd->_ljBase[i] = 0xffffffffffffffffULL;
+        }
+    }
+    fhd->_ljBase[MAX_CODE_LEN + 1] = 0; /* sentinel for brute force lookup */
+
+    //
+    // Combine some terms into a big fat constant, which for
+    // lack of a better term we'll call the 'left justified'
+    // offset table (because it serves the same function
+    // as 'offset', when using the left justified base table.
+    //
+
+    fhd->_ljOffset[0] = offset[0] - fhd->_ljBase[0];
+    for (int i = 1; i <= MAX_CODE_LEN; ++i)
+        fhd->_ljOffset[i] = offset[i] - (fhd->_ljBase[i] >> (64 - i));
+
+    //
+    // Build the acceleration tables for the lookups of
+    // short codes ( <= TABLE_LOOKUP_BITS long)
+    //
+
+    for (uint64_t i = 0; i < 1 << TABLE_LOOKUP_BITS; ++i)
+    {
+        uint64_t value = i << (64 - TABLE_LOOKUP_BITS);
+
+        fhd->_lookupSymbol[i] = 0xffff;
+
+        for (int codeLen = fhd->_minCodeLength; codeLen <= fhd->_maxCodeLength;
+             ++codeLen)
+        {
+            if (fhd->_ljBase[codeLen] <= value)
+            {
+                uint64_t id =
+                    fhd->_ljOffset[codeLen] + (value >> (64 - codeLen));
+                if (id < (uint64_t) (fhd->_numSymbols))
+                {
+                    fhd->_lookupSymbol[i] =
+                        (fhd->_idToSymbol[id] | (codeLen << 24));
+                }
+                else
+                {
+                    if (pctxt)
+                        pctxt->print_error (
+                            pctxt,
+                            EXR_ERR_CORRUPT_CHUNK,
+                            "Huffman decode error (Overrun)");
+                    return EXR_ERR_CORRUPT_CHUNK;
+                }
+                break;
+            }
+        }
+    }
+
+    //
+    // Store the smallest value in the table that points to real data.
+    // This should be the entry for the largest length that has
+    // valid data (in our case, non-dummy _ljBase)
+    //
+
+    int minIdx = TABLE_LOOKUP_BITS;
+
+    while (minIdx > 0 && fhd->_ljBase[minIdx] == 0xffffffffffffffffULL)
+        minIdx--;
+
+    if (minIdx < 0)
+    {
+        //
+        // Error, no codes with lengths 0-TABLE_LOOKUP_BITS used.
+        // Set the min value such that the table is never tested.
+        //
+
+        fhd->_tableMin = 0xffffffffffffffffULL;
+    }
+    else { fhd->_tableMin = fhd->_ljBase[minIdx]; }
+    return EXR_ERR_SUCCESS;
+}
+
+static inline void
+FastHufDecoder_refill (
+    uint64_t*       buffer,
+    int             numBits,           // number of bits to refill
+    uint64_t*       bufferBack,        // the next 64-bits, to refill from
+    int*            bufferBackNumBits, // number of bits left in bufferBack
+    const uint8_t** currByte,          // current byte in the bitstream
+    int*            currBitsLeft)
+{
+    //
+    // Refill bits into the bottom of buffer, from the top of bufferBack.
+    // Always top up buffer to be completely full.
+    //
+
+    *buffer |= (*bufferBack) >> (64 - numBits);
+
+    if (*bufferBackNumBits < numBits)
+    {
+        numBits -= *bufferBackNumBits;
+
+        //
+        // Refill all of bufferBack from the bitstream. Either grab
+        // a full 64-bit chunk, or whatever bytes are left. If we
+        // don't have 64-bits left, pad with 0's.
+        //
+
+        if (*currBitsLeft >= 64)
+        {
+            *bufferBack        = READ64 (*currByte);
+            *bufferBackNumBits = 64;
+            *currByte += sizeof (uint64_t);
+            *currBitsLeft -= 8 * sizeof (uint64_t);
+        }
+        else
+        {
+            *bufferBack        = 0;
+            *bufferBackNumBits = 64;
+
+            uint64_t shift = 56;
+
+            while (*currBitsLeft > 0)
+            {
+                *bufferBack |= ((uint64_t) (**currByte)) << shift;
+
+                (*currByte)++;
+                shift -= 8;
+                *currBitsLeft -= 8;
+            }
+
+            //
+            // At this point, currBitsLeft might be negative, just because
+            // we're subtracting whole bytes. To keep anyone from freaking
+            // out, zero the counter.
+            //
+
+            if (*currBitsLeft < 0) *currBitsLeft = 0;
+        }
+
+        *buffer |= (*bufferBack) >> (64 - numBits);
+    }
+
+    //
+    // We can have cases where the previous shift of bufferBack is << 64 -
+    // this is an undefined operation but tends to create just zeroes.
+    // so if we won't have any bits left, zero out bufferBack insetad of computing the shift
+    //
+
+    if (*bufferBackNumBits <= numBits) { *bufferBack = 0; }
+    else { *bufferBack = (*bufferBack) << numBits; }
+    *bufferBackNumBits -= numBits;
+}
+
+static inline uint64_t
+fasthuf_read_bits (
+    int numBits, uint64_t* buffer, int* bufferNumBits, const uint8_t** currByte)
+{
+    while (*bufferNumBits < numBits)
+    {
+        *buffer = ((*buffer) << 8) | *((*currByte)++);
+        *bufferNumBits += 8;
+    }
+
+    *bufferNumBits -= numBits;
+    return ((*buffer) >> (*bufferNumBits)) & ((1 << numBits) - 1);
+}
+
+static exr_result_t
+fasthuf_initialize (
+    const struct _internal_exr_context* pctxt,
+    FastHufDecoder*                     fhd,
+    const uint8_t**                     table,
+    int                                 numBytes,
+    int                                 minSymbol,
+    int                                 maxSymbol,
+    int                                 rleSymbol)
+{
+    fhd->_rleSymbol     = rleSymbol;
+    fhd->_numSymbols    = 0;
+    fhd->_minCodeLength = 255;
+    fhd->_maxCodeLength = 0;
+
+    //
+    // The 'base' table is the minimum code at each code length. base[i]
+    // is the smallest code (numerically) of length i.
+    //
+
+    uint64_t base[MAX_CODE_LEN + 1];
+
+    //
+    // The 'offset' table is the position (in sorted order) of the first id
+    // of a given code lenght. Array is indexed by code length, like base.
+    //
+
+    uint64_t offset[MAX_CODE_LEN + 1];
+
+    //
+    // Count of how many codes at each length there are. Array is
+    // indexed by code length, like base and offset.
+    //
+
+    size_t codeCount[MAX_CODE_LEN + 1];
+
+    for (int i = 0; i <= MAX_CODE_LEN; ++i)
+    {
+        codeCount[i] = 0;
+        base[i]      = 0xffffffffffffffffULL;
+        offset[i]    = 0;
+    }
+
+    //
+    // Count the number of codes, the min/max code lengths, the number of
+    // codes with each length, and record symbols with non-zero code
+    // length as we find them.
+    //
+
+    const uint8_t* currByte     = *table;
+    uint64_t       currBits     = 0;
+    int            currBitCount = 0;
+
+    const uint8_t* topByte = *table + numBytes;
+
+    for (uint64_t symbol = (uint64_t) minSymbol; symbol <= (uint64_t) maxSymbol;
+         symbol++)
+    {
+        if (currByte >= topByte)
+        {
+            if (pctxt)
+                pctxt->print_error (
+                    pctxt,
+                    EXR_ERR_CORRUPT_CHUNK,
+                    "Error decoding Huffman table (Truncated table data).");
+            return EXR_ERR_CORRUPT_CHUNK;
+        }
+
+        //
+        // Next code length - either:
+        //       0-58  (literal code length)
+        //       59-62 (various lengths runs of 0)
+        //       63    (run of n 0's, with n is the next 8 bits)
+        //
+
+        uint64_t codeLen =
+            fasthuf_read_bits (6, &currBits, &currBitCount, &currByte);
+
+        if (codeLen < (uint64_t) SHORT_ZEROCODE_RUN)
+        {
+            if (codeLen == 0) continue;
+
+            if (codeLen < fhd->_minCodeLength) fhd->_minCodeLength = codeLen;
+
+            if (codeLen > fhd->_maxCodeLength) fhd->_maxCodeLength = codeLen;
+
+            codeCount[codeLen]++;
+        }
+        else if (codeLen == (uint64_t) LONG_ZEROCODE_RUN)
+            symbol +=
+                fasthuf_read_bits (8, &currBits, &currBitCount, &currByte) +
+                SHORTEST_LONG_RUN - 1;
+        else
+            symbol += codeLen - SHORT_ZEROCODE_RUN + 1;
+
+        if (symbol > (uint64_t) maxSymbol)
+        {
+            if (pctxt)
+                pctxt->print_error (
+                    pctxt,
+                    EXR_ERR_CORRUPT_CHUNK,
+                    "Error decoding Huffman table (Run beyond end of table).");
+            return EXR_ERR_CORRUPT_CHUNK;
+        }
+    }
+
+    for (int i = 0; i < MAX_CODE_LEN; ++i)
+        fhd->_numSymbols += codeCount[i];
+
+    if (fhd->_numSymbols > sizeof (fhd->_idToSymbol) / sizeof (int))
+    {
+        if (pctxt)
+            pctxt->print_error (
+                pctxt,
+                EXR_ERR_CORRUPT_CHUNK,
+                "Error decoding Huffman table (Too many symbols).");
+        return EXR_ERR_CORRUPT_CHUNK;
+    }
+
+    //
+    // Compute base - once we have the code length counts, there
+    //                is a closed form solution for this
+    //
+
+    {
+        double* countTmp = (double*) offset; /* temp space */
+
+        for (int l = fhd->_minCodeLength; l <= fhd->_maxCodeLength; ++l)
+        {
+            countTmp[l] = (double) codeCount[l] *
+                          (double) (2ll << (fhd->_maxCodeLength - l));
+        }
+
+        for (int l = fhd->_minCodeLength; l <= fhd->_maxCodeLength; ++l)
+        {
+            double tmp = 0;
+
+            for (int k = l + 1; k <= fhd->_maxCodeLength; ++k)
+                tmp += countTmp[k];
+
+            tmp /= (double) (2ll << (fhd->_maxCodeLength - l));
+
+            base[l] = (uint64_t) ceil (tmp);
+        }
+    }
+
+    //
+    // Compute offset - these are the positions of the first
+    //                  id (not symbol) that has length [i]
+    //
+
+    offset[fhd->_maxCodeLength] = 0;
+
+    for (int i = fhd->_maxCodeLength - 1; i >= fhd->_minCodeLength; i--)
+        offset[i] = offset[i + 1] + codeCount[i + 1];
+
+    //
+    // Allocate and fill the symbol-to-id mapping. Smaller Ids should be
+    // mapped to less-frequent symbols (which have longer codes). Use
+    // the offset table to tell us where the id's for a given code
+    // length start off.
+    //
+
+    uint64_t mapping[MAX_CODE_LEN + 1];
+    for (int i = 0; i < MAX_CODE_LEN + 1; ++i)
+        mapping[i] = -1;
+    for (int i = fhd->_minCodeLength; i <= fhd->_maxCodeLength; ++i)
+        mapping[i] = offset[i];
+
+    currByte     = *table;
+    currBits     = 0;
+    currBitCount = 0;
+
+    //
+    // Although we could have created an uncompressed list of symbols in our
+    // decoding loop above, it's faster to decode the compressed data again
+    //
+    for (uint64_t symbol = (uint64_t) minSymbol; symbol <= (uint64_t) maxSymbol;
+         symbol++)
+    {
+        uint64_t codeLen =
+            fasthuf_read_bits (6, &currBits, &currBitCount, &currByte);
+
+        if (codeLen < (uint64_t) SHORT_ZEROCODE_RUN)
+        {
+            if (codeLen == 0) continue;
+
+            if (mapping[codeLen] >= (uint64_t) fhd->_numSymbols)
+            {
+                if (pctxt)
+                    pctxt->print_error (
+                        pctxt,
+                        EXR_ERR_CORRUPT_CHUNK,
+                        "Huffman decode error (Invalid symbol in header)");
+                return EXR_ERR_CORRUPT_CHUNK;
+            }
+            fhd->_idToSymbol[mapping[codeLen]] = symbol;
+            mapping[codeLen]++;
+        }
+        else if (codeLen == (uint64_t) LONG_ZEROCODE_RUN)
+            symbol +=
+                fasthuf_read_bits (8, &currBits, &currBitCount, &currByte) +
+                SHORTEST_LONG_RUN - 1;
+        else
+            symbol += codeLen - SHORT_ZEROCODE_RUN + 1;
+    }
+
+    *table = currByte;
+
+    return FastHufDecoder_buildTables (pctxt, fhd, base, offset);
+}
+
+static inline int
+fasthuf_decode_enabled ()
+{
+#if defined(__INTEL_COMPILER) || defined(__GNUC__)
+
+    //
+    // Enabled for ICC, GCC:
+    //       __i386__   -> x86
+    //       __x86_64__ -> 64-bit x86
+    //       __e2k__    -> e2k (MCST Elbrus 2000)
+
+#    if defined(__i386__) || defined(__x86_64__) || defined(__e2k__)
+    return 1;
+#    else
+    return 0;
+#    endif
+
+#elif defined(_MSC_VER)
+
+    //
+    // Enabled for Visual Studio:
+    //        _M_IX86 -> x86
+    //        _M_X64  -> 64bit x86
+
+#    if defined(_M_IX86) || defined(_M_X64)
+    return 1;
+#    else
+    return 0;
+#    endif
+
+#else
+
+    //
+    // Unknown compiler - Be safe and disable.
+    //
+    return 0;
+#endif
+}
+
+static exr_result_t
+fasthuf_decode (
+    const struct _internal_exr_context* pctxt,
+    FastHufDecoder*                     fhd,
+    const uint8_t*                      src,
+    int                                 numSrcBits,
+    uint16_t*                           dst,
+    int                                 numDstElems)
+{
+    //
+    // Current position (byte/bit) in the src data stream
+    // (after the first buffer fill)
+    //
+
+    const unsigned char* currByte = src + 2 * sizeof (uint64_t);
+
+    numSrcBits -= 8 * 2 * sizeof (uint64_t);
+
+    //
+    // 64-bit buffer holding the current bits in the stream
+    //
+
+    uint64_t buffer        = READ64 (src);
+    int      bufferNumBits = 64;
+
+    //
+    // 64-bit buffer holding the next bits in the stream
+    //
+
+    uint64_t bufferBack        = READ64 ((src + sizeof (uint64_t)));
+    int      bufferBackNumBits = 64;
+
+    int dstIdx = 0;
+
+    while (dstIdx < numDstElems)
+    {
+        int codeLen;
+        int symbol;
+
+        //
+        // Test if we can be table accelerated. If so, directly
+        // lookup the output symbol. Otherwise, we need to fall
+        // back to searching for the code.
+        //
+        // If we're doing table lookups, we don't really need
+        // a re-filled buffer, so long as we have TABLE_LOOKUP_BITS
+        // left. But for a search, we do need a refilled table.
+        //
+
+        if (fhd->_tableMin <= buffer)
+        {
+            int tableIdx =
+                fhd->_lookupSymbol[buffer >> (64 - TABLE_LOOKUP_BITS)];
+
+            //
+            // For invalid codes, _tableCodeLen[] should return 0. This
+            // will cause the decoder to get stuck in the current spot
+            // until we run out of elements, then barf that the codestream
+            // is bad.  So we don't need to stick a condition like
+            //     if (codeLen > _maxCodeLength) in this inner.
+            //
+
+            codeLen = tableIdx >> 24;
+            symbol  = tableIdx & 0xffffff;
+        }
+        else
+        {
+            //
+            // Brute force search:
+            // Find the smallest length where _ljBase[length] <= buffer
+            //
+
+            codeLen = TABLE_LOOKUP_BITS + 1;
+
+            /* sentinel zero can never be greater than buffer */
+            while (fhd->_ljBase[codeLen] >
+                   buffer /* && codeLen <= _maxCodeLength */)
+                codeLen++;
+
+            if (codeLen > fhd->_maxCodeLength)
+            {
+                if (pctxt)
+                    pctxt->print_error (
+                        pctxt,
+                        EXR_ERR_CORRUPT_CHUNK,
+                        "Huffman decode error (Decoded an invalid symbol)");
+                return EXR_ERR_CORRUPT_CHUNK;
+            }
+
+            uint64_t id = fhd->_ljOffset[codeLen] + (buffer >> (64 - codeLen));
+            if (id < (uint64_t) fhd->_numSymbols)
+            {
+                symbol = fhd->_idToSymbol[id];
+            }
+            else
+            {
+                if (pctxt)
+                    pctxt->print_error (
+                        pctxt,
+                        EXR_ERR_CORRUPT_CHUNK,
+                        "Huffman decode error (Decoded an invalid symbol)");
+                return EXR_ERR_CORRUPT_CHUNK;
+            }
+        }
+
+        //
+        // Shift over bit stream, and update the bit count in the buffer
+        //
+
+        buffer = buffer << codeLen;
+        bufferNumBits -= codeLen;
+
+        //
+        // If we recieved a RLE symbol (_rleSymbol), then we need
+        // to read ahead 8 bits to know how many times to repeat
+        // the previous symbol. Need to ensure we at least have
+        // 8 bits of data in the buffer
+        //
+
+        if (symbol == fhd->_rleSymbol)
+        {
+            if (bufferNumBits < 8)
+            {
+                FastHufDecoder_refill (
+                    &buffer,
+                    64 - bufferNumBits,
+                    &bufferBack,
+                    &bufferBackNumBits,
+                    &currByte,
+                    &numSrcBits);
+
+                bufferNumBits = 64;
+            }
+
+            int rleCount = buffer >> 56;
+
+            if (dstIdx < 1)
+            {
+                if (pctxt)
+                    pctxt->print_error (
+                        pctxt,
+                        EXR_ERR_CORRUPT_CHUNK,
+                        "Huffman decode error (RLE code with no previous symbol)");
+                return EXR_ERR_CORRUPT_CHUNK;
+            }
+
+            if (dstIdx + rleCount > numDstElems)
+            {
+                if (pctxt)
+                    pctxt->print_error (
+                        pctxt,
+                        EXR_ERR_CORRUPT_CHUNK,
+                        "Huffman decode error (Symbol run beyond expected output buffer length)");
+                return EXR_ERR_CORRUPT_CHUNK;
+            }
+
+            if (rleCount <= 0)
+            {
+                if (pctxt)
+                    pctxt->print_error (
+                        pctxt,
+                        EXR_ERR_CORRUPT_CHUNK,
+                        "Huffman decode error (Invalid RLE length)");
+                return EXR_ERR_CORRUPT_CHUNK;
+            }
+
+            for (int i = 0; i < rleCount; ++i)
+                dst[dstIdx + i] = dst[dstIdx - 1];
+
+            dstIdx += rleCount;
+
+            buffer = buffer << 8;
+            bufferNumBits -= 8;
+        }
+        else
+        {
+            dst[dstIdx] = symbol;
+            dstIdx++;
+        }
+
+        //
+        // refill bit stream buffer if we're below the number of
+        // bits needed for a table lookup
+        //
+
+        if (bufferNumBits < 64)
+        {
+            FastHufDecoder_refill (
+                &buffer,
+                64 - bufferNumBits,
+                &bufferBack,
+                &bufferBackNumBits,
+                &currByte,
+                &numSrcBits);
+
+            bufferNumBits = 64;
+        }
+    }
+
+    if (numSrcBits != 0)
+    {
+        if (pctxt)
+            pctxt->print_error (
+                pctxt,
+                EXR_ERR_CORRUPT_CHUNK,
+                "Huffman decode error (%d bits of compressed data remains after filling expected output buffer)",
+                numSrcBits);
+        return EXR_ERR_CORRUPT_CHUNK;
+    }
+
+    return EXR_ERR_SUCCESS;
+}
+
+/**************************************/
+
 uint64_t
 internal_exr_huf_compress_spare_bytes (void)
 {
@@ -961,6 +1676,7 @@ internal_exr_huf_decompress_spare_bytes (void)
     ret += HUF_DECSIZE * sizeof (HufDec);   // hdec
     //    ret += HUF_ENCSIZE * sizeof (uint64_t*); // fheap
     //    ret += HUF_ENCSIZE * sizeof (uint64_t);  // scode
+    if (sizeof (FastHufDecoder) > ret) ret = sizeof (FastHufDecoder);
     return ret;
 }
 
@@ -1028,18 +1744,21 @@ internal_huf_compress (
 
 exr_result_t
 internal_huf_decompress (
-    const uint8_t* compressed,
-    uint64_t       nCompressed,
-    uint16_t*      raw,
-    uint64_t       nRaw,
-    void*          spare,
-    uint64_t       sparebytes)
+    exr_decode_pipeline_t* decode,
+    const uint8_t*         compressed,
+    uint64_t               nCompressed,
+    uint16_t*              raw,
+    uint64_t               nRaw,
+    void*                  spare,
+    uint64_t               sparebytes)
 {
-    uint32_t       im, iM, nBits;
-    uint64_t       nBytes;
-    const uint8_t* ptr;
-    exr_result_t   rv;
+    uint32_t                            im, iM, nBits;
+    uint64_t                            nBytes;
+    const uint8_t*                      ptr;
+    exr_result_t                        rv;
+    const struct _internal_exr_context* pctxt = NULL;
 
+    if (decode) pctxt = EXR_CCTXT (decode->context);
     //
     // need at least 20 bytes for header
     //
@@ -1070,22 +1789,20 @@ internal_huf_decompress (
     // needs to be run-able on this platform. Otherwise, fall back
     // to the original decoder
     //
-#if 0
-    if (FastHufDecoder::enabled () && nBits > 128)
+    if (fasthuf_decode_enabled () && nBits > 128)
     {
-        FastHufDecoder fhd (ptr, nCompressed - (ptr - compressed), im, iM, iM);
+        FastHufDecoder* fhd = (FastHufDecoder*) spare;
 
         // must be nBytes remaining in buffer
-        if (ptr - compressed + nBytes > static_cast<uint64_t> (nCompressed))
-        {
-            notEnoughData ();
-            return;
-        }
+        if (ptr - compressed + nBytes > (uint64_t) nCompressed)
+            return EXR_ERR_OUT_OF_MEMORY;
 
-        rv = fhd.decode (ptr, nBits, raw, nRaw);
+        rv = fasthuf_initialize (
+            pctxt, fhd, &ptr, nCompressed - (ptr - compressed), im, iM, iM);
+        if (rv == EXR_ERR_SUCCESS)
+            rv = fasthuf_decode (pctxt, fhd, ptr, nBits, raw, nRaw);
     }
     else
-#endif
     {
         uint64_t* freq     = (uint64_t*) spare;
         HufDec*   hdec     = (HufDec*) (freq + HUF_ENCSIZE);

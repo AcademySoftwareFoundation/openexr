@@ -51,6 +51,7 @@ If you know of missing, please email: info@openexr.com.
 * Paul Schneider
 * Peter Hillman
 * Peter Steneteg
+* Phil Barrett
 * Piotr Stanczyk
 * Ralph Potter
 * Reto Kromer
