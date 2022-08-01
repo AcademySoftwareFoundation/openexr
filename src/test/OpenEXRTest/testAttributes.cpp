@@ -444,7 +444,7 @@ longNames (
     const Array2D<float>& pf1, const char fileName[], int width, int height)
 {
     //
-    // Verify that long attibute or channel names in the header
+    // Verify that long attribute or channel names in the header
     // set the LONG_NAMES_FLAG in the file version number.
     //
 

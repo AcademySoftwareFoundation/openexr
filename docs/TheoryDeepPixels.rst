@@ -92,7 +92,7 @@ Alpha vs Transparency
 OpenEXR images use alpha :math:`\alpha` instead of transparency.
 :math:`T=1-\alpha`: if :math:`\alpha=1` (so :math:`T=0`) then all light
 is absorbed; if :math:`\alpha=0` (so :math:`T=1`), then all light is
-transmitted and the material is transparent. Subsituting :math:`T` into :eq:`absorb` and :eq:`two` combined alpha of two objects is given by the *screen* compositing operation:
+transmitted and the material is transparent. Substituting :math:`T` into :eq:`absorb` and :eq:`two` combined alpha of two objects is given by the *screen* compositing operation:
 
 .. math::
    \alpha_c = 1-(1-\alpha_1)(1-\alpha_2)

@@ -1160,7 +1160,7 @@ DwaCompressor::LossyDctDecoderBase::unRleAc (
     // high byte is 0xff, then insert the number of 0's
     // as indicated by the low byte.
     //
-    // Otherwise, just copy the number verbaitm.
+    // Otherwise, just copy the number verbatim.
     //
 
     int lastNonZero = 0;
@@ -1843,7 +1843,7 @@ DwaCompressor::compress (
 
     //
     // We might not be dealing with any color data, in which
-    // case the AC buffer size will be 0, and deferencing
+    // case the AC buffer size will be 0, and dereferencing
     // a vector will not be a good thing to do.
     //
 

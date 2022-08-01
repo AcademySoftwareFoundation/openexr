@@ -58,7 +58,7 @@ writeReadRGBA (
     //
     // Save the selected channels of RGBA image p1; save the
     // scan lines in the specified order.  Read the image back
-    // from the file, and compare the data with the orignal.
+    // from the file, and compare the data with the original.
     //
 
     cout << "channels " << ((channels & WRITE_R) ? "R" : "")

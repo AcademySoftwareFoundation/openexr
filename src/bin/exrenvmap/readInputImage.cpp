@@ -115,7 +115,7 @@ readSixImages (
     //
     // Generate six file names by replacing the first '%' character in
     // inFileName with +X, -X, ... -Z.  Interpreting the corresponding
-    // image files as the six sides of a cube, assembe a single cube-
+    // image files as the six sides of a cube, assemble a single cube-
     // face map image.
     //
 

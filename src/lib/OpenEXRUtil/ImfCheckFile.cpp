@@ -56,7 +56,7 @@ const int gMaxScanlinesToRead = 1 << 20;
 
 //
 // compute row stride appropriate to process files quickly
-// only used for the 'Rgba' interfaces, which read potentially non-existant channels
+// only used for the 'Rgba' interfaces, which read potentially non-existent channels
 //
 //
 

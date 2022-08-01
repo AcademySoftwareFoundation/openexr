@@ -30,7 +30,7 @@ IEX_EXPORT
 int getMathExcOn ();
 
 //------------------------------------------------------------------------
-// A classs that temporarily sets floating point exception trapping
+// A class that temporarily sets floating point exception trapping
 // and conversion, and later restores the previous settings.
 //
 // Example:

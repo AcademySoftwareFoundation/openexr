@@ -10,10 +10,10 @@
 
 IEX_INTERNAL_NAMESPACE_HEADER_ENTER
 
-//---------------------------------------------------------
-// Exception classess which correspond to specific floating
+//--------------------------------------------------------
+// Exception classes which correspond to specific floating
 // point exceptions.
-//---------------------------------------------------------
+//--------------------------------------------------------
 
 DEFINE_EXC_EXP (IEX_EXPORT, OverflowExc, MathExc)    // Overflow
 DEFINE_EXC_EXP (IEX_EXPORT, UnderflowExc, MathExc)   // Underflow
