@@ -51,7 +51,7 @@ rleCompress (int inLength, const char in[], signed char out[])
         else
         {
             //
-            // Uncompressible run
+            // Incompressible run
             //
 
             while (runEnd < inEnd &&
