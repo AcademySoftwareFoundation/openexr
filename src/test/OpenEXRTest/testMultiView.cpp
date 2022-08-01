@@ -223,7 +223,7 @@ testMultiViewFunctions ()
 			     "wensleydale.left.fell",
 			     multiView) == false);
 
-    // four sectons
+    // four sections
 
     assert (areCounterparts ("lincoln.longwool.right.A",
 			     "lincoln.longwool.left.A",

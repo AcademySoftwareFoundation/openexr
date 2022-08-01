@@ -249,8 +249,9 @@ testNativeFormat (const std::string &tempDir)
 {
     try
     {
-        cout << "Testing if uncompressible pixel data are written "
-		"in Xdr, not native format" << endl;
+        cout << "Testing if incompressible pixel data are written "
+            "in Xdr, not native format"
+             << endl;
 
         cout << "image 1:" << endl;
         readCopyRead(tempDir, ILM_IMF_TEST_IMAGEDIR "test_native1.exr", 54435);

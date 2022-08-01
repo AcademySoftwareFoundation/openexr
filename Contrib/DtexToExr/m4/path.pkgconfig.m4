@@ -7,7 +7,7 @@ AC_DEFUN([AM_PATH_PKGCONFIG],
 [
 
 dnl sets cflags and ldflags
-dnl TEST_CXXFLAGS and TEST_LDFLAGS, by trying thes following
+dnl TEST_CXXFLAGS and TEST_LDFLAGS, by trying the following
 dnl until something works:
 dnl
 dnl 1 -  try the test_prefix
@@ -21,14 +21,14 @@ dnl $1: arg_cxxflags - CXXFLAGS variable to set
 dnl
 dnl $2: arg-ldflags - LDFLAGS variable to set
 dnl
-dnl $3: package name (the package being checked), as requried by pkg-config
+dnl $3: package name (the package being checked), as required by pkg-config
 dnl 
 dnl $4: arg_include_subdir 
 dnl     the name of the subdirectory name that is tacked on to 
 dnl     the end of the include path e.g. "OpenEXR" in 
 dnl     /usr/local/include/OpenEXR
 dnl 
-dnl $5: arg_default_libs - default libraries, used if pkgconfig doesnt work
+dnl $5: arg_default_libs - default libraries, used if pkgconfig doesn't work
 dnl
 dnl $6: arg_test_prefix
 dnl     the argument passed to configure specifying a directory to

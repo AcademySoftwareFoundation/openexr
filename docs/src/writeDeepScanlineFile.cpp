@@ -36,7 +36,7 @@ writeDeepScanlineFile(const char filename[],
                                    (char *) (&dataZ[0][0]
                                               - dataWindow.min.x
                                               - dataWindow.min.y * width),
-                                   sizeof (float *) * 1, // xStride for pointe
+                                   sizeof (float *) * 1, // xStride for pointer
 
                                    sizeof (float *) * width, // yStride for pointer array
                                    sizeof (float) * 1)); // stride for Z data sample

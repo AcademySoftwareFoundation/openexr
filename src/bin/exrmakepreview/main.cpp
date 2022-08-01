@@ -141,8 +141,8 @@ main(int argc, char **argv)
 
     if (previewWidth <= 0)
     {
-	cerr << "Preview image width must be greather than zero." << endl;
-	return 1;
+        cerr << "Preview image width must be greater than zero." << endl;
+        return 1;
     }
 
     //

@@ -287,7 +287,7 @@ testSharedAttributes (const std::string & fn)
         MultiPartOutputFile file(fn.c_str(), &headers[0],headers.size());
     }
 
-    // Adding a header a that has non-complient standard attributes will throw
+    // Adding a header a that has non-compliant standard attributes will throw
     // an exception.
 
     // Run the tests

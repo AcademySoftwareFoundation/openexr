@@ -60,8 +60,8 @@ blurImage (EnvmapImage &image1, bool verbose)
     // * Repeatedly resample the image, each time shrinking
     //   it to no less than half its current size, until the
     //   width of each cube face is MAX_IN_WIDTH pixels.
-    // 
-    // * Multiply each pixel by a weight that is proportinal
+    //
+    // * Multiply each pixel by a weight that is proportional
     //   to the solid angle subtended by the pixel as seen
     //   from the center of the environment cube.
     //
@@ -149,7 +149,7 @@ blurImage (EnvmapImage &image1, bool verbose)
 
     { 
         //
-        // Multiply each pixel by a weight that is proportinal
+        // Multiply each pixel by a weight that is proportional
         // to the solid angle subtended by the pixel.
         //
 

@@ -16,13 +16,13 @@
 #cmakedefine01 ILMTHREAD_HAVE_POSIX_SEMAPHORES
 
 //
-// Current internal library namepace name
+// Current internal library namespace name
 //
 #define ILMTHREAD_INTERNAL_NAMESPACE_CUSTOM @ILMTHREAD_NAMESPACE_CUSTOM@
 #define ILMTHREAD_INTERNAL_NAMESPACE @ILMTHREAD_INTERNAL_NAMESPACE@
 
 //
-// Current public user namepace name
+// Current public user namespace name
 //
 
 #define ILMTHREAD_NAMESPACE_CUSTOM @ILMTHREAD_NAMESPACE_CUSTOM@
