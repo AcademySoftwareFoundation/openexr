@@ -55,22 +55,24 @@ namespace
     
       
 // map of strings to index of string in table
-    typedef std::map<std::string,int> indexedStringSet;
-        
-    
-    
-    // when handling vectors/sets of strings, the string is got by deferencing the pointer/iterator
-    template<class T> size_t stringSize(const T &i)
-    {
-       return i->size();   
-    }
-    
-    template<class T> const char* cStr(const T &i)
-    {
-       return i->c_str();
-    }
-    
-    /*
+typedef std::map<std::string, int> indexedStringSet;
+
+// when handling vectors/sets of strings, the string is got by dereferencing the pointer/iterator
+template <class T>
+size_t
+stringSize (const T& i)
+{
+    return i->size ();
+}
+
+template <class T>
+const char*
+cStr (const T& i)
+{
+    return i->c_str ();
+}
+
+/*
     // but for indexedStringSet the string is the first of the iterator pair
     size_t stringSize(indexedStringSet::const_iterator &i )
     {

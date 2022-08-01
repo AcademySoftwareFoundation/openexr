@@ -291,9 +291,9 @@ writeReadMultiPart (const char fileName[],
     // back a second time using a memory-mapped
     // MMIFStream (see above).
     //
-                        
-    cout << "scan-line based mulitpart file:" << endl;
-                            
+
+    cout << "scan-line based multipart file:" << endl;
+
     {
         cout << "writing";
         remove (fileName);
@@ -600,9 +600,9 @@ writeReadMultiPart (int width,
     // existing StdISStream, and compare the pixels
     // with the original data.
     //
-                        
-    cout << "scan-line based mulitpart stringstream:" << endl;
-                            
+
+    cout << "scan-line based multipart stringstream:" << endl;
+
     std::string strEXRFile;
 
     {

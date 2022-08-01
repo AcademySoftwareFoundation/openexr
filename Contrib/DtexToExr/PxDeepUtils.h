@@ -277,7 +277,7 @@ inline bool IsInfinity( T i_f )
 }
 
 //-*****************************************************************************
-// A zero-nan functon, which actually zeros inf as well.
+// A zero-nan function, which actually zeros inf as well.
 template <typename T>
 inline T ZeroNAN( T i_f )
 {

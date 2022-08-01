@@ -138,9 +138,9 @@ static void read_file(const char * filename)
             
             if( samplecounts[i]!= static_cast<unsigned int>(row))
             {
-              cout << i << ", " << row << " error, sample counts hould be "
-              << row  << ", is " << samplecounts[i]
-              << endl << flush;
+                cout << i << ", " << row << " error, sample counts should be "
+                     << row << ", is " << samplecounts[i] << endl
+                     << flush;
             }
             
             assert (samplecounts[i]== static_cast<unsigned int>(row));

@@ -26,10 +26,10 @@ dnl $6: body section of sourcecode for a c++ test program
 dnl The test program should make use of a library that is supposed to 
 dnl be tested.
 dnl
-dnl $7: the action to be perfomed if the test succeeds 
+dnl $7: the action to be performed if the test succeeds 
 dnl     (e.g. AC_MSG_RESULT("OpenEXR test program succeeded"))
 dnl
-dnl $8   the action to be perfomed if the test fails
+dnl $8   the action to be performed if the test fails
 dnl     (e.g. AC_MSG_ERROR("OpenEXR test program failed"))
 dnl
 

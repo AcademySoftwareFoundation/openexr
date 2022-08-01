@@ -173,8 +173,8 @@ generateRandomFile (int channelCount,
     
     //
     // storage layout scheme:
-    // [Pixel1: [Channel1: [Sample1 Sample2 Sample...] ] [Channel2: [Sample1 Sample2...] ] [Channnel...] ]
-    // [Pixel2: [Channel1: [Sample1 Sample2 Sample...] ] [Channel2: [Sample1 Sample2...] ] [Channnel...] ]
+    // [Pixel1: [Channel1: [Sample1 Sample2 Sample...] ] [Channel2: [Sample1 Sample2...] ] [Channel...] ]
+    // [Pixel2: [Channel1: [Sample1 Sample2 Sample...] ] [Channel2: [Sample1 Sample2...] ] [Channel...] ]
     // [Pixel...]
     //
     storage.resize(total_number_of_samples*bytes_per_sample);

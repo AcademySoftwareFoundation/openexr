@@ -180,7 +180,7 @@ DEFINE_EXC_EXP (IEX_EXPORT, TypeExc, BaseExc)   // An object is an inappropriate
 //	BaseExc is thrown.  The stack-tracing routine should return a
 //	string that contains a printable representation of the program's
 //	current call stack.  This string will be stored in the BaseExc
-//	object; the string is accesible via the BaseExc::stackTrace()
+//	object; the string is accessible via the BaseExc::stackTrace()
 //	method.
 //
 // setStackTracer(0)

@@ -38,21 +38,21 @@ rleCompress (int inLength, const char in[], signed char out[])
 	    ++runEnd;
 	}
 
-	if (runEnd - runStart >= MIN_RUN_LENGTH)
-	{
-	    //
-	    // Compressable run
-	    //
+        if (runEnd - runStart >= MIN_RUN_LENGTH)
+        {
+            //
+            // Compressible run
+            //
 
-	    *outWrite++ = (runEnd - runStart) - 1;
-	    *outWrite++ = *(signed char *) runStart;
-	    runStart = runEnd;
-	}
-	else
-	{
-	    //
-	    // Uncompressable run
-	    //
+            *outWrite++ = (runEnd - runStart) - 1;
+            *outWrite++ = *(signed char*) runStart;
+            runStart    = runEnd;
+        }
+        else
+        {
+            //
+            // Incompressible run
+            //
 
 	    while (runEnd < inEnd &&
 		   ((runEnd + 1 >= inEnd ||

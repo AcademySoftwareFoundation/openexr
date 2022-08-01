@@ -33,8 +33,7 @@ usageMessage (const char argv0[])
     cerr << "  -t : avoid spending excessive time (some files will not be fully checked)\n";
     cerr << "  -s : use stream API instead of file API\n";
     cerr << "  -c : add core library checks\n";
-    cerr << "  -v : print OpenEXR and Imath software libary version info\n";
-
+    cerr << "  -v : print OpenEXR and Imath software library version info\n";
 }
 
 
@@ -108,7 +107,7 @@ main(int argc, char **argv)
         else if (!strcmp (argv[i], "-m"))
         {
             //
-            // note for further memory reduction, calls to the folowing could be added here
+            // note for further memory reduction, calls to the following could be added here
             // CompositeDeepScanLine::setMaximumSampleCount();
             // Header::setMaxImageSize();
             // Header::setMaxTileSize();

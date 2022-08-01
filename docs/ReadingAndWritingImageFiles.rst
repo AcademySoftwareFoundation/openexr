@@ -544,7 +544,7 @@ other three arguments define the memory address of pixel ``(x,y)`` as
 **Note:** ``base`` is of type ``char*``, and that offsets from
 ``base`` are not implicitly multiplied by the size of an individual
 pixel, as in the RGBA-only interface. ``xStride`` and ``yStride`` must
-explictly take the size of the pixels into account.
+explicitly take the size of the pixels into account.
 
 With the values specified in our example, the OpenEXR library computes
 the address of the G channel of pixel ``(x,y)`` like this:
@@ -1897,7 +1897,7 @@ of a three-dimensional scene as seen from a particular 3D location.
 Every pixel in the image corresponds to a 3D direction, and the data
 stored in the pixel represent the amount of light arriving from this
 direction. In 3D rendering applications, environment maps are often
-used for image-based lighting techniques that appoximate how objects
+used for image-based lighting techniques that approximate how objects
 are illuminated by their surroundings. Environment maps with enough
 dynamic range to represent even the brightest light sources in the
 environment are sometimes called "light probe images."

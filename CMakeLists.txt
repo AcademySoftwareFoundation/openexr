@@ -30,7 +30,7 @@ set(OPENEXR_VERSION_API "${OpenEXR_VERSION_MAJOR}_${OpenEXR_VERSION_MINOR}")
 # See https://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
 #
 # Library API version (CMake's library VERSION attribute) is of the
-# form CURRENT.REVISION.AGE; the CMake SOVERSION attribute corresonds
+# form CURRENT.REVISION.AGE; the CMake SOVERSION attribute corresponds
 # to just CURRENT. These produce a .so and a symlink symlink, e.g.:
 # libOpenEXR-3_1.so.29 -> libOpenEXR-3_1.so.29.0.0
 #                    ^                       ^ ^ ^
@@ -75,7 +75,7 @@ message(STATUS "Configure ${OPENEXR_PACKAGE_NAME}, library API version: ${OPENEX
 add_subdirectory(src/lib)
 add_subdirectory(src/bin)
 
-# Tell CMake where to find the OpenEXRConfig.cmake file. Makes it posible to call 
+# Tell CMake where to find the OpenEXRConfig.cmake file. Makes it possible to call 
 # find_package(OpenEXR) in downstream projects
 set(OpenEXR_DIR "${CMAKE_CURRENT_BINARY_DIR}/cmake" CACHE PATH "" FORCE)
 # Add an empty OpenEXRTargets.cmake file for the config to use. 

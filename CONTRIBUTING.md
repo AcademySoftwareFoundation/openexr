@@ -121,7 +121,7 @@ comments. Click that link to sign the form.
 
 The downloadable PDF's on the EasyCLA page are provided for reference
 only. To execute the signature, sign the form online through the
-releveant links.
+relevant links.
 
 The OpenEXR CLAs are the standard forms used by Linux Foundation
 projects and [recommended by the ASWF
@@ -426,7 +426,7 @@ All headers should contain:
 
 Because OpenEXR must deal properly with large images, whose width
 and/or height approach the maximum allowable in 32-bit signed
-integers, take special care that integer arithmatic doesn't overlow,
+integers, take special care that integer arithmetic doesn't overflow,
 and make it as clear as possible exactly what the code is doing,
 especially in the edge cases.
 
@@ -440,7 +440,7 @@ To clarify the intention, prefer to cast between types using
     x = (size_t) y;
     x = size_t (y);
 
-Prefer to use ``std::numeric_limits<>`` instead of preprocesser
+Prefer to use ``std::numeric_limits<>`` instead of preprocessor
 define's such as ``INT_MAX``:
 
     // good:
