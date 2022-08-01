@@ -19,7 +19,7 @@ function(OPENEXR_DEFINE_LIBRARY libname)
 
   # Use ${OPENEXR_CXX_STANDARD} to determine the standard we use to compile
   # OpenEXR itself. But the headers only require C++11 features, so that's
-  # all we need to pass on as interface reqirements to downstream projects.
+  # all we need to pass on as interface requirements to downstream projects.
   # For example, it's fine for an OpenEXR built with C++14 to be called from
   # an app that is compiled with C++11; OpenEXR needn't force the app to
   # also use C++14.

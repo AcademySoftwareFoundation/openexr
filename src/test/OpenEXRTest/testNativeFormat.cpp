@@ -271,7 +271,7 @@ testNativeFormat (const std::string& tempDir)
 {
     try
     {
-        cout << "Testing if uncompressible pixel data are written "
+        cout << "Testing if incompressible pixel data are written "
                 "in Xdr, not native format"
              << endl;
 

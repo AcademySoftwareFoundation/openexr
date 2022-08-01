@@ -601,7 +601,7 @@ separate (vector<const char*> in, const char* out, bool override)
     int                 numOutputs;
     vector<string>      fornamecheck;
 
-    // add check for existance of the file
+    // add check for existence of the file
     try
     {
         MultiPartInputFile temp (filename.c_str ());
@@ -670,7 +670,7 @@ separate (vector<const char*> in, const char* out, bool override)
 
     delete inputimage;
     cout << "\n"
-         << "Seperate Success" << endl;
+         << "Separate Success" << endl;
 }
 
 void

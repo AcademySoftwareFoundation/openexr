@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 #
-# Validate the libary symlinks:
+# Validate the library symlinks:
 #   * The actual elf binary is, e.g. libIlmThread-3_1.so.29.0.0
 #   * The symlinks are:
 #       libIlmThread.so -> libIlmThread-3_1.so

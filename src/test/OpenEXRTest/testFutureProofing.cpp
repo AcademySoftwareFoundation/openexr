@@ -378,7 +378,7 @@ generateRandomHeaders (int partCount, vector<Header>& headers)
                  << " levelMode = " << levelModes[i] << endl
                  << flush;
         }
-        // future types MUST have a chunkCount attribute - ommitting causes the library
+        // future types MUST have a chunkCount attribute - omitting causes the library
         // to raise an exception (can't compute chunkOffsetTable) and prevents us from reading
         // the rest of the image
         header.setChunkCount (getChunkOffsetTableSize (header));
@@ -1517,7 +1517,7 @@ testWriteRead (int partNumber)
             }
             catch (std::exception& e)
             {
-                cout << "recieved exception (" << e.what ()
+                cout << "received exception (" << e.what ()
                      << ") as expected\n";
                 caught = true;
                 // that's what we thought would happen
@@ -1537,7 +1537,7 @@ testWriteRead (int partNumber)
         }
         catch (std::exception& e)
         {
-            cout << "recieved exception (" << e.what () << ") as expected\n";
+            cout << "received exception (" << e.what () << ") as expected\n";
             caught = true;
             // that's what we thought would happen
         }

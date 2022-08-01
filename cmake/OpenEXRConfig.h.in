@@ -26,13 +26,13 @@
 // C++ namespace configuration / options
 
 //
-// Current internal library namepace name
+// Current internal library namespace name
 //
 #define OPENEXR_IMF_INTERNAL_NAMESPACE_CUSTOM @OPENEXR_NAMESPACE_CUSTOM@
 #define OPENEXR_IMF_INTERNAL_NAMESPACE @OPENEXR_INTERNAL_IMF_NAMESPACE@
 
 //
-// Current public user namepace name
+// Current public user namespace name
 //
 
 #define OPENEXR_IMF_NAMESPACE_CUSTOM @OPENEXR_NAMESPACE_CUSTOM@

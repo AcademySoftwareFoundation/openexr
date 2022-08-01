@@ -40,7 +40,7 @@ differences between platforms, hence this document to add
 clarity. Each compiler / platform describes their own behavior, but
 not how that behaves relative to
 others. [libc++](https://libcxx.llvm.org/docs/DesignDocs/VisibilityMacros.html)
-from the llvm project is the closest to providing comparitive
+from the llvm project is the closest to providing comparative
 information, where by looking at how they define their macros and the
 comments surrounding, one can infer the behavior among at least
 windows DLL mode, then gcc vs. clang for unixen. Other compilers, for
