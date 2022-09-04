@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) Contributors to the OpenEXR Project.
 
+set(IMF_HAVE_SSE4_1_TEST 0)
 if(WIN32)
 <<<<<<< HEAD
     # Windows does not have a macro for SSE4.1 support so we need to use the
@@ -26,9 +27,12 @@ if(WIN32)
 endif()
 <<<<<<< HEAD
 set(IMF_HAVE_SSE4_1 ${IMF_HAVE_SSE4_1_TEST} CACHE BOOL "Enable SSE4.1 support")
+<<<<<<< HEAD
 =======
 set(IMF_HAVE_SSE4_1 ${IMF_HAVE_SSE4_1_TEST} CACHE BOOL "Whether SSE4.1 support is available")
 >>>>>>> 193e0fee (Initial check in)
 if(IMF_HAVE_SSE4_1)
     add_compile_definitions(-DIMF_HAVE_SSE4_1=1)
 endif()
+=======
+>>>>>>> ff3ecfe0 (Compile definition fixes)
