@@ -22,7 +22,13 @@
 #endif
 #if defined __SSE4_1__
 #    define IMF_HAVE_SSE4_1 1
-#    include <smmintrin.h>
+#endif
+#if defined IMF_HAVE_SSE4_1
+#    if defined _MSC_VER
+#        include <intrin.h>
+#    else
+#        include <smmintrin.h>
+#    endif
 #endif
 
 /**************************************/

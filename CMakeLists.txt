@@ -56,6 +56,7 @@ if(OPENEXR_INSTALL_TOOLS AND NOT OPENEXR_INSTALL)
 endif()
 
 include(cmake/LibraryDefine.cmake)
+include(cmake/SSE4-Win32.cmake)
 include(cmake/OpenEXRSetup.cmake)
 add_subdirectory(cmake)
 

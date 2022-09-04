@@ -49,7 +49,11 @@ extern "C" {
 #endif
 
 #ifdef IMF_HAVE_SSE4_1
-#    include <smmintrin.h>
+#    ifdef _MSC_VER
+#        include <intrin.h>
+#    else
+#        include <smmintrin.h>
+#    endif
 #endif
 }
 
