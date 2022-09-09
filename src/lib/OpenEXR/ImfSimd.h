@@ -12,8 +12,8 @@
 //    IMF_HAVE_SSE4_1 - Defined if it's safe to compile SSE4.1 optimizations
 //
 
-// GCC and Visual Studio SSE2 compiler flags
-#if defined __SSE2__ || (_MSC_VER >= 1300 && (_M_IX86 || _M_X64))
+// GCC compiler flags
+#if defined __SSE2__
 #    define IMF_HAVE_SSE2 1
 #endif
 
@@ -49,11 +49,7 @@ extern "C" {
 #endif
 
 #ifdef IMF_HAVE_SSE4_1
-#    ifdef _MSC_VER
-#        include <intrin.h>
-#    else
-#        include <smmintrin.h>
-#    endif
+#    include <smmintrin.h>
 #endif
 }
 

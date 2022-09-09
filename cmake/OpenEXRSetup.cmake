@@ -116,6 +116,42 @@ if(NOT CMAKE_INSTALL_RPATH)
   set(isSystemDir)
 endif()
 
+# SIMD support options
+#
+# GCC compiler options reference:
+# https://gcc.gnu.org/onlinedocs/gcc/x86-Options.html
+#
+# MSVC compiler options reference:
+#https://docs.microsoft.com/en-us/cpp/build/reference/arch-x86?view=msvc-170
+set(OPENEXR_SIMD_DEFINES)
+set(OPENEXR_SIMD_OPTIONS)
+set(IMF_HAVE_SSE2 FALSE CACHE BOOL "Compile with SSE2 support")
+if(IMF_HAVE_SSE2)
+    if(MSVC)
+		# MSVC can use SSE2 by including the proper header file.
+		list(APPEND OPENEXR_SIMD_DEFINES "-DIMF_HAVE_SSE2=1")
+	else()
+		list(APPEND OPENEXR_SIMD_OPTIONS "-msse2")
+	endif()
+endif()
+set(IMF_HAVE_SSE4_1 FALSE CACHE BOOL "Compile with SSE4.1 support")
+if(IMF_HAVE_SSE4_1)
+    if(MSVC)
+		# MSVC can use SSE4.1 by including the proper header file.
+		list(APPEND OPENEXR_SIMD_DEFINES "-DIMF_HAVE_SSE4_1=1")
+	else()
+		list(APPEND OPENEXR_SIMD_OPTIONS "-msse4.1")
+	endif()
+endif()
+set(IMF_HAVE_AVX FALSE CACHE BOOL "Compile with AVX support")
+if(IMF_HAVE_AVX)
+    if(MSVC)
+		list(APPEND OPENEXR_SIMD_OPTIONS "/arch:AVX")
+	else()
+		list(APPEND OPENEXR_SIMD_OPTIONS "-mavx")
+	endif()
+endif()
+
 ########################
 
 # set a default build type if not set
