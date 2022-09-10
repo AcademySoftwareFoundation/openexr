@@ -19,6 +19,7 @@ add_executable(OpenEXRTest
   testCopyDeepTiled.cpp
   testCopyMultiPartFile.cpp
   testCopyPixels.cpp
+  testCpuId.cpp
   testCustomAttributes.cpp
   testDeepScanLineBasic.cpp
   testDeepScanLineHuge.cpp
@@ -65,7 +66,8 @@ add_executable(OpenEXRTest
   testXdr.cpp
   testYca.cpp
 )
-target_compile_definitions(OpenEXRTest PRIVATE ILM_IMF_TEST_IMAGEDIR="${CMAKE_CURRENT_SOURCE_DIR}/")
+target_compile_definitions(OpenEXRTest PRIVATE ILM_IMF_TEST_IMAGEDIR="${CMAKE_CURRENT_SOURCE_DIR}/" ${OPENEXR_SIMD_DEFINES})
+target_compile_options(OpenEXRTest PRIVATE ${OPENEXR_SIMD_OPTIONS})
 target_link_libraries(OpenEXRTest OpenEXR::OpenEXR)
 set_target_properties(OpenEXRTest PROPERTIES
   RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
@@ -94,6 +96,7 @@ define_openexr_tests(
  testCopyDeepTiled
  testCopyMultiPartFile
  testCopyPixels
+ testCpuId
  testCustomAttributes
  testDeepScanLineBasic
  testDeepScanLineMultipleRead

@@ -22,6 +22,7 @@
 #include "testCopyDeepTiled.h"
 #include "testCopyMultiPartFile.h"
 #include "testCopyPixels.h"
+#include "testCpuId.h"
 #include "testCustomAttributes.h"
 #include "testDeepScanLineBasic.h"
 #include "testDeepScanLineHuge.h"
@@ -230,6 +231,7 @@ main (int argc, char* argv[])
     TEST (testB44ExpLogTable, "core");
     TEST (testDwaLookups, "core");
     TEST (testIDManifest, "core");
+    TEST (testCpuId, "core");
 
     // NB: If you add a test here, make sure to enumerate it in the
     // CMakeLists.txt so it runs as part of the test suite
