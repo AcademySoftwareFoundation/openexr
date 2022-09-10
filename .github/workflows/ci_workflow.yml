@@ -71,6 +71,7 @@ jobs:
             cxx-compiler: g++
             cc-compiler: gcc
             compiler-desc: gcc9.3.1
+            simd-enabled: 'OFF'
             label: 
             threads-enabled: 'ON'
             vfx-cy: 2022
@@ -84,6 +85,7 @@ jobs:
             cxx-compiler: g++
             cc-compiler: gcc
             compiler-desc: gcc9.3.1
+            simd-enabled: 'OFF'
             label: 
             threads-enabled: 'OFF'
             vfx-cy: 2022
@@ -97,6 +99,7 @@ jobs:
             cxx-compiler: g++
             cc-compiler: gcc
             compiler-desc: gcc9.3.1
+            simd-enabled: 'OFF'
             label: 
             threads-enabled: 'ON'
             vfx-cy: 2022
@@ -110,6 +113,7 @@ jobs:
             cxx-compiler: g++
             cc-compiler: gcc
             compiler-desc: gcc9.3.1
+            simd-enabled: 'OFF'
             label: 
             threads-enabled: 'ON'
             vfx-cy: 2022
@@ -123,6 +127,7 @@ jobs:
             cxx-compiler: g++
             cc-compiler: gcc
             compiler-desc: gcc9.3.1
+            simd-enabled: 'OFF'
             label: 
             threads-enabled: 'ON'
             vfx-cy: 2022
@@ -153,6 +158,7 @@ jobs:
             cxx-compiler: clang++
             cc-compiler: clang
             compiler-desc: clang10
+            simd-enabled: 'OFF'
             label: 
             threads-enabled: 'ON'
             vfx-cy: 2022
@@ -166,6 +172,7 @@ jobs:
             cxx-compiler: clang++
             cc-compiler: clang
             compiler-desc: clang10
+            simd-enabled: 'OFF'
             label: 
             threads-enabled: 'ON'
             vfx-cy: 2022
@@ -179,6 +186,7 @@ jobs:
             cxx-compiler: clang++
             cc-compiler: clang
             compiler-desc: clang10
+            simd-enabled: 'OFF'
             label: 
             threads-enabled: 'ON'
             vfx-cy: 2022
@@ -192,6 +200,7 @@ jobs:
             cxx-compiler: clang++
             cc-compiler: clang
             compiler-desc: clang10
+            simd-enabled: 'OFF'
             label: 
             threads-enabled: 'ON'
             vfx-cy: 2022
@@ -208,6 +217,7 @@ jobs:
             cxx-compiler: g++
             cc-compiler: gcc
             compiler-desc: gcc9.3.1
+            simd-enabled: 'OFF'
             label: 
             threads-enabled: 'ON'
             vfx-cy: 2021
@@ -224,6 +234,7 @@ jobs:
             cxx-compiler: g++
             cc-compiler: gcc
             compiler-desc: gcc6.3.1
+            simd-enabled: 'OFF'
             label: 
             threads-enabled: 'ON'
             vfx-cy: 2020
@@ -240,6 +251,7 @@ jobs:
             cxx-compiler: g++
             cc-compiler: gcc
             compiler-desc: gcc6.3.1
+            simd-enabled: 'OFF'
             label: 
             threads-enabled: 'ON'
             vfx-cy: 2019
@@ -256,6 +268,7 @@ jobs:
             cxx-compiler: g++
             cc-compiler: gcc
             compiler-desc: gcc6.3.1
+            simd-enabled: 'OFF'
             label: 'Legacy '
             threads-enabled: 'ON'
             vfx-cy: 2019
@@ -349,6 +362,7 @@ jobs:
             build-docs: 'OFF'
             compiler-desc: AppleClang11.0
             cxx-standard: 17
+            simd-enabled: 'OFF'
             osver: 10.15
             exclude-tests:
 
@@ -359,6 +373,7 @@ jobs:
             build-docs: 'OFF'
             compiler-desc: AppleClang11.0
             cxx-standard: 17
+            simd-enabled: 'OFF'
             osver: 10.15
             exclude-tests:
 
@@ -369,6 +384,7 @@ jobs:
             build-docs: 'OFF'
             compiler-desc: AppleClang11.0
             cxx-standard: 17
+            simd-enabled: 'OFF'
             osver: 10.15
             exclude-tests:
 
@@ -462,6 +478,7 @@ jobs:
             build-docs: 'OFF'
             compiler-desc: msvc16.11
             cxx-standard: 17
+            simd-enabled: 'OFF'
             vfx-cy: 2021
             exclude-tests: ''
             osver: 2019
@@ -473,6 +490,7 @@ jobs:
             build-docs: 'OFF'
             compiler-desc: msvc16.11
             cxx-standard: 17
+            simd-enabled: 'OFF'
             vfx-cy: 2021
             exclude-tests: ''
             osver: 2019
@@ -487,6 +505,7 @@ jobs:
             build-docs: 'OFF'
             compiler-desc: msvc17.1
             cxx-standard: 17
+            simd-enabled: 'OFF'
             vfx-cy: 2021
             exclude-tests: ''
             osver: 2022
@@ -498,6 +517,7 @@ jobs:
             build-docs: 'OFF'
             compiler-desc: msvc17.1
             cxx-standard: 17
+            simd-enabled: 'OFF'
             vfx-cy: 2021
             exclude-tests: ''
             osver: 2022
