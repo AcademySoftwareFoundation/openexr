@@ -47,6 +47,7 @@ jobs:
        C++${{ matrix.cxx-standard }},
        config=${{ matrix.build-type }},
        shared=${{ matrix.build-shared }},
+       simd=${{ matrix.simd-enabled }}, 
        threads=${{ matrix.threads-enabled }}>'
     # GH-hosted VM. The build runs in CentOS 7 'container' defined below.
     runs-on: ubuntu-latest
@@ -331,7 +332,7 @@ jobs:
        C++${{ matrix.cxx-standard }},
        config=${{ matrix.build-type }},
        shared=${{ matrix.build-shared }},
-       cxx=${{ matrix.cxx-standard }},
+       simd=${{ matrix.simd-enabled }}, 
        docs=${{ matrix.build-docs }}>'
     runs-on: macos-${{ matrix.osver }}
     strategy:
@@ -441,9 +442,10 @@ jobs:
   windows:
     name: 'Windows VFXP-2022
       <${{ matrix.compiler-desc }},
+       C++${{ matrix.cxx-standard }},
        config=${{ matrix.build-type }}, 
        shared=${{ matrix.build-shared }}, 
-       cxx=${{ matrix.cxx-standard }}, 
+       simd=${{ matrix.simd-enabled }}, 
        docs=${{ matrix.build-docs }}>'
     runs-on: windows-${{ matrix.osver }}
     strategy:
