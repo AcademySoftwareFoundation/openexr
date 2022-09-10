@@ -56,7 +56,7 @@ jobs:
       image: aswf/ci-openexr:${{ matrix.vfx-cy }}
     strategy:
       matrix:
-        build: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
+        build: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
         include:
 
           # -------------------------------------------------------------------
@@ -127,11 +127,25 @@ jobs:
             vfx-cy: 2022
             exclude-tests:
 
+          # SIMD
+          - build: 6
+            build-type: Release
+            build-shared: 'ON'
+            cxx-standard: 17
+            cxx-compiler: g++
+            cc-compiler: gcc
+            compiler-desc: gcc9.3.1
+            simd-enabled: 'ON'
+            label: 
+            threads-enabled: 'ON'
+            vfx-cy: 2022
+            exclude-tests:
+
           # -------------------------------------------------------------------
           # VFX CY2021 - Clang
           # -------------------------------------------------------------------
           # Release
-          - build: 6
+          - build: 7
             build-type: Release
             build-shared: 'ON'
             cxx-standard: 17
@@ -144,7 +158,7 @@ jobs:
             exclude-tests:
 
           # Debug
-          - build: 7
+          - build: 8
             build-type: Debug
             build-shared: 'ON'
             cxx-standard: 17
@@ -157,7 +171,7 @@ jobs:
             exclude-tests:
 
           # Static, Release
-          - build: 8
+          - build: 9
             build-type: Release
             build-shared: 'ON'
             cxx-standard: 17
@@ -170,7 +184,7 @@ jobs:
             exclude-tests:
 
           # Static, Debug
-          - build: 9
+          - build: 10
             build-type: Debug
             build-shared: 'OFF'
             cxx-standard: 17
@@ -186,7 +200,7 @@ jobs:
           # VFX CY2021 - GCC, Release
           # -------------------------------------------------------------------
           # Shared, Release
-          - build: 10
+          - build: 11
             build-type: Release
             build-shared: 'ON'
             cxx-standard: 17
@@ -202,7 +216,7 @@ jobs:
           # VFX CY2020 - GCC, Release
           # -------------------------------------------------------------------
           # Shared, Release
-          - build: 11
+          - build: 12
             build-type: Release
             build-shared: 'ON'
             cxx-standard: 14
@@ -218,7 +232,7 @@ jobs:
           # VFX CY2019 - GCC, Release
           # -------------------------------------------------------------------
           # Shared, Release
-          - build: 12
+          - build: 13
             build-type: Release
             build-shared: 'ON'
             cxx-standard: 14
@@ -234,7 +248,7 @@ jobs:
           # Legacy - VFX CY2019 - C++11
           # -------------------------------------------------------------------
           # Shared, Release
-          - build: 13
+          - build: 14
             build-type: Release
             build-shared: 'ON'
             cxx-standard: 11
@@ -268,7 +282,10 @@ jobs:
                 -DBUILD_SHARED_LIBS=${{ matrix.build-shared }} \
                 -DOPENEXR_BUILD_TOOLS='ON' \
                 -DOPENEXR_RUN_FUZZ_TESTS='OFF' \
-                -DOPENEXR_ENABLE_THREADING=${{ matrix.threads-enabled }}
+                -DOPENEXR_ENABLE_THREADING=${{ matrix.threads-enabled }} \
+                -DIMF_HAVE_SSE2=${{ matrix.simd-enabled }} \
+                -DIMF_HAVE_SSE4_1=${{ matrix.simd-enabled }} \
+                -DIMF_HAVE_AVX=${{ matrix.simd-enabled }}
         working-directory: _build
       - name: Build
         run: |
@@ -319,7 +336,7 @@ jobs:
     runs-on: macos-${{ matrix.osver }}
     strategy:
       matrix:
-        build: [1, 2, 3]
+        build: [1, 2, 3, 4]
         include:
           # -------------------------------------------------------------------
           # VFX CY2022 - C++17 
@@ -353,6 +370,17 @@ jobs:
             cxx-standard: 17
             osver: 10.15
             exclude-tests:
+
+          # SIMD
+          - build: 4
+            build-type: Release
+            build-shared: 'OFF'
+            build-docs: 'OFF'
+            compiler-desc: AppleClang11.0
+            cxx-standard: 17
+            simd-enabled: 'ON'
+            osver: 10.15
+            exclude-tests:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -371,7 +399,10 @@ jobs:
                 -DCMAKE_VERBOSE_MAKEFILE:BOOL='OFF' \
                 -DBUILD_SHARED_LIBS=${{ matrix.build-shared }} \
                 -DOPENEXR_BUILD_TOOLS='ON' \
-                -DOPENEXR_RUN_FUZZ_TESTS='OFF'
+                -DOPENEXR_RUN_FUZZ_TESTS='OFF' \
+                -DIMF_HAVE_SSE2=${{ matrix.simd-enabled }} \
+                -DIMF_HAVE_SSE4_1=${{ matrix.simd-enabled }} \
+                -DIMF_HAVE_AVX=${{ matrix.simd-enabled }}
         working-directory: _build
       - name: Build
         run: |
@@ -417,7 +448,7 @@ jobs:
     runs-on: windows-${{ matrix.osver }}
     strategy:
       matrix:
-        build: [1, 2, 3, 4]
+        build: [1, 2, 3, 4, 5]
         include:
           # -------------------------------------------------------------------
           # VFX CY2022 - C++17 - Windows 2019
@@ -469,6 +500,18 @@ jobs:
             exclude-tests: ''
             osver: 2022
 
+          # Static, Release, SIMD
+          - build: 5
+            build-type: Release
+            build-shared: 'OFF'
+            build-docs: 'OFF'
+            compiler-desc: msvc17.1
+            cxx-standard: 17
+            simd-enabled: 'ON'
+            vfx-cy: 2021
+            exclude-tests: ''
+            osver: 2022
+
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -494,7 +537,10 @@ jobs:
                 -DCMAKE_VERBOSE_MAKEFILE:BOOL='OFF' \
                 -DBUILD_SHARED_LIBS=${{ matrix.build-shared }} \
                 -DOPENEXR_BUILD_TOOLS='ON' \
-                -DOPENEXR_RUN_FUZZ_TESTS='OFF' 
+                -DOPENEXR_RUN_FUZZ_TESTS='OFF'  \
+                -DIMF_HAVE_SSE2=${{ matrix.simd-enabled }} \
+                -DIMF_HAVE_SSE4_1=${{ matrix.simd-enabled }} \
+                -DIMF_HAVE_AVX=${{ matrix.simd-enabled }}
         shell: bash
         working-directory: _build
       - name: Build
