@@ -12,12 +12,12 @@
 //    IMF_HAVE_SSE4_1 - Defined if it's safe to compile SSE4.1 optimizations
 //
 
-// GCC compiler flags
-#if defined __SSE2__
+// GCC and Visual Studio SSE2 compiler flags
+#if defined __SSE2__ || (_MSC_VER && (_M_IX86 || _M_X64))
 #    define IMF_HAVE_SSE2 1
 #endif
 
-#if defined __SSE4_1__
+#if defined __SSE4_1__ || (_MSC_VER && (_M_IX86 || _M_X64))
 #    define IMF_HAVE_SSE4_1 1
 #endif
 

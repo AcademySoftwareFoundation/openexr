@@ -40,6 +40,8 @@ public:
     //
     int uncompress (const char* compressed, int compressedSize, char* raw);
 
+    static void initializeFuncs ();
+
 private:
     size_t _maxRawSize;
     char*  _tmpBuffer;

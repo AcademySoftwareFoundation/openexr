@@ -62,12 +62,6 @@ function(OPENEXR_DEFINE_LIBRARY libname)
     target_compile_options(${objlib} PUBLIC ${_openexr_extra_flags})
   endif()
   set_property(TARGET ${objlib} PROPERTY PUBLIC_HEADER ${OPENEXR_CURLIB_HEADERS})
-  if(OPENEXR_SIMD_DEFINES)
-    target_compile_definitions(${objlib} PRIVATE ${OPENEXR_SIMD_DEFINES})
-  endif()
-  if(OPENEXR_SIMD_OPTIONS)
-    target_compile_options(${objlib} PRIVATE ${OPENEXR_SIMD_OPTIONS})
-  endif()
 
   if(BUILD_SHARED_LIBS)
     set_target_properties(${libname} PROPERTIES
