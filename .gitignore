@@ -50,3 +50,4 @@ build-win/
 build-nuget/
 *~
 .vscode
+.envrc
