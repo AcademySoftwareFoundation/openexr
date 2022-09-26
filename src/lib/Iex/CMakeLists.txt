@@ -5,6 +5,7 @@ openexr_define_library(Iex
   PRIV_EXPORT IEX_EXPORTS
   CURDIR ${CMAKE_CURRENT_SOURCE_DIR}
   SOURCES
+    IexMathFpu.h
     IexBaseExc.cpp
     IexMathFloatExc.cpp
     IexMathFpu.cpp
