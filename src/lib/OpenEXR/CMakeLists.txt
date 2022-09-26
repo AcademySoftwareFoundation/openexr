@@ -5,6 +5,30 @@ openexr_define_library(OpenEXR
   PRIV_EXPORT OPENEXR_EXPORTS
   CURDIR ${CMAKE_CURRENT_SOURCE_DIR}
   SOURCES
+    ImfAutoArray.h
+    ImfB44Compressor.h
+    ImfCheckedArithmetic.h
+    ImfCompressor.h
+    ImfDwaCompressor.h
+    ImfDwaCompressorSimd.h
+    ImfFastHuf.h
+    ImfInputPartData.h
+    ImfInputStreamMutex.h
+    ImfMisc.h
+    ImfOptimizedPixelReading.h
+    ImfOutputPartData.h
+    ImfOutputStreamMutex.h
+    ImfPizCompressor.h
+    ImfPxr24Compressor.h
+    ImfRle.h
+    ImfRleCompressor.h
+    ImfScanLineInputFile.h
+    ImfSimd.h
+    ImfSystemSpecific.h
+    ImfTileOffsets.h
+    ImfTiledMisc.h
+    ImfZip.h
+    ImfZipCompressor.h
     b44ExpLogTable.h
     dwaLookups.h
     ImfAcesFile.cpp
