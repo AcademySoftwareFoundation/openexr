@@ -317,6 +317,13 @@ public:
     // Attempting to access a tile that is not present in the file
     // throws an InputExc exception.
     //
+    // The readTile/readTiles flavors that are passed a `FrameBuffer&`
+    // are thread-safe when called at the same time as other threads
+    // make calls to readTiles(fb,...). The reading functions that
+    // rely on saved state from a prior call to setFrameBuffer() are
+    // NOT safe to call when multiple threads are using the same
+    // TiledInputFile.
+    //
     //------------------------------------------------------------
 
     IMF_EXPORT
@@ -326,9 +333,32 @@ public:
 
     IMF_EXPORT
     void readTiles (int dx1, int dx2, int dy1, int dy2, int lx, int ly);
-
     IMF_EXPORT
     void readTiles (int dx1, int dx2, int dy1, int dy2, int l = 0);
+
+    IMF_EXPORT
+    void readTile (const FrameBuffer& frameBuffer, int dx, int dy, int l = 0);
+    IMF_EXPORT
+    void
+    readTile (const FrameBuffer& frameBuffer, int dx, int dy, int lx, int ly);
+
+    IMF_EXPORT
+    void readTiles (
+        const FrameBuffer& frameBuffer,
+        int                dx1,
+        int                dx2,
+        int                dy1,
+        int                dy2,
+        int                lx,
+        int                ly);
+    IMF_EXPORT
+    void readTiles (
+        const FrameBuffer& frameBuffer,
+        int                dx1,
+        int                dx2,
+        int                dy1,
+        int                dy2,
+        int                l = 0);
 
     //--------------------------------------------------
     // Read a tile of raw pixel data from the file,
