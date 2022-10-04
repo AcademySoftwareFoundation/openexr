@@ -243,7 +243,7 @@ restoreControlRegs (const ucontext_t& ucon, bool clearExceptions)
 inline void
 restoreControlRegs (const ucontext_t& ucon, bool clearExceptions)
 {
-#        if defined(__GLIBC__) && defined(__i386__)
+#        if (defined(__GLIBC__) && defined(__i386__)) || defined(__ANDROID_API__)
     setCw ((ucon.uc_mcontext.fpregs->cw & cwRestoreMask) | cwRestoreVal);
 #        else
     setCw ((ucon.uc_mcontext.fpregs->cwd & cwRestoreMask) | cwRestoreVal);
