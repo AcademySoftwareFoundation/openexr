@@ -19,6 +19,7 @@ add_executable(OpenEXRTest
   testCopyDeepTiled.cpp
   testCopyMultiPartFile.cpp
   testCopyPixels.cpp
+  testCpuId.cpp
   testCustomAttributes.cpp
   testDeepScanLineBasic.cpp
   testDeepScanLineHuge.cpp
@@ -94,6 +95,7 @@ define_openexr_tests(
  testCopyDeepTiled
  testCopyMultiPartFile
  testCopyPixels
+ testCpuId
  testCustomAttributes
  testDeepScanLineBasic
  testDeepScanLineMultipleRead

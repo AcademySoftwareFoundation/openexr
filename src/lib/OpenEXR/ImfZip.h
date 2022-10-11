@@ -41,10 +41,12 @@ class Zip
         int uncompress(const char *compressed, int compressedSize,
                                                  char *raw);
 
-    private:
-        size_t _maxRawSize;
-        char  *_tmpBuffer;
-        int    _zipLevel;
+    static void initializeFuncs ();
+
+private:
+    size_t _maxRawSize;
+    char*  _tmpBuffer;
+    int    _zipLevel;
 };
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
