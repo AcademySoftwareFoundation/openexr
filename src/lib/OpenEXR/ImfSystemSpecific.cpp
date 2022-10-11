@@ -8,6 +8,9 @@
 #include "ImfNamespace.h"
 #include "OpenEXRConfig.h"
 #include "OpenEXRConfigInternal.h"
+#if defined(_MSC_VER)
+#include <intrin.h>
+#endif
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
@@ -23,6 +26,20 @@ namespace {
             : /* Input   */ "a"(n)
             : /* Clobber */);
     }
+
+#elif defined(_MSC_VER)
+
+// Helper functions for MSVC
+void
+cpuid (int n, int& eax, int& ebx, int& ecx, int& edx)
+{
+    int cpuInfo[4] = { -1 };
+    __cpuid (cpuInfo, n);
+    eax = cpuInfo[0];
+    ebx = cpuInfo[1];
+    ecx = cpuInfo[2];
+    edx = cpuInfo[3];
+}
 
 #else // IMF_HAVE_SSE2 && __GNUC__ && !__e2k__
 

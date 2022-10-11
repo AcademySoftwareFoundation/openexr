@@ -10,8 +10,28 @@
 #include "ImfNamespace.h"
 #include "OpenEXRConfigInternal.h"
 
-#include "testXdr.h"
-#include "testMagic.h"
+#include "testAttributes.h"
+#include "testB44ExpLogTable.h"
+#include "testBackwardCompatibility.h"
+#include "testBadTypeAttributes.h"
+#include "testChannels.h"
+#include "testCompositeDeepScanLine.h"
+#include "testCompression.h"
+#include "testConversion.h"
+#include "testCopyDeepScanLine.h"
+#include "testCopyDeepTiled.h"
+#include "testCopyMultiPartFile.h"
+#include "testCopyPixels.h"
+#include "testCpuId.h"
+#include "testCustomAttributes.h"
+#include "testDeepScanLineBasic.h"
+#include "testDeepScanLineHuge.h"
+#include "testDeepScanLineMultipleRead.h"
+#include "testDeepTiledBasic.h"
+#include "testDwaCompressorSimd.h"
+#include "testDwaLookups.h"
+#include "testExistingStreams.h"
+#include "testFutureProofing.h"
 #include "testHuf.h"
 #include "testWav.h"
 #include "testChannels.h"
@@ -23,6 +43,7 @@
 #include "testRgba.h"
 #include "testRgbaThreading.h"
 #include "testLut.h"
+#include "testMagic.h"
 #include "testSampleImages.h"
 #include "testPreviewImage.h"
 #include "testConversion.h"
@@ -67,7 +88,7 @@
 #include "testB44ExpLogTable.h"
 #include "testDwaLookups.h"
 #include "testIDManifest.h"
-
+#include "testXdr.h"
 #include "tmpDir.h"
 #include "ImathRandom.h"
 
@@ -231,6 +252,7 @@ main (int argc, char *argv[])
     TEST (testB44ExpLogTable, "core");
     TEST (testDwaLookups, "core");
     TEST (testIDManifest, "core");
+    TEST (testCpuId, "core");
 
     // NB: If you add a test here, make sure to enumerate it in the
     // CMakeLists.txt so it runs as part of the test suite

@@ -1499,11 +1499,17 @@ staticInitialize ()
 	V3dAttribute::registerAttributeType();
 	V3fAttribute::registerAttributeType();
 	V3iAttribute::registerAttributeType();
-	DwaCompressor::initializeFuncs();
-    IDManifestAttribute::registerAttributeType();
+        IDManifestAttribute::registerAttributeType();
 
+        //
+        // Register functions, for example specialized functions
+        // for different CPU architectures.
+        //
 
-	initialized = true;
+        DwaCompressor::initializeFuncs ();
+        Zip::initializeFuncs ();
+
+        initialized = true;
     }
 }
 
