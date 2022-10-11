@@ -1500,8 +1500,15 @@ staticInitialize ()
         V3dAttribute::registerAttributeType ();
         V3fAttribute::registerAttributeType ();
         V3iAttribute::registerAttributeType ();
-        DwaCompressor::initializeFuncs ();
         IDManifestAttribute::registerAttributeType ();
+
+        //
+        // Register functions, for example specialized functions
+        // for different CPU architectures.
+        //
+
+        DwaCompressor::initializeFuncs ();
+        Zip::initializeFuncs ();
 
         initialized = true;
     }
