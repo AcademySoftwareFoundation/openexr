@@ -12,7 +12,7 @@ def openexr_deps():
     maybe(
         http_archive,
         name = "net_zlib_zlib",
-        build_file = "@openexr//:bazel/third_party/zlib.BUILD",
+        build_file = "@com_openexr//:bazel/third_party/zlib.BUILD",
         sha256 = "b3a24de97a8fdbc835b9833169501030b8977031bcb54b3b3ac13740f846ab30",
         strip_prefix = "zlib-1.2.13",
         urls = [
@@ -28,7 +28,7 @@ def openexr_deps():
     maybe(
         http_archive,
         name = "Imath",
-        build_file = "@openexr//:bazel/third_party/Imath.BUILD",
+        build_file = "@com_openexr//:bazel/third_party/Imath.BUILD",
         strip_prefix = "Imath-3.1.5",
         sha256 = "1e9c7c94797cf7b7e61908aed1f80a331088cc7d8873318f70376e4aed5f25fb",
         urls = ["https://github.com/AcademySoftwareFoundation/Imath/archive/refs/tags/v3.1.5.tar.gz"],
