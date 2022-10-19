@@ -1,10 +1,11 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) Contributors to the OpenEXR Project.
 
-load("@openexr//:bazel/third_party/generate_header.bzl", "generate_header")
+load("@bazel_skylib//rules:expand_template.bzl", "expand_template")
 
-generate_header(
-    name = "ImathConfig.h",
+expand_template(
+    name = "ImathConfig",
+    out = "ImathConfig.h",
     substitutions = {
         "@IMATH_INTERNAL_NAMESPACE@": "Imath_3_1",
         "@IMATH_LIB_VERSION@": "3.1.5",
