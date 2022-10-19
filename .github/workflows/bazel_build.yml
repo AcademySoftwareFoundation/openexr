@@ -38,7 +38,7 @@ jobs:
       uses: actions/cache@v2
       with:
         path: "/home/runner/.cache/bazel"
-        key: bazel
+        key: bazel-ubuntu
 
     - name: Build
       run: |
@@ -55,7 +55,24 @@ jobs:
       uses: actions/cache@v2
       with:
         path: "/home/runner/.cache/bazel"
-        key: bazel
+        key: bazel-windows
+
+    - name: Build
+      run: |
+        bazelisk build //...
+
+  build_and_test_macos:
+    name: macOS 12 Bazel build <Apple Clang14>
+    runs-on: macos-12
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Mount Bazel cache
+      uses: actions/cache@v2
+      with:
+        path: "/home/runner/.cache/bazel"
+        key: bazel-macos
 
     - name: Build
       run: |
