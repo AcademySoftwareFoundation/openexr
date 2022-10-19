@@ -3,7 +3,7 @@
 
 #include <string>
 
-// Function copied (with minior modifications) from pbrt-v3 (https://github.com/mmp/pbrt-v3) which is under BSD-2-Clause License
+// Function copied (with minor modifications) from pbrt-v3 (https://github.com/mmp/pbrt-v3) which is under BSD-2-Clause License
 static void
 WriteImageEXR (
     const std::string& name,

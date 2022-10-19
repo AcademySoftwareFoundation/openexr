@@ -5,7 +5,7 @@ load("@bazel_skylib//rules:expand_template.bzl", "expand_template")
 
 expand_template(
     name = "ImathConfig",
-    out = "ImathConfig.h",
+    out = "src/Imath/ImathConfig.h",
     substitutions = {
         "@IMATH_INTERNAL_NAMESPACE@": "Imath_3_1",
         "@IMATH_LIB_VERSION@": "3.1.5",
@@ -39,6 +39,7 @@ cc_library(
         "src/Imath/ImathBoxAlgo.h",
         "src/Imath/ImathColor.h",
         "src/Imath/ImathColorAlgo.h",
+        "src/Imath/ImathConfig.h",
         "src/Imath/ImathEuler.h",
         "src/Imath/ImathExport.h",
         "src/Imath/ImathForward.h",
@@ -72,7 +73,4 @@ cc_library(
     ],
     includes = ["src/Imath"],
     visibility = ["//visibility:public"],
-    deps = [
-        ":ImathConfig.h",
-    ],
 )
