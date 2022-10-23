@@ -1757,6 +1757,7 @@ internal_huf_decompress (
     const uint8_t*                      ptr;
     exr_result_t                        rv;
     const struct _internal_exr_context* pctxt = NULL;
+    const uint64_t hufInfoBlockSize           = 5 * sizeof (uint32_t);
 
     if (decode) pctxt = EXR_CCTXT (decode->context);
     //
@@ -1779,10 +1780,12 @@ internal_huf_decompress (
 
     if (im >= HUF_ENCSIZE || iM >= HUF_ENCSIZE) return EXR_ERR_CORRUPT_CHUNK;
 
-    ptr = compressed + 20;
+    ptr = compressed + hufInfoBlockSize;
 
     nBytes = (((uint64_t) (nBits) + 7)) / 8;
-    if (ptr + nBytes > compressed + nCompressed) return EXR_ERR_OUT_OF_MEMORY;
+
+    // must be nBytes remaining in buffer
+    if (hufInfoBlockSize + nBytes > nCompressed) return EXR_ERR_OUT_OF_MEMORY;
 
     //
     // Fast decoder needs at least 2x64-bits of compressed data, and
@@ -1793,14 +1796,13 @@ internal_huf_decompress (
     {
         FastHufDecoder* fhd = (FastHufDecoder*) spare;
 
-        // must be nBytes remaining in buffer
-        if (ptr - compressed + nBytes > (uint64_t) nCompressed)
-            return EXR_ERR_OUT_OF_MEMORY;
-
-        rv = fasthuf_initialize (
-            pctxt, fhd, &ptr, nCompressed - (ptr - compressed), im, iM, iM);
+        rv = fasthuf_initialize (pctxt, fhd, &ptr, nCompressed - hufInfoBlockSize, im, iM, iM);
         if (rv == EXR_ERR_SUCCESS)
+        {
+            if ( (uint64_t)(ptr - compressed) + nBytes > nCompressed )
+                return EXR_ERR_OUT_OF_MEMORY;
             rv = fasthuf_decode (pctxt, fhd, ptr, nBits, raw, nRaw);
+        }
     }
     else
     {
