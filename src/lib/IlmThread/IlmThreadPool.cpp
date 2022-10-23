@@ -57,10 +57,10 @@ struct ThreadPool::Data
 
     Data ();
     ~Data ();
-    Data (const Data&) = delete;
+    Data (const Data&)            = delete;
     Data& operator= (const Data&) = delete;
     Data (Data&&)                 = delete;
-    Data& operator= (Data&&) = delete;
+    Data& operator= (Data&&)      = delete;
 
     struct SafeProvider
     {
@@ -97,7 +97,7 @@ struct ThreadPool::Data
         }
 
         inline ThreadPoolProvider* get () const { return _ptr; }
-        ThreadPoolProvider*        operator-> () const { return get (); }
+        ThreadPoolProvider*        operator->() const { return get (); }
 
         Data*               _data;
         ThreadPoolProvider* _ptr;
@@ -193,14 +193,11 @@ DefaultWorkerThread::run ()
                 TaskGroup* taskGroup = task->group ();
                 task->execute ();
 
-                delete task;
+                taskGroup->finishOneTask ();
 
-                taskGroup->_data->removeTask ();
+                delete task;
             }
-            else if (_data->stopped ())
-            {
-                break;
-            }
+            else if (_data->stopped ()) { break; }
         }
     }
 }
@@ -251,30 +248,24 @@ DefaultThreadPoolProvider::setNumThreads (int count)
     std::lock_guard<std::mutex> lock (_data.threadMutex);
 
     size_t desired = static_cast<size_t> (count);
-    if (desired > _data.threads.size ())
-    {
-        //
-        // Add more threads
-        //
+    size_t active  = 0;
 
-        while (_data.threads.size () < desired)
-            _data.threads.push_back (new DefaultWorkerThread (&_data));
-    }
-    else if ((size_t) count < _data.threads.size ())
-    {
-        //
-        // Wait until all existing threads are finished processing,
-        // then delete all threads.
-        //
+    // if we are reducing, finish processing and kill all the threads
+    if (desired < _data.threads.size ())
         finish ();
+    else
+        active = _data.threads.size ();
 
-        //
-        // Add in new threads
-        //
+    //
+    // Add more threads
+    //
+    size_t nToAdd = desired - active;
+    for (size_t i = 0; i < nToAdd; ++i)
+        _data.threads.push_back (new DefaultWorkerThread (&_data));
 
-        while (_data.threads.size () < desired)
-            _data.threads.push_back (new DefaultWorkerThread (&_data));
-    }
+    // wait for the threads to start up
+    for (size_t i = active; i < desired; ++i)
+        if (_data.threads[i]->joinable ()) _data.threadSemaphore.wait ();
 
     _data.hasThreads = !(_data.threads.empty ());
 }
@@ -312,7 +303,7 @@ DefaultThreadPoolProvider::addTask (Task* task)
         // this path shouldn't normally happen since we have the
         // NullThreadPoolProvider, but just in case...
         task->execute ();
-        task->group ()->_data->removeTask ();
+        task->group ()->finishOneTask ();
         delete task;
     }
 }
@@ -325,14 +316,6 @@ DefaultThreadPoolProvider::finish ()
     //
     // Signal enough times to allow all threads to stop.
     //
-    // Wait until all threads have started their run functions.
-    // If we do not wait before we destroy the threads then it's
-    // possible that the threads have not yet called their run
-    // functions.
-    // If this happens then the run function will be called off
-    // of an invalid object and we will crash, most likely with
-    // an error like: "pure virtual method called"
-    //
 
     size_t curT = _data.threads.size ();
     for (size_t i = 0; i != curT; ++i)
@@ -340,7 +323,6 @@ DefaultThreadPoolProvider::finish ()
         if (_data.threads[i]->joinable ())
         {
             _data.taskSemaphore.post ();
-            _data.threadSemaphore.wait ();
         }
     }
 
@@ -369,7 +351,7 @@ class NullThreadPoolProvider : public ThreadPoolProvider
     virtual void addTask (Task* t)
     {
         t->execute ();
-        t->group ()->_data->removeTask ();
+        t->group ()->finishOneTask ();
         delete t;
     }
     virtual void finish () {}
