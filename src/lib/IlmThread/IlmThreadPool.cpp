@@ -121,12 +121,11 @@ class DefaultWorkerThread;
 
 struct DefaultWorkData
 {
-    Semaphore          taskSemaphore; // threads wait on this for ready tasks
-    mutable std::mutex taskMutex;     // mutual exclusion for the tasks list
-    vector<Task*>      tasks;         // the list of tasks to execute
+    Semaphore taskSemaphore; // threads wait on this for ready tasks
+    mutable std::mutex taskMutex; // mutual exclusion for the tasks list
+    vector<Task*>      tasks;     // the list of tasks to execute
 
-    Semaphore threadSemaphore;      // signaled when a thread starts executing
-    mutable std::mutex threadMutex; // mutual exclusion for threads list
+    mutable std::mutex threadMutex;       // mutual exclusion for threads list
     vector<DefaultWorkerThread*> threads; // the list of all threads
 
     std::atomic<bool> hasThreads;
@@ -162,12 +161,6 @@ DefaultWorkerThread::DefaultWorkerThread (DefaultWorkData* data) : _data (data)
 void
 DefaultWorkerThread::run ()
 {
-    //
-    // Signal that the thread has started executing
-    //
-
-    _data->threadSemaphore.post ();
-
     while (true)
     {
         //
@@ -196,6 +189,9 @@ DefaultWorkerThread::run ()
                 taskGroup->finishOneTask ();
 
                 delete task;
+
+                // do not need to reacquire the lock at all since we
+                // will just loop around, pull any other task
             }
             else if (_data->stopped ()) { break; }
         }
@@ -241,31 +237,25 @@ DefaultThreadPoolProvider::numThreads () const
 void
 DefaultThreadPoolProvider::setNumThreads (int count)
 {
-    //
-    // Lock access to thread list and size
-    //
+    size_t desired = static_cast<size_t> (count);
+    size_t active  = numThreads();
 
+    // in order to make sure there isn't an undefined use in finish,
+    // finish needs to have the thread mutex lock to be able to join,
+    // such that if someone is changing the thread provider in one
+    // thread while another thread is calling setNumThreads
+    if (desired < active)
+    {
+        finish();
+        active = 0;
+    }
+
+    // now take the lock and build any threads needed
     std::lock_guard<std::mutex> lock (_data.threadMutex);
 
-    size_t desired = static_cast<size_t> (count);
-    size_t active  = 0;
-
-    // if we are reducing, finish processing and kill all the threads
-    if (desired < _data.threads.size ())
-        finish ();
-    else
-        active = _data.threads.size ();
-
-    //
-    // Add more threads
-    //
     size_t nToAdd = desired - active;
     for (size_t i = 0; i < nToAdd; ++i)
         _data.threads.push_back (new DefaultWorkerThread (&_data));
-
-    // wait for the threads to start up
-    for (size_t i = active; i < desired; ++i)
-        if (_data.threads[i]->joinable ()) _data.threadSemaphore.wait ();
 
     _data.hasThreads = !(_data.threads.empty ());
 }
@@ -311,34 +301,37 @@ DefaultThreadPoolProvider::addTask (Task* task)
 void
 DefaultThreadPoolProvider::finish ()
 {
+    std::lock_guard<std::mutex> lock (_data.threadMutex);
+
     _data.stop ();
 
     //
     // Signal enough times to allow all threads to stop.
     //
-
+    // NB: we must do this as many times as we have threads.
+    //
+    // If there is still work in the queue, or this call happens "too
+    // quickly", threads will not be waiting on the semaphore, so we
+    // need to ensure the semaphore is at a count equal to the amount
+    // of work left plus the number of threads to ensure exit of a
+    // thread. There can be threads in a few states:
+    //   - still starting up (successive calls to setNumThreads)
+    //   - in the middle of processing a task / looping
+    //   - waiting in the semaphore
     size_t curT = _data.threads.size ();
     for (size_t i = 0; i != curT; ++i)
-    {
-        if (_data.threads[i]->joinable ())
-        {
-            _data.taskSemaphore.post ();
-        }
-    }
+        _data.taskSemaphore.post ();
 
     //
-    // Join all the threads
+    // Join all the threads. We do not need to check joinability, the
+    // should all, by definition, be joinable
     //
     for (size_t i = 0; i != curT; ++i)
     {
-        if (_data.threads[i]->joinable ()) _data.threads[i]->join ();
+        _data.threads[i]->join ();
         delete _data.threads[i];
     }
-
-    std::lock_guard<std::mutex> lk (_data.taskMutex);
-
     _data.threads.clear ();
-    _data.tasks.clear ();
 
     _data.stopping = false;
 }
