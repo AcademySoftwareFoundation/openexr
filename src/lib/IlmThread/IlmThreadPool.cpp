@@ -119,8 +119,17 @@ namespace
 
 class DefaultWorkerThread;
 
+// seems like older linux also have problems besides win32
+//#if (defined(_WIN32) || defined(_WIN64))
+//#  define WAIT_FOR_THREAD_START 1
+//#endif
+#  define WAIT_FOR_THREAD_START 1
+
 struct DefaultWorkData
 {
+#ifdef WAIT_FOR_THREAD_START
+    Semaphore threadSemaphore; // threads wait on this for ready tasks
+#endif
     Semaphore taskSemaphore; // threads wait on this for ready tasks
     mutable std::mutex taskMutex; // mutual exclusion for the tasks list
     vector<Task*>      tasks;     // the list of tasks to execute
@@ -156,11 +165,18 @@ private:
 DefaultWorkerThread::DefaultWorkerThread (DefaultWorkData* data) : _data (data)
 {
     start ();
+#ifdef WAIT_FOR_THREAD_START
+    _data->threadSemaphore.wait();
+#endif
 }
 
 void
 DefaultWorkerThread::run ()
 {
+#ifdef WAIT_FOR_THREAD_START
+    // tell the parent thread we've started
+    _data->threadSemaphore.post();
+#endif
     while (true)
     {
         //
