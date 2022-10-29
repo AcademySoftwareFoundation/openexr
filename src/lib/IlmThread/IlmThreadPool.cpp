@@ -96,6 +96,8 @@ struct ThreadPool::Data
             return *this;
         }
 
+        explicit operator bool () const noexcept { return _ptr != nullptr; }
+
         inline ThreadPoolProvider* get () const { return _ptr; }
         ThreadPoolProvider*        operator->() const { return get (); }
 
@@ -123,16 +125,16 @@ class DefaultWorkerThread;
 //#if (defined(_WIN32) || defined(_WIN64))
 //#  define WAIT_FOR_THREAD_START 1
 //#endif
-#  define WAIT_FOR_THREAD_START 1
+//#    define WAIT_FOR_THREAD_START 1
 
 struct DefaultWorkData
 {
-#ifdef WAIT_FOR_THREAD_START
+#    ifdef WAIT_FOR_THREAD_START
     Semaphore threadSemaphore; // threads wait on this for ready tasks
-#endif
-    Semaphore taskSemaphore; // threads wait on this for ready tasks
-    mutable std::mutex taskMutex; // mutual exclusion for the tasks list
-    vector<Task*>      tasks;     // the list of tasks to execute
+#    endif
+    Semaphore          taskSemaphore; // threads wait on this for ready tasks
+    mutable std::mutex taskMutex;     // mutual exclusion for the tasks list
+    vector<Task*>      tasks;         // the list of tasks to execute
 
     mutable std::mutex threadMutex;       // mutual exclusion for threads list
     vector<DefaultWorkerThread*> threads; // the list of all threads
@@ -165,18 +167,18 @@ private:
 DefaultWorkerThread::DefaultWorkerThread (DefaultWorkData* data) : _data (data)
 {
     start ();
-#ifdef WAIT_FOR_THREAD_START
-    _data->threadSemaphore.wait();
-#endif
+#    ifdef WAIT_FOR_THREAD_START
+    _data->threadSemaphore.wait ();
+#    endif
 }
 
 void
 DefaultWorkerThread::run ()
 {
-#ifdef WAIT_FOR_THREAD_START
+#    ifdef WAIT_FOR_THREAD_START
     // tell the parent thread we've started
-    _data->threadSemaphore.post();
-#endif
+    _data->threadSemaphore.post ();
+#    endif
     while (true)
     {
         //
@@ -254,7 +256,7 @@ void
 DefaultThreadPoolProvider::setNumThreads (int count)
 {
     size_t desired = static_cast<size_t> (count);
-    size_t active  = numThreads();
+    size_t active  = numThreads ();
 
     // in order to make sure there isn't an undefined use in finish,
     // finish needs to have the thread mutex lock to be able to join,
@@ -262,7 +264,7 @@ DefaultThreadPoolProvider::setNumThreads (int count)
     // thread while another thread is calling setNumThreads
     if (desired < active)
     {
-        finish();
+        finish ();
         active = 0;
     }
 
@@ -339,7 +341,7 @@ DefaultThreadPoolProvider::finish ()
         _data.taskSemaphore.post ();
 
     //
-    // Join all the threads. We do not need to check joinability, the
+    // Join all the threads. We do not need to check joinability, they
     // should all, by definition, be joinable
     //
     for (size_t i = 0; i != curT; ++i)
@@ -457,8 +459,11 @@ ThreadPool::Data::Data () : provUsers (0), provider (NULL)
 ThreadPool::Data::~Data ()
 {
     ThreadPoolProvider* p = provider.load (std::memory_order_relaxed);
-    p->finish ();
-    delete p;
+    if (p)
+    {
+        p->finish ();
+        delete p;
+    }
 }
 
 inline ThreadPool::Data::SafeProvider
@@ -615,6 +620,8 @@ ThreadPool::ThreadPool (unsigned nthreads)
 ThreadPool::~ThreadPool ()
 {
 #ifdef ENABLE_THREADING
+    // ensures any jobs / threads are finished & shutdown
+    _data->setProvider (nullptr);
     delete _data;
 #endif
 }
@@ -638,34 +645,40 @@ ThreadPool::setNumThreads (int count)
             "Attempt to set the number of threads "
             "in a thread pool to a negative value.");
 
-    bool doReset = false;
     {
-        Data::SafeProvider sp   = _data->getProvider ();
-        int                curT = sp->numThreads ();
-        if (curT == count) return;
+        Data::SafeProvider sp = _data->getProvider ();
+        if (sp)
+        {
+            bool doReset = false;
+            int  curT    = sp->numThreads ();
+            if (curT == count) return;
 
-        if (curT == 0)
-        {
-            NullThreadPoolProvider* npp =
-                dynamic_cast<NullThreadPoolProvider*> (sp.get ());
-            if (npp) doReset = true;
+            if (curT == 0)
+            {
+                NullThreadPoolProvider* npp =
+                    dynamic_cast<NullThreadPoolProvider*> (sp.get ());
+                if (npp) doReset = true;
+            }
+            else if (count == 0)
+            {
+                DefaultThreadPoolProvider* dpp =
+                    dynamic_cast<DefaultThreadPoolProvider*> (sp.get ());
+                if (dpp) doReset = true;
+            }
+            if (!doReset)
+            {
+                sp->setNumThreads (count);
+                return;
+            }
         }
-        else if (count == 0)
-        {
-            DefaultThreadPoolProvider* dpp =
-                dynamic_cast<DefaultThreadPoolProvider*> (sp.get ());
-            if (dpp) doReset = true;
-        }
-        if (!doReset) sp->setNumThreads (count);
     }
 
-    if (doReset)
-    {
-        if (count == 0)
-            _data->setProvider (new NullThreadPoolProvider);
-        else
-            _data->setProvider (new DefaultThreadPoolProvider (count));
-    }
+    // either a null provider or a case where we should switch from
+    // a default provider to a null one or vice-versa
+    if (count == 0)
+        _data->setProvider (new NullThreadPoolProvider);
+    else
+        _data->setProvider (new DefaultThreadPoolProvider (count));
 #else
     // just blindly ignore
     (void) count;
