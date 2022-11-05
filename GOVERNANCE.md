@@ -109,7 +109,7 @@ represents the project at ASWF TAC meetings.
 * Peter Hillman - Weta Digital, Ltd.
 * Kimball Thurston - Weta Digital, Ltd.
 * Nick Porcino - Pixar Animation Studios
-* Christina Tempelaar-Lietz - Epic Games
+* Christina Tempelaar-Lietz - Industrial Light & Magic
 * Joseph Goldstone - ARRI
 * John Mertic - The Linux Foundation
 
