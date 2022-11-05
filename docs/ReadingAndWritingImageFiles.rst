@@ -1462,7 +1462,7 @@ exception. If ``read(c,n)`` hits the end of the file after reading
                 throw Iex::InputExc ("Unexpected end of file.");
         }
         
-        return feof (_file);
+        return !feof (_file);
     }
 
 ``tellg()`` returns the current reading position, in bytes, from the
