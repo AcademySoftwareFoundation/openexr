@@ -56,7 +56,7 @@ exr_attr_opaquedata_create (
     exr_result_t rv = exr_attr_opaquedata_init (ctxt, u, b);
     if (rv == EXR_ERR_SUCCESS)
     {
-        if (d) memcpy ((void*) u->packed_data, d, b);
+        if (d && u->packed_data) memcpy ((void*) u->packed_data, d, b);
     }
 
     return rv;
