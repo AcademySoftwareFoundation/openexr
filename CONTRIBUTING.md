@@ -14,7 +14,7 @@ For a description of the roles and responsibilities of the various
 members of the OpenEXR community, see [GOVERNANCE](GOVERNANCE.md), and
 for further details, see the project's [Technical
 Charter](ASWF/charter/OpenEXR-Technical-Charter.md). Briefly,
-Contributors are anyone who submits content to the project, Committers
+"contributors" are anyone who submits content to the project, "committers"
 review and approve such submissions, and the Technical Steering
 Committee provides general project oversight.
 
@@ -163,9 +163,9 @@ contributions should be done on top of it.
 After sufficient work is done on the ``main`` branch and the OpenEXR
 leadership determines that a release is due, we will bump the relevant
 internal versioning and tag a commit with the corresponding version
-number, e.g. v2.0.1. Each Minor version also has its own “Release
+number, e.g. v2.0.1. Each minor version also has its own “Release
 Branch”, e.g. RB-1.1. This marks a branch of code dedicated to that
-Major.Minor version, which allows upstream bug fixes to be
+``major.minor version``, which allows upstream bug fixes to be
 cherry-picked to a given version while still allowing the ``main``
 branch to continue forward onto higher versions. This basic repository
 structure keeps maintenance low, while remaining simple to understand.
@@ -225,12 +225,12 @@ with a separate pull request.
 
 4. Create a Github pull request from your topic branch.
 
-5. Pull requests will be reviewed by project Committers and Contributors,
+5. Pull requests will be reviewed by project committers and contributors,
 who may discuss, offer constructive feedback, request changes, or approve
 the work.
 
-6. Upon receiving the required number of Committer approvals (as
-outlined in [Required Approvals](#required-approvals)), a Committer
+6. Upon receiving the required number of committer approvals (as
+outlined in [Required Approvals](#required-approvals)), a committer
 other than the PR contributor may merge changes into the ``main``
 branch.
 
@@ -239,9 +239,9 @@ branch.
 Modifications of the contents of the OpenEXR repository are made on a
 collaborative basis. Anyone with a GitHub account may propose a
 modification via pull request and it will be considered by the project
-Committers.
+committers.
 
-Pull requests must meet a minimum number of Committer approvals prior
+Pull requests must meet a minimum number of committer approvals prior
 to being merged. Rather than having a hard rule for all PRs, the
 requirement is based on the complexity and risk of the proposed
 changes, factoring in the length of time the PR has been open to
@@ -256,36 +256,36 @@ as possible, and alert all the stakeholders to be on the lookout for
 the eventual PR when it appears.
 
 * Trivial changes that don't affect functionality (typos, docs, tests)
-can be approved by the Committer without review, after waiting at
+can be approved by the committer without review, after waiting at
 least 48 hours.
 
 * Big changes that can alter behavior, add major features, or present
-a high degree of risk should be signed off by TWO Committers, ideally
+a high degree of risk should be signed off by TWO committers, ideally
 one of whom should be the "owner" for that section of the codebase (if
 a specific owner has been designated). If the person submitting the PR
 is him/herself the "owner" of that section of the codebase, then only
-one additional Committer approval is sufficient. But in either case, a
+one additional committer approval is sufficient. But in either case, a
 48 hour minimum is helpful to give everybody a chance to see it,
 unless it's a critical emergency fix (which would probably put it in
 the previous "small fix" category, rather than a "big feature").
 
 * Escape valve: big changes can nonetheless be merged by a single
-Committer if the PR has been open for over two weeks without any
-unaddressed objections from other Committers. At some point, we have
+committer if the PR has been open for over two weeks without any
+unaddressed objections from other committers. At some point, we have
 to assume that the people who know and care are monitoring the PRs and
 that an extended period without objections is really assent.
 
-Approval must be from Committers who are not authors of the change. If
-one or more Committers oppose a proposed change, then the change
+Approval must be from committers who are not authors of the change. If
+one or more committers oppose a proposed change, then the change
 cannot be accepted unless:
 
-* Discussions and/or additional changes result in no Committers
-objecting to the change. Previously-objecting Committers do not
+* Discussions and/or additional changes result in no committers
+objecting to the change. Previously-objecting committers do not
 necessarily have to sign-off on the change, but they should not be
 opposed to it.
 
 * The change is escalated to the TSC and the TSC votes to approve the
-change.  This should only happen if disagreements between Committers
+change.  This should only happen if disagreements between committers
 cannot be resolved through discussion.
 
 Committers may opt to elevate significant or controversial
@@ -321,7 +321,7 @@ succeed before a release is made.
 
 #### Formatting
 
-The coding style of the library source code is enforced via Clang format, with the configuration defined in [.clang-format](https://github.com/AcademySoftwareFoundation/openexr/blob/main/.clang-format).
+The coding style of the library source code is enforced via Clang format, with the configuration defined in [.clang-format](.clang-format).
 
 When modifying existing code, follow the surrounding formatting
 conventions so that new or modified code blends in with the current
