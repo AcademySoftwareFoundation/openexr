@@ -250,13 +250,14 @@ approval rules for merging:
 
 * Core design decisions, large new features, or anything that might be
 perceived as changing the overall direction of the project should be
-discussed at length in the mail list before any PR is submitted, in
-order to: solicit feedback, try to get as much consensus as possible,
-and alert all the stakeholders to be on the lookout for the eventual
-PR when it appears.
+discussed at length in the mail list or TSC meetings before any PR is
+submitted, in order to solicit feedback, try to get as much consensus
+as possible, and alert all the stakeholders to be on the lookout for
+the eventual PR when it appears.
 
-* Small changes (bug fixes, docs, tests, cleanups) can be approved and
-merged by a single Committer.
+* Trivial changes that don't affect functionality (typos, docs, tests)
+can be approved by the Committer without review, after waiting at
+least 48 hours.
 
 * Big changes that can alter behavior, add major features, or present
 a high degree of risk should be signed off by TWO Committers, ideally
@@ -295,77 +296,32 @@ required.
 ### Test Policy
 
 All functionality in the library must be covered by an automated
-test. Each library has a companion ``Test`` project - ``ImathTest``,
-``HalfTest``, ``OpenEXRTest`, etc.  This test suite is collectively
+test. Each library has a companion ``Test`` project - ``OpenEXRTest``,
+``OpenEXRCoreTest``, ``OpenEXRUtilTest``, etc.  This test suite is collectively
 expected to validate the behavior of very part of the library.
 
-* Any new functionality should be accompanied by a test that validates
+* all new functionality should be accompanied by a test that validates
   its behavior.
 
 * Any change to existing functionality should have tests added if they
   don't already exist.
 
-The test should should be run, via ``make check``, before submitting a
-pull request.
+The test should should be run, via:
+
+    make test
+
+before submitting a pull request.
 
 In addition, the ``OpenEXRFuzzTest`` project validates the library by
 feeding it corrupted input data. This test is time-consuming (possible
 over 24 hours), so it will only be run occasionally, but it must
 succeed before a release is made.
 
-### Project Issue Handling Process
-
-Incoming new issues are labeled promptly by the TSC using GitHub labels. 
-
-The labels include:
-
-* **Autotools** - A problem with the autoconf configuration setup.
-
-* **Bug** - A bug in the source code. Something appears to be
-    functioning improperly: a compile error, a crash, unexpected behavior, etc. 
-
-* **Build/Install Issue** - A problem with building or installing the
-    library: configuration file, external dependency, a compile error
-    with a release version that prevents installation.
-
-* **C++** - A C++ compilation issue: a compiler warning, syntax issue,
-    or language usage or suggested upgrade.
-
-* **CMake** - A build issue with the CMake configuration files.
-
-* **CVE** - A security vulnerability bug.
-
-* **Documentation** - The project documentation: developer or user
-    guide, web site, project policies, etc.
-
-* **Feature Request** - A suggested change or addition of
-    functionality to the library.
-
-* **Mac OS** - A build issue specific to Mac OS.
-
-* **MinGW** - An issue specific to MinGW
-
-* **Modification** - A modification to the code, refactoring or
-    optimization without significant additional behavior
-
-* **Needs Info** - Issue is waiting for more information from the
-    submitter.
-
-* **Question/Problem/Help** - A request for help or further
-    investigation, possibly just user error or misunderstanding.
-
-* **Test Failure** - One of the automated tests is failing, or an
-    analysis tool is reporting problematic behavior.
-
-* **TSC** - To be discussed in the technical steering committee.
-
-* **Windows** - A build issue specific to Windows
-
-* **Won't Fix** - No further action will taken.
-
 ## Coding Style
 
 #### Formatting
+
+The coding style of the library source code is enforced via Clang format, with the configuration defined in [.clang-format](https://github.com/AcademySoftwareFoundation/openexr/blob/main/.clang-format).
 
 When modifying existing code, follow the surrounding formatting
 conventions so that new or modified code blends in with the current
