@@ -12,11 +12,11 @@ explains our contribution process and procedures:
 
 For a description of the roles and responsibilities of the various
 members of the OpenEXR community, see [GOVERNANCE](GOVERNANCE.md), and
-for further details, see the project's [Technical
-Charter](ASWF/charter/OpenEXR-Technical-Charter.md). Briefly,
-"contributors" are anyone who submits content to the project, "committers"
-review and approve such submissions, and the Technical Steering
-Committee provides general project oversight.
+for further details, see the OpenEXR project's [Technical
+Charter](https://github.com/AcademySoftwareFoundation/openexr/blob/main/ASWF/charter/OpenEXR-Technical-Charter.md). Briefly,
+a "contributor" is anyone who submits content to the project, a
+"committer" reviews and approves such submissions, and the "Technical
+Steering Committee" provides general project oversight and governance.
 
 ## Getting Information
 
@@ -64,7 +64,7 @@ among the project community.
 ### How to Report a Security Vulnerability
 
 If you think you've found a potential vulnerability in OpenEXR, please
-refer to [SECURITY.md] to responsibly disclose it.
+refer to [SECURITY.md](SECURITY.md) to responsibly disclose it.
 
 ### How to Contribute a Bug Fix or Change
 
@@ -76,7 +76,7 @@ To contribute code to the project, first read over the [GOVERNANCE](GOVERNANCE.m
 
 * An understanding of the project's development workflow.
 
-* Legal authorization, that is, you need to have signed a Contributor
+* Legal authorization, that is, you need to have signed a contributor
   License Agreement. See below for details.
 
 ## Legal Requirements
@@ -296,11 +296,11 @@ required.
 ### Test Policy
 
 All functionality in the library must be covered by an automated
-test. Each library has a companion ``Test`` project - ``OpenEXRTest``,
+test. Each library has a companion ``Test`` project, e.g. ``OpenEXRTest``,
 ``OpenEXRCoreTest``, ``OpenEXRUtilTest``, etc.  This test suite is collectively
 expected to validate the behavior of very part of the library.
 
-* all new functionality should be accompanied by a test that validates
+* All new functionality should be accompanied by a test that validates
   its behavior.
 
 * Any change to existing functionality should have tests added if they
@@ -443,11 +443,11 @@ For public APIs, use Doxygen-style comments (start with `///`), such as:
 ## Versioning Policy
 
 OpenEXR uses [semantic versioning](https://semver.org), which labels
-each version with three numbers: Major.Minor.Patch, where:
+each version with three numbers: ``major.minor.patch``, where:
 
-* **MAJOR** indicates incompatible API changes
-* **MINOR** indicates functionality added in a backwards-compatible manner
-* **PATCH** indicates backwards-compatible bug fixes 
+* ``major`` - indicates incompatible API changes
+* ``minor`` - indicates functionality added in a backwards-compatible manner
+* ``patch`` - indicates backwards-compatible bug fixes 
 
 ## Creating a Release
 
@@ -459,21 +459,9 @@ To create a new release from the ``main`` branch:
    improvements. Include the summary in ``CHANGES.md`` and also in the
    Release comments.
 
-   Include the log of all changes since the last release, via:
+   Include the log of all PR's included beyond the previous release. 
 
-        git log v2.2.1...v2.3.0 --date=short --pretty=format:"[%s](https://github.com/AcademySoftwareFoundation/openexr/commit/%H) ([%an](@%ae) %ad)"
-
-   Include diff status via:
-
-        git diff --stat v2.2.1
-       
 2. Create a new release on the GitHub Releases page.
 
-3. Tag the release with name beginning with '``v``', e.g. '``v2.3.0``'.
+3. Tag the release with name beginning with ``v``', e.g. ``v2.3.0``.
 
-4. Download and sign the release tarball, as described
-[here](https://wiki.debian.org/Creating%20signed%20GitHub%20releases),
-
-5. Attach the detached ``.asc`` signature file to the GitHub release as a
-binary file.
-    
