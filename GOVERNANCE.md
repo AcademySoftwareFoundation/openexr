@@ -3,9 +3,9 @@
 OpenEXR is a project of the Academy Software Foundation and relies on
 the ASWF governance policies, supported by the Linux Foundation.
 
-There are three primary project roles: Contributors submit code to the
-project; Committers approve code to be included into the project; and
-the Technical Steering Committee (TSC) provides overall high-level
+There are three primary project roles: a "contributor" submits code to the
+project; a "committer" approves code to be included into the project; and
+the "Technical Steering Committee" (TSC) provides overall high-level
 project guidance.
 
 * [Contributors](#Contributors)
@@ -15,12 +15,12 @@ project guidance.
 ## Contributors
 
 The OpenEXR project grows and thrives from assistance from
-Contributors.  Contributors include anyone in the community that
-submits code, documentation, or other technical artifacts to the
+contributors.  A contributor is anyone in the community who submits
+code, bug fixes, documentation, or other technical artifacts to the
 project. However, such contributions must be approved by a project
-Committer before they become a part of the project.  
+committer before they become a part of the project.
 
-Anyone can be a Contributor. You need no formal approval from the
+Anyone can be a contributor. You need no formal approval from the
 project, beyond the legal forms.
 
 ### How to Become a Contributor
@@ -34,12 +34,12 @@ project, beyond the legal forms.
 
 ## Committers
 
-Project Committers have merge access on the OpenEXR GitHub repository
-and are responsible for approving submissions by Contributors.
+Project committers have merge access on the OpenEXR GitHub repositories
+and are responsible for approving submissions by contributors.
 
 ### Committer Responsibilities
 
-Typical activities of a Committer include:
+Typical activities of a committer include:
 
 * Helping users and novice contributors.
 
@@ -54,17 +54,17 @@ Typical activities of a Committer include:
 * Ensuring that changes and new code meet acceptable standards and are
   in the long-term interest of the project.
 
-* Participation in working groups.
+* Participating in working groups.
 
 * Merging pull requests.
 
 ### How to Become a Committer
 
-Any existing Committer can nominate an individual making significant
+Any existing committer can nominate an individual making significant
 and valuable contributions to the OpenEXR project to become a new
-Committer.  New committers are approved by vote of the TSC.
+committer.  New committers are approved by vote of the TSC.
 
-If you are interested in becoming a Committer, contact the TSC at
+If you are interested in becoming a committer, contact the TSC at
 info@openexr.com.
 
 ## Technical Steering Committee
@@ -82,7 +82,7 @@ The responsibilities of the TSC include:
 
 * GitHub repository administration.
 
-* Maintaining the list of additional Committers.
+* Maintaining the list of additional committers.
 
 * Appointing representatives to work with other open source or open
   standards communities.
@@ -118,8 +118,8 @@ represents the project at ASWF TAC meetings.
 All meetings of the TSC are open to participation by any member of the
 OpenEXR community. Meeting times are listed in the [ASWF technical
 community calendar](https://lists.aswf.io/g/tac/calendar), currently
-each Thursday at 1pm Pacific Time via Zoom video conference.  The TSC
-Chair moderates the meeting, or appoints another TSC member to
+each Thursday at 1:30pm Pacific Time via Zoom video conference.  The
+TSC Chair moderates the meeting, or appoints another TSC member to
 moderate in his or her absence.
 
 Items are added to the TSC agenda which are considered contentious or
@@ -129,10 +129,10 @@ technical direction of the project.
 
 The intention of the agenda is not to approve or review all
 patches. That should happen continuously on GitHub and be handled by
-the larger group of Committers.
+the larger group of committers.
 
-Any community member or Contributor can ask that something be reviewed
-by the TSC at the meeting by logging a GitHub issue. Any Committer,
+Any community member or contributor can ask that something be reviewed
+by the TSC at the meeting by logging a GitHub issue. Any committer,
 TSC member, or the meeting chair can bring the issue to the TSC's
 attention by applying the `TSC` label.
 

@@ -12,11 +12,11 @@ explains our contribution process and procedures:
 
 For a description of the roles and responsibilities of the various
 members of the OpenEXR community, see [GOVERNANCE](GOVERNANCE.md), and
-for further details, see the project's [Technical
-Charter](ASWF/charter/OpenEXR-Technical-Charter.md). Briefly,
-Contributors are anyone who submits content to the project, Committers
-review and approve such submissions, and the Technical Steering
-Committee provides general project oversight.
+for further details, see the OpenEXR project's [Technical
+Charter](https://github.com/AcademySoftwareFoundation/openexr/blob/main/ASWF/charter/OpenEXR-Technical-Charter.md). Briefly,
+a "contributor" is anyone who submits content to the project, a
+"committer" reviews and approves such submissions, and the "Technical
+Steering Committee" provides general project oversight and governance.
 
 ## Getting Information
 
@@ -64,7 +64,7 @@ among the project community.
 ### How to Report a Security Vulnerability
 
 If you think you've found a potential vulnerability in OpenEXR, please
-refer to [SECURITY.md] to responsibly disclose it.
+refer to [SECURITY.md](SECURITY.md) to responsibly disclose it.
 
 ### How to Contribute a Bug Fix or Change
 
@@ -76,7 +76,7 @@ To contribute code to the project, first read over the [GOVERNANCE](GOVERNANCE.m
 
 * An understanding of the project's development workflow.
 
-* Legal authorization, that is, you need to have signed a Contributor
+* Legal authorization, that is, you need to have signed a contributor
   License Agreement. See below for details.
 
 ## Legal Requirements
@@ -163,9 +163,9 @@ contributions should be done on top of it.
 After sufficient work is done on the ``main`` branch and the OpenEXR
 leadership determines that a release is due, we will bump the relevant
 internal versioning and tag a commit with the corresponding version
-number, e.g. v2.0.1. Each Minor version also has its own “Release
+number, e.g. v2.0.1. Each minor version also has its own “Release
 Branch”, e.g. RB-1.1. This marks a branch of code dedicated to that
-Major.Minor version, which allows upstream bug fixes to be
+``major.minor version``, which allows upstream bug fixes to be
 cherry-picked to a given version while still allowing the ``main``
 branch to continue forward onto higher versions. This basic repository
 structure keeps maintenance low, while remaining simple to understand.
@@ -225,12 +225,12 @@ with a separate pull request.
 
 4. Create a Github pull request from your topic branch.
 
-5. Pull requests will be reviewed by project Committers and Contributors,
+5. Pull requests will be reviewed by project committers and contributors,
 who may discuss, offer constructive feedback, request changes, or approve
 the work.
 
-6. Upon receiving the required number of Committer approvals (as
-outlined in [Required Approvals](#required-approvals)), a Committer
+6. Upon receiving the required number of committer approvals (as
+outlined in [Required Approvals](#required-approvals)), a committer
 other than the PR contributor may merge changes into the ``main``
 branch.
 
@@ -239,9 +239,9 @@ branch.
 Modifications of the contents of the OpenEXR repository are made on a
 collaborative basis. Anyone with a GitHub account may propose a
 modification via pull request and it will be considered by the project
-Committers.
+committers.
 
-Pull requests must meet a minimum number of Committer approvals prior
+Pull requests must meet a minimum number of committer approvals prior
 to being merged. Rather than having a hard rule for all PRs, the
 requirement is based on the complexity and risk of the proposed
 changes, factoring in the length of time the PR has been open to
@@ -250,41 +250,42 @@ approval rules for merging:
 
 * Core design decisions, large new features, or anything that might be
 perceived as changing the overall direction of the project should be
-discussed at length in the mail list before any PR is submitted, in
-order to: solicit feedback, try to get as much consensus as possible,
-and alert all the stakeholders to be on the lookout for the eventual
-PR when it appears.
+discussed at length in the mail list or TSC meetings before any PR is
+submitted, in order to solicit feedback, try to get as much consensus
+as possible, and alert all the stakeholders to be on the lookout for
+the eventual PR when it appears.
 
-* Small changes (bug fixes, docs, tests, cleanups) can be approved and
-merged by a single Committer.
+* Trivial changes that don't affect functionality (typos, docs, tests)
+can be approved by the committer without review, after waiting at
+least 48 hours.
 
 * Big changes that can alter behavior, add major features, or present
-a high degree of risk should be signed off by TWO Committers, ideally
+a high degree of risk should be signed off by TWO committers, ideally
 one of whom should be the "owner" for that section of the codebase (if
 a specific owner has been designated). If the person submitting the PR
 is him/herself the "owner" of that section of the codebase, then only
-one additional Committer approval is sufficient. But in either case, a
+one additional committer approval is sufficient. But in either case, a
 48 hour minimum is helpful to give everybody a chance to see it,
 unless it's a critical emergency fix (which would probably put it in
 the previous "small fix" category, rather than a "big feature").
 
 * Escape valve: big changes can nonetheless be merged by a single
-Committer if the PR has been open for over two weeks without any
-unaddressed objections from other Committers. At some point, we have
+committer if the PR has been open for over two weeks without any
+unaddressed objections from other committers. At some point, we have
 to assume that the people who know and care are monitoring the PRs and
 that an extended period without objections is really assent.
 
-Approval must be from Committers who are not authors of the change. If
-one or more Committers oppose a proposed change, then the change
+Approval must be from committers who are not authors of the change. If
+one or more committers oppose a proposed change, then the change
 cannot be accepted unless:
 
-* Discussions and/or additional changes result in no Committers
-objecting to the change. Previously-objecting Committers do not
+* Discussions and/or additional changes result in no committers
+objecting to the change. Previously-objecting committers do not
 necessarily have to sign-off on the change, but they should not be
 opposed to it.
 
 * The change is escalated to the TSC and the TSC votes to approve the
-change.  This should only happen if disagreements between Committers
+change.  This should only happen if disagreements between committers
 cannot be resolved through discussion.
 
 Committers may opt to elevate significant or controversial
@@ -295,77 +296,32 @@ required.
 ### Test Policy
 
 All functionality in the library must be covered by an automated
-test. Each library has a companion ``Test`` project - ``ImathTest``,
-``HalfTest``, ``OpenEXRTest`, etc.  This test suite is collectively
+test. Each library has a companion ``Test`` project, e.g. ``OpenEXRTest``,
+``OpenEXRCoreTest``, ``OpenEXRUtilTest``, etc.  This test suite is collectively
 expected to validate the behavior of very part of the library.
 
-* Any new functionality should be accompanied by a test that validates
+* All new functionality should be accompanied by a test that validates
   its behavior.
 
 * Any change to existing functionality should have tests added if they
   don't already exist.
 
-The test should should be run, via ``make check``, before submitting a
-pull request.
+The test should should be run, via:
+
+    make test
+
+before submitting a pull request.
 
 In addition, the ``OpenEXRFuzzTest`` project validates the library by
 feeding it corrupted input data. This test is time-consuming (possible
 over 24 hours), so it will only be run occasionally, but it must
 succeed before a release is made.
 
-### Project Issue Handling Process
-
-Incoming new issues are labeled promptly by the TSC using GitHub labels. 
-
-The labels include:
-
-* **Autotools** - A problem with the autoconf configuration setup.
-
-* **Bug** - A bug in the source code. Something appears to be
-    functioning improperly: a compile error, a crash, unexpected behavior, etc. 
-
-* **Build/Install Issue** - A problem with building or installing the
-    library: configuration file, external dependency, a compile error
-    with a release version that prevents installation.
-
-* **C++** - A C++ compilation issue: a compiler warning, syntax issue,
-    or language usage or suggested upgrade.
-
-* **CMake** - A build issue with the CMake configuration files.
-
-* **CVE** - A security vulnerability bug.
-
-* **Documentation** - The project documentation: developer or user
-    guide, web site, project policies, etc.
-
-* **Feature Request** - A suggested change or addition of
-    functionality to the library.
-
-* **Mac OS** - A build issue specific to Mac OS.
-
-* **MinGW** - An issue specific to MinGW
-
-* **Modification** - A modification to the code, refactoring or
-    optimization without significant additional behavior
-
-* **Needs Info** - Issue is waiting for more information from the
-    submitter.
-
-* **Question/Problem/Help** - A request for help or further
-    investigation, possibly just user error or misunderstanding.
-
-* **Test Failure** - One of the automated tests is failing, or an
-    analysis tool is reporting problematic behavior.
-
-* **TSC** - To be discussed in the technical steering committee.
-
-* **Windows** - A build issue specific to Windows
-
-* **Won't Fix** - No further action will taken.
-
 ## Coding Style
 
 #### Formatting
+
+The coding style of the library source code is enforced via Clang format, with the configuration defined in [.clang-format](.clang-format).
 
 When modifying existing code, follow the surrounding formatting
 conventions so that new or modified code blends in with the current
@@ -487,11 +443,11 @@ For public APIs, use Doxygen-style comments (start with `///`), such as:
 ## Versioning Policy
 
 OpenEXR uses [semantic versioning](https://semver.org), which labels
-each version with three numbers: Major.Minor.Patch, where:
+each version with three numbers: ``major.minor.patch``, where:
 
-* **MAJOR** indicates incompatible API changes
-* **MINOR** indicates functionality added in a backwards-compatible manner
-* **PATCH** indicates backwards-compatible bug fixes 
+* ``major`` - indicates incompatible API changes
+* ``minor`` - indicates functionality added in a backwards-compatible manner
+* ``patch`` - indicates backwards-compatible bug fixes 
 
 ## Creating a Release
 
@@ -503,21 +459,9 @@ To create a new release from the ``main`` branch:
    improvements. Include the summary in ``CHANGES.md`` and also in the
    Release comments.
 
-   Include the log of all changes since the last release, via:
+   Include the log of all PR's included beyond the previous release. 
 
-        git log v2.2.1...v2.3.0 --date=short --pretty=format:"[%s](https://github.com/AcademySoftwareFoundation/openexr/commit/%H) ([%an](@%ae) %ad)"
-
-   Include diff status via:
-
-        git diff --stat v2.2.1
-       
 2. Create a new release on the GitHub Releases page.
 
-3. Tag the release with name beginning with '``v``', e.g. '``v2.3.0``'.
+3. Tag the release with name beginning with ``v``', e.g. ``v2.3.0``.
 
-4. Download and sign the release tarball, as described
-[here](https://wiki.debian.org/Creating%20signed%20GitHub%20releases),
-
-5. Attach the detached ``.asc`` signature file to the GitHub release as a
-binary file.
-    
