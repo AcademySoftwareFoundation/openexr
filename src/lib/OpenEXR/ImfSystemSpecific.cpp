@@ -29,7 +29,7 @@ cpuid (int n, int& eax, int& ebx, int& ecx, int& edx)
         : /* Clobber */);
 }
 
-#elif defined(_MSC_VER) && ( defined(_M_IX86) || ( defined(_M_AMD64) && !defined(_M_ARM64RC) ) )
+#elif defined(_MSC_VER) && ( defined(_M_IX86) || ( defined(_M_AMD64) && !defined(_M_ARM64EC) ) )
 
 // Helper functions for MSVC
 void
