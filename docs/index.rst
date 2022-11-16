@@ -1,9 +1,29 @@
-OpenEXR |version| Technical Documentation
-=========================================
+..
+  SPDX-License-Identifier: BSD-3-Clause
+  Copyright Contributors to the OpenEXR Project.
+
+.. toctree::
+   :hidden:
+      
+   about
+   technical
+   contributing
+   governance
+   download
+   charter
+   license
+   faq
+      
++------------------------------+------------------------------------------------+------------------------------------------------------------------+----------------------------------+--------------------------------+----------------------------+
+| :ref:`About <About OpenEXR>` | :ref:`Documentation <Technical Documentation>` | `GitHub <https://github.com/AcademySoftwareFoundation/openexr>`_ | :ref:`Contribute <contributing>` | :ref:`Governance <governance>` | :ref:`Download <Download>` |
++------------------------------+------------------------------------------------+------------------------------------------------------------------+----------------------------------+--------------------------------+----------------------------+
+
+Overview
+========
 
 .. sidebar:: OpenEXR
 
-     .. image:: images/windowExample1.png
+     .. image:: technical/images/windowExample1.png
 
 OpenEXR provides the specification and reference implementation of the
 EXR file format, the professional-grade image storage format of the
@@ -17,69 +37,89 @@ OpenEXR is widely used in host application software where accuracy is
 critical, such as photorealistic rendering, texture access, image
 compositing, deep compositing, and DI.
 
-OpenEXR Features
+OpenEXR is a project of the `Academy Software Foundation
+<https://www.aswf.io>`_.
 
-* High dynamic range and color precision.
-* Support for 16-bit floating-point, 32-bit floating-point, and
-  32-bit integer pixels.
-* Multiple image compression algorithms, both lossless and lossy. Some of
-  the included codecs can achieve 2:1 lossless compression ratios on images
-  with film grain.  The lossy codecs have been tuned for visual quality and
-  decoding performance.
-* Extensibility. New compression codecs and image types can easily be added
-  by extending the C++ classes included in the OpenEXR software distribution.
-  New image attributes (strings, vectors, integers, etc.) can be added to
-  OpenEXR image headers without affecting backward compatibility with
-  existing OpenEXR applications. 
-* Support for stereoscopic image workflows and a generalization
-  to multi-views.
-* Flexible support for deep data: pixels can store a variable-length list
-  of samples and, thus, it is possible to store multiple values at different
-  depths for each pixel. Hard surfaces and volumetric data representations
-  are accommodated.
-* Multipart: ability to encode separate, but related, images in one file.
-  This allows for access to individual parts without the need to read other
-  parts in the file.
-* Versioning: OpenEXR source allows for user configurable C++
-  namespaces to provide protection when using multiple versions of the
-  library in the same process space.
 
-Technical Documents
-###################
+Imath
+-----
 
-.. toctree::
-   :maxdepth: 1
+The OpenEXR project includes `Imath <https://imath.readthedocs.io>`_,
+a basic, light-weight, and efficient C++ representation of 2D and 3D
+vectors and matrices and other simple but useful mathematical objects,
+functions, and data types common in computer graphics applications,
+including the “half” 16-bit floating-point type.
 
-   TechnicalIntroduction
-   ReadingAndWritingImageFiles
-   OpenEXRCoreAPI
-   OpenEXRFileLayout
-   MultiViewOpenEXR
-   InterpretingDeepPixels
-   TheoryDeepPixels
-   StandardOptionalAttributes
-              
-* :ref:`genindex`
+Imath also includes optional python bindings for all types and
+functions, including optimized implementations of vector and matrix
+arrays.
+
+OpenEXR Project Mission
+-----------------------
+
+The goal of the OpenEXR project is to keep the EXR format reliable and
+modern and to maintain its place as the preferred image format for
+entertainment content creation. 
+
+Major revisions are infrequent, and new features will be carefully
+weighed against increased complexity.  The principal priorities of the
+project are:
+
+* Robustness, reliability, security
+* Backwards compatibility, data longevity
+* Performance - read/write/compression/decompression time
+* Simplicity, ease of use, maintainability
+* Wide adoption, multi-platform support - Linux, Windows, macOS, and others
+
+OpenEXR is intended solely for 2D data. It is not appropriate for
+storage of volumetric data, cached or lit 3D scenes, or more complex
+3D data such as light fields.
+
+The goals of the Imath project are simplicity, ease of use,
+correctness and verifiability, and breadth of adoption. Imath is not
+intended to be a comprehensive linear algebra or numerical analysis
+package.
+
+Community
+=========
+
+* **Ask for help:**
+
+  - Email: `openexr-dev@lists.aswf.io <https://lists.aswf.io/g/openexr-dev>`_
+
+  - Slack: `academysoftwarefdn#openexr <https://academysoftwarefdn.slack.com/archives/CMLRW4N73>`_
+
+* **Attend a meeting:**
+
+  - Technical Steering Committee meetings are open to the
+    public, fortnightly on Thursdays, 1:30pm Pacific Time.
+
+  - Calendar: https://lists.aswf.io/g/openexr-dev/calendar
+
+* **Report a bug:**
+
+  - GitHub: https://github.com/AcademySoftwareFoundation/openexr/issues
+
+* **Make a contribution:**
+
+  - Read the :ref:`contribution guidelines <contributing>`
+
+  - Submit a PR: https://github.com/AcademySoftwareFoundation/openexr/pulls
+
+* **Report a security vulnerability:**
+
+  - Send email to security@openexr.com
 
 Resources
-#########
+=========
 
-- Download: https://github.com/AcademySoftwareFoundation/openexr
-- Install Help: `INSTALL.md <https://github.com/AcademySoftwareFoundation/openexr/blob/main/INSTALL.md>`_
-- Porting Help: `Imath/OpenEXR Version 2->3 Porting Guide <https://github.com/AcademySoftwareFoundation/Imath/blob/main/docs/PortingGuide2-3.md>`_
-- License: `BSD License <https://github.com/AcademySoftwareFoundation/openexr/blob/main/LICENSE.md>`_
+- Porting help: :ref:`OpenEXR/Imath Version 2.x to 3.x Porting Guide <porting>`
 - Reference images: https://github.com/AcademySoftwareFoundation/openexr-images
+- Security Policy: `SECURITY.md <https://github.com/AcademySoftwareFoundation/openexr/blob/main/SECURITY.md>`_
 
-About OpenEXR
-#############
+License
+=======
 
-OpenEXR is a project of the `Academy Software Foundation
-<https://www.aswf.io>`_.  The format and library were originally
-developed by Industrial Light & Magic and first released in 2003.
-Weta Digital, Walt Disney Animation Studios, Sony Pictures Imageworks,
-Pixar Animation Studios, DreamWorks, and other studios, companies, and
-individuals have made contributions to the code base.
+OpenEXR is licensed under the :ref:`BSD-3-Clause license <license>`. 
 
-OpenEXR is included in the `VFX Reference Platform <https://vfxplatform.com>`_.
-
-                  
+  

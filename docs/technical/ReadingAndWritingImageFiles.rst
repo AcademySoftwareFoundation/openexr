@@ -1985,7 +1985,7 @@ To specify the compression algorithm, set the ``compression()`` value
 on the ``Header`` object:
 
 .. code-block::
-   :linenos
+   :linenos:
 
     Header header (width, height);
     header.channels().insert ("G", Channel (HALF));
@@ -2038,7 +2038,7 @@ previous versions. The default DWA compression level is 45.0f.
 Alternatively, set the compression level on the ``Header`` object:
 
 .. code-block::
-   :linenos
+   :linenos:
 
     Header header (width, height);
     header.channels().insert ("G", Channel (HALF));
