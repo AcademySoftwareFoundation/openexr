@@ -27,7 +27,7 @@ namespace {
             : /* Clobber */);
     }
 
-#elif defined(_MSC_VER)
+#elif defined(_MSC_VER) && ( defined(_M_IX86) || ( defined(_M_AMD64) && !defined(_M_ARM64EC) ) )
 
 // Helper functions for MSVC
 void
