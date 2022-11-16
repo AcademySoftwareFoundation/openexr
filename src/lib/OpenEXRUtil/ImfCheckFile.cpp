@@ -479,7 +479,7 @@ readDeepScanLine (T& in, bool reduceMemory, bool reduceTime)
             //
             size_t bufferSize = 0;
             size_t fileBufferSize = 0;
-            for (int j = 0; j < w; j++)
+            for (uint64_t j = 0; j < w; j++)
             {
                 for (int k = 0; k < channelCount; k++)
                 {
@@ -507,7 +507,7 @@ readDeepScanLine (T& in, bool reduceMemory, bool reduceTime)
                 pixelBuffer.resize (bufferSize);
 
                 size_t bufferIndex = 0;
-                for (int j = 0; j < w; j++)
+                for (uint64_t j = 0; j < w; j++)
                 {
                     for (int k = 0; k < channelCount; k++)
                     {
@@ -562,8 +562,6 @@ readDeepTile (T& in, bool reduceMemory, bool reduceTime)
         const Header& fileHeader = in.header ();
 
         Array2D<unsigned int> localSampleCount;
-
-        Box2i dataWindow = fileHeader.dataWindow ();
 
         int      bytesPerSample = calculateBytesPerPixel (in.header ());
 
@@ -1074,7 +1072,6 @@ runChecks (T& source, bool reduceMemory, bool reduceTime)
         try
         {
             MultiPartInputFile multi (source);
-            Box2i              b          = multi.header (0).dataWindow ();
 
             //
             // significant memory is also required to read a tiled file
@@ -1221,7 +1218,6 @@ readCoreScanlinePart (
 
     std::vector<uint8_t>  imgdata;
     bool                  doread = false;
-    exr_chunk_info_t      cinfo;
     exr_decode_pipeline_t decoder = EXR_DECODE_PIPELINE_INITIALIZER;
 
     int32_t lines_per_chunk;

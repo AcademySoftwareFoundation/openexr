@@ -110,8 +110,8 @@ readWriteFiles (
 
         assert (dw == file2.dataWindow ());
 
-        int w  = dw.max.x - dw.min.x + 1;
-        int h  = dw.max.y - dw.min.y + 1;
+        size_t w  = dw.max.x - dw.min.x + 1;
+        size_t h  = dw.max.y - dw.min.y + 1;
         int dx = dw.min.x;
         int dy = dw.min.y;
 

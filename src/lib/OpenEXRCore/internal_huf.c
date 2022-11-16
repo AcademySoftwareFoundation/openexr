@@ -1300,7 +1300,7 @@ fasthuf_initialize (
     for (int i = 0; i < MAX_CODE_LEN; ++i)
         fhd->_numSymbols += codeCount[i];
 
-    if (fhd->_numSymbols > sizeof (fhd->_idToSymbol) / sizeof (int))
+    if ((size_t) fhd->_numSymbols > sizeof (fhd->_idToSymbol) / sizeof (int))
     {
         if (pctxt)
             pctxt->print_error (
@@ -1809,7 +1809,6 @@ internal_huf_decompress (
         uint64_t* freq     = (uint64_t*) spare;
         HufDec*   hdec     = (HufDec*) (freq + HUF_ENCSIZE);
         uint64_t  nLeft    = nCompressed - 20;
-        uint64_t  nTableSz = 0;
 
         hufClearDecTable (hdec);
         hufUnpackEncTable (&ptr, &nLeft, im, iM, freq);
