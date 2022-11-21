@@ -126,10 +126,10 @@ interleave (uint8_t* out, const uint8_t* source, uint64_t outSize)
 static void
 interleave (uint8_t* out, const uint8_t* source, uint64_t outSize)
 {
-    const char* t1   = source;
-    const char* t2   = source + (outSize + 1) / 2;
-    char*       s    = out;
-    char* const stop = s + outSize;
+    const uint8_t* t1   = source;
+    const uint8_t* t2   = source + (outSize + 1) / 2;
+    uint8_t*       s    = out;
+    uint8_t* const stop = s + outSize;
 
     while (true)
     {
