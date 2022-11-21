@@ -110,8 +110,8 @@ readWriteFiles (
 
         assert (dw == file2.dataWindow ());
 
-        size_t w  = dw.max.x - dw.min.x + 1;
-        size_t h  = dw.max.y - dw.min.y + 1;
+        int w  = dw.max.x - dw.min.x + 1;
+        int h  = dw.max.y - dw.min.y + 1;
         int dx = dw.min.x;
         int dy = dw.min.y;
 
@@ -119,7 +119,7 @@ readWriteFiles (
         file2.setFrameBuffer (pixels2 - dx - dy * w, 1, w);
         file2.readPixels (dw.min.y, dw.max.y);
 
-        for (size_t i = 0; i < w * h; ++i)
+        for (int i = 0; i < w * h; ++i)
         {
             assert (pixels1[i].r == pixels2[i].r);
             assert (pixels1[i].g == pixels2[i].g);
