@@ -567,10 +567,7 @@ static int move_assignment_operator;
 
 struct TestType 
 {
-    TestType() 
-    {
-        default_constructor++;
-    }
+    TestType () : _f(0) { default_constructor++; }
 
     ~TestType() 
     {

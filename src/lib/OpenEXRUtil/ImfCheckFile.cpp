@@ -448,7 +448,7 @@ bool readDeepScanLine(T& in,bool reduceMemory, bool reduceTime)
             //
             size_t bufferSize = 0;
             size_t fileBufferSize = 0;
-            for (int j = 0; j < w; j++)
+            for (uint64_t j = 0; j < w; j++)
             {
                 for (int k = 0; k < channelCount; k++)
                 {
@@ -475,7 +475,7 @@ bool readDeepScanLine(T& in,bool reduceMemory, bool reduceTime)
                 pixelBuffer.resize(bufferSize);
 
                 size_t bufferIndex = 0;
-                for (int j = 0; j < w ; j++)
+                for (uint64_t j = 0; j < w; j++)
                 {
                     for (int k = 0; k < channelCount; k++)
                     {
@@ -1185,9 +1185,8 @@ bool readCoreScanlinePart(exr_context_t f, int part, bool reduceMemory, bool red
     uint64_t width  = (uint64_t) ((int64_t)datawin.max.x - (int64_t)datawin.min.x + 1);
     uint64_t height = (uint64_t) ((int64_t)datawin.max.y - (int64_t)datawin.min.y + 1);
 
-    std::vector<uint8_t> imgdata;
-    bool doread = false;
-    exr_chunk_info_t cinfo;
+    std::vector<uint8_t>  imgdata;
+    bool                  doread = false;
     exr_decode_pipeline_t decoder = EXR_DECODE_PIPELINE_INITIALIZER;
 
     int32_t lines_per_chunk;
