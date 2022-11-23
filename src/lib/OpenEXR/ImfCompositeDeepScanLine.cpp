@@ -507,7 +507,7 @@ CompositeDeepScanLine::readPixels (int start, int end)
     vector<unsigned int> num_sources (
         total_pixels); //number of parts with non-zero sample count
 
-    size_t overall_sample_count =
+    int64_t overall_sample_count =
         0; // sum of all samples in all images between start and end
 
     //
@@ -561,7 +561,7 @@ CompositeDeepScanLine::readPixels (int start, int end)
             // allocate pointers for channel data
             //
 
-            size_t offset = 0;
+            int64_t offset = 0;
 
             for (size_t pixel = 0; pixel < total_pixels; pixel++)
             {
