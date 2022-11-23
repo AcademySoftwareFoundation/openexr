@@ -197,7 +197,7 @@ MultiPartInputFile::getPart (int partNumber)
 const Header&
 MultiPartInputFile::header (int n) const
 {
-    if (n < 0 || n >= _data->_headers.size ())
+    if (n < 0 || static_cast<size_t>(n) >= _data->_headers.size ())
     {
         THROW (
             IEX_NAMESPACE::ArgExc,
@@ -857,7 +857,7 @@ bool
 MultiPartInputFile::partComplete (int part) const
 {
 
-    if (part < 0 || part >= _data->_headers.size ())
+    if (part < 0 || static_cast<size_t>(part) >= _data->_headers.size ())
     {
         THROW (
             IEX_NAMESPACE::ArgExc,
