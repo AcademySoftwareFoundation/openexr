@@ -400,6 +400,37 @@ testFloatToHalf()
             }
         }
     }
+
+#ifdef IMF_HAVE_NEON
+    {
+        cout << "      convertFloatToHalf64_neon()" << endl;
+        for (int iter = 0; iter < numIter; ++iter)
+        {
+            for (int i = 0; i < 64; ++i)
+            {
+                if (i < 32)
+                {
+                    src._buffer[i] = (float) 140000 * (rand48.nextf () - .5);
+                }
+                else { src._buffer[i] = (float) (rand48.nextf () - .5); }
+                dst._buffer[i] = 0;
+            }
+
+            convertFloatToHalf64_neon (dst._buffer, src._buffer);
+
+            for (int i = 0; i < 64; ++i)
+            {
+                half value = (half) src._buffer[i];
+                if (value.bits () != dst._buffer[i])
+                {
+                    cout << src._buffer[i] << " -> " << dst._buffer[i]
+                         << " expected " << value.bits () << endl;
+                    assert (false);
+                }
+            }
+        }
+    }
+    #endif // IMF_HAVE_NEON
 }
 
 //
@@ -483,7 +514,46 @@ testFromHalfZigZag()
                 }
             }
         } // iter
-    } // f16c
+    }     // f16c
+
+#ifdef IMF_HAVE_NEON
+    {
+        const int            numIter = 1000000;
+        Rand48               rand48 (0);
+        half                 h;
+        SimdAlignedBuffer64f dstF16c;
+
+        cout << "      fromHalfZigZag_neon()" << endl;
+
+        for (int iter = 0; iter < numIter; ++iter)
+        {
+            for (int i = 0; i < 64; ++i)
+            {
+                if (i < 32) { h = (half) (140000. * (rand48.nextf () - .5)); }
+                else
+                {
+                    h = (half) (rand48.nextf () - .5);
+                }
+                src._buffer[i] = h.bits ();
+            }
+
+            fromHalfZigZag_scalar (src._buffer, dst._buffer);
+            fromHalfZigZag_neon (src._buffer, dstF16c._buffer);
+
+            for (int i = 0; i < 64; ++i)
+            {
+                if (fabsf (dst._buffer[i] - dstF16c._buffer[i]) > 1e-5)
+                {
+                    cout << "At index " << i << ": ";
+                    cout << "expecting " << dst._buffer[i] << "; got "
+                         << dstF16c._buffer[i] << endl;
+                    assert (false);
+                }
+            }
+        } // iter
+    }     // neon
+
+#endif // IMF_HAVE_NEON
 }
 
 

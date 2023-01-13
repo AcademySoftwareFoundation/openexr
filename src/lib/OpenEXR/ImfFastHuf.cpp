@@ -11,6 +11,40 @@
 #include <math.h>
 #include <vector>
 
+// Static enabling/disabling the fast huffman decode
+
+
+#if defined(__clang__)
+//
+// Enabled for clang on Apple platforms (tested):
+//
+
+#    if defined(__APPLE__)
+#        define OPENEXR_IMF_ENABLE_FAST_HUF_DECODER
+#    endif
+
+#elif defined(__INTEL_COMPILER) || defined(__GNUC__)
+//
+// Enabled for ICC, GCC:
+//       __i386__   -> x86
+//       __x86_64__ -> 64-bit x86
+//       __e2k__    -> e2k (MCST Elbrus 2000)
+
+#    if defined(__i386__) || defined(__x86_64__) || defined(__e2k__)
+#        define OPENEXR_IMF_ENABLE_FAST_HUF_DECODER
+#    endif
+
+#elif defined(_MSC_VER)
+//
+// Enabled for Visual Studio:
+//        _M_IX86 -> x86
+//        _M_X64  -> 64bit x86
+
+#    if defined(_M_IX86) || defined(_M_X64)
+#        define OPENEXR_IMF_ENABLE_FAST_HUF_DECODER
+#    endif
+#endif
+
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 //
@@ -277,51 +311,32 @@ FastHufDecoder::~FastHufDecoder()
     ((uint64_t)(c)[3] << 32) | ((uint64_t)(c)[4] << 24) | ((uint64_t)(c)[5] << 16) | \
     ((uint64_t)(c)[6] <<  8) | ((uint64_t)(c)[7] ) 
 
-#ifdef __INTEL_COMPILER // ICC built-in swap for LE hosts
-    #if defined (__i386__) || defined(__x86_64__)
-        #undef  READ64
-        #define READ64(c) _bswap64 (*(const uint64_t*)(c))
-    #endif
+#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+#    ifdef __INTEL_COMPILER // ICC built-in swap for LE hosts
+#        if defined(__i386__) || defined(__x86_64__)
+#            undef READ64
+#            define READ64(c) _bswap64 (*(const uint64_t*) (c))
+#        endif
+
+#    else
+#        ifdef __has_builtin
+#            if __has_builtin(__builtin_bswap64)
+#                undef READ64
+#                define READ64(c) __builtin_bswap64 (*(const uint64_t*) (c))
+#            endif
+#        endif
+#    endif
 #endif
 
 
 bool
 FastHufDecoder::enabled()
 {
-    #if defined(__INTEL_COMPILER) || defined(__GNUC__)
-
-        //
-        // Enabled for ICC, GCC:
-        //       __i386__   -> x86
-        //       __x86_64__ -> 64-bit x86
-        //       __e2k__    -> e2k (MCST Elbrus 2000)
-
-        #if defined (__i386__) || defined(__x86_64__) || defined(__e2k__)
-            return true;
-        #else
-            return false;
-        #endif
-
-    #elif defined (_MSC_VER)
-
-        //
-        // Enabled for Visual Studio:
-        //        _M_IX86 -> x86
-        //        _M_X64  -> 64bit x86
-
-        #if defined (_M_IX86) || defined(_M_X64)
-            return true;
-        #else
-            return false;
-        #endif
-
-    #else
-
-        //
-        // Unknown compiler - Be safe and disable.
-        //
-        return false;
-    #endif
+#    ifdef OPENEXR_IMF_ENABLE_FAST_HUF_DECODER
+    return true;
+#    else
+    return false;
+#    endif
 }
 
 //
