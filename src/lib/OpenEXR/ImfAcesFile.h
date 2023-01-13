@@ -54,6 +54,7 @@
 #include "ImfRgba.h"
 #include "ImfThreading.h"
 
+#include <cstddef>
 #include <string>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
@@ -150,7 +151,7 @@ public:
     //------------------------------------------------
 
     IMF_EXPORT
-    void setFrameBuffer (const Rgba* base, size_t xStride, size_t yStride);
+    void setFrameBuffer (const Rgba* base, ptrdiff_t xStride, ptrdiff_t yStride);
 
     //-------------------------------------------------
     // Write pixel data (see class Imf::OutputFile)
@@ -247,7 +248,7 @@ public:
     //-----------------------------------------------------
 
     IMF_EXPORT
-    void setFrameBuffer (Rgba* base, size_t xStride, size_t yStride);
+    void setFrameBuffer (Rgba* base, ptrdiff_t xStride, ptrdiff_t yStride);
 
     //--------------------------------------------
     // Read pixel data (see class Imf::InputFile)

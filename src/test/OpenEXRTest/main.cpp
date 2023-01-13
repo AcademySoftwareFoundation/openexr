@@ -48,6 +48,7 @@
 #include "testMultiTiledPartThreading.h"
 #include "testMultiView.h"
 #include "testNativeFormat.h"
+#include "testNegativeStride.h"
 #include "testOptimized.h"
 #include "testOptimizedInterleavePatterns.h"
 #include "testPartHelper.h"
@@ -206,6 +207,7 @@ main (int argc, char* argv[])
     TEST (testYca, "basic");
     TEST (testTiledYa, "basic");
     TEST (testNativeFormat, "basic");
+    TEST (testNegativeStride, "basic");
     TEST (testMultiView, "basic");
     TEST (testIsComplete, "basic");
     TEST (testDeepScanLineBasic, "deep");

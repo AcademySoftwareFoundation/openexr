@@ -153,7 +153,7 @@ public:
 
     void setYCRounding (unsigned int roundY, unsigned int roundC);
 
-    void setFrameBuffer (const Rgba* base, size_t xStride, size_t yStride);
+    void setFrameBuffer (const Rgba* base, ptrdiff_t xStride, ptrdiff_t yStride);
 
     void writePixels (int numScanLines);
     int  currentScanLine () const;
@@ -180,8 +180,8 @@ private:
     Rgba*       _buf[N];
     Rgba*       _tmpBuf;
     const Rgba* _fbBase;
-    size_t      _fbXStride;
-    size_t      _fbYStride;
+    ptrdiff_t   _fbXStride;
+    ptrdiff_t   _fbYStride;
     int         _roundY;
     int         _roundC;
 };
@@ -241,7 +241,7 @@ RgbaOutputFile::ToYca::setYCRounding (unsigned int roundY, unsigned int roundC)
 
 void
 RgbaOutputFile::ToYca::setFrameBuffer (
-    const Rgba* base, size_t xStride, size_t yStride)
+    const Rgba* base, ptrdiff_t xStride, ptrdiff_t yStride)
 {
     if (_fbBase == 0)
     {
@@ -603,7 +603,7 @@ RgbaOutputFile::~RgbaOutputFile ()
 
 void
 RgbaOutputFile::setFrameBuffer (
-    const Rgba* base, size_t xStride, size_t yStride)
+    const Rgba* base, ptrdiff_t xStride, ptrdiff_t yStride)
 {
     if (_toYca)
     {
@@ -612,8 +612,8 @@ RgbaOutputFile::setFrameBuffer (
     }
     else
     {
-        size_t xs = xStride * sizeof (Rgba);
-        size_t ys = yStride * sizeof (Rgba);
+        ptrdiff_t xs = xStride * sizeof (Rgba);
+        ptrdiff_t ys = yStride * sizeof (Rgba);
 
         FrameBuffer fb;
 
@@ -749,8 +749,8 @@ public:
 
     void setFrameBuffer (
         Rgba*         base,
-        size_t        xStride,
-        size_t        yStride,
+        ptrdiff_t     xStride,
+        ptrdiff_t     yStride,
         const string& channelNamePrefix);
 
     void readPixels (int scanLine1, int scanLine2);
@@ -777,8 +777,8 @@ private:
     Rgba*      _buf2[3];
     Rgba*      _tmpBuf;
     Rgba*      _fbBase;
-    size_t     _fbXStride;
-    size_t     _fbYStride;
+    ptrdiff_t  _fbXStride;
+    ptrdiff_t  _fbYStride;
 };
 
 RgbaInputFile::FromYca::FromYca (
@@ -823,7 +823,7 @@ RgbaInputFile::FromYca::~FromYca ()
 
 void
 RgbaInputFile::FromYca::setFrameBuffer (
-    Rgba* base, size_t xStride, size_t yStride, const string& channelNamePrefix)
+    Rgba* base, ptrdiff_t xStride, ptrdiff_t yStride, const string& channelNamePrefix)
 {
     if (_fbBase == 0)
     {
@@ -1219,7 +1219,7 @@ RgbaInputFile::~RgbaInputFile ()
 }
 
 void
-RgbaInputFile::setFrameBuffer (Rgba* base, size_t xStride, size_t yStride)
+RgbaInputFile::setFrameBuffer (Rgba* base, ptrdiff_t xStride, ptrdiff_t yStride)
 {
     if (_fromYca)
     {
@@ -1228,8 +1228,8 @@ RgbaInputFile::setFrameBuffer (Rgba* base, size_t xStride, size_t yStride)
     }
     else
     {
-        size_t xs = xStride * sizeof (Rgba);
-        size_t ys = yStride * sizeof (Rgba);
+        ptrdiff_t xs = xStride * sizeof (Rgba);
+        ptrdiff_t ys = yStride * sizeof (Rgba);
 
         FrameBuffer fb;
 

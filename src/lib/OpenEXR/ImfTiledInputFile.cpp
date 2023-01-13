@@ -59,8 +59,8 @@ struct TInSliceInfo
     PixelType typeInFrameBuffer;
     PixelType typeInFile;
     char*     base;
-    size_t    xStride;
-    size_t    yStride;
+    ptrdiff_t xStride;
+    ptrdiff_t yStride;
     bool      fill;
     bool      skip;
     double    fillValue;
@@ -71,8 +71,8 @@ struct TInSliceInfo
         PixelType typeInFrameBuffer = HALF,
         PixelType typeInFile        = HALF,
         char*     base              = 0,
-        size_t    xStride           = 0,
-        size_t    yStride           = 0,
+        ptrdiff_t xStride           = 0,
+        ptrdiff_t yStride           = 0,
         bool      fill              = false,
         bool      skip              = false,
         double    fillValue         = 0.0,
@@ -84,8 +84,8 @@ TInSliceInfo::TInSliceInfo (
     PixelType tifb,
     PixelType tifl,
     char*     b,
-    size_t    xs,
-    size_t    ys,
+    ptrdiff_t xs,
+    ptrdiff_t ys,
     bool      f,
     bool      s,
     double    fv,

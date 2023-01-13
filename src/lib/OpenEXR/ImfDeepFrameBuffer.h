@@ -49,8 +49,8 @@ struct IMF_EXPORT_TYPE DeepSlice : public Slice
     DeepSlice (
         PixelType type         = HALF,
         char*     base         = 0,
-        size_t    xStride      = 0,
-        size_t    yStride      = 0,
+        ptrdiff_t xStride      = 0,
+        ptrdiff_t yStride      = 0,
         size_t    sampleStride = 0,
         int       xSampling    = 1,
         int       ySampling    = 1,

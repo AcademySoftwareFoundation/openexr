@@ -14,8 +14,8 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 DeepSlice::DeepSlice (
     PixelType t,
     char*     b,
-    size_t    xst,
-    size_t    yst,
+    ptrdiff_t xst,
+    ptrdiff_t yst,
     size_t    spst,
     int       xsm,
     int       ysm,

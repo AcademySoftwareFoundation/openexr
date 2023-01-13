@@ -46,6 +46,7 @@ add_executable(OpenEXRTest
   testMultiTiledPartThreading.cpp
   testMultiView.cpp
   testNativeFormat.cpp
+  testNegativeStride.cpp
   testOptimized.cpp
   testOptimizedInterleavePatterns.cpp
   testPartHelper.cpp
@@ -119,6 +120,7 @@ define_openexr_tests(
  testMultiTiledPartThreading
  testMultiView
  testNativeFormat
+ testNegativeStride
  testOptimized
  testOptimizedInterleavePatterns
  testPartHelper

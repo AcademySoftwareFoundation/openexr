@@ -62,8 +62,8 @@ struct InSliceInfo
     PixelType typeInFile;
     char*     base;
     char*     pointerArrayBase;
-    size_t    xPointerStride;
-    size_t    yPointerStride;
+    ptrdiff_t xPointerStride;
+    ptrdiff_t yPointerStride;
     size_t    sampleStride;
     int       xSampling;
     int       ySampling;
@@ -75,8 +75,8 @@ struct InSliceInfo
         PixelType typeInFrameBuffer = HALF,
         char*     base              = NULL,
         PixelType typeInFile        = HALF,
-        size_t    xPointerStride    = 0,
-        size_t    yPointerStride    = 0,
+        ptrdiff_t xPointerStride    = 0,
+        ptrdiff_t yPointerStride    = 0,
         size_t    sampleStride      = 0,
         int       xSampling         = 1,
         int       ySampling         = 1,
@@ -89,8 +89,8 @@ InSliceInfo::InSliceInfo (
     PixelType tifb,
     char*     b,
     PixelType tifl,
-    size_t    xpst,
-    size_t    ypst,
+    ptrdiff_t xpst,
+    ptrdiff_t ypst,
     size_t    spst,
     int       xsm,
     int       ysm,

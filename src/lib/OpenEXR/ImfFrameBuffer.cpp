@@ -22,8 +22,8 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 Slice::Slice (
     PixelType t,
     char*     b,
-    size_t    xst,
-    size_t    yst,
+    ptrdiff_t xst,
+    ptrdiff_t yst,
     int       xsm,
     int       ysm,
     double    fv,
@@ -49,8 +49,8 @@ Slice::Make (
     const IMATH_NAMESPACE::V2i& origin,
     int64_t                     w,
     int64_t                     h,
-    size_t                      xStride,
-    size_t                      yStride,
+    ptrdiff_t                   xStride,
+    ptrdiff_t                   yStride,
     int                         xSampling,
     int                         ySampling,
     double                      fillValue,
@@ -69,7 +69,7 @@ Slice::Make (
                 THROW (IEX_NAMESPACE::ArgExc, "Invalid pixel type.");
         }
     }
-    if (yStride == 0) yStride = static_cast<size_t> (w / xSampling) * xStride;
+    if (yStride == 0) yStride = (w / xSampling) * xStride;
 
     // data window is an int, so force promote to higher type to avoid
     // overflow for off y (degenerate size checks should be in
@@ -99,8 +99,8 @@ Slice::Make (
     PixelType                     type,
     const void*                   ptr,
     const IMATH_NAMESPACE::Box2i& dataWindow,
-    size_t                        xStride,
-    size_t                        yStride,
+    ptrdiff_t                     xStride,
+    ptrdiff_t                     yStride,
     int                           xSampling,
     int                           ySampling,
     double                        fillValue,
