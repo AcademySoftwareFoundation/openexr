@@ -2786,6 +2786,13 @@ DwaCompressor::initializeFuncs ()
         fromHalfZigZag       = fromHalfZigZag_f16c;
     }
 
+#ifdef IMF_HAVE_NEON
+    {
+        convertFloatToHalf64 = convertFloatToHalf64_neon;
+        fromHalfZigZag       = fromHalfZigZag_neon;
+    }
+#endif
+
     //
     // Setup inverse DCT implementations
     //
