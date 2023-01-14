@@ -22,6 +22,7 @@
 #include <ImfStdIO.h>
 #include <ImfTileDescription.h>
 #include <ImfXdr.h>
+#include <cassert>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
@@ -274,6 +275,20 @@ copyIntoFrameBuffer (
     // file's line or tile buffer to a frame buffer.
     //
     endPtr += xStride;
+
+    if (xStride == 0)
+    {
+        throw IEX_NAMESPACE::ArgExc ("Zero stride is invalid.");
+    }
+    if ((endPtr - writePtr) / xStride <= 0)
+    {
+        // Nothing to do, the specified range is empty.
+        return;
+    }
+    if ((endPtr - writePtr) % xStride != 0)
+    {
+        throw IEX_NAMESPACE::ArgExc ("Stride will not exactly span input data.");
+    }
 
     if (fill)
     {
@@ -1533,6 +1548,21 @@ copyFromFrameBuffer (
     char*       localWritePtr = writePtr;
     const char* localReadPtr  = readPtr;
     endPtr += xStride;
+
+    if (xStride == 0)
+    {
+        throw IEX_NAMESPACE::ArgExc ("Zero stride is invalid.");
+    }
+    if ((endPtr - localReadPtr) / xStride <= 0)
+    {
+        // Nothing to do, the specified range is empty.
+        return;
+    }
+    if ((endPtr - localReadPtr) % xStride != 0)
+    {
+        throw IEX_NAMESPACE::ArgExc ("Stride will not exactly span input data.");
+    }
+
     //
     // Copy a horizontal row of pixels from a frame
     // buffer to an output file's line or tile buffer.
