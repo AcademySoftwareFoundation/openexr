@@ -1,3 +1,7 @@
+..
+  SPDX-License-Identifier: BSD-3-Clause
+  Copyright (c) Contributors to the OpenEXR Project.
+
 Storing Multi-View Images in OpenEXR Files
 ##########################################
 
