@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright (c) Contributors to the OpenEXR Project.
+
 PROJECT_NAME     = "OpenEXR"
 GENERATE_LATEX   = NO
 GENERATE_MAN     = NO
