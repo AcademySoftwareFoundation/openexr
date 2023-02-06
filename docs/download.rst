@@ -2,38 +2,13 @@
   SPDX-License-Identifier: BSD-3-Clause
   Copyright Contributors to the OpenEXR Project.
 
-.. _Download:
+.. _Build:
 
-Download
-========
+Build
+=====
 
 OpenEXR builds on Linux, macOS, Microsoft Windows, and is
 cross-compilable on other systems.
-
-Installation
-------------
-
-To build the latest release of OpenEXR, begin by downloading the
-source from the GitHub Releases page: 
-https://github.com/AcademySoftwareFoundation/openexr/releases.
-
-To build from the latest development version, which may not be stable,
-clone the GitHub repo and build from the ``main`` branch:
-
-.. code-block::
-
-    % git clone https://github.com/AcademySoftwareFoundation/openexr
-
-You can alternatively download the repository tarball file either via
-a browser, or on the Linux/macOS via the command line using ``wget``
-or ``curl``:
-
-.. code-block::
-
-    % curl -L https://github.com/AcademySoftwareFoundation/openexr/tarball/main | tar xv
-
-In the instructions that follow, we will refer to the top-level
-directory of the source code tree as ``$openexr_source_directory``.
 
 Prerequisites
 +++++++++++++
@@ -50,25 +25,29 @@ The instructions that follow describe building OpenEXR with CMake.
 Note that as of OpenEXR 3, the Gnu autoconf bootstrap/configure build
 system is no longer supported.
 
-Linux/macOS Quick Start
-+++++++++++++++++++++++
+Linux/macOS
++++++++++++
 
+To build via CMake, you need to first identify three directories:
 
-To build via CMake, first choose a location for the build directory,
-which we will refer to as ``$build_directory``.
+1. The source directory, i.e. the top-level directory of the
+   downloaded source archive or cloned repo, referred to below as ``$srcdir``
+2. A temporary directory to hold the build artifacts, referred to below as
+   ``$builddir``
+3. A destination directory into which to install the
+   libraries and headers, referred to below as ``$installdir``.  
 
+To build:
 .. code-block::
 
-    % mkdir $build_directory
-    % cd $build_directory
-    % cmake $openexr_source_directory
-    % make
-    % make install
+    % cd $builddir
+    % cmake $srcdir --install-prefix $installdir
+    % cmake --build $builddir --target install --config Release
 
 Note that the CMake configuration prefers to apply an out-of-tree
 build process, since there may be multiple build configurations
 (i.e. debug and release), one per folder, all pointing at once source
-tree, hence the ``$build_directory`` noted above, referred to in CMake
+tree, hence the ``$builddir`` noted above, referred to in CMake
 parlance as the *build directory*. You can place this directory
 wherever you like.
 
@@ -78,8 +57,8 @@ no arguments, as above, ``make install`` installs the header files in
 ``/usr/local/include``, the object libraries in ``/usr/local/lib``, and the
 executable programs in ``/usr/local/bin``.
 
-Windows Quick Start
-+++++++++++++++++++
+Windows
++++++++
 
 Under Windows, if you are using a command line-based setup, such as
 cygwin, you can of course follow the above. For Visual Studio, cmake
@@ -95,6 +74,7 @@ can specify a local install directory to cmake via the
     % cmake .. -DCMAKE_INSTALL_PREFIX=$openexr_install_directory
 
 Porting Applications from OpenEXR v2 to v3
+==========================================
 
 See the [porting
 guide](https://github.com/AcademySoftwareFoundation/Imath/blob/main/docs/PortingGuide2-3.md)
@@ -103,7 +83,7 @@ address them. Also refer to the porting guide for details about
 changes to Imath.
 
 Building the Documentation
-++++++++++++++++++++++++++
+==========================
 
 The OpenEXR technical documentation at
 [openexr.readthedocs.io](https://openexr.readthedocs.io) is generated
@@ -124,6 +104,9 @@ documentation takes the place of the formerly distributed .pdf
 documents in the ``docs`` folder, although readthedocs supports
 downloading of documentation in pdf format, for those who prefer it
 that way.
+
+Build-time Configuration Options
+================================
 
 Library Names
 -------------
@@ -390,9 +373,13 @@ If you have ninja (https://ninja-build.org/) installed, it is faster
 than make. You can generate ninja files using cmake when doing the
 initial generation:
 
+.. code-block::
+
     % cmake -G “Ninja” ..
 
 If you would like to confirm compile flags, you don’t have to specify
 the verbose configuration up front, you can instead run
+
+.. code-block::
 
     % make VERBOSE=1

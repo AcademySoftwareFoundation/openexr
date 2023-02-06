@@ -2,7 +2,11 @@
   SPDX-License-Identifier: BSD-3-Clause
   Copyright Contributors to the OpenEXR Project.
 
-.. _license:
+.. _License:
+
++------------------------------+--------------------------+--------------------------------------+------------------------------------------------------------------+----------------------------+
+| :ref:`About <About OpenEXR>` | :ref:`License <License>` | :ref:`Documentation <Documentation>` | `GitHub <https://github.com/AcademySoftwareFoundation/openexr>`_ | :ref:`Download <Download>` |
++------------------------------+--------------------------+--------------------------------------+------------------------------------------------------------------+----------------------------+
 
 License
 =======

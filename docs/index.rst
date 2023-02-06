@@ -6,24 +6,21 @@
    :hidden:
       
    about
-   technical
-   contributing
-   governance
-   download
-   charter
    license
+   documentation
+   download
    faq
       
-+------------------------------+------------------------------------------------+------------------------------------------------------------------+----------------------------------+--------------------------------+----------------------------+
-| :ref:`About <About OpenEXR>` | :ref:`Documentation <Technical Documentation>` | `GitHub <https://github.com/AcademySoftwareFoundation/openexr>`_ | :ref:`Contribute <contributing>` | :ref:`Governance <governance>` | :ref:`Download <Download>` |
-+------------------------------+------------------------------------------------+------------------------------------------------------------------+----------------------------------+--------------------------------+----------------------------+
++------------------------------+--------------------------+--------------------------------------+------------------------------------------------------------------+----------------------------+
+| :ref:`About <About OpenEXR>` | :ref:`License <License>` | :ref:`Documentation <Documentation>` | `GitHub <https://github.com/AcademySoftwareFoundation/openexr>`_ | :ref:`Download <Download>` |
++------------------------------+--------------------------+--------------------------------------+------------------------------------------------------------------+----------------------------+
 
 Overview
 ========
 
 .. sidebar:: OpenEXR
 
-     .. image:: technical/images/windowExample1.png
+     .. image:: images/windowExample1.png
 
 OpenEXR provides the specification and reference implementation of the
 EXR file format, the professional-grade image storage format of the
@@ -54,32 +51,6 @@ Imath also includes optional python bindings for all types and
 functions, including optimized implementations of vector and matrix
 arrays.
 
-OpenEXR Project Mission
------------------------
-
-The goal of the OpenEXR project is to keep the EXR format reliable and
-modern and to maintain its place as the preferred image format for
-entertainment content creation. 
-
-Major revisions are infrequent, and new features will be carefully
-weighed against increased complexity.  The principal priorities of the
-project are:
-
-* Robustness, reliability, security
-* Backwards compatibility, data longevity
-* Performance - read/write/compression/decompression time
-* Simplicity, ease of use, maintainability
-* Wide adoption, multi-platform support - Linux, Windows, macOS, and others
-
-OpenEXR is intended solely for 2D data. It is not appropriate for
-storage of volumetric data, cached or lit 3D scenes, or more complex
-3D data such as light fields.
-
-The goals of the Imath project are simplicity, ease of use,
-correctness and verifiability, and breadth of adoption. Imath is not
-intended to be a comprehensive linear algebra or numerical analysis
-package.
-
 Community
 =========
 
@@ -102,7 +73,7 @@ Community
 
 * **Make a contribution:**
 
-  - Read the :ref:`contribution guidelines <contributing>`
+  - Read the `Contribution guidelines <https://github.com/AcademySoftwareFoundation/openexr/blob/main/CONTRIBUTING.md>`_
 
   - Submit a PR: https://github.com/AcademySoftwareFoundation/openexr/pulls
 
@@ -117,9 +88,5 @@ Resources
 - Reference images: https://github.com/AcademySoftwareFoundation/openexr-images
 - Security Policy: `SECURITY.md <https://github.com/AcademySoftwareFoundation/openexr/blob/main/SECURITY.md>`_
 
-License
-=======
-
-OpenEXR is licensed under the :ref:`BSD-3-Clause license <license>`. 
 
   
