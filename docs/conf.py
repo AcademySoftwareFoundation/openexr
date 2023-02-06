@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright (c) Contributors to the OpenEXR Project.
+
 # -*- coding: utf-8 -*-
 #
 # ReadTheDocs-Breathe documentation build configuration file, created by
