@@ -3,11 +3,11 @@
 ## Copyright (c) Contributors to the OpenEXR Project.
 ##
 
-prefix=@prefix@
-exec_prefix=@exec_prefix@
-libdir=@libdir@
-includedir=@includedir@
-OpenEXR_includedir=@includedir@/OpenEXR
+prefix=@CMAKE_INSTALL_PREFIX@
+exec_prefix=${prefix}
+libdir=@PKG_CONFIG_INSTALL_LIBDIR@
+includedir=@PKG_CONFIG_INSTALL_INCLUDEDIR@
+OpenEXR_includedir=${includedir}/OpenEXR
 libsuffix=@LIB_SUFFIX_DASH@
 
 Name: OpenEXR
