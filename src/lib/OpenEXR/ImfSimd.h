@@ -42,6 +42,10 @@
 #    define IMF_HAVE_F16C 1
 #endif
 
+#if defined(__ARM_NEON)
+#    define IMF_HAVE_NEON
+#endif
+
 extern "C" {
 #ifdef IMF_HAVE_SSE2
 #    include <emmintrin.h>
@@ -51,6 +55,11 @@ extern "C" {
 #ifdef IMF_HAVE_SSE4_1
 #    include <smmintrin.h>
 #endif
+
+#ifdef IMF_HAVE_NEON
+#    include <arm_neon.h>
+#endif
+
 }
 
 #endif

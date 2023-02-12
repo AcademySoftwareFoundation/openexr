@@ -2,10 +2,10 @@
   SPDX-License-Identifier: BSD-3-Clause
   Copyright Contributors to the OpenEXR Project.
 
-.. _Technical Introduction
+.. _Technical Introduction to OpenEXR:
 
-Technical Introduction
-######################
+Technical Introduction to OpenEXR
+#################################
 
 .. toctree::
    :caption: Technical Introduction

@@ -1280,9 +1280,21 @@ fasthuf_initialize (
             codeCount[codeLen]++;
         }
         else if (codeLen == (uint64_t) LONG_ZEROCODE_RUN)
+        {
+            if (currByte >= topByte)
+            {
+                if (pctxt)
+                    pctxt->print_error (
+                        pctxt,
+                        EXR_ERR_CORRUPT_CHUNK,
+                        "Error decoding Huffman table (Truncated table data).");
+                return EXR_ERR_CORRUPT_CHUNK;
+            }
+
             symbol +=
                 fasthuf_read_bits (8, &currBits, &currBitCount, &currByte) +
                 SHORTEST_LONG_RUN - 1;
+        }
         else
             symbol += codeLen - SHORT_ZEROCODE_RUN + 1;
 
@@ -1300,7 +1312,7 @@ fasthuf_initialize (
     for (int i = 0; i < MAX_CODE_LEN; ++i)
         fhd->_numSymbols += codeCount[i];
 
-    if (fhd->_numSymbols > sizeof (fhd->_idToSymbol) / sizeof (int))
+    if ((size_t) fhd->_numSymbols > sizeof (fhd->_idToSymbol) / sizeof (int))
     {
         if (pctxt)
             pctxt->print_error (
@@ -1809,7 +1821,6 @@ internal_huf_decompress (
         uint64_t* freq     = (uint64_t*) spare;
         HufDec*   hdec     = (HufDec*) (freq + HUF_ENCSIZE);
         uint64_t  nLeft    = nCompressed - 20;
-        uint64_t  nTableSz = 0;
 
         hufClearDecTable (hdec);
         hufUnpackEncTable (&ptr, &nLeft, im, iM, freq);

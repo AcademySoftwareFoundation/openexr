@@ -338,7 +338,7 @@ bufferedReadPixels (InputFile::Data* ifd, int scanLine1, int scanLine2)
                     switch (toSlice.type)
                     {
                         case UINT: {
-                            unsigned int fill = toSlice.fillValue;
+                            unsigned int fill = static_cast<unsigned int>(toSlice.fillValue);
                             for (int x = xStart; x <= levelRange.max.x;
                                  x += toSlice.xSampling)
                             {

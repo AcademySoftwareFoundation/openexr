@@ -395,6 +395,18 @@ convertFloatToHalf64_scalar (unsigned short* dst, float* src)
         dst[i] = ((half) src[i]).bits ();
 }
 
+#ifdef IMF_HAVE_NEON
+
+void
+convertFloatToHalf64_neon (unsigned short* dst, float* src)
+{
+    for (int i = 0; i < 64; i += 8) {
+        float32x4x2_t vec_fp32 = vld1q_f32_x2 (src + i);
+        vst1q_u16 (dst + i,  vcombine_u16(vreinterpret_u16_f16(vcvt_f16_f32(vec_fp32.val[0])),vreinterpret_u16_f16(vcvt_f16_f32(vec_fp32.val[1]))));
+    }
+}
+#endif 
+
 //
 // F16C conversion - Assumes aligned src and dst
 //
@@ -808,6 +820,43 @@ fromHalfZigZag_f16c (unsigned short* src, float* dst)
     fromHalfZigZag_scalar (src, dst);
 #endif /* defined IMF_HAVE_GCC_INLINEASM_X86_64 */
 }
+
+#ifdef IMF_HAVE_NEON
+
+
+void
+fromHalfZigZag_neon(unsigned short* __restrict__ src, float* __restrict__ dst)
+{
+    uint8x16_t res_tbl[4] = {
+        {0,  1,  5,  6,  14, 15, 27, 28, 2 , 4 , 7 ,13, 16, 26, 29,  42},
+        {3 , 8 ,12 ,17, 25, 30, 41, 43,9 ,11 ,18 ,24, 31, 40, 44, 53},
+        {10 ,19 ,23 ,32, 39, 45, 52, 54,20 ,22 ,33 ,38, 46, 51, 55, 60},
+        {21 ,34 ,37 ,47, 50, 56, 59, 61,35 ,36 ,48 ,49, 57, 58, 62, 63}};
+    
+    uint8x16x4_t vec_input_l,vec_input_h;
+    
+    for (int i = 0; i < 4; i++)
+    {
+        uint8x16x2_t vec_in_u8 = vld2q_u8 ((unsigned char*)(src + 16 * i));
+        vec_input_l.val[i] = vec_in_u8.val[0];
+        vec_input_h.val[i] = vec_in_u8.val[1];
+    }
+    
+#pragma unroll(4)
+    for (int i = 0; i  < 4 ; i++) {
+        uint8x16_t res_vec_l,res_vec_h;
+        res_vec_l = vqtbl4q_u8(vec_input_l,res_tbl[i]);
+        res_vec_h = vqtbl4q_u8(vec_input_h,res_tbl[i]);
+        float16x8_t res_vec_l_f16 = vreinterpretq_f16_u8(vzip1q_u8(res_vec_l,res_vec_h));
+        float16x8_t res_vec_h_f16 = vreinterpretq_f16_u8(vzip2q_u8(res_vec_l,res_vec_h));
+        vst1q_f32(dst + i*16,   vcvt_f32_f16(vget_low_f16(res_vec_l_f16)));
+        vst1q_f32(dst + i*16+4, vcvt_high_f32_f16(res_vec_l_f16));
+        vst1q_f32(dst + i*16+8, vcvt_f32_f16(vget_low_f16(res_vec_h_f16)));
+        vst1q_f32(dst + i*16+12, vcvt_high_f32_f16(res_vec_h_f16));
+    }
+}
+
+#endif // IMF_HAVE_NEON
 
 //
 // Inverse 8x8 DCT, only inverting the DC. This assumes that
