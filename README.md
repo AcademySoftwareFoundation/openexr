@@ -52,7 +52,7 @@ package.
 
 OpenEXR is a project of the [Academy Software
 Foundation](https://www.aswf.io). See the project's [governance
-policies](https://openexr.readthedocs.io/en/latest/goverance), [contribution guidelines](https://openexr.readthedocs.io/en/latest/contributing), and [code of conduct](https://openexr.readthedocs.io/en/latest/code_of_conduct)
+policies](GOVERNANCE.md), [contribution guidelines](CONTRIBzuTING.md), and [code of conduct](CODE_OF_CONDUCT)
 for more information.
 
 # Quick Start
@@ -86,7 +86,7 @@ complete details, but to get started, the "hello, world" `.exr` writer program i
         return 0;
     }
 
-And the `CMakeLists.txt` to build:
+The `CMakeLists.txt` to build:
 
     cmake_minimum_required(VERSION 3.10)
     project(exrwriter)
@@ -97,9 +97,12 @@ And the `CMakeLists.txt` to build:
 
 To build:
 
-    mkdir _build
-    cmake -S . -B _build
-    cmake --build _build
+    $ mkdir _build
+    $ cmake -S . -B _build
+    $ make --build _build
+
+For more details, see [The OpenEXR
+API](https://openexr.readthedocs.io/en/latest/API.html#the-openexr-api).
 
 # Community
 
@@ -137,7 +140,7 @@ To build:
 
 - Website: http://www.openexr.com
 - Technical documentation: https://openexr.readthedocs.io
-- Porting help: [OpenEXR/Imath Version 2.x to 3.x Porting Guide](https://openexr.readthedocs.io/en/latest/porting)
+- Porting help: [OpenEXR/Imath Version 2.x to 3.x Porting Guide](https://openexr.readthedocs.io/en/latest/PortingGuide.html)
 - Reference images: https://github.com/AcademySoftwareFoundation/openexr-images
 - Security policy: [SECURITY.md](SECURITY.md)
 - Release notes: [CHANGES.md](CHANGES.md)
