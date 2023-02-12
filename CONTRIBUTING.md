@@ -1,3 +1,6 @@
+<!-- SPDX-License-Identifier: BSD-3-Clause -->
+<!-- Copyright (c) Contributors to the OpenEXR Project -->
+
 # Contributing to OpenEXR
 
 Thank you for your interest in contributing to OpenEXR. This document
