@@ -22,6 +22,14 @@
 #include <errno.h>
 #include <stdio.h>
 
+#ifdef _WIN32
+#else
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
+#endif
+
 #include <ImfChannelList.h>
 #include <vector>
 
@@ -33,6 +41,17 @@ using namespace IMATH_NAMESPACE;
 
 namespace
 {
+
+bool
+isLossy(Compression compression)
+{
+    return
+        Compression::PXR24_COMPRESSION == compression ||
+        Compression::B44_COMPRESSION == compression ||
+        Compression::B44A_COMPRESSION == compression ||
+        Compression::DWAA_COMPRESSION == compression ||
+        Compression::DWAB_COMPRESSION == compression;
+}
 
 void
 fillPixels1 (Array2D<Rgba>& pixels, int w, int h)
@@ -70,7 +89,7 @@ fillPixels2 (Array2D<Rgba>& pixels, int w, int h)
 
 //
 // class MMIFStream -- a memory-mapped implementation of
-// class IStream based on class std::ifstream
+// class IStream
 //
 
 class MMIFStream : public OPENEXR_IMF_NAMESPACE::IStream
@@ -78,8 +97,6 @@ class MMIFStream : public OPENEXR_IMF_NAMESPACE::IStream
 public:
     //-------------------------------------------------------
     // A constructor that opens the file with the given name.
-    // It reads the whole file into an internal buffer and
-    // then immediately closes the file.
     //-------------------------------------------------------
 
     MMIFStream (const char fileName[]);
@@ -95,46 +112,59 @@ public:
     virtual void     clear () {}
 
 private:
-    char*    _buffer;
-    uint64_t _length;
+#ifdef _WIN32
+#else
+    int _f;
+    void* _mmap;
     uint64_t _pos;
+    uint64_t _length;
+#endif
 };
 
 MMIFStream::MMIFStream (const char fileName[])
     : OPENEXR_IMF_NAMESPACE::IStream (fileName)
-    , _buffer (0)
-    , _length (0)
+    , _f (-1)
+    , _mmap (reinterpret_cast<void*>(-1))
     , _pos (0)
+    , _length (0)
 {
-    std::ifstream ifs;
-    testutil::OpenStreamWithUTF8Name (
-        ifs, fileName, ios::in | ios_base::binary);
+#ifdef _WIN32
+#else
+    _f = open(fileName, O_RDONLY);
+    if (-1 == _f)
+    {
+        throw IEX_NAMESPACE::IoExc ("Cannot open file.");
+    }
 
-    //
-    // Get length of file
-    //
+    struct stat s;
+    memset(&s, 0, sizeof(struct stat));
+    if (stat(fileName, &s) != 0)
+    {
+        throw IEX_NAMESPACE::IoExc ("Cannot stat file.");
+    }
+    _length = s.st_size;
 
-    ifs.seekg (0, ios::end);
-    _length = ifs.tellg ();
-    ifs.seekg (0, ios::beg);
-
-    //
-    // Allocate memory
-    //
-
-    _buffer = new char[_length];
-
-    //
-    // Read the entire file
-    //
-
-    ifs.read (_buffer, _length);
-    ifs.close ();
+    _mmap = mmap(0, _length, PROT_READ, MAP_SHARED, _f, 0);
+    if (_mmap == (void*)-1)
+    {
+        throw IEX_NAMESPACE::IoExc ("Cannot memory map file.");
+    }
+#endif
 }
 
 MMIFStream::~MMIFStream ()
 {
-    delete[] _buffer;
+#ifdef _WIN32
+#else
+    if (_mmap != (void*)-1)
+    {
+        munmap(_mmap, _length);
+    }
+    if (_f != -1)
+    {
+        close(_f);
+    }
+#endif
 }
 
 bool
@@ -152,7 +182,7 @@ MMIFStream::read (char c[/*n*/], int n)
         retVal = false;
     }
 
-    memcpy (c, &(_buffer[_pos]), n2);
+    memcpy (c, reinterpret_cast<const char*>(_mmap) + _pos, n2);
     _pos += n2;
     return retVal;
 }
@@ -166,14 +196,18 @@ MMIFStream::readMemoryMapped (int n)
     if (_pos + n > _length)
         throw IEX_NAMESPACE::InputExc ("Reading past end of file.");
 
-    char* retVal = &(_buffer[_pos]);
+    char* retVal = reinterpret_cast<char*>(_mmap) + _pos;
     _pos += n;
     return retVal;
 }
 
 void
 writeReadScanLines (
-    const char fileName[], int width, int height, const Array2D<Rgba>& p1)
+    const char fileName[],
+    int width,
+    int height,
+    Compression compression,
+    const Array2D<Rgba>& p1)
 {
     //
     // Save a scanline-based RGBA image, but instead of
@@ -194,8 +228,15 @@ writeReadScanLines (
         std::ofstream os;
         testutil::OpenStreamWithUTF8Name (
             os, fileName, ios::out | ios_base::binary);
-        StdOFStream    ofs (os, fileName);
-        Header         header (width, height);
+        StdOFStream ofs (os, fileName);
+        Header header (
+            width,
+            height,
+            1,
+            IMATH_NAMESPACE::V2f (0, 0),
+            1,
+            INCREASING_Y,
+            compression);
         RgbaOutputFile out (ofs, header, WRITE_RGBA);
         out.setFrameBuffer (&p1[0][0], 1, width);
         out.writePixels (height);
@@ -219,15 +260,18 @@ writeReadScanLines (
         in.setFrameBuffer (&p2[-dy][-dx], 1, w);
         in.readPixels (dw.min.y, dw.max.y);
 
-        cout << ", comparing";
-        for (int y = 0; y < h; ++y)
+        if (!isLossy(compression))
         {
-            for (int x = 0; x < w; ++x)
+            cout << ", comparing";
+            for (int y = 0; y < h; ++y)
             {
-                assert (p2[y][x].r == p1[y][x].r);
-                assert (p2[y][x].g == p1[y][x].g);
-                assert (p2[y][x].b == p1[y][x].b);
-                assert (p2[y][x].a == p1[y][x].a);
+                for (int x = 0; x < w; ++x)
+                {
+                    assert (p2[y][x].r == p1[y][x].r);
+                    assert (p2[y][x].g == p1[y][x].g);
+                    assert (p2[y][x].b == p1[y][x].b);
+                    assert (p2[y][x].a == p1[y][x].a);
+                }
             }
         }
     }
@@ -247,15 +291,18 @@ writeReadScanLines (
         in.setFrameBuffer (&p2[-dy][-dx], 1, w);
         in.readPixels (dw.min.y, dw.max.y);
 
-        cout << ", comparing";
-        for (int y = 0; y < h; ++y)
+        if (!isLossy(compression))
         {
-            for (int x = 0; x < w; ++x)
+            cout << ", comparing";
+            for (int y = 0; y < h; ++y)
             {
-                assert (p2[y][x].r == p1[y][x].r);
-                assert (p2[y][x].g == p1[y][x].g);
-                assert (p2[y][x].b == p1[y][x].b);
-                assert (p2[y][x].a == p1[y][x].a);
+                for (int x = 0; x < w; ++x)
+                {
+                    assert (p2[y][x].r == p1[y][x].r);
+                    assert (p2[y][x].g == p1[y][x].g);
+                    assert (p2[y][x].b == p1[y][x].b);
+                    assert (p2[y][x].a == p1[y][x].a);
+                }
             }
         }
     }
@@ -264,9 +311,14 @@ writeReadScanLines (
 
     remove (fileName);
 }
+
 void
 writeReadMultiPart (
-    const char fileName[], int width, int height, const Array2D<Rgba>& p1)
+    const char fileName[],
+    int width,
+    int height,
+    Compression compression,
+    const Array2D<Rgba>& p1)
 {
     //
     // Save a two scanline parts in an image, but instead of
@@ -482,7 +534,11 @@ writeReadMultiPart (
 
 void
 writeReadTiles (
-    const char fileName[], int width, int height, const Array2D<Rgba>& p1)
+    const char fileName[],
+    int width,
+    int height,
+    Compression compression,
+    const Array2D<Rgba>& p1)
 {
     //
     // Save a tiled RGBA image, but instead of letting
@@ -855,21 +911,37 @@ testExistingStreams (const std::string& tempDir)
         const int W = 119;
         const int H = 237;
 
-        Array2D<Rgba> p1 (H, W);
+        for (auto compression : { ZIP_COMPRESSION, DWAA_COMPRESSION })
+        {
+            Array2D<Rgba> p1 (H, W);
 
-        fillPixels1 (p1, W, H);
-        writeReadScanLines (
-            (tempDir + "imf_test_streams.exr").c_str (), W, H, p1);
-        writeReadScanLines (W, H, p1);
+            fillPixels1 (p1, W, H);
+            writeReadScanLines (
+               (tempDir + "imf_test_streams.exr").c_str (),
+               W,
+               H,
+               compression,
+               p1);
+            writeReadScanLines (W, H, p1);
 
-        fillPixels2 (p1, W, H);
-        writeReadTiles ((tempDir + "imf_test_streams2.exr").c_str (), W, H, p1);
-        writeReadTiles (W, H, p1);
+            fillPixels2 (p1, W, H);
+            writeReadTiles (
+               (tempDir + "imf_test_streams2.exr").c_str (),
+               W,
+               H,
+               compression,
+               p1);
+            writeReadTiles (W, H, p1);
 
-        fillPixels1 (p1, W, H);
-        writeReadMultiPart (
-            (tempDir + "imf_test_streams3.exr").c_str (), W, H, p1);
-        writeReadMultiPart (W, H, p1);
+            fillPixels1 (p1, W, H);
+            writeReadMultiPart (
+               (tempDir + "imf_test_streams3.exr").c_str (),
+               W,
+               H,
+               compression,
+               p1);
+            writeReadMultiPart (W, H, p1);
+        }
 
         cout << "ok\n" << endl;
     }
