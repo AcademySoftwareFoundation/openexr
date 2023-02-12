@@ -1,3 +1,6 @@
+[//]: # SPDX-License-Identifier: BSD-3-Clause
+[//]: # Copyright (c) Contributors to the OpenEXR Project.
+
 [![License](https://img.shields.io/github/license/AcademySoftwareFoundation/openexr)](LICENSE.md)
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/2799/badge)](https://bestpractices.coreinfrastructure.org/projects/2799)
 [![Build Status](https://github.com/AcademySoftwareFoundation/openexr/workflows/CI/badge.svg)](https://github.com/AcademySoftwareFoundation/openexr/actions?query=workflow%3ACI)
