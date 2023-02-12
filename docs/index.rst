@@ -2,23 +2,16 @@
   SPDX-License-Identifier: BSD-3-Clause
   Copyright Contributors to the OpenEXR Project.
 
-.. toctree::
-   :hidden:
-      
-   about
-   license
-   documentation
-   download
-   faq
-      
-+------------------------------+--------------------------+--------------------------------------+------------------------------------------------------------------+----------------------------+
-| :ref:`About <About OpenEXR>` | :ref:`License <License>` | :ref:`Documentation <Documentation>` | `GitHub <https://github.com/AcademySoftwareFoundation/openexr>`_ | :ref:`Download <Download>` |
-+------------------------------+--------------------------+--------------------------------------+------------------------------------------------------------------+----------------------------+
+.. _Overview:
 
 Overview
-========
+########
 
-.. sidebar:: OpenEXR
+.. toctree::
+   :caption: Overview
+   :maxdepth: 1
+
+.. sidebar:: 
 
      .. image:: images/windowExample1.png
 
@@ -39,7 +32,7 @@ OpenEXR is a project of the `Academy Software Foundation
 
 
 Imath
------
+=====
 
 The OpenEXR project includes `Imath <https://imath.readthedocs.io>`_,
 a basic, light-weight, and efficient C++ representation of 2D and 3D
@@ -51,10 +44,16 @@ Imath also includes optional python bindings for all types and
 functions, including optimized implementations of vector and matrix
 arrays.
 
+Quick Start
+===========
+
+For a simple program that uses the C++ API to read and write a ``.exr`` file, see the
+:doc:`HelloWorld` examples.
+
 Community
 =========
 
-* **Ask for help:**
+* **Ask a question:**
 
   - Email: `openexr-dev@lists.aswf.io <https://lists.aswf.io/g/openexr-dev>`_
 
@@ -69,24 +68,29 @@ Community
 
 * **Report a bug:**
 
-  - GitHub: https://github.com/AcademySoftwareFoundation/openexr/issues
+  - Submit an Issue: https://github.com/AcademySoftwareFoundation/openexr/issues
+
+* **Report a security vulnerability:**
+
+  - Email security@openexr.com
 
 * **Make a contribution:**
 
   - Read the `Contribution guidelines <https://github.com/AcademySoftwareFoundation/openexr/blob/main/CONTRIBUTING.md>`_
 
+  - Sign the `Contributor License Agreement
+    <https://contributor.easycla.lfx.linuxfoundation.org/#/cla/project/2e8710cb-e379-4116-a9ba-964f83618cc5/user/564e571e-12d7-4857-abd4-898939accdd7>`_
+  
   - Submit a PR: https://github.com/AcademySoftwareFoundation/openexr/pulls
-
-* **Report a security vulnerability:**
-
-  - Send email to security@openexr.com
 
 Resources
 =========
 
-- Porting help: :ref:`OpenEXR/Imath Version 2.x to 3.x Porting Guide <porting>`
 - Reference images: https://github.com/AcademySoftwareFoundation/openexr-images
-- Security Policy: `SECURITY.md <https://github.com/AcademySoftwareFoundation/openexr/blob/main/SECURITY.md>`_
+- Security policy: `SECURITY.md <https://github.com/AcademySoftwareFoundation/openexr/blob/main/SECURITY.md>`_
+- Release notes: `CHANGES.md
+  <https://github.com/AcademySoftwareFoundation/openexr/blob/main/CHANGES.md>`_
+- Contributors: `CONTRIBUTORS.md <https://github.com/AcademySoftwareFoundation/openexr/blob/main/CONTRIBUTORS.md>`_
 
+.. include:: toc_redirect.rst
 
-  

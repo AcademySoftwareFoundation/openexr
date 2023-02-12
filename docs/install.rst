@@ -2,16 +2,53 @@
   SPDX-License-Identifier: BSD-3-Clause
   Copyright Contributors to the OpenEXR Project.
 
-.. _Build:
+.. _Install:
 
-Build
-=====
+Install
+========
 
-OpenEXR builds on Linux, macOS, Microsoft Windows, and is
+.. toctree::
+   :caption: Install
+             
+The OpenEXR library is available for download and installation in
+binary form via package managers on many Linux distributions. See
+`https://pkgs.org/download/openexr
+<https://pkgs.org/download/openexr>`_ for a complete list. The common
+ones that generally provide current releases include:
+
+* `Fedora <https://packages.fedoraproject.org/pkgs/openexr/openexr/>`_
+* `Gentoo <https://packages.gentoo.org/packages/media-libs/openexr>`_ 
+* `Ubuntu <https://packages.ubuntu.com/source/kinetic/openexr>`_
+
+Beware that some distributions are out of date and only provide
+distributions of outdated releases OpenEXR. We recommend against using
+OpenEXR v2, and we *strongly* recommend against using OpenEXR v1.
+
+On macOS, we do not recommend installation via HomeBrew because the
+distribution is outdated.
+
+Also note that the official OpenEXR project does not provide supported
+python bindings. ``pip install openexr`` installs the `openexrpython
+<https://github.com/jamesbowman/openexrpython>`_ module, which is not
+affiliated with the OpenEXR project or the ASWF. Please direct
+questions there.
+
+Build from Source
+-----------------
+
+OpenEXR builds on Linux, macOS, Microsoft Windows via CMake, and is
 cross-compilable on other systems.
 
+Download the source from the `GitHub releases page
+<https://github.com/AcademySoftwareFoundation/openexr/releases>`_
+page, or clone the `repo <https://github.com/AcademySoftwareFoundation/openexr>`_.
+
+The ``release`` branch of the repo always points to the most advanced
+release.
+
+
 Prerequisites
-+++++++++++++
+~~~~~~~~~~~~~
 
 Make sure these are installed on your system before building OpenEXR:
 
@@ -26,7 +63,7 @@ Note that as of OpenEXR 3, the Gnu autoconf bootstrap/configure build
 system is no longer supported.
 
 Linux/macOS
-+++++++++++
+~~~~~~~~~~~
 
 To build via CMake, you need to first identify three directories:
 
@@ -58,7 +95,7 @@ no arguments, as above, ``make install`` installs the header files in
 executable programs in ``/usr/local/bin``.
 
 Windows
-+++++++
+~~~~~~~
 
 Under Windows, if you are using a command line-based setup, such as
 cygwin, you can of course follow the above. For Visual Studio, cmake
@@ -72,41 +109,6 @@ can specify a local install directory to cmake via the
 .. code-block::
 
     % cmake .. -DCMAKE_INSTALL_PREFIX=$openexr_install_directory
-
-Porting Applications from OpenEXR v2 to v3
-==========================================
-
-See the [porting
-guide](https://github.com/AcademySoftwareFoundation/Imath/blob/main/docs/PortingGuide2-3.md)
-for details about differences from previous releases and how to
-address them. Also refer to the porting guide for details about
-changes to Imath.
-
-Building the Documentation
-==========================
-
-The OpenEXR technical documentation at
-[openexr.readthedocs.io](https://openexr.readthedocs.io) is generated
-via [Sphinx](https://www.sphinx-doc.org) with the
-[Breathe](https://breathe.readthedocs.io) extension using information
-extracted from header comments by [Doxygen](https://www.doxygen.nl).
-
-To build the documentation locally from the source headers and
-``.rst`` files, set the CMake option ``DOCS=ON``. This adds
-``Doxygen`` and ``Sphinx`` CMake targets. Local documentation
-generation is off by default.
-
-Building the documentation requires that sphinx, breathe, and doxygen
-are installed.
-
-Note that the [openexr.readthedocs.io](https://openexr.readthedocs.io)
-documentation takes the place of the formerly distributed .pdf
-documents in the ``docs`` folder, although readthedocs supports
-downloading of documentation in pdf format, for those who prefer it
-that way.
-
-Build-time Configuration Options
-================================
 
 Library Names
 -------------
@@ -130,21 +132,22 @@ symlinks and files in the install lib folder:
     libOpenEXR-3_1.so.30.3.0 (the shared object file)
     
 The ``-3_1`` suffix encodes the major and minor version, which can be
-configured via the ``OPENEXR_LIB_SUFFIX`` CMake setting. The "30"
+configured via the ``OPENEXR_LIB_SUFFIX`` CMake setting. The ``30``
 corresponds to the so version, or in ``libtool`` terminology the
-_current_ shared object version; the "3" denotes the ``libtool``
-_revision_, and the "0" denotes the ``libtool`` _age_. See the
-[``libtool``](https://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html#Updating-version-info)
+``current`` shared object version; the `3` denotes the ``libtool``
+``revision``, and the ``0`` denotes the ``libtool`` ``age``. See the
+`libtool
+<https://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html#Updating-version-info>`_
 documentation for more details.
 
 Imath Dependency
 ----------------
 
-OpenEXR depends on
-[Imath](https://github.com/AcademySoftwareFoundation/Imath). If a
-suitable installation of Imath cannot be found, CMake will
-automatically download it at configuration time. To link against an
-existing installation of Imath, add the Imath directory to the
+OpenEXR depends on `Imath
+<https://github.com/AcademySoftwareFoundation/Imath>`_. If a suitable
+installation of Imath cannot be found, CMake will automatically
+download it at configuration time. To link against an existing
+installation of Imath, add the Imath directory to the
 ``CMAKE_PREFIX_PATH`` setting:
  
 .. code-block::
@@ -172,55 +175,51 @@ the ``ImathConfig.cmake`` file, which is typically the
 ``lib/cmake/Imath`` folder of the root install directory where Imath
 is installed.
 
-Please see ``cmake/OpenEXRSetup.cmake`` for other customization options.
+See below for other customization options.
 
-Custom Namespaces
-+++++++++++++++++
+Porting Applications from OpenEXR v2 to v3
+------------------------------------------
 
-If you are interested in controlling custom namespace declarations or
-similar options, you are encouraged to look at the ``CMakeLists.txt``
-infrastructure. The settings can be found in
-``cmake/OpenEXRSetup.cmake``. As per usual, these settings can also be
-seen and/or edited using any of the various gui editors for working
-with cmake such as ``ccmake``, ``cmake-gui``, as well as some of the
-IDEs in common use.
+See the :doc:`PortingGuide` for details about differences from previous
+releases and how to address them. Also refer to the porting guide for
+details about changes to Imath.
 
-Cross Compiling / Specifying Specific Compilers
-+++++++++++++++++++++++++++++++++++++++++++++++
+Building the Documentation
+--------------------------
 
-When trying to either cross-compile for a different platform, or for
-tasks such as specifying a compiler set to match the [VFX reference
-platform](https://vfxplatform.com), cmake provides the idea of a
-toolchain which may be useful instead of having to remember a chain of
-configuration options. It also means that platform-specific compiler
-names and options are out of the main cmake file, providing better
-isolation.
+The OpenEXR technical documentation at `https://openexr.readthedocs.io
+<https://openexr.readthedocs.io>`_ is generated via `Sphinx
+<https://www.sphinx-doc.org>`_ with the `Breathe
+<https://breathe.readthedocs.io>`_ extension using information
+extracted from header comments by `Doxygen <https://www.doxygen.nl>`_.
 
-A toolchain file is simply just a cmake script that sets all the
-compiler and related flags and is run very early in the configuration
-step to be able to set all the compiler options and such for the
-discovery that cmake performs automatically. These options can be set
-on the command line still if that is clearer, but a theoretical
-toolchain file for compiling for VFX Platform 2015 is provided in the
-source tree at cmake/Toolchain-Linux-VFX_Platform15.cmake which will
-hopefully provide a guide how this might work.
+To build the documentation locally from the source headers and
+``.rst`` files, set the CMake option ``DOCS=ON``. This adds
+``Doxygen`` and ``Sphinx`` CMake targets and enables building the docs
+by default.  generation is off by default.
 
-For cross-compiling for additional platforms, there is also an
-included sample script in cmake/Toolchain-mingw.cmake which shows how
-cross compiling from Linux for Windows may work. The compiler names
-and paths may need to be changed for your environment.
+Building the documentation requires that ``sphinx``, ``breathe``, and
+``doxygen`` are installed. It further requires the `sphinx-press-theme
+<https://pypi.org/project/sphinx-press-theme>`_, as indicated in the
+`requirements.txt
+<https://github.com/AcademySoftwareFoundation/openexr/blob/main/docs/requirements.txt>`_
+file.
 
-More documentation:
+Note that the `https://openexr.readthedocs.io <https://openexr.readthedocs.io>`_
+documentation takes the place of the formerly distributed .pdf
+documents in the ``docs`` folder, although readthedocs supports
+downloading of documentation in pdf format, for those who prefer it
+that way.
 
-* Toolchains: https://cmake.org/cmake/help/v3.12/manual/cmake-toolchains.7.html
-* Cross compiling: https://gitlab.kitware.com/cmake/community/wikis/doc/cmake/
+CMake Build-time Configuration Options
+--------------------------------------
 
-CMake Configuration Options
-+++++++++++++++++++++++++++
 
 The default CMake configuration options are stored in
 ``cmake/OpenEXRSetup.cmake``. To see a complete set of option
 variables, run:
+
+.. code-block::
 
     % cmake -LAH $openexr_source_directory
 
@@ -230,8 +229,8 @@ You can customize these options three ways:
 2. Use the UI ``cmake-gui`` or ``ccmake``.
 3. Specify them as command-line arguments when you invoke cmake.
 
-Library Naming Options:
-~~~~~~~~~~~~~~~~~~~~~~~
+Library Naming Options
+~~~~~~~~~~~~~~~~~~~~~~
 
 * ``OPENEXR_LIB_SUFFIX``
 
@@ -239,8 +238,8 @@ Library Naming Options:
   libraries. Default is ``-<major>_<minor>`` version string. Please
   see the section on library names
 
-Imath Dependency:
-~~~~~~~~~~~~~~~~~
+Imath Dependency
+~~~~~~~~~~~~~~~~
 
 * ``CMAKE_PREFIX_PATH``
 
@@ -256,8 +255,8 @@ Imath Dependency:
   file, which is typically the ``lib/cmake/Imath`` folder of the root
   install directory.
   
-Namespace Options:
-~~~~~~~~~~~~~~~~~~
+Namespace Options
+~~~~~~~~~~~~~~~~~
 
 * ``OPENEXR_IMF_NAMESPACE``
 
@@ -298,8 +297,8 @@ Namespace Options:
 
   Whether the namespace has been customized (so external users know)
 
-Component Options:
-~~~~~~~~~~~~~~~~~~
+Component Options
+~~~~~~~~~~~~~~~~~
 
 * ``BUILD_TESTING``
 
@@ -320,11 +319,10 @@ Component Options:
 
   Build and install the example code. Default is ``ON``.
 
-Additional CMake Options:
-~~~~~~~~~~~~~~~~~~~~~~~~~
+Additional CMake Options
+~~~~~~~~~~~~~~~~~~~~~~~~
 
-See the cmake documentation for more information
-(https://cmake.org/cmake/help/v3.12/)
+See the CMake documentation for more information (https://cmake.org/cmake/help/v3.12/).
 
 * ``CMAKE_BUILD_TYPE``
 
@@ -366,10 +364,40 @@ See the cmake documentation for more information
 
   Echo all compile commands during make. Default is ``OFF``.
 
-Cmake Tips and Tricks:
-~~~~~~~~~~~~~~~~~~~~~~
+Cross Compiling / Specifying Specific Compilers
+-----------------------------------------------
 
-If you have ninja (https://ninja-build.org/) installed, it is faster
+When trying to either cross-compile for a different platform, or for
+tasks such as specifying a compiler set to match the `VFX reference
+platform <https://vfxplatform.com>`_, cmake provides the idea of a
+toolchain which may be useful instead of having to remember a chain of
+configuration options. It also means that platform-specific compiler
+names and options are out of the main cmake file, providing better
+isolation.
+
+A toolchain file is simply just a cmake script that sets all the
+compiler and related flags and is run very early in the configuration
+step to be able to set all the compiler options and such for the
+discovery that cmake performs automatically. These options can be set
+on the command line still if that is clearer, but a theoretical
+toolchain file for compiling for VFX Platform 2015 is provided in the
+source tree at ``cmake/Toolchain-Linux-VFX_Platform15.cmake`` which
+will hopefully provide a guide how this might work.
+
+For cross-compiling for additional platforms, there is also an
+included sample script in ``cmake/Toolchain-mingw.cmake`` which shows
+how cross compiling from Linux for Windows may work. The compiler
+names and paths may need to be changed for your environment.
+
+More documentation:
+
+* Toolchains: https://cmake.org/cmake/help/v3.12/manual/cmake-toolchains.7.html
+* Cross compiling: https://gitlab.kitware.com/cmake/community/wikis/doc/cmake/
+
+Ninja
+-----
+
+If you have `Ninja <https://ninja-build.org>`_ installed, it is faster
 than make. You can generate ninja files using cmake when doing the
 initial generation:
 
@@ -377,9 +405,3 @@ initial generation:
 
     % cmake -G “Ninja” ..
 
-If you would like to confirm compile flags, you don’t have to specify
-the verbose configuration up front, you can instead run
-
-.. code-block::
-
-    % make VERBOSE=1

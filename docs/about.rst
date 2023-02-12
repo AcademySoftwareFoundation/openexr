@@ -3,25 +3,28 @@
   Copyright Contributors to the OpenEXR Project.
 
 .. _About OpenEXR:
-   
-+------------------------------+--------------------------+--------------------------------------+------------------------------------------------------------------+----------------------------+
-| :ref:`About <About OpenEXR>` | :ref:`License <License>` | :ref:`Documentation <Documentation>` | `GitHub <https://github.com/AcademySoftwareFoundation/openexr>`_ | :ref:`Download <Download>` |
-+------------------------------+--------------------------+--------------------------------------+------------------------------------------------------------------+----------------------------+
 
 About OpenEXR
 =============
 
+.. toctree::
+   :caption: About
+             
 OpenEXR is a project of the `Academy Software Foundation
 <https://www.aswf.io>`_.  The format and library were originally
-developed by Industrial Light & Magic and first released in 2003.
-Weta Digital, Walt Disney Animation Studios, Sony Pictures Imageworks,
-Pixar Animation Studios, DreamWorks, and other studios, companies, and
-individuals have made contributions to the code base.
+developed at Industrial Light & Magic and first released as open
+source in 2003.  Weta Digital, Walt Disney Animation Studios, Sony
+Pictures Imageworks, Pixar Animation Studios, DreamWorks, and other
+studios, companies, and individuals have made contributions to the
+code base.
+
+Read the origin story of OpenEXR on the `ASWF Blog
+<https://www.aswf.io/news/aswf-deep-dive-openexr-origin-story-part-1>`_. 
 
 OpenEXR is included in the `VFX Reference Platform <https://vfxplatform.com>`_.
 
 OpenEXR Features
-================
+----------------
 
 * High dynamic range and color precision.
 * Support for 16-bit floating-point, 32-bit floating-point, and
@@ -49,7 +52,7 @@ OpenEXR Features
   library in the same process space.
 
 OpenEXR and Imath Version 3
-===========================
+----------------------------
 
 With the release of OpenEXR 3, the Imath library formerly distributed
 via the IlmBase component of OpenEXR is now an independent library
@@ -60,12 +63,12 @@ default CMake configuration will download and build it automatically
 during the OpenEXR build process.  Note that the half 16-bit floating
 point data type is included in Imath.
 
-See :doc:`technical/PortingGuide` for details about differences from previous
+See :doc:`PortingGuide` for details about differences from previous
 releases and how to address them. Also refer to the porting guide for
 details about changes to Imath.
 
 New Features in OpenEXR v3.1
-----------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The 3.1 release of OpenEXR introduces a new library, OpenEXRCore,
 which is the result of a significant re-thinking of how OpenEXR
@@ -97,6 +100,25 @@ offers new functionality for specialty applications seeking the
 highest possible performance. In the future, the ABI will evolve, but
 the API will remain consistent, or only have additions.
 
-See :doc:`technical/ReadingAndWritingImageFiles` for more information.
+See :doc:`ReadingAndWritingImageFiles` for more information.
+
+Credits
+=======
+
+The ILM OpenEXR file format was originally designed and implemented at
+Industrial Light & Magic by Florian Kainz, Wojciech Jarosz, and Rod
+Bogart. The PIZ compression scheme is based on an algorithm by
+Christian Rouet. Josh Pines helped extend the PIZ algorithm for 16-bit
+and found optimizations for the float-to-half conversions. Drew Hess
+packaged and adapted ILM's internal source code for public release and
+maintains the OpenEXR software distribution. The PXR24 compression
+method is based on an algorithm written by Loren Carpenter at Pixar
+Animation Studios.
+
+For a complete list of contributors see the `CONTRIBUTORS.md
+<https://github.com/AcademySoftwareFoundation/openexr/blob/main/CONTRIBUTING.md>`_
+file.
+
+
 
 

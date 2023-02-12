@@ -1,3 +1,7 @@
+..
+  SPDX-License-Identifier: BSD-3-Clause
+  Copyright Contributors to the OpenEXR Project.
+
 Storing Multi-View Images in OpenEXR Files
 ##########################################
 
@@ -255,6 +259,7 @@ For example, the following table shows several different combinations of
 
 .. list-table::
    :header-rows: 1
+   :align: left
 
    * - views listed in ``multiView`` attribute
      - channel names

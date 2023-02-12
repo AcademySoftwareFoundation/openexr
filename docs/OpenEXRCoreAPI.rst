@@ -1,5 +1,9 @@
-Reading and Writing OpenEXR Image Files with the C-language API
-###############################################################
+..
+  SPDX-License-Identifier: BSD-3-Clause
+  Copyright Contributors to the OpenEXR Project.
+
+Reading and Writing Image Files with the C-language API
+#######################################################
 
 The OpenEXRCore library has a few notable features to consider prior
 to beginning use:

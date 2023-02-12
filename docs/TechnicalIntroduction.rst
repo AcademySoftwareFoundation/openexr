@@ -1,23 +1,17 @@
-Technical Introduction to OpenEXR
-#################################
+..
+  SPDX-License-Identifier: BSD-3-Clause
+  Copyright Contributors to the OpenEXR Project.
+
+.. _Technical Introduction
+
+Technical Introduction
+######################
 
 .. toctree::
-   :maxdepth: 3
-
-Document Purpose and Audience
-=============================
-
-OpenEXR is an open-source high-dynamic-range image file format that
-was developed by Industrial Light & Magic. This document presents a
-brief overview of OpenEXR.
+   :caption: Technical Introduction
 
 Features of OpenEXR
 ===================
-
-Starting in 1999, Industrial Light & Magic developed OpenEXR, a
-high-dynamic-range image file format for use in digital visual effects
-production. In early 2003, after using and refining the file format
-for two years, ILM released OpenEXR as an open-source C++ library.
 
 A unique combination of features makes OpenEXR a good fit for
 high-quality image processing and storage applications:
@@ -31,7 +25,6 @@ high-quality image processing and storage applications:
   formats have around 7 to 10 stops.
 
 **good color resolution**
-
   With 16-bit floating-point numbers, color resolution is 1024 steps
   per f-stop, as opposed to somewhere around 20 to 70 steps per f-stop
   for most 8-bit file formats. Even after significant processing (for
@@ -39,7 +32,6 @@ high-quality image processing and storage applications:
   noticeable color banding.
 
 **compatible with graphics hardware**
-
   The 16-bit floating-point data format is fully compatible with the
   16-bit frame-buffer data format used in some new graphics
   hardware. Images can be transferred back and forth between an
@@ -57,14 +49,12 @@ high-quality image processing and storage applications:
   compression schemes can be added in the future.
 
 **arbitrary image channels**
-
   OpenEXR images can contain an arbitrary number and combination of
   image channels, for example red, green, blue, and alpha; luminance
   and sub-sampled chroma channels; depth, surface normal directions,
   or motion vectors.
 
 **scan line and tiled images, multi-resolution images**
-
   Pixels in an OpenEXR file can be stored either as scan lines or as
   tiles. Tiled image files allow random-access to rectangular
   sub-regions of an image. Multiple versions of a tiled image, each
@@ -79,7 +69,6 @@ high-quality image processing and storage applications:
   display very large images.
 
 **ability to store additional data**
-
   Often it is necessary to annotate images with additional data; for
   example, color timing information, process tracking data, or camera
   position and view direction. OpenEXR allows storing of an arbitrary
@@ -88,7 +77,6 @@ high-quality image processing and storage applications:
   not understand.
 
 **easy-to-use C++ and C programming interfaces**
-
   In order to make writing and reading OpenEXR files easy, the file
   format was designed together with a C++ programming interface. Two
   levels of access to image files are provided: a fully general
@@ -109,28 +97,24 @@ high-quality image processing and storage applications:
   library.
 
 **fast multi-threaded file reading and writing**
-
   The OpenEXR library supports multi-threaded reading or writing of an
   OpenEXR image file: while one thread performs low-level file input
   or output, multiple other threads simultaneously encode or decode
   individual pieces of the file.
 
 **portability**
-
   The OpenEXR file format is hardware and operating system
   independent. While implementing the C and C++ programming
   interfaces, an effort was made to use only language features and
   library functions that comply with the C and C++ ISO standards.
 
 **multi-view**
-
   A “multi-view” image shows the same scene from multiple different
   points of view. A common application is 3D stereo imagery, where a
   left-eye and a right-eye view of a scene are stored in a single
   file.
                                                    
 **deep data**
-
   Support for a new data type has been added: deep data. Deep images
   store an arbitrarily long list of data at each pixel location. This
   is different from multichannel or 'deep channel images' which can
@@ -144,7 +128,6 @@ high-quality image processing and storage applications:
   atmospheric effects such fog).
 
 **multi-part**
-
   Multi-part files allow for storing multiple images in one OpenEXR
   file. One important application is to store layers of channels
   separately. This allows for faster access when only a subset of the
@@ -230,6 +213,7 @@ For a few channel names, interpretation of the data is predefined:
 
 .. list-table::
    :header-rows: 1
+   :align: left
       
    * - name
      - interpretation
@@ -250,6 +234,7 @@ Three channel data types are currently supported:
 
 .. list-table::
    :header-rows: 1
+   :align: left
       
    * - type name
      - description
@@ -270,11 +255,11 @@ determine for which of the pixels in the image's data window data are
 stored in the file. Data for a pixel at pixel space coordinates (x, y)
 are stored only if
 
-    x mod s :sub:`x` = 0
+.. math::    x \mod{s_x} = 0
 
 and
 
-    y mod s :sub:`y` = 0.
+.. math::    y \mod{s_y} = 0
 
 For RGBA (red, green, blue, alpha) images, s\ :sub:`x` and s\ :sub:`y`
 are 1 for all channels, and each channel contains data for every
@@ -325,9 +310,9 @@ rectangles, called *tiles*. Each tile contains p\ :sub:`x` by p\
 :sub:`x`) by ceil(h/p\ :sub:`y`) tiles, where w and h are the width
 and height of the data window:
 
-    w = x\ :sub:`max` - x\ :sub:`min` + 1
+.. math::    w = x_max - x_min + 1
 
-    h = y\ :sub:`max` - y\ :sub:`min` + 1
+.. math::    h = y_max - y_min + 1
 
 The upper left corner of the upper left tile is aligned with the upper
 left corner of the data window, at (x\ :sub:`min`, y\ :sub:`min`). The
@@ -425,6 +410,7 @@ are present.
 
 .. list-table::
    :header-rows: 1
+   :align: left
 
    * - rounding mode
      - level resolution
@@ -508,6 +494,7 @@ headers:
 
 .. list-table::
    :header-rows: 1
+   :align: left
    
    * - attribute name
      - description
@@ -544,13 +531,14 @@ information, process tracking data, or camera position and view
 direction. Those data can be packaged as extra attributes in the image
 file's header.
 
-Multi-view header attributes
+Multi-View Header Attributes
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 This attribute is required in the header for multi-view OpenEXR files.
 
 .. list-table::
    :header-rows: 1
+   :align: left
    
    * - attribute name
      - notes
@@ -573,6 +561,7 @@ deep data OpenEXR files.
 
 .. list-table::
    :header-rows: 1
+   :align: left
    
    * - attribute name
      - notes
@@ -604,6 +593,7 @@ deep data (deepscanline or deeptile):
 
 .. list-table::
    :header-rows: 1
+   :align: left
 
    * - name
      - notes
@@ -756,6 +746,7 @@ Supported compression schemes:
 
 .. list-table::
    :header-rows: 1
+   :align: left
    
    * - name
      - description
@@ -1010,7 +1001,8 @@ with more than three color channels.
 
 .. list-table::
    :header-rows: 1
-   
+   :align: left
+           
    * - name
      - interpretation
    * - Y
@@ -1059,6 +1051,7 @@ data you are handling, always use the appropriate channel name.
 
 .. list-table::
    :header-rows: 1
+   :align: left
    
    * - name
      - definition
@@ -1114,10 +1107,197 @@ the OpenEXR library defines a set of standard attributes for commonly
 used data, such as colorimetric data (see `RGB Color`_, time and place
 where an image was recorded, or the owner of an image file's
 content. Whenever possible, application programs should store data in
-standard attributes, instead of defining their own. For a current list
-of all standard attributes, see the OpenEXR library's source code. The
-list grows over time as OpenEXR users identify new types of data they
-would like to represent in a standard way.
+standard attributes, instead of defining their own.
+
+By default, OpenEXR files have the following attributes:
+
+**chromaticities**
+  For RGB images, specifies the CIE (x,y) chromaticities of the
+  primaries and the white point.
+
+**whiteLuminance**
+  For RGB images, defines the luminance, in Nits (candelas per square
+  meter) of the RGB value (1.0, 1.0, 1.0).
+
+  If the chromaticities and the whiteLuminance of an RGB image are
+  known, then it is possible to convert the image's pixels from RGB to
+  CIE XYZ tristimulus values.
+
+**adoptedNeutral**
+  Specifies the CIE (x,y) coordinates that should be considered
+  neutral during color rendering.  Pixels in the image file whose
+  (x,y) coordinates match the adoptedNeutral value should be mapped to
+  neutral values on the display.
+
+
+**renderingTransform**, lookModTransform
+  Specify the names of the CTL functions that implements the intended
+  color rendering and look modification transforms for this image.
+
+**xDensity**
+  Horizontal output density, in pixels per inch.  The image's vertical
+  output density is xDensity * pixelAspectRatio.
+
+**owner**
+  Name of the owner of the image.
+
+**comments**
+  Additional image information in human-readable form, for example a
+  verbal description of the image.
+
+**capDate**
+  The date when the image was created or captured, in local time, and
+  formatted as ``YYYY:MM:DD hh:mm:ss``, where ``YYYY`` is the year (4
+  digits, e.g. 2003), ``MM`` is the month (2 digits, 01, 02, ... 12),
+  ``DD`` is the day of the month (2 digits, 01, 02, ... 31), hh is the
+  hour (2 digits, 00, 01, ... 23), mm is the minute, and ss is the
+  second (2 digits, 00, 01, ... 59).
+
+**utcOffset**
+  Universal Coordinated Time (UTC), in seconds: UTC == local time +
+  utcOffset
+
+**longitude**, **latitude**, **altitude**
+  For images of real objects, the location where the image was
+  recorded.  Longitude and latitude are in degrees east of Greenwich
+  and north of the equator.  Altitude is in meters above sea level.
+  For example, Kathmandu, Nepal is at longitude 85.317, latitude
+  27.717, altitude 1305.
+
+**focus**
+  The camera's focus distance, in meters.
+
+**exposure**
+  Exposure time, in seconds.
+
+**aperture**
+  The camera's lens aperture, in f-stops (focal length of the lens
+  divided by the diameter of the iris opening).
+
+**isoSpeed**
+  The ISO speed of the film or image sensor that was used to record
+  the image.
+
+**envmap**
+  If this attribute is present, the image represents an environment
+  map.  The attribute's value defines how 3D directions are mapped to
+  2D pixel locations.  
+
+**keyCode**
+  For motion picture film frames.  Identifies film manufacturer, film
+  type, film roll and frame position within the roll.
+
+**timeCode**
+  Time and control code
+
+**wrapmodes**
+  Determines how texture map images are extrapolated.  If an OpenEXR
+  file is used as a texture map for 3D rendering, texture coordinates
+  (0.0, 0.0) and (1.0, 1.0) correspond to the upper left and lower
+  right corners of the data window.  If the image is mapped onto a
+  surface with texture coordinates outside the zero-to-one range, then
+  the image must be extrapolated.  This attribute tells the renderer
+  how to do this extrapolation.  The attribute contains either a pair
+  of comma-separated keywords, to specify separate extrapolation modes
+  for the horizontal and vertical directions; or a single keyword, to
+  specify extrapolation in both directions (e.g. "clamp,periodic" or
+  "clamp").  Extra white space surrounding the keywords is allowed,
+  but should be ignored by the renderer ("clamp, black " is equivalent
+  to "clamp,black").  The keywords listed below are predefined; some
+  renderers may support additional extrapolation modes:
+
+  **black**
+    pixels outside the zero-to-one range are black
+
+  **clamp**
+    texture coordinates less than 0.0 and greater than 1.0 are clamped
+    to 0.0 and 1.0 respectively.
+
+  **periodic**
+    the texture image repeats periodically
+
+  **mirror**
+    the texture image repeats periodically, but every other instance
+    is mirrored
+
+**framesPerSecond**
+  Defines the nominal playback frame rate for image sequences, in
+  frames per second.  Every image in a sequence should have a
+  framesPerSecond attribute, and the attribute value should be the
+  same for all images in the sequence.  If an image sequence has no
+  framesPerSecond attribute, playback software should assume that the
+  frame rate for the sequence is 24 frames per second.
+
+  In order to allow exact representation of NTSC frame and field
+  rates, framesPerSecond is stored as a rational number.  A rational
+  number is a pair of integers, n and d, that represents the value
+  n/d.
+
+**multiView**
+  Defines the view names for multi-view image files.  A multi-view
+  image contains two or more views of the same scene, as seen from
+  different viewpoints, for example a left-eye and a right-eye view
+  for stereo displays.  The multiView attribute lists the names of the
+  views in an image, and a naming convention identifies the channels
+  that belong to each view.
+
+**worldToCamera**
+  For images generated by 3D computer graphics rendering, a matrix
+  that transforms 3D points from the world to the camera coordinate
+  space of the renderer.
+
+  The camera coordinate space is left-handed.  Its origin indicates
+  the location of the camera.  The positive x and y axes correspond to
+  the "right" and "up" directions in the rendered image.  The positive
+  z axis indicates the camera's viewing direction.  (Objects in front
+  of the camera have positive z coordinates.)
+
+  Camera coordinate space in OpenEXR is the same as in Pixar's
+  Renderman.
+
+**worldToNDC**
+  For images generated by 3D computer graphics rendering, a matrix
+  that transforms 3D points from the world to the Normalized Device
+  Coordinate (NDC) space of the renderer.
+
+  NDC is a 2D coordinate space that corresponds to the image plane,
+  with positive x and pointing to the right and y positive pointing
+  down.  The coordinates (0, 0) and (1, 1) correspond to the upper
+  left and lower right corners of the OpenEXR display window.
+
+  To transform a 3D point in word space into a 2D point in NDC space,
+  multiply the 3D point by the worldToNDC matrix and discard the z
+  coordinate.
+
+  NDC space in OpenEXR is the same as in Pixar's Renderman.
+
+**deepImageState**
+  Specifies whether the pixels in a deep image are sorted and
+  non-overlapping.
+
+  Note: this attribute can be set by application code that writes a
+  file in order to tell applications that read the file whether the
+  pixel data must be cleaned up prior to image processing operations
+  such as flattening.  The OpenEXR library does not verify that the
+  attribute is consistent with the actual state of the pixels.
+  Application software may assume that the attribute is valid, as long
+  as the software will not crash or lock up if any pixels are
+  inconsistent with the deepImageState attribute.
+
+**originalDataWindow**
+  If application software crops an image, then it should save the data
+  window of the original, un-cropped image in the originalDataWindow
+  attribute.
+
+**dwaCompressionLevel**
+  Sets the quality level for images compressed with the DWAA or DWAB
+  method.
+
+**ID Manifest**
+  ID manifest. See `A scheme for storing object ID manifests in
+  openEXR images
+  <https://dl.acm.org/doi/abs/10.1145/3233085.3233086>`_ for details.
+
 
 Premultiplied vs. Un-Premultiplied Color Channels
 -------------------------------------------------
@@ -1127,7 +1307,7 @@ represent alpha or opacity: 0.0 means the pixel is transparent; 1.0
 means the pixel is opaque. By convention, all color channels are
 premultiplied by alpha, so that
 
-    composite = foreground + (1-alpha) × background
+.. math::    \text{composite} = \text{foreground} + (1-\text{alpha}) × \text{background}
 
 performs a correct "over" operation.
 
@@ -1135,7 +1315,7 @@ Describing the color channels as "premultiplied" is a shorthand for
 describing a correct "over" operation. With un-premultiplied color
 channels "over" operations would require computing
 
-    composite = alpha × foreground + (1-alpha) × background.
+.. math::    \text{composite} = \text{alpha} × \text{foreground} + (1-\text{alpha}) × \text{background}.
 
 "Premultiplied" does not mean that pixels with zero alpha and non-zero
 color channels are illegal. Such a pixel represents an object that
@@ -1171,21 +1351,6 @@ division becomes well-defined, and the division can be undone later,
 when the image is saved in a new OpenEXR file. Depending on the
 application software there may be other ways to preserve color
 information in pixels with zero alpha.
-
-Credits
-=======
-
-The ILM OpenEXR file format was designed and implemented by Florian
-Kainz, Wojciech Jarosz, and Rod Bogart. The PIZ compression scheme is
-based on an algorithm by Christian Rouet. Josh Pines helped extend the
-PIZ algorithm for 16-bit and found optimizations for the float-to-half
-conversions. Drew Hess packaged and adapted ILM's internal source code
-for public release and maintains the OpenEXR software
-distribution. The PXR24 compression method is based on an algorithm
-written by Loren Carpenter at Pixar Animation Studios.
-
-OpenEXR was developed at Industrial Light & Magic, a division of Lucas
-Digital Ltd. LLC, Marin County, California.
 
 .. [1]
    ``Z`` and ``ZBack`` distances are the z-coordinate of the point in camera

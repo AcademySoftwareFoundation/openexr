@@ -1,5 +1,12 @@
+..
+  SPDX-License-Identifier: BSD-3-Clause
+  Copyright Contributors to the OpenEXR Project.
+
 Standard Optional Attributes
 ############################
+
+.. toctree::
+   :caption: Standard Optional Attributes
 
 By default, OpenEXR files have the following attributes:
 

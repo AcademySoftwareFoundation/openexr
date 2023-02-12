@@ -53,6 +53,7 @@ extensions = [
     'sphinx.ext.todo',
     'sphinx.ext.viewcode',
     'breathe',
+    'sphinx_tabs.tabs',
 ]
 
 # Breathe extension variables
@@ -136,8 +137,18 @@ pygments_style = 'sphinx'
 #html_theme = 'agogo'
 #html_theme = 'default' # good
 #html_theme = 'nature' # too green
-html_theme = 'bizstyle' # OK
 #html_theme = 'sphinxdoc'
+
+html_theme = 'bizstyle' # OK
+
+html_theme = "press"
+html_theme_options = {
+  "external_links": [
+      ("Github", "https://github.com/AcademySoftwareFoundation/openexr"),
+  ]
+}
+
+
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -157,6 +168,7 @@ html_short_title = "OpenEXR"
 # The name of an image file (relative to this directory) to place at the top
 # of the sidebar.
 html_logo = "images/openexr-stacked-color.png"
+html_logo = "images/openexr-horizontal-color.png"
 
 # The name of an image file (within the static path) to use as favicon of the
 # docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32

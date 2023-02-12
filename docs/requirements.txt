@@ -1,1 +1,3 @@
 breathe
+sphinx-press-theme
+sphinx-tabs

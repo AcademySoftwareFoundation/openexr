@@ -370,8 +370,8 @@ Some Headers and Classes Have Been Removed from Imath 3.x
 * The ``Int64`` and ``SInt64`` types are deprecated in favor of the
   now-standard ``int64_t`` and ``uint64_t``.
 
-File/Class-specific changes:
-============================
+File/Class-specific Changes
+===========================
 
 ``half`` in ``half.h``
 ----------------------
@@ -578,8 +578,8 @@ vectors, because such behavior is not clearly defined:
   constructors that take as an argument any data object of similar
   size and layout.
 
-Imath Python Changes:
-=====================
+Imath Python Changes
+====================
 
 In general, the changes in Imath at the C++ level are reflected in the
 python bindings. In particular:
