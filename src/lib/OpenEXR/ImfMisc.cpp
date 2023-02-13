@@ -23,6 +23,9 @@
 #include <ImfTileDescription.h>
 #include <ImfXdr.h>
 
+#include <codecvt>
+#include <locale>
+
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 using IMATH_NAMESPACE::Box2i;
@@ -1979,6 +1982,13 @@ getChunkOffsetTableSize (const Header& header)
         return getScanlineChunkOffsetTableSize (header);
     else
         return getTiledChunkOffsetTableSize (header);
+}
+
+std::wstring
+WidenFilename (const char* filename)
+{
+    std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
+    return converter.from_bytes (filename);
 }
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT
