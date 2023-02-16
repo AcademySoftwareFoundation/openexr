@@ -1,3 +1,6 @@
+<!-- SPDX-License-Identifier: BSD-3-Clause -->
+<!-- Copyright (c) Contributors to the OpenEXR Project -->
+
 # OpenEXR Release Notes
 
 * [Version 3.1.4](#version-314-january-26-2022) January 27, 2022
