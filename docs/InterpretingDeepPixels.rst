@@ -1,6 +1,6 @@
 ..
   SPDX-License-Identifier: BSD-3-Clause
-  Copyright (c) Contributors to the OpenEXR Project.
+  Copyright Contributors to the OpenEXR Project.
 
 Interpreting OpenEXR Deep Pixels
 ################################
@@ -189,6 +189,7 @@ the following table:
 
 .. list-table::
    :header-rows: 1
+   :align: left
                  
    * - Color or auxiliary channel base name
      - Matching alpha channel base name
@@ -209,6 +210,7 @@ channel.
 
 .. list-table::
    :header-rows: 1
+   :align: left
                  
    * - Channel name
      - Associated alpha channel
@@ -427,22 +429,18 @@ total opacity and color are the same as in the original sample.
 
 For the depth channels, the new samples are:
 
-.. list-table::
-   
-   * - .. math:: S_{i,new}\left( Z \right) = \ S_{i}\left( Z \right)
-     - .. math:: S_{i + 1,new}\left( Z \right) = \ z
-   * - .. math:: S_{i,new}\left( \text{ZBack} \right) = \ z
-     - .. math:: S_{i + 1,new}\left( \text{ZBack} \right) = \ S_{i}\left( \text{ZBack} \right)
+.. math:: S_{i,new}\left( Z \right) = \ S_{i}\left( Z \right)
+.. math:: S_{i + 1,new}\left( Z \right) = \ z
+.. math:: S_{i,new}\left( \text{ZBack} \right) = \ z
+.. math:: S_{i + 1,new}\left( \text{ZBack} \right) = \ S_{i}\left( \text{ZBack} \right)
 
 For a color channel, ``c``, and its associated alpha channel,
 :math:`\alpha`, the new samples are:
 
-.. list-table::
-
-   * - .. math:: S_{i,new}\left( \alpha \right) = \alpha_{i}(z)
-     - .. math:: S_{i + 1,new}\left( \alpha \right) = \alpha_{i}({S_{i}\left( Z \right) + S}_{i}\left( \text{ZBack} \right) - z)
-   * - .. math:: S_{i,new}\left( c \right) = c_{i}(z)
-     - .. math:: S_{i + 1,new}\left( c \right) = c_{i}\left( {S_{i}\left( Z \right) + S}_{i}\left( \text{ZBack} \right) - z \right)
+.. math:: S_{i,new}\left( \alpha \right) = \alpha_{i}(z)
+.. math:: S_{i + 1,new}\left( \alpha \right) = \alpha_{i}({S_{i}\left( Z \right) + S}_{i}\left( \text{ZBack} \right) - z)
+.. math:: S_{i,new}\left( c \right) = c_{i}(z)
+.. math:: S_{i + 1,new}\left( c \right) = c_{i}\left( {S_{i}\left( Z \right) + S}_{i}\left( \text{ZBack} \right) - z \right)
 
 If it is not done exactly right, splitting a sample can lead to large
 rounding errors for the colors of the new samples when the opacity of

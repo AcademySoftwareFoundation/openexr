@@ -1,6 +1,6 @@
 ..
   SPDX-License-Identifier: BSD-3-Clause
-  Copyright (c) Contributors to the OpenEXR Project.
+  Copyright Contributors to the OpenEXR Project.
 
 OpenEXR File Layout
 ###################
@@ -47,7 +47,8 @@ the file layout are required to support the new multi-part and deep data
 features:
 
 .. list-table::
-
+   :align: left
+           
    * - Feature
      - Description
      - See
@@ -97,7 +98,8 @@ start of the file).
 OpenEXR uses the following six integer data types:
 
 .. list-table::
-
+   :align: left
+   
    * - name
      - signed
      - size in bytes
@@ -137,6 +139,7 @@ The following table lists the names and sizes of OpenEXR's
 floating-point data types:
 
 .. list-table::
+   :align: left
 
    * - name
      - size in bytes
@@ -308,6 +311,7 @@ All valid combinations of the version field bits are as follows:
 
 .. list-table::
    :header-rows: 1
+   :align: left
                  
    * - Description
      - Compatible with
@@ -428,6 +432,7 @@ attributes:
 
 .. list-table::
    :header-rows: 1
+   :align: left
 
    * - attribute name
      - attribute type
@@ -459,6 +464,7 @@ one or more tiles:
 
 .. list-table::
    :header-rows: 1
+   :align: left
 
    * - attribute name
      - attribute type
@@ -480,6 +486,7 @@ This attribute can be used in the header for multi-part files:
 
 .. list-table::
    :header-rows: 1
+   :align: left
 
    * - attribute name
      - attribute type
@@ -496,6 +503,7 @@ deep data OpenEXR files.
 
 .. list-table::
    :header-rows: 1
+   :align: left
 
    * - attribute name
      - attribute type
@@ -534,6 +542,7 @@ deep data (deepscanline or deeptile):
 
 .. list-table::
    :header-rows: 1
+   :align: left
 
    * - attribute name
      - attribute type
@@ -635,6 +644,7 @@ same format:
 
 .. list-table::
    :header-rows: 1
+   :align: left
 
    * - part type
      - type attribute
@@ -662,6 +672,7 @@ may be stored together as a scan line block. The number of scan lines
 per block depends on how the pixel data are compressed:
 
 .. list-table::
+   :align: left
 
    * - ``NO_COMPRESSION``
      - 1 

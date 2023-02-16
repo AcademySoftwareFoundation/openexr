@@ -1,15 +1,17 @@
 ..
   SPDX-License-Identifier: BSD-3-Clause
-  Copyright (c) Contributors to the OpenEXR Project.
+  Copyright Contributors to the OpenEXR Project.
 
 Theory of Deep Samples
 ######################
 
 
-This document derives the techniques for splitting and combining two non-solid samples of
-equal depth and thickness. These should should be used by deep image "flattening" algorithms to compute the combined colour of two samples. The formulas are defined in the document :doc:`InterpretingDeepPixels`. This document derives those formulas, and is for information only.
-
-
+This document derives the techniques for splitting and combining two
+non-solid samples of equal depth and thickness. These should should be
+used by deep image "flattening" algorithms to compute the combined
+colour of two samples. The formulas are defined in the document
+:doc:`InterpretingDeepPixels`. This document derives those formulas,
+and is for information only.
 
 Definitions
 ===========
