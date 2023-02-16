@@ -1,3 +1,6 @@
+<!-- SPDX-License-Identifier: BSD-3-Clause -->
+<!-- Copyright (c) Contributors to the OpenEXR Project -->
+
 # Code of Conduct
 
 The OpenEXR project abides by Linux Foundation's code of conduct,

@@ -1,3 +1,6 @@
+<!-- SPDX-License-Identifier: BSD-3-Clause -->
+<!-- Copyright (c) Contributors to the OpenEXR Project -->
+
 # OpenEXR Project Roles and Responsibilities
 
 OpenEXR is a project of the Academy Software Foundation and relies on
