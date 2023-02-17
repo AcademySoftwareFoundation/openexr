@@ -11,6 +11,7 @@
 //-----------------------------------------------------------------------------
 
 #include "Iex.h"
+#include <ImfMisc.h>
 #include <ImfStdIO.h>
 #include <errno.h>
 #ifdef _WIN32
@@ -35,20 +36,6 @@ namespace
 {
 
 #ifdef _WIN32
-wstring
-WidenFilename (const char* filename)
-{
-    wstring ret;
-    int     fnlen = static_cast<int> (strlen (filename));
-    int     len   = MultiByteToWideChar (CP_UTF8, 0, filename, fnlen, NULL, 0);
-    if (len > 0)
-    {
-        ret.resize (len);
-        MultiByteToWideChar (CP_UTF8, 0, filename, fnlen, &ret[0], len);
-    }
-    return ret;
-}
-
 #    if defined(__GLIBCXX__) &&                                                \
         !(defined(_GLIBCXX_HAVE_WFOPEN) && defined(_GLIBCXX_USE_WCHAR_T))
 #        define USE_CUSTOM_WIDE_OPEN 1

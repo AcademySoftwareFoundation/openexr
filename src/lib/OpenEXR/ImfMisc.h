@@ -434,6 +434,14 @@ bool usesLongNames (const Header& header);
 IMF_EXPORT
 int getChunkOffsetTableSize (const Header& header);
 
+//
+// Convert a filename to a wide string.  This is useful for working with
+// filenames on Windows.
+//
+
+IMF_EXPORT
+std::wstring WidenFilename (const char* filename);
+
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
 #endif
