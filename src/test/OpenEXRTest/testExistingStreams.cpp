@@ -7,8 +7,10 @@
 #    undef NDEBUG
 #endif
 
-#include <ImfRgbaFile.h>
-#include <ImfTiledRgbaFile.h>
+#include <ImfArray.h>
+#include <ImfCompressor.h>
+#include <ImfInputPart.h>
+#include <ImfMisc.h>
 #include <ImfMultiPartInputFile.h>
 #include <ImfMultiPartOutputFile.h>
 #include <ImfPartType.h>
@@ -22,6 +24,15 @@
 #include "Iex.h"
 #include <errno.h>
 
+#ifdef _WIN32
+#else
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
+#endif
+
+#include <ImfChannelList.h>
 #include <vector>
 #include <ImfChannelList.h>
 
@@ -71,7 +82,7 @@ fillPixels2 (Array2D<Rgba> &pixels, int w, int h)
 
 //
 // class MMIFStream -- a memory-mapped implementation of
-// class IStream based on class std::ifstream
+// class IStream
 //
 
 class MMIFStream: public OPENEXR_IMF_NAMESPACE::IStream
@@ -80,8 +91,6 @@ class MMIFStream: public OPENEXR_IMF_NAMESPACE::IStream
 
     //-------------------------------------------------------
     // A constructor that opens the file with the given name.
-    // It reads the whole file into an internal buffer and
-    // then immediately closes the file.
     //-------------------------------------------------------
 
     MMIFStream (const char fileName[]);
@@ -96,51 +105,129 @@ class MMIFStream: public OPENEXR_IMF_NAMESPACE::IStream
     virtual void	seekg (uint64_t pos) {_pos = pos;}
     virtual void	clear () {}
 
-  private:
-
-    char*               _buffer;
-    uint64_t            _length;
-    uint64_t            _pos;
+private:
+#ifdef _WIN32
+    HANDLE _f = INVALID_HANDLE_VALUE;
+#else
+    int _f;
+#endif
+    void* _mmap;
+    const char* _mmapStart;
+    uint64_t _pos;
+    uint64_t _length;
 };
 
-
-
-MMIFStream::MMIFStream (const char fileName[]):
-    OPENEXR_IMF_NAMESPACE::IStream (fileName),
-    _buffer (0),
-    _length (0),
-    _pos (0)
+    MMIFStream::MMIFStream (const char fileName[])
+        : OPENEXR_IMF_NAMESPACE::IStream (fileName)
+#ifdef _WIN32
+        , _f (INVALID_HANDLE_VALUE)
+#else
+        , _f (-1)
+#endif
+        , _mmap (reinterpret_cast<void*>(-1))
+        , _mmapStart (nullptr)
+        , _pos (0)
+        , _length (0)
 {
-    std::ifstream ifs;
-    testutil::OpenStreamWithUTF8Name (
-        ifs, fileName, ios::in | ios_base::binary);
+#ifdef _WIN32
+    const std::wstring fileNameWide = WidenFilename (fileName);
+    try
+    {
+        _f = CreateFileW (
+            fileNameWide.c_str (),
+            GENERIC_READ,
+            FILE_SHARE_READ,
+            0,
+            OPEN_EXISTING,
+            FILE_ATTRIBUTE_NORMAL,
+            0);
+    }
+    catch (const std::exception&)
+    {
+        _f = INVALID_HANDLE_VALUE;
+    }
+    if (INVALID_HANDLE_VALUE == _f)
+    {
+        throw IEX_NAMESPACE::IoExc ("Cannot open file.");
+    }
 
-    //
-    // Get length of file
-    //
+    struct _stati64 s;
+    memset (&s, 0, sizeof (struct _stati64));
+    if (_wstati64 (fileNameWide.c_str (), &s) != 0)
+    {
+        throw IEX_NAMESPACE::IoExc ("Cannot stat file.");
+    }
 
-    ifs.seekg (0, ios::end);
-    _length = ifs.tellg();
-    ifs.seekg (0, ios::beg);
-    
-    //
-    // Allocate memory
-    //
+    _length = s.st_size;
 
-    _buffer = new char [_length];
-    
-    //
-    // Read the entire file
-    //
+    _mmap = CreateFileMapping (_f, 0, PAGE_READONLY, 0, 0, 0);
+    if (!_mmap)
+    {
+        throw IEX_NAMESPACE::IoExc ("Cannot memory map file.");
+    }
 
-    ifs.read (_buffer, _length);
-    ifs.close();
+    _mmapStart = reinterpret_cast<const char*> (
+        MapViewOfFile (_mmap, FILE_MAP_READ, 0, 0, 0));
+    if (!_mmapStart)
+    {
+        throw IEX_NAMESPACE::IoExc ("Cannot map view of file.");
+    }
+
+#else
+
+    _f = open(fileName, O_RDONLY);
+    if (-1 == _f)
+    {
+        throw IEX_NAMESPACE::IoExc ("Cannot open file.");
+    }
+
+    struct stat s;
+    memset(&s, 0, sizeof(struct stat));
+    if (stat(fileName, &s) != 0)
+    {
+        throw IEX_NAMESPACE::IoExc ("Cannot stat file.");
+    }
+
+    _length = s.st_size;
+
+    _mmap = mmap(0, _length, PROT_READ, MAP_SHARED, _f, 0);
+    if (_mmap == (void*)-1)
+    {
+        throw IEX_NAMESPACE::IoExc ("Cannot memory map file.");
+    }
+
+    _mmapStart = reinterpret_cast<char*> (_mmap);
+#endif
 }
 
 
 MMIFStream::~MMIFStream ()
 {
-    delete [] _buffer;
+#ifdef _WIN32
+    if (_mmapStart)
+    {
+        UnmapViewOfFile ((void*) _mmapStart);
+    }
+    if (_mmap)
+    {
+        CloseHandle (_mmap);
+    }
+    if (_f != INVALID_HANDLE_VALUE)
+    {
+        CloseHandle (_f);
+    }
+
+#else
+
+    if (_mmap != (void*)-1)
+    {
+        munmap(_mmap, _length);
+    }
+    if (_f != -1)
+    {
+        close(_f);
+    }
+#endif
 }
 
 
@@ -159,7 +246,7 @@ MMIFStream::read (char c[/*n*/], int n)
         retVal = false;
     }
 
-    memcpy (c, &(_buffer[_pos]), n2);
+    memcpy (c, _mmapStart + _pos, n2);
     _pos += n2;
     return retVal;
 }
@@ -174,17 +261,19 @@ MMIFStream::readMemoryMapped (int n)
     if (_pos + n > _length)
         throw IEX_NAMESPACE::InputExc ("Reading past end of file.");    
 
-    char* retVal = &(_buffer[_pos]);
+    char* retVal = const_cast<char*>(_mmapStart) + _pos;
     _pos += n;
     return retVal;
 }
 
 
 void
-writeReadScanLines (const char fileName[],
-		    int width,
-		    int height,
-		    const Array2D<Rgba> &p1)
+writeReadScanLines (
+    const char fileName[],
+    int width,
+    int height,
+    Compression compression,
+    const Array2D<Rgba>& p1)
 {
     //
     // Save a scanline-based RGBA image, but instead of
@@ -206,7 +295,14 @@ writeReadScanLines (const char fileName[],
         testutil::OpenStreamWithUTF8Name (
             os, fileName, ios::out | ios_base::binary);
         StdOFStream ofs (os, fileName);
-        Header header (width, height);
+        Header header (
+            width,
+            height,
+            1,
+            IMATH_NAMESPACE::V2f (0, 0),
+            1,
+            INCREASING_Y,
+            compression);
         RgbaOutputFile out (ofs, header, WRITE_RGBA);
         out.setFrameBuffer (&p1[0][0], 1, width);
         out.writePixels (height);
@@ -230,17 +326,20 @@ writeReadScanLines (const char fileName[],
 	in.setFrameBuffer (&p2[-dy][-dx], 1, w);
 	in.readPixels (dw.min.y, dw.max.y);
 
-        cout << ", comparing";
-	for (int y = 0; y < h; ++y)
-	{
-	    for (int x = 0; x < w; ++x)
-	    {
-		assert (p2[y][x].r == p1[y][x].r);
-		assert (p2[y][x].g == p1[y][x].g);
-		assert (p2[y][x].b == p1[y][x].b);
-		assert (p2[y][x].a == p1[y][x].a);
-	    }
-	}
+        if (!isLossyCompression (compression))
+        {
+            cout << ", comparing";
+            for (int y = 0; y < h; ++y)
+            {
+                for (int x = 0; x < w; ++x)
+                {
+                    assert (p2[y][x].r == p1[y][x].r);
+                    assert (p2[y][x].g == p1[y][x].g);
+                    assert (p2[y][x].b == p1[y][x].b);
+                    assert (p2[y][x].a == p1[y][x].a);
+                }
+            }
+        }
     }
     
     {
@@ -258,28 +357,34 @@ writeReadScanLines (const char fileName[],
 	in.setFrameBuffer (&p2[-dy][-dx], 1, w);
 	in.readPixels (dw.min.y, dw.max.y);
 
-        cout << ", comparing";
-	for (int y = 0; y < h; ++y)
-	{
-	    for (int x = 0; x < w; ++x)
-	    {
-		assert (p2[y][x].r == p1[y][x].r);
-		assert (p2[y][x].g == p1[y][x].g);
-		assert (p2[y][x].b == p1[y][x].b);
-		assert (p2[y][x].a == p1[y][x].a);
-	    }
-	}
+        if (!isLossyCompression(compression))
+        {
+            cout << ", comparing";
+            for (int y = 0; y < h; ++y)
+            {
+                for (int x = 0; x < w; ++x)
+                {
+                    assert (p2[y][x].r == p1[y][x].r);
+                    assert (p2[y][x].g == p1[y][x].g);
+                    assert (p2[y][x].b == p1[y][x].b);
+                    assert (p2[y][x].a == p1[y][x].a);
+                }
+            }
+        }
     }
     
     cout << endl;
 
     remove (fileName);
 }
+
 void
-writeReadMultiPart (const char fileName[],
-                    int width,
-                    int height,
-                    const Array2D<Rgba> &p1)
+writeReadMultiPart (
+    const char fileName[],
+    int width,
+    int height,
+    Compression compression,
+    const Array2D<Rgba>& p1)
 {
     //
     // Save a two scanline parts in an image, but instead of
@@ -302,14 +407,21 @@ writeReadMultiPart (const char fileName[],
             os, fileName, ios::out | ios_base::binary);
         StdOFStream ofs (os, fileName);
 
-        vector<Header> headers(2);
-        headers[0] = Header(width, height);
-        headers[0].setName("part1");
-        headers[0].channels().insert("R",Channel());
-        headers[0].channels().insert("G",Channel());
-        headers[0].channels().insert("B",Channel());
-        headers[0].channels().insert("A",Channel());
-        headers[0].setType(SCANLINEIMAGE);
+        vector<Header> headers (2);
+        headers[0] = Header (
+            width,
+            height,
+            1,
+            IMATH_NAMESPACE::V2f (0, 0),
+            1,
+            INCREASING_Y,
+            compression);
+        headers[0].setName ("part1");
+        headers[0].channels ().insert ("R", Channel ());
+        headers[0].channels ().insert ("G", Channel ());
+        headers[0].channels ().insert ("B", Channel ());
+        headers[0].channels ().insert ("A", Channel ());
+        headers[0].setType (SCANLINEIMAGE);
 
         headers[1]=headers[0];
         headers[1].setName("part2");
@@ -359,16 +471,19 @@ writeReadMultiPart (const char fileName[],
             InputPart p(in,part);
             p.setFrameBuffer(f);
             p.readPixels (dw.min.y, dw.max.y);
-                            
-            cout << ", comparing pt " << part;
-            for (int y = 0; y < h; ++y)
+
+            if (!isLossyCompression (compression))
             {
-                for (int x = 0; x < w; ++x)
+                cout << ", comparing pt " << part;
+                for (int y = 0; y < h; ++y)
                 {
-                    assert (p2[y][x].r == p1[y][x].r);
-                    assert (p2[y][x].g == p1[y][x].g);
-                    assert (p2[y][x].b == p1[y][x].b);
-                    assert (p2[y][x].a == p1[y][x].a);
+                    for (int x = 0; x < w; ++x)
+                    {
+                        assert (p2[y][x].r == p1[y][x].r);
+                        assert (p2[y][x].g == p1[y][x].g);
+                        assert (p2[y][x].b == p1[y][x].b);
+                        assert (p2[y][x].a == p1[y][x].a);
+                    }
                 }
             }
         }
@@ -402,16 +517,19 @@ writeReadMultiPart (const char fileName[],
             InputPart p(in,part);
             p.setFrameBuffer(f);
             p.readPixels (dw.min.y, dw.max.y);
-            
-            cout << ", comparing pt " << part;
-            for (int y = 0; y < h; ++y)
+
+            if (!isLossyCompression (compression))
             {
-                for (int x = 0; x < w; ++x)
+                cout << ", comparing pt " << part;
+                for (int y = 0; y < h; ++y)
                 {
-                    assert (p2[y][x].r == p1[y][x].r);
-                    assert (p2[y][x].g == p1[y][x].g);
-                    assert (p2[y][x].b == p1[y][x].b);
-                    assert (p2[y][x].a == p1[y][x].a);
+                    for (int x = 0; x < w; ++x)
+                    {
+                        assert (p2[y][x].r == p1[y][x].r);
+                        assert (p2[y][x].g == p1[y][x].g);
+                        assert (p2[y][x].b == p1[y][x].b);
+                        assert (p2[y][x].a == p1[y][x].a);
+                    }
                 }
             }
         }
@@ -425,10 +543,12 @@ writeReadMultiPart (const char fileName[],
 
 
 void
-writeReadTiles (const char fileName[],
-		int width,
-		int height,
-		const Array2D<Rgba> &p1)
+writeReadTiles (
+    const char fileName[],
+    int width,
+    int height,
+    Compression compression,
+    const Array2D<Rgba>& p1)
 {
     //
     // Save a tiled RGBA image, but instead of letting
@@ -448,7 +568,14 @@ writeReadTiles (const char fileName[],
         testutil::OpenStreamWithUTF8Name (
             os, fileName, ios_base::out | ios_base::binary);
         StdOFStream ofs (os, fileName);
-        Header header (width, height);
+        Header header (
+            width,
+            height,
+            1,
+            IMATH_NAMESPACE::V2f (0, 0),
+            1,
+            INCREASING_Y,
+            compression);
         TiledRgbaOutputFile out (ofs, header, WRITE_RGBA, 20, 20, ONE_LEVEL);
         out.setFrameBuffer (&p1[0][0], 1, width);
         out.writeTiles (0, out.numXTiles() - 1, 0, out.numYTiles() - 1);
@@ -472,17 +599,20 @@ writeReadTiles (const char fileName[],
 	in.setFrameBuffer (&p2[-dy][-dx], 1, w);
         in.readTiles (0, in.numXTiles() - 1, 0, in.numYTiles() - 1);
 
-        cout << ", comparing";
-	for (int y = 0; y < h; ++y)
-	{
-	    for (int x = 0; x < w; ++x)
-	    {
-		assert (p2[y][x].r == p1[y][x].r);
-		assert (p2[y][x].g == p1[y][x].g);
-		assert (p2[y][x].b == p1[y][x].b);
-		assert (p2[y][x].a == p1[y][x].a);
-	    }
-	}
+        if (!isLossyCompression (compression))
+        {
+            cout << ", comparing";
+            for (int y = 0; y < h; ++y)
+            {
+                for (int x = 0; x < w; ++x)
+                {
+                    assert (p2[y][x].r == p1[y][x].r);
+                    assert (p2[y][x].g == p1[y][x].g);
+                    assert (p2[y][x].b == p1[y][x].b);
+                    assert (p2[y][x].a == p1[y][x].a);
+                }
+            }
+        }
     }
     
     {
@@ -500,17 +630,20 @@ writeReadTiles (const char fileName[],
 	in.setFrameBuffer (&p2[-dy][-dx], 1, w);
         in.readTiles (0, in.numXTiles() - 1, 0, in.numYTiles() - 1);
 
-        cout << ", comparing";
-	for (int y = 0; y < h; ++y)
-	{
-	    for (int x = 0; x < w; ++x)
-	    {
-		assert (p2[y][x].r == p1[y][x].r);
-		assert (p2[y][x].g == p1[y][x].g);
-		assert (p2[y][x].b == p1[y][x].b);
-		assert (p2[y][x].a == p1[y][x].a);
-	    }
-	}
+        if (!isLossyCompression (compression))
+        {
+            cout << ", comparing";
+            for (int y = 0; y < h; ++y)
+            {
+                for (int x = 0; x < w; ++x)
+                {
+                    assert (p2[y][x].r == p1[y][x].r);
+                    assert (p2[y][x].g == p1[y][x].g);
+                    assert (p2[y][x].b == p1[y][x].b);
+                    assert (p2[y][x].a == p1[y][x].a);
+                }
+            }
+        }
     }
     
     cout << endl;
@@ -762,19 +895,40 @@ testExistingStreams (const std::string &tempDir)
         const int W = 119;
         const int H = 237;
 
-        Array2D<Rgba> p1 (H, W);
+        for (int compression = 0; compression < NUM_COMPRESSION_METHODS;
+             ++compression)
+        {
+            cout << "compression: " << compression << endl;
 
-        fillPixels1 (p1, W, H);
-        writeReadScanLines ((tempDir + "imf_test_streams.exr").c_str(), W, H, p1);
-        writeReadScanLines (W, H, p1);
+            Array2D<Rgba> p1 (H, W);
 
-        fillPixels2 (p1, W, H);
-        writeReadTiles ((tempDir + "imf_test_streams2.exr").c_str(), W, H, p1);
-        writeReadTiles (W, H, p1);
+            fillPixels1 (p1, W, H);
+            writeReadScanLines (
+                (tempDir + "imf_test_streams.exr").c_str (),
+                W,
+                H,
+                static_cast<Compression>(compression),
+                p1);
+            writeReadScanLines (W, H, p1);
 
-        fillPixels1 (p1, W, H);
-        writeReadMultiPart ((tempDir +  "imf_test_streams3.exr").c_str(), W, H, p1);
-        writeReadMultiPart (W, H, p1);
+            fillPixels2 (p1, W, H);
+            writeReadTiles (
+                (tempDir + "imf_test_streams2.exr").c_str (),
+                W,
+                H,
+                static_cast<Compression> (compression),
+                p1);
+            writeReadTiles (W, H, p1);
+
+            fillPixels1 (p1, W, H);
+            writeReadMultiPart (
+                (tempDir + "imf_test_streams3.exr").c_str (),
+                W,
+                H,
+                static_cast<Compression> (compression),
+                p1);
+            writeReadMultiPart (W, H, p1);
+        }
 
         cout << "ok\n" << endl;
     }
