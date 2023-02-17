@@ -6,8 +6,10 @@
 #ifndef INCLUDE_TestUtilFStream_h_
 #define INCLUDE_TestUtilFStream_h_ 1
 
-#include <fstream>
-#include <string>
+#    include <ImfMisc.h>
+
+#    include <fstream>
+#    include <string>
 
 #ifdef _WIN32
 # ifndef NOMINMAX
@@ -25,21 +27,7 @@
 
 namespace testutil
 {
-#ifdef _WIN32
-inline std::wstring
-WidenFilename (const char* filename)
-{
-    std::wstring ret;
-    int          fnlen = static_cast<int> (strlen (filename));
-    int len = MultiByteToWideChar (CP_UTF8, 0, filename, fnlen, NULL, 0);
-    if (len > 0)
-    {
-        ret.resize (len);
-        MultiByteToWideChar (CP_UTF8, 0, filename, fnlen, &ret[0], len);
-    }
-    return ret;
-}
-
+#    ifdef _WIN32
 // This is a big work around mechanism for compiling using mingw / gcc under windows
 // until mingw 9 where they add the wide filename version of open
 # if (defined(__GLIBCXX__) && !(defined(_GLIBCXX_HAVE_WFOPEN) && defined(_GLIBCXX_USE_WCHAR_T)))

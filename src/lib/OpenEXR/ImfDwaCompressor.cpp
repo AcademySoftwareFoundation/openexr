@@ -121,6 +121,12 @@
 #include "ImathVec.h"
 #include "half.h"
 
+#include <algorithm>
+#include <array>
+#include <cassert>
+#include <cctype>
+#include <limits>
+#include <string>
 #include <vector>
 #include <string>
 #include <cctype>
@@ -2347,10 +2353,12 @@ DwaCompressor::uncompress
     // Flip the counters from XDR to NATIVE
     //
 
+    std::array<uint64_t, NUM_SIZES_SINGLE> counterBuf;
+    memcpy (counterBuf.data (), inPtr, counterBuf.size() * sizeof (uint64_t));
     for (int i = 0; i < NUM_SIZES_SINGLE; ++i)
     {
-        uint64_t   *dst =  (((uint64_t *)inPtr) + i);
-        const char *src = (char *)(((uint64_t *)inPtr) + i);
+        uint64_t*   dst = counterBuf.data() + i;
+        const char* src = (char*) (counterBuf.data() + i);
 
         Xdr::read<CharPtrIO> (src, *dst);
     }
@@ -2359,7 +2367,7 @@ DwaCompressor::uncompress
     // Unwind all the counter info
     //
 
-    const uint64_t *inPtr64 = (const uint64_t*) inPtr;
+    const uint64_t* inPtr64 = counterBuf.data();
 
     uint64_t version                  = *(inPtr64 + VERSION);
     uint64_t unknownUncompressedSize  = *(inPtr64 + UNKNOWN_UNCOMPRESSED_SIZE);
