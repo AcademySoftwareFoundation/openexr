@@ -10,9 +10,11 @@ About OpenEXR
 .. toctree::
    :caption: About
              
-.. raw:: htmol
-         
-    <embed width="1645" height="934" src="https://www.youtube.com/embed/X0khNMmEJEI" title="OpenEXR Reel 2020" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></embed>
+.. sidebar::
+
+     .. image:: images/OpenEXR_Reel_2020.png
+        :target: https://www.youtube.com/embed/X0khNMmEJEI
+        :width: 325
 
 OpenEXR is a project of the `Academy Software Foundation
 <https://www.aswf.io>`_.  The format and library were originally
