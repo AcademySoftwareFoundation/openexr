@@ -1,3 +1,4 @@
-breathe
+sphinx >= 3.0
+breathe == 4.27.0
 sphinx-press-theme
-sphinx-tabs
+

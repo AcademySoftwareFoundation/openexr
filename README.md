@@ -48,7 +48,7 @@ correctness and verifiability, and breadth of adoption. Imath is not
 intended to be a comprehensive linear algebra or numerical analysis
 package.
 
-# Project Governance
+## Project Governance
 
 OpenEXR is a project of the [Academy Software
 Foundation](https://www.aswf.io). See the project's [governance
@@ -127,14 +127,14 @@ API](https://openexr.readthedocs.io/en/latest/API.html#the-openexr-api).
 
   - Email to security@openexr.com
 
-* **Make a contribution:**
+* **Contribute a Fix, Feature, or Improvement:**
 
-  - Read the [contribution guidelines](CONTRIBUTING.md) and [code of conduct](CODE_OF_CONDUCT.md)
+  - Read the [Contribution Guidelines](CONTRIBUTING.md) and [Code of Conduct](CODE_OF_CONDUCT.md)
 
-  - Sign the [contributor license
-    agreement](https://contributor.easycla.lfx.linuxfoundation.org/#/cla/project/2e8710cb-e379-4116-a9ba-964f83618cc5/user/564e571e-12d7-4857-abd4-898939accdd7)
+  - Sign the [Contributor License
+    Agreement](https://contributor.easycla.lfx.linuxfoundation.org/#/cla/project/2e8710cb-e379-4116-a9ba-964f83618cc5/user/564e571e-12d7-4857-abd4-898939accdd7)
   
-  - Submit a PR: https://github.com/AcademySoftwareFoundation/openexr/pulls
+  - Submit a Pull Request: https://github.com/AcademySoftwareFoundation/openexr/pulls
 
 # Resources
 
