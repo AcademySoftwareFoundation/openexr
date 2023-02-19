@@ -74,14 +74,16 @@ Community
 
   - Email security@openexr.com
 
-* **Make a contribution:**
+* **Contribute a Fix, Feature, or Improvement:**
 
-  - Read the `Contribution guidelines <https://github.com/AcademySoftwareFoundation/openexr/blob/main/CONTRIBUTING.md>`_
+  - Read the `Contribution guidelines
+    <https://github.com/AcademySoftwareFoundation/openexr/blob/main/CONTRIBUTING.md>`_
+    and `Code of Conduct <https://github.com/AcademySoftwareFoundation/openexr/blob/main/CODE_OF_CONDUCT.md>`_
 
   - Sign the `Contributor License Agreement
     <https://contributor.easycla.lfx.linuxfoundation.org/#/cla/project/2e8710cb-e379-4116-a9ba-964f83618cc5/user/564e571e-12d7-4857-abd4-898939accdd7>`_
   
-  - Submit a PR: https://github.com/AcademySoftwareFoundation/openexr/pulls
+  - Submit a Pull Request: https://github.com/AcademySoftwareFoundation/openexr/pulls
 
 Resources
 =========
@@ -91,6 +93,7 @@ Resources
 - Release notes: `CHANGES.md
   <https://github.com/AcademySoftwareFoundation/openexr/blob/main/CHANGES.md>`_
 - Contributors: `CONTRIBUTORS.md <https://github.com/AcademySoftwareFoundation/openexr/blob/main/CONTRIBUTORS.md>`_
-
+- Porting Guide: :doc:`PortingGuide`
+  
 .. include:: toc_redirect.rst
 

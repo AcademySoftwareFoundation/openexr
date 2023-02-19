@@ -314,14 +314,14 @@ If your application code reports compile errors due to undefined or
 incompletely-defined Imath or OpenEXR data types, locate the Imath or
 OpenEXR header file that defines the type and include it explicitly.
 
-## Symbols Are Hidden by Default
+Symbols Are Hidden by Default
+=============================
 
 To reduce library size and make linkage behavior similar across
 platforms, Imath and OpenEXR now build with directives that make
 symbol visibility hidden by default, with specific externally-visible
-symbols explicitly marked for export. See the [Symbol
-Visibility](https://github.com/AcademySoftwareFoundation/openexr/blob/main/docs/SymbolVisibility.md)
-doc and the appropriate ``*Export.h`` header file for more details.
+symbols explicitly marked for export. See the :doc:`SymbolVisibility`
+and the appropriate ``*Export.h`` header file for more details.
 
 Imath Now Uses Standard C++ Exceptions and ``noexcept``
 =======================================================
