@@ -25,8 +25,14 @@
 .. toctree::
    :hidden:
 
+   news
+
+.. toctree::
+   :hidden:
+
    about
 
+   
       
    
 

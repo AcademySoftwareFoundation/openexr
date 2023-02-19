@@ -10,6 +10,12 @@ About OpenEXR
 .. toctree::
    :caption: About
              
+.. sidebar::
+
+     .. image:: images/OpenEXR_Reel_2020.png
+        :target: https://www.youtube.com/embed/X0khNMmEJEI
+        :width: 325
+
 OpenEXR is a project of the `Academy Software Foundation
 <https://www.aswf.io>`_.  The format and library were originally
 developed at Industrial Light & Magic and first released as open
