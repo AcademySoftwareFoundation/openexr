@@ -47,7 +47,8 @@ jobs:
        C++${{ matrix.cxx-standard }},
        config=${{ matrix.build-type }},
        shared=${{ matrix.build-shared }},
-       threads=${{ matrix.threads-enabled }}>'
+       threads=${{ matrix.threads-enabled }},
+       docs=${{ matrix.build-docs }}>'
     # GH-hosted VM. The build runs in CentOS 7 'container' defined below.
     runs-on: ubuntu-latest
     container:
@@ -73,6 +74,7 @@ jobs:
             label: 
             threads-enabled: 'ON'
             vfx-cy: 2022
+            build-docs: 'ON'
             exclude-tests:
 
           # Shared, Release, Threads OFF
@@ -86,6 +88,7 @@ jobs:
             label: 
             threads-enabled: 'OFF'
             vfx-cy: 2022
+            build-docs: 'OFF'
             exclude-tests:
 
           # Shared, Debug
@@ -99,6 +102,7 @@ jobs:
             label: 
             threads-enabled: 'ON'
             vfx-cy: 2022
+            build-docs: 'OFF'
             exclude-tests:
 
           # Static, Release
@@ -112,6 +116,7 @@ jobs:
             label: 
             threads-enabled: 'ON'
             vfx-cy: 2022
+            build-docs: 'OFF'
             exclude-tests:
 
           # Static, Debug
@@ -125,6 +130,7 @@ jobs:
             label: 
             threads-enabled: 'ON'
             vfx-cy: 2022
+            build-docs: 'OFF'
             exclude-tests:
 
           # -------------------------------------------------------------------
@@ -141,6 +147,7 @@ jobs:
             label: 
             threads-enabled: 'ON'
             vfx-cy: 2022
+            build-docs: 'OFF'
             exclude-tests:
 
           # Debug
@@ -154,6 +161,7 @@ jobs:
             label: 
             threads-enabled: 'ON'
             vfx-cy: 2022
+            build-docs: 'OFF'
             exclude-tests:
 
           # Static, Release
@@ -167,6 +175,7 @@ jobs:
             label: 
             threads-enabled: 'ON'
             vfx-cy: 2022
+            build-docs: 'OFF'
             exclude-tests:
 
           # Static, Debug
@@ -179,6 +188,7 @@ jobs:
             compiler-desc: clang10
             label: 
             threads-enabled: 'ON'
+            build-docs: 'OFF'
             vfx-cy: 2022
             exclude-tests:
 
@@ -195,6 +205,7 @@ jobs:
             compiler-desc: gcc9.3.1
             label: 
             threads-enabled: 'ON'
+            build-docs: 'OFF'
             vfx-cy: 2021
             exclude-tests:
 
@@ -211,6 +222,7 @@ jobs:
             compiler-desc: gcc6.3.1
             label: 
             threads-enabled: 'ON'
+            build-docs: 'OFF'
             vfx-cy: 2020
             exclude-tests:
 
@@ -227,6 +239,7 @@ jobs:
             compiler-desc: gcc6.3.1
             label: 
             threads-enabled: 'ON'
+            build-docs: 'OFF'
             vfx-cy: 2019
             exclude-tests: 
 
@@ -243,6 +256,7 @@ jobs:
             compiler-desc: gcc6.3.1
             label: 'Legacy '
             threads-enabled: 'ON'
+            build-docs: 'OFF'
             vfx-cy: 2019
             exclude-tests:
 
@@ -266,6 +280,7 @@ jobs:
                 -DCMAKE_CXX_FLAGS=${{ matrix.cxx-flags }} \
                 -DCMAKE_VERBOSE_MAKEFILE:BOOL='OFF' \
                 -DBUILD_SHARED_LIBS=${{ matrix.build-shared }} \
+                -DBUILD_DOCS=${{ matrix.build-docs }} \
                 -DOPENEXR_BUILD_TOOLS='ON' \
                 -DOPENEXR_RUN_FUZZ_TESTS='OFF' \
                 -DOPENEXR_ENABLE_THREADING=${{ matrix.threads-enabled }}
