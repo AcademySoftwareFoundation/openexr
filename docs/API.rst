@@ -14,8 +14,6 @@ The OpenEXR API
    HelloWorld
    ReadingAndWritingImageFiles
    OpenEXRCoreAPI
-   PortingGuide
-   SymbolVisibility
               
 * :ref:`genindex`
 
