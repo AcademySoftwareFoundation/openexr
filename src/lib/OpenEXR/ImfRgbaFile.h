@@ -26,6 +26,7 @@
 #include <ImathBox.h>
 #include <ImathVec.h>
 #include <half.h>
+#include <cstddef>
 #include <string>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
@@ -43,8 +44,8 @@ ComputeBasePointer (
     const Rgba*                 ptr,
     const IMATH_NAMESPACE::V2i& origin,
     int64_t                     w,
-    size_t                      xStride = 1,
-    size_t                      yStride = 0)
+    ptrdiff_t                   xStride = 1,
+    ptrdiff_t                   yStride = 0)
 {
     if (yStride == 0) yStride = w;
     int64_t offx = static_cast<int64_t> (origin.x);
@@ -69,8 +70,8 @@ ComputeBasePointer (
     Rgba*                       ptr,
     const IMATH_NAMESPACE::V2i& origin,
     int64_t                     w,
-    size_t                      xStride = 1,
-    size_t                      yStride = 0)
+    ptrdiff_t                   xStride = 1,
+    ptrdiff_t                   yStride = 0)
 {
     if (yStride == 0) yStride = w;
     int64_t offx = static_cast<int64_t> (origin.x);
@@ -176,7 +177,7 @@ public:
     //------------------------------------------------
 
     IMF_EXPORT
-    void setFrameBuffer (const Rgba* base, size_t xStride, size_t yStride);
+    void setFrameBuffer (const Rgba* base, ptrdiff_t xStride, ptrdiff_t yStride);
 
     //---------------------------------------------
     // Write pixel data (see class Imf::OutputFile)
@@ -353,7 +354,7 @@ public:
     //-----------------------------------------------------
 
     IMF_EXPORT
-    void setFrameBuffer (Rgba* base, size_t xStride, size_t yStride);
+    void setFrameBuffer (Rgba* base, ptrdiff_t xStride, ptrdiff_t yStride);
 
     //----------------------------------------------------------------
     // Switch to a different layer within the current part

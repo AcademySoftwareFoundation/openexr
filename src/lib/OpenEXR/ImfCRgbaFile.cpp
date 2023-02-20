@@ -947,7 +947,7 @@ ImfCloseOutputFile (ImfOutputFile* out)
 
 int
 ImfOutputSetFrameBuffer (
-    ImfOutputFile* out, const ImfRgba* base, size_t xStride, size_t yStride)
+    ImfOutputFile* out, const ImfRgba* base, ptrdiff_t xStride, ptrdiff_t yStride)
 {
     try
     {
@@ -1043,8 +1043,8 @@ int
 ImfTiledOutputSetFrameBuffer (
     ImfTiledOutputFile* out,
     const ImfRgba*      base,
-    size_t              xStride,
-    size_t              yStride)
+    ptrdiff_t           xStride,
+    ptrdiff_t           yStride)
 {
     try
     {
@@ -1165,7 +1165,7 @@ ImfCloseInputFile (ImfInputFile* in)
 
 int
 ImfInputSetFrameBuffer (
-    ImfInputFile* in, ImfRgba* base, size_t xStride, size_t yStride)
+    ImfInputFile* in, ImfRgba* base, ptrdiff_t xStride, ptrdiff_t yStride)
 {
     try
     {
@@ -1245,7 +1245,7 @@ ImfCloseTiledInputFile (ImfTiledInputFile* in)
 
 int
 ImfTiledInputSetFrameBuffer (
-    ImfTiledInputFile* in, ImfRgba* base, size_t xStride, size_t yStride)
+    ImfTiledInputFile* in, ImfRgba* base, ptrdiff_t xStride, ptrdiff_t yStride)
 {
     try
     {

@@ -70,8 +70,8 @@ struct TOutSliceInfo
 {
     PixelType   type;
     const char* base;
-    size_t      xStride;
-    size_t      yStride;
+    ptrdiff_t   xStride;
+    ptrdiff_t   yStride;
     bool        zero;
     int         xTileCoords;
     int         yTileCoords;
@@ -79,15 +79,15 @@ struct TOutSliceInfo
     TOutSliceInfo (
         PixelType   type        = HALF,
         const char* base        = 0,
-        size_t      xStride     = 0,
-        size_t      yStride     = 0,
+        ptrdiff_t   xStride     = 0,
+        ptrdiff_t   yStride     = 0,
         bool        zero        = false,
         int         xTileCoords = 0,
         int         yTileCoords = 0);
 };
 
 TOutSliceInfo::TOutSliceInfo (
-    PixelType t, const char* b, size_t xs, size_t ys, bool z, int xtc, int ytc)
+    PixelType t, const char* b, ptrdiff_t xs, ptrdiff_t ys, bool z, int xtc, int ytc)
     : type (t)
     , base (b)
     , xStride (xs)

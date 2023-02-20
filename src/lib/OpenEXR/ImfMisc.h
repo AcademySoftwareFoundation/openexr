@@ -173,7 +173,7 @@ int numLinesInBuffer (Compressor* compressor);
 //			readPtr points just past the end of the
 //			copied data.
 //
-//    writePtr, endPtr	point to the lefmost and rightmost pixels
+//    writePtr, endPtr	point to the first and last pixels
 //			in the frame buffer slice
 //
 //    xStride		the xStride for the frame buffer slice
@@ -191,7 +191,7 @@ void copyIntoFrameBuffer (
     const char*&       readPtr,
     char*              writePtr,
     char*              endPtr,
-    size_t             xStride,
+    ptrdiff_t          xStride,
     bool               fill,
     double             fillValue,
     Compressor::Format format,
@@ -207,7 +207,7 @@ void copyIntoFrameBuffer (
 //    readPtr             initially points to the beginning of the
 //                        data in the line or tile buffer. readPtr
 //                        is advanced as the pixel data are copied;
-//                        when copyIntoFrameBuffer() returns,
+//                        when copyIntoDeepFrameBuffer() returns,
 //                        readPtr points just past the end of the
 //                        copied data.
 //
@@ -307,7 +307,7 @@ void convertInPlace (
 //			writePtr points just past the end of the
 //			copied data.
 //
-//    readPtr, endPtr	point to the lefmost and rightmost pixels
+//    readPtr, endPtr	point to the first and last pixels
 //			in the frame buffer slice
 //
 //    xStride		the xStride for the frame buffer slice
@@ -326,7 +326,7 @@ void copyFromFrameBuffer (
     char*&             writePtr,
     const char*&       readPtr,
     const char*        endPtr,
-    size_t             xStride,
+    ptrdiff_t          xStride,
     Compressor::Format format,
     PixelType          type);
 
@@ -372,7 +372,7 @@ void copyFromFrameBuffer (
 //
 //    type                      the pixel data type in the frame buffer
 //                              and in the output file's channel (function
-//                              copyFromFrameBuffer() doesn't do on-the-fly
+//                              copyFromDeepFrameBuffer() doesn't do on-the-fly
 //                              data type conversion)
 //
 

@@ -22,6 +22,7 @@
 #include <ImfStdIO.h>
 #include <ImfTileDescription.h>
 #include <ImfXdr.h>
+#include <cassert>
 
 #include <codecvt>
 #include <locale>
@@ -265,7 +266,7 @@ copyIntoFrameBuffer (
     const char*&       readPtr,
     char*              writePtr,
     char*              endPtr,
-    size_t             xStride,
+    ptrdiff_t          xStride,
     bool               fill,
     double             fillValue,
     Compressor::Format format,
@@ -276,6 +277,21 @@ copyIntoFrameBuffer (
     // Copy a horizontal row of pixels from an input
     // file's line or tile buffer to a frame buffer.
     //
+    endPtr += xStride;
+
+    if (xStride == 0)
+    {
+        throw IEX_NAMESPACE::ArgExc ("Zero stride is invalid.");
+    }
+    if ((endPtr - writePtr) / xStride <= 0)
+    {
+        // Nothing to do, the specified range is empty.
+        return;
+    }
+    if ((endPtr - writePtr) % xStride != 0)
+    {
+        throw IEX_NAMESPACE::ArgExc ("Stride will not exactly span input data.");
+    }
 
     if (fill)
     {
@@ -291,7 +307,7 @@ copyIntoFrameBuffer (
             {
                 unsigned int fillVal = (unsigned int) (fillValue);
 
-                while (writePtr <= endPtr)
+                while (writePtr != endPtr)
                 {
                     *(unsigned int*) writePtr = fillVal;
                     writePtr += xStride;
@@ -304,7 +320,7 @@ copyIntoFrameBuffer (
             {
                 half fillVal = half (fillValue);
 
-                while (writePtr <= endPtr)
+                while (writePtr != endPtr)
                 {
                     *(half*) writePtr = fillVal;
                     writePtr += xStride;
@@ -317,7 +333,7 @@ copyIntoFrameBuffer (
             {
                 float fillVal = float (fillValue);
 
-                while (writePtr <= endPtr)
+                while (writePtr != endPtr)
                 {
                     *(float*) writePtr = fillVal;
                     writePtr += xStride;
@@ -346,7 +362,7 @@ copyIntoFrameBuffer (
                 {
                     case OPENEXR_IMF_INTERNAL_NAMESPACE::UINT:
 
-                        while (writePtr <= endPtr)
+                        while (writePtr != endPtr)
                         {
                             Xdr::read<CharPtrIO> (
                                 readPtr, *(unsigned int*) writePtr);
@@ -356,7 +372,7 @@ copyIntoFrameBuffer (
 
                     case OPENEXR_IMF_INTERNAL_NAMESPACE::HALF:
 
-                        while (writePtr <= endPtr)
+                        while (writePtr != endPtr)
                         {
                             half h;
                             Xdr::read<CharPtrIO> (readPtr, h);
@@ -367,7 +383,7 @@ copyIntoFrameBuffer (
 
                     case OPENEXR_IMF_INTERNAL_NAMESPACE::FLOAT:
 
-                        while (writePtr <= endPtr)
+                        while (writePtr != endPtr)
                         {
                             float f;
                             Xdr::read<CharPtrIO> (readPtr, f);
@@ -388,7 +404,7 @@ copyIntoFrameBuffer (
                 {
                     case OPENEXR_IMF_INTERNAL_NAMESPACE::UINT:
 
-                        while (writePtr <= endPtr)
+                        while (writePtr != endPtr)
                         {
                             unsigned int ui;
                             Xdr::read<CharPtrIO> (readPtr, ui);
@@ -399,7 +415,7 @@ copyIntoFrameBuffer (
 
                     case OPENEXR_IMF_INTERNAL_NAMESPACE::HALF:
 
-                        while (writePtr <= endPtr)
+                        while (writePtr != endPtr)
                         {
                             Xdr::read<CharPtrIO> (readPtr, *(half*) writePtr);
                             writePtr += xStride;
@@ -408,7 +424,7 @@ copyIntoFrameBuffer (
 
                     case OPENEXR_IMF_INTERNAL_NAMESPACE::FLOAT:
 
-                        while (writePtr <= endPtr)
+                        while (writePtr != endPtr)
                         {
                             float f;
                             Xdr::read<CharPtrIO> (readPtr, f);
@@ -429,7 +445,7 @@ copyIntoFrameBuffer (
                 {
                     case OPENEXR_IMF_INTERNAL_NAMESPACE::UINT:
 
-                        while (writePtr <= endPtr)
+                        while (writePtr != endPtr)
                         {
                             unsigned int ui;
                             Xdr::read<CharPtrIO> (readPtr, ui);
@@ -440,7 +456,7 @@ copyIntoFrameBuffer (
 
                     case OPENEXR_IMF_INTERNAL_NAMESPACE::HALF:
 
-                        while (writePtr <= endPtr)
+                        while (writePtr != endPtr)
                         {
                             half h;
                             Xdr::read<CharPtrIO> (readPtr, h);
@@ -451,7 +467,7 @@ copyIntoFrameBuffer (
 
                     case OPENEXR_IMF_INTERNAL_NAMESPACE::FLOAT:
 
-                        while (writePtr <= endPtr)
+                        while (writePtr != endPtr)
                         {
                             Xdr::read<CharPtrIO> (readPtr, *(float*) writePtr);
                             writePtr += xStride;
@@ -482,7 +498,7 @@ copyIntoFrameBuffer (
                 {
                     case OPENEXR_IMF_INTERNAL_NAMESPACE::UINT:
 
-                        while (writePtr <= endPtr)
+                        while (writePtr != endPtr)
                         {
                             for (size_t i = 0; i < sizeof (unsigned int); ++i)
                                 writePtr[i] = readPtr[i];
@@ -494,7 +510,7 @@ copyIntoFrameBuffer (
 
                     case OPENEXR_IMF_INTERNAL_NAMESPACE::HALF:
 
-                        while (writePtr <= endPtr)
+                        while (writePtr != endPtr)
                         {
                             half h                    = *(half*) readPtr;
                             *(unsigned int*) writePtr = halfToUint (h);
@@ -505,7 +521,7 @@ copyIntoFrameBuffer (
 
                     case OPENEXR_IMF_INTERNAL_NAMESPACE::FLOAT:
 
-                        while (writePtr <= endPtr)
+                        while (writePtr != endPtr)
                         {
                             float f;
 
@@ -531,7 +547,7 @@ copyIntoFrameBuffer (
                 {
                     case OPENEXR_IMF_INTERNAL_NAMESPACE::UINT:
 
-                        while (writePtr <= endPtr)
+                        while (writePtr != endPtr)
                         {
                             unsigned int ui;
 
@@ -549,14 +565,14 @@ copyIntoFrameBuffer (
                         // If we're tightly packed, just memcpy
                         if (xStride == sizeof (half))
                         {
-                            int numBytes = endPtr - writePtr + sizeof (half);
+                            int numBytes = endPtr - writePtr;
                             memcpy (writePtr, readPtr, numBytes);
                             readPtr += numBytes;
                             writePtr += numBytes;
                         }
                         else
                         {
-                            while (writePtr <= endPtr)
+                            while (writePtr != endPtr)
                             {
                                 *(half*) writePtr = *(half*) readPtr;
                                 readPtr += sizeof (half);
@@ -567,7 +583,7 @@ copyIntoFrameBuffer (
 
                     case OPENEXR_IMF_INTERNAL_NAMESPACE::FLOAT:
 
-                        while (writePtr <= endPtr)
+                        while (writePtr != endPtr)
                         {
                             float f;
 
@@ -592,7 +608,7 @@ copyIntoFrameBuffer (
                 {
                     case OPENEXR_IMF_INTERNAL_NAMESPACE::UINT:
 
-                        while (writePtr <= endPtr)
+                        while (writePtr != endPtr)
                         {
                             unsigned int ui;
 
@@ -607,7 +623,7 @@ copyIntoFrameBuffer (
 
                     case OPENEXR_IMF_INTERNAL_NAMESPACE::HALF:
 
-                        while (writePtr <= endPtr)
+                        while (writePtr != endPtr)
                         {
                             half h             = *(half*) readPtr;
                             *(float*) writePtr = float (h);
@@ -618,7 +634,7 @@ copyIntoFrameBuffer (
 
                     case OPENEXR_IMF_INTERNAL_NAMESPACE::FLOAT:
 
-                        while (writePtr <= endPtr)
+                        while (writePtr != endPtr)
                         {
                             for (size_t i = 0; i < sizeof (float); ++i)
                                 writePtr[i] = readPtr[i];
@@ -1528,12 +1544,28 @@ copyFromFrameBuffer (
     char*&             writePtr,
     const char*&       readPtr,
     const char*        endPtr,
-    size_t             xStride,
+    ptrdiff_t          xStride,
     Compressor::Format format,
     PixelType          type)
 {
     char*       localWritePtr = writePtr;
     const char* localReadPtr  = readPtr;
+    endPtr += xStride;
+
+    if (xStride == 0)
+    {
+        throw IEX_NAMESPACE::ArgExc ("Zero stride is invalid.");
+    }
+    if ((endPtr - localReadPtr) / xStride <= 0)
+    {
+        // Nothing to do, the specified range is empty.
+        return;
+    }
+    if ((endPtr - localReadPtr) % xStride != 0)
+    {
+        throw IEX_NAMESPACE::ArgExc ("Stride will not exactly span input data.");
+    }
+
     //
     // Copy a horizontal row of pixels from a frame
     // buffer to an output file's line or tile buffer.
@@ -1549,7 +1581,7 @@ copyFromFrameBuffer (
         {
             case OPENEXR_IMF_INTERNAL_NAMESPACE::UINT:
 
-                while (localReadPtr <= endPtr)
+                while (localReadPtr != endPtr)
                 {
                     Xdr::write<CharPtrIO> (
                         localWritePtr, *(const unsigned int*) localReadPtr);
@@ -1559,7 +1591,7 @@ copyFromFrameBuffer (
 
             case OPENEXR_IMF_INTERNAL_NAMESPACE::HALF:
 
-                while (localReadPtr <= endPtr)
+                while (localReadPtr != endPtr)
                 {
                     Xdr::write<CharPtrIO> (
                         localWritePtr, *(const half*) localReadPtr);
@@ -1569,7 +1601,7 @@ copyFromFrameBuffer (
 
             case OPENEXR_IMF_INTERNAL_NAMESPACE::FLOAT:
 
-                while (localReadPtr <= endPtr)
+                while (localReadPtr != endPtr)
                 {
                     Xdr::write<CharPtrIO> (
                         localWritePtr, *(const float*) localReadPtr);
@@ -1590,7 +1622,7 @@ copyFromFrameBuffer (
         {
             case OPENEXR_IMF_INTERNAL_NAMESPACE::UINT:
 
-                while (localReadPtr <= endPtr)
+                while (localReadPtr != endPtr)
                 {
                     for (size_t i = 0; i < sizeof (unsigned int); ++i)
                         *localWritePtr++ = localReadPtr[i];
@@ -1601,7 +1633,7 @@ copyFromFrameBuffer (
 
             case OPENEXR_IMF_INTERNAL_NAMESPACE::HALF:
 
-                while (localReadPtr <= endPtr)
+                while (localReadPtr != endPtr)
                 {
                     *(half*) localWritePtr = *(const half*) localReadPtr;
                     localWritePtr += sizeof (half);
@@ -1611,7 +1643,7 @@ copyFromFrameBuffer (
 
             case OPENEXR_IMF_INTERNAL_NAMESPACE::FLOAT:
 
-                while (localReadPtr <= endPtr)
+                while (localReadPtr != endPtr)
                 {
                     for (size_t i = 0; i < sizeof (float); ++i)
                         *localWritePtr++ = localReadPtr[i];

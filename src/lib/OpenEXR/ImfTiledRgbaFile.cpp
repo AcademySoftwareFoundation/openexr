@@ -119,7 +119,7 @@ class TiledRgbaOutputFile::ToYa
 public:
     ToYa (TiledOutputFile& outputFile, RgbaChannels rgbaChannels);
 
-    void setFrameBuffer (const Rgba* base, size_t xStride, size_t yStride);
+    void setFrameBuffer (const Rgba* base, ptrdiff_t xStride, ptrdiff_t yStride);
 
     void writeTile (int dx, int dy, int lx, int ly);
 
@@ -131,8 +131,8 @@ private:
     V3f              _yw;
     Array2D<Rgba>    _buf;
     const Rgba*      _fbBase;
-    size_t           _fbXStride;
-    size_t           _fbYStride;
+    ptrdiff_t        _fbXStride;
+    ptrdiff_t        _fbYStride;
 };
 
 TiledRgbaOutputFile::ToYa::ToYa (
@@ -154,7 +154,7 @@ TiledRgbaOutputFile::ToYa::ToYa (
 
 void
 TiledRgbaOutputFile::ToYa::setFrameBuffer (
-    const Rgba* base, size_t xStride, size_t yStride)
+    const Rgba* base, ptrdiff_t xStride, ptrdiff_t yStride)
 {
     _fbBase    = base;
     _fbXStride = xStride;
@@ -332,7 +332,7 @@ TiledRgbaOutputFile::~TiledRgbaOutputFile ()
 
 void
 TiledRgbaOutputFile::setFrameBuffer (
-    const Rgba* base, size_t xStride, size_t yStride)
+    const Rgba* base, ptrdiff_t xStride, ptrdiff_t yStride)
 {
     if (_toYa)
     {
@@ -343,8 +343,8 @@ TiledRgbaOutputFile::setFrameBuffer (
     }
     else
     {
-        size_t xs = xStride * sizeof (Rgba);
-        size_t ys = yStride * sizeof (Rgba);
+        ptrdiff_t xs = xStride * sizeof (Rgba);
+        ptrdiff_t ys = yStride * sizeof (Rgba);
 
         FrameBuffer fb;
 
@@ -581,8 +581,8 @@ public:
 
     void setFrameBuffer (
         Rgba*         base,
-        size_t        xStride,
-        size_t        yStride,
+        ptrdiff_t     xStride,
+        ptrdiff_t     yStride,
         const string& channelNamePrefix);
 
     void readTile (int dx, int dy, int lx, int ly);
@@ -594,8 +594,8 @@ private:
     V3f             _yw;
     Array2D<Rgba>   _buf;
     Rgba*           _fbBase;
-    size_t          _fbXStride;
-    size_t          _fbYStride;
+    ptrdiff_t       _fbXStride;
+    ptrdiff_t       _fbYStride;
 };
 
 TiledRgbaInputFile::FromYa::FromYa (TiledInputFile& inputFile)
@@ -614,7 +614,7 @@ TiledRgbaInputFile::FromYa::FromYa (TiledInputFile& inputFile)
 
 void
 TiledRgbaInputFile::FromYa::setFrameBuffer (
-    Rgba* base, size_t xStride, size_t yStride, const string& channelNamePrefix)
+    Rgba* base, ptrdiff_t xStride, ptrdiff_t yStride, const string& channelNamePrefix)
 {
     if (_fbBase == 0)
     {
@@ -747,7 +747,7 @@ TiledRgbaInputFile::~TiledRgbaInputFile ()
 }
 
 void
-TiledRgbaInputFile::setFrameBuffer (Rgba* base, size_t xStride, size_t yStride)
+TiledRgbaInputFile::setFrameBuffer (Rgba* base, ptrdiff_t xStride, ptrdiff_t yStride)
 {
     if (_fromYa)
     {
@@ -758,8 +758,8 @@ TiledRgbaInputFile::setFrameBuffer (Rgba* base, size_t xStride, size_t yStride)
     }
     else
     {
-        size_t xs = xStride * sizeof (Rgba);
-        size_t ys = yStride * sizeof (Rgba);
+        ptrdiff_t xs = xStride * sizeof (Rgba);
+        ptrdiff_t ys = yStride * sizeof (Rgba);
 
         FrameBuffer fb;
 

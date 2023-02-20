@@ -190,7 +190,7 @@ AcesOutputFile::~AcesOutputFile ()
 
 void
 AcesOutputFile::setFrameBuffer (
-    const Rgba* base, size_t xStride, size_t yStride)
+    const Rgba* base, ptrdiff_t xStride, ptrdiff_t yStride)
 {
     _data->rgbaFile->setFrameBuffer (base, xStride, yStride);
 }
@@ -282,11 +282,11 @@ public:
 
     RgbaInputFile* rgbaFile;
 
-    Rgba*  fbBase;
-    size_t fbXStride;
-    size_t fbYStride;
-    int    minX;
-    int    maxX;
+    Rgba*     fbBase;
+    ptrdiff_t fbXStride;
+    ptrdiff_t fbYStride;
+    int       minX;
+    int       maxX;
 
     bool mustConvertColor;
     M44f fileToAces;
@@ -440,7 +440,7 @@ AcesInputFile::~AcesInputFile ()
 }
 
 void
-AcesInputFile::setFrameBuffer (Rgba* base, size_t xStride, size_t yStride)
+AcesInputFile::setFrameBuffer (Rgba* base, ptrdiff_t xStride, ptrdiff_t yStride)
 {
     _data->rgbaFile->setFrameBuffer (base, xStride, yStride);
     _data->fbBase    = base;

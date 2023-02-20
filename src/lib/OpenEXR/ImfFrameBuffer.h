@@ -21,6 +21,7 @@
 #include <ImathBox.h>
 
 #include <cstdint>
+#include <cstddef>
 #include <map>
 #include <string>
 
@@ -62,9 +63,9 @@ struct IMF_EXPORT_TYPE Slice
     //
     //---------------------------------------------------------------------
 
-    char*  base;
-    size_t xStride;
-    size_t yStride;
+    char*     base;
+    ptrdiff_t xStride;
+    ptrdiff_t yStride;
 
     //--------------------------------------------
     // Subsampling: pixel (x, y) is present in the
@@ -107,8 +108,8 @@ struct IMF_EXPORT_TYPE Slice
     Slice (
         PixelType type        = HALF,
         char*     base        = 0,
-        size_t    xStride     = 0,
-        size_t    yStride     = 0,
+        ptrdiff_t xStride     = 0,
+        ptrdiff_t yStride     = 0,
         int       xSampling   = 1,
         int       ySampling   = 1,
         double    fillValue   = 0.0,
@@ -127,8 +128,8 @@ struct IMF_EXPORT_TYPE Slice
         const IMATH_NAMESPACE::V2i& origin,
         int64_t                     w,
         int64_t                     h,
-        size_t                      xStride     = 0,
-        size_t                      yStride     = 0,
+        ptrdiff_t                   xStride     = 0,
+        ptrdiff_t                   yStride     = 0,
         int                         xSampling   = 1,
         int                         ySampling   = 1,
         double                      fillValue   = 0.0,
@@ -141,8 +142,8 @@ struct IMF_EXPORT_TYPE Slice
         PixelType                     type,
         const void*                   ptr,
         const IMATH_NAMESPACE::Box2i& dataWindow,
-        size_t                        xStride     = 0,
-        size_t                        yStride     = 0,
+        ptrdiff_t                     xStride     = 0,
+        ptrdiff_t                     yStride     = 0,
         int                           xSampling   = 1,
         int                           ySampling   = 1,
         double                        fillValue   = 0.0,

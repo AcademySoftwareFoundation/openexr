@@ -9,6 +9,7 @@
 #include "ImfExport.h"
 
 #include <stdlib.h>
+#include <stddef.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -297,7 +298,7 @@ int ImfCloseOutputFile (ImfOutputFile* out);
 
 IMF_EXPORT
 int ImfOutputSetFrameBuffer (
-    ImfOutputFile* out, const ImfRgba* base, size_t xStride, size_t yStride);
+    ImfOutputFile* out, const ImfRgba* base, ptrdiff_t xStride, ptrdiff_t yStride);
 
 IMF_EXPORT
 int ImfOutputWritePixels (ImfOutputFile* out, int numScanLines);
@@ -335,8 +336,8 @@ IMF_EXPORT
 int ImfTiledOutputSetFrameBuffer (
     ImfTiledOutputFile* out,
     const ImfRgba*      base,
-    size_t              xStride,
-    size_t              yStride);
+    ptrdiff_t           xStride,
+    ptrdiff_t           yStride);
 
 IMF_EXPORT
 int ImfTiledOutputWriteTile (
@@ -385,7 +386,7 @@ int ImfCloseInputFile (ImfInputFile* in);
 
 IMF_EXPORT
 int ImfInputSetFrameBuffer (
-    ImfInputFile* in, ImfRgba* base, size_t xStride, size_t yStride);
+    ImfInputFile* in, ImfRgba* base, ptrdiff_t xStride, ptrdiff_t yStride);
 
 IMF_EXPORT
 int ImfInputReadPixels (ImfInputFile* in, int scanLine1, int scanLine2);
@@ -414,7 +415,7 @@ int ImfCloseTiledInputFile (ImfTiledInputFile* in);
 
 IMF_EXPORT
 int ImfTiledInputSetFrameBuffer (
-    ImfTiledInputFile* in, ImfRgba* base, size_t xStride, size_t yStride);
+    ImfTiledInputFile* in, ImfRgba* base, ptrdiff_t xStride, ptrdiff_t yStride);
 
 IMF_EXPORT
 int
