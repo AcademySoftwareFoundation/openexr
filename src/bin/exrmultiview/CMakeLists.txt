@@ -3,8 +3,11 @@
 
 add_executable(exrmultiview
   Image.cpp
+  Image.h
   main.cpp
   makeMultiView.cpp
+  makeMultiView.h
+  namespaceAlias.h
 )
 target_link_libraries(exrmultiview OpenEXR::OpenEXR)
 set_target_properties(exrmultiview PROPERTIES
