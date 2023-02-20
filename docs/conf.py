@@ -57,7 +57,6 @@ extensions = [
     'sphinx.ext.todo',
     'sphinx.ext.viewcode',
     'breathe',
-    'sphinx_tabs.tabs',
 ]
 
 # Breathe extension variables
