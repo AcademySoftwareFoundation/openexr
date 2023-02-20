@@ -17,3 +17,5 @@ OpenEXR Concepts
    InterpretingDeepPixels
    TheoryDeepPixels
    OpenEXRFileLayout
+   PortingGuide
+   SymbolVisibility
