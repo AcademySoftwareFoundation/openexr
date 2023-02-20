@@ -7,6 +7,7 @@ add_executable(OpenEXRUtilTest
   testDeepImage.cpp
   testIO.cpp
  )
+target_include_directories(OpenEXRUtilTest PRIVATE ../OpenEXRTest)
 target_link_libraries(OpenEXRUtilTest OpenEXR::OpenEXRUtil)
 set_target_properties(OpenEXRUtilTest PROPERTIES
   RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
