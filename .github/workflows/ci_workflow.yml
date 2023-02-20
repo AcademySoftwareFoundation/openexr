@@ -271,6 +271,9 @@ jobs:
           mkdir _install
           mkdir _build
           mkdir _examples
+      - name: Install docs env
+        run: share/ci/scripts/linux/yum/install_docs_env.sh
+        if: matrix.build-docs == 'ON'
       - name: Configure
         run: |
           cmake .. \
