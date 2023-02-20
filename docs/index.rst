@@ -2,13 +2,13 @@
   SPDX-License-Identifier: BSD-3-Clause
   Copyright Contributors to the OpenEXR Project.
 
-.. _Overview:
+.. _OpenEXR:
 
-Overview
-########
+OpenEXR
+#######
 
 .. toctree::
-   :caption: Overview
+   :caption: OpenEXR
    :maxdepth: 1
 
 .. sidebar:: 
@@ -38,7 +38,9 @@ The OpenEXR project includes `Imath <https://imath.readthedocs.io>`_,
 a basic, light-weight, and efficient C++ representation of 2D and 3D
 vectors and matrices and other simple but useful mathematical objects,
 functions, and data types common in computer graphics applications,
-including the “half” 16-bit floating-point type.
+including the `half
+<https://imath.readthedocs.io/en/latest/classes/half.html>`_ 16-bit
+floating-point type.
 
 Imath also includes optional python bindings for all types and
 functions, including optimized implementations of vector and matrix
@@ -76,9 +78,10 @@ Community
 
 * **Contribute a Fix, Feature, or Improvement:**
 
-  - Read the `Contribution guidelines
+  - Read the `Contribution Guidelines
     <https://github.com/AcademySoftwareFoundation/openexr/blob/main/CONTRIBUTING.md>`_
-    and `Code of Conduct <https://github.com/AcademySoftwareFoundation/openexr/blob/main/CODE_OF_CONDUCT.md>`_
+    and `Code of Conduct
+    <https://github.com/AcademySoftwareFoundation/openexr/blob/main/CODE_OF_CONDUCT.md>`_
 
   - Sign the `Contributor License Agreement
     <https://contributor.easycla.lfx.linuxfoundation.org/#/cla/project/2e8710cb-e379-4116-a9ba-964f83618cc5/user/564e571e-12d7-4857-abd4-898939accdd7>`_
