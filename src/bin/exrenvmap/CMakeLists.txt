@@ -3,12 +3,19 @@
 
 add_executable( exrenvmap
   blurImage.cpp
+  blurImage.h
   EnvmapImage.cpp
+  EnvmapImage.h
   main.cpp
   makeCubeMap.cpp
+  makeCubeMap.h
   makeLatLongMap.cpp
+  makeLatLongMap.h
+  namespaceAlias.h
   readInputImage.cpp
+  readInputImage.h
   resizeImage.cpp
+  resizeImage.h
 )
 
 target_link_libraries(exrenvmap OpenEXR::OpenEXR)

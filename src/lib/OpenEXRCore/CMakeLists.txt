@@ -17,6 +17,7 @@ openexr_define_library(OpenEXRCore
     internal_decompress.h
     internal_file.h
     internal_float_vector.h
+    internal_huf.h
     internal_memory.h
     internal_opaque.h
     internal_posix_file_impl.h
@@ -25,6 +26,7 @@ openexr_define_library(OpenEXRCore
     internal_string.h
     internal_string_vector.h
     internal_structs.h
+    internal_util.h
     internal_xdr.h
 
     internal_rle.c
