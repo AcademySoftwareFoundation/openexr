@@ -4,6 +4,7 @@
 add_executable(IexTest
   main.cpp
   testBaseExc.cpp
+  testBaseExc.h
 )
 
 target_link_libraries(IexTest OpenEXR::Iex)
