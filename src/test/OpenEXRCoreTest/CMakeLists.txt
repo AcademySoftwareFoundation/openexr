@@ -3,12 +3,19 @@
 
 add_executable(OpenEXRCoreTest
   base_units.cpp
+  base_units.h
   compression.cpp
+  compression.h
+  deep.cpp
+  deep.h
   general_attr.cpp
+  general_attr.h
   main.cpp
   read.cpp
+  read.h
+  test_value.h
   write.cpp
-  deep.cpp
+  write.h
   )
 target_compile_definitions(OpenEXRCoreTest PRIVATE ILM_IMF_TEST_IMAGEDIR="${CMAKE_CURRENT_SOURCE_DIR}/../OpenEXRTest/")
 # TODO: remove exr once we are happy everything is identical

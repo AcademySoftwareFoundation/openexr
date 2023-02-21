@@ -4,8 +4,12 @@
 add_executable(OpenEXRUtilTest
   main.cpp
   testFlatImage.cpp
+  testFlatImage.h
   testDeepImage.cpp
+  testDeepImage.h
   testIO.cpp
+  testIO.h
+  tmpDir.h
  )
 target_link_libraries(OpenEXRUtilTest OpenEXR::OpenEXRUtil)
 set_target_properties(OpenEXRUtilTest PROPERTIES

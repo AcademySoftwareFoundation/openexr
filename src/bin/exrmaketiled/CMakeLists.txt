@@ -1,10 +1,13 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) Contributors (c) to the OpenEXR Project.
 
-add_executable(exrmaketiled 
+add_executable(exrmaketiled
   Image.cpp
+  Image.h
   main.cpp
   makeTiled.cpp
+  makeTiled.h
+  namespaceAlias.h
 )
 target_link_libraries(exrmaketiled OpenEXR::OpenEXR)
 set_target_properties(exrmaketiled PROPERTIES

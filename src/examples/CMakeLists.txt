@@ -14,13 +14,21 @@ endif()
 
 add_executable(OpenEXRExamples
   drawImage.cpp
+  drawImage.h
   generalInterfaceExamples.cpp
+  generalInterfaceExamples.h
   generalInterfaceTiledExamples.cpp
+  generalInterfaceTiledExamples.h
   lowLevelIoExamples.cpp
+  lowLevelIoExamples.h
   main.cpp
+  namespaceAlias.h
   previewImageExamples.cpp
+  previewImageExamples.h
   rgbaInterfaceExamples.cpp
+  rgbaInterfaceExamples.h
   rgbaInterfaceTiledExamples.cpp
+  rgbaInterfaceTiledExamples.h
 )
 target_link_libraries(OpenEXRExamples OpenEXR::OpenEXR)
 
