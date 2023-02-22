@@ -9,7 +9,6 @@ add_executable(OpenEXRUtilTest
   testDeepImage.h
   testIO.cpp
   testIO.h
-  tmpDir.h
  )
 target_include_directories(OpenEXRUtilTest PRIVATE ../OpenEXRTest)
 target_link_libraries(OpenEXRUtilTest OpenEXR::OpenEXRUtil)

@@ -7,7 +7,6 @@ if(OPENEXR_RUN_FUZZ_TESTS)
     fuzzFile.cpp
     fuzzFile.h
     main.cpp
-    tmpDir.h
     testFuzzDeepScanLines.cpp
     testFuzzDeepScanLines.h
     testFuzzDeepTiles.cpp
