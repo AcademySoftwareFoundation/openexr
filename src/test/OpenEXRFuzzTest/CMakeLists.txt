@@ -17,6 +17,7 @@ if(OPENEXR_RUN_FUZZ_TESTS)
     testFuzzTiles.cpp
     testFuzzTiles.h
   )
+  target_include_directories(OpenEXRFuzzTest PRIVATE ../OpenEXRTest)
   target_link_libraries(OpenEXRFuzzTest OpenEXR::OpenEXR)
   set_target_properties(OpenEXRFuzzTest PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
