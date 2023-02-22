@@ -74,7 +74,7 @@ Thus, with the 2.4 release, the "IlmBase" libraries are no longer
 distributed in a form that is readily separable from the rest of
 OpenEXR. The build and installation process for the overall OpenEXR
 project is complicated by the fact it consists of four separate
-projects, which added signifcant complexity to the CMake setup.
+projects, which added significant complexity to the CMake setup.
 
 Because Imath is generally useful to the community, the TSC decided to
 simplify the configuration by separating Imath into its own independent
