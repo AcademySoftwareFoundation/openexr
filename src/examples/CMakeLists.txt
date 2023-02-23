@@ -57,3 +57,7 @@ install(
 if(WIN32 AND BUILD_SHARED_LIBS)
   target_compile_definitions(OpenEXRExamples PRIVATE OPENEXR_DLL)
 endif()
+
+if(BUILD_TESTING)
+  add_test(NAME OpenEXR.OpenEXRExamples COMMAND ${CMAKE_CROSSCOMPILING_EMULATOR} $<TARGET_FILE:OpenEXRExamples>)
+endif()
