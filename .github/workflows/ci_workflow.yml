@@ -292,7 +292,7 @@ jobs:
           cmake --build . \
                 --config ${{ matrix.build-type }}
           # Confirm the examples program runs
-          ./OpenEXRExamples
+          ./bin/OpenEXRExamples
         working-directory: _examples
       - name: Test
         run: |
