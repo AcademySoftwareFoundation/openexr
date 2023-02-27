@@ -30,7 +30,14 @@ add_executable(OpenEXRExamples
   rgbaInterfaceTiledExamples.cpp
   rgbaInterfaceTiledExamples.h
 )
+
 target_link_libraries(OpenEXRExamples OpenEXR::OpenEXR)
+set_target_properties(OpenEXRExamples PROPERTIES
+  RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+)
+if(WIN32 AND BUILD_SHARED_LIBS)
+  target_compile_definitions(OpenEXRExamples PRIVATE OPENEXR_DLL)
+endif()
 
 # Examples
 install(
@@ -54,13 +61,6 @@ install(
   DESTINATION
     ${CMAKE_INSTALL_DOCDIR}/examples
   )
-if(WIN32 AND BUILD_SHARED_LIBS)
-  target_compile_definitions(OpenEXRExamples PRIVATE OPENEXR_DLL)
-  set_target_properties(OpenEXRExamples PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
-  )
-endif()
-
 
 if(BUILD_TESTING)
   add_test(NAME OpenEXR.OpenEXRExamples COMMAND ${CMAKE_CROSSCOMPILING_EMULATOR} $<TARGET_FILE:OpenEXRExamples>)
