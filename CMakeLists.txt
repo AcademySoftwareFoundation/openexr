@@ -71,6 +71,11 @@ message(STATUS "Configure ${OPENEXR_PACKAGE_NAME}, library API version: ${OPENEX
 # Add all source in subdirectories
 #######################################
 
+if(BUILD_TESTING AND NOT OPENEXR_IS_SUBPROJECT)
+  # Enable testing *before* adding any subdirectories that may include tests
+  enable_testing()
+endif()
+
 # Include these two modules without enable/disable options
 add_subdirectory(src/lib)
 add_subdirectory(src/bin)
@@ -112,7 +117,6 @@ endif()
 include(CTest)
 
 if(BUILD_TESTING AND NOT OPENEXR_IS_SUBPROJECT)
-  enable_testing()
   add_subdirectory(src/test)
 endif()
 
