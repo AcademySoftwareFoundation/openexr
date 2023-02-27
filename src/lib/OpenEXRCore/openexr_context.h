@@ -82,6 +82,8 @@ typedef void (*exr_error_handler_cb_t) (
  *
  *  @param failed Indicates the write operation failed, the
  *                implementor may wish to cleanup temporary files
+ *  @param ctxt The context
+ *  @param userdata The userdata
  */
 typedef void (*exr_destroy_stream_func_ptr_t) (
     exr_const_context_t ctxt, void* userdata, int failed);
