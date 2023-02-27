@@ -205,6 +205,30 @@ Building the documentation requires that ``sphinx``, ``breathe``, and
 <https://github.com/AcademySoftwareFoundation/openexr/blob/main/docs/requirements.txt>`_
 file.
 
+See the `doxygen downloads page
+<https://www.doxygen.nl/download.html>`_ for how to install it. Binary
+distributions are available for many systems, so you likely do not
+need to build from source. On Debian/Ubuntu, for example:
+
+.. code-block::
+
+   $ sudo apt-get install doxygen
+
+Similarly, see the `sphinx installation page
+<https://www.sphinx-doc.org/en/master/usage/installation.html>`_ for
+how to install it. On Debian/Ubuntu:
+
+.. code-block::
+
+   $ sudo apt-get install python3-sphinx
+
+And to install `sphinx-press-theme
+<https://pypi.org/project/sphinx-press-theme>`_:
+
+.. code-block::
+
+   $ pip3 install sphinx_press_theme
+
 Note that the `https://openexr.readthedocs.io <https://openexr.readthedocs.io>`_
 documentation takes the place of the formerly distributed .pdf
 documents in the ``docs`` folder, although readthedocs supports
