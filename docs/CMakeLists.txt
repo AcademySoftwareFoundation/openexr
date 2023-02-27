@@ -19,6 +19,8 @@ set(SPHINX_SOURCE ${CMAKE_CURRENT_SOURCE_DIR})
 set(SPHINX_BUILD ${CMAKE_CURRENT_BINARY_DIR}/sphinx)
 set(SPHINX_INDEX_FILE ${SPHINX_BUILD}/index.html)
 
+set(SPHINX_OPTS "-W" CACHE STRING "Sphinx build options")
+
 configure_file(${DOXYFILE_IN} ${DOXYFILE_OUT} @ONLY)
 
 file(MAKE_DIRECTORY ${DOXYGEN_OUTPUT_DIR})
@@ -31,7 +33,7 @@ add_custom_command(OUTPUT ${DOXYGEN_INDEX_FILE}
 
 add_custom_command(OUTPUT ${SPHINX_INDEX_FILE}
                    COMMAND 
-                     ${SPHINX_EXECUTABLE} -b html
+                     ${SPHINX_EXECUTABLE} -b html ${SPHINX_OPTS}
                      # Tell Breathe where to find the Doxygen output
                      -Dbreathe_projects.OpenEXR=${DOXYGEN_OUTPUT_DIR}/xml
                    ${SPHINX_SOURCE} ${SPHINX_BUILD}
