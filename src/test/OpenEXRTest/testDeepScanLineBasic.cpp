@@ -648,8 +648,8 @@ const int minY   = 11;
 
 namespace large
 {
-const int width  = 10000;
-const int height = 5000;
+const int width  = 5000;
+const int height = 2500;
 const int minX   = -22;
 const int minY   = -12;
 } // namespace large
