@@ -24,6 +24,11 @@
 #    define IMF_HAVE_SSE4_1 1
 #    include <smmintrin.h>
 #endif
+#if defined(__ARM_NEON)
+#    define IMF_HAVE_NEON 1
+#    include <arm_neon.h>
+#endif
+
 
 /**************************************/
 
@@ -73,6 +78,54 @@ reconstruct (uint8_t* buf, uint64_t outSize)
         prev      = d;
     }
 }
+#elif defined(IMF_HAVE_NEON)
+static void
+reconstruct (uint8_t* buf, uint64_t outSize)
+{
+    static const uint64_t bytesPerChunk = sizeof (uint8x16_t);
+    const uint64_t        vOutSize      = outSize / bytesPerChunk;
+    const uint8x16_t      c             = vdupq_n_u8 (-128);
+    const uint8x16_t      shuffleMask   = vdupq_n_u8 (15);
+    const uint8x16_t      zero          = vdupq_n_u8 (0);
+    uint8_t *             vBuf;
+    uint8x16_t            vPrev;
+    uint8_t               prev;
+
+    /*
+     * The first element doesn't have its high bit flipped during compression,
+     * so it must not be flipped here.  To make the SIMD loop nice and
+     * uniform, we pre-flip the bit so that the loop will unflip it again.
+     */
+    buf[0] += -128;
+    vBuf  = buf;
+    vPrev = vdupq_n_u8 (0);
+
+    for (uint64_t i = 0; i < vOutSize; ++i)
+    {
+        uint8x16_t d = vaddq_u8 (vld1q_u8 (vBuf), c);
+
+        /* Compute the prefix sum of elements. */
+        d = vaddq_u8 (d, vextq_u8 (zero, d, 16 - 1));
+        d = vaddq_u8 (d, vextq_u8 (zero, d, 16 - 2));
+        d = vaddq_u8 (d, vextq_u8 (zero, d, 16 - 4));
+        d = vaddq_u8 (d, vextq_u8 (zero, d, 16 - 8));
+        d = vaddq_u8 (d, vPrev);
+
+        vst1q_u8 (vBuf, d); vBuf += sizeof (uint8x16_t);
+
+        // Broadcast the high byte in our result to all lanes of the prev
+        // value for the next iteration.
+        vPrev = vqtbl1q_u8 (d, shuffleMask);
+    }
+
+    prev = vgetq_lane_u8 (vPrev, 15);
+    for (uint64_t i = vOutSize * bytesPerChunk; i < outSize; ++i)
+    {
+        uint8_t d = prev + buf[i] - 128;
+        buf[i]    = d;
+        prev      = d;
+    }    
+}
 #else
 static void
 reconstruct (uint8_t* buf, uint64_t sz)
@@ -119,6 +172,30 @@ interleave (uint8_t* out, const uint8_t* source, uint64_t outSize)
 
     for (uint64_t i = vOutSize * bytesPerChunk; i < outSize; ++i)
         *(sOut++) = (i % 2 == 0) ? *(t1++) : *(t2++);
+}
+
+#elif defined(IMF_HAVE_NEON)
+static void
+interleave (uint8_t* out, const uint8_t* source, uint64_t outSize)
+{
+    static const uint64_t bytesPerChunk = 2 * sizeof (uint8x16_t);
+    const uint64_t        vOutSize      = outSize / bytesPerChunk;
+    const uint8_t*        v1   = source;
+    const uint8_t*        v2   = source + (outSize + 1) / 2;
+
+    for (uint64_t i = 0; i < vOutSize; ++i)
+    {
+        uint8x16_t a  = vld1q_u8 (v1); v1 += sizeof (uint8x16_t);
+        uint8x16_t b  = vld1q_u8 (v2); v2 += sizeof (uint8x16_t);
+        uint8x16_t lo = vzip1q_u8 (a, b);
+        uint8x16_t hi = vzip2q_u8 (a, b);
+
+        vst1q_u8 (out, lo); out += sizeof (uint8x16_t);
+        vst1q_u8 (out, hi); out += sizeof (uint8x16_t);
+    }
+
+    for (uint64_t i = vOutSize * bytesPerChunk; i < outSize; ++i)
+        *(out++) = (i % 2 == 0) ? *(v1++) : *(v2++);
 }
 
 #else
