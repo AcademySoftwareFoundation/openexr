@@ -18,6 +18,8 @@
 #include <ImfOutputPart.h>
 #include <ImfStdIO.h>
 #include <ImfArray.h>
+#include <ImfRgbaFile.h>
+#include <ImfTiledRgbaFile.h>
 
 #include <stdio.h>
 #include <assert.h>

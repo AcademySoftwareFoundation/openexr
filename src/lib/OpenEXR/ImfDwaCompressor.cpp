@@ -2110,7 +2110,7 @@ DwaCompressor::compress
 
             //
             // For RLE, bash the bytes up so that the first bytes of each
-            // pixel are contingous, as are the second bytes, and so on.
+            // pixel are contiguous, as are the second bytes, and so on.
             //
 
             for (unsigned int y = 0; y < rowPtrs[chan].size(); ++y)

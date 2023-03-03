@@ -7,7 +7,6 @@
 #include "internal_attr.h"
 #include "internal_constants.h"
 #include "internal_memory.h"
-#include "backward_compatibility.h"
 
 #include <IlmThreadConfig.h>
 

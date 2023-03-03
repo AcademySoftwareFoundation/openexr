@@ -8,6 +8,7 @@
 #include "ImfNamespace.h"
 #include "ImfSimd.h"
 #include "ImfSystemSpecific.h"
+#include "Iex.h"
 
 #include <math.h>
 #include <zlib.h>
