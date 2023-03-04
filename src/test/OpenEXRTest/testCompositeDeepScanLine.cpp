@@ -629,7 +629,7 @@ test_parts (int pattern_number,
              }
          }
          
-         main .checkValues (data, dataWindow, load_depths);
+         main.checkValues (data, dataWindow, load_depths);
          
      }
      remove (fn.c_str());
