@@ -13,8 +13,50 @@ News
 .. toctree::
    :caption: News
 
-Nov 7, 2022 - Imath v3.1.6 Released
-===================================
+March 9, 2023 - OpenEXR v3.1.6 Released
+=======================================
+
+Patch release that address various bug/build issues and optimizations:
+
+* NEON optimizations for ZIP reading
+* Enable fast Huffman & Huffman zig-zag transform for Arm Neon
+* Support relative and absolute libdir/incluedir in pkg-config generation
+* Fix for reading memory mapped files with DWA compression
+* Enable SSE4 support on Windows
+* Fast huf decoder
+* CMake config for generating docs is now BUILD_DOC
+
+Also, this release includes a major update and reorganization of the
+repo documentation and the https://openexr.com website.
+
+In addition, numerous typos and misspellings in comments and doxygen
+content have been fixed via
+`codespell <https://github.com/codespell-project/codespell>`_.
+
+Specific OSS-fuzz issues address:
+
+* `OSS-fuzz 52730 <https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=52730>`_ Heap-buffer-overflow in fasthuf_initialize
+* `OSS-fuzz 49698 <https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=49698>`_ Heap-buffer-overflow in fasthuf_decode
+* `OSS-fuzz 47517 <https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=47517>`_ Integer-overflow in reconstruct_chunk_table
+* `OSS-fuzz 47503 <https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=47503>`_ Heap-buffer-overflow in uncompress_b44_impl
+* `OSS-fuzz 47483 <https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=47483>`_ Heap-buffer-overflow in generic_unpack
+
+See `CHANGES.md <https://github.com/AcademySoftwareFoundation/openexr/blob/main/CHANGES.md>`_ for more details.
+
+March 1, 2023 - Imath v3.1.7 Released
+=====================================
+
+Patch release with miscellaneous bug/doc/build fixes. In particular:
+
+- Support for relative prefix in pkg-config
+- Reorganization of documentation at https://imath.readthedocs.io
+- The CMake config for building the docs is now BUILD_DOCS instead of DOCS
+- Add a trace() method on Matrix types
+
+See [CHANGES.md](https://github.com/AcademySoftwareFoundation/Imath/blob/main/CHANGES.md) for more details.
+
+November 7, 2022 - Imath v3.1.6 Released
+========================================
 
 Patch release with miscellaneous bug/doc/build fixes.
 
