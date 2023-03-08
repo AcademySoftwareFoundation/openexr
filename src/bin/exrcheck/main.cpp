@@ -26,7 +26,7 @@ using std::vector;
 void
 usageMessage (const char argv0[])
 {
-    cerr << "usage: " << argv0 << " [options] imagefile [imagefile ...]\n";
+    cerr << "Usage: " << argv0 << " [options] imagefile [imagefile ...]\n";
     cerr << "options: \n";
     cerr
         << "  -m : avoid excessive memory allocation (some files will not be fully checked)\n";

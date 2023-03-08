@@ -32,7 +32,7 @@ namespace
 void
 usageMessage (const char argv0[], bool verbose = false)
 {
-    cerr << "usage: " << argv0 << " [options] infile outfile" << endl;
+    cerr << "Usage: " << argv0 << " [options] infile outfile" << endl;
 
     if (verbose)
     {

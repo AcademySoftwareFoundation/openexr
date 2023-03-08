@@ -9,3 +9,5 @@ add_subdirectory(OpenEXRCoreTest)
 add_subdirectory(OpenEXRTest)
 add_subdirectory(OpenEXRUtilTest)
 add_subdirectory(OpenEXRFuzzTest)
+add_subdirectory(bin)
+
