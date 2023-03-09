@@ -172,7 +172,7 @@ Add fast huf decoder
 * [1268](https://github.com/AcademySoftwareFoundation/openexr/pull/1268)
 Address OSS Fuzz Issues
 * [1264](https://github.com/AcademySoftwareFoundation/openexr/pull/1264)
-Add missing 11#include <cstdint>`` required by gcc-13
+Add missing ``#include <cstdint>`` required by gcc-13
 * [1261](https://github.com/AcademySoftwareFoundation/openexr/pull/1261)
 prevent integer overflow in ``DeepScanlineInputFile`` with huge images
 * [1260](https://github.com/AcademySoftwareFoundation/openexr/pull/1260)
