@@ -16,8 +16,7 @@ if(BUILD_TESTING)
       TestImages/GrayRampsHorizontal.exr
       LuminanceChroma/Garden.exr
       MultiResolution/ColorCodedLevels.exr
-      MultiResolution/StageEnvCube.exr
-      MultiResolution/StageEnvLatLong.exr
+      MultiResolution/WavyLinesLatLong.exr
       LuminanceChroma/Flowers.exr
       MultiView/Adjuster.exr
       Chromaticities/Rec709_YC.exr

@@ -27,7 +27,7 @@ assert ('800 x 800' in output[3])
 assert ('1 channels' in output[4])
 
 # test image as stdio
-with  open(image, 'rb') as f:
+with open(image, 'rb') as f:
     data = f.read()
 result = run ([exrinfo, '-', "-a", "-v"], input=data, stdout=PIPE, stderr=PIPE)
 print(" ".join(result.args))
