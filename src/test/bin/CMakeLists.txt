@@ -11,7 +11,13 @@ if(BUILD_TESTING)
     
   message(STATUS "adding bin tests")
 
-  set(images_url "https://raw.githubusercontent.com/AcademySoftwareFoundation/openexr-images/main")
+  set(OPENEXR_IMAGES_REPO "https://raw.githubusercontent.com/AcademySoftwareFoundation/openexr-images/main" CACHE STRING
+    "Bin test Image repo")
+
+  set(OPENEXR_IMAGES_TAG "v1.0" CACHE STRING "Bin test image repo tag")
+
+  set(images_url ${OPENEXR_IMAGES_REPO}/${OPENEXR_IMAGES_TAG})
+
   set(images 
       TestImages/GrayRampsHorizontal.exr
       LuminanceChroma/Garden.exr
