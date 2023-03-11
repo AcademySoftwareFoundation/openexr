@@ -29,7 +29,7 @@ namespace
 void
 usageMessage (const char argv0[], bool verbose = false)
 {
-    cerr << "usage: " << argv0
+    cerr << "Usage: " << argv0
          << " "
             "[options] viewname1 infile1 viewname2 infile2 ... outfile"
          << endl;

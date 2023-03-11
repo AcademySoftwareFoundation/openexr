@@ -104,7 +104,7 @@ process_stdin (int verbose, int allmeta, int strict)
 static int
 process_file (const char* filename, int verbose, int allmeta, int strict)
 {
-    int                       failcount;
+    int                       failcount = 0;
     exr_result_t              rv;
     exr_context_t             e     = NULL;
     exr_context_initializer_t cinit = EXR_DEFAULT_CONTEXT_INITIALIZER;

@@ -458,7 +458,7 @@ printInfo (const char fileName[])
 void
 usageMessage (const char argv0[])
 {
-    std::cerr << "usage: " << argv0 << " imagefile [imagefile ...]\n";
+    std::cerr << "Usage: " << argv0 << " imagefile [imagefile ...]\n";
 }
 
 int

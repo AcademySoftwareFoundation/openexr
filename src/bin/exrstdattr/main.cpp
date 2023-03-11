@@ -44,7 +44,7 @@ using namespace IMATH_NAMESPACE;
 void
 usageMessage (const char argv0[], bool verbose = false)
 {
-    cerr << "usage: " << argv0 << " [commands] infile outfile" << endl;
+    cerr << "Usage: " << argv0 << " [commands] infile outfile" << endl;
 
     if (verbose)
     {
