@@ -11,7 +11,7 @@ if(BUILD_TESTING)
     
   message(STATUS "adding bin tests")
 
-  set(OPENEXR_IMAGES_REPO "https://raw.githubusercontent.com/AcademySoftwareFoundation/openexr-images/main" CACHE STRING
+  set(OPENEXR_IMAGES_REPO "https://raw.githubusercontent.com/AcademySoftwareFoundation/openexr-images" CACHE STRING
     "Bin test Image repo")
 
   set(OPENEXR_IMAGES_TAG "v1.0" CACHE STRING "Bin test image repo tag")
