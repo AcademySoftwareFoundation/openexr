@@ -51,6 +51,8 @@ jobs:
                 -DCMAKE_CXX_STANDARD=14 \
                 -DCMAKE_CXX_FLAGS="-g -O0 -fprofile-arcs -ftest-coverage" \
                 -DCMAKE_CXX_OUTPUT_EXTENSION_REPLACE=ON \
+                -DCMAKE_C_FLAGS="-g -O0 -fprofile-arcs -ftest-coverage" \
+                -DCMAKE_C_OUTPUT_EXTENSION_REPLACE=ON \
                 -DCMAKE_EXE_LINKER_FLAGS="-lgcov" \
                 -DCMAKE_VERBOSE_MAKEFILE:BOOL='OFF' \
                 -DBUILD_SHARED_LIBS='OFF' \
