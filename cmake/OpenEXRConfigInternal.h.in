@@ -47,6 +47,13 @@
 
 #cmakedefine OPENEXR_IMF_HAVE_GCC_INLINE_ASM_AVX 1
 
+//
+// Define if we need to shim in our own implementation of vld1q_f32_x2 for
+// older compilers that are missing x2 Neon intrinsics on aarch64
+//
+
+#cmakedefine OPENEXR_MISSING_ARM_VLD1 0
+
 // clang-format on
 
 #endif // INCLUDED_OPENEXR_INTERNAL_CONFIG_H
