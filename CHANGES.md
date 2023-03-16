@@ -66,7 +66,7 @@ Patch release that address various bug/build issues and optimizations:
 
 * NEON optimizations for ZIP reading
 * Enable fast Huffman & Huffman zig-zag transform for Arm Neon
-* Support relative and absolute libdir/incluedir in pkg-config generation
+* Support relative and absolute libdir/includedir in pkg-config generation
 * Fix for reading memory mapped files with DWA compression
 * Enable SSE4 support on Windows
 * Fast huf decoder
