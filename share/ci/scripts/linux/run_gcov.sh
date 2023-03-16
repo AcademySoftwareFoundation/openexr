@@ -31,8 +31,12 @@ for gcno in $(find $build -name "*.gcno" -type f); do
     object_directory=$(dirname "$gcno") 
     source_base=$(basename "$gcno" ".gcno") 
     dependency_file=$object_directory/$source_base.o.d 
-    source_file=$(head -2 $dependency_file | tail -1 | sed -e 's/ //' -e 's/ \\//') 
-    gcov -l -p -o $object_directory $source_file 
+
+    if [ -f "$dependency_file" ]; then
+
+        source_file=$(head -2 $dependency_file | tail -1 | sed -e 's/ //' -e 's/ \\//') 
+        gcov -l -p -o $object_directory $source_file 
+    fi
 done
 
 
