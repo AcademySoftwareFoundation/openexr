@@ -12,6 +12,7 @@
 #include <assert.h>
 #include <iostream>
 #include <stdexcept>
+#include <typeinfo>
 #include <errno.h>
 #include <testBaseExc.h>
 
