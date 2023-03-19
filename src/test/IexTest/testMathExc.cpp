@@ -1,6 +1,12 @@
+//
+// SPDX-License-Identifier: BSD-3-Clause
+// Copyright (c) Contributors to the OpenEXR Project.
+//
+
 #include <testMathExc.h>
 #include <mathFuncs.h>
 #include <IexMathFloatExc.h>
+#include <IexMathExc.h>
 #include <iostream>
 #include <assert.h>
 #include <string.h>
@@ -25,7 +31,7 @@ test1 ()
 
     std::cout << "invalid operations / exception handling off" << std::endl;
 
-    Iex::mathExcOn (0);
+    IEX_INTERNAL_NAMESPACE::mathExcOn (0);
 
     for (int i = 0; i < 3; ++i)
     {
@@ -51,7 +57,7 @@ test2a ()
 	print (divide (1, 0));		// division by zero
 	assert (false); // note, this happens when running under valgrind
     }
-    catch (const Iex::DivzeroExc &e)
+    catch (const IEX_INTERNAL_NAMESPACE::DivzeroExc &e)
     {
 	std::cout << "caught exception: " << e.what() << std::endl;
     }
@@ -66,7 +72,7 @@ test2b ()
 	print (root (-1));		// invalid operation
 	assert (false); // note, this happens when running under valgrind
     }
-    catch (const Iex::InvalidFpOpExc &e)
+    catch (const IEX_INTERNAL_NAMESPACE::InvalidFpOpExc &e)
     {
 	std::cout << "caught exception: " << e.what() << std::endl;
     }
@@ -81,7 +87,7 @@ test2c ()
 	print (grow (1000, 100));	// overflow
 	assert (false); // note, this happens when running under valgrind
     }
-    catch (const Iex::OverflowExc &e)
+    catch (const IEX_INTERNAL_NAMESPACE::OverflowExc &e)
     {
 	std::cout << "caught exception: " << e.what() << std::endl;
     }
@@ -99,7 +105,7 @@ test2 ()
 
     std::cout << "invalid operations / exception handling on" << std::endl;
 
-    Iex::mathExcOn (Iex::IEEE_OVERFLOW | Iex::IEEE_DIVZERO | Iex::IEEE_INVALID);
+    IEX_INTERNAL_NAMESPACE::mathExcOn (IEX_INTERNAL_NAMESPACE::IEEE_OVERFLOW | IEX_INTERNAL_NAMESPACE::IEEE_DIVZERO | IEX_INTERNAL_NAMESPACE::IEEE_INVALID);
 
     for (int i = 0; i < 3; ++i)
     {
@@ -137,28 +143,28 @@ test3 ()
 
     int when = 0;
 
-    Iex::mathExcOn (when);
-    assert (Iex::getMathExcOn() == when);
+    IEX_INTERNAL_NAMESPACE::mathExcOn (when);
+    assert (IEX_INTERNAL_NAMESPACE::getMathExcOn() == when);
 
-    when = Iex::IEEE_OVERFLOW;
+    when = IEX_INTERNAL_NAMESPACE::IEEE_OVERFLOW;
 
-    Iex::mathExcOn (when);
-    assert (Iex::getMathExcOn() == when);
+    IEX_INTERNAL_NAMESPACE::mathExcOn (when);
+    assert (IEX_INTERNAL_NAMESPACE::getMathExcOn() == when);
 
-    when = Iex::IEEE_DIVZERO;
+    when = IEX_INTERNAL_NAMESPACE::IEEE_DIVZERO;
 
-    Iex::mathExcOn (when);
-    assert (Iex::getMathExcOn() == when);
+    IEX_INTERNAL_NAMESPACE::mathExcOn (when);
+    assert (IEX_INTERNAL_NAMESPACE::getMathExcOn() == when);
 
-    when = Iex::IEEE_INVALID;
+    when = IEX_INTERNAL_NAMESPACE::IEEE_INVALID;
 
-    Iex::mathExcOn (when);
-    assert (Iex::getMathExcOn() == when);
+    IEX_INTERNAL_NAMESPACE::mathExcOn (when);
+    assert (IEX_INTERNAL_NAMESPACE::getMathExcOn() == when);
 
-    when = Iex::IEEE_OVERFLOW | Iex::IEEE_DIVZERO | Iex::IEEE_INVALID;
+    when = IEX_INTERNAL_NAMESPACE::IEEE_OVERFLOW | IEX_INTERNAL_NAMESPACE::IEEE_DIVZERO | IEX_INTERNAL_NAMESPACE::IEEE_INVALID;
 
-    Iex::mathExcOn (when);
-    assert (Iex::getMathExcOn() == when);
+    IEX_INTERNAL_NAMESPACE::mathExcOn (when);
+    assert (IEX_INTERNAL_NAMESPACE::getMathExcOn() == when);
 }
 
 } // namespace
