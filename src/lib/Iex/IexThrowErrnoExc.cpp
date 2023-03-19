@@ -209,7 +209,7 @@ throwErrnoExc (const std::string& text, int errnum)
         case EUNATCH: throw EunatchExc (tmp);
 #endif
 
-#if defined(ENOSCI)
+#if defined(ENOCSI)
         case ENOCSI: throw EnocsiExc (tmp);
 #endif
 
