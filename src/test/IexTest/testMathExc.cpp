@@ -121,6 +121,11 @@ test3 ()
     // was most recently set with setMathExcOn().
     //
 
+
+#if defined(HAVE_UCONTEXT_H) &&                                                \
+    (defined(IEX_HAVE_SIGCONTEXT_CONTROL_REGISTER_SUPPORT) ||                  \
+     defined(IEX_HAVE_CONTROL_REGISTER_SUPPORT))
+
     std::cout << "getMathExc()" << std::endl;
 
     int when = 0;
@@ -147,6 +152,7 @@ test3 ()
 
     IEX_INTERNAL_NAMESPACE::mathExcOn (when);
     assert (IEX_INTERNAL_NAMESPACE::getMathExcOn() == when);
+#endif
 }
 
 } // namespace
