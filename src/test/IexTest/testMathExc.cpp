@@ -55,7 +55,6 @@ test2a ()
     try
     {
 	print (divide (1, 0));		// division by zero
-	assert (false); // note, this happens when running under valgrind
     }
     catch (const IEX_INTERNAL_NAMESPACE::DivzeroExc &e)
     {
@@ -70,7 +69,6 @@ test2b ()
     try
     {
 	print (root (-1));		// invalid operation
-	assert (false); // note, this happens when running under valgrind
     }
     catch (const IEX_INTERNAL_NAMESPACE::InvalidFpOpExc &e)
     {
@@ -85,7 +83,6 @@ test2c ()
     try
     {
 	print (grow (1000, 100));	// overflow
-	assert (false); // note, this happens when running under valgrind
     }
     catch (const IEX_INTERNAL_NAMESPACE::OverflowExc &e)
     {
@@ -109,22 +106,7 @@ test2 ()
 
     for (int i = 0; i < 3; ++i)
     {
-#if defined(BUILD) && defined(__VERSION__)
-    // magic voodoo so that QUOTE(BUILD)
-    // turns into quoted "LINUX_AMD64_OPT_DEBUG"
-    #define QUOTE0(x) #x
-    #define QUOTE(x) QUOTE0(x)
-        if (strcmp(QUOTE(BUILD), "LINUX_AMD64_OPT_DEBUG") == 0
-         && strcmp(__VERSION__, "4.1.2 20080704 (Red Hat 4.1.2-44)") == 0)
-            std::cout << "WARNING: skipping 1/0 test since it's known to fail"
-                      << " in optimized builds using compiler version"
-                      << " \""<<__VERSION__<<"\""
-                      << " (see SQ42578)"
-                      << std::endl;
-        else
-#endif
-            test2a();
-
+        test2a();
 	test2b();
 	test2c();
     }
@@ -175,17 +157,9 @@ testMathExc()
 {
     std::cout << "See if floating-point exceptions work:" << std::endl;
 
-#if defined (GCC_VERSION_295) || defined (GCC_VERSION_296) || defined (ICC_VERSION_71)
-
-         std::cout << "\nWARNING: test skipped for GCC295/296/ICC Linux / IA32.\n"
-                      "Floating-point exceptions do not work yet." << std::endl;
-
-#else
     test1();
     test2();
     test3();
 
     std::cout << " ok" << std::endl;
-#endif
-
 }
