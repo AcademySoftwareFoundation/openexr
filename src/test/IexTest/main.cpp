@@ -8,6 +8,7 @@
 #endif
 
 #include <testBaseExc.h>
+#include <testMathExc.h>
 
 #include <string.h>
 
@@ -18,5 +19,6 @@ int
 main (int argc, char* argv[])
 {
     TEST (testBaseExc);
+    TEST (testMathExc);
     return 0;
 }
