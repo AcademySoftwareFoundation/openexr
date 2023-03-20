@@ -224,6 +224,16 @@ if(OPENEXR_FORCE_INTERNAL_ZLIB OR NOT TARGET ZLIB::ZLIB)
     set(zlibpostfix "d")
   endif()
 
+  add_library(zlib_static STATIC IMPORTED GLOBAL)
+  add_dependencies(zlib_static zlib_external)
+  set_property(TARGET zlib_static PROPERTY
+    IMPORTED_LOCATION "${zlib_INTERNAL_DIR}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}${zlibstaticlibname}${CMAKE_STATIC_LIBRARY_SUFFIX}"
+    )
+  set_property(TARGET zlib_static PROPERTY
+    IMPORTED_LOCATION_DEBUG "${zlib_INTERNAL_DIR}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}${zlibstaticlibname}${zlibpostfix}${CMAKE_STATIC_LIBRARY_SUFFIX}"
+    )
+  target_include_directories(zlib_static INTERFACE "${zlib_INTERNAL_DIR}/include")
+
   if(NOT (APPLE OR WIN32) AND BUILD_SHARED_LIBS AND NOT OPENEXR_FORCE_INTERNAL_ZLIB)
     add_library(zlib_shared SHARED IMPORTED GLOBAL)
     add_dependencies(zlib_shared zlib_external)
@@ -235,16 +245,6 @@ if(OPENEXR_FORCE_INTERNAL_ZLIB OR NOT TARGET ZLIB::ZLIB)
       )
     target_include_directories(zlib_shared INTERFACE "${zlib_INTERNAL_DIR}/include")
   endif()
-
-  add_library(zlib_static STATIC IMPORTED GLOBAL)
-  add_dependencies(zlib_static zlib_external)
-  set_property(TARGET zlib_static PROPERTY
-    IMPORTED_LOCATION "${zlib_INTERNAL_DIR}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}${zlibstaticlibname}${CMAKE_STATIC_LIBRARY_SUFFIX}"
-    )
-  set_property(TARGET zlib_static PROPERTY
-    IMPORTED_LOCATION_DEBUG "${zlib_INTERNAL_DIR}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}${zlibstaticlibname}${zlibpostfix}${CMAKE_STATIC_LIBRARY_SUFFIX}"
-    )
-  target_include_directories(zlib_static INTERFACE "${zlib_INTERNAL_DIR}/include")
 
   if(NOT (APPLE OR WIN32) AND BUILD_SHARED_LIBS AND NOT OPENEXR_FORCE_INTERNAL_ZLIB)
     add_library(ZLIB::ZLIB ALIAS zlib_shared)
