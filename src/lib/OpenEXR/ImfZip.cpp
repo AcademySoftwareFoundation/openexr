@@ -160,7 +160,7 @@ reconstruct_sse41 (char* buf, size_t outSize)
 
 #endif
 
-#ifdef IMF_HAVE_NEON
+#ifdef IMF_HAVE_NEON_AARCH64
 
 void
 reconstruct_neon (char* buf, size_t outSize)
@@ -262,7 +262,7 @@ interleave_sse2 (const char* source, size_t outSize, char* out)
 
 #endif
 
-#ifdef IMF_HAVE_NEON
+#ifdef IMF_HAVE_NEON_AARCH64
 
 void
 interleave_neon (const char* source, size_t outSize, char* out)
@@ -380,7 +380,7 @@ Zip::initializeFuncs ()
     }
 #endif
 
-#ifdef IMF_HAVE_NEON
+#ifdef IMF_HAVE_NEON_AARCH64
     reconstruct = reconstruct_neon;
     interleave = interleave_neon;
 #endif
