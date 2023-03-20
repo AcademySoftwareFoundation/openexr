@@ -20,6 +20,11 @@
 .. toctree::
    :hidden:
 
+   test_images
+
+.. toctree::
+   :hidden:
+
    license
 
 .. toctree::
