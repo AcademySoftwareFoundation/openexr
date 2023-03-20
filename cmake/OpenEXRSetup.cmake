@@ -312,3 +312,21 @@ else()
     message(STATUS "Imath interface dirs ${IMATH_HEADER_ONLY_INCLUDE_DIRS}")
   endif()
 endif()
+
+###########################################
+# Check if we need to emulate vld1q_f32_x2
+###########################################
+
+if(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64")
+  include(CheckCSourceCompiles)
+  check_c_source_compiles("#include <arm_neon.h>
+int main() {
+  float a[] = {1.0, 1.0};
+  vld1q_f32_x2(a);
+  return 0;
+}" HAS_VLD1)
+
+  if(NOT HAS_VLD1)
+    set(OPENEXR_MISSING_ARM_VLD1 TRUE)
+  endif()
+endif()
