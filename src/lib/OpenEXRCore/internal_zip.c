@@ -24,8 +24,8 @@
 #    define IMF_HAVE_SSE4_1 1
 #    include <smmintrin.h>
 #endif
-#if defined(__ARM_NEON)
-#    define IMF_HAVE_NEON 1
+#if defined(__aarch64__)
+#    define IMF_HAVE_NEON_AARCH64 1
 #    include <arm_neon.h>
 #endif
 
@@ -78,7 +78,7 @@ reconstruct (uint8_t* buf, uint64_t outSize)
         prev      = d;
     }
 }
-#elif defined(IMF_HAVE_NEON)
+#elif defined(IMF_HAVE_NEON_AARCH64)
 static void
 reconstruct (uint8_t* buf, uint64_t outSize)
 {
@@ -174,7 +174,7 @@ interleave (uint8_t* out, const uint8_t* source, uint64_t outSize)
         *(sOut++) = (i % 2 == 0) ? *(t1++) : *(t2++);
 }
 
-#elif defined(IMF_HAVE_NEON)
+#elif defined(IMF_HAVE_NEON_AARCH64)
 static void
 interleave (uint8_t* out, const uint8_t* source, uint64_t outSize)
 {
