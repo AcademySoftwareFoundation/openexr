@@ -47,6 +47,10 @@
 #    define IMF_HAVE_NEON
 #endif
 
+#if defined(__aarch64__)
+#    define IMF_HAVE_NEON_AARCH64 1
+#endif
+
 extern "C" {
 #ifdef IMF_HAVE_SSE2
     #include <emmintrin.h>
