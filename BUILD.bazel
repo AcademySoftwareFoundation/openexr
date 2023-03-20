@@ -67,6 +67,7 @@ generate_header(
         "#cmakedefine OPENEXR_IMF_HAVE_GCC_INLINE_ASM_AVX 1": "/* #undef OPENEXR_IMF_HAVE_GCC_INLINE_ASM_AVX */",
         "#cmakedefine OPENEXR_IMF_HAVE_LINUX_PROCFS 1": "/* #undef OPENEXR_IMF_HAVE_LINUX_PROCFS */",
         "#cmakedefine OPENEXR_IMF_HAVE_SYSCONF_NPROCESSORS_ONLN 1": "/* #undef OPENEXR_IMF_HAVE_SYSCONF_NPROCESSORS_ONLN */",
+        "#cmakedefine OPENEXR_MISSING_ARM_VLD1 0": "/* #undef OPENEXR_MISSING_ARM_VLD1 */",
     },
     template = "cmake/OpenEXRConfigInternal.h.in",
 )
