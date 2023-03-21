@@ -2789,7 +2789,7 @@ DwaCompressor::initializeFuncs ()
         fromHalfZigZag       = fromHalfZigZag_f16c;
     }
 
-#ifdef IMF_HAVE_NEON
+#ifdef IMF_HAVE_NEON_AARCH64
     {
         convertFloatToHalf64 = convertFloatToHalf64_neon;
         fromHalfZigZag       = fromHalfZigZag_neon;

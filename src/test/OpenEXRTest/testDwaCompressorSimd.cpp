@@ -408,7 +408,7 @@ testFloatToHalf ()
         }
     }
 
-#ifdef IMF_HAVE_NEON
+#ifdef IMF_HAVE_NEON_AARCH64
     {
         cout << "      convertFloatToHalf64_neon()" << endl;
         for (int iter = 0; iter < numIter; ++iter)
@@ -437,7 +437,7 @@ testFloatToHalf ()
             }
         }
     }
-    #endif // IMF_HAVE_NEON
+    #endif // IMF_HAVE_NEON_AARCH64
 }
 
 //
@@ -520,7 +520,7 @@ testFromHalfZigZag ()
         } // iter
     }     // f16c
 
-#ifdef IMF_HAVE_NEON
+#ifdef IMF_HAVE_NEON_AARCH64
      {
         const int            numIter = 1000000;
         Rand48               rand48 (0);
@@ -557,7 +557,7 @@ testFromHalfZigZag ()
         } // iter
     }     // neon
 
-#endif // IMF_HAVE_NEON
+#endif // IMF_HAVE_NEON_AARCH64
 }
 
 } // namespace
