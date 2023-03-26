@@ -20,11 +20,6 @@
 .. toctree::
    :hidden:
 
-   test_images/index
-
-.. toctree::
-   :hidden:
-
    license
 
 .. toctree::
@@ -36,6 +31,11 @@
    :hidden:
 
    about
+
+.. toctree::
+   :hidden:
+
+   test_images/index
 
    
       

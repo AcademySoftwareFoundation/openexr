@@ -147,7 +147,9 @@ def readme_notes(rst_path, exr_filename):
             else:
                 if found:
                     if line != '\n':
-                        text += '             ' + line[7:]
+                        if not line.startswith(' '):
+                            break
+                        text += '             ' + line[7:].replace(' ``',' <b>').replace('``','</b>')
     return text
 
 def write_directory(index_file, exr_root, directory):
@@ -249,10 +251,10 @@ def write_directory(index_file, exr_root, directory):
 
             src = f'https://raw.githubusercontent.com/cary-ilm/openexr-images/docs/{jpg_lpath}'
             index_file.write('     <tr>\n')
-            index_file.write(f'          <td style="vertical-align: top;">\n')
-            index_file.write(f'              <a href={base_path}.html> <img width="235" src="{src}"> </a>\n') 
+            index_file.write(f'          <td style="vertical-align: top; width:250px">\n')
+            index_file.write(f'              <a href={base_path}.html> <img width="250" src="{src}"> </a>\n') 
             index_file.write(f'          </td>\n')
-            index_file.write(f'          <td style="vertical-align: top;">\n')
+            index_file.write(f'          <td style="vertical-align: top; width:250px">\n')
             index_file.write(f'            <b> {exr_filename} </b>\n')
             index_file.write(f'            <ul>\n')
             if num_parts == 1:
@@ -281,7 +283,7 @@ def write_directory(index_file, exr_root, directory):
 
             notes = readme_notes(readme_path, exr_filename)
             if notes:
-                index_file.write(f'          <td style="vertical-align: top;">\n')
+                index_file.write(f'          <td style="vertical-align: top; width:400px">\n')
                 index_file.write(f'          <p>\n')
                 index_file.write(notes)
                 index_file.write(f'          </p>\n')
@@ -320,7 +322,11 @@ def write_index(exr_root):
     index_file.write('.. _Test Images:\n')
     index_file.write('\n')
 
-    index_file.write('.. include:: index_toctree\n')
+    index_file.write('.. toctree::\n')
+    index_file.write('   :caption: Test Images\n')
+    index_file.write('   :maxdepth: 2\n')
+    index_file.write('\n')
+    index_file.write('   index_toctree\n')
     index_file.write('\n')
 
     sections = [ 
@@ -342,9 +348,12 @@ def write_index(exr_root):
     for section in sections:
         toctree += write_directory(index_file, exr_root, exr_root + '/' + section) 
     
-    with open('index_toctree', 'w') as toctree_file:
+    with open('index_toctree.rst', 'w') as toctree_file:
+        toctree_file.write('..\n')
+        toctree_file.write('  SPDX-License-Identifier: BSD-3-Clause\n')
+        toctree_file.write('  Copyright Contributors to the OpenEXR Project.\n')
+        toctree_file.write('\n')
         toctree_file.write('.. toctree::\n')
-        toctree_file.write('   :caption: Test Images\n')
         toctree_file.write('   :maxdepth: 0\n')
         toctree_file.write('   :hidden:\n')
         toctree_file.write('\n')
