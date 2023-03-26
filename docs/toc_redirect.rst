@@ -20,7 +20,7 @@
 .. toctree::
    :hidden:
 
-   test_images
+   test_images/index
 
 .. toctree::
    :hidden:
