@@ -1,20 +1,21 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) Contributors to the OpenEXR Project.
 
-load("@openexr//:bazel/third_party/generate_header.bzl", "generate_header")
+load("@bazel_skylib//rules:expand_template.bzl", "expand_template")
 
-generate_header(
-    name = "ImathConfig.h",
+expand_template(
+    name = "ImathConfig",
+    out = "src/Imath/ImathConfig.h",
     substitutions = {
         "@IMATH_INTERNAL_NAMESPACE@": "Imath_3_1",
-        "@IMATH_LIB_VERSION@": "3.1.4",
+        "@IMATH_LIB_VERSION@": "3.1.7",
         "@IMATH_NAMESPACE_CUSTOM@": "0",
         "@IMATH_NAMESPACE@": "Imath",
-        "@IMATH_PACKAGE_NAME@": "Imath 3.1.4",
+        "@IMATH_PACKAGE_NAME@": "Imath 3.1.7",
         "@IMATH_VERSION_MAJOR@": "3",
         "@IMATH_VERSION_MINOR@": "1",
-        "@IMATH_VERSION_PATCH@": "4",
-        "@IMATH_VERSION@": "3.1.4",
+        "@IMATH_VERSION_PATCH@": "7",
+        "@IMATH_VERSION@": "3.1.7",
         "#cmakedefine IMATH_HALF_USE_LOOKUP_TABLE": "#define IMATH_HALF_USE_LOOKUP_TABLE",
         "#cmakedefine IMATH_ENABLE_API_VISIBILITY": "#define IMATH_ENABLE_API_VISIBILITY",
         "#cmakedefine IMATH_HAVE_LARGE_STACK": "/* #undef IMATH_HAVE_LARGE_STACK */",
@@ -38,6 +39,7 @@ cc_library(
         "src/Imath/ImathBoxAlgo.h",
         "src/Imath/ImathColor.h",
         "src/Imath/ImathColorAlgo.h",
+        "src/Imath/ImathConfig.h",
         "src/Imath/ImathEuler.h",
         "src/Imath/ImathExport.h",
         "src/Imath/ImathForward.h",
@@ -71,7 +73,4 @@ cc_library(
     ],
     includes = ["src/Imath"],
     visibility = ["//visibility:public"],
-    deps = [
-        ":ImathConfig.h",
-    ],
 )
