@@ -3,6 +3,7 @@
 
 # OpenEXR Release Notes
 
+* [Version 3.1.7](#version-317-march-28-2023) March 28, 2023
 * [Version 3.1.6](#version-316-march-9-2023) March 9, 2023
 * [Version 3.1.5](#version-315-april-11-2022) April 11, 2022
 * [Version 3.1.4](#version-314-january-26-2022) January 27, 2022
@@ -59,6 +60,28 @@
 * [Version 1.0.2](#version-102)
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
+
+## Version 3.1.7 (March 28, 2023)
+
+Patch release that fixes a regression on ARMv7, and fixes a build
+issue with zlib.
+
+### Merged Pull Requests
+
+* [1368](https://github.com/AcademySoftwareFoundation/openexr/pull/1368)
+Fix ARMv7 build for DwaCompressor, too. 
+* [1366](https://github.com/AcademySoftwareFoundation/openexr/pull/1366) 
+Fix ARMv7 build by making recent ZIP NEON optimizations be ARMv8 (aarch64) only 
+* [1361](https://github.com/AcademySoftwareFoundation/openexr/pull/1361) 
+Fix the zlib build error that was reported in #1360. 
+* [1358](https://github.com/AcademySoftwareFoundation/openexr/pull/1358) 
+Detect missing vst1q_f32_x2 and provide replacement if necessary 
+* [1355](https://github.com/AcademySoftwareFoundation/openexr/pull/1355) 
+Fix typo in release notes 
+* [1354](https://github.com/AcademySoftwareFoundation/openexr/pull/1354) 
+Test for AVX in unpack.c 
+* [1350](https://github.com/AcademySoftwareFoundation/openexr/pull/1350) 
+Bazel Support: Switch to Imath 3.1.7
 
 ## Version 3.1.6 (March 9, 2023)
 
