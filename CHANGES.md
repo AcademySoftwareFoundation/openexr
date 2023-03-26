@@ -80,8 +80,6 @@ Detect missing vst1q_f32_x2 and provide replacement if necessary
 Fix typo in release notes 
 * [1354](https://github.com/AcademySoftwareFoundation/openexr/pull/1354) 
 Test for AVX in unpack.c 
-* [1350](https://github.com/AcademySoftwareFoundation/openexr/pull/1350) 
-Bazel Support: Switch to Imath 3.1.7
 
 ## Version 3.1.6 (March 9, 2023)
 
