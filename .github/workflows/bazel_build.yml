@@ -27,26 +27,53 @@ on:
       - '**.md'
 
 jobs:
-  build:
+  build_and_test_ubuntu:
     name: Linux Ubuntu 20.04 Bazel build <GCC 9.3.0>
     runs-on: ubuntu-20.04
     
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
-    - name: Mount bazel cache
+    - name: Mount Bazel cache
       uses: actions/cache@v2
       with:
         path: "/home/runner/.cache/bazel"
-        key: bazel
-
-    - name: Install bazelisk
-      run: |
-        curl -LO "https://github.com/bazelbuild/bazelisk/releases/download/v1.11.0/bazelisk-linux-amd64"
-        mkdir -p "${GITHUB_WORKSPACE}/bin/"
-        mv bazelisk-linux-amd64 "${GITHUB_WORKSPACE}/bin/bazel"
-        chmod +x "${GITHUB_WORKSPACE}/bin/bazel"
+        key: bazel-ubuntu
 
     - name: Build
       run: |
-        "${GITHUB_WORKSPACE}/bin/bazel" build //...
+        bazelisk build //...
+
+  build_and_test_windows:
+    name: Windows Server 2022 build <Visual Studio 2022>
+    runs-on: windows-2022
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Mount Bazel cache
+      uses: actions/cache@v2
+      with:
+        path: "/home/runner/.cache/bazel"
+        key: bazel-windows
+
+    - name: Build
+      run: |
+        bazelisk build //...
+
+  build_and_test_macos:
+    name: macOS 12 Bazel build <Apple Clang14>
+    runs-on: macos-12
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Mount Bazel cache
+      uses: actions/cache@v2
+      with:
+        path: "/home/runner/.cache/bazel"
+        key: bazel-macos
+
+    - name: Build
+      run: |
+        bazelisk build //...

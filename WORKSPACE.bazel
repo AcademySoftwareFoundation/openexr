@@ -1,5 +1,9 @@
-workspace(name = "openexr")
+workspace(name = "com_openexr")
 
 load("//:bazel/third_party/openexr_deps.bzl", "openexr_deps")
 
 openexr_deps()
+
+load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
+
+bazel_skylib_workspace()
