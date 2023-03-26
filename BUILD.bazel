@@ -1,25 +1,27 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) Contributors to the OpenEXR Project.
 
-load("//:bazel/third_party/generate_header.bzl", "generate_header")
+load("@bazel_skylib//rules:expand_template.bzl", "expand_template")
 
 config_setting(
     name = "windows",
     constraint_values = ["@platforms//os:windows"],
 )
 
-generate_header(
-    name = "IexConfig.h",
+expand_template(
+    name = "IexConfig",
+    out = "src/lib/Iex/IexConfig.h",
     substitutions = {
-        "@IEX_INTERNAL_NAMESPACE@": "Iex_3_0",
+        "@IEX_INTERNAL_NAMESPACE@": "Iex_3_1",
         "@IEX_NAMESPACE_CUSTOM@": "0",
         "@IEX_NAMESPACE@": "Iex",
     },
     template = "cmake/IexConfig.h.in",
 )
 
-generate_header(
-    name = "IexConfigInternal.h",
+expand_template(
+    name = "IexConfigInternal",
+    out = "src/lib/Iex/IexConfigInternal.h",
     substitutions = {
         "#cmakedefine HAVE_UCONTEXT_H 1": "/* #undef HAVE_UCONTEXT_H */",
         "#cmakedefine IEX_HAVE_CONTROL_REGISTER_SUPPORT 1": "/* #undef IEX_HAVE_CONTROL_REGISTER_SUPPORT */",
@@ -28,10 +30,11 @@ generate_header(
     template = "cmake/IexConfigInternal.h.in",
 )
 
-generate_header(
-    name = "IlmThreadConfig.h",
+expand_template(
+    name = "IlmThreadConfig",
+    out = "src/lib/IlmThread/IlmThreadConfig.h",
     substitutions = {
-        "@ILMTHREAD_INTERNAL_NAMESPACE@": "IlmThread_3_0",
+        "@ILMTHREAD_INTERNAL_NAMESPACE@": "IlmThread_3_1",
         "@ILMTHREAD_NAMESPACE_CUSTOM@": "0",
         "@ILMTHREAD_NAMESPACE@": "IlmThread",
         "#cmakedefine01 ILMTHREAD_HAVE_POSIX_SEMAPHORES": "#define ILMTHREAD_HAVE_POSIX_SEMAPHORES 0",
@@ -40,27 +43,29 @@ generate_header(
     template = "cmake/IlmThreadConfig.h.in",
 )
 
-generate_header(
-    name = "OpenEXRConfig.h",
+expand_template(
+    name = "OpenEXRConfig",
+    out = "src/lib/OpenEXR/OpenEXRConfig.h",
     substitutions = {
         "@OPENEXR_IMF_NAMESPACE@": "Imf",
-        "@OPENEXR_INTERNAL_IMF_NAMESPACE@": "Imf_3_0",
-        "@OPENEXR_LIB_VERSION@": "3.0.4",
-        "@OPENEXR_NAMESPACE_CUSTOM@": "0",
-        "@OPENEXR_PACKAGE_NAME@": "OpenEXR 3.0.4",
+        "@OPENEXR_INTERNAL_IMF_NAMESPACE@": "Imf_3_1",
+        "@OPENEXR_LIB_VERSION@": "3.1.7",
+        "@OPENEXR_NAMESPACE_CUSTOM@": "3.1.7",
+        "@OPENEXR_PACKAGE_NAME@": "OpenEXR 3.1.7",
         "@OPENEXR_VERSION_EXTRA@": "",
         "@OPENEXR_VERSION_MAJOR@": "3",
-        "@OPENEXR_VERSION_MINOR@": "0",
-        "@OPENEXR_VERSION_PATCH@": "4",
-        "@OPENEXR_VERSION@": "3.0.4",
+        "@OPENEXR_VERSION_MINOR@": "1",
+        "@OPENEXR_VERSION_PATCH@": "7",
+        "@OPENEXR_VERSION@": "3.1.7",
         "#cmakedefine OPENEXR_ENABLE_API_VISIBILITY": "#define OPENEXR_ENABLE_API_VISIBILITY",
         "#cmakedefine OPENEXR_HAVE_LARGE_STACK 1": "/* #undef OPENEXR_HAVE_LARGE_STACK */",
     },
     template = "cmake/OpenEXRConfig.h.in",
 )
 
-generate_header(
-    name = "OpenEXRConfigInternal.h",
+expand_template(
+    name = "OpenEXRConfigInternal",
+    out = "src/lib/OpenEXR/OpenEXRConfigInternal.h",
     substitutions = {
         "#cmakedefine OPENEXR_IMF_HAVE_COMPLETE_IOMANIP 1": "#define OPENEXR_IMF_HAVE_COMPLETE_IOMANIP 1",
         "#cmakedefine OPENEXR_IMF_HAVE_DARWIN 1": "/* #undef OPENEXR_IMF_HAVE_DARWIN */",
@@ -83,6 +88,8 @@ cc_library(
     hdrs = [
         "src/lib/Iex/Iex.h",
         "src/lib/Iex/IexBaseExc.h",
+        "src/lib/Iex/IexConfig.h",
+        "src/lib/Iex/IexConfigInternal.h",
         "src/lib/Iex/IexErrnoExc.h",
         "src/lib/Iex/IexExport.h",
         "src/lib/Iex/IexForward.h",
@@ -93,16 +100,15 @@ cc_library(
         "src/lib/Iex/IexMathIeeeExc.h",
         "src/lib/Iex/IexNamespace.h",
         "src/lib/Iex/IexThrowErrnoExc.h",
+        "src/lib/OpenEXR/OpenEXRConfig.h",
     ],
     features = select({
         ":windows": ["windows_export_all_symbols"],
         "//conditions:default": [],
     }),
-    includes = ["src/lib/Iex"],
-    deps = [
-        ":IexConfig.h",
-        ":IexConfigInternal.h",
-        ":OpenEXRConfig.h",
+    includes = [
+        "src/lib/Iex",
+        "src/lib/OpenEXR",
     ],
 )
 
@@ -119,6 +125,7 @@ cc_library(
     ],
     hdrs = [
         "src/lib/IlmThread/IlmThread.h",
+        "src/lib/IlmThread/IlmThreadConfig.h",
         "src/lib/IlmThread/IlmThreadExport.h",
         "src/lib/IlmThread/IlmThreadForward.h",
         "src/lib/IlmThread/IlmThreadMutex.h",
@@ -131,10 +138,7 @@ cc_library(
         "//conditions:default": [],
     }),
     includes = ["src/lib/IlmThread"],
-    deps = [
-        ":Iex",
-        ":IlmThreadConfig.h",
-    ],
+    deps = [":Iex"],
 )
 
 cc_library(
@@ -235,6 +239,9 @@ cc_library(
         "src/lib/OpenEXR/dwaLookups.h",
     ],
     hdrs = [
+        "src/lib/Iex/IexConfig.h",
+        "src/lib/Iex/IexConfigInternal.h",
+        "src/lib/IlmThread/IlmThreadConfig.h",
         "src/lib/OpenEXR/ImfAcesFile.h",
         "src/lib/OpenEXR/ImfArray.h",
         "src/lib/OpenEXR/ImfAttribute.h",
@@ -347,6 +354,8 @@ cc_library(
         "src/lib/OpenEXR/ImfXdr.h",
         "src/lib/OpenEXR/ImfZip.h",
         "src/lib/OpenEXR/ImfZipCompressor.h",
+        "src/lib/OpenEXR/OpenEXRConfig.h",
+        "src/lib/OpenEXR/OpenEXRConfigInternal.h",
     ],
     copts = select({
         ":windows": [],
@@ -368,12 +377,7 @@ cc_library(
         }),
     visibility = ["//visibility:public"],
     deps = [
-        ":IexConfig.h",
-        ":IexConfigInternal.h",
         ":IlmThread",
-        ":IlmThreadConfig.h",
-        ":OpenEXRConfig.h",
-        ":OpenEXRConfigInternal.h",
         "@Imath",
         "@net_zlib_zlib//:zlib",
     ],
