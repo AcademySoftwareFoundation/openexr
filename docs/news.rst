@@ -13,6 +13,17 @@ News
 .. toctree::
    :caption: News
 
+March 28, 2023 - OpenEXR v3.1.7 Released
+========================================
+
+Patch release that fixes a build regression on ARMv7, and fixes a build
+issue with zlib.
+
+See the `release notes`_ for more details.
+
+Download OpenEXR v3.1.7 from https://github.com/AcademySoftwareFoundation/OpenEXR/releases/tag/v3.1.7.
+
+
 March 9, 2023 - OpenEXR v3.1.6 Released
 =======================================
 
