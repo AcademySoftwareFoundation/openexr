@@ -6,6 +6,10 @@
 #include "openexr_base.h"
 #include "openexr_errors.h"
 
+#ifndef OPENEXR_C_STANDALONE
+#include "OpenEXRConfig.h"
+#endif
+
 /**************************************/
 
 void
