@@ -1553,7 +1553,7 @@ struct memdata
     size_t      bytes;
 };
 
-static int64_t
+static uint64_t
 memstream_read (
     exr_const_context_t         f,
     void*                       userdata,
@@ -1562,15 +1562,18 @@ memstream_read (
     uint64_t                    offset,
     exr_stream_error_func_ptr_t errcb)
 {
-    int64_t rdsz = -1;
+    int64_t rdsz = 0;
     if (userdata)
     {
         memdata* md   = static_cast<memdata*> (userdata);
-        uint64_t left = sz;
+        int64_t left = sz;
         if (offset > md->bytes ||  sz > md->bytes || offset+sz > md->bytes)
             left = (offset < md->bytes) ? md->bytes - offset : 0;
-        if (left > 0) memcpy (buffer, md->data + offset, left);
-        rdsz = static_cast<int64_t> (left);
+        if (left > 0)
+        {
+            memcpy (buffer, md->data + offset, left);
+            rdsz = left;
+        }
     }
 
     return rdsz;
