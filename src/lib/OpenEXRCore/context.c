@@ -13,8 +13,6 @@
 #include "internal_file.h"
 #include "backward_compatibility.h"
 
-#include <IlmThreadConfig.h>
-
 #if defined(_WIN32) || defined(_WIN64)
 #    include "internal_win32_file_impl.h"
 #else

@@ -7,7 +7,7 @@
 #define OPENEXR_CONF_H
 #pragma once
 
-#include "OpenEXRConfig.h"
+#define OPENEXR_EXPORT
 
 /// \addtogroup ExportMacros
 /// @{

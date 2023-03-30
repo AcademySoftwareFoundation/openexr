@@ -8,8 +8,6 @@
 
 #include "internal_attr.h"
 
-#include <IlmThreadConfig.h>
-
 #ifdef ILMTHREAD_THREADING_ENABLED
 #    ifdef _WIN32
 #        include <windows.h>

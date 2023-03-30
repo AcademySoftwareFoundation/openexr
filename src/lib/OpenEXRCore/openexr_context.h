@@ -125,8 +125,10 @@ typedef int64_t (*exr_query_size_func_ptr_t) (
  * truly a stream, it is up to the provider to implement appropriate
  * caching of data to give the appearance of being able to seek/read
  * atomically.
+ *
+ * The return is the number of bytes read.
  */
-typedef int64_t (*exr_read_func_ptr_t) (
+typedef uint64_t (*exr_read_func_ptr_t) (
     exr_const_context_t         ctxt,
     void*                       userdata,
     void*                       buffer,

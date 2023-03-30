@@ -8,8 +8,6 @@
 #include "internal_constants.h"
 #include "internal_memory.h"
 
-#include <IlmThreadConfig.h>
-
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
@@ -31,7 +29,7 @@ default_error_handler (
 {
     const struct _internal_exr_context* pctxt = EXR_CCTXT (ctxt);
 
-#ifdef ILMBASE_THREADING_ENABLED
+#ifdef ILMTHREAD_THREADING_ENABLED
 #    ifdef _WIN32
     static CRITICAL_SECTION sMutex;
     volatile static long    initialized = 0;
@@ -43,7 +41,7 @@ default_error_handler (
 #    endif
 #endif
 
-#ifdef ILMBASE_THREADING_ENABLED
+#ifdef ILMTHREAD_THREADING_ENABLED
 #    ifdef _WIN32
     EnterCriticalSection (&sMutex);
 #    else
@@ -71,7 +69,7 @@ default_error_handler (
         fprintf (stderr, "<ERROR>: %s\n", msg);
     fflush (stderr);
 
-#ifdef ILMBASE_THREADING_ENABLED
+#ifdef ILMTHREAD_THREADING_ENABLED
 #    ifdef _WIN32
     LeaveCriticalSection (&sMutex);
 #    else
