@@ -21,6 +21,14 @@ set(SPHINX_INDEX_FILE ${SPHINX_BUILD}/index.html)
 
 set(SPHINX_OPTS "-W" CACHE STRING "Sphinx build options")
 
+set(OPENEXR_TEST_IMAGE_REPO "https://raw.githubusercontent.com/cary-ilm/openexr-images" 
+    CACHE STRING "Repo for test images")
+set(OPENEXR_TEST_IMAGE_TAG "docs" 
+    CACHE STRING "Tag for test image repo")
+
+set(TEST_IMAGE_INDEX_FILE ${PROJECT_SOURCE_DIR}/docs/_test_images/index.rst)
+set(TEST_IMAGE_PY_FILE ${PROJECT_SOURCE_DIR}/docs/scripts/test_images.py)
+set(TEST_IMAGE_INPUT_FILE ${PROJECT_SOURCE_DIR}/docs/test_images.txt)
 configure_file(${DOXYFILE_IN} ${DOXYFILE_OUT} @ONLY)
 
 file(MAKE_DIRECTORY ${DOXYGEN_OUTPUT_DIR})
@@ -31,6 +39,15 @@ add_custom_command(OUTPUT ${DOXYGEN_INDEX_FILE}
                    COMMENT "Running doxygen"
                    VERBATIM)
 
+add_custom_command(OUTPUT ${TEST_IMAGE_INDEX_FILE}
+                   COMMAND ${Python3_EXECUTABLE} ${TEST_IMAGE_PY_FILE}
+                   ${OPENEXR_TEST_IMAGE_REPO} ${OPENEXR_TEST_IMAGE_TAG} 
+                   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+                   DEPENDS
+                   ${TEST_IMAGE_PY_FILE} ${TEST_IMAGE_INPUT_FILE}
+                   COMMENT "Generating test image pages"
+                   VERBATIM)
+
 add_custom_command(OUTPUT ${SPHINX_INDEX_FILE}
                    COMMAND 
                      ${SPHINX_EXECUTABLE} -b html ${SPHINX_OPTS}
@@ -38,11 +55,14 @@ add_custom_command(OUTPUT ${SPHINX_INDEX_FILE}
                      -Dbreathe_projects.OpenEXR=${DOXYGEN_OUTPUT_DIR}/xml
                    ${SPHINX_SOURCE} ${SPHINX_BUILD}
                    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-                   DEPENDS ${DOXYGEN_INDEX_FILE}
-                   MAIN_DEPENDENCY conf.py
+                   DEPENDS ${DOXYGEN_INDEX_FILE} ${TEST_IMAGE_INDEX_FILE} ${TEST_IMAGE_PY_FILE} ${TEST_IMAGE_INPUT_FILE} 
+                   MAIN_DEPENDENCY ${SPHINX_CONF_PY_FILE}
                    COMMENT "Generating documentation with Sphinx")
 
-add_custom_target(docs ALL DEPENDS ${SPHINX_INDEX_FILE} ${DOXYGEN_INDEX_FILE})
+add_custom_target(docs ALL DEPENDS
+                 ${SPHINX_INDEX_FILE}
+                 ${DOXYGEN_INDEX_FILE}
+                 ${TEST_IMAGE_INDEX_FILE})
 
 # Add an install target to install the docs
 if(INSTALL_DOCS)

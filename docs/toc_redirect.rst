@@ -35,7 +35,7 @@
 .. toctree::
    :hidden:
 
-   test_images/index
+   _test_images/index
 
    
       
