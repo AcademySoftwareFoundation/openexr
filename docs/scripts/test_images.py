@@ -37,6 +37,10 @@ def exr_header(exr_path):
     '''Return a dict of the attributes in the exr file's header(s)
        The index of the dict is the part number as a string, i.e. "0", "1", etc.
        The value of each entry is a dict of attribute/value pairs.
+
+       Also return in rows the the list of all attributes across all
+       parts, which equates to the complete list of rows in the table,
+       since not all parts will necessarily have the same attributes.
     '''
     
     result = run (['exrheader', exr_path],
@@ -78,30 +82,14 @@ def exr_header(exr_path):
                 header[current_part] = {}
             header[current_part][current_attr] = name_value[1].strip().strip('"').replace('  ',' ')
                 
-    rows = {}
-    columns = {"-1" : 0}
-    for part_name,part in header.items():
-        columns[part_name] = 0
-        for attr_name,value in part.items():
-            rows[attr_name] = 0
-
+    rows = set()
     for part_name,part in header.items():
         for attr_name,value in part.items():
-            width = len(str(value))
-            columns[part_name] = max(columns[part_name], width)
-            columns["-1"] = max(columns["-1"], len(attr_name))
-            rows[attr_name] = max(rows[attr_name], 1)
+            rows.add(attr_name)
 
-    for n,v in header.items():
-        print(f'header[{n}] = {v}')
-    for n,v in rows.items():
-        print(f'rows[{n}] = {v}')
-    for n,v in columns.items():
-        print(f'columns[{n}] = {v}')
-    
-    return header, rows, columns
+    return header, rows
 
-def write_rst_list_table_row(outfile, attr_name, rows, columns, header, ignore_attr_name=False):
+def write_rst_list_table_row(outfile, attr_name, header, rows, ignore_attr_name=False):
     '''Write a row in the rst list-table of parts/attributes on the website page for an exr file'''
     
     if ignore_attr_name:
@@ -116,17 +104,6 @@ def write_rst_list_table_row(outfile, attr_name, rows, columns, header, ignore_a
         else:
             value = ''
         outfile.write(f'     - {value}\n')
-
-#    for part_name,width in columns.items():
-#        if part_name == '-1':
-#            continue
-#        if part_name in header and attr_name in header[part_name]:
-#            value = header[part_name][attr_name]
-#            if type(value) is list:
-#                value = ' '.join(value)
-#        else:
-#            value = ''
-#        outfile.write(f'     - {value}\n')
 
 def write_exr_page(rst_lpath, exr_url, exr_filename, exr_lpath, jpg_lpath, readme):
     '''Write the website page for each exr: title, image, and list-table of attribute name/value for each part
@@ -168,7 +145,7 @@ def write_exr_page(rst_lpath, exr_url, exr_filename, exr_lpath, jpg_lpath, readm
         
         # Read the header
         
-        header, rows, columns = exr_header(local_exr)
+        header, rows = exr_header(local_exr)
 
         os.remove(local_exr)
 
@@ -215,18 +192,18 @@ def write_exr_page(rst_lpath, exr_url, exr_filename, exr_lpath, jpg_lpath, readm
                 if len(header) > 2:
                     rst_file.write(f'   :header-rows: 1\n')
                     rst_file.write(f'\n')
-                    write_rst_list_table_row(rst_file, 'name', rows, columns, header, True)
+                    write_rst_list_table_row(rst_file, 'name', header, rows, True)
                 else:
                     rst_file.write(f'\n')
-                    write_rst_list_table_row(rst_file, 'name', rows, columns, header)
+                    write_rst_list_table_row(rst_file, 'name', header, rows)
             else:
                 rst_file.write(f'\n')
 
             # Write each attribute
-            for attr_name,height in rows.items():
+            for attr_name in rows:
                 if attr_name == 'name':
                     continue
-                write_rst_list_table_row(rst_file, attr_name, rows, columns, header)
+                write_rst_list_table_row(rst_file, attr_name, header, rows)
 
     except Exception as e:
 
