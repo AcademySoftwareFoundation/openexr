@@ -3,20 +3,46 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) Contributors to the OpenEXR Project.
 
-import sys, os, tempfile, atexit
+#
+# Generate the "Test Images" page for the openexr.com website
+#
+# The file "docs/test_images.txt" contains urls for either .exr files
+# or README.txt files from
+# https://github.com/AcademySoftwareFoundation/openexr-images. This
+# script processes them into .rst files with a main index listing all
+# images (with thumbnails and summaries) and a separate page per image
+# file showing the full image and the header contents in a table.
+#
+# The test_images.txt file references url's, which get downloaded and
+# converted to proxy .jpg files via 'curl' and 'exrheader'.
+#
+# The README.rst files are expected to have a heading, summary text,
+# and a ".. list-table::" with descriptive text for selected
+# images. The main index pages gets the main summary text, with the
+# per-image descriptive text in the table next to the image thumbnail.
+#
+# Note that the README.rst files in the openexr-images repo are never
+# actually processed directly by sphinx.
+#
+# The generated .rst and .jpg files all go in the "docs/_test_images"
+# directory underneath the source root. Ideally, these would go in the
+# build root, but sphinx expects all source content under a single
+# root.
+#
+
+import sys, os, tempfile
 from subprocess import PIPE, run
 
-verbose = False
-#verbose = True
-
 def exr_header(exr_path):
-    '''Return a dict of the attributes in the exr file's header(s)'''
+    '''Return a dict of the attributes in the exr file's header(s)
+       The index of the dict is the part number as a string, i.e. "0", "1", etc.
+       The value of each entry is a dict of attribute/value pairs.
+    '''
     
     result = run (['exrheader', exr_path],
                   stdout=PIPE, stderr=PIPE, universal_newlines=True)
     if result.returncode != 0:
-        print(result.stderr)
-        return None, None, None
+        raise Exception(f'failed to read header for {exr_path}')
 
     lines = result.stdout.split('\n') 
         
@@ -66,115 +92,162 @@ def exr_header(exr_path):
             columns["-1"] = max(columns["-1"], len(attr_name))
             rows[attr_name] = max(rows[attr_name], 1)
 
+    for n,v in header.items():
+        print(f'header[{n}] = {v}')
+    for n,v in rows.items():
+        print(f'rows[{n}] = {v}')
+    for n,v in columns.items():
+        print(f'columns[{n}] = {v}')
+    
     return header, rows, columns
 
 def write_rst_list_table_row(outfile, attr_name, rows, columns, header, ignore_attr_name=False):
-    '''Write a row in the rst list-table of parts/attributes on the page for an exr file'''
+    '''Write a row in the rst list-table of parts/attributes on the website page for an exr file'''
     
     if ignore_attr_name:
         outfile.write(f'   * -\n')
     else:
         outfile.write(f'   * - {attr_name}\n')
-    for part_name,width in columns.items():
-        if part_name == '-1':
-            continue
-        if part_name in header and attr_name in header[part_name]:
-            value = header[part_name][attr_name]
+    for part_number,part in header.items():
+        if attr_name in part:
+            value = part[attr_name]
             if type(value) is list:
                 value = ' '.join(value)
         else:
             value = ''
         outfile.write(f'     - {value}\n')
 
-def write_exr_page(rst_filename, exr_url, exr_filename, exr_lpath, jpg_lpath):
+#    for part_name,width in columns.items():
+#        if part_name == '-1':
+#            continue
+#        if part_name in header and attr_name in header[part_name]:
+#            value = header[part_name][attr_name]
+#            if type(value) is list:
+#                value = ' '.join(value)
+#        else:
+#            value = ''
+#        outfile.write(f'     - {value}\n')
+
+def write_exr_page(rst_lpath, exr_url, exr_filename, exr_lpath, jpg_lpath, readme):
+    '''Write the website page for each exr: title, image, and list-table of attribute name/value for each part
     
+       rst_lpath:    the name of .rst file to write, including directory relative to the source root
+       exr_url:      the url of exr
+       exr_filename: the exr filename without directory
+       exr_lpath:    the exr filename with directory relative to the source root
+       jpg_lpath:    the jpg filename with directory relative to the source root
+
+       Return a dict of of the header parts/attributes
+    '''
+    
+    # Download the exr to a temp file
     fd, local_exr = tempfile.mkstemp(".exr")
     os.close(fd)
 
+    header = None
+    
     try:
         
+        # Download the exr via curl
+        
+        print(f'curl {exr_url}')
         result = run (['curl', '-f', exr_url, '-o', local_exr], 
                       stdout=PIPE, stderr=PIPE, universal_newlines=True)
-        print(' '.join(result.args))
-        if result.returncode != 0:
-            raise Exception(f'error: failed to read {exr_url}')
-    
-        if not os.path.isfile(local_exr):
-            raise Exception(f'error: failed to read {exr_url}: no such file {local_exr}')
+        if result.returncode != 0 or not os.path.isfile(local_exr):
+            raise Exception(f'failed to read {exr_url}: no such file {local_exr}')
         
-        
+        # Convert to .jpg, but only if it doesn't already exist
+
         if not os.path.isfile(jpg_lpath):
+            print(f'convert {jpg_lpath}')
             result = run (['convert', local_exr, jpg_lpath], 
                           stdout=PIPE, stderr=PIPE, universal_newlines=True)
-            print(' '.join(result.args))
         
-            if result.returncode != 0:
+            if result.returncode != 0 or not os.path.isfile(jpg_lpath):
                 raise Exception(f'error: failed to convert {exr_url} to {jpg_lpath}')
-            if not os.path.isfile(jpg_lpath):
-                print(f'error: no jpg file generated: {jpg_lpath}', file=sys.stderr)
+        
+        # Read the header
         
         header, rows, columns = exr_header(local_exr)
 
         os.remove(local_exr)
 
         if not header:
-            print(f'error: no header for {local_exr}', file=sys.stderr)
-            return None
+            raise Exception(f'can\'t read header for {local_exr}')
         
-        print(f'writing rst {rst_filename}')
+        print(f'write {rst_lpath}')
 
-        with open(rst_filename, 'w') as rstfile:
+        with open(rst_lpath, 'w') as rst_file:
 
-            rstfile.write(f'..\n')  
-            rstfile.write(f'  SPDX-License-Identifier: BSD-3-Clause\n')
-            rstfile.write(f'  Copyright Contributors to the OpenEXR Project.\n')
-            rstfile.write(f'\n')
+            # copyright
+            rst_file.write(f'..\n')  
+            rst_file.write(f'  SPDX-License-Identifier: BSD-3-Clause\n')
+            rst_file.write(f'  Copyright Contributors to the OpenEXR Project.\n')
+            rst_file.write(f'\n')
 
-            rstfile.write(f'{exr_filename}\n')
+            # :download:
+            rst_file.write(f'{exr_filename}\n')
             for i in range(0,len(exr_filename)):
-                rstfile.write('#')
-            rstfile.write(f'\n')
-            rstfile.write(f'\n')
-            rstfile.write(f':download:`{exr_url}<{exr_url}>`\n')
-            rstfile.write(f'\n')
+                rst_file.write('#')
+            rst_file.write(f'\n')
+            rst_file.write(f'\n')
+            rst_file.write(f':download:`{exr_url}<{exr_url}>`\n')
+            rst_file.write(f'\n')
 
-            rstfile.write(f'.. image:: {os.path.basename(jpg_lpath)}\n')
-            rstfile.write(f'   :target: {exr_url}\n')
-            rstfile.write(f'\n')
+            # .. image::
+            rst_file.write(f'.. image:: {os.path.basename(jpg_lpath)}\n')
+            rst_file.write(f'   :target: {exr_url}\n')
+            rst_file.write(f'\n')
 
-            rstfile.write(f'.. list-table::\n')
-            rstfile.write(f'   :align: left\n')
+            if readme:
+                notes = readme_notes(readme, exr_filename, False)
+                if notes:
+                    rst_file.write(f'\n')
+                    rst_file.write(notes)
+                    rst_file.write(f'\n')
+            
+            # .. list-table::
+            rst_file.write(f'.. list-table::\n')
+            rst_file.write(f'   :align: left\n')
         
+            # For multi-part files, add a header. For single-part, put the 'name' attribute at the top, if there is one
             if 'name' in rows:
-                if len(columns) > 2:
-                    rstfile.write(f'   :header-rows: 1\n')
-                    rstfile.write(f'\n')
-                    write_rst_list_table_row(rstfile, 'name', rows, columns, header, True)
+                if len(header) > 2:
+                    rst_file.write(f'   :header-rows: 1\n')
+                    rst_file.write(f'\n')
+                    write_rst_list_table_row(rst_file, 'name', rows, columns, header, True)
                 else:
-                    rstfile.write(f'\n')
-                    write_rst_list_table_row(rstfile, 'name', rows, columns, header)
+                    rst_file.write(f'\n')
+                    write_rst_list_table_row(rst_file, 'name', rows, columns, header)
             else:
-                rstfile.write(f'\n')
+                rst_file.write(f'\n')
 
+            # Write each attribute
             for attr_name,height in rows.items():
                 if attr_name == 'name':
                     continue
-                write_rst_list_table_row(rstfile, attr_name, rows, columns, header)
+                write_rst_list_table_row(rst_file, attr_name, rows, columns, header)
 
-    except e:
+    except Exception as e:
 
-        print(f'error: {str(e)}', file=sys.stderr)
-        
         os.remove(local_exr)
-        return None
 
+        raise e
+    
     return header
 
 def write_readme(index_file, repo, tag, lpath):
+    '''Download the README.txt file and write its contents up to the first ".. list-table::"
+       Return a list of all lines in the file.
+    '''
 
+    # Download to a temp file
+    
     fd, local_readme = tempfile.mkstemp(".rst")
 
     try:
+        
+        # Download via curl
         
         readme_url = f'{repo}/{tag}/{lpath}' 
         result = run (['curl', '-f', readme_url, '-o', local_readme], 
@@ -195,14 +268,21 @@ def write_readme(index_file, repo, tag, lpath):
             os.unlink(local_readme)
             return lines
 
-    except e:
+    except Exception as e:
 
-        print(f'failed to read {readme_url}: {str(e)}', file=os.stderr)
         os.unlink(local_readme)
         
+        raise e
+    
     return None
         
-def readme_notes(readme, exr_filename):
+def readme_notes(readme, exr_filename, html):
+    '''Extract the section of the README.rst file's list-table for the given exr file.
+
+       The list-table line lists the exr as a row header, i.e. with "* -" prefix. Return the lines up to the next row.
+
+       Return None if there's no entry.
+    '''
 
     found = False
     text = ''
@@ -217,44 +297,62 @@ def readme_notes(readme, exr_filename):
             if found and line != '\n':
                 if not line.startswith(' '):
                     break
-                text += '             '
-                text += line[7:].replace(' ``',' <b>').replace('``','</b>')
+                if html:
+                    text += '             '
+                    text += line[7:].replace(' ``',' <b>').replace('``','</b>')
+                else:
+                    text += line[7:]
     return text
 
 def write_exr_to_index(index_file, repo, tag, exr_lpath, readme):
+    '''Write an entry to the index.rst file for the give exr, in raw html format.
 
-    # repo = 'https://raw.githubusercontent.com/cary-ilm/openexr-images'
-    # tag = 'docs'
-    # exr_lpath = v2/LeftView/Ground.exr
+       index_file: the open index.rst file descriptor
+       repo:       the repo url
+       tag:        the tag/branch of the repo
+       exr_lpath:  the name of the exr file, with directory relative to the repo root
+       readme:     the lines of the README.txt, returned by write_readme()
+    '''
+    
+    # Examples:
+    #    repo = 'https://raw.githubusercontent.com/cary-ilm/openexr-images'
+    #    tag = 'docs'
+    #    exr_lpath = v2/LeftView/Ground.exr
 
     test_images = 'docs/_test_images/'
-    output_dirname = test_images + os.path.dirname(exr_lpath) # docs/_test_images/v2/LeftView
+    output_dirname = test_images + os.path.dirname(exr_lpath)    # docs/_test_images/v2/LeftView
     os.makedirs(output_dirname, exist_ok=True)
-    base_path = os.path.splitext(exr_lpath)[0]       # v2/LeftView/Ground
-    exr_filename = os.path.basename(exr_lpath)       # Ground.exr
-    exr_basename = os.path.splitext(exr_filename)[0] # Ground
-    exr_dirname = os.path.dirname(exr_lpath)         # v2/LeftView
+    base_path = os.path.splitext(exr_lpath)[0]                   # v2/LeftView/Ground
+    exr_filename = os.path.basename(exr_lpath)                   # Ground.exr
+    exr_basename = os.path.splitext(exr_filename)[0]             # Ground
+    exr_dirname = os.path.dirname(exr_lpath)                     # v2/LeftView
     rst_lpath = f'{test_images}{exr_dirname}/{exr_basename}.rst' # docs/_test_images/v2/LeftView/Ground.rst
     jpg_rpath = f'{exr_dirname}/{exr_dirname.replace("/", "_")}_{exr_basename}.jpg'
-    jpg_lpath =  test_images + jpg_rpath # docs/_test_images/v2/LeftView/Ground.K@#YSDF.jpg
+    jpg_lpath =  test_images + jpg_rpath                         # docs/_test_images/v2/LeftView/Ground.K@#YSDF.jpg
 
     exr_url = f'{repo}/{tag}/{exr_lpath}'
     
-    header = write_exr_page(rst_lpath, exr_url, exr_filename, exr_lpath, jpg_lpath)
+    # Write the exr page
+    
+    header = write_exr_page(rst_lpath, exr_url, exr_filename, exr_lpath, jpg_lpath, readme)
 
     if not header:
-        print(f'error: no header for {exr_lpath}', file=sys.stderr)
-        return
+        raise Exception(f'no header for {exr_lpath}')
     
     num_parts = len(header)
     num_channels = 0
     for p,v in header.items():
         num_channels += len(v)
 
+    # open the row
     index_file.write('     <tr>\n')
+
+    # row for the image
     index_file.write(f'          <td style="vertical-align: top; width:250px">\n')
     index_file.write(f'              <a href={base_path}.html> <img width="250" src="../_images/{os.path.basename(jpg_rpath)}"> </a>\n') 
     index_file.write(f'          </td>\n')
+
+    # row for the summary
     index_file.write(f'          <td style="vertical-align: top; width:250px">\n')
     index_file.write(f'            <b> {exr_filename} </b>\n')
     index_file.write(f'            <ul>\n')
@@ -282,23 +380,21 @@ def write_exr_to_index(index_file, repo, tag, exr_lpath, readme):
     index_file.write(f'            </ul>\n')
     index_file.write(f'          </td>\n')
 
-    notes = readme_notes(readme, exr_filename)
-    if notes:
-        index_file.write(f'          <td style="vertical-align: top; width:400px">\n')
-        index_file.write(f'          <p>\n')
-        index_file.write(notes)
-        index_file.write(f'          </p>\n')
-        index_file.write(f'          </td>\n')
+    # row for the readme notes, if there are any
+    
+    if readme:
+        notes = readme_notes(readme, exr_filename, True)
+        if notes:
+            index_file.write(f'          <td style="vertical-align: top; width:400px">\n')
+            index_file.write(f'          <p>\n')
+            index_file.write(notes)
+            index_file.write(f'          </p>\n')
+            index_file.write(f'          </td>\n')
 
-    index_file.write('     <t/r>\n')
+    # close the row
+    index_file.write('     </tr>\n')
 
     return base_path
-
-repo = sys.argv[1] if len(sys.argv) > 1 else 'https://raw.githubusercontent.com/AcademySoftwareFoundation/openexr-images'
-tag = sys.argv[2] if len(sys.argv) > 2 else 'main'
-
-repo = 'https://raw.githubusercontent.com/cary-ilm/openexr-images'
-tag = 'docs'
 
 def write_table_open(index_file):
 
@@ -318,49 +414,80 @@ def write_table_close(index_file):
     
 print(f'generating rst for test images ...')
 
-os.makedirs('docs/_test_images', exist_ok=True)
+repo = sys.argv[1] if len(sys.argv) > 1 else 'https://raw.githubusercontent.com/AcademySoftwareFoundation/openexr-images'
+tag = sys.argv[2] if len(sys.argv) > 2 else 'main'
 
-with open('docs/_test_images/index.rst', 'w') as index_file:
-
-    index_file.write('Test Images\n')
-    index_file.write('###########\n')
-    index_file.write('\n')
-    index_file.write('.. toctree::\n')
-    index_file.write('   :caption: Test Images\n')
-    index_file.write('   :maxdepth: 2\n')
-    index_file.write('\n')
-    index_file.write('   toctree\n')
-
-    toctree = []
-    readme = None
+try:
     
-    with open('docs/test_images.txt', 'r') as test_images_file:
-        for line in test_images_file.readlines():
+    os.makedirs('docs/_test_images', exist_ok=True)
 
-            lpath = line.strip('\n')
+    with open('docs/_test_images/index.rst', 'w') as index_file:
+
+        index_file.write('Test Images\n')
+        index_file.write('###########\n')
+        index_file.write('\n')
+        index_file.write('.. toctree::\n')
+        index_file.write('   :caption: Test Images\n')
+        index_file.write('   :maxdepth: 2\n')
+        index_file.write('\n')
+        index_file.write('   toctree\n')
+        index_file.write('\n')
+
+        toctree = []
+        readme = None
+        table_opened = False
+    
+        # Process each url in the .txt file
+        
+        with open('docs/test_images.txt', 'r') as test_images_file:
+            for line in test_images_file.readlines():
+
+                if line.startswith('#'):
+                    continue
+                
+                lpath = line.strip('\n')
             
-            if os.path.basename(lpath) == "README.rst":
-                if readme:
-                    write_table_close(index_file)
-                readme = write_readme(index_file, repo, tag, lpath)
-                write_table_open(index_file)
-            elif lpath.endswith('.exr'):
-                base_path = write_exr_to_index(index_file, repo, tag, lpath, readme)
-                toctree.append(base_path)
+                if os.path.basename(lpath) == "README.rst":
+                    
+                    if table_opened:
+                        write_table_close(index_file)
+                        table_opened = False
 
-        if readme:
-            write_table_close(index_file)
+                    readme = write_readme(index_file, repo, tag, lpath)
+                
+                elif lpath.endswith('.exr'):
 
-    with open('docs/_test_images/toctree.rst', 'w') as toctree_file:
-        toctree_file.write('..\n')
-        toctree_file.write('  SPDX-License-Identifier: BSD-3-Clause\n')
-        toctree_file.write('  Copyright Contributors to the OpenEXR Project.\n')
-        toctree_file.write('\n')
-        toctree_file.write('.. toctree::\n')
-        toctree_file.write('   :maxdepth: 0\n')
-        toctree_file.write('   :hidden:\n')
-        toctree_file.write('\n')
-        for t in toctree:
-            toctree_file.write(f'   {t}\n')
+                    if not table_opened:
+                        write_table_open(index_file)
+                        table_opened = True
+                    
+                    base_path = write_exr_to_index(index_file, repo, tag, lpath, readme)
+                    if base_path:
+                        toctree.append(base_path)
+
+            if table_opened:
+                write_table_close(index_file)
+
+        # Write the toctree file, one entry per .exr page
+        
+        with open('docs/_test_images/toctree.rst', 'w') as toctree_file:
+            toctree_file.write('..\n')
+            toctree_file.write('  SPDX-License-Identifier: BSD-3-Clause\n')
+            toctree_file.write('  Copyright Contributors to the OpenEXR Project.\n')
+            toctree_file.write('\n')
+            toctree_file.write('.. toctree::\n')
+            toctree_file.write('   :maxdepth: 0\n')
+            toctree_file.write('   :hidden:\n')
+            toctree_file.write('\n')
+            for t in toctree:
+                toctree_file.write(f'   {t}\n')
+
+except Exception as e:
+
+    print(f'error: {str(e)}', file=sys.stderr)
+    exit(-1)
+
+exit(0)
+
                 
 
