@@ -521,16 +521,16 @@ jobs:
         shell: bash
         working-directory: _build
 
-  Website:
+  Docs:
 
-    # Build the website, using a process that mimics the readthedoc build.
+    # Build the documentation, using a process that mimics the readthedoc build.
     #
     # Note that this job does not actually build OpenEXR libraries or
     # programs, it just runs doxygen, sphinx, and the
     # docs/script/test_images.py script to generate the "Test Images"
     # page.
     
-    name: 'Website'
+    name: 'Docs'
     runs-on: ubuntu-latest
     
     steps:

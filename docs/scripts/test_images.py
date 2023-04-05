@@ -14,7 +14,7 @@
 # file showing the full image and the header contents in a table.
 #
 # The test_images.txt file references url's, which get downloaded and
-# converted to proxy .jpg files via 'curl' and 'exrheader'.
+# converted to proxy .jpg files via 'wget' and 'exrheader'.
 #
 # The README.rst files are expected to have a heading, summary text,
 # and a ".. list-table::" with descriptive text for selected
@@ -125,7 +125,7 @@ def write_exr_page(rst_lpath, exr_url, exr_filename, exr_lpath, jpg_lpath, readm
     
     try:
         
-        # Download the exr via curl
+        # Download the exr via wget
         
         print(f'wget {exr_url}')
         result = run (['wget', exr_url, '-O', local_exr], 
@@ -224,7 +224,7 @@ def write_readme(index_file, repo, tag, lpath):
 
     try:
         
-        # Download via curl
+        # Download via wget
         
         readme_url = f'{repo}/{tag}/{lpath}' 
         result = run (['wget', readme_url, '-O', local_readme], 
