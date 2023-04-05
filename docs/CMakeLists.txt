@@ -40,8 +40,11 @@ add_custom_command(OUTPUT ${DOXYGEN_INDEX_FILE}
                    VERBATIM)
 
 add_custom_command(OUTPUT ${TEST_IMAGE_INDEX_FILE}
-                   COMMAND ${Python3_EXECUTABLE} ${TEST_IMAGE_PY_FILE}
-                   ${OPENEXR_TEST_IMAGE_REPO} ${OPENEXR_TEST_IMAGE_TAG} 
+                   # run the test_images.py script with the PATH set
+                   # to include the build's bin directory, to pick up
+                   # the local bin/exrheader executable
+                   COMMAND ${CMAKE_COMMAND} -E env "PATH=${CMAKE_CURRENT_BINARY_DIR}/../bin:$ENV{PATH}"
+                   ${Python3_EXECUTABLE} ${TEST_IMAGE_PY_FILE} ${OPENEXR_TEST_IMAGE_REPO} ${OPENEXR_TEST_IMAGE_TAG} 
                    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
                    DEPENDS
                    ${TEST_IMAGE_PY_FILE} ${TEST_IMAGE_INPUT_FILE}

@@ -10,6 +10,7 @@ build:
   tools:
     python: "3.9"
   apt_packages:
+    - wget        # for test images
     - imagemagick # for convert, for test images
     - openexr     # for exrheader, for test images
   jobs:

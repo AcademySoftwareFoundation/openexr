@@ -127,8 +127,8 @@ def write_exr_page(rst_lpath, exr_url, exr_filename, exr_lpath, jpg_lpath, readm
         
         # Download the exr via curl
         
-        print(f'curl {exr_url}')
-        result = run (['curl', '-f', exr_url, '-o', local_exr], 
+        print(f'wget {exr_url}')
+        result = run (['wget', exr_url, '-O', local_exr], 
                       stdout=PIPE, stderr=PIPE, universal_newlines=True)
         if result.returncode != 0 or not os.path.isfile(local_exr):
             raise Exception(f'failed to read {exr_url}: no such file {local_exr}')
@@ -141,7 +141,7 @@ def write_exr_page(rst_lpath, exr_url, exr_filename, exr_lpath, jpg_lpath, readm
                           stdout=PIPE, stderr=PIPE, universal_newlines=True)
         
             if result.returncode != 0 or not os.path.isfile(jpg_lpath):
-                raise Exception(f'error: failed to convert {exr_url} to {jpg_lpath}')
+                raise Exception(f'error: failed to convert {exr_url} to {jpg_lpath}: returncode={result.returncode}, stderr={result.stderr}')
         
         # Read the header
         
@@ -227,7 +227,7 @@ def write_readme(index_file, repo, tag, lpath):
         # Download via curl
         
         readme_url = f'{repo}/{tag}/{lpath}' 
-        result = run (['curl', '-f', readme_url, '-o', local_readme], 
+        result = run (['wget', readme_url, '-O', local_readme], 
                       stdout=PIPE, stderr=PIPE, universal_newlines=True)
         if result.returncode != 0:
             raise FileNotFoundError(result.stderr)
@@ -390,6 +390,11 @@ def write_table_close(index_file):
     index_file.write(f'\n')
     
 print(f'generating rst for test images ...')
+
+print(f'PATH={os.environ["PATH"]}')
+result = run (['which', 'exrheader'],
+              stdout=PIPE, stderr=PIPE, universal_newlines=True)
+print(f'exrheader={result.stdout}')
 
 repo = sys.argv[1] if len(sys.argv) > 1 else 'https://raw.githubusercontent.com/AcademySoftwareFoundation/openexr-images'
 tag = sys.argv[2] if len(sys.argv) > 2 else 'main'
