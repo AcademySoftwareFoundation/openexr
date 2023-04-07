@@ -32,6 +32,11 @@
 
    about
 
+.. toctree::
+   :hidden:
+
+   _test_images/index
+
    
       
    
