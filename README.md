@@ -52,7 +52,7 @@ package.
 
 OpenEXR is a project of the [Academy Software
 Foundation](https://www.aswf.io). See the project's [governance
-policies](GOVERNANCE.md), [contribution guidelines](CONTRIBzuTING.md), and [code of conduct](CODE_OF_CONDUCT)
+policies](GOVERNANCE.md), [contribution guidelines](CONTRIBUTING.md), and [code of conduct](CODE_OF_CONDUCT)
 for more information.
 
 # Quick Start
