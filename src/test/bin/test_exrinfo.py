@@ -6,15 +6,29 @@
 import sys, os
 from subprocess import PIPE, run
 
-print(f"testing exrinfo: {sys.argv}")
+print(f"testing exrinfo: {' '.join(sys.argv)}")
 
 exrinfo = sys.argv[1]
 image_dir = sys.argv[2]
+version = sys.argv[3]
 
 result = run ([exrinfo, "-h"], stdout=PIPE, stderr=PIPE, universal_newlines=True)
 print(" ".join(result.args))
 assert(result.returncode == 0)
-assert(result.stderr.startswith ("Usage: "))
+assert(result.stdout.startswith ("Usage: "))
+
+result = run ([exrinfo, "--help"], stdout=PIPE, stderr=PIPE, universal_newlines=True)
+print(" ".join(result.args))
+assert(result.returncode == 0)
+assert(result.stdout.startswith ("Usage: "))
+
+# --version
+result = run ([exrinfo, "--version"], stdout=PIPE, stderr=PIPE, universal_newlines=True)
+print(" ".join(result.args))
+print(result.stdout)
+assert(result.returncode == 0)
+assert(result.stdout.startswith ("exrinfo"))
+assert(version in result.stdout)
 
 image = f"{image_dir}/TestImages/GrayRampsHorizontal.exr"
 result = run ([exrinfo, image, "-a", "-v"], stdout=PIPE, stderr=PIPE, universal_newlines=True)

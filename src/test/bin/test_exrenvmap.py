@@ -11,13 +11,15 @@ print(f"testing exrenvmap: {sys.argv}")
 exrenvmap = sys.argv[1]
 exrinfo = sys.argv[2]
 image_dir = sys.argv[3]
+version = sys.argv[4]
 
-image = f"{image_dir}/MultiResolution/WavyLinesLatLong.exr"
+latlong_image = f"{image_dir}/MultiResolution/WavyLinesLatLong.exr"
+cube_image = f"{image_dir}/MultiResolution/WavyLinesCube.exr"
 
 assert(os.path.isfile(exrenvmap))
 assert(os.path.isfile(exrinfo))
 assert(os.path.isdir(image_dir))
-assert(os.path.isfile(image))
+assert(os.path.isfile(latlong_image))
 
 fd, outimage = tempfile.mkstemp(".exr")
 os.close(fd)
@@ -29,26 +31,47 @@ atexit.register(cleanup)
 # no args = usage message
 result = run ([exrenvmap], stdout=PIPE, stderr=PIPE, universal_newlines=True)
 print(" ".join(result.args))
-#print(f"stdout: {result.stdout}")
-#print(f"stderr: {result.stderr}")
-assert(result.returncode == 1)
+assert(result.returncode != 0)
 assert(result.stderr.startswith ("Usage: "))
 
 # -h = usage message
 result = run ([exrenvmap, "-h"], stdout=PIPE, stderr=PIPE, universal_newlines=True)
 print(" ".join(result.args))
-assert(result.returncode == 1)
-assert(result.stderr.startswith ("Usage: "))
+assert(result.returncode == 0)
+assert(result.stdout.startswith ("Usage: "))
+
+# --help = usage message
+result = run ([exrenvmap, "--help"], stdout=PIPE, stderr=PIPE, universal_newlines=True)
+print(" ".join(result.args))
+assert(result.returncode == 0)
+assert(result.stdout.startswith ("Usage: "))
+
+# --version
+result = run ([exrenvmap, "--version"], stdout=PIPE, stderr=PIPE, universal_newlines=True)
+print(" ".join(result.args))
+assert(result.returncode == 0)
+assert(result.stdout.startswith ("exrenvmap"))
+assert(version in result.stdout)
 
 # default
-result = run ([exrenvmap, image, outimage], stdout=PIPE, stderr=PIPE, universal_newlines=True)
+result = run ([exrenvmap, latlong_image, outimage], stdout=PIPE, stderr=PIPE, universal_newlines=True)
 print(" ".join(result.args))
 assert(result.returncode == 0)
 assert(os.path.isfile(outimage))
 default_file_size = os.path.getsize(outimage)
 
+result = run ([exrenvmap, "-li", latlong_image, outimage], stdout=PIPE, stderr=PIPE, universal_newlines=True)
+print(" ".join(result.args))
+assert(result.returncode == 0)
+assert(os.path.isfile(outimage))
+
+result = run ([exrenvmap, "-ci", cube_image, outimage], stdout=PIPE, stderr=PIPE, universal_newlines=True)
+print(" ".join(result.args))
+assert(result.returncode == 0)
+assert(os.path.isfile(outimage))
+
 # -o 
-result = run ([exrenvmap, "-o", image, outimage], stdout=PIPE, stderr=PIPE, universal_newlines=True)
+result = run ([exrenvmap, "-o", latlong_image, outimage], stdout=PIPE, stderr=PIPE, universal_newlines=True)
 print(" ".join(result.args))
 assert(result.returncode == 0)
 assert(os.path.isfile(outimage))
@@ -60,7 +83,7 @@ assert('tiles: tiledesc size 64 x 64 level 0 (single image) round 0 (down)' in r
 os.unlink(outimage)
 
 # -m 
-result = run ([exrenvmap, "-m", image, outimage], stdout=PIPE, stderr=PIPE, universal_newlines=True)
+result = run ([exrenvmap, "-m", latlong_image, outimage], stdout=PIPE, stderr=PIPE, universal_newlines=True)
 print(" ".join(result.args))
 assert(result.returncode == 0)
 assert(os.path.isfile(outimage))
@@ -72,7 +95,7 @@ assert('tiles: tiledesc size 64 x 64 level 1 (mipmap) round 0 (down)' in result.
 os.unlink(outimage)
 
 # -c 
-result = run ([exrenvmap, "-c", image, outimage], stdout=PIPE, stderr=PIPE, universal_newlines=True)
+result = run ([exrenvmap, "-c", latlong_image, outimage], stdout=PIPE, stderr=PIPE, universal_newlines=True)
 print(" ".join(result.args))
 assert(result.returncode == 0)
 assert(os.path.isfile(outimage))
@@ -84,7 +107,7 @@ assert('envmap: envmap cube' in result.stdout)
 os.unlink(outimage)
 
 # -l 
-result = run ([exrenvmap, "-l", image, outimage], stdout=PIPE, stderr=PIPE, universal_newlines=True)
+result = run ([exrenvmap, "-l", latlong_image, outimage], stdout=PIPE, stderr=PIPE, universal_newlines=True)
 print(" ".join(result.args))
 assert(result.returncode == 0)
 assert(os.path.isfile(outimage))
@@ -96,7 +119,18 @@ assert('envmap: envmap latlong' in result.stdout)
 os.unlink(outimage)
 
 # -w 
-result = run ([exrenvmap, "-w", "64", image, outimage], stdout=PIPE, stderr=PIPE, universal_newlines=True)
+
+result = run ([exrenvmap, "-w", latlong_image, outimage], stdout=PIPE, stderr=PIPE, universal_newlines=True)
+print(" ".join(result.args))
+assert(result.returncode != 0)
+assert(not os.path.isfile(outimage))
+
+result = run ([exrenvmap, "-w", "-64", latlong_image, outimage], stdout=PIPE, stderr=PIPE, universal_newlines=True)
+print(" ".join(result.args))
+assert(result.returncode != 0)
+assert(not os.path.isfile(outimage))
+
+result = run ([exrenvmap, "-w", "64", latlong_image, outimage], stdout=PIPE, stderr=PIPE, universal_newlines=True)
 print(" ".join(result.args))
 assert(result.returncode == 0)
 assert(os.path.isfile(outimage))
@@ -109,7 +143,27 @@ assert('y tile count: 6 (sz 384)' in result.stdout)
 os.unlink(outimage)
 
 # -f (filter)
-result = run ([exrenvmap, "-f", "1.1", "6", image, outimage], stdout=PIPE, stderr=PIPE, universal_newlines=True)
+result = run ([exrenvmap, "-f", latlong_image, outimage], stdout=PIPE, stderr=PIPE, universal_newlines=True)
+print(" ".join(result.args))
+assert(result.returncode != 0)
+assert(not os.path.isfile(outimage))
+
+result = run ([exrenvmap, "-f", "1.1", latlong_image, outimage], stdout=PIPE, stderr=PIPE, universal_newlines=True)
+print(" ".join(result.args))
+assert(result.returncode != 0)
+assert(not os.path.isfile(outimage))
+
+result = run ([exrenvmap, "-f", "-1.1", "6", latlong_image, outimage], stdout=PIPE, stderr=PIPE, universal_newlines=True)
+print(" ".join(result.args))
+assert(result.returncode != 0)
+assert(not os.path.isfile(outimage))
+
+result = run ([exrenvmap, "-f", "1.1", "-6", latlong_image, outimage], stdout=PIPE, stderr=PIPE, universal_newlines=True)
+print(" ".join(result.args))
+assert(result.returncode != 0)
+assert(not os.path.isfile(outimage))
+
+result = run ([exrenvmap, "-f", "1.1", "6", latlong_image, outimage], stdout=PIPE, stderr=PIPE, universal_newlines=True)
 print(" ".join(result.args))
 assert(result.returncode == 0)
 assert(os.path.isfile(outimage))
@@ -118,15 +172,36 @@ assert(file_size != default_file_size)
 os.unlink(outimage)
 
 # -b (blur)
-result = run ([exrenvmap, "-b", image, outimage], stdout=PIPE, stderr=PIPE, universal_newlines=True)
+result = run ([exrenvmap, "-b", latlong_image, outimage], stdout=PIPE, stderr=PIPE, universal_newlines=True)
 print(" ".join(result.args))
 assert(result.returncode == 0)
 assert(os.path.isfile(outimage))
 file_size = os.path.getsize(outimage)
 assert(file_size != default_file_size)
+os.unlink(outimage)
 
 # -t 
-result = run ([exrenvmap, "-t", "32", "48", image, outimage], stdout=PIPE, stderr=PIPE, universal_newlines=True)
+result = run ([exrenvmap, "-t", latlong_image, outimage], stdout=PIPE, stderr=PIPE, universal_newlines=True)
+print(" ".join(result.args))
+assert(result.returncode != 0)
+assert(not os.path.isfile(outimage))
+
+result = run ([exrenvmap, "-t", "32", latlong_image, outimage], stdout=PIPE, stderr=PIPE, universal_newlines=True)
+print(" ".join(result.args))
+assert(result.returncode != 0)
+assert(not os.path.isfile(outimage))
+
+result = run ([exrenvmap, "-t", "-32", "48", latlong_image, outimage], stdout=PIPE, stderr=PIPE, universal_newlines=True)
+print(" ".join(result.args))
+assert(result.returncode != 0)
+assert(not os.path.isfile(outimage))
+
+result = run ([exrenvmap, "-t", "32", "-48", latlong_image, outimage], stdout=PIPE, stderr=PIPE, universal_newlines=True)
+print(" ".join(result.args))
+assert(result.returncode != 0)
+assert(not os.path.isfile(outimage))
+
+result = run ([exrenvmap, "-t", "32", "48", latlong_image, outimage], stdout=PIPE, stderr=PIPE, universal_newlines=True)
 print(" ".join(result.args))
 assert(result.returncode == 0)
 assert(os.path.isfile(outimage))
@@ -139,7 +214,7 @@ assert('y tile count: 32 (sz 1536)' in result.stdout)
 os.unlink(outimage)
 
 # -u 
-result = run ([exrenvmap, "-u", image, outimage], stdout=PIPE, stderr=PIPE, universal_newlines=True)
+result = run ([exrenvmap, "-u", latlong_image, outimage], stdout=PIPE, stderr=PIPE, universal_newlines=True)
 print(" ".join(result.args))
 assert(result.returncode == 0)
 assert(os.path.isfile(outimage))
@@ -150,34 +225,33 @@ assert(result.returncode == 0)
 assert('tiles: tiledesc size 64 x 64 level 0 (single image) round 1 (up)' in result.stdout)
 os.unlink(outimage)
 
-# -z dwaa 
-result = run ([exrenvmap, "-z", "dwaa", image, outimage], stdout=PIPE, stderr=PIPE, universal_newlines=True)
+# -z 
+result = run ([exrenvmap, "-z", latlong_image, outimage], stdout=PIPE, stderr=PIPE, universal_newlines=True)
 print(" ".join(result.args))
-assert(result.returncode == 0)
-assert(os.path.isfile(outimage))
+assert(result.returncode != 0)
+assert(not os.path.isfile(outimage))
 
-result = run ([exrinfo, "-v", outimage], stdout=PIPE, stderr=PIPE, universal_newlines=True)
+result = run ([exrenvmap, "-z", "xxx", latlong_image, outimage], stdout=PIPE, stderr=PIPE, universal_newlines=True)
 print(" ".join(result.args))
-assert(result.returncode == 0)
-assert('compression: compression \'dwaa\' (0x08)' in result.stdout)
-os.unlink(outimage)
+assert(result.returncode != 0)
+assert(not os.path.isfile(outimage))
 
-# -z dwab
-result = run ([exrenvmap, "-z", "dwab", image, outimage], stdout=PIPE, stderr=PIPE, universal_newlines=True)
-print(" ".join(result.args))
-assert(result.returncode == 0)
-assert(os.path.isfile(outimage))
+for z in ["none", "rle", "zip", "piz", "pxr24", "b44", "b44a", "dwaa", "dwab"]:
+    result = run ([exrenvmap, "-z", z, latlong_image, outimage], stdout=PIPE, stderr=PIPE, universal_newlines=True)
+    print(" ".join(result.args))
+    assert(result.returncode == 0)
+    assert(os.path.isfile(outimage))
 
-result = run ([exrinfo, "-v", outimage], stdout=PIPE, stderr=PIPE, universal_newlines=True)
-print(" ".join(result.args))
-assert(result.returncode == 0)
-assert('compression: compression \'dwab\' (0x09)' in result.stdout)
-os.unlink(outimage)
+    result = run ([exrinfo, "-v", outimage], stdout=PIPE, stderr=PIPE, universal_newlines=True)
+    print(" ".join(result.args))
+    assert(result.returncode == 0)
+    assert(f'compression: compression \'{z}\'' in result.stdout)
+    os.unlink(outimage)
 
 with tempfile.TemporaryDirectory() as tempdir:
 
     cube_face_image_t = f"{tempdir}/out.%.exr"
-    result = run ([exrenvmap, image, cube_face_image_t], stdout=PIPE, stderr=PIPE, universal_newlines=True)
+    result = run ([exrenvmap, latlong_image, cube_face_image_t], stdout=PIPE, stderr=PIPE, universal_newlines=True)
     print(" ".join(result.args))
     assert(result.returncode == 0)
 

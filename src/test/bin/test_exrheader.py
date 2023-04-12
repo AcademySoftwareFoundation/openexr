@@ -10,18 +10,38 @@ print(f"testing exrheader: {sys.argv}")
 
 exrheader = sys.argv[1]
 image_dir = sys.argv[2]
+version = sys.argv[3]
 
 # no args = usage message
 result = run ([exrheader], stdout=PIPE, stderr=PIPE, universal_newlines=True)
 print(" ".join(result.args))
-assert(result.returncode == 1)
+assert(result.returncode != 0)
 assert(result.stderr.startswith ("Usage: "))
 
 # -h = usage message
 result = run ([exrheader, "-h"], stdout=PIPE, stderr=PIPE, universal_newlines=True)
 print(" ".join(result.args))
-assert(result.returncode == 1)
-assert(result.stderr.startswith ("Usage: "))
+assert(result.returncode == 0)
+print(result.stdout)
+assert(result.stdout.startswith ("Usage: "))
+
+# --help = usage message
+result = run ([exrheader, "--help"], stdout=PIPE, stderr=PIPE, universal_newlines=True)
+print(" ".join(result.args))
+assert(result.returncode == 0)
+assert(result.stdout.startswith ("Usage: "))
+
+# --version
+result = run ([exrheader, "--version"], stdout=PIPE, stderr=PIPE, universal_newlines=True)
+print(" ".join(result.args))
+assert(result.returncode == 0)
+assert(result.stdout.startswith ("exrheader"))
+assert(version in result.stdout)
+
+# nonexistent.exr, error
+result = run ([exrheader, "nonexistent.exr"], stdout=PIPE, stderr=PIPE, universal_newlines=True)
+print(" ".join(result.args))
+assert(result.returncode != 0)
 
 def find_line(keyword, lines):
     for line in lines:

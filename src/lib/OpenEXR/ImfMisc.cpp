@@ -1991,4 +1991,10 @@ WidenFilename (const char* filename)
     return converter.from_bytes (filename);
 }
 
+const char*
+getLibraryVersion()
+{
+    return OPENEXR_VERSION_STRING;
+}
+
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

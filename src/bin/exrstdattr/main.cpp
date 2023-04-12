@@ -5,8 +5,8 @@
 
 //-----------------------------------------------------------------------------
 //
-//	exrstdattr -- a program that can set the values of most
-//	standard attributes in an OpenEXR image file's header.
+//      exrstdattr -- a program that can set the values of most
+//      standard attributes in an OpenEXR image file's header.
 //
 //-----------------------------------------------------------------------------
 
@@ -29,9 +29,12 @@
 #include <ImfTiledOutputFile.h>
 #include <ImfTiledOutputPart.h>
 #include <ImfVecAttribute.h>
+#include <ImfMisc.h>
+#include <OpenEXRConfig.h>
 
 #include <exception>
 #include <iostream>
+#include <sstream>
 #include <map>
 #include <stdlib.h>
 #include <string.h>
@@ -42,173 +45,171 @@ using namespace OPENEXR_IMF_NAMESPACE;
 using namespace IMATH_NAMESPACE;
 
 void
-usageMessage (const char argv0[], bool verbose = false)
+usageMessage (ostream& stream, const char* program_name, bool verbose = false)
 {
-    cerr << "Usage: " << argv0 << " [commands] infile outfile" << endl;
+    stream << "Usage: " << program_name << " [commands] infile outfile" << endl;
 
     if (verbose)
-    {
-        cerr << "\n"
-                "Reads OpenEXR image file infile, sets the values of one\n"
-                "or more attributes in the headers of the file, and saves\n"
-                "the result in outfile.  Infile and outfile must not refer\n"
-                "to the same file (the program cannot edit an image file "
-                "\"in place\").\n"
-                "\n"
-                "Command for selecting headers:\n"
-                "\n"
-                "  -part i\n"
-                "        If i is greater than or equal to zero, and less\n"
-                "        than the number of parts in the input file, then\n"
-                "        the header for part i becomes \"current.\" If i\n"
-                "        is \"any\" or -1, then all headers become current.\n"
-                "        Subsequent attribute setting commands affect only\n"
-                "        the current header or headers.  All headers are\n"
-                "        current before the first -part command.\n"
-                "\n"
-                "        For example, the command sequence\n"
-                "\n"
-                "         -focus 3 -part 2 -aperture 8 -expTime 0.01 "
-                "-part any -owner luke\n"
-                "\n"
-                "        sets the focus and owner attributes in all\n"
-                "        headers, as well as the aperture and expTime\n"
-                "        attributes in the header of part 2.\n"
-                "\n"
-                "Commands for setting attribute values:\n"
-                "\n"
-                "  -chromaticities f f f f f f f f\n"
-                "        CIE xy chromaticities for the red, green\n"
-                "	 and blue primaries, and for the white point\n"
-                "        (8 floats)\n"
-                "\n"
-                "  -whiteLuminance f\n"
-                "        white luminance, in candelas per square meter\n"
-                "        (float, >= 0.0)\n"
-                "\n"
-                "  -adoptedNeutral f f\n"
-                "        CIE xy coordinates that should be considered\n"
-                "        \"neutral\" during color rendering.  Pixels in\n"
-                "        the image file whose xy coordinates match the\n"
-                "        adoptedNeutral value should be mapped to neutral\n"
-                "        values on the display. (2 floats)\n"
-                "\n"
-                "  -renderingTransform s\n"
-                "        name of the CTL rendering transform for this\n"
-                "        image (string)\n"
-                "\n"
-                "  -lookModTransform s\n"
-                "        name of the CTL look modification transform for\n"
-                "        this image (string)\n"
-                "\n"
-                "  -xDensity f\n"
-                "        horizontal output density, in pixels per inch\n"
-                "        (float, >= 0.0)\n"
-                "\n"
-                "  -owner s\n"
-                "        name of the owner of the image (string)\n"
-                "\n"
-                "  -comments s\n"
-                "        additional information about the image (string)\n"
-                "\n"
-                "  -capDate s\n"
-                "        date when the image was created or\n"
-                "        captured, in local time (string,\n"
-                "        formatted as YYYY:MM:DD hh:mm:ss)\n"
-                "\n"
-                "  -utcOffset f\n"
-                "        offset of local time at capDate from UTC, in\n"
-                "        seconds (float, UTC == local time + x)\n"
-                "\n"
-                "  -longitude f\n"
-                "  -latitude f\n"
-                "  -altitude f\n"
-                "        location where the image was recorded, in\n"
-                "        degrees east of Greenwich and north of the\n"
-                "        equator, and in meters above sea level\n"
-                "        (float)\n"
-                "\n"
-                "  -focus f\n"
-                "        the camera's focus distance, in meters\n"
-                "        (float, > 0, or \"infinity\")\n"
-                "\n"
-                "  -expTime f\n"
-                "        exposure time, in seconds (float, >= 0)\n"
-                "\n"
-                "  -aperture f\n"
-                "        lens apterture, in f-stops (float, >= 0)\n"
-                "\n"
-                "  -isoSpeed f\n"
-                "        effective speed of the film or image\n"
-                "        sensor that was used to record the image\n"
-                "        (float, >= 0)\n"
-                "\n"
-                "  -envmap s\n"
-                "        indicates that the image is an environment map\n"
-                "        (string, LATLONG or CUBE)\n"
-                "\n"
-                "  -framesPerSecond i i\n"
-                "        playback frame rate expressed as a ratio of two\n"
-                "        integers, n and d (the frame rate is n/d frames\n"
-                "        per second)\n"
-                "\n"
-                "  -keyCode i i i i i i i\n"
-                "        key code that uniquely identifies a motion\n"
-                "        picture film frame using 7 integers:\n"
-                "         * film manufacturer code (0 - 99)\n"
-                "         * film type code (0 - 99)\n"
-                "         * prefix to identify film roll (0 - 999999)\n"
-                "         * count, increments once every perfsPerCount\n"
-                "           perforations (0 - 9999)\n"
-                "         * offset of frame, in perforations from\n"
-                "           zero-frame reference mark (0 - 119)\n"
-                "         * number of perforations per frame (1 - 15)\n"
-                "         * number of perforations per count (20 - 120)\n"
-                "\n"
-                "  -timeCode i i\n"
-                "        SMPTE time and control code, specified as a pair\n"
-                "        of 8-digit base-16 integers.  The first number\n"
-                "        contains the time address and flags (drop frame,\n"
-                "        color frame, field/phase, bgf0, bgf1, bgf2).\n"
-                "        The second number contains the user data and\n"
-                "        control codes.\n"
-                "\n"
-                "  -wrapmodes s\n"
-                "        if the image is used as a texture map, specifies\n"
-                "        how the image should be extrapolated outside the\n"
-                "        zero-to-one texture coordinate range\n"
-                "        (string, e.g. \"clamp\" or \"periodic,clamp\")\n"
-                "\n"
-                "  -pixelAspectRatio f\n"
-                "        width divided by height of a pixel\n"
-                "        (float, >= 0)\n"
-                "\n"
-                "  -screenWindowWidth f\n"
-                "        width of the screen window (float, >= 0)\n"
-                "\n"
-                "  -screenWindowCenter f f\n"
-                "        center of the screen window (2 floats)\n"
-                "\n"
-                "  -string s s\n"
-                "        custom string attribute\n"
-                "        (2 strings, attribute name and value)\n"
-                "\n"
-                "  -float s f\n"
-                "        custom float attribute (string + float,\n"
-                "        attribute name and value)\n"
-                "\n"
-                "  -int s i\n"
-                "        custom integer attribute (string + integer,\n"
-                "        attribute name and value)\n"
-                "\n"
-                "Other Commands:\n"
-                "\n"
-                "  -h        prints this message\n";
-
-        cerr << endl;
-    }
-
-    exit (1);
+        stream << "\n"
+            "Read OpenEXR image file infile, set the values of one\n"
+            "or more attributes in the headers of the file, and save\n"
+            "the result in outfile.  Infile and outfile must not refer\n"
+            "to the same file (the program cannot edit an image file "
+            "\"in place\").\n"
+            "\n"
+            "Command for selecting headers:\n"
+            "\n"
+            "  -part i\n"
+            "        If i is greater than or equal to zero, and less\n"
+            "        than the number of parts in the input file, then\n"
+            "        the header for part i becomes \"current.\" If i\n"
+            "        is \"any\" or -1, then all headers become current.\n"
+            "        Subsequent attribute setting commands affect only\n"
+            "        the current header or headers.  All headers are\n"
+            "        current before the first -part command.\n"
+            "\n"
+            "        For example, the command sequence\n"
+            "\n"
+            "         -focus 3 -part 2 -aperture 8 -expTime 0.01 "
+            "-part any -owner luke\n"
+            "\n"
+            "        sets the focus and owner attributes in all\n"
+            "        headers, as well as the aperture and expTime\n"
+            "        attributes in the header of part 2.\n"
+            "\n"
+            "Commands for setting attribute values:\n"
+            "\n"
+            "  -chromaticities f f f f f f f f\n"
+            "        CIE xy chromaticities for the red, green\n"
+            "        and blue primaries, and for the white point\n"
+            "        (8 floats)\n"
+            "\n"
+            "  -whiteLuminance f\n"
+            "        white luminance, in candelas per square meter\n"
+            "        (float, >= 0.0)\n"
+            "\n"
+            "  -adoptedNeutral f f\n"
+            "        CIE xy coordinates that should be considered\n"
+            "        \"neutral\" during color rendering.  Pixels in\n"
+            "        the image file whose xy coordinates match the\n"
+            "        adoptedNeutral value should be mapped to neutral\n"
+            "        values on the display. (2 floats)\n"
+            "\n"
+            "  -renderingTransform s\n"
+            "        name of the CTL rendering transform for this\n"
+            "        image (string)\n"
+            "\n"
+            "  -lookModTransform s\n"
+            "        name of the CTL look modification transform for\n"
+            "        this image (string)\n"
+            "\n"
+            "  -xDensity f\n"
+            "        horizontal output density, in pixels per inch\n"
+            "        (float, >= 0.0)\n"
+            "\n"
+            "  -owner s\n"
+            "        name of the owner of the image (string)\n"
+            "\n"
+            "  -comments s\n"
+            "        additional information about the image (string)\n"
+            "\n"
+            "  -capDate s\n"
+            "        date when the image was created or\n"
+            "        captured, in local time (string,\n"
+            "        formatted as YYYY:MM:DD hh:mm:ss)\n"
+            "\n"
+            "  -utcOffset f\n"
+            "        offset of local time at capDate from UTC, in\n"
+            "        seconds (float, UTC == local time + x)\n"
+            "\n"
+            "  -longitude f\n"
+            "  -latitude f\n"
+            "  -altitude f\n"
+            "        location where the image was recorded, in\n"
+            "        degrees east of Greenwich and north of the\n"
+            "        equator, and in meters above sea level\n"
+            "        (float)\n"
+            "\n"
+            "  -focus f\n"
+            "        the camera's focus distance, in meters\n"
+            "        (float, > 0, or \"infinity\")\n"
+            "\n"
+            "  -expTime f\n"
+            "        exposure time, in seconds (float, >= 0)\n"
+            "\n"
+            "  -aperture f\n"
+            "        lens apterture, in f-stops (float, >= 0)\n"
+            "\n"
+            "  -isoSpeed f\n"
+            "        effective speed of the film or image\n"
+            "        sensor that was used to record the image\n"
+            "        (float, >= 0)\n"
+            "\n"
+            "  -envmap s\n"
+            "        indicates that the image is an environment map\n"
+            "        (string, LATLONG or CUBE)\n"
+            "\n"
+            "  -framesPerSecond i i\n"
+            "        playback frame rate expressed as a ratio of two\n"
+            "        integers, n and d (the frame rate is n/d frames\n"
+            "        per second)\n"
+            "\n"
+            "  -keyCode i i i i i i i\n"
+            "        key code that uniquely identifies a motion\n"
+            "        picture film frame using 7 integers:\n"
+            "         * film manufacturer code (0 - 99)\n"
+            "         * film type code (0 - 99)\n"
+            "         * prefix to identify film roll (0 - 999999)\n"
+            "         * count, increments once every perfsPerCount\n"
+            "           perforations (0 - 9999)\n"
+            "         * offset of frame, in perforations from\n"
+            "           zero-frame reference mark (0 - 119)\n"
+            "         * number of perforations per frame (1 - 15)\n"
+            "         * number of perforations per count (20 - 120)\n"
+            "\n"
+            "  -timeCode i i\n"
+            "        SMPTE time and control code, specified as a pair\n"
+            "        of 8-digit base-16 integers.  The first number\n"
+            "        contains the time address and flags (drop frame,\n"
+            "        color frame, field/phase, bgf0, bgf1, bgf2).\n"
+            "        The second number contains the user data and\n"
+            "        control codes.\n"
+            "\n"
+            "  -wrapmodes s\n"
+            "        if the image is used as a texture map, specifies\n"
+            "        how the image should be extrapolated outside the\n"
+            "        zero-to-one texture coordinate range\n"
+            "        (string, e.g. \"clamp\" or \"periodic,clamp\")\n"
+            "\n"
+            "  -pixelAspectRatio f\n"
+            "        width divided by height of a pixel\n"
+            "        (float, >= 0)\n"
+            "\n"
+            "  -screenWindowWidth f\n"
+            "        width of the screen window (float, >= 0)\n"
+            "\n"
+            "  -screenWindowCenter f f\n"
+            "        center of the screen window (2 floats)\n"
+            "\n"
+            "  -string s s\n"
+            "        custom string attribute\n"
+            "        (2 strings, attribute name and value)\n"
+            "\n"
+            "  -float s f\n"
+            "        custom float attribute (string + float,\n"
+            "        attribute name and value)\n"
+            "\n"
+            "  -int s i\n"
+            "        custom integer attribute (string + integer,\n"
+            "        attribute name and value)\n"
+            "\n"
+            "Other options:\n"
+            "\n"
+            "  -h, --help    print this message\n"
+            "      --version print version information\n"
+            "\n"
+            "Report bugs via https://github.com/AcademySoftwareFoundation/openexr/issues or email security@openexr.com\n"
+            "";
 }
 
 struct SetAttr
@@ -229,11 +230,10 @@ isNonNegative (const char attrName[], float f)
 {
     if (f < 0)
     {
-        cerr << "The value for the " << attrName
-             << " attribute "
-                "must not be less than zero."
-             << endl;
-        exit (1);
+        std::stringstream e;
+        e << "The value for the " << attrName
+          << " attribute must not be less than zero";
+        throw invalid_argument(e.str());
     }
 }
 
@@ -242,22 +242,20 @@ isPositive (const char attrName[], float f)
 {
     if (f <= 0)
     {
-        cerr << "The value for the " << attrName
-             << " attribute "
-                "must be greater than zero."
-             << endl;
-        exit (1);
+        std::stringstream e;
+        e << "The value for the " << attrName
+          << " attribute must be greater than zero";
+        throw invalid_argument(e.str());
     }
 }
 
 void
 notValidDate (const char attrName[])
 {
-    cerr << "The value for the " << attrName
-         << " attribute "
-            "is not a valid date of the form \"YYYY:MM:DD yy:mm:ss\"."
-         << endl;
-    exit (1);
+    std::stringstream e;
+    e << "The value for the " << attrName
+      << " attribute is not a valid date of the form \"YYYY:MM:DD yy:mm:ss\"";
+    throw invalid_argument(e.str());
 }
 
 int
@@ -328,7 +326,8 @@ getFloat (
     SetAttrVector& attrs,
     void (*check) (const char attrName[], float f) = 0)
 {
-    if (i > argc - 2) usageMessage (argv[0]);
+    if (i > argc - 2)
+        throw invalid_argument("Expected a float");
 
     float f = static_cast<float> (strtod (argv[i + 1], 0));
 
@@ -347,8 +346,9 @@ getPosFloatOrInf (
     int            part,
     SetAttrVector& attrs)
 {
-    if (i > argc - 2) usageMessage (argv[0]);
-
+    if (i > argc - 2)
+        throw invalid_argument("Expected a positive float (or \"infinity\")");
+    
     float f;
 
     if (!strcmp (argv[i + 1], "inf") || !strcmp (argv[i + 1], "infinity"))
@@ -361,11 +361,10 @@ getPosFloatOrInf (
 
         if (f <= 0)
         {
-            cerr << "The value for the " << attrName
-                 << " attribute "
-                    "must be greater than zero, or \"infinity\"."
-                 << endl;
-            exit (1);
+            std::stringstream e;
+            e << "The value for the " << attrName
+              << " attribute must be greater than zero, or \"infinity\"";
+            throw invalid_argument(e.str());
         }
     }
 
@@ -383,7 +382,8 @@ getV2f (
     SetAttrVector& attrs,
     void (*check) (const char attrName[], const V2f& v) = 0)
 {
-    if (i > argc - 3) usageMessage (argv[0]);
+    if (i > argc - 3)
+        throw invalid_argument ("Expected two floats");
 
     V2f v (
         static_cast<float> (strtod (argv[i + 1], 0)),
@@ -405,7 +405,8 @@ getRational (
     SetAttrVector& attrs,
     void (*check) (const char attrName[], const Rational& r) = 0)
 {
-    if (i > argc - 3) usageMessage (argv[0]);
+    if (i > argc - 3)
+        throw invalid_argument("Expected a rational");
 
     Rational r (strtol (argv[i + 1], 0, 0), strtol (argv[i + 2], 0, 0));
 
@@ -425,7 +426,8 @@ getString (
     SetAttrVector& attrs,
     void (*check) (const char attrName[], const char str[]) = 0)
 {
-    if (i > argc - 2) usageMessage (argv[0]);
+    if (i > argc - 2)
+        throw invalid_argument("Expected a string");
 
     const char* str = argv[i + 1];
 
@@ -438,7 +440,8 @@ getString (
 void
 getNameAndString (int argc, char** argv, int& i, int part, SetAttrVector& attrs)
 {
-    if (i > argc - 3) usageMessage (argv[0]);
+    if (i > argc - 3)
+        throw invalid_argument("Expected a name and string");
 
     const char* attrName = argv[i + 1];
     const char* str      = argv[i + 2];
@@ -449,7 +452,8 @@ getNameAndString (int argc, char** argv, int& i, int part, SetAttrVector& attrs)
 void
 getNameAndFloat (int argc, char** argv, int& i, int part, SetAttrVector& attrs)
 {
-    if (i > argc - 3) usageMessage (argv[0]);
+    if (i > argc - 3)
+        throw invalid_argument("Expected a name and a float");
 
     const char* attrName = argv[i + 1];
     float       f        = static_cast<float> (strtod (argv[i + 2], 0));
@@ -460,7 +464,8 @@ getNameAndFloat (int argc, char** argv, int& i, int part, SetAttrVector& attrs)
 void
 getNameAndInt (int argc, char** argv, int& i, int part, SetAttrVector& attrs)
 {
-    if (i > argc - 3) usageMessage (argv[0]);
+    if (i > argc - 3)
+        throw invalid_argument("Expected a name and an integer");
 
     const char* attrName = argv[i + 1];
     int         j        = strtol (argv[i + 2], 0, 0);
@@ -477,7 +482,8 @@ getChromaticities (
     int            part,
     SetAttrVector& attrs)
 {
-    if (i > argc - 9) usageMessage (argv[0]);
+    if (i > argc - 9)
+        throw invalid_argument("Expected 8 chromaticity values");
 
     ChromaticitiesAttribute* a = new ChromaticitiesAttribute;
     attrs.push_back (SetAttr (attrName, part, a));
@@ -502,7 +508,8 @@ getEnvmap (
     int            part,
     SetAttrVector& attrs)
 {
-    if (i > argc - 2) usageMessage (argv[0]);
+    if (i > argc - 2)
+        throw invalid_argument("Expected an env map");
 
     char*  str = argv[i + 1];
     Envmap type;
@@ -517,11 +524,10 @@ getEnvmap (
     }
     else
     {
-        cerr << "The value for the " << attrName
-             << " attribute "
-                "must be either LATLONG or CUBE."
-             << endl;
-        exit (1);
+        std::stringstream e;
+        e << "The value for the " << attrName
+          << " attribute must be either LATLONG or CUBE";
+        throw invalid_argument(e.str());
     }
 
     attrs.push_back (SetAttr (attrName, part, new EnvmapAttribute (type)));
@@ -537,7 +543,8 @@ getKeyCode (
     int            part,
     SetAttrVector& attrs)
 {
-    if (i > argc - 8) usageMessage (argv[0]);
+    if (i > argc - 8)
+        throw invalid_argument("Expected a key code");
 
     KeyCodeAttribute* a = new KeyCodeAttribute;
     attrs.push_back (SetAttr (attrName, part, a));
@@ -561,7 +568,8 @@ getTimeCode (
     int            part,
     SetAttrVector& attrs)
 {
-    if (i > argc - 3) usageMessage (argv[0]);
+    if (i > argc - 3)
+        throw invalid_argument("Expected a time code");
 
     TimeCodeAttribute* a = new TimeCodeAttribute;
     attrs.push_back (SetAttr (attrName, part, a));
@@ -574,7 +582,8 @@ getTimeCode (
 void
 getPart (const char attrName[], int argc, char** argv, int& i, int& part)
 {
-    if (i > argc - 2) usageMessage (argv[0]);
+    if (i > argc - 2)
+        throw invalid_argument("Expected a part number (or \"any\")");
 
     if (!strcmp (argv[i + 1], "any"))
         part = -1;
@@ -591,9 +600,11 @@ main (int argc, char** argv)
     // Parse the command line.
     //
 
-    if (argc < 2) usageMessage (argv[0], true);
-
-    int exitStatus = 0;
+    if (argc < 2)
+    {
+        usageMessage (cerr, argv[0], false);
+        return 1;
+    }
 
     try
     {
@@ -724,9 +735,23 @@ main (int argc, char** argv)
             {
                 getNameAndInt (argc, argv, i, part, attrs);
             }
-            else if (!strcmp (argv[i], "-h"))
+            else if (!strcmp (argv[i], "-h") || !strcmp (argv[i], "--help"))
             {
-                usageMessage (argv[0], true);
+                usageMessage (cout, "exrstdattr", true);
+                return 0;
+            }
+            else if (!strcmp (argv[i], "--version"))
+            {
+                const char* libraryVersion = getLibraryVersion();
+            
+                cout << "exrstdattr (OpenEXR) " << OPENEXR_VERSION_STRING;
+                if (strcmp(libraryVersion, OPENEXR_VERSION_STRING))
+                    cout << "(OpenEXR version " << libraryVersion << ")";
+                cout << " https://openexr.com" << endl;
+                cout << "Copyright (c) Contributors to the OpenEXR Project" << endl;
+                cout << "License BSD-3-Clause" << endl;
+
+                return 0;
             }
             else
             {
@@ -739,13 +764,13 @@ main (int argc, char** argv)
             }
         }
 
-        if (inFileName == 0 || outFileName == 0) usageMessage (argv[0]);
+        if (inFileName == 0)
+            throw invalid_argument("Missing input filename");
+        if (outFileName == 0)
+            throw invalid_argument("Missing input filename");
 
         if (!strcmp (inFileName, outFileName))
-        {
-            cerr << "Input and output cannot be the same file." << endl;
-            return 1;
-        }
+            throw invalid_argument("Input and output cannot be the same file");
 
         //
         // Load the headers from the input file
@@ -826,9 +851,9 @@ main (int argc, char** argv)
     }
     catch (const exception& e)
     {
-        cerr << e.what () << endl;
-        exitStatus = 1;
+        cerr << argv[0] << ": " << e.what () << endl;
+        return 1;
     }
 
-    return exitStatus;
+    return 0;
 }

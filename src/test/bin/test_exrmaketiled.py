@@ -6,11 +6,12 @@
 import sys, os, tempfile, atexit
 from subprocess import PIPE, run
 
-print(f"testing exrmaketiled: {sys.argv}")
+print(f"testing exrmaketiled: {' '.join(sys.argv)}")
 
 exrmaketiled = sys.argv[1]
 exrinfo = sys.argv[2]
 image_dir = sys.argv[3]
+version = sys.argv[4]
 
 image = f"{image_dir}/TestImages/GammaChart.exr"
 
@@ -29,14 +30,27 @@ atexit.register(cleanup)
 # no args = usage message
 result = run ([exrmaketiled], stdout=PIPE, stderr=PIPE, universal_newlines=True)
 print(" ".join(result.args))
-assert(result.returncode == 1)
+assert(result.returncode != 0)
 assert(result.stderr.startswith ("Usage: "))
 
 # -h = usage message
 result = run ([exrmaketiled, "-h"], stdout=PIPE, stderr=PIPE, universal_newlines=True)
 print(" ".join(result.args))
-assert(result.returncode == 1)
-assert(result.stderr.startswith ("Usage: "))
+assert(result.returncode == 0)
+assert(result.stdout.startswith ("Usage: "))
+
+result = run ([exrmaketiled, "--help"], stdout=PIPE, stderr=PIPE, universal_newlines=True)
+print(" ".join(result.args))
+assert(result.returncode == 0)
+assert(result.stdout.startswith ("Usage: "))
+
+# --version
+result = run ([exrmaketiled, "--version"], stdout=PIPE, stderr=PIPE, universal_newlines=True)
+print(" ".join(result.args))
+print(result.stdout)
+assert(result.returncode == 0)
+assert(result.stdout.startswith ("exrmaketiled"))
+assert(version in result.stdout)
 
 result = run ([exrmaketiled, image, outimage], stdout=PIPE, stderr=PIPE, universal_newlines=True)
 print(" ".join(result.args))
