@@ -62,8 +62,6 @@ if(BUILD_TESTING)
       exrstdattr
   )
 
-  message(STATUS "OPENEXR_VERSION: ${OPENEXR_VERSION}")
-  
   foreach(test ${tests})
     add_test(NAME OpenEXR.bin.${test}
            COMMAND ${Python3_EXECUTABLE}
