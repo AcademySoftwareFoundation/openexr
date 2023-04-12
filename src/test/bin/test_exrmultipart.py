@@ -6,16 +6,35 @@
 import sys, os, tempfile, atexit
 from subprocess import PIPE, run
 
-print(f"testing exrmultipart: {sys.argv}")
+print(f"testing exrmultipart: {' '.join(sys.argv)}")
 
 exrmultipart = sys.argv[1]
 exrinfo = sys.argv[2]
 image_dir = sys.argv[3]
+version = sys.argv[4]
 
 result = run ([exrmultipart], stdout=PIPE, stderr=PIPE, universal_newlines=True)
 print(" ".join(result.args))
-assert(result.returncode == 1)
+assert(result.returncode != 0)
 assert("Usage:" in result.stderr)
+
+# -h = usage message
+result = run ([exrmultipart, "-h"], stdout=PIPE, stderr=PIPE, universal_newlines=True)
+print(" ".join(result.args))
+assert(result.returncode == 0)
+assert(result.stdout.startswith ("Usage: "))
+
+result = run ([exrmultipart, "--help"], stdout=PIPE, stderr=PIPE, universal_newlines=True)
+print(" ".join(result.args))
+assert(result.returncode == 0)
+assert(result.stdout.startswith ("Usage: "))
+
+# --version
+result = run ([exrmultipart, "--version"], stdout=PIPE, stderr=PIPE, universal_newlines=True)
+print(" ".join(result.args))
+assert(result.returncode == 0)
+assert(result.stdout.startswith ("exrmultipart"))
+assert(version in result.stdout)
 
 image = f"{image_dir}/Beachball/multipart.0001.exr"
 

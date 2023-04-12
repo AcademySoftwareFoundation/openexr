@@ -6,21 +6,35 @@
 import sys, os, tempfile, atexit
 from subprocess import PIPE, run
 
-print(f"testing exrmultiview: {sys.argv}")
+print(f"testing exrmultiview: {' '.join(sys.argv)}")
 
 exrmultiview = sys.argv[1]
 exrinfo = sys.argv[2]
 image_dir = sys.argv[3]
+version = sys.argv[4]
 
 result = run ([exrmultiview], stdout=PIPE, stderr=PIPE, universal_newlines=True)
 print(" ".join(result.args))
-assert(result.returncode == 1)
+assert(result.returncode != 0)
 assert("Usage:" in result.stderr)
 
+# -h = usage message
 result = run ([exrmultiview, "-h"], stdout=PIPE, stderr=PIPE, universal_newlines=True)
 print(" ".join(result.args))
-assert(result.returncode == 1)
-assert("Usage:" in result.stderr)
+assert(result.returncode == 0)
+assert(result.stdout.startswith ("Usage: "))
+
+result = run ([exrmultiview, "--help"], stdout=PIPE, stderr=PIPE, universal_newlines=True)
+print(" ".join(result.args))
+assert(result.returncode == 0)
+assert(result.stdout.startswith ("Usage: "))
+
+# --version
+result = run ([exrmultiview, "--version"], stdout=PIPE, stderr=PIPE, universal_newlines=True)
+print(" ".join(result.args))
+assert(result.returncode == 0)
+assert(result.stdout.startswith ("exrmultiview"))
+assert(version in result.stdout)
 
 left_image = f"{image_dir}/TestImages/GammaChart.exr"
 right_image = f"{image_dir}/TestImages/GrayRampsHorizontal.exr"

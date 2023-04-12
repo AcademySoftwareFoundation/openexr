@@ -3,10 +3,13 @@
 
 #include <ImathConfig.h>
 #include <ImfCheckFile.h>
+#include <ImfMisc.h>
+#include <OpenEXRConfig.h>
 
 #include <cstdint>
 #include <fstream>
 #include <iostream>
+#include <ostream>
 #include <string.h>
 #if defined _WIN32 || defined _WIN64
 #    include <io.h>
@@ -16,25 +19,27 @@
 #include <vector>
 
 using namespace OPENEXR_IMF_NAMESPACE;
-using std::cerr;
-using std::cout;
-using std::endl;
-using std::ifstream;
-using std::streampos;
-using std::vector;
+using namespace std;
 
 void
-usageMessage (const char argv0[])
+usageMessage (ostream& stream, const char* program_name, bool verbose = false)
 {
-    cerr << "Usage: " << argv0 << " [options] imagefile [imagefile ...]\n";
-    cerr << "options: \n";
-    cerr
-        << "  -m : avoid excessive memory allocation (some files will not be fully checked)\n";
-    cerr
-        << "  -t : avoid spending excessive time (some files will not be fully checked)\n";
-    cerr << "  -s : use stream API instead of file API\n";
-    cerr << "  -c : add core library checks\n";
-    cerr << "  -v : print OpenEXR and Imath software library version info\n";
+    stream << "Usage: " << program_name << " [options] imagefile [imagefile ...]\n";
+
+    if (verbose)
+        stream << "\n"
+            "Read exr files to validate their contents and the correct behavior of the software.\n"
+            "\n"
+            "Options:\n"
+            "  -m            avoid excessive memory allocation (some files will not be fully checked)\n"
+            "  -t            avoid spending excessive time (some files will not be fully checked)\n"
+            "  -s            use stream API instead of file API\n"
+            "  -c            add core library checks\n"
+            "  -h, --help    print this message\n"
+            "      --version print version information\n"
+            "\n"
+            "Report bugs via https://github.com/AcademySoftwareFoundation/openexr/issues or email security@openexr.com\n"
+            "";
 }
 
 bool
@@ -96,7 +101,7 @@ main (int argc, char** argv)
 {
     if (argc < 2)
     {
-        usageMessage (argv[0]);
+        usageMessage (cerr, argv[0], false);
         return 1;
     }
 
@@ -107,10 +112,10 @@ main (int argc, char** argv)
     bool useStream       = false;
     for (int i = 1; i < argc; ++i)
     {
-        if (!strcmp (argv[i], "-h"))
+        if (!strcmp (argv[i], "-h") || !strcmp (argv[i], "--help"))
         {
-            usageMessage (argv[0]);
-            return 1;
+            usageMessage (cout, "exrcheck", true);
+            return 0;
         }
         else if (!strcmp (argv[i], "-m"))
         {
@@ -135,16 +140,18 @@ main (int argc, char** argv)
         {
             enableCoreCheck = true;
         }
-        else if (!strcmp (argv[i], "-v"))
+        else if (!strcmp (argv[i], "--version"))
         {
-            std::cout << OPENEXR_PACKAGE_STRING
-                      << " Lib API: " << OPENEXR_LIB_VERSION_STRING << ", "
-                      << IMATH_PACKAGE_STRING
-#if defined(IMATH_LIB_VERSION_STRING)
-                      << " Lib API: " << IMATH_LIB_VERSION_STRING
-#endif
-                      << std::endl;
-            exit (0);
+            const char* libraryVersion = getLibraryVersion();
+            
+            cout << "exrcheck (OpenEXR) " << OPENEXR_VERSION_STRING;
+            if (strcmp(libraryVersion, OPENEXR_VERSION_STRING))
+                cout << "(OpenEXR version " << libraryVersion << ")";
+            cout << " https://openexr.com" << endl;
+            cout << "Copyright (c) Contributors to the OpenEXR Project" << endl;
+            cout << "License BSD-3-Clause" << endl;
+
+            return 0;
         }
         else
         {
@@ -156,7 +163,7 @@ main (int argc, char** argv)
 #endif
             {
                 cerr << "No such file: " << argv[i] << endl;
-                exit (-1);
+                return -1;
             }
 
             cout << " file " << argv[i] << ' ';

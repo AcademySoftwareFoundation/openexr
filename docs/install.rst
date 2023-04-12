@@ -75,6 +75,7 @@ To build via CMake, you need to first identify three directories:
    libraries and headers, referred to below as ``$installdir``.  
 
 To build:
+
 .. code-block::
 
     $ cd $builddir

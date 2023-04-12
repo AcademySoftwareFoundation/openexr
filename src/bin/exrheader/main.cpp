@@ -31,6 +31,8 @@
 #include <ImfTimeCodeAttribute.h>
 #include <ImfVecAttribute.h>
 #include <ImfVersion.h>
+#include <ImfMisc.h>
+#include <OpenEXRConfig.h>
 
 #include <iomanip>
 #include <iostream>
@@ -456,9 +458,20 @@ printInfo (const char fileName[])
 }
 
 void
-usageMessage (const char argv0[])
+usageMessage (ostream& stream, const char* program_name, bool verbose = false)
 {
-    std::cerr << "Usage: " << argv0 << " imagefile [imagefile ...]\n";
+    stream << "Usage: " << program_name << " imagefile [imagefile ...]\n";
+
+    if (verbose)
+        stream << "\n"
+            "Read exr files and print the values of header attributes.\n"
+            "\n"
+            "Options:\n"
+            "  -h, --help        print this message\n"
+            "      --version     print version information\n"
+            "\n"
+            "Report bugs via https://github.com/AcademySoftwareFoundation/openexr/issues or email security@openexr.com\n"
+            "";
 }
 
 int
@@ -466,16 +479,28 @@ main (int argc, char** argv)
 {
     if (argc < 2)
     {
-        usageMessage (argv[0]);
-        return 1;
+        usageMessage (cerr, argv[0], false);
+        return -1;
     }
 
     for (int i = 1; i < argc; ++i)
     {
-        if (!strcmp (argv[i], "-h"))
+        if (!strcmp (argv[i], "-h") || !strcmp(argv[1], "--help"))
         {
-            usageMessage (argv[0]);
-            return 1;
+            usageMessage (cout, "exrheader", true);
+            return 0;
+        }
+        else if (!strcmp (argv[i], "--version"))
+        {
+            const char* libraryVersion = getLibraryVersion();
+            
+            cout << "exrheader (OpenEXR) " << OPENEXR_VERSION_STRING;
+            if (strcmp(libraryVersion, OPENEXR_VERSION_STRING))
+                cout << "(OpenEXR version " << libraryVersion << ")";
+            cout << " https://openexr.com" << endl;
+            cout << "Copyright (c) Contributors to the OpenEXR Project" << endl;
+            cout << "License BSD-3-Clause" << endl;
+            return 0;
         }
     }
 
@@ -483,12 +508,12 @@ main (int argc, char** argv)
     {
         for (int i = 1; i < argc; ++i)
             printInfo (argv[i]);
-
-        return 0;
     }
-    catch (const std::exception& e)
+    catch (const exception& e)
     {
-        std::cerr << e.what () << std::endl;
+        cerr << argv[0] << ": " << e.what () << endl;
         return 1;
     }
+
+    return 0;
 }
