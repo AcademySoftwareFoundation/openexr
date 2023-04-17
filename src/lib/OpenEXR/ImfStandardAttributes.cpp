@@ -65,6 +65,7 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 IMF_STD_ATTRIBUTE_IMP (originalDataWindow, OriginalDataWindow, Box2i)
 IMF_STD_ATTRIBUTE_IMP (worldToCamera, WorldToCamera, M44f)
 IMF_STD_ATTRIBUTE_IMP (worldToNDC, WorldToNDC, M44f)
+IMF_STD_ATTRIBUTE_IMP (framelines, Framelines, std::string)
 IMF_STD_ATTRIBUTE_IMP (xDensity, XDensity, float)
 IMF_STD_ATTRIBUTE_IMP (longitude, Longitude, float)
 IMF_STD_ATTRIBUTE_IMP (latitude, Latitude, float)

@@ -123,6 +123,20 @@ IMF_STD_ATTRIBUTE_DEF (worldToCamera, WorldToCamera, IMATH_NAMESPACE::M44f)
 IMF_STD_ATTRIBUTE_DEF (worldToNDC, WorldToNDC, IMATH_NAMESPACE::M44f)
 
 //
+// framelines -- carry one or more JSON-encoded strings each embodying a
+// system for carriage of framing information, relating what was seen in
+// the camera viewfinder to how downstream processing is intended to use
+// the full captured image or some subset thereof.
+//
+// The top-level object represented by this attribute has names calling
+// out the relevant scheme and values carrying that scheme's configuration
+// for this frame. The names should be globally unique and represent the
+// organization that created the associated frameline scheme, e.g. 
+// com.theasc or de.arri.
+
+IMF_STD_ATTRIBUTE_DEF (framelines, Framelines, std::string)
+
+//
 // xDensity -- horizontal output density, in pixels per inch.
 // The image's vertical output density is xDensity * pixelAspectRatio.
 //
