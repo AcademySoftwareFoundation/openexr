@@ -33,6 +33,20 @@ ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_ENTER
 #    define ENABLE_SEM_DTOR_WORKAROUND
 #endif
 
+// seems like older linux also have problems with join before fully starting
+#if defined(__GNU_LIBRARY__) &&                                                \
+    (__GLIBC__ < 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ < 19))
+#    define WAIT_FOR_THREAD_START 1
+#endif
+// windows seems to have issues with shutting down too quickly, work around that as well
+#if (defined(_WIN32) || defined(_WIN64))
+#    define WAIT_FOR_THREAD_START 1
+#    include <windows.h>
+#endif
+
+// hack left in place if the above work arounds prove too slow
+//#define SIGNAL_THREAD_FINISHED
+
 #ifdef ENABLE_THREADING
 
 struct TaskGroup::Data
@@ -121,16 +135,11 @@ namespace
 
 class DefaultWorkerThread;
 
-// seems like older linux also have problems besides win32
-//#if (defined(_WIN32) || defined(_WIN64))
-//#  define WAIT_FOR_THREAD_START 1
-//#endif
-//#    define WAIT_FOR_THREAD_START 1
-
 struct DefaultWorkData
 {
 #    ifdef WAIT_FOR_THREAD_START
-    Semaphore threadSemaphore; // threads wait on this for ready tasks
+    // we use this to work around launch issues not updating thread::get_id in constructor
+    Semaphore threadSemaphore;
 #    endif
     Semaphore          taskSemaphore; // threads wait on this for ready tasks
     mutable std::mutex taskMutex;     // mutual exclusion for the tasks list
@@ -139,7 +148,7 @@ struct DefaultWorkData
     mutable std::mutex threadMutex;       // mutual exclusion for threads list
     vector<DefaultWorkerThread*> threads; // the list of all threads
 
-    std::atomic<bool> hasThreads;
+    std::atomic<int>  threadCount;
     std::atomic<bool> stopping;
 
     inline bool stopped () const
@@ -148,6 +157,12 @@ struct DefaultWorkData
     }
 
     inline void stop () { stopping = true; }
+
+    inline void reset ()
+    {
+        threadCount = 0;
+        stopping    = false;
+    }
 };
 
 //
@@ -158,7 +173,7 @@ class DefaultWorkerThread : public Thread
 public:
     DefaultWorkerThread (DefaultWorkData* data);
 
-    virtual void run ();
+    void run () override;
 
 private:
     DefaultWorkData* _data;
@@ -167,9 +182,6 @@ private:
 DefaultWorkerThread::DefaultWorkerThread (DefaultWorkData* data) : _data (data)
 {
     start ();
-#    ifdef WAIT_FOR_THREAD_START
-    _data->threadSemaphore.wait ();
-#    endif
 }
 
 void
@@ -179,6 +191,7 @@ DefaultWorkerThread::run ()
     // tell the parent thread we've started
     _data->threadSemaphore.post ();
 #    endif
+
     while (true)
     {
         //
@@ -214,6 +227,9 @@ DefaultWorkerThread::run ()
             else if (_data->stopped ()) { break; }
         }
     }
+#    ifdef SIGNAL_THREAD_FINISHED
+    _data->threadCount.fetch_sub (1, std::memory_order_relaxed);
+#    endif
 }
 
 //
@@ -223,13 +239,18 @@ class DefaultThreadPoolProvider : public ThreadPoolProvider
 {
 public:
     DefaultThreadPoolProvider (int count);
-    virtual ~DefaultThreadPoolProvider ();
+    DefaultThreadPoolProvider (const DefaultThreadPoolProvider&) = delete;
+    DefaultThreadPoolProvider&
+    operator= (const DefaultThreadPoolProvider&)                       = delete;
+    DefaultThreadPoolProvider (DefaultThreadPoolProvider&&)            = delete;
+    DefaultThreadPoolProvider& operator= (DefaultThreadPoolProvider&&) = delete;
+    ~DefaultThreadPoolProvider () override;
 
-    virtual int  numThreads () const;
-    virtual void setNumThreads (int count);
-    virtual void addTask (Task* task);
+    int  numThreads () const override;
+    void setNumThreads (int count) override;
+    void addTask (Task* task) override;
 
-    virtual void finish ();
+    void finish () override;
 
 private:
     DefaultWorkData _data;
@@ -237,45 +258,48 @@ private:
 
 DefaultThreadPoolProvider::DefaultThreadPoolProvider (int count)
 {
+    _data.reset ();
+
     setNumThreads (count);
 }
 
 DefaultThreadPoolProvider::~DefaultThreadPoolProvider ()
-{
-    finish ();
-}
+{}
 
 int
 DefaultThreadPoolProvider::numThreads () const
 {
-    std::lock_guard<std::mutex> lock (_data.threadMutex);
-    return static_cast<int> (_data.threads.size ());
+    return _data.threadCount.load ();
 }
 
 void
 DefaultThreadPoolProvider::setNumThreads (int count)
 {
-    size_t desired = static_cast<size_t> (count);
-    size_t active  = numThreads ();
+    // since we're a private class, the thread pool won't call us if
+    // we aren't changing size so no need to check that...
 
     // in order to make sure there isn't an undefined use in finish,
     // finish needs to have the thread mutex lock to be able to join,
     // such that if someone is changing the thread provider in one
     // thread while another thread is calling setNumThreads
-    if (desired < active)
-    {
-        finish ();
-        active = 0;
-    }
+    //
+    // so use an atomic to cache the thread count we can pull without
+    // a lock and then go ahead and zilch everything if we're clearing
+    // it out.
+    //
+    // This isn't great, perhaps, but the likely scenario of this
+    // changing frequently is people ping-ponging between 0 and N
+    // which would result in a full clear anyway
+    if (count < numThreads ()) { finish (); }
 
     // now take the lock and build any threads needed
     std::lock_guard<std::mutex> lock (_data.threadMutex);
 
-    size_t nToAdd = desired - active;
+    size_t nToAdd = static_cast<size_t> (count) - _data.threads.size ();
     for (size_t i = 0; i < nToAdd; ++i)
         _data.threads.push_back (new DefaultWorkerThread (&_data));
 
-    _data.hasThreads = !(_data.threads.empty ());
+    _data.threadCount = static_cast<int> (_data.threads.size ());
 }
 
 void
@@ -324,18 +348,43 @@ DefaultThreadPoolProvider::finish ()
     for (size_t i = 0; i != curT; ++i)
         _data.taskSemaphore.post ();
 
+#    ifdef WAIT_FOR_THREAD_START
+    // it would appear some systems crash randomly if a join or
+    // joinable call is used prior to the full start of the thread,
+    // wait to join until the threads have had a chance to start
+    for (size_t i = 0; i < curT; ++i)
+        _data->threadSemaphore.wait ();
+#    endif
+
+#    ifdef SIGNAL_THREAD_FINISHED
+    while (numThreads () > 0)
+        std::this_thread::yield ();
+#    endif
+
     //
     // Join all the threads. We do not need to check joinability, they
-    // should all, by definition, be joinable
+    // should all, by definition, be joinable (assuming normal start)
     //
     for (size_t i = 0; i != curT; ++i)
     {
+#    if (defined(_WIN32) || defined(_WIN64))
+        // per OIIO issue #2038, on exit, windows may kill the thread, double check
+        // that it is still active prior to joining. This will leak memory since
+        // the destructor of IlmThread also will call join as a safety measure.
+        // except the process should be exiting, so negligible security risk
+        DWORD status;
+        if (GetExitCodeThread (_thread.native_handle (), &status))
+        {
+            if (status != STILL_ACTIVE) continue;
+        }
+#    endif
+
         _data.threads[i]->join ();
         delete _data.threads[i];
     }
-    _data.threads.clear ();
 
-    _data.stopping = false;
+    _data.threads.clear ();
+    _data.reset ();
 }
 
 class NullThreadPoolProvider : public ThreadPoolProvider
