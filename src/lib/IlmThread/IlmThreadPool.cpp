@@ -301,8 +301,7 @@ DefaultThreadPoolProvider::finish ()
         // kill the thread, double check that it is still active prior
         // to joining.
         DWORD tstatus;
-        if (GetExitCodeThread (
-                _data.threads[i]->_thread.native_handle (), &tstatus))
+        if (GetExitCodeThread (_threads[i].native_handle (), &tstatus))
         {
             if (tstatus != STILL_ACTIVE) { continue; }
         }
