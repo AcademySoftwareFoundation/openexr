@@ -34,15 +34,17 @@ ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_ENTER
 #endif
 
 // seems like older linux also have problems with join before fully starting
-#if defined(__GNU_LIBRARY__) &&                                                \
-    (__GLIBC__ < 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ < 19))
-#    define WAIT_FOR_THREAD_START 1
+#if defined(__GNUC__) && !defined(__clang__)
+#    if __GNUC__ < 9
+#        define WAIT_FOR_THREAD_START 1
+#    endif
 #endif
-// windows seems to have issues with shutting down too quickly, work around that as well
-#if (defined(_WIN32) || defined(_WIN64))
-#    define WAIT_FOR_THREAD_START 1
-#    include <windows.h>
-#endif
+//// windows seems to have issues with shutting down too quickly, work around that as well
+//#if (defined(_WIN32) || defined(_WIN64))
+//#    define WAIT_FOR_THREAD_START 1
+//#    define TEST_FOR_WIN_THREAD_STATUS 1
+//#    include <windows.h>
+//#endif
 
 // hack left in place if the above work arounds prove too slow
 //#define SIGNAL_THREAD_FINISHED
@@ -296,18 +298,29 @@ DefaultThreadPoolProvider::finish ()
     //
     for (size_t i = 0; i != curT; ++i)
     {
-#    if (defined(_WIN32) || defined(_WIN64))
-        // per OIIO issue #2038, on exit / dll unload, windows may
-        // kill the thread, double check that it is still active prior
-        // to joining.
-        DWORD tstatus;
-        if (GetExitCodeThread (_threads[i].native_handle (), &tstatus))
+#    ifdef TEST_FOR_WIN_THREAD_STATUS
+        // This isn't quite right in that the thread may have actually
+        // be in an exited / signalled state (needing the
+        // WaitForSingleObject call), and so already have an exit
+        // code, but if we don't do the join, the stl thread will
+        // throw an exception. The join should just return invalid handle
+        // and continue, and is more of a windows bug... except maybe
+        // someone needs to work around it...
+        if (_threads[i].joinable ())
         {
-            if (tstatus != STILL_ACTIVE) { continue; }
+            // per OIIO issue #2038, on exit / dll unload, windows may
+            // kill the thread, double check that it is still active prior
+            // to joining.
+            DWORD tstatus;
+            if (GetExitCodeThread (_threads[i].native_handle (), &tstatus))
+            {
+                if (tstatus != STILL_ACTIVE) { continue; }
+            }
+            _threads[i].join ();
         }
-#    endif
-
+#    else
         if (_threads[i].joinable ()) { _threads[i].join (); }
+#    endif
     }
 
     _threads.clear ();
