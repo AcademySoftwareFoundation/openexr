@@ -684,12 +684,15 @@ ThreadPool::setThreadProvider (ThreadPoolProvider* provider)
 void
 ThreadPool::addTask (Task* task)
 {
+    if (task)
+    {
 #ifdef ENABLE_THREADING
-    _data->getProvider ()->addTask (task);
+        _data->getProvider ()->addTask (task);
 #else
-    task->execute ();
-    delete task;
+        task->execute ();
+        delete task;
 #endif
+    }
 }
 
 ThreadPool&
