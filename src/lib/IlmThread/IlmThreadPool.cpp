@@ -281,39 +281,23 @@ DefaultThreadPoolProvider::setNumThreads (int count)
 void
 DefaultThreadPoolProvider::addTask (Task* task)
 {
-    //
-    // Lock the threads, needed to access numThreads
-    //
-    bool doPush = _data.hasThreads.load (std::memory_order_relaxed);
-
-    if (doPush)
+    // the thread pool will kill us and switch to a null provider
+    // if the thread count is set to 0, so we can always
+    // go ahead and lock and assume we have a thread to do the
+    // processing
     {
-        //
-        // Get exclusive access to the tasks queue
-        //
-
-        {
-            std::lock_guard<std::mutex> taskLock (_data.taskMutex);
-
-            //
-            // Push the new task into the FIFO
-            //
-            _data.tasks.push_back (task);
-        }
+        std::lock_guard<std::mutex> taskLock (_data.taskMutex);
 
         //
-        // Signal that we have a new task to process
+        // Push the new task into the FIFO
         //
-        _data.taskSemaphore.post ();
+        _data.tasks.push_back (task);
     }
-    else
-    {
-        // this path shouldn't normally happen since we have the
-        // NullThreadPoolProvider, but just in case...
-        task->execute ();
-        task->group ()->finishOneTask ();
-        delete task;
-    }
+
+    //
+    // Signal that we have a new task to process
+    //
+    _data.taskSemaphore.post ();
 }
 
 void
