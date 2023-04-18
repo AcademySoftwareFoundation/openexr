@@ -133,105 +133,6 @@ struct ThreadPool::Data
 namespace
 {
 
-class DefaultWorkerThread;
-
-struct DefaultWorkData
-{
-#    ifdef WAIT_FOR_THREAD_START
-    // we use this to work around launch issues not updating thread::get_id in constructor
-    Semaphore threadSemaphore;
-#    endif
-    Semaphore          taskSemaphore; // threads wait on this for ready tasks
-    mutable std::mutex taskMutex;     // mutual exclusion for the tasks list
-    vector<Task*>      tasks;         // the list of tasks to execute
-
-    mutable std::mutex threadMutex;       // mutual exclusion for threads list
-    vector<DefaultWorkerThread*> threads; // the list of all threads
-
-    std::atomic<int>  threadCount;
-    std::atomic<bool> stopping;
-
-    inline bool stopped () const
-    {
-        return stopping.load (std::memory_order_relaxed);
-    }
-
-    inline void stop () { stopping = true; }
-
-    inline void reset ()
-    {
-        threadCount = 0;
-        stopping    = false;
-    }
-};
-
-//
-// class WorkerThread
-//
-class DefaultWorkerThread : public Thread
-{
-public:
-    DefaultWorkerThread (DefaultWorkData* data);
-
-    void run () override;
-
-private:
-    DefaultWorkData* _data;
-};
-
-DefaultWorkerThread::DefaultWorkerThread (DefaultWorkData* data) : _data (data)
-{
-    start ();
-}
-
-void
-DefaultWorkerThread::run ()
-{
-#    ifdef WAIT_FOR_THREAD_START
-    // tell the parent thread we've started
-    _data->threadSemaphore.post ();
-#    endif
-
-    while (true)
-    {
-        //
-        // Wait for a task to become available
-        //
-
-        _data->taskSemaphore.wait ();
-
-        {
-            std::unique_lock<std::mutex> taskLock (_data->taskMutex);
-
-            //
-            // If there is a task pending, pop off the next task in the FIFO
-            //
-
-            if (!_data->tasks.empty ())
-            {
-                Task* task = _data->tasks.back ();
-                _data->tasks.pop_back ();
-                // release the mutex while we process
-                taskLock.unlock ();
-
-                TaskGroup* taskGroup = task->group ();
-                task->execute ();
-
-                taskGroup->finishOneTask ();
-
-                delete task;
-
-                // do not need to reacquire the lock at all since we
-                // will just loop around, pull any other task
-            }
-            else if (_data->stopped ()) { break; }
-        }
-    }
-#    ifdef SIGNAL_THREAD_FINISHED
-    _data->threadCount.fetch_sub (1, std::memory_order_relaxed);
-#    endif
-}
-
 //
 // class DefaultThreadPoolProvider
 //
@@ -253,12 +154,39 @@ public:
     void finish () override;
 
 private:
-    DefaultWorkData _data;
+    void threadLoop ();
+
+#    ifdef WAIT_FOR_THREAD_START
+    // we use this to work around launch issues not updating thread::get_id in constructor
+    Semaphore _threadSemaphore;
+#    endif
+    Semaphore     _taskSemaphore; // threads wait on this for ready tasks
+    mutable mutex _taskMutex;     // mutual exclusion for the tasks list
+    vector<Task*> _tasks;         // the list of tasks to execute
+
+    mutable mutex  _threadMutex; // mutual exclusion for threads list
+    vector<thread> _threads;     // the list of all threads
+
+    atomic<int>  _threadCount;
+    atomic<bool> _stopping;
+
+    inline bool stopped () const
+    {
+        return _stopping.load (std::memory_order_relaxed);
+    }
+
+    inline void stop () { _stopping = true; }
+
+    inline void reset ()
+    {
+        _threadCount = 0;
+        _stopping    = false;
+    }
 };
 
 DefaultThreadPoolProvider::DefaultThreadPoolProvider (int count)
 {
-    _data.reset ();
+    reset ();
 
     setNumThreads (count);
 }
@@ -269,7 +197,7 @@ DefaultThreadPoolProvider::~DefaultThreadPoolProvider ()
 int
 DefaultThreadPoolProvider::numThreads () const
 {
-    return _data.threadCount.load ();
+    return _threadCount.load ();
 }
 
 void
@@ -293,13 +221,14 @@ DefaultThreadPoolProvider::setNumThreads (int count)
     if (count < numThreads ()) { finish (); }
 
     // now take the lock and build any threads needed
-    std::lock_guard<std::mutex> lock (_data.threadMutex);
+    std::lock_guard<std::mutex> lock (_threadMutex);
 
-    size_t nToAdd = static_cast<size_t> (count) - _data.threads.size ();
+    size_t nToAdd = static_cast<size_t> (count) - _threads.size ();
     for (size_t i = 0; i < nToAdd; ++i)
-        _data.threads.push_back (new DefaultWorkerThread (&_data));
+        _threads.emplace_back (
+            thread (&DefaultThreadPoolProvider::threadLoop, this));
 
-    _data.threadCount = static_cast<int> (_data.threads.size ());
+    _threadCount = static_cast<int> (_threads.size ());
 }
 
 void
@@ -310,26 +239,26 @@ DefaultThreadPoolProvider::addTask (Task* task)
     // go ahead and lock and assume we have a thread to do the
     // processing
     {
-        std::lock_guard<std::mutex> taskLock (_data.taskMutex);
+        std::lock_guard<std::mutex> taskLock (_taskMutex);
 
         //
         // Push the new task into the FIFO
         //
-        _data.tasks.push_back (task);
+        _tasks.push_back (task);
     }
 
     //
     // Signal that we have a new task to process
     //
-    _data.taskSemaphore.post ();
+    _taskSemaphore.post ();
 }
 
 void
 DefaultThreadPoolProvider::finish ()
 {
-    std::lock_guard<std::mutex> lock (_data.threadMutex);
+    std::lock_guard<std::mutex> lock (_threadMutex);
 
-    _data.stop ();
+    stop ();
 
     //
     // Signal enough times to allow all threads to stop.
@@ -344,21 +273,21 @@ DefaultThreadPoolProvider::finish ()
     //   - still starting up (successive calls to setNumThreads)
     //   - in the middle of processing a task / looping
     //   - waiting in the semaphore
-    size_t curT = _data.threads.size ();
+    size_t curT = _threads.size ();
     for (size_t i = 0; i != curT; ++i)
-        _data.taskSemaphore.post ();
+        _taskSemaphore.post ();
 
 #    ifdef WAIT_FOR_THREAD_START
     // it would appear some systems crash randomly if a join or
     // joinable call is used prior to the full start of the thread,
     // wait to join until the threads have had a chance to start
     for (size_t i = 0; i < curT; ++i)
-        _data->threadSemaphore.wait ();
+        _threadSemaphore.wait ();
 #    endif
 
 #    ifdef SIGNAL_THREAD_FINISHED
     while (numThreads () > 0)
-        std::this_thread::yield ();
+        this_thread::yield ();
 #    endif
 
     //
@@ -368,24 +297,73 @@ DefaultThreadPoolProvider::finish ()
     for (size_t i = 0; i != curT; ++i)
     {
 #    if (defined(_WIN32) || defined(_WIN64))
-        // per OIIO issue #2038, on exit, windows may kill the thread, double check
-        // that it is still active prior to joining. This will leak memory since
-        // the destructor of IlmThread also will call join as a safety measure.
-        // except the process should be exiting, so negligible security risk
-        DWORD status;
-        if (GetExitCodeThread (_thread.native_handle (), &status))
+        // per OIIO issue #2038, on exit / dll unload, windows may
+        // kill the thread, double check that it is still active prior
+        // to joining.
+        DWORD tstatus;
+        if (GetExitCodeThread (
+                _data.threads[i]->_thread.native_handle (), &tstatus))
         {
-            if (status != STILL_ACTIVE) continue;
+            if (tstatus != STILL_ACTIVE) { continue; }
         }
 #    endif
 
-        _data.threads[i]->join ();
-        delete _data.threads[i];
+        if (_threads[i].joinable ()) { _threads[i].join (); }
     }
 
-    _data.threads.clear ();
-    _data.reset ();
+    _threads.clear ();
+    reset ();
 }
+
+void
+DefaultThreadPoolProvider::threadLoop ()
+{
+#    ifdef WAIT_FOR_THREAD_START
+    // tell the parent thread we've started
+    _threadSemaphore.post ();
+#    endif
+
+    while (true)
+    {
+        //
+        // Wait for a task to become available
+        //
+
+        _taskSemaphore.wait ();
+
+        {
+            std::unique_lock<std::mutex> taskLock (_taskMutex);
+
+            //
+            // If there is a task pending, pop off the next task in the FIFO
+            //
+
+            if (!_tasks.empty ())
+            {
+                Task* task = _tasks.back ();
+                _tasks.pop_back ();
+                // release the mutex while we process
+                taskLock.unlock ();
+
+                TaskGroup* taskGroup = task->group ();
+                task->execute ();
+
+                taskGroup->finishOneTask ();
+
+                delete task;
+
+                // do not need to reacquire the lock at all since we
+                // will just loop around, pull any other task
+            }
+            else if (stopped ()) { break; }
+        }
+    }
+#    ifdef SIGNAL_THREAD_FINISHED
+    _threadCount.fetch_sub (1, std::memory_order_relaxed);
+#    endif
+}
+
+////////////////////////////////////////
 
 class NullThreadPoolProvider : public ThreadPoolProvider
 {
