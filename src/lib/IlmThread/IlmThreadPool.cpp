@@ -34,17 +34,18 @@ ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_ENTER
 #endif
 
 // seems like older linux also have problems with join before fully starting
-#if defined(__GNUC__) && !defined(__clang__)
-#    if __GNUC__ < 9
-#        define WAIT_FOR_THREAD_START 1
-#    endif
-#endif
+//#if defined(__GNUC__) && !defined(__clang__)
+//#    if __GNUC__ < 9
+//#        define WAIT_FOR_THREAD_START 1
+//#    endif
+//#endif
 //// windows seems to have issues with shutting down too quickly, work around that as well
 //#if (defined(_WIN32) || defined(_WIN64))
 //#    define WAIT_FOR_THREAD_START 1
 //#    define TEST_FOR_WIN_THREAD_STATUS 1
 //#    include <windows.h>
 //#endif
+#define WAIT_FOR_THREAD_START 1
 
 // hack left in place if the above work arounds prove too slow
 //#define SIGNAL_THREAD_FINISHED
@@ -293,11 +294,23 @@ DefaultThreadPoolProvider::finish ()
 #    endif
 
     //
-    // Join all the threads. We do not need to check joinability, they
-    // should all, by definition, be joinable (assuming normal start)
+    // We should not need to check joinability, they should all, by
+    // definition, be joinable (assuming normal start)
     //
     for (size_t i = 0; i != curT; ++i)
     {
+        // if a thread is not joinable, that would mean it hasn't
+        // finished the clone / whatever and assigned the id into the
+        // thread object which appears to happen somehow, causing a
+        // crash because once the thread DOES start, it's then likely
+        // accessing a deleted object.  Why someone decided setting of
+        // the id should be async is unknown, and newer compilers do
+        // not seem to suffer from this. We really expect the thread
+        // to be joinable here, so let's wait until it is
+        while (!_threads[i].joinable ())
+        {
+            this_thread::yield ();
+        }
 #    ifdef TEST_FOR_WIN_THREAD_STATUS
         // This isn't quite right in that the thread may have actually
         // be in an exited / signalled state (needing the
@@ -306,21 +319,17 @@ DefaultThreadPoolProvider::finish ()
         // throw an exception. The join should just return invalid handle
         // and continue, and is more of a windows bug... except maybe
         // someone needs to work around it...
-        if (_threads[i].joinable ())
+
+        // per OIIO issue #2038, on exit / dll unload, windows may
+        // kill the thread, double check that it is still active prior
+        // to joining.
+        DWORD tstatus;
+        if (GetExitCodeThread (_threads[i].native_handle (), &tstatus))
         {
-            // per OIIO issue #2038, on exit / dll unload, windows may
-            // kill the thread, double check that it is still active prior
-            // to joining.
-            DWORD tstatus;
-            if (GetExitCodeThread (_threads[i].native_handle (), &tstatus))
-            {
-                if (tstatus != STILL_ACTIVE) { continue; }
-            }
-            _threads[i].join ();
+            if (tstatus != STILL_ACTIVE) { continue; }
         }
-#    else
-        if (_threads[i].joinable ()) { _threads[i].join (); }
 #    endif
+        _threads[i].join ();
     }
 
     _threads.clear ();
