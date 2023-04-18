@@ -33,23 +33,6 @@ ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_ENTER
 #    define ENABLE_SEM_DTOR_WORKAROUND
 #endif
 
-// seems like older linux also have problems with join before fully starting
-//#if defined(__GNUC__) && !defined(__clang__)
-//#    if __GNUC__ < 9
-//#        define WAIT_FOR_THREAD_START 1
-//#    endif
-//#endif
-//// windows seems to have issues with shutting down too quickly, work around that as well
-//#if (defined(_WIN32) || defined(_WIN64))
-//#    define WAIT_FOR_THREAD_START 1
-//#    define TEST_FOR_WIN_THREAD_STATUS 1
-//#    include <windows.h>
-//#endif
-#define WAIT_FOR_THREAD_START 1
-
-// hack left in place if the above work arounds prove too slow
-//#define SIGNAL_THREAD_FINISHED
-
 #ifdef ENABLE_THREADING
 
 struct TaskGroup::Data
@@ -159,10 +142,8 @@ public:
 private:
     void threadLoop ();
 
-#    ifdef WAIT_FOR_THREAD_START
     // we use this to work around launch issues not updating thread::get_id in constructor
-    Semaphore _threadSemaphore;
-#    endif
+    Semaphore     _threadSemaphore;
     Semaphore     _taskSemaphore; // threads wait on this for ready tasks
     mutable mutex _taskMutex;     // mutual exclusion for the tasks list
     vector<Task*> _tasks;         // the list of tasks to execute
@@ -231,6 +212,12 @@ DefaultThreadPoolProvider::setNumThreads (int count)
         _threads.emplace_back (
             thread (&DefaultThreadPoolProvider::threadLoop, this));
 
+    // it would appear some systems crash randomly if a join is used
+    // prior to the full start of the thread, let's ensure things are
+    // spun up before we continue
+    for (size_t i = 0; i < nToAdd; ++i)
+        _threadSemaphore.wait ();
+
     _threadCount = static_cast<int> (_threads.size ());
 }
 
@@ -280,45 +267,21 @@ DefaultThreadPoolProvider::finish ()
     for (size_t i = 0; i != curT; ++i)
         _taskSemaphore.post ();
 
-#    ifdef WAIT_FOR_THREAD_START
-    // it would appear some systems crash randomly if a join or
-    // joinable call is used prior to the full start of the thread,
-    // wait to join until the threads have had a chance to start
-    for (size_t i = 0; i < curT; ++i)
-        _threadSemaphore.wait ();
-#    endif
-
-#    ifdef SIGNAL_THREAD_FINISHED
-    while (numThreads () > 0)
-        this_thread::yield ();
-#    endif
-
     //
     // We should not need to check joinability, they should all, by
     // definition, be joinable (assuming normal start)
     //
     for (size_t i = 0; i != curT; ++i)
     {
-        // if a thread is not joinable, that would mean it hasn't
-        // finished the clone / whatever and assigned the id into the
-        // thread object which appears to happen somehow, causing a
-        // crash because once the thread DOES start, it's then likely
-        // accessing a deleted object.  Why someone decided setting of
-        // the id should be async is unknown, and newer compilers do
-        // not seem to suffer from this. We really expect the thread
-        // to be joinable here, so let's wait until it is
-        while (!_threads[i].joinable ())
-        {
-            this_thread::yield ();
-        }
 #    ifdef TEST_FOR_WIN_THREAD_STATUS
         // This isn't quite right in that the thread may have actually
         // be in an exited / signalled state (needing the
-        // WaitForSingleObject call), and so already have an exit
-        // code, but if we don't do the join, the stl thread will
-        // throw an exception. The join should just return invalid handle
-        // and continue, and is more of a windows bug... except maybe
-        // someone needs to work around it...
+        // WaitForSingleObject call), and so already have an exit code
+        // (I think, but the docs are vague), but if we don't do the
+        // join, the stl thread seems to then throw an exception. The
+        // join should just return invalid handle and continue, and is
+        // more of a windows bug... except maybe someone needs to work
+        // around it...
 
         // per OIIO issue #2038, on exit / dll unload, windows may
         // kill the thread, double check that it is still active prior
@@ -339,10 +302,8 @@ DefaultThreadPoolProvider::finish ()
 void
 DefaultThreadPoolProvider::threadLoop ()
 {
-#    ifdef WAIT_FOR_THREAD_START
     // tell the parent thread we've started
     _threadSemaphore.post ();
-#    endif
 
     while (true)
     {
@@ -379,9 +340,6 @@ DefaultThreadPoolProvider::threadLoop ()
             else if (stopped ()) { break; }
         }
     }
-#    ifdef SIGNAL_THREAD_FINISHED
-    _threadCount.fetch_sub (1, std::memory_order_relaxed);
-#    endif
 }
 
 ////////////////////////////////////////
