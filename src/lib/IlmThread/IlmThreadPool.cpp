@@ -542,8 +542,11 @@ ThreadPool::setNumThreads (int count)
     // a default provider to a null one or vice-versa
     if (count == 0)
         _data->setProvider (nullptr);
+#ifdef HACKHACK_DO_NOT_KEEP_THIS_IFDEF
     else
         _data->resetToDefaultProvider (count);
+#endif
+
 #else
     // just blindly ignore
     (void) count;
