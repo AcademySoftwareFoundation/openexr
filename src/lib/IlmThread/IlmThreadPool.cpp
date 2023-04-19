@@ -185,10 +185,13 @@ DefaultThreadPoolProvider::setNumThreads (int count)
     // This isn't great, perhaps, but the likely scenario of this
     // changing frequently is people ping-ponging between 0 and N
     // which would result in a full clear anyway
+#ifdef ENABLE_DYNAMIC_THREAD_GROWTH
     if (count < numThreads ()) { finish (); }
 
     // now take the lock and build any threads needed
     std::lock_guard<std::mutex> lock (_threadMutex);
+
+    reset ();
 
     size_t nToAdd = static_cast<size_t> (count) - _threads.size ();
     for (size_t i = 0; i < nToAdd; ++i)
@@ -198,10 +201,26 @@ DefaultThreadPoolProvider::setNumThreads (int count)
     // it would appear some systems crash randomly if a join is used
     // prior to the full start of the thread, let's ensure things are
     // spun up before we continue
-    //    for (size_t i = 0; i < nToAdd; ++i)
-    //        _threadSemaphore.wait ();
+    for (size_t i = 0; i < nToAdd; ++i)
+        _threadSemaphore.wait ();
 
     _threadCount = static_cast<int> (_threads.size ());
+#else
+    finish ();
+
+    reset ();
+
+    size_t nToAdd = static_cast<size_t> (count);
+    _threads.resize (nToAdd);
+    for (size_t i = 0; i < nToAdd; ++i)
+        _threads[i] = std::thread (&DefaultThreadPoolProvider::threadLoop, this);
+
+    // wait for all the threads to start..
+    for (size_t i = 0; i < nToAdd; ++i)
+        _threadSemaphore.wait ();
+
+    _threadCount = count;
+#endif
 }
 
 void
@@ -279,7 +298,12 @@ DefaultThreadPoolProvider::finish ()
     }
 
     _threads.clear ();
+
+#ifdef ENABLE_DYNAMIC_THREAD_GROWTH
     reset ();
+#else
+    _threadCount = 0;
+#endif
 }
 
 void
