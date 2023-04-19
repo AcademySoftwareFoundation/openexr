@@ -31,6 +31,26 @@ ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_ENTER
 #    define ENABLE_SEM_DTOR_WORKAROUND
 #endif
 
+namespace
+{
+
+static inline void
+handleProcessTask (Task* task)
+{
+    if (task)
+    {
+        TaskGroup* taskGroup = task->group ();
+
+        task->execute ();
+
+        if (taskGroup) taskGroup->finishOneTask ();
+
+        delete task;
+    }
+}
+
+} // empty namespace
+
 #ifdef ENABLE_THREADING
 
 struct TaskGroup::Data
@@ -81,21 +101,6 @@ struct ThreadPool::Data
 
 namespace
 {
-
-static inline void
-handleProcessTask (Task* task)
-{
-    if (task)
-    {
-        TaskGroup* taskGroup = task->group ();
-
-        task->execute ();
-
-        if (taskGroup) taskGroup->finishOneTask ();
-
-        delete task;
-    }
-}
 
 //
 // class DefaultThreadPoolProvider
@@ -605,6 +610,7 @@ ThreadPool::estimateThreadCountForFileIO ()
 #endif
 }
 
+#ifdef ENABLE_THREADING
 void
 ThreadPool::Data::resetToDefaultProvider (int count)
 {
@@ -617,5 +623,6 @@ ThreadPool::Data::resetToDefaultProvider (int count)
     }
     setProvider (dp);
 }
+#endif
 
 ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_EXIT
