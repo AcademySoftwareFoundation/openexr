@@ -53,7 +53,7 @@ struct TaskGroup::Data
 
 struct ThreadPool::Data
 {
-    typedef ThreadPoolProvider* TPPointer;
+    using ProviderPtr = std::shared_ptr<ThreadPoolProvider>;
 
     Data ();
     ~Data ();
@@ -62,62 +62,39 @@ struct ThreadPool::Data
     Data (Data&&)                 = delete;
     Data& operator= (Data&&)      = delete;
 
-    struct SafeProvider
+    ProviderPtr getProvider () const { return std::atomic_load (&_provider); }
+
+    void setProvider (ThreadPoolProvider* provider)
     {
-        SafeProvider (Data* d, ThreadPoolProvider* p) : _data (d), _ptr (p) {}
+        ProviderPtr curp = getProvider ();
 
-        ~SafeProvider ()
+        if (curp.get () != provider)
         {
-            if (_data) _data->coalesceProviderUse ();
+            curp = std::atomic_exchange (&_provider, ProviderPtr (provider));
+            if (curp) curp->finish ();
         }
-        SafeProvider (const SafeProvider& o) : _data (o._data), _ptr (o._ptr)
-        {
-            if (_data) _data->bumpProviderUse ();
-        }
-        SafeProvider& operator= (const SafeProvider& o)
-        {
-            if (this != &o)
-            {
-                if (o._data) o._data->bumpProviderUse ();
-                if (_data) _data->coalesceProviderUse ();
-                _data = o._data;
-                _ptr  = o._ptr;
-            }
-            return *this;
-        }
-        SafeProvider (SafeProvider&& o) : _data (o._data), _ptr (o._ptr)
-        {
-            o._data = nullptr;
-        }
-        SafeProvider& operator= (SafeProvider&& o)
-        {
-            std::swap (_data, o._data);
-            std::swap (_ptr, o._ptr);
-            return *this;
-        }
+    }
 
-        explicit operator bool () const noexcept { return _ptr != nullptr; }
-
-        inline ThreadPoolProvider* get () const { return _ptr; }
-        ThreadPoolProvider*        operator->() const { return get (); }
-
-        Data*               _data;
-        ThreadPoolProvider* _ptr;
-    };
-
-    // NB: In C++20, there is full support for atomic shared_ptr, but that is not
-    // yet in use or finalized. Once stabilized, add appropriate usage here
-    inline SafeProvider getProvider ();
-    inline void         coalesceProviderUse ();
-    inline void         bumpProviderUse ();
-    inline void         setProvider (ThreadPoolProvider* p);
-
-    std::atomic<int>                 provUsers;
-    std::atomic<ThreadPoolProvider*> provider;
+    std::shared_ptr<ThreadPoolProvider> _provider;
 };
 
 namespace
 {
+
+static inline void
+handleProcessTask (Task* task)
+{
+    if (task)
+    {
+        TaskGroup* taskGroup = task->group ();
+
+        task->execute ();
+
+        if (taskGroup) taskGroup->finishOneTask ();
+
+        delete task;
+    }
+}
 
 //
 // class DefaultThreadPoolProvider
@@ -215,8 +192,8 @@ DefaultThreadPoolProvider::setNumThreads (int count)
     // it would appear some systems crash randomly if a join is used
     // prior to the full start of the thread, let's ensure things are
     // spun up before we continue
-    for (size_t i = 0; i < nToAdd; ++i)
-        _threadSemaphore.wait ();
+    //    for (size_t i = 0; i < nToAdd; ++i)
+    //        _threadSemaphore.wait ();
 
     _threadCount = static_cast<int> (_threads.size ());
 }
@@ -324,15 +301,11 @@ DefaultThreadPoolProvider::threadLoop ()
             {
                 Task* task = _tasks.back ();
                 _tasks.pop_back ();
+
                 // release the mutex while we process
                 taskLock.unlock ();
 
-                TaskGroup* taskGroup = task->group ();
-                task->execute ();
-
-                taskGroup->finishOneTask ();
-
-                delete task;
+                handleProcessTask (task);
 
                 // do not need to reacquire the lock at all since we
                 // will just loop around, pull any other task
@@ -341,22 +314,6 @@ DefaultThreadPoolProvider::threadLoop ()
         }
     }
 }
-
-////////////////////////////////////////
-
-class NullThreadPoolProvider : public ThreadPoolProvider
-{
-    virtual ~NullThreadPoolProvider () {}
-    virtual int  numThreads () const { return 0; }
-    virtual void setNumThreads (int count) {}
-    virtual void addTask (Task* t)
-    {
-        t->execute ();
-        t->group ()->finishOneTask ();
-        delete t;
-    }
-    virtual void finish () {}
-};
 
 } //namespace
 
@@ -441,90 +398,14 @@ TaskGroup::Data::removeTask ()
 // struct ThreadPool::Data
 //
 
-ThreadPool::Data::Data () : provUsers (0), provider (NULL)
+ThreadPool::Data::Data ()
 {
     // empty
 }
 
 ThreadPool::Data::~Data ()
 {
-    ThreadPoolProvider* p = provider.load (std::memory_order_relaxed);
-    if (p)
-    {
-        p->finish ();
-        delete p;
-    }
-}
-
-inline ThreadPool::Data::SafeProvider
-ThreadPool::Data::getProvider ()
-{
-    provUsers.fetch_add (1, std::memory_order_relaxed);
-    return SafeProvider (this, provider.load (std::memory_order_relaxed));
-}
-
-inline void
-ThreadPool::Data::coalesceProviderUse ()
-{
-    int ov = provUsers.fetch_sub (1, std::memory_order_relaxed);
-    // ov is the previous value, so one means that now it might be 0
-    if (ov == 1)
-    {
-        // do we have anything to do here?
-    }
-}
-
-inline void
-ThreadPool::Data::bumpProviderUse ()
-{
-    provUsers.fetch_add (1, std::memory_order_relaxed);
-}
-
-inline void
-ThreadPool::Data::setProvider (ThreadPoolProvider* p)
-{
-    ThreadPoolProvider* old = provider.load (std::memory_order_relaxed);
-    // work around older gcc bug just in case
-    do
-    {
-        if (!provider.compare_exchange_weak (
-                old, p, std::memory_order_release, std::memory_order_relaxed))
-            continue;
-    } while (false); // NOSONAR - suppress SonarCloud bug report.
-
-    // wait for any other users to finish prior to deleting, given
-    // that these are just mostly to query the thread count or push a
-    // task to the queue (so fast), just spin...
-    //
-    // (well, and normally, people don't do this mid stream anyway, so
-    // this will be 0 99.999% of the time, but just to be safe)
-    //
-    while (provUsers.load (std::memory_order_relaxed) > 0)
-        std::this_thread::yield ();
-
-    if (old)
-    {
-        old->finish ();
-        delete old;
-    }
-
-    // NB: the shared_ptr mechanism is safer and means we don't have
-    // to have the provUsers counter since the shared_ptr keeps that
-    // for us. However, gcc 4.8/9 compilers which many people are
-    // still using even though it is 2018 forgot to add the shared_ptr
-    // functions... once that compiler is fully deprecated, switch to
-    // using the below, change provider to a std::shared_ptr and remove
-    // provUsers...
-    //
-    //    std::shared_ptr<ThreadPoolProvider> newp( p );
-    //    std::shared_ptr<ThreadPoolProvider> curp = std::atomic_load_explicit( &provider, std::memory_order_relaxed );
-    //    do
-    //    {
-    //        if ( ! std::atomic_compare_exchange_weak_explicit( &provider, &curp, newp, std::memory_order_release, std::memory_order_relaxed ) )
-    //            continue;
-    //    } while ( false );
-    //    if ( curp )
-    //        curp->finish();
+    setProvider (nullptr);
 }
 
 #endif // ENABLE_THREADING
@@ -600,8 +481,8 @@ ThreadPool::ThreadPool (unsigned nthreads)
 #endif
 {
 #ifdef ENABLE_THREADING
-    if (nthreads == 0)
-        _data->setProvider (new NullThreadPoolProvider);
+    if (nthreads == 0 || nthreads == unsigned (-1))
+        _data->setProvider (nullptr);
     else
         _data->setProvider (new DefaultThreadPoolProvider (int (nthreads)));
 #endif
@@ -620,7 +501,8 @@ int
 ThreadPool::numThreads () const
 {
 #ifdef ENABLE_THREADING
-    return _data->getProvider ()->numThreads ();
+    Data::ProviderPtr sp = _data->getProvider ();
+    return (sp) ? sp->numThreads () : 0;
 #else
     return 0;
 #endif
@@ -636,26 +518,14 @@ ThreadPool::setNumThreads (int count)
             "in a thread pool to a negative value.");
 
     {
-        Data::SafeProvider sp = _data->getProvider ();
+        Data::ProviderPtr sp = _data->getProvider ();
         if (sp)
         {
             bool doReset = false;
             int  curT    = sp->numThreads ();
             if (curT == count) return;
 
-            if (curT == 0)
-            {
-                NullThreadPoolProvider* npp =
-                    dynamic_cast<NullThreadPoolProvider*> (sp.get ());
-                if (npp) doReset = true;
-            }
-            else if (count == 0)
-            {
-                DefaultThreadPoolProvider* dpp =
-                    dynamic_cast<DefaultThreadPoolProvider*> (sp.get ());
-                if (dpp) doReset = true;
-            }
-            if (!doReset)
+            if (count != 0)
             {
                 sp->setNumThreads (count);
                 return;
@@ -666,7 +536,7 @@ ThreadPool::setNumThreads (int count)
     // either a null provider or a case where we should switch from
     // a default provider to a null one or vice-versa
     if (count == 0)
-        _data->setProvider (new NullThreadPoolProvider);
+        _data->setProvider (nullptr);
     else
         _data->setProvider (new DefaultThreadPoolProvider (count));
 #else
@@ -693,11 +563,15 @@ ThreadPool::addTask (Task* task)
     if (task)
     {
 #ifdef ENABLE_THREADING
-        _data->getProvider ()->addTask (task);
-#else
-        task->execute ();
-        delete task;
+        Data::ProviderPtr p = _data->getProvider ();
+        if (p)
+        {
+            p->addTask (task);
+            return;
+        }
 #endif
+
+        handleProcessTask (task);
     }
 }
 
@@ -723,7 +597,9 @@ unsigned
 ThreadPool::estimateThreadCountForFileIO ()
 {
 #ifdef ENABLE_THREADING
-    return std::thread::hardware_concurrency ();
+    unsigned rv = std::thread::hardware_concurrency ();
+    if (rv == 0 || rv == unsigned (-1)) rv = 1;
+    return rv;
 #else
     return 0;
 #endif
