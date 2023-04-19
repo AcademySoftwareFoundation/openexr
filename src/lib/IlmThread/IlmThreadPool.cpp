@@ -20,8 +20,6 @@
 #include <thread>
 #include <vector>
 
-using namespace std;
-
 ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 #if ILMTHREAD_THREADING_ENABLED
@@ -64,18 +62,21 @@ struct ThreadPool::Data
 
     ProviderPtr getProvider () const { return std::atomic_load (&_provider); }
 
-    void setProvider (ThreadPoolProvider* provider)
+    void setProvider (ProviderPtr provider)
     {
         ProviderPtr curp = getProvider ();
 
-        if (curp.get () != provider)
+        if (curp != provider)
         {
-            curp = std::atomic_exchange (&_provider, ProviderPtr (provider));
+            curp = std::atomic_exchange (&_provider, provider);
             if (curp) curp->finish ();
         }
     }
 
+    void resetToDefaultProvider (int count);
+
     std::shared_ptr<ThreadPoolProvider> _provider;
+    std::shared_ptr<ThreadPoolProvider> _default_provider;
 };
 
 namespace
@@ -120,16 +121,16 @@ private:
     void threadLoop ();
 
     // we use this to work around launch issues not updating thread::get_id in constructor
-    Semaphore     _threadSemaphore;
-    Semaphore     _taskSemaphore; // threads wait on this for ready tasks
-    mutable mutex _taskMutex;     // mutual exclusion for the tasks list
-    vector<Task*> _tasks;         // the list of tasks to execute
+    Semaphore          _threadSemaphore;
+    Semaphore          _taskSemaphore; // threads wait on this for ready tasks
+    mutable std::mutex _taskMutex;     // mutual exclusion for the tasks list
+    std::vector<Task*> _tasks;         // the list of tasks to execute
 
-    mutable mutex  _threadMutex; // mutual exclusion for threads list
-    vector<thread> _threads;     // the list of all threads
+    mutable std::mutex       _threadMutex; // mutual exclusion for threads list
+    std::vector<std::thread> _threads;     // the list of all threads
 
-    atomic<int>  _threadCount;
-    atomic<bool> _stopping;
+    std::atomic<int>  _threadCount;
+    std::atomic<bool> _stopping;
 
     inline bool stopped () const
     {
@@ -187,7 +188,7 @@ DefaultThreadPoolProvider::setNumThreads (int count)
     size_t nToAdd = static_cast<size_t> (count) - _threads.size ();
     for (size_t i = 0; i < nToAdd; ++i)
         _threads.emplace_back (
-            thread (&DefaultThreadPoolProvider::threadLoop, this));
+            std::thread (&DefaultThreadPoolProvider::threadLoop, this));
 
     // it would appear some systems crash randomly if a join is used
     // prior to the full start of the thread, let's ensure things are
@@ -481,10 +482,8 @@ ThreadPool::ThreadPool (unsigned nthreads)
 #endif
 {
 #ifdef ENABLE_THREADING
-    if (nthreads == 0 || nthreads == unsigned (-1))
-        _data->setProvider (nullptr);
-    else
-        _data->setProvider (new DefaultThreadPoolProvider (int (nthreads)));
+    if (nthreads > 0 && nthreads < unsigned (-1))
+        _data->resetToDefaultProvider (static_cast<int> (nthreads));
 #endif
 }
 
@@ -538,7 +537,7 @@ ThreadPool::setNumThreads (int count)
     if (count == 0)
         _data->setProvider (nullptr);
     else
-        _data->setProvider (new DefaultThreadPoolProvider (count));
+        _data->resetToDefaultProvider (count);
 #else
     // just blindly ignore
     (void) count;
@@ -549,7 +548,8 @@ void
 ThreadPool::setThreadProvider (ThreadPoolProvider* provider)
 {
 #ifdef ENABLE_THREADING
-    _data->setProvider (provider);
+    // contract is we take ownership and will free the provider
+    _data->setProvider (Data::ProviderPtr (provider));
 #else
     throw IEX_INTERNAL_NAMESPACE::ArgExc (
         "Attempt to set a thread provider on a system with threads"
@@ -603,6 +603,19 @@ ThreadPool::estimateThreadCountForFileIO ()
 #else
     return 0;
 #endif
+}
+
+void
+ThreadPool::Data::resetToDefaultProvider (int count)
+{
+    ProviderPtr dp = std::atomic_load (&_default_provider);
+    if (dp) { dp->setNumThreads (count); }
+    else
+    {
+        dp = std::make_shared<DefaultThreadPoolProvider> (count);
+        std::atomic_store (&_default_provider, dp);
+    }
+    setProvider (dp);
 }
 
 ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_EXIT
