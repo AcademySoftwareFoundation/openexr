@@ -526,6 +526,7 @@ ThreadPool::setNumThreads (int count)
         Data::ProviderPtr sp = _data->getProvider ();
         if (sp)
         {
+#ifdef HACKHACK_DO_NOT_KEEP_THIS_IFDEF
             bool doReset = false;
             int  curT    = sp->numThreads ();
             if (curT == count) return;
@@ -535,6 +536,9 @@ ThreadPool::setNumThreads (int count)
                 sp->setNumThreads (count);
                 return;
             }
+#else
+            return;
+#endif
         }
     }
 
@@ -542,8 +546,13 @@ ThreadPool::setNumThreads (int count)
     // a default provider to a null one or vice-versa
     if (count == 0)
         _data->setProvider (nullptr);
-#ifdef HACKHACK_DO_NOT_KEEP_THIS_IFDEF
     else
+#ifdef HACKHACK_DO_NOT_KEEP_THIS_IFDEF
+    {
+        count = 3;
+        _data->resetToDefaultProvider (count);
+    }
+#else
         _data->resetToDefaultProvider (count);
 #endif
 
