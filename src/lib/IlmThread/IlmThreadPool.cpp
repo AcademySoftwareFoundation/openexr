@@ -49,7 +49,33 @@ handleProcessTask (Task* task)
     }
 }
 
-} // empty namespace
+struct DefaultThreadPoolData
+{
+    Semaphore          _taskSemaphore; // threads wait on this for ready tasks
+    mutable std::mutex _taskMutex;     // mutual exclusion for the tasks list
+    std::vector<Task*> _tasks;         // the list of tasks to execute
+
+    mutable std::mutex       _threadMutex; // mutual exclusion for threads list
+    std::vector<std::thread> _threads;     // the list of all threads
+
+    std::atomic<int>  _threadCount;
+    std::atomic<bool> _stopping;
+
+    inline bool stopped () const
+    {
+        return _stopping.load (std::memory_order_relaxed);
+    }
+
+    inline void stop () { _stopping = true; }
+
+    inline void reset ()
+    {
+        _threadCount = 0;
+        _stopping    = false;
+    }
+};
+
+} // namespace
 
 #ifdef ENABLE_THREADING
 
@@ -88,15 +114,12 @@ struct ThreadPool::Data
 
         if (curp != provider)
         {
-            curp = std::atomic_exchange (&_provider, provider);
+            curp = std::atomic_exchange (&_provider, std::move (provider));
             if (curp) curp->finish ();
         }
     }
 
-    void resetToDefaultProvider (int count);
-
     std::shared_ptr<ThreadPoolProvider> _provider;
-    std::shared_ptr<ThreadPoolProvider> _default_provider;
 };
 
 namespace
@@ -123,38 +146,15 @@ public:
     void finish () override;
 
 private:
-    void threadLoop ();
+    void threadLoop (std::shared_ptr<DefaultThreadPoolData> d);
 
-    // we use this to work around launch issues not updating thread::get_id in constructor
-    Semaphore          _threadSemaphore;
-    Semaphore          _taskSemaphore; // threads wait on this for ready tasks
-    mutable std::mutex _taskMutex;     // mutual exclusion for the tasks list
-    std::vector<Task*> _tasks;         // the list of tasks to execute
-
-    mutable std::mutex       _threadMutex; // mutual exclusion for threads list
-    std::vector<std::thread> _threads;     // the list of all threads
-
-    std::atomic<int>  _threadCount;
-    std::atomic<bool> _stopping;
-
-    inline bool stopped () const
-    {
-        return _stopping.load (std::memory_order_relaxed);
-    }
-
-    inline void stop () { _stopping = true; }
-
-    inline void reset ()
-    {
-        _threadCount = 0;
-        _stopping    = false;
-    }
+    std::shared_ptr<DefaultThreadPoolData> _data;
 };
 
 DefaultThreadPoolProvider::DefaultThreadPoolProvider (int count)
+    : _data (std::make_shared<DefaultThreadPoolData> ())
 {
-    reset ();
-
+    _data->reset ();
     setNumThreads (count);
 }
 
@@ -164,7 +164,7 @@ DefaultThreadPoolProvider::~DefaultThreadPoolProvider ()
 int
 DefaultThreadPoolProvider::numThreads () const
 {
-    return _threadCount.load ();
+    return _data->_threadCount.load ();
 }
 
 void
@@ -188,20 +188,14 @@ DefaultThreadPoolProvider::setNumThreads (int count)
     if (count < numThreads ()) { finish (); }
 
     // now take the lock and build any threads needed
-    std::lock_guard<std::mutex> lock (_threadMutex);
+    std::lock_guard<std::mutex> lock (_data->_threadMutex);
 
-    size_t nToAdd = static_cast<size_t> (count) - _threads.size ();
+    size_t nToAdd = static_cast<size_t> (count) - _data->_threads.size ();
     for (size_t i = 0; i < nToAdd; ++i)
-        _threads.emplace_back (
-            std::thread (&DefaultThreadPoolProvider::threadLoop, this));
+        _data->_threads.emplace_back (
+            std::thread (&DefaultThreadPoolProvider::threadLoop, this, _data));
 
-    // it would appear some systems crash randomly if a join is used
-    // prior to the full start of the thread, let's ensure things are
-    // spun up before we continue
-    for (size_t i = 0; i < nToAdd; ++i)
-        _threadSemaphore.wait ();
-
-    _threadCount = static_cast<int> (_threads.size ());
+    _data->_threadCount = static_cast<int> (_data->_threads.size ());
 }
 
 void
@@ -212,26 +206,26 @@ DefaultThreadPoolProvider::addTask (Task* task)
     // go ahead and lock and assume we have a thread to do the
     // processing
     {
-        std::lock_guard<std::mutex> taskLock (_taskMutex);
+        std::lock_guard<std::mutex> taskLock (_data->_taskMutex);
 
         //
         // Push the new task into the FIFO
         //
-        _tasks.push_back (task);
+        _data->_tasks.push_back (task);
     }
 
     //
     // Signal that we have a new task to process
     //
-    _taskSemaphore.post ();
+    _data->_taskSemaphore.post ();
 }
 
 void
 DefaultThreadPoolProvider::finish ()
 {
-    std::lock_guard<std::mutex> lock (_threadMutex);
+    std::lock_guard<std::mutex> lock (_data->_threadMutex);
 
-    stop ();
+    _data->stop ();
 
     //
     // Signal enough times to allow all threads to stop.
@@ -246,9 +240,9 @@ DefaultThreadPoolProvider::finish ()
     //   - still starting up (successive calls to setNumThreads)
     //   - in the middle of processing a task / looping
     //   - waiting in the semaphore
-    size_t curT = _threads.size ();
+    size_t curT = _data->_threads.size ();
     for (size_t i = 0; i != curT; ++i)
-        _taskSemaphore.post ();
+        _data->_taskSemaphore.post ();
 
     //
     // We should not need to check joinability, they should all, by
@@ -275,39 +269,37 @@ DefaultThreadPoolProvider::finish ()
             if (tstatus != STILL_ACTIVE) { continue; }
         }
 #    endif
-        _threads[i].join ();
+        _data->_threads[i].join ();
     }
 
-    _threads.clear ();
+    _data->_threads.clear ();
 
-    reset ();
+    _data->reset ();
 }
 
 void
-DefaultThreadPoolProvider::threadLoop ()
+DefaultThreadPoolProvider::threadLoop (
+    std::shared_ptr<DefaultThreadPoolData> data)
 {
-    // tell the parent thread we've started
-    _threadSemaphore.post ();
-
     while (true)
     {
         //
         // Wait for a task to become available
         //
 
-        _taskSemaphore.wait ();
+        data->_taskSemaphore.wait ();
 
         {
-            std::unique_lock<std::mutex> taskLock (_taskMutex);
+            std::unique_lock<std::mutex> taskLock (data->_taskMutex);
 
             //
             // If there is a task pending, pop off the next task in the FIFO
             //
 
-            if (!_tasks.empty ())
+            if (!data->_tasks.empty ())
             {
-                Task* task = _tasks.back ();
-                _tasks.pop_back ();
+                Task* task = data->_tasks.back ();
+                data->_tasks.pop_back ();
 
                 // release the mutex while we process
                 taskLock.unlock ();
@@ -317,7 +309,7 @@ DefaultThreadPoolProvider::threadLoop ()
                 // do not need to reacquire the lock at all since we
                 // will just loop around, pull any other task
             }
-            else if (stopped ()) { break; }
+            else if (data->stopped ()) { break; }
         }
     }
 }
@@ -489,7 +481,8 @@ ThreadPool::ThreadPool (unsigned nthreads)
 {
 #ifdef ENABLE_THREADING
     if (nthreads > 0 && nthreads < unsigned (-1))
-        _data->resetToDefaultProvider (static_cast<int> (nthreads));
+        _data->setProvider (std::make_shared<DefaultThreadPoolProvider> (
+            static_cast<int> (nthreads)));
 #endif
 }
 
@@ -526,7 +519,6 @@ ThreadPool::setNumThreads (int count)
         Data::ProviderPtr sp = _data->getProvider ();
         if (sp)
         {
-#ifdef HACKHACK_DO_NOT_KEEP_THIS_IFDEF
             bool doReset = false;
             int  curT    = sp->numThreads ();
             if (curT == count) return;
@@ -536,9 +528,6 @@ ThreadPool::setNumThreads (int count)
                 sp->setNumThreads (count);
                 return;
             }
-#else
-            return;
-#endif
         }
     }
 
@@ -547,14 +536,8 @@ ThreadPool::setNumThreads (int count)
     if (count == 0)
         _data->setProvider (nullptr);
     else
-#ifdef HACKHACK_DO_NOT_KEEP_THIS_IFDEF
-    {
-        count = 3;
-        _data->resetToDefaultProvider (count);
-    }
-#else
-        _data->resetToDefaultProvider (count);
-#endif
+        _data->setProvider (
+            std::make_shared<DefaultThreadPoolProvider> (count));
 
 #else
     // just blindly ignore
@@ -622,20 +605,5 @@ ThreadPool::estimateThreadCountForFileIO ()
     return 0;
 #endif
 }
-
-#ifdef ENABLE_THREADING
-void
-ThreadPool::Data::resetToDefaultProvider (int count)
-{
-    ProviderPtr dp = std::atomic_load (&_default_provider);
-    if (dp) { dp->setNumThreads (count); }
-    else
-    {
-        dp = std::make_shared<DefaultThreadPoolProvider> (count);
-        std::atomic_store (&_default_provider, dp);
-    }
-    setProvider (dp);
-}
-#endif
 
 ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_EXIT
