@@ -32,6 +32,7 @@
 #include "ImfFloatAttribute.h"
 #include "ImfHeader.h"
 #include "ImfIDManifestAttribute.h"
+#include "ImfIntAttribute.h"
 #include "ImfKeyCodeAttribute.h"
 #include "ImfMatrixAttribute.h"
 #include "ImfNamespace.h"
@@ -452,9 +453,12 @@ IMF_STD_ATTRIBUTE_DEF (entrancePupilOffset, EntrancePupilOffset, float)
 IMF_STD_ATTRIBUTE_DEF (aperture, Aperture, float)
 
 //
-// tStop -- ratio of lens focal length to diameter, adjusted for
-// transmittance. The T-stop is the f-number of the lens divided by
-// the square root of the transmittance the lens presents to a paraxial ray.
+// tStop -- ratio of lens focal length to diameter of entrance pupil,
+// divided by the square root of the transmittance the lens presents
+// to a paraxial ray.
+//
+// Note that tStop, like aperture, must be strictly positive;
+// and that tStop will always be a larger number than aperture.
 //
 
 IMF_STD_ATTRIBUTE_DEF (tStop, TStop, float)
