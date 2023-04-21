@@ -185,11 +185,17 @@ DefaultThreadPoolProvider::setNumThreads (int count)
     // This isn't great, perhaps, but the likely scenario of this
     // changing frequently is people ping-ponging between 0 and N
     // which would result in a full clear anyway
-    if (count < numThreads ()) { finish (); }
+    if (count < numThreads ())
+    {
+#ifdef RESTORE_THIS_AFTER_TESTING
+        finish ();
+#else
+        return;
+#endif
+    }
 
     // now take the lock and build any threads needed
     std::lock_guard<std::mutex> lock (_data->_threadMutex);
-
     size_t nToAdd = static_cast<size_t> (count) - _data->_threads.size ();
     for (size_t i = 0; i < nToAdd; ++i)
         _data->_threads.emplace_back (
