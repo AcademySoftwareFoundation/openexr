@@ -854,7 +854,7 @@ generatedFunctions ()
     assert (hasOriginalDataWindow (header) == false);
     assert (hasWorldToCamera (header) == false);
     assert (hasWorldToNDC (header) == false);
-    assert (hasFramelines (header) == false);
+    assert (hasAscFramingDecisionList (header) == false);
     assert (hasXDensity (header) == false);
     assert (hasLongitude (header) == false);
     assert (hasLatitude (header) == false);
