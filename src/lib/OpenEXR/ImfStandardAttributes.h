@@ -80,6 +80,11 @@
     OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
 //
+// In attribute definition comments below, 'UTF-8-encoded' signifies
+//   a sequence of zero or more characters encoded using Unicode UTF-8 encoding
+//   in NFC normal form, as defined in the Unicode standard.
+
+//
 // originalDataWindow -- if application software crops an image, then it
 // should save the data window of the original, un-cropped image in the
 // originalDataWindow attribute.
@@ -124,18 +129,14 @@ IMF_STD_ATTRIBUTE_DEF (worldToCamera, WorldToCamera, IMATH_NAMESPACE::M44f)
 IMF_STD_ATTRIBUTE_DEF (worldToNDC, WorldToNDC, IMATH_NAMESPACE::M44f)
 
 //
-// framelines -- carry one or more JSON-encoded strings each embodying a
-// system for carriage of framing information, relating what was seen in
-// the camera viewfinder to how downstream processing is intended to use
-// the full captured image or some subset thereof.
+// ascFramingDecisionList -- JSON-encoded description of framing decisions
+// associated with the captured image, in a format termed 'ASC-FDL', designed
+// and documented by the American Society of Cinematographers (ASC).
 //
-// The top-level object represented by this attribute has names calling
-// out the relevant scheme and values carrying that scheme's configuration
-// for this frame. The names should be globally unique and represent the
-// organization that created the associated frameline scheme, e.g. 
-// com.theasc or de.arri.
+// If present, the value should be UTF-8-encoded and have a nonzero length.
+//
 
-IMF_STD_ATTRIBUTE_DEF (framelines, Framelines, std::string)
+IMF_STD_ATTRIBUTE_DEF (ascFramingDecisionList, AscFramingDecisionList, std::string)
 
 //
 // xDensity -- horizontal output density, in pixels per inch.
@@ -159,8 +160,7 @@ IMF_STD_ATTRIBUTE_DEF (altitude, Altitude, float)
 //
 // cameraMake -- manufacturer or vendor of the camera
 //
-// If present, the value should contain only printable characters
-// and have a nonzero length.
+// If present, the value should be UTF-8-encoded and have a nonzero length.
 //
 
 IMF_STD_ATTRIBUTE_DEF (cameraMake, CameraMake, std::string)
@@ -168,8 +168,7 @@ IMF_STD_ATTRIBUTE_DEF (cameraMake, CameraMake, std::string)
 //
 // cameraModel -- model name or model number of the camera
 //
-// If present, the value should contain only printable characters
-// and have a nonzero length.
+// If present, the value should be UTF-8-encoded and have a nonzero length.
 //
 
 IMF_STD_ATTRIBUTE_DEF (cameraModel, CameraModel, std::string)
@@ -177,9 +176,10 @@ IMF_STD_ATTRIBUTE_DEF (cameraModel, CameraModel, std::string)
 //
 // cameraSerialNumber -- serial number of the camera
 //
-// If present, the value should contain only printable characters
-// and have a nonzero length. Note that despite the name, the
-// string can include non-digits as well as digits.
+// If present, the value should be UTF-8-encoded and have a nonzero length.
+//
+// Note that despite the name, the value can include non-digits
+// as well as digits.
 //
 
 IMF_STD_ATTRIBUTE_DEF (cameraSerialNumber, CameraSerialNumber, std::string)
@@ -187,8 +187,7 @@ IMF_STD_ATTRIBUTE_DEF (cameraSerialNumber, CameraSerialNumber, std::string)
 //
 // cameraFirmwareVersion -- the firmware version of the camera
 //
-// If present, the value should contain only printable characters
-// and have a nonzero length.
+// If present, the value should be UTF-8-encoded and have a nonzero length.
 //
 
 IMF_STD_ATTRIBUTE_DEF (cameraFirmwareVersion, CameraFirmwareVersion, std::string)
@@ -200,8 +199,7 @@ IMF_STD_ATTRIBUTE_DEF (cameraFirmwareVersion, CameraFirmwareVersion, std::string
 // Uniqueness could be accomplished with, e.g., a MAC address, a
 // concatenation of cameraMake, cameraModel, cameraSerialNumber, etc.
 //
-// If present, the value should contain only printable characters
-// and have a nonzero length.
+// If present, the value should be UTF-8-encoded and have a nonzero length.
 //
 
 IMF_STD_ATTRIBUTE_DEF (cameraUuid, CameraUuid, std::string)
@@ -210,8 +208,7 @@ IMF_STD_ATTRIBUTE_DEF (cameraUuid, CameraUuid, std::string)
 // cameraLabel -- text label identifying how the camera was used or
 // assigned, e.g. "Camera 1 Left", "B Camera", "POV", etc
 //
-// If present, the value should contain only printable characters
-// and have a nonzero length.
+// If present, the value should be UTF-8-encoded and have a nonzero length.
 //
 
 IMF_STD_ATTRIBUTE_DEF (cameraLabel, CameraLabel, std::string)
@@ -321,6 +318,11 @@ IMF_STD_ATTRIBUTE_DEF (expTime, ExpTime, float)
 //
 // shutterAngle -- shutter angle, in degrees
 //
+// For a physical film or digital camera, changing the shutter angle
+// inexorably affects both motion blur and exposure. For a CG camera,
+// the parameters to the renderer control whether or not changing the
+// shutter angle affects simulation of either or both of these phenomena.
+//
 
 IMF_STD_ATTRIBUTE_DEF (shutterAngle, ShutterAngle, float)
 
@@ -354,8 +356,7 @@ IMF_STD_ATTRIBUTE_DEF (timecodeRate, TimecodeRate, int)
 //
 // lensMake -- manufacturer or vendor of the lens
 //
-// If present, the value should contain only printable characters
-// and have a nonzero length.
+// If present, the value should be UTF-8-encoded and have a nonzero length.
 //
 
 IMF_STD_ATTRIBUTE_DEF (lensMake, LensMake, std::string)
@@ -363,8 +364,7 @@ IMF_STD_ATTRIBUTE_DEF (lensMake, LensMake, std::string)
 //
 // lensModel -- model name or model number of the lens
 //
-// If present, the value should contain only printable characters
-// and have a nonzero length.
+// If present, the value should be UTF-8-e coded and have a nonzero length.
 //
 
 IMF_STD_ATTRIBUTE_DEF (lensModel, LensModel, std::string)
@@ -372,12 +372,10 @@ IMF_STD_ATTRIBUTE_DEF (lensModel, LensModel, std::string)
 //
 // lensSerialNumber -- serial number of the lens
 //
-// If present, the value should contain only printable characters
-// and have a nonzero length. Note that despite the name, the
-// string can include non-digits as well as digits.
+// Note that despite the name, the value can include non-digits
+// as well as digits.
 //
-// If present, the value should contain only printable characters
-// and have a nonzero length.
+// If present, the value should be UTF-8-encoded and have a nonzero length.
 //
 
 IMF_STD_ATTRIBUTE_DEF (lensSerialNumber, LensSerialNumber, std::string)
@@ -385,8 +383,8 @@ IMF_STD_ATTRIBUTE_DEF (lensSerialNumber, LensSerialNumber, std::string)
 //
 // lensFirmwareVersion -- firmware version of the lens
 //
-// If present, the value should contain only printable characters
-// and have a nonzero length.
+
+// If present, the value should be UTF-8-encoded and have a nonzero length.
 //
 
 IMF_STD_ATTRIBUTE_DEF (lensFirmwareVersion, LensFirmwareVersion, std::string)
@@ -432,9 +430,12 @@ IMF_STD_ATTRIBUTE_DEF (pinholeFocalLength, PinholeFocalLength, float)
 IMF_STD_ATTRIBUTE_DEF (effectiveFocalLength, EffectiveFocalLength, float)
 
 //
-// entrancePupilOffset -- the axial distance from the entrance pupil
-// to the image plane, in units of millimeters. Note that in some 
-// lens configurations, the entrance pupil offset can be negative.
+// entrancePupilOffset -- the axial distance from the image plane
+// to the ientrance pupil, in units of millimeters. A larger entrance
+// pupil offset means the entrance pupil is closer to the object.
+//
+// Note that in some lens configurations, the entrance pupil offset can
+// be negative.
 //
 
 IMF_STD_ATTRIBUTE_DEF (entrancePupilOffset, EntrancePupilOffset, float)
@@ -472,18 +473,12 @@ IMF_STD_ATTRIBUTE_DEF (focus, Focus, float)
 //
 // owner -- name of the owner of the image
 //
-// If present, the value should contain only printable characters
-// and have a nonzero length.
-//
 
 IMF_STD_ATTRIBUTE_DEF (owner, Owner, std::string)
 
 //
 // comments -- additional image information in human-readable
 // form, for example a verbal description of the image.
-//
-// If present, the value should contain only printable characters
-// and have a nonzero length.
 //
 
 IMF_STD_ATTRIBUTE_DEF (comments, Comments, std::string)
@@ -563,8 +558,7 @@ IMF_STD_ATTRIBUTE_DEF (imageCounter, ImageCounter, int)
 //
 // reelName -- name for a sequence of unique images.
 //
-// If present, the value should contain only printable characters
-// and have a nonzero length.
+// If present, the value should be UTF-8-encoded and have a nonzero length.
 //
 
 IMF_STD_ATTRIBUTE_DEF (reelName, ReelName, std::string)
@@ -601,6 +595,8 @@ IMF_STD_ATTRIBUTE_DEF (adoptedNeutral, AdoptedNeutral, IMATH_NAMESPACE::V2f)
 // renderingTransform, lookModTransform -- specify the names of the
 // CTL functions that implements the intended color rendering and look
 // modification transforms for this image.
+//
+// If present, values should be UTF-8-encoded and have nonzero length.
 //
 
 IMF_STD_ATTRIBUTE_DEF (renderingTransform, RenderingTransform, std::string)
