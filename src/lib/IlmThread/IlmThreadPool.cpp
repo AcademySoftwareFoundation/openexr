@@ -26,11 +26,6 @@ ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_ENTER
 #    define ENABLE_THREADING
 #endif
 
-#if defined(__GNU_LIBRARY__) &&                                                \
-    (__GLIBC__ < 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ < 21))
-#    define ENABLE_SEM_DTOR_WORKAROUND
-#endif
-
 namespace
 {
 
@@ -43,9 +38,14 @@ handleProcessTask (Task* task)
 
         task->execute ();
 
-        if (taskGroup) taskGroup->finishOneTask ();
-
+        // kill the task prior to notifying the group
+        // such that any internal reference-based
+        // semantics will be handled prior to
+        // the task group destructor letting it out
+        // of the scope of those references
         delete task;
+
+        if (taskGroup) taskGroup->finishOneTask ();
     }
 }
 
@@ -68,7 +68,7 @@ struct DefaultThreadPoolData
 
     inline void stop () { _stopping = true; }
 
-    inline void reset ()
+    inline void resetAtomics ()
     {
         _threadCount = 0;
         _stopping    = false;
@@ -83,16 +83,19 @@ struct TaskGroup::Data
 {
     Data ();
     ~Data ();
+    Data (const Data&)            = delete;
+    Data& operator= (const Data&) = delete;
+    Data (Data&&)                 = delete;
+    Data& operator= (Data&&)      = delete;
 
-    void             addTask ();
-    void             removeTask ();
+    void addTask ();
+    void removeTask ();
+
+    void waitForEmpty ();
+
     std::atomic<int> numPending;
+    std::atomic<int> inFlight;
     Semaphore        isEmpty; // used to signal that the taskgroup is empty
-#    if defined(ENABLE_SEM_DTOR_WORKAROUND)
-    // this mutex is also used to lock numPending in the legacy c++ mode...
-    std::mutex dtorMutex; // used to work around the glibc bug:
-        // http://sources.redhat.com/bugzilla/show_bug.cgi?id=12674
-#    endif
 };
 
 struct ThreadPool::Data
@@ -110,13 +113,8 @@ struct ThreadPool::Data
 
     void setProvider (ProviderPtr provider)
     {
-        ProviderPtr curp = getProvider ();
-
-        if (curp != provider)
-        {
-            curp = std::atomic_exchange (&_provider, std::move (provider));
-            if (curp) curp->finish ();
-        }
+        ProviderPtr curp = std::atomic_exchange (&_provider, provider);
+        if (curp && curp != provider) curp->finish ();
     }
 
     std::shared_ptr<ThreadPoolProvider> _provider;
@@ -146,6 +144,7 @@ public:
     void finish () override;
 
 private:
+    void lockedFinish ();
     void threadLoop (std::shared_ptr<DefaultThreadPoolData> d);
 
     std::shared_ptr<DefaultThreadPoolData> _data;
@@ -154,7 +153,7 @@ private:
 DefaultThreadPoolProvider::DefaultThreadPoolProvider (int count)
     : _data (std::make_shared<DefaultThreadPoolData> ())
 {
-    _data->reset ();
+    _data->resetAtomics ();
     setNumThreads (count);
 }
 
@@ -173,34 +172,26 @@ DefaultThreadPoolProvider::setNumThreads (int count)
     // since we're a private class, the thread pool won't call us if
     // we aren't changing size so no need to check that...
 
-    // in order to make sure there isn't an undefined use in finish,
-    // finish needs to have the thread mutex lock to be able to join,
-    // such that if someone is changing the thread provider in one
-    // thread while another thread is calling setNumThreads
-    //
-    // so use an atomic to cache the thread count we can pull without
-    // a lock and then go ahead and zilch everything if we're clearing
-    // it out.
-    //
-    // This isn't great, perhaps, but the likely scenario of this
-    // changing frequently is people ping-ponging between 0 and N
-    // which would result in a full clear anyway
-    if (count < numThreads ())
+    std::lock_guard<std::mutex> lock (_data->_threadMutex);
+
+    size_t curThreads = _data->_threads.size ();
+    size_t nToAdd = static_cast<size_t> (count);
+
+    if ( nToAdd < curThreads )
     {
-#ifdef RESTORE_THIS_AFTER_TESTING
-        finish ();
-#else
-        return;
-#endif
+        // no easy way to only shutdown the n threads at the end of
+        // the vector (well, really, guaranteeing they are the ones to
+        // be woken up), so just kill all of the threads
+        lockedFinish ();
+        curThreads = 0;
     }
 
-    // now take the lock and build any threads needed
-    std::lock_guard<std::mutex> lock (_data->_threadMutex);
-    size_t nToAdd = static_cast<size_t> (count) - _data->_threads.size ();
-    for (size_t i = 0; i < nToAdd; ++i)
-        _data->_threads.emplace_back (
-            std::thread (&DefaultThreadPoolProvider::threadLoop, this, _data));
-
+    _data->_threads.resize (nToAdd);
+    for (size_t i = curThreads; i < nToAdd; ++i)
+    {
+        _data->_threads[i] = 
+            std::thread (&DefaultThreadPoolProvider::threadLoop, this, _data);
+    }
     _data->_threadCount = static_cast<int> (_data->_threads.size ());
 }
 
@@ -231,6 +222,12 @@ DefaultThreadPoolProvider::finish ()
 {
     std::lock_guard<std::mutex> lock (_data->_threadMutex);
 
+    lockedFinish ();
+}
+
+void
+DefaultThreadPoolProvider::lockedFinish ()
+{
     _data->stop ();
 
     //
@@ -256,7 +253,6 @@ DefaultThreadPoolProvider::finish ()
     //
     for (size_t i = 0; i != curT; ++i)
     {
-#    ifdef TEST_FOR_WIN_THREAD_STATUS
         // This isn't quite right in that the thread may have actually
         // be in an exited / signalled state (needing the
         // WaitForSingleObject call), and so already have an exit code
@@ -265,22 +261,24 @@ DefaultThreadPoolProvider::finish ()
         // join should just return invalid handle and continue, and is
         // more of a windows bug... except maybe someone needs to work
         // around it...
+//#    ifdef TEST_FOR_WIN_THREAD_STATUS
+//
+//        // per OIIO issue #2038, on exit / dll unload, windows may
+//        // kill the thread, double check that it is still active prior
+//        // to joining.
+//        DWORD tstatus;
+//        if (GetExitCodeThread (_threads[i].native_handle (), &tstatus))
+//        {
+//            if (tstatus != STILL_ACTIVE) { continue; }
+//        }
+//#    endif
 
-        // per OIIO issue #2038, on exit / dll unload, windows may
-        // kill the thread, double check that it is still active prior
-        // to joining.
-        DWORD tstatus;
-        if (GetExitCodeThread (_threads[i].native_handle (), &tstatus))
-        {
-            if (tstatus != STILL_ACTIVE) { continue; }
-        }
-#    endif
         _data->_threads[i].join ();
     }
 
     _data->_threads.clear ();
 
-    _data->reset ();
+    _data->resetAtomics ();
 }
 
 void
@@ -326,77 +324,68 @@ DefaultThreadPoolProvider::threadLoop (
 // struct TaskGroup::Data
 //
 
-TaskGroup::Data::Data () : numPending (0), isEmpty (1)
+TaskGroup::Data::Data () : numPending (0), inFlight (0), isEmpty (1)
 {
-    // empty
 }
 
 TaskGroup::Data::~Data ()
 {
+}
+
+void
+TaskGroup::Data::waitForEmpty ()
+{
     //
     // A TaskGroup acts like an "inverted" semaphore: if the count
-    // is above 0 then waiting on the taskgroup will block.  This
+    // is above 0 then waiting on the taskgroup will block.  The
     // destructor waits until the taskgroup is empty before returning.
     //
 
     isEmpty.wait ();
 
-#    ifdef ENABLE_SEM_DTOR_WORKAROUND
-    // Update: this was fixed in v. 2.2.21, so this ifdef checks for that
-    //
-    // Alas, given the current bug in glibc we need a secondary
-    // syncronisation primitive here to account for the fact that
-    // destructing the isEmpty Semaphore in this thread can cause
-    // an error for a separate thread that is issuing the post() call.
-    // We are entitled to destruct the semaphore at this point, however,
-    // that post() call attempts to access data out of the associated
-    // memory *after* it has woken the waiting threads, including this one,
-    // potentially leading to invalid memory reads.
-    // http://sources.redhat.com/bugzilla/show_bug.cgi?id=12674
-
-    std::lock_guard<std::mutex> lock (dtorMutex);
-#    endif
+    // pseudo spin to wait for the notifying thread to finish the post
+    // to avoid a premature deletion of the semaphore
+    int count = 0;
+    while (inFlight.load () > 0)
+    {
+        ++count;
+        if (count > 100)
+        {
+            std::this_thread::yield ();
+            count = 0;
+        }
+    }
 }
 
 void
 TaskGroup::Data::addTask ()
 {
-    //
-    // in c++11, we use an atomic to protect numPending to avoid the
-    // extra lock but for c++98, to add the ability for custom thread
-    // pool we add the lock here
-    //
-    if (numPending++ == 0) isEmpty.wait ();
+    inFlight.fetch_add (1);
+
+    // if we are the first task off the rank, clear the
+    // isEmpty semaphore such that the group will actually pause
+    // until the task finishes
+    if (numPending.fetch_add (1) == 0) { isEmpty.wait (); }
 }
 
 void
 TaskGroup::Data::removeTask ()
 {
-    // Alas, given the current bug in glibc we need a secondary
-    // syncronisation primitive here to account for the fact that
-    // destructing the isEmpty Semaphore in a separate thread can
-    // cause an error. Issuing the post call here the current libc
-    // implementation attempts to access memory *after* it has woken
-    // waiting threads.
-    // Since other threads are entitled to delete the semaphore the
-    // access to the memory location can be invalid.
-    // http://sources.redhat.com/bugzilla/show_bug.cgi?id=12674
-    // Update: this bug has been fixed, but how do we know which
-    // glibc version we're in?
+    // if we are the last task, notify the group we're done
+    if (numPending.fetch_sub (1) == 1) { isEmpty.post (); }
 
-    // Further update:
+    // in theory, a background thread could actually finish a task
+    // prior to the next task being added. The fetch_add / fetch_sub
+    // logic between addTask and removeTask are fine to keep the
+    // inverted semaphore straight. All addTask must happen prior to
+    // the TaskGroup destructor.
     //
-    // we could remove this if it is a new enough glibc, however
-    // we've changed the API to enable a custom override of a
-    // thread pool. In order to provide safe access to the numPending,
-    // we need the lock anyway, except for c++11 or newer
-    if (--numPending == 0)
-    {
-#    ifdef ENABLE_SEM_DTOR_WORKAROUND
-        std::lock_guard<std::mutex> lk (dtorMutex);
-#    endif
-        isEmpty.post ();
-    }
+    // But to let the taskgroup thread waiting know we're actually
+    // finished with the last one and finished posting (the semaphore
+    // might wake up the other thread while in the middle of post) so
+    // we don't destroy the semaphore while posting to it, keep a
+    // separate counter that is modified pre / post semaphore
+    inFlight.fetch_sub (1);
 }
 
 //
@@ -440,7 +429,7 @@ Task::group ()
 TaskGroup::TaskGroup ()
     :
 #ifdef ENABLE_THREADING
-    _data (new Data ())
+    _data (new Data)
 #else
     _data (nullptr)
 #endif
@@ -451,6 +440,7 @@ TaskGroup::TaskGroup ()
 TaskGroup::~TaskGroup ()
 {
 #ifdef ENABLE_THREADING
+    _data->waitForEmpty ();
     delete _data;
 #endif
 }
@@ -486,9 +476,7 @@ ThreadPool::ThreadPool (unsigned nthreads)
 #endif
 {
 #ifdef ENABLE_THREADING
-    if (nthreads > 0 && nthreads < unsigned (-1))
-        _data->setProvider (std::make_shared<DefaultThreadPoolProvider> (
-            static_cast<int> (nthreads)));
+    setNumThreads (static_cast<int> (nthreads));
 #endif
 }
 
