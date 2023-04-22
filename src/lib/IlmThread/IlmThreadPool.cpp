@@ -15,10 +15,17 @@
 #include "IlmThreadSemaphore.h"
 
 #include <atomic>
+#include <limits>
 #include <memory>
 #include <mutex>
 #include <thread>
 #include <vector>
+
+#if (defined(_WIN32) || defined(_WIN64))
+#    include <windows.h>
+#else
+#    include <unistd.h>
+#endif
 
 ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_ENTER
 
@@ -175,9 +182,9 @@ DefaultThreadPoolProvider::setNumThreads (int count)
     std::lock_guard<std::mutex> lock (_data->_threadMutex);
 
     size_t curThreads = _data->_threads.size ();
-    size_t nToAdd = static_cast<size_t> (count);
+    size_t nToAdd     = static_cast<size_t> (count);
 
-    if ( nToAdd < curThreads )
+    if (nToAdd < curThreads)
     {
         // no easy way to only shutdown the n threads at the end of
         // the vector (well, really, guaranteeing they are the ones to
@@ -189,7 +196,7 @@ DefaultThreadPoolProvider::setNumThreads (int count)
     _data->_threads.resize (nToAdd);
     for (size_t i = curThreads; i < nToAdd; ++i)
     {
-        _data->_threads[i] = 
+        _data->_threads[i] =
             std::thread (&DefaultThreadPoolProvider::threadLoop, this, _data);
     }
     _data->_threadCount = static_cast<int> (_data->_threads.size ());
@@ -261,17 +268,17 @@ DefaultThreadPoolProvider::lockedFinish ()
         // join should just return invalid handle and continue, and is
         // more of a windows bug... except maybe someone needs to work
         // around it...
-//#    ifdef TEST_FOR_WIN_THREAD_STATUS
-//
-//        // per OIIO issue #2038, on exit / dll unload, windows may
-//        // kill the thread, double check that it is still active prior
-//        // to joining.
-//        DWORD tstatus;
-//        if (GetExitCodeThread (_threads[i].native_handle (), &tstatus))
-//        {
-//            if (tstatus != STILL_ACTIVE) { continue; }
-//        }
-//#    endif
+        //#    ifdef TEST_FOR_WIN_THREAD_STATUS
+        //
+        //        // per OIIO issue #2038, on exit / dll unload, windows may
+        //        // kill the thread, double check that it is still active prior
+        //        // to joining.
+        //        DWORD tstatus;
+        //        if (GetExitCodeThread (_threads[i].native_handle (), &tstatus))
+        //        {
+        //            if (tstatus != STILL_ACTIVE) { continue; }
+        //        }
+        //#    endif
 
         _data->_threads[i].join ();
     }
@@ -325,12 +332,10 @@ DefaultThreadPoolProvider::threadLoop (
 //
 
 TaskGroup::Data::Data () : numPending (0), inFlight (0), isEmpty (1)
-{
-}
+{}
 
 TaskGroup::Data::~Data ()
-{
-}
+{}
 
 void
 TaskGroup::Data::waitForEmpty ()
@@ -593,7 +598,22 @@ ThreadPool::estimateThreadCountForFileIO ()
 {
 #ifdef ENABLE_THREADING
     unsigned rv = std::thread::hardware_concurrency ();
-    if (rv == 0 || rv == unsigned (-1)) rv = 1;
+    // hardware concurrency is not required to work
+    if (rv == 0 ||
+        rv > static_cast<unsigned> (std::numeric_limits<int>::max ()))
+    {
+        rv = 1;
+#    if (defined(_WIN32) || defined(_WIN64))
+        SYSTEM_INFO si;
+        GetNativeSystemInfo (&si);
+
+        rv = si.dwNumberOfProcessors;
+#    else
+        // linux, bsd, and mac are fine with this
+        // other *nix should be too, right?
+        rv = sysconf (_SC_NPROCESSORS_ONLN);
+#    endif
+    }
     return rv;
 #else
     return 0;
