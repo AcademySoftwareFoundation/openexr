@@ -64,10 +64,10 @@ class ILMTHREAD_EXPORT_TYPE Semaphore
 	mutable HANDLE _semaphore;
 
 #elif ILMTHREAD_THREADING_ENABLED
-	//
-	// If the platform has threads but no semapohores,
-	// then we implement them ourselves using condition variables
-	//
+    //
+    // If the platform has threads but no semaphores,
+    // then we implement them ourselves using condition variables
+    //
 
 	struct sema_t
 	{
