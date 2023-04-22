@@ -321,10 +321,6 @@ nanoexr_Reader_t* nanoexr_new(const char* filename,
                              &reader->exrSDKVersionMinor,
                              &reader->exrSDKVersionPatch,
                              &reader->exrSDKExtraInfo);
-    printf("OpenEXR Version: %d.%d.%d\n", reader->exrSDKVersionMajor,
-           reader->exrSDKVersionMinor, reader->exrSDKVersionPatch);
-    if (reader->exrSDKExtraInfo)
-        printf("    %s\n", reader->exrSDKExtraInfo);
 
     reader->filename = strdup(filename);
     reader->exr = NULL;

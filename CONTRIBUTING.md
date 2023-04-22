@@ -309,16 +309,34 @@ expected to validate the behavior of very part of the library.
 * Any change to existing functionality should have tests added if they
   don't already exist.
 
-The test should should be run, via:
+On Mac and Linux, first build and install OpenEXR. e.g.
 
-    make test
+```sh
+cmake /path/to/openexr -DCMAKE_INSTALL_PREFIX=/path/to/openexr-build-location
+cd /path/to/openexr-build-location
+make install -j12
+```
 
-before submitting a pull request.
+The tests can then be run, via make:
+
+```sh
+make test
+```
+
+They can also be run via ctest. Here's a typical invocation, on Mac:
+
+```sh
+cd /path/to/openexr-build-location
+/Applications/CMake.app/Contents/bin/ctest --force-new-ctest-process
+```
+
+All the tests should be passing before submitting a pull request.
 
 In addition, the ``OpenEXRFuzzTest`` project validates the library by
 feeding it corrupted input data. This test is time-consuming (possible
 over 24 hours), so it will only be run occasionally, but it must
-succeed before a release is made.
+succeed before a release is made. It's not a prerequisite for a PR
+that the fuzz test must be run locally for your submission.
 
 ## Coding Style
 
