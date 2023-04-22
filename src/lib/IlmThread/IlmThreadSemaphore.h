@@ -62,7 +62,7 @@ private:
 
 #elif ILMTHREAD_THREADING_ENABLED
     //
-    // If the platform has threads but no semapohores,
+    // If the platform has threads but no semaphores,
     // then we implement them ourselves using condition variables
     //
 
