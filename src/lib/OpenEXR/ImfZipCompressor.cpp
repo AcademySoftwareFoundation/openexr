@@ -14,7 +14,6 @@
 #include "ImfCheckedArithmetic.h"
 #include "ImfHeader.h"
 #include "ImfNamespace.h"
-#include <zlib.h>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 

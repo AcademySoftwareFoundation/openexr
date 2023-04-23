@@ -13,7 +13,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include <zlib.h>
+
+#include "openexr_compression.h"
 
 #if defined __SSE2__ || (_MSC_VER >= 1300 && (_M_IX86 || _M_X64))
 #    define IMF_HAVE_SSE2 1
@@ -235,35 +236,30 @@ undo_zip_impl (
     void*       scratch_data,
     uint64_t    scratch_size)
 {
-    uLong  outSize = (uLong) scratch_size;
-    int    rstat;
+    size_t actual_out_bytes;
+    exr_result_t res;
 
     if (scratch_size < uncompressed_size) return EXR_ERR_INVALID_ARGUMENT;
 
-    rstat = uncompress (
-        (Bytef*) scratch_data,
-        &outSize,
-        (const Bytef*) compressed_data,
-        (uLong) comp_buf_size);
-    if (rstat == Z_OK)
+    res = exr_uncompress_buffer (
+        compressed_data,
+        comp_buf_size,
+        scratch_data,
+        scratch_size,
+        &actual_out_bytes);
+
+    if (res == EXR_ERR_SUCCESS)
     {
-        if (outSize == uncompressed_size)
+        if (actual_out_bytes == uncompressed_size)
         {
-            reconstruct (scratch_data, outSize);
-            interleave (uncompressed_data, scratch_data, outSize);
-            rstat = EXR_ERR_SUCCESS;
+            reconstruct (scratch_data, actual_out_bytes);
+            interleave (uncompressed_data, scratch_data, actual_out_bytes);
         }
         else
-        {
-            rstat = EXR_ERR_CORRUPT_CHUNK;
-        }
-    }
-    else
-    {
-        rstat = EXR_ERR_CORRUPT_CHUNK;
+            res = EXR_ERR_CORRUPT_CHUNK;
     }
 
-    return (exr_result_t) rstat;
+    return res;
 }
 
 /**************************************/
@@ -307,8 +303,8 @@ apply_zip_impl (exr_encode_pipeline_t* encode)
     const uint8_t* raw  = encode->packed_buffer;
     const uint8_t* stop = raw + encode->packed_bytes;
     int            p, level;
-    uLong          compbufsz = (uLong) encode->compressed_alloc_size;
-    exr_result_t   rv        = EXR_ERR_SUCCESS;
+    size_t         compbufsz;
+    exr_result_t   rv;
 
     rv = exr_get_zip_compression_level (
         encode->context, encode->part_index, &level);
@@ -334,25 +330,32 @@ apply_zip_impl (exr_encode_pipeline_t* encode)
         ++t1;
     }
 
-    if (Z_OK != compress2 (
-                    (Bytef*) encode->compressed_buffer,
-                    &compbufsz,
-                    (const Bytef*) encode->scratch_buffer_1,
-                    (uLong) encode->packed_bytes,
-                    level))
+    rv = exr_compress_buffer (
+        level,
+        encode->scratch_buffer_1,
+        encode->packed_bytes,
+        encode->compressed_buffer,
+        encode->compressed_alloc_size,
+        &compbufsz);
+
+    if (rv == EXR_ERR_SUCCESS)
     {
-        return EXR_ERR_CORRUPT_CHUNK;
+        if (compbufsz > encode->packed_bytes)
+        {
+            memcpy (
+                encode->compressed_buffer,
+                encode->packed_buffer,
+                encode->packed_bytes);
+            compbufsz = encode->packed_bytes;
+        }
+        encode->compressed_bytes = compbufsz;
     }
-    if (compbufsz > encode->packed_bytes)
+    else
     {
-        memcpy (
-            encode->compressed_buffer,
-            encode->packed_buffer,
-            encode->packed_bytes);
-        compbufsz = encode->packed_bytes;
+        printf("ZIP: Unable to compress buffer %lu -> %lu @ level %d\n", encode->packed_bytes, encode->compressed_alloc_size, level);
     }
-    encode->compressed_bytes = compbufsz;
-    return EXR_ERR_SUCCESS;
+    
+    return rv;
 }
 
 exr_result_t
@@ -366,7 +369,11 @@ internal_exr_apply_zip (exr_encode_pipeline_t* encode)
         &(encode->scratch_buffer_1),
         &(encode->scratch_alloc_size_1),
         encode->packed_bytes);
-    if (rv != EXR_ERR_SUCCESS) return rv;
+    if (rv != EXR_ERR_SUCCESS)
+    {
+        printf("ZIP: Unable to alloc scratch buffer\n");
+        return rv;
+    }
 
     return apply_zip_impl (encode);
 }

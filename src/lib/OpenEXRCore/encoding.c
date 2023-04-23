@@ -10,6 +10,8 @@
 #include "internal_structs.h"
 #include "internal_xdr.h"
 
+#include "openexr_compression.h"
+
 /**************************************/
 
 static exr_result_t
@@ -24,9 +26,14 @@ default_compress_chunk (exr_encode_pipeline_t* encode)
         EXR_TRANSCODE_BUFFER_COMPRESSED,
         &(encode->compressed_buffer),
         &(encode->compressed_alloc_size),
-        (((size_t) encode->packed_bytes) * (size_t) 110) / ((size_t) 100) +
-            65536);
-    if (rv != EXR_ERR_SUCCESS) return rv;
+        exr_compress_max_buffer_size( encode->packed_bytes ));
+    if (rv != EXR_ERR_SUCCESS)
+        return pctxt->print_error (
+            pctxt,
+            rv,
+            "error allocating buffer %lu",
+            exr_compress_max_buffer_size (encode->packed_bytes));
+    //return rv;
 
     switch (part->comp_type)
     {
