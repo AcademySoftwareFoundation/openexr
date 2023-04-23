@@ -19,7 +19,7 @@ endif()
 # configuration files
 #######################################
 
-file(READ "src/lib/OpenEXR/OpenEXRVersion.h" VERSION_H)
+file(READ "src/lib/OpenEXRCore/OpenEXRVersion.h" VERSION_H)
 string(REGEX MATCH "VERSION_MAJOR ([0-9]*)" _ ${VERSION_H})
 set(VER_MAJ ${CMAKE_MATCH_1})
 string(REGEX MATCH "VERSION_MINOR ([0-9]*)" _ ${VERSION_H})

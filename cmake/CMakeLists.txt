@@ -71,11 +71,13 @@ endif()
 
 configure_file(OpenEXRConfig.h.in ${CMAKE_CURRENT_BINARY_DIR}/OpenEXRConfig.h)
 configure_file(OpenEXRConfigInternal.h.in ${CMAKE_CURRENT_BINARY_DIR}/OpenEXRConfigInternal.h)
+configure_file(../src/lib/OpenEXRCore/OpenEXRVersion.h ${CMAKE_CURRENT_BINARY_DIR}/OpenEXRVersion.h COPYONLY)
 
 if(OPENEXR_INSTALL)
 install(
   FILES
     ${CMAKE_CURRENT_BINARY_DIR}/OpenEXRConfig.h
+    ${CMAKE_CURRENT_BINARY_DIR}/OpenEXRVersion.h
   DESTINATION
     ${CMAKE_INSTALL_INCLUDEDIR}/${OPENEXR_OUTPUT_SUBDIR}
 )
