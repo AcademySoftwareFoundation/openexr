@@ -531,26 +531,6 @@ IMF_STD_ATTRIBUTE_DEF (timeCode, TimeCode, TimeCode)
 IMF_STD_ATTRIBUTE_DEF (framesPerSecond, FramesPerSecond, Rational)
 
 //
-// timecodeRate -- the nominal playback rate associated with
-// the image sequence to which the image belongs, specified in
-// timecodes per second.
-//
-// The integer timecodeRate attribute is a rounding of the
-// framesPerSecond attribute.
-//
-// The rounding is atypical: in the special case of the nominal
-// playback rate corresponding exactly to the midpoint of two
-// adjacent integer values, timecodeRate is defined to always
-// be the rounding up to the next larlgest integer.
-//
-// This stands in contrast to the default IEEE 754 rounding for
-// decimal arithmetic in which such a midpoint value would always
-// be rounded to the nearest even integer.
-//
-
-IMF_STD_ATTRIBUTE_DEF (timecodeRate, TimecodeRate, int)
-
-//
 // imageCounter -- an image number
 //
 // For a sequence of images, the image number increases 
