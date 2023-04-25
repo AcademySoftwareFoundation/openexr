@@ -456,7 +456,7 @@ reconstruct_chunk_table (
     uint64_t                         offset_start, chunk_start, max_offset;
     uint64_t*                        curctable;
     const struct _internal_exr_part* curpart = NULL;
-    int                              maxidx, found_ci, computed_ci, partnum = 0;
+    int                              found_ci, computed_ci, partnum = 0;
 
     curpart      = ctxt->parts[ctxt->num_parts - 1];
     offset_start = curpart->chunk_table_offset;
@@ -481,12 +481,10 @@ reconstruct_chunk_table (
         if (rv != EXR_ERR_SUCCESS) return rv;
 
         chunk_start = curctable[0];
-        maxidx      = 0;
         for (int ci = 1; ci < curpart->chunk_count; ++ci)
         {
             if (curctable[ci] > chunk_start)
             {
-                maxidx      = ci;
                 chunk_start = curctable[ci];
             }
         }

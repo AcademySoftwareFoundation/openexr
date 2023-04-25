@@ -4,6 +4,8 @@
 add_executable(OpenEXRCoreTest
   base_units.cpp
   base_units.h
+  buffer.cpp
+  buffer.h
   compression.cpp
   compression.h
   deep.cpp
@@ -60,6 +62,7 @@ define_openexrcore_tests(
  testBaseLimits
  testBaseDebug
  testXDR
+ testBufferCompression
 
  testAttrSizes
  testAttrStrings

@@ -10,6 +10,7 @@
 #else
 #    include <stdlib.h>
 #endif
+#include <libdeflate.h>
 
 /**************************************/
 
@@ -24,6 +25,7 @@ exr_set_default_memory_routines (
 {
     _glob_alloc_func = alloc_func;
     _glob_free_func  = free_func;
+    libdeflate_set_memory_allocator (alloc_func, free_func);
 }
 
 /**************************************/

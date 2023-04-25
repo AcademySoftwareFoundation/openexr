@@ -45,7 +45,7 @@
 #include <sstream>
 #include <stdlib.h>
 #include <time.h>
-#include <zlib.h>
+#include <openexr_base.h>
 
 #include "ImfNamespace.h"
 #include "ImfTiledMisc.h"
@@ -64,15 +64,13 @@ using IMATH_NAMESPACE::V2i;
 namespace
 {
 
-static int   s_DefaultZipCompressionLevel = 4;
-static float s_DefaultDwaCompressionLevel = 45.f;
-
 struct CompressionRecord
 {
     CompressionRecord ()
-        : zip_level (s_DefaultZipCompressionLevel)
-        , dwa_level (s_DefaultDwaCompressionLevel)
-    {}
+    {
+        exr_get_default_zip_compression_level(&zip_level);
+        exr_get_default_dwa_compression_quality(&dwa_level);
+    }
     int   zip_level;
     float dwa_level;
 };
@@ -259,13 +257,13 @@ sanityCheckDisplayWindow (int width, int height)
 void
 setDefaultZipCompressionLevel (int level)
 {
-    s_DefaultZipCompressionLevel = level;
+    exr_set_default_zip_compression_level (level);
 }
 
 void
 setDefaultDwaCompressionLevel (float level)
 {
-    s_DefaultDwaCompressionLevel = level;
+    exr_set_default_dwa_compression_quality (level);
 }
 
 Header::Header (

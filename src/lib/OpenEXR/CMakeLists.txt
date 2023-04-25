@@ -216,5 +216,5 @@ openexr_define_library(OpenEXR
     OpenEXR::Config
     OpenEXR::Iex
     OpenEXR::IlmThread
-    ZLIB::ZLIB
+    OpenEXR::OpenEXRCore
   )

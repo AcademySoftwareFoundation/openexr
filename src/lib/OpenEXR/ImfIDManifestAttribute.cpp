@@ -40,12 +40,12 @@ IDManifestAttribute::readValueFrom (
     OPENEXR_IMF_INTERNAL_NAMESPACE::IStream& is, int size, int version)
 {
 
-    if (size < 4)
+    if (size < sizeof (uint64_t))
     {
         throw IEX_NAMESPACE::InputExc (
             "Invalid size field reading idmanifest attribute");
     }
-    _value._compressedDataSize = size - 4;
+    _value._compressedDataSize = size - sizeof (uint64_t);
 
     if (_value._data)
     {
@@ -65,7 +65,7 @@ IDManifestAttribute::readValueFrom (
     //
     // allocate memory for compressed storage and read data
     //
-    _value._data = static_cast<unsigned char*> (malloc (size - 4));
+    _value._data = static_cast<unsigned char*> (malloc (size - sizeof (uint64_t)));
     char* input  = (char*) _value._data;
     Xdr::read<StreamIO> (is, input, _value._compressedDataSize);
 }

@@ -16,7 +16,7 @@
 #include <ImfStandardAttributes.h>
 
 #include "tmpDir.h"
-#include <zlib.h>
+#include <openexr_compression.h>
 
 namespace IMF = OPENEXR_IMF_NAMESPACE;
 using namespace IMF;
@@ -136,15 +136,17 @@ doReadWriteManifest (const IDManifest& mfst, const string& fn, bool dump)
     //
     // allocate a buffer which is guaranteed to be big enough for compression
     //
-    uLong        sourceDataSize = static_cast<uLong> (str.str ().size ());
-    uLong        compressedDataSize = compressBound (sourceDataSize);
+    size_t       sourceDataSize = str.str ().size ();
+    size_t       compressedDataSize = exr_compress_max_buffer_size (sourceDataSize);
     vector<char> compressed (compressedDataSize);
 
-    ::compress (
-        reinterpret_cast<Bytef*> (compressed.data ()),
-        &compressedDataSize,
-        reinterpret_cast<const Bytef*> (str.str ().c_str ()),
-        sourceDataSize);
+    exr_compress_buffer (
+        6,
+        str.str ().c_str (),
+        sourceDataSize,
+        compressed.data (),
+        compressedDataSize,
+        &compressedDataSize);
 
     cerr << "simple zip size: " << compressedDataSize << ' ';
 #endif

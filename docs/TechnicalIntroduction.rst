@@ -764,14 +764,14 @@ Supported compression schemes:
        input to the compressor is short, adding the header tends to offset any
        size reduction of the input.) 
    * - ZIPS (lossless)
-     - Uses the open source zlib library for compression. Unlike ZIP
-       compression, this operates one scan line at a time. 
+     - Uses the open source deflate library for IETF RFC 1950 compression.
+       Unlike ZIP compression, this operates one scan line at a time. 
    * - ZIP (lossless)
      - Differences between horizontally adjacent pixels are compressed using the
-       open source zlib library. ZIP decompression is faster than PIZ
-       decompression, but ZIP compression is significantly slower. Photographic
-       images tend to shrink to between 45 and 55 percent of their uncompressed
-       size. 
+       open source deflate library for IETF RFC 1950 compression. ZIP
+       decompression is faster than PIZ decompression, but ZIP may be
+       larger. Photographic images tend to shrink to between 45 and 55
+       percent of their uncompressed size.
                
        Multi-resolution files are often used as texture maps for 3D
        renderers. For this application, fast read accesses are usually more

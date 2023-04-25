@@ -48,7 +48,7 @@
 #include <algorithm>
 #include <assert.h>
 #include <half.h>
-#include <zlib.h>
+#include <openexr_compression.h>
 
 using namespace std;
 using namespace IMATH_NAMESPACE;
@@ -160,8 +160,7 @@ Pxr24Compressor::Pxr24Compressor (
 {
     size_t maxInBytes = uiMult (maxScanLineSize, numScanLines);
 
-    size_t maxOutBytes = uiAdd (
-        uiAdd (maxInBytes, size_t (ceil (maxInBytes * 0.01))), size_t (100));
+    size_t maxOutBytes = exr_compress_max_buffer_size (maxInBytes);
 
     _tmpBuffer = new unsigned char[maxInBytes];
     _outBuffer = new char[maxOutBytes];
@@ -341,14 +340,16 @@ Pxr24Compressor::compress (
         }
     }
 
-    uLong inBufferSize = static_cast<uLong> (tmpBufferEnd - _tmpBuffer);
-    uLong outSize = compressBound (inBufferSize);
+    size_t inBufferSize = static_cast<size_t> (tmpBufferEnd - _tmpBuffer);
+    size_t outSize = exr_compress_max_buffer_size (inBufferSize);
 
-    if (Z_OK != ::compress (
-                    reinterpret_cast<Bytef*> (_outBuffer),
-                    &outSize,
-                    reinterpret_cast<const Bytef*> (_tmpBuffer),
-                    inBufferSize))
+    if (EXR_ERR_SUCCESS != exr_compress_buffer (
+            -1,
+            _tmpBuffer,
+            inBufferSize,
+            _outBuffer,
+            outSize,
+            &outSize))
     {
         throw IEX_NAMESPACE::BaseExc ("Data compression (zlib) failed.");
     }
@@ -367,14 +368,14 @@ Pxr24Compressor::uncompress (
         return 0;
     }
 
-    uLong tmpSize = static_cast<uLong> (_maxScanLineSize * _numScanLines);
+    size_t tmpSize = static_cast<size_t> (_maxScanLineSize * _numScanLines);
 
-    if (Z_OK !=
-        ::uncompress (
-            reinterpret_cast<Bytef*> (_tmpBuffer),
-            &tmpSize,
-            reinterpret_cast<const Bytef*> (inPtr),
-            inSize))
+    if (EXR_ERR_SUCCESS != exr_uncompress_buffer(
+            inPtr,
+            inSize,
+            _tmpBuffer,
+            tmpSize,
+            &tmpSize))
     {
         throw IEX_NAMESPACE::InputExc ("Data decompression (zlib) failed.");
     }
@@ -412,7 +413,7 @@ Pxr24Compressor::uncompress (
                     ptr[3]       = ptr[2] + n;
                     tmpBufferEnd = ptr[3] + n;
 
-                    if (static_cast<uLong> (tmpBufferEnd - _tmpBuffer) > tmpSize)
+                    if (static_cast<size_t> (tmpBufferEnd - _tmpBuffer) > tmpSize)
                         notEnoughData ();
 
                     for (int j = 0; j < n; ++j)
@@ -437,7 +438,7 @@ Pxr24Compressor::uncompress (
                     ptr[1]       = ptr[0] + n;
                     tmpBufferEnd = ptr[1] + n;
 
-                    if (static_cast<uLong> (tmpBufferEnd - _tmpBuffer) > tmpSize)
+                    if (static_cast<size_t> (tmpBufferEnd - _tmpBuffer) > tmpSize)
                         notEnoughData ();
 
                     for (int j = 0; j < n; ++j)
@@ -460,7 +461,7 @@ Pxr24Compressor::uncompress (
                     ptr[2]       = ptr[1] + n;
                     tmpBufferEnd = ptr[2] + n;
 
-                    if (static_cast<uLong> (tmpBufferEnd - _tmpBuffer) > tmpSize)
+                    if (static_cast<size_t> (tmpBufferEnd - _tmpBuffer) > tmpSize)
                         notEnoughData ();
 
                     for (int j = 0; j < n; ++j)
@@ -483,7 +484,7 @@ Pxr24Compressor::uncompress (
         }
     }
 
-    if (static_cast<uLong> (tmpBufferEnd - _tmpBuffer) < tmpSize) tooMuchData ();
+    if (static_cast<size_t> (tmpBufferEnd - _tmpBuffer) < tmpSize) tooMuchData ();
 
     outPtr = _outBuffer;
     return writePtr - _outBuffer;

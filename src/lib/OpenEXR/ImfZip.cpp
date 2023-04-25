@@ -10,8 +10,7 @@
 #include "ImfSimd.h"
 #include "ImfSystemSpecific.h"
 
-#include <math.h>
-#include <zlib.h>
+#include <openexr_compression.h>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
@@ -42,8 +41,7 @@ Zip::maxRawSize ()
 size_t
 Zip::maxCompressedSize ()
 {
-    return uiAdd (
-        uiAdd (_maxRawSize, size_t (ceil (_maxRawSize * 0.01))), size_t (100));
+    return exr_compress_max_buffer_size (_maxRawSize);
 }
 
 int
@@ -93,18 +91,16 @@ Zip::compress (const char* raw, int rawSize, char* compressed)
     //
     // Compress the data using zlib
     //
-
-    uLong inSize = static_cast<uLong> (rawSize);
-    uLong outSize = compressBound (inSize);
-
-    if (Z_OK != ::compress2 (
-                    reinterpret_cast<Bytef*> (compressed),
-                    &outSize,
-                    reinterpret_cast<const Bytef*> (_tmpBuffer),
-                    inSize,
-                    _zipLevel))
+    size_t outSize;
+    if (EXR_ERR_SUCCESS != exr_compress_buffer (
+            _zipLevel,
+            _tmpBuffer,
+            rawSize,
+            compressed,
+            maxCompressedSize (),
+            &outSize))
     {
-        throw IEX_NAMESPACE::BaseExc ("Data compression (zlib) failed.");
+        throw IEX_NAMESPACE::BaseExc ("Data compression failed.");
     }
 
     return outSize;
@@ -330,23 +326,18 @@ auto interleave = interleave_scalar;
 int
 Zip::uncompress (const char* compressed, int compressedSize, char* raw)
 {
-    //
-    // Decompress the data using zlib
-    //
-
-    uLong outSize = static_cast<uLong> (_maxRawSize);
-    uLong inSize = static_cast<uLong> (compressedSize);
-
-    if (Z_OK != ::uncompress (
-                    reinterpret_cast<Bytef*> (_tmpBuffer),
-                    &outSize,
-                    reinterpret_cast<const Bytef*> (compressed),
-                    inSize))
+    size_t outSize = 0;
+    if (EXR_ERR_SUCCESS != exr_uncompress_buffer (
+            compressed,
+            (size_t)compressedSize,
+            _tmpBuffer,
+            _maxRawSize,
+            &outSize))
     {
-        throw IEX_NAMESPACE::InputExc ("Data decompression (zlib) failed.");
+        throw IEX_NAMESPACE::InputExc ("Data decompression failed.");
     }
 
-    if (outSize == 0) { return outSize; }
+    if (outSize == 0) { return static_cast<int> (outSize); }
 
     //
     // Predictor.

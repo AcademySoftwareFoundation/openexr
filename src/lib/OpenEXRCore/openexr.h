@@ -20,6 +20,8 @@
 
 #include "openexr_chunkio.h"
 
+#include "openexr_compression.h"
+
 #include "openexr_decode.h"
 #include "openexr_encode.h"
 

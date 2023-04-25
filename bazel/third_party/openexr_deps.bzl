@@ -11,14 +11,11 @@ def openexr_deps():
 
     maybe(
         http_archive,
-        name = "net_zlib_zlib",
-        build_file = "@com_openexr//:bazel/third_party/zlib.BUILD",
-        sha256 = "b3a24de97a8fdbc835b9833169501030b8977031bcb54b3b3ac13740f846ab30",
-        strip_prefix = "zlib-1.2.13",
-        urls = [
-            "https://mirror.bazel.build/zlib.net/zlib-1.2.13.tar.gz",
-            "https://zlib.net/zlib-1.2.13.tar.gz",
-        ],
+        name = "libdeflate",
+        build_file = "@com_openexr//:bazel/third_party/libdeflate.BUILD",
+        sha256 = "225d982bcaf553221c76726358d2ea139bb34913180b20823c782cede060affd",
+        strip_prefix = "libdeflate-1.18",
+        urls = ["https://github.com/ebiggers/libdeflate/archive/refs/tags/v1.18.tar.gz"],
     )
 
     maybe(

@@ -157,100 +157,67 @@ if(OPENEXR_ENABLE_THREADING)
   endif()
 endif()
 
-option(OPENEXR_FORCE_INTERNAL_ZLIB "Force using an internal zlib" OFF)
-if (NOT OPENEXR_FORCE_INTERNAL_ZLIB)
-  if(NOT TARGET ZLIB::ZLIB)
-    find_package(ZLIB QUIET)
-  endif()
+option(OPENEXR_FORCE_INTERNAL_DEFLATE "Force using an internal libdeflate" OFF)
+set(OPENEXR_DEFLATE_REPO "https://github.com/ebiggers/libdeflate.git" CACHE STRING "Repo path for libdeflate source")
+set(OPENEXR_DEFLATE_TAG "v1.18" CACHE STRING "Tag to use for libdeflate source repo (defaults to primary if empty)")
+
+if(NOT OPENEXR_FORCE_INTERNAL_DEFLATE)
+  #TODO: ^^ Release should not clone from main, this is a place holder
+  set(CMAKE_IGNORE_PATH "${CMAKE_CURRENT_BINARY_DIR}/_deps/deflate-src/config;${CMAKE_CURRENT_BINARY_DIR}/_deps/deflate-build/config")
+  include(FindPkgConfig)
+  pkg_check_modules(deflate IMPORTED_TARGET GLOBAL libdeflate)
+  set(CMAKE_IGNORE_PATH)
 endif()
-if(OPENEXR_FORCE_INTERNAL_ZLIB OR NOT TARGET ZLIB::ZLIB)
-  set(zlib_VER "1.2.11")
-  if(OPENEXR_FORCE_INTERNAL_ZLIB)
-    message(STATUS "Compiling internal copy of zlib version ${zlib_VER}")
+
+if(NOT TARGET PkgConfig::deflate AND NOT deflate_FOUND)
+  if(OPENEXR_FORCE_INTERNAL_DEFLATE)
+    message(STATUS "libdeflate forced internal, installing from ${OPENEXR_DEFLATE_REPO} (${OPENEXR_DEFLATE_TAG})")
   else()
-    message(STATUS "zlib library not found, compiling ${zlib_VER}")
+    message(STATUS "libdeflate was not found, installing from ${OPENEXR_DEFLATE_REPO} (${OPENEXR_DEFLATE_TAG})")
   endif()
-
-  # Unfortunately, zlib has an ancient cmake setup which does not include
-  # modern cmake exports, so we can't use the faster / more integrated
-  # FetchContent as we do for Imath below. There may be a way, but
-  # external project is just as easy
-  include(ExternalProject)
-
-  set(cmake_cc_arg)
-  if (CMAKE_CROSSCOMPILING)
-    set(cmake_cc_arg -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE})
-  endif ()
-
-  if(NOT (APPLE OR WIN32) AND NOT OPENEXR_FORCE_INTERNAL_ZLIB)
-    set(zlib_INTERNAL_DIR "${CMAKE_INSTALL_PREFIX}" CACHE PATH "zlib install dir")
-  else()
-    set(zlib_INTERNAL_DIR "${CMAKE_BINARY_DIR}/zlib-install" CACHE PATH "zlib install dir")
-  endif()
-
-  # Need to set byproducts so ninja generator knows where the targets come from
-  ExternalProject_Add(zlib_external
-    GIT_REPOSITORY "https://github.com/madler/zlib.git"
+  include(FetchContent)
+  FetchContent_Declare(Deflate
+    GIT_REPOSITORY ${OPENEXR_DEFLATE_REPO}
+    GIT_TAG ${OPENEXR_DEFLATE_TAG}
     GIT_SHALLOW ON
-    GIT_TAG "v${zlib_VER}"
-    UPDATE_COMMAND ""
-    SOURCE_DIR zlib-src
-    BINARY_DIR zlib-build
-    INSTALL_DIR ${zlib_INTERNAL_DIR}
-    BUILD_BYPRODUCTS
-      "${zlib_INTERNAL_DIR}/lib/${CMAKE_SHARED_LIBRARY_PREFIX}z${CMAKE_SHARED_LIBRARY_SUFFIX}"
-      "${zlib_INTERNAL_DIR}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}z${CMAKE_STATIC_LIBRARY_SUFFIX}"
-    CMAKE_ARGS
-      -D CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-      -D CMAKE_POSITION_INDEPENDENT_CODE=ON
-      -D CMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
-      -D CMAKE_GENERATOR:STRING=${CMAKE_GENERATOR}
-      ${cmake_cc_arg}
-      )
-
-  file(MAKE_DIRECTORY "${zlib_INTERNAL_DIR}")
-  file(MAKE_DIRECTORY "${zlib_INTERNAL_DIR}/include")
-  file(MAKE_DIRECTORY "${zlib_INTERNAL_DIR}/lib")
-
-  if(WIN32)
-    set(zliblibname "zlib")
-    set(zlibstaticlibname "zlibstatic")
-  else()
-    set(zliblibname "z")
-    set(zlibstaticlibname "z")
-  endif()
-
-  if(MSVC)
-    set(zlibpostfix "d")
-  endif()
-
-  add_library(zlib_static STATIC IMPORTED GLOBAL)
-  add_dependencies(zlib_static zlib_external)
-  set_property(TARGET zlib_static PROPERTY
-    IMPORTED_LOCATION "${zlib_INTERNAL_DIR}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}${zlibstaticlibname}${CMAKE_STATIC_LIBRARY_SUFFIX}"
     )
-  set_property(TARGET zlib_static PROPERTY
-    IMPORTED_LOCATION_DEBUG "${zlib_INTERNAL_DIR}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}${zlibstaticlibname}${zlibpostfix}${CMAKE_STATIC_LIBRARY_SUFFIX}"
-    )
-  target_include_directories(zlib_static INTERFACE "${zlib_INTERNAL_DIR}/include")
 
-  if(NOT (APPLE OR WIN32) AND BUILD_SHARED_LIBS AND NOT OPENEXR_FORCE_INTERNAL_ZLIB)
-    add_library(zlib_shared SHARED IMPORTED GLOBAL)
-    add_dependencies(zlib_shared zlib_external)
-    set_property(TARGET zlib_shared PROPERTY
-      IMPORTED_LOCATION "${zlib_INTERNAL_DIR}/lib/${CMAKE_SHARED_LIBRARY_PREFIX}${zliblibname}${CMAKE_SHARED_LIBRARY_SUFFIX}"
-      )
-    set_property(TARGET zlib_static PROPERTY
-      IMPORTED_LOCATION_DEBUG "${zlib_INTERNAL_DIR}/lib/${CMAKE_SHARED_LIBRARY_PREFIX}${zliblibname}${zlibpostfix}${CMAKE_SHARED_LIBRARY_SUFFIX}"
-      )
-    target_include_directories(zlib_shared INTERFACE "${zlib_INTERNAL_DIR}/include")
+  FetchContent_GetProperties(Deflate)
+  if(NOT Deflate_POPULATED)
+    FetchContent_Populate(Deflate)
   endif()
 
-  if(NOT (APPLE OR WIN32) AND BUILD_SHARED_LIBS AND NOT OPENEXR_FORCE_INTERNAL_ZLIB)
-    add_library(ZLIB::ZLIB ALIAS zlib_shared)
-  else()
-    add_library(ZLIB::ZLIB ALIAS zlib_static)
-  endif()
+  # Rather than actually compile something, just embed the sources
+  # into exrcore. This could in theory cause issues when compiling as
+  # a static library into another application which also uses
+  # libdeflate but we switch the export sysmbol to hidden which should
+  # hide the symbols when linking...
+  set(EXR_DEFLATE_SOURCES
+    lib/arm/cpu_features.c
+    lib/x86/cpu_features.c
+    lib/utils.c
+    lib/deflate_compress.c
+    lib/deflate_decompress.c
+    lib/adler32.c
+    lib/zlib_compress.c
+    lib/zlib_decompress.c)
+  # don't need these
+  # lib/crc32.c
+  # lib/gzip_compress.c
+  # lib/gzip_decompress.c
+  file(READ ${deflate_SOURCE_DIR}/lib/lib_common.h DEFLATE_HIDE)
+  string(REPLACE default hidden DEFLATE_HIDE "${DEFLATE_HIDE}")
+  string(REPLACE "__declspec(dllexport)" "/**/" DEFLATE_HIDE "${DEFLATE_HIDE}")
+  file(WRITE ${deflate_SOURCE_DIR}/lib/lib_common.h "${DEFLATE_HIDE}")
+  
+  # cmake makes fetch content name lowercase for the properties (to deflate)
+  list(TRANSFORM EXR_DEFLATE_SOURCES PREPEND ${deflate_SOURCE_DIR}/)
+  set(EXR_DEFLATE_INCLUDE_DIR ${deflate_SOURCE_DIR})
+  set(EXR_DEFLATE_LIB)
+else()
+  set(EXR_DEFLATE_INCLUDE_DIR)
+  set(EXR_DEFLATE_LIB PkgConfig::deflate)
+  set(EXR_DEFLATE_SOURCES)
 endif()
 
 #######################################
