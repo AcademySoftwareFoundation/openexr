@@ -3857,7 +3857,7 @@ This is a relatively minor update to the project, with the following changes:
 	  (Drew Hess)
 
 * Some older versions of gcc don't support a full iomanip
-	  implemenation; check for this during configuration. 
+	  implementation; check for this during configuration. 
 	  (Drew Hess)
 
 * Install PDF versions of documentation, remove old/out-of-date
