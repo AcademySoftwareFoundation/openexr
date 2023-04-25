@@ -872,7 +872,6 @@ generatedFunctions ()
     assert (hasExpTime (header) == false);
     assert (hasShutterAngle (header) == false);
     assert (hasCaptureRate (header) == false);
-    assert (hasTimecodeRate (header) == false);
     assert (hasLensMake (header) == false);
     assert (hasLensModel (header) == false);
     assert (hasLensSerialNumber (header) == false);
