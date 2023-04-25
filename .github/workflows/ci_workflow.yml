@@ -309,7 +309,7 @@ jobs:
   # TODO: Add ARM64/x86_64 (universal 2) build
   
   macos:
-    name: 'Mac VFXP-2022 macos-${{ matrix.osver }}
+    name: 'Mac VFXP-${{ matrix.vfx-cy }} macos-${{ matrix.osver }}
       <${{ matrix.compiler-desc }},
        C++${{ matrix.cxx-standard }},
        config=${{ matrix.build-type }},
@@ -318,10 +318,10 @@ jobs:
     runs-on: macos-${{ matrix.osver }}
     strategy:
       matrix:
-        build: [1, 2, 3]
+        build: [1, 2, 3, 4]
         include:
           # -------------------------------------------------------------------
-          # VFX CY2022 - C++17 
+          # VFX CY2023 - C++17 - MacOS 11.0 
           # -------------------------------------------------------------------
           # Shared, Release
           - build: 1
@@ -329,8 +329,9 @@ jobs:
             build-shared: 'ON'
             compiler-desc: AppleClang11.0
             cxx-standard: 17
-            osver: 10.15
+            osver: 11.0
             exclude-tests:
+            vfx-cy: 23
 
           # Static, Release
           - build: 2
@@ -338,8 +339,9 @@ jobs:
             build-shared: 'OFF'
             compiler-desc: AppleClang11.0
             cxx-standard: 17
-            osver: 10.15
+            osver: 11.0 
             exclude-tests:
+            vfx-cy: 23
 
           # Shared, Debug
           - build: 3
@@ -347,8 +349,23 @@ jobs:
             build-shared: 'ON'
             compiler-desc: AppleClang11.0
             cxx-standard: 17
+            osver: 11.0
+            exclude-tests:
+            vfx-cy: 23
+
+          # -------------------------------------------------------------------
+          # VFX CY2022 - C++17 - MacOS 10.15 
+          # -------------------------------------------------------------------
+          # Shared, Release
+          - build: 4
+            build-type: Release
+            build-shared: 'ON'
+            compiler-desc: AppleClang11.0
+            cxx-standard: 17
             osver: 10.15
             exclude-tests:
+            vfx-cy: 22
+
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -376,7 +393,7 @@ jobs:
                 --config ${{ matrix.build-type }}
         working-directory: _build
       - name: Examples
-        run: |
+        run: | 
           # Make sure we can build the examples when configured as a
           # standalone application linking against the just-installed
           # OpenEXR library.
@@ -404,7 +421,7 @@ jobs:
   # ---------------------------------------------------------------------------
   # TODO: Debug mode is catatonically slow under windows
   windows:
-    name: 'Windows VFXP-2022
+    name: 'Windows VFXP-${{ matrix.vfx-cy }}
       <${{ matrix.compiler-desc }},
        config=${{ matrix.build-type }}, 
        shared=${{ matrix.build-shared }}, 
@@ -415,50 +432,50 @@ jobs:
         build: [1, 2, 3, 4]
         include:
           # -------------------------------------------------------------------
-          # VFX CY2022 - C++17 - Windows 2019
+          # VFX CY2023 - C++17 - Windows 2022 runner - MSVC 2022 (17.5)
           # -------------------------------------------------------------------
           # Shared, Release
           - build: 1
             build-type: Release
             build-shared: 'ON'
-            compiler-desc: msvc16.11
+            compiler-desc: msvc17.5
             cxx-standard: 17
-            vfx-cy: 2021
+            vfx-cy: 2023
             exclude-tests: ''
-            osver: 2019
+            osver: 2022
 
           # Static, Release
           - build: 2
             build-type: Release
             build-shared: 'OFF'
-            compiler-desc: msvc16.11
+            compiler-desc: msvc17.5
             cxx-standard: 17
-            vfx-cy: 2021
+            vfx-cy: 2023
             exclude-tests: ''
-            osver: 2019
+            osver: 2022
 
-          # -------------------------------------------------------------------
-          # VFX CY2022 - C++17 - Windows 2022
+         # -------------------------------------------------------------------
+          # VFX CY2022 - C++17 - Windows 2019 runner - MSVC 2019 (16.11) 
           # -------------------------------------------------------------------
           # Shared, Release
           - build: 3
             build-type: Release
             build-shared: 'ON'
-            compiler-desc: msvc17.1
+            compiler-desc: msvc16.11
             cxx-standard: 17
-            vfx-cy: 2021
+            vfx-cy: 2022
             exclude-tests: ''
-            osver: 2022
+            osver: 2019
 
           # Static, Release
           - build: 4
             build-type: Release
             build-shared: 'OFF'
-            compiler-desc: msvc17.1
+            compiler-desc: msvc16.11
             cxx-standard: 17
-            vfx-cy: 2021
+            vfx-cy: 2022
             exclude-tests: ''
-            osver: 2022
+            osver: 2019
 
     steps:
       - name: Checkout
