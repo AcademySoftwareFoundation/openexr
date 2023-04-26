@@ -423,7 +423,7 @@ IMF_STD_ATTRIBUTE_DEF (effectiveFocalLength, EffectiveFocalLength, float)
 
 //
 // entrancePupilOffset -- the axial distance from the image plane
-// to the ientrance pupil, in units of millimeters. A larger entrance
+// to the entrance pupil, in units of millimeters. A larger entrance
 // pupil offset means the entrance pupil is closer to the object.
 //
 // Note that in some lens configurations, the entrance pupil offset can
@@ -434,21 +434,16 @@ IMF_STD_ATTRIBUTE_DEF (entrancePupilOffset, EntrancePupilOffset, float)
 
 //
 // aperture -- the f-number of the lens, computed as the ratio of
-// lens focal length to diameter of lens entrance pupil at the time
-// the image was created or captured
-// 
-// The lens focal length used in the calculation is the nominal focal
-// length which would be stored in the focalLength attribute, even if
-// the effective focal length (compensating for any focus breathing)
-// is known and stored in an effectiveFocalLength attribute.
+// lens effective focal length to the diameter of lens entrance pupil
+// at the time the image was created or captured.
 //
 
 IMF_STD_ATTRIBUTE_DEF (aperture, Aperture, float)
 
 //
-// tStop -- ratio of lens focal length to diameter of entrance pupil,
-// divided by the square root of the transmittance the lens presents
-// to a paraxial ray.
+// tStop -- ratio of lens effective focal length to diameter of
+// entrance pupil divided by the square root of the transmittance
+// the lens presents to a paraxial ray.
 //
 // Note that tStop, like aperture, must be strictly positive;
 // and that tStop will always be a larger number than aperture.
