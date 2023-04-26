@@ -12,6 +12,7 @@
 #include <limits.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 
 #include "openexr_compression.h"
@@ -352,7 +353,7 @@ apply_zip_impl (exr_encode_pipeline_t* encode)
     }
     else
     {
-        printf("ZIP: Unable to compress buffer %lu -> %lu @ level %d\n", encode->packed_bytes, encode->compressed_alloc_size, level);
+        printf("ZIP: Unable to compress buffer %llu -> %lu @ level %d\n", encode->packed_bytes, encode->compressed_alloc_size, level);
     }
     
     return rv;
