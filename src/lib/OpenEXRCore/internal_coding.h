@@ -183,7 +183,7 @@ static inline uint16_t
 float_to_half (float fv)
 {
 #ifdef IMATH_HALF_SAFE_FOR_C
-     return imath_float_to_half (fv);
+    return imath_float_to_half (fv);
 #else
     union
     {
