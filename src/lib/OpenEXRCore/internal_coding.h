@@ -11,24 +11,20 @@
 
 #include "internal_structs.h"
 
-
-#ifdef __has_include
-#if __has_include(<ImathConfig.h>)
-#include <ImathConfig.h>
+#ifndef OPENEXR_CORE_STANDALONE
+#    include <ImathConfig.h>
+     /* only recently has imath supported half in C (C++ only before),
+      * allow an older version to still work, and if that is available, we
+      * will favor the implementation there as it will be the latest
+      * up-to-date optimizations */
+#    if (IMATH_VERSION_MAJOR > 3) ||                           \
+        (IMATH_VERSION_MAJOR == 3 && IMATH_VERSION_MINOR >= 1)
+#       define IMATH_HALF_SAFE_FOR_C
+        /* avoid the library dependency */
+#       define IMATH_HALF_NO_LOOKUP_TABLE
+#       include <half.h>
+#    endif
 #endif
-#endif
-
- /* only recently has imath supported half in C (C++ only before),
-  * allow an older version to still work, and if that is available, we
-  * will favor the implementation there as it will be the latest
-  * up-to-date optimizations */
- #if (IMATH_VERSION_MAJOR > 3) ||                                               \
-     (IMATH_VERSION_MAJOR == 3 && IMATH_VERSION_MINOR >= 1)
- #    define IMATH_HALF_SAFE_FOR_C
- /* avoid the library dependency */
- #    define IMATH_HALF_NO_LOOKUP_TABLE
- #    include <half.h>
- #endif
 
 #ifdef _WIN32
 #    include <intrin.h>
