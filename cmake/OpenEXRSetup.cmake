@@ -190,7 +190,7 @@ if(NOT TARGET PkgConfig::deflate AND NOT deflate_FOUND)
   # Rather than actually compile something, just embed the sources
   # into exrcore. This could in theory cause issues when compiling as
   # a static library into another application which also uses
-  # libdeflate but we switch the export sysmbol to hidden which should
+  # libdeflate but we switch the export symbol to hidden which should
   # hide the symbols when linking...
   set(EXR_DEFLATE_SOURCES
     lib/arm/cpu_features.c

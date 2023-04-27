@@ -294,7 +294,7 @@ FastHufDecoder::~FastHufDecoder ()
 // Static check if the decoder is enabled.
 //
 // ATM, I only have access to little endian hardware for testing,
-// so I'm not entirely sure that we are reading fom the bit stream
+// so I'm not entirely sure that we are reading from the bit stream
 // properly on BE.
 //
 // If you happen to have more obscure hardware, check that the

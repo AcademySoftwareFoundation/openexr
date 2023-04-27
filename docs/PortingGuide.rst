@@ -226,7 +226,7 @@ corresponding to the package version that was found.
               $<$<TARGET_EXISTS:IlmBase::Iex>:IlmBase::Iex>
         )
 
-Again, you can eliminate the references to any of the individual libaries
+Again, you can eliminate the references to any of the individual libraries
 that you don't actually need for your application.
 
 Simultaneous Static/Shared Build
@@ -388,7 +388,7 @@ File/Class-specific Changes
       #include <cuda_fp16.h>
       #endif
 
-  If you desire to use Imath::half inside a CUDA kernal, you can refer
+  If you desire to use Imath::half inside a CUDA kernel, you can refer
   to it via the namespace, or define ``CUDA_NO_HALF`` to avoid the CUDA
   type altogether.
 
@@ -419,7 +419,7 @@ File/Class-specific Changes
 ``Imath::Frustum<T>`` in ``ImathFrustum.h``
 -------------------------------------------
 
-Akin to the ``Vec`` classes, there are now seperate API calls for
+Akin to the ``Vec`` classes, there are now separate API calls for
 throwing and non-throwing functions:
 
 These functions previously threw exceptions but now do not throw and
