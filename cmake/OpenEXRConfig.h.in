@@ -8,6 +8,8 @@
 
 #pragma once
 
+#include <openexr_version.h>
+
 //
 // Options / configuration based on O.S. / compiler
 /////////////////////
@@ -45,9 +47,6 @@
 #define OPENEXR_VERSION_STRING "@OPENEXR_VERSION@"
 #define OPENEXR_PACKAGE_STRING "@OPENEXR_PACKAGE_NAME@"
 
-#define OPENEXR_VERSION_MAJOR @OpenEXR_VERSION_MAJOR@
-#define OPENEXR_VERSION_MINOR @OpenEXR_VERSION_MINOR@
-#define OPENEXR_VERSION_PATCH @OpenEXR_VERSION_PATCH@
 #define OPENEXR_VERSION_RELEASE_TYPE "@OPENEXR_VERSION_RELEASE_TYPE@"
 // Deprecated, for back compatibility:
 #define OPENEXR_VERSION_EXTRA "@OPENEXR_VERSION_RELEASE_TYPE@"

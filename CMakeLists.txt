@@ -19,7 +19,15 @@ endif()
 # configuration files
 #######################################
 
-project(OpenEXR VERSION 3.2.0 LANGUAGES C CXX)
+file(READ "src/lib/OpenEXRCore/openexr_version.h" VERSION_H)
+string(REGEX MATCH "VERSION_MAJOR ([0-9]*)" _ ${VERSION_H})
+set(VER_MAJ ${CMAKE_MATCH_1})
+string(REGEX MATCH "VERSION_MINOR ([0-9]*)" _ ${VERSION_H})
+set(VER_MIN ${CMAKE_MATCH_1})
+string(REGEX MATCH "VERSION_PATCH ([0-9]*)" _ ${VERSION_H})
+set(VER_PCH ${CMAKE_MATCH_1})
+
+project(OpenEXR VERSION ${VER_MAJ}.${VER_MIN}.${VER_PCH} LANGUAGES C CXX)
 
 set(OPENEXR_VERSION_RELEASE_TYPE "-dev" CACHE STRING "Extra version tag string for OpenEXR build, such as -dev, -beta1, etc.")
 

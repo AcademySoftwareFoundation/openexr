@@ -87,6 +87,8 @@ openexr_define_library(OpenEXRCore
     openexr_errors.h
     openexr_part.h
     openexr_std_attr.h
+    openexr_version.h
+
   PRIVATE_DEPS
     ${OPENEXR_EXTRA_MATH_LIB}
   )

@@ -53,9 +53,6 @@ expand_template(
         "@OPENEXR_NAMESPACE_CUSTOM@": "3.2.0",
         "@OPENEXR_PACKAGE_NAME@": "OpenEXR 3.2.0",
         "@OPENEXR_VERSION_EXTRA@": "",
-        "@OpenEXR_VERSION_MAJOR@": "3",
-        "@OpenEXR_VERSION_MINOR@": "2",
-        "@OpenEXR_VERSION_PATCH@": "0",
         "@OPENEXR_VERSION@": "3.2.0",
         "#cmakedefine OPENEXR_ENABLE_API_VISIBILITY": "#define OPENEXR_ENABLE_API_VISIBILITY",
         "#cmakedefine OPENEXR_HAVE_LARGE_STACK 1": "/* #undef OPENEXR_HAVE_LARGE_STACK */",
@@ -84,6 +81,7 @@ cc_library(
         "src/lib/Iex/IexMathFloatExc.cpp",
         "src/lib/Iex/IexMathFpu.cpp",
         "src/lib/Iex/IexThrowErrnoExc.cpp",
+        "src/lib/OpenEXRCore/openexr_version.h",
     ],
     hdrs = [
         "src/lib/Iex/Iex.h",
@@ -109,6 +107,7 @@ cc_library(
     includes = [
         "src/lib/Iex",
         "src/lib/OpenEXR",
+        "src/lib/OpenEXRCore",
     ],
 )
 
@@ -122,6 +121,7 @@ cc_library(
         "src/lib/IlmThread/IlmThreadSemaphorePosix.cpp",
         "src/lib/IlmThread/IlmThreadSemaphorePosixCompat.cpp",
         "src/lib/IlmThread/IlmThreadSemaphoreWin32.cpp",
+        "src/lib/OpenEXRCore/openexr_version.h",
     ],
     hdrs = [
         "src/lib/IlmThread/IlmThread.h",
@@ -137,7 +137,10 @@ cc_library(
         ":windows": ["windows_export_all_symbols"],
         "//conditions:default": [],
     }),
-    includes = ["src/lib/IlmThread"],
+    includes = [
+        "src/lib/IlmThread",
+        "src/lib/OpenEXRCore",
+    ],
     deps = [":Iex"],
 )
 
@@ -198,6 +201,7 @@ cc_library(
         "src/lib/OpenEXRCore/validation.c",
         "src/lib/OpenEXRCore/debug.c",
         "src/lib/OpenEXR/OpenEXRConfig.h",
+        "src/lib/OpenEXRCore/openexr_version.h",
         "src/lib/IlmThread/IlmThreadConfig.h",
     ],
     hdrs = [
