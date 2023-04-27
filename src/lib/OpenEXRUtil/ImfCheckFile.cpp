@@ -1553,7 +1553,7 @@ struct memdata
     size_t      bytes;
 };
 
-static uint64_t
+static int64_t
 memstream_read (
     exr_const_context_t         f,
     void*                       userdata,

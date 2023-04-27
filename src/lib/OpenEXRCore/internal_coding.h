@@ -120,7 +120,7 @@ half_to_float (uint16_t hv)
 {
 #ifdef IMATH_HALF_SAFE_FOR_C
     return imath_half_to_float (hv);
-#endif
+#else
     /* replicate the code here from imath 3.1 since we are on an older
      * version which doesn't have a half that is safe for C code. Same
      * author, so free to do so. */
