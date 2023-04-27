@@ -224,7 +224,7 @@ documentation updates. in particular:
   OpenEXRCore library 
 
 With this version, the OpenEXR technical documentation formerly
-distributed exclusivly as pdf's is now published online at
+distributed exclusively as pdf's is now published online at
 https://openexr.readthedocs.io, with the document source now
 maintained as .rst files in the repo's docs subfolder. 
 
@@ -1221,7 +1221,7 @@ exrdisplay and playexr, both support color rendering via CTL.  For
 more information see `http://www.openexr.com/OpenEXRViewers.pdf
 <http://www.openexr.com/OpenEXRViewers.pdf>`_.
 
-Sorce code and documentation for the CTL interpreter can be downloaded
+Source code and documentation for the CTL interpreter can be downloaded
 from http://ampasctl.sourceforge.net. Please note the 
 license under which CTL is distributed; it is similar but not
 identical to the OpenEXR license.
