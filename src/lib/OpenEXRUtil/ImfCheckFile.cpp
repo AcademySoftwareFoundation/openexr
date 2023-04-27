@@ -1562,7 +1562,7 @@ memstream_read (
     uint64_t                    offset,
     exr_stream_error_func_ptr_t errcb)
 {
-    int64_t rdsz = 0;
+    int64_t rdsz = -1;
     if (userdata)
     {
         memdata* md   = static_cast<memdata*> (userdata);
@@ -1572,6 +1572,8 @@ memstream_read (
         if (left > 0)
         {
             memcpy (buffer, md->data + offset, left);
+            // note that POSIX read returns a -1 for an error condition
+            // so if left < 0, we'll still return -1.
             rdsz = left;
         }
     }

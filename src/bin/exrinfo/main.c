@@ -52,7 +52,7 @@ error_handler_cb (exr_const_context_t f, int code, const char* msg)
         msg);
 }
 
-static uint64_t
+static int64_t
 stdin_reader (
     exr_const_context_t         file,
     void*                       userdata,
