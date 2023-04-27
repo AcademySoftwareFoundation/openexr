@@ -81,7 +81,7 @@ cc_library(
         "src/lib/Iex/IexMathFloatExc.cpp",
         "src/lib/Iex/IexMathFpu.cpp",
         "src/lib/Iex/IexThrowErrnoExc.cpp",
-        "src/lib/OpenEXRCore/OpenEXRVersion.h",
+        "src/lib/OpenEXRCore/openexr_version.h",
     ],
     hdrs = [
         "src/lib/Iex/Iex.h",
@@ -121,7 +121,7 @@ cc_library(
         "src/lib/IlmThread/IlmThreadSemaphorePosix.cpp",
         "src/lib/IlmThread/IlmThreadSemaphorePosixCompat.cpp",
         "src/lib/IlmThread/IlmThreadSemaphoreWin32.cpp",
-        "src/lib/OpenEXRCore/OpenEXRVersion.h",
+        "src/lib/OpenEXRCore/openexr_version.h",
     ],
     hdrs = [
         "src/lib/IlmThread/IlmThread.h",
@@ -201,7 +201,7 @@ cc_library(
         "src/lib/OpenEXRCore/validation.c",
         "src/lib/OpenEXRCore/debug.c",
         "src/lib/OpenEXR/OpenEXRConfig.h",
-        "src/lib/OpenEXRCore/OpenEXRVersion.h",
+        "src/lib/OpenEXRCore/openexr_version.h",
         "src/lib/IlmThread/IlmThreadConfig.h",
     ],
     hdrs = [
