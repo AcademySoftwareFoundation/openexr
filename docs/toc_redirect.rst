@@ -10,6 +10,11 @@
 .. toctree::
    :hidden:
 
+   tools
+
+.. toctree::
+   :hidden:
+
    API
 
 .. toctree::

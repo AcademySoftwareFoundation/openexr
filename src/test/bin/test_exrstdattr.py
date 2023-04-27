@@ -6,11 +6,12 @@
 import sys, os, tempfile, atexit
 from subprocess import PIPE, run
 
-print(f"testing exrstdattr: {sys.argv}")
+print(f"testing exrstdattr: {' '.join(sys.argv)}")
 
 exrstdattr = sys.argv[1]
 exrinfo = sys.argv[2]
 image_dir = sys.argv[3]
+version = sys.argv[4]
 
 assert(os.path.isfile(exrstdattr))
 assert(os.path.isfile(exrinfo))
@@ -26,45 +27,70 @@ atexit.register(cleanup)
 # no args = usage message
 result = run ([exrstdattr], stdout=PIPE, stderr=PIPE, universal_newlines=True)
 print(" ".join(result.args))
-assert(result.returncode == 1)
+assert(result.returncode != 0)
 assert(result.stderr.startswith ("Usage: "))
 
 # -h = usage message
 result = run ([exrstdattr, "-h"], stdout=PIPE, stderr=PIPE, universal_newlines=True)
 print(" ".join(result.args))
-assert(result.returncode == 1)
-assert(result.stderr.startswith ("Usage: "))
+assert(result.returncode == 0)
+assert(result.stdout.startswith ("Usage: "))
+
+result = run ([exrstdattr, "--help"], stdout=PIPE, stderr=PIPE, universal_newlines=True)
+print(" ".join(result.args))
+assert(result.returncode == 0)
+assert(result.stdout.startswith ("Usage: "))
+
+# --version
+result = run ([exrstdattr, "--version"], stdout=PIPE, stderr=PIPE, universal_newlines=True)
+print(" ".join(result.args))
+assert(result.returncode == 0)
+assert(result.stdout.startswith ("exrstdattr"))
+assert(version in result.stdout)
+
+attrs = [
+    ["-part", "0"],
+    ["-screenWindowCenter", "42", "43"],
+    ["-screenWindowWidth", "4.4"],
+    ["-pixelAspectRatio", "1.7"],
+    ["-wrapmodes", "clamp"],
+    ["-timeCode", "12345678", "34567890"],
+    ["-keyCode", "1", "2", "3", "4", "5", "6", "20"],
+    ["-framesPerSecond", "48", "1"],
+    ["-envmap", "LATLONG"],
+    ["-isoSpeed", "2.1"],
+    ["-aperture", "3.2"],
+    ["-expTime", "4.3"],
+    ["-focus", "5.4"],
+    ["-altitude", "6.5"],
+    ["-latitude", "7.6"],
+    ["-longitude", "8.7"],
+    ["-utcOffset", "9"],
+    ["-owner", "florian"],
+    ["-xDensity", "10.0"],
+    ["-lookModTransform", "lmt"],
+    ["-renderingTransform", "rt"],
+    ["-adoptedNeutral", "1.1", "2.2"],
+    ["-whiteLuminance", "17.1"],
+    ["-chromaticities", "1", "2", "3", "4", "5", "6", "7", "8"],
+    ["-int", "test_int", "42"],
+    ["-float", "test_float", "4.2"],
+    ["-string", "test_string", "forty two"],
+    ["-capDate", "1999:12:31 23:59:59"],
+    ["-comments", "blah blah blah"],
+]
+
+# test missing arguments, using just the -option but no value
+
+for a in attrs:
+    result = run ([exrstdattr, a[0]], stdout=PIPE, stderr=PIPE, universal_newlines=True)
+    print(" ".join(result.args))
+    print(result.stderr)
+    assert(result.returncode != 0)
 
 command = [exrstdattr]
-command += ["-part", "0"]
-command += ["-screenWindowCenter", "42", "43"]
-command += ["-screenWindowWidth", "4.4"]
-command += ["-pixelAspectRatio", "1.7"]
-command += ["-wrapmodes", "clamp"]
-command += ["-timeCode", "12345678", "34567890"]
-command += ["-keyCode", "1", "2", "3", "4", "5", "6", "20"]
-command += ["-framesPerSecond", "48", "1"]
-command += ["-envmap", "LATLONG"]
-command += ["-isoSpeed", "2.1"]
-command += ["-aperture", "3.2"]
-command += ["-expTime", "4.3"]
-command += ["-focus", "5.4"]
-command += ["-altitude", "6.5"]
-command += ["-latitude", "7.6"]
-command += ["-longitude", "8.7"]
-command += ["-utcOffset", "9"]
-command += ["-owner", "florian"]
-command += ["-xDensity", "10.0"]
-command += ["-lookModTransform", "lmt"]
-command += ["-renderingTransform", "rt"]
-command += ["-adoptedNeutral", "1.1", "2.2"]
-command += ["-whiteLuminance", "17.1"]
-command += ["-chromaticities", "1", "2", "3", "4", "5", "6", "7", "8"]
-command += ["-int", "test_int", "42"]
-command += ["-float", "test_float", "4.2"]
-command += ["-string", "test_string", "forty two"]
-command += ["-capDate", "1999:12:31 23:59:59"]
-command += ["-comments", "blah blah blah"]
+for a in attrs:
+    command += a 
 image = f"{image_dir}/TestImages/GrayRampsHorizontal.exr"
 command += [image, outimage]
 
