@@ -128,7 +128,7 @@ typedef int64_t (*exr_query_size_func_ptr_t) (
  *
  * The return is the number of bytes read.
  */
-typedef uint64_t (*exr_read_func_ptr_t) (
+typedef int64_t (*exr_read_func_ptr_t) (
     exr_const_context_t         ctxt,
     void*                       userdata,
     void*                       buffer,

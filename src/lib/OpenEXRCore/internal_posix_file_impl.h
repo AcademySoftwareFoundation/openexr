@@ -94,7 +94,7 @@ finalize_write (struct _internal_exr_context* pf, int failed)
 
 /**************************************/
 
-static uint64_t
+static int64_t
 default_read_func (
     exr_const_context_t         ctxt,
     void*                       userdata,
