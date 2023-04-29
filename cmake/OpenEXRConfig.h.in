@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include <openexr_version.h>
+#include <OpenEXRCore/openexr_version.h>
 
 //
 // Options / configuration based on O.S. / compiler

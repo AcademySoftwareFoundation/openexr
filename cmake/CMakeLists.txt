@@ -72,7 +72,7 @@ endif()
 configure_file(OpenEXRConfig.h.in ${CMAKE_CURRENT_BINARY_DIR}/OpenEXRConfig.h)
 configure_file(OpenEXRConfigInternal.h.in ${CMAKE_CURRENT_BINARY_DIR}/OpenEXRConfigInternal.h)
 # make a temp copy in the binary dir for OpenEXRConfig.h to include
-configure_file(../src/lib/OpenEXRCore/openexr_version.h ${CMAKE_CURRENT_BINARY_DIR}/openexr_version.h COPYONLY)
+configure_file(../src/lib/OpenEXRCore/openexr_version.h ${CMAKE_CURRENT_BINARY_DIR}/OpenEXRCore/openexr_version.h COPYONLY)
 
 if(OPENEXR_INSTALL)
 install(
