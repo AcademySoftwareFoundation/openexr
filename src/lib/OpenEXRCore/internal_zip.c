@@ -208,7 +208,7 @@ interleave (uint8_t* out, const uint8_t* source, uint64_t outSize)
     uint8_t*       s    = out;
     uint8_t* const stop = s + outSize;
 
-    while (true)
+    while (1)
     {
         if (s < stop)
             *(s++) = *(t1++);
