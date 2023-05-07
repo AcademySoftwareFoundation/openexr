@@ -156,6 +156,29 @@ shiftAndRound (int x, int shift)
 }
 
 inline bool
+withinDWAErrorBounds (const uint16_t a, const uint16_t b)
+{
+    float a1 = imath_half_to_float (a);
+    if (!isnan (a1))
+    {
+        float a2 = imath_half_to_float (b);
+        float denominator =
+            std::max (1.f, std::max (fabsf (a2), fabsf (a1)));
+        if (fabs (a1 / denominator - a2 / denominator) >= 0.1)
+        {
+            std::cerr << "DWA" << " B bits " << std::hex << b
+                      << std::dec << " (" << a2
+                      << ") too different from A1 bits " << std::hex << a
+                      << std::dec << " (" << a1 << ")"
+                      << " delta " << fabs (a1 / denominator - a2 / denominator)
+                      << std::endl;
+            return false;
+        }
+    }
+    return true;
+}
+
+inline bool
 withinB44ErrorBounds (const uint16_t A[4][4], const uint16_t B[4][4])
 {
     //
@@ -443,11 +466,11 @@ struct pixels
     {
         if (a != b)
         {
-            std::cout << chan << " half at " << x << ", " << y
+            std::cout << chan << " half at " << std::dec << x << ", " << y
                       << " not equal: " << taga << " 0x" << std::hex << a
                       << std::dec << " (" << imath_half_to_float (a) << ") vs "
                       << tagb << " 0x" << std::hex << b << std::hex << " ("
-                      << imath_half_to_float (b) << ")" << std::endl;
+                      << imath_half_to_float (b) << ")" << std::dec << std::endl;
         }
         EXRCORE_TEST (a == b);
     }
@@ -587,6 +610,23 @@ struct pixels
                         }
                         EXRCORE_TEST_LOCATION (
                             withinB44ErrorBounds (orig, unc), x, y)
+                    }
+                }
+            }
+        }
+        else if (comp == EXR_COMPRESSION_DWAA || comp == EXR_COMPRESSION_DWAB)
+        {
+            for (int y = 0; y < _h; ++y)
+            {
+                for (int x = 0; x < _w; ++x)
+                {
+                    size_t idx = y * _stride_x + x;
+                    compareExact (o.h[idx], h[idx], x, y, otag, selftag, "H");
+
+                    for (int c = 0; c < 4; ++c)
+                    {
+                        EXRCORE_TEST_LOCATION (
+                            withinDWAErrorBounds (o.rgba[c][idx], rgba[c][idx]), x, y)
                     }
                 }
             }
@@ -1366,10 +1406,14 @@ doWriteRead (
         EXRCORE_TEST_FAIL (loadCPP);
     }
 
-    cpploadcpp.compareExact (cpploadc, "C++ loaded C", "C++ loaded C++");
-    restore.compareExact (cpprestore, "C loaded C++", "C loaded C");
-    restore.compareExact (cpploadc, "C++ loaded C", "C loaded C");
-    restore.compareExact (cpploadcpp, "C++ loaded C++", "C loaded C");
+    /* DWAA / DWAB seems to have some small number of ULP differences between C & C++ */
+    if (comp != EXR_COMPRESSION_DWAA && comp != EXR_COMPRESSION_DWAB)
+    {
+        cpploadcpp.compareExact (cpploadc, "C++ loaded C", "C++ loaded C++");
+        restore.compareExact (cpprestore, "C loaded C++", "C loaded C");
+        restore.compareExact (cpploadc, "C++ loaded C", "C loaded C");
+        restore.compareExact (cpploadcpp, "C++ loaded C++", "C loaded C");
+    }
 
     switch (comp)
     {
@@ -1630,13 +1674,13 @@ testB44ACompression (const std::string& tempdir)
 void
 testDWAACompression (const std::string& tempdir)
 {
-    //testComp (tempdir, EXR_COMPRESSION_DWAA);
+    testComp (tempdir, EXR_COMPRESSION_DWAA);
 }
 
 void
 testDWABCompression (const std::string& tempdir)
 {
-    //testComp (tempdir, EXR_COMPRESSION_DWAB);
+    testComp (tempdir, EXR_COMPRESSION_DWAB);
 }
 
 void
