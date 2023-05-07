@@ -240,8 +240,8 @@ void internal_zip_reconstruct_bytes (
 
 void internal_zip_deconstruct_bytes (
     uint8_t*       scratch,
-    const uint8_t *source,
-    size_t         count)
+    const uint8_t* source,
+    uint64_t       count)
 {
     int            p;
     uint8_t*       t1   = scratch;
