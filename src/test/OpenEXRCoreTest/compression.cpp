@@ -36,6 +36,79 @@
 #include <ImfOutputFile.h>
 #include <ImfTiledOutputFile.h>
 #include <half.h>
+#ifdef __linux
+#    include <sys/types.h>
+#    include <sys/stat.h>
+#    include <fcntl.h>
+#    include <unistd.h>
+
+static int compare_files (const char *fn, const char *fn2)
+{
+    struct stat sb1, sb2;
+    if ( 0 == stat (fn, &sb1) && 0 == stat (fn2, &sb2))
+    {
+        if (sb1.st_size != sb2.st_size)
+        {
+            std::cerr << "File sizes do not match: '" << fn << "' " << sb1.st_size << " '" << fn2 << "' " << sb2.st_size << std::endl;
+            return 1;
+        }
+        int fd1, fd2;
+        int ret = 0;
+        fd1 = open (fn, O_RDONLY);
+        fd2 = open (fn2, O_RDONLY);
+        if (fd1 >= 0 && fd2 >= 0)
+        {
+            uint8_t buf1[512], buf2[512];
+            size_t toRead = sb1.st_size;
+            size_t chunkReq = sizeof(buf1);
+            size_t offset = 0;
+            while (toRead > 0)
+            {
+                ssize_t nr1 = read (fd1, buf1, chunkReq);
+                ssize_t nr2 = read (fd2, buf2, chunkReq);
+                if (nr1 < 0 || nr2 < 0)
+                {
+                    std::cerr << "Unable to read from files " << nr1 << ", " << nr2 << std::endl;
+                    ret = -1;
+                    break;
+                }
+                if (nr1 != nr2)
+                {
+                    std::cerr << "Mismatch in read amounts " << nr1 << ", " << nr2 << std::endl;
+                    ret = -1;
+                    break;
+                }
+                if (nr1 > 0)
+                {
+                    if (memcmp (buf1, buf2, nr1) != 0)
+                    {
+                        for ( size_t b = 0; b < nr1; ++b )
+                        {
+                            if (buf1[b] != buf2[b])
+                            {
+                                std::cerr << "Files '" << fn << "' and '" << fn2 << "' differ in chunk starting at " << offset + b << std::endl;
+                                break;
+                            }
+                        }
+                        ret = -1;
+                        break;
+                    }
+                }
+                offset += nr1;
+                toRead -= nr1;
+            }
+        }
+        close (fd1);
+        close (fd2);
+        return ret;
+    }
+    else
+    {
+        std::cerr << "Unable to stat '" << fn << "' and '" << fn2 << "'" << std::endl;
+    }
+    return -1;
+}
+#endif /* linux */
 
 #if defined(OPENEXR_ENABLE_API_VISIBILITY)
 #    include "../../lib/OpenEXRCore/internal_huf.c"
@@ -1236,6 +1309,17 @@ doWriteRead (
         EXRCORE_TEST_FAIL (saveCPP);
     }
 
+#ifdef __linux
+    if (getenv ("ENABLE_EXACT_FILE_COMPARE") &&
+        0 != compare_files (filename.c_str(), cppfilename.c_str()))
+    {
+        EXRCORE_TEST_FAIL (compare_files);
+    }
+    else
+    {
+        compare_files (filename.c_str(), cppfilename.c_str());
+    }
+#endif
     pixels restore    = p;
     pixels cpprestore = p;
     pixels cpploadc   = p;
