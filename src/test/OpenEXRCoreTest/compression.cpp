@@ -1157,6 +1157,7 @@ doWriteRead (
 
     exr_set_default_zip_compression_level (-1);
     cinit.zip_level = 3;
+    cinit.flags |= EXR_CONTEXT_FLAG_WRITE_LEGACY_HEADER;
 
     dataW.min.x = dwx;
     dataW.min.y = dwy;
