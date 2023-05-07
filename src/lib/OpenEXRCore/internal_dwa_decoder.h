@@ -18,8 +18,6 @@ typedef struct _LossyDctDecoder
     // skip some processing and speed things along
     //
 
-    //bool _isNativeXdr;
-
     //
     // Counts of how many items have been packed into the
     // AC and DC buffers
@@ -287,7 +285,7 @@ LossyDctDecoder_execute (LossyDctDecoder* d)
             // meant more for layers with large swaths of black
             //
 
-            bool blockIsConstant = true;
+            uint8_t blockIsConstant = DWA_CLASSIFIER_TRUE;
 
             for (size_t comp = 0; comp < numComp; ++comp)
             {
@@ -355,7 +353,7 @@ LossyDctDecoder_execute (LossyDctDecoder* d)
                     // Can't use the 'constant block' optimization
                     //
 
-                    blockIsConstant = false;
+                    blockIsConstant = DWA_CLASSIFIER_FALSE;
 
                     //
                     // Un-Zig zag
@@ -502,13 +500,13 @@ LossyDctDecoder_execute (LossyDctDecoder* d)
 
 #ifdef IMF_HAVE_SSE2
 
-            bool fastPath = true;
+            uint8_t fastPath = DWA_CLASSIFIER_TRUE;
 
             for (int y = 8 * blocky; y < 8 * blocky + maxY; ++y)
             {
                 if ((uintptr_t) (chanData[comp]->_rows[y]) &
                     _SSE_ALIGNMENT_MASK)
-                    fastPath = false;
+                    fastPath = DWA_CLASSIFIER_FALSE;
             }
 
             if (fastPath)

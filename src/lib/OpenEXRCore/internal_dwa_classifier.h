@@ -15,53 +15,56 @@ typedef struct _Classifier
     CompressorScheme _scheme;
     exr_pixel_type_t _type;
     int              _cscIdx;
-    bool             _caseInsensitive;
-    bool             _stringStatic;
+    uint8_t          _caseInsensitive;
+    uint8_t          _stringStatic;
 } Classifier;
 
+#define DWA_CLASSIFIER_FALSE 0
+#define DWA_CLASSIFIER_TRUE 1
+
 static Classifier sDefaultChannelRules[] = {
-    {"R", LOSSY_DCT, EXR_PIXEL_HALF, 0, false, true},
-    {"R", LOSSY_DCT, EXR_PIXEL_FLOAT, 0, false, true},
-    {"G", LOSSY_DCT, EXR_PIXEL_HALF, 1, false, true},
-    {"G", LOSSY_DCT, EXR_PIXEL_FLOAT, 1, false, true},
-    {"B", LOSSY_DCT, EXR_PIXEL_HALF, 2, false, true},
-    {"B", LOSSY_DCT, EXR_PIXEL_FLOAT, 2, false, true},
-    {"Y", LOSSY_DCT, EXR_PIXEL_HALF, -1, false, true},
-    {"Y", LOSSY_DCT, EXR_PIXEL_FLOAT, -1, false, true},
-    {"BY", LOSSY_DCT, EXR_PIXEL_HALF, -1, false, true},
-    {"BY", LOSSY_DCT, EXR_PIXEL_FLOAT, -1, false, true},
-    {"RY", LOSSY_DCT, EXR_PIXEL_HALF, -1, false, true},
-    {"RY", LOSSY_DCT, EXR_PIXEL_FLOAT, -1, false, true},
-    {"A", RLE, EXR_PIXEL_UINT, -1, false, true},
-    {"A", RLE, EXR_PIXEL_HALF, -1, false, true},
-    {"A", RLE, EXR_PIXEL_FLOAT, -1, false, true}};
+    {"R", LOSSY_DCT, EXR_PIXEL_HALF, 0, DWA_CLASSIFIER_FALSE, DWA_CLASSIFIER_TRUE},
+    {"R", LOSSY_DCT, EXR_PIXEL_FLOAT, 0, DWA_CLASSIFIER_FALSE, DWA_CLASSIFIER_TRUE},
+    {"G", LOSSY_DCT, EXR_PIXEL_HALF, 1, DWA_CLASSIFIER_FALSE, DWA_CLASSIFIER_TRUE},
+    {"G", LOSSY_DCT, EXR_PIXEL_FLOAT, 1, DWA_CLASSIFIER_FALSE, DWA_CLASSIFIER_TRUE},
+    {"B", LOSSY_DCT, EXR_PIXEL_HALF, 2, DWA_CLASSIFIER_FALSE, DWA_CLASSIFIER_TRUE},
+    {"B", LOSSY_DCT, EXR_PIXEL_FLOAT, 2, DWA_CLASSIFIER_FALSE, DWA_CLASSIFIER_TRUE},
+    {"Y", LOSSY_DCT, EXR_PIXEL_HALF, -1, DWA_CLASSIFIER_FALSE, DWA_CLASSIFIER_TRUE},
+    {"Y", LOSSY_DCT, EXR_PIXEL_FLOAT, -1, DWA_CLASSIFIER_FALSE, DWA_CLASSIFIER_TRUE},
+    {"BY", LOSSY_DCT, EXR_PIXEL_HALF, -1, DWA_CLASSIFIER_FALSE, DWA_CLASSIFIER_TRUE},
+    {"BY", LOSSY_DCT, EXR_PIXEL_FLOAT, -1, DWA_CLASSIFIER_FALSE, DWA_CLASSIFIER_TRUE},
+    {"RY", LOSSY_DCT, EXR_PIXEL_HALF, -1, DWA_CLASSIFIER_FALSE, DWA_CLASSIFIER_TRUE},
+    {"RY", LOSSY_DCT, EXR_PIXEL_FLOAT, -1, DWA_CLASSIFIER_FALSE, DWA_CLASSIFIER_TRUE},
+    {"A", RLE, EXR_PIXEL_UINT, -1, DWA_CLASSIFIER_FALSE, DWA_CLASSIFIER_TRUE},
+    {"A", RLE, EXR_PIXEL_HALF, -1, DWA_CLASSIFIER_FALSE, DWA_CLASSIFIER_TRUE},
+    {"A", RLE, EXR_PIXEL_FLOAT, -1, DWA_CLASSIFIER_FALSE, DWA_CLASSIFIER_TRUE}};
 
 static Classifier sLegacyChannelRules[] = {
-    {"r", LOSSY_DCT, EXR_PIXEL_HALF, 0, true, true},
-    {"r", LOSSY_DCT, EXR_PIXEL_FLOAT, 0, true, true},
-    {"red", LOSSY_DCT, EXR_PIXEL_HALF, 0, true, true},
-    {"red", LOSSY_DCT, EXR_PIXEL_FLOAT, 0, true, true},
-    {"g", LOSSY_DCT, EXR_PIXEL_HALF, 1, true, true},
-    {"g", LOSSY_DCT, EXR_PIXEL_FLOAT, 1, true, true},
-    {"grn", LOSSY_DCT, EXR_PIXEL_HALF, 1, true, true},
-    {"grn", LOSSY_DCT, EXR_PIXEL_FLOAT, 1, true, true},
-    {"green", LOSSY_DCT, EXR_PIXEL_HALF, 1, true, true},
-    {"green", LOSSY_DCT, EXR_PIXEL_FLOAT, 1, true, true},
-    {"b", LOSSY_DCT, EXR_PIXEL_HALF, 2, true, true},
-    {"b", LOSSY_DCT, EXR_PIXEL_FLOAT, 2, true, true},
-    {"blu", LOSSY_DCT, EXR_PIXEL_HALF, 2, true, true},
-    {"blu", LOSSY_DCT, EXR_PIXEL_FLOAT, 2, true, true},
-    {"blue", LOSSY_DCT, EXR_PIXEL_HALF, 2, true, true},
-    {"blue", LOSSY_DCT, EXR_PIXEL_FLOAT, 2, true, true},
-    {"y", LOSSY_DCT, EXR_PIXEL_HALF, -1, true, true},
-    {"y", LOSSY_DCT, EXR_PIXEL_FLOAT, -1, true, true},
-    {"by", LOSSY_DCT, EXR_PIXEL_HALF, -1, true, true},
-    {"by", LOSSY_DCT, EXR_PIXEL_FLOAT, -1, true, true},
-    {"ry", LOSSY_DCT, EXR_PIXEL_HALF, -1, true, true},
-    {"ry", LOSSY_DCT, EXR_PIXEL_FLOAT, -1, true, true},
-    {"a", RLE, EXR_PIXEL_UINT, -1, true, true},
-    {"a", RLE, EXR_PIXEL_HALF, -1, true, true},
-    {"a", RLE, EXR_PIXEL_FLOAT, -1, true, true}};
+    {"r", LOSSY_DCT, EXR_PIXEL_HALF, 0, DWA_CLASSIFIER_TRUE, DWA_CLASSIFIER_TRUE},
+    {"r", LOSSY_DCT, EXR_PIXEL_FLOAT, 0, DWA_CLASSIFIER_TRUE, DWA_CLASSIFIER_TRUE},
+    {"red", LOSSY_DCT, EXR_PIXEL_HALF, 0, DWA_CLASSIFIER_TRUE, DWA_CLASSIFIER_TRUE},
+    {"red", LOSSY_DCT, EXR_PIXEL_FLOAT, 0, DWA_CLASSIFIER_TRUE, DWA_CLASSIFIER_TRUE},
+    {"g", LOSSY_DCT, EXR_PIXEL_HALF, 1, DWA_CLASSIFIER_TRUE, DWA_CLASSIFIER_TRUE},
+    {"g", LOSSY_DCT, EXR_PIXEL_FLOAT, 1, DWA_CLASSIFIER_TRUE, DWA_CLASSIFIER_TRUE},
+    {"grn", LOSSY_DCT, EXR_PIXEL_HALF, 1, DWA_CLASSIFIER_TRUE, DWA_CLASSIFIER_TRUE},
+    {"grn", LOSSY_DCT, EXR_PIXEL_FLOAT, 1, DWA_CLASSIFIER_TRUE, DWA_CLASSIFIER_TRUE},
+    {"green", LOSSY_DCT, EXR_PIXEL_HALF, 1, DWA_CLASSIFIER_TRUE, DWA_CLASSIFIER_TRUE},
+    {"green", LOSSY_DCT, EXR_PIXEL_FLOAT, 1, DWA_CLASSIFIER_TRUE, DWA_CLASSIFIER_TRUE},
+    {"b", LOSSY_DCT, EXR_PIXEL_HALF, 2, DWA_CLASSIFIER_TRUE, DWA_CLASSIFIER_TRUE},
+    {"b", LOSSY_DCT, EXR_PIXEL_FLOAT, 2, DWA_CLASSIFIER_TRUE, DWA_CLASSIFIER_TRUE},
+    {"blu", LOSSY_DCT, EXR_PIXEL_HALF, 2, DWA_CLASSIFIER_TRUE, DWA_CLASSIFIER_TRUE},
+    {"blu", LOSSY_DCT, EXR_PIXEL_FLOAT, 2, DWA_CLASSIFIER_TRUE, DWA_CLASSIFIER_TRUE},
+    {"blue", LOSSY_DCT, EXR_PIXEL_HALF, 2, DWA_CLASSIFIER_TRUE, DWA_CLASSIFIER_TRUE},
+    {"blue", LOSSY_DCT, EXR_PIXEL_FLOAT, 2, DWA_CLASSIFIER_TRUE, DWA_CLASSIFIER_TRUE},
+    {"y", LOSSY_DCT, EXR_PIXEL_HALF, -1, DWA_CLASSIFIER_TRUE, DWA_CLASSIFIER_TRUE},
+    {"y", LOSSY_DCT, EXR_PIXEL_FLOAT, -1, DWA_CLASSIFIER_TRUE, DWA_CLASSIFIER_TRUE},
+    {"by", LOSSY_DCT, EXR_PIXEL_HALF, -1, DWA_CLASSIFIER_TRUE, DWA_CLASSIFIER_TRUE},
+    {"by", LOSSY_DCT, EXR_PIXEL_FLOAT, -1, DWA_CLASSIFIER_TRUE, DWA_CLASSIFIER_TRUE},
+    {"ry", LOSSY_DCT, EXR_PIXEL_HALF, -1, DWA_CLASSIFIER_TRUE, DWA_CLASSIFIER_TRUE},
+    {"ry", LOSSY_DCT, EXR_PIXEL_FLOAT, -1, DWA_CLASSIFIER_TRUE, DWA_CLASSIFIER_TRUE},
+    {"a", RLE, EXR_PIXEL_UINT, -1, DWA_CLASSIFIER_TRUE, DWA_CLASSIFIER_TRUE},
+    {"a", RLE, EXR_PIXEL_HALF, -1, DWA_CLASSIFIER_TRUE, DWA_CLASSIFIER_TRUE},
+    {"a", RLE, EXR_PIXEL_FLOAT, -1, DWA_CLASSIFIER_TRUE, DWA_CLASSIFIER_TRUE}};
 
 static inline void
 Classifier_destroy (Classifier* p)
@@ -101,7 +104,7 @@ Classifier_read (Classifier* out, const uint8_t** ptr, uint64_t* size)
 
         memcpy (mem, suffix, len);
         out->_suffix       = mem;
-        out->_stringStatic = false;
+        out->_stringStatic = DWA_CLASSIFIER_FALSE;
     }
 
     if (*size < len + 2 * sizeof (uint8_t))
@@ -137,7 +140,7 @@ Classifier_read (Classifier* out, const uint8_t** ptr, uint64_t* size)
         //" (corrupt scheme rule).");
     }
 
-    out->_caseInsensitive = (value & 1 ? true : false);
+    out->_caseInsensitive = (value & 1 ? DWA_CLASSIFIER_TRUE : DWA_CLASSIFIER_FALSE);
 
     if (type >= EXR_PIXEL_LAST_TYPE)
     {
@@ -154,7 +157,7 @@ static inline int
 Classifier_match (
     const Classifier* me, const char* suffix, const exr_pixel_type_t type)
 {
-    if (me->_type != type) return false;
+    if (me->_type != type) return DWA_CLASSIFIER_FALSE;
 #ifdef _MSC_VER
     if (me->_caseInsensitive) return _stricmp (suffix, me->_suffix) == 0;
 #else

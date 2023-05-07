@@ -9,7 +9,6 @@
 
 #include "openexr_attr.h"
 
-#include <stdbool.h>
 #include <string.h>
 
 /**************************************/

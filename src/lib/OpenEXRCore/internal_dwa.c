@@ -114,7 +114,6 @@
 
 #include <math.h>
 #include <stdalign.h>
-#include <stdbool.h>
 #include <string.h>
 #include <stdio.h>
 

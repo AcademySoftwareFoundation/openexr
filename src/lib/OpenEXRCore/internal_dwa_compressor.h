@@ -466,7 +466,7 @@ DwaCompressor_compress (DwaCompressor* me)
             default: return EXR_ERR_INVALID_ARGUMENT;
         }
 
-        cd->processed = true;
+        cd->processed = DWA_CLASSIFIER_TRUE;
     }
 
     //
