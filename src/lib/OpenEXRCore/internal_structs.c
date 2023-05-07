@@ -416,6 +416,7 @@ internal_exr_alloc_context (
         ret->disable_chunk_reconstruct =
             (initializers->flags &
              EXR_CONTEXT_FLAG_DISABLE_CHUNK_RECONSTRUCTION);
+        ret->legacy_header = (initializers->flags & EXR_CONTEXT_FLAG_WRITE_LEGACY_HEADER);
 
         ret->file_size       = -1;
         ret->max_name_length = EXR_SHORTNAME_MAXLEN;

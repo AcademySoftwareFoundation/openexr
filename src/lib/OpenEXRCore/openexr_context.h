@@ -342,6 +342,9 @@ typedef struct _exr_context_initializer_v3
  */
 #define EXR_CONTEXT_FLAG_DISABLE_CHUNK_RECONSTRUCTION (1 << 2)
 
+/** @brief Writes an old-style, sorted header with minimal information */
+#define EXR_CONTEXT_FLAG_WRITE_LEGACY_HEADER (1 << 3)
+
 /** @brief Simple macro to initialize the context initializer with default values. */
 #define EXR_DEFAULT_CONTEXT_INITIALIZER                                        \
     {                                                                          \

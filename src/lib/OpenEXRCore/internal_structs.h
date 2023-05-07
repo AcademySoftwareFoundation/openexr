@@ -217,6 +217,7 @@ struct _internal_exr_context
 #    endif
 #endif
     uint8_t disable_chunk_reconstruct;
+    uint8_t legacy_header;
 };
 
 #define EXR_CTXT(c) ((struct _internal_exr_context*) (c))
