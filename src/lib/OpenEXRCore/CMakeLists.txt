@@ -14,6 +14,7 @@ openexr_define_library(OpenEXRCore
     internal_coding.h
     internal_constants.h
     internal_compress.h
+    internal_cpuid.h
     internal_decompress.h
     internal_file.h
     internal_float_vector.h
