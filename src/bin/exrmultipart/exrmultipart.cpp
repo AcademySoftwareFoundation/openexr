@@ -501,7 +501,6 @@ combine (
     }
 
     inputs.clear ();
-    fordelete.size ();
 
     cout << "\n"
          << "Combine Success" << endl;
