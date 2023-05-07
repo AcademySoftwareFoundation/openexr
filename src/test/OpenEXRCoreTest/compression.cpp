@@ -1521,7 +1521,7 @@ testZIPSCompression (const std::string& tempdir)
 void
 testPIZCompression (const std::string& tempdir)
 {
-    //testComp (tempdir, EXR_COMPRESSION_PIZ);
+    testComp (tempdir, EXR_COMPRESSION_PIZ);
 }
 
 void
