@@ -211,6 +211,7 @@ cc_library(
         "src/lib/OpenEXRCore/unpack.c",
         "src/lib/OpenEXRCore/validation.c",
         "src/lib/OpenEXRCore/write_header.c",
+        "src/lib/OpenEXR/dwaLookups.h",
     ],
     hdrs = [
         "src/lib/OpenEXRCore/openexr.h",
