@@ -2015,7 +2015,10 @@ write_tile_chunk (
         ddata[0] = (int64_t) sample_data_size;
         ddata[1] = (int64_t) packed_size;
         ddata[2] = (int64_t) unpacked_size;
-        rv       = pctxt->do_write (
+
+        priv_from_native64 (ddata, 3);
+
+        rv = pctxt->do_write (
             pctxt, ddata, 3 * sizeof (uint64_t), &(pctxt->output_file_offset));
 
         if (rv == EXR_ERR_SUCCESS)
