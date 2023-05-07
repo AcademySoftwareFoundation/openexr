@@ -156,6 +156,32 @@ priv_from_native32 (void* ptr, int n)
 #endif
 }
 
+static inline float
+one_to_native_float (float v)
+{
+    union
+    {
+        uint32_t i;
+        float f;
+    } coerce;
+    coerce.f = v;
+    coerce.i = one_to_native32 (coerce.i);
+    return coerce.f;
+}
+
+static inline float
+one_from_native_float (float v)
+{
+    union
+    {
+        uint32_t i;
+        float f;
+    } coerce;
+    coerce.f = v;
+    coerce.i = one_from_native32 (coerce.i);
+    return coerce.f;
+}
+
 /**************************************/
 
 static inline uint16_t
