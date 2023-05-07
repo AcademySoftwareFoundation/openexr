@@ -26,6 +26,10 @@ function(OPENEXR_DEFINE_LIBRARY libname)
   target_compile_features(${objlib}
                           PRIVATE cxx_std_${OPENEXR_CXX_STANDARD}
                           INTERFACE cxx_std_11 )
+  # do not need to constrain the interface to use a particular C standard
+  # but we want to use alignas and such internally
+  target_compile_features(${objlib}
+                          PRIVATE c_std_${OPENEXR_C_STANDARD} )
 
   # we are embedding libdeflate
   target_include_directories(${objlib} PRIVATE ${EXR_DEFLATE_INCLUDE_DIR})
@@ -49,6 +53,8 @@ function(OPENEXR_DEFINE_LIBRARY libname)
   endif()
   set_target_properties(${objlib} PROPERTIES
     CXX_STANDARD_REQUIRED ON
+    C_STANDARD_REQUIRED ON
+    C_STANDARD ${OPENEXR_C_STANDARD}
     CXX_EXTENSIONS OFF
     POSITION_INDEPENDENT_CODE ON
   )
