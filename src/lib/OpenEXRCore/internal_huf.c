@@ -47,8 +47,8 @@ hufCode (uint64_t code)
     return code >> 6;
 }
 
-static inline void
-outputBits (int nBits, uint64_t bits, uint64_t* c, int* lc, uint8_t** outptr)
+static inline exr_result_t
+outputBits (int nBits, uint64_t bits, uint64_t* c, int* lc, uint8_t** outptr, uint8_t *outend)
 {
     uint8_t* out = *outptr;
     *c <<= nBits;
@@ -56,8 +56,12 @@ outputBits (int nBits, uint64_t bits, uint64_t* c, int* lc, uint8_t** outptr)
     *c |= bits;
 
     while (*lc >= 8)
+    {
+        if (out >= outend) return EXR_ERR_ARGUMENT_OUT_OF_RANGE;
         *out++ = (uint8_t) (*c >> (*lc -= 8));
+    }
     *outptr = out;
+    return EXR_ERR_SUCCESS;
 }
 
 static inline uint64_t
@@ -424,13 +428,15 @@ hufBuildEncTable (
 //	  n zeroes (6 or more)	63 n-6	(6 + 8 bits)
 //
 
-static void
+static exr_result_t
 hufPackEncTable (
     const uint64_t* hcode, // i : encoding table [HUF_ENCSIZE]
     uint32_t        im,    // i : min hcode index
     uint32_t        iM,    // i : max hcode index
-    uint8_t**       pcode)       //  o: ptr to packed table (updated)
+    uint8_t**       pcode, // o : ptr to packed table (updated)
+    uint8_t*        pend)  // i : max size of table
 {
+    exr_result_t rv;
     uint8_t* out = *pcode;
     uint64_t c   = 0;
     int      lc  = 0;
@@ -454,24 +460,33 @@ hufPackEncTable (
             {
                 if (zerun >= SHORTEST_LONG_RUN)
                 {
-                    outputBits (6, LONG_ZEROCODE_RUN, &c, &lc, &out);
-                    outputBits (8, zerun - SHORTEST_LONG_RUN, &c, &lc, &out);
+                    rv = outputBits (6, LONG_ZEROCODE_RUN, &c, &lc, &out, pend);
+                    if (rv != EXR_ERR_SUCCESS) return rv;
+                    rv = outputBits (8, zerun - SHORTEST_LONG_RUN, &c, &lc, &out, pend);
+                    if (rv != EXR_ERR_SUCCESS) return rv;
                 }
                 else
                 {
-                    outputBits (
-                        6, SHORT_ZEROCODE_RUN + zerun - 2, &c, &lc, &out);
+                    rv = outputBits (
+                        6, SHORT_ZEROCODE_RUN + zerun - 2, &c, &lc, &out, pend);
+                    if (rv != EXR_ERR_SUCCESS) return rv;
                 }
                 continue;
             }
         }
 
-        outputBits (6, (uint64_t) l, &c, &lc, &out);
+        rv = outputBits (6, (uint64_t) l, &c, &lc, &out, pend);
+        if (rv != EXR_ERR_SUCCESS) return rv;
     }
 
-    if (lc > 0) *out++ = (uint8_t) (c << (8 - lc));
+    if (lc > 0)
+    {
+        if (out >= pend) return EXR_ERR_ARGUMENT_OUT_OF_RANGE;
+        *out++ = (uint8_t) (c << (8 - lc));
+    }
 
     *pcode = out;
+    return EXR_ERR_SUCCESS;
 }
 
 //
@@ -672,47 +687,58 @@ hufFreeDecTable (HufDec* hdecod) // io: Decoding table
 // ENCODING
 //
 
-static inline void
-outputCode (uint64_t code, uint64_t* c, int* lc, uint8_t** out)
+static inline exr_result_t
+outputCode (uint64_t code, uint64_t* c, int* lc, uint8_t** out, uint8_t* outend)
 {
-    outputBits (hufLength (code), hufCode (code), c, lc, out);
+    return outputBits (hufLength (code), hufCode (code), c, lc, out, outend);
 }
 
-static inline void
+static inline exr_result_t
 sendCode (
     uint64_t  sCode,
     int       runCount,
     uint64_t  runCode,
     uint64_t* c,
     int*      lc,
-    uint8_t** out)
+    uint8_t** out,
+    uint8_t*  outend)
 {
+    exr_result_t rv;
     if (hufLength (sCode) + hufLength (runCode) + 8 <
         hufLength (sCode) * runCount)
     {
-        outputCode (sCode, c, lc, out);
-        outputCode (runCode, c, lc, out);
-        outputBits (8, (uint64_t) runCount, c, lc, out);
+        rv = outputCode (sCode, c, lc, out, outend);
+        if (rv == EXR_ERR_SUCCESS) rv = outputCode (runCode, c, lc, out, outend);
+        if (rv == EXR_ERR_SUCCESS) rv = outputBits (8, (uint64_t) runCount, c, lc, out, outend);
     }
     else
     {
         while (runCount-- >= 0)
-            outputCode (sCode, c, lc, out);
+        {
+            rv = outputCode (sCode, c, lc, out, outend);
+            if (rv != EXR_ERR_SUCCESS)
+                break;
+        }
     }
+    return rv;
 }
 
 //
 // Encode (compress) ni values based on the Huffman encoding table hcode:
 //
 
-static inline uint64_t
+static inline exr_result_t
 hufEncode (
     const uint64_t* hcode,
     const uint16_t* in,
     const uint64_t  ni,
     uint32_t        rlc,
-    uint8_t*        out)
+    uint8_t*        out,
+    uint8_t*        outend,
+    uint32_t*       outbytes)
 {
+    exr_result_t rv = EXR_ERR_SUCCESS;
+
     uint8_t* outStart = out;
     uint64_t c        = 0; // bits not yet written to out
     int      lc       = 0; // number of valid bits in c (LSB)
@@ -732,7 +758,9 @@ hufEncode (
         if (s == in[i] && cs < 255) { cs++; }
         else
         {
-            sendCode (hcode[s], cs, hcode[rlc], &c, &lc, &out);
+            rv = sendCode (hcode[s], cs, hcode[rlc], &c, &lc, &out, outend);
+            if (rv != EXR_ERR_SUCCESS)
+                break;
             cs = 0;
         }
 
@@ -743,11 +771,20 @@ hufEncode (
     // Send remaining code
     //
 
-    sendCode (hcode[s], cs, hcode[rlc], &c, &lc, &out);
+    if (rv == EXR_ERR_SUCCESS) rv = sendCode (hcode[s], cs, hcode[rlc], &c, &lc, &out, outend);
 
-    if (lc) *out = (c << (8 - lc)) & 0xff;
+    if (rv == EXR_ERR_SUCCESS)
+    {
+        if (lc)
+        {
+            if (out >= outend) return EXR_ERR_ARGUMENT_OUT_OF_RANGE;
+            *out = (c << (8 - lc)) & 0xff;
+        }
 
-    return (((uintptr_t) out) - ((uintptr_t) outStart)) * 8 + (uint64_t) (lc);
+        *outbytes = (((uintptr_t) out) - ((uintptr_t) outStart)) * 8 + (uint32_t) (lc);
+    }
+
+    return rv;
 }
 
 //
@@ -1674,9 +1711,9 @@ internal_exr_huf_compress_spare_bytes (void)
 {
     uint64_t ret = 0;
     ret += HUF_ENCSIZE * sizeof (uint64_t);  // freq
-    ret += HUF_ENCSIZE * sizeof (int);       // hlink
-    ret += HUF_ENCSIZE * sizeof (uint64_t*); // fheap
     ret += HUF_ENCSIZE * sizeof (uint64_t);  // scode
+    ret += HUF_ENCSIZE * sizeof (uint64_t*); // fheap
+    ret += HUF_ENCSIZE * sizeof (uint32_t);  // hlink
     return ret;
 }
 
@@ -1702,6 +1739,7 @@ internal_huf_compress (
     void*           spare,
     uint64_t        sparebytes)
 {
+    exr_result_t rv;
     uint64_t*  freq;
     uint32_t*  hlink;
     uint64_t** fHeap;
@@ -1713,6 +1751,7 @@ internal_huf_compress (
     uint8_t*   compressed = (uint8_t*) out;
     uint8_t*   tableStart = compressed + 20;
     uint8_t*   tableEnd   = tableStart;
+    uint8_t*   maxcompout = compressed + outsz;
 
     if (nRaw == 0)
     {
@@ -1720,7 +1759,8 @@ internal_huf_compress (
         return EXR_ERR_SUCCESS;
     }
 
-    (void) outsz;
+    if (outsz < 20)
+        return EXR_ERR_INVALID_ARGUMENT;
     if (sparebytes != internal_exr_huf_compress_spare_bytes ())
         return EXR_ERR_INVALID_ARGUMENT;
 
@@ -1733,13 +1773,16 @@ internal_huf_compress (
 
     hufBuildEncTable (freq, &im, &iM, hlink, fHeap, scode);
 
-    hufPackEncTable (freq, im, iM, &tableEnd);
+    rv = hufPackEncTable (freq, im, iM, &tableEnd, maxcompout);
 
+    if (rv != EXR_ERR_SUCCESS) return rv;
     tableLength =
         (uint32_t) (((uintptr_t) tableEnd) - ((uintptr_t) tableStart));
     dataStart = tableEnd;
 
-    nBits      = (uint32_t) hufEncode (freq, raw, nRaw, iM, dataStart);
+    rv = hufEncode (freq, raw, nRaw, iM, dataStart, maxcompout, &nBits);
+    if (rv != EXR_ERR_SUCCESS) return rv;
+
     dataLength = (nBits + 7) / 8;
 
     writeUInt (compressed, im);
