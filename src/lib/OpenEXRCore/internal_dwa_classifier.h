@@ -155,8 +155,11 @@ Classifier_match (
     const Classifier* me, const char* suffix, const exr_pixel_type_t type)
 {
     if (me->_type != type) return false;
-
+#ifdef _MSC_VER
+    if (me->_caseInsensitive) return _stricmp (suffix, me->_suffix) == 0;
+#else
     if (me->_caseInsensitive) return strcasecmp (suffix, me->_suffix) == 0;
+#endif
 
     return strcmp (suffix, me->_suffix) == 0;
 }
