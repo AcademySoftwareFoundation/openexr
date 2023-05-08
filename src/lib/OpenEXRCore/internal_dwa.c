@@ -113,7 +113,6 @@
 #include "internal_xdr.h"
 
 #include <math.h>
-#include <stdalign.h>
 #include <string.h>
 #include <stdio.h>
 

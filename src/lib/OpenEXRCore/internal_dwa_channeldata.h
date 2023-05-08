@@ -7,12 +7,19 @@
 #    error "only include internal_dwa_helpers.h"
 #endif
 
+#ifdef _MSC_VER
+#    define EXR_DCT_ALIGN __declspec (align (_SSE_ALIGNMENT))
+#else
+#    define EXR_DCT_ALIGN _Alignas (_SSE_ALIGNMENT)
+#endif
+
 /**************************************/
 
 typedef struct _DctCoderChannelData
 {
-    alignas (_SSE_ALIGNMENT) float _dctData[64];
-    alignas (_SSE_ALIGNMENT) uint16_t _halfZigData[64];
+    EXR_DCT_ALIGN float    _dctData[64];
+    EXR_DCT_ALIGN uint16_t _halfZigData[64];
+
     uint8_t**        _rows;
     size_t           _row_alloc_count;
     size_t           _size;
