@@ -5,6 +5,7 @@
 
 #include "openexr_compression.h"
 #include "openexr_base.h"
+#include "internal_memory.h"
 
 #include <libdeflate.h>
 
@@ -63,6 +64,7 @@ exr_result_t exr_compress_buffer (
             level = EXR_DEFAULT_ZLIB_COMPRESS_LEVEL;
     }
 
+    libdeflate_set_memory_allocator (internal_exr_alloc, internal_exr_free);
     comp = libdeflate_alloc_compressor (level);
     if (comp)
     {
@@ -100,6 +102,7 @@ exr_result_t exr_uncompress_buffer (
     enum libdeflate_result res;
     size_t actual_in_bytes;
 
+    libdeflate_set_memory_allocator (internal_exr_alloc, internal_exr_free);
     decomp = libdeflate_alloc_decompressor ();
     if (decomp)
     {
