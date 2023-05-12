@@ -10,6 +10,8 @@
 //
 //-----------------------------------------------------------------------------
 
+#include "IlmThreadConfig.h"
+
 #if defined(__APPLE__) && !ILMTHREAD_HAVE_POSIX_SEMAPHORES
 
 #    include "Iex.h"
