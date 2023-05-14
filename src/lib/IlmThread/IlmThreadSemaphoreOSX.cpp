@@ -11,6 +11,10 @@
 //-----------------------------------------------------------------------------
 
 #if defined(__APPLE__) && !ILMTHREAD_HAVE_POSIX_SEMAPHORES
+#    include <AvailabilityMacros.h>
+
+// No libdispatch prior to 10.6, and no support for it on any ppc.
+#if __MAC_OS_X_VERSION_MIN_REQUIRED > 1050 && !defined(__ppc__)
 
 #    include "Iex.h"
 #    include "IlmThreadSemaphore.h"
@@ -59,4 +63,5 @@ Semaphore::value () const
 
 ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_EXIT
 
+#    endif
 #endif
