@@ -560,7 +560,7 @@ Specific OSS-fuzz issues:
 * [1108](https://github.com/AcademySoftwareFoundation/openexr/pull/1108)
   Fix formatting in InterpretingDeepPixels.rst: 
 * [1104](https://github.com/AcademySoftwareFoundation/openexr/pull/1104)
-  'TheoryDeepPixels.rst' first pass conversion from latex 
+  'TheoryDeepPixels.rst' first pass converson from latex 
 * [1042](https://github.com/AcademySoftwareFoundation/openexr/pull/1042)
   Fix broken link for releases 
 
@@ -794,7 +794,7 @@ Beta patch release:
 * [989](https://github.com/AcademySoftwareFoundation/openexr/pull/989) Release notes for 3.0.1-beta
 * [988](https://github.com/AcademySoftwareFoundation/openexr/pull/988) Remove deprecated argument to getChunkOffsetTableSize()
 * [987](https://github.com/AcademySoftwareFoundation/openexr/pull/987) exrcheck: reduceMemory now checks pixel size and scanline compression mode 
-* [983](https://github.com/AcademySoftwareFoundation/openexr/pull/983) Reduce warnings reported in #982
+* [983](https://github.com/AcademySoftwareFoundation/openexr/pull/983) Reduce warnigns reported in #982
 * [980](https://github.com/AcademySoftwareFoundation/openexr/pull/980) Bazel cherry picks
 * [979](https://github.com/AcademySoftwareFoundation/openexr/pull/979) Pin Imath version to 3.0.0-beta on RB-3.0  
 * [968](https://github.com/AcademySoftwareFoundation/openexr/pull/968) Fix typos in Int64/SInt64 deprecation warnings
@@ -943,7 +943,7 @@ Specific OSS-fuzz issues addressed include:
 * [819](https://github.com/AcademySoftwareFoundation/openexr/pull/819)  re-order shift/compare in FastHuf to prevent undefined shift overflow
 * [815](https://github.com/AcademySoftwareFoundation/openexr/pull/815)  cmake: Fix paths in .pc files
 * [802](https://github.com/AcademySoftwareFoundation/openexr/pull/802)  Modernize mutex
-* [796](https://github.com/AcademySoftwareFoundation/openexr/pull/796)  Initial rename of OpenEXR and IlmBase directories and separation of Test
+* [796](https://github.com/AcademySoftwareFoundation/openexr/pull/796)  Initial rename of OpenEXR and IlmBase directories and seperation of Test
 * [791](https://github.com/AcademySoftwareFoundation/openexr/pull/791)  Initial removal of all Imath source files and minimal cmake adjustments
 * [769](https://github.com/AcademySoftwareFoundation/openexr/pull/769)  Bugfix/arkellr remove cvsignore files
 
@@ -1149,7 +1149,7 @@ Patch release with various bug/security fixes and build/install fixes, plus a pe
 * [``3cf874cb``](https://github.com/AcademySoftwareFoundation/openexr/commit/3cf874cbbd23d945a0057f10145bd5f3ce2be679) sanity check preview attribute sizes ([Peter Hillman](@peterh@wetafx.co.nz) 2020-07-15)
 * [``849c6776``](https://github.com/AcademySoftwareFoundation/openexr/commit/849c6776f6627a11710227c026dd4aa6de8f7738) Tidy whitespace in ImfStringVectorAttribute.cpp ([peterhillman](@peterh@wetafx.co.nz) 2020-07-10)
 * [``fcaa1691``](https://github.com/AcademySoftwareFoundation/openexr/commit/fcaa1691071f90df9202818315f4f9d1bc13c54e) sanity check string vectors on read ([Peter Hillman](@peterh@wetafx.co.nz) 2020-07-10)
-* [``0d13c74a``](https://github.com/AcademySoftwareFoundation/openexr/commit/0d13c74a3bfa497465c3e42847b9c62089f0454b) Removes overridden find_package in CMakeLists.txt in favor of reusing the generated config files and setting (IlmBase/OpenEXR)_DIR variables Overriding a cmake function is undocumented functionality and only works one time. Better to avoid if possible. ([Peter Steneteg](@peter@steneteg.se) 2020-06-17)
+* [``0d13c74a``](https://github.com/AcademySoftwareFoundation/openexr/commit/0d13c74a3bfa497465c3e42847b9c62089f0454b) Removes overridden find_package in CMakeLists.txt in favor of reusing the generated config files and setting (IlmBase/OpenEXR)_DIR variables Overriding a cmake function is undocumented functionallity and only works one time. Better to avoid if possible. ([Peter Steneteg](@peter@steneteg.se) 2020-06-17)
 * [``1343c08a``](https://github.com/AcademySoftwareFoundation/openexr/commit/1343c08a7eb13764bbb6c21db22e5a78169754db) Cast to uintptr_t instead of size_t for mask ops on ptrs. ([Arkell Rasiah](@arasiah@pixsystem.com) 2020-06-25)
 * [``72de4c9e``](https://github.com/AcademySoftwareFoundation/openexr/commit/72de4c9ef32e2e9eb4e6d9499a0fadb96ae28796) Switching to current c++ casting style. ([Arkell Rasiah](@arasiah@pixsystem.com) 2020-06-24)
 * [``9534e36d``](https://github.com/AcademySoftwareFoundation/openexr/commit/9534e36d1d1993db7a7cc3ba4c58ec4d7a4a8dd5) IlmImf: Fix misc compiler warnings. ([Arkell Rasiah](@arkellrasiah@gmail.com) 2020-06-23)
@@ -1265,7 +1265,7 @@ Minor release with miscellaneous bug fixes and small features
 * [667](https://github.com/AcademySoftwareFoundation/openexr/pull/667) TSC meeting notes 2/20/2020
 * [666](https://github.com/AcademySoftwareFoundation/openexr/pull/666) ImfChromaticities.cpp: Add back white to equality ops.
 * [662](https://github.com/AcademySoftwareFoundation/openexr/pull/662) support reloading broken files with IlmImfFuzzTest
-* [661](https://github.com/AcademySoftwareFoundation/openexr/pull/661) fix uninitialized pointer and double-delete bugs
+* [661](https://github.com/AcademySoftwareFoundation/openexr/pull/661) fix unitialized pointer and double-delete bugs
 * [660](https://github.com/AcademySoftwareFoundation/openexr/pull/660) exrdisplay: limit maximum image size based on available screen res
 * [659](https://github.com/AcademySoftwareFoundation/openexr/pull/659) fix memory leaks and invalid memory accesses
 * [658](https://github.com/AcademySoftwareFoundation/openexr/pull/658) Fix yet more memory leaks from constructor exceptions
@@ -2280,7 +2280,7 @@ Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
 
 * [TSC meeting notes, July 7, 2019](https://github.com/AcademySoftwareFoundation/openexr/commit/960a56f58da13be6c97c59eae1f57bd8882c4588) ([Cary Phillips](@cary@ilm.com) 2019-07-12) Signed-off-by: Cary Phillips <cary@ilm.com>
 
-* [security policy](https://github.com/AcademySoftwareFoundation/openexr/commit/8f483c2552070f3d9dd2df98f6500dfa1c051dcc) ([Cary Phillips](@cary@ilm.com) 2019-07-12) Signed-off-by: Cary Phillips <cary@ilm.com>
+* [securty policy](https://github.com/AcademySoftwareFoundation/openexr/commit/8f483c2552070f3d9dd2df98f6500dfa1c051dcc) ([Cary Phillips](@cary@ilm.com) 2019-07-12) Signed-off-by: Cary Phillips <cary@ilm.com>
 
 * [code of conduct](https://github.com/AcademySoftwareFoundation/openexr/commit/f31407518aa361263c77eae13f1eef46999ca01f) ([Cary Phillips](@cary@ilm.com) 2019-07-12) Signed-off-by: Cary Phillips <cary@ilm.com>
 
@@ -2291,7 +2291,7 @@ integer value from input file. The value read is not converted from the little e
 the machine format causing problems (eg. test didn't finish after 24 hours).
 fixes issue #81
 
-* [SonarCloud considers strcpy() a vulnerability. It was used only in OpaqueAttribute, whose type name was stored as Array<char>.  I changed the type to std::string. I suspect this simply dates to a time before std::string was commonly used.](https://github.com/AcademySoftwareFoundation/openexr/commit/29d18b70bf542ef9ec6e8861c015d2e7b3d3ec58) ([Cary Phillips](@cary@ilm.com) 2019-07-09) Also, it appears that nothing in the test suite validated opaque attributes, which hold values read from a file when the attribute type is not known. I added a test to validate the behavior, which also validates that the typeName() works when implemented with std::string instead of Array<char>.
+* [SonarCloud considers strcpy() a vulernability. It was used only in OpaqueAttribute, whose type name was stored as Array<char>.  I changed the type to std::string. I suspect this simply dates to a time before std::string was commonly used.](https://github.com/AcademySoftwareFoundation/openexr/commit/29d18b70bf542ef9ec6e8861c015d2e7b3d3ec58) ([Cary Phillips](@cary@ilm.com) 2019-07-09) Also, it appears that nothing in the test suite validated opaque attributes, which hold values read from a file when the attribute type is not known. I added a test to validate the behavior, which also validates that the typeName() works when implemented with std::string instead of Array<char>.
 Signed-off-by: Cary Phillips <cary@ilm.com>
 
 * [Updated pdf with fixes for file version bits on page 7.](https://github.com/AcademySoftwareFoundation/openexr/commit/8da36708caaf0591f72538bfa414d8af20af90e9) ([Cary Phillips](@cary@ilm.com) 2019-07-11) Signed-off-by: Cary Phillips <cary@ilm.com>
@@ -2828,7 +2828,7 @@ Signed-off-by: Kimball Thurston <kdt3rd@gmail.com>
 
 *  [format old release notes](https://github.com/AcademySoftwareFoundation/openexr/commit/3c5b5f894def68cf5240e8f427147c867f745912) ([Cary Phillips](@cary@ilm.com), 2018-08-07) 
 
-*  [release notes updates](https://github.com/AcademySoftwareFoundation/openexr/commit/534e4bcde71ce34b9f8fa9fc39e9df1a58aa3f80) ([Cary Phillips](@cary@ilm.com), 2018-08-07) 
+*  [release notes upates](https://github.com/AcademySoftwareFoundation/openexr/commit/534e4bcde71ce34b9f8fa9fc39e9df1a58aa3f80) ([Cary Phillips](@cary@ilm.com), 2018-08-07) 
 
 *  [CHANGES.md](https://github.com/AcademySoftwareFoundation/openexr/commit/471d7bd1c558c54ecc3cbbb2a65932f1e448a370) ([Cary Phillips](@cary@ilm.com), 2018-08-07) 
 
