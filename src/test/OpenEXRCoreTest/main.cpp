@@ -149,6 +149,7 @@ main (int argc, char* argv[])
     TEST (testBaseErrors, "core");
     TEST (testBaseLimits, "core");
     TEST (testBaseDebug, "core");
+    TEST (testCPUIdent, "core");
     TEST (testXDR, "core");
     TEST (testBufferCompression, "core");
 
