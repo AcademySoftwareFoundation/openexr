@@ -329,7 +329,7 @@ jobs:
             build-shared: 'ON'
             compiler-desc: AppleClang11.0
             cxx-standard: 17
-            osver: 12.0
+            osver: 11.0
             exclude-tests:
             vfx-cy: 23
 
@@ -339,7 +339,7 @@ jobs:
             build-shared: 'OFF'
             compiler-desc: AppleClang11.0
             cxx-standard: 17
-            osver: 12.0
+            osver: 11.0
             exclude-tests:
             vfx-cy: 23
 
@@ -349,12 +349,12 @@ jobs:
             build-shared: 'ON'
             compiler-desc: AppleClang11.0
             cxx-standard: 17
-            osver: 12.0
+            osver: 11.0
             exclude-tests:
             vfx-cy: 23
 
           # -------------------------------------------------------------------
-          # VFX CY2022 - C++17 - MacOS 10.15 
+          # VFX CY2023 - C++17 - MacOS 12
           # -------------------------------------------------------------------
           # Shared, Release
           - build: 4
@@ -362,9 +362,9 @@ jobs:
             build-shared: 'ON'
             compiler-desc: AppleClang11.0
             cxx-standard: 17
-            osver: 11.0
+            osver: 12.0
             exclude-tests:
-            vfx-cy: 22
+            vfx-cy: 23
 
     steps:
       - name: Checkout
