@@ -1406,11 +1406,9 @@ doWriteRead (
         EXRCORE_TEST_FAIL (loadCPP);
     }
 
-    /* DWAA / DWAB seems to have some small number of ULP differences between C & C++ */
-    if (comp != EXR_COMPRESSION_DWAA && comp != EXR_COMPRESSION_DWAB)
     {
-        cpploadcpp.compareExact (cpploadc, "C++ loaded C", "C++ loaded C++");
         restore.compareExact (cpprestore, "C loaded C++", "C loaded C");
+        cpploadcpp.compareExact (cpploadc, "C++ loaded C", "C++ loaded C++");
         restore.compareExact (cpploadc, "C++ loaded C", "C loaded C");
         restore.compareExact (cpploadcpp, "C++ loaded C++", "C loaded C");
     }
