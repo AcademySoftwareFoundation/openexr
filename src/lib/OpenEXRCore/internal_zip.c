@@ -383,7 +383,7 @@ apply_zip_impl (exr_encode_pipeline_t* encode)
                 pctxt,
                 rv,
                 "Unable to compress buffer %" PRIu64 " -> %" PRIu64 " @ level %d",
-                encode->packed_bytes, encode->compressed_alloc_size, level);
+                encode->packed_bytes, (uint64_t)encode->compressed_alloc_size, level);
     }
     
     return rv;
@@ -407,7 +407,7 @@ internal_exr_apply_zip (exr_encode_pipeline_t* encode)
             pctxt->print_error (
                 pctxt,
                 rv,
-                "Unable to allocate scratch buffer for deflate of %lu bytes",
+                "Unable to allocate scratch buffer for deflate of %" PRIu64 " bytes",
                 encode->packed_bytes);
         return rv;
     }
