@@ -280,9 +280,10 @@ static inline uint16_t
 quantize (float dctval, float errorTolerance)
 {
     uint16_t        tmp;
-    //float           srcFloat   = half_to_float (src);
-    float           srcFloat   = dctval;
-    uint16_t        src        = float_to_half (srcFloat);
+    // pre-quantize float -> half and back
+    uint16_t        src        = float_to_half (dctval);
+    float           srcFloat   = half_to_float (src);
+
     int             numSetBits = countSetBits (src);
     const uint16_t* closest    = closestData + closestDataOffset[src];
 
