@@ -255,9 +255,9 @@ print_attr (const exr_attribute_t* a, int verbose)
                 "(size %d unp size %d hdlrs %p %p %p)",
                 a->opaque->size,
                 a->opaque->unpacked_size,
-                (void*) a->opaque->unpack_func_ptr,
-                (void*) a->opaque->pack_func_ptr,
-                (void*) a->opaque->destroy_unpacked_func_ptr);
+                a->opaque->unpack_func_ptr,
+                a->opaque->pack_func_ptr,
+                a->opaque->destroy_unpacked_func_ptr);
             break;
         case EXR_ATTR_UNKNOWN:
         case EXR_ATTR_LAST_KNOWN_TYPE:

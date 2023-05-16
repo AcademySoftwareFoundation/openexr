@@ -124,7 +124,7 @@ reconstruct (uint8_t* buf, uint64_t outSize)
         uint8_t d = prev + buf[i] - 128;
         buf[i]    = d;
         prev      = d;
-    }    
+    }
 }
 #else
 static void
