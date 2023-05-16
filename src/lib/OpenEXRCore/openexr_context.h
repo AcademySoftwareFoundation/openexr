@@ -319,6 +319,8 @@ typedef struct _exr_context_initializer_v3
     /** Initialize with a bitwise or of the various context flags
      */
     int flags;
+
+    uint8_t pad[4];
 } exr_context_initializer_t;
 
 /** @brief context flag which will enforce strict header validation
@@ -342,11 +344,14 @@ typedef struct _exr_context_initializer_v3
  */
 #define EXR_CONTEXT_FLAG_DISABLE_CHUNK_RECONSTRUCTION (1 << 2)
 
+/** @brief Writes an old-style, sorted header with minimal information */
+#define EXR_CONTEXT_FLAG_WRITE_LEGACY_HEADER (1 << 3)
+
 /** @brief Simple macro to initialize the context initializer with default values. */
 #define EXR_DEFAULT_CONTEXT_INITIALIZER                                        \
     {                                                                          \
         sizeof (exr_context_initializer_t), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,   \
-            0, -2, -1.f, 0                                                \
+            0, -2, -1.f, 0, {0, 0, 0, 0}                                       \
     }
 
 /** @} */ /* context function pointer declarations */

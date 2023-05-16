@@ -59,6 +59,7 @@ define_openexrcore_tests(
  testBaseErrors
  testBaseLimits
  testBaseDebug
+ testCPUIdent
  testXDR
 
  testAttrSizes

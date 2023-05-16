@@ -573,7 +573,6 @@ combine (vector <const char*> in,
     }
 
     inputs.clear();
-    fordelete.size();
 
     cout << "\n" << "Combine Success" << endl;
 }

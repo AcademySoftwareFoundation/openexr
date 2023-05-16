@@ -667,18 +667,20 @@ exr_set_channels (
             EXR_ERR_INVALID_ARGUMENT,
             "No channels provided for channel list");
 
-    REQ_ATTR_FIND_CREATE (channels, EXR_ATTR_CHLIST);
-    if (rv == EXR_ERR_SUCCESS)
     {
-        exr_attr_chlist_t clist;
+        REQ_ATTR_FIND_CREATE (channels, EXR_ATTR_CHLIST);
+        if (rv == EXR_ERR_SUCCESS)
+        {
+            exr_attr_chlist_t clist;
 
-        rv = exr_attr_chlist_duplicate (ctxt, &clist, channels);
-        if (rv != EXR_ERR_SUCCESS) return EXR_UNLOCK_AND_RETURN_PCTXT (rv);
+            rv = exr_attr_chlist_duplicate (ctxt, &clist, channels);
+            if (rv != EXR_ERR_SUCCESS) return EXR_UNLOCK_AND_RETURN_PCTXT (rv);
 
-        exr_attr_chlist_destroy (ctxt, attr->chlist);
-        *(attr->chlist) = clist;
+            exr_attr_chlist_destroy (ctxt, attr->chlist);
+            *(attr->chlist) = clist;
+        }
+        return EXR_UNLOCK_AND_RETURN_PCTXT (rv);
     }
-    return EXR_UNLOCK_AND_RETURN_PCTXT (rv);
 }
 
 /**************************************/
@@ -726,17 +728,19 @@ exr_set_data_window (
             EXR_ERR_INVALID_ARGUMENT,
             "Missing value for data window assignment");
 
-    REQ_ATTR_FIND_CREATE (dataWindow, EXR_ATTR_BOX2I);
-
-    if (rv == EXR_ERR_SUCCESS)
     {
-        *(attr->box2i)    = *dw;
-        part->data_window = *dw;
+        REQ_ATTR_FIND_CREATE (dataWindow, EXR_ATTR_BOX2I);
 
-        rv = internal_exr_compute_tile_information (pctxt, part, 1);
+        if (rv == EXR_ERR_SUCCESS)
+        {
+            *(attr->box2i)    = *dw;
+            part->data_window = *dw;
+
+            rv = internal_exr_compute_tile_information (pctxt, part, 1);
+        }
+
+        return EXR_UNLOCK_AND_RETURN_PCTXT (rv);
     }
-
-    return EXR_UNLOCK_AND_RETURN_PCTXT (rv);
 }
 
 /**************************************/
@@ -760,14 +764,16 @@ exr_set_display_window (
             EXR_ERR_INVALID_ARGUMENT,
             "Missing value for data window assignment");
 
-    REQ_ATTR_FIND_CREATE (displayWindow, EXR_ATTR_BOX2I);
-    if (rv == EXR_ERR_SUCCESS)
     {
-        *(attr->box2i)       = *dw;
-        part->display_window = *dw;
-    }
+        REQ_ATTR_FIND_CREATE (displayWindow, EXR_ATTR_BOX2I);
+        if (rv == EXR_ERR_SUCCESS)
+        {
+            *(attr->box2i)       = *dw;
+            part->display_window = *dw;
+        }
 
-    return EXR_UNLOCK_AND_RETURN_PCTXT (rv);
+        return EXR_UNLOCK_AND_RETURN_PCTXT (rv);
+    }
 }
 
 /**************************************/
@@ -793,14 +799,16 @@ exr_set_lineorder (exr_context_t ctxt, int part_index, exr_lineorder_t lo)
             0,
             (int) EXR_LINEORDER_LAST_TYPE);
 
-    REQ_ATTR_FIND_CREATE (lineOrder, EXR_ATTR_LINEORDER);
-    if (rv == EXR_ERR_SUCCESS)
     {
-        attr->uc        = (uint8_t) lo;
-        part->lineorder = lo;
-    }
+        REQ_ATTR_FIND_CREATE (lineOrder, EXR_ATTR_LINEORDER);
+        if (rv == EXR_ERR_SUCCESS)
+        {
+            attr->uc        = (uint8_t) lo;
+            part->lineorder = lo;
+        }
 
-    return EXR_UNLOCK_AND_RETURN_PCTXT (rv);
+        return EXR_UNLOCK_AND_RETURN_PCTXT (rv);
+    }
 }
 
 /**************************************/
@@ -1053,9 +1061,11 @@ exr_set_version (exr_context_t ctxt, int part_index, int32_t val)
     /* version number for deep data, expect 1 */
     if (val <= 0 || val > 1) return EXR_ERR_ARGUMENT_OUT_OF_RANGE;
 
-    REQ_ATTR_FIND_CREATE (version, EXR_ATTR_INT);
-    if (rv == EXR_ERR_SUCCESS) { attr->i = val; }
-    return EXR_UNLOCK_AND_RETURN_PCTXT (rv);
+    {
+        REQ_ATTR_FIND_CREATE (version, EXR_ATTR_INT);
+        if (rv == EXR_ERR_SUCCESS) { attr->i = val; }
+        return EXR_UNLOCK_AND_RETURN_PCTXT (rv);
+    }
 }
 
 /**************************************/
@@ -1188,7 +1198,10 @@ exr_attr_set_box2i (
         return exr_set_data_window (ctxt, part_index, val);
     if (name && 0 == strcmp (name, EXR_REQ_DISP_STR))
         return exr_set_display_window (ctxt, part_index, val);
-    ATTR_SET_IMPL_DEREF (EXR_ATTR_BOX2I, box2i);
+
+    {
+        ATTR_SET_IMPL_DEREF (EXR_ATTR_BOX2I, box2i);
+    }
 }
 
 /**************************************/
@@ -1235,10 +1248,10 @@ exr_attr_set_channels (
     exr_attribute_t* attr = NULL;
     exr_result_t     rv   = EXR_ERR_SUCCESS;
 
-    if (name && 0 == strcmp (name, EXR_REQ_CHANNELS_STR))
-        return exr_set_channels (ctxt, part_index, channels);
-
     EXR_PROMOTE_LOCKED_CONTEXT_AND_PART_OR_ERROR (ctxt, part_index);
+
+    if (name && 0 == strcmp (name, EXR_REQ_CHANNELS_STR))
+        return EXR_UNLOCK_AND_RETURN_PCTXT (exr_set_channels (ctxt, part_index, channels));
 
     /* do not support updating channels during update operation... */
     if (pctxt->mode != EXR_CONTEXT_WRITE)
@@ -1357,7 +1370,9 @@ exr_attr_set_compression (
     if (name && 0 == strcmp (name, EXR_REQ_COMP_STR))
         return exr_set_compression (ctxt, part_index, cval);
 
-    ATTR_SET_IMPL (EXR_ATTR_COMPRESSION, uc);
+    {
+        ATTR_SET_IMPL (EXR_ATTR_COMPRESSION, uc);
+    }
 }
 
 /**************************************/
@@ -1403,7 +1418,9 @@ exr_attr_set_envmap (
             0,
             (int) EXR_ENVMAP_LAST_TYPE);
 
-    ATTR_SET_IMPL (EXR_ATTR_ENVMAP, uc);
+    {
+        ATTR_SET_IMPL (EXR_ATTR_ENVMAP, uc);
+    }
 }
 
 /**************************************/
@@ -1424,7 +1441,9 @@ exr_attr_set_float (
     if (name && 0 == strcmp (name, EXR_REQ_SCR_WW_STR))
         return exr_set_screen_window_width (ctxt, part_index, val);
 
-    ATTR_SET_IMPL (EXR_ATTR_FLOAT, f);
+    {
+        ATTR_SET_IMPL (EXR_ATTR_FLOAT, f);
+    }
 }
 
 exr_result_t
@@ -1549,7 +1568,9 @@ exr_attr_set_int (
     if (name && !strcmp (name, EXR_REQ_CHUNK_COUNT_STR))
         return exr_set_chunk_count (ctxt, part_index, val);
 
-    ATTR_SET_IMPL (EXR_ATTR_INT, i);
+    {
+        ATTR_SET_IMPL (EXR_ATTR_INT, i);
+    }
 }
 
 /**************************************/
@@ -1604,7 +1625,9 @@ exr_attr_set_lineorder (
     if (name && 0 == strcmp (name, EXR_REQ_LO_STR))
         return exr_set_lineorder (ctxt, part_index, val);
 
-    ATTR_SET_IMPL (EXR_ATTR_LINEORDER, uc);
+    {
+        ATTR_SET_IMPL (EXR_ATTR_LINEORDER, uc);
+    }
 }
 
 /**************************************/
@@ -1841,10 +1864,10 @@ exr_attr_set_string (
     exr_attribute_t* attr = NULL;
     exr_result_t     rv   = EXR_ERR_SUCCESS;
 
-    if (name && !strcmp (name, EXR_REQ_NAME_STR))
-        return exr_set_name (ctxt, part_index, name);
-
     EXR_PROMOTE_LOCKED_CONTEXT_AND_PART_OR_ERROR (ctxt, part_index);
+
+    if (name && !strcmp (name, EXR_REQ_NAME_STR))
+        return EXR_UNLOCK_AND_RETURN_PCTXT (exr_set_name (ctxt, part_index, name));
 
     if (name && !strcmp (name, EXR_REQ_TYPE_STR))
         return EXR_UNLOCK_AND_RETURN_PCTXT (pctxt->print_error (
@@ -2103,7 +2126,9 @@ exr_attr_set_tiledesc (
             EXR_GET_TILE_ROUND_MODE (*val));
     }
 
-    ATTR_SET_IMPL_DEREF (EXR_ATTR_TILEDESC, tiledesc);
+    {
+        ATTR_SET_IMPL_DEREF (EXR_ATTR_TILEDESC, tiledesc);
+    }
 }
 
 /**************************************/
@@ -2172,7 +2197,9 @@ exr_attr_set_v2f (
     if (name && 0 == strcmp (name, EXR_REQ_SCR_WC_STR))
         return exr_set_screen_window_center (ctxt, part_index, val);
 
-    ATTR_SET_IMPL_DEREF (EXR_ATTR_V2F, v2f);
+    {
+        ATTR_SET_IMPL_DEREF (EXR_ATTR_V2F, v2f);
+    }
 }
 
 /**************************************/

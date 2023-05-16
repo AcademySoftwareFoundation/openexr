@@ -240,6 +240,7 @@ struct priv_chunk_leader
             int32_t level_y;
         };
     };
+    uint8_t _pad[4];
     union
     {
         int64_t deep_data[3];
@@ -291,7 +292,7 @@ extract_chunk_leader (
     rv = ctxt->do_read (
         ctxt,
         data,
-        ntoread * sizeof (int32_t),
+        (size_t)ntoread * sizeof (int32_t),
         &nextoffset,
         NULL,
         EXR_MUST_READ_ALL);
@@ -579,7 +580,7 @@ extract_chunk_table (
             // file is incomplete (i.e. crashed during write and didn't
             // get a complete chunk table), so just do them one at a time
             if (ctxt->file_size > 0) maxoff = (uint64_t) ctxt->file_size;
-            for (size_t ci = 0; ci < part->chunk_count; ++ci)
+            for (int ci = 0; ci < part->chunk_count; ++ci)
             {
                 uint64_t cchunk = one_to_native64 (ctable[ci]);
                 if (cchunk < chunkoff || cchunk >= maxoff) complete = 0;
@@ -1269,7 +1270,7 @@ exr_read_tile_chunk_info (
         else if (fsize > 0)
         {
             uint64_t finpos = dataoff + (uint64_t) tdata[4];
-            if (finpos > fsize)
+            if (finpos > (uint64_t)fsize)
             {
                 return pctxt->print_error (
                     pctxt,
@@ -2021,7 +2022,10 @@ write_tile_chunk (
         ddata[0] = (int64_t) sample_data_size;
         ddata[1] = (int64_t) packed_size;
         ddata[2] = (int64_t) unpacked_size;
-        rv       = pctxt->do_write (
+
+        priv_from_native64 (ddata, 3);
+
+        rv = pctxt->do_write (
             pctxt, ddata, 3 * sizeof (uint64_t), &(pctxt->output_file_offset));
 
         if (rv == EXR_ERR_SUCCESS)

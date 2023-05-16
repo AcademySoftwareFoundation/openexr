@@ -185,9 +185,11 @@ exr_attr_string_set_with_length (
 
     if (s->alloc_size > len)
     {
-        s->length = len;
         /* we own the memory */
-        char* sstr = EXR_CONST_CAST (char*, s->str);
+        char* sstr;
+
+        s->length = len;
+        sstr = EXR_CONST_CAST (char*, s->str);
         if (len > 0)
         {
 #ifdef _MSC_VER
