@@ -23,13 +23,9 @@
 #    include <emmintrin.h>
 #    include <mmintrin.h>
 #endif
-#if defined __SSE4_1__
-#    define IMF_HAVE_SSE4_1 1
-#    include <smmintrin.h>
-#endif
 
 #if defined(__ARM_NEON)
-#    define IMF_HAVE_NEON
+#    define IMF_HAVE_NEON 1
 #endif
 
 #if defined(__aarch64__)
@@ -40,9 +36,10 @@
 
 #if defined(OPENEXR_IMF_HAVE_GCC_INLINE_ASM_AVX) &&                            \
     (defined(_M_X64) || defined(__x86_64__))
-#    define IMF_HAVE_GCC_INLINEASM_X86
+#    define IMF_HAVE_GCC_INLINEASM_X86 1
+
 #    ifdef __LP64__
-#        define IMF_HAVE_GCC_INLINEASM_X86_64
+#        define IMF_HAVE_GCC_INLINEASM_X86_64 1
 #    endif /* __LP64__ */
 #endif     /* OPENEXR_IMF_HAVE_GCC_INLINE_ASM_AVX */
 
@@ -370,8 +367,9 @@ convertFloatToHalf64_f16c (uint16_t* dst, float* src)
     // I'll take the asm.
     //
 
-#if defined IMF_HAVE_GCC_INLINEASM_X86
-    __asm__ ("vmovaps       (%0),     %%ymm0         \n"
+#ifdef IMF_HAVE_GCC_INLINEASM_X86_64
+    __asm__ (
+             "vmovaps       (%0),     %%ymm0         \n"
              "vmovaps   0x20(%0),     %%ymm1         \n"
              "vmovaps   0x40(%0),     %%ymm2         \n"
              "vmovaps   0x60(%0),     %%ymm3         \n"
@@ -581,7 +579,7 @@ fromHalfZigZag_scalar (uint16_t* src, float* dst)
 static void
 fromHalfZigZag_f16c (uint16_t* src, float* dst)
 {
-#if defined IMF_HAVE_GCC_INLINEASM_X86_64
+#ifdef IMF_HAVE_GCC_INLINEASM_X86_64
     __asm__
 
         /* x3 <- 0                    
@@ -1331,10 +1329,10 @@ dctInverse8x8_sse2_7 (float* data)
 
 #define IDCT_AVX_MMULT_ROWS(_SRC)                       \
     /* Broadcast the source values into y12-y15 */      \
-    "vpermilps $0x00, " STR(_SRC) ", %%ymm12       \n"  \
-    "vpermilps $0x55, " STR(_SRC) ", %%ymm13       \n"  \
-    "vpermilps $0xaa, " STR(_SRC) ", %%ymm14       \n"  \
-    "vpermilps $0xff, " STR(_SRC) ", %%ymm15       \n"  \
+    "vpermilps $0x00, %%ymm" STR(_SRC) ", %%ymm12       \n"  \
+    "vpermilps $0x55, %%ymm" STR(_SRC) ", %%ymm13       \n"  \
+    "vpermilps $0xaa, %%ymm" STR(_SRC) ", %%ymm14       \n"  \
+    "vpermilps $0xff, %%ymm" STR(_SRC) ", %%ymm15       \n"  \
                                                         \
     /* Multiple coefs and the broadcasted values */     \
     "vmulps    %%ymm12,  %%ymm8, %%ymm12     \n"        \
@@ -1345,13 +1343,13 @@ dctInverse8x8_sse2_7 (float* data)
     /* Accumulate the result back into the source */    \
     "vaddps    %%ymm13, %%ymm12, %%ymm12      \n"       \
     "vaddps    %%ymm15, %%ymm14, %%ymm14      \n"       \
-    "vaddps    %%ymm14, %%ymm12, " STR(_SRC) "\n"     
+    "vaddps    %%ymm14, %%ymm12, %%ymm" STR(_SRC) "\n"
 
 #define IDCT_AVX_EO_TO_ROW_HALVES(_EVEN, _ODD, _FRONT, _BACK)      \
-    "vsubps   " STR(_ODD) "," STR(_EVEN) "," STR(_BACK)  "\n"  \
-    "vaddps   " STR(_ODD) "," STR(_EVEN) "," STR(_FRONT) "\n"  \
+    "vsubps   %%ymm" STR(_ODD) ", %%ymm" STR(_EVEN) ", %%ymm" STR(_BACK)  "\n"  \
+    "vaddps   %%ymm" STR(_ODD) ", %%ymm" STR(_EVEN) ", %%ymm" STR(_FRONT) "\n"  \
     /* Reverse the back half                                */ \
-    "vpermilps $0x1b," STR(_BACK) "," STR(_BACK) "\n"  
+    "vpermilps $0x1b, %%ymm" STR(_BACK) ", %%ymm" STR(_BACK) "\n"
 
 /* In order to allow for path paths when we know certain rows
  * of the 8x8 block are zero, most of the body of the DCT is
@@ -1360,7 +1358,7 @@ dctInverse8x8_sse2_7 (float* data)
  * they depend.
  *
  * This should work for the cases where we have 2-8 full rows.
- * the 1-row case is special, and we'll handle it seperately.  
+ * the 1-row case is special, and we'll handle it separately.
  */
 #define IDCT_AVX_BODY \
     /* ==============================================               
@@ -1396,10 +1394,10 @@ dctInverse8x8_sse2_7 (float* data)
     "vbroadcastf128 32(%1), %%ymm10         \n"                      \
     "vbroadcastf128 48(%1), %%ymm11         \n"                      \
                                                                      \
-    ROW0( IDCT_AVX_MMULT_ROWS(%%ymm0) )                              \
-    ROW2( IDCT_AVX_MMULT_ROWS(%%ymm1) )                              \
-    ROW4( IDCT_AVX_MMULT_ROWS(%%ymm2) )                              \
-    ROW6( IDCT_AVX_MMULT_ROWS(%%ymm3) )                              \
+    ROW0( IDCT_AVX_MMULT_ROWS(0) )                                   \
+    ROW2( IDCT_AVX_MMULT_ROWS(1) )                                   \
+    ROW4( IDCT_AVX_MMULT_ROWS(2) )                                   \
+    ROW6( IDCT_AVX_MMULT_ROWS(3) )                                   \
                                                                      \
     /* Repeat, but with the odd columns (ymm4-7) and the 
      * matrix M2
@@ -1409,20 +1407,20 @@ dctInverse8x8_sse2_7 (float* data)
     "vbroadcastf128  96(%1), %%ymm10         \n"                     \
     "vbroadcastf128 112(%1), %%ymm11         \n"                     \
                                                                      \
-    ROW0( IDCT_AVX_MMULT_ROWS(%%ymm4) )                              \
-    ROW2( IDCT_AVX_MMULT_ROWS(%%ymm5) )                              \
-    ROW4( IDCT_AVX_MMULT_ROWS(%%ymm6) )                              \
-    ROW6( IDCT_AVX_MMULT_ROWS(%%ymm7) )                              \
+    ROW0( IDCT_AVX_MMULT_ROWS(4) )                                   \
+    ROW2( IDCT_AVX_MMULT_ROWS(5) )                                   \
+    ROW4( IDCT_AVX_MMULT_ROWS(6) )                                   \
+    ROW6( IDCT_AVX_MMULT_ROWS(7) )                                   \
                                                                      \
     /* Sum the M1 (ymm0-3) and M2 (ymm4-7) results to get the 
      * front halves of the results, and difference to get the 
      * back halves. The front halfs end up in ymm0-3, the back
      * halves end up in ymm12-15. 
      */                                                                \
-    ROW0( IDCT_AVX_EO_TO_ROW_HALVES(%%ymm0, %%ymm4, %%ymm0, %%ymm12) ) \
-    ROW2( IDCT_AVX_EO_TO_ROW_HALVES(%%ymm1, %%ymm5, %%ymm1, %%ymm13) ) \
-    ROW4( IDCT_AVX_EO_TO_ROW_HALVES(%%ymm2, %%ymm6, %%ymm2, %%ymm14) ) \
-    ROW6( IDCT_AVX_EO_TO_ROW_HALVES(%%ymm3, %%ymm7, %%ymm3, %%ymm15) ) \
+    ROW0( IDCT_AVX_EO_TO_ROW_HALVES(0, 4, 0, 12) )                     \
+    ROW2( IDCT_AVX_EO_TO_ROW_HALVES(1, 5, 1, 13) )                     \
+    ROW4( IDCT_AVX_EO_TO_ROW_HALVES(2, 6, 2, 14) )                     \
+    ROW6( IDCT_AVX_EO_TO_ROW_HALVES(3, 7, 3, 15) )                     \
                                                                        \
     /* Reassemble the rows halves into ymm0-7  */                      \
     ROW7( "vperm2f128 $0x13, %%ymm3, %%ymm15, %%ymm7   \n" )           \
@@ -1614,209 +1612,216 @@ dctInverse8x8_sse2_7 (float* data)
 
 /* Include vzeroupper for non-AVX builds                */
 #ifndef __AVX__
-#    define IDCT_AVX_ASM(_IN0)                                                 \
-        __asm__(IDCT_AVX_BODY "vzeroupper      \n" IDCT_AVX_OIC (_IN0));
+#    define IDCT_AVX_ASM(_IN0)   \
+        __asm__(                 \
+            IDCT_AVX_BODY        \
+            "vzeroupper      \n" \
+            IDCT_AVX_OIC(_IN0)   \
+        );
 #else /* __AVX__ */
-#    define IDCT_AVX_ASM(_IN0) __asm__(IDCT_AVX_BODY IDCT_AVX_OIC (_IN0));
+#    define IDCT_AVX_ASM(_IN0)   \
+        __asm__(                 \
+            IDCT_AVX_BODY        \
+            IDCT_AVX_OIC(_IN0)   \
+        );
 #endif /* __AVX__ */
 
 // clang-format on
 
-static inline void
-dctInverse8x8_avx (float* data, int zeroedRows)
-{
-#if defined IMF_HAVE_GCC_INLINEASM_X86_64
+#ifdef IMF_HAVE_GCC_INLINEASM_X86_64
+/* The column-major version of M1, followed by the
+ * column-major version of M2:
+ *
+ *          [ a  c  a  f ]          [ b  d  e  g ]
+ *   M1  =  [ a  f -a -c ]    M2 =  [ d -g -b -e ]
+ *          [ a -f -a  c ]          [ e -b  g  d ]
+ *          [ a -c  a -f ]          [ g -e  d -b ]
+ */
+static const float sAvxCoef[32] __attribute__ ((aligned (_SSE_ALIGNMENT))) = {
+        3.535536e-01f,  3.535536e-01f,
+        3.535536e-01f,  3.535536e-01f, /* a  a  a  a */
+        4.619398e-01f,  1.913422e-01f,
+        -1.913422e-01f, -4.619398e-01f, /* c  f -f -c */
+        3.535536e-01f,  -3.535536e-01f,
+        -3.535536e-01f, 3.535536e-01f, /* a -a -a  a */
+        1.913422e-01f,  -4.619398e-01f,
+        4.619398e-01f,  -1.913422e-01f, /* f -c  c -f */
 
-    /* The column-major version of M1, followed by the 
-     * column-major version of M2:
-     *   
-     *          [ a  c  a  f ]          [ b  d  e  g ]
-     *   M1  =  [ a  f -a -c ]    M2 =  [ d -g -b -e ]
-     *          [ a -f -a  c ]          [ e -b  g  d ]
-     *          [ a -c  a -f ]          [ g -e  d -b ]
-     */
-    const float sAvxCoef[32] __attribute__ ((aligned (32))) = {
-        3.535536e-01,  3.535536e-01,
-        3.535536e-01,  3.535536e-01, /* a  a  a  a */
-        4.619398e-01,  1.913422e-01,
-        -1.913422e-01, -4.619398e-01, /* c  f -f -c */
-        3.535536e-01,  -3.535536e-01,
-        -3.535536e-01, 3.535536e-01, /* a -a -a  a */
-        1.913422e-01,  -4.619398e-01,
-        4.619398e-01,  -1.913422e-01, /* f -c  c -f */
-
-        4.903927e-01,  4.157349e-01,
-        2.777855e-01,  9.754573e-02, /* b  d  e  g */
-        4.157349e-01,  -9.754573e-02,
-        -4.903927e-01, -2.777855e-01, /* d -g -b -e */
-        2.777855e-01,  -4.903927e-01,
-        9.754573e-02,  4.157349e-01, /* e -b  g  d */
-        9.754573e-02,  -2.777855e-01,
-        4.157349e-01,  -4.903927e-01 /* g -e  d -b */
+        4.903927e-01f,  4.157349e-01f,
+        2.777855e-01f,  9.754573e-02f, /* b  d  e  g */
+        4.157349e-01f,  -9.754573e-02f,
+        -4.903927e-01f, -2.777855e-01f, /* d -g -b -e */
+        2.777855e-01f,  -4.903927e-01f,
+        9.754573e-02f,  4.157349e-01f, /* e -b  g  d */
+        9.754573e-02f,  -2.777855e-01f,
+        4.157349e-01f,  -4.903927e-01f /* g -e  d -b */
     };
+#endif
 
-#    define ROW0(_X) _X
-#    define ROW1(_X) _X
-#    define ROW2(_X) _X
-#    define ROW3(_X) _X
-#    define ROW4(_X) _X
-#    define ROW5(_X) _X
-#    define ROW6(_X) _X
-#    define ROW7(_X) _X
-
-    if (zeroedRows == 0) { IDCT_AVX_ASM (data) }
-    else if (zeroedRows == 1)
-    {
-
-#    undef ROW7
-#    define ROW7(_X)
-        IDCT_AVX_ASM (data)
-    }
-    else if (zeroedRows == 2)
-    {
-
-#    undef ROW6
-#    define ROW6(_X)
-        IDCT_AVX_ASM (data)
-    }
-    else if (zeroedRows == 3)
-    {
-
-#    undef ROW5
-#    define ROW5(_X)
-        IDCT_AVX_ASM (data)
-    }
-    else if (zeroedRows == 4)
-    {
-
-#    undef ROW4
-#    define ROW4(_X)
-        IDCT_AVX_ASM (data)
-    }
-    else if (zeroedRows == 5)
-    {
-
-#    undef ROW3
-#    define ROW3(_X)
-        IDCT_AVX_ASM (data)
-    }
-    else if (zeroedRows == 6)
-    {
-
-#    undef ROW2
-#    define ROW2(_X)
-        IDCT_AVX_ASM (data)
-    }
-    else if (zeroedRows == 7)
-    {
-        // clang-format off
-        __asm__(
-
-            /* ==============================================
-             *                Row 1D DCT 
-             * ----------------------------------------------
-             */
-            IDCT_AVX_SETUP_2_ROWS (0, 4, 14, 15, 0, 16, 32, 48)
-
-                "vbroadcastf128   (%1),  %%ymm8         \n"
-                "vbroadcastf128 16(%1),  %%ymm9         \n"
-                "vbroadcastf128 32(%1), %%ymm10         \n"
-                "vbroadcastf128 48(%1), %%ymm11         \n"
-
-                /* Stash a vector of [a a a a | a a a a] away  in ymm2 */
-                "vinsertf128 $1,  %%xmm8,  %%ymm8,  %%ymm2 \n"
-
-            IDCT_AVX_MMULT_ROWS (% % ymm0)
-
-                "vbroadcastf128  64(%1),  %%ymm8         \n"
-                "vbroadcastf128  80(%1),  %%ymm9         \n"
-                "vbroadcastf128  96(%1), %%ymm10         \n"
-                "vbroadcastf128 112(%1), %%ymm11         \n"
-
-            IDCT_AVX_MMULT_ROWS (% % ymm4)
-
-            IDCT_AVX_EO_TO_ROW_HALVES (% % ymm0, % % ymm4, % % ymm0, % % ymm12)
-
-            "vperm2f128 $0x02, %%ymm0, %%ymm12, %%ymm0   \n"
-
-            /* ==============================================
-             *                Column 1D DCT 
-             * ----------------------------------------------
-             */
-
-            /* DC only, so multiple by a and we're done */
-            "vmulps   %%ymm2, %%ymm0, %%ymm0  \n"
-
-            /* Copy out results  */
-            "vmovaps %%ymm0,    (%0)          \n"
-            "vmovaps %%ymm0,  32(%0)          \n"
-            "vmovaps %%ymm0,  64(%0)          \n"
-            "vmovaps %%ymm0,  96(%0)          \n"
-            "vmovaps %%ymm0, 128(%0)          \n"
-            "vmovaps %%ymm0, 160(%0)          \n"
-            "vmovaps %%ymm0, 192(%0)          \n"
-            "vmovaps %%ymm0, 224(%0)          \n"
-
-#    ifndef __AVX__
-            "vzeroupper                   \n"
-#    endif /* __AVX__ */
-            IDCT_AVX_OIC (data));
-        // clang-format on
-    }
-#else /* IMF_HAVE_GCC_INLINEASM_X86_64 */
-
-    dctInverse8x8_scalar (data, zeroedRows);
-
-#endif /*  IMF_HAVE_GCC_INLINEASM_X86_64 */
-}
+#define ROW0(_X) _X
+#define ROW1(_X) _X
+#define ROW2(_X) _X
+#define ROW3(_X) _X
+#define ROW4(_X) _X
+#define ROW5(_X) _X
+#define ROW6(_X) _X
+#define ROW7(_X) _X
 
 static void
 dctInverse8x8_avx_0 (float* data)
 {
-    dctInverse8x8_avx (data, 0);
+#ifdef IMF_HAVE_GCC_INLINEASM_X86_64
+    IDCT_AVX_ASM (data)
+#else
+    dctInverse8x8_scalar_0 (data);
+#endif
 }
+
+#undef ROW7
+#define ROW7(_X)
 
 static void
 dctInverse8x8_avx_1 (float* data)
 {
-    dctInverse8x8_avx (data, 1);
+#ifdef IMF_HAVE_GCC_INLINEASM_X86_64
+    IDCT_AVX_ASM (data)
+#else
+    dctInverse8x8_scalar_1 (data);
+#endif
 }
+
+#undef ROW6
+#define ROW6(_X)
 
 static void
 dctInverse8x8_avx_2 (float* data)
 {
-    dctInverse8x8_avx (data, 2);
+#ifdef IMF_HAVE_GCC_INLINEASM_X86_64
+    IDCT_AVX_ASM (data)
+#else
+    dctInverse8x8_scalar_2 (data);
+#endif
 }
+
+#undef ROW5
+#define ROW5(_X)
 
 static void
 dctInverse8x8_avx_3 (float* data)
 {
-    dctInverse8x8_avx (data, 3);
+#ifdef IMF_HAVE_GCC_INLINEASM_X86_64
+    IDCT_AVX_ASM (data)
+#else
+    dctInverse8x8_scalar_3 (data);
+#endif
 }
+
+#undef ROW4
+#define ROW4(_X)
 
 static void
 dctInverse8x8_avx_4 (float* data)
 {
-    dctInverse8x8_avx (data, 4);
+#ifdef IMF_HAVE_GCC_INLINEASM_X86_64
+    IDCT_AVX_ASM (data)
+#else
+    dctInverse8x8_scalar_4 (data);
+#endif
 }
+
+#undef ROW3
+#define ROW3(_X)
 
 static void
 dctInverse8x8_avx_5 (float* data)
 {
-    dctInverse8x8_avx (data, 5);
+#ifdef IMF_HAVE_GCC_INLINEASM_X86_64
+    IDCT_AVX_ASM (data)
+#else
+    dctInverse8x8_scalar_5 (data);
+#endif
 }
+
+#undef ROW2
+#define ROW2(_X)
 
 static void
 dctInverse8x8_avx_6 (float* data)
 {
-    dctInverse8x8_avx (data, 6);
+#ifdef IMF_HAVE_GCC_INLINEASM_X86_64
+    IDCT_AVX_ASM (data)
+#else
+    dctInverse8x8_scalar_6 (data);
+#endif
 }
 
 static void
 dctInverse8x8_avx_7 (float* data)
 {
-    dctInverse8x8_avx (data, 7);
+#ifdef IMF_HAVE_GCC_INLINEASM_X86_64
+    // clang-format off
+    __asm__(
+
+        /* ==============================================
+         *                Row 1D DCT
+         * ----------------------------------------------
+         */
+        IDCT_AVX_SETUP_2_ROWS (0, 4, 14, 15, 0, 16, 32, 48)
+
+            "vbroadcastf128   (%1),  %%ymm8         \n"
+            "vbroadcastf128 16(%1),  %%ymm9         \n"
+            "vbroadcastf128 32(%1), %%ymm10         \n"
+            "vbroadcastf128 48(%1), %%ymm11         \n"
+
+            /* Stash a vector of [a a a a | a a a a] away  in ymm2 */
+            "vinsertf128 $1,  %%xmm8,  %%ymm8,  %%ymm2 \n"
+
+        IDCT_AVX_MMULT_ROWS (0)
+
+            "vbroadcastf128  64(%1),  %%ymm8         \n"
+            "vbroadcastf128  80(%1),  %%ymm9         \n"
+            "vbroadcastf128  96(%1), %%ymm10         \n"
+            "vbroadcastf128 112(%1), %%ymm11         \n"
+
+        IDCT_AVX_MMULT_ROWS (4)
+
+        IDCT_AVX_EO_TO_ROW_HALVES (0, 4, 0, 12)
+
+        "vperm2f128 $0x02, %%ymm0, %%ymm12, %%ymm0   \n"
+
+        /* ==============================================
+         *                Column 1D DCT
+         * ----------------------------------------------
+         */
+
+        /* DC only, so multiple by a and we're done */
+        "vmulps   %%ymm2, %%ymm0, %%ymm0  \n"
+
+        /* Copy out results  */
+        "vmovaps %%ymm0,    (%0)          \n"
+        "vmovaps %%ymm0,  32(%0)          \n"
+        "vmovaps %%ymm0,  64(%0)          \n"
+        "vmovaps %%ymm0,  96(%0)          \n"
+        "vmovaps %%ymm0, 128(%0)          \n"
+        "vmovaps %%ymm0, 160(%0)          \n"
+        "vmovaps %%ymm0, 192(%0)          \n"
+        "vmovaps %%ymm0, 224(%0)          \n"
+
+#    ifndef __AVX__
+        "vzeroupper                   \n"
+#    endif /* __AVX__ */
+        IDCT_AVX_OIC (data));
+    // clang-format on
+#else
+    dctInverse8x8_scalar_7 (data);
+#endif
 }
+
+#undef IDCT_AVX_SETUP_2_ROWS
+#undef IDCT_AVX_MMULT_ROWS
+#undef IDCT_AVX_EO_TO_ROW_HALVES
+#undef IDCT_AVX_BODY
+#undef IDCT_AVX_OIC
 
 //
 // Full 8x8 Forward DCT:
@@ -2286,7 +2291,7 @@ initializeFuncs ()
         fromHalfZigZag       = fromHalfZigZag_neon;
     }
 #else
-    int f16c, avx, sse2;
+    int f16c = 0, avx = 0, sse2 = 0;
     convertFloatToHalf64 = convertFloatToHalf64_scalar;
     fromHalfZigZag       = fromHalfZigZag_scalar;
 
@@ -2302,6 +2307,14 @@ initializeFuncs ()
         fromHalfZigZag       = fromHalfZigZag_f16c;
     }
 
+    dctInverse8x8_0 = dctInverse8x8_scalar_0;
+    dctInverse8x8_1 = dctInverse8x8_scalar_1;
+    dctInverse8x8_2 = dctInverse8x8_scalar_2;
+    dctInverse8x8_3 = dctInverse8x8_scalar_3;
+    dctInverse8x8_4 = dctInverse8x8_scalar_4;
+    dctInverse8x8_5 = dctInverse8x8_scalar_5;
+    dctInverse8x8_6 = dctInverse8x8_scalar_6;
+    dctInverse8x8_7 = dctInverse8x8_scalar_7;
     if (avx)
     {
         dctInverse8x8_0 = dctInverse8x8_avx_0;
