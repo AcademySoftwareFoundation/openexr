@@ -23,6 +23,7 @@ typedef struct _DwaCompressor
     int            _numCscChannelSets;
     ChannelData*   _channelData;
     CscChannelSet* _cscChannelSets;
+    void*          _channel_mem;
 
     Classifier* _channelRules;
     size_t      _channelRuleCount;
@@ -107,7 +108,10 @@ DwaCompressor_construct (
     if (encode)
     {
         me->_channelData =
-            internal_exr_alloc (sizeof (ChannelData) * encode->channel_count);
+            internal_exr_alloc_aligned (
+                &(me->_channel_mem),
+                sizeof (ChannelData) * encode->channel_count,
+                _SSE_ALIGNMENT);
         if (!me->_channelData) return EXR_ERR_OUT_OF_MEMORY;
 
         memset (
@@ -141,7 +145,10 @@ DwaCompressor_construct (
     else
     {
         me->_channelData =
-            internal_exr_alloc (sizeof (ChannelData) * decode->channel_count);
+            internal_exr_alloc_aligned (
+                &(me->_channel_mem),
+                sizeof (ChannelData) * decode->channel_count,
+                _SSE_ALIGNMENT);
         if (!me->_channelData) return EXR_ERR_OUT_OF_MEMORY;
 
         memset (
@@ -173,12 +180,12 @@ DwaCompressor_destroy (DwaCompressor* me)
     if (me->_packedDcBuffer) internal_exr_free (me->_packedDcBuffer);
     if (me->_rleBuffer) internal_exr_free (me->_rleBuffer);
 
-    if (me->_channelData)
+    if (me->_channel_mem)
     {
         for (int c = 0; c < me->_numChannels; ++c)
             DctCoderChannelData_destroy (&(me->_channelData[c]._dctData));
 
-        internal_exr_free (me->_channelData);
+        internal_exr_free (me->_channel_mem);
     }
 
     if (me->_cscChannelSets) internal_exr_free (me->_cscChannelSets);

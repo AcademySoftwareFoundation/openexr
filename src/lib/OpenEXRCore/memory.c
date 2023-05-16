@@ -43,6 +43,29 @@ internal_exr_alloc (size_t bytes)
 
 /**************************************/
 
+void*
+internal_exr_alloc_aligned (void **tofreeptr, size_t bytes, size_t align)
+{
+    void *ret;
+    if (align == 1 || align > 4096)
+    {
+        align = 0;
+    }
+
+    ret = internal_exr_alloc (bytes + align);
+    *tofreeptr = ret;
+    if (ret)
+    {
+        uintptr_t off = ((uintptr_t)ret) & (align - 1);
+        if (off)
+            off = align - off;
+        ret = (((uint8_t *)ret) + off);
+    }
+    return ret;
+}
+
+/**************************************/
+
 void
 internal_exr_free (void* ptr)
 {
