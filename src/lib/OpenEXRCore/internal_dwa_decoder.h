@@ -692,8 +692,8 @@ LossyDctDecoder_unRleAc (
     int       dctComp = 1;
     uint16_t* acComp  = *currAcComp;
     uint16_t  val;
-
-    *lastNonZero = 0;
+    int       lnz = 0;
+    int       ac_count = 0;
 
     //
     // Start with a zero'ed block, so we don't have to
@@ -732,16 +732,18 @@ LossyDctDecoder_unRleAc (
             //
             // Not a run, just copy over the value
             //
-            *lastNonZero          = dctComp;
+            lnz                   = dctComp;
             halfZigBlock[dctComp] = val;
 
             dctComp++;
         }
 
-        d->_packedAcCount++;
+        ac_count++;
         acComp++;
     }
 
+    d->_packedAcCount += ac_count;
+    *lastNonZero = lnz;
     *currAcComp = acComp;
     return EXR_ERR_SUCCESS;
 }
