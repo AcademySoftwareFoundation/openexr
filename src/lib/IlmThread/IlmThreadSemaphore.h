@@ -18,21 +18,25 @@
 #include "IlmThreadConfig.h"
 #include "IlmThreadNamespace.h"
 
+#if defined(__APPLE__)
+#   include <AvailabilityMacros.h>
+#endif
+
 #if ILMTHREAD_THREADING_ENABLED
-#   if ILMTHREAD_HAVE_POSIX_SEMAPHORES
-#      include <semaphore.h>
-#   elif defined(__APPLE__)
-#      include <dispatch/dispatch.h>
-#   elif (defined (_WIN32) || defined (_WIN64))
-#      ifdef NOMINMAX
-#         undef NOMINMAX
-#      endif
-#      define NOMINMAX
-#      include <windows.h>
-#   else
-#      include <mutex>
-#      include <condition_variable>
-#   endif
+#    if ILMTHREAD_HAVE_POSIX_SEMAPHORES
+#        include <semaphore.h>
+#    elif defined(__APPLE__) && __MAC_OS_X_VERSION_MIN_REQUIRED > 1050 && !defined(__ppc__)
+#        include <dispatch/dispatch.h>
+#    elif (defined(_WIN32) || defined(_WIN64))
+#        ifdef NOMINMAX
+#            undef NOMINMAX
+#        endif
+#        define NOMINMAX
+#        include <windows.h>
+#    else
+#        include <condition_variable>
+#        include <mutex>
+#    endif
 #endif
 
 ILMTHREAD_INTERNAL_NAMESPACE_HEADER_ENTER
@@ -56,8 +60,8 @@ class ILMTHREAD_EXPORT_TYPE Semaphore
 
 	mutable sem_t _semaphore;
 
-#elif defined(__APPLE__)
-	mutable dispatch_semaphore_t _semaphore;
+#elif defined(__APPLE__) && __MAC_OS_X_VERSION_MIN_REQUIRED > 1050 && !defined(__ppc__)
+    mutable dispatch_semaphore_t _semaphore;
 
 #elif (defined (_WIN32) || defined (_WIN64))
 
