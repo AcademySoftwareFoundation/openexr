@@ -382,7 +382,7 @@ apply_zip_impl (exr_encode_pipeline_t* encode)
             pctxt->print_error (
                 pctxt,
                 rv,
-                "Unable to compress buffer %lu -> %lu @ level %d",
+                "Unable to compress buffer %" PRIu64 " -> %" PRIu64 " @ level %d",
                 encode->packed_bytes, encode->compressed_alloc_size, level);
     }
     

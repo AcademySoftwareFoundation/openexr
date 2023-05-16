@@ -73,7 +73,7 @@ Classifier_destroy (Classifier* p)
 }
 
 static exr_result_t
-Classifier_read (Classifier* out, const uint8_t** ptr, uint64_t* size)
+Classifier_read (Classifier* out, const uint8_t** ptr, size_t* size)
 {
     const uint8_t* curin = *ptr;
     size_t         len   = 0;

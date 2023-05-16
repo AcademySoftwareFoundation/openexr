@@ -212,7 +212,7 @@ DwaCompressor_compress (DwaCompressor* me)
     exr_result_t rv;
     uint8_t*     outPtr;
     uint64_t*    sizes;
-    uint64_t     outBufferSize = 0;
+    size_t     outBufferSize = 0;
     uint64_t     dataBytes, nWritten      = 0;
     uint64_t     nAvail;
     uint64_t     fileVersion = 2;
@@ -1440,7 +1440,7 @@ exr_result_t
 DwaCompressor_writeRelevantChannelRules (
     DwaCompressor* me, uint8_t** outPtr, uint64_t nAvail, uint64_t* nWritten)
 {
-    uint16_t nOut = sizeof (uint16_t);
+    uint64_t nOut = sizeof (uint16_t);
 
     uint8_t* curp = *outPtr;
 
@@ -1471,7 +1471,9 @@ DwaCompressor_writeRelevantChannelRules (
         }
     }
 
-    *ruleSize = one_from_native16 (nOut);
+    if (nOut > 65535)
+        return EXR_ERR_OUT_OF_MEMORY;
+    *ruleSize = one_from_native16 ((uint16_t)nOut);
     *nWritten += nOut;
 
     *outPtr = curp;

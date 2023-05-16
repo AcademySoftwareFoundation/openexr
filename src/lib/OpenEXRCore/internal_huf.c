@@ -933,7 +933,7 @@ hufDecode (
 
     i = (8 - ni) & 7;
     c >>= i;
-    lc -= i;
+    lc -= (int)i;
 
     while (lc > 0)
     {
@@ -1361,7 +1361,7 @@ fasthuf_initialize (
     }
 
     for (int i = 0; i < MAX_CODE_LEN; ++i)
-        fhd->_numSymbols += codeCount[i];
+        fhd->_numSymbols += (uint32_t)codeCount[i];
 
     if ((size_t) fhd->_numSymbols > sizeof (fhd->_idToSymbol) / sizeof (int))
     {

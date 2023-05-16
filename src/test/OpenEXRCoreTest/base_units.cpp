@@ -317,21 +317,21 @@ void testCPUIdent (const std::string& tempdir)
     Imf::CpuId id;
     check_for_x86_simd (&hf16c, &havx, &hsse2);
 
-    if (hf16c != id.f16c)
+    if (hf16c != (int)id.f16c)
     {
         std::cerr
             << "CPU Id test f16c mismatch: " << hf16c << " vs " << (int)id.f16c << std::endl;
         EXRCORE_TEST (false);
     }
 
-    if (havx != id.avx)
+    if (havx != (int)id.avx)
     {
         std::cerr
             << "CPU Id test avx mismatch: " << havx << " vs " << (int)id.avx << std::endl;
         EXRCORE_TEST (false);
     }
 
-    if (hsse2 != id.sse2)
+    if (hsse2 != (int)id.sse2)
     {
         std::cerr
             << "CPU Id test sse2 mismatch: " << hsse2 << " vs " << (int)id.sse2 << std::endl;
