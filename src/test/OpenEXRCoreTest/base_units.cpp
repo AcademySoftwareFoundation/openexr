@@ -12,6 +12,9 @@
 #include <cstring>
 #include <iostream>
 
+#include <ImfSystemSpecific.h>
+#include "../../lib/OpenEXRCore/internal_cpuid.h"
+
 void
 testBase (const std::string& tempdir)
 {
@@ -306,4 +309,32 @@ testBaseDebug (const std::string& tempdir)
     exr_print_context_info (NULL, 0);
     exr_print_context_info (c, 0);
     exr_print_context_info (c, 1);
+}
+
+void testCPUIdent (const std::string& tempdir)
+{
+    int hf16c, havx, hsse2;
+    Imf::CpuId id;
+    check_for_x86_simd (&hf16c, &havx, &hsse2);
+
+    if (hf16c != (int)id.f16c)
+    {
+        std::cerr
+            << "CPU Id test f16c mismatch: " << hf16c << " vs " << (int)id.f16c << std::endl;
+        EXRCORE_TEST (false);
+    }
+
+    if (havx != (int)id.avx)
+    {
+        std::cerr
+            << "CPU Id test avx mismatch: " << havx << " vs " << (int)id.avx << std::endl;
+        EXRCORE_TEST (false);
+    }
+
+    if (hsse2 != (int)id.sse2)
+    {
+        std::cerr
+            << "CPU Id test sse2 mismatch: " << hsse2 << " vs " << (int)id.sse2 << std::endl;
+        EXRCORE_TEST (false);
+    }
 }

@@ -88,7 +88,7 @@ read_uncompressed_direct (exr_decode_pipeline_t* decode)
     int          height, start_y;
     uint64_t     dataoffset, toread;
     uint8_t*     cdata;
-    EXR_PROMOTE_READ_CONST_CONTEXT_AND_PART_OR_ERROR (
+    EXR_PROMOTE_READ_CONST_CONTEXT_OR_ERROR_NO_PART (
         decode->context, decode->part_index);
 
     dataoffset = decode->chunk.data_offset;

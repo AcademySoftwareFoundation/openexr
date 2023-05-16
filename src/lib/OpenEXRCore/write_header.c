@@ -608,7 +608,7 @@ internal_exr_write_header (struct _internal_exr_context* ctxt)
     uint32_t     flags;
     uint8_t      next_byte;
 
-    flags = 2;
+    flags = 2; // EXR_VERSION
     if (ctxt->is_multipart) flags |= EXR_MULTI_PART_FLAG;
     if (ctxt->max_name_length > EXR_SHORTNAME_MAXLEN)
         flags |= EXR_LONG_NAMES_FLAG;
@@ -630,10 +630,32 @@ internal_exr_write_header (struct _internal_exr_context* ctxt)
     for (int p = 0; rv == EXR_ERR_SUCCESS && p < ctxt->num_parts; ++p)
     {
         struct _internal_exr_part* curp = ctxt->parts[p];
-        for (int a = 0; a < curp->attributes.num_attributes; ++a)
+        if (ctxt->legacy_header)
         {
-            rv = save_attr (ctxt, curp->attributes.entries[a]);
-            if (rv != EXR_ERR_SUCCESS) break;
+            for (int a = 0; a < curp->attributes.num_attributes; ++a)
+            {
+                exr_attribute_t *curattr = curp->attributes.sorted_entries[a];
+                if (0 == (flags & (EXR_MULTI_PART_FLAG |EXR_NON_IMAGE_FLAG)) &&
+                    1 == ctxt->num_parts)
+                {
+                    if (0 == strcmp (curattr->name, "type") ||
+                        0 == strcmp (curattr->name, "name"))
+                    {
+                        /* old file wouldn't have had this */
+                        continue;
+                    }
+                }
+                rv = save_attr (ctxt, curattr);
+                if (rv != EXR_ERR_SUCCESS) break;
+            }
+        }
+        else
+        {
+            for (int a = 0; a < curp->attributes.num_attributes; ++a)
+            {
+                rv = save_attr (ctxt, curp->attributes.entries[a]);
+                if (rv != EXR_ERR_SUCCESS) break;
+            }
         }
 
         /* indicate this part is finished */

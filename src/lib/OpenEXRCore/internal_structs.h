@@ -217,6 +217,8 @@ struct _internal_exr_context
 #    endif
 #endif
     uint8_t disable_chunk_reconstruct;
+    uint8_t legacy_header;
+    uint8_t _pad[6];
 };
 
 #define EXR_CTXT(c) ((struct _internal_exr_context*) (c))
@@ -329,6 +331,18 @@ internal_exr_unlock (const struct _internal_exr_context* c)
                 pi));                                                          \
     part = pctxt->parts[pi]
 
+#define EXR_PROMOTE_CONST_CONTEXT_OR_ERROR_NO_PART_NO_LOCK(c, pi)              \
+    const struct _internal_exr_context* pctxt = EXR_CCTXT (c);                 \
+    if (!pctxt) return EXR_ERR_MISSING_CONTEXT_ARG;                            \
+    if (pi < 0 || pi >= pctxt->num_parts)                                      \
+        return (                                                               \
+            (void) (EXR_RETURN_WRITE (pctxt)),                                 \
+            pctxt->print_error (                                               \
+                pctxt,                                                         \
+                EXR_ERR_ARGUMENT_OUT_OF_RANGE,                                 \
+                "Part index (%d) out of range",                                \
+                pi))
+
 #define EXR_PROMOTE_READ_CONST_CONTEXT_AND_PART_OR_ERROR(c, pi)                \
     const struct _internal_exr_context* pctxt = EXR_CCTXT (c);                 \
     const struct _internal_exr_part*    part;                                  \
@@ -342,6 +356,20 @@ internal_exr_unlock (const struct _internal_exr_context* c)
             "Part index (%d) out of range",                                    \
             pi);                                                               \
     part = pctxt->parts[pi]
+
+
+#define EXR_PROMOTE_READ_CONST_CONTEXT_OR_ERROR_NO_PART(c, pi)                 \
+    const struct _internal_exr_context* pctxt = EXR_CCTXT (c);                 \
+    if (!pctxt) return EXR_ERR_MISSING_CONTEXT_ARG;                            \
+    if (pctxt->mode != EXR_CONTEXT_READ)                                       \
+        return pctxt->standard_error (pctxt, EXR_ERR_NOT_OPEN_READ);           \
+    if (pi < 0 || pi >= pctxt->num_parts)                                      \
+        return pctxt->print_error (                                            \
+            pctxt,                                                             \
+            EXR_ERR_ARGUMENT_OUT_OF_RANGE,                                     \
+            "Part index (%d) out of range",                                    \
+            pi)
+
 
 void internal_exr_update_default_handlers (exr_context_initializer_t* inits);
 

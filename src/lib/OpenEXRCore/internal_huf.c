@@ -47,8 +47,8 @@ hufCode (uint64_t code)
     return code >> 6;
 }
 
-static inline void
-outputBits (int nBits, uint64_t bits, uint64_t* c, int* lc, uint8_t** outptr)
+static inline exr_result_t
+outputBits (int nBits, uint64_t bits, uint64_t* c, int* lc, uint8_t** outptr, uint8_t *outend)
 {
     uint8_t* out = *outptr;
     *c <<= nBits;
@@ -56,8 +56,12 @@ outputBits (int nBits, uint64_t bits, uint64_t* c, int* lc, uint8_t** outptr)
     *c |= bits;
 
     while (*lc >= 8)
+    {
+        if (out >= outend) return EXR_ERR_ARGUMENT_OUT_OF_RANGE;
         *out++ = (uint8_t) (*c >> (*lc -= 8));
+    }
     *outptr = out;
+    return EXR_ERR_SUCCESS;
 }
 
 static inline uint64_t
@@ -99,6 +103,7 @@ static void
 hufCanonicalCodeTable (uint64_t* hcode)
 {
     uint64_t n[59];
+    uint64_t c;
 
     //
     // For each i from 0 through 58, count the
@@ -118,7 +123,7 @@ hufCanonicalCodeTable (uint64_t* hcode)
     // store that code in n[i].
     //
 
-    uint64_t c = 0;
+    c = 0;
 
     for (int i = 58; i > 0; --i)
     {
@@ -272,13 +277,12 @@ hufBuildEncTable (
     // 3) Initializes array hlink such that hlink[i] == i
     //    for all array entries.
     //
+    uint32_t nf = 0;
 
     *im = 0;
 
     while (!frq[*im])
         (*im)++;
-
-    uint32_t nf = 0;
 
     for (uint32_t i = *im; i < HUF_ENCSIZE; i++)
     {
@@ -337,17 +341,18 @@ hufBuildEncTable (
 
     while (nf > 1)
     {
+        uint32_t mm, m;
         //
         // Find the indices, mm and m, of the two smallest non-zero frq
         // values in fHeap, add the smallest frq to the second-smallest
         // frq, and remove the smallest frq value from fHeap.
         //
 
-        uint32_t mm = (uint32_t) (fHeap[0] - frq);
+        mm = (uint32_t) (fHeap[0] - frq);
         pop_heap (&fHeap[0], &fHeap[nf]);
         --nf;
 
-        uint32_t m = (uint32_t) (fHeap[0] - frq);
+        m = (uint32_t) (fHeap[0] - frq);
         pop_heap (&fHeap[0], &fHeap[nf]);
 
         frq[m] += frq[mm];
@@ -424,13 +429,15 @@ hufBuildEncTable (
 //	  n zeroes (6 or more)	63 n-6	(6 + 8 bits)
 //
 
-static void
+static exr_result_t
 hufPackEncTable (
     const uint64_t* hcode, // i : encoding table [HUF_ENCSIZE]
     uint32_t        im,    // i : min hcode index
     uint32_t        iM,    // i : max hcode index
-    uint8_t**       pcode)       //  o: ptr to packed table (updated)
+    uint8_t**       pcode, // o : ptr to packed table (updated)
+    uint8_t*        pend)  // i : max size of table
 {
+    exr_result_t rv;
     uint8_t* out = *pcode;
     uint64_t c   = 0;
     int      lc  = 0;
@@ -454,24 +461,33 @@ hufPackEncTable (
             {
                 if (zerun >= SHORTEST_LONG_RUN)
                 {
-                    outputBits (6, LONG_ZEROCODE_RUN, &c, &lc, &out);
-                    outputBits (8, zerun - SHORTEST_LONG_RUN, &c, &lc, &out);
+                    rv = outputBits (6, LONG_ZEROCODE_RUN, &c, &lc, &out, pend);
+                    if (rv != EXR_ERR_SUCCESS) return rv;
+                    rv = outputBits (8, zerun - SHORTEST_LONG_RUN, &c, &lc, &out, pend);
+                    if (rv != EXR_ERR_SUCCESS) return rv;
                 }
                 else
                 {
-                    outputBits (
-                        6, SHORT_ZEROCODE_RUN + zerun - 2, &c, &lc, &out);
+                    rv = outputBits (
+                        6, SHORT_ZEROCODE_RUN + zerun - 2, &c, &lc, &out, pend);
+                    if (rv != EXR_ERR_SUCCESS) return rv;
                 }
                 continue;
             }
         }
 
-        outputBits (6, (uint64_t) l, &c, &lc, &out);
+        rv = outputBits (6, (uint64_t) l, &c, &lc, &out, pend);
+        if (rv != EXR_ERR_SUCCESS) return rv;
     }
 
-    if (lc > 0) *out++ = (uint8_t) (c << (8 - lc));
+    if (lc > 0)
+    {
+        if (out >= pend) return EXR_ERR_ARGUMENT_OUT_OF_RANGE;
+        *out++ = (uint8_t) (c << (8 - lc));
+    }
 
     *pcode = out;
+    return EXR_ERR_SUCCESS;
 }
 
 //
@@ -486,27 +502,27 @@ hufUnpackEncTable (
     uint32_t        iM,    // i : max hcode index
     uint64_t*       hcode)       // o : encoding table [HUF_ENCSIZE]
 {
-    memset (hcode, 0, sizeof (uint64_t) * HUF_ENCSIZE);
-
     const uint8_t* p  = *pcode;
     uint64_t       c  = 0;
     uint64_t       ni = *nLeft;
     uint64_t       nr;
     uint32_t       lc = 0;
+    uint64_t       l, zerun;
 
+    memset (hcode, 0, sizeof(uint64_t) * HUF_ENCSIZE);
     for (; im <= iM; im++)
     {
         nr = (((uintptr_t) p) - ((uintptr_t) *pcode));
         if (lc < 6 && nr >= ni) return EXR_ERR_OUT_OF_MEMORY;
 
-        uint64_t l = hcode[im] = getBits (6, &c, &lc, &p); // code length
+        l = hcode[im] = getBits (6, &c, &lc, &p); // code length
 
         if (l == (uint64_t) LONG_ZEROCODE_RUN)
         {
             nr = (((uintptr_t) p) - ((uintptr_t) *pcode));
             if (lc < 8 && nr >= ni) return EXR_ERR_OUT_OF_MEMORY;
 
-            uint64_t zerun = getBits (8, &c, &lc, &p) + SHORTEST_LONG_RUN;
+            zerun = getBits (8, &c, &lc, &p) + SHORTEST_LONG_RUN;
 
             if (im + zerun > iM + 1) return EXR_ERR_CORRUPT_CHUNK;
 
@@ -517,7 +533,7 @@ hufUnpackEncTable (
         }
         else if (l >= (uint64_t) SHORT_ZEROCODE_RUN)
         {
-            uint64_t zerun = l - SHORT_ZEROCODE_RUN + 2;
+            zerun = l - SHORT_ZEROCODE_RUN + 2;
 
             if (im + zerun > iM + 1) return EXR_ERR_CORRUPT_CHUNK;
 
@@ -631,7 +647,7 @@ hufBuildDecTable (
 
             HufDec* pl = hdecod + (c << (HUF_DECBITS - l));
 
-            for (uint64_t i = 1 << (HUF_DECBITS - l); i > 0; i--, pl++)
+            for (uint64_t i = ((uint64_t)1) << (HUF_DECBITS - l); i > 0; i--, pl++)
             {
                 if (pl->len || pl->p)
                 {
@@ -672,47 +688,59 @@ hufFreeDecTable (HufDec* hdecod) // io: Decoding table
 // ENCODING
 //
 
-static inline void
-outputCode (uint64_t code, uint64_t* c, int* lc, uint8_t** out)
+static inline exr_result_t
+outputCode (uint64_t code, uint64_t* c, int* lc, uint8_t** out, uint8_t* outend)
 {
-    outputBits (hufLength (code), hufCode (code), c, lc, out);
+    return outputBits (hufLength (code), hufCode (code), c, lc, out, outend);
 }
 
-static inline void
+static inline exr_result_t
 sendCode (
     uint64_t  sCode,
     int       runCount,
     uint64_t  runCode,
     uint64_t* c,
     int*      lc,
-    uint8_t** out)
+    uint8_t** out,
+    uint8_t*  outend)
 {
+    exr_result_t rv;
     if (hufLength (sCode) + hufLength (runCode) + 8 <
         hufLength (sCode) * runCount)
     {
-        outputCode (sCode, c, lc, out);
-        outputCode (runCode, c, lc, out);
-        outputBits (8, (uint64_t) runCount, c, lc, out);
+        rv = outputCode (sCode, c, lc, out, outend);
+        if (rv == EXR_ERR_SUCCESS) rv = outputCode (runCode, c, lc, out, outend);
+        if (rv == EXR_ERR_SUCCESS) rv = outputBits (8, (uint64_t) runCount, c, lc, out, outend);
     }
     else
     {
+        rv = EXR_ERR_SUCCESS;
         while (runCount-- >= 0)
-            outputCode (sCode, c, lc, out);
+        {
+            rv = outputCode (sCode, c, lc, out, outend);
+            if (rv != EXR_ERR_SUCCESS)
+                break;
+        }
     }
+    return rv;
 }
 
 //
 // Encode (compress) ni values based on the Huffman encoding table hcode:
 //
 
-static inline uint64_t
+static inline exr_result_t
 hufEncode (
     const uint64_t* hcode,
     const uint16_t* in,
     const uint64_t  ni,
     uint32_t        rlc,
-    uint8_t*        out)
+    uint8_t*        out,
+    uint8_t*        outend,
+    uint32_t*       outbytes)
 {
+    exr_result_t rv = EXR_ERR_SUCCESS;
+
     uint8_t* outStart = out;
     uint64_t c        = 0; // bits not yet written to out
     int      lc       = 0; // number of valid bits in c (LSB)
@@ -732,7 +760,9 @@ hufEncode (
         if (s == in[i] && cs < 255) { cs++; }
         else
         {
-            sendCode (hcode[s], cs, hcode[rlc], &c, &lc, &out);
+            rv = sendCode (hcode[s], cs, hcode[rlc], &c, &lc, &out, outend);
+            if (rv != EXR_ERR_SUCCESS)
+                break;
             cs = 0;
         }
 
@@ -743,11 +773,23 @@ hufEncode (
     // Send remaining code
     //
 
-    sendCode (hcode[s], cs, hcode[rlc], &c, &lc, &out);
+    if (rv == EXR_ERR_SUCCESS) rv = sendCode (hcode[s], cs, hcode[rlc], &c, &lc, &out, outend);
 
-    if (lc) *out = (c << (8 - lc)) & 0xff;
+    if (rv == EXR_ERR_SUCCESS)
+    {
+        if (lc)
+        {
+            if (out >= outend) return EXR_ERR_ARGUMENT_OUT_OF_RANGE;
+            *out = (c << (8 - lc)) & 0xff;
+        }
 
-    return (((uintptr_t) out) - ((uintptr_t) outStart)) * 8 + (uint64_t) (lc);
+        c = (((uintptr_t) out) - ((uintptr_t) outStart)) * 8 + (uint64_t) (lc);
+        if (c > (uint64_t)UINT32_MAX)
+            return EXR_ERR_ARGUMENT_OUT_OF_RANGE;
+        *outbytes = (uint32_t)c;
+    }
+
+    return rv;
 }
 
 //
@@ -769,6 +811,8 @@ hufEncode (
     {                                                                          \
         if (po == rlc)                                                         \
         {                                                                      \
+            uint8_t cs;                                                        \
+            uint16_t s;                                                        \
             if (lc < 8)                                                        \
             {                                                                  \
                 if (in >= ie) return EXR_ERR_OUT_OF_MEMORY;                    \
@@ -777,14 +821,14 @@ hufEncode (
                                                                                \
             lc -= 8;                                                           \
                                                                                \
-            uint8_t cs = (uint8_t) (c >> lc);                                  \
+            cs = (uint8_t) (c >> lc);                                          \
                                                                                \
             if (out + cs > oe)                                                 \
                 return EXR_ERR_CORRUPT_CHUNK;                                  \
             else if (out - 1 < ob)                                             \
                 return EXR_ERR_OUT_OF_MEMORY;                                  \
                                                                                \
-            uint16_t s = out[-1];                                              \
+            s = out[-1];                                                       \
                                                                                \
             while (cs-- > 0)                                                   \
                 *out++ = s;                                                    \
@@ -807,6 +851,7 @@ hufDecode (
     uint64_t        no,     // i : expected output size (count of uint16 items)
     uint16_t*       out)
 {
+    uint64_t       i;
     uint64_t       c    = 0;
     int            lc   = 0;
     uint16_t*      outb = out;
@@ -886,9 +931,9 @@ hufDecode (
     // Get remaining (short) codes
     //
 
-    uint64_t i = (8 - ni) & 7;
+    i = (8 - ni) & 7;
     c >>= i;
-    lc -= i;
+    lc -= (int)i;
 
     while (lc > 0)
     {
@@ -947,10 +992,10 @@ readUInt (const uint8_t* b)
 
 #ifdef __APPLE__
 #    include <libkern/OSByteOrder.h>
-#    define READ64(c) OSSwapInt64 (*(const uint64_t*) (c));
+#    define READ64(c) OSSwapInt64 (*(const uint64_t*) (c))
 #elif defined(linux)
 #    include <byteswap.h>
-#    define READ64(c) bswap_64 (*(const uint64_t*) (c));
+#    define READ64(c) bswap_64 (*(const uint64_t*) (c))
 #elif defined(_MSC_VER)
 #    include <stdlib.h>
 #    define READ64(c) _byteswap_uint64 (*(const uint64_t*) (c))
@@ -964,14 +1009,17 @@ readUInt (const uint8_t* b)
 
 typedef struct FastHufDecoder
 {
-    int _rleSymbol; // RLE symbol written by the encoder.
-                    // This could be 65536, so beware
-                    // when you use shorts to hold things.
+    // RLE symbol written by the encoder.
+    // This could be 65536, so beware
+    // when you use shorts to hold things.
+    int _rleSymbol;
 
-    int _numSymbols; // Number of symbols in the codebook.
+    // Number of symbols in the codebook.
+    uint32_t _numSymbols;
 
-    unsigned char _minCodeLength; // Minimum code length, in bits.
-    unsigned char _maxCodeLength; // Maximum code length, in bits.
+    uint8_t _minCodeLength; // Minimum code length, in bits.
+    uint8_t _maxCodeLength; // Maximum code length, in bits.
+    uint8_t _pad[2];
 
     int _idToSymbol[65536 + 1]; // Maps Ids to symbols. Ids are a symbol
                                 // ordering sorted first in terms of
@@ -1012,6 +1060,8 @@ FastHufDecoder_buildTables (
     uint64_t*                           base,
     uint64_t*                           offset)
 {
+    int minIdx = TABLE_LOOKUP_BITS;
+
     //
     // Build the 'left justified' base table, by shifting base left..
     //
@@ -1087,8 +1137,6 @@ FastHufDecoder_buildTables (
     // valid data (in our case, non-dummy _ljBase)
     //
 
-    int minIdx = TABLE_LOOKUP_BITS;
-
     while (minIdx > 0 && fhd->_ljBase[minIdx] == 0xffffffffffffffffULL)
         minIdx--;
 
@@ -1112,7 +1160,7 @@ FastHufDecoder_refill (
     uint64_t*       bufferBack,        // the next 64-bits, to refill from
     int*            bufferBackNumBits, // number of bits left in bufferBack
     const uint8_t** currByte,          // current byte in the bitstream
-    int*            currBitsLeft)
+    uint64_t*       currBitsLeft)
 {
     //
     // Refill bits into the bottom of buffer, from the top of bufferBack.
@@ -1140,12 +1188,12 @@ FastHufDecoder_refill (
         }
         else
         {
+            uint64_t shift = 56;
+
             *bufferBack        = 0;
             *bufferBackNumBits = 64;
 
-            uint64_t shift = 56;
-
-            while (*currBitsLeft > 0)
+            while (*currBitsLeft >= 8)
             {
                 *bufferBack |= ((uint64_t) (**currByte)) << shift;
 
@@ -1154,13 +1202,14 @@ FastHufDecoder_refill (
                 *currBitsLeft -= 8;
             }
 
-            //
-            // At this point, currBitsLeft might be negative, just because
-            // we're subtracting whole bytes. To keep anyone from freaking
-            // out, zero the counter.
-            //
+            if (*currBitsLeft > 0)
+            {
+                *bufferBack |= ((uint64_t) (**currByte)) << shift;
 
-            if (*currBitsLeft < 0) *currBitsLeft = 0;
+                (*currByte)++;
+                shift -= 8;
+                *currBitsLeft = 0;
+            }
         }
 
         *buffer |= (*bufferBack) >> (64 - numBits);
@@ -1196,16 +1245,11 @@ fasthuf_initialize (
     const struct _internal_exr_context* pctxt,
     FastHufDecoder*                     fhd,
     const uint8_t**                     table,
-    int                                 numBytes,
-    int                                 minSymbol,
-    int                                 maxSymbol,
+    uint64_t                                 numBytes,
+    uint32_t                                 minSymbol,
+    uint32_t                                 maxSymbol,
     int                                 rleSymbol)
 {
-    fhd->_rleSymbol     = rleSymbol;
-    fhd->_numSymbols    = 0;
-    fhd->_minCodeLength = 255;
-    fhd->_maxCodeLength = 0;
-
     //
     // The 'base' table is the minimum code at each code length. base[i]
     // is the smallest code (numerically) of length i.
@@ -1227,6 +1271,20 @@ fasthuf_initialize (
 
     size_t codeCount[MAX_CODE_LEN + 1];
 
+    const uint8_t* currByte     = *table;
+    uint64_t       currBits     = 0;
+    int            currBitCount = 0;
+
+    uint64_t codeLen;
+    const uint8_t* topByte = *table + numBytes;
+
+    uint64_t mapping[MAX_CODE_LEN + 1];
+
+    fhd->_rleSymbol     = rleSymbol;
+    fhd->_numSymbols    = 0;
+    fhd->_minCodeLength = 255;
+    fhd->_maxCodeLength = 0;
+
     for (int i = 0; i <= MAX_CODE_LEN; ++i)
     {
         codeCount[i] = 0;
@@ -1239,12 +1297,6 @@ fasthuf_initialize (
     // codes with each length, and record symbols with non-zero code
     // length as we find them.
     //
-
-    const uint8_t* currByte     = *table;
-    uint64_t       currBits     = 0;
-    int            currBitCount = 0;
-
-    const uint8_t* topByte = *table + numBytes;
 
     for (uint64_t symbol = (uint64_t) minSymbol; symbol <= (uint64_t) maxSymbol;
          symbol++)
@@ -1266,16 +1318,15 @@ fasthuf_initialize (
         //       63    (run of n 0's, with n is the next 8 bits)
         //
 
-        uint64_t codeLen =
-            fasthuf_read_bits (6, &currBits, &currBitCount, &currByte);
+        codeLen = fasthuf_read_bits (6, &currBits, &currBitCount, &currByte);
 
         if (codeLen < (uint64_t) SHORT_ZEROCODE_RUN)
         {
             if (codeLen == 0) continue;
 
-            if (codeLen < fhd->_minCodeLength) fhd->_minCodeLength = codeLen;
+            if (codeLen < fhd->_minCodeLength) fhd->_minCodeLength = (uint8_t)codeLen;
 
-            if (codeLen > fhd->_maxCodeLength) fhd->_maxCodeLength = codeLen;
+            if (codeLen > fhd->_maxCodeLength) fhd->_maxCodeLength = (uint8_t)codeLen;
 
             codeCount[codeLen]++;
         }
@@ -1310,7 +1361,7 @@ fasthuf_initialize (
     }
 
     for (int i = 0; i < MAX_CODE_LEN; ++i)
-        fhd->_numSymbols += codeCount[i];
+        fhd->_numSymbols += (uint32_t)codeCount[i];
 
     if ((size_t) fhd->_numSymbols > sizeof (fhd->_idToSymbol) / sizeof (int))
     {
@@ -1345,7 +1396,7 @@ fasthuf_initialize (
 
             tmp /= (double) (2ll << (fhd->_maxCodeLength - l));
 
-            base[l] = (uint64_t) ceil (tmp);
+            base[l] = (uint64_t) (ceil (tmp));
         }
     }
 
@@ -1366,9 +1417,8 @@ fasthuf_initialize (
     // length start off.
     //
 
-    uint64_t mapping[MAX_CODE_LEN + 1];
     for (int i = 0; i < MAX_CODE_LEN + 1; ++i)
-        mapping[i] = -1;
+        mapping[i] = (uint64_t)-1;
     for (int i = fhd->_minCodeLength; i <= fhd->_maxCodeLength; ++i)
         mapping[i] = offset[i];
 
@@ -1383,8 +1433,7 @@ fasthuf_initialize (
     for (uint64_t symbol = (uint64_t) minSymbol; symbol <= (uint64_t) maxSymbol;
          symbol++)
     {
-        uint64_t codeLen =
-            fasthuf_read_bits (6, &currBits, &currBitCount, &currByte);
+        codeLen = fasthuf_read_bits (6, &currBits, &currBitCount, &currByte);
 
         if (codeLen < (uint64_t) SHORT_ZEROCODE_RUN)
         {
@@ -1399,7 +1448,7 @@ fasthuf_initialize (
                         "Huffman decode error (Invalid symbol in header)");
                 return EXR_ERR_CORRUPT_CHUNK;
             }
-            fhd->_idToSymbol[mapping[codeLen]] = symbol;
+            fhd->_idToSymbol[mapping[codeLen]] = (int)symbol;
             mapping[codeLen]++;
         }
         else if (codeLen == (uint64_t) LONG_ZEROCODE_RUN)
@@ -1416,7 +1465,7 @@ fasthuf_initialize (
 }
 
 static inline int
-fasthuf_decode_enabled ()
+fasthuf_decode_enabled (void)
 {
 #if defined(__INTEL_COMPILER) || defined(__GNUC__)
 
@@ -1459,39 +1508,40 @@ fasthuf_decode (
     const struct _internal_exr_context* pctxt,
     FastHufDecoder*                     fhd,
     const uint8_t*                      src,
-    int                                 numSrcBits,
+    uint64_t                            numSrcBits,
     uint16_t*                           dst,
-    int                                 numDstElems)
+    uint64_t                            numDstElems)
 {
     //
     // Current position (byte/bit) in the src data stream
     // (after the first buffer fill)
     //
-
+    uint64_t buffer, bufferBack, dstIdx;
+    int bufferNumBits, bufferBackNumBits;
     const unsigned char* currByte = src + 2 * sizeof (uint64_t);
 
-    numSrcBits -= 8 * 2 * sizeof (uint64_t);
+    numSrcBits -= 8 * 2 * (int)sizeof (uint64_t);
 
     //
     // 64-bit buffer holding the current bits in the stream
     //
 
-    uint64_t buffer        = READ64 (src);
-    int      bufferNumBits = 64;
+    buffer        = READ64 (src);
+    bufferNumBits = 64;
 
     //
     // 64-bit buffer holding the next bits in the stream
     //
 
-    uint64_t bufferBack        = READ64 ((src + sizeof (uint64_t)));
-    int      bufferBackNumBits = 64;
-
-    int dstIdx = 0;
+    bufferBack        = READ64 ((src + sizeof (uint64_t)));
+    bufferBackNumBits = 64;
+    dstIdx            = 0;
 
     while (dstIdx < numDstElems)
     {
         int codeLen;
         int symbol;
+        int rleCount;
 
         //
         // Test if we can be table accelerated. If so, directly
@@ -1521,6 +1571,7 @@ fasthuf_decode (
         }
         else
         {
+            uint64_t id;
             //
             // Brute force search:
             // Find the smallest length where _ljBase[length] <= buffer
@@ -1543,7 +1594,7 @@ fasthuf_decode (
                 return EXR_ERR_CORRUPT_CHUNK;
             }
 
-            uint64_t id = fhd->_ljOffset[codeLen] + (buffer >> (64 - codeLen));
+            id = fhd->_ljOffset[codeLen] + (buffer >> (64 - codeLen));
             if (id < (uint64_t) fhd->_numSymbols)
             {
                 symbol = fhd->_idToSymbol[id];
@@ -1588,7 +1639,7 @@ fasthuf_decode (
                 bufferNumBits = 64;
             }
 
-            int rleCount = buffer >> 56;
+            rleCount = buffer >> 56;
 
             if (dstIdx < 1)
             {
@@ -1600,7 +1651,7 @@ fasthuf_decode (
                 return EXR_ERR_CORRUPT_CHUNK;
             }
 
-            if (dstIdx + rleCount > numDstElems)
+            if (dstIdx + (uint64_t)rleCount > numDstElems)
             {
                 if (pctxt)
                     pctxt->print_error (
@@ -1621,16 +1672,16 @@ fasthuf_decode (
             }
 
             for (int i = 0; i < rleCount; ++i)
-                dst[dstIdx + i] = dst[dstIdx - 1];
+                dst[dstIdx + (uint64_t)i] = dst[dstIdx - 1];
 
-            dstIdx += rleCount;
+            dstIdx += (uint64_t)rleCount;
 
             buffer = buffer << 8;
             bufferNumBits -= 8;
         }
         else
         {
-            dst[dstIdx] = symbol;
+            dst[dstIdx] = (uint16_t)symbol;
             dstIdx++;
         }
 
@@ -1660,7 +1711,7 @@ fasthuf_decode (
                 pctxt,
                 EXR_ERR_CORRUPT_CHUNK,
                 "Huffman decode error (%d bits of compressed data remains after filling expected output buffer)",
-                numSrcBits);
+                (int)numSrcBits);
         return EXR_ERR_CORRUPT_CHUNK;
     }
 
@@ -1674,9 +1725,9 @@ internal_exr_huf_compress_spare_bytes (void)
 {
     uint64_t ret = 0;
     ret += HUF_ENCSIZE * sizeof (uint64_t);  // freq
-    ret += HUF_ENCSIZE * sizeof (int);       // hlink
-    ret += HUF_ENCSIZE * sizeof (uint64_t*); // fheap
     ret += HUF_ENCSIZE * sizeof (uint64_t);  // scode
+    ret += HUF_ENCSIZE * sizeof (uint64_t*); // fheap
+    ret += HUF_ENCSIZE * sizeof (uint32_t);  // hlink
     return ret;
 }
 
@@ -1702,6 +1753,7 @@ internal_huf_compress (
     void*           spare,
     uint64_t        sparebytes)
 {
+    exr_result_t rv;
     uint64_t*  freq;
     uint32_t*  hlink;
     uint64_t** fHeap;
@@ -1713,6 +1765,7 @@ internal_huf_compress (
     uint8_t*   compressed = (uint8_t*) out;
     uint8_t*   tableStart = compressed + 20;
     uint8_t*   tableEnd   = tableStart;
+    uint8_t*   maxcompout = compressed + outsz;
 
     if (nRaw == 0)
     {
@@ -1720,7 +1773,8 @@ internal_huf_compress (
         return EXR_ERR_SUCCESS;
     }
 
-    (void) outsz;
+    if (outsz < 20)
+        return EXR_ERR_INVALID_ARGUMENT;
     if (sparebytes != internal_exr_huf_compress_spare_bytes ())
         return EXR_ERR_INVALID_ARGUMENT;
 
@@ -1733,13 +1787,16 @@ internal_huf_compress (
 
     hufBuildEncTable (freq, &im, &iM, hlink, fHeap, scode);
 
-    hufPackEncTable (freq, im, iM, &tableEnd);
+    rv = hufPackEncTable (freq, im, iM, &tableEnd, maxcompout);
 
+    if (rv != EXR_ERR_SUCCESS) return rv;
     tableLength =
         (uint32_t) (((uintptr_t) tableEnd) - ((uintptr_t) tableStart));
     dataStart = tableEnd;
 
-    nBits      = (uint32_t) hufEncode (freq, raw, nRaw, iM, dataStart);
+    rv = hufEncode (freq, raw, nRaw, iM, dataStart, maxcompout, &nBits);
+    if (rv != EXR_ERR_SUCCESS) return rv;
+
     dataLength = (nBits + 7) / 8;
 
     writeUInt (compressed, im);
@@ -1808,7 +1865,7 @@ internal_huf_decompress (
     {
         FastHufDecoder* fhd = (FastHufDecoder*) spare;
 
-        rv = fasthuf_initialize (pctxt, fhd, &ptr, nCompressed - hufInfoBlockSize, im, iM, iM);
+        rv = fasthuf_initialize (pctxt, fhd, &ptr, nCompressed - hufInfoBlockSize, im, iM, (int)iM);
         if (rv == EXR_ERR_SUCCESS)
         {
             if ( (uint64_t)(ptr - compressed) + nBytes > nCompressed )

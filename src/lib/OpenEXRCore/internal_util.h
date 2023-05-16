@@ -3,6 +3,9 @@
 ** Copyright Contributors to the OpenEXR Project.
 */
 
+#ifndef OPENEXR_PRIVATE_UTIL_H
+#define OPENEXR_PRIVATE_UTIL_H
+
 #include <stdint.h>
 
 static inline int
@@ -38,3 +41,5 @@ compute_sampled_lines (int height, int y_sampling, int start_y)
 
     return nlines;
 }
+
+#endif /* OPENEXR_PRIVATE_UTIL_H */

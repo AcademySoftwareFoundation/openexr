@@ -14,6 +14,12 @@ __attribute__ ((malloc))
 void*
 internal_exr_alloc (size_t bytes);
 
+#if defined(__GNUC__) || defined(__clang__)
+__attribute__ ((malloc))
+#endif
+void*
+internal_exr_alloc_aligned (void **tofreeptr, size_t bytes, size_t align);
+
 void internal_exr_free (void* ptr);
 
 #endif /* OPENEXR_PRIVATE_MEMORY_H */

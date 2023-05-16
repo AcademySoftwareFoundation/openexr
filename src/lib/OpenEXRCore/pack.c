@@ -22,7 +22,7 @@ default_pack (exr_encode_pipeline_t* encode)
 {
     uint8_t*       dstbuffer = encode->packed_buffer;
     const uint8_t* cdata;
-    int            w, bpc;
+    int            w, bpc, pixincrement;
     uint64_t       packed_bytes = 0;
     uint64_t       chan_bytes   = 0;
 
@@ -54,7 +54,7 @@ default_pack (exr_encode_pipeline_t* encode)
                 cdata += (uint64_t) y * (uint64_t) encc->user_line_stride;
             }
 
-            int pixincrement = encc->user_pixel_stride;
+            pixincrement = encc->user_pixel_stride;
             switch (encc->data_type)
             {
                 case EXR_PIXEL_HALF:

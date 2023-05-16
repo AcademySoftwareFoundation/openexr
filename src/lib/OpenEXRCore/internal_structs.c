@@ -335,10 +335,10 @@ internal_exr_alloc_context (
     void*                         memptr;
     exr_result_t                  rv;
     struct _internal_exr_context* ret;
-    *out = NULL;
     int    gmaxw, gmaxh;
     size_t extra_data;
 
+    *out = NULL;
     if (initializers->read_fn || initializers->write_fn)
         extra_data = 0;
     else
@@ -416,6 +416,7 @@ internal_exr_alloc_context (
         ret->disable_chunk_reconstruct =
             (initializers->flags &
              EXR_CONTEXT_FLAG_DISABLE_CHUNK_RECONSTRUCTION);
+        ret->legacy_header = (initializers->flags & EXR_CONTEXT_FLAG_WRITE_LEGACY_HEADER);
 
         ret->file_size       = -1;
         ret->max_name_length = EXR_SHORTNAME_MAXLEN;
