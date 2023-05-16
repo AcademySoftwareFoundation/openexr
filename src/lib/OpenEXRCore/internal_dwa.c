@@ -116,6 +116,8 @@
 #include <string.h>
 #include <stdio.h>
 
+#include "OpenEXRConfigInternal.h"
+
 #include "internal_dwa_helpers.h"
 
 /**************************************/
@@ -133,7 +135,7 @@ internal_exr_apply_dwaa (exr_encode_pipeline_t* encode)
         internal_exr_huf_compress_spare_bytes ());
     if (rv == EXR_ERR_SUCCESS)
     {
-        rv = DwaCompressor_construct (&dwaa, STATIC_HUFFMAN, encode, NULL);
+        rv = DwaCompressor_construct (&dwaa, DEFLATE, encode, NULL);
         if (rv == EXR_ERR_SUCCESS) rv = DwaCompressor_compress (&dwaa);
 
         DwaCompressor_destroy (&dwaa);
