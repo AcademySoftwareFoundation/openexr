@@ -25,6 +25,8 @@ silent_error (
     exr_result_t                        code,
     const char*                         msg)
 {
+    (void)pctxt;
+    (void)msg;
     return code;
 }
 
@@ -32,6 +34,7 @@ static exr_result_t
 silent_standard_error (
     const struct _internal_exr_context* pctxt, exr_result_t code)
 {
+    (void)pctxt;
     return code;
 }
 
@@ -42,6 +45,8 @@ silent_print_error (
     const char*                         msg,
     ...)
 {
+    (void)pctxt;
+    (void)msg;
     return code;
 }
 
@@ -57,7 +62,7 @@ struct _internal_exr_seq_scratch
     exr_result_t (*sequential_read) (
         struct _internal_exr_seq_scratch*, void*, uint64_t);
     exr_result_t (*sequential_skip) (
-        struct _internal_exr_seq_scratch*, uint64_t);
+        struct _internal_exr_seq_scratch*, int32_t);
 
     struct _internal_exr_context* ctxt;
 };
@@ -160,10 +165,10 @@ scratch_seq_read (struct _internal_exr_seq_scratch* scr, void* buf, uint64_t sz)
 }
 
 static exr_result_t
-scratch_seq_skip (struct _internal_exr_seq_scratch* scr, uint64_t sz)
+scratch_seq_skip (struct _internal_exr_seq_scratch* scr, int32_t sz)
 {
     uint64_t     nCopied = 0;
-    uint64_t     notdone = sz;
+    uint64_t     notdone = (uint64_t)sz;
     exr_result_t rv      = -1;
 
     while (notdone > 0)
@@ -206,7 +211,7 @@ scratch_seq_skip (struct _internal_exr_seq_scratch* scr, uint64_t sz)
     }
     if (rv == -1)
     {
-        if (nCopied == sz)
+        if (nCopied == (uint64_t)sz)
             rv = EXR_ERR_SUCCESS;
         else
             rv = EXR_ERR_READ_IO;
@@ -2416,12 +2421,14 @@ update_chunk_offsets (
 
     for (int p = 0; p < ctxt->num_parts; ++p)
     {
+        int32_t ccount;
+
         curpart = ctxt->parts[p];
 
         rv = internal_exr_compute_tile_information (ctxt, curpart, 0);
         if (rv != EXR_ERR_SUCCESS) break;
 
-        int32_t ccount = internal_exr_compute_chunk_offset_size (curpart);
+        ccount = internal_exr_compute_chunk_offset_size (curpart);
         if (ccount < 0)
         {
             rv = ctxt->print_error (

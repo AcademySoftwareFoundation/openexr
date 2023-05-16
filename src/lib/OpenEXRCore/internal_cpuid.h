@@ -6,7 +6,9 @@
 #include "OpenEXRConfigInternal.h"
 
 #if defined(__x86_64__) || defined(_M_X64)
-#    ifndef _WIN32
+#    if defined(_MSC_VER) && defined(_WIN32)
+#        include <intrin.h>
+#    else
 #        include <cpuid.h>
 #    endif
 #endif
@@ -91,7 +93,7 @@ static inline void check_for_x86_simd (int *f16c, int *avx, int *sse2)
 #endif
 }
 
-static inline int has_native_half ()
+static inline int has_native_half (void)
 {
 #if defined(__x86_64__) || defined(_M_X64)
     int sse2, avx, f16c;

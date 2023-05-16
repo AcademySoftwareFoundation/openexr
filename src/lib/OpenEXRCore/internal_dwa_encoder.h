@@ -13,15 +13,15 @@
 
 typedef struct _LossyDctEncoder
 {
-    float _quantBaseError;
-
-    int             _width, _height;
     const uint16_t* _toNonlinear;
 
-    int _numAcComp, _numDcComp;
+    uint64_t _numAcComp, _numDcComp;
 
     DctCoderChannelData* _channel_encode_data[3];
     int                  _channel_encode_data_count;
+
+    int   _width, _height;
+    float _quantBaseError;
 
     //
     // Pointers to the buffers where AC and DC
@@ -74,8 +74,6 @@ static exr_result_t LossyDctEncoderCsc_construct (
     int                  width,
     int                  height);
 
-static void LossyDctEncoder_destroy (LossyDctEncoder* e);
-
 static exr_result_t LossyDctEncoder_execute (LossyDctEncoder* e);
 
 static void
@@ -93,14 +91,6 @@ LossyDctEncoder_base_construct (
     int              width,
     int              height)
 {
-    e->_quantBaseError = quantBaseError;
-    e->_width          = width;
-    e->_height         = height;
-    e->_toNonlinear    = toNonlinear;
-    e->_numAcComp      = 0;
-    e->_numDcComp      = 0;
-    e->_packedAc       = packedAc;
-    e->_packedDc       = packedDc;
     //
     // Here, we take the generic JPEG quantization tables and
     // normalize them by the smallest component in each table.
@@ -121,9 +111,8 @@ LossyDctEncoder_base_construct (
     // is not transmitted. So, if you want to get really fancy,
     // you could derive some content-dependent quantization
     // table, and the decoder would not need to be changed. But,
-    // for now, we'll just use statice quantization tables.
+    // for now, we'll just use static quantization tables.
     //
-
     int jpegQuantTableY[] = {
         16, 11, 10, 16, 24,  40,  51,  61,  12, 12, 14, 19, 26,  58,  60,  55,
         14, 13, 16, 24, 40,  57,  69,  56,  14, 17, 22, 29, 51,  87,  80,  62,
@@ -140,6 +129,14 @@ LossyDctEncoder_base_construct (
 
     int jpegQuantTableCbCrMin = 17;
 
+    e->_quantBaseError = quantBaseError;
+    e->_width          = width;
+    e->_height         = height;
+    e->_toNonlinear    = toNonlinear;
+    e->_numAcComp      = 0;
+    e->_numDcComp      = 0;
+    e->_packedAc       = packedAc;
+    e->_packedDc       = packedDc;
     if (e->_quantBaseError < 0) e->_quantBaseError = 0;
 
     for (int idx = 0; idx < 64; ++idx)
@@ -217,10 +214,6 @@ LossyDctEncoderCsc_construct (
 
     return rv;
 }
-
-void
-LossyDctEncoder_destroy (LossyDctEncoder* e)
-{}
 
 /**************************************/
 
@@ -307,22 +300,24 @@ quantize (float dctval, float errorTolerance)
 // a color space conversion to a YCbCr space.  Otherwise, if we only
 // have one channel, just encode it as is.
 //
-// Other numbers of channels are somewhat unexpected at this point,
-// and will throw an exception.
+// Other numbers of channels are somewhat unexpected at this point
 //
 exr_result_t
 LossyDctEncoder_execute (LossyDctEncoder* e)
 {
-    size_t               numComp = e->_channel_encode_data_count;
+    int               numComp = e->_channel_encode_data_count;
     DctCoderChannelData* chanData[3];
 
-    int numBlocksX = (int) ceilf ((float) e->_width / 8.0f);
-    int numBlocksY = (int) ceilf ((float) e->_height / 8.0f);
+    int numBlocksX = (int) (ceilf ((float) e->_width / 8.0f));
+    int numBlocksY = (int) (ceilf ((float) e->_height / 8.0f));
 
     uint16_t halfZigCoef[64];
     uint16_t halfCoef[64];
 
     uint16_t* currAcComp = (uint16_t*) e->_packedAc;
+    int tmpHalfBufferElements = 0;
+    uint16_t* tmpHalfBuffer    = NULL;
+    uint16_t* tmpHalfBufferPtr = NULL;
 
     e->_numAcComp = 0;
     e->_numDcComp = 0;
@@ -331,21 +326,18 @@ LossyDctEncoder_execute (LossyDctEncoder* e)
     // Allocate a temp half buffer to quantize into for
     // any FLOAT source channels.
     //
-    int tmpHalfBufferElements = 0;
 
-    for (unsigned int chan = 0; chan < numComp; ++chan)
+    for (int chan = 0; chan < numComp; ++chan)
     {
         chanData[chan] = e->_channel_encode_data[chan];
         if (chanData[chan]->_type == EXR_PIXEL_FLOAT)
             tmpHalfBufferElements += e->_width * e->_height;
     }
 
-    uint16_t* tmpHalfBuffer    = NULL;
-    uint16_t* tmpHalfBufferPtr = NULL;
     if (tmpHalfBufferElements)
     {
         tmpHalfBuffer = (uint16_t*) internal_exr_alloc (
-            tmpHalfBufferElements * sizeof (uint16_t));
+            (size_t)tmpHalfBufferElements * sizeof (uint16_t));
         if (!tmpHalfBuffer) return EXR_ERR_OUT_OF_MEMORY;
         tmpHalfBufferPtr = tmpHalfBuffer;
     }
@@ -356,7 +348,7 @@ LossyDctEncoder_execute (LossyDctEncoder* e)
     // FLOAT XDR to HALF XDR.
     //
 
-    for (unsigned int chan = 0; chan < numComp; ++chan)
+    for (int chan = 0; chan < numComp; ++chan)
     {
         if (chanData[chan]->_type != EXR_PIXEL_FLOAT) continue;
 
@@ -390,7 +382,7 @@ LossyDctEncoder_execute (LossyDctEncoder* e)
     //
 
     chanData[0]->_dc_comp = (uint16_t*) e->_packedDc;
-    for (size_t chan = 1; chan < numComp; ++chan)
+    for (int chan = 1; chan < numComp; ++chan)
         chanData[chan]->_dc_comp =
             chanData[chan - 1]->_dc_comp + numBlocksX * numBlocksY;
 
@@ -399,10 +391,9 @@ LossyDctEncoder_execute (LossyDctEncoder* e)
         for (int blockx = 0; blockx < numBlocksX; ++blockx)
         {
             uint16_t h;
-            uint16_t tmpShortXdr;
-            uint8_t* tmpCharPtr;
+            const float* quantTable;
 
-            for (size_t chan = 0; chan < numComp; ++chan)
+            for (int chan = 0; chan < numComp; ++chan)
             {
                 //
                 // Break the source into 8x8 blocks. If we don't
@@ -456,8 +447,8 @@ LossyDctEncoder_execute (LossyDctEncoder* e)
                     chanData[2]->_dctData);
             }
 
-            const float* quantTable = e->_quantTableY;
-            for (size_t chan = 0; chan < numComp; ++chan)
+            quantTable = e->_quantTableY;
+            for (int chan = 0; chan < numComp; ++chan)
             {
                 //
                 // Forward DCT
@@ -537,7 +528,7 @@ LossyDctEncoder_rleAc (LossyDctEncoder* e, uint16_t* block, uint16_t** acPtr)
 
     while (dctComp < 64)
     {
-        int runLen = 1;
+        uint16_t runLen = 1;
 
         //
         // If we don't have a 0, output verbatim
@@ -597,7 +588,7 @@ LossyDctEncoder_rleAc (LossyDctEncoder* e, uint16_t* block, uint16_t** acPtr)
             // Signal normal run
             //
 
-            *curAC++ = 0xff00 | runLen;
+            *curAC++ = (uint16_t)0xff00 | runLen;
             e->_numAcComp++;
         }
 

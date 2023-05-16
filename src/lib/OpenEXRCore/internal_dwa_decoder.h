@@ -23,8 +23,8 @@ typedef struct _LossyDctDecoder
     // AC and DC buffers
     //
 
-    int _packedAcCount;
-    int _packedDcCount;
+    uint64_t _packedAcCount;
+    uint64_t _packedDcCount;
 
     //
     // AC and DC buffers to pack
@@ -49,6 +49,7 @@ typedef struct _LossyDctDecoder
 
     DctCoderChannelData* _channel_decode_data[3];
     int                  _channel_decode_data_count;
+    uint8_t _pad[4];
 } LossyDctDecoder;
 
 static exr_result_t LossyDctDecoder_base_construct (
@@ -202,45 +203,41 @@ LossyDctDecoder_base_construct (
     return EXR_ERR_SUCCESS;
 }
 
-void
-LossyDctDecoder_destroy (LossyDctDecoder* e)
-{}
-
 /**************************************/
 
 exr_result_t
 LossyDctDecoder_execute (LossyDctDecoder* d)
 {
     exr_result_t         rv;
-    size_t               numComp = d->_channel_decode_data_count;
+    int                  numComp = d->_channel_decode_data_count;
     DctCoderChannelData* chanData[3];
     int                  lastNonZero = 0;
-    int                  numBlocksX  = (int) ceil ((float) d->_width / 8.0f);
-    int                  numBlocksY  = (int) ceil ((float) d->_height / 8.0f);
+    int                  numBlocksX  = (int) (ceilf ((float) d->_width / 8.0f));
+    int                  numBlocksY  = (int) (ceilf ((float) d->_height / 8.0f));
     int                  leftoverX   = d->_width - (numBlocksX - 1) * 8;
     int                  leftoverY   = d->_height - (numBlocksY - 1) * 8;
 
-    int numFullBlocksX = (int) floor ((float) d->_width / 8.0f);
+    int numFullBlocksX = (int) (floorf ((float) d->_width / 8.0f));
 
     uint16_t* currAcComp = (uint16_t*) (d->_packedAc);
     uint16_t* acCompEnd  = (uint16_t*) (d->_packedAcEnd);
+    uint16_t* currDcComp[3];
+    uint8_t* rowBlockHandle;
+    uint16_t* rowBlock[3];
 
-    for (unsigned int chan = 0; chan < numComp; ++chan)
+    for (int chan = 0; chan < numComp; ++chan)
     {
         chanData[chan] = d->_channel_decode_data[chan];
     }
-    uint16_t* currDcComp[3];
 
     //
     // Allocate a temp aligned buffer to hold a rows worth of full
     // 8x8 half-float blocks
     //
 
-    uint8_t* rowBlockHandle = internal_exr_alloc (
-        numComp * numBlocksX * 64 * sizeof (uint16_t) + _SSE_ALIGNMENT);
+    rowBlockHandle = internal_exr_alloc (
+        (size_t)numComp * (size_t)numBlocksX * 64 * sizeof (uint16_t) + _SSE_ALIGNMENT);
     if (!rowBlockHandle) return EXR_ERR_OUT_OF_MEMORY;
-
-    uint16_t* rowBlock[3];
 
     rowBlock[0] = (uint16_t*) rowBlockHandle;
 
@@ -250,7 +247,7 @@ LossyDctDecoder_execute (LossyDctDecoder* d)
             rowBlock[0] = (uint16_t*) (rowBlockHandle + i);
     }
 
-    for (size_t comp = 1; comp < numComp; ++comp)
+    for (int comp = 1; comp < numComp; ++comp)
         rowBlock[comp] = rowBlock[comp - 1] + numBlocksX * 64;
 
     //
@@ -260,19 +257,18 @@ LossyDctDecoder_execute (LossyDctDecoder* d)
     //
 
     currDcComp[0] = (uint16_t*) d->_packedDc;
-    for (size_t comp = 1; comp < numComp; ++comp)
+    for (int comp = 1; comp < numComp; ++comp)
         currDcComp[comp] = currDcComp[comp - 1] + numBlocksX * numBlocksY;
 
     for (int blocky = 0; blocky < numBlocksY; ++blocky)
     {
-        int maxY = 8;
-
+        int maxY = 8, maxX = 8;
         if (blocky == numBlocksY - 1) maxY = leftoverY;
-
-        int maxX = 8;
 
         for (int blockx = 0; blockx < numBlocksX; ++blockx)
         {
+            uint8_t blockIsConstant = DWA_CLASSIFIER_TRUE;
+
             if (blockx == numBlocksX - 1) maxX = leftoverX;
 
             //
@@ -284,10 +280,7 @@ LossyDctDecoder_execute (LossyDctDecoder* d)
             // This won't really help for regular images, but it is
             // meant more for layers with large swaths of black
             //
-
-            uint8_t blockIsConstant = DWA_CLASSIFIER_TRUE;
-
-            for (size_t comp = 0; comp < numComp; ++comp)
+            for (int comp = 0; comp < numComp; ++comp)
             {
                 uint16_t* halfZigData = chanData[comp]->_halfZigData;
                 float*    dctData     = chanData[comp]->_dctData;
@@ -328,7 +321,6 @@ LossyDctDecoder_execute (LossyDctDecoder* d)
                 {
                     internal_exr_free (rowBlockHandle);
                     return rv;
-                    //throw;
                 }
 
                 //
@@ -436,7 +428,7 @@ LossyDctDecoder_execute (LossyDctDecoder* d)
             // If the block has a constant value, just convert the first pixel.
             //
 
-            for (size_t comp = 0; comp < numComp; ++comp)
+            for (int comp = 0; comp < numComp; ++comp)
             {
                 if (!blockIsConstant)
                 {
@@ -450,7 +442,7 @@ LossyDctDecoder_execute (LossyDctDecoder* d)
                     __m128i* dst = (__m128i*) &rowBlock[comp][blockx * 64];
 
                     dst[0] = _mm_set1_epi16 (
-                        float_to_half (chanData[comp]->_dctData[0]));
+                        (short) float_to_half (chanData[comp]->_dctData[0]));
 
                     dst[1] = dst[0];
                     dst[2] = dst[0];
@@ -492,7 +484,7 @@ LossyDctDecoder_execute (LossyDctDecoder* d)
         //   * full 8-element wide blocks
         //
 
-        for (size_t comp = 0; comp < numComp; ++comp)
+        for (int comp = 0; comp < numComp; ++comp)
         {
             //
             // Test if we can use the fast path
@@ -523,6 +515,7 @@ LossyDctDecoder_execute (LossyDctDecoder* d)
 
                     for (int blockx = 0; blockx < numFullBlocksX; ++blockx)
                     {
+                        uint16_t i0, i1, i2, i3, i4, i5, i6, i7;
                         //
                         // These may need some twiddling.
                         // Run with multiples of 8
@@ -530,15 +523,15 @@ LossyDctDecoder_execute (LossyDctDecoder* d)
 
                         _mm_prefetch ((char*) (src + 16), _MM_HINT_NTA);
 
-                        uint16_t i0 = _mm_extract_epi16 (*src, 0);
-                        uint16_t i1 = _mm_extract_epi16 (*src, 1);
-                        uint16_t i2 = _mm_extract_epi16 (*src, 2);
-                        uint16_t i3 = _mm_extract_epi16 (*src, 3);
+                        i0 = (uint16_t) _mm_extract_epi16 (*src, 0);
+                        i1 = (uint16_t) _mm_extract_epi16 (*src, 1);
+                        i2 = (uint16_t) _mm_extract_epi16 (*src, 2);
+                        i3 = (uint16_t) _mm_extract_epi16 (*src, 3);
 
-                        uint16_t i4 = _mm_extract_epi16 (*src, 4);
-                        uint16_t i5 = _mm_extract_epi16 (*src, 5);
-                        uint16_t i6 = _mm_extract_epi16 (*src, 6);
-                        uint16_t i7 = _mm_extract_epi16 (*src, 7);
+                        i4 = (uint16_t) _mm_extract_epi16 (*src, 4);
+                        i5 = (uint16_t) _mm_extract_epi16 (*src, 5);
+                        i6 = (uint16_t) _mm_extract_epi16 (*src, 6);
+                        i7 = (uint16_t) _mm_extract_epi16 (*src, 7);
 
                         i0 = d->_toLinear[i0];
                         i1 = d->_toLinear[i1];
@@ -634,7 +627,7 @@ LossyDctDecoder_execute (LossyDctDecoder* d)
     // Convert from HALF XDR back to FLOAT XDR.
     //
 
-    for (size_t chan = 0; chan < numComp; ++chan)
+    for (int chan = 0; chan < numComp; ++chan)
     {
         if (chanData[chan]->_type != EXR_PIXEL_FLOAT) continue;
 
@@ -693,7 +686,7 @@ LossyDctDecoder_unRleAc (
     uint16_t* acComp  = *currAcComp;
     uint16_t  val;
     int       lnz = 0;
-    int       ac_count = 0;
+    uint64_t  ac_count = 0;
 
     //
     // Start with a zero'ed block, so we don't have to
@@ -705,8 +698,6 @@ LossyDctDecoder_unRleAc (
         if (acComp >= packedAcEnd)
         {
             return EXR_ERR_CORRUPT_CHUNK;
-            //throw IEX_NAMESPACE::InputExc ("Error uncompressing DWA data"
-            //                               " (packed AC buffer too small).");
         }
         val = *acComp;
         if (val == 0xff00)

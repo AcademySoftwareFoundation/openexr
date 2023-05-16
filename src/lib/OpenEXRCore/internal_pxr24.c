@@ -22,6 +22,7 @@ float_to_float24 (float f)
         float    f;
         uint32_t i;
     } u;
+    uint32_t s, e, m, i;
 
     u.f = f;
 
@@ -30,10 +31,9 @@ float_to_float24 (float f)
     // into sign, s, exponent, e, and significand, m.
     //
 
-    uint32_t s = u.i & 0x80000000;
-    uint32_t e = u.i & 0x7f800000;
-    uint32_t m = u.i & 0x007fffff;
-    uint32_t i;
+    s = u.i & 0x80000000;
+    e = u.i & 0x7f800000;
+    m = u.i & 0x007fffff;
 
     if (e == 0x7f800000)
     {

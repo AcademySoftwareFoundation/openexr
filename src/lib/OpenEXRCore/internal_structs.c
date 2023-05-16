@@ -335,10 +335,10 @@ internal_exr_alloc_context (
     void*                         memptr;
     exr_result_t                  rv;
     struct _internal_exr_context* ret;
-    *out = NULL;
     int    gmaxw, gmaxh;
     size_t extra_data;
 
+    *out = NULL;
     if (initializers->read_fn || initializers->write_fn)
         extra_data = 0;
     else

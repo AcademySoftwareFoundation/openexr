@@ -2047,7 +2047,7 @@ dctForward8x8 (float* data)
 // between rows-wise and column-wise
 //
 
-void
+static void
 dctForward8x8 (float* data)
 {
     __m128* srcVec = (__m128*) data;
@@ -2257,31 +2257,32 @@ dctForward8x8 (float* data)
 // Should be initialized in initializeFuncs()
 //
 
-void (*convertFloatToHalf64) (uint16_t*, float*) = convertFloatToHalf64_scalar;
+static void (*convertFloatToHalf64) (uint16_t*, float*) = convertFloatToHalf64_scalar;
 
 //
 // Function pointer for dispatching a fromHalfZigZag_ impl
 //
 
-void (*fromHalfZigZag) (uint16_t*, float*) = fromHalfZigZag_scalar;
+static void (*fromHalfZigZag) (uint16_t*, float*) = fromHalfZigZag_scalar;
 
 //
 // Dispatch the inverse DCT on an 8x8 block, where the last
 // n rows can be all zeros. The n=0 case converts the full block.
 //
-void (*dctInverse8x8_0) (float*) = dctInverse8x8_scalar_0;
-void (*dctInverse8x8_1) (float*) = dctInverse8x8_scalar_1;
-void (*dctInverse8x8_2) (float*) = dctInverse8x8_scalar_2;
-void (*dctInverse8x8_3) (float*) = dctInverse8x8_scalar_3;
-void (*dctInverse8x8_4) (float*) = dctInverse8x8_scalar_4;
-void (*dctInverse8x8_5) (float*) = dctInverse8x8_scalar_5;
-void (*dctInverse8x8_6) (float*) = dctInverse8x8_scalar_6;
-void (*dctInverse8x8_7) (float*) = dctInverse8x8_scalar_7;
+static void (*dctInverse8x8_0) (float*) = dctInverse8x8_scalar_0;
+static void (*dctInverse8x8_1) (float*) = dctInverse8x8_scalar_1;
+static void (*dctInverse8x8_2) (float*) = dctInverse8x8_scalar_2;
+static void (*dctInverse8x8_3) (float*) = dctInverse8x8_scalar_3;
+static void (*dctInverse8x8_4) (float*) = dctInverse8x8_scalar_4;
+static void (*dctInverse8x8_5) (float*) = dctInverse8x8_scalar_5;
+static void (*dctInverse8x8_6) (float*) = dctInverse8x8_scalar_6;
+static void (*dctInverse8x8_7) (float*) = dctInverse8x8_scalar_7;
 
 static void
-initializeFuncs ()
+initializeFuncs (void)
 {
     static int done = 0;
+    int f16c = 0, avx = 0, sse2 = 0;
     if (done) return;
     done = 1;
 
@@ -2291,7 +2292,6 @@ initializeFuncs ()
         fromHalfZigZag       = fromHalfZigZag_neon;
     }
 #else
-    int f16c = 0, avx = 0, sse2 = 0;
     convertFloatToHalf64 = convertFloatToHalf64_scalar;
     fromHalfZigZag       = fromHalfZigZag_scalar;
 

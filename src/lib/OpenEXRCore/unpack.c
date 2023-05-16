@@ -136,14 +136,14 @@ static void (*half_to_float_buffer) (float*, const uint16_t*, int) =
     &half_to_float_buffer_impl;
 
 static inline void
-choose_half_to_float_impl ()
+choose_half_to_float_impl (void)
 {
     if (has_native_half ()) half_to_float_buffer = &half_to_float_buffer_f16c;
 }
 #    else
 /* when we explicitly compile against f16, force it in */
 static inline void
-choose_half_to_float_impl ()
+choose_half_to_float_impl (void)
 {}
 
 #    endif /* F16C */
@@ -197,7 +197,7 @@ half_to_float_buffer (float* out, const uint16_t* in, int w)
 }
 
 static void
-choose_half_to_float_impl ()
+choose_half_to_float_impl (void)
 {}
 
 #endif
