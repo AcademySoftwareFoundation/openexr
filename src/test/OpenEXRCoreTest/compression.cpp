@@ -23,7 +23,7 @@
 #include <iomanip>
 #include <iostream>
 #include <vector>
-#include <algorithm>
+#include <cmath>
 
 #include <ImathRandom.h>
 #include <ImfArray.h>
