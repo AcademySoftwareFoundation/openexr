@@ -14,7 +14,7 @@
 #    include <AvailabilityMacros.h>
 
 // No libdispatch prior to 10.6, and no support for it on any ppc.
-#if __MAC_OS_X_VERSION_MIN_REQUIRED > 1050 && !defined(__ppc__)
+#if MAC_OS_X_VERSION_MIN_REQUIRED > 1050 && !defined(__ppc__)
 
 #    include "Iex.h"
 #    include "IlmThreadSemaphore.h"

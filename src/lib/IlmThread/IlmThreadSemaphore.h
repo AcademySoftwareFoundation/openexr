@@ -25,7 +25,7 @@
 #if ILMTHREAD_THREADING_ENABLED
 #    if ILMTHREAD_HAVE_POSIX_SEMAPHORES
 #        include <semaphore.h>
-#    elif defined(__APPLE__) && __MAC_OS_X_VERSION_MIN_REQUIRED > 1050 && !defined(__ppc__)
+#    elif defined(__APPLE__) && MAC_OS_X_VERSION_MIN_REQUIRED > 1050 && !defined(__ppc__)
 #        include <dispatch/dispatch.h>
 #    elif (defined(_WIN32) || defined(_WIN64))
 #        ifdef NOMINMAX
@@ -57,7 +57,7 @@ private:
 
     mutable sem_t _semaphore;
 
-#elif defined(__APPLE__) && __MAC_OS_X_VERSION_MIN_REQUIRED > 1050 && !defined(__ppc__)
+#elif defined(__APPLE__) && MAC_OS_X_VERSION_MIN_REQUIRED > 1050 && !defined(__ppc__)
     mutable dispatch_semaphore_t _semaphore;
 
 #elif (defined(_WIN32) || defined(_WIN64))

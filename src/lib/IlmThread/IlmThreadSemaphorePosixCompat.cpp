@@ -20,7 +20,7 @@
 #if ILMTHREAD_THREADING_ENABLED
 #    if (!(ILMTHREAD_HAVE_POSIX_SEMAPHORES) && !defined(_WIN32) && !defined(_WIN64) && \
         (!defined(__APPLE__) || (defined(__APPLE__) && \
-        (__MAC_OS_X_VERSION_MIN_REQUIRED < 1060 || defined(__ppc__)))))
+        (MAC_OS_X_VERSION_MIN_REQUIRED < 1060 || defined(__ppc__)))))
 
 #    include "IlmThreadSemaphore.h"
 
