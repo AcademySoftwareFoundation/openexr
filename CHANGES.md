@@ -3,6 +3,7 @@
 
 # OpenEXR Release Notes
 
+* [Version 3.1.8](#version-318-may-25-2023) May 25, 2023
 * [Version 3.1.7](#version-317-march-28-2023) March 28, 2023
 * [Version 3.1.6](#version-316-march-9-2023) March 9, 2023
 * [Version 3.1.5](#version-315-april-11-2022) April 11, 2022
@@ -60,6 +61,37 @@
 * [Version 1.0.2](#version-102)
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
+
+## Version 3.1.8 (May 25, 2023)
+
+Patch release that addresses miscellaneous build issues, for macOS in
+particular, but also includes:
+ 
+* Support for DWA compression in OpenEXRCore
+* Fix for threadpool deadlocks during shutdown on Windows  
+
+### Merged Pull Requests
+
+* [1414](https::/github.com/AcademySoftwareFoundation/openexr/pull/1414)
+Add #include <cmath> for isnan
+* [1409](https::/github.com/AcademySoftwareFoundation/openexr/pull/1409)
+Use posix compat code for old macOS without libdispatch
+* [1408](https::/github.com/AcademySoftwareFoundation/openexr/pull/1408)
+internal_xdr.h: fix endian logic for Apple
+* [1406](https::/github.com/AcademySoftwareFoundation/openexr/pull/1406)
+internal_structs.h: __STDC_FORMAT_MACROS should be defined prior to inttypes.h
+* [1402](https::/github.com/AcademySoftwareFoundation/openexr/pull/1402)
+Add dwa support to core
+* [1389](https::/github.com/AcademySoftwareFoundation/openexr/pull/1389)
+fix typo
+* [1382](https::/github.com/AcademySoftwareFoundation/openexr/pull/1382)
+Update macOS installation instructions
+* [1378](https::/github.com/AcademySoftwareFoundation/openexr/pull/1378)
+Fix typo in README.md
+* [1377](https::/github.com/AcademySoftwareFoundation/openexr/pull/1377)
+Only install exrinfo when OPENEXR_INSTALL_TOOLS is on
+* [1291](https::/github.com/AcademySoftwareFoundation/openexr/pull/1291)
+Change setNumThreads to wait for thread start
 
 ## Version 3.1.7 (March 28, 2023)
 
