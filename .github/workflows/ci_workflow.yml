@@ -26,6 +26,9 @@ on:
     paths-ignore:
       - '**.md'
 
+permissions:
+  contents: read
+
 jobs:
   # Linux jobs run in Docker containers, so the latest OS version is OK. macOS 
   # and Windows jobs need to be locked to specific virtual environment 
