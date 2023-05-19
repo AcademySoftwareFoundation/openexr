@@ -282,6 +282,8 @@ testAttrStrings (const std::string& tempdir)
     //testStringHelper (NULL);
     exr_context_t f = createDummyFile ("<string>");
     testStringHelper (f);
+    exr_print_context_info (f, 0);
+    exr_print_context_info (f, 1);
     exr_finish (&f);
 }
 
@@ -445,6 +447,8 @@ testAttrStringVectors (const std::string& tempdir)
     //testStringVectorHelper (NULL);
     exr_context_t f = createDummyFile ("<stringvector>");
     testStringVectorHelper (f);
+    exr_print_context_info (f, 0);
+    exr_print_context_info (f, 1);
     exr_finish (&f);
 }
 
@@ -528,6 +532,8 @@ testAttrFloatVectors (const std::string& tempdir)
     //testFloatVectorHelper (NULL);
     exr_context_t f = createDummyFile ("<floatvector>");
     testFloatVectorHelper (f);
+    exr_print_context_info (f, 0);
+    exr_print_context_info (f, 1);
     exr_finish (&f);
 }
 
@@ -784,6 +790,8 @@ testAttrChlists (const std::string& tempdir)
     //testChlistHelper (NULL);
     exr_context_t f = createDummyFile ("<chlist>");
     testChlistHelper (f);
+    exr_print_context_info (f, 0);
+    exr_print_context_info (f, 1);
     exr_finish (&f);
 }
 
@@ -843,6 +851,8 @@ testAttrPreview (const std::string& tempdir)
     //testPreviewHelper (NULL);
     exr_context_t f = createDummyFile ("<preview>");
     testPreviewHelper (f);
+    exr_print_context_info (f, 0);
+    exr_print_context_info (f, 1);
     exr_finish (&f);
 }
 
@@ -937,6 +947,8 @@ testAttrOpaque (const std::string& tempdir)
     //testOpaqueHelper (NULL);
     exr_context_t f = createDummyFile ("<opaque>");
     testOpaqueHelper (f);
+    exr_print_context_info (f, 0);
+    exr_print_context_info (f, 1);
     exr_finish (&f);
 }
 
@@ -1746,27 +1758,29 @@ testXDR (const std::string& tempdir)
     uint16_t v16buf[] = {0xAA00, 0xBB11, 0xCC22, 0xDD33, 0xEE44};
     uint32_t v32buf[] = {0xAA00BB11, 0xCC22DD33};
     uint64_t v64buf[] = {0xAA00BB11CC22DD33, 0xEE44FF5500661177};
-
-    EXRCORE_TEST (one_from_native64 (one_to_native64 (v64)) == v64);
-    EXRCORE_TEST (one_from_native32 (one_to_native32 (v32)) == v32);
-    EXRCORE_TEST (one_from_native16 (one_to_native16 (v16)) == v16);
+    float v32f = 42.f;
+    EXRCORE_TEST (one_to_native64 (one_from_native64 (v64)) == v64);
+    EXRCORE_TEST (one_to_native32 (one_from_native32 (v32)) == v32);
+    EXRCORE_TEST (one_to_native16 (one_from_native16 (v16)) == v16);
 #if EXR_HOST_IS_NOT_LITTLE_ENDIAN
     EXRCORE_TEST (one_to_native64 (v64) == ov64);
     EXRCORE_TEST (one_to_native32 (v32) == ov32);
     EXRCORE_TEST (one_to_native16 (v16) == ov16);
 #endif
-    priv_to_native (v8buf, 5, sizeof (uint8_t));
     priv_from_native (v8buf, 5, sizeof (uint8_t));
+    priv_to_native (v8buf, 5, sizeof (uint8_t));
     EXRCORE_TEST (v8buf[2] == 0xCC);
-    priv_to_native (v16buf, 5, sizeof (uint16_t));
     priv_from_native (v16buf, 5, sizeof (uint16_t));
+    priv_to_native (v16buf, 5, sizeof (uint16_t));
     EXRCORE_TEST (v16buf[2] == 0xCC22);
-    priv_to_native (v32buf, 2, sizeof (uint32_t));
     priv_from_native (v32buf, 2, sizeof (uint32_t));
+    priv_to_native (v32buf, 2, sizeof (uint32_t));
     EXRCORE_TEST (v32buf[1] == 0xCC22DD33);
-    priv_to_native (v64buf, 2, sizeof (uint64_t));
     priv_from_native (v64buf, 2, sizeof (uint64_t));
+    priv_to_native (v64buf, 2, sizeof (uint64_t));
     EXRCORE_TEST (v64buf[0] == 0xAA00BB11CC22DD33);
+
+    EXRCORE_TEST (one_to_native_float (one_from_native_float (v32f)) == v32f);
 }
 
 #if defined(__GNUC__) && __GNUC__ > 7
