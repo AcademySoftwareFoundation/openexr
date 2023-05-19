@@ -10,6 +10,7 @@
 #else
 #    include <stdlib.h>
 #endif
+#include <inttypes.h>
 
 /**************************************/
 
