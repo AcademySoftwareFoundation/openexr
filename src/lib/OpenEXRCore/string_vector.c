@@ -205,6 +205,9 @@ exr_attr_string_vector_add_entry_with_length (
         size_t  bytes;
         int32_t allsz = sv->alloc_size * 2;
 
+        if (sv->alloc_size >= (INT32_MAX / (int) sizeof (exr_attr_string_t)))
+            return pctxt->standard_error (pctxt, EXR_ERR_OUT_OF_MEMORY);
+
         if (nent > allsz) allsz = nent + 1;
         bytes = ((size_t) allsz) * sizeof (exr_attr_string_t);
         nlist = (exr_attr_string_t*) pctxt->alloc_fn (bytes);

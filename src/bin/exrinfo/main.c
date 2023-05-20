@@ -104,7 +104,7 @@ process_stdin (int verbose, int allmeta, int strict)
 static int
 process_file (const char* filename, int verbose, int allmeta, int strict)
 {
-    int                       failcount;
+    int                       failcount = 0;
     exr_result_t              rv;
     exr_context_t             e     = NULL;
     exr_context_initializer_t cinit = EXR_DEFAULT_CONTEXT_INITIALIZER;
@@ -129,7 +129,7 @@ process_file (const char* filename, int verbose, int allmeta, int strict)
 int
 main (int argc, const char* argv[])
 {
-    int rv = 0, nfiles = 0, verbose = 0, allmeta = 0, strict = 0;
+    int rv = 0, verbose = 0, allmeta = 0, strict = 0;
 
     for (int a = 1; a < argc; ++a)
     {
@@ -153,7 +153,6 @@ main (int argc, const char* argv[])
         }
         else if (!strcmp (argv[a], "-"))
         {
-            ++nfiles;
             rv += process_stdin (verbose, allmeta, strict);
         }
         else if (argv[a][0] == '-')
@@ -163,7 +162,6 @@ main (int argc, const char* argv[])
         }
         else
         {
-            ++nfiles;
             rv += process_file (argv[a], verbose, allmeta, strict);
         }
     }

@@ -538,7 +538,6 @@ ThreadPool::setNumThreads (int count)
         Data::ProviderPtr sp = _data->getProvider ();
         if (sp)
         {
-            bool doReset = false;
             int  curT    = sp->numThreads ();
             if (curT == count) return;
 

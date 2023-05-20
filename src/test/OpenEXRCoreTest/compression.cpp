@@ -23,7 +23,7 @@
 #include <iomanip>
 #include <iostream>
 #include <vector>
-#include <algorithm>
+#include <cmath>
 
 #include <ImathRandom.h>
 #include <ImfArray.h>
@@ -36,6 +36,79 @@
 #include <ImfOutputFile.h>
 #include <ImfTiledOutputFile.h>
 #include <half.h>
+#ifdef __linux
+#    include <sys/types.h>
+#    include <sys/stat.h>
+#    include <fcntl.h>
+#    include <unistd.h>
+
+static int compare_files (const char *fn, const char *fn2)
+{
+    struct stat sb1, sb2;
+    if ( 0 == stat (fn, &sb1) && 0 == stat (fn2, &sb2))
+    {
+        if (sb1.st_size != sb2.st_size)
+        {
+            std::cerr << "File sizes do not match: '" << fn << "' " << sb1.st_size << " '" << fn2 << "' " << sb2.st_size << std::endl;
+            return 1;
+        }
+        int fd1, fd2;
+        int ret = 0;
+        fd1 = open (fn, O_RDONLY);
+        fd2 = open (fn2, O_RDONLY);
+        if (fd1 >= 0 && fd2 >= 0)
+        {
+            uint8_t buf1[512], buf2[512];
+            size_t toRead = sb1.st_size;
+            size_t chunkReq = sizeof(buf1);
+            size_t offset = 0;
+            while (toRead > 0)
+            {
+                ssize_t nr1 = read (fd1, buf1, chunkReq);
+                ssize_t nr2 = read (fd2, buf2, chunkReq);
+                if (nr1 < 0 || nr2 < 0)
+                {
+                    std::cerr << "Unable to read from files " << nr1 << ", " << nr2 << std::endl;
+                    ret = -1;
+                    break;
+                }
+                if (nr1 != nr2)
+                {
+                    std::cerr << "Mismatch in read amounts " << nr1 << ", " << nr2 << std::endl;
+                    ret = -1;
+                    break;
+                }
+                if (nr1 > 0)
+                {
+                    if (memcmp (buf1, buf2, nr1) != 0)
+                    {
+                        for ( size_t b = 0; b < nr1; ++b )
+                        {
+                            if (buf1[b] != buf2[b])
+                            {
+                                std::cerr << "Files '" << fn << "' and '" << fn2 << "' differ in chunk starting at " << offset + b << std::endl;
+                                break;
+                            }
+                        }
+                        ret = -1;
+                        break;
+                    }
+                }
+                offset += nr1;
+                toRead -= nr1;
+            }
+        }
+        close (fd1);
+        close (fd2);
+        return ret;
+    }
+    else
+    {
+        std::cerr << "Unable to stat '" << fn << "' and '" << fn2 << "'" << std::endl;
+    }
+    return -1;
+}
+#endif /* linux */
 
 #if defined(OPENEXR_ENABLE_API_VISIBILITY)
 #    include "../../lib/OpenEXRCore/internal_huf.c"
@@ -80,6 +153,29 @@ shiftAndRound (int x, int shift)
     shift += 1;
     int b = (x >> shift) & 1;
     return (x + a + b) >> shift;
+}
+
+inline bool
+withinDWAErrorBounds (const uint16_t a, const uint16_t b)
+{
+    float a1 = imath_half_to_float (a);
+    if (!isnan (a1))
+    {
+        float a2 = imath_half_to_float (b);
+        float denominator =
+            std::max (1.f, std::max (fabsf (a2), fabsf (a1)));
+        if (fabs (a1 / denominator - a2 / denominator) >= 0.1)
+        {
+            std::cerr << "DWA" << " B bits " << std::hex << b
+                      << std::dec << " (" << a2
+                      << ") too different from A1 bits " << std::hex << a
+                      << std::dec << " (" << a1 << ")"
+                      << " delta " << fabs (a1 / denominator - a2 / denominator)
+                      << std::endl;
+            return false;
+        }
+    }
+    return true;
 }
 
 inline bool
@@ -370,11 +466,11 @@ struct pixels
     {
         if (a != b)
         {
-            std::cout << chan << " half at " << x << ", " << y
+            std::cout << chan << " half at " << std::dec << x << ", " << y
                       << " not equal: " << taga << " 0x" << std::hex << a
                       << std::dec << " (" << imath_half_to_float (a) << ") vs "
                       << tagb << " 0x" << std::hex << b << std::hex << " ("
-                      << imath_half_to_float (b) << ")" << std::endl;
+                      << imath_half_to_float (b) << ")" << std::dec << std::endl;
         }
         EXRCORE_TEST (a == b);
     }
@@ -514,6 +610,23 @@ struct pixels
                         }
                         EXRCORE_TEST_LOCATION (
                             withinB44ErrorBounds (orig, unc), x, y)
+                    }
+                }
+            }
+        }
+        else if (comp == EXR_COMPRESSION_DWAA || comp == EXR_COMPRESSION_DWAB)
+        {
+            for (int y = 0; y < _h; ++y)
+            {
+                for (int x = 0; x < _w; ++x)
+                {
+                    size_t idx = y * _stride_x + x;
+                    compareExact (o.h[idx], h[idx], x, y, otag, selftag, "H");
+
+                    for (int c = 0; c < 4; ++c)
+                    {
+                        EXRCORE_TEST_LOCATION (
+                            withinDWAErrorBounds (o.rgba[c][idx], rgba[c][idx]), x, y)
                     }
                 }
             }
@@ -1157,6 +1270,7 @@ doWriteRead (
 
     exr_set_default_zip_compression_level (-1);
     cinit.zip_level = 3;
+    cinit.flags |= EXR_CONTEXT_FLAG_WRITE_LEGACY_HEADER;
 
     dataW.min.x = dwx;
     dataW.min.y = dwy;
@@ -1235,6 +1349,17 @@ doWriteRead (
         EXRCORE_TEST_FAIL (saveCPP);
     }
 
+#ifdef __linux
+    if (getenv ("ENABLE_EXACT_FILE_COMPARE") &&
+        0 != compare_files (filename.c_str(), cppfilename.c_str()))
+    {
+        EXRCORE_TEST_FAIL (compare_files);
+    }
+    else
+    {
+        compare_files (filename.c_str(), cppfilename.c_str());
+    }
+#endif
     pixels restore    = p;
     pixels cpprestore = p;
     pixels cpploadc   = p;
@@ -1281,10 +1406,12 @@ doWriteRead (
         EXRCORE_TEST_FAIL (loadCPP);
     }
 
-    cpploadcpp.compareExact (cpploadc, "C++ loaded C", "C++ loaded C++");
-    restore.compareExact (cpprestore, "C loaded C++", "C loaded C");
-    restore.compareExact (cpploadc, "C++ loaded C", "C loaded C");
-    restore.compareExact (cpploadcpp, "C++ loaded C++", "C loaded C");
+    {
+        restore.compareExact (cpprestore, "C loaded C++", "C loaded C");
+        cpploadcpp.compareExact (cpploadc, "C++ loaded C", "C++ loaded C++");
+        restore.compareExact (cpploadc, "C++ loaded C", "C loaded C");
+        restore.compareExact (cpploadcpp, "C++ loaded C++", "C loaded C");
+    }
 
     switch (comp)
     {
@@ -1521,7 +1648,7 @@ testZIPSCompression (const std::string& tempdir)
 void
 testPIZCompression (const std::string& tempdir)
 {
-    //testComp (tempdir, EXR_COMPRESSION_PIZ);
+    testComp (tempdir, EXR_COMPRESSION_PIZ);
 }
 
 void
@@ -1545,13 +1672,13 @@ testB44ACompression (const std::string& tempdir)
 void
 testDWAACompression (const std::string& tempdir)
 {
-    //testComp (tempdir, EXR_COMPRESSION_DWAA);
+    testComp (tempdir, EXR_COMPRESSION_DWAA);
 }
 
 void
 testDWABCompression (const std::string& tempdir)
 {
-    //testComp (tempdir, EXR_COMPRESSION_DWAB);
+    testComp (tempdir, EXR_COMPRESSION_DWAB);
 }
 
 void

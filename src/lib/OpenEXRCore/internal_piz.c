@@ -521,16 +521,26 @@ internal_exr_apply_piz (exr_encode_pipeline_t* encode)
         ndata,
         hufspare,
         hufSpareBytes);
-    if (rv != EXR_ERR_SUCCESS) return rv;
-    nOut += nBytes;
-    if (nOut < packedbytes)
+    if (rv != EXR_ERR_SUCCESS)
     {
-        unaligned_store32 (lengthptr, (uint32_t) nBytes);
+        if (rv == EXR_ERR_ARGUMENT_OUT_OF_RANGE)
+        {
+            memcpy (encode->compressed_buffer, encode->packed_buffer, packedbytes);
+            nOut = packedbytes;
+        }
     }
     else
     {
-        memcpy (encode->compressed_buffer, encode->packed_buffer, packedbytes);
-        nOut = packedbytes;
+        nOut += nBytes;
+        if (nOut < packedbytes)
+        {
+            unaligned_store32 (lengthptr, (uint32_t) nBytes);
+        }
+        else
+        {
+            memcpy (encode->compressed_buffer, encode->packed_buffer, packedbytes);
+            nOut = packedbytes;
+        }
     }
     encode->compressed_bytes = nOut;
     return EXR_ERR_SUCCESS;

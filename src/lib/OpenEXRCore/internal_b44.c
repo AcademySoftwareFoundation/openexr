@@ -35,6 +35,7 @@ convertToLinear (uint16_t s[16])
 static inline int
 shiftAndRound (int x, int shift)
 {
+    int a, b;
     //
     // Compute
     //
@@ -47,9 +48,9 @@ shiftAndRound (int x, int shift)
     //
 
     x <<= 1;
-    int a = (1 << shift) - 1;
+    a = (1 << shift) - 1;
     shift += 1;
-    int b = (x >> shift) & 1;
+    b = (x >> shift) & 1;
     return (x + a + b) >> shift;
 }
 
@@ -108,6 +109,8 @@ pack (const uint16_t s[16], uint8_t b[14], int flatfields, int exactmax)
     uint16_t tMax;
     int      shift = -1;
 
+    const int bias = 0x20;
+
     for (int i = 0; i < 16; ++i)
     {
         if ((s[i] & 0x7c00) == 0x7c00)
@@ -130,8 +133,6 @@ pack (const uint16_t s[16], uint8_t b[14], int flatfields, int exactmax)
     // -32 and +31.  Then bias the differences so that they
     // end up between 0 and 63.
     //
-
-    const int bias = 0x20;
 
     do
     {
@@ -234,10 +235,11 @@ pack (const uint16_t s[16], uint8_t b[14], int flatfields, int exactmax)
 static inline void
 unpack14 (const uint8_t b[14], uint16_t s[16])
 {
+    uint16_t shift, bias;
     s[0] = ((uint16_t) (b[0] << 8)) | ((uint16_t) b[1]);
 
-    uint16_t shift = (b[2] >> 2);
-    uint16_t bias  = (uint16_t) (0x20u << shift);
+    shift = (b[2] >> 2);
+    bias  = (uint16_t) (0x20u << shift);
 
     s[4] =
         (uint16_t) ((uint32_t) s[0] + (uint32_t) ((((uint32_t) (b[2] << 4) | (uint32_t) (b[3] >> 4)) & 0x3fu) << shift) - bias);
@@ -387,12 +389,14 @@ compress_b44_impl (exr_encode_pipeline_t* encode, int flat_field)
             // by 4, then pad the data by repeating the
             // rightmost column and the bottom row.
             //
+            uint16_t* row0, * row1, * row2, * row3;
 
-            uint16_t* row0 = (uint16_t*) scratch;
+            row0 = (uint16_t*) scratch;
             row0 += y * nx;
-            uint16_t* row1 = row0 + nx;
-            uint16_t* row2 = row1 + nx;
-            uint16_t* row3 = row2 + nx;
+
+            row1 = row0 + nx;
+            row2 = row1 + nx;
+            row3 = row2 + nx;
 
             if (y + 3 >= ny)
             {

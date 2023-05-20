@@ -138,70 +138,70 @@ main (int argc, char *argv[])
     std::set<std::string> tests;
     std::set<std::string> suites;
 
-
     if ( !helpMode )
     {
 	    tempDir = makeTempDir();
     }
 
-    TEST( testBase, "core" );
-    TEST( testBaseErrors, "core" );
-    TEST( testBaseLimits, "core" );
-    TEST( testBaseDebug, "core" );
-    TEST( testXDR, "core" );
+    TEST (testBase, "core");
+    TEST (testBaseErrors, "core");
+    TEST (testBaseLimits, "core");
+    TEST (testBaseDebug, "core");
+    TEST (testCPUIdent, "core");
+    TEST (testXDR, "core");
 
-    TEST( testAttrSizes, "gen_attr" );
-    TEST( testAttrStrings, "gen_attr" );
-    TEST( testAttrStringVectors, "gen_attr" );
-    TEST( testAttrFloatVectors, "gen_attr" );
-    TEST( testAttrChlists, "gen_attr" );
-    TEST( testAttrPreview, "gen_attr" );
-    TEST( testAttrOpaque, "gen_attr" );
-    TEST( testAttrHandler, "gen_attr" );
-    TEST( testAttrLists, "gen_attr" );
+    TEST (testAttrSizes, "gen_attr");
+    TEST (testAttrStrings, "gen_attr");
+    TEST (testAttrStringVectors, "gen_attr");
+    TEST (testAttrFloatVectors, "gen_attr");
+    TEST (testAttrChlists, "gen_attr");
+    TEST (testAttrPreview, "gen_attr");
+    TEST (testAttrOpaque, "gen_attr");
+    TEST (testAttrHandler, "gen_attr");
+    TEST (testAttrLists, "gen_attr");
 
-    TEST( testReadBadArgs, "core_read" );
-    TEST( testReadBadFiles, "core_read" );
-    TEST( testReadMeta, "core_read" );
-    TEST( testOpenScans, "core_read" );
-    TEST( testOpenTiles, "core_read" );
-    TEST( testOpenMultiPart, "core_read" );
-    TEST( testOpenDeep, "core_read" );
-    TEST( testReadScans, "core_read" );
-    TEST( testReadTiles, "core_read" );
-    TEST( testReadMultiPart, "core_read" );
-    TEST( testReadDeep, "core_read" );
-    TEST( testReadUnpack, "core_read" );
+    TEST (testReadBadArgs, "core_read");
+    TEST (testReadBadFiles, "core_read");
+    TEST (testReadMeta, "core_read");
+    TEST (testOpenScans, "core_read");
+    TEST (testOpenTiles, "core_read");
+    TEST (testOpenMultiPart, "core_read");
+    TEST (testOpenDeep, "core_read");
+    TEST (testReadScans, "core_read");
+    TEST (testReadTiles, "core_read");
+    TEST (testReadMultiPart, "core_read");
+    TEST (testReadDeep, "core_read");
+    TEST (testReadUnpack, "core_read");
 
-    TEST( testWriteBadArgs, "core_write" );
-    TEST( testWriteBadFiles, "core_write" );
-    TEST( testUpdateMeta, "core_write" );
-    TEST( testWriteBaseHeader, "core_write" );
-    TEST( testWriteAttrs, "core_write" );
-    TEST( testStartWriteScan, "core_write" );
-    TEST( testStartWriteTile, "core_write" );
-    TEST( testStartWriteDeepScan, "core_write" );
-    TEST( testStartWriteDeepTile, "core_write" );
-    TEST( testWriteScans, "core_write" );
-    TEST( testWriteTiles, "core_write" );
-    TEST( testWriteMultiPart, "core_write" );
-    TEST( testWriteDeep, "core_write" );
+    TEST (testWriteBadArgs, "core_write");
+    TEST (testWriteBadFiles, "core_write");
+    TEST (testUpdateMeta, "core_write");
+    TEST (testWriteBaseHeader, "core_write");
+    TEST (testWriteAttrs, "core_write");
+    TEST (testStartWriteScan, "core_write");
+    TEST (testStartWriteTile, "core_write");
+    TEST (testStartWriteDeepScan, "core_write");
+    TEST (testStartWriteDeepTile, "core_write");
+    TEST (testWriteScans, "core_write");
+    TEST (testWriteTiles, "core_write");
+    TEST (testWriteMultiPart, "core_write");
+    TEST (testWriteDeep, "core_write");
 
-    TEST( testHUF, "core_compression" );
-    TEST( testNoCompression, "core_compression" );
-    TEST( testRLECompression, "core_compression" );
-    TEST( testZIPCompression, "core_compression" );
-    TEST( testZIPSCompression, "core_compression" );
-    TEST( testPIZCompression, "core_compression" );
-    TEST( testPXR24Compression, "core_compression" );
-    TEST( testB44Compression, "core_compression" );
-    TEST( testB44ACompression, "core_compression" );
-    TEST( testDWAACompression, "core_compression" );
-    TEST( testDWABCompression, "core_compression" );
+    TEST (testHUF, "core_compression");
+    TEST (testNoCompression, "core_compression");
+    TEST (testRLECompression, "core_compression");
+    TEST (testZIPCompression, "core_compression");
+    TEST (testZIPSCompression, "core_compression");
+    TEST (testPIZCompression, "core_compression");
+    TEST (testPXR24Compression, "core_compression");
+    TEST (testB44Compression, "core_compression");
+    TEST (testB44ACompression, "core_compression");
+    TEST (testDWAACompression, "core_compression");
+    TEST (testDWABCompression, "core_compression");
 
-    TEST( testDeepNoCompression, "core_compression" );
-    TEST( testDeepZIPCompression, "core_compression" );
-    TEST( testDeepZIPSCompression, "core_compression" );
+    TEST (testDeepNoCompression, "core_compression");
+    TEST (testDeepZIPCompression, "core_compression");
+    TEST (testDeepZIPSCompression, "core_compression");
 
     if ( helpMode )
     {
