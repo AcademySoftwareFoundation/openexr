@@ -3,6 +3,13 @@
 ** Copyright Contributors to the OpenEXR Project.
 */
 
+#if (defined(_WIN32) || defined(_WIN64))
+#    ifdef NOMINMAX
+#        undef NOMINMAX
+#    endif
+#    define NOMINMAX
+#endif
+
 #include <openexr.h>
 
 #include "base_units.h"
@@ -19,16 +26,16 @@
 void
 testBase (const std::string& tempdir)
 {
-    int         maj, min, patch;
+    int         major, minor, patch;
     const char* extra;
     const char* compextra = COMP_EXTRA;
 
-    exr_get_library_version (&maj, &min, &patch, &extra);
-    if (maj != COMP_MAJ || min != COMP_MIN || patch != COMP_PATCH ||
+    exr_get_library_version (&major, &minor, &patch, &extra);
+    if (major != COMP_MAJ || minor != COMP_MIN || patch != COMP_PATCH ||
         !strcmp (extra, compextra))
     {
-        std::cerr << "ERROR testing library, wrong library version: " << maj
-                  << "." << min << "." << patch;
+        std::cerr << "ERROR testing library, wrong library version: " << major
+                  << "." << minor << "." << patch;
         if (extra[0] != '\0') std::cerr << "-" << extra;
         std::cerr << " vs compiled in " << COMP_MAJ << "." << COMP_MIN << "."
                   << COMP_PATCH;
@@ -36,15 +43,15 @@ testBase (const std::string& tempdir)
         std::cerr << std::endl;
         EXRCORE_TEST (false);
     }
-    std::cout << "Testing OpenEXR library version: " << maj << "." << min << "."
+    std::cout << "Testing OpenEXR library version: " << major << "." << minor << "."
               << patch;
     if (extra[0] != '\0') std::cout << "-" << extra;
     std::cout << std::endl;
 
-    exr_get_library_version (NULL, &min, &patch, &extra);
-    exr_get_library_version (&maj, NULL, &patch, &extra);
-    exr_get_library_version (&maj, &min, NULL, &extra);
-    exr_get_library_version (&maj, &min, &patch, NULL);
+    exr_get_library_version (NULL, &minor, &patch, &extra);
+    exr_get_library_version (&major, NULL, &patch, &extra);
+    exr_get_library_version (&major, &minor, NULL, &extra);
+    exr_get_library_version (&major, &minor, &patch, NULL);
 }
 
 void
