@@ -17,6 +17,9 @@
 static void
 print_attr (const exr_attribute_t* a, int verbose)
 {
+    if (!a)
+        return;
+
     printf ("%s: ", a->name);
     if (verbose) printf ("%s ", a->type_name);
     switch (a->type)
