@@ -51,6 +51,7 @@ static exr_result_t exr_compress_buffer (
             level = 4; /* EXR_DEFAULT_ZLIB_COMPRESS_LEVEL */
     }
 
+    compbufsz = out_bytes_avail;
     if (Z_OK != compress2 (
                     (Bytef*) out,
                     &compbufsz,

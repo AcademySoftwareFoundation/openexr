@@ -293,8 +293,7 @@ undo_zip_impl (
     {
         if (outSize == uncompressed_size)
         {
-            reconstruct (scratch_data, outSize);
-            interleave (uncompressed_data, scratch_data, outSize);
+            internal_zip_reconstruct_bytes (uncompressed_data, scratch_data, uncompressed_size);
             rstat = EXR_ERR_SUCCESS;
         }
         else
@@ -354,12 +353,13 @@ apply_zip_impl (exr_encode_pipeline_t* encode)
     rv = exr_get_zip_compression_level (
         encode->context, encode->part_index, &level);
     if (rv != EXR_ERR_SUCCESS) return rv;
-
+    if (level < 0) level = 4; /* EXR_DEFAULT_ZLIB_COMPRESS_LEVEL */
     internal_zip_deconstruct_bytes (
         encode->scratch_buffer_1,
         encode->packed_buffer,
         encode->packed_bytes);
 
+    compbufsz = encode->compressed_alloc_size;
     if (Z_OK != compress2 (
                     (Bytef*) encode->compressed_buffer,
                     &compbufsz,
