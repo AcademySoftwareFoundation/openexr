@@ -730,7 +730,7 @@ regardless of what other data is stored in other chunks.
 Data Compression
 ----------------
 
-OpenEXR currently offers four different data compression methods, with
+OpenEXR currently offers several different data compression methods, with
 various speed versus compression ratio tradeoffs. Optionally, the
 pixels can be stored in uncompressed form. With fast filesystems,
 uncompressed files can be written and read significantly faster than
