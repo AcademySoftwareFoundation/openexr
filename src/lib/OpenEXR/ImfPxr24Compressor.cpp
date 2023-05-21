@@ -344,6 +344,7 @@ Pxr24Compressor::compress (
     size_t outSize = exr_compress_max_buffer_size (inBufferSize);
 
     if (EXR_ERR_SUCCESS != exr_compress_buffer (
+            nullptr,
             -1,
             _tmpBuffer,
             inBufferSize,
@@ -371,6 +372,7 @@ Pxr24Compressor::uncompress (
     size_t tmpSize = static_cast<size_t> (_maxScanLineSize * _numScanLines);
 
     if (EXR_ERR_SUCCESS != exr_uncompress_buffer(
+            nullptr,
             inPtr,
             inSize,
             _tmpBuffer,

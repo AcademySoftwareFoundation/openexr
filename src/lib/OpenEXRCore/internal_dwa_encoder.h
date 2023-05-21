@@ -74,7 +74,8 @@ static exr_result_t LossyDctEncoderCsc_construct (
     int                  width,
     int                  height);
 
-static exr_result_t LossyDctEncoder_execute (LossyDctEncoder* e);
+static exr_result_t LossyDctEncoder_execute (
+    void* (*alloc_fn) (size_t), void (*free_fn) (void*), LossyDctEncoder* e);
 
 static void
 LossyDctEncoder_rleAc (LossyDctEncoder* e, uint16_t* block, uint16_t** acPtr);
@@ -272,10 +273,10 @@ countSetBits (uint16_t src)
 static inline uint16_t
 quantize (float dctval, float errorTolerance)
 {
-    uint16_t        tmp;
+    uint16_t tmp;
     // pre-quantize float -> half and back
-    uint16_t        src        = float_to_half (dctval);
-    float           srcFloat   = half_to_float (src);
+    uint16_t src      = float_to_half (dctval);
+    float    srcFloat = half_to_float (src);
 
     int             numSetBits = countSetBits (src);
     const uint16_t* closest    = closestData + closestDataOffset[src];
@@ -303,9 +304,10 @@ quantize (float dctval, float errorTolerance)
 // Other numbers of channels are somewhat unexpected at this point
 //
 exr_result_t
-LossyDctEncoder_execute (LossyDctEncoder* e)
+LossyDctEncoder_execute (
+    void* (*alloc_fn) (size_t), void (*free_fn) (void*), LossyDctEncoder* e)
 {
-    int               numComp = e->_channel_encode_data_count;
+    int                  numComp = e->_channel_encode_data_count;
     DctCoderChannelData* chanData[3];
 
     int numBlocksX = (int) (ceilf ((float) e->_width / 8.0f));
@@ -314,10 +316,10 @@ LossyDctEncoder_execute (LossyDctEncoder* e)
     uint16_t halfZigCoef[64];
     uint16_t halfCoef[64];
 
-    uint16_t* currAcComp = (uint16_t*) e->_packedAc;
-    int tmpHalfBufferElements = 0;
-    uint16_t* tmpHalfBuffer    = NULL;
-    uint16_t* tmpHalfBufferPtr = NULL;
+    uint16_t* currAcComp            = (uint16_t*) e->_packedAc;
+    int       tmpHalfBufferElements = 0;
+    uint16_t* tmpHalfBuffer         = NULL;
+    uint16_t* tmpHalfBufferPtr      = NULL;
 
     e->_numAcComp = 0;
     e->_numDcComp = 0;
@@ -336,8 +338,8 @@ LossyDctEncoder_execute (LossyDctEncoder* e)
 
     if (tmpHalfBufferElements)
     {
-        tmpHalfBuffer = (uint16_t*) internal_exr_alloc (
-            (size_t)tmpHalfBufferElements * sizeof (uint16_t));
+        tmpHalfBuffer = (uint16_t*) alloc_fn (
+            (size_t) tmpHalfBufferElements * sizeof (uint16_t));
         if (!tmpHalfBuffer) return EXR_ERR_OUT_OF_MEMORY;
         tmpHalfBufferPtr = tmpHalfBuffer;
     }
@@ -390,7 +392,7 @@ LossyDctEncoder_execute (LossyDctEncoder* e)
     {
         for (int blockx = 0; blockx < numBlocksX; ++blockx)
         {
-            uint16_t h;
+            uint16_t     h;
             const float* quantTable;
 
             for (int chan = 0; chan < numComp; ++chan)
@@ -461,9 +463,8 @@ LossyDctEncoder_execute (LossyDctEncoder* e)
 
                 for (int i = 0; i < 64; ++i)
                 {
-                    halfCoef[i] = quantize (
-                        chanData[chan]->_dctData[i],
-                        quantTable[i]);
+                    halfCoef[i] =
+                        quantize (chanData[chan]->_dctData[i], quantTable[i]);
                 }
 
                 toZigZag (halfZigCoef, halfCoef);
@@ -492,7 +493,7 @@ LossyDctEncoder_execute (LossyDctEncoder* e)
         }     // blockx
     }         // blocky
 
-    if (tmpHalfBuffer) internal_exr_free (tmpHalfBuffer);
+    if (tmpHalfBuffer) free_fn (tmpHalfBuffer);
 
     return EXR_ERR_SUCCESS;
 }
@@ -588,7 +589,7 @@ LossyDctEncoder_rleAc (LossyDctEncoder* e, uint16_t* block, uint16_t** acPtr)
             // Signal normal run
             //
 
-            *curAC++ = (uint16_t)0xff00 | runLen;
+            *curAC++ = (uint16_t) 0xff00 | runLen;
             e->_numAcComp++;
         }
 

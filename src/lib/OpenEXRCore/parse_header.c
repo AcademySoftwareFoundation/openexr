@@ -25,8 +25,8 @@ silent_error (
     exr_result_t                        code,
     const char*                         msg)
 {
-    (void)pctxt;
-    (void)msg;
+    (void) pctxt;
+    (void) msg;
     return code;
 }
 
@@ -34,7 +34,7 @@ static exr_result_t
 silent_standard_error (
     const struct _internal_exr_context* pctxt, exr_result_t code)
 {
-    (void)pctxt;
+    (void) pctxt;
     return code;
 }
 
@@ -45,8 +45,8 @@ silent_print_error (
     const char*                         msg,
     ...)
 {
-    (void)pctxt;
-    (void)msg;
+    (void) pctxt;
+    (void) msg;
     return code;
 }
 
@@ -123,10 +123,7 @@ scratch_seq_read (struct _internal_exr_seq_scratch* scr, void* buf, uint64_t sz)
                 outbuf += nread;
                 nCopied += (uint64_t) nread;
             }
-            else
-            {
-                break;
-            }
+            else { break; }
         }
         else
         {
@@ -168,7 +165,7 @@ static exr_result_t
 scratch_seq_skip (struct _internal_exr_seq_scratch* scr, int32_t sz)
 {
     uint64_t     nCopied = 0;
-    uint64_t     notdone = (uint64_t)sz;
+    uint64_t     notdone = (uint64_t) sz;
     exr_result_t rv      = -1;
 
     while (notdone > 0)
@@ -211,7 +208,7 @@ scratch_seq_skip (struct _internal_exr_seq_scratch* scr, int32_t sz)
     }
     if (rv == -1)
     {
-        if (nCopied == (uint64_t)sz)
+        if (nCopied == (uint64_t) sz)
             rv = EXR_ERR_SUCCESS;
         else
             rv = EXR_ERR_READ_IO;
@@ -2593,10 +2590,7 @@ internal_exr_parse_header (struct _internal_exr_context* ctxt)
                                     ? EXR_LONGNAME_MAXLEN
                                     : EXR_SHORTNAME_MAXLEN;
     }
-    else
-    {
-        ctxt->max_name_length = EXR_LONGNAME_MAXLEN;
-    }
+    else { ctxt->max_name_length = EXR_LONGNAME_MAXLEN; }
     ctxt->has_nonimage_data = (flags & EXR_NON_IMAGE_FLAG) ? 1 : 0;
     ctxt->is_multipart      = (flags & EXR_MULTI_PART_FLAG) ? 1 : 0;
     if (ctxt->is_singlepart_tiled)

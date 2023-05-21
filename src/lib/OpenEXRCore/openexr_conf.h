@@ -19,9 +19,9 @@
 // where we need to switch depending on whether we are compiling
 // internally or not
 #    if defined(OPENEXRCORE_EXPORTS)
-#        define EXR_EXPORT __declspec(dllexport)
+#        define EXR_EXPORT __declspec (dllexport)
 #    else
-#        define EXR_EXPORT __declspec(dllimport)
+#        define EXR_EXPORT __declspec (dllimport)
 #    endif
 
 #else

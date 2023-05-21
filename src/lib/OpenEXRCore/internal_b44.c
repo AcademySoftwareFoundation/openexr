@@ -389,7 +389,7 @@ compress_b44_impl (exr_encode_pipeline_t* encode, int flat_field)
             // by 4, then pad the data by repeating the
             // rightmost column and the bottom row.
             //
-            uint16_t* row0, * row1, * row2, * row3;
+            uint16_t *row0, *row1, *row2, *row3;
 
             row0 = (uint16_t*) scratch;
             row0 += y * nx;

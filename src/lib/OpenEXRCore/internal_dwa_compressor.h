@@ -37,6 +37,9 @@ typedef struct _DwaCompressor
     uint8_t* _planarUncBuffer[NUM_COMPRESSOR_SCHEMES];
     uint64_t _planarUncBufferSize[NUM_COMPRESSOR_SCHEMES];
 
+    exr_memory_allocation_func_t alloc_fn;
+    exr_memory_free_func_t       free_fn;
+
     int   _zipLevel;
     float _dwaCompressionLevel;
 } DwaCompressor;
@@ -107,15 +110,22 @@ DwaCompressor_construct (
 
     if (encode)
     {
-        me->_channelData =
-            internal_exr_alloc_aligned (
-                &(me->_channel_mem),
-                sizeof (ChannelData) * (size_t)encode->channel_count,
-                _SSE_ALIGNMENT);
+        const struct _internal_exr_context* pctxt = EXR_CCTXT (encode->context);
+
+        me->alloc_fn = pctxt ? pctxt->alloc_fn : internal_exr_alloc;
+        me->free_fn  = pctxt ? pctxt->free_fn : internal_exr_free;
+
+        me->_channelData = internal_exr_alloc_aligned (
+            me->alloc_fn,
+            &(me->_channel_mem),
+            sizeof (ChannelData) * (size_t) encode->channel_count,
+            _SSE_ALIGNMENT);
         if (!me->_channelData) return EXR_ERR_OUT_OF_MEMORY;
 
         memset (
-            me->_channelData, 0, sizeof (ChannelData) * (size_t)encode->channel_count);
+            me->_channelData,
+            0,
+            sizeof (ChannelData) * (size_t) encode->channel_count);
 
         me->_numChannels = encode->channel_count;
         for (int c = 0; c < encode->channel_count; ++c)
@@ -144,15 +154,22 @@ DwaCompressor_construct (
     }
     else
     {
-        me->_channelData =
-            internal_exr_alloc_aligned (
-                &(me->_channel_mem),
-                sizeof (ChannelData) * (size_t)decode->channel_count,
-                _SSE_ALIGNMENT);
+        const struct _internal_exr_context* pctxt = EXR_CCTXT (decode->context);
+
+        me->alloc_fn = pctxt ? pctxt->alloc_fn : internal_exr_alloc;
+        me->free_fn  = pctxt ? pctxt->free_fn : internal_exr_free;
+
+        me->_channelData = internal_exr_alloc_aligned (
+            me->alloc_fn,
+            &(me->_channel_mem),
+            sizeof (ChannelData) * (size_t) decode->channel_count,
+            _SSE_ALIGNMENT);
         if (!me->_channelData) return EXR_ERR_OUT_OF_MEMORY;
 
         memset (
-            me->_channelData, 0, sizeof (ChannelData) * (size_t)decode->channel_count);
+            me->_channelData,
+            0,
+            sizeof (ChannelData) * (size_t) decode->channel_count);
 
         me->_numChannels = decode->channel_count;
         for (int c = 0; c < decode->channel_count; ++c)
@@ -176,31 +193,31 @@ DwaCompressor_construct (
 static void
 DwaCompressor_destroy (DwaCompressor* me)
 {
-    if (me->_packedAcBuffer) internal_exr_free (me->_packedAcBuffer);
-    if (me->_packedDcBuffer) internal_exr_free (me->_packedDcBuffer);
-    if (me->_rleBuffer) internal_exr_free (me->_rleBuffer);
+    if (me->_packedAcBuffer) me->free_fn (me->_packedAcBuffer);
+    if (me->_packedDcBuffer) me->free_fn (me->_packedDcBuffer);
+    if (me->_rleBuffer) me->free_fn (me->_rleBuffer);
 
     if (me->_channel_mem)
     {
         for (int c = 0; c < me->_numChannels; ++c)
-            DctCoderChannelData_destroy (&(me->_channelData[c]._dctData));
+            DctCoderChannelData_destroy (
+                me->free_fn, &(me->_channelData[c]._dctData));
 
-        internal_exr_free (me->_channel_mem);
+        me->free_fn (me->_channel_mem);
     }
 
-    if (me->_cscChannelSets) internal_exr_free (me->_cscChannelSets);
+    if (me->_cscChannelSets) me->free_fn (me->_cscChannelSets);
     if (me->_channelRules != sLegacyChannelRules &&
         me->_channelRules != sDefaultChannelRules)
     {
         for (size_t i = 0; i < me->_channelRuleCount; ++i)
-            Classifier_destroy (&(me->_channelRules[i]));
-        internal_exr_free (me->_channelRules);
+            Classifier_destroy (me->free_fn, &(me->_channelRules[i]));
+        me->free_fn (me->_channelRules);
     }
 
     for (int i = 0; i < NUM_COMPRESSOR_SCHEMES; ++i)
     {
-        if (me->_planarUncBuffer[i])
-            internal_exr_free (me->_planarUncBuffer[i]);
+        if (me->_planarUncBuffer[i]) me->free_fn (me->_planarUncBuffer[i]);
     }
 }
 
@@ -212,18 +229,18 @@ DwaCompressor_compress (DwaCompressor* me)
     exr_result_t rv;
     uint8_t*     outPtr;
     uint64_t*    sizes;
-    size_t     outBufferSize = 0;
-    uint64_t     dataBytes, nWritten      = 0;
+    size_t       outBufferSize = 0;
+    uint64_t     dataBytes, nWritten = 0;
     uint64_t     nAvail;
     uint64_t     fileVersion = 2;
-    uint64_t* version;
-    uint64_t* unknownUncompressedSize;
-    uint64_t* unknownCompressedSize;
-    uint64_t* acCompressedSize;
-    uint64_t* dcCompressedSize;
-    uint64_t* rleCompressedSize;
-    uint64_t* rleUncompressedSize;
-    uint64_t* rleRawSize;
+    uint64_t*    version;
+    uint64_t*    unknownUncompressedSize;
+    uint64_t*    unknownCompressedSize;
+    uint64_t*    acCompressedSize;
+    uint64_t*    dcCompressedSize;
+    uint64_t*    rleCompressedSize;
+    uint64_t*    rleUncompressedSize;
+    uint64_t*    rleRawSize;
 
     uint64_t* totalAcUncompressedCount;
     uint64_t* totalDcUncompressedCount;
@@ -231,8 +248,8 @@ DwaCompressor_compress (DwaCompressor* me)
     uint64_t* acCompression;
     uint8_t*  packedAcEnd;
     uint8_t*  packedDcEnd;
-    uint8_t* outDataPtr;
-    uint8_t* inDataPtr;
+    uint8_t*  outDataPtr;
+    uint8_t*  inDataPtr;
 
     // Starting with 2, we write the channel
     // classification rules into the file
@@ -305,7 +322,7 @@ DwaCompressor_compress (DwaCompressor* me)
     if (rv != EXR_ERR_SUCCESS || nWritten >= me->_encode->compressed_alloc_size)
         return EXR_ERR_OUT_OF_MEMORY;
 
-    outDataPtr   = outPtr;
+    outDataPtr = outPtr;
 
     //
     // We might not be dealing with any color data, in which
@@ -346,7 +363,8 @@ DwaCompressor_compress (DwaCompressor* me)
 
             if ((y % chan->y_samples) != 0) continue;
 
-            rv = DctCoderChannelData_push_row (&(cd->_dctData), inDataPtr);
+            rv = DctCoderChannelData_push_row (
+                me->alloc_fn, me->free_fn, &(cd->_dctData), inDataPtr);
             if (rv != EXR_ERR_SUCCESS) return rv;
 
             inDataPtr += chan->width * chan->bytes_per_element;
@@ -374,7 +392,8 @@ DwaCompressor_compress (DwaCompressor* me)
             me->_channelData[cset->idx[0]].chan->width,
             me->_channelData[cset->idx[0]].chan->height);
 
-        if (rv == EXR_ERR_SUCCESS) rv = LossyDctEncoder_execute (&enc);
+        if (rv == EXR_ERR_SUCCESS)
+            rv = LossyDctEncoder_execute (me->alloc_fn, me->free_fn, &enc);
 
         *totalAcUncompressedCount = *totalAcUncompressedCount + enc._numAcComp;
         *totalDcUncompressedCount = *totalDcUncompressedCount + enc._numDcComp;
@@ -421,7 +440,8 @@ DwaCompressor_compress (DwaCompressor* me)
                         pchan->height);
 
                     if (rv == EXR_ERR_SUCCESS)
-                        rv = LossyDctEncoder_execute (&enc);
+                        rv = LossyDctEncoder_execute (
+                            me->alloc_fn, me->free_fn, &enc);
 
                     *totalAcUncompressedCount =
                         *totalAcUncompressedCount + enc._numAcComp;
@@ -454,7 +474,8 @@ DwaCompressor_compress (DwaCompressor* me)
                         }
                     }
 
-                    *rleRawSize += (uint64_t)pchan->width * (uint64_t)pchan->bytes_per_element;
+                    *rleRawSize += (uint64_t) pchan->width *
+                                   (uint64_t) pchan->bytes_per_element;
                 }
 
                 break;
@@ -467,8 +488,8 @@ DwaCompressor_compress (DwaCompressor* me)
                 //
 
                 {
-                    size_t scanlineSize =
-                        (size_t)pchan->width * (size_t)pchan->bytes_per_element;
+                    size_t scanlineSize = (size_t) pchan->width *
+                                          (size_t) pchan->bytes_per_element;
                     DctCoderChannelData* dcd = &(cd->_dctData);
                     for (size_t y = 0; y < dcd->_size; ++y)
                     {
@@ -502,14 +523,14 @@ DwaCompressor_compress (DwaCompressor* me)
         size_t outSize;
 
         rv = exr_compress_buffer (
+            me->_encode->context,
             9, // TODO: use default??? the old call to zlib had 9 hardcoded
             me->_planarUncBuffer[UNKNOWN],
             *unknownUncompressedSize,
             outDataPtr,
             exr_compress_max_buffer_size (*unknownUncompressedSize),
             &outSize);
-        if (rv != EXR_ERR_SUCCESS)
-            return rv;
+        if (rv != EXR_ERR_SUCCESS) return rv;
 
         outDataPtr += outSize;
         *unknownCompressedSize = outSize;
@@ -564,14 +585,14 @@ DwaCompressor_compress (DwaCompressor* me)
                 size_t destLen;
 
                 rv = exr_compress_buffer (
+                    me->_encode->context,
                     9, // TODO: use default??? the old call to zlib had 9 hardcoded
                     me->_packedAcBuffer,
                     sourceLen,
                     outDataPtr,
                     exr_compress_max_buffer_size (sourceLen),
                     &destLen);
-                if (rv != EXR_ERR_SUCCESS)
-                    return rv;
+                if (rv != EXR_ERR_SUCCESS) return rv;
 
                 *acCompressedSize = destLen;
                 break;
@@ -608,6 +629,7 @@ DwaCompressor_compress (DwaCompressor* me)
             me->_encode->scratch_buffer_1, me->_packedDcBuffer, uncompBytes);
 
         rv = exr_compress_buffer (
+            me->_encode->context,
             me->_zipLevel,
             me->_encode->scratch_buffer_1,
             uncompBytes,
@@ -637,6 +659,7 @@ DwaCompressor_compress (DwaCompressor* me)
             *rleRawSize);
 
         rv = exr_compress_buffer (
+            me->_encode->context,
             9, // TODO: use default??? the old call to zlib had 9 hardcoded
             me->_rleBuffer,
             *rleUncompressedSize,
@@ -684,35 +707,34 @@ DwaCompressor_uncompress (
 {
     uint64_t     headerSize = NUM_SIZES_SINGLE * sizeof (uint64_t);
     exr_result_t rv         = EXR_ERR_SUCCESS;
-    uint64_t counters[NUM_SIZES_SINGLE];
-    uint64_t version;
-    uint64_t unknownUncompressedSize;
-    uint64_t unknownCompressedSize;
-    uint64_t acCompressedSize;
-    uint64_t dcCompressedSize;
-    uint64_t rleCompressedSize;
-    uint64_t rleUncompressedSize;
-    uint64_t rleRawSize;
+    uint64_t     counters[NUM_SIZES_SINGLE];
+    uint64_t     version;
+    uint64_t     unknownUncompressedSize;
+    uint64_t     unknownCompressedSize;
+    uint64_t     acCompressedSize;
+    uint64_t     dcCompressedSize;
+    uint64_t     rleCompressedSize;
+    uint64_t     rleUncompressedSize;
+    uint64_t     rleRawSize;
 
     uint64_t totalAcUncompressedCount;
     uint64_t totalDcUncompressedCount;
 
     uint64_t acCompression;
 
-    size_t outBufferSize;
-    uint64_t compressedSize;
+    size_t         outBufferSize;
+    uint64_t       compressedSize;
     const uint8_t* dataPtr;
     uint64_t       dataLeft;
-    uint8_t* outBufferEnd;
-    uint8_t* packedAcBufferEnd;
-    uint8_t* packedDcBufferEnd;
+    uint8_t*       outBufferEnd;
+    uint8_t*       packedAcBufferEnd;
+    uint8_t*       packedDcBufferEnd;
     const uint8_t* compressedUnknownBuf;
     const uint8_t* compressedAcBuf;
     const uint8_t* compressedDcBuf;
     const uint8_t* compressedRleBuf;
 
-    if (iSize < headerSize)
-        return EXR_ERR_CORRUPT_CHUNK;
+    if (iSize < headerSize) return EXR_ERR_CORRUPT_CHUNK;
 
     //
     // Flip the counters from XDR to NATIVE
@@ -741,7 +763,7 @@ DwaCompressor_uncompress (
     acCompression = counters[AC_COMPRESSION];
 
     compressedSize = unknownCompressedSize + acCompressedSize +
-        dcCompressedSize + rleCompressedSize;
+                     dcCompressedSize + rleCompressedSize;
 
     dataPtr  = inPtr + headerSize;
     dataLeft = iSize - headerSize;
@@ -791,7 +813,7 @@ DwaCompressor_uncompress (
 
     // the C++ classes used to have one buffer size for compress / uncompress
     // but here we want to do zero-ish copy...
-    outBufferEnd = me->_decode->unpacked_buffer;
+    outBufferEnd  = me->_decode->unpacked_buffer;
     outBufferSize = me->_decode->unpacked_alloc_size;
 
     //
@@ -818,10 +840,8 @@ DwaCompressor_uncompress (
 
     compressedAcBuf =
         compressedUnknownBuf + (ptrdiff_t) (unknownCompressedSize);
-    compressedDcBuf =
-        compressedAcBuf + (ptrdiff_t) (acCompressedSize);
-    compressedRleBuf =
-        compressedDcBuf + (ptrdiff_t) (dcCompressedSize);
+    compressedDcBuf  = compressedAcBuf + (ptrdiff_t) (acCompressedSize);
+    compressedRleBuf = compressedDcBuf + (ptrdiff_t) (dcCompressedSize);
 
     //
     // Sanity check that the version is something we expect. Right now,
@@ -830,10 +850,7 @@ DwaCompressor_uncompress (
     // start of the data block.
     //
 
-    if (version > 2)
-    {
-        return EXR_ERR_BAD_CHUNK_LEADER;
-    }
+    if (version > 2) { return EXR_ERR_BAD_CHUNK_LEADER; }
 
     rv = DwaCompressor_setupChannelData (me);
 
@@ -849,6 +866,7 @@ DwaCompressor_uncompress (
         }
 
         if (EXR_ERR_SUCCESS != exr_uncompress_buffer (
+                                   me->_decode->context,
                                    compressedUnknownBuf,
                                    unknownCompressedSize,
                                    me->_planarUncBuffer[UNKNOWN],
@@ -894,13 +912,13 @@ DwaCompressor_uncompress (
                 size_t destLen;
 
                 rv = exr_uncompress_buffer (
+                    me->_decode->context,
                     compressedAcBuf,
                     acCompressedSize,
                     me->_packedAcBuffer,
                     totalAcUncompressedCount * sizeof (uint16_t),
                     &destLen);
-                if (rv != EXR_ERR_SUCCESS)
-                    return rv;
+                if (rv != EXR_ERR_SUCCESS) return rv;
 
                 if (totalAcUncompressedCount * sizeof (uint16_t) != destLen)
                 {
@@ -909,9 +927,7 @@ DwaCompressor_uncompress (
             }
             break;
 
-            default:
-                return EXR_ERR_CORRUPT_CHUNK;
-                break;
+            default: return EXR_ERR_CORRUPT_CHUNK; break;
         }
     }
 
@@ -938,6 +954,7 @@ DwaCompressor_uncompress (
         if (rv != EXR_ERR_SUCCESS) return rv;
 
         rv = exr_uncompress_buffer (
+            me->_decode->context,
             compressedDcBuf,
             dcCompressedSize,
             me->_decode->scratch_buffer_1,
@@ -954,10 +971,7 @@ DwaCompressor_uncompress (
     else
     {
         // if the compressed size is 0, then the uncompressed size must also be zero
-        if (totalDcUncompressedCount != 0)
-        {
-            return EXR_ERR_CORRUPT_CHUNK;
-        }
+        if (totalDcUncompressedCount != 0) { return EXR_ERR_CORRUPT_CHUNK; }
     }
 
     //
@@ -976,6 +990,7 @@ DwaCompressor_uncompress (
         }
 
         if (EXR_ERR_SUCCESS != exr_uncompress_buffer (
+                                   me->_decode->context,
                                    compressedRleBuf,
                                    rleCompressedSize,
                                    me->_rleBuffer,
@@ -985,10 +1000,7 @@ DwaCompressor_uncompress (
             return EXR_ERR_CORRUPT_CHUNK;
         }
 
-        if (dstLen != rleUncompressedSize)
-        {
-            return EXR_ERR_CORRUPT_CHUNK;
-        }
+        if (dstLen != rleUncompressedSize) { return EXR_ERR_CORRUPT_CHUNK; }
 
         if (internal_rle_decompress (
                 me->_planarUncBuffer[RLE],
@@ -1017,7 +1029,8 @@ DwaCompressor_uncompress (
 
             if ((y % chan->y_samples) != 0) continue;
 
-            rv = DctCoderChannelData_push_row (&(cd->_dctData), outBufferEnd);
+            rv = DctCoderChannelData_push_row (
+                me->alloc_fn, me->free_fn, &(cd->_dctData), outBufferEnd);
             if (rv != EXR_ERR_SUCCESS) return rv;
 
             outBufferEnd += chan->width * chan->bytes_per_element;
@@ -1057,7 +1070,8 @@ DwaCompressor_uncompress (
             me->_channelData[rChan].chan->width,
             me->_channelData[rChan].chan->height);
 
-        if (rv == EXR_ERR_SUCCESS) rv = LossyDctDecoder_execute (&decoder);
+        if (rv == EXR_ERR_SUCCESS)
+            rv = LossyDctDecoder_execute (me->alloc_fn, me->free_fn, &decoder);
 
         packedAcBufferEnd += decoder._packedAcCount * sizeof (uint16_t);
 
@@ -1110,13 +1124,14 @@ DwaCompressor_uncompress (
                         chan->height);
 
                     if (rv == EXR_ERR_SUCCESS)
-                        rv = LossyDctDecoder_execute (&decoder);
+                        rv = LossyDctDecoder_execute (
+                            me->alloc_fn, me->free_fn, &decoder);
 
                     packedAcBufferEnd +=
-                        (size_t)decoder._packedAcCount * sizeof (uint16_t);
+                        (size_t) decoder._packedAcCount * sizeof (uint16_t);
 
                     packedDcBufferEnd +=
-                        (size_t)decoder._packedDcCount * sizeof (uint16_t);
+                        (size_t) decoder._packedDcCount * sizeof (uint16_t);
 
                     if (rv != EXR_ERR_SUCCESS) { return rv; }
                 }
@@ -1178,8 +1193,9 @@ DwaCompressor_uncompress (
                 //
 
                 {
-                    int row             = 0;
-                    size_t dstScanlineSize = (size_t)chan->width * (size_t)pixelSize;
+                    int    row = 0;
+                    size_t dstScanlineSize =
+                        (size_t) chan->width * (size_t) pixelSize;
 
                     for (int y = me->_min[1]; y <= me->_max[1]; ++y)
                     {
@@ -1209,9 +1225,7 @@ DwaCompressor_uncompress (
                 break;
 
             case NUM_COMPRESSOR_SCHEMES:
-            default:
-                return EXR_ERR_CORRUPT_CHUNK;
-                break;
+            default: return EXR_ERR_CORRUPT_CHUNK; break;
         }
 
         cd->processed = 1;
@@ -1289,21 +1303,22 @@ DwaCompressor_initializeBuffers (DwaCompressor* me, size_t* bufferSize)
                 // RLE, if gone horribly wrong, could double the size
                 // of the source data.
                 //
-                rleBufferSize += 2 * pixelCount * (uint64_t)curc->bytes_per_element;
+                rleBufferSize +=
+                    2 * pixelCount * (uint64_t) curc->bytes_per_element;
 
                 planarUncBufferSize[RLE] +=
-                    2 * pixelCount * (uint64_t)curc->bytes_per_element;
+                    2 * pixelCount * (uint64_t) curc->bytes_per_element;
                 break;
 
             case UNKNOWN:
-                unknownBufferSize += pixelCount * (uint64_t)curc->bytes_per_element;
+                unknownBufferSize +=
+                    pixelCount * (uint64_t) curc->bytes_per_element;
                 planarUncBufferSize[UNKNOWN] +=
-                    pixelCount * (uint64_t)curc->bytes_per_element;
+                    pixelCount * (uint64_t) curc->bytes_per_element;
                 break;
 
             case NUM_COMPRESSOR_SCHEMES:
-            default:
-                return EXR_ERR_INVALID_ARGUMENT;
+            default: return EXR_ERR_INVALID_ARGUMENT;
         }
     }
 
@@ -1360,9 +1375,8 @@ DwaCompressor_initializeBuffers (DwaCompressor* me, size_t* bufferSize)
     if (maxLossyDctAcSize * numLossyDctChans > me->_packedAcBufferSize)
     {
         me->_packedAcBufferSize = maxLossyDctAcSize * numLossyDctChans;
-        if (me->_packedAcBuffer != NULL)
-            internal_exr_free (me->_packedAcBuffer);
-        me->_packedAcBuffer = internal_exr_alloc (me->_packedAcBufferSize);
+        if (me->_packedAcBuffer != NULL) me->free_fn (me->_packedAcBuffer);
+        me->_packedAcBuffer = me->alloc_fn (me->_packedAcBufferSize);
         if (!me->_packedAcBuffer) return EXR_ERR_OUT_OF_MEMORY;
         memset (me->_packedAcBuffer, 0, me->_packedAcBufferSize);
     }
@@ -1374,9 +1388,8 @@ DwaCompressor_initializeBuffers (DwaCompressor* me, size_t* bufferSize)
     if (maxLossyDctDcSize * numLossyDctChans > me->_packedDcBufferSize)
     {
         me->_packedDcBufferSize = maxLossyDctDcSize * numLossyDctChans;
-        if (me->_packedDcBuffer != NULL)
-            internal_exr_free (me->_packedDcBuffer);
-        me->_packedDcBuffer = internal_exr_alloc (me->_packedDcBufferSize);
+        if (me->_packedDcBuffer != NULL) me->free_fn (me->_packedDcBuffer);
+        me->_packedDcBuffer = me->alloc_fn (me->_packedDcBufferSize);
         if (!me->_packedDcBuffer) return EXR_ERR_OUT_OF_MEMORY;
         memset (me->_packedDcBuffer, 0, me->_packedDcBufferSize);
     }
@@ -1384,8 +1397,8 @@ DwaCompressor_initializeBuffers (DwaCompressor* me, size_t* bufferSize)
     if (rleBufferSize > me->_rleBufferSize)
     {
         me->_rleBufferSize = rleBufferSize;
-        if (me->_rleBuffer != 0) internal_exr_free (me->_rleBuffer);
-        me->_rleBuffer = internal_exr_alloc (rleBufferSize);
+        if (me->_rleBuffer != 0) me->free_fn (me->_rleBuffer);
+        me->_rleBuffer = me->alloc_fn (rleBufferSize);
         if (!me->_rleBuffer) return EXR_ERR_OUT_OF_MEMORY;
         memset (me->_rleBuffer, 0, rleBufferSize);
     }
@@ -1418,15 +1431,14 @@ DwaCompressor_initializeBuffers (DwaCompressor* me, size_t* bufferSize)
         {
             me->_planarUncBufferSize[i] = planarUncBufferSize[i];
             if (me->_planarUncBuffer[i] != NULL)
-                internal_exr_free (me->_planarUncBuffer[i]);
+                me->free_fn (me->_planarUncBuffer[i]);
 
             if (planarUncBufferSize[i] > SIZE_MAX)
             {
                 return EXR_ERR_OUT_OF_MEMORY;
             }
 
-            me->_planarUncBuffer[i] =
-                internal_exr_alloc (planarUncBufferSize[i]);
+            me->_planarUncBuffer[i] = me->alloc_fn (planarUncBufferSize[i]);
             if (!me->_planarUncBuffer[i]) return EXR_ERR_OUT_OF_MEMORY;
         }
     }
@@ -1471,9 +1483,8 @@ DwaCompressor_writeRelevantChannelRules (
         }
     }
 
-    if (nOut > 65535)
-        return EXR_ERR_OUT_OF_MEMORY;
-    *ruleSize = one_from_native16 ((uint16_t)nOut);
+    if (nOut > 65535) return EXR_ERR_OUT_OF_MEMORY;
+    *ruleSize = one_from_native16 ((uint16_t) nOut);
     *nWritten += nOut;
 
     *outPtr = curp;
@@ -1499,16 +1510,10 @@ DwaCompressor_readChannelRules (
         size_t nRules   = 0, dataSize;
         const uint8_t* tmpPtr;
 
-        if (ruleSize < sizeof (uint16_t))
-        {
-            return EXR_ERR_CORRUPT_CHUNK;
-        }
+        if (ruleSize < sizeof (uint16_t)) { return EXR_ERR_CORRUPT_CHUNK; }
 
         *outRuleSize = ruleSize;
-        if (*nAvail < ruleSize)
-        {
-            return EXR_ERR_CORRUPT_CHUNK;
-        }
+        if (*nAvail < ruleSize) { return EXR_ERR_CORRUPT_CHUNK; }
 
         readPtr += sizeof (uint16_t);
         *inPtr += ruleSize;
@@ -1523,8 +1528,8 @@ DwaCompressor_readChannelRules (
         {
             Classifier tmpc;
             memset (&tmpc, 0, sizeof (Classifier));
-            rv = Classifier_read (&tmpc, &tmpPtr, &dataSize);
-            Classifier_destroy (&tmpc);
+            rv = Classifier_read (me->alloc_fn, &tmpc, &tmpPtr, &dataSize);
+            Classifier_destroy (me->free_fn, &tmpc);
             ++nRules;
         }
 
@@ -1532,8 +1537,7 @@ DwaCompressor_readChannelRules (
         if (rv == EXR_ERR_SUCCESS)
         {
             me->_channelRuleCount = nRules;
-            me->_channelRules =
-                internal_exr_alloc (sizeof (Classifier) * nRules);
+            me->_channelRules     = me->alloc_fn (sizeof (Classifier) * nRules);
 
             dataSize = ruleSize;
             if (me->_channelRules)
@@ -1542,7 +1546,10 @@ DwaCompressor_readChannelRules (
                 for (size_t i = 0; i < nRules; ++i)
                 {
                     Classifier_read (
-                        &(me->_channelRules[i]), &readPtr, &dataSize);
+                        me->alloc_fn,
+                        &(me->_channelRules[i]),
+                        &readPtr,
+                        &dataSize);
                 }
             }
             else
@@ -1566,7 +1573,7 @@ DwaCompressor_classifyChannels (DwaCompressor* me)
     //
 
     me->_cscChannelSets =
-        internal_exr_alloc (sizeof (CscChannelSet) * (size_t)me->_numChannels);
+        me->alloc_fn (sizeof (CscChannelSet) * (size_t) me->_numChannels);
     if (!me->_cscChannelSets) return EXR_ERR_OUT_OF_MEMORY;
 
     //
@@ -1574,10 +1581,11 @@ DwaCompressor_classifyChannels (DwaCompressor* me)
     // compressed by which means.
     //
     prefixMap =
-        internal_exr_alloc (sizeof (CscPrefixMapItem) * (size_t)me->_numChannels);
+        me->alloc_fn (sizeof (CscPrefixMapItem) * (size_t) me->_numChannels);
     if (!prefixMap) return EXR_ERR_OUT_OF_MEMORY;
 
-    memset (prefixMap, 0, sizeof (CscPrefixMapItem) * (size_t)me->_numChannels);
+    memset (
+        prefixMap, 0, sizeof (CscPrefixMapItem) * (size_t) me->_numChannels);
     for (int c = 0; c < me->_numChannels; ++c)
     {
         const exr_coding_channel_info_t* curc = me->_channelData[c].chan;
@@ -1615,11 +1623,11 @@ DwaCompressor_classifyChannels (DwaCompressor* me)
 
     for (int c = 0; c < me->_numChannels; ++c)
     {
-        const exr_coding_channel_info_t* redc, * grnc, * bluc;
-        CscChannelSet* cset;
-        int red = prefixMap[c].idx[0];
-        int grn = prefixMap[c].idx[1];
-        int blu = prefixMap[c].idx[2];
+        const exr_coding_channel_info_t *redc, *grnc, *bluc;
+        CscChannelSet*                   cset;
+        int                              red = prefixMap[c].idx[0];
+        int                              grn = prefixMap[c].idx[1];
+        int                              blu = prefixMap[c].idx[2];
 
         if (prefixMap[c].name == NULL) break;
 
@@ -1639,13 +1647,13 @@ DwaCompressor_classifyChannels (DwaCompressor* me)
             continue;
         }
 
-        cset = me->_cscChannelSets + me->_numCscChannelSets;
-        cset->idx[0]        = red;
-        cset->idx[1]        = grn;
-        cset->idx[2]        = blu;
+        cset         = me->_cscChannelSets + me->_numCscChannelSets;
+        cset->idx[0] = red;
+        cset->idx[1] = grn;
+        cset->idx[2] = blu;
         ++(me->_numCscChannelSets);
     }
-    internal_exr_free (prefixMap);
+    me->free_fn (prefixMap);
 
     return EXR_ERR_SUCCESS;
 }

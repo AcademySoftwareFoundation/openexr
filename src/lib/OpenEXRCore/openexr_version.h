@@ -6,11 +6,10 @@
 // ImfVersion.h contains version information about the file format.
 #pragma once
 #ifndef INCLUDED_OPENEXR_VERSION_H
-#define INCLUDED_OPENEXR_VERSION_H
+#    define INCLUDED_OPENEXR_VERSION_H
 
-#define OPENEXR_VERSION_MAJOR 3
-#define OPENEXR_VERSION_MINOR 2
-#define OPENEXR_VERSION_PATCH 0
+#    define OPENEXR_VERSION_MAJOR 3
+#    define OPENEXR_VERSION_MINOR 2
+#    define OPENEXR_VERSION_PATCH 0
 
 #endif
-

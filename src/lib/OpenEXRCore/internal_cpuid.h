@@ -13,7 +13,8 @@
 #    endif
 #endif
 
-static inline void check_for_x86_simd (int *f16c, int *avx, int *sse2)
+static inline void
+check_for_x86_simd (int* f16c, int* avx, int* sse2)
 {
 // Only use compiler flags on e2k (MCST Elbrus 2000) architecture
 #ifdef __e2k__
@@ -32,7 +33,7 @@ static inline void check_for_x86_simd (int *f16c, int *avx, int *sse2)
 
 #        if defined(__AVX__) && defined(__F16C__)
     *f16c = 1;
-    *avx = 1;
+    *avx  = 1;
     *sse2 = 1;
 #        else
 #            ifdef _WIN32
@@ -57,7 +58,7 @@ static inline void check_for_x86_simd (int *f16c, int *avx, int *sse2)
     *avx    = (regs[2] & (1 << 28)) ? 1 : 0;
     *f16c   = (regs[2] & (1 << 29)) ? 1 : 0;
     /* sse2 is in EDX bit 26 */
-    *sse2   = (regs[3] & (1 << 26)) ? 1 : 0;
+    *sse2 = (regs[3] & (1 << 26)) ? 1 : 0;
 
     if (!osxsave)
     {
@@ -67,12 +68,12 @@ static inline void check_for_x86_simd (int *f16c, int *avx, int *sse2)
     else
     {
         /* check extended control register */
-#            if defined(OPENEXR_IMF_HAVE_GCC_INLINE_ASM_AVX) &&                            \
-    (defined(_M_X64) || defined(__x86_64__))
-        __asm__ __volatile__("xgetbv"
-                             : /* Output  */ "=a"(regs[0]), "=d"(regs[3])
-                             : /* Input   */ "c"(0)
-                             : /* Clobber */);
+#            if defined(OPENEXR_IMF_HAVE_GCC_INLINE_ASM_AVX) &&                \
+                (defined(_M_X64) || defined(__x86_64__))
+        __asm__ __volatile__ ("xgetbv"
+                              : /* Output  */ "=a"(regs[0]), "=d"(regs[3])
+                              : /* Input   */ "c"(0)
+                              : /* Clobber */);
         /* eax bit 1 - SSE managed, bit 2 - AVX managed */
         if ((regs[0] & 6) != 6)
         {
@@ -80,8 +81,8 @@ static inline void check_for_x86_simd (int *f16c, int *avx, int *sse2)
             *f16c = 0;
         }
 #            else
-        *avx  = 0;
-        *f16c = 0;
+        *avx    = 0;
+        *f16c   = 0;
 #            endif
     }
 #        endif
@@ -93,7 +94,8 @@ static inline void check_for_x86_simd (int *f16c, int *avx, int *sse2)
 #endif
 }
 
-static inline int has_native_half (void)
+static inline int
+has_native_half (void)
 {
 #if defined(__x86_64__) || defined(_M_X64)
     int sse2, avx, f16c;

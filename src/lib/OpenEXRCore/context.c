@@ -113,10 +113,7 @@ process_query_size (
         ctxt->file_size =
             (inits->size_fn) ((exr_const_context_t) ctxt, ctxt->user_data);
     }
-    else
-    {
-        ctxt->file_size = -1;
-    }
+    else { ctxt->file_size = -1; }
     return EXR_ERR_SUCCESS;
 }
 

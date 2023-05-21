@@ -29,9 +29,9 @@ void testBufferCompression (const std::string& tempdir)
     buf = {'O', 'p', 'e', 'n', 'E', 'X', 'R'};
     cbuf.resize( exr_compress_max_buffer_size (buf.size()) );
     size_t outsz;
-    EXRCORE_TEST_RVAL (exr_compress_buffer (9, buf.data(), buf.size(), &cbuf[0], cbuf.size(), &outsz));
+    EXRCORE_TEST_RVAL (exr_compress_buffer (nullptr, 9, buf.data(), buf.size(), &cbuf[0], cbuf.size(), &outsz));
     std::cout << "compressed size: " << outsz << std::endl;
-    EXRCORE_TEST_RVAL (exr_uncompress_buffer (cbuf.data(), outsz, &buf[0], buf.size(), &outsz));
+    EXRCORE_TEST_RVAL (exr_uncompress_buffer (nullptr, cbuf.data(), outsz, &buf[0], buf.size(), &outsz));
     std::cout << "uncompressed size: " << outsz << std::endl;
     if (buf[0] != 'O')
         EXRCORE_TEST_FAIL(buf[0] != 'O');

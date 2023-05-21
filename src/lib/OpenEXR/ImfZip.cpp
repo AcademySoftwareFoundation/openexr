@@ -93,6 +93,7 @@ Zip::compress (const char* raw, int rawSize, char* compressed)
     //
     size_t outSize;
     if (EXR_ERR_SUCCESS != exr_compress_buffer (
+            nullptr,
             _zipLevel,
             _tmpBuffer,
             rawSize,
@@ -328,6 +329,7 @@ Zip::uncompress (const char* compressed, int compressedSize, char* raw)
 {
     size_t outSize = 0;
     if (EXR_ERR_SUCCESS != exr_uncompress_buffer (
+            nullptr,
             compressed,
             (size_t)compressedSize,
             _tmpBuffer,
