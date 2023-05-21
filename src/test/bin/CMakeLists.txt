@@ -38,8 +38,10 @@ if(BUILD_TESTING)
   )
 
   foreach(image ${images})
+    if (NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/${image})
       message(STATUS "Downloading ${images_url}/${image}")
       file(DOWNLOAD ${images_url}/${image} ${CMAKE_CURRENT_BINARY_DIR}/${image})
+    endif()
   endforeach()
 
   add_test(NAME OpenEXR.bin.exrinfo
