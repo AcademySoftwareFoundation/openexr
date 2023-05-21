@@ -634,8 +634,8 @@ internal_exr_write_header (struct _internal_exr_context* ctxt)
         {
             for (int a = 0; a < curp->attributes.num_attributes; ++a)
             {
-                exr_attribute_t *curattr = curp->attributes.sorted_entries[a];
-                if (0 == (flags & (EXR_MULTI_PART_FLAG |EXR_NON_IMAGE_FLAG)) &&
+                exr_attribute_t* curattr = curp->attributes.sorted_entries[a];
+                if (0 == (flags & (EXR_MULTI_PART_FLAG | EXR_NON_IMAGE_FLAG)) &&
                     1 == ctxt->num_parts)
                 {
                     if (0 == strcmp (curattr->name, "type") ||

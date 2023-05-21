@@ -141,7 +141,8 @@ doReadWriteManifest (const IDManifest& mfst, const string& fn, bool dump)
     vector<char> compressed (compressedDataSize);
 
     exr_compress_buffer (
-        6,
+        nullptr,
+        4,
         str.str ().c_str (),
         sourceDataSize,
         compressed.data (),

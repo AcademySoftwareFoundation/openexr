@@ -37,24 +37,28 @@ DctCoderChannelData_construct (DctCoderChannelData* d, exr_pixel_type_t t)
 }
 
 static void
-DctCoderChannelData_destroy (DctCoderChannelData* d)
+DctCoderChannelData_destroy (void (*free_fn) (void*), DctCoderChannelData* d)
 {
-    if (d->_rows) internal_exr_free (d->_rows);
+    if (d->_rows) free_fn (d->_rows);
 }
 
 static exr_result_t
-DctCoderChannelData_push_row (DctCoderChannelData* d, uint8_t* r)
+DctCoderChannelData_push_row (
+    void* (*alloc_fn) (size_t),
+    void (*free_fn) (void*),
+    DctCoderChannelData* d,
+    uint8_t*             r)
 {
     if (d->_size == d->_row_alloc_count)
     {
         size_t    nsize = d->_size == 0 ? 16 : ((d->_size * 3) / 2);
-        uint8_t** n     = internal_exr_alloc (nsize * sizeof (uint8_t*));
+        uint8_t** n     = alloc_fn (nsize * sizeof (uint8_t*));
         if (n)
         {
             if (d->_rows)
             {
                 memcpy (n, d->_rows, sizeof (uint8_t*) * d->_size);
-                internal_exr_free (d->_rows);
+                free_fn (d->_rows);
             }
             d->_rows            = n;
             d->_row_alloc_count = nsize;
@@ -90,7 +94,7 @@ typedef struct _ChannelData
     int              processed;
     CompressorScheme compression;
     exr_pixel_type_t planarUncType;
-    uint8_t _pad[20];
+    uint8_t          _pad[20];
 } ChannelData;
 
 /**************************************/

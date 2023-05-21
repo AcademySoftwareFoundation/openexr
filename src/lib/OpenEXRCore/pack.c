@@ -49,10 +49,7 @@ default_pack (exr_encode_pipeline_t* encode)
                         ((uint64_t) (y / encc->y_samples) *
                          (uint64_t) encc->user_line_stride);
             }
-            else
-            {
-                cdata += (uint64_t) y * (uint64_t) encc->user_line_stride;
-            }
+            else { cdata += (uint64_t) y * (uint64_t) encc->user_line_stride; }
 
             pixincrement = encc->user_pixel_stride;
             switch (encc->data_type)

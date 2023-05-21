@@ -2076,6 +2076,7 @@ DwaCompressor::compress (
     {
         size_t outSize;
         if (EXR_ERR_SUCCESS != exr_compress_buffer(
+                nullptr,
                 9, // TODO: use default??? the old call to zlib had 9 hardcoded
                 _planarUncBuffer[UNKNOWN],
                 *unknownUncompressedSize,
@@ -2116,6 +2117,7 @@ DwaCompressor::compress (
                 size_t sourceLen = *totalAcUncompressedCount * sizeof (unsigned short);
                 size_t destLen;
                 if (EXR_ERR_SUCCESS != exr_compress_buffer(
+                        nullptr,
                         9, // TODO: use default??? the old call to zlib had 9 hardcoded
                         _packedAcBuffer,
                         sourceLen,
@@ -2166,6 +2168,7 @@ DwaCompressor::compress (
 
         size_t dstLen;
         if (EXR_ERR_SUCCESS != exr_compress_buffer(
+                nullptr,
                 9, // TODO: use default??? the old call to zlib had 9 hardcoded
                 _rleBuffer,
                 *rleUncompressedSize,
@@ -2403,6 +2406,7 @@ DwaCompressor::uncompress (
         }
 
         if (EXR_ERR_SUCCESS != exr_uncompress_buffer (
+                nullptr,
                 compressedUnknownBuf,
                 unknownCompressedSize,
                 _planarUncBuffer[UNKNOWN],
@@ -2447,6 +2451,7 @@ DwaCompressor::uncompress (
                 size_t destLen;
 
                 if (EXR_ERR_SUCCESS != exr_uncompress_buffer (
+                        nullptr,
                         compressedAcBuf,
                         acCompressedSize,
                         _packedAcBuffer,
@@ -2518,6 +2523,7 @@ DwaCompressor::uncompress (
         size_t dstLen;
 
         if (EXR_ERR_SUCCESS != exr_uncompress_buffer (
+                nullptr,
                 compressedRleBuf,
                 rleCompressedSize,
                 _rleBuffer,

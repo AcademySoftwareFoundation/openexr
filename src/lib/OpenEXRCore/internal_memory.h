@@ -18,7 +18,8 @@ internal_exr_alloc (size_t bytes);
 __attribute__ ((malloc))
 #endif
 void*
-internal_exr_alloc_aligned (void **tofreeptr, size_t bytes, size_t align);
+internal_exr_alloc_aligned (
+    void* (*alloc_fn) (size_t), void** tofreeptr, size_t bytes, size_t align);
 
 void internal_exr_free (void* ptr);
 

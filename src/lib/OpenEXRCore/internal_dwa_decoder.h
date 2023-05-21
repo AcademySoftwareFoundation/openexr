@@ -49,7 +49,7 @@ typedef struct _LossyDctDecoder
 
     DctCoderChannelData* _channel_decode_data[3];
     int                  _channel_decode_data_count;
-    uint8_t _pad[4];
+    uint8_t              _pad[4];
 } LossyDctDecoder;
 
 static exr_result_t LossyDctDecoder_base_construct (
@@ -83,7 +83,8 @@ static exr_result_t LossyDctDecoderCsc_construct (
     int                  width,
     int                  height);
 
-static exr_result_t LossyDctDecoder_execute (LossyDctDecoder* d);
+static exr_result_t LossyDctDecoder_execute (
+    void* (*alloc_fn) (size_t), void (*free_fn) (void*), LossyDctDecoder* d);
 
 //
 // Un-RLE the packed AC components into
@@ -206,23 +207,24 @@ LossyDctDecoder_base_construct (
 /**************************************/
 
 exr_result_t
-LossyDctDecoder_execute (LossyDctDecoder* d)
+LossyDctDecoder_execute (
+    void* (*alloc_fn) (size_t), void (*free_fn) (void*), LossyDctDecoder* d)
 {
     exr_result_t         rv;
     int                  numComp = d->_channel_decode_data_count;
     DctCoderChannelData* chanData[3];
     int                  lastNonZero = 0;
     int                  numBlocksX  = (int) (ceilf ((float) d->_width / 8.0f));
-    int                  numBlocksY  = (int) (ceilf ((float) d->_height / 8.0f));
-    int                  leftoverX   = d->_width - (numBlocksX - 1) * 8;
-    int                  leftoverY   = d->_height - (numBlocksY - 1) * 8;
+    int                  numBlocksY = (int) (ceilf ((float) d->_height / 8.0f));
+    int                  leftoverX  = d->_width - (numBlocksX - 1) * 8;
+    int                  leftoverY  = d->_height - (numBlocksY - 1) * 8;
 
     int numFullBlocksX = (int) (floorf ((float) d->_width / 8.0f));
 
     uint16_t* currAcComp = (uint16_t*) (d->_packedAc);
     uint16_t* acCompEnd  = (uint16_t*) (d->_packedAcEnd);
     uint16_t* currDcComp[3];
-    uint8_t* rowBlockHandle;
+    uint8_t*  rowBlockHandle;
     uint16_t* rowBlock[3];
 
     for (int chan = 0; chan < numComp; ++chan)
@@ -235,8 +237,9 @@ LossyDctDecoder_execute (LossyDctDecoder* d)
     // 8x8 half-float blocks
     //
 
-    rowBlockHandle = internal_exr_alloc (
-        (size_t)numComp * (size_t)numBlocksX * 64 * sizeof (uint16_t) + _SSE_ALIGNMENT);
+    rowBlockHandle = alloc_fn (
+        (size_t) numComp * (size_t) numBlocksX * 64 * sizeof (uint16_t) +
+        _SSE_ALIGNMENT);
     if (!rowBlockHandle) return EXR_ERR_OUT_OF_MEMORY;
 
     rowBlock[0] = (uint16_t*) rowBlockHandle;
@@ -319,7 +322,7 @@ LossyDctDecoder_execute (LossyDctDecoder* d)
                     d, &lastNonZero, &currAcComp, acCompEnd, halfZigData);
                 if (rv != EXR_ERR_SUCCESS)
                 {
-                    internal_exr_free (rowBlockHandle);
+                    free_fn (rowBlockHandle);
                     return rv;
                 }
 
@@ -645,7 +648,7 @@ LossyDctDecoder_execute (LossyDctDecoder* d)
         }
     }
 
-    internal_exr_free (rowBlockHandle);
+    free_fn (rowBlockHandle);
 
     return EXR_ERR_SUCCESS;
 }
@@ -685,7 +688,7 @@ LossyDctDecoder_unRleAc (
     int       dctComp = 1;
     uint16_t* acComp  = *currAcComp;
     uint16_t  val;
-    int       lnz = 0;
+    int       lnz      = 0;
     uint64_t  ac_count = 0;
 
     //
@@ -695,10 +698,7 @@ LossyDctDecoder_unRleAc (
 
     while (dctComp < 64)
     {
-        if (acComp >= packedAcEnd)
-        {
-            return EXR_ERR_CORRUPT_CHUNK;
-        }
+        if (acComp >= packedAcEnd) { return EXR_ERR_CORRUPT_CHUNK; }
         val = *acComp;
         if (val == 0xff00)
         {
@@ -735,6 +735,6 @@ LossyDctDecoder_unRleAc (
 
     d->_packedAcCount += ac_count;
     *lastNonZero = lnz;
-    *currAcComp = acComp;
+    *currAcComp  = acComp;
     return EXR_ERR_SUCCESS;
 }

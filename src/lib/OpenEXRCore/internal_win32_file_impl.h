@@ -228,10 +228,7 @@ default_read_func (
                 error_cb,
                 "Unable to read requested data");
         }
-        else
-        {
-            retsz = nread;
-        }
+        else { retsz = nread; }
     }
 
     return retsz;

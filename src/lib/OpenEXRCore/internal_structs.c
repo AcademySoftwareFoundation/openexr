@@ -192,10 +192,7 @@ internal_exr_destroy_parts (struct _internal_exr_context* ctxt)
 
         /* the first one is always the one that is part of the file */
         if (cur != &(ctxt->first_part)) { dofree (cur); }
-        else
-        {
-            memset (cur, 0, sizeof (struct _internal_exr_part));
-        }
+        else { memset (cur, 0, sizeof (struct _internal_exr_part)); }
     }
 
     if (ctxt->num_parts > 1) dofree (ctxt->parts);
@@ -335,8 +332,8 @@ internal_exr_alloc_context (
     void*                         memptr;
     exr_result_t                  rv;
     struct _internal_exr_context* ret;
-    int    gmaxw, gmaxh;
-    size_t extra_data;
+    int                           gmaxw, gmaxh;
+    size_t                        extra_data;
 
     *out = NULL;
     if (initializers->read_fn || initializers->write_fn)
@@ -416,7 +413,8 @@ internal_exr_alloc_context (
         ret->disable_chunk_reconstruct =
             (initializers->flags &
              EXR_CONTEXT_FLAG_DISABLE_CHUNK_RECONSTRUCTION);
-        ret->legacy_header = (initializers->flags & EXR_CONTEXT_FLAG_WRITE_LEGACY_HEADER);
+        ret->legacy_header =
+            (initializers->flags & EXR_CONTEXT_FLAG_WRITE_LEGACY_HEADER);
 
         ret->file_size       = -1;
         ret->max_name_length = EXR_SHORTNAME_MAXLEN;

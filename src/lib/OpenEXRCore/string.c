@@ -189,7 +189,7 @@ exr_attr_string_set_with_length (
         char* sstr;
 
         s->length = len;
-        sstr = EXR_CONST_CAST (char*, s->str);
+        sstr      = EXR_CONST_CAST (char*, s->str);
         if (len > 0)
         {
 #ifdef _MSC_VER

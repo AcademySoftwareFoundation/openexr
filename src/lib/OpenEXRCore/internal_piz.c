@@ -525,7 +525,8 @@ internal_exr_apply_piz (exr_encode_pipeline_t* encode)
     {
         if (rv == EXR_ERR_ARGUMENT_OUT_OF_RANGE)
         {
-            memcpy (encode->compressed_buffer, encode->packed_buffer, packedbytes);
+            memcpy (
+                encode->compressed_buffer, encode->packed_buffer, packedbytes);
             nOut = packedbytes;
         }
     }
@@ -538,7 +539,8 @@ internal_exr_apply_piz (exr_encode_pipeline_t* encode)
         }
         else
         {
-            memcpy (encode->compressed_buffer, encode->packed_buffer, packedbytes);
+            memcpy (
+                encode->compressed_buffer, encode->packed_buffer, packedbytes);
             nOut = packedbytes;
         }
     }

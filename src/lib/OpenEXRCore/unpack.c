@@ -31,7 +31,7 @@ half_to_float8 (float* out, const uint16_t* src)
 }
 #endif
 
-#if (defined(__x86_64__) || defined(_M_X64)) && defined(__AVX__) &&                              \
+#if (defined(__x86_64__) || defined(_M_X64)) && defined(__AVX__) &&            \
     (defined(__F16C__) || defined(__GNUC__) || defined(__clang__))
 
 #    if defined(__F16C__)

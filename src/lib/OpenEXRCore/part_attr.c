@@ -549,10 +549,7 @@ exr_copy_unset_attributes (
         {
             rv = copy_attr (ctxt, pctxt, part, srca, &update_tiles);
         }
-        else
-        {
-            rv = EXR_ERR_SUCCESS;
-        }
+        else { rv = EXR_ERR_SUCCESS; }
     }
 
     if (update_tiles)
@@ -1252,7 +1249,8 @@ exr_attr_set_channels (
     EXR_PROMOTE_LOCKED_CONTEXT_AND_PART_OR_ERROR (ctxt, part_index);
 
     if (name && 0 == strcmp (name, EXR_REQ_CHANNELS_STR))
-        return EXR_UNLOCK_AND_RETURN_PCTXT (exr_set_channels (ctxt, part_index, channels));
+        return EXR_UNLOCK_AND_RETURN_PCTXT (
+            exr_set_channels (ctxt, part_index, channels));
 
     /* do not support updating channels during update operation... */
     if (pctxt->mode != EXR_CONTEXT_WRITE)
@@ -1868,7 +1866,8 @@ exr_attr_set_string (
     EXR_PROMOTE_LOCKED_CONTEXT_AND_PART_OR_ERROR (ctxt, part_index);
 
     if (name && !strcmp (name, EXR_REQ_NAME_STR))
-        return EXR_UNLOCK_AND_RETURN_PCTXT (exr_set_name (ctxt, part_index, name));
+        return EXR_UNLOCK_AND_RETURN_PCTXT (
+            exr_set_name (ctxt, part_index, name));
 
     if (name && !strcmp (name, EXR_REQ_TYPE_STR))
         return EXR_UNLOCK_AND_RETURN_PCTXT (pctxt->print_error (

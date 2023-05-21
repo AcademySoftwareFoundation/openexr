@@ -292,7 +292,7 @@ extract_chunk_leader (
     rv = ctxt->do_read (
         ctxt,
         data,
-        (size_t)ntoread * sizeof (int32_t),
+        (size_t) ntoread * sizeof (int32_t),
         &nextoffset,
         NULL,
         EXR_MUST_READ_ALL);
@@ -349,7 +349,7 @@ extract_chunk_leader (
             return ctxt->print_error (
                 ctxt,
                 EXR_ERR_BAD_CHUNK_LEADER,
-                "Invalid chunk size reconstructing chunk table: found out of range %"PRId64,
+                "Invalid chunk size reconstructing chunk table: found out of range %" PRId64,
                 leaderdata->deep_data[1]);
         }
         leaderdata->packed_size = leaderdata->deep_packed_size;
@@ -484,10 +484,7 @@ reconstruct_chunk_table (
         chunk_start = curctable[0];
         for (int ci = 1; ci < curpart->chunk_count; ++ci)
         {
-            if (curctable[ci] > chunk_start)
-            {
-                chunk_start = curctable[ci];
-            }
+            if (curctable[ci] > chunk_start) { chunk_start = curctable[ci]; }
         }
 
         rv = extract_chunk_size (
@@ -1266,7 +1263,7 @@ exr_read_tile_chunk_info (
         else if (fsize > 0)
         {
             uint64_t finpos = dataoff + (uint64_t) tdata[4];
-            if (finpos > (uint64_t)fsize)
+            if (finpos > (uint64_t) fsize)
             {
                 return pctxt->print_error (
                     pctxt,

@@ -71,7 +71,7 @@ reorder_and_predict (void* scratch, const void* packed, uint64_t packedbytes)
     int8_t*       t2   = t1 + (packedbytes + 1) / 2;
     const int8_t* in   = packed;
     const int8_t* stop = in + packedbytes;
-    int d, p;
+    int           d, p;
 
     while (in < stop)
     {
@@ -79,9 +79,9 @@ reorder_and_predict (void* scratch, const void* packed, uint64_t packedbytes)
         if (in < stop) *(t2++) = *(in++);
     }
 
-    t1    = scratch;
-    stop  = t1 + packedbytes;
-    p = *(t1++);
+    t1   = scratch;
+    stop = t1 + packedbytes;
+    p    = *(t1++);
     while (t1 < stop)
     {
         d     = (int) (*t1) - p + (128 + 256);

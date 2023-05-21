@@ -540,6 +540,7 @@ IDManifest::IDManifest (const CompressedIDManifest& compressed)
     size_t        outSize;
     size_t        inSize  = static_cast<size_t> (compressed._compressedDataSize);
     if (EXR_ERR_SUCCESS != exr_uncompress_buffer (
+            nullptr,
             compressed._data,
             inSize,
             uncomp.data(),
@@ -1072,6 +1073,7 @@ CompressedIDManifest::CompressedIDManifest (const IDManifest& manifest)
     size_t compressedDataSize;
     _data                     = (unsigned char*) malloc (compressedBufferSize);
     if (EXR_ERR_SUCCESS != exr_compress_buffer (
+            nullptr,
             -1,
             serial.data (),
             outputSize,

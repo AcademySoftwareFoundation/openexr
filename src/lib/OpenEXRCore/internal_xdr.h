@@ -162,7 +162,7 @@ one_to_native_float (float v)
     union
     {
         uint32_t i;
-        float f;
+        float    f;
     } coerce;
     coerce.f = v;
     coerce.i = one_to_native32 (coerce.i);
@@ -175,7 +175,7 @@ one_from_native_float (float v)
     union
     {
         uint32_t i;
-        float f;
+        float    f;
     } coerce;
     coerce.f = v;
     coerce.i = one_from_native32 (coerce.i);

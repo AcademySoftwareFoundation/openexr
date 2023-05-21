@@ -26,7 +26,7 @@ default_compress_chunk (exr_encode_pipeline_t* encode)
         EXR_TRANSCODE_BUFFER_COMPRESSED,
         &(encode->compressed_buffer),
         &(encode->compressed_alloc_size),
-        exr_compress_max_buffer_size( encode->packed_bytes ));
+        exr_compress_max_buffer_size (encode->packed_bytes));
     if (rv != EXR_ERR_SUCCESS)
         return pctxt->print_error (
             pctxt,

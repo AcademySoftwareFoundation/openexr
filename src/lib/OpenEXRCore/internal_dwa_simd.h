@@ -368,8 +368,7 @@ convertFloatToHalf64_f16c (uint16_t* dst, float* src)
     //
 
 #ifdef IMF_HAVE_GCC_INLINEASM_X86_64
-    __asm__ (
-             "vmovaps       (%0),     %%ymm0         \n"
+    __asm__ ("vmovaps       (%0),     %%ymm0         \n"
              "vmovaps   0x20(%0),     %%ymm1         \n"
              "vmovaps   0x40(%0),     %%ymm2         \n"
              "vmovaps   0x60(%0),     %%ymm3         \n"
@@ -868,13 +867,13 @@ dctInverse8x8DcOnly (float* data)
 static inline void
 dctInverse8x8_scalar (float* data, int zeroedRows)
 {
-    const float a = 0.35355362513961314f;//.5f * cosf (3.14159f / 4.0f);
-    const float b = 0.4903926563794112f;//.5f * cosf (3.14159f / 16.0f);
-    const float c = 0.4619398297234211f;//.5f * cosf (3.14159f / 8.0f);
-    const float d = 0.4157349443626743f;//.5f * cosf (3.f * 3.14159f / 16.0f);
-    const float e = 0.2777854612564676f;//.5f * cosf (5.f * 3.14159f / 16.0f);
-    const float f = 0.19134217585694352f;//.5f * cosf (3.f * 3.14159f / 8.0f);
-    const float g = 0.09754573032714427f;//.5f * cosf (7.f * 3.14159f / 16.0f);
+    const float a = 0.35355362513961314f; //.5f * cosf (3.14159f / 4.0f);
+    const float b = 0.4903926563794112f;  //.5f * cosf (3.14159f / 16.0f);
+    const float c = 0.4619398297234211f;  //.5f * cosf (3.14159f / 8.0f);
+    const float d = 0.4157349443626743f;  //.5f * cosf (3.f * 3.14159f / 16.0f);
+    const float e = 0.2777854612564676f;  //.5f * cosf (5.f * 3.14159f / 16.0f);
+    const float f = 0.19134217585694352f; //.5f * cosf (3.f * 3.14159f / 8.0f);
+    const float g = 0.09754573032714427f; //.5f * cosf (7.f * 3.14159f / 16.0f);
 
     float alpha[4], beta[4], theta[4], gamma[4];
 
@@ -1638,24 +1637,24 @@ dctInverse8x8_sse2_7 (float* data)
  *          [ a -c  a -f ]          [ g -e  d -b ]
  */
 static const float sAvxCoef[32] __attribute__ ((aligned (_SSE_ALIGNMENT))) = {
-        3.535536e-01f,  3.535536e-01f,
-        3.535536e-01f,  3.535536e-01f, /* a  a  a  a */
-        4.619398e-01f,  1.913422e-01f,
-        -1.913422e-01f, -4.619398e-01f, /* c  f -f -c */
-        3.535536e-01f,  -3.535536e-01f,
-        -3.535536e-01f, 3.535536e-01f, /* a -a -a  a */
-        1.913422e-01f,  -4.619398e-01f,
-        4.619398e-01f,  -1.913422e-01f, /* f -c  c -f */
+    3.535536e-01f,  3.535536e-01f,
+    3.535536e-01f,  3.535536e-01f, /* a  a  a  a */
+    4.619398e-01f,  1.913422e-01f,
+    -1.913422e-01f, -4.619398e-01f, /* c  f -f -c */
+    3.535536e-01f,  -3.535536e-01f,
+    -3.535536e-01f, 3.535536e-01f, /* a -a -a  a */
+    1.913422e-01f,  -4.619398e-01f,
+    4.619398e-01f,  -1.913422e-01f, /* f -c  c -f */
 
-        4.903927e-01f,  4.157349e-01f,
-        2.777855e-01f,  9.754573e-02f, /* b  d  e  g */
-        4.157349e-01f,  -9.754573e-02f,
-        -4.903927e-01f, -2.777855e-01f, /* d -g -b -e */
-        2.777855e-01f,  -4.903927e-01f,
-        9.754573e-02f,  4.157349e-01f, /* e -b  g  d */
-        9.754573e-02f,  -2.777855e-01f,
-        4.157349e-01f,  -4.903927e-01f /* g -e  d -b */
-    };
+    4.903927e-01f,  4.157349e-01f,
+    2.777855e-01f,  9.754573e-02f, /* b  d  e  g */
+    4.157349e-01f,  -9.754573e-02f,
+    -4.903927e-01f, -2.777855e-01f, /* d -g -b -e */
+    2.777855e-01f,  -4.903927e-01f,
+    9.754573e-02f,  4.157349e-01f, /* e -b  g  d */
+    9.754573e-02f,  -2.777855e-01f,
+    4.157349e-01f,  -4.903927e-01f /* g -e  d -b */
+};
 #endif
 
 #define ROW0(_X) _X
@@ -1874,20 +1873,20 @@ dctForward8x8 (float* data)
     float* srcPtr = data;
     float* dstPtr = data;
 
-    const float c1 = 0.9807853127588224f;//cosf (3.14159f * 1.0f / 16.0f);
-    const float c2 = 0.9238796594468422f;//cosf (3.14159f * 2.0f / 16.0f);
-    const float c3 = 0.8314698887253485f;//cosf (3.14159f * 3.0f / 16.0f);
-    const float c4 = 0.7071072502792263f;//cosf (3.14159f * 4.0f / 16.0f);
-    const float c5 = 0.5555709225129352f;//cosf (3.14159f * 5.0f / 16.0f);
-    const float c6 = 0.38268435171388704f;//cosf (3.14159f * 6.0f / 16.0f);
-    const float c7 = 0.19509146065428853f;//cosf (3.14159f * 7.0f / 16.0f);
+    const float c1 = 0.9807853127588224f;  //cosf (3.14159f * 1.0f / 16.0f);
+    const float c2 = 0.9238796594468422f;  //cosf (3.14159f * 2.0f / 16.0f);
+    const float c3 = 0.8314698887253485f;  //cosf (3.14159f * 3.0f / 16.0f);
+    const float c4 = 0.7071072502792263f;  //cosf (3.14159f * 4.0f / 16.0f);
+    const float c5 = 0.5555709225129352f;  //cosf (3.14159f * 5.0f / 16.0f);
+    const float c6 = 0.38268435171388704f; //cosf (3.14159f * 6.0f / 16.0f);
+    const float c7 = 0.19509146065428853f; //cosf (3.14159f * 7.0f / 16.0f);
 
-    const float c1Half = 0.4903926563794112f;//.5f * c1;
-    const float c2Half = 0.4619398297234211f;//.5f * c2;
-    const float c3Half = 0.4157349443626743f;//.5f * c3;
-    const float c5Half = 0.2777854612564676f;//.5f * c5;
-    const float c6Half = 0.19134217585694352f;//.5f * c6;
-    const float c7Half = 0.09754573032714427f;//.5f * c7;
+    const float c1Half = 0.4903926563794112f;  //.5f * c1;
+    const float c2Half = 0.4619398297234211f;  //.5f * c2;
+    const float c3Half = 0.4157349443626743f;  //.5f * c3;
+    const float c5Half = 0.2777854612564676f;  //.5f * c5;
+    const float c6Half = 0.19134217585694352f; //.5f * c6;
+    const float c7Half = 0.09754573032714427f; //.5f * c7;
 
     //
     // First pass - do a 1D DCT over the rows and write the
@@ -2257,7 +2256,8 @@ dctForward8x8 (float* data)
 // Should be initialized in initializeFuncs()
 //
 
-static void (*convertFloatToHalf64) (uint16_t*, float*) = convertFloatToHalf64_scalar;
+static void (*convertFloatToHalf64) (uint16_t*, float*) =
+    convertFloatToHalf64_scalar;
 
 //
 // Function pointer for dispatching a fromHalfZigZag_ impl
@@ -2282,7 +2282,7 @@ static void
 initializeFuncs (void)
 {
     static int done = 0;
-    int f16c = 0, avx = 0, sse2 = 0;
+    int        f16c = 0, avx = 0, sse2 = 0;
     if (done) return;
     done = 1;
 

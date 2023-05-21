@@ -347,12 +347,11 @@ typedef struct _exr_context_initializer_v3
 /** @brief Writes an old-style, sorted header with minimal information */
 #define EXR_CONTEXT_FLAG_WRITE_LEGACY_HEADER (1 << 3)
 
+/* clang-format off */
 /** @brief Simple macro to initialize the context initializer with default values. */
 #define EXR_DEFAULT_CONTEXT_INITIALIZER                                        \
-    {                                                                          \
-        sizeof (exr_context_initializer_t), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,   \
-            0, -2, -1.f, 0, {0, 0, 0, 0}                                       \
-    }
+    { sizeof (exr_context_initializer_t), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -2, -1.f, 0, { 0, 0, 0, 0 } }
+/* clang-format on */
 
 /** @} */ /* context function pointer declarations */
 

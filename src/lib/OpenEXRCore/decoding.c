@@ -114,10 +114,7 @@ read_uncompressed_direct (exr_decode_pipeline_t* decode)
                     ((uint64_t) (y / decc->y_samples) *
                      (uint64_t) decc->user_line_stride);
             }
-            else
-            {
-                cdata += (uint64_t) y * (uint64_t) decc->user_line_stride;
-            }
+            else { cdata += (uint64_t) y * (uint64_t) decc->user_line_stride; }
 
             /* actual read into the output pointer */
             rv = pctxt->do_read (
