@@ -26,7 +26,7 @@ if [[ ! -e "${builddir}" ]]; then
     export CC=/usr/bin/clang
     export CXX=/usr/bin/clang++
     
-    cmake -B ${blddir} -S . ${genargs} ${imathoverride} -DCMAKE_C_FLAGS="${cwarns}" -DCMAKE_BUILD_TYPE=${buildtype} || exit 1
+    cmake -B ${builddir} -S . ${genargs} ${imathoverride} -DCMAKE_C_FLAGS="${cwarns}" -DCMAKE_CXX_FLAGS="${cxxwarns}" -DCMAKE_BUILD_TYPE=${buildtype} || exit 1
 fi
 
 if [[ "$haveninja" != "" ]]; then
@@ -55,7 +55,7 @@ llvm-cov show \
          --format="html" \
          -ignore-filename-regex='src/test/.*' \
          -ignore-filename-regex='build.coverage/.*' \
-         -ignore-filename-regex 'src/lib/OpenEXR/Imf*'
+         -ignore-filename-regex='src/lib/OpenEXR/Imf*'
 
 llvm-cov show \
          build.coverage/bin/OpenEXRTest \
@@ -67,7 +67,7 @@ llvm-cov show \
          --format="html" \
          -ignore-filename-regex='src/test/.*' \
          -ignore-filename-regex='build.coverage/.*' \
-         -ignore-filename-regex 'src/lib/OpenEXRCore/*'
+         -ignore-filename-regex='src/lib/OpenEXRCore/*'
 
 llvm-cov show \
          build.coverage/bin/OpenEXRUtilTest \
@@ -79,8 +79,8 @@ llvm-cov show \
          --format="html" \
          -ignore-filename-regex='src/test/.*' \
          -ignore-filename-regex='build.coverage/.*' \
-         -ignore-filename-regex 'src/lib/OpenEXR/Imf*' \
-         -ignore-filename-regex 'src/lib/OpenEXRCore/*'
+         -ignore-filename-regex='src/lib/OpenEXR/Imf*' \
+         -ignore-filename-regex='src/lib/OpenEXRCore/*'
 
 llvm-cov show \
          build.coverage/bin/OpenEXRCoreTest \
