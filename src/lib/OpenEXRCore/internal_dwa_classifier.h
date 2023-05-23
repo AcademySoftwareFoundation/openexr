@@ -102,8 +102,9 @@ Classifier_read (
             if (curin[len] == '\0') break;
             suffix[len] = (char) curin[len];
         }
-        len += 1;
         if (len == 128 + 1) return EXR_ERR_CORRUPT_CHUNK;
+        // account for extra byte for nil terminator
+        len += 1;
 
         mem = alloc_fn (len);
         if (!mem) return EXR_ERR_OUT_OF_MEMORY;
