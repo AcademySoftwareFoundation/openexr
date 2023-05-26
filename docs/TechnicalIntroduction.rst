@@ -827,13 +827,13 @@ Supported compression schemes:
    * - DWAA (lossy)
 
      - Lossy compression of RGB data by quantizing discrete cosine
-       transorm (DCT) components, in blocks of 32 scanlines. More
+       transform (DCT) components, in blocks of 32 scanlines. More
        efficient for partial buffer access.
 
    * - DWAB (lossy)
 
      - Lossy compression of RGB data by quantizing discrete cosine
-       transorm (DCT) components, in blocks of 256 scanlines. More
+       transform (DCT) components, in blocks of 256 scanlines. More
        efficient space wise and faster to decode full frames than DWAA
        access.
 

@@ -247,7 +247,7 @@ writeStringList (char*& outPtr, const T& stringList, int entries = 0)
         //
         // variable length encoding:
         // values between 0 and 127 inclusive are stored in a single byte
-        // values betwwen 128 and 16384 are encoded with two bytes: 1LLLLLLL 0MMMMMMMM where L and M are the least and most significant bits of the value
+        // values between 128 and 16384 are encoded with two bytes: 1LLLLLLL 0MMMMMMMM where L and M are the least and most significant bits of the value
         // in general, values are stored least significant values first, with the top bit of each byte indicating more values follow
         // the top bit is clear in the last byte of the value
         // (this scheme requires two bytes to store values above 1<<7, and five bytes to store values above 1<<28)
