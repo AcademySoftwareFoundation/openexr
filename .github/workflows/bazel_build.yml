@@ -26,6 +26,9 @@ on:
     paths-ignore:
       - '**.md'
 
+permissions:
+  contents: read
+
 jobs:
   build_and_test_ubuntu:
     name: Linux Ubuntu 20.04 Bazel build <GCC 9.3.0>
