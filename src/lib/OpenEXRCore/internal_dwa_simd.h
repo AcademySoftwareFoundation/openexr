@@ -47,6 +47,10 @@
 #define _SSE_ALIGNMENT_MASK 0x0F
 #define _AVX_ALIGNMENT_MASK 0x1F
 
+#ifdef __ARM_NEON // Needed to support macOS with arm64 processor (e.g. M1)
+#include <arm_neon.h>
+#endif
+
 //
 // Color space conversion, Inverse 709 CSC, Y'CbCr -> R'G'B'
 //
