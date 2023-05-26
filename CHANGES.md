@@ -3,7 +3,7 @@
 
 # OpenEXR Release Notes
 
-* [Version 3.1.8](#version-318-may-27-2023) May 27, 2023
+* [Version 3.1.8](#version-318-may-27-2023) May 28, 2023
 * [Version 3.1.7](#version-317-march-28-2023) March 28, 2023
 * [Version 3.1.6](#version-316-march-9-2023) March 9, 2023
 * [Version 3.1.5](#version-315-april-11-2022) April 11, 2022
@@ -62,7 +62,7 @@
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
 
-## Version 3.1.8 (May 27, 2023)
+## Version 3.1.8 (May 28, 2023)
 
 Patch release that addresses miscellaneous build issues, for macOS in
 particular, but also includes:
@@ -76,8 +76,16 @@ This release also addresses:
 
 ### Merged Pull Requests
 
+* [1435](https://github.com/AcademySoftwareFoundation/openexr/pull/1435)
+Bazel support: Update Imath to 3.1.8
+* [1434](https://github.com/AcademySoftwareFoundation/openexr/pull/1434)
+Fix macOS arm64 build
 * [1429](https::/github.com/AcademySoftwareFoundation/openexr/pull/1429)
 fix out of bounds check with a full channel name vs. byte count
+* [1422](https://github.com/AcademySoftwareFoundation/openexr/pull/1422)
+Fix reference to the number of supported compression types
+* [1420](https://github.com/AcademySoftwareFoundation/openexr/pull/1420)
+Document DWAA/DWAB compression in Technical Introduction
 * [1414](https::/github.com/AcademySoftwareFoundation/openexr/pull/1414)
 Add #include <cmath> for isnan
 * [1409](https::/github.com/AcademySoftwareFoundation/openexr/pull/1409)
