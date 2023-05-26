@@ -149,6 +149,8 @@ cc_library(
     srcs = [
         "src/lib/IlmThread/IlmThreadConfig.h",
         "src/lib/OpenEXR/OpenEXRConfig.h",
+        "src/lib/OpenEXR/OpenEXRConfigInternal.h",
+        "src/lib/OpenEXR/dwaLookups.h",
         "src/lib/OpenEXRCore/attributes.c",
         "src/lib/OpenEXRCore/backward_compatibility.h",
         "src/lib/OpenEXRCore/base.c",
@@ -211,8 +213,6 @@ cc_library(
         "src/lib/OpenEXRCore/unpack.c",
         "src/lib/OpenEXRCore/validation.c",
         "src/lib/OpenEXRCore/write_header.c",
-        "src/lib/OpenEXR/dwaLookups.h",
-        "src/lib/OpenEXR/OpenEXRConfigInternal.h",
     ],
     hdrs = [
         "src/lib/OpenEXRCore/openexr.h",

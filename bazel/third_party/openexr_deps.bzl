@@ -7,7 +7,7 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("@bazel_tools//tools/build_defs/repo:utils.bzl", "maybe")
 
 def openexr_deps():
-    """Fetches dependencies (zlib and Imath) of OpenEXR and Skylib for header generation."""
+    """Fetches dependencies (libdeflate and Imath) of OpenEXR and Skylib for header generation."""
 
     maybe(
         http_archive,
@@ -22,9 +22,9 @@ def openexr_deps():
         http_archive,
         name = "Imath",
         build_file = "@com_openexr//:bazel/third_party/Imath.BUILD",
-        strip_prefix = "Imath-3.1.7",
-        sha256 = "bff1fa140f4af0e7f02c6cb78d41b9a7d5508e6bcdfda3a583e35460eb6d4b47",
-        urls = ["https://github.com/AcademySoftwareFoundation/Imath/archive/refs/tags/v3.1.7.tar.gz"],
+        strip_prefix = "Imath-3.1.8",
+        sha256 = "a23a4e2160ca8ff68607a4e129e484edd1d0d13f707394d32af7aed659020803",
+        urls = ["https://github.com/AcademySoftwareFoundation/Imath/archive/refs/tags/v3.1.8.tar.gz"],
     )
 
     http_archive(
