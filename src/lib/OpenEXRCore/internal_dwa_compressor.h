@@ -789,9 +789,10 @@ DwaCompressor_uncompress (
     uint64_t compressedSize;
     const uint8_t* dataPtr;
     uint64_t       dataLeft;
-    uint8_t* outBufferEnd;
-    uint8_t* packedAcBufferEnd;
-    uint8_t* packedDcBufferEnd;
+    uint8_t*       outBufferEnd;
+    uint8_t*       packedAcBufferEnd;
+    uint8_t*       packedDcBufferEnd;
+    const uint8_t* dataPtrEnd;
     const uint8_t* compressedUnknownBuf;
     const uint8_t* compressedAcBuf;
     const uint8_t* compressedDcBuf;
@@ -829,6 +830,7 @@ DwaCompressor_uncompress (
     compressedSize = unknownCompressedSize + acCompressedSize +
         dcCompressedSize + rleCompressedSize;
 
+    dataPtrEnd = inPtr + iSize;
     dataPtr  = inPtr + headerSize;
     dataLeft = iSize - headerSize;
 
@@ -908,6 +910,18 @@ DwaCompressor_uncompress (
         compressedAcBuf + (ptrdiff_t) (acCompressedSize);
     compressedRleBuf =
         compressedDcBuf + (ptrdiff_t) (dcCompressedSize);
+
+    if (compressedUnknownBuf >= dataPtrEnd ||
+        dataPtr > compressedAcBuf ||
+        compressedAcBuf >= dataPtrEnd ||
+        dataPtr > compressedDcBuf ||
+        compressedDcBuf >= dataPtrEnd ||
+        dataPtr > compressedRleBuf ||
+        compressedRleBuf >= dataPtrEnd ||
+        (compressedRleBuf + rleCompressedSize) > dataPtrEnd)
+    {
+        return EXR_ERR_CORRUPT_CHUNK;
+    }
 
     //
     // Sanity check that the version is something we expect. Right now,
