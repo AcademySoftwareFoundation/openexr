@@ -159,7 +159,7 @@ inline bool
 withinDWAErrorBounds (const uint16_t a, const uint16_t b)
 {
     float a1 = imath_half_to_float (a);
-    if (!isnan (a1))
+    if (!std::isnan (a1))
     {
         float a2 = imath_half_to_float (b);
         float denominator =
