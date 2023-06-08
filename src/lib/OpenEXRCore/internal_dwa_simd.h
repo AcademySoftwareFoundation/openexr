@@ -18,7 +18,7 @@
 // aligned. Unaligned pointers may risk seg-faulting.
 //
 
-#if defined __SSE2__ || (_MSC_VER >= 1300 && !_M_CEE_PURE)
+#if defined __SSE2__ || (_MSC_VER >= 1300 && (_M_IX86 || _M_X64) && !_M_CEE_PURE)
 #    define IMF_HAVE_SSE2 1
 #    include <emmintrin.h>
 #    include <mmintrin.h>
