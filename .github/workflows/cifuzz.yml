@@ -1,5 +1,9 @@
 name: CIFuzz
-on: [pull_request]
+on: 
+  pull_request:
+    # Jobs are skipped when ONLY Markdown (*.md) files are changed
+    paths-ignore: 
+      - '**.md'
 permissions:
   contents: read
 jobs:
