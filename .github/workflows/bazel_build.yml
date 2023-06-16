@@ -48,8 +48,11 @@ jobs:
         bazelisk build //...
 
   build_and_test_windows:
-    name: Windows Server 2022 build <Visual Studio 2022>
-    runs-on: windows-2022
+    # TODO: switch back to VS 2022 when https://github.com/bazelbuild/bazel/issues/18592 issue is solved
+    #name: Windows Server 2022 build <Visual Studio 2022>
+    #runs-on: windows-2022
+    name: Windows Server 2019 build <Visual Studio 2019>
+    runs-on: windows-2019
 
     steps:
     - uses: actions/checkout@v3
