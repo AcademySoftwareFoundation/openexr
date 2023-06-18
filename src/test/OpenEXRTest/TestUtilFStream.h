@@ -104,7 +104,7 @@ OpenStreamWithUTF8Name (
     StreamType& is, const char* filename, std::ios_base::openmode mode)
 {
 #    ifdef _WIN32
-    std::wstring wfn = WidenFilename (filename);
+    std::wstring wfn = OPENEXR_IMF_INTERNAL_NAMESPACE::WidenFilename (filename);
 #        ifdef USE_WIDEN_FILEBUF
     using CharT   = typename StreamType::char_type;
     using TraitsT = typename StreamType::traits_type;
