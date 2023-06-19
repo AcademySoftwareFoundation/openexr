@@ -6,7 +6,7 @@
 ## Reporting a Vulnerability
 
 If you think you've found a potential vulnerability in OpenEXR, please
-report it by emailing security@openexr.org. Only Technical Steering
+report it by emailing security@openexr.com. Only Technical Steering
 Committee members and Academy Software Foundation project management
 have access to these messages. Include detailed steps to reproduce the
 issue, and any other information that could aid an investigation. Our
