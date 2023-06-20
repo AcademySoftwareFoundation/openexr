@@ -371,13 +371,16 @@ setupBuffer (
     for (int i = 0; i < samples; i++)
     {
         half v;
-        // generate a random finite half (ignore bit patterns that are NaNs or infinity)
+        // generate a random finite half
+        // if the value is to be cast to a float, ensure the value is not infinity
+        // or NaN, since the value is not guaranteed to round trip from half to float
+        // and back again with bit-identical precision
         do
         {
             unsigned short int values =
                 random_int (std::numeric_limits<unsigned short>::max ());
             v.setBits (values);
-        } while( (v-v)!=0  );
+        } while(!( (v-v)==0 || pt==NULL || pt[chan]==IMF::HALF) );
 
         if (pt == NULL || pt[chan] == IMF::HALF)
         {
