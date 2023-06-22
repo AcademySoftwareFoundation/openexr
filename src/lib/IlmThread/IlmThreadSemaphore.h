@@ -18,6 +18,13 @@
 #include "IlmThreadConfig.h"
 #include "IlmThreadNamespace.h"
 
+//
+// Decipher the platform-specific threading support.
+// Set the ILMTHREAD_SEMAPHORE_* defines to indicate the corresponding
+// implementation of the Semaphore class. Only one of these should be
+// defined.
+//
+
 #if ILMTHREAD_THREADING_ENABLED
 #    if ILMTHREAD_HAVE_POSIX_SEMAPHORES
 #        include <semaphore.h>
@@ -28,6 +35,8 @@
 #            include <dispatch/dispatch.h>
 #            define ILMTHREAD_SEMAPHORE_OSX 1
 #        else
+#            include <condition_variable>
+#            include <mutex>
 #            define ILMTHREAD_SEMAPHORE_OTHER 1
 #        endif
 #    elif (defined(_WIN32) || defined(_WIN64))
@@ -73,7 +82,7 @@ private:
 
     mutable HANDLE _semaphore;
 
-#elif ILMTHREAD_THREADING_OTHER
+#elif ILMTHREAD_SEMAPHORE_OTHER
     
     //
     // If the platform has threads but no semaphores,

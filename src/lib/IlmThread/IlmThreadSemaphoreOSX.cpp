@@ -5,7 +5,9 @@
 
 //-----------------------------------------------------------------------------
 //
-//	class Semaphore -- implementation for OSX platform(it don't support unnamed Posix semaphores)
+//	class Semaphore -- implementation for OSX platform (it doesn't
+//	support unnamed Posix semaphores)
+//
 //	std::condition_variable + std::mutex emulation show poor performance
 //
 //-----------------------------------------------------------------------------
