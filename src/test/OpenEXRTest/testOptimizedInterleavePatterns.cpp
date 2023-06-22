@@ -276,10 +276,11 @@ setupBuffer (const Header& hdr,       // header to grab datawindow from
         {
             switch (pt[activechans])
             {
-                case IMF::HALF : bytes_per_pixel+=2;break;
-                case IMF::FLOAT : case IMF::UINT : 
-                    // some architectures (e.g arm7 cannot write 32 bit values
-                    // to addresses which aren't aligned to 32 bit addresses)
+                case IMF::HALF: bytes_per_pixel += 2; break;
+                case IMF::FLOAT:
+                case IMF::UINT:
+                    // some architectures (e.g arm7) cannot write 32 bit values
+                    // to addresses which aren't aligned to 32 bit addresses
                     // so bump to next multiple of four
                     bytes_per_pixel =  alignToFour(bytes_per_pixel);
                     bytes_per_pixel+=4;
@@ -345,41 +346,46 @@ setupBuffer (const Header& hdr,       // header to grab datawindow from
         readingBuffer.resize(size);
     }
    
-     const char * write_ptr = writing ? &writingBuffer[0] : &readingBuffer[0];
-     // fill with random halfs, casting to floats for float channels
-     int chan=0;
-     for (int i=0;i<samples;i++)
-     {
-         unsigned short int values = random_int(std::numeric_limits<unsigned short>::max());
-         half v;
-         v.setBits(values);
-         if (pt==NULL || pt[chan]==IMF::HALF)
-         {
-             *(half*)write_ptr = half(v);
-             write_ptr+=2;
-         }
-         else
-         {
-             write_ptr = alignToFour(write_ptr);
-             *(float*)write_ptr = float(v);
-             
-             write_ptr+=4;
-         }
-         chan++;
-         if (chan==chans)
-         {
-             chan=0;
-         }
-     
-     }
+    const char* write_ptr = writing ? &writingBuffer[0] : &readingBuffer[0];
+    // fill with random halfs, casting to floats for float channels
+    int chan = 0;
+    for (int i = 0; i < samples; i++)
+    {
+        half v;
+        // generate a random finite half
+        // if the value is to be cast to a float, ensure the value is not infinity
+        // or NaN, since the value is not guaranteed to round trip from half to float
+        // and back again with bit-identical precision
+        do
+        {
+            unsigned short int values =
+                random_int (std::numeric_limits<unsigned short>::max ());
+            v.setBits (values);
+        } while(!( (v-v)==0 || pt==NULL || pt[chan]==IMF::HALF) );
 
-     if (!writing)
-     {
-         //take a copy of the buffer as it was before being read
-         preReadBuffer = readingBuffer;
-     }
-     
-    char* offset=NULL;
+        if (pt == NULL || pt[chan] == IMF::HALF)
+        {
+            *(half*) write_ptr = half (v);
+            write_ptr += 2;
+        }
+        else
+        {
+            write_ptr           = alignToFour (write_ptr);
+            *(float*) write_ptr = float (v);
+
+            write_ptr += 4;
+        }
+        chan++;
+        if (chan == chans) { chan = 0; }
+    }
+
+    if (!writing)
+    {
+        //take a copy of the buffer as it was before being read
+        preReadBuffer = readingBuffer;
+    }
+
+    char* offset = NULL;
 
     ChannelList chanlist;
 
