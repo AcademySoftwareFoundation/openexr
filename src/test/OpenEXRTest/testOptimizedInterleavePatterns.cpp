@@ -312,8 +312,8 @@ setupBuffer (
                 case IMF::HALF: bytes_per_pixel += 2; break;
                 case IMF::FLOAT:
                 case IMF::UINT:
-                    // some architectures (e.g arm7 cannot write 32 bit values
-                    // to addresses which aren't aligned to 32 bit addresses)
+                    // some architectures (e.g arm7) cannot write 32 bit values
+                    // to addresses which aren't aligned to 32 bit addresses
                     // so bump to next multiple of four
                     bytes_per_pixel = alignToFour (bytes_per_pixel);
                     bytes_per_pixel += 4;
@@ -370,10 +370,18 @@ setupBuffer (
     int chan = 0;
     for (int i = 0; i < samples; i++)
     {
-        unsigned short int values =
-            random_int (std::numeric_limits<unsigned short>::max ());
         half v;
-        v.setBits (values);
+        // generate a random finite half
+        // if the value is to be cast to a float, ensure the value is not infinity
+        // or NaN, since the value is not guaranteed to round trip from half to float
+        // and back again with bit-identical precision
+        do
+        {
+            unsigned short int values =
+                random_int (std::numeric_limits<unsigned short>::max ());
+            v.setBits (values);
+        } while(!( (v-v)==0 || pt==NULL || pt[chan]==IMF::HALF) );
+
         if (pt == NULL || pt[chan] == IMF::HALF)
         {
             *(half*) write_ptr = half (v);
