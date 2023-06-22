@@ -331,6 +331,7 @@ jobs:
           - build: 1
             build-type: Release
             build-shared: 'ON'
+            threads-enabled: 'ON'
             compiler-desc: AppleClang11.0
             cxx-standard: 17
             osver: 11.0
@@ -352,6 +353,7 @@ jobs:
           - build: 3
             build-type: Release
             build-shared: 'OFF'
+            threads-enabled: 'ON'
             compiler-desc: AppleClang11.0
             cxx-standard: 17
             osver: 11.0
@@ -362,6 +364,7 @@ jobs:
           - build: 4
             build-type: Debug
             build-shared: 'ON'
+            threads-enabled: 'ON'
             compiler-desc: AppleClang11.0
             cxx-standard: 17
             osver: 11.0
@@ -375,6 +378,7 @@ jobs:
           - build: 5
             build-type: Release
             build-shared: 'ON'
+            threads-enabled: 'ON'
             compiler-desc: AppleClang11.0
             cxx-standard: 17
             osver: 12.0
@@ -454,6 +458,7 @@ jobs:
           - build: 1
             build-type: Release
             build-shared: 'ON'
+            threads-enabled: 'ON'
             compiler-desc: msvc17.5
             cxx-standard: 17
             vfx-cy: 2023
@@ -475,6 +480,7 @@ jobs:
           - build: 3
             build-type: Release
             build-shared: 'OFF'
+            threads-enabled: 'ON'
             compiler-desc: msvc17.5
             cxx-standard: 17
             vfx-cy: 2023
@@ -488,6 +494,7 @@ jobs:
           - build: 4
             build-type: Release
             build-shared: 'ON'
+            threads-enabled: 'ON'
             compiler-desc: msvc16.11
             cxx-standard: 17
             vfx-cy: 2022
@@ -498,6 +505,7 @@ jobs:
           - build: 5
             build-type: Release
             build-shared: 'OFF'
+            threads-enabled: 'ON'
             compiler-desc: msvc16.11
             cxx-standard: 17
             vfx-cy: 2022
