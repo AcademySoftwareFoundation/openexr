@@ -72,12 +72,18 @@ Patch release that addresses miscelleneous build and doc issues, as well as:
 
 ### Merged Pull Requests
 
+* [1461](https::/github.com/AcademySoftwareFoundation/openexr/pull/1461)
+  don't use NaNs/infs in testOptimizedInterleavePatterns
+* [1457](https::/github.com/AcademySoftwareFoundation/openexr/pull/1457)
+  Bazel support: Switch back to VS2019 due to a toolchain issue in Bazel
 * [1454](https::/github.com/AcademySoftwareFoundation/openexr/pull/1454)
   Add ``OPENEXR_IMF_INTERNAL_NAMESPACE`` for ``WidenFilename``
 * [1452](https::/github.com/AcademySoftwareFoundation/openexr/pull/1452)
   Use ``security@openexr.com`` for consistency
 * [1448](https::/github.com/AcademySoftwareFoundation/openexr/pull/1448)
   compression.cpp: fix isnan
+* [1443](https::/github.com/AcademySoftwareFoundation/openexr/pull/1443)
+  Bazel bump imath
 * [1439](https::/github.com/AcademySoftwareFoundation/openexr/pull/1439)
   Fix scenario where malformed dwa file could read past end of buffer
 * [1416](https::/github.com/AcademySoftwareFoundation/openexr/pull/1416)
