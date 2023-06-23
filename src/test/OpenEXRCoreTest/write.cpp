@@ -1293,7 +1293,6 @@ testWriteTiles (const std::string& tempdir)
     EXRCORE_TEST (partcnt == outpartcnt);
 
     exr_attr_box2i_t dw;
-    int              curchunk = 0;
     int              ty, tx;
     void*            cmem     = NULL;
     size_t           cmemsize = 0;

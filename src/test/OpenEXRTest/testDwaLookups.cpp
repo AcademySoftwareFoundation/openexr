@@ -228,8 +228,7 @@ testNoop ()
 
     for (int i = 0; i < 65536; ++i)
     {
-        unsigned short src = (unsigned short) i;
-        assert (src == OPENEXR_IMF_INTERNAL_NAMESPACE::dwaCompressorNoOp[i]);
+        assert ((unsigned short) i == OPENEXR_IMF_INTERNAL_NAMESPACE::dwaCompressorNoOp[i]);
     }
 }
 
