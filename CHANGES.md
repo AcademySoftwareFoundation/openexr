@@ -3,6 +3,7 @@
 
 # OpenEXR Release Notes
 
+* [Version 3.1.9](#version-319-june-25-2023) June 25, 2023
 * [Version 3.1.8](#version-318-june-2-2023) June 2, 2023
 * [Version 3.1.7](#version-317-march-28-2023) March 28, 2023
 * [Version 3.1.6](#version-316-march-9-2023) March 9, 2023
@@ -61,6 +62,26 @@
 * [Version 1.0.2](#version-102)
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
+
+## Version 3.1.9 (June 25, 2023)
+
+Patch release that addresses miscelleneous build and doc issues, as well as:
+
+* OSS-fuzz [59382](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=59382)
+  Heap-buffer-overflow in internal_huf_decompress
+
+### Merged Pull Requests
+
+* [1454](https::/github.com/AcademySoftwareFoundation/openexr/pull/1454)
+  Add ``OPENEXR_IMF_INTERNAL_NAMESPACE`` for ``WidenFilename``
+* [1452](https::/github.com/AcademySoftwareFoundation/openexr/pull/1452)
+  Use ``security@openexr.com`` for consistency
+* [1448](https::/github.com/AcademySoftwareFoundation/openexr/pull/1448)
+  compression.cpp: fix isnan
+* [1439](https::/github.com/AcademySoftwareFoundation/openexr/pull/1439)
+  Fix scenario where malformed dwa file could read past end of buffer
+* [1416](https::/github.com/AcademySoftwareFoundation/openexr/pull/1416)
+  IlmThread: fix defines for older macOS: do not prefix with ``__``
 
 ## Version 3.1.8 (June 2, 2023)
 
