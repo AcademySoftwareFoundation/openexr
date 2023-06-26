@@ -10,19 +10,11 @@
 //
 //-----------------------------------------------------------------------------
 
-#include "IlmThreadConfig.h"
+#include "IlmThreadSemaphore.h"
 
-#if defined(__APPLE__)
-#    include <AvailabilityMacros.h>
-#endif
+#if ILMTHREAD_SEMAPHORE_OTHER
 
 // Use this code as a fallback for macOS versions without libdispatch.
-#if ILMTHREAD_THREADING_ENABLED
-#    if (!(ILMTHREAD_HAVE_POSIX_SEMAPHORES) && !defined(_WIN32) && !defined(_WIN64) && \
-        (!defined(__APPLE__) || (defined(__APPLE__) && \
-        (MAC_OS_X_VERSION_MIN_REQUIRED < 1060 || defined(__ppc__)))))
-
-#    include "IlmThreadSemaphore.h"
 
 ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_ENTER
 
@@ -91,5 +83,4 @@ Semaphore::value () const
 
 ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_EXIT
 
-#endif // posix semaphore compat
-#endif // enable threading
+#endif // ILMTHREAD_SEMAPHORE_OTHER

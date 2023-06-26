@@ -9,15 +9,15 @@
 //
 //-----------------------------------------------------------------------------
 
-#include "IlmThreadConfig.h"
-
-#if (defined(_WIN32) || defined(_WIN64)) && !ILMTHREAD_HAVE_POSIX_SEMAPHORES
-
 #include "IlmThreadSemaphore.h"
+
+#if ILMTHREAD_SEMAPHORE_WINDOWS
+
 #include "Iex.h"
-#include <string>
 #include <assert.h>
 #include <iostream>
+#include <string>
+
 
 ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_ENTER
 
@@ -121,4 +121,5 @@ Semaphore::value() const
 
 ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_EXIT
 
-#endif // _WIN32
+#endif // ILMTHREAD_SEMAPHORE_WINDOWS
+

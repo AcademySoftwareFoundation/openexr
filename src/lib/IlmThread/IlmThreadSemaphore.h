@@ -18,25 +18,41 @@
 #include "IlmThreadConfig.h"
 #include "IlmThreadNamespace.h"
 
-#if defined(__APPLE__)
-#   include <AvailabilityMacros.h>
-#endif
+//
+// Decipher the platform-specific threading support.
+// Set the ILMTHREAD_SEMAPHORE_* defines to indicate the corresponding
+// implementation of the Semaphore class. Only one of these should be
+// defined.
+//
 
 #if ILMTHREAD_THREADING_ENABLED
 #    if ILMTHREAD_HAVE_POSIX_SEMAPHORES
 #        include <semaphore.h>
-#    elif defined(__APPLE__) && MAC_OS_X_VERSION_MIN_REQUIRED > 1050 && !defined(__ppc__)
-#        include <dispatch/dispatch.h>
+#        define ILMTHREAD_SEMAPHORE_POSIX 1
+#    elif defined(__APPLE__)
+#        include <AvailabilityMacros.h>
+#        if MAC_OS_X_VERSION_MIN_REQUIRED > 1050 && !defined(__ppc__)
+#            include <dispatch/dispatch.h>
+#            define ILMTHREAD_SEMAPHORE_OSX 1
+#        else
+#            include <condition_variable>
+#            include <mutex>
+#            define ILMTHREAD_SEMAPHORE_OTHER 1
+#        endif
 #    elif (defined(_WIN32) || defined(_WIN64))
 #        ifdef NOMINMAX
 #            undef NOMINMAX
 #        endif
 #        define NOMINMAX
 #        include <windows.h>
+#        define ILMTHREAD_SEMAPHORE_WINDOWS 1
 #    else
 #        include <condition_variable>
 #        include <mutex>
+#        define ILMTHREAD_SEMAPHORE_OTHER 1
 #    endif
+#else
+#    define ILMTHREAD_SEMAPHORE_DISABLED 1
 #endif
 
 ILMTHREAD_INTERNAL_NAMESPACE_HEADER_ENTER
@@ -56,18 +72,20 @@ class ILMTHREAD_EXPORT_TYPE Semaphore
 
   private:
 
-#if ILMTHREAD_HAVE_POSIX_SEMAPHORES
+#if ILMTHREAD_SEMAPHORE_POSIX
 
-	mutable sem_t _semaphore;
+    mutable sem_t _semaphore;
 
-#elif defined(__APPLE__) && MAC_OS_X_VERSION_MIN_REQUIRED > 1050 && !defined(__ppc__)
+#elif ILMTHREAD_SEMAPHORE_OSX
+    
     mutable dispatch_semaphore_t _semaphore;
 
-#elif (defined (_WIN32) || defined (_WIN64))
+#elif ILMTHREAD_SEMAPHORE_WINDOWS
 
-	mutable HANDLE _semaphore;
+    mutable HANDLE _semaphore;
 
-#elif ILMTHREAD_THREADING_ENABLED
+#elif ILMTHREAD_SEMAPHORE_OTHER
+    
     //
     // If the platform has threads but no semaphores,
     // then we implement them ourselves using condition variables
