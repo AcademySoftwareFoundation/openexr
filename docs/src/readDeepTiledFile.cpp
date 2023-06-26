@@ -57,7 +57,7 @@ readDeepTiledFile (
             dataA[i][j] = new half[sampleCount[i][j]];
         }
 
-        file.readTiles (0, numXTiles - 1, 0, numYTiles – 1);
+        file.readTiles (0, numXTiles - 1, 0, numYTiles - 1);
 
         // (after read data is processed, data must be freed:)
 
