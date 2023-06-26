@@ -13,6 +13,52 @@ News
 .. toctree::
    :caption: News
 
+June 25, 2023 - OpenEXR v3.1.9 Released
+=======================================
+
+Patch release that addresses miscelleneous build, doc, test issues, in
+particular:
+
+- Build fix for older macOS versions
+
+Also:
+
+* OSS-fuzz [59382](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=59382)
+  Heap-buffer-overflow in internal_huf_decompress
+
+June 2, 2023 - OpenEXR v3.1.8 Released
+======================================
+
+Patch release that addresses miscellaneous build issues, for macOS in
+particular, but also includes:
+ 
+* Support for DWA compression in OpenEXRCore
+* Fix for threadpool deadlocks during shutdown on Windows  
+
+This release also addresses:
+
+* OSS-fuzz [59070](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=59070) Stack-buffer-overflow in DwaCompressor_readChannelRules
+
+May 31, 2023 - Imath Version 3.1.9 Released
+===========================================
+
+Patch release that fixes an correct .so version number introduced in
+v3.1.8. All Imath library functionality is compatible with v3.1.8.
+
+This release also reverts
+[#305](https://github.com/AcademySoftwareFoundation/Imath/pull/305),
+which inadvertently introduced additional python bindings in v3.1.8
+that altered the ABI of ``libPyImath``. ``libPyImath`` is now
+ABI-compatible with v3.1.7 and previous releases.
+
+May 22, 2023 - Imath Version 3.1.8 Released
+===========================================
+
+**NOTE: this version has an incorrect .so number and should not be used. Use v3.1.9 instead.**
+
+Patch release that addresses miscellaneous minor compiler/build/doc
+issues and extends test coverage.
+
 March 28, 2023 - OpenEXR v3.1.7 Released
 ========================================
 
