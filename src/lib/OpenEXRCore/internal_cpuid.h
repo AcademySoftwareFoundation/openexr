@@ -88,7 +88,12 @@ check_for_x86_simd (int* f16c, int* avx, int* sse2)
         /* check extended control register */
 #    if defined(_M_X64) || defined(__x86_64__)
 #        if defined(_MSC_VER)
+        /* TODO: remove the following disablement once we can do inline msvc */
+#            if defined(OPENEXR_IMF_HAVE_GCC_INLINE_ASM_AVX)
         regs[0] = _xgetbv(0);
+#            else
+        regs[0] = 0;
+#            endif
 #        else
         __asm__ __volatile__ ("xgetbv"
                               : /* Output  */ "=a"(regs[0]), "=d"(regs[3])
