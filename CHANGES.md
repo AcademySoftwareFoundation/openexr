@@ -3,6 +3,8 @@
 
 # OpenEXR Release Notes
 
+* [Version 3.1.9](#version-319-june-25-2023) June 25, 2023
+* [Version 3.1.8](#version-318-june-2-2023) June 2, 2023
 * [Version 3.1.7](#version-317-march-28-2023) March 28, 2023
 * [Version 3.1.6](#version-316-march-9-2023) March 9, 2023
 * [Version 3.1.5](#version-315-april-11-2022) April 11, 2022
@@ -60,6 +62,74 @@
 * [Version 1.0.2](#version-102)
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
+
+## Version 3.1.9 (June 25, 2023)
+
+Patch release that addresses miscelleneous build, doc, test issues, in
+particular:
+
+- Build fix for older macOS versions
+
+Also:
+
+* OSS-fuzz [59382](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=59382)
+  Heap-buffer-overflow in internal_huf_decompress
+
+### Merged Pull Requests
+
+* [1461](https::/github.com/AcademySoftwareFoundation/openexr/pull/1461)
+  don't use NaNs/infs in testOptimizedInterleavePatterns
+* [1457](https::/github.com/AcademySoftwareFoundation/openexr/pull/1457)
+  Bazel support: Switch back to VS2019 due to a toolchain issue in Bazel
+* [1454](https::/github.com/AcademySoftwareFoundation/openexr/pull/1454)
+  Add ``OPENEXR_IMF_INTERNAL_NAMESPACE`` for ``WidenFilename``
+* [1452](https::/github.com/AcademySoftwareFoundation/openexr/pull/1452)
+  Use ``security@openexr.com`` for consistency
+* [1448](https::/github.com/AcademySoftwareFoundation/openexr/pull/1448)
+  compression.cpp: fix isnan
+* [1443](https::/github.com/AcademySoftwareFoundation/openexr/pull/1443)
+  Bazel bump imath
+* [1439](https::/github.com/AcademySoftwareFoundation/openexr/pull/1439)
+  Fix scenario where malformed dwa file could read past end of buffer
+* [1416](https::/github.com/AcademySoftwareFoundation/openexr/pull/1416)
+  IlmThread: fix defines for older macOS: do not prefix with ``__``
+
+## Version 3.1.8 (June 2, 2023)
+
+Patch release that addresses miscellaneous build issues, for macOS in
+particular, but also includes:
+ 
+* Support for DWA compression in OpenEXRCore
+* Fix for threadpool deadlocks during shutdown on Windows  
+
+This release also addresses:
+
+* OSS-fuzz [59070](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=59070) Stack-buffer-overflow in DwaCompressor_readChannelRules
+
+### Merged Pull Requests
+
+* [1429](https::/github.com/AcademySoftwareFoundation/openexr/pull/1429)
+fix out of bounds check with a full channel name vs. byte count
+* [1414](https::/github.com/AcademySoftwareFoundation/openexr/pull/1414)
+Add #include <cmath> for isnan
+* [1409](https::/github.com/AcademySoftwareFoundation/openexr/pull/1409)
+Use posix compat code for old macOS without libdispatch
+* [1408](https::/github.com/AcademySoftwareFoundation/openexr/pull/1408)
+internal_xdr.h: fix endian logic for Apple
+* [1406](https::/github.com/AcademySoftwareFoundation/openexr/pull/1406)
+internal_structs.h: __STDC_FORMAT_MACROS should be defined prior to inttypes.h
+* [1402](https::/github.com/AcademySoftwareFoundation/openexr/pull/1402)
+Add dwa support to core
+* [1389](https::/github.com/AcademySoftwareFoundation/openexr/pull/1389)
+fix typo
+* [1382](https::/github.com/AcademySoftwareFoundation/openexr/pull/1382)
+Update macOS installation instructions
+* [1378](https::/github.com/AcademySoftwareFoundation/openexr/pull/1378)
+Fix typo in README.md
+* [1377](https::/github.com/AcademySoftwareFoundation/openexr/pull/1377)
+Only install exrinfo when OPENEXR_INSTALL_TOOLS is on
+* [1291](https::/github.com/AcademySoftwareFoundation/openexr/pull/1291)
+Change setNumThreads to wait for thread start
 
 ## Version 3.1.7 (March 28, 2023)
 
