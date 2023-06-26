@@ -86,11 +86,15 @@ check_for_x86_simd (int* f16c, int* avx, int* sse2)
     else
     {
         /* check extended control register */
-#   if defined(_M_X64) || defined(__x86_64__)
+#    if defined(_M_X64) || defined(__x86_64__)
+#        if defined(_MSC_VER)
+        regs[0] = _xgetbv(0);
+#        else
         __asm__ __volatile__ ("xgetbv"
                               : /* Output  */ "=a"(regs[0]), "=d"(regs[3])
                               : /* Input   */ "c"(0)
                               : /* Clobber */);
+#        endif
         /* eax bit 1 - SSE managed, bit 2 - AVX managed */
         if ((regs[0] & 6) != 6)
         {
