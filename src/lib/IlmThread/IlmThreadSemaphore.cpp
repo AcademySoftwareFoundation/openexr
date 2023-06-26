@@ -10,11 +10,9 @@
 //
 //-----------------------------------------------------------------------------
 
-#include "IlmThreadConfig.h"
-
-#if !(ILMTHREAD_THREADING_ENABLED)
-
 #include "IlmThreadSemaphore.h"
+
+#if ILMTHREAD_SEMAPHORE_DISABLED
 
 ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_ENTER
 
@@ -29,4 +27,4 @@ int Semaphore::value () const {return 0;}
 
 ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_EXIT
 
-#endif
+#endif // ILMTHREAD_SEMAPHORE_DISABLED
