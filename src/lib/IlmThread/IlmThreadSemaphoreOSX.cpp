@@ -5,19 +5,18 @@
 
 //-----------------------------------------------------------------------------
 //
-//	class Semaphore -- implementation for OSX platform(it don't support unnamed Posix semaphores)
+//	class Semaphore -- implementation for OSX platform (it doesn't
+//	support unnamed Posix semaphores)
+//
 //	std::condition_variable + std::mutex emulation show poor performance
 //
 //-----------------------------------------------------------------------------
 
-#if defined(__APPLE__) && !ILMTHREAD_HAVE_POSIX_SEMAPHORES
-#    include <AvailabilityMacros.h>
+#include "IlmThreadSemaphore.h"
 
-// No libdispatch prior to 10.6, and no support for it on any ppc.
-#if MAC_OS_X_VERSION_MIN_REQUIRED > 1050 && !defined(__ppc__)
+#if ILMTHREAD_SEMAPHORE_OSX
 
-#    include "Iex.h"
-#    include "IlmThreadSemaphore.h"
+#include "Iex.h"
 
 ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_ENTER
 
@@ -63,5 +62,4 @@ Semaphore::value () const
 
 ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_EXIT
 
-#    endif
-#endif
+#endif // ILMTHREAD_SEMAPHORE_OSX

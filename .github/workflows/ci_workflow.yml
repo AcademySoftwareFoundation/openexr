@@ -317,11 +317,12 @@ jobs:
        C++${{ matrix.cxx-standard }},
        config=${{ matrix.build-type }},
        shared=${{ matrix.build-shared }},
-       cxx=${{ matrix.cxx-standard }}>'
+       cxx=${{ matrix.cxx-standard }},
+       threads=${{ matrix.threads-enabled }}>'
     runs-on: macos-${{ matrix.osver }}
     strategy:
       matrix:
-        build: [1, 2, 3, 4]
+        build: [1, 2, 3, 4, 5]
         include:
           # -------------------------------------------------------------------
           # VFX CY2023 - C++17 - MacOS 11.0 
@@ -330,6 +331,18 @@ jobs:
           - build: 1
             build-type: Release
             build-shared: 'ON'
+            threads-enabled: 'ON'
+            compiler-desc: AppleClang11.0
+            cxx-standard: 17
+            osver: 11.0
+            exclude-tests:
+            vfx-cy: 23
+
+          # Shared, Release, Threads OFF
+          - build: 2
+            build-type: Release
+            build-shared: 'ON'
+            threads-enabled: 'OFF'
             compiler-desc: AppleClang11.0
             cxx-standard: 17
             osver: 11.0
@@ -337,9 +350,10 @@ jobs:
             vfx-cy: 23
 
           # Static, Release
-          - build: 2
+          - build: 3
             build-type: Release
             build-shared: 'OFF'
+            threads-enabled: 'ON'
             compiler-desc: AppleClang11.0
             cxx-standard: 17
             osver: 11.0
@@ -347,9 +361,10 @@ jobs:
             vfx-cy: 23
 
           # Shared, Debug
-          - build: 3
+          - build: 4
             build-type: Debug
             build-shared: 'ON'
+            threads-enabled: 'ON'
             compiler-desc: AppleClang11.0
             cxx-standard: 17
             osver: 11.0
@@ -360,9 +375,10 @@ jobs:
           # VFX CY2023 - C++17 - MacOS 12
           # -------------------------------------------------------------------
           # Shared, Release
-          - build: 4
+          - build: 5
             build-type: Release
             build-shared: 'ON'
+            threads-enabled: 'ON'
             compiler-desc: AppleClang11.0
             cxx-standard: 17
             osver: 12.0
@@ -428,11 +444,12 @@ jobs:
       <${{ matrix.compiler-desc }},
        config=${{ matrix.build-type }}, 
        shared=${{ matrix.build-shared }}, 
-       cxx=${{ matrix.cxx-standard }}>'
+       cxx=${{ matrix.cxx-standard }},
+       threads=${{ matrix.threads-enabled }}>'
     runs-on: windows-${{ matrix.osver }}
     strategy:
       matrix:
-        build: [1, 2, 3, 4]
+        build: [1, 2, 3, 4, 5]
         include:
           # -------------------------------------------------------------------
           # VFX CY2023 - C++17 - Windows 2022 runner - MSVC 2022 (17.5)
@@ -441,6 +458,18 @@ jobs:
           - build: 1
             build-type: Release
             build-shared: 'ON'
+            threads-enabled: 'ON'
+            compiler-desc: msvc17.5
+            cxx-standard: 17
+            vfx-cy: 2023
+            exclude-tests: ''
+            osver: 2022
+
+          # Shared, Release, Threads OFF
+          - build: 2
+            build-type: Release
+            build-shared: 'ON'
+            threads-enabled: 'OFF'
             compiler-desc: msvc17.5
             cxx-standard: 17
             vfx-cy: 2023
@@ -448,9 +477,10 @@ jobs:
             osver: 2022
 
           # Static, Release
-          - build: 2
+          - build: 3
             build-type: Release
             build-shared: 'OFF'
+            threads-enabled: 'ON'
             compiler-desc: msvc17.5
             cxx-standard: 17
             vfx-cy: 2023
@@ -461,9 +491,10 @@ jobs:
           # VFX CY2022 - C++17 - Windows 2019 runner - MSVC 2019 (16.11) 
           # -------------------------------------------------------------------
           # Shared, Release
-          - build: 3
+          - build: 4
             build-type: Release
             build-shared: 'ON'
+            threads-enabled: 'ON'
             compiler-desc: msvc16.11
             cxx-standard: 17
             vfx-cy: 2022
@@ -471,9 +502,10 @@ jobs:
             osver: 2019
 
           # Static, Release
-          - build: 4
+          - build: 5
             build-type: Release
             build-shared: 'OFF'
+            threads-enabled: 'ON'
             compiler-desc: msvc16.11
             cxx-standard: 17
             vfx-cy: 2022
