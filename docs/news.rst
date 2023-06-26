@@ -23,8 +23,8 @@ particular:
 
 Also:
 
-* OSS-fuzz [59382](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=59382)
-  Heap-buffer-overflow in internal_huf_decompress
+* OSS-fuzz `59382 <https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=59382>`_
+  Heap-buffer-overflow in ``internal_huf_decompress``
 
 June 2, 2023 - OpenEXR v3.1.8 Released
 ======================================
@@ -37,7 +37,7 @@ particular, but also includes:
 
 This release also addresses:
 
-* OSS-fuzz [59070](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=59070) Stack-buffer-overflow in DwaCompressor_readChannelRules
+* OSS-fuzz `59070 <https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=59070>`_ Stack-buffer-overflow in ``DwaCompressor_readChannelRules``
 
 May 31, 2023 - Imath Version 3.1.9 Released
 ===========================================
@@ -46,7 +46,7 @@ Patch release that fixes an correct .so version number introduced in
 v3.1.8. All Imath library functionality is compatible with v3.1.8.
 
 This release also reverts
-[#305](https://github.com/AcademySoftwareFoundation/Imath/pull/305),
+`#305 <https://github.com/AcademySoftwareFoundation/Imath/pull/305>`_,
 which inadvertently introduced additional python bindings in v3.1.8
 that altered the ABI of ``libPyImath``. ``libPyImath`` is now
 ABI-compatible with v3.1.7 and previous releases.
