@@ -20,10 +20,13 @@ writeTiledRgbaRIP1 (const char fileName[],
         {
             generatePixels (pixels, width, height, xLevel, yLevel);
 
-            out.writeTiles (0, out.numXTiles (xLevel) - 1,
-                            0, out.numYTiles (yLevel) – 1,
-                            xLevel,
-                            yLevel);
+            out.writeTiles (
+                0,
+                out.numXTiles (xLevel) - 1,
+                0,
+                out.numYTiles (yLevel) - 1,
+                xLevel,
+                yLevel);
         }
     }
 }
