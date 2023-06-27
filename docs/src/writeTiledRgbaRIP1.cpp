@@ -26,7 +26,7 @@ writeTiledRgbaRIP1 (
                 0,
                 out.numXTiles (xLevel) - 1,
                 0,
-                out.numYTiles (yLevel) – 1,
+                out.numYTiles (yLevel) - 1,
                 xLevel,
                 yLevel);
         }
