@@ -3,8 +3,12 @@
 ** Copyright Contributors to the OpenEXR Project.
 */
 
-#define _LARGEFILE64_SOURCE
+#ifndef _LARGEFILE64_SOURCE
+// define this if it hasn't been defined elsewhere
+#    define _LARGEFILE64_SOURCE
+#endif
 
+#include "openexr_conf.h"
 #include "openexr_context.h"
 
 #include "openexr_part.h"
@@ -12,8 +16,6 @@
 #include "internal_constants.h"
 #include "internal_file.h"
 #include "backward_compatibility.h"
-
-#include <IlmThreadConfig.h>
 
 #if defined(_WIN32) || defined(_WIN64)
 #    include "internal_win32_file_impl.h"

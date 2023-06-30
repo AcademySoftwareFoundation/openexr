@@ -3,12 +3,11 @@
 ** Copyright Contributors to the OpenEXR Project.
 */
 
+#include "openexr_conf.h"
 #include "internal_structs.h"
 #include "internal_attr.h"
 #include "internal_constants.h"
 #include "internal_memory.h"
-
-#include <IlmThreadConfig.h>
 
 #include <stdarg.h>
 #include <stdio.h>
