@@ -959,7 +959,7 @@ Header::sanityCheck (bool isTiled, bool isMultipartFile) const
 
     //
     // The pixel aspect ratio must be greater than 0.
-    // In applications, numbers like the the display or
+    // In applications, numbers like the display or the
     // data window dimensions are likely to be multiplied
     // or divided by the pixel aspect ratio; to avoid
     // arithmetic exceptions, we limit the pixel aspect
