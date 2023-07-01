@@ -38,7 +38,7 @@ def exr_header(exr_path):
        The index of the dict is the part number as a string, i.e. "0", "1", etc.
        The value of each entry is a dict of attribute/value pairs.
 
-       Also return in rows the the list of all attributes across all
+       Also return in rows the list of all attributes across all
        parts, which equates to the complete list of rows in the table,
        since not all parts will necessarily have the same attributes.
     '''
