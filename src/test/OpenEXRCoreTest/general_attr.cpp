@@ -53,12 +53,12 @@ failable_malloc (size_t bytes)
     return malloc (bytes);
 }
 
-//static void
-//failable_free (void* p)
-//{
-//    if (!p) abort ();
-//    free (p);
-//}
+static void
+failable_free (void* p)
+{
+    if (!p) abort ();
+    free (p);
+}
 
 static void
 set_malloc_fail_on (int count)
