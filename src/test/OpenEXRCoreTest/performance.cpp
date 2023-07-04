@@ -277,7 +277,6 @@ read_pixels_raw (MultiPartInputFile* f)
     auto&    dw   = head.dataWindow ();
     int64_t  w    = dw.max.x - dw.min.x + 1;
     int64_t  h    = dw.max.y - dw.min.y + 1;
-    int      linesread;
     uint64_t ret = 0;
 
     if (w <= 0) return ret;
@@ -288,8 +287,7 @@ read_pixels_raw (MultiPartInputFile* f)
     if (head.lineOrder () != DECREASING_Y)
     {
         std::vector<char>  rawBuf;
-        const char*        outPtr;
-        InputPart          part{ *f, 0 };
+        InputPart          part{*f, 0};
         const ChannelList& chans      = head.channels ();
         int                layercount = 0;
         int                bpp        = 0;
