@@ -40,7 +40,7 @@ IDManifestAttribute::readValueFrom (
     OPENEXR_IMF_INTERNAL_NAMESPACE::IStream& is, int size, int version)
 {
 
-    if (size < sizeof (uint64_t))
+    if (size < static_cast<int>(sizeof (uint64_t)))
     {
         throw IEX_NAMESPACE::InputExc (
             "Invalid size field reading idmanifest attribute");

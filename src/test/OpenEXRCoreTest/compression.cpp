@@ -82,7 +82,7 @@ static int compare_files (const char *fn, const char *fn2)
                 {
                     if (memcmp (buf1, buf2, nr1) != 0)
                     {
-                        for ( size_t b = 0; b < nr1; ++b )
+                        for ( ssize_t b = 0; b < nr1; ++b )
                         {
                             if (buf1[b] != buf2[b])
                             {
