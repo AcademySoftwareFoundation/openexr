@@ -14,14 +14,11 @@
 // Static enabling/disabling the fast huffman decode
 
 
-#if defined(__clang__)
+#if defined(__APPLE__) && defined(__clang__)
 //
 // Enabled for clang on Apple platforms (tested):
 //
-
-#    if defined(__APPLE__)
-#        define OPENEXR_IMF_ENABLE_FAST_HUF_DECODER
-#    endif
+#    define OPENEXR_IMF_ENABLE_FAST_HUF_DECODER
 
 #elif defined(__INTEL_COMPILER) || defined(__GNUC__)
 //
