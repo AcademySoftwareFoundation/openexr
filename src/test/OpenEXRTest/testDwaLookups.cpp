@@ -244,10 +244,9 @@ testNoop()
 {
     printf("test dwaCompressorNoOp[] \n");
 
-    for (int i=0; i<65536; ++i)
+    for (unsigned int i = 0; i < 65536; ++i)
     {
-        unsigned short src = (unsigned short)i;
-        assert (src == OPENEXR_IMF_INTERNAL_NAMESPACE::dwaCompressorNoOp[i]);
+        assert (i == OPENEXR_IMF_INTERNAL_NAMESPACE::dwaCompressorNoOp[i]);
     }
 }
 

@@ -83,6 +83,12 @@ createDummyFile (const char* test)
     cinit.write_fn = dummy_write;
     cinit.alloc_fn = failable_malloc;
 
+    // TODO: adding failable_malloc currently causes
+    // OpenEXRCore.testAttrChlists and OpenEXRCore.testAttrLists to
+    // fail.  commented out until we've investigated.
+
+    // cinit.free_fn = failable_free;
+    
     EXRCORE_TEST_RVAL (
         exr_start_write (&f, test, EXR_WRITE_FILE_DIRECTLY, &cinit));
     EXRCORE_TEST_RVAL (exr_add_part (f, "dummy", EXR_STORAGE_SCANLINE, NULL));
