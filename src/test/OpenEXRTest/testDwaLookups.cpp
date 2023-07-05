@@ -31,7 +31,7 @@
 
 //
 // This test uses the code that generates the dwaLookups.h header to
-// validate the the values in the tables are correct.
+// validate that the values in the tables are correct.
 //
 
 using namespace OPENEXR_IMF_NAMESPACE;
