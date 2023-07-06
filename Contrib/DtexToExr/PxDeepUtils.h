@@ -51,7 +51,7 @@ namespace PxDeep
 //-*****************************************************************************
 // DENSITY
 //-*****************************************************************************
-// "Density" refers to the the optical density which, when integrated
+// "Density" refers to the optical density which, when integrated
 // through a line, produces an alpha. The relationship between alpha, density,
 // and line segment of a given length "dz" is as follows:
 //

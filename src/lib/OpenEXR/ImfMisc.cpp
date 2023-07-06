@@ -331,7 +331,7 @@ copyIntoFrameBuffer (
     else if (format == Compressor::XDR)
     {
         //
-        // The the line or tile buffer is in XDR format.
+        // The line or tile buffer is in XDR format.
         //
         // Convert the pixels from the file's machine-
         // independent representation, and store the
@@ -470,7 +470,7 @@ copyIntoFrameBuffer (
     else
     {
         //
-        // The the line or tile buffer is in NATIVE format.
+        // The line or tile buffer is in NATIVE format.
         // Copy the results into the frame buffer.
         //
 
@@ -765,7 +765,7 @@ copyIntoDeepFrameBuffer (
     else if (format == Compressor::XDR)
     {
         //
-        // The the line or tile buffer is in XDR format.
+        // The line or tile buffer is in XDR format.
         //
         // Convert the pixels from the file's machine-
         // independent representation, and store the
@@ -1095,7 +1095,7 @@ copyIntoDeepFrameBuffer (
     else
     {
         //
-        // The the line or tile buffer is in NATIVE format.
+        // The line or tile buffer is in NATIVE format.
         // Copy the results into the frame buffer.
         //
 
@@ -1542,7 +1542,7 @@ copyFromFrameBuffer (
     if (format == Compressor::XDR)
     {
         //
-        // The the line or tile buffer is in XDR format.
+        // The line or tile buffer is in XDR format.
         //
 
         switch (type)
@@ -1583,7 +1583,7 @@ copyFromFrameBuffer (
     else
     {
         //
-        // The the line or tile buffer is in NATIVE format.
+        // The line or tile buffer is in NATIVE format.
         //
 
         switch (type)
@@ -1656,7 +1656,7 @@ copyFromDeepFrameBuffer (
     if (format == Compressor::XDR)
     {
         //
-        // The the line or tile buffer is in XDR format.
+        // The line or tile buffer is in XDR format.
         //
 
         switch (type)
@@ -1737,7 +1737,7 @@ copyFromDeepFrameBuffer (
     else
     {
         //
-        // The the line or tile buffer is in NATIVE format.
+        // The line or tile buffer is in NATIVE format.
         //
 
         switch (type)

@@ -223,7 +223,7 @@ public:
     // Rounding control for luminance/chroma images:
     //
     // If the output file contains luminance and chroma channels (WRITE_YC
-    // or WRITE_YCA), then the the significands of the luminance and
+    // or WRITE_YCA), then the significands of the luminance and
     // chroma values are rounded to roundY and roundC bits respectively (see
     // function half::round()).  Rounding improves compression with minimal
     // image degradation, usually much less than the degradation caused by
