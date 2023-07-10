@@ -911,13 +911,13 @@ DwaCompressor_uncompress (
     compressedRleBuf =
         compressedDcBuf + (ptrdiff_t) (dcCompressedSize);
 
-    if (compressedUnknownBuf >= dataPtrEnd ||
+    if (compressedUnknownBuf > dataPtrEnd ||
         dataPtr > compressedAcBuf ||
-        compressedAcBuf >= dataPtrEnd ||
+        compressedAcBuf > dataPtrEnd ||
         dataPtr > compressedDcBuf ||
-        compressedDcBuf >= dataPtrEnd ||
+        compressedDcBuf > dataPtrEnd ||
         dataPtr > compressedRleBuf ||
-        compressedRleBuf >= dataPtrEnd ||
+        compressedRleBuf > dataPtrEnd ||
         (compressedRleBuf + rleCompressedSize) > dataPtrEnd)
     {
         return EXR_ERR_CORRUPT_CHUNK;
