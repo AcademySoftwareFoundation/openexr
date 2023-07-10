@@ -134,6 +134,7 @@ openexr_define_library(OpenEXR
     ImfCompositeDeepScanLine.h
     ImfCompression.h
     ImfCompressionAttribute.h
+    ImfCompressor.h
     ImfConvert.h
     ImfCRgbaFile.h
     ImfDeepCompositing.h
@@ -174,6 +175,7 @@ openexr_define_library(OpenEXR
     ImfLineOrderAttribute.h
     ImfLut.h
     ImfMatrixAttribute.h
+    ImfMisc.h
     ImfMultiPartInputFile.h
     ImfMultiPartOutputFile.h
     ImfMultiView.h
