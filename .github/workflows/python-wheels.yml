@@ -29,7 +29,7 @@ jobs:
         cd .. &&
         echo "Installing OpenEXR..." &&
         cd openexr.build &&
-        cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../openexr.install -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON -DCMAKE_PREFIX_PATH=../openexr.install -DCMAKE_INSTALL_LIBDIR=lib -DBUILD_TESTING=OFF -DOPENEXR_INSTALL_EXAMPLES=OFF -DOPENEXR_ENABLE_THREADING=OFF -DBUILD_SHARED_LIBS=OFF ../ &&
+        cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../openexr.install -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON -DCMAKE_PREFIX_PATH=../openexr.install -DCMAKE_INSTALL_LIBDIR=lib -DBUILD_TESTING=OFF -DOPENEXR_INSTALL_EXAMPLES=OFF -DBUILD_SHARED_LIBS=OFF ../ &&
         cmake --build ./ --config Release --clean-first &&
         cmake --install ./ --config Release &&
         cd ..
@@ -48,7 +48,7 @@ jobs:
         cd .. &&
         echo "Installing OpenEXR..." &&
         cd openexr.build &&
-        cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../openexr.install -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON -DCMAKE_PREFIX_PATH=../openexr.install -DCMAKE_INSTALL_LIBDIR=lib -DBUILD_TESTING=OFF -DOPENEXR_INSTALL_EXAMPLES=OFF -DOPENEXR_ENABLE_THREADING=OFF -DBUILD_SHARED_LIBS=OFF ../ &&
+        cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../openexr.install -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON -DCMAKE_PREFIX_PATH=../openexr.install -DCMAKE_INSTALL_LIBDIR=lib -DBUILD_TESTING=OFF -DOPENEXR_INSTALL_EXAMPLES=OFF -DBUILD_SHARED_LIBS=OFF ../ &&
         cmake --build ./ --config Release --clean-first &&
         cmake --install ./ --config Release &&
         cd ..
@@ -67,7 +67,7 @@ jobs:
         cd .. &&
         echo "Installing OpenEXR..." &&
         cd openexr.build &&
-        cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../openexr.install -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON -DCMAKE_PREFIX_PATH=../openexr.install -DCMAKE_INSTALL_LIBDIR=lib -DBUILD_TESTING=OFF -DOPENEXR_INSTALL_EXAMPLES=OFF -DOPENEXR_ENABLE_THREADING=OFF -DBUILD_SHARED_LIBS=OFF ../ &&
+        cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../openexr.install -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON -DCMAKE_PREFIX_PATH=../openexr.install -DCMAKE_INSTALL_LIBDIR=lib -DBUILD_TESTING=OFF -DOPENEXR_INSTALL_EXAMPLES=OFF -DBUILD_SHARED_LIBS=OFF ../ &&
         cmake --build ./ --config Release --clean-first &&
         cmake --install ./ --config Release &&
         cd ..
