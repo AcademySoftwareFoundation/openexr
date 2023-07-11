@@ -2,7 +2,7 @@ name: Python wheels
 
 on:
   push:
-    branches: [ $default-branch, main ]
+    branches: [ $default-branch, main, python ]
 
 jobs:
   build_wheels:
