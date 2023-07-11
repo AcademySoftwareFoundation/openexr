@@ -72,7 +72,7 @@ jobs:
         cmake --install ./ --config Release &&
         cd ..
       CIBW_TEST_REQUIRES: pytest
-      CIBW_TEST_COMMAND: pytest {project}/src/wrappers/python/tests/
+      CIBW_TEST_COMMAND: pytest {project}/src/wrappers/python/tests/*
 
     steps:
       - uses: actions/checkout@v3
