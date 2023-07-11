@@ -26,12 +26,18 @@ version_major, version_minor, version_patch = version
 version = f"{version_major}.{version_minor}.{version_patch}"
 
 libraries=[]
-libraries_static=['z', 'Iex-3_1', 'OpenEXR-3_1']
+libraries_static=['z',
+                  f'Iex-{version_major}_{version_minor}',
+                  f'OpenEXR-{version_major}_{version_minor}']
 definitions = [('PYOPENEXR_VERSION_MAJOR', f'{version_major}'),
                ('PYOPENEXR_VERSION_MINOR', f'{version_minor}'),
                ('PYOPENEXR_VERSION_PATCH', f'{version_patch}'),]
 if platform.system() == "Windows":
-    libraries_static=['zlibstatic', 'Imath-3_1', 'Iex-3_1', 'OpenEXR-3_1', 'IlmThread-3_1']
+    libraries_static=['zlibstatic',
+                      f'Imath-{version_major}_{version_minor}',
+                      f'Iex-{version_major}_{version_minor}',
+                      f'OpenEXR-{version_major}_{version_minor}',
+                      f'IlmThread-{version_major}_{version_minor}']
     definitions = [('PYOPENEXR_VERSION', f'\\"{version}\\"')]
 extra_compile_args = []
 if platform.system() == 'Darwin':
