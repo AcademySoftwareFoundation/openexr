@@ -86,7 +86,6 @@ jobs:
 
       - name: Create setup.py
         run: |
-            rm -f ${{github.workspace}}/setup.py
             mv ${{github.workspace}}/src/wrappers/python/setup.py ${{github.workspace}}/setup.py
 
       - name: Create folders
