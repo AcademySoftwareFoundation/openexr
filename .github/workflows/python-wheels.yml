@@ -71,7 +71,7 @@ jobs:
         cmake --build ./ --config Release --clean-first &&
         cmake --install ./ --config Release &&
         cd ..
-      CIBW_BEFORE_TEST: pip install pytest
+      CIBW_TEST_REQUIRES: pytest
       CIBW_TEST_COMMAND: pytest {project}/src/wrappers/python/tests/
 
     steps:
