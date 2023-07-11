@@ -2,5 +2,5 @@ import pytest
 
 
 def test_import():
-    import openexr
-    print(openexr.__version__)
+    import OpenEXR
+    assert OpenEXR.__name__ == "OpenEXR"
