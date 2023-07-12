@@ -29,6 +29,7 @@ libraries=[]
 libraries_static=['z',
                   f'Imath-3_1',
                   f'Iex-{version_major}_{version_minor}',
+                  f'OpenEXRCore-{version_major}_{version_minor}',
                   f'OpenEXR-{version_major}_{version_minor}',
                   f'IlmThread-{version_major}_{version_minor}']
 definitions = [('PYOPENEXR_VERSION_MAJOR', f'{version_major}'),
