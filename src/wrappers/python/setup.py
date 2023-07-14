@@ -32,13 +32,13 @@ libs_static=['z',
              f'Iex-{version_major}_{version_minor}',
              f'Imath-3_1',
              f'OpenEXRCore-{version_major}_{version_minor}',
-             f'deflate',
-             ]
+             f'deflate']
 definitions = [('PYOPENEXR_VERSION_MAJOR', f'{version_major}'),
                ('PYOPENEXR_VERSION_MINOR', f'{version_minor}'),
                ('PYOPENEXR_VERSION_PATCH', f'{version_patch}'),]
 if platform.system() == "Windows":
-    libs_static = ['zlibstatic' if l == 'z' else l for l in libs_static]
+    libs_static[0] = 'zlibstatic'
+    libs_static[-1] = 'deflatestatic'
     definitions = [('PYOPENEXR_VERSION', f'\\"{version}\\"')]
 extra_compile_args = []
 if platform.system() == 'Darwin':
