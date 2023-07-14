@@ -25,19 +25,20 @@ with open('src/lib/OpenEXRCore/openexr_version.h', 'r') as f:
 version_major, version_minor, version_patch = version
 version = f"{version_major}.{version_minor}.{version_patch}"
 
-libraries=[]
-libraries_static=['z',
-                  f'Imath-3_1',
-                  f'Iex-{version_major}_{version_minor}',
-                  f'OpenEXRCore-{version_major}_{version_minor}',
-                  f'OpenEXR-{version_major}_{version_minor}',
-                  f'OpenEXRUtil-{version_major}_{version_minor}',
-                  f'IlmThread-{version_major}_{version_minor}']
+libs=[]
+libs_static=['z',
+             f'OpenEXR-{version_major}_{version_minor}',
+             f'IlmThread-{version_major}_{version_minor}',
+             f'Iex-{version_major}_{version_minor}',
+             f'Imath-3_1',
+             f'OpenEXRCore-{version_major}_{version_minor}',
+             f'deflate',
+             ]
 definitions = [('PYOPENEXR_VERSION_MAJOR', f'{version_major}'),
                ('PYOPENEXR_VERSION_MINOR', f'{version_minor}'),
                ('PYOPENEXR_VERSION_PATCH', f'{version_patch}'),]
 if platform.system() == "Windows":
-    libraries_static[0]='zlibstatic'
+    libs_static = ['zlibstatic' if l == 'z' else l for l in libs_static]
     definitions = [('PYOPENEXR_VERSION', f'\\"{version}\\"')]
 extra_compile_args = []
 if platform.system() == 'Darwin':
@@ -45,19 +46,19 @@ if platform.system() == 'Darwin':
                            '-Wc++11-extensions',
                            '-Wc++11-long-long']
 
-libraries_dir = "./openexr.install/lib/"
-if not os.path.isdir(libraries_dir):
-    libraries_dir = "./openexr.install/lib64/"
+libs_dir = "./openexr.install/lib/"
+if not os.path.isdir(libs_dir):
+    libs_dir = "./openexr.install/lib64/"
 if platform.system() == "Windows":
-    extra_link_args = [libraries_dir + lib + ".lib"
-                       for lib in libraries_static]
+    extra_link_args = [libs_dir + lib + ".lib"
+                       for lib in libs_static]
     extra_link_args = extra_link_args + [
         "ws2_32.lib", "dbghelp.lib", "psapi.lib", "kernel32.lib", "user32.lib",
         "gdi32.lib", "winspool.lib", "shell32.lib", "ole32.lib",
         "oleaut32.lib", "uuid.lib", "comdlg32.lib", "advapi32.lib"]
 else:
-    extra_link_args = [libraries_dir + "lib" + lib + ".a"
-                       for lib in libraries_static]
+    extra_link_args = [libs_dir + "lib" + lib + ".a"
+                       for lib in libs_static]
 
 
 setup(name='OpenEXR',
@@ -74,7 +75,7 @@ setup(name='OpenEXR',
                   define_macros=definitions,
                   include_dirs=['./openexr.install/include/OpenEXR',
                                 './openexr.install/include/Imath',],
-                  libraries=libraries,
+                  libraries=libs,
                   extra_compile_args=extra_compile_args,
                   extra_link_args=extra_link_args,
                   )

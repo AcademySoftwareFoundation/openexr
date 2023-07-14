@@ -21,14 +21,18 @@ jobs:
         cmake --build ./ --config Release --clean-first &&
         cmake --install ./ --config Release &&
         cd .. &&
+        echo "Installing libDeflate..." &&
+        cd libdeflate.build &&
+        cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../openexr.install -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON -DCMAKE_PREFIX_PATH=../openexr.install -DCMAKE_INSTALL_LIBDIR=lib -DLIBDEFLATE_BUILD_SHARED_LIB=OFF -DLIBDEFLATE_USE_SHARED_LIB=OFF -DBUILD_SHARED_LIBS=OFF ../libdeflate &&
+        cmake --build ./ --config Release --clean-first &&
+        cmake --install ./ --config Release &&
+        cd .. &&
         echo "Installing Imath-3.1.9..." &&
         cd imath.build &&
         cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../openexr.install -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON -DCMAKE_PREFIX_PATH=../openexr.install -DCMAKE_INSTALL_LIBDIR=lib -DBUILD_TESTING=OFF -DBUILD_SHARED_LIBS=OFF ../imath &&
         cmake --build ./ --config Release --clean-first &&
         cmake --install ./ --config Release &&
         cd .. &&
-        ls ./openexr.install/lib/ &&
-        nm ./openexr.install/lib/libImath-3_1.a &&
         echo "Installing OpenEXR..." &&
         cd openexr.build &&
         cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../openexr.install -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON -DCMAKE_PREFIX_PATH=../openexr.install -DCMAKE_INSTALL_LIBDIR=lib -DBUILD_TESTING=OFF -DOPENEXR_INSTALL_EXAMPLES=OFF -DBUILD_SHARED_LIBS=OFF ../ &&
@@ -58,6 +62,7 @@ jobs:
       - name: Create folders
         run: |
             mkdir -p ${{github.workspace}}/zlib.build
+            mkdir -p ${{github.workspace}}/libdeflate.build
             mkdir -p ${{github.workspace}}/imath.build
             mkdir -p ${{github.workspace}}/openexr.build
             mkdir -p ${{github.workspace}}/openexr.install
@@ -73,6 +78,22 @@ jobs:
             tar -xvzf zlib-1.2.13.tar.gz -C ${{github.workspace}}/
             mv zlib-1.2.13 zlib
             rm zlib-1.2.13.tar.gz
+
+      - name: download libDeflate source code
+        uses: suisei-cn/actions-download-file@v1.4.0
+        with:
+          url: https://github.com/ebiggers/libdeflate/archive/refs/tags/v1.18.zip
+          target: ${{github.workspace}}/
+
+      - name: Extract libDeflate
+        run: |
+            tar -xvzf v1.18.tar.gz -C ${{github.workspace}}/
+            mv libdeflate-1.18 libdeflate
+            rm v1.18.tar.gz
+
+      - name: Patch libDeflate
+        run: |
+            patch -u libdeflate/CMakeLists.txt -i ${{github.workspace}}/src/wrappers/python/libdeflate.patch
 
       - name: download Imath source code
         uses: suisei-cn/actions-download-file@v1.4.0
