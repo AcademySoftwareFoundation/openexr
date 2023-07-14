@@ -82,7 +82,7 @@ jobs:
       - name: download libDeflate source code
         uses: suisei-cn/actions-download-file@v1.4.0
         with:
-          url: https://github.com/ebiggers/libdeflate/archive/refs/tags/v1.18.zip
+          url: https://github.com/ebiggers/libdeflate/archive/refs/tags/v1.18.tar.gz
           target: ${{github.workspace}}/
 
       - name: Extract libDeflate
