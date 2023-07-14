@@ -26,6 +26,7 @@ jobs:
         cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../openexr.install -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON -DCMAKE_PREFIX_PATH=../openexr.install -DCMAKE_INSTALL_LIBDIR=lib -DLIBDEFLATE_BUILD_SHARED_LIB=OFF -DLIBDEFLATE_USE_SHARED_LIB=OFF -DBUILD_SHARED_LIBS=OFF ../libdeflate &&
         cmake --build ./ --config Release --clean-first &&
         cmake --install ./ --config Release &&
+        if [[ -f ../openexr.install/lib/deflatestatic.lib ]]; then cp ../openexr.install/lib/deflatestatic.lib ../openexr.install/lib/deflate.lib;  fi
         cd .. &&
         echo "Installing Imath-3.1.9..." &&
         cd imath.build &&
