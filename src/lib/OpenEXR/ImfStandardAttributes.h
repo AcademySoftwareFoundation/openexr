@@ -129,6 +129,46 @@ IMF_STD_ATTRIBUTE_DEF (worldToCamera, WorldToCamera, IMATH_NAMESPACE::M44f)
 IMF_STD_ATTRIBUTE_DEF (worldToNDC, WorldToNDC, IMATH_NAMESPACE::M44f)
 
 //
+// sensorCenterOffset -- horizontal and vertical distances, in microns, of
+// the center of the light-sensitive area of the camera's sensor from a point
+// on that sensor where a sensor surface normal would intersect the center
+// of the lens mount. When compared to an image captured with a perfectly
+// centered sensor, an image where both horizontal and vertical distances
+// were positive would contain more content holding what was at the right
+// and what was at the bottom of the scene being captured.
+//
+
+IMF_STD_ATTRIBUTE_DEF (sensorCenterOffset, SensorCenterOffset, IMATH_NAMESPACE::V2f)
+
+//
+// sensorOverallDimensions -- dimensions of the light-sensitive area of the
+// sensor, in mm, independent of the subset of that region from which image
+// data are obtained.
+
+IMF_STD_ATTRIBUTE_DEF (
+    sensorOverallDimensions,
+    SensorOverallDimensions,
+    IMATH_NAMESPACE::V2f)
+
+//
+// sensorPhotositePitch -- distance between centers of sensor photosites,
+// in microns.
+
+IMF_STD_ATTRIBUTE_DEF (sensorPhotositePitch, SensorPhotositePitch, float)
+
+//
+// sensorAcquisitionRectangle -- the rectangular area of the sensor containing
+// photosites the contents of which are in one-to-one correspondence with the
+// captured sensels, for a monochrome sensor, or with the reconstructed pixels,
+// for a sensor covered with color filter array material in a Bayer or a
+// similar pattern.
+//
+
+IMF_STD_ATTRIBUTE_DEF (
+    sensorAcquisitionRectangle,
+    SensorAcquisitionRectangle, IMATH_NAMESPACE::Box2i)
+
+//
 // ascFramingDecisionList -- JSON-encoded description of framing decisions
 // associated with the captured image, in a format termed 'ASC-FDL', designed
 // and documented by the American Society of Cinematographers (ASC).
