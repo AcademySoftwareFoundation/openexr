@@ -142,8 +142,8 @@ IMF_STD_ATTRIBUTE_DEF (sensorCenterOffset, SensorCenterOffset, IMATH_NAMESPACE::
 
 //
 // sensorOverallDimensions -- dimensions of the light-sensitive area of the
-// sensor, in mm, independent of the subset of that region from which image
-// data are obtained.
+// sensor, in millimeters, independent of the subset of that region from
+// which image data are obtained.
 
 IMF_STD_ATTRIBUTE_DEF (
     sensorOverallDimensions,
