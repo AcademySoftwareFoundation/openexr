@@ -247,16 +247,21 @@ bool compare(const FrameBuffer& asRead,
 // allocate readingBuffer or writingBuffer, setting up a framebuffer to point to the right thing
 //
 ChannelList
-setupBuffer (const Header& hdr,       // header to grab datawindow from
-             const char * const *channels, // NULL terminated list of channels to write
-             const char * const *passivechannels, // NULL terminated list of channels to write
-             const PixelType* pt,     // type of each channel, or NULL for all HALF
-             FrameBuffer& buf,        // buffer to fill with pointers to channel
-             FrameBuffer& prereadbuf, // channels which aren't being read - indexes into the preread buffer
-             FrameBuffer& postreadbuf, // channels which aren't being read - indexes into the postread buffer
-             int banks,                    // number of banks - channels within each bank are interleaved, banks are scanline interleaved
-             bool writing                  // true if should allocate
-            )
+setupBuffer (
+    const Header&      hdr,      // header to grab datawindow from
+    const char* const* channels, // NULL terminated list of channels to write
+    const char* const*
+        passivechannels,  // NULL terminated list of channels to write
+    const PixelType* pt,  // type of each channel, or NULL for all HALF
+    FrameBuffer&     buf, // buffer to fill with pointers to channel
+    FrameBuffer&
+        prereadbuf, // channels which aren't being read - indexes into the preread buffer
+    FrameBuffer&
+         postreadbuf, // channels which aren't being read - indexes into the postread buffer
+    int  banks, // number of banks - channels within each bank are interleaved, banks are scanline interleaved
+    bool writing, // true if should allocate
+    bool allowNonfinite // true if the buffer is allowed to create infinity or NaN values
+)
 {
     Box2i dw = hdr.dataWindow();
 
@@ -361,7 +366,7 @@ setupBuffer (const Header& hdr,       // header to grab datawindow from
             unsigned short int values =
                 random_int (std::numeric_limits<unsigned short>::max ());
             v.setBits (values);
-        } while(!( (v-v)==0 || pt==NULL || pt[chan]==IMF::HALF) );
+        } while(!( (v-v)==0 || allowNonfinite ));
 
         if (pt == NULL || pt[chan] == IMF::HALF)
         {
@@ -470,9 +475,8 @@ setupBuffer (const Header& hdr,       // header to grab datawindow from
     return chanlist;
 }
 
-
-
-Box2i writefile(Schema & scheme,FrameBuffer& buf,bool tiny)
+Box2i
+writefile (Schema& scheme, FrameBuffer& buf, bool tiny , bool allowNonfinite)
 {
     const int height = 128;
     const int width  = 128;
@@ -510,7 +514,8 @@ Box2i writefile(Schema & scheme,FrameBuffer& buf,bool tiny)
                                   dummy1,
                                   dummy2,
                                   scheme._banks,
-                                  true);
+                                  true,
+                                  allowNonfinite);
     
     if (scheme._views)
     {
@@ -522,29 +527,36 @@ Box2i writefile(Schema & scheme,FrameBuffer& buf,bool tiny)
     f.setFrameBuffer(buf);
     f.writePixels(hdr.dataWindow().max.y-hdr.dataWindow().min.y+1);
 
-    return hdr.dataWindow();
+    return hdr.dataWindow ();
 }
 
 bool
-readfile (Schema scheme,
-          FrameBuffer & buf,      ///< list of channels to read: index to readingBuffer
-          FrameBuffer & preread,  ///< list of channels to skip: index to preReadBuffer
-          FrameBuffer & postread) ///< list of channels to skip: index to readingBuffer)
+readfile (
+    Schema       scheme,
+    FrameBuffer& buf,     ///< list of channels to read: index to readingBuffer
+    FrameBuffer& preread, ///< list of channels to skip: index to preReadBuffer
+    FrameBuffer&
+        postread, ///< list of channels to skip: index to readingBuffer)
+    bool allowNonfinite)
 {
-    InputFile infile (filename.c_str());
-    setupBuffer(infile.header(),
-                scheme._active,
-                scheme._passive,
-                scheme._types,
-                buf,
-                preread,
-                postread,
-                scheme._banks,false);
-    infile.setFrameBuffer(buf);
-    
-    cout.flush();
-    infile.readPixels (infile.header().dataWindow().min.y,
-                       infile.header().dataWindow().max.y);
+    InputFile infile (filename.c_str ());
+    setupBuffer (
+        infile.header (),
+        scheme._active,
+        scheme._passive,
+        scheme._types,
+        buf,
+        preread,
+        postread,
+        scheme._banks,
+        false,
+        allowNonfinite);
+    infile.setFrameBuffer (buf);
+
+    cout.flush ();
+    infile.readPixels (
+        infile.header ().dataWindow ().min.y,
+        infile.header ().dataWindow ().max.y);
 
     return infile.isOptimizationEnabled();
 }
@@ -557,18 +569,18 @@ test (Schema writeScheme, Schema readScheme, bool nonfatal, bool tiny)
     cout << left << setw(53) << q.str();
 
     FrameBuffer writeFrameBuf;
-    Box2i dw = writefile(writeScheme,writeFrameBuf,tiny);
+    // only allow NaN and infinity values if file is read and written as half float
+    // (otherwise casting between half and float may cause different bit patterns)
+    bool allowNonfinite = (writeScheme._types == nullptr && readScheme._types==nullptr);
+    Box2i       dw = writefile (writeScheme, writeFrameBuf, tiny , allowNonfinite);
     FrameBuffer readFrameBuf;
     FrameBuffer preReadFrameBuf;
     FrameBuffer postReadFrameBuf;
-    cout.flush();
-    bool opt = readfile (readScheme,
-                         readFrameBuf,
-                         preReadFrameBuf,
-                         postReadFrameBuf);
-    if (compare(readFrameBuf, writeFrameBuf, dw, nonfatal) &&
-        compare(preReadFrameBuf, postReadFrameBuf, dw, nonfatal)
-    )
+    cout.flush ();
+    bool opt =
+        readfile (readScheme, readFrameBuf, preReadFrameBuf, postReadFrameBuf,allowNonfinite);
+    if (compare (readFrameBuf, writeFrameBuf, dw, nonfatal) &&
+        compare (preReadFrameBuf, postReadFrameBuf, dw, nonfatal))
     {
         cout <<  " OK ";
         if (opt)
