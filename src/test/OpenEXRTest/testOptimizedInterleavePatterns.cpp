@@ -581,16 +581,16 @@ test (Schema writeScheme, Schema readScheme, bool nonfatal, bool tiny)
     cout << left << setw (53) << q.str ();
 
     FrameBuffer writeFrameBuf;
-    // only allow NaN and infinity vales if file is read and written as half float
+    // only allow NaN and infinity values if file is read and written as half float
     // (otherwise casting between half and float may cause different bit patterns)
-    bool allowNonFinite = (writeScheme._types == nullptr && readScheme._types==nullptr);
-    Box2i       dw = writefile (writeScheme, writeFrameBuf, tiny , allowNonFinite);
+    bool allowNonfinite = (writeScheme._types == nullptr && readScheme._types==nullptr);
+    Box2i       dw = writefile (writeScheme, writeFrameBuf, tiny , allowNonfinite);
     FrameBuffer readFrameBuf;
     FrameBuffer preReadFrameBuf;
     FrameBuffer postReadFrameBuf;
     cout.flush ();
     bool opt =
-        readfile (readScheme, readFrameBuf, preReadFrameBuf, postReadFrameBuf,allowNonFinite);
+        readfile (readScheme, readFrameBuf, preReadFrameBuf, postReadFrameBuf,allowNonfinite);
     if (compare (readFrameBuf, writeFrameBuf, dw, nonfatal) &&
         compare (preReadFrameBuf, postReadFrameBuf, dw, nonfatal))
     {
