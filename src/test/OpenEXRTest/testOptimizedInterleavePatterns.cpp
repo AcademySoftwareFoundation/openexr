@@ -291,7 +291,8 @@ setupBuffer (
     FrameBuffer&
          postreadbuf, // channels which aren't being read - indexes into the postread buffer
     int  banks, // number of banks - channels within each bank are interleaved, banks are scanline interleaved
-    bool writing // true if should allocate
+    bool writing, // true if should allocate
+    bool allowNonfinite // true if the buffer is allowed to create infinity or NaN values
 )
 {
     Box2i dw = hdr.dataWindow ();
@@ -380,7 +381,7 @@ setupBuffer (
             unsigned short int values =
                 random_int (std::numeric_limits<unsigned short>::max ());
             v.setBits (values);
-        } while(!( (v-v)==0 || pt==NULL || pt[chan]==IMF::HALF) );
+        } while(!( (v-v)==0 || allowNonfinite ));
 
         if (pt == NULL || pt[chan] == IMF::HALF)
         {
@@ -489,7 +490,7 @@ setupBuffer (
 }
 
 Box2i
-writefile (Schema& scheme, FrameBuffer& buf, bool tiny)
+writefile (Schema& scheme, FrameBuffer& buf, bool tiny , bool allowNonfinite)
 {
     const int height = 128;
     const int width  = 128;
@@ -528,7 +529,8 @@ writefile (Schema& scheme, FrameBuffer& buf, bool tiny)
         dummy1,
         dummy2,
         scheme._banks,
-        true);
+        true,
+        allowNonfinite);
 
     if (scheme._views) { addMultiView (hdr, scheme.views ()); }
 
@@ -546,7 +548,8 @@ readfile (
     FrameBuffer& buf,     ///< list of channels to read: index to readingBuffer
     FrameBuffer& preread, ///< list of channels to skip: index to preReadBuffer
     FrameBuffer&
-        postread) ///< list of channels to skip: index to readingBuffer)
+        postread, ///< list of channels to skip: index to readingBuffer)
+    bool allowNonfinite)
 {
     InputFile infile (filename.c_str ());
     setupBuffer (
@@ -558,7 +561,8 @@ readfile (
         preread,
         postread,
         scheme._banks,
-        false);
+        false,
+        allowNonfinite);
     infile.setFrameBuffer (buf);
 
     cout.flush ();
@@ -577,13 +581,16 @@ test (Schema writeScheme, Schema readScheme, bool nonfatal, bool tiny)
     cout << left << setw (53) << q.str ();
 
     FrameBuffer writeFrameBuf;
-    Box2i       dw = writefile (writeScheme, writeFrameBuf, tiny);
+    // only allow NaN and infinity values if file is read and written as half float
+    // (otherwise casting between half and float may cause different bit patterns)
+    bool allowNonfinite = (writeScheme._types == nullptr && readScheme._types==nullptr);
+    Box2i       dw = writefile (writeScheme, writeFrameBuf, tiny , allowNonfinite);
     FrameBuffer readFrameBuf;
     FrameBuffer preReadFrameBuf;
     FrameBuffer postReadFrameBuf;
     cout.flush ();
     bool opt =
-        readfile (readScheme, readFrameBuf, preReadFrameBuf, postReadFrameBuf);
+        readfile (readScheme, readFrameBuf, preReadFrameBuf, postReadFrameBuf,allowNonfinite);
     if (compare (readFrameBuf, writeFrameBuf, dw, nonfatal) &&
         compare (preReadFrameBuf, postReadFrameBuf, dw, nonfatal))
     {
