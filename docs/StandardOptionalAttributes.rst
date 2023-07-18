@@ -187,7 +187,7 @@ By default, OpenEXR files have the following attributes:
   obtained.
 
 **sensorPhotositePitch**
-  Ddistance between centers of sensor photosites, in microns.
+  Distance between centers of sensor photosites, in microns.
 
 **sensorAcquisitionRectangle**
   The rectangular area of the sensor containing photosites
@@ -199,18 +199,23 @@ By default, OpenEXR files have the following attributes:
   Because understanding the above formal definition is
   critical for many applications, including camera solvers,
   some short definitions:
+
   - a *photosite* is that optoelectronic component on the
     sensor which, when light hits it, accumulates or
     otherwise registers electric charge
+
   - a *sensel* is the read-out contents of a single
     photosite
+
   - *color filter array material* is material deposited
     on top of an array of photosites such that each
     photosite is discretely covered with a material that
     passes photons of certain wavelengths and that blocks
     photons of other wavelengths
+
   - an *RGB pixel* contains red, green and blue components
     indicating relative exposure values
+    
   - *RGB pixel reconstruction* is the process of taking
     sensel data from a neighborhood of a particular
     photosite, including that photosite itself, in a
