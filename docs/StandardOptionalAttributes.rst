@@ -170,6 +170,108 @@ By default, OpenEXR files have the following attributes:
 
   NDC space in OpenEXR is the same as in Pixar's Renderman.
 
+**sensorCenterOffset**
+  Horizontal and vertical distances, in microns, of
+  the center of the light-sensitive area of the camera's sensor from
+  a point on that sensor where a sensor surface normal would intersect
+  the center of the lens mount.
+
+  When compared to an image captured with a perfectly centered sensor,
+  an image where both horizontal and vertical distances were positive
+  would contain more content holding what was at the right and what was
+  at the bottom of the scene being captured.
+
+**sensorOverallDimensions**
+  Dimensions of the light-sensitive area of the sensor, in millimeters,
+  independent of the subset of that region from which image data are
+  obtained.
+
+**sensorPhotositePitch**
+  Distance between centers of sensor photosites, in microns.
+
+**sensorAcquisitionRectangle**
+  The rectangular area of the sensor containing photosites
+  the contents of which are in one-to-one correspondence with
+  the captured sensels, for a monochrome sensor, or with the
+  reconstructed RGB pixels, for a sensor covered with color
+  filter array material in a Bayer or a similar pattern.
+
+  Because understanding the above formal definition is
+  critical for many applications, including camera solvers,
+  some short definitions:
+
+  - a *photosite* is that optoelectronic component on the
+    sensor which, when light hits it, accumulates or
+    otherwise registers electric charge
+
+  - a *sensel* is the read-out contents of a single
+    photosite
+
+  - *color filter array material* is material deposited
+    on top of an array of photosites such that each
+    photosite is discretely covered with a material that
+    passes photons of certain wavelengths and that blocks
+    photons of other wavelengths
+
+  - an *RGB pixel* contains red, green and blue components
+    indicating relative exposure values
+    
+  - *RGB pixel reconstruction* is the process of taking
+    sensel data from a neighborhood of a particular
+    photosite, including that photosite itself, in a
+    photosite covered by either red, green or blue CFA
+    material, and combining the read-out sensel data
+    from a particular photosite with that of surrounding
+    photosites, said surrounding photosites being covered
+    by a variety of red, green or blue CFA materials, to
+    produce an RGB pixel.
+
+  The Wikipedia article on demosaicing_ covers the basics
+  of these ideas quite well.
+
+  In the case of sensels read from a monochrome sensor,
+  the idea of a one-to-one relationship between sensels
+  read from the photosite array and pixels in the data
+  window can be straightforward. Often there is a
+  conversion of the sensel data read from the photosites
+  to a different representation (e.g. integer to float)
+  along with scaling of the individual values.
+
+  A common spatial scaling is from a 2880 x 1620 acquisition
+  format to a 1920 x 1080 HD format. In this case, a camera
+  solver will want to know the original set of photosites
+  that contributed sensel values to the downscaler: their
+  number, and their position. Through a combination of
+  sensorAcquisitionRectangle, sensorPhotositePitch,
+  sensorOverallDimensions and sensorCenterOffset,
+  the application can know exactly the area on the sensor
+  on which the light fell to create the sensel values that
+  produced a monochrome image.
+
+  RGB images are more complicated. RGB pixel reconstruction
+  is a form of filtering, and kernels are square, with
+  relatively small span, e.g. 5x5 or 7x7. Edge handling for the
+  kernel is important; the Wikipedia article describing an
+  image processing kernel_ covers it pretty well.
+
+  Elements of the reconstruction kernel that are never
+  at the center of the kernel are **not** counted as part
+  of the sensorAcquisitionRectangle. Recalling the simple
+  case above of a non-spatially-scaled 2880 x 1620 monochrome
+  image being in 1:1 correspondence with an array of
+  photosites on the sensor, if we are instead reading from a
+  CFA-covered sensor to reconstruct a 2880 x 1620 RGB image,
+  the actual array of all photosites whose sensel values
+  were fed into a 5x5 reconstruction kernel would not be
+  2880 x 1620, but 2884 x 1624. Nevertheless, the size of
+  the sensorAcquisitionRectangle would be 2880 x 1620.
+
+  Camera systems differ on how to handle the case where the
+  position of the RGB reconstruction kernel is such that one
+  or more elements of the kernel do not correspond to
+  physical photosites; these are edge cases in every sense
+  of the phrase.
+
 **deepImageState**
   Specifies whether the pixels in a deep image are sorted and
   non-overlapping.
@@ -195,5 +297,6 @@ By default, OpenEXR files have the following attributes:
 **ID Manifest**
   ID manifest.
 
+.. _demosaicing: https://en.wikipedia.org/wiki/Demosaicing
 
-
+.. _kernel: https://en.wikipedia.org/wiki/Kernel_(image_processing)

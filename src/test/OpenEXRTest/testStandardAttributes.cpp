@@ -855,6 +855,10 @@ generatedFunctions ()
     assert (hasWorldToCamera (header) == false);
     assert (hasWorldToNDC (header) == false);
     assert (hasAscFramingDecisionList (header) == false);
+    assert (hasSensorCenterOffset (header) == false);
+    assert (hasSensorOverallDimensions (header) == false);
+    assert (hasSensorPhotositePitch (header) == false);
+    assert (hasSensorAcquisitionRectangle (header) == false);
     assert (hasXDensity (header) == false);
     assert (hasLongitude (header) == false);
     assert (hasLatitude (header) == false);
