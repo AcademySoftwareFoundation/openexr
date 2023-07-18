@@ -1,3 +1,8 @@
+//
+// SPDX-License-Identifier: BSD-3-Clause
+// Copyright (c) DreamWorks Animation LLC and Contributors of the OpenEXR Project
+//
+
 #include <Python.h>
 
 #if PY_VERSION_HEX < 0x02050000 && !defined(PY_SSIZE_T_MIN)
