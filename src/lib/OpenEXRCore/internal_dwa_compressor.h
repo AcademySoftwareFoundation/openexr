@@ -1080,6 +1080,7 @@ DwaCompressor_uncompress (
             packedAcBufferEnd,
             packedAcBufferEnd + totalAcUncompressedCount * sizeof (uint16_t),
             packedDcBufferEnd,
+            totalDcUncompressedCount,
             dwaCompressorToLinear,
             me->_channelData[rChan].chan->width,
             me->_channelData[rChan].chan->height);
@@ -1090,6 +1091,7 @@ DwaCompressor_uncompress (
         packedAcBufferEnd += decoder._packedAcCount * sizeof (uint16_t);
 
         packedDcBufferEnd += decoder._packedDcCount * sizeof (uint16_t);
+        totalDcUncompressedCount -= decoder._packedDcCount;
 
         me->_channelData[rChan].processed = 1;
         me->_channelData[gChan].processed = 1;
@@ -1133,6 +1135,7 @@ DwaCompressor_uncompress (
                         packedAcBufferEnd +
                             totalAcUncompressedCount * sizeof (uint16_t),
                         packedDcBufferEnd,
+                        totalDcUncompressedCount,
                         linearLut,
                         chan->width,
                         chan->height);
@@ -1147,6 +1150,7 @@ DwaCompressor_uncompress (
                     packedDcBufferEnd +=
                         (size_t) decoder._packedDcCount * sizeof (uint16_t);
 
+                    totalDcUncompressedCount -= decoder._packedDcCount;
                     if (rv != EXR_ERR_SUCCESS) { return rv; }
                 }
 
