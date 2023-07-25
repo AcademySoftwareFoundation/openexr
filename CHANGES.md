@@ -66,18 +66,18 @@
 
 ## Version 3.1.10 (July 31, 2023)
 
-Patch release that addresses miscelleneous build issues, test
+Patch release that addresses miscellaneous build issues, test
 failures, and performance regressions, as well as:
 
 * OSS-fuzz [59457](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=59457)
- Heap-buffer-overflow in LossyDctDecoder_execute
+ Heap-buffer-overflow in `LossyDctDecoder_execute`
 
 ### Merged Pull Requests
 
-* [1490](https://github.com/AcademySoftwareFoundation/openexr/pull/1490) Readdress #1456: disallow NaNs in testOptimizedInterleavePatterns
+* [1490](https://github.com/AcademySoftwareFoundation/openexr/pull/1490) Readdress #1456: disallow NaNs in `testOptimizedInterleavePatterns`
 * [1488](https://github.com/AcademySoftwareFoundation/openexr/pull/1488) Revert pre-computed values
 * [1484](https://github.com/AcademySoftwareFoundation/openexr/pull/1484) Fix handling for corrupt number of DC components
-* [1482](https://github.com/AcademySoftwareFoundation/openexr/pull/1482) Add OPENEXR_MISSING_ARM_VLD1 workaround to internal_dwa_simd.h
+* [1482](https://github.com/AcademySoftwareFoundation/openexr/pull/1482) Add `OPENEXR_MISSING_ARM_VLD1` workaround to `internal_dwa_simd.h`
 * [1480](https://github.com/AcademySoftwareFoundation/openexr/pull/1480) Fix Huffman performance regression on Linux/clang
 * [1472](https://github.com/AcademySoftwareFoundation/openexr/pull/1472) Fix range check in dwa compressor
 * [1470](https://github.com/AcademySoftwareFoundation/openexr/pull/1470) Fix build with i386 and musl libc
@@ -93,7 +93,7 @@ failures, and performance regressions, as well as:
 Patch release that addresses miscelleneous build and doc issues, as well as:
 
 * OSS-fuzz [59382](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=59382)
-  Heap-buffer-overflow in internal_huf_decompress
+  Heap-buffer-overflow in `internal_huf_decompress`
 
 ### Merged Pull Requests
 
@@ -255,8 +255,8 @@ Check for null pointer passed to ``memcpy``
 * [1295](https://github.com/AcademySoftwareFoundation/openexr/pull/1295)
 Remove TSC meeting notes from repo
 * [1294](https://github.com/AcademySoftwareFoundation/openexr/pull/1294)
-Change reference to ``IlmBase`` to ``Imath`` in ``README.md
-*`` [1293](https://github.com/AcademySoftwareFoundation/openexr/pull/1293)
+Change reference to ``IlmBase`` to ``Imath`` in ``README.md``
+* [1293](https://github.com/AcademySoftwareFoundation/openexr/pull/1293)
 Update Christina's affiliation
 * [1292](https://github.com/AcademySoftwareFoundation/openexr/pull/1292)
 Fix typo in the documentation's example reading class
