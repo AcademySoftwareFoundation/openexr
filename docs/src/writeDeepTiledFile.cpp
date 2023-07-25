@@ -13,14 +13,15 @@ writeDeepTiledFile (
     header.channels ().insert ("Z", Channel (FLOAT));
     header.channels ().insert ("A", Channel (HALF));
     header.setType (DEEPTILE);
+    header.compression () = ZIPS_COMPRESSION;
 
     header.setTileDescription (
-        TileDescription (tileSizeX, tileSizeY, MIPMAP_LEVELS));
+        TileDescription (tileSizeX, tileSizeY, ONE_LEVEL));
 
-    Array2D<unsigned int*> dataZ;
+    Array2D<float*> dataZ;
     dataZ.resizeErase (height, width);
 
-    Array2D<unsigned int*> dataA;
+    Array2D<half*> dataA;
     dataA.resizeErase (height, width);
 
     Array2D<unsigned int> sampleCount;
@@ -56,16 +57,22 @@ writeDeepTiledFile (
 
     file.setFrameBuffer (frameBuffer);
 
-    for (int l = 0; l < file.numLevels (); l++)
+    for (int j = 0; j < file.numYTiles (0); j++)
     {
-        for (int j = 0; j < file.numYTiles (l); j++)
+        for (int i = 0; i < file.numXTiles (0); i++)
         {
-            for (int i = 0; i < file.numXTiles (l); i++)
-            {
-                getSampleCountForTile (i, j, sampleCount);
-                getSampleDataForTile (i, j, dataZ, dataA);
-                file.writeTile (i, j, l);
-            }
+            // Generate data for sampleCount, dataZ and dataA.
+            getSampleDataForTile (i, j, tileSizeX, tileSizeY, sampleCount, dataZ, dataA);
+            file.writeTile (i, j, 0);
+        }
+    }
+    
+    for (int i = 0; i < height; i++)
+    {
+        for (int j = 0; j < width; j++)
+        {
+            delete[] dataZ[i][j];
+            delete[] dataA[i][j];
         }
     }
 }

@@ -56,17 +56,18 @@ readDeepTiledFile (
             dataZ[i][j] = new float[sampleCount[i][j]];
             dataA[i][j] = new half[sampleCount[i][j]];
         }
+    }
 
-        file.readTiles (0, numXTiles - 1, 0, numYTiles - 1);
+    file.readTiles (0, numXTiles - 1, 0, numYTiles - 1);
 
-        // (after read data is processed, data must be freed:)
+    // (after read data is processed, data must be freed:)
 
-        for (int i = 0; i < height; i++)
+    for (int i = 0; i < height; i++)
+    {
+        for (int j = 0; j < width; j++)
         {
-            for (int j = 0; j < width; j++)
-            {
-                delete[] dataZ[i][j];
-                delete[] dataA[i][j];
-            }
+            delete[] dataZ[i][j];
+            delete[] dataA[i][j];
         }
     }
+}

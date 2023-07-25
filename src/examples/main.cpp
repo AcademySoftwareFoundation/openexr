@@ -9,6 +9,8 @@
 #include "previewImageExamples.h"
 #include "rgbaInterfaceExamples.h"
 #include "rgbaInterfaceTiledExamples.h"
+#include "deepExamples.h"
+#include "deepTiledExamples.h"
 
 #include <iostream>
 #include <stdexcept>
@@ -23,6 +25,9 @@ main (int argc, char* argv[])
 
         rgbaInterfaceTiledExamples ();
         generalInterfaceTiledExamples ();
+        
+        deepExamples();
+        deepTiledExamples();
 
         lowLevelIoExamples ();
 
