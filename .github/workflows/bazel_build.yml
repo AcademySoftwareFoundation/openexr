@@ -65,8 +65,8 @@ jobs:
         bazelisk build //...
 
   build_and_test_macos:
-    name: macOS 12 Bazel build <Apple Clang14>
-    runs-on: macos-12
+    name: macOS 13 Bazel build <Apple Clang14>
+    runs-on: macos-13
 
     steps:
     - uses: actions/checkout@v3
