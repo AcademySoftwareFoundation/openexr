@@ -130,33 +130,45 @@ can specify a local install directory to cmake via the
 Library Names
 -------------
 
-By default the installed libraries follow a pattern for how they are
-named. This is done to enable multiple versions of the library to be
-installed and targeted by different builds depending on the needs of
-the project. A simple example of this would be to have different
-versions of the library installed to allow for applications targeting
-different VFX Platform years to co-exist.
+By default, libraries are installed with the following names/symlinks:
 
-If you are building dynamic libraries, once you have configured, built,
-and installed the libraries, you should see the following pattern of
-symlinks and files in the install lib folder:
+.. code-block::
+
+    libOpenEXR.so -> libOpenEXR.so.31
+    libOpenEXR.so.$SOVERSION -> libOpenEXR.so.$SOVERSION.$RELEASE
+    libOpenEXR.so.$SOVERSION.$RELEASE (the shared object file)
+
+The ``SOVERSION`` number identifies the ABI version. Each OpenEXR
+release that changes the ABI in backwards-incompatible ways increases
+this number. By policy, this changes only for major and minor
+releases, never for patch releases. ``RELEASE`` is the
+``MAJOR.MINOR.PATCH`` release name. For example, the resulting shared
+object filename is ``libOpenEXR.so.31.3.2.0`` for OpenEXR release
+v3.2.0. This naming scheme helps reinforce the correspondence between
+the real ``.so`` name and the release it corresponds to, moreso that
+would be indicated through a single increasing number.
+
+By OpenEXR project policy, the additional versioning information in
+the `libtool
+<https://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html#Updating-version-info>`_
+versioning scheme is too confusing and error-prone without additional
+practical benefit.
+
+Library Suffix
+~~~~~~~~~~~~~~
+
+The ``OPENEXR_LIB_SUFFIX`` CMake option designates a suffix for the
+library and appears between the library base name and the
+``.so``. This defaults to encode the major and minor version, as in
+``-3_1``:
 
 .. code-block::
 
     libOpenEXR.so -> libOpenEXR-3_1.so
     libOpenEXR-3_1.so -> libOpenEXR-3_1.so.30
-    libOpenEXR-3_1.so.30 -> libOpenEXR-3_1.so.30.3.0
-    libOpenEXR-3_1.so.30.3.0 (the shared object file)
+    libOpenEXR-3_1.so.30 -> libOpenEXR-3_1.so.30.3.2.0
+    libOpenEXR-3_1.so.30.3.2.0 (the shared object file)
     
-The ``-3_1`` suffix encodes the major and minor version, which can be
-configured via the ``OPENEXR_LIB_SUFFIX`` CMake setting. The ``30``
-corresponds to the so version, or in ``libtool`` terminology the
-``current`` shared object version; the `3` denotes the ``libtool``
-``revision``, and the ``0`` denotes the ``libtool`` ``age``. See the
-`libtool
-<https://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html#Updating-version-info>`_
-documentation for more details.
-
 Imath Dependency
 ----------------
 
