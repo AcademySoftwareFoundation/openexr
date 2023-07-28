@@ -226,9 +226,9 @@ endif()
 
 option(OPENEXR_FORCE_INTERNAL_IMATH "Force using an internal imath" OFF)
 # Check to see if Imath is installed outside of the current build directory.
-set(IMATH_REPO "https://github.com/AcademySoftwareFoundation/Imath.git" CACHE STRING
+set(OPENEXR_IMATH_REPO "https://github.com/AcademySoftwareFoundation/Imath.git" CACHE STRING
     "Repo for auto-build of Imath")
-set(IMATH_TAG "main" CACHE STRING
+set(OPENEXR_IMATH_TAG "main" CACHE STRING
   "Tag for auto-build of Imath (branch, tag, or SHA)")
 if(NOT OPENEXR_FORCE_INTERNAL_IMATH)
   #TODO: ^^ Release should not clone from main, this is a place holder
@@ -239,14 +239,14 @@ endif()
 
 if(NOT TARGET Imath::Imath AND NOT Imath_FOUND)
   if(OPENEXR_FORCE_INTERNAL_IMATH)
-    message(STATUS "Imath forced internal, installing from ${IMATH_REPO} (${IMATH_TAG})")
+    message(STATUS "Imath forced internal, installing from ${OPENEXR_IMATH_REPO} (${OPENEXR_IMATH_TAG})")
   else()
-    message(STATUS "Imath was not found, installing from ${IMATH_REPO} (${IMATH_TAG})")
+    message(STATUS "Imath was not found, installing from ${OPENEXR_IMATH_REPO} (${OPENEXR_IMATH_TAG})")
   endif()
   include(FetchContent)
   FetchContent_Declare(Imath
-    GIT_REPOSITORY "${IMATH_REPO}"
-    GIT_TAG "${IMATH_TAG}"
+    GIT_REPOSITORY "${OPENEXR_IMATH_REPO}"
+    GIT_TAG "${OPENEXR_IMATH_TAG}"
     GIT_SHALLOW ON
       )
     

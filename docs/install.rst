@@ -284,9 +284,9 @@ Imath Dependency
 
 * ``CMAKE_PREFIX_PATH``
 
-  The standard CMake path in which to
-  search for dependencies, Imath in particular.  A comma-separated
-  path. Add the root directory where Imath is installed.
+  The standard CMake path in which to search for dependencies, Imath
+  in particular.  A comma-separated path. Add the root directory where
+  Imath is installed.
 
 * ``Imath_DIR``
 
@@ -296,6 +296,45 @@ Imath Dependency
   file, which is typically the ``lib/cmake/Imath`` folder of the root
   install directory.
   
+* ``OPENEXR_IMATH_REPO`` and ``OPENEXR_IMATH_TAG``
+
+  The github Imath repo to auto-fetch if an installed library cannot
+  be found, and the tag to sync it to.  The default repo is
+  ``https://github.com/AcademySoftwareFoundation/Imath.git`` and the
+  tag is specific to the OpenEXR release. The internal build is
+  configured as a CMake subproject.
+
+* ``OPENEXR_FORCE_INTERNAL_IMATH``
+
+  If set to ``ON``, force auto-fetching and internal building of Imath
+  using ``OPENEXR_IMATH_REPO`` and ``OPENEXR_IMATH_TAG``. This means
+  do *not* use any existing installation of Imath.
+
+libdeflate Dependency
+~~~~~~~~~~~~~~~~~~~~~
+
+As of OpenEXR release v3.2, OpenEXR depends on 
+`libdeflate <https://github.com/ebiggers/libdeflate>`_ for
+DEFLATE-based compression. Previous OpenEXR releases relied on `zlib
+<https://www.zlib.net>`_. Builds of OpenEXR can choose either an
+libdeflat installation, or CMake can auto-fetch the source and build it
+internally. The internal build is linked statically, so no extra
+shared object is produced.
+
+* ``OPENEXR_DEFLATE_REPO`` and ``OPENEXR_DEFLATE_TAG``
+
+  The github Imath repo to auto-fetch if an installed library cannot
+  be found, and the tag to sync it to. The default repo is
+  ``https://github.com/ebiggers/libdeflate.git`` and the tag is
+  ``v1.18``. The internal build is configured as a CMake subproject.
+
+* ``OPENEXR_FORCE_INTERNAL_DEFLATE``
+
+  If set to ``ON``, force auto-fetching and internal building of
+  ``libdeflate`` using ``OPENEXR_DEFLATE_REPO`` and
+  ``OPENEXR_DEFLATE_TAG``. This means do *not* use any existing
+  installation of ``libdeflate``.
+
 Namespace Options
 ~~~~~~~~~~~~~~~~~
 
