@@ -1,0 +1,12 @@
+--- CMakeLists.txt	2023-07-14 08:51:51.375958419 +0200
++++ CMakeLists.txt	2023-07-14 08:47:47.854104430 +0200
+@@ -183,7 +183,8 @@
+     endif()
+     set_target_properties(libdeflate_static PROPERTIES
+                           OUTPUT_NAME ${STATIC_LIB_NAME}
+-                          PUBLIC_HEADER libdeflate.h)
++                          PUBLIC_HEADER libdeflate.h
++                          POSITION_INDEPENDENT_CODE ON)
+     target_include_directories(libdeflate_static PUBLIC ${LIB_INCLUDE_DIRS})
+     target_compile_definitions(libdeflate_static PRIVATE ${LIB_COMPILE_DEFINITIONS})
+     target_compile_options(libdeflate_static PRIVATE ${LIB_COMPILE_OPTIONS})
