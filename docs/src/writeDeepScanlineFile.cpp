@@ -7,7 +7,7 @@ writeDeepScanlineFile (
 
     Array2D<half*>& dataA,
 
-    Array2D<unsigned int> sampleCount)
+    Array2D<unsigned int>& sampleCount)
 
 {
     int height = dataWindow.max.y - dataWindow.min.y + 1;
@@ -18,7 +18,7 @@ writeDeepScanlineFile (
     header.channels ().insert ("Z", Channel (FLOAT));
     header.channels ().insert ("A", Channel (HALF));
     header.setType (DEEPSCANLINE);
-    header.compression () = ZIP_COMPRESSION;
+    header.compression () = ZIPS_COMPRESSION;
 
     DeepScanLineOutputFile file (filename, header);
 
@@ -52,8 +52,6 @@ writeDeepScanlineFile (
 
     file.setFrameBuffer (frameBuffer);
 
-    file.readPixelSampleCounts (height);
-
     for (int i = 0; i < height; i++)
     {
         for (int j = 0; j < width; j++)
@@ -62,6 +60,7 @@ writeDeepScanlineFile (
             dataZ[i][j]       = new float[sampleCount[i][j]];
             dataA[i][j]       = new half[sampleCount[i][j]];
             // Generate data for dataZ and dataA.
+            getPixelSampleData(i, j, dataZ, dataA);
         }
 
         file.writePixels (1);

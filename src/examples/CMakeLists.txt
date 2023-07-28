@@ -29,6 +29,10 @@ add_executable(OpenEXRExamples
   rgbaInterfaceExamples.h
   rgbaInterfaceTiledExamples.cpp
   rgbaInterfaceTiledExamples.h
+  deepExamples.cpp
+  deepExamples.h
+  deepTiledExamples.cpp
+  deepTiledExamples.h
 )
 
 target_link_libraries(OpenEXRExamples OpenEXR::OpenEXR)
@@ -58,6 +62,10 @@ install(
     rgbaInterfaceExamples.h
     rgbaInterfaceTiledExamples.cpp
     rgbaInterfaceTiledExamples.h
+    deepExamples.cpp
+    deepExamples.h
+    deepTiledExamples.cpp
+    deepTiledExamples.h
   DESTINATION
     ${CMAKE_INSTALL_DOCDIR}/examples
   )
