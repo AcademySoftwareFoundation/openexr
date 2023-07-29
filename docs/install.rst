@@ -143,16 +143,9 @@ release that changes the ABI in backwards-incompatible ways increases
 this number. By policy, this changes only for major and minor
 releases, never for patch releases. ``RELEASE`` is the
 ``MAJOR.MINOR.PATCH`` release name. For example, the resulting shared
-object filename is ``libOpenEXR.so.31.3.2.0`` for OpenEXR release
-v3.2.0. This naming scheme helps reinforce the correspondence between
-the real ``.so`` name and the release it corresponds to, moreso that
-would be indicated through a single increasing number.
-
-By OpenEXR project policy, the additional versioning information in
-the `libtool
-<https://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html#Updating-version-info>`_
-versioning scheme is too confusing and error-prone without additional
-practical benefit.
+library filename is ``libOpenEXR.so.31.3.2.0`` for OpenEXR release
+v3.2.0. This naming scheme reinforces the correspondence between the
+real filename of the ``.so`` and the release it corresponds to.
 
 Library Suffix
 ~~~~~~~~~~~~~~
