@@ -11,7 +11,8 @@ explains our contribution process and procedures:
 * [Development Workflow](#Development-Workflow)
 * [Coding Style](#Coding-Style)
 * [Versioning Policy](#Versioning-Policy)
-* [Creating a Release](#Creating-a-Release)
+* [Creating a Patch Release](#Creating-a-Patch-Release)
+* [Creating a Major/Minor Release](#Creating-a-Major/Minor-Release)
 
 For a description of the roles and responsibilities of the various
 members of the OpenEXR community, see [GOVERNANCE](GOVERNANCE.md), and
@@ -458,9 +459,9 @@ Making a patch release typically involves merging changes from the
 main branch into the release branch, since all development generally
 takes place on the main branch. The usual workflow is to group these
 changes together and merge them all just prior to a release, rather
-than merging one-by-one as the changes to into main, although merging
+than merging one-by-one as the changes go into main, although merging
 along the way is acceptable as well. For OpenEXR and Imath, a patch
-releases usually involves around a dozen commits, so it's not a huge
+release typically involves under a dozen commits, so it's not a huge
 amount of work to organize them all at once.
 
 A patch release *must* be ABI-compatible with preceding minor releases
@@ -481,16 +482,10 @@ The preferred workflow is:
    b. Cherry-pick the appropriate commits from ``main``, resolving any
       merge conflicts.
 
-   d. Update the SO version in [CMakeLists.txt](CMakeLists.txt):
-   
-      - Increment ``OPENEXR_LIBTOOL_REVISION`` in
-        [CMakeLists.txt](CMakeLists.txt). Leave
-        ``OPENEXR_LIBTOOL_CURRENT`` and ``OPENEXR_LIBTOOL_AGE``
-        unchanged for a patch release.
-
-      - Submit this change as a separate commit.
-
-   c. Add release notes to [CHANGES.md](CHANGES.md):
+   c. Increment ``OPENEXR_VERSION_PATCH`` in
+      [src/lib/OpenEXRCore/openexr_version.h](src/lib/OpenEXRCore/openexr_version.h)
+n   
+   d. Add release notes to [CHANGES.md](CHANGES.md):
 
       - Generate a list of links to merged pull requests.
 
@@ -512,7 +507,7 @@ The preferred workflow is:
         helpfully appends the PR number to the commit subject line.
 
         Note that when this PR is merged to the release branch, it
-        will go in via "rebase and merge" that the release branch
+        should go in via "rebase and merge" that the release branch
         retains the granular changes, described below.
 
       - Generate a list of OSS-Fuzz issues addressed.
@@ -531,31 +526,34 @@ The preferred workflow is:
       - Choose a proposed release date at least several days in
         advance.
       
-   d. If there are any public CVE's, reference them in
+   e. If there are any public CVE's, reference them in
       [SECURITY.md](SECURITY.md).
       
-   e. Submit the PR for others to review. The PR should go *to the
+   f. Submit the PR for others to review. The PR should go *to the
       release branch, not ``main``*, obviously.
 
-   f. After others have had a chance to sanity-check the changes,
+   g. After others have had a chance to sanity-check the changes,
       merge the PR *with "rebase and merge"*.  Unlike with the usual
       PR's merged to main, it is essential to retain the individual
       commits on the release branch. That way, the release branch
       commit history retains the details of the changes.
 
-   g. If further fixes come in that need to go into the release, push
+   h. If further fixes come in that need to go into the release, push
       them to the PR branch. It's not absolutely essential that all
       changes to the release branch go in via a PR. The PR is simply a
       convient forum for publicly discussing and reviewing the
       composition of the release.
    
-2. Validate ABI compatibility. Build the release branch and run
+2. Tag the release with a ``-rc`` "release candidate" tag,
+   e.g. ``v3.1.9-rc``.
+
+3. Validate ABI compatibility. Build at the release candidate tag and
+   run
    [abipkgdiff](https://manpages.ubuntu.com/manpages/lunar/en/man1/abipkgdiff.1.html)
    against a build of the previous patch release to confirm that no
-   changes have leaked in. 
-
-3. Tag the release with a ``-rc`` "release candidate" tag,
-   e.g. ``v3.1.9-rc``.
+   ABI changes have leaked in. Additions to the ABI are acceptable for
+   a patch release, but there should be no symbol changes and no
+   symbols removed. If there are, back up and fix them before proceeding.
 
 4. Send mail to ``openexr-dev@lists.aswf.io`` announcing the staging
    of the release with link to the release candidate tag. Include the
@@ -586,7 +584,7 @@ The preferred workflow is:
    c. Re-tag with a incremented "release candidate" number,
       e.g. ``v3.1.9-rc2``.  
 
-   d. Send a email update to ``openexr-dev@lists.aswf.io`` notifying
+   d. Send an email update to ``openexr-dev@lists.aswf.io`` notifying
       the community of the addition and the new tag.
 
 7. Publish the release
@@ -602,9 +600,9 @@ The preferred workflow is:
 
    From a clone of the main repo:
 
-         git checkout release
-         git merge RB-3.1
-         git push
+       % git checkout release
+       % git merge RB-3.1
+       % git push
          
 9. Submit a PR that adds the release notes to [CHANGES.md](CHANGES.md)
    on the main branch. Cherry-pick the release notes commit from
@@ -635,12 +633,19 @@ don't generally allow experimental changes onto ``main``. Anything
 accepted onto ``main`` should be intended for the next release.
 
 The overall workflow is similar to a patch release, as described
-above, but simpler because there is no cherry-picking and merging of
-commits. The major/minor release is simply a snapshot of ``main``.
+above, but it's simpler because there is no cherry-picking and merging
+of commits. The major/minor release is simply a snapshot of ``main``.
 
 To create a new release from the ``main`` branch:
 
-1. Update the release notes in [CHANGES.md](CHANGES.md):
+1. Confirm that the ``OPENEXR_VERSION_MAJOR``,
+   ``OPENEXR_VERSION_MINOR``, and ``OPENEXR_VERSION_PATCH`` value in
+   [src/lib/OpenEXRCore/openexr_version.h](src/lib/OpenEXRCore/openexr_version.h)
+   are correct. The OpenEXR project policy is that the values on the
+   main branch, which is the bleeding edge of development, correspond
+   to the next minor release, with the patch set to 0.
+
+2. Update the release notes in [CHANGES.md](CHANGES.md):
 
    - Write a high-level summary of the features and improvements.
 
@@ -656,28 +661,30 @@ To create a new release from the ``main`` branch:
    
    - Submit this change as a separate PR.
 
-2. Add a mention of the release to [``docs/news.rst``](docs/news.rst)
+3. Add a mention of the release to [``docs/news.rst``](docs/news.rst)
 
    - Submit this change as a separate PR.
 
-3. Update the SO version in [CMakeLists.txt](CMakeLists.txt):
+4. Increment the ``OPENEXR_LIB_SOVERSION`` setting in [CMakeLists.txt](CMakeLists.txt).
    
-   - Increment ``OPENEXR_LIBTOOL_CURRENT`` in
-     [CMakeLists.txt](CMakeLists.txt), and set
-     ``OPENEXR_LIBTOOL_REVISION`` and ``OPENEXR_LIBTOOL_AGE`` to 0.
+   - The SO version increases whenever, and only when, the ABI changes
+     in non-backwards-compatible ways. Consistent with the semantic
+     versioning policy, this usually happens at major and minor
+     releases, but never on a patch release.
 
-   - Submit this change as a separate PR.
+   - Submit this change as a separate PR for review.
 
-4. Create the release branch with the ``RB`` prefix, e.g. ``RB-3.2``.
+5. Once the above PR's are merged, create the release branch with the
+   ``RB`` prefix, e.g. ``RB-3.2``.
 
-5. Tag the release with a ``-rc`` "release candidate" tag,
+6. Tag the release with a ``-rc`` "release candidate" tag,
    e.g. ``v3.2.0-rc``.
 
-6. Send mail to ``openexr-dev@lists.aswf.io`` announcing the staging
+7. Send mail to ``openexr-dev@lists.aswf.io`` announcing the staging
    of the release with link to the release candidate tag. Include the
    release notes from [CHANGES.md](CHANGES.md) for review.
 
-7. If additonal fixes need to go in before release:
+8. If additonal fixes need to go in before release:
 
    a. Merge commits to the release branch. Push them directly, no need
       for a pull request.
@@ -690,40 +697,47 @@ To create a new release from the ``main`` branch:
    d. Send a email update to ``openexr-dev@lists.aswf.io`` notifying
       the community of the addition.
 
-8. Draft the release on the GitHub
+9. Draft the release on the GitHub
    [Releases](https://github.com/AcademySoftwareFoundation/openexr/releases)
    page.  Include the summary from the notes in
    [CHANGES.md](CHANGES.md), but don't include the list of PR's.
 
-   Create the release from the latest ``--rc`` tag, and give it a name
-   that begins with ``v`` and ends in ``0``, e.g. ``v3.2.0``.
+   - Create the release from the latest ``--rc`` tag, and give it a name
+     that begins with ``v`` and ends in ``0``, e.g. ``v3.2.0``.
    
-   Save the release as a "draft".
+   - Save the release as a "draft".
 
-9. Wait at least 48 hours after the email announcement.
+10. Wait at least 48 hours after the email announcement.
 
-10. Publish the release
+11. Publish the release
 
    a. Click the "Publish release" button on the GitHub release draft
 
    b. Send an email to ``openexr-dev@lists.aswf.io`` officially
       annoucing the release.
    
-11. Update the ``release`` branch, which should always point to the
+12. Update the ``release`` branch, which should always point to the
     most recent release.
 
     From a clone of the main repo:
 
-         git checkout release
-         git merge RB-3.1
-         git push
+         % git checkout release
+         % git merge RB-3.1
+         % git push
          
-12. Build the website at https://readthedocs.org/projects/openexr.
+13. Increment ``OPENEXR_VERSION_MINOR`` in
+    [src/lib/OpenEXRCore/openexr_version.h](src/lib/OpenEXRCore/openexr_version.h)
 
-13. If the release has resolved any OSS-Fuzz issues, update the
+    - Submit a PR for this. This leaves the release version on the
+      main branch pointing to the next minor release, as described in
+      Step #1.
+
+14. Build the website at https://readthedocs.org/projects/openexr.
+
+15. If the release has resolved any OSS-Fuzz issues, update the
     associated pages at https://bugs.chromium.org/p/oss-fuzz with a
     reference to the release.
 
-12. If the release has resolved any public CVE's, request an update
+16. If the release has resolved any public CVE's, request an update
     from the registry service providing the release and a link to the
     release notes.
