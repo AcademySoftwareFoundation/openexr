@@ -1,5 +1,6 @@
 # OpenEXR Release Notes
 
+* [Version 2.5.9](#version-259-july-31-2023) July 31, 2023
 * [Version 2.5.8](#version-258-march-18-2022) March 18, 2022
 * [Version 2.5.7](#version-257-june-16-2021) June 16, 2021
 * [Version 2.5.6](#version-256-may-17-2021) May 17, 2021
@@ -42,6 +43,18 @@
 * [Version 1.0.2](#version-102)
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
+
+## Version 2.5.9 (July 31, 2023)
+
+Patch release that fixes a compile failure with gcc-13 gcc 13 and
+problem with PyIlmBase's pkgconfig.
+
+### Merged Pull Requests
+
+* [1499](https://github.com/AcademySoftwareFoundation/openexr/pull/1499)
+fix build of 2.5 branch with GCC 13
+* [1253](https://github.com/AcademySoftwareFoundation/openexr/pull/1253)
+Adjust exec_prefix path for PyIlmBase's pkgconfig file
 
 ## Version 2.5.8 (March 18, 2022)
 
