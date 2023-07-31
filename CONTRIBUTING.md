@@ -484,8 +484,12 @@ The preferred workflow is:
 
    c. Increment ``OPENEXR_VERSION_PATCH`` in
       [src/lib/OpenEXRCore/openexr_version.h](src/lib/OpenEXRCore/openexr_version.h)
-n   
-   d. Add release notes to [CHANGES.md](CHANGES.md):
+   
+   d. Update the ``IMATH_TAG`` setting in
+      [cmake/OpenEXRSetup.cmake](cmake/OpenEXRSetup.cmake) to
+      correspond to the proper Imath release.
+   
+   e. Add release notes to [CHANGES.md](CHANGES.md):
 
       - Generate a list of links to merged pull requests.
 
@@ -526,19 +530,19 @@ n
       - Choose a proposed release date at least several days in
         advance.
       
-   e. If there are any public CVE's, reference them in
+   f. If there are any public CVE's, reference them in
       [SECURITY.md](SECURITY.md).
       
-   f. Submit the PR for others to review. The PR should go *to the
+   g. Submit the PR for others to review. The PR should go *to the
       release branch, not ``main``*, obviously.
 
-   g. After others have had a chance to sanity-check the changes,
+   h. After others have had a chance to sanity-check the changes,
       merge the PR *with "rebase and merge"*.  Unlike with the usual
       PR's merged to main, it is essential to retain the individual
       commits on the release branch. That way, the release branch
       commit history retains the details of the changes.
 
-   h. If further fixes come in that need to go into the release, push
+   i. If further fixes come in that need to go into the release, push
       them to the PR branch. It's not absolutely essential that all
       changes to the release branch go in via a PR. The PR is simply a
       convient forum for publicly discussing and reviewing the
@@ -677,14 +681,18 @@ To create a new release from the ``main`` branch:
 5. Once the above PR's are merged, create the release branch with the
    ``RB`` prefix, e.g. ``RB-3.2``.
 
-6. Tag the release with a ``-rc`` "release candidate" tag,
+6. Update the ``IMATH_TAG`` setting in
+   [cmake/OpenEXRSetup.cmake](cmake/OpenEXRSetup.cmake) to correspond
+   to the proper Imath release.
+
+7. Tag the release with a ``-rc`` "release candidate" tag,
    e.g. ``v3.2.0-rc``.
 
-7. Send mail to ``openexr-dev@lists.aswf.io`` announcing the staging
+8. Send mail to ``openexr-dev@lists.aswf.io`` announcing the staging
    of the release with link to the release candidate tag. Include the
    release notes from [CHANGES.md](CHANGES.md) for review.
 
-8. If additonal fixes need to go in before release:
+9. If additonal fixes need to go in before release:
 
    a. Merge commits to the release branch. Push them directly, no need
       for a pull request.
@@ -697,47 +705,47 @@ To create a new release from the ``main`` branch:
    d. Send a email update to ``openexr-dev@lists.aswf.io`` notifying
       the community of the addition.
 
-9. Draft the release on the GitHub
-   [Releases](https://github.com/AcademySoftwareFoundation/openexr/releases)
-   page.  Include the summary from the notes in
-   [CHANGES.md](CHANGES.md), but don't include the list of PR's.
+10. Draft the release on the GitHub
+    [Releases](https://github.com/AcademySoftwareFoundation/openexr/releases)
+    page.  Include the summary from the notes in
+    [CHANGES.md](CHANGES.md), but don't include the list of PR's.
 
-   - Create the release from the latest ``--rc`` tag, and give it a name
-     that begins with ``v`` and ends in ``0``, e.g. ``v3.2.0``.
+    - Create the release from the latest ``--rc`` tag, and give it a name
+      that begins with ``v`` and ends in ``0``, e.g. ``v3.2.0``.
    
-   - Save the release as a "draft".
+    - Save the release as a "draft".
 
-10. Wait at least 48 hours after the email announcement.
+11. Wait at least 48 hours after the email announcement.
 
-11. Publish the release
+12. Publish the release
 
-   a. Click the "Publish release" button on the GitHub release draft
+    a. Click the "Publish release" button on the GitHub release draft
 
-   b. Send an email to ``openexr-dev@lists.aswf.io`` officially
-      annoucing the release.
+    b. Send an email to ``openexr-dev@lists.aswf.io`` officially
+       annoucing the release.
    
-12. Update the ``release`` branch, which should always point to the
+13. Update the ``release`` branch, which should always point to the
     most recent release.
 
     From a clone of the main repo:
 
-         % git checkout release
-         % git merge RB-3.1
-         % git push
+        % git checkout release
+        % git merge RB-3.1
+        % git push
          
-13. Increment ``OPENEXR_VERSION_MINOR`` in
-    [src/lib/OpenEXRCore/openexr_version.h](src/lib/OpenEXRCore/openexr_version.h)
+14. Increment ``OPENEXR_VERSION_MINOR`` in
+    [src/lib/OpenEXRCore/openexr_version.h](src/lib/OpenEXRCore/openexr_version.h) on the main branch
 
     - Submit a PR for this. This leaves the release version on the
       main branch pointing to the next minor release, as described in
       Step #1.
 
-14. Build the website at https://readthedocs.org/projects/openexr.
+15. Build the website at https://readthedocs.org/projects/openexr.
 
-15. If the release has resolved any OSS-Fuzz issues, update the
+16. If the release has resolved any OSS-Fuzz issues, update the
     associated pages at https://bugs.chromium.org/p/oss-fuzz with a
     reference to the release.
 
-16. If the release has resolved any public CVE's, request an update
+17. If the release has resolved any public CVE's, request an update
     from the registry service providing the release and a link to the
     release notes.
