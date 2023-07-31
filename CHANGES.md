@@ -3,7 +3,7 @@
 
 # OpenEXR Release Notes
 
-* [Version 3.1.10](#version-3110-july-31-2023) July 31, 2023
+* [Version 3.1.10](#version-3110-august-2-2023) August 2, 2023
 * [Version 3.1.9](#version-319-june-25-2023) June 25, 2023
 * [Version 3.1.8](#version-318-june-2-2023) June 2, 2023
 * [Version 3.1.7](#version-317-march-28-2023) March 28, 2023
@@ -64,7 +64,7 @@
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
 
-## Version 3.1.10 (July 31, 2023)
+## Version 3.1.10 (August 2, 2023)
 
 Patch release that addresses miscellaneous build issues, test
 failures, and performance regressions, as well as:
