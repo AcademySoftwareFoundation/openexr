@@ -54,6 +54,8 @@
 #include <ImfTileDescription.h>
 #include "ImfNamespace.h"
 
+#include <cstdint>
+
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 using IMATH_NAMESPACE::Box2i;
