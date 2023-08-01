@@ -122,9 +122,13 @@ if(NOT OPENEXR_IS_SUBPROJECT)
   include(cmake/clang-format.cmake)
 endif()
 
-option(BUILD_DOCS "Set ON to build html documentation")
-if (BUILD_DOCS AND NOT OPENEXR_IS_SUBPROJECT)
-  option(INSTALL_DOCS "Set ON to install html documentation" ON)
+option(OPENEXR_INSTALL_DOCS "Set ON to install tool manpages")
+if (OPENEXR_INSTALL_DOCS AND NOT OPENEXR_IS_SUBPROJECT)
   add_subdirectory(docs)
+endif()
+
+option(BUILD_WEBSITE "Set ON to build website source")
+if (BUILD_WEBSITE AND NOT OPENEXR_IS_SUBPROJECT)
+  add_subdirectory(website)
 endif()
 

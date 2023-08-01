@@ -206,60 +206,49 @@ See the :doc:`PortingGuide` for details about differences from previous
 releases and how to address them. Also refer to the porting guide for
 details about changes to Imath.
 
-Building the Documentation
---------------------------
+Building the Website
+--------------------
 
-The OpenEXR technical documentation at `https://openexr.readthedocs.io
-<https://openexr.readthedocs.io>`_ is generated via `Sphinx
-<https://www.sphinx-doc.org>`_ with the `Breathe
-<https://breathe.readthedocs.io>`_ extension using information
-extracted from header comments by `Doxygen <https://www.doxygen.nl>`_.
+The `https://openexr.com <https://openexr.com>`_ website is generated
+via `Sphinx <https://www.sphinx-doc.org>`_ with the `Breathe
+<https://breathe.readthedocs.io>`_ extension, using the `sphinx-press-theme
+<https://pypi.org/project/sphinx-press-theme>`_, and is hosted by
+`readthedocs <https://readthedocs.org/projects/openexr>`_. The website
+source is in `restructured text
+<https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html>`_
+in the ``website`` directory.  
 
-To build the documentation locally from the source headers and
-``.rst`` files, set the CMake option ``BUILD_DOCS=ON``. This adds
-``Doxygen`` and ``Sphinx`` CMake targets and enables building the docs
-by default.  generation is off by default.
+To build the website locally from the source ``.rst`` files, set the
+CMake option ``BUILD_WEBSITE=ON``. This adds the ``website`` CMake
+target. Generation is off by default.
 
-Building the documentation requires that ``sphinx``, ``breathe``, and
+Building the website requires that ``sphinx``, ``breathe``, and
 ``doxygen`` are installed. It further requires the `sphinx-press-theme
-<https://pypi.org/project/sphinx-press-theme>`_, as indicated in the
-`requirements.txt
-<https://github.com/AcademySoftwareFoundation/openexr/blob/main/docs/requirements.txt>`_
-file.
+<https://pypi.org/project/sphinx-press-theme>`_. Complete dependencies
+are described in the `requirements.txt
+<https://github.com/AcademySoftwareFoundation/imath/blob/main/docs/requirements.txt>`_
+file. Furthermore, building the website from source requires the Imagemagick
+`convert <https://imagemagick.org/script/convert.php>`_ utility, which
+processes exr files from
+`https://github.com/AcademySoftwareFoundation/openexr-images
+<https://github.com/AcademySoftwareFoundation/openexr-images>`_ for
+the example image gallery.
 
-See the `doxygen downloads page
-<https://www.doxygen.nl/download.html>`_ for how to install it. Binary
-distributions are available for many systems, so you likely do not
-need to build from source. On Debian/Ubuntu, for example:
-
-.. code-block::
-
-   $ sudo apt-get install doxygen
-
-Similarly, see the `sphinx installation page
-<https://www.sphinx-doc.org/en/master/usage/installation.html>`_ for
-how to install it. On Debian/Ubuntu:
+On Debian/Ubuntu Linux:
 
 .. code-block::
 
-   $ sudo apt-get install python3-sphinx
-
-And to install `sphinx-press-theme
-<https://pypi.org/project/sphinx-press-theme>`_:
-
-.. code-block::
-
-   $ pip3 install sphinx_press_theme
-
-Note that the `https://openexr.readthedocs.io <https://openexr.readthedocs.io>`_
-documentation takes the place of the formerly distributed .pdf
-documents in the ``docs`` folder, although readthedocs supports
-downloading of documentation in pdf format, for those who prefer it
-that way.
+    % apt-get install doxygen python3-sphinx imagemagick
+    % pip3 install breathe
+    % pip3 install sphinx_press_theme
+   
+    % mkdir _build
+    % cd _build
+    % cmake .. -DBUILD_WEBSITE=ON
+    % cmake --build . --target website 
 
 CMake Build-time Configuration Options
 --------------------------------------
-
 
 The default CMake configuration options are stored in
 ``cmake/OpenEXRSetup.cmake``. To see a complete set of option

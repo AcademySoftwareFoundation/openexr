@@ -15,11 +15,11 @@ build:
     - openexr     # for exrheader, for test images
   jobs:
     pre_build:
-       - python docs/scripts/test_images.py 
+       - python website/scripts/test_images.py 
        
 sphinx:
-  configuration: docs/conf.py
+  configuration: website/conf.py
 
 python:
   install:
-    - requirements: docs/requirements.txt
+    - requirements: website/requirements.txt

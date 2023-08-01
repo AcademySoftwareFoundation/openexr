@@ -6,7 +6,7 @@
 #
 # Generate the "Test Images" page for the openexr.com website
 #
-# The file "docs/test_images.txt" contains urls for either .exr files
+# The file "website/test_images.txt" contains urls for either .exr files
 # or README.txt files from
 # https://github.com/AcademySoftwareFoundation/openexr-images. This
 # script processes them into .rst files with a main index listing all
@@ -24,7 +24,7 @@
 # Note that the README.rst files in the openexr-images repo are never
 # actually processed directly by sphinx.
 #
-# The generated .rst and .jpg files all go in the "docs/_test_images"
+# The generated .rst and .jpg files all go in the "website/_test_images"
 # directory underneath the source root. Ideally, these would go in the
 # build root, but sphinx expects all source content under a single
 # root.
@@ -293,19 +293,19 @@ def write_exr_to_index(index_file, repo, tag, exr_lpath, readme):
     
     # Examples:
     #    repo = 'https://raw.githubusercontent.com/cary-ilm/openexr-images'
-    #    tag = 'docs'
+    #    tag = 'website'
     #    exr_lpath = v2/LeftView/Ground.exr
 
-    test_images = 'docs/_test_images/'
-    output_dirname = test_images + os.path.dirname(exr_lpath)    # docs/_test_images/v2/LeftView
+    test_images = 'website/_test_images/'
+    output_dirname = test_images + os.path.dirname(exr_lpath)    # website/_test_images/v2/LeftView
     os.makedirs(output_dirname, exist_ok=True)
     base_path = os.path.splitext(exr_lpath)[0]                   # v2/LeftView/Ground
     exr_filename = os.path.basename(exr_lpath)                   # Ground.exr
     exr_basename = os.path.splitext(exr_filename)[0]             # Ground
     exr_dirname = os.path.dirname(exr_lpath)                     # v2/LeftView
-    rst_lpath = f'{test_images}{exr_dirname}/{exr_basename}.rst' # docs/_test_images/v2/LeftView/Ground.rst
+    rst_lpath = f'{test_images}{exr_dirname}/{exr_basename}.rst' # website/_test_images/v2/LeftView/Ground.rst
     jpg_rpath = f'{exr_dirname}/{exr_dirname.replace("/", "_")}_{exr_basename}.jpg'
-    jpg_lpath =  test_images + jpg_rpath                         # docs/_test_images/v2/LeftView/Ground.K@#YSDF.jpg
+    jpg_lpath =  test_images + jpg_rpath                         # website/_test_images/v2/LeftView/Ground.K@#YSDF.jpg
 
     exr_url = f'{repo}/{tag}/{exr_lpath}'
     
@@ -401,9 +401,9 @@ tag = sys.argv[2] if len(sys.argv) > 2 else 'main'
 
 try:
     
-    os.makedirs('docs/_test_images', exist_ok=True)
+    os.makedirs('website/_test_images', exist_ok=True)
 
-    with open('docs/_test_images/index.rst', 'w') as index_file:
+    with open('website/_test_images/index.rst', 'w') as index_file:
 
         index_file.write('Test Images\n')
         index_file.write('###########\n')
@@ -421,7 +421,7 @@ try:
     
         # Process each url in the .txt file
         
-        with open('docs/test_images.txt', 'r') as test_images_file:
+        with open('website/test_images.txt', 'r') as test_images_file:
             for line in test_images_file.readlines():
 
                 if line.startswith('#'):
@@ -452,7 +452,7 @@ try:
 
         # Write the toctree file, one entry per .exr page
         
-        with open('docs/_test_images/toctree.rst', 'w') as toctree_file:
+        with open('website/_test_images/toctree.rst', 'w') as toctree_file:
             toctree_file.write('..\n')
             toctree_file.write('  SPDX-License-Identifier: BSD-3-Clause\n')
             toctree_file.write('  Copyright Contributors to the OpenEXR Project.\n')
