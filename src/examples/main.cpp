@@ -11,6 +11,7 @@
 #include "rgbaInterfaceTiledExamples.h"
 #include "deepExamples.h"
 #include "deepTiledExamples.h"
+#include "multipartExamples.h"
 
 #include <iostream>
 #include <stdexcept>
@@ -25,13 +26,20 @@ main (int argc, char* argv[])
 
         rgbaInterfaceTiledExamples ();
         generalInterfaceTiledExamples ();
-        
-        deepExamples();
-        deepTiledExamples();
+
+        deepExamples ();
+        deepTiledExamples ();
 
         lowLevelIoExamples ();
 
         previewImageExamples ();
+        
+        // This example uses the files created by
+        //   generalInterfaceExamples,
+        //   generalInterfaceTiledExamples,
+        //   deepExamples,
+        //   deepTiledExamples
+        multipartExamples ();
     }
     catch (const std::exception& exc)
     {

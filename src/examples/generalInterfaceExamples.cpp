@@ -44,7 +44,7 @@ writeGZ1 (
     //	- create a file header
     //	- add G and Z channels to the header
     //	- open the file, and store the header in the file
-    //	- describe the memory layout of the G anx Z pixels
+    //	- describe the memory layout of the G and Z pixels
     //	- store the pixels in the file
     //
 

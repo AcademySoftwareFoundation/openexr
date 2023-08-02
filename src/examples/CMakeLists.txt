@@ -33,6 +33,8 @@ add_executable(OpenEXRExamples
   deepExamples.h
   deepTiledExamples.cpp
   deepTiledExamples.h
+  multipartExamples.cpp
+  multipartExamples.h
 )
 
 target_link_libraries(OpenEXRExamples OpenEXR::OpenEXR)
@@ -66,6 +68,8 @@ install(
     deepExamples.h
     deepTiledExamples.cpp
     deepTiledExamples.h
+    multipartExamples.cpp
+    multipartExamples.h
   DESTINATION
     ${CMAKE_INSTALL_DOCDIR}/examples
   )
