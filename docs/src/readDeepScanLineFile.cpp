@@ -1,5 +1,5 @@
 void
-readDeepScanlineFile (
+readDeepScanLineFile (
     const char             filename[],
     Box2i&                 displayWindow,
     Box2i&                 dataWindow,
