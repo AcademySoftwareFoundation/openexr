@@ -13,6 +13,78 @@ News
 .. toctree::
    :caption: News
 
+August 1, 2023 - 2023 ASWF OpenEXR Virtual Town Hall
+====================================================
+
+Slides from the 2023 ASWF OpenEXR Virtual Town Hall are here:
+https://wiki.aswf.io/display/OEXR/2023+ASWF+OpenEXR+Virtual+Town+Hall
+
+Agenda:
+
+- OpenEXR v3.1 Review
+
+  - OpenEXRCore, now with DWAA/B compression support
+
+  - Performance optimizations (zip, neon, huf decoder, SSE4)
+
+  - Bug/build fixes
+
+  - New https://openexr.com website, with test images
+
+  - Other developments:
+
+    - MacPorts is now up to date (v3.1.9)
+
+    - PyPI python bindings (a.k.a. “pip install openexr”)
+
+    - OpenEXR & USDZ
+
+    - Coalition for Content Provenance and Authenticity (C2PA)
+
+- OpenEXR v3.2 Preview
+
+  - Lossless compression via libdeflate (replaces zlib)
+
+  - ABI compatibility
+
+  - New Optional Standard Attributes:
+
+    - Support automated editorial workflow
+
+      ``reelName``, ``imageCounter``, ``ascFramingDecisionList``
+
+    - Support forensics (“which other shots used that camera and lens
+      before the camera firmware was updated?”)
+
+      ``cameraMake``, ``cameraModel``, ``cameraSerialNumber``,
+      ``cameraFirmware``, ``cameraUuid``, ``cameraLabel``,
+      ``lensMake``, ``lensModel``, ``lensSerialNumber``,
+      ``lensFirmware``, ``cameraColorBalance``
+
+    - Support pickup shots (reproduce critical camera settings)
+
+      ``shutterAngle``, ``cameraCCTSetting``, ``cameraTintSetting``
+
+    - Support metadata-driven match move
+
+      ``sensorCenterOffset``, ``sensorOverallDimensions``,
+      ``sensorPhotositePitch``, ``sensorAcquisitionRectangle``
+      ``nominalFocalLength``, ``effectiveFocalLength``,
+      ``pinholeFocalLength``, ``entrancePupilOffset``, ``tStop
+      (complementing existing 'aperture')``
+
+    - https://www.smpte.org/blog/update-on-smptes-rapid-industry-solutions-ris-on-set-virtual-production-osvp-initiative    
+
+    - https://cookeoptics.com/wp-content/uploads/2023/07/Cooke-Camera-Lens-Definitions-for-VFX-210723.pdf
+
+- Discussion topics: Experiments in GPU Decompression & Real-time Streaming
+
+July 31, 2023 - OpenEXR v2.5.9 Released
+=======================================
+
+Patch release for v2.5 that fixes a compile failure with gcc-13 gcc 13
+and a problem with PyIlmBase's pkgconfig.
+
 June 25, 2023 - OpenEXR v3.1.9 Released
 =======================================
 
