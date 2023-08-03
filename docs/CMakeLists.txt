@@ -45,8 +45,6 @@ define_manpage(exrmultipart   "combine or split multipart exr images")
 define_manpage(exrmultiview   "convert between single/multi-view exr images")
 define_manpage(exrstdattr     "set exr image metadata")
 
-add_subdirectory(src)
-
 add_custom_target(docs ALL DEPENDS
                  ${manpage_files})
 
