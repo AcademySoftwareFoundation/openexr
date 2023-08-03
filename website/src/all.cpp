@@ -20,11 +20,14 @@
 
 #include <cfloat>
 #include <algorithm>
-#include <sys/mman.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
+
+#ifndef _WIN32
+#include <sys/mman.h>
+#endif
 
 using namespace Imath;
 using namespace Imf;
@@ -69,13 +72,16 @@ namespace XXX {
 #include "C_IStream_read.cpp"
 #include "C_IStream_seekg.cpp"
 #include "C_IStream_tellg.cpp"
+#include "gamma.cpp"
 #include "makePreviewImage.cpp"
+#ifndef _WIN32
 #include "MemoryMappedIStream.cpp"
 #include "MemoryMappedIStream_isMemoryMapped.cpp"
 #include "MemoryMappedIStream_destructor.cpp"
 #include "MemoryMappedIStream_constructor.cpp"
 #include "MemoryMappedIStream_read.cpp"
 #include "MemoryMappedIStream_readMemoryMapped.cpp"
+#endif
 #include "mergeOverlappingSamples.cpp"
 #include "readDeepScanLineFile.cpp"
 #include "readDeepTiledFile.cpp"
