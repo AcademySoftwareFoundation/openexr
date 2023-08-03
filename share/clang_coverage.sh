@@ -1,4 +1,6 @@
 #! /bin/bash
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright Contributors to the OpenEXR Project.
 
 # This script can be used to generate a local test coverage report
 # using the clang / llvm toolset for doing so

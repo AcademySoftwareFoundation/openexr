@@ -45,6 +45,7 @@ Contrib/DtexToExr/DtexToExr
 *.project
 *.cproject
 .DS_Store
+abi_check
 build/
 build-win/
 build-nuget/
