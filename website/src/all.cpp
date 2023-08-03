@@ -17,20 +17,23 @@
 #include <ImfPartType.h>
 
 #include <Iex.h>
+#include <ImathFun.h>
 
 #include <cfloat>
 #include <algorithm>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include <unistd.h>
 
 #ifndef _WIN32
 #include <sys/mman.h>
+#include <unistd.h>
 #endif
 
 using namespace Imath;
 using namespace Imf;
+
+using std::max;
 
 struct GZ
 {
