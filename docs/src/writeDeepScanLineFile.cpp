@@ -1,5 +1,5 @@
 void
-writeDeepScanlineFile (
+writeDeepScanLineFile (
     const char       filename[],
     Box2i            displayWindow,
     Box2i            dataWindow,

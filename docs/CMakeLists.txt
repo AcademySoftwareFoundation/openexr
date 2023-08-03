@@ -102,11 +102,14 @@ define_manpage(exrmultipart   "combine or split multipart exr images")
 define_manpage(exrmultiview   "convert between single/multi-view exr images")
 define_manpage(exrstdattr     "set exr image metadata")
 
+add_subdirectory(src)
+
 add_custom_target(docs ALL DEPENDS
                  ${SPHINX_INDEX_FILE}
                  ${DOXYGEN_INDEX_FILE}
                  ${TEST_IMAGE_INDEX_FILE}
-                 ${manpage_files})
+                 ${manpage_files}
+                 ${CMAKE_BINARY_DIR}/bin/docs_src)
 
 # Add a target to install the manpages, but *not* the html
 
@@ -114,3 +117,7 @@ if(INSTALL_DOCS)
     include(GNUInstallDirs)
     install(DIRECTORY ${MANPAGE_OUTPUT_DIR}/man1 DESTINATION ${CMAKE_INSTALL_MANDIR})
 endif()
+
+# build the example code to verify that it compiles
+
+

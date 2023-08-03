@@ -22,9 +22,9 @@ writeTiledRgbaMIP1 (
 
         out.writeTiles (
             0,
-            out.numXTiles (level) – 1, // 6
+            out.numXTiles (level) - 1, // 6
             0,
-            out.numYTiles (level) – 1,
+            out.numYTiles (level) - 1,
             level);
     }
 }

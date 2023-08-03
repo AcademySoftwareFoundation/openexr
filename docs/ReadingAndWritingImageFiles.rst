@@ -214,21 +214,8 @@ is indicated by the display window, ``(0,0) - (width-1, height-1)``, and
 the data window specifies the region for which valid pixel data exist.
 Only the pixels in the data window are stored in the file.
 
-.. code-block::
+.. literalinclude:: src/writeRgba2.cpp
    :linenos:
-
-    void
-    writeRgba2 (const char fileName[],
-                const Rgba *pixels,
-                int width,
-                int height,
-                const Box2i &dataWindow)
-    {
-        Box2i displayWindow (V2i (0, 0), V2i (width - 1, height - 1));
-        RgbaOutputFile file (fileName, displayWindow, dataWindow, WRITE_RGBA);
-        file.setFrameBuffer (pixels, 1, width);
-        file.writePixels (dataWindow.max.y - dataWindow.min.y + 1);
-    }
 
 The code above is similar to that in `Writing an RGBA Image File`_, where the
 whole image was stored in the file. Two things are different, however: When the
@@ -682,7 +669,7 @@ an array of structs, which are defined like this:
 
 .. code-block::
 
-    typedef struct GZ
+    struct GZ
     {
         half g;
         float z;
@@ -1121,7 +1108,7 @@ demonstrates how to write a deep scan line file with two channels:
 
 The size of the image is ``width`` by ``height`` pixels.
 
-.. literalinclude:: src/writeDeepScanlineFile.cpp
+.. literalinclude:: src/writeDeepScanLineFile.cpp
    :language: c++
    :linenos:
 
@@ -1171,7 +1158,7 @@ Reading a Deep Scan Line File
 
 An example of reading a deep scan line file created by previous code.
 
-.. literalinclude:: src/readDeepScanlineFile.cpp
+.. literalinclude:: src/readDeepScanLineFile.cpp
    :language: c++
    :linenos:
 
@@ -1196,8 +1183,8 @@ Writing a Deep Tiled File
 This example creates an deep tiled file with two channels. It
 demonstrates how to write a deep tiled file with two channels:
 
-1. type ``FLOAT``, is called Z, and is used for storing sample depth, and
-2. type ``HALF``, is called A and is used for storing sample opacity.
+1. ``Z``, of type ``FLOAT``, and is used for storing sample depth, and
+2. ``A``, type ``HALF``, and is used for storing sample opacity.
 
 The size of the image is ``width`` by ``height`` pixels.
 
@@ -1205,11 +1192,11 @@ The size of the image is ``width`` by ``height`` pixels.
    :language: c++
    :linenos:
               
-Here, getSampleCountForTile is a user-supplied function that sets each
-item in sampleCount array to the correct sampleCount for each pixel in
-the tile, and getSampleDataForTile is a user-supplied function that
-set the pointers in dataZ and dataA arrays to point to the correct
-data
+Here, ``getSampleCountForTile`` is a user-supplied function that sets
+each item in ``sampleCount`` array to the correct ``sampleCount`` for
+each pixel in the tile, and ``getSampleDataForTile`` is a
+user-supplied function that set the pointers in ``dataZ`` and
+``dataA`` arrays to point to the correct data
 
 The interface for deep tiled files is similar to tiled files. The
 differences are:
@@ -1400,49 +1387,14 @@ stdio file (of type ``FILE``) that has already been opened. To do
 this, we derive a new class, ``C_IStream``, from ``IStream``. The
 declaration of class ``IStream`` looks like this:
 
-.. code-block::
+.. literalinclude:: src/IStream.cpp
    :linenos:
           
-    class IStream
-    {
-      public:
-        virtual ~IStream ();
-
-        virtual bool read (char c[], int n) = 0;
-        virtual uint64_t tellg () = 0;
-        virtual void seekg (uint64_t pos) = 0;
-        virtual void clear ();
-        const char * fileName () const;
-        virtual bool isMemoryMapped () const;
-        virtual char * readMemoryMapped (int n);
-
-      protected:
-        IStream (const char fileName[]);
-        private:
-        ...
-    };
-        
 Our derived class needs a public constructor, and it must override four
 methods:
 
-.. code-block::
+.. literalinclude:: src/C_IStream.cpp
    :linenos:
-
-    class C_IStream: public IStream
-    {
-      public:
-        C_IStream (FILE *file, const char fileName[]):
-            IStream (fileName), _file (file) {}
-
-        virtual bool read (char c[], int n);
-        virtual uint64_t tellg ();
-        virtual void seekg (uint64_t pos);
-        virtual void clear ();
-    
-      private:
-    
-        FILE * _file;
-    };
 
 ``read(c,n)`` reads ``n`` bytes from the file, and stores them in
 array ``c``.  If reading hits the end of the file before ``n`` bytes
@@ -1450,64 +1402,27 @@ have been read, or if an I/O error occurs, ``read(c,n)`` throws an
 exception. If ``read(c,n)`` hits the end of the file after reading
 ``n`` bytes, it returns ``false``, otherwise it returns ``true``:
 
-.. code-block::
+.. literalinclude:: src/C_IStream_read.cpp
    :linenos:
-
-    bool
-    C_IStream::read (char c[], int n)
-    {
-        if (n != fread (c, 1, n, _file))
-        {
-            // fread() failed, but the return value does not distinguish
-            // between I/O errors and end of file, so we call ferror() to
-            // determine what happened.
-        
-            if (ferror (_file))
-                Iex::throwErrnoExc();
-            else
-                throw Iex::InputExc ("Unexpected end of file.");
-        }
-        
-        return !feof (_file);
-    }
 
 ``tellg()`` returns the current reading position, in bytes, from the
 beginning of the file. The next ``read()`` call will begin reading at
 the indicated position:
 
-.. code-block::
+.. literalinclude:: src/C_IStream_tellg.cpp
    :linenos:
-
-    uint64_t
-    C_IStream::tellg ()
-    {
-        return ftell (_file);
-    }
 
 ``seekg(pos)`` sets the current reading position to ``pos`` bytes from
 the beginning of the file:
 
-.. code-block::
+.. literalinclude:: src/C_IStream_seekg.cpp
    :linenos:
-
-    void
-    C_IStream::seekg (uint64_t pos)
-    {
-        clearerr (_file);
-        fseek (_file, pos, SEEK_SET);
-    }
 
 ``clear()`` clears any error flags that may be set on the file after a
 ``read()`` or ``seekg()`` operation has failed:
 
-.. code-block::
+.. literalinclude:: src/C_IStream_clear.cpp
    :linenos:
-
-    void
-    C_IStream::clear ()
-    {
-        clearerr (_file);
-    }
 
 In order to read an RGBA image from an open C stdio file, we first
 make a ``C_IStream`` object. Then we create an ``RgbaInputFile``,
@@ -1543,29 +1458,8 @@ input. In order to do this, a derived class must override two virtual
 functions, ``isMemoryMapped()`` and ``readMemoryMapped()``, in
 addition to the functions needed for regular, non-memory-mapped input:
 
-.. code-block::
+.. literalinclude:: src/MemoryMappedIStream.cpp
    :linenos:
-
-    class MemoryMappedIStream: public IStream
-    {
-      public:
-        MemoryMappedIStream (const char fileName[]);
-    
-        virtual ~MemoryMappedIStream ();
-    
-        virtual bool isMemoryMapped () const;
-        virtual char * readMemoryMapped (int n);
-        virtual bool read (char c[], int n);
-        virtual uint64_t tellg ();
-    
-        virtual void seekg (uint64_t pos);
-    
-      private:
-    
-        char * _buffer;
-        uint64_t _fileLength;
-        uint64_t _readPosition;
-    };
 
 The constructor for class ``MemoryMappedIStream`` maps the contents of
 the input file into the program's address space. Memory mapping is not
@@ -1573,118 +1467,37 @@ portable across operating systems. The example shown here uses the
 POSIX ``mmap()`` system call. On Windows files can be memory-mapped by
 calling ``CreateFileMapping()`` and ``MapViewOfFile()``:
 
-.. code-block::
+.. literalinclude:: src/MemoryMappedIStream_constructor.cpp
    :linenos:
-
-    MemoryMappedIStream::MemoryMappedIStream (const char fileName[])
-       : IStream (fileName),
-         _buffer (0),
-         _fileLength (0),
-         _readPosition (0)
-    {
-        int file = open (fileName, O_RDONLY);
-    
-        if (file < 0)
-            THROW_ERRNO ("Cannot open file \"" << fileName << "\".");
-    
-        struct stat stat;
-        fstat (file, &stat);
-    
-        _fileLength = stat.st_size;
-    
-        _buffer = (char *) mmap (0, _fileLength, PROT_READ, MAP_PRIVATE, file, 0);
-
-        close (file);
-
-        if (_buffer == MAP_FAILED)
-            THROW_ERRNO ("Cannot memory-map file \"" << fileName << "\".");
-    }
 
 The destructor frees the address range associated with the file by
 un-mapping the file. The POSIX version shown here uses ``munmap()``. A
 Windows version would call ``UnmapViewOfFile()`` and
 ``CloseHandle()``:
 
-.. code-block::
+.. literalinclude:: src/MemoryMappedIStream_destructor.cpp
    :linenos:
    
-    MemoryMappedIStream::~MemoryMappedIStream ()
-    {
-        munmap (_buffer, _fileLength);
-    }
-
 Function ``isMemoryMapped()`` returns ``true`` to indicate that
 memory-mapped input is supported. This allows the OpenEXR library to
 call ``readMemoryMapped()`` instead of ``read()``:
 
-.. code-block::
+.. literalinclude:: src/MemoryMappedIStream_isMemoryMapped.cpp
    :linenos:
-
-    bool
-    MemoryMappedIStream::isMemoryMapped () const
-    {
-        return true;
-    }
 
 ``readMemoryMapped()`` is analogous to ``read()``, but instead of
 copying data into a buffer supplied by the caller,
 ``readMemoryMapped()`` returns a pointer into the memory-mapped file,
 thus avoiding the copy operation:
 
-.. code-block::
+.. literalinclude:: src/MemoryMappedIStream_readMemoryMapped.cpp
    :linenos:
    
-    char *
-    MemoryMappedIStream::readMemoryMapped (int n)
-    {
-        if (_readPosition >= _fileLength)
-            throw Iex::InputExc ("Unexpected end of file.");
-    
-        if (_readPosition + n > _fileLength)
-            throw Iex::InputExc ("Reading past end of file.");
-    
-        char *data = _buffer + _readPosition;
-    
-        _readPosition += n;
-    
-        return data;
-    
-    }
-
 The ``MemoryMappedIStream`` class must also implement the regular ``read()``
 function, as well as ``tellg()`` and ``seekg()``:
 
-.. code-block::
+.. literalinclude:: src/MemoryMappedIStream_read.cpp
    :linenos:
-
-    bool
-    MemoryMappedIStream::read (char c[], int n)
-    {
-        if (_readPosition >= _fileLength)
-            throw Iex::InputExc ("Unexpected end of file.");
-        
-        if (_readPosition + n > _fileLength)
-            throw Iex::InputExc ("Reading past end of file.");
-    
-        memcpy (c, _buffer + _readPosition, n);
-    
-        _readPosition += n;
-    
-        return _readPosition < _fileLength;
-    
-    }
-    
-    uint64_t
-    MemoryMappedIStream::tellg ()
-    {
-        return _readPosition;
-    }
-
-    void
-    MemoryMappedIStream::seekg (uint64_t pos)
-    {
-        _readPosition = pos;
-    }
 
 Class ``MemoryMappedIStream`` does not need a ``clear()``
 function. Since the memory-mapped file has no error flags that need to
