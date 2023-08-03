@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright Contributors to the OpenEXR Project.
+
 #
 # Validate the library symlinks:
 #   * The actual elf binary is, e.g. libIlmThread-3_1.so.29.0.0
