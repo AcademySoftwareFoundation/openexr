@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright Contributors to the OpenEXR Project.
+
 workspace(name = "com_openexr")
 
 load("//:bazel/third_party/openexr_deps.bzl", "openexr_deps")
