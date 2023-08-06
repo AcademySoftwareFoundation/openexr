@@ -37,6 +37,20 @@ readDeepScanlineFile (
     Array2D<half*>&        dataA,
     Array2D<unsigned int>& sampleCount)
 {
+    //
+    // Read a deep image using class DeepScanLineInputFile.  Try to read one
+    // channel, A, of type HALF, and one channel, Z,
+    // of type FLOAT.  Store the A, and Z pixels in two
+    // separate memory buffers.
+    //
+    //    - open the file
+    //    - allocate memory for the pixels
+    //    - describe the layout of the A, and Z pixel buffers
+    //    - read the sample counts from the file
+    //    - allocate the memory requred to store the samples
+    //    - read the pixels from the file
+    //
+    
     DeepScanLineInputFile file (filename);
 
     const Header& header = file.header ();
@@ -106,6 +120,7 @@ readDeepScanlineFile (
 
 unsigned int getPixelSampleCount (int i, int j)
 {
+    // Dummy code creating deep data from a flat image
     return 1;
 }
 
@@ -118,6 +133,7 @@ void getPixelSampleData(
     Array2D<float*>& dataZ,
     Array2D<half*>& dataA)
 {
+    // Dummy code creating deep data from a flat image
     dataZ[i][j][0] = testDataZ[i][j];
     dataA[i][j][0] = testDataA[i][j];
 }
@@ -134,6 +150,17 @@ writeDeepScanlineFile (
     Array2D<unsigned int>& sampleCount)
 
 {
+    //
+    // Write a deep image with only a A (alpha) and a Z (depth) channel,
+    // using class DeepScanLineOutputFile.
+    //
+    //    - create a file header
+    //    - add A and Z channels to the header
+    //    - open the file, and store the header in the file
+    //    - describe the memory layout of the A and Z pixels
+    //    - store the pixels in the file
+    //
+    
     int height = dataWindow.max.y - dataWindow.min.y + 1;
     int width  = dataWindow.max.x - dataWindow.min.x + 1;
 
@@ -207,8 +234,8 @@ void deepExamples()
     int h = 600;
     
     Box2i window;
-    window.min.setValue(1, 1);
-    window.max.setValue(w, h);
+    window.min.setValue(0, 0);
+    window.max.setValue(w - 1, h - 1);
     
     Array2D<float *> dataZ;
     dataZ.resizeErase(h, w);
@@ -219,6 +246,7 @@ void deepExamples()
     Array2D<unsigned int> sampleCount;
     sampleCount.resizeErase(h, w);
     
+    // Create an image to be used as a source for deep data
     testDataA.resizeErase(h, w);
     testDataZ.resizeErase(h, w);
     drawImage2(testDataA, testDataZ, w, h);
