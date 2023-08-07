@@ -259,7 +259,7 @@ submitted, in order to solicit feedback, try to get as much consensus
 as possible, and alert all the stakeholders to be on the lookout for
 the eventual PR when it appears.
 
-* Trivial changes that don't affect functionality (typos, docs, tests)
+* Trivial changes that don't affect functionality (typos, tests, website)
 can be approved by the committer without review, after waiting at
 least 48 hours.
 

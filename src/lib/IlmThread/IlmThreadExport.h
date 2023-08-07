@@ -8,7 +8,7 @@
 
 #include "OpenEXRConfig.h"
 
-// See docs/SymbolVisibility.md for more discussion
+// See website/SymbolVisibility.rst for more discussion
 
 /// \addtogroup ExportMacros
 /// @{

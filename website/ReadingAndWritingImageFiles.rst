@@ -1453,6 +1453,9 @@ access the data in the file directly, bypassing any copy operations
 associated with reading the file via a C++ ``std::ifstream`` or a C
 ``FILE``.
 
+Note that the following examples use POSIX memory mapping, not
+supported on Windows.
+
 Classes derived from ``IStream`` can optionally support memory-mapped
 input. In order to do this, a derived class must override two virtual
 functions, ``isMemoryMapped()`` and ``readMemoryMapped()``, in
@@ -1677,20 +1680,12 @@ subsampled.
 Function ``makePreviewImage()`` calls ``gamma()`` to convert the
 floating-point red, green, and blue components of the sampled main
 image pixels to ``unsigned char`` values. ``gamma()`` is a simplified
-version of what the exrdisplay program does in order to show an
-OpenEXR image's floating-point pixels on the screen (for details, see
-exrdisplay's source code):
+version of what a program should do on order to show an OpenEXR
+image's floating-point pixels on the screen:
 
-.. code-block::
+.. literalinclude:: src/gamma.cpp
    :linenos:
    
-    unsigned char
-    gamma (float x)
-    {
-        x = pow (5.5555f * max (0.f, x), 0.4545f) * 84.66f;
-        return (unsigned char) clamp (x, 0.f, 255.f);
-    }
-
 ``makePreviewImage()`` converts the pixels' alpha component to
 unsigned char by by linearly mapping the range ``[0.0, 1.0]`` to
 ``[0,255]``.

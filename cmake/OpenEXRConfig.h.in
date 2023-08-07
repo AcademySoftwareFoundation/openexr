@@ -80,7 +80,7 @@
 
 /// \defgroup ExportMacros Macros to manage symbol visibility
 ///
-/// See docs/SymbolVisibility.md for more discussion about the
+/// See website/SymbolVisibility.rst for more discussion about the
 /// motivation for these macros
 ///
 /// If we are compiling a DLL for Windows, there needs to be custom
