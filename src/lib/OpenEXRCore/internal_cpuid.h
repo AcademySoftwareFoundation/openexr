@@ -48,14 +48,14 @@ static inline void check_for_x86_simd (int *f16c, int *avx, int *sse2)
 #elif OPENEXR_ENABLE_X86_SIMD_CHECK
 
 #   if defined(_MSC_VER) && defined(_WIN32)
-    int regs[4], osxsave;
+    int regs[4]={0}, osxsave;
 
     __cpuid (regs, 0);
     if (regs[0] >= 1) { __cpuidex (regs, 1, 0); }
     else
         regs[2] = 0;
 #   else
-    unsigned int regs[4], osxsave;
+    unsigned int regs[4]={0}, osxsave;
     __get_cpuid (0, &regs[0], &regs[1], &regs[2], &regs[3]);
     if (regs[0] >= 1)
     {
