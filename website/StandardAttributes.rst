@@ -30,14 +30,28 @@ Basic Attributes
      <td style="vertical-align: top; width:500px; font-weight:bold"> definition </td>
      <td style="vertical-align: top; width:100px; font-weight:bold"> status </td>
    </tr>
+   <tr>
+     <td style="vertical-align: top; width:150px"> <tt> <b> displayWindow </b> </tt> </td>
+     <td style="vertical-align: top; width:100px"> <tt> Box2i </tt> </td>
+     <td style="vertical-align: top; width:500px">
+       <p style="padding-bottom:15px">
+         The boundaries of an OpenEXR image in pixel space.
+         The <it>display window</it> is defined by the coordinates of the pixels
+         in the upper left and lower right corners. 
+       </p>
+     </td>
+     <td style="vertical-align: top; width:100px"> required </td>
+   </tr>
    <tr style="border-width:3px">
      <td style="vertical-align: top; width:150px"> <tt> <b> dataWindow </b> </tt> </td>
      <td style="vertical-align: top; width:100px"> <tt> Box2i </tt> </td>
      <td style="vertical-align: top; width:500px">
        <p style="padding-bottom:15px">
-         The image's data window. The
-         range of pixel coordinates for which the image has data, which need not
-         start at (0,0).
+         An OpenEXR file may not have pixel data for all the pixels in
+         the display window, or the file may have pixel data beyond
+         the boundaries of the display window. The region for which
+         pixel data are available is defined by a second axis-parallel
+         rectangle in pixel space, the <it>data window.</it>
        </p>
      </td>
      <td style="vertical-align: top; width:100px"> required </td>
@@ -53,18 +67,6 @@ Basic Attributes
        </p>
      </td>
      <td style="vertical-align: top; width:100px"> optional </td>
-   </tr>
-   <tr>
-     <td style="vertical-align: top; width:150px"> <tt> <b> displayWindow </b> </tt> </td>
-     <td style="vertical-align: top; width:100px"> <tt> Box2i </tt> </td>
-     <td style="vertical-align: top; width:500px">
-       <p style="padding-bottom:15px">
-         The image's display window. This is the "working range" of the image,
-         the subset of the image that should be displayed by an application
-         and may not coincide with the full <tt>dataWindow</tt>.
-       </p>
-     </td>
-     <td style="vertical-align: top; width:100px"> required </td>
    </tr>
    <tr>
      <td style="vertical-align: top; width:150px"> <tt> <b> pixelAspectRatio </b> </tt> </td>
