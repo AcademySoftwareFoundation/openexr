@@ -311,7 +311,7 @@ As of OpenEXR release v3.2, OpenEXR depends on
 `libdeflate <https://github.com/ebiggers/libdeflate>`_ for
 DEFLATE-based compression. Previous OpenEXR releases relied on `zlib
 <https://www.zlib.net>`_. Builds of OpenEXR can choose either an
-libdeflat installation, or CMake can auto-fetch the source and build it
+``libdeflate`` installation, or CMake can auto-fetch the source and build it
 internally. The internal build is linked statically, so no extra
 shared object is produced.
 

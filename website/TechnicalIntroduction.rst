@@ -520,7 +520,7 @@ headers:
        objects may not be able so generate a description of a
        perspective projection. Those programs should set
        screenWindowWidth to 1, and screenWindowCenter to (0, 0).
-   * - ``tileDescription``
+   * - ``tiles``
      - This attribute is required only for tiled files. It specifies
        the size of the tiles, and the file's level mode. 
 
@@ -572,6 +572,7 @@ deep data OpenEXR files.
    * - ``type``
      - Data types are defined by the type attribute. There are four
        types:
+
        1. Scan line images: indicated by a type attribute of ``scanlineimage``. 
        2. Tiled images:  indicated by a type attribute of ``tiledimage``. 
        3. Deep scan line images:  indicated by a type attribute of ``deepscanline``. 
@@ -604,8 +605,9 @@ deep data (deepscanline or deeptile):
        processing. However, this number may be very large. 
    * - ``type``
      - There are two deep data types:
-         1. Deep scane line images ("``deepscanline``")
-         2. Deep tiled images ("``deeptile``")
+
+       1. Deep scane line images (``deepscanline``)
+       2. Deep tiled images (``deeptile``)
    * - ``version``
      - Should be set to 1. ( It will be changed if the format is
        updated.) 
