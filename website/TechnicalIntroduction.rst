@@ -498,7 +498,7 @@ headers:
    
    * - attribute name
      - description
-   * - ``displayWindow``, ``dataWindow``
+   * - ``displayWindow`` ``dataWindow``
      - The image's display and data window.
    * - ``pixelAspectRatio``
      - Width divided by height of a pixel when the image is displayed
@@ -514,7 +514,7 @@ headers:
      - Specifies in what order the scan lines in the file are stored
        in the file (increasing Y, decreasing Y, or, for tiled images,
        also random Y). 
-   * - ``screenWindowWidth``, ``screenWindowCenter``
+   * - ``screenWindowWidth`` ``screenWindowCenter``
      - Describe the perspective projection that produced the image.
        Programs that deal with images as purely two-dimensional
        objects may not be able so generate a description of a
