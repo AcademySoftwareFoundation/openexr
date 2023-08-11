@@ -57,7 +57,7 @@ Basic Attributes
      <td style="vertical-align: top; width:100px"> required </td>
    </tr>
    <tr>
-     <td style="vertical-align: top; width:150px"> <tt> <b> originalDataView </b> </tt> </td>
+     <td style="vertical-align: top; width:150px"> <tt> <b> originalDataWindow </b> </tt> </td>
      <td style="vertical-align: top; width:100px"> <tt> Box2i </tt> </td>
      <td style="vertical-align: top; width:500px">
        <p style="padding-bottom:15px">
@@ -207,7 +207,9 @@ Multi-Part and Deep Data
      <td style="vertical-align: top; width:500px">
        <p style="padding-bottom:15px">
         Indicates the number of chunks in this part.  Required if the
-        multipart bit (12) is set.
+        multipart bit (12) is set. This attribute is created
+        automatically by the library; the user does not need to
+        compute it.
        </p>
      </td>
      <td style="vertical-align: top; width:100px"> required for multi-part images </td>
@@ -444,7 +446,7 @@ camera at the time of capture. All are optional.
    </tr>
 
    <tr>
-     <td style="vertical-align: top; width:150px"> <tt> <b> longitude lattitude altitude </b> </tt>
+     <td style="vertical-align: top; width:150px"> <tt> <b> longitude latitude altitude </b> </tt>
      </td>
      <td style="vertical-align: top; width:100px"> <tt> float </tt> </td>
      <td style="vertical-align: top; width:500px">
@@ -536,7 +538,10 @@ These attributes identify the camera. All are optional.
        </p>
        <p style="padding-bottom:15px">
          Uniqueness could be accomplished with, e.g., a MAC address, a
-         concatenation of cameraMake, cameraModel, cameraSerialNumber, etc.
+         concatenation of <tt>cameraMake</tt>, <tt>cameraModel</tt>,
+         <tt>cameraSerialNumber</tt>, etc. The string may have
+         arbitrary format; it doesn't need to follow the UUID 128-bit
+         string format, even though that is implied by the name.
        </p>
        <p style="padding-bottom:15px">
          If present, the value should be UTF-8-encoded and have a nonzero
@@ -1380,6 +1385,11 @@ attributes.
          deep image. If this number is small, it may be appropriate to read the
          deep image into a fix-sized buffer for processing. However, this number
          may be very large.
+       </p>
+       <p>
+         Note that the library never actually enforced the correctness
+         of this value, so if it appears in legacy files, it should
+         not be trusted.
        </p>
      </td>
    </tr>
