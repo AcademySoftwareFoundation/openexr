@@ -1,8 +1,9 @@
 //
 // SPDX-License-Identifier: BSD-3-Clause
-// Copyright (c) DreamWorks Animation LLC and Contributors of the OpenEXR Project
+// Copyright (c) Contributors to the OpenEXR Project.
 //
 
+#define PY_SSIZE_T_CLEAN // required for Py_BuildValue("s#") for Python 3.10
 #include <Python.h>
 
 #if PY_VERSION_HEX < 0x02050000 && !defined(PY_SSIZE_T_MIN)
