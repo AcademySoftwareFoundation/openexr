@@ -31,8 +31,8 @@ permissions:
 
 jobs:
   build_and_test_ubuntu:
-    name: Linux Ubuntu 20.04 Bazel build <GCC 9.3.0>
-    runs-on: ubuntu-20.04
+    name: Linux Ubuntu 22.04 Bazel build <GCC 11.4.0>
+    runs-on: ubuntu-22.04
     
     steps:
     - uses: actions/checkout@v3
@@ -41,11 +41,12 @@ jobs:
       uses: actions/cache@v3
       with:
         path: "/home/runner/.cache/bazel"
-        key: bazel-ubuntu
+        key: bazel-ubuntu-22
 
     - name: Build
       run: |
         bazelisk build //...
+        bazelisk test //...
 
   build_and_test_windows:
     name: Windows Server 2022 build <Visual Studio 2022>
@@ -58,11 +59,12 @@ jobs:
       uses: actions/cache@v3
       with:
         path: "/home/runner/.cache/bazel"
-        key: bazel-windows
+        key: bazel-windows-2022
 
     - name: Build
       run: |
         bazelisk build //...
+        bazelisk test //...
 
   build_and_test_macos:
     name: macOS 13 Bazel build <Apple Clang14>
@@ -75,8 +77,9 @@ jobs:
       uses: actions/cache@v3
       with:
         path: "/home/runner/.cache/bazel"
-        key: bazel-macos
+        key: bazel-macos-13
 
     - name: Build
       run: |
         bazelisk build //...
+        bazelisk test //...
