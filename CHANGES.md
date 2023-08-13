@@ -3,6 +3,7 @@
 
 # OpenEXR Release Notes
 
+* [Version 3.1.11](#version-3111-august-13-2023) August 13, 2023
 * [Version 3.1.10](#version-3110-august-2-2023) August 2, 2023
 * [Version 3.1.9](#version-319-june-25-2023) June 25, 2023
 * [Version 3.1.8](#version-318-june-2-2023) June 2, 2023
@@ -63,6 +64,17 @@
 * [Version 1.0.2](#version-102)
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
+
+## Version 3.1.11 (August 13, 2023)
+
+Patch release that fixes a build failure with `-march=x86-64-v3`
+
+### Merged Pull Requests
+
+* [1509](https://github.com/AcademySoftwareFoundation/openexr/pull/1509)
+Initialize `regs[]` to 0 in `check_for_x86_simd`
+* [1507](https://github.com/AcademySoftwareFoundation/openexr/pull/1507)
+Fix CPUID detection with `-march=x86-64-v3`
 
 ## Version 3.1.10 (August 2, 2023)
 
