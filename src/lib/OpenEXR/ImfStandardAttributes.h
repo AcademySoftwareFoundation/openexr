@@ -332,7 +332,7 @@ IMF_STD_ATTRIBUTE_DEF (cameraTintSetting, CameraTintSetting, float)
 //
 // For example, if a physical digital cinema camera was configured with
 // a CCT of 3200K and a tint of -3 (in some camera vendor dependent unit),
-/// and the camera output had been processed such that the image containing
+// and the camera output had been processed such that the image containing
 // this attribute was encoded as per SMPTE ST 2065-4:2023, then 
 // the adoptedNeutral attribute would have the value corresponding to
 // the ACES neutral chromaticity, very near that of CIE Illuminant D60,
@@ -626,8 +626,8 @@ IMF_STD_ATTRIBUTE_DEF (adoptedNeutral, AdoptedNeutral, IMATH_NAMESPACE::V2f)
 // If present, values should be UTF-8-encoded and have nonzero length.
 //
 
-IMF_STD_ATTRIBUTE_DEF (renderingTransform, RenderingTransform, std::string)
-IMF_STD_ATTRIBUTE_DEF (lookModTransform, LookModTransform, std::string)
+IMF_STD_ATTRIBUTE_DEF_DEPRECATED (renderingTransform, RenderingTransform, std::string, "this attribute is obsolete as of OpenEXR v3.2")
+IMF_STD_ATTRIBUTE_DEF_DEPRECATED (lookModTransform, LookModTransform, std::string, "this attribute is obsolete as of OpenEXR v3.2")
 
 //
 // envmap -- if this attribute is present, the image represents

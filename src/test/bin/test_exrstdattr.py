@@ -68,8 +68,6 @@ attrs = [
     ["-utcOffset", "9"],
     ["-owner", "florian"],
     ["-xDensity", "10.0"],
-    ["-lookModTransform", "lmt"],
-    ["-renderingTransform", "rt"],
     ["-adoptedNeutral", "1.1", "2.2"],
     ["-whiteLuminance", "17.1"],
     ["-chromaticities", "1", "2", "3", "4", "5", "6", "7", "8"],
@@ -122,10 +120,8 @@ assert('keyCode: keycode mfgc 1 film 2 prefix 3 count 4 perf_off 5 ppf 6 ppc 20'
 assert('latitude: float 7.6' in result.stdout)
 assert('lineOrder: lineOrder 0 (increasing)' in result.stdout)
 assert('longitude: float 8.7' in result.stdout)
-assert('lookModTransform: string \'lmt\'' in result.stdout)
 assert('owner: string \'florian\'' in result.stdout)
 assert('pixelAspectRatio: float 1.7' in result.stdout)
-assert('renderingTransform: string \'rt\'' in result.stdout)
 assert('screenWindowCenter: v2f [ 42, 43 ]' in result.stdout)
 assert('screenWindowWidth: float 4.4' in result.stdout)
 assert('test_float: float 4.2' in result.stdout)
