@@ -419,8 +419,6 @@ combine (
 
                 partnums.push_back (j);
             }
-            
-            delete infile;
         } // no user parts specified
         else
         {
@@ -450,8 +448,6 @@ combine (
                 headers[headers.size () - 1].setView (views[i]);
 
             partnums.push_back (partnum);
-            
-            delete infile;
         } // user parts specified
     }
 
