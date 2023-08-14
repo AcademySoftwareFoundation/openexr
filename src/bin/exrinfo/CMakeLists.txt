@@ -6,6 +6,13 @@ target_link_libraries(exrinfo OpenEXR::OpenEXRCore)
 set_target_properties(exrinfo PROPERTIES
   RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
 )
+
+# when building with an internal imath, this isn't generated until
+# install time, so use the private header only include path
+if (NOT TARGET Imath::ImathConfig)
+  target_include_directories(exrinfo PRIVATE ${IMATH_HEADER_ONLY_INCLUDE_DIRS})
+endif()
+
 if(OPENEXR_INSTALL_TOOLS)
   install(TARGETS exrinfo DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
