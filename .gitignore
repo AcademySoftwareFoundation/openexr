@@ -54,3 +54,6 @@ build-nuget/
 *~
 .vscode
 docs/_test_images/
+
+# Ignore Bazel generated files
+bazel-* 
