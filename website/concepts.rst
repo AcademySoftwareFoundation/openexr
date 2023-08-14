@@ -12,7 +12,7 @@ OpenEXR Concepts
    :maxdepth: 2
 
    TechnicalIntroduction
-   StandardOptionalAttributes
+   StandardAttributes
    MultiViewOpenEXR
    InterpretingDeepPixels
    TheoryDeepPixels
