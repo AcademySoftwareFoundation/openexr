@@ -1,8 +1,34 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright (c) Contributors to the OpenEXR Project.
+#
+
 name: Python wheels
 
 on:
   push:
-    branches: [ $default-branch, main, python ]
+    branches-ignore:
+      - RB-2.*
+    tags-ignore:
+      - v1.*
+      - v2.*
+    paths:
+      - '**'
+      - '!**.md'
+      - '!website/**'
+      - 'website/src/**'
+      - '!bazel/**'
+  pull_request:
+    branches-ignore:
+      - RB-2.*
+    tags-ignore:
+      - v1.*
+      - v2.*
+    paths:
+      - '**'
+      - '!**.md'
+      - '!website/**'
+      - 'website/src/**'
+      - '!bazel/**'
 
 jobs:
   build_wheels:
@@ -12,30 +38,13 @@ jobs:
       matrix:
         os: [ubuntu-22.04, windows-latest, macOS-latest]
     env:
-      # Skip 32-bit wheels builds
-      CIBW_SKIP: "*-win32 *_i686"
+      # Skip 32-bit wheels builds.
+      # Also skip the PyPy builds, since they fail the unittests
+      CIBW_SKIP: "*-win32 *_i686 pp*"
       CIBW_BEFORE_BUILD: >
-        echo "Installing Zlib..." &&
-        cd zlib.build &&
-        cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../openexr.install -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON -DCMAKE_PREFIX_PATH=../openexr.install -DCMAKE_INSTALL_LIBDIR=lib ../zlib &&
-        cmake --build ./ --config Release --clean-first &&
-        cmake --install ./ --config Release &&
-        cd .. &&
-        echo "Installing libDeflate..." &&
-        cd libdeflate.build &&
-        cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../openexr.install -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON -DCMAKE_PREFIX_PATH=../openexr.install -DCMAKE_INSTALL_LIBDIR=lib -DLIBDEFLATE_BUILD_SHARED_LIB=OFF -DLIBDEFLATE_USE_SHARED_LIB=OFF -DBUILD_SHARED_LIBS=OFF ../libdeflate &&
-        cmake --build ./ --config Release --clean-first &&
-        cmake --install ./ --config Release &&
-        cd .. &&
-        echo "Installing Imath-3.1.9..." &&
-        cd imath.build &&
-        cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../openexr.install -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON -DCMAKE_PREFIX_PATH=../openexr.install -DCMAKE_INSTALL_LIBDIR=lib -DBUILD_TESTING=OFF -DBUILD_SHARED_LIBS=OFF ../imath &&
-        cmake --build ./ --config Release --clean-first &&
-        cmake --install ./ --config Release &&
-        cd .. &&
         echo "Installing OpenEXR..." &&
         cd openexr.build &&
-        cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../openexr.install -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON -DCMAKE_PREFIX_PATH=../openexr.install -DCMAKE_INSTALL_LIBDIR=lib -DBUILD_TESTING=OFF -DOPENEXR_INSTALL_EXAMPLES=OFF -DBUILD_SHARED_LIBS=OFF -DOPENEXR_FORCE_INTERNAL_DEFLATE=ON ../ &&
+        cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../openexr.install -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON -DCMAKE_PREFIX_PATH=../openexr.install -DCMAKE_INSTALL_LIBDIR=lib -DBUILD_TESTING=OFF -DOPENEXR_INSTALL_EXAMPLES=OFF -DOPENEXR_BUILD_TOOLS=OFF -DBUILD_SHARED_LIBS=OFF -DOPENEXR_FORCE_INTERNAL_DEFLATE=ON -DOPENEXR_FORCE_INTERNAL_IMATH=ON -DCMAKE_POSITION_INDEPENDENT_CODE=ON ../ &&
         cmake --build ./ --config Release --clean-first &&
         cmake --install ./ --config Release &&
         cd ..
@@ -61,51 +70,8 @@ jobs:
 
       - name: Create folders
         run: |
-            mkdir -p ${{github.workspace}}/zlib.build
-            mkdir -p ${{github.workspace}}/libdeflate.build
-            mkdir -p ${{github.workspace}}/imath.build
             mkdir -p ${{github.workspace}}/openexr.build
             mkdir -p ${{github.workspace}}/openexr.install
-
-      - name: download Zlib source code
-        uses: suisei-cn/actions-download-file@v1.4.0
-        with:
-          url: https://github.com/madler/zlib/releases/download/v1.2.13/zlib-1.2.13.tar.gz
-          target: ${{github.workspace}}/
-
-      - name: Extract Zlib
-        run: |
-            tar -xvzf zlib-1.2.13.tar.gz -C ${{github.workspace}}/
-            mv zlib-1.2.13 zlib
-            rm zlib-1.2.13.tar.gz
-
-      - name: download libDeflate source code
-        uses: suisei-cn/actions-download-file@v1.4.0
-        with:
-          url: https://github.com/ebiggers/libdeflate/archive/refs/tags/v1.18.tar.gz
-          target: ${{github.workspace}}/
-
-      - name: Extract libDeflate
-        run: |
-            tar -xvzf v1.18.tar.gz -C ${{github.workspace}}/
-            mv libdeflate-1.18 libdeflate
-            rm v1.18.tar.gz
-
-      - name: Patch libDeflate
-        run: |
-            patch -u libdeflate/CMakeLists.txt -i ${{github.workspace}}/src/wrappers/python/libdeflate.patch
-
-      - name: download Imath source code
-        uses: suisei-cn/actions-download-file@v1.4.0
-        with:
-          url: https://github.com/AcademySoftwareFoundation/Imath/archive/refs/tags/v3.1.9.tar.gz
-          target: ${{github.workspace}}/
-
-      - name: Extract Imath
-        run: |
-            tar -xvzf v3.1.9.tar.gz -C ${{github.workspace}}/
-            mv Imath-3.1.9 imath
-            rm v3.1.9.tar.gz
 
       - name: Build wheels
         run: python -m cibuildwheel --output-dir wheelhouse

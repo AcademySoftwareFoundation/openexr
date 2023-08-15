@@ -137,3 +137,7 @@ if (NOT OPENEXR_IS_SUBPROJECT)
   add_subdirectory(website/src)
 endif()
 
+option(OPENEXR_BUILD_PYTHON "Set ON to build python bindings")
+if (OPENEXR_BUILD_PYTHON AND NOT OPENEXR_IS_SUBPROJECT)
+  add_subdirectory(src/wrappers/python)
+endif()

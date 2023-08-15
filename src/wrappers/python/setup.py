@@ -1,13 +1,10 @@
-# SPDX-License-Identifier: BSD-3-Clause
-# Copyright (c) Contributors to the OpenEXR Project.
-
 from setuptools import setup, Extension
 import os
 import platform
 import re
 
 
-DESC = """Python bindings for ILM's OpenEXR image file format.
+DESC = """Python bindings for the OpenEXR image file format.
 
 This is a script to autobuild the wheels using github actions. Please, do not
 use it manually
@@ -15,7 +12,7 @@ use it manually
 If you detect any problem, please feel free to report the issue on the GitHub
 page:
 
-https://github.com/sanguinariojoe/pip-openexr/issues
+https://github.com/AcademySoftwareFoundation/openexr/issues
 """
 
 
@@ -29,19 +26,16 @@ version_major, version_minor, version_patch = version
 version = f"{version_major}.{version_minor}.{version_patch}"
 
 libs=[]
-libs_static=['z',
-             f'OpenEXR-{version_major}_{version_minor}',
+libs_static=[f'OpenEXR-{version_major}_{version_minor}',
              f'IlmThread-{version_major}_{version_minor}',
              f'Iex-{version_major}_{version_minor}',
-             f'Imath-3_1',
-             f'OpenEXRCore-{version_major}_{version_minor}',
-             f'deflate']
+             f'Imath-{version_major}_{version_minor}',
+             f'OpenEXRCore-{version_major}_{version_minor}'
+             ]
 definitions = [('PYOPENEXR_VERSION_MAJOR', f'{version_major}'),
                ('PYOPENEXR_VERSION_MINOR', f'{version_minor}'),
                ('PYOPENEXR_VERSION_PATCH', f'{version_patch}'),]
 if platform.system() == "Windows":
-    libs_static[0] = 'zlibstatic'
-    libs_static[-1] = 'deflatestatic'
     definitions = [('PYOPENEXR_VERSION', f'\\"{version}\\"')]
 extra_compile_args = []
 if platform.system() == 'Darwin':
@@ -65,10 +59,10 @@ else:
 
 
 setup(name='OpenEXR',
-    author = 'James Bowman',
-    author_email = 'jamesb@excamera.com',
-    url = 'https://github.com/sanguinariojoe/pip-openexr',
-    description = "Python bindings for ILM's OpenEXR image file format",
+    author = 'Contributors to the OpenEXR Project',
+    author_email = 'info@openexr.com',
+    url = 'https://github.com/AcademySoftwareFoundation/openexr',
+    description = "Python bindings for the OpenEXR image file format",
     long_description = DESC,
     version=version,
     ext_modules=[ 
