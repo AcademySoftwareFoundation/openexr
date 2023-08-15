@@ -419,7 +419,10 @@ Header::erase (const char name[])
             "Image attribute name cannot be an empty string.");
 
     AttributeMap::iterator i = _map.find (name);
-    if (i != _map.end ()) _map.erase (i);
+    if (i != _map.end ()) {
+        delete i->second;
+        _map.erase (i);
+    }
 }
 
 void
