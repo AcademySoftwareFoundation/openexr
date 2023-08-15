@@ -387,7 +387,7 @@ ceil(x), depending on the file's *level size rounding mode*
 Examples:
 
 1. The levels in a ``RIPMAP_LEVELS`` file whose highest-resolution
-   level contains 4 by 4 pixels have the following level numbers:
+level contains 4 by 4 pixels have the following level numbers:
 
 +------------+-------+------------------------+
 |            |       | .. centered: **width** |
@@ -405,8 +405,8 @@ In an equivalent ``MIPMAP_LEVELS`` file, only levels (0,0), (1,1), and (2,2)
 are present.
 
 2. In a MIPMAP_LEVELS file with a highest-resolution level of 15 by 17
-   pixels, the resolutions of the remaining levels depend on the level
-   size rounding mode:
+pixels, the resolutions of the remaining levels depend on the level
+size rounding mode:
 
 .. list-table::
    :header-rows: 1

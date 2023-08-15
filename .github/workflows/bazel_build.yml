@@ -6,25 +6,33 @@
 
 name: Bazel
 
+# Skip the run on *.md changes and on changes to the website, *except*
+# for "website/src", since that code needs validation.  There's a
+# separate workflow for with website.
+
 on:
   push:
-    # Versioned branches and tags are ignored for OpenEXR <= 1.x.x
     branches-ignore:
       - RB-2.*
     tags-ignore:
       - v1.*
       - v2.*
-    # Jobs are skipped when ONLY Markdown (*.md) files are changed
-    paths-ignore:
-      - '**.md'
+    paths:
+      - '**'
+      - '!**.md'
+      - '!website/**'
+      - 'website/src/**'
   pull_request:
     branches-ignore:
       - RB-2.*
     tags-ignore:
       - v1.*
       - v2.*
-    paths-ignore:
-      - '**.md'
+    paths:
+      - '**'
+      - '!**.md'
+      - '!website/**'
+      - 'website/src/**'
 
 permissions:
   contents: read
