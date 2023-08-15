@@ -1,17 +1,8 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) Contributors to the OpenEXR Project.
 
-load("@rules_cc//cc:defs.bzl", "cc_library")
-
-licenses(["notice"])
-
-exports_files(
-    glob(["lib/**"]) + ["common_defs.h"],
-    visibility = ["//visibility:public"],
-)
-
 cc_library(
-    name = "libdeflate",
+    name = "deflate",
     srcs = [
         "common_defs.h",
         "lib/adler32.c",
@@ -54,5 +45,11 @@ cc_library(
     ],
     hdrs = ["libdeflate.h"],
     includes = ["."],
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "libdeflate",
+    actual = ":deflate",
     visibility = ["//visibility:public"],
 )

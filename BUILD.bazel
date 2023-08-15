@@ -255,7 +255,7 @@ cc_library(
     visibility = ["//visibility:public"],
     deps = [
         "@Imath",
-        "@libdeflate",
+        "@libdeflate//:deflate",
     ],
 )
 
