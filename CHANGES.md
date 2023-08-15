@@ -183,6 +183,16 @@ Direct-leak in ``Imf_3_1::RgbaInputFile::RgbaInputFile``
 
 ### Merged Pull Requests
 
+* [1520](https://github.com/AcademySoftwareFoundation/openexr/pull/1520)
+fix memory leaks in exrmultipart
+* [1519](https://github.com/AcademySoftwareFoundation/openexr/pull/1519)
+Remove .bazelrc file
+* [1518](https://github.com/AcademySoftwareFoundation/openexr/pull/1518)
+Bazel support: Simplify use of libdeflate dependency
+* [1517](https://github.com/AcademySoftwareFoundation/openexr/pull/1517)
+Streamline Python wheel workflow, and add tests and a CMake setup for bindings
+* [1516](https://github.com/AcademySoftwareFoundation/openexr/pull/1516)
+Bazel support: Remove Bazel specific example and use same examples as CMake build
 * [1513](https://github.com/AcademySoftwareFoundation/openexr/pull/1513)
 Separate Actions workflow for the website 
 * [1511](https://github.com/AcademySoftwareFoundation/openexr/pull/1511)
