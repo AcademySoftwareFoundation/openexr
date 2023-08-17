@@ -3,6 +3,9 @@
 ** Copyright Contributors to the OpenEXR Project.
 */
 
+#ifndef IMF_INTERNAL_CPUID_H_HAS_BEEN_INCLUDED
+#define IMF_INTERNAL_CPUID_H_HAS_BEEN_INCLUDED
+
 #include "OpenEXRConfigInternal.h"
 
 #if defined(i386) || defined(__i386__) || defined(__i386) || defined(_M_X86) || defined(__x86_64__) || defined(_M_X64)
@@ -137,3 +140,5 @@ has_native_half (void)
 }
 
 #undef OPENEXR_ENABLE_X86_SIMD_CHECK
+#endif
+

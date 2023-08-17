@@ -6,9 +6,8 @@
 #ifndef OPENEXR_PRIVATE_STRUCTS_H
 #define OPENEXR_PRIVATE_STRUCTS_H
 
+#include "openexr_config.h"
 #include "internal_attr.h"
-
-#include <IlmThreadConfig.h>
 
 #ifdef ILMTHREAD_THREADING_ENABLED
 #    ifdef _WIN32
