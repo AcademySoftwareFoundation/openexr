@@ -87,7 +87,7 @@ openexr_define_library(OpenEXRCore
     openexr_chunkio.h
     openexr_coding.h
     openexr_compression.h
-    openexr_conf.h
+    openexr_config.h
     openexr_context.h
     openexr_decode.h
     openexr_debug.h

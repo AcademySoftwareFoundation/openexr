@@ -221,7 +221,7 @@ cc_library(
         "src/lib/OpenEXRCore/openexr_chunkio.h",
         "src/lib/OpenEXRCore/openexr_coding.h",
         "src/lib/OpenEXRCore/openexr_compression.h",
-        "src/lib/OpenEXRCore/openexr_conf.h",
+        "src/lib/OpenEXRCore/openexr_config.h",
         "src/lib/OpenEXRCore/openexr_context.h",
         "src/lib/OpenEXRCore/openexr_debug.h",
         "src/lib/OpenEXRCore/openexr_decode.h",

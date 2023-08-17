@@ -3,7 +3,7 @@
 ** Copyright Contributors to the OpenEXR Project.
 */
 
-#include "openexr_conf.h"
+#include "openexr_config.h"
 #include "internal_structs.h"
 #include "internal_attr.h"
 #include "internal_constants.h"

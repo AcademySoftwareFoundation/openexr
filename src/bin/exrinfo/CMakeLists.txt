@@ -2,7 +2,7 @@
 # Copyright Contributors to the OpenEXR Project.
 
 add_executable(exrinfo main.c)
-target_link_libraries(exrinfo OpenEXR::OpenEXRCore OpenEXR::Config)
+target_link_libraries(exrinfo OpenEXR::OpenEXRCore Imath::Imath)
 set_target_properties(exrinfo PROPERTIES
   RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
 )

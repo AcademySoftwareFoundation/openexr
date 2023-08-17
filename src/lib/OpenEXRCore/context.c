@@ -8,7 +8,7 @@
 #    define _LARGEFILE64_SOURCE
 #endif
 
-#include "openexr_conf.h"
+#include "openexr_config.h"
 #include "openexr_context.h"
 
 #include "openexr_part.h"

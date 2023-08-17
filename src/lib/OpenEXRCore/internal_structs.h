@@ -6,7 +6,7 @@
 #ifndef OPENEXR_PRIVATE_STRUCTS_H
 #define OPENEXR_PRIVATE_STRUCTS_H
 
-#include "openexr_conf.h"
+#include "openexr_config.h"
 #include "internal_attr.h"
 
 #ifdef ILMTHREAD_THREADING_ENABLED
