@@ -1,14 +1,38 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright Contributors to the OpenEXR Project.
 
-name: CIFuzz
-on: 
+name: OSS-Fuzz
+
+# Skip the run on *.md changes and on changes to the website.
+# Also, no need to run on changes to the bazel setup.
+
+on:
+  push:
+    branches-ignore:
+      - RB-2.*
+    tags-ignore:
+      - v1.*
+      - v2.*
+    paths:
+      - '**'
+      - '!**.md'
+      - '!website/**'
+      - '!bazel/**'
   pull_request:
-    # Jobs are skipped when ONLY Markdown (*.md) files are changed
-    paths-ignore: 
-      - '**.md'
+    branches-ignore:
+      - RB-2.*
+    tags-ignore:
+      - v1.*
+      - v2.*
+    paths:
+      - '**'
+      - '!**.md'
+      - '!website/**'
+      - '!bazel/**'
+
 permissions:
   contents: read
+
 jobs:
   Fuzzing:
     runs-on: ubuntu-latest
