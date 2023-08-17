@@ -89,45 +89,46 @@ Minor release with several additions, changes and improvements:
   Production
   Initiative)](https://www.smpte.org/blog/update-on-smptes-rapid-industry-solutions-ris-on-set-virtual-production-osvp-initiative). Additionally,
   some useful attributes from the SMPTE ACES Container File Layout
-  standard, SMPTE ST 2065-4:2023, have been included as well. The new attributes are:
+  standard, SMPTE ST 2065-4:2023, have been included as well. The new
+  attributes are:
 
   Support automated editorial workflow:
 
-    - ``reelName``
-    - ``imageCounter``
-    - ``ascFramingDecisionList``
+  - ``reelName``
+  - ``imageCounter``
+  - ``ascFramingDecisionList``
 
   Support forensics:
 
-    - ``cameraMake``
-    - ``cameraModel``
-    - ``cameraSerialNumber``
-    - ``cameraFirmware``
-    - ``cameraUuid``
-    - ``cameraLabel``
-    - ``lensMake``
-    - ``lensModel``
-    - ``lensSerialNumber``
-    - ``lensFirmware``
-    - ``cameraColorBalance``
+  - ``cameraMake``
+  - ``cameraModel``
+  - ``cameraSerialNumber``
+  - ``cameraFirmware``
+  - ``cameraUuid``
+  - ``cameraLabel``
+  - ``lensMake``
+  - ``lensModel``
+  - ``lensSerialNumber``
+  - ``lensFirmware``
+  - ``cameraColorBalance``
 
   Support pickup shots:
 
-    - ``shutterAngle``
-    - ``cameraCCTSetting``
-    - ``cameraTintSetting``
+  - ``shutterAngle``
+  - ``cameraCCTSetting``
+  - ``cameraTintSetting``
 
   Support metadata-driven match move:
 
-    - ``sensorCenterOffset``
-    - ``sensorOverallDimensions``
-    - ``sensorPhotositePitch``
-    - ``sensorAcquisitionRectangle``
-    - ``nominalFocalLength``
-    - ``effectiveFocalLength``
-    - ``pinholeFocalLength``
-    - ``entrancePupilOffset``
-    - ``tStop`` (complementing existing aperture)
+  - ``sensorCenterOffset``
+  - ``sensorOverallDimensions``
+  - ``sensorPhotositePitch``
+  - ``sensorAcquisitionRectangle``
+  - ``nominalFocalLength``
+  - ``effectiveFocalLength``
+  - ``pinholeFocalLength``
+  - ``entrancePupilOffset``
+  - ``tStop`` (complementing existing aperture)
 
   Also, ``renderingTransform`` and ``lookTransform`` have been deprecated.
 
@@ -155,7 +156,8 @@ Minor release with several additions, changes and improvements:
   
 * Miscellaneous improvements:
 
-  - "docs" renamed to "website" ([PR #1504](https://github.com/AcademySoftwareFoundation/openexr/pull/1504))
+  - "docs" renamed to "website" ([PR
+    #1504](https://github.com/AcademySoftwareFoundation/openexr/pull/1504))
 
   - Additional deep & multipart code examples ([PR
     #1493](https://github.com/AcademySoftwareFoundation/openexr/pull/1493)
@@ -185,6 +187,8 @@ Direct-leak in ``Imf_3_1::RgbaInputFile::RgbaInputFile``
 
 ### Merged Pull Requests
 
+* [1522](https://github.com/AcademySoftwareFoundation/openexr/pull/1522)
+Rename cifuzz workflow to OSS-Fuzz, and filter out unnecessary triggers
 * [1520](https://github.com/AcademySoftwareFoundation/openexr/pull/1520)
 fix memory leaks in exrmultipart
 * [1519](https://github.com/AcademySoftwareFoundation/openexr/pull/1519)
@@ -245,6 +249,8 @@ Add ``ImfMisc.h`` and ``ImfCompressor.h`` as installed headers
 Add ``OPENEXR_MISSING_ARM_VLD1`` workaround to ``internal_dwa_simd.h`` 
 * [1475](https://github.com/AcademySoftwareFoundation/openexr/pull/1475)
 Update CI with vfx2023 Linux jobs.
+* [1473](https://github.com/AcademySoftwareFoundation/openexr/pull/1473)
+consolidate project configurations to one place
 * [1472](https://github.com/AcademySoftwareFoundation/openexr/pull/1472)
 Fix range check in dwa compressor
 * [1471](https://github.com/AcademySoftwareFoundation/openexr/pull/1471)
