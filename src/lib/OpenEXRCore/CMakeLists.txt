@@ -101,6 +101,8 @@ openexr_define_library(OpenEXRCore
     ${OPENEXR_EXTRA_MATH_LIB}
   )
 
+target_link_libraries(OpenEXRCore PUBLIC Imath::Imath)
+
 # when building with an internal imath, this isn't generated until
 # install time, so need to use private header only include path (we
 # aren't linking to imath or anything c++)
