@@ -3,7 +3,7 @@
 
 # OpenEXR Release Notes
 
-* [Version 3.2.0](#version-320-august-28-2023) August 28, 2023
+* [Version 3.2.0](#version-320-august-30-2023) August 30, 2023
 * [Version 3.1.11](#version-3111-august-13-2023) August 13, 2023
 * [Version 3.1.10](#version-3110-august-2-2023) August 2, 2023
 * [Version 3.1.9](#version-319-june-25-2023) June 25, 2023
@@ -66,7 +66,7 @@
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
 
-## Version 3.2.0 (August 28, 2023)
+## Version 3.2.0 (August 30, 2023)
 
 Minor release with several additions, changes and improvements:
 
@@ -137,13 +137,15 @@ Minor release with several additions, changes and improvements:
   #1383](https://github.com/AcademySoftwareFoundation/openexr/pull/1383)
   for more details.
 
-* Updated SO versioning policy (See [website/install.rst](website/install.rst))
+* Updated SO versioning policy 
 
   This change adopts a policy of appending the ``MAJOR.MINOR.PATCH``
   software release name to the ``SONAME`` to form the real name of the
   shared library.
 
-  See [website/install.rst](website/install.rst) for more details.
+  See [website/install.rst](website/install.rst) and [PR
+  #1498](https://github.com/AcademySoftwareFoundation/openexr/pull/1498)
+  for more details.
 
 * Python bindings & PyPI wheel
 

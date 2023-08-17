@@ -42,41 +42,41 @@ Minor release with several additions, changes and improvements:
 
   Support automated editorial workflow:
 
-    - ``reelName``
-    - ``imageCounter``
-    - ``ascFramingDecisionList``
+  - ``reelName``
+  - ``imageCounter``
+  - ``ascFramingDecisionList``
 
   Support forensics:
 
-    - ``cameraMake``
-    - ``cameraModel``
-    - ``cameraSerialNumber``
-    - ``cameraFirmware``
-    - ``cameraUuid``
-    - ``cameraLabel``
-    - ``lensMake``
-    - ``lensModel``
-    - ``lensSerialNumber``
-    - ``lensFirmware``
-    - ``cameraColorBalance``
+  - ``cameraMake``
+  - ``cameraModel``
+  - ``cameraSerialNumber``
+  - ``cameraFirmware``
+  - ``cameraUuid``
+  - ``cameraLabel``
+  - ``lensMake``
+  - ``lensModel``
+  - ``lensSerialNumber``
+  - ``lensFirmware``
+  - ``cameraColorBalance``
 
   Support pickup shots:
 
-    - ``shutterAngle``
-    - ``cameraCCTSetting``
-    - ``cameraTintSetting``
+  - ``shutterAngle``
+  - ``cameraCCTSetting``
+  - ``cameraTintSetting``
 
   Support metadata-driven match move:
 
-    - ``sensorCenterOffset``
-    - ``sensorOverallDimensions``
-    - ``sensorPhotositePitch``
-    - ``sensorAcquisitionRectangle``
-    - ``nominalFocalLength``
-    - ``effectiveFocalLength``
-    - ``pinholeFocalLength``
-    - ``entrancePupilOffset``
-    - ``tStop`` (complementing existing aperture)
+  - ``sensorCenterOffset``
+  - ``sensorOverallDimensions``
+  - ``sensorPhotositePitch``
+  - ``sensorAcquisitionRectangle``
+  - ``nominalFocalLength``
+  - ``effectiveFocalLength``
+  - ``pinholeFocalLength``
+  - ``entrancePupilOffset``
+  - ``tStop`` (complementing existing aperture)
 
   Also, ``renderingTransform`` and ``lookTransform`` have been deprecated.
 
@@ -85,13 +85,16 @@ Minor release with several additions, changes and improvements:
   <https://github.com/AcademySoftwareFoundation/openexr/pull/1383>`_
   for more details.
 
-* Updated SO versioning policy (See [website/install.rst](website/install.rst)
+* Updated SO versioning policy
 
   This change adopts a policy of appending the ``MAJOR.MINOR.PATCH``
   software release name to the ``SONAME`` to form the real name of the
   shared library.
 
-  See https://openexr.com/en/latest/install.html for more details.
+  See https://openexr.com/en/latest/install.html `PR
+  1498
+  <https://github.com/AcademySoftwareFoundation/openexr/pull/1498>`_
+  for more details.
 
 * Python bindings & PyPI wheel
 
