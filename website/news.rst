@@ -13,6 +13,124 @@ News
 .. toctree::
    :caption: News
 
+August 28, 2023 - OpenEXR v3.2.0 Released
+=========================================
+
+Minor release with several additions, changes and improvements:
+
+* Zip compression via ``libdeflate``
+
+  As of OpenEXR release v3.2, OpenEXR depends on `libdeflate
+  <https://github.com/ebiggers/libdeflate>`_ for DEFLATE-based
+  compression. Previous OpenEXR releases relied on `zlib
+  <https://www.zlib.net>`_. Builds of OpenEXR can choose either an
+  ``libdeflate`` installation, or CMake can auto-fetch the source and
+  build it internally. The internal build is linked statically, so no
+  extra shared object is produced.
+
+  See https://openexr.com/en/latest/install.html for more details.
+
+* New camdkit/camdkit-enabled standard attributes
+
+  These changes bring to OpenEXR new standard optional attributes that
+  were discussed in the `SMPTE Rapid Industry Solutions On-Set Virtual
+  Production
+  Initiative <https://www.smpte.org/blog/update-on-smptes-rapid-industry-solutions-ris-on-set-virtual-production-osvp-initiative>`_. Additionally,
+  some useful attributes from the SMPTE ACES Container File Layout
+  standard, SMPTE ST 2065-4:2023, have been included as well. The new
+  attributes are: 
+
+  Support automated editorial workflow:
+
+  - ``reelName``
+  - ``imageCounter``
+  - ``ascFramingDecisionList``
+
+  Support forensics:
+
+  - ``cameraMake``
+  - ``cameraModel``
+  - ``cameraSerialNumber``
+  - ``cameraFirmware``
+  - ``cameraUuid``
+  - ``cameraLabel``
+  - ``lensMake``
+  - ``lensModel``
+  - ``lensSerialNumber``
+  - ``lensFirmware``
+  - ``cameraColorBalance``
+
+  Support pickup shots:
+
+  - ``shutterAngle``
+  - ``cameraCCTSetting``
+  - ``cameraTintSetting``
+
+  Support metadata-driven match move:
+
+  - ``sensorCenterOffset``
+  - ``sensorOverallDimensions``
+  - ``sensorPhotositePitch``
+  - ``sensorAcquisitionRectangle``
+  - ``nominalFocalLength``
+  - ``effectiveFocalLength``
+  - ``pinholeFocalLength``
+  - ``entrancePupilOffset``
+  - ``tStop`` (complementing existing aperture)
+
+  Also, ``renderingTransform`` and ``lookTransform`` have been deprecated.
+
+  See https://openexr.com/en/latest/StandardAttributes.html and `PR
+  1383
+  <https://github.com/AcademySoftwareFoundation/openexr/pull/1383>`_
+  for more details.
+
+* Updated SO versioning policy
+
+  This change adopts a policy of appending the ``MAJOR.MINOR.PATCH``
+  software release name to the ``SONAME`` to form the real name of the
+  shared library.
+
+  See https://openexr.com/en/latest/install.html `PR
+  1498
+  <https://github.com/AcademySoftwareFoundation/openexr/pull/1498>`_
+  for more details.
+
+* Python bindings & PyPI wheel
+
+  Support for the PyPI `OpenEXR python bindings
+  <https://pypi.org/project/OpenEXR>`_ have been formally adopted by
+  the OpenEXR project.
+  
+* Miscellaneous improvements:
+
+  - "docs" renamed to "website" (See `PR #1504 <https://github.com/AcademySoftwareFoundation/openexr/pull/1504>`_).
+
+  - Additional deep & multipart code examples (See `PR #1493
+    <https://github.com/AcademySoftwareFoundation/openexr/pull/1493>`_
+    and `PR #1502 <https://github.com/AcademySoftwareFoundation/openexr/pull/1502>`_)
+
+  - Many small build/test fixes
+  
+  - bin tools man pages
+
+  - Expanded test coverage
+
+August 13, 2023 - OpenEXR v3.1.11 Released
+==========================================
+
+Patch release that fixes a build failure with ``-march=x86-64-v3``
+
+August 2, 2023 - OpenEXR v3.1.10 Released
+=========================================
+
+Patch release that addresses miscellaneous build issues, test
+failures, and performance regressions, as well as:
+
+* OSS-fuzz `59457
+  <https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=59457>`_ 
+  Heap-buffer-overflow in ``LossyDctDecoder_execute``
+
 August 1, 2023 - 2023 ASWF OpenEXR Virtual Town Hall
 ====================================================
 
