@@ -228,7 +228,7 @@ option(OPENEXR_FORCE_INTERNAL_IMATH "Force using an internal imath" OFF)
 # Check to see if Imath is installed outside of the current build directory.
 set(OPENEXR_IMATH_REPO "https://github.com/AcademySoftwareFoundation/Imath.git" CACHE STRING
     "Repo for auto-build of Imath")
-set(OPENEXR_IMATH_TAG "main" CACHE STRING
+set(OPENEXR_IMATH_TAG "v3.1.9" CACHE STRING
   "Tag for auto-build of Imath (branch, tag, or SHA)")
 if(NOT OPENEXR_FORCE_INTERNAL_IMATH)
   #TODO: ^^ Release should not clone from main, this is a place holder
