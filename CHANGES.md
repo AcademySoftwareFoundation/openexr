@@ -190,6 +190,12 @@ Direct-leak in ``Imf_3_1::RgbaInputFile::RgbaInputFile``
 
 ### Merged Pull Requests
 
+* [1527](https://github.com/AcademySoftwareFoundation/openexr/pull/1527)
+`OpenEXRConfig.h.in` uses version extracted from `openexr_version.h`
+* [1525](https://github.com/AcademySoftwareFoundation/openexr/pull/1525)
+Add bzlmod support
+* [1523](https://github.com/AcademySoftwareFoundation/openexr/pull/1523)
+Add `DEPENDENCIES Imath::Imath` for OpenEXRCore (#1523)
 * [1522](https://github.com/AcademySoftwareFoundation/openexr/pull/1522)
 Rename cifuzz workflow to OSS-Fuzz, and filter out unnecessary triggers
 * [1520](https://github.com/AcademySoftwareFoundation/openexr/pull/1520)
