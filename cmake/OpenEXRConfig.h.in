@@ -8,6 +8,14 @@
 
 #pragma once
 
+//
+// The OpenEXR release version is defined officially in
+// src/lib/OpenEXRCore/openexr_version.h, but CMake doesn't readily allow
+// that to be included here, so duplicate the settings for
+// backwards-compatibility with applications that may expect to get the
+// defines from this include.
+//
+
 #ifndef INCLUDED_OPENEXR_VERSION_H
 #define OPENEXR_VERSION_MAJOR @OpenEXR_VERSION_MAJOR@
 #define OPENEXR_VERSION_MINOR @OpenEXR_VERSION_MINOR@
