@@ -32,7 +32,7 @@ testBase (const std::string& tempdir)
 
     exr_get_library_version (&major, &minor, &patch, &extra);
     if (major != COMP_MAJ || minor != COMP_MIN || patch != COMP_PATCH ||
-        !strcmp (extra, compextra))
+        strcmp (extra, compextra))
     {
         std::cerr << "ERROR testing library, wrong library version: '" << major
                   << "." << minor << "." << patch;
@@ -43,10 +43,10 @@ testBase (const std::string& tempdir)
         std::cerr << "'" << std::endl;
         EXRCORE_TEST (false);
     }
-    std::cout << "Testing OpenEXR library version: " << major << "." << minor << "."
+    std::cout << "Testing OpenEXR library version: '" << major << "." << minor << "."
               << patch;
-    if (extra[0] != '\0') std::cout << "-" << extra;
-    std::cout << std::endl;
+    if (extra[0] != '\0') std::cout << extra;
+    std::cout << "'" << std::endl;
 
     exr_get_library_version (NULL, &minor, &patch, &extra);
     exr_get_library_version (&major, NULL, &patch, &extra);
