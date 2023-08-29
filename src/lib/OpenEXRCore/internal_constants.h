@@ -28,4 +28,10 @@
 #define EXR_SHORTNAME_MAXLEN 31
 #define EXR_LONGNAME_MAXLEN 255
 
+#if defined(__MSVCRT__)
+#define EXR_PRIu64 "I64u"
+#else
+#define EXR_PRIu64 PRIu64
+#endif
+
 #endif /* OPENEXR_PRIV_CONSTANTS_H */

@@ -6,6 +6,7 @@
 #include "internal_attr.h"
 
 #include "internal_structs.h"
+#include "internal_constants.h"
 
 #include <string.h>
 
@@ -24,7 +25,7 @@ exr_attr_preview_init (
         return pctxt->print_error (
             pctxt,
             EXR_ERR_INVALID_ARGUMENT,
-            "Invalid very large size for preview image (%u x %u - %" PRIu64
+            "Invalid very large size for preview image (%u x %u - %" EXR_PRIu64
             " bytes)",
             w,
             h,
