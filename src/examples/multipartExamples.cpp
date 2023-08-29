@@ -96,7 +96,7 @@ void combineFiles ()
     
     const char * filenames[] = {"gz1.exr", "tiledgz1.exr", "test.deep.exr", "testTiled.deep.exr"};
     
-    for (int i = 0; i < sizeof (filenames) / sizeof (filenames[0]); i++)
+    for (size_t i = 0; i < sizeof (filenames) / sizeof (filenames[0]); i++)
     {
         MultiPartInputFile * in_file = new MultiPartInputFile (filenames[i]);
         Header header = in_file->header (0);
@@ -112,7 +112,7 @@ void combineFiles ()
     
     MultiPartOutputFile outputFile ("multipart.exr", headers.data (), (int)headers.size ());
     
-    for (int i = 0; i < sizeof (filenames) / sizeof (filenames[0]); i++)
+    for (size_t i = 0; i < sizeof (filenames) / sizeof (filenames[0]); i++)
     {
         Header & header = headers[i];
         const string& type = header.type ();
@@ -351,7 +351,7 @@ void modifyDeepChannels(Array2D<uint32_t> & sampleCount, list<Array2D<T *>> & ch
             for (int x = 0; x < channel.width (); x++)
             {
                 uint32_t count = sampleCount[y][x];
-                for (int j = 0; j < count; j++)
+                for (uint32_t j = 0; j < count; j++)
                 channel[y][x][j] += delta;
             }
         }
@@ -414,7 +414,7 @@ void modifyMultipart ()
                 Box2i dataWindow = header.dataWindow ();
                 OutputPart outputPart (outputFile, i);
                 outputPart.setFrameBuffer (frameBuffer);
-                outputPart.writePixels (header.dataWindow ().max.y - header.dataWindow ().min.y + 1);
+                outputPart.writePixels (dataWindow.max.y - dataWindow.min.y + 1);
             }
             else
             {
@@ -466,7 +466,7 @@ void modifyMultipart ()
                 Box2i dataWindow = header.dataWindow ();
                 DeepScanLineOutputPart outputPart (outputFile, i);
                 outputPart.setFrameBuffer (frameBuffer);
-                outputPart.writePixels (header.dataWindow ().max.y - header.dataWindow ().min.y + 1);
+                outputPart.writePixels (dataWindow.max.y - dataWindow.min.y + 1);
             }
             else
             {
