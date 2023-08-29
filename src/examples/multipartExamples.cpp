@@ -352,7 +352,7 @@ void modifyDeepChannels(Array2D<uint32_t> & sampleCount, list<Array2D<T *>> & ch
             {
                 uint32_t count = sampleCount[y][x];
                 for (uint32_t j = 0; j < count; j++)
-                channel[y][x][j] += delta;
+                    channel[y][x][j] += delta;
             }
         }
     }
