@@ -9,6 +9,7 @@ libdir=@PKG_CONFIG_INSTALL_LIBDIR@
 includedir=@PKG_CONFIG_INSTALL_INCLUDEDIR@
 OpenEXR_includedir=${includedir}/OpenEXR
 libsuffix=@LIB_SUFFIX_DASH@
+version=@OPENEXR_VERSION@
 
 Name: OpenEXR
 Description: OpenEXR image library
