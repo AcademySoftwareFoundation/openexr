@@ -22,6 +22,7 @@ on:
       - '!**.md'
       - '!website/**'
       - 'website/src/**'
+      - '!src/wrappers/**'
   pull_request:
     branches-ignore:
       - RB-2.*
@@ -33,6 +34,7 @@ on:
       - '!**.md'
       - '!website/**'
       - 'website/src/**'
+      - '!src/wrappers/**'
 
 permissions:
   contents: read

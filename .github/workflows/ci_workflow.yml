@@ -24,6 +24,7 @@ on:
       - '!website/**'
       - 'website/src/**'
       - '!bazel/**'
+      - '!src/wrappers/**'
   pull_request:
     branches-ignore:
       - RB-2.*
@@ -36,6 +37,7 @@ on:
       - '!website/**'
       - 'website/src/**'
       - '!bazel/**'
+      - '!src/wrappers/**'
 
 permissions:
   contents: read
