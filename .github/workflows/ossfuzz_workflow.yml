@@ -18,6 +18,7 @@ on:
       - '!**.md'
       - '!website/**'
       - '!bazel/**'
+      - '!src/wrappers/**'
   pull_request:
     branches-ignore:
       - RB-2.*
@@ -29,6 +30,7 @@ on:
       - '!**.md'
       - '!website/**'
       - '!bazel/**'
+      - '!src/wrappers/**'
 
 permissions:
   contents: read
