@@ -15,7 +15,7 @@
 #endif
 
 #if OPENEXR_ENABLE_X86_SIMD_CHECK
-#    if defined(_MSC_VER) && defined(_WIN32)
+#    if defined(_WIN32)
 #        include <intrin.h>
 #    else
 #        include <cpuid.h>
@@ -51,7 +51,7 @@ check_for_x86_simd (int* f16c, int* avx, int* sse2)
 
 #elif OPENEXR_ENABLE_X86_SIMD_CHECK
 
-#   if defined(_MSC_VER) && defined(_WIN32)
+#   if defined(_WIN32)
     int regs[4]={0}, osxsave;
 
     __cpuid (regs, 0);
