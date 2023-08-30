@@ -253,6 +253,11 @@ if(NOT TARGET Imath::Imath AND NOT Imath_FOUND)
   FetchContent_GetProperties(Imath)
   if(NOT Imath_POPULATED)
     FetchContent_Populate(Imath)
+
+    # Propagate OpenEXR's setting for pkg-config generation to Imath:
+    # If OpenEXR is generating it, the internal Imath should, too.
+    set(IMATH_INSTALL_PKG_CONFIG ${OPENEXR_INSTALL_PKG_CONFIG}) 
+
     # hrm, cmake makes Imath lowercase for the properties (to imath)
     add_subdirectory(${imath_SOURCE_DIR} ${imath_BINARY_DIR})
   endif()

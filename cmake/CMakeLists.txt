@@ -219,8 +219,9 @@ if(OPENEXR_INSTALL_PKG_CONFIG)
     )
   endfunction()
   openexr_pkg_config_help(OpenEXR.pc.in)
+  message(STATUS "OpenEXR pkg-config generation enabled")
 else()
-  message(STATUS "-- pkg-config generation disabled")
+  message(STATUS "OpenEXR pkg-config generation disabled")
 endif()
 
 ###################################################
