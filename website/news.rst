@@ -13,7 +13,7 @@ News
 .. toctree::
    :caption: News
 
-August 28, 2023 - OpenEXR v3.2.0 Released
+August 30, 2023 - OpenEXR v3.2.0 Released
 =========================================
 
 Minor release with several additions, changes and improvements:
