@@ -20,7 +20,7 @@ https://github.com/AcademySoftwareFoundation/openexr/issues
 
 def pkg_config(var, pkg):
     with open(f'./openexr.install/lib/pkgconfig/{pkg}.pc', 'r') as f:
-        return re.search(f'{var}=([^ \n]+)', f.read()).group(1)
+        return re.search(f'{var}([^ \n]+)', f.read()).group(1)
 
 imath_libsuffix = pkg_config("libsuffix=", "Imath")
 openexr_libsuffix = pkg_config("libsuffix=", "OpenEXR")
