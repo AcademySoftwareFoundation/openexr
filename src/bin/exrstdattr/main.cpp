@@ -485,7 +485,7 @@ getChromaticities (
     if (i > argc - 9)
         throw invalid_argument("Expected 8 chromaticity values");
 
-    ChromaticitiesAttribute* a = new ChromaticitiesAttribute;
+    ChromaticitiesAttribute* a = new ChromaticitiesAttribute(Chromaticities());
     attrs.push_back (SetAttr (attrName, part, a));
 
     a->value ().red.x   = static_cast<float> (strtod (argv[i + 1], 0));
