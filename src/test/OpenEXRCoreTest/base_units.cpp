@@ -52,6 +52,14 @@ testBase (const std::string& tempdir)
     exr_get_library_version (&major, NULL, &patch, &extra);
     exr_get_library_version (&major, &minor, NULL, &extra);
     exr_get_library_version (&major, &minor, &patch, NULL);
+
+    major = (OPENEXR_VERSION_HEX >> 24) & 0xff;
+    minor = (OPENEXR_VERSION_HEX >> 16) & 0xff;
+    patch = (OPENEXR_VERSION_HEX >> 8) & 0xff;
+
+    EXRCORE_TEST (major == COMP_MAJ);
+    EXRCORE_TEST (minor == COMP_MIN);
+    EXRCORE_TEST (patch == COMP_PATCH);
 }
 
 void
