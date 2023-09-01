@@ -60,6 +60,10 @@ testBase (const std::string& tempdir)
     EXRCORE_TEST (major == COMP_MAJ);
     EXRCORE_TEST (minor == COMP_MIN);
     EXRCORE_TEST (patch == COMP_PATCH);
+
+#if OPENEXR_VERSION_HEX > 0
+    // confirm the macro compiles in an #if
+#endif
 }
 
 void
