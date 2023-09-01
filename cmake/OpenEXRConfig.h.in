@@ -68,10 +68,10 @@
 // clang-format on
 
 // Version as a single hex number, e.g. 0x01000300 == 1.0.3
-#define OPENEXR_VERSION_HEX                                                    \
-    ((uint32_t (OPENEXR_VERSION_MAJOR) << 24) |                                \
-     (uint32_t (OPENEXR_VERSION_MINOR) << 16) |                                \
-     (uint32_t (OPENEXR_VERSION_PATCH) << 8))
+#define OPENEXR_VERSION_HEX                                           \
+    (((OPENEXR_VERSION_MAJOR) << 24) |                                \
+     ((OPENEXR_VERSION_MINOR) << 16) |                                \
+     ((OPENEXR_VERSION_PATCH) << 8))
 
 // On modern versions of gcc & clang, __has_attribute can test support for
 // __attribute__((attr)).  Make sure it's safe for other compilers.
