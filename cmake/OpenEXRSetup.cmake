@@ -36,11 +36,7 @@ set(IEX_INTERNAL_NAMESPACE "Iex_${OPENEXR_VERSION_API}" CACHE STRING "Real names
 set(IEX_NAMESPACE "Iex" CACHE STRING "Public namespace alias for Iex")
 
 # Whether to generate and install a pkg-config file OpenEXR.pc
-if (WIN32)
-option(OPENEXR_INSTALL_PKG_CONFIG "Install OpenEXR.pc file" OFF)
-else()
 option(OPENEXR_INSTALL_PKG_CONFIG "Install OpenEXR.pc file" ON)
-endif()
 
 # Whether to enable threading. This can be disabled, although thread pool and tasks
 # are still used, just processed immediately
