@@ -120,7 +120,7 @@ jobs:
           # Static, Release
           - build: 4
             build-type: Release
-            build-shared: 'ON'
+            build-shared: 'OFF'
             cxx-standard: 17
             cxx-compiler: g++
             cc-compiler: gcc
