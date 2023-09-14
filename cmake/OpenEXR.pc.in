@@ -14,7 +14,7 @@ Name: OpenEXR
 Description: OpenEXR image library
 Version: @OPENEXR_VERSION@
 
-Libs: @exr_pthread_libs@ -L${libdir} -lOpenEXR${libsuffix} -lOpenEXRUtil${libsuffix} -lOpenEXRCore${libsuffix} -lIex${libsuffix} -lIlmThread${libsuffix}
+Libs: @exr_pthread_libs@ -L${libdir} -lOpenEXR${libsuffix} -lOpenEXRUtil${libsuffix} -lOpenEXRCore${libsuffix} -lIex${libsuffix} -lIlmThread${libsuffix} @EXR_DEFLATE_LDFLAGS@
 Cflags: -I${includedir} -I${OpenEXR_includedir} @exr_pthread_cflags@
 Requires: Imath
 
