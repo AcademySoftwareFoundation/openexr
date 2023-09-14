@@ -329,6 +329,30 @@ shared object is produced.
   ``OPENEXR_DEFLATE_TAG``. This means do *not* use any existing
   installation of ``libdeflate``.
 
+Test Images Dependency
+~~~~~~~~~~~~~~~~~~~~~~
+
+The OpenEXR test suite relies on images from the `online test image
+gallery
+<https://github.com/AcademySoftwareFoundation/openexr-images>`_, which CMake
+automatically downloads during configuration.  You can provide an
+alternate location for the test images via the ``OPENEXR_IMAGES_REPO``
+and ``OPENEXR_IMAGES_TAG`` variables.
+
+* ``OPENEXR_IMAGES_REPO`` and ``OPENEXR_IMAGES_TAG``
+
+  The images repo to auto-fetch for the test suite, and the tag to
+  sync it to.  The default repo is
+  ``https://github.com/AcademySoftwareFoundation/openexr-images.git``
+  and the tag is ``v1.0``. 
+
+Note that you can void downloading images by specifying a repo on the
+local filesystem via a ``file:`` url:
+
+.. code-block::
+
+    cmake -DOPENEXR_IMAGES_REPO=file:///my/clone/of/openexr-images -DOPENEXR_IMAGES_TAG=""
+
 Namespace Options
 ~~~~~~~~~~~~~~~~~
 

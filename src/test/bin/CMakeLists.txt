@@ -16,8 +16,12 @@ if(BUILD_TESTING)
 
   set(OPENEXR_IMAGES_TAG "v1.0" CACHE STRING "Bin test image repo tag")
 
-  set(images_url ${OPENEXR_IMAGES_REPO}/${OPENEXR_IMAGES_TAG})
-
+  if ("${OPENEXR_IMAGES_TAG}" STREQUAL "")
+    set(images_url ${OPENEXR_IMAGES_REPO})
+  else()
+    set(images_url ${OPENEXR_IMAGES_REPO}/${OPENEXR_IMAGES_TAG})
+  endif()
+  
   set(images 
       TestImages/GrayRampsHorizontal.exr
       LuminanceChroma/Garden.exr
