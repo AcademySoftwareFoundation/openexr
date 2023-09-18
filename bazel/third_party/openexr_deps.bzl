@@ -13,9 +13,9 @@ def openexr_deps():
         http_archive,
         name = "libdeflate",
         build_file = "@com_openexr//:bazel/third_party/libdeflate.BUILD",
-        sha256 = "225d982bcaf553221c76726358d2ea139bb34913180b20823c782cede060affd",
-        strip_prefix = "libdeflate-1.18",
-        urls = ["https://github.com/ebiggers/libdeflate/archive/refs/tags/v1.18.tar.gz"],
+        sha256 = "27bf62d71cd64728ff43a9feb92f2ac2f2bf748986d856133cc1e51992428c25",
+        strip_prefix = "libdeflate-1.19",
+        urls = ["https://github.com/ebiggers/libdeflate/archive/refs/tags/v1.19.tar.gz"],
     )
 
     maybe(
