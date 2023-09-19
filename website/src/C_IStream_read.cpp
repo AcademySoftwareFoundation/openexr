@@ -8,9 +8,9 @@ C_IStream::read (char c[], int n)
         // determine what happened.
     
         if (ferror (_file))
-            Iex::throwErrnoExc();
+            IEX_NAMESPACE::throwErrnoExc();
         else
-            throw Iex::InputExc ("Unexpected end of file.");
+            throw IEX_NAMESPACE::InputExc ("Unexpected end of file.");
     }
     
     return !feof (_file);

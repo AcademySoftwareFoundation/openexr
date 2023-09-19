@@ -20,6 +20,7 @@
 #include <iostream>
 
 #include <ImfSystemSpecific.h>
+#include <ImfNamespace.h>
 #include "../../lib/OpenEXRCore/internal_cpuid.h"
 #include "../../lib/OpenEXRCore/internal_coding.h"
 
@@ -364,7 +365,7 @@ testBaseDebug (const std::string& tempdir)
 void testCPUIdent (const std::string& tempdir)
 {
     int hf16c, havx, hsse2;
-    Imf::CpuId id;
+    OPENEXR_IMF_NAMESPACE::CpuId id;
     check_for_x86_simd (&hf16c, &havx, &hsse2);
 
     if (hf16c != (int)id.f16c)
