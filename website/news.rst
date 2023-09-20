@@ -13,6 +13,39 @@ News
 .. toctree::
    :caption: News
 
+September 20, 2023 - ASWF Dev Days
+==================================
+
+OpenEXR is participating in the Academy Software Foundation's `Dev
+Days <https://sites.google.com/view/aswfdevdays/home>`_, a great way to
+learn about how to contribute to open source software. Project
+maintainers will be on hand October 12-13 to help guide you through
+the process of making a simple first contribution.
+
+For Dev Days, pick a simple change you can make within one day's
+work. For ideas, consider the "good first issues" on either the 
+`OpenEXR Issues
+<https://github.com/AcademySoftwareFoundation/openexr/issues>`_ page or
+the `Imath Issues
+<https://github.com/AcademySoftwareFoundation/Imath/issues>`_ page.
+Feel free to choose any other issue as well, or any other contribution
+that you find appealing.
+
+Contact the project maintainers via email at
+`openexr-dev@lists.aswf.io`_ or Slack at `academysoftwarefdn#openexr
+<https://academysoftwarefdn.slack.com/archives/CMLRW4N73>`_. Also,
+consider attending the OpenEXR Technical Steering Committee Meeting,
+held every other Thursday at 1:30PM Pacific Time. These are public
+discussions open to anyone with interest in the project. The times and
+Zoom link are on the `project calendar
+<https://lists.aswf.io/g/openexr-dev/calendar>`_.
+
+A list of ideas for more substantial contributions is on the `OpenEXR wiki
+<https://wiki.aswf.io/display/OEXR/OpenEXR+Project+Ideas>`_. Although
+these are beyond the scope of the spirit of Dev Days, feel free to
+discuss these as well.
+
+
 August 30, 2023 - OpenEXR v3.2.0 Released
 =========================================
 
