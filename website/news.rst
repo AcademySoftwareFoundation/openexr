@@ -22,6 +22,9 @@ learn about how to contribute to open source software. Project
 maintainers will be on hand October 12-13 to help guide you through
 the process of making a simple first contribution.
 
+Read more about Dev Days on the project wiki
+[here](https://github.com/AcademySoftwareFoundation/openexr/wiki/Dev-Days-2023).
+
 For Dev Days, pick a simple change you can make within one day's
 work. For ideas, consider the "good first issues" on either the 
 `OpenEXR Issues
