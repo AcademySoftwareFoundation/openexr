@@ -21,26 +21,34 @@ if [[ $# == "0" ]]; then
     exit -1
 fi
 
+set -x
+
 BUILD_ROOT=$1
 SRC_ROOT=$2
 
 # Locate OpenEXR.pc and set PKG_CONFIG_PATH accordingly
 
-pkgconfig=$(find $BUILD_ROOT -name OpenEXR.pc)
+pkgconfig=$(find $BUILD_ROOT -name OpenEXR.pc | head -1)
+
 if [[ "$pkgconfig" == "" ]]; then
     echo "Can't find OpenEXR.pc"
     exit -1
 fi    
+
+cat $pkgconfig
+
 export PKG_CONFIG_PATH=$(dirname $pkgconfig)
 
 # Build the validation program
 
-CXX_FLAGS=$(pkg-config OpenEXR --cflags)
-LD_FLAGS=$(pkg-config OpenEXR --libs --static)
+CXX_FLAGS=$(env PKG_CONFIG_PATH=$PKG_CONFIG_PATH pkg-config OpenEXR --cflags)
+LD_FLAGS=$(env PKG_CONFIG_PATH=$PKG_CONFIG_PATH pkg-config OpenEXR --libs --static)
 
-VALIDATE_CPP=$(mktemp --tmpdir "validate_XXX.cpp")
-VALIDATE_BIN=$(mktemp --tmpdir "validate_XXX")
-trap "rm -rf $VALIDATE_CPP $VALIDATE_BIN" exit
+VALIDATE_CPP=$(mktemp --tmpdir "validate_cpp_XXX.cpp")
+VALIDATE_BIN=$(mktemp --tmpdir "validate_bin_XXX")
+VALIDATE_BUILD=$(mktemp -d --tmpdir "validate_build_XXX")
+
+trap "rm -rf $VALIDATE_CPP $VALIDATE_BIN $VALIDATE_BUILD" exit
 
 echo -e '#include <ImfHeader.h>\n#include <OpenEXRConfig.h>\n#include <stdio.h>\nint main() { puts(OPENEXR_PACKAGE_STRING); Imf::Header h; return 0; }' > $VALIDATE_CPP
 
@@ -48,7 +56,7 @@ g++ $CXX_FLAGS $VALIDATE_CPP -o $VALIDATE_BIN $LD_FLAGS
 
 # Execute the program
 
-LIB_DIR=$(pkg-config OpenEXR --variable=libdir)
+LIB_DIR=$(env PKG_CONFIG_PATH=$PKG_CONFIG_PATH pkg-config OpenEXR --variable=libdir)
 export LD_LIBRARY_PATH=$LIB_DIR
 
 validate=`$VALIDATE_BIN`
@@ -62,7 +70,7 @@ if [[ "$status" != "0" ]]; then
 fi
 
 # Get the suffix, e.g. -2_5_d, and determine if there's also a _d
-libsuffix=$(pkg-config OpenEXR --variable=libsuffix)
+libsuffix=$(env PKG_CONFIG_PATH=$PKG_CONFIG_PATH pkg-config OpenEXR --variable=libsuffix)
 if [[ $libsuffix != $(basename ./$libsuffix _d) ]]; then
     _d="_d"
 else
@@ -70,7 +78,7 @@ else
 fi
 
 # Validate each of the libs
-libs=$(pkg-config OpenEXR --libs-only-l | sed -e s/-l//g)
+libs=$(env PKG_CONFIG_PATH=$PKG_CONFIG_PATH pkg-config OpenEXR --libs-only-l | sed -e s/-l//g)
 for lib in $libs; do
 
     base=$(echo $lib | cut -d- -f1)
@@ -105,7 +113,7 @@ if [[ "$?" == "0" ]]; then
 fi
 
 if [[ "$SRC_ROOT" != "" ]]; then
-    version=$(pkg-config OpenEXR --modversion)
+    version=$(env PKG_CONFIG_PATH=$PKG_CONFIG_PATH pkg-config OpenEXR --modversion)
     notes=$(grep "\* \[Version $version\]" $SRC_ROOT/CHANGES.md | head -1)
     if [[ "$notes" == "" ]]; then
         echo "No release notes."
@@ -113,5 +121,14 @@ if [[ "$SRC_ROOT" != "" ]]; then
         echo "Release notes: $notes"
     fi
 fi
-   
+
+
+# Confirm that the example programs build, link, and run
+
+cd $VALIDATE_BUILD
+
+cmake -DCMAKE_PREFIX_PATH=$BUILD_ROOT $SRC_ROOT/src/examples
+cmake --build .
+./bin/OpenEXRExamples
+
 echo "ok."
