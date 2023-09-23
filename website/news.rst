@@ -17,6 +17,7 @@ September 20, 2023 - ASWF Dev Days
 ==================================
 
 .. _LatestNewsStart:
+
 OpenEXR is participating in the Academy Software Foundation's `Dev
 Days <https://sites.google.com/view/aswfdevdays/home>`_, a great way to
 learn about how to contribute to open source software. Project
