@@ -38,7 +38,12 @@
 using namespace IMATH_NAMESPACE;
 using namespace OPENEXR_IMF_NAMESPACE;
 
-namespace Iex = IEX_NAMESPACE;
+// Example code references the Iex:: namespace explicitly, but when
+// building with a custom namespace, the "Iex" namespace not defined.
+// This #define allows the example code to compile even in builds
+// with a custom namespace.
+
+#define Iex IEX_NAMESPACE
 
 using std::max;
 
