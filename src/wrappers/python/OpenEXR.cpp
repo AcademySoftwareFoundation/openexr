@@ -92,8 +92,8 @@ typedef int Py_ssize_t;
 #endif
 
 using namespace std;
-using namespace Imf;
-using namespace Imath;
+using namespace OPENEXR_IMF_NAMESPACE;
+using namespace IMATH_NAMESPACE;
 
 static PyObject *OpenEXR_error = NULL;
 static PyObject *pModuleImath;
@@ -155,7 +155,7 @@ C_IStream::read (char c[], int n)
       memcpy(c, PyString_AsString(data), PyString_Size(data));
       Py_DECREF(data);
     } else {
-      throw Iex::InputExc("file read failed");
+      throw IEX_NAMESPACE::InputExc("file read failed");
     }
     return 0;
 }
@@ -177,7 +177,7 @@ C_IStream::tellg ()
       Py_DECREF(rv);
       return (Int64)t;
     } else {
-      throw Iex::InputExc("tell failed");
+      throw IEX_NAMESPACE::InputExc("tell failed");
     }
 }
 
@@ -188,7 +188,7 @@ C_IStream::seekg (Int64 pos)
     if (data != NULL) {
         Py_DECREF(data);
     } else {
-      throw Iex::InputExc("seek failed");
+      throw IEX_NAMESPACE::InputExc("seek failed");
     }
 }
 
@@ -220,7 +220,7 @@ C_OStream::write (const char*c, int n)
     if (data != NULL) {
       Py_DECREF(data);
     } else {
-      throw Iex::InputExc("file write failed");
+      throw IEX_NAMESPACE::InputExc("file write failed");
     }
 }
 
@@ -241,7 +241,7 @@ C_OStream::tellp ()
       Py_DECREF(rv);
       return (Int64)t;
     } else {
-      throw Iex::InputExc("tell failed");
+      throw IEX_NAMESPACE::InputExc("tell failed");
     }
 }
 
@@ -252,7 +252,7 @@ C_OStream::seekp (Int64 pos)
     if (data != NULL) {
         Py_DECREF(data);
     } else {
-      throw Iex::InputExc("seek failed");
+      throw IEX_NAMESPACE::InputExc("seek failed");
     }
 }
 

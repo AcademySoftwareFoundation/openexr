@@ -35,8 +35,9 @@
 #include <unistd.h>
 #endif
 
-using namespace Imath;
-using namespace Imf;
+using namespace IMATH_NAMESPACE;
+using namespace OPENEXR_IMF_NAMESPACE;
+using namespace IEX_NAMESPACE;
 
 using std::max;
 
