@@ -38,6 +38,8 @@
 using namespace IMATH_NAMESPACE;
 using namespace OPENEXR_IMF_NAMESPACE;
 
+namespace Iex = IEX_NAMESPACE;
+
 using std::max;
 
 struct GZ
