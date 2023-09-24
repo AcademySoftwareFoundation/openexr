@@ -19,15 +19,15 @@ RHEL/CentOS:
 
 .. code-block::
 
-    $ sudo yum makecache
-    $ sudo yum install OpenEXR
+    % sudo yum makecache
+    % sudo yum install OpenEXR
 
 Ubuntu:
 
 .. code-block::
 
-    $ sudo apt-get update
-    $ sudo apt-get install openexr
+    % sudo apt-get update
+    % sudo apt-get install openexr
 
 Beware that some distributions are out of date and only provide
 distributions of outdated releases OpenEXR. We recommend against using
@@ -37,7 +37,7 @@ On macOS, install via `Homebrew <https://formulae.brew.sh/formula/openexr>`_:
 
 .. code-block::
 
-   $ brew install openexr
+   % brew install openexr
 
 We do not recommend installation via
 `Macports <https://ports.macports.org/port/openexr>`_ because the
@@ -94,9 +94,9 @@ To build:
 
 .. code-block::
 
-    $ cd $builddir
-    $ cmake $srcdir --install-prefix $installdir
-    $ cmake --build $builddir --target install --config Release
+    % cd $builddir
+    % cmake $srcdir --install-prefix $installdir
+    % cmake --build $builddir --target install --config Release
 
 Note that the CMake configuration prefers to apply an out-of-tree
 build process, since there may be multiple build configurations
@@ -125,7 +125,7 @@ can specify a local install directory to cmake via the
 
 .. code-block::
 
-    $ cmake .. -DCMAKE_INSTALL_PREFIX=$openexr_install_directory
+    % cmake .. -DCMAKE_INSTALL_PREFIX=$openexr_install_directory
 
 Library Names
 -------------
@@ -174,23 +174,23 @@ installation of Imath, add the Imath directory to the
  
 .. code-block::
 
-    $ mkdir $build_directory
-    $ cd $build_directory
-    $ cmake -DCMAKE_PREFIX_PATH=$imath_install_directory \
+    % mkdir $build_directory
+    % cd $build_directory
+    % cmake -DCMAKE_PREFIX_PATH=$imath_install_directory \
             -DCMAKE_INSTALL_PREFIX=$openexr_install_destination \
             $openexr_source_directory
-    $ cmake --build . --target install --config Release
+    % cmake --build . --target install --config Release
 
 Alternatively, you can specify the ``Imath_DIR`` variable:
 
 .. code-block::
 
-    $ mkdir $build_directory
-    $ cd $build_directory
-    $ cmake -DImath_DIR=$imath_config_directory \
+    % mkdir $build_directory
+    % cd $build_directory
+    % cmake -DImath_DIR=$imath_config_directory \
             -DCMAKE_INSTALL_PREFIX=$openexr_install_destination \
             $openexr_source_directory
-    $ cmake --build . --target install --config Release
+    % cmake --build . --target install --config Release
 
 Note that ``Imath_DIR`` should point to the directory that includes
 the ``ImathConfig.cmake`` file, which is typically the
@@ -256,7 +256,7 @@ variables, run:
 
 .. code-block::
 
-    $ cmake -LAH $openexr_source_directory
+    % cmake -LAH $openexr_source_directory
 
 You can customize these options three ways:
 
@@ -501,5 +501,5 @@ initial generation:
 
 .. code-block::
 
-    $ cmake -G “Ninja” ..
+    % cmake -G “Ninja” ..
 
