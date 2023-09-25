@@ -36,11 +36,7 @@ set(IEX_INTERNAL_NAMESPACE "Iex_${OPENEXR_VERSION_API}" CACHE STRING "Real names
 set(IEX_NAMESPACE "Iex" CACHE STRING "Public namespace alias for Iex")
 
 # Whether to generate and install a pkg-config file OpenEXR.pc
-if (WIN32)
-option(OPENEXR_INSTALL_PKG_CONFIG "Install OpenEXR.pc file" OFF)
-else()
 option(OPENEXR_INSTALL_PKG_CONFIG "Install OpenEXR.pc file" ON)
-endif()
 
 # Whether to enable threading. This can be disabled, although thread pool and tasks
 # are still used, just processed immediately
@@ -167,6 +163,9 @@ if(NOT OPENEXR_FORCE_INTERNAL_DEFLATE)
   include(FindPkgConfig)
   pkg_check_modules(deflate IMPORTED_TARGET GLOBAL libdeflate)
   set(CMAKE_IGNORE_PATH)
+  if (deflate_FOUND)
+    message(STATUS "Using libdeflate from ${deflate_LINK_LIBRARIES}")
+  endif()
 endif()
 
 if(NOT TARGET PkgConfig::deflate AND NOT deflate_FOUND)
@@ -216,7 +215,13 @@ if(NOT TARGET PkgConfig::deflate AND NOT deflate_FOUND)
   set(EXR_DEFLATE_LIB)
 else()
   set(EXR_DEFLATE_INCLUDE_DIR)
-  set(EXR_DEFLATE_LIB PkgConfig::deflate)
+  set(EXR_DEFLATE_LIB ${deflate_LIBRARIES})
+  # set EXR_DEFATE_LDFLAGS for OpenEXR.pc.in for static build
+  if (BUILD_SHARED_LIBS)
+    set(EXR_DEFLATE_LDFLAGS "")
+  else()
+    set(EXR_DEFLATE_LDFLAGS "-l${deflate_LIBRARIES}")
+  endif()
   set(EXR_DEFLATE_SOURCES)
 endif()
 
@@ -253,6 +258,11 @@ if(NOT TARGET Imath::Imath AND NOT Imath_FOUND)
   FetchContent_GetProperties(Imath)
   if(NOT Imath_POPULATED)
     FetchContent_Populate(Imath)
+
+    # Propagate OpenEXR's setting for pkg-config generation to Imath:
+    # If OpenEXR is generating it, the internal Imath should, too.
+    set(IMATH_INSTALL_PKG_CONFIG ${OPENEXR_INSTALL_PKG_CONFIG}) 
+
     # hrm, cmake makes Imath lowercase for the properties (to imath)
     add_subdirectory(${imath_SOURCE_DIR} ${imath_BINARY_DIR})
   endif()

@@ -24,6 +24,7 @@ on:
       - '!website/**'
       - 'website/src/**'
       - '!bazel/**'
+      - '!src/wrappers/**'
   pull_request:
     branches-ignore:
       - RB-2.*
@@ -36,6 +37,7 @@ on:
       - '!website/**'
       - 'website/src/**'
       - '!bazel/**'
+      - '!src/wrappers/**'
 
 permissions:
   contents: read
@@ -118,7 +120,7 @@ jobs:
           # Static, Release
           - build: 4
             build-type: Release
-            build-shared: 'ON'
+            build-shared: 'OFF'
             cxx-standard: 17
             cxx-compiler: g++
             cc-compiler: gcc

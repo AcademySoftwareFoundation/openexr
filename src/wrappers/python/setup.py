@@ -15,28 +15,30 @@ page:
 https://github.com/AcademySoftwareFoundation/openexr/issues
 """
 
+# Get the version and library suffix for both OpenEXR and Imath from
+# the .pc pkg-config file. 
 
-version = []
-with open('src/lib/OpenEXRCore/openexr_version.h', 'r') as f:
-    txt = f.read()
-    for name in ('MAJOR', 'MINOR', 'PATCH'):
-        version.append(re.search(
-            f'VERSION_{name} ([0-9]*)', txt).group(0).split(' ')[-1])
-version_major, version_minor, version_patch = version
-version = f"{version_major}.{version_minor}.{version_patch}"
+def pkg_config(var, pkg):
+    with open(f'./openexr.install/lib/pkgconfig/{pkg}.pc', 'r') as f:
+        return re.search(f'{var}([^ \n]+)', f.read()).group(1)
+
+imath_libsuffix = pkg_config("libsuffix=", "Imath")
+openexr_libsuffix = pkg_config("libsuffix=", "OpenEXR")
+openexr_version = pkg_config("Version: ", "OpenEXR")
+openexr_version_major, openexr_version_minor, openexr_version_patch = openexr_version.split('.')
 
 libs=[]
-libs_static=[f'OpenEXR-{version_major}_{version_minor}',
-             f'IlmThread-{version_major}_{version_minor}',
-             f'Iex-{version_major}_{version_minor}',
-             f'Imath-{version_major}_{version_minor}',
-             f'OpenEXRCore-{version_major}_{version_minor}'
+libs_static=[f'OpenEXR{openexr_libsuffix}',
+             f'IlmThread{openexr_libsuffix}',
+             f'Iex{openexr_libsuffix}',
+             f'Imath{imath_libsuffix}',
+             f'OpenEXRCore{openexr_libsuffix}',
              ]
-definitions = [('PYOPENEXR_VERSION_MAJOR', f'{version_major}'),
-               ('PYOPENEXR_VERSION_MINOR', f'{version_minor}'),
-               ('PYOPENEXR_VERSION_PATCH', f'{version_patch}'),]
+definitions = [('PYOPENEXR_VERSION_MAJOR', f'{openexr_version_major}'),
+               ('PYOPENEXR_VERSION_MINOR', f'{openexr_version_minor}'),
+               ('PYOPENEXR_VERSION_PATCH', f'{openexr_version_patch}'),]
 if platform.system() == "Windows":
-    definitions = [('PYOPENEXR_VERSION', f'\\"{version}\\"')]
+    definitions = [('PYOPENEXR_VERSION', f'\\"{openexr_version}\\"')]
 extra_compile_args = []
 if platform.system() == 'Darwin':
     extra_compile_args += ['-std=c++11',
@@ -64,7 +66,7 @@ setup(name='OpenEXR',
     url = 'https://github.com/AcademySoftwareFoundation/openexr',
     description = "Python bindings for the OpenEXR image file format",
     long_description = DESC,
-    version=version,
+    version=openexr_version,
     ext_modules=[ 
         Extension('OpenEXR',
                   ['OpenEXR.cpp'],

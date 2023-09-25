@@ -30,6 +30,9 @@ on:
       - 'website/src/**'
       - '!bazel/**'
 
+permissions:
+  contents: read
+
 jobs:
   build_wheels:
     name: Build Python wheels
