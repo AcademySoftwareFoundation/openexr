@@ -100,7 +100,7 @@ To build:
 
     $ mkdir _build
     $ cmake -S . -B _build
-    $ make --build _build
+    $ cmake --build _build
 
 For more details, see [The OpenEXR
 API](https://openexr.readthedocs.io/en/latest/API.html#the-openexr-api).
