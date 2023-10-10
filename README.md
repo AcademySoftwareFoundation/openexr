@@ -98,7 +98,6 @@ The `CMakeLists.txt` to build:
 
 To build:
 
-    $ mkdir _build
     $ cmake -S . -B _build
     $ cmake --build _build
 
