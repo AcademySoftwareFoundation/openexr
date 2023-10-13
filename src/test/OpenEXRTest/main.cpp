@@ -32,6 +32,7 @@
 #include "testDwaLookups.h"
 #include "testExistingStreams.h"
 #include "testFutureProofing.h"
+#include "testHeader.h"
 #include "testHuf.h"
 #include "testIDManifest.h"
 #include "testInputPart.h"
@@ -232,6 +233,7 @@ main (int argc, char* argv[])
     TEST (testDwaLookups, "core");
     TEST (testIDManifest, "core");
     TEST (testCpuId, "core");
+    TEST (testHeader, "basic");
 
     // NB: If you add a test here, make sure to enumerate it in the
     // CMakeLists.txt so it runs as part of the test suite
