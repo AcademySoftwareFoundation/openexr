@@ -55,11 +55,6 @@ else:
     # This is probably the sdist
     include_dirs=[],
     libs=['OpenEXR', 'IlmThread', 'Iex', 'Imath', 'OpenEXRCore']
-    libs_static=[f'OpenEXR{openexr_libsuffix}',
-                 f'IlmThread{openexr_libsuffix}',
-                 f'Iex{openexr_libsuffix}',
-                 f'Imath{imath_libsuffix}',
-                 f'OpenEXRCore{openexr_libsuffix}']
     extra_link_args = []
 
 
