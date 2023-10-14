@@ -90,6 +90,7 @@ jobs:
         uses: docker/setup-qemu-action@v3
         with:
           platforms: all
+        if: runner.os == 'Linux'
 
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.16.2
