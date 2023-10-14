@@ -1,0 +1,37 @@
+name: Check version
+
+# Anything merged on main shall imply a version increase
+
+on:
+  pull_request:
+    branches: [ $default-branch, main ]
+
+jobs:
+  check:
+    name: Check that the version is valid
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: openexr_version
+      id: openexr_version
+      shell: bash
+      run: |
+        major=`cat src/lib/OpenEXRCore/openexr_version.h | grep OPENEXR_VERSION_MAJOR | head -1 | awk -F' ' '{print $4}' | awk -F')' '{print $1}'`
+        minor=`cat src/lib/OpenEXRCore/openexr_version.h | grep OPENEXR_VERSION_MINOR | head -1 | awk -F' ' '{print $4}' | awk -F')' '{print $1}'`
+        patch=`cat src/lib/OpenEXRCore/openexr_version.h | grep OPENEXR_VERSION_PATCH | head -1 | awk -F' ' '{print $4}' | awk -F')' '{print $1}'`
+        echo "openexr_version=$major.$minor.$patch" >> $GITHUB_OUTPUT
+
+    - name: Tag check
+      uses: mukunku/tag-exists-action@v1.4.0
+      id: checkTag
+      with:
+        tag: "v${{steps.openexr_version.outputs.openexr_version}}"
+
+    - name: Stop if tag exists
+      run: |
+        if [ ${{ steps.checkTag.outputs.exists }} == true ]; then
+            echo "Version v${{steps.openexr_version.outputs.openexr_version}} already exists";
+            echo "Please, increase the version at src/lib/OpenEXRCore/openexr_version.h";
+            exit 1;
+        fi
