@@ -77,14 +77,14 @@ jobs:
             rm set_version.py
         shell: bash
 
+      - name: Build the source distribution
+        run: python setup.py sdist
+        if: runner.os == 'Linux'
+
       - name: Create folders
         run: |
             mkdir -p ${{github.workspace}}/openexr.build
             mkdir -p ${{github.workspace}}/openexr.install
-
-      - name: Build the source distribution
-        run: python setup.py sdist
-        if: runner.os == 'Linux'
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
