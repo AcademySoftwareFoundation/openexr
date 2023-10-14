@@ -73,9 +73,14 @@ jobs:
 
       - name: Create setup.py
         run: |
-            mv ${{github.workspace}}/src/wrappers/python/setup.py ${{github.workspace}}/setup.py
-            mv ${{github.workspace}}/src/wrappers/python/Imath.py ${{github.workspace}}/Imath.py
-            mv ${{github.workspace}}/src/wrappers/python/OpenEXR.cpp ${{github.workspace}}/OpenEXR.cpp
+            mv src/wrappers/python/pyproject.toml ./pyproject.toml
+            mv src/wrappers/python/setup.py ./setup.py
+            mv src/wrappers/python/set_version.py ./set_version.py
+            mv src/wrappers/python/Imath.py ./Imath.py
+            mv src/wrappers/python/OpenEXR.cpp ./OpenEXR.cpp
+            python set_version.py
+            rm set_version.py
+        shell: bash
 
       - name: Create folders
         run: |

@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=61.0", "cython"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "OpenEXR"
+version = "${OPENEXR_VERSION}"
+authors = [
+  { name="Contributors to the OpenEXR Project", email="info@openexr.com" },
+]
+description = "Python bindings for the OpenEXR image file format"
+readme = "README.md"
+requires-python = ">=3.7"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: BSD License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/AcademySoftwareFoundation/openexr"
+"Bug Tracker" = "https://github.com/AcademySoftwareFoundation/openexr/issues"
+"Documentation" = "https://openexr.com/en/latest/index.html"
+
+[tool.setuptools]
+package-dir = {"" = "."}
+
+[tool.setuptools.packages.find]
+where = ["."]
