@@ -87,10 +87,15 @@ jobs:
             mkdir -p ${{github.workspace}}/openexr.build
             mkdir -p ${{github.workspace}}/openexr.install
 
+      - name: Build the source distribution
+        run: python setup.py sdist
+        if: runner.os == 'Linux'
+
       - name: Build wheels
-        run: python -m cibuildwheel --output-dir wheelhouse
+        run: python -m cibuildwheel --output-dir dist
 
       - uses: actions/upload-artifact@v3
+        id: build_wheels
         with:
-          name: "Python wheels"
-          path: ./wheelhouse/*.whl
+          name: python-wheels-x86_64
+          path: ./dist/*
