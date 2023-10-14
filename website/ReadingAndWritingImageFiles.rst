@@ -9,7 +9,7 @@ Document Purpose and Audience
 =============================
 
 This document shows how to write C++ code that reads and writes OpenEXR
-2.0 image files.
+3.0 image files.
 
 The text assumes that the reader is familiar with OpenEXR terms like
 “channel”, “attribute”, “data window” or “deep data”. For an explanation
@@ -124,6 +124,7 @@ Writing an RGBA Image File
 Writing a simple RGBA image file is fairly straightforward:
 
 .. literalinclude:: src/writeRgba1.cpp
+   :language: c++
    :linenos:
 
 Construction of an RgbaOutputFile object, on line 4, creates an OpenEXR header,
@@ -137,16 +138,13 @@ example, the ``pixels`` pointer is assumed to point to the beginning of an
 array of ``width*height`` pixels. The pixels are represented as ``Rgba``
 structs, which are defined like this:
 
-.. code-block::
+.. literalinclude:: src/structDefinitions.cpp
+   :language: c++
    :linenos:
+   :dedent:
+   :start-after: [Rgba definition begin]
+   :end-before: [Rgba definition end]
 
-    struct Rgba
-    {
-        half r; // red
-        half g; // green
-        half b; // blue
-        half a; // alpha (opacity)
-    };
 
 The elements of our array are arranged so that the pixels of each scan
 line are contiguous in memory. The ``setFrameBuffer()`` function takes
@@ -191,17 +189,12 @@ to get right than with error return values. For instance, a program that
 calls our ``writeRgba1()`` function can handle all possible error
 conditions with a single try/catch block:
 
-.. code-block::
+.. literalinclude:: src/tryCatchExample.cpp
+   :language: c++
    :linenos:
-
-    try
-    {
-        writeRgba1 (fileName, pixels, width, height);
-    }
-    catch (const std::exception &exc)
-    {
-        std::cerr << exc.what() << std::endl;
-    }
+   :dedent:
+   :start-after: [begin]
+   :end-before: [end]
 
 Writing a Cropped RGBA Image
 ----------------------------
@@ -215,7 +208,10 @@ the data window specifies the region for which valid pixel data exist.
 Only the pixels in the data window are stored in the file.
 
 .. literalinclude:: src/writeRgba2.cpp
+   :language: c++
    :linenos:
+   :start-after: [begin writeRgba2]
+   :end-before: [end writeRgba2]
 
 The code above is similar to that in `Writing an RGBA Image File`_, where the
 whole image was stored in the file. Two things are different, however: When the
@@ -237,12 +233,12 @@ pointing to the pixel at the upper left corner of the data window, at
 coordinates ``(dataWindow.min.x, dataWindow.min.y)``, the arguments to the
 ``setFrameBuffer()`` call would have to be to be changed as follows:
 
-.. code-block::
+.. literalinclude:: src/writeRgba2.cpp
+   :language: c++
    :linenos:
-
-    int dwWidth = dataWindow.max.x - dataWindow.min.x + 1;
-
-    file.setFrameBuffer (pixels - dataWindow.min.x - dataWindow.min.y * dwWidth, 1, dwWidth);
+   :dedent:
+   :start-after: [begin writeRgba2ResizeFrameBuffer]
+   :end-before: [end writeRgba2ResizeFrameBuffer]
 
 With these settings, evaluation of
 
@@ -395,6 +391,8 @@ those attributes' values.
 .. literalinclude:: src/readHeader.cpp
    :language: c++
    :linenos:
+   :start-after: [begin readHeader]
+   :end-before: [end readHeader]
 
 As usual, we open the file by constructing an RgbaInputFile object.
 Calling ``findTypedAttribute<T>(n)`` searches the header for an
@@ -420,32 +418,20 @@ become invalid as soon as the ``RgbaInputFile`` object is
 destroyed. Therefore, the following will not work:
 
 
-.. code-block::
+.. literalinclude:: src/readHeader.cpp
+   :language: c++
    :linenos:
-   
-    void
-    readComments (const char fileName[], StringAttribute *&comments)
-    {
-        // error: comments pointer is invalid after this function returns
-
-        RgbaInputFile file (fileName);
-
-        comments = file.header().findTypedAttribute <StringAttribute> ("comments");
-    }
+   :start-after: [begin readCommentsError]
+   :end-before: [end readCommentsError]
 
 ``readComments()`` must copy the attribute's value before it returns; for
 example, like this:
 
-.. code-block::
+.. literalinclude:: src/readHeader.cpp
+   :language: c++
    :linenos:
-
-    void
-    readComments (const char fileName[], string &comments)
-    {
-        RgbaInputFile file (fileName);
-
-        comments = file.header().typedAttribute<StringAttribute>("comments").value();
-    }
+   :start-after: [begin readComments]
+   :end-before: [end readComments]
 
 Luminance/Chroma and Gray-Scale Images
 --------------------------------------
@@ -509,6 +495,8 @@ pixels of each scan line are contiguous in memory.
 .. literalinclude:: src/writeGZ1.cpp
    :language: c++
    :linenos:
+   :start-after: [begin writeGZ1]
+   :end-before: [end writeGZ1]
       
 On line 8, an OpenEXR header is created, and the header's display
 window and data window are both set to ``(0, 0) - (width-1,
@@ -541,17 +529,19 @@ explicitly take the size of the pixels into account.
 With the values specified in our example, the OpenEXR library computes
 the address of the G channel of pixel ``(x,y)`` like this:
 
-.. code-block::
-
-    (half*)((char*)gPixels + x * sizeof(half) * 1 + y * sizeof(half) * width)
-    = (half*)((char*)gPixels + x * 2 + y * 2 * width),
+.. literalinclude:: src/writeGZ1.cpp
+   :language: c++
+   :linenos:
+   :start-after: [begin compteChannelG]
+   :end-before: [end compteChannelG]
 
 The address of the Z channel of pixel ``(x,y)`` is
 
-.. code-block::
-
-    (float*)((char*)zPixels + x * sizeof(float) * 1 + y * sizeof(float) * width)
-    = (float*)((char*)zPixels + x * 4 + y * 4 * width).
+.. literalinclude:: src/writeGZ1.cpp
+   :language: c++
+   :linenos:
+   :start-after: [begin compteChannelZ]
+   :end-before: [end compteChannelZ]
 
 The ``writePixels()`` call in line 29 copies the image's pixels from
 memory into the file. As in the RGBA-only interface, the argument to
@@ -667,13 +657,12 @@ file, but instead of storing each image channel in a separate memory
 buffer, we interleave the channels in a single buffer. The buffer is
 an array of structs, which are defined like this:
 
-.. code-block::
-
-    struct GZ
-    {
-        half g;
-        float z;
-    };
+.. literalinclude:: src/structDefinitions.cpp
+   :language: c++
+   :linenos:
+   :dedent:
+   :start-after: [GZ definition begin]
+   :end-before: [GZ definition end]
 
 The code to read the file is almost the same as before; aside from
 reading only two instead of three channels, the only difference is how
@@ -699,28 +688,22 @@ The file's header contains the file's channel list. Using iterators
 similar to those in the C++ Standard Template Library, we can iterate
 over the channels:
 
-.. code-block::
+.. literalinclude:: src/readChannelsAndLayers.cpp
+   :language: c++
    :linenos:
-
-    const ChannelList &channels = file.header().channels();
-
-    for (ChannelList::ConstIterator i = channels.begin(); i != channels.end(); ++i)
-    {
-        const Channel &channel = i.channel();
-        // ...
-    }
+   :dedent:
+   :start-after: [begin useIterator]
+   :end-before: [end useIterator]
 
 Channels can also be accessed by name, either with the ``[]`` operator, or
 with the f ``indChannel()`` function:
 
-.. code-block::
+.. literalinclude:: src/readChannelsAndLayers.cpp
+   :language: c++
    :linenos:
-
-    const ChannelList &channels = file.header().channels();
-
-    const Channel &channel = channelList["G"];
-
-    const Channel *channelPtr = channelList.findChannel("G");
+   :dedent:
+   :start-after: [begin directAccess]
+   :end-before: [end directAccess]
 
 The difference between the ``[]`` operator and ``findChannel()`` function is
 how errors are handled. If the channel in question is not present,
@@ -758,27 +741,12 @@ corresponding layer.
 The following sample code prints the layers in a ``ChannelList`` and
 the channels in each layer:
 
-.. code-block::
+.. literalinclude:: src/readChannelsAndLayers.cpp
+   :language: c++
    :linenos:
-
-    const ChannelList &channels = ... ;
-
-    set<string> layerNames;
-
-    channels.layers (layerNames);
-
-    for (set<string>::const_iterator i = layerNames.begin(); i != layerNames.end(); ++i)
-    {
-         cout << "layer " << *i << endl;
-
-         ChannelList::ConstIterator layerBegin, layerEnd;
-         channels.channelsInLayer (*i, layerBegin, layerEnd);
-         for (ChannelList::ConstIterator j = layerBegin; j != layerEnd; ++j)
-         {
-              cout << "tchannel " << j.name() << endl;
-
-         }
-    }
+   :dedent:
+   :start-after: [begin layers]
+   :end-before: [end layers]
 
 Tiles, Levels and Level Modes
 =============================
@@ -826,31 +794,9 @@ An OpenEXR file's level mode and rounding mode, and the size of the
 tiles are stored in an attribute in the file header. The value of this
 attribute is a ``TileDescription`` object:
 
-.. code-block::
+.. literalinclude:: src/tileDescription.cpp
+   :language: c++
    :linenos:
-
-    enum LevelMode
-    {
-        ONE_LEVEL,
-        MIPMAP_LEVELS,
-        RIPMAP_LEVELS
-    };
-    
-    enum LevelRoundingMode
-    {
-        ROUND_DOWN,
-        ROUND_UP
-    };
-    
-    class TileDescription
-    {
-      public:
-        unsigned int xSize; // size of a tile in the x dimension
-        unsigned int ySize; // size of a tile in the y dimension
-        LevelMode mode;
-        LevelRoundingMode roundingMode;
-        ... // (methods omitted)
-    };
 
 Using the RGBA-only Interface for Tiled Files
 =============================================
@@ -889,9 +835,11 @@ tile coordinates ``(dx,dy)``, where ``dxMin`` ≤ ``dx`` ≤ ``dxMax`` and
 number of tiles in the x direction, and similarly, the ``numYTiles()``
 method returns the number of tiles in the y direction.  Thus,
 
-.. code-block::
-   
-    out.writeTiles (0, out.numXTiles() - 1, 0, out.numYTiles() - 1);
+.. literalinclude:: src/writeTiledRgbaONE1.cpp
+   :language: c++
+   :dedent:
+   :start-at: writeTiles
+   :end-at: writeTiles
 
 writes the entire image.
 
@@ -934,6 +882,7 @@ frame buffer large enough for the highest-resolution level, ``(0,0)``, and
 reuse it for all levels:
 
 .. literalinclude:: src/writeTiledRgbaMIP1.cpp
+   :language: c++
    :linenos:
 
 The main difference here is the use of ``MIPMAP_LEVELS`` on line 6 for
@@ -1011,6 +960,7 @@ With a frame buffer that is large enough to hold level ``(0,0)``, we can
 write a ripmap file like this:
 
 .. literalinclude:: src/writeTiledRgbaRIP1.cpp
+   :language: c++
    :linenos:
 
 As for ``ONE_LEVEL`` and ``MIPMAP_LEVELS`` files, the frame buffer
@@ -1074,7 +1024,8 @@ tiles we want to read.
 
 .. literalinclude:: src/readTiled1.cpp
    :language: c++
-   :linenos:
+   :start-after: [begin readTiled1]
+   :end-before: [end readTiled1]
 
 In this example we assume that the file we want to read contains two
 channels, G and Z, of type ``HALF`` and ``FLOAT`` respectively. If the
@@ -1084,15 +1035,19 @@ levels (``MIPMAP_LEVELS`` or ``MIPMAP_LEVELS``), we can access the
 extra levels by calling a four-argument version of the ``readTile()``
 function:
 
-.. code-block::
-
-    in.readTile (tileX, tileY, levelX, levelY);
+.. literalinclude:: src/readTiled1.cpp
+   :language: c++
+   :dedent:
+   :start-after: [begin v1]
+   :end-before: [end v1]
 
 or by calling a six-argument version of ``readTiles()``:
 
-.. code-block::
-
-    in.readTiles (tileXMin, tileXMax, tileYMin, tileYMax, levelX, levelY);
+.. literalinclude:: src/readTiled1.cpp
+   :language: c++
+   :dedent:
+   :start-after: [end v1]
+   :end-before: [end v2]
 
 Deep Data Files
 ===============
@@ -1119,9 +1074,11 @@ accepts ``DeepSlice`` as its input, except that it accepts ``Slice``
 for sample count slice. The first difference we see from the previous
 version is:
 
-.. code-block::
-
-    header.setType(DEEPSCANLINE);
+.. literalinclude:: src/writeDeepScanLineFile.cpp
+   :language: c++
+   :dedent:
+   :start-at: header.setType
+   :end-at: header.setType
 
 where we set the type of the header to a predefine string
 ``DEEPSCANLINE``, then we insert a sample count slice using
@@ -1167,9 +1124,11 @@ The main the difference is we use the sample count slice and deep data
 slices. To do this, we added a new method to read the sample count table
 from the file:
 
-.. code-block::
-
-   file.readPixelSampleCounts(dataWindow.min.y, dataWindow.max.y);
+.. literalinclude:: src/readDeepScanLineFile.cpp
+   :language: c++
+   :dedent:
+   :start-after: file.setFrameBuffer
+   :end-at: file.readPixelSampleCounts
 
 This method reads all pixel sample counts in the range
 ``[dataWindow.min.y, dataWindow.max.y]``, and stores the data to sample
@@ -1215,6 +1174,7 @@ An example of reading a deep tiled file created by code explained in the
 `Writing a Deep Tiled File`_ section.
 
 .. literalinclude:: src/readDeepTiledFile.cpp
+   :language: c++
    :linenos:
 
 This code demonstrates how to read the first level of a deep tiled
@@ -1313,28 +1273,28 @@ busy, and we want to split the processors evenly between input and
 output.  Before creating the input and output threads, the application
 instructs the OpenEXR library to create four worker threads:
 
-.. code-block::
-              
-    // main, before application threads are created:
 
-    setGlobalThreadCount (4);
+.. literalinclude:: src/multithreading.cpp
+   :language: c++
+   :dedent:
+   :start-after: [begin main thread create]
+   :end-before: [begin applications input thread]
 
 In the input and output threads, input and output files are opened
 with ``numThreads`` set to 2:
 
-.. code-block::
+.. literalinclude:: src/multithreading.cpp
+   :language: c++
+   :dedent:
+   :start-after: [begin applications input thread]
+   :end-before:  [end applications input thread]
 
-    // application's input thread
+.. literalinclude:: src/multithreading.cpp
+   :language: c++
+   :dedent:
+   :start-after: [begin applications output thread]
+   :end-before:  [end applications output thread]
 
-    InputFile in (fileName, 2);
-
-    ...
-
-    // application's output thread
-
-    OutputFile out (fileName, header, 2);
-
-    ...
 
 This ensures that file input and output in the application's two
 threads can proceed concurrently, without one thread stalling the
@@ -1388,12 +1348,14 @@ this, we derive a new class, ``C_IStream``, from ``IStream``. The
 declaration of class ``IStream`` looks like this:
 
 .. literalinclude:: src/IStream.cpp
+   :language: c++
    :linenos:
           
 Our derived class needs a public constructor, and it must override four
 methods:
 
 .. literalinclude:: src/C_IStream.cpp
+   :language: c++
    :linenos:
 
 ``read(c,n)`` reads ``n`` bytes from the file, and stores them in
@@ -1403,6 +1365,7 @@ exception. If ``read(c,n)`` hits the end of the file after reading
 ``n`` bytes, it returns ``false``, otherwise it returns ``true``:
 
 .. literalinclude:: src/C_IStream_read.cpp
+   :language: c++
    :linenos:
 
 ``tellg()`` returns the current reading position, in bytes, from the
@@ -1410,18 +1373,21 @@ beginning of the file. The next ``read()`` call will begin reading at
 the indicated position:
 
 .. literalinclude:: src/C_IStream_tellg.cpp
+   :language: c++
    :linenos:
 
 ``seekg(pos)`` sets the current reading position to ``pos`` bytes from
 the beginning of the file:
 
 .. literalinclude:: src/C_IStream_seekg.cpp
+   :language: c++
    :linenos:
 
 ``clear()`` clears any error flags that may be set on the file after a
 ``read()`` or ``seekg()`` operation has failed:
 
 .. literalinclude:: src/C_IStream_clear.cpp
+   :language: c++
    :linenos:
 
 In order to read an RGBA image from an open C stdio file, we first
@@ -1462,6 +1428,7 @@ functions, ``isMemoryMapped()`` and ``readMemoryMapped()``, in
 addition to the functions needed for regular, non-memory-mapped input:
 
 .. literalinclude:: src/MemoryMappedIStream.cpp
+   :language: c++
    :linenos:
 
 The constructor for class ``MemoryMappedIStream`` maps the contents of
@@ -1471,6 +1438,7 @@ POSIX ``mmap()`` system call. On Windows files can be memory-mapped by
 calling ``CreateFileMapping()`` and ``MapViewOfFile()``:
 
 .. literalinclude:: src/MemoryMappedIStream_constructor.cpp
+   :language: c++
    :linenos:
 
 The destructor frees the address range associated with the file by
@@ -1479,6 +1447,7 @@ Windows version would call ``UnmapViewOfFile()`` and
 ``CloseHandle()``:
 
 .. literalinclude:: src/MemoryMappedIStream_destructor.cpp
+   :language: c++
    :linenos:
    
 Function ``isMemoryMapped()`` returns ``true`` to indicate that
@@ -1486,6 +1455,7 @@ memory-mapped input is supported. This allows the OpenEXR library to
 call ``readMemoryMapped()`` instead of ``read()``:
 
 .. literalinclude:: src/MemoryMappedIStream_isMemoryMapped.cpp
+   :language: c++
    :linenos:
 
 ``readMemoryMapped()`` is analogous to ``read()``, but instead of
@@ -1494,12 +1464,14 @@ copying data into a buffer supplied by the caller,
 thus avoiding the copy operation:
 
 .. literalinclude:: src/MemoryMappedIStream_readMemoryMapped.cpp
+   :language: c++
    :linenos:
    
 The ``MemoryMappedIStream`` class must also implement the regular ``read()``
 function, as well as ``tellg()`` and ``seekg()``:
 
 .. literalinclude:: src/MemoryMappedIStream_read.cpp
+   :language: c++
    :linenos:
 
 Class ``MemoryMappedIStream`` does not need a ``clear()``
@@ -1541,19 +1513,11 @@ and ``0x01``.
 Given a file name, the following function returns ``true`` if the
 corresponding file exists, is readable, and contains an OpenEXR image:
 
-.. code-block::
+.. literalinclude:: src/validExrFile.cpp
+   :language: c++
    :linenos:
-
-    bool
-    isThisAnOpenExrFile (const char fileName[])
-    {
-        std::ifstream f (fileName, std::ios_base::binary);
-    
-        char b[4];
-        f.read (b, sizeof (b));
-    
-        return !!f && b[0] == 0x76 && b[1] == 0x2f && b[2] == 0x31 && b[3] == 0x01;
-    }
+   :start-after: [begin validFileCheck]
+   :end-before: [end validFileCheck]
 
 Using this function does not require linking with the OpenEXR library.
 
@@ -1561,20 +1525,11 @@ Programs that are linked with the OpenEXR library can determine if a
 given file is an OpenEXR file by calling one of the following
 functions, which are part of the library:
 
-.. code-block::
+.. literalinclude:: src/validExrFile.cpp
+   :language: c++
    :linenos:
-
-    bool isOpenExrFile (const char fileName[], bool &isTiled);
-    
-    bool isOpenExrFile (const char fileName[]);
-    
-    bool isTiledOpenExrFile (const char fileName[]);
-    
-    bool isOpenExrFile (IStream &is, bool &isTiled);
-    
-    bool isOpenExrFile (IStream &is);
-    
-    bool isTiledOpenExrFile (IStream &is);
+   :start-after: [begin otherValidFileChecks]
+   :end-before: [end otherValidFileChecks]
 
 Is this File Complete?
 ----------------------
@@ -1590,15 +1545,11 @@ faster and more convenient.
 The following function returns ``true`` or ``false``, depending on
 whether a given OpenEXR file is complete or not:
 
-.. code-block::
+.. literalinclude:: src/validExrFile.cpp
+   :language: c++
    :linenos:
-   
-    bool
-    isComplete (const char fileName[])
-    {
-        InputFile in (fileName);
-        return in.isComplete();
-    }
+   :start-after: [begin completeFileCheck]
+   :end-before: [end completeFileCheck]
 
 Preview Images
 --------------
@@ -1622,27 +1573,12 @@ correction or tone mapping is required.)
 The code fragment below shows how to test if an OpenEXR file has a
 preview image, and how to access a preview image's pixels:
 
-.. code-block::
+.. literalinclude:: src/previewImageExamples.cpp
+   :language: c++
+   :dedent:
    :linenos:
-
-    RgbaInputFile file (fileName);
-    
-    if (file.header().hasPreviewImage())
-    {
-        const PreviewImage &preview = file.header().previewImage();
-    
-        for (int y = 0; y < preview.height(); ++y)
-        {
-            for (int x = 0; x < preview.width(); ++x)
-            {
-    
-                const PreviewRgba &pixel = preview.pixel (x, y);
-    
-                ...
-    
-             }
-        }
-    }
+   :start-after: [begin accessPreviewImage]
+   :end-before: [end accessPreviewImage]
 
 Writing an OpenEXR file with a preview image is shown in the following
 example. Since the preview image is an attribute in the file's header,
@@ -1667,9 +1603,12 @@ Function ``makePreviewImage()``, called on line 12, generates the
 preview image by scaling the main image down to one eighth of its
 original width and height:
 
-.. literalinclude:: src/makePreviewImage.cpp
+.. literalinclude:: src/previewImageExamples.cpp
    :language: c++
    :linenos:
+   :dedent:
+   :start-after: [begin makePreviewImage]
+   :end-before: [end makePreviewImage]
               
 To make this example easier to read, scaling the image is done by just
 sampling every eighth pixel of every eighth scan line. This can lead
@@ -1683,8 +1622,12 @@ image pixels to ``unsigned char`` values. ``gamma()`` is a simplified
 version of what a program should do on order to show an OpenEXR
 image's floating-point pixels on the screen:
 
-.. literalinclude:: src/gamma.cpp
+.. literalinclude:: src/previewImageExamples.cpp
+   :language: c++
    :linenos:
+   :dedent:
+   :start-after: [begin gamma]
+   :end-before: [end gamma]
    
 ``makePreviewImage()`` converts the pixels' alpha component to
 unsigned char by by linearly mapping the range ``[0.0, 1.0]`` to
@@ -1773,16 +1716,12 @@ faces.
 The following code fragment tests if an OpenEXR file contains an
 environment map, and if it does, which kind:
 
-.. code-block::
+.. literalinclude:: src/envmap.cpp
+   :language: c++
    :linenos:
-
-    RgbaInputFile file (fileName);
-
-    if (hasEnvmap (file.header()))
-    {
-        Envmap type = envmap (file.header());
-       ...
-    }
+   :dedent:
+   :start-after: [begin hasEnvmap]
+   :end-before: [end hasEnvmap]
 
 For each kind of environment map, the OpenEXR library provides a set
 of routines that convert from 3D directions to 2D floating-point pixel
@@ -1799,13 +1738,11 @@ compression algorithms.
 To specify the compression algorithm, set the ``compression()`` value
 on the ``Header`` object:
 
-.. code-block::
-   :linenos:
-
-    Header header (width, height);
-    header.channels().insert ("G", Channel (HALF));
-    header.channels().insert ("Z", Channel (FLOAT));
-    header.compression() = ZIP_COMPRESSION;
+.. literalinclude:: src/compression.cpp
+   :language: c++
+   :dedent:
+   :start-after: [begin setCompression]
+   :end-before: zipCompressionLevel
 
 Supported compression types are:
 
@@ -1842,25 +1779,19 @@ user-controllable compression level, which determines the space/time
 tradeoff. You can control these levels either by setting a global
 default or by setting the level directly on the ``Header`` object.
 
-.. code-block::
-
-   setDefaultZipCompressionLevel (6);
-   setDefaultDwaCompressionLevel (45.0f);
+.. literalinclude:: src/compression.cpp
+   :language: c++
+   :dedent:
+   :start-after: [begin setCompressionDefault]
+   :end-before: [end setCompressionDefault]
 
 The default zip compression level is 4 for OpenEXR v3.1.3+ and 6 for
 previous versions. The default DWA compression level is 45.0f.
 
 Alternatively, set the compression level on the ``Header`` object:
 
-.. code-block::
-   :linenos:
-
-    Header header (width, height);
-    header.channels().insert ("G", Channel (HALF));
-    header.channels().insert ("Z", Channel (FLOAT));
-    header.compression() = ZIP_COMPRESSION;
-    header.zipCompressionLevel() = 6;
-
-   
-    
-
+.. literalinclude:: src/compression.cpp
+   :language: c++
+   :dedent:
+   :start-after: [begin setCompression]
+   :end-before: [end setCompression]

@@ -1,3 +1,4 @@
+// [begin readTiled1]
 void
 readTiled1 (const char fileName[], Array2D<GZ>& pixels, int& width, int& height)
 {
@@ -32,4 +33,17 @@ readTiled1 (const char fileName[], Array2D<GZ>& pixels, int& width, int& height)
 
     in.setFrameBuffer (frameBuffer);
     in.readTiles (0, in.numXTiles () - 1, 0, in.numYTiles () - 1);
+}
+// [end readTiled1]
+void
+readTiledOtherVersions (const char fileName[])
+{
+    // read tile function versions
+    TiledInputFile in(fileName);
+    int tileX, tileY, levelX, levelY, tileXMin, tileXMax, tileYMin, tileYMax;
+    // [begin v1]
+    in.readTile (tileX, tileY, levelX, levelY);
+    // [end v1]
+    in.readTiles (tileXMin, tileXMax, tileYMin, tileYMax, levelX, levelY);
+    // [end v2]
 }
