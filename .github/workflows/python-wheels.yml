@@ -75,6 +75,7 @@ jobs:
             mv src/wrappers/python/OpenEXR.cpp ./OpenEXR.cpp
             python set_version.py
             rm set_version.py
+            cat pyproject.toml
         shell: bash
 
       - name: Build the source distribution
