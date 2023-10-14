@@ -63,9 +63,6 @@ jobs:
         with:
             python-version: '3.x'
 
-      - name: Install cibuildwheel
-        run: python -m pip install cibuildwheel==2.16.2
-
       - name: Create setup.py
         run: |
             mv src/wrappers/python/pyproject.toml ./pyproject.toml
