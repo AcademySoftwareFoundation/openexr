@@ -15,26 +15,26 @@ version = sys.argv[4]
 
 result = run ([exrmultiview], stdout=PIPE, stderr=PIPE, universal_newlines=True)
 print(" ".join(result.args))
-assert(result.returncode != 0)
-assert("Usage:" in result.stderr)
+assert(result.returncode != 0), "\n"+result.stderr
+assert("Usage:" in result.stderr), "\n"+result.stderr
 
 # -h = usage message
 result = run ([exrmultiview, "-h"], stdout=PIPE, stderr=PIPE, universal_newlines=True)
 print(" ".join(result.args))
-assert(result.returncode == 0)
-assert(result.stdout.startswith ("Usage: "))
+assert(result.returncode == 0), "\n"+result.stderr
+assert(result.stdout.startswith ("Usage: ")), "\n"+result.stdout
 
 result = run ([exrmultiview, "--help"], stdout=PIPE, stderr=PIPE, universal_newlines=True)
 print(" ".join(result.args))
-assert(result.returncode == 0)
-assert(result.stdout.startswith ("Usage: "))
+assert(result.returncode == 0), "\n"+result.stderr
+assert(result.stdout.startswith ("Usage: ")), "\n"+result.stdout
 
 # --version
 result = run ([exrmultiview, "--version"], stdout=PIPE, stderr=PIPE, universal_newlines=True)
 print(" ".join(result.args))
-assert(result.returncode == 0)
-assert(result.stdout.startswith ("exrmultiview"))
-assert(version in result.stdout)
+assert(result.returncode == 0), "\n"+result.stderr
+assert(result.stdout.startswith ("exrmultiview")), "\n"+result.stdout
+assert(version in result.stdout), "\n"+result.stdout
 
 left_image = f"{image_dir}/TestImages/GammaChart.exr"
 right_image = f"{image_dir}/TestImages/GrayRampsHorizontal.exr"
@@ -54,11 +54,15 @@ assert(result.returncode == 0)
 
 result = run ([exrinfo, outimage], stdout=PIPE, stderr=PIPE, universal_newlines=True)
 print(" ".join(result.args))
-assert(result.returncode == 0)
-assert('\'B\': half samp 1 1' in result.stdout)
-assert('\'G\': half samp 1 1' in result.stdout)
-assert('\'R\': half samp 1 1' in result.stdout)
-assert('\'right.Y\': half samp 1 1' in result.stdout)
+assert(result.returncode == 0), "\n"+result.stderr
+try:
+    assert('\'B\': half samp 1 1' in result.stdout)
+    assert('\'G\': half samp 1 1' in result.stdout)
+    assert('\'R\': half samp 1 1' in result.stdout)
+    assert('\'right.Y\': half samp 1 1' in result.stdout)
+except AssertionError:
+    print(result.stdout)
+    raise
 
 print("success")
 
