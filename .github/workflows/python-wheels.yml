@@ -41,15 +41,9 @@ jobs:
       matrix:
         os: [ubuntu-22.04, windows-latest, macOS-latest]
     env:
-      # On macOS we build both x86 and arm to support Intel and Apple Silicon.
-      CIBW_ARCHS_MACOS: x86_64 arm64 
-      # Skip 32-bit wheels builds on Windows.
+      # Skip 32-bit wheels builds.
       # Also skip the PyPy builds, since they fail the unittests
-      CIBW_SKIP: "*-win32 *_i686 pp*"
-      # The CI platform is Intel based so we are doing cross compilation
-      # for arm64. It is not currently possible to test arm64 when cross
-      # compiling. 
-      CIBW_TEST_SKIP: "*_arm64"
+      CIBW_SKIP: "*-win32 pp*"
       CIBW_BEFORE_BUILD: >
         echo "Installing OpenEXR..." &&
         cd openexr.build &&
