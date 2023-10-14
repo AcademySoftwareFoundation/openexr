@@ -44,6 +44,7 @@ jobs:
       # Skip 32-bit wheels builds.
       # Also skip the PyPy builds, since they fail the unittests
       CIBW_SKIP: "*-win32 pp*"
+      CIBW_ARCHS_LINUX: auto aarch64 ppc64le s390x
       CIBW_BEFORE_BUILD: >
         echo "Installing OpenEXR..." &&
         cd openexr.build &&
@@ -85,11 +86,18 @@ jobs:
         run: python setup.py sdist
         if: runner.os == 'Linux'
 
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: all
+
       - name: Build wheels
-        run: python -m cibuildwheel --output-dir dist
+        uses: pypa/cibuildwheel@v2.16.2
+        with:
+            output-dir: dist
 
       - uses: actions/upload-artifact@v3
         id: build_wheels
         with:
-          name: python-wheels-x86_64
+          name: python-wheels
           path: ./dist/*
