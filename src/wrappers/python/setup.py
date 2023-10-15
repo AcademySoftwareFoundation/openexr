@@ -31,7 +31,7 @@ if os.path.isdir("./openexr.install"):
     openexr_version_major, openexr_version_minor, openexr_version_patch = openexr_version.split('.')
 
     include_dirs=['./openexr.install/include/OpenEXR',
-                  './openexr.install/include/Imath',],
+                  './openexr.install/include/Imath',]
     libs=[]
     libs_static=[f'OpenEXR{openexr_libsuffix}',
                  f'IlmThread{openexr_libsuffix}',
@@ -53,7 +53,7 @@ if os.path.isdir("./openexr.install"):
                         for lib in libs_static]
 else:
     # This is probably the sdist
-    include_dirs=[],
+    include_dirs=[]
     libs=['OpenEXR', 'IlmThread', 'Iex', 'Imath', 'OpenEXRCore']
     extra_link_args = []
 
