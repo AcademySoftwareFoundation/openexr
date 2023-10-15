@@ -100,3 +100,27 @@ jobs:
         with:
           name: python-wheels
           path: ./dist/*
+
+  publish:
+    runs-on: ${{ matrix.os }}
+    needs: [build_wheels]
+    strategy:
+        matrix:
+            os: [ubuntu-22.04]
+    if: github.event_name == 'push' && github.ref == 'master'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download dists
+        uses: actions/download-artifact@v3
+        with:
+          name: python-wheels
+          path: dist/
+
+      - name: Publish package to TestPyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.OPENEXR_PYPI_API }}
+          repository-url: https://upload.pypi.org/legacy/
+          skip-existing: true
