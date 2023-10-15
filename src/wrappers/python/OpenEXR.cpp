@@ -75,7 +75,7 @@ typedef int Py_ssize_t;
 #include <ImfTimeCodeAttribute.h>
 #include <ImfTimeCode.h>
 
-#include <Imath/ImathConfig.h>
+#include <ImathConfig.h>
 
 #include <string>
 #include <fstream>
