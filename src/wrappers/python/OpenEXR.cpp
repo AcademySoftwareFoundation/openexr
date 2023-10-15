@@ -39,41 +39,43 @@ typedef int Py_ssize_t;
   #define PyUTF8_AsSstring(x)   PyString_AsString(x)
 #endif
 
-#include <ImfIO.h>
-#include <Iex.h>
-#include <ImfArray.h>
-#include <ImfAttribute.h>
-#include <ImfBoxAttribute.h>
-#include <ImfChannelList.h>
-#include <ImfStandardAttributes.h>
-#include <ImfChannelListAttribute.h>
-#include <ImfChromaticitiesAttribute.h>
-#include <ImfCompressionAttribute.h>
-#include <ImfDoubleAttribute.h>
-#include <ImfEnvmapAttribute.h>
-#include <ImfFloatAttribute.h>
-#include <ImfFrameBuffer.h>
-#include <ImfHeader.h>
-#include <ImfInputFile.h>
-#include <ImfIntAttribute.h>
-#include <ImfKeyCodeAttribute.h>
-#include <ImfLineOrderAttribute.h>
-#include <ImfMatrixAttribute.h>
-#include <ImfOutputFile.h>
-#include <ImfPreviewImageAttribute.h>
-#include <ImfStringAttribute.h>
-#include <ImfTileDescriptionAttribute.h>
-#include <ImfTiledOutputFile.h>
-#include <ImfTimeCodeAttribute.h>
-#include <ImfVecAttribute.h>
-#include <ImfVersion.h>
+#include <OpenEXR/ImfIO.h>
+#include <OpenEXR/Iex.h>
+#include <OpenEXR/ImfArray.h>
+#include <OpenEXR/ImfAttribute.h>
+#include <OpenEXR/ImfBoxAttribute.h>
+#include <OpenEXR/ImfChannelList.h>
+#include <OpenEXR/ImfStandardAttributes.h>
+#include <OpenEXR/ImfChannelListAttribute.h>
+#include <OpenEXR/ImfChromaticitiesAttribute.h>
+#include <OpenEXR/ImfCompressionAttribute.h>
+#include <OpenEXR/ImfDoubleAttribute.h>
+#include <OpenEXR/ImfEnvmapAttribute.h>
+#include <OpenEXR/ImfFloatAttribute.h>
+#include <OpenEXR/ImfFrameBuffer.h>
+#include <OpenEXR/ImfHeader.h>
+#include <OpenEXR/ImfInputFile.h>
+#include <OpenEXR/ImfIntAttribute.h>
+#include <OpenEXR/ImfKeyCodeAttribute.h>
+#include <OpenEXR/ImfLineOrderAttribute.h>
+#include <OpenEXR/ImfMatrixAttribute.h>
+#include <OpenEXR/ImfOutputFile.h>
+#include <OpenEXR/ImfPreviewImageAttribute.h>
+#include <OpenEXR/ImfStringAttribute.h>
+#include <OpenEXR/ImfTileDescriptionAttribute.h>
+#include <OpenEXR/ImfTiledOutputFile.h>
+#include <OpenEXR/ImfTimeCodeAttribute.h>
+#include <OpenEXR/ImfVecAttribute.h>
+#include <OpenEXR/ImfVersion.h>
 
-#include <ImfRationalAttribute.h>
-#include <ImfRational.h>
-#include <ImfKeyCodeAttribute.h>
-#include <ImfKeyCode.h>
-#include <ImfTimeCodeAttribute.h>
-#include <ImfTimeCode.h>
+#include <OpenEXR/ImfRationalAttribute.h>
+#include <OpenEXR/ImfRational.h>
+#include <OpenEXR/ImfKeyCodeAttribute.h>
+#include <OpenEXR/ImfKeyCode.h>
+#include <OpenEXR/ImfTimeCodeAttribute.h>
+#include <OpenEXR/ImfTimeCode.h>
+
+#include <Imath/ImathConfig.h>
 
 #include <string>
 #include <fstream>

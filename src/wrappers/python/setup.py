@@ -30,8 +30,7 @@ if os.path.isdir("./openexr.install"):
     openexr_version = pkg_config("Version: ", "OpenEXR")
     openexr_version_major, openexr_version_minor, openexr_version_patch = openexr_version.split('.')
 
-    include_dirs=['./openexr.install/include/OpenEXR',
-                  './openexr.install/include/Imath',]
+    include_dirs=['./openexr.install/include',]
     libs=[]
     libs_static=[f'OpenEXR{openexr_libsuffix}',
                  f'IlmThread{openexr_libsuffix}',
