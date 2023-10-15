@@ -30,7 +30,9 @@ if os.path.isdir("./openexr.install"):
     openexr_version = pkg_config("Version: ", "OpenEXR")
     openexr_version_major, openexr_version_minor, openexr_version_patch = openexr_version.split('.')
 
-    include_dirs=['./openexr.install/include',]
+    include_dirs=['./openexr.install/include/OpenEXR',
+                  './openexr.install/include/Imath',]
+    library_dirs = []
     libs=[]
     libs_static=[f'OpenEXR{openexr_libsuffix}',
                  f'IlmThread{openexr_libsuffix}',
@@ -52,7 +54,33 @@ if os.path.isdir("./openexr.install"):
                         for lib in libs_static]
 else:
     # This is probably the sdist
-    include_dirs=[]
+    if platform.system() == "Windows":
+        include_dirs = [
+            "C:/Program Files (x86)/OpenEXR/include/Imath",
+            "C:/Program Files (x86)/OpenEXR/include/OpenEXR",
+        ]
+        library_dirs = [
+            "/usr/lib",
+            "/usr/local/lib",
+            "/opt/local/lib",
+            "/opt/homebrew/opt/openexr/lib",
+            "/opt/homebrew/opt/imath/lib",
+        ]
+    else:
+        include_dirs = [
+            "/usr/include/OpenEXR",
+            "/usr/local/include/OpenEXR",
+            "/opt/local/include/OpenEXR",
+            "/usr/include/Imath",
+            "/usr/local/include/Imath",
+            "/opt/local/include/Imath",
+            "/opt/homebrew/opt/openexr/include/OpenEXR",
+            "/opt/homebrew/opt/imath/include/Imath",
+        ]
+        library_dirs = [
+            "C:/Program Files (x86)/OpenEXR/lib",
+            "C:/Program Files/zlib/lib",
+        ]
     libs=['OpenEXR', 'IlmThread', 'Iex', 'Imath', 'OpenEXRCore']
     extra_link_args = []
 
@@ -70,6 +98,7 @@ setup(name='OpenEXR',
                   ['OpenEXR.cpp'],
                   language='c++',
                   include_dirs=include_dirs,
+                  library_dirs=library_dirs,
                   libraries=libs,
                   extra_compile_args=extra_compile_args,
                   extra_link_args=extra_link_args,
