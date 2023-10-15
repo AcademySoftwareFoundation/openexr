@@ -45,7 +45,7 @@ jobs:
       # Also skip the PyPy builds, since they fail the unittests
       CIBW_SKIP: "*-win32 pp*"
       CIBW_ARCHS_LINUX: auto aarch64 ppc64le s390x
-      CIBW_BEFORE_BUILD: >
+      CIBW_BEFORE_ALL: >
         echo "Installing OpenEXR..." &&
         cd openexr.build &&
         cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../openexr.install -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON -DCMAKE_PREFIX_PATH=../openexr.install -DCMAKE_INSTALL_LIBDIR=lib -DBUILD_TESTING=OFF -DOPENEXR_INSTALL_EXAMPLES=OFF -DOPENEXR_BUILD_TOOLS=OFF -DBUILD_SHARED_LIBS=OFF -DOPENEXR_FORCE_INTERNAL_DEFLATE=ON -DOPENEXR_FORCE_INTERNAL_IMATH=ON -DCMAKE_POSITION_INDEPENDENT_CODE=ON ../ &&
