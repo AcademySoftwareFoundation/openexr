@@ -57,6 +57,8 @@ add_executable(OpenEXRTest
   testExistingStreams.h
   testFutureProofing.cpp
   testFutureProofing.h
+  testHeader.cpp
+  testHeader.h
   testHuf.cpp
   testHuf.h
   testIDManifest.cpp
@@ -169,6 +171,7 @@ define_openexr_tests(
  testDwaLookups
  testExistingStreams
  testFutureProofing
+ testHeader
  testHuf
  testInputPart
  testIsComplete
