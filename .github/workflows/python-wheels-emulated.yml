@@ -1,0 +1,88 @@
+name: Python-wheels-arch
+
+on:
+  workflow_call:
+    inputs:
+      os:
+        description: 'Host OS'
+        required: false
+        type: string
+        default: '["ubuntu-22.04"]'
+      test:
+        description: 'Whether the tests shall be run or not'
+        required: false
+        type: string
+        default: 'true'
+      arch:
+        description: 'Architecture target'
+        required: true
+        type: string
+
+jobs:
+  build_wheels:
+    name: Build Python wheels
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: ${{ fromJSON(inputs.os) }}
+    env:
+      # Skip 32-bit wheels builds.
+      # Also skip the PyPy builds, since they fail the unittests
+      CIBW_SKIP: "*-win32 pp*"
+      CIBW_ARCHS: ${{inputs.arch}}
+      CIBW_BEFORE_ALL: >
+        echo "Installing OpenEXR..." &&
+        cd openexr.build &&
+        cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../openexr.install -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON -DCMAKE_PREFIX_PATH=../openexr.install -DCMAKE_INSTALL_LIBDIR=lib -DBUILD_TESTING=OFF -DOPENEXR_INSTALL_EXAMPLES=OFF -DOPENEXR_BUILD_TOOLS=OFF -DBUILD_SHARED_LIBS=OFF -DOPENEXR_FORCE_INTERNAL_DEFLATE=ON -DOPENEXR_FORCE_INTERNAL_IMATH=ON -DCMAKE_POSITION_INDEPENDENT_CODE=ON ../ &&
+        cmake --build ./ --config Release --clean-first &&
+        cmake --install ./ --config Release &&
+        cd ..
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Used to host cibuildwheel
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.x' 
+
+      - name: Create setup.py
+        run: |
+            mv src/wrappers/python/pyproject.toml ./pyproject.toml
+            mv src/wrappers/python/setup.py ./setup.py
+            mv src/wrappers/python/set_version.py ./set_version.py
+            mv src/wrappers/python/Imath.py ./Imath.py
+            mv src/wrappers/python/OpenEXR.cpp ./OpenEXR.cpp
+            python set_version.py
+            rm set_version.py
+            cat pyproject.toml
+        shell: bash
+
+      - name: Set test env vars
+        run: |
+          if [[ ${{inputs.test}} == 'true' ]]; then
+              echo "CIBW_TEST_REQUIRES=pytest" >> "$GITHUB_ENV"
+              echo 'CIBW_TEST_COMMAND=pytest {project}/src/wrappers/python/tests/' >> "$GITHUB_ENV"
+          fi
+        shell: bash
+
+      - name: Create folders
+        run: |
+            mkdir -p ${{github.workspace}}/openexr.build
+            mkdir -p ${{github.workspace}}/openexr.install
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: all
+        if: runner.os == 'Linux'
+
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v2.16.2
+        with:
+            output-dir: dist
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: python-wheels-${{runner.os}}_${{inputs.arch}}
+          path: ./dist/*
