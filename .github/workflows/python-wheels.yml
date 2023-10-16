@@ -163,7 +163,7 @@ jobs:
       - name: Download sdist
         uses: actions/download-artifact@v3
         with:
-          name: python-wheels
+          name: python-wheels-sdist
           path: dist/
 
       - name: Download Linux_x86_64
