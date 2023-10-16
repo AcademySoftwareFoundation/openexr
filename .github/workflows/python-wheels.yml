@@ -73,7 +73,7 @@ jobs:
 
   build_Linux_x86_64:
     name: Build Linux_x86_64
-    uses: sanguinariojoe/openexr/.github/workflows/python-wheels-emulated.yml@wheels
+    uses: AcademySoftwareFoundation/openexr/.github/workflows/python-wheels-emulated.yml@main
     with:
       os: '["ubuntu-22.04"]'
       arch: "x86_64"
@@ -82,7 +82,7 @@ jobs:
 
   build_Windows_AMD64:
     name: Build Windows_AMD64
-    uses: sanguinariojoe/openexr/.github/workflows/python-wheels-emulated.yml@wheels
+    uses: AcademySoftwareFoundation/openexr/.github/workflows/python-wheels-emulated.yml@main
     with:
       os: '["windows-latest"]'
       arch: "AMD64"
@@ -91,7 +91,7 @@ jobs:
 
   build_MacOS_x86_64:
     name: Build Windows_x86_64
-    uses: sanguinariojoe/openexr/.github/workflows/python-wheels-emulated.yml@wheels
+    uses: AcademySoftwareFoundation/openexr/.github/workflows/python-wheels-emulated.yml@main
     with:
       os: '["macOS-latest"]'
       arch: "x86_64"
@@ -102,7 +102,7 @@ jobs:
   # emulated buildings are working
   build_Linux_i686:
     name: Build Linux_i686
-    uses: sanguinariojoe/openexr/.github/workflows/python-wheels-emulated.yml@wheels
+    uses: AcademySoftwareFoundation/openexr/.github/workflows/python-wheels-emulated.yml@main
     with:
       os: '["ubuntu-22.04"]'
       arch: "i686"
@@ -111,7 +111,7 @@ jobs:
 
   build_Linux_aarch64:
     name: Build Linux_aarch64
-    uses: sanguinariojoe/openexr/.github/workflows/python-wheels-emulated.yml@wheels
+    uses: AcademySoftwareFoundation/openexr/.github/workflows/python-wheels-emulated.yml@main
     with:
       os: '["ubuntu-22.04"]'
       arch: "aarch64"
@@ -121,7 +121,7 @@ jobs:
 
   build_Linux_ppc64le:
     name: Build Linux_ppc64le
-    uses: sanguinariojoe/openexr/.github/workflows/python-wheels-emulated.yml@wheels
+    uses: AcademySoftwareFoundation/openexr/.github/workflows/python-wheels-emulated.yml@main
     with:
       os: '["ubuntu-22.04"]'
       arch: "ppc64le"
@@ -131,7 +131,7 @@ jobs:
 
   build_Linux_s390x:
     name: Build Linux_s390x
-    uses: sanguinariojoe/openexr/.github/workflows/python-wheels-emulated.yml@wheels
+    uses: AcademySoftwareFoundation/openexr/.github/workflows/python-wheels-emulated.yml@main
     with:
       os: '["ubuntu-22.04"]'
       arch: "s390x"
@@ -141,7 +141,7 @@ jobs:
 
   build_MacOS_universal2:
     name: Build MacOS_universal2
-    uses: sanguinariojoe/openexr/.github/workflows/python-wheels-emulated.yml@wheels
+    uses: AcademySoftwareFoundation/openexr/.github/workflows/python-wheels-emulated.yml@main
     with:
       os: '["macOS-latest"]'
       arch: "universal2"
