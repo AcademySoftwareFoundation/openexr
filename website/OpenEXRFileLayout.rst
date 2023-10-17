@@ -998,6 +998,7 @@ and text strings. The third and fourth lines indicate how those basic
 objects form compound objects such as attributes or the line offset
 table.
 
+
 .. table:: Sample OpenEXR File
   :width: 50%
 
@@ -1845,3 +1846,6 @@ table.
   +-----------+------------+-------------+
   |End of file                           |
   +-----------+------------+-------------+
+
+
+Download the sample.exr :download:`here <images/sample.exr>`
