@@ -12,7 +12,7 @@ Hello, World
    :maxdepth: 1
 
 A simple program to write a simple ``.exr`` file of an image of 10x10
-pixels with values that are a ramp in green and blue:
+pixels with values that are a ramp in green and blue `writer.cpp`:
 
 .. literalinclude:: src/writer/writer.cpp
 
