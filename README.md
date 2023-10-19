@@ -59,7 +59,7 @@ for more information.
 # Quick Start
 
 See the [technical documentation](https://openexr.readthedocs.io) for
-complete details, but to get started, the "hello, world" `.exr` writer program is:
+complete details, but to get started, the "hello, world" `.exr` writer program `writer.cpp` is:
 
     #include <ImfRgbaFile.h>
     #include <ImfArray.h>
