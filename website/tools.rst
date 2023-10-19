@@ -14,6 +14,11 @@ operations, consider `oiiotool
 Swiss Army Knife of `OpenImageIO
 <https://sites.google.com/site/openimageio/home>`_
 
+To build a tool in a git bash window:
+::
+    cd <tool directory>
+    cmake -S . -B _build
+
 .. toctree::
    :caption: Tools
    :titlesonly:
