@@ -18,6 +18,7 @@ To build a tool in a git bash window:
 ::
     cd <tool directory>
     cmake -S . -B _build
+    cmake --build _build
 
 .. toctree::
    :caption: Tools
