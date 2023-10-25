@@ -997,7 +997,7 @@ integers, floating-point numbers and text strings. The third column of the table
 indicate how those basic objects form compound objects such as attributes 
 or the line offset table.
 
-Download the :download:`sample.exr <images/sample.exr>`.
+Download the :download:`sample.exr <downloads/sample.exr>`.
 
 .. table::
   :width: 50%
