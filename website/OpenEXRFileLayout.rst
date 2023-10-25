@@ -991,15 +991,15 @@ pixels. The image has two channels: G, of type ``HALF``, and Z, of type
 ``FLOAT``. The pixel data are not compressed. The entire file is 415 bytes
 long.
 
-The first line of text in each of the gray boxes below lists up to 16
-bytes of the file in hexadecimal notation. The second line in each box
-shows how the bytes are grouped into integers, floating-point numbers
-and text strings. The third and fourth lines indicate how those basic
-objects form compound objects such as attributes or the line offset
-table.
+The first column of the table below lists all the bytes of the file in hexadecimal 
+notation. The second column of the table shows how the bytes are grouped into 
+integers, floating-point numbers and text strings. The third column of the table
+indicate how those basic objects form compound objects such as attributes 
+or the line offset table.
 
+Download the :download:`sample.exr <images/sample.exr>`.
 
-.. table:: Sample OpenEXR File
+.. table::
   :width: 50%
 
   +-----------+------------+-------------+
@@ -1846,6 +1846,3 @@ table.
   +-----------+------------+-------------+
   |End of file                           |
   +-----------+------------+-------------+
-
-
-Download the sample.exr :download:`here <images/sample.exr>`
