@@ -251,20 +251,11 @@ DwaCompressor_compress (DwaCompressor* me)
     uint8_t*  outDataPtr;
     uint8_t*  inDataPtr;
 
-    // Starting with 2, we write the channel
+    // Starting with fileversion 2, we write the channel
     // classification rules into the file
-    if (fileVersion < 2)
-    {
-        me->_channelRules = sLegacyChannelRules;
-        me->_channelRuleCount =
-            sizeof (sLegacyChannelRules) / sizeof (Classifier);
-    }
-    else
-    {
-        me->_channelRules = sDefaultChannelRules;
-        me->_channelRuleCount =
-            sizeof (sDefaultChannelRules) / sizeof (Classifier);
-    }
+    me->_channelRules = sDefaultChannelRules;
+    me->_channelRuleCount =
+        sizeof (sDefaultChannelRules) / sizeof (Classifier);
 
     rv = DwaCompressor_initializeBuffers (me, &outBufferSize);
 
