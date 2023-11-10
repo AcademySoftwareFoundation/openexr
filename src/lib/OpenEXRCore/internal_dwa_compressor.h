@@ -1122,6 +1122,7 @@ DwaCompressor_uncompress (
             rv = DctCoderChannelData_push_row (&(cd->_dctData), outBufferEnd);
             if (rv != EXR_ERR_SUCCESS) return rv;
 
+            cd->_dctData._type = chan->data_type;
             outBufferEnd += chan->width * chan->bytes_per_element;
         }
     }
