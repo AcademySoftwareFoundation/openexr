@@ -27,9 +27,6 @@ function(OPENEXR_DEFINE_LIBRARY libname)
                           PRIVATE cxx_std_${OPENEXR_CXX_STANDARD}
                           INTERFACE cxx_std_11 )
 
-  # we are embedding libdeflate
-  target_include_directories(${objlib} PRIVATE ${EXR_DEFLATE_INCLUDE_DIR})
-
   if(OPENEXR_CURLIB_PRIV_EXPORT AND BUILD_SHARED_LIBS)
     target_compile_definitions(${objlib} PRIVATE ${OPENEXR_CURLIB_PRIV_EXPORT})
     if(WIN32)
