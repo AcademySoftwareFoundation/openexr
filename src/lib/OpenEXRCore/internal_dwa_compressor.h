@@ -251,7 +251,7 @@ DwaCompressor_compress (DwaCompressor* me)
     uint8_t*  outDataPtr;
     uint8_t*  inDataPtr;
 
-    // Starting with fileversion 2, we write the channel
+    // Starting with DWA v2, we write the channel
     // classification rules into the file
     me->_channelRules = sDefaultChannelRules;
     me->_channelRuleCount =
