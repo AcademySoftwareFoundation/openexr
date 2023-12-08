@@ -28,7 +28,7 @@ unsigned char
 gamma (float x)
 {
     x = pow (5.5555f * max (0.f, x), 0.4545f) * 84.66f;
-    return (unsigned char) std::clamp (x, 0.f, 255.f);
+    return (unsigned char) Imath::clamp (x, 0.f, 255.f);
 }
 // [end gamma]
 
@@ -60,7 +60,7 @@ makePreviewImage (
             outPixel.r = gamma (inPixel.r);
             outPixel.g = gamma (inPixel.g);
             outPixel.b = gamma (inPixel.b);
-            outPixel.a = static_cast<int> (std::clamp (inPixel.a * 255.f, 0.f, 255.f) + 0.5f);
+            outPixel.a = static_cast<int> (Imath::clamp (inPixel.a * 255.f, 0.f, 255.f) + 0.5f);
         }
     }
 }
