@@ -1,5 +1,5 @@
 
-int width, height;
+int width=1; int height=1;
 // [begin setCompression]
 Header header (width, height);
 header.channels().insert ("G", Channel (HALF));

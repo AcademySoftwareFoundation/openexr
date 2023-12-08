@@ -1,4 +1,4 @@
-char fileName[100];
+char fileName[] = "";
 // [begin main thread create]
 // main, before application threads are created:
     

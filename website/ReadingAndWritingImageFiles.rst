@@ -9,7 +9,7 @@ Document Purpose and Audience
 =============================
 
 This document shows how to write C++ code that reads and writes OpenEXR
-3.0 image files.
+2.0 image files.
 
 The text assumes that the reader is familiar with OpenEXR terms like
 “channel”, “attribute”, “data window” or “deep data”. For an explanation
@@ -126,6 +126,9 @@ Writing a simple RGBA image file is fairly straightforward:
 .. literalinclude:: src/writeRgba1.cpp
    :language: c++
    :linenos:
+   :dedent:
+   :start-after: [begin writeRgba1]
+   :end-before: [end writeRgba1]
 
 Construction of an RgbaOutputFile object, on line 4, creates an OpenEXR header,
 sets the header's attributes, opens the file with the specified name, and stores
@@ -189,12 +192,12 @@ to get right than with error return values. For instance, a program that
 calls our ``writeRgba1()`` function can handle all possible error
 conditions with a single try/catch block:
 
-.. literalinclude:: src/tryCatchExample.cpp
+.. literalinclude:: src/writeRgba1.cpp
    :language: c++
    :linenos:
    :dedent:
-   :start-after: [begin]
-   :end-before: [end]
+   :start-after: [begin tryCatchExample]
+   :end-before: [end tryCatchExample]
 
 Writing a Cropped RGBA Image
 ----------------------------
@@ -1024,6 +1027,8 @@ tiles we want to read.
 
 .. literalinclude:: src/readTiled1.cpp
    :language: c++
+   :linenos:
+   :dedent:
    :start-after: [begin readTiled1]
    :end-before: [end readTiled1]
 

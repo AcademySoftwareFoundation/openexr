@@ -1,5 +1,5 @@
 
-char fileName[100];
+char fileName[] = "";
 // [begin hasEnvmap]
 RgbaInputFile file (fileName);
 

@@ -118,11 +118,6 @@ void structDefinitions()
     #include "structDefinitions.cpp"
 }
 
-void tryCatchWriteRgba1()
-{
-    #include "tryCatchExample.cpp"
-}
-
 void multithreading()
 {
     #include "multithreading.cpp"
