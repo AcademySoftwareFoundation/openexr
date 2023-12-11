@@ -56,7 +56,7 @@ struct Rgbaz
     //
     // depth sort (use ID to resolve ties)
     //
-    bool operator<(const Rgbaz& other)
+    bool operator<(const Rgbaz& other) const
     {
         if (z < other.z) { return true; }
         if (z > other.z) { return false; }
