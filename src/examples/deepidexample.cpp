@@ -271,7 +271,7 @@ main (int argc, char* argv[])
     // over 100 frames
     //
     float blend = 0.5 - cos (double (frame) * M_PI / 100.) / 2;
-    for (int s = 0; s < count; ++s)
+    for (int object = 0; object < count; ++object)
     {
         int shape = random (generator, 1);
         int size  = random (generator, 2);
@@ -308,7 +308,7 @@ main (int argc, char* argv[])
             ids[3] = hash >> 32;
         }
 
-        ids[4] = s; // particle ID
+        ids[4] = object; // particle ID
 
         //
         // randomized position, velocity, depth

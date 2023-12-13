@@ -68,8 +68,8 @@ The deep OpenEXR files need to contain the following elements:
 
 -  Manifest data stored in the file’s metadata as an attribute, or in a side-car file.
 
-   -  **NOTE**:  OpenEXR 3.0+ `provides an <#openexr-idmanifest-container>`
-      and attribute for efficient storage
+   -  **NOTE**:  OpenEXR 3.0+ provides a data structure
+      and attribute for efficient storage. For more details see :ref:`idmanifest-label`
 
 
 Sample storage
@@ -122,6 +122,7 @@ Name           Contents
 **instanceid** identifier of an instanced object
 ============== ======================================
 
+
 To limit the risk of hash collision, a ``uint64_t`` bits can be encoded
 with two ``uint32_t`` channels. The convention is then to suffix the
 channel name with ``0`` or ``1`` to indicate the channels storing the
@@ -162,6 +163,8 @@ Manifest data
 The manifest contains the human-readable data corresponding to a given
 hash. It is a big table of strings that may require more storage than
 the actual image data. It can be stored using the following mechanisms:
+
+.. _idmanifest-label:
 
 OpenEXR idManifest container
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
