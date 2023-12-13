@@ -66,7 +66,7 @@ Cryptomatte [1]_ is widely adopted ID scheme similar to that described here, wit
    noise if an object is selected which has been discarded from some pixels.
 -  Cryptomatte uses the ``scanlineimage`` or ``tiledimage`` EXR format, rather than ``deepscanline`` or ``deeptile``
    to simplify adoption by applications already supporting these EXR types.
-   Similarly, IDs are stored in the ``B`` and ``A`` channels as FLOAT rather than UINT types,
+   Similarly, IDs are stored in the ``R`` and ``B`` channels as FLOAT rather than UINT types,
    though are intended to be interpreted as UINT. Although these
    channels are named as color channels, care must be taken not to color manage or otherwise modify them,
    and tools which re-write Cryptomatte files should ensure they are written as FLOAT rather than HALF.
