@@ -13,10 +13,10 @@ Introduction
 Deep IDs are primarily used in compositing applications to select
 objects in images:
 
--  The 3D renderer stores in the final OpenEXR file multiple ids per
-   pixel as well a scene manifest providing a mapping to a
-   human-readable identifier, like an object or material name.
--  The compositing application, reads in the deep IDs and implements a
+-  The 3D renderer stores multiple ids per
+   pixel in the final OpenEXR file as well a scene manifest providing a mapping to a
+   human-readable identifier, such as an object or material name.
+-  The compositing application reads in the deep IDs and implements a
    UI for the artist to create a selection based on the manifest data.
 -  The selected IDs will then be used to create a deep (per-sample) or
    shallow (per-pixel) mask for later use.
@@ -40,19 +40,53 @@ Pros
 
 -  Each pixel can contain an arbitrary number of IDs (0 included),
    allowing for perfect mattes.
--  Deep IDs are combined with coverage data to support anti-aliasing,
+-  Deep IDs are combined with transparency data to support anti-aliasing,
    motion blur and depth of field.
--  A deep image store the color of the individual objects as well as the
-   coverage, so an object extracted by ID will have the correct color
-   values along the edges. By contrast, schemes which only store pixel coverage
-   cannot isolate objects without color contamination
+-  A deep image stores the color of the individual objects as well as their
+   individual alpha, so an object extracted by ID will have the correct color
+   and alpha values along the edges.
 
 Cons
 ----
 
--  IDs are not directly inspectable with a simple image viewer.
+-  IDs cannot be directly inspected with a simple image viewer.
 -  Hash collisions can make multiple objects map to the same ID.
--  DeepIDs require software to support deepscanline/deeptiled OpenEXR images
+-  DeepIDs require software to support deepscanline and/or deeptile OpenEXR image types.
+
+
+
+Cryptomatte comparison
+----------------------
+
+Cryptomatte [1]_ is widely adopted ID scheme similar to that described here, with a few differences:
+
+-  Cryptomatte uses a similar concept of a manifest, which is stored as JSON in a string attribute.
+-  Cryptomatte allocates a fixed size array for IDs, imposing a maximum number of IDs in one pixel.
+   Setting this too large requires a lot of memory; setting it too small can cause
+   noise if an object is selected which has been discarded from some pixels.
+-  Cryptomatte uses the ``scanlineimage`` or ``tiledimage`` EXR format, rather than ``deepscanline`` or ``deeptile``
+   to simplify adoption by applications already supporting these EXR types.
+   Similarly, IDs are stored in the ``B`` and ``A`` channels as FLOAT rather than UINT types,
+   though are intended to be interpreted as UINT. Although these
+   channels are named as color channels, care must be taken not to color manage or otherwise modify them,
+   and tools which re-write Cryptomatte files should ensure they are written as FLOAT rather than HALF.
+-  Cryptomatte allows slightly less than 2\ :sup:`32` different IDs; the Deep ID scheme allows for 2\ :sup:`32` or 2\ :sup:`64` different IDs.
+   This reduces the chance of a hash collision.
+-  Cryptomatte only stores *coverage* of each object. This can be used to generate a mask for an object to apply
+   a selective grade. Because the depth ordering, transparency and color of each object is not stored, objects isolated
+   using Cryptomatte will have contaminated edge colors and incorrect alpha values.
+
+Comparisons of typical images suggest Cryptomatte and deep images with IDs are similar size on disk,
+even though deep images carry more information,
+but generally deep images are processed faster since they take less space when decompressed.
+
+It is possible to convert a Deep ID image into a Cryptomatte image, which may be a path to adoption for
+tools which read Cryptomatte but not Deep IDs. Conversion in the opposite direction is also possible,
+but the resultant deep ID image can only be used for coverage computation.
+
+As such, the Deep ID approach can be considered an evolution of Cryptomatte, supporting and extending all the features of Cryptomatte,
+but with a more formal specification and flexible storage.
+
 
 Deep ID Basics
 ==============
@@ -63,8 +97,8 @@ The deep OpenEXR files need to contain the following elements:
 -  Deep IDs stored using one or two ``Imf::UINT`` (``uint32_t``)
    channels:
 
-   -  A single id channel stores 32 bits hashes.
-   -  A pair of id, id2 channels stores 64 bits hashes.
+   -  A single channel stores 32 bit hashes.
+   -  A pair of channels store 64 bit hashes.
 
 -  Manifest data stored in the file’s metadata as an attribute, or in a side-car file.
 
@@ -86,14 +120,12 @@ Terminology
 -  **Sample**: A container storing the value of each channel at a
    specific depth.
 -  **Id**: A unique numerical identifier mapping to an ``item``.
--  **Kind**: a named ``id`` category (id, particleid, instanceid,
-   objectid, etc).
+-  **Kind**: a named ``id`` category (model name, shader name, asset management URI, etc).
 -  **Manifest**: a data structure mapping each id to one ``item``.
 -  **Item**: an entity (object, material, etc) represented by:
 
-   -  An artist-friendly string in the manifest, i.e. “Chair16”.
-   -  A collection of ``samples`` matching a particular ``id`` in the
-      image.
+   -  Artist friendly strings in the manifest, e.g. “Chair16” (one string of each ``kind``)
+   -  A collection of ``samples`` matching a particular ``id`` in the image.
 
 Principles
 ----------
@@ -104,7 +136,7 @@ Principles
 2. If two different ``items`` overlap the same space, they will be
    stored in separate ``samples`` (which themselves may or may not
    overlap).
-3. Some ``id`` may not have an associated manifest, like ``particleid``,
+3. Some ``id`` may not have an associated string, like ``particleid``,
    and still be useful (for example through image-based picking).
 4. In complex cases like an instanced particle system, each ``sample``
    may have an ``instanceid``, ``particleid``, and ``id``/``objectid``.
@@ -115,7 +147,7 @@ Standard ID Channel names
 ============== ======================================
 Name           Contents
 ============== ======================================
-**id**         by default, an object identifier  [1]_
+**id**         by default, an object identifier  [2]_
 **objectid**   identifier of an object
 **materialid** identifier of an material
 **particleid** identifier of a particle
@@ -130,20 +162,26 @@ least and the most significant 32 bits respectively,
 e.g. ``particleid0`` and  ``particleid1`` or ``particle.id0`` and ``particle.id1``
 
 When sorted alphanumerically, the channel storing the most significant bits should appear immediately
-after the chanel storing the least significant bits.
-See appendix for details
+after the channel storing the least significant bits. See appendix for details.
 
 ID generation
 -------------
 
 Any non-uint32 identifier can be hashed to generate an id.
 
--  ``uint32_t`` hashes should be generated with ``MurmurHash3_x86_32``.
--  ``uint64_t`` hashes should be generated with the top 8 bytes of
+-  ``uint32_t`` hashes can be generated with ``MurmurHash3_x86_32``.
+-  ``uint64_t`` hashes can be generated with the top 8 bytes of
    ``MurmurHash3_x64_128``.
 
-OpenEXR 3.x offers two convenience functions to hash strings  [2]_:
+OpenEXR 3.x offers two convenience functions to hash strings  [3]_:
 ``IDManifest::MurmurHash32`` and ``IDManifest::MurmurHash64``.
+
+The Deep ID scheme does not require these hash schemes to be used. For example if an asset management
+system already generates hashes, those can be used instead. It is also not required to use a hash scheme
+to map between names and numeric identifiers. For example the IDs could be generated in the order that they
+are stored in the source geometry file. Such an approach would avoid hash collisions,
+but would not generate IDs consistently across different shots or scenes.
+
 
 Multivariate IDs
 ----------------
@@ -153,7 +191,7 @@ requirements without impairing the artist’s ability to generate
 arbitrary mattes.
 
 For examples hashing the object and material names together is common
-practice. In that case, a single ``id`` will map to 2 ``kinds`` in the
+practice. In that case, a single ``id`` will map to two ``kinds`` in the
 manifest, providing more flexibility at the cost of a slightly increased
 risk of hash collision.
 
@@ -166,15 +204,21 @@ the actual image data. It can be stored using the following mechanisms:
 
 .. _idmanifest-label:
 
-OpenEXR idManifest container
+OpenEXR idmanifest container
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Since OpenEXR 3.0, there is a new standard ``idManifest`` attribute
+Since OpenEXR 3.0, there is a new standard ``idmanifest`` attribute
 using a ``CompressedIDManifest`` metadata type, specially designed to
-transport manifest data efficiently. It is optimized to reduce the storage space required,
+transport manifest data efficiently [4]_. It is optimized to reduce the storage space required,
 and is the most standard approach.
 
 The utility ``exrmanifest`` outputs the manifest of EXR images as plain text.
+
+Note that use of the ``idmanifest`` attribute is not limited to the Deep ID scheme.
+Other schemes - such as Cryptomatte - could also use the attribute to encode manifest
+and other related data, to save storage space.
+(Indeed, the idmanifest was in part derived from Cryptomatte’s metadata scheme for this purpose)
+
 
 OpenEXR string container
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -195,6 +239,31 @@ since that is outside the scope of the OpenEXR file format specification.
 Although sidecar files may be appropriate for temporary usage, it is strongly recommended
 that the embedded manifest is used in OpenEXR images which are to be shared between different companies
 or for archival usage.
+
+
+
+Deep Compositing and Deep IDs
+=============================
+
+
+Deep Compositing workflows allow objects to be rendered in separate passes and then merged together as a post process.
+For example, it is possible to render a volumetric element such as a smoke, and merge other objects into it.
+Deep images containing such volume renders may need to become very large in order to capture all the detail required for the merge to work correctly.
+Deep IDs are a powerful addition to deep compositing workflows, as they allow for greater control of individual elements within a single render.
+For this to work effectively, the ID passes must be included in the same deep image as that used for deep compositing.
+It is tempting to generate two separate deep images for each rendered object, one containing color and one containing the IDs,
+particularly since this is a common approach with Cryptomatte workflow.
+However, creating separate files complicates deep compositing with deep IDs, since it is harder to associate each individual object's ID with its color.
+Very little extra storage is required to add an ID channel to a deep image.
+
+Deep IDs are still useful where full deep compositing workflows are not used, to allow color correction of individual objects.
+In that case, the deep image need not be large. In the case of a volume, a single sample can be used to indicate the volume's ID, color and transparency.
+Renderers can produce these efficient passes by combining together adjacent deep samples that have the same set of id channels.
+The object color (RGB) channels can also be omitted to reduce file size at the cost of loss of fidelity along object edges.
+
+Tools which do not support full deep compositing workflows could still support deep images for the limited use of ID selection.
+For example an image editing package may have a "load selected objects from deep image" tool which allows the desired object to be selected,
+then processes that into a regular non-deep image or mask for editing.
 
 Example code
 ============
@@ -252,7 +321,7 @@ but does not store color, this can be used to grade only the selected object.
 Edge contamination may be observed along transparent edges of a selected object, if an object behind it is not selected.
 
 To keep the code simple, ``deepidselect`` is only a minimal example of string matching against ID manifests.
-For example, it doesn't support regular expressions, or more advanced boolean logic including negative matches.
+For example, it doesn't support regular expressions, or more advanced Boolean logic including negative matches.
 
 
 Appendix
@@ -324,9 +393,15 @@ single pixel:
        return mask_alpha / total_combined_alpha
 
 .. [1]
+   See `Cryptomatte <https://github.com/Psyop/Cryptomatte>`__ on github
+
+.. [2]
    See `OpenEXR reserved channel
    names <https://openexr.com/en/latest/TechnicalIntroduction.html#deep-data-special-purpose-channels-and-reserved-channel-names>`__.
 
-.. [2]
+.. [3]
    See
    `ImfIDManifest <https://github.com/AcademySoftwareFoundation/openexr/blob/main/src/lib/OpenEXR/ImfIDManifest.h>`__
+
+.. [4]
+   For more details of the compression scheme used by idmanifest, see `A scheme for storing object ID manifests in openEXR images` In Proceedings of the 8th Annual Digital Production Symposium (DigiPro '18). Association for Computing Machinery, New York, NY, USA, Article 9, 1–8. https://doi.org/10.1145/3233085.3233086
