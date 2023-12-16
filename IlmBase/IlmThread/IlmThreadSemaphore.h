@@ -46,6 +46,10 @@
 #include "IlmThreadExport.h"
 #include "IlmThreadNamespace.h"
 
+#if defined(__APPLE__)
+#   include <AvailabilityMacros.h>
+#endif
+
 #if defined _WIN32 || defined _WIN64
 #   ifdef NOMINMAX
 #      undef NOMINMAX
@@ -56,7 +60,7 @@
 
 #ifdef HAVE_POSIX_SEMAPHORES
 #   include <semaphore.h>
-#elif defined(__APPLE__)
+#elif defined(__APPLE__) && MAC_OS_X_VERSION_MIN_REQUIRED > 1050 && !defined(__ppc__)
 #   include <dispatch/dispatch.h>
 #else
 #   ifdef ILMBASE_FORCE_CXX03
@@ -94,7 +98,7 @@ class ILMTHREAD_EXPORT Semaphore
 
 	mutable sem_t _semaphore;
 
-#elif defined(__APPLE__)
+#elif defined(__APPLE__) && MAC_OS_X_VERSION_MIN_REQUIRED > 1050 && !defined(__ppc__)
 	mutable dispatch_semaphore_t _semaphore;
 
 #else
