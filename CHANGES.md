@@ -1,5 +1,6 @@
 # OpenEXR Release Notes
 
+* [Version 2.5.10](#version-2510-december-19-2023) December 19, 2023
 * [Version 2.5.9](#version-259-july-31-2023) July 31, 2023
 * [Version 2.5.8](#version-258-march-18-2022) March 18, 2022
 * [Version 2.5.7](#version-257-june-16-2021) June 16, 2021
@@ -43,6 +44,16 @@
 * [Version 1.0.2](#version-102)
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
+
+## Version 2.5.10 (December 19, 2023)
+
+Patch release that fixes a build failure on macOS prior to 10.6
+(fallback for missing `libdispatch`).
+
+### Merged Pull Requests
+
+* [1596] (https://github.com/AcademySoftwareFoundation/openexr/pull/1596)
+macOS: use libdispatch only where available
 
 ## Version 2.5.9 (July 31, 2023)
 
