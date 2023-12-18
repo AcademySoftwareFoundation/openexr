@@ -41,6 +41,10 @@
 
 #if defined(__APPLE__)
 
+#include <AvailabilityMacros.h>
+
+#if MAC_OS_X_VERSION_MIN_REQUIRED > 1050 && !defined(__ppc__)
+
 #include "IlmThreadSemaphore.h"
 #include "Iex.h"
 
@@ -94,5 +98,7 @@ Semaphore::value () const
 
 
 ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_EXIT
+
+#endif
 
 #endif
