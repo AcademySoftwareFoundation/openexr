@@ -4,8 +4,8 @@ dnl Copyright Contributors to the OpenEXR Project.
 dnl
 
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(OpenEXR_Viewers, 2.5.9)
-AC_SUBST(OPENEXR_VIEWERS_VERSION, 2.5.9)
+AC_INIT(OpenEXR_Viewers, 2.5.10)
+AC_SUBST(OPENEXR_VIEWERS_VERSION, 2.5.10)
 AC_CANONICAL_HOST
 AC_CONFIG_SRCDIR(playexr/main.cpp)
 AM_CONFIG_HEADER(config/OpenEXR_ViewersConfig.h)

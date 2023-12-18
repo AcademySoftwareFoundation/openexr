@@ -4,8 +4,8 @@ dnl Copyright Contributors to the OpenEXR Project.
 dnl
 
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(PyIlmBase, 2.5.9)
-AC_SUBST(PYILMBASE_VERSION, 2.5.9)
+AC_INIT(PyIlmBase, 2.5.10)
+AC_SUBST(PYILMBASE_VERSION, 2.5.10)
 AC_CANONICAL_HOST
 AC_CONFIG_SRCDIR(PyIex/iexmodule.cpp)
 AC_CONFIG_HEADERS([config/PyIlmBaseConfig.h])
