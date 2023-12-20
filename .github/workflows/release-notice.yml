@@ -1,3 +1,14 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright (c) Contributors to the OpenEXR Project.
+
+name: Publish Release Notice to ASWF Slack
+
+on:
+  release:
+    types:
+      - published
+      # published should cover both 'released' and 'prereleased'
+
 jobs:
   publish:
     runs-on: ubuntu-latest
