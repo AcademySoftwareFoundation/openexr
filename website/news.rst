@@ -13,6 +13,12 @@ News
 .. toctree::
    :caption: News
 
+December 19, 2023 - OpenEXR v2.5.10 Released
+============================================
+
+Patch release for OpenEXR v2.5 that fixes a build failure on macOS
+prior to 10.6 (fallback for missing `libdispatch`).
+
 September 20, 2023 - ASWF Dev Days
 ==================================
 
