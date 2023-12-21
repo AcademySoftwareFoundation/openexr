@@ -57,7 +57,8 @@ CompressionAttribute::readValueFrom (
         tmp != ZIPS_COMPRESSION && tmp != ZIP_COMPRESSION &&
         tmp != PIZ_COMPRESSION && tmp != PXR24_COMPRESSION &&
         tmp != B44_COMPRESSION && tmp != B44A_COMPRESSION &&
-        tmp != DWAA_COMPRESSION && tmp != DWAB_COMPRESSION)
+        tmp != DWAA_COMPRESSION && tmp != DWAB_COMPRESSION && 
+        tmp != ZSTD_COMPRESSION)
     {
         tmp = NUM_COMPRESSION_METHODS;
     }
