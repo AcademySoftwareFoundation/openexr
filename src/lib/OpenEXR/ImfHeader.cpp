@@ -70,9 +70,11 @@ struct CompressionRecord
     {
         exr_get_default_zip_compression_level(&zip_level);
         exr_get_default_dwa_compression_quality(&dwa_level);
+        exr_get_default_zstd_compression_level(&zstd_level);
     }
     int   zip_level;
     float dwa_level;
+    int   zstd_level;
 };
 // NB: This is extra complicated than one would normally write to
 // handle scenario that seems to happen on MacOS/Windows (probably
@@ -694,6 +696,18 @@ int
 Header::zipCompressionLevel () const
 {
     return retrieveCompressionRecord (this).zip_level;
+}
+
+int&
+Header::zstdCompressionLevel ()
+{
+    return retrieveCompressionRecord (this).zstd_level;
+}
+
+int
+Header::zstdCompressionLevel () const
+{
+    return retrieveCompressionRecord (this).zstd_level;
 }
 
 float&

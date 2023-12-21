@@ -18,6 +18,7 @@
 #include "ImfPxr24Compressor.h"
 #include "ImfRleCompressor.h"
 #include "ImfZipCompressor.h"
+#include "ImfZstdCompressor.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
@@ -63,7 +64,8 @@ isValidCompression (Compression c)
         case B44_COMPRESSION:
         case B44A_COMPRESSION:
         case DWAA_COMPRESSION:
-        case DWAB_COMPRESSION: return true;
+        case DWAB_COMPRESSION:
+        case ZSTD_COMPRESSION: return true;
 
         default: return false;
     }
@@ -89,7 +91,8 @@ isValidDeepCompression (Compression c)
     {
         case NO_COMPRESSION:
         case RLE_COMPRESSION:
-        case ZIPS_COMPRESSION: return true;
+        case ZIPS_COMPRESSION:
+        case ZSTD_COMPRESSION: return true;
         default: return false;
     }
 }
@@ -141,6 +144,8 @@ newCompressor (Compression c, size_t maxScanLineSize, const Header& hdr)
                 256,
                 DwaCompressor::STATIC_HUFFMAN);
 
+        case ZSTD_COMPRESSION:
+            return new ZstdCompressor (hdr, maxScanLineSize, 32);
         default: return 0;
     }
 }
@@ -162,6 +167,7 @@ numLinesInBuffer (Compression comp)
         case B44_COMPRESSION:
         case B44A_COMPRESSION:
         case DWAA_COMPRESSION: return 32;
+        case ZSTD_COMPRESSION: return 32;
         case DWAB_COMPRESSION: return 256;
 
         default: throw IEX_NAMESPACE::ArgExc ("Unknown compression type");
@@ -182,6 +188,9 @@ newTileCompressor (
         case ZIP_COMPRESSION:
 
             return new ZipCompressor (hdr, tileLineSize, numTileLines);
+        case ZSTD_COMPRESSION:
+
+            return new ZstdCompressor (hdr, tileLineSize, numTileLines);
 
         case PIZ_COMPRESSION:
 
