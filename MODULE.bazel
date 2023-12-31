@@ -6,7 +6,7 @@ module(
     compatibility_level = 1,
 )
 
-bazel_dep(name = "bazel_skylib", version = "1.4.2")
-bazel_dep(name = "imath", repo_name = "Imath", version = "3.1.9")
+bazel_dep(name = "bazel_skylib", version = "1.5.0")
+bazel_dep(name = "imath", version = "3.1.9", repo_name = "Imath")
 bazel_dep(name = "libdeflate", version = "1.19")
-bazel_dep(name = "platforms", version = "0.0.7")
+bazel_dep(name = "platforms", version = "0.0.8")
