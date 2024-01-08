@@ -56,9 +56,10 @@ ZstdCompressor::compress (
         typeSize = std::max (typeSize, Imf::pixelTypeSize (it.channel ().type));
     }
 
-    auto ret   = BLOSC_compress_impl (inPtr, inSize, typeSize, outPtr);
-    auto data  = malloc (Xdr::size<int> () + ret);
-    auto write = (char*) data;
+    auto ret      = BLOSC_compress_impl (inPtr, inSize, typeSize, outPtr);
+    auto fullSize = Xdr::size<int> () + ret;
+    auto data     = malloc (fullSize);
+    auto write    = (char*) data;
 
     Xdr::write<CharPtrIO> (write, Versions::LATEST);
 
@@ -67,7 +68,7 @@ ZstdCompressor::compress (
 
     _outBuffer = raw_ptr ((char*) data, &free);
 
-    return ret;
+    return fullSize;
 }
 
 int
@@ -82,10 +83,7 @@ ZstdCompressor::uncompress (
         return BLOSC_uncompress_impl_single_blob (
             read, inSize - Xdr::size<int> (), outPtr);
     }
-    else
-    {
-        throw Iex::InputExc ("Unsupported ZstdCompressor version");
-    }
+    else { throw Iex::InputExc ("Unsupported ZstdCompressor version"); }
 }
 
 int

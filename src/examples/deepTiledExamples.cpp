@@ -28,17 +28,12 @@ using namespace IMF;
 using namespace std;
 using namespace IMATH_NAMESPACE;
 
-
 // defined in deepExamples.cpp
 extern Array2D<float> testDataZ;
-extern Array2D<half> testDataA;
-extern unsigned int getPixelSampleCount (int i, int j);
-extern void getPixelSampleData(
-    int i,
-    int j,
-    Array2D<float*>& dataZ,
-    Array2D<half*>& dataA);
-
+extern Array2D<half>  testDataA;
+extern unsigned int   getPixelSampleCount (int i, int j);
+extern void           getPixelSampleData (
+              int i, int j, Array2D<float*>& dataZ, Array2D<half*>& dataA);
 
 void
 readDeepTiledFile (
@@ -62,24 +57,24 @@ readDeepTiledFile (
     //    - allocate the memory requred to store the samples
     //    - read the pixels from the file
     //
-    
+
     DeepTiledInputFile file (filename);
-    
+
     int width  = dataWindow.max.x - dataWindow.min.x + 1;
     int height = dataWindow.max.y - dataWindow.min.y + 1;
-    
+
     sampleCount.resizeErase (height, width);
     dataZ.resizeErase (height, width);
     dataA.resizeErase (height, width);
-    
+
     DeepFrameBuffer frameBuffer;
-    
+
     frameBuffer.insertSampleCountSlice (Slice (
         UINT,
         (char*) (&sampleCount[0][0] - dataWindow.min.x - dataWindow.min.y * width),
         sizeof (unsigned int) * 1,       // xStride
         sizeof (unsigned int) * width)); // yStride
-    
+
     frameBuffer.insert (
         "Z",
         DeepSlice (
@@ -88,7 +83,7 @@ readDeepTiledFile (
             sizeof (float*) * 1,     // xStride for pointer array
             sizeof (float*) * width, // yStride for pointer array
             sizeof (float) * 1));    // stride for samples
-    
+
     frameBuffer.insert (
         "A",
         DeepSlice (
@@ -97,14 +92,14 @@ readDeepTiledFile (
             sizeof (half*) * 1,     // xStride for pointer array
             sizeof (half*) * width, // yStride for pointer array
             sizeof (half) * 1));    // stride for samples
-    
+
     file.setFrameBuffer (frameBuffer);
-    
+
     int numXTiles = file.numXTiles (0);
     int numYTiles = file.numYTiles (0);
-    
+
     file.readPixelSampleCounts (0, numXTiles - 1, 0, numYTiles - 1);
-    
+
     for (int i = 0; i < height; i++)
     {
         for (int j = 0; j < width; j++)
@@ -113,11 +108,11 @@ readDeepTiledFile (
             dataA[i][j] = new half[sampleCount[i][j]];
         }
     }
-        
+
     file.readTiles (0, numXTiles - 1, 0, numYTiles - 1);
-    
+
     // (after read data is processed, data must be freed:)
-    
+
     for (int i = 0; i < height; i++)
     {
         for (int j = 0; j < width; j++)
@@ -128,42 +123,43 @@ readDeepTiledFile (
     }
 }
 
-void getSampleDataForTile (
-   int i,
-   int j,
-   int tileSizeX,
-   int tileSizeY,
-   Array2D<unsigned int>& sampleCount,
-   Array2D<float*>& dataZ,
-   Array2D<half*>& dataA)
+void
+getSampleDataForTile (
+    int                    i,
+    int                    j,
+    int                    tileSizeX,
+    int                    tileSizeY,
+    Array2D<unsigned int>& sampleCount,
+    Array2D<float*>&       dataZ,
+    Array2D<half*>&        dataA)
 {
     for (int k = 0; k < tileSizeY; k++)
     {
         int y = j * tileSizeY + k;
-        if (y >= sampleCount.height()) break;
-        
+        if (y >= sampleCount.height ()) break;
+
         for (int l = 0; l < tileSizeX; l++)
         {
             int x = i * tileSizeX + l;
-            if (x >= sampleCount.width()) break;
-            
-            sampleCount[y][x] = getPixelSampleCount(y, x);
-            
+            if (x >= sampleCount.width ()) break;
+
+            sampleCount[y][x] = getPixelSampleCount (y, x);
+
             dataZ[y][x] = new float[sampleCount[y][x]];
-            dataA[y][x] = new half [sampleCount[y][x]];
-            
-            getPixelSampleData(y, x, dataZ, dataA);
+            dataA[y][x] = new half[sampleCount[y][x]];
+
+            getPixelSampleData (y, x, dataZ, dataA);
         }
     }
 }
 
 void
 writeDeepTiledFile (
-    const char filename[],
-    Box2i      displayWindow,
-    Box2i      dataWindow,
-    int        tileSizeX,
-    int        tileSizeY,
+    const char  filename[],
+    Box2i       displayWindow,
+    Box2i       dataWindow,
+    int         tileSizeX,
+    int         tileSizeY,
     Compression compression = Compression::ZIPS_COMPRESSION)
 {
     //
@@ -176,7 +172,7 @@ writeDeepTiledFile (
     //    - describe the memory layout of the A and Z pixels
     //    - store the pixels in the file
     //
-    
+
     int height = dataWindow.max.y - dataWindow.min.y + 1;
     int width  = dataWindow.max.x - dataWindow.min.x + 1;
 
@@ -233,11 +229,12 @@ writeDeepTiledFile (
         for (int i = 0; i < file.numXTiles (0); i++)
         {
             // Generate data for sampleCount, dataZ and dataA.
-            getSampleDataForTile (i, j, tileSizeX, tileSizeY, sampleCount, dataZ, dataA);
+            getSampleDataForTile (
+                i, j, tileSizeX, tileSizeY, sampleCount, dataZ, dataA);
             file.writeTile (i, j, 0);
         }
     }
-    
+
     for (int i = 0; i < height; i++)
     {
         for (int j = 0; j < width; j++)
@@ -248,34 +245,44 @@ writeDeepTiledFile (
     }
 }
 
-void deepTiledExamples()
+void
+deepTiledExamples ()
 {
     int w = 800;
     int h = 600;
-    
+
     int tileSizeX = 64;
     int tileSizeY = 64;
-    
+
     Box2i window;
-    window.min.setValue(0, 0);
-    window.max.setValue(w - 1, h - 1);
-    
-    Array2D<float *> dataZ;
-    dataZ.resizeErase(h, w);
-    
-    Array2D<half *> dataA;
-    dataA.resizeErase(h, w);
-    
+    window.min.setValue (0, 0);
+    window.max.setValue (w - 1, h - 1);
+
+    Array2D<float*> dataZ;
+    dataZ.resizeErase (h, w);
+
+    Array2D<half*> dataA;
+    dataA.resizeErase (h, w);
+
     Array2D<unsigned int> sampleCount;
-    sampleCount.resizeErase(h, w);
-    
+    sampleCount.resizeErase (h, w);
+
     // Create an image to be used as a source for deep data
-    testDataA.resizeErase(h, w);
-    testDataZ.resizeErase(h, w);
-    drawImage2(testDataA, testDataZ, w, h);
-    
-    writeDeepTiledFile("testTiled.deep.zip.exr", window, window, tileSizeX, tileSizeY);
-    readDeepTiledFile ("testTiled.deep.zip.exr", window, window, dataZ, dataA, sampleCount);
-    writeDeepTiledFile("testTiled.deep.zstd.exr", window, window, tileSizeX, tileSizeY, Compression::ZSTD_COMPRESSION);
-    readDeepTiledFile ("testTiled.deep.zstd.exr", window, window, dataZ, dataA, sampleCount);
+    testDataA.resizeErase (h, w);
+    testDataZ.resizeErase (h, w);
+    drawImage2 (testDataA, testDataZ, w, h);
+
+    writeDeepTiledFile (
+        "testTiled.deep.exr", window, window, tileSizeX, tileSizeY);
+    readDeepTiledFile (
+        "testTiled.deep.exr", window, window, dataZ, dataA, sampleCount);
+    writeDeepTiledFile (
+        "testTiled.deep.zstd.exr",
+        window,
+        window,
+        tileSizeX,
+        tileSizeY,
+        Compression::ZSTD_COMPRESSION);
+    readDeepTiledFile (
+        "testTiled.deep.zstd.exr", window, window, dataZ, dataA, sampleCount);
 }
