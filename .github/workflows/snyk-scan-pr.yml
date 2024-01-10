@@ -1,0 +1,45 @@
+---
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright (c) Contributors to the OpenEXR Project.
+
+name: Snyk Scan Code
+
+on:
+  # https://docs.github.com/en/actions/learn-github-actions/workflow-syntax-for-github-actions
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '**.h'
+      - '**.c'
+      - '**.cpp'
+
+jobs:
+  snyk-scan-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: snyk/actions/setup@master
+        id: snyk
+
+      - name: Snyk version
+        run: echo "${{ steps.snyk.outputs.version }}"
+
+      - name: Snyk Auth
+        run: snyk auth ${{ secrets.SNYK_TOKEN }}
+
+      - name: Snyk Scan Code
+        # Scan the C/C++ code for vulnerabilities using the Snyk CLI with the unmanaged flag
+        # https://docs.snyk.io/scan-using-snyk/supported-languages-and-frameworks/c-c++ for options
+        run: snyk test --unmanaged --print-dep-paths --org=${{ secrets.SNYK_ORG }}
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        continue-on-error: true # optional
+
+      - name: Monitor for Vulnerabilities
+        # To import the test results (issues and dependencies) in the Snyk CLI, run the snyk monitor --unmanaged command:
+        run: snyk monitor --unmanaged --org=${{ secrets.SNYK_ORG }}
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        continue-on-error: true # optional
