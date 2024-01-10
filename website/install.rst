@@ -39,15 +39,12 @@ On macOS, install via `Homebrew <https://formulae.brew.sh/formula/openexr>`_:
 
    % brew install openexr
 
-We do not recommend installation via
-`Macports <https://ports.macports.org/port/openexr>`_ because the
-distribution is out of date.
+Alternatively, you can install on macOS via `MacPorts
+<https://ports.macports.org/port/openexr>`_:
 
-Also note that the official OpenEXR project does not provide supported
-python bindings. ``pip install openexr`` installs the `openexrpython
-<https://github.com/jamesbowman/openexrpython>`_ module, which is not
-affiliated with the OpenEXR project or the ASWF. Please direct
-questions there.
+.. code-block::
+
+   % sudo port install openexr
 
 Build from Source
 -----------------
