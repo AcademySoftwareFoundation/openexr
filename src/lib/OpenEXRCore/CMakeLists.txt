@@ -104,10 +104,10 @@ openexr_define_library(OpenEXRCore
     Imath::Imath
   )
 
-if (DEFINED EXR_DEFLATE_TARGET)
+if (DEFINED EXR_DEFLATE_LIB)
   if (BUILD_SHARED_LIBS)
-    target_link_libraries(OpenEXRCore PRIVATE ${EXR_DEFLATE_TARGET})
+    target_link_libraries(OpenEXRCore PRIVATE ${EXR_DEFLATE_LIB})
   else()
-    target_link_libraries(OpenEXRCore PUBLIC ${EXR_DEFLATE_TARGET})
+    target_link_libraries(OpenEXRCore PUBLIC ${EXR_DEFLATE_LIB})
   endif()
 endif()
