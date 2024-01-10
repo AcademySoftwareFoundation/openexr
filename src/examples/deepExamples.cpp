@@ -47,7 +47,7 @@ readDeepScanlineFile (
     //    - allocate memory for the pixels
     //    - describe the layout of the A, and Z pixel buffers
     //    - read the sample counts from the file
-    //    - allocate the memory requred to store the samples
+    //    - allocate the memory required to store the samples
     //    - read the pixels from the file
     //
 
@@ -69,7 +69,8 @@ readDeepScanlineFile (
 
     frameBuffer.insertSampleCountSlice (Slice (
         UINT,
-        (char*) (&sampleCount[0][0] - dataWindow.min.x - dataWindow.min.y * width),
+        (char*) (&sampleCount[0][0] - dataWindow.min.x -
+                 dataWindow.min.y * width),
         sizeof (unsigned int) * 1,       // xStride
         sizeof (unsigned int) * width)); // yStride
 
@@ -77,7 +78,8 @@ readDeepScanlineFile (
         "dataZ",
         DeepSlice (
             FLOAT,
-            (char*) (&dataZ[0][0] - dataWindow.min.x - dataWindow.min.y * width),
+            (char*) (&dataZ[0][0] - dataWindow.min.x -
+                     dataWindow.min.y * width),
 
             sizeof (float*) * 1,     // xStride for pointer array
             sizeof (float*) * width, // yStride for pointer array
@@ -87,7 +89,8 @@ readDeepScanlineFile (
         "dataA",
         DeepSlice (
             HALF,
-            (char*) (&dataA[0][0] - dataWindow.min.x - dataWindow.min.y * width),
+            (char*) (&dataA[0][0] - dataWindow.min.x -
+                     dataWindow.min.y * width),
             sizeof (half*) * 1,     // xStride for pointer array
             sizeof (half*) * width, // yStride for pointer array
             sizeof (half) * 1));    // stride for O data sample
@@ -176,7 +179,8 @@ writeDeepScanlineFile (
 
     frameBuffer.insertSampleCountSlice (Slice (
         UINT,
-        (char*) (&sampleCount[0][0] - dataWindow.min.x - dataWindow.min.y * width),
+        (char*) (&sampleCount[0][0] - dataWindow.min.x -
+                 dataWindow.min.y * width),
         sizeof (unsigned int) * 1, // xS
 
         sizeof (unsigned int) * width)); // yStride
@@ -185,7 +189,8 @@ writeDeepScanlineFile (
         "Z",
         DeepSlice (
             FLOAT,
-            (char*) (&dataZ[0][0] - dataWindow.min.x - dataWindow.min.y * width),
+            (char*) (&dataZ[0][0] - dataWindow.min.x -
+                     dataWindow.min.y * width),
             sizeof (float*) * 1, // xStride for pointer
 
             sizeof (float*) * width, // yStride for pointer array
@@ -195,7 +200,8 @@ writeDeepScanlineFile (
         "A",
         DeepSlice (
             HALF,
-            (char*) (&dataA[0][0] - dataWindow.min.x - dataWindow.min.y * width),
+            (char*) (&dataA[0][0] - dataWindow.min.x -
+                     dataWindow.min.y * width),
             sizeof (half*) * 1,     // xStride for pointer array
             sizeof (half*) * width, // yStride for pointer array
             sizeof (half) * 1));    // stride for A data sample
