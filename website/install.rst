@@ -44,7 +44,7 @@ Alternatively, you can install on macOS via `MacPorts
 
 .. code-block::
 
-   % sudo port install openexr
+   % port install openexr
 
 Build from Source
 -----------------
