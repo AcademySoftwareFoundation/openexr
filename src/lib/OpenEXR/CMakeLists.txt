@@ -217,12 +217,9 @@ openexr_define_library(OpenEXR
     ImfXdr.h
   DEPENDENCIES
     Imath::Imath
+    Blosc2::blosc2_static
     OpenEXR::Config
     OpenEXR::Iex
     OpenEXR::IlmThread
     OpenEXR::OpenEXRCore
   )
-
-target_include_directories(OpenEXR PUBLIC "/home/vladal/bin/include/")
-target_link_directories(OpenEXR PUBLIC "/home/vladal/bin/lib")
-target_link_libraries(OpenEXR PUBLIC "dl" "blosc2")
