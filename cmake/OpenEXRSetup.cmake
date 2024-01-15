@@ -290,6 +290,94 @@ else()
   endif()
 endif()
 
+#######################################
+# Find or install Blosc2
+#######################################
+
+set(MINIMUM_BLOSC2_VERSION 2.11.0)
+option(OPENEXR_FORCE_INTERNAL_BLOSC2 [=[Force using installed Blosc2.]=] OFF)
+
+set(BLOSC2_REPO "https://github.com/Blosc/c-blosc2.git" CACHE STRING "Repo path for blosc2 source")
+set(BLOSC2_TAG "v${MINIMUM_BLOSC2_VERSION}" CACHE STRING "Tag to use for blosc2 source repo")
+
+if(NOT OPENEXR_FORCE_INTERNAL_BLOSC2)
+  #TODO: ^^ Release should not clone from main, this is a place holder
+  set(CMAKE_IGNORE_PATH "${CMAKE_CURRENT_BINARY_DIR}/_deps/blosc2-src/config;${CMAKE_CURRENT_BINARY_DIR}/_deps/blosc2-build/config")
+  find_package(Blosc2 ${MINIMUM_BLOSC2_VERSION})
+  set(CMAKE_IGNORE_PATH)
+endif()
+
+if(NOT TARGET Blosc2::blosc2_static AND NOT Blosc2_FOUND)
+  if(OPENEXR_FORCE_INTERNAL_BLOSC2)
+    message(STATUS "Blosc2 forced internal, installing from ${BLOSC2_REPO} (${BLOSC2_TAG})")
+  else()
+    message(STATUS "Blosc2 was not found, installing from ${BLOSC2_REPO} (${BLOSC2_TAG})")
+  endif()
+
+  # configure the blosc2 build
+  set(BUILD_BENCHMARKS OFF CACHE INTERNAL "no benchmarks")
+  set(BUILD_EXAMPLES OFF CACHE INTERNAL "no examples")
+  set(BUILD_FUZZERS OFF CACHE INTERNAL "no fuzzer")
+  set(BUILD_SHARED OFF CACHE INTERNAL "no shared library")
+  set(BUILD_TESTS OFF CACHE INTERNAL "no tests")
+
+  include(FetchContent)
+  FetchContent_Declare(Blosc2
+    GIT_REPOSITORY "${BLOSC2_REPO}"
+    GIT_TAG "${BLOSC2_TAG}"
+    GIT_SHALLOW ON
+    GIT_PROGRESS ON)
+
+  FetchContent_GetProperties(Blosc2)
+  if(NOT Blosc2_POPULATED)
+    FetchContent_Populate(Blosc2)
+    # Propagate OpenEXR's setting for pkg-config generation to Blosc2:
+    # If OpenEXR is generating it, the internal Blosc2 should, too.
+    # TODO: Do we really need that here ?
+    # set(BLOSC2_INSTALL_PKG_CONFIG ${OPENEXR_INSTALL_PKG_CONFIG}) 
+    add_subdirectory(${blosc2_SOURCE_DIR} ${blosc2_BINARY_DIR})
+  endif()
+  # the install creates this but if we're using the library locally we
+  # haven't installed the header files yet, so need to extract those
+  # and make a variable for header only usage
+  if(NOT TARGET Blosc2::Blosc2Config)
+    # TODO: Do we really need that here ?
+    # get_target_property(blosc2inc blosc2_static INTERFACE_INCLUDE_DIRECTORIES)
+    # get_target_property(blosc2confinc blosc2_shared INTERFACE_INCLUDE_DIRECTORIES)
+    # list(APPEND blosc2inc ${blosc2confinc})
+    # set(BLOSC2_HEADER_ONLY_INCLUDE_DIRS ${blosc2inc})
+    # message(STATUS "Blosc2 interface dirs ${BLOSC2_HEADER_ONLY_INCLUDE_DIRS}")
+
+    get_target_property(blosc2inc Blosc2::blosc2_static INCLUDE_DIRECTORIES)
+    set(BLOSC2_INCLUDE_DIRS ${blosc2inc})
+    
+    get_target_property(blosc2libdir Blosc2::blosc2_static BINARY_DIR)
+    set(BLOSC2_LIB_DIR ${blosc2libdir})
+    
+    get_target_property(blosc2libname Blosc2::blosc2_static OUTPUT_NAME)
+    set(BLOSC2_LIB_NAME ${blosc2libname})
+  endif()
+else()
+  message(STATUS "Using Blosc2 ${Blosc2_VERSION} from ${Blosc2_DIR}")
+  # local build
+  if(NOT TARGET Blosc2::Blosc2Config AND TARGET Blosc2 AND TARGET Blosc2Config)
+    get_target_property(blosc2inc blosc2_static INTERFACE_INCLUDE_DIRECTORIES)
+    get_target_property(blosc2confinc blosc2_shared INTERFACE_INCLUDE_DIRECTORIES)
+    list(APPEND blosc2inc ${blosc2confinc})
+    set(BLOSC2_HEADER_ONLY_INCLUDE_DIRS ${blosc2inc})
+    message(STATUS "Blosc2 internal interface dirs: ${BLOSC2_HEADER_ONLY_INCLUDE_DIRS}")
+
+    get_target_property(blosc2inc Blosc2::blosc2_static INCLUDE_DIRECTORIES)
+    set(BLOSC2_INCLUDE_DIRS ${blosc2inc})
+    
+    get_target_property(blosc2libdir Blosc2::blosc2_static BINARY_DIR)
+    set(BLOSC2_LIB_DIR ${blosc2libdir})
+    
+    get_target_property(blosc2libname Blosc2::blosc2_static OUTPUT_NAME)
+    set(BLOSC2_LIB_NAME ${blosc2libname})
+  endif()
+endif()
+
 ###########################################
 # Check if we need to emulate vld1q_f32_x2
 ###########################################
