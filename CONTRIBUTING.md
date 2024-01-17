@@ -211,7 +211,7 @@ openexr-dev@lists.aswf.io mail list.
 
 ### Pull Requests
 
-Contributions should be submitted as Github pull requests. See
+Contributions should be submitted as GitHub pull requests. See
 [Creating a pull request](https://help.github.com/articles/creating-a-pull-request/)
 if you're unfamiliar with this concept. 
 
@@ -227,7 +227,7 @@ with a separate pull request.
 
 3. Push commits to your fork.
 
-4. Create a Github pull request from your topic branch.
+4. Create a GitHub pull request from your topic branch.
 
 5. Pull requests will be reviewed by project committers and contributors,
 who may discuss, offer constructive feedback, request changes, or approve
