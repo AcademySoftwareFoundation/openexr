@@ -3,6 +3,26 @@
 // Copyright (c) DreamWorks Animation LLC and Contributors of the OpenEXR Project
 //
 
+// Mandatory section to register this compression method in OpenEXR
+// ----------------------------------------------------------------
+// DWAA_COMPRESSION = 8
+// DWAA_COMPRESSION name dwaa
+// DWAA_COMPRESSION desc lossy DCT based compression, in blocks of 32 scanlines. More efficient for partial buffer access.
+// DWAA_COMPRESSION scanlines 32
+// DWAA_COMPRESSION lossy true
+// DWAA_COMPRESSION deep false
+// DWAA_COMPRESSION newscan DwaCompressor (hdr, static_cast<int> (maxScanLineSize), 32, DwaCompressor::STATIC_HUFFMAN)
+// DWAA_COMPRESSION newtile DwaCompressor (hdr, static_cast<int> (tileLineSize), static_cast<int> (numTileLines), DwaCompressor::DEFLATE);
+// ----------------------------------------------------------------
+// DWAB_COMPRESSION = 9
+// DWAB_COMPRESSION name dwab
+// DWAB_COMPRESSION desc lossy DCT based compression, in blocks of 256 scanlines. More efficient space wise and faster to decode full frames than DWAA_COMPRESSION.
+// DWAB_COMPRESSION scanlines 256
+// DWAB_COMPRESSION lossy true
+// DWAB_COMPRESSION deep false
+// DWAB_COMPRESSION newscan DwaCompressor (hdr, static_cast<int> (maxScanLineSize), 256, DwaCompressor::STATIC_HUFFMAN)
+// DWAB_COMPRESSION newtile DwaCompressor (hdr, static_cast<int> (tileLineSize), static_cast<int> (numTileLines), DwaCompressor::STATIC_HUFFMAN)
+
 #ifndef INCLUDED_IMF_DWA_COMRESSOR_H
 #define INCLUDED_IMF_DWA_COMRESSOR_H
 
