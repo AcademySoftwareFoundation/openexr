@@ -43,30 +43,9 @@ using namespace std;
 void
 printCompression (Compression c)
 {
-    switch (c)
-    {
-        case NO_COMPRESSION: cout << "none"; break;
-
-        case RLE_COMPRESSION: cout << "run-length encoding"; break;
-
-        case ZIPS_COMPRESSION: cout << "zip, individual scanlines"; break;
-
-        case ZIP_COMPRESSION: cout << "zip, multi-scanline blocks"; break;
-
-        case PIZ_COMPRESSION: cout << "piz"; break;
-
-        case PXR24_COMPRESSION: cout << "pxr24"; break;
-
-        case B44_COMPRESSION: cout << "b44"; break;
-
-        case B44A_COMPRESSION: cout << "b44a"; break;
-
-        case DWAA_COMPRESSION: cout << "dwa, small scanline blocks"; break;
-
-        case DWAB_COMPRESSION: cout << "dwa, medium scanline blocks"; break;
-
-        default: cout << int (c); break;
-    }
+    std::string desc;
+    getCompressionDescriptionFromId(c, desc);
+    cout << desc.c_str();
 }
 
 void
