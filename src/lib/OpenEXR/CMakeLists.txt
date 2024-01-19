@@ -36,7 +36,7 @@ set(NO_COMPRESSION_deep "true")
 # get list of headers
 file(GLOB compressor_headers Imf*Compressor.h)
 list(REMOVE_ITEM compressor_headers "ImfCompressor.h")
-set(id_list)    # id list to detect non-uniques
+set(id_list)    # id list for sanity checks
 foreach(header ${compressor_headers})
   # extract registration metadata
   file(STRINGS ${header} meta REGEX "// [A-Z0-9]+_COMPRESSION *.+")
@@ -44,8 +44,9 @@ foreach(header ${compressor_headers})
   foreach(field ${meta})
     string(REGEX MATCH "[A-Z0-9]+_COMPRESSION" enum_name ${field})
     if(field MATCHES "// [A-Z0-9]+_COMPRESSION *=.+")
+      # extract enum ids
       string(REGEX MATCH "[0-9]+$" id ${field})
-      # sanity check
+      # sanity check: no duplicates
       list(FIND id_list ${id} check)
       if(check GREATER -1)
         message(FATAL_ERROR "Found duplicate compressor id in ${field} !")
@@ -59,7 +60,7 @@ foreach(header ${compressor_headers})
       string(APPEND enum "," )
       list(APPEND comp_enum_list ${enum})
     else()
-      # store other fields in named variables
+      # store other fields in named variables, i.e. ${RLE_COMPRESION_name}
       string(REGEX MATCH "${enum_name} *([a-z]+) (.+)" tmp ${field})
       set(data_name ${CMAKE_MATCH_1})
       set(data_value ${CMAKE_MATCH_2})
@@ -67,6 +68,18 @@ foreach(header ${compressor_headers})
     endif()
   endforeach()
 endforeach()
+
+# sanity check: no gaps in enum ids
+list(SORT id_list COMPARE NATURAL)
+set(previous_id 0)
+foreach(id ${id_list})
+  math(EXPR predicted_id "${previous_id} + 1")
+  if(NOT id EQUAL predicted_id)
+    message(FATAL_ERROR "Found a gap in compressor id list, between ${previous_id} and ${id}. id_list=${id_list} !")
+  endif()
+  set(previous_id ${predicted_id})
+endforeach()
+
 # sort enum list and remove prefixed id
 list(SORT comp_enum_list COMPARE NATURAL)
 list(TRANSFORM comp_enum_list REPLACE "^[0-9]+" "")
