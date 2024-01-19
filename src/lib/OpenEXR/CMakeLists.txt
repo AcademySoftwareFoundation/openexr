@@ -132,10 +132,18 @@ endforeach()
 string(JOIN "\n\n" EXR_NEW_COMPRESSOR ${new_scan_comp})
 string(JOIN "\n\n" EXR_NEW_TILE_COMPRESSOR ${new_tile_comp})
 
+# build defines string for ImfCRgbaFile.h
+foreach(enum ${comp_enum_list})
+  string(STRIP "${enum}" enum)
+  list(APPEND crgba_defines "#define IMF_${enum}")
+endforeach()
+string(JOIN "\n" EXR_CRGBA_DEFINES ${crgba_defines})
+
 # create the files
 message(STATUS "Configuring compression methods")
 configure_file(ImfCompression.h.in ${CMAKE_CURRENT_SOURCE_DIR}/ImfCompression.h)
 configure_file(ImfCompressor.cpp.in ${CMAKE_CURRENT_SOURCE_DIR}/ImfCompressor.cpp)
+configure_file(ImfCRgbaFile.h.in ${CMAKE_CURRENT_SOURCE_DIR}/ImfCRgbaFile.h)
 
 # ------------------------------------------------------------------------------
 # END OF AUTOMATIC COMPRESSOR INTEGRATION
