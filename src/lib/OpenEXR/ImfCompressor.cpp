@@ -19,6 +19,7 @@
 #include "ImfRleCompressor.h"
 #include "ImfZipCompressor.h"
 #include "ImfZstdCompressor.h"
+#include "openexr_compression.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
@@ -145,7 +146,7 @@ newCompressor (Compression c, size_t maxScanLineSize, const Header& hdr)
                 DwaCompressor::STATIC_HUFFMAN);
 
         case ZSTD_COMPRESSION:
-            return new ZstdCompressor (hdr, maxScanLineSize, 32);
+            return new ZstdCompressor (hdr);
         default: return 0;
     }
 }
@@ -167,7 +168,7 @@ numLinesInBuffer (Compression comp)
         case B44_COMPRESSION:
         case B44A_COMPRESSION:
         case DWAA_COMPRESSION: return 32;
-        case ZSTD_COMPRESSION: return 32;
+        case ZSTD_COMPRESSION: return (int)exr_get_zstd_lines_per_chunk();
         case DWAB_COMPRESSION: return 256;
 
         default: throw IEX_NAMESPACE::ArgExc ("Unknown compression type");
@@ -190,7 +191,7 @@ newTileCompressor (
             return new ZipCompressor (hdr, tileLineSize, numTileLines);
         case ZSTD_COMPRESSION:
 
-            return new ZstdCompressor (hdr, tileLineSize, numTileLines);
+            return new ZstdCompressor (hdr);
 
         case PIZ_COMPRESSION:
 
