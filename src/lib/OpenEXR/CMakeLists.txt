@@ -37,7 +37,7 @@ set(NO_COMPRESSION_deep "true")
 
 # get list of headers
 file(GLOB compressor_headers Imf*Compressor.h)
-list(REMOVE_ITEM compressor_headers "ImfCompressor.h")
+list(FILTER compressor_headers EXCLUDE REGEX ".*/ImfCompressor.h")
 set(id_list)    # id list for sanity checks
 foreach(header ${compressor_headers})
   # extract registration metadata
