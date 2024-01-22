@@ -217,7 +217,6 @@ openexr_define_library(OpenEXR
     ImfXdr.h
   DEPENDENCIES
     Imath::Imath
-    Blosc2::blosc2_static
     OpenEXR::Config
     OpenEXR::Iex
     OpenEXR::IlmThread
