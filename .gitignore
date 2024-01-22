@@ -31,10 +31,6 @@ OpenEXR/IlmImfTest/IlmImfTest
 OpenEXR/IlmImfUtilTest/IlmImfUtilTest
 OpenEXR/IlmImfFuzzTest/IlmImfFuzzTest
 Contrib/DtexToExr/DtexToExr
-ImfCompression.h
-ImfCompression.cpp
-ImfCompressor.cpp
-ImfCRgbaFile.h
 .deps
 *.o
 *.lo
