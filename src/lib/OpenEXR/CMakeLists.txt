@@ -21,7 +21,9 @@
 # Each new compressor needs to add that metadata to seamlessly integrate into 
 # the build. The collected metadata will be used to update:
 #   - ImfCompression.h
+#   - ImfCompression.cpp
 #   - ImfCompressor.cpp
+#   - ImfCRgbaFile.h
 # ------------------------------------------------------------------------------
 
 message(STATUS "Parsing compression headers")
@@ -142,6 +144,7 @@ string(JOIN "\n" EXR_CRGBA_DEFINES ${crgba_defines})
 # create the files
 message(STATUS "Configuring compression methods")
 configure_file(ImfCompression.h.in ${CMAKE_CURRENT_SOURCE_DIR}/ImfCompression.h)
+configure_file(ImfCompression.cpp.in ${CMAKE_CURRENT_SOURCE_DIR}/ImfCompression.cpp)
 configure_file(ImfCompressor.cpp.in ${CMAKE_CURRENT_SOURCE_DIR}/ImfCompressor.cpp)
 configure_file(ImfCRgbaFile.h.in ${CMAKE_CURRENT_SOURCE_DIR}/ImfCRgbaFile.h)
 
@@ -156,6 +159,7 @@ openexr_define_library(OpenEXR
     ImfAutoArray.h
     ImfB44Compressor.h
     ImfCheckedArithmetic.h
+    ImfCompression.h
     ImfCompressor.h
     ImfDwaCompressor.h
     ImfDwaCompressorSimd.h
@@ -190,6 +194,7 @@ openexr_define_library(OpenEXR
     ImfCompositeDeepScanLine.cpp
     ImfCompressionAttribute.cpp
     ImfCompressor.cpp
+    ImfCompression.cpp
     ImfConvert.cpp
     ImfCRgbaFile.cpp
     ImfDeepCompositing.cpp
