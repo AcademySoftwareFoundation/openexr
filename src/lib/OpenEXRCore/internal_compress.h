@@ -33,4 +33,5 @@ exr_result_t internal_exr_apply_dwaa (exr_encode_pipeline_t* encode);
 
 exr_result_t internal_exr_apply_dwab (exr_encode_pipeline_t* encode);
 
+exr_result_t internal_exr_apply_zstd (exr_encode_pipeline_t* encode);
 #endif /* OPENEXR_CORE_COMPRESS_H */
