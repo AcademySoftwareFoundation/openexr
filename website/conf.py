@@ -147,7 +147,7 @@ html_theme = 'bizstyle' # OK
 html_theme = "press"
 html_theme_options = {
   "external_links": [
-      ("Github", "https://github.com/AcademySoftwareFoundation/openexr"),
+      ("GitHub", "https://github.com/AcademySoftwareFoundation/openexr"),
   ]
 }
 
