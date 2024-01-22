@@ -115,7 +115,11 @@ string(JOIN "\n" EXR_CODEC_NAME_TO_ID ${name_to_id})
 
 # build include string
 foreach(header ${compressor_headers})
-  cmake_path(GET header FILENAME filename)
+  if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.20.0")
+    cmake_path(GET header FILENAME filename)
+  else()
+    string(REGEX MATCH "[^/]+\.h$" filename ${header})
+  endif()
   list(APPEND includes "#include \"${filename}\"")
 endforeach()
 string(JOIN "\n" EXR_COMPRESSION_INCLUDES ${includes})
