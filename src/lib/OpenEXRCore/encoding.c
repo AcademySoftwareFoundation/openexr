@@ -54,6 +54,7 @@ default_compress_chunk (exr_encode_pipeline_t* encode)
         case EXR_COMPRESSION_B44A: rv = internal_exr_apply_b44a (encode); break;
         case EXR_COMPRESSION_DWAA: rv = internal_exr_apply_dwaa (encode); break;
         case EXR_COMPRESSION_DWAB: rv = internal_exr_apply_dwab (encode); break;
+        case EXR_COMPRESSION_ZSTD: rv = internal_exr_apply_zstd (encode); break;
         case EXR_COMPRESSION_LAST_TYPE:
         default:
             return pctxt->print_error (

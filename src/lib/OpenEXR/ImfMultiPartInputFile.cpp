@@ -22,6 +22,7 @@
 #include "ImfTiledMisc.h"
 #include "ImfTimeCodeAttribute.h"
 #include "ImfVersion.h"
+#include "openexr_compression.h"
 
 #include <OpenEXRConfig.h>
 
@@ -547,7 +548,7 @@ MultiPartInputFile::Data::chunkOffsetReconstruction (
             // (TODO) fix this so that it doesn't need to be revised for future compression types.
             switch (parts[i]->header.compression ())
             {
-                case ZSTD_COMPRESSION: rowsizes[i] = 32; break;
+                case ZSTD_COMPRESSION: rowsizes[i] = (int)exr_get_zstd_lines_per_chunk(); break;
                 case DWAB_COMPRESSION: rowsizes[i] = 256; break;
                 case PIZ_COMPRESSION:
                 case B44_COMPRESSION:
