@@ -248,7 +248,8 @@ jobs:
                 -DOPENEXR_INSTALL_TOOLS='ON' \
                 -DOPENEXR_INSTALL_DOCS='ON' \
                 -DOPENEXR_RUN_FUZZ_TESTS='OFF' \
-                -DOPENEXR_ENABLE_THREADING=${{ matrix.threads-enabled }}
+                -DOPENEXR_ENABLE_THREADING=${{ matrix.threads-enabled }} \
+                -DUPDATE_COMPRESSOR_LIST='ON'
         working-directory: _build
       - name: Build
         run: |
@@ -381,7 +382,8 @@ jobs:
                 -DBUILD_SHARED_LIBS=${{ matrix.build-shared }} \
                 -DOPENEXR_INSTALL_TOOLS='ON' \
                 -DOPENEXR_INSTALL_DOCS='OFF' \
-                -DOPENEXR_RUN_FUZZ_TESTS='OFF'
+                -DOPENEXR_RUN_FUZZ_TESTS='OFF' \
+                -DUPDATE_COMPRESSOR_LIST='ON'
         working-directory: _build
       - name: Build
         run: |
@@ -516,7 +518,8 @@ jobs:
                 -DBUILD_SHARED_LIBS=${{ matrix.build-shared }} \
                 -DOPENEXR_INSTALL_TOOLS='ON' \
                 -DOPENEXR_INSTALL_DOCS='OFF' \
-                -DOPENEXR_RUN_FUZZ_TESTS='OFF' 
+                -DOPENEXR_RUN_FUZZ_TESTS='OFF'  \
+                -DUPDATE_COMPRESSOR_LIST='ON'
         shell: bash
         working-directory: _build
       - name: Build
