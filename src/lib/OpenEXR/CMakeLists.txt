@@ -102,6 +102,7 @@ if(UPDATE_COMPRESSOR_LIST)
   # sort enum list and remove prefixed id
   list(SORT comp_enum_list COMPARE NATURAL)
   list(TRANSFORM comp_enum_list REPLACE "^[0-9]+" "")
+  list(LENGTH comp_enum_list enum_list_length)
   # final enum fields formatting
   list(APPEND comp_enum_list "${tab}NUM_COMPRESSION_METHODS")
   string(JOIN "\n" EXR_CODEC_ENUM_DEFINITION ${comp_enum_list})
@@ -156,8 +157,12 @@ if(UPDATE_COMPRESSOR_LIST)
 
   # build defines string for ImfCRgbaFile.h
   foreach(enum ${comp_enum_list})
-    string(STRIP "${enum}" enum)
-    list(APPEND crgba_defines "#define IMF_${enum}")
+    # string(STRIP "${enum}" enum)
+    string(REGEX MATCH "([A-Z0-9_]+)[ =]*([0-9]*)" tmp ${enum})
+    if(CMAKE_MATCH_1 STREQUAL "NUM_COMPRESSION_METHODS")
+        set(CMAKE_MATCH_2 ${enum_list_length})
+    endif()
+    list(APPEND crgba_defines "#define IMF_${CMAKE_MATCH_1} ${CMAKE_MATCH_2}")
   endforeach()
   string(JOIN "\n" EXR_CRGBA_DEFINES ${crgba_defines})
 
