@@ -1,0 +1,36 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright (c) Contributors to the OpenEXR Project.
+
+name: Publish Release Notice to ASWF Slack
+
+on:
+  release:
+    types:
+      - published
+      # published should cover both 'released' and 'prereleased'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+    - name: 'Notify Slack #release-announcements'
+      id: slack1
+      with:
+        project_name: "OpenEXR"
+        slack_bot_token: ${{ secrets.SLACK_BOT_TOKEN }}
+        slack_channel: "#release-announcements"
+        project_logo: "https://artwork.aswf.io/projects/openexr/icon/color/openexr-icon-color.png"
+      uses: jmertic/slack-release-notifier@main
+
+    - name: 'Notify Slack #openexr'
+      id: slack2
+      with:
+        project_name: "OpenEXR"
+        slack_bot_token: ${{ secrets.SLACK_BOT_TOKEN }}
+        slack_channel: "#openexr"
+        project_logo: "https://artwork.aswf.io/other/aswf/text/aqua/aswf-text-aqua.png"
+        project_logo: "https://artwork.aswf.io/projects/openexr/icon/color/openexr-icon-color.png"
+      uses: jmertic/slack-release-notifier@main
+      

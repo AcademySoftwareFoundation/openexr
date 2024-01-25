@@ -10,6 +10,9 @@ Install
 .. toctree::
    :caption: Install
              
+Linux
+-----
+
 The OpenEXR library is available for download and installation in
 binary form via package managers on many Linux distributions. See
 `https://pkgs.org/download/openexr
@@ -33,21 +36,31 @@ Beware that some distributions are out of date and only provide
 distributions of outdated releases OpenEXR. We recommend against using
 OpenEXR v2, and we *strongly* recommend against using OpenEXR v1.
 
+macOS
+-----
+
 On macOS, install via `Homebrew <https://formulae.brew.sh/formula/openexr>`_:
 
 .. code-block::
 
    % brew install openexr
 
-We do not recommend installation via
-`Macports <https://ports.macports.org/port/openexr>`_ because the
-distribution is out of date.
+Alternatively, you can install on macOS via `MacPorts
+<https://ports.macports.org/port/openexr>`_:
 
-Also note that the official OpenEXR project does not provide supported
-python bindings. ``pip install openexr`` installs the `openexrpython
-<https://github.com/jamesbowman/openexrpython>`_ module, which is not
-affiliated with the OpenEXR project or the ASWF. Please direct
-questions there.
+.. code-block::
+
+   % port install openexr
+
+Windows
+-------
+
+Install via `vcpkg <https://vcpkg.io/en/packages>`_:
+
+.. code-block::
+
+   % .\vcpkg install openexr
+
 
 Build from Source
 -----------------

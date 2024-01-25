@@ -23,6 +23,8 @@
 * [Version 3.0.1](#version-301-april-1-2021) April 1, 2021
 * [Version 3.0.1-beta](#version-301-beta-march-28-2021) March 28, 2021
 * [Version 3.0.0-beta](#version-300-beta-march-16-2021) March 16, 2021
+* [Version 2.5.10](#version-2510-december-19-2023) December 19, 2023
+* [Version 2.5.9](#version-259-july-31-2023) July 31, 2023
 * [Version 2.5.8](#version-258-march-18-2022) March 18, 2022
 * [Version 2.5.7](#version-257-june-16-2021) June 16, 2021
 * [Version 2.5.6](#version-256-may-17-2021) May 17, 2021
@@ -1378,6 +1380,28 @@ Specific OSS-fuzz issues addressed include:
 * [796](https://github.com/AcademySoftwareFoundation/openexr/pull/796)  Initial rename of OpenEXR and IlmBase directories and seperation of Test
 * [791](https://github.com/AcademySoftwareFoundation/openexr/pull/791)  Initial removal of all Imath source files and minimal cmake adjustments
 * [769](https://github.com/AcademySoftwareFoundation/openexr/pull/769)  Bugfix/arkellr remove cvsignore files
+
+## Version 2.5.10 (December 19, 2023)
+
+Patch release that fixes a build failure on macOS prior to 10.6
+(fallback for missing `libdispatch`).
+
+### Merged Pull Requests
+
+* [1596] (https://github.com/AcademySoftwareFoundation/openexr/pull/1596)
+macOS: use libdispatch only where available
+
+## Version 2.5.9 (July 31, 2023)
+
+Patch release that fixes a compile failure with gcc-13 gcc 13 and
+problem with PyIlmBase's pkgconfig.
+
+### Merged Pull Requests
+
+* [1499](https://github.com/AcademySoftwareFoundation/openexr/pull/1499)
+fix build of 2.5 branch with GCC 13
+* [1253](https://github.com/AcademySoftwareFoundation/openexr/pull/1253)
+Adjust exec_prefix path for PyIlmBase's pkgconfig file
 
 ## Version 2.5.8 (March 18, 2022)
 
