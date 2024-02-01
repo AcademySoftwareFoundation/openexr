@@ -423,7 +423,12 @@ Component Options
 
 * ``OPENEXR_BUILD_TOOLS``
 
-  Build and install the binary programs (exrheader, exrinfo,
+  Build the binary programs (exrheader, exrinfo,
+  exrmakepreview, etc). Default is ``ON``.
+  
+* ``OPENEXR_INSTALL_TOOLS``
+
+  Install the binary programs (exrheader, exrinfo,
   exrmakepreview, etc). Default is ``ON``.
   
 * ``OPENEXR_INSTALL_EXAMPLES``
