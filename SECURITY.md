@@ -105,7 +105,16 @@ security vulnerabilities.
   
 ### Software Dependencies
 
-The only external library dependency is
+OpenEXR depends on
+[Imath](https://github.com/AcademySoftwareFoundation/Imath), a library
+of basic math operations also maintained and distributed by the
+OpenEXR project. Imath follows the same security conventions
+documented here for OpenEXR itself. The core Imath library has no
+external dependencies. The Imath python bindings depend on python and
+boost.
+
+The only
+external library dependency of OpenEXR is
 [libdeflate](https://github.com/ebiggers/libdeflate), which implements
 standard deflate/zlib/gzip compression and decompression.
 
