@@ -57,3 +57,89 @@ These vulnerabilities are present in the given versions:
 
 See the [release notes](CHANGES.md) for more information.
 
+## Supported Versions
+
+This gives guidance about which branches are supported with patches to
+security vulnerabilities.
+
+| Version / branch  | Supported                                            |
+| --------- | ---------------------------------------------------- |
+| main      | :white_check_mark: :construction: ALL fixes immediately, but this is a branch under development with a frequently unstable ABI and occasionally unstable API. |
+| 3.2.x    | :white_check_mark: All fixes that can be backported without breaking ABI compatibility. |
+| 3.1.x    | :warning: Only the most critical fixes, only if they can be easily backported. |
+| 3.0.x    | :warning: Only the most critical fixes, only if they can be easily backported. |
+| 2.5.x    | :warning: Only the most critical fixes, only if they can be easily backported. |
+| <= 1.x   | :x: No longer receiving patches of any kind. |
+
+## Security Expectations
+
+### Software Features
+
+- The OpenEXR project implements the EXR image file format, used
+  throughout the motion picture industry and beyond, on Linux, macOS,
+  and Windows.
+
+- The project consists of a software run-time library, implemented in
+  C/C++ and built via cmake, that reads and writes image data
+  files. The project also distributes python wrappings for the C/C++
+  I/O API.
+
+- The library reads and writes binary image data and text-based
+  metadata, treated as blind data, none of which is executable code.
+
+- Other than the website and online technical documentation, the
+  project implements no web/online services or network communication
+  protocols.  The library never requests any security or
+  authentication creditials or login information from users.
+
+  The website implements no interactive features and requires no login
+  credentials.
+
+- The library reads and writes only to file paths specificly requested
+  via the C/C++ API. The runtime library uses no system configuration
+  files or sidecar data files. Access to data files uses only standard
+  file I/O system calls.
+
+- The library compresses/decompresses data via standard compression
+  algorithms but uses no cryptographic or confidentiality protocols.
+  
+### Software Dependencies
+
+The only external library dependency is
+[libdeflate](https://github.com/ebiggers/libdeflate), which implements
+standard deflate/zlib/gzip compression and decompression.
+
+The project uses
+[Snyk](https://github.com/AcademySoftwareFoundation/openexr/blob/main/.github/workflows/snyk-scan-pr.yml)
+to scan for dependency vulnerability.
+
+### Threat Model
+
+The primary threat to OpenEXR is software faults in the form of heap
+buffer overflows, out-of-memory faults, or segmentation faults that
+could be exploitable as denial-of-service attacks.
+
+### Hardening
+
+#### Testing
+
+The OpenEXR project implements a comprehensive suite of validation
+tests, including fuzz testing to harden against malicious input data.
+
+The project also uses the [OSS
+Fuzz](https://bugs.chromium.org/p/oss-fuzz) service for continuous
+fuzz testing.
+
+#### Development Cycle and Distribution
+
+OpenEXR is downloadable and buildable by C/C++ source via GitHub. Only
+members of the project's Technical Steering Committee, all veteran
+software engineers at major motion picture studios or vendors, have
+write permissions on the source code repository. All critical software
+changes are reviewed by multiple TSC members.
+
+The library is distributed in binary form via many common package
+managers across all platforms.
+
+
+
