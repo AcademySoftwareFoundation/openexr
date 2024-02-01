@@ -277,6 +277,22 @@ You can customize these options three ways:
 2. Use the UI ``cmake-gui`` or ``ccmake``.
 3. Specify them as command-line arguments when you invoke cmake.
 
+Uninstall
+~~~~~~~~~
+
+If you have installed from source, you can uninstall via: 
+
+.. code-block::
+
+    % cmake --build $builddir --target uninstall
+
+or if using ``make``:
+
+.. code-block::
+
+    % make uninstall
+
+
 Library Naming Options
 ~~~~~~~~~~~~~~~~~~~~~~
 
