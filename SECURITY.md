@@ -90,7 +90,7 @@ security vulnerabilities.
 - Other than the website and online technical documentation, the
   project implements no web/online services or network communication
   protocols.  The library never requests any security or
-  authentication creditials or login information from users.
+  authentication credentials or login information from users.
 
   The website implements no interactive features and requires no login
   credentials.
