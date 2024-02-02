@@ -122,11 +122,12 @@ The project uses
 [Snyk](https://github.com/AcademySoftwareFoundation/openexr/blob/main/.github/workflows/snyk-scan-pr.yml)
 to scan for dependency vulnerability.
 
-### Threat Model
+### Potential Vulnerabilities
 
-The primary threat to OpenEXR is software faults in the form of heap
-buffer overflows, out-of-memory faults, or segmentation faults that
-could be exploitable as denial-of-service attacks.
+Potential entry points are images being loaded using the
+library. Malformed images could caused issues such as heap buffer
+overflows, out-of-memory faults, or segmentation faults that could be
+exploitable as denial-of-service attacks. 
 
 ### Hardening
 
