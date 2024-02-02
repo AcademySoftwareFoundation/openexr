@@ -30,7 +30,7 @@ an easier path to implementing OpenEXR bindings in other languages,
 such as Rust.
 
 Currently, the two libraries and APIs sit alongside each other,
-althogh in future OpenEXR releases, the C++ API will migrate to use
+although in future OpenEXR releases, the C++ API will migrate to use
 the new core in stages. It is not the intention to entirely deprecate
 the C++ API, nor must all applications re-implement EXR I/O in terms
 of the C library. The C API does not, and will not, provide the rich
