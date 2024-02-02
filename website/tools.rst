@@ -14,6 +14,15 @@ operations, consider `oiiotool
 Swiss Army Knife of `OpenImageIO
 <https://sites.google.com/site/openimageio/home>`_
 
+The OpenEXR tools are not generally included in most package managers'
+distribution of OpenEXR libraries (e.g. via ``yum install``). To build
+the tools from source, configure the top-level OpenEXR project build
+with the cmake option ``OPENEXR_BUILD_TOOLS=ON``. The tools can only
+be built from source as a component of the overall project build, not
+separately. To further include the tools in the OpenEXR installation
+after build (i.e. ``cmake --target install``), configure with
+``OPENEXR_INSTALL_TOOLS=ON``. Both are on by default.
+
 .. toctree::
    :caption: Tools
    :titlesonly:
