@@ -59,7 +59,7 @@ for more information.
 # Quick Start
 
 See the [technical documentation](https://openexr.readthedocs.io) for
-complete details, but to get started, the "hello, world" `.exr` writer program is:
+complete details, but to get started, the "Hello, world" [`exrwriter.cpp`](https://raw.githubusercontent.com/AcademySoftwareFoundation/openexr/main/website/src/exrwriter/exrwriter.cpp) writer program is:
 
     #include <ImfRgbaFile.h>
     #include <ImfArray.h>
@@ -87,18 +87,18 @@ complete details, but to get started, the "hello, world" `.exr` writer program i
         return 0;
     }
 
-The `CMakeLists.txt` to build:
+The [`CMakeLists.txt`](https://raw.githubusercontent.com/AcademySoftwareFoundation/openexr/main/website/src/exrwriter/CMakeLists.txt) to build:
 
-    cmake_minimum_required(VERSION 3.10)
+    cmake_minimum_required(VERSION 3.12)
     project(exrwriter)
     find_package(OpenEXR REQUIRED)
     
-    add_executable(${PROJECT_NAME} writer.cpp)
+    add_executable(${PROJECT_NAME} exrwriter.cpp)
     target_link_libraries(${PROJECT_NAME} OpenEXR::OpenEXR)
 
 To build:
 
-    $ cmake -S . -B _build
+    $ cmake -S . -B _build -DCMAKE_PREFIX_PATH=<path to OpenEXR libraries/includes>
     $ cmake --build _build
 
 For more details, see [The OpenEXR
