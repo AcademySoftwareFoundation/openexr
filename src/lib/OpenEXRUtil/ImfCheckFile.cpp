@@ -1200,6 +1200,9 @@ runChecks (T& source, bool reduceMemory, bool reduceTime)
     return threw;
 }
 
+// This is not entirely needed in that the chunk info has the
+// total unpacked_size field which can be used for allocation
+// but this adds an additional point to use when debugging issues.
 static exr_result_t
 realloc_deepdata(exr_decode_pipeline_t* decode)
 {
