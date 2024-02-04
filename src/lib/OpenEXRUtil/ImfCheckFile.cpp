@@ -1172,11 +1172,86 @@ runChecks(T& source,bool reduceMemory,bool reduceTime)
     return threw;
 }
 
+// This is not entirely needed in that the chunk info has the
+// total unpacked_size field which can be used for allocation
+// but this adds an additional point to use when debugging issues.
+static exr_result_t
+realloc_deepdata(exr_decode_pipeline_t* decode)
+{
+    int32_t w = decode->chunk.width;
+    int32_t h = decode->chunk.height;
+    uint64_t totsamps = 0, bytes = 0;
+    const int32_t *sampbuffer = decode->sample_count_table;
+    std::vector<uint8_t>* ud = static_cast<std::vector<uint8_t>*>(
+        decode->decoding_user_data);
+
+    if ( ! ud )
+    {
+        for (int c = 0; c < decode->channel_count; c++)
+        {
+            exr_coding_channel_info_t& outc = decode->channels[c];
+            outc.decode_to_ptr              = NULL;
+            outc.user_pixel_stride          = outc.user_bytes_per_element;
+            outc.user_line_stride           = 0;
+        }
+        return EXR_ERR_SUCCESS;
+    }
+
+    if ((decode->decode_flags &
+         EXR_DECODE_SAMPLE_COUNTS_AS_INDIVIDUAL))
+    {
+        for (int32_t y = 0; y < h; ++y)
+        {
+            for (int x = 0; x < w; ++x)
+                totsamps += sampbuffer[x];
+            sampbuffer += w;
+        }
+    }
+    else
+    {
+        for (int32_t y = 0; y < h; ++y)
+            totsamps += sampbuffer[y*w + w - 1];
+    }
+
+    for (int c = 0; c < decode->channel_count; c++)
+    {
+        exr_coding_channel_info_t& outc = decode->channels[c];
+        bytes += totsamps * outc.user_bytes_per_element;
+    }
+
+    if (bytes >= gMaxBytesPerDeepScanline * h)
+    {
+        for (int c = 0; c < decode->channel_count; c++)
+        {
+            exr_coding_channel_info_t& outc = decode->channels[c];
+            outc.decode_to_ptr              = NULL;
+            outc.user_pixel_stride          = outc.user_bytes_per_element;
+            outc.user_line_stride           = 0;
+        }
+        return EXR_ERR_SUCCESS;
+    }
+
+    if (ud->size () < bytes)
+        ud->resize (bytes);
+
+    uint8_t* dptr = &((*ud)[0]);
+    for (int c = 0; c < decode->channel_count; c++)
+    {
+        exr_coding_channel_info_t& outc = decode->channels[c];
+        outc.decode_to_ptr              = dptr;
+        outc.user_pixel_stride          = outc.user_bytes_per_element;
+        outc.user_line_stride           = 0;
+
+        dptr += totsamps * (uint64_t) outc.user_bytes_per_element;
+    }
+    return EXR_ERR_SUCCESS;
+}
+
 ////////////////////////////////////////
 
 bool readCoreScanlinePart(exr_context_t f, int part, bool reduceMemory, bool reduceTime)
 {
-    exr_result_t rv;
+    exr_result_t     rv, frv;
     exr_attr_box2i_t datawin;
     rv = exr_get_data_window (f, part, &datawin);
     if (rv != EXR_ERR_SUCCESS)
@@ -1194,6 +1269,8 @@ bool readCoreScanlinePart(exr_context_t f, int part, bool reduceMemory, bool red
     if (rv != EXR_ERR_SUCCESS)
         return true;
 
+    frv = rv;
+
     for (uint64_t chunk = 0; chunk < height; chunk += lines_per_chunk)
     {
         exr_chunk_info_t cinfo = { 0 };
@@ -1202,8 +1279,8 @@ bool readCoreScanlinePart(exr_context_t f, int part, bool reduceMemory, bool red
         rv = exr_read_scanline_chunk_info (f, part, y, &cinfo);
         if (rv != EXR_ERR_SUCCESS)
         {
-            if (reduceTime)
-                break;
+            frv = rv;
+            if (reduceTime) break;
             continue;
         }
 
@@ -1224,59 +1301,72 @@ bool readCoreScanlinePart(exr_context_t f, int part, bool reduceMemory, bool red
                 bytes += width * (uint64_t)outc.user_bytes_per_element * (uint64_t)lines_per_chunk;
             }
 
-            // TODO: check we are supposed to multiple by lines per chunk above
             doread = true;
-            if (reduceMemory && bytes >= gMaxBytesPerScanline)
-                doread = false;
+            if (cinfo.type == EXR_STORAGE_DEEP_SCANLINE)
+            {
+                decoder.decoding_user_data       = &imgdata;
+                decoder.realloc_nonimage_data_fn = &realloc_deepdata;
+            }
+            else
+            {
+                if (reduceMemory && bytes >= gMaxBytesPerScanline) doread = false;
 
-            if (doread)
-                imgdata.resize( bytes );
+                if (doread) imgdata.resize (bytes);
+            }
             rv = exr_decoding_choose_default_routines (f, part, &decoder);
             if (rv != EXR_ERR_SUCCESS)
+            {
+                frv = rv;
                 break;
+            }
         }
         else
         {
             rv = exr_decoding_update (f, part, &cinfo, &decoder);
             if (rv != EXR_ERR_SUCCESS)
             {
-                if (reduceTime)
-                    break;
+                frv = rv;
+                if (reduceTime) break;
                 continue;
             }
         }
 
         if (doread)
         {
-            uint8_t *dptr = &(imgdata[0]);
-            for (int c = 0; c < decoder.channel_count; c++)
+            if (cinfo.type != EXR_STORAGE_DEEP_SCANLINE)
             {
-                exr_coding_channel_info_t & outc = decoder.channels[c];
-                outc.decode_to_ptr = dptr;
-                outc.user_pixel_stride = outc.user_bytes_per_element;
-                outc.user_line_stride = outc.user_pixel_stride * width;
-                dptr += width * (uint64_t)outc.user_bytes_per_element * (uint64_t)lines_per_chunk;
+                uint8_t* dptr = &(imgdata[0]);
+                for (int c = 0; c < decoder.channel_count; c++)
+                {
+                    exr_coding_channel_info_t& outc = decoder.channels[c];
+                    outc.decode_to_ptr              = dptr;
+                    outc.user_pixel_stride          = outc.user_bytes_per_element;
+                    outc.user_line_stride           = outc.user_pixel_stride * width;
+
+                    dptr += width * (uint64_t) outc.user_bytes_per_element *
+                        (uint64_t) lines_per_chunk;
+                }
             }
 
             rv = exr_decoding_run (f, part, &decoder);
             if (rv != EXR_ERR_SUCCESS)
             {
-                if (reduceTime)
-                    break;
+                frv = rv;
+                if (reduceTime) break;
             }
         }
     }
 
     exr_decoding_destroy (f, &decoder);
 
-    return (rv != EXR_ERR_SUCCESS);
+    return (frv != EXR_ERR_SUCCESS);
 }
 
 ////////////////////////////////////////
 
 bool readCoreTiledPart(exr_context_t f, int part, bool reduceMemory, bool reduceTime)
 {
-    exr_result_t rv;
+    exr_result_t rv, frv;
 
     exr_attr_box2i_t datawin;
     rv = exr_get_data_window (f, part, &datawin);
@@ -1296,6 +1386,7 @@ bool readCoreTiledPart(exr_context_t f, int part, bool reduceMemory, bool reduce
     if (rv != EXR_ERR_SUCCESS)
         return true;
 
+    frv = rv;
     bool keepgoing = true;
     for (int32_t ylevel = 0; keepgoing && ylevel < levelsy; ++ylevel )
     {
@@ -1305,6 +1396,7 @@ bool readCoreTiledPart(exr_context_t f, int part, bool reduceMemory, bool reduce
             rv = exr_get_level_sizes (f, part, xlevel, ylevel, &levw, &levh);
             if (rv != EXR_ERR_SUCCESS)
             {
+                frv = rv;
                 if (reduceTime)
                 {
                     keepgoing = false;
@@ -1317,6 +1409,7 @@ bool readCoreTiledPart(exr_context_t f, int part, bool reduceMemory, bool reduce
             rv = exr_get_tile_sizes (f, part, xlevel, ylevel, &curtw, &curth);
             if (rv != EXR_ERR_SUCCESS)
             {
+                frv = rv;
                 if (reduceTime)
                 {
                     keepgoing = false;
@@ -1343,6 +1436,7 @@ bool readCoreTiledPart(exr_context_t f, int part, bool reduceMemory, bool reduce
                     rv = exr_read_tile_chunk_info (f, part, tx, ty, xlevel, ylevel, &cinfo);
                     if (rv != EXR_ERR_SUCCESS)
                     {
+                        frv = rv;
                         if (reduceTime)
                         {
                             keepgoing = false;
@@ -1356,6 +1450,7 @@ bool readCoreTiledPart(exr_context_t f, int part, bool reduceMemory, bool reduce
                         rv = exr_decoding_initialize (f, part, &cinfo, &decoder);
                         if (rv != EXR_ERR_SUCCESS)
                         {
+                            frv = rv;
                             keepgoing = false;
                             break;
                         }
@@ -1372,14 +1467,23 @@ bool readCoreTiledPart(exr_context_t f, int part, bool reduceMemory, bool reduce
                         }
 
                         doread = true;
-                        if (reduceMemory && bytes >= gMaxTileBytes)
-                            doread = false;
+                        if (cinfo.type == EXR_STORAGE_DEEP_TILED)
+                        {
+                            decoder.decoding_user_data       = &tiledata;
+                            decoder.realloc_nonimage_data_fn = &realloc_deepdata;
+                        }
+                        else
+                        {
+                            if (reduceMemory && bytes >= gMaxTileBytes)
+                                doread = false;
 
-                        if (doread)
-                            tiledata.resize( bytes );
-                        rv = exr_decoding_choose_default_routines (f, part, &decoder);
+                            if (doread) tiledata.resize (bytes);
+                        }
+                        rv = exr_decoding_choose_default_routines (
+                            f, part, &decoder);
                         if (rv != EXR_ERR_SUCCESS)
                         {
+                            frv = rv;
                             keepgoing = false;
                             break;
                         }
@@ -1389,6 +1493,7 @@ bool readCoreTiledPart(exr_context_t f, int part, bool reduceMemory, bool reduce
                         rv = exr_decoding_update (f, part, &cinfo, &decoder);
                         if (rv != EXR_ERR_SUCCESS)
                         {
+                            frv = rv;
                             if (reduceTime)
                             {
                                 keepgoing = false;
@@ -1400,19 +1505,28 @@ bool readCoreTiledPart(exr_context_t f, int part, bool reduceMemory, bool reduce
 
                     if (doread)
                     {
-                        uint8_t *dptr = &(tiledata[0]);
-                        for (int c = 0; c < decoder.channel_count; c++)
+                        if (cinfo.type != EXR_STORAGE_DEEP_TILED)
                         {
-                            exr_coding_channel_info_t & outc = decoder.channels[c];
-                            outc.decode_to_ptr = dptr;
-                            outc.user_pixel_stride = outc.user_bytes_per_element;
-                            outc.user_line_stride = outc.user_pixel_stride * curtw;
-                            dptr += (uint64_t)curtw * (uint64_t)outc.user_bytes_per_element * (uint64_t)curth;
+                            uint8_t* dptr = &(tiledata[0]);
+                            for (int c = 0; c < decoder.channel_count; c++)
+                            {
+                                exr_coding_channel_info_t& outc =
+                                    decoder.channels[c];
+                                outc.decode_to_ptr = dptr;
+                                outc.user_pixel_stride =
+                                    outc.user_bytes_per_element;
+                                outc.user_line_stride =
+                                    outc.user_pixel_stride * curtw;
+                                dptr += (uint64_t) curtw *
+                                    (uint64_t) outc.user_bytes_per_element *
+                                    (uint64_t) curth;
+                            }
                         }
 
                         rv = exr_decoding_run (f, part, &decoder);
                         if (rv != EXR_ERR_SUCCESS)
                         {
+                            frv = rv;
                             if (reduceTime)
                             {
                                 keepgoing = false;
@@ -1448,16 +1562,14 @@ bool checkCoreFile(exr_context_t f, bool reduceMemory, bool reduceTime)
         if (rv != EXR_ERR_SUCCESS)
             return true;
 
-        // TODO: Need to fill this in
-        if (store == EXR_STORAGE_DEEP_SCANLINE || store == EXR_STORAGE_DEEP_TILED)
-            continue;
-
-        if (store == EXR_STORAGE_SCANLINE)
+        if (store == EXR_STORAGE_SCANLINE ||
+            store == EXR_STORAGE_DEEP_SCANLINE)
         {
             if ( readCoreScanlinePart (f, p, reduceMemory, reduceTime) )
                 return true;
         }
-        else if (store == EXR_STORAGE_TILED)
+        else if (store == EXR_STORAGE_TILED ||
+                 store == EXR_STORAGE_DEEP_TILED)
         {
             if ( readCoreTiledPart (f, p, reduceMemory, reduceTime) )
                 return true;
