@@ -3,6 +3,7 @@
 
 # OpenEXR Release Notes
 
+* [Version 3.2.2](#version-322-february-5-2024) February 5, 2024
 * [Version 3.2.1](#version-321-september-27-2023) September 27, 2023
 * [Version 3.2.0](#version-320-august-30-2023) August 30, 2023
 * [Version 3.1.12](#version-3112-february-5-2023) February 5, 2024
@@ -67,6 +68,18 @@
 * [Version 1.0.2](#version-102)
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
+
+## Version 3.2.2 (February 5, 2024)
+
+Patch release that addresses
+[CVE-2023-5841](https://takeonme.org/cves/CVE-2023-5841.html).
+
+Note that this bug is present in the C++ API (since v3.1.0), although
+it is in a routine that is predominantly used for development and
+testing. It is not likely to appear in production code.
+
+* [1627](https://github.com/AcademySoftwareFoundation/openexr/pull/1627)
+Fix CVE 2023 5841
 
 ## Version 3.2.1 (September 27, 2023)
 
