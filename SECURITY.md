@@ -13,12 +13,16 @@ issue, and any other information that could aid an investigation. Our
 policy is to respond to vulnerability reports within 14 days.
 
 Our policy is to address critical security vulnerabilities rapidly and
-post patches as quickly as possible.
+post patches as quickly as possible. If you do not get a response to a
+message sent to security@openexr.com within 48 hours, contact the
+project maintainers via a GitHub
+[Issue](https://github.com/AcademySoftwareFoundation/openexr/issues).
 
 ## Known Vulnerabilities
 
 These vulnerabilities are present in the given versions:
 
+* [CVE-2023-5841](https://takeonme.org/cves/CVE-2023-5841.html) 3.1.0, 3.1.1, 3.1.2, 3.1.3 3.1.4 3.1.5 3.1.6 3.1.7 3.1.8 3.1.9 3.1.10 3.1.11 3.2.0 3.2.1
 * [CVE-2021-45942](https://nvd.nist.gov/vuln/detail/CVE-2021-45942) 3.1.0, 3.1.1, 3.1.2, 3.1.3
 * [CVE-2021-20296](https://nvd.nist.gov/vuln/detail/CVE-2021-20296) 2.4.0, 2.4.1, 2.4.2, 2.5.0, 2.5.1, 2.5.2, 2.5.3 
 * [CVE-2021-3479](https://nvd.nist.gov/vuln/detail/CVE-2021-3479) 2.4.0, 2.4.1, 2.4.2, 2.5.0, 2.5.1, 2.5.2, 2.5.3 
