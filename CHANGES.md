@@ -3,6 +3,8 @@
 
 # OpenEXR Release Notes
 
+* [Version 3.2.2](#version-322-february-5-2024) February 5, 2024
+* [Version 3.2.1](#version-321-september-27-2023) September 27, 2023
 * [Version 3.2.0](#version-320-august-30-2023) August 30, 2023
 * [Version 3.1.12](#version-3112-february-5-2023) February 5, 2024
 * [Version 3.1.11](#version-3111-august-13-2023) August 13, 2023
@@ -68,6 +70,62 @@
 * [Version 1.0.2](#version-102)
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
+
+## Version 3.2.2 (February 5, 2024)
+
+Patch release that addresses
+[CVE-2023-5841](https://takeonme.org/cves/CVE-2023-5841.html).
+
+Note that this bug is present in the C++ API (since v3.1.0), although
+it is in a routine that is predominantly used for development and
+testing. It is not likely to appear in production code.
+
+* [1627](https://github.com/AcademySoftwareFoundation/openexr/pull/1627)
+Fix CVE 2023 5841
+
+## Version 3.2.1 (September 27, 2023)
+
+Patch release with miscellaneous build fixes:
+
+* Fix for linking statically against an external ``libdeflate``
+* Fix a compile error with ``OPENEXR_VERSION_HEX``
+* Fix various compiler warnings
+* Pkg-config generation is now on by default for all systems, including Windows
+
+### Merged Pull Requests
+
+* [1568](https://github.com/AcademySoftwareFoundation/openexr/pull/1568)
+Fix Imf/Iex/IlmThread namespaces in python bindings and website code
+* [1565](https://github.com/AcademySoftwareFoundation/openexr/pull/1565)
+Update openexr_deps.bzl
+* [1562](https://github.com/AcademySoftwareFoundation/openexr/pull/1562)
+Bazel: Improve module
+* [1561](https://github.com/AcademySoftwareFoundation/openexr/pull/1561)
+Clean up handling of libdeflate when linking static
+* [1560](https://github.com/AcademySoftwareFoundation/openexr/pull/1560)
+Omit OPENEXR_IMAGES_TAG from test image url if empty
+* [1557](https://github.com/AcademySoftwareFoundation/openexr/pull/1557)
+Set build-shared:OFF for Static build
+* [1541](https://github.com/AcademySoftwareFoundation/openexr/pull/1541)
+OPENEXR_INSTALL_PKG_CONFIG is on by default, even on Windows
+* [1540](https://github.com/AcademySoftwareFoundation/openexr/pull/1540)
+Default value for chromaticities attribute constructor in exrstdattr
+* [1539](https://github.com/AcademySoftwareFoundation/openexr/pull/1539)
+Fix OPENEXR_VERSION_HEX
+* [1536](https://github.com/AcademySoftwareFoundation/openexr/pull/1536)
+Python wheel setup gets version from OpenEXR.pc/Imath.pc
+* [1534](https://github.com/AcademySoftwareFoundation/openexr/pull/1534)
+Fix warnings from cross-compiling with x86_64-w64-mingw32-gcc-posix
+* [1533](https://github.com/AcademySoftwareFoundation/openexr/pull/1533)
+Fix warnings in multipartExamples.cpp
+* [1532](https://github.com/AcademySoftwareFoundation/openexr/pull/1532)
+Don't trigger ci/bazel/ossfuzz builds on pushes/PRs to src/wrappers
+* [1531](https://github.com/AcademySoftwareFoundation/openexr/pull/1531)
+Propagate OPENEXR_INSTALL_PKG_CONFIG to internal Imath
+* [1530](https://github.com/AcademySoftwareFoundation/openexr/pull/1530)
+Set minimal permissions for workflow python-wheels.yml
+* [1528](https://github.com/AcademySoftwareFoundation/openexr/pull/1528)
+Remove check for _MSC_VER in internal_cpuid.h
 
 ## Version 3.2.0 (August 30, 2023)
 
