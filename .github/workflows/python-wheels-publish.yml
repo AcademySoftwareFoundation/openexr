@@ -1,0 +1,89 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright (c) Contributors to the OpenEXR Project.
+
+name: Publish python distribution 📦 to PyPI
+
+on:
+  # Publish wheels to pypi on release
+  release:
+    types: [published]
+  workflow_dispatch:
+  
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Python Wheels - ${{ matrix.os }} 
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+    environment:
+      name: pypi
+      url: https://pypi.org/p/openexr
+
+    permissions:
+      id-token: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Python 
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Build wheel
+        uses: pypa/cibuildwheel@v2.16
+        with:
+          output-dir: wheelhouse
+        env:
+          CIBW_BUILD: cp312-*
+          CIBW_ARCHS_LINUX: x86_64 
+          CIBW_ARCHS_MACOS: x86_64 arm64 universal2
+          # Skip python 3.6 since scikit-build-core requires 3.7+
+          # Skip 32-bit wheels builds on Windows
+          # Also skip the PyPy builds, since they fail the unit tests
+          CIBW_SKIP: cp36-* *-win32 *_i686 pp* 
+          CIBW_TEST_SKIP: "*arm64"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4.0.0
+        with:
+          name: wheels-${{ matrix.os }}
+          path: ./wheelhouse/*.whl
+
+  publish-to-pypi:
+    name: Publish Python 🐍 distribution 📦 to PyPI
+    needs:
+    - build
+    runs-on: ubuntu-latest
+
+    environment:
+      name: pypi
+      url: https://pypi.org/p/openexr
+
+    permissions:
+      id-token: write
+
+    steps:
+    - name: Download Linux artifacts
+      uses: actions/download-artifact@v4.0.0
+      with:
+        name: wheels-ubuntu-latest
+        path: dist
+    - name: Download macOS artifacts
+      uses: actions/download-artifact@v4.0.0
+      with:
+        name: wheels-macos-latest
+        path: dist
+    - name: Download Windows artifacts
+      uses: actions/download-artifact@v4.0.0
+      with:
+        name: wheels-windows-latest
+        path: dist
+    - name: Publish distribution 📦 to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1

@@ -1,0 +1,59 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright (c) Contributors to the OpenEXR Project.
+
+[build-system]
+requires = ["scikit-build-core==0.8.0"]
+build-backend = "scikit_build_core.build"
+
+[project]
+name = "OpenEXR"
+dynamic = ["version"]
+
+description="Python bindings for the OpenEXR image file format"
+readme = "README.md"
+authors = [
+  { name="Contributors to the OpenEXR project", email="info@openexr.com" },
+]
+requires-python = ">=3.7"
+
+[project.urls]
+"Homepage" = "https://openexr.com"
+"Source" = "https://github.com/AcademySoftwareFoundation/OpenEXR"
+"Bug Tracker" = "https://github.com/AcademySoftwareFoundation/OpenEXR/issues"
+
+[project.optional-dependencies]
+test = ["pytest"]
+
+[tool.scikit-build]
+wheel.expand-macos-universal-tags = true
+wheel.packages = ["src/wrappers/python"]
+
+# Enable experimental features if any are available
+# In this case we need custom local plugin to get
+# the project version from cmake.
+experimental = true
+metadata.version.provider = "openexr_skbuild_plugin"
+metadata.version.provider-path = "./src/wrappers/python"
+
+[tool.scikit-build.cmake.define]
+OPENEXR_BUILD_PYTHON = 'ON'
+OPENEXR_BUILD_EXAMPLES = 'OFF'
+OPENEXR_BUILD_TOOLS = 'OFF'
+OPENEXR_FORCE_INTERNAL_DEFLATE = 'ON'
+OPENEXR_FORCE_INTERNAL_IMATH = 'ON'
+OPENEXR_TEST_LIBRARIES = 'OFF'
+BUILD_SHARED_LIBS = 'OFF'
+CMAKE_POSITION_INDEPENDENT_CODE = 'ON'
+
+[tool.cibuildwheel]
+#test-command = "pytest {project}/src/wrappers/python/tests"
+test-command = "ctest -R PyOpenEXR"
+test-extras = ["test"]
+test-skip = ["*universal2:arm64"]
+build-verbosity = 1
+
+manylinux-x86_64-image = "manylinux2014"
+manylinux-i686-image = "manylinux2014"
+manylinux-aarch64-image = "manylinux2014"
+
+

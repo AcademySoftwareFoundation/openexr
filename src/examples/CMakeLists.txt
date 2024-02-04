@@ -6,6 +6,8 @@
 # standalone program linking against an already-installed OpenEXR
 # library.
 
+message(STATUS "Building OpenEXR examples")
+
 if("${CMAKE_PROJECT_NAME}" STREQUAL "")
   cmake_minimum_required(VERSION 3.12)
   project(OpenEXRExamples)

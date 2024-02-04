@@ -11,10 +11,8 @@ import os
 import random
 from array import array
 
-import Imath
 import OpenEXR
-
-test_dir = os.path.dirname(os.path.abspath(__file__))
+import Imath
 
 FLOAT = Imath.PixelType(Imath.PixelType.FLOAT)
 UINT = Imath.PixelType(Imath.PixelType.UINT)

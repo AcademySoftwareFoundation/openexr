@@ -51,8 +51,23 @@ option(OPENEXR_ENABLE_LARGE_STACK "Enables code to take advantage of large stack
 ########################
 ## Build related options
 
-# Whether to build & install the various command line utility programs
+option(OPENEXR_INSTALL "Install OpenEXR libraries/binaries/bindings" ON)
+
+# Whether to build & install the main libraries
+option(OPENEXR_BUILD_LIBS "Enables building of main libraries" ON)
+
+# Whether to build the various command line utility programs
 option(OPENEXR_BUILD_TOOLS "Enables building of utility programs" ON)
+option(OPENEXR_INSTALL_TOOLS "Install OpenEXR tools" ON)
+
+option(OPENEXR_BUILD_EXAMPLES "Build OpenEXR examples" ON)
+option(OPENEXR_INSTALL_EXAMPLES "Install OpenEXR examples" ON)
+
+option(OPENEXR_BUILD_PYTHON "Build python bindings" OFF)
+
+option(OPENEXR_TEST_LIBRARIES "Run library tests" ON)
+option(OPENEXR_TEST_TOOLS "Run tool tests" ON)
+option(OPENEXR_TEST_PYTHON "Run python binding tests" ON)
 
 # This is a variable here for use in controlling where include files are 
 # installed. Care must be taken when changing this, as many things
@@ -136,6 +151,10 @@ if(OPENEXR_USE_CLANG_TIDY)
     -header-filter=.;
     -checks=*;
   )
+endif()
+
+if (NOT OPENEXR_BUILD_LIBS)
+  return()
 endif()
 
 ###############################

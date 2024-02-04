@@ -46,12 +46,6 @@ set(OPENEXR_VERSION_API "${OpenEXR_VERSION_MAJOR}_${OpenEXR_VERSION_MINOR}")
 set(OPENEXR_LIB_SOVERSION 31)
 set(OPENEXR_LIB_VERSION "${OPENEXR_LIB_SOVERSION}.${OPENEXR_VERSION}") # e.g. "31.3.2.0"
 
-option(OPENEXR_INSTALL "Install OpenEXR libraries" ON)
-option(OPENEXR_INSTALL_TOOLS "Install OpenEXR tools" ON)
-if(OPENEXR_INSTALL_TOOLS AND NOT OPENEXR_INSTALL)
-  message(SEND_ERROR "OPENEXR_INSTALL_TOOLS requires OPENEXR_INSTALL")
-endif()
-
 include(cmake/LibraryDefine.cmake)
 include(cmake/OpenEXRSetup.cmake)
 add_subdirectory(cmake)
@@ -73,8 +67,13 @@ if(BUILD_TESTING AND NOT OPENEXR_IS_SUBPROJECT)
 endif()
 
 # Include these two modules without enable/disable options
-add_subdirectory(src/lib)
-add_subdirectory(src/bin)
+if (OPENEXR_BUILD_LIBS)
+  add_subdirectory(src/lib)
+endif()
+
+if(OPENEXR_BUILD_TOOLS AND OPENEXR_BUILD_LIBS)
+  add_subdirectory(src/bin)
+endif()
 
 # Tell CMake where to find the OpenEXRConfig.cmake file. Makes it possible to call 
 # find_package(OpenEXR) in downstream projects
@@ -83,8 +82,7 @@ set(OpenEXR_DIR "${CMAKE_CURRENT_BINARY_DIR}/cmake" CACHE PATH "" FORCE)
 # Can be empty since we already defined the targets in add_subdirectory
 file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/cmake/OpenEXRTargets.cmake" "# Dummy file")
 
-option(OPENEXR_INSTALL_EXAMPLES "Install OpenEXR examples" ON)
-if(OPENEXR_INSTALL_EXAMPLES)
+if(OPENEXR_BUILD_EXAMPLES AND OPENEXR_BUILD_LIBS)
   add_subdirectory( src/examples )
 endif()
 
@@ -112,7 +110,7 @@ endif()
 #set(CTEST_DROP_SITE_CDASH TRUE)
 include(CTest)
 
-if(BUILD_TESTING AND NOT OPENEXR_IS_SUBPROJECT)
+if(BUILD_TESTING AND OPENEXR_BUILD_LIBS AND NOT OPENEXR_IS_SUBPROJECT)
   add_subdirectory(src/test)
 endif()
 
@@ -132,12 +130,11 @@ if (BUILD_WEBSITE AND NOT OPENEXR_IS_SUBPROJECT)
   add_subdirectory(website)
 endif()
 
-if (NOT OPENEXR_IS_SUBPROJECT)
+if (OPENEXR_BUILD_LIBS AND NOT OPENEXR_IS_SUBPROJECT)
   # Even if not building the website, still make sure the website example code compiles.
   add_subdirectory(website/src)
 endif()
 
-option(OPENEXR_BUILD_PYTHON "Set ON to build python bindings")
-if (OPENEXR_BUILD_PYTHON AND NOT OPENEXR_IS_SUBPROJECT)
+if (OPENEXR_BUILD_PYTHON AND OPENEXR_BUILD_LIBS AND NOT OPENEXR_IS_SUBPROJECT)
   add_subdirectory(src/wrappers/python)
 endif()

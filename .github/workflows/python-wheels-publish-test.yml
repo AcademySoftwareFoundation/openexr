@@ -1,0 +1,95 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright (c) Contributors to the OpenEXR Project.
+
+name: Publish python distribution 📦 to TestPyPI
+
+on:
+
+  # Publish python wheels to test.pypi when a release candidate is tagged, 
+  # e.g. v3.4.5-rc, v3.4.5-rc6, etc.
+
+  push:
+    tags:
+      - v3.[0-9]+.[0-9]+-rc*
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Python Wheels - ${{ matrix.os }} 
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+    environment:
+      name: testpypi
+      url: https://test.pypi.org/p/openexr
+
+    permissions:
+      id-token: write
+      
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Python 
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Build wheel
+        uses: pypa/cibuildwheel@v2.16
+        with:
+          output-dir: wheelhouse
+        env:
+          CIBW_ARCHS_LINUX: x86_64 
+          CIBW_ARCHS_MACOS: x86_64 arm64 universal2
+          # Skip python 3.6 since scikit-build-core requires 3.7+
+          # Skip 32-bit wheels builds on Windows
+          # Also skip the PyPy builds, since they fail the unit tests
+          CIBW_SKIP: cp36-* *-win32 *_i686 pp* 
+          CIBW_TEST_SKIP: "*-macosx_universal2:arm64"
+          CIBW_ENVIRONMENT: OPENEXR_RELEASE_CANDIDATE_TAG="${{ github.ref_name }}"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4.0.0
+        with:
+          name: wheels-${{ matrix.os }}
+          path: ./wheelhouse/*.whl
+  
+  publish-to-testpypi:
+    name: Publish Python 🐍 distribution 📦 to TestPyPI
+    needs:
+    - build
+    runs-on: ubuntu-latest
+
+    environment:
+      name: testpypi
+      url: https://test.pypi.org/p/openexr
+
+    permissions:
+      id-token: write
+
+    steps:
+    - name: Download Linux artifacts
+      uses: actions/download-artifact@v4.0.0
+      with:
+        name: wheels-ubuntu-latest
+        path: dist
+    - name: Download macOS artifacts
+      uses: actions/download-artifact@v4.0.0
+      with:
+        name: wheels-macos-latest
+        path: dist
+    - name: Download Windows artifacts
+      uses: actions/download-artifact@v4.0.0
+      with:
+        name: wheels-windows-latest
+        path: dist
+    - name: Publish distribution 📦 to TestPyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        repository-url: https://test.pypi.org/legacy/
