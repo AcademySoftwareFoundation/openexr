@@ -45,10 +45,10 @@ jobs:
     runs-on: ubuntu-22.04
     
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4.1.1
 
     - name: Mount Bazel cache
-      uses: actions/cache@v3
+      uses: actions/cache@v4.0.0
       with:
         path: "/home/runner/.cache/bazel"
         key: bazel-ubuntu-22
@@ -66,10 +66,10 @@ jobs:
     runs-on: windows-2022
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4.1.1
 
     - name: Mount Bazel cache
-      uses: actions/cache@v3
+      uses: actions/cache@v4.0.0
       with:
         path: "/home/runner/.cache/bazel"
         key: bazel-windows-2022
@@ -87,13 +87,34 @@ jobs:
     runs-on: macos-13
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4.1.1
 
     - name: Mount Bazel cache
-      uses: actions/cache@v3
+      uses: actions/cache@v4.0.0
       with:
         path: "/home/runner/.cache/bazel"
         key: bazel-macos-13
+
+    - name: Build
+      run: |
+        bazelisk build //...
+        bazelisk test //...
+        # Test without bzlmod
+        bazelisk build --noenable_bzlmod -- //...
+        bazelisk test --noenable_bzlmod -- //...
+
+  build_and_test_macos_M1:
+    name: macOS 14 Bazel build <Apple Clang14>
+    runs-on: macos-14
+
+    steps:
+    - uses: actions/checkout@v4.1.1
+
+    - name: Mount Bazel cache
+      uses: actions/cache@v4.0.0
+      with:
+        path: "/home/runner/.cache/bazel"
+        key: bazel-macos-14
 
     - name: Build
       run: |
