@@ -13,7 +13,10 @@ issue, and any other information that could aid an investigation. Our
 policy is to respond to vulnerability reports within 14 days.
 
 Our policy is to address critical security vulnerabilities rapidly and
-post patches as quickly as possible.
+post patches as quickly as possible.  If you do not get a response to
+a message sent to security@openexr.com within 48 hours, contact the
+project maintainers via a GitHub
+[Issue](https://github.com/AcademySoftwareFoundation/openexr/issues).
 
 ## Known Vulnerabilities
 
