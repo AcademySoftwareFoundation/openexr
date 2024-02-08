@@ -8,10 +8,9 @@
 If you think you've found a potential vulnerability in OpenEXR, please
 report it by filing a GitHub [security
 advisory](https://github.com/AcademySoftwareFoundation/openexr/security/advisories/new). Alternatively,
-email security@openexr.com with detailed steps to reproduce the issue
-and any other information that could aid an investigation.  If your
-email does not receive a prompt acknowledgement, your address may be
-blocked.
+email security@openexr.com and provide your contact info for further
+private/secure discussion.  If your email does not receive a prompt
+acknowledgement, your address may be blocked.
 
 Our policy is to acknowledge the receipt of vulnerability reports
 within 48 hours. Our policy is to address critical security vulnerabilities
@@ -136,7 +135,16 @@ exploitable as denial-of-service attacks.
 #### Testing
 
 The OpenEXR project implements a comprehensive suite of validation
-tests, including fuzz testing to harden against malicious input data.
+tests, including fuzz testing to harden against malicious input
+data. Note that fuzz testing hardens only against *small* input data
+files and is not a comprehensive test against all potential input.
+
+Note that the
+[exrcheck](https://github.com/AcademySoftwareFoundation/openexr/tree/main/src/bin/exrcheck)
+utility is intended to be used by testers to demonstrate a particular
+proof-of-concept input file exposes a vulnerability, and it is very
+helpful to let us know if a vulnerability can be reproduced using that
+tool.
 
 The project also uses the [OSS
 Fuzz](https://bugs.chromium.org/p/oss-fuzz) service for continuous
