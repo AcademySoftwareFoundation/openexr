@@ -1,5 +1,7 @@
-# SPDX-License-Identifier: BSD-3-Clause
-# Copyright (c) Contributors to the OpenEXR Project.
+# Copyright Contributors to the MaterialX Project
+# SPDX-License-Identifier: Apache-2.0
+# copied from: https://github.com/AcademySoftwareFoundation/MaterialX/blob/main/python/mtx_skbuild_plugin.py
+# Modifications Copyright (c) Contributors to the OpenEXR Project.
 
 """
 This is a custom scikit-build-core plugin that will
