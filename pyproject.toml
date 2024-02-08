@@ -10,7 +10,7 @@ name = "OpenEXR"
 dynamic = ["version"]
 
 description="Python bindings for the OpenEXR image file format"
-readme = "README.md"
+readme = "src/wrappers/python/README.md"
 authors = [
   { name="Contributors to the OpenEXR project", email="info@openexr.com" },
 ]
