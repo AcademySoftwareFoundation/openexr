@@ -6,17 +6,16 @@
 ## Reporting a Vulnerability
 
 If you think you've found a potential vulnerability in OpenEXR, please
-report it by emailing security@openexr.com. Only Technical Steering
-Committee members and Academy Software Foundation project management
-have access to these messages. Include detailed steps to reproduce the
-issue, and any other information that could aid an investigation. Our
-policy is to respond to vulnerability reports within 14 days.
+report it by filing a GitHub [security
+advisory](https://github.com/AcademySoftwareFoundation/openexr/security/advisories/new). Alternatively,
+email security@openexr.com with detailed steps to reproduce the issue
+and any other information that could aid an investigation.  If your
+email does not receive a prompt acknowledgement, your address may be
+blocked.
 
-Our policy is to address critical security vulnerabilities rapidly and
-post patches as quickly as possible.  If you do not get a response to
-a message sent to security@openexr.com within 48 hours, contact the
-project maintainers via a GitHub
-[Issue](https://github.com/AcademySoftwareFoundation/openexr/issues).
+Our policy is to acknowledge the receipt of vulnerability reports
+within 48 hours. Our policy is to address critical security vulnerabilities
+rapidly and post patches within 14 days if possible.
 
 ## Known Vulnerabilities
 
