@@ -52,6 +52,16 @@ if(OPENEXR_INSTALL_TOOLS AND NOT OPENEXR_INSTALL)
   message(SEND_ERROR "OPENEXR_INSTALL_TOOLS requires OPENEXR_INSTALL")
 endif()
 
+# uninstall target
+if(NOT TARGET uninstall)
+  configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
+    IMMEDIATE @ONLY)
+  add_custom_target(uninstall
+    COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
+endif()
+
 include(cmake/LibraryDefine.cmake)
 include(cmake/OpenEXRSetup.cmake)
 add_subdirectory(cmake)
