@@ -74,15 +74,6 @@ configure_file(OpenEXRConfigInternal.h.in ${CMAKE_CURRENT_BINARY_DIR}/OpenEXRCon
 # make a temp copy in the binary dir for OpenEXRConfig.h to include
 configure_file(../src/lib/OpenEXRCore/openexr_version.h ${CMAKE_CURRENT_BINARY_DIR}/OpenEXRCore/openexr_version.h COPYONLY)
 
-if(OPENEXR_INSTALL)
-install(
-  FILES
-    ${CMAKE_CURRENT_BINARY_DIR}/OpenEXRConfig.h
-  DESTINATION
-    ${CMAKE_INSTALL_INCLUDEDIR}/${OPENEXR_OUTPUT_SUBDIR}
-)
-endif()
-
 ###################################################
 ####### IexConfig.h and IexConfigInternal.h
 
