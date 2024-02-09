@@ -277,6 +277,29 @@ You can customize these options three ways:
 2. Use the UI ``cmake-gui`` or ``ccmake``.
 3. Specify them as command-line arguments when you invoke cmake.
 
+Uninstall
+~~~~~~~~~
+
+If you did a binary instal of OpenEXR via a package manager
+(`apt-get`, `yum`, `port`, `brew`, etc), use the package manager to
+uninstall.
+
+If you have installed from source, *and you still have the build
+tree from which you installed*, you can uninstall via: 
+
+.. code-block::
+
+    % cmake --build $builddir --target uninstall
+
+or if using ``make``:
+
+.. code-block::
+
+    % make uninstall
+
+The `uninstall` relies on CMake's `install_manifest.txt` for the record
+of what was installed.
+
 Library Naming Options
 ~~~~~~~~~~~~~~~~~~~~~~
 
