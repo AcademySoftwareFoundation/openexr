@@ -26,7 +26,6 @@ test = ["pytest"]
 
 [tool.scikit-build]
 wheel.expand-macos-universal-tags = true
-wheel.packages = ["src/wrappers/python"]
 sdist.exclude = [".github", "src/test", "src/examples", "website", "ASWF", "bazel", "share"]
 # Enable experimental features if any are available
 # In this case we need custom local plugin to get
