@@ -27,6 +27,7 @@ test = ["pytest"]
 [tool.scikit-build]
 wheel.expand-macos-universal-tags = true
 sdist.exclude = [".github", "src/test", "src/examples", "website", "ASWF", "bazel", "share"]
+cmake.targets = ["PyOpenEXR"]
 # Enable experimental features if any are available
 # In this case we need custom local plugin to get
 # the project version from cmake.
@@ -35,6 +36,7 @@ metadata.version.provider = "openexr_skbuild_plugin"
 metadata.version.provider-path = "./src/wrappers/python"
 
 [tool.scikit-build.cmake.define]
+OPENEXR_INSTALL = 'OFF'
 OPENEXR_BUILD_PYTHON = 'ON'
 OPENEXR_BUILD_EXAMPLES = 'OFF'
 OPENEXR_BUILD_TOOLS = 'OFF'
@@ -45,7 +47,6 @@ BUILD_SHARED_LIBS = 'OFF'
 CMAKE_POSITION_INDEPENDENT_CODE = 'ON'
 
 [tool.cibuildwheel]
-#test-command = "pytest {project}/src/wrappers/python/tests"
 test-command = "ctest -R PyOpenEXR"
 test-extras = ["test"]
 test-skip = ["*universal2:arm64"]
