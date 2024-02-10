@@ -48,9 +48,6 @@ set(OPENEXR_LIB_VERSION "${OPENEXR_LIB_SOVERSION}.${OPENEXR_VERSION}") # e.g. "3
 
 option(OPENEXR_INSTALL "Install OpenEXR libraries" ON)
 option(OPENEXR_INSTALL_TOOLS "Install OpenEXR tools" ON)
-if(OPENEXR_INSTALL_TOOLS AND NOT OPENEXR_INSTALL)
-  message(SEND_ERROR "OPENEXR_INSTALL_TOOLS requires OPENEXR_INSTALL")
-endif()
 
 # uninstall target
 if(NOT TARGET uninstall)
