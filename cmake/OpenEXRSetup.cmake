@@ -265,10 +265,10 @@ endif()
 
 option(OPENEXR_FORCE_INTERNAL_IMATH "Force using an internal imath" OFF)
 # Check to see if Imath is installed outside of the current build directory.
-set(OPENEXR_IMATH_REPO "https://github.com/AcademySoftwareFoundation/Imath.git" CACHE STRING
-    "Repo for auto-build of Imath")
-set(OPENEXR_IMATH_TAG "main" CACHE STRING
-  "Tag for auto-build of Imath (branch, tag, or SHA)")
+#set(OPENEXR_IMATH_REPO "https://github.com/AcademySoftwareFoundation/Imath.git" CACHE STRING "Repo for auto-build of Imath")
+#set(OPENEXR_IMATH_TAG "main" CACHE STRING "Tag for auto-build of Imath (branch, tag, or SHA)")
+set(OPENEXR_IMATH_REPO "https://github.com/cary-ilm/Imath.git" CACHE STRING "Repo for auto-build of Imath")
+set(OPENEXR_IMATH_TAG "uninstall" CACHE STRING "Tag for auto-build of Imath (branch, tag, or SHA)")
 if(NOT OPENEXR_FORCE_INTERNAL_IMATH)
   #TODO: ^^ Release should not clone from main, this is a place holder
   set(CMAKE_IGNORE_PATH "${CMAKE_CURRENT_BINARY_DIR}/_deps/imath-src/config;${CMAKE_CURRENT_BINARY_DIR}/_deps/imath-build/config")
@@ -293,10 +293,13 @@ if(NOT TARGET Imath::Imath AND NOT Imath_FOUND)
   if(NOT Imath_POPULATED)
     FetchContent_Populate(Imath)
 
+    # Propagate OpenEXR's install setting to Imath
+    set(IMATH_INSTALL ${OPENEXR_INSTALL})
+
     # Propagate OpenEXR's setting for pkg-config generation to Imath:
     # If OpenEXR is generating it, the internal Imath should, too.
     set(IMATH_INSTALL_PKG_CONFIG ${OPENEXR_INSTALL_PKG_CONFIG}) 
-
+    
     # hrm, cmake makes Imath lowercase for the properties (to imath)
     add_subdirectory(${imath_SOURCE_DIR} ${imath_BINARY_DIR})
   endif()
