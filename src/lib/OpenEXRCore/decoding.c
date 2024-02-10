@@ -292,8 +292,6 @@ default_decompress_chunk (exr_decode_pipeline_t* decode)
             (((uint64_t) decode->chunk.width) *
              ((uint64_t) decode->chunk.height));
 
-        if ((decode->decode_flags & EXR_DECODE_SAMPLE_COUNTS_AS_INDIVIDUAL))
-            sampsize += 1;
         sampsize *= sizeof (int32_t);
 
         rv = decompress_data (
