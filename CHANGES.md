@@ -3,10 +3,10 @@
 
 # OpenEXR Release Notes
 
-* [Version 3.2.2](#version-322-february-5-2024) February 5, 2024
+* [Version 3.2.2](#version-322-february-11-2024) February 11, 2024
 * [Version 3.2.1](#version-321-september-27-2023) September 27, 2023
 * [Version 3.2.0](#version-320-august-30-2023) August 30, 2023
-* [Version 3.1.12](#version-3112-february-5-2023) February 5, 2024
+* [Version 3.1.12](#version-3112-february-11-2023) February 11, 2024
 * [Version 3.1.11](#version-3111-august-13-2023) August 13, 2023
 * [Version 3.1.10](#version-3110-august-2-2023) August 2, 2023
 * [Version 3.1.9](#version-319-june-25-2023) June 25, 2023
@@ -69,7 +69,7 @@
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
 
-## Version 3.2.2 (February 5, 2024)
+## Version 3.2.2 (February 11, 2024)
 
 Patch release that addresses
 [CVE-2023-5841](https://takeonme.org/cves/CVE-2023-5841.html).
@@ -78,6 +78,19 @@ Note that this bug is present in the C++ API (since v3.1.0), although
 it is in a routine that is predominantly used for development and
 testing. It is not likely to appear in production code.
 
+This release also addresses:
+
+* OSS-fuzz [66491](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=66491)
+Out-of-memory in openexr_exrcorecheck_fuzzer
+* OSS-fuzz [66489](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=66489)
+Null-dereference in `Imf_3_3::realloc_deepdata`
+
+### Merged Pull Requests
+
+* [1632](https://github.com/AcademySoftwareFoundation/openexr/pull/1632)
+adjust checks for core to better match c++ checks
+* [1630](https://github.com/AcademySoftwareFoundation/openexr/pull/1630)
+fix issue with unpacking sample counts 
 * [1627](https://github.com/AcademySoftwareFoundation/openexr/pull/1627)
 Fix CVE 2023 5841
 
@@ -455,7 +468,7 @@ Improve Bazel Build
 * [1058](https://github.com/AcademySoftwareFoundation/openexr/pull/1058)
 Add ``validate_openexr_libs.sh`` to validate .so symlinks
 
-## Version 3.1.12 (February 5, 2024)
+## Version 3.1.12 (February 11, 2024)
 
 Patch release that addresses
 [CVE-2023-5841](https://takeonme.org/cves/CVE-2023-5841.html).
@@ -464,8 +477,19 @@ Note that this bug is present in the C++ API (since v3.1.0), although
 it is in a routine that is predominantly used for development and
 testing. It is not likely to appear in production code.
 
+This release also addresses:
+
+* OSS-fuzz [66491](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=66491)
+Out-of-memory in openexr_exrcorecheck_fuzzer
+* OSS-fuzz [66489](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=66489)
+Null-dereference in `Imf_3_3::realloc_deepdata`
+
 ### Merged Pull Requests
 
+* [1632](https://github.com/AcademySoftwareFoundation/openexr/pull/1632)
+adjust checks for core to better match c++ checks
+* [1630](https://github.com/AcademySoftwareFoundation/openexr/pull/1630)
+fix issue with unpacking sample counts 
 * [1627](https://github.com/AcademySoftwareFoundation/openexr/pull/1627)
 Fix CVE 2023 5841
 
