@@ -1219,7 +1219,7 @@ realloc_deepdata(exr_decode_pipeline_t* decode)
         bytes += totsamps * outc.user_bytes_per_element;
     }
 
-    if (bytes >= gMaxBytesPerDeepScanline * h)
+    if (bytes >= gMaxBytesPerDeepScanline)
     {
         for (int c = 0; c < decode->channel_count; c++)
         {
@@ -1302,6 +1302,9 @@ bool readCoreScanlinePart(exr_context_t f, int part, bool reduceMemory, bool red
             }
 
             doread = true;
+            if (reduceMemory && bytes >= gMaxBytesPerScanline)
+                doread = false;
+
             if (cinfo.type == EXR_STORAGE_DEEP_SCANLINE)
             {
                 decoder.decoding_user_data       = &imgdata;
@@ -1309,8 +1312,6 @@ bool readCoreScanlinePart(exr_context_t f, int part, bool reduceMemory, bool red
             }
             else
             {
-                if (reduceMemory && bytes >= gMaxBytesPerScanline) doread = false;
-
                 if (doread) imgdata.resize (bytes);
             }
             rv = exr_decoding_choose_default_routines (f, part, &decoder);
@@ -1467,6 +1468,9 @@ bool readCoreTiledPart(exr_context_t f, int part, bool reduceMemory, bool reduce
                         }
 
                         doread = true;
+                        if (reduceMemory && bytes >= gMaxTileBytes)
+                            doread = false;
+
                         if (cinfo.type == EXR_STORAGE_DEEP_TILED)
                         {
                             decoder.decoding_user_data       = &tiledata;
@@ -1474,9 +1478,6 @@ bool readCoreTiledPart(exr_context_t f, int part, bool reduceMemory, bool reduce
                         }
                         else
                         {
-                            if (reduceMemory && bytes >= gMaxTileBytes)
-                                doread = false;
-
                             if (doread) tiledata.resize (bytes);
                         }
                         rv = exr_decoding_choose_default_routines (
@@ -1608,6 +1609,20 @@ runCoreChecks (const char *filename, bool reduceMemory, bool reduceTime)
     exr_context_initializer_t cinit = EXR_DEFAULT_CONTEXT_INITIALIZER;
 
     cinit.error_handler_fn = &core_error_handler_cb;
+
+    if (reduceMemory || reduceTime)
+    {
+        /* could use set_default functions for this, but those just
+         * initialize the context, doing it in the initializer is mt
+         * safe...
+         * exr_set_default_maximum_image_size (2048, 2048);
+         * exr_set_default_maximum_tile_size (512, 512);
+         */
+        cinit.max_image_width = 2048;
+        cinit.max_image_height = 2048;
+        cinit.max_tile_width = 512;
+        cinit.max_tile_height = 512;
+    }
 
     rv = exr_start_read (&f, filename, &cinit);
     if (rv != EXR_ERR_SUCCESS)
