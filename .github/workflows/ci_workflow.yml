@@ -238,8 +238,8 @@ jobs:
         run: yum install -y help2man
       - name: Configure
         run: |
-          cmake .. \
-                -DCMAKE_INSTALL_PREFIX=../_install \
+          cmake -B _build -S . \
+                -DCMAKE_INSTALL_PREFIX=_install \
                 -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} \
                 -DCMAKE_CXX_STANDARD=${{ matrix.cxx-standard }} \
                 -DCMAKE_CXX_FLAGS=${{ matrix.cxx-flags }} \
@@ -249,13 +249,11 @@ jobs:
                 -DOPENEXR_INSTALL_DOCS='ON' \
                 -DOPENEXR_RUN_FUZZ_TESTS='OFF' \
                 -DOPENEXR_ENABLE_THREADING=${{ matrix.threads-enabled }}
-        working-directory: _build
       - name: Build
         run: |
-          cmake --build . \
+          cmake --build _build \
                 --target install \
                 --config ${{ matrix.build-type }}
-        working-directory: _build
       - name: Validate
         run: |
           share/ci/scripts/linux/validate_openexr_libs.sh _install 
