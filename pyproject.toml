@@ -57,5 +57,3 @@ build-verbosity = 1
 manylinux-x86_64-image = "manylinux2014"
 manylinux-i686-image = "manylinux2014"
 manylinux-aarch64-image = "manylinux2014"
-
-
