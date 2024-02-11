@@ -1260,7 +1260,11 @@ realloc_deepdata(exr_decode_pipeline_t* decode)
     }
 
     if (ud->size () < bytes)
+    {
         ud->resize (bytes);
+        if (ud->capacity() < bytes)
+            return EXR_ERR_OUT_OF_MEMORY;
+    }
 
     uint8_t* dptr = &((*ud)[0]);
     for (int c = 0; c < decode->channel_count; c++)
@@ -1730,6 +1734,19 @@ runCoreChecks (
     cinit.read_fn          = &memstream_read;
     cinit.size_fn          = &memstream_size;
     cinit.error_handler_fn = &core_error_handler_cb;
+    if (reduceMemory || reduceTime)
+    {
+        /* could use set_default functions for this, but those just
+         * initialize the context, doing it in the initializer is mt
+         * safe...
+         * exr_set_default_maximum_image_size (2048, 2048);
+         * exr_set_default_maximum_tile_size (512, 512);
+         */
+        cinit.max_image_width = 2048;
+        cinit.max_image_height = 2048;
+        cinit.max_tile_width = 512;
+        cinit.max_tile_height = 512;
+    }
 
     rv = exr_start_read (&f, "<memstream>", &cinit);
     if (rv != EXR_ERR_SUCCESS) return true;
