@@ -590,13 +590,15 @@ extract_chunk_table (
                 // something similar, except when in strict mode, we
                 // will fail with a corrupt chunk immediately.
                 rv = reconstruct_chunk_table (ctxt, part, ctable);
-                if (rv != EXR_ERR_SUCCESS && ctxt->strict_header)
+                if (rv != EXR_ERR_SUCCESS)
                 {
                     ctxt->free_fn (ctable);
-                    return ctxt->report_error (
-                        ctxt,
-                        EXR_ERR_BAD_CHUNK_LEADER,
-                        "Incomplete / corrupt chunk table, unable to reconstruct");
+                    ctable = (uint64_t*) UINTPTR_MAX;
+                    if (ctxt->strict_header)
+                        return ctxt->report_error (
+                            ctxt,
+                            EXR_ERR_BAD_CHUNK_LEADER,
+                            "Incomplete / corrupt chunk table, unable to reconstruct");
                 }
             }
         }
@@ -609,7 +611,8 @@ extract_chunk_table (
                 &eptr,
                 nptr))
         {
-            ctxt->free_fn (ctable);
+            if (nptr != UINTPTR_MAX)
+                ctxt->free_fn (ctable);
             ctable = (uint64_t*) eptr;
             if (ctable == NULL)
                 return ctxt->standard_error (ctxt, EXR_ERR_OUT_OF_MEMORY);
@@ -617,7 +620,7 @@ extract_chunk_table (
     }
 
     *chunktable = ctable;
-    return EXR_ERR_SUCCESS;
+    return ((uintptr_t)ctable) == UINTPTR_MAX ? EXR_ERR_BAD_CHUNK_LEADER : EXR_ERR_SUCCESS;
 }
 
 /**************************************/
