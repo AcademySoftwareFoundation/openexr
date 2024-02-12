@@ -72,6 +72,11 @@ security vulnerabilities.
 | 2.5.x    | :warning: Only the most critical fixes, only if they can be easily backported. |
 | <= 1.x   | :x: No longer receiving patches of any kind. |
 
+## Signed Releases
+
+Releases are signed by the GPG key listed in
+[openexr.keyring](openexr.keyring).
+
 ## Security Expectations
 
 ### Software Features

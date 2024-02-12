@@ -599,7 +599,7 @@ The preferred workflow is:
       [registered](https://docs.github.com/en/authentication/managing-commit-signature-verification/telling-git-about-your-signing-key)
       with your GitHub account and git config.
 
-   b. Create a signed tag via `git tag -s`.
+   b. Create a signed tag with the release name via `git tag -s v3.1.9`.
    
    c. Push the tag via `git push --tags`
    
@@ -610,16 +610,16 @@ The preferred workflow is:
    b. Send an email to ``openexr-dev@lists.aswf.io`` officially
       annoucing the release.
    
-9. GPG Sign the release file
+9. Detach-sign the release source artifact with the GPG key
 
    a. On the releases page, download the .zip file of the release source.
 
    b. Unzip it and verify that it is identical to the source at the
       release tag in your repo clone.
 
-   c. Sign the zip file via `gpp --detach-sig <file.zip>
+   c. Sign the zip file via `gpg --detach-sig <file.zip>`
 
-   d. Uplodate the `.sig` file to the GitHub release page.
+   d. Upload the `.sig` file to the GitHub release page.
 
 10. Update the ``release`` branch, which should always point to the
     most recent patch of the most recent minor release, i.e. the most
