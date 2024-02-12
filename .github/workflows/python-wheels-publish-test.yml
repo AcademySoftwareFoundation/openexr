@@ -40,6 +40,11 @@ jobs:
         with:
           python-version: '3.x'
 
+      - name: Create sdist
+        # Only create it once.
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        run: pipx run build --sdist . --outdir wheelhouse
+
       - name: Build wheel
         uses: pypa/cibuildwheel@v2.16
         with:
