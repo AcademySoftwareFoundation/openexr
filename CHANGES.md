@@ -3,6 +3,7 @@
 
 # OpenEXR Release Notes
 
+* [Version 3.2.3](#version-323-february-21-2024) February 21, 2024
 * [Version 3.2.2](#version-322-february-11-2024) February 11, 2024
 * [Version 3.2.1](#version-321-september-27-2023) September 27, 2023
 * [Version 3.2.0](#version-320-august-30-2023) August 30, 2023
@@ -70,6 +71,87 @@
 * [Version 1.0.2](#version-102)
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
+
+## Version 3.2.3 (February 21, 2024)
+
+Patch release with various build/bug/documentation fixes:
+
+* Fix `bswap` on NetBSD
+* Fix issue with decompressing fp32 dwa files
+* Support cmake config for `libdeflate`
+* Add `uninstall` cmake target
+* updated security policy
+* miscelleneous website improvements
+
+This release also addresses:
+
+* OSS-fuzz [66612](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=66612)
+Null-dereference in Imf_3_3::realloc_deepdata
+
+### Merged Pull Requests
+
+* [1636](https://github.com/AcademySoftwareFoundation/openexr/pull/1636)
+Do synk scans weekly on Sunday mornings 
+* [1635](https://github.com/AcademySoftwareFoundation/openexr/pull/1635)
+check and control reduceMemory and reduceTime in stream mode
+* [1634](https://github.com/AcademySoftwareFoundation/openexr/pull/1634)
+adds a shortcut to avoid reconstructing every call
+* [1633](https://github.com/AcademySoftwareFoundation/openexr/pull/1633)
+Fix install of symlink
+* [1631](https://github.com/AcademySoftwareFoundation/openexr/pull/1631)
+Remove snyk-scan-pr.yml
+* [1629](https://github.com/AcademySoftwareFoundation/openexr/pull/1629)
+Build python wheels via scikit-build-core 
+* [1626](https://github.com/AcademySoftwareFoundation/openexr/pull/1626)
+Bazel support: Bump Imath to 3.1.10
+* [1624](https://github.com/AcademySoftwareFoundation/openexr/pull/1624)
+Add uninstall target
+* [1623](https://github.com/AcademySoftwareFoundation/openexr/pull/1623)
+Document security expectations
+* [1622](https://github.com/AcademySoftwareFoundation/openexr/pull/1622)
+Add a reference to building tools from source to the tools webpage.
+* [1621](https://github.com/AcademySoftwareFoundation/openexr/pull/1621)
+Add explanation of distinction between OpenEXR/OpenEXRCore to API section
+* [1620](https://github.com/AcademySoftwareFoundation/openexr/pull/1620)
+Make 'Hello, World' example reader/writer downloadable
+* [1615](https://github.com/AcademySoftwareFoundation/openexr/pull/1615)
+Fix spelling of GitHub
+* [1613](https://github.com/AcademySoftwareFoundation/openexr/pull/1613)
+Support cmake config for libdeflate
+* [1612](https://github.com/AcademySoftwareFoundation/openexr/pull/1612)
+Fix bswap on NetBSD
+* [1611](https://github.com/AcademySoftwareFoundation/openexr/pull/1611)
+Update MacPorts install instructions
+* [1608](https://github.com/AcademySoftwareFoundation/openexr/pull/1608)
+CI/CD - Added Snyk C/C++ Scanning Job
+* [1605](https://github.com/AcademySoftwareFoundation/openexr/pull/1605)
+Bump skylib in workspace approach
+* [1600](https://github.com/AcademySoftwareFoundation/openexr/pull/1600)
+Release notes and news for v2.5.10 
+* [1597](https://github.com/AcademySoftwareFoundation/openexr/pull/1597)
+Account for duplicate emails with .mailmap
+* [1595](https://github.com/AcademySoftwareFoundation/openexr/pull/1595)
+add deep id/manifest tools and doc
+* [1592](https://github.com/AcademySoftwareFoundation/openexr/pull/1592)
+Remove some dead code when writing
+* [1591](https://github.com/AcademySoftwareFoundation/openexr/pull/1591)
+Fix issue with decompressing fp32 dwa files
+* [1587](https://github.com/AcademySoftwareFoundation/openexr/pull/1587)
+#1545 Fix formatting of sample exr file in OpenEXRFileLayout.rst - 3rd attempt
+* [1583](https://github.com/AcademySoftwareFoundation/openexr/pull/1583)
+Converting code-blocks to literalincludes in ReadingAndWritingImageFiles.rst
+* [1579](https://github.com/AcademySoftwareFoundation/openexr/pull/1579)
+python-wheels.yml - add arm64 builds for macOS
+* [1578](https://github.com/AcademySoftwareFoundation/openexr/pull/1578)
+adding better error reporting for bin tests
+* [1577](https://github.com/AcademySoftwareFoundation/openexr/pull/1577)
+Add tests for the Header class.
+* [1576](https://github.com/AcademySoftwareFoundation/openexr/pull/1576)
+python-wheels.yml - bumps cibuildwheel version
+* [1575](https://github.com/AcademySoftwareFoundation/openexr/pull/1575)
+fix typo in README.md
+* [1570](https://github.com/AcademySoftwareFoundation/openexr/pull/1570)
+install.rst - update $ to % in the example shell prompts
 
 ## Version 3.2.2 (February 11, 2024)
 
