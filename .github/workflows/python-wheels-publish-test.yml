@@ -63,7 +63,9 @@ jobs:
         uses: actions/upload-artifact@v4.0.0
         with:
           name: wheels-${{ matrix.os }}
-          path: ./wheelhouse/*.whl
+          path: |
+            ./wheelhouse/*.whl
+            ./wheelhouse/*.tar.gz
   
   publish-to-testpypi:
     name: Publish Python 🐍 distribution 📦 to TestPyPI
