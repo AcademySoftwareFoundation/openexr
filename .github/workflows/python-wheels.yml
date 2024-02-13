@@ -67,6 +67,8 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: wheel-${{ matrix.os }}
-          path: wheelhouse/*.whl
+          name: wheels-${{ matrix.os }}
+          path: |
+            ./wheelhouse/*.whl
+            ./wheelhouse/*.tar.gz
 

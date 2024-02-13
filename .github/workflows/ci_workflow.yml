@@ -25,6 +25,7 @@ on:
       - 'website/src/**'
       - '!bazel/**'
       - '!src/wrappers/**'
+      - '!.github/workflows/python-**.yml'
   pull_request:
     branches-ignore:
       - RB-2.*
@@ -38,6 +39,7 @@ on:
       - 'website/src/**'
       - '!bazel/**'
       - '!src/wrappers/**'
+      - '!.github/workflows/python-**.yml'
 
 permissions:
   contents: read
