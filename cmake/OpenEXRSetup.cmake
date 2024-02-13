@@ -51,8 +51,23 @@ option(OPENEXR_ENABLE_LARGE_STACK "Enables code to take advantage of large stack
 ########################
 ## Build related options
 
-# Whether to build & install the various command line utility programs
+option(OPENEXR_INSTALL "Install OpenEXR libraries/binaries/bindings" ON)
+
+# Whether to build & install the main libraries
+option(OPENEXR_BUILD_LIBS "Enables building of main libraries" ON)
+
+# Whether to build the various command line utility programs
 option(OPENEXR_BUILD_TOOLS "Enables building of utility programs" ON)
+option(OPENEXR_INSTALL_TOOLS "Install OpenEXR tools" ON)
+
+option(OPENEXR_BUILD_EXAMPLES "Build OpenEXR examples" ON)
+option(OPENEXR_INSTALL_EXAMPLES "Install OpenEXR examples" ON)
+
+option(OPENEXR_BUILD_PYTHON "Build python bindings" OFF)
+
+option(OPENEXR_TEST_LIBRARIES "Run library tests" ON)
+option(OPENEXR_TEST_TOOLS "Run tool tests" ON)
+option(OPENEXR_TEST_PYTHON "Run python binding tests" ON)
 
 # This is a variable here for use in controlling where include files are 
 # installed. Care must be taken when changing this, as many things
@@ -136,6 +151,10 @@ if(OPENEXR_USE_CLANG_TIDY)
     -header-filter=.;
     -checks=*;
   )
+endif()
+
+if (NOT OPENEXR_BUILD_LIBS)
+  return()
 endif()
 
 ###############################
@@ -246,10 +265,8 @@ endif()
 
 option(OPENEXR_FORCE_INTERNAL_IMATH "Force using an internal imath" OFF)
 # Check to see if Imath is installed outside of the current build directory.
-set(OPENEXR_IMATH_REPO "https://github.com/AcademySoftwareFoundation/Imath.git" CACHE STRING
-    "Repo for auto-build of Imath")
-set(OPENEXR_IMATH_TAG "main" CACHE STRING
-  "Tag for auto-build of Imath (branch, tag, or SHA)")
+set(OPENEXR_IMATH_REPO "https://github.com/AcademySoftwareFoundation/Imath.git" CACHE STRING "Repo for auto-build of Imath")
+set(OPENEXR_IMATH_TAG "main" CACHE STRING "Tag for auto-build of Imath (branch, tag, or SHA)")
 if(NOT OPENEXR_FORCE_INTERNAL_IMATH)
   #TODO: ^^ Release should not clone from main, this is a place holder
   set(CMAKE_IGNORE_PATH "${CMAKE_CURRENT_BINARY_DIR}/_deps/imath-src/config;${CMAKE_CURRENT_BINARY_DIR}/_deps/imath-build/config")
@@ -274,10 +291,13 @@ if(NOT TARGET Imath::Imath AND NOT Imath_FOUND)
   if(NOT Imath_POPULATED)
     FetchContent_Populate(Imath)
 
+    # Propagate OpenEXR's install setting to Imath
+    set(IMATH_INSTALL ${OPENEXR_INSTALL})
+
     # Propagate OpenEXR's setting for pkg-config generation to Imath:
     # If OpenEXR is generating it, the internal Imath should, too.
     set(IMATH_INSTALL_PKG_CONFIG ${OPENEXR_INSTALL_PKG_CONFIG}) 
-
+    
     # hrm, cmake makes Imath lowercase for the properties (to imath)
     add_subdirectory(${imath_SOURCE_DIR} ${imath_BINARY_DIR})
   endif()
