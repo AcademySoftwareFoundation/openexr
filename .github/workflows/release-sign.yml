@@ -1,0 +1,57 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright (c) Contributors to the OpenEXR Project.
+
+name: Sign Release
+
+on:
+  release:
+    types: [created]
+
+permissions:
+  contents: write
+  id-token: write
+  repository-projects: write
+  
+jobs:
+  release:
+    name: Sign & upload release artifacts
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Create archive
+        run: git archive --format=tar.gz -o openexr-${{ github.ref_name }}.tar.gz ${{ github.ref_name }}
+
+      - name: Sign archive with Sigstore
+        uses: sigstore/gh-action-sigstore-python@v2.1.0
+        with:
+          inputs: openexr-${{ github.ref_name }}.tar.gz
+
+      - name: Get release tag
+        id: get_release
+        uses: bruceadams/get-release@v1.3.2
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Upload release archive
+        uses: actions/upload-release-asset@v1.0.2
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.get_release.outputs.upload_url }}
+          asset_path: openexr-${{ github.ref_name }}.tar.gz
+          asset_name: openexr-${{ github.ref_name }}.tar.gz
+          asset_content_type: application/zip
+
+      - name: Upload release sigstore
+        uses: actions/upload-release-asset@v1.0.2
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.get_release.outputs.upload_url }}
+          asset_path: openexr-${{ github.ref_name }}.tar.gz.sigstore
+          asset_name: openexr-${{ github.ref_name }}.tar.gz.sigstore
+          asset_content_type: application/zip
