@@ -610,28 +610,17 @@ The preferred workflow is:
    b. Send an email to ``openexr-dev@lists.aswf.io`` officially
       annoucing the release.
    
-9. Detach-sign the release source artifact with the GPG key
+9. Update the ``release`` branch, which should always point to the
+   most recent patch of the most recent minor release, i.e. the most
+   preferred release.
 
-   a. On the releases page, download the .zip file of the release source.
+   From a clone of the main repo:
 
-   b. Unzip it and verify that it is identical to the source at the
-      release tag in your repo clone.
-
-   c. Sign the zip file via `gpg --detach-sig <file.zip>`
-
-   d. Upload the `.sig` file to the GitHub release page.
-
-10. Update the ``release`` branch, which should always point to the
-    most recent patch of the most recent minor release, i.e. the most
-    preferred release.
-
-    From a clone of the main repo:
-
-        % git checkout release
-        % git merge RB-3.1
-        % git push
+       % git checkout release
+       % git merge RB-3.1
+       % git push
          
-11. Submit a PR that adds the release notes to [CHANGES.md](CHANGES.md)
+10. Submit a PR that adds the release notes to [CHANGES.md](CHANGES.md)
     on the main branch. Cherry-pick the release notes commit from
     the release branch.
 
@@ -641,14 +630,14 @@ The preferred workflow is:
     - Also include in this PR edits to [``docs/news.rst``](docs/news.rst)
       that add an announcment of the release.
 
-12. After review/merge of the updates to ``docs/news.rst``, build the
+11. After review/merge of the updates to ``docs/news.rst``, build the
     website at https://readthedocs.org/projects/openexr.
 
-13. If the release has resolved any OSS-Fuzz issues, update the
+12. If the release has resolved any OSS-Fuzz issues, update the
     associated pages at https://bugs.chromium.org/p/oss-fuzz with a
     reference to the release.
 
-14. If the release has resolved any public CVE's, request an update
+13. If the release has resolved any public CVE's, request an update
     from the registry service providing the release and a link to the
     release notes.
 

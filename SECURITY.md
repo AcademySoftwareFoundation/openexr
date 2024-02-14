@@ -74,8 +74,9 @@ security vulnerabilities.
 
 ## Signed Releases
 
-Releases are signed by the GPG key listed in
-[openexr.keyring](openexr.keyring).
+Releases artifacts are signed via
+[sigstore](https://www.sigstore.dev). See
+[release-sign.yml](.github/workflows/release-sign.yml) for details.
 
 ## Security Expectations
 
