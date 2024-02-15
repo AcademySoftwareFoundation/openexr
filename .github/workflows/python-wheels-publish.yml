@@ -39,8 +39,6 @@ jobs:
       - name: Create sdist
         # Only create it once.
         if: ${{ matrix.os == 'ubuntu-latest' }}
-        env:
-          OPENEXR_RELEASE_CANDIDATE_TAG: ${{ github.ref_name }}
         run: pipx run build --sdist . --outdir wheelhouse
 
       - name: Build wheel
