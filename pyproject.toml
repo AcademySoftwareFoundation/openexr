@@ -31,7 +31,7 @@ sdist.exclude = [".github", "src/test", "src/examples", "website", "ASWF", "baze
 # Only build the PyOpenEXR (cmake --build --target PyOpenEXR).
 cmake.targets = ["PyOpenEXR"]
 # Only install the "python" component (cmake --install --component python).
-# This makes sure that only files makred as "python" component are installed.
+# This makes sure that only files marked as "python" component are installed.
 install.components = ["python"]
 
 # Enable experimental features if any are available
