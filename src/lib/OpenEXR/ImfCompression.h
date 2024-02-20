@@ -9,10 +9,9 @@
 //-----------------------------------------------------------------------------
 //
 //  enum Compression
-//
-//  DO NOT EDIT !
-//  ImfCompression.h is generated from ImfCompression.h.in by cmake
-//  (with UPDATE_COMPRESSOR_LIST=ON)
+// 
+// This file enumerates available compression methods and defines a simple API 
+// to query them.
 //
 //-----------------------------------------------------------------------------
 
@@ -21,23 +20,22 @@
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
-// clang-format off
+// All available compression methods.
+// NOTE: Must be extended to add a new codec.
 enum IMF_EXPORT_ENUM Compression
 {
-    // DO NOT EDIT: See top of file for details.
-    NO_COMPRESSION = 0,
-    RLE_COMPRESSION = 1,
-    ZIPS_COMPRESSION = 2,
-    ZIP_COMPRESSION = 3,
-    PIZ_COMPRESSION = 4,
+    NO_COMPRESSION    = 0,
+    RLE_COMPRESSION   = 1,
+    ZIPS_COMPRESSION  = 2,
+    ZIP_COMPRESSION   = 3,
+    PIZ_COMPRESSION   = 4,
     PXR24_COMPRESSION = 5,
-    B44_COMPRESSION = 6,
-    B44A_COMPRESSION = 7,
-    DWAA_COMPRESSION = 8,
-    DWAB_COMPRESSION = 9,
+    B44_COMPRESSION   = 6,
+    B44A_COMPRESSION  = 7,
+    DWAA_COMPRESSION  = 8,
+    DWAB_COMPRESSION  = 9,
     NUM_COMPRESSION_METHODS
 };
-// clang-format on
 
 /// Returns a codec ID's short name (lowercase).
 IMF_EXPORT void getCompressionNameFromId (Compression id, std::string& name);

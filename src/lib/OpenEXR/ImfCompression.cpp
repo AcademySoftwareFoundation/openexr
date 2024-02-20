@@ -3,27 +3,20 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
-//-----------------------------------------------------------------------------
-//
-//  DO NOT EDIT !
-//  ImfCompression.cpp is generated from ImfCompression.cpp.in by cmake
-//  (with UPDATE_COMPRESSOR_LIST=ON)
-//
-//-----------------------------------------------------------------------------
-
 #include "ImfNamespace.h"
 #include "ImfCompression.h"
 #include <map>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
+/// Store codec properties so they may be queried in various places.
 struct CompressionDesc
 {
-    std::string name;
-    std::string desc;
-    int         numScanlines;
-    bool        lossy;
-    bool        deep;
+    std::string name;         // short name
+    std::string desc;         // method description
+    int         numScanlines; // number of scanlines required
+    bool        lossy;        // true if lossy algorithm
+    bool        deep;         // true is capable of compressing deep data
 
     CompressionDesc (
         std::string _name,
@@ -40,26 +33,26 @@ struct CompressionDesc
     }
 };
 
+// NOTE: IdToDesc order MUST match Imf::Compression enum.
 // clang-format off
 static const CompressionDesc IdToDesc[] = {
-    // DO NOT EDIT: See top of file for details.
     CompressionDesc (
-        "none",
-        "no compression.",
-        1,
-        false,
+        "none", 
+        "no compression.", 
+        1, 
+        false, 
         true),
     CompressionDesc (
-        "rle",
-        "run-length encoding.",
-        1,
-        false,
+        "rle", 
+        "run-length encoding.", 
+        1, 
+        false, 
         true),
     CompressionDesc (
-        "zips",
-        "zlib compression, one scan line at a time.",
-        1,
-        false,
+        "zips", 
+        "zlib compression, one scan line at a time.", 
+        1, 
+        false, 
         true),
     CompressionDesc (
         "zip",
@@ -93,20 +86,23 @@ static const CompressionDesc IdToDesc[] = {
         false),
     CompressionDesc (
         "dwaa",
-        "lossy DCT based compression, in blocks of 32 scanlines. More efficient for partial buffer access.",
+        "lossy DCT based compression, in blocks of 32 scanlines. More efficient "
+        "for partial buffer access.",
         32,
         true,
         false),
     CompressionDesc (
         "dwab",
-        "lossy DCT based compression, in blocks of 256 scanlines. More efficient space wise and faster to decode full frames than DWAA_COMPRESSION.",
+        "lossy DCT based compression, in blocks of 256 scanlines. More efficient "
+        "space wise and faster to decode full frames than DWAA_COMPRESSION.",
         256,
         true,
         false),
 };
+// clang-format on
 
+// NOTE: CompressionNameToId order MUST match Imf::Compression enum.
 static const std::map<std::string, Compression> CompressionNameToId = {
-    // DO NOT EDIT: See top of file for details.
     {"no", Compression::NO_COMPRESSION},
     {"none", Compression::NO_COMPRESSION},
     {"rle", Compression::RLE_COMPRESSION},
@@ -119,7 +115,6 @@ static const std::map<std::string, Compression> CompressionNameToId = {
     {"dwaa", Compression::DWAA_COMPRESSION},
     {"dwab", Compression::DWAB_COMPRESSION},
 };
-// clang-format on
 
 #define UNKNOWN_COMPRESSION_ID_MSG "INVALID COMPRESSION ID"
 

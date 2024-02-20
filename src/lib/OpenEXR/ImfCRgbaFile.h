@@ -6,14 +6,6 @@
 #ifndef INCLUDED_IMF_C_RGBA_FILE_H
 #define INCLUDED_IMF_C_RGBA_FILE_H
 
-//-----------------------------------------------------------------------------
-//
-//  DO NOT EDIT !
-//  ImfCRgbaFile.h is generated from ImfCRgbaFile.h.in by cmake
-//  (with UPDATE_COMPRESSOR_LIST=ON)
-//
-//-----------------------------------------------------------------------------
-
 #include "ImfExport.h"
 
 #include <stdlib.h>
@@ -76,10 +68,8 @@ typedef struct ImfRgba ImfRgba;
 
 /*
 ** Compression types; values must be the same as in Imf::Compression.
-** DO NOT EDIT: See top of file for details.
 */
 
-// clang-format off
 #define IMF_NO_COMPRESSION 0
 #define IMF_RLE_COMPRESSION 1
 #define IMF_ZIPS_COMPRESSION 2
@@ -91,7 +81,6 @@ typedef struct ImfRgba ImfRgba;
 #define IMF_DWAA_COMPRESSION 8
 #define IMF_DWAB_COMPRESSION 9
 #define IMF_NUM_COMPRESSION_METHODS 10
-// clang-format on
 
 /*
 ** Channels; values must be the same as in Imf::RgbaChannels.

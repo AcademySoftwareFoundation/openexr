@@ -3,17 +3,6 @@
 // Copyright (c) Pixar Animation Studios and Contributors of the OpenEXR Project
 //
 
-// Mandatory section to register this compression method in OpenEXR
-// ----------------------------------------------------------------
-// PXR24_COMPRESSION = 5
-// PXR24_COMPRESSION name pxr24
-// PXR24_COMPRESSION desc lossy 24-bit float compression, in blocks of 16 scan lines.
-// PXR24_COMPRESSION scanlines 16
-// PXR24_COMPRESSION lossy true
-// PXR24_COMPRESSION deep false
-// PXR24_COMPRESSION newscan Pxr24Compressor (hdr, maxScanLineSize, 16)
-// PXR24_COMPRESSION newtile Pxr24Compressor (hdr, tileLineSize, numTileLines)
-
 #ifndef INCLUDED_IMF_PXR24_COMPRESSOR_H
 #define INCLUDED_IMF_PXR24_COMPRESSOR_H
 

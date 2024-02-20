@@ -7,10 +7,6 @@
 //
 //	class Compressor
 //
-//  DO NOT EDIT !
-//  ImfCompressor.cpp is generated from ImfCompressor.cpp.in by cmake
-//  (with UPDATE_COMPRESSOR_LIST=ON)
-//
 //-----------------------------------------------------------------------------
 
 #include "ImfCheckedArithmetic.h"
@@ -77,7 +73,6 @@ newCompressor (Compression c, size_t maxScanLineSize, const Header& hdr)
     // clang-format off
     switch (c)
     {
-        // DO NOT EDIT: See top of file for details.
         case RLE_COMPRESSION:
 
             return new RleCompressor (hdr, maxScanLineSize);
@@ -108,11 +103,19 @@ newCompressor (Compression c, size_t maxScanLineSize, const Header& hdr)
 
         case DWAA_COMPRESSION:
 
-            return new DwaCompressor (hdr, static_cast<int> (maxScanLineSize), 32, DwaCompressor::STATIC_HUFFMAN);
+            return new DwaCompressor (
+                hdr,
+                static_cast<int> (maxScanLineSize),
+                32,
+                DwaCompressor::STATIC_HUFFMAN);
 
         case DWAB_COMPRESSION:
 
-            return new DwaCompressor (hdr, static_cast<int> (maxScanLineSize), 256, DwaCompressor::STATIC_HUFFMAN);
+            return new DwaCompressor (
+                hdr,
+                static_cast<int> (maxScanLineSize),
+                256,
+                DwaCompressor::STATIC_HUFFMAN);
 
         default: return 0;
     }
@@ -138,15 +141,11 @@ newTileCompressor (
     // clang-format off
     switch (c)
     {
-        // DO NOT EDIT: See top of file for details.
         case RLE_COMPRESSION:
 
             return new RleCompressor (hdr, uiMult (tileLineSize, numTileLines));
 
         case ZIPS_COMPRESSION:
-
-            return new ZipCompressor (hdr, tileLineSize, numTileLines);
-
         case ZIP_COMPRESSION:
 
             return new ZipCompressor (hdr, tileLineSize, numTileLines);
@@ -169,11 +168,19 @@ newTileCompressor (
 
         case DWAA_COMPRESSION:
 
-            return new DwaCompressor (hdr, static_cast<int> (tileLineSize), static_cast<int> (numTileLines), DwaCompressor::DEFLATE);
+            return new DwaCompressor (
+                hdr,
+                static_cast<int> (tileLineSize),
+                static_cast<int> (numTileLines),
+                DwaCompressor::DEFLATE);
 
         case DWAB_COMPRESSION:
 
-            return new DwaCompressor (hdr, static_cast<int> (tileLineSize), static_cast<int> (numTileLines), DwaCompressor::STATIC_HUFFMAN);
+            return new DwaCompressor (
+                hdr,
+                static_cast<int> (tileLineSize),
+                static_cast<int> (numTileLines),
+                DwaCompressor::STATIC_HUFFMAN);
 
         default: return 0;
     }

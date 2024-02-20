@@ -3,26 +3,6 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
-// Mandatory section to register this compression method in OpenEXR
-// ----------------------------------------------------------------
-// B44_COMPRESSION = 6
-// B44_COMPRESSION name b44
-// B44_COMPRESSION desc lossy 4-by-4 pixel block compression, fixed compression rate.
-// B44_COMPRESSION scanlines 32
-// B44_COMPRESSION lossy true
-// B44_COMPRESSION deep false
-// B44_COMPRESSION newscan B44Compressor (hdr, maxScanLineSize, 32, false)
-// B44_COMPRESSION newtile B44Compressor (hdr, tileLineSize, numTileLines, false)
-// ----------------------------------------------------------------
-// B44A_COMPRESSION = 7
-// B44A_COMPRESSION name b44a
-// B44A_COMPRESSION desc lossy 4-by-4 pixel block compression, flat fields are compressed more.
-// B44A_COMPRESSION scanlines 32
-// B44A_COMPRESSION lossy true
-// B44A_COMPRESSION deep false
-// B44A_COMPRESSION newscan B44Compressor (hdr, maxScanLineSize, 32, true)
-// B44A_COMPRESSION newtile B44Compressor (hdr, tileLineSize, numTileLines, true)
-
 #ifndef INCLUDED_IMF_B44_COMPRESSOR_H
 #define INCLUDED_IMF_B44_COMPRESSOR_H
 
@@ -49,10 +29,10 @@ public:
 
     virtual ~B44Compressor ();
 
-    B44Compressor (const B44Compressor& other) = delete;
+    B44Compressor (const B44Compressor& other)            = delete;
     B44Compressor& operator= (const B44Compressor& other) = delete;
     B44Compressor (B44Compressor&& other)                 = delete;
-    B44Compressor& operator= (B44Compressor&& other) = delete;
+    B44Compressor& operator= (B44Compressor&& other)      = delete;
 
     virtual int numScanLines () const;
 
