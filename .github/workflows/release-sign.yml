@@ -1,6 +1,20 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) Contributors to the OpenEXR Project.
 
+#
+# Releases are signed via https://github.com/sigstore/sigstore-python.
+# See https://docs.sigstore.dev for information about sigstore.
+#
+# This action creates a .tar.gz of the complete OpenEXR source tree at
+# the given release tag, signs it via sigstore, and uploads the
+# .tar.gz and the associated .tar.gz.sigstore credential bundle.
+#
+# To verify a downloaded release at a given tag:
+# 
+#   % pip install sigstore
+#   % sigstore verify github --cert-identity https://github.com/AcademySoftwareFoundation/openexr/.github/workflows/release-sign.yml@refs/tags/<tag> openexr-<tag>.tar.gz
+#
+
 name: Sign Release
 
 on:
@@ -17,41 +31,24 @@ jobs:
     name: Sign & upload release artifacts
     runs-on: ubuntu-latest
 
+    env:
+       tarball: openexr-${{ github.ref_name }}.tar.gz
+       
     steps:
 
       - name: Checkout
         uses: actions/checkout@v2
 
       - name: Create archive
-        run: git archive --format=tar.gz -o openexr-${{ github.ref_name }}.tar.gz ${{ github.ref_name }}
+        run: git archive --format=tar.gz -o ${{ env.tarball }} ${{ github.ref_name }}
 
       - name: Sign archive with Sigstore
-        uses: sigstore/gh-action-sigstore-python@v2.1.0
+        uses: sigstore/gh-action-sigstore-python@v2.1.1
         with:
-          inputs: openexr-${{ github.ref_name }}.tar.gz
-
-      - name: Get release tag
-        id: get_release
-        uses: bruceadams/get-release@v1.3.2
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
+          inputs: ${{ env.tarball }}
 
       - name: Upload release archive
-        uses: actions/upload-release-asset@v1.0.2
         env:
-          GITHUB_TOKEN: ${{ github.token }}
-        with:
-          upload_url: ${{ steps.get_release.outputs.upload_url }}
-          asset_path: openexr-${{ github.ref_name }}.tar.gz
-          asset_name: openexr-${{ github.ref_name }}.tar.gz
-          asset_content_type: application/zip
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload ${{ github.ref_name }} ${{ env.tarball }} ${{ env.tarball }}.sigstore
 
-      - name: Upload release sigstore
-        uses: actions/upload-release-asset@v1.0.2
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-        with:
-          upload_url: ${{ steps.get_release.outputs.upload_url }}
-          asset_path: openexr-${{ github.ref_name }}.tar.gz.sigstore
-          asset_name: openexr-${{ github.ref_name }}.tar.gz.sigstore
-          asset_content_type: application/zip

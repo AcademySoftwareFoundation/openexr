@@ -78,6 +78,11 @@ Releases artifacts are signed via
 [sigstore](https://www.sigstore.dev). See
 [release-sign.yml](.github/workflows/release-sign.yml) for details.
 
+To verify a downloaded release at a given tag:
+
+    % pip install sigstore
+    % sigstore verify github --cert-identity https://github.com/AcademySoftwareFoundation/openexr/.github/workflows/release-sign.yml@refs/tags/<tag> openexr-<tag>.tar.gz
+
 ## Security Expectations
 
 ### Software Features
