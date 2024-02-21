@@ -73,6 +73,17 @@ security vulnerabilities.
 | 2.5.x    | :warning: Only the most critical fixes, only if they can be easily backported. |
 | <= 1.x   | :x: No longer receiving patches of any kind. |
 
+## Signed Releases
+
+Releases artifacts are signed via
+[sigstore](https://www.sigstore.dev). See
+[release-sign.yml](.github/workflows/release-sign.yml) for details.
+
+To verify a downloaded release at a given tag:
+
+    % pip install sigstore
+    % sigstore verify github --cert-identity https://github.com/AcademySoftwareFoundation/openexr/.github/workflows/release-sign.yml@refs/tags/<tag> openexr-<tag>.tar.gz
+
 ## Security Expectations
 
 ### Software Features
