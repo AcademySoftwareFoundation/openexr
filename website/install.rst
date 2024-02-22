@@ -81,7 +81,7 @@ Prerequisites
 
 Make sure these are installed on your system before building OpenEXR:
 
-* OpenEXR requires CMake version 3.12 or newer
+* OpenEXR requires CMake version 3.14 or newer
 * C++ compiler that supports C++11
 * Imath (auto fetched by CMake if not found) (https://github.com/AcademySoftwareFoundation/openexr)
 * libdeflate source code (auto fetched by CMake if not found) (https://github.com/ebiggers/libdeflate)

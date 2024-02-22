@@ -2,7 +2,7 @@
 # Copyright (c) Contributors to the OpenEXR Project.
 
 # We require this to get object library link library support
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.14)
 
 if(POLICY CMP0074)
   # enable find_package(<Package>) to use <Package>_ROOT as a hint
