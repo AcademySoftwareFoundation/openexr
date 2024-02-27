@@ -1210,10 +1210,8 @@ realloc_deepdata(exr_decode_pipeline_t* decode)
     int32_t h = decode->chunk.height;
     uint64_t totsamps = 0, bytes = 0;
     const int32_t *sampbuffer = decode->sample_count_table;
-    std::vector<uint8_t>* ud = static_cast<std::vector<uint8_t>*>(
-        decode->decoding_user_data);
 
-    if ( ! ud )
+    if ( decode->decoding_user_data == nullptr )
     {
         for (int c = 0; c < decode->channel_count; c++)
         {
@@ -1259,23 +1257,30 @@ realloc_deepdata(exr_decode_pipeline_t* decode)
         return EXR_ERR_SUCCESS;
     }
 
-    if (ud->size () < bytes)
+    std::vector<uint8_t>& ud = *static_cast<std::vector<uint8_t>*>(decode->decoding_user_data);
+
+    if (ud.size () < bytes)
     {
-        ud->resize (bytes);
-        if (ud->capacity() < bytes)
+        ud.resize (bytes);
+        if (ud.capacity() < bytes)
             return EXR_ERR_OUT_OF_MEMORY;
     }
 
-    uint8_t* dptr = &((*ud)[0]);
-    for (int c = 0; c < decode->channel_count; c++)
+    if (ud.size() > 0)
     {
-        exr_coding_channel_info_t& outc = decode->channels[c];
-        outc.decode_to_ptr              = dptr;
-        outc.user_pixel_stride          = outc.user_bytes_per_element;
-        outc.user_line_stride           = 0;
+        uint8_t* dptr = ud.data();
 
-        dptr += totsamps * (uint64_t) outc.user_bytes_per_element;
+        for (int c = 0; c < decode->channel_count; c++)
+        {
+            exr_coding_channel_info_t& outc = decode->channels[c];
+            outc.decode_to_ptr              = dptr;
+            outc.user_pixel_stride          = outc.user_bytes_per_element;
+            outc.user_line_stride           = 0;
+
+            dptr += totsamps * (uint64_t) outc.user_bytes_per_element;
+        }
     }
+    
     return EXR_ERR_SUCCESS;
 }
 
