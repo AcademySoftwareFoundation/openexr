@@ -53,7 +53,7 @@ CompressionAttribute::readValueFrom (
     // (Header::sanityCheck will throw an exception when files with invalid Compression types are read)
     //
 
-    if (!isValidCompressionId(static_cast<Compression>(tmp)))
+    if (!isValidCompression(static_cast<Compression>(tmp)))
     {
         tmp = NUM_COMPRESSION_METHODS;
     }

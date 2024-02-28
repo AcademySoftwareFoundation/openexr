@@ -49,24 +49,6 @@ Compressor::uncompressTile (
     return uncompress (inPtr, inSize, range.min.y, outPtr);
 }
 
-bool
-isValidCompression (Compression c)
-{
-    return isValidCompressionId (c);
-}
-
-bool
-isLossyCompression (Compression c)
-{
-    return isLossyCompressionId (c);
-}
-
-bool
-isValidDeepCompression (Compression c)
-{
-    return isDeepCompressionId (c);
-}
-
 Compressor*
 newCompressor (Compression c, size_t maxScanLineSize, const Header& hdr)
 {

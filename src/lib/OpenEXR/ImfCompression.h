@@ -21,7 +21,7 @@
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 // All available compression methods.
-// NOTE: Must be extended to add a new codec.
+// NOTE: Must be extended to add a new codec. Ids must be continuous.
 enum IMF_EXPORT_ENUM Compression
 {
     NO_COMPRESSION = 0, // no compression.
@@ -66,7 +66,7 @@ IMF_EXPORT void
 getCompressionIdFromName (const std::string& name, Compression& id);
 
 /// Return true if a compression id exists.
-IMF_EXPORT bool isValidCompressionId (Compression id);
+IMF_EXPORT bool isValidCompression (Compression id);
 
 /// Return a string enumerating all compression names, with a custom separator.
 IMF_EXPORT void
@@ -75,11 +75,11 @@ getCompressionNamesString (const std::string& separator, std::string& in);
 /// Return the number of scan lines expected by a given compression method.
 IMF_EXPORT int getCompressionNumScanlines (Compression id);
 
-/// Return true is the compression method does not preserve the data's integrity.
-IMF_EXPORT bool isLossyCompressionId (Compression id);
+/// Return true is the compression method exists and doesn't preserves data integrity.
+IMF_EXPORT bool isLossyCompression (Compression id);
 
-/// Return true is the compression method supports deep data.
-IMF_EXPORT bool isDeepCompressionId (Compression id);
+/// Return true is the compression method exists and supports deep data.
+IMF_EXPORT bool isValidDeepCompression (Compression id);
 
 /// Controls the default zip compression level used. Zip is used for
 /// the 2 zip levels as well as some modes of the DWAA/B compression.

@@ -50,8 +50,8 @@ testCompressionApi (const string& tempDir)
             getCompressionDescriptionFromId (c, desc);
             assert (!desc.empty ());
 
-            assert (isValidCompressionId (c) == true);
-            assert (isValidCompressionId (id) == true);
+            assert (isValidCompression (c) == true);
+            assert (isValidCompression (id) == true);
 
             assert (getCompressionNumScanlines (c) > 0);
 
@@ -63,10 +63,10 @@ testCompressionApi (const string& tempDir)
                 case ZIPS_COMPRESSION:
                 case ZIP_COMPRESSION:
                 case PIZ_COMPRESSION:
-                    assert (isLossyCompressionId (c) == false);
+                    assert (isLossyCompression (c) == false);
                     break;
 
-                default: assert (isLossyCompressionId (c) == true); break;
+                default: assert (isLossyCompression (c) == true); break;
             }
 
             // update this if you add a new deep compressor.
@@ -75,10 +75,10 @@ testCompressionApi (const string& tempDir)
                 case NO_COMPRESSION:
                 case RLE_COMPRESSION:
                 case ZIPS_COMPRESSION:
-                    assert (isDeepCompressionId (c) == true);
+                    assert (isValidDeepCompression (c) == true);
                     break;
 
-                default: assert (isDeepCompressionId (c) == false); break;
+                default: assert (isValidDeepCompression (c) == false); break;
             }
         }
 

@@ -153,7 +153,7 @@ getCompressionIdFromName (const std::string& name, Compression& id)
 
 /// Return true if a compression id exists.
 bool
-isValidCompressionId (Compression id)
+isValidCompression (Compression id)
 {
     return id >= NO_COMPRESSION && id < NUM_COMPRESSION_METHODS;
 }
@@ -178,20 +178,20 @@ getCompressionNumScanlines (Compression id)
     return IdToDesc[static_cast<int> (id)].numScanlines;
 }
 
-/// Return true is the compression method does not preserve the data's integrity.
+/// Return true is the compression method exists and doesn't preserve data integrity.
 bool
-isLossyCompressionId (Compression id)
+isLossyCompression (Compression id)
 {
-    if (id < NO_COMPRESSION || id >= NUM_COMPRESSION_METHODS) return false;
-    return IdToDesc[static_cast<int> (id)].lossy;
+    return id >= NO_COMPRESSION && id < NUM_COMPRESSION_METHODS &&
+           IdToDesc[static_cast<int> (id)].lossy;
 }
 
-/// Return true is the compression method supports deep data.
+/// Return true is the compression method exists and supports deep data.
 bool
-isDeepCompressionId (Compression id)
+isValidDeepCompression (Compression id)
 {
-    if (id < NO_COMPRESSION || id >= NUM_COMPRESSION_METHODS) return false;
-    return IdToDesc[static_cast<int> (id)].deep;
+    return id >= NO_COMPRESSION && id < NUM_COMPRESSION_METHODS &&
+           IdToDesc[static_cast<int> (id)].deep;
 }
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT
