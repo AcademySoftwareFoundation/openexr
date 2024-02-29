@@ -13,11 +13,45 @@ News
 .. toctree::
    :caption: News
 
+February 28, 2024 - Imath v3.1.11 Released
+==========================================
+
+Patch release with small build fix:
+
+* Add explicit ``std::`` namespace for ``isfinite`` in ``ImathFun.cpp``
+
+This release also introduces the practice of signing release artifacts
+via `sigstore <https://www.sigstore.dev>`_.
+
+
+February 11, 2024 - OpenEXR v3.2.2 Released
+===========================================
+
+Patch release that addresses
+`CVE-2023-5841 <https://takeonme.org/cves/CVE-2023-5841.html>`_.
+
+February 11, 2024 - OpenEXR v3.1.12 Released
+===========================================
+
+Patch release that addresses
+`CVE-2023-5841 <https://takeonme.org/cves/CVE-2023-5841.html>`_.
+
 December 19, 2023 - OpenEXR v2.5.10 Released
 ============================================
 
 Patch release for OpenEXR v2.5 that fixes a build failure on macOS
 prior to 10.6 (fallback for missing `libdispatch`).
+
+September 23, 2024 - OpenEXR v3.2.1 Released
+============================================
+
+Patch release with miscellaneous build fixes:
+
+* Fix for linking statically against an external ``libdeflate``
+* Fix a compile error with ``OPENEXR_VERSION_HEX``
+* Fix various compiler warnings
+* Pkg-config generation is now on by default for all systems, including Windows
+
 
 September 20, 2023 - ASWF Dev Days
 ==================================
