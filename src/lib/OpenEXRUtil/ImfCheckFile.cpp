@@ -1247,7 +1247,7 @@ realloc_deepdata(exr_decode_pipeline_t* decode)
         bytes += totsamps * outc.user_bytes_per_element;
     }
 
-    if (bytes >= gMaxBytesPerDeepScanline)
+    if (bytes == 0 || bytes >= gMaxBytesPerDeepScanline)
     {
         for (int c = 0; c < decode->channel_count; c++)
         {
