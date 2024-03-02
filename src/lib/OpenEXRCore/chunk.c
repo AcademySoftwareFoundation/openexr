@@ -531,8 +531,11 @@ reconstruct_chunk_table (
             }
         }
 
-        if (curctable[found_ci] == 0)
-            curctable[found_ci] = chunk_start;
+        if (found_ci >= 0 && found_ci < part->chunk_count)
+        {
+            if (curctable[found_ci] == 0)
+                curctable[found_ci] = chunk_start;
+        }
     }
     memcpy (chunktable, curctable, chunkbytes);
     ctxt->free_fn (curctable);
