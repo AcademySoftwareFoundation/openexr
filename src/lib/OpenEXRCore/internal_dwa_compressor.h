@@ -1699,12 +1699,23 @@ DwaCompressor_setupChannelData (DwaCompressor* me)
         cd->planarUncRle[0]    = cd->planarUncBuffer;
         cd->planarUncRleEnd[0] = cd->planarUncRle[0];
 
-        for (int byte = 1; byte < curc->bytes_per_element; ++byte)
+        if (!cd->planarUncBuffer)
         {
-            cd->planarUncRle[byte] =
-                cd->planarUncRle[byte - 1] + curc->width * curc->height;
+            for (int byte = 1; byte < curc->bytes_per_element; ++byte)
+            {
+                cd->planarUncRle[byte] = 0;
+                cd->planarUncRleEnd[byte] = 0;
+            }
+        }
+        else
+        {
+            for (int byte = 1; byte < curc->bytes_per_element; ++byte)
+            {
+                cd->planarUncRle[byte] =
+                    cd->planarUncRle[byte - 1] + curc->width * curc->height;
 
-            cd->planarUncRleEnd[byte] = cd->planarUncRle[byte];
+                cd->planarUncRleEnd[byte] = cd->planarUncRle[byte];
+            }
         }
 
         cd->planarUncType = (exr_pixel_type_t) curc->data_type;
