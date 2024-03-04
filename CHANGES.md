@@ -3,7 +3,7 @@
 
 # OpenEXR Release Notes
 
-* [Version 3.2.3](#version-323-february-21-2024) February 21, 2024
+* [Version 3.2.3](#version-323-march-6-2024) March 6, 2024
 * [Version 3.2.2](#version-322-february-11-2024) February 11, 2024
 * [Version 3.2.1](#version-321-september-27-2023) September 27, 2023
 * [Version 3.2.0](#version-320-august-30-2023) August 30, 2023
@@ -72,24 +72,41 @@
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
 
-## Version 3.2.3 (February 21, 2024)
+## Version 3.2.3 (March 6, 2024)
 
 Patch release with various build/bug/documentation fixes:
 
 * Fix `bswap` on NetBSD
 * Fix issue with decompressing fp32 dwa files
 * Support cmake config for `libdeflate`
-* Add `uninstall` cmake target
 * updated security policy
 * miscelleneous website improvements
 
 This release also addresses:
 
+* OSS-fuzz [66676](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=66676)
+Null-dereference in Imf_3_3::realloc_deepdata
 * OSS-fuzz [66612](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=66612)
 Null-dereference in Imf_3_3::realloc_deepdata
 
 ### Merged Pull Requests
 
+* [1653](https://github.com/AcademySoftwareFoundation/openexr/pull/1653)
+Allow partial chunk tables
+* [1652](https://github.com/AcademySoftwareFoundation/openexr/pull/1652)
+Fix 0 samples in deep data
+* [1651](https://github.com/AcademySoftwareFoundation/openexr/pull/1651)
+Add recent releases to website news
+* [1650](https://github.com/AcademySoftwareFoundation/openexr/pull/1650)
+Fix memory leaks in exrstdattr and example code (#1649)
+* [1647](https://github.com/AcademySoftwareFoundation/openexr/pull/1647)
+Remove -Dsonar.login from sonar-scanner command line
+* [1643](https://github.com/AcademySoftwareFoundation/openexr/pull/1643)
+Use component for python
+* [1640](https://github.com/AcademySoftwareFoundation/openexr/pull/1640)
+Fix version tag for python wheel sdist
+* [1637](https://github.com/AcademySoftwareFoundation/openexr/pull/1637)
+Add instructions for creating signed releases/tags
 * [1636](https://github.com/AcademySoftwareFoundation/openexr/pull/1636)
 Do synk scans weekly on Sunday mornings 
 * [1635](https://github.com/AcademySoftwareFoundation/openexr/pull/1635)
