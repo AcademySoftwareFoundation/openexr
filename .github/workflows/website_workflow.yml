@@ -10,6 +10,8 @@ name: Website
 # Skip the release branches, since the website is built from main.
 
 on:
+  workflow_dispatch:
+
   push:
     branches:-ignore:
       - RB-2.*
