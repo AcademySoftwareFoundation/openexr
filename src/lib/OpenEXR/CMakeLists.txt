@@ -8,6 +8,7 @@ openexr_define_library(OpenEXR
     ImfAutoArray.h
     ImfB44Compressor.h
     ImfCheckedArithmetic.h
+    ImfCompression.h
     ImfCompressor.h
     ImfDwaCompressor.h
     ImfDwaCompressorSimd.h
@@ -42,6 +43,7 @@ openexr_define_library(OpenEXR
     ImfCompositeDeepScanLine.cpp
     ImfCompressionAttribute.cpp
     ImfCompressor.cpp
+    ImfCompression.cpp
     ImfConvert.cpp
     ImfCRgbaFile.cpp
     ImfDeepCompositing.cpp

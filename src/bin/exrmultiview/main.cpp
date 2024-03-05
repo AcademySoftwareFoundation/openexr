@@ -35,6 +35,10 @@ usageMessage (ostream& stream, const char* program_name, bool verbose = false)
     stream << "Usage: " << program_name << " [options] viewname1 infile1 viewname2 infile2 ... outfile" << endl;
 
     if (verbose)
+    {
+        std::string compressionNames;
+        getCompressionNamesString("/", compressionNames);
+
         stream << "\n"
             "Combine two or more single-view OpenEXR image files into\n"
             "a single multi-view image file.  On the command line,\n"
@@ -51,7 +55,7 @@ usageMessage (ostream& stream, const char* program_name, bool verbose = false)
             "Options:\n"
             "\n"
             "  -z x          sets the data compression method to x\n"
-            "                (none/rle/zip/piz/pxr24/b44/b44a/dwaa/dwab,\n"
+            "                ("  << compressionNames.c_str() << ",\n"
             "                default is piz)\n"
             "\n"
             "  -v            verbose mode\n"
@@ -62,50 +66,15 @@ usageMessage (ostream& stream, const char* program_name, bool verbose = false)
             "\n"
             "Report bugs via https://github.com/AcademySoftwareFoundation/openexr/issues or email security@openexr.com\n"
             "";
+    }
 }
 
 Compression
 getCompression (const string& str)
 {
     Compression c;
-
-    if (str == "no" || str == "none" || str == "NO" || str == "NONE")
-    {
-        c = NO_COMPRESSION;
-    }
-    else if (str == "rle" || str == "RLE")
-    {
-        c = RLE_COMPRESSION;
-    }
-    else if (str == "zip" || str == "ZIP")
-    {
-        c = ZIP_COMPRESSION;
-    }
-    else if (str == "piz" || str == "PIZ")
-    {
-        c = PIZ_COMPRESSION;
-    }
-    else if (str == "pxr24" || str == "PXR24")
-    {
-        c = PXR24_COMPRESSION;
-    }
-    else if (str == "b44" || str == "B44")
-    {
-        c = B44_COMPRESSION;
-    }
-    else if (str == "b44a" || str == "B44A")
-    {
-        c = B44A_COMPRESSION;
-    }
-    else if (str == "dwaa" || str == "DWAA")
-    {
-        c = DWAA_COMPRESSION;
-    }
-    else if (str == "dwab" || str == "DWAB")
-    {
-        c = DWAB_COMPRESSION;
-    }
-    else
+    getCompressionIdFromName (str, c);
+    if (c == Compression::NUM_COMPRESSION_METHODS)
     {
         std::stringstream e;
         e << "Unknown compression method \"" << str << "\"";

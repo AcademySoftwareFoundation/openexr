@@ -544,23 +544,11 @@ MultiPartInputFile::Data::chunkOffsetReconstruction (
         else
         {
             tileOffsets[i] = NULL;
-            // (TODO) fix this so that it doesn't need to be revised for future compression types.
-            switch (parts[i]->header.compression ())
-            {
-                case DWAB_COMPRESSION: rowsizes[i] = 256; break;
-                case PIZ_COMPRESSION:
-                case B44_COMPRESSION:
-                case B44A_COMPRESSION:
-                case DWAA_COMPRESSION: rowsizes[i] = 32; break;
-                case ZIP_COMPRESSION:
-                case PXR24_COMPRESSION: rowsizes[i] = 16; break;
-                case ZIPS_COMPRESSION:
-                case RLE_COMPRESSION:
-                case NO_COMPRESSION: rowsizes[i] = 1; break;
-                default:
-                    throw (IEX_NAMESPACE::ArgExc (
-                        "Unknown compression method in chunk offset reconstruction"));
-            }
+            rowsizes[i] =
+                getCompressionNumScanlines (parts[i]->header.compression ());
+            if (rowsizes[i] < 1)
+                throw (IEX_NAMESPACE::ArgExc (
+                    "Unknown compression method in chunk offset reconstruction"));
         }
     }
 
