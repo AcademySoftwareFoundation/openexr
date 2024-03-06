@@ -24,7 +24,7 @@ class OptimizationMode
 public:
     bool _optimizable;
     int  _ySampling;
-    OptimizationMode () : _optimizable (false) {}
+    OptimizationMode () : _optimizable (false), _ySampling (0) {}
 };
 
 #    ifdef IMF_HAVE_SSE2
