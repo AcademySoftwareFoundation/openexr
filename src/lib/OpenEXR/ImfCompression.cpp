@@ -153,7 +153,7 @@ getCompressionIdFromName (const std::string& name, Compression& id)
 
 /// Return true if a compression id exists.
 bool
-isValidCompression (Compression id)
+isValidCompression (int id)
 {
     return id >= NO_COMPRESSION && id < NUM_COMPRESSION_METHODS;
 }

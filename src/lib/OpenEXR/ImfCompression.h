@@ -66,7 +66,7 @@ IMF_EXPORT void
 getCompressionIdFromName (const std::string& name, Compression& id);
 
 /// Return true if a compression id exists.
-IMF_EXPORT bool isValidCompression (Compression id);
+IMF_EXPORT bool isValidCompression (int id);
 
 /// Return a string enumerating all compression names, with a custom separator.
 IMF_EXPORT void

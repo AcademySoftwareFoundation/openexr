@@ -36,6 +36,8 @@ testCompressionApi (const string& tempDir)
 
         for (int i = 0; i < numMethods; i++)
         {
+            assert (isValidCompression (i) == true);
+
             Compression c = static_cast<Compression> (i);
             Compression id;
             string      name, desc;
@@ -50,7 +52,6 @@ testCompressionApi (const string& tempDir)
             getCompressionDescriptionFromId (c, desc);
             assert (!desc.empty ());
 
-            assert (isValidCompression (c) == true);
             assert (isValidCompression (id) == true);
 
             assert (getCompressionNumScanlines (c) > 0);
