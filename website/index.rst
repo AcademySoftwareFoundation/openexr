@@ -82,6 +82,8 @@ Community
 
   - Calendar: https://lists.aswf.io/g/openexr-dev/calendar
 
+  - Meeting Notes: https://wiki.aswf.io/display/OEXR/TSC+Meetings
+
 * **Report a bug:**
 
   - Submit an Issue: https://github.com/AcademySoftwareFoundation/openexr/issues
