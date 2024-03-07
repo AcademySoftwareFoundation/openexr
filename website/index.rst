@@ -34,12 +34,12 @@ OpenEXR is a project of the `Academy Software Foundation
 Latest News
 ===========
 
-.. highlights::
+.. image:: images/news.png
+   :width: 50
+   :height: 50
+   :align: left
 
-   .. image:: images/news.png
-      :width: 100
-      :height: 100
-      :align: left
+.. highlights::
 
    .. include:: news.rst
       :start-after: .. _LatestNewsStart:
