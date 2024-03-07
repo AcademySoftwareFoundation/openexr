@@ -13,8 +13,43 @@ News
 .. toctree::
    :caption: News
 
+March 6, 2024 - OpenEXR v3.2.3 Released
+=======================================
+
+.. _LatestNewsStart:
+
+OpenEXR v3.2.3 is released and available for download from `v3.2.3
+<https://github.com/AcademySoftwareFoundation/openexr/releases/tag/v3.2.3>`_.
+
+Patch release with various build/bug/documentation fixes:
+
+* Fix ``bswap`` on NetBSD
+* Fix issue with decompressing fp32 dwa files
+* Support cmake config for ``libdeflate``
+* updated security policy
+* miscelleneous website improvements
+
+This release also addresses several recent fuzz/security issues, including:
+
+* OSS-fuzz `66676
+  <https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=66676>`_ Null-dereference in Imf_3_3::realloc_deepdata
+
+* OSS-fuzz `66612
+  <https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=66612>`_ Null-dereference in Imf_3_3::realloc_deepdata
+
+This release also formally adopts the process of publishing openexr
+python wheels to `pypi.org <http://pypi.org>`_.
+
+This release also introduces the process of signing release artifacts
+via `sigstore <https://www.sigstore.dev>`_.
+
+.. _LatestNewsEnd:
+
 February 28, 2024 - Imath v3.1.11 Released
 ==========================================
+
+Imath v3.1.11 is released and available for download from `v3.1.11
+<https://github.com/AcademySoftwareFoundation/Imath/releases/tag/v3.1.11>`_.
 
 Patch release with small build fix:
 
@@ -23,15 +58,20 @@ Patch release with small build fix:
 This release also introduces the practice of signing release artifacts
 via `sigstore <https://www.sigstore.dev>`_.
 
-
 February 11, 2024 - OpenEXR v3.2.2 Released
 ===========================================
+
+OpenEXR v3.2.2 is released and available for download from `v3.2.2
+<https://github.com/AcademySoftwareFoundation/openexr/releases/tag/v3.2.2>`_.
 
 Patch release that addresses
 `CVE-2023-5841 <https://takeonme.org/cves/CVE-2023-5841.html>`_.
 
 February 11, 2024 - OpenEXR v3.1.12 Released
-===========================================
+============================================
+
+OpenEXR v3.1.12 is released and available for download from `v3.1.12
+<https://github.com/AcademySoftwareFoundation/openexr/releases/tag/v3.1.12>`_.
 
 Patch release that addresses
 `CVE-2023-5841 <https://takeonme.org/cves/CVE-2023-5841.html>`_.
@@ -39,11 +79,17 @@ Patch release that addresses
 December 19, 2023 - OpenEXR v2.5.10 Released
 ============================================
 
+OpenEXR v2.5.10 is released and available for download from `v2.5.10
+<https://github.com/AcademySoftwareFoundation/openexr/releases/tag/v2.5.10>`_.
+
 Patch release for OpenEXR v2.5 that fixes a build failure on macOS
 prior to 10.6 (fallback for missing `libdispatch`).
 
 September 23, 2024 - OpenEXR v3.2.1 Released
 ============================================
+
+OpenEXR v3.2.1 is released and available for download from `v3.2.1
+<https://github.com/AcademySoftwareFoundation/openexr/releases/tag/v3.2.1>`_.
 
 Patch release with miscellaneous build fixes:
 
@@ -55,8 +101,6 @@ Patch release with miscellaneous build fixes:
 
 September 20, 2023 - ASWF Dev Days
 ==================================
-
-.. _LatestNewsStart:
 
 OpenEXR is participating in the Academy Software Foundation's `Dev
 Days <https://sites.google.com/view/aswfdevdays/home>`_, a great way to
@@ -89,8 +133,6 @@ A list of ideas for more substantial contributions is on the `OpenEXR wiki
 <https://wiki.aswf.io/display/OEXR/OpenEXR+Project+Ideas>`_. Although
 these are beyond the scope of the spirit of Dev Days, feel free to
 discuss these as well.
-
-.. _LatestNewsEnd:
 
 August 30, 2023 - OpenEXR v3.2.0 Released
 =========================================
