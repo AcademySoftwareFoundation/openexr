@@ -23,18 +23,19 @@ OpenEXR v3.2.3 is released and available for download from `v3.2.3
 
 Patch release with various build/bug/documentation fixes:
 
-* Fix `bswap` on NetBSD
+* Fix ``bswap`` on NetBSD
 * Fix issue with decompressing fp32 dwa files
-* Support cmake config for `libdeflate`
+* Support cmake config for ``libdeflate``
 * updated security policy
 * miscelleneous website improvements
 
 This release also addresses several recent fuzz/security issues, including:
 
-* OSS-fuzz [66676](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=66676)
-Null-dereference in Imf_3_3::realloc_deepdata
-* OSS-fuzz [66612](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=66612)
-Null-dereference in Imf_3_3::realloc_deepdata
+* OSS-fuzz `66676
+  <https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=66676>`_ Null-dereference in Imf_3_3::realloc_deepdata
+
+* OSS-fuzz `66612
+  <https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=66612>`_ Null-dereference in Imf_3_3::realloc_deepdata
 
 This release also formally adopts the process of publishing openexr
 python wheels to `pypi.org <http://pypi.org>`_.
