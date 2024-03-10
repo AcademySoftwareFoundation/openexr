@@ -1,0 +1,40 @@
+..
+  SPDX-License-Identifier: BSD-3-Clause
+  Copyright Contributors to the OpenEXR Project.
+
+t04.exr
+#######
+
+:download:`https://raw.githubusercontent.com/AcademySoftwareFoundation/openexr-images/main/DisplayWindow/t04.exr<https://raw.githubusercontent.com/AcademySoftwareFoundation/openexr-images/main/DisplayWindow/t04.exr>`
+
+.. image:: https://raw.githubusercontent.com/AcademySoftwareFoundation/openexr-images/main/DisplayWindow/t04.jpg
+   :target: https://raw.githubusercontent.com/AcademySoftwareFoundation/openexr-images/main/DisplayWindow/t04.exr
+
+
+The display window and the data window overlap, but they are
+not the same.  Portions of the data window that are outside the
+display window should not be displayed.  Portions of the
+display window that are outside the data window should be
+filled with a suitable background color.
+
+.. list-table::
+   :align: left
+
+   * - screenWindowWidth
+     - 1
+   * - dataWindow
+     - (0 0) - (399 299)
+   * - screenWindowCenter
+     - (0 0)
+   * - displayWindow
+     - (0 0) - (369 279)
+   * - channels
+     - B, G, R
+   * - lineOrder
+     - increasing y
+   * - pixelAspectRatio
+     - 1
+   * - compression
+     - piz
+   * - type
+     - scanlineimage
