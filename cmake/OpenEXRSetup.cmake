@@ -60,8 +60,7 @@ option(OPENEXR_BUILD_LIBS "Enables building of main libraries" ON)
 option(OPENEXR_BUILD_TOOLS "Enables building of utility programs" ON)
 option(OPENEXR_INSTALL_TOOLS "Install OpenEXR tools" ON)
 
-option(OPENEXR_BUILD_EXAMPLES "Build OpenEXR examples" ON)
-option(OPENEXR_INSTALL_EXAMPLES "Install OpenEXR examples" ON)
+option(OPENEXR_BUILD_EXAMPLES "Build and install OpenEXR examples" ON)
 
 option(OPENEXR_BUILD_PYTHON "Build python bindings" OFF)
 

@@ -460,9 +460,9 @@ Component Options
   Install the binary programs (exrheader, exrinfo,
   exrmakepreview, etc). Default is ``ON``.
   
-* ``OPENEXR_INSTALL_EXAMPLES``
+* ``OPENEXR_BUILD_EXAMPLES``
 
-  Build and install the example code. Default is ``ON``.
+  Build the example code. Default is ``ON``.
 
 Additional CMake Options
 ~~~~~~~~~~~~~~~~~~~~~~~~
