@@ -13,7 +13,57 @@
 // This file enumerates available compression methods and defines a simple API
 // to query them.
 //
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+/*
+    HOW TO ADD NEW COMPRESSION TECHNIQUE
+    ====================================
+
+    1. Creating your C++ compression class
+
+        1. Implement a new src/lib/OpenEXR/Imf*Compressor.{h, cpp} class deriving
+           from ImfCompressor.
+
+        2. Update the build systems
+            * Update src/lib/OpenEXR/CMakeLists.txt to build your codec with cmake.
+            * Update BUILD.bazel to build your codec with bazel.
+            * NOTE: Both build methods must be implemented !
+
+    2. C++ API integration
+
+        1. src/lib/OpenEXR/ImfCompression.h
+            * Add your method at the end of the Compression enum below.
+
+        2. src/lib/OpenEXR/ImfCompression.cpp
+            * Add your CompressionDesc(s) to IdToDesc[]. This is used by the API
+              to check its capabilities and requirements.
+              NOTE: the order MUST MATCH Compression's order, as we access the
+                       descriptions by index.
+            * Update CompressionNameToId to allow the API to map from your
+              compressor's identifier(s) to its/their Compression value(s).
+
+        3. openexr/src/lib/OpenEXR/ImfCompressor.cpp
+            * Include your Imf*Compressor.h.
+            * Add your instantiation calls to newCompressor().
+            * Add your instantiation calls to newTileCompressor().
+
+    3. C API integration
+
+        1. src/lib/OpenEXR/ImfCRgbaFile.h
+            * Add a IMF_*_COMPRESSION define for your compression method, making
+              sure to update IMF_NUM_COMPRESSION_METHODS with the proper index.
+
+    4. Tests
+
+        1. src/test/OpenEXRTest/testCompressionApi.cpp
+            * See the comments to update that file and ensure your method is
+              properly registered.
+
+    5. Documentation
+
+        1. Compression methods are listed or described in many places throughout
+           the docs and you will have to update all relevant *.rst files.
+
+----------------------------------------------------------------------------- */
 
 #include "ImfForward.h"
 #include <string>
