@@ -31,7 +31,11 @@ function(OPENEXR_DEFINE_LIBRARY libname)
   target_include_directories(${objlib} PRIVATE ${EXR_DEFLATE_INCLUDE_DIR})
 
   # we are statically linking blosc2
-  if(${objlib} STREQUAL "OpenEXR")  # OR ${objlib} STREQUAL "OpenEXRCore"
+  if(${objlib} STREQUAL "OpenEXR" OR ${objlib} STREQUAL "OpenEXRCore")
+    message(STATUS "Blosc2: setting up for ${objlib}...")
+    message(STATUS ">> BLOSC2_INCLUDE_DIRS: ${BLOSC2_INCLUDE_DIRS}")
+    message(STATUS ">> BLOSC2_LIB_DIR: ${BLOSC2_LIB_DIR}")
+    message(STATUS ">> BLOSC2_LIB_NAME: ${BLOSC2_LIB_NAME}")
     target_include_directories(${objlib} PRIVATE ${BLOSC2_INCLUDE_DIRS})
     target_link_directories(${objlib} PRIVATE ${BLOSC2_LIB_DIR})
     target_link_libraries(${objlib} PRIVATE "dl" ${BLOSC2_LIB_NAME})
