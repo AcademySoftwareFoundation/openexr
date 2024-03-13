@@ -46,17 +46,47 @@
             * Add your instantiation calls to newCompressor().
             * Add your instantiation calls to newTileCompressor().
 
-    3. C API integration
-
-        1. src/lib/OpenEXR/ImfCRgbaFile.h
+        4. src/lib/OpenEXR/ImfCRgbaFile.h
             * Add a IMF_*_COMPRESSION define for your compression method, making
               sure to update IMF_NUM_COMPRESSION_METHODS with the proper index.
 
-    4. Tests
+        5. Tests
 
-        1. src/test/OpenEXRTest/testCompressionApi.cpp
-            * See the comments to update that file and ensure your method is
-              properly registered.
+            1. src/test/OpenEXRTest/testCompressionApi.cpp
+                * See the comments to update that file and ensure your method is
+                properly registered.
+
+    3. C API integration
+
+        1. src/lib/OpenEXRCore/openexr_attr.h
+            * Add your EXR_COMPRESSION_* to the exr_compression_t enum.
+
+        2. src/lib/OpenEXRCore/encoding.c
+            * Update default_compress_chunk().
+
+        3. src/lib/OpenEXRCore/decoding.c
+            * Update decompress_data().
+
+        4. src/lib/OpenEXRCore/parse_header.c
+            * Update internal_exr_compute_chunk_offset_size().
+
+        5. src/lib/OpenEXRCore/validation.c
+            * Update validate_deep_data()
+
+        6. Tests
+
+            1. src/test/OpenEXRCoreTest/compression.h
+                * Declare your own test*Compression().
+
+            2. src/test/OpenEXRCoreTest/compression.cpp
+                * Update doWriteRead().
+                * Implement your test*Compression() function at the end.
+
+            3. src/test/OpenEXRCoreTest/main.cpp
+                * Call your test function in main().
+
+            4. src/test/OpenEXRCoreTest/CMakeLists.txt
+                * Add your test function name to define_openexrcore_tests().
 
     5. Documentation
 
