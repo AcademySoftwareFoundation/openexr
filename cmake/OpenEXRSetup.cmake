@@ -1,6 +1,21 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) Contributors to the OpenEXR Project.
 
+function(_error_if_not_found prop var fallback)
+  message(STATUS "Blosc2: ${prop}  ${var}  '${fallback}'")
+  string(FIND "${var}" "-NOTFOUND" pos)
+  if(NOT pos EQUAL -1)
+    if(fallback STREQUAL "")
+      message(FATAL_ERROR "Blosc2: Property ${prop} not found: ${var}")
+    else()
+      string(SUBSTRING "${var}" 0 ${pos} var_name)
+      message(STATUS "Blosc2: Property ${prop} not found: ${var_name} falling back to '${fallback}'")
+      set(${var_name} "${fallback}" PARENT_SCOPE) 
+    endif()
+  endif()
+endfunction(_error_if_not_found)
+
+
 include(GNUInstallDirs)
 
 if(NOT "${CMAKE_PROJECT_NAME}" STREQUAL "${PROJECT_NAME}")
@@ -334,18 +349,20 @@ option(OPENEXR_FORCE_INTERNAL_BLOSC2 [=[Force using installed Blosc2.]=] OFF)
 set(BLOSC2_REPO "https://github.com/Blosc/c-blosc2.git" CACHE STRING "Repo path for blosc2 source")
 set(BLOSC2_TAG "v${MINIMUM_BLOSC2_VERSION}" CACHE STRING "Tag to use for blosc2 source repo")
 
+# Try to find a local bloc2 install if allowed to.
 if(NOT OPENEXR_FORCE_INTERNAL_BLOSC2)
-  #TODO: ^^ Release should not clone from main, this is a place holder
+  message(STATUS "Blosc2: Looking for local install...")
   set(CMAKE_IGNORE_PATH "${CMAKE_CURRENT_BINARY_DIR}/_deps/blosc2-src/config;${CMAKE_CURRENT_BINARY_DIR}/_deps/blosc2-build/config")
   find_package(Blosc2 ${MINIMUM_BLOSC2_VERSION})
   set(CMAKE_IGNORE_PATH)
 endif()
 
 if(NOT TARGET Blosc2::blosc2_static AND NOT Blosc2_FOUND)
+  # we didn't find a local install: let's get it from its repository.
   if(OPENEXR_FORCE_INTERNAL_BLOSC2)
-    message(STATUS "Blosc2 forced internal, installing from ${BLOSC2_REPO} (${BLOSC2_TAG})")
+    message(STATUS "Blosc2: forced internal, installing from ${BLOSC2_REPO} (${BLOSC2_TAG})")
   else()
-    message(STATUS "Blosc2 was not found, installing from ${BLOSC2_REPO} (${BLOSC2_TAG})")
+    message(STATUS "Blosc2: no local blosc2 found, installing from ${BLOSC2_REPO} (${BLOSC2_TAG})")
   endif()
 
   # configure the blosc2 build
@@ -364,23 +381,18 @@ if(NOT TARGET Blosc2::blosc2_static AND NOT Blosc2_FOUND)
 
   FetchContent_GetProperties(Blosc2)
   if(NOT Blosc2_POPULATED)
+    message(STATUS "Blosc2: Downloading ${BLOSC2_TAG} from ${BLOSC2_REPO}...")
     FetchContent_Populate(Blosc2)
-    # Propagate OpenEXR's setting for pkg-config generation to Blosc2:
-    # If OpenEXR is generating it, the internal Blosc2 should, too.
-    # TODO: Do we really need that here ?
-    # set(BLOSC2_INSTALL_PKG_CONFIG ${OPENEXR_INSTALL_PKG_CONFIG}) 
     add_subdirectory(${blosc2_SOURCE_DIR} ${blosc2_BINARY_DIR})
+  else()
+    message(STATUS "Blosc2: repo code has already been downloaded.")
   endif()
+
   # the install creates this but if we're using the library locally we
   # haven't installed the header files yet, so need to extract those
   # and make a variable for header only usage
-  if(NOT TARGET Blosc2::Blosc2Config)
-    # TODO: Do we really need that here ?
-    # get_target_property(blosc2inc blosc2_static INTERFACE_INCLUDE_DIRECTORIES)
-    # get_target_property(blosc2confinc blosc2_shared INTERFACE_INCLUDE_DIRECTORIES)
-    # list(APPEND blosc2inc ${blosc2confinc})
-    # set(BLOSC2_HEADER_ONLY_INCLUDE_DIRS ${blosc2inc})
-    # message(STATUS "Blosc2 interface dirs ${BLOSC2_HEADER_ONLY_INCLUDE_DIRS}")
+  if(TARGET Blosc2::blosc2_static)
+    message(STATUS "Blosc2: Setting up blosc directories")
 
     get_target_property(blosc2inc Blosc2::blosc2_static INCLUDE_DIRECTORIES)
     set(BLOSC2_INCLUDE_DIRS ${blosc2inc})
@@ -392,22 +404,22 @@ if(NOT TARGET Blosc2::blosc2_static AND NOT Blosc2_FOUND)
     set(BLOSC2_LIB_NAME ${blosc2libname})
   endif()
 else()
-  message(STATUS "Using Blosc2 ${Blosc2_VERSION} from ${Blosc2_DIR}")
+  message(STATUS "Blosc2: Using installed Blosc2 ${Blosc2_VERSION} from ${Blosc2_DIR}")
   # local build
-  if(NOT TARGET Blosc2::Blosc2Config AND TARGET Blosc2 AND TARGET Blosc2Config)
-    get_target_property(blosc2inc blosc2_static INTERFACE_INCLUDE_DIRECTORIES)
-    get_target_property(blosc2confinc blosc2_shared INTERFACE_INCLUDE_DIRECTORIES)
-    list(APPEND blosc2inc ${blosc2confinc})
-    set(BLOSC2_HEADER_ONLY_INCLUDE_DIRS ${blosc2inc})
-    message(STATUS "Blosc2 internal interface dirs: ${BLOSC2_HEADER_ONLY_INCLUDE_DIRS}")
-
-    get_target_property(blosc2inc Blosc2::blosc2_static INCLUDE_DIRECTORIES)
+  if(TARGET Blosc2::blosc2_static)
+    message(STATUS "Blosc2: Setting up installed blosc directories")
+    
+    get_target_property(blosc2inc Blosc2::blosc2_static INTERFACE_INCLUDE_DIRECTORIES)
+    _error_if_not_found("INTERFACE_INCLUDE_DIRECTORIES" ${blosc2inc} "")
     set(BLOSC2_INCLUDE_DIRS ${blosc2inc})
     
     get_target_property(blosc2libdir Blosc2::blosc2_static BINARY_DIR)
+    _error_if_not_found("BINARY_DIR" ${blosc2libdir} "")
     set(BLOSC2_LIB_DIR ${blosc2libdir})
     
     get_target_property(blosc2libname Blosc2::blosc2_static OUTPUT_NAME)
+    # fallback because it fails for me but I think it may be a bug.
+    _error_if_not_found("OUTPUT_NAME" ${blosc2libname} "blosc2")
     set(BLOSC2_LIB_NAME ${blosc2libname})
   endif()
 endif()
