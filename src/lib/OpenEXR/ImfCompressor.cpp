@@ -102,7 +102,9 @@ newCompressor (Compression c, size_t maxScanLineSize, const Header& hdr)
                 DwaCompressor::STATIC_HUFFMAN);
 
         case ZSTD_COMPRESSION:
+
             return new ZstdCompressor (hdr);
+
         default: return 0;
     }
     // clang-format on
@@ -135,9 +137,6 @@ newTileCompressor (
         case ZIP_COMPRESSION:
 
             return new ZipCompressor (hdr, tileLineSize, numTileLines);
-        case ZSTD_COMPRESSION:
-
-            return new ZstdCompressor (hdr);
 
         case PIZ_COMPRESSION:
 
@@ -170,6 +169,10 @@ newTileCompressor (
                 static_cast<int> (tileLineSize),
                 static_cast<int> (numTileLines),
                 DwaCompressor::STATIC_HUFFMAN);
+
+        case ZSTD_COMPRESSION:
+
+            return new ZstdCompressor (hdr);
 
         default: return 0;
     }

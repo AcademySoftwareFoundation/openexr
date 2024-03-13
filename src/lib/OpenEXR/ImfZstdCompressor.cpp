@@ -16,7 +16,7 @@ namespace
 {
 std::mutex g_mutex;
 }
- 
+
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 ZstdCompressor::ZstdCompressor (const Header& hdr)
@@ -26,7 +26,8 @@ ZstdCompressor::ZstdCompressor (const Header& hdr)
 int
 ZstdCompressor::numScanLines () const
 {
-    return (int)exr_get_zstd_lines_per_chunk(); // Needs to be in sync with ImfCompressor::numLinesInBuffer
+    // Needs to be in sync with ImfCompressor::numLinesInBuffer
+    return (int) exr_get_zstd_lines_per_chunk ();
 }
 
 int

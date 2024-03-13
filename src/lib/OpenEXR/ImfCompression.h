@@ -51,7 +51,8 @@ enum IMF_EXPORT_ENUM Compression
                           // wise and faster to decode full frames
                           // than DWAA_COMPRESSION.
 
-    ZSTD_COMPRESSION = 10,
+    ZSTD_COMPRESSION = 10, // blosc zstd lossless compression, one scan line
+                           // at a time.
 
     NUM_COMPRESSION_METHODS // number of different compression methods.
 };
