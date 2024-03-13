@@ -454,10 +454,12 @@ reconstruct_chunk_table (
     uint64_t*                           chunktable)
 {
     exr_result_t                     rv = EXR_ERR_SUCCESS;
+    exr_result_t                     firstfailrv = EXR_ERR_SUCCESS;
     uint64_t                         offset_start, chunk_start, max_offset;
     uint64_t*                        curctable;
     const struct _internal_exr_part* curpart = NULL;
     int                              found_ci, computed_ci, partnum = 0;
+    size_t                           chunkbytes;
 
     curpart      = ctxt->parts[ctxt->num_parts - 1];
     offset_start = curpart->chunk_table_offset;
@@ -492,6 +494,11 @@ reconstruct_chunk_table (
         if (rv != EXR_ERR_SUCCESS) return rv;
     }
 
+    chunkbytes = (size_t)part->chunk_count * sizeof(uint64_t);
+    curctable = (uint64_t*) ctxt->alloc_fn (chunkbytes);
+    if (!curctable) return EXR_ERR_OUT_OF_MEMORY;
+
+    memset (curctable, 0, chunkbytes);
     for (int ci = 0; ci < part->chunk_count; ++ci)
     {
         if (chunktable[ci] >= offset_start && chunktable[ci] < max_offset)
@@ -503,21 +510,37 @@ reconstruct_chunk_table (
         if (part->lineorder == EXR_LINEORDER_DECREASING_Y)
             computed_ci = part->chunk_count - (ci + 1);
         found_ci = computed_ci;
+
         rv       = read_and_validate_chunk_leader (
             ctxt, part, partnum, chunk_start, &found_ci, &offset_start);
-        if (rv != EXR_ERR_SUCCESS) return rv;
+        if (rv != EXR_ERR_SUCCESS)
+        {
+            chunk_start = 0;
+            if (firstfailrv == EXR_ERR_SUCCESS) firstfailrv = rv;
+        }
 
         // scanlines can be more strict about the ordering
         if (part->storage_mode == EXR_STORAGE_SCANLINE ||
             part->storage_mode == EXR_STORAGE_DEEP_SCANLINE)
         {
-            if (computed_ci != found_ci) return EXR_ERR_BAD_CHUNK_LEADER;
+            if (computed_ci != found_ci)
+            {
+                chunk_start = 0;
+                if (firstfailrv == EXR_ERR_SUCCESS)
+                    firstfailrv = EXR_ERR_BAD_CHUNK_LEADER;
+            }
         }
 
-        chunktable[found_ci] = chunk_start;
+        if (found_ci >= 0 && found_ci < part->chunk_count)
+        {
+            if (curctable[found_ci] == 0)
+                curctable[found_ci] = chunk_start;
+        }
     }
+    memcpy (chunktable, curctable, chunkbytes);
+    ctxt->free_fn (curctable);
 
-    return rv;
+    return firstfailrv;
 }
 
 static exr_result_t
@@ -566,10 +589,9 @@ extract_chunk_table (
         if (rv != EXR_ERR_SUCCESS)
         {
             ctxt->free_fn (ctable);
-            return rv;
+            ctable = (uint64_t *) UINTPTR_MAX;
         }
-
-        if (!ctxt->disable_chunk_reconstruct)
+        else if (!ctxt->disable_chunk_reconstruct)
         {
             // could convert table all at once, but need to check if the
             // file is incomplete (i.e. crashed during write and didn't
@@ -590,13 +612,19 @@ extract_chunk_table (
                 // something similar, except when in strict mode, we
                 // will fail with a corrupt chunk immediately.
                 rv = reconstruct_chunk_table (ctxt, part, ctable);
-                if (rv != EXR_ERR_SUCCESS && ctxt->strict_header)
+                if (rv != EXR_ERR_SUCCESS)
                 {
-                    ctxt->free_fn (ctable);
-                    return ctxt->report_error (
-                        ctxt,
-                        EXR_ERR_BAD_CHUNK_LEADER,
-                        "Incomplete / corrupt chunk table, unable to reconstruct");
+                    if (ctxt->strict_header)
+                    {
+                        ctxt->free_fn (ctable);
+                        ctable = (uint64_t *) UINTPTR_MAX;
+                        rv = ctxt->report_error (
+                            ctxt,
+                            EXR_ERR_BAD_CHUNK_LEADER,
+                            "Incomplete / corrupt chunk table, unable to reconstruct");
+                    }
+                    else
+                        rv = EXR_ERR_SUCCESS;
                 }
             }
         }
@@ -609,7 +637,8 @@ extract_chunk_table (
                 &eptr,
                 nptr))
         {
-            ctxt->free_fn (ctable);
+            if (nptr != UINTPTR_MAX)
+                ctxt->free_fn (ctable);
             ctable = (uint64_t*) eptr;
             if (ctable == NULL)
                 return ctxt->standard_error (ctxt, EXR_ERR_OUT_OF_MEMORY);
@@ -617,7 +646,7 @@ extract_chunk_table (
     }
 
     *chunktable = ctable;
-    return EXR_ERR_SUCCESS;
+    return ((uintptr_t)ctable) == UINTPTR_MAX ? EXR_ERR_BAD_CHUNK_LEADER : EXR_ERR_SUCCESS;
 }
 
 /**************************************/

@@ -57,7 +57,4 @@ docs/_test_images/
 
 # Ignore Bazel generated files
 bazel-* 
-
-cmake-build-debug/
-
-.idea/
+MODULE.bazel.lock

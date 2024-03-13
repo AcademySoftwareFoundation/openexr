@@ -211,7 +211,7 @@ openexr-dev@lists.aswf.io mail list.
 
 ### Pull Requests
 
-Contributions should be submitted as Github pull requests. See
+Contributions should be submitted as GitHub pull requests. See
 [Creating a pull request](https://help.github.com/articles/creating-a-pull-request/)
 if you're unfamiliar with this concept. 
 
@@ -227,7 +227,7 @@ with a separate pull request.
 
 3. Push commits to your fork.
 
-4. Create a Github pull request from your topic branch.
+4. Create a GitHub pull request from your topic branch.
 
 5. Pull requests will be reviewed by project committers and contributors,
 who may discuss, offer constructive feedback, request changes, or approve
@@ -591,14 +591,26 @@ The preferred workflow is:
    d. Send an email update to ``openexr-dev@lists.aswf.io`` notifying
       the community of the addition and the new tag.
 
-7. Publish the release
+7. Create a signed release tag
+
+   a. Make sure you have a [GPG
+      key](https://docs.github.com/en/authentication/managing-commit-signature-verification/generating-a-new-gpg-key)
+      and it is
+      [registered](https://docs.github.com/en/authentication/managing-commit-signature-verification/telling-git-about-your-signing-key)
+      with your GitHub account and git config.
+
+   b. Create a signed tag with the release name via `git tag -s v3.1.9`.
+   
+   c. Push the tag via `git push --tags`
+   
+8. Publish the release
 
    a. Click the "Publish release" button on the GitHub release draft
 
    b. Send an email to ``openexr-dev@lists.aswf.io`` officially
       annoucing the release.
    
-8. Update the ``release`` branch, which should always point to the
+9. Update the ``release`` branch, which should always point to the
    most recent patch of the most recent minor release, i.e. the most
    preferred release.
 
@@ -608,24 +620,24 @@ The preferred workflow is:
        % git merge RB-3.1
        % git push
          
-9. Submit a PR that adds the release notes to [CHANGES.md](CHANGES.md)
-   on the main branch. Cherry-pick the release notes commit from
-   the release branch.
+10. Submit a PR that adds the release notes to [CHANGES.md](CHANGES.md)
+    on the main branch. Cherry-pick the release notes commit from
+    the release branch.
 
-   - If any changes have gone into [SECURITY.md](SECURITY), cherry-pick
-     the associated commit as well.
+    - If any changes have gone into [SECURITY.md](SECURITY), cherry-pick
+      the associated commit as well.
 
-   - Also include in this PR edits to [``docs/news.rst``](docs/news.rst)
-     that add an announcment of the release.
+    - Also include in this PR edits to [``docs/news.rst``](docs/news.rst)
+      that add an announcment of the release.
 
-10. After review/merge of the updates to ``docs/news.rst``, build the
+11. After review/merge of the updates to ``docs/news.rst``, build the
     website at https://readthedocs.org/projects/openexr.
 
-11. If the release has resolved any OSS-Fuzz issues, update the
+12. If the release has resolved any OSS-Fuzz issues, update the
     associated pages at https://bugs.chromium.org/p/oss-fuzz with a
     reference to the release.
 
-12. If the release has resolved any public CVE's, request an update
+13. If the release has resolved any public CVE's, request an update
     from the registry service providing the release and a link to the
     release notes.
 

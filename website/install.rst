@@ -10,6 +10,9 @@ Install
 .. toctree::
    :caption: Install
              
+Linux
+-----
+
 The OpenEXR library is available for download and installation in
 binary form via package managers on many Linux distributions. See
 `https://pkgs.org/download/openexr
@@ -33,21 +36,37 @@ Beware that some distributions are out of date and only provide
 distributions of outdated releases OpenEXR. We recommend against using
 OpenEXR v2, and we *strongly* recommend against using OpenEXR v1.
 
+Refer to the current version of OpenEXR on various major Linux distros at
+`repology.org <https://repology.org/project/openexr/versions>`_:
+
+.. image:: https://repology.org/badge/vertical-allrepos/openexr.svg?exclude_unsupported=1&columns=4
+   :target: https://repology.org/project/openexr/versions
+
+macOS
+-----
+
 On macOS, install via `Homebrew <https://formulae.brew.sh/formula/openexr>`_:
 
 .. code-block::
 
    % brew install openexr
 
-We do not recommend installation via
-`Macports <https://ports.macports.org/port/openexr>`_ because the
-distribution is out of date.
+Alternatively, you can install on macOS via `MacPorts
+<https://ports.macports.org/port/openexr>`_:
 
-Also note that the official OpenEXR project does not provide supported
-python bindings. ``pip install openexr`` installs the `openexrpython
-<https://github.com/jamesbowman/openexrpython>`_ module, which is not
-affiliated with the OpenEXR project or the ASWF. Please direct
-questions there.
+.. code-block::
+
+   % port install openexr
+
+Windows
+-------
+
+Install via `vcpkg <https://vcpkg.io/en/packages>`_:
+
+.. code-block::
+
+   % .\vcpkg install openexr
+
 
 Build from Source
 -----------------
@@ -68,7 +87,7 @@ Prerequisites
 
 Make sure these are installed on your system before building OpenEXR:
 
-* OpenEXR requires CMake version 3.12 or newer
+* OpenEXR requires CMake version 3.14 or newer
 * C++ compiler that supports C++11
 * Imath (auto fetched by CMake if not found) (https://github.com/AcademySoftwareFoundation/openexr)
 * libdeflate source code (auto fetched by CMake if not found) (https://github.com/ebiggers/libdeflate)
@@ -264,6 +283,29 @@ You can customize these options three ways:
 2. Use the UI ``cmake-gui`` or ``ccmake``.
 3. Specify them as command-line arguments when you invoke cmake.
 
+Uninstall
+~~~~~~~~~
+
+If you did a binary instal of OpenEXR via a package manager
+(`apt-get`, `yum`, `port`, `brew`, etc), use the package manager to
+uninstall.
+
+If you have installed from source, *and you still have the build
+tree from which you installed*, you can uninstall via: 
+
+.. code-block::
+
+    % cmake --build $builddir --target uninstall
+
+or if using ``make``:
+
+.. code-block::
+
+    % make uninstall
+
+The `uninstall` relies on CMake's `install_manifest.txt` for the record
+of what was installed.
+
 Library Naming Options
 ~~~~~~~~~~~~~~~~~~~~~~
 
@@ -410,12 +452,17 @@ Component Options
 
 * ``OPENEXR_BUILD_TOOLS``
 
-  Build and install the binary programs (exrheader, exrinfo,
+  Build the binary programs (exrheader, exrinfo,
   exrmakepreview, etc). Default is ``ON``.
   
-* ``OPENEXR_INSTALL_EXAMPLES``
+* ``OPENEXR_INSTALL_TOOLS``
 
-  Build and install the example code. Default is ``ON``.
+  Install the binary programs (exrheader, exrinfo,
+  exrmakepreview, etc). Default is ``ON``.
+  
+* ``OPENEXR_BUILD_EXAMPLES``
+
+  Build the example code. Default is ``ON``.
 
 Additional CMake Options
 ~~~~~~~~~~~~~~~~~~~~~~~~

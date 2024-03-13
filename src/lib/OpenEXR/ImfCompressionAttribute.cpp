@@ -47,18 +47,13 @@ CompressionAttribute::readValueFrom (
     Xdr::read<StreamIO> (is, tmp);
 
     //
-    // prevent invalid values being written to Compressin enum
+    // prevent invalid values being written to Compression enum
     // by forcing all unknown types to NUM_COMPRESSION_METHODS which is also an invalid
     // pixel type, but can be used as a PixelType enum value
     // (Header::sanityCheck will throw an exception when files with invalid Compression types are read)
     //
 
-    if (tmp != NO_COMPRESSION && tmp != RLE_COMPRESSION &&
-        tmp != ZIPS_COMPRESSION && tmp != ZIP_COMPRESSION &&
-        tmp != PIZ_COMPRESSION && tmp != PXR24_COMPRESSION &&
-        tmp != B44_COMPRESSION && tmp != B44A_COMPRESSION &&
-        tmp != DWAA_COMPRESSION && tmp != DWAB_COMPRESSION && 
-        tmp != ZSTD_COMPRESSION)
+    if (!isValidCompression(tmp))
     {
         tmp = NUM_COMPRESSION_METHODS;
     }

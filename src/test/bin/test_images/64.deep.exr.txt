@@ -1,0 +1,35 @@
+ channels  : model.id0,model.id1
+ hashScheme: MurmurHash3_64
+ encoding  : id2
+ lifetime  : stable
+                          model         
+     97515517976221909    circle/medium 
+     742872203054891411   circle/small  
+     6191538508622224182  blob/medium   
+     6650017402852611196  blob/big      
+     9225128210671310825  circle/big    
+     17511330964567540308 blob/small    
+
+
+ channels  : material.id0,material.id1
+ hashScheme: MurmurHash3_64
+ encoding  : id2
+ lifetime  : stable
+                          material 
+     2470908766622966990  blue     
+     2785030139762120788  white    
+     7547477443120661518  yellow   
+     14272065673169316387 red      
+     14592330334135882751 green    
+     16918673263070507131 magenta  
+     18125959695279297844 cyan     
+
+
+ channels  : particleid
+ hashScheme: none
+ encoding  : id
+ lifetime  : shot
+      
+raw text size    : 432
+uncompressed size: 415
+compressed size  : 333

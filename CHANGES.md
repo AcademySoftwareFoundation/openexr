@@ -3,7 +3,10 @@
 
 # OpenEXR Release Notes
 
+* [Version 3.2.2](#version-322-february-11-2024) February 11, 2024
+* [Version 3.2.1](#version-321-september-27-2023) September 27, 2023
 * [Version 3.2.0](#version-320-august-30-2023) August 30, 2023
+* [Version 3.1.12](#version-3112-february-11-2023) February 11, 2024
 * [Version 3.1.11](#version-3111-august-13-2023) August 13, 2023
 * [Version 3.1.10](#version-3110-august-2-2023) August 2, 2023
 * [Version 3.1.9](#version-319-june-25-2023) June 25, 2023
@@ -23,6 +26,8 @@
 * [Version 3.0.1](#version-301-april-1-2021) April 1, 2021
 * [Version 3.0.1-beta](#version-301-beta-march-28-2021) March 28, 2021
 * [Version 3.0.0-beta](#version-300-beta-march-16-2021) March 16, 2021
+* [Version 2.5.10](#version-2510-december-19-2023) December 19, 2023
+* [Version 2.5.9](#version-259-july-31-2023) July 31, 2023
 * [Version 2.5.8](#version-258-march-18-2022) March 18, 2022
 * [Version 2.5.7](#version-257-june-16-2021) June 16, 2021
 * [Version 2.5.6](#version-256-may-17-2021) May 17, 2021
@@ -65,6 +70,75 @@
 * [Version 1.0.2](#version-102)
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
+
+## Version 3.2.2 (February 11, 2024)
+
+Patch release that addresses
+[CVE-2023-5841](https://takeonme.org/cves/CVE-2023-5841.html).
+
+Note that this bug is present in the C++ API (since v3.1.0), although
+it is in a routine that is predominantly used for development and
+testing. It is not likely to appear in production code.
+
+This release also addresses:
+
+* OSS-fuzz [66491](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=66491)
+Out-of-memory in openexr_exrcorecheck_fuzzer
+* OSS-fuzz [66489](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=66489)
+Null-dereference in `Imf_3_3::realloc_deepdata`
+
+### Merged Pull Requests
+
+* [1632](https://github.com/AcademySoftwareFoundation/openexr/pull/1632)
+adjust checks for core to better match c++ checks
+* [1630](https://github.com/AcademySoftwareFoundation/openexr/pull/1630)
+fix issue with unpacking sample counts 
+* [1627](https://github.com/AcademySoftwareFoundation/openexr/pull/1627)
+Fix CVE 2023 5841
+
+## Version 3.2.1 (September 27, 2023)
+
+Patch release with miscellaneous build fixes:
+
+* Fix for linking statically against an external ``libdeflate``
+* Fix a compile error with ``OPENEXR_VERSION_HEX``
+* Fix various compiler warnings
+* Pkg-config generation is now on by default for all systems, including Windows
+
+### Merged Pull Requests
+
+* [1568](https://github.com/AcademySoftwareFoundation/openexr/pull/1568)
+Fix Imf/Iex/IlmThread namespaces in python bindings and website code
+* [1565](https://github.com/AcademySoftwareFoundation/openexr/pull/1565)
+Update openexr_deps.bzl
+* [1562](https://github.com/AcademySoftwareFoundation/openexr/pull/1562)
+Bazel: Improve module
+* [1561](https://github.com/AcademySoftwareFoundation/openexr/pull/1561)
+Clean up handling of libdeflate when linking static
+* [1560](https://github.com/AcademySoftwareFoundation/openexr/pull/1560)
+Omit OPENEXR_IMAGES_TAG from test image url if empty
+* [1557](https://github.com/AcademySoftwareFoundation/openexr/pull/1557)
+Set build-shared:OFF for Static build
+* [1541](https://github.com/AcademySoftwareFoundation/openexr/pull/1541)
+OPENEXR_INSTALL_PKG_CONFIG is on by default, even on Windows
+* [1540](https://github.com/AcademySoftwareFoundation/openexr/pull/1540)
+Default value for chromaticities attribute constructor in exrstdattr
+* [1539](https://github.com/AcademySoftwareFoundation/openexr/pull/1539)
+Fix OPENEXR_VERSION_HEX
+* [1536](https://github.com/AcademySoftwareFoundation/openexr/pull/1536)
+Python wheel setup gets version from OpenEXR.pc/Imath.pc
+* [1534](https://github.com/AcademySoftwareFoundation/openexr/pull/1534)
+Fix warnings from cross-compiling with x86_64-w64-mingw32-gcc-posix
+* [1533](https://github.com/AcademySoftwareFoundation/openexr/pull/1533)
+Fix warnings in multipartExamples.cpp
+* [1532](https://github.com/AcademySoftwareFoundation/openexr/pull/1532)
+Don't trigger ci/bazel/ossfuzz builds on pushes/PRs to src/wrappers
+* [1531](https://github.com/AcademySoftwareFoundation/openexr/pull/1531)
+Propagate OPENEXR_INSTALL_PKG_CONFIG to internal Imath
+* [1530](https://github.com/AcademySoftwareFoundation/openexr/pull/1530)
+Set minimal permissions for workflow python-wheels.yml
+* [1528](https://github.com/AcademySoftwareFoundation/openexr/pull/1528)
+Remove check for _MSC_VER in internal_cpuid.h
 
 ## Version 3.2.0 (August 30, 2023)
 
@@ -187,6 +261,12 @@ Direct-leak in ``Imf_3_1::RgbaInputFile::RgbaInputFile``
 
 ### Merged Pull Requests
 
+* [1527](https://github.com/AcademySoftwareFoundation/openexr/pull/1527)
+`OpenEXRConfig.h.in` uses version extracted from `openexr_version.h`
+* [1525](https://github.com/AcademySoftwareFoundation/openexr/pull/1525)
+Add bzlmod support
+* [1523](https://github.com/AcademySoftwareFoundation/openexr/pull/1523)
+Add `DEPENDENCIES Imath::Imath` for OpenEXRCore (#1523)
 * [1522](https://github.com/AcademySoftwareFoundation/openexr/pull/1522)
 Rename cifuzz workflow to OSS-Fuzz, and filter out unnecessary triggers
 * [1520](https://github.com/AcademySoftwareFoundation/openexr/pull/1520)
@@ -389,6 +469,30 @@ Sort source files in CMake targets
 Improve Bazel Build
 * [1058](https://github.com/AcademySoftwareFoundation/openexr/pull/1058)
 Add ``validate_openexr_libs.sh`` to validate .so symlinks
+
+## Version 3.1.12 (February 11, 2024)
+
+Patch release that addresses
+[CVE-2023-5841](https://takeonme.org/cves/CVE-2023-5841.html).
+
+Note that this bug is present in the C++ API (since v3.1.0), although
+it is in a routine that is predominantly used for development and
+testing. It is not likely to appear in production code.
+This release also addresses:
+
+* OSS-fuzz [66491](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=66491)
+Out-of-memory in openexr_exrcorecheck_fuzzer
+* OSS-fuzz [66489](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=66489)
+Null-dereference in `Imf_3_3::realloc_deepdata`
+
+### Merged Pull Requests
+
+* [1632](https://github.com/AcademySoftwareFoundation/openexr/pull/1632)
+adjust checks for core to better match c++ checks
+* [1630](https://github.com/AcademySoftwareFoundation/openexr/pull/1630)
+fix issue with unpacking sample counts 
+* [1627](https://github.com/AcademySoftwareFoundation/openexr/pull/1627)
+Fix CVE 2023 5841
 
 ## Version 3.1.11 (August 13, 2023)
 
@@ -1378,6 +1482,28 @@ Specific OSS-fuzz issues addressed include:
 * [796](https://github.com/AcademySoftwareFoundation/openexr/pull/796)  Initial rename of OpenEXR and IlmBase directories and seperation of Test
 * [791](https://github.com/AcademySoftwareFoundation/openexr/pull/791)  Initial removal of all Imath source files and minimal cmake adjustments
 * [769](https://github.com/AcademySoftwareFoundation/openexr/pull/769)  Bugfix/arkellr remove cvsignore files
+
+## Version 2.5.10 (December 19, 2023)
+
+Patch release that fixes a build failure on macOS prior to 10.6
+(fallback for missing `libdispatch`).
+
+### Merged Pull Requests
+
+* [1596] (https://github.com/AcademySoftwareFoundation/openexr/pull/1596)
+macOS: use libdispatch only where available
+
+## Version 2.5.9 (July 31, 2023)
+
+Patch release that fixes a compile failure with gcc-13 gcc 13 and
+problem with PyIlmBase's pkgconfig.
+
+### Merged Pull Requests
+
+* [1499](https://github.com/AcademySoftwareFoundation/openexr/pull/1499)
+fix build of 2.5 branch with GCC 13
+* [1253](https://github.com/AcademySoftwareFoundation/openexr/pull/1253)
+Adjust exec_prefix path for PyIlmBase's pkgconfig file
 
 ## Version 2.5.8 (March 18, 2022)
 
@@ -4346,18 +4472,15 @@ This is a relatively minor update to the project, with the following changes:
 	  film frames.
 	  (Florian Kainz)
 
-* Removed #include <Iex.h> from ImfAttribute.h, ImfHeader.h
-	  and ImfXdr.h so that including header files such as
-	  ImfInputFile.h no longer defines ASSERT and THROW macros,
-	  which may conflict with similar macros defined by
-	  application programs.
-	  (Florian Kainz)
+* Removed #include <Iex.h> from ImfAttribute.h, ImfHeader.h and
+  ImfXdr.h so that including header files such as ImfInputFile.h no
+  longer defines ASSERT and THROW macros, which may conflict with
+  similar macros defined by application programs.  (Florian Kainz)
 
-* Converted HTML documentation to OpenOffice format to
-	  make maintaining the documents easier:
-	      api.html -> ReadingAndWritingImageFiles.sxw
-	      details.html -> TechnicalIntroduction.sxw
-	  (Florian Kainz)
+* Converted HTML documentation to OpenOffice format to make
+  maintaining the documents easier: api.html ->
+  ReadingAndWritingImageFiles.sxw details.html ->
+  TechnicalIntroduction.sxw (Florian Kainz)
 
 ## Version 1.2.1 (June 6, 2004)
 
@@ -4367,7 +4490,8 @@ changes:
 
 * reduced memory footprint of exrenvmap and exrmaketiled utilities.
 
-* IlmImf: new helper functions to determine whether a file is an OpenEXR file, and whether it's scanline- or tile-based.
+* IlmImf: new helper functions to determine whether a file is an
+  OpenEXR file, and whether it's scanline- or tile-based.
 
 * IlmImf: bug fix for PXR24 compression with ySampling != 1.
 
@@ -4388,23 +4512,22 @@ changes:
 	  description of preview images and environment maps to
 	  docs/api.html (Florian Kainz)
 
-* Bug fix: PXR24 compression did not work properly for channels
-	  with ySampling != 1.
-	  (Florian Kainz)
+* Bug fix: PXR24 compression did not work properly for channels with
+  ySampling != 1.  (Florian Kainz)
 
-* Made ``template <class T>`` become ``template <class S, class T>`` for 
-          the ``transform(ObjectS, ObjectT)`` methods. This was done to allow
-          for differing templated objects to be passed in e.g.  say a 
+* Made ``template <class T>`` become ``template <class S, class T>``
+  for the ``transform(ObjectS, ObjectT)`` methods. This was done to
+  allow for differing templated objects to be passed in e.g.  say a
           ``Box<Vec3<S>>`` and a ``Matrix44<T>``, where S=float and T=double.
           (Jeff Yost, Arkell Rasiah)
 
-* New method Matrix44::setTheMatrix(). Used for assigning a 
-          M44f to a M44d. (Jeff Yost, Arkell Rasiah)
+* New method Matrix44::setTheMatrix(). Used for assigning a M44f to a
+  M44d. (Jeff Yost, Arkell Rasiah)
 
-* Added convenience Color typedefs for half versions of Color3
-          and Color4. Note the Makefile.am for both Imath and ImathTest
-          have been updated with -I and/or -L pathing to Half.
-          (Max Chen, Arkell Rasiah)
+* Added convenience Color typedefs for half versions of Color3 and
+  Color4. Note the Makefile.am for both Imath and ImathTest have been
+  updated with -I and/or -L pathing to Half.  (Max Chen, Arkell
+  Rasiah)
 
 * Methods equalWithAbsError() and equalWithRelError() are now
           declared as const. (Colette Mullenhoff, Arkell Rasiah)
@@ -4415,14 +4538,13 @@ changes:
 * Added Custom low-level file I/O examples to IlmImfExamples
 	  and to the docs/api.html document.  (Florian Kainz)
 
-* Eliminated most warnings messages when OpenEXR is compiled
-	  with Visual C++.  The OpenEXR code uses lots of (intentional
-	  and unintended) implicit type conversions.  By default, Visual
-	  C++ warns about almost all of them.  Most implicit conversions
-	  have been removed from the .h files, so that including them
-	  should not generate warnings even at warning level 3.  Most
-	  .cpp files are now compiled with warning level 1.
-	  (Florian Kainz)
+* Eliminated most warnings messages when OpenEXR is compiled with
+  Visual C++.  The OpenEXR code uses lots of (intentional and
+  unintended) implicit type conversions.  By default, Visual C++ warns
+  about almost all of them.  Most implicit conversions have been
+  removed from the .h files, so that including them should not
+  generate warnings even at warning level 3.  Most .cpp files are now
+  compiled with warning level 1.  (Florian Kainz)
 
 ## Version 1.2.0 (May 11, 2004)
 
@@ -4502,59 +4624,56 @@ format.
 
 ### Detailed Changes:
 
-* Half: operator= and variants now return by reference rather
-	  than by value.  This brings half into conformance with
-	  built-in types.  (Drew Hess)
+* Half: operator= and variants now return by reference rather than by
+  value.  This brings half into conformance with built-in types.
+  (Drew Hess)
 
-* Half: remove copy constructor, let compiler supply its
-	  own.  This improves performance up to 25% on some
-	  expressions using half.  (Drew Hess)
+* Half: remove copy constructor, let compiler supply its own.  This
+  improves performance up to 25% on some expressions using half.
+  (Drew Hess)
 
-* configure: don't try to be fancy with CXXFLAGS, just use
-	  what the user supplies or let configure choose a sensible
-	  default if CXXFLAGS is not defined.
+* configure: don't try to be fancy with CXXFLAGS, just use what the
+  user supplies or let configure choose a sensible default if CXXFLAGS
+  is not defined.
 
 * IlmImf: fixed a bug in reading scanline files on big-endian
           architectures.  (Drew Hess)
 
-* exrmaketiled: Added an option to select compression type.
-	  (Florian Kainz)
+* exrmaketiled: Added an option to select compression type.  (Florian
+  Kainz)
 
-* exrenvmap: Added an option to select compression type.
-	  (Florian Kainz)
+* exrenvmap: Added an option to select compression type.  (Florian
+  Kainz)
 
 * exrdisplay: Added some new command-line options.  (Florian Kainz)
 
-* IlmImf: Added Pixar's new "slightly lossy" image compression
-	  method.  The new method, named PXR24, preserves HALF and
-	  UINT data without loss, but FLOAT pixels are converted to
-	  a 24-bit representation.  PXR24 appears to compress
-	  FLOAT depth buffers very well without losing much accuracy.
-	  (Loren Carpenter, Florian Kainz)
+* IlmImf: Added Pixar's new "slightly lossy" image compression method.
+  The new method, named PXR24, preserves HALF and UINT data without
+  loss, but FLOAT pixels are converted to a 24-bit representation.
+  PXR24 appears to compress FLOAT depth buffers very well without
+  losing much accuracy.  (Loren Carpenter, Florian Kainz)
 
-* Changed top-level LICENSE file to allow for other copyright
-	  holders for individual files.
+* Changed top-level LICENSE file to allow for other copyright holders
+  for individual files.
 
-* IlmImf: TILED FILE FORMAT CHANGE.  TiledOutputFile was
-	  incorrectly interleaving channels and scanlines before
-	  passing pixel data to a compressor.  The lossless compressors
-	  still work, but lossy compressors do not.  Fix the bug by
-	  interleaving channels and scanlines in tiled files in the
-	  same way as ScanLineOutputFile does.  Programs compiled with
-	  the new version of IlmImf cannot read tiled images produced
-	  with version 1.1.0.  (Florian Kainz)
+* IlmImf: TILED FILE FORMAT CHANGE.  TiledOutputFile was incorrectly
+  interleaving channels and scanlines before passing pixel data to a
+  compressor.  The lossless compressors still work, but lossy
+  compressors do not.  Fix the bug by interleaving channels and
+  scanlines in tiled files in the same way as ScanLineOutputFile does.
+  Programs compiled with the new version of IlmImf cannot read tiled
+  images produced with version 1.1.0.  (Florian Kainz)
 
 * IlmImf: ImfXdr.h fix for 64-bit architectures.  (Florian Kainz)
 
-* IlmImf: OpenEXR now supports YCA (luminance/chroma/alpha)
-	  images with subsampled chroma channels.  When an image
-	  is written with the RGBA convenience interface, selecting
-	  WRITE_YCA instead of WRITE_RGBA causes the library to
-	  convert the pixels to YCA format.  If WRITE_Y is selected,
-	  only luminance is stored in the file (for black and white
-	  images).  When an image file is read with the RGBA convenience
-	  interface, YCA data are automatically converted back to RGBA.
-	  (Florian Kainz)
+* IlmImf: OpenEXR now supports YCA (luminance/chroma/alpha) images
+  with subsampled chroma channels.  When an image is written with the
+  RGBA convenience interface, selecting WRITE_YCA instead of
+  WRITE_RGBA causes the library to convert the pixels to YCA format.
+  If WRITE_Y is selected, only luminance is stored in the file (for
+  black and white images).  When an image file is read with the RGBA
+  convenience interface, YCA data are automatically converted back to
+  RGBA.  (Florian Kainz)
 
 * IlmImf: speed up reading tiled files as scan lines.
 	  (Florian Kainz)
@@ -4708,9 +4827,9 @@ we're working to restore them.
 * Fixes for Visual Studio .NET 2003 w/ Microsoft C++ compiler.
 	  (Various)
 
-* Random Imath fixes and enhancements.  Note that 
-	  extractSHRT now takes an additional optional
-          argument, see ImathMatrixAlgo.h for details.  (Various)
+* Random Imath fixes and enhancements.  Note that extractSHRT now
+  takes an additional optional argument, see ImathMatrixAlgo.h for
+  details.  (Various)
 
 * Added Wojciech Jarosz to AUTHORS file.
 
@@ -4759,9 +4878,9 @@ the source code.
 
 * Add an IlmImfDll project to the Visual Studio 6.0 workspace.
 
-* In Win32, export the ImfCRgbaFile C interface via a DLL so
-	  that Visual C++ 6.0 users can link against an Intel-compiled
-	  IlmImf.  (Andreas Kahler)
+* In Win32, export the ImfCRgbaFile C interface via a DLL so that
+  Visual C++ 6.0 users can link against an Intel-compiled IlmImf.
+  (Andreas Kahler)
 
 * Use auto_ptr in ImfAutoArray on Win32, it doesn't like large 
 	  automatic stacks.
@@ -4842,15 +4961,14 @@ the source code.
 * Added new FP predecessor/successor functions to Imath, added
 	  tests to ImathTest
 
-* Fixed a bug in Imath::extractSHRT for 3x3 matricies when
-	  exactly one of the original scaling factors is negative, updated
-	  ImathTest to check this case.
+* Fixed a bug in Imath::extractSHRT for 3x3 matricies when exactly one
+  of the original scaling factors is negative, updated ImathTest to
+  check this case.
 
 * Install include files when 'make install' is run.
 
-* exrdisplay requires fltk 1.1+ now in an effort to support
-	  a MacOS X display program (fltk 1.1 runs on OS X), though this
-	  is untested.
+* exrdisplay requires fltk 1.1+ now in an effort to support a MacOS X
+  display program (fltk 1.1 runs on OS X), though this is untested.
 
 * renamed configure.in to configure.ac
 
@@ -4858,9 +4976,8 @@ the source code.
 
 * Removed ImfHalfXdr.h, it's not used anymore.
 
-* Revamped the autoconf system, added some compile-time 
-          optimizations, a pkgconfig target, and some maintainer-specific
-          stuff.
+* Revamped the autoconf system, added some compile-time optimizations,
+  a pkgconfig target, and some maintainer-specific stuff.
 
 ## Version 1.0.2
 
