@@ -251,20 +251,11 @@ DwaCompressor_compress (DwaCompressor* me)
     uint8_t*  outDataPtr;
     uint8_t*  inDataPtr;
 
-    // Starting with 2, we write the channel
+    // Starting with DWA v2, we write the channel
     // classification rules into the file
-    if (fileVersion < 2)
-    {
-        me->_channelRules = sLegacyChannelRules;
-        me->_channelRuleCount =
-            sizeof (sLegacyChannelRules) / sizeof (Classifier);
-    }
-    else
-    {
-        me->_channelRules = sDefaultChannelRules;
-        me->_channelRuleCount =
-            sizeof (sDefaultChannelRules) / sizeof (Classifier);
-    }
+    me->_channelRules = sDefaultChannelRules;
+    me->_channelRuleCount =
+        sizeof (sDefaultChannelRules) / sizeof (Classifier);
 
     rv = DwaCompressor_initializeBuffers (me, &outBufferSize);
 
@@ -1047,6 +1038,7 @@ DwaCompressor_uncompress (
                 me->alloc_fn, me->free_fn, &(cd->_dctData), outBufferEnd);
             if (rv != EXR_ERR_SUCCESS) return rv;
 
+            cd->_dctData._type = chan->data_type;
             outBufferEnd += chan->width * chan->bytes_per_element;
         }
     }
@@ -1707,12 +1699,23 @@ DwaCompressor_setupChannelData (DwaCompressor* me)
         cd->planarUncRle[0]    = cd->planarUncBuffer;
         cd->planarUncRleEnd[0] = cd->planarUncRle[0];
 
-        for (int byte = 1; byte < curc->bytes_per_element; ++byte)
+        if (!cd->planarUncBuffer)
         {
-            cd->planarUncRle[byte] =
-                cd->planarUncRle[byte - 1] + curc->width * curc->height;
+            for (int byte = 1; byte < curc->bytes_per_element; ++byte)
+            {
+                cd->planarUncRle[byte] = 0;
+                cd->planarUncRleEnd[byte] = 0;
+            }
+        }
+        else
+        {
+            for (int byte = 1; byte < curc->bytes_per_element; ++byte)
+            {
+                cd->planarUncRle[byte] =
+                    cd->planarUncRle[byte - 1] + curc->width * curc->height;
 
-            cd->planarUncRleEnd[byte] = cd->planarUncRle[byte];
+                cd->planarUncRleEnd[byte] = cd->planarUncRle[byte];
+            }
         }
 
         cd->planarUncType = (exr_pixel_type_t) curc->data_type;

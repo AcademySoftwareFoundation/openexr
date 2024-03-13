@@ -1007,13 +1007,23 @@ readUInt (const uint8_t* b)
 
 #ifdef __APPLE__
 #    include <libkern/OSByteOrder.h>
-#    define READ64(c) OSSwapInt64 (*(const uint64_t*) (c))
+#    define SWAP64(c) OSSwapInt64 (c)
 #elif defined(linux)
 #    include <byteswap.h>
-#    define READ64(c) bswap_64 (*(const uint64_t*) (c))
+#    define SWAP64(c) bswap_64 (c)
 #elif defined(_MSC_VER)
 #    include <stdlib.h>
-#    define READ64(c) _byteswap_uint64 (*(const uint64_t*) (c))
+#    define SWAP64(c) _byteswap_uint64 (c)
+#endif
+
+#ifdef SWAP64
+static inline uint64_t READ64(const uint8_t *src)
+{
+    uint64_t v;
+    // unaligned reads are UB
+    memcpy (&v, src, sizeof(uint64_t));
+    return SWAP64 (v);
+}
 #else
 #    define READ64(c)                                                          \
         ((uint64_t) (c)[0] << 56) | ((uint64_t) (c)[1] << 48) |                \

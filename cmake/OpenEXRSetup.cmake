@@ -51,8 +51,22 @@ option(OPENEXR_ENABLE_LARGE_STACK "Enables code to take advantage of large stack
 ########################
 ## Build related options
 
-# Whether to build & install the various command line utility programs
+option(OPENEXR_INSTALL "Install OpenEXR libraries/binaries/bindings" ON)
+
+# Whether to build & install the main libraries
+option(OPENEXR_BUILD_LIBS "Enables building of main libraries" ON)
+
+# Whether to build the various command line utility programs
 option(OPENEXR_BUILD_TOOLS "Enables building of utility programs" ON)
+option(OPENEXR_INSTALL_TOOLS "Install OpenEXR tools" ON)
+
+option(OPENEXR_BUILD_EXAMPLES "Build and install OpenEXR examples" ON)
+
+option(OPENEXR_BUILD_PYTHON "Build python bindings" OFF)
+
+option(OPENEXR_TEST_LIBRARIES "Run library tests" ON)
+option(OPENEXR_TEST_TOOLS "Run tool tests" ON)
+option(OPENEXR_TEST_PYTHON "Run python binding tests" ON)
 
 # This is a variable here for use in controlling where include files are 
 # installed. Care must be taken when changing this, as many things
@@ -138,6 +152,10 @@ if(OPENEXR_USE_CLANG_TIDY)
   )
 endif()
 
+if (NOT OPENEXR_BUILD_LIBS)
+  return()
+endif()
+
 ###############################
 # Dependent libraries
 
@@ -160,15 +178,40 @@ set(OPENEXR_DEFLATE_TAG "v1.18" CACHE STRING "Tag to use for libdeflate source r
 if(NOT OPENEXR_FORCE_INTERNAL_DEFLATE)
   #TODO: ^^ Release should not clone from main, this is a place holder
   set(CMAKE_IGNORE_PATH "${CMAKE_CURRENT_BINARY_DIR}/_deps/deflate-src/config;${CMAKE_CURRENT_BINARY_DIR}/_deps/deflate-build/config")
-  include(FindPkgConfig)
-  pkg_check_modules(deflate IMPORTED_TARGET GLOBAL libdeflate)
-  set(CMAKE_IGNORE_PATH)
-  if (deflate_FOUND)
-    message(STATUS "Using libdeflate from ${deflate_LINK_LIBRARIES}")
+  # First try cmake config
+  find_package(libdeflate CONFIG QUIET)
+  if(libdeflate_FOUND)
+    if(TARGET libdeflate::libdeflate_shared)
+      set(EXR_DEFLATE_LIB libdeflate::libdeflate_shared)
+    else()
+      set(EXR_DEFLATE_LIB libdeflate::libdeflate_static)
+    endif()
+    set(EXR_DEFLATE_VERSION ${libdeflate_VERSION})
+    message(STATUS "Using libdeflate from ${libdeflate_DIR}")
+  else()
+    # If not found, try pkgconfig
+    find_package(PkgConfig)
+    if(PKG_CONFIG_FOUND)
+      include(FindPkgConfig)
+      pkg_check_modules(deflate IMPORTED_TARGET GLOBAL libdeflate)
+      if(deflate_FOUND)
+        set(EXR_DEFLATE_LIB PkgConfig::deflate)
+        set(EXR_DEFLATE_VERSION ${deflate_VERSION})
+        message(STATUS "Using libdeflate from ${deflate_LINK_LIBRARIES}")
+      endif()
+    endif()
   endif()
+  set(CMAKE_IGNORE_PATH)
 endif()
 
-if(NOT TARGET PkgConfig::deflate AND NOT deflate_FOUND)
+if(EXR_DEFLATE_LIB)
+  # Using external library
+  set(EXR_DEFLATE_SOURCES)
+  set(EXR_DEFLATE_INCLUDE_DIR)
+  # For OpenEXR.pc.in for static build
+  set(EXR_DEFLATE_PKGCONFIG_REQUIRES "libdeflate >= ${EXR_DEFLATE_VERSION}")
+else()
+  # Using internal deflate
   if(OPENEXR_FORCE_INTERNAL_DEFLATE)
     message(STATUS "libdeflate forced internal, installing from ${OPENEXR_DEFLATE_REPO} (${OPENEXR_DEFLATE_TAG})")
   else()
@@ -213,16 +256,6 @@ if(NOT TARGET PkgConfig::deflate AND NOT deflate_FOUND)
   list(TRANSFORM EXR_DEFLATE_SOURCES PREPEND ${deflate_SOURCE_DIR}/)
   set(EXR_DEFLATE_INCLUDE_DIR ${deflate_SOURCE_DIR})
   set(EXR_DEFLATE_LIB)
-else()
-  set(EXR_DEFLATE_INCLUDE_DIR)
-  set(EXR_DEFLATE_LIB ${deflate_LIBRARIES})
-  # set EXR_DEFATE_LDFLAGS for OpenEXR.pc.in for static build
-  if (BUILD_SHARED_LIBS)
-    set(EXR_DEFLATE_LDFLAGS "")
-  else()
-    set(EXR_DEFLATE_LDFLAGS "-l${deflate_LIBRARIES}")
-  endif()
-  set(EXR_DEFLATE_SOURCES)
 endif()
 
 #######################################
@@ -231,10 +264,8 @@ endif()
 
 option(OPENEXR_FORCE_INTERNAL_IMATH "Force using an internal imath" OFF)
 # Check to see if Imath is installed outside of the current build directory.
-set(OPENEXR_IMATH_REPO "https://github.com/AcademySoftwareFoundation/Imath.git" CACHE STRING
-    "Repo for auto-build of Imath")
-set(OPENEXR_IMATH_TAG "main" CACHE STRING
-  "Tag for auto-build of Imath (branch, tag, or SHA)")
+set(OPENEXR_IMATH_REPO "https://github.com/AcademySoftwareFoundation/Imath.git" CACHE STRING "Repo for auto-build of Imath")
+set(OPENEXR_IMATH_TAG "main" CACHE STRING "Tag for auto-build of Imath (branch, tag, or SHA)")
 if(NOT OPENEXR_FORCE_INTERNAL_IMATH)
   #TODO: ^^ Release should not clone from main, this is a place holder
   set(CMAKE_IGNORE_PATH "${CMAKE_CURRENT_BINARY_DIR}/_deps/imath-src/config;${CMAKE_CURRENT_BINARY_DIR}/_deps/imath-build/config")
@@ -259,10 +290,13 @@ if(NOT TARGET Imath::Imath AND NOT Imath_FOUND)
   if(NOT Imath_POPULATED)
     FetchContent_Populate(Imath)
 
+    # Propagate OpenEXR's install setting to Imath
+    set(IMATH_INSTALL ${OPENEXR_INSTALL})
+
     # Propagate OpenEXR's setting for pkg-config generation to Imath:
     # If OpenEXR is generating it, the internal Imath should, too.
     set(IMATH_INSTALL_PKG_CONFIG ${OPENEXR_INSTALL_PKG_CONFIG}) 
-
+    
     # hrm, cmake makes Imath lowercase for the properties (to imath)
     add_subdirectory(${imath_SOURCE_DIR} ${imath_BINARY_DIR})
   endif()

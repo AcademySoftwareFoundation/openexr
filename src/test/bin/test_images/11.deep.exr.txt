@@ -1,0 +1,26 @@
+ channels  : id
+ hashScheme: MurmurHash3_32
+ encoding  : id
+ lifetime  : stable
+                model         material 
+     523461226  circle/medium blue     
+     683859976  circle/small  blue     
+     1552124883 blob/medium   yellow   
+     2202049807 blob/small    green    
+     2303547305 blob/small    blue     
+     2433329986 circle/big    yellow   
+     2698909330 blob/small    yellow   
+     3182339638 circle/small  green    
+     3236172513 blob/big      white    
+     3626859046 blob/big      yellow   
+     3739501011 circle/small  yellow   
+
+
+ channels  : particleid
+ hashScheme: none
+ encoding  : id
+ lifetime  : shot
+      
+raw text size    : 332
+uncompressed size: 262
+compressed size  : 233

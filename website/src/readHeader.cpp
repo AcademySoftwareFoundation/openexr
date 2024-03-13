@@ -1,3 +1,4 @@
+// [begin readHeader]
 void
 readHeader (const char fileName[])
 {
@@ -14,3 +15,26 @@ readHeader (const char fileName[])
     if (cameraTransform)
         cout << "cameraTransformn" << cameraTransform->value () << flush;
 }
+// [end readHeader]
+ 
+// [begin readComments]
+void
+readComments (const char fileName[], string &comments)
+{
+    RgbaInputFile file (fileName);
+
+    comments = file.header().typedAttribute<StringAttribute>("comments").value();
+}
+// [end readComments]
+
+// [begin readCommentsError]
+void
+readComments (const char fileName[], const StringAttribute *&comments)
+{
+    // error: comments pointer is invalid after this function returns
+
+    RgbaInputFile file (fileName);
+
+    comments = file.header().findTypedAttribute <StringAttribute> ("comments");
+}
+// [end readCommentsError]

@@ -174,7 +174,7 @@ internal_exr_destroy_part (
     ctable = (uint64_t*) atomic_load (&(cur->chunk_table));
     atomic_store (&(cur->chunk_table), (uintptr_t) (0));
 #endif
-    if (ctable) dofree (ctable);
+    if (ctable && ((uintptr_t)ctable) != UINTPTR_MAX) dofree (ctable);
 }
 
 /**************************************/

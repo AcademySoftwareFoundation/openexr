@@ -17,6 +17,7 @@
 #include "testChannels.h"
 #include "testCompositeDeepScanLine.h"
 #include "testCompression.h"
+#include "testCompressionApi.h"
 #include "testConversion.h"
 #include "testCopyDeepScanLine.h"
 #include "testCopyDeepTiled.h"
@@ -189,6 +190,7 @@ main (int argc, char* argv[])
     TEST (testAttributes, "core");
     TEST (testCustomAttributes, "core");
     TEST (testLineOrder, "basic");
+    TEST (testCompressionApi, "basic");
     TEST (testCompression, "basic");
     TEST (testCopyPixels, "basic");
     TEST (testLut, "basic");

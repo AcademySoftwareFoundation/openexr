@@ -31,7 +31,7 @@ writeRgbaWithPreview2 (const char fileName[], int width, int height)
                 outPixel.r = gamma (inPixel.r);
                 outPixel.g = gamma (inPixel.g);
                 outPixel.b = gamma (inPixel.b);
-                outPixel.a = int (clamp (inPixel.a * 255.f, 0.f, 255.f) + 0.5f);
+                outPixel.a = int (Imath::clamp (inPixel.a * 255.f, 0.f, 255.f) + 0.5f);
             }
         }
     }

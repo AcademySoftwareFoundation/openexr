@@ -63,6 +63,7 @@ if(BUILD_TESTING)
       exrenvmap
       exrmakepreview
       exrmaketiled
+      exrmanifest
       exrmultiview
       exrmultipart
       exrstdattr

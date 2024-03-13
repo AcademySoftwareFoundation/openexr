@@ -1,3 +1,4 @@
+// [begin writeGZ1]
 void
 writeGZ1 (
     const char   fileName[],
@@ -33,3 +34,21 @@ writeGZ1 (
     file.setFrameBuffer (frameBuffer); // 16
     file.writePixels (height);         // 17
 }
+// [end writeGZ1]
+
+// Computing address of G and Z channels
+const half*  gPixels;
+const float* zPixels;
+int x, y, width;
+
+half* G = 
+// [begin compteChannelG]
+(half*)((char*)gPixels + x * sizeof(half) * 1 + y * sizeof(half) * width);
+    // = (half*)((char*)gPixels + x * 2 + y * 2 * width);
+// [end compteChannelG]
+
+// [begin compteChannelZ]
+float* Z = 
+(float*)((char*)zPixels + x * sizeof(float) * 1 + y * sizeof(float) * width);
+    // = (float*)((char*)zPixels + x * 4 + y * 4 * width);
+// [end compteChannelZ]

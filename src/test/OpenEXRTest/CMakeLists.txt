@@ -25,6 +25,8 @@ add_executable(OpenEXRTest
   testChannels.h
   testCompositeDeepScanLine.cpp
   testCompositeDeepScanLine.h
+  testCompressionApi.cpp
+  testCompressionApi.h
   testCompression.cpp
   testCompression.h
   testConversion.cpp
@@ -156,6 +158,7 @@ define_openexr_tests(
  testBadTypeAttributes
  testChannels
  testCompositeDeepScanLine
+ testCompressionApi
  testCompression
  testConversion
  testCopyDeepScanLine

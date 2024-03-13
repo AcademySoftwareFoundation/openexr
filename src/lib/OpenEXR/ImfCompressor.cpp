@@ -9,11 +9,11 @@
 //
 //-----------------------------------------------------------------------------
 
+#include "ImfCheckedArithmetic.h"
+#include "ImfNamespace.h"
 #include "ImfCompressor.h"
 #include "ImfB44Compressor.h"
-#include "ImfCheckedArithmetic.h"
 #include "ImfDwaCompressor.h"
-#include "ImfNamespace.h"
 #include "ImfPizCompressor.h"
 #include "ImfPxr24Compressor.h"
 #include "ImfRleCompressor.h"
@@ -51,59 +51,15 @@ Compressor::uncompressTile (
     return uncompress (inPtr, inSize, range.min.y, outPtr);
 }
 
-bool
-isValidCompression (Compression c)
-{
-    switch (c)
-    {
-        case NO_COMPRESSION:
-        case RLE_COMPRESSION:
-        case ZIPS_COMPRESSION:
-        case ZIP_COMPRESSION:
-        case PIZ_COMPRESSION:
-        case PXR24_COMPRESSION:
-        case B44_COMPRESSION:
-        case B44A_COMPRESSION:
-        case DWAA_COMPRESSION:
-        case DWAB_COMPRESSION:
-        case ZSTD_COMPRESSION: return true;
-
-        default: return false;
-    }
-}
-
-bool
-isLossyCompression (Compression c)
-{
-    switch (c)
-    {
-        case B44_COMPRESSION:
-        case B44A_COMPRESSION:
-        case DWAA_COMPRESSION:
-        case DWAB_COMPRESSION: return true;
-        default: return false;
-    }
-}
-
-bool
-isValidDeepCompression (Compression c)
-{
-    switch (c)
-    {
-        case NO_COMPRESSION:
-        case RLE_COMPRESSION:
-        case ZIPS_COMPRESSION:
-        case ZSTD_COMPRESSION: return true;
-        default: return false;
-    }
-}
-
 Compressor*
 newCompressor (Compression c, size_t maxScanLineSize, const Header& hdr)
 {
+    // clang-format off
     switch (c)
     {
-        case RLE_COMPRESSION: return new RleCompressor (hdr, maxScanLineSize);
+        case RLE_COMPRESSION:
+
+            return new RleCompressor (hdr, maxScanLineSize);
 
         case ZIPS_COMPRESSION:
 
@@ -149,6 +105,7 @@ newCompressor (Compression c, size_t maxScanLineSize, const Header& hdr)
             return new ZstdCompressor (hdr);
         default: return 0;
     }
+    // clang-format on
 }
 
 // for a given compression type, return the number of scanlines
@@ -157,28 +114,17 @@ newCompressor (Compression c, size_t maxScanLineSize, const Header& hdr)
 int
 numLinesInBuffer (Compression comp)
 {
-    switch (comp)
-    {
-        case NO_COMPRESSION:
-        case RLE_COMPRESSION:
-        case ZIPS_COMPRESSION: return 1;
-        case ZIP_COMPRESSION: return 16;
-        case PIZ_COMPRESSION: return 32;
-        case PXR24_COMPRESSION: return 16;
-        case B44_COMPRESSION:
-        case B44A_COMPRESSION:
-        case DWAA_COMPRESSION: return 32;
-        case ZSTD_COMPRESSION: return (int)exr_get_zstd_lines_per_chunk();
-        case DWAB_COMPRESSION: return 256;
-
-        default: throw IEX_NAMESPACE::ArgExc ("Unknown compression type");
-    }
+    int numScanlines = getCompressionNumScanlines (comp);
+    if (numScanlines < 1)
+        throw IEX_NAMESPACE::ArgExc ("Unknown compression type");
+    return numScanlines;
 }
 
 Compressor*
 newTileCompressor (
     Compression c, size_t tileLineSize, size_t numTileLines, const Header& hdr)
 {
+    // clang-format off
     switch (c)
     {
         case RLE_COMPRESSION:
@@ -227,6 +173,7 @@ newTileCompressor (
 
         default: return 0;
     }
+    // clang-format on
 }
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

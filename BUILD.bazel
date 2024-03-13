@@ -257,7 +257,7 @@ cc_library(
         }),
     visibility = ["//visibility:public"],
     deps = [
-        "@Imath",
+        "@imath//:Imath",
         "@libdeflate//:deflate",
     ],
 )
@@ -275,6 +275,7 @@ cc_library(
         "src/lib/OpenEXR/ImfChromaticities.cpp",
         "src/lib/OpenEXR/ImfChromaticitiesAttribute.cpp",
         "src/lib/OpenEXR/ImfCompositeDeepScanLine.cpp",
+        "src/lib/OpenEXR/ImfCompression.cpp",
         "src/lib/OpenEXR/ImfCompressionAttribute.cpp",
         "src/lib/OpenEXR/ImfCompressor.cpp",
         "src/lib/OpenEXR/ImfConvert.cpp",
@@ -500,7 +501,7 @@ cc_library(
     deps = [
         ":IlmThread",
         ":OpenEXRCore",
-        "@Imath",
+        "@imath//:Imath",
     ],
 )
 

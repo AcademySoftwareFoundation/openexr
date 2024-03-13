@@ -1,0 +1,163 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright (c) Contributors to the OpenEXR Project.
+#
+# This file establishes email equivalences so we can resolve what look like
+# multiple authors, but actually are the same author who has used multiple
+# emails over the course of their involvement with the project.
+#
+# The format is any of the following:
+#     <CANONICAL-EMAIL> <alternate-email>
+#     CANONICAL-NAME <CANONICAL-EMAIL> <alternate-email>
+#     CANONICAL-NAME <CANONICAL-EMAIL> alternate-name <alternate-email>
+#
+# You can check for duplicates with this command:
+#     git shortlog -sne --all
+# That command (and others) will use this file to collapse the duplicates.
+#
+# If you see any duplicates we don't account for here, or if you look at your
+# own entry here and want a different name or email to be your canonical one
+# (we may not have guessed correctly and matched your preferences), please
+# file a PR with the edits to this file.
+
+Aaron Demolder <aaron.demolder@gmail.com>
+Abe Fettig <abe@fettig.net>
+Aloys Baillet <aloys.baillet+github@gmail.com> aloysb <aloysb@al.com.au>
+Andrew Kunz <akunz@ilm.com>
+Anton Dukhovnikov <antond@wetafx.co.nz> Anton Dukhovnikov <131838425+antond-weta@users.noreply.github.com>
+Antonio Rojas <arojas@archlinux.org>
+Aras Pranckevičius <nearaz@gmail.com> Aras Pranckevičius <aras@nesnausk.org>
+Aras Pranckevičius <nearaz@gmail.com> Aras Pranckevičius <aras@unity3d.com>
+Arkady Shapkin <arkady.shapkin@gmail.com>
+Arkell Rasiah <arkellrasiah@gmail.com> Arkell Rasiah <arasiah@ilm.com>
+Arkell Rasiah <arkellrasiah@gmail.com> Arkell Rasiah <arasiah@pixsystem.com>
+Axel Waggershauser <awagger@gmail.com>
+axxel <awagger@gmail.com>
+Balázs Oroszi <ignus2@users.noreply.github.com>
+Barnaby Robson <brobson@ilm.com> Barnaby Robson <mail@barnaby.org>
+Ben Grimes <72311676+MrGlobby@users.noreply.github.com>
+Bernd <waebbl-gentoo@posteo.net>
+Brendan Bolles <brendan@fnordware.com>
+CAHEK7 <ghosts.in.a.box@gmail.com>
+Cary Phillips <cary@ilm.com> cary-ilm <cary@ilm.com>
+Cary Phillips <cary@ilm.com> Cary Phillips <cary@rnd-build7-sf-38.lucasfilm.com>
+Cary Phillips <cary@ilm.com> seabeepea <seabeepea@gmail.com>
+Catherine <catyeo18@users.noreply.github.com>
+Chris Leu <cdleu430@gmail.com> cdleu430 <cdleu430@gmail.com>
+Christina Tempelaar-Lietz <xlietz@gmail.com> ¨Christina Tempelaar-Lietz¨ <xlietz@gmail.com>
+Christina Tempelaar-Lietz <xlietz@gmail.com> xlietz <31363633+xlietz@users.noreply.github.com>
+Christopher Horvath <blackencino+git@gmail.com>
+Christopher Kulla <fpsunflower@users.noreply.github.com>
+Christoph Gohlke <cgohlke@cgohlke.com>
+cia-rana <kiwamura0314@gmail.com>
+Cristian Martínez <cfuga@cfuga.mx>
+Dan Horák <dan@danny.cz>
+Daniel Kaneider <danielkaneider@users.sf.net>
+Darby Johnston <darbyjohnston@yahoo.com>
+Dave Sawyer <kingsawyer@gmail.com>
+David Korczynski <david@adalogics.com>
+Developer-Ecosystem-Engineering <65677710+Developer-Ecosystem-Engineering@users.noreply.github.com>
+dgmzc <dorian.gmz@hotmail.com>
+Diogo Teles Sant'Anna <diogoteles@google.com>
+Dirk Lemstra <dirk@lemstra.org> dirk <dirk@git.imagemagick.org>
+dracwyrm <j.scruggs@gmail.com>
+Drew Hess <dhess@ilm.com>
+Ed Hanway <ehanway@ilm.com> Ed Hanway <ehanway-ilm@users.noreply.github.com>
+Edward Kmett <ekmett@gmail.com>
+Eric Sommerlade <es0m@users.noreply.github.com>
+Eric Wimmer <ewimmer@ilm.com>
+E Sommerlade <es0m@users.noreply.github.com>
+fgc <fgc>
+Florian Kainz <kainz@ilm.com>
+Grant Kim <6302240+enpinion@users.noreply.github.com>
+Gregorio Litenstein <g.litenstein@gmail.com>
+Gyula Gubacsi <gyula.gubacsi@foundry.com>
+Halfdan Ingvarsson <halfdan@sidefx.com>
+Harry Mallon <hjmallon@gmail.com>
+Huibean Luo <huibean.luo@gmail.com>
+ianianda <wyking1030@gmail.com>
+Ibraheem Alhashim <ibraheem.alhashim@gmail.com>
+Jack Kingsman <jack.kingsman@gmail.com>
+Jamie Kenyon <jamie.kenyon@thefoundry.co.uk>
+Jan Tojnar <jtojnar@gmail.com>
+jbradley <jbradley@dreamworks.com>
+Jean-Francois Panisset <32653482+jfpanisset@users.noreply.github.com>
+Jens Lindgren <lindgren_jens@hotmail.com>
+Ji Hun Yu <jihun@ilm.com>
+Johannes Vollmer <32042925+johannesvollmer@users.noreply.github.com>
+John Loy <jloy@pixar.com>
+John Mertic <jmertic@linuxfoundation.org>
+Jonathan Stone <stonej@github.com>
+Jose Luis Cercos-Pita <jlcercos@gmail.com> Jose Luis Cercós Pita <lacigarracomunista@gmail.com>
+Joseph Goldstone <joseph.goldstone@mac.com> Joseph Goldstone <jgoldstone@arri.com>
+Juha Reunanen <juha.reunanen@tomaattinen.com>
+Julian Amann <julian.amann@tum.de>
+Juri Abramov <openexr@dr-abramov.de>  Juri Abramov <gabramov@nvidia.com>
+Juri Abramov <openexr@dr-abramov.de> JuriAbramov <openexr@dr-abramov.de>
+Karl Hendrikse <karlhendrikse@gmail.com> karlhendrikse <karlhendrikse@gmail.com>
+Karl Rasche <karl.rasche@dreamworks.com> Karl Rasche <karlrasche@users.noreply.github.com>
+Kevin Wheatley <kevin.wheatley@framestore.com>
+Kimball Thurston <kdt3rd@gmail.com>
+kwizart <kwizart@gmail.com>
+Larry Gritz <lg@larrygritz.com>
+Laurens Voerman <l.voerman@rug.nl>
+L. E. Segovia <amy@amyspark.me>
+Liam Fernandez <liam@utexas.edu>
+lilinjie <lilinjie@uniontech.com>
+Lucy Wilkes <lucywilkes@users.noreply.github.com>
+luzpaz <luzpaz@users.noreply.github.com>
+mancoast <RobertPancoast77@gmail.com>
+mandree <mandree@users.noreply.github.com>
+Mark Reid <mindmark@gmail.com>
+Mark Sisson <5761292+marksisson@users.noreply.github.com>
+Martin Aumüller <aumuell@reserv.at>
+Martin Husemann <martin@NetBSD.org>
+Matthäus G. Chajdas <Anteru@users.noreply.github.com>
+Matthias C. M. Troffaes <matthias.troffaes@gmail.com>
+Matt Pharr <matt@pharr.org>
+Md Sadman Chowdhury <61442059+SpicyCatGames@users.noreply.github.com>
+Michael Thomas (malinka) <malinka@entropy-development.com>
+Nicholas Yue <yue.nicholas@gmail.com>
+Nick Porcino <meshula@hotmail.com> meshula <nick.porcino@gmail.com>
+Nick Porcino <meshula@hotmail.com> Nick Porcino <nick.porcino@oculus.com>
+Nick Porcino <meshula@hotmail.com> Nick Porcino <nporcino@pixar.com>
+Nick Porcino <meshula@hotmail.com> nporcino-pixar <78001580+nporcino-pixar@users.noreply.github.com>
+Nick Rasmussen <nick@ilm.com> Nick Rasmussen <nick@jive.org>
+Nick Rasmussen <nick@ilm.com> Nick Rasmussen <nick.rasmussen@gmail.com>
+Nicolas Chauvet <kwizart@gmail.com>
+Niklas Hambüchen <mail@nh2.me>
+OgreTransporter <OgreTransporter@users.noreply.github.com>
+oleksii.vorobiov <oleksii.vorobiov@globallogic.com>
+Owen Thompson <oxt3479@rit.edu>
+patlefort <northon_patrick3@yahoo.ca>
+Paul Schneider <pauls@ilm.com>
+Peter Hillman <peterh@wetafx.co.nz> peterhillman <peterh@wetafx.co.nz>
+Peter Hillman <peterh@wetafx.co.nz> peterhillman <peter@peterhillman.org.uk>
+Peter Steneteg <peter@steneteg.se>
+Peter Urbanec <peterurbanec@users.noreply.github.com>
+Phyrexian <jarko.paska@gmail.com>
+Piotr Stanczyk <piotr.stanczyk@gmail.com> Piotr <pstanczyk@ilm.com>
+Piotr Stanczyk <piotr.stanczyk@gmail.com> Piotr Stanczyk <pstanczyk@ilm.com>
+Piotr Stanczyk <piotr.stanczyk@gmail.com> pstanczyk <pstanczyk@ilm.com>
+Ralph Potter <r.potter@bath.ac.uk>
+r-a-sattarov <r.a.sattarov@yandex.ru>
+Rémi Achard <remiachard@gmail.com>
+Reto Kromer <retokromer@users.noreply.github.com>
+Richard Goedeken <Richard@fascinationsoftware.com>
+Sergey Fedorov <vital.had@gmail.com>
+Shawn Walker-Salas <shawn.walker@oracle.com>
+Simon Boorer <sboorer@ilm.com>
+Simon Otter <skurmedel@gmail.com>
+Srinath Ravichandran <srinath.pop@gmail.com>
+Thanh Ha <thanh.ha@linuxfoundation.org>
+Thomas Debesse <dev@illwieckz.net>
+Thorsten Kaufmann <thorsten.kaufmann@mackevision.de>
+Timothy Lyanguzov <theta682@gmail.com>
+Transporter <ogre.transporter@gmail.com>
+Vertexwahn <julian.amann@tum.de>
+Wenzel Jakob <wenzel@inf.ethz.ch>
+Wojciech Jarosz <wkjarosz@users.noreply.github.com> wjarosz <wjarosz>
+Xo Wang <xow@google.com>
+Yaakov Selkowitz <yselkowi@redhat.com>
+Yining Karl Li <betajippity@gmail.com>
+Yujie Shu <yshu@ilm.com> Yujie Shu (Intern) <yshu@ilm.com>
+zengwei2000 <102871671+zengwei2000@users.noreply.github.com>

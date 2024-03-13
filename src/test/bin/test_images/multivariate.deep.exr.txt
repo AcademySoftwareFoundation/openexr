@@ -1,0 +1,54 @@
+ channels  : id
+ hashScheme: MurmurHash3_32
+ encoding  : id
+ lifetime  : stable
+                model         material 
+     127035619  circle/medium red      
+     147085119  blob/big      cyan     
+     319332210  blob/medium   white    
+     409096490  circle/small  magenta  
+     523461226  circle/medium blue     
+     678492822  circle/big    blue     
+     683859976  circle/small  blue     
+     1058109025 circle/small  cyan     
+     1193275200 blob/medium   blue     
+     1503246798 blob/small    white    
+     1552124883 blob/medium   yellow   
+     1613501244 blob/small    cyan     
+     1672208113 blob/medium   green    
+     1687665471 blob/big      green    
+     1741895317 circle/medium yellow   
+     1841370478 blob/small    magenta  
+     1863854195 circle/small  red      
+     1865183722 circle/big    cyan     
+     2056745377 blob/big      magenta  
+     2202049807 blob/small    green    
+     2303547305 blob/small    blue     
+     2369798380 circle/medium magenta  
+     2433329986 circle/big    yellow   
+     2439705590 circle/medium cyan     
+     2505186565 circle/small  white    
+     2698909330 blob/small    yellow   
+     2862333315 blob/medium   magenta  
+     2898564507 circle/big    magenta  
+     2979371527 blob/big      blue     
+     3007860936 circle/big    red      
+     3182339638 circle/small  green    
+     3236172513 blob/big      white    
+     3497437340 blob/medium   red      
+     3626859046 blob/big      yellow   
+     3656820528 circle/medium white    
+     3693645783 blob/big      red      
+     3739501011 circle/small  yellow   
+     3936563811 circle/big    green    
+     4048943790 circle/medium green    
+
+
+ channels  : particleid
+ hashScheme: none
+ encoding  : id
+ lifetime  : shot
+      
+raw text size    : 1099
+uncompressed size: 449
+compressed size  : 416

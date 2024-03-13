@@ -1,0 +1,35 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright (c) Contributors to the OpenEXR Project.
+#
+# GitHub Actions workflow file
+# https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions
+
+#
+# This action adds a link to the PR description pointing to the
+# readthedocs build of the website, for PRs that modify the website.
+#
+# Note that the link is also available in the PR checks, but it gets
+# buried among the output of the checks and isn't obvious.
+#
+
+name: Website preview link
+on:
+  pull_request_target:
+    types:
+      - opened
+    paths:
+      - 'website/**'
+
+permissions:
+  pull-requests: write
+
+jobs:
+  pull-request-links:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: readthedocs/actions/preview@v1
+        with:
+          project-slug: "openexr"
+          message-template: "Website preview: {docs-pr-index-url}"
+
+      

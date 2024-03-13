@@ -81,8 +81,6 @@ namespace XXX {
 #include "C_IStream_read.cpp"
 #include "C_IStream_seekg.cpp"
 #include "C_IStream_tellg.cpp"
-#include "gamma.cpp"
-#include "makePreviewImage.cpp"
 #ifndef _WIN32
 #include "MemoryMappedIStream.cpp"
 #include "MemoryMappedIStream_isMemoryMapped.cpp"
@@ -109,6 +107,31 @@ namespace XXX {
 #include "writeGZ2.cpp"
 #include "writeRgba1.cpp"
 #include "writeRgba2.cpp"
+#include "readChannelsAndLayers.cpp"
+#include "tileDescription.cpp"
+#include "validExrFile.cpp"
+#include "previewImageExamples.cpp"
+
+
+void structDefinitions()
+{
+    #include "structDefinitions.cpp"
+}
+
+void multithreading()
+{
+    #include "multithreading.cpp"
+}
+
+void envmap()
+{
+    #include "envmap.cpp"
+}
+
+void compression()
+{
+    #include "compression.cpp"
+}
 
 int
 main(int argc, char* argv[])

@@ -848,6 +848,9 @@ main (int argc, char** argv)
                 outPart.copyPixels (inPart);
             }
         }
+
+        for (size_t i=0; i<attrs.size(); i++)
+            delete attrs[i].attr;
     }
     catch (const exception& e)
     {

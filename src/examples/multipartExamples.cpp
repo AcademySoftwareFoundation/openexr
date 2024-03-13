@@ -315,6 +315,18 @@ void resizeDeepBuffers (
 }
 
 template <typename T>
+void freeDeepBuffers (list<Array2D<T *>> & channels)
+{
+    for (auto i = channels.begin (); i != channels.end (); i++)
+    {
+        Array2D<T*> & channel = *i;
+        for (int y = 0; y < channel.height (); y++)
+            for (int x = 0; x < channel.width (); x++)
+                delete[] channel[y][x];
+    }
+}
+
+template <typename T>
 void modifyChannels(list<Array2D<T>> & channels, T delta)
 {
     //
@@ -474,6 +486,10 @@ void modifyMultipart ()
                 outputPart.setFrameBuffer (frameBuffer);
                 outputPart.writeTiles (0, outputPart.numXTiles () - 1, 0, outputPart.numYTiles () - 1);
             }
+
+            freeDeepBuffers(intChannels);
+            freeDeepBuffers(halfChannels);
+            freeDeepBuffers(floatChannels);
         }
     }
 }

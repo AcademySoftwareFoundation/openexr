@@ -37,6 +37,9 @@ usageMessage (ostream& stream, const char* program_name, bool verbose = false)
 
     if (verbose)
     {
+        std::string compressionNames;
+        getCompressionNamesString("/", compressionNames);
+
         stream << "\n"
             "Read an OpenEXR image from infile, produce a tiled\n"
             "version of the image, and save the result in outfile.\n"
@@ -71,7 +74,7 @@ usageMessage (ostream& stream, const char* program_name, bool verbose = false)
             "  -u            sets level size rounding to ROUND_UP\n"
             "\n"
             "  -z x          sets the data compression method to x\n"
-            "                (none/rle/zip/piz/pxr24/b44/b44a/dwaa/dwab,\n"
+            "                (" << compressionNames.c_str() << ",\n"
             "                default is zip)\n"
             "\n"
             "  -v            verbose mode\n"
@@ -93,44 +96,8 @@ Compression
 getCompression (const string& str)
 {
     Compression c;
-
-    if (str == "no" || str == "none" || str == "NO" || str == "NONE")
-    {
-        c = NO_COMPRESSION;
-    }
-    else if (str == "rle" || str == "RLE")
-    {
-        c = RLE_COMPRESSION;
-    }
-    else if (str == "zip" || str == "ZIP")
-    {
-        c = ZIP_COMPRESSION;
-    }
-    else if (str == "piz" || str == "PIZ")
-    {
-        c = PIZ_COMPRESSION;
-    }
-    else if (str == "pxr24" || str == "PXR24")
-    {
-        c = PXR24_COMPRESSION;
-    }
-    else if (str == "b44" || str == "B44")
-    {
-        c = B44_COMPRESSION;
-    }
-    else if (str == "b44a" || str == "B44A")
-    {
-        c = B44A_COMPRESSION;
-    }
-    else if (str == "dwaa" || str == "DWAA")
-    {
-        c = DWAA_COMPRESSION;
-    }
-    else if (str == "dwab" || str == "DWAB")
-    {
-        c = DWAB_COMPRESSION;
-    }
-    else
+    getCompressionIdFromName (str, c);
+    if (c == Compression::NUM_COMPRESSION_METHODS)
     {
         std::stringstream e;
         e << "Unknown compression method \"" << str << "\"";

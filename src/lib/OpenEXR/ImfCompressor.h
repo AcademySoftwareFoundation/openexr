@@ -163,28 +163,6 @@ private:
     const Header& _header;
 };
 
-//--------------------------------------
-// Test if c is a valid compression type
-//--------------------------------------
-
-IMF_EXPORT
-bool isValidCompression (Compression c);
-
-//--------------------------------------
-// Test if c is valid for deep data
-//--------------------------------------
-
-IMF_EXPORT
-bool isValidDeepCompression (Compression c);
-
-//---------------------------------------
-// Return true for compression types which
-// do not guarantee that HALF type values
-// are preserved precisely
-//---------------------------------------
-IMF_EXPORT
-bool isLossyCompression (Compression c);
-
 //-----------------------------------------------------------------
 // Construct a Compressor for compression type c:
 //

@@ -16,6 +16,7 @@ OpenEXR Concepts
    MultiViewOpenEXR
    InterpretingDeepPixels
    TheoryDeepPixels
+   DeepIDsSpecification
    OpenEXRFileLayout
    PortingGuide
    SymbolVisibility

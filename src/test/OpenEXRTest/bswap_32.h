@@ -19,8 +19,8 @@
 #    include <sys/types.h>
 #    define bswap_32(x) swap32 (x)
 #elif defined(__NetBSD__)
-#    include <sys/bswap.h>
 #    include <sys/types.h>
+#    include <machine/bswap.h>
 #    define bswap_32(x) bswap32 (x)
 #else
 #    include <byteswap.h>

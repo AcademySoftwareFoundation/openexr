@@ -6,6 +6,8 @@
 # standalone program linking against an already-installed OpenEXR
 # library.
 
+message(STATUS "Building OpenEXR examples")
+
 if("${CMAKE_PROJECT_NAME}" STREQUAL "")
   cmake_minimum_required(VERSION 3.12)
   project(OpenEXRExamples)
@@ -41,6 +43,16 @@ target_link_libraries(OpenEXRExamples OpenEXR::OpenEXR)
 set_target_properties(OpenEXRExamples PROPERTIES
   RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
 )
+
+add_executable(deepidexample deepidexample.cpp)
+target_link_libraries(deepidexample OpenEXR::OpenEXR)
+
+add_executable(deepidselect deepidselect.cpp)
+target_link_libraries(deepidselect OpenEXR::OpenEXR)
+
+
+
+
 if(WIN32 AND BUILD_SHARED_LIBS)
   target_compile_definitions(OpenEXRExamples PRIVATE OPENEXR_DLL)
 endif()

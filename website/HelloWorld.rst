@@ -11,33 +11,40 @@ Hello, World
    :caption: Hello, World
    :maxdepth: 1
 
-A simple program to write a simple ``.exr`` file of an image of 10x10
-pixels with values that are a ramp in green and blue:
+Write an Image
+==============
 
-.. literalinclude:: src/writer/writer.cpp
+This example :download:`exrwriter.cpp <src/exrwriter/exrwriter.cpp>`
+program writes a simple ``hello.exr`` file of an image of 10x10 pixels with
+values that are a ramp in green and blue:
 
-And the ``CMakeLists.txt`` file to build:
+.. literalinclude:: src/exrwriter/exrwriter.cpp
+
+And the :download:`CMakeLists.txt <src/exrwriter/CMakeLists.txt>` file to build:
    
-.. literalinclude:: src/writer/CMakeLists.txt
+.. literalinclude:: src/exrwriter/CMakeLists.txt
 
 To build:
 
-.. literalinclude:: src/writer/build.sh
+.. literalinclude:: src/exrwriter/build.sh
 
 For more details, see :ref:`The OpenEXR API`.
 
-And a simple program to read an ``.exr`` file:
+Read an Image
+=============
 
-.. literalinclude:: src/reader/reader.cpp
+This companion example :download:`exrreader.cpp <src/exrreader/exrreader.cpp>`
+program reads the ``hello.exr`` file written by the writer program above:
 
+.. literalinclude:: src/exrreader/exrreader.cpp
 
-And the ``CMakeLists.txt`` file to build:
+And the :download:`CMakeLists.txt <src/exrreader/CMakeLists.txt>` file to build:
    
-.. literalinclude:: src/reader/CMakeLists.txt
+.. literalinclude:: src/exrreader/CMakeLists.txt
 
 To build:
 
-.. literalinclude:: src/reader/build.sh
+.. literalinclude:: src/exrreader/build.sh
 
 
               

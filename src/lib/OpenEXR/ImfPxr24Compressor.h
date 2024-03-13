@@ -24,10 +24,10 @@ public:
 
     virtual ~Pxr24Compressor ();
 
-    Pxr24Compressor (const Pxr24Compressor& other) = delete;
+    Pxr24Compressor (const Pxr24Compressor& other)            = delete;
     Pxr24Compressor& operator= (const Pxr24Compressor& other) = delete;
     Pxr24Compressor (Pxr24Compressor&& other)                 = delete;
-    Pxr24Compressor& operator= (Pxr24Compressor&& other) = delete;
+    Pxr24Compressor& operator= (Pxr24Compressor&& other)      = delete;
 
     virtual int numScanLines () const;
 
