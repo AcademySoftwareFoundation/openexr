@@ -45,6 +45,7 @@ openexr_define_library(OpenEXRCore
     internal_piz.c
     internal_dwa.c
     internal_huf.c
+    internal_zstd.c
 
     attributes.c
     string.c
@@ -102,6 +103,7 @@ openexr_define_library(OpenEXRCore
 
   DEPENDENCIES
     Imath::Imath
+    Blosc2::blosc2_static
   )
 
 if (DEFINED EXR_DEFLATE_LIB)

@@ -22,6 +22,7 @@
 #include "ImfTiledMisc.h"
 #include "ImfTimeCodeAttribute.h"
 #include "ImfVersion.h"
+#include "openexr_compression.h"
 
 #include <OpenEXRConfig.h>
 

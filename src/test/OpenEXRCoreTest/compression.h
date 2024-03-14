@@ -18,9 +18,11 @@ void testB44Compression (const std::string& tempdir);
 void testB44ACompression (const std::string& tempdir);
 void testDWAACompression (const std::string& tempdir);
 void testDWABCompression (const std::string& tempdir);
+void testZstdCompression (const std::string& tempdir);
 
 void testDeepNoCompression (const std::string& tempdir);
 void testDeepZIPCompression (const std::string& tempdir);
 void testDeepZIPSCompression (const std::string& tempdir);
+void testDeepZstdCompression (const std::string& tempdir);
 
 #endif // OPENEXR_CORE_TEST_COMPRESSION_H

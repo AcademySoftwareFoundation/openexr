@@ -18,6 +18,8 @@
 #include "ImfPxr24Compressor.h"
 #include "ImfRleCompressor.h"
 #include "ImfZipCompressor.h"
+#include "ImfZstdCompressor.h"
+#include "openexr_compression.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
@@ -99,6 +101,10 @@ newCompressor (Compression c, size_t maxScanLineSize, const Header& hdr)
                 256,
                 DwaCompressor::STATIC_HUFFMAN);
 
+        case ZSTD_COMPRESSION:
+
+            return new ZstdCompressor (hdr);
+
         default: return 0;
     }
     // clang-format on
@@ -163,6 +169,10 @@ newTileCompressor (
                 static_cast<int> (tileLineSize),
                 static_cast<int> (numTileLines),
                 DwaCompressor::STATIC_HUFFMAN);
+
+        case ZSTD_COMPRESSION:
+
+            return new ZstdCompressor (hdr);
 
         default: return 0;
     }
