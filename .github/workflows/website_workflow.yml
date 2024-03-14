@@ -6,27 +6,23 @@
 
 name: Website
 
-# Run only on changes in the "website" directory.
+# Run only on changes in the "website" directory or workflow file.
 # Skip the release branches, since the website is built from main.
 
 on:
   push:
     branches:-ignore:
-      - RB-2.*
-      - RB-3.*
-    tags-ignore:
-      - v3.[0-9]+.[0-9]+-rc*
+      - RB-*
     paths:
       - 'website/**'
+      - '.github/workflows/website_workflow.yml'
       
   pull_request:
     branches:-ignore:
-      - RB-2.*
-      - RB-3.*
-    tags-ignore:
-      - v3.[0-9]+.[0-9]+-rc*
+      - RB-*
     paths:
       - 'website/**'
+      - '.github/workflows/website_workflow.yml'
 
 permissions:
   contents: read
