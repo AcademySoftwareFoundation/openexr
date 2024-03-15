@@ -14,7 +14,7 @@ unset(openexr_needthreads)
 
 find_dependency(Imath)
 
-if (libdeflate_FOUND)
+if (@libdeflate_FOUND@)
   find_dependency(libdeflate)
 endif()
 
