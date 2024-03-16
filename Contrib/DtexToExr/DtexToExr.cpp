@@ -110,10 +110,7 @@ ConvertDtexFile (
             PXDU_THROW (
                 "error (" << dtexOpenError << " opening file: " << i_fileName);
         }
-        else
-        {
-            PXDU_THROW ("missing file: " << i_fileName);
-        }
+        else { PXDU_THROW ("missing file: " << i_fileName); }
     }
 
     // Just handling the first image in the Dtex file for now.
@@ -438,34 +435,13 @@ ParseArguments (
             }
             o_exrFileName = arg;
         }
-        else if (arg == "--deepOpacity")
-        {
-            o_params.deepOpacity = true;
-        }
-        else if (arg == "--deepAlpha")
-        {
-            o_params.deepOpacity = false;
-        }
-        else if (arg == "--discrete")
-        {
-            o_params.discrete = true;
-        }
-        else if (arg == "--continuous")
-        {
-            o_params.discrete = false;
-        }
-        else if (arg == "--full")
-        {
-            o_full = true;
-        }
-        else if (arg == "--half")
-        {
-            o_full = false;
-        }
-        else if (arg == "--multRgb")
-        {
-            o_params.multiplyColorByAlpha = true;
-        }
+        else if (arg == "--deepOpacity") { o_params.deepOpacity = true; }
+        else if (arg == "--deepAlpha") { o_params.deepOpacity = false; }
+        else if (arg == "--discrete") { o_params.discrete = true; }
+        else if (arg == "--continuous") { o_params.discrete = false; }
+        else if (arg == "--full") { o_full = true; }
+        else if (arg == "--half") { o_full = false; }
+        else if (arg == "--multRgb") { o_params.multiplyColorByAlpha = true; }
         else if (arg == "--sideways")
         {
             if (argi <= argc - 1)
@@ -493,10 +469,7 @@ ParseArguments (
                         "Invalid parameter for --sideways: " << argv[argi + 1]);
                 }
             }
-            else
-            {
-                o_params.sideways = true;
-            }
+            else { o_params.sideways = true; }
         }
         else if (arg == "--compressionError")
         {

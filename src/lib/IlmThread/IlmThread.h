@@ -100,9 +100,9 @@ private:
 #endif
 
     Thread& operator= (const Thread& t) = delete;
-    Thread& operator= (Thread&& t) = delete;
-    Thread (const Thread& t)       = delete;
-    Thread (Thread&& t)            = delete;
+    Thread& operator= (Thread&& t)      = delete;
+    Thread (const Thread& t)            = delete;
+    Thread (Thread&& t)                 = delete;
 };
 
 ILMTHREAD_INTERNAL_NAMESPACE_HEADER_EXIT

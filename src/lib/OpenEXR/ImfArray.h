@@ -90,10 +90,10 @@ public:
     long size () const { return _size; }
 
 private:
-    Array (const Array&) = delete;
+    Array (const Array&)            = delete;
     Array& operator= (const Array&) = delete;
     Array (Array&&)                 = delete;
-    Array& operator= (Array&&) = delete;
+    Array& operator= (Array&&)      = delete;
 
     long _size;
     T*   _data;
@@ -140,10 +140,10 @@ public:
     long width () const { return _sizeY; }
 
 private:
-    Array2D (const Array2D&) = delete;
+    Array2D (const Array2D&)            = delete;
     Array2D& operator= (const Array2D&) = delete;
     Array2D (Array2D&&)                 = delete;
-    Array2D& operator= (Array2D&&) = delete;
+    Array2D& operator= (Array2D&&)      = delete;
 
     long _sizeX;
     long _sizeY;

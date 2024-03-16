@@ -86,7 +86,7 @@ public:
     vector<string>
         _channels; // channel names - same size and order as in all other arrays,
     vector<T>
-                      _current_result; // one value per channel: the ground truth value for the given pixel
+        _current_result; // one value per channel: the ground truth value for the given pixel
     vector<vector<T>> _results; // a list of result pixels
 
     bool _inserting_result;
@@ -105,20 +105,14 @@ public:
         {
             _type = OPENEXR_IMF_NAMESPACE::HALF;
         }
-        else
-        {
-            _type = OPENEXR_IMF_NAMESPACE::FLOAT;
-        }
+        else { _type = OPENEXR_IMF_NAMESPACE::FLOAT; }
     }
 
     // add a value to the current sample
     data& operator<< (float value)
     {
         if (_inserting_result) { _current_result.push_back (value); }
-        else
-        {
-            _current_sample.push_back (T (value));
-        }
+        else { _current_sample.push_back (T (value)); }
         _started = true;
         return *this;
     }
@@ -290,13 +284,15 @@ public:
             sizeof (unsigned int) * (dw.size ().x + 1)));
         for (size_t c = 0; c < _channels.size (); c++)
         {
-            fb.insert(_channels[c],
-                      DeepSlice(_type,(char *)(&sample_pointers[c][0]-dw.min.x-(dw.size().x+1)*dw.min.y),
-                            sizeof(T *),
-                            sizeof(T *)*(dw.size().x+1),
-                            sizeof(T)
-                            )
-                     );
+            fb.insert (
+                _channels[c],
+                DeepSlice (
+                    _type,
+                    (char*) (&sample_pointers[c][0] - dw.min.x -
+                             (dw.size ().x + 1) * dw.min.y),
+                    sizeof (T*),
+                    sizeof (T*) * (dw.size ().x + 1),
+                    sizeof (T)));
         }
         part.setFrameBuffer (fb);
         part.writePixels (dw.size ().y + 1);
@@ -547,10 +543,7 @@ write_file (const char* filename, const data<T>& main, int number_of_parts)
     {
         DeepScanLineOutputPart p (f, i);
         if (number_of_parts == 1) { main.writeData (p); }
-        else
-        {
-            sub_parts[i].writeData (p);
-        }
+        else { sub_parts[i].writeData (p); }
     }
 }
 
@@ -583,8 +576,7 @@ test_parts (
             comp.addSource (parts[i]);
         }
 
-        main.setUpFrameBuffer (
-            data, testbuf, comp.dataWindow (), load_depths);
+        main.setUpFrameBuffer (data, testbuf, comp.dataWindow (), load_depths);
 
         comp.setFrameBuffer (testbuf);
 

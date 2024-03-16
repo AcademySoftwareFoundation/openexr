@@ -288,7 +288,7 @@ exr_print_context_info (exr_const_context_t ctxt, int verbose)
             (int) ctxt->version,
             ctxt->is_singlepart_tiled ? " singletile" : "",
             ctxt->max_name_length == EXR_LONGNAME_MAXLEN ? " longnames"
-                                                          : " shortnames",
+                                                         : " shortnames",
             ctxt->has_nonimage_data ? " deep" : "",
             ctxt->is_multipart ? " multipart" : "");
         printf (" parts: %d\n", ctxt->num_parts);

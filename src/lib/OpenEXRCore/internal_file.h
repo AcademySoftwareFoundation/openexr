@@ -23,18 +23,15 @@ exr_result_t internal_exr_check_magic (exr_context_t ctxt);
 /* in openexr_parse_header.c, reads the header and populates the file structure */
 exr_result_t internal_exr_parse_header (exr_context_t ctxt);
 exr_result_t internal_exr_compute_tile_information (
-    exr_context_t   ctxt,
-    exr_priv_part_t curpart,
-    int             rebuild);
-int32_t
-internal_exr_compute_chunk_offset_size (exr_priv_part_t curpart);
+    exr_context_t ctxt, exr_priv_part_t curpart, int rebuild);
+int32_t internal_exr_compute_chunk_offset_size (exr_priv_part_t curpart);
 
 exr_result_t internal_exr_write_header (exr_context_t ctxt);
 
 /* in openexr_validate.c, functions to validate the header during read / pre-write */
-exr_result_t internal_exr_validate_read_part (
-    exr_context_t ctxt, exr_priv_part_t curpart);
-exr_result_t internal_exr_validate_write_part (
-    exr_context_t ctxt, exr_priv_part_t curpart);
+exr_result_t
+internal_exr_validate_read_part (exr_context_t ctxt, exr_priv_part_t curpart);
+exr_result_t
+internal_exr_validate_write_part (exr_context_t ctxt, exr_priv_part_t curpart);
 
 #endif /* OPENEXR_PRIVATE_FILE_UTIL_H */

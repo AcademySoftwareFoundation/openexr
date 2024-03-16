@@ -275,10 +275,10 @@ private:
     // Copy constructor and assignment are not implemented
     //
 
-    TiledRgbaOutputFile (const TiledRgbaOutputFile&) = delete;
+    TiledRgbaOutputFile (const TiledRgbaOutputFile&)            = delete;
     TiledRgbaOutputFile& operator= (const TiledRgbaOutputFile&) = delete;
     TiledRgbaOutputFile (TiledRgbaOutputFile&&)                 = delete;
-    TiledRgbaOutputFile& operator= (TiledRgbaOutputFile&&) = delete;
+    TiledRgbaOutputFile& operator= (TiledRgbaOutputFile&&)      = delete;
 
     class IMF_HIDDEN ToYa;
 
@@ -489,10 +489,10 @@ private:
     // Copy constructor and assignment are not implemented
     //
 
-    TiledRgbaInputFile (const TiledRgbaInputFile&) = delete;
+    TiledRgbaInputFile (const TiledRgbaInputFile&)            = delete;
     TiledRgbaInputFile& operator= (const TiledRgbaInputFile&) = delete;
     TiledRgbaInputFile (TiledRgbaInputFile&&)                 = delete;
-    TiledRgbaInputFile& operator= (TiledRgbaInputFile&&) = delete;
+    TiledRgbaInputFile& operator= (TiledRgbaInputFile&&)      = delete;
 
     class FromYa;
 

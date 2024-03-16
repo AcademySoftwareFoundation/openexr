@@ -35,13 +35,17 @@ using std::vector;
 void
 printHelp ()
 {
+    cerr << "syntax: deepidexample options output.deep.exr\n\n";
     cerr
-        << "syntax: deepidexample options output.deep.exr\n\n";
-    cerr << "--multivariate      : combine 'material' and 'model' name into a single ID channel, rather than separate channels\n";
-    cerr << "--64                : use 64 bit hashes in two channels, rather than a single channel 32 bit hash\n";
-    cerr << "--frame  number     : specify animation frame number. Animation cycles every 200 frames\n";
-    cerr << "--objectid          : store object ids in a simple stringvector format rather than the idmanifest attribute\n";
-    cerr << "--size width height : specify image dimensions for output (default 256 256)\n";
+        << "--multivariate      : combine 'material' and 'model' name into a single ID channel, rather than separate channels\n";
+    cerr
+        << "--64                : use 64 bit hashes in two channels, rather than a single channel 32 bit hash\n";
+    cerr
+        << "--frame  number     : specify animation frame number. Animation cycles every 200 frames\n";
+    cerr
+        << "--objectid          : store object ids in a simple stringvector format rather than the idmanifest attribute\n";
+    cerr
+        << "--size width height : specify image dimensions for output (default 256 256)\n";
     cerr << "--count number      : number of objects to write (default 100)\n";
 }
 
@@ -56,7 +60,7 @@ struct Rgbaz
     //
     // depth sort (use ID to resolve ties)
     //
-    bool operator<(const Rgbaz& other) const
+    bool operator< (const Rgbaz& other) const
     {
         if (z < other.z) { return true; }
         if (z > other.z) { return false; }

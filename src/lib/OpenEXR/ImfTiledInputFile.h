@@ -59,10 +59,10 @@ public:
     IMF_EXPORT
     virtual ~TiledInputFile ();
 
-    TiledInputFile (const TiledInputFile& other) = delete;
+    TiledInputFile (const TiledInputFile& other)            = delete;
     TiledInputFile& operator= (const TiledInputFile& other) = delete;
     TiledInputFile (TiledInputFile&& other)                 = delete;
-    TiledInputFile& operator= (TiledInputFile&& other) = delete;
+    TiledInputFile& operator= (TiledInputFile&& other)      = delete;
 
     //------------------------
     // Access to the file name

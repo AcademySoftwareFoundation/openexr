@@ -31,8 +31,8 @@ fill1 (
     IMATH_NAMESPACE::Rand48& rand48)
 {
     for (int i = 0; i < n; ++i)
-        data[i] =
-            (unsigned short) (pow (rand48.nextf (), double (bias)) * (USHRT_MAX + 1));
+        data[i] = (unsigned short) (pow (rand48.nextf (), double (bias)) *
+                                    (USHRT_MAX + 1));
 }
 
 void
@@ -194,10 +194,7 @@ compressVerify (const unsigned short raw[], int n, const unsigned int dekHash)
         {
             cout << std::hex << (0xFF & (int) (*cptr++));
             if ((i & 0xF) == 0) { cout << '\n'; }
-            else
-            {
-                cout << ' ';
-            }
+            else { cout << ' '; }
         }
         cout << "\n";
     }

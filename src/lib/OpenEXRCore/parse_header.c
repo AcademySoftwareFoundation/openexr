@@ -20,10 +20,7 @@
 /**************************************/
 
 static exr_result_t
-silent_error (
-    exr_const_context_t pctxt,
-    exr_result_t        code,
-    const char*         msg)
+silent_error (exr_const_context_t pctxt, exr_result_t code, const char* msg)
 {
     (void) pctxt;
     (void) msg;
@@ -31,8 +28,7 @@ silent_error (
 }
 
 static exr_result_t
-silent_standard_error (
-    exr_const_context_t pctxt, exr_result_t code)
+silent_standard_error (exr_const_context_t pctxt, exr_result_t code)
 {
     (void) pctxt;
     return code;
@@ -40,10 +36,7 @@ silent_standard_error (
 
 static exr_result_t
 silent_print_error (
-    exr_const_context_t pctxt,
-    exr_result_t        code,
-    const char*         msg,
-    ...)
+    exr_const_context_t pctxt, exr_result_t code, const char* msg, ...)
 {
     (void) pctxt;
     (void) msg;
@@ -68,8 +61,7 @@ struct _internal_exr_seq_scratch
 };
 
 static inline int
-scratch_attr_too_big (
-    struct _internal_exr_seq_scratch* scr, int32_t attrsz)
+scratch_attr_too_big (struct _internal_exr_seq_scratch* scr, int32_t attrsz)
 {
     int64_t acmp = (int64_t) attrsz;
     if (scr->ctxt->file_size > 0 && (acmp > scr->navail))
@@ -220,9 +212,7 @@ scratch_seq_skip (struct _internal_exr_seq_scratch* scr, int32_t sz)
 
 static exr_result_t
 priv_init_scratch (
-    exr_context_t                     ctxt,
-    struct _internal_exr_seq_scratch* scr,
-    uint64_t                          offset)
+    exr_context_t ctxt, struct _internal_exr_seq_scratch* scr, uint64_t offset)
 {
     scr->curpos          = 0;
     scr->navail          = 0;
@@ -256,7 +246,7 @@ check_bad_attrsz (
     const char*                       tname,
     int32_t*                          outsz)
 {
-    int32_t       n = attrsz;
+    int32_t n = attrsz;
 
     *outsz = n;
     if (attrsz < 0)
@@ -343,12 +333,12 @@ extract_attr_chlist (
     const char*                       tname,
     int32_t                           attrsz)
 {
-    char          chname[256];
-    int32_t       chlen;
-    int32_t       ptype, xsamp, ysamp;
-    uint8_t       flags[4];
-    int32_t       maxlen = ctxt->max_name_length;
-    exr_result_t  rv;
+    char         chname[256];
+    int32_t      chlen;
+    int32_t      ptype, xsamp, ysamp;
+    uint8_t      flags[4];
+    int32_t      maxlen = ctxt->max_name_length;
+    exr_result_t rv;
 
     rv = check_bad_attrsz (scratch, attrsz, 1, aname, tname, &chlen);
 
@@ -513,8 +503,8 @@ extract_attr_float_vector (
     const char*                       tname,
     int32_t                           attrsz)
 {
-    int32_t       n  = 0;
-    exr_result_t  rv = check_bad_attrsz (
+    int32_t      n  = 0;
+    exr_result_t rv = check_bad_attrsz (
         scratch, attrsz, (int) sizeof (float), aname, tname, &n);
 
     /* in case of duplicate attr name in header (mostly fuzz testing) */
@@ -556,7 +546,7 @@ extract_attr_string (
     int32_t                           attrsz,
     char*                             strptr)
 {
-    exr_result_t  rv   =
+    exr_result_t rv =
         scratch->sequential_read (scratch, (void*) strptr, (uint64_t) attrsz);
 
     if (rv != EXR_ERR_SUCCESS)
@@ -739,8 +729,8 @@ extract_attr_opaque (
     const char*                       tname,
     int32_t                           attrsz)
 {
-    int32_t       n;
-    exr_result_t  rv;
+    int32_t      n;
+    exr_result_t rv;
 
     rv = check_bad_attrsz (scratch, attrsz, 1, aname, tname, &n);
     if (rv != EXR_ERR_SUCCESS) return rv;
@@ -776,10 +766,10 @@ extract_attr_preview (
     const char*                       tname,
     int32_t                           attrsz)
 {
-    uint64_t      bytes;
-    uint32_t      sz[2];
-    exr_result_t  rv;
-    int64_t       fsize = ctxt->file_size;
+    uint64_t     bytes;
+    uint32_t     sz[2];
+    exr_result_t rv;
+    int64_t      fsize = ctxt->file_size;
 
     /* mostly for fuzzing, but just in case there's a duplicate name */
     exr_attr_preview_destroy (ctxt, attrdata);
@@ -1471,8 +1461,7 @@ check_populate_name (
     uint8_t*     outstr;
     int32_t      n;
 
-    rv = check_bad_attrsz (
-        scratch, attrsz, 1, EXR_REQ_NAME_STR, tname, &n);
+    rv = check_bad_attrsz (scratch, attrsz, 1, EXR_REQ_NAME_STR, tname, &n);
     if (rv != EXR_ERR_SUCCESS) return rv;
 
     if (curpart->name)
@@ -1515,18 +1504,14 @@ check_populate_name (
     rv = scratch->sequential_read (scratch, outstr, (uint64_t) attrsz);
     if (rv != EXR_ERR_SUCCESS)
     {
-        exr_attr_list_remove (
-            ctxt, &(curpart->attributes), curpart->name);
+        exr_attr_list_remove (ctxt, &(curpart->attributes), curpart->name);
         curpart->name = NULL;
         return ctxt->report_error (ctxt, rv, "Unable to read 'name' data");
     }
     outstr[attrsz] = '\0';
 
     rv = exr_attr_string_init_static_with_length (
-        ctxt,
-        curpart->name->string,
-        (const char*) outstr,
-        attrsz);
+        ctxt, curpart->name->string, (const char*) outstr, attrsz);
     if (rv != EXR_ERR_SUCCESS)
     {
         exr_attr_list_remove (
@@ -1552,8 +1537,7 @@ check_populate_type (
     uint8_t*     outstr;
     int32_t      n;
 
-    rv = check_bad_attrsz (
-        scratch, attrsz, 1, EXR_REQ_TYPE_STR, tname, &n);
+    rv = check_bad_attrsz (scratch, attrsz, 1, EXR_REQ_TYPE_STR, tname, &n);
     if (rv != EXR_ERR_SUCCESS) return rv;
 
     if (curpart->type)
@@ -1603,10 +1587,7 @@ check_populate_type (
     outstr[attrsz] = '\0';
 
     rv = exr_attr_string_init_static_with_length (
-        ctxt,
-        curpart->type->string,
-        (const char*) outstr,
-        attrsz);
+        ctxt, curpart->type->string, (const char*) outstr, attrsz);
     if (rv != EXR_ERR_SUCCESS)
     {
         exr_attr_list_remove (ctxt, &(curpart->attributes), curpart->type);
@@ -1914,13 +1895,7 @@ pull_attr (
     else
     {
         rv = exr_attr_list_add_by_type (
-            ctxt,
-            &(curpart->attributes),
-            name,
-            type,
-            0,
-            NULL,
-            &nattr);
+            ctxt, &(curpart->attributes), name, type, 0, NULL, &nattr);
     }
 
     if (rv != EXR_ERR_SUCCESS)
@@ -2143,9 +2118,7 @@ calc_level_size (
 
 exr_result_t
 internal_exr_compute_tile_information (
-    exr_context_t   ctxt,
-    exr_priv_part_t curpart,
-    int             rebuild)
+    exr_context_t ctxt, exr_priv_part_t curpart, int rebuild)
 {
     exr_result_t rv = EXR_ERR_SUCCESS;
     if (curpart->storage_mode == EXR_STORAGE_SCANLINE ||
@@ -2240,9 +2213,9 @@ internal_exr_compute_tile_information (
                     dw.max.x,
                     sx,
                     l);
-            levcntX[l] =
-                (int32_t) (((uint64_t) sx + tiledesc->x_size - 1) / tiledesc->x_size);
-            levszX[l] = (int32_t) sx;
+            levcntX[l] = (int32_t) (((uint64_t) sx + tiledesc->x_size - 1) /
+                                    tiledesc->x_size);
+            levszX[l]  = (int32_t) sx;
         }
 
         for (int32_t l = 0; l < numY; ++l)
@@ -2259,9 +2232,9 @@ internal_exr_compute_tile_information (
                     dw.max.y,
                     sy,
                     l);
-            levcntY[l] =
-                (int32_t) (((uint64_t) sy + tiledesc->y_size - 1) / tiledesc->y_size);
-            levszY[l] = (int32_t) sy;
+            levcntY[l] = (int32_t) (((uint64_t) sy + tiledesc->y_size - 1) /
+                                    tiledesc->y_size);
+            levszY[l]  = (int32_t) sy;
         }
 
         curpart->tile_level_tile_count_x = levcntX;
@@ -2396,8 +2369,7 @@ internal_exr_compute_chunk_offset_size (exr_priv_part_t curpart)
 
 static exr_result_t
 update_chunk_offsets (
-    exr_context_t                     ctxt,
-    struct _internal_exr_seq_scratch* scratch)
+    exr_context_t ctxt, struct _internal_exr_seq_scratch* scratch)
 {
     exr_priv_part_t curpart, prevpart;
 
@@ -2457,8 +2429,7 @@ update_chunk_offsets (
 /**************************************/
 
 static exr_result_t
-read_magic_and_flags (
-    exr_context_t ctxt, uint32_t* outflags, uint64_t* initpos)
+read_magic_and_flags (exr_context_t ctxt, uint32_t* outflags, uint64_t* initpos)
 {
     uint32_t     magic_and_version[2];
     uint32_t     flags;

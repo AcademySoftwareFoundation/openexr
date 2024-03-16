@@ -90,10 +90,7 @@ WriterThread::run ()
             _outfile->writePixels (n);
             remainingScanlines -= n;
         }
-        else
-        {
-            break;
-        }
+        else { break; }
     }
 
     //

@@ -42,39 +42,44 @@
 #    include <fcntl.h>
 #    include <unistd.h>
 
-static int compare_files (const char *fn, const char *fn2)
+static int
+compare_files (const char* fn, const char* fn2)
 {
     struct stat sb1, sb2;
-    if ( 0 == stat (fn, &sb1) && 0 == stat (fn2, &sb2))
+    if (0 == stat (fn, &sb1) && 0 == stat (fn2, &sb2))
     {
         if (sb1.st_size != sb2.st_size)
         {
-            std::cerr << "File sizes do not match: '" << fn << "' " << sb1.st_size << " '" << fn2 << "' " << sb2.st_size << std::endl;
+            std::cerr << "File sizes do not match: '" << fn << "' "
+                      << sb1.st_size << " '" << fn2 << "' " << sb2.st_size
+                      << std::endl;
             return 1;
         }
         int fd1, fd2;
         int ret = 0;
-        fd1 = open (fn, O_RDONLY);
-        fd2 = open (fn2, O_RDONLY);
+        fd1     = open (fn, O_RDONLY);
+        fd2     = open (fn2, O_RDONLY);
         if (fd1 >= 0 && fd2 >= 0)
         {
             uint8_t buf1[512], buf2[512];
-            size_t toRead = sb1.st_size;
-            size_t chunkReq = sizeof(buf1);
-            size_t offset = 0;
+            size_t  toRead   = sb1.st_size;
+            size_t  chunkReq = sizeof (buf1);
+            size_t  offset   = 0;
             while (toRead > 0)
             {
                 ssize_t nr1 = read (fd1, buf1, chunkReq);
                 ssize_t nr2 = read (fd2, buf2, chunkReq);
                 if (nr1 < 0 || nr2 < 0)
                 {
-                    std::cerr << "Unable to read from files " << nr1 << ", " << nr2 << std::endl;
+                    std::cerr << "Unable to read from files " << nr1 << ", "
+                              << nr2 << std::endl;
                     ret = -1;
                     break;
                 }
                 if (nr1 != nr2)
                 {
-                    std::cerr << "Mismatch in read amounts " << nr1 << ", " << nr2 << std::endl;
+                    std::cerr << "Mismatch in read amounts " << nr1 << ", "
+                              << nr2 << std::endl;
                     ret = -1;
                     break;
                 }
@@ -82,11 +87,13 @@ static int compare_files (const char *fn, const char *fn2)
                 {
                     if (memcmp (buf1, buf2, nr1) != 0)
                     {
-                        for ( ssize_t b = 0; b < nr1; ++b )
+                        for (ssize_t b = 0; b < nr1; ++b)
                         {
                             if (buf1[b] != buf2[b])
                             {
-                                std::cerr << "Files '" << fn << "' and '" << fn2 << "' differ in chunk starting at " << offset + b << std::endl;
+                                std::cerr << "Files '" << fn << "' and '" << fn2
+                                          << "' differ in chunk starting at "
+                                          << offset + b << std::endl;
                                 break;
                             }
                         }
@@ -104,7 +111,8 @@ static int compare_files (const char *fn, const char *fn2)
     }
     else
     {
-        std::cerr << "Unable to stat '" << fn << "' and '" << fn2 << "'" << std::endl;
+        std::cerr << "Unable to stat '" << fn << "' and '" << fn2 << "'"
+                  << std::endl;
     }
     return -1;
 }
@@ -161,13 +169,12 @@ withinDWAErrorBounds (const uint16_t a, const uint16_t b)
     float a1 = imath_half_to_float (a);
     if (!std::isnan (a1))
     {
-        float a2 = imath_half_to_float (b);
-        float denominator =
-            std::max (1.f, std::max (fabsf (a2), fabsf (a1)));
+        float a2          = imath_half_to_float (b);
+        float denominator = std::max (1.f, std::max (fabsf (a2), fabsf (a1)));
         if (fabs (a1 / denominator - a2 / denominator) >= 0.1)
         {
-            std::cerr << "DWA" << " B bits " << std::hex << b
-                      << std::dec << " (" << a2
+            std::cerr << "DWA"
+                      << " B bits " << std::hex << b << std::dec << " (" << a2
                       << ") too different from A1 bits " << std::hex << a
                       << std::dec << " (" << a1 << ")"
                       << " delta " << fabs (a1 / denominator - a2 / denominator)
@@ -470,7 +477,8 @@ struct pixels
                       << " not equal: " << taga << " 0x" << std::hex << a
                       << std::dec << " (" << imath_half_to_float (a) << ") vs "
                       << tagb << " 0x" << std::hex << b << std::hex << " ("
-                      << imath_half_to_float (b) << ")" << std::dec << std::endl;
+                      << imath_half_to_float (b) << ")" << std::dec
+                      << std::endl;
         }
         EXRCORE_TEST (a == b);
     }
@@ -626,7 +634,9 @@ struct pixels
                     for (int c = 0; c < 4; ++c)
                     {
                         EXRCORE_TEST_LOCATION (
-                            withinDWAErrorBounds (o.rgba[c][idx], rgba[c][idx]), x, y)
+                            withinDWAErrorBounds (o.rgba[c][idx], rgba[c][idx]),
+                            x,
+                            y)
                     }
                 }
             }
@@ -1351,14 +1361,11 @@ doWriteRead (
 
 #ifdef __linux
     if (getenv ("ENABLE_EXACT_FILE_COMPARE") &&
-        0 != compare_files (filename.c_str(), cppfilename.c_str()))
+        0 != compare_files (filename.c_str (), cppfilename.c_str ()))
     {
         EXRCORE_TEST_FAIL (compare_files);
     }
-    else
-    {
-        compare_files (filename.c_str(), cppfilename.c_str());
-    }
+    else { compare_files (filename.c_str (), cppfilename.c_str ()); }
 #endif
     pixels restore    = p;
     pixels cpprestore = p;
@@ -1494,10 +1501,11 @@ testHUF (const std::string& tempdir)
     // decsize 1 << 16 + 1
     // decsize 1 << 14
     EXRCORE_TEST (esize == 65537 * (8 + 8 + sizeof (uint64_t*) + 4));
-    const uint64_t hufdecsize = (sizeof (uint32_t*) + sizeof(int32_t) + sizeof(uint32_t));
+    const uint64_t hufdecsize =
+        (sizeof (uint32_t*) + sizeof (int32_t) + sizeof (uint32_t));
     // sizeof(FastHufDecoder) is bother to manually compute, just assume it's ok
     // if it's returning at least enough for the slow path
-    EXRCORE_TEST (dsize >= (65537 * sizeof(uint64_t) + 16383 * hufdecsize));
+    EXRCORE_TEST (dsize >= (65537 * sizeof (uint64_t) + 16383 * hufdecsize));
 
     std::vector<uint8_t> hspare;
 

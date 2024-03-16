@@ -9,7 +9,7 @@
 #include "OpenEXRConfig.h"
 #include "OpenEXRConfigInternal.h"
 #if defined(_MSC_VER)
-#include <intrin.h>
+#    include <intrin.h>
 #endif
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
@@ -22,20 +22,21 @@ namespace
 void
 cpuid (int n, int& eax, int& ebx, int& ecx, int& edx)
 {
-    __asm__ __volatile__(
+    __asm__ __volatile__ (
         "cpuid"
         : /* Output  */ "=a"(eax), "=b"(ebx), "=c"(ecx), "=d"(edx)
         : /* Input   */ "a"(n)
         : /* Clobber */);
 }
 
-#elif defined(_MSC_VER) && ( defined(_M_IX86) || ( defined(_M_AMD64) && !defined(_M_ARM64EC) ) )
+#elif defined(_MSC_VER) &&                                                     \
+    (defined(_M_IX86) || (defined(_M_AMD64) && !defined(_M_ARM64EC)))
 
 // Helper functions for MSVC
 void
 cpuid (int n, int& eax, int& ebx, int& ecx, int& edx)
 {
-    int cpuInfo[4] = { -1 };
+    int cpuInfo[4] = {-1};
     __cpuid (cpuInfo, n);
     eax = cpuInfo[0];
     ebx = cpuInfo[1];
@@ -59,10 +60,10 @@ cpuid (int n, int& eax, int& ebx, int& ecx, int& edx)
 void
 xgetbv (int n, int& eax, int& edx)
 {
-    __asm__ __volatile__("xgetbv"
-                         : /* Output  */ "=a"(eax), "=d"(edx)
-                         : /* Input   */ "c"(n)
-                         : /* Clobber */);
+    __asm__ __volatile__ ("xgetbv"
+                          : /* Output  */ "=a"(eax), "=d"(edx)
+                          : /* Input   */ "c"(n)
+                          : /* Clobber */);
 }
 
 #else //  IMF_HAVE_GCC_INLINEASM_X86

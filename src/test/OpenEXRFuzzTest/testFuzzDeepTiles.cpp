@@ -331,7 +331,7 @@ readFile (const char filename[])
                     {
                         for (int k = 0; k < channelCount; k++)
                         {
-                            delete[](float*) data[k][i][j];
+                            delete[] (float*) data[k][i][j];
                         }
                     }
                 }
@@ -464,7 +464,7 @@ readFile (const char filename[])
                         {
                             for (int k = 0; k < channelCount; k++)
                             {
-                                delete[](float*) data[k][i][j];
+                                delete[] (float*) data[k][i][j];
                             }
                         }
                     }

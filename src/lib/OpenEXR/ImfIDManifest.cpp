@@ -343,10 +343,7 @@ IDManifest::init (const char* data, const char* endOfData)
                      size_t ((unsigned char) (stringList[i][1]));
             stringStart = 2;
         }
-        else
-        {
-            common = (unsigned char) stringList[i][0];
-        }
+        else { common = (unsigned char) stringList[i][0]; }
         if (common > stringList[i - 1].size ())
         {
             throw IEX_NAMESPACE::InputExc (
@@ -537,15 +534,15 @@ IDManifest::IDManifest (const CompressedIDManifest& compressed)
     //
 
     vector<char> uncomp (compressed._uncompressedDataSize);
-    size_t        outSize;
-    size_t        inSize  = static_cast<size_t> (compressed._compressedDataSize);
+    size_t       outSize;
+    size_t       inSize = static_cast<size_t> (compressed._compressedDataSize);
     if (EXR_ERR_SUCCESS != exr_uncompress_buffer (
-            nullptr,
-            compressed._data,
-            inSize,
-            uncomp.data(),
-            compressed._uncompressedDataSize,
-            &outSize))
+                               nullptr,
+                               compressed._data,
+                               inSize,
+                               uncomp.data (),
+                               compressed._uncompressedDataSize,
+                               &outSize))
     {
         throw IEX_NAMESPACE::InputExc (
             "IDManifest decompression (zlib) failed.");
@@ -1071,15 +1068,15 @@ CompressedIDManifest::CompressedIDManifest (const IDManifest& manifest)
     //
     size_t compressedBufferSize = exr_compress_max_buffer_size (outputSize);
     size_t compressedDataSize;
-    _data                     = (unsigned char*) malloc (compressedBufferSize);
+    _data = (unsigned char*) malloc (compressedBufferSize);
     if (EXR_ERR_SUCCESS != exr_compress_buffer (
-            nullptr,
-            -1,
-            serial.data (),
-            outputSize,
-            _data,
-            compressedBufferSize,
-            &compressedDataSize))
+                               nullptr,
+                               -1,
+                               serial.data (),
+                               outputSize,
+                               _data,
+                               compressedBufferSize,
+                               &compressedDataSize))
     {
         throw IEX_NAMESPACE::InputExc ("ID manifest compression failed");
     }
@@ -1244,10 +1241,7 @@ IDManifest::ChannelGroupManifest::insert (const std::vector<std::string>& text)
 {
     uint64_t hash;
     if (_hashScheme == MURMURHASH3_32) { hash = MurmurHash32 (text); }
-    else if (_hashScheme == MURMURHASH3_64)
-    {
-        hash = MurmurHash64 (text);
-    }
+    else if (_hashScheme == MURMURHASH3_64) { hash = MurmurHash64 (text); }
     else
     {
         THROW (
@@ -1263,10 +1257,7 @@ IDManifest::ChannelGroupManifest::insert (const std::string& text)
 {
     uint64_t hash;
     if (_hashScheme == MURMURHASH3_32) { hash = MurmurHash32 (text); }
-    else if (_hashScheme == MURMURHASH3_64)
-    {
-        hash = MurmurHash64 (text);
-    }
+    else if (_hashScheme == MURMURHASH3_64) { hash = MurmurHash64 (text); }
     else
     {
         THROW (
@@ -1300,10 +1291,7 @@ IDManifest::ChannelGroupManifest::operator<< (uint64_t idValue)
     // There's little purpose to this, but it means that this entry is now 'complete'
     //
     if (_components.size () == 0) { _insertingEntry = false; }
-    else
-    {
-        _insertingEntry = true;
-    }
+    else { _insertingEntry = true; }
     return *this;
 }
 

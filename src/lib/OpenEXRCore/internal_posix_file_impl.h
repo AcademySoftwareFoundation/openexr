@@ -4,7 +4,7 @@
 */
 
 /* implementation for unix-like file io routines (used in context.c) */
-#include "openexr_config.h" 
+#include "openexr_config.h"
 
 #include <errno.h>
 
@@ -36,7 +36,7 @@ struct _internal_exr_filehandle
 #else
 struct _internal_exr_filehandle
 {
-    int             fd;
+    int fd;
 #    ifdef ILMTHREAD_THREADING_ENABLED
     pthread_mutex_t mutex;
 #    endif

@@ -1017,11 +1017,12 @@ readUInt (const uint8_t* b)
 #endif
 
 #ifdef SWAP64
-static inline uint64_t READ64(const uint8_t *src)
+static inline uint64_t
+READ64 (const uint8_t* src)
 {
     uint64_t v;
     // unaligned reads are UB
-    memcpy (&v, src, sizeof(uint64_t));
+    memcpy (&v, src, sizeof (uint64_t));
     return SWAP64 (v);
 }
 #else
@@ -1851,7 +1852,7 @@ internal_huf_decompress (
     uint64_t            nBytes;
     const uint8_t*      ptr;
     exr_result_t        rv;
-    exr_const_context_t pctxt = NULL;
+    exr_const_context_t pctxt            = NULL;
     const uint64_t      hufInfoBlockSize = 5 * sizeof (uint32_t);
 
     if (decode) pctxt = decode->context;

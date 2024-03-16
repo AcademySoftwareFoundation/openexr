@@ -44,10 +44,7 @@ DensityFromVizDz (double i_viz, double i_dz)
     {
         double d = -log (i_viz) / i_dz;
         if (!isfinite (d)) { return PXDU_DENSITY_OF_VIZ_0; }
-        else
-        {
-            return d;
-        }
+        else { return d; }
     }
 }
 
@@ -77,10 +74,7 @@ DensityTimesDzFromViz (double i_viz)
     {
         double d = -log (i_viz);
         if (!isfinite (d)) { return PXDU_DENSITY_OF_VIZ_0 * PXDU_DZ_OF_VIZ_0; }
-        else
-        {
-            return d;
-        }
+        else { return d; }
     }
 }
 
@@ -115,19 +109,13 @@ DzFromVizDensity (double i_viz, double i_density)
         // This whole part is hacky at best.
         double dz = -log (i_viz) / PXDU_MIN_NON_ZERO_DENSITY;
         if (!isfinite (dz)) { return PXDU_MAX_DZ; }
-        else
-        {
-            return dz;
-        }
+        else { return dz; }
     }
     else
     {
         double dz = -log (i_viz) / i_density;
         if (!isfinite (dz)) { return PXDU_MAX_DZ; }
-        else
-        {
-            return dz;
-        }
+        else { return dz; }
     }
 }
 

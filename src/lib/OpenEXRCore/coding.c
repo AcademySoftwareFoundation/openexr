@@ -10,12 +10,12 @@
 
 exr_result_t
 internal_coding_fill_channel_info (
-    exr_coding_channel_info_t**    channels,
-    int16_t*                       num_chans,
-    exr_coding_channel_info_t*     builtinextras,
-    const exr_chunk_info_t*        cinfo,
-    exr_const_context_t            ctxt,
-    exr_const_priv_part_t          part)
+    exr_coding_channel_info_t** channels,
+    int16_t*                    num_chans,
+    exr_coding_channel_info_t*  builtinextras,
+    const exr_chunk_info_t*     cinfo,
+    exr_const_context_t         ctxt,
+    exr_const_priv_part_t       part)
 {
     int                        chans;
     exr_attr_chlist_t*         chanlist;
@@ -72,11 +72,11 @@ internal_coding_fill_channel_info (
 
 exr_result_t
 internal_coding_update_channel_info (
-    exr_coding_channel_info_t*     channels,
-    int16_t                        num_chans,
-    const exr_chunk_info_t*        cinfo,
-    exr_const_context_t            ctxt,
-    exr_const_priv_part_t          part)
+    exr_coding_channel_info_t* channels,
+    int16_t                    num_chans,
+    const exr_chunk_info_t*    cinfo,
+    exr_const_context_t        ctxt,
+    exr_const_priv_part_t      part)
 {
     int                chans;
     exr_attr_chlist_t* chanlist;
