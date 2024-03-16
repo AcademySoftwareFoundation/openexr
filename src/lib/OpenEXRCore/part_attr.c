@@ -228,11 +228,11 @@ exr_initialize_required_attr_simple (
 
 static exr_result_t
 copy_attr (
-    exr_context_t                 ctxt,
-    struct _internal_exr_context* pctxt,
-    struct _internal_exr_part*    part,
-    const exr_attribute_t*        srca,
-    int*                          update_tiles)
+    exr_context_t               ctxt,
+    struct _priv_exr_context_t* pctxt,
+    struct _priv_exr_part_t*    part,
+    const exr_attribute_t*      srca,
+    int*                        update_tiles)
 {
     exr_result_t         rv    = EXR_ERR_UNKNOWN;
     const char*          aname = srca->name;
@@ -510,10 +510,10 @@ exr_copy_unset_attributes (
     exr_const_context_t source,
     int                 src_part_index)
 {
-    exr_result_t                        rv;
-    const struct _internal_exr_context* srcctxt = EXR_CCTXT (source);
-    struct _internal_exr_part*          srcpart;
-    int                                 update_tiles = 0;
+    exr_result_t                      rv;
+    const struct _priv_exr_context_t* srcctxt = EXR_CCTXT (source);
+    struct _priv_exr_part_t*          srcpart;
+    int                               update_tiles = 0;
     EXR_PROMOTE_LOCKED_CONTEXT_AND_PART_OR_ERROR (ctxt, part_index);
 
     if (!srcctxt)

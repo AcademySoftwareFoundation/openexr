@@ -62,7 +62,7 @@ static int the_predefined_attr_count = sizeof (the_predefined_attr_typenames) /
 /**************************************/
 
 static exr_result_t
-attr_init (struct _internal_exr_context* ctxt, exr_attribute_t* nattr)
+attr_init (struct _priv_exr_context_t* ctxt, exr_attribute_t* nattr)
 {
     switch (nattr->type)
     {
@@ -204,7 +204,7 @@ attr_init (struct _internal_exr_context* ctxt, exr_attribute_t* nattr)
 /**************************************/
 
 static exr_result_t
-attr_destroy (struct _internal_exr_context* ctxt, exr_attribute_t* attr)
+attr_destroy (struct _priv_exr_context_t* ctxt, exr_attribute_t* attr)
 {
     exr_result_t rv = EXR_ERR_SUCCESS;
     switch (attr->type)
@@ -482,10 +482,10 @@ exr_attr_list_find_by_name (
 
 static exr_result_t
 add_to_list (
-    struct _internal_exr_context* ctxt,
-    exr_attribute_list_t*         list,
-    exr_attribute_t*              nattr,
-    const char*                   name)
+    struct _priv_exr_context_t* ctxt,
+    exr_attribute_list_t*       list,
+    exr_attribute_t*            nattr,
+    const char*                 name)
 {
     int               cattrsz = list->num_attributes;
     int               nattrsz = cattrsz + 1;
@@ -548,12 +548,12 @@ add_to_list (
 
 static exr_result_t
 validate_attr_arguments (
-    struct _internal_exr_context* ctxt,
-    exr_attribute_list_t*         list,
-    const char*                   name,
-    int32_t                       data_len,
-    uint8_t**                     data_ptr,
-    exr_attribute_t**             attr)
+    struct _priv_exr_context_t* ctxt,
+    exr_attribute_list_t*       list,
+    const char*                 name,
+    int32_t                     data_len,
+    uint8_t**                   data_ptr,
+    exr_attribute_t**           attr)
 {
     exr_attribute_t* nattr = NULL;
     exr_result_t     rv;
@@ -626,7 +626,7 @@ validate_attr_arguments (
 /**************************************/
 
 static void
-check_attr_handler (struct _internal_exr_context* pctxt, exr_attribute_t* attr)
+check_attr_handler (struct _priv_exr_context_t* pctxt, exr_attribute_t* attr)
 {
     if (attr->type == EXR_ATTR_OPAQUE)
     {
@@ -650,15 +650,15 @@ check_attr_handler (struct _internal_exr_context* pctxt, exr_attribute_t* attr)
 
 static exr_result_t
 create_attr_block (
-    struct _internal_exr_context* pctxt,
-    exr_attribute_t**             attr,
-    size_t                        dblocksize,
-    int32_t                       data_len,
-    uint8_t**                     data_ptr,
-    const char*                   name,
-    int32_t                       nlen,
-    const char*                   type,
-    int32_t                       tlen)
+    struct _priv_exr_context_t* pctxt,
+    exr_attribute_t**           attr,
+    size_t                      dblocksize,
+    int32_t                     data_len,
+    uint8_t**                   data_ptr,
+    const char*                 name,
+    int32_t                     nlen,
+    const char*                 type,
+    int32_t                     tlen)
 {
     size_t           alignpad1, alignpad2;
     size_t           attrblocksz = sizeof (exr_attribute_t);

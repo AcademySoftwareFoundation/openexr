@@ -27,12 +27,12 @@
 
 static exr_result_t
 dispatch_read (
-    const struct _internal_exr_context* ctxt,
-    void*                               buf,
-    uint64_t                            sz,
-    uint64_t*                           offsetp,
-    int64_t*                            nread,
-    enum _INTERNAL_EXR_READ_MODE        rmode)
+    const struct _priv_exr_context_t* ctxt,
+    void*                             buf,
+    uint64_t                          sz,
+    uint64_t*                         offsetp,
+    int64_t*                          nread,
+    enum _INTERNAL_EXR_READ_MODE      rmode)
 {
     int64_t      rval = -1;
     exr_result_t rv   = EXR_ERR_UNKNOWN;
@@ -73,10 +73,10 @@ dispatch_read (
 
 static exr_result_t
 dispatch_write (
-    struct _internal_exr_context* ctxt,
-    const void*                   buf,
-    uint64_t                      sz,
-    uint64_t*                     offsetp)
+    struct _priv_exr_context_t* ctxt,
+    const void*                 buf,
+    uint64_t                    sz,
+    uint64_t*                   offsetp)
 {
     int64_t rval = -1;
 
@@ -108,7 +108,7 @@ dispatch_write (
 
 static exr_result_t
 process_query_size (
-    struct _internal_exr_context* ctxt, exr_context_initializer_t* inits)
+    struct _priv_exr_context_t* ctxt, exr_context_initializer_t* inits)
 {
     if (inits->size_fn)
     {
@@ -160,9 +160,9 @@ exr_result_t
 exr_test_file_header (
     const char* filename, const exr_context_initializer_t* ctxtdata)
 {
-    exr_result_t                  rv    = EXR_ERR_SUCCESS;
-    struct _internal_exr_context* ret   = NULL;
-    exr_context_initializer_t     inits = fill_context_data (ctxtdata);
+    exr_result_t              rv    = EXR_ERR_SUCCESS;
+    exr_context_t             ret   = NULL;
+    exr_context_initializer_t inits = fill_context_data (ctxtdata);
 
     if (filename && filename[0] != '\0')
     {
@@ -176,7 +176,7 @@ exr_test_file_header (
             ret->do_read = &dispatch_read;
 
             rv = exr_attr_string_create (
-                (exr_context_t) ret, &(ret->filename), filename);
+                ret, &(ret->filename), filename);
             if (rv == EXR_ERR_SUCCESS)
             {
                 if (!inits.read_fn)
@@ -190,7 +190,7 @@ exr_test_file_header (
                 if (rv == EXR_ERR_SUCCESS) rv = internal_exr_check_magic (ret);
             }
 
-            exr_finish ((exr_context_t*) &ret);
+            exr_finish (&ret);
         }
         else
             rv = EXR_ERR_OUT_OF_MEMORY;
@@ -211,8 +211,8 @@ exr_test_file_header (
 exr_result_t
 exr_finish (exr_context_t* pctxt)
 {
-    struct _internal_exr_context* ctxt;
-    exr_result_t                  rv = EXR_ERR_SUCCESS;
+    struct _priv_exr_context_t* ctxt;
+    exr_result_t                rv = EXR_ERR_SUCCESS;
 
     if (!pctxt) return EXR_ERR_MISSING_CONTEXT_ARG;
 
@@ -244,9 +244,9 @@ exr_start_read (
     const char*                      filename,
     const exr_context_initializer_t* ctxtdata)
 {
-    exr_result_t                  rv    = EXR_ERR_UNKNOWN;
-    struct _internal_exr_context* ret   = NULL;
-    exr_context_initializer_t     inits = fill_context_data (ctxtdata);
+    exr_result_t              rv    = EXR_ERR_UNKNOWN;
+    exr_context_t             ret   = NULL;
+    exr_context_initializer_t inits = fill_context_data (ctxtdata);
 
     if (!ctxt)
     {
@@ -312,9 +312,9 @@ exr_start_write (
     exr_default_write_mode_t         default_mode,
     const exr_context_initializer_t* ctxtdata)
 {
-    int                           rv    = EXR_ERR_UNKNOWN;
-    struct _internal_exr_context* ret   = NULL;
-    exr_context_initializer_t     inits = fill_context_data (ctxtdata);
+    int                       rv    = EXR_ERR_UNKNOWN;
+    exr_context_t             ret   = NULL;
+    exr_context_initializer_t inits = fill_context_data (ctxtdata);
 
     if (!ctxt)
     {
@@ -542,7 +542,7 @@ exr_set_longname_support (exr_context_t ctxt, int onoff)
     {
         for (int p = 0; p < pctxt->num_parts; ++p)
         {
-            struct _internal_exr_part* curp = pctxt->parts[p];
+            struct _priv_exr_part_t* curp = pctxt->parts[p];
             for (int a = 0; a < curp->attributes.num_attributes; ++a)
             {
                 exr_attribute_t* curattr = curp->attributes.entries[a];
@@ -602,7 +602,7 @@ exr_write_header (exr_context_t ctxt)
 
     for (int p = 0; rv == EXR_ERR_SUCCESS && p < pctxt->num_parts; ++p)
     {
-        struct _internal_exr_part* curp = pctxt->parts[p];
+        struct _priv_exr_part_t* curp = pctxt->parts[p];
 
         int32_t ccount = 0;
 
@@ -643,8 +643,9 @@ exr_write_header (exr_context_t ctxt)
         pctxt->output_chunk_count = 0;
         for (int p = 0; rv == EXR_ERR_SUCCESS && p < pctxt->num_parts; ++p)
         {
-            struct _internal_exr_part* curp = pctxt->parts[p];
-            curp->chunk_table_offset        = pctxt->output_file_offset;
+            struct _priv_exr_part_t* curp = pctxt->parts[p];
+
+            curp->chunk_table_offset   = pctxt->output_file_offset;
             pctxt->output_file_offset +=
                 (uint64_t) (curp->chunk_count) * sizeof (uint64_t);
         }

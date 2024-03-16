@@ -28,8 +28,6 @@ static void
 default_error_handler (
     exr_const_context_t ctxt, exr_result_t code, const char* msg)
 {
-    const struct _internal_exr_context* pctxt = EXR_CCTXT (ctxt);
-
 #ifdef ILMTHREAD_THREADING_ENABLED
 #    ifdef _WIN32
     static CRITICAL_SECTION sMutex;
@@ -49,13 +47,13 @@ default_error_handler (
     pthread_mutex_lock (&sMutex);
 #    endif
 #endif
-    if (pctxt)
+    if (ctxt)
     {
-        if (pctxt->filename.str)
+        if (ctxt->filename.str)
             fprintf (
                 stderr,
                 "%s: (%s) %s\n",
-                pctxt->filename.str,
+                ctxt->filename.str,
                 exr_get_error_code_as_string (code),
                 msg);
         else
@@ -81,14 +79,11 @@ default_error_handler (
 
 static exr_result_t
 dispatch_error (
-    const struct _internal_exr_context* pctxt,
-    exr_result_t                        code,
-    const char*                         msg)
+    exr_const_context_t ctxt, exr_result_t code, const char* msg)
 {
-    exr_const_context_t ctxt = (exr_const_context_t) (pctxt);
-    if (pctxt)
+    if (ctxt)
     {
-        pctxt->error_handler_fn (ctxt, code, msg);
+        ctxt->error_handler_fn (ctxt, code, msg);
         return code;
     }
 
@@ -99,25 +94,24 @@ dispatch_error (
 /**************************************/
 
 static exr_result_t
-dispatch_standard_error (
-    const struct _internal_exr_context* pctxt, exr_result_t code)
+dispatch_standard_error (exr_const_context_t ctxt, exr_result_t code)
 {
-    return dispatch_error (pctxt, code, exr_get_default_error_message (code));
+    return dispatch_error (ctxt, code, exr_get_default_error_message (code));
 }
 
 /**************************************/
 
 static exr_result_t dispatch_print_error (
-    const struct _internal_exr_context* pctxt,
-    exr_result_t                        code,
-    const char*                         msg,
+    exr_const_context_t ctxt,
+    exr_result_t        code,
+    const char*         msg,
     ...) EXR_PRINTF_FUNC_ATTRIBUTE;
 
 static exr_result_t
 dispatch_print_error (
-    const struct _internal_exr_context* pctxt,
-    exr_result_t                        code,
-    const char*                         msg,
+    exr_const_context_t ctxt,
+    exr_result_t        code,
+    const char*         msg,
     ...)
 {
     char    stackbuf[256];
@@ -134,19 +128,19 @@ dispatch_print_error (
         va_end (stkargs);
         if (nwrit >= 256)
         {
-            heapbuf = pctxt->alloc_fn ((size_t) (nwrit + 1));
+            heapbuf = ctxt->alloc_fn ((size_t) (nwrit + 1));
             if (heapbuf)
             {
                 (void) vsnprintf (heapbuf, (size_t) (nwrit + 1), msg, fmtargs);
-                dispatch_error (pctxt, code, heapbuf);
-                pctxt->free_fn (heapbuf);
+                dispatch_error (ctxt, code, heapbuf);
+                ctxt->free_fn (heapbuf);
             }
             else
                 dispatch_error (
-                    pctxt, code, "Unable to allocate temporary memory");
+                    ctxt, code, "Unable to allocate temporary memory");
         }
         else
-            dispatch_error (pctxt, code, stackbuf);
+            dispatch_error (ctxt, code, stackbuf);
     }
     va_end (fmtargs);
     return code;
@@ -156,7 +150,7 @@ dispatch_print_error (
 
 static void
 internal_exr_destroy_part (
-    struct _internal_exr_context* ctxt, struct _internal_exr_part* cur)
+    exr_context_t ctxt, struct _priv_exr_part_t* cur)
 {
     exr_memory_free_func_t dofree = ctxt->free_fn;
     uint64_t*              ctable;
@@ -180,18 +174,18 @@ internal_exr_destroy_part (
 /**************************************/
 
 static void
-internal_exr_destroy_parts (struct _internal_exr_context* ctxt)
+internal_exr_destroy_parts (exr_context_t ctxt)
 {
     exr_memory_free_func_t dofree = ctxt->free_fn;
     for (int p = 0; p < ctxt->num_parts; ++p)
     {
-        struct _internal_exr_part* cur = ctxt->parts[p];
+        struct _priv_exr_part_t* cur = ctxt->parts[p];
 
         internal_exr_destroy_part (ctxt, cur);
 
         /* the first one is always the one that is part of the file */
         if (cur != &(ctxt->first_part)) { dofree (cur); }
-        else { memset (cur, 0, sizeof (struct _internal_exr_part)); }
+        else { memset (cur, 0, sizeof (struct _priv_exr_part_t)); }
     }
 
     if (ctxt->num_parts > 1) dofree (ctxt->parts);
@@ -203,13 +197,13 @@ internal_exr_destroy_parts (struct _internal_exr_context* ctxt)
 
 exr_result_t
 internal_exr_add_part (
-    struct _internal_exr_context* f,
-    struct _internal_exr_part**   outpart,
-    int*                          new_index)
+    exr_context_t               f,
+    struct _priv_exr_part_t**   outpart,
+    int*                        new_index)
 {
-    int                         ncount = f->num_parts + 1;
-    struct _internal_exr_part*  part;
-    struct _internal_exr_part** nptrs = NULL;
+    int                       ncount = f->num_parts + 1;
+    struct _priv_exr_part_t*  part;
+    struct _priv_exr_part_t** nptrs = NULL;
 
     if (new_index) *new_index = f->num_parts;
 
@@ -222,13 +216,13 @@ internal_exr_add_part (
     }
     else
     {
-        struct _internal_exr_part nil = {0};
+        struct _priv_exr_part_t nil = {0};
 
-        part = f->alloc_fn (sizeof (struct _internal_exr_part));
+        part = f->alloc_fn (sizeof (struct _priv_exr_part_t));
         if (!part) return f->standard_error (f, EXR_ERR_OUT_OF_MEMORY);
 
         nptrs =
-            f->alloc_fn (sizeof (struct _internal_exr_part*) * (size_t) ncount);
+            f->alloc_fn (sizeof (struct _priv_exr_part_t*) * (size_t) ncount);
         if (!nptrs)
         {
             f->free_fn (part);
@@ -270,12 +264,12 @@ internal_exr_add_part (
 
 void
 internal_exr_revert_add_part (
-    struct _internal_exr_context* ctxt,
-    struct _internal_exr_part**   outpart,
-    int*                          new_index)
+    exr_context_t             ctxt,
+    struct _priv_exr_part_t** outpart,
+    int*                      new_index)
 {
-    int                        ncount = ctxt->num_parts - 1;
-    struct _internal_exr_part* part   = *outpart;
+    int                      ncount = ctxt->num_parts - 1;
+    struct _priv_exr_part_t* part   = *outpart;
 
     *outpart   = NULL;
     *new_index = -1;
@@ -310,8 +304,7 @@ internal_exr_revert_add_part (
 /**************************************/
 
 exr_result_t
-internal_exr_context_restore_handlers (
-    struct _internal_exr_context* ctxt, exr_result_t rv)
+internal_exr_context_restore_handlers (exr_context_t ctxt, exr_result_t rv)
 {
     ctxt->standard_error = &dispatch_standard_error;
     ctxt->report_error   = &dispatch_error;
@@ -323,16 +316,16 @@ internal_exr_context_restore_handlers (
 
 exr_result_t
 internal_exr_alloc_context (
-    struct _internal_exr_context**   out,
+    exr_context_t*                   out,
     const exr_context_initializer_t* initializers,
     enum _INTERNAL_EXR_CONTEXT_MODE  mode,
     size_t                           default_size)
 {
-    void*                         memptr;
-    exr_result_t                  rv;
-    struct _internal_exr_context* ret;
-    int                           gmaxw, gmaxh;
-    size_t                        extra_data;
+    void*                       memptr;
+    exr_result_t                rv;
+    struct _priv_exr_context_t* ret;
+    int                         gmaxw, gmaxh;
+    size_t                      extra_data;
 
     *out = NULL;
     if (initializers->read_fn || initializers->write_fn)
@@ -341,10 +334,10 @@ internal_exr_alloc_context (
         extra_data = default_size;
 
     memptr = (initializers->alloc_fn) (
-        sizeof (struct _internal_exr_context) + extra_data);
+        sizeof (struct _priv_exr_context_t) + extra_data);
     if (memptr)
     {
-        memset (memptr, 0, sizeof (struct _internal_exr_context));
+        memset (memptr, 0, sizeof (struct _priv_exr_context_t));
 
         ret       = memptr;
         ret->mode = (uint8_t) mode;
@@ -355,7 +348,7 @@ internal_exr_alloc_context (
             ret->user_data = initializers->user_data;
         else if (extra_data > 0)
             ret->user_data =
-                (((uint8_t*) memptr) + sizeof (struct _internal_exr_context));
+                (((uint8_t*) memptr) + sizeof (struct _priv_exr_context_t));
 
         ret->standard_error   = &dispatch_standard_error;
         ret->report_error     = &dispatch_error;
@@ -444,7 +437,7 @@ internal_exr_alloc_context (
          * part to make parsing logic easier */
         if (mode != EXR_CONTEXT_WRITE)
         {
-            struct _internal_exr_part* part;
+            struct _priv_exr_part_t* part;
             rv = internal_exr_add_part (ret, &part, NULL);
             if (rv != EXR_ERR_SUCCESS)
             {
@@ -471,13 +464,13 @@ internal_exr_alloc_context (
 /**************************************/
 
 void
-internal_exr_destroy_context (struct _internal_exr_context* ctxt)
+internal_exr_destroy_context (exr_context_t ctxt)
 {
     exr_memory_free_func_t dofree = ctxt->free_fn;
 
-    exr_attr_string_destroy ((exr_context_t) ctxt, &(ctxt->filename));
-    exr_attr_string_destroy ((exr_context_t) ctxt, &(ctxt->tmp_filename));
-    exr_attr_list_destroy ((exr_context_t) ctxt, &(ctxt->custom_handlers));
+    exr_attr_string_destroy (ctxt, &(ctxt->filename));
+    exr_attr_string_destroy (ctxt, &(ctxt->tmp_filename));
+    exr_attr_list_destroy (ctxt, &(ctxt->custom_handlers));
     internal_exr_destroy_parts (ctxt);
 #ifdef ILMTHREAD_THREADING_ENABLED
 #    ifdef _WIN32
