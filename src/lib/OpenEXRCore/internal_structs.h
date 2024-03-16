@@ -253,120 +253,62 @@ internal_exr_unlock (exr_const_context_t c)
 #endif
 }
 
-#define EXR_LOCK(c) internal_exr_lock ((exr_const_context_t) c)
-#define EXR_UNLOCK(c)                                                          \
-    internal_exr_unlock ((exr_const_context_t) c)
+#define EXR_UNLOCK_AND_RETURN(v) ((void) (internal_exr_unlock (ctxt)), v)
+#define EXR_UNLOCK_WRITE_AND_RETURN(v)                                         \
+    ((void) ((ctxt->mode == EXR_CONTEXT_WRITE) ?                               \
+             internal_exr_unlock (ctxt) : ((void) 0)), v)
 
-#define EXR_LOCK_WRITE(c)                                                      \
-    if (c->mode == EXR_CONTEXT_WRITE) internal_exr_lock (c)
-
-#define EXR_UNLOCK_WRITE(c)                                                    \
-    if (c->mode == EXR_CONTEXT_WRITE) internal_exr_unlock (c)
-
-#define EXR_RETURN_WRITE(c)                                                    \
-    ((c->mode == EXR_CONTEXT_WRITE) ? internal_exr_unlock (c) : ((void) 0))
-
-#define EXR_UNLOCK_AND_RETURN_PCTXT(v) ((void) (EXR_UNLOCK (pctxt)), v)
-#define EXR_UNLOCK_WRITE_AND_RETURN_PCTXT(v)                                   \
-    ((void) (EXR_RETURN_WRITE (pctxt)), v)
-
-#define INTERN_EXR_PROMOTE_CONTEXT_OR_ERROR(c)                                 \
-    exr_context_t pctxt = (c);                                                 \
-    if (!pctxt) return EXR_ERR_MISSING_CONTEXT_ARG
-
-#define INTERN_EXR_PROMOTE_CONST_CONTEXT_OR_ERROR(c)                           \
-    exr_const_context_t pctxt = (c);                                           \
-    if (!pctxt) return EXR_ERR_MISSING_CONTEXT_ARG
-
-#define EXR_PROMOTE_LOCKED_CONTEXT_OR_ERROR(c)                                 \
-    INTERN_EXR_PROMOTE_CONTEXT_OR_ERROR (c);                                   \
-    EXR_LOCK (c)
-
-#define EXR_PROMOTE_CONST_CONTEXT_OR_ERROR(c)                                  \
-    INTERN_EXR_PROMOTE_CONST_CONTEXT_OR_ERROR (c);                             \
-    EXR_LOCK_WRITE (pctxt)
-
-#define EXR_PROMOTE_LOCKED_CONTEXT_AND_PART_OR_ERROR(c, pi)                    \
-    exr_context_t   pctxt = (c);                                               \
+#define EXR_LOCK_AND_DEFINE_PART(pi)                                           \
     exr_priv_part_t part;                                                      \
-    if (!pctxt) return EXR_ERR_MISSING_CONTEXT_ARG;                            \
-    EXR_LOCK (pctxt);                                                          \
-    if (pi < 0 || pi >= pctxt->num_parts)                                      \
-        return (                                                               \
-            (void) (EXR_UNLOCK (pctxt)),                                       \
-            pctxt->print_error (                                               \
-                pctxt,                                                         \
-                EXR_ERR_ARGUMENT_OUT_OF_RANGE,                                 \
-                "Part index (%d) out of range",                                \
-                pi));                                                          \
-    part = pctxt->parts[pi]
-
-#define EXR_PROMOTE_CONST_CONTEXT_AND_PART_OR_ERROR(c, pi)                     \
-    exr_const_context_t   pctxt = (c);                                         \
-    exr_const_priv_part_t part;                                                \
-    if (!pctxt) return EXR_ERR_MISSING_CONTEXT_ARG;                            \
-    EXR_LOCK_WRITE (pctxt);                                                    \
-    if (pi < 0 || pi >= pctxt->num_parts)                                      \
-        return (                                                               \
-            (void) (EXR_RETURN_WRITE (pctxt)),                                 \
-            pctxt->print_error (                                               \
-                pctxt,                                                         \
-                EXR_ERR_ARGUMENT_OUT_OF_RANGE,                                 \
-                "Part index (%d) out of range",                                \
-                pi));                                                          \
-    part = pctxt->parts[pi]
-
-#define EXR_PROMOTE_CONST_CONTEXT_AND_PART_OR_ERROR_NO_LOCK(c, pi)             \
-    exr_const_context_t   pctxt = (c);                                         \
-    exr_const_priv_part_t part;                                                \
-    if (!pctxt) return EXR_ERR_MISSING_CONTEXT_ARG;                            \
-    if (pi < 0 || pi >= pctxt->num_parts)                                      \
-        return (                                                               \
-            (void) (EXR_RETURN_WRITE (pctxt)),                                 \
-            pctxt->print_error (                                               \
-                pctxt,                                                         \
-                EXR_ERR_ARGUMENT_OUT_OF_RANGE,                                 \
-                "Part index (%d) out of range",                                \
-                pi));                                                          \
-    part = pctxt->parts[pi]
-
-#define EXR_PROMOTE_CONST_CONTEXT_OR_ERROR_NO_PART_NO_LOCK(c, pi)              \
-    exr_const_context_t pctxt = (c);                                           \
-    if (!pctxt) return EXR_ERR_MISSING_CONTEXT_ARG;                            \
-    if (pi < 0 || pi >= pctxt->num_parts)                                      \
-    return (                                                                   \
-        (void) (EXR_RETURN_WRITE (pctxt)),                                     \
-        pctxt->print_error (                                                   \
-            pctxt,                                                             \
-            EXR_ERR_ARGUMENT_OUT_OF_RANGE,                                     \
-            "Part index (%d) out of range",                                    \
-            pi))
-
-#define EXR_PROMOTE_READ_CONST_CONTEXT_AND_PART_OR_ERROR(c, pi)                \
-    exr_const_context_t   pctxt = (c);                                \
-    exr_const_priv_part_t part;                                       \
-    if (!pctxt) return EXR_ERR_MISSING_CONTEXT_ARG;                            \
-    if (pctxt->mode != EXR_CONTEXT_READ)                                       \
-        return pctxt->standard_error (pctxt, EXR_ERR_NOT_OPEN_READ);           \
-    if (pi < 0 || pi >= pctxt->num_parts)                                      \
-        return pctxt->print_error (                                            \
-            pctxt,                                                             \
+    if (!ctxt) return EXR_ERR_MISSING_CONTEXT_ARG;                             \
+    internal_exr_lock (ctxt);                                                  \
+    if (pi < 0 || pi >= ctxt->num_parts)                                       \
+    {                                                                          \
+        internal_exr_unlock (ctxt);                                            \
+        return ctxt->print_error (                                             \
+            ctxt,                                                              \
             EXR_ERR_ARGUMENT_OUT_OF_RANGE,                                     \
             "Part index (%d) out of range",                                    \
             pi);                                                               \
-    part = pctxt->parts[pi]
+    }                                                                          \
+    part = ctxt->parts[pi]
 
-#define EXR_PROMOTE_READ_CONST_CONTEXT_OR_ERROR_NO_PART(c, pi)                 \
-    exr_const_context_t pctxt = (c);                                           \
-    if (!pctxt) return EXR_ERR_MISSING_CONTEXT_ARG;                            \
-    if (pctxt->mode != EXR_CONTEXT_READ)                                       \
-        return pctxt->standard_error (pctxt, EXR_ERR_NOT_OPEN_READ);           \
-    if (pi < 0 || pi >= pctxt->num_parts)                                      \
-    return pctxt->print_error (                                                \
-        pctxt,                                                                 \
+#define EXR_LOCK_WRITE_AND_DEFINE_PART(pi)                                     \
+    exr_const_priv_part_t part;                                                \
+    if (!ctxt) return EXR_ERR_MISSING_CONTEXT_ARG;                             \
+    if (ctxt->mode == EXR_CONTEXT_WRITE) internal_exr_lock (ctxt);             \
+    if (pi < 0 || pi >= ctxt->num_parts)                                       \
+    {                                                                          \
+        if (ctxt->mode == EXR_CONTEXT_WRITE) internal_exr_unlock(ctxt);        \
+        return ctxt->print_error (                                             \
+                ctxt,                                                          \
+                EXR_ERR_ARGUMENT_OUT_OF_RANGE,                                 \
+                "Part index (%d) out of range",                                \
+                pi);                                                           \
+    }                                                                          \
+    part = ctxt->parts[pi]
+
+#define EXR_CHECK_CONTEXT_AND_PART(pi)                                         \
+    if (!ctxt) return EXR_ERR_MISSING_CONTEXT_ARG;                             \
+    if (pi < 0 || pi >= ctxt->num_parts)                                       \
+        return ctxt->print_error (                                             \
+        ctxt,                                                                  \
         EXR_ERR_ARGUMENT_OUT_OF_RANGE,                                         \
         "Part index (%d) out of range",                                        \
         pi)
+
+#define EXR_READONLY_AND_DEFINE_PART(pi)                                       \
+    exr_const_priv_part_t part;                                                \
+    if (!ctxt) return EXR_ERR_MISSING_CONTEXT_ARG;                             \
+    if (ctxt->mode != EXR_CONTEXT_READ)                                        \
+        return ctxt->standard_error (ctxt, EXR_ERR_NOT_OPEN_READ);             \
+    if (pi < 0 || pi >= ctxt->num_parts)                                       \
+        return ctxt->print_error (                                             \
+            ctxt,                                                              \
+            EXR_ERR_ARGUMENT_OUT_OF_RANGE,                                     \
+            "Part index (%d) out of range",                                    \
+            pi);                                                               \
+    part = ctxt->parts[pi]
 
 void internal_exr_update_default_handlers (exr_context_initializer_t* inits);
 
