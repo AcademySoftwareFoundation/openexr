@@ -110,7 +110,7 @@ DwaCompressor_construct (
 
     if (encode)
     {
-        const struct _internal_exr_context* pctxt = EXR_CCTXT (encode->context);
+        const struct _priv_exr_context_t* pctxt = EXR_CCTXT (encode->context);
 
         me->alloc_fn = pctxt ? pctxt->alloc_fn : internal_exr_alloc;
         me->free_fn  = pctxt ? pctxt->free_fn : internal_exr_free;
@@ -154,7 +154,7 @@ DwaCompressor_construct (
     }
     else
     {
-        const struct _internal_exr_context* pctxt = EXR_CCTXT (decode->context);
+        const struct _priv_exr_context_t* pctxt = EXR_CCTXT (decode->context);
 
         me->alloc_fn = pctxt ? pctxt->alloc_fn : internal_exr_alloc;
         me->free_fn  = pctxt ? pctxt->free_fn : internal_exr_free;

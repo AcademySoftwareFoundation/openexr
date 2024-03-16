@@ -21,11 +21,11 @@
 
 static exr_result_t
 print_error_helper (
-    struct _internal_exr_context* pf,
-    exr_result_t                  errcode,
-    DWORD                         dw,
-    exr_stream_error_func_ptr_t   error_cb,
-    const char*                   msg)
+    struct _priv_exr_context_t* pf,
+    exr_result_t                errcode,
+    DWORD                       dw,
+    exr_stream_error_func_ptr_t error_cb,
+    const char*                 msg)
 {
     LPVOID   lpMsgBuf;
     LPVOID   lpDisplayBuf;
@@ -76,23 +76,23 @@ print_error_helper (
 
 static exr_result_t
 print_error (
-    struct _internal_exr_context* pf, exr_result_t errcode, const char* msg)
+    struct _priv_exr_context_t* pf, exr_result_t errcode, const char* msg)
 {
     return print_error_helper (pf, errcode, GetLastError (), NULL, msg);
 }
 
 static exr_result_t
 send_error (
-    struct _internal_exr_context* pf,
-    exr_result_t                  errcode,
-    exr_stream_error_func_ptr_t   error_cb,
-    const char*                   msg)
+    struct _priv_exr_context_t* pf,
+    exr_result_t                errcode,
+    exr_stream_error_func_ptr_t error_cb,
+    const char*                 msg)
 {
     return print_error_helper (pf, errcode, GetLastError (), error_cb, msg);
 }
 
 static wchar_t*
-widen_filename (struct _internal_exr_context* file, const char* fn)
+widen_filename (struct _priv_exr_context_t* file, const char* fn)
 {
     int      wcSize = 0, fnlen = 0;
     wchar_t* wcFn = NULL;
@@ -130,7 +130,7 @@ default_shutdown (exr_const_context_t c, void* userdata, int failed)
 /**************************************/
 
 static exr_result_t
-finalize_write (struct _internal_exr_context* pf, int failed)
+finalize_write (struct _priv_exr_context_t* pf, int failed)
 {
     /* TODO: Do we actually want to do this or leave the garbage file there */
     if (failed && pf->destroy_fn == &default_shutdown)
@@ -303,7 +303,7 @@ default_write_func (
 /**************************************/
 
 static exr_result_t
-default_init_read_file (struct _internal_exr_context* file)
+default_init_read_file (struct _priv_exr_context_t* file)
 {
     wchar_t*                         wcFn = NULL;
     HANDLE                           fd;
@@ -347,7 +347,7 @@ default_init_read_file (struct _internal_exr_context* file)
 /**************************************/
 
 static exr_result_t
-default_init_write_file (struct _internal_exr_context* file)
+default_init_write_file (struct _priv_exr_context_t* file)
 {
     wchar_t*                         wcFn = NULL;
     struct _internal_exr_filehandle* fh   = file->user_data;
@@ -414,7 +414,7 @@ default_query_size_func (exr_const_context_t ctxt, void* userdata)
 /**************************************/
 
 static exr_result_t
-make_temp_filename (struct _internal_exr_context* ret)
+make_temp_filename (struct _priv_exr_context_t* ret)
 {
     /* we checked the pointers we care about before calling */
     char        tmproot[32];

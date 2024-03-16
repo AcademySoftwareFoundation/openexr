@@ -56,7 +56,7 @@ exr_add_part (
     int32_t      attrsz  = -1;
     const char*  typestr = NULL;
 
-    struct _internal_exr_part* part = NULL;
+    struct _priv_exr_part_t* part = NULL;
 
     EXR_PROMOTE_LOCKED_CONTEXT_OR_ERROR (ctxt);
 
