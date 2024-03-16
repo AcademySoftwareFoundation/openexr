@@ -229,7 +229,6 @@ exr_initialize_required_attr_simple (
 static exr_result_t
 copy_attr (
     exr_context_t               ctxt,
-    struct _priv_exr_context_t* pctxt,
     struct _priv_exr_part_t*    part,
     const exr_attribute_t*      srca,
     int*                        update_tiles)
@@ -491,7 +490,7 @@ copy_attr (
         case EXR_ATTR_UNKNOWN:
         case EXR_ATTR_LAST_KNOWN_TYPE:
         default:
-            rv = pctxt->standard_error (pctxt, EXR_ERR_INVALID_ATTR);
+            rv = ctxt->standard_error (ctxt, EXR_ERR_INVALID_ATTR);
             break;
     }
 
@@ -510,19 +509,18 @@ exr_copy_unset_attributes (
     exr_const_context_t source,
     int                 src_part_index)
 {
-    exr_result_t                      rv;
-    const struct _priv_exr_context_t* srcctxt = EXR_CCTXT (source);
-    struct _priv_exr_part_t*          srcpart;
-    int                               update_tiles = 0;
+    exr_result_t             rv;
+    struct _priv_exr_part_t* srcpart;
+    int                      update_tiles = 0;
     EXR_PROMOTE_LOCKED_CONTEXT_AND_PART_OR_ERROR (ctxt, part_index);
 
-    if (!srcctxt)
+    if (!source)
         return EXR_UNLOCK_AND_RETURN_PCTXT (EXR_ERR_MISSING_CONTEXT_ARG);
-    if (srcctxt != pctxt) EXR_LOCK (srcctxt);
+    if (source != pctxt) EXR_LOCK (source);
 
-    if (src_part_index < 0 || src_part_index >= srcctxt->num_parts)
+    if (src_part_index < 0 || src_part_index >= source->num_parts)
     {
-        if (srcctxt != pctxt) EXR_UNLOCK (srcctxt);
+        if (source != pctxt) EXR_UNLOCK (source);
         return EXR_UNLOCK_AND_RETURN_PCTXT (pctxt->print_error (
             pctxt,
             EXR_ERR_ARGUMENT_OUT_OF_RANGE,
@@ -530,7 +528,7 @@ exr_copy_unset_attributes (
             src_part_index));
     }
 
-    srcpart = srcctxt->parts[src_part_index];
+    srcpart = source->parts[src_part_index];
 
     rv = EXR_ERR_SUCCESS;
     for (int a = 0;
@@ -547,7 +545,7 @@ exr_copy_unset_attributes (
             &attr);
         if (rv == EXR_ERR_NO_ATTR_BY_NAME)
         {
-            rv = copy_attr (ctxt, pctxt, part, srca, &update_tiles);
+            rv = copy_attr (ctxt, part, srca, &update_tiles);
         }
         else { rv = EXR_ERR_SUCCESS; }
     }
@@ -555,7 +553,7 @@ exr_copy_unset_attributes (
     if (update_tiles)
         rv = internal_exr_compute_tile_information (pctxt, part, 1);
 
-    if (srcctxt != pctxt) EXR_UNLOCK (srcctxt);
+    if (source != pctxt) EXR_UNLOCK (source);
     return EXR_UNLOCK_AND_RETURN_PCTXT (rv);
 }
 
@@ -660,8 +658,8 @@ exr_set_channels (
     exr_context_t ctxt, int part_index, const exr_attr_chlist_t* channels)
 {
     if (!channels)
-        return EXR_CTXT (ctxt)->report_error (
-            EXR_CTXT (ctxt),
+        return ctxt->report_error (
+            ctxt,
             EXR_ERR_INVALID_ARGUMENT,
             "No channels provided for channel list");
 
@@ -721,8 +719,8 @@ exr_set_data_window (
     exr_context_t ctxt, int part_index, const exr_attr_box2i_t* dw)
 {
     if (!dw)
-        return EXR_CTXT (ctxt)->report_error (
-            EXR_CTXT (ctxt),
+        return ctxt->report_error (
+            ctxt,
             EXR_ERR_INVALID_ARGUMENT,
             "Missing value for data window assignment");
 
@@ -757,8 +755,8 @@ exr_set_display_window (
     exr_context_t ctxt, int part_index, const exr_attr_box2i_t* dw)
 {
     if (!dw)
-        return EXR_CTXT (ctxt)->report_error (
-            EXR_CTXT (ctxt),
+        return ctxt->report_error (
+            ctxt,
             EXR_ERR_INVALID_ARGUMENT,
             "Missing value for data window assignment");
 
@@ -789,8 +787,8 @@ exr_result_t
 exr_set_lineorder (exr_context_t ctxt, int part_index, exr_lineorder_t lo)
 {
     if (lo >= EXR_LINEORDER_LAST_TYPE)
-        return EXR_CTXT (ctxt)->print_error (
-            EXR_CTXT (ctxt),
+        return ctxt->print_error (
+            ctxt,
             EXR_ERR_ARGUMENT_OUT_OF_RANGE,
             "'lineOrder' value for line order (%d) out of range (%d - %d)",
             (int) lo,
@@ -1357,8 +1355,8 @@ exr_attr_set_compression (
 {
     uint8_t val = (uint8_t) cval;
     if (cval >= EXR_COMPRESSION_LAST_TYPE)
-        return EXR_CTXT (ctxt)->print_error (
-            EXR_CTXT (ctxt),
+        return ctxt->print_error (
+            ctxt,
             EXR_ERR_ARGUMENT_OUT_OF_RANGE,
             "'%s' value for compression type (%d) out of range (%d - %d)",
             name,
@@ -1408,8 +1406,8 @@ exr_attr_set_envmap (
 {
     uint8_t val = (uint8_t) eval;
     if (eval >= EXR_ENVMAP_LAST_TYPE)
-        return EXR_CTXT (ctxt)->print_error (
-            EXR_CTXT (ctxt),
+        return ctxt->print_error (
+            ctxt,
             EXR_ERR_ARGUMENT_OUT_OF_RANGE,
             "'%s' value for envmap (%d) out of range (%d - %d)",
             name,
@@ -1612,8 +1610,8 @@ exr_attr_set_lineorder (
 {
     uint8_t val = (uint8_t) lval;
     if (lval >= EXR_LINEORDER_LAST_TYPE)
-        return EXR_CTXT (ctxt)->print_error (
-            EXR_CTXT (ctxt),
+        return ctxt->print_error (
+            ctxt,
             EXR_ERR_ARGUMENT_OUT_OF_RANGE,
             "'%s' value for line order enum (%d) out of range (%d - %d)",
             name,

@@ -60,24 +60,24 @@ internal_exr_pack_fn
 internal_exr_match_encode (exr_encode_pipeline_t* encode, int isdeep);
 
 exr_result_t internal_coding_fill_channel_info (
-    exr_coding_channel_info_t**       channels,
-    int16_t*                          num_chans,
-    exr_coding_channel_info_t*        builtinextras,
-    const exr_chunk_info_t*           cinfo,
-    const struct _priv_exr_context_t* pctxt,
-    const struct _priv_exr_part_t*    part);
+    exr_coding_channel_info_t**    channels,
+    int16_t*                       num_chans,
+    exr_coding_channel_info_t*     builtinextras,
+    const exr_chunk_info_t*        cinfo,
+    exr_const_context_t            pctxt,
+    const struct _priv_exr_part_t* part);
 
 exr_result_t internal_coding_update_channel_info (
-    exr_coding_channel_info_t*        channels,
-    int16_t                           num_chans,
-    const exr_chunk_info_t*           cinfo,
-    const struct _priv_exr_context_t* pctxt,
-    const struct _priv_exr_part_t*    part);
+    exr_coding_channel_info_t*     channels,
+    int16_t                        num_chans,
+    const exr_chunk_info_t*        cinfo,
+    exr_const_context_t            pctxt,
+    const struct _priv_exr_part_t* part);
 
 exr_result_t internal_validate_next_chunk (
-    exr_encode_pipeline_t*            encode,
-    const struct _priv_exr_context_t* pctxt,
-    const struct _priv_exr_part_t*    part);
+    exr_encode_pipeline_t*         encode,
+    exr_const_context_t            pctxt,
+    const struct _priv_exr_part_t* part);
 
 /**************************************/
 

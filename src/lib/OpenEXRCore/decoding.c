@@ -202,13 +202,13 @@ default_read_chunk (exr_decode_pipeline_t* decode)
 
 static exr_result_t
 decompress_data (
-    const struct _priv_exr_context_t* pctxt,
-    const exr_compression_t           ctype,
-    exr_decode_pipeline_t*            decode,
-    void*                             packbufptr,
-    size_t                            packsz,
-    void*                             unpackbufptr,
-    size_t                            unpacksz)
+    exr_const_context_t     pctxt,
+    const exr_compression_t ctype,
+    exr_decode_pipeline_t*  decode,
+    void*                   packbufptr,
+    size_t                  packsz,
+    void*                   unpackbufptr,
+    size_t                  unpacksz)
 {
     exr_result_t rv;
 
@@ -335,8 +335,7 @@ default_decompress_chunk (exr_decode_pipeline_t* decode)
 }
 
 static exr_result_t
-unpack_sample_table (
-    const struct _priv_exr_context_t* pctxt, exr_decode_pipeline_t* decode)
+unpack_sample_table (exr_const_context_t pctxt, exr_decode_pipeline_t* decode)
 {
     exr_result_t rv           = EXR_ERR_SUCCESS;
     int32_t      w            = decode->chunk.width;

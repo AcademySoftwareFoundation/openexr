@@ -379,7 +379,7 @@ apply_zip_impl (exr_encode_pipeline_t* encode)
     }
     else
     {
-        const struct _priv_exr_context_t* pctxt = EXR_CCTXT (encode->context);
+        exr_const_context_t pctxt = encode->context;
         if (pctxt)
             pctxt->print_error (
                 pctxt,
@@ -407,7 +407,7 @@ internal_exr_apply_zip (exr_encode_pipeline_t* encode)
         encode->packed_bytes);
     if (rv != EXR_ERR_SUCCESS)
     {
-        const struct _priv_exr_context_t* pctxt = EXR_CCTXT (encode->context);
+        exr_const_context_t pctxt = encode->context;
         if (pctxt)
             pctxt->print_error (
                 pctxt,
