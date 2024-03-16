@@ -21,9 +21,9 @@
 
 static exr_result_t
 silent_error (
-    const struct _priv_exr_context_t* pctxt,
-    exr_result_t                      code,
-    const char*                       msg)
+    exr_const_context_t pctxt,
+    exr_result_t        code,
+    const char*         msg)
 {
     (void) pctxt;
     (void) msg;
@@ -32,7 +32,7 @@ silent_error (
 
 static exr_result_t
 silent_standard_error (
-    const struct _priv_exr_context_t* pctxt, exr_result_t code)
+    exr_const_context_t pctxt, exr_result_t code)
 {
     (void) pctxt;
     return code;
@@ -40,9 +40,9 @@ silent_standard_error (
 
 static exr_result_t
 silent_print_error (
-    const struct _priv_exr_context_t* pctxt,
-    exr_result_t                      code,
-    const char*                       msg,
+    exr_const_context_t pctxt,
+    exr_result_t        code,
+    const char*         msg,
     ...)
 {
     (void) pctxt;
@@ -64,19 +64,19 @@ struct _internal_exr_seq_scratch
     exr_result_t (*sequential_skip) (
         struct _internal_exr_seq_scratch*, int32_t);
 
-    struct _priv_exr_context_t* ctxt;
+    exr_context_t ctxt;
 };
 
 static inline int
 scratch_attr_too_big (
-    struct _internal_exr_seq_scratch* scr, int32_t attrsz, int64_t fsize)
+    struct _internal_exr_seq_scratch* scr, int32_t attrsz)
 {
     int64_t acmp = (int64_t) attrsz;
-    if (fsize > 0 && (acmp > scr->navail))
+    if (scr->ctxt->file_size > 0 && (acmp > scr->navail))
     {
         int64_t test = acmp - scr->navail;
         int64_t foff = (int64_t) scr->fileoff;
-        if ((foff + test) > fsize) return 1;
+        if ((foff + test) > scr->ctxt->file_size) return 1;
     }
     return 0;
 }
@@ -220,7 +220,7 @@ scratch_seq_skip (struct _internal_exr_seq_scratch* scr, int32_t sz)
 
 static exr_result_t
 priv_init_scratch (
-    struct _priv_exr_context_t*       ctxt,
+    exr_context_t                     ctxt,
     struct _internal_exr_seq_scratch* scr,
     uint64_t                          offset)
 {
@@ -241,7 +241,7 @@ priv_init_scratch (
 static void
 priv_destroy_scratch (struct _internal_exr_seq_scratch* scr)
 {
-    struct _priv_exr_context_t* pctxt = scr->ctxt;
+    exr_context_t pctxt = scr->ctxt;
     if (scr->scratch) pctxt->free_fn (scr->scratch);
 }
 
@@ -249,7 +249,6 @@ priv_destroy_scratch (struct _internal_exr_seq_scratch* scr)
 
 static exr_result_t
 check_bad_attrsz (
-    struct _priv_exr_context_t*       ctxt,
     struct _internal_exr_seq_scratch* scratch,
     int32_t                           attrsz,
     int32_t                           eltsize,
@@ -257,21 +256,21 @@ check_bad_attrsz (
     const char*                       tname,
     int32_t*                          outsz)
 {
-    int32_t n = attrsz;
+    int32_t       n = attrsz;
 
     *outsz = n;
     if (attrsz < 0)
-        return ctxt->print_error (
-            ctxt,
+        return scratch->ctxt->print_error (
+            scratch->ctxt,
             EXR_ERR_ATTR_SIZE_MISMATCH,
             "Attribute '%s', type '%s': Invalid negative size %d",
             aname,
             tname,
             attrsz);
 
-    if (scratch_attr_too_big (scratch, attrsz, ctxt->file_size))
-        return ctxt->print_error (
-            ctxt,
+    if (scratch_attr_too_big (scratch, attrsz))
+        return scratch->ctxt->print_error (
+            scratch->ctxt,
             EXR_ERR_ATTR_SIZE_MISMATCH,
             "Attribute '%s', type '%s': Invalid size %d",
             aname,
@@ -282,8 +281,8 @@ check_bad_attrsz (
     {
         n = attrsz / eltsize;
         if (attrsz != (int32_t) (n * eltsize))
-            return ctxt->print_error (
-                ctxt,
+            return scratch->ctxt->print_error (
+                scratch->ctxt,
                 EXR_ERR_ATTR_SIZE_MISMATCH,
                 "Attribute '%s': Invalid size %d (exp '%s' size 4 * n, found odd bytes %d)",
                 aname,
@@ -300,7 +299,6 @@ check_bad_attrsz (
 
 static exr_result_t
 read_text (
-    struct _priv_exr_context_t*       ctxt,
     char                              text[256],
     int32_t*                          outlen,
     int32_t                           maxlen,
@@ -323,8 +321,8 @@ read_text (
     if (namelen > maxlen)
     {
         text[maxlen - 1] = '\0';
-        return ctxt->print_error (
-            ctxt,
+        return scratch->ctxt->print_error (
+            scratch->ctxt,
             EXR_ERR_NAME_TOO_LONG,
             "Invalid %s encountered: start '%s' (max %d)",
             type,
@@ -338,26 +336,26 @@ read_text (
 
 static exr_result_t
 extract_attr_chlist (
-    struct _priv_exr_context_t*       ctxt,
+    exr_context_t                     ctxt,
     struct _internal_exr_seq_scratch* scratch,
     exr_attr_chlist_t*                attrdata,
     const char*                       aname,
     const char*                       tname,
     int32_t                           attrsz)
 {
-    char         chname[256];
-    int32_t      chlen;
-    int32_t      ptype, xsamp, ysamp;
-    uint8_t      flags[4];
-    int32_t      maxlen = ctxt->max_name_length;
-    exr_result_t rv;
+    char          chname[256];
+    int32_t       chlen;
+    int32_t       ptype, xsamp, ysamp;
+    uint8_t       flags[4];
+    int32_t       maxlen = ctxt->max_name_length;
+    exr_result_t  rv;
 
-    rv = check_bad_attrsz (ctxt, scratch, attrsz, 1, aname, tname, &chlen);
+    rv = check_bad_attrsz (scratch, attrsz, 1, aname, tname, &chlen);
 
     while (rv == EXR_ERR_SUCCESS && attrsz > 0)
     {
         chlen = 0;
-        rv    = read_text (ctxt, chname, &chlen, maxlen, scratch, aname);
+        rv    = read_text (chname, &chlen, maxlen, scratch, aname);
         if (rv != EXR_ERR_SUCCESS) break;
         attrsz -= chlen + 1;
 
@@ -388,7 +386,7 @@ extract_attr_chlist (
         ysamp = (int32_t) one_to_native32 ((uint32_t) ysamp);
 
         rv = exr_attr_chlist_add_with_length (
-            (exr_context_t) ctxt,
+            ctxt,
             attrdata,
             chname,
             chlen,
@@ -404,7 +402,7 @@ extract_attr_chlist (
 
 static exr_result_t
 extract_attr_uint8 (
-    struct _priv_exr_context_t*       ctxt,
+    exr_context_t                     ctxt,
     struct _internal_exr_seq_scratch* scratch,
     uint8_t*                          attrdata,
     const char*                       aname,
@@ -442,7 +440,7 @@ extract_attr_uint8 (
 
 static exr_result_t
 extract_attr_64bit (
-    struct _priv_exr_context_t*       ctxt,
+    exr_context_t                     ctxt,
     struct _internal_exr_seq_scratch* scratch,
     void*                             attrdata,
     const char*                       aname,
@@ -475,7 +473,7 @@ extract_attr_64bit (
 
 static exr_result_t
 extract_attr_32bit (
-    struct _priv_exr_context_t*       ctxt,
+    exr_context_t                     ctxt,
     struct _internal_exr_seq_scratch* scratch,
     void*                             attrdata,
     const char*                       aname,
@@ -508,30 +506,30 @@ extract_attr_32bit (
 
 static exr_result_t
 extract_attr_float_vector (
-    struct _priv_exr_context_t*       ctxt,
+    exr_context_t                     ctxt,
     struct _internal_exr_seq_scratch* scratch,
     exr_attr_float_vector_t*          attrdata,
     const char*                       aname,
     const char*                       tname,
     int32_t                           attrsz)
 {
-    int32_t      n  = 0;
-    exr_result_t rv = check_bad_attrsz (
-        ctxt, scratch, attrsz, (int) sizeof (float), aname, tname, &n);
+    int32_t       n  = 0;
+    exr_result_t  rv = check_bad_attrsz (
+        scratch, attrsz, (int) sizeof (float), aname, tname, &n);
 
     /* in case of duplicate attr name in header (mostly fuzz testing) */
-    exr_attr_float_vector_destroy ((exr_context_t) ctxt, attrdata);
+    exr_attr_float_vector_destroy (ctxt, attrdata);
 
     if (rv == EXR_ERR_SUCCESS && n > 0)
     {
-        rv = exr_attr_float_vector_init ((exr_context_t) ctxt, attrdata, n);
+        rv = exr_attr_float_vector_init (ctxt, attrdata, n);
         if (rv != EXR_ERR_SUCCESS) return rv;
 
         rv = scratch->sequential_read (
             scratch, EXR_CONST_CAST (void*, attrdata->arr), (uint64_t) attrsz);
         if (rv != EXR_ERR_SUCCESS)
         {
-            exr_attr_float_vector_destroy ((exr_context_t) ctxt, attrdata);
+            exr_attr_float_vector_destroy (ctxt, attrdata);
             return ctxt->print_error (
                 ctxt,
                 EXR_ERR_READ_IO,
@@ -550,7 +548,7 @@ extract_attr_float_vector (
 
 static exr_result_t
 extract_attr_string (
-    struct _priv_exr_context_t*       ctxt,
+    exr_context_t                     ctxt,
     struct _internal_exr_seq_scratch* scratch,
     exr_attr_string_t*                attrdata,
     const char*                       aname,
@@ -558,7 +556,7 @@ extract_attr_string (
     int32_t                           attrsz,
     char*                             strptr)
 {
-    exr_result_t rv =
+    exr_result_t  rv   =
         scratch->sequential_read (scratch, (void*) strptr, (uint64_t) attrsz);
 
     if (rv != EXR_ERR_SUCCESS)
@@ -568,14 +566,14 @@ extract_attr_string (
     strptr[attrsz] = '\0';
 
     return exr_attr_string_init_static_with_length (
-        (exr_context_t) ctxt, attrdata, strptr, attrsz);
+        ctxt, attrdata, strptr, attrsz);
 }
 
 /**************************************/
 
 static exr_result_t
 extract_attr_string_vector (
-    struct _priv_exr_context_t*       ctxt,
+    exr_context_t                     ctxt,
     struct _internal_exr_seq_scratch* scratch,
     exr_attr_string_vector_t*         attrdata,
     const char*                       aname,
@@ -586,7 +584,7 @@ extract_attr_string_vector (
     int32_t            n, nstr, nalloced, nlen, pulled = 0;
     exr_attr_string_t *nlist, *clist, nil = {0};
 
-    rv = check_bad_attrsz (ctxt, scratch, attrsz, 1, aname, tname, &n);
+    rv = check_bad_attrsz (scratch, attrsz, 1, aname, tname, &n);
     if (rv != EXR_ERR_SUCCESS) return rv;
 
     nstr     = 0;
@@ -647,7 +645,7 @@ extract_attr_string_vector (
         nlist  = clist + nstr;
         *nlist = nil;
         nstr += 1;
-        rv = exr_attr_string_init ((exr_context_t) ctxt, nlist, nlen);
+        rv = exr_attr_string_init (ctxt, nlist, nlen);
         if (rv != EXR_ERR_SUCCESS) goto extract_string_vector_fail;
 
         rv = scratch->sequential_read (
@@ -667,14 +665,14 @@ extract_attr_string_vector (
     }
 
     // just in case someone injected a duplicate attribute name into the header
-    exr_attr_string_vector_destroy ((exr_context_t) ctxt, attrdata);
+    exr_attr_string_vector_destroy (ctxt, attrdata);
     attrdata->n_strings  = nstr;
     attrdata->alloc_size = nalloced;
     attrdata->strings    = clist;
     return EXR_ERR_SUCCESS;
 extract_string_vector_fail:
     for (int32_t i = 0; i < nstr; ++i)
-        exr_attr_string_destroy ((exr_context_t) ctxt, clist + i);
+        exr_attr_string_destroy (ctxt, clist + i);
     if (clist) ctxt->free_fn (clist);
 
     return rv;
@@ -684,7 +682,7 @@ extract_string_vector_fail:
 
 static exr_result_t
 extract_attr_tiledesc (
-    struct _priv_exr_context_t*       ctxt,
+    exr_context_t                     ctxt,
     struct _internal_exr_seq_scratch* scratch,
     exr_attr_tiledesc_t*              attrdata,
     const char*                       aname,
@@ -734,29 +732,28 @@ extract_attr_tiledesc (
 
 static exr_result_t
 extract_attr_opaque (
-    struct _priv_exr_context_t*       ctxt,
+    exr_context_t                     ctxt,
     struct _internal_exr_seq_scratch* scratch,
     exr_attr_opaquedata_t*            attrdata,
     const char*                       aname,
     const char*                       tname,
     int32_t                           attrsz)
 {
-    int32_t      n;
-    exr_result_t rv;
+    int32_t       n;
+    exr_result_t  rv;
 
-    rv = check_bad_attrsz (ctxt, scratch, attrsz, 1, aname, tname, &n);
+    rv = check_bad_attrsz (scratch, attrsz, 1, aname, tname, &n);
     if (rv != EXR_ERR_SUCCESS) return rv;
 
-    exr_attr_opaquedata_destroy ((exr_context_t) ctxt, attrdata);
-    rv = exr_attr_opaquedata_init (
-        (exr_context_t) ctxt, attrdata, (uint64_t) attrsz);
+    exr_attr_opaquedata_destroy (ctxt, attrdata);
+    rv = exr_attr_opaquedata_init (ctxt, attrdata, (uint64_t) attrsz);
     if (rv != EXR_ERR_SUCCESS) return rv;
 
     rv = scratch->sequential_read (
         scratch, (void*) attrdata->packed_data, (uint64_t) attrsz);
     if (rv != EXR_ERR_SUCCESS)
     {
-        exr_attr_opaquedata_destroy ((exr_context_t) ctxt, attrdata);
+        exr_attr_opaquedata_destroy (ctxt, attrdata);
         return ctxt->print_error (
             ctxt,
             EXR_ERR_READ_IO,
@@ -772,20 +769,20 @@ extract_attr_opaque (
 
 static exr_result_t
 extract_attr_preview (
-    struct _priv_exr_context_t*       ctxt,
+    exr_context_t                     ctxt,
     struct _internal_exr_seq_scratch* scratch,
     exr_attr_preview_t*               attrdata,
     const char*                       aname,
     const char*                       tname,
     int32_t                           attrsz)
 {
-    uint64_t     bytes;
-    uint32_t     sz[2];
-    exr_result_t rv;
-    int64_t      fsize = ctxt->file_size;
+    uint64_t      bytes;
+    uint32_t      sz[2];
+    exr_result_t  rv;
+    int64_t       fsize = ctxt->file_size;
 
     /* mostly for fuzzing, but just in case there's a duplicate name */
-    exr_attr_preview_destroy ((exr_context_t) ctxt, attrdata);
+    exr_attr_preview_destroy (ctxt, attrdata);
 
     if (attrsz < 8)
         return ctxt->print_error (
@@ -827,7 +824,7 @@ extract_attr_preview (
             sz[1]);
     }
 
-    rv = exr_attr_preview_init ((exr_context_t) ctxt, attrdata, sz[0], sz[1]);
+    rv = exr_attr_preview_init (ctxt, attrdata, sz[0], sz[1]);
     if (rv != EXR_ERR_SUCCESS) return rv;
 
     if (bytes > 0)
@@ -836,7 +833,7 @@ extract_attr_preview (
             scratch, EXR_CONST_CAST (void*, attrdata->rgba), sz[0] * sz[1] * 4);
         if (rv != EXR_ERR_SUCCESS)
         {
-            exr_attr_preview_destroy ((exr_context_t) ctxt, attrdata);
+            exr_attr_preview_destroy (ctxt, attrdata);
             return ctxt->print_error (
                 ctxt,
                 rv,
@@ -853,7 +850,7 @@ extract_attr_preview (
 
 static exr_result_t
 check_populate_channels (
-    struct _priv_exr_context_t*       ctxt,
+    exr_context_t                     ctxt,
     struct _priv_exr_part_t*          curpart,
     struct _internal_exr_seq_scratch* scratch,
     const char*                       tname,
@@ -885,12 +882,12 @@ check_populate_channels (
         ctxt, scratch, &(tmpchans), EXR_REQ_CHANNELS_STR, tname, attrsz);
     if (rv != EXR_ERR_SUCCESS)
     {
-        exr_attr_chlist_destroy ((exr_context_t) ctxt, &(tmpchans));
+        exr_attr_chlist_destroy (ctxt, &(tmpchans));
         return rv;
     }
 
     rv = exr_attr_list_add_static_name (
-        (exr_context_t) ctxt,
+        ctxt,
         &(curpart->attributes),
         EXR_REQ_CHANNELS_STR,
         EXR_ATTR_CHLIST,
@@ -900,7 +897,7 @@ check_populate_channels (
 
     if (rv != EXR_ERR_SUCCESS)
     {
-        exr_attr_chlist_destroy ((exr_context_t) ctxt, &tmpchans);
+        exr_attr_chlist_destroy (ctxt, &tmpchans);
         return ctxt->print_error (
             ctxt,
             rv,
@@ -908,7 +905,7 @@ check_populate_channels (
             EXR_REQ_CHANNELS_STR);
     }
 
-    exr_attr_chlist_destroy ((exr_context_t) ctxt, curpart->channels->chlist);
+    exr_attr_chlist_destroy (ctxt, curpart->channels->chlist);
     *(curpart->channels->chlist) = tmpchans;
     return rv;
 }
@@ -917,7 +914,7 @@ check_populate_channels (
 
 static exr_result_t
 check_populate_compression (
-    struct _priv_exr_context_t*       ctxt,
+    exr_context_t                     ctxt,
     struct _priv_exr_part_t*          curpart,
     struct _internal_exr_seq_scratch* scratch,
     const char*                       tname,
@@ -958,7 +955,7 @@ check_populate_compression (
     if (rv != EXR_ERR_SUCCESS) return rv;
 
     rv = exr_attr_list_add_static_name (
-        (exr_context_t) ctxt,
+        ctxt,
         &(curpart->attributes),
         EXR_REQ_COMP_STR,
         EXR_ATTR_COMPRESSION,
@@ -981,7 +978,7 @@ check_populate_compression (
 
 static exr_result_t
 check_populate_dataWindow (
-    struct _priv_exr_context_t*       ctxt,
+    exr_context_t                     ctxt,
     struct _priv_exr_part_t*          curpart,
     struct _internal_exr_seq_scratch* scratch,
     const char*                       tname,
@@ -1016,7 +1013,7 @@ check_populate_dataWindow (
     if (rv != EXR_ERR_SUCCESS) return rv;
 
     rv = exr_attr_list_add_static_name (
-        (exr_context_t) ctxt,
+        ctxt,
         &(curpart->attributes),
         EXR_REQ_DATA_STR,
         EXR_ATTR_BOX2I,
@@ -1039,7 +1036,7 @@ check_populate_dataWindow (
 
 static exr_result_t
 check_populate_displayWindow (
-    struct _priv_exr_context_t*       ctxt,
+    exr_context_t                     ctxt,
     struct _priv_exr_part_t*          curpart,
     struct _internal_exr_seq_scratch* scratch,
     const char*                       tname,
@@ -1074,7 +1071,7 @@ check_populate_displayWindow (
     if (rv != EXR_ERR_SUCCESS) return rv;
 
     rv = exr_attr_list_add_static_name (
-        (exr_context_t) ctxt,
+        ctxt,
         &(curpart->attributes),
         EXR_REQ_DISP_STR,
         EXR_ATTR_BOX2I,
@@ -1097,7 +1094,7 @@ check_populate_displayWindow (
 
 static exr_result_t
 check_populate_lineOrder (
-    struct _priv_exr_context_t*       ctxt,
+    exr_context_t                     ctxt,
     struct _priv_exr_part_t*          curpart,
     struct _internal_exr_seq_scratch* scratch,
     const char*                       tname,
@@ -1138,7 +1135,7 @@ check_populate_lineOrder (
     if (rv != EXR_ERR_SUCCESS) return rv;
 
     rv = exr_attr_list_add_static_name (
-        (exr_context_t) ctxt,
+        ctxt,
         &(curpart->attributes),
         EXR_REQ_LO_STR,
         EXR_ATTR_LINEORDER,
@@ -1161,7 +1158,7 @@ check_populate_lineOrder (
 
 static exr_result_t
 check_populate_pixelAspectRatio (
-    struct _priv_exr_context_t*       ctxt,
+    exr_context_t                     ctxt,
     struct _priv_exr_part_t*          curpart,
     struct _internal_exr_seq_scratch* scratch,
     const char*                       tname,
@@ -1218,7 +1215,7 @@ check_populate_pixelAspectRatio (
     tpun.ival = one_to_native32 (tpun.ival);
 
     rv = exr_attr_list_add_static_name (
-        (exr_context_t) ctxt,
+        ctxt,
         &(curpart->attributes),
         EXR_REQ_PAR_STR,
         EXR_ATTR_FLOAT,
@@ -1240,7 +1237,7 @@ check_populate_pixelAspectRatio (
 
 static exr_result_t
 check_populate_screenWindowCenter (
-    struct _priv_exr_context_t*       ctxt,
+    exr_context_t                     ctxt,
     struct _priv_exr_part_t*          curpart,
     struct _internal_exr_seq_scratch* scratch,
     const char*                       tname,
@@ -1294,7 +1291,7 @@ check_populate_screenWindowCenter (
     priv_to_native32 (&tmpdata, 2);
 
     rv = exr_attr_list_add_static_name (
-        (exr_context_t) ctxt,
+        ctxt,
         &(curpart->attributes),
         EXR_REQ_SCR_WC_STR,
         EXR_ATTR_V2F,
@@ -1316,7 +1313,7 @@ check_populate_screenWindowCenter (
 
 static exr_result_t
 check_populate_screenWindowWidth (
-    struct _priv_exr_context_t*       ctxt,
+    exr_context_t                     ctxt,
     struct _priv_exr_part_t*          curpart,
     struct _internal_exr_seq_scratch* scratch,
     const char*                       tname,
@@ -1373,7 +1370,7 @@ check_populate_screenWindowWidth (
     tpun.ival = one_to_native32 (tpun.ival);
 
     rv = exr_attr_list_add_static_name (
-        (exr_context_t) ctxt,
+        ctxt,
         &(curpart->attributes),
         EXR_REQ_SCR_WW_STR,
         EXR_ATTR_FLOAT,
@@ -1395,7 +1392,7 @@ check_populate_screenWindowWidth (
 
 static exr_result_t
 check_populate_tiles (
-    struct _priv_exr_context_t*       ctxt,
+    exr_context_t                     ctxt,
     struct _priv_exr_part_t*          curpart,
     struct _internal_exr_seq_scratch* scratch,
     const char*                       tname,
@@ -1442,7 +1439,7 @@ check_populate_tiles (
     tmpdata.y_size = one_to_native32 (tmpdata.y_size);
 
     rv = exr_attr_list_add_static_name (
-        (exr_context_t) ctxt,
+        ctxt,
         &(curpart->attributes),
         EXR_REQ_TILES_STR,
         EXR_ATTR_TILEDESC,
@@ -1464,7 +1461,7 @@ check_populate_tiles (
 
 static exr_result_t
 check_populate_name (
-    struct _priv_exr_context_t*       ctxt,
+    exr_context_t                     ctxt,
     struct _priv_exr_part_t*          curpart,
     struct _internal_exr_seq_scratch* scratch,
     const char*                       tname,
@@ -1475,7 +1472,7 @@ check_populate_name (
     int32_t      n;
 
     rv = check_bad_attrsz (
-        ctxt, scratch, attrsz, 1, EXR_REQ_NAME_STR, tname, &n);
+        scratch, attrsz, 1, EXR_REQ_NAME_STR, tname, &n);
     if (rv != EXR_ERR_SUCCESS) return rv;
 
     if (curpart->name)
@@ -1498,7 +1495,7 @@ check_populate_name (
     }
 
     rv = exr_attr_list_add_static_name (
-        (exr_context_t) ctxt,
+        ctxt,
         &(curpart->attributes),
         EXR_REQ_NAME_STR,
         EXR_ATTR_STRING,
@@ -1519,14 +1516,14 @@ check_populate_name (
     if (rv != EXR_ERR_SUCCESS)
     {
         exr_attr_list_remove (
-            (exr_context_t) ctxt, &(curpart->attributes), curpart->name);
+            ctxt, &(curpart->attributes), curpart->name);
         curpart->name = NULL;
         return ctxt->report_error (ctxt, rv, "Unable to read 'name' data");
     }
     outstr[attrsz] = '\0';
 
     rv = exr_attr_string_init_static_with_length (
-        (exr_context_t) ctxt,
+        ctxt,
         curpart->name->string,
         (const char*) outstr,
         attrsz);
@@ -1545,7 +1542,7 @@ check_populate_name (
 
 static exr_result_t
 check_populate_type (
-    struct _priv_exr_context_t*       ctxt,
+    exr_context_t                     ctxt,
     struct _priv_exr_part_t*          curpart,
     struct _internal_exr_seq_scratch* scratch,
     const char*                       tname,
@@ -1556,7 +1553,7 @@ check_populate_type (
     int32_t      n;
 
     rv = check_bad_attrsz (
-        ctxt, scratch, attrsz, 1, EXR_REQ_TYPE_STR, tname, &n);
+        scratch, attrsz, 1, EXR_REQ_TYPE_STR, tname, &n);
     if (rv != EXR_ERR_SUCCESS) return rv;
 
     if (curpart->type)
@@ -1579,7 +1576,7 @@ check_populate_type (
     }
 
     rv = exr_attr_list_add_static_name (
-        (exr_context_t) ctxt,
+        ctxt,
         &(curpart->attributes),
         EXR_REQ_TYPE_STR,
         EXR_ATTR_STRING,
@@ -1599,22 +1596,20 @@ check_populate_type (
     rv = scratch->sequential_read (scratch, outstr, (uint64_t) attrsz);
     if (rv != EXR_ERR_SUCCESS)
     {
-        exr_attr_list_remove (
-            (exr_context_t) ctxt, &(curpart->attributes), curpart->type);
+        exr_attr_list_remove (ctxt, &(curpart->attributes), curpart->type);
         curpart->type = NULL;
         return ctxt->report_error (ctxt, rv, "Unable to read 'name' data");
     }
     outstr[attrsz] = '\0';
 
     rv = exr_attr_string_init_static_with_length (
-        (exr_context_t) ctxt,
+        ctxt,
         curpart->type->string,
         (const char*) outstr,
         attrsz);
     if (rv != EXR_ERR_SUCCESS)
     {
-        exr_attr_list_remove (
-            (exr_context_t) ctxt, &(curpart->attributes), curpart->type);
+        exr_attr_list_remove (ctxt, &(curpart->attributes), curpart->type);
         curpart->type = NULL;
         return ctxt->report_error (ctxt, rv, "Unable to read 'name' data");
     }
@@ -1634,8 +1629,7 @@ check_populate_type (
             EXR_ERR_INVALID_ATTR,
             "attribute 'type': Invalid type string '%s'",
             outstr);
-        exr_attr_list_remove (
-            (exr_context_t) ctxt, &(curpart->attributes), curpart->type);
+        exr_attr_list_remove (ctxt, &(curpart->attributes), curpart->type);
         curpart->type = NULL;
     }
 
@@ -1646,7 +1640,7 @@ check_populate_type (
 
 static exr_result_t
 check_populate_version (
-    struct _priv_exr_context_t*       ctxt,
+    exr_context_t                     ctxt,
     struct _priv_exr_part_t*          curpart,
     struct _internal_exr_seq_scratch* scratch,
     const char*                       tname,
@@ -1693,7 +1687,7 @@ check_populate_version (
             ctxt, EXR_ERR_INVALID_ATTR, "Invalid version %d: expect 1", attrsz);
 
     rv = exr_attr_list_add_static_name (
-        (exr_context_t) ctxt,
+        ctxt,
         &(curpart->attributes),
         EXR_REQ_VERSION_STR,
         EXR_ATTR_INT,
@@ -1714,7 +1708,7 @@ check_populate_version (
 
 static exr_result_t
 check_populate_chunk_count (
-    struct _priv_exr_context_t*       ctxt,
+    exr_context_t                     ctxt,
     struct _priv_exr_part_t*          curpart,
     struct _internal_exr_seq_scratch* scratch,
     const char*                       tname,
@@ -1756,7 +1750,7 @@ check_populate_chunk_count (
         return ctxt->report_error (ctxt, rv, "Unable to read chunkCount data");
 
     rv = exr_attr_list_add_static_name (
-        (exr_context_t) ctxt,
+        ctxt,
         &(curpart->attributes),
         EXR_REQ_CHUNK_COUNT_STR,
         EXR_ATTR_INT,
@@ -1780,7 +1774,7 @@ check_populate_chunk_count (
 
 static exr_result_t
 check_req_attr (
-    struct _priv_exr_context_t*       ctxt,
+    exr_context_t                     ctxt,
     struct _priv_exr_part_t*          curpart,
     struct _internal_exr_seq_scratch* scratch,
     const char*                       aname,
@@ -1854,7 +1848,7 @@ check_req_attr (
 
 static exr_result_t
 pull_attr (
-    struct _priv_exr_context_t*       ctxt,
+    exr_context_t                     ctxt,
     struct _priv_exr_part_t*          curpart,
     uint8_t                           init_byte,
     struct _internal_exr_seq_scratch* scratch)
@@ -1870,9 +1864,9 @@ pull_attr (
     name[0] = (char) init_byte;
     namelen = 1;
 
-    rv = read_text (ctxt, name, &namelen, maxlen, scratch, "attribute name");
+    rv = read_text (name, &namelen, maxlen, scratch, "attribute name");
     if (rv != EXR_ERR_SUCCESS) return rv;
-    rv = read_text (ctxt, type, &typelen, maxlen, scratch, "attribute type");
+    rv = read_text (type, &typelen, maxlen, scratch, "attribute type");
     if (rv != EXR_ERR_SUCCESS) return rv;
 
     if (namelen == 0)
@@ -1905,11 +1899,11 @@ pull_attr (
     if (!strcmp (type, "string"))
     {
         int32_t n;
-        rv = check_bad_attrsz (ctxt, scratch, attrsz, 1, name, type, &n);
+        rv = check_bad_attrsz (scratch, attrsz, 1, name, type, &n);
         if (rv != EXR_ERR_SUCCESS) return rv;
 
         rv = exr_attr_list_add (
-            (exr_context_t) ctxt,
+            ctxt,
             &(curpart->attributes),
             name,
             EXR_ATTR_STRING,
@@ -1920,7 +1914,7 @@ pull_attr (
     else
     {
         rv = exr_attr_list_add_by_type (
-            (exr_context_t) ctxt,
+            ctxt,
             &(curpart->attributes),
             name,
             type,
@@ -2092,8 +2086,7 @@ pull_attr (
     }
     if (rv != EXR_ERR_SUCCESS)
     {
-        exr_attr_list_remove (
-            (exr_context_t) ctxt, &(curpart->attributes), nattr);
+        exr_attr_list_remove (ctxt, &(curpart->attributes), nattr);
     }
 
     return rv;
@@ -2150,9 +2143,9 @@ calc_level_size (
 
 exr_result_t
 internal_exr_compute_tile_information (
-    struct _priv_exr_context_t* ctxt,
-    struct _priv_exr_part_t*    curpart,
-    int                         rebuild)
+    exr_context_t            ctxt,
+    struct _priv_exr_part_t* curpart,
+    int                      rebuild)
 {
     exr_result_t rv = EXR_ERR_SUCCESS;
     if (curpart->storage_mode == EXR_STORAGE_SCANLINE ||
@@ -2403,7 +2396,7 @@ internal_exr_compute_chunk_offset_size (struct _priv_exr_part_t* curpart)
 
 static exr_result_t
 update_chunk_offsets (
-    struct _priv_exr_context_t*       ctxt,
+    exr_context_t                     ctxt,
     struct _internal_exr_seq_scratch* scratch)
 {
     struct _priv_exr_part_t *curpart, *prevpart;
@@ -2465,7 +2458,7 @@ update_chunk_offsets (
 
 static exr_result_t
 read_magic_and_flags (
-    struct _priv_exr_context_t* ctxt, uint32_t* outflags, uint64_t* initpos)
+    exr_context_t ctxt, uint32_t* outflags, uint64_t* initpos)
 {
     uint32_t     magic_and_version[2];
     uint32_t     flags;
@@ -2535,7 +2528,7 @@ read_magic_and_flags (
 /**************************************/
 
 exr_result_t
-internal_exr_check_magic (struct _priv_exr_context_t* ctxt)
+internal_exr_check_magic (exr_context_t ctxt)
 {
     uint32_t     flags;
     uint64_t     initpos;
@@ -2548,7 +2541,7 @@ internal_exr_check_magic (struct _priv_exr_context_t* ctxt)
 /**************************************/
 
 exr_result_t
-internal_exr_parse_header (struct _priv_exr_context_t* ctxt)
+internal_exr_parse_header (exr_context_t ctxt)
 {
     struct _internal_exr_seq_scratch scratch;
     struct _priv_exr_part_t*         curpart;

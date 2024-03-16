@@ -62,7 +62,7 @@ static int the_predefined_attr_count = sizeof (the_predefined_attr_typenames) /
 /**************************************/
 
 static exr_result_t
-attr_init (struct _priv_exr_context_t* ctxt, exr_attribute_t* nattr)
+attr_init (exr_context_t ctxt, exr_attribute_t* nattr)
 {
     switch (nattr->type)
     {
@@ -204,31 +204,28 @@ attr_init (struct _priv_exr_context_t* ctxt, exr_attribute_t* nattr)
 /**************************************/
 
 static exr_result_t
-attr_destroy (struct _priv_exr_context_t* ctxt, exr_attribute_t* attr)
+attr_destroy (exr_context_t ctxt, exr_attribute_t* attr)
 {
     exr_result_t rv = EXR_ERR_SUCCESS;
     switch (attr->type)
     {
         case EXR_ATTR_CHLIST:
-            rv = exr_attr_chlist_destroy ((exr_context_t) ctxt, attr->chlist);
+            rv = exr_attr_chlist_destroy (ctxt, attr->chlist);
             break;
         case EXR_ATTR_FLOAT_VECTOR:
-            rv = exr_attr_float_vector_destroy (
-                (exr_context_t) ctxt, attr->floatvector);
+            rv = exr_attr_float_vector_destroy (ctxt, attr->floatvector);
             break;
         case EXR_ATTR_PREVIEW:
-            rv = exr_attr_preview_destroy ((exr_context_t) ctxt, attr->preview);
+            rv = exr_attr_preview_destroy (ctxt, attr->preview);
             break;
         case EXR_ATTR_STRING:
-            rv = exr_attr_string_destroy ((exr_context_t) ctxt, attr->string);
+            rv = exr_attr_string_destroy (ctxt, attr->string);
             break;
         case EXR_ATTR_STRING_VECTOR:
-            rv = exr_attr_string_vector_destroy (
-                (exr_context_t) ctxt, attr->stringvector);
+            rv = exr_attr_string_vector_destroy (ctxt, attr->stringvector);
             break;
         case EXR_ATTR_OPAQUE:
-            rv = exr_attr_opaquedata_destroy (
-                (exr_context_t) ctxt, attr->opaque);
+            rv = exr_attr_opaquedata_destroy (ctxt, attr->opaque);
             break;
         case EXR_ATTR_BOX2I:
         case EXR_ATTR_BOX2F:
@@ -482,10 +479,10 @@ exr_attr_list_find_by_name (
 
 static exr_result_t
 add_to_list (
-    struct _priv_exr_context_t* ctxt,
-    exr_attribute_list_t*       list,
-    exr_attribute_t*            nattr,
-    const char*                 name)
+    exr_context_t         ctxt,
+    exr_attribute_list_t* list,
+    exr_attribute_t*      nattr,
+    const char*           name)
 {
     int               cattrsz = list->num_attributes;
     int               nattrsz = cattrsz + 1;
@@ -540,7 +537,7 @@ add_to_list (
     list->num_attributes = nattrsz;
     rv                   = attr_init (ctxt, nattr);
     if (rv != EXR_ERR_SUCCESS)
-        exr_attr_list_remove ((exr_context_t) ctxt, list, nattr);
+        exr_attr_list_remove (ctxt, list, nattr);
     return rv;
 }
 
@@ -548,12 +545,12 @@ add_to_list (
 
 static exr_result_t
 validate_attr_arguments (
-    struct _priv_exr_context_t* ctxt,
-    exr_attribute_list_t*       list,
-    const char*                 name,
-    int32_t                     data_len,
-    uint8_t**                   data_ptr,
-    exr_attribute_t**           attr)
+    exr_context_t         ctxt,
+    exr_attribute_list_t* list,
+    const char*           name,
+    int32_t               data_len,
+    uint8_t**             data_ptr,
+    exr_attribute_t**     attr)
 {
     exr_attribute_t* nattr = NULL;
     exr_result_t     rv;
@@ -601,8 +598,7 @@ validate_attr_arguments (
     }
 
     /* is it already in the list? */
-    rv = exr_attr_list_find_by_name (
-        (exr_const_context_t) ctxt, list, name, &nattr);
+    rv = exr_attr_list_find_by_name (ctxt, list, name, &nattr);
 
     if (rv == EXR_ERR_SUCCESS)
     {
@@ -626,7 +622,7 @@ validate_attr_arguments (
 /**************************************/
 
 static void
-check_attr_handler (struct _priv_exr_context_t* pctxt, exr_attribute_t* attr)
+check_attr_handler (exr_context_t pctxt, exr_attribute_t* attr)
 {
     if (attr->type == EXR_ATTR_OPAQUE)
     {
@@ -650,15 +646,15 @@ check_attr_handler (struct _priv_exr_context_t* pctxt, exr_attribute_t* attr)
 
 static exr_result_t
 create_attr_block (
-    struct _priv_exr_context_t* pctxt,
-    exr_attribute_t**           attr,
-    size_t                      dblocksize,
-    int32_t                     data_len,
-    uint8_t**                   data_ptr,
-    const char*                 name,
-    int32_t                     nlen,
-    const char*                 type,
-    int32_t                     tlen)
+    exr_context_t     pctxt,
+    exr_attribute_t** attr,
+    size_t            dblocksize,
+    int32_t           data_len,
+    uint8_t**         data_ptr,
+    const char*       name,
+    int32_t           nlen,
+    const char*       type,
+    int32_t           tlen)
 {
     size_t           alignpad1, alignpad2;
     size_t           attrblocksz = sizeof (exr_attribute_t);

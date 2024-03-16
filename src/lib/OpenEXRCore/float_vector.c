@@ -21,18 +21,6 @@ exr_attr_float_vector_init (
 
     INTERN_EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
 
-    if (nent < 0)
-        return pctxt->print_error (
-            pctxt,
-            EXR_ERR_INVALID_ARGUMENT,
-            "Received request to allocate negative sized float vector (%d entries)",
-            nent);
-    if (bytes > (size_t) INT32_MAX)
-        return pctxt->print_error (
-            pctxt,
-            EXR_ERR_INVALID_ARGUMENT,
-            "Invalid too large size for float vector (%d entries)",
-            nent);
     if (!fv)
         return pctxt->report_error (
             pctxt,
@@ -40,7 +28,23 @@ exr_attr_float_vector_init (
             "Invalid reference to float vector object to initialize");
 
     *fv = nil;
-    if (bytes > 0)
+
+    if (nent < 0)
+        return pctxt->print_error (
+            pctxt,
+            EXR_ERR_INVALID_ARGUMENT,
+            "Received request to allocate negative sized float vector (%d entries)",
+            nent);
+
+    if (bytes > (size_t) INT32_MAX)
+    {
+        return pctxt->print_error (
+            pctxt,
+            EXR_ERR_INVALID_ARGUMENT,
+            "Invalid too large size for float vector (%d entries)",
+            nent);
+    }
+    else if (bytes > 0)
     {
         fv->arr = (float*) pctxt->alloc_fn (bytes);
         if (fv->arr == NULL)
@@ -109,10 +113,15 @@ exr_attr_float_vector_create (
 
     rv = exr_attr_float_vector_init (ctxt, fv, nent);
     if (rv == EXR_ERR_SUCCESS && nent > 0)
-        memcpy (
-            EXR_CONST_CAST (float*, fv->arr),
-            arr,
-            (size_t) (nent) * sizeof (float));
+    {
+        size_t bytes = (size_t) (nent) * sizeof (float);
+        if (bytes <= (size_t) INT32_MAX)
+        {
+            float* outp = EXR_CONST_CAST (float*, fv->arr);
+            memcpy (outp, arr, bytes);
+        }
+    }
+
     return rv;
 }
 

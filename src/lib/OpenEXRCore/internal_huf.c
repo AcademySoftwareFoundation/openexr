@@ -583,11 +583,11 @@ hufClearDecTable (HufDec* hdecod)
 
 static exr_result_t
 hufBuildDecTable (
-    const struct _priv_exr_context_t* pctxt,
-    const uint64_t*                   hcode,
-    uint32_t                          im,
-    uint32_t                          iM,
-    HufDec*                           hdecod)
+    exr_const_context_t pctxt,
+    const uint64_t*     hcode,
+    uint32_t            im,
+    uint32_t            iM,
+    HufDec*             hdecod)
 {
     void* (*alloc_fn) (size_t) = pctxt ? pctxt->alloc_fn : internal_exr_alloc;
     void (*free_fn) (void*)    = pctxt ? pctxt->free_fn : internal_exr_free;
@@ -686,7 +686,7 @@ hufBuildDecTable (
 //
 
 static void
-hufFreeDecTable (const struct _priv_exr_context_t* pctxt, HufDec* hdecod)
+hufFreeDecTable (exr_const_context_t pctxt, HufDec* hdecod)
 {
     void (*free_fn) (void*) = pctxt ? pctxt->free_fn : internal_exr_free;
     for (int i = 0; i < HUF_DECSIZE; i++)
@@ -1080,10 +1080,10 @@ typedef struct FastHufDecoder
 
 static exr_result_t
 FastHufDecoder_buildTables (
-    const struct _priv_exr_context_t* pctxt,
-    FastHufDecoder*                   fhd,
-    uint64_t*                         base,
-    uint64_t*                         offset)
+    exr_const_context_t pctxt,
+    FastHufDecoder*     fhd,
+    uint64_t*           base,
+    uint64_t*           offset)
 {
     int minIdx = TABLE_LOOKUP_BITS;
 
@@ -1267,13 +1267,13 @@ fasthuf_read_bits (
 
 static exr_result_t
 fasthuf_initialize (
-    const struct _priv_exr_context_t* pctxt,
-    FastHufDecoder*                   fhd,
-    const uint8_t**                   table,
-    uint64_t                          numBytes,
-    uint32_t                          minSymbol,
-    uint32_t                          maxSymbol,
-    int                               rleSymbol)
+    exr_const_context_t pctxt,
+    FastHufDecoder*     fhd,
+    const uint8_t**     table,
+    uint64_t            numBytes,
+    uint32_t            minSymbol,
+    uint32_t            maxSymbol,
+    int                 rleSymbol)
 {
     //
     // The 'base' table is the minimum code at each code length. base[i]
@@ -1532,12 +1532,12 @@ fasthuf_decode_enabled (void)
 
 static exr_result_t
 fasthuf_decode (
-    const struct _priv_exr_context_t* pctxt,
-    FastHufDecoder*                   fhd,
-    const uint8_t*                    src,
-    uint64_t                          numSrcBits,
-    uint16_t*                         dst,
-    uint64_t                          numDstElems)
+    exr_const_context_t pctxt,
+    FastHufDecoder*     fhd,
+    const uint8_t*      src,
+    uint64_t            numSrcBits,
+    uint16_t*           dst,
+    uint64_t            numDstElems)
 {
     //
     // Current position (byte/bit) in the src data stream
@@ -1847,14 +1847,14 @@ internal_huf_decompress (
     void*                  spare,
     uint64_t               sparebytes)
 {
-    uint32_t                          im, iM, nBits;
-    uint64_t                          nBytes;
-    const uint8_t*                    ptr;
-    exr_result_t                      rv;
-    const struct _priv_exr_context_t* pctxt = NULL;
-    const uint64_t                    hufInfoBlockSize = 5 * sizeof (uint32_t);
+    uint32_t            im, iM, nBits;
+    uint64_t            nBytes;
+    const uint8_t*      ptr;
+    exr_result_t        rv;
+    exr_const_context_t pctxt = NULL;
+    const uint64_t      hufInfoBlockSize = 5 * sizeof (uint32_t);
 
-    if (decode) pctxt = EXR_CCTXT (decode->context);
+    if (decode) pctxt = decode->context;
     //
     // need at least 20 bytes for header
     //

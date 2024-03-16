@@ -148,25 +148,25 @@ struct _priv_exr_context_t
     exr_attr_string_t tmp_filename;
 
     exr_result_t (*do_read) (
-        const struct _priv_exr_context_t* file,
+        exr_const_context_t file,
         void*,
         uint64_t,
         uint64_t*,
         int64_t*,
         enum _INTERNAL_EXR_READ_MODE);
     exr_result_t (*do_write) (
-        struct _priv_exr_context_t* file, const void*, uint64_t, uint64_t*);
+        exr_context_t file, const void*, uint64_t, uint64_t*);
 
     exr_result_t (*standard_error) (
-        const struct _priv_exr_context_t* ctxt, exr_result_t code);
+        exr_const_context_t ctxt, exr_result_t code);
     exr_result_t (*report_error) (
-        const struct _priv_exr_context_t* ctxt,
-        exr_result_t                      code,
-        const char*                       msg);
+        exr_const_context_t ctxt,
+        exr_result_t        code,
+        const char*         msg);
     exr_result_t (*print_error) (
-        const struct _priv_exr_context_t* ctxt,
-        exr_result_t                      code,
-        const char*                       msg,
+        exr_const_context_t ctxt,
+        exr_result_t        code,
+        const char*         msg,
         ...) EXR_PRINTF_FUNC_ATTRIBUTE;
 
     exr_error_handler_cb_t error_handler_fn;
@@ -220,17 +220,14 @@ struct _priv_exr_context_t
     uint8_t _pad[6];
 };
 
-#define EXR_CTXT(c) ((struct _priv_exr_context_t*) (c))
-#define EXR_CCTXT(c) ((const struct _priv_exr_context_t*) (c))
-
 #define EXR_CONST_CAST(t, v) ((t) (uintptr_t) v)
 
 static inline void
-internal_exr_lock (const struct _priv_exr_context_t* c)
+internal_exr_lock (exr_const_context_t c)
 {
 #ifdef ILMTHREAD_THREADING_ENABLED
-    struct _priv_exr_context_t* nonc =
-        EXR_CONST_CAST (struct _priv_exr_context_t*, c);
+    exr_context_t nonc =
+        EXR_CONST_CAST (exr_context_t, c);
 #    ifdef _WIN32
     EnterCriticalSection (&nonc->mutex);
 #    else
@@ -240,11 +237,11 @@ internal_exr_lock (const struct _priv_exr_context_t* c)
 }
 
 static inline void
-internal_exr_unlock (const struct _priv_exr_context_t* c)
+internal_exr_unlock (exr_const_context_t c)
 {
 #ifdef ILMTHREAD_THREADING_ENABLED
-    struct _priv_exr_context_t* nonc =
-        EXR_CONST_CAST (struct _priv_exr_context_t*, c);
+    exr_context_t nonc =
+        EXR_CONST_CAST (exr_context_t, c);
 #    ifdef _WIN32
     LeaveCriticalSection (&nonc->mutex);
 #    else
@@ -253,9 +250,9 @@ internal_exr_unlock (const struct _priv_exr_context_t* c)
 #endif
 }
 
-#define EXR_LOCK(c) internal_exr_lock ((const struct _priv_exr_context_t*) c)
+#define EXR_LOCK(c) internal_exr_lock ((exr_const_context_t) c)
 #define EXR_UNLOCK(c)                                                          \
-    internal_exr_unlock ((const struct _priv_exr_context_t*) c)
+    internal_exr_unlock ((exr_const_context_t) c)
 
 #define EXR_LOCK_WRITE(c)                                                      \
     if (c->mode == EXR_CONTEXT_WRITE) internal_exr_lock (c)
@@ -271,11 +268,11 @@ internal_exr_unlock (const struct _priv_exr_context_t* c)
     ((void) (EXR_RETURN_WRITE (pctxt)), v)
 
 #define INTERN_EXR_PROMOTE_CONTEXT_OR_ERROR(c)                                 \
-    struct _priv_exr_context_t* pctxt = EXR_CTXT (c);                          \
+    exr_context_t pctxt = (c);                                                 \
     if (!pctxt) return EXR_ERR_MISSING_CONTEXT_ARG
 
 #define INTERN_EXR_PROMOTE_CONST_CONTEXT_OR_ERROR(c)                           \
-    const struct _priv_exr_context_t* pctxt = EXR_CCTXT (c);                   \
+    exr_const_context_t pctxt = (c);                                           \
     if (!pctxt) return EXR_ERR_MISSING_CONTEXT_ARG
 
 #define EXR_PROMOTE_LOCKED_CONTEXT_OR_ERROR(c)                                 \
@@ -287,8 +284,8 @@ internal_exr_unlock (const struct _priv_exr_context_t* c)
     EXR_LOCK_WRITE (pctxt)
 
 #define EXR_PROMOTE_LOCKED_CONTEXT_AND_PART_OR_ERROR(c, pi)                    \
-    struct _priv_exr_context_t* pctxt = EXR_CTXT (c);                          \
-    struct _priv_exr_part_t*    part;                                          \
+    exr_context_t            pctxt = (c);                                      \
+    struct _priv_exr_part_t* part;                                             \
     if (!pctxt) return EXR_ERR_MISSING_CONTEXT_ARG;                            \
     EXR_LOCK (pctxt);                                                          \
     if (pi < 0 || pi >= pctxt->num_parts)                                      \
@@ -302,8 +299,8 @@ internal_exr_unlock (const struct _priv_exr_context_t* c)
     part = pctxt->parts[pi]
 
 #define EXR_PROMOTE_CONST_CONTEXT_AND_PART_OR_ERROR(c, pi)                     \
-    const struct _priv_exr_context_t* pctxt = EXR_CCTXT (c);                   \
-    const struct _priv_exr_part_t*    part;                                    \
+    exr_const_context_t            pctxt = (c);                                \
+    const struct _priv_exr_part_t* part;                                       \
     if (!pctxt) return EXR_ERR_MISSING_CONTEXT_ARG;                            \
     EXR_LOCK_WRITE (pctxt);                                                    \
     if (pi < 0 || pi >= pctxt->num_parts)                                      \
@@ -317,7 +314,7 @@ internal_exr_unlock (const struct _priv_exr_context_t* c)
     part = pctxt->parts[pi]
 
 #define EXR_PROMOTE_CONST_CONTEXT_AND_PART_OR_ERROR_NO_LOCK(c, pi)             \
-    const struct _priv_exr_context_t* pctxt = EXR_CCTXT (c);                   \
+    exr_const_context_t               pctxt = (c);                             \
     const struct _priv_exr_part_t*    part;                                    \
     if (!pctxt) return EXR_ERR_MISSING_CONTEXT_ARG;                            \
     if (pi < 0 || pi >= pctxt->num_parts)                                      \
@@ -331,7 +328,7 @@ internal_exr_unlock (const struct _priv_exr_context_t* c)
     part = pctxt->parts[pi]
 
 #define EXR_PROMOTE_CONST_CONTEXT_OR_ERROR_NO_PART_NO_LOCK(c, pi)              \
-    const struct _priv_exr_context_t* pctxt = EXR_CCTXT (c);                   \
+    exr_const_context_t pctxt = (c);                                           \
     if (!pctxt) return EXR_ERR_MISSING_CONTEXT_ARG;                            \
     if (pi < 0 || pi >= pctxt->num_parts)                                      \
     return (                                                                   \
@@ -343,8 +340,8 @@ internal_exr_unlock (const struct _priv_exr_context_t* c)
             pi))
 
 #define EXR_PROMOTE_READ_CONST_CONTEXT_AND_PART_OR_ERROR(c, pi)                \
-    const struct _priv_exr_context_t* pctxt = EXR_CCTXT (c);                   \
-    const struct _priv_exr_part_t*    part;                                    \
+    exr_const_context_t            pctxt = (c);                                \
+    const struct _priv_exr_part_t* part;                                       \
     if (!pctxt) return EXR_ERR_MISSING_CONTEXT_ARG;                            \
     if (pctxt->mode != EXR_CONTEXT_READ)                                       \
         return pctxt->standard_error (pctxt, EXR_ERR_NOT_OPEN_READ);           \
@@ -357,7 +354,7 @@ internal_exr_unlock (const struct _priv_exr_context_t* c)
     part = pctxt->parts[pi]
 
 #define EXR_PROMOTE_READ_CONST_CONTEXT_OR_ERROR_NO_PART(c, pi)                 \
-    const struct _priv_exr_context_t* pctxt = EXR_CCTXT (c);                   \
+    exr_const_context_t pctxt = (c);                                           \
     if (!pctxt) return EXR_ERR_MISSING_CONTEXT_ARG;                            \
     if (pctxt->mode != EXR_CONTEXT_READ)                                       \
         return pctxt->standard_error (pctxt, EXR_ERR_NOT_OPEN_READ);           \

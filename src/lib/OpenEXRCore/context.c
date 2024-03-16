@@ -27,12 +27,12 @@
 
 static exr_result_t
 dispatch_read (
-    const struct _priv_exr_context_t* ctxt,
-    void*                             buf,
-    uint64_t                          sz,
-    uint64_t*                         offsetp,
-    int64_t*                          nread,
-    enum _INTERNAL_EXR_READ_MODE      rmode)
+    exr_const_context_t          ctxt,
+    void*                        buf,
+    uint64_t                     sz,
+    uint64_t*                    offsetp,
+    int64_t*                     nread,
+    enum _INTERNAL_EXR_READ_MODE rmode)
 {
     int64_t      rval = -1;
     exr_result_t rv   = EXR_ERR_UNKNOWN;
@@ -49,12 +49,12 @@ dispatch_read (
 
     if (ctxt->read_fn)
         rval = ctxt->read_fn (
-            (exr_const_context_t) ctxt,
+            ctxt,
             ctxt->user_data,
             buf,
             sz,
             *offsetp,
-            (exr_stream_error_func_ptr_t) ctxt->print_error);
+            ctxt->print_error);
     else
         return ctxt->standard_error (ctxt, EXR_ERR_NOT_OPEN_READ);
 
@@ -73,10 +73,10 @@ dispatch_read (
 
 static exr_result_t
 dispatch_write (
-    struct _priv_exr_context_t* ctxt,
-    const void*                 buf,
-    uint64_t                    sz,
-    uint64_t*                   offsetp)
+    exr_context_t ctxt,
+    const void*   buf,
+    uint64_t      sz,
+    uint64_t*     offsetp)
 {
     int64_t rval = -1;
 
@@ -90,12 +90,12 @@ dispatch_write (
 
     if (ctxt->write_fn)
         rval = ctxt->write_fn (
-            (exr_const_context_t) ctxt,
+            ctxt,
             ctxt->user_data,
             buf,
             sz,
             *offsetp,
-            (exr_stream_error_func_ptr_t) ctxt->print_error);
+            ctxt->print_error);
     else
         return ctxt->standard_error (ctxt, EXR_ERR_NOT_OPEN_WRITE);
 
@@ -108,7 +108,7 @@ dispatch_write (
 
 static exr_result_t
 process_query_size (
-    struct _priv_exr_context_t* ctxt, exr_context_initializer_t* inits)
+    exr_context_t ctxt, exr_context_initializer_t* inits)
 {
     if (inits->size_fn)
     {
@@ -211,12 +211,12 @@ exr_test_file_header (
 exr_result_t
 exr_finish (exr_context_t* pctxt)
 {
-    struct _priv_exr_context_t* ctxt;
-    exr_result_t                rv = EXR_ERR_SUCCESS;
+    exr_context_t ctxt;
+    exr_result_t  rv = EXR_ERR_SUCCESS;
 
     if (!pctxt) return EXR_ERR_MISSING_CONTEXT_ARG;
 
-    ctxt = EXR_CTXT (*pctxt);
+    ctxt = *pctxt;
     if (ctxt)
     {
         int failed = 0;
