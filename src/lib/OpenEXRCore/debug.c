@@ -295,7 +295,7 @@ exr_print_context_info (exr_const_context_t ctxt, int verbose)
 
     for (int partidx = 0; partidx < pctxt->num_parts; ++partidx)
     {
-        const struct _priv_exr_part_t* curpart = pctxt->parts[partidx];
+        exr_const_priv_part_t curpart = pctxt->parts[partidx];
         if (verbose || pctxt->is_multipart || curpart->name)
             printf (
                 " part %d: %s\n",

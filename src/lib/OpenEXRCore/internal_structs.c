@@ -150,7 +150,7 @@ dispatch_print_error (
 
 static void
 internal_exr_destroy_part (
-    exr_context_t ctxt, struct _priv_exr_part_t* cur)
+    exr_context_t ctxt, exr_priv_part_t cur)
 {
     exr_memory_free_func_t dofree = ctxt->free_fn;
     uint64_t*              ctable;
@@ -179,7 +179,7 @@ internal_exr_destroy_parts (exr_context_t ctxt)
     exr_memory_free_func_t dofree = ctxt->free_fn;
     for (int p = 0; p < ctxt->num_parts; ++p)
     {
-        struct _priv_exr_part_t* cur = ctxt->parts[p];
+        exr_priv_part_t cur = ctxt->parts[p];
 
         internal_exr_destroy_part (ctxt, cur);
 
@@ -198,12 +198,12 @@ internal_exr_destroy_parts (exr_context_t ctxt)
 exr_result_t
 internal_exr_add_part (
     exr_context_t               f,
-    struct _priv_exr_part_t**   outpart,
+    exr_priv_part_t*   outpart,
     int*                        new_index)
 {
     int                       ncount = f->num_parts + 1;
-    struct _priv_exr_part_t*  part;
-    struct _priv_exr_part_t** nptrs = NULL;
+    exr_priv_part_t  part;
+    exr_priv_part_t* nptrs = NULL;
 
     if (new_index) *new_index = f->num_parts;
 
@@ -222,7 +222,7 @@ internal_exr_add_part (
         if (!part) return f->standard_error (f, EXR_ERR_OUT_OF_MEMORY);
 
         nptrs =
-            f->alloc_fn (sizeof (struct _priv_exr_part_t*) * (size_t) ncount);
+            f->alloc_fn (sizeof (exr_priv_part_t) * (size_t) ncount);
         if (!nptrs)
         {
             f->free_fn (part);
@@ -265,11 +265,11 @@ internal_exr_add_part (
 void
 internal_exr_revert_add_part (
     exr_context_t             ctxt,
-    struct _priv_exr_part_t** outpart,
+    exr_priv_part_t* outpart,
     int*                      new_index)
 {
     int                      ncount = ctxt->num_parts - 1;
-    struct _priv_exr_part_t* part   = *outpart;
+    exr_priv_part_t part   = *outpart;
 
     *outpart   = NULL;
     *new_index = -1;
@@ -321,11 +321,11 @@ internal_exr_alloc_context (
     enum _INTERNAL_EXR_CONTEXT_MODE  mode,
     size_t                           default_size)
 {
-    void*                       memptr;
-    exr_result_t                rv;
-    struct _priv_exr_context_t* ret;
-    int                         gmaxw, gmaxh;
-    size_t                      extra_data;
+    void*         memptr;
+    exr_result_t  rv;
+    exr_context_t ret;
+    int           gmaxw, gmaxh;
+    size_t        extra_data;
 
     *out = NULL;
     if (initializers->read_fn || initializers->write_fn)
@@ -437,7 +437,7 @@ internal_exr_alloc_context (
          * part to make parsing logic easier */
         if (mode != EXR_CONTEXT_WRITE)
         {
-            struct _priv_exr_part_t* part;
+            exr_priv_part_t part;
             rv = internal_exr_add_part (ret, &part, NULL);
             if (rv != EXR_ERR_SUCCESS)
             {

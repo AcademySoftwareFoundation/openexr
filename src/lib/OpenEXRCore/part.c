@@ -52,11 +52,10 @@ exr_add_part (
     exr_storage_t type,
     int*          new_index)
 {
-    exr_result_t rv;
-    int32_t      attrsz  = -1;
-    const char*  typestr = NULL;
-
-    struct _priv_exr_part_t* part = NULL;
+    exr_result_t    rv;
+    int32_t         attrsz  = -1;
+    const char*     typestr = NULL;
+    exr_priv_part_t part = NULL;
 
     EXR_PROMOTE_LOCKED_CONTEXT_OR_ERROR (ctxt);
 

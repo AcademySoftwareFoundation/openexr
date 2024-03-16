@@ -851,7 +851,7 @@ extract_attr_preview (
 static exr_result_t
 check_populate_channels (
     exr_context_t                     ctxt,
-    struct _priv_exr_part_t*          curpart,
+    exr_priv_part_t                   curpart,
     struct _internal_exr_seq_scratch* scratch,
     const char*                       tname,
     int32_t                           attrsz)
@@ -915,7 +915,7 @@ check_populate_channels (
 static exr_result_t
 check_populate_compression (
     exr_context_t                     ctxt,
-    struct _priv_exr_part_t*          curpart,
+    exr_priv_part_t                   curpart,
     struct _internal_exr_seq_scratch* scratch,
     const char*                       tname,
     int32_t                           attrsz)
@@ -979,7 +979,7 @@ check_populate_compression (
 static exr_result_t
 check_populate_dataWindow (
     exr_context_t                     ctxt,
-    struct _priv_exr_part_t*          curpart,
+    exr_priv_part_t                   curpart,
     struct _internal_exr_seq_scratch* scratch,
     const char*                       tname,
     int32_t                           attrsz)
@@ -1037,7 +1037,7 @@ check_populate_dataWindow (
 static exr_result_t
 check_populate_displayWindow (
     exr_context_t                     ctxt,
-    struct _priv_exr_part_t*          curpart,
+    exr_priv_part_t                   curpart,
     struct _internal_exr_seq_scratch* scratch,
     const char*                       tname,
     int32_t                           attrsz)
@@ -1095,7 +1095,7 @@ check_populate_displayWindow (
 static exr_result_t
 check_populate_lineOrder (
     exr_context_t                     ctxt,
-    struct _priv_exr_part_t*          curpart,
+    exr_priv_part_t                   curpart,
     struct _internal_exr_seq_scratch* scratch,
     const char*                       tname,
     int32_t                           attrsz)
@@ -1159,7 +1159,7 @@ check_populate_lineOrder (
 static exr_result_t
 check_populate_pixelAspectRatio (
     exr_context_t                     ctxt,
-    struct _priv_exr_part_t*          curpart,
+    exr_priv_part_t                   curpart,
     struct _internal_exr_seq_scratch* scratch,
     const char*                       tname,
     int32_t                           attrsz)
@@ -1238,7 +1238,7 @@ check_populate_pixelAspectRatio (
 static exr_result_t
 check_populate_screenWindowCenter (
     exr_context_t                     ctxt,
-    struct _priv_exr_part_t*          curpart,
+    exr_priv_part_t                   curpart,
     struct _internal_exr_seq_scratch* scratch,
     const char*                       tname,
     int32_t                           attrsz)
@@ -1314,7 +1314,7 @@ check_populate_screenWindowCenter (
 static exr_result_t
 check_populate_screenWindowWidth (
     exr_context_t                     ctxt,
-    struct _priv_exr_part_t*          curpart,
+    exr_priv_part_t                   curpart,
     struct _internal_exr_seq_scratch* scratch,
     const char*                       tname,
     int32_t                           attrsz)
@@ -1393,7 +1393,7 @@ check_populate_screenWindowWidth (
 static exr_result_t
 check_populate_tiles (
     exr_context_t                     ctxt,
-    struct _priv_exr_part_t*          curpart,
+    exr_priv_part_t                   curpart,
     struct _internal_exr_seq_scratch* scratch,
     const char*                       tname,
     int32_t                           attrsz)
@@ -1462,7 +1462,7 @@ check_populate_tiles (
 static exr_result_t
 check_populate_name (
     exr_context_t                     ctxt,
-    struct _priv_exr_part_t*          curpart,
+    exr_priv_part_t                   curpart,
     struct _internal_exr_seq_scratch* scratch,
     const char*                       tname,
     int32_t                           attrsz)
@@ -1543,7 +1543,7 @@ check_populate_name (
 static exr_result_t
 check_populate_type (
     exr_context_t                     ctxt,
-    struct _priv_exr_part_t*          curpart,
+    exr_priv_part_t                   curpart,
     struct _internal_exr_seq_scratch* scratch,
     const char*                       tname,
     int32_t                           attrsz)
@@ -1641,7 +1641,7 @@ check_populate_type (
 static exr_result_t
 check_populate_version (
     exr_context_t                     ctxt,
-    struct _priv_exr_part_t*          curpart,
+    exr_priv_part_t                   curpart,
     struct _internal_exr_seq_scratch* scratch,
     const char*                       tname,
     int32_t                           attrsz)
@@ -1709,7 +1709,7 @@ check_populate_version (
 static exr_result_t
 check_populate_chunk_count (
     exr_context_t                     ctxt,
-    struct _priv_exr_part_t*          curpart,
+    exr_priv_part_t                   curpart,
     struct _internal_exr_seq_scratch* scratch,
     const char*                       tname,
     int32_t                           attrsz)
@@ -1775,7 +1775,7 @@ check_populate_chunk_count (
 static exr_result_t
 check_req_attr (
     exr_context_t                     ctxt,
-    struct _priv_exr_part_t*          curpart,
+    exr_priv_part_t                   curpart,
     struct _internal_exr_seq_scratch* scratch,
     const char*                       aname,
     const char*                       tname,
@@ -1849,7 +1849,7 @@ check_req_attr (
 static exr_result_t
 pull_attr (
     exr_context_t                     ctxt,
-    struct _priv_exr_part_t*          curpart,
+    exr_priv_part_t                   curpart,
     uint8_t                           init_byte,
     struct _internal_exr_seq_scratch* scratch)
 {
@@ -2143,9 +2143,9 @@ calc_level_size (
 
 exr_result_t
 internal_exr_compute_tile_information (
-    exr_context_t            ctxt,
-    struct _priv_exr_part_t* curpart,
-    int                      rebuild)
+    exr_context_t   ctxt,
+    exr_priv_part_t curpart,
+    int             rebuild)
 {
     exr_result_t rv = EXR_ERR_SUCCESS;
     if (curpart->storage_mode == EXR_STORAGE_SCANLINE ||
@@ -2275,7 +2275,7 @@ internal_exr_compute_tile_information (
 /**************************************/
 
 int32_t
-internal_exr_compute_chunk_offset_size (struct _priv_exr_part_t* curpart)
+internal_exr_compute_chunk_offset_size (exr_priv_part_t curpart)
 {
     int32_t                  retval       = 0;
     const exr_attr_box2i_t   dw           = curpart->data_window;
@@ -2399,7 +2399,7 @@ update_chunk_offsets (
     exr_context_t                     ctxt,
     struct _internal_exr_seq_scratch* scratch)
 {
-    struct _priv_exr_part_t *curpart, *prevpart;
+    exr_priv_part_t curpart, prevpart;
 
     exr_result_t rv = EXR_ERR_SUCCESS;
 
@@ -2544,7 +2544,7 @@ exr_result_t
 internal_exr_parse_header (exr_context_t ctxt)
 {
     struct _internal_exr_seq_scratch scratch;
-    struct _priv_exr_part_t*         curpart;
+    exr_priv_part_t                  curpart;
     uint64_t                         initpos;
     uint8_t                          next_byte;
     uint32_t                         flags = 0;
