@@ -629,7 +629,7 @@ internal_exr_write_header (exr_context_t ctxt)
 
     for (int p = 0; rv == EXR_ERR_SUCCESS && p < ctxt->num_parts; ++p)
     {
-        struct _priv_exr_part_t* curp = ctxt->parts[p];
+        exr_priv_part_t curp = ctxt->parts[p];
         if (ctxt->legacy_header)
         {
             for (int a = 0; a < curp->attributes.num_attributes; ++a)

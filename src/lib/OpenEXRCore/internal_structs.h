@@ -116,6 +116,9 @@ struct _priv_exr_part_t
     atomic_uintptr_t chunk_table;
 };
 
+typedef struct _priv_exr_part_t*       exr_priv_part_t;
+typedef const struct _priv_exr_part_t* exr_const_priv_part_t;
+
 enum _INTERNAL_EXR_READ_MODE
 {
     EXR_MUST_READ_ALL    = 0,
@@ -201,8 +204,8 @@ struct _priv_exr_context_t
 
     struct _priv_exr_part_t first_part;
     /* cheap array of one */
-    struct _priv_exr_part_t*  init_part;
-    struct _priv_exr_part_t** parts;
+    exr_priv_part_t  init_part;
+    exr_priv_part_t* parts;
 
     exr_attribute_list_t custom_handlers;
 
@@ -284,8 +287,8 @@ internal_exr_unlock (exr_const_context_t c)
     EXR_LOCK_WRITE (pctxt)
 
 #define EXR_PROMOTE_LOCKED_CONTEXT_AND_PART_OR_ERROR(c, pi)                    \
-    exr_context_t            pctxt = (c);                                      \
-    struct _priv_exr_part_t* part;                                             \
+    exr_context_t   pctxt = (c);                                               \
+    exr_priv_part_t part;                                                      \
     if (!pctxt) return EXR_ERR_MISSING_CONTEXT_ARG;                            \
     EXR_LOCK (pctxt);                                                          \
     if (pi < 0 || pi >= pctxt->num_parts)                                      \
@@ -299,8 +302,8 @@ internal_exr_unlock (exr_const_context_t c)
     part = pctxt->parts[pi]
 
 #define EXR_PROMOTE_CONST_CONTEXT_AND_PART_OR_ERROR(c, pi)                     \
-    exr_const_context_t            pctxt = (c);                                \
-    const struct _priv_exr_part_t* part;                                       \
+    exr_const_context_t   pctxt = (c);                                         \
+    exr_const_priv_part_t part;                                                \
     if (!pctxt) return EXR_ERR_MISSING_CONTEXT_ARG;                            \
     EXR_LOCK_WRITE (pctxt);                                                    \
     if (pi < 0 || pi >= pctxt->num_parts)                                      \
@@ -314,8 +317,8 @@ internal_exr_unlock (exr_const_context_t c)
     part = pctxt->parts[pi]
 
 #define EXR_PROMOTE_CONST_CONTEXT_AND_PART_OR_ERROR_NO_LOCK(c, pi)             \
-    exr_const_context_t               pctxt = (c);                             \
-    const struct _priv_exr_part_t*    part;                                    \
+    exr_const_context_t   pctxt = (c);                                         \
+    exr_const_priv_part_t part;                                                \
     if (!pctxt) return EXR_ERR_MISSING_CONTEXT_ARG;                            \
     if (pi < 0 || pi >= pctxt->num_parts)                                      \
         return (                                                               \
@@ -340,8 +343,8 @@ internal_exr_unlock (exr_const_context_t c)
             pi))
 
 #define EXR_PROMOTE_READ_CONST_CONTEXT_AND_PART_OR_ERROR(c, pi)                \
-    exr_const_context_t            pctxt = (c);                                \
-    const struct _priv_exr_part_t* part;                                       \
+    exr_const_context_t   pctxt = (c);                                \
+    exr_const_priv_part_t part;                                       \
     if (!pctxt) return EXR_ERR_MISSING_CONTEXT_ARG;                            \
     if (pctxt->mode != EXR_CONTEXT_READ)                                       \
         return pctxt->standard_error (pctxt, EXR_ERR_NOT_OPEN_READ);           \
@@ -368,9 +371,9 @@ internal_exr_unlock (exr_const_context_t c)
 void internal_exr_update_default_handlers (exr_context_initializer_t* inits);
 
 exr_result_t internal_exr_add_part (
-    exr_context_t ctxt, struct _priv_exr_part_t** outpart, int* new_index);
+    exr_context_t ctxt, exr_priv_part_t* outpart, int* new_index);
 void internal_exr_revert_add_part (
-    exr_context_t ctxt, struct _priv_exr_part_t** outpart, int* new_index);
+    exr_context_t ctxt, exr_priv_part_t* outpart, int* new_index);
 
 exr_result_t internal_exr_context_restore_handlers (
     exr_context_t ctxt, exr_result_t rv);

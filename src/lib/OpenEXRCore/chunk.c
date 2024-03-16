@@ -52,22 +52,22 @@ atomic_compare_exchange_strong (
 /**************************************/
 
 static exr_result_t extract_chunk_table (
-    exr_const_context_t            ctxt,
-    const struct _priv_exr_part_t* part,
-    uint64_t**                     chunktable,
-    uint64_t*                      chunkminoffset);
+    exr_const_context_t   ctxt,
+    exr_const_priv_part_t part,
+    uint64_t**            chunktable,
+    uint64_t*             chunkminoffset);
 
 /**************************************/
 
 static exr_result_t
 validate_and_compute_tile_chunk_off (
-    exr_const_context_t            ctxt,
-    const struct _priv_exr_part_t* part,
-    int                            tilex,
-    int                            tiley,
-    int                            levelx,
-    int                            levely,
-    int32_t*                       chunkoffout)
+    exr_const_context_t   ctxt,
+    exr_const_priv_part_t part,
+    int                   tilex,
+    int                   tiley,
+    int                   levelx,
+    int                   levely,
+    int32_t*              chunkoffout)
 {
     int                        numx, numy;
     const exr_attr_tiledesc_t* tiledesc;
@@ -256,12 +256,12 @@ struct priv_chunk_leader
 
 static exr_result_t
 extract_chunk_leader (
-    exr_const_context_t            ctxt,
-    const struct _priv_exr_part_t* part,
-    int                            partnum,
-    uint64_t                       offset,
-    uint64_t*                      next_offset,
-    struct priv_chunk_leader*      leaderdata)
+    exr_const_context_t       ctxt,
+    exr_const_priv_part_t     part,
+    int                       partnum,
+    uint64_t                  offset,
+    uint64_t*                 next_offset,
+    struct priv_chunk_leader* leaderdata)
 {
     exr_result_t rv = EXR_ERR_SUCCESS;
     int32_t      data[6];
@@ -377,11 +377,11 @@ extract_chunk_leader (
 
 static exr_result_t
 extract_chunk_size (
-    exr_const_context_t            ctxt,
-    const struct _priv_exr_part_t* part,
-    int                            partnum,
-    uint64_t                       offset,
-    uint64_t*                      next_offset)
+    exr_const_context_t   ctxt,
+    exr_const_priv_part_t part,
+    int                   partnum,
+    uint64_t              offset,
+    uint64_t*             next_offset)
 {
     struct priv_chunk_leader leader;
 
@@ -393,12 +393,12 @@ extract_chunk_size (
 
 static exr_result_t
 read_and_validate_chunk_leader (
-    exr_const_context_t            ctxt,
-    const struct _priv_exr_part_t* part,
-    int                            partnum,
-    uint64_t                       offset,
-    int*                           indexio,
-    uint64_t*                      next_offset)
+    exr_const_context_t   ctxt,
+    exr_const_priv_part_t part,
+    int                   partnum,
+    uint64_t              offset,
+    int*                  indexio,
+    uint64_t*             next_offset)
 {
     exr_result_t             rv = EXR_ERR_SUCCESS;
     struct priv_chunk_leader leader;
@@ -449,17 +449,17 @@ read_and_validate_chunk_leader (
 // this should behave the same as the old ImfMultiPartInputFile
 static exr_result_t
 reconstruct_chunk_table (
-    exr_const_context_t            ctxt,
-    const struct _priv_exr_part_t* part,
-    uint64_t*                      chunktable)
+    exr_const_context_t   ctxt,
+    exr_const_priv_part_t part,
+    uint64_t*             chunktable)
 {
-    exr_result_t                   rv = EXR_ERR_SUCCESS;
-    exr_result_t                   firstfailrv = EXR_ERR_SUCCESS;
-    uint64_t                       offset_start, chunk_start, max_offset;
-    uint64_t*                      curctable;
-    const struct _priv_exr_part_t* curpart = NULL;
-    int                            found_ci, computed_ci, partnum = 0;
-    size_t                         chunkbytes;
+    exr_result_t          rv = EXR_ERR_SUCCESS;
+    exr_result_t          firstfailrv = EXR_ERR_SUCCESS;
+    uint64_t              offset_start, chunk_start, max_offset;
+    uint64_t*             curctable;
+    exr_const_priv_part_t curpart = NULL;
+    int                   found_ci, computed_ci, partnum = 0;
+    size_t                chunkbytes;
 
     curpart      = ctxt->parts[ctxt->num_parts - 1];
     offset_start = curpart->chunk_table_offset;
@@ -545,10 +545,10 @@ reconstruct_chunk_table (
 
 static exr_result_t
 extract_chunk_table (
-    exr_const_context_t            ctxt,
-    const struct _priv_exr_part_t* part,
-    uint64_t**                     chunktable,
-    uint64_t*                      chunkminoffset)
+    exr_const_context_t   ctxt,
+    exr_const_priv_part_t part,
+    uint64_t**            chunktable,
+    uint64_t*             chunkminoffset)
 {
     uint64_t* ctable     = NULL;
     uint64_t  chunkoff   = part->chunk_table_offset;
@@ -653,9 +653,9 @@ extract_chunk_table (
 
 static exr_result_t
 alloc_chunk_table (
-    exr_const_context_t            ctxt,
-    const struct _priv_exr_part_t* part,
-    uint64_t**                     chunktable)
+    exr_const_context_t   ctxt,
+    exr_const_priv_part_t part,
+    uint64_t**            chunktable)
 {
     uint64_t* ctable = NULL;
 
@@ -696,7 +696,7 @@ compute_chunk_unpack_size (
     int                            width,
     int                            height,
     int                            lpc,
-    const struct _priv_exr_part_t* part)
+    exr_const_priv_part_t part)
 {
     uint64_t unpacksize = 0;
     if (part->chan_has_line_sampling || height != lpc)
@@ -1477,15 +1477,15 @@ exr_read_deep_chunk (
  * error exit point and re-use mostly shared logic */
 static exr_result_t
 write_scan_chunk (
-    exr_context_t pctxt,
-    int                         part_index,
-    struct _priv_exr_part_t*    part,
-    int                         y,
-    const void*                 packed_data,
-    uint64_t                    packed_size,
-    uint64_t                    unpacked_size,
-    const void*                 sample_data,
-    uint64_t                    sample_data_size)
+    exr_context_t   pctxt,
+    int             part_index,
+    exr_priv_part_t part,
+    int             y,
+    const void*     packed_data,
+    uint64_t        packed_size,
+    uint64_t        unpacked_size,
+    const void*     sample_data,
+    uint64_t        sample_data_size)
 {
     exr_result_t rv;
     int32_t      data[3];
@@ -1925,18 +1925,18 @@ exr_write_deep_scanline_chunk (
  * error exit point and re-use mostly shared logic */
 static exr_result_t
 write_tile_chunk (
-    exr_context_t            pctxt,
-    int                      part_index,
-    struct _priv_exr_part_t* part,
-    int                      tilex,
-    int                      tiley,
-    int                      levelx,
-    int                      levely,
-    const void*              packed_data,
-    uint64_t                 packed_size,
-    uint64_t                 unpacked_size,
-    const void*              sample_data,
-    uint64_t                 sample_data_size)
+    exr_context_t   pctxt,
+    int             part_index,
+    exr_priv_part_t part,
+    int             tilex,
+    int             tiley,
+    int             levelx,
+    int             levely,
+    const void*     packed_data,
+    uint64_t        packed_size,
+    uint64_t        unpacked_size,
+    const void*     sample_data,
+    uint64_t        sample_data_size)
 {
     exr_result_t rv;
     int32_t      data[6];
@@ -2166,9 +2166,9 @@ exr_write_deep_tile_chunk (
 
 exr_result_t
 internal_validate_next_chunk (
-    exr_encode_pipeline_t*         encode,
-    exr_const_context_t            pctxt,
-    const struct _priv_exr_part_t* part)
+    exr_encode_pipeline_t* encode,
+    exr_const_context_t    pctxt,
+    exr_const_priv_part_t  part)
 {
     exr_result_t rv = EXR_ERR_SUCCESS;
     int          cidx, lpc;

@@ -66,7 +66,7 @@ default_shutdown (exr_const_context_t c, void* userdata, int failed)
 /**************************************/
 
 static exr_result_t
-finalize_write (struct _priv_exr_context_t* pf, int failed)
+finalize_write (exr_context_t pf, int failed)
 {
     exr_result_t rv = EXR_ERR_SUCCESS;
 
@@ -325,7 +325,7 @@ default_write_func (
 /**************************************/
 
 static exr_result_t
-default_init_read_file (struct _priv_exr_context_t* file)
+default_init_read_file (exr_context_t file)
 {
     int                              fd;
     struct _internal_exr_filehandle* fh = file->user_data;
@@ -361,7 +361,7 @@ default_init_read_file (struct _priv_exr_context_t* file)
 /**************************************/
 
 static exr_result_t
-default_init_write_file (struct _priv_exr_context_t* file)
+default_init_write_file (exr_context_t file)
 {
     int                              fd;
     struct _internal_exr_filehandle* fh    = file->user_data;
@@ -421,7 +421,7 @@ default_query_size_func (exr_const_context_t ctxt, void* userdata)
 /**************************************/
 
 static exr_result_t
-make_temp_filename (struct _priv_exr_context_t* ret)
+make_temp_filename (exr_context_t ret)
 {
     /* we checked the pointers we care about before calling */
     char        tmproot[32];

@@ -542,7 +542,7 @@ exr_set_longname_support (exr_context_t ctxt, int onoff)
     {
         for (int p = 0; p < pctxt->num_parts; ++p)
         {
-            struct _priv_exr_part_t* curp = pctxt->parts[p];
+            exr_priv_part_t curp = pctxt->parts[p];
             for (int a = 0; a < curp->attributes.num_attributes; ++a)
             {
                 exr_attribute_t* curattr = curp->attributes.entries[a];
@@ -602,7 +602,7 @@ exr_write_header (exr_context_t ctxt)
 
     for (int p = 0; rv == EXR_ERR_SUCCESS && p < pctxt->num_parts; ++p)
     {
-        struct _priv_exr_part_t* curp = pctxt->parts[p];
+        exr_priv_part_t curp = pctxt->parts[p];
 
         int32_t ccount = 0;
 
@@ -643,7 +643,7 @@ exr_write_header (exr_context_t ctxt)
         pctxt->output_chunk_count = 0;
         for (int p = 0; rv == EXR_ERR_SUCCESS && p < pctxt->num_parts; ++p)
         {
-            struct _priv_exr_part_t* curp = pctxt->parts[p];
+            exr_priv_part_t curp = pctxt->parts[p];
 
             curp->chunk_table_offset   = pctxt->output_file_offset;
             pctxt->output_file_offset +=
