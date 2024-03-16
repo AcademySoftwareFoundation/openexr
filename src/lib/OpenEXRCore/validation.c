@@ -12,7 +12,7 @@
 /**************************************/
 
 static exr_result_t
-validate_req_attr (exr_context_t f,exr_priv_part_t curpart, int adddefault)
+validate_req_attr (exr_context_t f, exr_priv_part_t curpart, int adddefault)
 {
     exr_result_t rv = EXR_ERR_SUCCESS;
     if (!curpart->channels)
@@ -317,9 +317,7 @@ validate_image_dimensions (exr_context_t f, exr_priv_part_t curpart)
 
 static exr_result_t
 validate_channels (
-    exr_context_t            f,
-    exr_priv_part_t          curpart,
-    const exr_attr_chlist_t* channels)
+    exr_context_t f, exr_priv_part_t curpart, const exr_attr_chlist_t* channels)
 {
     exr_attr_box2i_t dw;
     int64_t          w, h;

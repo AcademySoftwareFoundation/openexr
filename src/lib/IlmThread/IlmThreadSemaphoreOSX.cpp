@@ -16,7 +16,7 @@
 
 #if ILMTHREAD_SEMAPHORE_OSX
 
-#include "Iex.h"
+#    include "Iex.h"
 
 ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_ENTER
 

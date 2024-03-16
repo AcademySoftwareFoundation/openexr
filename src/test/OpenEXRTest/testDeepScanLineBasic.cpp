@@ -94,9 +94,10 @@ generateRandomFile (
 
     frameBuffer.insertSampleCountSlice (Slice (
         IMF::UINT, // type // 7
-        (char*) (&sampleCount[0][0] - dataWindow.min.x - dataWindow.min.y * width), // base
-        sizeof (unsigned int) * 1,       // xStride
-        sizeof (unsigned int) * width)); // yStride
+        (char*) (&sampleCount[0][0] - dataWindow.min.x -
+                 dataWindow.min.y * width), // base
+        sizeof (unsigned int) * 1,          // xStride
+        sizeof (unsigned int) * width));    // yStride
 
     for (int i = 0; i < channelCount; i++)
     {
@@ -120,10 +121,11 @@ generateRandomFile (
             str, // name // 6
             DeepSlice (
                 type, // type // 7
-                (char*) (&data[i][0][0] - dataWindow.min.x - dataWindow.min.y * width), // base // 8
-                pointerSize * 1,     // xStride// 9
-                pointerSize * width, // yStride// 10
-                sampleSize));        // sampleStride
+                (char*) (&data[i][0][0] - dataWindow.min.x -
+                         dataWindow.min.y * width), // base // 8
+                pointerSize * 1,                    // xStride// 9
+                pointerSize * width,                // yStride// 10
+                sampleSize));                       // sampleStride
     }
 
     file.setFrameBuffer (frameBuffer);
@@ -175,10 +177,7 @@ generateRandomFile (
                                     (i * width + j) % 2049;
                         }
                     }
-                    else
-                    {
-                        data[k][i][j] = nullptr;
-                    }
+                    else { data[k][i][j] = nullptr; }
                 }
             }
         }
@@ -226,10 +225,7 @@ generateRandomFile (
                                     (i * width + j) % 2049;
                         }
                     }
-                    else
-                    {
-                        data[k][i][j] = nullptr;
-                    }
+                    else { data[k][i][j] = nullptr; }
                 }
             }
             file.writePixels (1);
@@ -240,9 +236,10 @@ generateRandomFile (
         for (int j = 0; j < width; j++)
             for (int k = 0; k < channelCount; k++)
             {
-                if (channelTypes[k] == 0) delete[](unsigned int*) data[k][i][j];
-                if (channelTypes[k] == 1) delete[](half*) data[k][i][j];
-                if (channelTypes[k] == 2) delete[](float*) data[k][i][j];
+                if (channelTypes[k] == 0)
+                    delete[] (unsigned int*) data[k][i][j];
+                if (channelTypes[k] == 1) delete[] (half*) data[k][i][j];
+                if (channelTypes[k] == 2) delete[] (float*) data[k][i][j];
             }
 }
 
@@ -254,10 +251,7 @@ readFile (
     bool               randomChannels)
 {
     if (randomChannels) { cout << " reading random channels " << flush; }
-    else
-    {
-        cout << " reading all channels " << flush;
-    }
+    else { cout << " reading all channels " << flush; }
 
     DeepScanLineInputFile file (filename.c_str (), 8);
 
@@ -291,9 +285,10 @@ readFile (
 
     frameBuffer.insertSampleCountSlice (Slice (
         IMF::UINT, // type // 7
-        (char*) (&localSampleCount[0][0] - dataWindow.min.x - dataWindow.min.y * width), // base // 8)
-        sizeof (unsigned int) * 1,       // xStride// 9
-        sizeof (unsigned int) * width)); // yStride// 10
+        (char*) (&localSampleCount[0][0] - dataWindow.min.x -
+                 dataWindow.min.y * width), // base // 8)
+        sizeof (unsigned int) * 1,          // xStride// 9
+        sizeof (unsigned int) * width));    // yStride// 10
 
     vector<int> read_channel (channelCount);
 
@@ -324,10 +319,11 @@ readFile (
                 str, // name // 6
                 DeepSlice (
                     type, // type // 7
-                    (char*) (&data[i][0][0] - dataWindow.min.x - dataWindow.min.y * width), // base // 8)
-                    pointerSize * 1,     // xStride// 9
-                    pointerSize * width, // yStride// 10
-                    sampleSize));        // sampleStride
+                    (char*) (&data[i][0][0] - dataWindow.min.x -
+                             dataWindow.min.y * width), // base // 8)
+                    pointerSize * 1,                    // xStride// 9
+                    pointerSize * width,                // yStride// 10
+                    sampleSize));                       // sampleStride
             channels_added++;
         }
     }
@@ -346,14 +342,15 @@ readFile (
         // generate channel names that aren't in file but (might) interleave with existing file
         ss << i << "fill";
         string str = ss.str ();
-        frameBuffer.insert (str,                            // name // 6
-                                DeepSlice (type,                    // type // 7
-                                (char *) (&data[i+channelCount][0][0]
-                                          - dataWindow.min.x
-                                          - dataWindow.min.y * width),               // base // 8)
-                                pointerSize * 1,          // xStride// 9
-                                pointerSize * width,      // yStride// 10
-                                sampleSize));             // sampleStride
+        frameBuffer.insert (
+            str, // name // 6
+            DeepSlice (
+                type, // type // 7
+                (char*) (&data[i + channelCount][0][0] - dataWindow.min.x -
+                         dataWindow.min.y * width), // base // 8)
+                pointerSize * 1,                    // xStride// 9
+                pointerSize * width,                // yStride// 10
+                sampleSize));                       // sampleStride
     }
     file.setFrameBuffer (frameBuffer);
 
@@ -381,10 +378,7 @@ readFile (
                         if (channelTypes[k] == 2)
                             data[k][i][j] = new float[localSampleCount[i][j]];
                     }
-                    else
-                    {
-                        data[k][i][j] = nullptr;
-                    }
+                    else { data[k][i][j] = nullptr; }
                 }
                 for (int f = 0; f < fillChannels; ++f)
                 {
@@ -423,10 +417,7 @@ readFile (
                         if (channelTypes[k] == 2)
                             data[k][i][j] = new float[localSampleCount[i][j]];
                     }
-                    else
-                    {
-                        data[k][i][j] = nullptr;
-                    }
+                    else { data[k][i][j] = nullptr; }
                 }
                 for (int f = 0; f < fillChannels; ++f)
                 {
@@ -499,14 +490,14 @@ readFile (
                 if (!randomChannels || read_channel[k] == 1)
                 {
                     if (channelTypes[k] == 0)
-                        delete[](unsigned int*) data[k][i][j];
-                    if (channelTypes[k] == 1) delete[](half*) data[k][i][j];
-                    if (channelTypes[k] == 2) delete[](float*) data[k][i][j];
+                        delete[] (unsigned int*) data[k][i][j];
+                    if (channelTypes[k] == 1) delete[] (half*) data[k][i][j];
+                    if (channelTypes[k] == 2) delete[] (float*) data[k][i][j];
                 }
             }
             for (int f = 0; f < fillChannels; ++f)
             {
-                delete[](float*) data[f + channelCount][i][j];
+                delete[] (float*) data[f + channelCount][i][j];
             }
         }
 }

@@ -68,10 +68,7 @@ GenericOutputFile::writeMagicNumberAndVersionField (
     {
         if (headers[0].type () == TILEDIMAGE) version |= TILED_FLAG;
     }
-    else
-    {
-        version |= MULTI_PART_FILE_FLAG;
-    }
+    else { version |= MULTI_PART_FILE_FLAG; }
 
     for (int i = 0; i < parts; i++)
     {

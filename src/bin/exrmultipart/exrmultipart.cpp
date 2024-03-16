@@ -154,10 +154,7 @@ parse_filename (
         file_name       = file_name.substr (0, doublecolon);
         force_part_name = true;
     }
-    else
-    {
-        parse_partname (part_name);
-    }
+    else { parse_partname (part_name); }
 
     size_t colon = file_name.rfind (':');
     if (colon == string::npos)
@@ -172,10 +169,7 @@ parse_filename (
             part_num  = atoi (num.c_str ());
             file_name = file_name.substr (0, colon);
         }
-        else
-        {
-            throw invalid_argument("part number must be a number");
-    }
+        else { throw invalid_argument ("part number must be a number"); }
     }
 }
 
@@ -192,12 +186,10 @@ make_unique_names (vector<Header>& headers)
         if (!h.hasName ())
         {
             // We should not be here, we have populated all headers with names.
-            throw invalid_argument("Software Error: header does not have a valid name");
+            throw invalid_argument (
+                "Software Error: header does not have a valid name");
         }
-        else
-        {
-            base_name = h.name ();
-        }
+        else { base_name = h.name (); }
 
         // check name has already been used, if so add a _<number> to it
         if (names.find (base_name) != names.end ())
@@ -223,7 +215,8 @@ filename_check (vector<string> names, const char* aname)
     string bname (aname);
     for (size_t i = 0; i < names.size (); i++)
         if (bname.compare (names[i]) == 0)
-            throw invalid_argument("input and output file names cannot be the same");
+            throw invalid_argument (
+                "input and output file names cannot be the same");
 }
 
 void
@@ -234,13 +227,14 @@ convert (
     bool                override)
 {
     if (in.size () != 1)
-        throw invalid_argument("can only convert one file at once - use 'combine' mode for multiple files");
+        throw invalid_argument (
+            "can only convert one file at once - use 'combine' mode for multiple files");
 
     MultiPartInputFile infile (in[0]);
-    
-    if (infile.parts () != 1)
-        throw invalid_argument("can only convert single part EXRs to multipart EXR-2.0 files: use 'split' mode instead");
 
+    if (infile.parts () != 1)
+        throw invalid_argument (
+            "can only convert single part EXRs to multipart EXR-2.0 files: use 'split' mode instead");
 
     vector<MultiViewChannelName> input_channels;
 
@@ -257,7 +251,7 @@ convert (
     vector<MultiViewChannelName> output_channels = input_channels;
     // remap channels to multiple output parts
     int parts = SplitChannels (
-                               output_channels.begin (), output_channels.end (), true, hero);
+        output_channels.begin (), output_channels.end (), true, hero);
 
     vector<Header>      output_headers (parts);
     vector<FrameBuffer> output_framebuffers (parts);
@@ -294,10 +288,9 @@ convert (
         ++channel_count;
     }
 
-    Box2i dataWindow = infile.header (0).dataWindow ();
-    int   pixel_count =
-        (dataWindow.size ().y + 1) * (dataWindow.size ().x + 1);
-    int pixel_width = dataWindow.size ().x + 1;
+    Box2i dataWindow  = infile.header (0).dataWindow ();
+    int   pixel_count = (dataWindow.size ().y + 1) * (dataWindow.size ().x + 1);
+    int   pixel_width = dataWindow.size ().x + 1;
 
     // offset in pixels between base of array and 0,0
     int pixel_base = dataWindow.min.y * pixel_width + dataWindow.min.x;
@@ -326,24 +319,29 @@ convert (
         if (chan.channel ().type == HALF) { samplesize = sizeof (half); }
         channelstore[i].resize (samplesize * pixel_count);
 
-        output_framebuffers[part].insert (output_channels[i].name,
-                                          Slice (chan.channel ().type,
-                                                 &channelstore[i][0] - pixel_base * samplesize,
-                                                 samplesize,
-                                                 pixel_width * samplesize));
+        output_framebuffers[part].insert (
+            output_channels[i].name,
+            Slice (
+                chan.channel ().type,
+                &channelstore[i][0] - pixel_base * samplesize,
+                samplesize,
+                pixel_width * samplesize));
 
-        input_framebuffer.insert (input_channels[i].internal_name,
-                                  Slice (chan.channel ().type,
-                                         &channelstore[i][0] - pixel_base * samplesize,
-                                         samplesize,
-                                         pixel_width * samplesize));
+        input_framebuffer.insert (
+            input_channels[i].internal_name,
+            Slice (
+                chan.channel ().type,
+                &channelstore[i][0] - pixel_base * samplesize,
+                samplesize,
+                pixel_width * samplesize));
     }
 
     //
     // create output file
     //
-    MultiPartOutputFile outfile (outname, &output_headers[0], output_headers.size ());
-                                 
+    MultiPartOutputFile outfile (
+        outname, &output_headers[0], output_headers.size ());
+
     InputPart inpart (infile, 0);
 
     //
@@ -430,11 +428,9 @@ combine (
             if (partnum >= infile->parts ())
             {
                 std::stringstream e;
-                e << "You asked for part " << partnum << " in "
-                  << in[i]
-                  << ", which only has " << infile->parts ()
-                  << " parts";
-                throw invalid_argument(e.str());
+                e << "You asked for part " << partnum << " in " << in[i]
+                  << ", which only has " << infile->parts () << " parts";
+                throw invalid_argument (e.str ());
             }
             //copy header from required part of input to our header array
             inputs.push_back (infile);
@@ -510,7 +506,7 @@ void
 separate (vector<const char*> in, const char* out, bool override)
 {
     if (in.size () > 1)
-        throw invalid_argument("-separate only take one input file");
+        throw invalid_argument ("-separate only take one input file");
 
     //
     // parse the multipart input
@@ -586,32 +582,38 @@ separate (vector<const char*> in, const char* out, bool override)
 void
 usageMessage (ostream& stream, const char* program_name, bool verbose = false)
 {
-    stream << "Usage: " << program_name << "-combine -i input.exr[:partnum][::partname] [input2.exr[:partnum]][::partname] [...] -o outfile.exr [options]\n";
-    stream << "  or: exrmultipart -separate -i infile.exr -o outfileBaseName [options]\n";
-    stream << "  or: exrmultipart -convert -i infile.exr -o outfile.exr [options]\n";       
+    stream
+        << "Usage: " << program_name
+        << "-combine -i input.exr[:partnum][::partname] [input2.exr[:partnum]][::partname] [...] -o outfile.exr [options]\n";
+    stream
+        << "  or: exrmultipart -separate -i infile.exr -o outfileBaseName [options]\n";
+    stream
+        << "  or: exrmultipart -convert -i infile.exr -o outfile.exr [options]\n";
 
     if (verbose)
-        stream << "\n"
-            "Combine or split multipart data\n"
-            "\n"
-            "Options:\n"
-            "  -override [0/1]   0 = do not override conflicting shared "
-            "                        attributes [default]\n"
-            "                    1 = override conflicting shared attributes\n"
-            "  -view name        (after specifying -i) assign following inputs to view 'name'\n"
-            "  -h, --help        print this message\n"
-            "\n"
-            "      --version     print version information\n"
-            "\n"
-            "Report bugs via https://github.com/AcademySoftwareFoundation/openexr/issues or email security@openexr.com\n"
-            "";
+        stream
+            << "\n"
+               "Combine or split multipart data\n"
+               "\n"
+               "Options:\n"
+               "  -override [0/1]   0 = do not override conflicting shared "
+               "                        attributes [default]\n"
+               "                    1 = override conflicting shared attributes\n"
+               "  -view name        (after specifying -i) assign following inputs to view 'name'\n"
+               "  -h, --help        print this message\n"
+               "\n"
+               "      --version     print version information\n"
+               "\n"
+               "Report bugs via https://github.com/AcademySoftwareFoundation/openexr/issues or email security@openexr.com\n"
+               "";
 }
 
 int
 main (int argc, char* argv[])
 {
-    try {
-        
+    try
+    {
+
         vector<const char*> inFiles;
         vector<const char*> views;
         const char*         view     = 0;
@@ -619,11 +621,12 @@ main (int argc, char* argv[])
         bool                override = false;
 
         int i = 1;
-        int mode = 0; // 0-do not read input, 1-infiles, 2-outfile, 3-override, 4-view
+        int mode =
+            0; // 0-do not read input, 1-infiles, 2-outfile, 3-override, 4-view
 
         while (i < argc)
         {
-            if (!strcmp (argv[i], "-h") || !strcmp (argv[i], "--help"))     
+            if (!strcmp (argv[i], "-h") || !strcmp (argv[i], "--help"))
             {
                 usageMessage (cout, "exrmultipart", true);
                 return 0;
@@ -631,33 +634,24 @@ main (int argc, char* argv[])
 
             if (!strcmp (argv[i], "--version"))
             {
-                const char* libraryVersion = getLibraryVersion();
-            
+                const char* libraryVersion = getLibraryVersion ();
+
                 cout << "exrmultipart (OpenEXR) " << OPENEXR_VERSION_STRING;
-                if (strcmp(libraryVersion, OPENEXR_VERSION_STRING))
+                if (strcmp (libraryVersion, OPENEXR_VERSION_STRING))
                     cout << "(OpenEXR version " << libraryVersion << ")";
                 cout << " https://openexr.com" << endl;
-                cout << "Copyright (c) Contributors to the OpenEXR Project" << endl;
+                cout << "Copyright (c) Contributors to the OpenEXR Project"
+                     << endl;
                 cout << "License BSD-3-Clause" << endl;
                 return 0;
             }
 
-            if (!strcmp (argv[i], "-i"))
-            {
-                mode = 1;
-            }
-            else if (!strcmp (argv[i], "-o"))
-            {
-                mode = 2;
-            }
-            else if (!strcmp (argv[i], "-override"))
-            {
-                mode = 3;
-            }
+            if (!strcmp (argv[i], "-i")) { mode = 1; }
+            else if (!strcmp (argv[i], "-o")) { mode = 2; }
+            else if (!strcmp (argv[i], "-override")) { mode = 3; }
             else if (!strcmp (argv[i], "-view"))
             {
-                if (mode != 1)
-                    throw invalid_argument("-view requires -i");
+                if (mode != 1) throw invalid_argument ("-view requires -i");
 
                 mode = 4;
             }
@@ -665,16 +659,16 @@ main (int argc, char* argv[])
             {
                 switch (mode)
                 {
-                  case 1:
-                      inFiles.push_back (argv[i]);
-                      views.push_back (view);
-                      break;
-                  case 2: outFile = argv[i]; break;
-                  case 3: override = atoi (argv[i]); break;
-                  case 4:
-                      view = argv[i];
-                      mode = 1;
-                      break;
+                    case 1:
+                        inFiles.push_back (argv[i]);
+                        views.push_back (view);
+                        break;
+                    case 2: outFile = argv[i]; break;
+                    case 3: override = atoi (argv[i]); break;
+                    case 4:
+                        view = argv[i];
+                        mode = 1;
+                        break;
                 }
             }
             i++;
@@ -683,7 +677,7 @@ main (int argc, char* argv[])
         // check input and output files found or not
         if (inFiles.size () == 0)
         {
-            usageMessage(cerr, argv[0], false);
+            usageMessage (cerr, argv[0], false);
             return 1;
         }
 
@@ -691,13 +685,11 @@ main (int argc, char* argv[])
         for (size_t i = 0; i < inFiles.size (); i++)
         {
             cout << "      " << inFiles[i];
-            if (views[i])
-                cout << " in view " << views[i];
+            if (views[i]) cout << " in view " << views[i];
             cout << endl;
         }
 
-        if (!outFile)
-            throw invalid_argument("No output file specified");
+        if (!outFile) throw invalid_argument ("No output file specified");
 
         cout << "output:\n      " << outFile << endl;
         cout << "override:" << override << "\n" << endl;
@@ -717,16 +709,13 @@ main (int argc, char* argv[])
             cout << "-convert input to EXR2 multipart" << endl;
             convert (inFiles, views, outFile, override);
         }
-        else
-        {
-            usageMessage (cerr, argv[0], false);
-        }
+        else { usageMessage (cerr, argv[0], false); }
     }
     catch (const exception& e)
     {
         cerr << argv[0] << ": " << e.what () << endl;
         return 1;
     }
-    
+
     return 0;
 }

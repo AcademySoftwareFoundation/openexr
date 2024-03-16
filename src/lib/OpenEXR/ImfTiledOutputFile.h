@@ -446,10 +446,10 @@ private:
     IMF_HIDDEN
     TiledOutputFile (const OutputPartData* part);
 
-    TiledOutputFile (const TiledOutputFile&) = delete;
+    TiledOutputFile (const TiledOutputFile&)            = delete;
     TiledOutputFile& operator= (const TiledOutputFile&) = delete;
     TiledOutputFile (TiledOutputFile&&)                 = delete;
-    TiledOutputFile& operator= (TiledOutputFile&&) = delete;
+    TiledOutputFile& operator= (TiledOutputFile&&)      = delete;
 
     IMF_HIDDEN
     void initialize (const Header& header);

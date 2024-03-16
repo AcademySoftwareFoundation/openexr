@@ -48,10 +48,10 @@ public:
     IMF_EXPORT StdIFStream (std::ifstream& is, const char fileName[]);
 
     IMF_EXPORT virtual ~StdIFStream ();
-    StdIFStream (const StdIFStream&) = delete;
-    StdIFStream (StdIFStream&&)      = delete;
+    StdIFStream (const StdIFStream&)            = delete;
+    StdIFStream (StdIFStream&&)                 = delete;
     StdIFStream& operator= (const StdIFStream&) = delete;
-    StdIFStream& operator= (StdIFStream&&) = delete;
+    StdIFStream& operator= (StdIFStream&&)      = delete;
 
     IMF_EXPORT virtual bool     read (char c[/*n*/], int n);
     IMF_EXPORT virtual uint64_t tellg ();
@@ -74,10 +74,10 @@ class IMF_EXPORT_TYPE StdISStream
 public:
     IMF_EXPORT StdISStream ();
     IMF_EXPORT ~StdISStream ();
-    StdISStream (const StdISStream&) = delete;
-    StdISStream (StdISStream&&)      = delete;
+    StdISStream (const StdISStream&)            = delete;
+    StdISStream (StdISStream&&)                 = delete;
     StdISStream& operator= (const StdISStream&) = delete;
-    StdISStream& operator= (StdISStream&&) = delete;
+    StdISStream& operator= (StdISStream&&)      = delete;
 
     IMF_EXPORT virtual bool     read (char c[/*n*/], int n);
     IMF_EXPORT virtual uint64_t tellg ();
@@ -117,10 +117,10 @@ public:
     IMF_EXPORT StdOFStream (std::ofstream& os, const char fileName[]);
 
     IMF_EXPORT virtual ~StdOFStream ();
-    StdOFStream (const StdOFStream&) = delete;
-    StdOFStream (StdOFStream&&)      = delete;
+    StdOFStream (const StdOFStream&)            = delete;
+    StdOFStream (StdOFStream&&)                 = delete;
     StdOFStream& operator= (const StdOFStream&) = delete;
-    StdOFStream& operator= (StdOFStream&&) = delete;
+    StdOFStream& operator= (StdOFStream&&)      = delete;
 
     IMF_EXPORT virtual void     write (const char c[/*n*/], int n);
     IMF_EXPORT virtual uint64_t tellp ();
@@ -142,10 +142,10 @@ class IMF_EXPORT_TYPE StdOSStream
 public:
     IMF_EXPORT StdOSStream ();
     IMF_EXPORT ~StdOSStream ();
-    StdOSStream (const StdOSStream&) = delete;
-    StdOSStream (StdOSStream&&)      = delete;
+    StdOSStream (const StdOSStream&)            = delete;
+    StdOSStream (StdOSStream&&)                 = delete;
     StdOSStream& operator= (const StdOSStream&) = delete;
-    StdOSStream& operator= (StdOSStream&&) = delete;
+    StdOSStream& operator= (StdOSStream&&)      = delete;
 
     IMF_EXPORT virtual void     write (const char c[/*n*/], int n);
     IMF_EXPORT virtual uint64_t tellp ();

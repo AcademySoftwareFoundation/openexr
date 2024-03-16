@@ -35,33 +35,34 @@ usageMessage (ostream& stream, const char* program_name, bool verbose = false)
     stream << "Usage: " << program_name << " [options] infile outfile" << endl;
 
     if (verbose)
-        stream << "\n"
-            "Read an OpenEXR file from infile and save the contents\n"
-            "in ACES image file outfile.\n"
-            "\n"
-            "The ACES image file format is a subset of the OpenEXR file\n"
-            "format.  ACES image files are restricted as follows:\n"
-            "\n"
-            "  * Images are stored as scanlines; tiles are not allowed.\n"
-            "  * Images contain three color channels, either:\n"
-            "      R, G, B (red, green, blue)\n"
-            "    or:\n"
-            "      Y, RY, BY (luminance, sub-sampled chroma)\n"
-            "  * Images may optionally contain an alpha channel.\n"
-            "  * Only three compression types are allowed:\n"
-            "      NO_COMPRESSION (file is not compressed)\n"
-            "      PIZ_COMPRESSION (lossless)\n"
-            "      B44A_COMPRESSION (lossy)\n"
-            "  * The \"chromaticities\" header attribute must specify\n"
-            "    the ACES RGB primaries and white point.\n"
-            "\n"
-            "Options:\n"
-            "  -v, --verbose     verbose mode\n"
-            "  -h, --help        print this message\n"
-            "      --version     print version information\n"
-            "\n"
-            "Report bugs via https://github.com/AcademySoftwareFoundation/openexr/issues or email security@openexr.com\n"
-            "";
+        stream
+            << "\n"
+               "Read an OpenEXR file from infile and save the contents\n"
+               "in ACES image file outfile.\n"
+               "\n"
+               "The ACES image file format is a subset of the OpenEXR file\n"
+               "format.  ACES image files are restricted as follows:\n"
+               "\n"
+               "  * Images are stored as scanlines; tiles are not allowed.\n"
+               "  * Images contain three color channels, either:\n"
+               "      R, G, B (red, green, blue)\n"
+               "    or:\n"
+               "      Y, RY, BY (luminance, sub-sampled chroma)\n"
+               "  * Images may optionally contain an alpha channel.\n"
+               "  * Only three compression types are allowed:\n"
+               "      NO_COMPRESSION (file is not compressed)\n"
+               "      PIZ_COMPRESSION (lossless)\n"
+               "      B44A_COMPRESSION (lossy)\n"
+               "  * The \"chromaticities\" header attribute must specify\n"
+               "    the ACES RGB primaries and white point.\n"
+               "\n"
+               "Options:\n"
+               "  -v, --verbose     verbose mode\n"
+               "  -h, --help        print this message\n"
+               "      --version     print version information\n"
+               "\n"
+               "Report bugs via https://github.com/AcademySoftwareFoundation/openexr/issues or email security@openexr.com\n"
+               "";
 }
 
 void
@@ -154,10 +155,10 @@ main (int argc, char** argv)
         }
         else if (!strcmp (argv[i], "--version"))
         {
-            const char* libraryVersion = getLibraryVersion();
-            
+            const char* libraryVersion = getLibraryVersion ();
+
             cout << "exr2aces (OpenEXR) " << OPENEXR_VERSION_STRING;
-            if (strcmp(libraryVersion, OPENEXR_VERSION_STRING))
+            if (strcmp (libraryVersion, OPENEXR_VERSION_STRING))
                 cout << "(OpenEXR version " << libraryVersion << ")";
             cout << " https://openexr.com" << endl;
             cout << "Copyright (c) Contributors to the OpenEXR Project" << endl;

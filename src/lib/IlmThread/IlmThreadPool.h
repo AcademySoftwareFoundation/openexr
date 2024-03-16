@@ -64,10 +64,10 @@ public:
     virtual void finish () = 0;
 
     // Make the provider non-copyable
-    ThreadPoolProvider (const ThreadPoolProvider&) = delete;
+    ThreadPoolProvider (const ThreadPoolProvider&)            = delete;
     ThreadPoolProvider& operator= (const ThreadPoolProvider&) = delete;
     ThreadPoolProvider (ThreadPoolProvider&&)                 = delete;
-    ThreadPoolProvider& operator= (ThreadPoolProvider&&) = delete;
+    ThreadPoolProvider& operator= (ThreadPoolProvider&&)      = delete;
 };
 
 class ILMTHREAD_EXPORT_TYPE ThreadPool
@@ -101,10 +101,10 @@ public:
     //-----------------------------------------------------------
 
     ILMTHREAD_EXPORT virtual ~ThreadPool ();
-    ThreadPool (const ThreadPool&) = delete;
+    ThreadPool (const ThreadPool&)            = delete;
     ThreadPool& operator= (const ThreadPool&) = delete;
     ThreadPool (ThreadPool&&)                 = delete;
-    ThreadPool& operator= (ThreadPool&&) = delete;
+    ThreadPool& operator= (ThreadPool&&)      = delete;
 
     //--------------------------------------------------------
     // Query and set the number of worker threads in the pool.
@@ -157,10 +157,10 @@ class ILMTHREAD_EXPORT_TYPE Task
 public:
     ILMTHREAD_EXPORT Task (TaskGroup* g);
     ILMTHREAD_EXPORT virtual ~Task ();
-    Task (const Task&) = delete;
+    Task (const Task&)            = delete;
     Task& operator= (const Task&) = delete;
     Task (Task&&)                 = delete;
-    Task& operator= (Task&&) = delete;
+    Task& operator= (Task&&)      = delete;
 
     virtual void execute () = 0;
     ILMTHREAD_EXPORT
@@ -176,10 +176,10 @@ public:
     ILMTHREAD_EXPORT TaskGroup ();
     ILMTHREAD_EXPORT ~TaskGroup ();
 
-    TaskGroup (const TaskGroup& other) = delete;
+    TaskGroup (const TaskGroup& other)            = delete;
     TaskGroup& operator= (const TaskGroup& other) = delete;
     TaskGroup (TaskGroup&& other)                 = delete;
-    TaskGroup& operator= (TaskGroup&& other) = delete;
+    TaskGroup& operator= (TaskGroup&& other)      = delete;
 
     // marks one task as finished
     // should be used by the thread pool provider to notify

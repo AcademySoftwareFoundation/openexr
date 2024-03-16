@@ -49,12 +49,7 @@ dispatch_read (
 
     if (ctxt->read_fn)
         rval = ctxt->read_fn (
-            ctxt,
-            ctxt->user_data,
-            buf,
-            sz,
-            *offsetp,
-            ctxt->print_error);
+            ctxt, ctxt->user_data, buf, sz, *offsetp, ctxt->print_error);
     else
         return ctxt->standard_error (ctxt, EXR_ERR_NOT_OPEN_READ);
 
@@ -73,10 +68,7 @@ dispatch_read (
 
 static exr_result_t
 dispatch_write (
-    exr_context_t ctxt,
-    const void*   buf,
-    uint64_t      sz,
-    uint64_t*     offsetp)
+    exr_context_t ctxt, const void* buf, uint64_t sz, uint64_t* offsetp)
 {
     int64_t rval = -1;
 
@@ -90,12 +82,7 @@ dispatch_write (
 
     if (ctxt->write_fn)
         rval = ctxt->write_fn (
-            ctxt,
-            ctxt->user_data,
-            buf,
-            sz,
-            *offsetp,
-            ctxt->print_error);
+            ctxt, ctxt->user_data, buf, sz, *offsetp, ctxt->print_error);
     else
         return ctxt->standard_error (ctxt, EXR_ERR_NOT_OPEN_WRITE);
 
@@ -107,8 +94,7 @@ dispatch_write (
 /**************************************/
 
 static exr_result_t
-process_query_size (
-    exr_context_t ctxt, exr_context_initializer_t* inits)
+process_query_size (exr_context_t ctxt, exr_context_initializer_t* inits)
 {
     if (inits->size_fn)
     {
@@ -175,8 +161,7 @@ exr_test_file_header (
         {
             ret->do_read = &dispatch_read;
 
-            rv = exr_attr_string_create (
-                ret, &(ret->filename), filename);
+            rv = exr_attr_string_create (ret, &(ret->filename), filename);
             if (rv == EXR_ERR_SUCCESS)
             {
                 if (!inits.read_fn)
@@ -226,8 +211,7 @@ exr_finish (exr_context_t* pctxt)
 
         if (ctxt->mode != EXR_CONTEXT_READ) rv = finalize_write (ctxt, failed);
 
-        if (ctxt->destroy_fn)
-            ctxt->destroy_fn (ctxt, ctxt->user_data, failed);
+        if (ctxt->destroy_fn) ctxt->destroy_fn (ctxt, ctxt->user_data, failed);
 
         internal_exr_destroy_context (ctxt);
     }
@@ -479,8 +463,8 @@ exr_register_attr_type_handler (
             "Provided type name '%s' is a reserved / internal type name",
             type));
 
-    rv = exr_attr_list_find_by_name (
-        ctxt, &(ctxt->custom_handlers), type, &ent);
+    rv =
+        exr_attr_list_find_by_name (ctxt, &(ctxt->custom_handlers), type, &ent);
     if (rv == EXR_ERR_SUCCESS)
         return EXR_UNLOCK_AND_RETURN (ctxt->print_error (
             ctxt,
@@ -493,10 +477,7 @@ exr_register_attr_type_handler (
         ctxt, &(ctxt->custom_handlers), type, type, 0, NULL, &ent);
     if (rv != EXR_ERR_SUCCESS)
         return EXR_UNLOCK_AND_RETURN (ctxt->print_error (
-            ctxt,
-            rv,
-            "Unable to register custom handler for type '%s'",
-            type));
+            ctxt, rv, "Unable to register custom handler for type '%s'", type));
 
     ent->opaque->unpack_func_ptr           = unpack_func_ptr;
     ent->opaque->pack_func_ptr             = pack_func_ptr;
@@ -653,7 +634,7 @@ exr_write_header (exr_context_t ctxt)
         {
             exr_priv_part_t curp = ctxt->parts[p];
 
-            curp->chunk_table_offset   = ctxt->output_file_offset;
+            curp->chunk_table_offset = ctxt->output_file_offset;
             ctxt->output_file_offset +=
                 (uint64_t) (curp->chunk_count) * sizeof (uint64_t);
         }

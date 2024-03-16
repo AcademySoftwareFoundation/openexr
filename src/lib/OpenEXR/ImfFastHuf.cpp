@@ -13,7 +13,6 @@
 
 // Static enabling/disabling the fast huffman decode
 
-
 #if defined(__APPLE__) && defined(__clang__)
 //
 // Enabled for clang on Apple platforms (tested):
@@ -325,11 +324,11 @@ FastHufDecoder::~FastHufDecoder ()
 bool
 FastHufDecoder::enabled ()
 {
-#    ifdef OPENEXR_IMF_ENABLE_FAST_HUF_DECODER
+#ifdef OPENEXR_IMF_ENABLE_FAST_HUF_DECODER
     return true;
-#    else
+#else
     return false;
-#    endif
+#endif
 }
 
 //
@@ -425,10 +424,7 @@ FastHufDecoder::buildTables (uint64_t* base, uint64_t* offset)
 
         _tableMin = 0xffffffffffffffffULL;
     }
-    else
-    {
-        _tableMin = _ljBase[minIdx];
-    }
+    else { _tableMin = _ljBase[minIdx]; }
 }
 
 //
@@ -523,10 +519,7 @@ FastHufDecoder::refill (
     //
 
     if (bufferBackNumBits <= numBits) { bufferBack = 0; }
-    else
-    {
-        bufferBack = bufferBack << numBits;
-    }
+    else { bufferBack = bufferBack << numBits; }
     bufferBackNumBits -= numBits;
 }
 

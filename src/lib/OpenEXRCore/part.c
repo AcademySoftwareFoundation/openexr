@@ -62,7 +62,7 @@ exr_add_part (
     exr_result_t    rv;
     int32_t         attrsz  = -1;
     const char*     typestr = NULL;
-    exr_priv_part_t part = NULL;
+    exr_priv_part_t part    = NULL;
 
     if (!ctxt) return EXR_ERR_MISSING_CONTEXT_ARG;
     internal_exr_lock (ctxt);
@@ -371,8 +371,7 @@ exr_get_scanlines_per_chunk (
 {
     EXR_LOCK_WRITE_AND_DEFINE_PART (part_index);
 
-    if (!out)
-        return EXR_UNLOCK_WRITE_AND_RETURN (EXR_ERR_INVALID_ARGUMENT);
+    if (!out) return EXR_UNLOCK_WRITE_AND_RETURN (EXR_ERR_INVALID_ARGUMENT);
 
     if (part->storage_mode == EXR_STORAGE_SCANLINE ||
         part->storage_mode == EXR_STORAGE_DEEP_SCANLINE)

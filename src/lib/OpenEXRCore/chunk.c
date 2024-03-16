@@ -449,11 +449,9 @@ read_and_validate_chunk_leader (
 // this should behave the same as the old ImfMultiPartInputFile
 static exr_result_t
 reconstruct_chunk_table (
-    exr_const_context_t   ctxt,
-    exr_const_priv_part_t part,
-    uint64_t*             chunktable)
+    exr_const_context_t ctxt, exr_const_priv_part_t part, uint64_t* chunktable)
 {
-    exr_result_t          rv = EXR_ERR_SUCCESS;
+    exr_result_t          rv          = EXR_ERR_SUCCESS;
     exr_result_t          firstfailrv = EXR_ERR_SUCCESS;
     uint64_t              offset_start, chunk_start, max_offset;
     uint64_t*             curctable;
@@ -494,8 +492,8 @@ reconstruct_chunk_table (
         if (rv != EXR_ERR_SUCCESS) return rv;
     }
 
-    chunkbytes = (size_t)part->chunk_count * sizeof(uint64_t);
-    curctable = (uint64_t*) ctxt->alloc_fn (chunkbytes);
+    chunkbytes = (size_t) part->chunk_count * sizeof (uint64_t);
+    curctable  = (uint64_t*) ctxt->alloc_fn (chunkbytes);
     if (!curctable) return EXR_ERR_OUT_OF_MEMORY;
 
     memset (curctable, 0, chunkbytes);
@@ -511,7 +509,7 @@ reconstruct_chunk_table (
             computed_ci = part->chunk_count - (ci + 1);
         found_ci = computed_ci;
 
-        rv       = read_and_validate_chunk_leader (
+        rv = read_and_validate_chunk_leader (
             ctxt, part, partnum, chunk_start, &found_ci, &offset_start);
         if (rv != EXR_ERR_SUCCESS)
         {
@@ -533,8 +531,7 @@ reconstruct_chunk_table (
 
         if (found_ci >= 0 && found_ci < part->chunk_count)
         {
-            if (curctable[found_ci] == 0)
-                curctable[found_ci] = chunk_start;
+            if (curctable[found_ci] == 0) curctable[found_ci] = chunk_start;
         }
     }
     memcpy (chunktable, curctable, chunkbytes);
@@ -589,7 +586,7 @@ extract_chunk_table (
         if (rv != EXR_ERR_SUCCESS)
         {
             ctxt->free_fn (ctable);
-            ctable = (uint64_t *) UINTPTR_MAX;
+            ctable = (uint64_t*) UINTPTR_MAX;
         }
         else if (!ctxt->disable_chunk_reconstruct)
         {
@@ -617,8 +614,8 @@ extract_chunk_table (
                     if (ctxt->strict_header)
                     {
                         ctxt->free_fn (ctable);
-                        ctable = (uint64_t *) UINTPTR_MAX;
-                        rv = ctxt->report_error (
+                        ctable = (uint64_t*) UINTPTR_MAX;
+                        rv     = ctxt->report_error (
                             ctxt,
                             EXR_ERR_BAD_CHUNK_LEADER,
                             "Incomplete / corrupt chunk table, unable to reconstruct");
@@ -637,8 +634,7 @@ extract_chunk_table (
                 &eptr,
                 nptr))
         {
-            if (nptr != UINTPTR_MAX)
-                ctxt->free_fn (ctable);
+            if (nptr != UINTPTR_MAX) ctxt->free_fn (ctable);
             ctable = (uint64_t*) eptr;
             if (ctable == NULL)
                 return ctxt->standard_error (ctxt, EXR_ERR_OUT_OF_MEMORY);
@@ -646,16 +642,15 @@ extract_chunk_table (
     }
 
     *chunktable = ctable;
-    return ((uintptr_t)ctable) == UINTPTR_MAX ? EXR_ERR_BAD_CHUNK_LEADER : EXR_ERR_SUCCESS;
+    return ((uintptr_t) ctable) == UINTPTR_MAX ? EXR_ERR_BAD_CHUNK_LEADER
+                                               : EXR_ERR_SUCCESS;
 }
 
 /**************************************/
 
 static exr_result_t
 alloc_chunk_table (
-    exr_const_context_t   ctxt,
-    exr_const_priv_part_t part,
-    uint64_t**            chunktable)
+    exr_const_context_t ctxt, exr_const_priv_part_t part, uint64_t** chunktable)
 {
     uint64_t* ctable = NULL;
 
@@ -692,11 +687,7 @@ alloc_chunk_table (
 
 static uint64_t
 compute_chunk_unpack_size (
-    int                            y,
-    int                            width,
-    int                            height,
-    int                            lpc,
-    exr_const_priv_part_t part)
+    int y, int width, int height, int lpc, exr_const_priv_part_t part)
 {
     uint64_t unpacksize = 0;
     if (part->chan_has_line_sampling || height != lpc)
@@ -1438,8 +1429,7 @@ exr_read_deep_chunk (
             cinfo->sample_count_data_offset,
             ctxt->file_size);
 
-    if (ctxt->file_size > 0 &&
-        cinfo->data_offset > (uint64_t) ctxt->file_size)
+    if (ctxt->file_size > 0 && cinfo->data_offset > (uint64_t) ctxt->file_size)
         return ctxt->print_error (
             ctxt,
             EXR_ERR_INVALID_ARGUMENT,

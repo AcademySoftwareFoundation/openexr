@@ -200,10 +200,7 @@ default_read_chunk (exr_decode_pipeline_t* decode)
             decode->chunk.packed_size);
         if (rv != EXR_ERR_SUCCESS) return rv;
         rv = exr_read_chunk (
-            ctxt,
-            decode->part_index,
-            &(decode->chunk),
-            decode->packed_buffer);
+            ctxt, decode->part_index, &(decode->chunk), decode->packed_buffer);
     }
 
     return rv;
@@ -287,7 +284,7 @@ decompress_data (
 static exr_result_t
 default_decompress_chunk (exr_decode_pipeline_t* decode)
 {
-    exr_result_t        rv = EXR_ERR_SUCCESS;
+    exr_result_t        rv   = EXR_ERR_SUCCESS;
     exr_const_context_t ctxt = decode->context;
     EXR_READONLY_AND_DEFINE_PART (decode->part_index);
 
@@ -360,8 +357,8 @@ unpack_sample_table (exr_const_context_t ctxt, exr_decode_pipeline_t* decode)
     {
         for (int32_t y = 0; y < h; ++y)
         {
-            int32_t *cursampline = samptable + y * w;
-            int32_t prevsamp = 0;
+            int32_t* cursampline = samptable + y * w;
+            int32_t  prevsamp    = 0;
             for (int32_t x = 0; x < w; ++x)
             {
                 int32_t nsamps =
@@ -371,18 +368,17 @@ unpack_sample_table (exr_const_context_t ctxt, exr_decode_pipeline_t* decode)
                 cursampline[x] = nsamps - prevsamp;
                 prevsamp       = nsamps;
             }
-            totsamp += (uint64_t)prevsamp;
+            totsamp += (uint64_t) prevsamp;
         }
-        if (totsamp >= (uint64_t)INT32_MAX)
-            return EXR_ERR_INVALID_SAMPLE_DATA;
-        samptable[w * h] = (int32_t)totsamp;
+        if (totsamp >= (uint64_t) INT32_MAX) return EXR_ERR_INVALID_SAMPLE_DATA;
+        samptable[w * h] = (int32_t) totsamp;
     }
     else
     {
         for (int32_t y = 0; y < h; ++y)
         {
-            int32_t *cursampline = samptable + y * w;
-            int32_t prevsamp = 0;
+            int32_t* cursampline = samptable + y * w;
+            int32_t  prevsamp    = 0;
             for (int32_t x = 0; x < w; ++x)
             {
                 int32_t nsamps =
@@ -391,13 +387,12 @@ unpack_sample_table (exr_const_context_t ctxt, exr_decode_pipeline_t* decode)
                 if (nsamps < prevsamp) return EXR_ERR_INVALID_SAMPLE_DATA;
 
                 cursampline[x] = nsamps;
-                prevsamp = nsamps;
+                prevsamp       = nsamps;
             }
 
-            totsamp += (uint64_t)prevsamp;
+            totsamp += (uint64_t) prevsamp;
         }
-        if (totsamp >= (uint64_t)INT32_MAX)
-            return EXR_ERR_INVALID_SAMPLE_DATA;
+        if (totsamp >= (uint64_t) INT32_MAX) return EXR_ERR_INVALID_SAMPLE_DATA;
     }
 
     if ((totsamp * combSampSize) > decode->chunk.unpacked_size)
@@ -680,17 +675,22 @@ exr_decoding_run (
             decode->sample_count_table != decode->packed_sample_count_table)
         {
             /* happens when we're requested to pack to 'individual' mode */
-            if (decode->sample_count_alloc_size < decode->chunk.sample_count_table_size)
+            if (decode->sample_count_alloc_size <
+                decode->chunk.sample_count_table_size)
                 return EXR_ERR_OUT_OF_MEMORY;
             if (decode->chunk.sample_count_table_size > 0)
             {
-                memcpy (decode->sample_count_table,
-                        decode->packed_sample_count_table,
-                        decode->chunk.sample_count_table_size);
+                memcpy (
+                    decode->sample_count_table,
+                    decode->packed_sample_count_table,
+                    decode->chunk.sample_count_table_size);
             }
             else
             {
-                memset (decode->sample_count_table, 0, decode->sample_count_alloc_size);
+                memset (
+                    decode->sample_count_table,
+                    0,
+                    decode->sample_count_alloc_size);
             }
         }
 
@@ -700,9 +700,7 @@ exr_decoding_run (
 
         if (rv != EXR_ERR_SUCCESS)
             return ctxt->report_error (
-                ctxt,
-                rv,
-                "Decode pipeline unable to unpack deep sample table");
+                ctxt, rv, "Decode pipeline unable to unpack deep sample table");
     }
 
     if (rv == EXR_ERR_SUCCESS && decode->realloc_nonimage_data_fn)

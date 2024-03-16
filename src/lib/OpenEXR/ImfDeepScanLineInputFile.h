@@ -45,8 +45,8 @@ public:
 
     DeepScanLineInputFile (const DeepScanLineInputFile& other) = delete;
     DeepScanLineInputFile&
-    operator= (const DeepScanLineInputFile& other)        = delete;
-    DeepScanLineInputFile (DeepScanLineInputFile&& other) = delete;
+    operator= (const DeepScanLineInputFile& other)                   = delete;
+    DeepScanLineInputFile (DeepScanLineInputFile&& other)            = delete;
     DeepScanLineInputFile& operator= (DeepScanLineInputFile&& other) = delete;
 
     //-----------------------------------------

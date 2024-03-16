@@ -886,7 +886,7 @@ unpack_16bit (exr_decode_pipeline_t* decode)
 #else
             if (pixincrement == 2)
             {
-                memcpy (cdata, srcbuffer, (size_t) (w) *2);
+                memcpy (cdata, srcbuffer, (size_t) (w) * 2);
             }
             else
             {
@@ -951,7 +951,7 @@ unpack_32bit (exr_decode_pipeline_t* decode)
 #else
             if (pixincrement == 4)
             {
-                memcpy (cdata, srcbuffer, (size_t) (w) *4);
+                memcpy (cdata, srcbuffer, (size_t) (w) * 4);
             }
             else
             {

@@ -386,10 +386,10 @@ private:
 
     DeepTiledInputFile (InputPartData* part);
 
-    DeepTiledInputFile (const DeepTiledInputFile&) = delete;
+    DeepTiledInputFile (const DeepTiledInputFile&)            = delete;
     DeepTiledInputFile& operator= (const DeepTiledInputFile&) = delete;
     DeepTiledInputFile (DeepTiledInputFile&&)                 = delete;
-    DeepTiledInputFile& operator= (DeepTiledInputFile&&) = delete;
+    DeepTiledInputFile& operator= (DeepTiledInputFile&&)      = delete;
 
     DeepTiledInputFile (
         const Header&                            header,

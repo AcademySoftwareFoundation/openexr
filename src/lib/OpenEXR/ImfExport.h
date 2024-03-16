@@ -18,7 +18,7 @@
 // where we need to switch depending on whether we are compiling
 // internally or not
 #    if defined(OPENEXR_EXPORTS)
-#        define IMF_EXPORT __declspec(dllexport)
+#        define IMF_EXPORT __declspec (dllexport)
 
 // mingw needs the export when the extern is defined
 #        if defined(__MINGW32__)
@@ -37,7 +37,7 @@
 #        endif
 
 #    else // OPENEXR_EXPORTS
-#        define IMF_EXPORT __declspec(dllimport)
+#        define IMF_EXPORT __declspec (dllimport)
 #        define IMF_EXPORT_EXTERN_TEMPLATE IMF_EXPORT
 #        define IMF_EXPORT_TEMPLATE_INSTANCE
 #        define IMF_EXPORT_TEMPLATE_TYPE

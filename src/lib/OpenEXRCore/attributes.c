@@ -537,8 +537,7 @@ add_to_list (
 
     list->num_attributes = nattrsz;
     rv                   = attr_init (ctxt, nattr);
-    if (rv != EXR_ERR_SUCCESS)
-        exr_attr_list_remove (ctxt, list, nattr);
+    if (rv != EXR_ERR_SUCCESS) exr_attr_list_remove (ctxt, list, nattr);
     return rv;
 }
 
@@ -629,10 +628,7 @@ check_attr_handler (exr_context_t ctxt, exr_attribute_t* attr)
     {
         exr_attribute_t* handler = NULL;
         exr_result_t     rv      = exr_attr_list_find_by_name (
-            ctxt,
-            &(ctxt->custom_handlers),
-            attr->type_name,
-            &handler);
+            ctxt, &(ctxt->custom_handlers), attr->type_name, &handler);
         if (rv == EXR_ERR_SUCCESS && handler)
         {
             attr->opaque->unpack_func_ptr = handler->opaque->unpack_func_ptr;
@@ -759,8 +755,7 @@ exr_attr_list_add_by_type (
             ctxt, EXR_ERR_INVALID_ARGUMENT, "Invalid type to add_by_type");
     }
 
-    rval =
-        validate_attr_arguments (ctxt, list, name, data_len, data_ptr, attr);
+    rval = validate_attr_arguments (ctxt, list, name, data_len, data_ptr, attr);
     if (rval != EXR_ERR_SUCCESS)
     {
         if (rval < 0)
@@ -887,8 +882,7 @@ exr_attr_list_add (
 
     if (!ctxt) return EXR_ERR_MISSING_CONTEXT_ARG;
 
-    rval =
-        validate_attr_arguments (ctxt, list, name, data_len, data_ptr, attr);
+    rval = validate_attr_arguments (ctxt, list, name, data_len, data_ptr, attr);
     if (rval != EXR_ERR_SUCCESS)
     {
         if (rval < 0)
@@ -944,15 +938,7 @@ exr_attr_list_add (
     known = &(the_predefined_attr_typenames[tidx]);
 
     rval = create_attr_block (
-        ctxt,
-        &nattr,
-        known->exp_size,
-        data_len,
-        data_ptr,
-        name,
-        nlen,
-        NULL,
-        0);
+        ctxt, &nattr, known->exp_size, data_len, data_ptr, name, nlen, NULL, 0);
 
     if (rval == EXR_ERR_SUCCESS)
     {
@@ -993,8 +979,7 @@ exr_attr_list_add_static_name (
 
     if (!ctxt) return EXR_ERR_MISSING_CONTEXT_ARG;
 
-    rval =
-        validate_attr_arguments (ctxt, list, name, data_len, data_ptr, attr);
+    rval = validate_attr_arguments (ctxt, list, name, data_len, data_ptr, attr);
     if (rval != EXR_ERR_SUCCESS)
     {
         if (rval < 0)

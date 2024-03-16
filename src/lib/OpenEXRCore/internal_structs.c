@@ -78,8 +78,7 @@ default_error_handler (
 }
 
 static exr_result_t
-dispatch_error (
-    exr_const_context_t ctxt, exr_result_t code, const char* msg)
+dispatch_error (exr_const_context_t ctxt, exr_result_t code, const char* msg)
 {
     if (ctxt)
     {
@@ -102,17 +101,12 @@ dispatch_standard_error (exr_const_context_t ctxt, exr_result_t code)
 /**************************************/
 
 static exr_result_t dispatch_print_error (
-    exr_const_context_t ctxt,
-    exr_result_t        code,
-    const char*         msg,
-    ...) EXR_PRINTF_FUNC_ATTRIBUTE;
+    exr_const_context_t ctxt, exr_result_t code, const char* msg, ...)
+    EXR_PRINTF_FUNC_ATTRIBUTE;
 
 static exr_result_t
 dispatch_print_error (
-    exr_const_context_t ctxt,
-    exr_result_t        code,
-    const char*         msg,
-    ...)
+    exr_const_context_t ctxt, exr_result_t code, const char* msg, ...)
 {
     char    stackbuf[256];
     char*   heapbuf = NULL;
@@ -149,8 +143,7 @@ dispatch_print_error (
 /**************************************/
 
 static void
-internal_exr_destroy_part (
-    exr_context_t ctxt, exr_priv_part_t cur)
+internal_exr_destroy_part (exr_context_t ctxt, exr_priv_part_t cur)
 {
     exr_memory_free_func_t dofree = ctxt->free_fn;
     uint64_t*              ctable;
@@ -168,7 +161,7 @@ internal_exr_destroy_part (
     ctable = (uint64_t*) atomic_load (&(cur->chunk_table));
     atomic_store (&(cur->chunk_table), (uintptr_t) (0));
 #endif
-    if (ctable && ((uintptr_t)ctable) != UINTPTR_MAX) dofree (ctable);
+    if (ctable && ((uintptr_t) ctable) != UINTPTR_MAX) dofree (ctable);
 }
 
 /**************************************/
@@ -197,11 +190,9 @@ internal_exr_destroy_parts (exr_context_t ctxt)
 
 exr_result_t
 internal_exr_add_part (
-    exr_context_t               f,
-    exr_priv_part_t*   outpart,
-    int*                        new_index)
+    exr_context_t f, exr_priv_part_t* outpart, int* new_index)
 {
-    int                       ncount = f->num_parts + 1;
+    int              ncount = f->num_parts + 1;
     exr_priv_part_t  part;
     exr_priv_part_t* nptrs = NULL;
 
@@ -221,8 +212,7 @@ internal_exr_add_part (
         part = f->alloc_fn (sizeof (struct _priv_exr_part_t));
         if (!part) return f->standard_error (f, EXR_ERR_OUT_OF_MEMORY);
 
-        nptrs =
-            f->alloc_fn (sizeof (exr_priv_part_t) * (size_t) ncount);
+        nptrs = f->alloc_fn (sizeof (exr_priv_part_t) * (size_t) ncount);
         if (!nptrs)
         {
             f->free_fn (part);
@@ -264,11 +254,9 @@ internal_exr_add_part (
 
 void
 internal_exr_revert_add_part (
-    exr_context_t             ctxt,
-    exr_priv_part_t* outpart,
-    int*                      new_index)
+    exr_context_t ctxt, exr_priv_part_t* outpart, int* new_index)
 {
-    int                      ncount = ctxt->num_parts - 1;
+    int             ncount = ctxt->num_parts - 1;
     exr_priv_part_t part   = *outpart;
 
     *outpart   = NULL;

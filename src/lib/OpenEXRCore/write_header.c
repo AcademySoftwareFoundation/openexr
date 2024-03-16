@@ -204,8 +204,7 @@ save_chlist (exr_context_t ctxt, const exr_attribute_t* a)
 /**************************************/
 
 static exr_result_t
-save_chromaticities (
-    exr_context_t ctxt, const exr_attribute_t* a)
+save_chromaticities (exr_context_t ctxt, const exr_attribute_t* a)
 {
     exr_result_t              rv;
     exr_attr_chromaticities_t tmp = *(a->chromaticities);
@@ -377,8 +376,7 @@ save_string (exr_context_t ctxt, const exr_attribute_t* a)
 /**************************************/
 
 static exr_result_t
-save_string_vector (
-    exr_context_t ctxt, const exr_attribute_t* a)
+save_string_vector (exr_context_t ctxt, const exr_attribute_t* a)
 {
     exr_result_t rv;
     size_t       attrsz = 0;

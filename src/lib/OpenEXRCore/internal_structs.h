@@ -163,14 +163,10 @@ struct _priv_exr_context_t
     exr_result_t (*standard_error) (
         exr_const_context_t ctxt, exr_result_t code);
     exr_result_t (*report_error) (
-        exr_const_context_t ctxt,
-        exr_result_t        code,
-        const char*         msg);
+        exr_const_context_t ctxt, exr_result_t code, const char* msg);
     exr_result_t (*print_error) (
-        exr_const_context_t ctxt,
-        exr_result_t        code,
-        const char*         msg,
-        ...) EXR_PRINTF_FUNC_ATTRIBUTE;
+        exr_const_context_t ctxt, exr_result_t code, const char* msg, ...)
+        EXR_PRINTF_FUNC_ATTRIBUTE;
 
     exr_error_handler_cb_t error_handler_fn;
 
@@ -229,8 +225,7 @@ static inline void
 internal_exr_lock (exr_const_context_t c)
 {
 #ifdef ILMTHREAD_THREADING_ENABLED
-    exr_context_t nonc =
-        EXR_CONST_CAST (exr_context_t, c);
+    exr_context_t nonc = EXR_CONST_CAST (exr_context_t, c);
 #    ifdef _WIN32
     EnterCriticalSection (&nonc->mutex);
 #    else
@@ -243,8 +238,7 @@ static inline void
 internal_exr_unlock (exr_const_context_t c)
 {
 #ifdef ILMTHREAD_THREADING_ENABLED
-    exr_context_t nonc =
-        EXR_CONST_CAST (exr_context_t, c);
+    exr_context_t nonc = EXR_CONST_CAST (exr_context_t, c);
 #    ifdef _WIN32
     LeaveCriticalSection (&nonc->mutex);
 #    else
@@ -255,8 +249,9 @@ internal_exr_unlock (exr_const_context_t c)
 
 #define EXR_UNLOCK_AND_RETURN(v) ((void) (internal_exr_unlock (ctxt)), v)
 #define EXR_UNLOCK_WRITE_AND_RETURN(v)                                         \
-    ((void) ((ctxt->mode == EXR_CONTEXT_WRITE) ?                               \
-             internal_exr_unlock (ctxt) : ((void) 0)), v)
+    ((void) ((ctxt->mode == EXR_CONTEXT_WRITE) ? internal_exr_unlock (ctxt)    \
+                                               : ((void) 0)),                  \
+     v)
 
 #define EXR_LOCK_AND_DEFINE_PART(pi)                                           \
     exr_priv_part_t part;                                                      \
@@ -279,19 +274,19 @@ internal_exr_unlock (exr_const_context_t c)
     if (ctxt->mode == EXR_CONTEXT_WRITE) internal_exr_lock (ctxt);             \
     if (pi < 0 || pi >= ctxt->num_parts)                                       \
     {                                                                          \
-        if (ctxt->mode == EXR_CONTEXT_WRITE) internal_exr_unlock(ctxt);        \
+        if (ctxt->mode == EXR_CONTEXT_WRITE) internal_exr_unlock (ctxt);       \
         return ctxt->print_error (                                             \
-                ctxt,                                                          \
-                EXR_ERR_ARGUMENT_OUT_OF_RANGE,                                 \
-                "Part index (%d) out of range",                                \
-                pi);                                                           \
+            ctxt,                                                              \
+            EXR_ERR_ARGUMENT_OUT_OF_RANGE,                                     \
+            "Part index (%d) out of range",                                    \
+            pi);                                                               \
     }                                                                          \
     part = ctxt->parts[pi]
 
 #define EXR_CHECK_CONTEXT_AND_PART(pi)                                         \
     if (!ctxt) return EXR_ERR_MISSING_CONTEXT_ARG;                             \
     if (pi < 0 || pi >= ctxt->num_parts)                                       \
-        return ctxt->print_error (                                             \
+    return ctxt->print_error (                                                 \
         ctxt,                                                                  \
         EXR_ERR_ARGUMENT_OUT_OF_RANGE,                                         \
         "Part index (%d) out of range",                                        \
@@ -317,8 +312,8 @@ exr_result_t internal_exr_add_part (
 void internal_exr_revert_add_part (
     exr_context_t ctxt, exr_priv_part_t* outpart, int* new_index);
 
-exr_result_t internal_exr_context_restore_handlers (
-    exr_context_t ctxt, exr_result_t rv);
+exr_result_t
+internal_exr_context_restore_handlers (exr_context_t ctxt, exr_result_t rv);
 
 exr_result_t internal_exr_alloc_context (
     exr_context_t*                   out,

@@ -277,7 +277,7 @@ read_pixels_raw (MultiPartInputFile* f)
     auto&    dw   = head.dataWindow ();
     int64_t  w    = dw.max.x - dw.min.x + 1;
     int64_t  h    = dw.max.y - dw.min.y + 1;
-    uint64_t ret = 0;
+    uint64_t ret  = 0;
 
     if (w <= 0) return ret;
 
