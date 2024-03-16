@@ -104,6 +104,10 @@ openexr_define_library(OpenEXRCore
     Imath::Imath
   )
 
+set_source_files_properties(${EXR_DEFLATE_SOURCES} PROPERTIES
+    COMPILE_FLAGS
+    "$<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:GNU>>:-Wno-sign-conversion -Wno-implicit-int-conversion -Wno-unused-parameter -Wno-used-but-marked-unused -Wno-shorten-64-to-32 -Wno-sign-compare -Wno-padded -Wno-cast-qual -Wno-disabled-macro-expansion>")
+
 if (DEFINED EXR_DEFLATE_LIB)
   if (BUILD_SHARED_LIBS)
     target_link_libraries(OpenEXRCore PRIVATE ${EXR_DEFLATE_LIB})
