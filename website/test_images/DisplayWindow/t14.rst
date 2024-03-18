@@ -1,0 +1,38 @@
+..
+  SPDX-License-Identifier: BSD-3-Clause
+  Copyright Contributors to the OpenEXR Project.
+
+t14.exr
+#######
+
+:download:`https://raw.githubusercontent.com/AcademySoftwareFoundation/openexr-images/main/DisplayWindow/t14.exr<https://raw.githubusercontent.com/AcademySoftwareFoundation/openexr-images/main/DisplayWindow/t14.exr>`
+
+.. image:: https://raw.githubusercontent.com/AcademySoftwareFoundation/openexr-images/main/DisplayWindow/t14.jpg
+   :target: https://raw.githubusercontent.com/AcademySoftwareFoundation/openexr-images/main/DisplayWindow/t14.exr
+
+
+The display window and the data window have only one pixel in
+common.  The data window's upper left pixel should be visible in
+the lower right corner of the display window.
+
+.. list-table::
+   :align: left
+
+   * - screenWindowWidth
+     - 1
+   * - dataWindow
+     - (0 0) - (399 299)
+   * - screenWindowCenter
+     - (0 0)
+   * - displayWindow
+     - (-100 -100) - (0 0)
+   * - channels
+     - B, G, R
+   * - lineOrder
+     - increasing y
+   * - pixelAspectRatio
+     - 1
+   * - compression
+     - piz
+   * - type
+     - scanlineimage

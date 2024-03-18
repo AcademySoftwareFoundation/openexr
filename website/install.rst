@@ -14,23 +14,7 @@ Linux
 -----
 
 The OpenEXR library is available for download and installation in
-binary form via package managers on many Linux distributions. See
-`https://pkgs.org/download/openexr
-<https://pkgs.org/download/openexr>`_ for a complete list. 
-
-RHEL/CentOS:
-
-.. code-block::
-
-    % sudo yum makecache
-    % sudo yum install OpenEXR
-
-Ubuntu:
-
-.. code-block::
-
-    % sudo apt-get update
-    % sudo apt-get install openexr
+binary form via package managers on many Linux distributions. 
 
 Beware that some distributions are out of date and only provide
 distributions of outdated releases OpenEXR. We recommend against using
@@ -39,8 +23,22 @@ OpenEXR v2, and we *strongly* recommend against using OpenEXR v1.
 Refer to the current version of OpenEXR on various major Linux distros at
 `repology.org <https://repology.org/project/openexr/versions>`_:
 
-.. image:: https://repology.org/badge/vertical-allrepos/openexr.svg?exclude_unsupported=1&columns=4
+.. image:: https://repology.org/badge/vertical-allrepos/openexr.svg?exclude_unsupported=1&columns=4&header=OpenEXR%20Packaging%20Status&minversion=3.0
    :target: https://repology.org/project/openexr/versions
+
+To install via ``yum`` on RHEL/CentOS:
+
+.. code-block::
+
+    % sudo yum makecache
+    % sudo yum install OpenEXR
+
+To install via ``apt-get`` on Ubuntu:
+
+.. code-block::
+
+    % sudo apt-get update
+    % sudo apt-get install openexr
 
 macOS
 -----
@@ -246,18 +244,13 @@ Building the website requires that ``sphinx``, ``breathe``, and
 <https://pypi.org/project/sphinx-press-theme>`_. Complete dependencies
 are described in the `requirements.txt
 <https://github.com/AcademySoftwareFoundation/imath/blob/main/docs/requirements.txt>`_
-file. Furthermore, building the website from source requires the Imagemagick
-`convert <https://imagemagick.org/script/convert.php>`_ utility, which
-processes exr files from
-`https://github.com/AcademySoftwareFoundation/openexr-images
-<https://github.com/AcademySoftwareFoundation/openexr-images>`_ for
-the example image gallery.
+file. 
 
 On Debian/Ubuntu Linux:
 
 .. code-block::
 
-    % apt-get install doxygen python3-sphinx imagemagick
+    % apt-get install doxygen python3-sphinx
     % pip3 install breathe
     % pip3 install sphinx_press_theme
    
