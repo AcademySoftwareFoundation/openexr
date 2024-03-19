@@ -289,11 +289,17 @@ convert (
     }
 
     Box2i dataWindow  = infile.header (0).dataWindow ();
-    int   pixel_count = (dataWindow.size ().y + 1) * (dataWindow.size ().x + 1);
-    int   pixel_width = dataWindow.size ().x + 1;
+    //
+    // use int64_t for dimensions, since possible overflow int storage
+    //
+    int64_t pixel_count = (static_cast<int64_t>(dataWindow.size ().y) + 1) * (static_cast<int64_t>(dataWindow.size ().x) + 1);
+    int64_t pixel_width = static_cast<int64_t>(dataWindow.size ().x) + 1;
 
+    //
     // offset in pixels between base of array and 0,0
-    int pixel_base = dataWindow.min.y * pixel_width + dataWindow.min.x;
+    // use int64_t for dimensions, since dataWindow.min.y * pixel_width could overflow int storage
+    //
+    int64_t pixel_base = static_cast<int64_t>(dataWindow.min.y) * pixel_width + static_cast<int64_t>(dataWindow.min.x);
 
     vector<vector<char>> channelstore (channel_count);
 
