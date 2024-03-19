@@ -79,6 +79,28 @@ public:
     IMF_EXPORT
     void readTiles (int dx1, int dx2, int dy1, int dy2, int l = 0);
     IMF_EXPORT
+    void readTile (const FrameBuffer& frameBuffer, int dx, int dy, int l = 0);
+    IMF_EXPORT
+    void
+    readTile (const FrameBuffer& frameBuffer, int dx, int dy, int lx, int ly);
+    IMF_EXPORT
+    void readTiles (
+        const FrameBuffer& frameBuffer,
+        int                dx1,
+        int                dx2,
+        int                dy1,
+        int                dy2,
+        int                lx,
+        int                ly);
+    IMF_EXPORT
+    void readTiles (
+        const FrameBuffer& frameBuffer,
+        int                dx1,
+        int                dx2,
+        int                dy1,
+        int                dy2,
+        int                l = 0);
+    IMF_EXPORT
     void rawTileData (
         int&         dx,
         int&         dy,
