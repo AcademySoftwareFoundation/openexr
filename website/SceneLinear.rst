@@ -35,17 +35,14 @@ have. Reducing the range of the image is often called
 `Tone Mapping <https://en.wikipedia.org/wiki/Tone_mapping>`_ and reducing the
 colorfulness is often called
 `Gamut Compression <https://docs.acescentral.com/guides/rgc-user/>`_
-though other terms are used,
-such as applying a Rendering Transform, Look, display LUT, Filter, or OOTF
-(Opto-Optical Transfer function); many approaches combine both color and
-contrast modification into a single step.
+[#ftonemap]_
 
 This is not a new idea: film stock does exactly the same thing chemically. This
 is because film projectors also have limited dynamic range. The film process is
 designed to project (or print onto paper) an image of lower contrast than the
 lens captured, so that it can represent details in both bright and dark areas
 without needing as much contrast as the original scene. With film, the contrast
-usually is very low in bright parts of the scene, sightly higher than the
+usually is very low in bright parts of the scene, slightly higher than the
 original in the middle range, and higher in the dark shadows. This allows detail
 in clouds, and a feeling of darkness in shadows. This also affects the colors,
 tending to reduce the colorfulness of bright areas, and increasing the
@@ -64,7 +61,7 @@ colorfulness of dark ones.
    :height: 400
    :alt: image after tone mapping to improve appearance
 
-   Example of same image displayed with the camera's default tone mapping to create
+   The same image displayed with the camera's default tone mapping to create
    a more pleasing image with darker shadows and more vivid colors
 
 
@@ -72,10 +69,10 @@ Such film-based images are so common that an image which has not had that
 process applied appears incorrect, so many tone mapping approaches are inspired
 by reproducing what film would do, to make the image appear more familiar and so
 more natural. The images above illustrate this. The first version of the image
-presents the pixels with the same color and intensity that the real objects had [#f1]_
+presents the pixels with the same color and intensity that the real objects had [#fsrgb]_
 This particular scene has low enough contrast and subtle enough colors that monitors
 are capable of displaying it faithfully.
-The second image is a JPEG created by the camera using its built-in tone mapping giof the image. This image
+The second image is a JPEG created by the camera using its built-in tone mapping of the image. This image
 looks more pleasing, even though the colors are no longer faithful to those
 originally observed.
 
@@ -88,12 +85,12 @@ mapping.
 `Appendix 1 of BT.2100 <https://www.itu.int/dms_pubrec/itu-r/rec/bt/R-REC-BT.2100-2-201807-I!!PDF-E.pdf>`_
 discusses tone mapping in HDR images.
 
-Images may also have a creative look (or grade) applied. An artist may want the
+Images may also have a creative look applied. An artist may want the
 image to be represented differently, perhaps dramatically darkening the clouds
 or lifting the brightness of the entire image so that the dark areas are light
 gray instead of black. They may remove the color completely and make the image
 black and white. This could be done manually with an image editing tool, or by
-having a 'look preset', 'filter' or 'picture profile' applied.
+choosing a predefined transform to modify the image.
 
 Most digital images already have such mapping applied: the tone mapping has been
 applied ready for display. JPEG (or HEIF) images taken by digital cameras and
@@ -161,11 +158,10 @@ though it's 50 times smaller. Display encoded images therefore concentrate
 accuracy in low values, sacrificing accuracy in high detail. This allows for
 images to be stored with less precision, but appear just as accurate, as a
 larger image stored in linear. This non-linearity is often called an
-Electro-Optical Transform Function (since it maps between the values stored
-electronically in the file and those presented optically on the monitor), or a
-log or gamma curve.
+Electro-Optical Transform Function (EOTF), since it maps between the values stored
+electronically in the file and those presented optically on the monitor [#feotf]_.
 
-To handle an image with an EOTF/log/gamma curve, it is important to understand
+To handle an image with an EOTF, it is important to understand
 what that function is. It is often necessary to undo function before modifying
 values, then reapply the function, which causes of a loss of data.  OpenEXR
 images using floating point linear values to represent pixel intensities.
@@ -203,48 +199,7 @@ linear space. JPEG images are output referred, and have had all steps applied,
 ready to display. Other images which are created through the color chain need
 subsequent steps applied before being displayed.
 
-.. graphviz:: 
- 
-   digraph "color processing chain" {
-    sensor [ label="Sensor"];
-    adc [label = "Analog to Digital"];
-    lin [label = "Linearization"];
-    raw [label = "Camera Raw"];
-    bayer [label = "Demosaicking"];
-    wb [label = "White balance"];
-    exr [label = "OpenEXR file"];
-    tone [label = "Tone mapping"];
-    eotf [label = "Display gamma"];
-    jpeg [label = "JPEG"];
-    display [label = "Display"];
-
-    sensor -> adc -> lin  [weight=10];
-    { rank=same adc raw;}
-    adc -> raw;
-    raw -> lin;
-    subgraph cluster_input
-    {
-      label="Input referred linear";
-      labeljust="r";
-      graph[style=dotted];
-      lin -> bayer -> wb;
-      { rank=same wb exr}
-      wb -> exr;
-    }
-    wb -> tone [weight=10];
-    exr ->tone;
-    subgraph cluster_output
-    {
-      label="output referred";
-      labeljust="r";
-      graph[style=dotted];
-      tone -> eotf [weight=10];
-      { rank=same eotf jpeg;}
-      eotf->jpeg;
-    }
-    jpeg->display;
-    eotf->display [weight=10];
-   }
+.. image:: images/imageprocessing.png
 
 
 Color management resources
@@ -261,7 +216,7 @@ standard workflows to convert from raw camera images to scene-linear images, and
 a standard tone mapping system for convert to output referred images.
 OpenColorIO configs are available which implement the necessary conversions.
 ACES image files (specified by SMPTE ST2065-4) are scene-linear OpenEXR
-images
+images.
 
 `OpenImageIO <https://github.com/AcademySoftwareFoundation/OpenImageIO>`_
 provides a library and command line tools for loading and saving images in
@@ -270,5 +225,16 @@ OpenColorIO.
 
 
 .. rubric:: Footnotes
-.. [#f1] The colors in the first image will be rendered as observed on monitors which are calibrated for sRGB
-         with a maximum intensity of 62 cd/m :superscript:`2`. Most monitors will display the colors accurately but slightly too bright.
+
+.. [#ftonemap] Other terms are used for tone mapping and gamut compression,
+   such as applying a Rendering Transform, Look, display LUT, Filter, or OOTF
+   (Opto-Optical Transfer function); many approaches combine both color and
+   contrast modification into a single step.
+
+.. [#fsrgb] The colors in the first image will be rendered as observed on
+   monitors which are calibrated for sRGB with a maximum intensity of
+   62 cd/m :superscript:`2`. Most monitors will display the colors accurately
+   but slightly too bright.
+
+.. [#feotf] Other terms for EOTF include applying a gamma or log function,
+   or simply a 'monitor curve'.

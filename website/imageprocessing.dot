@@ -1,0 +1,47 @@
+//
+// this is a graphviz dot file to create images/imageprocessing.png used on the SceneLinear.rst page
+// This is not built automatically.
+// To update:
+// dot -Tpng imageprocessing.dot > image/imageprocessing.png
+// the 'graphviz' package may be required. Remember to commit the updated images/imageprocessing.png image
+//
+   digraph "color processing chain" {
+    sensor [ label="Sensor"];
+    adc [label = "Analog to digital"];
+    lin [label = "Linearization"];
+    raw [label = "Camera Raw"];
+    bayer [label = "Demosaicking"];
+    wb [label = "White balance"];
+    exr [label = "OpenEXR file"];
+    tone [label = "Tone mapping"];
+    eotf [label = "Apply EOTF"];
+    jpeg [label = "JPEG"];
+    display [label = "Output display"];
+
+    sensor -> adc -> lin  [weight=10];
+    { rank=same adc raw;}
+    adc -> raw;
+    raw -> lin;
+    subgraph cluster_input
+    {
+      label="Input referred linear";
+      labeljust="r";
+      graph[style=dotted];
+      lin -> bayer -> wb;
+      { rank=same wb exr}
+      wb -> exr;
+    }
+    wb -> tone [weight=10];
+    exr ->tone;
+    subgraph cluster_output
+    {
+      label="output referred";
+      labeljust="r";
+      graph[style=dotted];
+      tone -> eotf [weight=10];
+      { rank=same eotf jpeg;}
+      eotf->jpeg;
+    }
+    jpeg->display;
+    eotf->display [weight=10];
+   }
