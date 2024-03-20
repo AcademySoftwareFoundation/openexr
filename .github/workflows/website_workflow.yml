@@ -50,7 +50,7 @@ jobs:
       - name: Install doxygen & imagemagick
         # Need imagemagick for convert, to convert "Test Image" exrs to jpgs
         # Need openexr for exrheader
-        run: sudo apt-get install -y doxygen imagemagick openexr 
+        run: sudo apt-get install -y doxygen imagemagick openexr dot
       - name: Install sphinx requirements
         run: pip3 install -r website/requirements.txt
       - name: Configure

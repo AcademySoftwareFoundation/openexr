@@ -75,7 +75,7 @@ more natural. The images above illustrate this. The first version of the image
 presents the pixels with the same color and intensity that the real objects had [#f1]_
 This particular scene has low enough contrast and subtle enough colors that monitors
 are capable of displaying it faithfully.
-The second image is a JPEG created by the camera using its built-in tone mapping of the image. This image
+The second image is a JPEG created by the camera using its built-in tone mapping giof the image. This image
 looks more pleasing, even though the colors are no longer faithful to those
 originally observed.
 
@@ -245,6 +245,28 @@ subsequent steps applied before being displayed.
     jpeg->display;
     eotf->display [weight=10];
    }
+
+
+Color management resources
+==========================
+
+`OpenColorIO <https://opencolorio.org/>`_ (OCIO) is a framework providing
+software libraries to apply color transformations based on a configuration.
+Since the same config is shared by all OCIO-compatible software, color
+conversions can be applied consistently when working with the same images in
+multiple software packages.
+
+The `Academy Color Encoding System (ACES) <https://acescentral.com/>`_ defines
+standard workflows to convert from raw camera images to scene-linear images, and
+a standard tone mapping system for convert to output referred images.
+OpenColorIO configs are available which implement the necessary conversions.
+ACES image files (specified by SMPTE ST2065-4) are scene-linear OpenEXR
+images
+
+`OpenImageIO <https://github.com/AcademySoftwareFoundation/OpenImageIO>`_
+provides a library and command line tools for loading and saving images in
+multiple formats, including OpenEXR, and supports image processing with
+OpenColorIO.
 
 
 .. rubric:: Footnotes
