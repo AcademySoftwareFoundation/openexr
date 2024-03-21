@@ -1693,7 +1693,7 @@ DwaCompressor_classifyChannels (DwaCompressor* me)
             prefixMap,
             me->_numChannels,
             curc->channel_name,
-            (size_t) (curc->channel_name - suffix));
+            (size_t) (suffix - curc->channel_name));
 
         for (size_t i = 0; i < me->_channelRuleCount; ++i)
         {
