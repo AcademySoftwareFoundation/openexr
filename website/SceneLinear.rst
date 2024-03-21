@@ -4,7 +4,7 @@
 More about Scene-linear images
 ##############################
 
-OpenEXR images are intended to store input referred (or scene referred) linear
+OpenEXR images are intended to store scene referred (or input referred) linear
 data. "Input referred" means the pixel values indicate how much light was
 received by the camera. Most images are output-referred, where the values
 indicate how much light should be used to display the image on a screen (or how
@@ -17,6 +17,14 @@ by software which is intended to produce images which appear to be digital
 photographs (*photorealistic* images), and that the image is displayed on a
 computer monitor.
 
+Note that although OpenEXR images were designed to store scene-referred color,
+this is not enforced by the library so OpenEXR images are not guaranteed to be
+scene-referred or to store linear-light values. There may be practical reasons
+store image data in an OpenEXR image encoded with a different convention. When
+sharing OpenEXR images with others, it is important to clarify exactly how the
+data is represented in the file. This also means the default processing applied
+by a software package to an OpenEXR image may not be consistent with the way the
+data is stored.
 
 Input vs Output: Tone mapping and creativity
 ============================================
@@ -69,12 +77,12 @@ Such film-based images are so common that an image which has not had that
 process applied appears incorrect, so many tone mapping approaches are inspired
 by reproducing what film would do, to make the image appear more familiar and so
 more natural. The images above illustrate this. The first version of the image
-presents the pixels with the same color and intensity that the real objects had [#fsrgb]_
-This particular scene has low enough contrast and subtle enough colors that monitors
-are capable of displaying it faithfully.
-The second image is a JPEG created by the camera using its built-in tone mapping of the image. This image
-looks more pleasing, even though the colors are no longer faithful to those
-originally observed.
+presents the pixels with the same color and intensity that the real objects had
+[#fsrgb]_. This particular scene has low enough contrast and subtle enough colors
+that monitors are capable of displaying it faithfully. The second image is a
+JPEG created by the camera using its built-in tone mapping of the image. This
+image looks more pleasing, even though the colors are no longer faithful to
+those originally observed.
 
 High Dynamic Range displays don't need as much tone mapping, since their dynamic
 range can be much closer to the original image, and LED and laser-based
@@ -98,7 +106,7 @@ mobile phones have already been processed ready for display. This means the
 image is *output referred*: the numbers in the image represent how it should be
 displayed on a screen. By contrast, the OpenEXR format is designed to store
 *input referred* values, where the numbers represent the light captured by the
-camera. Scene-referred images have not (yet) been tone mapped ready for display.
+camera. Input-referred images have not (yet) been tone mapped ready for display.
 
 
 Advantages of scene-referred representation
@@ -127,8 +135,8 @@ can be applied to the scene-referred images after the object is removed.
 Multiple tone-mappings can also be applied to the data to suit different display
 environments without the need to redo any work.
 
-Disadvantages of Scene-linear representation
-============================================
+Disadvantages of Scene-referred representation
+==============================================
 
 Many of the advantages of using OpenEXR images and working with scene referred
 can also be disadvantages: because the file stores more detail than other
@@ -145,13 +153,13 @@ more appropriate.
 Non-linear representation and High Dynamic Range
 ================================================
 
-OpenEXR images are also *linear-light*: the numbers in the image are directly
-proportional to the amount of light they represent. So, a pixel which stores a
-value of 1000 represents one thousand times more light than a pixel with a value
-1. This makes computation much faster and more accurate. Generally,
-output-referred images do not store linear values. The eye is less sensitive to
-small changes in bright objects than to changes in dark ones. A change in image
-intensity between 0.1 and 0.2
+OpenEXR images are also intended to be *linear-light*: the numbers in the image
+are directly proportional to the amount of light they represent. So, a pixel
+which stores a value of 1000 represents one thousand times more light than a
+pixel with a value 1. This makes computation much faster and more accurate.
+Generally, output-referred images do not store linear values. The eye is less
+sensitive to small changes in bright objects than to changes in dark ones. A
+change in image intensity between 0.1 and 0.2
 `nits <https://en.wikipedia.org/wiki/Candela_per_square_metre>`_
 on a display is far more apparent than a change between 75 and 80 nits even
 though it's 50 times smaller. Display encoded images therefore concentrate
@@ -161,24 +169,24 @@ larger image stored in linear. This non-linearity is often called an
 Electro-Optical Transform Function (EOTF), since it maps between the values stored
 electronically in the file and those presented optically on the monitor [#feotf]_.
 
-To handle an image with an EOTF, it is important to understand
-what that function is. It is often necessary to undo function before modifying
-values, then reapply the function, which causes of a loss of data.  OpenEXR
-images using floating point linear values to represent pixel intensities.
-Floating point values also store small values with more absolute precision than
-large ones, but there is no need to undo a function before using the values.
+To handle an image with an EOTF, it is important to understand what that
+function is. It is often necessary to undo the function before modifying values,
+then reapply the function, which causes of a loss of precision.  OpenEXR images
+using floating point linear values to represent pixel intensities. Floating
+point values also store small values with more absolute precision than large
+ones, but there is no need to undo a function before using the values.
 
 Output referred images are often scaled relative to a maximum value, used to
 represent 100% brightness on the display device. For 8 bit images, this is
-usually 255. Because OpenEXR images are scene referred, and represent the amount
+usually 255. Because OpenEXR images are input referred, and represent the amount
 of incoming light, there should be no such limit: the light could always have
 been a little brighter.
 
 The convention for scene-referred linear-light images is that the number
 represents how much light the surface reflects. A flat surface that reflects 90%
 of the light should be stored with a value of 0.90. Many tests cards are 18%
-gray, so should be represented by 0.18. Typically, bright reflections on metal
-would read around 10.0, and bright lights above 100.0.
+gray, so should be represented by 0.18 [#fscenelinear]_. Typically, bright
+reflections on metal would read around 10.0, and bright lights above 100.0.
 
 In practice, OpenEXR does have a maximum value it can store (65504 in Half Float
 mode, 340282346638528859811704183484516925440 in Full float mode), but these
@@ -229,7 +237,7 @@ OpenColorIO.
 .. [#ftonemap] Other terms are used for tone mapping and gamut compression,
    such as applying a Rendering Transform, Look, display LUT, Filter, or OOTF
    (Opto-Optical Transfer function); many approaches combine both color and
-   contrast modification into a single step.
+   contrast modification into a single step. Here, the term 'tone mapping' is used.
 
 .. [#fsrgb] The colors in the first image will be rendered as observed on
    monitors which are calibrated for sRGB with a maximum intensity of
@@ -238,3 +246,9 @@ OpenColorIO.
 
 .. [#feotf] Other terms for EOTF include applying a gamma or log function,
    or simply a 'monitor curve'.
+
+.. [#fscenelinear] One convention is to use the term *input-referred linear* for any
+   image where the values are proportional to how much light the camera captured,
+   and *scene-linear* for an input-referred linear image where the values are scaled
+   such that a correctly exposed 18% grey card has a value of 0.18.
+   Others use the two terms interchangeably.
