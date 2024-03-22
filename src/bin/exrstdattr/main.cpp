@@ -206,6 +206,7 @@ usageMessage (ostream& stream, const char* program_name, bool verbose = false)
                "\n"
                "Other options:\n"
                "\n"
+	       "  -erase s      remove attribute with given name\n" 
                "  -h, --help    print this message\n"
                "      --version print version information\n"
                "\n"
@@ -224,7 +225,17 @@ struct SetAttr
     {}
 };
 
+struct EraseAttr
+{
+    string name;
+    int part;
+     EraseAttr (const string& name, int part)
+         : name (name), part (part)
+     {}
+};
+
 typedef vector<SetAttr> SetAttrVector;
+typedef vector<EraseAttr> EraseAttrVector;
 
 void
 isNonNegative (const char attrName[], float f)
@@ -445,6 +456,8 @@ getNameAndString (int argc, char** argv, int& i, int part, SetAttrVector& attrs)
     i += 3;
 }
 
+
+
 void
 getNameAndFloat (int argc, char** argv, int& i, int part, SetAttrVector& attrs)
 {
@@ -466,6 +479,17 @@ getNameAndInt (int argc, char** argv, int& i, int part, SetAttrVector& attrs)
     attrs.push_back (SetAttr (attrName, part, new IntAttribute (j)));
     i += 3;
 }
+
+void
+getName (int argc, char** argv, int& i, int part, EraseAttrVector& attrs)
+{
+    if (i > argc - 2) throw invalid_argument ("Expected a name and an integer");
+
+    const char* attrName = argv[i + 1];
+    attrs.push_back (EraseAttr(attrName, part));
+    i += 2;
+}
+
 
 void
 getChromaticities (
@@ -603,6 +627,7 @@ main (int argc, char** argv)
         const char* outFileName = 0;
 
         SetAttrVector attrs;
+        EraseAttrVector eraseattrs;
         int           part = -1;
         int           i    = 1;
 
@@ -726,6 +751,10 @@ main (int argc, char** argv)
             {
                 getNameAndInt (argc, argv, i, part, attrs);
             }
+            else if (!strcmp (argv[i], "-erase"))
+            {
+                getName ( argc,argv,i,part,eraseattrs);
+            }
             else if (!strcmp (argv[i], "-h") || !strcmp (argv[i], "--help"))
             {
                 usageMessage (cout, "exrstdattr", true);
@@ -782,6 +811,35 @@ main (int argc, char** argv)
                 if (attr.part == -1 || attr.part == part)
                 {
                     h.insert (attr.name, *attr.attr);
+                }
+                else if (attr.part < 0 || attr.part >= numParts)
+                {
+                    cerr << "Invalid part number " << attr.part
+                         << ". "
+                            "Part numbers in file "
+                         << inFileName
+                         << " "
+                            "go from 0 to "
+                         << numParts - 1 << "." << endl;
+
+                    return 1;
+                }
+            }
+
+            Header stdHdr;
+            for (size_t i = 0 ; i < eraseattrs.size() ; ++i)
+            {
+                const EraseAttr& attr = eraseattrs[i];
+                if (attr.part == -1 || attr.part == part)
+                {
+                    if( stdHdr.find(attr.name)!=stdHdr.end() )
+                    {
+                        cerr << "Cannot erase attribute " << attr.name
+                             << ". "
+                             << "It is an essential attribute" << endl;
+                        return 1;
+                    }
+                    h.erase( attr.name );
                 }
                 else if (attr.part < 0 || attr.part >= numParts)
                 {
