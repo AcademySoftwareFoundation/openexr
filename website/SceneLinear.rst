@@ -11,20 +11,23 @@ indicate how much light should be used to display the image on a screen (or how
 much ink to use to print the image onto paper), and do not store linear data.
 
 This is a brief description of why these are not the same, what linear-light
-means, and why using scene-referred images may be beneficial. For simplicity, we
-will assume the image is either photographed by a digital camera, or generated
-by software which is intended to produce images which appear to be digital
-photographs (*photorealistic* images), and that the image is displayed on a
-computer monitor.
+means, and why using scene-referred images may be beneficial. For simplicity,
+the explanation here assumes the image is photographed by a digital camera and
+is displayed on a computer monitor. This discussion also applies to software
+generated images which are intended to appear to be digital photographs
+(*photorealistic* images): since that software works by mimicking the behavior of
+digital cameras, it should generate images that can be treated as if they were
+produced by a camera.
 
 Note that although OpenEXR images were designed to store scene-referred color,
 this is not enforced by the library so OpenEXR images are not guaranteed to be
 scene-referred or to store linear-light values. There may be practical reasons
-store image data in an OpenEXR image encoded with a different convention. When
-sharing OpenEXR images with others, it is important to clarify exactly how the
-data is represented in the file. This also means the default processing applied
-by a software package to an OpenEXR image may not be consistent with the way the
-data is stored.
+store image data in an OpenEXR image encoded with a different convention.
+OpenEXRs may also store data which is not RGB color, such as displacement maps
+or point positions. When sharing OpenEXR images with others, it is important to
+clarify exactly how the data is represented in the file. This also means the
+default processing applied by a software package to an OpenEXR image may not be
+consistent with the way the data is stored.
 
 Input vs Output: Tone mapping and creativity
 ============================================
@@ -183,10 +186,11 @@ of incoming light, there should be no such limit: the light could always have
 been a little brighter.
 
 The convention for scene-referred linear-light images is that the number
-represents how much light the surface reflects. A flat surface that reflects 90%
-of the light should be stored with a value of 0.90. Many tests cards are 18%
-gray, so should be represented by 0.18 [#fscenelinear]_. Typically, bright
-reflections on metal would read around 10.0, and bright lights above 100.0.
+represents how much light the surface reflects. An 18%
+`gray card <https://en.wikipedia.org/wiki/Gray_card>`_
+reflects 18% of the indicent light, so should be represented by 0.18 in the
+scene-referred image [#fscenelinear]_. Typically, bright reflections on metal
+would have values in scene-referred linear around 10.0, and bright lights above 100.0.
 
 In practice, OpenEXR does have a maximum value it can store (65504 in Half Float
 mode, 340282346638528859811704183484516925440 in Full float mode), but these
@@ -200,7 +204,7 @@ clipped.
 Image Processing flowgraph
 ==========================
 
-This diagram is a simplified overview of an image processing chain between a
+This diagram is a simplified overview of a typical image processing chain between a
 digital camera and a display. OpenEXR images are input referred and have had
 camera-specific processing applied to bring them to a normalized scene referred
 linear space. JPEG images are output referred, and have had all steps applied,
@@ -250,5 +254,5 @@ OpenColorIO.
 .. [#fscenelinear] One convention is to use the term *input-referred linear* for any
    image where the values are proportional to how much light the camera captured,
    and *scene-linear* for an input-referred linear image where the values are scaled
-   such that a correctly exposed 18% grey card has a value of 0.18.
+   such that a correctly exposed 18% gray card has a value of 0.18.
    Others use the two terms interchangeably.

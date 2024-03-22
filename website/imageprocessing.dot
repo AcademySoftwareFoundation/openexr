@@ -2,7 +2,7 @@
 // this is a graphviz dot file to create images/imageprocessing.png used on the SceneLinear.rst page
 // This is not built automatically.
 // To update:
-// dot -Tpng imageprocessing.dot > image/imageprocessing.png
+// dot -Tpng imageprocessing.dot > images/imageprocessing.png
 // the 'graphviz' package may be required. Remember to commit the updated images/imageprocessing.png image
 //
    digraph "color processing chain" {
@@ -10,7 +10,7 @@
     adc [label = "Analog to digital"];
     lin [label = "Linearization"];
     raw [label = "Camera Raw"];
-    bayer [label = "Demosaicking"];
+    bayer [label = "Demosaicing"];
     wb [label = "White balance"];
     exr [label = "OpenEXR file"];
     tone [label = "Tone mapping"];
