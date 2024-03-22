@@ -20,6 +20,10 @@ assert(os.path.isdir(image_dir)), "\nMissing " + image_dir
 fd, outimage = tempfile.mkstemp(".exr")
 os.close(fd)
 
+fd, outimage2 = tempfile.mkstemp(".exr")
+os.close(fd)
+
+
 def cleanup():
     print(f"deleting {outimage}")
 atexit.register(cleanup)
@@ -137,5 +141,28 @@ try:
 except AssertionError:
     print(result.stdout)
     raise
+
+# test for bad erase argument
+result = run ([exrstdattr, "-erase"], stdout=PIPE, stderr=PIPE, universal_newlines=True)
+print(" ".join(result.args))
+print(result.stderr)
+assert(result.returncode != 0), "\n"+result.stderr
+
+# test for errors trying to delete a critical attribute
+result = run ([exrstdattr, "-erase","dataWindow",outimage,outimage2], stdout=PIPE, stderr=PIPE, universal_newlines=True)
+print(" ".join(result.args))
+print(result.stderr)
+assert(result.returncode != 0), "\n"+result.stderr
+
+# test deleting 'comments'
+result = run ([exrstdattr, "-erase","comments",outimage,outimage2], stdout=PIPE, stderr=PIPE, universal_newlines=True)
+print(" ".join(result.args))
+assert(result.returncode == 0), "\n"+result.stderr
+assert(os.path.isfile(outimage2)), "\nMissing " + outimage2
+
+result = run ([exrinfo, "-v", outimage2], stdout=PIPE, stderr=PIPE, universal_newlines=True)
+print(" ".join(result.args))
+assert("comments" not in result.stdout)
+
 
 print("success")

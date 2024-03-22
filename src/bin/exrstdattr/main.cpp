@@ -800,33 +800,23 @@ main (int argc, char** argv)
         int                numParts = in.parts ();
         vector<Header>     headers;
 
+        //
+        // Treat attributes added to a header in its constructor
+        // as critical and don't allow them to be deleted.
+        // 'name' and 'type' are only required in multipart
+        // file and errors will be reported if they
+        // are erased
+        //
+        Header stdHdr;
+
         for (int part = 0; part < numParts; ++part)
         {
             Header h = in.header (part);
 
-            for (size_t i = 0; i < attrs.size (); ++i)
-            {
-                const SetAttr& attr = attrs[i];
-
-                if (attr.part == -1 || attr.part == part)
-                {
-                    h.insert (attr.name, *attr.attr);
-                }
-                else if (attr.part < 0 || attr.part >= numParts)
-                {
-                    cerr << "Invalid part number " << attr.part
-                         << ". "
-                            "Part numbers in file "
-                         << inFileName
-                         << " "
-                            "go from 0 to "
-                         << numParts - 1 << "." << endl;
-
-                    return 1;
-                }
-            }
-
-            Header stdHdr;
+            //
+            // process attributes to erase first, so they can be reinserted
+            // with a different type
+            //
             for (size_t i = 0 ; i < eraseattrs.size() ; ++i)
             {
                 const EraseAttr& attr = eraseattrs[i];
@@ -855,11 +845,34 @@ main (int argc, char** argv)
                 }
             }
 
+
+            for (size_t i = 0; i < attrs.size (); ++i)
+            {
+                const SetAttr& attr = attrs[i];
+
+                if (attr.part == -1 || attr.part == part)
+                {
+                    h.insert (attr.name, *attr.attr);
+                }
+                else if (attr.part < 0 || attr.part >= numParts)
+                {
+                    cerr << "Invalid part number " << attr.part
+                         << ". "
+                            "Part numbers in file "
+                         << inFileName
+                         << " "
+                            "go from 0 to "
+                         << numParts - 1 << "." << endl;
+
+                    return 1;
+                }
+            }
+
             headers.push_back (h);
         }
 
         //
-        // Crete an output file with the modified headers,
+        // Create an output file with the modified headers,
         // and copy the pixels from the input file to the
         // output file.
         //
