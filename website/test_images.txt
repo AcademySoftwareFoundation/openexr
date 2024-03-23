@@ -14,6 +14,7 @@ ScanLines/README.rst
 ScanLines/Blobbies.exr
 ScanLines/CandleGlass.exr
 ScanLines/Cannon.exr
+ScanLines/Carrots.exr
 ScanLines/Desk.exr
 ScanLines/MtTamWest.exr
 ScanLines/PrismsLenses.exr

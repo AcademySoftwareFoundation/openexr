@@ -11,12 +11,12 @@ proportional to the amount of light they represent. Most image formats are
 display-referred, where the values indicate how much light should be used to
 display the image on a screen (or how much ink to use to print the image onto
 paper), and many image formats apply an encoding to the image so that the
-numbers are not linear. Some sources use the term 'input-referred' and
-'output-referred' as alternatives to “scene-referred” and “display-referred”
+numbers are not linear. Some sources use the term "input-referred" and
+"output-referred" as alternatives to "scene-referred" and "display-referred"
 [#fterms]_.
 
 This is a brief description of the difference between scene-referred and
-display-refrred representations, what linear-light means, and why using
+display-referred representations, what linear-light means, and why using
 scene-referred images may be beneficial. For simplicity, the explanation here
 assumes the image is photographed by a digital camera and is displayed on a
 computer monitor. This discussion also applies to software generated images
@@ -81,8 +81,9 @@ the colorfulness of bright areas, and increasing the colorfulness of dark ones.
 Such film-based images are so common that an image which has not had that
 process applied appears incorrect, so many digital tone mapping approaches are inspired
 by reproducing what film would do, to make the image appear more familiar and so
-more natural. The images above illustrate this. The first version of the image
-presents the pixels with the same color and intensity that the real objects had
+more natural. The images above illustrate this. The first image is the
+:doc:`test_images/ScanLines/Carrots` test image
+processed so the pixels have the same color and intensity that the real objects had
 [#fsrgb]_. This particular scene has low enough contrast and subtle enough colors
 that monitors are capable of displaying it faithfully. The second image is a
 JPEG created by the camera using its built-in tone mapping of the image. This
@@ -125,7 +126,7 @@ combined image appear as if a camera really photographed it, so we need to
 compute what light would have been captured by the camera. This task is much
 easier if the photographed background is a scene-referred image, and the
 software that generates the character also stores a scene-referred image as seen
-by the 'virtual camera' in the software. If both the photograph of the
+by the "virtual camera" in the software. If both the photograph of the
 background and the computer generated image are display-referred, with some
 artistic look applied, it will be much harder to produce a convincing composite
 image. OpenEXR images are widely used for motion picture visual effects
@@ -253,7 +254,7 @@ OpenColorIO.
 .. [#ftonemap] Other terms are used for tone mapping and gamut compression,
    such as applying a Rendering Transform, Look, Display LUT, Filter, or OOTF
    (Opto-Optical Transfer function); many approaches combine both color and
-   contrast modification into a single step. Here, the term 'tone mapping' is used.
+   contrast modification into a single step. Here, the term "tone mapping" is used.
 
 .. [#fsrgb] The colors in the first image will be rendered as observed on
    monitors which are calibrated for sRGB with a maximum intensity of
@@ -261,7 +262,7 @@ OpenColorIO.
    but slightly too bright.
 
 .. [#feotf] Other terms for EOTF include applying a gamma or log function,
-   or simply a 'monitor curve'.
+   or simply a "monitor curve".
 
 .. [#fscenelinear] One convention is to use the term *input-referred linear* for any
    image where the values are proportional to how much light the camera captured,
