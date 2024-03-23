@@ -3,6 +3,7 @@
 
 # OpenEXR Release Notes
 
+* [Version 3.2.4](#version-324-march-26-2024) March 26, 2024
 * [Version 3.2.3](#version-323-march-6-2024) March 6, 2024
 * [Version 3.2.2](#version-322-february-11-2024) February 11, 2024
 * [Version 3.2.1](#version-321-september-27-2023) September 27, 2023
@@ -72,6 +73,15 @@
 * [Version 1.0.2](#version-102)
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
+
+## Version 3.2.4 (March 26, 2024)
+
+Patch release that fixes handling of dwa compression in OpenEXRCore library.
+
+### Merged Pull Requests
+
+* [1684](https://github.com/AcademySoftwareFoundation/openexr/pull/1684)
+Fix typo causing prefix len to be wrong
 
 ## Version 3.2.3 (March 6, 2024)
 
