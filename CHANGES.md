@@ -8,6 +8,7 @@
 * [Version 3.2.2](#version-322-february-11-2024) February 11, 2024
 * [Version 3.2.1](#version-321-september-27-2023) September 27, 2023
 * [Version 3.2.0](#version-320-august-30-2023) August 30, 2023
+* [Version 3.1.13](#version-3113-march-26-2023) March 26, 2024
 * [Version 3.1.12](#version-3112-february-11-2023) February 11, 2024
 * [Version 3.1.11](#version-3111-august-13-2023) August 13, 2023
 * [Version 3.1.10](#version-3110-august-2-2023) August 2, 2023
@@ -72,6 +73,7 @@
 * [Version 1.0.2](#version-102)
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
+
 
 ## Version 3.2.4 (March 26, 2024)
 
@@ -589,6 +591,17 @@ Sort source files in CMake targets
 Improve Bazel Build
 * [1058](https://github.com/AcademySoftwareFoundation/openexr/pull/1058)
 Add ``validate_openexr_libs.sh`` to validate .so symlinks
+
+## Version 3.1.13 (March 26, 2024)
+
+Patch release that fixes handling of dwa compression in OpenEXRCore library.
+
+### Merged Pull Requests
+
+* [1684](https://github.com/AcademySoftwareFoundation/openexr/pull/1684)
+Fix typo causing prefix len to be wrong
+* [1591](https://github.com/AcademySoftwareFoundation/openexr/pull/1591)
+Fix issue with decompressing fp32 dwa files
 
 ## Version 3.1.12 (February 11, 2024)
 
