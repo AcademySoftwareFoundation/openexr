@@ -10,6 +10,7 @@ name: Website
 # Skip the release branches, since the website is built from main.
 
 on:
+
   push:
     branches:-ignore:
       - RB-*
