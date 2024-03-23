@@ -77,10 +77,21 @@
 
 Patch release that fixes handling of dwa compression in OpenEXRCore library.
 
+This release also removes the unused CMake option
+``OPENEXR_INSTALL_EXAMPLES``, and fixes some other compiler warnings.
+
 ### Merged Pull Requests
 
 * [1684](https://github.com/AcademySoftwareFoundation/openexr/pull/1684)
 Fix typo causing prefix len to be wrong
+* [1668](https://github.com/AcademySoftwareFoundation/openexr/pull/1668)
+Improve workflow filters
+* [1666](https://github.com/AcademySoftwareFoundation/openexr/pull/1666)
+🐛 Remove the OPENEXR_INSTALL_EXAMPLES CMake option
+* [1662](https://github.com/AcademySoftwareFoundation/openexr/pull/1662)
+Initialize _ySampling to 0
+* [1659](https://github.com/AcademySoftwareFoundation/openexr/pull/1659)
+Use size_t as iterator instead of int 
 
 ## Version 3.2.3 (March 6, 2024)
 
