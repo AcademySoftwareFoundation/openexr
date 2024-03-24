@@ -4,7 +4,7 @@
 Scene-Linear Image Representation
 #################################
 
-OpenEXR images are intended to store *scene referred linear data*.
+OpenEXR images are intended to store *scene-referred linear data*.
 "Scene-referred" means the pixel values indicate how much light was received by
 the camera. "Linear-light" means the numbers in the image are directly
 proportional to the amount of light they represent. Most image formats are
@@ -100,19 +100,18 @@ mapping.
 discusses tone mapping in HDR images.
 
 Images may also have a creative look applied. An artist may want the
-image to be look different, perhaps dramatically darkening the clouds
+image to look different, perhaps dramatically darkening the clouds
 or lifting the brightness of the entire image so that the dark areas are light
 gray instead of black. They may remove the color completely and make the image
 black and white. This could be done manually with an image editing tool, or by
 choosing a predefined transform to modify the image.
 
-Most digital formats already have such mapping applied: the tone mapping has
-been applied. A JPEG (or HEIF) file output by a digital camera or mobile phone
-has already been tone mapped and processed for display. This means the image is
-*display referred*: the numbers in the image represent how it should be
-displayed on a screen. By contrast, the OpenEXR format is designed to store
-*scene-referred* values, where the numbers represent the light captured by the
-camera. Scene-referred images have not (yet) been tone mapped ready for display.
+Most digital images have already been tone mapped and processed for display.
+This means the images are *display-referred*: the numbers in the image represent
+how it should be displayed on a screen. By contrast, the OpenEXR format is
+designed to store *scene-referred* values, where the numbers represent the light
+captured by the camera. Scene-referred images have not (yet) been tone mapped
+ready for display.
 
 
 Advantages of Scene-Referred Representation
@@ -179,7 +178,7 @@ presented optically on the monitor [#feotf]_.
 To handle an image with an EOTF, it is important to understand what that
 function is. It is often necessary to undo the function before modifying values,
 then reapply the function, which causes a loss of precision.  OpenEXR images
-using floating point linear values to represent pixel intensities. Floating
+use floating point linear values to represent pixel intensities. Floating
 point values also store small values with more absolute precision than large
 ones, but there is no need to undo a function before using the values.
 
@@ -211,14 +210,15 @@ losing detail due to values being clipped.
 Image Processing Flowgraph
 ==========================
 
-This diagram is a simplified overview of a typical image processing chain between a
-digital camera and a display. OpenEXR images are scene-referred and have had
-camera-specific processing applied to bring them to a normalized scene referred
-linear space. JPEG images are display referred, and have had all steps applied,
-ready to display. Other images which are created through the color chain need
-subsequent steps applied before being displayed.
+.. figure:: images/imageprocessing.png
 
-.. image:: images/imageprocessing.png
+   A simplified overview of a typical image processing chain between a
+   digital camera and a display. OpenEXR images are scene-referred and have had
+   camera-specific processing applied to bring them to a normalized scene referred
+   linear space. JPEG images are display-referred, and have had all steps applied,
+   ready to display. Other images which are created through the color chain need
+   subsequent steps applied before being displayed.
+
 
 
 Color Management Resources
@@ -232,7 +232,7 @@ multiple software packages.
 
 The `Academy Color Encoding System (ACES) <https://acescentral.com/>`_ defines
 standard workflows to convert from raw camera images to scene-linear images, and
-a standard tone mapping system to convert to display referred images.
+a standard tone mapping system to convert to display-referred images.
 OpenColorIO configs are available which implement the necessary conversions.
 ACES image files (specified by SMPTE ST2065-4) are scene-linear OpenEXR
 images.
