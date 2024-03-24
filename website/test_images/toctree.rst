@@ -19,6 +19,7 @@
    ScanLines/Blobbies
    ScanLines/CandleGlass
    ScanLines/Cannon
+   ScanLines/Carrots
    ScanLines/Desk
    ScanLines/MtTamWest
    ScanLines/PrismsLenses

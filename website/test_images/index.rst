@@ -57,7 +57,7 @@ values.
                 <li> single part </li>
                 <li> 1 channel </li>
                 <li> scanlineimage </li>
-                <li> zips compression </li>
+                <li> zip compression </li>
             </ul>
           </td>
           <td style="vertical-align: top; width:400px">
@@ -85,7 +85,7 @@ values.
                 <li> single part </li>
                 <li> 1 channel </li>
                 <li> scanlineimage </li>
-                <li> zips compression </li>
+                <li> zip compression </li>
             </ul>
           </td>
           <td style="vertical-align: top; width:400px">
@@ -183,7 +183,7 @@ values.
                 <li> single part </li>
                 <li> 1 channel </li>
                 <li> scanlineimage </li>
-                <li> zips compression </li>
+                <li> zip compression </li>
             </ul>
           </td>
           <td style="vertical-align: top; width:400px">
@@ -250,7 +250,7 @@ Examples of scanline images.
                 <li> single part </li>
                 <li> 1 channel </li>
                 <li> scanlineimage </li>
-                <li> zips compression </li>
+                <li> zip compression </li>
             </ul>
           </td>
           <td style="vertical-align: top; width:400px">
@@ -293,6 +293,25 @@ Examples of scanline images.
           <td style="vertical-align: top; width:400px">
           <p>
                        </p>
+          </td>
+     </tr>
+     <tr>
+          <td style="vertical-align: top; width:250px">
+              <a href=ScanLines/Carrots.html> <img width="250" src="https://raw.githubusercontent.com/AcademySoftwareFoundation/openexr-images/main/ScanLines/Carrots.jpg"> </a>
+          </td>
+          <td style="vertical-align: top; width:250px">
+            <b> Carrots.exr </b>
+            <ul>
+                <li> single part </li>
+                <li> 1 channel </li>
+                <li> scanlineimage </li>
+                <li> zip compression </li>
+            </ul>
+          </td>
+          <td style="vertical-align: top; width:400px">
+          <p>
+             Stored with ACES2065-1 (AP0) chromaticities
+          </p>
           </td>
      </tr>
      <tr>
@@ -435,7 +454,7 @@ Examples of tiled images.
                 <li> single part </li>
                 <li> 1 channel </li>
                 <li> tiledimage </li>
-                <li> zips compression </li>
+                <li> zip compression </li>
             </ul>
           </td>
           <td style="vertical-align: top; width:400px">
@@ -1186,7 +1205,7 @@ Note the following about these images:
                 <li> 10 parts </li>
                 <li> 118 channels </li>
                 <li> scanlineimage </li>
-                <li> zip compression </li>
+                <li> zips compression </li>
             </ul>
           </td>
      </tr>
@@ -1200,7 +1219,7 @@ Note the following about these images:
                 <li> 10 parts </li>
                 <li> 118 channels </li>
                 <li> scanlineimage </li>
-                <li> zip compression </li>
+                <li> zips compression </li>
             </ul>
           </td>
      </tr>
@@ -1214,7 +1233,7 @@ Note the following about these images:
                 <li> 10 parts </li>
                 <li> 118 channels </li>
                 <li> scanlineimage </li>
-                <li> zip compression </li>
+                <li> zips compression </li>
             </ul>
           </td>
      </tr>
@@ -1228,7 +1247,7 @@ Note the following about these images:
                 <li> 10 parts </li>
                 <li> 118 channels </li>
                 <li> scanlineimage </li>
-                <li> zip compression </li>
+                <li> zips compression </li>
             </ul>
           </td>
      </tr>
@@ -1242,7 +1261,7 @@ Note the following about these images:
                 <li> 10 parts </li>
                 <li> 118 channels </li>
                 <li> scanlineimage </li>
-                <li> zip compression </li>
+                <li> zips compression </li>
             </ul>
           </td>
      </tr>
@@ -1256,7 +1275,7 @@ Note the following about these images:
                 <li> 10 parts </li>
                 <li> 118 channels </li>
                 <li> scanlineimage </li>
-                <li> zip compression </li>
+                <li> zips compression </li>
             </ul>
           </td>
      </tr>
@@ -1270,7 +1289,7 @@ Note the following about these images:
                 <li> 10 parts </li>
                 <li> 118 channels </li>
                 <li> scanlineimage </li>
-                <li> zip compression </li>
+                <li> zips compression </li>
             </ul>
           </td>
      </tr>
@@ -1284,7 +1303,7 @@ Note the following about these images:
                 <li> 10 parts </li>
                 <li> 118 channels </li>
                 <li> scanlineimage </li>
-                <li> zip compression </li>
+                <li> zips compression </li>
             </ul>
           </td>
      </tr>
@@ -1298,7 +1317,7 @@ Note the following about these images:
                 <li> single part </li>
                 <li> 1 channel </li>
                 <li> scanlineimage </li>
-                <li> zip compression </li>
+                <li> zips compression </li>
             </ul>
           </td>
      </tr>
@@ -1312,7 +1331,7 @@ Note the following about these images:
                 <li> single part </li>
                 <li> 1 channel </li>
                 <li> scanlineimage </li>
-                <li> zip compression </li>
+                <li> zips compression </li>
             </ul>
           </td>
      </tr>
@@ -1326,7 +1345,7 @@ Note the following about these images:
                 <li> single part </li>
                 <li> 1 channel </li>
                 <li> scanlineimage </li>
-                <li> zip compression </li>
+                <li> zips compression </li>
             </ul>
           </td>
      </tr>
@@ -1340,7 +1359,7 @@ Note the following about these images:
                 <li> single part </li>
                 <li> 1 channel </li>
                 <li> scanlineimage </li>
-                <li> zip compression </li>
+                <li> zips compression </li>
             </ul>
           </td>
      </tr>
@@ -1354,7 +1373,7 @@ Note the following about these images:
                 <li> single part </li>
                 <li> 1 channel </li>
                 <li> scanlineimage </li>
-                <li> zip compression </li>
+                <li> zips compression </li>
             </ul>
           </td>
      </tr>
@@ -1368,7 +1387,7 @@ Note the following about these images:
                 <li> single part </li>
                 <li> 1 channel </li>
                 <li> scanlineimage </li>
-                <li> zip compression </li>
+                <li> zips compression </li>
             </ul>
           </td>
      </tr>
@@ -1382,7 +1401,7 @@ Note the following about these images:
                 <li> single part </li>
                 <li> 1 channel </li>
                 <li> scanlineimage </li>
-                <li> zip compression </li>
+                <li> zips compression </li>
             </ul>
           </td>
      </tr>
@@ -1396,7 +1415,7 @@ Note the following about these images:
                 <li> single part </li>
                 <li> 1 channel </li>
                 <li> scanlineimage </li>
-                <li> zip compression </li>
+                <li> zips compression </li>
             </ul>
           </td>
      </tr>
@@ -1491,7 +1510,7 @@ displayed images should be about 5 to 10 inches (12 to 25 cm).
                 <li> single part </li>
                 <li> 1 channel </li>
                 <li> tiledimage </li>
-                <li> zips compression </li>
+                <li> zip compression </li>
             </ul>
           </td>
           <td style="vertical-align: top; width:400px">
@@ -1551,7 +1570,7 @@ Regular Images
                 <li> single part </li>
                 <li> 1 channel </li>
                 <li> tiledimage </li>
-                <li> zips compression </li>
+                <li> zip compression </li>
             </ul>
           </td>
           <td style="vertical-align: top; width:400px">
@@ -1593,7 +1612,7 @@ Regular Images
                 <li> single part </li>
                 <li> 1 channel </li>
                 <li> tiledimage </li>
-                <li> zips compression </li>
+                <li> zip compression </li>
             </ul>
           </td>
           <td style="vertical-align: top; width:400px">
@@ -1612,7 +1631,7 @@ Regular Images
                 <li> single part </li>
                 <li> 1 channel </li>
                 <li> tiledimage </li>
-                <li> zips compression </li>
+                <li> zip compression </li>
                 <li> cube-face map </li>
             </ul>
           </td>
@@ -1634,7 +1653,7 @@ Regular Images
                 <li> single part </li>
                 <li> 1 channel </li>
                 <li> tiledimage </li>
-                <li> zips compression </li>
+                <li> zip compression </li>
                 <li> latitude-longitude map </li>
             </ul>
           </td>
@@ -1655,7 +1674,7 @@ Regular Images
                 <li> single part </li>
                 <li> 1 channel </li>
                 <li> tiledimage </li>
-                <li> zips compression </li>
+                <li> zip compression </li>
             </ul>
           </td>
           <td style="vertical-align: top; width:400px">
@@ -1676,7 +1695,7 @@ Regular Images
                 <li> single part </li>
                 <li> 1 channel </li>
                 <li> tiledimage </li>
-                <li> zips compression </li>
+                <li> zip compression </li>
                 <li> cube-face map </li>
             </ul>
           </td>
@@ -1697,7 +1716,7 @@ Regular Images
                 <li> single part </li>
                 <li> 1 channel </li>
                 <li> tiledimage </li>
-                <li> zips compression </li>
+                <li> zip compression </li>
                 <li> latitude-longitude map </li>
             </ul>
           </td>
@@ -1718,7 +1737,7 @@ Regular Images
                 <li> single part </li>
                 <li> 1 channel </li>
                 <li> tiledimage </li>
-                <li> zips compression </li>
+                <li> zip compression </li>
             </ul>
           </td>
           <td style="vertical-align: top; width:400px">
@@ -1739,7 +1758,7 @@ Regular Images
                 <li> single part </li>
                 <li> 1 channel </li>
                 <li> tiledimage </li>
-                <li> zips compression </li>
+                <li> zip compression </li>
                 <li> cube-face map </li>
             </ul>
           </td>
@@ -1760,7 +1779,7 @@ Regular Images
                 <li> single part </li>
                 <li> 1 channel </li>
                 <li> tiledimage </li>
-                <li> zips compression </li>
+                <li> zip compression </li>
                 <li> latitude-longitude map </li>
             </ul>
           </td>
@@ -1781,7 +1800,7 @@ Regular Images
                 <li> single part </li>
                 <li> 1 channel </li>
                 <li> tiledimage </li>
-                <li> zips compression </li>
+                <li> zip compression </li>
                 <li> cube-face map </li>
             </ul>
           </td>
@@ -1813,7 +1832,7 @@ Regular Images
                 <li> single part </li>
                 <li> 1 channel </li>
                 <li> tiledimage </li>
-                <li> zips compression </li>
+                <li> zip compression </li>
                 <li> latitude-longitude map </li>
             </ul>
           </td>
@@ -1891,7 +1910,7 @@ EXR.  The composited image has four separate parts.
                 <li> 2 parts </li>
                 <li> 28 channels </li>
                 <li> deepscanline </li>
-                <li> zip compression </li>
+                <li> zips compression </li>
             </ul>
           </td>
      </tr>
@@ -1905,7 +1924,7 @@ EXR.  The composited image has four separate parts.
                 <li> 2 parts </li>
                 <li> 28 channels </li>
                 <li> deepscanline </li>
-                <li> zip compression </li>
+                <li> zips compression </li>
             </ul>
           </td>
      </tr>
@@ -1919,7 +1938,7 @@ EXR.  The composited image has four separate parts.
                 <li> 2 parts </li>
                 <li> 28 channels </li>
                 <li> deepscanline </li>
-                <li> zip compression </li>
+                <li> zips compression </li>
             </ul>
           </td>
      </tr>
@@ -1933,7 +1952,7 @@ EXR.  The composited image has four separate parts.
                 <li> 2 parts </li>
                 <li> 28 channels </li>
                 <li> deepscanline </li>
-                <li> zip compression </li>
+                <li> zips compression </li>
             </ul>
           </td>
      </tr>
@@ -1947,7 +1966,7 @@ EXR.  The composited image has four separate parts.
                 <li> 4 parts </li>
                 <li> 53 channels </li>
                 <li> scanlineimage </li>
-                <li> zip compression </li>
+                <li> zips compression </li>
             </ul>
           </td>
      </tr>
@@ -1982,7 +2001,7 @@ These images are the left view only of the above stereo images.
                 <li> single part </li>
                 <li> 1 channel </li>
                 <li> deepscanline </li>
-                <li> zip compression </li>
+                <li> zips compression </li>
             </ul>
           </td>
      </tr>
@@ -1996,7 +2015,7 @@ These images are the left view only of the above stereo images.
                 <li> single part </li>
                 <li> 1 channel </li>
                 <li> deepscanline </li>
-                <li> zip compression </li>
+                <li> zips compression </li>
             </ul>
           </td>
      </tr>
@@ -2010,7 +2029,7 @@ These images are the left view only of the above stereo images.
                 <li> single part </li>
                 <li> 1 channel </li>
                 <li> deepscanline </li>
-                <li> zip compression </li>
+                <li> zips compression </li>
             </ul>
           </td>
      </tr>
@@ -2024,7 +2043,7 @@ These images are the left view only of the above stereo images.
                 <li> single part </li>
                 <li> 1 channel </li>
                 <li> deepscanline </li>
-                <li> zip compression </li>
+                <li> zips compression </li>
             </ul>
           </td>
      </tr>
@@ -2062,7 +2081,7 @@ composited, flattened image, with no depth channel, as a regular
                 <li> single part </li>
                 <li> 1 channel </li>
                 <li> deepscanline </li>
-                <li> zip compression </li>
+                <li> zips compression </li>
             </ul>
           </td>
      </tr>
@@ -2076,7 +2095,7 @@ composited, flattened image, with no depth channel, as a regular
                 <li> single part </li>
                 <li> 1 channel </li>
                 <li> deepscanline </li>
-                <li> zip compression </li>
+                <li> zips compression </li>
             </ul>
           </td>
      </tr>
@@ -2090,7 +2109,7 @@ composited, flattened image, with no depth channel, as a regular
                 <li> single part </li>
                 <li> 1 channel </li>
                 <li> deepscanline </li>
-                <li> zip compression </li>
+                <li> zips compression </li>
             </ul>
           </td>
      </tr>
@@ -2104,7 +2123,7 @@ composited, flattened image, with no depth channel, as a regular
                 <li> single part </li>
                 <li> 1 channel </li>
                 <li> deepscanline </li>
-                <li> zip compression </li>
+                <li> zips compression </li>
             </ul>
           </td>
      </tr>
@@ -2118,7 +2137,7 @@ composited, flattened image, with no depth channel, as a regular
                 <li> single part </li>
                 <li> 1 channel </li>
                 <li> scanlineimage </li>
-                <li> zip compression </li>
+                <li> zips compression </li>
             </ul>
           </td>
      </tr>
