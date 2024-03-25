@@ -78,13 +78,18 @@
 
 Patch release that fixes handling of dwa compression in OpenEXRCore library.
 
-This release also removes the unused CMake option
-``OPENEXR_INSTALL_EXAMPLES``, and fixes some other compiler warnings.
+Other miscellaneous changes:
+
+- Add CMake `find_dependency` for `libdeflate`, to fix a vcpkg build error
+- Remove the unused CMake option ``OPENEXR_INSTALL_EXAMPLES``
+- Fix some other compiler warnings.
 
 ### Merged Pull Requests
 
 * [1684](https://github.com/AcademySoftwareFoundation/openexr/pull/1684)
 Fix typo causing prefix len to be wrong
+* [1674](https://github.com/AcademySoftwareFoundation/openexr/pull/1674)
+CMake packaging fix.
 * [1668](https://github.com/AcademySoftwareFoundation/openexr/pull/1668)
 Improve workflow filters
 * [1666](https://github.com/AcademySoftwareFoundation/openexr/pull/1666)
