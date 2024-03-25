@@ -45,10 +45,15 @@ jobs:
     runs-on: ubuntu-22.04
     
     steps:
-    - uses: actions/checkout@v4.1.1
+    - name: Harden Runner
+      uses: step-security/harden-runner@63c24ba6bd7ba022e95695ff85de572c04a18142 # v2.7.0
+      with:
+        egress-policy: audit
+
+    - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
     - name: Mount Bazel cache
-      uses: actions/cache@v4.0.0
+      uses: actions/cache@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
       with:
         path: "/home/runner/.cache/bazel"
         key: bazel-ubuntu-22
@@ -63,10 +68,15 @@ jobs:
     runs-on: windows-2022
 
     steps:
-    - uses: actions/checkout@v4.1.1
+    - name: Harden Runner
+      uses: step-security/harden-runner@63c24ba6bd7ba022e95695ff85de572c04a18142 # v2.7.0
+      with:
+        egress-policy: audit
+
+    - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
     - name: Mount Bazel cache
-      uses: actions/cache@v4.0.0
+      uses: actions/cache@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
       with:
         path: "/home/runner/.cache/bazel"
         key: bazel-windows-2022
@@ -81,10 +91,15 @@ jobs:
     runs-on: macos-13
 
     steps:
-    - uses: actions/checkout@v4.1.1
+    - name: Harden Runner
+      uses: step-security/harden-runner@63c24ba6bd7ba022e95695ff85de572c04a18142 # v2.7.0
+      with:
+        egress-policy: audit
+
+    - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
     - name: Mount Bazel cache
-      uses: actions/cache@v4.0.0
+      uses: actions/cache@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
       with:
         path: "/home/runner/.cache/bazel"
         key: bazel-macos-13
@@ -99,10 +114,15 @@ jobs:
     runs-on: macos-14
 
     steps:
-    - uses: actions/checkout@v4.1.1
+    - name: Harden Runner
+      uses: step-security/harden-runner@63c24ba6bd7ba022e95695ff85de572c04a18142 # v2.7.0
+      with:
+        egress-policy: audit
+
+    - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
     - name: Mount Bazel cache
-      uses: actions/cache@v4.0.0
+      uses: actions/cache@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
       with:
         path: "/home/runner/.cache/bazel"
         key: bazel-macos-14

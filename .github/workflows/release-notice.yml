@@ -15,6 +15,11 @@ jobs:
     timeout-minutes: 5
 
     steps:
+    - name: Harden Runner
+      uses: step-security/harden-runner@63c24ba6bd7ba022e95695ff85de572c04a18142 # v2.7.0
+      with:
+        egress-policy: audit
+
     - name: 'Notify Slack #release-announcements'
       id: slack1
       with:
@@ -22,7 +27,7 @@ jobs:
         slack_bot_token: ${{ secrets.SLACK_BOT_TOKEN }}
         slack_channel: "#release-announcements"
         project_logo: "https://artwork.aswf.io/projects/openexr/icon/color/openexr-icon-color.png"
-      uses: jmertic/slack-release-notifier@main
+      uses: jmertic/slack-release-notifier@fbbf40c3020ca7707ae09ff9160206381c592fd7 # main
 
     - name: 'Notify Slack #openexr'
       id: slack2
@@ -31,5 +36,5 @@ jobs:
         slack_bot_token: ${{ secrets.SLACK_BOT_TOKEN }}
         slack_channel: "#openexr"
         project_logo: "https://artwork.aswf.io/projects/openexr/icon/color/openexr-icon-color.png"
-      uses: jmertic/slack-release-notifier@main
+      uses: jmertic/slack-release-notifier@fbbf40c3020ca7707ae09ff9160206381c592fd7 # main
       
