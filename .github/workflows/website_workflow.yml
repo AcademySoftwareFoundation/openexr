@@ -12,14 +12,14 @@ name: Website
 on:
 
   push:
-    branches:-ignore:
+    branches-ignore:
       - RB-*
     paths:
       - 'website/**'
       - '.github/workflows/website_workflow.yml'
       
   pull_request:
-    branches:-ignore:
+    branches-ignore:
       - RB-*
     paths:
       - 'website/**'
