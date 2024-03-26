@@ -352,7 +352,7 @@ shared object is produced.
 
 * ``OPENEXR_DEFLATE_REPO`` and ``OPENEXR_DEFLATE_TAG``
 
-  The github Imath repo to auto-fetch if an installed library cannot
+  The GitHub ``libdeflate`` repo to auto-fetch if an installed library cannot
   be found, and the tag to sync it to. The default repo is
   ``https://github.com/ebiggers/libdeflate.git`` and the tag is
   ``v1.18``. The internal build is configured as a CMake subproject.
