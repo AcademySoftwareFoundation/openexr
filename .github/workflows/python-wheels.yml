@@ -55,7 +55,7 @@ jobs:
         run: pipx run build --sdist . --outdir wheelhouse
 
       - name: Build wheel
-        uses: pypa/cibuildwheel@v2.16
+        uses: pypa/cibuildwheel@v2.17
         env:
           CIBW_ARCHS_MACOS: x86_64 arm64 universal2
           # Skip python 3.6 since scikit-build-core requires 3.7+
