@@ -6,9 +6,6 @@ set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 find_package(Doxygen REQUIRED)
 find_package(Sphinx REQUIRED)
 
-include(FindPythonPackage)
-find_python_package(sphinx-press-theme REQUIRED)
-
 set(DOXYGEN_INPUT_DIR ${PROJECT_SOURCE_DIR}/src/lib/OpenEXRCore)
 set(DOXYGEN_OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR}/doxygen)
 set(DOXYGEN_INDEX_FILE ${DOXYGEN_OUTPUT_DIR}/html/index.html)
