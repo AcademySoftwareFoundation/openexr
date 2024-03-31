@@ -8,29 +8,23 @@ name: OSS-Fuzz
 
 on:
   push:
-    branches-ignore:
-      - RB-2.*
-    tags-ignore:
-      - v1.*
-      - v2.*
     paths:
       - '**'
       - '!**.md'
       - '!website/**'
       - '!bazel/**'
       - '!src/wrappers/**'
+      - '!.github/workflows/**'
+      - '.github/workflows/ossfuzz_workflow.yml'
   pull_request:
-    branches-ignore:
-      - RB-2.*
-    tags-ignore:
-      - v1.*
-      - v2.*
     paths:
       - '**'
       - '!**.md'
       - '!website/**'
       - '!bazel/**'
       - '!src/wrappers/**'
+      - '!.github/workflows/**'
+      - '.github/workflows/ossfuzz_workflow.yml'
 
 permissions:
   contents: read
