@@ -22,9 +22,7 @@ on:
     types: [published]
 
 permissions:
-  contents: write
-  id-token: write
-  repository-projects: write
+  contents: read
   
 jobs:
   release:
@@ -33,10 +31,14 @@ jobs:
 
     env:
        TAG: ${{ github.ref_name }}
+    permissions:
+      contents: write
+      id-token: write
+      repository-projects: write
        
     steps:
 
-      - name: Set environment
+      - name: Set Prefix
         # The tag name begins with a 'v', e.g. "v3.2.4", but the prefix
         # should omit the 'v', so the tarball "openexr-3.2.4.tar.gz"
         # extracts files into "openexr-v3.2.4/...".  This matches
