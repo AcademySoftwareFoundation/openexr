@@ -18,6 +18,8 @@
 #endif
 #include <vector>
 
+#include <cstdint>
+
 using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;
 
