@@ -33,7 +33,7 @@ main (int argc, char* argv[])
         lowLevelIoExamples ();
 
         previewImageExamples ();
-        
+
         // This example uses the files created by
         //   generalInterfaceExamples,
         //   generalInterfaceTiledExamples,

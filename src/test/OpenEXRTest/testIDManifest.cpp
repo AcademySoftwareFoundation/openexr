@@ -69,10 +69,7 @@ operator<< (std::ostream& out, const IDManifest& mfst)
              ++s)
         {
             if (!first) { out << ','; }
-            else
-            {
-                first = false;
-            }
+            else { first = false; }
 
             out << *s;
         }
@@ -136,8 +133,8 @@ doReadWriteManifest (const IDManifest& mfst, const string& fn, bool dump)
     //
     // allocate a buffer which is guaranteed to be big enough for compression
     //
-    size_t       sourceDataSize = str.str ().size ();
-    size_t       compressedDataSize = exr_compress_max_buffer_size (sourceDataSize);
+    size_t sourceDataSize     = str.str ().size ();
+    size_t compressedDataSize = exr_compress_max_buffer_size (sourceDataSize);
     vector<char> compressed (compressedDataSize);
 
     exr_compress_buffer (
@@ -302,19 +299,10 @@ randomWord (bool alphaNumeric, const std::vector<std::string>& options)
                 int index =
                     random_int (62); // 26 letters*2 for case + 10 digits
                 if (index < 26) { word[l] = 'A' + index; }
-                else if (index < 52)
-                {
-                    word[l] = 'a' + (index - 26);
-                }
-                else
-                {
-                    word[l] = '0' + (index - 52);
-                }
+                else if (index < 52) { word[l] = 'a' + (index - 26); }
+                else { word[l] = '0' + (index - 52); }
             }
-            else
-            {
-                word[l] = random_int (256);
-            }
+            else { word[l] = random_int (256); }
         }
         return word;
     }

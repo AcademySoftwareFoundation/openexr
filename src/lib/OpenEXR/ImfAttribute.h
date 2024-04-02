@@ -118,7 +118,7 @@ public:
     virtual ~TypedAttribute ();
 
     TypedAttribute& operator= (const TypedAttribute<T>& other) = default;
-    TypedAttribute& operator= (TypedAttribute<T>&& other) = default;
+    TypedAttribute& operator= (TypedAttribute<T>&& other)      = default;
 
     //--------------------------------
     // Access to the attribute's value

@@ -456,7 +456,6 @@ public:
     IMF_EXPORT
     static void getMaxTileSize (int& maxWidth, int& maxHeight);
 
-
     //
     // Check if the header reads nothing.
     //

@@ -99,10 +99,10 @@ protected:
     IMF_EXPORT IStream (const char fileName[]);
 
 private:
-    IStream (const IStream&) = delete;
+    IStream (const IStream&)            = delete;
     IStream& operator= (const IStream&) = delete;
     IStream (IStream&&)                 = delete;
-    IStream& operator= (IStream&&) = delete;
+    IStream& operator= (IStream&&)      = delete;
 
     std::string _fileName;
 };
@@ -156,10 +156,10 @@ protected:
     IMF_EXPORT OStream (const char fileName[]);
 
 private:
-    OStream (const OStream&) = delete;
+    OStream (const OStream&)            = delete;
     OStream& operator= (const OStream&) = delete;
     OStream (OStream&&)                 = delete;
-    OStream& operator= (OStream&&) = delete;
+    OStream& operator= (OStream&&)      = delete;
 
     std::string _fileName;
 };

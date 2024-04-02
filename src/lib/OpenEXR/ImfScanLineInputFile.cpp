@@ -120,10 +120,10 @@ struct LineBuffer
     LineBuffer (Compressor* const comp);
     ~LineBuffer ();
 
-    LineBuffer (const LineBuffer& other) = delete;
+    LineBuffer (const LineBuffer& other)            = delete;
     LineBuffer& operator= (const LineBuffer& other) = delete;
     LineBuffer (LineBuffer&& other)                 = delete;
-    LineBuffer& operator= (LineBuffer&& other) = delete;
+    LineBuffer& operator= (LineBuffer&& other)      = delete;
 
     inline void wait () { _sem.wait (); }
     inline void post () { _sem.post (); }
@@ -159,8 +159,8 @@ struct sliceOptimizationData
     bool fill; ///< is this channel being filled with constant, instead of read?
     half fillValue; ///< if filling, the value to use
     size_t
-              offset; ///< position this channel will be in the read buffer, accounting for previous channels, as well as their type
-    PixelType type;   ///< type of channel
+        offset; ///< position this channel will be in the read buffer, accounting for previous channels, as well as their type
+    PixelType type; ///< type of channel
     size_t
         xStride; ///< x-stride of channel in buffer (must be set to cause channels to interleave)
     size_t
@@ -215,10 +215,10 @@ struct ScanLineInputFile::Data
     Data (int numThreads);
     ~Data ();
 
-    Data (const Data& other) = delete;
+    Data (const Data& other)            = delete;
     Data& operator= (const Data& other) = delete;
     Data (Data&& other)                 = delete;
-    Data& operator= (Data&& other) = delete;
+    Data& operator= (Data&& other)      = delete;
 
     inline LineBuffer* getLineBuffer (int number); // hash function from line
                                                    // buffer indices into our
@@ -1151,10 +1151,10 @@ ScanLineInputFile::initialize (const Header& header)
 
     _data->linesInBuffer = numLinesInBuffer (comp);
 
-    uint64_t lineOffsetSize =
-        (static_cast<int64_t>(dataWindow.max.y) - static_cast<int64_t>(dataWindow.min.y) + static_cast<int64_t>(_data->linesInBuffer)) /
-        static_cast<int64_t>(_data->linesInBuffer);
-
+    uint64_t lineOffsetSize = (static_cast<int64_t> (dataWindow.max.y) -
+                               static_cast<int64_t> (dataWindow.min.y) +
+                               static_cast<int64_t> (_data->linesInBuffer)) /
+                              static_cast<int64_t> (_data->linesInBuffer);
 
     //
     // avoid allocating excessive memory due to large lineOffsets and bytesPerLine table sizes.

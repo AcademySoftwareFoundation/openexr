@@ -65,10 +65,10 @@ protected:
 
     IMFUTIL_EXPORT virtual ~FlatImageChannel ();
 
-    FlatImageChannel (const FlatImageChannel& other) = delete;
+    FlatImageChannel (const FlatImageChannel& other)            = delete;
     FlatImageChannel& operator= (const FlatImageChannel& other) = delete;
     FlatImageChannel (FlatImageChannel&& other)                 = delete;
-    FlatImageChannel& operator= (FlatImageChannel&& other) = delete;
+    FlatImageChannel& operator= (FlatImageChannel&& other)      = delete;
 
     IMFUTIL_EXPORT
     virtual void resize ();
@@ -139,8 +139,8 @@ private:
 
     TypedFlatImageChannel (const TypedFlatImageChannel& other) = delete;
     TypedFlatImageChannel&
-    operator= (const TypedFlatImageChannel& other)        = delete;
-    TypedFlatImageChannel (TypedFlatImageChannel&& other) = delete;
+    operator= (const TypedFlatImageChannel& other)                   = delete;
+    TypedFlatImageChannel (TypedFlatImageChannel&& other)            = delete;
     TypedFlatImageChannel& operator= (TypedFlatImageChannel&& other) = delete;
 
     IMFUTIL_HIDDEN

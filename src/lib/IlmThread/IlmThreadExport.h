@@ -20,9 +20,9 @@
 // where we need to switch depending on whether we are compiling
 // internally or not
 #    if defined(ILMTHREAD_EXPORTS)
-#        define ILMTHREAD_EXPORT __declspec(dllexport)
+#        define ILMTHREAD_EXPORT __declspec (dllexport)
 #    else
-#        define ILMTHREAD_EXPORT __declspec(dllimport)
+#        define ILMTHREAD_EXPORT __declspec (dllimport)
 #    endif
 
 // DLLs don't support these types of visibility controls, just leave them as empty

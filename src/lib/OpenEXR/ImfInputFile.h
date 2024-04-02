@@ -204,10 +204,10 @@ public:
 private:
     IMF_HIDDEN InputFile (InputPartData* part);
 
-    InputFile (const InputFile&) = delete;
+    InputFile (const InputFile&)            = delete;
     InputFile& operator= (const InputFile&) = delete;
     InputFile (InputFile&&)                 = delete;
-    InputFile& operator= (InputFile&&) = delete;
+    InputFile& operator= (InputFile&&)      = delete;
 
     IMF_HIDDEN void initialize ();
     IMF_HIDDEN void multiPartInitialize (InputPartData* part);

@@ -231,10 +231,10 @@ struct DeepScanLineInputFile::Data
     Data (int numThreads);
     ~Data ();
 
-    Data (const Data& data) = delete;
+    Data (const Data& data)            = delete;
     Data& operator= (const Data& data) = delete;
     Data (Data&& data)                 = delete;
-    Data& operator= (Data&& data) = delete;
+    Data& operator= (Data&& data)      = delete;
 
     inline LineBuffer* getLineBuffer (int number); // hash function from line
                                                    // buffer indices into our
@@ -1186,22 +1186,24 @@ DeepScanLineInputFile::initialize (const Header& header)
         for (int i = 0; i < _data->maxY - _data->minY + 1; i++)
             _data->gotSampleCount[i] = false;
 
-        int64_t imageHeight = static_cast<int64_t>(_data->maxY) - static_cast<int64_t>(_data->minY) + 1;
-        int64_t imageWidth = static_cast<int64_t>(_data->maxX) - static_cast<int64_t>(_data->minX) +1;
+        int64_t imageHeight = static_cast<int64_t> (_data->maxY) -
+                              static_cast<int64_t> (_data->minY) + 1;
+        int64_t imageWidth = static_cast<int64_t> (_data->maxX) -
+                             static_cast<int64_t> (_data->minX) + 1;
 
-        int64_t tableSize =  min (static_cast<int64_t>(_data->linesInBuffer), imageHeight) * imageWidth
-            * sizeof (unsigned int);
+        int64_t tableSize =
+            min (static_cast<int64_t> (_data->linesInBuffer), imageHeight) *
+            imageWidth * sizeof (unsigned int);
 
-        if (tableSize>std::numeric_limits<int>::max() )
+        if (tableSize > std::numeric_limits<int>::max ())
         {
-             THROW (IEX_NAMESPACE::ArgExc,
-                    "Deep scanline image size "
-                    << imageWidth << " x " <<  imageHeight
-                    << " exceeds maximum size");
+            THROW (
+                IEX_NAMESPACE::ArgExc,
+                "Deep scanline image size " << imageWidth << " x "
+                                            << imageHeight
+                                            << " exceeds maximum size");
         }
-        _data->maxSampleCountTableSize =tableSize;
-
-
+        _data->maxSampleCountTableSize = tableSize;
 
         _data->sampleCountTableBuffer.resizeErase (
             _data->maxSampleCountTableSize);

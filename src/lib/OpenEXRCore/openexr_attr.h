@@ -285,7 +285,7 @@ typedef struct
     ((exr_tile_round_mode_t) ((((tiledesc).level_and_round) >> 4) & 0xF))
 /** @brief Macro to pack the tiling type and rounding mode into packed structure. */
 #define EXR_PACK_TILE_LEVEL_ROUND(lvl, mode)                                   \
-    ((uint8_t) ((((uint8_t) ((mode) &0xF) << 4)) | ((uint8_t) ((lvl) &0xF))))
+    ((uint8_t) ((((uint8_t) ((mode) & 0xF) << 4)) | ((uint8_t) ((lvl) & 0xF))))
 
 #pragma pack(pop)
 

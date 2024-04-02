@@ -74,7 +74,6 @@ source_suffix = '.rst'
 
 # General information about the project.
 project = 'OpenEXR'
-copyright = '2021, Contributors to the OpenEXR Project'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

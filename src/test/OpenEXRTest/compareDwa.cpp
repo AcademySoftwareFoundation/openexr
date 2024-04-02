@@ -92,15 +92,9 @@ compareDwa (
                     if (fabs (srcNonlin) < .1) continue;
 
                     if (fabs (srcNonlin) < .25) { assert (relError < .25); }
-                    else
-                    {
-                        assert (relError < .1);
-                    }
+                    else { assert (relError < .1); }
                 }
-                else
-                {
-                    assert (srcNonlin != testNonlin);
-                }
+                else { assert (srcNonlin != testNonlin); }
             }
         }
     }

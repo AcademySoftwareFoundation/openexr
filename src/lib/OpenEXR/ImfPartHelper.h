@@ -108,10 +108,7 @@ SplitChannels (
                 if (lname == "")
                 {
                     if (i->view == heroView) { i->internal_name = i->name; }
-                    else
-                    {
-                        i->internal_name = i->view + "." + i->name;
-                    }
+                    else { i->internal_name = i->view + "." + i->name; }
                 }
                 else
                 {
@@ -218,10 +215,7 @@ GetChannelsInMultiPartFile (const MultiPartInputFile& file, T& chans)
                 m.view = viewFromChannelName (m.name, mview);
                 m.name = removeViewName (m.internal_name, m.view);
             }
-            else
-            {
-                m.view = view;
-            }
+            else { m.view = view; }
             m.part_number = p;
             chans.push_back (m);
         }

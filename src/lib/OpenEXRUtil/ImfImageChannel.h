@@ -91,10 +91,10 @@ protected:
     void boundsCheck (int x, int y) const;
 
 private:
-    ImageChannel (const ImageChannel&) = delete;
+    ImageChannel (const ImageChannel&)            = delete;
     ImageChannel& operator= (const ImageChannel&) = delete;
     ImageChannel (ImageChannel&&)                 = delete;
-    ImageChannel& operator= (ImageChannel&&) = delete;
+    ImageChannel& operator= (ImageChannel&&)      = delete;
 
     ImageLevel& _level;
     int         _xSampling;

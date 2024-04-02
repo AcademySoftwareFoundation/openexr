@@ -107,14 +107,8 @@ CompositeDeepScanLine::Data::check_valid (const Header& header)
     {
         std::string n (i.name ());
         if (n == "ZBack") { _zback = true; }
-        else if (n == "Z")
-        {
-            has_z = true;
-        }
-        else if (n == "A")
-        {
-            has_alpha = true;
-        }
+        else if (n == "Z") { has_z = true; }
+        else if (n == "A") { has_alpha = true; }
     }
 
     if (!has_z)
@@ -216,7 +210,8 @@ CompositeDeepScanLine::Data::handleDeepFrameBuffer (
                 qt.name (),
                 DeepSlice (
                     OPENEXR_IMF_INTERNAL_NAMESPACE::FLOAT,
-                    (char*) (&pointers[channel_in_source][0] - _dataWindow.min.x - start * width),
+                    (char*) (&pointers[channel_in_source][0] -
+                             _dataWindow.min.x - start * width),
                     sizeof (float*),
                     sizeof (float*) * width,
                     sizeof (float)));
@@ -275,14 +270,8 @@ CompositeDeepScanLine::setFrameBuffer (const FrameBuffer& fr)
 
         string name (q.name ());
         if (name == "ZBack") { _Data->_bufferMap.push_back (1); }
-        else if (name == "Z")
-        {
-            _Data->_bufferMap.push_back (0);
-        }
-        else if (name == "A")
-        {
-            _Data->_bufferMap.push_back (2);
-        }
+        else if (name == "Z") { _Data->_bufferMap.push_back (0); }
+        else if (name == "A") { _Data->_bufferMap.push_back (2); }
         else
         {
             _Data->_bufferMap.push_back (
@@ -427,22 +416,22 @@ LineCompositeTask::execute ()
 
 } // namespace
 
-
-namespace {
+namespace
+{
 int64_t maximumSampleCount = 0;
 }
 
-void CompositeDeepScanLine::setMaximumSampleCount(int64_t c)
+void
+CompositeDeepScanLine::setMaximumSampleCount (int64_t c)
 {
     maximumSampleCount = c;
 }
 
-int64_t CompositeDeepScanLine::getMaximumSampleCount()
+int64_t
+CompositeDeepScanLine::getMaximumSampleCount ()
 {
     return maximumSampleCount;
 }
-
-
 
 void
 CompositeDeepScanLine::readPixels (int start, int end)
@@ -525,14 +514,12 @@ CompositeDeepScanLine::readPixels (int start, int end)
         overall_sample_count += total_sizes[ptr];
     }
 
-    if (maximumSampleCount > 0 &&  overall_sample_count > maximumSampleCount)
+    if (maximumSampleCount > 0 && overall_sample_count > maximumSampleCount)
     {
         throw IEX_NAMESPACE::ArgExc (
             "Cannot composite scanline: total sample count on scanline exceeds "
-            "limit set by CompositeDeepScanLine::setMaximumSampleCount()"
-        );
+            "limit set by CompositeDeepScanLine::setMaximumSampleCount()");
     }
-
 
     //
     // allocate arrays for pixel data
@@ -624,6 +611,5 @@ CompositeDeepScanLine::frameBuffer () const
 {
     return _Data->_outputFrameBuffer;
 }
-
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

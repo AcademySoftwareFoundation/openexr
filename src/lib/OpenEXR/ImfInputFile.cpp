@@ -82,10 +82,10 @@ struct InputFile::Data
     Data (int numThreads);
     ~Data ();
 
-    Data (const Data& other) = delete;
+    Data (const Data& other)            = delete;
     Data& operator= (const Data& other) = delete;
     Data (Data&& other)                 = delete;
-    Data& operator= (Data&& other) = delete;
+    Data& operator= (Data&& other)      = delete;
 
     void deleteCachedBuffer ();
 };
@@ -142,17 +142,17 @@ InputFile::Data::deleteCachedBuffer ()
             {
                 case OPENEXR_IMF_INTERNAL_NAMESPACE::UINT:
 
-                    delete[](((unsigned int*) s.base) + offset);
+                    delete[] (((unsigned int*) s.base) + offset);
                     break;
 
                 case OPENEXR_IMF_INTERNAL_NAMESPACE::HALF:
 
-                    delete[]((half*) s.base + offset);
+                    delete[] ((half*) s.base + offset);
                     break;
 
                 case OPENEXR_IMF_INTERNAL_NAMESPACE::FLOAT:
 
-                    delete[](((float*) s.base) + offset);
+                    delete[] (((float*) s.base) + offset);
                     break;
                 case NUM_PIXELTYPES:
                     throw (IEX_NAMESPACE::ArgExc ("Invalid pixel type"));
@@ -338,7 +338,8 @@ bufferedReadPixels (InputFile::Data* ifd, int scanLine1, int scanLine2)
                     switch (toSlice.type)
                     {
                         case UINT: {
-                            unsigned int fill = static_cast<unsigned int>(toSlice.fillValue);
+                            unsigned int fill =
+                                static_cast<unsigned int> (toSlice.fillValue);
                             for (int x = xStart; x <= levelRange.max.x;
                                  x += toSlice.xSampling)
                             {
@@ -770,17 +771,20 @@ InputFile::setFrameBuffer (const FrameBuffer& frameBuffer)
                     {
                         case OPENEXR_IMF_INTERNAL_NAMESPACE::UINT:
 
-                            _data->cachedBuffer->insert
-                            (k.name(),
-                            Slice (UINT,
-                                    (char *)(new unsigned int[tileRowSize] -
-                                            _data->offset),
+                            _data->cachedBuffer->insert (
+                                k.name (),
+                                Slice (
+                                    UINT,
+                                    (char*) (new unsigned int[tileRowSize] -
+                                             _data->offset),
                                     sizeof (unsigned int),
                                     sizeof (unsigned int) *
-                                        _data->tFile->levelWidth(0),
-                                    1, 1,
+                                        _data->tFile->levelWidth (0),
+                                    1,
+                                    1,
                                     s.fillValue,
-                                    false, true));
+                                    false,
+                                    true));
                             break;
 
                         case OPENEXR_IMF_INTERNAL_NAMESPACE::HALF:
@@ -789,7 +793,8 @@ InputFile::setFrameBuffer (const FrameBuffer& frameBuffer)
                                 k.name (),
                                 Slice (
                                     HALF,
-                                    (char*) (new half[tileRowSize] - _data->offset),
+                                    (char*) (new half[tileRowSize] -
+                                             _data->offset),
                                     sizeof (half),
                                     sizeof (half) *
                                         _data->tFile->levelWidth (0),
@@ -806,7 +811,8 @@ InputFile::setFrameBuffer (const FrameBuffer& frameBuffer)
                                 k.name (),
                                 Slice (
                                     OPENEXR_IMF_INTERNAL_NAMESPACE::FLOAT,
-                                    (char*) (new float[tileRowSize] - _data->offset),
+                                    (char*) (new float[tileRowSize] -
+                                             _data->offset),
                                     sizeof (float),
                                     sizeof (float) *
                                         _data->tFile->levelWidth (0),
@@ -852,10 +858,7 @@ InputFile::frameBuffer () const
 #endif
         return _data->tFileBuffer;
     }
-    else
-    {
-        return _data->sFile->frameBuffer ();
-    }
+    else { return _data->sFile->frameBuffer (); }
 }
 
 bool
@@ -873,10 +876,7 @@ bool
 InputFile::isOptimizationEnabled () const
 {
     if (_data->sFile) { return _data->sFile->isOptimizationEnabled (); }
-    else
-    {
-        return false;
-    }
+    else { return false; }
 }
 
 void
@@ -893,10 +893,7 @@ InputFile::readPixels (int scanLine1, int scanLine2)
 #endif
         bufferedReadPixels (_data, scanLine1, scanLine2);
     }
-    else
-    {
-        _data->sFile->readPixels (scanLine1, scanLine2);
-    }
+    else { _data->sFile->readPixels (scanLine1, scanLine2); }
 }
 
 void

@@ -49,10 +49,7 @@ latLong (const Box2i& dataWindow, const V2f& pixelPosition)
                         (dataWindow.max.y - dataWindow.min.y) -
                     0.5f);
     }
-    else
-    {
-        latitude = 0;
-    }
+    else { latitude = 0; }
 
     if (dataWindow.max.x > dataWindow.min.x)
     {
@@ -61,10 +58,7 @@ latLong (const Box2i& dataWindow, const V2f& pixelPosition)
                          (dataWindow.max.x - dataWindow.min.x) -
                      0.5f);
     }
-    else
-    {
-        longitude = 0;
-    }
+    else { longitude = 0; }
 
     return V2f (latitude, longitude);
 }
@@ -235,10 +229,7 @@ direction (CubeMapFace face, const Box2i& dataWindow, const V2f& positionInFace)
             positionInFace.x / (sof - 1) * 2 - 1,
             positionInFace.y / (sof - 1) * 2 - 1);
     }
-    else
-    {
-        pos = V2f (0, 0);
-    }
+    else { pos = V2f (0, 0); }
 
     V3f dir (1, 0, 0);
 

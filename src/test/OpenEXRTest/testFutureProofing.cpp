@@ -822,10 +822,7 @@ readWholeFiles (int modification)
         {
             assert (header.type () != headers[i].type ());
         }
-        else
-        {
-            assert (header.type () == headers[i].type ());
-        }
+        else { assert (header.type () == headers[i].type ()); }
     }
 
     cout << "Reading whole files " << flush;

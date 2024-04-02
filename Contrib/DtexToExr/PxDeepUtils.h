@@ -287,10 +287,7 @@ inline T
 ZeroNAN (T i_f)
 {
     if (!isfinite (i_f)) { return (T) 0; }
-    else
-    {
-        return i_f;
-    }
+    else { return i_f; }
 }
 
 //-*****************************************************************************

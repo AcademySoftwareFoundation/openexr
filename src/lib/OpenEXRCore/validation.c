@@ -12,10 +12,7 @@
 /**************************************/
 
 static exr_result_t
-validate_req_attr (
-    struct _internal_exr_context* f,
-    struct _internal_exr_part*    curpart,
-    int                           adddefault)
+validate_req_attr (exr_context_t f, exr_priv_part_t curpart, int adddefault)
 {
     exr_result_t rv = EXR_ERR_SUCCESS;
     if (!curpart->channels)
@@ -226,8 +223,7 @@ validate_req_attr (
 /**************************************/
 
 static exr_result_t
-validate_image_dimensions (
-    struct _internal_exr_context* f, struct _internal_exr_part* curpart)
+validate_image_dimensions (exr_context_t f, exr_priv_part_t curpart)
 {
     // sanity check the various parts...
     const int64_t          kLargeVal = (int64_t) (INT32_MAX / 2);
@@ -321,9 +317,7 @@ validate_image_dimensions (
 
 static exr_result_t
 validate_channels (
-    struct _internal_exr_context* f,
-    struct _internal_exr_part*    curpart,
-    const exr_attr_chlist_t*      channels)
+    exr_context_t f, exr_priv_part_t curpart, const exr_attr_chlist_t* channels)
 {
     exr_attr_box2i_t dw;
     int64_t          w, h;
@@ -408,8 +402,7 @@ validate_channels (
 /**************************************/
 
 static exr_result_t
-validate_part_type (
-    struct _internal_exr_context* f, struct _internal_exr_part* curpart)
+validate_part_type (exr_context_t f, exr_priv_part_t curpart)
 {
     // TODO: there are probably more tests to add here...
     if (curpart->type)
@@ -451,8 +444,7 @@ validate_part_type (
 /**************************************/
 
 static exr_result_t
-validate_tile_data (
-    struct _internal_exr_context* f, struct _internal_exr_part* curpart)
+validate_tile_data (exr_context_t f, exr_priv_part_t curpart)
 {
     if (curpart->storage_mode == EXR_STORAGE_TILED ||
         curpart->storage_mode == EXR_STORAGE_DEEP_TILED)
@@ -539,8 +531,7 @@ validate_tile_data (
 /**************************************/
 
 static exr_result_t
-validate_deep_data (
-    struct _internal_exr_context* f, struct _internal_exr_part* curpart)
+validate_deep_data (exr_context_t f, exr_priv_part_t curpart)
 {
     if (curpart->storage_mode == EXR_STORAGE_DEEP_SCANLINE ||
         curpart->storage_mode == EXR_STORAGE_DEEP_TILED)
@@ -579,8 +570,7 @@ validate_deep_data (
 /**************************************/
 
 exr_result_t
-internal_exr_validate_read_part (
-    struct _internal_exr_context* f, struct _internal_exr_part* curpart)
+internal_exr_validate_read_part (exr_context_t f, exr_priv_part_t curpart)
 {
     exr_result_t rv;
 
@@ -608,8 +598,7 @@ internal_exr_validate_read_part (
 /**************************************/
 
 exr_result_t
-internal_exr_validate_write_part (
-    struct _internal_exr_context* f, struct _internal_exr_part* curpart)
+internal_exr_validate_write_part (exr_context_t f, exr_priv_part_t curpart)
 {
     exr_result_t rv;
 

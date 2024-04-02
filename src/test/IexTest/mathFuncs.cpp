@@ -25,7 +25,7 @@ grow (float x, int y)
     std::cout << "grow (" << x << ", " << y << ")" << std::endl;
 
     for (int i = 0; i < y; i++)
-	x = x * x;
+        x = x * x;
 
     return x;
 }

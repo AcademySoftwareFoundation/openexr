@@ -404,7 +404,7 @@ typedef enum exr_default_write_mode
         1 /**< Create a temporary file, renaming it upon successful write, leaving original upon error */
 } exr_default_write_mode_t;
 
-/** @brief Create and initialize a write-only context. 
+/** @brief Create and initialize a write-only context.
  *
  * If a custom write function is provided, the filename is for
  * informational purposes only, and the @p default_mode parameter will be

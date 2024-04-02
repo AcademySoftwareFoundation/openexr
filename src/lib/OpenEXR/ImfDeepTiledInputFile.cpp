@@ -228,7 +228,7 @@ struct DeepTiledInputFile::Data
 
     uint64_t maxSampleCountTableSize; // the max size in bytes for a pixel
                                       // sample count table
-    int              combinedSampleSize; // total size of all channels combined to check sampletable size
+    int combinedSampleSize; // total size of all channels combined to check sampletable size
     static const int gLargeChunkTableSize = 1024 * 1024;
     void
     validateStreamSize (); // throw an exception if the file is significantly
@@ -238,10 +238,10 @@ struct DeepTiledInputFile::Data
     Data (int numThreads);
     ~Data ();
 
-    Data (const Data& other) = delete;
+    Data (const Data& other)            = delete;
     Data& operator= (const Data& other) = delete;
     Data (Data&& other)                 = delete;
-    Data& operator= (Data&& other) = delete;
+    Data& operator= (Data&& other)      = delete;
 
     inline TileBuffer* getTileBuffer (int number);
     // hash function from tile indices

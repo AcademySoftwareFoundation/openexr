@@ -905,7 +905,7 @@ generatedFunctions ()
     assert (hasWrapmodes (header) == false);
     assert (hasMultiView (header) == false);
     assert (hasDeepImageState (header) == false);
-    assert (hasIDManifest(header) == false);
+    assert (hasIDManifest (header) == false);
 }
 
 } // namespace

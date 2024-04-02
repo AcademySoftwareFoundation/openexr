@@ -6,18 +6,16 @@
 
 name: CI
 
-# Skip the run on *.md changes and on changes to the website, *except*
-# for "website/src", since that code needs validation.  There's a
-# separate workflow for with website. Also, no need to run on changes
-# to the bazel setup.
+# Run on all changes except:
+# - doc file changes
+# - changes to the website, *except* for "website/src", since that
+#   code needs validation.  The website has a separate workflow
+# - changes to the bazel config, since it has its own workflow
+# - changes to the python bindings
+# - changes to workflows other than this one
 
 on:
   push:
-    branches-ignore:
-      - RB-2.*
-    tags-ignore:
-      - v1.*
-      - v2.*
     paths:
       - '**'
       - '!**.md'
@@ -25,13 +23,9 @@ on:
       - 'website/src/**'
       - '!bazel/**'
       - '!src/wrappers/**'
-      - '!.github/workflows/python-**.yml'
+      - '!.github/workflows/**'
+      - '.github/workflows/ci_workflow.yml'
   pull_request:
-    branches-ignore:
-      - RB-2.*
-    tags-ignore:
-      - v1.*
-      - v2.*
     paths:
       - '**'
       - '!**.md'
@@ -39,7 +33,8 @@ on:
       - 'website/src/**'
       - '!bazel/**'
       - '!src/wrappers/**'
-      - '!.github/workflows/python-**.yml'
+      - '!.github/workflows/**'
+      - '.github/workflows/ci_workflow.yml'
 
 permissions:
   contents: read

@@ -356,12 +356,12 @@ generateRandomFile (
                                         int ty = y - box.min.y;
                                         int tx = x - box.min.x;
                                         if (channelTypes[k] == 0)
-                                            delete[](unsigned int*)
-                                                data[k][ty][tx];
+                                            delete[] (
+                                                unsigned int*) data[k][ty][tx];
                                         if (channelTypes[k] == 1)
-                                            delete[](half*) data[k][ty][tx];
+                                            delete[] (half*) data[k][ty][tx];
                                         if (channelTypes[k] == 2)
-                                            delete[](float*) data[k][ty][tx];
+                                            delete[] (float*) data[k][ty][tx];
                                     }
                         }
                     }
@@ -375,11 +375,11 @@ generateRandomFile (
                         for (int k = 0; k < channelCount; k++)
                         {
                             if (channelTypes[k] == 0)
-                                delete[](unsigned int*) data[k][i][j];
+                                delete[] (unsigned int*) data[k][i][j];
                             if (channelTypes[k] == 1)
-                                delete[](half*) data[k][i][j];
+                                delete[] (half*) data[k][i][j];
                             if (channelTypes[k] == 2)
-                                delete[](float*) data[k][i][j];
+                                delete[] (float*) data[k][i][j];
                         }
             }
         }
@@ -750,18 +750,19 @@ readFile (
                                                 dwx,
                                                 dwy);
                                             if (channelTypes[k] == 0)
-                                                delete[](unsigned int*)
+                                                delete[] (unsigned int*)
                                                     data[k][ty][tx];
                                             if (channelTypes[k] == 1)
-                                                delete[](half*) data[k][ty][tx];
+                                                delete[] (
+                                                    half*) data[k][ty][tx];
                                             if (channelTypes[k] == 2)
-                                                delete[](float*)
-                                                    data[k][ty][tx];
+                                                delete[] (
+                                                    float*) data[k][ty][tx];
                                         }
                                     }
                                     for (int f = 0; f < fillChannels; ++f)
                                     {
-                                        delete[](float*)
+                                        delete[] (float*)
                                             data[f + channelTypes.size ()][ty]
                                                 [tx];
                                     }
@@ -838,16 +839,16 @@ readFile (
                         for (int k = 0; k < channelCount; k++)
                         {
                             if (channelTypes[k] == 0)
-                                delete[](unsigned int*) data[k][i][j];
+                                delete[] (unsigned int*) data[k][i][j];
                             if (channelTypes[k] == 1)
-                                delete[](half*) data[k][i][j];
+                                delete[] (half*) data[k][i][j];
                             if (channelTypes[k] == 2)
-                                delete[](float*) data[k][i][j];
+                                delete[] (float*) data[k][i][j];
                         }
                         for (int f = 0; f < fillChannels; ++f)
                         {
-                            delete[](float*)
-                                data[f + channelTypes.size ()][i][j];
+                            delete[] (
+                                float*) data[f + channelTypes.size ()][i][j];
                         }
                     }
             }

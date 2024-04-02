@@ -133,7 +133,14 @@ LossyDctDecoder_construct (
     //
 
     rv = LossyDctDecoder_base_construct (
-        d, packedAc, packedAcEnd, packedDc, remDcCount, toLinear, width, height);
+        d,
+        packedAc,
+        packedAcEnd,
+        packedDc,
+        remDcCount,
+        toLinear,
+        width,
+        height);
 
     d->_channel_decode_data[0]    = rowPtrs;
     d->_channel_decode_data_count = 1;
@@ -168,7 +175,14 @@ LossyDctDecoderCsc_construct (
 {
     exr_result_t rv;
     rv = LossyDctDecoder_base_construct (
-        d, packedAc, packedAcEnd, packedDc, remDcCount, toLinear, width, height);
+        d,
+        packedAc,
+        packedAcEnd,
+        packedDc,
+        remDcCount,
+        toLinear,
+        width,
+        height);
     if (rv != EXR_ERR_SUCCESS) return rv;
 
     d->_channel_decode_data[0]    = rowPtrsR;
@@ -224,9 +238,9 @@ LossyDctDecoder_execute (
     DctCoderChannelData* chanData[3];
     int                  lastNonZero = 0;
     int                  numBlocksX  = (d->_width + 7) / 8;
-    int                  numBlocksY = (d->_height + 7) / 8;
-    int                  leftoverX  = d->_width - (numBlocksX - 1) * 8;
-    int                  leftoverY  = d->_height - (numBlocksY - 1) * 8;
+    int                  numBlocksY  = (d->_height + 7) / 8;
+    int                  leftoverX   = d->_width - (numBlocksX - 1) * 8;
+    int                  leftoverY   = d->_height - (numBlocksY - 1) * 8;
 
     int numFullBlocksX = d->_width / 8;
 
@@ -236,7 +250,8 @@ LossyDctDecoder_execute (
     uint8_t*  rowBlockHandle;
     uint16_t* rowBlock[3];
 
-    if (d->_remDcCount < ((uint64_t)numComp * (uint64_t)numBlocksX * (uint64_t)numBlocksY))
+    if (d->_remDcCount <
+        ((uint64_t) numComp * (uint64_t) numBlocksX * (uint64_t) numBlocksY))
     {
         return EXR_ERR_CORRUPT_CHUNK;
     }

@@ -13,10 +13,10 @@
 
 #if ILMTHREAD_SEMAPHORE_WINDOWS
 
-#include "Iex.h"
-#include <assert.h>
-#include <iostream>
-#include <string>
+#    include "Iex.h"
+#    include <assert.h>
+#    include <iostream>
+#    include <string>
 
 ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_ENTER
 
@@ -126,4 +126,3 @@ Semaphore::value () const
 ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_EXIT
 
 #endif // ILMTHREAD_SEMAPHORE_WINDOWS
-

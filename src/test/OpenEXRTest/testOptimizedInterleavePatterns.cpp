@@ -58,7 +58,7 @@ struct Schema
     const char*        _name;   // name of this scheme
     const char* const* _active; // channels to be read
     const char* const*
-                       _passive; // channels to be ignored (keep in buffer passed to inputfile, should not be overwritten)
+        _passive; // channels to be ignored (keep in buffer passed to inputfile, should not be overwritten)
     int                _banks;
     const char* const* _views; // list of views to write, or NULL
     const PixelType*   _types; // NULL for all HALF, otherwise per-channel type
@@ -252,10 +252,7 @@ compare (
                         default: cout << "don't know about that\n"; exit (1);
                     }
                 }
-                else
-                {
-                    writtenHalf = half (i.slice ().fillValue);
-                }
+                else { writtenHalf = half (i.slice ().fillValue); }
 
                 if (writtenHalf.bits () != readHalf.bits ())
                 {
@@ -289,10 +286,11 @@ setupBuffer (
     FrameBuffer&
         prereadbuf, // channels which aren't being read - indexes into the preread buffer
     FrameBuffer&
-         postreadbuf, // channels which aren't being read - indexes into the postread buffer
-    int  banks, // number of banks - channels within each bank are interleaved, banks are scanline interleaved
+        postreadbuf, // channels which aren't being read - indexes into the postread buffer
+    int banks, // number of banks - channels within each bank are interleaved, banks are scanline interleaved
     bool writing, // true if should allocate
-    bool allowNonfinite // true if the buffer is allowed to create infinity or NaN values
+    bool
+        allowNonfinite // true if the buffer is allowed to create infinity or NaN values
 )
 {
     Box2i dw = hdr.dataWindow ();
@@ -361,10 +359,7 @@ setupBuffer (
     int size = samples * bytes_per_pixel;
 
     if (writing) { writingBuffer.resize (size); }
-    else
-    {
-        readingBuffer.resize (size);
-    }
+    else { readingBuffer.resize (size); }
 
     const char* write_ptr = writing ? &writingBuffer[0] : &readingBuffer[0];
     // fill with random halfs, casting to floats for float channels
@@ -381,7 +376,7 @@ setupBuffer (
             unsigned short int values =
                 random_int (std::numeric_limits<unsigned short>::max ());
             v.setBits (values);
-        } while(!( (v-v)==0 || allowNonfinite ));
+        } while (!((v - v) == 0 || allowNonfinite));
 
         if (pt == NULL || pt[chan] == IMF::HALF)
         {
@@ -490,7 +485,7 @@ setupBuffer (
 }
 
 Box2i
-writefile (Schema& scheme, FrameBuffer& buf, bool tiny , bool allowNonfinite)
+writefile (Schema& scheme, FrameBuffer& buf, bool tiny, bool allowNonfinite)
 {
     const int height = 128;
     const int width  = 128;
@@ -548,7 +543,7 @@ readfile (
     FrameBuffer& buf,     ///< list of channels to read: index to readingBuffer
     FrameBuffer& preread, ///< list of channels to skip: index to preReadBuffer
     FrameBuffer&
-        postread, ///< list of channels to skip: index to readingBuffer)
+         postread, ///< list of channels to skip: index to readingBuffer)
     bool allowNonfinite)
 {
     InputFile infile (filename.c_str ());
@@ -583,14 +578,19 @@ test (Schema writeScheme, Schema readScheme, bool nonfatal, bool tiny)
     FrameBuffer writeFrameBuf;
     // only allow NaN and infinity values if file is read and written as half float
     // (otherwise casting between half and float may cause different bit patterns)
-    bool allowNonfinite = (writeScheme._types == nullptr && readScheme._types==nullptr);
-    Box2i       dw = writefile (writeScheme, writeFrameBuf, tiny , allowNonfinite);
+    bool allowNonfinite =
+        (writeScheme._types == nullptr && readScheme._types == nullptr);
+    Box2i dw = writefile (writeScheme, writeFrameBuf, tiny, allowNonfinite);
     FrameBuffer readFrameBuf;
     FrameBuffer preReadFrameBuf;
     FrameBuffer postReadFrameBuf;
     cout.flush ();
-    bool opt =
-        readfile (readScheme, readFrameBuf, preReadFrameBuf, postReadFrameBuf,allowNonfinite);
+    bool opt = readfile (
+        readScheme,
+        readFrameBuf,
+        preReadFrameBuf,
+        postReadFrameBuf,
+        allowNonfinite);
     if (compare (readFrameBuf, writeFrameBuf, dw, nonfatal) &&
         compare (preReadFrameBuf, postReadFrameBuf, dw, nonfatal))
     {
@@ -637,10 +637,7 @@ runtests (bool nonfatal, bool tiny)
                      << Schemes[j]._name << ": known to crash\n";
                 skipped++;
             }
-            else
-            {
-                test (Schemes[i], Schemes[j], nonfatal, tiny);
-            }
+            else { test (Schemes[i], Schemes[j], nonfatal, tiny); }
             j++;
         }
         i++;

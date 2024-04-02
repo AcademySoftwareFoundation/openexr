@@ -9,9 +9,13 @@ on:
   schedule:
     - cron: "0 4 * * 0"
 
+permissions:
+  contents: read
+
 jobs:
   snyk-scan-pr:
     runs-on: ubuntu-latest
+    if: github.repository == 'AcademySoftwareFoundation/openexr'
     steps:
       - uses: actions/checkout@v4
 

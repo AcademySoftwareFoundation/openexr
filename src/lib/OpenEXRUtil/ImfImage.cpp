@@ -528,10 +528,7 @@ Image::renameChannels (const RenamingMap& oldToNewNames)
                 "channel would be named \""
                     << newName << "\".");
         }
-        else
-        {
-            newNames.insert (newName);
-        }
+        else { newNames.insert (newName); }
     }
 
     try

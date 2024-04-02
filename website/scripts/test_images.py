@@ -13,8 +13,11 @@
 # images (with thumbnails and summaries) and a separate page per image
 # file showing the full image and the header contents in a table.
 #
-# The test_images.txt file references url's, which get downloaded and
-# converted to proxy .jpg files via 'wget' and 'exrheader'.
+# The test_images.txt file references exr files expected to exist in
+# the images repo. This script downloads the .exrs and run 'exrheader'
+# on them to generate the associated .rst file, which becomes the
+# descriptive content on the webpage. Each exr is expected to have an
+# accompanying .jpg sidecar file for display on the webpage.
 #
 # The README.rst files are expected to have a heading, summary text,
 # and a ".. list-table::" with descriptive text for selected
@@ -24,10 +27,18 @@
 # Note that the README.rst files in the openexr-images repo are never
 # actually processed directly by sphinx.
 #
-# The generated .rst and .jpg files all go in the "website/_test_images"
-# directory underneath the source root. Ideally, these would go in the
-# build root, but sphinx expects all source content under a single
-# root.
+# The generated .rst files all go in the "website/test_images"
+# directory underneath the source root. 
+#
+# Run this script from the source root, then commit the files to git.
+#
+# Note: The initial version of this process ran during cmake, ran the
+# conversion to .jpg explicitly, and stored the proxy .jpg's in the
+# source tree for processing by Sphinx. This avoided the need for
+# permanent sidecar .jpg's in the openexr-images repo, but it
+# complicated the website build, could not get the website build to
+# work on Windows. Now we rely on running the exr-to-jpg conversion
+# manually.
 #
 
 import sys, os, tempfile
@@ -105,14 +116,14 @@ def write_rst_list_table_row(outfile, attr_name, header, rows, ignore_attr_name=
             value = ''
         outfile.write(f'     - {value}\n')
 
-def write_exr_page(rst_lpath, exr_url, exr_filename, exr_lpath, jpg_lpath, readme):
+def write_exr_page(rst_lpath, exr_url, exr_filename, exr_lpath, jpg_url, readme):
     '''Write the website page for each exr: title, image, and list-table of attribute name/value for each part
     
        rst_lpath:    the name of .rst file to write, including directory relative to the source root
        exr_url:      the url of exr
        exr_filename: the exr filename without directory
        exr_lpath:    the exr filename with directory relative to the source root
-       jpg_lpath:    the jpg filename with directory relative to the source root
+       jpg_url:      the url of the jpg image (from https://raw.githubusercontent.com/AcademySoftwareFoundation/openexr-images)
 
        Return a dict of of the header parts/attributes
     '''
@@ -132,16 +143,6 @@ def write_exr_page(rst_lpath, exr_url, exr_filename, exr_lpath, jpg_lpath, readm
                       stdout=PIPE, stderr=PIPE, universal_newlines=True)
         if result.returncode != 0 or not os.path.isfile(local_exr):
             raise Exception(f'failed to read {exr_url}: no such file {local_exr}')
-        
-        # Convert to .jpg, but only if it doesn't already exist
-
-        if not os.path.isfile(jpg_lpath):
-            print(f'convert {jpg_lpath}')
-            result = run (['convert', local_exr, jpg_lpath], 
-                          stdout=PIPE, stderr=PIPE, universal_newlines=True)
-        
-            if result.returncode != 0 or not os.path.isfile(jpg_lpath):
-                raise Exception(f'error: failed to convert {exr_url} to {jpg_lpath}: returncode={result.returncode}, stderr={result.stderr}')
         
         # Read the header
         
@@ -172,7 +173,7 @@ def write_exr_page(rst_lpath, exr_url, exr_filename, exr_lpath, jpg_lpath, readm
             rst_file.write(f'\n')
 
             # .. image::
-            rst_file.write(f'.. image:: {os.path.basename(jpg_lpath)}\n')
+            rst_file.write(f'.. image:: {jpg_url}\n')
             rst_file.write(f'   :target: {exr_url}\n')
             rst_file.write(f'\n')
 
@@ -292,26 +293,24 @@ def write_exr_to_index(index_file, repo, tag, exr_lpath, readme):
     '''
     
     # Examples:
-    #    repo = 'https://raw.githubusercontent.com/cary-ilm/openexr-images'
-    #    tag = 'website'
+    #    repo = 'https://raw.githubusercontent.com/AcademySoftwareFoundation/openexr-images'
+    #    tag = 'main'
     #    exr_lpath = v2/LeftView/Ground.exr
 
-    test_images = 'website/_test_images/'
-    output_dirname = test_images + os.path.dirname(exr_lpath)    # website/_test_images/v2/LeftView
+    test_images = 'website/test_images/'
+    output_dirname = test_images + os.path.dirname(exr_lpath)    # website/test_images/v2/LeftView
     os.makedirs(output_dirname, exist_ok=True)
     base_path = os.path.splitext(exr_lpath)[0]                   # v2/LeftView/Ground
     exr_filename = os.path.basename(exr_lpath)                   # Ground.exr
     exr_basename = os.path.splitext(exr_filename)[0]             # Ground
     exr_dirname = os.path.dirname(exr_lpath)                     # v2/LeftView
-    rst_lpath = f'{test_images}{exr_dirname}/{exr_basename}.rst' # website/_test_images/v2/LeftView/Ground.rst
-    jpg_rpath = f'{exr_dirname}/{exr_dirname.replace("/", "_")}_{exr_basename}.jpg'
-    jpg_lpath =  test_images + jpg_rpath                         # website/_test_images/v2/LeftView/Ground.K@#YSDF.jpg
-
+    rst_lpath = f'{test_images}{exr_dirname}/{exr_basename}.rst' # website/test_images/v2/LeftView/Ground.rst
+    jpg_url = f'{repo}/{tag}/{base_path}.jpg'
     exr_url = f'{repo}/{tag}/{exr_lpath}'
     
     # Write the exr page
     
-    header = write_exr_page(rst_lpath, exr_url, exr_filename, exr_lpath, jpg_lpath, readme)
+    header = write_exr_page(rst_lpath, exr_url, exr_filename, exr_lpath, jpg_url, readme)
 
     if not header:
         raise Exception(f'no header for {exr_lpath}')
@@ -326,7 +325,7 @@ def write_exr_to_index(index_file, repo, tag, exr_lpath, readme):
 
     # row for the image
     index_file.write(f'          <td style="vertical-align: top; width:250px">\n')
-    index_file.write(f'              <a href={base_path}.html> <img width="250" src="../_images/{os.path.basename(jpg_rpath)}"> </a>\n') 
+    index_file.write(f'              <a href={base_path}.html> <img width="250" src="{jpg_url}"> </a>\n') 
     index_file.write(f'          </td>\n')
 
     # row for the summary
@@ -401,9 +400,7 @@ tag = sys.argv[2] if len(sys.argv) > 2 else 'main'
 
 try:
     
-    os.makedirs('website/_test_images', exist_ok=True)
-
-    with open('website/_test_images/index.rst', 'w') as index_file:
+    with open('website/test_images/index.rst', 'w') as index_file:
 
         index_file.write('Test Images\n')
         index_file.write('###########\n')
@@ -452,7 +449,7 @@ try:
 
         # Write the toctree file, one entry per .exr page
         
-        with open('website/_test_images/toctree.rst', 'w') as toctree_file:
+        with open('website/test_images/toctree.rst', 'w') as toctree_file:
             toctree_file.write('..\n')
             toctree_file.write('  SPDX-License-Identifier: BSD-3-Clause\n')
             toctree_file.write('  Copyright Contributors to the OpenEXR Project.\n')

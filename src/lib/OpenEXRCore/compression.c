@@ -60,18 +60,18 @@ exr_compress_buffer (
     size_t              out_bytes_avail,
     size_t*             actual_out)
 {
-    struct libdeflate_compressor*       comp;
-    const struct _internal_exr_context* pctxt = EXR_CCTXT (ctxt);
+    struct libdeflate_compressor* comp;
+
 #ifdef EXR_USE_CONFIG_DEFLATE_STRUCT
     struct libdeflate_options opt = {
         .sizeof_options = sizeof (struct libdeflate_options),
-        .malloc_func    = pctxt ? pctxt->alloc_fn : internal_exr_alloc,
-        .free_func      = pctxt ? pctxt->free_fn : internal_exr_free};
+        .malloc_func    = ctxt ? ctxt->alloc_fn : internal_exr_alloc,
+        .free_func      = ctxt ? ctxt->free_fn : internal_exr_free};
 
 #else
     libdeflate_set_memory_allocator (
-        pctxt ? pctxt->alloc_fn : internal_exr_alloc,
-        pctxt ? pctxt->free_fn : internal_exr_free);
+        ctxt ? ctxt->alloc_fn : internal_exr_alloc,
+        ctxt ? ctxt->free_fn : internal_exr_free);
 #endif
 
     if (level < 0)
@@ -115,21 +115,20 @@ exr_uncompress_buffer (
     size_t              out_bytes_avail,
     size_t*             actual_out)
 {
-    struct libdeflate_decompressor*     decomp;
-    enum libdeflate_result              res;
-    size_t                              actual_in_bytes;
-    const struct _internal_exr_context* pctxt = EXR_CCTXT (ctxt);
+    struct libdeflate_decompressor* decomp;
+    enum libdeflate_result          res;
+    size_t                          actual_in_bytes;
 #ifdef EXR_USE_CONFIG_DEFLATE_STRUCT
     struct libdeflate_options opt = {
         .sizeof_options = sizeof (struct libdeflate_options),
-        .malloc_func    = pctxt ? pctxt->alloc_fn : internal_exr_alloc,
-        .free_func      = pctxt ? pctxt->free_fn : internal_exr_free};
+        .malloc_func    = ctxt ? ctxt->alloc_fn : internal_exr_alloc,
+        .free_func      = ctxt ? ctxt->free_fn : internal_exr_free};
 
     decomp = libdeflate_alloc_decompressor_ex (&opt);
 #else
     libdeflate_set_memory_allocator (
-        pctxt ? pctxt->alloc_fn : internal_exr_alloc,
-        pctxt ? pctxt->free_fn : internal_exr_free);
+        ctxt ? ctxt->alloc_fn : internal_exr_alloc,
+        ctxt ? ctxt->free_fn : internal_exr_free);
     decomp = libdeflate_alloc_decompressor ();
 #endif
 

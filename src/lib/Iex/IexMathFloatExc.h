@@ -54,10 +54,10 @@ class IEX_EXPORT_TYPE MathExcOn
 public:
     IEX_EXPORT MathExcOn (int when);
     IEX_EXPORT ~MathExcOn ();
-    MathExcOn (const MathExcOn&) = delete;
+    MathExcOn (const MathExcOn&)            = delete;
     MathExcOn& operator= (const MathExcOn&) = delete;
     MathExcOn (MathExcOn&&)                 = delete;
-    MathExcOn& operator= (MathExcOn&&) = delete;
+    MathExcOn& operator= (MathExcOn&&)      = delete;
 
     // It is possible for functions to set the exception registers
     // yet not trigger a SIGFPE.  Specifically, the implementation

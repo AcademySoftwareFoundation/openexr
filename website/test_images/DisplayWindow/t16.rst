@@ -1,0 +1,39 @@
+..
+  SPDX-License-Identifier: BSD-3-Clause
+  Copyright Contributors to the OpenEXR Project.
+
+t16.exr
+#######
+
+:download:`https://raw.githubusercontent.com/AcademySoftwareFoundation/openexr-images/main/DisplayWindow/t16.exr<https://raw.githubusercontent.com/AcademySoftwareFoundation/openexr-images/main/DisplayWindow/t16.exr>`
+
+.. image:: https://raw.githubusercontent.com/AcademySoftwareFoundation/openexr-images/main/DisplayWindow/t16.jpg
+   :target: https://raw.githubusercontent.com/AcademySoftwareFoundation/openexr-images/main/DisplayWindow/t16.exr
+
+
+The display window and the data window are the same as in
+``t07.exr``, but the pixels have an aspect ratio of 0.667.  On a
+screen with square pixels, both the display window and the
+data window should be stretched vertically.
+
+.. list-table::
+   :align: left
+
+   * - screenWindowWidth
+     - 1
+   * - dataWindow
+     - (0 0) - (399 299)
+   * - screenWindowCenter
+     - (0 0)
+   * - displayWindow
+     - (-40 -40) - (440 330)
+   * - channels
+     - B, G, R
+   * - lineOrder
+     - increasing y
+   * - pixelAspectRatio
+     - 0.666667
+   * - compression
+     - piz
+   * - type
+     - scanlineimage

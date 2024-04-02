@@ -93,13 +93,13 @@ Zip::compress (const char* raw, int rawSize, char* compressed)
     //
     size_t outSize;
     if (EXR_ERR_SUCCESS != exr_compress_buffer (
-            nullptr,
-            _zipLevel,
-            _tmpBuffer,
-            rawSize,
-            compressed,
-            maxCompressedSize (),
-            &outSize))
+                               nullptr,
+                               _zipLevel,
+                               _tmpBuffer,
+                               rawSize,
+                               compressed,
+                               maxCompressedSize (),
+                               &outSize))
     {
         throw IEX_NAMESPACE::BaseExc ("Data compression failed.");
     }
@@ -174,8 +174,8 @@ reconstruct_neon (char* buf, size_t outSize)
     buf[0] += -128;
 
     unsigned char* vBuf  = reinterpret_cast<unsigned char*> (buf);
-    uint8x16_t  vZero = vdupq_n_u8 (0);
-    uint8x16_t  vPrev = vdupq_n_u8 (0);
+    uint8x16_t     vZero = vdupq_n_u8 (0);
+    uint8x16_t     vPrev = vdupq_n_u8 (0);
     for (size_t i = 0; i < vOutSize; ++i)
     {
         uint8x16_t d = vaddq_u8 (vld1q_u8 (vBuf), c);
@@ -205,7 +205,6 @@ reconstruct_neon (char* buf, size_t outSize)
 }
 
 #endif
-
 
 void
 reconstruct_scalar (char* buf, size_t outSize)
@@ -275,14 +274,18 @@ interleave_neon (const char* source, size_t outSize, char* out)
 
     for (size_t i = 0; i < vOutSize; ++i)
     {
-        uint8x16_t a = vld1q_u8 (v1); v1 += sizeof (uint8x16_t);
-        uint8x16_t b = vld1q_u8 (v2); v2 += sizeof (uint8x16_t);
+        uint8x16_t a = vld1q_u8 (v1);
+        v1 += sizeof (uint8x16_t);
+        uint8x16_t b = vld1q_u8 (v2);
+        v2 += sizeof (uint8x16_t);
 
         uint8x16_t lo = vzip1q_u8 (a, b);
         uint8x16_t hi = vzip2q_u8 (a, b);
 
-        vst1q_u8 (vOut, lo); vOut += sizeof (uint8x16_t);
-        vst1q_u8 (vOut, hi); vOut += sizeof (uint8x16_t);
+        vst1q_u8 (vOut, lo);
+        vOut += sizeof (uint8x16_t);
+        vst1q_u8 (vOut, hi);
+        vOut += sizeof (uint8x16_t);
     }
 
     const char* t1   = reinterpret_cast<const char*> (v1);
@@ -320,7 +323,7 @@ interleave_scalar (const char* source, size_t outSize, char* out)
 }
 
 auto reconstruct = reconstruct_scalar;
-auto interleave = interleave_scalar;
+auto interleave  = interleave_scalar;
 
 } // namespace
 
@@ -329,12 +332,12 @@ Zip::uncompress (const char* compressed, int compressedSize, char* raw)
 {
     size_t outSize = 0;
     if (EXR_ERR_SUCCESS != exr_uncompress_buffer (
-            nullptr,
-            compressed,
-            (size_t)compressedSize,
-            _tmpBuffer,
-            _maxRawSize,
-            &outSize))
+                               nullptr,
+                               compressed,
+                               (size_t) compressedSize,
+                               _tmpBuffer,
+                               _maxRawSize,
+                               &outSize))
     {
         throw IEX_NAMESPACE::InputExc ("Data decompression failed.");
     }
@@ -360,22 +363,16 @@ Zip::initializeFuncs ()
     CpuId cpuId;
 
 #ifdef IMF_HAVE_SSE4_1
-    if (cpuId.sse4_1)
-    {
-        reconstruct = reconstruct_sse41;
-    }
+    if (cpuId.sse4_1) { reconstruct = reconstruct_sse41; }
 #endif
 
 #ifdef IMF_HAVE_SSE2
-    if (cpuId.sse2) 
-    {
-        interleave = interleave_sse2;
-    }
+    if (cpuId.sse2) { interleave = interleave_sse2; }
 #endif
 
 #ifdef IMF_HAVE_NEON_AARCH64
     reconstruct = reconstruct_neon;
-    interleave = interleave_neon;
+    interleave  = interleave_neon;
 #endif
 }
 

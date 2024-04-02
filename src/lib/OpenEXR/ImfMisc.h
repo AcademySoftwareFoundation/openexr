@@ -446,7 +446,7 @@ std::wstring WidenFilename (const char* filename);
 // Return the string that describes the major.minor.patch release version
 //
 
-IMF_EXPORT const char* getLibraryVersion();
+IMF_EXPORT const char* getLibraryVersion ();
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 

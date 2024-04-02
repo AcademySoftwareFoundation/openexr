@@ -11,6 +11,7 @@ explains our contribution process and procedures:
 * [Development Workflow](#Development-Workflow)
 * [Coding Style](#Coding-Style)
 * [Versioning Policy](#Versioning-Policy)
+* [Contributing to the Website](#Contributing-to-the-Website)
 * [Creating a Patch Release](#Creating-a-Patch-Release)
 * [Creating a Major/Minor Release](#Creating-a-Major/Minor-Release)
 
@@ -452,6 +453,71 @@ each version with three numbers: ``major.minor.patch``, where:
 * ``major`` - indicates incompatible API changes
 * ``minor`` - indicates functionality added in a backwards-compatible manner
 * ``patch`` - indicates backwards-compatible bug fixes 
+
+## Contributing to the Website
+
+The https://openexr.com website is generated via
+[Sphinx](https://www.sphinx-doc.org) with the
+[Breathe](https://breathe.readthedocs.io) extension, using the
+[sphinx-press-theme](https://pypi.org/project/sphinx-press-theme), and
+is hosted by
+[readthedocs](https://readthedocs.org/projects/openexr). The website
+source is in [restructured
+text](https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html)
+in the ``website`` directory.
+
+To build the website locally from the source ``.rst`` files, set the
+CMake option ``BUILD_WEBSITE=ON``. This adds the ``website`` CMake
+target. Generation is off by default.
+
+Building the website requires that ``sphinx``, ``breathe``, and
+``doxygen`` are installed. It further requires the [sphinx-press-theme]
+(https://pypi.org/project/sphinx-press-theme). Complete dependencies
+are described in the [requirements.txt](website/requirements.txtg)
+file. 
+
+On Debian/Ubuntu Linux:
+
+.. code-block::
+
+    % apt-get install doxygen python3-sphinx
+    % pip3 install breathe
+    % pip3 install sphinx_press_theme
+   
+    % mkdir _build
+    % cd _build
+    % cmake .. -DBUILD_WEBSITE=ON
+    % cmake --build . --target website 
+
+### Testing a Website Build
+
+When you have configured cmake with ``BUILD_WEBSITE=ON`` and done a
+build, you should find a file ``website/sphinx/index.html`` in the
+build directory which is the website source. Load this file in a
+browser to preview the resulting website, that is, load
+``file://<build-directory>/website/sphinx/index.html`` into your web
+browser.
+
+Once you submit a PR, a check labled ``docs/readthedocs.org:openexr``
+will validate the build. Click on the ``Details`` link to
+preview. Also, a link to this preview will be added automatically to
+the PR description.
+### Test Images
+
+To contribute a new test image, commit it to the
+[openexr-images](https://github.com/AcademySoftwareFoundation/openexr-images)
+repo, along with an associated ``.jpg`` file for display on the
+website.
+
+The [website/scripts/test_images.py](website/scripts/test_images.py)
+utility processes images from
+[openexr-images](https://github.com/AcademySoftwareFoundation/openexr-images)
+to produce `.rst` files for input to Sphinx. It runs ``exrheader`` on
+the ``.exr`` to generate the image description. It also processes
+``README`` files in the image repo for additional website content,
+useful for describing a collection of images. Once the new image is in
+the ``openexr-images`` repo, run ``website/scripts/test_images.py``,
+then commit the new/modified ``.rst`` files to git and submit a PR.
 
 ## Creating a Patch Release
 

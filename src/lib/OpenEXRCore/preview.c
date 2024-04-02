@@ -18,11 +18,11 @@ exr_attr_preview_init (
     exr_attr_preview_t nil   = {0};
     uint64_t           bytes = (uint64_t) w * (uint64_t) h * (uint64_t) 4;
 
-    INTERN_EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
+    if (!ctxt) return EXR_ERR_MISSING_CONTEXT_ARG;
 
     if (bytes > (size_t) INT32_MAX)
-        return pctxt->print_error (
-            pctxt,
+        return ctxt->print_error (
+            ctxt,
             EXR_ERR_INVALID_ARGUMENT,
             "Invalid very large size for preview image (%u x %u - %" PRIu64
             " bytes)",
@@ -31,17 +31,17 @@ exr_attr_preview_init (
             (uint64_t) bytes);
 
     if (!p)
-        return pctxt->report_error (
-            pctxt,
+        return ctxt->report_error (
+            ctxt,
             EXR_ERR_INVALID_ARGUMENT,
             "Invalid reference to preview object to initialize");
 
     *p = nil;
     if (bytes > 0)
     {
-        p->rgba = (uint8_t*) pctxt->alloc_fn (bytes);
+        p->rgba = (uint8_t*) ctxt->alloc_fn (bytes);
         if (p->rgba == NULL)
-            return pctxt->standard_error (pctxt, EXR_ERR_OUT_OF_MEMORY);
+            return ctxt->standard_error (ctxt, EXR_ERR_OUT_OF_MEMORY);
         p->alloc_size = bytes;
         p->width      = w;
         p->height     = h;
@@ -74,13 +74,13 @@ exr_attr_preview_create (
 exr_result_t
 exr_attr_preview_destroy (exr_context_t ctxt, exr_attr_preview_t* p)
 {
-    INTERN_EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
+    if (!ctxt) return EXR_ERR_MISSING_CONTEXT_ARG;
 
     if (p)
     {
         exr_attr_preview_t nil = {0};
         if (p->rgba && p->alloc_size > 0)
-            pctxt->free_fn (EXR_CONST_CAST (uint8_t*, p->rgba));
+            ctxt->free_fn (EXR_CONST_CAST (uint8_t*, p->rgba));
         *p = nil;
     }
     return EXR_ERR_SUCCESS;

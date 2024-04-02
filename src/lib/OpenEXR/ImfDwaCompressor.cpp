@@ -2075,7 +2075,8 @@ DwaCompressor::compress (
     if (*unknownUncompressedSize > 0)
     {
         size_t outSize;
-        if (EXR_ERR_SUCCESS != exr_compress_buffer(
+        if (EXR_ERR_SUCCESS !=
+            exr_compress_buffer (
                 nullptr,
                 9, // TODO: use default??? the old call to zlib had 9 hardcoded
                 _planarUncBuffer[UNKNOWN],
@@ -2114,9 +2115,11 @@ DwaCompressor::compress (
             case DEFLATE:
 
             {
-                size_t sourceLen = *totalAcUncompressedCount * sizeof (unsigned short);
+                size_t sourceLen =
+                    *totalAcUncompressedCount * sizeof (unsigned short);
                 size_t destLen;
-                if (EXR_ERR_SUCCESS != exr_compress_buffer(
+                if (EXR_ERR_SUCCESS !=
+                    exr_compress_buffer (
                         nullptr,
                         9, // TODO: use default??? the old call to zlib had 9 hardcoded
                         _packedAcBuffer,
@@ -2167,7 +2170,8 @@ DwaCompressor::compress (
             (signed char*) _rleBuffer);
 
         size_t dstLen;
-        if (EXR_ERR_SUCCESS != exr_compress_buffer(
+        if (EXR_ERR_SUCCESS !=
+            exr_compress_buffer (
                 nullptr,
                 9, // TODO: use default??? the old call to zlib had 9 hardcoded
                 _rleBuffer,
@@ -2252,11 +2256,11 @@ DwaCompressor::uncompress (
     //
 
     std::array<uint64_t, NUM_SIZES_SINGLE> counterBuf;
-    memcpy (counterBuf.data (), inPtr, counterBuf.size() * sizeof (uint64_t));
+    memcpy (counterBuf.data (), inPtr, counterBuf.size () * sizeof (uint64_t));
     for (int i = 0; i < NUM_SIZES_SINGLE; ++i)
     {
-        uint64_t*   dst = counterBuf.data() + i;
-        const char* src = (char*) (counterBuf.data() + i);
+        uint64_t*   dst = counterBuf.data () + i;
+        const char* src = (char*) (counterBuf.data () + i);
 
         Xdr::read<CharPtrIO> (src, *dst);
     }
@@ -2265,7 +2269,7 @@ DwaCompressor::uncompress (
     // Unwind all the counter info
     //
 
-    const uint64_t* inPtr64 = counterBuf.data();
+    const uint64_t* inPtr64 = counterBuf.data ();
 
     uint64_t version                 = *(inPtr64 + VERSION);
     uint64_t unknownUncompressedSize = *(inPtr64 + UNKNOWN_UNCOMPRESSED_SIZE);
@@ -2406,12 +2410,12 @@ DwaCompressor::uncompress (
         }
 
         if (EXR_ERR_SUCCESS != exr_uncompress_buffer (
-                nullptr,
-                compressedUnknownBuf,
-                unknownCompressedSize,
-                _planarUncBuffer[UNKNOWN],
-                unknownUncompressedSize,
-                nullptr))
+                                   nullptr,
+                                   compressedUnknownBuf,
+                                   unknownCompressedSize,
+                                   _planarUncBuffer[UNKNOWN],
+                                   unknownUncompressedSize,
+                                   nullptr))
         {
             throw IEX_NAMESPACE::BaseExc ("Error uncompressing UNKNOWN data.");
         }
@@ -2450,7 +2454,8 @@ DwaCompressor::uncompress (
             case DEFLATE: {
                 size_t destLen;
 
-                if (EXR_ERR_SUCCESS != exr_uncompress_buffer (
+                if (EXR_ERR_SUCCESS !=
+                    exr_uncompress_buffer (
                         nullptr,
                         compressedAcBuf,
                         acCompressedSize,
@@ -2523,12 +2528,12 @@ DwaCompressor::uncompress (
         size_t dstLen;
 
         if (EXR_ERR_SUCCESS != exr_uncompress_buffer (
-                nullptr,
-                compressedRleBuf,
-                rleCompressedSize,
-                _rleBuffer,
-                rleUncompressedSize,
-                &dstLen))
+                                   nullptr,
+                                   compressedRleBuf,
+                                   rleCompressedSize,
+                                   _rleBuffer,
+                                   rleUncompressedSize,
+                                   &dstLen))
         {
             throw IEX_NAMESPACE::BaseExc ("Error uncompressing RLE data.");
         }
@@ -2883,7 +2888,8 @@ DwaCompressor::initializeBuffers (size_t& outBufferSize)
 
                 maxOutBufferSize += std::max (
                     2lu * maxLossyDctAcSize + 65536lu,
-                    static_cast<uint64_t> (exr_compress_max_buffer_size (maxLossyDctAcSize)));
+                    static_cast<uint64_t> (
+                        exr_compress_max_buffer_size (maxLossyDctAcSize)));
                 numLossyDctChans++;
                 break;
 
@@ -2923,14 +2929,15 @@ DwaCompressor::initializeBuffers (size_t& outBufferSize)
     // which could take slightly more space
     //
 
-    maxOutBufferSize += static_cast<uint64_t> (exr_compress_max_buffer_size (rleBufferSize));
+    maxOutBufferSize +=
+        static_cast<uint64_t> (exr_compress_max_buffer_size (rleBufferSize));
 
     //
     // And the same goes for the UNKNOWN data
     //
 
-    maxOutBufferSize +=
-        static_cast<uint64_t> (exr_compress_max_buffer_size (unknownBufferSize));
+    maxOutBufferSize += static_cast<uint64_t> (
+        exr_compress_max_buffer_size (unknownBufferSize));
 
     //
     // Allocate a zip/deflate compressor big enough to hold the DC data

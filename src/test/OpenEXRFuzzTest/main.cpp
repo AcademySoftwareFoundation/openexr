@@ -107,10 +107,7 @@ main (int argc, char* argv[])
             cout << ' ' << *i << endl;
         }
     }
-    else if (!testFound)
-    {
-        cout << "No such test: " << argv[1] << endl;
-    }
+    else if (!testFound) { cout << "No such test: " << argv[1] << endl; }
     else
     {
 #ifdef OPENEXR_IMF_HAVE_LINUX_PROCFS

@@ -17,9 +17,20 @@
 static exr_result_t
 default_compress_chunk (exr_encode_pipeline_t* encode)
 {
-    exr_result_t rv;
-    EXR_PROMOTE_CONST_CONTEXT_AND_PART_OR_ERROR_NO_LOCK (
-        encode->context, encode->part_index);
+    exr_result_t          rv;
+    exr_const_context_t   ctxt = encode->context;
+    exr_const_priv_part_t part;
+
+    if (!ctxt) return EXR_ERR_MISSING_CONTEXT_ARG;
+
+    if (encode->part_index < 0 || encode->part_index >= ctxt->num_parts)
+        return ctxt->print_error (
+            ctxt,
+            EXR_ERR_ARGUMENT_OUT_OF_RANGE,
+            "Part index (%d) out of range",
+            encode->part_index);
+
+    part = ctxt->parts[encode->part_index];
 
     rv = internal_encode_alloc_buffer (
         encode,
@@ -28,8 +39,8 @@ default_compress_chunk (exr_encode_pipeline_t* encode)
         &(encode->compressed_alloc_size),
         exr_compress_max_buffer_size (encode->packed_bytes));
     if (rv != EXR_ERR_SUCCESS)
-        return pctxt->print_error (
-            pctxt,
+        return ctxt->print_error (
+            ctxt,
             rv,
             "error allocating buffer %zu",
             exr_compress_max_buffer_size (encode->packed_bytes));
@@ -38,8 +49,8 @@ default_compress_chunk (exr_encode_pipeline_t* encode)
     switch (part->comp_type)
     {
         case EXR_COMPRESSION_NONE:
-            return pctxt->report_error (
-                pctxt,
+            return ctxt->report_error (
+                ctxt,
                 EXR_ERR_INVALID_ARGUMENT,
                 "no compression set but still trying to compress");
 
@@ -57,8 +68,8 @@ default_compress_chunk (exr_encode_pipeline_t* encode)
         case EXR_COMPRESSION_ZSTD: rv = internal_exr_apply_zstd (encode); break;
         case EXR_COMPRESSION_LAST_TYPE:
         default:
-            return pctxt->print_error (
-                pctxt,
+            return ctxt->print_error (
+                ctxt,
                 EXR_ERR_INVALID_ARGUMENT,
                 "Compression technique 0x%02X invalid",
                 (int) part->comp_type);
@@ -71,13 +82,13 @@ default_compress_chunk (exr_encode_pipeline_t* encode)
 static exr_result_t
 default_yield (exr_encode_pipeline_t* encode)
 {
-    exr_result_t rv;
-    EXR_PROMOTE_CONST_CONTEXT_AND_PART_OR_ERROR (
-        encode->context, encode->part_index);
+    exr_result_t        rv;
+    exr_const_context_t ctxt = encode->context;
+    EXR_LOCK_WRITE_AND_DEFINE_PART (encode->part_index);
 
-    rv = internal_validate_next_chunk (encode, pctxt, part);
+    rv = internal_validate_next_chunk (encode, ctxt, part);
 
-    return EXR_UNLOCK_WRITE_AND_RETURN_PCTXT (rv);
+    return EXR_UNLOCK_WRITE_AND_RETURN (rv);
 }
 
 /**************************************/
@@ -159,18 +170,18 @@ exr_encoding_initialize (
     exr_result_t          rv;
     exr_encode_pipeline_t nil = {0};
 
-    EXR_PROMOTE_CONST_CONTEXT_AND_PART_OR_ERROR (ctxt, part_index);
+    EXR_LOCK_WRITE_AND_DEFINE_PART (part_index);
     if (!cinfo || !encode)
-        return EXR_UNLOCK_WRITE_AND_RETURN_PCTXT (
-            pctxt->standard_error (pctxt, EXR_ERR_INVALID_ARGUMENT));
+        return EXR_UNLOCK_WRITE_AND_RETURN (
+            ctxt->standard_error (ctxt, EXR_ERR_INVALID_ARGUMENT));
 
-    if (pctxt->mode != EXR_CONTEXT_WRITING_DATA)
+    if (ctxt->mode != EXR_CONTEXT_WRITING_DATA)
     {
-        if (pctxt->mode == EXR_CONTEXT_WRITE)
-            return EXR_UNLOCK_WRITE_AND_RETURN_PCTXT (
-                pctxt->standard_error (pctxt, EXR_ERR_HEADER_NOT_WRITTEN));
-        return EXR_UNLOCK_WRITE_AND_RETURN_PCTXT (
-            pctxt->standard_error (pctxt, EXR_ERR_NOT_OPEN_WRITE));
+        if (ctxt->mode == EXR_CONTEXT_WRITE)
+            return EXR_UNLOCK_WRITE_AND_RETURN (
+                ctxt->standard_error (ctxt, EXR_ERR_HEADER_NOT_WRITTEN));
+        return EXR_UNLOCK_WRITE_AND_RETURN (
+            ctxt->standard_error (ctxt, EXR_ERR_NOT_OPEN_WRITE));
     }
 
     *encode = nil;
@@ -180,7 +191,7 @@ exr_encoding_initialize (
         &(encode->channel_count),
         encode->_quick_chan_store,
         cinfo,
-        pctxt,
+        ctxt,
         part);
 
     if (rv == EXR_ERR_SUCCESS)
@@ -189,7 +200,7 @@ exr_encoding_initialize (
         encode->context    = ctxt;
         encode->chunk      = *cinfo;
     }
-    return EXR_UNLOCK_WRITE_AND_RETURN_PCTXT (rv);
+    return EXR_UNLOCK_WRITE_AND_RETURN (rv);
 }
 
 /**************************************/
@@ -199,14 +210,14 @@ exr_encoding_choose_default_routines (
     exr_const_context_t ctxt, int part_index, exr_encode_pipeline_t* encode)
 {
     int32_t isdeep = 0;
-    EXR_PROMOTE_CONST_CONTEXT_AND_PART_OR_ERROR (ctxt, part_index);
+    EXR_LOCK_WRITE_AND_DEFINE_PART (part_index);
     if (!encode)
-        return EXR_UNLOCK_WRITE_AND_RETURN_PCTXT (
-            pctxt->standard_error (pctxt, EXR_ERR_INVALID_ARGUMENT));
+        return EXR_UNLOCK_WRITE_AND_RETURN (
+            ctxt->standard_error (ctxt, EXR_ERR_INVALID_ARGUMENT));
 
     if (encode->context != ctxt || encode->part_index != part_index)
-        return EXR_UNLOCK_WRITE_AND_RETURN_PCTXT (pctxt->print_error (
-            pctxt,
+        return EXR_UNLOCK_WRITE_AND_RETURN (ctxt->print_error (
+            ctxt,
             EXR_ERR_INVALID_ARGUMENT,
             "Cross-wired request for default routines from different context / part"));
 
@@ -221,7 +232,7 @@ exr_encoding_choose_default_routines (
     encode->yield_until_ready_fn = &default_yield;
     encode->write_fn             = &default_write_chunk;
 
-    return EXR_UNLOCK_WRITE_AND_RETURN_PCTXT (EXR_ERR_SUCCESS);
+    return EXR_UNLOCK_WRITE_AND_RETURN (EXR_ERR_SUCCESS);
 }
 
 /**************************************/
@@ -235,14 +246,14 @@ exr_encoding_update (
 {
     exr_result_t rv;
 
-    EXR_PROMOTE_CONST_CONTEXT_AND_PART_OR_ERROR (ctxt, part_index);
+    EXR_LOCK_WRITE_AND_DEFINE_PART (part_index);
     if (!cinfo || !encode)
-        return EXR_UNLOCK_WRITE_AND_RETURN_PCTXT (
-            pctxt->standard_error (pctxt, EXR_ERR_INVALID_ARGUMENT));
+        return EXR_UNLOCK_WRITE_AND_RETURN (
+            ctxt->standard_error (ctxt, EXR_ERR_INVALID_ARGUMENT));
 
     if (encode->context != ctxt || encode->part_index != part_index)
-        return EXR_UNLOCK_WRITE_AND_RETURN_PCTXT (pctxt->print_error (
-            pctxt,
+        return EXR_UNLOCK_WRITE_AND_RETURN (ctxt->print_error (
+            ctxt,
             EXR_ERR_INVALID_ARGUMENT,
             "Cross-wired request for default routines from different context / part"));
 
@@ -254,10 +265,10 @@ exr_encoding_update (
     encode->compressed_bytes          = 0;
 
     rv = internal_coding_update_channel_info (
-        encode->channels, encode->channel_count, cinfo, pctxt, part);
+        encode->channels, encode->channel_count, cinfo, ctxt, part);
 
     if (rv == EXR_ERR_SUCCESS) encode->chunk = *cinfo;
-    return EXR_UNLOCK_WRITE_AND_RETURN_PCTXT (rv);
+    return EXR_UNLOCK_WRITE_AND_RETURN (rv);
 }
 
 /**************************************/
@@ -268,14 +279,14 @@ exr_encoding_run (
 {
     exr_result_t rv           = EXR_ERR_SUCCESS;
     uint64_t     packed_bytes = 0;
-    EXR_PROMOTE_CONST_CONTEXT_AND_PART_OR_ERROR (ctxt, part_index);
+    EXR_LOCK_WRITE_AND_DEFINE_PART (part_index);
 
     if (!encode)
-        return EXR_UNLOCK_WRITE_AND_RETURN_PCTXT (
-            pctxt->standard_error (pctxt, EXR_ERR_INVALID_ARGUMENT));
+        return EXR_UNLOCK_WRITE_AND_RETURN (
+            ctxt->standard_error (ctxt, EXR_ERR_INVALID_ARGUMENT));
     if (encode->context != ctxt || encode->part_index != part_index)
-        return EXR_UNLOCK_WRITE_AND_RETURN_PCTXT (pctxt->report_error (
-            pctxt,
+        return EXR_UNLOCK_WRITE_AND_RETURN (ctxt->report_error (
+            ctxt,
             EXR_ERR_INVALID_ARGUMENT,
             "Invalid request for encoding update from different context / part"));
 
@@ -287,8 +298,8 @@ exr_encoding_run (
                 (((size_t) encode->chunk.width) *
                  ((size_t) encode->chunk.height) * sizeof (int32_t)))
         {
-            return EXR_UNLOCK_WRITE_AND_RETURN_PCTXT (pctxt->report_error (
-                pctxt,
+            return EXR_UNLOCK_WRITE_AND_RETURN (ctxt->report_error (
+                ctxt,
                 EXR_ERR_INVALID_ARGUMENT,
                 "Invalid / missing sample count table for deep data"));
         }
@@ -301,13 +312,13 @@ exr_encoding_run (
         if (encc->height == 0) continue;
 
         if (encc->width == 0)
-            return EXR_UNLOCK_WRITE_AND_RETURN_PCTXT (pctxt->print_error (
-                pctxt,
+            return EXR_UNLOCK_WRITE_AND_RETURN (ctxt->print_error (
+                ctxt,
                 EXR_ERR_INVALID_ARGUMENT,
                 "Unexpected 0-width chunk to encode"));
         if (!encc->encode_from_ptr)
-            return EXR_UNLOCK_WRITE_AND_RETURN_PCTXT (pctxt->print_error (
-                pctxt,
+            return EXR_UNLOCK_WRITE_AND_RETURN (ctxt->print_error (
+                ctxt,
                 EXR_ERR_INVALID_ARGUMENT,
                 "Missing channel data pointer - must encode all channels"));
 
@@ -319,8 +330,8 @@ exr_encoding_run (
          */
         if (encc->user_bytes_per_element != 2 &&
             encc->user_bytes_per_element != 4)
-            return EXR_UNLOCK_WRITE_AND_RETURN_PCTXT (pctxt->print_error (
-                pctxt,
+            return EXR_UNLOCK_WRITE_AND_RETURN (ctxt->print_error (
+                ctxt,
                 EXR_ERR_INVALID_ARGUMENT,
                 "Invalid / unsupported output bytes per element (%d) for channel %c (%s)",
                 (int) encc->user_bytes_per_element,
@@ -330,8 +341,8 @@ exr_encoding_run (
         if (encc->user_data_type != (uint16_t) (EXR_PIXEL_HALF) &&
             encc->user_data_type != (uint16_t) (EXR_PIXEL_FLOAT) &&
             encc->user_data_type != (uint16_t) (EXR_PIXEL_UINT))
-            return EXR_UNLOCK_WRITE_AND_RETURN_PCTXT (pctxt->print_error (
-                pctxt,
+            return EXR_UNLOCK_WRITE_AND_RETURN (ctxt->print_error (
+                ctxt,
                 EXR_ERR_INVALID_ARGUMENT,
                 "Invalid / unsupported output data type (%d) for channel %c (%s)",
                 (int) encc->user_data_type,
@@ -361,12 +372,12 @@ exr_encoding_run (
     }
     else if (!encode->packed_buffer || packed_bytes != encode->compressed_bytes)
     {
-        return EXR_UNLOCK_WRITE_AND_RETURN_PCTXT (pctxt->report_error (
-            pctxt,
+        return EXR_UNLOCK_WRITE_AND_RETURN (ctxt->report_error (
+            ctxt,
             EXR_ERR_INVALID_ARGUMENT,
             "Encode pipeline has no packing function declared and packed buffer is null or appears to need packing"));
     }
-    EXR_UNLOCK_WRITE (pctxt);
+    if (ctxt->mode == EXR_CONTEXT_WRITE) internal_exr_unlock (ctxt);
 
     if ((part->storage_mode == EXR_STORAGE_DEEP_SCANLINE ||
          part->storage_mode == EXR_STORAGE_DEEP_TILED) &&
@@ -432,12 +443,13 @@ exr_encoding_run (
 exr_result_t
 exr_encoding_destroy (exr_const_context_t ctxt, exr_encode_pipeline_t* encode)
 {
-    INTERN_EXR_PROMOTE_CONST_CONTEXT_OR_ERROR (ctxt);
+    if (!ctxt) return EXR_ERR_MISSING_CONTEXT_ARG;
+
     if (encode)
     {
         exr_encode_pipeline_t nil = {0};
         if (encode->channels != encode->_quick_chan_store)
-            pctxt->free_fn (encode->channels);
+            ctxt->free_fn (encode->channels);
 
         internal_encode_free_buffer (
             encode,
@@ -466,5 +478,5 @@ exr_encoding_destroy (exr_const_context_t ctxt, exr_encode_pipeline_t* encode)
             &(encode->packed_sample_count_alloc_size));
         *encode = nil;
     }
-    return EXR_UNLOCK_WRITE_AND_RETURN_PCTXT (EXR_ERR_SUCCESS);
+    return EXR_ERR_SUCCESS;
 }

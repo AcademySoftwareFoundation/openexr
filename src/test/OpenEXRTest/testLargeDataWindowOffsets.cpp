@@ -103,10 +103,7 @@ compare (
                         default: cout << "don't know about that\n"; exit (1);
                     }
                 }
-                else
-                {
-                    writtenHalf = half (i.slice ().fillValue);
-                }
+                else { writtenHalf = half (i.slice ().fillValue); }
 
                 if (writtenHalf.bits () != readHalf.bits ())
                 {
@@ -155,10 +152,7 @@ setupBuffer (
     size_t size = samples * 4;
 
     if (writing) { writingBuffer.resize (size); }
-    else
-    {
-        readingBuffer.resize (size);
-    }
+    else { readingBuffer.resize (size); }
 
     const char* write_ptr = writing ? &writingBuffer[0] : &readingBuffer[0];
     // fill with random halfs, casting to floats for float channels - don't write NaN values
@@ -178,10 +172,7 @@ setupBuffer (
         {
             *(half*) write_ptr = half (v);
         }
-        else
-        {
-            *(float*) write_ptr = float (v);
-        }
+        else { *(float*) write_ptr = float (v); }
         chan++;
         write_ptr += 4;
         if (chan == activechans) { chan = 0; }
@@ -377,10 +368,7 @@ test (int testCount)
         if (hdr.compression () < 5)
         {
             if (compare (readFrameBuf, writeFrameBuf, dw)) { cout << " OK "; }
-            else
-            {
-                cout << " FAIL" << endl;
-            }
+            else { cout << " FAIL" << endl; }
         }
         cout << "\n";
     }

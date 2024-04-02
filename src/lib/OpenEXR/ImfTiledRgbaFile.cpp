@@ -523,10 +523,7 @@ TiledRgbaOutputFile::writeTile (int dx, int dy, int l)
 #endif
         _toYa->writeTile (dx, dy, l, l);
     }
-    else
-    {
-        _outputFile->writeTile (dx, dy, l);
-    }
+    else { _outputFile->writeTile (dx, dy, l); }
 }
 
 void
@@ -539,10 +536,7 @@ TiledRgbaOutputFile::writeTile (int dx, int dy, int lx, int ly)
 #endif
         _toYa->writeTile (dx, dy, lx, ly);
     }
-    else
-    {
-        _outputFile->writeTile (dx, dy, lx, ly);
-    }
+    else { _outputFile->writeTile (dx, dy, lx, ly); }
 }
 
 void
@@ -558,10 +552,7 @@ TiledRgbaOutputFile::writeTiles (
             for (int dx = dxMin; dx <= dxMax; dx++)
                 _toYa->writeTile (dx, dy, lx, ly);
     }
-    else
-    {
-        _outputFile->writeTiles (dxMin, dxMax, dyMin, dyMax, lx, ly);
-    }
+    else { _outputFile->writeTiles (dxMin, dxMax, dyMin, dyMax, lx, ly); }
 }
 
 void
@@ -1009,10 +1000,7 @@ TiledRgbaInputFile::readTile (int dx, int dy, int l)
 #endif
         _fromYa->readTile (dx, dy, l, l);
     }
-    else
-    {
-        _inputFile->readTile (dx, dy, l);
-    }
+    else { _inputFile->readTile (dx, dy, l); }
 }
 
 void
@@ -1025,10 +1013,7 @@ TiledRgbaInputFile::readTile (int dx, int dy, int lx, int ly)
 #endif
         _fromYa->readTile (dx, dy, lx, ly);
     }
-    else
-    {
-        _inputFile->readTile (dx, dy, lx, ly);
-    }
+    else { _inputFile->readTile (dx, dy, lx, ly); }
 }
 
 void
@@ -1044,10 +1029,7 @@ TiledRgbaInputFile::readTiles (
             for (int dx = dxMin; dx <= dxMax; dx++)
                 _fromYa->readTile (dx, dy, lx, ly);
     }
-    else
-    {
-        _inputFile->readTiles (dxMin, dxMax, dyMin, dyMax, lx, ly);
-    }
+    else { _inputFile->readTiles (dxMin, dxMax, dyMin, dyMax, lx, ly); }
 }
 
 void

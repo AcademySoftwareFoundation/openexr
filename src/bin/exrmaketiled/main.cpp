@@ -38,57 +38,60 @@ usageMessage (ostream& stream, const char* program_name, bool verbose = false)
     if (verbose)
     {
         std::string compressionNames;
-        getCompressionNamesString("/", compressionNames);
+        getCompressionNamesString ("/", compressionNames);
 
-        stream << "\n"
-            "Read an OpenEXR image from infile, produce a tiled\n"
-            "version of the image, and save the result in outfile.\n"
-            "\n"
-            "Options:\n"
-            "\n"
-            "  -o            produces a ONE_LEVEL image (default)\n"
-            "\n"
-            "  -m            produces a MIPMAP_LEVELS multiresolution image\n"
-            "\n"
-            "  -r            produces a RIPMAP_LEVELS multiresolution image\n"
-            "\n"
-            "  -f c          when a MIPMAP_LEVELS or RIPMAP_LEVELS image\n"
-            "                is produced, image channel c will be resampled\n"
-            "                without low-pass filtering.  This option can\n"
-            "                be specified multiple times to disable low-pass\n"
-            "                filtering for multiple channels.\n"
-            "\n"
-            "  -e x y        when a MIPMAP_LEVELS or RIPMAP_LEVELS image\n"
-            "                is produced, low-pass filtering takes samples\n"
-            "                outside the image's data window.  This requires\n"
-            "                extrapolating the image.  Option -e specifies\n"
-            "                how the image is extrapolated horizontally and\n"
-            "                vertically (black/clamp/periodic/mirror, default\n"
-            "                is clamp).\n"
-            "\n"
-            "  -t x y        sets the tile size in the output image to\n"
-            "                x by y pixels (default is 64 by 64)\n"
-            "\n"
-            "  -d            sets level size rounding to ROUND_DOWN (default)\n"
-            "\n"
-            "  -u            sets level size rounding to ROUND_UP\n"
-            "\n"
-            "  -z x          sets the data compression method to x\n"
-            "                (" << compressionNames.c_str() << ",\n"
-            "                default is zip)\n"
-            "\n"
-            "  -v            verbose mode\n"
-             "\n"
-            "  -h, --help    print this message\n"
-            "\n"
-            "      --version print version information\n"
-            "\n"
-            "Multipart Options:\n"
-            "\n"
-            "  -p i          part number, default is 0\n"
-            "\n"
-            "Report bugs via https://github.com/AcademySoftwareFoundation/openexr/issues or email security@openexr.com\n"
-            "";
+        stream
+            << "\n"
+               "Read an OpenEXR image from infile, produce a tiled\n"
+               "version of the image, and save the result in outfile.\n"
+               "\n"
+               "Options:\n"
+               "\n"
+               "  -o            produces a ONE_LEVEL image (default)\n"
+               "\n"
+               "  -m            produces a MIPMAP_LEVELS multiresolution image\n"
+               "\n"
+               "  -r            produces a RIPMAP_LEVELS multiresolution image\n"
+               "\n"
+               "  -f c          when a MIPMAP_LEVELS or RIPMAP_LEVELS image\n"
+               "                is produced, image channel c will be resampled\n"
+               "                without low-pass filtering.  This option can\n"
+               "                be specified multiple times to disable low-pass\n"
+               "                filtering for multiple channels.\n"
+               "\n"
+               "  -e x y        when a MIPMAP_LEVELS or RIPMAP_LEVELS image\n"
+               "                is produced, low-pass filtering takes samples\n"
+               "                outside the image's data window.  This requires\n"
+               "                extrapolating the image.  Option -e specifies\n"
+               "                how the image is extrapolated horizontally and\n"
+               "                vertically (black/clamp/periodic/mirror, default\n"
+               "                is clamp).\n"
+               "\n"
+               "  -t x y        sets the tile size in the output image to\n"
+               "                x by y pixels (default is 64 by 64)\n"
+               "\n"
+               "  -d            sets level size rounding to ROUND_DOWN (default)\n"
+               "\n"
+               "  -u            sets level size rounding to ROUND_UP\n"
+               "\n"
+               "  -z x          sets the data compression method to x\n"
+               "                ("
+            << compressionNames.c_str ()
+            << ",\n"
+               "                default is zip)\n"
+               "\n"
+               "  -v            verbose mode\n"
+               "\n"
+               "  -h, --help    print this message\n"
+               "\n"
+               "      --version print version information\n"
+               "\n"
+               "Multipart Options:\n"
+               "\n"
+               "  -p i          part number, default is 0\n"
+               "\n"
+               "Report bugs via https://github.com/AcademySoftwareFoundation/openexr/issues or email security@openexr.com\n"
+               "";
     }
 }
 
@@ -101,7 +104,7 @@ getCompression (const string& str)
     {
         std::stringstream e;
         e << "Unknown compression method \"" << str << "\"";
-        throw invalid_argument(e.str());
+        throw invalid_argument (e.str ());
     }
 
     return c;
@@ -113,23 +116,14 @@ getExtrapolation (const string& str)
     Extrapolation e;
 
     if (str == "black" || str == "BLACK") { e = BLACK; }
-    else if (str == "clamp" || str == "CLAMP")
-    {
-        e = CLAMP;
-    }
-    else if (str == "periodic" || str == "PERIODIC")
-    {
-        e = PERIODIC;
-    }
-    else if (str == "mirror" || str == "MIRROR")
-    {
-        e = MIRROR;
-    }
+    else if (str == "clamp" || str == "CLAMP") { e = CLAMP; }
+    else if (str == "periodic" || str == "PERIODIC") { e = PERIODIC; }
+    else if (str == "mirror" || str == "MIRROR") { e = MIRROR; }
     else
     {
         std::stringstream e;
         e << "Unknown extrapolation method \"" << str << "\"";
-        throw invalid_argument(e.str());
+        throw invalid_argument (e.str ());
     }
 
     return e;
@@ -139,7 +133,7 @@ void
 getPartNum (int argc, char** argv, int& i, int* j)
 {
     if (i > argc - 2)
-        throw invalid_argument("Missing part num with -p option");
+        throw invalid_argument ("Missing part num with -p option");
 
     *j = strtol (argv[i + 1], 0, 0);
     cout << "part number: " << *j << endl;
@@ -214,7 +208,8 @@ main (int argc, char** argv)
                 //
 
                 if (i > argc - 2)
-                    throw invalid_argument("missing filter value with -f option");
+                    throw invalid_argument (
+                        "missing filter value with -f option");
 
                 doNotFilter.insert (argv[i + 1]);
                 i += 2;
@@ -226,7 +221,8 @@ main (int argc, char** argv)
                 //
 
                 if (i > argc - 3)
-                    throw invalid_argument("missing extrapolation values with -e option");
+                    throw invalid_argument (
+                        "missing extrapolation values with -e option");
 
                 extX = getExtrapolation (argv[i + 1]);
                 extY = getExtrapolation (argv[i + 2]);
@@ -239,13 +235,14 @@ main (int argc, char** argv)
                 //
 
                 if (i > argc - 3)
-                    throw invalid_argument("missing tile size with -t option");
+                    throw invalid_argument ("missing tile size with -t option");
 
                 tileSizeX = strtol (argv[i + 1], 0, 0);
                 tileSizeY = strtol (argv[i + 2], 0, 0);
 
                 if (tileSizeX <= 0 || tileSizeY <= 0)
-                    throw invalid_argument("Tile size must be greater than zero");
+                    throw invalid_argument (
+                        "Tile size must be greater than zero");
 
                 i += 3;
             }
@@ -274,7 +271,8 @@ main (int argc, char** argv)
                 //
 
                 if (i > argc - 2)
-                    throw invalid_argument("Missing compression value with -z option");
+                    throw invalid_argument (
+                        "Missing compression value with -z option");
 
                 compression = getCompression (argv[i + 1]);
                 i += 2;
@@ -303,13 +301,14 @@ main (int argc, char** argv)
             }
             else if (!strcmp (argv[i], "--version"))
             {
-                const char* libraryVersion = getLibraryVersion();
-            
+                const char* libraryVersion = getLibraryVersion ();
+
                 cout << "exrmaketiled (OpenEXR) " << OPENEXR_VERSION_STRING;
-                if (strcmp(libraryVersion, OPENEXR_VERSION_STRING))
+                if (strcmp (libraryVersion, OPENEXR_VERSION_STRING))
                     cout << "(OpenEXR version " << libraryVersion << ")";
                 cout << " https://openexr.com" << endl;
-                cout << "Copyright (c) Contributors to the OpenEXR Project" << endl;
+                cout << "Copyright (c) Contributors to the OpenEXR Project"
+                     << endl;
                 cout << "License BSD-3-Clause" << endl;
                 return 0;
             }
@@ -318,12 +317,12 @@ main (int argc, char** argv)
                 //
                 // Image file name
                 //
-            
+
                 if (inFile == 0)
                     inFile = argv[i];
                 else
                     outFile = argv[i];
-            
+
                 i += 1;
             }
         }
@@ -335,7 +334,7 @@ main (int argc, char** argv)
         }
 
         if (!strcmp (inFile, outFile))
-            throw invalid_argument("Input and output cannot be the same file");
+            throw invalid_argument ("Input and output cannot be the same file");
 
         //
         // Load inFile, and save a tiled version in outFile.
@@ -351,15 +350,14 @@ main (int argc, char** argv)
             if (partnum < 0 || partnum >= parts)
             {
                 std::stringstream e;
-                e << "You asked for part " << partnum << " in "
-                  << inFile
+                e << "You asked for part " << partnum << " in " << inFile
                   << ", which only has " << parts << " parts";
-                throw invalid_argument(e.str());
+                throw invalid_argument (e.str ());
             }
 
             Header h = input.header (partnum);
             if (h.type () == DEEPTILE || h.type () == DEEPSCANLINE)
-                throw invalid_argument("Cannot make tile for deep data");
+                throw invalid_argument ("Cannot make tile for deep data");
         }
 
         makeTiled (

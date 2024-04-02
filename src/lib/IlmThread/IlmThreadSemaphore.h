@@ -69,13 +69,12 @@ public:
     ILMTHREAD_EXPORT int  value () const;
 
 private:
-
 #if ILMTHREAD_SEMAPHORE_POSIX
 
     mutable sem_t _semaphore;
 
 #elif ILMTHREAD_SEMAPHORE_OSX
-    
+
     mutable dispatch_semaphore_t _semaphore;
 
 #elif ILMTHREAD_SEMAPHORE_WINDOWS
@@ -83,7 +82,7 @@ private:
     mutable HANDLE _semaphore;
 
 #elif ILMTHREAD_SEMAPHORE_OTHER
-    
+
     //
     // If the platform has threads but no semaphores,
     // then we implement them ourselves using condition variables
@@ -103,8 +102,8 @@ private:
 
     void operator= (const Semaphore& s) = delete;
     Semaphore (const Semaphore& s)      = delete;
-    void operator= (Semaphore&& s) = delete;
-    Semaphore (Semaphore&& s)      = delete;
+    void operator= (Semaphore&& s)      = delete;
+    Semaphore (Semaphore&& s)           = delete;
 };
 
 ILMTHREAD_INTERNAL_NAMESPACE_HEADER_EXIT

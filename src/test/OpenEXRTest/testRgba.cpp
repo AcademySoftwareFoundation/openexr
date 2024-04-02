@@ -348,10 +348,7 @@ void
 writeReadLayers (const std::string& tempDir, bool multiPart)
 {
     if (multiPart) { cout << "\nreading multi-part file" << endl; }
-    else
-    {
-        cout << "\nreading multi-layer file" << endl;
-    }
+    else { cout << "\nreading multi-layer file" << endl; }
 
     std::string fileName = tempDir + "imf_test_multi_layer_rgba.exr";
 

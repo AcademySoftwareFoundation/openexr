@@ -20,23 +20,26 @@
 static void
 usage (FILE* stream, const char* argv0, int verbose)
 {
-    fprintf (stream,
-             "Usage: %s [-v|--verbose] [-a|--all-metadata] [-s|--strict] <filename> [<filename> ...]\n\n",
-             argv0);
+    fprintf (
+        stream,
+        "Usage: %s [-v|--verbose] [-a|--all-metadata] [-s|--strict] <filename> [<filename> ...]\n\n",
+        argv0);
 
     if (verbose)
-        fprintf(stream, "\n"
-                "Read exr files and print values of header attributes\n"
-                "\n"
-                "Options:\n"
-                "  -s, --strict        strict mode\n"
-                "  -a, --all-metadata  print all metadata\n"
-                "  -v, --verbose       verbose mode\n"
-                "  -h, --help          print this message\n"
-                "      --version       print version information\n"
-                "\n"
-                "Report bugs via https://github.com/AcademySoftwareFoundation/openexr/issues or email security@openexr.com\n"
-                "");
+        fprintf (
+            stream,
+            "\n"
+            "Read exr files and print values of header attributes\n"
+            "\n"
+            "Options:\n"
+            "  -s, --strict        strict mode\n"
+            "  -a, --all-metadata  print all metadata\n"
+            "  -v, --verbose       verbose mode\n"
+            "  -h, --help          print this message\n"
+            "      --version       print version information\n"
+            "\n"
+            "Report bugs via https://github.com/AcademySoftwareFoundation/openexr/issues or email security@openexr.com\n"
+            "");
 }
 
 static void
@@ -154,9 +157,11 @@ main (int argc, const char* argv[])
         }
         else if (!strcmp (argv[a], "--version"))
         {
-            printf("exrinfo (OpenEXR) %s  https://openexr.com\n", OPENEXR_VERSION_STRING);
-            printf("Copyright (c) Contributors to the OpenEXR Project\n");
-            printf("License BSD-3-Clause\n");
+            printf (
+                "exrinfo (OpenEXR) %s  https://openexr.com\n",
+                OPENEXR_VERSION_STRING);
+            printf ("Copyright (c) Contributors to the OpenEXR Project\n");
+            printf ("License BSD-3-Clause\n");
             return 0;
         }
         else if (!strcmp (argv[a], "-v") || !strcmp (argv[a], "--verbose"))
@@ -180,10 +185,7 @@ main (int argc, const char* argv[])
             usage (stderr, argv[0], 0);
             return 1;
         }
-        else
-        {
-            rv += process_file (argv[a], verbose, allmeta, strict);
-        }
+        else { rv += process_file (argv[a], verbose, allmeta, strict); }
     }
 
     return rv;

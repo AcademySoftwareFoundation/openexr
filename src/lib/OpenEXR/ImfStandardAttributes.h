@@ -138,7 +138,8 @@ IMF_STD_ATTRIBUTE_DEF (worldToNDC, WorldToNDC, IMATH_NAMESPACE::M44f)
 // and what was at the bottom of the scene being captured.
 //
 
-IMF_STD_ATTRIBUTE_DEF (sensorCenterOffset, SensorCenterOffset, IMATH_NAMESPACE::V2f)
+IMF_STD_ATTRIBUTE_DEF (
+    sensorCenterOffset, SensorCenterOffset, IMATH_NAMESPACE::V2f)
 
 //
 // sensorOverallDimensions -- dimensions of the light-sensitive area of the
@@ -146,9 +147,7 @@ IMF_STD_ATTRIBUTE_DEF (sensorCenterOffset, SensorCenterOffset, IMATH_NAMESPACE::
 // which image data are obtained.
 
 IMF_STD_ATTRIBUTE_DEF (
-    sensorOverallDimensions,
-    SensorOverallDimensions,
-    IMATH_NAMESPACE::V2f)
+    sensorOverallDimensions, SensorOverallDimensions, IMATH_NAMESPACE::V2f)
 
 //
 // sensorPhotositePitch -- distance between centers of sensor photosites,
@@ -166,7 +165,8 @@ IMF_STD_ATTRIBUTE_DEF (sensorPhotositePitch, SensorPhotositePitch, float)
 
 IMF_STD_ATTRIBUTE_DEF (
     sensorAcquisitionRectangle,
-    SensorAcquisitionRectangle, IMATH_NAMESPACE::Box2i)
+    SensorAcquisitionRectangle,
+    IMATH_NAMESPACE::Box2i)
 
 //
 // ascFramingDecisionList -- JSON-encoded description of framing decisions
@@ -176,7 +176,8 @@ IMF_STD_ATTRIBUTE_DEF (
 // If present, the value should be UTF-8-encoded and have a nonzero length.
 //
 
-IMF_STD_ATTRIBUTE_DEF (ascFramingDecisionList, AscFramingDecisionList, std::string)
+IMF_STD_ATTRIBUTE_DEF (
+    ascFramingDecisionList, AscFramingDecisionList, std::string)
 
 //
 // xDensity -- horizontal output density, in pixels per inch.
@@ -230,7 +231,8 @@ IMF_STD_ATTRIBUTE_DEF (cameraSerialNumber, CameraSerialNumber, std::string)
 // If present, the value should be UTF-8-encoded and have a nonzero length.
 //
 
-IMF_STD_ATTRIBUTE_DEF (cameraFirmwareVersion, CameraFirmwareVersion, std::string)
+IMF_STD_ATTRIBUTE_DEF (
+    cameraFirmwareVersion, CameraFirmwareVersion, std::string)
 
 //
 // cameraUuid -- identifies this camera uniquely among all
@@ -307,7 +309,7 @@ IMF_STD_ATTRIBUTE_DEF (cameraCCTSetting, CameraCCTSetting, float)
 // If the camera vendor maps cameraCCTSetting to a point defined by
 // a linear crossfade between a Planckian blackbody locus and loci of
 // CIE D Series illuminants, the slope of the tint isotherm at the
-// exact points where the linear crossfade starts and ends can be 
+// exact points where the linear crossfade starts and ends can be
 // indeterminate and an inverse mapping from chromaticity to a pair
 // of CCT and tint can be one-to-many.
 //
@@ -333,14 +335,15 @@ IMF_STD_ATTRIBUTE_DEF (cameraTintSetting, CameraTintSetting, float)
 // For example, if a physical digital cinema camera was configured with
 // a CCT of 3200K and a tint of -3 (in some camera vendor dependent unit),
 // and the camera output had been processed such that the image containing
-// this attribute was encoded as per SMPTE ST 2065-4:2023, then 
+// this attribute was encoded as per SMPTE ST 2065-4:2023, then
 // the adoptedNeutral attribute would have the value corresponding to
 // the ACES neutral chromaticity, very near that of CIE Illuminant D60,
 // whereas the cameraColorBalance would have a chromaticity much, much
 // warmer than that of the adoptedNeutral attribute.
-// 
+//
 
-IMF_STD_ATTRIBUTE_DEF (cameraColorBalance, CameraColorBalance, IMATH_NAMESPACE::V2f)
+IMF_STD_ATTRIBUTE_DEF (
+    cameraColorBalance, CameraColorBalance, IMATH_NAMESPACE::V2f)
 
 //
 // isoSpeed -- the ISO speed of the film or the ISO setting of the camera
@@ -370,13 +373,13 @@ IMF_STD_ATTRIBUTE_DEF (shutterAngle, ShutterAngle, float)
 // captureRate -- capture rate, in frames per second, of the image
 // sequence to which the image belongs, represented as a rational
 // number
-// 
+//
 // For variable frame rates, time-lapse photography, etc. the capture
 // rate r is calculated as
 //
 //   r = 1 / (tN - tNm1)
 //
-// where tn is the time, in seconds, of the center of frame N's 
+// where tn is the time, in seconds, of the center of frame N's
 // exposure interval, and tNm1 is the time, in seconds, of the center
 // of frame N-1's exposure interval.
 //
@@ -568,8 +571,8 @@ IMF_STD_ATTRIBUTE_DEF (framesPerSecond, FramesPerSecond, Rational)
 //
 // imageCounter -- an image number
 //
-// For a sequence of images, the image number increases 
-// when the images are accessed in the intended play order. 
+// For a sequence of images, the image number increases
+// when the images are accessed in the intended play order.
 // imageCounter can be used to order frames when more standard
 // ordering systems are inapplicable, including but not limited
 // to uniquely identifying frames of high-speed photography that
@@ -626,8 +629,16 @@ IMF_STD_ATTRIBUTE_DEF (adoptedNeutral, AdoptedNeutral, IMATH_NAMESPACE::V2f)
 // If present, values should be UTF-8-encoded and have nonzero length.
 //
 
-IMF_STD_ATTRIBUTE_DEF_DEPRECATED (renderingTransform, RenderingTransform, std::string, "this attribute is obsolete as of OpenEXR v3.2")
-IMF_STD_ATTRIBUTE_DEF_DEPRECATED (lookModTransform, LookModTransform, std::string, "this attribute is obsolete as of OpenEXR v3.2")
+IMF_STD_ATTRIBUTE_DEF_DEPRECATED (
+    renderingTransform,
+    RenderingTransform,
+    std::string,
+    "this attribute is obsolete as of OpenEXR v3.2")
+IMF_STD_ATTRIBUTE_DEF_DEPRECATED (
+    lookModTransform,
+    LookModTransform,
+    std::string,
+    "this attribute is obsolete as of OpenEXR v3.2")
 
 //
 // envmap -- if this attribute is present, the image represents

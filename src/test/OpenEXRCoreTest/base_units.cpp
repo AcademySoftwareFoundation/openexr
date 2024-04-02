@@ -44,8 +44,8 @@ testBase (const std::string& tempdir)
         std::cerr << "'" << std::endl;
         EXRCORE_TEST (false);
     }
-    std::cout << "Testing OpenEXR library version: '" << major << "." << minor << "."
-              << patch;
+    std::cout << "Testing OpenEXR library version: '" << major << "." << minor
+              << "." << patch;
     if (extra[0] != '\0') std::cout << extra;
     std::cout << "'" << std::endl;
 
@@ -362,30 +362,31 @@ testBaseDebug (const std::string& tempdir)
     exr_print_context_info (c, 1);
 }
 
-void testCPUIdent (const std::string& tempdir)
+void
+testCPUIdent (const std::string& tempdir)
 {
-    int hf16c, havx, hsse2;
+    int                          hf16c, havx, hsse2;
     OPENEXR_IMF_NAMESPACE::CpuId id;
     check_for_x86_simd (&hf16c, &havx, &hsse2);
 
-    if (hf16c != (int)id.f16c)
+    if (hf16c != (int) id.f16c)
     {
-        std::cerr
-            << "CPU Id test f16c mismatch: " << hf16c << " vs " << (int)id.f16c << std::endl;
+        std::cerr << "CPU Id test f16c mismatch: " << hf16c << " vs "
+                  << (int) id.f16c << std::endl;
         EXRCORE_TEST (false);
     }
 
-    if (havx != (int)id.avx)
+    if (havx != (int) id.avx)
     {
-        std::cerr
-            << "CPU Id test avx mismatch: " << havx << " vs " << (int)id.avx << std::endl;
+        std::cerr << "CPU Id test avx mismatch: " << havx << " vs "
+                  << (int) id.avx << std::endl;
         EXRCORE_TEST (false);
     }
 
-    if (hsse2 != (int)id.sse2)
+    if (hsse2 != (int) id.sse2)
     {
-        std::cerr
-            << "CPU Id test sse2 mismatch: " << hsse2 << " vs " << (int)id.sse2 << std::endl;
+        std::cerr << "CPU Id test sse2 mismatch: " << hsse2 << " vs "
+                  << (int) id.sse2 << std::endl;
         EXRCORE_TEST (false);
     }
 
@@ -400,7 +401,8 @@ void testCPUIdent (const std::string& tempdir)
 #endif
 }
 
-void testHalf (const std::string& tempdir)
+void
+testHalf (const std::string& tempdir)
 {
     EXRCORE_TEST (half_to_float (0) == 0.f);
     EXRCORE_TEST (float_to_half (0.f) == 0);
@@ -418,4 +420,3 @@ void testHalf (const std::string& tempdir)
     EXRCORE_TEST (uint_to_float (0) == 0.f);
     EXRCORE_TEST (uint_to_float_int (0) == 0);
 }
-

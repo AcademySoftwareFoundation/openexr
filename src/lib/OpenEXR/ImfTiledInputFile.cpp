@@ -122,10 +122,10 @@ struct TileBuffer
     TileBuffer (Compressor* const comp);
     ~TileBuffer ();
 
-    TileBuffer (const TileBuffer& other) = delete;
+    TileBuffer (const TileBuffer& other)            = delete;
     TileBuffer& operator= (const TileBuffer& other) = delete;
     TileBuffer (TileBuffer&& other)                 = delete;
-    TileBuffer& operator= (TileBuffer&& other) = delete;
+    TileBuffer& operator= (TileBuffer&& other)      = delete;
 
     inline void wait () { _sem.wait (); }
     inline void post () { _sem.post (); }
@@ -219,10 +219,10 @@ struct TiledInputFile::Data
     Data (int numThreads);
     ~Data ();
 
-    Data (const Data& other) = delete;
+    Data (const Data& other)            = delete;
     Data& operator= (const Data& other) = delete;
     Data (Data&& other)                 = delete;
-    Data& operator= (Data&& other) = delete;
+    Data& operator= (Data&& other)      = delete;
 
     static const int gLargeChunkTableSize = 1024 * 1024;
     void

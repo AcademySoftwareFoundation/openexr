@@ -44,8 +44,8 @@ void
 printCompression (Compression c)
 {
     std::string desc;
-    getCompressionDescriptionFromId(c, desc);
-    cout << desc.c_str();
+    getCompressionDescriptionFromId (c, desc);
+    cout << desc.c_str ();
 }
 
 void
@@ -442,15 +442,16 @@ usageMessage (ostream& stream, const char* program_name, bool verbose = false)
     stream << "Usage: " << program_name << " imagefile [imagefile ...]\n";
 
     if (verbose)
-        stream << "\n"
-            "Read exr files and print the values of header attributes.\n"
-            "\n"
-            "Options:\n"
-            "  -h, --help        print this message\n"
-            "      --version     print version information\n"
-            "\n"
-            "Report bugs via https://github.com/AcademySoftwareFoundation/openexr/issues or email security@openexr.com\n"
-            "";
+        stream
+            << "\n"
+               "Read exr files and print the values of header attributes.\n"
+               "\n"
+               "Options:\n"
+               "  -h, --help        print this message\n"
+               "      --version     print version information\n"
+               "\n"
+               "Report bugs via https://github.com/AcademySoftwareFoundation/openexr/issues or email security@openexr.com\n"
+               "";
 }
 
 int
@@ -464,17 +465,17 @@ main (int argc, char** argv)
 
     for (int i = 1; i < argc; ++i)
     {
-        if (!strcmp (argv[i], "-h") || !strcmp(argv[1], "--help"))
+        if (!strcmp (argv[i], "-h") || !strcmp (argv[1], "--help"))
         {
             usageMessage (cout, "exrheader", true);
             return 0;
         }
         else if (!strcmp (argv[i], "--version"))
         {
-            const char* libraryVersion = getLibraryVersion();
-            
+            const char* libraryVersion = getLibraryVersion ();
+
             cout << "exrheader (OpenEXR) " << OPENEXR_VERSION_STRING;
-            if (strcmp(libraryVersion, OPENEXR_VERSION_STRING))
+            if (strcmp (libraryVersion, OPENEXR_VERSION_STRING))
                 cout << "(OpenEXR version " << libraryVersion << ")";
             cout << " https://openexr.com" << endl;
             cout << "Copyright (c) Contributors to the OpenEXR Project" << endl;

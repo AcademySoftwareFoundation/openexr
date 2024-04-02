@@ -14,6 +14,7 @@ OpenEXR Concepts
    TechnicalIntroduction
    StandardAttributes
    MultiViewOpenEXR
+   SceneLinear
    InterpretingDeepPixels
    TheoryDeepPixels
    DeepIDsSpecification

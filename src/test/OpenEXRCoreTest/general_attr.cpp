@@ -88,7 +88,7 @@ createDummyFile (const char* test)
     // fail.  commented out until we've investigated.
 
     // cinit.free_fn = failable_free;
-    
+
     EXRCORE_TEST_RVAL (
         exr_start_write (&f, test, EXR_WRITE_FILE_DIRECTLY, &cinit));
     EXRCORE_TEST_RVAL (exr_add_part (f, "dummy", EXR_STORAGE_SCANLINE, NULL));
@@ -1764,7 +1764,7 @@ testXDR (const std::string& tempdir)
     uint16_t v16buf[] = {0xAA00, 0xBB11, 0xCC22, 0xDD33, 0xEE44};
     uint32_t v32buf[] = {0xAA00BB11, 0xCC22DD33};
     uint64_t v64buf[] = {0xAA00BB11CC22DD33, 0xEE44FF5500661177};
-    float v32f = 42.f;
+    float    v32f     = 42.f;
     EXRCORE_TEST (one_to_native64 (one_from_native64 (v64)) == v64);
     EXRCORE_TEST (one_to_native32 (one_from_native32 (v32)) == v32);
     EXRCORE_TEST (one_to_native16 (one_from_native16 (v16)) == v16);

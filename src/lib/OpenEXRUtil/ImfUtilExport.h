@@ -15,7 +15,7 @@
 #if defined(OPENEXR_DLL)
 
 #    if defined(OPENEXRUTIL_EXPORTS)
-#        define IMFUTIL_EXPORT __declspec(dllexport)
+#        define IMFUTIL_EXPORT __declspec (dllexport)
 
 // mingw needs the export when the extern is defined
 #        if defined(__MINGW32__)
@@ -34,7 +34,7 @@
 #        endif
 
 #    else // OPENEXRUTIL_EXPORTS
-#        define IMFUTIL_EXPORT __declspec(dllimport)
+#        define IMFUTIL_EXPORT __declspec (dllimport)
 #        define IMFUTIL_EXPORT_EXTERN_TEMPLATE IMFUTIL_EXPORT
 #        define IMFUTIL_EXPORT_TEMPLATE_INSTANCE
 #        define IMFUTIL_EXPORT_TEMPLATE_TYPE

@@ -146,10 +146,10 @@ public:
     ToYca (OutputFile& outputFile, RgbaChannels rgbaChannels);
     ~ToYca ();
 
-    ToYca (const ToYca& other) = delete;
+    ToYca (const ToYca& other)            = delete;
     ToYca& operator= (const ToYca& other) = delete;
     ToYca (ToYca&& other)                 = delete;
-    ToYca& operator= (ToYca&& other) = delete;
+    ToYca& operator= (ToYca&& other)      = delete;
 
     void setYCRounding (unsigned int roundY, unsigned int roundC);
 
@@ -634,10 +634,7 @@ RgbaOutputFile::writePixels (int numScanLines)
         std::lock_guard<std::mutex> lock (*_toYca);
         _toYca->writePixels (numScanLines);
     }
-    else
-    {
-        _outputFile->writePixels (numScanLines);
-    }
+    else { _outputFile->writePixels (numScanLines); }
 }
 
 int
@@ -648,10 +645,7 @@ RgbaOutputFile::currentScanLine () const
         std::lock_guard<std::mutex> lock (*_toYca);
         return _toYca->currentScanLine ();
     }
-    else
-    {
-        return _outputFile->currentScanLine ();
-    }
+    else { return _outputFile->currentScanLine (); }
 }
 
 const Header&
@@ -742,10 +736,10 @@ public:
     FromYca (InputPart& inputFile, RgbaChannels rgbaChannels);
     ~FromYca ();
 
-    FromYca (const FromYca& other) = delete;
+    FromYca (const FromYca& other)            = delete;
     FromYca& operator= (const FromYca& other) = delete;
     FromYca (FromYca&& other)                 = delete;
-    FromYca& operator= (FromYca&& other) = delete;
+    FromYca& operator= (FromYca&& other)      = delete;
 
     void setFrameBuffer (
         Rgba*         base,

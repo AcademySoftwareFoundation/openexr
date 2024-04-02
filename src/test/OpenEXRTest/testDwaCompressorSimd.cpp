@@ -283,10 +283,7 @@ testDct ()
             {                                                                  \
                 orig._buffer[i] = test._buffer[i] = rand48.nextf ();           \
             }                                                                  \
-            else                                                               \
-            {                                                                  \
-                orig._buffer[i] = test._buffer[i] = 0;                         \
-            }                                                                  \
+            else { orig._buffer[i] = test._buffer[i] = 0; }                    \
         }                                                                      \
         dctInverse8x8_scalar<0> (orig._buffer);                                \
         _func<_n> (test._buffer);                                              \
@@ -353,10 +350,7 @@ testFloatToHalf ()
             {
                 src._buffer[i] = (float) 140000 * (rand48.nextf () - .5);
             }
-            else
-            {
-                src._buffer[i] = (float) (rand48.nextf () - .5);
-            }
+            else { src._buffer[i] = (float) (rand48.nextf () - .5); }
             dst._buffer[i] = 0;
         }
 
@@ -386,10 +380,7 @@ testFloatToHalf ()
                 {
                     src._buffer[i] = (float) 140000 * (rand48.nextf () - .5);
                 }
-                else
-                {
-                    src._buffer[i] = (float) (rand48.nextf () - .5);
-                }
+                else { src._buffer[i] = (float) (rand48.nextf () - .5); }
                 dst._buffer[i] = 0;
             }
 
@@ -437,7 +428,7 @@ testFloatToHalf ()
             }
         }
     }
-    #endif // IMF_HAVE_NEON_AARCH64
+#endif // IMF_HAVE_NEON_AARCH64
 }
 
 //
@@ -497,10 +488,7 @@ testFromHalfZigZag ()
             for (int i = 0; i < 64; ++i)
             {
                 if (i < 32) { h = (half) (140000. * (rand48.nextf () - .5)); }
-                else
-                {
-                    h = (half) (rand48.nextf () - .5);
-                }
+                else { h = (half) (rand48.nextf () - .5); }
                 src._buffer[i] = h.bits ();
             }
 
@@ -521,7 +509,7 @@ testFromHalfZigZag ()
     }     // f16c
 
 #ifdef IMF_HAVE_NEON_AARCH64
-     {
+    {
         const int            numIter = 1000000;
         Rand48               rand48 (0);
         half                 h;
@@ -534,10 +522,7 @@ testFromHalfZigZag ()
             for (int i = 0; i < 64; ++i)
             {
                 if (i < 32) { h = (half) (140000. * (rand48.nextf () - .5)); }
-                else
-                {
-                    h = (half) (rand48.nextf () - .5);
-                }
+                else { h = (half) (rand48.nextf () - .5); }
                 src._buffer[i] = h.bits ();
             }
 

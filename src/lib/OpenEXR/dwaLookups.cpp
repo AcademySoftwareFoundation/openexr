@@ -71,10 +71,10 @@ public:
         , _elements (new unsigned short[1024 * 1024 * 2])
     {}
 
-    LutHeaderWorker (const LutHeaderWorker& other) = delete;
+    LutHeaderWorker (const LutHeaderWorker& other)            = delete;
     LutHeaderWorker& operator= (const LutHeaderWorker& other) = delete;
     LutHeaderWorker (LutHeaderWorker&& other)                 = delete;
-    LutHeaderWorker& operator= (LutHeaderWorker&& other) = delete;
+    LutHeaderWorker& operator= (LutHeaderWorker&& other)      = delete;
 
     ~LutHeaderWorker ()
     {
