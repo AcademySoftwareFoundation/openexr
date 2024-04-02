@@ -24,22 +24,24 @@ using namespace std;
 void
 usageMessage (ostream& stream, const char* program_name, bool verbose = false)
 {
-    stream << "Usage: " << program_name << " [options] imagefile [imagefile ...]\n";
+    stream << "Usage: " << program_name
+           << " [options] imagefile [imagefile ...]\n";
 
     if (verbose)
-        stream << "\n"
-            "Read exr files to validate their contents and the correct behavior of the software.\n"
-            "\n"
-            "Options:\n"
-            "  -m            avoid excessive memory allocation (some files will not be fully checked)\n"
-            "  -t            avoid spending excessive time (some files will not be fully checked)\n"
-            "  -s            use stream API instead of file API\n"
-            "  -c            add core library checks\n"
-            "  -h, --help    print this message\n"
-            "      --version print version information\n"
-            "\n"
-            "Report bugs via https://github.com/AcademySoftwareFoundation/openexr/issues or email security@openexr.com\n"
-            "";
+        stream
+            << "\n"
+               "Read exr files to validate their contents and the correct behavior of the software.\n"
+               "\n"
+               "Options:\n"
+               "  -m            avoid excessive memory allocation (some files will not be fully checked)\n"
+               "  -t            avoid spending excessive time (some files will not be fully checked)\n"
+               "  -s            use stream API instead of file API\n"
+               "  -c            add core library checks\n"
+               "  -h, --help    print this message\n"
+               "      --version print version information\n"
+               "\n"
+               "Report bugs via https://github.com/AcademySoftwareFoundation/openexr/issues or email security@openexr.com\n"
+               "";
 }
 
 bool
@@ -126,26 +128,16 @@ main (int argc, char** argv)
             // Header::setMaxTileSize();
 
             reduceMemory = true;
-
         }
-        else if (!strcmp (argv[i], "-t"))
-        {
-            reduceTime = true;
-        }
-        else if (!strcmp (argv[i], "-s"))
-        {
-            useStream = true;
-        }
-        else if (!strcmp (argv[i], "-c"))
-        {
-            enableCoreCheck = true;
-        }
+        else if (!strcmp (argv[i], "-t")) { reduceTime = true; }
+        else if (!strcmp (argv[i], "-s")) { useStream = true; }
+        else if (!strcmp (argv[i], "-c")) { enableCoreCheck = true; }
         else if (!strcmp (argv[i], "--version"))
         {
-            const char* libraryVersion = getLibraryVersion();
-            
+            const char* libraryVersion = getLibraryVersion ();
+
             cout << "exrcheck (OpenEXR) " << OPENEXR_VERSION_STRING;
-            if (strcmp(libraryVersion, OPENEXR_VERSION_STRING))
+            if (strcmp (libraryVersion, OPENEXR_VERSION_STRING))
                 cout << "(OpenEXR version " << libraryVersion << ")";
             cout << " https://openexr.com" << endl;
             cout << "Copyright (c) Contributors to the OpenEXR Project" << endl;
@@ -176,10 +168,7 @@ main (int argc, char** argv)
                 cout << "bad\n";
                 badFileFound = true;
             }
-            else
-            {
-                cout << "OK\n";
-            }
+            else { cout << "OK\n"; }
         }
     }
 

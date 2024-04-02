@@ -114,13 +114,20 @@ private:
     };
 
 #define DEFINE_EXC_EXP_IMPL(exp, name, base)                                   \
-    exp       name::name () : base () {}                                       \
-    exp       name::name (const char* text) : base (text) {}                   \
-    exp       name::name (const std::string& text) : base (text) {}            \
-    exp       name::name (std::string&& text) : base (std::move (text)) {}     \
-    exp       name::name (std::stringstream& text) : base (text) {}            \
-    exp       name::name (const name& other) : base (other) {}                 \
-    exp       name::name (name&& other) noexcept : base (other) {}             \
+    exp name::name () : base ()                                                \
+    {}                                                                         \
+    exp name::name (const char* text) : base (text)                            \
+    {}                                                                         \
+    exp name::name (const std::string& text) : base (text)                     \
+    {}                                                                         \
+    exp name::name (std::string&& text) : base (std::move (text))              \
+    {}                                                                         \
+    exp name::name (std::stringstream& text) : base (text)                     \
+    {}                                                                         \
+    exp name::name (const name& other) : base (other)                          \
+    {}                                                                         \
+    exp name::name (name&& other) noexcept : base (other)                      \
+    {}                                                                         \
     exp name& name::operator= (name& other)                                    \
     {                                                                          \
         base::operator= (other);                                               \
@@ -131,7 +138,8 @@ private:
         base::operator= (other);                                               \
         return *this;                                                          \
     }                                                                          \
-    exp name::~name () noexcept {}
+    exp name::~name () noexcept                                                \
+    {}
 
 // For backward compatibility.
 #define DEFINE_EXC(name, base) DEFINE_EXC_EXP (, name, base)

@@ -87,10 +87,10 @@ struct MultiPartInputFile::Data : public InputStreamMutex
             delete parts[i];
     }
 
-    Data (const Data& other) = delete;
+    Data (const Data& other)            = delete;
     Data& operator= (const Data& other) = delete;
     Data (Data&& other)                 = delete;
-    Data& operator= (Data&& other) = delete;
+    Data& operator= (Data&& other)      = delete;
 
     template <class T> T* createInputPartT (int partNumber) {}
 };
@@ -198,7 +198,7 @@ MultiPartInputFile::getPart (int partNumber)
 const Header&
 MultiPartInputFile::header (int n) const
 {
-    if (n < 0 || static_cast<size_t>(n) >= _data->_headers.size ())
+    if (n < 0 || static_cast<size_t> (n) >= _data->_headers.size ())
     {
         THROW (
             IEX_NAMESPACE::ArgExc,
@@ -846,7 +846,7 @@ bool
 MultiPartInputFile::partComplete (int part) const
 {
 
-    if (part < 0 || static_cast<size_t>(part) >= _data->_headers.size ())
+    if (part < 0 || static_cast<size_t> (part) >= _data->_headers.size ())
     {
         THROW (
             IEX_NAMESPACE::ArgExc,

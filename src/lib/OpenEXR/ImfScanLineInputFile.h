@@ -40,10 +40,10 @@ public:
     IMF_EXPORT
     virtual ~ScanLineInputFile ();
 
-    ScanLineInputFile (const ScanLineInputFile& other) = delete;
+    ScanLineInputFile (const ScanLineInputFile& other)            = delete;
     ScanLineInputFile& operator= (const ScanLineInputFile& other) = delete;
     ScanLineInputFile (ScanLineInputFile&& other)                 = delete;
-    ScanLineInputFile& operator= (ScanLineInputFile&& other) = delete;
+    ScanLineInputFile& operator= (ScanLineInputFile&& other)      = delete;
 
     //------------------------
     // Access to the file name

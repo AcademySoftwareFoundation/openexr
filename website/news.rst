@@ -13,10 +13,30 @@ News
 .. toctree::
    :caption: News
 
-March 6, 2024 - OpenEXR v3.2.3 Released
-=======================================
+March 26, 2024 - OpenEXR v3.2.4 and OpenEXR v3.1.13 Released
+============================================================
 
 .. _LatestNewsStart:
+
+OpenEXR v3.2.4 is released and available for download from `v3.2.4
+<https://github.com/AcademySoftwareFoundation/openexr/releases/tag/v3.2.4>`_.
+
+Patch release that fixes handling of dwa compression in OpenEXRCore library.
+
+Other miscellaneous changes:
+
+- Add CMake `find_dependency` for `libdeflate`, to fix a vcpkg build error
+- Remove the unused CMake option ``OPENEXR_INSTALL_EXAMPLES``
+- Fix some other compiler warnings.
+
+Also, the dwa bug fix has been back-ported to v3.1 and is available for
+download at `v3.1.13
+<https://github.com/AcademySoftwareFoundation/openexr/releases/tag/v3.1.13>`_.
+
+.. _LatestNewsEnd:
+
+March 6, 2024 - OpenEXR v3.2.3 Released
+=======================================
 
 OpenEXR v3.2.3 is released and available for download from `v3.2.3
 <https://github.com/AcademySoftwareFoundation/openexr/releases/tag/v3.2.3>`_.
@@ -42,8 +62,6 @@ python wheels to `pypi.org <http://pypi.org>`_.
 
 This release also introduces the process of signing release artifacts
 via `sigstore <https://www.sigstore.dev>`_.
-
-.. _LatestNewsEnd:
 
 February 28, 2024 - Imath v3.1.11 Released
 ==========================================

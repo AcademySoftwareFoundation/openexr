@@ -75,10 +75,10 @@ public:
 private:
     Data* _data;
 
-    MultiPartInputFile (const MultiPartInputFile&) = delete;
+    MultiPartInputFile (const MultiPartInputFile&)            = delete;
     MultiPartInputFile& operator= (const MultiPartInputFile&) = delete;
     MultiPartInputFile (MultiPartInputFile&&)                 = delete;
-    MultiPartInputFile& operator= (MultiPartInputFile&&) = delete;
+    MultiPartInputFile& operator= (MultiPartInputFile&&)      = delete;
 
     //
     // used internally by 'Part' types to access individual parts of the multipart file

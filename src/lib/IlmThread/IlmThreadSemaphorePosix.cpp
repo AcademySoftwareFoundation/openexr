@@ -14,9 +14,9 @@
 
 #if ILMTHREAD_SEMAPHORE_POSIX
 
-#include "Iex.h"
-#include <assert.h>
-#include <errno.h>
+#    include "Iex.h"
+#    include <assert.h>
+#    include <errno.h>
 
 ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_ENTER
 

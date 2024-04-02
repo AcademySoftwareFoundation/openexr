@@ -1,0 +1,52 @@
+//
+// this is a graphviz dot file to create images/imageprocessing.png used on the SceneLinear.rst page
+// This is not built automatically.
+// To update:
+// dot -Tpng imageprocessing.dot > images/imageprocessing.png
+// the 'graphviz' package may be required. Remember to commit the updated images/imageprocessing.png image
+//
+   digraph "color processing chain" {
+    layout = "dot";
+    sensor [ label="Sensor",style="filled",fillcolor="gray70"];
+    adc [label = "Analog to digital",style="filled",fillcolor="gray80"];
+    lin [label = "Linearization",style="filled",fillcolor="gray80"];
+    raw [label = "Camera raw file",style="filled",fillcolor="gray80"];
+    bayer [label = "Demosaicing",style="filled",fillcolor="gray80"];
+    wb [label = "White balance",style="filled",fillcolor="gray80"];
+    exr [label = "OpenEXR file",style="filled",fillcolor="gray80"];
+    tone [label = "Tone mapping",style="filled",fillcolor="gray80"];
+    eotf [label = "Apply EOTF",style="filled",fillcolor="gray80"];
+    jpeg [label = "JPEG image file",style="filled",fillcolor="gray80"];
+    display [label = "Output display",style="filled",fillcolor="gray70"];
+
+    sensor -> adc -> lin  [weight=10];
+    { rank=same adc raw;}
+    adc -> raw;
+    raw -> lin;
+    subgraph cluster_input
+    {
+      label="Scene-linear";
+      labeljust="r";
+      fillcolor="gray90";
+      peripheries="0";
+      graph[style="filled,rounded"];
+      lin -> bayer -> wb;
+      { rank=same wb exr}
+      wb -> exr;
+    }
+    wb -> tone [weight=10];
+    exr ->tone;
+    subgraph cluster_output
+    {
+      label="Display-referred";
+      fillcolor="gray90";
+      labeljust="r";
+      peripheries="0";
+      graph[style="filled,rounded"];
+      tone -> eotf [weight=10];
+      { rank=same eotf jpeg;}
+      eotf->jpeg;
+    }
+    jpeg->display;
+    eotf->display [weight=10];
+   }

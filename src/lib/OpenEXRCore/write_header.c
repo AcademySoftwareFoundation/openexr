@@ -19,7 +19,7 @@
 /**************************************/
 
 static exr_result_t
-save_attr_sz (struct _internal_exr_context* ctxt, size_t sz)
+save_attr_sz (exr_context_t ctxt, size_t sz)
 {
     int32_t isz;
 
@@ -36,7 +36,7 @@ save_attr_sz (struct _internal_exr_context* ctxt, size_t sz)
 /**************************************/
 
 static exr_result_t
-save_attr_32 (struct _internal_exr_context* ctxt, void* ptr, int n)
+save_attr_32 (exr_context_t ctxt, void* ptr, int n)
 {
     priv_from_native32 (ptr, n);
 
@@ -50,7 +50,7 @@ save_attr_32 (struct _internal_exr_context* ctxt, void* ptr, int n)
 /**************************************/
 
 static exr_result_t
-save_attr_64 (struct _internal_exr_context* ctxt, void* ptr, int n)
+save_attr_64 (exr_context_t ctxt, void* ptr, int n)
 {
     priv_from_native64 (ptr, n);
 
@@ -64,7 +64,7 @@ save_attr_64 (struct _internal_exr_context* ctxt, void* ptr, int n)
 /**************************************/
 
 static exr_result_t
-save_attr_uint8 (struct _internal_exr_context* ctxt, const exr_attribute_t* a)
+save_attr_uint8 (exr_context_t ctxt, const exr_attribute_t* a)
 {
     exr_result_t rv;
 
@@ -78,7 +78,7 @@ save_attr_uint8 (struct _internal_exr_context* ctxt, const exr_attribute_t* a)
 /**************************************/
 
 static exr_result_t
-save_attr_float (struct _internal_exr_context* ctxt, const exr_attribute_t* a)
+save_attr_float (exr_context_t ctxt, const exr_attribute_t* a)
 {
     exr_result_t rv;
     float        tmp = a->f;
@@ -91,7 +91,7 @@ save_attr_float (struct _internal_exr_context* ctxt, const exr_attribute_t* a)
 /**************************************/
 
 static exr_result_t
-save_attr_int (struct _internal_exr_context* ctxt, const exr_attribute_t* a)
+save_attr_int (exr_context_t ctxt, const exr_attribute_t* a)
 {
     exr_result_t rv;
     int32_t      tmp = a->i;
@@ -104,7 +104,7 @@ save_attr_int (struct _internal_exr_context* ctxt, const exr_attribute_t* a)
 /**************************************/
 
 static exr_result_t
-save_attr_double (struct _internal_exr_context* ctxt, const exr_attribute_t* a)
+save_attr_double (exr_context_t ctxt, const exr_attribute_t* a)
 {
     exr_result_t rv;
     double       tmp = a->d;
@@ -117,7 +117,7 @@ save_attr_double (struct _internal_exr_context* ctxt, const exr_attribute_t* a)
 /**************************************/
 
 static exr_result_t
-save_box2i (struct _internal_exr_context* ctxt, const exr_attribute_t* a)
+save_box2i (exr_context_t ctxt, const exr_attribute_t* a)
 {
     exr_result_t     rv;
     exr_attr_box2i_t tmp = *(a->box2i);
@@ -130,7 +130,7 @@ save_box2i (struct _internal_exr_context* ctxt, const exr_attribute_t* a)
 /**************************************/
 
 static exr_result_t
-save_box2f (struct _internal_exr_context* ctxt, const exr_attribute_t* a)
+save_box2f (exr_context_t ctxt, const exr_attribute_t* a)
 {
     exr_result_t     rv;
     exr_attr_box2f_t tmp = *(a->box2f);
@@ -143,7 +143,7 @@ save_box2f (struct _internal_exr_context* ctxt, const exr_attribute_t* a)
 /**************************************/
 
 static exr_result_t
-save_chlist (struct _internal_exr_context* ctxt, const exr_attribute_t* a)
+save_chlist (exr_context_t ctxt, const exr_attribute_t* a)
 {
     exr_result_t rv;
     size_t       attrsz = 0;
@@ -204,8 +204,7 @@ save_chlist (struct _internal_exr_context* ctxt, const exr_attribute_t* a)
 /**************************************/
 
 static exr_result_t
-save_chromaticities (
-    struct _internal_exr_context* ctxt, const exr_attribute_t* a)
+save_chromaticities (exr_context_t ctxt, const exr_attribute_t* a)
 {
     exr_result_t              rv;
     exr_attr_chromaticities_t tmp = *(a->chromaticities);
@@ -218,7 +217,7 @@ save_chromaticities (
 /**************************************/
 
 static exr_result_t
-save_float_vector (struct _internal_exr_context* ctxt, const exr_attribute_t* a)
+save_float_vector (exr_context_t ctxt, const exr_attribute_t* a)
 {
     exr_result_t rv;
 
@@ -259,7 +258,7 @@ save_float_vector (struct _internal_exr_context* ctxt, const exr_attribute_t* a)
 /**************************************/
 
 static exr_result_t
-save_keycode (struct _internal_exr_context* ctxt, const exr_attribute_t* a)
+save_keycode (exr_context_t ctxt, const exr_attribute_t* a)
 {
     exr_result_t       rv;
     exr_attr_keycode_t tmp = *(a->keycode);
@@ -272,7 +271,7 @@ save_keycode (struct _internal_exr_context* ctxt, const exr_attribute_t* a)
 /**************************************/
 
 static exr_result_t
-save_m33f (struct _internal_exr_context* ctxt, const exr_attribute_t* a)
+save_m33f (exr_context_t ctxt, const exr_attribute_t* a)
 {
     exr_result_t    rv;
     exr_attr_m33f_t tmp = *(a->m33f);
@@ -285,7 +284,7 @@ save_m33f (struct _internal_exr_context* ctxt, const exr_attribute_t* a)
 /**************************************/
 
 static exr_result_t
-save_m33d (struct _internal_exr_context* ctxt, const exr_attribute_t* a)
+save_m33d (exr_context_t ctxt, const exr_attribute_t* a)
 {
     exr_result_t    rv;
     exr_attr_m33d_t tmp = *(a->m33d);
@@ -298,7 +297,7 @@ save_m33d (struct _internal_exr_context* ctxt, const exr_attribute_t* a)
 /**************************************/
 
 static exr_result_t
-save_m44f (struct _internal_exr_context* ctxt, const exr_attribute_t* a)
+save_m44f (exr_context_t ctxt, const exr_attribute_t* a)
 {
     exr_result_t    rv;
     exr_attr_m44f_t tmp = *(a->m44f);
@@ -311,7 +310,7 @@ save_m44f (struct _internal_exr_context* ctxt, const exr_attribute_t* a)
 /**************************************/
 
 static exr_result_t
-save_m44d (struct _internal_exr_context* ctxt, const exr_attribute_t* a)
+save_m44d (exr_context_t ctxt, const exr_attribute_t* a)
 {
     exr_result_t    rv;
     exr_attr_m44d_t tmp = *(a->m44d);
@@ -324,7 +323,7 @@ save_m44d (struct _internal_exr_context* ctxt, const exr_attribute_t* a)
 /**************************************/
 
 static exr_result_t
-save_preview (struct _internal_exr_context* ctxt, const exr_attribute_t* a)
+save_preview (exr_context_t ctxt, const exr_attribute_t* a)
 {
     exr_result_t rv;
     uint32_t     sizes[2];
@@ -346,7 +345,7 @@ save_preview (struct _internal_exr_context* ctxt, const exr_attribute_t* a)
 /**************************************/
 
 static exr_result_t
-save_rational (struct _internal_exr_context* ctxt, const exr_attribute_t* a)
+save_rational (exr_context_t ctxt, const exr_attribute_t* a)
 {
     exr_result_t        rv;
     exr_attr_rational_t tmp = *(a->rational);
@@ -359,7 +358,7 @@ save_rational (struct _internal_exr_context* ctxt, const exr_attribute_t* a)
 /**************************************/
 
 static exr_result_t
-save_string (struct _internal_exr_context* ctxt, const exr_attribute_t* a)
+save_string (exr_context_t ctxt, const exr_attribute_t* a)
 {
     exr_result_t       rv;
     exr_attr_string_t* tmp = a->string;
@@ -377,8 +376,7 @@ save_string (struct _internal_exr_context* ctxt, const exr_attribute_t* a)
 /**************************************/
 
 static exr_result_t
-save_string_vector (
-    struct _internal_exr_context* ctxt, const exr_attribute_t* a)
+save_string_vector (exr_context_t ctxt, const exr_attribute_t* a)
 {
     exr_result_t rv;
     size_t       attrsz = 0;
@@ -411,7 +409,7 @@ save_string_vector (
 /**************************************/
 
 static exr_result_t
-save_tiledesc (struct _internal_exr_context* ctxt, const exr_attribute_t* a)
+save_tiledesc (exr_context_t ctxt, const exr_attribute_t* a)
 {
     exr_result_t rv;
     uint32_t     sizes[2];
@@ -434,7 +432,7 @@ save_tiledesc (struct _internal_exr_context* ctxt, const exr_attribute_t* a)
 /**************************************/
 
 static exr_result_t
-save_timecode (struct _internal_exr_context* ctxt, const exr_attribute_t* a)
+save_timecode (exr_context_t ctxt, const exr_attribute_t* a)
 {
     exr_result_t        rv;
     exr_attr_timecode_t tmp = *(a->timecode);
@@ -447,7 +445,7 @@ save_timecode (struct _internal_exr_context* ctxt, const exr_attribute_t* a)
 /**************************************/
 
 static exr_result_t
-save_v2i (struct _internal_exr_context* ctxt, const exr_attribute_t* a)
+save_v2i (exr_context_t ctxt, const exr_attribute_t* a)
 {
     exr_result_t   rv;
     exr_attr_v2i_t tmp = *(a->v2i);
@@ -460,7 +458,7 @@ save_v2i (struct _internal_exr_context* ctxt, const exr_attribute_t* a)
 /**************************************/
 
 static exr_result_t
-save_v2f (struct _internal_exr_context* ctxt, const exr_attribute_t* a)
+save_v2f (exr_context_t ctxt, const exr_attribute_t* a)
 {
     exr_result_t   rv;
     exr_attr_v2f_t tmp = *(a->v2f);
@@ -473,7 +471,7 @@ save_v2f (struct _internal_exr_context* ctxt, const exr_attribute_t* a)
 /**************************************/
 
 static exr_result_t
-save_v2d (struct _internal_exr_context* ctxt, const exr_attribute_t* a)
+save_v2d (exr_context_t ctxt, const exr_attribute_t* a)
 {
     exr_result_t   rv;
     exr_attr_v2d_t tmp = *(a->v2d);
@@ -486,7 +484,7 @@ save_v2d (struct _internal_exr_context* ctxt, const exr_attribute_t* a)
 /**************************************/
 
 static exr_result_t
-save_v3i (struct _internal_exr_context* ctxt, const exr_attribute_t* a)
+save_v3i (exr_context_t ctxt, const exr_attribute_t* a)
 {
     exr_result_t   rv;
     exr_attr_v3i_t tmp = *(a->v3i);
@@ -499,7 +497,7 @@ save_v3i (struct _internal_exr_context* ctxt, const exr_attribute_t* a)
 /**************************************/
 
 static exr_result_t
-save_v3f (struct _internal_exr_context* ctxt, const exr_attribute_t* a)
+save_v3f (exr_context_t ctxt, const exr_attribute_t* a)
 {
     exr_result_t   rv;
     exr_attr_v3f_t tmp = *(a->v3f);
@@ -512,7 +510,7 @@ save_v3f (struct _internal_exr_context* ctxt, const exr_attribute_t* a)
 /**************************************/
 
 static exr_result_t
-save_v3d (struct _internal_exr_context* ctxt, const exr_attribute_t* a)
+save_v3d (exr_context_t ctxt, const exr_attribute_t* a)
 {
     exr_result_t   rv;
     exr_attr_v3d_t tmp = *(a->v3d);
@@ -525,7 +523,7 @@ save_v3d (struct _internal_exr_context* ctxt, const exr_attribute_t* a)
 /**************************************/
 
 static exr_result_t
-save_opaque (struct _internal_exr_context* ctxt, const exr_attribute_t* a)
+save_opaque (exr_context_t ctxt, const exr_attribute_t* a)
 {
     exr_result_t rv;
     int32_t      sz    = 0;
@@ -545,7 +543,7 @@ save_opaque (struct _internal_exr_context* ctxt, const exr_attribute_t* a)
 /**************************************/
 
 static exr_result_t
-save_attr (struct _internal_exr_context* ctxt, const exr_attribute_t* a)
+save_attr (exr_context_t ctxt, const exr_attribute_t* a)
 {
     exr_result_t rv;
 
@@ -601,7 +599,7 @@ save_attr (struct _internal_exr_context* ctxt, const exr_attribute_t* a)
 /**************************************/
 
 exr_result_t
-internal_exr_write_header (struct _internal_exr_context* ctxt)
+internal_exr_write_header (exr_context_t ctxt)
 {
     exr_result_t rv;
     uint32_t     magic_and_version[2];
@@ -629,7 +627,7 @@ internal_exr_write_header (struct _internal_exr_context* ctxt)
 
     for (int p = 0; rv == EXR_ERR_SUCCESS && p < ctxt->num_parts; ++p)
     {
-        struct _internal_exr_part* curp = ctxt->parts[p];
+        exr_priv_part_t curp = ctxt->parts[p];
         if (ctxt->legacy_header)
         {
             for (int a = 0; a < curp->attributes.num_attributes; ++a)

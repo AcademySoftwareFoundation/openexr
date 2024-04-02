@@ -17,11 +17,18 @@ exr_result_t
 exr_get_count (exr_const_context_t ctxt, int* count)
 {
     int cnt;
-    EXR_PROMOTE_CONST_CONTEXT_OR_ERROR (ctxt);
-    cnt = pctxt->num_parts;
-    EXR_UNLOCK_WRITE (pctxt);
 
-    if (!count) return pctxt->standard_error (pctxt, EXR_ERR_INVALID_ARGUMENT);
+    if (!ctxt) return EXR_ERR_MISSING_CONTEXT_ARG;
+    if (!count) return ctxt->standard_error (ctxt, EXR_ERR_INVALID_ARGUMENT);
+
+    if (ctxt->mode == EXR_CONTEXT_WRITE)
+    {
+        internal_exr_lock (ctxt);
+        cnt = ctxt->num_parts;
+        internal_exr_unlock (ctxt);
+    }
+    else
+        cnt = ctxt->num_parts;
 
     *count = cnt;
     return EXR_ERR_SUCCESS;
@@ -33,11 +40,11 @@ exr_result_t
 exr_get_storage (exr_const_context_t ctxt, int part_index, exr_storage_t* out)
 {
     exr_storage_t smode;
-    EXR_PROMOTE_CONST_CONTEXT_AND_PART_OR_ERROR (ctxt, part_index);
+    EXR_LOCK_WRITE_AND_DEFINE_PART (part_index);
     smode = part->storage_mode;
-    EXR_UNLOCK_WRITE (pctxt);
+    if (ctxt->mode == EXR_CONTEXT_WRITE) internal_exr_unlock (ctxt);
 
-    if (!out) return pctxt->standard_error (pctxt, EXR_ERR_INVALID_ARGUMENT);
+    if (!out) return ctxt->standard_error (ctxt, EXR_ERR_INVALID_ARGUMENT);
 
     *out = smode;
     return EXR_ERR_SUCCESS;
@@ -52,20 +59,20 @@ exr_add_part (
     exr_storage_t type,
     int*          new_index)
 {
-    exr_result_t rv;
-    int32_t      attrsz  = -1;
-    const char*  typestr = NULL;
+    exr_result_t    rv;
+    int32_t         attrsz  = -1;
+    const char*     typestr = NULL;
+    exr_priv_part_t part    = NULL;
 
-    struct _internal_exr_part* part = NULL;
+    if (!ctxt) return EXR_ERR_MISSING_CONTEXT_ARG;
+    internal_exr_lock (ctxt);
 
-    EXR_PROMOTE_LOCKED_CONTEXT_OR_ERROR (ctxt);
+    if (ctxt->mode != EXR_CONTEXT_WRITE)
+        return EXR_UNLOCK_AND_RETURN (
+            ctxt->standard_error (ctxt, EXR_ERR_NOT_OPEN_WRITE));
 
-    if (pctxt->mode != EXR_CONTEXT_WRITE)
-        return EXR_UNLOCK_AND_RETURN_PCTXT (
-            pctxt->standard_error (pctxt, EXR_ERR_NOT_OPEN_WRITE));
-
-    rv = internal_exr_add_part (pctxt, &part, new_index);
-    if (rv != EXR_ERR_SUCCESS) return EXR_UNLOCK_AND_RETURN_PCTXT (rv);
+    rv = internal_exr_add_part (ctxt, &part, new_index);
+    if (rv != EXR_ERR_SUCCESS) return EXR_UNLOCK_AND_RETURN (rv);
 
     part->storage_mode = type;
     switch (type)
@@ -88,9 +95,9 @@ exr_add_part (
             break;
         case EXR_STORAGE_LAST_TYPE:
         default:
-            internal_exr_revert_add_part (pctxt, &part, new_index);
-            return EXR_UNLOCK_AND_RETURN_PCTXT (pctxt->print_error (
-                pctxt,
+            internal_exr_revert_add_part (ctxt, &part, new_index);
+            return EXR_UNLOCK_AND_RETURN (ctxt->print_error (
+                ctxt,
                 EXR_ERR_INVALID_ARGUMENT,
                 "Invalid storage type %d for new part",
                 (int) type));
@@ -107,8 +114,8 @@ exr_add_part (
 
     if (rv != EXR_ERR_SUCCESS)
     {
-        internal_exr_revert_add_part (pctxt, &part, new_index);
-        return EXR_UNLOCK_AND_RETURN_PCTXT (rv);
+        internal_exr_revert_add_part (ctxt, &part, new_index);
+        return EXR_UNLOCK_AND_RETURN (rv);
     }
 
     rv = exr_attr_string_init_static_with_length (
@@ -116,8 +123,8 @@ exr_add_part (
 
     if (rv != EXR_ERR_SUCCESS)
     {
-        internal_exr_revert_add_part (pctxt, &part, new_index);
-        return EXR_UNLOCK_AND_RETURN_PCTXT (rv);
+        internal_exr_revert_add_part (ctxt, &part, new_index);
+        return EXR_UNLOCK_AND_RETURN (rv);
     }
 
     /* make sure we put in SOME sort of partname */
@@ -127,9 +134,9 @@ exr_add_part (
         size_t pnamelen = strlen (partname);
         if (pnamelen >= INT32_MAX)
         {
-            internal_exr_revert_add_part (pctxt, &part, new_index);
-            return EXR_UNLOCK_AND_RETURN_PCTXT (pctxt->print_error (
-                pctxt,
+            internal_exr_revert_add_part (ctxt, &part, new_index);
+            return EXR_UNLOCK_AND_RETURN (ctxt->print_error (
+                ctxt,
                 EXR_ERR_INVALID_ATTR,
                 "Part name '%s': Invalid name length %" PRIu64,
                 partname,
@@ -162,23 +169,23 @@ exr_add_part (
             NULL,
             &(part->version));
         if (rv == EXR_ERR_SUCCESS) part->version->i = 1;
-        pctxt->has_nonimage_data = 1;
+        ctxt->has_nonimage_data = 1;
     }
 
     if (rv == EXR_ERR_SUCCESS)
     {
-        if (pctxt->num_parts > 1) pctxt->is_multipart = 1;
+        if (ctxt->num_parts > 1) ctxt->is_multipart = 1;
 
-        if (!pctxt->has_nonimage_data && pctxt->num_parts == 1 &&
+        if (!ctxt->has_nonimage_data && ctxt->num_parts == 1 &&
             type == EXR_STORAGE_TILED)
-            pctxt->is_singlepart_tiled = 1;
+            ctxt->is_singlepart_tiled = 1;
         else
-            pctxt->is_singlepart_tiled = 0;
+            ctxt->is_singlepart_tiled = 0;
     }
     else
-        internal_exr_revert_add_part (pctxt, &part, new_index);
+        internal_exr_revert_add_part (ctxt, &part, new_index);
 
-    return EXR_UNLOCK_AND_RETURN_PCTXT (rv);
+    return EXR_UNLOCK_AND_RETURN (rv);
 }
 
 /**************************************/
@@ -187,7 +194,7 @@ exr_result_t
 exr_get_tile_levels (
     exr_const_context_t ctxt, int part_index, int* levelsx, int* levelsy)
 {
-    EXR_PROMOTE_CONST_CONTEXT_AND_PART_OR_ERROR (ctxt, part_index);
+    EXR_LOCK_WRITE_AND_DEFINE_PART (part_index);
 
     if (part->storage_mode == EXR_STORAGE_TILED ||
         part->storage_mode == EXR_STORAGE_DEEP_TILED)
@@ -196,19 +203,19 @@ exr_get_tile_levels (
             part->num_tile_levels_y <= 0 || !part->tile_level_tile_count_x ||
             !part->tile_level_tile_count_y)
         {
-            return EXR_UNLOCK_WRITE_AND_RETURN_PCTXT (pctxt->print_error (
-                pctxt,
+            return EXR_UNLOCK_WRITE_AND_RETURN (ctxt->print_error (
+                ctxt,
                 EXR_ERR_MISSING_REQ_ATTR,
                 "Tile data missing or corrupt"));
         }
 
         if (levelsx) *levelsx = part->num_tile_levels_x;
         if (levelsy) *levelsy = part->num_tile_levels_y;
-        return EXR_UNLOCK_WRITE_AND_RETURN_PCTXT (EXR_ERR_SUCCESS);
+        return EXR_UNLOCK_WRITE_AND_RETURN (EXR_ERR_SUCCESS);
     }
 
-    return EXR_UNLOCK_WRITE_AND_RETURN_PCTXT (
-        pctxt->standard_error (pctxt, EXR_ERR_TILE_SCAN_MIXEDAPI));
+    return EXR_UNLOCK_WRITE_AND_RETURN (
+        ctxt->standard_error (ctxt, EXR_ERR_TILE_SCAN_MIXEDAPI));
 }
 
 /**************************************/
@@ -222,7 +229,7 @@ exr_get_tile_sizes (
     int32_t*            tilew,
     int32_t*            tileh)
 {
-    EXR_PROMOTE_CONST_CONTEXT_AND_PART_OR_ERROR (ctxt, part_index);
+    EXR_LOCK_WRITE_AND_DEFINE_PART (part_index);
 
     if (part->storage_mode == EXR_STORAGE_TILED ||
         part->storage_mode == EXR_STORAGE_DEEP_TILED)
@@ -233,16 +240,16 @@ exr_get_tile_sizes (
             part->num_tile_levels_y <= 0 || !part->tile_level_tile_count_x ||
             !part->tile_level_tile_count_y)
         {
-            return EXR_UNLOCK_WRITE_AND_RETURN_PCTXT (pctxt->print_error (
-                pctxt,
+            return EXR_UNLOCK_WRITE_AND_RETURN (ctxt->print_error (
+                ctxt,
                 EXR_ERR_MISSING_REQ_ATTR,
                 "Tile data missing or corrupt"));
         }
 
         if (levelx < 0 || levely < 0 || levelx >= part->num_tile_levels_x ||
             levely >= part->num_tile_levels_y)
-            return EXR_UNLOCK_WRITE_AND_RETURN_PCTXT (
-                pctxt->standard_error (pctxt, EXR_ERR_ARGUMENT_OUT_OF_RANGE));
+            return EXR_UNLOCK_WRITE_AND_RETURN (
+                ctxt->standard_error (ctxt, EXR_ERR_ARGUMENT_OUT_OF_RANGE));
 
         tiledesc = part->tiles->tiledesc;
         if (tilew)
@@ -261,11 +268,11 @@ exr_get_tile_sizes (
             else
                 *tileh = levh;
         }
-        return EXR_UNLOCK_WRITE_AND_RETURN_PCTXT (EXR_ERR_SUCCESS);
+        return EXR_UNLOCK_WRITE_AND_RETURN (EXR_ERR_SUCCESS);
     }
 
-    return EXR_UNLOCK_WRITE_AND_RETURN_PCTXT (
-        pctxt->standard_error (pctxt, EXR_ERR_TILE_SCAN_MIXEDAPI));
+    return EXR_UNLOCK_WRITE_AND_RETURN (
+        ctxt->standard_error (ctxt, EXR_ERR_TILE_SCAN_MIXEDAPI));
 }
 
 /**************************************/
@@ -279,7 +286,7 @@ exr_get_level_sizes (
     int32_t*            levw,
     int32_t*            levh)
 {
-    EXR_PROMOTE_CONST_CONTEXT_AND_PART_OR_ERROR (ctxt, part_index);
+    EXR_LOCK_WRITE_AND_DEFINE_PART (part_index);
 
     if (part->storage_mode == EXR_STORAGE_TILED ||
         part->storage_mode == EXR_STORAGE_DEEP_TILED)
@@ -288,24 +295,24 @@ exr_get_level_sizes (
             part->num_tile_levels_y <= 0 || !part->tile_level_tile_count_x ||
             !part->tile_level_tile_count_y)
         {
-            return EXR_UNLOCK_WRITE_AND_RETURN_PCTXT (pctxt->print_error (
-                pctxt,
+            return EXR_UNLOCK_WRITE_AND_RETURN (ctxt->print_error (
+                ctxt,
                 EXR_ERR_MISSING_REQ_ATTR,
                 "Tile data missing or corrupt"));
         }
 
         if (levelx < 0 || levely < 0 || levelx >= part->num_tile_levels_x ||
             levely >= part->num_tile_levels_y)
-            return EXR_UNLOCK_WRITE_AND_RETURN_PCTXT (
-                pctxt->standard_error (pctxt, EXR_ERR_ARGUMENT_OUT_OF_RANGE));
+            return EXR_UNLOCK_WRITE_AND_RETURN (
+                ctxt->standard_error (ctxt, EXR_ERR_ARGUMENT_OUT_OF_RANGE));
 
         if (levw) *levw = part->tile_level_tile_size_x[levelx];
         if (levh) *levh = part->tile_level_tile_size_y[levely];
-        return EXR_UNLOCK_WRITE_AND_RETURN_PCTXT (EXR_ERR_SUCCESS);
+        return EXR_UNLOCK_WRITE_AND_RETURN (EXR_ERR_SUCCESS);
     }
 
-    return EXR_UNLOCK_WRITE_AND_RETURN_PCTXT (
-        pctxt->standard_error (pctxt, EXR_ERR_TILE_SCAN_MIXEDAPI));
+    return EXR_UNLOCK_WRITE_AND_RETURN (
+        ctxt->standard_error (ctxt, EXR_ERR_TILE_SCAN_MIXEDAPI));
 }
 
 /**************************************/
@@ -313,11 +320,11 @@ exr_get_level_sizes (
 exr_result_t
 exr_get_chunk_count (exr_const_context_t ctxt, int part_index, int32_t* out)
 {
-    EXR_PROMOTE_CONST_CONTEXT_AND_PART_OR_ERROR (ctxt, part_index);
+    EXR_LOCK_WRITE_AND_DEFINE_PART (part_index);
 
     if (!out)
-        return EXR_UNLOCK_WRITE_AND_RETURN_PCTXT (
-            pctxt->standard_error (pctxt, EXR_ERR_INVALID_ARGUMENT));
+        return EXR_UNLOCK_WRITE_AND_RETURN (
+            ctxt->standard_error (ctxt, EXR_ERR_INVALID_ARGUMENT));
 
     if (part->dataWindow)
     {
@@ -327,10 +334,10 @@ exr_get_chunk_count (exr_const_context_t ctxt, int part_index, int32_t* out)
             if (part->tiles)
             {
                 *out = part->chunk_count;
-                return EXR_UNLOCK_WRITE_AND_RETURN_PCTXT (EXR_ERR_SUCCESS);
+                return EXR_UNLOCK_WRITE_AND_RETURN (EXR_ERR_SUCCESS);
             }
-            return EXR_UNLOCK_WRITE_AND_RETURN_PCTXT (pctxt->report_error (
-                pctxt,
+            return EXR_UNLOCK_WRITE_AND_RETURN (ctxt->report_error (
+                ctxt,
                 EXR_ERR_MISSING_REQ_ATTR,
                 "Tile data missing or corrupt"));
         }
@@ -341,17 +348,17 @@ exr_get_chunk_count (exr_const_context_t ctxt, int part_index, int32_t* out)
             if (part->compression)
             {
                 *out = part->chunk_count;
-                return EXR_UNLOCK_WRITE_AND_RETURN_PCTXT (EXR_ERR_SUCCESS);
+                return EXR_UNLOCK_WRITE_AND_RETURN (EXR_ERR_SUCCESS);
             }
-            return EXR_UNLOCK_WRITE_AND_RETURN_PCTXT (pctxt->report_error (
-                pctxt,
+            return EXR_UNLOCK_WRITE_AND_RETURN (ctxt->report_error (
+                ctxt,
                 EXR_ERR_MISSING_REQ_ATTR,
                 "Missing scanline chunk compression information"));
         }
     }
 
-    return EXR_UNLOCK_WRITE_AND_RETURN_PCTXT (pctxt->report_error (
-        pctxt,
+    return EXR_UNLOCK_WRITE_AND_RETURN (ctxt->report_error (
+        ctxt,
         EXR_ERR_MISSING_REQ_ATTR,
         "Missing data window for chunk information"));
 }
@@ -362,19 +369,18 @@ exr_result_t
 exr_get_scanlines_per_chunk (
     exr_const_context_t ctxt, int part_index, int32_t* out)
 {
-    EXR_PROMOTE_CONST_CONTEXT_AND_PART_OR_ERROR (ctxt, part_index);
+    EXR_LOCK_WRITE_AND_DEFINE_PART (part_index);
 
-    if (!out)
-        return EXR_UNLOCK_WRITE_AND_RETURN_PCTXT (EXR_ERR_INVALID_ARGUMENT);
+    if (!out) return EXR_UNLOCK_WRITE_AND_RETURN (EXR_ERR_INVALID_ARGUMENT);
 
     if (part->storage_mode == EXR_STORAGE_SCANLINE ||
         part->storage_mode == EXR_STORAGE_DEEP_SCANLINE)
     {
         *out = part->lines_per_chunk;
-        return EXR_UNLOCK_WRITE_AND_RETURN_PCTXT (EXR_ERR_SUCCESS);
+        return EXR_UNLOCK_WRITE_AND_RETURN (EXR_ERR_SUCCESS);
     }
-    return EXR_UNLOCK_WRITE_AND_RETURN_PCTXT (
-        pctxt->standard_error (pctxt, EXR_ERR_SCAN_TILE_MIXEDAPI));
+    return EXR_UNLOCK_WRITE_AND_RETURN (
+        ctxt->standard_error (ctxt, EXR_ERR_SCAN_TILE_MIXEDAPI));
 }
 
 /**************************************/
@@ -384,11 +390,11 @@ exr_get_chunk_unpacked_size (
     exr_const_context_t ctxt, int part_index, uint64_t* out)
 {
     uint64_t sz;
-    EXR_PROMOTE_CONST_CONTEXT_AND_PART_OR_ERROR (ctxt, part_index);
+    EXR_LOCK_WRITE_AND_DEFINE_PART (part_index);
     sz = part->unpacked_size_per_chunk;
-    EXR_UNLOCK_WRITE (pctxt);
+    if (ctxt->mode == EXR_CONTEXT_WRITE) internal_exr_unlock (ctxt);
 
-    if (!out) return pctxt->standard_error (pctxt, EXR_ERR_INVALID_ARGUMENT);
+    if (!out) return ctxt->standard_error (ctxt, EXR_ERR_INVALID_ARGUMENT);
 
     *out = sz;
     return EXR_ERR_SUCCESS;
@@ -401,11 +407,11 @@ exr_get_zip_compression_level (
     exr_const_context_t ctxt, int part_index, int* level)
 {
     int l;
-    EXR_PROMOTE_CONST_CONTEXT_AND_PART_OR_ERROR (ctxt, part_index);
+    EXR_LOCK_WRITE_AND_DEFINE_PART (part_index);
     l = part->zip_compression_level;
-    EXR_UNLOCK_WRITE (pctxt);
+    if (ctxt->mode == EXR_CONTEXT_WRITE) internal_exr_unlock (ctxt);
 
-    if (!level) return pctxt->standard_error (pctxt, EXR_ERR_INVALID_ARGUMENT);
+    if (!level) return ctxt->standard_error (ctxt, EXR_ERR_INVALID_ARGUMENT);
     *level = l;
     return EXR_ERR_SUCCESS;
 }
@@ -416,11 +422,11 @@ exr_result_t
 exr_set_zip_compression_level (exr_context_t ctxt, int part_index, int level)
 {
     exr_result_t rv;
-    EXR_PROMOTE_LOCKED_CONTEXT_AND_PART_OR_ERROR (ctxt, part_index);
+    EXR_LOCK_AND_DEFINE_PART (part_index);
 
-    if (pctxt->mode != EXR_CONTEXT_WRITE)
-        return EXR_UNLOCK_AND_RETURN_PCTXT (
-            pctxt->standard_error (pctxt, EXR_ERR_NOT_OPEN_WRITE));
+    if (ctxt->mode != EXR_CONTEXT_WRITE)
+        return EXR_UNLOCK_AND_RETURN (
+            ctxt->standard_error (ctxt, EXR_ERR_NOT_OPEN_WRITE));
 
     if (level >= -1 && level < 10)
     {
@@ -429,11 +435,11 @@ exr_set_zip_compression_level (exr_context_t ctxt, int part_index, int level)
     }
     else
     {
-        return EXR_UNLOCK_AND_RETURN_PCTXT (pctxt->report_error (
-            pctxt, EXR_ERR_INVALID_ARGUMENT, "Invalid zip level specified"));
+        return EXR_UNLOCK_AND_RETURN (ctxt->report_error (
+            ctxt, EXR_ERR_INVALID_ARGUMENT, "Invalid zip level specified"));
     }
 
-    return EXR_UNLOCK_AND_RETURN_PCTXT (rv);
+    return EXR_UNLOCK_AND_RETURN (rv);
 }
 
 /**************************************/
@@ -443,11 +449,11 @@ exr_get_dwa_compression_level (
     exr_const_context_t ctxt, int part_index, float* level)
 {
     float l;
-    EXR_PROMOTE_CONST_CONTEXT_AND_PART_OR_ERROR (ctxt, part_index);
+    EXR_LOCK_WRITE_AND_DEFINE_PART (part_index);
     l = part->dwa_compression_level;
-    EXR_UNLOCK_WRITE (pctxt);
+    if (ctxt->mode == EXR_CONTEXT_WRITE) internal_exr_unlock (ctxt);
 
-    if (!level) return pctxt->standard_error (pctxt, EXR_ERR_INVALID_ARGUMENT);
+    if (!level) return ctxt->standard_error (ctxt, EXR_ERR_INVALID_ARGUMENT);
     *level = l;
     return EXR_ERR_SUCCESS;
 }
@@ -458,11 +464,11 @@ exr_result_t
 exr_set_dwa_compression_level (exr_context_t ctxt, int part_index, float level)
 {
     exr_result_t rv;
-    EXR_PROMOTE_LOCKED_CONTEXT_AND_PART_OR_ERROR (ctxt, part_index);
+    EXR_LOCK_AND_DEFINE_PART (part_index);
 
-    if (pctxt->mode != EXR_CONTEXT_WRITE)
-        return EXR_UNLOCK_AND_RETURN_PCTXT (
-            pctxt->standard_error (pctxt, EXR_ERR_NOT_OPEN_WRITE));
+    if (ctxt->mode != EXR_CONTEXT_WRITE)
+        return EXR_UNLOCK_AND_RETURN (
+            ctxt->standard_error (ctxt, EXR_ERR_NOT_OPEN_WRITE));
 
     if (level > 0.f && level <= 100.f)
     {
@@ -471,11 +477,11 @@ exr_set_dwa_compression_level (exr_context_t ctxt, int part_index, float level)
     }
     else
     {
-        return EXR_UNLOCK_AND_RETURN_PCTXT (pctxt->report_error (
-            pctxt,
+        return EXR_UNLOCK_AND_RETURN (ctxt->report_error (
+            ctxt,
             EXR_ERR_INVALID_ARGUMENT,
             "Invalid dwa quality level specified"));
     }
 
-    return EXR_UNLOCK_AND_RETURN_PCTXT (rv);
+    return EXR_UNLOCK_AND_RETURN (rv);
 }

@@ -237,10 +237,7 @@ TileOffsets::readFrom (
         complete = false;
         reconstructFromFile (is, isMultiPartFile, isDeep);
     }
-    else
-    {
-        complete = true;
-    }
+    else { complete = true; }
 }
 
 void

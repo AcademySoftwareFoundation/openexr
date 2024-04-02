@@ -105,9 +105,10 @@ generateRandomFile (
 
     frameBuffer.insertSampleCountSlice (Slice (
         IMF::UINT, // type // 7
-        (char*) (&sampleCount[0][0] - dataWindow.min.x - dataWindow.min.y * width), // base // 8
-        sizeof (unsigned int) * 1,       // xStride// 9
-        sizeof (unsigned int) * width)); // yStride// 10
+        (char*) (&sampleCount[0][0] - dataWindow.min.x -
+                 dataWindow.min.y * width), // base // 8
+        sizeof (unsigned int) * 1,          // xStride// 9
+        sizeof (unsigned int) * width));    // yStride// 10
 
     // count total size of all pixels
     uint64_t bytes_per_sample = 0;
@@ -135,10 +136,11 @@ generateRandomFile (
             str, // name // 6
             DeepSlice (
                 type, // type // 7
-                (char*) (&data[i][0][0] - dataWindow.min.x - dataWindow.min.y * width), // base // 8
-                pointerSize * 1,     // xStride// 9
-                pointerSize * width, // yStride// 10
-                sampleSize));        // sampleStride
+                (char*) (&data[i][0][0] - dataWindow.min.x -
+                         dataWindow.min.y * width), // base // 8
+                pointerSize * 1,                    // xStride// 9
+                pointerSize * width,                // yStride// 10
+                sampleSize));                       // sampleStride
     }
 
     file.setFrameBuffer (frameBuffer);
@@ -265,9 +267,10 @@ readFile (int channelCount, bool bulkRead, const std::string& fn)
 
     frameBuffer.insertSampleCountSlice (Slice (
         IMF::UINT, // type // 7
-        (char*) (&localSampleCount[0][0] - dataWindow.min.x - dataWindow.min.y * width), // base // 8)
-        sizeof (unsigned int) * 1,       // xStride// 9
-        sizeof (unsigned int) * width)); // yStride// 10
+        (char*) (&localSampleCount[0][0] - dataWindow.min.x -
+                 dataWindow.min.y * width), // base // 8)
+        sizeof (unsigned int) * 1,          // xStride// 9
+        sizeof (unsigned int) * width));    // yStride// 10
 
     uint64_t bytes_per_sample = 0;
 
@@ -295,10 +298,11 @@ readFile (int channelCount, bool bulkRead, const std::string& fn)
             str, // name // 6
             DeepSlice (
                 type, // type // 7
-                (char*) (&data[i][0][0] - dataWindow.min.x - dataWindow.min.y * width), // base // 8)
-                pointerSize * 1,     // xStride// 9
-                pointerSize * width, // yStride// 10
-                sampleSize));        // sampleStride
+                (char*) (&data[i][0][0] - dataWindow.min.x -
+                         dataWindow.min.y * width), // base // 8)
+                pointerSize * 1,                    // xStride// 9
+                pointerSize * width,                // yStride// 10
+                sampleSize));                       // sampleStride
     }
 
     file.setFrameBuffer (frameBuffer);

@@ -21,35 +21,35 @@ using namespace IMATH_NAMESPACE;
 using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;
 
-template<typename Header>
-struct Test
+template <typename Header> struct Test
 {
-    void testFind(const string& name)
+    void testFind (const string& name)
     {
         Header header;
-        auto iterator = header.find(name);
-        assert(iterator != header.end());
+        auto   iterator = header.find (name);
+        assert (iterator != header.end ());
     }
 
-    void testSubscript(const string& name)
+    void testSubscript (const string& name)
     {
         Header header;
-        auto& comparand = header.find("displayWindow").attribute();
-        auto& attribute = header[name];
-        assert(&attribute == &comparand);
+        auto&  comparand = header.find ("displayWindow").attribute ();
+        auto&  attribute = header[name];
+        assert (&attribute == &comparand);
     }
 
-    void testIterators(const string& name)
+    void testIterators (const string& name)
     {
         Header header;
 
-        auto& comparand = header.find("displayWindow").attribute();
+        auto& comparand = header.find ("displayWindow").attribute ();
 
-        for (auto iterator = header.begin(); iterator != header.end(); ++iterator)
+        for (auto iterator = header.begin (); iterator != header.end ();
+             ++iterator)
         {
-            if (iterator.name() == name)
+            if (iterator.name () == name)
             {
-                assert(&iterator.attribute() == &comparand);
+                assert (&iterator.attribute () == &comparand);
                 return;
             }
         }
@@ -58,21 +58,23 @@ struct Test
     }
 };
 
-void testEraseAttribute(const string& name)
+void
+testEraseAttribute (const string& name)
 {
     Header header;
-    assert(header.find(name) != header.end());
-    header.erase(name);
-    assert(header.find(name) == header.end());
+    assert (header.find (name) != header.end ());
+    header.erase (name);
+    assert (header.find (name) == header.end ());
 }
 
-void testEraseAttributeThrowsWithEmptyString()
+void
+testEraseAttributeThrowsWithEmptyString ()
 {
     Header header;
 
     try
     {
-        header.erase("");
+        header.erase ("");
         assert (false);
     }
     catch (const ArgExc&)
@@ -81,24 +83,25 @@ void testEraseAttributeThrowsWithEmptyString()
     }
 }
 
-void testHeader (const string& tempDir)
+void
+testHeader (const string& tempDir)
 {
     try
     {
         {
             Test<Header> headerTest;
-            headerTest.testFind("displayWindow");
-            headerTest.testSubscript("displayWindow");
-            headerTest.testIterators("displayWindow");
+            headerTest.testFind ("displayWindow");
+            headerTest.testSubscript ("displayWindow");
+            headerTest.testIterators ("displayWindow");
         }
         {
             Test<const Header> headerTest;
-            headerTest.testFind("displayWindow");
-            headerTest.testSubscript("displayWindow");
-            headerTest.testIterators("displayWindow");
+            headerTest.testFind ("displayWindow");
+            headerTest.testSubscript ("displayWindow");
+            headerTest.testIterators ("displayWindow");
         }
-        testEraseAttribute("displayWindow");
-        testEraseAttributeThrowsWithEmptyString();
+        testEraseAttribute ("displayWindow");
+        testEraseAttributeThrowsWithEmptyString ();
         cout << "ok\n" << endl;
     }
     catch (const exception& e)

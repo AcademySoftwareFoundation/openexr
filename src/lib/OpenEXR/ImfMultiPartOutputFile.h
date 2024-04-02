@@ -68,10 +68,10 @@ public:
     IMF_EXPORT
     ~MultiPartOutputFile ();
 
-    MultiPartOutputFile (const MultiPartOutputFile& other) = delete;
+    MultiPartOutputFile (const MultiPartOutputFile& other)            = delete;
     MultiPartOutputFile& operator= (const MultiPartOutputFile& other) = delete;
     MultiPartOutputFile (MultiPartOutputFile&& other)                 = delete;
-    MultiPartOutputFile& operator= (MultiPartOutputFile&& other) = delete;
+    MultiPartOutputFile& operator= (MultiPartOutputFile&& other)      = delete;
 
     struct IMF_HIDDEN Data;
 

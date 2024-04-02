@@ -71,7 +71,8 @@ readDeepTiledFile (
 
     frameBuffer.insertSampleCountSlice (Slice (
         UINT,
-        (char*) (&sampleCount[0][0] - dataWindow.min.x - dataWindow.min.y * width),
+        (char*) (&sampleCount[0][0] - dataWindow.min.x -
+                 dataWindow.min.y * width),
         sizeof (unsigned int) * 1,       // xStride
         sizeof (unsigned int) * width)); // yStride
 
@@ -79,7 +80,8 @@ readDeepTiledFile (
         "Z",
         DeepSlice (
             FLOAT,
-            (char*) (&dataZ[0][0] - dataWindow.min.x - dataWindow.min.y * width),
+            (char*) (&dataZ[0][0] - dataWindow.min.x -
+                     dataWindow.min.y * width),
             sizeof (float*) * 1,     // xStride for pointer array
             sizeof (float*) * width, // yStride for pointer array
             sizeof (float) * 1));    // stride for samples
@@ -88,7 +90,8 @@ readDeepTiledFile (
         "A",
         DeepSlice (
             HALF,
-            (char*) (&dataA[0][0] - dataWindow.min.x - dataWindow.min.y * width),
+            (char*) (&dataA[0][0] - dataWindow.min.x -
+                     dataWindow.min.y * width),
             sizeof (half*) * 1,     // xStride for pointer array
             sizeof (half*) * width, // yStride for pointer array
             sizeof (half) * 1));    // stride for samples
@@ -200,7 +203,8 @@ writeDeepTiledFile (
 
     frameBuffer.insertSampleCountSlice (Slice (
         UINT,
-        (char*) (&sampleCount[0][0] - dataWindow.min.x - dataWindow.min.y * width),
+        (char*) (&sampleCount[0][0] - dataWindow.min.x -
+                 dataWindow.min.y * width),
         sizeof (unsigned int) * 1,       // xStride
         sizeof (unsigned int) * width)); // yStride
 
@@ -208,7 +212,8 @@ writeDeepTiledFile (
         "Z",
         DeepSlice (
             FLOAT,
-            (char*) (&dataZ[0][0] - dataWindow.min.x - dataWindow.min.y * width),
+            (char*) (&dataZ[0][0] - dataWindow.min.x -
+                     dataWindow.min.y * width),
             sizeof (float*) * 1,     // xStride for pointer array
             sizeof (float*) * width, // yStride for pointer array
             sizeof (float) * 1));    // stride for samples
@@ -217,7 +222,8 @@ writeDeepTiledFile (
         "A",
         DeepSlice (
             HALF,
-            (char*) (&dataA[0][0] - dataWindow.min.x - dataWindow.min.y * width),
+            (char*) (&dataA[0][0] - dataWindow.min.x -
+                     dataWindow.min.y * width),
             sizeof (half*) * 1,     // xStride for pointer array
             sizeof (half*) * width, // yStride for pointer array
             sizeof (half) * 1));    // stride for samples

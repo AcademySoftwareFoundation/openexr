@@ -16,25 +16,25 @@ exr_result_t
 exr_attr_string_init (exr_context_t ctxt, exr_attr_string_t* s, int32_t len)
 {
     exr_attr_string_t nil = {0};
-    INTERN_EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
+    if (!ctxt) return EXR_ERR_MISSING_CONTEXT_ARG;
 
     if (len < 0)
-        return pctxt->print_error (
-            pctxt,
+        return ctxt->print_error (
+            ctxt,
             EXR_ERR_INVALID_ARGUMENT,
             "Received request to allocate negative sized string (%d)",
             len);
 
     if (!s)
-        return pctxt->report_error (
-            pctxt,
+        return ctxt->report_error (
+            ctxt,
             EXR_ERR_INVALID_ARGUMENT,
             "Invalid reference to string object to initialize");
 
     *s     = nil;
-    s->str = (char*) pctxt->alloc_fn ((size_t) (len + 1));
+    s->str = (char*) ctxt->alloc_fn ((size_t) (len + 1));
     if (s->str == NULL)
-        return pctxt->standard_error (pctxt, EXR_ERR_OUT_OF_MEMORY);
+        return ctxt->standard_error (ctxt, EXR_ERR_OUT_OF_MEMORY);
     s->length     = len;
     s->alloc_size = len + 1;
     return EXR_ERR_SUCCESS;
@@ -47,24 +47,24 @@ exr_attr_string_init_static_with_length (
     exr_context_t ctxt, exr_attr_string_t* s, const char* v, int32_t len)
 {
     exr_attr_string_t nil = {0};
-    INTERN_EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
+    if (!ctxt) return EXR_ERR_MISSING_CONTEXT_ARG;
 
     if (len < 0)
-        return pctxt->print_error (
-            pctxt,
+        return ctxt->print_error (
+            ctxt,
             EXR_ERR_INVALID_ARGUMENT,
             "Received request to allocate negative sized string (%d)",
             len);
 
     if (!v)
-        return pctxt->report_error (
-            pctxt,
+        return ctxt->report_error (
+            ctxt,
             EXR_ERR_INVALID_ARGUMENT,
             "Invalid static string argument to initialize");
 
     if (!s)
-        return pctxt->report_error (
-            pctxt,
+        return ctxt->report_error (
+            ctxt,
             EXR_ERR_INVALID_ARGUMENT,
             "Invalid reference to string object to initialize");
 
@@ -88,9 +88,9 @@ exr_attr_string_init_static (
         fulllen = strlen (v);
         if (fulllen >= (size_t) INT32_MAX)
         {
-            INTERN_EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
-            return pctxt->report_error (
-                pctxt,
+            if (!ctxt) return EXR_ERR_MISSING_CONTEXT_ARG;
+            return ctxt->report_error (
+                ctxt,
                 EXR_ERR_INVALID_ARGUMENT,
                 "Invalid string too long for attribute");
         }
@@ -106,11 +106,11 @@ exr_attr_string_create_with_length (
     exr_context_t ctxt, exr_attr_string_t* s, const char* d, int32_t len)
 {
     exr_result_t rv;
-    INTERN_EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
+    if (!ctxt) return EXR_ERR_MISSING_CONTEXT_ARG;
 
     if (!s)
-        return pctxt->report_error (
-            pctxt,
+        return ctxt->report_error (
+            ctxt,
             EXR_ERR_INVALID_ARGUMENT,
             "Invalid (NULL) arguments to string create with length");
 
@@ -125,6 +125,9 @@ exr_attr_string_create_with_length (
 #ifdef _MSC_VER
 #    pragma warning(push)
 #    pragma warning(disable : 4996)
+#elif defined(__GNUC__)
+#    pragma GCC diagnostic push
+#    pragma GCC diagnostic ignored "-Wstringop-truncation"
 #endif
             if (d)
                 strncpy (outs, d, (size_t) len);
@@ -132,6 +135,8 @@ exr_attr_string_create_with_length (
                 memset (outs, 0, (size_t) len);
 #ifdef _MSC_VER
 #    pragma warning(pop)
+#elif defined(__GNUC__)
+#    pragma GCC diagnostic pop
 #endif
         }
         outs[len] = '\0';
@@ -151,9 +156,9 @@ exr_attr_string_create (exr_context_t ctxt, exr_attr_string_t* s, const char* d)
         fulllen = strlen (d);
         if (fulllen >= (size_t) INT32_MAX)
         {
-            INTERN_EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
-            return pctxt->report_error (
-                pctxt,
+            if (!ctxt) return EXR_ERR_MISSING_CONTEXT_ARG;
+            return ctxt->report_error (
+                ctxt,
                 EXR_ERR_INVALID_ARGUMENT,
                 "Invalid string too long for attribute");
         }
@@ -168,17 +173,17 @@ exr_result_t
 exr_attr_string_set_with_length (
     exr_context_t ctxt, exr_attr_string_t* s, const char* d, int32_t len)
 {
-    INTERN_EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
+    if (!ctxt) return EXR_ERR_MISSING_CONTEXT_ARG;
 
     if (!s)
-        return pctxt->report_error (
-            pctxt,
+        return ctxt->report_error (
+            ctxt,
             EXR_ERR_INVALID_ARGUMENT,
             "Invalid string argument to string set");
 
     if (len < 0)
-        return pctxt->print_error (
-            pctxt,
+        return ctxt->print_error (
+            ctxt,
             EXR_ERR_INVALID_ARGUMENT,
             "Received request to assign a negative sized string (%d)",
             len);
@@ -195,7 +200,7 @@ exr_attr_string_set_with_length (
 #ifdef _MSC_VER
 #    pragma warning(push)
 #    pragma warning(disable : 4996)
-#elif __MSVCRT__ && __GNUC__
+#elif defined(__GNUC__)
 #    pragma GCC diagnostic push
 #    pragma GCC diagnostic ignored "-Wstringop-truncation"
 #endif
@@ -205,8 +210,8 @@ exr_attr_string_set_with_length (
                 memset (sstr, 0, (size_t) len);
 #ifdef _MSC_VER
 #    pragma warning(pop)
-#elif __MSVCRT__ && __GNUC__
-#pragma GCC diagnostic pop
+#elif defined(__GNUC__)
+#    pragma GCC diagnostic pop
 #endif
         }
         sstr[len] = '\0';
@@ -228,9 +233,9 @@ exr_attr_string_set (exr_context_t ctxt, exr_attr_string_t* s, const char* d)
         fulllen = strlen (d);
         if (fulllen >= (size_t) INT32_MAX)
         {
-            INTERN_EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
-            return pctxt->report_error (
-                pctxt,
+            if (!ctxt) return EXR_ERR_MISSING_CONTEXT_ARG;
+            return ctxt->report_error (
+                ctxt,
                 EXR_ERR_INVALID_ARGUMENT,
                 "Invalid string too long for attribute");
         }
@@ -244,13 +249,13 @@ exr_attr_string_set (exr_context_t ctxt, exr_attr_string_t* s, const char* d)
 exr_result_t
 exr_attr_string_destroy (exr_context_t ctxt, exr_attr_string_t* s)
 {
-    INTERN_EXR_PROMOTE_CONTEXT_OR_ERROR (ctxt);
+    if (!ctxt) return EXR_ERR_MISSING_CONTEXT_ARG;
 
     if (s)
     {
         exr_attr_string_t nil = {0};
         if (s->str && s->alloc_size > 0)
-            pctxt->free_fn ((char*) (uintptr_t) s->str);
+            ctxt->free_fn ((char*) (uintptr_t) s->str);
         *s = nil;
     }
     return EXR_ERR_SUCCESS;

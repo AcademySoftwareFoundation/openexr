@@ -241,39 +241,73 @@ unpack14 (const uint8_t b[14], uint16_t s[16])
     shift = (b[2] >> 2);
     bias  = (uint16_t) (0x20u << shift);
 
-    s[4] =
-        (uint16_t) ((uint32_t) s[0] + (uint32_t) ((((uint32_t) (b[2] << 4) | (uint32_t) (b[3] >> 4)) & 0x3fu) << shift) - bias);
-    s[8] =
-        (uint16_t) ((uint32_t) s[4] + (uint32_t) ((((uint32_t) (b[3] << 2) | (uint32_t) (b[4] >> 6)) & 0x3fu) << shift) - bias);
-    s[12] =
-        (uint16_t) ((uint32_t) s[8] + (uint32_t) ((uint32_t) (b[4] & 0x3fu) << shift) - bias);
+    s[4]  = (uint16_t) ((uint32_t) s[0] +
+                       (uint32_t) ((((uint32_t) (b[2] << 4) |
+                                     (uint32_t) (b[3] >> 4)) &
+                                    0x3fu)
+                                   << shift) -
+                       bias);
+    s[8]  = (uint16_t) ((uint32_t) s[4] +
+                       (uint32_t) ((((uint32_t) (b[3] << 2) |
+                                     (uint32_t) (b[4] >> 6)) &
+                                    0x3fu)
+                                   << shift) -
+                       bias);
+    s[12] = (uint16_t) ((uint32_t) s[8] +
+                        (uint32_t) ((uint32_t) (b[4] & 0x3fu) << shift) - bias);
 
-    s[1] =
-        (uint16_t) ((uint32_t) s[0] + (uint32_t) ((uint32_t) (b[5] >> 2) << shift) - bias);
-    s[5] =
-        (uint16_t) ((uint32_t) s[4] + (uint32_t) ((((uint32_t) (b[5] << 4) | (uint32_t) (b[6] >> 4)) & 0x3fu) << shift) - bias);
-    s[9] =
-        (uint16_t) ((uint32_t) s[8] + (uint32_t) ((((uint32_t) (b[6] << 2) | (uint32_t) (b[7] >> 6)) & 0x3fu) << shift) - bias);
-    s[13] =
-        (uint16_t) ((uint32_t) s[12] + (uint32_t) ((uint32_t) (b[7] & 0x3fu) << shift) - bias);
+    s[1]  = (uint16_t) ((uint32_t) s[0] +
+                       (uint32_t) ((uint32_t) (b[5] >> 2) << shift) - bias);
+    s[5]  = (uint16_t) ((uint32_t) s[4] +
+                       (uint32_t) ((((uint32_t) (b[5] << 4) |
+                                     (uint32_t) (b[6] >> 4)) &
+                                    0x3fu)
+                                   << shift) -
+                       bias);
+    s[9]  = (uint16_t) ((uint32_t) s[8] +
+                       (uint32_t) ((((uint32_t) (b[6] << 2) |
+                                     (uint32_t) (b[7] >> 6)) &
+                                    0x3fu)
+                                   << shift) -
+                       bias);
+    s[13] = (uint16_t) ((uint32_t) s[12] +
+                        (uint32_t) ((uint32_t) (b[7] & 0x3fu) << shift) - bias);
 
-    s[2] =
-        (uint16_t) ((uint32_t) s[1] + (uint32_t) ((uint32_t) (b[8] >> 2) << shift) - bias);
-    s[6] =
-        (uint16_t) ((uint32_t) s[5] + (uint32_t) ((((uint32_t) (b[8] << 4) | (uint32_t) (b[9] >> 4)) & 0x3fu) << shift) - bias);
-    s[10] =
-        (uint16_t) ((uint32_t) s[9] + (uint32_t) ((((uint32_t) (b[9] << 2) | (uint32_t) (b[10] >> 6)) & 0x3fu) << shift) - bias);
+    s[2]  = (uint16_t) ((uint32_t) s[1] +
+                       (uint32_t) ((uint32_t) (b[8] >> 2) << shift) - bias);
+    s[6]  = (uint16_t) ((uint32_t) s[5] +
+                       (uint32_t) ((((uint32_t) (b[8] << 4) |
+                                     (uint32_t) (b[9] >> 4)) &
+                                    0x3fu)
+                                   << shift) -
+                       bias);
+    s[10] = (uint16_t) ((uint32_t) s[9] +
+                        (uint32_t) ((((uint32_t) (b[9] << 2) |
+                                      (uint32_t) (b[10] >> 6)) &
+                                     0x3fu)
+                                    << shift) -
+                        bias);
     s[14] =
-        (uint16_t) ((uint32_t) s[13] + (uint32_t) ((uint32_t) (b[10] & 0x3fu) << shift) - bias);
+        (uint16_t) ((uint32_t) s[13] +
+                    (uint32_t) ((uint32_t) (b[10] & 0x3fu) << shift) - bias);
 
-    s[3] =
-        (uint16_t) ((uint32_t) s[2] + (uint32_t) ((uint32_t) (b[11] >> 2) << shift) - bias);
-    s[7] =
-        (uint16_t) ((uint32_t) s[6] + (uint32_t) ((((uint32_t) (b[11] << 4) | (uint32_t) (b[12] >> 4)) & 0x3fu) << shift) - bias);
-    s[11] =
-        (uint16_t) ((uint32_t) s[10] + (uint32_t) ((((uint32_t) (b[12] << 2) | (uint32_t) (b[13] >> 6)) & 0x3fu) << shift) - bias);
+    s[3]  = (uint16_t) ((uint32_t) s[2] +
+                       (uint32_t) ((uint32_t) (b[11] >> 2) << shift) - bias);
+    s[7]  = (uint16_t) ((uint32_t) s[6] +
+                       (uint32_t) ((((uint32_t) (b[11] << 4) |
+                                     (uint32_t) (b[12] >> 4)) &
+                                    0x3fu)
+                                   << shift) -
+                       bias);
+    s[11] = (uint16_t) ((uint32_t) s[10] +
+                        (uint32_t) ((((uint32_t) (b[12] << 2) |
+                                      (uint32_t) (b[13] >> 6)) &
+                                     0x3fu)
+                                    << shift) -
+                        bias);
     s[15] =
-        (uint16_t) ((uint32_t) s[14] + (uint32_t) ((uint32_t) (b[13] & 0x3fu) << shift) - bias);
+        (uint16_t) ((uint32_t) s[14] +
+                    (uint32_t) ((uint32_t) (b[13] & 0x3fu) << shift) - bias);
 
     for (int i = 0; i < 16; ++i)
     {

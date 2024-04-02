@@ -13,7 +13,7 @@
 // This file enumerates available compression methods and defines a simple API
 // to query them.
 //
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 #include "ImfForward.h"
 #include <string>

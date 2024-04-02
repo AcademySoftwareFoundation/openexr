@@ -74,10 +74,7 @@ getStep (const Box2i& dw, bool reduceTime)
                 static_cast<int> (pixelCount / gTargetPixelsToRead),
                 static_cast<int> (rowCount / gMaxScanlinesToRead)));
     }
-    else
-    {
-        return 1;
-    }
+    else { return 1; }
 }
 //
 // read image or part using the Rgba interface
@@ -185,13 +182,43 @@ readScanline (T& in, bool reduceMemory, bool reduceTime)
             switch (channelIndex % 3)
             {
                 case 0:
-                    i.insert(c.name(),Slice(HALF, (char*) (halfData - sizeof(half)*(dx/c.channel().xSampling))  , sizeof(half) , 0 , c.channel().xSampling , c.channel().ySampling ));
+                    i.insert (
+                        c.name (),
+                        Slice (
+                            HALF,
+                            (char*) (halfData -
+                                     sizeof (half) *
+                                         (dx / c.channel ().xSampling)),
+                            sizeof (half),
+                            0,
+                            c.channel ().xSampling,
+                            c.channel ().ySampling));
                     break;
                 case 1:
-                    i.insert(c.name(),Slice(FLOAT, (char*) (floatData - sizeof(float)*(dx/c.channel().xSampling))  , sizeof(float) , 0 , c.channel().xSampling , c.channel().ySampling ));
+                    i.insert (
+                        c.name (),
+                        Slice (
+                            FLOAT,
+                            (char*) (floatData -
+                                     sizeof (float) *
+                                         (dx / c.channel ().xSampling)),
+                            sizeof (float),
+                            0,
+                            c.channel ().xSampling,
+                            c.channel ().ySampling));
                     break;
                 case 2:
-                    i.insert(c.name(),Slice(UINT, (char*) (uintData - sizeof(unsigned int)*(dx/c.channel().xSampling))  , sizeof(unsigned int) , 0 , c.channel().xSampling , c.channel().ySampling ));
+                    i.insert (
+                        c.name (),
+                        Slice (
+                            UINT,
+                            (char*) (uintData -
+                                     sizeof (unsigned int) *
+                                         (dx / c.channel ().xSampling)),
+                            sizeof (unsigned int),
+                            0,
+                            c.channel ().xSampling,
+                            c.channel ().ySampling));
                     break;
             }
             channelIndex++;
@@ -477,7 +504,7 @@ readDeepScanLine (T& in, bool reduceMemory, bool reduceTime)
             // - bufferSize is how much memory this function will allocate
             // - fileBufferSize tracks how much decompressed data the library will require
             //
-            size_t bufferSize = 0;
+            size_t bufferSize     = 0;
             size_t fileBufferSize = 0;
             for (uint64_t j = 0; j < w; j++)
             {
@@ -499,7 +526,8 @@ readDeepScanLine (T& in, bool reduceMemory, bool reduceTime)
             //
             // limit total number of samples read in reduceMemory mode
             //
-            if (!reduceMemory || fileBufferSize + bufferSize < gMaxBytesPerDeepScanline)
+            if (!reduceMemory ||
+                fileBufferSize + bufferSize < gMaxBytesPerDeepScanline)
             {
                 //
                 // allocate sample buffer and set per-pixel pointers into buffer
@@ -563,7 +591,7 @@ readDeepTile (T& in, bool reduceMemory, bool reduceTime)
 
         Array2D<unsigned int> localSampleCount;
 
-        int      bytesPerSample = calculateBytesPerPixel (in.header ());
+        int bytesPerSample = calculateBytesPerPixel (in.header ());
 
         const TileDescription& td         = in.header ().tileDescription ();
         int                    tileWidth  = td.xSize;
@@ -657,15 +685,16 @@ readDeepTile (T& in, bool reduceMemory, bool reduceTime)
                                 in.readPixelSampleCounts (
                                     x, y, x, y, xlevel, ylevel);
 
-                                size_t bufferSize = 0;
+                                size_t bufferSize     = 0;
                                 size_t fileBufferSize = 0;
 
                                 for (int ty = 0; ty < tileHeight; ++ty)
                                 {
                                     for (int tx = 0; tx < tileWidth; ++tx)
                                     {
-                                        fileBufferSize += channelCount *
-                                                localSampleCount[ty][tx];
+                                        fileBufferSize +=
+                                            channelCount *
+                                            localSampleCount[ty][tx];
 
                                         if (!reduceMemory ||
                                             localSampleCount[ty][tx] *
@@ -682,7 +711,8 @@ readDeepTile (T& in, bool reduceMemory, bool reduceTime)
                                 // skip reading if no data to read, or limiting memory and tile is too large
                                 if (bufferSize > 0 &&
                                     (!reduceMemory ||
-                                     (fileBufferSize + bufferSize) * bytesPerSample <
+                                     (fileBufferSize + bufferSize) *
+                                             bytesPerSample <
                                          gMaxBytesPerDeepPixel))
                                 {
 
@@ -1028,24 +1058,21 @@ runChecks (T& source, bool reduceMemory, bool reduceTime)
     // in reduceMemory/reduceTime mode, limit image size, tile size, and maximum deep samples
     //
 
-    uint64_t oldMaxSampleCount = CompositeDeepScanLine::getMaximumSampleCount();
+    uint64_t oldMaxSampleCount =
+        CompositeDeepScanLine::getMaximumSampleCount ();
 
-    int maxImageWidth , maxImageHeight;
-    Header::getMaxImageSize(maxImageWidth,maxImageHeight);
+    int maxImageWidth, maxImageHeight;
+    Header::getMaxImageSize (maxImageWidth, maxImageHeight);
 
-    int maxTileWidth , maxTileHeight;
-    Header::getMaxImageSize(maxTileWidth,maxTileHeight);
+    int maxTileWidth, maxTileHeight;
+    Header::getMaxImageSize (maxTileWidth, maxTileHeight);
 
-
-    if( reduceMemory || reduceTime)
+    if (reduceMemory || reduceTime)
     {
-        CompositeDeepScanLine::setMaximumSampleCount(1<<20);
-        Header::setMaxImageSize(2048,2048);
-        Header::setMaxTileSize(512,512);
+        CompositeDeepScanLine::setMaximumSampleCount (1 << 20);
+        Header::setMaxImageSize (2048, 2048);
+        Header::setMaxTileSize (512, 512);
     }
-
-
-
 
     //
     // multipart test: also grab the type of the first part to
@@ -1065,7 +1092,7 @@ runChecks (T& source, bool reduceMemory, bool reduceTime)
     // If the MultiPartInputFile constructor throws an exception, the first part
     // will assumed to be a wide image
     //
-    bool largeTiles    = true;
+    bool largeTiles = true;
 
     bool threw = false;
     {
@@ -1191,11 +1218,9 @@ runChecks (T& source, bool reduceMemory, bool reduceTime)
         if (gotThrow && firstPartType == DEEPTILE) { threw = true; }
     }
 
-
-
-    CompositeDeepScanLine::setMaximumSampleCount(oldMaxSampleCount);
-    Header::setMaxImageSize(maxImageWidth,maxImageHeight);
-    Header::setMaxTileSize(maxTileWidth,maxTileHeight);
+    CompositeDeepScanLine::setMaximumSampleCount (oldMaxSampleCount);
+    Header::setMaxImageSize (maxImageWidth, maxImageHeight);
+    Header::setMaxTileSize (maxTileWidth, maxTileHeight);
 
     return threw;
 }
@@ -1204,16 +1229,16 @@ runChecks (T& source, bool reduceMemory, bool reduceTime)
 // total unpacked_size field which can be used for allocation
 // but this adds an additional point to use when debugging issues.
 static exr_result_t
-realloc_deepdata(exr_decode_pipeline_t* decode)
+realloc_deepdata (exr_decode_pipeline_t* decode)
 {
-    int32_t w = decode->chunk.width;
-    int32_t h = decode->chunk.height;
-    uint64_t totsamps = 0, bytes = 0;
-    const int32_t *sampbuffer = decode->sample_count_table;
-    std::vector<uint8_t>* ud = static_cast<std::vector<uint8_t>*>(
-        decode->decoding_user_data);
+    int32_t               w        = decode->chunk.width;
+    int32_t               h        = decode->chunk.height;
+    uint64_t              totsamps = 0, bytes = 0;
+    const int32_t*        sampbuffer = decode->sample_count_table;
+    std::vector<uint8_t>* ud =
+        static_cast<std::vector<uint8_t>*> (decode->decoding_user_data);
 
-    if ( ! ud )
+    if (!ud)
     {
         for (int c = 0; c < decode->channel_count; c++)
         {
@@ -1225,8 +1250,7 @@ realloc_deepdata(exr_decode_pipeline_t* decode)
         return EXR_ERR_SUCCESS;
     }
 
-    if ((decode->decode_flags &
-         EXR_DECODE_SAMPLE_COUNTS_AS_INDIVIDUAL))
+    if ((decode->decode_flags & EXR_DECODE_SAMPLE_COUNTS_AS_INDIVIDUAL))
     {
         for (int32_t y = 0; y < h; ++y)
         {
@@ -1238,7 +1262,7 @@ realloc_deepdata(exr_decode_pipeline_t* decode)
     else
     {
         for (int32_t y = 0; y < h; ++y)
-            totsamps += sampbuffer[y*w + w - 1];
+            totsamps += sampbuffer[y * w + w - 1];
     }
 
     for (int c = 0; c < decode->channel_count; c++)
@@ -1262,8 +1286,7 @@ realloc_deepdata(exr_decode_pipeline_t* decode)
     if (ud->size () < bytes)
     {
         ud->resize (bytes);
-        if (ud->capacity() < bytes)
-            return EXR_ERR_OUT_OF_MEMORY;
+        if (ud->capacity () < bytes) return EXR_ERR_OUT_OF_MEMORY;
     }
 
     uint8_t* dptr = &((*ud)[0]);
@@ -1296,7 +1319,7 @@ readCoreScanlinePart (
         (uint64_t) ((int64_t) datawin.max.y - (int64_t) datawin.min.y + 1);
 
     std::vector<uint8_t>  imgdata;
-    bool                  doread = false;
+    bool                  doread  = false;
     exr_decode_pipeline_t decoder = EXR_DECODE_PIPELINE_INITIALIZER;
 
     int32_t lines_per_chunk;
@@ -1336,8 +1359,7 @@ readCoreScanlinePart (
             }
 
             doread = true;
-            if (reduceMemory && bytes >= gMaxBytesPerScanline)
-                doread = false;
+            if (reduceMemory && bytes >= gMaxBytesPerScanline) doread = false;
 
             if (cinfo.type == EXR_STORAGE_DEEP_SCANLINE)
             {
@@ -1375,11 +1397,11 @@ readCoreScanlinePart (
                 {
                     exr_coding_channel_info_t& outc = decoder.channels[c];
                     outc.decode_to_ptr              = dptr;
-                    outc.user_pixel_stride          = outc.user_bytes_per_element;
-                    outc.user_line_stride           = outc.user_pixel_stride * width;
+                    outc.user_pixel_stride = outc.user_bytes_per_element;
+                    outc.user_line_stride  = outc.user_pixel_stride * width;
 
                     dptr += width * (uint64_t) outc.user_bytes_per_element *
-                        (uint64_t) lines_per_chunk;
+                            (uint64_t) lines_per_chunk;
                 }
             }
 
@@ -1421,7 +1443,7 @@ readCoreTiledPart (
     rv = exr_get_tile_levels (f, part, &levelsx, &levelsy);
     if (rv != EXR_ERR_SUCCESS) return true;
 
-    frv = rv;
+    frv            = rv;
     bool keepgoing = true;
     for (int32_t ylevel = 0; keepgoing && ylevel < levelsy; ++ylevel)
     {
@@ -1489,7 +1511,7 @@ readCoreTiledPart (
                             exr_decoding_initialize (f, part, &cinfo, &decoder);
                         if (rv != EXR_ERR_SUCCESS)
                         {
-                            frv = rv;
+                            frv       = rv;
                             keepgoing = false;
                             break;
                         }
@@ -1516,8 +1538,9 @@ readCoreTiledPart (
 
                         if (cinfo.type == EXR_STORAGE_DEEP_TILED)
                         {
-                            decoder.decoding_user_data       = &tiledata;
-                            decoder.realloc_nonimage_data_fn = &realloc_deepdata;
+                            decoder.decoding_user_data = &tiledata;
+                            decoder.realloc_nonimage_data_fn =
+                                &realloc_deepdata;
                         }
                         else
                         {
@@ -1527,7 +1550,7 @@ readCoreTiledPart (
                             f, part, &decoder);
                         if (rv != EXR_ERR_SUCCESS)
                         {
-                            frv = rv;
+                            frv       = rv;
                             keepgoing = false;
                             break;
                         }
@@ -1562,8 +1585,8 @@ readCoreTiledPart (
                                 outc.user_line_stride =
                                     outc.user_pixel_stride * curtw;
                                 dptr += (uint64_t) curtw *
-                                    (uint64_t) outc.user_bytes_per_element *
-                                    (uint64_t) curth;
+                                        (uint64_t) outc.user_bytes_per_element *
+                                        (uint64_t) curth;
                             }
                         }
 
@@ -1605,14 +1628,12 @@ checkCoreFile (exr_context_t f, bool reduceMemory, bool reduceTime)
         rv = exr_get_storage (f, p, &store);
         if (rv != EXR_ERR_SUCCESS) return true;
 
-        if (store == EXR_STORAGE_SCANLINE ||
-            store == EXR_STORAGE_DEEP_SCANLINE)
+        if (store == EXR_STORAGE_SCANLINE || store == EXR_STORAGE_DEEP_SCANLINE)
         {
             if (readCoreScanlinePart (f, p, reduceMemory, reduceTime))
                 return true;
         }
-        else if (store == EXR_STORAGE_TILED ||
-                 store == EXR_STORAGE_DEEP_TILED)
+        else if (store == EXR_STORAGE_TILED || store == EXR_STORAGE_DEEP_TILED)
         {
             if (readCoreTiledPart (f, p, reduceMemory, reduceTime)) return true;
         }
@@ -1659,10 +1680,10 @@ runCoreChecks (const char* filename, bool reduceMemory, bool reduceTime)
          * exr_set_default_maximum_image_size (2048, 2048);
          * exr_set_default_maximum_tile_size (512, 512);
          */
-        cinit.max_image_width = 2048;
+        cinit.max_image_width  = 2048;
         cinit.max_image_height = 2048;
-        cinit.max_tile_width = 512;
-        cinit.max_tile_height = 512;
+        cinit.max_tile_width   = 512;
+        cinit.max_tile_height  = 512;
     }
 
     rv = exr_start_read (&f, filename, &cinit);
@@ -1697,7 +1718,7 @@ memstream_read (
     {
         memdata* md   = static_cast<memdata*> (userdata);
         uint64_t left = sz;
-        if (offset > md->bytes ||  sz > md->bytes || offset+sz > md->bytes)
+        if (offset > md->bytes || sz > md->bytes || offset + sz > md->bytes)
             left = (offset < md->bytes) ? md->bytes - offset : 0;
         if (left > 0) memcpy (buffer, md->data + offset, left);
         rdsz = static_cast<int64_t> (left);
@@ -1742,10 +1763,10 @@ runCoreChecks (
          * exr_set_default_maximum_image_size (2048, 2048);
          * exr_set_default_maximum_tile_size (512, 512);
          */
-        cinit.max_image_width = 2048;
+        cinit.max_image_width  = 2048;
         cinit.max_image_height = 2048;
-        cinit.max_tile_width = 512;
-        cinit.max_tile_height = 512;
+        cinit.max_tile_width   = 512;
+        cinit.max_tile_height  = 512;
     }
 
     rv = exr_start_read (&f, "<memstream>", &cinit);
@@ -1762,21 +1783,14 @@ runCoreChecks (
 
 bool
 checkOpenEXRFile (
-    const char* fileName,
-    bool        reduceMemory,
-    bool        reduceTime,
-    bool        runCoreCheck)
+    const char* fileName, bool reduceMemory, bool reduceTime, bool runCoreCheck)
 {
 
     if (runCoreCheck)
     {
         return runCoreChecks (fileName, reduceMemory, reduceTime);
     }
-    else
-    {
-        return runChecks (fileName, reduceMemory, reduceTime);
-    }
-
+    else { return runChecks (fileName, reduceMemory, reduceTime); }
 }
 
 bool
@@ -1788,18 +1802,15 @@ checkOpenEXRFile (
     bool        runCoreCheck)
 {
 
-
-     if (runCoreCheck)
-     {
+    if (runCoreCheck)
+    {
         return runCoreChecks (data, numBytes, reduceMemory, reduceTime);
-     }
-     else
-     {
+    }
+    else
+    {
         PtrIStream stream (data, numBytes);
         return runChecks (stream, reduceMemory, reduceTime);
     }
-
-
 }
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

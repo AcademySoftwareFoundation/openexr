@@ -47,10 +47,10 @@ public:
     {
         if (_locked) _mutex.unlock ();
     }
-    Lock (const Lock&) = delete;
+    Lock (const Lock&)            = delete;
     Lock& operator= (const Lock&) = delete;
     Lock (Lock&&)                 = delete;
-    Lock& operator= (Lock&&) = delete;
+    Lock& operator= (Lock&&)      = delete;
 
     void acquire ()
     {

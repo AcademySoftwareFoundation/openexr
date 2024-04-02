@@ -211,10 +211,10 @@ private:
     //------------------------------------------------------------
     IMF_HIDDEN OutputFile (const OutputPartData* part);
 
-    OutputFile (const OutputFile&) = delete;
+    OutputFile (const OutputFile&)            = delete;
     OutputFile& operator= (const OutputFile&) = delete;
     OutputFile (OutputFile&&)                 = delete;
-    OutputFile& operator= (OutputFile&&) = delete;
+    OutputFile& operator= (OutputFile&&)      = delete;
 
     void initialize (const Header& header);
 

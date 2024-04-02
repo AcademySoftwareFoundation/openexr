@@ -68,9 +68,9 @@ struct CompressionRecord
 {
     CompressionRecord ()
     {
-        exr_get_default_zip_compression_level(&zip_level);
-        exr_get_default_dwa_compression_quality(&dwa_level);
-        exr_get_default_zstd_compression_level(&zstd_level);
+        exr_get_default_zip_compression_level (&zip_level);
+        exr_get_default_dwa_compression_quality (&dwa_level);
+        exr_get_default_zstd_compression_level (&zstd_level);
     }
     int   zip_level;
     float dwa_level;
@@ -421,7 +421,8 @@ Header::erase (const char name[])
             "Image attribute name cannot be an empty string.");
 
     AttributeMap::iterator i = _map.find (name);
-    if (i != _map.end ()) {
+    if (i != _map.end ())
+    {
         delete i->second;
         _map.erase (i);
     }
@@ -1288,17 +1289,16 @@ Header::setMaxTileSize (int maxWidth, int maxHeight)
 void
 Header::getMaxImageSize (int& maxWidth, int& maxHeight)
 {
-    maxWidth = maxImageWidth;
+    maxWidth  = maxImageWidth;
     maxHeight = maxImageHeight;
 }
 
 void
 Header::getMaxTileSize (int& maxWidth, int& maxHeight)
 {
-    maxWidth = maxTileWidth;
-    maxHeight= maxTileHeight;
+    maxWidth  = maxTileWidth;
+    maxHeight = maxTileHeight;
 }
-
 
 bool
 Header::readsNothing ()

@@ -110,7 +110,7 @@ DwaCompressor_construct (
 
     if (encode)
     {
-        const struct _internal_exr_context* pctxt = EXR_CCTXT (encode->context);
+        exr_const_context_t pctxt = encode->context;
 
         me->alloc_fn = pctxt ? pctxt->alloc_fn : internal_exr_alloc;
         me->free_fn  = pctxt ? pctxt->free_fn : internal_exr_free;
@@ -154,7 +154,7 @@ DwaCompressor_construct (
     }
     else
     {
-        const struct _internal_exr_context* pctxt = EXR_CCTXT (decode->context);
+        exr_const_context_t pctxt = decode->context;
 
         me->alloc_fn = pctxt ? pctxt->alloc_fn : internal_exr_alloc;
         me->free_fn  = pctxt ? pctxt->free_fn : internal_exr_free;
@@ -253,9 +253,8 @@ DwaCompressor_compress (DwaCompressor* me)
 
     // Starting with DWA v2, we write the channel
     // classification rules into the file
-    me->_channelRules = sDefaultChannelRules;
-    me->_channelRuleCount =
-        sizeof (sDefaultChannelRules) / sizeof (Classifier);
+    me->_channelRules     = sDefaultChannelRules;
+    me->_channelRuleCount = sizeof (sDefaultChannelRules) / sizeof (Classifier);
 
     rv = DwaCompressor_initializeBuffers (me, &outBufferSize);
 
@@ -758,8 +757,8 @@ DwaCompressor_uncompress (
                      dcCompressedSize + rleCompressedSize;
 
     dataPtrEnd = inPtr + iSize;
-    dataPtr  = inPtr + headerSize;
-    dataLeft = iSize - headerSize;
+    dataPtr    = inPtr + headerSize;
+    dataLeft   = iSize - headerSize;
 
     /* Both the sum and individual sizes are checked in case of overflow. */
     if (iSize < (headerSize + compressedSize) ||
@@ -836,12 +835,9 @@ DwaCompressor_uncompress (
     compressedDcBuf  = compressedAcBuf + (ptrdiff_t) (acCompressedSize);
     compressedRleBuf = compressedDcBuf + (ptrdiff_t) (dcCompressedSize);
 
-    if (compressedUnknownBuf > dataPtrEnd ||
-        dataPtr > compressedAcBuf ||
-        compressedAcBuf > dataPtrEnd ||
-        dataPtr > compressedDcBuf ||
-        compressedDcBuf > dataPtrEnd ||
-        dataPtr > compressedRleBuf ||
+    if (compressedUnknownBuf > dataPtrEnd || dataPtr > compressedAcBuf ||
+        compressedAcBuf > dataPtrEnd || dataPtr > compressedDcBuf ||
+        compressedDcBuf > dataPtrEnd || dataPtr > compressedRleBuf ||
         compressedRleBuf > dataPtrEnd ||
         (compressedRleBuf + rleCompressedSize) > dataPtrEnd)
     {
@@ -1604,7 +1600,7 @@ DwaCompressor_classifyChannels (DwaCompressor* me)
             prefixMap,
             me->_numChannels,
             curc->channel_name,
-            (size_t) (curc->channel_name - suffix));
+            (size_t) (suffix - curc->channel_name));
 
         for (size_t i = 0; i < me->_channelRuleCount; ++i)
         {
@@ -1703,7 +1699,7 @@ DwaCompressor_setupChannelData (DwaCompressor* me)
         {
             for (int byte = 1; byte < curc->bytes_per_element; ++byte)
             {
-                cd->planarUncRle[byte] = 0;
+                cd->planarUncRle[byte]    = 0;
                 cd->planarUncRleEnd[byte] = 0;
             }
         }

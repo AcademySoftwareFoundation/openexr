@@ -102,9 +102,10 @@ generateRandomFile (
 
     frameBuffer.insertSampleCountSlice (Slice (
         IMF::UINT, // type // 7
-        (char*) (&sampleCount[0][0] - dataWindow.min.x - dataWindow.min.y * width), // base // 8
-        sizeof (unsigned int) * 1,       // xStride// 9
-        sizeof (unsigned int) * width)); // yStride// 10
+        (char*) (&sampleCount[0][0] - dataWindow.min.x -
+                 dataWindow.min.y * width), // base // 8
+        sizeof (unsigned int) * 1,          // xStride// 9
+        sizeof (unsigned int) * width));    // yStride// 10
 
     for (int i = 0; i < channelCount; i++)
     {
@@ -121,10 +122,11 @@ generateRandomFile (
             str, // name // 6
             DeepSlice (
                 type, // type // 7
-                (char*) (&data[i][0][0] - dataWindow.min.x - dataWindow.min.y * width), // base // 8
-                pointerSize * 1,     // xStride// 9
-                pointerSize * width, // yStride// 10
-                sampleSize));        // sampleStride
+                (char*) (&data[i][0][0] - dataWindow.min.x -
+                         dataWindow.min.y * width), // base // 8
+                pointerSize * 1,                    // xStride// 9
+                pointerSize * width,                // yStride// 10
+                sampleSize));                       // sampleStride
     }
 
     for (int p = 0; p < parts; p++)
@@ -164,7 +166,7 @@ generateRandomFile (
                 sampleCount[i][j] = rand () % 4 + 1;
                 for (int k = 0; k < channelCount; k++)
                 {
-                    delete[](float*) data[k][i][j];
+                    delete[] (float*) data[k][i][j];
                 }
             }
         }
@@ -199,9 +201,10 @@ readFile (const char filename[])
 
         frameBuffer.insertSampleCountSlice (Slice (
             IMF::UINT, // type // 7
-            (char*) (&localSampleCount[0][0] - dataWindow.min.x - dataWindow.min.y * width), // base // 8)
-            sizeof (unsigned int) * 1,       // xStride// 9
-            sizeof (unsigned int) * width)); // yStride// 10
+            (char*) (&localSampleCount[0][0] - dataWindow.min.x -
+                     dataWindow.min.y * width), // base // 8)
+            sizeof (unsigned int) * 1,          // xStride// 9
+            sizeof (unsigned int) * width));    // yStride// 10
 
         vector<int> read_channel (channelCount);
 
@@ -221,10 +224,11 @@ readFile (const char filename[])
                 str,
                 DeepSlice (
                     type,
-                    (char*) (&data[i][0][0] - dataWindow.min.x - dataWindow.min.y * width), // base // 8)
-                    pointerSize * 1,     // xStride// 9
-                    pointerSize * width, // yStride// 10
-                    sampleSize));        // sampleStride
+                    (char*) (&data[i][0][0] - dataWindow.min.x -
+                             dataWindow.min.y * width), // base // 8)
+                    pointerSize * 1,                    // xStride// 9
+                    pointerSize * width,                // yStride// 10
+                    sampleSize));                       // sampleStride
         }
 
         file.setFrameBuffer (frameBuffer);
@@ -254,7 +258,7 @@ readFile (const char filename[])
             for (int j = 0; j < width; j++)
                 for (int k = 0; k < channelCount; k++)
                 {
-                    delete[](float*) data[k][i][j];
+                    delete[] (float*) data[k][i][j];
                 }
     }
     catch (std::exception& e)
@@ -288,12 +292,12 @@ readFile (const char filename[])
 
             DeepFrameBuffer frameBuffer;
 
-            frameBuffer.insertSampleCountSlice (Slice (IMF::UINT,        // type // 7
-                                                       (char *) (&localSampleCount[0][0]
-                                                       - dataWindow.min.x
-                                                       - dataWindow.min.y * width),        // base // 8)
-                                                       sizeof (unsigned int) * 1,          // xStride// 9
-                                                       sizeof (unsigned int) * width));    // yStride// 10
+            frameBuffer.insertSampleCountSlice (Slice (
+                IMF::UINT, // type // 7
+                (char*) (&localSampleCount[0][0] - dataWindow.min.x -
+                         dataWindow.min.y * width), // base // 8)
+                sizeof (unsigned int) * 1,          // xStride// 9
+                sizeof (unsigned int) * width));    // yStride// 10
 
             vector<int> read_channel (channelCount);
 
@@ -309,14 +313,15 @@ readFile (const char filename[])
 
                 int pointerSize = sizeof (char*);
 
-                frameBuffer.insert (str,                    
-                                    DeepSlice (type,        
-                                               (char *) (&data[i][0][0]
-                                               - dataWindow.min.x
-                                               - dataWindow.min.y * width), // base // 8)
-                                               pointerSize * 1,             // xStride// 9
-                                               pointerSize * width,         // yStride// 10
-                                               sampleSize));                // sampleStride
+                frameBuffer.insert (
+                    str,
+                    DeepSlice (
+                        type,
+                        (char*) (&data[i][0][0] - dataWindow.min.x -
+                                 dataWindow.min.y * width), // base // 8)
+                        pointerSize * 1,                    // xStride// 9
+                        pointerSize * width,                // yStride// 10
+                        sampleSize));                       // sampleStride
             }
 
             inpart.setFrameBuffer (frameBuffer);
@@ -346,7 +351,7 @@ readFile (const char filename[])
                 {
                     for (int k = 0; k < channelCount; k++)
                     {
-                        delete[](float*) data[k][i][j];
+                        delete[] (float*) data[k][i][j];
                     }
                 }
             }

@@ -123,7 +123,7 @@ testReadMeta (const std::string& tempdir)
     fn += "v1.7.test.1.exr";
     exr_context_initializer_t cinit = EXR_DEFAULT_CONTEXT_INITIALIZER;
     cinit.error_handler_fn          = &err_cb;
-    exr_attribute_t*       newattr;
+    exr_attribute_t* newattr;
 
     EXRCORE_TEST_RVAL (exr_test_file_header (fn.c_str (), &cinit));
     EXRCORE_TEST_RVAL (exr_start_read (&f, fn.c_str (), &cinit));
