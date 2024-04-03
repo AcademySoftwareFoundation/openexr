@@ -259,7 +259,7 @@ cc_library(
     deps = [
         "@imath//:Imath",
         "@libdeflate//:deflate",
-        "@c-blosc2//c-blosc2",
+        "@c-blosc2//:c-blosc2",
     ],
 )
 
@@ -503,7 +503,7 @@ cc_library(
         ":IlmThread",
         ":OpenEXRCore",
         "@imath//:Imath",
-        "@c-blosc2//c-blosc2",
+        "@c-blosc2//:c-blosc2",
     ],
 )
 
