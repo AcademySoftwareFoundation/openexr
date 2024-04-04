@@ -399,9 +399,6 @@ if(NOT TARGET Blosc2::blosc2_static AND NOT Blosc2_FOUND)
     
     get_target_property(blosc2libdir Blosc2::blosc2_static BINARY_DIR)
     set(BLOSC2_LIB_DIR ${blosc2libdir})
-    
-    get_target_property(blosc2libname Blosc2::blosc2_static OUTPUT_NAME)
-    set(BLOSC2_LIB_NAME ${blosc2libname})
   endif()
 else()
   message(STATUS "Blosc2: Using installed Blosc2 ${Blosc2_VERSION} from ${Blosc2_DIR}")
@@ -416,11 +413,6 @@ else()
     get_target_property(blosc2libdir Blosc2::blosc2_static BINARY_DIR)
     _error_if_not_found("BINARY_DIR" ${blosc2libdir} "")
     set(BLOSC2_LIB_DIR ${blosc2libdir})
-    
-    get_target_property(blosc2libname Blosc2::blosc2_static OUTPUT_NAME)
-    # fallback because it fails for me but I think it may be a bug.
-    _error_if_not_found("OUTPUT_NAME" ${blosc2libname} "blosc2")
-    set(BLOSC2_LIB_NAME ${blosc2libname})
   endif()
 endif()
 
