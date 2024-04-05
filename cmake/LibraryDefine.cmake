@@ -37,7 +37,7 @@ function(OPENEXR_DEFINE_LIBRARY libname)
     message(STATUS ">> BLOSC2_LIB_DIR: ${BLOSC2_LIB_DIR}")
     target_include_directories(${objlib} PRIVATE ${BLOSC2_INCLUDE_DIRS})
     target_link_directories(${objlib} PRIVATE ${BLOSC2_LIB_DIR})
-    target_link_libraries(${objlib} PRIVATE Blosc2::blosc2_static "dl")
+    target_link_libraries(${objlib} PRIVATE Blosc2::blosc2_static ${CMAKE_DL_LIBS})
     # install the static library if not using the installed lib.
     if(TARGET blosc2_static AND NOT Blosc2_FOUND)
       install(TARGETS blosc2_static EXPORT ${objlib})
