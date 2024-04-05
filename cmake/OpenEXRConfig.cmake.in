@@ -5,12 +5,10 @@
 
 include(CMakeFindDependencyMacro)
 
-set(openexr_needthreads @OPENEXR_ENABLE_THREADING@)
-if (openexr_needthreads)
-  set(THREADS_PREFER_PTHREAD_FLAG ON)
-  find_dependency(Threads)
-endif()
-unset(openexr_needthreads)
+# blosc2 needs threads, so we set it irrespective of OPENEXR_ENABLE_THREADING 
+# which enables threaded processing of requests.
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_dependency(Threads)
 
 find_dependency(Imath)
 
