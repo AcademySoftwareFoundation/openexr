@@ -26,10 +26,5 @@ cc_test(
     ],
     deps = [
         "//:OpenEXR",
-        "@c-blosc2//:c-blosc2",
     ],
-    linkopts = [
-        "-lblosc2",
-        "-ldl"
-    ]
 )
