@@ -24,6 +24,16 @@ requires-python = ">=3.7"
 [project.optional-dependencies]
 test = ["pytest"]
 
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = ["-ra", "--showlocals", "--strict-markers", "--strict-config"]
+xfail_strict = true
+log_cli_level = "INFO"
+filterwarnings = [
+  "error",
+]
+testpaths = ["tests"]
+
 [tool.scikit-build]
 wheel.expand-macos-universal-tags = true
 sdist.exclude = [".github", "src/test", "src/examples", "website", "ASWF", "bazel", "share"]
@@ -56,7 +66,7 @@ BUILD_SHARED_LIBS = 'OFF'
 CMAKE_POSITION_INDEPENDENT_CODE = 'ON'
 
 [tool.cibuildwheel]
-test-command = "ctest -R PyOpenEXR"
+test-command = "pytest -s {project}/src/wrappers/python/tests"
 test-extras = ["test"]
 test-skip = ["*universal2:arm64"]
 build-verbosity = 1

@@ -69,6 +69,9 @@ for more information.
 
 # Quick Start
 
+<!-- this code is replicated as a test in -->
+<!-- src/wrappers/python/test/test_readme.py -->
+
 The "hello, world" image writer:
 
     import OpenEXR
