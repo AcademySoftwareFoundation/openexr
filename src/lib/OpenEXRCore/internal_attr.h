@@ -9,7 +9,7 @@
 #include "openexr_attr.h"
 #include "openexr_context.h"
 
-/** 
+/**
  * @defgroup InternalAttributeFunctions Functions for manipulating attributes
  *
  * The functions are currently internal to the library and are not
