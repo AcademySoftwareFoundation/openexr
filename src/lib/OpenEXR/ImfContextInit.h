@@ -8,7 +8,7 @@
 
 #include "ImfForward.h"
 
-#include "openexr_context.h"
+#include "openexr.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
