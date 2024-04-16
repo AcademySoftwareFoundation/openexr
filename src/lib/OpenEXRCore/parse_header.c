@@ -1596,13 +1596,25 @@ check_populate_type (
     }
 
     if (strcmp ((const char*) outstr, "scanlineimage") == 0)
-        curpart->storage_mode = EXR_STORAGE_SCANLINE;
+    {
+        if (ctxt->has_nonimage_data || ctxt->is_multipart)
+            curpart->storage_mode = EXR_STORAGE_SCANLINE;
+    }
     else if (strcmp ((const char*) outstr, "tiledimage") == 0)
-        curpart->storage_mode = EXR_STORAGE_TILED;
+    {
+        if (ctxt->has_nonimage_data || ctxt->is_multipart)
+            curpart->storage_mode = EXR_STORAGE_TILED;
+    }
     else if (strcmp ((const char*) outstr, "deepscanline") == 0)
-        curpart->storage_mode = EXR_STORAGE_DEEP_SCANLINE;
+    {
+        if (ctxt->has_nonimage_data || ctxt->is_multipart)
+            curpart->storage_mode = EXR_STORAGE_DEEP_SCANLINE;
+    }
     else if (strcmp ((const char*) outstr, "deeptile") == 0)
-        curpart->storage_mode = EXR_STORAGE_DEEP_TILED;
+    {
+        if (ctxt->has_nonimage_data || ctxt->is_multipart)
+            curpart->storage_mode = EXR_STORAGE_DEEP_TILED;
+    }
     else
     {
         rv = ctxt->print_error (
@@ -2478,6 +2490,7 @@ read_magic_and_flags (exr_context_t ctxt, uint32_t* outflags, uint64_t* initpos)
 
     flags = magic_and_version[1];
 
+    ctxt->orig_version_and_flags = flags;
     ctxt->version = flags & EXR_FILE_VERSION_MASK;
     if (ctxt->version != 2)
     {
@@ -2571,27 +2584,26 @@ internal_exr_parse_header (exr_context_t ctxt)
     {
         if (ctxt->has_nonimage_data || ctxt->is_multipart)
         {
-            if (ctxt->strict_header)
-            {
-                rv = ctxt->print_error (
-                    ctxt,
-                    EXR_ERR_FILE_BAD_HEADER,
-                    "Invalid combination of version flags: single part found, but also marked as deep (%d) or multipart (%d)",
-                    (int) ctxt->has_nonimage_data,
-                    (int) ctxt->is_multipart);
-                priv_destroy_scratch (&scratch);
-                return internal_exr_context_restore_handlers (ctxt, rv);
-            }
-            else
-            {
-                // assume multipart for now
-                ctxt->is_singlepart_tiled = 0;
-            }
+            // this appears to always be fatal, so do not check strict / not
+            rv = ctxt->print_error (
+                ctxt,
+                EXR_ERR_FILE_BAD_HEADER,
+                "Invalid combination of version flags: single part flag found, but also marked as deep (%d) or multipart (%d)",
+                (int) ctxt->has_nonimage_data,
+                (int) ctxt->is_multipart);
+            priv_destroy_scratch (&scratch);
+            return internal_exr_context_restore_handlers (ctxt, rv);
         }
-        curpart->storage_mode = EXR_STORAGE_TILED;
     }
-    else
-        curpart->storage_mode = EXR_STORAGE_SCANLINE;
+
+    /* leave storage mode uninitialized until we encounter the type */
+    if (!ctxt->has_nonimage_data && !ctxt->is_multipart)
+    {
+        if (ctxt->is_singlepart_tiled)
+            curpart->storage_mode = EXR_STORAGE_TILED;
+        else
+            curpart->storage_mode = EXR_STORAGE_SCANLINE;
+    }
 
     do
     {
