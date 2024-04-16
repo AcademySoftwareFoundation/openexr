@@ -101,6 +101,16 @@ typedef enum
     EXR_PIXEL_LAST_TYPE
 } exr_pixel_type_t;
 
+/** Enum declaring allowed values for \c uint8_t value stored in \c deepImageState type. */
+typedef enum
+{
+    EXR_DIS_MESSY           = 0,
+    EXR_DIS_SORTED          = 1,
+    EXR_DIS_NON_OVERLAPPING = 2,
+    EXR_DIS_TIDY            = 3,
+    EXR_DIS_LAST_TYPE /**< Invalid value, provided for range checking. */
+} exr_deep_image_state_t;
+
 /* /////////////////////////////////////// */
 /* First set of structs are data where we can read directly with no allocation needed... */
 
@@ -450,6 +460,7 @@ typedef enum
     EXR_ATTR_V3I,      /**< Set of 3 32-bit integers. */
     EXR_ATTR_V3F,      /**< Set of 3 32-bit floats. */
     EXR_ATTR_V3D,      /**< Set of 3 64-bit floats. */
+    EXR_ATTR_DEEP_IMAGE_STATE, /**< ``uint8_t`` declaring deep image state. */
     EXR_ATTR_OPAQUE,   /**< User/unknown provided type. */
     EXR_ATTR_LAST_KNOWN_TYPE
 } exr_attribute_type_t;

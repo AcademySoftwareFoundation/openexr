@@ -2044,6 +2044,16 @@ pull_attr (
             rv = extract_attr_64bit (
                 ctxt, scratch, nattr->v3d->arr, name, type, attrsz, 3);
             break;
+        case EXR_ATTR_DEEP_IMAGE_STATE:
+            rv = extract_attr_uint8 (
+                ctxt,
+                scratch,
+                &(nattr->uc),
+                name,
+                type,
+                attrsz,
+                (uint8_t) EXR_DIS_LAST_TYPE);
+            break;
         case EXR_ATTR_OPAQUE:
             rv = extract_attr_opaque (
                 ctxt, scratch, nattr->opaque, name, type, attrsz);

@@ -55,7 +55,8 @@ static struct _internal_exr_attr_map the_predefined_attr_typenames[] = {
     {"v2d", 3, EXR_ATTR_V2D, sizeof (exr_attr_v2d_t)},
     {"v3i", 3, EXR_ATTR_V3I, sizeof (exr_attr_v3i_t)},
     {"v3f", 3, EXR_ATTR_V3F, sizeof (exr_attr_v3f_t)},
-    {"v3d", 3, EXR_ATTR_V3D, sizeof (exr_attr_v3d_t)}};
+    {"v3d", 3, EXR_ATTR_V3D, sizeof (exr_attr_v3d_t)},
+    {"deepImageState", 14, EXR_ATTR_DEEP_IMAGE_STATE, 0}};
 static int the_predefined_attr_count = sizeof (the_predefined_attr_typenames) /
                                        sizeof (struct _internal_exr_attr_map);
 
@@ -88,7 +89,8 @@ attr_init (exr_context_t ctxt, exr_attribute_t* nattr)
         }
         case EXR_ATTR_COMPRESSION:
         case EXR_ATTR_ENVMAP:
-        case EXR_ATTR_LINEORDER: nattr->uc = 0; break;
+        case EXR_ATTR_LINEORDER:
+        case EXR_ATTR_DEEP_IMAGE_STATE: nattr->uc = 0; break;
         case EXR_ATTR_DOUBLE: nattr->d = 0.0; break;
         case EXR_ATTR_FLOAT: nattr->f = 0.0f; break;
         case EXR_ATTR_FLOAT_VECTOR: {
@@ -250,6 +252,7 @@ attr_destroy (exr_context_t ctxt, exr_attribute_t* attr)
         case EXR_ATTR_V3I:
         case EXR_ATTR_V3F:
         case EXR_ATTR_V3D:
+        case EXR_ATTR_DEEP_IMAGE_STATE:
         case EXR_ATTR_UNKNOWN:
         case EXR_ATTR_LAST_KNOWN_TYPE:
         default: break;
@@ -375,6 +378,7 @@ exr_attr_list_compute_size (
             case EXR_ATTR_V3I: retval += sizeof (*(cur->v3i)); break;
             case EXR_ATTR_V3F: retval += sizeof (*(cur->v3f)); break;
             case EXR_ATTR_V3D: retval += sizeof (*(cur->v3d)); break;
+            case EXR_ATTR_DEEP_IMAGE_STATE: retval += sizeof (uint8_t); break;
             case EXR_ATTR_OPAQUE:
                 if (cur->opaque->packed_data)
                     retval += (size_t) cur->opaque->size;
