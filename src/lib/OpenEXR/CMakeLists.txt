@@ -44,6 +44,8 @@ openexr_define_library(OpenEXR
     ImfCompressionAttribute.cpp
     ImfCompressor.cpp
     ImfCompression.cpp
+    ImfContext.cpp
+    ImfContextInit.cpp
     ImfConvert.cpp
     ImfCRgbaFile.cpp
     ImfDeepCompositing.cpp
@@ -137,6 +139,8 @@ openexr_define_library(OpenEXR
     ImfCompression.h
     ImfCompressionAttribute.h
     ImfCompressor.h
+    ImfContext.h
+    ImfContextInit.h
     ImfConvert.h
     ImfCRgbaFile.h
     ImfDeepCompositing.h
