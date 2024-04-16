@@ -15,25 +15,20 @@
 
 #include "ImfForward.h"
 
-#include "ImfGenericInputFile.h"
 #include "ImfThreading.h"
 
+#include "ImfContext.h"
+
+// TODO: remove this once multipart file is cleaned up
+#include "ImfGenericInputFile.h"
+
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
+
+class TiledInputFile;
 
 class IMF_EXPORT_TYPE InputFile : public GenericInputFile
 {
 public:
-    //-----------------------------------------------------------
-    // A constructor that opens the file with the specified name.
-    // Destroying the InputFile object will close the file.
-    //
-    // numThreads determines the number of threads that will be
-    // used to read the file (see ImfThreading.h).
-    //-----------------------------------------------------------
-
-    IMF_EXPORT
-    InputFile (const char fileName[], int numThreads = globalThreadCount ());
-
     //-------------------------------------------------------------
     // A constructor that attaches the new InputFile object to a
     // file that has already been opened.  Destroying the InputFile
@@ -48,12 +43,26 @@ public:
         OPENEXR_IMF_INTERNAL_NAMESPACE::IStream& is,
         int numThreads = globalThreadCount ());
 
-    //-----------
-    // Destructor
-    //-----------
-
+    //-----------------------------------------------------------
+    // A constructor that opens the file with the specified name.
+    // Destroying the InputFile object will close the file.
+    //
+    // numThreads determines the number of threads that will be
+    // used to read the file (see ImfThreading.h).
+    //-----------------------------------------------------------
     IMF_EXPORT
-    virtual ~InputFile ();
+    InputFile (const char filename[], int numThreads = globalThreadCount ());
+
+    //-----------------------------------------------------------
+    // A constructor that opens the file with the specified name
+    // and context initialization routines
+    // Destroying the InputFile object will close the file.
+    //-----------------------------------------------------------
+    IMF_EXPORT
+    InputFile (
+        const char*               filename,
+        const ContextInitializer& ctxtinit,
+        int                       numThreads = globalThreadCount ());
 
     //------------------------
     // Access to the file name
@@ -67,6 +76,8 @@ public:
     //--------------------------
 
     IMF_EXPORT
+    OPENEXR_DEPRECATED (
+        "Use context-based attribute access for faster retrieval")
     const Header& header () const;
 
     //----------------------------------
@@ -88,6 +99,8 @@ public:
     //-----------------------------------------------------------
 
     IMF_EXPORT
+    OPENEXR_DEPRECATED (
+        "Use stateless API to pass framebuffer with read request")
     void setFrameBuffer (const FrameBuffer& frameBuffer);
 
     //-----------------------------------
@@ -95,6 +108,8 @@ public:
     //-----------------------------------
 
     IMF_EXPORT
+    OPENEXR_DEPRECATED (
+        "Use stateless API to pass framebuffer with read request")
     const FrameBuffer& frameBuffer () const;
 
     //---------------------------------------------------------------
@@ -128,6 +143,7 @@ public:
     //---------------------------------------------------------------
 
     IMF_EXPORT
+    OPENEXR_DEPRECATED ("No longer meaningful")
     bool isOptimizationEnabled () const;
 
     //---------------------------------------------------------------
@@ -150,8 +166,12 @@ public:
     //---------------------------------------------------------------
 
     IMF_EXPORT
+    OPENEXR_DEPRECATED (
+        "Use stateless API to pass framebuffer with read request")
     void readPixels (int scanLine1, int scanLine2);
     IMF_EXPORT
+    OPENEXR_DEPRECATED (
+        "Use stateless API to pass framebuffer with read request")
     void readPixels (int scanLine);
 
     //----------------------------------------------
@@ -161,6 +181,7 @@ public:
     //----------------------------------------------
 
     IMF_EXPORT
+    OPENEXR_DEPRECATED ("Prefer using externally managed buffer")
     void rawPixelData (
         int firstScanLine, const char*& pixelData, int& pixelDataSize);
 
@@ -191,6 +212,7 @@ public:
     //--------------------------------------------------
 
     IMF_EXPORT
+    OPENEXR_DEPRECATED ("Prefer using externally managed buffer")
     void rawTileData (
         int&         dx,
         int&         dy,
@@ -199,28 +221,20 @@ public:
         const char*& pixelData,
         int&         pixelDataSize);
 
-    struct IMF_HIDDEN Data;
-
 private:
+    IMF_HIDDEN void initialize (void);
+
+    // TODO: Remove these once MultiPartInputFile is converted
     IMF_HIDDEN InputFile (InputPartData* part);
+    friend class MultiPartInputFile;
 
-    InputFile (const InputFile&)            = delete;
-    InputFile& operator= (const InputFile&) = delete;
-    InputFile (InputFile&&)                 = delete;
-    InputFile& operator= (InputFile&&)      = delete;
-
-    IMF_HIDDEN void initialize ();
-    IMF_HIDDEN void multiPartInitialize (InputPartData* part);
-    IMF_HIDDEN void
-    compatibilityInitialize (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream& is);
-    IMF_HIDDEN TiledInputFile* tFile ();
-
-    // for copyPixels
+    // TODO: Remove these once TiledOutputFile is converted
+    IMF_HIDDEN TiledInputFile& asTiledInput (void) const;
     friend class TiledOutputFile;
 
-    Data* _data;
-
-    friend class MultiPartInputFile;
+    Context _ctxt;
+    struct Data;
+    std::shared_ptr<Data> _data;
 };
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
