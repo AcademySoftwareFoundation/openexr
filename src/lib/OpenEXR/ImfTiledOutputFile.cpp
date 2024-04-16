@@ -1593,7 +1593,7 @@ TiledOutputFile::copyPixels (TiledInputFile& in)
 void
 TiledOutputFile::copyPixels (InputFile& in)
 {
-    copyPixels (*in.tFile ());
+    copyPixels (in.asTiledInput ());
 }
 
 void
