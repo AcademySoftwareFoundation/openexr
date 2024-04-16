@@ -5,6 +5,8 @@
 
 #include "ImfContext.h"
 
+#include "openexr.h"
+
 #include "Iex.h"
 
 // TODO: remove these once we've cleared the legacy stream need
@@ -14,8 +16,6 @@
 
 #include <string.h>
 #include <string_view>
-
-#include "openexr.h"
 
 #include <ImfBoxAttribute.h>
 #include <ImfChannelListAttribute.h>
@@ -134,18 +134,29 @@ Context::setLongNameSupport (bool onoff)
 void
 Context::startRead (const char* filename, const ContextInitializer& ctxtinit)
 {
+    exr_result_t rv;
     if (*_ctxt)
     {
         THROW (
             IEX_NAMESPACE::ArgExc, "Context already started, only start once");
     }
 
-    if (EXR_ERR_SUCCESS !=
-        exr_start_read (_ctxt.get (), filename, &(ctxtinit._initializer)))
+    rv = exr_start_read (_ctxt.get (), filename, &(ctxtinit._initializer));
+    if (EXR_ERR_SUCCESS != rv)
     {
-        THROW (
-            IEX_NAMESPACE::InputExc,
-            "Unable to open '" << filename << "' for read");
+        if (rv == EXR_ERR_MISSING_REQ_ATTR)
+        {
+            THROW (
+                IEX_NAMESPACE::ArgExc,
+                "Invalid or missing attribute when attempting to open '"
+                << filename << "' for read");
+        }
+        else
+        {
+            THROW (
+                IEX_NAMESPACE::InputExc,
+                "Unable to open '" << filename << "' for read");
+        }
     }
 
     _prov_stream = ctxtinit._prov_stream;
@@ -515,58 +526,137 @@ Context::header (int partidx) const
                 break;
             }
 
-            default: {
-                THROW (IEX_NAMESPACE::LogicExc, "Not yet implemented");
-            }
-#if 0
-            case EXR_ATTR_CHROMATICITIES:
-                retval += sizeof (*(cur->chromaticities));
+            case EXR_ATTR_TILEDESC:
+                hdr.insert (
+                    cur->name, TileDescriptionAttribute (
+                        TileDescription (
+                            cur->tiledesc->x_size,
+                            cur->tiledesc->y_size,
+                            (LevelMode)(EXR_GET_TILE_LEVEL_MODE (*cur->tiledesc)),
+                            (LevelRoundingMode)(EXR_GET_TILE_ROUND_MODE (*cur->tiledesc)))));
                 break;
+
             case EXR_ATTR_FLOAT_VECTOR:
-                retval += sizeof (float) * (size_t) (cur->floatvector->length);
+                hdr.insert (
+                    cur->name, FloatVectorAttribute (
+                        FloatVector (
+                            cur->floatvector->arr,
+                            cur->floatvector->arr + cur->floatvector->length)));
                 break;
-            case EXR_ATTR_KEYCODE: retval += sizeof (*(cur->keycode)); break;
-            case EXR_ATTR_M33F: retval += sizeof (*(cur->m33f)); break;
-            case EXR_ATTR_M33D: retval += sizeof (*(cur->m33d)); break;
-            case EXR_ATTR_M44F: retval += sizeof (*(cur->m44f)); break;
-            case EXR_ATTR_M44D: retval += sizeof (*(cur->m44d)); break;
+
+            case EXR_ATTR_M33F:
+                hdr.insert (
+                    cur->name, M33fAttribute (
+                        IMATH_NAMESPACE::M33f (
+                            *reinterpret_cast<float (*)[3][3]> (cur->m33f->m))));
+                break;
+            case EXR_ATTR_M33D:
+                hdr.insert (
+                    cur->name, M33dAttribute (
+                        IMATH_NAMESPACE::M33d (
+                            *reinterpret_cast<double (*)[3][3]> (cur->m33d->m))));
+                break;
+            case EXR_ATTR_M44F:
+                hdr.insert (
+                    cur->name, M44fAttribute (
+                        IMATH_NAMESPACE::M44f (
+                            *reinterpret_cast<float (*)[4][4]> (cur->m44f->m))));
+                break;
+            case EXR_ATTR_M44D:
+                hdr.insert (
+                    cur->name, M44dAttribute (
+                        IMATH_NAMESPACE::M44d (
+                            *reinterpret_cast<double (*)[4][4]> (cur->m44d->m))));
+                break;
+
+            case EXR_ATTR_CHROMATICITIES:
+                hdr.insert (
+                    cur->name, ChromaticitiesAttribute (
+                        Chromaticities (
+                            IMATH_NAMESPACE::V2f (
+                                cur->chromaticities->red_x,
+                                cur->chromaticities->red_y),
+                            IMATH_NAMESPACE::V2f (
+                                cur->chromaticities->green_x,
+                                cur->chromaticities->green_y),
+                            IMATH_NAMESPACE::V2f (
+                                cur->chromaticities->blue_x,
+                                cur->chromaticities->blue_y),
+                            IMATH_NAMESPACE::V2f (
+                                cur->chromaticities->white_x,
+                                cur->chromaticities->white_y))));
+                break;
+            case EXR_ATTR_KEYCODE:
+                hdr.insert (
+                    cur->name, KeyCodeAttribute (
+                        KeyCode (
+                            cur->keycode->film_mfc_code,
+                            cur->keycode->film_type,
+                            cur->keycode->prefix,
+                            cur->keycode->count,
+                            cur->keycode->perf_offset,
+                            cur->keycode->perfs_per_frame,
+                            cur->keycode->perfs_per_count)));
+                break;
+            case EXR_ATTR_RATIONAL:
+                hdr.insert (
+                    cur->name, RationalAttribute (
+                        Rational (
+                            cur->rational->num,
+                            cur->rational->denom)));
+                break;
+            case EXR_ATTR_TIMECODE:
+                hdr.insert (
+                    cur->name, TimeCodeAttribute (
+                        TimeCode (
+                            cur->timecode->time_and_flags,
+                            cur->timecode->user_data)));
+                break;
             case EXR_ATTR_PREVIEW:
-                retval += (size_t) cur->preview->width *
-                          (size_t) cur->preview->height * (size_t) 4;
+                hdr.insert (
+                    cur->name, PreviewImageAttribute (
+                        PreviewImage (
+                            cur->preview->width,
+                            cur->preview->height,
+                            reinterpret_cast<const PreviewRgba*> (cur->preview->rgba))));
                 break;
-            case EXR_ATTR_RATIONAL: retval += sizeof (*(cur->rational)); break;
             case EXR_ATTR_STRING_VECTOR:
+            {
+                std::vector<std::string> svec;
+                svec.resize (cur->stringvector->n_strings);
                 for (int s = 0; s < cur->stringvector->n_strings; ++s)
                 {
-                    retval += (size_t) cur->stringvector->strings[s].length;
-                    retval += sizeof (int32_t);
+                    svec[s] = std::string (
+                        cur->stringvector->strings[s].str,
+                        cur->stringvector->strings[s].length);
                 }
+                hdr.insert (
+                    cur->name, StringVectorAttribute (svec));
                 break;
-            case EXR_ATTR_TILEDESC: retval += sizeof (*(cur->tiledesc)); break;
-            case EXR_ATTR_TIMECODE: retval += sizeof (*(cur->timecode)); break;
-            case EXR_ATTR_OPAQUE:
-                if (cur->opaque->packed_data)
-                    retval += (size_t) cur->opaque->size;
-                else if (cur->opaque->unpacked_data)
-                {
-                    int32_t sz = 0;
-                    rv =
-                        exr_attr_opaquedata_pack (ctxt, cur->opaque, &sz, NULL);
-                    if (rv != EXR_ERR_SUCCESS) return rv;
+            }
 
-                    retval += (size_t) sz;
-                }
+            case EXR_ATTR_DEEP_IMAGE_STATE:
+                hdr.insert (
+                    cur->name, DeepImageStateAttribute (DeepImageState (cur->uc)));
                 break;
+
+            case EXR_ATTR_OPAQUE:
+                hdr.insert (
+                    cur->name, OpaqueAttribute (
+                        cur->type_name,
+                        cur->opaque->size,
+                        cur->opaque->packed_data));
+                break;
+
             case EXR_ATTR_UNKNOWN:
             case EXR_ATTR_LAST_KNOWN_TYPE:
-            default:
-                return ctxt->print_error (
-                    ctxt,
-                    EXR_ERR_INVALID_ARGUMENT,
-                    "Invalid / unhandled type '%s' for attribute '%s', unable to compute size",
-                    cur->type_name,
-                    cur->name);
-#endif
+            default: {
+                THROW (IEX_NAMESPACE::LogicExc,
+                       "Unknown attribute '"
+                       << cur->name
+                       << "' of type '"
+                       << cur->type << "', conversion to legacy header not yet implemented");
+            }
         }
     }
 
