@@ -395,17 +395,15 @@ exr_get_file_version_and_flags (exr_const_context_t ctxt, uint32_t* ver)
 
     if (ver)
     {
-        uint32_t flags = ctxt->version;
+        exr_result_t ret = EXR_ERR_SUCCESS;
 
-        if (ctxt->is_multipart) flags |= EXR_MULTI_PART_FLAG;
-        if (ctxt->max_name_length > EXR_SHORTNAME_MAXLEN)
-            flags |= EXR_LONG_NAMES_FLAG;
-        if (ctxt->has_nonimage_data) flags |= EXR_NON_IMAGE_FLAG;
-        if (ctxt->is_singlepart_tiled) flags |= EXR_TILED_FLAG;
+        if (ctxt->orig_version_and_flags != 0)
+            *ver = ctxt->orig_version_and_flags;
+        else
+            ret = internal_exr_calc_header_version_flags (ctxt, ver);
 
-        *ver = flags;
         if (ctxt->mode == EXR_CONTEXT_WRITE) internal_exr_unlock (ctxt);
-        return EXR_ERR_SUCCESS;
+        return ret;
     }
 
     if (ctxt->mode == EXR_CONTEXT_WRITE) internal_exr_unlock (ctxt);

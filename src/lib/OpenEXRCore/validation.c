@@ -8,6 +8,7 @@
 #include <limits.h>
 #include <math.h>
 #include <stdio.h>
+#include <string.h>
 
 /**************************************/
 
@@ -407,35 +408,75 @@ validate_part_type (exr_context_t f, exr_priv_part_t curpart)
     // TODO: there are probably more tests to add here...
     if (curpart->type)
     {
-        int rv;
+        const char *expectedtype = NULL;
+        exr_result_t rv;
 
         // see if the type overwrote the storage mode
-        if (f->is_singlepart_tiled &&
-            curpart->storage_mode != EXR_STORAGE_TILED)
+        if (f->is_singlepart_tiled)
         {
-            // mismatch between type attr and file flag. c++ believed the
-            // flag first and foremost
-            curpart->storage_mode = EXR_STORAGE_TILED;
-
-            // TODO: define how strict we should be
-            //exr_attr_list_remove( f, &(curpart->attributes), curpart->type );
-            //curpart->type = NULL;
-            f->print_error (
-                f,
-                EXR_ERR_INVALID_ATTR,
-                "attribute 'type': Mismatch between file flags and type string '%s', believing file flags",
-                curpart->type->string->str);
-
-            if (f->mode == EXR_CONTEXT_WRITE) return EXR_ERR_INVALID_ATTR;
-
-            rv = exr_attr_string_set_with_length (
-                (exr_context_t) f, curpart->type->string, "tiledimage", 10);
-            if (rv != EXR_ERR_SUCCESS)
+            if (f->is_multipart || f->num_parts > 1)
                 return f->print_error (
                     f,
                     EXR_ERR_INVALID_ATTR,
-                    "attribute 'type': Mismatch between file flags and type attribute, unable to fix");
+                    "Multipart files cannot have the tiled bit set");
+
+            if (curpart->storage_mode != EXR_STORAGE_TILED)
+            {
+                curpart->storage_mode = EXR_STORAGE_TILED;
+
+                if (f->strict_header)
+                {
+                    return f->print_error (
+                        f,
+                        EXR_ERR_INVALID_ATTR,
+                        "attribute 'type': Single part tiled flag set but not marked as tiled storage type");
+                }
+            }
         }
+
+        if (curpart->storage_mode == EXR_STORAGE_SCANLINE)
+            expectedtype = "scanlineimage";
+        else if (curpart->storage_mode == EXR_STORAGE_TILED)
+            expectedtype = "tiledimage";
+        else if (curpart->storage_mode == EXR_STORAGE_DEEP_SCANLINE)
+            expectedtype = "deepscanline";
+        else if (curpart->storage_mode == EXR_STORAGE_DEEP_TILED)
+            expectedtype = "deeptile";
+
+        if (expectedtype && 0 != strcmp (curpart->type->string->str, expectedtype))
+        {
+            if (f->mode == EXR_CONTEXT_WRITE) return EXR_ERR_INVALID_ATTR;
+
+            if (f->strict_header)
+            {
+                return f->print_error (
+                    f,
+                    EXR_ERR_INVALID_ATTR,
+                    "attribute 'type': Type should be '%s' but set to '%s', believing file flags",
+                    expectedtype,
+                    curpart->type->string->str);
+            }
+            else
+            {
+                /* C++ silently changed this */
+                rv = exr_attr_string_set (
+                    f, curpart->type->string, expectedtype);
+
+                if (rv != EXR_ERR_SUCCESS)
+                    return f->print_error (
+                        f,
+                        EXR_ERR_INVALID_ATTR,
+                        "attribute 'type': Mismatch between file flags and type attribute, unable to fix");
+            }
+        }
+    }
+
+    if (curpart->storage_mode == EXR_STORAGE_LAST_TYPE)
+    {
+        return f->print_error (
+            f,
+            EXR_ERR_INVALID_ATTR,
+            "Unable to determine data storage type for part");
     }
 
     return EXR_ERR_SUCCESS;
