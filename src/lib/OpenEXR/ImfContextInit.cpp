@@ -69,26 +69,25 @@ istream_read (
     int64_t nread = ih->_cur_offset;
     try
     {
-        if (ih->_stream->isMemoryMapped ())
-            memcpy (
-                buffer,
-                ih->_stream->readMemoryMapped (static_cast<int> (sz)),
-                sz);
-        else
-            ih->_stream->read (
-                static_cast<char*> (buffer), static_cast<int> (sz));
-        ih->_cur_offset = ih->_stream->tellg ();
-        nread           = ih->_cur_offset - nread;
+        ih->_stream->read (
+            static_cast<char*> (buffer), static_cast<int> (sz));
     }
     catch (...)
     {
-        error_cb (
-            ctxt,
-            EXR_ERR_READ_IO,
-            "Unable to seek to desired offset %" PRIu64,
-            offset);
-        nread = -1;
+        // bah, there could be two reasons for this, one is a
+        // legitimate error, the other is a read past the end of file
+        // (i.e. the core library tries to read a 4k block when
+        // parsing the header), let's let the core deal with that and
+        // clear errors
+        ih->_stream->clear ();
+        //error_cb (
+        //    ctxt,
+        //    EXR_ERR_READ_IO,
+        //    "Unable to read requested bytes: %" PRIu64,
+        //    sz);
     }
+    ih->_cur_offset = ih->_stream->tellg ();
+    nread           = ih->_cur_offset - nread;
     return nread;
 }
 
