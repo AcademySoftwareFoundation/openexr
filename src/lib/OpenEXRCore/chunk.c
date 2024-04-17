@@ -742,8 +742,8 @@ exr_read_scanline_chunk_info (
 
     if (!cinfo) return ctxt->standard_error (ctxt, EXR_ERR_INVALID_ARGUMENT);
 
-    if (part->storage_mode == EXR_STORAGE_TILED ||
-        part->storage_mode == EXR_STORAGE_DEEP_TILED)
+    if (part->storage_mode != EXR_STORAGE_SCANLINE &&
+        part->storage_mode != EXR_STORAGE_DEEP_SCANLINE)
     {
         return ctxt->standard_error (ctxt, EXR_ERR_SCAN_TILE_MIXEDAPI);
     }
@@ -1002,8 +1002,8 @@ exr_read_tile_chunk_info (
 
     if (!cinfo) return ctxt->standard_error (ctxt, EXR_ERR_INVALID_ARGUMENT);
 
-    if (part->storage_mode == EXR_STORAGE_SCANLINE ||
-        part->storage_mode == EXR_STORAGE_DEEP_SCANLINE)
+    if (part->storage_mode != EXR_STORAGE_TILED &&
+        part->storage_mode != EXR_STORAGE_DEEP_TILED)
     {
         return ctxt->standard_error (ctxt, EXR_ERR_TILE_SCAN_MIXEDAPI);
     }
