@@ -15,7 +15,6 @@
 #include <mutex>
 
 #include <string.h>
-#include <string_view>
 
 #include <ImfBoxAttribute.h>
 #include <ImfChannelListAttribute.h>
@@ -105,6 +104,61 @@ private:
     void*               _user_data = nullptr;
     exr_read_func_ptr_t _read_fn   = nullptr;
 }; // class LegacyStream
+
+class MemAttrStream : public OPENEXR_IMF_NAMESPACE::IStream
+{
+public:
+    MemAttrStream (const exr_attr_opaquedata_t *opaque)
+        : IStream ("<mem_attr>"),
+          _data (static_cast<char*> (opaque->packed_data)),
+          _sz (static_cast<uint64_t> (opaque->size)),
+          _pos (0)
+    {}
+
+    ~MemAttrStream () override {}
+
+    bool isMemoryMapped () const override { return true; }
+
+    bool     read (char c[/*n*/], int n) override
+    {
+        if (_pos >= _sz && n != 0)
+            throw IEX_NAMESPACE::InputExc ("Unexpected end of file.");
+
+        uint64_t n2     = n;
+        bool     retVal = true;
+
+        if (_sz - _pos <= n2)
+        {
+            n2     = _sz - _pos;
+            retVal = false;
+        }
+
+        memcpy (c, _data + _pos, n2);
+        _pos += n2;
+        return retVal;
+    }
+
+    char*    readMemoryMapped (int n) override
+    {
+        if (_pos >= _sz)
+            throw IEX_NAMESPACE::InputExc ("Unexpected end of file.");
+
+        if (_pos + n > _sz)
+            throw IEX_NAMESPACE::InputExc ("Reading past end of file.");
+
+        char* retVal = _data + _pos;
+        _pos += n;
+        return retVal;
+    }
+    uint64_t tellg () override { return _pos; }
+    void     seekg (uint64_t pos) override { _pos = pos; }
+    void     clear () override {}
+
+private:
+    char*    _data;
+    uint64_t _sz;
+    uint64_t _pos;
+};
 
 } // namespace
 ////////////////////////////////////////
@@ -641,11 +695,25 @@ Context::header (int partidx) const
                 break;
 
             case EXR_ATTR_OPAQUE:
-                hdr.insert (
-                    cur->name, OpaqueAttribute (
-                        cur->type_name,
-                        cur->opaque->size,
-                        cur->opaque->packed_data));
+                if (Attribute::knownType (cur->type_name))
+                {
+                    MemAttrStream mas {cur->opaque};
+
+                    std::unique_ptr<Attribute> attr;
+                    attr.reset (Attribute::newAttribute (cur->type_name));
+
+                    attr->readValueFrom (mas, cur->opaque->size, version ());
+                    // TODO: can we avoid a double copy?
+                    hdr.insert (cur->name, *attr);
+                }
+                else
+                {
+                    hdr.insert (
+                        cur->name, OpaqueAttribute (
+                            cur->type_name,
+                            cur->opaque->size,
+                            cur->opaque->packed_data));
+                }
                 break;
 
             case EXR_ATTR_UNKNOWN:
