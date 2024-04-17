@@ -72,7 +72,8 @@ typedef enum
     EXR_STORAGE_TILED,         /**< Corresponds to type of \c tiledimage. */
     EXR_STORAGE_DEEP_SCANLINE, /**< Corresponds to type of \c deepscanline. */
     EXR_STORAGE_DEEP_TILED,    /**< Corresponds to type of \c deeptile. */
-    EXR_STORAGE_LAST_TYPE /**< Invalid value, provided for range checking. */
+    EXR_STORAGE_LAST_TYPE, /**< Invalid value, provided for range checking. */
+    EXR_STORAGE_UNKNOWN /**< An unknown type, provided for future proofing. */
 } exr_storage_t;
 
 /** @brief Enum representing what type of tile information is contained. */

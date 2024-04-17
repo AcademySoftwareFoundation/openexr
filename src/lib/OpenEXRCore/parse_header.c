@@ -1615,7 +1615,7 @@ check_populate_type (
         if (ctxt->has_nonimage_data || ctxt->is_multipart)
             curpart->storage_mode = EXR_STORAGE_DEEP_TILED;
     }
-    else
+    else if (ctxt->strict_header)
     {
         rv = ctxt->print_error (
             ctxt,
@@ -1624,6 +1624,13 @@ check_populate_type (
             outstr);
         exr_attr_list_remove (ctxt, &(curpart->attributes), curpart->type);
         curpart->type = NULL;
+        if (curpart->storage_mode == EXR_STORAGE_LAST_TYPE)
+            curpart->storage_mode = EXR_STORAGE_UNKNOWN;
+    }
+    else
+    {
+        if (curpart->storage_mode == EXR_STORAGE_LAST_TYPE)
+            curpart->storage_mode = EXR_STORAGE_UNKNOWN;
     }
 
     return rv;
@@ -1676,8 +1683,13 @@ check_populate_version (
 
     attrsz = (int32_t) one_to_native32 ((uint32_t) attrsz);
     if (attrsz != 1)
-        return ctxt->print_error (
-            ctxt, EXR_ERR_INVALID_ATTR, "Invalid version %d: expect 1", attrsz);
+    {
+        if (ctxt->strict_header)
+        {
+            return ctxt->print_error (
+                ctxt, EXR_ERR_INVALID_ATTR, "Invalid version %d: expect 1", attrsz);
+        }
+    }
 
     rv = exr_attr_list_add_static_name (
         ctxt,
@@ -2144,7 +2156,8 @@ internal_exr_compute_tile_information (
 {
     exr_result_t rv = EXR_ERR_SUCCESS;
     if (curpart->storage_mode == EXR_STORAGE_SCANLINE ||
-        curpart->storage_mode == EXR_STORAGE_DEEP_SCANLINE)
+        curpart->storage_mode == EXR_STORAGE_DEEP_SCANLINE ||
+        curpart->storage_mode == EXR_STORAGE_UNKNOWN)
         return EXR_ERR_SUCCESS;
 
     if (rebuild && (!curpart->dataWindow || !curpart->tiles))
