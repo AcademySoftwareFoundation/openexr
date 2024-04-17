@@ -5,6 +5,7 @@
 
 #include "internal_file.h"
 
+#include "internal_constants.h"
 #include <limits.h>
 #include <math.h>
 #include <stdio.h>
@@ -202,15 +203,35 @@ validate_req_attr (exr_context_t f, exr_priv_part_t curpart, int adddefault)
                 EXR_ERR_MISSING_REQ_ATTR,
                 "'name' attribute for multipart file not found");
         if (!curpart->type)
+        {
             return f->print_error (
                 f,
                 EXR_ERR_MISSING_REQ_ATTR,
                 "'type' attribute for v2+ file not found");
+        }
         if (f->has_nonimage_data && !curpart->version)
-            return f->print_error (
-                f,
-                EXR_ERR_MISSING_REQ_ATTR,
-                "'version' attribute for deep file not found");
+        {
+            /* TODO: C++ goes ahead and just assumes there's a version of 1... */
+            if (adddefault)
+            {
+                rv = exr_attr_list_add_static_name (
+                    f,
+                    &(curpart->attributes),
+                    EXR_REQ_VERSION_STR,
+                    EXR_ATTR_INT,
+                    0,
+                    NULL,
+                    &(curpart->version));
+                curpart->version->i = 1;
+            }
+            else
+            {
+                return f->print_error (
+                    f,
+                    EXR_ERR_MISSING_REQ_ATTR,
+                    "'version' attribute for deep file not found");
+            }
+        }
         if (!curpart->chunkCount)
             return f->print_error (
                 f,
@@ -471,6 +492,8 @@ validate_part_type (exr_context_t f, exr_priv_part_t curpart)
         }
     }
 
+    /* NB: we allow an 'unknown' storage type of EXR_STORAGE_UNKNOWN
+     * for future proofing */
     if (curpart->storage_mode == EXR_STORAGE_LAST_TYPE)
     {
         return f->print_error (
