@@ -991,7 +991,7 @@ These attributes describe the lens settings. All are optional.
    </tr>
 
    <tr>
-      <td style="vertical-align: top; width:150px"> <tt> <b> Stop </b> </tt>
+      <td style="vertical-align: top; width:150px"> <tt> <b> tStop </b> </tt>
       </td>
       <td style="vertical-align: top; width:100px"> <tt> float </tt> </td>
       <td style="vertical-align: top; width:500px">
