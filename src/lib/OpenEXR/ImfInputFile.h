@@ -64,6 +64,9 @@ public:
         const ContextInitializer& ctxtinit,
         int                       numThreads = globalThreadCount ());
 
+    // TODO: remove once multipart is cleaned up
+    IMF_EXPORT ~InputFile () override;
+
     //------------------------
     // Access to the file name
     //------------------------

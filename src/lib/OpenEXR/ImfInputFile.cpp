@@ -30,8 +30,6 @@
 #include "Iex.h"
 #include <ImathFun.h>
 #include <half.h>
-#include <OpenEXR/openexr_part.h>
-#include <OpenEXR/openexr_chunkio.h>
 
 #include <algorithm>
 #include <fstream>
@@ -94,6 +92,7 @@ struct InputFile::Data
 
     // TODO: remove
     InputPartData*                         _part = nullptr;
+    std::unique_ptr<MultiPartInputFile>    _mFile;
     std::unique_ptr<TiledInputFile>        _tFile;
     std::unique_ptr<ScanLineInputFile>     _sFile;
     std::unique_ptr<DeepScanLineInputFile> _dsFile;
@@ -136,12 +135,18 @@ InputFile::InputFile (
 InputFile::InputFile (InputPartData* part)
     : _data (std::make_shared<Data> (&_ctxt, part->numThreads))
 {
+    // TODO: janky, this will reread things for now (should share
+    // context between objects eventually)
     _ctxt.startRead (
         part->mutex->is->fileName (),
         ContextInitializer ().setInputStream (part->mutex->is));
 
     _data->_part = part;
     initialize ();
+}
+
+InputFile::~InputFile ()
+{
 }
 
 const char*
@@ -192,7 +197,10 @@ InputFile::isComplete () const
 bool
 InputFile::isOptimizationEnabled () const
 {
-    return true;
+    // TODO: the core library has a number of special cased patterns,
+    // this is all kind of ... not useful? for now, return a pattern
+    // similar to legacy version
+    return _ctxt.channels (_data->getPartIdx ())->num_channels != 2;
 }
 
 void
@@ -227,7 +235,6 @@ InputFile::rawPixelData (
 #if ILMTHREAD_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (_data->_mx);
 #endif
-
     _data->_pixel_data_scratch.resize (maxsize);
 
     pixelData     = _data->_pixel_data_scratch.data ();
@@ -255,6 +262,8 @@ InputFile::rawPixelDataToBuffer (
                     << "\". Provided buffer is too small to read raw pixel data:"
                     << pixelDataSize << " bytes.");
         }
+
+        pixelDataSize = static_cast<int> (cinfo.packed_size);
 
         if (EXR_ERR_SUCCESS !=
             exr_read_chunk (_ctxt, _data->getPartIdx (), &cinfo, pixelData))
@@ -340,9 +349,20 @@ InputFile::asTiledInput (void) const
 void
 InputFile::initialize (void)
 {
-    int partidx = _data->getPartIdx ();
+    int partidx;
 
+    if (!_data->_part && _ctxt.partCount() > 1)
+    {
+        IStream *s = _data->getCompatStream ();
+
+        s->seekg (0);
+        _data->_mFile.reset (new MultiPartInputFile (*s, _data->_numThreads));
+        _data->_part = _data->_mFile->getPart (0);
+    }
+
+    partidx = _data->getPartIdx ();
     _data->_storage = _ctxt.storage (partidx);
+
     // silly protection rules mean make_unique can't be used here
     if (_data->_storage == EXR_STORAGE_DEEP_SCANLINE)
     {
@@ -378,12 +398,26 @@ InputFile::initialize (void)
                 _data->_numThreads));
         }
     }
+    else if (_data->_storage == EXR_STORAGE_SCANLINE)
+    {
+        if (_data->_part)
+        {
+            _data->_sFile.reset (new ScanLineInputFile (_data->_part));
+        }
+        else
+        {
+            _data->_sFile.reset (new ScanLineInputFile (
+                _data->getHeader (partidx),
+                _data->getCompatStream (),
+                _data->_numThreads));
+        }
+    }
     else
     {
-        _data->_sFile = std::make_unique<ScanLineInputFile> (
-            _data->getHeader (partidx),
-            _data->getCompatStream (),
-            _data->_numThreads);
+        THROW (
+            IEX_NAMESPACE::ArgExc,
+            "Unable to handle data storage type in file '" << fileName ()
+                                                           << "'");
     }
 }
 
