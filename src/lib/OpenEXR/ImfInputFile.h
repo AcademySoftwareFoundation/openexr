@@ -78,9 +78,9 @@ public:
     // Access to the file header
     //--------------------------
 
-    IMF_EXPORT
     OPENEXR_DEPRECATED (
         "Use context-based attribute access for faster retrieval")
+    IMF_EXPORT
     const Header& header () const;
 
     //----------------------------------
@@ -101,18 +101,18 @@ public:
     // to readPixels().
     //-----------------------------------------------------------
 
-    IMF_EXPORT
     OPENEXR_DEPRECATED (
         "Use stateless API to pass framebuffer with read request")
+    IMF_EXPORT
     void setFrameBuffer (const FrameBuffer& frameBuffer);
 
     //-----------------------------------
     // Access to the current frame buffer
     //-----------------------------------
 
-    IMF_EXPORT
     OPENEXR_DEPRECATED (
         "Use stateless API to pass framebuffer with read request")
+    IMF_EXPORT
     const FrameBuffer& frameBuffer () const;
 
     //---------------------------------------------------------------
@@ -145,8 +145,8 @@ public:
     //
     //---------------------------------------------------------------
 
-    IMF_EXPORT
     OPENEXR_DEPRECATED ("No longer meaningful")
+    IMF_EXPORT
     bool isOptimizationEnabled () const;
 
     //---------------------------------------------------------------
@@ -168,13 +168,14 @@ public:
     //
     //---------------------------------------------------------------
 
-    IMF_EXPORT
     OPENEXR_DEPRECATED (
         "Use stateless API to pass framebuffer with read request")
+    IMF_EXPORT
     void readPixels (int scanLine1, int scanLine2);
-    IMF_EXPORT
+
     OPENEXR_DEPRECATED (
         "Use stateless API to pass framebuffer with read request")
+    IMF_EXPORT
     void readPixels (int scanLine);
 
     //----------------------------------------------
@@ -183,8 +184,8 @@ public:
     // used to implement OutputFile::copyPixels()).
     //----------------------------------------------
 
-    IMF_EXPORT
     OPENEXR_DEPRECATED ("Prefer using externally managed buffer")
+    IMF_EXPORT
     void rawPixelData (
         int firstScanLine, const char*& pixelData, int& pixelDataSize);
 
@@ -214,8 +215,8 @@ public:
     // used to implement TiledOutputFile::copyPixels()).
     //--------------------------------------------------
 
-    IMF_EXPORT
     OPENEXR_DEPRECATED ("Prefer using externally managed buffer")
+    IMF_EXPORT
     void rawTileData (
         int&         dx,
         int&         dy,
