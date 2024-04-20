@@ -43,6 +43,10 @@ struct InputFile::Data
     static constexpr int kDefaultPart = 0;
 
     Data (Context* ctxt, int t) : _ctxt (ctxt), _numThreads (t) {}
+    ~Data ()
+    {
+        deleteCachedBuffer ();
+    }
 
     const Header& getHeader (int part)
     {
