@@ -544,7 +544,7 @@ exr_result_t
 exr_get_chunk_table_offset (
     exr_const_context_t ctxt, int part_index, uint64_t* chunk_offset_out)
 {
-    EXR_READONLY_AND_DEFINE_PART (part_index);
+    EXR_LOCK_WRITE_AND_DEFINE_PART (part_index);
 
     if (!chunk_offset_out)
         return ctxt->standard_error (ctxt, EXR_ERR_INVALID_ARGUMENT);
