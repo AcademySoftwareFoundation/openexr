@@ -73,6 +73,9 @@ jobs:
         include:
 
           # -------------------------------------------------------------------
+          # VFX CY2024 - Same as VFX CY2023 for us
+          # -------------------------------------------------------------------
+          # -------------------------------------------------------------------
           # VFX CY2023 - GCC
           # -------------------------------------------------------------------
           # Shared, Release
@@ -127,24 +130,11 @@ jobs:
             vfx-cy: 2023
             exclude-tests:
 
-          # Shared, Release, C++14
-          - build: 5
-            build-type: Release
-            build-shared: 'ON'
-            cxx-standard: 14
-            cxx-compiler: g++
-            cc-compiler: gcc
-            compiler-desc: gcc11.2.1
-            label: 
-            threads-enabled: 'ON'
-            vfx-cy: 2023
-            exclude-tests:
-
           # -------------------------------------------------------------------
           # VFX CY2023 - Clang 15.0
           # -------------------------------------------------------------------
           # Release
-          - build: 6
+          - build: 5
             build-type: Release
             build-shared: 'ON'
             cxx-standard: 17
@@ -160,7 +150,7 @@ jobs:
           # VFX CY2023 - Clang 14.0
           # -------------------------------------------------------------------
           # Release
-          - build: 7
+          - build: 6
             build-type: Release
             build-shared: 'ON'
             cxx-standard: 17
@@ -176,7 +166,7 @@ jobs:
           # VFX CY2022 - GCC, Release
           # -------------------------------------------------------------------
           # Shared, Release
-          - build: 8
+          - build: 7
             build-type: Release
             build-shared: 'ON'
             cxx-standard: 17
@@ -192,7 +182,7 @@ jobs:
           # VFX CY2021 - GCC, Release
           # -------------------------------------------------------------------
           # Shared, Release
-          - build: 9
+          - build: 8
             build-type: Release
             build-shared: 'ON'
             cxx-standard: 17
@@ -202,22 +192,6 @@ jobs:
             label: 
             threads-enabled: 'ON'
             vfx-cy: 2021
-            exclude-tests:
-
-          # -------------------------------------------------------------------
-          # VFX CY2020 - GCC, Release
-          # -------------------------------------------------------------------
-          # Shared, Release
-          - build: 10
-            build-type: Release
-            build-shared: 'ON'
-            cxx-standard: 14
-            cxx-compiler: g++
-            cc-compiler: gcc
-            compiler-desc: gcc6.3.1
-            label: 
-            threads-enabled: 'ON'
-            vfx-cy: 2020
             exclude-tests:
 
     env:
@@ -238,7 +212,7 @@ jobs:
           cmake -B _build -S . \
                 -DCMAKE_INSTALL_PREFIX=_install \
                 -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} \
-                -DCMAKE_CXX_STANDARD=${{ matrix.cxx-standard }} \
+                -DOPENEXR_CXX_STANDARD=${{ matrix.cxx-standard }} \
                 -DCMAKE_CXX_FLAGS=${{ matrix.cxx-flags }} \
                 -DCMAKE_VERBOSE_MAKEFILE:BOOL='OFF' \
                 -DBUILD_SHARED_LIBS=${{ matrix.build-shared }} \
@@ -282,7 +256,7 @@ jobs:
   # macOS
   # ---------------------------------------------------------------------------
   # TODO: Add ARM64/x86_64 (universal 2) build
-  
+
   macos:
     name: 'Mac VFXP-${{ matrix.vfx-cy }} macos-${{ matrix.osver }}
       <${{ matrix.compiler-desc }},
@@ -370,7 +344,7 @@ jobs:
           cmake .. \
                 -DCMAKE_INSTALL_PREFIX=../_install \
                 -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} \
-                -DCMAKE_CXX_STANDARD=${{ matrix.cxx-standard }} \
+                -DOPENEXR_CXX_STANDARD=${{ matrix.cxx-standard }} \
                 -DCMAKE_CXX_FLAGS=${{ matrix.cxx-flags }} \
                 -DCMAKE_VERBOSE_MAKEFILE:BOOL='OFF' \
                 -DBUILD_SHARED_LIBS=${{ matrix.build-shared }} \
@@ -505,7 +479,7 @@ jobs:
           cmake .. \
                 -DCMAKE_INSTALL_PREFIX=../_install \
                 -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} \
-                -DCMAKE_CXX_STANDARD=${{ matrix.cxx-standard }} \
+                -DOPENEXR_CXX_STANDARD=${{ matrix.cxx-standard }} \
                 -DCMAKE_CXX_FLAGS=${{ matrix.cxx-flags }} \
                 -DCMAKE_VERBOSE_MAKEFILE:BOOL='OFF' \
                 -DBUILD_SHARED_LIBS=${{ matrix.build-shared }} \
