@@ -161,6 +161,7 @@ private:
 };
 
 } // namespace
+
 ////////////////////////////////////////
 
 Context::Context ()
