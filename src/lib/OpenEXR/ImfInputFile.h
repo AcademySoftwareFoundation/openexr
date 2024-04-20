@@ -26,6 +26,46 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 class TiledInputFile;
 
+/// \brief Provides generic access to read an image from an EXR file
+///
+/// There are a suite of classes for accessing image data, depending
+/// on the level of complexity your application demands. This one is
+/// perhaps a good starting point. There is a simpler one in \sa
+/// RgbaInputFile, but that has very noted limitations of only being
+/// for a 16-bit half, RGBA image. This class gives access to
+/// arbitrary channels and data type outputs. It also will convert a
+/// tiled image into a "normal" image, and simplify access if you only
+/// want the first part, first image of a file.
+///
+/// If you will be accessing tiles (say for a renderer), working with
+/// multi-part images, or reading deep data there are other classes
+/// which provide API for handling that complexity more efficiently:
+///
+/// InputFile
+/// MultiPartInputFile
+///   can be constructed but not directly accessible
+///   - InputPart
+///   - TiledInputPart
+///   - DeepTiledInputPart
+///   - DeepScanlineInputPart
+/// TiledInputFile
+/// DeepScanLineInputFile
+/// DeepTiledInputFile
+/// ScanLineInputFile
+///
+/// Of these, InputFile provide somewhat of a barrier to knowing what
+/// the file actually contains, such that it allows you to read a file
+/// as if it is scanlines, even if it is actually tiled under the
+/// covers. Similar, a deep file is automatically composited for the
+/// user. If a multi-part file is opened, the first part will be
+/// provided.
+///
+/// for most code, it is suggested to use MultiPartInputFile and the
+/// API provided by the relevant part classes, but if only a simple
+/// API is needed, InputFile will certainly hide much of the
+/// complexity.
+///
+/// TODO: Remove GenericInputFile base class and virtual-ness
 class IMF_EXPORT_TYPE InputFile : public GenericInputFile
 {
 public:

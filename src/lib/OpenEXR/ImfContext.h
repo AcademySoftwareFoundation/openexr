@@ -14,7 +14,19 @@
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
-/// @brief Context provides
+/// \brief Context provides a wrapper around the Core library context
+/// object
+///
+/// This is the main vehicle by which the core library provides
+/// concurrent behavior, avoiding globals, and allowing each part of
+/// any application to use its own custom allocators or any other
+/// feature they prefer.
+///
+/// The context is logically comprised of referencing a file plus the
+/// additional helper utilities needed for doing so, and so should be
+/// the main entrypoint for querying any of the metadata for all the
+/// component parts of the file, along with the global header
+/// information.
 class IMF_EXPORT_TYPE Context
 {
 public:
