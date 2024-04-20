@@ -69,7 +69,7 @@ jobs:
       image: aswf/ci-openexr:${{ matrix.vfx-cy }}
     strategy:
       matrix:
-        build: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+        build: [1, 2, 3, 4, 5, 6, 7, 8, 9]
         include:
           # -------------------------------------------------------------------
           # VFX CY2024 - GCC
@@ -126,24 +126,11 @@ jobs:
             vfx-cy: 2024
             exclude-tests:
 
-          # Shared, Release, C++14
-          - build: 5
-            build-type: Release
-            build-shared: 'ON'
-            cxx-standard: 14
-            cxx-compiler: g++
-            cc-compiler: gcc
-            compiler-desc: gcc11.2.1
-            label: 
-            threads-enabled: 'ON'
-            vfx-cy: 2024
-            exclude-tests:
-
           # -------------------------------------------------------------------
           # VFX CY2024 - Clang 15.0
           # -------------------------------------------------------------------
           # Release
-          - build: 6
+          - build: 5
             build-type: Release
             build-shared: 'ON'
             cxx-standard: 17
@@ -159,7 +146,7 @@ jobs:
           # VFX CY2024 - Clang 14.0
           # -------------------------------------------------------------------
           # Release
-          - build: 7
+          - build: 6
             build-type: Release
             build-shared: 'ON'
             cxx-standard: 17
@@ -175,7 +162,7 @@ jobs:
           # VFX CY2023 - GCC
           # -------------------------------------------------------------------
           # Shared, Release
-          - build: 8
+          - build: 7
             build-type: Release
             build-shared: 'ON'
             cxx-standard: 17
@@ -191,7 +178,7 @@ jobs:
           # VFX CY2022 - GCC, Release
           # -------------------------------------------------------------------
           # Shared, Release
-          - build: 9
+          - build: 8
             build-type: Release
             build-shared: 'ON'
             cxx-standard: 17
@@ -207,7 +194,7 @@ jobs:
           # VFX CY2021 - GCC, Release
           # -------------------------------------------------------------------
           # Shared, Release
-          - build: 10
+          - build: 9
             build-type: Release
             build-shared: 'ON'
             cxx-standard: 17
@@ -223,7 +210,7 @@ jobs:
       CXX: ${{ matrix.cxx-compiler }}
       CC: ${{ matrix.cc-compiler }}
       ACTIONS_RUNNER_FORCE_ACTIONS_NODE_VERSION: node16
-      ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true      
+      ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
     steps:
       - name: Checkout
         uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
@@ -237,7 +224,7 @@ jobs:
           cmake -B _build -S . \
                 -DCMAKE_INSTALL_PREFIX=_install \
                 -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} \
-                -DCMAKE_CXX_STANDARD=${{ matrix.cxx-standard }} \
+                -DOPENEXR_CXX_STANDARD=${{ matrix.cxx-standard }} \
                 -DCMAKE_CXX_FLAGS=${{ matrix.cxx-flags }} \
                 -DCMAKE_VERBOSE_MAKEFILE:BOOL='OFF' \
                 -DBUILD_SHARED_LIBS=${{ matrix.build-shared }} \
@@ -266,7 +253,7 @@ jobs:
   # macOS
   # ---------------------------------------------------------------------------
   # TODO: Add ARM64/x86_64 (universal 2) build
-  
+
   macos:
     name: 'Mac VFXP-${{ matrix.vfx-cy }} macos-${{ matrix.osver }}
       <${{ matrix.compiler-desc }},
@@ -369,7 +356,7 @@ jobs:
           cmake .. \
                 -DCMAKE_INSTALL_PREFIX=../_install \
                 -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} \
-                -DCMAKE_CXX_STANDARD=${{ matrix.cxx-standard }} \
+                -DOPENEXR_CXX_STANDARD=${{ matrix.cxx-standard }} \
                 -DCMAKE_CXX_FLAGS=${{ matrix.cxx-flags }} \
                 -DCMAKE_VERBOSE_MAKEFILE:BOOL='OFF' \
                 -DBUILD_SHARED_LIBS=${{ matrix.build-shared }} \
@@ -504,7 +491,7 @@ jobs:
           cmake .. \
                 -DCMAKE_INSTALL_PREFIX=../_install \
                 -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} \
-                -DCMAKE_CXX_STANDARD=${{ matrix.cxx-standard }} \
+                -DOPENEXR_CXX_STANDARD=${{ matrix.cxx-standard }} \
                 -DCMAKE_CXX_FLAGS=${{ matrix.cxx-flags }} \
                 -DCMAKE_VERBOSE_MAKEFILE:BOOL='OFF' \
                 -DBUILD_SHARED_LIBS=${{ matrix.build-shared }} \
