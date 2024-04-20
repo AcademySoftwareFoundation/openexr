@@ -12,8 +12,8 @@ endif()
 ## Target configuration
 
 # What C++ standard to compile for
-# VFX Platform 18 is c++14, so let's enable that by default
-set(tmp 14)
+# VFX Platform 21 is c++17, so 21, 22, 23, 24 gives us 4+ years of 17
+set(tmp 17)
 if(CMAKE_CXX_STANDARD)
   set(tmp ${CMAKE_CXX_STANDARD})
 endif()
