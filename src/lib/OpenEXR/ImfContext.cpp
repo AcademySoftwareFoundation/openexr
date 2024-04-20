@@ -15,7 +15,6 @@
 #include <mutex>
 
 #include <string.h>
-#include <string_view>
 
 #include <ImfBoxAttribute.h>
 #include <ImfChannelListAttribute.h>
