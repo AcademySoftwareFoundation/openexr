@@ -54,9 +54,10 @@ struct InputFile::Data
 #if ILMTHREAD_THREADING_ENABLED
         std::lock_guard<std::mutex> lk (_mx);
 #endif
-        if (part < pc)
+        if (part >= 0 && part < pc)
         {
             int cursz = static_cast<int> (_lazy_header_cache.size ());
+            // lazily build up the cache of headers
             if (part >= cursz)
             {
                 _lazy_header_cache.resize (static_cast<size_t> (part) + 1);
@@ -120,37 +121,40 @@ InputFile::InputFile (
     const char* filename, const ContextInitializer& ctxtinit, int numThreads)
     : _data (std::make_shared<Data> (&_ctxt, numThreads))
 {
-    _ctxt.startRead (filename, ctxtinit);
+    _data->_mFile.reset (new MultiPartInputFile (filename, ctxtinit, numThreads, false));
+    _data->_part = _data->_mFile->getPart (Data::kDefaultPart);
+    _ctxt = _data->_part->context;
+
+    (void)_ctxt.legacyIStream (Data::kDefaultPart);
+
     initialize ();
 }
 
 InputFile::InputFile (const char filename[], int numThreads)
-    : InputFile (filename, ContextInitializer (), numThreads)
+    : InputFile (filename,
+                 ContextInitializer ()
+                 .silentHeaderParse (true)
+                 .strictHeaderValidation (false),
+                 numThreads)
 {}
 
 InputFile::InputFile (
     OPENEXR_IMF_INTERNAL_NAMESPACE::IStream& is, int numThreads)
     : InputFile (
           is.fileName (),
-          ContextInitializer ().setInputStream (&is),
+          ContextInitializer ()
+          .silentHeaderParse (true)
+          .strictHeaderValidation (false)
+          .setInputStream (&is),
           numThreads)
 {}
 
 InputFile::InputFile (InputPartData* part)
-    : _data (std::make_shared<Data> (&_ctxt, part->numThreads))
+    : _ctxt (part->context),
+      _data (std::make_shared<Data> (&_ctxt, part->numThreads))
 {
-    // TODO: janky, this will reread things for now (should share
-    // context between objects eventually)
-    _ctxt.startRead (
-        part->mutex->is->fileName (),
-        ContextInitializer ().setInputStream (part->mutex->is));
-
     _data->_part = part;
     initialize ();
-}
-
-InputFile::~InputFile ()
-{
 }
 
 const char*
@@ -339,14 +343,6 @@ InputFile::rawTileData (
 TiledInputFile&
 InputFile::asTiledInput (void) const
 {
-    if (_data->_part)
-    {
-        THROW (
-            IEX_NAMESPACE::ArgExc,
-            "Tried to initialize a copy tile input file "
-            "from a multi-part-converted input file.");
-    }
-
     return *(_data->_tFile);
 }
 
@@ -355,33 +351,13 @@ InputFile::initialize (void)
 {
     int partidx;
 
-    if (!_data->_part && _ctxt.partCount() > 1)
-    {
-        IStream *s = _data->getCompatStream ();
-
-        s->seekg (0);
-        _data->_mFile.reset (new MultiPartInputFile (*s, _data->_numThreads));
-        _data->_part = _data->_mFile->getPart (0);
-    }
-
     partidx = _data->getPartIdx ();
     _data->_storage = _ctxt.storage (partidx);
 
     // silly protection rules mean make_unique can't be used here
     if (_data->_storage == EXR_STORAGE_DEEP_SCANLINE)
     {
-        if (_data->_part)
-        {
-            _data->_dsFile.reset (new DeepScanLineInputFile (_data->_part));
-        }
-        else
-        {
-            _data->_dsFile.reset (new DeepScanLineInputFile (
-                _data->getHeader (partidx),
-                _data->getCompatStream (),
-                _ctxt.version (),
-                _data->_numThreads));
-        }
+        _data->_dsFile.reset (new DeepScanLineInputFile (_data->_part));
         _data->_compositor = std::make_unique<CompositeDeepScanLine> ();
         _data->_compositor->addSource (_data->_dsFile.get ());
     }
@@ -389,32 +365,11 @@ InputFile::initialize (void)
         _data->_storage == EXR_STORAGE_DEEP_TILED ||
         _data->_storage == EXR_STORAGE_TILED)
     {
-        if (_data->_part)
-        {
-            _data->_tFile.reset (new TiledInputFile (_data->_part));
-        }
-        else
-        {
-            _data->_tFile.reset (new TiledInputFile (
-                _data->getHeader (partidx),
-                _data->getCompatStream (),
-                _ctxt.version (),
-                _data->_numThreads));
-        }
+        _data->_tFile.reset (new TiledInputFile (_data->_part));
     }
     else if (_data->_storage == EXR_STORAGE_SCANLINE)
     {
-        if (_data->_part)
-        {
-            _data->_sFile.reset (new ScanLineInputFile (_data->_part));
-        }
-        else
-        {
-            _data->_sFile.reset (new ScanLineInputFile (
-                _data->getHeader (partidx),
-                _data->getCompatStream (),
-                _data->_numThreads));
-        }
+        _data->_sFile.reset (new ScanLineInputFile (_data->_part));
     }
     else
     {
