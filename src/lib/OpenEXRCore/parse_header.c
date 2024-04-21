@@ -1617,13 +1617,11 @@ check_populate_type (
     }
     else if (ctxt->strict_header)
     {
-        rv = ctxt->print_error (
+        ctxt->print_error (
             ctxt,
             EXR_ERR_INVALID_ATTR,
-            "attribute 'type': Invalid type string '%s'",
+            "attribute 'type': Unknown type string '%s'",
             outstr);
-        exr_attr_list_remove (ctxt, &(curpart->attributes), curpart->type);
-        curpart->type = NULL;
         if (curpart->storage_mode == EXR_STORAGE_LAST_TYPE)
             curpart->storage_mode = EXR_STORAGE_UNKNOWN;
     }
@@ -2292,6 +2290,13 @@ internal_exr_compute_chunk_offset_size (exr_priv_part_t curpart)
     uint64_t                 w;
     int                      hasLineSample = 0;
 
+    if (curpart->storage_mode == EXR_STORAGE_UNKNOWN)
+    {
+        if (curpart->chunk_count > 0)
+            return curpart->chunk_count;
+        return 0;
+    }
+
     w = (uint64_t) (((int64_t) dw.max.x) - ((int64_t) dw.min.x) + 1);
 
     if (curpart->tiles)
@@ -2446,9 +2451,10 @@ update_chunk_offsets (
             ctxt->print_error (
                 ctxt,
                 EXR_ERR_INVALID_ATTR,
-                "Invalid chunk count (%d) for part '%s', expect (%d)",
+                "Invalid chunk count (%d) for part '%s' (%d), expect (%d)",
                 curpart->chunk_count,
                 (curpart->name ? curpart->name->string->str : "<first>"),
+                p,
                 ccount);
             curpart->chunk_count = ccount;
         }
@@ -2673,6 +2679,42 @@ internal_exr_parse_header (exr_context_t ctxt)
             rv = EXR_ERR_SUCCESS;
         }
     } while (1);
+
+    if (rv == EXR_ERR_SUCCESS)
+    {
+        for ( int p = 1; p < ctxt->num_parts; ++p )
+        {
+            const char *mismatch[4] = { NULL, NULL, NULL, NULL };
+            int mismatchcount = 0;
+            exr_priv_part_t curp = ctxt->parts[p];
+
+            rv = internal_exr_validate_shared_attrs (ctxt,
+                                                     ctxt->parts[0],
+                                                     curp,
+                                                     p,
+                                                     mismatch,
+                                                     &mismatchcount);
+            if (rv != EXR_ERR_SUCCESS)
+            {
+                rv = ctxt->print_error (
+                    ctxt,
+                    rv,
+                    "Part %d (%s) has non-conforming shared attributes: %s%s%s%s%s%s%s",
+                    p, curp->name ? curp->name->string->str : "<missing name>",
+                    mismatch[0] ? mismatch[0] : "",
+                    mismatch[0] ? " " : "",
+                    mismatch[1] ? mismatch[1] : "",
+                    mismatch[1] ? " " : "",
+                    mismatch[2] ? mismatch[2] : "",
+                    mismatch[2] ? " " : "",
+                    mismatch[3] ? mismatch[3] : "");
+
+                // MultiPartInputFile would fail unconditionally
+                break;
+                //rv = EXR_ERR_SUCCESS;
+            }
+        }
+    }
 
     if (rv == EXR_ERR_SUCCESS) { rv = update_chunk_offsets (ctxt, &scratch); }
 

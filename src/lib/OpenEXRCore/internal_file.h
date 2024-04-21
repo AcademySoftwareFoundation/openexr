@@ -33,6 +33,13 @@ exr_result_t internal_exr_write_header (exr_context_t ctxt);
 exr_result_t
 internal_exr_validate_read_part (exr_context_t ctxt, exr_priv_part_t curpart);
 exr_result_t
+internal_exr_validate_shared_attrs (exr_context_t ctxt,
+                                    exr_priv_part_t basepart,
+                                    exr_priv_part_t curpart,
+                                    int curpartidx,
+                                    const char **mismatchattr,
+                                    int *mismatchcount);
+exr_result_t
 internal_exr_validate_write_part (exr_context_t ctxt, exr_priv_part_t curpart);
 
 #endif /* OPENEXR_PRIVATE_FILE_UTIL_H */
