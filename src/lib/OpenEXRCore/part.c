@@ -355,6 +355,11 @@ exr_get_chunk_count (exr_const_context_t ctxt, int part_index, int32_t* out)
                 EXR_ERR_MISSING_REQ_ATTR,
                 "Missing scanline chunk compression information"));
         }
+        else if (part->storage_mode == EXR_STORAGE_UNKNOWN)
+        {
+            *out = part->chunk_count;
+            return EXR_UNLOCK_WRITE_AND_RETURN (EXR_ERR_SUCCESS);
+        }
     }
 
     return EXR_UNLOCK_WRITE_AND_RETURN (ctxt->report_error (
@@ -370,6 +375,31 @@ exr_result_t extract_chunk_table (
     exr_const_priv_part_t part,
     uint64_t**            chunktable,
     uint64_t*             chunkminoffset);
+
+exr_result_t
+exr_get_chunk_table (exr_const_context_t ctxt, int part_index, uint64_t **table, int32_t* count)
+{
+    exr_result_t rv;
+
+    if (!table)
+        return EXR_ERR_INVALID_ARGUMENT;
+
+    rv = exr_get_chunk_count (ctxt, part_index, count);
+    if (rv == EXR_ERR_SUCCESS)
+    {
+        uint64_t chunkmin;
+        EXR_LOCK_WRITE_AND_DEFINE_PART (part_index);
+
+        /* need to read from the file to get the packed chunk size */
+        rv = extract_chunk_table (ctxt, part, table, &chunkmin);
+
+        if (rv != EXR_ERR_SUCCESS) return rv;
+    }
+
+    return rv;
+}
+
+/**************************************/
 
 exr_result_t
 exr_validate_chunk_table (exr_context_t ctxt, int part_index)
