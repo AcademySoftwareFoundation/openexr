@@ -373,7 +373,7 @@ readPixelData (
     // if necessary.
     //
 
-    if (!isMultiPart (ifd->version))
+    if (ifd->partNumber == -1 && !isMultiPart (ifd->version))
     {
         if (ifd->nextLineBufferMinY != minY) streamData->is->seekg (lineOffset);
     }
@@ -1217,7 +1217,7 @@ ScanLineInputFile::initialize (const Header& header)
 
 ScanLineInputFile::ScanLineInputFile (InputPartData* part)
 {
-    if (part->header.type () != SCANLINEIMAGE)
+    if (part->header.hasType() && part->header.type () != SCANLINEIMAGE)
         throw IEX_NAMESPACE::ArgExc (
             "Can't build a ScanLineInputFile from a type-mismatched part.");
 
