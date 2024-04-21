@@ -971,14 +971,13 @@ TiledInputFile::compatibilityInitialize (
     _data->multiPartBackwardSupport = true;
     _data->multiPartFile = new MultiPartInputFile (is, _data->numThreads);
     InputPartData* part  = _data->multiPartFile->getPart (0);
-
     multiPartInitialize (part);
 }
 
 void
 TiledInputFile::multiPartInitialize (InputPartData* part)
 {
-    if (part->header.type () != TILEDIMAGE)
+    if (part->header.hasType() && part->header.type () != TILEDIMAGE)
         throw IEX_NAMESPACE::ArgExc (
             "Can't build a TiledInputFile from a type-mismatched part.");
 
@@ -1439,7 +1438,7 @@ TiledInputFile::rawTileData (
         int old_dy = dy;
         int old_lx = lx;
         int old_ly = ly;
-        if (isMultiPart (version ()))
+        if (_data->partNumber != -1 || isMultiPart (version ()))
         {
             _data->_streamData->is->seekg (_data->tileOffsets (dx, dy, lx, ly));
         }
