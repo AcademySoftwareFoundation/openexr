@@ -133,6 +133,13 @@ EXR_EXPORT exr_result_t exr_get_level_sizes (
 EXR_EXPORT exr_result_t
 exr_get_chunk_count (exr_const_context_t ctxt, int part_index, int32_t* out);
 
+/** Return a pointer to the chunk table and the count
+ *
+ * TODO: consider removing this prior to release once C++ fully converted
+ */
+EXR_EXPORT exr_result_t
+exr_get_chunk_table (exr_const_context_t ctxt, int part_index, uint64_t **table, int32_t* count);
+
 /** Return whether the chunk table for this part is completely written.
  *
  * This only validates that all the offsets are valid.
