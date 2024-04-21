@@ -17,13 +17,11 @@ struct istream_holder
 {
     istream_holder (IStream* s) : _stream (s)
     {
-        if (_stream) _cur_offset = _stream->tellg ();
     }
 
 #if ILMTHREAD_THREADING_ENABLED
     std::mutex _mx;
 #endif
-    uint64_t _cur_offset = 0;
     IStream* _stream;
 };
 
@@ -36,7 +34,9 @@ istream_read (
     uint64_t                    offset,
     exr_stream_error_func_ptr_t error_cb)
 {
-    istream_holder* ih = static_cast<istream_holder*> (userdata);
+    istream_holder* ih    = static_cast<istream_holder*> (userdata);
+    IStream*        s     = ih->_stream;
+    int64_t         nread = s->tellg ();
 
     if (sz > INT_MAX)
     {
@@ -51,11 +51,11 @@ istream_read (
     std::lock_guard<std::mutex> lk{ih->_mx};
 #endif
 
-    if (offset != ih->_cur_offset)
+    if (offset != static_cast<size_t> (nread))
     {
-        ih->_stream->seekg (offset);
-        ih->_cur_offset = ih->_stream->tellg ();
-        if (offset != ih->_cur_offset)
+        s->seekg (offset);
+        nread = s->tellg ();
+        if (offset != static_cast<size_t> (nread))
         {
             error_cb (
                 ctxt,
@@ -66,11 +66,9 @@ istream_read (
         }
     }
 
-    int64_t nread = ih->_cur_offset;
     try
     {
-        ih->_stream->read (
-            static_cast<char*> (buffer), static_cast<int> (sz));
+        s->read (static_cast<char*> (buffer), static_cast<int> (sz));
     }
     catch (...)
     {
@@ -86,8 +84,7 @@ istream_read (
         //    "Unable to read requested bytes: %" PRIu64,
         //    sz);
     }
-    ih->_cur_offset = ih->_stream->tellg ();
-    nread           = ih->_cur_offset - nread;
+    nread = s->tellg () - nread;
     return nread;
 }
 
