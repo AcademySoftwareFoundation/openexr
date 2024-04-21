@@ -547,7 +547,12 @@ readSampleCountForLineBlock (
             *streamData->is, partNumber);
 
         if (partNumber != data->partNumber)
-            throw IEX_NAMESPACE::ArgExc ("Unexpected part number.");
+        {
+            THROW (IEX_NAMESPACE::ArgExc,
+                   "Unexpected part number " << partNumber
+                   << " encounted at line block id " << lineBlockId
+                   << " offset " << data->lineOffsets[lineBlockId]);
+        }
     }
 
     int minY;
