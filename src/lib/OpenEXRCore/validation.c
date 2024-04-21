@@ -6,6 +6,9 @@
 #include "internal_file.h"
 
 #include "internal_constants.h"
+
+#include "openexr_part.h"
+
 #include <limits.h>
 #include <math.h>
 #include <stdio.h>
@@ -232,7 +235,7 @@ validate_req_attr (exr_context_t f, exr_priv_part_t curpart, int adddefault)
                     "'version' attribute for deep file not found");
             }
         }
-        if (!curpart->chunkCount)
+        if (f->strict_header && !curpart->chunkCount)
             return f->print_error (
                 f,
                 EXR_ERR_MISSING_REQ_ATTR,
@@ -657,6 +660,100 @@ internal_exr_validate_read_part (exr_context_t f, exr_priv_part_t curpart)
     if (rv != EXR_ERR_SUCCESS) return rv;
 
     return EXR_ERR_SUCCESS;
+}
+
+/**************************************/
+
+exr_result_t
+internal_exr_validate_shared_attrs (exr_context_t ctxt,
+                                    exr_priv_part_t basepart,
+                                    exr_priv_part_t curpart,
+                                    int curpartidx,
+                                    const char **mismatchattr,
+                                    int *mismatchcount)
+{
+    exr_result_t rv, rv1;
+    const exr_attribute_t *battr, *cattr;
+    int misidx = 0;
+
+    rv = EXR_ERR_SUCCESS;
+    if (basepart->displayWindow)
+    {
+        if (curpart->displayWindow)
+        {
+            if (memcmp (basepart->displayWindow->box2i,
+                        curpart->displayWindow->box2i,
+                        sizeof(exr_attr_box2i_t)))
+                rv = EXR_ERR_ATTR_TYPE_MISMATCH;
+        }
+        else
+            rv = EXR_ERR_ATTR_TYPE_MISMATCH;
+    }
+    else if (curpart->displayWindow)
+        rv = EXR_ERR_ATTR_TYPE_MISMATCH;
+
+    if (rv != EXR_ERR_SUCCESS)
+        mismatchattr[misidx++] = EXR_REQ_DISP_STR;
+
+    rv = EXR_ERR_SUCCESS;
+    if (basepart->pixelAspectRatio)
+    {
+        if (curpart->pixelAspectRatio)
+        {
+            // NaN compares false, but if they're both NaN?
+            if (memcmp (&(basepart->pixelAspectRatio->f),
+                        &(curpart->pixelAspectRatio->f),
+                        sizeof(float)))
+                rv = EXR_ERR_ATTR_TYPE_MISMATCH;
+        }
+        else
+            rv = EXR_ERR_ATTR_TYPE_MISMATCH;
+    }
+    else if (curpart->pixelAspectRatio)
+        rv = EXR_ERR_ATTR_TYPE_MISMATCH;
+    if (rv != EXR_ERR_SUCCESS)
+        mismatchattr[misidx++] = EXR_REQ_PAR_STR;
+
+    rv = exr_get_attribute_by_name (ctxt, 0, "timecode", &battr);
+    rv1 = exr_get_attribute_by_name (ctxt, curpartidx, "timecode", &cattr);
+    if (EXR_ERR_SUCCESS == rv && rv == rv1)
+    {
+        if (memcmp (battr->timecode,
+                    cattr->timecode,
+                    sizeof(exr_attr_timecode_t)))
+        {
+            rv = EXR_ERR_ATTR_TYPE_MISMATCH;
+        }
+        else
+            rv = EXR_ERR_SUCCESS;
+    }
+    else if (EXR_ERR_SUCCESS == rv1)
+        rv = EXR_ERR_ATTR_TYPE_MISMATCH;
+    else
+        rv = EXR_ERR_SUCCESS; // both missing, ok
+    if (rv != EXR_ERR_SUCCESS)
+        mismatchattr[misidx++] = "timecode";
+
+    rv = exr_get_attribute_by_name (ctxt, 0, "chromaticities", &battr);
+    rv1 = exr_get_attribute_by_name (ctxt, curpartidx, "chromaticities", &cattr);
+    if (EXR_ERR_SUCCESS == rv && rv == rv1)
+    {
+        if (memcmp (battr->chromaticities,
+                    cattr->chromaticities,
+                    sizeof(exr_attr_chromaticities_t)))
+            rv = EXR_ERR_ATTR_TYPE_MISMATCH;
+        else
+            rv = EXR_ERR_SUCCESS;
+    }
+    else if (EXR_ERR_SUCCESS == rv1)
+        rv = EXR_ERR_ATTR_TYPE_MISMATCH;
+    else
+        rv = EXR_ERR_SUCCESS; // both missing, ok
+    if (rv != EXR_ERR_SUCCESS)
+        mismatchattr[misidx++] = "chromaticities";
+
+    *mismatchcount = misidx;
+    return misidx == 0 ? EXR_ERR_SUCCESS : EXR_ERR_ATTR_TYPE_MISMATCH;
 }
 
 /**************************************/
