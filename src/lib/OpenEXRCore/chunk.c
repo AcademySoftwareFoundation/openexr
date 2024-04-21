@@ -189,7 +189,7 @@ validate_and_compute_tile_chunk_off (
 
             for (int ly = 0; ly < levely; ++ly)
             {
-                for (int lx = 0; lx < levelx; ++lx)
+                for (int lx = 0; lx < part->num_tile_levels_x; ++lx)
                 {
                     chunkoff +=
                         ((int64_t) part->tile_level_tile_count_x[lx] *
@@ -241,16 +241,6 @@ struct priv_chunk_leader
         };
     };
     uint8_t _pad[4];
-    union
-    {
-        int64_t deep_data[3];
-        struct
-        {
-            uint64_t deep_samples;
-            uint64_t deep_packed_size;
-            uint64_t deep_unpacked_size;
-        };
-    };
     uint64_t packed_size;
 };
 
@@ -334,26 +324,37 @@ extract_chunk_leader (
     if (part->storage_mode == EXR_STORAGE_DEEP_SCANLINE ||
         part->storage_mode == EXR_STORAGE_DEEP_TILED)
     {
+        int64_t deep_data[3];
+
         rv = ctxt->do_read (
             ctxt,
-            leaderdata->deep_data,
+            deep_data,
             3 * sizeof (int64_t),
             &nextoffset,
             NULL,
             EXR_MUST_READ_ALL);
-        if (rv != EXR_ERR_SUCCESS) return rv;
-        priv_to_native64 (leaderdata->deep_data, 3);
 
-        if (leaderdata->deep_data[1] < 0 || leaderdata->deep_data[1] > maxval)
+        if (rv != EXR_ERR_SUCCESS) return rv;
+        priv_to_native64 (deep_data, 3);
+
+        if (deep_data[0] < 0 || (deep_data[0] == 0 && (deep_data[1] != 0 || deep_data[2] != 0)))
+        {
+            return ctxt->print_error (
+                ctxt,
+                EXR_ERR_BAD_CHUNK_LEADER,
+                "Invalid chunk size reconstructing chunk table: found out of range sample count %" PRId64,
+                deep_data[0]);
+        }
+        if (deep_data[1] < 0 || deep_data[1] > maxval ||
+            (deep_data[1] == 0 && deep_data[2] != 0))
         {
             return ctxt->print_error (
                 ctxt,
                 EXR_ERR_BAD_CHUNK_LEADER,
                 "Invalid chunk size reconstructing chunk table: found out of range %" PRId64,
-                leaderdata->deep_data[1]);
+                deep_data[1]);
         }
-        leaderdata->packed_size = leaderdata->deep_packed_size;
-        nextoffset += leaderdata->deep_packed_size;
+        leaderdata->packed_size = (uint64_t) deep_data[0] + (uint64_t) deep_data[1];
     }
     else
     {
@@ -368,8 +369,8 @@ extract_chunk_leader (
                 data[rdcnt]);
         }
         leaderdata->packed_size = (uint64_t) data[rdcnt];
-        nextoffset += leaderdata->packed_size;
     }
+    nextoffset += leaderdata->packed_size;
 
     *next_offset = nextoffset;
     return rv;
@@ -481,10 +482,11 @@ reconstruct_chunk_table (
         rv      = extract_chunk_table (ctxt, curpart, &curctable, &chunk_start);
         if (rv != EXR_ERR_SUCCESS) return rv;
 
-        chunk_start = curctable[0];
-        for (int ci = 1; ci < curpart->chunk_count; ++ci)
+        chunk_start = offset_start;
+        for (int ci = 0; ci < curpart->chunk_count; ++ci)
         {
-            if (curctable[ci] > chunk_start) { chunk_start = curctable[ci]; }
+            if (curctable[ci] > chunk_start && curctable[ci] < max_offset)
+                chunk_start = curctable[ci];
         }
 
         rv = extract_chunk_size (
