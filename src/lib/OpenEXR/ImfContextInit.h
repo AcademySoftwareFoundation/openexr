@@ -111,7 +111,7 @@ public:
         return *this;
     }
 
-    ContextInitializer& slientHeaderParse (bool onoff) noexcept
+    ContextInitializer& silentHeaderParse (bool onoff) noexcept
     {
         setFlag (EXR_CONTEXT_FLAG_SILENT_HEADER_PARSE, onoff);
         return *this;
