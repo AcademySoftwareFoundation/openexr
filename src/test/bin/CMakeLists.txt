@@ -8,7 +8,7 @@ if(BUILD_TESTING)
     message(STATUS "Python3 not found: skipping bin tests")
     return()
   endif()
-    
+
   message(STATUS "adding bin tests")
 
   set(OPENEXR_IMAGES_REPO "https://raw.githubusercontent.com/AcademySoftwareFoundation/openexr-images" CACHE STRING
@@ -21,8 +21,8 @@ if(BUILD_TESTING)
   else()
     set(images_url ${OPENEXR_IMAGES_REPO}/${OPENEXR_IMAGES_TAG})
   endif()
-  
-  set(images 
+
+  set(images
       TestImages/GrayRampsHorizontal.exr
       LuminanceChroma/Garden.exr
       MultiResolution/ColorCodedLevels.exr
@@ -77,7 +77,7 @@ if(BUILD_TESTING)
            $<TARGET_FILE:${test}> $<TARGET_FILE:exrinfo>
            ${CMAKE_CURRENT_BINARY_DIR} ${OPENEXR_VERSION})
   endforeach()
-  
+
   # run exrcheck on all images
   add_test(NAME OpenEXR.bin.exrcheck
            COMMAND ${Python3_EXECUTABLE}
