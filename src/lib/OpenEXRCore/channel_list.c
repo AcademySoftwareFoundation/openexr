@@ -195,15 +195,17 @@ exr_attr_chlist_add_with_length (
     for (int i = newcount - 1; i > insertpos; --i)
         nlist[i] = olist[i - 1];
     nlist[insertpos] = nent;
-    if (nlist != olist)
+    if (olist && nlist != olist)
     {
         for (int i = 0; i < insertpos; ++i)
             nlist[i] = olist[i];
+
+        ctxt->free_fn (olist);
     }
 
     clist->num_channels = newcount;
     clist->entries      = nlist;
-    if (nlist != olist) ctxt->free_fn (olist);
+
     return EXR_ERR_SUCCESS;
 }
 
