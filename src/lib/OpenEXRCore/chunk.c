@@ -582,8 +582,13 @@ extract_chunk_table (
             return ctxt->report_error (
                 ctxt, EXR_ERR_INVALID_ARGUMENT, "Invalid file with no chunks");
 
-        if (ctxt->file_size > 0 &&
-            chunkbytes + chunkoff > (uint64_t) ctxt->file_size)
+        /* some of the stream-based objects can't reliably check the file size
+         * so the C++ layer also had an arbitrary stop at 2^20 chunk entries
+         * which seems safe...
+         */
+        if (part->chunk_count > (1024 * 1024) ||
+            (ctxt->file_size > 0 &&
+             chunkbytes + chunkoff > (uint64_t) ctxt->file_size))
             return ctxt->print_error (
                 ctxt,
                 EXR_ERR_INVALID_ARGUMENT,
