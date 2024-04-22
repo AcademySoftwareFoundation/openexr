@@ -100,7 +100,9 @@ ContextInitializer::setInputStream (IStream* istr)
 {
     _initializer.user_data  = new istream_holder{istr};
     _initializer.read_fn    = istream_read;
-    _initializer.size_fn    = nullptr;
+    // TODO: add query to io streams to ask size if possible (such
+    // that ifstream can return size, others can return -1)
+    _initializer.size_fn    = nullptr; //istream_guess_size;
     _initializer.write_fn   = nullptr;
     _initializer.destroy_fn = istream_destroy;
     _ctxt_type              = ContextFileType::READ;
