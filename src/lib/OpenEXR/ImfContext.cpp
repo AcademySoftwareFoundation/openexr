@@ -67,8 +67,15 @@ public:
     bool read (char c[/*n*/], int n) override
     {
         std::lock_guard<std::mutex> lk (_mx);
-        if (_stdstream) return _stdstream->read (c, n);
-
+        try
+        {
+            if (_stdstream) return _stdstream->read (c, n);
+        }
+        catch (...)
+        {
+            _stdstream->clear ();
+            return false;
+        }
         int64_t nr = _read_fn (_ctxt, _user_data, c, n, _curpos, nullptr);
         if (nr > 0) _curpos += nr;
         return nr == n;
@@ -77,14 +84,28 @@ public:
     uint64_t tellg () override
     {
         std::lock_guard<std::mutex> lk (_mx);
-        if (_stdstream) return _stdstream->tellg ();
+        try
+        {
+            if (_stdstream) return _stdstream->tellg ();
+        }
+        catch (...)
+        {
+            _stdstream->clear ();
+        }
         return _curpos;
     }
 
     void seekg (uint64_t pos) override
     {
         std::lock_guard<std::mutex> lk (_mx);
-        if (_stdstream) return _stdstream->seekg (pos);
+        try
+        {
+            if (_stdstream) return _stdstream->seekg (pos);
+        }
+        catch (...)
+        {
+            _stdstream->clear ();
+        }
         _curpos = pos;
     }
 

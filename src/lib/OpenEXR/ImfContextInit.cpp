@@ -51,40 +51,47 @@ istream_read (
     std::lock_guard<std::mutex> lk{ih->_mx};
 #endif
 
-    if (offset != static_cast<size_t> (nread))
-    {
-        s->seekg (offset);
-        nread = s->tellg ();
-        if (offset != static_cast<size_t> (nread))
-        {
-            error_cb (
-                ctxt,
-                EXR_ERR_READ_IO,
-                "Unable to seek to desired offset %" PRIu64,
-                offset);
-            return -1;
-        }
-    }
-
     try
     {
-        s->read (static_cast<char*> (buffer), static_cast<int> (sz));
+        if (offset != static_cast<size_t> (nread))
+        {
+            s->seekg (offset);
+            nread = s->tellg ();
+            if (offset != static_cast<size_t> (nread))
+            {
+                error_cb (
+                    ctxt,
+                    EXR_ERR_READ_IO,
+                    "Unable to seek to desired offset %" PRIu64,
+                    offset);
+                return -1;
+            }
+        }
+
+        try
+        {
+            s->read (static_cast<char*> (buffer), static_cast<int> (sz));
+        }
+        catch (...)
+        {
+            // bah, there could be two reasons for this, one is a
+            // legitimate error, the other is a read past the end of file
+            // (i.e. the core library tries to read a 4k block when
+            // parsing the header), let's let the core deal with that and
+            // clear errors
+            ih->_stream->clear ();
+            //error_cb (
+            //    ctxt,
+            //    EXR_ERR_READ_IO,
+            //    "Unable to read requested bytes: %" PRIu64,
+            //    sz);
+        }
+        nread = s->tellg () - nread;
     }
     catch (...)
     {
-        // bah, there could be two reasons for this, one is a
-        // legitimate error, the other is a read past the end of file
-        // (i.e. the core library tries to read a 4k block when
-        // parsing the header), let's let the core deal with that and
-        // clear errors
-        ih->_stream->clear ();
-        //error_cb (
-        //    ctxt,
-        //    EXR_ERR_READ_IO,
-        //    "Unable to read requested bytes: %" PRIu64,
-        //    sz);
+        nread = -1;
     }
-    nread = s->tellg () - nread;
     return nread;
 }
 
