@@ -40,7 +40,7 @@ class TiledInputFile;
 ///
 /// MultiPartInputFile
 ///   can be constructed but not directly accessible
-///   - InputPart (the part analog to this class)
+///   - InputPart (the part-based class corresponding to this class)
 ///   - TiledInputPart
 ///   - DeepTiledInputPart
 ///   - DeepScanlineInputPart

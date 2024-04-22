@@ -1861,7 +1861,9 @@ DeepTiledInputFile::readPixelSampleCounts (
 
                     if (partNumber != _data->partNumber)
                         throw IEX_NAMESPACE::InputExc (
-                            "Unexpected part number for tile offset.");
+                            "Unexpected part number " +
+                            std::to_string (partNumber) +
+                            " for tile offset.");
                 }
 
                 int xInFile, yInFile, lxInFile, lyInFile;
