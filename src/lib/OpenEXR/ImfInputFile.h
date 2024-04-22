@@ -110,8 +110,6 @@ public:
     // Access to the file header
     //--------------------------
 
-    //OPENEXR_DEPRECATED (
-    //    "Use context-based attribute access for faster retrieval")
     IMF_EXPORT
     const Header& header () const;
 
@@ -133,8 +131,6 @@ public:
     // to readPixels().
     //-----------------------------------------------------------
 
-    //OPENEXR_DEPRECATED (
-    //    "Use stateless API to pass framebuffer with read request")
     IMF_EXPORT
     void setFrameBuffer (const FrameBuffer& frameBuffer);
 
@@ -142,8 +138,6 @@ public:
     // Access to the current frame buffer
     //-----------------------------------
 
-    //OPENEXR_DEPRECATED (
-    //    "Use stateless API to pass framebuffer with read request")
     IMF_EXPORT
     const FrameBuffer& frameBuffer () const;
 
@@ -177,7 +171,7 @@ public:
     //
     //---------------------------------------------------------------
 
-    //OPENEXR_DEPRECATED ("No longer meaningful")
+    OPENEXR_DEPRECATED ("No longer meaningful")
     IMF_EXPORT
     bool isOptimizationEnabled () const;
 
@@ -200,13 +194,9 @@ public:
     //
     //---------------------------------------------------------------
 
-    //OPENEXR_DEPRECATED (
-    //    "Use stateless API to pass framebuffer with read request")
     IMF_EXPORT
     void readPixels (int scanLine1, int scanLine2);
 
-    //OPENEXR_DEPRECATED (
-    //    "Use stateless API to pass framebuffer with read request")
     IMF_EXPORT
     void readPixels (int scanLine);
 
@@ -216,7 +206,6 @@ public:
     // used to implement OutputFile::copyPixels()).
     //----------------------------------------------
 
-    //OPENEXR_DEPRECATED ("Prefer using externally managed buffer")
     IMF_EXPORT
     void rawPixelData (
         int firstScanLine, const char*& pixelData, int& pixelDataSize);
@@ -247,7 +236,6 @@ public:
     // used to implement TiledOutputFile::copyPixels()).
     //--------------------------------------------------
 
-    //OPENEXR_DEPRECATED ("Prefer using externally managed buffer")
     IMF_EXPORT
     void rawTileData (
         int&         dx,
