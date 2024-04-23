@@ -17,7 +17,7 @@ if(OPENEXR_RUN_FUZZ_TESTS)
     testFuzzTiles.h
   )
   target_include_directories(OpenEXRFuzzTest PRIVATE ../OpenEXRTest)
-  target_compile_options(OpenEXRFuzzTest PRIVATE "-gdwarf-4")
+  target_compile_options(OpenEXRFuzzTest PUBLIC "-gdwarf-4")
   target_link_libraries(OpenEXRFuzzTest OpenEXR::OpenEXR blosc2_static ${CMAKE_DL_LIBS})
   set_target_properties(OpenEXRFuzzTest PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
