@@ -399,6 +399,10 @@ if(NOT TARGET Blosc2::blosc2_static AND NOT Blosc2_FOUND)
     
     get_target_property(blosc2libdir Blosc2::blosc2_static BINARY_DIR)
     set(BLOSC2_LIB_DIR ${blosc2libdir})
+
+    if(OPENEXR_RUN_FUZZ_TESTS)
+      target_compile_options(blosc2_static PUBLIC "-gdwarf-4")
+    endif()
   endif()
 else()
   message(STATUS "Blosc2: Using installed Blosc2 ${Blosc2_VERSION} from ${Blosc2_DIR}")
