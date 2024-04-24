@@ -2046,27 +2046,27 @@ pull_attr (
             break;
         case EXR_ATTR_V2I:
             rv = extract_attr_32bit (
-                ctxt, scratch, nattr->v2i->arr, name, type, attrsz, 2);
+                ctxt, scratch, nattr->v2i, name, type, attrsz, 2);
             break;
         case EXR_ATTR_V2F:
             rv = extract_attr_32bit (
-                ctxt, scratch, nattr->v2f->arr, name, type, attrsz, 2);
+                ctxt, scratch, nattr->v2f, name, type, attrsz, 2);
             break;
         case EXR_ATTR_V2D:
             rv = extract_attr_64bit (
-                ctxt, scratch, nattr->v2d->arr, name, type, attrsz, 2);
+                ctxt, scratch, nattr->v2d, name, type, attrsz, 2);
             break;
         case EXR_ATTR_V3I:
             rv = extract_attr_32bit (
-                ctxt, scratch, nattr->v3i->arr, name, type, attrsz, 3);
+                ctxt, scratch, nattr->v3i, name, type, attrsz, 3);
             break;
         case EXR_ATTR_V3F:
             rv = extract_attr_32bit (
-                ctxt, scratch, nattr->v3f->arr, name, type, attrsz, 3);
+                ctxt, scratch, nattr->v3f, name, type, attrsz, 3);
             break;
         case EXR_ATTR_V3D:
             rv = extract_attr_64bit (
-                ctxt, scratch, nattr->v3d->arr, name, type, attrsz, 3);
+                ctxt, scratch, nattr->v3d, name, type, attrsz, 3);
             break;
         case EXR_ATTR_DEEP_IMAGE_STATE:
             rv = extract_attr_uint8 (

@@ -186,79 +186,37 @@ typedef struct
 /** @brief Struct to hold a 2-element integer vector. */
 typedef struct
 {
-    union
-    {
-        struct
-        {
-            int32_t x, y;
-        };
-        int32_t arr[2];
-    };
+  int32_t x, y;
 } exr_attr_v2i_t;
 
 /** @brief Struct to hold a 2-element 32-bit float vector. */
 typedef struct
 {
-    union
-    {
-        struct
-        {
-            float x, y;
-        };
-        float arr[2];
-    };
+  float x, y;
 } exr_attr_v2f_t;
 
 /** @brief Struct to hold a 2-element 64-bit float vector. */
 typedef struct
 {
-    union
-    {
-        struct
-        {
-            double x, y;
-        };
-        double arr[2];
-    };
+  double x, y;
 } exr_attr_v2d_t;
 
 /** @brief Struct to hold a 3-element integer vector. */
 typedef struct
 {
-    union
-    {
-        struct
-        {
-            int32_t x, y, z;
-        };
-        int32_t arr[3];
-    };
+  int32_t x, y, z;
 } exr_attr_v3i_t;
 
 /** @brief Struct to hold a 3-element 32-bit float vector. */
 typedef struct
 {
-    union
-    {
-        struct
-        {
-            float x, y, z;
-        };
-        float arr[3];
-    };
+  float x, y, z;
 } exr_attr_v3f_t;
 
 /** @brief Struct to hold a 3-element 64-bit float vector. */
 typedef struct
 {
-    union
-    {
-        struct
-        {
-            double x, y, z;
-        };
-        double arr[3];
-    };
+  double x, y, z;
 } exr_attr_v3d_t;
 
 /** @brief Struct to hold an integer box/region definition. */
