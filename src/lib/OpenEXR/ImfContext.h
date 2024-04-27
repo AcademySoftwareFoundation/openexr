@@ -57,6 +57,7 @@ public:
 
     IMF_EXPORT const exr_attr_chlist_t* channels (int partidx) const;
     IMF_EXPORT bool hasChannel (int partidx, const char* name) const;
+    IMF_EXPORT const exr_attr_chlist_entry_t* findChannel (int partidx, const char* name) const;
 
     IMF_EXPORT exr_lineorder_t lineOrder (int partidx) const;
 
