@@ -380,6 +380,11 @@ Context::channels (int partidx) const
 bool
 Context::hasChannel (int partidx, const char* name) const
 {
+    return findChannel (partidx, name) != nullptr;
+}
+
+const exr_attr_chlist_entry_t* Context::findChannel (int partidx, const char* name) const
+{
     const exr_attr_chlist_t* cl  = channels (partidx);
     int32_t                  len = strlen (name);
 
@@ -388,10 +393,10 @@ Context::hasChannel (int partidx, const char* name) const
         const exr_attr_chlist_entry_t* curc = cl->entries + i;
         if (curc->name.length == len && 0 == memcmp (name, curc->name.str, len))
         {
-            return true;
+            return curc;
         }
     }
-    return false;
+    return nullptr;
 }
 
 ////////////////////////////////////////
