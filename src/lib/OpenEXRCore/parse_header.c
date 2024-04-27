@@ -8,6 +8,7 @@
 #include "internal_attr.h"
 #include "internal_constants.h"
 #include "internal_structs.h"
+#include "internal_util.h"
 #include "internal_xdr.h"
 
 #include <limits.h>
@@ -2335,21 +2336,14 @@ internal_exr_compute_chunk_offset_size (exr_priv_part_t curpart)
 
         for (int c = 0; c < channels->num_channels; ++c)
         {
-            uint64_t xsamp  = (uint64_t) channels->entries[c].x_sampling;
-            uint64_t ysamp  = (uint64_t) channels->entries[c].y_sampling;
+            /* tiles do not allow x/y sub sampling */
             uint64_t cunpsz = 0;
             if (channels->entries[c].pixel_type == EXR_PIXEL_HALF)
                 cunpsz = 2;
             else
                 cunpsz = 4;
-            cunpsz *= (((uint64_t) tiledesc->x_size + xsamp - 1) / xsamp);
-            if (ysamp > 1)
-            {
-                hasLineSample = 1;
-                cunpsz *= (((uint64_t) tiledesc->y_size + ysamp - 1) / ysamp);
-            }
-            else
-                cunpsz *= (uint64_t) tiledesc->y_size;
+            cunpsz *= (uint64_t) tiledesc->x_size;
+            cunpsz *= (uint64_t) tiledesc->y_size;
             unpackedsize += cunpsz;
         }
         curpart->unpacked_size_per_chunk = unpackedsize;
@@ -2378,20 +2372,17 @@ internal_exr_compute_chunk_offset_size (exr_priv_part_t curpart)
 
         for (int c = 0; c < channels->num_channels; ++c)
         {
-            uint64_t xsamp  = (uint64_t) channels->entries[c].x_sampling;
-            uint64_t ysamp  = (uint64_t) channels->entries[c].y_sampling;
+            int xsamp  = channels->entries[c].x_sampling;
+            int ysamp  = channels->entries[c].y_sampling;
             uint64_t cunpsz = 0;
             if (channels->entries[c].pixel_type == EXR_PIXEL_HALF)
                 cunpsz = 2;
             else
                 cunpsz = 4;
-            cunpsz *= w / xsamp;
-            cunpsz *= linePerChunk;
+            cunpsz *= (uint64_t) compute_sampled_width (w, xsamp, dw.min.x);
+            cunpsz *= (uint64_t) compute_sampled_height (linePerChunk, ysamp, dw.min.y);
             if (ysamp > 1)
-            {
                 hasLineSample = 1;
-                if (linePerChunk > 1) cunpsz *= linePerChunk / ysamp;
-            }
             unpackedsize += cunpsz;
         }
 
