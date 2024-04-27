@@ -220,8 +220,7 @@ decompress_data (
 
     if (packsz == 0) return EXR_ERR_SUCCESS;
 
-    if (packsz == unpacksz && ctype != EXR_COMPRESSION_B44 &&
-        ctype != EXR_COMPRESSION_B44A)
+    if (packsz == unpacksz)
     {
         if (unpackbufptr != packbufptr)
             memcpy (unpackbufptr, packbufptr, unpacksz);
