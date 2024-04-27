@@ -87,6 +87,17 @@ typedef struct _exr_decode_pipeline
     exr_const_context_t context;
     exr_chunk_info_t    chunk;
 
+    /** How many lines of the chunk to skip filling, assumes the
+     * pointer is at the beginning of data (i.e. includes this
+     * skip so does not need to be adjusted
+     */
+    int32_t user_line_begin_skip;
+
+    /** How many lines of the chunk to ignore at the end, assumes the
+     * output is meant to be N lines smaller
+     */
+    int32_t user_line_end_ignore;
+
     /** Can be used by the user to pass custom context data through
      * the decode pipeline.
      */
