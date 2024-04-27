@@ -697,7 +697,7 @@ alloc_chunk_table (
 
 static uint64_t
 compute_chunk_unpack_size (
-    int y, int width, int height, int lpc, exr_const_priv_part_t part)
+    int x, int y, int width, int height, int lpc, exr_const_priv_part_t part)
 {
     uint64_t unpacksize = 0;
     if (part->chan_has_line_sampling || height != lpc)
@@ -708,10 +708,11 @@ compute_chunk_unpack_size (
             const exr_attr_chlist_entry_t* curc = (chanlist->entries + c);
             uint64_t chansz = ((curc->pixel_type == EXR_PIXEL_HALF) ? 2 : 4);
 
-            chansz *= (uint64_t) width;
-            if (curc->x_sampling > 1) chansz /= ((uint64_t) curc->x_sampling);
             chansz *=
-                (uint64_t) compute_sampled_lines (height, curc->y_sampling, y);
+                (uint64_t) compute_sampled_width (width, curc->x_sampling, x);
+            chansz *=
+                (uint64_t) compute_sampled_height (height, curc->y_sampling, y);
+
             unpacksize += chansz;
         }
     }
@@ -758,13 +759,13 @@ exr_read_scanline_chunk_info (
     }
 
     lpc  = part->lines_per_chunk;
-    cidx = (y - dw.min.y);
+    cidx = y - dw.min.y;
     if (lpc > 1) cidx /= lpc;
 
     // do we need to invert this when reading decreasing y? it appears not
     //if (part->lineorder == EXR_LINEORDER_DECREASING_Y)
     //    cidx = part->chunk_count - (cidx + 1);
-    miny = (dw.min.y + cidx * lpc);
+    miny = dw.min.y + cidx * lpc;
 
     if (cidx < 0 || cidx >= part->chunk_count)
     {
@@ -787,9 +788,12 @@ exr_read_scanline_chunk_info (
     if (miny < dw.min.y)
     {
         cinfo->start_y = dw.min.y;
-        cinfo->height -= (dw.min.y - miny);
+        cinfo->height -= dw.min.y - miny;
     }
-    else if ((miny + lpc) > dw.max.y) { cinfo->height = (dw.max.y - miny + 1); }
+    else if (((int64_t)miny + (int64_t)lpc) > (int64_t)dw.max.y)
+    {
+        cinfo->height = dw.max.y - miny + 1;
+    }
     cinfo->level_x = 0;
     cinfo->level_y = 0;
 
@@ -927,7 +931,7 @@ exr_read_scanline_chunk_info (
     else
     {
         uint64_t unpacksize = compute_chunk_unpack_size (
-            y, cinfo->width, cinfo->height, lpc, part);
+            dw.min.x, miny, cinfo->width, cinfo->height, lpc, part);
 
         ++rdcnt;
         if (data[rdcnt] < 0 ||
@@ -1753,7 +1757,7 @@ exr_write_scanline_chunk_info (
     cinfo->data_offset              = 0;
     cinfo->packed_size              = 0;
     cinfo->unpacked_size =
-        compute_chunk_unpack_size (y, cinfo->width, cinfo->height, lpc, part);
+        compute_chunk_unpack_size (dw.min.x, y, cinfo->width, cinfo->height, lpc, part);
 
     return EXR_UNLOCK_AND_RETURN (EXR_ERR_SUCCESS);
 }
