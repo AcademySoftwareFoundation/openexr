@@ -503,6 +503,7 @@ void ScanLineInputFile::Data::readPixels (
 
 ////////////////////////////////////////
 
+#if ILMTHREAD_THREADING_ENABLED
 void ScanLineInputFile::Data::LineBufferTask::execute ()
 {
     try
@@ -517,12 +518,11 @@ void ScanLineInputFile::Data::LineBufferTask::execute ()
     }
     catch (std::exception &e)
     {
-#if ILMTHREAD_THREADING_ENABLED
         std::lock_guard<std::mutex> lock (_ifd->_mx);
-#endif
         _ifd->_failures.emplace_back (std::string (e.what()));
     }
 }
+#endif
 
 ////////////////////////////////////////
 
