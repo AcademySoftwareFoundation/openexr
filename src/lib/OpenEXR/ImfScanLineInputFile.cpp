@@ -21,8 +21,6 @@
 #include "ImfFrameBuffer.h"
 #include "ImfInputPartData.h"
 
-#include <Imath/ImathFun.h>
-
 #include <atomic>
 #include <mutex>
 #include <vector>
