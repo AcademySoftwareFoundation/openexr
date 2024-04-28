@@ -21,11 +21,12 @@
 #include "ImfFrameBuffer.h"
 #include "ImfInputPartData.h"
 
-#include <atomic>
 #include <mutex>
 #include <vector>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
+
+namespace {
 
 struct ScanLineProcess
 {
@@ -69,6 +70,8 @@ struct ScanLineProcess
     std::shared_ptr<ScanLineProcess> next;
 };
 
+} // empty namespace
+
 struct ScanLineInputFile::Data
 {
     Data (Context *ctxt, int pN, int nT)
@@ -80,13 +83,17 @@ struct ScanLineInputFile::Data
 #endif
     {}
 
+    void initialize ()
+    {
+        if (_ctxt->storage (partNumber) != EXR_STORAGE_SCANLINE)
+            throw IEX_NAMESPACE::ArgExc ("File part is not a scanline part");
+    }
+
     Context* _ctxt;
     int partNumber;
     int numThreads;
     Header header;
     bool header_filled = false;
-
-    exr_storage_t _storage = EXR_STORAGE_UNKNOWN;
 
     // TODO: remove once we can remove deprecated API
     std::vector<char> _pixel_data_scratch;
@@ -173,7 +180,7 @@ ScanLineInputFile::ScanLineInputFile (InputPartData* part)
     : _ctxt (part->context),
       _data (std::make_shared<Data> (&_ctxt, part->partNumber, part->numThreads))
 {
-    _data->_storage = _ctxt.storage (_data->partNumber);
+    _data->initialize ();
 }
 
 ScanLineInputFile::ScanLineInputFile (
@@ -183,7 +190,7 @@ ScanLineInputFile::ScanLineInputFile (
     : _data (std::make_shared<Data> (&_ctxt, 0, numThreads))
 {
     _ctxt.startRead (filename, ctxtinit);
-    _data->_storage = _ctxt.storage (_data->partNumber);
+    _data->initialize ();
 }
 
 ScanLineInputFile::ScanLineInputFile (
@@ -378,7 +385,7 @@ ScanLineInputFile::rawPixelDataToBuffer (
     }
     else
     {
-        if (_data->_storage == EXR_STORAGE_TILED)
+        if (_ctxt.storage (_data->partNumber) == EXR_STORAGE_TILED)
         {
             THROW (
                 IEX_NAMESPACE::ArgExc,
