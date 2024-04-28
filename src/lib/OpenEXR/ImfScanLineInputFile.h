@@ -14,36 +14,32 @@
 
 #include "ImfForward.h"
 
-#include "ImfGenericInputFile.h"
 #include "ImfThreading.h"
+#include "ImfContext.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
-class IMF_EXPORT_TYPE ScanLineInputFile : public GenericInputFile
+class IMF_EXPORT_TYPE ScanLineInputFile
 {
 public:
     //------------
-    // Constructor
+    // Constructors
     //------------
+
 
     IMF_EXPORT
     ScanLineInputFile (
-        const Header&                            header,
-        OPENEXR_IMF_INTERNAL_NAMESPACE::IStream* is,
+        OPENEXR_IMF_INTERNAL_NAMESPACE::IStream& is,
         int numThreads = globalThreadCount ());
 
-    //-----------------------------------------
-    // Destructor -- deallocates internal data
-    // structures, but does not close the file.
-    //-----------------------------------------
+    IMF_EXPORT
+    ScanLineInputFile (const char filename[], int numThreads = globalThreadCount ());
 
     IMF_EXPORT
-    virtual ~ScanLineInputFile ();
-
-    ScanLineInputFile (const ScanLineInputFile& other)            = delete;
-    ScanLineInputFile& operator= (const ScanLineInputFile& other) = delete;
-    ScanLineInputFile (ScanLineInputFile&& other)                 = delete;
-    ScanLineInputFile& operator= (ScanLineInputFile&& other)      = delete;
+    ScanLineInputFile (
+        const char*               filename,
+        const ContextInitializer& ctxtinit,
+        int                       numThreads = globalThreadCount ());
 
     //------------------------
     // Access to the file name
@@ -173,16 +169,12 @@ public:
     void rawPixelDataToBuffer (
         int scanLine, char* pixelData, int& pixelDataSize) const;
 
-    struct IMF_HIDDEN Data;
-
 private:
-    Data* _data;
-
-    InputStreamMutex* _streamData;
+    Context _ctxt;
+    struct IMF_HIDDEN Data;
+    std::shared_ptr<Data> _data;
 
     IMF_HIDDEN ScanLineInputFile (InputPartData* part);
-
-    IMF_HIDDEN void initialize (const Header& header);
 
     friend class MultiPartInputFile;
     friend class InputFile;
