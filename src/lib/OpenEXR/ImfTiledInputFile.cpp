@@ -693,13 +693,13 @@ TiledInputFile::tileOrder (int dx[], int dy[], int lx[], int ly[]) const
         case ONE_LEVEL:
         case MIPMAP_LEVELS:
             for (int i_l = 0; i_l < numY; ++i_l)
-                numAllTiles += numXTiles (i_l) * numYTiles (i_l);
+                numAllTiles += size_t (numXTiles (i_l)) * size_t (numYTiles (i_l));
             break;
 
         case RIPMAP_LEVELS:
             for (int i_ly = 0; i_ly < numY; ++i_ly)
                 for (int i_lx = 0; i_lx < numX; ++i_lx)
-                    numAllTiles += numXTiles (i_lx) * numYTiles (i_ly);
+                    numAllTiles += size_t (numXTiles (i_lx)) * size_t (numYTiles (i_ly));
             break;
 
         default:
