@@ -14,8 +14,9 @@
 
 #include "ImfForward.h"
 
-#include "ImfThreading.h"
 #include "ImfContext.h"
+
+#include "ImfThreading.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
