@@ -220,6 +220,45 @@ exr_get_tile_levels (
 
 /**************************************/
 
+exr_result_t exr_get_tile_counts (
+    exr_const_context_t ctxt,
+    int                 part_index,
+    int                 levelx,
+    int                 levely,
+    int32_t*            countx,
+    int32_t*            county)
+{
+    EXR_LOCK_WRITE_AND_DEFINE_PART (part_index);
+
+    if (part->storage_mode == EXR_STORAGE_TILED ||
+        part->storage_mode == EXR_STORAGE_DEEP_TILED)
+    {
+        if (!part->tiles || part->num_tile_levels_x <= 0 ||
+            part->num_tile_levels_y <= 0 || !part->tile_level_tile_count_x ||
+            !part->tile_level_tile_count_y)
+        {
+            return EXR_UNLOCK_WRITE_AND_RETURN (ctxt->print_error (
+                ctxt,
+                EXR_ERR_MISSING_REQ_ATTR,
+                "Tile data missing or corrupt"));
+        }
+
+        if (levelx < 0 || levely < 0 || levelx >= part->num_tile_levels_x ||
+            levely >= part->num_tile_levels_y)
+            return EXR_UNLOCK_WRITE_AND_RETURN (
+                ctxt->standard_error (ctxt, EXR_ERR_ARGUMENT_OUT_OF_RANGE));
+
+        if (countx) *countx = part->tile_level_tile_count_x[levelx];
+        if (county) *county = part->tile_level_tile_count_y[levely];
+        return EXR_UNLOCK_WRITE_AND_RETURN (EXR_ERR_SUCCESS);
+    }
+
+    return EXR_UNLOCK_WRITE_AND_RETURN (
+        ctxt->standard_error (ctxt, EXR_ERR_TILE_SCAN_MIXEDAPI));
+}
+
+/**************************************/
+
 exr_result_t
 exr_get_tile_sizes (
     exr_const_context_t ctxt,
