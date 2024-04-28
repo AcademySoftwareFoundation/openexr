@@ -104,9 +104,6 @@ struct InputFile::Data
     std::unique_ptr<CompositeDeepScanLine>
         _compositor; // for loading deep files
 
-    // TODO: remove once we can remove deprecated API
-    std::vector<char> _pixel_data_scratch;
-
     // TODO: remove once we can remove deprecated API or to make it slow so
     // people switch to the new UI
     std::vector<Header> _lazy_header_cache;
@@ -227,84 +224,14 @@ void
 InputFile::rawPixelData (
     int firstScanLine, const char*& pixelData, int& pixelDataSize)
 {
-    uint64_t maxsize = 0;
-    if (EXR_ERR_SUCCESS !=
-        exr_get_chunk_unpacked_size (_ctxt, _data->getPartIdx (), &maxsize))
-    {
-        THROW (
-            IEX_NAMESPACE::ArgExc,
-            "Unable to query data size of chunk in file '" << fileName ()
-                                                           << "'");
-    }
-
-    // again, doesn't actually provide any safety given we're handing
-    // back a pointer... but will at least prevent two threads
-    // allocating at the same time and getting sliced
-#if ILMTHREAD_THREADING_ENABLED
-    std::lock_guard<std::mutex> lock (_data->_mx);
-#endif
-    _data->_pixel_data_scratch.resize (maxsize);
-
-    pixelData     = _data->_pixel_data_scratch.data ();
-    pixelDataSize = static_cast<int> (maxsize);
-
-    rawPixelDataToBuffer (
-        firstScanLine, _data->_pixel_data_scratch.data (), pixelDataSize);
+    _data->_sFile->rawPixelData (firstScanLine, pixelData, pixelDataSize);
 }
 
 void
 InputFile::rawPixelDataToBuffer (
     int scanLine, char* pixelData, int& pixelDataSize) const
 {
-    exr_chunk_info_t cinfo;
-    if (EXR_ERR_SUCCESS == exr_read_scanline_chunk_info (
-                               _ctxt, _data->getPartIdx (), scanLine, &cinfo))
-    {
-        if (cinfo.packed_size > static_cast<uint64_t> (pixelDataSize))
-        {
-            THROW (
-                IEX_NAMESPACE::ArgExc,
-                "Error reading pixel data from image "
-                "file \""
-                    << fileName ()
-                    << "\". Provided buffer is too small to read raw pixel data:"
-                    << pixelDataSize << " bytes.");
-        }
-
-        pixelDataSize = static_cast<int> (cinfo.packed_size);
-
-        if (EXR_ERR_SUCCESS !=
-            exr_read_chunk (_ctxt, _data->getPartIdx (), &cinfo, pixelData))
-        {
-            THROW (
-                IEX_NAMESPACE::ArgExc,
-                "Error reading pixel data from image "
-                "file \""
-                    << fileName () << "\". Unable to read raw pixel data of "
-                    << pixelDataSize << " bytes.");
-        }
-    }
-    else
-    {
-        if (_data->_storage == EXR_STORAGE_TILED)
-        {
-            THROW (
-                IEX_NAMESPACE::ArgExc,
-                "Error reading pixel data from image "
-                "file \""
-                    << fileName ()
-                    << "\". Tried to read a raw scanline from a tiled image.");
-        }
-        else
-        {
-            THROW (
-                IEX_NAMESPACE::ArgExc,
-                "Error reading pixel data from image "
-                "file \""
-                    << fileName ()
-                    << "\". Unable to query data block information.");
-        }
-    }
+    _data->_sFile->rawPixelDataToBuffer (scanLine, pixelData, pixelDataSize);
 }
 
 void
