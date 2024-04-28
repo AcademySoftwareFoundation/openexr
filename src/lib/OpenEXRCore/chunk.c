@@ -526,7 +526,8 @@ reconstruct_chunk_table (
             if (curctable[found_ci] == 0) curctable[found_ci] = chunk_start;
         }
     }
-    memcpy (chunktable, curctable, chunkbytes);
+    if (firstfailrv == EXR_ERR_SUCCESS)
+        memcpy (chunktable, curctable, chunkbytes);
     ctxt->free_fn (curctable);
 
     return firstfailrv;
@@ -804,6 +805,11 @@ exr_read_scanline_chunk_info (
     fsize = ctxt->file_size;
 
     dataoff = ctable[cidx];
+
+    /* known behavior for partial files */
+    if (dataoff == 0)
+        return EXR_ERR_INCOMPLETE_CHUNK_TABLE;
+
     if (dataoff < chunkmin || (fsize > 0 && dataoff > (uint64_t) fsize))
     {
         return ctxt->print_error (
@@ -1081,6 +1087,11 @@ exr_read_tile_chunk_info (
     fsize = ctxt->file_size;
 
     dataoff = ctable[cidx];
+
+    /* known behavior for partial files */
+    if (dataoff == 0)
+        return EXR_ERR_INCOMPLETE_CHUNK_TABLE;
+
     if (dataoff < chunkmin || (fsize > 0 && dataoff > (uint64_t) fsize))
     {
         return ctxt->print_error (
