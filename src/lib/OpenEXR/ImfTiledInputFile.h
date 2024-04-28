@@ -14,7 +14,8 @@
 
 #include "ImfForward.h"
 
-#include "ImfGenericInputFile.h"
+#include "ImfContext.h"
+
 #include "ImfThreading.h"
 
 #include "ImfTileDescription.h"
@@ -22,7 +23,7 @@
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
-class IMF_EXPORT_TYPE TiledInputFile : public GenericInputFile
+class IMF_EXPORT_TYPE TiledInputFile
 {
 public:
     //--------------------------------------------------------------------
@@ -52,17 +53,11 @@ public:
         OPENEXR_IMF_INTERNAL_NAMESPACE::IStream& is,
         int numThreads = globalThreadCount ());
 
-    //-----------
-    // Destructor
-    //-----------
-
     IMF_EXPORT
-    virtual ~TiledInputFile ();
-
-    TiledInputFile (const TiledInputFile& other)            = delete;
-    TiledInputFile& operator= (const TiledInputFile& other) = delete;
-    TiledInputFile (TiledInputFile&& other)                 = delete;
-    TiledInputFile& operator= (TiledInputFile&& other)      = delete;
+    TiledInputFile (
+        const char*               filename,
+        const ContextInitializer& ctxtinit,
+        int                       numThreads = globalThreadCount ());
 
     //------------------------
     // Access to the file name
@@ -349,28 +344,16 @@ public:
         const char*& pixelData,
         int&         pixelDataSize);
 
-    struct IMF_HIDDEN Data;
-
 private:
+    Context _ctxt;
+    struct IMF_HIDDEN Data;
+    std::shared_ptr<Data> _data;
+
     friend class InputFile;
     friend class MultiPartInputFile;
 
     IMF_HIDDEN
     TiledInputFile (InputPartData* part);
-
-    IMF_HIDDEN
-    TiledInputFile (
-        const Header&                            header,
-        OPENEXR_IMF_INTERNAL_NAMESPACE::IStream* is,
-        int                                      version,
-        int                                      numThreads);
-
-    IMF_HIDDEN
-    void initialize ();
-    IMF_HIDDEN
-    void multiPartInitialize (InputPartData* part);
-    IMF_HIDDEN
-    void compatibilityInitialize (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream& is);
 
     IMF_HIDDEN
     bool isValidTile (int dx, int dy, int lx, int ly) const;
@@ -380,7 +363,6 @@ private:
 
     IMF_HIDDEN
     void  tileOrder (int dx[], int dy[], int lx[], int ly[]) const;
-    Data* _data;
 
     friend class TiledOutputFile;
 };
