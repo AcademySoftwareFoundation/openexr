@@ -12,5 +12,6 @@ void testBaseLimits (const std::string& tempdir);
 void testBaseDebug (const std::string& tempdir);
 void testCPUIdent (const std::string& tempdir);
 void testHalf (const std::string& tempdir);
+void testTempContext (const std::string& tempdir);
 
 #endif // OPENEXR_CORE_TEST_BASE_H
