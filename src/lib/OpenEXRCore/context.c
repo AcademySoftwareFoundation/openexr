@@ -667,6 +667,12 @@ exr_write_header (exr_context_t ctxt)
         if (rv != EXR_ERR_SUCCESS) break;
 
         ccount = internal_exr_compute_chunk_offset_size (curp);
+        if (ccount < 0)
+            return EXR_UNLOCK_AND_RETURN (
+                ctxt->report_error (
+                    ctxt,
+                    EXR_ERR_FILE_BAD_HEADER,
+                    "Invalid part specification computing number of chunks in file"));
 
         curp->chunk_count = ccount;
 

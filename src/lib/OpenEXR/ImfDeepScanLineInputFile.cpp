@@ -537,6 +537,12 @@ readSampleCountForLineBlock (
     int                          sampleCountMinY,
     bool                         writeToSlice)
 {
+    if (lineBlockId < 0 || lineBlockId >= (int) data->lineOffsets.size ())
+    {
+        THROW (IEX_NAMESPACE::ArgExc,
+               "Invalid line block id: " << lineBlockId);
+    }
+
     streamData->is->seekg (data->lineOffsets[lineBlockId]);
 
     if (isMultiPart (data->version))
