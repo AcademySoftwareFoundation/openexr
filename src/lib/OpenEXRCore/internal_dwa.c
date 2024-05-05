@@ -135,7 +135,12 @@ internal_exr_apply_dwaa (exr_encode_pipeline_t* encode)
         internal_exr_huf_compress_spare_bytes ());
     if (rv == EXR_ERR_SUCCESS)
     {
-        rv = DwaCompressor_construct (&dwaa, DEFLATE, encode, NULL);
+        exr_storage_t st = (exr_storage_t)encode->chunk.type;
+        AcCompression accomp = STATIC_HUFFMAN;
+        /* C++ had this discrepancy between encoders for tiled vs scanline */
+        if (st == EXR_STORAGE_TILED || st == EXR_STORAGE_DEEP_TILED)
+            accomp = DEFLATE;
+        rv = DwaCompressor_construct (&dwaa, accomp, encode, NULL);
         if (rv == EXR_ERR_SUCCESS) rv = DwaCompressor_compress (&dwaa);
 
         DwaCompressor_destroy (&dwaa);
