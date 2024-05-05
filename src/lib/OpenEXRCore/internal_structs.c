@@ -228,6 +228,7 @@ internal_exr_add_part (
     part->display_window.max.x = -1;
     part->display_window.max.y = -1;
     part->chunk_count          = -1;
+    part->lines_per_chunk      = -1;
 
     part->zip_compression_level = f->default_zip_level;
     part->dwa_compression_level = f->default_dwa_quality;
