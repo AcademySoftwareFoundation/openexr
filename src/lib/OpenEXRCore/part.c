@@ -488,6 +488,7 @@ exr_get_scanlines_per_chunk (
         *out = part->lines_per_chunk;
         return EXR_UNLOCK_WRITE_AND_RETURN (EXR_ERR_SUCCESS);
     }
+    *out = -1;
     return EXR_UNLOCK_WRITE_AND_RETURN (
         ctxt->standard_error (ctxt, EXR_ERR_SCAN_TILE_MIXEDAPI));
 }
