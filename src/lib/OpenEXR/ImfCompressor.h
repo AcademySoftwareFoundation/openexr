@@ -175,6 +175,9 @@ public:
     void setExpectedSize (size_t sz) { _expectedSize = sz; }
     void setTileLevel (int lx, int ly) { _levelX = lx; _levelY = ly; }
 
+    exr_storage_t storageType () const { return _store_type; }
+    void setStorageType (exr_storage_t st) { _store_type = st; }
+
 protected:
     Context _ctxt;
     const Header& _header;
@@ -206,10 +209,6 @@ protected:
         int inSize,
         IMATH_NAMESPACE::Box2i range,
         const char*& outPtr);
-
-    friend Compressor* newCompressor (Compression, size_t, const Header&);
-
-    friend Compressor* newTileCompressor (Compression, size_t, size_t, const Header&);
 };
 
 //-----------------------------------------------------------------
