@@ -9,6 +9,7 @@
 #include "internal_structs.h"
 #include "internal_util.h"
 #include "internal_xdr.h"
+#include "internal_file.h"
 
 #include <limits.h>
 #include <string.h>
@@ -720,6 +721,155 @@ compute_chunk_unpack_size (
     else
         unpacksize = part->unpacked_size_per_chunk;
     return unpacksize;
+}
+
+/**************************************/
+
+exr_result_t
+exr_chunk_default_initialize (
+    exr_context_t ctxt, int part_index,
+    const exr_attr_box2i_t *box,
+    int levelx, int levely,
+    exr_chunk_info_t* cinfo)
+{
+    exr_result_t     rv = EXR_ERR_SUCCESS;
+    exr_attr_box2i_t dw;
+    int              miny, cidx, lpc;
+    exr_priv_part_t  part;
+
+    if (!cinfo) return EXR_ERR_INVALID_ARGUMENT;
+    if (!box) return EXR_ERR_INVALID_ARGUMENT;
+
+    if (!ctxt) return EXR_ERR_MISSING_CONTEXT_ARG;
+
+    if (part_index < 0 || part_index >= ctxt->num_parts)
+        return ctxt->print_error (
+            ctxt,
+            EXR_ERR_ARGUMENT_OUT_OF_RANGE,
+            "Part index (%d) out of range",
+            part_index);
+
+    /* TODO: Double check need for a lock? */
+    part = ctxt->parts[part_index];
+
+    dw = part->data_window;
+    if (box->min.y < dw.min.y || box->min.y > dw.max.y)
+        return EXR_ERR_INVALID_ARGUMENT;
+
+    if (ctxt->mode == EXR_CONTEXT_TEMPORARY)
+    {
+        part->chunk_count = internal_exr_compute_chunk_offset_size (part);
+    }
+
+    if (part->storage_mode == EXR_STORAGE_SCANLINE ||
+        part->storage_mode == EXR_STORAGE_DEEP_SCANLINE ||
+        (ctxt->mode == EXR_CONTEXT_TEMPORARY && !(part->tiles)))
+    {
+        lpc  = part->lines_per_chunk;
+        cidx = box->min.y - dw.min.y;
+        if (lpc > 1) cidx /= lpc;
+
+        // do we need to invert this when reading decreasing y? it appears not
+        //if (part->lineorder == EXR_LINEORDER_DECREASING_Y)
+        //    cidx = part->chunk_count - (cidx + 1);
+        miny = dw.min.y + cidx * lpc;
+
+        if (cidx < 0 || cidx >= part->chunk_count)
+            return EXR_ERR_INVALID_ARGUMENT;
+
+        cinfo->idx         = cidx;
+        if (part->storage_mode == EXR_STORAGE_LAST_TYPE &&
+            ctxt->mode == EXR_CONTEXT_TEMPORARY)
+            cinfo->type = (uint8_t) EXR_STORAGE_SCANLINE;
+        else
+            cinfo->type = (uint8_t) part->storage_mode;
+        cinfo->compression = (uint8_t) part->comp_type;
+        cinfo->start_x     = dw.min.x;
+        cinfo->start_y     = miny;
+        cinfo->width       = dw.max.x - dw.min.x + 1;
+        cinfo->height      = lpc;
+        if (miny < dw.min.y)
+        {
+            cinfo->start_y = dw.min.y;
+            cinfo->height -= dw.min.y - miny;
+        }
+        else if (((int64_t)miny + (int64_t)lpc) > (int64_t)dw.max.y)
+        {
+            cinfo->height = dw.max.y - miny + 1;
+        }
+        cinfo->level_x = 0;
+        cinfo->level_y = 0;
+
+        cinfo->unpacked_size = compute_chunk_unpack_size (
+            dw.min.x, miny, cinfo->width, cinfo->height, lpc, part);
+    }
+    else if (part->tiles)
+    {
+        const exr_attr_chlist_t*   chanlist;
+        const exr_attr_tiledesc_t* tiledesc;
+        int                        tilew, tileh;
+        uint64_t                   texels, unpacksize = 0;
+        int64_t                    tend, dend;
+        int                        tilex, tiley;
+
+        tiledesc = part->tiles->tiledesc;
+
+        tilew = (int) (tiledesc->x_size);
+        tileh = (int) (tiledesc->y_size);
+
+        tilex = (box->min.x - dw.min.x) / tilew;
+        tiley = (box->min.y - dw.min.y) / tileh;
+
+        cidx = 0;
+        rv   = validate_and_compute_tile_chunk_off (
+            ctxt, part, tilex, tiley, levelx, levely, &cidx);
+        if (rv != EXR_ERR_SUCCESS) return rv;
+
+        dend  = ((int64_t) part->tile_level_tile_size_x[levelx]);
+        tend  = ((int64_t) tilew) * ((int64_t) (tilex + 1));
+        if (tend > dend)
+        {
+            tend -= dend;
+            if (tend < tilew) tilew = tilew - ((int) tend);
+        }
+
+        dend  = ((int64_t) part->tile_level_tile_size_y[levely]);
+        tend  = ((int64_t) tileh) * ((int64_t) (tiley + 1));
+        if (tend > dend)
+        {
+            tend -= dend;
+            if (tend < tileh) tileh = tileh - ((int) tend);
+        }
+
+        cinfo->idx         = cidx;
+        if (part->storage_mode == EXR_STORAGE_LAST_TYPE &&
+            ctxt->mode == EXR_CONTEXT_TEMPORARY)
+            cinfo->type = (uint8_t) EXR_STORAGE_TILED;
+        else
+            cinfo->type = (uint8_t) part->storage_mode;
+        cinfo->compression = (uint8_t) part->comp_type;
+        cinfo->start_x     = tilex;
+        cinfo->start_y     = tiley;
+        cinfo->height      = tileh;
+        cinfo->width       = tilew;
+        if (levelx > 255 || levely > 255)
+            return EXR_ERR_ATTR_SIZE_MISMATCH;
+
+        cinfo->level_x = (uint8_t) levelx;
+        cinfo->level_y = (uint8_t) levely;
+
+        chanlist = part->channels->chlist;
+        texels   = (uint64_t) tilew * (uint64_t) tileh;
+        for (int c = 0; c < chanlist->num_channels; ++c)
+        {
+            const exr_attr_chlist_entry_t* curc = (chanlist->entries + c);
+            unpacksize +=
+                texels * (uint64_t) ((curc->pixel_type == EXR_PIXEL_HALF) ? 2 : 4);
+        }
+        cinfo->unpacked_size = unpacksize;
+    }
+
+    return rv;
 }
 
 /**************************************/

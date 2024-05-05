@@ -5,6 +5,8 @@
 
 #include "internal_file.h"
 
+#include "openexr_compression.h"
+
 #include "internal_attr.h"
 #include "internal_constants.h"
 #include "internal_structs.h"
@@ -2354,24 +2356,10 @@ internal_exr_compute_chunk_offset_size (exr_priv_part_t curpart)
     }
     else
     {
-        uint64_t linePerChunk, h;
-        switch (curpart->comp_type)
-        {
-            case EXR_COMPRESSION_NONE:
-            case EXR_COMPRESSION_RLE:
-            case EXR_COMPRESSION_ZIPS: linePerChunk = 1; break;
-            case EXR_COMPRESSION_ZIP:
-            case EXR_COMPRESSION_PXR24: linePerChunk = 16; break;
-            case EXR_COMPRESSION_PIZ:
-            case EXR_COMPRESSION_B44:
-            case EXR_COMPRESSION_B44A:
-            case EXR_COMPRESSION_DWAA: linePerChunk = 32; break;
-            case EXR_COMPRESSION_DWAB: linePerChunk = 256; break;
-            case EXR_COMPRESSION_LAST_TYPE:
-            default:
-                /* ERROR CONDITION */
-                return -1;
-        }
+        int linePerChunk, h;
+
+        linePerChunk = exr_compression_lines_per_chunk (curpart->comp_type);
+        if (linePerChunk < 0) return -1;
 
         for (int c = 0; c < channels->num_channels; ++c)
         {

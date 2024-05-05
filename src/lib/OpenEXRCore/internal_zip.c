@@ -297,13 +297,12 @@ undo_zip_impl (
 
     if (res == EXR_ERR_SUCCESS)
     {
-        if (actual_out_bytes == uncompressed_size)
-        {
+        decode->bytes_decompressed = actual_out_bytes;
+        if (comp_buf_size > actual_out_bytes)
+            res = EXR_ERR_CORRUPT_CHUNK;
+        else
             internal_zip_reconstruct_bytes (
                 uncompressed_data, scratch_data, actual_out_bytes);
-        }
-        else
-            res = EXR_ERR_CORRUPT_CHUNK;
     }
 
     return res;
@@ -322,6 +321,14 @@ internal_exr_undo_zip (
     exr_result_t rv;
     uint64_t     scratchbufsz = uncompressed_size;
     if (comp_buf_size > scratchbufsz) scratchbufsz = comp_buf_size;
+
+    if (comp_buf_size == uncompressed_size)
+    {
+        decode->bytes_decompressed = comp_buf_size;
+        if (compressed_data != uncompressed_data)
+            memcpy(uncompressed_data, compressed_data, comp_buf_size);
+        return EXR_ERR_SUCCESS;
+    }
 
     rv = internal_decode_alloc_buffer (
         decode,
