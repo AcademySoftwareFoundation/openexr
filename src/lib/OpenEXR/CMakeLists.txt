@@ -11,7 +11,6 @@ openexr_define_library(OpenEXR
     ImfCompression.h
     ImfCompressor.h
     ImfDwaCompressor.h
-    ImfDwaCompressorSimd.h
     ImfFastHuf.h
     ImfInputPartData.h
     ImfInputStreamMutex.h

@@ -590,6 +590,10 @@ TileBufferTask::execute ()
         {
             _tileBuffer->format = _tileBuffer->compressor->format ();
 
+            _tileBuffer->compressor->setExpectedSize (sizeOfTile);
+            _tileBuffer->compressor->setTileLevel (
+                _tileBuffer->lx,
+                _tileBuffer->ly);
             _tileBuffer->dataSize = _tileBuffer->compressor->uncompressTile (
                 _tileBuffer->buffer,
                 static_cast<int> (_tileBuffer->dataSize),
@@ -1939,8 +1943,13 @@ DeepTiledInputFile::readPixelSampleCounts (
 
                 const char* readPtr;
 
-                if (tableSize < _data->maxSampleCountTableSize)
+                size_t tileTableBytes =
+                    (sizeof(int) * (tileRange.max.y - tileRange.min.y + 1) *
+                     (tileRange.max.x - tileRange.min.x + 1));
+
+                if (tableSize < tileTableBytes)
                 {
+                    size_t uncto;
                     if (!_data->sampleCountTableComp)
                     {
                         THROW (
@@ -1949,11 +1958,21 @@ DeepTiledInputFile::readPixelSampleCounts (
                                 << dx << ',' << dy << ',' << lx << ',' << ly
                                 << " (sampleCountTableDataSize error)");
                     }
-                    _data->sampleCountTableComp->uncompress (
+                    uncto = _data->sampleCountTableComp->uncompress (
                         _data->sampleCountTableBuffer,
                         static_cast<int> (tableSize),
                         tileRange.min.y,
                         readPtr);
+                    if (uncto < tileTableBytes)
+                    {
+                        THROW (
+                            IEX_NAMESPACE::ArgExc,
+                            "Deep scanline data corrupt at tile "
+                            << dx << ',' << dy << ',' << lx << ',' << ly
+                            << " sampleCountTableDataSize error: "
+                            << uncto << " bytes uncompressed, need "
+                            << tileTableBytes);
+                    }
                 }
                 else
                     readPtr = _data->sampleCountTableBuffer;

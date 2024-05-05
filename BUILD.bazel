@@ -417,7 +417,6 @@ cc_library(
         "src/lib/OpenEXR/ImfDeepTiledOutputPart.h",
         "src/lib/OpenEXR/ImfDoubleAttribute.h",
         "src/lib/OpenEXR/ImfDwaCompressor.h",
-        "src/lib/OpenEXR/ImfDwaCompressorSimd.h",
         "src/lib/OpenEXR/ImfEnvmap.h",
         "src/lib/OpenEXR/ImfEnvmapAttribute.h",
         "src/lib/OpenEXR/ImfExport.h",

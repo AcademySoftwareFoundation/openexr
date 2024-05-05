@@ -29,7 +29,6 @@
 #include "testDeepScanLineHuge.h"
 #include "testDeepScanLineMultipleRead.h"
 #include "testDeepTiledBasic.h"
-#include "testDwaCompressorSimd.h"
 #include "testDwaLookups.h"
 #include "testExistingStreams.h"
 #include "testFutureProofing.h"
@@ -229,7 +228,6 @@ main (int argc, char* argv[])
     TEST (testCopyMultiPartFile, "multi");
     TEST (testBackwardCompatibility, "core");
     TEST (testFutureProofing, "core");
-    TEST (testDwaCompressorSimd, "basic");
     TEST (testRle, "core");
     TEST (testB44ExpLogTable, "core");
     TEST (testDwaLookups, "core");
