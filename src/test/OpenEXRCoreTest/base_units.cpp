@@ -23,6 +23,8 @@
 #include <ImfNamespace.h>
 #include "../../lib/OpenEXRCore/internal_cpuid.h"
 #include "../../lib/OpenEXRCore/internal_coding.h"
+#include "../../lib/OpenEXRCore/openexr_context.h"
+#include "../../lib/OpenEXRCore/openexr_part.h"
 
 void
 testBase (const std::string& tempdir)
@@ -198,6 +200,10 @@ testBaseErrors (const std::string& tempdir)
         0 == strcmp (
                  exr_get_error_code_as_string (EXR_ERR_ATTR_SIZE_MISMATCH),
                  "EXR_ERR_ATTR_SIZE_MISMATCH"));
+    EXRCORE_TEST (
+        0 == strcmp (
+                 exr_get_error_code_as_string (EXR_ERR_INCOMPLETE_CHUNK_TABLE),
+                 "EXR_ERR_INCOMPLETE_CHUNK_TABLE"));
     EXRCORE_TEST (
         0 == strcmp (
                  exr_get_error_code_as_string (EXR_ERR_SCAN_TILE_MIXEDAPI),
@@ -420,3 +426,32 @@ testHalf (const std::string& tempdir)
     EXRCORE_TEST (uint_to_float (0) == 0.f);
     EXRCORE_TEST (uint_to_float_int (0) == 0);
 }
+
+////////////////////////////////////////
+
+void testTempContext (const std::string& tempdir)
+{
+    exr_context_t c = NULL;
+    exr_context_initializer_t cinit = EXR_DEFAULT_CONTEXT_INITIALIZER;
+    int pc = -1;
+
+    printf ("Testing initial temporary context API\n");
+
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_INVALID_ARGUMENT,
+        exr_start_temporary_context (NULL, tempdir.c_str (), NULL));
+
+    EXRCORE_TEST_RVAL (exr_start_temporary_context (&c, tempdir.c_str (), NULL));
+    EXRCORE_TEST_RVAL (exr_get_count (c, &pc));
+    EXRCORE_TEST (pc == 1);
+    exr_finish (&c);
+
+    EXRCORE_TEST_RVAL (exr_start_temporary_context (
+                           &c, tempdir.c_str (), &cinit));
+    EXRCORE_TEST_RVAL (exr_initialize_required_attr_simple (
+                           c, 0, 1920, 1080, EXR_COMPRESSION_NONE));
+    exr_finish (&c);
+
+    printf ("ok.\n");
+}
+

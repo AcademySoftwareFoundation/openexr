@@ -67,7 +67,7 @@ exr_add_part (
     if (!ctxt) return EXR_ERR_MISSING_CONTEXT_ARG;
     internal_exr_lock (ctxt);
 
-    if (ctxt->mode != EXR_CONTEXT_WRITE)
+    if (ctxt->mode != EXR_CONTEXT_WRITE && ctxt->mode != EXR_CONTEXT_TEMPORARY)
         return EXR_UNLOCK_AND_RETURN (
             ctxt->standard_error (ctxt, EXR_ERR_NOT_OPEN_WRITE));
 
@@ -533,7 +533,7 @@ exr_set_zip_compression_level (exr_context_t ctxt, int part_index, int level)
     exr_result_t rv;
     EXR_LOCK_AND_DEFINE_PART (part_index);
 
-    if (ctxt->mode != EXR_CONTEXT_WRITE)
+    if (ctxt->mode != EXR_CONTEXT_WRITE && ctxt->mode != EXR_CONTEXT_TEMPORARY)
         return EXR_UNLOCK_AND_RETURN (
             ctxt->standard_error (ctxt, EXR_ERR_NOT_OPEN_WRITE));
 
@@ -575,7 +575,7 @@ exr_set_dwa_compression_level (exr_context_t ctxt, int part_index, float level)
     exr_result_t rv;
     EXR_LOCK_AND_DEFINE_PART (part_index);
 
-    if (ctxt->mode != EXR_CONTEXT_WRITE)
+    if (ctxt->mode != EXR_CONTEXT_WRITE && ctxt->mode != EXR_CONTEXT_TEMPORARY)
         return EXR_UNLOCK_AND_RETURN (
             ctxt->standard_error (ctxt, EXR_ERR_NOT_OPEN_WRITE));
 
