@@ -2361,6 +2361,8 @@ internal_exr_compute_chunk_offset_size (exr_priv_part_t curpart)
         linePerChunk = exr_compression_lines_per_chunk (curpart->comp_type);
         if (linePerChunk < 0) return -1;
 
+        curpart->lines_per_chunk         = ((int16_t) linePerChunk);
+
         for (int c = 0; c < channels->num_channels; ++c)
         {
             int xsamp  = channels->entries[c].x_sampling;
@@ -2378,7 +2380,6 @@ internal_exr_compute_chunk_offset_size (exr_priv_part_t curpart)
         }
 
         curpart->unpacked_size_per_chunk = unpackedsize;
-        curpart->lines_per_chunk         = ((int16_t) linePerChunk);
         curpart->chan_has_line_sampling  = ((int16_t) hasLineSample);
 
         h      = (uint64_t) ((int64_t) dw.max.y - (int64_t) dw.min.y + 1);
