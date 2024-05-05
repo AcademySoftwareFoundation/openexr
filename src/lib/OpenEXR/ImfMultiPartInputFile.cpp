@@ -59,10 +59,9 @@ MultiPartInputFile::MultiPartInputFile (
         const ContextInitializer& ctxtinit,
         int                       numThreads,
         bool                      autoAddType)
-    : _data (std::make_shared<Data> ())
+    : _ctxt (filename, ctxtinit, Context::read_mode_t{})
+    , _data (std::make_shared<Data> ())
 {
-    _ctxt.startRead (filename, ctxtinit);
-
     int version = _ctxt.version ();
     int pc = _ctxt.partCount ();
     _data->parts.resize (pc);

@@ -196,19 +196,8 @@ Context::Context ()
 
 ////////////////////////////////////////
 
-void
-Context::setLongNameSupport (bool onoff)
-{
-    if (EXR_ERR_SUCCESS != exr_set_longname_support (*_ctxt, onoff ? 1 : 0))
-    {
-        THROW (IEX_NAMESPACE::ArgExc, "Unable to set long name support flag");
-    }
-}
-
-////////////////////////////////////////
-
-void
-Context::startRead (const char* filename, const ContextInitializer& ctxtinit)
+Context::Context (const char* filename, const ContextInitializer& ctxtinit, read_mode_t)
+    : Context()
 {
     exr_result_t rv;
     if (*_ctxt)
@@ -250,8 +239,32 @@ Context::startRead (const char* filename, const ContextInitializer& ctxtinit)
 
 ////////////////////////////////////////
 
-void
-Context::startWrite (const char* filename, const ContextInitializer& ctxtinit)
+Context::Context (const char* filename, const ContextInitializer& ctxtinit, temp_mode_t)
+    : Context()
+{
+    if (*_ctxt)
+    {
+        THROW (
+            IEX_NAMESPACE::ArgExc, "Context already started, only start once");
+    }
+
+    _legacy.reset ();
+
+    if (EXR_ERR_SUCCESS != exr_start_temporary_context (
+                               _ctxt.get (),
+                               filename,
+                               &(ctxtinit._initializer)))
+    {
+        THROW (
+            IEX_NAMESPACE::InputExc,
+            "Unable to create a temporary context");
+    }
+}
+
+////////////////////////////////////////
+
+Context::Context (const char* filename, const ContextInitializer& ctxtinit, write_mode_t)
+    : Context()
 {
     if (*_ctxt)
     {
@@ -270,6 +283,17 @@ Context::startWrite (const char* filename, const ContextInitializer& ctxtinit)
         THROW (
             IEX_NAMESPACE::InputExc,
             "Unable to open '" << filename << "' for write");
+    }
+}
+
+////////////////////////////////////////
+
+void
+Context::setLongNameSupport (bool onoff)
+{
+    if (EXR_ERR_SUCCESS != exr_set_longname_support (*_ctxt, onoff ? 1 : 0))
+    {
+        THROW (IEX_NAMESPACE::ArgExc, "Unable to set long name support flag");
     }
 }
 
@@ -472,14 +496,6 @@ Context::getAttr (int partidx, const char* name) const
         IEX_NAMESPACE::ArgExc,
         "Unable to find attribute '" << name << "' for part " << partidx
                                      << " in file '" << fileName () << "'");
-}
-
-////////////////////////////////////////
-
-bool
-Context::chunkTableValid (int partidx) const
-{
-    return exr_validate_chunk_table (*_ctxt, partidx) == EXR_ERR_SUCCESS;
 }
 
 ////////////////////////////////////////
@@ -757,6 +773,192 @@ Context::header (int partidx) const
 
     return hdr;
 }
+
+////////////////////////////////////////
+
+#define EXR_SET_ATTR(type, cpptype, args...)                            \
+    if (!strcmp (attrT, #type))                                         \
+    {                                                                   \
+        const cpptype *attr = dynamic_cast<const cpptype*> (&a);        \
+        if (!attr)                                                      \
+            throw IEX_NAMESPACE::ArgExc ("unexpected type mismatch");   \
+        rv = exr_attr_set_##type (*_ctxt, partnum, i.name (), args);    \
+        if (rv != EXR_ERR_SUCCESS)                                      \
+            throw IEX_NAMESPACE::ArgExc ("Unable to copy attribute");   \
+        continue;                                                       \
+    }
+
+
+void Context::addHeader (int partnum, const Header &h)
+{
+    exr_result_t rv;
+    // TODO: ImfHeader iterator types should support operator* so they can
+    // use ranged-based for
+    for (auto i = h.begin (); i != h.end (); ++i)
+    {
+        const Attribute& a = i.attribute ();
+        const char* attrT = a.typeName ();
+
+        if (!strcmp (i.name (), "channels"))
+        {
+            const ChannelList& chans = h.channels ();
+
+            for (auto c = chans.begin (); c != chans.end (); ++c)
+            {
+                const Channel &cdef = c.channel ();
+                rv = exr_add_channel (
+                    *_ctxt, partnum, c.name (),
+                    (exr_pixel_type_t)cdef.type,
+                    cdef.pLinear ? EXR_PERCEPTUALLY_LINEAR : EXR_PERCEPTUALLY_LOGARITHMIC,
+                    cdef.xSampling,
+                    cdef.ySampling);
+                if (rv != EXR_ERR_SUCCESS)
+                    throw IEX_NAMESPACE::ArgExc ("Unable to copy channel information");
+            }
+            continue;
+        }
+
+        if (!strcmp (i.name (), "lineOrder"))
+        {
+            const LineOrderAttribute *attr =
+                dynamic_cast<const LineOrderAttribute*> (&a);
+            if (!attr)
+                throw IEX_NAMESPACE::ArgExc ("unexpected type mismatch");
+            rv = exr_set_lineorder (
+                *_ctxt, partnum, (exr_lineorder_t)attr->value ());
+            if (rv != EXR_ERR_SUCCESS)
+                throw IEX_NAMESPACE::ArgExc ("Unable to copy attribute");
+            continue;
+        }
+
+        if (!strcmp (attrT, "tiledesc"))
+        {
+            const TileDescriptionAttribute *attr =
+                dynamic_cast<const TileDescriptionAttribute*> (&a);
+            if (!attr)
+                throw IEX_NAMESPACE::ArgExc ("unexpected type mismatch");
+            TileDescription td = attr->value ();
+
+            rv = exr_set_tile_descriptor (
+                *_ctxt, partnum,
+                td.xSize,
+                td.ySize,
+                (exr_tile_level_mode_t)td.mode,
+                (exr_tile_round_mode_t)td.roundingMode);
+
+            if (rv != EXR_ERR_SUCCESS)
+                throw IEX_NAMESPACE::ArgExc ("Unable to copy attribute");
+            continue;
+        }
+
+        EXR_SET_ATTR(string, StringAttribute, attr->value ().c_str ());
+        EXR_SET_ATTR(int, IntAttribute, attr->value ());
+        EXR_SET_ATTR(float, FloatAttribute, attr->value ());
+        EXR_SET_ATTR(double, DoubleAttribute, attr->value ());
+        EXR_SET_ATTR(compression, CompressionAttribute, (exr_compression_t)attr->value ());
+        EXR_SET_ATTR(envmap, EnvmapAttribute, (exr_envmap_t)attr->value ());
+        EXR_SET_ATTR(v2i, V2iAttribute,
+                     reinterpret_cast<const exr_attr_v2i_t*>(&(attr->value ())));
+        EXR_SET_ATTR(v2f, V2fAttribute,
+                     reinterpret_cast<const exr_attr_v2f_t*>(&(attr->value ())));
+        EXR_SET_ATTR(v2d, V2dAttribute,
+                     reinterpret_cast<const exr_attr_v2d_t*>(&(attr->value ())));
+        EXR_SET_ATTR(v3i, V3iAttribute,
+                     reinterpret_cast<const exr_attr_v3i_t*>(&(attr->value ())));
+        EXR_SET_ATTR(v3f, V3fAttribute,
+                     reinterpret_cast<const exr_attr_v3f_t*>(&(attr->value ())));
+        EXR_SET_ATTR(v3d, V3dAttribute,
+                     reinterpret_cast<const exr_attr_v3d_t*>(&(attr->value ())));
+        EXR_SET_ATTR(m33f, M33fAttribute,
+                     reinterpret_cast<const exr_attr_m33f_t*>(&(attr->value ())));
+        EXR_SET_ATTR(m33d, M33dAttribute,
+                     reinterpret_cast<const exr_attr_m33d_t*>(&(attr->value ())));
+        EXR_SET_ATTR(m44f, M44fAttribute,
+                     reinterpret_cast<const exr_attr_m44f_t*>(&(attr->value ())));
+        EXR_SET_ATTR(m44d, M44dAttribute,
+                     reinterpret_cast<const exr_attr_m44d_t*>(&(attr->value ())));
+        EXR_SET_ATTR(box2i, Box2iAttribute,
+                     reinterpret_cast<const exr_attr_box2i_t*>(&(attr->value ())));
+        EXR_SET_ATTR(box2f, Box2fAttribute,
+                     reinterpret_cast<const exr_attr_box2f_t*>(&(attr->value ())));
+
+        if (!strcmp (attrT, "chromaticities"))
+        {
+            const ChromaticitiesAttribute *attr =
+                dynamic_cast<const ChromaticitiesAttribute*> (&a);
+            if (!attr)
+                throw IEX_NAMESPACE::ArgExc ("unexpected type mismatch");
+            Chromaticities ac = attr->value ();
+            exr_attr_chromaticities_t cac;
+
+            cac.red_x = ac.red.x;
+            cac.red_y = ac.red.y;
+            cac.green_x = ac.green.x;
+            cac.green_y = ac.green.y;
+            cac.blue_x = ac.blue.x;
+            cac.blue_y = ac.blue.y;
+            cac.white_x = ac.white.x;
+            cac.white_y = ac.white.y;
+
+            rv = exr_attr_set_chromaticities (
+                *_ctxt, partnum, i.name (), &cac);
+
+            if (rv != EXR_ERR_SUCCESS)
+                throw IEX_NAMESPACE::ArgExc ("Unable to copy attribute");
+            continue;
+        }
+
+        if (!strcmp (attrT, "stringvector"))
+        {
+            continue;
+        }
+
+        if (!strcmp (attrT, "floatvector"))
+        {
+            continue;
+        }
+
+        if (!strcmp (attrT, "preview"))
+        {
+            continue;
+        }
+
+        if (!strcmp (attrT, "rational"))
+        {
+            continue;
+        }
+
+        if (!strcmp (attrT, "timecode"))
+        {
+            continue;
+        }
+
+        if (!strcmp (attrT, "keycode"))
+        {
+            continue;
+        }
+
+        if (!strcmp (attrT, "deepImageState"))
+        {
+            continue;
+        }
+
+        //THROW (
+        //    IEX_NAMESPACE::LogicExc,
+        //    "Conversion of attribute '" << i.name () << "' of type '" << attrT
+        //    << "' to core value not yet implemented");
+    }
+}
+
+////////////////////////////////////////
+
+bool
+Context::chunkTableValid (int partidx) const
+{
+    return exr_validate_chunk_table (*_ctxt, partidx) == EXR_ERR_SUCCESS;
+}
+
+////////////////////////////////////////
 
 IStream*
 Context::legacyIStream (int partnum) const
