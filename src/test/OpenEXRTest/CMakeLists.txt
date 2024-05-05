@@ -51,8 +51,6 @@ add_executable(OpenEXRTest
   testDeepScanLineMultipleRead.h
   testDeepTiledBasic.cpp
   testDeepTiledBasic.h
-  testDwaCompressorSimd.cpp
-  testDwaCompressorSimd.h
   testDwaLookups.cpp
   testDwaLookups.h
   testExistingStreams.cpp
@@ -170,7 +168,6 @@ define_openexr_tests(
  testDeepScanLineBasic
  testDeepScanLineMultipleRead
  testDeepTiledBasic
- testDwaCompressorSimd
  testDwaLookups
  testExistingStreams
  testFutureProofing

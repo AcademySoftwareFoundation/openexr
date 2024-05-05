@@ -771,6 +771,9 @@ TileBufferTask::execute ()
         {
             const char* compPtr;
 
+            _tileBuffer->compressor->setTileLevel (
+                _tileBuffer->tileCoord.lx,
+                _tileBuffer->tileCoord.ly);
             int compSize = _tileBuffer->compressor->compressTile (
                 _tileBuffer->dataPtr,
                 _tileBuffer->dataSize,
