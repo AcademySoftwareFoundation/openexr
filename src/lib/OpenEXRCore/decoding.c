@@ -5,6 +5,8 @@
 
 #include "openexr_decode.h"
 
+#include "openexr_compression.h"
+
 #include "internal_coding.h"
 #include "internal_decompress.h"
 #include "internal_structs.h"
@@ -207,139 +209,6 @@ default_read_chunk (exr_decode_pipeline_t* decode)
 }
 
 static exr_result_t
-decompress_data (
-    exr_const_context_t     ctxt,
-    const exr_compression_t ctype,
-    exr_decode_pipeline_t*  decode,
-    void*                   packbufptr,
-    size_t                  packsz,
-    void*                   unpackbufptr,
-    size_t                  unpacksz)
-{
-    exr_result_t rv;
-
-    if (packsz == 0) return EXR_ERR_SUCCESS;
-
-    if (packsz == unpacksz)
-    {
-        if (unpackbufptr != packbufptr)
-            memcpy (unpackbufptr, packbufptr, unpacksz);
-        return EXR_ERR_SUCCESS;
-    }
-
-    switch (ctype)
-    {
-        case EXR_COMPRESSION_NONE:
-            return ctxt->report_error (
-                ctxt,
-                EXR_ERR_INVALID_ARGUMENT,
-                "no compression set but still trying to decompress");
-
-        case EXR_COMPRESSION_RLE:
-            rv = internal_exr_undo_rle (
-                decode, packbufptr, packsz, unpackbufptr, unpacksz);
-            break;
-        case EXR_COMPRESSION_ZIP:
-        case EXR_COMPRESSION_ZIPS:
-            rv = internal_exr_undo_zip (
-                decode, packbufptr, packsz, unpackbufptr, unpacksz);
-            break;
-        case EXR_COMPRESSION_PIZ:
-            rv = internal_exr_undo_piz (
-                decode, packbufptr, packsz, unpackbufptr, unpacksz);
-            break;
-        case EXR_COMPRESSION_PXR24:
-            rv = internal_exr_undo_pxr24 (
-                decode, packbufptr, packsz, unpackbufptr, unpacksz);
-            break;
-        case EXR_COMPRESSION_B44:
-            rv = internal_exr_undo_b44 (
-                decode, packbufptr, packsz, unpackbufptr, unpacksz);
-            break;
-        case EXR_COMPRESSION_B44A:
-            rv = internal_exr_undo_b44a (
-                decode, packbufptr, packsz, unpackbufptr, unpacksz);
-            break;
-        case EXR_COMPRESSION_DWAA:
-            rv = internal_exr_undo_dwaa (
-                decode, packbufptr, packsz, unpackbufptr, unpacksz);
-            break;
-        case EXR_COMPRESSION_DWAB:
-            rv = internal_exr_undo_dwab (
-                decode, packbufptr, packsz, unpackbufptr, unpacksz);
-            break;
-        case EXR_COMPRESSION_LAST_TYPE:
-        default:
-            return ctxt->print_error (
-                ctxt,
-                EXR_ERR_INVALID_ARGUMENT,
-                "Compression technique 0x%02X invalid",
-                ctype);
-    }
-
-    return rv;
-}
-
-static exr_result_t
-default_decompress_chunk (exr_decode_pipeline_t* decode)
-{
-    exr_result_t        rv   = EXR_ERR_SUCCESS;
-    exr_const_context_t ctxt = decode->context;
-    EXR_READONLY_AND_DEFINE_PART (decode->part_index);
-
-    if (part->storage_mode == EXR_STORAGE_DEEP_SCANLINE ||
-        part->storage_mode == EXR_STORAGE_DEEP_TILED)
-    {
-        uint64_t sampsize =
-            (((uint64_t) decode->chunk.width) *
-             ((uint64_t) decode->chunk.height));
-
-        sampsize *= sizeof (int32_t);
-
-        rv = decompress_data (
-            ctxt,
-            part->comp_type,
-            decode,
-            decode->packed_sample_count_table,
-            decode->chunk.sample_count_table_size,
-            decode->sample_count_table,
-            sampsize);
-
-        if (rv != EXR_ERR_SUCCESS)
-        {
-            return ctxt->print_error (
-                ctxt,
-                rv,
-                "Unable to decompress sample table %" PRIu64 " -> %" PRIu64,
-                decode->chunk.sample_count_table_size,
-                (uint64_t) sampsize);
-        }
-        if ((decode->decode_flags & EXR_DECODE_SAMPLE_DATA_ONLY)) return rv;
-    }
-
-    if (rv == EXR_ERR_SUCCESS)
-        rv = decompress_data (
-            ctxt,
-            part->comp_type,
-            decode,
-            decode->packed_buffer,
-            decode->chunk.packed_size,
-            decode->unpacked_buffer,
-            decode->chunk.unpacked_size);
-
-    if (rv != EXR_ERR_SUCCESS)
-    {
-        return ctxt->print_error (
-            ctxt,
-            rv,
-            "Unable to decompress image data %" PRIu64 " -> %" PRIu64,
-            decode->chunk.packed_size,
-            decode->chunk.unpacked_size);
-    }
-    return rv;
-}
-
-static exr_result_t
 unpack_sample_table (exr_const_context_t ctxt, exr_decode_pipeline_t* decode)
 {
     exr_result_t rv           = EXR_ERR_SUCCESS;
@@ -414,10 +283,17 @@ exr_decoding_initialize (
 {
     exr_result_t          rv;
     exr_decode_pipeline_t nil = {0};
+    exr_const_priv_part_t part;
 
-    EXR_READONLY_AND_DEFINE_PART (part_index);
+    if (!ctxt) return EXR_ERR_MISSING_CONTEXT_ARG;
+
     if (!cinfo || !decode)
         return ctxt->standard_error (ctxt, EXR_ERR_INVALID_ARGUMENT);
+
+    if (part_index < 0 || part_index >= ctxt->num_parts)
+        return EXR_ERR_ARGUMENT_OUT_OF_RANGE;
+
+    part = ctxt->parts[part_index];
 
     *decode = nil;
 
@@ -573,7 +449,7 @@ exr_decoding_choose_default_routines (
     }
     decode->read_fn = &default_read_chunk;
     if (part->comp_type != EXR_COMPRESSION_NONE)
-        decode->decompress_fn = &default_decompress_chunk;
+        decode->decompress_fn = &exr_uncompress_chunk;
 
     decode->unpack_and_convert_fn = internal_exr_match_decode (
         decode,
@@ -610,9 +486,17 @@ exr_decoding_update (
     exr_decode_pipeline_t*  decode)
 {
     exr_result_t rv;
-    EXR_READONLY_AND_DEFINE_PART (part_index);
+
+    exr_const_priv_part_t part;
+
+    if (!ctxt) return EXR_ERR_MISSING_CONTEXT_ARG;
+    if (part_index < 0 || part_index >= ctxt->num_parts)
+        return EXR_ERR_ARGUMENT_OUT_OF_RANGE;
+
     if (!cinfo || !decode)
         return ctxt->standard_error (ctxt, EXR_ERR_INVALID_ARGUMENT);
+
+    part = ctxt->parts[part_index];
 
     if (decode->context != ctxt || decode->part_index != part_index)
         return ctxt->report_error (
@@ -634,9 +518,16 @@ exr_decoding_run (
     exr_const_context_t ctxt, int part_index, exr_decode_pipeline_t* decode)
 {
     exr_result_t rv;
-    EXR_READONLY_AND_DEFINE_PART (part_index);
+    exr_const_priv_part_t part;
+
+    if (!ctxt) return EXR_ERR_MISSING_CONTEXT_ARG;
+    if (part_index < 0 || part_index >= ctxt->num_parts)
+        return EXR_ERR_ARGUMENT_OUT_OF_RANGE;
+
+    part = ctxt->parts[part_index];
 
     if (!decode) return ctxt->standard_error (ctxt, EXR_ERR_INVALID_ARGUMENT);
+
     if (decode->context != ctxt || decode->part_index != part_index)
         return ctxt->report_error (
             ctxt,

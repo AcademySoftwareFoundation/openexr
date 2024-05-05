@@ -424,7 +424,7 @@ internal_exr_apply_piz (exr_encode_pipeline_t* encode)
         EXR_TRANSCODE_BUFFER_SCRATCH1,
         &(encode->scratch_buffer_1),
         &(encode->scratch_alloc_size_1),
-        packedbytes);
+        encode->chunk.unpacked_size);
     if (rv != EXR_ERR_SUCCESS) return rv;
 
     rv = internal_encode_alloc_buffer (
@@ -479,6 +479,9 @@ internal_exr_apply_piz (exr_encode_pipeline_t* encode)
 
     applyLut (lut, encode->scratch_buffer_1, ndata);
 
+    if (4 > encode->compressed_alloc_size)
+        return EXR_ERR_OUT_OF_MEMORY;
+
     nOut = 0;
     unaligned_store16 (out, minNonZero);
     out += 2;
@@ -489,6 +492,9 @@ internal_exr_apply_piz (exr_encode_pipeline_t* encode)
     if (minNonZero <= maxNonZero)
     {
         bpl = (uint64_t) (maxNonZero - minNonZero + 1);
+        if ((nOut + bpl) > encode->compressed_alloc_size)
+            return EXR_ERR_OUT_OF_MEMORY;
+
         memcpy (out, bitmap + minNonZero, bpl);
         out += bpl;
         nOut += bpl;
@@ -513,6 +519,9 @@ internal_exr_apply_piz (exr_encode_pipeline_t* encode)
     lengthptr = (uint32_t*) out;
     out += sizeof (uint32_t);
     nOut += sizeof (uint32_t);
+    if (nOut > encode->compressed_alloc_size)
+        return EXR_ERR_OUT_OF_MEMORY;
+
     rv = internal_huf_compress (
         &nBytes,
         out,
@@ -578,7 +587,7 @@ internal_exr_undo_piz (
         EXR_TRANSCODE_BUFFER_SCRATCH1,
         &(decode->scratch_buffer_1),
         &(decode->scratch_alloc_size_1),
-        outsz);
+        outsz + hufSpareBytes);
     if (rv != EXR_ERR_SUCCESS) return rv;
 
     rv = internal_decode_alloc_buffer (
@@ -707,6 +716,6 @@ internal_exr_undo_piz (
         }
     }
 
-    if (nOut != outsz) return EXR_ERR_CORRUPT_CHUNK;
-    return EXR_ERR_SUCCESS;
+    decode->bytes_decompressed = nOut;
+    return (nOut == outsz) ? EXR_ERR_SUCCESS : EXR_ERR_CORRUPT_CHUNK;
 }

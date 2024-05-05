@@ -375,7 +375,7 @@ EXR_EXPORT exr_result_t exr_get_channels (
  * closer to logarithmic (0). For r, g, b, luminance, this is normally
  * 0.
  */
-EXR_EXPORT int exr_add_channel (
+EXR_EXPORT exr_result_t exr_add_channel (
     exr_context_t              ctxt,
     int                        part_index,
     const char*                name,

@@ -5,6 +5,8 @@
 
 #include "openexr_part.h"
 
+#include "openexr_compression.h"
+
 #include "internal_attr.h"
 #include "internal_constants.h"
 #include "internal_file.h"
@@ -696,6 +698,8 @@ exr_set_compression (
     {
         attr->uc        = (uint8_t) ctype;
         part->comp_type = ctype;
+        part->lines_per_chunk =
+            ((int16_t) exr_compression_lines_per_chunk (part->comp_type));
     }
     return EXR_UNLOCK_AND_RETURN (rv);
 }
