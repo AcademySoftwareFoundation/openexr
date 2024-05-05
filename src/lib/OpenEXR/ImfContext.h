@@ -30,14 +30,25 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 class IMF_EXPORT_TYPE Context
 {
 public:
+    struct read_mode_t { explicit read_mode_t() = default; };
+    struct temp_mode_t { explicit temp_mode_t() = default; };
+    struct write_mode_t { explicit write_mode_t() = default; };
+
     Context ();
 
-    operator exr_context_t () const noexcept { return *(_ctxt); }
+    Context (const char* filename,
+             const ContextInitializer& ctxtinit,
+             read_mode_t t);
 
-    IMF_EXPORT void
-    startRead (const char* filename, const ContextInitializer& ctxtinit);
-    IMF_EXPORT void
-    startWrite (const char* filename, const ContextInitializer& ctxtinit);
+    Context (const char* filename,
+             const ContextInitializer& ctxtinit,
+             temp_mode_t t);
+
+    Context (const char* filename,
+             const ContextInitializer& ctxtinit,
+             write_mode_t t);
+
+    operator exr_context_t () const noexcept { return *(_ctxt); }
 
     IMF_EXPORT void setLongNameSupport (bool onoff);
 
@@ -69,11 +80,14 @@ public:
     IMF_EXPORT const exr_attribute_t*
     getAttr (int partidx, const char* name) const;
 
-    // validation and legacy things
-
-    IMF_EXPORT bool chunkTableValid (int partidx) const;
+    // C++ header interface support
 
     IMF_EXPORT Header header (int partnum) const;
+    IMF_EXPORT void addHeader (int partnum, const Header &h);
+
+    // validation and things
+
+    IMF_EXPORT bool chunkTableValid (int partidx) const;
 
     // TODO: remove once the rest has been ported
     IMF_EXPORT IStream* legacyIStream (int partnum) const;
