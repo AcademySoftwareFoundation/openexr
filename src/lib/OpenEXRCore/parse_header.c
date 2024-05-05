@@ -2159,6 +2159,9 @@ internal_exr_compute_tile_information (
         curpart->storage_mode == EXR_STORAGE_UNKNOWN)
         return EXR_ERR_SUCCESS;
 
+    if (ctxt->mode == EXR_CONTEXT_TEMPORARY && !curpart->tiles)
+        return EXR_ERR_SUCCESS;
+
     if (rebuild && (!curpart->dataWindow || !curpart->tiles))
         return EXR_ERR_SUCCESS;
 

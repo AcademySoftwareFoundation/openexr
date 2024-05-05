@@ -153,6 +153,7 @@ main (int argc, char* argv[])
     TEST (testHalf, "core");
     TEST (testXDR, "core");
     TEST (testBufferCompression, "core");
+    TEST (testTempContext, "core");
 
     TEST (testAttrSizes, "gen_attr");
     TEST (testAttrStrings, "gen_attr");

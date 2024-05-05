@@ -209,7 +209,9 @@ exr_finish (exr_context_t* pctxt)
             ctxt->mode == EXR_CONTEXT_WRITING_DATA)
             failed = 1;
 
-        if (ctxt->mode != EXR_CONTEXT_READ) rv = finalize_write (ctxt, failed);
+        if (ctxt->mode != EXR_CONTEXT_READ &&
+            ctxt->mode != EXR_CONTEXT_TEMPORARY)
+            rv = finalize_write (ctxt, failed);
 
         if (ctxt->destroy_fn) ctxt->destroy_fn (ctxt, ctxt->user_data, failed);
 
@@ -366,6 +368,37 @@ exr_start_inplace_header_update (
     (void) ctxtdata;
     return EXR_ERR_INVALID_ARGUMENT;
 }
+
+/**************************************/
+
+exr_result_t exr_start_temporary_context (
+    exr_context_t*                   ctxt,
+    const char*                      context_name,
+    const exr_context_initializer_t* ctxtdata)
+{
+    exr_result_t              rv    = EXR_ERR_UNKNOWN;
+    exr_context_t             ret   = NULL;
+    exr_context_initializer_t inits = fill_context_data (ctxtdata);
+
+    if (!ctxt) return EXR_ERR_INVALID_ARGUMENT;
+
+    rv = internal_exr_alloc_context (
+        &ret,
+        &inits,
+        EXR_CONTEXT_TEMPORARY,
+        0);
+
+    if (rv == EXR_ERR_SUCCESS)
+    {
+        rv = exr_attr_string_create (
+            (exr_context_t) ret, &(ret->filename), context_name ? context_name : "<temporary>");
+        if (rv != EXR_ERR_SUCCESS) exr_finish ((exr_context_t*) &ret);
+    }
+
+    *ctxt = (exr_context_t) ret;
+    return rv;
+}
+
 
 /**************************************/
 
@@ -540,7 +573,7 @@ exr_set_longname_support (exr_context_t ctxt, int onoff)
     if (!ctxt) return EXR_ERR_MISSING_CONTEXT_ARG;
     internal_exr_lock (ctxt);
 
-    if (ctxt->mode != EXR_CONTEXT_WRITE)
+    if (ctxt->mode != EXR_CONTEXT_WRITE && ctxt->mode != EXR_CONTEXT_TEMPORARY)
         return EXR_UNLOCK_AND_RETURN (
             ctxt->standard_error (ctxt, EXR_ERR_NOT_OPEN_WRITE));
 

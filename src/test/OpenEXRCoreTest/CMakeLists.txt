@@ -65,6 +65,7 @@ define_openexrcore_tests(
  testHalf
  testXDR
  testBufferCompression
+ testTempContext
 
  testAttrSizes
  testAttrStrings
