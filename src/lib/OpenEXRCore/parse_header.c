@@ -2359,9 +2359,10 @@ internal_exr_compute_chunk_offset_size (exr_priv_part_t curpart)
         int linePerChunk, h;
 
         linePerChunk = exr_compression_lines_per_chunk (curpart->comp_type);
-        if (linePerChunk < 0) return -1;
 
-        curpart->lines_per_chunk         = ((int16_t) linePerChunk);
+        curpart->lines_per_chunk = linePerChunk;
+
+        if (linePerChunk < 0) return -1;
 
         for (int c = 0; c < channels->num_channels; ++c)
         {

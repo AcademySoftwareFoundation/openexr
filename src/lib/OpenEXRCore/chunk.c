@@ -756,9 +756,11 @@ exr_chunk_default_initialize (
     if (box->min.y < dw.min.y || box->min.y > dw.max.y)
         return EXR_ERR_INVALID_ARGUMENT;
 
-    if (ctxt->mode == EXR_CONTEXT_TEMPORARY)
+    if (ctxt->mode == EXR_CONTEXT_TEMPORARY && part->chunk_count < 0)
     {
         part->chunk_count = internal_exr_compute_chunk_offset_size (part);
+        if (part->chunk_count < 0)
+            return EXR_ERR_INVALID_ARGUMENT;
     }
 
     if (part->storage_mode == EXR_STORAGE_SCANLINE ||
