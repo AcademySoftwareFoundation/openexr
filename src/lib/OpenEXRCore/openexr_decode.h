@@ -63,6 +63,12 @@ extern "C" {
  */
 typedef struct _exr_decode_pipeline
 {
+    /** Used for versioning the decode pipeline in the future.
+     *
+     * \ref EXR_DECODE_PIPELINE_INITIALIZER
+     */
+    size_t pipe_size;
+
     /** The output channel information for this chunk.
      *
      * User is expected to fill the channel pointers for the desired
@@ -97,6 +103,9 @@ typedef struct _exr_decode_pipeline
      * output is meant to be N lines smaller
      */
     int32_t user_line_end_ignore;
+
+    /** How many bytes were actually decoded when items compressed */
+    uint64_t bytes_decompressed;
 
     /** Can be used by the user to pass custom context data through
      * the decode pipeline.
@@ -258,9 +267,9 @@ typedef struct _exr_decode_pipeline
 } exr_decode_pipeline_t;
 
 /** @brief Simple macro to initialize an empty decode pipeline. */
-#define EXR_DECODE_PIPELINE_INITIALIZER                                        \
-    {                                                                          \
-        0                                                                      \
+#define EXR_DECODE_PIPELINE_INITIALIZER                                 \
+    {                                                                   \
+        sizeof(exr_decode_pipeline_t), 0                                \
     }
 
 /** Initialize the decoding pipeline structure with the channel info

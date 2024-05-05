@@ -647,6 +647,7 @@ uncompress_b44_impl (
         }
     }
 
+    decode->bytes_decompressed = uncomp_buf_size;
     return EXR_ERR_SUCCESS;
 }
 
