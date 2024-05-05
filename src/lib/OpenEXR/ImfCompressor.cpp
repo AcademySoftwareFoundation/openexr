@@ -230,7 +230,8 @@ Compressor::runDecodeStep (
     cinfo.type = _store_type;
     if (_buf_sz < expectedOutputSize)
     {
-        _buf_sz = std::max (_maxScanLineSize * _numScanLines, expectedOutputSize);
+        uint64_t fullbuf = _maxScanLineSize * _numScanLines;
+        _buf_sz = std::max (fullbuf, expectedOutputSize);
         _memory_buffer.reset (new char[_buf_sz]);
     }
 
