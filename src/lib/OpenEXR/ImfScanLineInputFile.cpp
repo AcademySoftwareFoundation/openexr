@@ -437,7 +437,7 @@ void ScanLineInputFile::Data::readPixels (
             << dw.min.y << " - " << dw.max.y);
     }
 
-    nchunks = 1 + (((int64_t) scanLine2 - (int64_t) scanLine1) / scansperchunk);
+    nchunks = 1 + (((int64_t) scanLine2 - (int64_t) scanLine1) / (int64_t) scansperchunk);
 
     exr_chunk_info_t      cinfo;
 #if ILMTHREAD_THREADING_ENABLED
