@@ -338,8 +338,8 @@ newCompressor (Compression c, size_t maxScanLineSize, const Header& hdr)
     }
     // clang-format on
 
-    if (ret && ret->_store_type == EXR_STORAGE_LAST_TYPE)
-        ret->_store_type = EXR_STORAGE_SCANLINE;
+    if (ret && ret->storageType () == EXR_STORAGE_LAST_TYPE)
+        ret->setStorageType (EXR_STORAGE_SCANLINE);
 
     return ret;
 }
@@ -419,8 +419,8 @@ newTileCompressor (
     }
     // clang-format on
 
-    if (ret && ret->_store_type == EXR_STORAGE_LAST_TYPE)
-        ret->_store_type = EXR_STORAGE_TILED;
+    if (ret && ret->storageType () == EXR_STORAGE_LAST_TYPE)
+        ret->setStorageType (EXR_STORAGE_TILED);
 
     return ret;
 }
