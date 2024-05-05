@@ -776,13 +776,14 @@ Context::header (int partidx) const
 
 ////////////////////////////////////////
 
-#define EXR_SET_ATTR(type, cpptype, args...)                            \
+
+#define EXR_SET_ATTR(type, cpptype, attrval)                            \
     if (!strcmp (attrT, #type))                                         \
     {                                                                   \
         const cpptype *attr = dynamic_cast<const cpptype*> (&a);        \
         if (!attr)                                                      \
             throw IEX_NAMESPACE::ArgExc ("unexpected type mismatch");   \
-        rv = exr_attr_set_##type (*_ctxt, partnum, i.name (), args);    \
+        rv = exr_attr_set_##type (*_ctxt, partnum, i.name (), attrval); \
         if (rv != EXR_ERR_SUCCESS)                                      \
             throw IEX_NAMESPACE::ArgExc ("Unable to copy attribute");   \
         continue;                                                       \
