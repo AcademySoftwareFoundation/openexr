@@ -8,6 +8,9 @@
 
 void testHUF (const std::string& tempdir);
 
+void testDWATable (const std::string& tempdir);
+void testB44Table (const std::string& tempdir);
+
 void testNoCompression (const std::string& tempdir);
 void testRLECompression (const std::string& tempdir);
 void testZIPCompression (const std::string& tempdir);
