@@ -18,6 +18,9 @@
 //
 //	The tables are used by class B44Compressor.
 //
+// NB: the pre-computed table itself has moved to the core library,
+// and made internal to the C library
+//
 //---------------------------------------------------------------------------
 
 #include <half.h>

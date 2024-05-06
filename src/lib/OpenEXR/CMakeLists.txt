@@ -29,8 +29,6 @@ openexr_define_library(OpenEXR
     ImfTiledMisc.h
     ImfZip.h
     ImfZipCompressor.h
-    b44ExpLogTable.h
-    dwaLookups.h
     ImfAcesFile.cpp
     ImfAttribute.cpp
     ImfB44Compressor.cpp
