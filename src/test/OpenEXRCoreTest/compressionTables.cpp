@@ -1,14 +1,20 @@
-//
 // SPDX-License-Identifier: BSD-3-Clause
-// Copyright (c) Contributors to the OpenEXR Project.
-//
+// Copyright Contributors to the OpenEXR Project.
 
-#include <assert.h>
-#include <cstddef>
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <vector>
+// Windows specific addition to prevent the indirect import of the redefined min/max macros
+#if defined _WIN32 || defined _WIN64
+#    ifdef NOMINMAX
+#        undef NOMINMAX
+#    endif
+#    define NOMINMAX
+#endif
+
+#include "compression.h"
+
+#include "test_value.h"
+
+#include <openexr.h>
+#include <half.h>
 
 #include <OpenEXRConfig.h>
 #include <OpenEXRConfigInternal.h>
@@ -22,26 +28,31 @@
 #endif
 
 #include "ImfNamespace.h"
-#include "dwaLookups.h"
-#include <IlmThread.h>
-#include <IlmThreadSemaphore.h>
-#include <ImfIO.h>
-#include <ImfXdr.h>
-#include <half.h>
+#include "IlmThread.h"
+#include "IlmThreadSemaphore.h"
+#include "ImfIO.h"
+#include "ImfXdr.h"
 
-//
-// This test uses the code that generates the dwaLookups.h header to
-// validate that the values in the tables are correct.
-//
+#include <cstddef>
+#include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <vector>
+
+#if defined(OPENEXR_ENABLE_API_VISIBILITY)
+#include "../../lib/OpenEXRCore/internal_b44_table.c"
+#else
+extern const uint16_t* exrcore_expTable;
+extern const uint16_t* exrcore_logTable;
+#endif
+
+namespace internal_test_ns {
+
+#include "../../lib/OpenEXRCore/dwaLookups.h"
+
+} // namespace internal_test_ns
 
 using namespace OPENEXR_IMF_NAMESPACE;
-using namespace OPENEXR_IMF_NAMESPACE;
-
-OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
-
-#include "dwaLookups.h"
-
-OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT
 
 namespace
 {
@@ -221,14 +232,14 @@ private:
 //
 // Generate a no-op LUT, to cut down in conditional branches
 //
-void
+static void
 testNoop ()
 {
     printf ("test dwaCompressorNoOp[] \n");
 
     for (unsigned int i = 0; i < 65536; ++i)
     {
-        assert (i == OPENEXR_IMF_INTERNAL_NAMESPACE::dwaCompressorNoOp[i]);
+        EXRCORE_TEST (i == internal_test_ns::dwaCompressorNoOp[i]);
     }
 }
 
@@ -258,7 +269,7 @@ testNoop ()
 // outputs XDR half values.
 //
 
-void
+static void
 testToLinear ()
 {
     unsigned short toLinear[65536];
@@ -304,12 +315,12 @@ testToLinear ()
 
     printf ("test dwaCompressorToLinear[]\n");
     for (int i = 0; i < 65536; ++i)
-        assert (
+        EXRCORE_TEST (
             toLinear[i] ==
-            OPENEXR_IMF_INTERNAL_NAMESPACE::dwaCompressorToLinear[i]);
+            internal_test_ns::dwaCompressorToLinear[i]);
 }
 
-void
+static void
 testToNonlinear ()
 {
     unsigned short toNonlinear[65536];
@@ -358,16 +369,16 @@ testToNonlinear ()
 
     printf ("test dwaCompressorToNonlinear[]\n");
     for (int i = 0; i < 65536; ++i)
-        assert (
+        EXRCORE_TEST (
             toNonlinear[i] ==
-            OPENEXR_IMF_INTERNAL_NAMESPACE::dwaCompressorToNonlinear[i]);
+            internal_test_ns::dwaCompressorToNonlinear[i]);
 }
 
 //
 // Attempt to get available CPUs in a somewhat portable way.
 //
 
-int
+static int
 cpuCount ()
 {
     if (!ILMTHREAD_NAMESPACE::supportsThreads ()) return 1;
@@ -414,7 +425,7 @@ cpuCount ()
 // can exit fairly quickly.
 //
 
-void
+static void
 testLutHeader ()
 {
     std::vector<LutHeaderWorker*> workers;
@@ -464,8 +475,8 @@ testLutHeader ()
     {
         for (size_t value = 0; value < workers[i]->numValues (); ++value)
         {
-            assert (
-                OPENEXR_IMF_INTERNAL_NAMESPACE::closestDataOffset[offsetIdx] ==
+            EXRCORE_TEST (
+                internal_test_ns::closestDataOffset[offsetIdx] ==
                 workers[i]->offset ()[value] + offsetPrev);
             offsetIdx++;
         }
@@ -480,8 +491,8 @@ testLutHeader ()
         for (size_t element = 0; element < workers[i]->numElements ();
              ++element)
         {
-            assert (
-                OPENEXR_IMF_INTERNAL_NAMESPACE::closestData[elementIdx] ==
+            EXRCORE_TEST (
+                internal_test_ns::closestData[elementIdx] ==
                 workers[i]->elements ()[element]);
             elementIdx++;
         }
@@ -493,11 +504,49 @@ testLutHeader ()
     }
 }
 
+////////////////////////////////////////
+
 void
-testDwaLookups (const std::string&)
+testDWATable (const std::string&)
 {
     testNoop ();
     testToLinear ();
     testToNonlinear ();
     testLutHeader ();
+}
+
+////////////////////////////////////////
+
+void
+testB44Table (const std::string&)
+{
+    const int iMax = (1 << 16);
+
+    for (int i = 0; i < iMax; i++)
+    {
+        half h;
+        h.setBits (i);
+
+        if (!h.isFinite ())
+            h = 0;
+        else if (h >= 8 * log (HALF_MAX))
+            h = HALF_MAX;
+        else
+            h = exp (h / 8);
+
+        EXRCORE_TEST (exrcore_expTable[i] == h.bits ());
+    }
+
+    for (int i = 0; i < iMax; i++)
+    {
+        half h;
+        h.setBits (i);
+
+        if (!h.isFinite () || h < 0)
+            h = 0;
+        else
+            h = 8 * log (h);
+
+        EXRCORE_TEST (exrcore_logTable[i] == h.bits ());
+    }
 }
