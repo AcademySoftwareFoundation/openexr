@@ -193,6 +193,8 @@ main (int argc, char* argv[])
     TEST (testWriteDeep, "core_write");
 
     TEST (testHUF, "core_compression");
+    TEST (testDWATable, "core_compression");
+    TEST (testB44Table, "core_compression");
     TEST (testNoCompression, "core_compression");
     TEST (testRLECompression, "core_compression");
     TEST (testZIPCompression, "core_compression");
