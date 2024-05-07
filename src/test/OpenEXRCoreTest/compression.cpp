@@ -46,21 +46,25 @@ static int
 compare_files (const char* fn, const char* fn2)
 {
     struct stat sb1, sb2;
-    if (0 == stat (fn, &sb1) && 0 == stat (fn2, &sb2))
+    int fd1 = -1, fd2 = -1;
+    int ret = 0;
+
+    fd1 = open (fn, O_RDONLY);
+    fd2 = open (fn2, O_RDONLY);
+    if (fd1 >= 0 && fd2 >= 0)
     {
-        if (sb1.st_size != sb2.st_size)
+        if (0 == fstat (fd1, &sb1) && 0 == fstat (fd2, &sb2))
         {
-            std::cerr << "File sizes do not match: '" << fn << "' "
-                      << sb1.st_size << " '" << fn2 << "' " << sb2.st_size
-                      << std::endl;
-            return 1;
-        }
-        int fd1, fd2;
-        int ret = 0;
-        fd1     = open (fn, O_RDONLY);
-        fd2     = open (fn2, O_RDONLY);
-        if (fd1 >= 0 && fd2 >= 0)
-        {
+            if (sb1.st_size != sb2.st_size)
+            {
+                std::cerr << "File sizes do not match: '" << fn << "' "
+                          << sb1.st_size << " '" << fn2 << "' " << sb2.st_size
+                          << std::endl;
+                close (fd1);
+                close (fd2);
+                return 1;
+            }
+
             uint8_t buf1[512], buf2[512];
             size_t  toRead   = sb1.st_size;
             size_t  chunkReq = sizeof (buf1);
@@ -111,9 +115,11 @@ compare_files (const char* fn, const char* fn2)
     }
     else
     {
-        std::cerr << "Unable to stat '" << fn << "' and '" << fn2 << "'"
+        std::cerr << "Unable to open '" << fn << "' and '" << fn2 << "'"
                   << std::endl;
     }
+    if (fd1 >= 0) close (fd1);
+    if (fd2 >= 0) close (fd2);
     return -1;
 }
 #endif /* linux */
