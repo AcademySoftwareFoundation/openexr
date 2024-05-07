@@ -71,9 +71,9 @@ MultiPartInputFile::MultiPartInputFile (
     _data->ism->currentPosition = _data->ism->is->tellg ();
     for ( int p = 0; p < pc; ++p )
     {
-        _data->parts[p].data = InputPartData (_ctxt, p, numThreads
-                                              , _data->ism.get ()
-                                              );
+        _data->parts[p].data = InputPartData (
+            _ctxt, p, numThreads, _data->ism.get ());
+
         if (autoAddType && ! _data->parts[p].data.header.hasType ())
         {
             if (isTiled (version))
