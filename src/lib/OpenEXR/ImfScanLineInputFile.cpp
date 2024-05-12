@@ -103,11 +103,11 @@ struct ScanLineInputFile::Data
     FrameBuffer frameBuffer;
     std::vector<Slice> fill_list;
 
-    std::vector<std::string> _failures;
-
 #if ILMTHREAD_THREADING_ENABLED
     std::mutex _mx;
     ILMTHREAD_NAMESPACE::Semaphore _sem;
+
+    std::vector<std::string> _failures;
 #endif
 
     std::shared_ptr<ScanLineProcess> processStack;
@@ -412,8 +412,8 @@ void ScanLineInputFile::Data::readPixels (
     const FrameBuffer &fb, int scanLine1, int scanLine2)
 {
     exr_attr_box2i_t dw = _ctxt->dataWindow (partNumber);
-    int32_t scansperchunk = 1;
-    int64_t nchunks;
+    exr_chunk_info_t cinfo;
+    int32_t          scansperchunk = 1;
 
     if (EXR_ERR_SUCCESS != exr_get_scanlines_per_chunk (*_ctxt, partNumber, &scansperchunk))
     {
@@ -437,12 +437,12 @@ void ScanLineInputFile::Data::readPixels (
             << dw.min.y << " - " << dw.max.y);
     }
 
+#if ILMTHREAD_THREADING_ENABLED
+    int64_t nchunks;
     nchunks = ((int64_t) scanLine2 - (int64_t) scanLine1);
     nchunks /= (int64_t) scansperchunk;
     nchunks += 1;
 
-    exr_chunk_info_t      cinfo;
-#if ILMTHREAD_THREADING_ENABLED
     if (nchunks > 1 && numThreads > 1)
     {
         ILMTHREAD_NAMESPACE::TaskGroup tg;
@@ -502,12 +502,15 @@ void ScanLineInputFile::Data::readPixels (
         putChunkProcess (std::move(sp));
     }
 
+#if ILMTHREAD_THREADING_ENABLED
+    std::lock_guard<std::mutex> lock (_mx);
     if (! _failures.empty())
     {
         std::string fail = _failures[0];
         _failures.clear ();
         throw IEX_NAMESPACE::IoExc (fail);
     }
+#endif
 }
 
 ////////////////////////////////////////
