@@ -297,6 +297,19 @@ exr_decoding_initialize (
 
     *decode = nil;
 
+    if (part->storage_mode == EXR_STORAGE_DEEP_SCANLINE ||
+        part->storage_mode == EXR_STORAGE_DEEP_TILED)
+    {
+        if (part->version && part->version->i != 1)
+        {
+            return ctxt->print_error (
+                ctxt,
+                EXR_ERR_INVALID_ATTR,
+                "Version %d not supported for deepscanline images in this version of the library",
+                part->version->i);
+        }
+    }
+
     rv = internal_coding_fill_channel_info (
         &(decode->channels),
         &(decode->channel_count),

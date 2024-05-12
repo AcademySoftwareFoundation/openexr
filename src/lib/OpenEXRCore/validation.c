@@ -214,7 +214,6 @@ validate_req_attr (exr_context_t f, exr_priv_part_t curpart, int adddefault)
         }
         if (f->has_nonimage_data && !curpart->version)
         {
-            /* TODO: C++ goes ahead and just assumes there's a version of 1... */
             if (adddefault)
             {
                 rv = exr_attr_list_add_static_name (
