@@ -984,12 +984,14 @@ void DeepTiledInputFile::Data::readTiles (
         putChunkProcess (std::move(tp));
     }
 
+#if ILMTHREAD_THREADING_ENABLED
     if (! _failures.empty())
     {
         std::string fail = _failures[0];
         _failures.clear ();
         throw IEX_NAMESPACE::IoExc (fail);
     }
+#endif
 }
 
 ////////////////////////////////////////
