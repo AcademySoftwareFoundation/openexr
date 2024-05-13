@@ -73,9 +73,6 @@ struct TileProcess
 //
 
 struct TiledInputFile::Data
-#if ILMTHREAD_THREADING_ENABLED
-    : public std::mutex
-#endif
 {
     Data (Context *ctxt, int pN, int nT)
     : _ctxt (ctxt)
