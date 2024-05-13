@@ -577,16 +577,34 @@ exr_decoding_run (
         if (part->comp_type == EXR_COMPRESSION_NONE &&
             decode->sample_count_table != decode->packed_sample_count_table)
         {
-            /* happens when we're requested to pack to 'individual' mode */
+            /* Check that uncompressed data can be copied in safely.
+             *
+             * underflow potentially happens when we're requested to
+             * pack to 'individual' mode
+             *
+             * also occurs when working with deep tiled images, and
+             * the tile size is smaller than the defined base tile
+             * width / height. The way the data was written is in a
+             * packed form, but the old writers would write a full
+             * tile-size block of data. (compressed would be fine)
+             */
+            size_t sampsize =
+                (((size_t) decode->chunk.width) * ((size_t) decode->chunk.height));
+            sampsize *= sizeof (int32_t);
+
             if (decode->sample_count_alloc_size <
-                decode->chunk.sample_count_table_size)
+                decode->chunk.sample_count_table_size &&
+                decode->sample_count_alloc_size < sampsize)
+            {
                 return EXR_ERR_OUT_OF_MEMORY;
+            }
+
             if (decode->chunk.sample_count_table_size > 0)
             {
                 memcpy (
                     decode->sample_count_table,
                     decode->packed_sample_count_table,
-                    decode->chunk.sample_count_table_size);
+                    sampsize);
             }
             else
             {
