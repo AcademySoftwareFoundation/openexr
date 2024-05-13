@@ -19,7 +19,7 @@ extern "C" {
 
 /** @file */
 
-/** 
+/**
  * @defgroup Context Context related definitions
  *
  * A context is a single instance of an OpenEXR file or stream. Beyond
@@ -42,7 +42,7 @@ extern "C" {
 typedef struct _priv_exr_context_t*       exr_context_t;
 typedef const struct _priv_exr_context_t* exr_const_context_t;
 
-/** 
+/**
  * @defgroup ContextFunctions OpenEXR Context Stream/File Functions
  *
  * @brief These are a group of function interfaces used to customize
@@ -125,6 +125,9 @@ typedef int64_t (*exr_query_size_func_ptr_t) (
  * truly a stream, it is up to the provider to implement appropriate
  * caching of data to give the appearance of being able to seek/read
  * atomically.
+ *
+ * TODO: This does not handle the ability to mmap a file and get to
+ * zero copy
  */
 typedef int64_t (*exr_read_func_ptr_t) (
     exr_const_context_t         ctxt,
@@ -471,6 +474,12 @@ EXR_EXPORT exr_result_t exr_start_inplace_header_update (
 EXR_EXPORT exr_result_t
 exr_get_file_name (exr_const_context_t ctxt, const char** name);
 
+/** @brief Retrieve the file version and flags the context is for as
+ * parsed during the start routine.
+ */
+EXR_EXPORT exr_result_t
+exr_get_file_version_and_flags (exr_const_context_t ctxt, uint32_t* ver);
+
 /** @brief Query the user data the context was constructed with. This
  * is perhaps useful in the error handler callback to jump back into
  * an object the user controls.
@@ -524,7 +533,7 @@ exr_set_longname_support (exr_context_t ctxt, int onoff);
  * metadata up front, prior to calling the above exr_start_write(),
  * allow the data to be set, then once this is called, it switches
  * into a mode where the library assumes the data is now valid.
- * 
+ *
  * It will recompute the number of chunks that will be written, and
  * reset the chunk offsets. If you modify file attributes or part
  * information after a call to this, it will error.

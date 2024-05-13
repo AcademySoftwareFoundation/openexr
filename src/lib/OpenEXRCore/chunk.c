@@ -51,7 +51,7 @@ atomic_compare_exchange_strong (
 
 /**************************************/
 
-static exr_result_t extract_chunk_table (
+exr_result_t extract_chunk_table (
     exr_const_context_t   ctxt,
     exr_const_priv_part_t part,
     uint64_t**            chunktable,
@@ -540,7 +540,20 @@ reconstruct_chunk_table (
     return firstfailrv;
 }
 
-static exr_result_t
+exr_result_t
+exr_get_chunk_table_offset (
+    exr_const_context_t ctxt, int part_index, uint64_t* chunk_offset_out)
+{
+    EXR_LOCK_WRITE_AND_DEFINE_PART (part_index);
+
+    if (!chunk_offset_out)
+        return ctxt->standard_error (ctxt, EXR_ERR_INVALID_ARGUMENT);
+
+    *chunk_offset_out = part->chunk_table_offset;
+    return EXR_ERR_SUCCESS;
+}
+
+exr_result_t
 extract_chunk_table (
     exr_const_context_t   ctxt,
     exr_const_priv_part_t part,
@@ -729,8 +742,8 @@ exr_read_scanline_chunk_info (
 
     if (!cinfo) return ctxt->standard_error (ctxt, EXR_ERR_INVALID_ARGUMENT);
 
-    if (part->storage_mode == EXR_STORAGE_TILED ||
-        part->storage_mode == EXR_STORAGE_DEEP_TILED)
+    if (part->storage_mode != EXR_STORAGE_SCANLINE &&
+        part->storage_mode != EXR_STORAGE_DEEP_SCANLINE)
     {
         return ctxt->standard_error (ctxt, EXR_ERR_SCAN_TILE_MIXEDAPI);
     }
@@ -989,8 +1002,8 @@ exr_read_tile_chunk_info (
 
     if (!cinfo) return ctxt->standard_error (ctxt, EXR_ERR_INVALID_ARGUMENT);
 
-    if (part->storage_mode == EXR_STORAGE_SCANLINE ||
-        part->storage_mode == EXR_STORAGE_DEEP_SCANLINE)
+    if (part->storage_mode != EXR_STORAGE_TILED &&
+        part->storage_mode != EXR_STORAGE_DEEP_TILED)
     {
         return ctxt->standard_error (ctxt, EXR_ERR_TILE_SCAN_MIXEDAPI);
     }

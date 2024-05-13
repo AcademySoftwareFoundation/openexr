@@ -1596,14 +1596,26 @@ check_populate_type (
     }
 
     if (strcmp ((const char*) outstr, "scanlineimage") == 0)
-        curpart->storage_mode = EXR_STORAGE_SCANLINE;
+    {
+        if (ctxt->has_nonimage_data || ctxt->is_multipart)
+            curpart->storage_mode = EXR_STORAGE_SCANLINE;
+    }
     else if (strcmp ((const char*) outstr, "tiledimage") == 0)
-        curpart->storage_mode = EXR_STORAGE_TILED;
+    {
+        if (ctxt->has_nonimage_data || ctxt->is_multipart)
+            curpart->storage_mode = EXR_STORAGE_TILED;
+    }
     else if (strcmp ((const char*) outstr, "deepscanline") == 0)
-        curpart->storage_mode = EXR_STORAGE_DEEP_SCANLINE;
+    {
+        if (ctxt->has_nonimage_data || ctxt->is_multipart)
+            curpart->storage_mode = EXR_STORAGE_DEEP_SCANLINE;
+    }
     else if (strcmp ((const char*) outstr, "deeptile") == 0)
-        curpart->storage_mode = EXR_STORAGE_DEEP_TILED;
-    else
+    {
+        if (ctxt->has_nonimage_data || ctxt->is_multipart)
+            curpart->storage_mode = EXR_STORAGE_DEEP_TILED;
+    }
+    else if (ctxt->strict_header)
     {
         rv = ctxt->print_error (
             ctxt,
@@ -1612,6 +1624,13 @@ check_populate_type (
             outstr);
         exr_attr_list_remove (ctxt, &(curpart->attributes), curpart->type);
         curpart->type = NULL;
+        if (curpart->storage_mode == EXR_STORAGE_LAST_TYPE)
+            curpart->storage_mode = EXR_STORAGE_UNKNOWN;
+    }
+    else
+    {
+        if (curpart->storage_mode == EXR_STORAGE_LAST_TYPE)
+            curpart->storage_mode = EXR_STORAGE_UNKNOWN;
     }
 
     return rv;
@@ -1664,8 +1683,13 @@ check_populate_version (
 
     attrsz = (int32_t) one_to_native32 ((uint32_t) attrsz);
     if (attrsz != 1)
-        return ctxt->print_error (
-            ctxt, EXR_ERR_INVALID_ATTR, "Invalid version %d: expect 1", attrsz);
+    {
+        if (ctxt->strict_header)
+        {
+            return ctxt->print_error (
+                ctxt, EXR_ERR_INVALID_ATTR, "Invalid version %d: expect 1", attrsz);
+        }
+    }
 
     rv = exr_attr_list_add_static_name (
         ctxt,
@@ -2022,27 +2046,37 @@ pull_attr (
             break;
         case EXR_ATTR_V2I:
             rv = extract_attr_32bit (
-                ctxt, scratch, nattr->v2i->arr, name, type, attrsz, 2);
+                ctxt, scratch, nattr->v2i, name, type, attrsz, 2);
             break;
         case EXR_ATTR_V2F:
             rv = extract_attr_32bit (
-                ctxt, scratch, nattr->v2f->arr, name, type, attrsz, 2);
+                ctxt, scratch, nattr->v2f, name, type, attrsz, 2);
             break;
         case EXR_ATTR_V2D:
             rv = extract_attr_64bit (
-                ctxt, scratch, nattr->v2d->arr, name, type, attrsz, 2);
+                ctxt, scratch, nattr->v2d, name, type, attrsz, 2);
             break;
         case EXR_ATTR_V3I:
             rv = extract_attr_32bit (
-                ctxt, scratch, nattr->v3i->arr, name, type, attrsz, 3);
+                ctxt, scratch, nattr->v3i, name, type, attrsz, 3);
             break;
         case EXR_ATTR_V3F:
             rv = extract_attr_32bit (
-                ctxt, scratch, nattr->v3f->arr, name, type, attrsz, 3);
+                ctxt, scratch, nattr->v3f, name, type, attrsz, 3);
             break;
         case EXR_ATTR_V3D:
             rv = extract_attr_64bit (
-                ctxt, scratch, nattr->v3d->arr, name, type, attrsz, 3);
+                ctxt, scratch, nattr->v3d, name, type, attrsz, 3);
+            break;
+        case EXR_ATTR_DEEP_IMAGE_STATE:
+            rv = extract_attr_uint8 (
+                ctxt,
+                scratch,
+                &(nattr->uc),
+                name,
+                type,
+                attrsz,
+                (uint8_t) EXR_DIS_LAST_TYPE);
             break;
         case EXR_ATTR_OPAQUE:
             rv = extract_attr_opaque (
@@ -2122,7 +2156,8 @@ internal_exr_compute_tile_information (
 {
     exr_result_t rv = EXR_ERR_SUCCESS;
     if (curpart->storage_mode == EXR_STORAGE_SCANLINE ||
-        curpart->storage_mode == EXR_STORAGE_DEEP_SCANLINE)
+        curpart->storage_mode == EXR_STORAGE_DEEP_SCANLINE ||
+        curpart->storage_mode == EXR_STORAGE_UNKNOWN)
         return EXR_ERR_SUCCESS;
 
     if (rebuild && (!curpart->dataWindow || !curpart->tiles))
@@ -2468,6 +2503,7 @@ read_magic_and_flags (exr_context_t ctxt, uint32_t* outflags, uint64_t* initpos)
 
     flags = magic_and_version[1];
 
+    ctxt->orig_version_and_flags = flags;
     ctxt->version = flags & EXR_FILE_VERSION_MASK;
     if (ctxt->version != 2)
     {
@@ -2561,27 +2597,26 @@ internal_exr_parse_header (exr_context_t ctxt)
     {
         if (ctxt->has_nonimage_data || ctxt->is_multipart)
         {
-            if (ctxt->strict_header)
-            {
-                rv = ctxt->print_error (
-                    ctxt,
-                    EXR_ERR_FILE_BAD_HEADER,
-                    "Invalid combination of version flags: single part found, but also marked as deep (%d) or multipart (%d)",
-                    (int) ctxt->has_nonimage_data,
-                    (int) ctxt->is_multipart);
-                priv_destroy_scratch (&scratch);
-                return internal_exr_context_restore_handlers (ctxt, rv);
-            }
-            else
-            {
-                // assume multipart for now
-                ctxt->is_singlepart_tiled = 0;
-            }
+            // this appears to always be fatal, so do not check strict / not
+            rv = ctxt->print_error (
+                ctxt,
+                EXR_ERR_FILE_BAD_HEADER,
+                "Invalid combination of version flags: single part flag found, but also marked as deep (%d) or multipart (%d)",
+                (int) ctxt->has_nonimage_data,
+                (int) ctxt->is_multipart);
+            priv_destroy_scratch (&scratch);
+            return internal_exr_context_restore_handlers (ctxt, rv);
         }
-        curpart->storage_mode = EXR_STORAGE_TILED;
     }
-    else
-        curpart->storage_mode = EXR_STORAGE_SCANLINE;
+
+    /* leave storage mode uninitialized until we encounter the type */
+    if (!ctxt->has_nonimage_data && !ctxt->is_multipart)
+    {
+        if (ctxt->is_singlepart_tiled)
+            curpart->storage_mode = EXR_STORAGE_TILED;
+        else
+            curpart->storage_mode = EXR_STORAGE_SCANLINE;
+    }
 
     do
     {

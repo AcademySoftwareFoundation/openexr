@@ -373,7 +373,6 @@ exr_result_t
 exr_get_file_name (exr_const_context_t ctxt, const char** name)
 {
     if (!ctxt) return EXR_ERR_MISSING_CONTEXT_ARG;
-    if (ctxt->mode == EXR_CONTEXT_WRITE) internal_exr_lock (ctxt);
 
     /* not changeable after construction, no locking needed */
     if (name)
@@ -381,6 +380,30 @@ exr_get_file_name (exr_const_context_t ctxt, const char** name)
         *name = ctxt->filename.str;
         if (ctxt->mode == EXR_CONTEXT_WRITE) internal_exr_unlock (ctxt);
         return EXR_ERR_SUCCESS;
+    }
+
+    return ctxt->standard_error (ctxt, EXR_ERR_INVALID_ARGUMENT);
+}
+
+/**************************************/
+
+exr_result_t
+exr_get_file_version_and_flags (exr_const_context_t ctxt, uint32_t* ver)
+{
+    if (!ctxt) return EXR_ERR_MISSING_CONTEXT_ARG;
+    if (ctxt->mode == EXR_CONTEXT_WRITE) internal_exr_lock (ctxt);
+
+    if (ver)
+    {
+        exr_result_t ret = EXR_ERR_SUCCESS;
+
+        if (ctxt->orig_version_and_flags != 0)
+            *ver = ctxt->orig_version_and_flags;
+        else
+            ret = internal_exr_calc_header_version_flags (ctxt, ver);
+
+        if (ctxt->mode == EXR_CONTEXT_WRITE) internal_exr_unlock (ctxt);
+        return ret;
     }
 
     if (ctxt->mode == EXR_CONTEXT_WRITE) internal_exr_unlock (ctxt);
@@ -523,7 +546,12 @@ exr_set_longname_support (exr_context_t ctxt, int onoff)
 
     oldval = ctxt->max_name_length;
     newval = EXR_SHORTNAME_MAXLEN;
-    if (onoff) newval = EXR_LONGNAME_MAXLEN;
+    if (onoff)
+    {
+        newval        = EXR_LONGNAME_MAXLEN;
+        ctxt->version = 2;
+    }
+    else { ctxt->version = 1; }
 
     if (oldval > newval)
     {
