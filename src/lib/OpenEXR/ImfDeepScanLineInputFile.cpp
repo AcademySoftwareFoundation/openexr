@@ -322,6 +322,12 @@ DeepScanLineInputFile::isComplete () const
 void
 DeepScanLineInputFile::readPixels (int scanLine1, int scanLine2)
 {
+    if (!_data->frameBufferValid)
+    {
+        throw IEX_NAMESPACE::ArgExc (
+            "readPixels called with no valid frame buffer");
+    }
+
     _data->readData (_data->frameBuffer, scanLine1, scanLine2, false);
 }
 
@@ -347,6 +353,8 @@ DeepScanLineInputFile::rawPixelData (
 {
     exr_chunk_info_t cinfo;
 
+    static_assert (sizeof(DeepChunkHeader) == 28, "Expect a 28-byte chunk header");
+
     // api is kind of different than the normal scanline raw pixel data
     // in that it also includes the chunk header block, so the full chunk
 
@@ -358,7 +366,7 @@ DeepScanLineInputFile::rawPixelData (
         cbytes += cinfo.sample_count_table_size;
         cbytes += cinfo.packed_size;
 
-        if (cbytes > pixelDataSize)
+        if (!pixelData || cbytes > pixelDataSize)
         {
             pixelDataSize = cbytes;
             return;
@@ -559,8 +567,9 @@ DeepScanLineInputFile::Data::readData (
             if (EXR_ERR_SUCCESS != exr_read_scanline_chunk_info (*_ctxt, partNumber, y, &cinfo))
                 throw IEX_NAMESPACE::InputExc ("Unable to query scanline information");
 
-            // do we have the same chunk where we can just re-run the unpack
-            // (i.e. people reading 1 scan at a time in a multi-scanline chunk)
+            // Check if we have the same chunk where we can just
+            // re-run the unpack (i.e. people reading 1 scan at a time
+            // in a multi-scanline chunk)
             if (!redo &&
                 sp->cinfo.idx == cinfo.idx &&
                 sp->last_decode_err == EXR_ERR_SUCCESS)
@@ -1018,10 +1027,17 @@ void ScanLineProcess::copy_sample_count (
         ptr += int64_t (cinfo.start_x) * xS;
         ptr += (int64_t (fbY) + int64_t (y)) * yS;
 
-        for ( int x = 0; x < cinfo.width; ++x )
+        if (xS == sizeof(int32_t))
         {
-            *((int32_t *)ptr) = counts[x];
-            ptr += xS;
+            memcpy (ptr, counts, cinfo.width * sizeof(int32_t));
+        }
+        else
+        {
+            for ( int x = 0; x < cinfo.width; ++x )
+            {
+                *((int32_t *)ptr) = counts[x];
+                ptr += xS;
+            }
         }
     }
 }

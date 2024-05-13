@@ -471,8 +471,9 @@ void ScanLineInputFile::Data::readPixels (
             if (EXR_ERR_SUCCESS != exr_read_scanline_chunk_info (*_ctxt, partNumber, y, &cinfo))
                 throw IEX_NAMESPACE::InputExc ("Unable to query scanline information");
 
-            // do we have the same chunk where we can just re-run the unpack
-            // (i.e. people reading 1 scan at a time in a multi-scanline chunk)
+            // check if we have the same chunk where we can just
+            // re-run the unpack (i.e. people reading 1 scan at a time
+            // in a multi-scanline chunk)
             if (!sp->first && sp->cinfo.idx == cinfo.idx &&
                 sp->last_decode_err == EXR_ERR_SUCCESS)
             {
