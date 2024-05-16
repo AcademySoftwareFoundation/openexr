@@ -49,16 +49,13 @@ package.
 
 ## Python Module
 
-The OpenEXR python module provides rudimentary support for reading and
-writing basic scanline image data. Many features of the file format
-are not yet supported, including:
-
-- Writing of tiled images
-- Multiresoltion images
-- Deep image data
-- Some attribute types
-- Nonunity channel sampling frequencies
-- No support for interleaved channel data
+The OpenEXR python module provides full support for reading and
+writing all types of ``.exr`` image files, including scanline, tiled,
+deep, mult-part, multi-view, and multi-resolution images with pixel
+types of unsigned 32-bit integers and 16- and 32-bit floats. It
+provides access to pixel data through numpy arrays, as either one
+array per channel or with R, G, B, and A interleaved into a single
+array RGBA array.
 
 ## Project Governance
 
@@ -69,31 +66,112 @@ for more information.
 
 # Quick Start
 
-<!-- this code is replicated as a test in -->
-<!-- src/wrappers/python/test/test_readme.py -->
+The "Hello, World" image writer:
 
-The "hello, world" image writer:
+    import OpenEXR
+    import numpy as np
+    import random
 
-    import OpenEXR, Imath
-    from array import array
-    
     width = 10
-    height = 10
-    size = width * height
-    
-    h = OpenEXR.Header(width,height)
-    h['channels'] = {'R' : Imath.Channel(Imath.PixelType(Imath.PixelType.FLOAT)),
-                     'G' : Imath.Channel(Imath.PixelType(Imath.PixelType.FLOAT)),
-                     'B' : Imath.Channel(Imath.PixelType(Imath.PixelType.FLOAT)),
-                     'A' : Imath.Channel(Imath.PixelType(Imath.PixelType.FLOAT))} 
-    o = OpenEXR.OutputFile("hello.exr", h)
-    r = array('f', [n for n in range(size*0,size*1)]).tobytes()
-    g = array('f', [n for n in range(size*1,size*2)]).tobytes()
-    b = array('f', [n for n in range(size*2,size*3)]).tobytes()
-    a = array('f', [n for n in range(size*3,size*4)]).tobytes()
-    channels = {'R' : r, 'G' : g, 'B' : b, 'A' : a}
-    o.writePixels(channels)
-    o.close()
+    height = 20
+    R = np.ndarray((height, width), dtype='f')
+    G = np.ndarray((height, width), dtype='f')
+    B = np.ndarray((height, width), dtype='f')
+    for y in range(0, height):
+        for x in range(0, width):
+            R[y][x] = random.random()
+            G[y][x] = random.random()
+            B[y][x] = random.random()
+
+    channels = { "R" : OpenEXR.Channel(R),
+                 "G" : OpenEXR.Channel(G),
+                 "B" : OpenEXR.Channel(B) }
+
+    header = { "compression" : OpenEXR.ZIP_COMPRESSION,
+               "type" : OpenEXR.scanlineimage }
+
+    outfile = OpenEXR.File(header, channels)
+    outfile.write("readme.exr")
+
+Or alternatively, construct the same output file via a single RGB pixel array:
+
+    width = 10
+    height = 20
+    RGB = np.ndarray((height, width, 3), dtype='f')
+    for y in range(0, height):
+        for x in range(0, width):
+           for i in range(0,3):
+               RGB[y][x][i] = random.random()
+
+    channels = { "RGB" : OpenEXR.Channel(RGB) }
+    header = { "compression" : OpenEXR.ZIP_COMPRESSION,
+               "type" : OpenEXR.scanlineimage }
+
+    outfile = OpenEXR.File(header, channels)
+    outfile.write("readme.exr")
+
+The corresponding example of reading an image is:
+
+    infile = OpenEXR.File("readme.exr")
+
+    header = infile.header()
+    print(f"type={header['type']}")
+    print(f"compression={header['compression']}")
+
+    R = infile.channels()["R"].pixels
+    G = infile.channels()["G"].pixels
+    B = infile.channels()["B"].pixels
+    width = R.shape[1]
+    height = R.shape[0]
+    for y in range(0, height):
+        for x in range(0, width):
+            print(f"pixel[{y}][{x}]=({R[y][x]}, {G[y][x]}, {B[y][x]})")
+
+Or alternatively, read the data as a single RGBA array:
+
+    infile = OpenEXR.File("readme.exr", rgba=True)
+
+    RGB = infile.channels()["RGB"].pixels
+    width = RGB.shape[1]
+    height = RGB.shape[0]
+    for y in range(0, height):
+        for x in range(0, width):
+            print(f"pixel[{y}][{x}]=({RGB[y][x][0]}, {RGB[y][x][1]}, {RGB[y][x][2]})")
+
+To modify the header metadata in a file:
+
+    f = OpenEXR.File("readme.exr")
+    f.header()["displayWindow"] = OpenEXR.Box2i(OpenEXR.V2i(3,4),
+                                                OpenEXR.V2i(5,6))
+    f.header()["comments"] = "test image"
+    f.header()["longitude"] = -122.5
+    f.write("readme_modified.exr")
+
+To read and write a multi-part file, use a list of ``Part`` objects:
+
+    height = 20
+    width = 10
+
+    Z0 = np.zeros((height, width), dtype='f')
+    P0 = OpenEXR.Part(header={"type" : OpenEXR.scanlineimage },
+                      channels={"Z" : OpenEXR.Channel(Z0) })
+
+    Z1 = np.ones((height, width), dtype='f')
+    P1 = OpenEXR.Part(header={"type" : OpenEXR.scanlineimage },
+                      channels={"Z" : OpenEXR.Channel(Z1) })
+
+    f = OpenEXR.File(parts=[P0, P1])
+    f.write("readme_2part.exr")
+
+    o = OpenEXR.File("readme_2part.exr")
+    assert o.parts[0].name() == "Part0"
+    assert o.parts[0].width() == 10
+    assert o.parts[0].height() == 20
+    assert np.array_equal(o.parts[0].channels["Z"].pixels, Z0)
+    assert o.parts[1].name() == "Part1"
+    assert o.parts[1].width() == 10
+    assert o.parts[1].height() == 20
+    assert np.array_equal(o.parts[1].channels["Z"].pixels, Z1)
 
 # Community
 
@@ -126,7 +204,7 @@ The "hello, world" image writer:
 
   - Sign the [Contributor License
     Agreement](https://contributor.easycla.lfx.linuxfoundation.org/#/cla/project/2e8710cb-e379-4116-a9ba-964f83618cc5/user/564e571e-12d7-4857-abd4-898939accdd7)
-  
+
   - Submit a Pull Request: https://github.com/AcademySoftwareFoundation/openexr/pulls
 
 # Resources
