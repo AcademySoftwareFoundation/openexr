@@ -316,7 +316,7 @@ PyPart::readPixels(MultiPartInputFile& infile, const ChannelList& channel_list,
             }
         }
 
-        size_t yStride = xStride * shape[1];
+        size_t yStride = xStride * shape[1] / C.xSampling;
             
 #if DEBUG_VERBOSE
         std::cout << "Creating slice from PyChannel name=" << C.name
@@ -748,7 +748,7 @@ PyFile::write(const char* outfilename)
                     py::dtype dt = C.pixels.dtype();
                     int nrgba = C.pixels.shape(2);
                     size_t xStride = dt.itemsize() * nrgba;
-                    size_t yStride = xStride * P.width();
+                    size_t yStride = xStride * P.width() / C.xSampling;
                     
                     auto rPtr = basePtr;
                     frameBuffer.insert (name_prefix + "R",
@@ -1430,13 +1430,14 @@ array_equals(const py::buffer_info& a, const py::buffer_info& b,
                 double bp = static_cast<double>(bpixels[k]);
                 if (!equalWithRelError(ap, bp, 1e-5))
                 {
-                    std::cout << "i=" << i
-                              << " k=" << k
-                              << " a[" << y
+                    std::cout << " a[" << y
                               << "][" << x
                               << "][" << j
                               << "]=" << apixels[k]
-                              << " b=" << bpixels[k]
+                              << " b=[" << y
+                              << "][" << x
+                              << "][" << j
+                              << "]=" << bpixels[k]
                               << std::endl;
                     return false;
                 }

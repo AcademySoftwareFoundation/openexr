@@ -121,15 +121,11 @@ exr_files = [
 # 
 
 bug_files = [
-    "LuminanceChroma/Flowers.exr",
-    "LuminanceChroma/StarField.exr",
-    "LuminanceChroma/CrissyField.exr",
-    "LuminanceChroma/MtTamNorth.exr",
-    "LuminanceChroma/Garden.exr",
-    "v2/Stereo/Trunks.exr",
-    "v2/Stereo/Balls.exr",
-    "v2/Stereo/Ground.exr",
-    "v2/Stereo/Leaves.exr",
+    "LuminanceChroma/MtTamNorth.exr", # channel BY differs.
+    "v2/Stereo/Trunks.exr", # deepscanlne, RuntimeError: Invalid base pointer, please set a proper sample count slice.
+    "v2/Stereo/Balls.exr", # RuntimeError: Invalid base pointer, please set a proper sample count slice.
+    "v2/Stereo/Ground.exr", # RuntimeError: Invalid base pointer, please set a proper sample count slice.
+    "v2/Stereo/Leaves.exr", # RuntimeError: Invalid base pointer, please set a proper sample count slice.
     "v2/LeftView/Trunks.exr",
     "v2/LeftView/Balls.exr",
     "v2/LeftView/Ground.exr",
@@ -138,8 +134,8 @@ bug_files = [
     "v2/LowResLeftView/Balls.exr",
     "v2/LowResLeftView/Ground.exr",
     "v2/LowResLeftView/Leaves.exr",
-    "Chromaticities/Rec709_YC.exr",
-    "Chromaticities/XYZ_YC.exr",
+    "Chromaticities/Rec709_YC.exr",  # channel BY differs.
+    "Chromaticities/XYZ_YC.exr",  # channel BY differs.
 ]
 
 class TestImages(unittest.TestCase):
@@ -179,9 +175,13 @@ class TestImages(unittest.TestCase):
 
         # Set the type and tile description (default)
         for P in f.parts:
+            P.header["compression"] = OpenEXR.NO_COMPRESSION
             P.header["type"] = OpenEXR.tiledimage
             if "tiles" not in P.header:
                 P.header["tiles"] = OpenEXR.TileDescription()
+                for n,C in P.channels.items():
+                    C.xSampling = 1
+                    C.ySampling = 1
 
         f.write("tiled.exr")
 
@@ -189,16 +189,12 @@ class TestImages(unittest.TestCase):
 
         # Clear the chunkCount values before comparison, since they'll
         # differ on conversion from scanline to tiled.
-        for P in f.parts:
-            P.header["chunkCount"] = 0
-        for P in f.parts:
-            self.assertEqual(P.header["chunkCount"], 0)
+        for P in f.parts and t.parts:
+            if "chunkCount" in P.header: del P.header["chunkCount"]
         for P in t.parts:
-            P.header["chunkCount"] = 0
-            self.assertEqual(P.type(), OpenEXR.tiledimage)
-        for P in t.parts:
-            self.assertEqual(P.header["chunkCount"], 0)
+            if "chunkCount" in P.header: del P.header["chunkCount"]
 
+        print(f"Comparing original to tiled...")
         self.assertEqual(f, t)
 
     def do_test_image(self, url):
@@ -219,6 +215,8 @@ class TestImages(unittest.TestCase):
         # Write it out
 
         print(f"Writing separate_channels.exr...")
+        for P in separate_channels.parts:
+            P.header["compression"] = OpenEXR.ZIP_COMPRESSION
         separate_channels.write("separate_channels.exr")
 
         # Read the file that was just written
@@ -229,12 +227,21 @@ class TestImages(unittest.TestCase):
 
         # Confirm that the file that was just written is identical to the original
 
+        # Clear the chunkCount values before comparison, since they might differ
+        for P in separate_channels.parts:
+            if "chunkCount" in P.header: del P.header["chunkCount"]
+        for P in separate_channels2.parts:
+            if "chunkCount" in P.header: del P.header["chunkCount"]
+
+        print(f"Comparing separate_channels to separate_channels2...")
         self.assertEqual(separate_channels, separate_channels2)
 
         # Read the original file as RGBA channels
 
         print(f"Reading {url} as rgba channels...")
         rgba_channels = OpenEXR.File(filename, True)
+        for P in rgba_channels.parts:
+            P.header["compression"] = OpenEXR.ZIP_COMPRESSION
         if verbose:
             print_channel_names(rgba_channels)
 
@@ -253,7 +260,7 @@ class TestImages(unittest.TestCase):
 
         # Confirm that it, too, is the same as the original
 
-        print(f"Comparing...")
+        print(f"Comparing separate_channels to separate_channels2...")
         self.assertEqual(separate_channels, separate_channels2)
         print("good.")
 
