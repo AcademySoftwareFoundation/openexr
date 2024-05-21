@@ -93,7 +93,7 @@ namespace detail {
 namespace {
 
 #include "PyOpenEXR.h"
-    
+
 //
 // Create a PyFile out of a list of parts (i.e. a multi-part file)
 //
@@ -539,6 +539,17 @@ PyPart::rgba_channel(const ChannelList& channel_list, const std::string& name,
     return 0;
 }
 
+py::object
+PyFile::__enter__()
+{
+    return py::cast(this);
+}
+
+void
+PyFile::__exit__(py::args args)
+{
+}
+
 bool
 PyFile::operator==(const PyFile& other) const
 {
@@ -659,8 +670,6 @@ PyFile::write(const char* outfilename)
                 auto td = P.header["tiles"].cast<const TileDescription&>();
                 header.setTileDescription (td);
             }
-            else
-                std::cout << "> no tile description" << std::endl;
         }
 
         if (P.header.contains("lineOrder"))
@@ -1213,7 +1222,22 @@ PyPart::PyPart(const py::dict& header, const py::dict& channels, const std::stri
         if (!py::isinstance<py::str>(c.first))
             throw std::invalid_argument("channels key must be string (channel name)");
 
-        c.second.cast<PyChannel&>().name = py::str(c.first);
+        //
+        // Accept a py::array as the py::dict value, but replace it with a PyChannel object.
+        //
+        
+        if (py::isinstance<py::array>(c.second))
+        {
+            std::string channel_name = py::str(c.first);
+            py::array a = c.second.cast<py::array>();
+            channels[channel_name.c_str()] = PyChannel(channel_name.c_str(), a);
+        }
+        else if (py::isinstance<PyChannel>(c.second))
+        {
+            c.second.cast<PyChannel&>().name = py::str(c.first);
+        }
+        else
+            throw std::invalid_argument("Channel value must be a Channel() object or a numpy pixel array");
     }
 
     auto s = shape();
@@ -1846,6 +1870,9 @@ PYBIND11_MODULE(OpenEXR, m)
     py::class_<Box2i>(m, "Box2i")
         .def(py::init())
         .def(py::init<V2i,V2i>())
+        .def(py::init([](std::tuple<int, int> min, std::tuple<int, int> max) {
+            return new Box2i(V2i(std::get<0>(min), std::get<1>(min)),
+                             V2i(std::get<0>(max), std::get<1>(max))); }))
         .def("__repr__", [](const Box2i& v) { return repr(v); })
         .def(py::self == py::self)
         .def_readwrite("min", &Box2i::min)
@@ -1855,6 +1882,9 @@ PYBIND11_MODULE(OpenEXR, m)
     py::class_<Box2f>(m, "Box2f")
         .def(py::init())
         .def(py::init<V2f,V2f>())
+        .def(py::init([](std::tuple<float, float> min, std::tuple<float, float> max) {
+            return new Box2f(V2f(std::get<0>(min), std::get<1>(min)),
+                             V2f(std::get<0>(max), std::get<1>(max))); }))
         .def("__repr__", [](const Box2f& v) { return repr(v); })
         .def(py::self == py::self)
         .def_readwrite("min", &Box2f::min)
@@ -1966,6 +1996,8 @@ PYBIND11_MODULE(OpenEXR, m)
              py::arg("channels"))
         .def(py::init<py::list>(),
              py::arg("parts"))
+        .def("__enter__", &PyFile::__enter__)
+        .def("__exit__", &PyFile::__exit__)
         .def(py::self == py::self)
         .def_readwrite("filename", &PyFile::filename)
         .def_readwrite("parts", &PyFile::parts)

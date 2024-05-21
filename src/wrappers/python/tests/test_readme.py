@@ -13,156 +13,149 @@ import random
 
 def test_write():
 
-    width = 10
-    height = 20
-    R = np.ndarray((height, width), dtype='f')
-    G = np.ndarray((height, width), dtype='f')
-    B = np.ndarray((height, width), dtype='f')
-    for y in range(0, height):
-        for x in range(0, width):
-            R[y][x] = random.random()
-            G[y][x] = random.random()
-            B[y][x] = random.random()
-
-    channels = { "R" : OpenEXR.Channel(R),
-                 "G" : OpenEXR.Channel(G),
-                 "B" : OpenEXR.Channel(B) }
-
+    # Generate arrays for R, G, and B channels with random values
+    height, width = (20, 10)
+    R = np.random.rand(height, width).astype('f')
+    G = np.random.rand(height, width).astype('f')
+    B = np.random.rand(height, width).astype('f')
+    channels = { "R" : R, "G" : G, "B" : B }
     header = { "compression" : OpenEXR.ZIP_COMPRESSION,
                "type" : OpenEXR.scanlineimage }
 
-    outfile = OpenEXR.File(header, channels)
-    outfile.write("readme.exr")
+    with OpenEXR.File(header, channels) as outfile:
+        outfile.write("readme.exr")
+
+    print("ok")
 
 def test_write_RGB():
 
-    width = 10
-    height = 20
-    RGB = np.ndarray((height, width, 3), dtype='f')
-    for y in range(0, height):
-        for x in range(0, width):
-           for i in range(0,3):
-               RGB[y][x][i] = random.random()
+    # Generate a 3D NumPy array for RGB channels with random values
+    height, width = (20, 10)
+    RGB = np.random.rand(height, width, 3).astype('f')
 
-    channels = { "RGB" : OpenEXR.Channel(RGB) }
+    channels = { "RGB" : RGB }
     header = { "compression" : OpenEXR.ZIP_COMPRESSION,
                "type" : OpenEXR.scanlineimage }
 
-    outfile = OpenEXR.File(header, channels)
-    outfile.write("readme.exr")
+    with OpenEXR.File(header, channels) as outfile:
+        outfile.write("readme.exr")
+
+    print("ok")
 
 def test_read():
 
-    infile = OpenEXR.File("readme.exr")
+    with OpenEXR.File("readme.exr") as infile:
 
-    header = infile.header()
-    print(f"type={header['type']}")
-    print(f"compression={header['compression']}")
+        header = infile.header()
+        print(f"type={header['type']}")
+        print(f"compression={header['compression']}")
 
-    R = infile.channels()["R"].pixels
-    G = infile.channels()["G"].pixels
-    B = infile.channels()["B"].pixels
-    width = R.shape[1]
-    height = R.shape[0]
-    for y in range(0, height):
-        for x in range(0, width):
-            print(f"pixel[{y}][{x}]=({R[y][x]}, {G[y][x]}, {B[y][x]})")
+        R = infile.channels()["R"].pixels
+        G = infile.channels()["G"].pixels
+        B = infile.channels()["B"].pixels
+        height, width = R.shape
+        for y in range(height):
+            for x in range(width):
+                pixel = (R[y, x], G[y, x], B[y, x])
+                print(f"pixel[{y}][{x}]={pixel}")
+
+    print("ok")
 
 def test_read_RGB():
 
-    infile = OpenEXR.File("readme.exr", rgba=True)
+    with OpenEXR.File("readme.exr", rgba=True) as infile:
 
-    RGB = infile.channels()["RGB"].pixels
-    width = RGB.shape[1]
-    height = RGB.shape[0]
-    for y in range(0, height):
-        for x in range(0, width):
-            print(f"pixel[{y}][{x}]=({RGB[y][x][0]}, {RGB[y][x][1]}, {RGB[y][x][2]})")
+        RGB = infile.channels()["RGB"].pixels
+        height, width, _ = RGB.shape
+        for y in range(height):
+            for x in range(width):
+                pixel = tuple(RGB[y, x])
+                print(f"pixel[{y}][{x}]={pixel}")
+
+    print("ok")
 
 def test_modify():
 
-    f = OpenEXR.File("readme.exr")
-    f.header()["displayWindow"] = OpenEXR.Box2i(OpenEXR.V2i(3,4),
-                                                OpenEXR.V2i(5,6))
-    f.header()["comments"] = "test image"
-    f.header()["longitude"] = -122.5
-    f.write("readme_modified.exr")
+    with OpenEXR.File("readme.exr") as f:
+        
+        f.header()["displayWindow"] = OpenEXR.Box2i((3,4),(5,6))
+        f.header()["comments"] = "test image"
+        f.header()["longitude"] = -122.5
+        f.write("readme_modified.exr")
 
-    o = OpenEXR.File("readme_modified.exr")
-    assert o.header()["displayWindow"] == OpenEXR.Box2i(OpenEXR.V2i(3,4),
-                                                        OpenEXR.V2i(5,6))
-    assert o.header()["comments"] == "test image"
-    assert o.header()["longitude"] == -122.5
+        with OpenEXR.File("readme_modified.exr") as o:
+            assert o.header()["displayWindow"] == OpenEXR.Box2i((3,4),(5,6))
+            assert o.header()["comments"] == "test image"
+            assert o.header()["longitude"] == -122.5
 
     print("ok")
 
 def test_multipart_write():
 
-    height = 20
-    width = 10
+    height, width = (20, 10)
     Z0 = np.zeros((height, width), dtype='f')
     Z1 = np.ones((height, width), dtype='f')
 
-    P0 = OpenEXR.Part({}, {"Z" : OpenEXR.Channel(Z0) })
-    P1 = OpenEXR.Part({}, {"Z" : OpenEXR.Channel(Z1) })
+    P0 = OpenEXR.Part({}, {"Z" : Z0 })
+    P1 = OpenEXR.Part({}, {"Z" : Z1 })
 
     f = OpenEXR.File([P0, P1])
     f.write("readme_2part.exr")
 
-    o = OpenEXR.File("readme_2part.exr")
-    assert o.parts[0].name() == "Part0"
-    assert o.parts[0].width() == 10
-    assert o.parts[0].height() == 20
-    assert o.parts[1].name() == "Part1"
-    assert o.parts[1].width() == 10
-    assert o.parts[1].height() == 20
+    with OpenEXR.File("readme_2part.exr") as o:
+        assert o.parts[0].name() == "Part0"
+        assert o.parts[0].width() == 10
+        assert o.parts[0].height() == 20
+        assert o.parts[1].name() == "Part1"
+        assert o.parts[1].width() == 10
+        assert o.parts[1].height() == 20
+
     print("ok")
 
 def test_multipart_write():
 
-    height = 20
-    width = 10
+    height, width = (20, 10)
 
     Z0 = np.zeros((height, width), dtype='f')
     P0 = OpenEXR.Part(header={"type" : OpenEXR.scanlineimage },
-                      channels={"Z" : OpenEXR.Channel(Z0) })
+                      channels={"Z" : Z0 })
 
     Z1 = np.ones((height, width), dtype='f')
     P1 = OpenEXR.Part(header={"type" : OpenEXR.scanlineimage },
-                      channels={"Z" : OpenEXR.Channel(Z1) })
+                      channels={"Z" : Z1 })
 
     f = OpenEXR.File(parts=[P0, P1])
     f.write("readme_2part.exr")
 
-    o = OpenEXR.File("readme_2part.exr")
-    assert o.parts[0].name() == "Part0"
-    assert o.parts[0].type() == OpenEXR.scanlineimage
-    assert o.parts[0].width() == 10
-    assert o.parts[0].height() == 20
-    assert np.array_equal(o.parts[0].channels["Z"].pixels, Z0)
-    assert o.parts[1].name() == "Part1"
-    assert o.parts[1].type() == OpenEXR.scanlineimage
-    assert o.parts[1].width() == 10
-    assert o.parts[1].height() == 20
-    assert np.array_equal(o.parts[1].channels["Z"].pixels, Z1)
+    with OpenEXR.File("readme_2part.exr") as o:
+        assert o.parts[0].name() == "Part0"
+        assert o.parts[0].type() == OpenEXR.scanlineimage
+        assert o.parts[0].width() == 10
+        assert o.parts[0].height() == 20
+        assert np.array_equal(o.parts[0].channels["Z"].pixels, Z0)
+        assert o.parts[1].name() == "Part1"
+        assert o.parts[1].type() == OpenEXR.scanlineimage
+        assert o.parts[1].width() == 10
+        assert o.parts[1].height() == 20
+        assert np.array_equal(o.parts[1].channels["Z"].pixels, Z1)
+
     print("ok")
 
 def test_write_tiled():
 
-    height = 20
-    width = 10
-    Z = np.zeros((height, width), dtype='f')
+    height, width = (20, 10)
 
+    Z = np.zeros((height, width), dtype='f')
     P = OpenEXR.Part({"type" : OpenEXR.tiledimage,
                       "tiles" : OpenEXR.TileDescription() },
-                     {"Z" : OpenEXR.Channel(Z) })
+                     {"Z" : Z })
 
-    f = OpenEXR.File([P])
-    f.write("readme_tiled.exr")
+    with OpenEXR.File([P]) as f:
+        f.write("readme_tiled.exr")
 
-    o = OpenEXR.File("readme_tiled.exr")
-    assert o.parts[0].name() == "Part0"
-    assert o.parts[0].type() == OpenEXR.tiledimage
+    with OpenEXR.File("readme_tiled.exr") as o:
+        assert o.parts[0].name() == "Part0"
+        assert o.parts[0].type() == OpenEXR.tiledimage
 
 if __name__ == '__main__':
 

@@ -175,7 +175,7 @@ class TestImages(unittest.TestCase):
 
         # Set the type and tile description (default)
         for P in f.parts:
-            P.header["compression"] = OpenEXR.NO_COMPRESSION
+            P.header["compression"] = OpenEXR.ZIP_COMPRESSION
             P.header["type"] = OpenEXR.tiledimage
             if "tiles" not in P.header:
                 P.header["tiles"] = OpenEXR.TileDescription()

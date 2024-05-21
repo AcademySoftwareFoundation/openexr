@@ -18,6 +18,9 @@ public:
     PyFile(const py::dict& header, const py::dict& channels);
     PyFile(const py::list& parts);
 
+    py::object   __enter__();
+    void         __exit__(py::args args);
+    
     py::dict&    header(int part_index = 0);
     py::dict&    channels(int part_index = 0);
 
