@@ -15,8 +15,9 @@
 #include <pybind11/stl_bind.h>
 #include <pybind11/operators.h>
 
-#include <typeinfo>
-#include <sys/types.h>
+#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
+#include <Python.h>
+#include <numpy/arrayobject.h>
 
 #include "openexr.h"
 
@@ -32,6 +33,7 @@
 #include <ImfDeepTiledInputPart.h>
 #include <ImfDeepFrameBuffer.h>
 #include <ImfPartType.h>
+#include <ImfArray.h>
 
 #include <ImfBoxAttribute.h>
 #include <ImfChannelListAttribute.h>
@@ -52,6 +54,9 @@
 #include <ImfTileDescriptionAttribute.h>
 #include <ImfTimeCodeAttribute.h>
 #include <ImfVecAttribute.h>
+
+#include <typeinfo>
+#include <sys/types.h>
 
 namespace py = pybind11;
 using namespace py::literals;
@@ -347,7 +352,6 @@ PyPart::readPixels(MultiPartInputFile& infile, const ChannelList& channel_list,
     part.readPixels (dw.min.y, dw.max.y);
 }
 
-// WIP
 void
 PyPart::readDeepPixels(MultiPartInputFile& infile, const std::string& type, const ChannelList& channel_list,
                        const std::vector<size_t>& shape, const std::set<std::string>& rgba_channels,
@@ -355,19 +359,32 @@ PyPart::readDeepPixels(MultiPartInputFile& infile, const std::string& type, cons
 {
     DeepFrameBuffer frameBuffer;
 
+    size_t width  = dw.max.x - dw.min.x + 1;
+    size_t height = dw.max.y - dw.min.y + 1;
+
+    Array2D<unsigned int> sampleCount (height, width);
+
+    frameBuffer.insertSampleCountSlice (Slice (
+                                            UINT,
+                                            (char*) (&sampleCount[0][0] - dw.min.x - dw.min.y * width),
+                                            sizeof (unsigned int) * 1,       // xStride
+                                            sizeof (unsigned int) * width)); // yStride
+
     for (auto c = channel_list.begin(); c != channel_list.end(); c++)
     {
         std::string py_channel_name = c.name();
+#if XXX
         char channel_name; 
         int nrgba = 0;
         if (rgba)
             nrgba = rgba_channel(channel_list, c.name(), py_channel_name, channel_name);
-            
+#endif
+        
         auto py_channel_name_str = py::str(py_channel_name);
             
         if (!channels.contains(py_channel_name_str))
         {
-            // We haven't add a PyChannel yet, so add one one.
+            // We haven't add a PyChannel yet, so add one now.
                 
             PyChannel C;
 
@@ -375,38 +392,15 @@ PyPart::readDeepPixels(MultiPartInputFile& infile, const std::string& type, cons
             C.xSampling = c.channel().xSampling;
             C.ySampling = c.channel().ySampling;
             C.pLinear = c.channel().pLinear;
-                
-            const auto style = py::array::c_style | py::array::forcecast;
-
-            std::vector<size_t> c_shape = shape;
-
-            // If this channel belongs to one of the rgba's, give
-            // the PyChannel the proper shape
-            if (rgba_channels.find(c.name()) != rgba_channels.end())
-                c_shape.push_back(nrgba);
-
-            switch (c.channel().type)
-            {
-              case UINT:
-                  C.pixels = py::array_t<uint32_t,style>(c_shape);
-                  break;
-              case HALF:
-                  C.pixels = py::array_t<half,style>(c_shape);
-                  break;
-              case FLOAT:
-                  C.pixels = py::array_t<float,style>(c_shape);
-                  break;
-              default:
-                  throw std::runtime_error("invalid pixel type");
-            } // switch c->type
-
+            C._type = c.channel().type;
+            
+            C.deep_samples = new Array2D<void*>(height, width);
+                    
             channels[py_channel_name.c_str()] = C;
 
 #if DEBUG_VERBOSE
-            std::cout << ":: creating PyChannel name=" << C.name
-                      << " ndim=" << C.pixels.ndim()
-                      << " size=" << C.pixels.size()
-                      << " itemsize=" << C.pixels.dtype().itemsize()
+            std::cout << ":: creating deep PyChannel name=" << C.name
+                      << " type=" << C._type
                       << std::endl;
 #endif
         }
@@ -414,47 +408,41 @@ PyPart::readDeepPixels(MultiPartInputFile& infile, const std::string& type, cons
         auto v = channels[py_channel_name.c_str()];
         auto C = v.cast<PyChannel&>();
 
-        py::buffer_info buf = C.pixels.request();
-        auto basePtr = static_cast<uint8_t*>(buf.ptr);
-        py::dtype dt = C.pixels.dtype();
-        size_t xStride = dt.itemsize();
-        if (nrgba > 0)
+        size_t xStride = sizeof(void*);
+        size_t yStride = xStride * shape[1];
+        size_t sampleStride;
+        switch (c.channel().type)
         {
-            xStride *= nrgba;
-            switch (channel_name)
-            {
-              case 'R':
-                  break;
-              case 'G':
-                  basePtr += dt.itemsize();
-                  break;
-              case 'B':
-                  basePtr += 2 * dt.itemsize();
-                  break;
-              case 'A':
-                  basePtr += 3 * dt.itemsize();
-                  break;
-              default:
-                  break;
-            }
+        case UINT:
+            sampleStride = sizeof(uint32_t);
+            break;
+        case HALF:
+            sampleStride = sizeof(half);
+            break;
+        case FLOAT:
+            sampleStride = sizeof(float);
+            break;
+        default:
+            sampleStride = 0;
+            break;
         }
 
-        size_t yStride = xStride * shape[1];
-        size_t sampleStride = 0;
-
+            
+        auto &S = *C.deep_samples;
+        auto basePtr = &S[0][0];
+        
 #if DEBUG_VERBOSE
-        std::cout << "Creating slice from PyChannel name=" << C.name
-                  << " ndim=" << C.pixels.ndim()
+        std::cout << "Creating deep slice from PyChannel name=" << C.name
                   << " size=" << C.pixels.size()
-                  << " itemsize=" << C.pixels.dtype().itemsize()
-                  << " name=" << c.name()
-                  << " type=" << c.channel().type
+                  << " xStride=" << xStride
+                  << " yStride=" << yStride
+                  << " sampleStride=" << sampleStride
                   << std::endl;
 #endif
 
         frameBuffer.insert (c.name(),
                             DeepSlice (c.channel().type,
-                                       (char*) basePtr,
+                                       (char*) (basePtr - dw.min.x - dw.min.y * width),
                                        xStride,
                                        yStride,
                                        sampleStride,
@@ -467,7 +455,114 @@ PyPart::readDeepPixels(MultiPartInputFile& infile, const std::string& type, cons
         DeepScanLineInputPart part (infile, part_index);
 
         part.setFrameBuffer (frameBuffer);
+
+        std::cout << "part.readPixelSampleCounts..." << std::endl;
+        part.readPixelSampleCounts (dw.min.y, dw.max.y);
+        std::cout << "part.readPixelSampleCounts...done." << std::endl;
+
+        for (auto c : channels)
+        {
+            std::cout << "allocating..." << std::endl;
+
+            auto C = c.second.cast<const PyChannel&>();
+            auto &S = *C.deep_samples;
+            for (size_t y=0; y<height; y++)
+                for (size_t x=0; x<width; x++)
+                {
+                    auto size = sampleCount[y][x];
+                    std::cout << "sampleCount[" << y << "][" << x << "]=" << sampleCount[y][x] << std::endl;
+                    switch (C._type)
+                    {
+                      case UINT:
+                          S[y][x] = static_cast<void*>(new uint32_t[size]);
+                          break;
+                      case HALF:
+                          S[y][x] = static_cast<void*>(new half[size]);
+                        break;
+                      case FLOAT:
+                          S[y][x] = static_cast<void*>(new float[size]);
+                          break;
+                      default:
+                          throw std::runtime_error("invalid pixel type");
+                    } // switch c->type
+                }
+
+
+            std::cout << "clearing..." << std::endl;
+            
+            for (size_t y=0; y<height; y++)
+                for (size_t x=0; x<width; x++)
+                {
+                    auto size = sampleCount[y][x];
+                    switch (C._type)
+                    {
+                      case UINT:
+                          for (size_t i=0; i<size; i++)
+                          {
+                              auto s = static_cast<uint32_t*>(S[y][x]);
+                              s[i] = 0;
+                          }
+                          break;
+                      case HALF:
+                          for (size_t i=0; i<size; i++)
+                          {
+                              auto s = static_cast<half*>(S[y][x]);
+                              s[i] = 0;
+                          }
+                          break;
+                      case FLOAT:
+                          for (size_t i=0; i<size; i++)
+                          {
+                              auto s = static_cast<float*>(S[y][x]);
+                              s[i] = 0;
+                          }
+                          break;
+                      default:
+                          throw std::runtime_error("invalid pixel type");
+                    } // switch c->type
+                }
+        }
+        
+        std::cout << "part.readPixels..." << std::endl;
         part.readPixels (dw.min.y, dw.max.y);
+        std::cout << "part.readPixels...done." << std::endl;
+
+        for (auto c : channels)
+        {
+            auto C = c.second.cast<const PyChannel&>();
+            for (size_t y=0; y<height; y++)
+                for (size_t x=0; x<width; x++)
+                {
+                    auto size = sampleCount[y][x];
+                    auto &S = *C.deep_samples;
+                    switch (C._type)
+                    {
+                      case UINT:
+                          for (size_t i=0; i<size; i++)
+                          {
+                              auto s = static_cast<uint32_t*>(S[y][x]);
+                              std::cout << "sample: " << C.name << "[" << y << "][" << x << "][" << i << "]=" << s[i] << std::endl;
+                          }
+                          break;
+                      case HALF:
+                          for (size_t i=0; i<size; i++)
+                          {
+                              auto s = static_cast<half*>(S[y][x]);
+                              std::cout << "sample: " << C.name << "[" << y << "][" << x << "][" << i << "]=" << s[i] << std::endl;
+                          }
+                          break;
+                      case FLOAT:
+                          for (size_t i=0; i<size; i++)
+                          {
+                              auto s = static_cast<float*>(S[y][x]);
+                              std::cout << "sample: " << C.name << "[" << y << "][" << x << "][" << i << "]=" << s[i] << std::endl;
+                          }
+                          break;
+                      default:
+                          throw std::runtime_error("invalid pixel type");
+                    } // switch c->type
+                }
+        }
     }
 }
 
@@ -549,29 +644,6 @@ void
 PyFile::__exit__(py::args args)
 {
 }
-
-bool
-PyFile::operator==(const PyFile& other) const
-{
-    if (parts.size() != other.parts.size())
-    {
-        std::cout << "PyFile:: #parts differs." << std::endl;
-        return false;
-    }
-    
-    for (size_t part_index = 0; part_index<parts.size(); part_index++)
-    {
-        auto a = parts[part_index].cast<const PyPart&>();
-        auto b = other.parts[part_index].cast<const PyPart&>();
-        if (a != b)
-        {
-            std::cout << "PyFile: part " << part_index << " differs." << std::endl;
-            return false;
-        }
-    }
-    
-    return true;
-}       
 
 void
 validate_part_index(int part_index, size_t num_parts)
@@ -888,15 +960,70 @@ py_cast(const py::object& object)
     return nullptr;
 }
 
+template <>
+const double*
+py_cast(const py::object& object)
+{
+    //
+    // Recognize a 1-element array of double as a DoubleAttribute
+    //
+    
+    if (py::isinstance<py::array_t<double>>(object))
+    {
+        auto a = object.cast<py::array_t<double>>();
+        if (a.size() == 1)
+        {
+            py::buffer_info buf = a.request();
+            return static_cast<const double*>(buf.ptr);
+        }
+    }
+    return nullptr;
+}
+
+template <class T>
+py::array
+make_v2(const Vec2<T>& v)
+{
+    std::vector<size_t> shape ({2});
+    const auto style = py::array::c_style | py::array::forcecast;
+    auto npa = py::array_t<T,style>(shape);
+    auto d = static_cast<T*>(npa.request().ptr);
+    d[0] = v[0];
+    d[1] = v[1];
+    return npa;
+}
+
+template <class T>
+py::array
+make_v3(const Vec3<T>& v)
+{
+    std::vector<size_t> shape ({3});
+    const auto style = py::array::c_style | py::array::forcecast;
+    auto npa = py::array_t<T,style>(shape);
+    auto d = static_cast<T*>(npa.request().ptr);
+    d[0] = v[0];
+    d[1] = v[1];
+    d[2] = v[2];
+    return npa;
+}
+
 py::object
 PyFile::get_attribute_object(const std::string& name, const Attribute* a)
 {
     if (auto v = dynamic_cast<const Box2iAttribute*> (a))
-        return py::cast(Box2i(v->value()));
+    {
+        auto min = make_v2<int>(v->value().min);
+        auto max = make_v2<int>(v->value().max);
+        return py::make_tuple(min, max);
+    }
 
     if (auto v = dynamic_cast<const Box2fAttribute*> (a))
-        return py::cast(Box2f(v->value()));
-
+    {
+        auto min = make_v2<float>(v->value().min);
+        auto max = make_v2<float>(v->value().max);
+        return py::make_tuple(min, max);
+    }
+    
     if (auto v = dynamic_cast<const ChannelListAttribute*> (a))
     {
         auto L = v->value();
@@ -913,13 +1040,24 @@ PyFile::get_attribute_object(const std::string& name, const Attribute* a)
     }
     
     if (auto v = dynamic_cast<const ChromaticitiesAttribute*> (a))
-        return py::cast(v->value());
+    {
+        auto c = v->value();
+        return py::make_tuple(c.red.x, c.red.y,
+                              c.green.x, c.green.y, 
+                              c.blue.x, c.blue.y, 
+                              c.white.x, c.white.y);
+    }
 
     if (auto v = dynamic_cast<const CompressionAttribute*> (a))
         return py::cast(v->value());
 
+    //
+    // Convert Double attribute to a single-element numpy array, so
+    // its type is preserved.
+    //
+    
     if (auto v = dynamic_cast<const DoubleAttribute*> (a))
-        return py::cast(PyDouble(v->value()));
+        return py::array_t<double>(1, &v->value());
 
     if (auto v = dynamic_cast<const EnvmapAttribute*> (a))
         return py::cast(v->value());
@@ -937,63 +1075,91 @@ PyFile::get_attribute_object(const std::string& name, const Attribute* a)
         return py::cast(v->value());
 
     if (auto v = dynamic_cast<const M33fAttribute*> (a))
-        return py::cast(M33f(v->value()[0][0],
-                             v->value()[0][1],
-                             v->value()[0][2],
-                             v->value()[1][0],
-                             v->value()[1][1],
-                             v->value()[1][2],
-                             v->value()[2][0],
-                             v->value()[2][1],
-                             v->value()[2][2]));
-
+    {
+        std::vector<size_t> shape ({3,3});
+        const auto style = py::array::c_style | py::array::forcecast;
+        auto npa = py::array_t<float,style>(shape);
+        auto m = static_cast<float*>(npa.request().ptr);
+        m[0] = v->value()[0][0];
+        m[1] = v->value()[0][1];
+        m[2] = v->value()[0][2];
+        m[3] = v->value()[1][0];
+        m[4] = v->value()[1][1];
+        m[5] = v->value()[1][2];
+        m[6] = v->value()[2][0];
+        m[7] = v->value()[2][1];
+        m[8] = v->value()[2][2];
+        return npa;
+    }
+    
     if (auto v = dynamic_cast<const M33dAttribute*> (a))
-        return py::cast(M33d(v->value()[0][0],
-                             v->value()[0][1],
-                             v->value()[0][2],
-                             v->value()[1][0],
-                             v->value()[1][1],
-                             v->value()[1][2],
-                             v->value()[2][0],
-                             v->value()[2][1],
-                             v->value()[2][2]));
+    {
+        std::vector<size_t> shape ({3,3});
+        const auto style = py::array::c_style | py::array::forcecast;
+        auto npa = py::array_t<double,style>(shape);
+        auto m = static_cast<double*>(npa.request().ptr);
+        m[0] = v->value()[0][0];
+        m[1] = v->value()[0][1];
+        m[2] = v->value()[0][2];
+        m[3] = v->value()[1][0];
+        m[4] = v->value()[1][1];
+        m[5] = v->value()[1][2];
+        m[6] = v->value()[2][0];
+        m[7] = v->value()[2][1];
+        m[8] = v->value()[2][2];
+        return npa;
+    }
 
     if (auto v = dynamic_cast<const M44fAttribute*> (a))
-        return py::cast(M44f(v->value()[0][0],
-                             v->value()[0][1],
-                             v->value()[0][2],
-                             v->value()[0][3],
-                             v->value()[1][0],
-                             v->value()[1][1],
-                             v->value()[1][2],
-                             v->value()[1][3],
-                             v->value()[2][0],
-                             v->value()[2][1],
-                             v->value()[2][2],
-                             v->value()[2][3],
-                             v->value()[3][0],
-                             v->value()[3][1],
-                             v->value()[3][2],
-                             v->value()[3][3]));
-
+    {
+        std::vector<size_t> shape ({4,4});
+        const auto style = py::array::c_style | py::array::forcecast;
+        auto npa = py::array_t<float,style>(shape);
+        auto m = static_cast<float*>(npa.request().ptr);
+        m[0] = v->value()[0][0];
+        m[1] = v->value()[0][1];
+        m[2] = v->value()[0][2];
+        m[3] = v->value()[0][3];
+        m[4] = v->value()[1][0];
+        m[5] = v->value()[1][1];
+        m[6] = v->value()[1][2];
+        m[7] = v->value()[1][3];
+        m[8] = v->value()[2][0];
+        m[9] = v->value()[2][1];
+        m[10] = v->value()[2][2];
+        m[11] = v->value()[2][3];
+        m[12] = v->value()[3][0];
+        m[13] = v->value()[3][1];
+        m[14] = v->value()[3][2];
+        m[15] = v->value()[3][3];
+        return npa;
+    }
+    
     if (auto v = dynamic_cast<const M44dAttribute*> (a))
-        return py::cast(M44d(v->value()[0][0],
-                             v->value()[0][1],
-                             v->value()[0][2],
-                             v->value()[0][3],
-                             v->value()[1][0],
-                             v->value()[1][1],
-                             v->value()[1][2],
-                             v->value()[1][3],
-                             v->value()[2][0],
-                             v->value()[2][1],
-                             v->value()[2][2],
-                             v->value()[2][3],
-                             v->value()[3][0],
-                             v->value()[3][1],
-                             v->value()[3][2],
-                             v->value()[3][3]));
-
+    {
+        std::vector<size_t> shape ({4,4});
+        const auto style = py::array::c_style | py::array::forcecast;
+        auto npa = py::array_t<double,style>(shape);
+        auto m = static_cast<double*>(npa.request().ptr);
+        m[0] = v->value()[0][0];
+        m[1] = v->value()[0][1];
+        m[2] = v->value()[0][2];
+        m[3] = v->value()[0][3];
+        m[4] = v->value()[1][0];
+        m[5] = v->value()[1][1];
+        m[6] = v->value()[1][2];
+        m[7] = v->value()[1][3];
+        m[8] = v->value()[2][0];
+        m[9] = v->value()[2][1];
+        m[10] = v->value()[2][2];
+        m[11] = v->value()[2][3];
+        m[12] = v->value()[3][0];
+        m[13] = v->value()[3][1];
+        m[14] = v->value()[3][2];
+        m[15] = v->value()[3][3];
+        return npa;
+    }
+    
     if (auto v = dynamic_cast<const PreviewImageAttribute*> (a))
     {
         auto I = v->value();
@@ -1042,7 +1208,11 @@ PyFile::get_attribute_object(const std::string& name, const Attribute* a)
     }
 
     if (auto v = dynamic_cast<const RationalAttribute*> (a))
-        return py::cast(v->value());
+    {
+        py::module fractions = py::module::import("fractions");
+        py::object Fraction = fractions.attr("Fraction");
+        return Fraction(v->value().n, v->value().d);
+    }
 
     if (auto v = dynamic_cast<const TileDescriptionAttribute*> (a))
         return py::cast(v->value());
@@ -1051,36 +1221,474 @@ PyFile::get_attribute_object(const std::string& name, const Attribute* a)
         return py::cast(v->value());
 
     if (auto v = dynamic_cast<const V2iAttribute*> (a))
-        return py::cast(V2i(v->value().x, v->value().y));
+        return make_v2(v->value());
 
     if (auto v = dynamic_cast<const V2fAttribute*> (a))
-        return py::cast(V2f(v->value().x, v->value().y));
+        return make_v2(v->value());
 
     if (auto v = dynamic_cast<const V2dAttribute*> (a))
-        return py::cast(V2d(v->value().x, v->value().y));
+        return make_v2(v->value());
 
     if (auto v = dynamic_cast<const V3iAttribute*> (a))
-        return py::cast(V3i(v->value().x, v->value().y, v->value().z));
+        return make_v3(v->value());
     
     if (auto v = dynamic_cast<const V3fAttribute*> (a))
-        return py::cast(V3f(v->value().x, v->value().y, v->value().z));
+        return make_v3(v->value());
     
     if (auto v = dynamic_cast<const V3dAttribute*> (a))
-        return py::cast(V3d(v->value().x, v->value().y, v->value().z));
+        return make_v3(v->value());
     
-    throw std::runtime_error("unrecognized attribute type");
+    std::stringstream err;
+    err << "unsupported attribute type: " << a->typeName();
+    throw std::runtime_error(err.str());
     
     return py::none();
 }
     
+template <class P, class T>
+bool
+is_v2(const py::object& object, Vec2<T>& v)
+{
+    if (py::isinstance<py::tuple>(object))
+    {
+        auto tup = object.cast<py::tuple>();
+        if (tup.size() == 2 &&
+            py::isinstance<P>(tup[0]) &&
+            py::isinstance<P>(tup[1]))
+        {       
+            v.x = P(tup[0]);
+            v.y = P(tup[1]);
+            return true;
+        }
+    }
+    else if (py::isinstance<py::array_t<T>>(object))
+    {
+        auto a = object.cast<py::array_t<T>>();
+        if (a.ndim() == 1 && a.size() == 2)
+        {
+            auto p = static_cast<T*>(a.request().ptr);
+            v.x = p[0];
+            v.y = p[1];
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool
+is_v2i(const py::object& object, V2i& v)
+{
+    return is_v2<py::int_, int>(object, v);
+}
+
+bool
+is_v2f(const py::object& object, V2f& v)
+{
+    return is_v2<py::float_, float>(object, v);
+}
+
+bool
+is_v2d(const py::object& object, V2d& v)
+{
+    if (py::isinstance<py::array_t<double>>(object))
+    {
+        auto a = object.cast<py::array_t<double>>();
+        if (a.ndim() == 1 && a.size() == 2)
+        {
+            auto p = static_cast<double*>(a.request().ptr);
+            v.x = p[0];
+            v.y = p[1];
+            return true;
+        }
+    }
+    return false;
+}
+
+template <class P, class T>
+bool
+is_v3(const py::object& object, Vec3<T>& v)
+{
+    if (py::isinstance<py::tuple>(object))
+    {
+        auto tup = object.cast<py::tuple>();
+        if (tup.size() == 3 &&
+            py::isinstance<P>(tup[0]) &&
+            py::isinstance<P>(tup[1]) &&
+            py::isinstance<P>(tup[2]))
+        {       
+            v.x = P(tup[0]);
+            v.y = P(tup[1]);
+            v.z = P(tup[2]);
+            return true;
+        }
+    }
+    else if (py::isinstance<py::array_t<T>>(object))
+    {
+        auto a = object.cast<py::array_t<T>>();
+        if (a.ndim() == 1 && a.size() == 2)
+        {
+            auto p = static_cast<T*>(a.request().ptr);
+            v.x = p[0];
+            v.y = p[1];
+            v.z = p[2];
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool
+is_v3i(const py::object& object, V3i& v)
+{
+    return is_v3<py::int_, int>(object, v);
+}
+
+bool
+is_v3f(const py::object& object, V3f& v)
+{
+    return is_v3<py::float_, float>(object, v);
+}
+
+bool
+is_v3d(const py::object& object, V3d& v)
+{
+    if (py::isinstance<py::array_t<double>>(object))
+    {
+        auto a = object.cast<py::array_t<double>>();
+        if (a.ndim() == 1 && a.size() == 3)
+        {
+            auto p = static_cast<double*>(a.request().ptr);
+            v.x = p[0];
+            v.y = p[1];
+            v.z = p[2];
+            return true;
+        }
+    }
+    return false;
+}
+
+template <class T>
+bool
+is_m33(const py::object& object, Matrix33<T>& m)
+{
+    if (py::isinstance<py::array_t<T>>(object))
+    {
+        auto a = object.cast<py::array_t<T>>();
+        if (a.ndim() == 2 && a.shape(0) == 3 && a.shape(1) == 3)
+        {
+            py::buffer_info buf = a.request();
+            auto v = static_cast<const T*>(buf.ptr);
+            m = Matrix33<T>(v[0], v[1], v[2],
+                            v[3], v[4], v[5],
+                            v[6], v[7], v[8]);
+            return true;
+        }
+    }
+    return false;
+}
+
+template <class T>
+bool
+is_m44(const py::object& object, Matrix44<T>& m)
+{
+    if (py::isinstance<py::array_t<T>>(object))
+    {
+        auto a = object.cast<py::array_t<T>>();
+        if (a.ndim() == 2 && a.shape(0) == 4 && a.shape(1) == 4)
+        {
+            py::buffer_info buf = a.request();
+            auto v = static_cast<const T*>(buf.ptr);
+            m = Matrix44<T>(v[0], v[1], v[2], v[3],
+                            v[4], v[5], v[6], v[7],
+                            v[8], v[9], v[10], v[11],
+                            v[12], v[13], v[14], v[15]);
+            return true;
+        }
+    }
+    return false;
+}
+
+    
+bool
+is_box2i(const py::object& object, Box2i& b)
+{
+    if (py::isinstance<py::tuple>(object))
+    {
+        auto tup = object.cast<py::tuple>();
+        if (tup.size() == 2)
+            if (is_v2i(tup[0], b.min) && is_v2i(tup[1], b.max))
+                return true;
+    }
+
+    return false;
+}
+         
+bool
+is_box2f(const py::object& object, Box2f& b)
+{
+    if (py::isinstance<py::tuple>(object))
+    {
+        auto tup = object.cast<py::tuple>();
+        if (tup.size() == 2)
+        {
+            Box2f box;
+            if (is_v2f(tup[0], box.min) && is_v2f(tup[1], box.max))
+                return true;
+        }
+    }
+
+    return false;
+}
+         
+bool
+is_chromaticities(const py::object& object, Chromaticities& v)
+{
+    if (py::isinstance<py::tuple>(object))
+    {
+        auto tup = object.cast<py::tuple>();
+        if (tup.size() == 8 && 
+            py::isinstance<py::float_>(tup[0]) &&
+            py::isinstance<py::float_>(tup[1]) &&
+            py::isinstance<py::float_>(tup[2]) &&
+            py::isinstance<py::float_>(tup[3]) &&
+            py::isinstance<py::float_>(tup[4]) &&
+            py::isinstance<py::float_>(tup[5]) &&
+            py::isinstance<py::float_>(tup[6]) &&
+            py::isinstance<py::float_>(tup[7]))
+        {       
+            v.red.x = py::float_(tup[0]);
+            v.red.y = py::float_(tup[1]);
+            v.green.x = py::float_(tup[2]);
+            v.green.y = py::float_(tup[3]);
+            v.blue.x = py::float_(tup[4]);
+            v.blue.y = py::float_(tup[5]);
+            v.white.x = py::float_(tup[6]);
+            v.white.y = py::float_(tup[7]);
+            return true;
+        }
+    }    
+    return false;
+}
+
+#if XXX
+
+template <class T>
+Vec2<T>
+get_v2(const py::array& a)
+{
+    py::buffer_info buf = a.request();
+    auto v = static_cast<const T*>(buf.ptr);
+    return Vec2<T>(v[0], v[1]);
+}
+
+template <class T>
+Vec3<T>
+get_v3(const py::array& a)
+{
+    py::buffer_info buf = a.request();
+    auto v = static_cast<const T*>(buf.ptr);
+    return Vec3<T>(v[0], v[1], v[2]);
+}
+
+template <class T>
+Matrix33<T>
+get_m33(const py::array& a)
+{
+    py::buffer_info buf = a.request();
+    auto v = static_cast<const T*>(buf.ptr);
+    return Matrix33<T>(v[0], v[1], v[2],
+                       v[3], v[4], v[5],
+                       v[6], v[7], v[8]);
+}
+
+template <class T>
+Matrix44<T>
+get_m44(const py::array& a)
+{
+    py::buffer_info buf = a.request();
+    auto v = static_cast<const T*>(buf.ptr);
+    return Matrix44<T>(v[0], v[1], v[2], v[3],
+                       v[4], v[5], v[6], v[7],
+                       v[8], v[9], v[10], v[11],
+                       v[12], v[13], v[14], v[15]);
+}
+#endif
+
 void
 PyFile::insert_attribute(Header& header, const std::string& name, const py::object& object)
 {
-    if (auto v = py_cast<Box2i>(object))
-        header.insert(name, Box2iAttribute(*v));
-    else if (auto v = py_cast<Box2f>(object))
-        header.insert(name, Box2fAttribute(*v));
-    else if (py::isinstance<py::list>(object))
+#if XXX
+    std::cout << "insert_attribute " << name << ": " << py::str(object) << std::endl;
+#endif
+    
+    std::stringstream err;
+    
+    //
+    // If the attribute is standard/required, its type is fixed, so
+    // cast the rhs to the appropriate type if possible, or reject it
+    // as an error if not.
+    //
+        
+    if (name == "dataWindow" ||
+        name == "displayWindow" ||
+        name == "originalDataWindow" ||
+        name == "sensorAcquisitionRectangle")
+    {
+        Box2i b;
+        if (is_box2i(object, b))
+        {
+            header.insert(name, Box2iAttribute(b));
+            return;
+        }
+        err << "invalid value for attribute '" << name << "': expected a box2i tuple, got " << py::str(object);
+        throw std::invalid_argument(err.str());
+    }
+
+    // Required to be V2f?
+        
+    if (name == "screenWindowCenter" ||
+        name == "sensorCenterOffset" ||
+        name == "sensorOverallDimensions" ||
+        name == "cameraColorBalance" ||
+        name == "adoptedNeutral")
+    {
+        V2f v;
+        if (is_v2f(object, v))
+        {
+            header.insert(name, V2fAttribute(v));
+            return;
+        }
+        err << "invalid value for attribute '" << name << "': expected a v2f, got " << py::str(object);
+        throw std::invalid_argument(err.str());
+    }
+
+    // Required to be chromaticities?
+
+    if (name == "chromaticities")
+    {
+        Chromaticities c;
+        if (is_chromaticities(object, c))
+        {
+            header.insert(name, ChromaticitiesAttribute(c));
+            return;
+        }
+        err << "invalid value for attribute '" << name << "': expected a 6-tuple, got " << py::str(object);
+        throw std::invalid_argument(err.str());
+    }
+    
+    //
+    // Recognize tuples and arrays as V2/V3 i/f/d or M33/M44 f/d
+    //
+    
+    V2i v2i;
+    if (is_v2i(object, v2i))
+    {       
+        header.insert(name, V2iAttribute(v2i));
+        return;
+    }
+
+    V2f v2f;
+    if (is_v2f(object, v2f))
+    {       
+        header.insert(name, V2fAttribute(v2f));
+        return;
+    }
+
+    V2d v2d;
+    if (is_v2d(object, v2d))
+    {       
+        header.insert(name, V2dAttribute(v2d));
+        return;
+    }
+
+    V3i v3i;
+    if (is_v3i(object, v3i))
+    {       
+        header.insert(name, V3iAttribute(v3i));
+        return;
+    }
+
+    V3f v3f;
+    if (is_v3f(object, v3f))
+    {       
+        header.insert(name, V3fAttribute(v3f));
+        return;
+    }
+
+    V3d v3d;
+    if (is_v3d(object, v3d))
+    {       
+        header.insert(name, V3dAttribute(v3d));
+        return;
+    }
+
+    M33f m33f;
+    if (is_m33(object, m33f))
+    {       
+        header.insert(name, M33fAttribute(m33f));
+        return;
+    }
+
+    M33d m33d;
+    if (is_m33(object, m33d))
+    {       
+        header.insert(name, M33dAttribute(m33d));
+        return;
+    }
+
+    M44f m44f;
+    if (is_m44(object, m44f))
+    {       
+        header.insert(name, M44fAttribute(m44f));
+        return;
+    }
+
+    M44d m44d;
+    if (is_m44(object, m44d))
+    {       
+        header.insert(name, M44dAttribute(m44d));
+        return;
+    }
+
+    //
+    // Recognize 2-tuples of 2-vectors as boxes
+    //
+    
+    Box2i box2i;
+    if (is_box2i(object, box2i))
+    {       
+        header.insert(name, Box2iAttribute(box2i));
+        return;
+    }
+
+    Box2f box2f;
+    if (is_box2f(object, box2f))
+    {       
+        header.insert(name, Box2fAttribute(box2f));
+        return;
+    }
+
+    //
+    // Recognize an 8-tuple as chromaticities
+    //
+    
+    Chromaticities c;
+    if (is_chromaticities(object, c))
+    {
+        header.insert(name, ChromaticitiesAttribute(c));
+        return;
+    }
+
+    //
+    // Inspect the rhs type
+    //
+    
+    py::module fractions = py::module::import("fractions");
+    py::object Fraction = fractions.attr("Fraction");
+
+    if (py::isinstance<py::list>(object))
     {
         auto list = py::cast<py::list>(object);
         auto size = list.size();
@@ -1106,30 +1714,20 @@ PyFile::insert_attribute(Header& header, const std::string& name, const py::obje
             // since the channels get created elswhere.
         }
     }
-    else if (auto v = py_cast<Chromaticities>(object))
-        header.insert(name, ChromaticitiesAttribute(static_cast<Chromaticities>(*v)));
     else if (auto v = py_cast<Compression>(object))
         header.insert(name, CompressionAttribute(static_cast<Compression>(*v)));
     else if (auto v = py_cast<Envmap>(object))
         header.insert(name, EnvmapAttribute(static_cast<Envmap>(*v)));
-    else if (py::isinstance<py::float_>(object))
-        header.insert(name, FloatAttribute(py::cast<py::float_>(object)));
-    else if (py::isinstance<PyDouble>(object))
-        header.insert(name, DoubleAttribute(py::cast<PyDouble>(object).d));
     else if (py::isinstance<py::int_>(object))
         header.insert(name, IntAttribute(py::cast<py::int_>(object)));
+    else if (py::isinstance<py::float_>(object))
+        header.insert(name, FloatAttribute(py::cast<py::float_>(object)));
+    else if (auto v = py_cast<double>(object))
+        header.insert(name, DoubleAttribute(*v));
     else if (auto v = py_cast<KeyCode>(object))
         header.insert(name, KeyCodeAttribute(*v));
     else if (auto v = py_cast<LineOrder>(object))
         header.insert(name, LineOrderAttribute(static_cast<LineOrder>(*v)));
-    else if (auto v = py_cast<M33f>(object))
-        header.insert(name, M33fAttribute(*v));
-    else if (auto v = py_cast<M33d>(object))
-        header.insert(name, M33dAttribute(*v));
-    else if (auto v = py_cast<M44f>(object))
-        header.insert(name, M44fAttribute(*v));
-    else if (auto v = py_cast<M44d>(object))
-        header.insert(name, M44dAttribute(*v));
     else if (auto v = py_cast<PyPreviewImage>(object))
     {
         py::buffer_info buf = v->pixels.request();
@@ -1139,24 +1737,10 @@ PyFile::insert_attribute(Header& header, const std::string& name, const py::obje
         PreviewImage p(width, height, pixels);
         header.insert(name, PreviewImageAttribute(p));
     }
-    else if (auto v = py_cast<Rational>(object))
-        header.insert(name, RationalAttribute(*v));
     else if (auto v = py_cast<TileDescription>(object))
         header.insert(name, TileDescriptionAttribute(*v));
     else if (auto v = py_cast<TimeCode>(object))
         header.insert(name, TimeCodeAttribute(*v));
-    else if (auto v = py_cast<V2i>(object))
-        header.insert(name, V2iAttribute(*v));
-    else if (auto v = py_cast<V2f>(object))
-        header.insert(name, V2fAttribute(*v));
-    else if (auto v = py_cast<V2d>(object))
-        header.insert(name, V2dAttribute(*v));
-    else if (auto v = py_cast<V3i>(object))
-        header.insert(name, V3iAttribute(*v));
-    else if (auto v = py_cast<V3f>(object))
-        header.insert(name, V3fAttribute(*v));
-    else if (auto v = py_cast<V3d>(object))
-        header.insert(name, V3dAttribute(*v));
     else if (auto v = py_cast<exr_storage_t>(object))
     {
         std::string type;
@@ -1183,11 +1767,23 @@ PyFile::insert_attribute(Header& header, const std::string& name, const py::obje
     }
     else if (py::isinstance<py::str>(object))
         header.insert(name, StringAttribute(py::str(object)));
+    else if (py::isinstance(object, Fraction))
+    {
+        int n = py::int_(object.attr("numerator"));
+        int d = py::int_(object.attr("denominator"));
+        Rational r(n, d);
+        header.insert(name, RationalAttribute(r));
+    }
     else
     {
-        std::stringstream s;
-        s << "unknown attribute type: " << py::str(object);
-        throw std::runtime_error(s.str());
+        auto t = py::str(object.attr("__class__").attr("__name__"));
+        err << "unrecognized type of attribute '" << name << "': type=" << t << " value=" << py::str(object);
+        if (py::isinstance<py::array>(object))
+        {
+            auto a = object.cast<py::array>();
+            err << " dtype=" << py::str(a.dtype());
+        }
+        throw std::runtime_error(err.str());
     }
 }
 
@@ -1243,232 +1839,18 @@ PyPart::PyPart(const py::dict& header, const py::dict& channels, const std::stri
     auto s = shape();
 
     if (!header.contains("dataWindow"))
-        header["dataWindow"] = py::cast(Box2i(V2i(0,0), V2i(s[1]-1,s[0]-1)));
+    {
+        auto min = make_v2<int>(V2i(0, 0));
+        auto max = make_v2<int>(V2i(s[1]-1,s[0]-1));
+        header["dataWindow"] =  py::make_tuple(min, max);
+    }
 
     if (!header.contains("displayWindow"))
-        header["displayWindow"] = py::cast(Box2i(V2i(0,0), V2i(s[1]-1,s[0]-1)));
-}
-
-bool
-is_required_attribute(const std::string& name)
-{
-    return (name == "channels" ||
-            name == "compression" ||
-            name == "dataWindow" ||
-            name == "displayWindow" ||
-            name == "lineOrder" || 
-            name == "pixelAspectRatio" ||
-            name == "screenWindowCenter" ||
-            name == "screenWindowWidth" ||
-            name == "tiles" ||
-            name == "type" ||
-            name == "name" ||
-            name == "version" ||
-            name == "chunkCount");
-}
-            
-bool
-equal_header(const py::dict& A, const py::dict& B)
-{
-    std::set<std::string> names;
-    
-#if DEBUG_VERBOSE
-    std::cout << "A:";
-#endif
-    for (auto a : A)
     {
-#if DEBUG_VERBOSE
-        std::cout << " " << py::str(a.first);
-#endif
-        names.insert(py::str(a.first));
+        auto min = make_v2<int>(V2i(0, 0));
+        auto max = make_v2<int>(V2i(s[1]-1,s[0]-1));
+        header["displayWindow"] = py::make_tuple(min, max);
     }
-#if DEBUG_VERBOSE
-    std::cout << std::endl;
-
-    std::cout << "B:";
-#endif
-    for (auto b : B)
-    {
-#if DEBUG_VERBOSE
-        std::cout << " " << py::str(b.first);
-#endif
-        names.insert(py::str(b.first));
-    }
-#if DEBUG_VERBOSE
-    std::cout << std::endl;
-#endif
-    
-    for (auto name : names)
-    {
-        if (name == "channels")
-            continue;
-                
-        if (!A.contains(name))
-        {
-            if (is_required_attribute(name))
-                continue;
-            std::cout << "lhs part does not contain " << name << std::endl;
-            return false;
-        }
-
-        if (!B.contains(name))
-        {
-            if (is_required_attribute(name))
-                continue;
-            std::cout << "rhs part does not contain " << name << std::endl;
-            return false;
-        }
-            
-        py::object a = A[py::str(name)];
-        py::object b = B[py::str(name)];
-        if (!a.equal(b))
-        {
-            if (py::isinstance<py::float_>(a))
-            {                
-                float f = py::cast<py::float_>(a);
-                float of = py::cast<py::float_>(b);
-                if (f == of)
-                    return true;
-                
-                if (equalWithRelError(f, of, 1e-8f))
-                {
-                    float df = f - of;
-                    std::cout << "float values are very close: "
-                              << std::scientific << std::setprecision(12)
-                              << f << " "
-                              << of << " ("
-                              << df << ")"
-                              << std::endl;
-                    return true;
-                }
-            }
-            std::cout << "attribute values differ: " << name << " lhs='" << py::str(a) << "' rhs='" << py::str(b) << "'" << std::endl;
-            return false;
-        }
-    }
-    
-
-    return true;
-}
-    
-
-bool
-PyPart::operator==(const PyPart& other) const
-{
-    if (!equal_header(header, other.header))
-    {
-        std::cout << "PyPart: !equal_header" << std::endl;
-        return false;
-    }
-        
-    //
-    // The channel dicts might not be in alphabetical order
-    // (they're sorted on write), so don't just compare the dicts
-    // directly, compare each entry by key/name.
-    //
-    
-    if (channels.size() != other.channels.size())
-    {
-        std::cout << "PyPart: #channels differs." << std::endl;
-        return false;
-    }
-        
-    for (auto c : channels)
-    {
-        auto name = py::str(c.first);
-        auto C = c.second.cast<const PyChannel&>();
-        auto O = other.channels[py::str(name)].cast<const PyChannel&>();
-        if (C != O)
-        {
-            std::cout << "channel " << name << " differs." << std::endl;
-            return false;
-        }
-    }
-        
-    return true;
-}
-
-template <class T>
-bool
-py_nan(T a)
-{
-    return std::isnan(a);
-}
-
-template <>
-bool
-py_nan<half>(half a)
-{
-    return a.isNan();
-}
-
-template <>
-bool
-py_nan<uint32_t>(uint32_t a)
-{
-    return false;
-}
-
-template <class T>
-bool
-py_inf(T a)
-{
-    return !std::isfinite(a);
-}
-
-template <>
-bool
-py_inf<half>(half a)
-{
-    return a.isInfinity();
-}
-
-template <>
-bool
-py_inf<uint32_t>(uint32_t a)
-{
-    return false;
-}
-
-
-template <class T>
-bool
-array_equals(const py::buffer_info& a, const py::buffer_info& b,
-             const std::string& name, int width, int height, int depth = 1)
-{
-    const T* apixels = static_cast<const T*>(a.ptr);
-    const T* bpixels = static_cast<const T*>(b.ptr);
-
-    for (int y=0; y<height; y++)
-        for (int x=0; x<width; x++)
-        {
-            int i = (y * width + x) * depth;
-            for (int j=0; j<depth; j++)
-            {
-                int k = i + j;
-                if (py_nan(apixels[k]) && py_nan(bpixels[k]))
-                    continue;
-                if (py_inf(apixels[k]) && py_inf(bpixels[k]))
-                    continue;
-                double ap = static_cast<double>(apixels[k]);
-                double bp = static_cast<double>(bpixels[k]);
-                if (!equalWithRelError(ap, bp, 1e-5))
-                {
-                    std::cout << " a[" << y
-                              << "][" << x
-                              << "][" << j
-                              << "]=" << apixels[k]
-                              << " b=[" << y
-                              << "][" << x
-                              << "][" << j
-                              << "]=" << bpixels[k]
-                              << std::endl;
-                    return false;
-                }
-            }
-        }
-
-    return true;
 }
 
 void
@@ -1481,40 +1863,6 @@ PyChannel::validate_pixel_array()
 
     if (pixels.ndim() < 2 ||  pixels.ndim() > 3)
         throw std::invalid_argument("invalid pixel array: must be 2D or 3D numpy array");
-}
-
-bool
-PyChannel::operator==(const PyChannel& other) const
-{
-    if (name == other.name && 
-        xSampling == other.xSampling && 
-        ySampling == other.ySampling &&
-        pLinear == other.pLinear &&
-        pixels.ndim() == other.pixels.ndim() && 
-        pixels.size() == other.pixels.size())
-    {
-        if (pixels.size() == 0)
-            return true;
-        
-        py::buffer_info buf = pixels.request();
-        py::buffer_info obuf = other.pixels.request();
-
-        int width = pixels.shape(1);
-        int height = pixels.shape(0);
-        int depth = pixels.ndim() == 3 ? pixels.shape(2) : 1;
-        
-        if (py::isinstance<py::array_t<uint32_t>>(pixels) && py::isinstance<py::array_t<uint32_t>>(other.pixels))
-            if (array_equals<uint32_t>(buf, obuf, name, width, height, depth))
-                return true;
-        if (py::isinstance<py::array_t<half>>(pixels) && py::isinstance<py::array_t<half>>(other.pixels))
-            if (array_equals<half>(buf, obuf, name, width, height, depth))
-                return true;
-        if (py::isinstance<py::array_t<float>>(pixels) && py::isinstance<py::array_t<float>>(other.pixels))
-            if (array_equals<float>(buf, obuf, name, width, height, depth))
-                return true;
-    }
-
-    return false;
 }
         
 V2i
@@ -1633,8 +1981,86 @@ repr(const T& v)
     return s.str();
 }
 
-
 } // namespace
+
+
+// Helper function to create a 1D NumPy array of integers
+static PyObject* create_1d_array(int size) {
+    npy_intp dims[1] = {size};
+    PyObject *array = PyArray_SimpleNew(1, dims, NPY_INT);
+    int *data = (int *)PyArray_DATA((PyArrayObject *)array);
+    for (int i = 0; i < size; ++i) {
+        data[i] = i;
+    }
+    return array;
+}
+
+// Main function to create the 2D array of arrays
+static PyObject* create_2d_array_of_arrays(void) {
+
+    Py_Initialize();
+    import_array(); // Initialize NumPy
+
+    npy_intp dims[2] = {3, 3};
+    PyObject *array_of_arrays = PyArray_SimpleNew(2, dims, NPY_OBJECT);
+
+    for (int i = 0; i < 3; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            int size = i * 3 + j;
+            PyObject *subarray = create_1d_array(size);
+            // Get a pointer to the element in the 2D array and set the subarray
+            *(PyObject **)PyArray_GETPTR2((PyArrayObject *)array_of_arrays, i, j) = subarray;
+        }
+    }
+
+    return array_of_arrays;
+}
+
+py::object
+py_create_2d_array_of_arrays(void)
+{
+    auto py_obj = create_2d_array_of_arrays();
+    return py::reinterpret_borrow<py::object>(py_obj);
+}
+
+#if XXX
+int main(int argc, char *argv[]) {
+    // Initialize the Python interpreter
+    Py_Initialize();
+    import_array(); // Initialize NumPy
+
+    // Create the 2D array of arrays
+    PyObject *array_of_arrays = create_2d_array_of_arrays();
+
+    // Print the result (optional, for verification)
+    PyObject_Print(array_of_arrays, stdout, 0);
+    printf("\n");
+
+    // Clean up and exit
+    Py_DECREF(array_of_arrays);
+    Py_Finalize();
+    return 0;
+}
+#endif
+
+Chromaticities
+chromaticities(float redx,
+               float redy, 
+               float greenx,
+               float greeny,
+               float bluex,
+               float bluey,
+               float whitex,
+               float whitey)
+{
+    return Chromaticities(V2f(redx, redy), V2f(greenx, greeny), V2f(bluex, bluey), V2f(whitex, whitey));
+}
+
+#define DEEP_EXAMPLE 0
+
+#if DEEP_EXAMPLE
+#include "deepExample.cpp"
+#endif
 
 PYBIND11_MODULE(OpenEXR, m)
 {
@@ -1769,16 +2195,6 @@ PYBIND11_MODULE(OpenEXR, m)
         .def("setTimeAndFlags", &TimeCode::setTimeAndFlags)
         ;
 
-    py::class_<Chromaticities>(m, "Chromaticities", "CIE (x,y) chromaticities of the primaries and the white point")
-        .def(py::init<V2f,V2f,V2f,V2f>())
-        .def(py::self == py::self)
-        .def("__repr__", [](const Chromaticities& v) { return repr(v); })
-        .def_readwrite("red", &Chromaticities::red)
-        .def_readwrite("green", &Chromaticities::green)
-        .def_readwrite("blue", &Chromaticities::blue)
-        .def_readwrite("white", &Chromaticities::white)
-        ;
-
     py::class_<PreviewRgba>(m, "PreviewRgba", "Pixel type for the preview image")
         .def(py::init())
         .def(py::init<unsigned char,unsigned char,unsigned char,unsigned char>())
@@ -1798,129 +2214,6 @@ PYBIND11_MODULE(OpenEXR, m)
         .def("__repr__", [](const PyPreviewImage& v) { return repr(v); })
         .def(py::self == py::self)
         .def_readwrite("pixels", &PyPreviewImage::pixels)
-        ;
-    
-    py::class_<PyDouble>(m, "Double")
-        .def(py::init<double>())
-        .def("__repr__", [](const PyDouble& d) { return repr(d.d); })
-        .def(py::self == py::self)
-        ;
-
-    //
-    // Stand-in Imath classes - these should really come from the Imath module.
-    //
-    
-    py::class_<V2i>(m, "V2i")
-        .def(py::init())
-        .def(py::init<int,int>())
-        .def("__repr__", [](const V2i& v) { return repr(v); })
-        .def(py::self == py::self)
-        .def_readwrite("x", &Imath::V2i::x)
-        .def_readwrite("y", &Imath::V2i::y)
-        ;
-
-    py::class_<V2f>(m, "V2f")
-        .def(py::init())
-        .def(py::init<float,float>())
-        .def("__repr__", [](const V2f& v) { return repr(v); })
-        .def(py::self == py::self)
-        .def_readwrite("x", &Imath::V2f::x)
-        .def_readwrite("y", &Imath::V2f::y)
-        ;
-
-    py::class_<V2d>(m, "V2d")
-        .def(py::init())
-        .def(py::init<double,double>())
-        .def("__repr__", [](const V2d& v) { return repr(v); })
-        .def(py::self == py::self)
-        .def_readwrite("x", &Imath::V2d::x)
-        .def_readwrite("y", &Imath::V2d::y)
-        ;
-
-    py::class_<V3i>(m, "V3i")
-        .def(py::init())
-        .def(py::init<int,int,int>())
-        .def("__repr__", [](const V3i& v) { return repr(v); })
-        .def(py::self == py::self)
-        .def_readwrite("x", &Imath::V3i::x)
-        .def_readwrite("y", &Imath::V3i::y)
-        .def_readwrite("z", &Imath::V3i::z)
-        ;
-
-    py::class_<V3f>(m, "V3f")
-        .def(py::init())
-        .def(py::init<float,float,float>())
-        .def("__repr__", [](const V3f& v) { return repr(v); })
-        .def(py::self == py::self)
-        .def_readwrite("x", &Imath::V3f::x)
-        .def_readwrite("y", &Imath::V3f::y)
-        .def_readwrite("z", &Imath::V3f::z)
-        ;
-
-    py::class_<V3d>(m, "V3d")
-        .def(py::init())
-        .def(py::init<double,double,double>())
-        .def("__repr__", [](const V3d& v) { return repr(v); })
-        .def(py::self == py::self)
-        .def_readwrite("x", &Imath::V3d::x)
-        .def_readwrite("y", &Imath::V3d::y)
-        .def_readwrite("z", &Imath::V3d::z)
-        ;
-
-    py::class_<Box2i>(m, "Box2i")
-        .def(py::init())
-        .def(py::init<V2i,V2i>())
-        .def(py::init([](std::tuple<int, int> min, std::tuple<int, int> max) {
-            return new Box2i(V2i(std::get<0>(min), std::get<1>(min)),
-                             V2i(std::get<0>(max), std::get<1>(max))); }))
-        .def("__repr__", [](const Box2i& v) { return repr(v); })
-        .def(py::self == py::self)
-        .def_readwrite("min", &Box2i::min)
-        .def_readwrite("max", &Box2i::max)
-        ;
-    
-    py::class_<Box2f>(m, "Box2f")
-        .def(py::init())
-        .def(py::init<V2f,V2f>())
-        .def(py::init([](std::tuple<float, float> min, std::tuple<float, float> max) {
-            return new Box2f(V2f(std::get<0>(min), std::get<1>(min)),
-                             V2f(std::get<0>(max), std::get<1>(max))); }))
-        .def("__repr__", [](const Box2f& v) { return repr(v); })
-        .def(py::self == py::self)
-        .def_readwrite("min", &Box2f::min)
-        .def_readwrite("max", &Box2f::max)
-        ;
-    
-    py::class_<M33f>(m, "M33f")
-        .def(py::init())
-        .def(py::init<float,float,float,float,float,float,float,float,float>())
-        .def("__repr__", [](const M33f& m) { return repr(m); })
-        .def(py::self == py::self)
-        ;
-    
-    py::class_<M33d>(m, "M33d")
-        .def(py::init())
-        .def(py::init<double,double,double,double,double,double,double,double,double>())
-        .def("__repr__", [](const M33d& m) { return repr(m); })
-        .def(py::self == py::self)
-        ;
-    
-    py::class_<M44f>(m, "M44f")
-        .def(py::init<float,float,float,float,
-                      float,float,float,float,
-                      float,float,float,float,
-                      float,float,float,float>())
-        .def(py::self == py::self)
-        .def("__repr__", [](const M44f& m) { return repr(m); })
-        ;
-    
-    py::class_<M44d>(m, "M44d")
-        .def(py::init<double,double,double,double,
-                      double,double,double,double,
-                      double,double,double,double,
-                      double,double,double,double>())
-        .def("__repr__", [](const M44d& m) { return repr(m); })
-        .def(py::self == py::self)
         ;
     
     //
@@ -1956,8 +2249,11 @@ PYBIND11_MODULE(OpenEXR, m)
              py::arg("ySampling"),
              py::arg("pLinear")=false)
         .def("__repr__", [](const PyChannel& c) { return repr(c); })
+#if XXX
         .def(py::self == py::self)
         .def(py::self != py::self)
+        .def("diff", &PyChannel::diff)
+#endif
         .def_readwrite("name", &PyChannel::name)
         .def("type", &PyChannel::pixelType)
         .def_readwrite("xSampling", &PyChannel::xSampling)
@@ -1974,7 +2270,11 @@ PYBIND11_MODULE(OpenEXR, m)
              py::arg("channels"),
              py::arg("name")="")
         .def("__repr__", [](const PyPart& p) { return repr(p); })
+#if XXX
         .def(py::self == py::self)
+        .def(py::self != py::self)
+        .def("diff", &PyPart::diff)
+#endif
         .def("name", &PyPart::name)
         .def("type", &PyPart::type)
         .def("width", &PyPart::width)
@@ -1998,12 +2298,24 @@ PYBIND11_MODULE(OpenEXR, m)
              py::arg("parts"))
         .def("__enter__", &PyFile::__enter__)
         .def("__exit__", &PyFile::__exit__)
+#if XXX
         .def(py::self == py::self)
+        .def(py::self != py::self)
+        .def("diff", &PyFile::diff)
+#endif
         .def_readwrite("filename", &PyFile::filename)
         .def_readwrite("parts", &PyFile::parts)
         .def("header", &PyFile::header, py::arg("part_index") = 0)
         .def("channels", &PyFile::channels, py::arg("part_index") = 0)
         .def("write", &PyFile::write)
         ;
+
+#if DEEP_EXAMPLE
+//    import_array();
+    
+    m.def("create_2d_array_of_arrays", &py_create_2d_array_of_arrays);
+    m.def("writeDeepExample", &writeDeepExample);
+    m.def("readDeepExample", &readDeepExample);
+#endif
 }
 

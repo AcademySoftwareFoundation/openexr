@@ -78,13 +78,17 @@ def test_modify():
 
     with OpenEXR.File("readme.exr") as f:
         
-        f.header()["displayWindow"] = OpenEXR.Box2i((3,4),(5,6))
+        f.header()["displayWindow"] = ((3,4),(5,6))
+        f.header()["screenWindowCenter"] = np.array([1.0,2.0],'float32')
         f.header()["comments"] = "test image"
         f.header()["longitude"] = -122.5
         f.write("readme_modified.exr")
 
         with OpenEXR.File("readme_modified.exr") as o:
-            assert o.header()["displayWindow"] == OpenEXR.Box2i((3,4),(5,6))
+            dw = o.header()["displayWindow"]
+            assert (tuple(dw[0]), tuple(dw[1])) == ((3,4),(5,6))
+            swc = o.header()["screenWindowCenter"]
+            assert tuple(swc) == (1.0, 2.0)
             assert o.header()["comments"] == "test image"
             assert o.header()["longitude"] == -122.5
 

@@ -26,9 +26,6 @@ public:
 
     void         write(const char* filename);
     
-    bool         operator==(const PyFile& other) const;
-    bool         operator!=(const PyFile& other) const { return !(*this == other); }
-    
     std::string  filename;
     py::list     parts;
 
@@ -56,9 +53,6 @@ class PyPart
     PyPart() {}
     PyPart(const py::dict& header, const py::dict& channels, const std::string& name);
     
-    bool operator==(const PyPart& other) const;
-    bool operator!=(const PyPart& other) const { return !(*this == other); }
-
     std::string    name() const;
     V2i            shape() const;
     size_t         width() const;
@@ -116,9 +110,6 @@ public:
         : name(n), xSampling(xSampling), ySampling(ySampling), pLinear(pLinear), pixels(p),
           channel_index(0) {validate_pixel_array(); }
 
-    bool operator==(const PyChannel& other) const;
-    bool operator!=(const PyChannel& other) const { return !(*this == other); }
-
     void validate_pixel_array();
     
     PixelType             pixelType() const;
@@ -128,6 +119,9 @@ public:
     int                   ySampling;
     int                   pLinear;
     py::array             pixels;
+
+    Array2D<void*>*       deep_samples;
+    PixelType             _type;
 
     size_t                channel_index;
 };
@@ -205,26 +199,6 @@ PyPreviewImage::operator==(const PyPreviewImage& other) const
     return true;
 }
 
-
-//
-// PyDouble supports the "double" attribute.
-//
-// When reading an attribute of type "double", a python object of type
-// PyDouble is created, so that when the header is written, it will be
-// of type double, since python makes no distinction between float and
-// double numerical types.
-//
-
-class PyDouble
-{
-public:
-    PyDouble(double x) : d(x)  {}
-
-    bool operator==(const PyDouble& other) const { return d == other.d; }
-    
-    double d;
-};
-                         
 
 inline std::ostream&
 operator<< (std::ostream& s, const Chromaticities& c)

@@ -125,15 +125,24 @@ To modify the header metadata in a file:
 
     with OpenEXR.File("readme.exr") as f:
         
-        f.header()["displayWindow"] = OpenEXR.Box2i((3,4),(5,6))
+        f.header()["displayWindow"] = ((3,4),(5,6))
+        f.header()["screenWindowCenter"] = np.array([1.0,2.0],'float32')
         f.header()["comments"] = "test image"
         f.header()["longitude"] = -122.5
         f.write("readme_modified.exr")
 
         with OpenEXR.File("readme_modified.exr") as o:
-            assert o.header()["displayWindow"] == OpenEXR.Box2i((3,4),(5,6))
+            dw = o.header()["displayWindow"]
+            assert (tuple(dw[0]), tuple(dw[1])) == ((3,4),(5,6))
+            swc = o.header()["screenWindowCenter"]
+            assert tuple(swc) == (1.0, 2.0)
             assert o.header()["comments"] == "test image"
             assert o.header()["longitude"] == -122.5
+
+Note that OpenEXR's Imath-based vector and matrix attribute values
+appear in the header dictionary as 2-element, 3-element, 3x3, 4x4
+numpy arrays, and bounding boxes appear as tuples of 2-element arrays,
+or tuples for convenience.
 
 To read and write a multi-part file, use a list of ``Part`` objects:
 

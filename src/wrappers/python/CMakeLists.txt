@@ -9,12 +9,13 @@ if(NOT "${CMAKE_PROJECT_NAME}" STREQUAL "OpenEXR")
   find_package(OpenEXR)
 endif()
 
-find_package(Python COMPONENTS Interpreter Development.Module REQUIRED)
+find_package(Python COMPONENTS Interpreter Development.Module NumPy REQUIRED)
 find_package(pybind11 CONFIG REQUIRED)
 
 python_add_library (PyOpenEXR MODULE PyOpenEXR.cpp PyOpenEXR_old.cpp)
 
 target_link_libraries (PyOpenEXR PRIVATE "${Python_LIBRARIES}" OpenEXR::OpenEXR pybind11::headers)
+include_directories(${Python_NumPy_INCLUDE_DIRS})
 
 # The python module should be called "OpenEXR.so", not "PyOpenEXR.so",
 # but "OpenEXR" is taken as a library name by the main lib, so specify
