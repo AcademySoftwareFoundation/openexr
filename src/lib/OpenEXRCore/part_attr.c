@@ -1859,7 +1859,7 @@ exr_attr_set_string (
     EXR_LOCK_AND_DEFINE_PART (part_index);
 
     if (name && !strcmp (name, EXR_REQ_NAME_STR))
-        return EXR_UNLOCK_AND_RETURN (exr_set_name (ctxt, part_index, name));
+        return EXR_UNLOCK_AND_RETURN (exr_set_name (ctxt, part_index, val));
 
     if (name && !strcmp (name, EXR_REQ_TYPE_STR))
         return EXR_UNLOCK_AND_RETURN (ctxt->print_error (

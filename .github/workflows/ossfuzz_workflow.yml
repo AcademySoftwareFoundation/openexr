@@ -8,29 +8,23 @@ name: OSS-Fuzz
 
 on:
   push:
-    branches-ignore:
-      - RB-2.*
-    tags-ignore:
-      - v1.*
-      - v2.*
     paths:
       - '**'
       - '!**.md'
       - '!website/**'
       - '!bazel/**'
       - '!src/wrappers/**'
+      - '!.github/workflows/**'
+      - '.github/workflows/ossfuzz_workflow.yml'
   pull_request:
-    branches-ignore:
-      - RB-2.*
-    tags-ignore:
-      - v1.*
-      - v2.*
     paths:
       - '**'
       - '!**.md'
       - '!website/**'
       - '!bazel/**'
       - '!src/wrappers/**'
+      - '!.github/workflows/**'
+      - '.github/workflows/ossfuzz_workflow.yml'
 
 permissions:
   contents: read
@@ -41,20 +35,20 @@ jobs:
     steps:
     - name: Build Fuzzers
       id: build
-      uses: google/oss-fuzz/infra/cifuzz/actions/build_fuzzers@master
+      uses: google/oss-fuzz/infra/cifuzz/actions/build_fuzzers@32f1d4deadc82279ec9001a837f2424e185c69a2 # master
       with:
         oss-fuzz-project-name: 'openexr'
         dry-run: false
         language: c++
     - name: Run Fuzzers
-      uses: google/oss-fuzz/infra/cifuzz/actions/run_fuzzers@master
+      uses: google/oss-fuzz/infra/cifuzz/actions/run_fuzzers@32f1d4deadc82279ec9001a837f2424e185c69a2 # master
       with:
         oss-fuzz-project-name: 'openexr'
         fuzz-seconds: 300
         dry-run: false
         language: c++
     - name: Upload Crash
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
       if: failure() && steps.build.outcome == 'success'
       with:
         name: artifacts

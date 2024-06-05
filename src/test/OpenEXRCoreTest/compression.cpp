@@ -1066,8 +1066,8 @@ saveCPP (
         (Box2i (V2i (dwx, dwy), V2i (dwx + fw - 1, dwy + fh - 1))));
 
     hdr.compression ()         = (IMF::Compression) ((int) comp);
-    hdr.zipCompressionLevel () = 3;
-    EXRCORE_TEST (((const Header&) hdr).zipCompressionLevel () == 3);
+    hdr.zipCompressionLevel () = 4;
+    EXRCORE_TEST (((const Header&) hdr).zipCompressionLevel () == 4);
 
     hdr.channels ().insert ("I", Channel (IMF::UINT, xs, ys));
     for (int c = 0; c < 5; ++c)
@@ -1315,7 +1315,7 @@ doWriteRead (
     if (tiled)
     {
         EXRCORE_TEST_RVAL (exr_set_tile_descriptor (
-            f, partidx, 32, 32, EXR_TILE_ONE_LEVEL, EXR_TILE_ROUND_UP));
+            f, partidx, 32, 32, EXR_TILE_ONE_LEVEL, EXR_TILE_ROUND_DOWN));
     }
 
     EXRCORE_TEST_RVAL (exr_add_channel (
@@ -1360,12 +1360,10 @@ doWriteRead (
     }
 
 #ifdef __linux
-    if (getenv ("ENABLE_EXACT_FILE_COMPARE") &&
-        0 != compare_files (filename.c_str (), cppfilename.c_str ()))
+    if (0 != compare_files (filename.c_str (), cppfilename.c_str ()))
     {
         EXRCORE_TEST_FAIL (compare_files);
     }
-    else { compare_files (filename.c_str (), cppfilename.c_str ()); }
 #endif
     pixels restore    = p;
     pixels cpprestore = p;

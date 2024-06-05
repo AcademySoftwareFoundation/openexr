@@ -25,14 +25,14 @@ on:
       - RB-*
     paths:
       - 'website/**'
-      - '.github/workflows/website_workflow.yml'
+      - '.github/workflows/website.yml'
       
   pull_request:
     branches-ignore:
       - RB-*
     paths:
       - 'website/**'
-      - '.github/workflows/website_workflow.yml'
+      - '.github/workflows/website.yml'
 
 permissions:
   contents: read
@@ -54,19 +54,24 @@ jobs:
       
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
       - name: Create build directory
         run: mkdir _build
       - name: Install doxygen
         run: ./website/scripts/install_doxygen.sh ${DOXYGEN_VERSION} 
         shell: bash
       - name: Install sphinx requirements
-        run: pip3 install -r website/requirements.txt
-      - name: Configure
-        run: cmake .. -DBUILD_WEBSITE=ON -DCMAKE_VERBOSE_MAKEFILE=ON
+        run: |
+          python3 -m venv _venv
+          source _venv/*/activate
+          pip3 install -r ../website/requirements.txt
+          cmake .. -DBUILD_WEBSITE=ON -DCMAKE_VERBOSE_MAKEFILE=ON
         working-directory: _build
+        shell: bash
       - name: Build
-        run: cmake --build . --target website --config Release
+        run: |
+          cmake --build . --target website --config Release
         working-directory: _build
+        shell: bash
     
     

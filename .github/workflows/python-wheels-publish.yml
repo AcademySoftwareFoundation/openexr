@@ -29,10 +29,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Install Python 
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d # v5.1.0
         with:
           python-version: '3.x'
 
@@ -42,7 +42,7 @@ jobs:
         run: pipx run build --sdist . --outdir wheelhouse
 
       - name: Build wheel
-        uses: pypa/cibuildwheel@v2.16
+        uses: pypa/cibuildwheel@ba8be0d98853f5744f24e7f902c8adef7ae2e7f3 # v2.18.1
         with:
           output-dir: wheelhouse
         env:
@@ -56,7 +56,7 @@ jobs:
           CIBW_TEST_SKIP: "*arm64"
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4.0.0
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
         with:
           name: wheels-${{ matrix.os }}
           path: |
@@ -78,19 +78,19 @@ jobs:
 
     steps:
     - name: Download Linux artifacts
-      uses: actions/download-artifact@v4.0.0
+      uses: actions/download-artifact@65a9edc5881444af0b9093a5e628f2fe47ea3b2e # v4.1.7
       with:
         name: wheels-ubuntu-latest
         path: dist
     - name: Download macOS artifacts
-      uses: actions/download-artifact@v4.0.0
+      uses: actions/download-artifact@65a9edc5881444af0b9093a5e628f2fe47ea3b2e # v4.1.7
       with:
         name: wheels-macos-latest
         path: dist
     - name: Download Windows artifacts
-      uses: actions/download-artifact@v4.0.0
+      uses: actions/download-artifact@65a9edc5881444af0b9093a5e628f2fe47ea3b2e # v4.1.7
       with:
         name: wheels-windows-latest
         path: dist
     - name: Publish distribution 📦 to PyPI
-      uses: pypa/gh-action-pypi-publish@release/v1
+      uses: pypa/gh-action-pypi-publish@81e9d935c883d0b210363ab89cf05f3894778450 # release/v1
