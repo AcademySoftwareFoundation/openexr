@@ -27,7 +27,7 @@ jobs:
   pull-request-links:
     runs-on: ubuntu-latest
     steps:
-      - uses: readthedocs/actions/preview@v1
+      - uses: readthedocs/actions/preview@cc0920454cf03ca8a3fbd3cbaa2ce2e509e70636 # v1.2
         with:
           project-slug: "openexr"
           message-template: "Website preview: {docs-pr-index-url}"

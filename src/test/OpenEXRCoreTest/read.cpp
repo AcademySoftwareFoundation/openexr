@@ -124,9 +124,36 @@ testReadMeta (const std::string& tempdir)
     exr_context_initializer_t cinit = EXR_DEFAULT_CONTEXT_INITIALIZER;
     cinit.error_handler_fn          = &err_cb;
     exr_attribute_t* newattr;
+    uint32_t verflags;
+    uint64_t cto;
 
     EXRCORE_TEST_RVAL (exr_test_file_header (fn.c_str (), &cinit));
     EXRCORE_TEST_RVAL (exr_start_read (&f, fn.c_str (), &cinit));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_MISSING_CONTEXT_ARG,
+        exr_get_file_version_and_flags (NULL, NULL));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_INVALID_ARGUMENT,
+        exr_get_file_version_and_flags (f, NULL));
+    EXRCORE_TEST_RVAL (
+        exr_get_file_version_and_flags (f, &verflags));
+    EXRCORE_TEST (verflags == 2);
+
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_MISSING_CONTEXT_ARG,
+        exr_get_chunk_table_offset (NULL, 0, NULL));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_ARGUMENT_OUT_OF_RANGE,
+        exr_get_chunk_table_offset (f, -1, NULL));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_ARGUMENT_OUT_OF_RANGE,
+        exr_get_chunk_table_offset (f, 2, NULL));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_INVALID_ARGUMENT,
+        exr_get_chunk_table_offset (f, 0, NULL));
+    EXRCORE_TEST_RVAL (
+        exr_get_chunk_table_offset (f, 0, &cto));
+    EXRCORE_TEST (cto == 331);
 
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_NOT_OPEN_WRITE,

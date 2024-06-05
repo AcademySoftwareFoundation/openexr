@@ -221,6 +221,7 @@ Chunk Reading
 Chunks
 ^^^^^^
 
+.. doxygenfunction:: exr_get_chunk_table_offset
 .. doxygenstruct:: exr_chunk_info_t
 
 Chunk Writing
@@ -260,12 +261,13 @@ Context
 
 .. doxygentypedef:: exr_context_t
 .. doxygentypedef:: exr_const_context_t
-                    
+
 .. doxygenstruct:: _exr_context_initializer_v3
    :members:
 .. doxygentypedef:: exr_context_initializer_t
 
 .. doxygenfunction:: exr_get_file_name
+.. doxygenfunction:: exr_get_file_version_and_flags
 .. doxygenfunction:: exr_get_user_data
 .. doxygenfunction:: exr_register_attr_type_handler
 

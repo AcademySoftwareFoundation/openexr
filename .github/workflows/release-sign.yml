@@ -49,13 +49,13 @@ jobs:
         shell: bash
 
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@ee0669bd1cc54295c223e0bb666b733df41de1c5 # v2.7.0
 
       - name: Create archive
         run: git archive --format=tar.gz -o ${OPENEXR_TARBALL} --prefix ${OPENEXR_PREFIX} ${TAG}
 
       - name: Sign archive with Sigstore
-        uses: sigstore/gh-action-sigstore-python@v2.1.1
+        uses: sigstore/gh-action-sigstore-python@61f6a500bbfdd9a2a339cf033e5421951fbc1cd2 # v2.1.1
         with:
           inputs: ${{ env.OPENEXR_TARBALL }}
 

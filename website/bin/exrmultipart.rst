@@ -7,7 +7,7 @@ exrmultipart
 
 ::
 
-    exrmultipart-combine -i input.exr[:partnum][::partname] [input2.exr[:partnum]][::partname] [...] -o outfile.exr [options]
+    exrmultipart -combine -i input.exr[:partnum][::partname] [input2.exr[:partnum]][::partname] [...] -o outfile.exr [options]
 
     or: exrmultipart -separate -i infile.exr -o outfileBaseName [options]
 

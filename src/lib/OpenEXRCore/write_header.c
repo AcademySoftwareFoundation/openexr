@@ -598,6 +598,67 @@ save_attr (exr_context_t ctxt, const exr_attribute_t* a)
 
 /**************************************/
 
+exr_result_t internal_exr_calc_header_version_flags (exr_const_context_t ctxt, uint32_t *flags)
+{
+    *flags = 2; // EXR_VERSION
+
+    if (ctxt->is_multipart) *flags |= EXR_MULTI_PART_FLAG;
+
+    if (ctxt->max_name_length > EXR_SHORTNAME_MAXLEN)
+    {
+        int longnamefound = 0;
+
+        for ( int p = 0; p < ctxt->num_parts; ++p )
+        {
+            exr_priv_part_t curpart = ctxt->parts[p];
+            for ( int a = 0; a < curpart->attributes.num_attributes; ++a )
+            {
+                exr_attribute_t *cura = curpart->attributes.entries[a];
+                if (cura->name_length > EXR_SHORTNAME_MAXLEN ||
+                    cura->type_name_length > EXR_SHORTNAME_MAXLEN)
+                {
+                    longnamefound = 1;
+                    break;
+                }
+
+                // the original C++ side assumes there was
+                // only one channel list (who would have multiple)
+                // but let's not make that same assertion and check names
+                // if we encounter any channel list named anything
+                if (cura->type == EXR_ATTR_CHLIST)
+                {
+                    const exr_attr_chlist_t* chlist = cura->chlist;
+                    int nc = chlist->num_channels;
+
+                    for ( int c = 0; c < nc; ++c )
+                    {
+                        const exr_attr_chlist_entry_t *ce = chlist->entries + c;
+                        if (ce->name.length > EXR_SHORTNAME_MAXLEN)
+                        {
+                            longnamefound = 1;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (longnamefound)
+                break;
+        }
+
+        if (longnamefound)
+            *flags |= EXR_LONG_NAMES_FLAG;
+    }
+
+    if (ctxt->has_nonimage_data) *flags |= EXR_NON_IMAGE_FLAG;
+    if (ctxt->is_singlepart_tiled) *flags |= EXR_TILED_FLAG;
+
+    return EXR_ERR_SUCCESS;
+}
+
+
+/**************************************/
+
 exr_result_t
 internal_exr_write_header (exr_context_t ctxt)
 {
@@ -606,12 +667,7 @@ internal_exr_write_header (exr_context_t ctxt)
     uint32_t     flags;
     uint8_t      next_byte;
 
-    flags = 2; // EXR_VERSION
-    if (ctxt->is_multipart) flags |= EXR_MULTI_PART_FLAG;
-    if (ctxt->max_name_length > EXR_SHORTNAME_MAXLEN)
-        flags |= EXR_LONG_NAMES_FLAG;
-    if (ctxt->has_nonimage_data) flags |= EXR_NON_IMAGE_FLAG;
-    if (ctxt->is_singlepart_tiled) flags |= EXR_TILED_FLAG;
+    rv = internal_exr_calc_header_version_flags (ctxt, &flags);
 
     magic_and_version[0] = 20000630;
     magic_and_version[1] = flags;

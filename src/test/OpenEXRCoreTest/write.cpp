@@ -149,6 +149,11 @@ testStartWriteDeepScan (const std::string& tempdir)
     EXRCORE_TEST_RVAL (exr_get_storage (outf, partidx, &storage));
     EXRCORE_TEST (storage == EXR_STORAGE_DEEP_SCANLINE);
 
+    uint32_t verflags;
+    EXRCORE_TEST_RVAL (
+        exr_get_file_version_and_flags (outf, &verflags));
+    EXRCORE_TEST (verflags == (2 | 0x00000800));
+
     EXRCORE_TEST_RVAL (exr_finish (&outf));
     remove (outfn.c_str ());
 }
@@ -248,6 +253,11 @@ testStartWriteDeepTile (const std::string& tempdir)
     EXRCORE_TEST_RVAL (exr_get_storage (outf, partidx, &storage));
     EXRCORE_TEST (storage == EXR_STORAGE_DEEP_TILED);
 
+    uint32_t verflags;
+    EXRCORE_TEST_RVAL (
+        exr_get_file_version_and_flags (outf, &verflags));
+    EXRCORE_TEST (verflags == (2 | 0x00000800));
+
     EXRCORE_TEST_RVAL (exr_finish (&outf));
     remove (outfn.c_str ());
 }
@@ -258,6 +268,7 @@ testWriteBaseHeader (const std::string& tempdir)
     exr_context_t outf;
     std::string   outfn = tempdir + "testattr.exr";
     int           partidx;
+    uint32_t      verflags;
 
     exr_context_initializer_t cinit = EXR_DEFAULT_CONTEXT_INITIALIZER;
     cinit.error_handler_fn          = &err_cb;
@@ -464,6 +475,14 @@ testWriteBaseHeader (const std::string& tempdir)
         1));
 
     EXRCORE_TEST_RVAL (exr_write_header (outf));
+    EXRCORE_TEST_RVAL (
+        exr_get_file_version_and_flags (outf, &verflags));
+    EXRCORE_TEST (verflags == 2);
+
+    uint64_t cto;
+    EXRCORE_TEST_RVAL (
+        exr_get_chunk_table_offset (outf, 0, &cto));
+    EXRCORE_TEST (cto == 364);
 
     EXRCORE_TEST_RVAL (exr_finish (&outf));
     remove (outfn.c_str ());
@@ -533,6 +552,9 @@ testWriteBaseHeader (const std::string& tempdir)
     EXRCORE_TEST (txsize == 32 && tysize == 32);
 
     EXRCORE_TEST_RVAL (exr_write_header (outf));
+    EXRCORE_TEST_RVAL (
+        exr_get_file_version_and_flags (outf, &verflags));
+    EXRCORE_TEST (verflags == (2 | 0x00000200));
 
     EXRCORE_TEST_RVAL (exr_finish (&outf));
     remove (outfn.c_str ());
@@ -1365,6 +1387,11 @@ testWriteMultiPart (const std::string& tempdir)
     EXRCORE_TEST (storage == EXR_STORAGE_SCANLINE);
     EXRCORE_TEST_RVAL (exr_get_storage (outf, 1, &storage));
     EXRCORE_TEST (storage == EXR_STORAGE_TILED);
+
+    uint32_t verflags;
+    EXRCORE_TEST_RVAL (
+        exr_get_file_version_and_flags (outf, &verflags));
+    EXRCORE_TEST (verflags == (2 | 0x00001000));
 
     EXRCORE_TEST_RVAL (exr_finish (&outf));
     remove (outfn.c_str ());

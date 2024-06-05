@@ -216,7 +216,8 @@ struct _priv_exr_context_t
 #endif
     uint8_t disable_chunk_reconstruct;
     uint8_t legacy_header;
-    uint8_t _pad[6];
+    uint8_t _pad[2];
+    uint32_t orig_version_and_flags;
 };
 
 #define EXR_CONST_CAST(t, v) ((t) (uintptr_t) v)

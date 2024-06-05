@@ -160,7 +160,6 @@ struct sliceOptimizationData
     half fillValue; ///< if filling, the value to use
     size_t
         offset; ///< position this channel will be in the read buffer, accounting for previous channels, as well as their type
-    PixelType type; ///< type of channel
     size_t
         xStride; ///< x-stride of channel in buffer (must be set to cause channels to interleave)
     size_t

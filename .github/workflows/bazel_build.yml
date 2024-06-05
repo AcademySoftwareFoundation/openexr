@@ -12,29 +12,23 @@ name: Bazel
 
 on:
   push:
-    branches-ignore:
-      - RB-2.*
-    tags-ignore:
-      - v1.*
-      - v2.*
     paths:
       - '**'
       - '!**.md'
       - '!website/**'
       - 'website/src/**'
       - '!src/wrappers/**'
+      - '!.github/workflows/**'
+      - '.github/workflows/bazel_build.yml'
   pull_request:
-    branches-ignore:
-      - RB-2.*
-    tags-ignore:
-      - v1.*
-      - v2.*
     paths:
       - '**'
       - '!**.md'
       - '!website/**'
       - 'website/src/**'
       - '!src/wrappers/**'
+      - '!.github/workflows/**'
+      - '.github/workflows/bazel_build.yml'
 
 permissions:
   contents: read
@@ -45,10 +39,10 @@ jobs:
     runs-on: ubuntu-22.04
     
     steps:
-    - uses: actions/checkout@v4.1.1
+    - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
     - name: Mount Bazel cache
-      uses: actions/cache@v4.0.0
+      uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
       with:
         path: "/home/runner/.cache/bazel"
         key: bazel-ubuntu-22
@@ -56,17 +50,17 @@ jobs:
     - name: Build
       run: |
         bazelisk build //...
-        bazelisk test //...
+        bazelisk test --test_output=errors //...
 
   build_and_test_windows:
     name: Windows Server 2022 build <Visual Studio 2022>
     runs-on: windows-2022
 
     steps:
-    - uses: actions/checkout@v4.1.1
+    - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
     - name: Mount Bazel cache
-      uses: actions/cache@v4.0.0
+      uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
       with:
         path: "/home/runner/.cache/bazel"
         key: bazel-windows-2022
@@ -74,17 +68,17 @@ jobs:
     - name: Build
       run: |
         bazelisk build //...
-        bazelisk test //...
+        bazelisk test --test_output=errors //...
 
   build_and_test_macos:
     name: macOS 13 Bazel build <Apple Clang14>
     runs-on: macos-13
 
     steps:
-    - uses: actions/checkout@v4.1.1
+    - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
     - name: Mount Bazel cache
-      uses: actions/cache@v4.0.0
+      uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
       with:
         path: "/home/runner/.cache/bazel"
         key: bazel-macos-13
@@ -92,17 +86,17 @@ jobs:
     - name: Build
       run: |
         bazelisk build //...
-        bazelisk test //...
+        bazelisk test --test_output=errors //...
 
   build_and_test_macos_M1:
     name: macOS 14 Bazel build <Apple Clang14>
     runs-on: macos-14
 
     steps:
-    - uses: actions/checkout@v4.1.1
+    - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
     - name: Mount Bazel cache
-      uses: actions/cache@v4.0.0
+      uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
       with:
         path: "/home/runner/.cache/bazel"
         key: bazel-macos-14
@@ -110,4 +104,4 @@ jobs:
     - name: Build
       run: |
         bazelisk build //...
-        bazelisk test //...
+        bazelisk test --test_output=errors //...

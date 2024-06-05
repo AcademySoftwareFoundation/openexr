@@ -16,6 +16,11 @@ extern "C" {
 
 /** @file */
 
+/** @brief Retrieve the chunk table offset for the part in question.
+ */
+EXR_EXPORT exr_result_t exr_get_chunk_table_offset (
+    exr_const_context_t ctxt, int part_index, uint64_t* chunk_offset_out);
+
 /**
  * Struct describing raw data information about a chunk.
  *

@@ -16,7 +16,7 @@ extern "C" {
 
 /** @file */
 
-/** 
+/**
  * @defgroup PartInfo Part related definitions.
  *
  * A part is a separate entity in the OpenEXR file. This was
@@ -123,7 +123,7 @@ EXR_EXPORT exr_result_t exr_get_level_sizes (
  * As in the technical documentation for OpenEXR, the chunk is the
  * generic term for a pixel data block. This is the atomic unit that
  * this library uses to negotiate data to and from a context.
- * 
+ *
  * This should be used as a basis for splitting up how a file is
  * processed. Depending on the compression, a different number of
  * scanlines are encoded in each chunk, and since those need to be
@@ -132,6 +132,16 @@ EXR_EXPORT exr_result_t exr_get_level_sizes (
  */
 EXR_EXPORT exr_result_t
 exr_get_chunk_count (exr_const_context_t ctxt, int part_index, int32_t* out);
+
+/** Return whether the chunk table for this part is completely written.
+ *
+ * This only validates that all the offsets are valid.
+ *
+ * return EXR_ERR_INCOMPLETE_CHUNK_TABLE when incomplete, EXR_ERR_SUCCESS
+ * if it appears ok, or another error if otherwise problematic
+ */
+EXR_EXPORT exr_result_t
+exr_validate_chunk_table (exr_context_t ctxt, int part_index);
 
 /** Return the number of scanlines chunks for this file part.
  *
@@ -266,7 +276,7 @@ EXR_EXPORT exr_result_t exr_attr_declare (
     exr_attribute_type_t type,
     exr_attribute_t**    newattr);
 
-/** 
+/**
  * @defgroup RequiredAttributeHelpers Required Attribute Utililities
  *
  * @brief These are a group of functions for attributes that are
@@ -436,7 +446,7 @@ exr_set_chunk_count (exr_context_t ctxt, int part_index, int32_t val);
 
 /** @} */ /* required attr group. */
 
-/** 
+/**
  * @defgroup BuiltinAttributeHelpers Attribute utilities for builtin types
  *
  * @brief These are a group of functions for attributes that use the builtin types.

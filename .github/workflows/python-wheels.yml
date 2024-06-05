@@ -42,10 +42,10 @@ jobs:
     steps:
 
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Install Python 
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d # v5.1.0
         with:
           python-version: '3.x'
 
@@ -55,7 +55,7 @@ jobs:
         run: pipx run build --sdist . --outdir wheelhouse
 
       - name: Build wheel
-        uses: pypa/cibuildwheel@v2.16
+        uses: pypa/cibuildwheel@ba8be0d98853f5744f24e7f902c8adef7ae2e7f3 # v2.18.1
         env:
           CIBW_ARCHS_MACOS: x86_64 arm64 universal2
           # Skip python 3.6 since scikit-build-core requires 3.7+
@@ -65,7 +65,7 @@ jobs:
           CIBW_TEST_SKIP: "*-macosx*arm64"
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
         with:
           name: wheels-${{ matrix.os }}
           path: |
