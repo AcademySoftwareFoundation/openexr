@@ -161,6 +161,33 @@ def test_write_tiled():
         assert o.parts[0].name() == "Part0"
         assert o.parts[0].type() == OpenEXR.tiledimage
 
+def test_write_deep():
+    
+    height, width = (20, 10)
+
+    Z = np.empty((height, width), dtype=object)
+    for y in range(height):
+        for x in range(width):
+            Z[y, x] = np.array([y*width+x], dtype='uint32')
+
+    channels = { "Z" : Z }
+    header = { "compression" : OpenEXR.ZIPS_COMPRESSION,
+               "type" : OpenEXR.deepscanline }
+    with OpenEXR.File(header, channels) as outfile:
+        outfile.write("readme_test_tiled_deep.exr")
+
+def test_read_deep():
+
+    with OpenEXR.File("readme_test_tiled_deep.exr") as infile:
+
+        Z = infile.channels()["Z"].pixels
+        height, width = Z.shape
+        for y in range(height):
+            for x in range(width):
+                for z in Z[y,x]:
+                    print(f"deep sample at {y},{x}: {z}")
+        
+
 if __name__ == '__main__':
 
     test_multipart_write()
@@ -170,4 +197,5 @@ if __name__ == '__main__':
     test_read_RGB()
     test_modify()
     test_write_tiled()
-
+    test_write_deep()
+    test_read_deep()

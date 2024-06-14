@@ -164,6 +164,37 @@ To read and write a multi-part file, use a list of ``Part`` objects:
         assert o.parts[1].width() == 10
         assert o.parts[1].height() == 20
 
+Deep data is stored in a numpy array whose entries are numpy
+arrays. Construct a numpy array with a ``dtype`` of ``object``, and
+assign each entry a numpy array holding the samples. Each pixel can
+have a different number of samples, including ``None`` for no data,
+but all channels in a given part must have the same number of samples.
+
+    height, width = (20, 10)
+
+    Z = np.empty((height, width), dtype=object)
+    for y in range(height):
+        for x in range(width):
+            Z[y, x] = np.array([y*width+x], dtype='uint32')
+
+    channels = { "Z" : Z }
+    header = { "compression" : OpenEXR.ZIPS_COMPRESSION,
+               "type" : OpenEXR.deepscanline }
+    with OpenEXR.File(header, channels) as outfile:
+        outfile.write("readme_test_tiled_deep.exr")
+
+To read a deep file:
+
+    with OpenEXR.File("readme_test_tiled_deep.exr") as infile:
+
+        Z = infile.channels()["Z"].pixels
+        height, width = Z.shape
+        for y in range(height):
+            for x in range(width):
+                for z in Z[y,x]:
+                    print(f"deep sample at {y},{x}: {z}")
+
+
 # Community
 
 * **Ask a question:**

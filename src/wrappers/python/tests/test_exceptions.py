@@ -133,6 +133,7 @@ class TestExceptions(unittest.TestCase):
         # not a 2D array
         with self.assertRaises(Exception):
             OpenEXR.Channel(np.array([0,0,0,0], dtype='uint32'))
+
         with self.assertRaises(Exception):
             OpenEXR.Channel("C", np.array([0,0,0,0], dtype='uint32'))
         with self.assertRaises(Exception):

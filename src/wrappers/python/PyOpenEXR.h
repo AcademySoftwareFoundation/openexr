@@ -3,12 +3,16 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
+typedef Array2D<void*> Array2DVoidPtr;
+typedef std::map<std::string,std::unique_ptr<Array2DVoidPtr>> SliceDataMap;
+
 //
 // PyFile is the object that corresponds to an exr file, either for reading
 // or writing, consisting of a simple list of parts.
 //
 
 class PyPart;
+class PyChannel;
 
 class PyFile 
 {
@@ -33,11 +37,11 @@ protected:
     
     bool         header_only;
     
-    py::object   get_attribute_object(const std::string& name, const Attribute* a);
+    py::object   getAttributeObject(const std::string& name, const Attribute* a);
     
-    void         insert_attribute(Header& header,
-                                  const std::string& name,
-                                  const py::object& object);
+    void         insertAttribute(Header& header,
+                                 const std::string& name,
+                                 const py::object& object);
 
 };
 
@@ -66,14 +70,22 @@ class PyPart
 
     size_t         part_index;
 
+    void           writePixels(MultiPartOutputFile& outfile, const Box2i& dw) const;
+    void           writeDeepPixels(MultiPartOutputFile& outfile, const Box2i& dw) const;
+    
+    void           setDeepSliceData(const ChannelList& channel_list, size_t height, size_t width,
+                                    SliceDataMap& sliceDataMap,
+                                    std::map<std::string,PyChannel*>& rgbaChannelMap,
+                                    const Array2D<unsigned int>& sampleCount);
+
     void           readPixels(MultiPartInputFile& infile, const ChannelList& channel_list,
-                              const std::vector<size_t>& shape, const std::set<std::string>& rgba_channels,
+                              const std::vector<size_t>& shape, const std::set<std::string>& rgbaChannels,
                               const Box2i& dw, bool rgba);
     void           readDeepPixels(MultiPartInputFile& infile, const std::string& type, const ChannelList& channel_list,
-                                  const std::vector<size_t>& shape, const std::set<std::string>& rgba_channels,
+                                  const std::vector<size_t>& shape, const std::set<std::string>& rgbaChannels,
                                   const Box2i& dw, bool rgba);
-    int            rgba_channel(const ChannelList& channel_list, const std::string& name,
-                                std::string& py_channel_name, char& channel_name);
+    int            rgbaChannel(const ChannelList& channel_list, const std::string& name,
+                               std::string& py_channel_name, char& channel_name);
     
 };
 
@@ -87,31 +99,32 @@ class PyChannel
 public:
 
     PyChannel()
-        : xSampling(1), ySampling(1), pLinear(false), channel_index(0) {}
+        : xSampling(1), ySampling(1), pLinear(false), channel_index(0),
+          _type(NUM_PIXELTYPES), _nrgba(0) {}
 
     PyChannel(int xSampling, int ySampling, bool pLinear = false)
-        : xSampling(xSampling), ySampling(ySampling), pLinear(pLinear), channel_index(0) {}
+        : xSampling(xSampling), ySampling(ySampling), pLinear(pLinear), channel_index(0),
+          _type(NUM_PIXELTYPES), _nrgba(0) {}
     PyChannel(const py::array& p)
-        : xSampling(1), ySampling(1), pLinear(false), pixels(p),
-          channel_index(0) {validate_pixel_array(); }
+        : xSampling(1), ySampling(1), pLinear(false), pixels(p), channel_index(0),
+          _type(NUM_PIXELTYPES), _nrgba(0) { validatePixelArray(); }
     PyChannel(const py::array& p, int xSampling, int ySampling, bool pLinear = false)
-        : xSampling(xSampling), ySampling(ySampling), pLinear(pLinear), pixels(p),
-          channel_index(0) {validate_pixel_array(); }
+        : xSampling(xSampling), ySampling(ySampling), pLinear(pLinear), pixels(p), channel_index(0),
+          _type(NUM_PIXELTYPES), _nrgba(0) { validatePixelArray(); }
         
     PyChannel(const char* n)
-        : name(n), xSampling(1), ySampling(1), pLinear(false), channel_index(0) {}
+        : name(n), xSampling(1), ySampling(1), pLinear(false), channel_index(0),
+          _type(NUM_PIXELTYPES), _nrgba(0) {}
     PyChannel(const char* n, int xSampling, int ySampling, bool pLinear = false)
-        : name(n), xSampling(xSampling), ySampling(ySampling), pLinear(pLinear),
-          channel_index(0) {}
+        : name(n), xSampling(xSampling), ySampling(ySampling), pLinear(pLinear), channel_index(0),
+          _type(NUM_PIXELTYPES), _nrgba(0) {}
     PyChannel(const char* n, const py::array& p)
-        : name(n), xSampling(1), ySampling(1), pLinear(false), pixels(p),
-          channel_index(0) {validate_pixel_array(); }
+        : name(n), xSampling(1), ySampling(1), pLinear(false), pixels(p), channel_index(0),
+          _type(NUM_PIXELTYPES), _nrgba(0) { validatePixelArray(); }
     PyChannel(const char* n, const py::array& p, int xSampling, int ySampling, bool pLinear = false)
-        : name(n), xSampling(xSampling), ySampling(ySampling), pLinear(pLinear), pixels(p),
-          channel_index(0) {validate_pixel_array(); }
+        : name(n), xSampling(xSampling), ySampling(ySampling), pLinear(pLinear), pixels(p), channel_index(0),
+          _type(NUM_PIXELTYPES), _nrgba(0) { validatePixelArray(); }
 
-    void validate_pixel_array();
-    
     PixelType             pixelType() const;
 
     std::string           name;
@@ -119,17 +132,24 @@ public:
     int                   ySampling;
     int                   pLinear;
     py::array             pixels;
-
-    Array2D<void*>*       deep_samples;
-    PixelType             _type;
-
     size_t                channel_index;
+
+    mutable PixelType      _type;
+    mutable int            _nrgba;
+
+    void                   validatePixelArray();
+    template<class T> void setSliceDataPtr(Array2DVoidPtr& slice_data,const py::array& a,
+                                           size_t y, size_t x,
+                                           int channel_offset, PixelType type) const;
+    void                   createDeepPixelArrays(size_t height, size_t width,
+                                                 const Array2D<unsigned int>& sampleCount);
+    void                   insertDeepSlice(DeepFrameBuffer& frameBuffer, const std::string& slice_name,
+                                           size_t height, size_t width, int nrgba,
+                                           int dw_offset, int channel_offset,
+                                           Array2D<unsigned int>& sampleCount,
+                                           std::vector<std::shared_ptr<Array2DVoidPtr>>& slice_datas) const;
 };
     
-template <class T>
-bool
-array_equals(const py::buffer_info& a, const py::buffer_info& b, const std::string& name);
-
 class PyPreviewImage
 {
 public:
