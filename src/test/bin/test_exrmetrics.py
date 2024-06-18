@@ -49,7 +49,7 @@ assert(version in result.stdout), "\n"+result.stdout
 # test missing arguments, using just the -option but no value
 
 for a in ["-p","-l","-16","-z"]:
-    result = run ([exrmetrics, a[0]], stdout=PIPE, stderr=PIPE, universal_newlines=True)
+    result = run ([exrmetrics, a], stdout=PIPE, stderr=PIPE, universal_newlines=True)
     print(" ".join(result.args))
     print(result.stderr)
     assert(result.returncode != 0), "\n"+result.stderr
@@ -60,6 +60,7 @@ command += [image, outimage]
 
 result = run (command, stdout=PIPE, stderr=PIPE, universal_newlines=True)
 print(" ".join(result.args))
+print(result.stdout)
 assert(result.returncode == 0), "\n"+result.stderr
 assert(os.path.isfile(outimage)), "\nMissing " + outimage
 
