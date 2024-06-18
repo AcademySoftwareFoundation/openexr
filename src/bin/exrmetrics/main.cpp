@@ -71,7 +71,7 @@ main (int argc, char** argv)
     int         part     = 0;
     float       level    = INFINITY;
     int         halfMode = 0; // 0 - leave alone, 1 - just RGBA, 2 - everything
-    Compression compression;
+    Compression compression = Compression::NUM_COMPRESSION_METHODS;
 
     int i = 1;
 
