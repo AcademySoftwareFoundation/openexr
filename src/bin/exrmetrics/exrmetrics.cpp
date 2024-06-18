@@ -281,8 +281,6 @@ exrmetrics (
     getCompressionNameFromId (in.header (part).compression (), inCompress);
     getCompressionNameFromId (outHeader.compression (), outCompress);
     cout << "{\n";
-    cout << "   \"input file\": \"" << inFileName << "\",\n";
-    cout << "   \"output file\": \"" << outFileName << "\",\n";
     cout << "   \"input compression\": \"" << inCompress << "\",\n";
     cout << "   \"output compression\": \"" << outCompress << "\",\n";
     if (compression == ZIP_COMPRESSION || compression == ZIPS_COMPRESSION)
