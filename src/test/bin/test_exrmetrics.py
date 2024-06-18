@@ -61,6 +61,7 @@ command += [image, outimage]
 result = run (command, stdout=PIPE, stderr=PIPE, universal_newlines=True)
 print(" ".join(result.args))
 print(result.stdout)
+print(result.stderr)
 assert(result.returncode == 0), "\n"+result.stderr
 assert(os.path.isfile(outimage)), "\nMissing " + outimage
 
