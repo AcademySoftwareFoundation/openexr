@@ -10,7 +10,6 @@
 
 #include "ImfCompression.h"
 
-extern "C" {
 void exrmetrics (
     const char       inFileName[],
     const char       outFileName[],
@@ -19,5 +18,4 @@ void exrmetrics (
     float            level,
     int              halfMode,
     bool             verbose);
-}
 #endif

@@ -340,15 +340,9 @@ exrmetrics (
                     .c_str ());
         }
     }
-#ifdef __APPLE__
     struct stat instats, outstats;
     stat (inFileName, &instats);
     stat (outFileName, &outstats);
-#else
-    struct stat64 instats, outstats;
-    stat64 (inFileName, &instats);
-    stat64 (outFileName, &outstats);
-#endif
     cout << "   \"input file size\": " << instats.st_size << ",\n";
     cout << "   \"output file size\": " << outstats.st_size << "\n";
     cout << "}\n";
