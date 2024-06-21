@@ -16,6 +16,5 @@ void exrmetrics (
     int              part,
     Imf::Compression compression,
     float            level,
-    int              halfMode,
-    bool             verbose);
+    int              halfMode);
 #endif

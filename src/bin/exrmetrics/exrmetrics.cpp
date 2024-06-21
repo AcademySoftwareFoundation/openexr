@@ -20,6 +20,7 @@
 #include "ImfOutputPart.h"
 #include "ImfPartType.h"
 #include "ImfTiledInputPart.h"
+#include "ImfTiledMisc.h"
 #include "ImfTiledOutputPart.h"
 
 #include <ctime>
@@ -34,6 +35,7 @@ using Imath::Box2i;
 using std::cerr;
 using std::clock;
 using std::cout;
+using std::endl;
 using std::list;
 using std::runtime_error;
 using std::string;
@@ -60,13 +62,7 @@ channelCount (const Header& h)
 }
 
 void
-copyDeepTiled (DeepTiledInputPart& in, DeepTiledOutputPart& out, bool verbose)
-{
-    throw runtime_error ("deep tiled parts are not yet supported");
-}
-
-void
-copyScanLine (InputPart& in, OutputPart& out, bool verbose)
+copyScanLine (InputPart& in, OutputPart& out)
 {
     Box2i    dw        = in.header ().dataWindow ();
     uint64_t width     = dw.max.x + 1 - dw.min.x;
@@ -117,14 +113,142 @@ copyScanLine (InputPart& in, OutputPart& out, bool verbose)
 }
 
 void
-copyTiled (const TiledInputPart& in, TiledOutputPart& out, bool verbose)
+copyTiled (TiledInputPart& in, TiledOutputPart& out)
 {
-    throw runtime_error ("tiled parts are not yet supported");
+    int             numChans = channelCount (in.header ());
+    TileDescription tiling   = in.header ().tileDescription ();
+
+    Box2i imageDw = in.header ().dataWindow ();
+    int   totalLevels;
+    switch (tiling.mode)
+    {
+        case ONE_LEVEL: totalLevels = 1; //break;
+        case MIPMAP_LEVELS: totalLevels = in.numLevels (); break;
+        case RIPMAP_LEVELS:
+            totalLevels = in.numXLevels () * in.numYLevels ();
+            break;
+        case NUM_LEVELMODES: throw runtime_error ("unknown tile mode");
+    }
+
+    vector<vector<vector<char>>> pixelData (totalLevels);
+    vector<FrameBuffer>          frameBuffer (totalLevels);
+
+    int    levelIndex  = 0;
+    int    pixelSize   = 0;
+    size_t totalPixels = 0;
+
+    //
+    // allocate memory and initialize frameBuffer for each level
+    //
+    for (int xLevel = 0; xLevel < in.numXLevels (); ++xLevel)
+    {
+        for (int yLevel = 0; yLevel < in.numYLevels (); ++yLevel)
+        {
+            if (tiling.mode == RIPMAP_LEVELS || xLevel == yLevel)
+            {
+                Box2i dw = dataWindowForLevel (
+                    tiling,
+                    imageDw.min.x,
+                    imageDw.max.x,
+                    imageDw.min.y,
+                    imageDw.max.y,
+                    xLevel,
+                    yLevel);
+                uint64_t width     = dw.max.x + 1 - dw.min.x;
+                uint64_t height    = dw.max.y + 1 - dw.min.y;
+                uint64_t numPixels = width * height;
+                uint64_t offsetToOrigin =
+                    width * static_cast<uint64_t> (dw.min.y) +
+                    static_cast<uint64_t> (dw.min.x);
+                int channelNumber = 0;
+                pixelSize         = 0;
+
+                pixelData[levelIndex].resize (numChans);
+
+                for (ChannelList::ConstIterator i =
+                         out.header ().channels ().begin ();
+                     i != out.header ().channels ().end ();
+                     ++i)
+                {
+                    int samplesize = pixelTypeSize (i.channel ().type);
+                    pixelData[levelIndex][channelNumber].resize (
+                        numPixels * samplesize);
+
+                    frameBuffer[levelIndex].insert (
+                        i.name (),
+                        Slice (
+                            i.channel ().type,
+                            pixelData[levelIndex][channelNumber].data () -
+                                offsetToOrigin * samplesize,
+                            samplesize,
+                            samplesize * width));
+                    ++channelNumber;
+                    pixelSize += samplesize;
+                }
+                totalPixels += numPixels;
+                ++levelIndex;
+            }
+        }
+    }
+
+    clock_t startRead = clock ();
+    levelIndex        = 0;
+
+    for (int xLevel = 0; xLevel < in.numXLevels (); ++xLevel)
+    {
+        for (int yLevel = 0; yLevel < in.numYLevels (); ++yLevel)
+        {
+            if (tiling.mode == RIPMAP_LEVELS || xLevel == yLevel)
+            {
+                in.setFrameBuffer (frameBuffer[levelIndex]);
+                in.readTiles (
+                    0,
+                    in.numXTiles (xLevel) - 1,
+                    0,
+                    in.numYTiles (yLevel) - 1,
+                    xLevel,
+                    yLevel);
+                ++levelIndex;
+            }
+        }
+    }
+
+    clock_t endRead = clock ();
+
+    clock_t startWrite = clock ();
+    levelIndex         = 0;
+    int tileCount      = 0;
+
+    for (int xLevel = 0; xLevel < in.numXLevels (); ++xLevel)
+    {
+        for (int yLevel = 0; yLevel < in.numYLevels (); ++yLevel)
+        {
+            if (tiling.mode == RIPMAP_LEVELS || xLevel == yLevel)
+            {
+                out.setFrameBuffer (frameBuffer[levelIndex]);
+                out.writeTiles (
+                    0,
+                    in.numXTiles (xLevel) - 1,
+                    0,
+                    in.numYTiles (yLevel) - 1,
+                    xLevel,
+                    yLevel);
+                tileCount += in.numXTiles (xLevel) * in.numYTiles (yLevel);
+                ++levelIndex;
+            }
+        }
+    }
+    clock_t endWrite = clock ();
+
+    cout << "   \"read time\": " << timing (startRead, endRead) << ",\n";
+    cout << "   \"write time\": " << timing (startWrite, endWrite) << ",\n";
+    cout << "   \"total tiles\": " << tileCount << ",\n";
+    cout << "   \"pixel count\": " << totalPixels << ",\n";
+    cout << "   \"raw size\": " << totalPixels * pixelSize << ",\n";
 }
 
 void
-copyDeepScanLine (
-    DeepScanLineInputPart& in, DeepScanLineOutputPart& out, bool verbose)
+copyDeepScanLine (DeepScanLineInputPart& in, DeepScanLineOutputPart& out)
 {
     Box2i       dw        = in.header ().dataWindow ();
     uint64_t    width     = dw.max.x + 1 - dw.min.x;
@@ -216,14 +340,121 @@ copyDeepScanLine (
 }
 
 void
+copyDeepTiled (DeepTiledInputPart& in, DeepTiledOutputPart& out)
+{
+
+    TileDescription tiling = in.header ().tileDescription ();
+
+    if (tiling.mode == MIPMAP_LEVELS)
+    {
+        throw runtime_error (
+            "exrmetrics does not support mipmapped deep tiled parts");
+    }
+
+    if (tiling.mode == RIPMAP_LEVELS)
+    {
+        throw runtime_error (
+            "exrmetrics does not support ripmapped deep tiled parts");
+    }
+
+    Box2i       dw        = in.header ().dataWindow ();
+    uint64_t    width     = dw.max.x + 1 - dw.min.x;
+    uint64_t    height    = dw.max.y + 1 - dw.min.y;
+    uint64_t    numPixels = width * height;
+    int         numChans  = channelCount (in.header ());
+    vector<int> sampleCount (numPixels);
+
+    uint64_t offsetToOrigin = width * static_cast<uint64_t> (dw.min.y) +
+                              static_cast<uint64_t> (dw.min.x);
+    vector<vector<char*>> pixelPtrs (numChans);
+
+    DeepFrameBuffer buffer;
+
+    buffer.insertSampleCountSlice (Slice (
+        UINT,
+        (char*) (sampleCount.data () - offsetToOrigin),
+        sizeof (int),
+        sizeof (int) * width));
+    int channelNumber  = 0;
+    int bytesPerSample = 0;
+    for (ChannelList::ConstIterator i = out.header ().channels ().begin ();
+         i != out.header ().channels ().end ();
+         ++i)
+    {
+        pixelPtrs[channelNumber].resize (numPixels);
+        int samplesize = pixelTypeSize (i.channel ().type);
+        buffer.insert (
+            i.name (),
+            DeepSlice (
+                i.channel ().type,
+                (char*) (pixelPtrs[channelNumber].data () - offsetToOrigin),
+                sizeof (char*),
+                sizeof (char*) * width,
+                samplesize));
+        ++channelNumber;
+        bytesPerSample += samplesize;
+    }
+
+    in.setFrameBuffer (buffer);
+    out.setFrameBuffer (buffer);
+
+    clock_t startCountRead = clock ();
+    in.readPixelSampleCounts (
+        0, in.numXTiles (0) - 1, 0, in.numYTiles (0) - 1, 0, 0);
+    clock_t endCountRead = clock ();
+
+    size_t totalSamples = 0;
+
+    for (int i: sampleCount)
+    {
+        totalSamples += i;
+    }
+
+    vector<vector<char>> sampleData (numChans);
+    channelNumber = 0;
+    for (ChannelList::ConstIterator i = in.header ().channels ().begin ();
+         i != in.header ().channels ().end ();
+         ++i)
+    {
+        int samplesize = pixelTypeSize (i.channel ().type);
+        sampleData[channelNumber].resize (samplesize * totalSamples);
+        int offset = 0;
+        for (int p = 0; p < numPixels; ++p)
+        {
+            pixelPtrs[channelNumber][p] =
+                sampleData[channelNumber].data () + offset * samplesize;
+            offset += sampleCount[p];
+        }
+
+        ++channelNumber;
+    }
+
+    clock_t startSampleRead = clock ();
+    in.readTiles (0, in.numXTiles (0) - 1, 0, in.numYTiles (0) - 1, 0, 0);
+    clock_t endSampleRead = clock ();
+
+    clock_t startWrite = clock ();
+    out.writeTiles (0, in.numXTiles (0) - 1, 0, in.numYTiles (0) - 1, 0, 0);
+    clock_t endWrite = clock ();
+
+    cout << "   \"count read time\": " << timing (startCountRead, endCountRead)
+         << ",\n";
+    cout << "   \"sample read time\": "
+         << timing (startSampleRead, endSampleRead) << ",\n";
+    cout << "   \"write time\": " << timing (startWrite, endWrite) << ",\n";
+    cout << "   \"pixel count\": " << numPixels << ",\n";
+    cout << "   \"raw size\": "
+         << totalSamples * bytesPerSample + numPixels * sizeof (int) << ",\n";
+}
+
+void
 exrmetrics (
     const char       inFileName[],
     const char       outFileName[],
     int              part,
     Imf::Compression compression,
     float            level,
-    int              halfMode,
-    bool             verbose)
+    int              halfMode)
 {
     MultiPartInputFile in (inFileName);
     if (part >= in.parts ())
@@ -311,25 +542,25 @@ exrmetrics (
         {
             TiledInputPart  inpart (in, part);
             TiledOutputPart outpart (out, 0);
-            copyTiled (inpart, outpart, verbose);
+            copyTiled (inpart, outpart);
         }
         else if (type == SCANLINEIMAGE)
         {
             InputPart  inpart (in, part);
             OutputPart outpart (out, 0);
-            copyScanLine (inpart, outpart, verbose);
+            copyScanLine (inpart, outpart);
         }
         else if (type == DEEPSCANLINE)
         {
             DeepScanLineInputPart  inpart (in, part);
             DeepScanLineOutputPart outpart (out, 0);
-            copyDeepScanLine (inpart, outpart, verbose);
+            copyDeepScanLine (inpart, outpart);
         }
         else if (type == DEEPTILE)
         {
             DeepTiledInputPart  inpart (in, part);
             DeepTiledOutputPart outpart (out, 0);
-            copyDeepTiled (inpart, outpart, verbose);
+            copyDeepTiled (inpart, outpart);
         }
         else
         {

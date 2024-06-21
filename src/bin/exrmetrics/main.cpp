@@ -33,7 +33,7 @@ usageMessage (ostream& stream, const char* program_name, bool verbose = false)
         std::string compressionNames;
         getCompressionNamesString ("/", compressionNames);
         stream
-            << "Read a part OpenEXR image from infile, write an identical copy to outfile"
+            << "Read an OpenEXR image from infile, write an identical copy to outfile"
                " reporting time taken to read/write and file sizes.\n"
                "\n"
                "Options:\n"
@@ -52,8 +52,6 @@ usageMessage (ostream& stream, const char* program_name, bool verbose = false)
                "  -16 rgba|all  force 16 bit half float: either just RGBA, or all channels\n"
                "                default retains original type for all channels\n"
                "\n"
-               "  -v            verbose mode\n"
-               "\n"
                "  -h, --help    print this message\n"
                "\n"
                "      --version print version information\n"
@@ -67,7 +65,6 @@ main (int argc, char** argv)
 
     const char* outFile  = nullptr;
     const char* inFile   = nullptr;
-    bool        verbose  = false;
     int         part     = 0;
     float       level    = INFINITY;
     int         halfMode = 0; // 0 - leave alone, 1 - just RGBA, 2 - everything
@@ -191,8 +188,7 @@ main (int argc, char** argv)
 
     try
     {
-        exrmetrics (
-            inFile, outFile, part, compression, level, halfMode, verbose);
+        exrmetrics (inFile, outFile, part, compression, level, halfMode);
     }
     catch (std::exception& what)
     {
