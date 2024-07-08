@@ -47,7 +47,7 @@ exr_result_t exr_uncompress_buffer (
 
 EXR_EXPORT
 long exr_compress_zstd (
-    char* inPtr, int inSize, void * outPtr, int outPtrSize);
+    char* inPtr, int inSize, int numSamples, int* channelTypeSizes, size_t channelSizesCount, void * outPtr, int outPtrSize);
 
 EXR_EXPORT
 long exr_uncompress_zstd (

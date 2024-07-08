@@ -34,13 +34,33 @@ int
 ZstdCompressor::compress (
     const char* inPtr, int inSize, int minY, const char*& outPtr)
 {
+    auto totalChannelSize = 0;
+    std::vector<int> sizePerChannel;
+    auto channels = header().channels();
+    for (auto ch = channels.begin (); ch!= channels.end (); ++ch)
+    {
+        const auto size = pixelTypeSize(ch.channel ().type);
+        sizePerChannel.push_back (size);
+        totalChannelSize+= size;
+    }
+
+    const auto numSamples = inSize / totalChannelSize;
+
+    if (numSamples * totalChannelSize != inSize)
+    {
+        // We received fewer data than expected. It probably is because we are processing
+        // the sampleCounts for DeepExr
+        sizePerChannel = {4}; // we compress it as an int
+    }
+
     outPtr = (char*) malloc (inSize);
     {
         std::lock_guard<std::mutex> lock (g_mutex);
         _outBuffer.push_back (raw_ptr ((char*) outPtr, &free));
     }
-    auto fullSize =
-        exr_compress_zstd ((char*) (inPtr), inSize, (void*) outPtr, inSize);
+
+    const auto fullSize =
+        exr_compress_zstd (const_cast<char*> (inPtr), inSize, numSamples, sizePerChannel.data(), sizePerChannel.size(), (void*) outPtr, inSize);
     return fullSize;
 }
 
