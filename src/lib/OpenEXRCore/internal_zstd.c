@@ -166,24 +166,27 @@ exr_uncompress_zstd ( const char* inPtr, uint64_t inSize, void** outPtr, uint64_
 {
     long numChunks;
     char *inputPointer = inPtr; // tracks the reading pointer
-    long totalCompressedSize = 0;
+    long totalDecompressedSize = 0;
 
     memcpy (&numChunks, inputPointer, sizeof(numChunks));
     inputPointer+=sizeof(numChunks);
 
     bool copyInputAsIs = false;
 
-    void *scratch[numChunks];
+    char *scratch[numChunks];
     long scratchSize[numChunks];
 
 
     for (int i=0;i<numChunks;++i)
     {
-        memcpy (&scratchSize[i], inputPointer, sizeof(scratchSize[i]));
-        inputPointer += sizeof (scratchSize[i]);
+        long chunkSize;
+        memcpy (&chunkSize, inputPointer, sizeof(chunkSize));
+        inputPointer += sizeof (chunkSize);
 
+        void *out;
         // this will allocate "scratch" since we pass 0
-        const long decompressedChunkSize = uncompress_ztsd_blosc_chunk (inputPointer, scratchSize, scratch+i, 0);
+        const long decompressedChunkSize = uncompress_ztsd_blosc_chunk (inputPointer, chunkSize, &out, 0);
+        scratch[i] = out;
         if (decompressedChunkSize == -1)
         {
             // blosc failed to decompress. probably because the stream was not compressed to start with
@@ -193,8 +196,9 @@ exr_uncompress_zstd ( const char* inPtr, uint64_t inSize, void** outPtr, uint64_
 
         //memcpy (outputPointer, scratch, decompressedChunkSize);
 
-        inputPointer += scratchSize[i];
-        totalCompressedSize+=decompressedChunkSize;
+        inputPointer += chunkSize;
+        scratchSize[i] = decompressedChunkSize;
+        totalDecompressedSize+= decompressedChunkSize;
     }
 
     if (copyInputAsIs)
@@ -211,21 +215,25 @@ exr_uncompress_zstd ( const char* inPtr, uint64_t inSize, void** outPtr, uint64_
 
     if (outPtrSize == 0)
     {
-        outPtr = malloc(totalCompressedSize);
+        *outPtr = malloc(totalDecompressedSize);
     }
 
-    char* outputPointer = outPtr;
+    char* outputPointer = *outPtr;
 
     for (int i=0;i<numChunks;++i)
     {
         memcpy (outputPointer, scratch[i], scratchSize[i]);
         outputPointer+=scratchSize[i];
     }
-    free (scratch);
+
+    for (int i=0;i<numChunks;++i)
+    {
+        free (scratch[i]);
+    }
 
 
 
-    return totalCompressedSize;
+    return totalDecompressedSize;
 }
 
 exr_result_t
