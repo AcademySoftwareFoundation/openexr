@@ -248,7 +248,7 @@ internal_exr_apply_zstd (exr_encode_pipeline_t* encode)
         totalChannelSize+= (int)encode->channels[i].bytes_per_element;
     }
 
-    const auto numSamples =  encode->packed_bytes / totalChannelSize;
+    const int numSamples =  encode->packed_bytes / totalChannelSize;
 
     if (numSamples * totalChannelSize !=  encode->packed_bytes)
     {
