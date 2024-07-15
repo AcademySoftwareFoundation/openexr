@@ -23,6 +23,7 @@
 #include "ImfTiledMisc.h"
 #include "ImfTiledOutputPart.h"
 
+#include <chrono>
 #include <ctime>
 #include <list>
 #include <stdexcept>
@@ -33,7 +34,8 @@ using namespace Imf;
 using Imath::Box2i;
 
 using std::cerr;
-using std::clock;
+using namespace std::chrono;
+using std::chrono::steady_clock;
 using std::cout;
 using std::endl;
 using std::list;
@@ -43,9 +45,9 @@ using std::to_string;
 using std::vector;
 
 double
-timing (clock_t start, clock_t end)
+timing (steady_clock::time_point start, steady_clock::time_point end)
 {
-    return double (end - start) / double (CLOCKS_PER_SEC);
+    return std::chrono::duration<double>(end-start).count();
 }
 
 int
@@ -98,13 +100,14 @@ copyScanLine (InputPart& in, OutputPart& out)
 
     in.setFrameBuffer (buf);
     out.setFrameBuffer (buf);
-    clock_t startRead = clock ();
-    in.readPixels (dw.min.y, dw.max.y);
-    clock_t endRead = clock ();
 
-    clock_t startWrite = clock ();
+    steady_clock::time_point startRead = steady_clock::now();
+    in.readPixels (dw.min.y, dw.max.y);
+    steady_clock::time_point endRead = steady_clock::now();
+
+    steady_clock::time_point startWrite = steady_clock::now();
     out.writePixels (height);
-    clock_t endWrite = clock ();
+    steady_clock::time_point endWrite = steady_clock::now();
 
     cout << "   \"read time\": " << timing (startRead, endRead) << ",\n";
     cout << "   \"write time\": " << timing (startWrite, endWrite) << ",\n";
@@ -191,7 +194,7 @@ copyTiled (TiledInputPart& in, TiledOutputPart& out)
         }
     }
 
-    clock_t startRead = clock ();
+    steady_clock::time_point startRead = steady_clock::now();
     levelIndex        = 0;
 
     for (int xLevel = 0; xLevel < in.numXLevels (); ++xLevel)
@@ -213,9 +216,9 @@ copyTiled (TiledInputPart& in, TiledOutputPart& out)
         }
     }
 
-    clock_t endRead = clock ();
+    steady_clock::time_point endRead = steady_clock::now();
 
-    clock_t startWrite = clock ();
+    steady_clock::time_point startWrite = steady_clock::now();
     levelIndex         = 0;
     int tileCount      = 0;
 
@@ -238,7 +241,7 @@ copyTiled (TiledInputPart& in, TiledOutputPart& out)
             }
         }
     }
-    clock_t endWrite = clock ();
+    steady_clock::time_point endWrite = steady_clock::now();
 
     cout << "   \"read time\": " << timing (startRead, endRead) << ",\n";
     cout << "   \"write time\": " << timing (startWrite, endWrite) << ",\n";
@@ -291,9 +294,9 @@ copyDeepScanLine (DeepScanLineInputPart& in, DeepScanLineOutputPart& out)
     in.setFrameBuffer (buffer);
     out.setFrameBuffer (buffer);
 
-    clock_t startCountRead = clock ();
+    steady_clock::time_point startCountRead = steady_clock::now();
     in.readPixelSampleCounts (dw.min.y, dw.max.y);
-    clock_t endCountRead = clock ();
+    steady_clock::time_point endCountRead = steady_clock::now();
 
     size_t totalSamples = 0;
 
@@ -321,13 +324,15 @@ copyDeepScanLine (DeepScanLineInputPart& in, DeepScanLineOutputPart& out)
         ++channelNumber;
     }
 
-    clock_t startSampleRead = clock ();
+    steady_clock::time_point startSampleRead = steady_clock::now();
     in.readPixels (dw.min.y, dw.max.y);
-    clock_t endSampleRead = clock ();
+    steady_clock::time_point endSampleRead = steady_clock::now();
 
-    clock_t startWrite = clock ();
+
+    steady_clock::time_point startWrite = steady_clock::now();
     out.writePixels (height);
-    clock_t endWrite = clock ();
+    steady_clock::time_point endWrite = steady_clock::now();
+
 
     cout << "   \"count read time\": " << timing (startCountRead, endCountRead)
          << ",\n";
@@ -398,10 +403,12 @@ copyDeepTiled (DeepTiledInputPart& in, DeepTiledOutputPart& out)
     in.setFrameBuffer (buffer);
     out.setFrameBuffer (buffer);
 
-    clock_t startCountRead = clock ();
+    steady_clock::time_point startCountRead = steady_clock::now();
+
     in.readPixelSampleCounts (
         0, in.numXTiles (0) - 1, 0, in.numYTiles (0) - 1, 0, 0);
-    clock_t endCountRead = clock ();
+    steady_clock::time_point endCountRead = steady_clock::now();
+
 
     size_t totalSamples = 0;
 
@@ -429,13 +436,14 @@ copyDeepTiled (DeepTiledInputPart& in, DeepTiledOutputPart& out)
         ++channelNumber;
     }
 
-    clock_t startSampleRead = clock ();
+    steady_clock::time_point startSampleRead = steady_clock::now();
     in.readTiles (0, in.numXTiles (0) - 1, 0, in.numYTiles (0) - 1, 0, 0);
-    clock_t endSampleRead = clock ();
+    steady_clock::time_point endSampleRead = steady_clock::now();
 
-    clock_t startWrite = clock ();
+    steady_clock::time_point startWrite = steady_clock::now();
     out.writeTiles (0, in.numXTiles (0) - 1, 0, in.numYTiles (0) - 1, 0, 0);
-    clock_t endWrite = clock ();
+    steady_clock::time_point endWrite = steady_clock::now();
+
 
     cout << "   \"count read time\": " << timing (startCountRead, endCountRead)
          << ",\n";
