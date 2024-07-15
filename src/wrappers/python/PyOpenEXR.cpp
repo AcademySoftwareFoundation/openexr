@@ -2221,7 +2221,7 @@ PYBIND11_MODULE(OpenEXR, m)
 {
     using namespace py::literals;
 
-    m.doc() = "OpenEXR - read and write high-dynamic range image files";
+    m.doc() = "Read and write EXR high-dynamic range image files";
     
     m.attr("__version__") = OPENEXR_VERSION_STRING;
     m.attr("OPENEXR_VERSION") = OPENEXR_VERSION_STRING;
@@ -2375,79 +2375,381 @@ PYBIND11_MODULE(OpenEXR, m)
     // The File API: Channel, Part, and File
     //
     
-    py::class_<PyChannel>(m, "Channel")
-        .def(py::init())
+    py::class_<PyChannel>(m, "Channel", R"pbdoc(
+         The class object representing a channel in an EXR image file.
+         Example
+         -------  
+         >>> import OpenEXR
+         >>> f = OpenEXR.File("image.exr")
+         >>> f.channels()['A']
+         Channel("A", xSampling=1, ySampling=1)
+    )pbdoc")
+        .def(py::init(),
+             R"pbdoc(
+             Construct an empty Channel object.
+             )pbdoc")
         .def(py::init<int,int,bool>(),
              py::arg("xSampling"),
              py::arg("ySampling"),
-             py::arg("pLinear")=false)
-        .def(py::init<py::array>())
+             py::arg("pLinear")=false,
+             R"pbdoc(
+             Construct Channel object with the given parameters.
+
+             Parameters:
+                 int : xSampling
+                     The x subsampling value
+                 int : ySampling
+                     The y subsampling value
+                 int : pLinear
+                     The pLinear value
+             )pbdoc")
+        .def(py::init<py::array>(),
+             py::arg("pixels"),
+             R"pbdoc(
+             Construct Channel object with the given pixel array
+
+             Parameters:
+                 np.array : pixels
+                     The numpy array of pixels. Supported types are uin32, float16, float32
+             )pbdoc")
         .def(py::init<py::array,int,int,bool>(),
              py::arg("pixels"),
              py::arg("xSampling"),
              py::arg("ySampling"),
-             py::arg("pLinear")=false)
+             py::arg("pLinear")=false,
+             R"pbdoc(
+             Construct Channel object with the given parameters.
+
+             Parameters:
+             -----------
+             np.array : pixels
+                 The numpy array of pixels. Supported types are uin32, float16, float32
+             int : xSampling
+                 The x subsampling value
+             int : ySampling
+                 The y subsampling value
+             int : pLinear
+                 The pLinear value
+             )pbdoc")
         .def(py::init<const char*>(),
-             py::arg("name"))
+             py::arg("name"),
+             R"pbdoc(
+             Construct Channel object with the given name.
+
+             Parameters:
+             -----------
+             str : name
+                 The name of the channel.
+             )pbdoc")
         .def(py::init<const char*,int,int,bool>(),
              py::arg("name"),
              py::arg("xSampling"),
              py::arg("ySampling"),
-             py::arg("pLinear")=false)
+             py::arg("pLinear")=false,
+             R"pbdoc(
+             Construct Channel object with the given parameters.
+
+             Parameters:
+             -----------
+             str : name
+                 The name of the channel.
+             int : xSampling
+                 The x subsampling value
+             int : ySampling
+                 The y subsampling value
+             int : pLinear
+                 The pLinear value
+             )pbdoc")
         .def(py::init<const char*,py::array>(),
              py::arg("name"),
-             py::arg("pixels"))
+             py::arg("pixels"),
+             R"pbdoc(
+             Construct Channel object with the given parameters.
+
+             Parameters:
+             -----------
+             str : name
+                 The name of the channel.
+             np.array : pixels
+                 The numpy array of pixels. Supported types are uin32, float16, float32
+             )pbdoc")
         .def(py::init<const char*,py::array,int,int,bool>(),
              py::arg("name"),
              py::arg("pixels"),
              py::arg("xSampling"),
              py::arg("ySampling"),
-             py::arg("pLinear")=false)
+             py::arg("pLinear")=false,
+             R"pbdoc(
+             Construct Channel object with the given parameters.
+
+             Parameters:
+             -----------
+             str : name
+                 The name of the channel.
+             np.array : pixels
+                 The numpy array of pixels. Supported types are uin32, float16, float32
+             int : xSampling
+                 The x subsampling value
+             int : ySampling
+                 The y subsampling value
+             int : pLinear
+                 The pLinear value
+             )pbdoc")
         .def("__repr__", [](const PyChannel& c) { return repr(c); })
-        .def_readwrite("name", &PyChannel::name)
-        .def("type", &PyChannel::pixelType)
-        .def_readwrite("xSampling", &PyChannel::xSampling)
-        .def_readwrite("ySampling", &PyChannel::ySampling)
-        .def_readwrite("pLinear", &PyChannel::pLinear)
-        .def_readwrite("pixels", &PyChannel::pixels)
-        .def_readonly("channel_index", &PyChannel::channel_index)
+        .def_readwrite("name", &PyChannel::name,
+             R"pbdoc(
+              str : The channel name.
+             )pbdoc")
+        .def("type", &PyChannel::pixelType,
+             R"pbdoc(
+              OpenEXR.PixelType : The pixel type (UINT, HALF, FLOAT)
+             )pbdoc")
+        .def_readwrite("xSampling", &PyChannel::xSampling,
+             R"pbdoc(
+             int : The x subsampling value
+             )pbdoc")
+        .def_readwrite("ySampling", &PyChannel::ySampling,
+             R"pbdoc(
+             int : The y subsampling value
+             )pbdoc")
+        .def_readwrite("pLinear", &PyChannel::pLinear,
+             R"pbdoc(
+             bool : The pLinear value, used for DWA compression.
+             )pbdoc")
+        .def_readwrite("pixels", &PyChannel::pixels,
+             R"pbdoc(
+             np.array : The channel pixel array.
+             )pbdoc")
+        .def_readonly("channel_index", &PyChannel::channel_index,
+             R"pbdoc(
+             int : The index of the channel.
+             )pbdoc")
         ;
     
-    py::class_<PyPart>(m, "Part")
-        .def(py::init())
+    py::class_<PyPart>(m, "Part", R"pbdoc(
+         The class object representing a part in a EXR image file.
+
+         Example
+         -------  
+         >>> import OpenEXR
+         >>> Z = np.zeros((200,100), dtype='f')
+         >>> P = OpenEXR.Part({}, {"Z" : Z })
+         >>> f = OpenEXR.File([P])
+         >>> f.parts()
+         [Part("Part0", Compression.ZIPS_COMPRESSION, width=100, height=200)] 
+    )pbdoc")
+        .def(py::init(),
+             R"pbdoc(
+             Create an empty Part object
+             )pbdoc")
         .def(py::init<py::dict,py::dict,std::string>(),
              py::arg("header"),
              py::arg("channels"),
-             py::arg("name")="")
+             py::arg("name")="",
+             R"pbdoc(
+             Create a Part object from dicts for the header and channels.
+
+             Parameters
+             ----------
+             header : dict
+                 Dict of header metadata, with attribute name as key.
+             channels : list
+                 List of `Channel` objects, which hold pixel numpy arrays.
+             name : str
+                 The name of the part
+
+             Example
+             -------
+             >>> Z = np.zeros((200,100), dtype='f')
+             >>> P = OpenEXR.Part({}, {"Z" : Z }, "left")
+             )pbdoc")
         .def("__repr__", [](const PyPart& p) { return repr(p); })
-        .def("name", &PyPart::name)
-        .def("type", &PyPart::type)
-        .def("width", &PyPart::width)
-        .def("height", &PyPart::height)
-        .def("compression", &PyPart::compression)
-        .def_readwrite("header", &PyPart::header)
-        .def_readwrite("channels", &PyPart::channels)
-        .def_readonly("part_index", &PyPart::part_index)
+        .def("name", &PyPart::name,
+             R"pbdoc(
+              str : The part name.
+             )pbdoc")
+        .def("type", &PyPart::type,
+             R"pbdoc(
+              OpenEXR.Storage : The type of the part: scanlineimage, tiledimage, deepscanline, deeptile
+             )pbdoc")
+        .def("width", &PyPart::width,
+             R"pbdoc(
+             int : The width of the image, in pixels.
+             )pbdoc")
+        .def("height", &PyPart::height,
+             R"pbdoc(
+             int : The height of the image, in pixels.
+             )pbdoc")
+        .def("compression", &PyPart::compression,
+             R"pbdoc(
+             OpenEXR.Compression : The compression method:
+                 NO_COMPRESSION
+                 RLE_COMPRESSION
+                 ZIPS_COMPRESSION
+                 ZIP_COMPRESSION
+                 PIZ_COMPRESSION
+                 PXR24_COMPRESSION
+                 B44_COMPRESSION
+                 B44A_COMPRESSION
+                 DWAA_COMPRESSION
+                 DWAB_COMPRESSION
+             )pbdoc")
+        .def_readwrite("header", &PyPart::header,
+             R"pbdoc(
+             dict : The header metadata.
+             )pbdoc")
+        .def_readwrite("channels", &PyPart::channels,
+             R"pbdoc(
+             dict : The channels.
+             )pbdoc")
+        .def_readonly("part_index", &PyPart::part_index,
+             R"pbdoc(
+             int : The index of the part.
+             )pbdoc")
         ;
 
-    py::class_<PyFile>(m, "File")
+    py::class_<PyFile>(m, "File", R"pbdoc(
+         The class object representing an EXR image file.
+
+         This class is the interface for reading and writing image
+         header and pixel data.
+
+         Example
+         -------  
+         >>> import OpenEXR
+         >>> f = OpenEXR.File("image.exr")
+         >>> f.header()["comment"] = "Hello, image."
+         >>> f.write("out.exr")
+    )pbdoc")
         .def(py::init<>())
         .def(py::init<std::string,bool,bool>(),
              py::arg("filename"),
              py::arg("rgba")=false,
-             py::arg("header_only")=false)
+             py::arg("header_only")=false,
+             R"pbdoc(
+             Initialize a File by reading the image from the given filename.
+
+             Parameters
+             ----------
+             filename : str
+                 The path to the image file on disk.
+             rgba : bool
+                 If True, read pixel data into a single "RGB" or "RGBA" numpy array of dimension (height,width,3) or (height,width,4);
+                 if False, read each channel into a separate 2D numpy array
+             header_only : bool
+                 If True, read only the header metadata, not the image pixel data.
+
+             Example
+             -------  
+             >>> f = OpenEXR.File("image.exr", rgba=True, header_only=False)
+             )pbdoc")
         .def(py::init<py::dict,py::dict>(),
              py::arg("header"),
-             py::arg("channels"))
+             py::arg("channels"),
+             R"pbdoc(
+             Initialize a File with metdata and pixels. Creates a single-part EXR file.
+
+             Parameters
+             ----------
+             header : dict
+                 Dict of header metadata, with attribute name as key.
+             channels : list
+                 List of `Channel` objects, which hold pixel numpy arrays.
+
+             Example
+             -------
+             >>> height, width = (20, 10)
+             >>> R = np.random.rand(height, width).astype('f')
+             >>> G = np.random.rand(height, width).astype('f')
+             >>> B = np.random.rand(height, width).astype('f')
+             >>> channels = { "R" : R, "G" : G, "B" : B }
+             >>> header = { "compression" : OpenEXR.ZIP_COMPRESSION,
+                            "type" : OpenEXR.scanlineimage }
+             >>> f = OpenEXR.File(header, channels)
+        )pbdoc")
         .def(py::init<py::list>(),
-             py::arg("parts"))
+             py::arg("parts"),
+             R"pbdoc(
+             Initialize a File with a list of Part objects.
+
+             Parameters
+             ----------
+             parts : list
+                 List of Part objects
+
+             Example
+             -------
+             >>> height, width = (20, 10)
+             >>> Z0 = np.zeros((height, width), dtype='f')
+             >>> Z1 = np.ones((height, width), dtype='f')
+             >>> P0 = OpenEXR.Part({}, {"Z" : Z0 })
+             >>> P1 = OpenEXR.Part({}, {"Z" : Z1 })
+             >>> f = OpenEXR.File([P0, P1])
+            )pbdoc")
         .def("__enter__", &PyFile::__enter__)
         .def("__exit__", &PyFile::__exit__)
-        .def_readwrite("filename", &PyFile::filename)
-        .def_readwrite("parts", &PyFile::parts)
-        .def("header", &PyFile::header, py::arg("part_index") = 0)
-        .def("channels", &PyFile::channels, py::arg("part_index") = 0)
-        .def("write", &PyFile::write)
+        .def_readwrite("filename", &PyFile::filename,
+             R"pbdoc(
+             str : The filename the File was read from.
+
+             Example
+             -------
+             >>> f = OpenEXR.File("image.exr")
+             >>> f.filename
+             'image.exr'
+             )pbdoc")
+        .def_readwrite("parts", &PyFile::parts,
+             R"pbdoc(
+             list : The image parts. The list has a single element for single-part files.
+             Example
+             -------
+             >>> f = OpenEXR.File("image.exr")
+             >>>> f.parts
+             [Part("Part0", Compression.ZIPS_COMPRESSION, width=10, height=20)]         
+             )pbdoc")
+        .def("header", &PyFile::header, py::arg("part_index") = 0,
+             R"pbdoc(
+             dict : The header metadata for the given part if specified, or for the first part if not.
+
+             Parameters
+             ----------
+             part_index : int
+                 The index of the part. Defaults to 0.
+
+             Example
+             -------
+             >>> f = OpenEXR.File("image.exr")
+             >>> f.header()
+             {'dataWindow': (array([0, 0], dtype=int32), array([100, 100], dtype=int32)), 'displayWindow': (array([0, 0], dtype=int32), array([100, 100], dtype=int32))}
+             )pbdoc")
+        .def("channels", &PyFile::channels, py::arg("part_index") = 0,
+             R"pbdoc(
+             Return a dict of channels given part if specified, or for the first part if not. The dict key is the channel name.
+
+             Parameters
+             ----------
+             part_index : int
+                 The index of the part. Defaults to 0.
+
+             Example
+             -------
+             >>> f = OpenEXR.File("image.exr")
+             >>> f.channels(0)
+             {'A': Channel("A", xSampling=1, ySampling=1), 'B': Channel("B", xSampling=1, ySampling=1), 'G': Channel("G", xSampling=1, ySampling=1), 'R': Channel("R", xSampling=1, ySampling=1)}
+             )pbdoc")
+        .def("write", &PyFile::write,
+             R"pbdoc(
+             Write the File to the give file name.
+
+             Parameters
+             ----------
+             filename : str
+                 The output path name.
+
+             Example
+             -------
+             >>> f = OpenEXR.File("image.exr")
+             >>> f.write("out.exr"))pbdoc")
         ;
 }
 
