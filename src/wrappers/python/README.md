@@ -68,6 +68,20 @@ for more information.
 
 The "Hello, World" image writer:
 
+    # Generate a 3D NumPy array for RGB channels with random values
+    height, width = (20, 10)
+    RGB = np.random.rand(height, width, 3).astype('f')
+
+    channels = { "RGB" : RGB }
+    header = { "compression" : OpenEXR.ZIP_COMPRESSION,
+               "type" : OpenEXR.scanlineimage }
+
+    with OpenEXR.File(header, channels) as outfile:
+        outfile.write("readme.exr")
+
+Or alternatively, construct the same output file via separate pixel arrays
+for each channel:
+
     # Generate arrays for R, G, and B channels with random values
     height, width = (20, 10)
     R = np.random.rand(height, width).astype('f')
@@ -80,22 +94,20 @@ The "Hello, World" image writer:
     with OpenEXR.File(header, channels) as outfile:
         outfile.write("readme.exr")
 
-Or alternatively, construct the same output file via a single RGB pixel array:
-
-    # Generate a 3D NumPy array for RGB channels with random values
-    height, width = (20, 10)
-    RGB = np.random.rand(height, width, 3).astype('f')
-
-    channels = { "RGB" : RGB }
-    header = { "compression" : OpenEXR.ZIP_COMPRESSION,
-               "type" : OpenEXR.scanlineimage }
-
-    with OpenEXR.File(header, channels) as outfile:
-        outfile.write("readme.exr")
-
 The corresponding example of reading an image is:
 
     with OpenEXR.File("readme.exr") as infile:
+
+        RGB = infile.channels()["RGB"].pixels
+        height, width, _ = RGB.shape
+        for y in range(height):
+            for x in range(width):
+                pixel = tuple(RGB[y, x])
+                print(f"pixel[{y}][{x}]={pixel}")
+
+Or alternatively, read the data as separate arrays for each channel:
+
+    with OpenEXR.File("readme.exr", separate_channels=True) as infile:
 
         header = infile.header()
         print(f"type={header['type']}")
@@ -108,17 +120,6 @@ The corresponding example of reading an image is:
         for y in range(height):
             for x in range(width):
                 pixel = (R[y, x], G[y, x], B[y, x])
-                print(f"pixel[{y}][{x}]={pixel}")
-
-Or alternatively, read the data as a single RGBA array:
-
-    with OpenEXR.File("readme.exr", rgba=True) as infile:
-
-        RGB = infile.channels()["RGB"].pixels
-        height, width, _ = RGB.shape
-        for y in range(height):
-            for x in range(width):
-                pixel = tuple(RGB[y, x])
                 print(f"pixel[{y}][{x}]={pixel}")
 
 To modify the header metadata in a file:

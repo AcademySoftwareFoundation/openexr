@@ -284,7 +284,7 @@ class TestUnittest(unittest.TestCase):
             outfile.write(outfilename)
 
             # Verify reading it back gives the same data
-            with OpenEXR.File(outfilename) as infile:
+            with OpenEXR.File(outfilename, separate_channels=True) as infile:
 
                 compare_files(infile, outfile)
 
@@ -314,7 +314,7 @@ class TestUnittest(unittest.TestCase):
             outfile.write(outfilename)
 
             # Verify reading it back gives the same data
-            with OpenEXR.File(outfilename) as infile:
+            with OpenEXR.File(outfilename, separate_channels=True) as infile:
                 compare_files (infile, outfile)
 
     def test_write_tiles(self):
@@ -343,7 +343,7 @@ class TestUnittest(unittest.TestCase):
             outfile.write(outfilename)
 
             # Verify reading it back gives the same data
-            with OpenEXR.File(outfilename) as infile:
+            with OpenEXR.File(outfilename, separate_channels=True) as infile:
                 compare_files(infile, outfile)
 
     def test_modify_in_place(self):
@@ -353,7 +353,7 @@ class TestUnittest(unittest.TestCase):
         #
 
         infilename = f"{test_dir}/test.exr"
-        with OpenEXR.File(infilename) as f:
+        with OpenEXR.File(infilename, separate_channels=True) as f:
 
             # set the value of an existing attribute
             par = 2.3
@@ -384,7 +384,7 @@ class TestUnittest(unittest.TestCase):
             f.write(outfilename)
 
         # read the new file
-        with OpenEXR.File(outfilename) as m:
+        with OpenEXR.File(outfilename, separate_channels=True) as m:
 
             # validate the values are the same
             eps = 1e-5
@@ -482,7 +482,7 @@ class TestUnittest(unittest.TestCase):
             print("write done.")
                   
             # Verify reading it back gives the same data
-            with OpenEXR.File(outfilename) as infile:
+            with OpenEXR.File(outfilename, separate_channels=True) as infile:
                 compare_files (infile, outfile)
 
     def test_write_2part(self):
@@ -559,7 +559,7 @@ class TestUnittest(unittest.TestCase):
             outfile2.write(outfilename)
 
             # Verify reading it back gives the same data
-            with OpenEXR.File(outfilename) as i:
+            with OpenEXR.File(outfilename, separate_channels=True) as i:
                 compare_files (i, outfile2)
 
 if __name__ == '__main__':

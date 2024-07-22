@@ -133,14 +133,14 @@ PyFile::PyFile(const py::dict& header, const py::dict& channels)
 // By default, read each channel into a numpy array of the appropriate pixel
 // type: uint32, half, or float.
 //
-// If 'rgba' is true, gather 'R', 'G', 'B', and 'A' channels and interleave
+// If 'separate_channels' is false, gather 'R', 'G', 'B', and 'A' channels and interleave
 // them into  a 3- or 4- (if 'A' is present) element numpy array. In the case
 // of raw 'R', 'G', 'B', and 'A' channels, the corresponding key in the
 // channels dict is "RGB" or "RGBA".  For channels with a prefix,
 // e.g. "left.R", "left.G", etc, the channel key is the prefix.
 //
 
-PyFile::PyFile(const std::string& filename, bool rgba, bool header_only)
+PyFile::PyFile(const std::string& filename, bool separate_channels, bool header_only)
     : filename(filename), header_only(header_only)
 {
     MultiPartInputFile infile(filename.c_str());
@@ -181,7 +181,7 @@ PyFile::PyFile(const std::string& filename, bool rgba, bool header_only)
         //
         
         std::set<std::string> rgbaChannels;
-        if (rgba)
+        if (!separate_channels)
         {
             for (auto c = header.channels().begin(); c != header.channels().end(); c++)
             {
@@ -201,11 +201,11 @@ PyFile::PyFile(const std::string& filename, bool rgba, bool header_only)
         auto type = header.type();
         if (type == SCANLINEIMAGE || type == TILEDIMAGE)
         {
-            P.readPixels(infile, header.channels(), shape, rgbaChannels, dw, rgba);
+            P.readPixels(infile, header.channels(), shape, rgbaChannels, dw, separate_channels);
         }
         else if (type == DEEPSCANLINE || type == DEEPTILE)
         {
-            P.readDeepPixels(infile, type, header.channels(), shape, rgbaChannels, dw, rgba);
+            P.readDeepPixels(infile, type, header.channels(), shape, rgbaChannels, dw, separate_channels);
         }
         parts.append(py::cast<PyPart>(PyPart(P)));
     } // for parts
@@ -214,7 +214,7 @@ PyFile::PyFile(const std::string& filename, bool rgba, bool header_only)
 void
 PyPart::readPixels(MultiPartInputFile& infile, const ChannelList& channel_list,
                    const std::vector<size_t>& shape, const std::set<std::string>& rgbaChannels,
-                   const Box2i& dw, bool rgba)
+                   const Box2i& dw, bool separate_channels)
 {
     FrameBuffer frameBuffer;
 
@@ -223,7 +223,7 @@ PyPart::readPixels(MultiPartInputFile& infile, const ChannelList& channel_list,
         std::string py_channel_name = c.name();
         char channel_name; 
         int nrgba = 0;
-        if (rgba)
+        if (!separate_channels)
             nrgba = rgbaChannel(channel_list, c.name(), py_channel_name, channel_name);
             
         auto py_channel_name_str = py::str(py_channel_name);
@@ -463,7 +463,7 @@ PyPart::setDeepSliceData(const ChannelList& channel_list, size_t height, size_t 
 void
 PyPart::readDeepPixels(MultiPartInputFile& infile, const std::string& type, const ChannelList& channel_list,
                        const std::vector<size_t>& shape, const std::set<std::string>& rgbaChannels,
-                       const Box2i& dw, bool rgba)
+                       const Box2i& dw, bool separate_channels)
 {
     size_t width  = dw.max.x - dw.min.x + 1;
     size_t height = dw.max.y - dw.min.y + 1;
@@ -501,7 +501,7 @@ PyPart::readDeepPixels(MultiPartInputFile& infile, const std::string& type, cons
         std::string py_channel_name = c.name();
         char channel_name; 
         int nrgba = 0;
-        if (rgba)
+        if (!separate_channels)
             nrgba = rgbaChannel(channel_list, c.name(), py_channel_name, channel_name);
         
         auto py_channel_name_str = py::str(py_channel_name);
@@ -2624,7 +2624,7 @@ PYBIND11_MODULE(OpenEXR, m)
         .def(py::init<>())
         .def(py::init<std::string,bool,bool>(),
              py::arg("filename"),
-             py::arg("rgba")=false,
+             py::arg("separate_channels")=false,
              py::arg("header_only")=false,
              R"pbdoc(
              Initialize a File by reading the image from the given filename.
@@ -2633,15 +2633,15 @@ PYBIND11_MODULE(OpenEXR, m)
              ----------
              filename : str
                  The path to the image file on disk.
-             rgba : bool
-                 If True, read pixel data into a single "RGB" or "RGBA" numpy array of dimension (height,width,3) or (height,width,4);
-                 if False, read each channel into a separate 2D numpy array
+             separate_channels : bool
+                 If True, read each channel into a separate 2D numpy array
+                 if False (default), read pixel data into a single "RGB" or "RGBA" numpy array of dimension (height,width,3) or (height,width,4);
              header_only : bool
                  If True, read only the header metadata, not the image pixel data.
 
              Example
              -------  
-             >>> f = OpenEXR.File("image.exr", rgba=True, header_only=False)
+             >>> f = OpenEXR.File("image.exr", separate_channels=False, header_only=False)
              )pbdoc")
         .def(py::init<py::dict,py::dict>(),
              py::arg("header"),

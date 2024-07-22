@@ -37,7 +37,7 @@ class TestRGBA(unittest.TestCase):
         # Read as separate channels
         #
 
-        infile = OpenEXR.File("out.exr")
+        infile = OpenEXR.File("out.exr", separate_channels=True)
 
         R = infile.channels()["R"].pixels
         G = infile.channels()["G"].pixels
@@ -59,7 +59,7 @@ class TestRGBA(unittest.TestCase):
         # Read as RGB channel
         #
 
-        infile = OpenEXR.File("out.exr", rgba=True)
+        infile = OpenEXR.File("out.exr")
 
         inRGB = infile.channels()["RGB"].pixels
         shape = inRGB.shape
@@ -89,7 +89,7 @@ class TestRGBA(unittest.TestCase):
         # Read as separate channels
         #
 
-        infile = OpenEXR.File("out.exr")
+        infile = OpenEXR.File("out.exr", separate_channels=True)
 
         R = infile.channels()["R"].pixels
         G = infile.channels()["G"].pixels
@@ -114,7 +114,7 @@ class TestRGBA(unittest.TestCase):
         # Read as RGBA channel
         #
 
-        infile = OpenEXR.File("out.exr", rgba=True)
+        infile = OpenEXR.File("out.exr")
 
         inRGBA = infile.channels()["RGBA"].pixels
         shape = inRGBA.shape
@@ -147,7 +147,7 @@ class TestRGBA(unittest.TestCase):
         #
 
         print(f"read out.exr as single channels")
-        infile = OpenEXR.File("out.exr")
+        infile = OpenEXR.File("out.exr", separate_channels=True)
 
         R = infile.channels()["left.R"].pixels
         G = infile.channels()["left.G"].pixels
@@ -174,7 +174,7 @@ class TestRGBA(unittest.TestCase):
         #
 
         print(f"read out.exr as rgba channels")
-        infile = OpenEXR.File("out.exr", rgba=True)
+        infile = OpenEXR.File("out.exr")
 
         inRGBA = infile.channels()["left"].pixels
         shape = inRGBA.shape

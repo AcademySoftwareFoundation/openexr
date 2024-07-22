@@ -120,7 +120,7 @@ class TestDeep(unittest.TestCase):
 
             outfile.write(filename)
 
-            with OpenEXR.File(filename, True) as infile:
+            with OpenEXR.File(filename) as infile:
 
                 channel = "RGBA" if do_alpha else "RGB"
                 
@@ -139,7 +139,7 @@ class TestDeep(unittest.TestCase):
                 
                 infile.write("rgb_deep.exr")
 
-            with OpenEXR.File("rgb_deep.exr") as infile:
+            with OpenEXR.File("rgb_deep.exr", separate_channels=True) as infile:
 
                 compare_files(infile, outfile)
                 
@@ -213,7 +213,7 @@ class TestDeep(unittest.TestCase):
 
             outfile.write(filename)
 
-            with OpenEXR.File(filename) as infile:
+            with OpenEXR.File(filename, False) as infile:
 
                 compare_files(infile, outfile)
 

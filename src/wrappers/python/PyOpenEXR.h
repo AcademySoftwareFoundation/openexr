@@ -18,7 +18,7 @@ class PyFile
 {
 public:
     PyFile() {}
-    PyFile(const std::string& filename, bool rgba = false, bool header_only = false);
+    PyFile(const std::string& filename, bool separate_channels = false, bool header_only = false);
     PyFile(const py::dict& header, const py::dict& channels);
     PyFile(const py::list& parts);
 
@@ -80,10 +80,10 @@ class PyPart
 
     void           readPixels(MultiPartInputFile& infile, const ChannelList& channel_list,
                               const std::vector<size_t>& shape, const std::set<std::string>& rgbaChannels,
-                              const Box2i& dw, bool rgba);
+                              const Box2i& dw, bool separate_channels);
     void           readDeepPixels(MultiPartInputFile& infile, const std::string& type, const ChannelList& channel_list,
                                   const std::vector<size_t>& shape, const std::set<std::string>& rgbaChannels,
-                                  const Box2i& dw, bool rgba);
+                                  const Box2i& dw, bool separate_channels);
     int            rgbaChannel(const ChannelList& channel_list, const std::string& name,
                                std::string& py_channel_name, char& channel_name);
     

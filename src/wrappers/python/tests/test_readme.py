@@ -42,9 +42,9 @@ def test_write_RGB():
 
     print("ok")
 
-def test_read():
+def test_read_separate_channels():
 
-    with OpenEXR.File("readme.exr") as infile:
+    with OpenEXR.File("readme.exr", separate_channels=True) as infile:
 
         header = infile.header()
         print(f"type={header['type']}")
@@ -63,10 +63,12 @@ def test_read():
 
 def test_read_RGB():
 
-    with OpenEXR.File("readme.exr", rgba=True) as infile:
+    with OpenEXR.File("readme.exr") as infile:
 
+        print(f"readme.exr: {infile.channels()}")
+        
         RGB = infile.channels()["RGB"].pixels
-        height, width, _ = RGB.shape
+        height, width = RGB.shape[0:2]
         for y in range(height):
             for x in range(width):
                 pixel = tuple(RGB[y, x])
@@ -193,7 +195,7 @@ if __name__ == '__main__':
     test_multipart_write()
     test_write()
     test_write_RGB()
-    test_read()
+    test_read_separate_channels()
     test_read_RGB()
     test_modify()
     test_write_tiled()
