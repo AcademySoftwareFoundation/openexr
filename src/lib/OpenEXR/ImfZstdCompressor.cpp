@@ -34,14 +34,14 @@ int
 ZstdCompressor::compress (
     const char* inPtr, int inSize, int minY, const char*& outPtr)
 {
-    auto totalChannelSize = 0;
+    auto             totalChannelSize = 0;
     std::vector<int> sizePerChannel;
-    auto channels = header().channels();
-    for (auto ch = channels.begin (); ch!= channels.end (); ++ch)
+    auto             channels = header ().channels ();
+    for (auto ch = channels.begin (); ch != channels.end (); ++ch)
     {
-        const auto size = pixelTypeSize(ch.channel ().type);
+        const auto size = pixelTypeSize (ch.channel ().type);
         sizePerChannel.push_back (size);
-        totalChannelSize+= size;
+        totalChannelSize += size;
     }
 
     const auto numSamples = inSize / totalChannelSize;
@@ -59,8 +59,14 @@ ZstdCompressor::compress (
         _outBuffer.push_back (raw_ptr ((char*) outPtr, &free));
     }
 
-    const auto fullSize =
-        exr_compress_zstd (const_cast<char*> (inPtr), inSize, numSamples, sizePerChannel.data(), sizePerChannel.size(), (void*) outPtr, inSize);
+    const auto fullSize = exr_compress_zstd (
+        const_cast<char*> (inPtr),
+        inSize,
+        numSamples,
+        sizePerChannel.data (),
+        sizePerChannel.size (),
+        (void*) outPtr,
+        inSize);
     return fullSize;
 }
 

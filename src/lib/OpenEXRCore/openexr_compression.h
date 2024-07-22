@@ -47,14 +47,20 @@ exr_result_t exr_uncompress_buffer (
 
 EXR_EXPORT
 long exr_compress_zstd (
-    char* inPtr, int inSize, int numSamples, int* channelTypeSizes, size_t channelSizesCount, void * outPtr, int outPtrSize);
+    char*  inPtr,
+    int    inSize,
+    int    numSamples,
+    int*   channelTypeSizes,
+    size_t channelSizesCount,
+    void*  outPtr,
+    int    outPtrSize);
 
 EXR_EXPORT
 long exr_uncompress_zstd (
-    const char* inPtr, uint64_t inSize, void ** outPtr, uint64_t outPtrSize);
+    const char* inPtr, uint64_t inSize, void** outPtr, uint64_t outPtrSize);
 
 EXR_EXPORT
-size_t exr_get_zstd_lines_per_chunk();
+size_t exr_get_zstd_lines_per_chunk ();
 
 #ifdef __cplusplus
 } /* extern "C" */
