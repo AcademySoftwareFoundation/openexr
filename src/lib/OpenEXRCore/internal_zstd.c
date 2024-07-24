@@ -205,7 +205,8 @@ exr_uncompress_zstd (
         scratch[i] = out;
         if (decompressedChunkSize == -1)
         {
-            // blosc failed to decompress. probably because the stream was not compressed to start with
+            // blosc failed to decompress. probably because the stream was not
+            // compressed to start with
             copyInputAsIs = true;
             break;
         }
@@ -219,7 +220,7 @@ exr_uncompress_zstd (
 
     if (copyInputAsIs)
     {
-        if (outPtrSize == 0) { outPtr = malloc (inSize); }
+        if (outPtrSize == 0) { *outPtr = malloc (inSize); }
 
         memcpy (*outPtr, inPtr, inSize);
         return inSize;
