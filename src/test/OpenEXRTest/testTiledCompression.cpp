@@ -26,6 +26,7 @@
 #include <algorithm>
 #include <assert.h>
 #include <stdio.h>
+#include <iomanip>
 
 using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;
@@ -157,7 +158,12 @@ writeRead (
     // change.
     //
 
-    cout << "compression " << comp << ":" << flush;
+    std::string codec;
+    getCompressionNameFromId (comp, codec);
+    codec = "(" + codec + ")";
+
+    cout << "compression " << setw (2) << comp << " " << setw (7) << codec
+         << ":" << setw (0) << flush;
 
     Header hdr (
         (Box2i (

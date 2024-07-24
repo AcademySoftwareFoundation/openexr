@@ -25,6 +25,7 @@
 #include <assert.h>
 #include <limits>
 #include <stdio.h>
+#include <iomanip>
 
 namespace IMF = OPENEXR_IMF_NAMESPACE;
 using namespace IMF;
@@ -158,6 +159,10 @@ writeRead (
     // sampling must be 1 for tiled images
     assert (!asTiled || (xs == 1 && ys == 1));
 
+    std::string compName;
+    getCompressionNameFromId (comp, compName);
+    compName = "[" + compName + "]";
+
     //
     // Write the pixel data in pi1, ph1 and ph2 to an
     // image file using the specified compression type
@@ -168,13 +173,14 @@ writeRead (
 
     if (asTiled)
     {
-        cout << "compression " << comp
-             << ", tiled                     :" << flush;
+        cout << setw (7) << compName << ": compression " << setw (2) << comp
+             << " " << setw (0) << ", tiled                     :" << flush;
     }
     else
     {
-        cout << "compression " << comp << ", x sampling " << xs
-             << ", y sampling " << ys << ":" << flush;
+        cout << setw (7) << compName << ": compression " << setw (2) << comp
+             << " " << setw (0) << ", x sampling " << xs << ", y sampling "
+             << ys << ":" << flush;
     }
 
     Header hdr (
