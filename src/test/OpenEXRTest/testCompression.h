@@ -5,4 +5,4 @@
 
 #include <string>
 
-void testCompression (const std::string& tempDir);
+void testCompression (const std::string& tempDir, int onlyComp = -1);

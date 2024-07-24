@@ -494,7 +494,13 @@ writeRead (
 
 void
 writeRead (
-    const std::string& tempDir, pixelArray& array, int w, int h, int dx, int dy)
+    const std::string& tempDir,
+    pixelArray&        array,
+    int                w,
+    int                h,
+    int                dx,
+    int                dy,
+    int                onlyComp = -1)
 {
     std::string filename = tempDir + "imf_test_comp.exr";
 
@@ -505,6 +511,8 @@ writeRead (
 
             for (int comp = 0; comp < NUM_COMPRESSION_METHODS; ++comp)
             {
+                if (onlyComp > -1 && comp != onlyComp) continue;
+
                 writeRead (
                     array,
                     filename.c_str (),
@@ -539,7 +547,7 @@ writeRead (
 } // namespace
 
 void
-testCompression (const std::string& tempDir)
+testCompression (const std::string& tempDir, int onlyComp)
 {
     try
     {
@@ -564,16 +572,16 @@ testCompression (const std::string& tempDir)
         assert (NUM_PIXELTYPES == 3);
 
         fillPixels1 (array, W, H);
-        writeRead (tempDir, array, W, H, DX, DY);
+        writeRead (tempDir, array, W, H, DX, DY, onlyComp);
 
         fillPixels2 (array, W, H);
-        writeRead (tempDir, array, W, H, DX, DY);
+        writeRead (tempDir, array, W, H, DX, DY, onlyComp);
 
         fillPixels3 (array, W, H);
-        writeRead (tempDir, array, W, H, DX, DY);
+        writeRead (tempDir, array, W, H, DX, DY, onlyComp);
 
         fillPixels4 (array, W, H);
-        writeRead (tempDir, array, W, H, DX, DY);
+        writeRead (tempDir, array, W, H, DX, DY, onlyComp);
 
         cout << "ok\n" << endl;
     }
