@@ -145,7 +145,7 @@ main (int argc, char* argv[])
 
     if (!helpMode) { tempDir = makeTempDir (); }
 
-   /* TEST (testBase, "core");
+    TEST (testBase, "core");
     TEST (testBaseErrors, "core");
     TEST (testBaseLimits, "core");
     TEST (testBaseDebug, "core");
@@ -201,13 +201,13 @@ main (int argc, char* argv[])
     TEST (testB44Compression, "core_compression");
     TEST (testB44ACompression, "core_compression");
     TEST (testDWAACompression, "core_compression");
-    TEST (testDWABCompression, "core_compression");*/
+    TEST (testDWABCompression, "core_compression");
     TEST (testZstdCompression, "core_compression");
 
-   /* TEST (testDeepNoCompression, "core_compression");
+    TEST (testDeepNoCompression, "core_compression");
     TEST (testDeepZIPCompression, "core_compression");
     TEST (testDeepZIPSCompression, "core_compression");
-    TEST (testDeepZstdCompression, "core_compression"); // empty dummy test*/
+    TEST (testDeepZstdCompression, "core_compression");
 
     if (helpMode)
     {
