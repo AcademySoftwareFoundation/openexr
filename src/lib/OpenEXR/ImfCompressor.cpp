@@ -172,7 +172,7 @@ newTileCompressor (
 
         case ZSTD_COMPRESSION:
 
-            return new ZstdCompressor (hdr);
+            return new ZstdCompressor (hdr, tileLineSize, numTileLines);
 
         default: return 0;
     }

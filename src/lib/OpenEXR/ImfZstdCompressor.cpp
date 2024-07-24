@@ -19,9 +19,21 @@ std::mutex g_mutex;
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
-ZstdCompressor::ZstdCompressor (const Header& hdr)
-    : Compressor (hdr), _outBuffer ()
-{}
+ZstdCompressor::ZstdCompressor (
+    const Header& hdr, size_t tileLineSize, size_t numTileLines)
+    : Compressor (hdr)
+    , m_tileLineSize (tileLineSize)
+    , m_numTileLines (numTileLines)
+    , _outBuffer ()
+{
+    // we only need this for deep images to compute the sample count table size.
+    m_isTiled = hdr.hasTileDescription ();
+    if (m_isTiled)
+    {
+        auto td = hdr.tileDescription ();
+        m_tileArea = td.xSize * td.ySize;
+    }
+}
 
 int
 ZstdCompressor::numScanLines () const
@@ -34,9 +46,16 @@ int
 ZstdCompressor::compress (
     const char* inPtr, int inSize, int minY, const char*& outPtr)
 {
+    if (inSize == 0)
+    {
+        outPtr = nullptr;
+        return 0;
+    }
+
     auto             totalChannelSize = 0;
     std::vector<int> sizePerChannel;
-    auto             channels = header ().channels ();
+    auto             hdr      = header ();
+    auto             channels = hdr.channels ();
     for (auto ch = channels.begin (); ch != channels.end (); ++ch)
     {
         const auto size = pixelTypeSize (ch.channel ().type);
@@ -48,15 +67,16 @@ ZstdCompressor::compress (
 
     if (numSamples * totalChannelSize != inSize)
     {
-        // We received fewer data than expected. It probably is because we are processing
-        // the sampleCounts for DeepExr
-        sizePerChannel = {4}; // we compress it as an int
+        // std::cout << "Tile: BAD" << std::endl;
+        // We received fewer data than expected. It probably is because we are
+        // processing the sampleCounts for DeepExr
+        sizePerChannel = {sampleCountTableSize ()};
     }
 
     outPtr = (char*) malloc (inSize);
     {
         std::lock_guard<std::mutex> lock (g_mutex);
-        _outBuffer.push_back (raw_ptr ((char*) outPtr, &free));
+        _outBuffer.push_back (data_ptr ((char*) outPtr, &free));
     }
 
     const auto fullSize = exr_compress_zstd (
@@ -74,15 +94,30 @@ int
 ZstdCompressor::uncompress (
     const char* inPtr, int inSize, int minY, const char*& outPtr)
 {
+    if (inSize == 0)
+    {
+        outPtr = nullptr;
+        return 0;
+    }
+
     auto  read  = (const char*) inPtr;
     void* write = nullptr;
     auto  ret   = exr_uncompress_zstd (read, inSize, &write, 0);
     {
         std::lock_guard<std::mutex> lock (g_mutex);
-        _outBuffer.push_back (raw_ptr ((char*) write, &free));
+        _outBuffer.push_back (data_ptr ((char*) write, &free));
     }
     outPtr = (const char*) write;
     return ret;
+}
+
+int
+ZstdCompressor::sampleCountTableSize ()
+{
+    if (m_isTiled) { return m_tileArea * sizeof (int); }
+    const Header& hdr = header ();
+    return ((hdr.dataWindow ().max.x + 1) - hdr.dataWindow ().min.x) *
+           sizeof (int);
 }
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT
