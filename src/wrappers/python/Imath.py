@@ -164,12 +164,18 @@ class Channel:
        >>> import Imath
        >>> print Imath.Channel(Imath.PixelType(Imath.PixelType.FLOAT), 4, 4)
        FLOAT (4, 4)
+       >>> print Imath.Channel(Imath.PixelType.FLOAT, 4, 4)
+       Traceback (most recent call last):
+         ...
+       TypeError: type needs to be a PixelType.
     """
 
     def __init__(self, type = PixelType(PixelType.HALF), xSampling = 1, ySampling = 1):
         self.type = type
         self.xSampling = xSampling
         self.ySampling = ySampling
+        if not isinstance(self.type, PixelType):
+          raise TypeError("type needs to be a PixelType.")
     def __repr__(self):
         return repr(self.type) + " " + repr((self.xSampling, self.ySampling))
     def __eq__(self, other):

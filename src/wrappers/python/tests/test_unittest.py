@@ -197,6 +197,13 @@ def test_invalid_pixeltype():
     else:
         assert 0
 
+    try:
+        Imath.Channel(FLOAT)
+    except:
+        pass
+    else:
+        assert 0
+
     print("invalid pixeltype ok")
     
 testList.append(("test_invalid_pixeltype", test_invalid_pixeltype))

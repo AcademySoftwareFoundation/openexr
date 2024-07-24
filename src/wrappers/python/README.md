@@ -74,17 +74,18 @@ for more information.
 
 The "hello, world" image writer:
 
-    import OpenEXR
+    import OpenEXR, Imath
+    from array import array
     
     width = 10
     height = 10
     size = width * height
     
     h = OpenEXR.Header(width,height)
-    h['channels'] = {'R' : Imath.Channel(FLOAT),
-                     'G' : Imath.Channel(FLOAT),
-                     'B' : Imath.Channel(FLOAT),
-                     'A' : Imath.Channel(FLOAT)} 
+    h['channels'] = {'R' : Imath.Channel(Imath.PixelType(Imath.PixelType.FLOAT)),
+                     'G' : Imath.Channel(Imath.PixelType(Imath.PixelType.FLOAT)),
+                     'B' : Imath.Channel(Imath.PixelType(Imath.PixelType.FLOAT)),
+                     'A' : Imath.Channel(Imath.PixelType(Imath.PixelType.FLOAT))} 
     o = OpenEXR.OutputFile("hello.exr", h)
     r = array('f', [n for n in range(size*0,size*1)]).tobytes()
     g = array('f', [n for n in range(size*1,size*2)]).tobytes()
