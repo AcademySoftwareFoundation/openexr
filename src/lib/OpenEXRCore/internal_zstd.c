@@ -90,14 +90,16 @@ exr_compress_zstd (
 {
     const int magicNumber =
         0xDEADBEEF01; // did we compress the stream or just copied the input
-    if (inSize == 0)  // Weird input data when subsampling
+
+    if (inSize == 0) // Weird input data when subsampling
     {
         outPtr = NULL;
         return 0;
     }
 
-    // We are given as input every channel typesize and number os samples
-    // All contiguous channels that share the same typesize are batched into the same call to Blosc
+    // We are given as input every channel typesize and number of samples.
+    // All contiguous channels that share the same typesize are batched into
+    // the same call to Blosc
     long numChunks = 0;
     int  chunkTypeSize[channelSizesCount]; // typesize to feed to Blosc
     long chunkSizes[channelSizesCount];    // where the chunk starts
@@ -135,8 +137,9 @@ exr_compress_zstd (
     outputPointer += sizeof (numChunks);
     totalCompressedSize += sizeof (numChunks);
 
-    bool copyInputAsIs =
-        false; // in a rare case where the input data is white noise, we would actually grow the size by compressing
+    bool copyInputAsIs = false; // in a rare case where the input data is
+                                // white noise, we would actually grow the size
+                                // by compressing.
     void* scratch = malloc (inSize);
     for (int i = 0; i < numChunks; ++i)
     {
@@ -146,7 +149,8 @@ exr_compress_zstd (
                 sizeof (compressedChunkSize) >
             inSize)
         {
-            // if appending this compressed chunk would yield a larger file, abandon
+            // if appending this compressed chunk would yield a larger file,
+            // abandon
             copyInputAsIs = true;
             break;
         }
