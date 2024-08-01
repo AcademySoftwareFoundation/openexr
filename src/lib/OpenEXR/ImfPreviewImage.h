@@ -36,6 +36,11 @@ struct IMF_EXPORT_TYPE PreviewRgba
         unsigned char a = 255)
         : r (r), g (g), b (b), a (a)
     {}
+
+        bool operator==(const PreviewRgba& other) const
+        {
+            return r == other.r && g == other.g && b == other.b && a == other.a;
+        }
 };
 
 class IMF_EXPORT_TYPE PreviewImage
