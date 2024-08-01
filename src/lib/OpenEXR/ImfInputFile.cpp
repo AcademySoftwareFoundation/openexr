@@ -897,9 +897,40 @@ InputFile::readPixels (int scanLine1, int scanLine2)
 }
 
 void
+InputFile::readPixels (const FrameBuffer& frameBuffer, int scanLine1, int scanLine2)
+{
+    if (_data->compositor)
+    {
+#if ILMTHREAD_THREADING_ENABLED
+        std::lock_guard<std::mutex> lock (*_data);
+#endif
+        setFrameBuffer (frameBuffer);
+        _data->compositor->readPixels (scanLine1, scanLine2);
+    }
+    else if (_data->isTiled)
+    {
+#if ILMTHREAD_THREADING_ENABLED
+        std::lock_guard<std::mutex> lock (*_data);
+#endif
+        setFrameBuffer (frameBuffer);
+        bufferedReadPixels (_data, scanLine1, scanLine2);
+    }
+    else
+    {
+        _data->sFile->readPixels (frameBuffer, scanLine1, scanLine2);
+    }
+}
+
+void
 InputFile::readPixels (int scanLine)
 {
     readPixels (scanLine, scanLine);
+}
+
+void
+InputFile::readPixels (const FrameBuffer& frameBuffer, int scanLine)
+{
+    readPixels (frameBuffer, scanLine, scanLine);
 }
 
 void
