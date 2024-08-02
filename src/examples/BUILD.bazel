@@ -24,5 +24,7 @@ cc_test(
         "rgbaInterfaceTiledExamples.cpp",
         "rgbaInterfaceTiledExamples.h",
     ],
-    deps = ["//:OpenEXR"],
+    deps = [
+        "//:OpenEXR",
+    ],
 )

@@ -9,6 +9,7 @@
 #include "internal_constants.h"
 #include "internal_structs.h"
 #include "internal_xdr.h"
+#include "openexr_compression.h"
 
 #include <limits.h>
 #include <math.h>
@@ -2365,6 +2366,7 @@ internal_exr_compute_chunk_offset_size (exr_priv_part_t curpart)
             case EXR_COMPRESSION_B44A:
             case EXR_COMPRESSION_DWAA: linePerChunk = 32; break;
             case EXR_COMPRESSION_DWAB: linePerChunk = 256; break;
+            case EXR_COMPRESSION_ZSTD: linePerChunk = exr_get_zstd_lines_per_chunk(); break;
             case EXR_COMPRESSION_LAST_TYPE:
             default:
                 /* ERROR CONDITION */

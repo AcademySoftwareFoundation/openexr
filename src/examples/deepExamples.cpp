@@ -47,7 +47,7 @@ readDeepScanlineFile (
     //    - allocate memory for the pixels
     //    - describe the layout of the A, and Z pixel buffers
     //    - read the sample counts from the file
-    //    - allocate the memory requred to store the samples
+    //    - allocate the memory required to store the samples
     //    - read the pixels from the file
     //
 
@@ -148,7 +148,8 @@ writeDeepScanlineFile (
 
     Array2D<half*>& dataA,
 
-    Array2D<unsigned int>& sampleCount)
+    Array2D<unsigned int>& sampleCount,
+    Compression            compression = Compression::ZIPS_COMPRESSION)
 
 {
     //
@@ -170,7 +171,7 @@ writeDeepScanlineFile (
     header.channels ().insert ("Z", Channel (FLOAT));
     header.channels ().insert ("A", Channel (HALF));
     header.setType (DEEPSCANLINE);
-    header.compression () = ZIPS_COMPRESSION;
+    header.compression () = compression;
 
     DeepScanLineOutputFile file (filename, header);
 
@@ -255,8 +256,32 @@ deepExamples ()
     testDataZ.resizeErase (h, w);
     drawImage2 (testDataA, testDataZ, w, h);
 
-    writeDeepScanlineFile (
-        "test.deep.exr", window, window, dataZ, dataA, sampleCount);
-    readDeepScanlineFile (
-        "test.deep.exr", window, window, dataZ, dataA, sampleCount);
+    {
+        writeDeepScanlineFile (
+            "test.deep.exr",
+            window,
+            window,
+            dataZ,
+            dataA,
+            sampleCount,
+            Compression::ZSTD_COMPRESSION);
+    }
+    {
+        writeDeepScanlineFile (
+            "test.zips.exr",
+            window,
+            window,
+            dataZ,
+            dataA,
+            sampleCount,
+            Compression::ZIPS_COMPRESSION);
+    }
+    {
+        readDeepScanlineFile (
+            "test.deep.exr", window, window, dataZ, dataA, sampleCount);
+    }
+    {
+        readDeepScanlineFile (
+            "test.zips.exr", window, window, dataZ, dataA, sampleCount);
+    }
 }
