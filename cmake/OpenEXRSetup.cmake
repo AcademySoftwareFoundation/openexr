@@ -10,7 +10,7 @@ function(_error_if_not_found prop var fallback)
     else()
       string(SUBSTRING "${var}" 0 ${pos} var_name)
       message(STATUS "Blosc2: Property ${prop} not found: ${var_name} falling back to '${fallback}'")
-      set(${var_name} "${fallback}" PARENT_SCOPE) 
+      set(${var_name} "${fallback}" PARENT_SCOPE)
     endif()
   endif()
 endfunction(_error_if_not_found)
@@ -83,7 +83,7 @@ option(OPENEXR_TEST_LIBRARIES "Run library tests" ON)
 option(OPENEXR_TEST_TOOLS "Run tool tests" ON)
 option(OPENEXR_TEST_PYTHON "Run python binding tests" ON)
 
-# This is a variable here for use in controlling where include files are 
+# This is a variable here for use in controlling where include files are
 # installed. Care must be taken when changing this, as many things
 # probably assume this is OpenEXR
 set(OPENEXR_OUTPUT_SUBDIR OpenEXR CACHE STRING "Destination sub-folder of the include path for install")
@@ -266,7 +266,7 @@ else()
   string(REPLACE "visibility(\"default\")" "visibility(\"hidden\")" DEFLATE_HIDE "${DEFLATE_HIDE}")
   string(REPLACE "__declspec(dllexport)" "/**/" DEFLATE_HIDE "${DEFLATE_HIDE}")
   file(WRITE ${deflate_SOURCE_DIR}/lib/lib_common.h "${DEFLATE_HIDE}")
-  
+
   # cmake makes fetch content name lowercase for the properties (to deflate)
   list(TRANSFORM EXR_DEFLATE_SOURCES PREPEND ${deflate_SOURCE_DIR}/)
   set(EXR_DEFLATE_INCLUDE_DIR ${deflate_SOURCE_DIR})
@@ -300,7 +300,7 @@ if(NOT TARGET Imath::Imath AND NOT Imath_FOUND)
     GIT_TAG "${OPENEXR_IMATH_TAG}"
     GIT_SHALLOW ON
       )
-    
+
   FetchContent_GetProperties(Imath)
   if(NOT Imath_POPULATED)
     FetchContent_Populate(Imath)
@@ -310,8 +310,8 @@ if(NOT TARGET Imath::Imath AND NOT Imath_FOUND)
 
     # Propagate OpenEXR's setting for pkg-config generation to Imath:
     # If OpenEXR is generating it, the internal Imath should, too.
-    set(IMATH_INSTALL_PKG_CONFIG ${OPENEXR_INSTALL_PKG_CONFIG}) 
-    
+    set(IMATH_INSTALL_PKG_CONFIG ${OPENEXR_INSTALL_PKG_CONFIG})
+
     # hrm, cmake makes Imath lowercase for the properties (to imath)
     add_subdirectory(${imath_SOURCE_DIR} ${imath_BINARY_DIR})
   endif()
@@ -396,24 +396,21 @@ if(NOT TARGET Blosc2::blosc2_static AND NOT Blosc2_FOUND)
 
     get_target_property(blosc2inc Blosc2::blosc2_static INCLUDE_DIRECTORIES)
     set(BLOSC2_INCLUDE_DIRS ${blosc2inc})
-    
+
     get_target_property(blosc2libdir Blosc2::blosc2_static BINARY_DIR)
     set(BLOSC2_LIB_DIR ${blosc2libdir})
 
-    if(OPENEXR_RUN_FUZZ_TESTS)
-      target_compile_options(blosc2_static PUBLIC "-gdwarf-4")
-    endif()
   endif()
 else()
   message(STATUS "Blosc2: Using installed Blosc2 ${Blosc2_VERSION} from ${Blosc2_DIR}")
   # local build
   if(TARGET Blosc2::blosc2_static)
     message(STATUS "Blosc2: Setting up installed blosc directories")
-    
+
     get_target_property(blosc2inc Blosc2::blosc2_static INTERFACE_INCLUDE_DIRECTORIES)
     _error_if_not_found("INTERFACE_INCLUDE_DIRECTORIES" ${blosc2inc} "")
     set(BLOSC2_INCLUDE_DIRS ${blosc2inc})
-    
+
     get_target_property(blosc2libdir Blosc2::blosc2_static BINARY_DIR)
     _error_if_not_found("BINARY_DIR" ${blosc2libdir} "")
     set(BLOSC2_LIB_DIR ${blosc2libdir})
