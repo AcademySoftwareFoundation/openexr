@@ -22,6 +22,7 @@ public:
         size_t maxBytesPerLine, // max number of bytes per uncompressed line
         size_t numTileLines = 0 // tiled image only
     );
+    virtual ~ZstdCompressor ();
 
 private:
     using data_ptr = std::unique_ptr<char, decltype (&free)>;
@@ -43,6 +44,7 @@ private:
 
     int m_maxBytesPerLine; // max number of bytes per uncompressed tile line.
     int m_numTileLines;    // number of lines in a tile. 0 if scanline !
+    char* m_outBuffer;
 };
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
