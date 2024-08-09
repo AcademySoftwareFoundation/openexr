@@ -192,7 +192,11 @@ Pxr24Compressor::format () const
 
 int
 Pxr24Compressor::compress (
-    const char* inPtr, int inSize, int minY, const char*& outPtr)
+    const char*  inPtr,
+    int          inSize,
+    const int*   inSampleCountPerLine,
+    int          minY,
+    const char*& outPtr)
 {
     return compress (
         inPtr,
@@ -203,14 +207,22 @@ Pxr24Compressor::compress (
 
 int
 Pxr24Compressor::compressTile (
-    const char* inPtr, int inSize, Box2i range, const char*& outPtr)
+    const char*  inPtr,
+    int          inSize,
+    const int*   inSampleCountPerLine,
+    Box2i        range,
+    const char*& outPtr)
 {
     return compress (inPtr, inSize, range, outPtr);
 }
 
 int
 Pxr24Compressor::uncompress (
-    const char* inPtr, int inSize, int minY, const char*& outPtr)
+    const char*  inPtr,
+    int          inSize,
+    const int*   sampleCountPerLine,
+    int          minY,
+    const char*& outPtr)
 {
     return uncompress (
         inPtr,
@@ -221,7 +233,11 @@ Pxr24Compressor::uncompress (
 
 int
 Pxr24Compressor::uncompressTile (
-    const char* inPtr, int inSize, Box2i range, const char*& outPtr)
+    const char*  inPtr,
+    int          inSize,
+    const int*   sampleCountPerLine,
+    Box2i        range,
+    const char*& outPtr)
 {
     return uncompress (inPtr, inSize, range, outPtr);
 }

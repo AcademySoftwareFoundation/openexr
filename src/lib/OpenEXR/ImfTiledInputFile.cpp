@@ -575,9 +575,15 @@ TileBufferTask::execute ()
         {
             _tileBuffer->format = _tileBuffer->compressor->format ();
 
+            int numLines = tileRange.max.y - tileRange.min.y + 1;
+            int sampleCountPerLine[numLines];
+            for (int i = 0; i < numLines; ++i)
+                sampleCountPerLine[i] = numPixelsPerScanLine;
+
             _tileBuffer->dataSize = _tileBuffer->compressor->uncompressTile (
                 _tileBuffer->buffer,
                 _tileBuffer->dataSize,
+                sampleCountPerLine,
                 tileRange,
                 _tileBuffer->uncompressedData);
         }

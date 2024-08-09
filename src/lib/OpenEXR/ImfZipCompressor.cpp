@@ -43,7 +43,11 @@ ZipCompressor::numScanLines () const
 
 int
 ZipCompressor::compress (
-    const char* inPtr, int inSize, int minY, const char*& outPtr)
+    const char*  inPtr,
+    int          inSize,
+    const int*   inSampleCountPerLine,
+    int          minY,
+    const char*& outPtr)
 {
     //
     // Special case �- empty input buffer
@@ -63,7 +67,11 @@ ZipCompressor::compress (
 
 int
 ZipCompressor::uncompress (
-    const char* inPtr, int inSize, int minY, const char*& outPtr)
+    const char*  inPtr,
+    int          inSize,
+    const int*   sampleCountPerLine,
+    int          minY,
+    const char*& outPtr)
 {
     //
     // Special case �- empty input buffer

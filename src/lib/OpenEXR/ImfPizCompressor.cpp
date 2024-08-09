@@ -208,7 +208,11 @@ PizCompressor::format () const
 
 int
 PizCompressor::compress (
-    const char* inPtr, int inSize, int minY, const char*& outPtr)
+    const char*  inPtr,
+    int          inSize,
+    const int*   inSampleCountPerLine,
+    int          minY,
+    const char*& outPtr)
 {
     return compress (
         inPtr,
@@ -221,6 +225,7 @@ int
 PizCompressor::compressTile (
     const char*            inPtr,
     int                    inSize,
+    const int*             inSampleCountPerLine,
     IMATH_NAMESPACE::Box2i range,
     const char*&           outPtr)
 {
@@ -229,7 +234,11 @@ PizCompressor::compressTile (
 
 int
 PizCompressor::uncompress (
-    const char* inPtr, int inSize, int minY, const char*& outPtr)
+    const char*  inPtr,
+    int          inSize,
+    const int*   sampleCountPerLine,
+    int          minY,
+    const char*& outPtr)
 {
     return uncompress (
         inPtr,
@@ -242,6 +251,7 @@ int
 PizCompressor::uncompressTile (
     const char*            inPtr,
     int                    inSize,
+    const int*             sampleCountPerLine,
     IMATH_NAMESPACE::Box2i range,
     const char*&           outPtr)
 {

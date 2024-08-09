@@ -771,9 +771,14 @@ TileBufferTask::execute ()
         {
             const char* compPtr;
 
+            int sampleCountPerLine[numScanLines];
+            for (int i = 0; i < numScanLines; ++i)
+                sampleCountPerLine[i] = numPixelsPerScanLine;
+
             int compSize = _tileBuffer->compressor->compressTile (
                 _tileBuffer->dataPtr,
                 _tileBuffer->dataSize,
+                sampleCountPerLine,
                 tileRange,
                 compPtr);
 

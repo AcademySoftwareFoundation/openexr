@@ -20,20 +20,12 @@ std::mutex g_mutex;
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 ZstdCompressor::ZstdCompressor (
-    const Header& hdr, size_t tileLineSize, size_t numTileLines)
+    const Header& hdr, size_t maxBytesPerLine, size_t numTileLines)
     : Compressor (hdr)
-    , m_tileLineSize (tileLineSize)
+    , m_maxBytesPerLine (maxBytesPerLine)
     , m_numTileLines (numTileLines)
     , _outBuffer ()
-{
-    // we only need this for deep images to compute the sample count table size.
-    m_isTiled = hdr.hasTileDescription ();
-    if (m_isTiled)
-    {
-        auto td = hdr.tileDescription ();
-        m_tileArea = td.xSize * td.ySize;
-    }
-}
+{}
 
 int
 ZstdCompressor::numScanLines () const
@@ -44,15 +36,40 @@ ZstdCompressor::numScanLines () const
 
 int
 ZstdCompressor::compress (
-    const char* inPtr, int inSize, int minY, const char*& outPtr)
+    const char*  inPtr,
+    int          inSize,
+    const int*   inSampleCountPerLine,
+    int          minY,
+    const char*& outPtr)
 {
-    if (inSize == 0)
+#if (1)
+    int lineCount = m_numTileLines > 0 ? m_numTileLines : numScanLines ();
+    exr_attr_box2i_t range = {
+        {header ().dataWindow ().min.x, minY},
+        {header ().dataWindow ().max.x, minY + lineCount - 1}};
+
+    auto             channels = header ().channels ();
+    std::vector<int> bytesPerChannel;
+    for (auto ch = channels.begin (); ch != channels.end (); ++ch)
     {
-        outPtr = nullptr;
-        return 0;
+        bytesPerChannel.push_back (pixelTypeSize (ch.channel ().type));
     }
 
-    auto             totalChannelSize = 0;
+    const int compressedSize = exr_compress_zstd_v2 (
+        const_cast<char*> (inPtr),
+        inSize,
+        range,
+        bytesPerChannel.size (),
+        bytesPerChannel.data (),
+        inSampleCountPerLine,
+        (void*) outPtr);
+
+#else
+
+    // extract per-channel data size and total data size.
+    // NOTE: This is NOT OK for deep imnages.
+    int              lineCount        = m_isTiled ? m_numTileLines : 1;
+    int              totalChannelSize = 0;
     std::vector<int> sizePerChannel;
     auto             hdr      = header ();
     auto             channels = hdr.channels ();
@@ -68,9 +85,9 @@ ZstdCompressor::compress (
     if (numSamples * totalChannelSize != inSize)
     {
         // std::cout << "Tile: BAD" << std::endl;
-        // We received fewer data than expected. It probably is because we are
-        // processing the sampleCounts for DeepExr
-        sizePerChannel = {sampleCountTableSize ()};
+        // We received fewer data than expected. It probably is because we are processing
+        // the sampleCounts for DeepExr
+        sizePerChannel = {4}; // we compress it as an int
     }
 
     outPtr = (char*) malloc (inSize);
@@ -79,7 +96,7 @@ ZstdCompressor::compress (
         _outBuffer.push_back (data_ptr ((char*) outPtr, &free));
     }
 
-    const auto fullSize = exr_compress_zstd (
+    const auto compressedSize = exr_compress_zstd (
         const_cast<char*> (inPtr),
         inSize,
         numSamples,
@@ -87,12 +104,18 @@ ZstdCompressor::compress (
         sizePerChannel.size (),
         (void*) outPtr,
         inSize);
-    return fullSize;
+#endif
+
+    return compressedSize;
 }
 
 int
 ZstdCompressor::uncompress (
-    const char* inPtr, int inSize, int minY, const char*& outPtr)
+    const char*  inPtr,
+    int          inSize,
+    const int*   inSampleCountPerLine,
+    int          minY,
+    const char*& outPtr)
 {
     if (inSize == 0)
     {
@@ -100,24 +123,24 @@ ZstdCompressor::uncompress (
         return 0;
     }
 
-    auto  read  = (const char*) inPtr;
-    void* write = nullptr;
-    auto  ret   = exr_uncompress_zstd (read, inSize, &write, 0);
+    int  lineCount = m_numTileLines > 0 ? m_numTileLines : numScanLines ();
+    auto channels  = header ().channels ();
+    std::vector<int> bytesPerChannel;
+    for (auto ch = channels.begin (); ch != channels.end (); ++ch)
     {
-        std::lock_guard<std::mutex> lock (g_mutex);
-        _outBuffer.push_back (data_ptr ((char*) write, &free));
+        bytesPerChannel.push_back (pixelTypeSize (ch.channel ().type));
     }
-    outPtr = (const char*) write;
-    return ret;
-}
 
-int
-ZstdCompressor::sampleCountTableSize ()
-{
-    if (m_isTiled) { return m_tileArea * sizeof (int); }
-    const Header& hdr = header ();
-    return ((hdr.dataWindow ().max.x + 1) - hdr.dataWindow ().min.x) *
-           sizeof (int);
+    auto decompressedSize = exr_uncompress_zstd_v2 (
+        inPtr,
+        inSize,
+        bytesPerChannel.size (),
+        bytesPerChannel.data (),
+        lineCount,
+        inSampleCountPerLine,
+        (char*) outPtr);
+
+    return decompressedSize;
 }
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

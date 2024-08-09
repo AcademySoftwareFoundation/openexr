@@ -634,9 +634,11 @@ readSampleCountForLineBlock (
                 "Deep scanline data corrupt at chunk "
                     << lineBlockId << " (sampleCountTableDataSize error)");
         }
+        int sampleCountPerLine[1] = {0}; // signal table decompression
         data->sampleCountTableComp->uncompress (
             data->sampleCountTableBuffer,
             static_cast<int> (sampleCountTableDataSize),
+            sampleCountPerLine,
             minY,
             readPtr);
     }
@@ -825,10 +827,21 @@ LineBufferTask::execute ()
             {
                 _lineBuffer->format = _lineBuffer->compressor->format ();
 
+                int sampleCountPerLine[_lineBuffer->compressor
+                                           ->numScanLines ()];
+                int ll = 0;
+                for (int l = _lineBuffer->minY - _ifd->minY;
+                     l <= maxY - _ifd->minY;
+                     ++l)
+                {
+                    sampleCountPerLine[ll++] = _ifd->lineSampleCount[l];
+                }
+
                 _lineBuffer->packedDataSize =
                     _lineBuffer->compressor->uncompress (
                         _lineBuffer->buffer,
                         static_cast<int> (_lineBuffer->packedDataSize),
+                        sampleCountPerLine,
                         _lineBuffer->minY,
                         _lineBuffer->uncompressedData);
 
@@ -1969,9 +1982,31 @@ DeepScanLineInputFile::readPixels (
         decomp = newCompressor (
             _data->header.compression (), unpackedDataSize, _data->header);
 
+        // REFACTOR START
+        int         sampleCountPerLine[decomp->numScanLines ()];
+        auto        scSlice   = frameBuffer.getSampleCountSlice ();
+        const char* scBase    = scSlice.base;
+        int         scXstride = static_cast<int> (scSlice.xStride);
+        int         scYstride = static_cast<int> (scSlice.yStride);
+        int         minY      = data_scanline;
+        int         maxY = min (minY + _data->linesInBuffer - 1, _data->maxY);
+        int         minX = _data->header.dataWindow ().min.x;
+        int         maxX = _data->header.dataWindow ().max.x;
+        for (int y = minY; y <= maxY; ++y)
+        {
+            int count = 0;
+            for (int x = minX; x <= maxX; ++x)
+            {
+                count += sampleCount (scBase, scXstride, scYstride, x, y);
+            }
+            sampleCountPerLine[y] = count;
+        }
+        // REFACTOR END
+
         decomp->uncompress (
             rawPixelData + 28 + sampleCountTableDataSize,
             static_cast<int> (packedDataSize),
+            sampleCountPerLine,
             data_scanline,
             uncompressed_data);
         format = decomp->format ();
@@ -2188,9 +2223,11 @@ DeepScanLineInputFile::readPixelSampleCounts (
             rawSampleCountTableSize,
             _data->header);
 
+        int sampleCountPerLine[1] = {0}; // signal table decompression
         decomp->uncompress (
             rawPixelData + 28,
             static_cast<int> (sampleCountTableDataSize),
+            sampleCountPerLine,
             data_scanline,
             readPtr);
     }

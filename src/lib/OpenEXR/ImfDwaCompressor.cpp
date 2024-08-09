@@ -1774,7 +1774,11 @@ DwaCompressor::format () const
 
 int
 DwaCompressor::compress (
-    const char* inPtr, int inSize, int minY, const char*& outPtr)
+    const char*  inPtr,
+    int          inSize,
+    const int*   inSampleCountPerLine,
+    int          minY,
+    const char*& outPtr)
 {
     return compress (
         inPtr,
@@ -1789,6 +1793,7 @@ int
 DwaCompressor::compressTile (
     const char*            inPtr,
     int                    inSize,
+    const int*             inSampleCountPerLine,
     IMATH_NAMESPACE::Box2i range,
     const char*&           outPtr)
 {
@@ -2210,7 +2215,11 @@ DwaCompressor::compress (
 
 int
 DwaCompressor::uncompress (
-    const char* inPtr, int inSize, int minY, const char*& outPtr)
+    const char*  inPtr,
+    int          inSize,
+    const int*   sampleCountPerLine,
+    int          minY,
+    const char*& outPtr)
 {
     return uncompress (
         inPtr,
@@ -2225,6 +2234,7 @@ int
 DwaCompressor::uncompressTile (
     const char*            inPtr,
     int                    inSize,
+    const int*             sampleCountPerLine,
     IMATH_NAMESPACE::Box2i range,
     const char*&           outPtr)
 {

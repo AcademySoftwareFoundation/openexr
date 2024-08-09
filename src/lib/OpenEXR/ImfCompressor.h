@@ -123,13 +123,18 @@ public:
     //
     //-------------------------------------------------------------------------
 
-    virtual int
-    compress (const char* inPtr, int inSize, int minY, const char*& outPtr) = 0;
+    virtual int compress (
+        const char*  inPtr,
+        int          inSize,
+        const int*   inSampleCountPerLine,
+        int          minY,
+        const char*& outPtr) = 0;
 
     IMF_EXPORT
     virtual int compressTile (
         const char*            inPtr,
         int                    inSize,
+        const int*             sampleCountPerLine,
         IMATH_NAMESPACE::Box2i range,
         const char*&           outPtr);
 
@@ -150,12 +155,17 @@ public:
     //-------------------------------------------------------------------------
 
     virtual int uncompress (
-        const char* inPtr, int inSize, int minY, const char*& outPtr) = 0;
+        const char*  inPtr,
+        int          inSize,
+        const int*   sampleCountPerLine,
+        int          minY,
+        const char*& outPtr) = 0;
 
     IMF_EXPORT
     virtual int uncompressTile (
         const char*            inPtr,
         int                    inSize,
+        const int*             sampleCountPerLine,
         IMATH_NAMESPACE::Box2i range,
         const char*&           outPtr);
 

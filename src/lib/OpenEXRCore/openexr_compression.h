@@ -7,6 +7,7 @@
 #define OPENEXR_CORE_COMPRESSION_H
 
 #include "openexr_context.h"
+#include "openexr_attr.h"
 
 #include <stddef.h>
 
@@ -56,8 +57,28 @@ long exr_compress_zstd (
     int    outPtrSize);
 
 EXR_EXPORT
+long exr_compress_zstd_v2 (
+    const char*            inPtr,
+    const size_t           inSize,
+    const exr_attr_box2i_t range,
+    const int              channelCount,
+    const int*             channelsTypeSize,
+    const int*             sampleCountPerLine,
+    void*                  outPtr);
+
+EXR_EXPORT
 long exr_uncompress_zstd (
     const char* inPtr, uint64_t inSize, void** outPtr, uint64_t outPtrSize);
+
+EXR_EXPORT
+long exr_uncompress_zstd_v2 (
+    const char*    inPtr,
+    const uint64_t inSize,
+    const int      channelCount,
+    const int*     channelsTypeSize,
+    const int      lineCount,
+    const int*     sampleCountPerLine,
+    char*          outPtr);
 
 EXR_EXPORT
 size_t exr_get_zstd_lines_per_chunk ();

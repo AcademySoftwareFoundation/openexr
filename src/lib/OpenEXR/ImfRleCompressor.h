@@ -31,11 +31,19 @@ public:
 
     virtual int numScanLines () const;
 
-    virtual int
-    compress (const char* inPtr, int inSize, int minY, const char*& outPtr);
+    virtual int compress (
+        const char*  inPtr,
+        int          inSize,
+        const int*   inSampleCountPerLine,
+        int          minY,
+        const char*& outPtr);
 
-    virtual int
-    uncompress (const char* inPtr, int inSize, int minY, const char*& outPtr);
+    virtual int uncompress (
+        const char*  inPtr,
+        int          inSize,
+        const int*   sampleCountPerLine,
+        int          minY,
+        const char*& outPtr);
 
 private:
     int   _maxScanLineSize;

@@ -519,7 +519,11 @@ B44Compressor::format () const
 
 int
 B44Compressor::compress (
-    const char* inPtr, int inSize, int minY, const char*& outPtr)
+    const char*  inPtr,
+    int          inSize,
+    const int*   inSampleCountPerLine,
+    int          minY,
+    const char*& outPtr)
 {
     return compress (
         inPtr,
@@ -532,6 +536,7 @@ int
 B44Compressor::compressTile (
     const char*            inPtr,
     int                    inSize,
+    const int*             inSampleCountPerLine,
     IMATH_NAMESPACE::Box2i range,
     const char*&           outPtr)
 {
@@ -540,7 +545,11 @@ B44Compressor::compressTile (
 
 int
 B44Compressor::uncompress (
-    const char* inPtr, int inSize, int minY, const char*& outPtr)
+    const char*  inPtr,
+    int          inSize,
+    const int*   sampleCountPerLine,
+    int          minY,
+    const char*& outPtr)
 {
     return uncompress (
         inPtr,
@@ -553,6 +562,7 @@ int
 B44Compressor::uncompressTile (
     const char*            inPtr,
     int                    inSize,
+    const int*             sampleCountPerLine,
     IMATH_NAMESPACE::Box2i range,
     const char*&           outPtr)
 {

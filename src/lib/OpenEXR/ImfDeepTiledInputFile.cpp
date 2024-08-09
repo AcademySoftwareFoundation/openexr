@@ -542,12 +542,14 @@ TileBufferTask::execute ()
 
         int sizeOfTile          = 0;
         int maxBytesPerTileLine = 0;
+        int sampleCountPerLine[tileRange.max.y - tileRange.min.y + 1];
 
         for (int y = tileRange.min.y; y <= tileRange.max.y; y++)
         {
             numPixelsPerScanLine[y - tileRange.min.y] = 0;
 
-            int bytesPerLine = 0;
+            int bytesPerLine      = 0;
+            sampleCountPerLine[y] = 0;
 
             for (int x = tileRange.min.x; x <= tileRange.max.x; x++)
             {
@@ -555,6 +557,7 @@ TileBufferTask::execute ()
                 int yOffset = _ifd->sampleCountYTileCoords * tileRange.min.y;
 
                 int count = _ifd->getSampleCount (x - xOffset, y - yOffset);
+                sampleCountPerLine[y] += count;
                 for (unsigned int c = 0; c < _ifd->slices.size (); ++c)
                 {
                     // This slice does not exist in the file.
@@ -593,6 +596,7 @@ TileBufferTask::execute ()
             _tileBuffer->dataSize = _tileBuffer->compressor->uncompressTile (
                 _tileBuffer->buffer,
                 static_cast<int> (_tileBuffer->dataSize),
+                sampleCountPerLine,
                 tileRange,
                 _tileBuffer->uncompressedData);
         }
@@ -1947,9 +1951,11 @@ DeepTiledInputFile::readPixelSampleCounts (
                                 << dx << ',' << dy << ',' << lx << ',' << ly
                                 << " (sampleCountTableDataSize error)");
                     }
+                    int sampleCountPerLine[1] = {0}; // signal table decompress
                     _data->sampleCountTableComp->uncompress (
                         _data->sampleCountTableBuffer,
                         static_cast<int> (tableSize),
+                        sampleCountPerLine,
                         tileRange.min.y,
                         readPtr);
                 }

@@ -6,7 +6,11 @@
 #include <openexr_compression.h>
 #include "internal_compress.h"
 #include "internal_decompress.h"
+#include <assert.h>
 #include "blosc2.h"
+
+static const size_t EXR_HALF_PRECISION_SIZE   = 2;
+static const size_t EXR_SINGLE_PRECISION_SIZE = 4;
 
 size_t
 exr_get_zstd_lines_per_chunk ()
@@ -88,8 +92,11 @@ exr_compress_zstd (
     void*  outPtr,
     int    outPtrSize)
 {
-    const int magicNumber =
-        0xDEADBEEF01; // did we compress the stream or just copied the input
+    // FIXME: clang warns about this magicNumber:
+    // warning: implicit conversion from 'long' to 'int' changes value from 956397711105 to -1379995903
+    // I don't know what this is for: it's not used anywhere.
+    // const int magicNumber =
+    //     0xDEADBEEF01; // did we compress the stream or just copied the input
 
     if (inSize == 0) // Weird input data when subsampling
     {
@@ -180,12 +187,233 @@ exr_compress_zstd (
     return totalCompressedSize;
 }
 
+void
+cumulative_samples_per_line (
+    int        lineCount,          // in: number of lines
+    const int* sampleCountPerLine, // in: number of samples per line
+    int*       cumSampsPerLine     // out: cumulative samples per lines
+)
+{
+    cumSampsPerLine[0] = 0;
+    for (int i = 0; i <= lineCount; ++i)
+    {
+        cumSampsPerLine[i + 1] = cumSampsPerLine[i] + sampleCountPerLine[i];
+    }
+}
+
+// returns start offsets for all planar channels,
+//
+void
+channel_offsets (
+    int        channelCount,     // in: nuber of channels
+    const int* channelsTypeSize, // in: type byte size per channel
+    int        bufSampleCount,   // in: total number of samples in buffer
+    size_t*    chOffsets,        // out: buffer offsets array
+    size_t*    typeSplitOfst     // out: offset of single precison data
+)
+{
+    // count the number of half and single precision channels
+    int n_half   = 0;
+    int n_single = 0;
+    for (int ch = 0; ch < channelCount; ++ch)
+    {
+        if (channelsTypeSize[ch] == EXR_HALF_PRECISION_SIZE)
+            ++n_half;
+        else
+            ++n_single;
+    }
+
+    // map offsets to channel numbers
+    int    nh           = 0;
+    int    ns           = 0;
+    size_t half_ch_size = bufSampleCount * EXR_HALF_PRECISION_SIZE;
+    size_t out_split    = n_half * half_ch_size;
+    for (int i = 0; i < channelCount; ++i)
+    {
+        if (channelsTypeSize[i] == EXR_HALF_PRECISION_SIZE)
+        {
+            chOffsets[i] = half_ch_size * nh;
+            ++nh;
+        }
+        else if (channelsTypeSize[i] == EXR_SINGLE_PRECISION_SIZE)
+        {
+            chOffsets[i] = out_split + half_ch_size * 2 * ns;
+            ++ns;
+        }
+    }
+    *typeSplitOfst = out_split;
+}
+
+// Unpack a scanline/tile buffer into a single buffer. Half channels come first,
+// followed by float/uint channels). outSplitPos marks the begining of float/uint
+// data.
+// The buffers contain per-channel planar (multi-line) data.
+// Supports deep files by handling arbitrary number of samples per pixel.
+//
+// Example: 2 lines of 3 pixels with half r, float g, half b, uint i channels:
+//
+// before:
+// [rh rh rh gs gs gs bh bh bh is is is rh rh rh gs gs gs bh bh bh is is is]
+//
+// after:
+// [rh rh rh rh rh rh bh bh bh bh bh bh gs gs gs gs gs gs is is is is is is]
+// ^                                   ^
+// outPos                          outSplitPos
+//
+void
+unpack_channels (
+    const char*            inPtr,              // input data
+    const int              inSize,             // input data size
+    const exr_attr_box2i_t range,              // single/multi scanline or tile
+    const int              channelCount,       // number of input channels
+    const int*             channelsTypeSize,   // type sizes for each channel
+    const int*             sampleCountPerLine, // samples count per line
+    char*                  outPtr,      // out: unallocated buffer pointer
+    int*                   outSplitOfst // out: pointer to single precision data
+)
+{
+    outPtr = malloc (inSize);
+
+    int lineCount = range.max.y - range.min.y + 1;
+
+    int cumSampsPerLine[lineCount + 1];
+    cumulative_samples_per_line (
+        lineCount, sampleCountPerLine, cumSampsPerLine);
+    int bufSampleCount = cumSampsPerLine[lineCount];
+
+    size_t chOffsets[channelCount];
+    size_t splitOffset = 0;
+    channel_offsets (
+        channelCount,
+        channelsTypeSize,
+        bufSampleCount,
+        chOffsets,
+        &splitOffset);
+
+    char* inPos = (char*) inPtr;
+    for (int ln = 0; ln < lineCount; ++ln)
+    {
+        for (int ch = 0; ch < channelCount; ++ch)
+        {
+            size_t copySize = channelsTypeSize[ch] * sampleCountPerLine[ln];
+            char*  outPos   = outPtr + chOffsets[ch] +
+                           cumSampsPerLine[ln] * channelsTypeSize[ch];
+            memcpy (outPos, inPos, copySize);
+            inPos += copySize;
+        }
+    }
+
+    *outSplitOfst = (int) splitOffset;
+}
+
+// new implementation - philippe
+//
+// output buffer layout:
+//  [
+//      size_t half_buffer_size
+//      half_data
+//      ...
+//      size_t single_buffer_size
+//      single_data
+//      ...
+//  ]
+//
+long
+exr_compress_zstd_v2 (
+    const char*            inPtr,              // input buffer
+    const size_t           inSize,             // input buffer size
+    const exr_attr_box2i_t range,              // scanline(s) / tile bounds
+    const int              channelCount,       // number of channels
+    const int*             channelsTypeSize,   // byte size per channel
+    const int*             sampleCountPerLine, // number of samples per line
+    void*                  outPtr              // output buffer
+)
+{
+    // case where stride > 1 and we should skip.
+    if (inSize == 0)
+    {
+        outPtr = NULL;
+        return 0;
+    }
+
+    // FIXME: outPtr is not allocated !!
+    char* flatBuf         = NULL; // storage for unpacked channels
+    char* flatBufSplitPos = NULL; // pointer to full precision data section
+
+    if (sampleCountPerLine[0] == 0)
+    {
+        // compress sample table: use the single precision buffer.
+        flatBuf         = (char*) inPtr;
+        flatBufSplitPos = (char*) inPtr;
+    }
+    else
+    {
+        flatBuf         = malloc (inSize);
+        int flatBufOfst = 0;
+        unpack_channels (
+            inPtr,
+            inSize,
+            range,
+            channelCount,
+            channelsTypeSize,
+            sampleCountPerLine,
+            flatBuf,
+            &flatBufOfst);
+        flatBufSplitPos = flatBuf + flatBufOfst;
+    }
+    assert (flatBufSplitPos != NULL);
+
+    // compress buffers here
+    long  outPtrSize  = 0;
+    void* outPtrPos   = outPtr;
+    void* scratch     = malloc (inSize);
+    char* bufs[2]     = {flatBuf, flatBufSplitPos};
+    long  bufsSize[2] = {
+        flatBufSplitPos > flatBuf ? flatBufSplitPos - flatBuf : 0,
+        (flatBuf + inSize) - flatBufSplitPos};
+    int bufsDataSize[2] = {EXR_HALF_PRECISION_SIZE, EXR_SINGLE_PRECISION_SIZE};
+    for (unsigned b = 0; b < 2; ++b)
+    {
+        // compress buffer section
+        long compressedSize = 0;
+        if (bufsSize[b] > 0)
+        {
+            compressedSize = compress_ztsd_blosc_chunk (
+                bufs[b], bufsSize[b], bufsDataSize[b], scratch, inSize);
+            if (sampleCountPerLine[0] == 0)
+                printf ("  > table size = %d\n", (int) compressedSize);
+            else
+                printf ("  > buf size = %d\n", (int) compressedSize);
+        }
+
+        // always write buffer size
+        bool   isSmaller = compressedSize < bufsSize[b];
+        size_t outSize   = isSmaller ? (size_t) compressedSize
+                                     : (size_t) bufsSize[b];
+        memcpy (outPtrPos, &outSize, sizeof (size_t));
+        outPtrPos += sizeof (outSize);
+
+        // write buffer data if not empty
+        if (outSize > 0)
+        {
+            memcpy (outPtrPos, isSmaller ? scratch : bufs[b], outSize);
+            // update tracking vars
+            outPtrSize += outSize;
+            outPtrPos += outSize;
+        }
+    }
+    free (scratch);
+    if (flatBuf != inPtr) free (flatBuf);
+
+    return outPtrSize;
+}
+
 long
 exr_uncompress_zstd (
     const char* inPtr, uint64_t inSize, void** outPtr, uint64_t outPtrSize)
 {
     long  numChunks;
-    char* inputPointer          = inPtr; // tracks the reading pointer
+    char* inputPointer          = (char*) inPtr; // tracks the reading pointer
     long  totalDecompressedSize = 0;
 
     memcpy (&numChunks, inputPointer, sizeof (numChunks));
@@ -246,6 +474,120 @@ exr_uncompress_zstd (
     }
 
     return totalDecompressedSize;
+}
+
+// pack an unpacked buffer into a scanline/tile buffer. Half channels come first,
+// followed by float/uint channels). outSplitPos marks the begining of float/uint
+// data.
+// The input buffers contain per-channel planar (multi-line) data.
+// Supports deep files by handling arbitrary number of samples per pixel.
+//
+// Example
+//  2 lines of 3 pixels with half r, float g, half b, uint i channels, 1 sample
+//  per pixel (non-deep file).
+//
+//  before:
+//  [rh rh rh rh rh rh bh bh bh bh bh bh gs gs gs gs gs gs is is is is is is]
+//
+//  after:
+//  [rh rh rh gs gs gs bh bh bh is is is rh rh rh gs gs gs bh bh bh is is is]
+//
+void
+pack_channels (
+    const char* inPtr,
+    const int   inSize,
+    const int   channelCount,
+    const int*  channelsTypeSize,
+    const int   lineCount,
+    const int*  sampleCountPerLine,
+    void*       outPtr)
+{
+    outPtr = malloc (inSize);
+
+    int cumSampsPerLine[lineCount + 1];
+    cumulative_samples_per_line (
+        lineCount, sampleCountPerLine, cumSampsPerLine);
+    int bufSampleCount = cumSampsPerLine[lineCount];
+
+    size_t chOffsets[channelCount];
+    size_t splitOffset = 0;
+    channel_offsets (
+        channelCount,
+        channelsTypeSize,
+        bufSampleCount,
+        chOffsets,
+        &splitOffset);
+
+    char* outPos = (char*) outPtr;
+    for (int ln = 0; ln < lineCount; ++ln)
+    {
+        for (int ch = 0; ch < channelCount; ++ch)
+        {
+            size_t copySize = channelsTypeSize[ch] * sampleCountPerLine[ln];
+            char*  inPos    = (char*) inPtr + chOffsets[ch] +
+                          cumSampsPerLine[ln] * channelsTypeSize[ch];
+            memcpy (outPos, inPos, copySize);
+            outPos += copySize;
+        }
+    }
+}
+
+long
+exr_uncompress_zstd_v2 (
+    const char*    inPtr,
+    const uint64_t inSize,
+    const int      channelCount,
+    const int*     channelsTypeSize,
+    const int      lineCount,
+    const int*     sampleCountPerLine,
+    char*          outPtr)
+{
+    int   outSize        = 0;
+    char* inPtrPos       = (char*) inPtr;
+    int   decompSize     = inSize * 2;
+    char* decompPtr      = malloc (decompSize);
+    char* decompWritePos = decompPtr;
+    char* decompPtrs[2];
+
+    for (int b = 0; b < 2; ++b)
+    {
+        // read compressed buffer size
+        size_t compressedBufSize = 0;
+        memcpy (&compressedBufSize, inPtrPos, sizeof (compressedBufSize));
+        inPtrPos += sizeof (compressedBufSize); // move read position
+        decompPtrs[b] = inPtrPos;
+
+        if (compressedBufSize == 0) continue;
+
+        // read buffer
+        const long decompressedSize = uncompress_ztsd_blosc_chunk (
+            inPtrPos,
+            compressedBufSize,
+            (void**) &decompWritePos,
+            0 // ask function to allocate required memory
+        );
+        if (decompressedSize < 0) printf ("ERROR: bloc2 failed to compress !!");
+        outSize += decompressedSize;
+        decompWritePos += decompressedSize;
+    }
+
+    if (sampleCountPerLine[0] == 0)
+    {
+        // we decompressed the sample count table
+        memcpy (outPtr, decompPtrs[1], outSize);
+        return outSize;
+    }
+
+    pack_channels (
+        decompPtr,
+        inSize,
+        channelCount,
+        channelsTypeSize,
+        lineCount,
+        sampleCountPerLine,
+        outPtr);
+
+    return outSize;
 }
 
 exr_result_t

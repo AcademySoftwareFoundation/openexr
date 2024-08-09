@@ -39,16 +39,24 @@ Compressor::format () const
 
 int
 Compressor::compressTile (
-    const char* inPtr, int inSize, Box2i range, const char*& outPtr)
+    const char*  inPtr,
+    int          inSize,
+    const int*   inSampleCountPerLine,
+    Box2i        range,
+    const char*& outPtr)
 {
-    return compress (inPtr, inSize, range.min.y, outPtr);
+    return compress (inPtr, inSize, inSampleCountPerLine, range.min.y, outPtr);
 }
 
 int
 Compressor::uncompressTile (
-    const char* inPtr, int inSize, Box2i range, const char*& outPtr)
+    const char*  inPtr,
+    int          inSize,
+    const int*   sampleCountPerLine,
+    Box2i        range,
+    const char*& outPtr)
 {
-    return uncompress (inPtr, inSize, range.min.y, outPtr);
+    return uncompress (inPtr, inSize, sampleCountPerLine, range.min.y, outPtr);
 }
 
 Compressor*
@@ -103,7 +111,7 @@ newCompressor (Compression c, size_t maxScanLineSize, const Header& hdr)
 
         case ZSTD_COMPRESSION:
 
-            return new ZstdCompressor (hdr);
+            return new ZstdCompressor (hdr, maxScanLineSize);
 
         default: return 0;
     }

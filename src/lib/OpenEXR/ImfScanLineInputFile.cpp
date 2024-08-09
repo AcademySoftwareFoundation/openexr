@@ -521,9 +521,17 @@ LineBufferTask::execute ()
             {
                 _lineBuffer->format = _lineBuffer->compressor->format ();
 
+                int numLines  = _lineBuffer->compressor->numScanLines ();
+                int numPixels = _ifd->header.dataWindow ().max.x -
+                                _ifd->header.dataWindow ().min.x + 1;
+                int sampleCountPerLine[numLines];
+                for (int i = 0; i < numLines; ++i)
+                    sampleCountPerLine[i] = numPixels;
+
                 _lineBuffer->dataSize = _lineBuffer->compressor->uncompress (
                     _lineBuffer->buffer,
                     _lineBuffer->dataSize,
+                    sampleCountPerLine,
                     _lineBuffer->minY,
                     _lineBuffer->uncompressedData);
             }
@@ -840,9 +848,17 @@ LineBufferTaskIIF::execute ()
             {
                 _lineBuffer->format = _lineBuffer->compressor->format ();
 
+                int numLines  = _lineBuffer->compressor->numScanLines ();
+                int numPixels = _ifd->header.dataWindow ().max.x -
+                                _ifd->header.dataWindow ().min.x + 1;
+                int sampleCountPerLine[numLines];
+                for (int i = 0; i < numLines; ++i)
+                    sampleCountPerLine[i] = numPixels;
+
                 _lineBuffer->dataSize = _lineBuffer->compressor->uncompress (
                     _lineBuffer->buffer,
                     _lineBuffer->dataSize,
+                    sampleCountPerLine,
                     _lineBuffer->minY,
                     _lineBuffer->uncompressedData);
             }

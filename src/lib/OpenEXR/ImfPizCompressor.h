@@ -35,21 +35,31 @@ public:
 
     virtual Format format () const;
 
-    virtual int
-    compress (const char* inPtr, int inSize, int minY, const char*& outPtr);
+    virtual int compress (
+        const char*  inPtr,
+        int          inSize,
+        const int*   inSampleCountPerLine,
+        int          minY,
+        const char*& outPtr);
 
     virtual int compressTile (
         const char*            inPtr,
         int                    inSize,
+        const int*             inSampleCountPerLine,
         IMATH_NAMESPACE::Box2i range,
         const char*&           outPtr);
 
-    virtual int
-    uncompress (const char* inPtr, int inSize, int minY, const char*& outPtr);
+    virtual int uncompress (
+        const char*  inPtr,
+        int          inSize,
+        const int*   sampleCountPerLine,
+        int          minY,
+        const char*& outPtr);
 
     virtual int uncompressTile (
         const char*            inPtr,
         int                    inSize,
+        const int*             sampleCountPerLine,
         IMATH_NAMESPACE::Box2i range,
         const char*&           outPtr);
 

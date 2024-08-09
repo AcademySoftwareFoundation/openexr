@@ -50,7 +50,11 @@ RleCompressor::numScanLines () const
 
 int
 RleCompressor::compress (
-    const char* inPtr, int inSize, int minY, const char*& outPtr)
+    const char*  inPtr,
+    int          inSize,
+    const int*   inSampleCountPerLine,
+    int          minY,
+    const char*& outPtr)
 {
     //
     // Special case �- empty input buffer
@@ -113,7 +117,11 @@ RleCompressor::compress (
 
 int
 RleCompressor::uncompress (
-    const char* inPtr, int inSize, int minY, const char*& outPtr)
+    const char*  inPtr,
+    int          inSize,
+    const int*   sampleCountPerLine,
+    int          minY,
+    const char*& outPtr)
 {
     //
     // Special case �- empty input buffer
