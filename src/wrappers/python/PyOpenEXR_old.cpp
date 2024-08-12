@@ -851,7 +851,7 @@ static PyTypeObject InputFile_Type = {
 
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
 
-    "OpenEXR Input file object",
+    "OpenEXR Input file object - Deprecated; this class is provided for backwards compatibility and will be removed in a future release",
 
     0,
     0,
@@ -1128,7 +1128,7 @@ static PyTypeObject OutputFile_Type = {
 
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
 
-    "OpenEXR Output file object",
+    "OpenEXR Output file object - Deprecated; this class is provided for backwards compatibility and will be removed in a future release",
 
     0,
     0,
