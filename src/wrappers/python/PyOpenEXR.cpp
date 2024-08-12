@@ -187,7 +187,7 @@ PyFile::PyFile(const std::string& filename, bool separate_channels, bool header_
             {
                 std::string py_channel_name;
                 char channel_name;
-                if (P.rgbaChannel(header.channels(), c.name(), py_channel_name, channel_name))
+                if (P.channelNameToRGBA(header.channels(), c.name(), py_channel_name, channel_name) > 0)
                     rgbaChannels.insert(c.name());
             }
         }
@@ -224,7 +224,7 @@ PyPart::readPixels(MultiPartInputFile& infile, const ChannelList& channel_list,
         char channel_name; 
         int nrgba = 0;
         if (!separate_channels)
-            nrgba = rgbaChannel(channel_list, c.name(), py_channel_name, channel_name);
+            nrgba = channelNameToRGBA(channel_list, c.name(), py_channel_name, channel_name);
             
         auto py_channel_name_str = py::str(py_channel_name);
             
@@ -502,7 +502,7 @@ PyPart::readDeepPixels(MultiPartInputFile& infile, const std::string& type, cons
         char channel_name; 
         int nrgba = 0;
         if (!separate_channels)
-            nrgba = rgbaChannel(channel_list, c.name(), py_channel_name, channel_name);
+            nrgba = channelNameToRGBA(channel_list, c.name(), py_channel_name, channel_name);
         
         auto py_channel_name_str = py::str(py_channel_name);
             
@@ -900,8 +900,8 @@ PyPart::writeDeepPixels(MultiPartOutputFile& outfile, const Box2i& dw) const
 //
 
 int
-PyPart::rgbaChannel(const ChannelList& channel_list, const std::string& name,
-                    std::string& py_channel_name, char& channel_name)
+PyPart::channelNameToRGBA(const ChannelList& channel_list, const std::string& name,
+                          std::string& py_channel_name, char& channel_name)
 {
     py_channel_name = name;
     channel_name = py_channel_name.back();
@@ -910,7 +910,7 @@ PyPart::rgbaChannel(const ChannelList& channel_list, const std::string& name,
         channel_name == 'B' ||
         channel_name == 'A')
     {
-        // has the right final character. The preceding character is either a
+        // It has the right final character. The preceding character is either a
         // '.' (in the case of "right.R", or empty (in the case of a channel
         // called "R")
         //
@@ -1475,7 +1475,7 @@ PyFile::getAttributeObject(const std::string& name, const Attribute* a)
     
 template <class P, class T>
 bool
-is_v2(const py::object& object, Vec2<T>& v)
+objectToV2(const py::object& object, Vec2<T>& v)
 {
     if (py::isinstance<py::tuple>(object))
     {
@@ -1505,19 +1505,19 @@ is_v2(const py::object& object, Vec2<T>& v)
 }
 
 bool
-is_v2i(const py::object& object, V2i& v)
+objectToV2i(const py::object& object, V2i& v)
 {
-    return is_v2<py::int_, int>(object, v);
+    return objectToV2<py::int_, int>(object, v);
 }
 
 bool
-is_v2f(const py::object& object, V2f& v)
+objectToV2f(const py::object& object, V2f& v)
 {
-    return is_v2<py::float_, float>(object, v);
+    return objectToV2<py::float_, float>(object, v);
 }
 
 bool
-is_v2d(const py::object& object, V2d& v)
+objectToV2d(const py::object& object, V2d& v)
 {
     if (py::isinstance<py::array_t<double>>(object))
     {
@@ -1535,7 +1535,7 @@ is_v2d(const py::object& object, V2d& v)
 
 template <class P, class T>
 bool
-is_v3(const py::object& object, Vec3<T>& v)
+objectToV3(const py::object& object, Vec3<T>& v)
 {
     if (py::isinstance<py::tuple>(object))
     {
@@ -1568,19 +1568,19 @@ is_v3(const py::object& object, Vec3<T>& v)
 }
 
 bool
-is_v3i(const py::object& object, V3i& v)
+objectToV3i(const py::object& object, V3i& v)
 {
-    return is_v3<py::int_, int>(object, v);
+    return objectToV3<py::int_, int>(object, v);
 }
 
 bool
-is_v3f(const py::object& object, V3f& v)
+objectToV3f(const py::object& object, V3f& v)
 {
-    return is_v3<py::float_, float>(object, v);
+    return objectToV3<py::float_, float>(object, v);
 }
 
 bool
-is_v3d(const py::object& object, V3d& v)
+objectToV3d(const py::object& object, V3d& v)
 {
     if (py::isinstance<py::array_t<double>>(object))
     {
@@ -1599,7 +1599,7 @@ is_v3d(const py::object& object, V3d& v)
 
 template <class T>
 bool
-is_m33(const py::object& object, Matrix33<T>& m)
+objectToM33(const py::object& object, Matrix33<T>& m)
 {
     if (py::isinstance<py::array_t<T>>(object))
     {
@@ -1619,7 +1619,7 @@ is_m33(const py::object& object, Matrix33<T>& m)
 
 template <class T>
 bool
-is_m44(const py::object& object, Matrix44<T>& m)
+objectToM44(const py::object& object, Matrix44<T>& m)
 {
     if (py::isinstance<py::array_t<T>>(object))
     {
@@ -1640,13 +1640,13 @@ is_m44(const py::object& object, Matrix44<T>& m)
 
     
 bool
-is_box2i(const py::object& object, Box2i& b)
+objectToBox2i(const py::object& object, Box2i& b)
 {
     if (py::isinstance<py::tuple>(object))
     {
         auto tup = object.cast<py::tuple>();
         if (tup.size() == 2)
-            if (is_v2i(tup[0], b.min) && is_v2i(tup[1], b.max))
+            if (objectToV2i(tup[0], b.min) && objectToV2i(tup[1], b.max))
                 return true;
     }
 
@@ -1654,7 +1654,7 @@ is_box2i(const py::object& object, Box2i& b)
 }
          
 bool
-is_box2f(const py::object& object, Box2f& b)
+objectToBox2f(const py::object& object, Box2f& b)
 {
     if (py::isinstance<py::tuple>(object))
     {
@@ -1662,7 +1662,7 @@ is_box2f(const py::object& object, Box2f& b)
         if (tup.size() == 2)
         {
             Box2f box;
-            if (is_v2f(tup[0], box.min) && is_v2f(tup[1], box.max))
+            if (objectToV2f(tup[0], box.min) && objectToV2f(tup[1], box.max))
                 return true;
         }
     }
@@ -1671,7 +1671,7 @@ is_box2f(const py::object& object, Box2f& b)
 }
          
 bool
-is_chromaticities(const py::object& object, Chromaticities& v)
+objectToChromaticities(const py::object& object, Chromaticities& v)
 {
     if (py::isinstance<py::tuple>(object))
     {
@@ -1717,7 +1717,7 @@ PyFile::insertAttribute(Header& header, const std::string& name, const py::objec
         name == "sensorAcquisitionRectangle")
     {
         Box2i b;
-        if (is_box2i(object, b))
+        if (objectToBox2i(object, b))
         {
             header.insert(name, Box2iAttribute(b));
             return;
@@ -1735,7 +1735,7 @@ PyFile::insertAttribute(Header& header, const std::string& name, const py::objec
         name == "adoptedNeutral")
     {
         V2f v;
-        if (is_v2f(object, v))
+        if (objectToV2f(object, v))
         {
             header.insert(name, V2fAttribute(v));
             return;
@@ -1749,7 +1749,7 @@ PyFile::insertAttribute(Header& header, const std::string& name, const py::objec
     if (name == "chromaticities")
     {
         Chromaticities c;
-        if (is_chromaticities(object, c))
+        if (objectToChromaticities(object, c))
         {
             header.insert(name, ChromaticitiesAttribute(c));
             return;
@@ -1763,70 +1763,70 @@ PyFile::insertAttribute(Header& header, const std::string& name, const py::objec
     //
     
     V2i v2i;
-    if (is_v2i(object, v2i))
+    if (objectToV2i(object, v2i))
     {       
         header.insert(name, V2iAttribute(v2i));
         return;
     }
 
     V2f v2f;
-    if (is_v2f(object, v2f))
+    if (objectToV2f(object, v2f))
     {       
         header.insert(name, V2fAttribute(v2f));
         return;
     }
 
     V2d v2d;
-    if (is_v2d(object, v2d))
+    if (objectToV2d(object, v2d))
     {       
         header.insert(name, V2dAttribute(v2d));
         return;
     }
 
     V3i v3i;
-    if (is_v3i(object, v3i))
+    if (objectToV3i(object, v3i))
     {       
         header.insert(name, V3iAttribute(v3i));
         return;
     }
 
     V3f v3f;
-    if (is_v3f(object, v3f))
+    if (objectToV3f(object, v3f))
     {       
         header.insert(name, V3fAttribute(v3f));
         return;
     }
 
     V3d v3d;
-    if (is_v3d(object, v3d))
+    if (objectToV3d(object, v3d))
     {       
         header.insert(name, V3dAttribute(v3d));
         return;
     }
 
     M33f m33f;
-    if (is_m33(object, m33f))
+    if (objectToM33(object, m33f))
     {       
         header.insert(name, M33fAttribute(m33f));
         return;
     }
 
     M33d m33d;
-    if (is_m33(object, m33d))
+    if (objectToM33(object, m33d))
     {       
         header.insert(name, M33dAttribute(m33d));
         return;
     }
 
     M44f m44f;
-    if (is_m44(object, m44f))
+    if (objectToM44(object, m44f))
     {       
         header.insert(name, M44fAttribute(m44f));
         return;
     }
 
     M44d m44d;
-    if (is_m44(object, m44d))
+    if (objectToM44(object, m44d))
     {       
         header.insert(name, M44dAttribute(m44d));
         return;
@@ -1837,14 +1837,14 @@ PyFile::insertAttribute(Header& header, const std::string& name, const py::objec
     //
     
     Box2i box2i;
-    if (is_box2i(object, box2i))
+    if (objectToBox2i(object, box2i))
     {       
         header.insert(name, Box2iAttribute(box2i));
         return;
     }
 
     Box2f box2f;
-    if (is_box2f(object, box2f))
+    if (objectToBox2f(object, box2f))
     {       
         header.insert(name, Box2fAttribute(box2f));
         return;
@@ -1855,7 +1855,7 @@ PyFile::insertAttribute(Header& header, const std::string& name, const py::objec
     //
     
     Chromaticities c;
-    if (is_chromaticities(object, c))
+    if (objectToChromaticities(object, c))
     {
         header.insert(name, ChromaticitiesAttribute(c));
         return;
