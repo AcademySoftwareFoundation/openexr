@@ -93,6 +93,8 @@ public:
     IMF_EXPORT
     KeyCode& operator= (const KeyCode& other);
 
+    bool operator== (const KeyCode& other) const;
+
     //----------------------------
     // Access to individual fields
     //----------------------------

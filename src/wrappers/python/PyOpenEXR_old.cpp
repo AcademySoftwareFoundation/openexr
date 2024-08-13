@@ -5,6 +5,9 @@
 
 #define PY_SSIZE_T_CLEAN // required for Py_BuildValue("s#") for Python 3.10
 #include <Python.h>
+#include <pybind11/pybind11.h>
+
+namespace py = pybind11;
 
 #if PY_VERSION_HEX < 0x02050000 && !defined(PY_SSIZE_T_MIN)
 typedef int Py_ssize_t;
@@ -848,7 +851,7 @@ static PyTypeObject InputFile_Type = {
 
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
 
-    "OpenEXR Input file object",
+    "OpenEXR Input file object - Deprecated; this class is provided for backwards compatibility and will be removed in a future release",
 
     0,
     0,
@@ -1125,7 +1128,7 @@ static PyTypeObject OutputFile_Type = {
 
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
 
-    "OpenEXR Output file object",
+    "OpenEXR Output file object - Deprecated; this class is provided for backwards compatibility and will be removed in a future release",
 
     0,
     0,
@@ -1442,6 +1445,18 @@ makeHeader (PyObject* self, PyObject* args)
     return dict_from_header (header);
 }
 
+PyObject*
+makeHeader_pybind (int width, int height)
+{
+    const char* channels = "R,G,B";
+    Header header (width, height);
+    for (auto channel: split (channels, ','))
+    {
+        header.channels ().insert (channel.c_str (), Channel (FLOAT));
+    }
+    return dict_from_header (header);
+}
+
 ////////////////////////////////////////////////////////////////////////
 
 static bool
@@ -1483,15 +1498,18 @@ static PyMethodDef methods[] = {
     {NULL, NULL},
 };
 
-MOD_INIT (OpenEXR)
+bool
+init_OpenEXR_old(PyObject* module)
 {
-    PyObject *m, *d, *item;
+    PyObject* moduleDict = PyModule_GetDict (module);
 
-    Imf::staticInitialize ();
-
-    MOD_DEF (m, "OpenEXR", "", methods)
-    d = PyModule_GetDict (m);
-
+    for (PyMethodDef* def = methods; def->ml_name != NULL; def++)
+    {
+        PyObject *func = PyCFunction_New(def, NULL);
+        PyDict_SetItemString(moduleDict, def->ml_name, func);
+        Py_DECREF(func);
+    }
+    
     pModuleImath = PyImport_ImportModule ("Imath");
 
     /* initialize module variables/constants */
@@ -1499,25 +1517,26 @@ MOD_INIT (OpenEXR)
     InputFile_Type.tp_init  = makeInputFile;
     OutputFile_Type.tp_new  = PyType_GenericNew;
     OutputFile_Type.tp_init = makeOutputFile;
-    if (PyType_Ready (&InputFile_Type) != 0) return MOD_ERROR_VAL;
-    if (PyType_Ready (&OutputFile_Type) != 0) return MOD_ERROR_VAL;
-    PyModule_AddObject (m, "InputFile", (PyObject*) &InputFile_Type);
-    PyModule_AddObject (m, "OutputFile", (PyObject*) &OutputFile_Type);
+    
+    if (PyType_Ready (&InputFile_Type) != 0)
+        return false;
+    if (PyType_Ready (&OutputFile_Type) != 0)
+        return false;
+    PyModule_AddObject (module, "InputFile", (PyObject*) &InputFile_Type);
+    PyModule_AddObject (module, "OutputFile", (PyObject*) &OutputFile_Type);
 
-#if PYTHON_API_VERSION >= 1007
     OpenEXR_error = PyErr_NewException ((char*) "OpenEXR.error", NULL, NULL);
-#else
-    OpenEXR_error = PyString_FromString ("OpenEXR.error");
-#endif
-    PyDict_SetItemString (d, "error", OpenEXR_error);
+    PyDict_SetItemString (moduleDict, "error", OpenEXR_error);
     Py_DECREF (OpenEXR_error);
 
-    PyDict_SetItemString (d, "UINT", item = PyLong_FromLong (UINT));
+    PyObject *item;
+
+    PyDict_SetItemString (moduleDict, "UINT_old", item = PyLong_FromLong (UINT));
     Py_DECREF (item);
-    PyDict_SetItemString (d, "HALF", item = PyLong_FromLong (HALF));
+    PyDict_SetItemString (moduleDict, "HALF", item = PyLong_FromLong (HALF));
     Py_DECREF (item);
-    PyDict_SetItemString (d, "FLOAT", item = PyLong_FromLong (FLOAT));
+    PyDict_SetItemString (moduleDict, "FLOAT", item = PyLong_FromLong (FLOAT));
     Py_DECREF (item);
 
-    return MOD_SUCCESS_VAL (m);
+    return true;
 }

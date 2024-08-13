@@ -54,10 +54,12 @@ jobs:
         env:
           CIBW_ARCHS_LINUX: x86_64 
           CIBW_ARCHS_MACOS: x86_64 arm64 universal2
+          # Build Python 3.7 through 3.11.
           # Skip python 3.6 since scikit-build-core requires 3.7+
           # Skip 32-bit wheels builds on Windows
           # Also skip the PyPy builds, since they fail the unit tests
-          CIBW_SKIP: cp36-* *-win32 *_i686 pp* 
+          CIBW_BUILD: "cp37-* cp38-* cp39-* cp310-* cp311-*"
+          CIBW_SKIP: "*-win32 *_i686"
           CIBW_TEST_SKIP: "*-macosx_universal2:arm64"
           CIBW_ENVIRONMENT: OPENEXR_RELEASE_CANDIDATE_TAG="${{ github.ref_name }}"
 

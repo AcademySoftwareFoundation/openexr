@@ -17,6 +17,7 @@ on:
     branches-ignore:
       - RB-*
     paths:
+      - 'src/lib/**'
       - 'src/wrappers/python/**'
       - 'pyproject.toml'
       - '.github/workflows/python-wheels.yml'
@@ -24,6 +25,7 @@ on:
     branches-ignore:
       - RB-*
     paths:
+      - 'src/lib/**'
       - 'src/wrappers/python/**'
       - 'pyproject.toml'
       - '.github/workflows/python-wheels.yml'
@@ -33,7 +35,7 @@ permissions:
 
 jobs:
   build_wheels:
-    name: Python Wheels - ${{ matrix.os }} 
+    name: Python Wheels - ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -58,11 +60,14 @@ jobs:
         uses: pypa/cibuildwheel@bd033a44476646b606efccdd5eed92d5ea1d77ad # v2.20.0
         env:
           CIBW_ARCHS_MACOS: x86_64 arm64 universal2
+          # Build Python 3.7 through 3.11.
           # Skip python 3.6 since scikit-build-core requires 3.7+
           # Skip 32-bit wheels builds on Windows
           # Also skip the PyPy builds, since they fail the unit tests
-          CIBW_SKIP: cp36-* *-win32 *_i686 pp* 
+          CIBW_BUILD: "cp37-* cp38-* cp39-* cp310-* cp311-*"
+          CIBW_SKIP: "*-win32 *_i686"
           CIBW_TEST_SKIP: "*-macosx*arm64"
+          OPENEXR_TEST_IMAGE_REPO: "https://raw.githubusercontent.com/AcademySoftwareFoundation/openexr-images/main"
 
       - name: Upload artifact
         uses: actions/upload-artifact@834a144ee995460fba8ed112a2fc961b36a5ec5a # v4.3.6
@@ -71,4 +76,3 @@ jobs:
           path: |
             ./wheelhouse/*.whl
             ./wheelhouse/*.tar.gz
-

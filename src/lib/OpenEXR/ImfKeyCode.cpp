@@ -61,6 +61,18 @@ KeyCode::operator= (const KeyCode& other)
     return *this;
 }
 
+bool
+KeyCode::operator== (const KeyCode& other) const
+{
+    return (_filmMfcCode   == other._filmMfcCode &&
+            _filmType      == other._filmType &&
+            _prefix        == other._prefix &&
+            _count         == other._count &&
+            _perfOffset    == other._perfOffset &&
+            _perfsPerFrame == other._perfsPerFrame &&
+            _perfsPerCount == other._perfsPerCount);
+}
+
 int
 KeyCode::filmMfcCode () const
 {
