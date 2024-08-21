@@ -268,12 +268,10 @@ unpack_channels (
     const int              channelCount,       // number of input channels
     const int*             channelsTypeSize,   // type sizes for each channel
     const int*             sampleCountPerLine, // samples count per line
-    char*                  outPtr,      // out: unallocated buffer pointer
+    char*                  outPtr,      // out: pre-allocated buffer pointer
     int*                   outSplitOfst // out: pointer to single precision data
 )
 {
-    outPtr = malloc (inSize);
-
     int lineCount = range.max.y - range.min.y + 1;
 
     int cumSampsPerLine[lineCount + 1];
@@ -500,10 +498,9 @@ pack_channels (
     const int*  channelsTypeSize,
     const int   lineCount,
     const int*  sampleCountPerLine,
-    void*       outPtr)
+    void*       outPtr,
+    const int   outPtrByteSize)
 {
-    outPtr = malloc (inSize);
-
     int cumSampsPerLine[lineCount + 1];
     cumulative_samples_per_line (
         lineCount, sampleCountPerLine, cumSampsPerLine);
@@ -518,16 +515,21 @@ pack_channels (
         chOffsets,
         &splitOffset);
 
-    char* outPos = (char*) outPtr;
+    char* outPos        = (char*) outPtr;
+    int   totalByteSize = 0;
     for (int ln = 0; ln < lineCount; ++ln)
     {
         for (int ch = 0; ch < channelCount; ++ch)
         {
             size_t copySize = channelsTypeSize[ch] * sampleCountPerLine[ln];
+            int    cts      = channelsTypeSize[ch];
             char*  inPos    = (char*) inPtr + chOffsets[ch] +
                           cumSampsPerLine[ln] * channelsTypeSize[ch];
             memcpy (outPos, inPos, copySize);
             outPos += copySize;
+            // debug
+            totalByteSize += copySize;
+            assert (totalByteSize <= outPtrByteSize);
         }
     }
 }
@@ -540,11 +542,12 @@ exr_uncompress_zstd_v2 (
     const int*     channelsTypeSize,
     const int      lineCount,
     const int*     sampleCountPerLine,
-    char*          outPtr)
+    char*          outPtr,
+    const int      outPtrByteSize)
 {
     int   outSize        = 0;
     char* inPtrPos       = (char*) inPtr;
-    int   decompSize     = inSize * 2;
+    int   decompSize     = outPtrByteSize;
     char* decompPtr      = malloc (decompSize);
     char* decompWritePos = decompPtr;
     char* decompPtrs[2];
@@ -585,7 +588,8 @@ exr_uncompress_zstd_v2 (
         channelsTypeSize,
         lineCount,
         sampleCountPerLine,
-        outPtr);
+        outPtr,
+        outPtrByteSize);
 
     return outSize;
 }

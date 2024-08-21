@@ -25,10 +25,13 @@ ZstdCompressor::ZstdCompressor (
     , m_maxBytesPerLine (maxBytesPerLine)
     , m_numTileLines (numTileLines)
     , _outBuffer ()
-    , m_outBuffer (0)
+    , m_outBuffer (nullptr)
+    , m_outBufferByteSize (0)
 {
-    int lineCount = m_numTileLines > 0 ? m_numTileLines : numScanLines ();
-    m_outBuffer   = new char[m_maxBytesPerLine * lineCount];
+    int lineCount       = m_numTileLines > 0 ? m_numTileLines : numScanLines ();
+    m_outBufferByteSize = m_maxBytesPerLine * lineCount;
+    m_outBuffer         = new char[m_outBufferByteSize];
+    memset (m_outBuffer, 0, m_outBufferByteSize);
 }
 
 ZstdCompressor::~ZstdCompressor ()
@@ -64,7 +67,7 @@ ZstdCompressor::compress (
         bytesPerChannel.push_back (pixelTypeSize (ch.channel ().type));
     }
 
-    outPtr      = m_outBuffer;
+    outPtr = m_outBuffer;
 
     const int compressedSize = exr_compress_zstd_v2 (
         const_cast<char*> (inPtr),
@@ -134,7 +137,7 @@ ZstdCompressor::uncompress (
         return 0;
     }
 
-    outPtr = m_outBuffer;
+    outPtr         = m_outBuffer;
     int  lineCount = m_numTileLines > 0 ? m_numTileLines : numScanLines ();
     auto channels  = header ().channels ();
     std::vector<int> bytesPerChannel;
@@ -150,7 +153,8 @@ ZstdCompressor::uncompress (
         bytesPerChannel.data (),
         lineCount,
         inSampleCountPerLine,
-        (char*) outPtr);
+        (char*) outPtr,
+        m_outBufferByteSize);
 
     return decompressedSize;
 }

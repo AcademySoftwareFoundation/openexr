@@ -42,9 +42,10 @@ private:
         int          minY,
         const char*& outPtr) override;
 
-    int m_maxBytesPerLine; // max number of bytes per uncompressed tile line.
-    int m_numTileLines;    // number of lines in a tile. 0 if scanline !
+    int   m_maxBytesPerLine; // max number of bytes per uncompressed tile line.
+    int   m_numTileLines;    // number of lines in a tile. 0 if scanline !
     char* m_outBuffer;
+    int   m_outBufferByteSize;
 };
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT

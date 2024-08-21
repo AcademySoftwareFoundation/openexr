@@ -78,7 +78,8 @@ long exr_uncompress_zstd_v2 (
     const int*     channelsTypeSize,
     const int      lineCount,
     const int*     sampleCountPerLine,
-    char*          outPtr);
+    char*          outPtr,
+    const int      outPtrByteSize);
 
 EXR_EXPORT
 size_t exr_get_zstd_lines_per_chunk ();
