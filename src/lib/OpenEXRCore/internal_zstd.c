@@ -195,7 +195,7 @@ cumulative_samples_per_line (
 )
 {
     cumSampsPerLine[0] = 0;
-    for (int i = 0; i <= lineCount; ++i)
+    for (int i = 0; i < lineCount; ++i)
     {
         cumSampsPerLine[i + 1] = cumSampsPerLine[i] + sampleCountPerLine[i];
     }
@@ -390,6 +390,7 @@ exr_compress_zstd_v2 (
                                      : (size_t) bufsSize[b];
         memcpy (outPtrPos, &outSize, sizeof (size_t));
         outPtrPos += sizeof (outSize);
+        outPtrSize+= sizeof (outSize); // need to add sizes to the output stream length
 
         // write buffer data if not empty
         if (outSize > 0)
@@ -567,10 +568,11 @@ exr_uncompress_zstd_v2 (
             inPtrPos,
             compressedBufSize,
             (void**) &decompWritePos,
-            0 // ask function to allocate required memory
+            decompSize // ask function to allocate required memory
         );
         if (decompressedSize < 0) printf ("ERROR: bloc2 failed to compress !!");
         outSize += decompressedSize;
+        inPtrPos+=compressedBufSize;
         decompWritePos += decompressedSize;
     }
 
