@@ -46,6 +46,17 @@ ZstdCompressor::numScanLines () const
     return (int) exr_get_zstd_lines_per_chunk ();
 }
 
+std::vector<int> ComputeBytesPerChannel(const ChannelList &channels)
+{
+    std::vector<int> bytesPerChannel;
+    for (auto ch = channels.begin (); ch != channels.end (); ++ch)
+    {
+        bytesPerChannel.push_back (pixelTypeSize (ch.channel ().type));
+    }
+
+    return bytesPerChannel;
+}
+
 int
 ZstdCompressor::compress (
     const char*  inPtr,
@@ -60,12 +71,8 @@ ZstdCompressor::compress (
         {header ().dataWindow ().min.x, minY},
         {header ().dataWindow ().max.x, minY + lineCount - 1}};
 
-    auto             channels = header ().channels ();
-    std::vector<int> bytesPerChannel;
-    for (auto ch = channels.begin (); ch != channels.end (); ++ch)
-    {
-        bytesPerChannel.push_back (pixelTypeSize (ch.channel ().type));
-    }
+    const auto             channels        = header ().channels ();
+    const std::vector<int> bytesPerChannel = ComputeBytesPerChannel (channels);
 
     outPtr = m_outBuffer;
 
@@ -122,6 +129,31 @@ ZstdCompressor::compress (
 
     return compressedSize;
 }
+int
+ZstdCompressor::compressTile (
+    const char*  inPtr,
+    int          inSize,
+    const int*   sampleCountPerLine,
+    Imath::Box2i range,
+    const char*& outPtr)
+{
+    const auto             channels        = header ().channels ();
+    const std::vector<int> bytesPerChannel = ComputeBytesPerChannel (channels);
+
+    outPtr = m_outBuffer;
+
+    const exr_attr_box2i_t crange = {{range.min.x,range.min.y },{range.max.x,range.max.y }};
+    const int compressedSize = exr_compress_zstd_v2 (
+        const_cast<char*> (inPtr),
+        inSize,
+        crange,
+        bytesPerChannel.size (),
+        bytesPerChannel.data (),
+        sampleCountPerLine,
+        (void*) outPtr);
+
+    return compressedSize;
+}
 
 int
 ZstdCompressor::uncompress (
@@ -140,11 +172,7 @@ ZstdCompressor::uncompress (
     outPtr         = m_outBuffer;
     int  lineCount = m_numTileLines > 0 ? m_numTileLines : numScanLines ();
     auto channels  = header ().channels ();
-    std::vector<int> bytesPerChannel;
-    for (auto ch = channels.begin (); ch != channels.end (); ++ch)
-    {
-        bytesPerChannel.push_back (pixelTypeSize (ch.channel ().type));
-    }
+    std::vector<int> bytesPerChannel = ComputeBytesPerChannel (channels);
 
     auto decompressedSize = exr_uncompress_zstd_v2 (
         inPtr,

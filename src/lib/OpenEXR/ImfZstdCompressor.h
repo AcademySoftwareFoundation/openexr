@@ -35,6 +35,7 @@ private:
         const int*   inSampleCountPerLine,
         int          minY,
         const char*& outPtr) override;
+    int compressTile(const char* inPtr, int inSize, const int* sampleCountPerLine, Imath::Box2i range, const char*& outPtr) override;
     int uncompress (
         const char*  inPtr,
         int          inSize,
