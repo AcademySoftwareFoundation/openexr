@@ -21,6 +21,16 @@ def bufcpy(dst: buf_t, dsti: int, src: buf_t, srci: int, copy_size: int) -> None
     dst.pos += copy_size
 
 
+class Channel:
+    """Channel declaration including name, sample byte size and sub-sampling.
+    """
+    def __init__(self, name, byte_size, x_sampling=1, y_sampling=1) -> None:
+        self.name = name
+        self.bytes = byte_size
+        self.xs = x_sampling
+        self.ys = y_sampling
+
+
 class BufParams:
     def __init__(self) -> None:
         self.channel_count = 0
@@ -58,12 +68,11 @@ class BufParams:
         return "\n".join(r)
 
 
-def mk_buf(*args, num_lines=5, num_pixels=5, deep=False, seed=31):
+def mk_buf(*channels, num_lines=5, num_pixels=5, deep=False, seed=31):
     buf = ""
     buf_params = BufParams()
     buf_params.add_line_count(num_lines)
-    it = iter(args)
-    ch_size_list = list(zip(it, it))
+    ch_size_list = list(channels)
     buf_params.add_channel_count(len(ch_size_list))
     random.seed(seed)
     for y in range(num_lines):
@@ -71,13 +80,17 @@ def mk_buf(*args, num_lines=5, num_pixels=5, deep=False, seed=31):
         pixel_samples = [random.randint(1, 3) if deep else 1 for x in range(num_pixels)]
         n_samples = sum(pixel_samples)
         buf_params.add_line_sample_count(n_samples)
-        for ch, size in ch_size_list:
-            # sys.stdout.write(f"  {ch}: ")
-            buf_params.add_channel_size(size)
-            fmt = "%s%d" if size == 2 else "%s%03d"
+        for chan in ch_size_list:
+            if y % chan.ys != 0:
+                continue
+            # sys.stdout.write(f"  {chan.name}: ")
+            buf_params.add_channel_size(chan.bytes)
+            fmt = "%s%d" if chan.bytes == 2 else "%s%03d"
             for x in range(num_pixels):
+                if x % chan.xs != 0:
+                    continue
                 # sys.stdout.write(f"{x} ")
-                tok = fmt % (ch, x)
+                tok = fmt % (chan.name, x)
                 buf += tok * pixel_samples[x]
             # sys.stdout.write("\n")
     return buf, buf_params
@@ -248,16 +261,11 @@ def from_planar_3(
 
 
 buf, params = mk_buf(
-    "r",
-    HALF_SIZE,
-    "g",
-    HALF_SIZE,
-    "b",
-    SINGLE_SIZE,
-    "a",
-    HALF_SIZE,
-    "i",
-    SINGLE_SIZE,
+    Channel("r", HALF_SIZE),
+    Channel("g", HALF_SIZE),
+    Channel("b", SINGLE_SIZE),
+    Channel("a", HALF_SIZE),
+    Channel("i", SINGLE_SIZE),
     num_lines=5,
     num_pixels=5,
     deep=True,
@@ -278,3 +286,15 @@ i_buf = from_planar_3(
     params.sample_count_per_line,  # sample count per line
 )
 assert buf == i_buf, "buf and i_buf must be the same !"
+
+buf, params = mk_buf(
+    Channel("Y", HALF_SIZE),
+    Channel("R", HALF_SIZE, 2, 2),
+    Channel("B", HALF_SIZE, 2, 2),
+    Channel("a", HALF_SIZE),
+    Channel("i", SINGLE_SIZE),
+    num_lines=5,
+    num_pixels=5,
+    deep=False,
+)
+print_buf(buf, "sub_buf")
