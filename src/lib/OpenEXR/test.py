@@ -1,14 +1,7 @@
 import sys
 import random
+import math
 
-# fmt: off
-LBUF = [
-    'r0', 'r1', 'r2', 'r3', 'r4', 'r5', 'r6', 'r7', 'r8',
-    'g0', 'g1', 'g2', 'g3', 'g4', 'g5', 'g6', 'g7', 'g8',
-    'b0', 'b1', 'b2', 'b3', 'b4', 'b5', 'b6', 'b7', 'b8',
-    'a0', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'a7', 'a8',
-]
-# fmt: on
 
 HALF_SIZE = 2
 SINGLE_SIZE = 4
@@ -178,90 +171,6 @@ def channel_offsets(channels_size, buf_sample_count):
     return ch_offsets, out_split
 
 
-# outputs a single buffer of per-channel-planar values
-def to_planar(
-    in_buf,
-    channel_count,
-    channels_size,
-    line_count,
-    sample_count_per_line,
-):
-    out_buf = list("." * len(in_buf))
-    print_buf(in_buf, "to_planar: in_buf")
-
-    buf_sample_count = sum(sample_count_per_line)
-
-    in_pos = 0
-    out_base_ptr = 0
-    for ln in range(line_count):
-        line_samples = sample_count_per_line[ln]
-        ch_offset = 0
-        for ch in range(channel_count):
-            copy_size = channels_size[ch] * line_samples
-            out_pos = (
-                out_base_ptr + (ch_offset) + (line_samples * channels_size[ch] * ln)
-            )
-            memcpy(out_buf, out_pos, in_buf, in_pos, copy_size)
-            in_pos += copy_size
-            ch_offset += buf_sample_count * channels_size[ch]
-
-    out_buf = "".join(out_buf)
-    assert len(in_buf) == len(out_buf)
-
-    print_buf(out_buf, "to_planar: out_buf")
-    return out_buf
-
-
-# return two buffers of per-channel-planar half and single precision values
-def to_planar_2(
-    in_buf,
-    channel_count,
-    channels_size,
-    line_count,
-    sample_count_per_line,
-):
-    i_buf = buf_t(buf=list(in_buf), size=len(in_buf))
-    h_buf = buf_t(buf=list(" " * i_buf.size))
-    s_buf = buf_t(buf=list(" " * i_buf.size))
-    print_buf(in_buf, "to_planar_2: in_buf")
-
-    buf_sample_count = sum(sample_count_per_line)
-    scpl_cum = [0]  # cumulative sample table
-    for i in range(len(sample_count_per_line) - 1):
-        scpl_cum.append(scpl_cum[i] + sample_count_per_line[i + 1])
-    print(f"scpl_cum = {scpl_cum}\n")
-
-    in_pos = 0
-    h_pos = 0
-    s_pos = 0
-
-    for ln in range(line_count):
-        line_samples = sample_count_per_line[ln]
-        h_ch_idx = 0
-        s_ch_idx = 0
-        for ch in range(channel_count):
-            copy_size = channels_size[ch] * line_samples
-            ch_full_size = buf_sample_count * channels_size[ch]
-            if channels_size[ch] == 2:
-                h_pos = ch_full_size * h_ch_idx + scpl_cum[ln] * channels_size[ch]
-                bufcpy(h_buf, h_pos, i_buf, in_pos, copy_size)
-                in_pos += copy_size
-                h_ch_idx += 1
-            elif channels_size[ch] == 4:
-                s_pos = ch_full_size * s_ch_idx + scpl_cum[ln] * channels_size[ch]
-                bufcpy(s_buf, s_pos, i_buf, in_pos, copy_size)
-                in_pos += copy_size
-                s_ch_idx += 1
-
-    h_buf = "".join(h_buf.buf[: h_buf.size])
-    s_buf = "".join(s_buf.buf[: s_buf.size])
-    assert len(in_buf) == len(h_buf + s_buf)
-
-    print_buf(h_buf, "to_planar_2: h_buf")
-    print_buf(s_buf, "to_planar_2: s_buf")
-    return h_buf, s_buf
-
-
 # return a single buffer and the split position
 def to_planar_3(
     in_buf,
@@ -301,32 +210,6 @@ def to_planar_3(
 
     print_buf(out_buf, "to_planar_3: out_buf")
     return out_buf, out_split
-
-
-def from_planar(
-    in_buf, channel_count, channels_size, line_count, sample_count_per_line
-):
-    out_buf = list("." * len(in_buf))
-    print_buf(in_buf, "from_planar: in_buf")
-
-    buf_sample_count = sum(sample_count_per_line)
-
-    out_base_ptr = 0
-    out_pos = out_base_ptr
-    for ln in range(line_count):
-        line_samples = sample_count_per_line[ln]
-        ch_offset = 0
-        for ch in range(channel_count):
-            copy_size = channels_size[ch] * line_samples
-            in_pos = ch_offset + copy_size * ln
-            memcpy(out_buf, out_pos, in_buf, in_pos, copy_size)
-            out_pos += copy_size
-            ch_offset += buf_sample_count * channels_size[ch]
-
-    out_buf = "".join(out_buf)
-
-    print_buf(out_buf, "to_planar: out_buf")
-    return out_buf
 
 
 def from_planar_3(
