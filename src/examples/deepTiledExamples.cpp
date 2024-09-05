@@ -158,11 +158,12 @@ getSampleDataForTile (
 
 void
 writeDeepTiledFile (
-    const char filename[],
-    Box2i      displayWindow,
-    Box2i      dataWindow,
-    int        tileSizeX,
-    int        tileSizeY)
+    const char  filename[],
+    Box2i       displayWindow,
+    Box2i       dataWindow,
+    int         tileSizeX,
+    int         tileSizeY,
+    Compression compression = Compression::ZIPS_COMPRESSION)
 {
     //
     // Write a deep image with only a A (alpha) and a Z (depth) channel,
@@ -182,7 +183,7 @@ writeDeepTiledFile (
     header.channels ().insert ("Z", Channel (FLOAT));
     header.channels ().insert ("A", Channel (HALF));
     header.setType (DEEPTILE);
-    header.compression () = ZIPS_COMPRESSION;
+    header.compression () = compression;
 
     header.setTileDescription (
         TileDescription (tileSizeX, tileSizeY, ONE_LEVEL));
@@ -281,4 +282,13 @@ deepTiledExamples ()
         "testTiled.deep.exr", window, window, tileSizeX, tileSizeY);
     readDeepTiledFile (
         "testTiled.deep.exr", window, window, dataZ, dataA, sampleCount);
+    writeDeepTiledFile (
+        "testTiled.deep.zstd.exr",
+        window,
+        window,
+        tileSizeX,
+        tileSizeY,
+        Compression::ZSTD_COMPRESSION);
+    readDeepTiledFile (
+        "testTiled.deep.zstd.exr", window, window, dataZ, dataA, sampleCount);
 }

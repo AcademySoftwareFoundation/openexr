@@ -28,11 +28,11 @@ testCompressionApi (const string& tempDir)
         cout << "Testing compression API functions." << endl;
 
         // update this if you add a new compressor.
-        string codecList = "none/rle/zips/zip/piz/pxr24/b44/b44a/dwaa/dwab";
+        string codecList = "none/rle/zips/zip/piz/pxr24/b44/b44a/dwaa/dwab/zstd";
 
         int numMethods = static_cast<int> (NUM_COMPRESSION_METHODS);
         // update this if you add a new compressor.
-        assert (numMethods == 10);
+        assert (numMethods == 11);
 
         for (int i = 0; i < numMethods; i++)
         {
@@ -64,6 +64,7 @@ testCompressionApi (const string& tempDir)
                 case ZIPS_COMPRESSION:
                 case ZIP_COMPRESSION:
                 case PIZ_COMPRESSION:
+                case ZSTD_COMPRESSION:
                     assert (isLossyCompression (c) == false);
                     break;
 
@@ -76,6 +77,7 @@ testCompressionApi (const string& tempDir)
                 case NO_COMPRESSION:
                 case RLE_COMPRESSION:
                 case ZIPS_COMPRESSION:
+                case ZSTD_COMPRESSION:
                     assert (isValidDeepCompression (c) == true);
                     break;
 

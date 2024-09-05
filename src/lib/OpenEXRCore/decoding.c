@@ -269,6 +269,10 @@ decompress_data (
             rv = internal_exr_undo_dwab (
                 decode, packbufptr, packsz, unpackbufptr, unpacksz);
             break;
+        case EXR_COMPRESSION_ZSTD:
+            rv = internal_exr_undo_zstd (
+                decode, packbufptr, packsz, unpackbufptr, unpacksz);
+            break;
         case EXR_COMPRESSION_LAST_TYPE:
         default:
             return ctxt->print_error (

@@ -45,6 +45,17 @@ exr_result_t exr_uncompress_buffer (
     size_t              out_bytes_avail,
     size_t*             actual_out);
 
+EXR_EXPORT
+long exr_compress_zstd (
+    char* inPtr, int inSize, void * outPtr, int outPtrSize);
+
+EXR_EXPORT
+long exr_uncompress_zstd (
+    const char* inPtr, uint64_t inSize, void ** outPtr, uint64_t outPtrSize);
+
+EXR_EXPORT
+size_t exr_get_zstd_lines_per_chunk();
+
 #ifdef __cplusplus
 } /* extern "C" */
 #endif

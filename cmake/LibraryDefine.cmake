@@ -30,6 +30,20 @@ function(OPENEXR_DEFINE_LIBRARY libname)
   # we are embedding libdeflate
   target_include_directories(${objlib} PRIVATE ${EXR_DEFLATE_INCLUDE_DIR})
 
+  # we are statically linking blosc2
+  if(${objlib} STREQUAL "OpenEXR" OR ${objlib} STREQUAL "OpenEXRCore")
+    message(STATUS "Blosc2: setting up for ${objlib}...")
+    message(STATUS ">> BLOSC2_INCLUDE_DIRS: ${BLOSC2_INCLUDE_DIRS}")
+    message(STATUS ">> BLOSC2_LIB_DIR: ${BLOSC2_LIB_DIR}")
+    target_include_directories(${objlib} PRIVATE ${BLOSC2_INCLUDE_DIRS})
+    target_link_directories(${objlib} PRIVATE ${BLOSC2_LIB_DIR})
+    target_link_libraries(${objlib} PRIVATE Blosc2::blosc2_static ${CMAKE_DL_LIBS})
+    # install the static library if not using the installed lib.
+    if(TARGET blosc2_static AND NOT Blosc2_FOUND)
+      install(TARGETS blosc2_static EXPORT ${objlib})
+    endif()
+  endif()
+
   if(OPENEXR_CURLIB_PRIV_EXPORT AND BUILD_SHARED_LIBS)
     target_compile_definitions(${objlib} PRIVATE ${OPENEXR_CURLIB_PRIV_EXPORT})
     if(WIN32)
