@@ -1748,9 +1748,28 @@ ScanLineInputFile::readPixels (int scanLine1, int scanLine2)
 }
 
 void
+ScanLineInputFile::readPixels (const FrameBuffer& frameBuffer, int scanLine1, int scanLine2)
+{
+    // FIXME: For now, this just locks, then calls setFrameBuffer() and
+    // readPixels(). It would be better to implement this function to avoid
+    // locking by not needing any saved framebuffer state.
+#if ILMTHREAD_THREADING_ENABLED
+    std::lock_guard<std::mutex> lock (*_data);
+#endif
+    setFrameBuffer(frameBuffer);
+    readPixels(scanLine1, scanLine2);
+}
+
+void
 ScanLineInputFile::readPixels (int scanLine)
 {
     readPixels (scanLine, scanLine);
+}
+
+void
+ScanLineInputFile::readPixels (const FrameBuffer& frameBuffer, int scanLine)
+{
+    readPixels (frameBuffer, scanLine, scanLine);
 }
 
 void

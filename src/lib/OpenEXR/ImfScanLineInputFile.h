@@ -136,12 +136,23 @@ public:
     // If threading is enabled, readPixels (s1, s2) tries to perform
     // decopmression of multiple scanlines in parallel.
     //
+    // The readPixels flavors that are passed a `FrameBuffer&` are
+    // thread-safe when called at the same time as other threads make
+    // calls to readPixels(fb,...). The reading functions that rely
+    // on saved state from a prior call to setFrameBuffer() are NOT
+    // safe to call when multiple threads are using the same InputFile.
+    //
     //---------------------------------------------------------------
 
     IMF_EXPORT
     void readPixels (int scanLine1, int scanLine2);
     IMF_EXPORT
     void readPixels (int scanLine);
+
+    IMF_EXPORT
+    void readPixels (const FrameBuffer& frameBuffer, int scanLine1, int scanLine2);
+    IMF_EXPORT
+    void readPixels (const FrameBuffer& frameBuffer, int scanLine);
 
     //----------------------------------------------
     // Read a block of raw pixel data from the file,
