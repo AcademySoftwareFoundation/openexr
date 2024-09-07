@@ -178,7 +178,7 @@ InputFile::header () const
 int
 InputFile::version () const
 {
-    if (_data->_part) return _data->_part->version;
+    if (_data->_part) return _data->_part->context.version ();
     return _ctxt.version ();
 }
 

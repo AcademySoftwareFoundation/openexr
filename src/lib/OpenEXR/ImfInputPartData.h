@@ -30,15 +30,7 @@ struct InputPartData
     InputPartData (
         const Context& ctxt,
         int            partNumber,
-        int            numThreads
-        // TODO: remove
-        , InputStreamMutex *mx
-                   );
-
-    // TODO: remove these
-    int                   version;
-    InputStreamMutex*     mutex;
-    std::vector<uint64_t> chunkOffsets;
+        int            numThreads);
 };
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
