@@ -41,9 +41,6 @@ struct MultiPartInputFile::Data
 #if ILMTHREAD_THREADING_ENABLED
     std::mutex _mx;
 #endif
-    // TODO: remove
-    std::shared_ptr<InputStreamMutex> ism;
-
     struct Part
     {
         InputPartData data;
@@ -66,13 +63,9 @@ MultiPartInputFile::MultiPartInputFile (
     int pc = _ctxt.partCount ();
     _data->parts.resize (pc);
 
-    _data->ism = std::make_shared<InputStreamMutex> ();
-    _data->ism->is = _ctxt.legacyIStream (0);
-    _data->ism->currentPosition = _data->ism->is->tellg ();
     for ( int p = 0; p < pc; ++p )
     {
-        _data->parts[p].data = InputPartData (
-            _ctxt, p, numThreads, _data->ism.get ());
+        _data->parts[p].data = InputPartData (_ctxt, p, numThreads);
 
         if (autoAddType && ! _data->parts[p].data.header.hasType ())
         {
