@@ -356,6 +356,8 @@ exr_decoding_choose_default_routines (
 
         if (decc->height == 0 || !decc->decode_to_ptr) continue;
 
+        if (isdeep) continue;
+
         /*
          * if a user specifies a bad pixel stride / line stride
          * we can't know this realistically, and they may want to
