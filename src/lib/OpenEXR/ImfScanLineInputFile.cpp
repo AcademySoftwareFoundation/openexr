@@ -130,7 +130,7 @@ struct ScanLineInputFile::Data
         std::lock_guard<std::mutex> lk (_mx);
 #endif
         sp->next = processStack;
-        processStack = sp;
+        processStack = std::move (sp);
     }
 
 #if ILMTHREAD_THREADING_ENABLED
