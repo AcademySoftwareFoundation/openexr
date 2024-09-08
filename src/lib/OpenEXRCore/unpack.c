@@ -1414,7 +1414,11 @@ internal_exr_match_decode (
     int                    simpinterleaverev,
     int                    simplineoff)
 {
+#ifdef EXR_HAS_STD_ATOMICS
     static atomic_int init_cpu_check = 1;
+#else
+    static int init_cpu_check = 1;
+#endif
     if (init_cpu_check)
     {
         choose_half_to_float_impl ();
