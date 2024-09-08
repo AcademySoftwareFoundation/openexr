@@ -911,13 +911,10 @@ void ScanLineProcess::update_pointers (
             continue;
         }
 
-        curchan.user_bytes_per_element = (fbslice->type == HALF) ? 2 : 4;
+        curchan.user_bytes_per_element = fbslice->sampleStride;
         curchan.user_data_type         = (exr_pixel_type_t)fbslice->type;
         curchan.user_pixel_stride      = fbslice->xStride;
         curchan.user_line_stride       = fbslice->yStride;
-
-        if (curchan.user_bytes_per_element != fbslice->sampleStride)
-            throw IEX_NAMESPACE::ArgExc ("Un-implemented deep sample stride optimization");
 
         ptr  = reinterpret_cast<uint8_t*> (fbslice->base);
         ptr += int64_t (cinfo.start_x) * int64_t (fbslice->xStride);
