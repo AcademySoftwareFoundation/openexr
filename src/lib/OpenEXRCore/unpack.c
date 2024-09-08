@@ -1414,7 +1414,7 @@ internal_exr_match_decode (
     int                    simpinterleaverev,
     int                    simplineoff)
 {
-    static int init_cpu_check = 1;
+    static atomic_int init_cpu_check = 1;
     if (init_cpu_check)
     {
         choose_half_to_float_impl ();
