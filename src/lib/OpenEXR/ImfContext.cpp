@@ -46,86 +46,6 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 namespace
 {
 
-/// TODO: delete this after porting of other classes has finished
-class LegacyStream final : public IStream
-{
-public:
-    LegacyStream (
-        const char*                      fileName,
-        exr_context_t                    ctxt,
-        const exr_context_initializer_t& ctxtinit)
-        : IStream (fileName)
-        , _curpos (0)
-        , _ctxt (ctxt)
-        , _user_data (ctxtinit.user_data)
-        , _read_fn (ctxtinit.read_fn)
-    {
-        if (!_read_fn) _stdstream = std::make_unique<StdIFStream> (fileName);
-    }
-    ~LegacyStream () override {}
-
-    bool read (char c[/*n*/], int n) override
-    {
-        std::lock_guard<std::mutex> lk (_mx);
-        try
-        {
-            if (_stdstream) return _stdstream->read (c, n);
-        }
-        catch (...)
-        {
-            _stdstream->clear ();
-            return false;
-        }
-        int64_t nr = _read_fn (_ctxt, _user_data, c, n, _curpos, nullptr);
-        if (nr > 0) _curpos += nr;
-        return nr == n;
-    }
-
-    uint64_t tellg () override
-    {
-        std::lock_guard<std::mutex> lk (_mx);
-        try
-        {
-            if (_stdstream) return _stdstream->tellg ();
-        }
-        catch (...)
-        {
-            _stdstream->clear ();
-        }
-        return _curpos;
-    }
-
-    void seekg (uint64_t pos) override
-    {
-        std::lock_guard<std::mutex> lk (_mx);
-        try
-        {
-            if (_stdstream) return _stdstream->seekg (pos);
-        }
-        catch (...)
-        {
-            _stdstream->clear ();
-        }
-        _curpos = pos;
-    }
-
-    void clear () override
-    {
-        std::lock_guard<std::mutex> lk (_mx);
-        if (_stdstream) return _stdstream->clear ();
-    }
-
-private:
-    std::mutex _mx;
-    uint64_t   _curpos = 0;
-
-    std::unique_ptr<IStream> _stdstream;
-
-    exr_context_t       _ctxt      = nullptr;
-    void*               _user_data = nullptr;
-    exr_read_func_ptr_t _read_fn   = nullptr;
-}; // class LegacyStream
-
 class MemAttrStream : public OPENEXR_IMF_NAMESPACE::IStream
 {
 public:
@@ -223,18 +143,6 @@ Context::Context (const char* filename, const ContextInitializer& ctxtinit, read
                 "Unable to open '" << filename << "' for read");
         }
     }
-
-    _prov_stream = ctxtinit._prov_stream;
-    if (_prov_stream)
-    {
-        _prov_stream->seekg (0);
-        _prov_stream->clear ();
-    }
-    else
-    {
-        _legacy = std::make_shared<LegacyStream> (
-            filename, *_ctxt, ctxtinit._initializer);
-    }
 }
 
 ////////////////////////////////////////
@@ -247,8 +155,6 @@ Context::Context (const char* filename, const ContextInitializer& ctxtinit, temp
         THROW (
             IEX_NAMESPACE::ArgExc, "Context already started, only start once");
     }
-
-    _legacy.reset ();
 
     if (EXR_ERR_SUCCESS != exr_start_temporary_context (
                                _ctxt.get (),
@@ -271,8 +177,6 @@ Context::Context (const char* filename, const ContextInitializer& ctxtinit, writ
         THROW (
             IEX_NAMESPACE::ArgExc, "Context already started, only start once");
     }
-
-    _legacy.reset ();
 
     if (EXR_ERR_SUCCESS != exr_start_write (
                                _ctxt.get (),
@@ -957,30 +861,6 @@ bool
 Context::chunkTableValid (int partidx) const
 {
     return exr_validate_chunk_table (*_ctxt, partidx) == EXR_ERR_SUCCESS;
-}
-
-////////////////////////////////////////
-
-IStream*
-Context::legacyIStream (int partnum) const
-{
-    IStream* ret;
-    uint64_t coff = 0;
-
-    if (EXR_ERR_SUCCESS != exr_get_chunk_table_offset (*_ctxt, partnum, &coff))
-    {
-        THROW (
-            IEX_NAMESPACE::ArgExc,
-            "Unable to get the chunk table offset for part "
-                << partnum << " in file '" << fileName () << "'");
-    }
-    // The legacy system was built on a presumption of stateful
-    // position within a stream, not arbitrary pread semantics
-    // so we need to seek to the beginning of the chunk table
-    // (aka end of header)
-    ret = _prov_stream ? _prov_stream : _legacy.get ();
-    ret->seekg (coff);
-    return ret;
 }
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT
