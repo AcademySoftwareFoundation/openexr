@@ -36,7 +36,6 @@ istream_read (
 {
     istream_holder* ih    = static_cast<istream_holder*> (userdata);
     IStream*        s     = ih->_stream;
-    int64_t         nread = s->tellg ();
 
     if (sz > INT_MAX)
     {
@@ -51,6 +50,7 @@ istream_read (
     std::lock_guard<std::mutex> lk{ih->_mx};
 #endif
 
+    int64_t         nread = s->tellg ();
     try
     {
         if (offset != static_cast<size_t> (nread))
