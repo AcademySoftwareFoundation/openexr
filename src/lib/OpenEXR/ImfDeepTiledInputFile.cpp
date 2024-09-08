@@ -1119,13 +1119,10 @@ void TileProcess::update_pointers (const DeepFrameBuffer *outfb, int fb_absX, in
         if (fbslice->xSampling != 1 || fbslice->ySampling != 1)
             throw IEX_NAMESPACE::ArgExc ("Tiled data should not have subsampling.");
 
-        if (curchan.user_bytes_per_element != fbslice->sampleStride)
-            throw IEX_NAMESPACE::ArgExc ("Un-implemented deep sample stride optimization");
-
         int xOffset = fbslice->xTileCoords ? 0 : t_absX;
         int yOffset = fbslice->yTileCoords ? 0 : t_absY;
 
-        curchan.user_bytes_per_element = (fbslice->type == HALF) ? 2 : 4;
+        curchan.user_bytes_per_element = fbslice->sampleStride;
         curchan.user_data_type         = (exr_pixel_type_t)fbslice->type;
         curchan.user_pixel_stride      = fbslice->xStride;
         curchan.user_line_stride       = fbslice->yStride;
