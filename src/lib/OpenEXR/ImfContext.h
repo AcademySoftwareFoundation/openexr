@@ -89,15 +89,8 @@ public:
 
     IMF_EXPORT bool chunkTableValid (int partidx) const;
 
-    // TODO: remove once the rest has been ported
-    IMF_EXPORT IStream* legacyIStream (int partnum) const;
-
 private:
     std::shared_ptr<exr_context_t> _ctxt;
-
-    // TODO: remove both these
-    std::shared_ptr<IStream> _legacy;
-    IStream*                 _prov_stream = nullptr;
 }; // class Context
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
