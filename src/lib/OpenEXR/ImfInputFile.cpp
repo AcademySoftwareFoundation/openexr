@@ -90,8 +90,6 @@ struct InputFile::Data
                      int scanline1, int scanline2,
                      int yStart, int xStart, int width);
 
-    IStream* getCompatStream () { return _ctxt->legacyIStream (getPartIdx ()); }
-
     int getPartIdx () const { return _part ? _part->partNumber : kDefaultPart; }
 #if ILMTHREAD_THREADING_ENABLED
     // TODO: remove once we can do everything init in the constructor
@@ -129,8 +127,6 @@ InputFile::InputFile (
     _data->_mFile.reset (new MultiPartInputFile (filename, ctxtinit, numThreads, false));
     _data->_part = _data->_mFile->getPart (Data::kDefaultPart);
     _ctxt = _data->_part->context;
-
-    (void)_ctxt.legacyIStream (Data::kDefaultPart);
 
     initialize ();
 }
