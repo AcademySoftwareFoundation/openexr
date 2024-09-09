@@ -2,7 +2,7 @@
 # Copyright (c) Contributors to the OpenEXR Project.
 
 [build-system]
-requires = ["scikit-build-core==0.8.1"]
+requires = ["scikit-build-core==0.8.1", "pybind11"]
 build-backend = "scikit_build_core.build"
 
 [project]
@@ -67,6 +67,7 @@ CMAKE_POSITION_INDEPENDENT_CODE = 'ON'
 
 [tool.cibuildwheel]
 test-command = "pytest -s {project}/src/wrappers/python/tests"
+test-requires = ["numpy"]
 test-extras = ["test"]
 test-skip = ["*universal2:arm64"]
 build-verbosity = 1

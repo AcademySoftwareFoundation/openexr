@@ -19,7 +19,7 @@ jobs:
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
-      - uses: snyk/actions/setup@8349f9043a8b7f0f3ee8885bf28f0b388d2446e8 # master
+      - uses: snyk/actions/setup@b98d498629f1c368650224d6d212bf7dfa89e4bf # v0.4.0
         id: snyk
 
       - name: Snyk version

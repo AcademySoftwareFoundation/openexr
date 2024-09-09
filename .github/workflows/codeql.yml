@@ -59,8 +59,14 @@ jobs:
 
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
-      uses: github/codeql-action/init@v3
+      # cary: Pin the version to the SHA for 2.18.0, since there appears to
+      # be a problem with 2.18.1 leading to a "No space left on
+      # device" failure
+      uses: github/codeql-action/init@4dd16135b69a43b6c8efb853346f8437d92d3c93 # v3.26.6
       with:
+        # cary: the "linked" setting is necessary to force the run to pick up
+        # the version specified in the action.
+        tools: linked 
         languages: ${{ matrix.language }}
         build-mode: ${{ matrix.build-mode }}
         # If you wish to specify custom queries, you can do so here or in a config file.
@@ -86,6 +92,7 @@ jobs:
         exit 1
 
     - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v3
+      # Pin the version to the SHA for 2.18.0 
+      uses: github/codeql-action/analyze@4dd16135b69a43b6c8efb853346f8437d92d3c93 # v3.26.6
       with:
         category: "/language:${{matrix.language}}"

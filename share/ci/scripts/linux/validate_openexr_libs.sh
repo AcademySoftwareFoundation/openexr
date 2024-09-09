@@ -24,7 +24,11 @@ fi
 set -x
 
 BUILD_ROOT=$1
-SRC_ROOT=$2
+if [[ $# == "2" ]]; then
+    SRC_ROOT=$2
+else
+    SRC_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/../../../.."
+fi
 
 # Locate OpenEXR.pc and set PKG_CONFIG_PATH accordingly
 

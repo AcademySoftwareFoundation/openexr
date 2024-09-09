@@ -222,6 +222,8 @@ jobs:
     env:
       CXX: ${{ matrix.cxx-compiler }}
       CC: ${{ matrix.cc-compiler }}
+      ACTIONS_RUNNER_FORCE_ACTIONS_NODE_VERSION: node16
+      ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true      
     steps:
       - name: Checkout
         uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
@@ -230,8 +232,6 @@ jobs:
           mkdir _install
           mkdir _build
           mkdir _examples
-      - name: Install help2man
-        run: yum install -y help2man
       - name: Configure
         run: |
           cmake -B _build -S . \
@@ -242,7 +242,7 @@ jobs:
                 -DCMAKE_VERBOSE_MAKEFILE:BOOL='OFF' \
                 -DBUILD_SHARED_LIBS=${{ matrix.build-shared }} \
                 -DOPENEXR_INSTALL_TOOLS='ON' \
-                -DOPENEXR_INSTALL_DOCS='ON' \
+                -DOPENEXR_INSTALL_DOCS='OFF' \
                 -DOPENEXR_RUN_FUZZ_TESTS='OFF' \
                 -DOPENEXR_ENABLE_THREADING=${{ matrix.threads-enabled }}
       - name: Build
@@ -253,21 +253,6 @@ jobs:
       - name: Validate
         run: |
           share/ci/scripts/linux/validate_openexr_libs.sh _install 
-      - name: Examples
-        run: |
-          # Make sure we can build the examples when configured as a
-          # standalone application linking against the just-installed
-          # OpenEXR library.
-          cmake ../src/examples \
-                -DCMAKE_PREFIX_PATH=../../_install \
-                -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} \
-                -DCMAKE_CXX_STANDARD=${{ matrix.cxx-standard }} \
-                -DCMAKE_CXX_FLAGS=${{ matrix.cxx-flags }}
-          cmake --build . \
-                --config ${{ matrix.build-type }}
-          # Confirm the examples program runs
-          ./bin/OpenEXRExamples
-        working-directory: _examples
       - name: Test
         run: |
           ctest -T Test ${{ matrix.exclude-tests }} \

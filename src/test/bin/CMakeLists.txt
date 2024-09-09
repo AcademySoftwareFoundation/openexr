@@ -67,6 +67,7 @@ if(BUILD_TESTING)
       exrmultiview
       exrmultipart
       exrstdattr
+      exrmetrics
   )
 
   foreach(test ${tests})
