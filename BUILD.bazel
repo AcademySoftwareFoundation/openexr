@@ -108,6 +108,7 @@ cc_library(
         "//conditions:default": [],
     }),
     includes = [
+        "src/lib",
         "src/lib/Iex",
         "src/lib/OpenEXR",
         "src/lib/OpenEXRCore",
@@ -141,6 +142,7 @@ cc_library(
         "//conditions:default": [],
     }),
     includes = [
+        "src/lib",
         "src/lib/IlmThread",
         "src/lib/OpenEXRCore",
     ],
@@ -489,7 +491,10 @@ cc_library(
         ":windows": ["windows_export_all_symbols"],
         "//conditions:default": [],
     }),
-    includes = ["src/lib/OpenEXR"],
+    includes = [
+        "src/lib",
+        "src/lib/OpenEXR",
+    ],
     linkopts =
         select({
             ":windows": [],
