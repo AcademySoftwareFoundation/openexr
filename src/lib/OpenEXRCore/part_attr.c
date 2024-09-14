@@ -1000,7 +1000,8 @@ exr_set_name (exr_context_t ctxt, int part_index, const char* val)
     size_t bytes;
     REQ_ATTR_FIND_CREATE (name, EXR_ATTR_STRING);
 
-    if (!val || val[0] == '\0')
+    /* old library allowed an empty string :(, but ensure not null */
+    if (!val)
         return EXR_UNLOCK_AND_RETURN (ctxt->report_error (
             ctxt,
             EXR_ERR_INVALID_ARGUMENT,
@@ -1017,6 +1018,36 @@ exr_set_name (exr_context_t ctxt, int part_index, const char* val)
 
     if (rv == EXR_ERR_SUCCESS)
     {
+        if (ctxt->num_parts > 1)
+        {
+            for ( int pidx = 0; pidx < ctxt->num_parts; ++pidx )
+            {
+                const exr_attribute_t* pname;
+
+                if (pidx == part_index)
+                    continue;
+                pname = ctxt->parts[pidx]->name;
+                if (!pname)
+                {
+                    return EXR_UNLOCK_AND_RETURN (
+                        ctxt->print_error (
+                            ctxt,
+                            EXR_ERR_INVALID_ARGUMENT,
+                            "Part %d missing required attribute 'name' for multi-part file",
+                            pidx));
+                }
+                if (!strcmp (val, pname->string->str))
+                {
+                    return EXR_UNLOCK_AND_RETURN (
+                        ctxt->print_error (
+                            ctxt,
+                            EXR_ERR_INVALID_ARGUMENT,
+                            "Each part should have a unique name, part %d and %d attempting to have same name '%s'",
+                            pidx, part_index, val));
+                }
+            }
+        }
+
         if (attr->string->length == (int32_t) bytes &&
             attr->string->alloc_size > 0)
         {

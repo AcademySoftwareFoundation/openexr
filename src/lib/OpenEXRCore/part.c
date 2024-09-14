@@ -60,6 +60,7 @@ exr_add_part (
     int*          new_index)
 {
     exr_result_t    rv;
+    size_t          pnamelen;
     int32_t         attrsz  = -1;
     const char*     typestr = NULL;
     exr_priv_part_t part    = NULL;
@@ -71,8 +72,50 @@ exr_add_part (
         return EXR_UNLOCK_AND_RETURN (
             ctxt->standard_error (ctxt, EXR_ERR_NOT_OPEN_WRITE));
 
+    pnamelen = partname ? strlen (partname) : 0;
+    if (pnamelen >= INT32_MAX)
+    {
+        return EXR_UNLOCK_AND_RETURN (ctxt->print_error (
+            ctxt,
+            EXR_ERR_INVALID_ATTR,
+            "Part name '%s': Invalid name length %" PRIu64,
+            partname,
+            (uint64_t) pnamelen));
+    }
+
     rv = internal_exr_add_part (ctxt, &part, new_index);
     if (rv != EXR_ERR_SUCCESS) return EXR_UNLOCK_AND_RETURN (rv);
+
+    if (ctxt->num_parts > 0)
+    {
+        // ensure multi part has at least some name?
+        if (!partname) partname = "";
+
+        for ( int pidx = 0; pidx < ctxt->num_parts - 1; ++pidx )
+        {
+            const exr_attribute_t* pname = ctxt->parts[pidx]->name;
+            if (!pname)
+            {
+                internal_exr_revert_add_part (ctxt, &part, new_index);
+                return EXR_UNLOCK_AND_RETURN (
+                    ctxt->print_error (
+                        ctxt,
+                        EXR_ERR_INVALID_ARGUMENT,
+                        "Part %d missing required attribute 'name' for multi-part file",
+                        pidx));
+            }
+            if (!strcmp (partname, pname->string->str))
+            {
+                internal_exr_revert_add_part (ctxt, &part, new_index);
+                return EXR_UNLOCK_AND_RETURN (
+                    ctxt->print_error (
+                        ctxt,
+                        EXR_ERR_INVALID_ARGUMENT,
+                        "Each part should have a unique name, part %d and %d attempting to have same name '%s'",
+                        pidx, ctxt->num_parts, partname));
+            }
+        }
+    }
 
     part->storage_mode = type;
     switch (type)
@@ -127,22 +170,8 @@ exr_add_part (
         return EXR_UNLOCK_AND_RETURN (rv);
     }
 
-    /* make sure we put in SOME sort of partname */
-    if (!partname) partname = "";
-    if (partname && partname[0] != '\0')
+    if (partname)
     {
-        size_t pnamelen = strlen (partname);
-        if (pnamelen >= INT32_MAX)
-        {
-            internal_exr_revert_add_part (ctxt, &part, new_index);
-            return EXR_UNLOCK_AND_RETURN (ctxt->print_error (
-                ctxt,
-                EXR_ERR_INVALID_ATTR,
-                "Part name '%s': Invalid name length %" PRIu64,
-                partname,
-                (uint64_t) pnamelen));
-        }
-
         rv = exr_attr_list_add_static_name (
             ctxt,
             &(part->attributes),
