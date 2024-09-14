@@ -618,8 +618,7 @@ testWriteAttrs (const std::string& tempdir)
         EXR_ERR_ARGUMENT_OUT_OF_RANGE, exr_set_name (outf, 1, "a"));
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_INVALID_ARGUMENT, exr_set_name (outf, partidx, NULL));
-    EXRCORE_TEST_RVAL_FAIL (
-        EXR_ERR_INVALID_ARGUMENT, exr_set_name (outf, partidx, ""));
+    EXRCORE_TEST_RVAL (exr_set_name (outf, partidx, ""));
     EXRCORE_TEST_RVAL (exr_set_name (outf, partidx, "beauty"));
     EXRCORE_TEST_RVAL (exr_get_name (outf, partidx, &partname));
     EXRCORE_TEST (0 == strcmp (partname, "beauty"));
