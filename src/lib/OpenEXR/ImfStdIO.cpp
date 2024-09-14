@@ -136,7 +136,8 @@ make_ofstream (const char* filename)
         ret->setstate (ios_base::goodbit);
     }
 #    else
-    ofstream* ret = new ofstream (wfn.c_str (), ios_base::binary);
+    ofstream* ret = new ofstream (wfn.c_str (),
+                                  ios_base::out | ios_base::binary);
 #    endif
     return ret;
 }
