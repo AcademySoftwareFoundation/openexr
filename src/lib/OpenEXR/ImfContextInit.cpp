@@ -88,8 +88,23 @@ istream_read (
         }
         nread = s->tellg () - nread;
     }
+    catch (std::exception &e)
+    {
+        error_cb (
+            ctxt,
+            EXR_ERR_READ_IO,
+            "Unable to seek to desired offset %" PRIu64 ": %s",
+            offset,
+            e.what());
+        nread = -1;
+    }
     catch (...)
     {
+        error_cb (
+            ctxt,
+            EXR_ERR_READ_IO,
+            "Unable to seek to desired offset %" PRIu64 ": Unknown error",
+            offset);
         nread = -1;
     }
     return nread;
