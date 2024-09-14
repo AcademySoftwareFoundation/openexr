@@ -19,6 +19,7 @@ if(CMAKE_CXX_STANDARD GREATER tmp)
 endif()
 set(OPENEXR_CXX_STANDARD "${tmp}" CACHE STRING "C++ standard to compile against")
 set(tmp)
+message(STATUS "Building against C++ Standard: ${OPENEXR_CXX_STANDARD}")
 
 set(OPENEXR_NAMESPACE_CUSTOM "0" CACHE STRING "Whether the namespace has been customized (so external users know)")
 set(OPENEXR_INTERNAL_IMF_NAMESPACE "Imf_${OPENEXR_VERSION_API}" CACHE STRING "Real namespace for OpenEXR that will end up in compiled symbols")
