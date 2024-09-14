@@ -120,11 +120,6 @@ Context::Context (const char* filename, const ContextInitializer& ctxtinit, read
     : Context()
 {
     exr_result_t rv;
-    if (*_ctxt)
-    {
-        THROW (
-            IEX_NAMESPACE::ArgExc, "Context already started, only start once");
-    }
 
     rv = exr_start_read (_ctxt.get (), filename, &(ctxtinit._initializer));
     if (EXR_ERR_SUCCESS != rv)
@@ -150,12 +145,6 @@ Context::Context (const char* filename, const ContextInitializer& ctxtinit, read
 Context::Context (const char* filename, const ContextInitializer& ctxtinit, temp_mode_t)
     : Context()
 {
-    if (*_ctxt)
-    {
-        THROW (
-            IEX_NAMESPACE::ArgExc, "Context already started, only start once");
-    }
-
     if (EXR_ERR_SUCCESS != exr_start_temporary_context (
                                _ctxt.get (),
                                filename,
@@ -172,12 +161,6 @@ Context::Context (const char* filename, const ContextInitializer& ctxtinit, temp
 Context::Context (const char* filename, const ContextInitializer& ctxtinit, write_mode_t)
     : Context()
 {
-    if (*_ctxt)
-    {
-        THROW (
-            IEX_NAMESPACE::ArgExc, "Context already started, only start once");
-    }
-
     if (EXR_ERR_SUCCESS != exr_start_write (
                                _ctxt.get (),
                                filename,
