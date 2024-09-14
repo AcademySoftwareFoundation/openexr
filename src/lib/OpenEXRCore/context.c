@@ -650,6 +650,23 @@ exr_write_header (exr_context_t ctxt)
             EXR_ERR_FILE_BAD_HEADER,
             "No parts defined in file prior to writing data"));
 
+    /* add part and set name should have already validated the uniqueness
+     * so just ensure the name has been set for multi part files
+     */
+    for ( int p = ctxt->num_parts > 1 ? 0 : 1; p < ctxt->num_parts; ++p )
+    {
+        const exr_attribute_t* pname = ctxt->parts[p]->name;
+        if (!pname)
+        {
+            return EXR_UNLOCK_AND_RETURN (
+                ctxt->print_error (
+                    ctxt,
+                    EXR_ERR_INVALID_ARGUMENT,
+                    "Part %d missing required name for multi-part file",
+                    p));
+        }
+    }
+
     for (int p = 0; rv == EXR_ERR_SUCCESS && p < ctxt->num_parts; ++p)
     {
         exr_priv_part_t curp = ctxt->parts[p];
