@@ -106,12 +106,11 @@ private:
 ////////////////////////////////////////
 
 Context::Context ()
-    : _ctxt (new exr_context_t, [] (exr_context_t* todel) {
+    : _ctxt (new exr_context_t(), [] (exr_context_t* todel) {
         exr_finish (todel);
         delete todel;
     })
 {
-    *_ctxt = nullptr;
 }
 
 ////////////////////////////////////////
