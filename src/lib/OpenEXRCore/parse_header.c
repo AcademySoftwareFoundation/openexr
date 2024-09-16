@@ -73,6 +73,9 @@ scratch_attr_too_big (struct _internal_exr_seq_scratch* scr, int32_t attrsz)
         int64_t foff = (int64_t) scr->fileoff;
         if ((foff + test) > scr->ctxt->file_size) return 1;
     }
+    else if (acmp > scr->navail && acmp >= INT32_MAX)
+        return 1;
+
     return 0;
 }
 

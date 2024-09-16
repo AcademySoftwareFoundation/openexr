@@ -202,6 +202,13 @@ internal_exr_undo_rle (
 {
     exr_result_t rv;
     uint64_t     unpackb;
+
+    if (packsz == 0 || src == NULL)
+    {
+        decode->bytes_decompressed = 0;
+        return EXR_ERR_SUCCESS;
+    }
+
     rv = internal_decode_alloc_buffer (
         decode,
         EXR_TRANSCODE_BUFFER_SCRATCH1,
