@@ -1396,6 +1396,7 @@ check_populate_tiles (
 {
     exr_result_t        rv;
     exr_attr_tiledesc_t tmpdata = {0};
+    uint8_t             lev, rnd;
 
     if (curpart->tiles)
     {
@@ -1433,6 +1434,25 @@ check_populate_tiles (
 
     tmpdata.x_size = one_to_native32 (tmpdata.x_size);
     tmpdata.y_size = one_to_native32 (tmpdata.y_size);
+
+    lev = tmpdata.level_and_round & 0xF;
+    rnd = (tmpdata.level_and_round >> 4) & 0xF;
+    if (lev >= (uint8_t)EXR_TILE_LAST_TYPE)
+    {
+        return ctxt->print_error (
+            ctxt,
+            EXR_ERR_INVALID_ATTR,
+            "Invalid level mode (%d) in tile description header",
+            (int) lev);
+    }
+    if (rnd >= (uint8_t)EXR_TILE_ROUND_LAST_TYPE)
+    {
+        return ctxt->print_error (
+            ctxt,
+            EXR_ERR_INVALID_ATTR,
+            "Invalid rounding mode (%d) in tile description header",
+            (int) rnd);
+    }
 
     rv = exr_attr_list_add_static_name (
         ctxt,
