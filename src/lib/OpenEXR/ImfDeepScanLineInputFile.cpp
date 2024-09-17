@@ -931,6 +931,9 @@ void ScanLineProcess::run_fill (
     int fbY,
     const std::vector<DeepSlice> &filllist)
 {
+    if (cinfo.height == 0 || cinfo.width == 0)
+        return;
+
     for (auto& fills: filllist)
     {
         uint8_t*       ptr;
@@ -1010,6 +1013,9 @@ void ScanLineProcess::copy_sample_count (
     int fbY)
 {
     const Slice& scslice = outfb->getSampleCountSlice ();
+
+    if (cinfo.height == 0 || cinfo.width == 0)
+        return;
 
     int     end = cinfo.height - decoder.user_line_end_ignore;
     int64_t xS = int64_t (scslice.xStride);

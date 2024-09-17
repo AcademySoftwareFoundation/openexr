@@ -154,8 +154,9 @@ default_read_chunk (exr_decode_pipeline_t* decode)
         decode->unpacked_alloc_size == 0)
         decode->unpacked_buffer = NULL;
 
-    if (part->storage_mode == EXR_STORAGE_DEEP_SCANLINE ||
-        part->storage_mode == EXR_STORAGE_DEEP_TILED)
+    if ((part->storage_mode == EXR_STORAGE_DEEP_SCANLINE ||
+         part->storage_mode == EXR_STORAGE_DEEP_TILED) &&
+        decode->chunk.sample_count_table_size > 0)
     {
         rv = internal_decode_alloc_buffer (
             decode,
@@ -192,7 +193,7 @@ default_read_chunk (exr_decode_pipeline_t* decode)
                 decode->packed_sample_count_table);
         }
     }
-    else
+    else if (decode->chunk.packed_size > 0)
     {
         rv = internal_decode_alloc_buffer (
             decode,
@@ -204,6 +205,8 @@ default_read_chunk (exr_decode_pipeline_t* decode)
         rv = exr_read_chunk (
             ctxt, decode->part_index, &(decode->chunk), decode->packed_buffer);
     }
+    else
+        rv = EXR_ERR_SUCCESS;
 
     return rv;
 }

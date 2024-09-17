@@ -1141,6 +1141,9 @@ void TileProcess::run_fill (
     const DeepFrameBuffer *outfb, int fb_absX, int fb_absY, int t_absX, int t_absY,
     const std::vector<DeepSlice> &filllist)
 {
+    if (cinfo.height == 0 || cinfo.width == 0)
+        return;
+
     for (auto& fills: filllist)
     {
         uint8_t* ptr;
@@ -1226,6 +1229,9 @@ void TileProcess::copy_sample_count (
     const Slice& s = outfb->getSampleCountSlice ();
     if (s.xSampling != 1 || s.ySampling != 1)
         throw IEX_NAMESPACE::ArgExc ("Tiled data should not have subsampling.");
+
+    if (cinfo.height == 0 || cinfo.width == 0)
+        return;
 
     int xOffset = s.xTileCoords ? 0 : t_absX;
     int yOffset = s.yTileCoords ? 0 : t_absY;

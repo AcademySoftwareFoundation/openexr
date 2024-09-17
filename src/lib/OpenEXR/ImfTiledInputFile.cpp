@@ -988,6 +988,9 @@ void TileProcess::run_fill (
     const FrameBuffer *outfb, int fb_absX, int fb_absY, int t_absX, int t_absY,
     const std::vector<Slice> &filllist)
 {
+    if (cinfo.height == 0 || cinfo.width == 0)
+        return;
+
     for (auto& s: filllist)
     {
         uint8_t* ptr;

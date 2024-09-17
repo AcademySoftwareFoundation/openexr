@@ -660,6 +660,9 @@ void ScanLineProcess::run_fill (
     int fbY,
     const std::vector<Slice> &filllist)
 {
+    if (cinfo.height == 0 || cinfo.width == 0)
+        return;
+
     for (auto& s: filllist)
     {
         uint8_t*       ptr;
