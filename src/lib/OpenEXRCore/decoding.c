@@ -313,6 +313,11 @@ exr_decoding_initialize (
         }
     }
 
+    // will have already been reported during header parse, but just
+    // stop the file from being read
+    if (!part->channels || part->channels->type != EXR_ATTR_CHLIST)
+        return EXR_ERR_INVALID_ATTR;
+
     rv = internal_coding_fill_channel_info (
         &(decode->channels),
         &(decode->channel_count),
