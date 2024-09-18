@@ -20,6 +20,7 @@
 #include "ImfZipCompressor.h"
 #include "ImfZip.h"
 
+#include <algorithm>
 #include <stdexcept>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
