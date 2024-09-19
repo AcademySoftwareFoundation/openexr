@@ -83,6 +83,7 @@
 #include "ImfNamespace.h"
 #include "ImfCompression.h"
 #include <map>
+#include <cctype>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
