@@ -521,7 +521,7 @@ deep data OpenEXR files.
        * ``tiledimage``
        * ``deepscanline``, or
        * ``deeptile``
-       
+
        **Note:** This value must agree with the version field's tile bit (9) and
        non-image (deep data) bit (11) settings.  
    * - ``version``
