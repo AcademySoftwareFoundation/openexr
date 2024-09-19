@@ -930,7 +930,7 @@ The OpenEXR library predefines the following attribute types:
 | ``int``            | ``int``                                                        |
 +--------------------+----------------------------------------------------------------+
 | ``keycode``        | Seven ``int``\ 's: ``filmMfcCode``, ``filmType``, ``prefix``,  |
-|                    | ``count``,``perfOffset``, ``perfsPerFrame``, ``perfsPerCount`` |
+|                    | ``count``, ``perfOffset``, ``perfsPerFrame``, ``perfsPerCount``|
 +--------------------+----------------------------------------------------------------+
 | ``lineOrder``      | ``unsigned char``, possible values are:                        |
 |                    |                                                                |
