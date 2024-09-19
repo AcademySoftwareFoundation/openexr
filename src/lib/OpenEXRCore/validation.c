@@ -20,14 +20,7 @@ static exr_result_t
 validate_req_attr (exr_context_t f, exr_priv_part_t curpart, int adddefault)
 {
     exr_result_t rv = EXR_ERR_SUCCESS;
-    if (!curpart->channels)
-        return f->print_error (
-            f, EXR_ERR_MISSING_REQ_ATTR, "'channels' attribute not found");
-    else if (curpart->channels->type != EXR_ATTR_CHLIST)
-        return f->print_error (
-            f,
-            EXR_ERR_ATTR_TYPE_MISMATCH,
-            "'channels' attribute has wrong data type, expect chlist");
+
     if (!curpart->compression)
     {
         if (adddefault)
@@ -394,16 +387,23 @@ validate_image_dimensions (exr_context_t f, exr_priv_part_t curpart)
 
 static exr_result_t
 validate_channels (
-    exr_context_t f, exr_priv_part_t curpart, const exr_attr_chlist_t* channels)
+    exr_context_t f, exr_priv_part_t curpart)
 {
-    exr_attr_box2i_t dw;
-    int64_t          w, h;
+    exr_attr_box2i_t         dw;
+    int64_t                  w, h;
+    const exr_attr_chlist_t* channels;
 
-    if (!channels)
-        return f->report_error (
+    if (!curpart->channels)
+        return f->print_error (
+            f, EXR_ERR_MISSING_REQ_ATTR, "'channels' attribute not found");
+    else if (curpart->channels->type != EXR_ATTR_CHLIST)
+        return f->print_error (
             f,
-            EXR_ERR_INVALID_ARGUMENT,
-            "Missing required channels attribute to validate against");
+            EXR_ERR_ATTR_TYPE_MISMATCH,
+            "'channels' attribute has wrong data type, expect chlist");
+
+    channels = curpart->channels->chlist;
+
     if (!curpart->dataWindow)
         return f->report_error (
             f,
@@ -704,7 +704,7 @@ internal_exr_validate_read_part (exr_context_t f, exr_priv_part_t curpart)
     rv = validate_image_dimensions (f, curpart);
     if (rv != EXR_ERR_SUCCESS) return rv;
 
-    rv = validate_channels (f, curpart, curpart->channels->chlist);
+    rv = validate_channels (f, curpart);
     if (rv != EXR_ERR_SUCCESS) return rv;
 
     rv = validate_part_type (f, curpart);
@@ -847,7 +847,7 @@ internal_exr_validate_write_part (exr_context_t f, exr_priv_part_t curpart)
     rv = validate_image_dimensions (f, curpart);
     if (rv != EXR_ERR_SUCCESS) return rv;
 
-    rv = validate_channels (f, curpart, curpart->channels->chlist);
+    rv = validate_channels (f, curpart);
     if (rv != EXR_ERR_SUCCESS) return rv;
 
     rv = validate_part_type (f, curpart);
