@@ -516,10 +516,12 @@ deep data OpenEXR files.
      - ``string``
      - Required if either the multipart bit (12) or the non-image bit (11) is set.
        Set to one of:
+
        * ``scanlineimage``
        * ``tiledimage``
        * ``deepscanline``, or
        * ``deeptile``
+       
        **Note:** This value must agree with the version field's tile bit (9) and
        non-image (deep data) bit (11) settings.  
    * - ``version``
