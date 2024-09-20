@@ -8,7 +8,7 @@
 
 //-----------------------------------------------------------------------------
 //
-//	class TiledInputFile
+//  class TiledInputFile
 //
 //-----------------------------------------------------------------------------
 
@@ -138,37 +138,37 @@ public:
     //
     // numXLevels() returns the file's number of levels in x direction.
     //
-    //	if levelMode() == ONE_LEVEL:
+    //  if levelMode() == ONE_LEVEL:
     //      return value is: 1
     //
-    //	if levelMode() == MIPMAP_LEVELS:
+    //  if levelMode() == MIPMAP_LEVELS:
     //      return value is: rfunc (log (max (w, h)) / log (2)) + 1
     //
-    //	if levelMode() == RIPMAP_LEVELS:
+    //  if levelMode() == RIPMAP_LEVELS:
     //      return value is: rfunc (log (w) / log (2)) + 1
     //
-    //	where
-    //	    w is the width of the image's data window,  max.x - min.x + 1,
-    //	    y is the height of the image's data window, max.y - min.y + 1,
-    //	    and rfunc(x) is either floor(x), or ceil(x), depending on
-    //	    whether levelRoundingMode() returns ROUND_DOWN or ROUND_UP.
+    //  where
+    //      w is the width of the image's data window,  max.x - min.x + 1,
+    //      y is the height of the image's data window, max.y - min.y + 1,
+    //      and rfunc(x) is either floor(x), or ceil(x), depending on
+    //      whether levelRoundingMode() returns ROUND_DOWN or ROUND_UP.
     //
     // numYLevels() returns the file's number of levels in y direction.
     //
-    //	if levelMode() == ONE_LEVEL or levelMode() == MIPMAP_LEVELS:
+    //  if levelMode() == ONE_LEVEL or levelMode() == MIPMAP_LEVELS:
     //      return value is the same as for numXLevels()
     //
-    //	if levelMode() == RIPMAP_LEVELS:
+    //  if levelMode() == RIPMAP_LEVELS:
     //      return value is: rfunc (log (h) / log (2)) + 1
     //
     //
     // numLevels() is a convenience function for use with
     // MIPMAP_LEVELS files.
     //
-    //	if levelMode() == ONE_LEVEL or levelMode() == MIPMAP_LEVELS:
+    //  if levelMode() == ONE_LEVEL or levelMode() == MIPMAP_LEVELS:
     //      return value is the same as for numXLevels()
     //
-    //	if levelMode() == RIPMAP_LEVELS:
+    //  if levelMode() == RIPMAP_LEVELS:
     //      an IEX_NAMESPACE::LogicExc exception is thrown
     //
     // isValidLevel(lx, ly) returns true if the file contains
@@ -191,14 +191,14 @@ public:
     // levelWidth(lx) returns the width of a level with level
     // number (lx, *), where * is any number.
     //
-    //	return value is:
+    //  return value is:
     //      max (1, rfunc (w / pow (2, lx)))
     //
     //
     // levelHeight(ly) returns the height of a level with level
     // number (*, ly), where * is any number.
     //
-    //	return value is:
+    //  return value is:
     //      max (1, rfunc (h / pow (2, ly)))
     //
     //----------------------------------------------------------
@@ -215,7 +215,7 @@ public:
     // that cover a level with level number (lx, *), where * is
     // any number.
     //
-    //	return value is:
+    //  return value is:
     //      (levelWidth(lx) + tileXSize() - 1) / tileXSize()
     //
     //
@@ -223,7 +223,7 @@ public:
     // that cover a level with level number (*, ly), where * is
     // any number.
     //
-    //	return value is:
+    //  return value is:
     //      (levelHeight(ly) + tileXSize() - 1) / tileXSize()
     //
     //--------------------------------------------------------------
@@ -239,10 +239,10 @@ public:
     // dataWindowForLevel(lx, ly) returns a 2-dimensional region of
     // valid pixel coordinates for a level with level number (lx, ly)
     //
-    //	return value is a Box2i with min value:
+    //  return value is a Box2i with min value:
     //      (dataWindow.min.x, dataWindow.min.y)
     //
-    //	and max value:
+    //  and max value:
     //      (dataWindow.min.x + levelWidth(lx) - 1,
     //       dataWindow.min.y + levelHeight(ly) - 1)
     //
@@ -264,11 +264,11 @@ public:
     // region of valid pixel coordinates for a tile with tile coordinates
     // (dx,dy) and level number (lx, ly).
     //
-    //	return value is a Box2i with min value:
+    //  return value is a Box2i with min value:
     //      (dataWindow.min.x + dx * tileXSize(),
     //       dataWindow.min.y + dy * tileYSize())
     //
-    //	and max value:
+    //  and max value:
     //      (dataWindow.min.x + (dx + 1) * tileXSize() - 1,
     //       dataWindow.min.y + (dy + 1) * tileYSize() - 1)
     //
@@ -343,6 +343,12 @@ public:
         int&         ly,
         const char*& pixelData,
         int&         pixelDataSize);
+
+    IMF_EXPORT
+    size_t bufferSize () const;
+    
+    IMF_EXPORT
+    void freeBuffers ();
 
 private:
     Context _ctxt;

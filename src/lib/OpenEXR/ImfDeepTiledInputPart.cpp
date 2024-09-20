@@ -207,4 +207,16 @@ DeepTiledInputPart::readPixelSampleCounts (
     file->readPixelSampleCounts (dx1, dx2, dy1, dy2, l);
 }
 
+unsigned long long
+DeepTiledInputPart::bufferSize () const
+{
+    return file->bufferSize ();
+}
+
+void
+DeepTiledInputPart::freeBuffers ()
+{
+    file->freeBuffers ();
+}
+
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

@@ -145,6 +145,11 @@ public:
     int firstScanLineInChunk (int y) const;
     IMF_EXPORT
     int lastScanLineInChunk (int y) const;
+    
+    IMF_EXPORT
+    unsigned long long bufferSize () const;
+    IMF_EXPORT
+    void freeBuffers ();
 
 private:
     DeepScanLineInputFile* file;

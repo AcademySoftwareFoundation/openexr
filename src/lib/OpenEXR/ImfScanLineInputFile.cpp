@@ -5,7 +5,7 @@
 
 //-----------------------------------------------------------------------------
 //
-//	class ScanLineInputFile
+//  class ScanLineInputFile
 //
 //-----------------------------------------------------------------------------
 
@@ -61,6 +61,16 @@ struct ScanLineProcess
         const FrameBuffer *outfb,
         int fbY,
         const std::vector<Slice> &filllist);
+    
+    size_t get_buffer_size ()
+    {
+        return exr_decoding_get_buffer_size (&decoder);
+    }
+    
+    void free_buffers ()
+    {
+        exr_decoding_free_buffers (&decoder);
+    }
 
     exr_result_t          last_decode_err = EXR_ERR_UNKNOWN;
     bool                  first = true;
@@ -403,6 +413,44 @@ ScanLineInputFile::rawPixelDataToBuffer (
                     << fileName ()
                     << "\". Unable to query data block information.");
         }
+    }
+}
+
+////////////////////////////////////////
+
+size_t
+ScanLineInputFile::bufferSize () const
+{
+#if ILMTHREAD_THREADING_ENABLED
+    std::lock_guard<std::mutex> lock (_data->_mx);
+#endif
+    size_t retval = 0;
+    
+    std::shared_ptr<ScanLineProcess> sp = _data->processStack;
+    
+    while (sp)
+    {
+        retval += sp->get_buffer_size();
+        
+        sp = sp->next;
+    }
+    
+    return retval;
+}
+
+void
+ScanLineInputFile::freeBuffers ()
+{
+#if ILMTHREAD_THREADING_ENABLED
+    std::lock_guard<std::mutex> lock (_data->_mx);
+#endif
+    std::shared_ptr<ScanLineProcess> sp = _data->processStack;
+    
+    while (sp)
+    {
+        sp->free_buffers();
+        
+        sp = sp->next;
     }
 }
 

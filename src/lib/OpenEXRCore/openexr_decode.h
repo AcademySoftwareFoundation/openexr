@@ -317,12 +317,27 @@ EXR_EXPORT
 exr_result_t exr_decoding_run (
     exr_const_context_t ctxt, int part_index, exr_decode_pipeline_t* decode);
 
+EXR_EXPORT
+size_t
+exr_decoding_get_buffer_size (exr_decode_pipeline_t* decode);
+
 /** Free any intermediate memory in the decoding pipeline.
  *
  * This does *not* free any pointers referred to in the channel info
  * areas, but rather only the intermediate buffers and memory needed
  * for the structure itself.
  */
+ 
+EXR_EXPORT
+exr_result_t
+exr_decoding_free_buffers (exr_decode_pipeline_t* decode);
+ 
+ /** Destroy the decoder.
+ *
+ * decode struct will be zeroed out.
+ */
+
+ 
 EXR_EXPORT
 exr_result_t
 exr_decoding_destroy (exr_const_context_t ctxt, exr_decode_pipeline_t* decode);

@@ -5,7 +5,7 @@
 
 //-----------------------------------------------------------------------------
 //
-//	class InputFile
+//  class InputFile
 //
 //-----------------------------------------------------------------------------
 
@@ -268,6 +268,60 @@ InputFile::rawTileData (
             "file \""
                 << fileName () << "\". " << e.what ());
         throw;
+    }
+}
+
+size_t
+InputFile::bufferSize () const
+{
+    if (_data->_storage == EXR_STORAGE_DEEP_SCANLINE)
+    {
+        return _data->_dsFile->bufferSize ();
+    }
+    else if (
+        _data->_storage == EXR_STORAGE_DEEP_TILED ||
+        _data->_storage == EXR_STORAGE_TILED)
+    {
+        return _data->_tFile->bufferSize ();
+    }
+    else if (_data->_storage == EXR_STORAGE_SCANLINE)
+    {
+        return _data->_sFile->bufferSize ();
+    }
+    else
+    {
+        THROW (
+            IEX_NAMESPACE::ArgExc,
+            "Unable to handle data storage type in file '" << fileName ()
+                                                           << "'");
+    }
+}
+    
+void
+InputFile::freeBuffers ()
+{
+    _data->deleteCachedBuffer ();
+
+    if (_data->_storage == EXR_STORAGE_DEEP_SCANLINE)
+    {
+        _data->_dsFile->freeBuffers ();
+    }
+    else if (
+        _data->_storage == EXR_STORAGE_DEEP_TILED ||
+        _data->_storage == EXR_STORAGE_TILED)
+    {
+        _data->_tFile->freeBuffers ();
+    }
+    else if (_data->_storage == EXR_STORAGE_SCANLINE)
+    {
+        _data->_sFile->freeBuffers ();
+    }
+    else
+    {
+        THROW (
+            IEX_NAMESPACE::ArgExc,
+            "Unable to handle data storage type in file '" << fileName ()
+                                                           << "'");
     }
 }
 

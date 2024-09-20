@@ -5,7 +5,7 @@
 
 //-----------------------------------------------------------------------------
 //
-//	class TiledInputFile
+//  class TiledInputFile
 //
 //-----------------------------------------------------------------------------
 
@@ -58,6 +58,16 @@ struct TileProcess
         int t_absX, int t_absY,
         const std::vector<Slice> &filllist);
 
+    size_t get_buffer_size ()
+    {
+        return exr_decoding_get_buffer_size (&decoder);
+    }
+    
+    void free_buffers ()
+    {
+        exr_decoding_free_buffers (&decoder);
+    }
+    
     bool                  first = true;
     exr_chunk_info_t      cinfo;
     exr_decode_pipeline_t decoder;
@@ -782,6 +792,43 @@ TiledInputFile::tileOrder (int dx[], int dy[], int lx[], int ly[]) const
         ly[i] = tp.ly;
     }
 }
+
+size_t
+TiledInputFile::bufferSize () const
+{
+#if ILMTHREAD_THREADING_ENABLED
+    std::lock_guard<std::mutex> lock (_data->_mx);
+#endif
+    size_t retval = 0;
+    
+    std::shared_ptr<TileProcess> sp = _data->processStack;
+    
+    while (sp)
+    {
+        retval += sp->get_buffer_size();
+        
+        sp = sp->next;
+    }
+    
+    return retval;
+}
+
+void
+TiledInputFile::freeBuffers ()
+{
+#if ILMTHREAD_THREADING_ENABLED
+    std::lock_guard<std::mutex> lock (_data->_mx);
+#endif
+    std::shared_ptr<TileProcess> sp = _data->processStack;
+    
+    while (sp)
+    {
+        sp->free_buffers();
+        
+        sp = sp->next;
+    }
+}
+
 
 void TiledInputFile::Data::readTiles (int dx1, int dx2, int dy1, int dy2, int lx, int ly)
 {

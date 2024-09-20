@@ -377,6 +377,12 @@ public:
     IMF_EXPORT
     void readPixelSampleCounts (int dx1, int dx2, int dy1, int dy2, int l = 0);
 
+    IMF_EXPORT
+    size_t bufferSize () const;
+    
+    IMF_EXPORT
+    void freeBuffers ();
+
 private:
     Context _ctxt;
     struct IMF_HIDDEN Data;

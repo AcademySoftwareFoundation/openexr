@@ -57,6 +57,12 @@ public:
         const char*& pixelData,
         int&         pixelDataSize);
 
+    IMF_EXPORT
+    unsigned long long bufferSize () const;
+    
+    IMF_EXPORT
+    void freeBuffers ();
+
 private:
     InputFile* file;
     // for internal use - give OutputFile and TiledOutputFile access to file for copyPixels

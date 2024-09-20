@@ -154,9 +154,8 @@ default_read_chunk (exr_decode_pipeline_t* decode)
         decode->unpacked_alloc_size == 0)
         decode->unpacked_buffer = NULL;
 
-    if ((part->storage_mode == EXR_STORAGE_DEEP_SCANLINE ||
-         part->storage_mode == EXR_STORAGE_DEEP_TILED) &&
-        decode->chunk.sample_count_table_size > 0)
+    if (part->storage_mode == EXR_STORAGE_DEEP_SCANLINE ||
+        part->storage_mode == EXR_STORAGE_DEEP_TILED)
     {
         rv = internal_decode_alloc_buffer (
             decode,
@@ -193,7 +192,7 @@ default_read_chunk (exr_decode_pipeline_t* decode)
                 decode->packed_sample_count_table);
         }
     }
-    else if (decode->chunk.packed_size > 0)
+    else
     {
         rv = internal_decode_alloc_buffer (
             decode,
@@ -205,8 +204,6 @@ default_read_chunk (exr_decode_pipeline_t* decode)
         rv = exr_read_chunk (
             ctxt, decode->part_index, &(decode->chunk), decode->packed_buffer);
     }
-    else
-        rv = EXR_ERR_SUCCESS;
 
     return rv;
 }
@@ -312,13 +309,6 @@ exr_decoding_initialize (
                 part->version->i);
         }
     }
-
-    /* will have already been reported during header parse, but just
-     * stop the file from being read
-     */
-    if (!part->channels || part->channels->type != EXR_ATTR_CHLIST ||
-        part->channels->chlist->num_channels <= 0)
-        return EXR_ERR_INVALID_ATTR;
 
     rv = internal_coding_fill_channel_info (
         &(decode->channels),
@@ -672,25 +662,24 @@ exr_decoding_run (
 
 /**************************************/
 
-exr_result_t
-exr_decoding_destroy (exr_const_context_t ctxt, exr_decode_pipeline_t* decode)
+size_t
+exr_decoding_get_buffer_size (exr_decode_pipeline_t* decode)
 {
-    if (!ctxt) return EXR_ERR_MISSING_CONTEXT_ARG;
+    return (decode->packed_alloc_size +
+            decode->unpacked_alloc_size +
+            decode->scratch_alloc_size_1 +
+            decode->scratch_alloc_size_2 +
+            decode->sample_count_alloc_size +
+            decode->packed_sample_count_alloc_size);
+}
 
+/**************************************/
+
+exr_result_t
+exr_decoding_free_buffers (exr_decode_pipeline_t* decode)
+{
     if (decode)
     {
-        exr_decode_pipeline_t nil = {0};
-        if (decode->channels != decode->_quick_chan_store)
-            ctxt->free_fn (decode->channels);
-
-        if (decode->unpacked_buffer == decode->packed_buffer &&
-            decode->unpacked_alloc_size == 0)
-            decode->unpacked_buffer = NULL;
-
-        if (decode->sample_count_table == decode->packed_sample_count_table &&
-            decode->sample_count_alloc_size == 0)
-            decode->sample_count_table = NULL;
-
         internal_decode_free_buffer (
             decode,
             EXR_TRANSCODE_BUFFER_PACKED,
@@ -722,6 +711,32 @@ exr_decoding_destroy (exr_const_context_t ctxt, exr_decode_pipeline_t* decode)
             EXR_TRANSCODE_BUFFER_PACKED_SAMPLES,
             &(decode->packed_sample_count_table),
             &(decode->packed_sample_count_alloc_size));
+    }
+    return EXR_ERR_SUCCESS;
+}
+/**************************************/
+
+exr_result_t
+exr_decoding_destroy (exr_const_context_t ctxt, exr_decode_pipeline_t* decode)
+{
+    if (!ctxt) return EXR_ERR_MISSING_CONTEXT_ARG;
+
+    if (decode)
+    {
+        exr_decode_pipeline_t nil = {0};
+        if (decode->channels != decode->_quick_chan_store)
+            ctxt->free_fn (decode->channels);
+
+        if (decode->unpacked_buffer == decode->packed_buffer &&
+            decode->unpacked_alloc_size == 0)
+            decode->unpacked_buffer = NULL;
+
+        if (decode->sample_count_table == decode->packed_sample_count_table &&
+            decode->sample_count_alloc_size == 0)
+            decode->sample_count_table = NULL;
+        
+        exr_decoding_free_buffers(decode);
+        
         *decode = nil;
     }
     return EXR_ERR_SUCCESS;

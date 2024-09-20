@@ -116,4 +116,16 @@ DeepScanLineInputPart::readPixelSampleCounts (
         rawdata, frameBuffer, scanLine1, scanLine2);
 }
 
+unsigned long long
+DeepScanLineInputPart::bufferSize () const
+{
+    return file->bufferSize ();
+}
+
+void
+DeepScanLineInputPart::freeBuffers ()
+{
+    file->freeBuffers ();
+}
+
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

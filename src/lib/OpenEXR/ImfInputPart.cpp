@@ -96,4 +96,16 @@ InputPart::rawTileData (
     file->rawTileData (dx, dy, lx, ly, pixelData, pixelDataSize);
 }
 
+unsigned long long
+InputPart::bufferSize () const
+{
+    return file->bufferSize ();
+}
+    
+void
+InputPart::freeBuffers ()
+{
+    file->freeBuffers ();
+}
+
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

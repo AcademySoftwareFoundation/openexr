@@ -245,6 +245,12 @@ public:
         const char*& pixelData,
         int&         pixelDataSize);
 
+    IMF_EXPORT
+    size_t bufferSize () const;
+    
+    IMF_EXPORT
+    void freeBuffers ();
+
 private:
     IMF_HIDDEN void initialize (void);
 

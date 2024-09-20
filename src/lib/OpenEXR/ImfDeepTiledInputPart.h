@@ -334,6 +334,11 @@ public:
     IMF_EXPORT
     void readPixelSampleCounts (int dx1, int dx2, int dy1, int dy2, int l = 0);
 
+    IMF_EXPORT
+    unsigned long long bufferSize () const;
+    IMF_EXPORT
+    void freeBuffers ();
+
 private:
     DeepTiledInputFile* file;
 

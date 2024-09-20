@@ -80,6 +80,16 @@ struct ScanLineProcess
         const DeepFrameBuffer *outfb,
         int fbY);
 
+    size_t get_buffer_size ()
+    {
+        return exr_decoding_get_buffer_size (&decoder);
+    }
+    
+    void free_buffers ()
+    {
+        exr_decoding_free_buffers (&decoder);
+    }
+
     exr_result_t          last_decode_err = EXR_ERR_UNKNOWN;
     bool                  first = true;
     bool                  counts_only = false;
@@ -458,6 +468,44 @@ DeepScanLineInputFile::lastScanLineInChunk (int y) const
     return _data->getChunkRange (y).second;
 }
 
+////////////////////////////////////////
+
+size_t
+DeepScanLineInputFile::bufferSize () const
+{
+#if ILMTHREAD_THREADING_ENABLED
+    std::lock_guard<std::mutex> lock (_data->_mx);
+#endif
+    size_t retval = 0;
+    
+    std::shared_ptr<ScanLineProcess> sp = _data->processStack;
+    
+    while (sp)
+    {
+        retval += sp->get_buffer_size();
+        
+        sp = sp->next;
+    }
+    
+    return retval;
+}
+
+void
+DeepScanLineInputFile::freeBuffers ()
+{
+#if ILMTHREAD_THREADING_ENABLED
+    std::lock_guard<std::mutex> lock (_data->_mx);
+#endif
+    std::shared_ptr<ScanLineProcess> sp = _data->processStack;
+    
+    while (sp)
+    {
+        sp->free_buffers();
+        
+        sp = sp->next;
+    }
+}
+
 std::pair<int, int> DeepScanLineInputFile::Data::getChunkRange (int y) const
 {
     exr_attr_box2i_t dw = _ctxt->dataWindow (partNumber);
@@ -611,8 +659,6 @@ DeepScanLineInputFile::Data::readData (
     }
 #endif
 }
-
-////////////////////////////////////////
 
 void
 DeepScanLineInputFile::Data::readMemData (

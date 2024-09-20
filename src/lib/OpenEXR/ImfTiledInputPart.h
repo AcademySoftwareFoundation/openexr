@@ -86,6 +86,10 @@ public:
         int&         ly,
         const char*& pixelData,
         int&         pixelDataSize);
+    IMF_EXPORT
+    unsigned long long bufferSize () const;
+    IMF_EXPORT
+    void freeBuffers ();
 
 private:
     TiledInputFile* file;

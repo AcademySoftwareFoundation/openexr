@@ -8,7 +8,7 @@
 
 //-----------------------------------------------------------------------------
 //
-//	class ScanLineInputFile
+//  class ScanLineInputFile
 //
 //-----------------------------------------------------------------------------
 
@@ -169,6 +169,12 @@ public:
     IMF_EXPORT
     void rawPixelDataToBuffer (
         int scanLine, char* pixelData, int& pixelDataSize) const;
+    
+    IMF_EXPORT
+    size_t bufferSize () const;
+    
+    IMF_EXPORT
+    void freeBuffers ();
 
 private:
     Context _ctxt;

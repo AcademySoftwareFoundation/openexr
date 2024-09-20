@@ -233,6 +233,12 @@ public:
         int                    scanLine1,
         int                    scanLine2) const;
 
+    IMF_EXPORT
+    size_t bufferSize () const;
+    
+    IMF_EXPORT
+    void freeBuffers ();
+
 private:
     Context _ctxt;
     struct IMF_HIDDEN Data;
