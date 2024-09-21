@@ -81,6 +81,28 @@ Minor release two significant changes:
 
 - The C++ API now uses the OpenEXRCore library underneath.
 
+- New API for accessing compression types
+
+  In anticipation of future support for new compression types, there
+  is now a convenience API for mapping between compression type names
+  and the associated enum:
+  
+  - ``getCompressionDescriptionFromId(Compression, std::string&)``
+  - ``getCompressionIdFromName(const std::string&, Compression&)``
+  - ``getCompressionNameFromId(Compression, std::string&)``
+  - ``getCompressionNamesString(const std::string&, std::string&)``
+  - ``getCompressionNumScanlines(Compression)``
+  - ``isValidCompression(int)``
+
+- New bin tools:
+
+  - ``exrmetrics`` - Read an OpenEXR image from infile, write an
+    identical copy to outfile reporting time taken to read/write and
+    file sizes.
+
+  - ``exrmanifest`` - Read exr files and print the contents of the
+    embedded manifest.
+
 - New python bindings.
 
   This version introduces a new python API, the ``File`` object, which
