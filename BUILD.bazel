@@ -181,6 +181,7 @@ cc_library(
         "src/lib/OpenEXRCore/context.c",
         "src/lib/OpenEXRCore/debug.c",
         "src/lib/OpenEXRCore/decoding.c",
+        "src/lib/OpenEXRCore/dwaLookups.h",
         "src/lib/OpenEXRCore/encoding.c",
         "src/lib/OpenEXRCore/float_vector.c",
         "src/lib/OpenEXRCore/internal_attr.h",
@@ -200,7 +201,6 @@ cc_library(
         "src/lib/OpenEXRCore/internal_dwa_encoder.h",
         "src/lib/OpenEXRCore/internal_dwa_helpers.h",
         "src/lib/OpenEXRCore/internal_dwa_simd.h",
-        "src/lib/OpenEXRCore/dwaLookups.h",
         "src/lib/OpenEXRCore/internal_file.h",
         "src/lib/OpenEXRCore/internal_float_vector.h",
         "src/lib/OpenEXRCore/internal_huf.c",
@@ -275,7 +275,7 @@ cc_library(
         }),
     visibility = ["//visibility:public"],
     deps = [
-        "@Imath",
+        "@imath",
         "@libdeflate//:deflate",
     ],
 )
@@ -296,9 +296,9 @@ cc_library(
         "src/lib/OpenEXR/ImfCompression.cpp",
         "src/lib/OpenEXR/ImfCompressionAttribute.cpp",
         "src/lib/OpenEXR/ImfCompressor.cpp",
-        "src/lib/OpenEXR/ImfConvert.cpp",
         "src/lib/OpenEXR/ImfContext.cpp",
         "src/lib/OpenEXR/ImfContextInit.cpp",
+        "src/lib/OpenEXR/ImfConvert.cpp",
         "src/lib/OpenEXR/ImfDeepCompositing.cpp",
         "src/lib/OpenEXR/ImfDeepFrameBuffer.cpp",
         "src/lib/OpenEXR/ImfDeepImageStateAttribute.cpp",
@@ -526,7 +526,7 @@ cc_library(
     deps = [
         ":IlmThread",
         ":OpenEXRCore",
-        "@Imath",
+        "@imath",
     ],
 )
 
