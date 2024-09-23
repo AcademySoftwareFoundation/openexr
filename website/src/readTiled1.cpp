@@ -40,7 +40,8 @@ readTiledOtherVersions (const char fileName[])
 {
     // read tile function versions
     TiledInputFile in(fileName);
-    int tileX, tileY, levelX, levelY, tileXMin, tileXMax, tileYMin, tileYMax;
+    int tileX = 0, tileY = 0, levelX = 0, levelY = 0;
+    int tileXMin = 0, tileXMax = 0, tileYMin = 0, tileYMax = 0;
     // [begin v1]
     in.readTile (tileX, tileY, levelX, levelY);
     // [end v1]

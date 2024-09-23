@@ -80,7 +80,7 @@ exr_attr_chlist_add_with_length (
     int32_t                    xsamp,
     int32_t                    ysamp)
 {
-    exr_attr_chlist_entry_t  nent = {0};
+    exr_attr_chlist_entry_t  nent = {{0}};
     exr_attr_chlist_entry_t *nlist, *olist;
     int                      newcount, insertpos;
     int32_t                  maxlen;
