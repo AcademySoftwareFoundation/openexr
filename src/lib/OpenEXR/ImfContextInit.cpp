@@ -26,7 +26,18 @@ struct istream_holder
 };
 
 static int64_t
-istream_read (
+istream_size (
+    exr_const_context_t         ctxt,
+    void*                       userdata)
+{
+    istream_holder* ih = static_cast<istream_holder*> (userdata);
+    IStream*        s  = ih->_stream;
+
+    return s->size ();
+}
+
+static int64_t
+istream_threadsafe_read (
     exr_const_context_t         ctxt,
     void*                       userdata,
     void*                       buffer,
@@ -36,6 +47,45 @@ istream_read (
 {
     istream_holder* ih    = static_cast<istream_holder*> (userdata);
     IStream*        s     = ih->_stream;
+    int64_t         nread = -1;
+
+    try
+    {
+        nread = s->read (buffer, sz, offset);
+    }
+    catch (std::exception &e)
+    {
+        error_cb (
+            ctxt,
+            EXR_ERR_READ_IO,
+            "Unable to seek to desired offset %" PRIu64 ": %s",
+            offset,
+            e.what());
+        nread = -1;
+    }
+    catch (...)
+    {
+        error_cb (
+            ctxt,
+            EXR_ERR_READ_IO,
+            "Unable to seek to desired offset %" PRIu64 ": Unknown error",
+            offset);
+        nread = -1;
+    }
+    return nread;
+}
+
+static int64_t
+istream_nonparallel_read (
+    exr_const_context_t         ctxt,
+    void*                       userdata,
+    void*                       buffer,
+    uint64_t                    sz,
+    uint64_t                    offset,
+    exr_stream_error_func_ptr_t error_cb)
+{
+    istream_holder* ih = static_cast<istream_holder*> (userdata);
+    IStream*        s  = ih->_stream;
 
     if (sz > INT_MAX)
     {
@@ -121,10 +171,11 @@ ContextInitializer&
 ContextInitializer::setInputStream (IStream* istr)
 {
     _initializer.user_data  = new istream_holder{istr};
-    _initializer.read_fn    = istream_read;
-    // TODO: add query to io streams to ask size if possible (such
-    // that ifstream can return size, others can return -1)
-    _initializer.size_fn    = nullptr; //istream_guess_size;
+    if (istr->isStatelessRead ())
+        _initializer.read_fn = istream_threadsafe_read;
+    else
+        _initializer.read_fn = istream_nonparallel_read;
+    _initializer.size_fn    = istream_size;
     _initializer.write_fn   = nullptr;
     _initializer.destroy_fn = istream_destroy;
     _ctxt_type              = ContextFileType::READ;
