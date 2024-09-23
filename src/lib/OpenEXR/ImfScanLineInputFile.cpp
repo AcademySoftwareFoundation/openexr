@@ -285,6 +285,13 @@ ScanLineInputFile::readPixels (int scanLine1, int scanLine2)
     _data->readPixels (frameBuffer (), scanLine1, scanLine2);
 }
 
+void
+ScanLineInputFile::readPixels (
+    const FrameBuffer& frame, int scanLine1, int scanLine2)
+{
+    _data->readPixels (frame, scanLine1, scanLine2);
+}
+
 ////////////////////////////////////////
 
 void

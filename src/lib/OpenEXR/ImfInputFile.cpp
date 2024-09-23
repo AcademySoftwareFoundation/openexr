@@ -77,9 +77,13 @@ struct InputFile::Data
     }
 
     void setFrameBuffer (const FrameBuffer& frameBuffer);
+    void lockedSetFrameBuffer (const FrameBuffer& frameBuffer);
 
     void readPixels (int scanline1, int scanline2);
     void bufferedReadPixels (int scanline1, int scanline2);
+
+    void readPixels (
+        const FrameBuffer& frameBuffer, int scanline1, int scanline2);
 
     void deleteCachedBuffer (void);
     void copyCachedBuffer (FrameBuffer::ConstIterator to,
@@ -225,6 +229,13 @@ InputFile::readPixels (int scanLine)
 }
 
 void
+InputFile::readPixels (
+    const FrameBuffer& frameBuffer, int scanLine1, int scanLine2)
+{
+    _data->readPixels (frameBuffer, scanLine1, scanLine2);
+}
+
+void
 InputFile::rawPixelData (
     int firstScanLine, const char*& pixelData, int& pixelDataSize)
 {
@@ -317,7 +328,12 @@ InputFile::Data::setFrameBuffer (const FrameBuffer& frameBuffer)
 #if ILMTHREAD_THREADING_ENABLED
     std::lock_guard<std::mutex> lk (_mx);
 #endif
+    lockedSetFrameBuffer (frameBuffer);
+}
 
+void
+InputFile::Data::lockedSetFrameBuffer (const FrameBuffer& frameBuffer)
+{
     if (_storage == EXR_STORAGE_TILED)
     {
         //
@@ -428,6 +444,30 @@ InputFile::Data::readPixels (int scanLine1, int scanLine2)
         bufferedReadPixels (scanLine1, scanLine2);
     }
     else { _sFile->readPixels (scanLine1, scanLine2); }
+}
+
+void
+InputFile::Data::readPixels (
+    const FrameBuffer& frameBuffer, int scanLine1, int scanLine2)
+{
+    if (_compositor)
+    {
+#if ILMTHREAD_THREADING_ENABLED
+        std::lock_guard<std::mutex> lock (_mx);
+#endif
+        _compositor->setFrameBuffer (frameBuffer);
+        _compositor->readPixels (scanLine1, scanLine2);
+    }
+    else if (_storage == EXR_STORAGE_TILED)
+    {
+#if ILMTHREAD_THREADING_ENABLED
+        std::lock_guard<std::mutex> lock (_mx);
+#endif
+
+        lockedSetFrameBuffer (frameBuffer);
+        bufferedReadPixels (scanLine1, scanLine2);
+    }
+    else { _sFile->readPixels (frameBuffer, scanLine1, scanLine2); }
 }
 
 void

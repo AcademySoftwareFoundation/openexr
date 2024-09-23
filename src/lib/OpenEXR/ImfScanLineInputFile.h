@@ -141,6 +141,18 @@ public:
     void readPixels (int scanLine);
 
     //----------------------------------------------
+    // Combines the setFrameBuffer and readPixels into a singular
+    // call. This does more than that in that it can, with the right
+    // conditions, not require a lock on the file, such that multiple
+    // (external to OpenEXR) threads can read at the same time on
+    // different framebuffers
+    //----------------------------------------------
+
+    IMF_EXPORT
+    void readPixels (
+        const FrameBuffer& frame, int scanLine1, int scanLine2);
+
+    //----------------------------------------------
     // Read a block of raw pixel data from the file,
     // without uncompressing it (this function is
     // used to implement OutputFile::copyPixels()).
