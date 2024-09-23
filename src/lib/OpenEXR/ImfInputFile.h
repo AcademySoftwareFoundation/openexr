@@ -201,6 +201,27 @@ public:
     void readPixels (int scanLine);
 
     //----------------------------------------------
+    // Combines the setFrameBuffer and readPixels into a singular
+    // call. This does more than that in that it can, with the right
+    // conditions, not require a lock on the file, such that multiple
+    // (external to OpenEXR) threads can read at the same time on
+    // different framebuffers
+    //
+    // NB: if the underlying file is deep or tiled, that requires
+    // translation, so will not do the pass through, but will behave
+    // in a threadsafe manner (where the only way that was possible
+    // before was to have a larger framebuffer, set the framebuffer
+    // once, then call readPixels by the external threads, although
+    // that occured with a mutex and so the reads were serialized.
+    // There are reasons why that might still be serialized, such as a
+    // non-threadable stream.
+    //----------------------------------------------
+
+    IMF_EXPORT
+    void readPixels (
+        const FrameBuffer& frameBuffer, int scanLine1, int scanLine2);
+
+    //----------------------------------------------
     // Read a block of raw pixel data from the file,
     // without uncompressing it (this function is
     // used to implement OutputFile::copyPixels()).

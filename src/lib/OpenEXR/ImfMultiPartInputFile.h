@@ -99,7 +99,7 @@ private:
     //
     // used internally by 'Part' types to access individual parts of the multipart file
     //
-    // TODO: change these to value / reference semantics
+    // TODO: change these to value / reference semantics (smart ptr)
     template <class T> IMF_HIDDEN T* getInputPart (int partNumber);
     IMF_HIDDEN InputPartData*  getPart (int) const;
 
