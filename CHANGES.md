@@ -81,6 +81,26 @@ Minor release two significant changes:
 
 - The C++ API now uses the OpenEXRCore library underneath.
 
+  - This is a transparent change to the existing API, although the ABI
+    (i.e. structure / class layout) has changed
+  
+  - Existing reading of pixel data should be more efficient due to
+    fewer memory allocations / frees during the process of
+    reading. Additionally, some more specialisation of unpacking
+    routines may result in faster unpack times
+  
+  - All compression routines are implemented by the C Core layer
+    underneath and no longer duplicated
+  
+  - Initial support for "stateless" reading of scanlines has been
+    proposed, allowing multiple threads to read scanlines into
+    different frame buffer objects at the same time. While well tested
+    at the Core level, the C++ api should be considered experimental
+    for this release
+  
+  - Thread dispatch for reading different file types has been made
+    more homogeneous, so is simpler and more consistent
+
 - New API for accessing compression types
 
   In anticipation of future support for new compression types, there
@@ -98,10 +118,14 @@ Minor release two significant changes:
 
   - ``exrmetrics`` - Read an OpenEXR image from infile, write an
     identical copy to outfile reporting time taken to read/write and
-    file sizes.
+    file sizes. Useful for benchmarking performance in space and time.
 
   - ``exrmanifest`` - Read exr files and print the contents of the
-    embedded manifest.
+    embedded manifest. The manifest provides a mapping between integer
+    object identifiers and human-readible strings. See [OpenEXR Deep
+    IDs
+    Specification](https://openexr.com/en/latest/DeepIDsSpecification.html)
+    for more details.
 
 - New python bindings.
 
@@ -120,6 +144,8 @@ Minor release two significant changes:
 
 ### Merged Pull Requests
 
+* [1832](https://github.com/AcademySoftwareFoundation/openexr/pull/1832)
+Fixed formatting issue in website/OpenEXRFileLayout.rst
 * [1833](https://github.com/AcademySoftwareFoundation/openexr/pull/1833)
 Bump github/codeql-action from 3.26.7 to 3.26.8 
 * [1832](https://github.com/AcademySoftwareFoundation/openexr/pull/1832)
