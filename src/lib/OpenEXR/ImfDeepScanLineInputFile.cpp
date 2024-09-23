@@ -16,14 +16,14 @@
 
 #include "IlmThreadPool.h"
 #if ILMTHREAD_THREADING_ENABLED
-#    include "IlmThreadSemaphore.h"
+#    include "IlmThreadProcessGroup.h"
+#    include <mutex>
 #endif
 
 #include "Iex.h"
 
 #include <algorithm>
 #include <limits>
-#include <mutex>
 #include <string>
 #include <vector>
 
@@ -86,8 +86,12 @@ struct ScanLineProcess
     exr_chunk_info_t      cinfo;
     exr_decode_pipeline_t decoder;
 
-    std::shared_ptr<ScanLineProcess> next;
+    ScanLineProcess*      next;
 };
+
+#if ILMTHREAD_THREADING_ENABLED
+using ScanLineProcessGroup = ILMTHREAD_NAMESPACE::ProcessGroup<ScanLineProcess>;
+#endif
 
 } // empty namespace
 
@@ -97,9 +101,6 @@ struct DeepScanLineInputFile::Data
     : _ctxt (ctxt)
     , partNumber (pN)
     , numThreads (nT)
-#if ILMTHREAD_THREADING_ENABLED
-    , _sem ((unsigned int)nT)
-#endif
     {}
 
     void initialize ()
@@ -133,42 +134,16 @@ struct DeepScanLineInputFile::Data
     DeepFrameBuffer frameBuffer;
     std::vector<DeepSlice> fill_list;
 
-    std::shared_ptr<ScanLineProcess> processStack;
-    std::shared_ptr<ScanLineProcess> getChunkProcess ()
-    {
-        std::shared_ptr<ScanLineProcess> retval;
-#if ILMTHREAD_THREADING_ENABLED
-        std::lock_guard<std::mutex> lk (_mx);
-#endif
-        retval = processStack;
-        if (!retval)
-            retval = std::make_shared<ScanLineProcess> ();
-        processStack = retval->next;
-        retval->next.reset();
-        return retval;
-    }
-    void putChunkProcess (std::shared_ptr<ScanLineProcess> sp)
-    {
-#if ILMTHREAD_THREADING_ENABLED
-        std::lock_guard<std::mutex> lk (_mx);
-#endif
-        sp->next = processStack;
-        processStack = sp;
-    }
-
 #if ILMTHREAD_THREADING_ENABLED
     std::mutex _mx;
-    ILMTHREAD_NAMESPACE::Semaphore _sem;
 
-    std::vector<std::string> _failures;
-#endif
-#if ILMTHREAD_THREADING_ENABLED
     class LineBufferTask final : public ILMTHREAD_NAMESPACE::Task
     {
     public:
         LineBufferTask (
             ILMTHREAD_NAMESPACE::TaskGroup* group,
             Data*                   ifd,
+            ScanLineProcessGroup*   lineg,
             const DeepFrameBuffer*  outfb,
             const exr_chunk_info_t& cinfo,
             int                     fby,
@@ -179,7 +154,8 @@ struct DeepScanLineInputFile::Data
             , _ifd (ifd)
             , _fby (fby)
             , _last_fby (endScan)
-            , _line (ifd->getChunkProcess ())
+            , _line (lineg->pop ())
+            , _line_group (lineg)
         {
             _line->cinfo = cinfo;
             _line->counts_only = countsOnly;
@@ -187,9 +163,7 @@ struct DeepScanLineInputFile::Data
 
         ~LineBufferTask () override
         {
-            if (_line)
-                _ifd->putChunkProcess (std::move (_line));
-            _ifd->_sem.post ();
+            _line_group->push (_line);
         }
 
         void execute () override;
@@ -201,8 +175,8 @@ struct DeepScanLineInputFile::Data
         Data*                  _ifd;
         int                    _fby;
         int                    _last_fby;
-
-        std::shared_ptr<ScanLineProcess> _line;
+        ScanLineProcess*       _line;
+        ScanLineProcessGroup*  _line_group;
     };
 #endif
 };
@@ -301,7 +275,6 @@ DeepScanLineInputFile::setFrameBuffer (const DeepFrameBuffer& frameBuffer)
     _data->prepFillList (frameBuffer, _data->fill_list);
     _data->frameBuffer = frameBuffer;
     _data->frameBufferValid = true;
-    _data->processStack.reset();
 }
 
 const DeepFrameBuffer&
@@ -539,29 +512,36 @@ DeepScanLineInputFile::Data::readData (
 
     if (nchunks > 1 && numThreads > 1)
     {
-        ILMTHREAD_NAMESPACE::TaskGroup tg;
+        // we need the lifetime of this to last longer than the
+        // lifetime of the task group below such that we don't get use
+        // after free type error, so use scope rules to accomplish
+        // this
+        ScanLineProcessGroup sg (numThreads);
 
-        for (int y = scanLine1; y <= scanLine2; )
         {
-            if (EXR_ERR_SUCCESS != exr_read_scanline_chunk_info (*_ctxt, partNumber, y, &cinfo))
-                throw IEX_NAMESPACE::InputExc ("Unable to query scanline information");
+            ILMTHREAD_NAMESPACE::TaskGroup tg;
 
-            // used for honoring the numThreads
-            _sem.wait ();
+            for (int y = scanLine1; y <= scanLine2; )
+            {
+                if (EXR_ERR_SUCCESS != exr_read_scanline_chunk_info (*_ctxt, partNumber, y, &cinfo))
+                    throw IEX_NAMESPACE::InputExc ("Unable to query scanline information");
 
-            ILMTHREAD_NAMESPACE::ThreadPool::addGlobalTask (
-                new LineBufferTask (&tg, this, &fb, cinfo, y, scanLine2, countsOnly) );
+                ILMTHREAD_NAMESPACE::ThreadPool::addGlobalTask (
+                    new LineBufferTask (&tg, this, &sg, &fb, cinfo, y, scanLine2, countsOnly) );
 
-            y += scansperchunk - (y - cinfo.start_y);
+                y += scansperchunk - (y - cinfo.start_y);
+            }
         }
+
+        sg.throw_on_failure ();
     }
     else
 #endif
     {
-        auto sp = getChunkProcess ();
-        bool redo = sp->first || sp->counts_only != countsOnly;
+        ScanLineProcess sp;
+        bool redo = true;
 
-        sp->counts_only = countsOnly;
+        sp.counts_only = countsOnly;
         for (int y = scanLine1; y <= scanLine2; )
         {
             if (EXR_ERR_SUCCESS != exr_read_scanline_chunk_info (*_ctxt, partNumber, y, &cinfo))
@@ -571,10 +551,10 @@ DeepScanLineInputFile::Data::readData (
             // re-run the unpack (i.e. people reading 1 scan at a time
             // in a multi-scanline chunk)
             if (!redo &&
-                sp->cinfo.idx == cinfo.idx &&
-                sp->last_decode_err == EXR_ERR_SUCCESS)
+                sp.cinfo.idx == cinfo.idx &&
+                sp.last_decode_err == EXR_ERR_SUCCESS)
             {
-                sp->run_unpack (
+                sp.run_unpack (
                     *_ctxt,
                     partNumber,
                     &fb,
@@ -584,8 +564,8 @@ DeepScanLineInputFile::Data::readData (
             }
             else
             {
-                sp->cinfo = cinfo;
-                sp->run_decode (
+                sp.cinfo = cinfo;
+                sp.run_decode (
                     *_ctxt,
                     partNumber,
                     &fb,
@@ -597,19 +577,7 @@ DeepScanLineInputFile::Data::readData (
 
             y += scansperchunk - (y - cinfo.start_y);
         }
-
-        putChunkProcess (std::move(sp));
     }
-
-#if ILMTHREAD_THREADING_ENABLED
-    std::lock_guard<std::mutex> lock (_mx);
-    if (! _failures.empty())
-    {
-        std::string fail = _failures[0];
-        _failures.clear ();
-        throw IEX_NAMESPACE::IoExc (fail);
-    }
-#endif
 }
 
 ////////////////////////////////////////
@@ -727,8 +695,11 @@ void DeepScanLineInputFile::Data::LineBufferTask::execute ()
     }
     catch (std::exception &e)
     {
-        std::lock_guard<std::mutex> lock (_ifd->_mx);
-        _ifd->_failures.emplace_back (std::string (e.what()));
+        _line_group->record_failure (e.what ());
+    }
+    catch (...)
+    {
+        _line_group->record_failure ("Unknown exception");
     }
 }
 #endif

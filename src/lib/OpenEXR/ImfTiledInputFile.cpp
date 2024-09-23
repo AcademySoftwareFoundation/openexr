@@ -15,7 +15,8 @@
 
 #include "IlmThreadPool.h"
 #if ILMTHREAD_THREADING_ENABLED
-#    include "IlmThreadSemaphore.h"
+#    include "IlmThreadProcessGroup.h"
+#    include <mutex>
 #endif
 
 #include "ImfFrameBuffer.h"
@@ -26,7 +27,6 @@
 #include "ImfTiledMisc.h"
 
 #include <algorithm>
-#include <mutex>
 #include <vector>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
@@ -62,8 +62,12 @@ struct TileProcess
     exr_chunk_info_t      cinfo;
     exr_decode_pipeline_t decoder;
 
-    std::shared_ptr<TileProcess> next;
+    TileProcess*          next;
 };
+
+#if ILMTHREAD_THREADING_ENABLED
+using TileProcessGroup = ILMTHREAD_NAMESPACE::ProcessGroup<TileProcess>;
+#endif
 
 } // empty namespace
 
@@ -78,9 +82,6 @@ struct TiledInputFile::Data
     : _ctxt (ctxt)
     , partNumber (pN)
     , numThreads (nT)
-#if ILMTHREAD_THREADING_ENABLED
-    , _sem ((unsigned int)nT)
-#endif
     {}
 
     void initialize ()
@@ -131,54 +132,28 @@ struct TiledInputFile::Data
 
 #if ILMTHREAD_THREADING_ENABLED
     std::mutex _mx;
-    ILMTHREAD_NAMESPACE::Semaphore _sem;
-#endif
 
-    std::shared_ptr<TileProcess> processStack;
-    std::shared_ptr<TileProcess> getChunkProcess ()
-    {
-        std::shared_ptr<TileProcess> retval;
-#if ILMTHREAD_THREADING_ENABLED
-        std::lock_guard<std::mutex> lk (_mx);
-#endif
-        retval = processStack;
-        if (!retval)
-            retval = std::make_shared<TileProcess> ();
-        processStack = retval->next;
-        retval->next.reset();
-        return retval;
-    }
-    void putChunkProcess (std::shared_ptr<TileProcess> tp)
-    {
-#if ILMTHREAD_THREADING_ENABLED
-        std::lock_guard<std::mutex> lk (_mx);
-#endif
-        tp->next = processStack;
-        processStack = tp;
-    }
-
-#if ILMTHREAD_THREADING_ENABLED
     class TileBufferTask final : public ILMTHREAD_NAMESPACE::Task
     {
     public:
         TileBufferTask (
             ILMTHREAD_NAMESPACE::TaskGroup* group,
             Data*                   ifd,
+            TileProcessGroup*       tileg,
             const FrameBuffer*      outfb,
             const exr_chunk_info_t& cinfo)
             : Task (group)
             , _outfb (outfb)
             , _ifd (ifd)
-            , _tile (ifd->getChunkProcess ())
+            , _tile (tileg->pop ())
+            , _tile_group (tileg)
         {
             _tile->cinfo = cinfo;
         }
 
         ~TileBufferTask () override
         {
-            if (_tile)
-                _ifd->putChunkProcess (std::move (_tile));
-            _ifd->_sem.post ();
+            _tile_group->push (_tile);
         }
 
         void execute () override;
@@ -189,7 +164,8 @@ struct TiledInputFile::Data
         const FrameBuffer* _outfb;
         Data*              _ifd;
 
-        std::shared_ptr<TileProcess> _tile;
+        TileProcess*       _tile;
+        TileProcessGroup*  _tile_group;
     };
 #endif
 };
@@ -296,7 +272,6 @@ TiledInputFile::setFrameBuffer (const FrameBuffer& frameBuffer)
     }
 
     _data->frameBuffer = frameBuffer;
-    _data->processStack.reset();
 }
 
 const FrameBuffer&
@@ -792,36 +767,43 @@ void TiledInputFile::Data::readTiles (int dx1, int dx2, int dy1, int dy2, int lx
 #if ILMTHREAD_THREADING_ENABLED
     if (nTiles > 1 && numThreads > 1)
     {
-        ILMTHREAD_NAMESPACE::TaskGroup tg;
+        // we need the lifetime of this to last longer than the
+        // lifetime of the task group below such that we don't get use
+        // after free type error, so use scope rules to accomplish
+        // this
+        TileProcessGroup tpg (numThreads);
 
-        for (int ty = dy1; ty <= dy2; ++ty)
         {
-            for (int tx = dx1; tx <= dx2; ++tx)
+            ILMTHREAD_NAMESPACE::TaskGroup tg;
+
+            for (int ty = dy1; ty <= dy2; ++ty)
             {
-                exr_result_t rv = exr_read_tile_chunk_info (
-                    *_ctxt, partNumber, tx, ty, lx, ly, &cinfo);
-                if (EXR_ERR_INCOMPLETE_CHUNK_TABLE == rv)
+                for (int tx = dx1; tx <= dx2; ++tx)
                 {
-                    THROW (
-                        IEX_NAMESPACE::InputExc,
-                        "Tile (" << tx << ", " << ty << ", " << lx << ", " << ly
-                        << ") is missing.");
+                    exr_result_t rv = exr_read_tile_chunk_info (
+                        *_ctxt, partNumber, tx, ty, lx, ly, &cinfo);
+                    if (EXR_ERR_INCOMPLETE_CHUNK_TABLE == rv)
+                    {
+                        THROW (
+                            IEX_NAMESPACE::InputExc,
+                            "Tile (" << tx << ", " << ty << ", " << lx << ", " << ly
+                            << ") is missing.");
+                    }
+                    else if (EXR_ERR_SUCCESS != rv)
+                        throw IEX_NAMESPACE::InputExc ("Unable to query tile information");
+
+                    ILMTHREAD_NAMESPACE::ThreadPool::addGlobalTask (
+                        new TileBufferTask (&tg, this, &tpg, &frameBuffer, cinfo) );
                 }
-                else if (EXR_ERR_SUCCESS != rv)
-                    throw IEX_NAMESPACE::InputExc ("Unable to query tile information");
-
-                // used for honoring the numThreads
-                _sem.wait ();
-
-                ILMTHREAD_NAMESPACE::ThreadPool::addGlobalTask (
-                    new TileBufferTask (&tg, this, &frameBuffer, cinfo) );
             }
         }
+
+        tpg.throw_on_failure ();
     }
     else
 #endif
     {
-        auto tp = getChunkProcess ();
+        TileProcess tp;
 
         for (int ty = dy1; ty <= dy2; ++ty)
         {
@@ -839,23 +821,14 @@ void TiledInputFile::Data::readTiles (int dx1, int dx2, int dy1, int dy2, int lx
                 else if (EXR_ERR_SUCCESS != rv)
                     throw IEX_NAMESPACE::InputExc ("Unable to query tile information");
 
-                tp->cinfo = cinfo;
-                tp->run_decode (
+                tp.cinfo = cinfo;
+                tp.run_decode (
                     *_ctxt,
                     partNumber,
                     &frameBuffer,
                     fill_list);
             }
         }
-
-        putChunkProcess (std::move(tp));
-    }
-
-    if (! _failures.empty())
-    {
-        std::string fail = _failures[0];
-        _failures.clear ();
-        throw IEX_NAMESPACE::IoExc (fail);
     }
 }
 
@@ -874,8 +847,11 @@ void TiledInputFile::Data::TileBufferTask::execute ()
     }
     catch (std::exception &e)
     {
-        std::lock_guard<std::mutex> lock (_ifd->_mx);
-        _ifd->_failures.emplace_back (std::string (e.what()));
+        _tile_group->record_failure (e.what ());
+    }
+    catch (...)
+    {
+        _tile_group->record_failure ("Unknown exception");
     }
 }
 #endif
