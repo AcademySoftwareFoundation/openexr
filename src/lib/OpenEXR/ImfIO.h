@@ -95,6 +95,54 @@ public:
 
     IMF_EXPORT const char* fileName () const;
 
+    //------------------------------------------------------
+    // Get the size of the file (or buffer) associated with
+    // this stream.
+    //
+    // by default, this will return -1. That value will skip a few
+    // safety checks. However, if you provide the size, it will apply
+    // a number of file consistency checks as the file is read.
+    // ------------------------------------------------------
+
+    IMF_EXPORT virtual int64_t size ();
+
+    //-------------------------------------------------
+    // Does this input stream support stateless reading?
+    //
+    // Stateless reading allows multiple threads to
+    // read from the stream concurrently from different
+    // locations in the file
+    //-------------------------------------------------
+
+    IMF_EXPORT virtual bool isStatelessRead () const;
+
+    //------------------------------------------------------
+    // Read from the stream with an offset:
+    //
+    // read(b,s,o) should read up to sz bytes from the
+    // stream using something like pread or ReadFileEx with
+    // overlapped data at the provided offset in the stream.
+    //
+    // for this function, the buffer size requested may be
+    // either larger than the file or request a read past
+    // the end of the file. This should NOT be treated as
+    // an error - the library will handle whether that is
+    // an error (if the offset is past the end, it should
+    // read 0)
+    //
+    // If there is an error, it should either return -1
+    // or throw an exception (an exception could provide
+    // a message).
+    //
+    // This will only be used if isStatelessRead returns true.
+    //
+    // NB: It is expected that this is thread safe such
+    // that multiple threads can be reading from the stream
+    // at the same time
+    //------------------------------------------------------
+
+    IMF_EXPORT virtual int64_t read (void *buf, uint64_t sz, uint64_t offset);
+
 protected:
     IMF_EXPORT IStream (const char fileName[]);
 
