@@ -142,6 +142,7 @@ cc_library(
         "src/lib/IlmThread/IlmThreadMutex.h",
         "src/lib/IlmThread/IlmThreadNamespace.h",
         "src/lib/IlmThread/IlmThreadPool.h",
+        "src/lib/IlmThread/IlmThreadProcessGroup.h",
         "src/lib/IlmThread/IlmThreadSemaphore.h",
     ],
     copts = select({
