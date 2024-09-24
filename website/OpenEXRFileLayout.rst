@@ -187,6 +187,9 @@ High-Level Layout
 Depending on whether the pixels in an OpenEXR file are stored as scan
 lines or as tiles, the file consists of the following components:
 
+.. table::
+  :align: left
+
 +-----------+-----------------------------------------------+-----------------------------------+
 | Component | single-part file with...                      |  multi-part file:                 |
 +===========+=======================+=======================+===================================+
@@ -243,6 +246,9 @@ Version Field
 
 The version field, of type ``int``, is the four-byte group following the
 magic number, and it is treated as two separate bit fields.
+
+.. table::
+  :align: left
 
 +---------------------+-------------------------------------------------------------------------------------------------------------------------+
 | Byte/bit position   | Description and notes                                                                                                   |
