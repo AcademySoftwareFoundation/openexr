@@ -141,7 +141,8 @@ Minor release two significant changes:
   scanline files. The previous API remains in place for now for
   backwards compatibility.
   
-  See [src/wrappers/python/README.md] for a synopsis.
+  See [src/wrappers/python/README.md](src/wrappers/python/README.md)
+  for a synopsis.
 
 
 This release fixes:
