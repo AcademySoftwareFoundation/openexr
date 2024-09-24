@@ -138,12 +138,16 @@ Minor release two significant changes:
   B, and A interleaved into a single array RGBA array.
 
   Previous releases of the openexr python module supported only
-  scanline files.
+  scanline files. The previous API remains in place for now for
+  backwards compatibility.
   
   See [src/wrappers/python/README.md] for a synopsis.
 
 ### Merged Pull Requests
 
+
+* [1833](https://github.com/AcademySoftwareFoundation/openexr/pull/1833)
+Bump github/codeql-action from 3.26.7 to 3.26.8
 * [1832](https://github.com/AcademySoftwareFoundation/openexr/pull/1832)
 Fixed formatting issue in website/OpenEXRFileLayout.rst
 * [1833](https://github.com/AcademySoftwareFoundation/openexr/pull/1833)
