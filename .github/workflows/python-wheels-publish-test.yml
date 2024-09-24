@@ -52,6 +52,7 @@ jobs:
         with:
           output-dir: wheelhouse
         env:
+          MACOSX_DEPLOYMENT_TARGET: 10.15
           CIBW_ARCHS_LINUX: x86_64 
           CIBW_ARCHS_MACOS: x86_64 arm64 universal2
           # Build Python 3.7 through 3.11.
