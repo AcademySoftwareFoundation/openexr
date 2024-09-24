@@ -143,8 +143,23 @@ Minor release two significant changes:
   
   See [src/wrappers/python/README.md] for a synopsis.
 
-### Merged Pull Requests
 
+This release fixes:
+
+* OSS-fuzz [42538530](https://issues.oss-fuzz.com/issues/42538530)
+Crash in MemcmpInterceptorCommon
+* OSS-fuzz [42538529](https://issues.oss-fuzz.com/issues/42538529)
+Null-dereference READ in internal_exr_undo_rle
+* OSS-fuzz [42538428](https://issues.oss-fuzz.com/issues/42538428)
+Integer-overflow in internal_exr_parse_header
+* OSS-fuzz [42538425](https://issues.oss-fuzz.com/issues/42538425)
+Crash in internal_exr_validate_shared_attrs
+* OSS-fuzz [42538423](https://issues.oss-fuzz.com/issues/42538423)
+Null-dereference READ in internal_rle_decompress
+* OSS-fuzz [42533565](https://issues.oss-fuzz.com/issues/42533565)
+Invalid-enum-value in Imf_3_3::isValidCompression
+
+### Merged Pull Requests
 
 * [1833](https://github.com/AcademySoftwareFoundation/openexr/pull/1833)
 Bump github/codeql-action from 3.26.7 to 3.26.8
