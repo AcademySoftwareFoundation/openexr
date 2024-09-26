@@ -607,8 +607,7 @@ extract_attr_string_vector (
 
         pulled += sizeof (int32_t);
         nlen = (int32_t) one_to_native32 ((uint32_t) nlen);
-        if (nlen < 0 || nlen > (attrsz - pulled) ||
-            (ctxt->file_size > 0 && nlen > ctxt->file_size))
+        if (nlen < 0 || nlen > (attrsz - pulled))
         {
             rv = ctxt->print_error (
                 ctxt,
