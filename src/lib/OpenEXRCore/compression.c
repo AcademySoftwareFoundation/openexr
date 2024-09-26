@@ -506,8 +506,9 @@ exr_uncompress_chunk (exr_decode_pipeline_t* decode)
                 decode->chunk.sample_count_table_size,
                 (uint64_t) sampsize);
         }
-        if ((decode->decode_flags & EXR_DECODE_SAMPLE_DATA_ONLY)) return rv;
     }
+
+    if ((decode->decode_flags & EXR_DECODE_SAMPLE_DATA_ONLY)) return rv;
 
     if (rv == EXR_ERR_SUCCESS &&
         decode->chunk.packed_size > 0 &&
