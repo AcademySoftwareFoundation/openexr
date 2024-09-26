@@ -162,7 +162,27 @@ Invalid-enum-value in Imf_3_3::isValidCompression
 
 ### Merged Pull Requests
 
-* [1833](https://github.com/AcademySoftwareFoundation/openexr/pull/1833)
+ * [1850](https://github.com/AcademySoftwareFoundation/openexr/pull/1850)
+ Fix open ossfuzz 26 sept 2024
+ * [1846](https://github.com/AcademySoftwareFoundation/openexr/pull/1846)
+ Bump github/codeql-action from 3.26.8 to 3.26.9 
+ * [1844](https://github.com/AcademySoftwareFoundation/openexr/pull/1844)
+ Fix table formatting in OpenEXRFileLayout.rst 
+ * [1842](https://github.com/AcademySoftwareFoundation/openexr/pull/1842)
+ Start adding stateless api 
+ * [1841](https://github.com/AcademySoftwareFoundation/openexr/pull/1841)
+ Remove some warnings when compiling on newer compilers 
+ * [1840](https://github.com/AcademySoftwareFoundation/openexr/pull/1840)
+ Add templated utility class to centralize common pattern 
+ * [1839](https://github.com/AcademySoftwareFoundation/openexr/pull/1839)
+ Add Compression DWAA/B OpenEXRFileLayout.rst 
+ * [1838](https://github.com/AcademySoftwareFoundation/openexr/pull/1838)
+ Bump pypa/gh-action-pypi-publish from 1.10.1 to 1.10.2 
+ * [1837](https://github.com/AcademySoftwareFoundation/openexr/pull/1837)
+ Fix Typo table in TechnicalIntroduction.rst 
+ * [1836](https://github.com/AcademySoftwareFoundation/openexr/pull/1836)
+ Bazel build fixes. 
+ * [1833](https://github.com/AcademySoftwareFoundation/openexr/pull/1833)
 Bump github/codeql-action from 3.26.7 to 3.26.8
 * [1832](https://github.com/AcademySoftwareFoundation/openexr/pull/1832)
 Fixed formatting issue in website/OpenEXRFileLayout.rst
