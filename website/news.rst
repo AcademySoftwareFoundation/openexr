@@ -88,7 +88,9 @@ Minor release several significant changes:
   See `src/wrappers/python/README.md
   <https://github.com/AcademySoftwareFoundation/openexr/blob/v3.3.0-rc1/src/wrappers/python/README.md>`_
   for a synopsis.
-  
+
+.. _LatestNewsEnd:
+
 September 9, 2024 - Imath v3.1.12 Released
 ==========================================
 
@@ -116,8 +118,6 @@ Other miscellaneous changes:
 Also, the dwa bug fix has been back-ported to v3.1 and is available for
 download at `v3.1.13
 <https://github.com/AcademySoftwareFoundation/openexr/releases/tag/v3.1.13>`_.
-
-.. _LatestNewsEnd:
 
 March 6, 2024 - OpenEXR v3.2.3 Released
 =======================================
