@@ -579,16 +579,16 @@ InputFile::Data::copyCachedBuffer (FrameBuffer::ConstIterator to,
         const char* fromPtr = fromSlice.base;
 
         if (toSlice.yTileCoords)
-            toPtr += (y - yStart) * toSlice.yStride;
+            toPtr += ( int64_t (y) - int64_t (yStart) ) * toSlice.yStride;
         else
-            toPtr += y * toSlice.yStride;
+            toPtr += int64_t (y) * toSlice.yStride;
         if (!toSlice.xTileCoords)
-            toPtr += xStart * toSlice.xStride;
+            toPtr += int64_t (xStart) * toSlice.xStride;
 
-        fromPtr += (y - yStart) * fromSlice.yStride;
+        fromPtr += ( int64_t (y) - int64_t (yStart) ) * fromSlice.yStride;
         if (fromSlice.xStride == 2)
         {
-            fromPtr += xStart * 2;
+            fromPtr += int64_t (xStart) * 2;
             for (int x = 0; x < width; ++x)
             {
                 *reinterpret_cast<uint16_t*> (toPtr) =
@@ -599,7 +599,7 @@ InputFile::Data::copyCachedBuffer (FrameBuffer::ConstIterator to,
         }
         else
         {
-            fromPtr += xStart * 4;
+            fromPtr += int64_t (xStart) * 4;
             for (int x = 0; x < width; ++x)
             {
                 *reinterpret_cast<uint32_t*> (toPtr) =
@@ -627,11 +627,11 @@ InputFile::Data::fillBuffer (FrameBuffer::ConstIterator to,
         char* toPtr = toSlice.base;
 
         if (toSlice.yTileCoords)
-            toPtr += (y - yStart) * toSlice.yStride;
+            toPtr += ( int64_t (y) - int64_t (yStart) ) * toSlice.yStride;
         else
-            toPtr += y * toSlice.yStride;
+            toPtr += int64_t (y) * toSlice.yStride;
         if (!toSlice.xTileCoords)
-            toPtr += xStart * toSlice.xStride;
+            toPtr += int64_t (xStart) * toSlice.xStride;
 
         //
         // Copy all pixels for the scanline in this row of tiles
