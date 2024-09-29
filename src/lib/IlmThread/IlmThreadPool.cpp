@@ -662,7 +662,7 @@ ThreadPool::globalThreadPool ()
     //
     // The global thread pool
     //
-#ifdef ILMTHREAD_USE_TBB
+#if ILMTHREAD_USE_TBB
     // Use TBB for the global thread pool by default
     //
     // We do not (currently) use this as the default thread pool
