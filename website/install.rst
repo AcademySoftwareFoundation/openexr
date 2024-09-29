@@ -89,6 +89,7 @@ Make sure these are installed on your system before building OpenEXR:
 * C++ compiler that supports C++11
 * Imath (auto fetched by CMake if not found) (https://github.com/AcademySoftwareFoundation/openexr)
 * libdeflate source code (auto fetched by CMake if not found) (https://github.com/ebiggers/libdeflate)
+* (optional) Intel's Thread Building Blocks library (TBB)
 
 The instructions that follow describe building OpenEXR with CMake.
 
@@ -387,6 +388,23 @@ local filesystem via a ``file:`` url:
 .. code-block::
 
     cmake -DOPENEXR_IMAGES_REPO=file:///my/clone/of/openexr-images -DOPENEXR_IMAGES_TAG=""
+
+TBB Dependency
+~~~~~~~~~~~~~~
+
+OpenEXR can optionally use the TBB library as the default global
+thread pool as a thread provider. This assumes the OneAPI version of
+TBB which provides cmake modules. This ONLY changes the global thread
+pool as otherwise this can cause mutex deadlocks if you create other
+ThreadPools thinking that they are separate threads (i.e. the previous
+use case), but TBB shares actual threads and uses an arena to control
+thread usage.
+
+To enable this, simple set the flag during config:
+
+.. code-block::
+
+    cmake -DOPENEXR_USE_TBB=ON ...
 
 Namespace Options
 ~~~~~~~~~~~~~~~~~
