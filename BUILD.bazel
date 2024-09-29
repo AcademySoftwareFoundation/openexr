@@ -39,6 +39,7 @@ expand_template(
         "@ILMTHREAD_NAMESPACE@": "IlmThread",
         "#cmakedefine01 ILMTHREAD_HAVE_POSIX_SEMAPHORES": "#define ILMTHREAD_HAVE_POSIX_SEMAPHORES 0",
         "#cmakedefine01 ILMTHREAD_THREADING_ENABLED": "#define ILMTHREAD_THREADING_ENABLED 1",
+        "#cmakedefine01 ILMTHREAD_USE_TBB": "#define ILMTHREAD_USE_TBB 0",
     },
     template = "cmake/IlmThreadConfig.h.in",
 )
