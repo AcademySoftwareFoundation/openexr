@@ -1,6 +1,8 @@
 Test Images
 ###########
 
+.. _Test Images:
+
 .. toctree::
    :caption: Test Images
    :maxdepth: 2
