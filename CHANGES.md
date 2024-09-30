@@ -75,6 +75,15 @@
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
 
+## Version 3.3.1 (October 7, 2024)
+
+Patch release with several small fixes:
+
+### Merged Pull Requests
+
+ * [1851](https://github.com/AcademySoftwareFoundation/openexr/pull/1851)
+ Use 64-bit values for the pointer math
+
 ## Version 3.3.0 (September 30, 2024)
 
 Minor release two significant changes:
@@ -147,6 +156,8 @@ Minor release two significant changes:
 
 This release fixes:
 
+* OSS-fuzz [42538559](https://issues.oss-fuzz.com/issues/42538559)
+Crash in Imf_3_3::InputFile::Data::copyCachedBuffer
 * OSS-fuzz [42538530](https://issues.oss-fuzz.com/issues/42538530)
 Crash in MemcmpInterceptorCommon
 * OSS-fuzz [42538529](https://issues.oss-fuzz.com/issues/42538529)
