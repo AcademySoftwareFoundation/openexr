@@ -43,7 +43,7 @@ set(OPENEXR_VERSION_API "${OpenEXR_VERSION_MAJOR}_${OpenEXR_VERSION_MINOR}")
 # For example, in "libOpenEXR.so.31.3.2.0", "libOpenEXR.so.31" is the SONAME
 # and ".3.2.0" identifies the corresponding library release.
 
-set(OPENEXR_LIB_SOVERSION 31)
+set(OPENEXR_LIB_SOVERSION 99)
 set(OPENEXR_LIB_VERSION "${OPENEXR_LIB_SOVERSION}.${OPENEXR_VERSION}") # e.g. "31.3.2.0"
 
 option(OPENEXR_INSTALL "Install OpenEXR libraries" ON)
