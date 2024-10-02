@@ -28,12 +28,11 @@ compress_ztsd_blosc_chunk (
     // Decompression speed is unchanged.
     int zstd_level;
     exr_get_default_zstd_compression_level (&zstd_level);
-    cparams.clevel   = zstd_level;
-    cparams.nthreads = 1;
-    cparams.compcode = BLOSC_ZSTD; // Codec
-    cparams.splitmode =
-        BLOSC_NEVER_SPLIT; // Split => multithreading, not split better compression
-
+    cparams.clevel    = zstd_level;
+    cparams.nthreads  = 1;
+    cparams.compcode  = BLOSC_ZSTD;        // Codec
+    cparams.splitmode = BLOSC_NEVER_SPLIT; // Split => multithreading,
+                                           // not split better compression
     blosc2_storage storage = BLOSC2_STORAGE_DEFAULTS;
     storage.contiguous     = true;
     storage.cparams        = &cparams;
@@ -390,8 +389,8 @@ exr_compress_zstd_v2 (
                                      : (size_t) bufsSize[b];
         memcpy (outPtrPos, &outSize, sizeof (size_t));
         outPtrPos += sizeof (outSize);
-        outPtrSize+= sizeof (outSize); // need to add sizes to the output stream length
-
+        outPtrSize +=sizeof (outSize); // need to add sizes to the output
+                                       // stream length
         // write buffer data if not empty
         if (outSize > 0)
         {
@@ -572,7 +571,7 @@ exr_uncompress_zstd_v2 (
         );
         if (decompressedSize < 0) printf ("ERROR: bloc2 failed to compress !!");
         outSize += decompressedSize;
-        inPtrPos+=compressedBufSize;
+        inPtrPos += compressedBufSize;
         decompWritePos += decompressedSize;
     }
 
