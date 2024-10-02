@@ -941,7 +941,6 @@ TileBufferTask::execute ()
         // Compress the pixel sample count table.
         //
 
-        int      numLines = tileRange.max.y - tileRange.min.y + 1;
         char*    ptr           = _tileBuffer->sampleCountTableBuffer;
         uint64_t tableDataSize = 0;
         for (int i = tileRange.min.y; i <= tileRange.max.y; i++)

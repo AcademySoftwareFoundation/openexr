@@ -12,7 +12,6 @@
 #include "internal_structs.h"
 #include "internal_util.h"
 #include "internal_xdr.h"
-#include "openexr_compression.h"
 
 #include <limits.h>
 #include <math.h>

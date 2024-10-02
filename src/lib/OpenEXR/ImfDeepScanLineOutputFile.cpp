@@ -693,7 +693,6 @@ LineBufferTask::execute ()
 
         char*    ptr           = _lineBuffer->sampleCountTableBuffer;
         uint64_t tableDataSize = 0;
-        int      numLines      = _lineBuffer->maxY - _lineBuffer->minY + 1;
         for (int i = _lineBuffer->minY; i <= _lineBuffer->maxY; i++)
         {
             int count = 0;

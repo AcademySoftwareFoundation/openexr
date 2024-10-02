@@ -564,9 +564,6 @@ LineBufferTask::execute ()
         {
             const char* compPtr;
 
-            int numPixels = _ofd->header.dataWindow ().max.x -
-                            _ofd->header.dataWindow ().min.x + 1;
-
             int compSize = compressor->compress (
                 _lineBuffer->dataPtr,
                 _lineBuffer->dataSize,
