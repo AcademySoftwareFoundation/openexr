@@ -60,6 +60,7 @@ exr_add_part (
     int*          new_index)
 {
     exr_result_t    rv;
+    size_t          pnamelen;
     int32_t         attrsz  = -1;
     const char*     typestr = NULL;
     exr_priv_part_t part    = NULL;
@@ -67,12 +68,54 @@ exr_add_part (
     if (!ctxt) return EXR_ERR_MISSING_CONTEXT_ARG;
     internal_exr_lock (ctxt);
 
-    if (ctxt->mode != EXR_CONTEXT_WRITE)
+    if (ctxt->mode != EXR_CONTEXT_WRITE && ctxt->mode != EXR_CONTEXT_TEMPORARY)
         return EXR_UNLOCK_AND_RETURN (
             ctxt->standard_error (ctxt, EXR_ERR_NOT_OPEN_WRITE));
 
+    pnamelen = partname ? strlen (partname) : 0;
+    if (pnamelen >= INT32_MAX)
+    {
+        return EXR_UNLOCK_AND_RETURN (ctxt->print_error (
+            ctxt,
+            EXR_ERR_INVALID_ATTR,
+            "Part name '%s': Invalid name length %" PRIu64,
+            partname,
+            (uint64_t) pnamelen));
+    }
+
     rv = internal_exr_add_part (ctxt, &part, new_index);
     if (rv != EXR_ERR_SUCCESS) return EXR_UNLOCK_AND_RETURN (rv);
+
+    if (ctxt->num_parts > 0)
+    {
+        // ensure multi part has at least some name?
+        if (!partname) partname = "";
+
+        for ( int pidx = 0; pidx < ctxt->num_parts - 1; ++pidx )
+        {
+            const exr_attribute_t* pname = ctxt->parts[pidx]->name;
+            if (!pname)
+            {
+                internal_exr_revert_add_part (ctxt, &part, new_index);
+                return EXR_UNLOCK_AND_RETURN (
+                    ctxt->print_error (
+                        ctxt,
+                        EXR_ERR_INVALID_ARGUMENT,
+                        "Part %d missing required attribute 'name' for multi-part file",
+                        pidx));
+            }
+            if (!strcmp (partname, pname->string->str))
+            {
+                internal_exr_revert_add_part (ctxt, &part, new_index);
+                return EXR_UNLOCK_AND_RETURN (
+                    ctxt->print_error (
+                        ctxt,
+                        EXR_ERR_INVALID_ARGUMENT,
+                        "Each part should have a unique name, part %d and %d attempting to have same name '%s'",
+                        pidx, ctxt->num_parts, partname));
+            }
+        }
+    }
 
     part->storage_mode = type;
     switch (type)
@@ -127,22 +170,8 @@ exr_add_part (
         return EXR_UNLOCK_AND_RETURN (rv);
     }
 
-    /* make sure we put in SOME sort of partname */
-    if (!partname) partname = "";
-    if (partname && partname[0] != '\0')
+    if (partname)
     {
-        size_t pnamelen = strlen (partname);
-        if (pnamelen >= INT32_MAX)
-        {
-            internal_exr_revert_add_part (ctxt, &part, new_index);
-            return EXR_UNLOCK_AND_RETURN (ctxt->print_error (
-                ctxt,
-                EXR_ERR_INVALID_ATTR,
-                "Part name '%s': Invalid name length %" PRIu64,
-                partname,
-                (uint64_t) pnamelen));
-        }
-
         rv = exr_attr_list_add_static_name (
             ctxt,
             &(part->attributes),
@@ -211,6 +240,45 @@ exr_get_tile_levels (
 
         if (levelsx) *levelsx = part->num_tile_levels_x;
         if (levelsy) *levelsy = part->num_tile_levels_y;
+        return EXR_UNLOCK_WRITE_AND_RETURN (EXR_ERR_SUCCESS);
+    }
+
+    return EXR_UNLOCK_WRITE_AND_RETURN (
+        ctxt->standard_error (ctxt, EXR_ERR_TILE_SCAN_MIXEDAPI));
+}
+
+/**************************************/
+
+exr_result_t exr_get_tile_counts (
+    exr_const_context_t ctxt,
+    int                 part_index,
+    int                 levelx,
+    int                 levely,
+    int32_t*            countx,
+    int32_t*            county)
+{
+    EXR_LOCK_WRITE_AND_DEFINE_PART (part_index);
+
+    if (part->storage_mode == EXR_STORAGE_TILED ||
+        part->storage_mode == EXR_STORAGE_DEEP_TILED)
+    {
+        if (!part->tiles || part->num_tile_levels_x <= 0 ||
+            part->num_tile_levels_y <= 0 || !part->tile_level_tile_count_x ||
+            !part->tile_level_tile_count_y)
+        {
+            return EXR_UNLOCK_WRITE_AND_RETURN (ctxt->print_error (
+                ctxt,
+                EXR_ERR_MISSING_REQ_ATTR,
+                "Tile data missing or corrupt"));
+        }
+
+        if (levelx < 0 || levely < 0 || levelx >= part->num_tile_levels_x ||
+            levely >= part->num_tile_levels_y)
+            return EXR_UNLOCK_WRITE_AND_RETURN (
+                ctxt->standard_error (ctxt, EXR_ERR_ARGUMENT_OUT_OF_RANGE));
+
+        if (countx) *countx = part->tile_level_tile_count_x[levelx];
+        if (county) *county = part->tile_level_tile_count_y[levely];
         return EXR_UNLOCK_WRITE_AND_RETURN (EXR_ERR_SUCCESS);
     }
 
@@ -355,6 +423,11 @@ exr_get_chunk_count (exr_const_context_t ctxt, int part_index, int32_t* out)
                 EXR_ERR_MISSING_REQ_ATTR,
                 "Missing scanline chunk compression information"));
         }
+        else if (part->storage_mode == EXR_STORAGE_UNKNOWN)
+        {
+            *out = part->chunk_count;
+            return EXR_UNLOCK_WRITE_AND_RETURN (EXR_ERR_SUCCESS);
+        }
     }
 
     return EXR_UNLOCK_WRITE_AND_RETURN (ctxt->report_error (
@@ -370,6 +443,31 @@ exr_result_t extract_chunk_table (
     exr_const_priv_part_t part,
     uint64_t**            chunktable,
     uint64_t*             chunkminoffset);
+
+exr_result_t
+exr_get_chunk_table (exr_const_context_t ctxt, int part_index, uint64_t **table, int32_t* count)
+{
+    exr_result_t rv;
+
+    if (!table)
+        return EXR_ERR_INVALID_ARGUMENT;
+
+    rv = exr_get_chunk_count (ctxt, part_index, count);
+    if (rv == EXR_ERR_SUCCESS)
+    {
+        uint64_t chunkmin;
+        EXR_LOCK_WRITE_AND_DEFINE_PART (part_index);
+
+        /* need to read from the file to get the packed chunk size */
+        rv = extract_chunk_table (ctxt, part, table, &chunkmin);
+
+        if (rv != EXR_ERR_SUCCESS) return rv;
+    }
+
+    return rv;
+}
+
+/**************************************/
 
 exr_result_t
 exr_validate_chunk_table (exr_context_t ctxt, int part_index)
@@ -419,6 +517,7 @@ exr_get_scanlines_per_chunk (
         *out = part->lines_per_chunk;
         return EXR_UNLOCK_WRITE_AND_RETURN (EXR_ERR_SUCCESS);
     }
+    *out = -1;
     return EXR_UNLOCK_WRITE_AND_RETURN (
         ctxt->standard_error (ctxt, EXR_ERR_SCAN_TILE_MIXEDAPI));
 }
@@ -464,7 +563,7 @@ exr_set_zip_compression_level (exr_context_t ctxt, int part_index, int level)
     exr_result_t rv;
     EXR_LOCK_AND_DEFINE_PART (part_index);
 
-    if (ctxt->mode != EXR_CONTEXT_WRITE)
+    if (ctxt->mode != EXR_CONTEXT_WRITE && ctxt->mode != EXR_CONTEXT_TEMPORARY)
         return EXR_UNLOCK_AND_RETURN (
             ctxt->standard_error (ctxt, EXR_ERR_NOT_OPEN_WRITE));
 
@@ -506,7 +605,7 @@ exr_set_dwa_compression_level (exr_context_t ctxt, int part_index, float level)
     exr_result_t rv;
     EXR_LOCK_AND_DEFINE_PART (part_index);
 
-    if (ctxt->mode != EXR_CONTEXT_WRITE)
+    if (ctxt->mode != EXR_CONTEXT_WRITE && ctxt->mode != EXR_CONTEXT_TEMPORARY)
         return EXR_UNLOCK_AND_RETURN (
             ctxt->standard_error (ctxt, EXR_ERR_NOT_OPEN_WRITE));
 

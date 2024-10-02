@@ -130,7 +130,9 @@ copyTiled (TiledInputPart& in, TiledOutputPart& out)
         case RIPMAP_LEVELS:
             totalLevels = in.numXLevels () * in.numYLevels ();
             break;
-        case NUM_LEVELMODES: throw runtime_error ("unknown tile mode");
+        case NUM_LEVELMODES:
+        default:
+            throw runtime_error ("unknown tile mode");
     }
 
     vector<vector<vector<char>>> pixelData (totalLevels);
@@ -314,7 +316,7 @@ copyDeepScanLine (DeepScanLineInputPart& in, DeepScanLineOutputPart& out)
         int samplesize = pixelTypeSize (i.channel ().type);
         sampleData[channelNumber].resize (samplesize * totalSamples);
         int offset = 0;
-        for (int p = 0; p < numPixels; ++p)
+        for (uint64_t p = 0; p < numPixels; ++p)
         {
             pixelPtrs[channelNumber][p] =
                 sampleData[channelNumber].data () + offset * samplesize;
@@ -426,7 +428,7 @@ copyDeepTiled (DeepTiledInputPart& in, DeepTiledOutputPart& out)
         int samplesize = pixelTypeSize (i.channel ().type);
         sampleData[channelNumber].resize (samplesize * totalSamples);
         int offset = 0;
-        for (int p = 0; p < numPixels; ++p)
+        for (uint64_t p = 0; p < numPixels; ++p)
         {
             pixelPtrs[channelNumber][p] =
                 sampleData[channelNumber].data () + offset * samplesize;

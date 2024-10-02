@@ -289,12 +289,17 @@ read_pixels_raw (MultiPartInputFile* f)
         std::vector<char>  rawBuf;
         InputPart          part{*f, 0};
         const ChannelList& chans      = head.channels ();
+//#define INCLUDE_COMPRESSOR_IN_PERF 1
+#ifdef INCLUDE_COMPRESSOR_IN_PERF
         int                layercount = 0;
+#endif
         int                bpp        = 0;
 
         for (auto b = chans.begin (), e = chans.end (); b != e; ++b)
         {
+#ifdef INCLUDE_COMPRESSOR_IN_PERF
             ++layercount;
+#endif
             if (b.channel ().type == HALF)
                 bpp += 2;
             else
@@ -322,14 +327,13 @@ read_pixels_raw (MultiPartInputFile* f)
 
         part.setFrameBuffer (frameBuffer);
         part.readPixels (dw.min.y, dw.max.y);
-#if 0
+#ifdef INCLUDE_COMPRESSOR_IN_PERF
         Compressor *comp = nullptr;
         try
         {
             if ( layercount == 0 )
                 throw std::runtime_error( "channels" );
             comp = newCompressor( head.compression(), w * bpp, head );
-            
             int linesread = comp->numScanLines();
             int bufSize = linesread * w * 4 * layercount;
             if ( bufSize == 0 )

@@ -26,6 +26,15 @@ OpaqueAttribute::OpaqueAttribute (const char typeName[])
     : _typeName (typeName), _dataSize (0)
 {}
 
+OpaqueAttribute::OpaqueAttribute (const char  typeName[],
+                                  long        dataSize,
+                                  const void* data)
+    : _typeName (typeName), _dataSize (dataSize)
+{
+    _data.resizeErase (dataSize);
+    memcpy ((char*) _data, (const char*) data, dataSize);
+}
+
 OpaqueAttribute::OpaqueAttribute (const OpaqueAttribute& other)
     : _typeName (other._typeName)
     , _dataSize (other._dataSize)

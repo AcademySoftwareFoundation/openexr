@@ -11,7 +11,6 @@
 #include "OpenEXRConfigInternal.h"
 
 #include "testAttributes.h"
-#include "testB44ExpLogTable.h"
 #include "testBackwardCompatibility.h"
 #include "testBadTypeAttributes.h"
 #include "testChannels.h"
@@ -29,8 +28,6 @@
 #include "testDeepScanLineHuge.h"
 #include "testDeepScanLineMultipleRead.h"
 #include "testDeepTiledBasic.h"
-#include "testDwaCompressorSimd.h"
-#include "testDwaLookups.h"
 #include "testExistingStreams.h"
 #include "testFutureProofing.h"
 #include "testHeader.h"
@@ -250,10 +247,7 @@ main (int argc, char* argv[])
     TEST (testCopyMultiPartFile, "multi");
     TEST (testBackwardCompatibility, "core");
     TEST (testFutureProofing, "core");
-    TEST (testDwaCompressorSimd, "basic");
     TEST (testRle, "core");
-    TEST (testB44ExpLogTable, "core");
-    TEST (testDwaLookups, "core");
     TEST (testIDManifest, "core");
     TEST (testCpuId, "core");
     TEST (testHeader, "basic");

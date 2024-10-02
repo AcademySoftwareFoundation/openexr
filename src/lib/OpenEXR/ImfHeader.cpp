@@ -1522,9 +1522,6 @@ staticInitialize ()
         // for different CPU architectures.
         //
 
-        DwaCompressor::initializeFuncs ();
-        Zip::initializeFuncs ();
-
         initialized = true;
     }
 }

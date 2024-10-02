@@ -436,8 +436,8 @@ testWriteBaseHeader (const std::string& tempdir)
         &outf, outfn.c_str (), EXR_WRITE_FILE_DIRECTLY, &cinit));
     EXRCORE_TEST_RVAL (
         exr_add_part (outf, "beauty", EXR_STORAGE_SCANLINE, &partidx));
-    exr_attr_box2i_t dataw = {-2, -3, 514, 515};
-    exr_attr_box2i_t dispw = {0, 0, 512, 512};
+    exr_attr_box2i_t dataw = {{-2, -3}, {514, 515}};
+    exr_attr_box2i_t dispw = {{0, 0}, {512, 512}};
     exr_attr_v2f_t   swc   = {0.5f, 0.5f};
     EXRCORE_TEST_RVAL (exr_initialize_required_attr (
         outf,
@@ -493,7 +493,7 @@ testWriteBaseHeader (const std::string& tempdir)
         &outf, outfn.c_str (), EXR_WRITE_FILE_DIRECTLY, &cinit));
     EXRCORE_TEST_RVAL (
         exr_add_part (outf, "beauty", EXR_STORAGE_TILED, &partidx));
-    dataw = {0, 0, 512, 512};
+    dataw = {{0, 0}, {512, 512}};
     EXRCORE_TEST_RVAL (exr_initialize_required_attr (
         outf,
         partidx,
@@ -618,8 +618,7 @@ testWriteAttrs (const std::string& tempdir)
         EXR_ERR_ARGUMENT_OUT_OF_RANGE, exr_set_name (outf, 1, "a"));
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_INVALID_ARGUMENT, exr_set_name (outf, partidx, NULL));
-    EXRCORE_TEST_RVAL_FAIL (
-        EXR_ERR_INVALID_ARGUMENT, exr_set_name (outf, partidx, ""));
+    EXRCORE_TEST_RVAL (exr_set_name (outf, partidx, ""));
     EXRCORE_TEST_RVAL (exr_set_name (outf, partidx, "beauty"));
     EXRCORE_TEST_RVAL (exr_get_name (outf, partidx, &partname));
     EXRCORE_TEST (0 == strcmp (partname, "beauty"));
@@ -930,7 +929,7 @@ testWriteAttrs (const std::string& tempdir)
     }
 
     {
-        exr_attr_box2i_t tb2i = {1, 2, 3, 4};
+        exr_attr_box2i_t tb2i = {{1, 2}, {3, 4}};
         TEST_CORNER_CASE_NAME (box2i, tb2i, int);
         EXRCORE_TEST (tb2i.min.x == 1);
         EXRCORE_TEST (tb2i.min.y == 2);
@@ -939,7 +938,7 @@ testWriteAttrs (const std::string& tempdir)
     }
 
     {
-        exr_attr_box2f_t tb2f = {1.f, 2.f, 3.f, 4.f};
+        exr_attr_box2f_t tb2f = {{1.f, 2.f}, {3.f, 4.f}};
         TEST_CORNER_CASE_NAME (box2f, tb2f, int);
         EXRCORE_TEST (tb2f.min.x == 1.f);
         EXRCORE_TEST (tb2f.min.y == 2.f);

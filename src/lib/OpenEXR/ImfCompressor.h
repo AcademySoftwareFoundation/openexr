@@ -16,9 +16,14 @@
 
 #include "ImfCompression.h"
 
+#include "ImfContext.h"
+
+#include "openexr_compression.h"
+
 #include <ImathBox.h>
 
 #include <stdlib.h>
+#include <memory>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
@@ -31,7 +36,10 @@ public:
     //---------------------------------------------
 
     IMF_EXPORT
-    Compressor (const Header& hdr);
+    Compressor (const Header& hdr,
+                exr_compression_t compression_type,
+                size_t maxScanLineSize,
+                int scanlines = -1);
 
     //-----------
     // Destructor
@@ -40,13 +48,18 @@ public:
     IMF_EXPORT
     virtual ~Compressor ();
 
+    Compressor (const Compressor& other)            = delete;
+    Compressor& operator= (const Compressor& other) = delete;
+    Compressor (Compressor&& other)                 = delete;
+    Compressor& operator= (Compressor&& other)      = delete;
+
     //----------------------------------------------
     // Maximum number of scan lines processed by
     // a single call to compress() and uncompress().
     //----------------------------------------------
 
     IMF_EXPORT
-    virtual int numScanLines () const = 0;
+    virtual int numScanLines () const;
 
     //--------------------------------------------
     // Format of the pixel data read and written
@@ -123,12 +136,8 @@ public:
     //
     //-------------------------------------------------------------------------
 
-    virtual int compress (
-        const char*  inPtr,
-        int          inSize,
-        const int*   inSampleCountPerLine,
-        int          minY,
-        const char*& outPtr) = 0;
+    virtual int
+    compress (const char* inPtr, int inSize, int minY, const char*& outPtr);
 
     IMF_EXPORT
     virtual int compressTile (
@@ -155,11 +164,7 @@ public:
     //-------------------------------------------------------------------------
 
     virtual int uncompress (
-        const char*  inPtr,
-        int          inSize,
-        const int*   sampleCountPerLine,
-        int          minY,
-        const char*& outPtr) = 0;
+        const char* inPtr, int inSize, int minY, const char*& outPtr);
 
     IMF_EXPORT
     virtual int uncompressTile (
@@ -169,8 +174,43 @@ public:
         IMATH_NAMESPACE::Box2i range,
         const char*&           outPtr);
 
-private:
+    void setExpectedSize (size_t sz) { _expectedSize = sz; }
+    void setTileLevel (int lx, int ly) { _levelX = lx; _levelY = ly; }
+
+    exr_storage_t storageType () const { return _store_type; }
+    void setStorageType (exr_storage_t st) { _store_type = st; }
+
+protected:
+    Context _ctxt;
     const Header& _header;
+
+    size_t _maxScanLineSize = 0;
+    int _numScanLines = -1;
+
+    exr_compression_t _comp_type;
+    exr_storage_t _store_type;
+
+    exr_decode_pipeline_t _decoder = EXR_DECODE_PIPELINE_INITIALIZER;
+    exr_encode_pipeline_t _encoder = EXR_ENCODE_PIPELINE_INITIALIZER;
+    bool _decoder_init = false;
+    bool _encoder_init = false;
+    std::unique_ptr<char[]> _memory_buffer;
+    uint64_t _buf_sz = 0;
+    size_t _expectedSize = 0;
+
+    int _levelX = 0;
+    int _levelY = 0;
+
+    uint64_t runEncodeStep (
+        const char* inPtr,
+        int inSize,
+        IMATH_NAMESPACE::Box2i range,
+        const char*& outPtr);
+    uint64_t runDecodeStep (
+        const char* inPtr,
+        int inSize,
+        IMATH_NAMESPACE::Box2i range,
+        const char*& outPtr);
 };
 
 //-----------------------------------------------------------------

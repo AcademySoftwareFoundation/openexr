@@ -516,10 +516,12 @@ deep data OpenEXR files.
      - ``string``
      - Required if either the multipart bit (12) or the non-image bit (11) is set.
        Set to one of:
+
        * ``scanlineimage``
        * ``tiledimage``
        * ``deepscanline``, or
        * ``deeptile``
+
        **Note:** This value must agree with the version field's tile bit (9) and
        non-image (deep data) bit (11) settings.  
    * - ``version``
@@ -690,6 +692,10 @@ per block depends on how the pixel data are compressed:
      - 32
    * - ``B44A_COMPRESSION``
      - 32
+   * - ``DWAA_COMPRESSION``
+     - 32
+   * - ``DWAB_COMPRESSION``
+     - 256
 
 Each scan line block has a y coordinate of type ``int``. The block's y
 coordinate is equal to the pixel space y coordinate of the top scan line
@@ -749,7 +755,7 @@ pixel data size
 pixel data
 =================== =
 
-The ``tile coordinates``, a sequence of four ``int`'s (``tileX``, ``tileY``,
+The ``tile coordinates``, a sequence of four ``int``'s (``tileX``, ``tileY``,
 ``levelX``, ``levelY``) indicates the tile's position and resolution level. The
 ``pixel data size``, of type ``int``, indicates the number of bytes
 occupied by the pixel data.
@@ -913,22 +919,27 @@ The OpenEXR library predefines the following attribute types:
 |                    | * ``PXR24_COMPRESSION`` = 5                                    |
 |                    | * ``B44_COMPRESSION`` = 6                                      |
 |                    | * ``B44A_COMPRESSION`` = 7                                     |
+|                    | * ``DWAA_COMPRESSION`` = 8                                     |
+|                    | * ``DWAB_COMPRESSION`` = 9                                     |
 |                    |                                                                |
 +--------------------+----------------------------------------------------------------+
 | ``double``         | ``double``                                                     |
 +--------------------+----------------------------------------------------------------+
 | ``envmap``         | ``unsigned char``, possible values are:                        |
+|                    |                                                                |
 |                    | * ``ENVMAP_LATLONG`` = 0                                       |
 |                    | * ``ENVMAP_CUBE`` = 1                                          |
+|                    |                                                                |
 +--------------------+----------------------------------------------------------------+
 | ``float``          | ``float``                                                      |
 +--------------------+----------------------------------------------------------------+
 | ``int``            | ``int``                                                        |
 +--------------------+----------------------------------------------------------------+
 | ``keycode``        | Seven ``int``\ 's: ``filmMfcCode``, ``filmType``, ``prefix``,  |
-|                    | ``count``,``perfOffset``, ``perfsPerFrame``, ``perfsPerCount`` |
+|                    | ``count``, ``perfOffset``, ``perfsPerFrame``, ``perfsPerCount``|
 +--------------------+----------------------------------------------------------------+
 | ``lineOrder``      | ``unsigned char``, possible values are:                        |
+|                    |                                                                |
 |                    | * ``INCREASING_Y`` = 0                                         |
 |                    | * ``DECREASING_Y`` = 1                                         |
 |                    | * ``RANDOM_Y`` = 2                                             |
@@ -961,11 +972,13 @@ The OpenEXR library predefines the following attribute types:
 |                    |     mode = levelMode + roundingMode×16                         |
 |                    |                                                                |
 |                    | Possible values for ``levelMode``:                             |
+|                    |                                                                |
 |                    | * ``ONE_LEVEL`` = 0                                            |
 |                    | * ``MIPMAP_LEVELS`` = 1                                        |
 |                    | * ``RIPMAP_LEVELS`` = 2                                        |
 |                    |                                                                |
 |                    | Possible values for ``roundingMode``:                          |
+|                    |                                                                |
 |                    | * ``ROUND_DOWN`` = 0                                           |
 |                    | * ``ROUND_UP`` = 1                                             |
 |                    |                                                                |

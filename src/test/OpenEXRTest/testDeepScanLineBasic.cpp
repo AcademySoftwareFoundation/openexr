@@ -382,8 +382,11 @@ readFile (
                 }
                 for (int f = 0; f < fillChannels; ++f)
                 {
-                    data[f + channelCount][i][j] =
-                        new float[localSampleCount[i][j]];
+                    int32_t lsc = localSampleCount[i][j];
+                    if (lsc > 0)
+                        data[f + channelCount][i][j] = new float[lsc];
+                    else
+                        data[f + channelCount][i][j] = nullptr;
                 }
             }
         }
@@ -410,8 +413,7 @@ readFile (
                         (!randomChannels || read_channel[k] == 1))
                     {
                         if (channelTypes[k] == 0)
-                            data[k][i][j] =
-                                new unsigned int[localSampleCount[i][j]];
+                            data[k][i][j] = new unsigned int[localSampleCount[i][j]];
                         if (channelTypes[k] == 1)
                             data[k][i][j] = new half[localSampleCount[i][j]];
                         if (channelTypes[k] == 2)
@@ -421,8 +423,11 @@ readFile (
                 }
                 for (int f = 0; f < fillChannels; ++f)
                 {
-                    data[f + channelCount][i][j] =
-                        new float[localSampleCount[i][j]];
+                    int32_t lsc = localSampleCount[i][j];
+                    if (lsc > 0)
+                        data[f + channelCount][i][j] = new float[lsc];
+                    else
+                        data[f + channelCount][i][j] = nullptr;
                 }
             }
 

@@ -103,11 +103,20 @@ cc_library(
         "src/lib/Iex/IexThrowErrnoExc.h",
         "src/lib/OpenEXR/OpenEXRConfig.h",
     ],
+    copts = select({
+        ":windows": [
+            "/std:c++17",
+        ],
+        "//conditions:default": [
+            "--std=c++17",
+        ],
+    }),
     features = select({
         ":windows": ["windows_export_all_symbols"],
         "//conditions:default": [],
     }),
     includes = [
+        "src/lib",
         "src/lib/Iex",
         "src/lib/OpenEXR",
         "src/lib/OpenEXRCore",
@@ -134,13 +143,23 @@ cc_library(
         "src/lib/IlmThread/IlmThreadMutex.h",
         "src/lib/IlmThread/IlmThreadNamespace.h",
         "src/lib/IlmThread/IlmThreadPool.h",
+        "src/lib/IlmThread/IlmThreadProcessGroup.h",
         "src/lib/IlmThread/IlmThreadSemaphore.h",
     ],
+    copts = select({
+        ":windows": [
+            "/std:c++17",
+        ],
+        "//conditions:default": [
+            "--std=c++17",
+        ],
+    }),
     features = select({
         ":windows": ["windows_export_all_symbols"],
         "//conditions:default": [],
     }),
     includes = [
+        "src/lib",
         "src/lib/IlmThread",
         "src/lib/OpenEXRCore",
     ],
@@ -153,7 +172,6 @@ cc_library(
         "src/lib/IlmThread/IlmThreadConfig.h",
         "src/lib/OpenEXR/OpenEXRConfig.h",
         "src/lib/OpenEXR/OpenEXRConfigInternal.h",
-        "src/lib/OpenEXR/dwaLookups.h",
         "src/lib/OpenEXRCore/attributes.c",
         "src/lib/OpenEXRCore/backward_compatibility.h",
         "src/lib/OpenEXRCore/base.c",
@@ -164,6 +182,7 @@ cc_library(
         "src/lib/OpenEXRCore/context.c",
         "src/lib/OpenEXRCore/debug.c",
         "src/lib/OpenEXRCore/decoding.c",
+        "src/lib/OpenEXRCore/dwaLookups.h",
         "src/lib/OpenEXRCore/encoding.c",
         "src/lib/OpenEXRCore/float_vector.c",
         "src/lib/OpenEXRCore/internal_attr.h",
@@ -260,7 +279,7 @@ cc_library(
     visibility = ["//visibility:public"],
     deps = [
         "@c-blosc2//:c-blosc2",
-        "@imath//:Imath",
+        "@imath",
         "@libdeflate//:deflate",
     ],
 )
@@ -281,6 +300,8 @@ cc_library(
         "src/lib/OpenEXR/ImfCompression.cpp",
         "src/lib/OpenEXR/ImfCompressionAttribute.cpp",
         "src/lib/OpenEXR/ImfCompressor.cpp",
+        "src/lib/OpenEXR/ImfContext.cpp",
+        "src/lib/OpenEXR/ImfContextInit.cpp",
         "src/lib/OpenEXR/ImfConvert.cpp",
         "src/lib/OpenEXR/ImfDeepCompositing.cpp",
         "src/lib/OpenEXR/ImfDeepFrameBuffer.cpp",
@@ -360,9 +381,6 @@ cc_library(
         "src/lib/OpenEXR/ImfWav.cpp",
         "src/lib/OpenEXR/ImfZip.cpp",
         "src/lib/OpenEXR/ImfZipCompressor.cpp",
-        "src/lib/OpenEXR/ImfZstdCompressor.cpp",
-        "src/lib/OpenEXR/b44ExpLogTable.h",
-        "src/lib/OpenEXR/dwaLookups.h",
     ],
     hdrs = [
         "src/lib/Iex/IexConfig.h",
@@ -384,6 +402,8 @@ cc_library(
         "src/lib/OpenEXR/ImfCompression.h",
         "src/lib/OpenEXR/ImfCompressionAttribute.h",
         "src/lib/OpenEXR/ImfCompressor.h",
+        "src/lib/OpenEXR/ImfContext.h",
+        "src/lib/OpenEXR/ImfContextInit.h",
         "src/lib/OpenEXR/ImfConvert.h",
         "src/lib/OpenEXR/ImfDeepCompositing.h",
         "src/lib/OpenEXR/ImfDeepFrameBuffer.h",
@@ -399,7 +419,6 @@ cc_library(
         "src/lib/OpenEXR/ImfDeepTiledOutputPart.h",
         "src/lib/OpenEXR/ImfDoubleAttribute.h",
         "src/lib/OpenEXR/ImfDwaCompressor.h",
-        "src/lib/OpenEXR/ImfDwaCompressorSimd.h",
         "src/lib/OpenEXR/ImfEnvmap.h",
         "src/lib/OpenEXR/ImfEnvmapAttribute.h",
         "src/lib/OpenEXR/ImfExport.h",
@@ -485,8 +504,11 @@ cc_library(
         "src/lib/OpenEXR/OpenEXRConfigInternal.h",
     ],
     copts = select({
-        ":windows": [],
+        ":windows": [
+            "/std:c++17",
+        ],
         "//conditions:default": [
+            "--std=c++17",
             "-Wno-error",
         ],
     }),
@@ -494,7 +516,10 @@ cc_library(
         ":windows": ["windows_export_all_symbols"],
         "//conditions:default": [],
     }),
-    includes = ["src/lib/OpenEXR"],
+    includes = [
+        "src/lib",
+        "src/lib/OpenEXR",
+    ],
     linkopts =
         select({
             ":windows": [],
@@ -508,7 +533,7 @@ cc_library(
         "@c-blosc2//:c-blosc2",
         ":IlmThread",
         ":OpenEXRCore",
-        "@imath//:Imath",
+        "@imath",
     ],
 )
 
@@ -519,6 +544,15 @@ cc_test(
         "src/test/IexTest/testBaseExc.cpp",
         "src/test/IexTest/testBaseExc.h",
     ],
+    copts = select({
+        ":windows": [
+            "/std:c++17",
+        ],
+        "//conditions:default": [
+            "--std=c++17",
+            "-Wno-error",
+        ],
+    }),
     includes = ["src/test/IexTest"],
     tags = ["manual"],  # This test is not build and executed in the CI
     deps = [
@@ -529,6 +563,15 @@ cc_test(
 cc_binary(
     name = "exr2aces",
     srcs = ["src/bin/exr2aces/main.cpp"],
+    copts = select({
+        ":windows": [
+            "/std:c++17",
+        ],
+        "//conditions:default": [
+            "--std=c++17",
+            "-Wno-error",
+        ],
+    }),
     deps = [
         ":OpenEXR",
     ],
@@ -537,6 +580,15 @@ cc_binary(
 cc_binary(
     name = "exrheader",
     srcs = ["src/bin/exrheader/main.cpp"],
+    copts = select({
+        ":windows": [
+            "/std:c++17",
+        ],
+        "//conditions:default": [
+            "--std=c++17",
+            "-Wno-error",
+        ],
+    }),
     deps = [
         ":OpenEXR",
     ],
@@ -553,6 +605,15 @@ cc_binary(
         "src/bin/exrenvmap/readInputImage.cpp",
         "src/bin/exrenvmap/resizeImage.cpp",
     ] + glob(["src/bin/exrenvmap/*.h"]),
+    copts = select({
+        ":windows": [
+            "/std:c++17",
+        ],
+        "//conditions:default": [
+            "--std=c++17",
+            "-Wno-error",
+        ],
+    }),
     includes = [
         "src/bin/exrenvmap",
     ],
@@ -564,6 +625,15 @@ cc_binary(
 cc_binary(
     name = "exrstdattr",
     srcs = ["src/bin/exrstdattr/main.cpp"],
+    copts = select({
+        ":windows": [
+            "/std:c++17",
+        ],
+        "//conditions:default": [
+            "--std=c++17",
+            "-Wno-error",
+        ],
+    }),
     deps = [
         ":OpenEXR",
     ],

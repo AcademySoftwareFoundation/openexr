@@ -15,25 +15,55 @@
 
 #include "ImfForward.h"
 
-#include "ImfGenericInputFile.h"
 #include "ImfThreading.h"
+
+#include "ImfContext.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
-class IMF_EXPORT_TYPE InputFile : public GenericInputFile
+class TiledInputFile;
+
+/// \brief Provides generic access to read an image from an EXR file
+///
+/// There are a suite of classes for accessing image data, depending
+/// on the level of complexity your application demands. This one is
+/// perhaps a good starting point. There is a simpler one in \sa
+/// RgbaInputFile, but that has very noted limitations of only being
+/// for a 16-bit half, RGBA image. This class gives access to
+/// arbitrary channels and data type outputs. It also will convert a
+/// tiled image into a "normal" image, and simplify access if you only
+/// want the first part, first image of a file.
+///
+/// If you will be accessing tiles (say for a renderer), working with
+/// multi-part images, or reading deep data there are other classes
+/// which provide API for handling that complexity more efficiently:
+///
+/// MultiPartInputFile
+///   can be constructed but not directly accessible
+///   - InputPart (the part-based class corresponding to this class)
+///   - TiledInputPart
+///   - DeepTiledInputPart
+///   - DeepScanlineInputPart
+///   - ScanlineInputPart [[[ NEW, but for consistency ]]]
+/// TiledInputFile
+/// DeepScanLineInputFile
+/// DeepTiledInputFile
+/// ScanLineInputFile
+///
+/// Of these, InputFile provide somewhat of a barrier to knowing what
+/// the file actually contains, such that it allows you to read a file
+/// as if it is scanlines, even if it is actually tiled under the
+/// covers. Similar, a deep file is automatically composited for the
+/// user. If a multi-part file is opened, the first part will be
+/// provided.
+///
+/// For most code, it is suggested to use MultiPartInputFile and the
+/// API provided by the relevant part classes, but if only a simple
+/// API is needed, InputFile will certainly hide much of the
+/// complexity.
+class IMF_EXPORT_TYPE InputFile
 {
 public:
-    //-----------------------------------------------------------
-    // A constructor that opens the file with the specified name.
-    // Destroying the InputFile object will close the file.
-    //
-    // numThreads determines the number of threads that will be
-    // used to read the file (see ImfThreading.h).
-    //-----------------------------------------------------------
-
-    IMF_EXPORT
-    InputFile (const char fileName[], int numThreads = globalThreadCount ());
-
     //-------------------------------------------------------------
     // A constructor that attaches the new InputFile object to a
     // file that has already been opened.  Destroying the InputFile
@@ -48,12 +78,26 @@ public:
         OPENEXR_IMF_INTERNAL_NAMESPACE::IStream& is,
         int numThreads = globalThreadCount ());
 
-    //-----------
-    // Destructor
-    //-----------
-
+    //-----------------------------------------------------------
+    // A constructor that opens the file with the specified name.
+    // Destroying the InputFile object will close the file.
+    //
+    // numThreads determines the number of threads that will be
+    // used to read the file (see ImfThreading.h).
+    //-----------------------------------------------------------
     IMF_EXPORT
-    virtual ~InputFile ();
+    InputFile (const char filename[], int numThreads = globalThreadCount ());
+
+    //-----------------------------------------------------------
+    // A constructor that opens the file with the specified name
+    // and context initialization routines
+    // Destroying the InputFile object will close the file.
+    //-----------------------------------------------------------
+    IMF_EXPORT
+    InputFile (
+        const char*               filename,
+        const ContextInitializer& ctxtinit,
+        int                       numThreads = globalThreadCount ());
 
     //------------------------
     // Access to the file name
@@ -127,6 +171,7 @@ public:
     //
     //---------------------------------------------------------------
 
+    OPENEXR_DEPRECATED ("No longer meaningful")
     IMF_EXPORT
     bool isOptimizationEnabled () const;
 
@@ -151,8 +196,30 @@ public:
 
     IMF_EXPORT
     void readPixels (int scanLine1, int scanLine2);
+
     IMF_EXPORT
     void readPixels (int scanLine);
+
+    //----------------------------------------------
+    // Combines the setFrameBuffer and readPixels into a singular
+    // call. This does more than that in that it can, with the right
+    // conditions, not require a lock on the file, such that multiple
+    // (external to OpenEXR) threads can read at the same time on
+    // different framebuffers
+    //
+    // NB: if the underlying file is deep or tiled, that requires
+    // translation, so will not do the pass through, but will behave
+    // in a threadsafe manner (where the only way that was possible
+    // before was to have a larger framebuffer, set the framebuffer
+    // once, then call readPixels by the external threads, although
+    // that occured with a mutex and so the reads were serialized.
+    // There are reasons why that might still be serialized, such as a
+    // non-threadable stream.
+    //----------------------------------------------
+
+    IMF_EXPORT
+    void readPixels (
+        const FrameBuffer& frameBuffer, int scanLine1, int scanLine2);
 
     //----------------------------------------------
     // Read a block of raw pixel data from the file,
@@ -199,28 +266,20 @@ public:
         const char*& pixelData,
         int&         pixelDataSize);
 
-    struct IMF_HIDDEN Data;
-
 private:
+    IMF_HIDDEN void initialize (void);
+
+    // TODO: Remove these once MultiPartInputFile is converted
     IMF_HIDDEN InputFile (InputPartData* part);
+    friend class MultiPartInputFile;
 
-    InputFile (const InputFile&)            = delete;
-    InputFile& operator= (const InputFile&) = delete;
-    InputFile (InputFile&&)                 = delete;
-    InputFile& operator= (InputFile&&)      = delete;
-
-    IMF_HIDDEN void initialize ();
-    IMF_HIDDEN void multiPartInitialize (InputPartData* part);
-    IMF_HIDDEN void
-    compatibilityInitialize (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream& is);
-    IMF_HIDDEN TiledInputFile* tFile ();
-
-    // for copyPixels
+    // TODO: Remove these once TiledOutputFile is converted
+    IMF_HIDDEN TiledInputFile& asTiledInput (void) const;
     friend class TiledOutputFile;
 
-    Data* _data;
-
-    friend class MultiPartInputFile;
+    Context _ctxt;
+    struct Data;
+    std::shared_ptr<Data> _data;
 };
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT

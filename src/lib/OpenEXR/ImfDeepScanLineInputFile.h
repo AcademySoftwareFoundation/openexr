@@ -14,18 +14,26 @@
 
 #include "ImfForward.h"
 
+#include "ImfContext.h"
+
 #include "ImfDeepScanLineOutputFile.h"
-#include "ImfGenericInputFile.h"
+
 #include "ImfThreading.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
-class IMF_EXPORT_TYPE DeepScanLineInputFile : public GenericInputFile
+class IMF_EXPORT_TYPE DeepScanLineInputFile
 {
 public:
     //------------
     // Constructor
     //------------
+
+    IMF_EXPORT
+    DeepScanLineInputFile (
+        const char*               filename,
+        const ContextInitializer& ctxtinit,
+        int                       numThreads = globalThreadCount ());
 
     IMF_EXPORT
     DeepScanLineInputFile (
@@ -42,20 +50,6 @@ public:
         OPENEXR_IMF_INTERNAL_NAMESPACE::IStream* is,
         int version, /*version field from file*/
         int numThreads = globalThreadCount ());
-
-    DeepScanLineInputFile (const DeepScanLineInputFile& other) = delete;
-    DeepScanLineInputFile&
-    operator= (const DeepScanLineInputFile& other)                   = delete;
-    DeepScanLineInputFile (DeepScanLineInputFile&& other)            = delete;
-    DeepScanLineInputFile& operator= (DeepScanLineInputFile&& other) = delete;
-
-    //-----------------------------------------
-    // Destructor -- deallocates internal data
-    // structures, but does not close the file.
-    //-----------------------------------------
-
-    IMF_EXPORT
-    virtual ~DeepScanLineInputFile ();
 
     //------------------------
     // Access to the file name
@@ -239,19 +233,16 @@ public:
         int                    scanLine1,
         int                    scanLine2) const;
 
-    struct IMF_HIDDEN Data;
-
 private:
-    Data* _data;
+    Context _ctxt;
+    struct IMF_HIDDEN Data;
+    std::shared_ptr<Data> _data;
 
-    DeepScanLineInputFile (InputPartData* part);
+    IMF_HIDDEN DeepScanLineInputFile (InputPartData* part);
 
-    void initialize (const Header& header);
-    void compatibilityInitialize (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream& is);
-    void multiPartInitialize (InputPartData* part);
-
-    friend class InputFile;
     friend class MultiPartInputFile;
+    friend class InputFile;
+
     friend void DeepScanLineOutputFile::copyPixels (DeepScanLineInputFile&);
 };
 

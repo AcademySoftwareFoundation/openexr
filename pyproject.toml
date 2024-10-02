@@ -43,6 +43,8 @@ cmake.targets = ["PyOpenEXR"]
 # Only install the "python" component (cmake --install --component python).
 # This makes sure that only files marked as "python" component are installed.
 install.components = ["python"]
+# strip debug symbols
+install.strip = true
 
 # Enable experimental features if any are available
 # In this case we need custom local plugin to get
@@ -63,6 +65,7 @@ OPENEXR_FORCE_INTERNAL_DEFLATE = 'ON'
 OPENEXR_FORCE_INTERNAL_IMATH = 'ON'
 OPENEXR_TEST_LIBRARIES = 'OFF'
 BUILD_SHARED_LIBS = 'OFF'
+CMAKE_OSX_DEPLOYMENT_TARGET = '10.15'
 CMAKE_POSITION_INDEPENDENT_CODE = 'ON'
 
 [tool.cibuildwheel]
@@ -75,3 +78,7 @@ build-verbosity = 1
 manylinux-x86_64-image = "manylinux2014"
 manylinux-i686-image = "manylinux2014"
 manylinux-aarch64-image = "manylinux2014"
+
+# Needed for full C++17 support
+[tool.cibuildwheel.macos.environment]
+MACOSX_DEPLOYMENT_TARGET = "10.15"

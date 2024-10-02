@@ -13,10 +13,96 @@ News
 .. toctree::
    :caption: News
 
-March 26, 2024 - OpenEXR v3.2.4 and OpenEXR v3.1.13 Released
-============================================================
+September 30, 2024 - OpenEXR v3.3.0 Released
+============================================
 
 .. _LatestNewsStart:
+
+Minor release several significant changes:
+
+- The C++ API now uses the OpenEXRCore library underneath.
+
+  - This is a transparent change to the existing API, although the ABI
+    (i.e. structure / class layout) has changed
+
+  - Existing reading of pixel data should be more efficient due to
+    fewer memory allocations / frees during the process of
+    reading. Additionally, some more specialisation of unpacking
+    routines may result in faster unpack times
+
+  - All compression routines are implemented by the C Core layer
+    underneath and no longer duplicated
+
+  - Initial support for "stateless" reading of scanlines has been
+    proposed, allowing multiple threads to read scanlines into
+    different frame buffer objects at the same time. While well tested
+    at the Core level, the C++ api should be considered experimental
+    for this release
+
+  - Thread dispatch for reading different file types has been made
+    more homogeneous, so is simpler and more consistent
+
+- New API for accessing compression types
+
+  In anticipation of future support for new compression types, there
+  is now a convenience API for mapping between compression type names
+  and the associated enum:
+
+
+  ```
+  getCompressionDescriptionFromId(Compression, std::string&)
+  getCompressionIdFromName(const std::string&, Compression&)
+  getCompressionNameFromId(Compression, std::string&)
+  getCompressionNamesString(const std::string&, std::string&)
+  getCompressionNumScanlines(Compression)
+  isValidCompression(int)
+  ```
+
+- New bin tools:
+
+  - exrmetrics - Read an OpenEXR image from infile, write an identical
+    copy to outfile reporting time taken to read/write and file
+    sizes. Useful for benchmarking performance in space and time.
+
+  - exrmanifest - Read exr files and print the contents of the
+    embedded manifest. The manifest provides a mapping between integer
+    object identifiers and human-readible strings. See `OpenEXR Deep
+    IDs
+    Specification <https://openexr.com/en/latest/DeepIDsSpecification.html>`_
+    for more details.
+
+- New python bindings.
+
+  This version introduces a new python API, the File object, which
+  provides full support for reading and writing all types of .exr
+  image files, including scanline, tiled, deep, mult-part, multi-view,
+  and multi-resolution images with pixel types of unsigned 32-bit
+  integers and 16- and 32-bit floats. It provides access to pixel data
+  through numpy arrays, as either one array per channel or with R, G,
+  B, and A interleaved into a single array RGBA array.
+
+  Previous releases of the openexr python module supported only
+  scanline files. The previous API remains in place for now for
+  backwards compatibility.
+
+  See `src/wrappers/python/README.md
+  <https://github.com/AcademySoftwareFoundation/openexr/blob/v3.3.0-rc1/src/wrappers/python/README.md>`_
+  for a synopsis.
+
+.. _LatestNewsEnd:
+
+September 9, 2024 - Imath v3.1.12 Released
+==========================================
+
+Patch release with a small fix:
+
+- Support for compiling half.h with hip-runtime-amd
+
+Also, the v3.1.11 release had improper versioning in its cmake and
+pkgconf configuration files. This is now fixed.
+
+March 26, 2024 - OpenEXR v3.2.4 and OpenEXR v3.1.13 Released
+============================================================
 
 OpenEXR v3.2.4 is released and available for download from `v3.2.4
 <https://github.com/AcademySoftwareFoundation/openexr/releases/tag/v3.2.4>`_.
@@ -32,8 +118,6 @@ Other miscellaneous changes:
 Also, the dwa bug fix has been back-ported to v3.1 and is available for
 download at `v3.1.13
 <https://github.com/AcademySoftwareFoundation/openexr/releases/tag/v3.1.13>`_.
-
-.. _LatestNewsEnd:
 
 March 6, 2024 - OpenEXR v3.2.3 Released
 =======================================

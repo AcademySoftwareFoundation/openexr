@@ -14,17 +14,17 @@
 
 #include "ImfForward.h"
 
-#include "ImfGenericInputFile.h"
+#include "ImfContext.h"
+
 #include "ImfThreading.h"
 
 #include "ImfTileDescription.h"
 
-#include <cstdint>
 #include <ImathBox.h>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
-class IMF_EXPORT_TYPE DeepTiledInputFile : public GenericInputFile
+class IMF_EXPORT_TYPE DeepTiledInputFile
 {
 public:
     //--------------------------------------------------------------------
@@ -54,12 +54,11 @@ public:
         OPENEXR_IMF_INTERNAL_NAMESPACE::IStream& is,
         int numThreads = globalThreadCount ());
 
-    //-----------
-    // Destructor
-    //-----------
-
     IMF_EXPORT
-    virtual ~DeepTiledInputFile ();
+    DeepTiledInputFile (
+        const char*               filename,
+        const ContextInitializer& ctxtinit,
+        int                       numThreads = globalThreadCount ());
 
     //------------------------
     // Access to the file name
@@ -378,28 +377,13 @@ public:
     IMF_EXPORT
     void readPixelSampleCounts (int dx1, int dx2, int dy1, int dy2, int l = 0);
 
-    struct Data;
-
 private:
-    friend class InputFile;
-    friend class MultiPartInputFile;
+    Context _ctxt;
+    struct IMF_HIDDEN Data;
+    std::shared_ptr<Data> _data;
 
+    IMF_HIDDEN
     DeepTiledInputFile (InputPartData* part);
-
-    DeepTiledInputFile (const DeepTiledInputFile&)            = delete;
-    DeepTiledInputFile& operator= (const DeepTiledInputFile&) = delete;
-    DeepTiledInputFile (DeepTiledInputFile&&)                 = delete;
-    DeepTiledInputFile& operator= (DeepTiledInputFile&&)      = delete;
-
-    DeepTiledInputFile (
-        const Header&                            header,
-        OPENEXR_IMF_INTERNAL_NAMESPACE::IStream* is,
-        int                                      version,
-        int                                      numThreads);
-
-    void initialize ();
-    void multiPartInitialize (InputPartData* part);
-    void compatibilityInitialize (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream& is);
 
     bool isValidTile (int dx, int dy, int lx, int ly) const;
 
@@ -407,7 +391,8 @@ private:
 
     void getTileOrder (int dx[], int dy[], int lx[], int ly[]) const;
 
-    Data* _data;
+    friend class InputFile;
+    friend class MultiPartInputFile;
 
     // needed for copyPixels
     friend class DeepTiledOutputFile;

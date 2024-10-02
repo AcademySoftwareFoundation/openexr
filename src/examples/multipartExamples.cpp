@@ -211,7 +211,7 @@ insertDeepSlice (
             base,                        // base
             sizeof (ValueType*) * 1,     // xStride
             sizeof (ValueType*) * width, // yStride
-            sizeof (ValueType) * width   // sample stride
+            sizeof (ValueType)           // sample stride
             ));
 }
 
@@ -346,7 +346,10 @@ resizeDeepBuffers (Array2D<uint32_t>& sampleCount, list<Array2D<T*>>& channels)
             for (int x = 0; x < channel.width (); x++)
             {
                 uint32_t count = sampleCount[y][x];
-                channel[y][x]  = new T[count];
+                if (count)
+                    channel[y][x]  = new T[count];
+                else
+                    channel[y][x]  = nullptr;
             }
         }
     }

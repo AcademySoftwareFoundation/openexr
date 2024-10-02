@@ -215,13 +215,19 @@ unpack_16bit_3chan_interleave (exr_decode_pipeline_t* decode)
     int             linc0;
 
     w     = decode->channels[0].width;
-    h     = decode->chunk.height;
+    h     = decode->chunk.height - decode->user_line_end_ignore;
     linc0 = decode->channels[0].user_line_stride;
 
     out0 = decode->channels[0].decode_to_ptr;
 
+    /*
+     * not actually using y in the loop, so just pre-increment
+     * the srcbuffer for any skip
+     */
+    srcbuffer += decode->user_line_begin_skip * w * 6;
+
     /* interleaving case, we can do this! */
-    for (int y = 0; y < h; ++y)
+    for (int y = decode->user_line_begin_skip; y < h; ++y)
     {
         uint16_t* out = (uint16_t*) out0;
 
@@ -255,13 +261,19 @@ unpack_16bit_3chan_interleave_rev (exr_decode_pipeline_t* decode)
     int             linc0;
 
     w     = decode->channels[0].width;
-    h     = decode->chunk.height;
+    h     = decode->chunk.height - decode->user_line_end_ignore;
     linc0 = decode->channels[0].user_line_stride;
 
     out0 = decode->channels[2].decode_to_ptr;
 
+    /*
+     * not actually using y in the loop, so just pre-increment
+     * the srcbuffer for any skip
+     */
+    srcbuffer += decode->user_line_begin_skip * w * 6;
+
     /* interleaving case, we can do this! */
-    for (int y = 0; y < h; ++y)
+    for (int y = decode->user_line_begin_skip; y < h; ++y)
     {
         uint16_t* out = (uint16_t*) out0;
 
@@ -295,13 +307,19 @@ unpack_half_to_float_3chan_interleave (exr_decode_pipeline_t* decode)
     int             linc0;
 
     w     = decode->channels[0].width;
-    h     = decode->chunk.height;
+    h     = decode->chunk.height - decode->user_line_end_ignore;
     linc0 = decode->channels[0].user_line_stride;
 
     out0 = decode->channels[0].decode_to_ptr;
 
+    /*
+     * not actually using y in the loop, so just pre-increment
+     * the srcbuffer for any skip
+     */
+    srcbuffer += decode->user_line_begin_skip * w * 6;
+
     /* interleaving case, we can do this! */
-    for (int y = 0; y < h; ++y)
+    for (int y = decode->user_line_begin_skip; y < h; ++y)
     {
         float* out = (float*) out0;
 
@@ -335,13 +353,19 @@ unpack_half_to_float_3chan_interleave_rev (exr_decode_pipeline_t* decode)
     int             linc0;
 
     w     = decode->channels[0].width;
-    h     = decode->chunk.height;
+    h     = decode->chunk.height - decode->user_line_end_ignore;
     linc0 = decode->channels[0].user_line_stride;
 
     out0 = decode->channels[2].decode_to_ptr;
 
+    /*
+     * not actually using y in the loop, so just pre-increment
+     * the srcbuffer for any skip
+     */
+    srcbuffer += decode->user_line_begin_skip * w * 6;
+
     /* interleaving case, we can do this! */
-    for (int y = 0; y < h; ++y)
+    for (int y = decode->user_line_begin_skip; y < h; ++y)
     {
         float* out = (float*) out0;
 
@@ -375,7 +399,7 @@ unpack_16bit_3chan_planar (exr_decode_pipeline_t* decode)
     int             linc0, linc1, linc2;
 
     w     = decode->channels[0].width;
-    h     = decode->chunk.height;
+    h     = decode->chunk.height - decode->user_line_end_ignore;
     linc0 = decode->channels[0].user_line_stride;
     linc1 = decode->channels[1].user_line_stride;
     linc2 = decode->channels[2].user_line_stride;
@@ -384,8 +408,14 @@ unpack_16bit_3chan_planar (exr_decode_pipeline_t* decode)
     out1 = decode->channels[1].decode_to_ptr;
     out2 = decode->channels[2].decode_to_ptr;
 
+    /*
+     * not actually using y in the loop, so just pre-increment
+     * the srcbuffer for any skip
+     */
+    srcbuffer += decode->user_line_begin_skip * w * 6;
+
     // planar output
-    for (int y = 0; y < h; ++y)
+    for (int y = decode->user_line_begin_skip; y < h; ++y)
     {
         in0 = (const uint16_t*) srcbuffer;
         in1 = in0 + w;
@@ -425,7 +455,7 @@ unpack_half_to_float_3chan_planar (exr_decode_pipeline_t* decode)
     int             linc0, linc1, linc2;
 
     w     = decode->channels[0].width;
-    h     = decode->chunk.height;
+    h     = decode->chunk.height - decode->user_line_end_ignore;
     linc0 = decode->channels[0].user_line_stride;
     linc1 = decode->channels[1].user_line_stride;
     linc2 = decode->channels[2].user_line_stride;
@@ -434,8 +464,14 @@ unpack_half_to_float_3chan_planar (exr_decode_pipeline_t* decode)
     out1 = decode->channels[1].decode_to_ptr;
     out2 = decode->channels[2].decode_to_ptr;
 
+    /*
+     * not actually using y in the loop, so just pre-increment
+     * the srcbuffer for any skip
+     */
+    srcbuffer += decode->user_line_begin_skip * w * 6;
+
     // planar output
-    for (int y = 0; y < h; ++y)
+    for (int y = decode->user_line_begin_skip; y < h; ++y)
     {
         in0 = (const uint16_t*) srcbuffer;
         in1 = in0 + w;
@@ -468,7 +504,7 @@ unpack_16bit_3chan (exr_decode_pipeline_t* decode)
     int             linc0, linc1, linc2;
 
     w     = decode->channels[0].width;
-    h     = decode->chunk.height;
+    h     = decode->chunk.height - decode->user_line_end_ignore;
     inc0  = decode->channels[0].user_pixel_stride;
     inc1  = decode->channels[1].user_pixel_stride;
     inc2  = decode->channels[2].user_pixel_stride;
@@ -480,7 +516,13 @@ unpack_16bit_3chan (exr_decode_pipeline_t* decode)
     out1 = decode->channels[1].decode_to_ptr;
     out2 = decode->channels[2].decode_to_ptr;
 
-    for (int y = 0; y < h; ++y)
+    /*
+     * not actually using y in the loop, so just pre-increment
+     * the srcbuffer for any skip
+     */
+    srcbuffer += decode->user_line_begin_skip * w * 6;
+
+    for (int y = decode->user_line_begin_skip; y < h; ++y)
     {
         in0 = (const uint16_t*) srcbuffer;
         in1 = in0 + w;
@@ -525,13 +567,19 @@ unpack_16bit_4chan_interleave (exr_decode_pipeline_t* decode)
     } combined;
 
     w     = decode->channels[0].width;
-    h     = decode->chunk.height;
+    h     = decode->chunk.height - decode->user_line_end_ignore;
     linc0 = decode->channels[0].user_line_stride;
 
     out0 = decode->channels[0].decode_to_ptr;
 
+    /*
+     * not actually using y in the loop, so just pre-increment
+     * the srcbuffer for any skip
+     */
+    srcbuffer += decode->user_line_begin_skip * w * 8;
+
     /* interleaving case, we can do this! */
-    for (int y = 0; y < h; ++y)
+    for (int y = decode->user_line_begin_skip; y < h; ++y)
     {
         uint64_t* outall = (uint64_t*) out0;
         in0              = (const uint16_t*) srcbuffer;
@@ -578,13 +626,19 @@ unpack_16bit_4chan_interleave_rev (exr_decode_pipeline_t* decode)
     } combined;
 
     w     = decode->channels[0].width;
-    h     = decode->chunk.height;
+    h     = decode->chunk.height - decode->user_line_end_ignore;
     linc0 = decode->channels[0].user_line_stride;
 
     out0 = decode->channels[3].decode_to_ptr;
 
+    /*
+     * not actually using y in the loop, so just pre-increment
+     * the srcbuffer for any skip
+     */
+    srcbuffer += decode->user_line_begin_skip * w * 8;
+
     /* interleaving case, we can do this! */
-    for (int y = 0; y < h; ++y)
+    for (int y = decode->user_line_begin_skip; y < h; ++y)
     {
         uint64_t* outall = (uint64_t*) out0;
         in0              = (const uint16_t*) srcbuffer;
@@ -619,54 +673,19 @@ unpack_half_to_float_4chan_interleave (exr_decode_pipeline_t* decode)
     int             linc0;
 
     w     = decode->channels[0].width;
-    h     = decode->chunk.height;
+    h     = decode->chunk.height - decode->user_line_end_ignore;
     linc0 = decode->channels[0].user_line_stride;
 
     out0 = decode->channels[0].decode_to_ptr;
 
-    /* interleaving case, we can do this! */
-    for (int y = 0; y < h; ++y)
-    {
-        float* out = (float*) out0;
-        in0        = (const uint16_t*) srcbuffer;
-        in1        = in0 + w;
-        in2        = in1 + w;
-        in3        = in2 + w;
-
-        srcbuffer += w * 8; // 4 * sizeof(uint16_t), avoid type conversion
-        for (int x = 0; x < w; ++x)
-        {
-            out[0] = half_to_float (one_to_native16 (in3[x]));
-            out[1] = half_to_float (one_to_native16 (in2[x]));
-            out[2] = half_to_float (one_to_native16 (in1[x]));
-            out[3] = half_to_float (one_to_native16 (in0[x]));
-            out += 4;
-        }
-        out0 += linc0;
-    }
-    return EXR_ERR_SUCCESS;
-}
-
-/**************************************/
-
-static exr_result_t
-unpack_half_to_float_4chan_interleave_rev (exr_decode_pipeline_t* decode)
-{
-    /* we know we're unpacking all the channels and there is no subsampling */
-    const uint8_t*  srcbuffer = decode->unpacked_buffer;
-    const uint16_t *in0, *in1, *in2, *in3;
-    uint8_t*        out0;
-    int             w, h;
-    int             linc0;
-
-    w     = decode->channels[0].width;
-    h     = decode->chunk.height;
-    linc0 = decode->channels[0].user_line_stride;
-
-    out0 = decode->channels[3].decode_to_ptr;
+    /*
+     * not actually using y in the loop, so just pre-increment
+     * the srcbuffer for any skip
+     */
+    srcbuffer += decode->user_line_begin_skip * w * 8;
 
     /* interleaving case, we can do this! */
-    for (int y = 0; y < h; ++y)
+    for (int y = decode->user_line_begin_skip; y < h; ++y)
     {
         float* out = (float*) out0;
         in0        = (const uint16_t*) srcbuffer;
@@ -691,6 +710,53 @@ unpack_half_to_float_4chan_interleave_rev (exr_decode_pipeline_t* decode)
 /**************************************/
 
 static exr_result_t
+unpack_half_to_float_4chan_interleave_rev (exr_decode_pipeline_t* decode)
+{
+    /* we know we're unpacking all the channels and there is no subsampling */
+    const uint8_t*  srcbuffer = decode->unpacked_buffer;
+    const uint16_t *in0, *in1, *in2, *in3;
+    uint8_t*        out0;
+    int             w, h;
+    int             linc0;
+
+    w     = decode->channels[0].width;
+    h     = decode->chunk.height - decode->user_line_end_ignore;
+    linc0 = decode->channels[0].user_line_stride;
+
+    out0 = decode->channels[3].decode_to_ptr;
+
+    /*
+     * not actually using y in the loop, so just pre-increment
+     * the srcbuffer for any skip
+     */
+    srcbuffer += decode->user_line_begin_skip * w * 8;
+
+    /* interleaving case, we can do this! */
+    for (int y = decode->user_line_begin_skip; y < h; ++y)
+    {
+        float* out = (float*) out0;
+        in0        = (const uint16_t*) srcbuffer;
+        in1        = in0 + w;
+        in2        = in1 + w;
+        in3        = in2 + w;
+
+        srcbuffer += w * 8; // 4 * sizeof(uint16_t), avoid type conversion
+        for (int x = 0; x < w; ++x)
+        {
+            out[0] = half_to_float (one_to_native16 (in3[x]));
+            out[1] = half_to_float (one_to_native16 (in2[x]));
+            out[2] = half_to_float (one_to_native16 (in1[x]));
+            out[3] = half_to_float (one_to_native16 (in0[x]));
+            out += 4;
+        }
+        out0 += linc0;
+    }
+    return EXR_ERR_SUCCESS;
+}
+
+/**************************************/
+
+static exr_result_t
 unpack_16bit_4chan_planar (exr_decode_pipeline_t* decode)
 {
     /* we know we're unpacking all the channels and there is no subsampling */
@@ -701,7 +767,7 @@ unpack_16bit_4chan_planar (exr_decode_pipeline_t* decode)
     int             linc0, linc1, linc2, linc3;
 
     w     = decode->channels[0].width;
-    h     = decode->chunk.height;
+    h     = decode->chunk.height - decode->user_line_end_ignore;
     linc0 = decode->channels[0].user_line_stride;
     linc1 = decode->channels[1].user_line_stride;
     linc2 = decode->channels[2].user_line_stride;
@@ -712,8 +778,14 @@ unpack_16bit_4chan_planar (exr_decode_pipeline_t* decode)
     out2 = decode->channels[2].decode_to_ptr;
     out3 = decode->channels[3].decode_to_ptr;
 
+    /*
+     * not actually using y in the loop, so just pre-increment
+     * the srcbuffer for any skip
+     */
+    srcbuffer += decode->user_line_begin_skip * w * 8;
+
     // planar output
-    for (int y = 0; y < h; ++y)
+    for (int y = decode->user_line_begin_skip; y < h; ++y)
     {
         in0 = (const uint16_t*) srcbuffer;
         in1 = in0 + w;
@@ -757,7 +829,7 @@ unpack_half_to_float_4chan_planar (exr_decode_pipeline_t* decode)
     int             linc0, linc1, linc2, linc3;
 
     w     = decode->channels[0].width;
-    h     = decode->chunk.height;
+    h     = decode->chunk.height - decode->user_line_end_ignore;
     linc0 = decode->channels[0].user_line_stride;
     linc1 = decode->channels[1].user_line_stride;
     linc2 = decode->channels[2].user_line_stride;
@@ -768,8 +840,14 @@ unpack_half_to_float_4chan_planar (exr_decode_pipeline_t* decode)
     out2 = decode->channels[2].decode_to_ptr;
     out3 = decode->channels[3].decode_to_ptr;
 
+    /*
+     * not actually using y in the loop, so just pre-increment
+     * the srcbuffer for any skip
+     */
+    srcbuffer += decode->user_line_begin_skip * w * 8;
+
     // planar output
-    for (int y = 0; y < h; ++y)
+    for (int y = decode->user_line_begin_skip; y < h; ++y)
     {
         in0 = (const uint16_t*) srcbuffer;
         in1 = in0 + w;
@@ -804,7 +882,7 @@ unpack_16bit_4chan (exr_decode_pipeline_t* decode)
     int             linc0, linc1, linc2, linc3;
 
     w     = decode->channels[0].width;
-    h     = decode->chunk.height;
+    h     = decode->chunk.height - decode->user_line_end_ignore;
     inc0  = decode->channels[0].user_pixel_stride;
     inc1  = decode->channels[1].user_pixel_stride;
     inc2  = decode->channels[2].user_pixel_stride;
@@ -819,7 +897,13 @@ unpack_16bit_4chan (exr_decode_pipeline_t* decode)
     out2 = decode->channels[2].decode_to_ptr;
     out3 = decode->channels[3].decode_to_ptr;
 
-    for (int y = 0; y < h; ++y)
+    /*
+     * not actually using y in the loop, so just pre-increment
+     * the srcbuffer for any skip
+     */
+    srcbuffer += w * decode->user_line_begin_skip * 8;
+
+    for (int y = decode->user_line_begin_skip; y < h; ++y)
     {
         in0 = (const uint16_t*) srcbuffer;
         in1 = in0 + w;
@@ -852,7 +936,18 @@ unpack_16bit (exr_decode_pipeline_t* decode)
     uint8_t*       cdata;
     int            w, h, pixincrement;
 
-    h = decode->chunk.height;
+    h = decode->chunk.height - decode->user_line_end_ignore;
+    /*
+     * if we have user_line_begin_skip, the user data pointer is at THAT
+     * offset but our unpacked data is at y of '0' (well idx * height)
+     */
+    for (int c = 0; c < decode->channel_count; ++c)
+    {
+        exr_coding_channel_info_t* decc = (decode->channels + c);
+        srcbuffer += decc->width * decode->user_line_begin_skip * 2;
+    }
+    h -= decode->user_line_begin_skip;
+
     for (int y = 0; y < h; ++y)
     {
         for (int c = 0; c < decode->channel_count; ++c)
@@ -916,7 +1011,17 @@ unpack_32bit (exr_decode_pipeline_t* decode)
     int64_t        w, h, pixincrement;
     int            chans = decode->channel_count;
 
-    h = (int64_t) decode->chunk.height;
+    h = (int64_t) decode->chunk.height - decode->user_line_end_ignore;
+    /*
+     * if we have user_line_begin_skip, the user data pointer is at THAT
+     * offset but our unpacked data is at y of '0' (well idx * height)
+     */
+    for (int c = 0; c < decode->channel_count; ++c)
+    {
+        exr_coding_channel_info_t* decc = (decode->channels + c);
+        srcbuffer += decc->width * decode->user_line_begin_skip * 4;
+    }
+    h -= decode->user_line_begin_skip;
 
     for (int64_t y = 0; y < h; ++y)
     {
@@ -1094,11 +1199,19 @@ generic_unpack (exr_decode_pipeline_t* decode)
 {
     const uint8_t* srcbuffer = decode->unpacked_buffer;
     uint8_t*       cdata;
-    int            w, bpc, ubpc;
+    int            w, h, bpc, ubpc, uls;
 
-    for (int y = 0; y < decode->chunk.height; ++y)
+    uls = decode->user_line_begin_skip;
+    h = decode->chunk.height - decode->user_line_end_ignore;
+    /*
+     * user data starts at user line begin skip but because of
+     * y_samples > 1 case, need to embed the run the loop and skip,
+     * incrementing srcbuffer only when there'd be a line...
+     */
+    for (int y = 0; y < h; ++y)
     {
-        int cury = y + decode->chunk.start_y;
+        int cury = (int)( (int64_t) y +
+                          (int64_t) decode->chunk.start_y );
 
         for (int c = 0; c < decode->channel_count; ++c)
         {
@@ -1109,27 +1222,29 @@ generic_unpack (exr_decode_pipeline_t* decode)
             bpc   = decc->bytes_per_element;
             ubpc  = decc->user_pixel_stride;
 
+            /* avoid a mod operation if we can */
             if (decc->y_samples > 1)
             {
                 if ((cury % decc->y_samples) != 0) continue;
-                if (cdata)
-                    cdata +=
-                        ((uint64_t) (y / decc->y_samples) *
-                         (uint64_t) decc->user_line_stride);
-                else
+                if (y < uls || !cdata)
                 {
                     srcbuffer += w * bpc;
                     continue;
                 }
-            }
-            else if (cdata)
-            {
-                cdata += ((uint64_t) y) * ((uint64_t) decc->user_line_stride);
+
+                cdata +=
+                    ((uint64_t) ((y - uls) / decc->y_samples) *
+                     (uint64_t) decc->user_line_stride);
             }
             else
             {
-                srcbuffer += w * bpc;
-                continue;
+                if (y < uls || !cdata)
+                {
+                    srcbuffer += w * bpc;
+                    continue;
+                }
+
+                cdata += ((uint64_t) (y - uls)) * ((uint64_t) decc->user_line_stride);
             }
 
             UNPACK_SAMPLES (w)
@@ -1145,11 +1260,12 @@ generic_unpack_deep_pointers (exr_decode_pipeline_t* decode)
     const uint8_t* srcbuffer  = decode->unpacked_buffer;
     const int32_t* sampbuffer = decode->sample_count_table;
     void**         pdata;
-    int            w, h, bpc, ubpc;
+    int            w, h, bpc, ubpc, uls;
 
-    w = decode->chunk.width;
-    h = decode->chunk.height;
-
+    w   = decode->chunk.width;
+    h   = decode->chunk.height - decode->user_line_end_ignore;
+    /* for user line skip, we use y in the loop so account for that */
+    uls = decode->user_line_begin_skip;
     for (int y = 0; y < h; ++y)
     {
         for (int c = 0; c < decode->channel_count; ++c)
@@ -1161,7 +1277,7 @@ generic_unpack_deep_pointers (exr_decode_pipeline_t* decode)
             ubpc  = decc->user_bytes_per_element;
             pdata = (void**) decc->decode_to_ptr;
 
-            if (!pdata)
+            if (y < uls || !pdata)
             {
                 prevsamps = 0;
                 if ((decode->decode_flags &
@@ -1176,7 +1292,7 @@ generic_unpack_deep_pointers (exr_decode_pipeline_t* decode)
                 continue;
             }
 
-            pdata += ((size_t) y) *
+            pdata += ((size_t) y - uls) *
                      (((size_t) decc->user_line_stride) / sizeof (void*));
             pixstride = ((size_t) decc->user_pixel_stride) / sizeof (void*);
 
@@ -1213,11 +1329,14 @@ generic_unpack_deep (exr_decode_pipeline_t* decode)
     const uint8_t* srcbuffer  = decode->unpacked_buffer;
     const int32_t* sampbuffer = decode->sample_count_table;
     uint8_t*       cdata;
-    int            w, h, bpc, ubpc;
+    int            w, h, bpc, ubpc, uls;
     size_t         totsamps = 0;
 
     w = decode->chunk.width;
-    h = decode->chunk.height;
+    h = decode->chunk.height - decode->user_line_end_ignore;
+
+    /* for user line skip, we use y in the loop so account for that */
+    uls = decode->user_line_begin_skip;
 
     for (int y = 0; y < h; ++y)
     {
@@ -1226,7 +1345,7 @@ generic_unpack_deep (exr_decode_pipeline_t* decode)
             exr_coding_channel_info_t* decc      = (decode->channels + c);
             int32_t                    prevsamps = 0;
 
-            int incr_tot = ((c + 1) == decode->channel_count);
+            int incr_tot = (y >= uls && ((c + 1) == decode->channel_count));
 
             bpc   = decc->bytes_per_element;
             ubpc  = decc->user_bytes_per_element;
@@ -1295,7 +1414,11 @@ internal_exr_match_decode (
     int                    simpinterleaverev,
     int                    simplineoff)
 {
+#ifdef EXR_HAS_STD_ATOMICS
+    static atomic_int init_cpu_check = 1;
+#else
     static int init_cpu_check = 1;
+#endif
     if (init_cpu_check)
     {
         choose_half_to_float_impl ();

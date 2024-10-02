@@ -24,7 +24,7 @@ public:
     B44Compressor (
         const Header& hdr,
         size_t        maxScanLineSize,
-        size_t        numScanLines,
+        int           numScanLines,
         bool          optFlatFields);
 
     virtual ~B44Compressor ();
@@ -33,65 +33,6 @@ public:
     B44Compressor& operator= (const B44Compressor& other) = delete;
     B44Compressor (B44Compressor&& other)                 = delete;
     B44Compressor& operator= (B44Compressor&& other)      = delete;
-
-    virtual int numScanLines () const;
-
-    virtual Format format () const;
-
-    virtual int compress (
-        const char*  inPtr,
-        int          inSize,
-        const int*   inSampleCountPerLine,
-        int          minY,
-        const char*& outPtr);
-
-    virtual int compressTile (
-        const char*            inPtr,
-        int                    inSize,
-        const int*             inSampleCountPerLine,
-        IMATH_NAMESPACE::Box2i range,
-        const char*&           outPtr);
-
-    virtual int uncompress (
-        const char*  inPtr,
-        int          inSize,
-        const int*   sampleCountPerLine,
-        int          minY,
-        const char*& outPtr);
-
-    virtual int uncompressTile (
-        const char*            inPtr,
-        int                    inSize,
-        const int*             sampleCountPerLine,
-        IMATH_NAMESPACE::Box2i range,
-        const char*&           outPtr);
-
-private:
-    struct ChannelData;
-
-    int compress (
-        const char*            inPtr,
-        int                    inSize,
-        IMATH_NAMESPACE::Box2i range,
-        const char*&           outPtr);
-
-    int uncompress (
-        const char*            inPtr,
-        int                    inSize,
-        IMATH_NAMESPACE::Box2i range,
-        const char*&           outPtr);
-
-    bool               _optFlatFields;
-    Format             _format;
-    int                _numScanLines;
-    unsigned short*    _tmpBuffer;
-    char*              _outBuffer;
-    int                _numChans;
-    const ChannelList& _channels;
-    ChannelData*       _channelData;
-    int                _minX;
-    int                _maxX;
-    int                _maxY;
 };
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT

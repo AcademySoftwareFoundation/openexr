@@ -10,83 +10,20 @@
 //-----------------------------------------------------------------------------
 
 #include "ImfZipCompressor.h"
-#include "Iex.h"
-#include "ImfCheckedArithmetic.h"
-#include "ImfHeader.h"
-#include "ImfNamespace.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 ZipCompressor::ZipCompressor (
-    const Header& hdr, size_t maxScanLineSize, size_t numScanLines)
-    : Compressor (hdr)
-    , _maxScanLineSize (maxScanLineSize)
-    , _numScanLines (numScanLines)
-    , _outBuffer (0)
-    , _zip (maxScanLineSize, numScanLines, hdr.zipCompressionLevel ())
+    const Header& hdr, size_t maxScanLineSize, int numScanLines)
+    : Compressor (hdr,
+                  (numScanLines == 16) ? EXR_COMPRESSION_ZIPS : EXR_COMPRESSION_ZIP,
+                  maxScanLineSize,
+                  numScanLines)
 {
-    // TODO: Remove this when we can change the ABI
-    (void) _maxScanLineSize;
-    _outBuffer = new char[_zip.maxCompressedSize ()];
 }
 
 ZipCompressor::~ZipCompressor ()
 {
-    delete[] _outBuffer;
-}
-
-int
-ZipCompressor::numScanLines () const
-{
-    return _numScanLines;
-}
-
-int
-ZipCompressor::compress (
-    const char*  inPtr,
-    int          inSize,
-    const int*   inSampleCountPerLine,
-    int          minY,
-    const char*& outPtr)
-{
-    //
-    // Special case �- empty input buffer
-    //
-
-    if (inSize == 0)
-    {
-        outPtr = _outBuffer;
-        return 0;
-    }
-
-    int outSize = _zip.compress (inPtr, inSize, _outBuffer);
-
-    outPtr = _outBuffer;
-    return outSize;
-}
-
-int
-ZipCompressor::uncompress (
-    const char*  inPtr,
-    int          inSize,
-    const int*   sampleCountPerLine,
-    int          minY,
-    const char*& outPtr)
-{
-    //
-    // Special case �- empty input buffer
-    //
-
-    if (inSize == 0)
-    {
-        outPtr = _outBuffer;
-        return 0;
-    }
-
-    int outSize = _zip.uncompress (inPtr, inSize, _outBuffer);
-
-    outPtr = _outBuffer;
-    return outSize;
 }
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

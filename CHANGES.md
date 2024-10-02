@@ -3,6 +3,7 @@
 
 # OpenEXR Release Notes
 
+* [Version 3.3.0](#version-330-september-30-2024) September 30, 2024
 * [Version 3.2.4](#version-324-march-26-2024) March 26, 2024
 * [Version 3.2.3](#version-323-march-6-2024) March 6, 2024
 * [Version 3.2.2](#version-322-february-11-2024) February 11, 2024
@@ -74,6 +75,314 @@
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
 
+## Version 3.3.0 (September 30, 2024)
+
+Minor release two significant changes:
+
+- The C++ API now uses the OpenEXRCore library underneath.
+
+  - This is a transparent change to the existing API, although the ABI
+    (i.e. structure / class layout) has changed
+  
+  - Existing reading of pixel data should be more efficient due to
+    fewer memory allocations / frees during the process of
+    reading. Additionally, some more specialisation of unpacking
+    routines may result in faster unpack times
+  
+  - All compression routines are implemented by the C Core layer
+    underneath and no longer duplicated
+  
+  - Initial support for "stateless" reading of scanlines has been
+    proposed, allowing multiple threads to read scanlines into
+    different frame buffer objects at the same time. While well tested
+    at the Core level, the C++ api should be considered experimental
+    for this release
+  
+  - Thread dispatch for reading different file types has been made
+    more homogeneous, so is simpler and more consistent
+
+- New API for accessing compression types
+
+  In anticipation of future support for new compression types, there
+  is now a convenience API for mapping between compression type names
+  and the associated enum:
+  
+  - ``getCompressionDescriptionFromId(Compression, std::string&)``
+  - ``getCompressionIdFromName(const std::string&, Compression&)``
+  - ``getCompressionNameFromId(Compression, std::string&)``
+  - ``getCompressionNamesString(const std::string&, std::string&)``
+  - ``getCompressionNumScanlines(Compression)``
+  - ``isValidCompression(int)``
+
+- New bin tools:
+
+  - ``exrmetrics`` - Read an OpenEXR image from infile, write an
+    identical copy to outfile reporting time taken to read/write and
+    file sizes. Useful for benchmarking performance in space and time.
+
+  - ``exrmanifest`` - Read exr files and print the contents of the
+    embedded manifest. The manifest provides a mapping between integer
+    object identifiers and human-readible strings. See [OpenEXR Deep
+    IDs
+    Specification](https://openexr.com/en/latest/DeepIDsSpecification.html)
+    for more details.
+
+- New python bindings.
+
+  This version introduces a new python API, the ``File`` object, which
+  provides full support for reading and writing all types of ``.exr``
+  image files, including scanline, tiled, deep, mult-part, multi-view,
+  and multi-resolution images with pixel types of unsigned 32-bit
+  integers and 16- and 32-bit floats. It provides access to pixel data
+  through ``numpy`` arrays, as either one array per channel or with R, G,
+  B, and A interleaved into a single array RGBA array.
+
+  Previous releases of the openexr python module supported only
+  scanline files. The previous API remains in place for now for
+  backwards compatibility.
+  
+  See [src/wrappers/python/README.md](src/wrappers/python/README.md)
+  for a synopsis.
+
+
+This release fixes:
+
+* OSS-fuzz [42538530](https://issues.oss-fuzz.com/issues/42538530)
+Crash in MemcmpInterceptorCommon
+* OSS-fuzz [42538529](https://issues.oss-fuzz.com/issues/42538529)
+Null-dereference READ in internal_exr_undo_rle
+* OSS-fuzz [42538428](https://issues.oss-fuzz.com/issues/42538428)
+Integer-overflow in internal_exr_parse_header
+* OSS-fuzz [42538425](https://issues.oss-fuzz.com/issues/42538425)
+Crash in internal_exr_validate_shared_attrs
+* OSS-fuzz [42538423](https://issues.oss-fuzz.com/issues/42538423)
+Null-dereference READ in internal_rle_decompress
+* OSS-fuzz [42533565](https://issues.oss-fuzz.com/issues/42533565)
+Invalid-enum-value in Imf_3_3::isValidCompression
+
+### Merged Pull Requests
+
+* [1833](https://github.com/AcademySoftwareFoundation/openexr/pull/1833)
+Bump github/codeql-action from 3.26.7 to 3.26.8
+* [1832](https://github.com/AcademySoftwareFoundation/openexr/pull/1832)
+Fixed formatting issue in website/OpenEXRFileLayout.rst
+* [1833](https://github.com/AcademySoftwareFoundation/openexr/pull/1833)
+Bump github/codeql-action from 3.26.7 to 3.26.8 
+* [1832](https://github.com/AcademySoftwareFoundation/openexr/pull/1832)
+Fixed formatting issue in website/OpenEXRFileLayout.rst 
+* [1828](https://github.com/AcademySoftwareFoundation/openexr/pull/1828)
+Refined validation checks 
+* [1827](https://github.com/AcademySoftwareFoundation/openexr/pull/1827)
+Add includes for Windows 
+* [1825](https://github.com/AcademySoftwareFoundation/openexr/pull/1825)
+Add duplicate validation 
+* [1824](https://github.com/AcademySoftwareFoundation/openexr/pull/1824)
+Bump pypa/cibuildwheel from 2.21.0 to 2.21.1 
+* [1822](https://github.com/AcademySoftwareFoundation/openexr/pull/1822)
+Update sigstore release signing action 
+* [1821](https://github.com/AcademySoftwareFoundation/openexr/pull/1821)
+Address some initial fuzz reports after core rewrite merge
+* [1820](https://github.com/AcademySoftwareFoundation/openexr/pull/1820)
+Bump github/codeql-action from 3.26.6 to 3.26.7
+* [1819](https://github.com/AcademySoftwareFoundation/openexr/pull/1819)
+Bump pypa/cibuildwheel from 2.20.0 to 2.21.0
+* [1818](https://github.com/AcademySoftwareFoundation/openexr/pull/1818)
+Rebase of staging/cpp_core_rewrite
+* [1814](https://github.com/AcademySoftwareFoundation/openexr/pull/1814)
+Bump pypa/gh-action-pypi-publish from 1.10.0 to 1.10.1
+* [1811](https://github.com/AcademySoftwareFoundation/openexr/pull/1811)
+Add version comment to github/codeql-action/analyze
+* [1810](https://github.com/AcademySoftwareFoundation/openexr/pull/1810)
+Pin snyk/actions/setup to v0.4.0
+* [1809](https://github.com/AcademySoftwareFoundation/openexr/pull/1809)
+Fix pypa/gh-action-pypi-publish release name comment
+* [1808](https://github.com/AcademySoftwareFoundation/openexr/pull/1808)
+Bump pypa/gh-action-pypi-publish from 1.9.0 to 1.10.0
+* [1807](https://github.com/AcademySoftwareFoundation/openexr/pull/1807)
+Bump actions/upload-artifact from 4.3.6 to 4.4.0
+* [1806](https://github.com/AcademySoftwareFoundation/openexr/pull/1806)
+Bump actions/setup-python from 5.1.1 to 5.2.0
+* [1805](https://github.com/AcademySoftwareFoundation/openexr/pull/1805)
+Bump github/codeql-action from 3.24.10 to 3.26.6
+* [1799](https://github.com/AcademySoftwareFoundation/openexr/pull/1799)
+Update Joseph Goldstone affiliation
+* [1795](https://github.com/AcademySoftwareFoundation/openexr/pull/1795)
+Bazel Build: Bump libdeflate to 1.21
+* [1794](https://github.com/AcademySoftwareFoundation/openexr/pull/1794)
+Bump snyk/actions from 6312a53377a551c0258438bf25fb8f378afbc977 to ae9442546152ba9bb0a1c85e2672112c97e7a06d
+* [1793](https://github.com/AcademySoftwareFoundation/openexr/pull/1793)
+Bump actions/upload-artifact from 4.3.4 to 4.3.6
+* [1791](https://github.com/AcademySoftwareFoundation/openexr/pull/1791)
+Bump pypa/cibuildwheel from 2.19.2 to 2.20.0
+* [1790](https://github.com/AcademySoftwareFoundation/openexr/pull/1790)
+Revert CodeQL to 2.18.0
+* [1788](https://github.com/AcademySoftwareFoundation/openexr/pull/1788)
+Bump snyk/actions from 640e31719aac3e44867d239dc86c20c3e34c8e4f to 6312a53377a551c0258438bf25fb8f378afbc977
+* [1787](https://github.com/AcademySoftwareFoundation/openexr/pull/1787)
+Bump ossf/scorecard-action from 2.3.3 to 2.4.0
+* [1782](https://github.com/AcademySoftwareFoundation/openexr/pull/1782)
+Bump sigstore/gh-action-sigstore-python from 2.1.1 to 3.0.0
+* [1781](https://github.com/AcademySoftwareFoundation/openexr/pull/1781)
+Bump actions/setup-python from 5.1.0 to 5.1.1
+* [1779](https://github.com/AcademySoftwareFoundation/openexr/pull/1779)
+Fix GHA CI after they upgraded nodejs
+* [1778](https://github.com/AcademySoftwareFoundation/openexr/pull/1778)
+Fix documentation typo: screenWindowWidth is float, not V2f
+* [1777](https://github.com/AcademySoftwareFoundation/openexr/pull/1777)
+Bump snyk/actions from 8349f9043a8b7f0f3ee8885bf28f0b388d2446e8 to 640e31719aac3e44867d239dc86c20c3e34c8e4f
+* [1775](https://github.com/AcademySoftwareFoundation/openexr/pull/1775)
+Bump actions/download-artifact from 4.1.7 to 4.1.8
+* [1774](https://github.com/AcademySoftwareFoundation/openexr/pull/1774)
+Bump actions/upload-artifact from 4.3.3 to 4.3.4
+* [1773](https://github.com/AcademySoftwareFoundation/openexr/pull/1773)
+Bump pypa/cibuildwheel from 2.18.1 to 2.19.2
+* [1769](https://github.com/AcademySoftwareFoundation/openexr/pull/1769)
+add exrmetrics tool
+* [1768](https://github.com/AcademySoftwareFoundation/openexr/pull/1768)
+Bump pypa/gh-action-pypi-publish from 1.8.14 to 1.9.0
+* [1763](https://github.com/AcademySoftwareFoundation/openexr/pull/1763)
+Fix duplicate `uninstall` targets
+* [1757](https://github.com/AcademySoftwareFoundation/openexr/pull/1757)
+Bump pypa/cibuildwheel from 2.17.0 to 2.18.1
+* [1756](https://github.com/AcademySoftwareFoundation/openexr/pull/1756)
+Rewrite OpenEXR python bindings using pybind11 and numpy
+* [1754](https://github.com/AcademySoftwareFoundation/openexr/pull/1754)
+'Stop' to 'tStop' in website desc of standard attributes
+* [1750](https://github.com/AcademySoftwareFoundation/openexr/pull/1750)
+Bump ossf/scorecard-action from 2.3.1 to 2.3.3
+* [1749](https://github.com/AcademySoftwareFoundation/openexr/pull/1749)
+Install website requirements in venv
+* [1748](https://github.com/AcademySoftwareFoundation/openexr/pull/1748)
+Fix setting of part name via "name" attribute
+* [1745](https://github.com/AcademySoftwareFoundation/openexr/pull/1745)
+Update CI workflow to 2024 images.
+* [1744](https://github.com/AcademySoftwareFoundation/openexr/pull/1744)
+Bazel support: Add test output to CI Bazel tests
+* [1742](https://github.com/AcademySoftwareFoundation/openexr/pull/1742)
+Removed unused sliceOptimizationData::type
+* [1736](https://github.com/AcademySoftwareFoundation/openexr/pull/1736)
+Bump actions/download-artifact from 4.1.5 to 4.1.7
+* [1734](https://github.com/AcademySoftwareFoundation/openexr/pull/1734)
+Silence warning C4201: nonstandard extension used: nameless struct/union.
+* [1733](https://github.com/AcademySoftwareFoundation/openexr/pull/1733)
+Bump actions/upload-artifact from 4.3.2 to 4.3.3
+* [1727](https://github.com/AcademySoftwareFoundation/openexr/pull/1727)
+Fix exact file match
+* [1724](https://github.com/AcademySoftwareFoundation/openexr/pull/1724)
+Core changes for cpp rewrite
+* [1723](https://github.com/AcademySoftwareFoundation/openexr/pull/1723)
+Bump actions/upload-artifact from 4.3.1 to 4.3.2
+* [1722](https://github.com/AcademySoftwareFoundation/openexr/pull/1722)
+Bump actions/download-artifact from 4.1.4 to 4.1.5
+* [1716](https://github.com/AcademySoftwareFoundation/openexr/pull/1716)
+Add test for example python code in the pypi README.md
+* [1714](https://github.com/AcademySoftwareFoundation/openexr/pull/1714)
+fix example
+* [1713](https://github.com/AcademySoftwareFoundation/openexr/pull/1713)
+Bump actions/upload-artifact from 3.1.0 to 4.3.1
+* [1710](https://github.com/AcademySoftwareFoundation/openexr/pull/1710)
+Bump github/codeql-action from 3.24.9 to 3.24.10
+* [1709](https://github.com/AcademySoftwareFoundation/openexr/pull/1709)
+Create codeql.yml
+* [1707](https://github.com/AcademySoftwareFoundation/openexr/pull/1707)
+[StepSecurity] ci: Harden GitHub Actions
+* [1706](https://github.com/AcademySoftwareFoundation/openexr/pull/1706)
+website: fix whitespace typo
+* [1703](https://github.com/AcademySoftwareFoundation/openexr/pull/1703)
+Improve filters for ossfuzz and bazel
+* [1702](https://github.com/AcademySoftwareFoundation/openexr/pull/1702)
+Set archive prefix for signed releases
+* [1701](https://github.com/AcademySoftwareFoundation/openexr/pull/1701)
+Build website on windows/macOS, and remote unnecessary installs
+* [1699](https://github.com/AcademySoftwareFoundation/openexr/pull/1699)
+📝 Fix OPENEXR_DEFLATE_REPO option's description
+* [1698](https://github.com/AcademySoftwareFoundation/openexr/pull/1698)
+Bump actions/cache from 4.0.0 to 4.0.2
+* [1697](https://github.com/AcademySoftwareFoundation/openexr/pull/1697)
+Bump actions/download-artifact from 4.0.0 to 4.1.4
+* [1696](https://github.com/AcademySoftwareFoundation/openexr/pull/1696)
+Bump pypa/cibuildwheel from 2.16 to 2.17
+* [1695](https://github.com/AcademySoftwareFoundation/openexr/pull/1695)
+Bump github/codeql-action from 2.2.4 to 3.24.9
+* [1694](https://github.com/AcademySoftwareFoundation/openexr/pull/1694)
+Bump sphinx from 5.3 to 7.2.6
+* [1693](https://github.com/AcademySoftwareFoundation/openexr/pull/1693)
+Improve workflow files
+* [1691](https://github.com/AcademySoftwareFoundation/openexr/pull/1691)
+Add website news items for v3.2.4, v3.2.3, and v3.1.13
+* [1688](https://github.com/AcademySoftwareFoundation/openexr/pull/1688)
+Extend exrstdattr to add -erase option
+* [1686](https://github.com/AcademySoftwareFoundation/openexr/pull/1686)
+fix: Update scorecard v2.3.1
+* [1685](https://github.com/AcademySoftwareFoundation/openexr/pull/1685)
+fix rebase commit id
+* [1683](https://github.com/AcademySoftwareFoundation/openexr/pull/1683)
+add page on scene-linear images to website 
+* [1681](https://github.com/AcademySoftwareFoundation/openexr/pull/1681)
+prevent integer overflows in file exrmultipart.cpp
+* [1679](https://github.com/AcademySoftwareFoundation/openexr/pull/1679)
+Update docker images to 2024.
+* [1677](https://github.com/AcademySoftwareFoundation/openexr/pull/1677)
+Cleanup pass ahead of core expansion
+* [1674](https://github.com/AcademySoftwareFoundation/openexr/pull/1674)
+CMake packaging fix.
+* [1673](https://github.com/AcademySoftwareFoundation/openexr/pull/1673)
+Pin RTD to sphinx 5.3
+* [1672](https://github.com/AcademySoftwareFoundation/openexr/pull/1672)
+Document steps to add a new compression method in ImfCompression.h
+* [1669](https://github.com/AcademySoftwareFoundation/openexr/pull/1669)
+Add custom website footer with ASWF logo and proper copyright
+* [1667](https://github.com/AcademySoftwareFoundation/openexr/pull/1667)
+Replace auto-generation of website test image with explicit sidecar jpg files
+* [1664](https://github.com/AcademySoftwareFoundation/openexr/pull/1664)
+Add preview link to readthedocs build to PR description
+* [1663](https://github.com/AcademySoftwareFoundation/openexr/pull/1663)
+website news for v3.2.3
+* [1661](https://github.com/AcademySoftwareFoundation/openexr/pull/1661)
+Argument to isValidCompression should be int rather than Compression
+* [1660](https://github.com/AcademySoftwareFoundation/openexr/pull/1660)
+Bazel support: Support only Bzmlod and bump Imath version
+* [1658](https://github.com/AcademySoftwareFoundation/openexr/pull/1658)
+Add reference to TSC meeting notes to README and website
+* [1657](https://github.com/AcademySoftwareFoundation/openexr/pull/1657)
+Add test and website reference for exrmanifest
+* [1656](https://github.com/AcademySoftwareFoundation/openexr/pull/1656)
+Add table of linux distro openexr versions to website install page
+* [1654](https://github.com/AcademySoftwareFoundation/openexr/pull/1654)
+Fix Typo RIPMAP_LEVELS table in TechnicalIntroduction.rst
+* [1649](https://github.com/AcademySoftwareFoundation/openexr/pull/1649)
+Fix memory leaks in exrstdattr and example code
+* [1645](https://github.com/AcademySoftwareFoundation/openexr/pull/1645)
+Update release notes from recent releases
+* [1644](https://github.com/AcademySoftwareFoundation/openexr/pull/1644)
+Bump required cmake to 3.14
+* [1617](https://github.com/AcademySoftwareFoundation/openexr/pull/1617)
+Require sphinx 5.0
+* [1616](https://github.com/AcademySoftwareFoundation/openexr/pull/1616)
+Automate compression method detection
+* [1601](https://github.com/AcademySoftwareFoundation/openexr/pull/1601)
+GitHub action for release notices on Slack
+* [1599](https://github.com/AcademySoftwareFoundation/openexr/pull/1599)
+Bump version on main to 3.3.0
+* [1535](https://github.com/AcademySoftwareFoundation/openexr/pull/1535)
+Add Scorecard GitHub Action
+* [1515](https://github.com/AcademySoftwareFoundation/openexr/pull/1515)
+Release notes and news for v3.2.0
+* [1481](https://github.com/AcademySoftwareFoundation/openexr/pull/1481)
+Fix dupe word typos
+* [1465](https://github.com/AcademySoftwareFoundation/openexr/pull/1465)
+Fix link typos in news.rst
+* [1438](https://github.com/AcademySoftwareFoundation/openexr/pull/1438)
+Bazel update
+* [1436](https://github.com/AcademySoftwareFoundation/openexr/pull/1436)
+Fix spelling mistakes
+* [1435](https://github.com/AcademySoftwareFoundation/openexr/pull/1435)
+Bazel support: Update Imath to 3.1.8
+* [1434](https://github.com/AcademySoftwareFoundation/openexr/pull/1434)
+Fix macOS arm64 build
+* [1423](https://github.com/AcademySoftwareFoundation/openexr/pull/1423)
+Propagate dwa core 3 1
+* [1418](https://github.com/AcademySoftwareFoundation/openexr/pull/1418)
 
 ## Version 3.2.4 (March 26, 2024)
 

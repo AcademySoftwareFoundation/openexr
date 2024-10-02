@@ -466,6 +466,26 @@ EXR_EXPORT exr_result_t exr_start_inplace_header_update (
     const char*                      filename,
     const exr_context_initializer_t* ctxtdata);
 
+/** @brief Create a new context for temporary use in memory.
+ *
+ * This is a custom mode that does not supporting writing actual image
+ * data, but one can create one of these, manipulate attributes,
+ * define additional parts, run validation, etc. without any
+ * requirement of actual file i/o.
+ *
+ * Note that this creates an defines an initial part for use, so one
+ * can immediately start definining attributes into part index 0.
+ *
+ * See the initializer context documentation \ref
+ * exr_context_initializer_t to be able to provide allocation
+ * overrides or other controls. The @p ctxtdata parameter is optional,
+ * if `NULL`, default values will be used.
+ */
+EXR_EXPORT exr_result_t exr_start_temporary_context (
+    exr_context_t*                   ctxt,
+    const char*                      context_name,
+    const exr_context_initializer_t* ctxtdata);
+
 /** @brief Retrieve the file name the context is for as provided
  * during the start routine.
  *

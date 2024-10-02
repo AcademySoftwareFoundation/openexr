@@ -14,36 +14,33 @@
 
 #include "ImfForward.h"
 
-#include "ImfGenericInputFile.h"
+#include "ImfContext.h"
+
 #include "ImfThreading.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
-class IMF_EXPORT_TYPE ScanLineInputFile : public GenericInputFile
+class IMF_EXPORT_TYPE ScanLineInputFile
 {
 public:
     //------------
-    // Constructor
+    // Constructors
     //------------
+
 
     IMF_EXPORT
     ScanLineInputFile (
-        const Header&                            header,
-        OPENEXR_IMF_INTERNAL_NAMESPACE::IStream* is,
+        OPENEXR_IMF_INTERNAL_NAMESPACE::IStream& is,
         int numThreads = globalThreadCount ());
 
-    //-----------------------------------------
-    // Destructor -- deallocates internal data
-    // structures, but does not close the file.
-    //-----------------------------------------
+    IMF_EXPORT
+    ScanLineInputFile (const char filename[], int numThreads = globalThreadCount ());
 
     IMF_EXPORT
-    virtual ~ScanLineInputFile ();
-
-    ScanLineInputFile (const ScanLineInputFile& other)            = delete;
-    ScanLineInputFile& operator= (const ScanLineInputFile& other) = delete;
-    ScanLineInputFile (ScanLineInputFile&& other)                 = delete;
-    ScanLineInputFile& operator= (ScanLineInputFile&& other)      = delete;
+    ScanLineInputFile (
+        const char*               filename,
+        const ContextInitializer& ctxtinit,
+        int                       numThreads = globalThreadCount ());
 
     //------------------------
     // Access to the file name
@@ -144,6 +141,18 @@ public:
     void readPixels (int scanLine);
 
     //----------------------------------------------
+    // Combines the setFrameBuffer and readPixels into a singular
+    // call. This does more than that in that it can, with the right
+    // conditions, not require a lock on the file, such that multiple
+    // (external to OpenEXR) threads can read at the same time on
+    // different framebuffers
+    //----------------------------------------------
+
+    IMF_EXPORT
+    void readPixels (
+        const FrameBuffer& frame, int scanLine1, int scanLine2);
+
+    //----------------------------------------------
     // Read a block of raw pixel data from the file,
     // without uncompressing it (this function is
     // used to implement OutputFile::copyPixels()).
@@ -173,16 +182,12 @@ public:
     void rawPixelDataToBuffer (
         int scanLine, char* pixelData, int& pixelDataSize) const;
 
-    struct IMF_HIDDEN Data;
-
 private:
-    Data* _data;
-
-    InputStreamMutex* _streamData;
+    Context _ctxt;
+    struct IMF_HIDDEN Data;
+    std::shared_ptr<Data> _data;
 
     IMF_HIDDEN ScanLineInputFile (InputPartData* part);
-
-    IMF_HIDDEN void initialize (const Header& header);
 
     friend class MultiPartInputFile;
     friend class InputFile;

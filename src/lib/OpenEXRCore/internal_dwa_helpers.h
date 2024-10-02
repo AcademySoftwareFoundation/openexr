@@ -6,8 +6,7 @@
 #ifndef IMF_INTERNAL_DWA_HELPERS_H_HAS_BEEN_INCLUDED
 #define IMF_INTERNAL_DWA_HELPERS_H_HAS_BEEN_INCLUDED
 
-/* TODO: move to here when ready */
-#include "../OpenEXR/dwaLookups.h"
+#include "dwaLookups.h"
 
 /**************************************/
 

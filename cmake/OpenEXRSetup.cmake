@@ -27,13 +27,14 @@ endif()
 ## Target configuration
 
 # What C++ standard to compile for
-# VFX Platform 18 is c++14, so let's enable that by default
-set(tmp 14)
-if(CMAKE_CXX_STANDARD)
+# VFX Platform 21 is c++17, so 21, 22, 23, 24 gives us 4+ years of 17
+set(tmp 17)
+if(CMAKE_CXX_STANDARD GREATER tmp)
   set(tmp ${CMAKE_CXX_STANDARD})
 endif()
 set(OPENEXR_CXX_STANDARD "${tmp}" CACHE STRING "C++ standard to compile against")
 set(tmp)
+message(STATUS "Building against C++ Standard: ${OPENEXR_CXX_STANDARD}")
 
 set(OPENEXR_NAMESPACE_CUSTOM "0" CACHE STRING "Whether the namespace has been customized (so external users know)")
 set(OPENEXR_INTERNAL_IMF_NAMESPACE "Imf_${OPENEXR_VERSION_API}" CACHE STRING "Real namespace for OpenEXR that will end up in compiled symbols")

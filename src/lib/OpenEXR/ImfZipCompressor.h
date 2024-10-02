@@ -12,11 +12,7 @@
 //
 //-----------------------------------------------------------------------------
 
-#include "ImfNamespace.h"
-
 #include "ImfCompressor.h"
-
-#include "ImfZip.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
@@ -24,31 +20,9 @@ class ZipCompressor : public Compressor
 {
 public:
     ZipCompressor (
-        const Header& hdr, size_t maxScanLineSize, size_t numScanLines);
+        const Header& hdr, size_t maxScanLineSize, int numScanLines);
 
     virtual ~ZipCompressor ();
-
-    virtual int numScanLines () const;
-
-    virtual int compress (
-        const char*  inPtr,
-        int          inSize,
-        const int*   inSampleCountPerLine,
-        int          minY,
-        const char*& outPtr);
-
-    virtual int uncompress (
-        const char*  inPtr,
-        int          inSize,
-        const int*   sampleCountPerLine,
-        int          minY,
-        const char*& outPtr);
-
-private:
-    int   _maxScanLineSize;
-    int   _numScanLines;
-    char* _outBuffer;
-    Zip   _zip;
 };
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT

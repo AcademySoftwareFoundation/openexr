@@ -17,7 +17,7 @@ extern "C" {
 
 /** @file */
 
-/** 
+/**
  * @defgroup AttributeTypes Attribute/metadata value types and struct declarations
  *
  * @brief These are a group of enum values defining valid values for

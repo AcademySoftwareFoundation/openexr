@@ -5,6 +5,8 @@
 
 #include "openexr_part.h"
 
+#include "openexr_compression.h"
+
 #include "internal_attr.h"
 #include "internal_constants.h"
 #include "internal_file.h"
@@ -136,7 +138,7 @@ exr_attr_declare_by_type (
     exr_result_t rv;
     EXR_LOCK_AND_DEFINE_PART (part_index);
 
-    if (ctxt->mode != EXR_CONTEXT_WRITE)
+    if (ctxt->mode != EXR_CONTEXT_WRITE && ctxt->mode != EXR_CONTEXT_TEMPORARY)
         return EXR_UNLOCK_AND_RETURN (
             ctxt->standard_error (ctxt, EXR_ERR_NOT_OPEN_WRITE));
 
@@ -158,7 +160,7 @@ exr_attr_declare (
     exr_result_t rv;
     EXR_LOCK_AND_DEFINE_PART (part_index);
 
-    if (ctxt->mode != EXR_CONTEXT_WRITE)
+    if (ctxt->mode != EXR_CONTEXT_WRITE && ctxt->mode != EXR_CONTEXT_TEMPORARY)
         return EXR_UNLOCK_AND_RETURN (
             ctxt->standard_error (ctxt, EXR_ERR_NOT_OPEN_WRITE));
 
@@ -696,6 +698,8 @@ exr_set_compression (
     {
         attr->uc        = (uint8_t) ctype;
         part->comp_type = ctype;
+        part->lines_per_chunk =
+            ((int16_t) exr_compression_lines_per_chunk (part->comp_type));
     }
     return EXR_UNLOCK_AND_RETURN (rv);
 }
@@ -996,7 +1000,8 @@ exr_set_name (exr_context_t ctxt, int part_index, const char* val)
     size_t bytes;
     REQ_ATTR_FIND_CREATE (name, EXR_ATTR_STRING);
 
-    if (!val || val[0] == '\0')
+    /* old library allowed an empty string :(, but ensure not null */
+    if (!val)
         return EXR_UNLOCK_AND_RETURN (ctxt->report_error (
             ctxt,
             EXR_ERR_INVALID_ARGUMENT,
@@ -1013,13 +1018,43 @@ exr_set_name (exr_context_t ctxt, int part_index, const char* val)
 
     if (rv == EXR_ERR_SUCCESS)
     {
+        if (ctxt->num_parts > 1)
+        {
+            for ( int pidx = 0; pidx < ctxt->num_parts; ++pidx )
+            {
+                const exr_attribute_t* pname;
+
+                if (pidx == part_index)
+                    continue;
+                pname = ctxt->parts[pidx]->name;
+                if (!pname)
+                {
+                    return EXR_UNLOCK_AND_RETURN (
+                        ctxt->print_error (
+                            ctxt,
+                            EXR_ERR_INVALID_ARGUMENT,
+                            "Part %d missing required attribute 'name' for multi-part file",
+                            pidx));
+                }
+                if (!strcmp (val, pname->string->str))
+                {
+                    return EXR_UNLOCK_AND_RETURN (
+                        ctxt->print_error (
+                            ctxt,
+                            EXR_ERR_INVALID_ARGUMENT,
+                            "Each part should have a unique name, part %d and %d attempting to have same name '%s'",
+                            pidx, part_index, val));
+                }
+            }
+        }
+
         if (attr->string->length == (int32_t) bytes &&
             attr->string->alloc_size > 0)
         {
             /* we own the string... */
             memcpy (EXR_CONST_CAST (void*, attr->string->str), val, bytes);
         }
-        else if (ctxt->mode != EXR_CONTEXT_WRITE)
+        else if (ctxt->mode != EXR_CONTEXT_WRITE && ctxt->mode != EXR_CONTEXT_TEMPORARY)
         {
             return EXR_UNLOCK_AND_RETURN (ctxt->print_error (
                 ctxt,
@@ -1131,7 +1166,8 @@ exr_set_chunk_count (exr_context_t ctxt, int part_index, int32_t val)
         ctxt, (exr_attribute_list_t*) &(part->attributes), name, &attr);       \
     if (rv == EXR_ERR_NO_ATTR_BY_NAME)                                         \
     {                                                                          \
-        if (ctxt->mode != EXR_CONTEXT_WRITE)                                   \
+        if (ctxt->mode != EXR_CONTEXT_WRITE &&                                 \
+            ctxt->mode != EXR_CONTEXT_TEMPORARY)                               \
             return EXR_UNLOCK_AND_RETURN (rv);                                 \
                                                                                \
         rv = exr_attr_list_add (                                               \
@@ -1248,7 +1284,7 @@ exr_attr_set_channels (
             exr_set_channels (ctxt, part_index, channels));
 
     /* do not support updating channels during update operation... */
-    if (ctxt->mode != EXR_CONTEXT_WRITE)
+    if (ctxt->mode != EXR_CONTEXT_WRITE && ctxt->mode != EXR_CONTEXT_TEMPORARY)
         return EXR_UNLOCK_AND_RETURN (
             ctxt->standard_error (ctxt, EXR_ERR_NOT_OPEN_WRITE));
 
@@ -1495,7 +1531,8 @@ exr_attr_set_float_vector (
 
     if (rv == EXR_ERR_NO_ATTR_BY_NAME)
     {
-        if (ctxt->mode != EXR_CONTEXT_WRITE) return EXR_UNLOCK_AND_RETURN (rv);
+        if (ctxt->mode != EXR_CONTEXT_WRITE && ctxt->mode != EXR_CONTEXT_TEMPORARY)
+            return EXR_UNLOCK_AND_RETURN (rv);
 
         rv = exr_attr_list_add (
             ctxt,
@@ -1523,7 +1560,7 @@ exr_attr_set_float_vector (
         {
             memcpy (EXR_CONST_CAST (void*, attr->floatvector->arr), val, bytes);
         }
-        else if (ctxt->mode != EXR_CONTEXT_WRITE)
+        else if (ctxt->mode != EXR_CONTEXT_WRITE && ctxt->mode != EXR_CONTEXT_TEMPORARY)
         {
             return EXR_UNLOCK_AND_RETURN (ctxt->print_error (
                 ctxt,
@@ -1754,7 +1791,7 @@ exr_attr_set_preview (
 
     if (rv == EXR_ERR_NO_ATTR_BY_NAME)
     {
-        if (ctxt->mode != EXR_CONTEXT_WRITE) return EXR_UNLOCK_AND_RETURN (rv);
+        if (ctxt->mode != EXR_CONTEXT_WRITE && ctxt->mode != EXR_CONTEXT_TEMPORARY) return EXR_UNLOCK_AND_RETURN (rv);
 
         rv = exr_attr_list_add (
             ctxt,
@@ -1788,7 +1825,7 @@ exr_attr_set_preview (
                 val->rgba,
                 copybytes);
         }
-        else if (ctxt->mode != EXR_CONTEXT_WRITE)
+        else if (ctxt->mode != EXR_CONTEXT_WRITE && ctxt->mode != EXR_CONTEXT_TEMPORARY)
         {
             return EXR_UNLOCK_AND_RETURN (ctxt->print_error (
                 ctxt,
@@ -1862,10 +1899,37 @@ exr_attr_set_string (
         return EXR_UNLOCK_AND_RETURN (exr_set_name (ctxt, part_index, val));
 
     if (name && !strcmp (name, EXR_REQ_TYPE_STR))
-        return EXR_UNLOCK_AND_RETURN (ctxt->print_error (
-            ctxt,
-            EXR_ERR_INVALID_ARGUMENT,
-            "Part type attribute must be implicitly only when adding a part"));
+    {
+        if (ctxt->mode == EXR_CONTEXT_TEMPORARY)
+        {
+            if (!val)
+            {
+                return EXR_UNLOCK_AND_RETURN (
+                    ctxt->print_error (
+                        ctxt,
+                        EXR_ERR_INVALID_ARGUMENT,
+                        "Part type attribute must be set to valid value"));
+            }
+            if (!strcmp (val, "scanlineimage"))
+                part->storage_mode = EXR_STORAGE_SCANLINE;
+            else if (!strcmp (val, "tiledimage"))
+                part->storage_mode = EXR_STORAGE_TILED;
+            else if (!strcmp (val, "deepscanline"))
+                part->storage_mode = EXR_STORAGE_DEEP_SCANLINE;
+            else if (!strcmp (val, "deeptile"))
+                part->storage_mode = EXR_STORAGE_DEEP_TILED;
+            else
+                part->storage_mode = EXR_STORAGE_UNKNOWN;
+        }
+        else
+        {
+            return EXR_UNLOCK_AND_RETURN (
+                ctxt->print_error (
+                    ctxt,
+                    EXR_ERR_INVALID_ARGUMENT,
+                    "Part type attribute must be implicitly only when adding a part"));
+        }
+    }
 
     if (ctxt->mode == EXR_CONTEXT_READ)
         return EXR_UNLOCK_AND_RETURN (
@@ -1889,7 +1953,8 @@ exr_attr_set_string (
 
     if (rv == EXR_ERR_NO_ATTR_BY_NAME)
     {
-        if (ctxt->mode != EXR_CONTEXT_WRITE) return EXR_UNLOCK_AND_RETURN (rv);
+        if (ctxt->mode != EXR_CONTEXT_WRITE && ctxt->mode != EXR_CONTEXT_TEMPORARY)
+            return EXR_UNLOCK_AND_RETURN (rv);
 
         rv = exr_attr_list_add (
             ctxt, &(part->attributes), name, EXR_ATTR_STRING, 0, NULL, &(attr));
@@ -1912,7 +1977,7 @@ exr_attr_set_string (
             if (val)
                 memcpy (EXR_CONST_CAST (void*, attr->string->str), val, bytes);
         }
-        else if (ctxt->mode != EXR_CONTEXT_WRITE)
+        else if (ctxt->mode != EXR_CONTEXT_WRITE && ctxt->mode != EXR_CONTEXT_TEMPORARY)
         {
             return EXR_UNLOCK_AND_RETURN (ctxt->print_error (
                 ctxt,

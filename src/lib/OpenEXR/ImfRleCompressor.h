@@ -12,8 +12,6 @@
 //
 //-----------------------------------------------------------------------------
 
-#include "ImfNamespace.h"
-
 #include "ImfCompressor.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
@@ -28,27 +26,6 @@ public:
     RleCompressor& operator= (const RleCompressor& other) = delete;
     RleCompressor (RleCompressor&& other)                 = delete;
     RleCompressor& operator= (RleCompressor&& other)      = delete;
-
-    virtual int numScanLines () const;
-
-    virtual int compress (
-        const char*  inPtr,
-        int          inSize,
-        const int*   inSampleCountPerLine,
-        int          minY,
-        const char*& outPtr);
-
-    virtual int uncompress (
-        const char*  inPtr,
-        int          inSize,
-        const int*   sampleCountPerLine,
-        int          minY,
-        const char*& outPtr);
-
-private:
-    int   _maxScanLineSize;
-    char* _tmpBuffer;
-    char* _outBuffer;
 };
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT

@@ -82,12 +82,7 @@ createDummyFile (const char* test)
     // stream but need a writable context to test with.
     cinit.write_fn = dummy_write;
     cinit.alloc_fn = failable_malloc;
-
-    // TODO: adding failable_malloc currently causes
-    // OpenEXRCore.testAttrChlists and OpenEXRCore.testAttrLists to
-    // fail.  commented out until we've investigated.
-
-    // cinit.free_fn = failable_free;
+    cinit.free_fn = failable_free;
 
     EXRCORE_TEST_RVAL (
         exr_start_write (&f, test, EXR_WRITE_FILE_DIRECTLY, &cinit));

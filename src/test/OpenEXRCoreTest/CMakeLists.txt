@@ -7,6 +7,7 @@ add_executable(OpenEXRCoreTest
   buffer.cpp
   buffer.h
   compression.cpp
+  compressionTables.cpp
   compression.h
   deep.cpp
   deep.h
@@ -65,6 +66,7 @@ define_openexrcore_tests(
  testHalf
  testXDR
  testBufferCompression
+ testTempContext
 
  testAttrSizes
  testAttrStrings
@@ -103,6 +105,8 @@ define_openexrcore_tests(
  testWriteDeep
 
  testHUF
+ testDWATable
+ testB44Table
  testNoCompression
  testRLECompression
  testZIPCompression

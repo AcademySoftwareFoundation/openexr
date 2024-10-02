@@ -68,12 +68,12 @@ attr_init (exr_context_t ctxt, exr_attribute_t* nattr)
     switch (nattr->type)
     {
         case EXR_ATTR_BOX2I: {
-            exr_attr_box2i_t nil = {0};
+            exr_attr_box2i_t nil = {{0}};
             *(nattr->box2i)      = nil;
             break;
         }
         case EXR_ATTR_BOX2F: {
-            exr_attr_box2f_t nil = {0};
+            exr_attr_box2f_t nil = {{0}};
             *(nattr->box2f)      = nil;
             break;
         }

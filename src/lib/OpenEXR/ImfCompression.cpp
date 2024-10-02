@@ -22,14 +22,10 @@
 //      1. src/lib/OpenEXRCore/openexr_attr.h
 //          * Add your EXR_COMPRESSION_* to the exr_compression_t enum.
 //
-//      2. src/lib/OpenEXRCore/encoding.c
-//          * Update default_compress_chunk().
-//
-//      3. src/lib/OpenEXRCore/decoding.c
-//          * Update decompress_data().
-//
-//      4. src/lib/OpenEXRCore/parse_header.c
-//          * Update internal_exr_compute_chunk_offset_size().
+//      2. src/lib/OpenEXRCore/compression.c
+//          * Update exr_compression_lines_per_chunk().
+//          * Update exr_compress_chunk().
+//          * Update exr_uncompress_chunk().
 //
 //      5. src/lib/OpenEXRCore/validation.c
 //          * Update validate_deep_data()
@@ -87,6 +83,7 @@
 #include "ImfNamespace.h"
 #include "ImfCompression.h"
 #include <map>
+#include <cctype>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 

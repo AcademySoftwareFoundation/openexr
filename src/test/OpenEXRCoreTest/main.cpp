@@ -153,6 +153,7 @@ main (int argc, char* argv[])
     TEST (testHalf, "core");
     TEST (testXDR, "core");
     TEST (testBufferCompression, "core");
+    TEST (testTempContext, "core");
 
     TEST (testAttrSizes, "gen_attr");
     TEST (testAttrStrings, "gen_attr");
@@ -192,6 +193,8 @@ main (int argc, char* argv[])
     TEST (testWriteDeep, "core_write");
 
     TEST (testHUF, "core_compression");
+    TEST (testDWATable, "core_compression");
+    TEST (testB44Table, "core_compression");
     TEST (testNoCompression, "core_compression");
     TEST (testRLECompression, "core_compression");
     TEST (testZIPCompression, "core_compression");

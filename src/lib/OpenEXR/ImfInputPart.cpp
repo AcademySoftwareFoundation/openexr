@@ -71,6 +71,13 @@ InputPart::readPixels (int scanLine)
 }
 
 void
+InputPart::readPixels (
+    const FrameBuffer& frameBuffer, int scanLine1, int scanLine2)
+{
+    file->readPixels (frameBuffer, scanLine1, scanLine2);
+}
+
+void
 InputPart::rawPixelData (
     int firstScanLine, const char*& pixelData, int& pixelDataSize)
 {

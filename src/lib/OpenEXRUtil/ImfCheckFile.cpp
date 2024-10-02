@@ -1453,7 +1453,8 @@ readCoreTiledPart (
             rv = exr_get_level_sizes (f, part, xlevel, ylevel, &levw, &levh);
             if (rv != EXR_ERR_SUCCESS)
             {
-                frv = rv;
+                if (levelmode == EXR_TILE_RIPMAP_LEVELS || xlevel == ylevel)
+                    frv = rv;
                 if (reduceTime)
                 {
                     keepgoing = false;
@@ -1466,7 +1467,8 @@ readCoreTiledPart (
             rv = exr_get_tile_sizes (f, part, xlevel, ylevel, &curtw, &curth);
             if (rv != EXR_ERR_SUCCESS)
             {
-                frv = rv;
+                if (levelmode == EXR_TILE_RIPMAP_LEVELS || xlevel == ylevel)
+                    frv = rv;
                 if (reduceTime)
                 {
                     keepgoing = false;
@@ -1496,7 +1498,8 @@ readCoreTiledPart (
                         f, part, tx, ty, xlevel, ylevel, &cinfo);
                     if (rv != EXR_ERR_SUCCESS)
                     {
-                        frv = rv;
+                        if (levelmode == EXR_TILE_RIPMAP_LEVELS || xlevel == ylevel)
+                            frv = rv;
                         if (reduceTime)
                         {
                             keepgoing = false;
@@ -1608,7 +1611,7 @@ readCoreTiledPart (
         }
     }
 
-    return (rv != EXR_ERR_SUCCESS);
+    return (frv != EXR_ERR_SUCCESS);
 }
 
 ////////////////////////////////////////

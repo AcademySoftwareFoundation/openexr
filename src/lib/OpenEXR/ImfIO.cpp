@@ -50,6 +50,25 @@ IStream::fileName () const
     return _fileName.c_str ();
 }
 
+int64_t
+IStream::size ()
+{
+    return -1;
+}
+
+bool
+IStream::isStatelessRead () const
+{
+    return false;
+}
+
+int64_t
+IStream::read (void *, uint64_t, uint64_t)
+{
+    throw IEX_NAMESPACE::InputExc ("Attempt to perform a stateless read "
+                                   "on a stream without support.");
+}
+
 OStream::OStream (const char fileName[]) : _fileName (fileName)
 {
     // empty

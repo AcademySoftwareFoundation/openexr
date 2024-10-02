@@ -489,6 +489,14 @@ compress_b44_impl (exr_encode_pipeline_t* encode, int flat_field)
         scratch += nBytes;
     }
 
+    if (nOut > encode->packed_bytes)
+    {
+        memcpy (
+            encode->compressed_buffer,
+            encode->packed_buffer,
+            encode->packed_bytes);
+        nOut = encode->packed_bytes;
+    }
     encode->compressed_bytes = nOut;
     return rv;
 }
@@ -639,6 +647,7 @@ uncompress_b44_impl (
         }
     }
 
+    decode->bytes_decompressed = uncomp_buf_size;
     return EXR_ERR_SUCCESS;
 }
 

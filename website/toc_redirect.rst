@@ -20,6 +20,11 @@
 .. toctree::
    :hidden:
 
+   python
+
+.. toctree::
+   :hidden:
+
    install
    
 .. toctree::

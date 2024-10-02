@@ -1003,6 +1003,9 @@ TileBufferTask::execute ()
         {
             const char* compPtr;
 
+            _tileBuffer->compressor->setTileLevel (
+                _tileBuffer->tileCoord.lx,
+                _tileBuffer->tileCoord.ly);
             uint64_t compSize = _tileBuffer->compressor->compressTile (
                 _tileBuffer->dataPtr,
                 static_cast<int> (_tileBuffer->dataSize),

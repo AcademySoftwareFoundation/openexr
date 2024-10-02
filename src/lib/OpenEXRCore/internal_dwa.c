@@ -208,6 +208,7 @@ internal_exr_undo_dwaa (
 
         DwaCompressor_destroy (&dwaa);
     }
+    decode->bytes_decompressed = uncompressed_size;
 
     return rv;
 }
@@ -221,7 +222,7 @@ internal_exr_undo_dwab (
     uint64_t               uncompressed_size)
 {
     exr_result_t  rv;
-    DwaCompressor dwaa;
+    DwaCompressor dwab;
 
     rv = internal_decode_alloc_buffer (
         decode,
@@ -231,17 +232,18 @@ internal_exr_undo_dwab (
         internal_exr_huf_decompress_spare_bytes ());
     if (rv == EXR_ERR_SUCCESS)
     {
-        rv = DwaCompressor_construct (&dwaa, STATIC_HUFFMAN, NULL, decode);
+        rv = DwaCompressor_construct (&dwab, STATIC_HUFFMAN, NULL, decode);
         if (rv == EXR_ERR_SUCCESS)
             rv = DwaCompressor_uncompress (
-                &dwaa,
+                &dwab,
                 compressed_data,
                 comp_buf_size,
                 uncompressed_data,
                 uncompressed_size);
 
-        DwaCompressor_destroy (&dwaa);
+        DwaCompressor_destroy (&dwab);
     }
+    decode->bytes_decompressed = uncompressed_size;
 
     return rv;
 }

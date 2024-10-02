@@ -303,12 +303,16 @@ default_init_read_file (exr_context_t file)
     {
 #if defined(_WIN32_WINNT) && (_WIN32_WINNT >= _WIN32_WINNT_WIN8)
         fd = CreateFile2 (
-            wcFn, GENERIC_READ, FILE_SHARE_READ, OPEN_EXISTING, NULL);
+            wcFn,
+            GENERIC_READ,
+            FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+            OPEN_EXISTING,
+            NULL);
 #else
         fd = CreateFileW (
             wcFn,
             GENERIC_READ,
-            FILE_SHARE_READ,
+            FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
             NULL,
             OPEN_EXISTING,
             FILE_ATTRIBUTE_NORMAL, /* TBD: use overlapped? | FILE_FLAG_OVERLAPPED */
@@ -352,14 +356,14 @@ default_init_write_file (exr_context_t file)
         fd = CreateFile2 (
             wcFn,
             GENERIC_WRITE | DELETE,
-            0, /* no sharing */
+            FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
             CREATE_ALWAYS,
             NULL);
 #else
         fd = CreateFileW (
             wcFn,
             GENERIC_WRITE | DELETE,
-            0, /* no sharing */
+            FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
             NULL,
             CREATE_ALWAYS,
             FILE_ATTRIBUTE_NORMAL, /* TBD: use overlapped? | FILE_FLAG_OVERLAPPED */

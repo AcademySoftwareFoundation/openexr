@@ -4,78 +4,13 @@
 */
 
 #include "openexr_encode.h"
+#include "openexr_compression.h"
 
 #include "internal_coding.h"
-#include "internal_compress.h"
 #include "internal_structs.h"
 #include "internal_xdr.h"
 
 #include "openexr_compression.h"
-
-/**************************************/
-
-static exr_result_t
-default_compress_chunk (exr_encode_pipeline_t* encode)
-{
-    exr_result_t          rv;
-    exr_const_context_t   ctxt = encode->context;
-    exr_const_priv_part_t part;
-
-    if (!ctxt) return EXR_ERR_MISSING_CONTEXT_ARG;
-
-    if (encode->part_index < 0 || encode->part_index >= ctxt->num_parts)
-        return ctxt->print_error (
-            ctxt,
-            EXR_ERR_ARGUMENT_OUT_OF_RANGE,
-            "Part index (%d) out of range",
-            encode->part_index);
-
-    part = ctxt->parts[encode->part_index];
-
-    rv = internal_encode_alloc_buffer (
-        encode,
-        EXR_TRANSCODE_BUFFER_COMPRESSED,
-        &(encode->compressed_buffer),
-        &(encode->compressed_alloc_size),
-        exr_compress_max_buffer_size (encode->packed_bytes));
-    if (rv != EXR_ERR_SUCCESS)
-        return ctxt->print_error (
-            ctxt,
-            rv,
-            "error allocating buffer %zu",
-            exr_compress_max_buffer_size (encode->packed_bytes));
-    //return rv;
-
-    switch (part->comp_type)
-    {
-        case EXR_COMPRESSION_NONE:
-            return ctxt->report_error (
-                ctxt,
-                EXR_ERR_INVALID_ARGUMENT,
-                "no compression set but still trying to compress");
-
-        case EXR_COMPRESSION_RLE: rv = internal_exr_apply_rle (encode); break;
-        case EXR_COMPRESSION_ZIP:
-        case EXR_COMPRESSION_ZIPS: rv = internal_exr_apply_zip (encode); break;
-        case EXR_COMPRESSION_PIZ: rv = internal_exr_apply_piz (encode); break;
-        case EXR_COMPRESSION_PXR24:
-            rv = internal_exr_apply_pxr24 (encode);
-            break;
-        case EXR_COMPRESSION_B44: rv = internal_exr_apply_b44 (encode); break;
-        case EXR_COMPRESSION_B44A: rv = internal_exr_apply_b44a (encode); break;
-        case EXR_COMPRESSION_DWAA: rv = internal_exr_apply_dwaa (encode); break;
-        case EXR_COMPRESSION_DWAB: rv = internal_exr_apply_dwab (encode); break;
-        case EXR_COMPRESSION_ZSTD: rv = internal_exr_apply_zstd (encode); break;
-        case EXR_COMPRESSION_LAST_TYPE:
-        default:
-            return ctxt->print_error (
-                ctxt,
-                EXR_ERR_INVALID_ARGUMENT,
-                "Compression technique 0x%02X invalid",
-                (int) part->comp_type);
-    }
-    return rv;
-}
 
 /**************************************/
 
@@ -175,7 +110,8 @@ exr_encoding_initialize (
         return EXR_UNLOCK_WRITE_AND_RETURN (
             ctxt->standard_error (ctxt, EXR_ERR_INVALID_ARGUMENT));
 
-    if (ctxt->mode != EXR_CONTEXT_WRITING_DATA)
+    if (ctxt->mode != EXR_CONTEXT_WRITING_DATA &&
+        ctxt->mode != EXR_CONTEXT_TEMPORARY)
     {
         if (ctxt->mode == EXR_CONTEXT_WRITE)
             return EXR_UNLOCK_WRITE_AND_RETURN (
@@ -228,7 +164,7 @@ exr_encoding_choose_default_routines (
 
     encode->convert_and_pack_fn = internal_exr_match_encode (encode, isdeep);
     if (part->comp_type != EXR_COMPRESSION_NONE)
-        encode->compress_fn = &default_compress_chunk;
+        encode->compress_fn = &exr_compress_chunk;
     encode->yield_until_ready_fn = &default_yield;
     encode->write_fn             = &default_write_chunk;
 

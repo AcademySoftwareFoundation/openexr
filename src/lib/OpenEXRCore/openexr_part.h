@@ -98,6 +98,26 @@ EXR_EXPORT exr_result_t exr_get_tile_sizes (
     int32_t*            tilew,
     int32_t*            tileh);
 
+/** @brief Query the tile count for a particular level in the specified part.
+ *
+ * If the part is a tiled part, fills in the count for the
+ * specified levels.
+ *
+ * Return `ERR_SUCCESS` on success, an error otherwise (i.e. if the part
+ * is not tiled).
+ *
+ * It is valid to pass `NULL` to either of the @p countx or @p county
+ * arguments, which enables testing if this part is a tiled part, or
+ * if you don't need both for some reason.
+ */
+EXR_EXPORT exr_result_t exr_get_tile_counts (
+    exr_const_context_t ctxt,
+    int                 part_index,
+    int                 levelx,
+    int                 levely,
+    int32_t*            countx,
+    int32_t*            county);
+
 /** @brief Query the data sizes for a particular level in the specified part.
  *
  * If the part is a tiled part, fill in the width/height for the
@@ -132,6 +152,13 @@ EXR_EXPORT exr_result_t exr_get_level_sizes (
  */
 EXR_EXPORT exr_result_t
 exr_get_chunk_count (exr_const_context_t ctxt, int part_index, int32_t* out);
+
+/** Return a pointer to the chunk table and the count
+ *
+ * TODO: consider removing this prior to release once C++ fully converted
+ */
+EXR_EXPORT exr_result_t
+exr_get_chunk_table (exr_const_context_t ctxt, int part_index, uint64_t **table, int32_t* count);
 
 /** Return whether the chunk table for this part is completely written.
  *
@@ -348,7 +375,7 @@ EXR_EXPORT exr_result_t exr_get_channels (
  * closer to logarithmic (0). For r, g, b, luminance, this is normally
  * 0.
  */
-EXR_EXPORT int exr_add_channel (
+EXR_EXPORT exr_result_t exr_add_channel (
     exr_context_t              ctxt,
     int                        part_index,
     const char*                name,

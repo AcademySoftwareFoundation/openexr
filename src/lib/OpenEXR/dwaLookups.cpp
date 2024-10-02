@@ -7,6 +7,9 @@
 // A program to generate various acceleration lookup tables
 // for Imf::DwaCompressor
 //
+// NB: the pre-computed table itself has moved to the core library,
+// being C-only
+//
 
 #include <cstddef>
 #include <math.h>
