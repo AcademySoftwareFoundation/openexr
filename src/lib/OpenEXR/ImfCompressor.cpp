@@ -344,7 +344,8 @@ newCompressor (Compression c, size_t maxScanLineSize, const Header& hdr)
 
         case ZSTD_COMPRESSION:
 
-            return new ZstdCompressor (hdr, maxScanLineSize, 1);
+            ret = new ZstdCompressor (hdr, maxScanLineSize, 1);
+            break;
 
         default: break;
     }
@@ -429,7 +430,8 @@ newTileCompressor (
 
         case ZSTD_COMPRESSION:
 
-            return new ZstdCompressor (hdr, tileLineSize, numTileLines);
+            ret = new ZstdCompressor (hdr, tileLineSize, numTileLines);
+            break;
 
         default: break;
     }
