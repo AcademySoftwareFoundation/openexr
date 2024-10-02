@@ -10,7 +10,7 @@ function(OPENEXR_DEFINE_LIBRARY libname)
   cmake_parse_arguments(OPENEXR_CURLIB "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
   if (MSVC)
-    set(_openexr_extra_flags "/EHsc")
+    set(_openexr_extra_flags "/EHsc" "/MP")
   endif()
   set(objlib ${libname})
   add_library(${objlib}
