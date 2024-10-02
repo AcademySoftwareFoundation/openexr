@@ -694,7 +694,6 @@ LineBufferTask::execute ()
         char*    ptr           = _lineBuffer->sampleCountTableBuffer;
         uint64_t tableDataSize = 0;
         int      numLines      = _lineBuffer->maxY - _lineBuffer->minY + 1;
-        int      sampleCountPerLine[numLines];
         for (int i = _lineBuffer->minY; i <= _lineBuffer->maxY; i++)
         {
             int count = 0;
@@ -704,17 +703,14 @@ LineBufferTask::execute ()
                 Xdr::write<CharPtrIO> (ptr, count);
                 tableDataSize += sizeof (int);
             }
-            sampleCountPerLine[i] = count;
         }
 
         if (_lineBuffer->sampleCountTableCompressor)
         {
-            int sampleCountPerLine[1] = {0}; // signal table decompression
             _lineBuffer->sampleCountTableSize =
                 _lineBuffer->sampleCountTableCompressor->compress (
                     _lineBuffer->sampleCountTableBuffer,
                     static_cast<int> (tableDataSize),
-                    sampleCountPerLine,
                     _lineBuffer->minY,
                     _lineBuffer->sampleCountTablePtr);
         }
@@ -749,7 +745,6 @@ LineBufferTask::execute ()
             uint64_t compSize = compressor->compress (
                 _lineBuffer->dataPtr,
                 static_cast<int> (_lineBuffer->dataSize),
-                sampleCountPerLine,
                 _lineBuffer->minY,
                 compPtr);
 

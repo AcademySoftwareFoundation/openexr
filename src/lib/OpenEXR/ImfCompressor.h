@@ -143,7 +143,6 @@ public:
     virtual int compressTile (
         const char*            inPtr,
         int                    inSize,
-        const int*             sampleCountPerLine,
         IMATH_NAMESPACE::Box2i range,
         const char*&           outPtr);
 
@@ -170,7 +169,6 @@ public:
     virtual int uncompressTile (
         const char*            inPtr,
         int                    inSize,
-        const int*             sampleCountPerLine,
         IMATH_NAMESPACE::Box2i range,
         const char*&           outPtr);
 

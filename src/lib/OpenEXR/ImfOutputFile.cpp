@@ -566,14 +566,10 @@ LineBufferTask::execute ()
 
             int numPixels = _ofd->header.dataWindow ().max.x -
                             _ofd->header.dataWindow ().min.x + 1;
-            int sampleCountPerLine[compressor->numScanLines ()];
-            for (int i = 0; i < compressor->numScanLines (); ++i)
-                sampleCountPerLine[i] = numPixels;
 
             int compSize = compressor->compress (
                 _lineBuffer->dataPtr,
                 _lineBuffer->dataSize,
-                sampleCountPerLine,
                 _lineBuffer->minY,
                 compPtr);
 

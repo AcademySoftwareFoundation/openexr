@@ -942,7 +942,6 @@ TileBufferTask::execute ()
         //
 
         int      numLines = tileRange.max.y - tileRange.min.y + 1;
-        int      sampleCountPerLine[numLines];
         char*    ptr           = _tileBuffer->sampleCountTableBuffer;
         uint64_t tableDataSize = 0;
         for (int i = tileRange.min.y; i <= tileRange.max.y; i++)
@@ -955,17 +954,14 @@ TileBufferTask::execute ()
                 Xdr::write<CharPtrIO> (ptr, count);
                 tableDataSize += sizeof (int);
             }
-            sampleCountPerLine[i] = count;
         }
 
         if (_tileBuffer->sampleCountTableCompressor)
         {
-            int sampleCountPerLine[1] = {0}; // signal table decompress
             _tileBuffer->sampleCountTableSize =
                 _tileBuffer->sampleCountTableCompressor->compress (
                     _tileBuffer->sampleCountTableBuffer,
                     static_cast<int> (tableDataSize),
-                    sampleCountPerLine,
                     tileRange.min.y,
                     _tileBuffer->sampleCountTablePtr);
         }
@@ -1009,7 +1005,6 @@ TileBufferTask::execute ()
             uint64_t compSize = _tileBuffer->compressor->compressTile (
                 _tileBuffer->dataPtr,
                 static_cast<int> (_tileBuffer->dataSize),
-                sampleCountPerLine,
                 tileRange,
                 compPtr);
 

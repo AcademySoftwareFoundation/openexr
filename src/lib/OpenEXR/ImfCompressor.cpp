@@ -19,6 +19,7 @@
 #include "ImfRleCompressor.h"
 #include "ImfZipCompressor.h"
 #include "ImfZip.h"
+#include "ImfZstdCompressor.h"
 
 #include <algorithm>
 #include <stdexcept>
@@ -119,7 +120,6 @@ int
 Compressor::compressTile (
     const char*  inPtr,
     int          inSize,
-    const int*   inSampleCountPerLine,
     Box2i        range,
     const char*& outPtr)
 {
@@ -131,7 +131,6 @@ int
 Compressor::uncompressTile (
     const char*  inPtr,
     int          inSize,
-    const int*   sampleCountPerLine,
     Box2i        range,
     const char*& outPtr)
 {
@@ -345,7 +344,7 @@ newCompressor (Compression c, size_t maxScanLineSize, const Header& hdr)
 
         case ZSTD_COMPRESSION:
 
-            return new ZstdCompressor (hdr, maxScanLineSize);
+            return new ZstdCompressor (hdr, maxScanLineSize, 1);
 
         default: break;
     }

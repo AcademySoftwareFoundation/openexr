@@ -777,7 +777,6 @@ TileBufferTask::execute ()
             int compSize = _tileBuffer->compressor->compressTile (
                 _tileBuffer->dataPtr,
                 _tileBuffer->dataSize,
-                sampleCountPerLine,
                 tileRange,
                 compPtr);
 
