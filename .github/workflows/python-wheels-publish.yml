@@ -49,11 +49,11 @@ jobs:
           MACOSX_DEPLOYMENT_TARGET: 10.15
           CIBW_ARCHS_LINUX: x86_64 
           CIBW_ARCHS_MACOS: x86_64 arm64 universal2
-          # Build Python 3.7 through 3.11.
+          # Build Python 3.7 through 3.12.
           # Skip python 3.6 since scikit-build-core requires 3.7+
           # Skip 32-bit wheels builds on Windows
           # Also skip the PyPy builds, since they fail the unit tests
-          CIBW_BUILD: "cp37-* cp38-* cp39-* cp310-* cp311-*"
+          CIBW_BUILD: "cp37-* cp38-* cp39-* cp310-* cp311-* cp312-*"
           CIBW_SKIP: "*-win32 *_i686"
           CIBW_TEST_SKIP: "*arm64"
 
