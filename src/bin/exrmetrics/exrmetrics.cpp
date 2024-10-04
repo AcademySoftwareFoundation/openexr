@@ -589,7 +589,7 @@ exrmetrics (
     cout << "   \"input file size\": " << instats.st_size << ",\n";
     cout << "   \"output file size\": " << outstats.st_size << "\n";
 
-    float compressPercent =((float) outstats.st_size / (float) instats.st_size);
+    float compressPercent =((float) instats.st_size / (float) outstats.st_size);
     const auto default_precision{cout.precision ()};
     cout << "   \"compression ratio\": " << fixed << setprecision (2)
          << compressPercent << "\n";
