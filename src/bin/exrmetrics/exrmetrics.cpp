@@ -29,6 +29,7 @@
 #include <stdexcept>
 #include <vector>
 #include <sys/stat.h>
+#include <iomanip>
 
 using namespace Imf;
 using Imath::Box2i;
@@ -37,8 +38,10 @@ using std::cerr;
 using namespace std::chrono;
 using std::cout;
 using std::endl;
+using std::fixed;
 using std::list;
 using std::runtime_error;
+using std::setprecision;
 using std::string;
 using std::to_string;
 using std::vector;
@@ -585,5 +588,11 @@ exrmetrics (
     stat (outFileName, &outstats);
     cout << "   \"input file size\": " << instats.st_size << ",\n";
     cout << "   \"output file size\": " << outstats.st_size << "\n";
+
+    float compressPercent =((float) outstats.st_size / (float) instats.st_size);
+    const auto default_precision{cout.precision ()};
+    cout << "   \"compression ratio\": " << fixed << setprecision (2)
+         << compressPercent << "\n";
+    cout << setprecision (default_precision);
     cout << "}\n";
 }
