@@ -41,7 +41,7 @@ usageMessage (ostream& stream, const char* program_name, bool verbose = false)
                "  -p n          part number to copy (only one part will be written to output file)\n"
                "                default is part 0\n"
                "\n"
-               "  -l level      set DWA or ZIP compression level\n"
+               "  -l level      set DWA, ZIP or ZSTD compression level\n"
                "\n"
                "  -z x          sets the data compression method to x\n"
                "                ("

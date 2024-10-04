@@ -146,13 +146,10 @@ testReadMeta (const std::string& tempdir)
         EXR_ERR_ARGUMENT_OUT_OF_RANGE,
         exr_get_chunk_table_offset (f, -1, NULL));
     EXRCORE_TEST_RVAL_FAIL (
-        EXR_ERR_ARGUMENT_OUT_OF_RANGE,
-        exr_get_chunk_table_offset (f, 2, NULL));
+        EXR_ERR_ARGUMENT_OUT_OF_RANGE, exr_get_chunk_table_offset (f, 2, NULL));
     EXRCORE_TEST_RVAL_FAIL (
-        EXR_ERR_INVALID_ARGUMENT,
-        exr_get_chunk_table_offset (f, 0, NULL));
-    EXRCORE_TEST_RVAL (
-        exr_get_chunk_table_offset (f, 0, &cto));
+        EXR_ERR_INVALID_ARGUMENT, exr_get_chunk_table_offset (f, 0, NULL));
+    EXRCORE_TEST_RVAL (exr_get_chunk_table_offset (f, 0, &cto));
     EXRCORE_TEST (cto == 331);
 
     EXRCORE_TEST_RVAL_FAIL (
@@ -192,6 +189,12 @@ testReadMeta (const std::string& tempdir)
     EXRCORE_TEST (dlev == 45.f);
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_NOT_OPEN_WRITE, exr_set_dwa_compression_level (f, 0, 42.f));
+
+    int slev = -1;
+    EXRCORE_TEST_RVAL (exr_get_zstd_compression_level (f, 0, &slev));
+    EXRCORE_TEST (slev == 5);
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_NOT_OPEN_WRITE, exr_set_zstd_compression_level (f, 0, 5));
 
     exr_finish (&f);
 }

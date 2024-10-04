@@ -40,6 +40,7 @@ struct _exr_context_initializer_v2
     int                           max_tile_height;
     int                           zip_level;
     float                         dwa_quality;
+    int                           zstd_level;
 };
 
 #endif /* OPENEXR_BACKWARD_COMPATIBILITY_H */

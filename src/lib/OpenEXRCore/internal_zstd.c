@@ -20,14 +20,17 @@ exr_get_zstd_lines_per_chunk ()
 
 static long
 compress_ztsd_blosc_chunk (
-    char* inPtr, int inSize, int typeSize, void* outPtr, int outPtrSize)
+    char* inPtr,
+    int   inSize,
+    int   typeSize,
+    void* outPtr,
+    int   outPtrSize,
+    int   zstd_level)
 {
     blosc2_cparams cparams = BLOSC2_CPARAMS_DEFAULTS;
     cparams.typesize       = typeSize;
     // clevel 9 is about a 20% increase in compression compared to 5.
     // Decompression speed is unchanged.
-    int zstd_level;
-    exr_get_default_zstd_compression_level (&zstd_level);
     cparams.clevel    = zstd_level;
     cparams.nthreads  = 1;
     cparams.compcode  = BLOSC_ZSTD;        // Codec
@@ -89,7 +92,8 @@ exr_compress_zstd (
     int*   channelTypeSizes,
     size_t channelSizesCount,
     void*  outPtr,
-    int    outPtrSize)
+    int    outPtrSize,
+    int    zstd_level)
 {
     // FIXME: clang warns about this magicNumber:
     // warning: implicit conversion from 'long' to 'int' changes value from 956397711105 to -1379995903
@@ -150,7 +154,12 @@ exr_compress_zstd (
     for (int i = 0; i < numChunks; ++i)
     {
         long compressedChunkSize = compress_ztsd_blosc_chunk (
-            inputPointer, chunkSizes[i], chunkTypeSize[i], scratch, inSize);
+            inputPointer,
+            chunkSizes[i],
+            chunkTypeSize[i],
+            scratch,
+            inSize,
+            zstd_level);
         if (totalCompressedSize + compressedChunkSize +
                 sizeof (compressedChunkSize) >
             inSize)
@@ -323,7 +332,8 @@ exr_compress_zstd_v2 (
     const int              channelCount,       // number of channels
     const int*             channelsTypeSize,   // byte size per channel
     const int*             sampleCountPerLine, // number of samples per line
-    void*                  outPtr              // output buffer
+    void*                  outPtr,             // output buffer
+    int                    zstd_level          // compression level
 )
 {
     // case where stride > 1 and we should skip.
@@ -376,7 +386,12 @@ exr_compress_zstd_v2 (
         if (bufsSize[b] > 0)
         {
             compressedSize = compress_ztsd_blosc_chunk (
-                bufs[b], bufsSize[b], bufsDataSize[b], scratch, inSize);
+                bufs[b],
+                bufsSize[b],
+                bufsDataSize[b],
+                scratch,
+                inSize,
+                zstd_level);
             if (sampleCountPerLine[0] == 0)
                 printf ("  > table size = %d\n", (int) compressedSize);
             else
@@ -389,8 +404,8 @@ exr_compress_zstd_v2 (
                                      : (size_t) bufsSize[b];
         memcpy (outPtrPos, &outSize, sizeof (size_t));
         outPtrPos += sizeof (outSize);
-        outPtrSize +=sizeof (outSize); // need to add sizes to the output
-                                       // stream length
+        outPtrSize += sizeof (outSize); // need to add sizes to the output
+                                        // stream length
         // write buffer data if not empty
         if (outSize > 0)
         {
@@ -598,6 +613,13 @@ exr_uncompress_zstd_v2 (
 exr_result_t
 internal_exr_apply_zstd (exr_encode_pipeline_t* encode)
 {
+    // Get the compression level from the context
+    int          level = 5; // default compression level
+    exr_result_t rv;
+    rv = exr_get_zstd_compression_level (
+        encode->context, encode->part_index, &level);
+    if (rv != EXR_ERR_SUCCESS) return rv;
+
     int channelSizes[encode->channel_count];
     int channelSizesCount = encode->channel_count;
     int totalChannelSize  = 0;
@@ -624,7 +646,8 @@ internal_exr_apply_zstd (exr_encode_pipeline_t* encode)
         channelSizes,
         channelSizesCount,
         encode->compressed_buffer,
-        encode->compressed_alloc_size);
+        encode->compressed_alloc_size,
+        level);
     if (compressedSize < 0) { return EXR_ERR_UNKNOWN; }
 
     encode->compressed_bytes = compressedSize;

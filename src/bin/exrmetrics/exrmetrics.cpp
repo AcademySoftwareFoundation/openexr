@@ -35,7 +35,6 @@ using Imath::Box2i;
 
 using std::cerr;
 using namespace std::chrono;
-using std::chrono::steady_clock;
 using std::cout;
 using std::endl;
 using std::list;
@@ -43,11 +42,12 @@ using std::runtime_error;
 using std::string;
 using std::to_string;
 using std::vector;
+using std::chrono::steady_clock;
 
 double
 timing (steady_clock::time_point start, steady_clock::time_point end)
 {
-    return std::chrono::duration<double>(end-start).count();
+    return std::chrono::duration<double> (end - start).count ();
 }
 
 int
@@ -101,13 +101,13 @@ copyScanLine (InputPart& in, OutputPart& out)
     in.setFrameBuffer (buf);
     out.setFrameBuffer (buf);
 
-    steady_clock::time_point startRead = steady_clock::now();
+    steady_clock::time_point startRead = steady_clock::now ();
     in.readPixels (dw.min.y, dw.max.y);
-    steady_clock::time_point endRead = steady_clock::now();
+    steady_clock::time_point endRead = steady_clock::now ();
 
-    steady_clock::time_point startWrite = steady_clock::now();
+    steady_clock::time_point startWrite = steady_clock::now ();
     out.writePixels (height);
-    steady_clock::time_point endWrite = steady_clock::now();
+    steady_clock::time_point endWrite = steady_clock::now ();
 
     cout << "   \"read time\": " << timing (startRead, endRead) << ",\n";
     cout << "   \"write time\": " << timing (startWrite, endWrite) << ",\n";
@@ -131,8 +131,7 @@ copyTiled (TiledInputPart& in, TiledOutputPart& out)
             totalLevels = in.numXLevels () * in.numYLevels ();
             break;
         case NUM_LEVELMODES:
-        default:
-            throw runtime_error ("unknown tile mode");
+        default: throw runtime_error ("unknown tile mode");
     }
 
     vector<vector<vector<char>>> pixelData (totalLevels);
@@ -196,8 +195,8 @@ copyTiled (TiledInputPart& in, TiledOutputPart& out)
         }
     }
 
-    steady_clock::time_point startRead = steady_clock::now();
-    levelIndex        = 0;
+    steady_clock::time_point startRead = steady_clock::now ();
+    levelIndex                         = 0;
 
     for (int xLevel = 0; xLevel < in.numXLevels (); ++xLevel)
     {
@@ -218,11 +217,11 @@ copyTiled (TiledInputPart& in, TiledOutputPart& out)
         }
     }
 
-    steady_clock::time_point endRead = steady_clock::now();
+    steady_clock::time_point endRead = steady_clock::now ();
 
-    steady_clock::time_point startWrite = steady_clock::now();
-    levelIndex         = 0;
-    int tileCount      = 0;
+    steady_clock::time_point startWrite = steady_clock::now ();
+    levelIndex                          = 0;
+    int tileCount                       = 0;
 
     for (int xLevel = 0; xLevel < in.numXLevels (); ++xLevel)
     {
@@ -243,7 +242,7 @@ copyTiled (TiledInputPart& in, TiledOutputPart& out)
             }
         }
     }
-    steady_clock::time_point endWrite = steady_clock::now();
+    steady_clock::time_point endWrite = steady_clock::now ();
 
     cout << "   \"read time\": " << timing (startRead, endRead) << ",\n";
     cout << "   \"write time\": " << timing (startWrite, endWrite) << ",\n";
@@ -296,9 +295,9 @@ copyDeepScanLine (DeepScanLineInputPart& in, DeepScanLineOutputPart& out)
     in.setFrameBuffer (buffer);
     out.setFrameBuffer (buffer);
 
-    steady_clock::time_point startCountRead = steady_clock::now();
+    steady_clock::time_point startCountRead = steady_clock::now ();
     in.readPixelSampleCounts (dw.min.y, dw.max.y);
-    steady_clock::time_point endCountRead = steady_clock::now();
+    steady_clock::time_point endCountRead = steady_clock::now ();
 
     size_t totalSamples = 0;
 
@@ -326,15 +325,13 @@ copyDeepScanLine (DeepScanLineInputPart& in, DeepScanLineOutputPart& out)
         ++channelNumber;
     }
 
-    steady_clock::time_point startSampleRead = steady_clock::now();
+    steady_clock::time_point startSampleRead = steady_clock::now ();
     in.readPixels (dw.min.y, dw.max.y);
-    steady_clock::time_point endSampleRead = steady_clock::now();
+    steady_clock::time_point endSampleRead = steady_clock::now ();
 
-
-    steady_clock::time_point startWrite = steady_clock::now();
+    steady_clock::time_point startWrite = steady_clock::now ();
     out.writePixels (height);
-    steady_clock::time_point endWrite = steady_clock::now();
-
+    steady_clock::time_point endWrite = steady_clock::now ();
 
     cout << "   \"count read time\": " << timing (startCountRead, endCountRead)
          << ",\n";
@@ -405,12 +402,11 @@ copyDeepTiled (DeepTiledInputPart& in, DeepTiledOutputPart& out)
     in.setFrameBuffer (buffer);
     out.setFrameBuffer (buffer);
 
-    steady_clock::time_point startCountRead = steady_clock::now();
+    steady_clock::time_point startCountRead = steady_clock::now ();
 
     in.readPixelSampleCounts (
         0, in.numXTiles (0) - 1, 0, in.numYTiles (0) - 1, 0, 0);
-    steady_clock::time_point endCountRead = steady_clock::now();
-
+    steady_clock::time_point endCountRead = steady_clock::now ();
 
     size_t totalSamples = 0;
 
@@ -438,14 +434,13 @@ copyDeepTiled (DeepTiledInputPart& in, DeepTiledOutputPart& out)
         ++channelNumber;
     }
 
-    steady_clock::time_point startSampleRead = steady_clock::now();
+    steady_clock::time_point startSampleRead = steady_clock::now ();
     in.readTiles (0, in.numXTiles (0) - 1, 0, in.numYTiles (0) - 1, 0, 0);
-    steady_clock::time_point endSampleRead = steady_clock::now();
+    steady_clock::time_point endSampleRead = steady_clock::now ();
 
-    steady_clock::time_point startWrite = steady_clock::now();
+    steady_clock::time_point startWrite = steady_clock::now ();
     out.writeTiles (0, in.numXTiles (0) - 1, 0, in.numYTiles (0) - 1, 0, 0);
-    steady_clock::time_point endWrite = steady_clock::now();
-
+    steady_clock::time_point endWrite = steady_clock::now ();
 
     cout << "   \"count read time\": " << timing (startCountRead, endCountRead)
          << ",\n";
@@ -494,9 +489,9 @@ exrmetrics (
             case ZIPS_COMPRESSION:
                 outHeader.zipCompressionLevel () = level;
                 break;
-                //            case ZSTD_COMPRESSION :
-                //                outHeader.zstdCompressionLevel()=level;
-                //                break;
+            case ZSTD_COMPRESSION:
+                outHeader.zstdCompressionLevel () = level;
+                break;
             default:
                 throw runtime_error (
                     "-l option only works for DWAA/DWAB,ZIP/ZIPS or ZSTD compression");
@@ -534,6 +529,12 @@ exrmetrics (
     {
         cout << "   \"dwaCompressionLevel\": "
              << outHeader.dwaCompressionLevel () << ",\n";
+    }
+
+    if (compression == ZSTD_COMPRESSION)
+    {
+        cout << "   \"zstdCompressionLevel\": "
+             << outHeader.zstdCompressionLevel () << ",\n";
     }
 
     std::string type = outHeader.type ();

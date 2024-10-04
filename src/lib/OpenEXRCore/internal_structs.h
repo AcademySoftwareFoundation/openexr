@@ -99,6 +99,7 @@ struct _priv_exr_part_t
 
     int32_t zip_compression_level;
     float   dwa_compression_level;
+    int     zstd_compression_level;
 
     int32_t  num_tile_levels_x;
     int32_t  num_tile_levels_y;
@@ -181,6 +182,7 @@ struct _priv_exr_context_t
 
     int   default_zip_level;
     float default_dwa_quality;
+    int   default_zstd_level;
 
     void*                         real_user_data;
     void*                         user_data;

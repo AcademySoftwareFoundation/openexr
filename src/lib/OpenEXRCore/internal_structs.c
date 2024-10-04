@@ -230,8 +230,9 @@ internal_exr_add_part (
     part->chunk_count          = -1;
     part->lines_per_chunk      = -1;
 
-    part->zip_compression_level = f->default_zip_level;
-    part->dwa_compression_level = f->default_dwa_quality;
+    part->zip_compression_level  = f->default_zip_level;
+    part->dwa_compression_level  = f->default_dwa_quality;
+    part->zstd_compression_level = f->default_zstd_level;
 
     /* put it into the part table */
     if (ncount > 1)
@@ -382,10 +383,13 @@ internal_exr_alloc_context (
 
         exr_get_default_zip_compression_level (&ret->default_zip_level);
         exr_get_default_dwa_compression_quality (&ret->default_dwa_quality);
+        exr_get_default_zstd_compression_level (&ret->default_zstd_level);
         if (initializers->zip_level >= 0)
             ret->default_zip_level = initializers->zip_level;
         if (initializers->dwa_quality >= 0.f)
             ret->default_dwa_quality = initializers->dwa_quality;
+        if (initializers->zstd_level >= 0)
+            ret->default_zstd_level = initializers->zstd_level;
 
         if (initializers->flags & EXR_CONTEXT_FLAG_STRICT_HEADER)
             ret->strict_header = 1;
