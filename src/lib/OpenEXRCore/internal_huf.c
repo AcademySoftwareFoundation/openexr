@@ -1007,16 +1007,21 @@ readUInt (const uint8_t* b)
 // but only having a memory page for the lookup does seem marginally faster
 #define TABLE_LOOKUP_BITS 12
 //#define TABLE_LOOKUP_BITS HUF_DECBITS
+#define INDEX_BIT_SHIFT (64 - TABLE_LOOKUP_BITS)
 
 #include <inttypes.h>
 
-/* unaligned reads are UB, so attempts to work around that result in
- * slower code than just doing the simple thing */
+/* unaligned reads are UB, so can't just cast the way c++ used to
+ * (chars are special and we don't want to use those anyway) so just
+ * do the simple thing... */
+
+//#define READ64(c) __builtin_bswap64 (*(const uint64_t*) (c))
 #    define READ64(c)                                                          \
         ((uint64_t) (c)[0] << 56) | ((uint64_t) (c)[1] << 48) |                \
             ((uint64_t) (c)[2] << 40) | ((uint64_t) (c)[3] << 32) |            \
             ((uint64_t) (c)[4] << 24) | ((uint64_t) (c)[5] << 16) |            \
             ((uint64_t) (c)[6] << 8) | ((uint64_t) (c)[7])
+
 
 typedef struct FastHufDecoder
 {
@@ -1057,10 +1062,12 @@ typedef struct FastHufDecoder
     // a symbol to indicate RLE. So with a dense code book, we could
     // have 2^16+1 codes, hence 'symbol' could  be bigger than 16 bits.
     //
-    // value = (codeLen << 24) | symbol
-    // rather than storing two tables
-    uint32_t _lookupSymbol[1 << TABLE_LOOKUP_BITS];
-
+    // It is more memory efficient to store as value = (codeLen << 24)
+    // | symbol rather than storing two tables, however does seem to
+    // be measurably slower. Given this is the fast path, let's waste
+    // some RAM
+    int      _tableSymbol[1 << TABLE_LOOKUP_BITS];
+    uint8_t  _tableCodeLen[1 << TABLE_LOOKUP_BITS];
     uint64_t _tableMin;
 } FastHufDecoder;
 
@@ -1112,21 +1119,22 @@ FastHufDecoder_buildTables (
 
     for (uint64_t i = 0; i < 1 << TABLE_LOOKUP_BITS; ++i)
     {
-        uint64_t value = i << (64 - TABLE_LOOKUP_BITS);
+        uint64_t value = i << INDEX_BIT_SHIFT;
 
-        fhd->_lookupSymbol[i] = 0xffff;
+        fhd->_tableSymbol[i] = 0xffff;
+        fhd->_tableCodeLen[i] = 0;
 
         for (int codeLen = fhd->_minCodeLength; codeLen <= fhd->_maxCodeLength;
              ++codeLen)
         {
             if (fhd->_ljBase[codeLen] <= value)
             {
+                fhd->_tableCodeLen[i] = codeLen;
                 uint64_t id =
                     fhd->_ljOffset[codeLen] + (value >> (64 - codeLen));
                 if (id < (uint64_t) (fhd->_numSymbols))
                 {
-                    fhd->_lookupSymbol[i] =
-                        (fhd->_idToSymbol[id] | (codeLen << 24));
+                    fhd->_tableSymbol[i] = fhd->_idToSymbol[id];
                 }
                 else
                 {
@@ -1185,19 +1193,33 @@ FastHufDecoder_refill (
 {
     int needBits;
 
+    do
+    {
+        // shifting right by 64 on a uint64_t is a bad time...
 #if defined(__GNUC__) || defined(__clang__) || defined(__INTEL_COMPILER)
-    if (__builtin_expect ((numBits == 0), 0))
+        if (__builtin_expect ((numBits > 0), 1))
 #else
-    if (numBits == 0)
+        if (numBits > 0)
 #endif
-    {
-        *buffer = *bufferBack;
-        numBits = *bufferBackNumBits;
-        *bufferBackNumBits = 0;
-    }
+        {
+            needBits = 64 - numBits;
+            *buffer |= (*bufferBack) >> numBits;
+            if (*bufferBackNumBits >= needBits)
+            {
+                *bufferBack <<= needBits;
+                *bufferBackNumBits -= needBits;
+                break;
+            }
+            numBits += *bufferBackNumBits;
+            *bufferBackNumBits = 0;
+        }
+        else
+        {
+            *buffer = *bufferBack;
+            numBits = *bufferBackNumBits;
+            *bufferBackNumBits = 0;
+        }
 
-    while (numBits < 64)
-    {
         if (*bufferBackNumBits <= 0)
         {
 #if defined(__GNUC__) || defined(__clang__) || defined(__INTEL_COMPILER)
@@ -1237,18 +1259,7 @@ FastHufDecoder_refill (
                 }
             }
         }
-
-        needBits = 64 - numBits;
-        *buffer |= (*bufferBack) >> numBits;
-        if (*bufferBackNumBits >= needBits)
-        {
-            *bufferBack <<= needBits;
-            *bufferBackNumBits -= needBits;
-            break;
-        }
-        numBits += *bufferBackNumBits;
-        *bufferBackNumBits = 0;
-    }
+    } while (numBits < 64);
 }
 
 static inline uint64_t
@@ -1548,10 +1559,10 @@ fasthuf_decode (
     // Current position (byte/bit) in the src data stream
     // (after the first buffer fill)
     //
-    uint64_t             buffer, bufferBack, dstIdx, tMin;
-    int                  bufferNumBits, bufferBackNumBits;
-    uint32_t             rleSym;
-    const unsigned char* currByte = src + 2 * sizeof (uint64_t);
+    uint64_t       buffer, bufferBack, dstIdx, tMin;
+    int            bufferNumBits, bufferBackNumBits;
+    uint32_t       rleSym;
+    const uint8_t* currByte = src + 2 * sizeof (uint64_t);
 
     numSrcBits -= 8 * 2 * sizeof (uint64_t);
 
@@ -1575,16 +1586,7 @@ fasthuf_decode (
 
     while (dstIdx < numDstElems)
     {
-        uint32_t symbol;
-
-        FastHufDecoder_refill (
-            &buffer,
-            bufferNumBits,
-            &bufferBack,
-            &bufferBackNumBits,
-            &currByte,
-            &numSrcBits);
-        bufferNumBits = 64;
+        int symbol, codeLen;
 
         //
         // Test if we can be table accelerated. If so, directly
@@ -1598,34 +1600,26 @@ fasthuf_decode (
 
         if (tMin <= buffer)
         {
-            uint32_t combinedSymbol =
-                fhd->_lookupSymbol[buffer >> (64 - TABLE_LOOKUP_BITS)];
-
-            //
-            // For invalid codes, _tableCodeLen[] should return 0. This
-            // will cause the decoder to get stuck in the current spot
-            // until we run out of elements, then barf that the codestream
-            // is bad.  So we don't need to stick a condition like
-            //     if (codeLen > _maxCodeLength) in this inner.
-            //
-
-            symbol  = combinedSymbol & 0xffffff;
-//            uint32_t codeLen;
-//            codeLen = combinedSymbol >> 24;
-//            buffer = buffer << codeLen;
-//            bufferNumBits -= codeLen;
-
-            //
-            // Shift over bit stream, and update the bit count in the buffer
-            //
-            combinedSymbol >>= 24;
-            buffer <<= combinedSymbol;
-            bufferNumBits -= combinedSymbol;
+            int tableIdx = buffer >> INDEX_BIT_SHIFT;
+            codeLen = fhd->_tableCodeLen[tableIdx];
+            symbol  = fhd->_tableSymbol[tableIdx];
         }
         else
         {
-            uint32_t codeLen;
             uint64_t id;
+
+            if (bufferNumBits < 64)
+            {
+                FastHufDecoder_refill (
+                    &buffer,
+                    bufferNumBits,
+                    &bufferBack,
+                    &bufferBackNumBits,
+                    &currByte,
+                    &numSrcBits);
+                bufferNumBits = 64;
+            }
+
             //
             // Brute force search:
             // Find the smallest length where _ljBase[length] <= buffer
@@ -1663,13 +1657,14 @@ fasthuf_decode (
                 return EXR_ERR_CORRUPT_CHUNK;
             }
 
-            //
-            // Shift over bit stream, and update the bit count in the buffer
-            //
-
-            buffer = buffer << codeLen;
-            bufferNumBits -= codeLen;
         }
+
+        //
+        // Shift over bit stream, and update the bit count in the buffer
+        //
+
+        buffer = buffer << codeLen;
+        bufferNumBits -= codeLen;
 
         //
         // If we received a RLE symbol (_rleSymbol), then we need
@@ -1739,6 +1734,24 @@ fasthuf_decode (
         {
             dst[dstIdx] = (uint16_t) symbol;
             dstIdx++;
+        }
+
+        //
+        // refill bit stream buffer if we're below the number of
+        // bits needed for a table lookup
+        //
+
+        if (bufferNumBits < TABLE_LOOKUP_BITS)
+        {
+            FastHufDecoder_refill (
+                &buffer,
+                bufferNumBits,
+                &bufferBack,
+                &bufferBackNumBits,
+                &currByte,
+                &numSrcBits);
+
+            bufferNumBits = 64;
         }
     }
 
