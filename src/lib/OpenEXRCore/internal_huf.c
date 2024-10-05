@@ -1165,6 +1165,7 @@ FastHufDecoder_buildTables (
 }
 
 #ifndef __cplusplus
+// msvc does not seem to properly enable restrict in C compiling. /sigh
 #    ifndef _MSC_VER
 #        define NO_ALIAS restrict
 #    endif
