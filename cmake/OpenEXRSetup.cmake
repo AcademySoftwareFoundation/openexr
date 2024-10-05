@@ -42,10 +42,13 @@ option(OPENEXR_INSTALL_PKG_CONFIG "Install OpenEXR.pc file" ON)
 # Whether to enable threading. This can be disabled, although thread pool and tasks
 # are still used, just processed immediately
 option(OPENEXR_ENABLE_THREADING "Enables threaded processing of requests" ON)
-# will use TBB for the global thread pool by default
-# if you create your own additional thread pools, those will NOT use
-# TBB by default, as it can easily cause recursive mutex deadlocks
-# as TBB shares a single thread pool with multiple arenas
+# When set to ON, will change the thread pool to use TBB for the
+# global thread pool by default.
+#
+# Regardless of this setting, if you create your own additional thread
+# pools, those will NOT use TBB by default, as it can easily cause
+# recursive mutex deadlocks as TBB shares a single thread pool with
+# multiple arenas
 option(OPENEXR_USE_TBB "Switch internals of IlmThreadPool to use TBB by default" OFF)
 
 option(OPENEXR_USE_DEFAULT_VISIBILITY "Makes the compile use default visibility (by default compiles tidy, hidden-by-default)"     OFF)
