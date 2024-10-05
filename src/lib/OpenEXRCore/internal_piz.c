@@ -66,10 +66,14 @@ forwardLutFromBitmap (const uint8_t* bitmap, uint16_t* lut)
     return k - 1;
 }
 
-#ifdef __cplusplus
+#ifndef __cplusplus
+// msvc does not seem to properly enable restrict in C compiling. /sigh
+#    ifndef _MSC_VER
+#        define NO_ALIAS restrict
+#    endif
+#endif
+#ifndef NO_ALIAS
 #    define NO_ALIAS
-#else
-#    define NO_ALIAS restrict
 #endif
 
 static inline uint16_t

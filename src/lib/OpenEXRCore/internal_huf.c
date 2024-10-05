@@ -1164,10 +1164,13 @@ FastHufDecoder_buildTables (
     return EXR_ERR_SUCCESS;
 }
 
-#ifdef __cplusplus
+#ifndef __cplusplus
+#    ifndef _MSC_VER
+#        define NO_ALIAS restrict
+#    endif
+#endif
+#ifndef NO_ALIAS
 #    define NO_ALIAS
-#else
-#    define NO_ALIAS restrict
 #endif
 
 static inline void
