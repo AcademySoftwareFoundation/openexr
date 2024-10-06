@@ -36,7 +36,7 @@ testpaths = ["tests"]
 
 [tool.scikit-build]
 wheel.expand-macos-universal-tags = true
-sdist.exclude = [".github", "src/test", "src/examples", "website", "ASWF", "bazel", "share"]
+sdist.exclude = [".github", "src/examples", "ASWF", "bazel", "share"]
 
 # Only build the PyOpenEXR (cmake --build --target PyOpenEXR).
 cmake.targets = ["PyOpenEXR"]
