@@ -227,7 +227,7 @@ else()
 
   FetchContent_GetProperties(Deflate)
   if(NOT Deflate_POPULATED)
-    FetchContent_Populate(Deflate)
+    FetchContent_MakeAvailable(Deflate)
   endif()
 
   # Rather than actually compile something, just embed the sources
@@ -289,7 +289,7 @@ if(NOT TARGET Imath::Imath AND NOT Imath_FOUND)
     
   FetchContent_GetProperties(Imath)
   if(NOT Imath_POPULATED)
-    FetchContent_Populate(Imath)
+    FetchContent_MakeAvailable(Imath)
 
     # Propagate OpenEXR's install setting to Imath
     set(IMATH_INSTALL ${OPENEXR_INSTALL})
@@ -297,9 +297,6 @@ if(NOT TARGET Imath::Imath AND NOT Imath_FOUND)
     # Propagate OpenEXR's setting for pkg-config generation to Imath:
     # If OpenEXR is generating it, the internal Imath should, too.
     set(IMATH_INSTALL_PKG_CONFIG ${OPENEXR_INSTALL_PKG_CONFIG}) 
-    
-    # hrm, cmake makes Imath lowercase for the properties (to imath)
-    add_subdirectory(${imath_SOURCE_DIR} ${imath_BINARY_DIR})
   endif()
   # the install creates this but if we're using the library locally we
   # haven't installed the header files yet, so need to extract those
