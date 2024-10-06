@@ -3,6 +3,7 @@
 
 # OpenEXR Release Notes
 
+* [Version 3.3.1](#version-331-october-8-2024) October 8, 2024
 * [Version 3.3.0](#version-330-september-30-2024) September 30, 2024
 * [Version 3.2.4](#version-324-march-26-2024) March 26, 2024
 * [Version 3.2.3](#version-323-march-6-2024) March 6, 2024
@@ -75,14 +76,46 @@
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
 
-## Version 3.3.1 (October 7, 2024)
+## Version 3.3.1 (October 8, 2024)
 
-Patch release with several small fixes:
+Patch release that addresses several build and performance issues:
+
+* Fix a performance regression 3.3.0 in huf/piz compression
+* Replace ``FetchContent_Populate`` with ``FetchContent_MakeAvailable``
+* Build wheels for python 3.12
+* Fix a problem with python wheel sdist that caused local build to fail
+* Compile source files in parallel under MSVC
 
 ### Merged Pull Requests
 
- * [1851](https://github.com/AcademySoftwareFoundation/openexr/pull/1851)
- Use 64-bit values for the pointer math
+* [1868](https://github.com/AcademySoftwareFoundation/openexr/pull/1868)
+Address huf / piz performance regressions
+* [1867](https://github.com/AcademySoftwareFoundation/openexr/pull/1867)
+Fix Typo SECURITY.md
+* [1866](https://github.com/AcademySoftwareFoundation/openexr/pull/1866)
+Bump pypa/gh-action-pypi-publish from 1.10.2 to 1.10.3
+* [1865](https://github.com/AcademySoftwareFoundation/openexr/pull/1865)
+Bump github/codeql-action from 3.26.10 to 3.26.11
+* [1864](https://github.com/AcademySoftwareFoundation/openexr/pull/1864)
+Bump pypa/cibuildwheel from 2.21.1 to 2.21.2
+* [1863](https://github.com/AcademySoftwareFoundation/openexr/pull/1863)
+Use FetchContent_MakeAvailable instead of FetchContent_Populate
+* [1861](https://github.com/AcademySoftwareFoundation/openexr/pull/1861)
+CI: build wheels for Python 3.12
+* [1858](https://github.com/AcademySoftwareFoundation/openexr/pull/1858)
+Build: compile source files in parallel under MSVC
+* [1857](https://github.com/AcademySoftwareFoundation/openexr/pull/1857)
+Don't exclude src/test and website from sdist
+* [1856](https://github.com/AcademySoftwareFoundation/openexr/pull/1856)
+Bazel support: Switch to Imath 3.1.12
+* [1854](https://github.com/AcademySoftwareFoundation/openexr/pull/1854)
+Bump github/codeql-action from 3.26.9 to 3.26.10
+* [1851](https://github.com/AcademySoftwareFoundation/openexr/pull/1851)
+Use 64-bit values for the pointer math
+* [1848](https://github.com/AcademySoftwareFoundation/openexr/pull/1848)
+Bump version/soversion on main branch
+* [1780](https://github.com/AcademySoftwareFoundation/openexr/pull/1780)
+First draft of website documentation for python bindings
 
 ## Version 3.3.0 (September 30, 2024)
 
