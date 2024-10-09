@@ -13,10 +13,25 @@ News
 .. toctree::
    :caption: News
 
+October  8, 2024 - OpenEXR 3.3.1 Released
+=========================================
+
+.. _LatestNewsStart:
+
+Patch release that addresses several build and performance issues:
+
+* Fix a performance regression 3.3.0 in huf/piz compression
+* Replace ``FetchContent_Populate`` with ``FetchContent_MakeAvailable``
+* Build wheels for python 3.12
+* Fix a problem with python wheel sdist that caused local build to fail
+* Compile source files in parallel under MSVC
+
+.. _LatestNewsEnd:
+
+
 September 30, 2024 - OpenEXR v3.3.0 Released
 ============================================
 
-.. _LatestNewsStart:
 
 Minor release several significant changes:
 
@@ -89,7 +104,6 @@ Minor release several significant changes:
   <https://github.com/AcademySoftwareFoundation/openexr/blob/v3.3.0-rc1/src/wrappers/python/README.md>`_
   for a synopsis.
 
-.. _LatestNewsEnd:
 
 September 9, 2024 - Imath v3.1.12 Released
 ==========================================
