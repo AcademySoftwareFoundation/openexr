@@ -13,8 +13,10 @@ News
 .. toctree::
    :caption: News
 
-October  8, 2024 - OpenEXR 3.3.1 Released
-=========================================
+.. include:: latest_news_title.rst
+
+|latest-news-title|
+========================================
 
 .. _LatestNewsStart:
 

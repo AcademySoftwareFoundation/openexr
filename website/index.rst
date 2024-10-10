@@ -34,6 +34,7 @@ compositing, deep compositing, and DI.
 OpenEXR is a project of the `Academy Software Foundation
 <https://www.aswf.io>`_.
 
+.. include:: latest_news_title.rst
 
 Latest News
 ===========
@@ -42,6 +43,8 @@ Latest News
    :width: 50
    :height: 50
    :align: left
+
+|latest-news-title|
 
 .. highlights::
 
