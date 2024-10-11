@@ -174,7 +174,7 @@ endif()
 
 option(OPENEXR_FORCE_INTERNAL_DEFLATE "Force using an internal libdeflate" OFF)
 set(OPENEXR_DEFLATE_REPO "https://github.com/ebiggers/libdeflate.git" CACHE STRING "Repo path for libdeflate source")
-set(OPENEXR_DEFLATE_TAG "v1.18" CACHE STRING "Tag to use for libdeflate source repo (defaults to primary if empty)")
+set(OPENEXR_DEFLATE_TAG "master" CACHE STRING "Tag to use for libdeflate source repo (defaults to primary if empty)")
 
 if(NOT OPENEXR_FORCE_INTERNAL_DEFLATE)
   #TODO: ^^ Release should not clone from main, this is a place holder
