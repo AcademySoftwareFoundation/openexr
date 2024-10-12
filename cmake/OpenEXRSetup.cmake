@@ -226,7 +226,7 @@ else()
     )
 
   FetchContent_GetProperties(Deflate)
-  if(NOT Deflate_POPULATED)
+  if(NOT deflate_POPULATED)
     FetchContent_MakeAvailable(Deflate)
   endif()
 
