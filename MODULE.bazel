@@ -7,6 +7,26 @@ module(
 )
 
 bazel_dep(name = "bazel_skylib", version = "1.7.1")
-bazel_dep(name = "imath", version = "3.1.12")
-bazel_dep(name = "libdeflate", version = "1.21")
+bazel_dep(name = "imath")
+bazel_dep(name = "libdeflate")
 bazel_dep(name = "platforms", version = "0.0.10")
+
+archive_override(
+    module_name = "imath",
+    patches = [
+        "//bazel:imath_add_build_file.patch",
+        "//bazel:imath_module_dot_bazel.patch",
+    ],
+    strip_prefix = "Imath-main",
+    urls = ["https://github.com/AcademySoftwareFoundation/Imath/archive/refs/heads/main.zip"],
+)
+
+archive_override(
+    module_name = "libdeflate",
+    patches = [
+        "//bazel:libdeflate_add_build_file.patch",
+        "//bazel:libdeflate_module_dot_bazel.patch",
+    ],
+    strip_prefix = "libdeflate-master",
+    urls = ["https://github.com/ebiggers/libdeflate/archive/refs/heads/master.zip"],
+)
