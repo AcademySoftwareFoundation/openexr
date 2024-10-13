@@ -1,0 +1,7 @@
+--- MODULE.bazel
++++ MODULE.bazel
+@@ -0,0 +1,4 @@
++module(
++    name = "libdeflate",
++    compatibility_level = 1,
++)
