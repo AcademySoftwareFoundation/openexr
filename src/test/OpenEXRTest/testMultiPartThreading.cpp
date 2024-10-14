@@ -620,17 +620,19 @@ generateRandomFile (int partCount, const std::string& fn)
     //
     // Writing tasks.
     //
-    TaskGroup                taskGroup;
     ThreadPool*              threadPool = new ThreadPool (32);
-    vector<WritingTaskData*> list;
-    for (int i = 0; i < taskListSize; i++)
     {
-        list.push_back (&taskList[i]);
-        if (i % 10 == 0 || i == taskListSize - 1)
+        TaskGroup                taskGroup;
+        vector<WritingTaskData*> list;
+        for (int i = 0; i < taskListSize; i++)
         {
-            threadPool->addTask (
-                (new WritingTask (&taskGroup, &file, list, tiledFrameBuffers)));
-            list.clear ();
+            list.push_back (&taskList[i]);
+            if (i % 10 == 0 || i == taskListSize - 1)
+            {
+                threadPool->addTask (
+                    (new WritingTask (&taskGroup, &file, list, tiledFrameBuffers)));
+                list.clear ();
+            }
         }
     }
 
