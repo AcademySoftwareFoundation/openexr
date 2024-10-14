@@ -420,6 +420,11 @@ writeRead (
                     assert (array1.h[y][x].bits () == array2.h[y][x].bits ());
                     for (int c = 0; c < 4; ++c)
                     {
+                        if (array1.rgba[c][y][x].bits () != array2.rgba[c][y][x].bits () )
+                        {
+                            cout << "\nmismatch detected with comp=" << comp << " c=" << 
+                                c << " y=" << y << " x=" << x << "\n" << flush;
+                        }
                         assert (
                             array1.rgba[c][y][x].bits () ==
                             array2.rgba[c][y][x].bits ());
