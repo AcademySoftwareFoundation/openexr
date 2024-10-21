@@ -52,6 +52,7 @@
 #include "testPartHelper.h"
 #include "testPreviewImage.h"
 #include "testRgba.h"
+#include "testCRgba.h"
 #include "testRgbaThreading.h"
 #include "testRle.h"
 #include "testSampleImages.h"
@@ -180,6 +181,7 @@ main (int argc, char* argv[])
     TEST (testHuf, "core");
     TEST (testWav, "core");
     TEST (testRgba, "basic");
+    TEST (testCRgba, "basic");
     TEST (testLargeDataWindowOffsets, "basic");
     TEST (testSharedFrameBuffer, "basic");
     TEST (testRgbaThreading, "basic");
