@@ -482,7 +482,7 @@ exrmetrics (
     }
     else { compression = outHeader.compression (); }
 
-    if (!isinf (level) && level >= -1)
+    if (!std::isinf (level) && level >= -1)
     {
         switch (outHeader.compression ())
         {
