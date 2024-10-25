@@ -523,13 +523,14 @@ readWriteTest (
 
     for (int i = 0; i < testTimes; i++)
     {
-        int         compressionIndex = i % 3;
+        int         compressionIndex = i % 4;
         Compression compression;
         switch (compressionIndex)
         {
             case 0: compression = NO_COMPRESSION; break;
             case 1: compression = RLE_COMPRESSION; break;
             case 2: compression = ZIPS_COMPRESSION; break;
+            case 3: compression = ZSTD_COMPRESSION; break;
         }
 
         generateRandomFile (
@@ -569,6 +570,8 @@ testCompressionTypeChecks ()
     h.compression () = ZIPS_COMPRESSION;
     h.sanityCheck ();
     h.compression () = RLE_COMPRESSION;
+    h.sanityCheck ();
+    h.compression () = ZSTD_COMPRESSION;
     h.sanityCheck ();
 
     cout << "accepted valid compression types\n";
@@ -676,7 +679,7 @@ testDeepScanLineBasic (const std::string& tempDir)
                 large::minX + large::width * 2,
                 large::minY + large::height * 2));
 
-        readWriteTest (tempDir, 1, 3, largeDataWindow, largeDisplayWindow);
+        readWriteTest (tempDir, 1, 4, largeDataWindow, largeDisplayWindow);
 
         const Box2i dataWindow (
             V2i (small::minX, small::minY),
