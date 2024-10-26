@@ -150,7 +150,7 @@ exr_test_file_header (
     exr_context_t             ret   = NULL;
     exr_context_initializer_t inits = fill_context_data (ctxtdata);
 
-    if (filename && filename[0] != '\0')
+    if (filename)
     {
         rv = internal_exr_alloc_context (
             &ret,
@@ -244,7 +244,7 @@ exr_start_read (
         return EXR_ERR_INVALID_ARGUMENT;
     }
 
-    if (filename && filename[0] != '\0')
+    if (filename)
     {
         rv = internal_exr_alloc_context (
             &ret,
@@ -311,7 +311,7 @@ exr_start_write (
         return EXR_ERR_INVALID_ARGUMENT;
     }
 
-    if (filename && filename[0] != '\0')
+    if (filename)
     {
         rv = internal_exr_alloc_context (
             &ret,

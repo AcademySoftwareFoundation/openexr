@@ -239,6 +239,29 @@ MMIFStream::readMemoryMapped (int n)
     return retVal;
 }
 
+class PassThruIFStream : public OPENEXR_IMF_NAMESPACE::IStream
+{
+public:
+    //-------------------------------------------------------
+    // A constructor that opens the file with the given name.
+    //-------------------------------------------------------
+
+    PassThruIFStream (MMIFStream &s) : IStream(""), _s (s) {}
+
+    virtual ~PassThruIFStream () {}
+
+    virtual bool isMemoryMapped () const { return _s.isMemoryMapped (); }
+
+    virtual bool     read (char c[/*n*/], int n) { return _s.read (c, n); }
+    virtual char*    readMemoryMapped (int n) { return _s.readMemoryMapped (n); }
+    virtual uint64_t tellg () { return _s.tellg (); }
+    virtual void     seekg (uint64_t pos) { _s.seekg (pos); }
+    virtual void     clear () { _s.clear (); }
+
+private:
+    MMIFStream &_s;
+};
+
 void
 writeReadScanLines (
     const char           fileName[],
@@ -318,6 +341,39 @@ writeReadScanLines (
         cout << ", reading (memory-mapped)";
         MMIFStream    ifs (fileName);
         RgbaInputFile in (ifs);
+
+        const Box2i& dw = in.dataWindow ();
+        int          w  = dw.max.x - dw.min.x + 1;
+        int          h  = dw.max.y - dw.min.y + 1;
+        int          dx = dw.min.x;
+        int          dy = dw.min.y;
+
+        Array2D<Rgba> p2 (h, w);
+        in.setFrameBuffer (&p2[-dy][-dx], 1, w);
+        in.readPixels (dw.min.y, dw.max.y);
+
+        if (!isLossyCompression (compression))
+        {
+            cout << ", comparing";
+            for (int y = 0; y < h; ++y)
+            {
+                for (int x = 0; x < w; ++x)
+                {
+                    assert (p2[y][x].r == p1[y][x].r);
+                    assert (p2[y][x].g == p1[y][x].g);
+                    assert (p2[y][x].b == p1[y][x].b);
+                    assert (p2[y][x].a == p1[y][x].a);
+                }
+            }
+        }
+    }
+
+    {
+        cout << ", reading (memory-mapped, passthru)";
+        MMIFStream       ifs (fileName);
+        PassThruIFStream pfs (ifs);
+
+        RgbaInputFile in (pfs);
 
         const Box2i& dw = in.dataWindow ();
         int          w  = dw.max.x - dw.min.x + 1;
