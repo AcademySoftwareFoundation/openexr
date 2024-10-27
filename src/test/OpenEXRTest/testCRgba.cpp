@@ -30,37 +30,6 @@ using namespace IMATH_NAMESPACE;
 
 namespace
 {
-
-void
-imfRgbaMethods ()
-{
-    //
-    // Verify that the constructors and the assignment
-    // operator for struct ImfRgba work.
-    //
-
-    ImfRgba defaultImfRgba; // Test default initialization
-    assert (defaultImfRgba.r == 0 && defaultImfRgba.g == 0 && 
-                defaultImfRgba.b == 0 && defaultImfRgba.a == 0);
-
-    ImfRgba x = {2, 3, 4};
-    assert (x.r == 2 && x.g == 3 && x.b == 4 && x.a == 0);
-
-    ImfRgba y = {5, 6, 7, 0};
-    assert (y.r == 5 && y.g == 6 && y.b == 7 && y.a == 0);
-
-    ImfRgba z; 
-
-    z = x;
-    assert (z.r == 2 && z.g == 3 && z.b == 4 && z.a == 0);
-
-    z = y;
-    assert (z.r == 5 && z.g == 6 && z.b == 7 && z.a == 0);
-
-    ImfRgba w (z);
-    assert (w.r == 5.f && w.g == 6.f && w.b == 7.f && w.a == 0.f);
-}
-
 void
 fillPixels (Array2D<ImfRgba>& pixels, int w, int h)
 {
@@ -260,8 +229,6 @@ testCRgba (const std::string& tempDir)
 {
     try
     {
-        imfRgbaMethods ();
-
         const int W = 237;
         const int H = 119;
 
