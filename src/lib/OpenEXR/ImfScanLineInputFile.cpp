@@ -102,6 +102,27 @@ struct ScanLineInputFile::Data
 
     void readPixels (const FrameBuffer &fb, int scanLine1, int scanLine2);
 
+    // only keep a single stash of a scanline for things which
+    // are reading one-scanline at a time. if we try to keep a
+    // multi-threaded stash of scanlines, memory grows too rapidly
+    std::unique_ptr<ScanLineProcess> singleScan;
+    std::unique_ptr<ScanLineProcess> checkoutScan ()
+    {
+#if ILMTHREAD_THREADING_ENABLED
+        std::lock_guard<std::mutex> lock (_mx);
+#endif
+        if (singleScan)
+            return std::move (singleScan);
+        return std::make_unique<ScanLineProcess> ();
+    }
+    void checkinScan (std::unique_ptr<ScanLineProcess> &sp)
+    {
+#if ILMTHREAD_THREADING_ENABLED
+        std::lock_guard<std::mutex> lock (_mx);
+#endif
+        singleScan = std::move (sp);
+    }
+
     FrameBuffer frameBuffer;
     std::vector<Slice> fill_list;
 
@@ -451,7 +472,7 @@ void ScanLineInputFile::Data::readPixels (
     else
 #endif
     {
-        ScanLineProcess sp;
+        std::unique_ptr<ScanLineProcess> sp = checkoutScan ();
 
         for (int y = scanLine1; y <= scanLine2; )
         {
@@ -461,10 +482,10 @@ void ScanLineInputFile::Data::readPixels (
             // check if we have the same chunk where we can just
             // re-run the unpack (i.e. people reading 1 scan at a time
             // in a multi-scanline chunk)
-            if (!sp.first && sp.cinfo.idx == cinfo.idx &&
-                sp.last_decode_err == EXR_ERR_SUCCESS)
+            if (!sp->first && sp->cinfo.idx == cinfo.idx &&
+                sp->last_decode_err == EXR_ERR_SUCCESS)
             {
-                sp.run_unpack (
+                sp->run_unpack (
                     *_ctxt,
                     partNumber,
                     &fb,
@@ -474,8 +495,8 @@ void ScanLineInputFile::Data::readPixels (
             }
             else
             {
-                sp.cinfo = cinfo;
-                sp.run_decode (
+                sp->cinfo = cinfo;
+                sp->run_decode (
                     *_ctxt,
                     partNumber,
                     &fb,
@@ -486,6 +507,8 @@ void ScanLineInputFile::Data::readPixels (
 
             y += scansperchunk - (y - cinfo.start_y);
         }
+
+        checkinScan (sp);
     }
 }
 
