@@ -219,15 +219,37 @@ else()
     message(STATUS "libdeflate was not found, installing from ${OPENEXR_DEFLATE_REPO} (${OPENEXR_DEFLATE_TAG})")
   endif()
   include(FetchContent)
+  # Fetch deflate but exclude it from the "all" target.
+  # This prevents the library from being built.
   FetchContent_Declare(Deflate
     GIT_REPOSITORY "${OPENEXR_DEFLATE_REPO}"
     GIT_TAG "${OPENEXR_DEFLATE_TAG}"
     GIT_SHALLOW ON
+    EXCLUDE_FROM_ALL
     )
 
   FetchContent_GetProperties(Deflate)
-  if(NOT Deflate_POPULATED)
-    FetchContent_MakeAvailable(Deflate)
+  if(NOT deflate_POPULATED)
+    if(CMAKE_VERSION VERSION_LESS "3.30")
+      # CMake 3.30 deprecated this single argument version of
+      # FetchContent_Populate():
+      #   https://cmake.org/cmake/help/latest/policy/CMP0169.html
+      # Prior to CMake 3.28, passing the EXCLUDE_FROM_ALL option to
+      # FetchContent_Declare() does *not* have the desired effect of
+      # excluding the fetched content from the build when
+      # FetchContent_MakeAvailable() is called.
+      # Ideally we could "manually" set the EXCLUDE_FROM_ALL property on the
+      # deflate SOURCE_DIR and BINARY_DIR, but a bug that was only fixed as of
+      # CMake 3.20.3 prevents that from properly excluding the directories:
+      #   https://gitlab.kitware.com/cmake/cmake/-/issues/22234
+      # To support the full range of CMake versions without overly
+      # complicating the logic here with workarounds, we continue to use
+      # Populate for CMake versions before 3.30, and switch to MakeAvailable
+      # for CMake 3.30 and later.
+      FetchContent_Populate(Deflate)
+    else()
+      FetchContent_MakeAvailable(Deflate)
+    endif()
   endif()
 
   # Rather than actually compile something, just embed the sources
