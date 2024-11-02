@@ -1067,6 +1067,21 @@ exr_read_scanline_chunk_info (
         cinfo->packed_size              = (uint64_t) ddata[1];
         cinfo->unpacked_size            = (uint64_t) ddata[2];
 
+        /*
+         * uncompressed reads don't have same checks as compressed, so
+         * pre-check that the data is of a valid size
+         */
+        chunkmin = ((uint64_t)cinfo->width * (uint64_t)cinfo->height) * sizeof(int32_t);
+        if (part->comp_type == EXR_COMPRESSION_NONE &&
+            cinfo->sample_count_table_size != chunkmin)
+        {
+            return ctxt->print_error (
+                ctxt,
+                EXR_ERR_BAD_CHUNK_LEADER,
+                "Invalid deep sample count size, must be one entry per pixel: found %" PRIu64 " expected %" PRIu64,
+                cinfo->sample_count_table_size, chunkmin);
+        }
+
         if (fsize > 0 &&
             ((cinfo->sample_count_data_offset +
               cinfo->sample_count_table_size) > ((uint64_t) fsize) ||
@@ -1369,7 +1384,15 @@ exr_read_tile_chunk_info (
         if (rv != EXR_ERR_SUCCESS) { return rv; }
         priv_to_native64 (ddata, 3);
 
-        if (ddata[0] < 0 || (ddata[0] == 0 && (ddata[1] != 0 || ddata[2] != 0)))
+        /*
+         * because of smaller tiles than base tile size, sample table
+         * may be smaller than normal tile size, just check that it is
+         * at least a multiple of int32_t
+         */
+        if (ddata[0] < 0 ||
+            (part->comp_type == EXR_COMPRESSION_NONE &&
+             0 != (ddata[0] % sizeof(int32_t))) ||
+            (ddata[0] == 0 && (ddata[1] != 0 || ddata[2] != 0)))
         {
             return ctxt->print_error (
                 ctxt,
