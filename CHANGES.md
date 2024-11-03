@@ -3,6 +3,7 @@
 
 # OpenEXR Release Notes
 
+* [Version 3.3.2](#version-332-november-8-2024) November 8, 2024
 * [Version 3.3.1](#version-331-october-8-2024) October 8, 2024
 * [Version 3.3.0](#version-330-september-30-2024) September 30, 2024
 * [Version 3.2.4](#version-324-march-26-2024) March 26, 2024
@@ -75,6 +76,65 @@
 * [Version 1.0.2](#version-102)
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
+
+## Version 3.3.2 (November 8, 2024)
+
+Patch release that fixes several bugs and build issues:
+
+* A recent change to CMake had the unintended consequence of
+  installing headers and libraries from `libdeflate` when doing an
+  internal build. This is now fixed.
+* Add thread control to `exrmetrics` tool
+* Reintroduce single cache for successive scanline reads
+* Allow empty filename when providing a custom stream
+* Handle non-seekable stream in python module's `InputFile` object
+
+This release fixes:
+
+* OSS-fuzz [372524117](https://issues.oss-fuzz.com/issues/372524117)
+Null-dereference WRITE in Imf_3_4::ScanLineProcess::run_fill
+
+### Merged Pull Requests
+
+* [1907](https://github.com/AcademySoftwareFoundation/openexr/pull/1907)
+Handle non-seekable stream
+* [1905](https://github.com/AcademySoftwareFoundation/openexr/pull/1905)
+check for invalid uncompressed chunk sample count
+* [1904](https://github.com/AcademySoftwareFoundation/openexr/pull/1904)
+Add thread control to exrmetrics
+* [1880](https://github.com/AcademySoftwareFoundation/openexr/pull/1880)
+CMake: use EXCLUDE_FROM_ALL when declaring Fetch for deflate library
+* [1899](https://github.com/AcademySoftwareFoundation/openexr/pull/1899)
+Reintroduce single cache for successive scanline reads
+* [1890](https://github.com/AcademySoftwareFoundation/openexr/pull/1890)
+Added tests for ImfCRgbaFile
+* [1903](https://github.com/AcademySoftwareFoundation/openexr/pull/1903)
+Bump pypa/gh-action-pypi-publish from 1.10.3 to 1.11.0
+* [1898](https://github.com/AcademySoftwareFoundation/openexr/pull/1898)
+Allow empty file name
+* [1896](https://github.com/AcademySoftwareFoundation/openexr/pull/1896)
+Bump actions/setup-python from 5.2.0 to 5.3.0
+* [1892](https://github.com/AcademySoftwareFoundation/openexr/pull/1892)
+Bump actions/cache from 4.1.1 to 4.1.2
+* [1891](https://github.com/AcademySoftwareFoundation/openexr/pull/1891)
+Bump github/codeql-action from 3.26.13 to 3.27.0
+* [1886](https://github.com/AcademySoftwareFoundation/openexr/pull/1886)
+Bump github/codeql-action from 3.26.12 to 3.26.13
+* [1884](https://github.com/AcademySoftwareFoundation/openexr/pull/1884)
+Add manpage for exrmetrics
+* [1885](https://github.com/AcademySoftwareFoundation/openexr/pull/1885)
+Bump jmertic/slack-release-notifier
+* [1876](https://github.com/AcademySoftwareFoundation/openexr/pull/1876)
+news update for v3.3.1
+* [1878](https://github.com/AcademySoftwareFoundation/openexr/pull/1878)
+Bump actions/upload-artifact from 4.4.0 to 4.4.3
+* [1877](https://github.com/AcademySoftwareFoundation/openexr/pull/1877)
+Bump pypa/cibuildwheel from 2.21.2 to 2.21.3
+* [1874](https://github.com/AcademySoftwareFoundation/openexr/pull/1874)
+Bump actions/cache from 4.0.2 to 4.1.1
+* [1872](https://github.com/AcademySoftwareFoundation/openexr/pull/1872)
+Bump github/codeql-action from 3.26.11 to 3.26.12
+
 
 ## Version 3.3.1 (October 8, 2024)
 
