@@ -3,6 +3,8 @@
 
 # OpenEXR Release Notes
 
+* [Version 3.3.2](#version-332-november-8-2024) November 8, 2024
+* [Version 3.3.1](#version-331-october-8-2024) October 8, 2024
 * [Version 3.3.0](#version-330-september-30-2024) September 30, 2024
 * [Version 3.2.4](#version-324-march-26-2024) March 26, 2024
 * [Version 3.2.3](#version-323-march-6-2024) March 6, 2024
@@ -74,6 +76,106 @@
 * [Version 1.0.2](#version-102)
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
+
+## Version 3.3.2 (November 8, 2024)
+
+Patch release that fixes several bugs and build issues:
+
+* A recent change to CMake had the unintended consequence of
+  installing headers and libraries from `libdeflate` when doing an
+  internal build. This is now fixed.
+* Add thread control to `exrmetrics` tool
+* Reintroduce single cache for successive scanline reads
+* Allow empty filename when providing a custom stream
+* Handle non-seekable stream in python module's `InputFile` object
+
+This release fixes:
+
+* OSS-fuzz [372524117](https://issues.oss-fuzz.com/issues/372524117)
+Null-dereference WRITE in Imf_3_4::ScanLineProcess::run_fill
+
+### Merged Pull Requests
+
+* [1907](https://github.com/AcademySoftwareFoundation/openexr/pull/1907)
+Handle non-seekable stream
+* [1905](https://github.com/AcademySoftwareFoundation/openexr/pull/1905)
+check for invalid uncompressed chunk sample count
+* [1904](https://github.com/AcademySoftwareFoundation/openexr/pull/1904)
+Add thread control to exrmetrics
+* [1880](https://github.com/AcademySoftwareFoundation/openexr/pull/1880)
+CMake: use EXCLUDE_FROM_ALL when declaring Fetch for deflate library
+* [1899](https://github.com/AcademySoftwareFoundation/openexr/pull/1899)
+Reintroduce single cache for successive scanline reads
+* [1890](https://github.com/AcademySoftwareFoundation/openexr/pull/1890)
+Added tests for ImfCRgbaFile
+* [1903](https://github.com/AcademySoftwareFoundation/openexr/pull/1903)
+Bump pypa/gh-action-pypi-publish from 1.10.3 to 1.11.0
+* [1898](https://github.com/AcademySoftwareFoundation/openexr/pull/1898)
+Allow empty file name
+* [1896](https://github.com/AcademySoftwareFoundation/openexr/pull/1896)
+Bump actions/setup-python from 5.2.0 to 5.3.0
+* [1892](https://github.com/AcademySoftwareFoundation/openexr/pull/1892)
+Bump actions/cache from 4.1.1 to 4.1.2
+* [1891](https://github.com/AcademySoftwareFoundation/openexr/pull/1891)
+Bump github/codeql-action from 3.26.13 to 3.27.0
+* [1886](https://github.com/AcademySoftwareFoundation/openexr/pull/1886)
+Bump github/codeql-action from 3.26.12 to 3.26.13
+* [1884](https://github.com/AcademySoftwareFoundation/openexr/pull/1884)
+Add manpage for exrmetrics
+* [1885](https://github.com/AcademySoftwareFoundation/openexr/pull/1885)
+Bump jmertic/slack-release-notifier
+* [1876](https://github.com/AcademySoftwareFoundation/openexr/pull/1876)
+news update for v3.3.1
+* [1878](https://github.com/AcademySoftwareFoundation/openexr/pull/1878)
+Bump actions/upload-artifact from 4.4.0 to 4.4.3
+* [1877](https://github.com/AcademySoftwareFoundation/openexr/pull/1877)
+Bump pypa/cibuildwheel from 2.21.2 to 2.21.3
+* [1874](https://github.com/AcademySoftwareFoundation/openexr/pull/1874)
+Bump actions/cache from 4.0.2 to 4.1.1
+* [1872](https://github.com/AcademySoftwareFoundation/openexr/pull/1872)
+Bump github/codeql-action from 3.26.11 to 3.26.12
+
+
+## Version 3.3.1 (October 8, 2024)
+
+Patch release that addresses several build and performance issues:
+
+* Fix a performance regression 3.3.0 in huf/piz compression
+* Replace ``FetchContent_Populate`` with ``FetchContent_MakeAvailable``
+* Build wheels for python 3.12
+* Fix a problem with python wheel sdist that caused local build to fail
+* Compile source files in parallel under MSVC
+
+### Merged Pull Requests
+
+* [1868](https://github.com/AcademySoftwareFoundation/openexr/pull/1868)
+Address huf / piz performance regressions
+* [1867](https://github.com/AcademySoftwareFoundation/openexr/pull/1867)
+Fix Typo SECURITY.md
+* [1866](https://github.com/AcademySoftwareFoundation/openexr/pull/1866)
+Bump pypa/gh-action-pypi-publish from 1.10.2 to 1.10.3
+* [1865](https://github.com/AcademySoftwareFoundation/openexr/pull/1865)
+Bump github/codeql-action from 3.26.10 to 3.26.11
+* [1864](https://github.com/AcademySoftwareFoundation/openexr/pull/1864)
+Bump pypa/cibuildwheel from 2.21.1 to 2.21.2
+* [1863](https://github.com/AcademySoftwareFoundation/openexr/pull/1863)
+Use FetchContent_MakeAvailable instead of FetchContent_Populate
+* [1861](https://github.com/AcademySoftwareFoundation/openexr/pull/1861)
+CI: build wheels for Python 3.12
+* [1858](https://github.com/AcademySoftwareFoundation/openexr/pull/1858)
+Build: compile source files in parallel under MSVC
+* [1857](https://github.com/AcademySoftwareFoundation/openexr/pull/1857)
+Don't exclude src/test and website from sdist
+* [1856](https://github.com/AcademySoftwareFoundation/openexr/pull/1856)
+Bazel support: Switch to Imath 3.1.12
+* [1854](https://github.com/AcademySoftwareFoundation/openexr/pull/1854)
+Bump github/codeql-action from 3.26.9 to 3.26.10
+* [1851](https://github.com/AcademySoftwareFoundation/openexr/pull/1851)
+Use 64-bit values for the pointer math
+* [1848](https://github.com/AcademySoftwareFoundation/openexr/pull/1848)
+Bump version/soversion on main branch
+* [1780](https://github.com/AcademySoftwareFoundation/openexr/pull/1780)
+First draft of website documentation for python bindings
 
 ## Version 3.3.0 (September 30, 2024)
 
