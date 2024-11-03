@@ -147,20 +147,59 @@ split (const std::string& str, const char sep)
 class C_IStream : public IStream
 {
 public:
-    C_IStream (PyObject* fo) : IStream (""), _fo (fo) {}
+    C_IStream (PyObject* fo)
+        : IStream ("<Python Stream>")
+        , _fo (fo)
+        , _stream_pos (0)
+    {
+        if (! PyObject_IsTrue (
+                PyObject_CallMethod (
+                    _fo, (char*) "seekable", NULL)))
+        {
+            PyObject *data = PyObject_CallMethod (
+                _fo, (char*) "getvalue", NULL);
+            if (data)
+            {
+                char *b = NULL;
+                Py_ssize_t len = 0;
+                if (PyBytes_AsStringAndSize (data, &b, &len) == -1)
+                {
+                    Py_XDECREF (data);
+                    throw IEX_NAMESPACE::InputExc ("unable to access bytes");
+                }
+
+                if (len > 0)
+                    _stream_cache.insert (_stream_cache.begin (), b, b + len);
+                Py_DECREF (data);
+            }
+        }
+    }
     virtual bool        read (char c[], int n);
     virtual Int64       tellg ();
     virtual void        seekg (Int64 pos);
     virtual void        clear ();
-    virtual const char* fileName () const;
 
 private:
     PyObject* _fo;
+    std::vector<uint8_t> _stream_cache;
+    size_t _stream_pos;
 };
 
 bool
 C_IStream::read (char c[], int n)
 {
+    if (!_stream_cache.empty())
+    {
+        size_t bend = std::min (_stream_pos + n, _stream_cache.size ());
+        size_t ncopy = bend - _stream_pos;
+        if (ncopy)
+            memcpy (c, _stream_cache.data () + _stream_pos, ncopy);
+        _stream_pos = bend;
+        if (ncopy != n)
+            throw IEX_NAMESPACE::InputExc ("not enough data");
+        return true;
+    }
+
     PyObject* data =
         PyObject_CallMethod (_fo, (char*) "read", (char*) "(i)", n);
     if (data != NULL && PyString_AsString (data) &&
@@ -169,19 +208,20 @@ C_IStream::read (char c[], int n)
         memcpy (c, PyString_AsString (data), PyString_Size (data));
         Py_DECREF (data);
     }
-    else { throw IEX_NAMESPACE::InputExc ("file read failed"); }
-    return 0;
-}
-
-const char*
-C_IStream::fileName () const
-{
-    return "xxx";
+    else
+    {
+        Py_XDECREF (data);
+        throw IEX_NAMESPACE::InputExc ("file read failed");
+    }
+    return true;
 }
 
 Int64
 C_IStream::tellg ()
 {
+    if (!_stream_cache.empty())
+        return (Int64) _stream_pos;
+
     PyObject* rv = PyObject_CallMethod (_fo, (char*) "tell", NULL);
     if (rv != NULL && PyNumber_Check (rv))
     {
@@ -197,6 +237,12 @@ C_IStream::tellg ()
 void
 C_IStream::seekg (Int64 pos)
 {
+    if (!_stream_cache.empty ())
+    {
+        _stream_pos = std::min ((Int64)_stream_cache.size (), std::max (Int64(0), pos));
+        return;
+    }
+
     PyObject* data =
         PyObject_CallMethod (_fo, (char*) "seek", (char*) "(L)", pos);
     if (data != NULL) { Py_DECREF (data); }
