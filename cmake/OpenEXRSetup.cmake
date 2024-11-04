@@ -40,7 +40,8 @@ set(IEX_NAMESPACE "Iex" CACHE STRING "Public namespace alias for Iex")
 option(OPENEXR_INSTALL_PKG_CONFIG "Install OpenEXR.pc file" ON)
 
 # Whether to enable threading. This can be disabled, although thread pool and tasks
-# are still used, just processed immediately
+# are still used, just processed immediately. Note that if this is disabled, the
+# OpenEXR library may not be thread-safe and should only be used by a single thread.
 option(OPENEXR_ENABLE_THREADING "Enables threaded processing of requests" ON)
 
 option(OPENEXR_USE_DEFAULT_VISIBILITY "Makes the compile use default visibility (by default compiles tidy, hidden-by-default)"     OFF)
