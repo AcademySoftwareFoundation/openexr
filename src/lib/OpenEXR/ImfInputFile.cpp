@@ -69,7 +69,7 @@ struct InputFile::Data
         else
         {
             THROW (
-                Iex::ArgExc,
+                IEX_NAMESPACE::ArgExc,
                 "Invalid out of bounds part number " << part << ", only " << pc
                                                      << " parts in "
                                                      << _ctxt->fileName ());

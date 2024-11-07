@@ -30,8 +30,8 @@
 #include <vector>
 #include <sys/stat.h>
 
-using namespace Imf;
-using Imath::Box2i;
+using namespace OPENEXR_IMF_NAMESPACE;
+using IMATH_NAMESPACE::Box2i;
 
 using std::cerr;
 using namespace std::chrono;
@@ -462,7 +462,7 @@ exrmetrics (
     const char       inFileName[],
     const char       outFileName[],
     int              part,
-    Imf::Compression compression,
+    OPENEXR_IMF_NAMESPACE::Compression compression,
     float            level,
     int              halfMode)
 {

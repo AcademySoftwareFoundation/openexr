@@ -135,7 +135,7 @@ printManifest (const char fileName[])
         if (in.parts () > 1) { cout << fileName << " part " << part << ":\n"; }
         if (hasIDManifest (in.header (part)))
         {
-            const Imf::CompressedIDManifest& mfst =
+            const OPENEXR_IMF_NAMESPACE::CompressedIDManifest& mfst =
                 idManifest (in.header (part));
             size_t size = dumpManifest (mfst);
             cout << "raw text size    : " << size << endl;
