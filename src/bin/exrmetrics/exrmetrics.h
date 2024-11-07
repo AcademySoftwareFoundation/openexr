@@ -14,7 +14,7 @@ void exrmetrics (
     const char       inFileName[],
     const char       outFileName[],
     int              part,
-    Imf::Compression compression,
+    OPENEXR_IMF_NAMESPACE::Compression compression,
     float            level,
     int              halfMode);
 #endif
