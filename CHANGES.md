@@ -3,7 +3,7 @@
 
 # OpenEXR Release Notes
 
-* [Version 3.3.2](#version-332-november-8-2024) November 8, 2024
+* [Version 3.3.2](#version-332-november-10-2024) November 10, 2024
 * [Version 3.3.1](#version-331-october-8-2024) October 8, 2024
 * [Version 3.3.0](#version-330-september-30-2024) September 30, 2024
 * [Version 3.2.4](#version-324-march-26-2024) March 26, 2024
@@ -77,7 +77,7 @@
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
 
-## Version 3.3.2 (November 8, 2024)
+## Version 3.3.2 (November 10, 2024)
 
 Patch release that fixes several bugs and build issues:
 
