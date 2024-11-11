@@ -13,12 +13,35 @@ News
 .. toctree::
    :caption: News
 
+November 11, 2024 - OpenEXR 3.3.2 Released
+==========================================
+
+.. _LatestNewsStart:
+
+Patch release that fixes several bugs and build issues:
+
+* A recent change to CMake had the unintended consequence of
+  installing headers and libraries from `libdeflate` when doing an
+  internal build. This is now fixed.
+* Fix custom namespaces
+* Add thread control to `exrmetrics` tool
+* Reintroduce single cache for successive scanline reads
+* Allow empty filename when providing a custom stream
+* Handle non-seekable stream in python module's `InputFile` object
+
+This release fixes:
+
+* OSS-fuzz `372524117 <https://issues.oss-fuzz.com/issues/372524117>`_
+  Null-dereference WRITE in Imf_3_4::ScanLineProcess::run_fill
+
+.. _LatestNewsEnd:
+
+
 .. include:: latest_news_title.rst
 
 |latest-news-title|
 ========================================
 
-.. _LatestNewsStart:
 
 Patch release that addresses several build and performance issues:
 
@@ -28,7 +51,6 @@ Patch release that addresses several build and performance issues:
 * Fix a problem with python wheel sdist that caused local build to fail
 * Compile source files in parallel under MSVC
 
-.. _LatestNewsEnd:
 
 
 September 30, 2024 - OpenEXR v3.3.0 Released
