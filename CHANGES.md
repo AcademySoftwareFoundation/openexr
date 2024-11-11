@@ -3,7 +3,7 @@
 
 # OpenEXR Release Notes
 
-* [Version 3.3.2](#version-332-november-10-2024) November 10, 2024
+* [Version 3.3.2](#version-332-november-11-2024) November 11, 2024
 * [Version 3.3.1](#version-331-october-8-2024) October 8, 2024
 * [Version 3.3.0](#version-330-september-30-2024) September 30, 2024
 * [Version 3.2.4](#version-324-march-26-2024) March 26, 2024
@@ -77,13 +77,14 @@
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
 
-## Version 3.3.2 (November 10, 2024)
+## Version 3.3.2 (November 11, 2024)
 
 Patch release that fixes several bugs and build issues:
 
 * A recent change to CMake had the unintended consequence of
   installing headers and libraries from `libdeflate` when doing an
   internal build. This is now fixed.
+* Fix custom namespaces
 * Add thread control to `exrmetrics` tool
 * Reintroduce single cache for successive scanline reads
 * Allow empty filename when providing a custom stream
@@ -96,6 +97,8 @@ Null-dereference WRITE in Imf_3_4::ScanLineProcess::run_fill
 
 ### Merged Pull Requests
 
+* [1912](https://github.com/AcademySoftwareFoundation/openexr/pull/1912)
+Add missing namespace macros
 * [1907](https://github.com/AcademySoftwareFoundation/openexr/pull/1907)
 Handle non-seekable stream
 * [1905](https://github.com/AcademySoftwareFoundation/openexr/pull/1905)
