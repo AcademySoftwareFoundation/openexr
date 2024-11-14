@@ -629,9 +629,9 @@ exr_set_dwa_compression_level (exr_context_t ctxt, int part_index, float level)
 
 exr_result_t
 exr_get_zstd_compression_level (
-    exr_const_context_t ctxt, int part_index, int* level)
+    exr_const_context_t ctxt, int part_index, int32_t* level)
 {
-    int l;
+    int32_t l;
     EXR_LOCK_WRITE_AND_DEFINE_PART (part_index);
     l = part->zstd_compression_level;
     if (ctxt->mode == EXR_CONTEXT_WRITE) internal_exr_unlock (ctxt);
@@ -653,7 +653,7 @@ exr_set_zstd_compression_level (exr_context_t ctxt, int part_index, int level)
         return EXR_UNLOCK_AND_RETURN (
             ctxt->standard_error (ctxt, EXR_ERR_NOT_OPEN_WRITE));
 
-    if (level > 0 && level <= 10)
+    if (level > 0 && level <= 9)
     {
         part->zstd_compression_level = level;
         rv                           = EXR_ERR_SUCCESS;

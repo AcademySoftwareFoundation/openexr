@@ -99,7 +99,7 @@ struct _priv_exr_part_t
 
     int32_t zip_compression_level;
     float   dwa_compression_level;
-    int     zstd_compression_level;
+    int32_t zstd_compression_level;
 
     int32_t  num_tile_levels_x;
     int32_t  num_tile_levels_y;

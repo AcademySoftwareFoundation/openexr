@@ -98,6 +98,8 @@ static const char* the_default_errors[] = {
     "Use non-deep tile write (sample count table invalid for this part type)",
     "Invalid sample data table value",
     "Feature not yet implemented, please use C++ library",
+    "Chunk compression failed",
+    "Chunk decompression failed",
     "Unknown error code"};
 static int the_default_error_count =
     sizeof (the_default_errors) / sizeof (const char*);

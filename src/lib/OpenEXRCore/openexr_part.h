@@ -243,7 +243,7 @@ exr_set_dwa_compression_level (exr_context_t ctxt, int part_index, float level);
  * reading a file.
  */
 EXR_EXPORT exr_result_t exr_get_zstd_compression_level (
-    exr_const_context_t ctxt, int part_index, int* level);
+    exr_const_context_t ctxt, int part_index, int32_t* level);
 
 /** @brief Set the zstd compression method used for the specified part.
  *

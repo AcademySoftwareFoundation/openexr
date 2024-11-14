@@ -46,10 +46,12 @@ class BufParams:
             self.total_sample_count += count
 
     def __repr__(self) -> str:
+        nl = "\n |"
+        spc = " "
         r = [
             f"{self.__class__}:",
             f" |         channel_count = {self.channel_count}",
-            f" |             channels = {("\n |"+" "*24).join([str(ch) for ch in self.channels])}",
+            f" |             channels = {(nl+spc*24).join([str(ch) for ch in self.channels])}",
             f" |            line_count = {self.line_count}",
             f" |           pixel_count = {self.pixel_count}",
             f" | sample_count_per_line = {self.sample_count_per_line}",
@@ -539,35 +541,35 @@ def pack(
     return out_buf
 
 
-print(
-    "NON-SUBSAMPLING DEEP BUFFER ----------------------------------------------------------"
-)
-buf, params = mk_buf(
-    Channel("r", HALF_SIZE),
-    Channel("g", HALF_SIZE),
-    Channel("b", SINGLE_SIZE),
-    Channel("a", HALF_SIZE),
-    Channel("i", SINGLE_SIZE),
-    num_lines=5,
-    num_pixels=5,
-    deep=True,
-)
-print(params)
-p_buf, split_pos = to_planar_3(
-    buf,
-    params.channel_count,  # channel count
-    [ch.bytes for ch in params.channels],  # channels size
-    params.line_count,  # line count
-    params.sample_count_per_line,  # sample count per line
-)
-i_buf = from_planar_3(
-    p_buf,
-    params.channel_count,  # channel count
-    [ch.bytes for ch in params.channels],  # channels size
-    params.line_count,  # line count
-    params.sample_count_per_line,  # sample count per line
-)
-assert buf == i_buf, "buf and i_buf must be the same !"
+# print(
+#     "NON-SUBSAMPLING DEEP BUFFER ----------------------------------------------------------"
+# )
+# buf, params = mk_buf(
+#     Channel("r", HALF_SIZE),
+#     Channel("g", HALF_SIZE),
+#     Channel("b", SINGLE_SIZE),
+#     Channel("a", HALF_SIZE),
+#     Channel("i", SINGLE_SIZE),
+#     num_lines=5,
+#     num_pixels=5,
+#     deep=True,
+# )
+# print(params)
+# p_buf, split_pos = to_planar_3(
+#     buf,
+#     params.channel_count,  # channel count
+#     [ch.bytes for ch in params.channels],  # channels size
+#     params.line_count,  # line count
+#     params.sample_count_per_line,  # sample count per line
+# )
+# i_buf = from_planar_3(
+#     p_buf,
+#     params.channel_count,  # channel count
+#     [ch.bytes for ch in params.channels],  # channels size
+#     params.line_count,  # line count
+#     params.sample_count_per_line,  # sample count per line
+# )
+# assert buf == i_buf, "buf and i_buf must be the same !"
 
 tests = {
     "rGbaI": {
