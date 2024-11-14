@@ -52,11 +52,11 @@
 
 struct chan_infos
 {
-    int8_t  type_size;
-    int32_t x_sampling;
-    int32_t y_sampling;
-    int32_t byte_size;
-    int32_t offset;
+    int8_t  type_size;  // EXR_HALF_PRECISION_SIZE or EXR_SINGLE_PRECISION_SIZE.
+    int32_t x_sampling; // x subsampling.
+    int32_t y_sampling; // y subsampling.
+    int32_t byte_size;  // channel byte size for validation - UNUSED
+    int32_t offset;     // channel offset in an unpacked layout.
 };
 typedef struct chan_infos chan_infos_t;
 
@@ -200,21 +200,6 @@ _free_decoding_zstd_data (exr_decode_pipeline_t* decode)
 
 // ----------------------------------------------------------------------------
 
-static int
-_divp (int x, int y)
-{
-    return (x >= 0) ? ((y >= 0) ? (x / y) : -(x / -y))
-                    : ((y >= 0) ? -((y - 1 - x) / y) : ((-y - 1 - x) / -y));
-}
-
-static int
-_modp (int x, int y)
-{
-    return x - y * _divp (x, y);
-}
-
-// ----------------------------------------------------------------------------
-
 #ifndef NDEBUG
 /**
  * \brief debug function to inspect the blosc header in the debugger.
@@ -262,7 +247,7 @@ _check_blosc_header (const void* data, size_t size)
  * \param encode in: the encode pipeline
  * \return the compression level
  */
-static int32_t
+static const int32_t
 _get_zstd_level (const exr_encode_pipeline_t* encode)
 {
     // Get the compression level from the context
@@ -294,16 +279,6 @@ _read_buffer_size (char** src)
     assert (bufByteSize <= INT32_MAX && "read buffer size too large");
     *src += sizeof (bufByteSize); // move read position
     return bufByteSize;
-}
-
-static void
-_read_buffer_data (char** src, int32_t bufByteSize, void* dst)
-{
-    if (bufByteSize > 0)
-    {
-        memcpy (dst, *src, bufByteSize);
-        *src += bufByteSize;
-    }
 }
 
 /**
@@ -410,11 +385,9 @@ _uncompress_ztsd_blosc_chunk (
  * \brief Returns the cumulative number of samples per line, irrespective of
  *        subsampling.
  *
- * \param width in: number of pixels per line
- * \param height in:: number of lines
+ * \param zstd_data in: relevant encoding/decoding infos
  * \param sampleTableIsCumulative in: true if sampleCountTable is cumulative
  * \param sampleCountTable in: samples per pixel for chunk
- * \param cumSampsPerLine out: cumulative samples per line (pre-alllocated)
  */
 static void
 _cumulative_samples_per_line (
@@ -452,9 +425,21 @@ _cumulative_samples_per_line (
     }
 }
 
+/**
+ * \brief Compute the number of active pixels for a given line.
+ *
+ * \param line_number the line number we are interested in
+ * \param width the line's width
+ * \param x_sampling x sub-sampling
+ * \param y_sampling y sub-sampling
+ * \return int32_t The number of active pixels for the given line
+ */
 static int32_t
 _active_pixels_for_line (
-    int32_t line_number, int32_t width, int32_t x_sampling, int32_t y_sampling)
+    const int32_t line_number,
+    const int32_t width,
+    const int32_t x_sampling,
+    const int32_t y_sampling)
 {
     // Check if this line is active based on y_sampling
     if ((line_number % y_sampling) != 0) return 0;
@@ -463,9 +448,21 @@ _active_pixels_for_line (
     return (width + x_sampling - 1) / x_sampling;
 }
 
+/**
+ * \brief Compute the number of active pixels for a given buffer.
+ *
+ * \param width the buffer's width
+ * \param height the buffer's height
+ * \param x_sampling x sub-sampling
+ * \param y_sampling y sub-sampling
+ * \return int32_t
+ */
 static int32_t
 _num_subsampled_pixels (
-    int32_t width, int32_t height, int32_t x_sampling, int32_t y_sampling)
+    const int32_t width,
+    const int32_t height,
+    const int32_t x_sampling,
+    const int32_t y_sampling)
 {
     // Round up division to handle non-perfect multiples
     int32_t effective_width  = (width + x_sampling - 1) / x_sampling;
@@ -476,12 +473,7 @@ _num_subsampled_pixels (
 /**
  * \brief returns start offsets for all planar channels,
  *
- * \param channelCount in: number of channels
- * \param channelsTypeSize in: type byte size per channel
- * \param bufSampleCount in: total number of samples in buffer
- * \param chOffsets out: buffer offsets array
- * \param halfSize out: size of half data
- * \param singleSize out: size of single data
+ * \param zstd_data in: relevant encoding/decoding infos
  */
 static void
 _channel_offsets (zstd_data_t* zstd_data)
@@ -564,62 +556,6 @@ _channel_offsets (zstd_data_t* zstd_data)
  *
  * \param encode in: the encoding pipeline struct
  */
-// static void
-// _unpack_channels (
-//     zstd_data_t*   zstd_data,
-//     const void*    inPtr,
-//     const uint64_t inSize,
-//     void*          outPtr)
-// {
-//     _channel_offsets (zstd_data);
-
-//     char*   inPos      = (char*) inPtr;
-//     char*   outPtrPos  = (char*) outPtr;
-//     int32_t outPtrSize = 0;
-//     int32_t chWritePos[zstd_data->channel_count];
-//     memset (chWritePos, 0, sizeof (chWritePos));
-//     for (int32_t ln = 0; ln < zstd_data->height; ++ln)
-//     {
-//         for (int32_t ch = 0; ch < zstd_data->channel_count; ++ch)
-//         {
-//             int32_t lineSampleCount =
-//                 zstd_data->is_deep
-//                     ? zstd_data->sample_count_per_line_cumulative[ln + 1] -
-//                           (ln > 0
-//                                ? zstd_data->sample_count_per_line_cumulative[ln]
-//                                : 0)
-//                     : _active_pixels_for_line (
-//                           ln,
-//                           zstd_data->width,
-//                           zstd_data->channels[ch].x_sampling,
-//                           zstd_data->channels[ch].y_sampling);
-//             size_t copySize =
-//                 zstd_data->channels[ch].type_size * lineSampleCount;
-//             char* outPos =
-//                 zstd_data->is_deep
-//                     ? outPtrPos + zstd_data->channels[ch].offset +
-//                           zstd_data->sample_count_per_line_cumulative[ln] *
-//                               zstd_data->channels[ch].type_size
-//                     : outPtrPos + zstd_data->channels[ch].offset +
-//                           chWritePos[ch];
-//             outPtrSize += copySize;
-//             if (zstd_data->channels[ch].x_sampling > 1)
-//                 DBGV (
-//                     "unpack:  lw=%d  ch=%d  lsc=%d  cs=%zu  total=%d\n",
-//                     zstd_data->width,
-//                     ch,
-//                     lineSampleCount,
-//                     copySize,
-//                     outPtrSize);
-//             assert (outPtrSize <= inSize && "out of bounds");
-//             memcpy (outPos, inPos, copySize);
-//             inPos += copySize;
-//             chWritePos[ch] += copySize;
-//         }
-//     }
-//     zstd_data->buffers[0] = outPtr;
-//     zstd_data->buffers[1] = outPtr + zstd_data->buffers_size[0];
-// }
 static void
 _unpack_channels (
     zstd_data_t*   zstd_data,
@@ -674,13 +610,6 @@ _unpack_channels (
                     : outPtrPos + zstd_data->channels[ch].offset +
                           chWritePos[ch];
 
-            // DBGV (
-            //     "unpack:  lw=%d  ch=%d  lsc=%d  cs=%zu  total=%d\n",
-            //     zstd_data->width,
-            //     ch,
-            //     lineSampleCount,
-            //     copySize,
-            //     outPtrSize);
             assert (outPtrSize <= inSize && "out of bounds");
 
             memcpy (outPos, inPos, copySize);
@@ -801,8 +730,6 @@ _compress_zstd (
 
     assert (*outPtrSize < inSize);
 
-    // if (*outPtrSize >= inSize) rv = EXR_ERR_COMPRESSION_FAILED;
-
     DBGV (
         " total_size = %zu / %zu  %s\n",
         *outPtrSize,
@@ -845,41 +772,11 @@ _decoding_vars (exr_decode_pipeline_t* decode)
  * after:
  * [rh rh rh gs gs gs bh bh bh is is is rh rh rh gs gs gs bh bh bh is is is]
  *
- * \param decode in: the decoding pipeline
+ * \param zstd_data in: relevant encoding/decoding
  * \param inPtr in: pointer to input buffer
  * \param outPtr out: pointer to output buffer
+ * \param outPtrSize in: size of output buffer
  */
-// static void
-// _pack_channels (
-//     zstd_data_t*   zstd_data,
-//     const void*    inPtr,
-//     void*          outPtr,
-//     const uint64_t outPtrSize)
-// {
-//     char*   outPos        = (char*) outPtr;
-//     size_t  totalByteSize = 0;
-//     for (int32_t ln = 0; ln < zstd_data->height; ++ln)
-//     {
-//         for (int32_t ch = 0; ch < zstd_data->channel_count; ++ch)
-//         {
-//             int32_t lineSampleCount =
-//                 zstd_data->sample_count_per_line_cumulative[ln + 1] -
-//                 (ln > 0 ? zstd_data->sample_count_per_line_cumulative[ln] : 0);
-//             size_t copySize =
-//                 zstd_data->channels[ch].type_size * lineSampleCount;
-//             char* inPos = (char*) inPtr + zstd_data->channels[ch].offset +
-//                           zstd_data->sample_count_per_line_cumulative[ln] *
-//                               zstd_data->channels[ch].type_size;
-//             memcpy (outPos, inPos, copySize);
-//             outPos += copySize;
-
-//             // validation
-//             totalByteSize += copySize;
-//             assert (totalByteSize <= outPtrSize);
-//         }
-//     }
-//     assert (totalByteSize == outPtrSize);
-// }
 static void
 _pack_channels (
     zstd_data_t*   zstd_data,
@@ -946,10 +843,12 @@ _pack_channels (
 /**
  * \brief decompress a zstd buffer.
  *
+ * \param decode in: decoding context
  * \param inPtr in: pointer to input buffer
  * \param outPtr in: pointer to output buffer
  * \param outPtrByteSize out: output buffer size
- * \return size of decompressed data buffer (in bytes)
+ * \param decompressedByteSizes out: size of decompressed halsf and single buffers
+ * \return EXR_ERR_SUCCESS or EXR_ERR_DECOMPRESSION_FAILED
  */
 static exr_result_t
 _uncompress_zstd (
@@ -1046,7 +945,7 @@ internal_exr_apply_zstd (exr_encode_pipeline_t* encode)
     {
         // compress the sample table as a single-precision int buffer
         //
-        int32_t level = _get_zstd_level (encode);
+        const int32_t level = _get_zstd_level (encode);
 
         const int32_t compressedSize = _compress_ztsd_blosc_chunk (
             encode->packed_buffer,
@@ -1134,8 +1033,7 @@ internal_exr_apply_zstd (exr_encode_pipeline_t* encode)
             encode->compressed_buffer,
             &(encode->compressed_bytes));
 
-        if (rv ==
-            EXR_ERR_COMPRESSION_FAILED /* || encode->compressed_bytes >= encode->packed_bytes */)
+        if (rv == EXR_ERR_COMPRESSION_FAILED)
         {
             memcpy (
                 encode->compressed_buffer,
@@ -1164,7 +1062,7 @@ internal_exr_apply_zstd (exr_encode_pipeline_t* encode)
  * \param comp_buf_size size of compressed data buffer.
  * \param uncompressed_data pointer to uncompressed data buffer.
  * \param uncompressed_size expected size of uncompressed data buffer.
- * \return exr_result_t
+ * \return exr_result_t return EXR_ERR_SUCCESS or EXR_ERR_DECOMPRESSION_FAILED.
  */
 exr_result_t
 internal_exr_undo_zstd (
