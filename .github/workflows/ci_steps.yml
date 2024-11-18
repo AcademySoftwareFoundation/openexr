@@ -1,0 +1,174 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright (c) Contributors to the OpenEXR Project.
+
+# These are the steps for all CI jobs. Linux, macOS, and Windows all
+# share a common set of configure/build/validate steps.  The input
+# variables control all variations of the jobs.
+#
+# Each job validates that the proper files are installed by comparing
+# the install_manifest.txt to a reference for that job. This requires
+# that each job have a corresponding reference, and that thes
+# references are updated when any change is made to the installation
+# headers/libraries/cmake/etc.
+
+name: CI Steps
+
+on:
+  workflow_call:
+    # This inputs receive values via the "with:" section in ci_workflow.yml
+    inputs:
+      build:
+        type: string
+      os:
+        type: string
+      container:
+        type: string
+      cxx-standard:
+        type: string
+      build-type:
+        type: string
+      BUILD_SHARED_LIBS:
+        type: string
+      OPENEXR_ENABLE_THREADING:
+        type: string
+      OPENEXR_INSTALL_PKG_CONFIG:
+        type: string
+      OPENEXR_INSTALL_DOCS:
+        type: string
+      OPENEXR_BUILD_EXAMPLES:
+        type: string
+      OPENEXR_BUILD_TOOLS:
+        type: string
+      OPENEXR_FORCE_INTERNAL_IMATH:
+        type: string
+      OPENEXR_FORCE_INTERNAL_DEFLATE:
+        type: string
+      BUILD_TESTING:
+        type: string
+      namespace:
+        type: string
+      validate_install:
+        type: string
+
+jobs:
+  ci_steps:
+    runs-on: ${{ inputs.os }}
+
+    container:
+      image: ${{ inputs.container }}
+
+    env:
+      ACTIONS_RUNNER_FORCE_ACTIONS_NODE_VERSION: node16
+      ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
+
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
+
+      - name: Install Imath
+        # Pre-install Imath so the builds validate finding the external installation
+        if: ${{ inputs.OPENEXR_FORCE_INTERNAL_IMATH == 'OFF' }}
+        run: share/ci/scripts/install_imath.sh main
+
+      - name: Install libdeflate
+        # Pre-install libdeflate so the builds validate finding the external installation
+        if: ${{ inputs.OPENEXR_FORCE_INTERNAL_DEFLATE == 'OFF' }}
+        run: share/ci/scripts/install_libdeflate.sh master
+
+      - name: Install help2man
+        # TODO: this could go in the ASWF Linux docker
+        # container. Also, it doesn't currently work for Windows, so
+        # the windows builds have docs disabled.
+        if: ${{ inputs.OPENEXR_INSTALL_DOCS == 'ON' }}
+        run: share/ci/scripts/install_help2man.sh
+
+      - name: Create build directories
+        run: mkdir _install _build _examples
+        shell: bash
+
+      - name: Construct CMake command
+        run: |
+          # Construct the cmake command as a variable, so the
+          # Configure step below can execute it, but also so we can store
+          # in in the install_manifest as a debugging reference
+          CMAKE_COMMAND="cmake -B . -S .. \
+                -DCMAKE_INSTALL_PREFIX=../_install \
+                -DCMAKE_BUILD_TYPE=${{ inputs.build-type }} \
+                -DOPENEXR_CXX_STANDARD=${{ inputs.cxx-standard }} \
+                -DBUILD_SHARED_LIBS=${{ inputs.BUILD_SHARED_LIBS }} \
+                -DOPENEXR_ENABLE_THREADING=${{ inputs.OPENEXR_ENABLE_THREADING }} \
+                -DOPENEXR_INSTALL_PKG_CONFIG=${{ inputs.OPENEXR_INSTALL_PKG_CONFIG }} \
+                -DOPENEXR_INSTALL_DOCS=${{ inputs.OPENEXR_INSTALL_DOCS }} \
+                -DOPENEXR_BUILD_EXAMPLES=${{ inputs.OPENEXR_BUILD_EXAMPLES }} \
+                -DOPENEXR_BUILD_TOOLS=${{ inputs.OPENEXR_BUILD_TOOLS }} \
+                -DOPENEXR_FORCE_INTERNAL_IMATH=${{ inputs.OPENEXR_FORCE_INTERNAL_IMATH }} \
+                -DOPENEXR_FORCE_INTERNAL_DEFLATE=${{ inputs.OPENEXR_FORCE_INTERNAL_DEFLATE }} \
+                -DBUILD_TESTING=${{ inputs.BUILD_TESTING }} \
+                -DOPENEXR_RUN_FUZZ_TESTS=OFF \
+                -DCMAKE_VERBOSE_MAKEFILE=ON"
+          echo "namespace: " ${{ inputs.namespace }}
+          if [ -n "${{ inputs.namespace }}" ]; then
+              CMAKE_COMMAND="$CMAKE_COMMAND \
+                 -DOPENEXR_IMF_NAMESPACE=${{ inputs.namespace }} \
+                 -DILMTHREAD_NAMESPACE=${{ inputs.namespace }} \
+                 -DIEX_NAMESPACE=${{ inputs.namespace }}"
+          fi
+          echo "CMAKE_COMMAND=$CMAKE_COMMAND" >> $GITHUB_ENV
+
+          # Remove the os version from the manifest name, so it only
+          # contains "ubuntu", "macos", or "windows", so the name is,
+          # e.g. install_manifest.macos.1.txt
+          echo "INSTALL_MANIFEST=$(echo 'install_manifest.${{ inputs.os }}' | cut -d'-' -f1).${{ inputs.build }}.txt" >> $GITHUB_ENV
+        working-directory: _build
+        shell: bash
+
+      - name: Configure
+        run: |
+          $CMAKE_COMMAND
+        working-directory: _build
+        shell: bash
+
+      - name: Build
+        run: |
+          cmake --build . --target install --config ${{ inputs.build-type }}
+        working-directory: _build
+        shell: bash
+
+      - name: Prepare install_manifest
+        if: ${{ inputs.validate_install != 'OFF' }}
+        # Store the cmake command as the first line of the manifest,
+        # and remove the path prefix, so the manifest contains only
+        # the local filenames.
+        run: |
+          echo "# $CMAKE_COMMAND" > "_build/$INSTALL_MANIFEST"
+          sort _build/install_manifest.txt | sed -e "s:^.*/_install/::" >> "_build/$INSTALL_MANIFEST"
+        shell: bash
+
+      - name: Upload install_manifest.txt
+        if: ${{ inputs.validate_install != 'OFF' }}
+        # Upload the manifest to make it possible to download for inspection and debugging
+        uses: actions/upload-artifact@v3
+        with:
+          name: install_manifest
+          path: _build/${{ env.INSTALL_MANIFEST }}
+
+      - name: Validate install
+        if: ${{ inputs.validate_install != 'OFF' }}
+        # Validate that the build has installed the proper files by comparing against the appropriate reference manifest
+        run: |
+          share/ci/scripts/validate_install.py "_build/$INSTALL_MANIFEST" "share/ci/install_manifest/$INSTALL_MANIFEST"
+        shell: bash
+
+      - name: Set PATH for Imath/libdeflate DLLs
+        # When building against external Imath/libdeflate shared objects, the tests need PATH to include the dll's.
+        if: contains(inputs.os, 'windows')
+        run: |
+          echo "$PATH;C:/Program Files (x86)/Imath/bin;C:/Program Files (x86)/Imath/lib;C:/Program Files (x86)/libdeflate/bin;C:/Program Files (x86)/libdeflate/lib" >> $GITHUB_PATH
+        shell: bash
+
+      - name: Test
+        run: |
+          ctest -T Test -C ${{ inputs.build-type }} --timeout 7200 --output-on-failure -VV
+        working-directory: _build
+        shell: bash
