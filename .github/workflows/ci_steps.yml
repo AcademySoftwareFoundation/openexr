@@ -25,6 +25,10 @@ on:
         type: string
       cxx-standard:
         type: string
+      cxx-compiler:
+        type: string
+      cc-compiler:
+        type: string
       build-type:
         type: string
       BUILD_SHARED_LIBS:
@@ -51,13 +55,15 @@ on:
         type: string
 
 jobs:
-  ci_steps:
+  steps:
     runs-on: ${{ inputs.os }}
 
     container:
       image: ${{ inputs.container }}
 
     env:
+      CXX: ${{ inputs.cxx-compiler }}
+      CC: ${{ inputs.cc-compiler }}
       ACTIONS_RUNNER_FORCE_ACTIONS_NODE_VERSION: node16
       ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
 
@@ -107,7 +113,6 @@ jobs:
                 -DBUILD_TESTING=${{ inputs.BUILD_TESTING }} \
                 -DOPENEXR_RUN_FUZZ_TESTS=OFF \
                 -DCMAKE_VERBOSE_MAKEFILE=ON"
-          echo "namespace: " ${{ inputs.namespace }}
           if [ -n "${{ inputs.namespace }}" ]; then
               CMAKE_COMMAND="$CMAKE_COMMAND \
                  -DOPENEXR_IMF_NAMESPACE=${{ inputs.namespace }} \
@@ -136,7 +141,6 @@ jobs:
         shell: bash
 
       - name: Prepare install_manifest
-        if: ${{ inputs.validate_install != 'OFF' }}
         # Store the cmake command as the first line of the manifest,
         # and remove the path prefix, so the manifest contains only
         # the local filenames.
@@ -146,7 +150,6 @@ jobs:
         shell: bash
 
       - name: Upload install_manifest.txt
-        if: ${{ inputs.validate_install != 'OFF' }}
         # Upload the manifest to make it possible to download for inspection and debugging
         uses: actions/upload-artifact@v3
         with:
@@ -154,7 +157,7 @@ jobs:
           path: _build/${{ env.INSTALL_MANIFEST }}
 
       - name: Validate install
-        if: ${{ inputs.validate_install != 'OFF' }}
+        if: ${{ inputs.validate_install == 'ON' }}
         # Validate that the build has installed the proper files by comparing against the appropriate reference manifest
         run: |
           share/ci/scripts/validate_install.py "_build/$INSTALL_MANIFEST" "share/ci/install_manifest/$INSTALL_MANIFEST"
