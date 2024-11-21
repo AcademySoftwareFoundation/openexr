@@ -228,10 +228,10 @@ jobs:
                 -DCMAKE_CXX_FLAGS=${{ matrix.cxx-flags }} \
                 -DCMAKE_VERBOSE_MAKEFILE:BOOL='OFF' \
                 -DBUILD_SHARED_LIBS=${{ matrix.build-shared }} \
+                -DOPENEXR_ENABLE_THREADING=${{ matrix.threads-enabled }} \
                 -DOPENEXR_INSTALL_TOOLS='ON' \
                 -DOPENEXR_INSTALL_DOCS='OFF' \
-                -DOPENEXR_RUN_FUZZ_TESTS='OFF' \
-                -DOPENEXR_ENABLE_THREADING=${{ matrix.threads-enabled }}
+                -DOPENEXR_RUN_FUZZ_TESTS='OFF'
       - name: Build
         run: |
           cmake --build _build \
@@ -360,6 +360,7 @@ jobs:
                 -DCMAKE_CXX_FLAGS=${{ matrix.cxx-flags }} \
                 -DCMAKE_VERBOSE_MAKEFILE:BOOL='OFF' \
                 -DBUILD_SHARED_LIBS=${{ matrix.build-shared }} \
+                -DOPENEXR_ENABLE_THREADING=${{ matrix.threads-enabled }} \
                 -DOPENEXR_INSTALL_TOOLS='ON' \
                 -DOPENEXR_INSTALL_DOCS='OFF' \
                 -DOPENEXR_RUN_FUZZ_TESTS='OFF'
@@ -495,6 +496,7 @@ jobs:
                 -DCMAKE_CXX_FLAGS=${{ matrix.cxx-flags }} \
                 -DCMAKE_VERBOSE_MAKEFILE:BOOL='OFF' \
                 -DBUILD_SHARED_LIBS=${{ matrix.build-shared }} \
+                -DOPENEXR_ENABLE_THREADING=${{ matrix.threads-enabled }} \
                 -DOPENEXR_INSTALL_TOOLS='ON' \
                 -DOPENEXR_INSTALL_DOCS='OFF' \
                 -DOPENEXR_RUN_FUZZ_TESTS='OFF' 

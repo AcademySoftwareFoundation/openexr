@@ -39,6 +39,10 @@
 #include <stdlib.h>
 #include <vector>
 
+#if defined(_WIN32)
+#include <windows.h>
+#endif
+
 #if defined(OPENEXR_ENABLE_API_VISIBILITY)
 #include "../../lib/OpenEXRCore/internal_b44_table.c"
 #else
