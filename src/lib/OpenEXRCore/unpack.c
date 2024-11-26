@@ -1432,6 +1432,10 @@ internal_exr_match_decode (
         return &generic_unpack_deep;
     }
 
+    if (hassampling || chanstofill != decode->channel_count || samebpc <= 0 ||
+        sameoutbpc <= 0)
+        return &generic_unpack;
+
     if (hastypechange > 0)
     {
         /* other optimizations would not be difficult, but this will
@@ -1469,10 +1473,6 @@ internal_exr_match_decode (
 
         return &generic_unpack;
     }
-
-    if (hassampling || chanstofill != decode->channel_count || samebpc <= 0 ||
-        sameoutbpc <= 0)
-        return &generic_unpack;
 
     (void) chanstounpack;
     (void) simplineoff;
