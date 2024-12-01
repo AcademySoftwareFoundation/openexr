@@ -69,7 +69,7 @@ jobs:
       image: aswf/ci-openexr:${{ matrix.vfx-cy }}
     strategy:
       matrix:
-        build: [1, 2, 3, 4, 5, 6, 7, 8, 9]
+        build: [1, 2, 3, 4, 5, 6, 7]
         include:
           # -------------------------------------------------------------------
           # VFX CY2024 - GCC
@@ -172,38 +172,6 @@ jobs:
             label: 
             threads-enabled: 'ON'
             vfx-cy: 2023
-            exclude-tests:
-
-          # -------------------------------------------------------------------
-          # VFX CY2022 - GCC, Release
-          # -------------------------------------------------------------------
-          # Shared, Release
-          - build: 8
-            build-type: Release
-            build-shared: 'ON'
-            cxx-standard: 17
-            cxx-compiler: g++
-            cc-compiler: gcc
-            compiler-desc: gcc9.3.1
-            label: 
-            threads-enabled: 'ON'
-            vfx-cy: 2022
-            exclude-tests:
-
-          # -------------------------------------------------------------------
-          # VFX CY2021 - GCC, Release
-          # -------------------------------------------------------------------
-          # Shared, Release
-          - build: 9
-            build-type: Release
-            build-shared: 'ON'
-            cxx-standard: 17
-            cxx-compiler: g++
-            cc-compiler: gcc
-            compiler-desc: gcc9.3.1
-            label: 
-            threads-enabled: 'ON'
-            vfx-cy: 2021
             exclude-tests:
 
     env:
