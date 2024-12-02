@@ -55,7 +55,7 @@ jobs:
   # TODO: Add ARM build. Add sanitize build.
 
   linux:
-    name: 'Linux ${{ matrix.label }}VFXP-${{ matrix.vfx-cy }} centos7
+    name: 'Linux ${{ matrix.label }}VFXP-${{ matrix.vfx-cy }} 
        <${{ matrix.compiler-desc }},
        C++${{ matrix.cxx-standard }},
        config=${{ matrix.build-type }},
