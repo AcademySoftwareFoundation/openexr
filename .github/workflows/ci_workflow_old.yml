@@ -1,0 +1,103 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright (c) Contributors to the OpenEXR Project.
+#
+# GitHub Actions workflow file
+# https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions
+
+name: CI-old
+
+# Build for VFX reference platform prior to 2023, which requires a
+# workaround to run an old version of glibc required by the ASWF Docker
+# images.
+#
+# This doesn't easily integrate with the existing CI workflow, and it
+# can be depreciated entirely once we've moved beyond support for the
+# old CentOS-based VFX reference platform years.
+#
+# See this discussion for details:
+# https://academysoftwarefdn.slack.com/archives/C0169RX7MMK/p1732574400981949
+
+
+# Run on all changes except:
+# - doc file changes
+# - changes to the website, *except* for "website/src", since that
+#   code needs validation.  The website has a separate workflow
+# - changes to the bazel config, since it has its own workflow
+# - changes to the python bindings
+# - changes to workflows other than this one
+
+on:
+  push:
+    paths:
+      - '**'
+      - '!**.md'
+      - '!website/**'
+      - 'website/src/**'
+      - '!bazel/**'
+      - '!src/wrappers/**'
+      - '!.github/workflows/**'
+      - '.github/workflows/ci_workflow_old.yml'
+  pull_request:
+    paths:
+      - '**'
+      - '!**.md'
+      - '!website/**'
+      - 'website/src/**'
+      - '!bazel/**'
+      - '!src/wrappers/**'
+      - '!.github/workflows/**'
+      - '.github/workflows/ci_workflow_old.yml'
+
+permissions:
+  contents: read
+
+jobs:
+
+  linux:
+    name: 'Linux vfx${{ matrix.vfx-cy }}' 
+    runs-on: ubuntu-latest
+    container:
+      image: aswf/ci-openexr:${{ matrix.vfx-cy }}
+      volumes:
+        - /node20217:/node20217:rw,rshared
+        - /node20217:/__e/node20:ro,rshared
+
+    strategy:
+      matrix:
+        include:
+
+          - build: 2022
+            vfx-cy: 2022
+
+          - build: 2021
+            vfx-cy: 2021
+
+    steps:
+      - name: install nodejs20glibc2.17
+        run: |
+          curl --silent https://unofficial-builds.nodejs.org/download/release/v20.18.1/node-v20.18.1-linux-x64-glibc-217.tar.xz | tar -xJ --strip-components 1 -C /node20217 -f -
+      - name: Checkout
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
+      - name: Create build directories
+        run: |
+          mkdir _install
+          mkdir _build
+      - name: Configure
+        run: |
+          cmake -B _build -S . \
+                -DCMAKE_INSTALL_PREFIX=_install \
+                -DCMAKE_VERBOSE_MAKEFILE:BOOL='ON'
+      - name: Build
+        run: |
+          cmake --build _build \
+                --target install \
+                --config Release
+      - name: Test
+        run: |
+          ctest -T Test \
+                -C Release \
+                --timeout 7200 \
+                --output-on-failure \
+                -VV
+        working-directory: _build
+
