@@ -2,7 +2,7 @@
 # Copyright (c) Contributors to the OpenEXR Project.
 
 [build-system]
-requires = ["scikit-build-core==0.10.7", "pybind11", "numpy"]
+requires = ["scikit-build-core==0.10.7", "pybind11", "pybind11-stubgen", "numpy"]
 build-backend = "scikit_build_core.build"
 
 [project]
