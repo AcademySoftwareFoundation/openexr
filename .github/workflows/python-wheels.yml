@@ -68,6 +68,10 @@ jobs:
           CIBW_SKIP: "*-win32 *_i686"
           CIBW_TEST_SKIP: "*-macosx*arm64"
           OPENEXR_TEST_IMAGE_REPO: "https://raw.githubusercontent.com/AcademySoftwareFoundation/openexr-images/main"
+          CIBW_BEFORE_BUILD: |
+            pip install tomli
+            python -c "import tomli; print('\n'.join(tomli.load(open('pyproject.toml', 'rb'))['build-system']['requires']))" > build_requirements.txt &&
+            pip install -r build_requirements.txt
 
       - name: Upload artifact
         uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3

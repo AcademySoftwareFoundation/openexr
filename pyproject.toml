@@ -2,7 +2,7 @@
 # Copyright (c) Contributors to the OpenEXR Project.
 
 [build-system]
-requires = ["scikit-build-core==0.10.7", "pybind11"]
+requires = ["scikit-build-core==0.10.7", "pybind11", "numpy"]
 build-backend = "scikit_build_core.build"
 
 [project]
@@ -15,6 +15,10 @@ authors = [
   { name="Contributors to the OpenEXR project", email="info@openexr.com" },
 ]
 requires-python = ">=3.7"
+
+dependencies = [
+  "numpy>=1.18"
+]
 
 [project.urls]
 "Homepage" = "https://openexr.com"
