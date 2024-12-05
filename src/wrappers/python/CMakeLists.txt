@@ -34,7 +34,7 @@ install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/Imath.py DESTINATION ${PYTHON_INSTALL_
 
 # Generate .pyi stub file using pybind11-stubgen. And install the generated .pyi file
 add_custom_command(TARGET PyOpenEXR POST_BUILD
-  COMMAND PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR} pybind11-stubgen -o ${CMAKE_BINARY_DIR}/OpenEXR --ignore-all-errors OpenEXR
+  COMMAND PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR} ${Python_EXECUTABLE} -m pybind11_stubgen -o ${CMAKE_BINARY_DIR}/OpenEXR --ignore-all-errors OpenEXR
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
   COMMENT "Generating .pyi stub file"
 )
