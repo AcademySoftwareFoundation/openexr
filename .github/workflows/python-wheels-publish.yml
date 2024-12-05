@@ -55,6 +55,9 @@ jobs:
           CIBW_BUILD: "cp37-* cp38-* cp39-* cp310-* cp311-* cp312-*"
           CIBW_SKIP: "*-win32 *_i686"
           CIBW_TEST_SKIP: "*arm64"
+          # Explicitly install required dependencies before building each Python version.
+          CIBW_BEFORE_BUILD: |
+            pip install -r <(python -c "import tomli; print('\n'.join(tomli.load(open('pyproject.toml', 'rb'))['build-system']['requires']))")
 
       - name: Upload artifact
         uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
