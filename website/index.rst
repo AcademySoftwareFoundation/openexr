@@ -87,7 +87,7 @@ Community
   - Technical Steering Committee meetings are open to the
     public, fortnightly on Thursdays, 1:30pm Pacific Time.
 
-  - Calendar: https://lists.aswf.io/g/openexr-dev/calendar
+  - Calendar: https://zoom-lfx.platform.linuxfoundation.org/meetings/openexr
 
   - Meeting Notes: https://wiki.aswf.io/display/OEXR/TSC+Meetings
 
