@@ -23,8 +23,8 @@ using std::cout;
 using std::endl;
 using std::ostream;
 using std::vector;
-using namespace Imf;
-using namespace IlmThread;
+using namespace OPENEXR_IMF_NAMESPACE;
+using namespace ILMTHREAD_NAMESPACE;
 
 void
 usageMessage (ostream& stream, const char* program_name, bool verbose = false)
