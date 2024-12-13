@@ -72,7 +72,7 @@ getSampleDataForTile(int i, int j, int tileSizeX, int tileSizeY,
 }
 
 
-namespace XXX {
+namespace WEBSITE_SRC {
 #include "IStream.cpp"
 }
 
