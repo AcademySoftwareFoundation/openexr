@@ -373,7 +373,7 @@ channel (PyObject* self, PyObject* args, PyObject* kw)
             PyExc_TypeError, "There is no channel '%s' in the image", cname);
     }
 
-    Imf::PixelType pt;
+    PixelType pt;
     if (pixel_type != NULL)
     {
         if (PyObject_GetAttrString (pixel_type, "v") == NULL)
@@ -500,7 +500,7 @@ channels (PyObject* self, PyObject* args, PyObject* kw)
                 cname);
         }
 
-        Imf::PixelType pt;
+        PixelType pt;
         if (pixel_type != NULL)
         {
             pt = PixelType (
@@ -1013,7 +1013,7 @@ outwrite (PyObject* self, PyObject* args)
             PyDict_GetItem (pixeldata, PyUnicode_FromString (i.name ()));
         if (channel_spec != NULL)
         {
-            Imf::PixelType pt       = i.channel ().type;
+            PixelType pt       = i.channel ().type;
             int            typeSize = 4;
             switch (pt)
             {
@@ -1289,7 +1289,7 @@ makeOutputFile (PyObject* self, PyObject* args, PyObject* kwds)
             PreviewImage pi (
                 PyLong_AsLong (PyObject_StealAttrString (value, "width")),
                 PyLong_AsLong (PyObject_StealAttrString (value, "height")),
-                (Imf::PreviewRgba*) PyString_AsString (
+                (PreviewRgba*) PyString_AsString (
                     PyObject_StealAttrString (value, "pixels")));
             header.insert (ks, PreviewImageAttribute (pi));
         }
@@ -1398,9 +1398,9 @@ makeOutputFile (PyObject* self, PyObject* args, PyObject* kwds)
             TileDescription td (
                 PyInt_AsLong (PyObject_StealAttrString (value, "xSize")),
                 PyInt_AsLong (PyObject_StealAttrString (value, "ySize")),
-                (Imf::LevelMode) PyInt_AsLong (PyObject_StealAttrString (
+                (LevelMode) PyInt_AsLong (PyObject_StealAttrString (
                     PyObject_StealAttrString (value, "mode"), "v")),
-                (Imf::LevelRoundingMode) PyInt_AsLong (
+                (LevelRoundingMode) PyInt_AsLong (
                     PyObject_StealAttrString (
                         PyObject_StealAttrString (value, "roundingMode"),
                         "v")));
@@ -1511,7 +1511,7 @@ isOpenExrFile (const char fileName[])
     std::ifstream f (fileName, std::ios_base::binary);
     char          bytes[4];
     f.read (bytes, sizeof (bytes));
-    return !!f && Imf::isImfMagic (bytes);
+    return !!f && isImfMagic (bytes);
 }
 
 PyObject*
