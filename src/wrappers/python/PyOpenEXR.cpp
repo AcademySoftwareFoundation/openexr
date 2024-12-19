@@ -1554,7 +1554,7 @@ objectToV3(const py::object& object, Vec3<T>& v)
     else if (py::isinstance<py::array_t<T>>(object))
     {
         auto a = object.cast<py::array_t<T>>();
-        if (a.ndim() == 1 && a.size() == 2)
+        if (a.ndim() == 1 && a.size() == 3)
         {
             auto p = static_cast<T*>(a.request().ptr);
             v.x = p[0];
