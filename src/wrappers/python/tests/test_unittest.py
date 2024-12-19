@@ -172,7 +172,9 @@ class TestUnittest(unittest.TestCase):
         header["t3i"] = (0,1,2)
         header["t3f"] = (3.4,5.6,7.8)
 
+        header["a2f"] = np.array((1.2, 3.4), 'float32')
         header["a2d"] = np.array((1.2, 3.4), 'float64')
+        header["a3f"] = np.array((1.2, 3.4, 5.6), 'float32')
         header["a3d"] = np.array((1.2, 3.4, 5.6), 'float64')
 
         header["a33f"] = np.identity(3, 'float32') 
