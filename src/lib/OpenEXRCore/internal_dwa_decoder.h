@@ -271,7 +271,6 @@ LossyDctDecoder_base_construct (
     d->_toLinear      = toLinear;
     d->_width         = width;
     d->_height        = height;
-    //if (d->_toLinear == NULL) d->_toLinear = dwaCompressorNoOp;
 
     //d->_isNativeXdr = GLOBAL_SYSTEM_LITTLE_ENDIAN;
 
