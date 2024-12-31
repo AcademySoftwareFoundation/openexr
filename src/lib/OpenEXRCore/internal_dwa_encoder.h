@@ -28,7 +28,7 @@
 #endif
 
 #ifndef USE_CLZ
-#    ifdef _WIN32
+#    ifdef _MSC_VER
 static int __inline __builtin_clz(uint32_t v)
 {
 #ifdef __BMI1__
