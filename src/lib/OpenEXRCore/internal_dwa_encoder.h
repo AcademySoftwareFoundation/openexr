@@ -296,7 +296,7 @@ countLeadingZeros(uint16_t src)
 }
 #else
 // courtesy hacker's delight
-static int ALWAYS_INLINE countLeadingZeros( uint32_t x )
+static int inline countLeadingZeros( uint32_t x )
 {
     x |= (x >> 1);
     x |= (x >> 2);
