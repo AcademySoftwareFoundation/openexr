@@ -1056,7 +1056,9 @@ readUInt (const uint8_t* b)
 /* unaligned reads are UB, so can't just cast the way c++ used to
  * (chars are special and we don't want to use those anyway) so just
  * do the simple thing... */
-#if 1
+#if defined(__has_builtin)
+#    if __has_builtin(__builtin_bswap64)
+#        define HAVE_READ64
 static inline uint64_t
 READ64(const uint8_t * c)
 {
@@ -1064,7 +1066,10 @@ READ64(const uint8_t * c)
     memcpy(&x, c, sizeof(uint64_t));
     return __builtin_bswap64 (x);
 }
-#else
+#    endif
+#endif
+
+#ifndef HAVE_READ64
 //#define READ64(c) __builtin_bswap64 (*(const uint64_t*) (c))
 #    define READ64(c)                                                          \
         ((uint64_t) (c)[0] << 56) | ((uint64_t) (c)[1] << 48) |                \
