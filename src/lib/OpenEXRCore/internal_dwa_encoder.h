@@ -19,9 +19,30 @@
 #    if __has_builtin(__builtin_popcount)
 #        define USE_POPCOUNT 1
 #    endif
+#    if __has_builtin(__builtin_clz)
+#        define USE_CLZ 1
+#    endif
 #endif
 #ifndef USE_POPCOUNT
 #    define USE_POPCOUNT 0
+#endif
+
+#ifndef USE_CLZ
+#    ifdef _WIN32
+static int __inline __builtin_clz(uint32_t v)
+{
+#ifdef __BMI1__
+    return __lzcnt(v);
+#else
+    unsigned long r;
+    _BitScanReverse(&r, v);
+    return 31 - r;
+#endif
+}
+#        define USE_CLZ 1
+#    else
+#        define USE_CLZ 0
+#    endif
 #endif
 
 //
@@ -255,28 +276,35 @@ countSetBits (uint16_t src)
     return __builtin_popcount (src);
 }
 #else
-static inline uint8_t
-countSetBits8 (uint8_t src)
+// courtesy hacker's delight
+static inline int countSetBits(uint32_t x)
 {
-    static const int8_t numBitsSet[256] = {
-        0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4, 1, 2, 2, 3, 2, 3, 3, 4,
-        2, 3, 3, 4, 3, 4, 4, 5, 1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
-        2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6, 1, 2, 2, 3, 2, 3, 3, 4,
-        2, 3, 3, 4, 3, 4, 4, 5, 2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
-        2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6, 3, 4, 4, 5, 4, 5, 5, 6,
-        4, 5, 5, 6, 5, 6, 6, 7, 1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
-        2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6, 2, 3, 3, 4, 3, 4, 4, 5,
-        3, 4, 4, 5, 4, 5, 5, 6, 3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
-        2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6, 3, 4, 4, 5, 4, 5, 5, 6,
-        4, 5, 5, 6, 5, 6, 6, 7, 3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
-        4, 5, 5, 6, 5, 6, 6, 7, 5, 6, 6, 7, 6, 7, 7, 8};
-    return numBitsSet[src];
+    uint64_t y;
+    y = x * 0x0002000400080010ULL;
+    y = y & 0x1111111111111111ULL;
+    y = y * 0x1111111111111111ULL;
+    y = y >> 60;
+    return y;
 }
+#endif
 
-static inline uint8_t
-countSetBits (uint16_t src)
+#if USE_CLZ
+static inline int
+countLeadingZeros(uint16_t src)
 {
-    return countSetBits8 (src & 0xff) + countSetBits8 (src >> 8);
+    return __builtin_clz (src);
+}
+#else
+// courtesy hacker's delight
+static int ALWAYS_INLINE clz( uint32_t x )
+{
+    x |= (x >> 1);
+    x |= (x >> 2);
+    x |= (x >> 4);
+    x |= (x >> 8);
+    x |= (x >> 16);
+    return 32 - countSetBits(x);
+
 }
 #endif
 
@@ -349,7 +377,7 @@ countSetBits (uint16_t src)
 static uint32_t handleQuantizeDenormTol (
     uint32_t abssrc, uint32_t tolSig, float errTol, float srcFloat)
 {
-    const uint32_t tsigshift = (32 - __builtin_clz (tolSig));
+    const uint32_t tsigshift = (32 - countLeadingZeros (tolSig));
     const uint32_t npow2 = (1 << tsigshift);
     const uint32_t lowermask = npow2 - 1;
     const uint32_t mask = ~lowermask;
@@ -373,7 +401,7 @@ static uint32_t handleQuantizeGeneric (
     // classic would do clz(significand - 1) but here we are trying to
     // construct a mask, so want to ensure for an power of 2, we
     // actually get the next (i.e. 2 returns 4)
-    const uint32_t tsigshift = (32 - __builtin_clz (tolSig));
+    const uint32_t tsigshift = (32 - countLeadingZeros (tolSig));
     const uint32_t npow2 = (1 << tsigshift);
     const uint32_t lowermask = npow2 - 1;
     const uint32_t mask = ~lowermask;
@@ -698,7 +726,7 @@ static uint32_t handleQuantizeDefault (
     // classic would do clz(significand - 1) but here we are trying to
     // construct a mask, so want to ensure for an power of 2, we
     // actually get the next (i.e. 2 returns 4)
-    const uint32_t tsigshift = (32 - __builtin_clz (tolSig));
+    const uint32_t tsigshift = (32 - countLeadingZeros (tolSig));
     const uint32_t npow2 = (1 << tsigshift);
     const uint32_t lowermask = npow2 - 1;
     const uint32_t mask = ~lowermask;
