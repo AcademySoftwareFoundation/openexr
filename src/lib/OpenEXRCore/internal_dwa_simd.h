@@ -22,6 +22,7 @@
 #    define IMF_HAVE_SSE2 1
 #    include <emmintrin.h>
 #    include <mmintrin.h>
+#    include <x86intrin.h>
 #endif
 
 #if defined(__ARM_NEON)
