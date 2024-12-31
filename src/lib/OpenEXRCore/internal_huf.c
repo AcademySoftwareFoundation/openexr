@@ -27,6 +27,26 @@
 #define SHORTEST_LONG_RUN (2 + LONG_ZEROCODE_RUN - SHORT_ZEROCODE_RUN)
 #define LONGEST_LONG_RUN (255 + SHORTEST_LONG_RUN)
 
+#ifndef OUR_LIKELY
+#    if defined(__GNUC__) || defined(__clang__) || defined(__INTEL_COMPILER)
+#        define OUR_LIKELY(x) (__builtin_expect ((x), 1))
+#        define OUR_UNLIKELY(x) (__builtin_expect ((x), 0))
+#    else
+#        define OUR_LIKELY(x) (x)
+#        define OUR_UNLIKELY(x) (x)
+#    endif
+#endif
+
+#ifndef __cplusplus
+// msvc does not seem to properly enable restrict in C compiling. /sigh
+#    ifndef _MSC_VER
+#        define NO_ALIAS restrict
+#    endif
+#endif
+#ifndef NO_ALIAS
+#    define NO_ALIAS
+#endif
+
 typedef struct _HufDec
 {
     int32_t   len;
@@ -36,40 +56,57 @@ typedef struct _HufDec
 
 /**************************************/
 
-static inline int
-hufLength (uint64_t code)
-{
-    return (int) (code & 63);
-}
+//static inline int
+//hufLength (uint64_t code)
+//{
+//    return (int) (code & 63);
+//}
+#define hufLength(code) ((int)((code) & 63))
 
-static inline uint64_t
-hufCode (uint64_t code)
-{
-    return code >> 6;
-}
+//static inline uint64_t
+//hufCode (uint64_t code)
+//{
+//    return code >> 6;
+//}
+#define hufCode(code) ((code) >> 6)
 
-static inline exr_result_t
-outputBits (
-    int       nBits,
-    uint64_t  bits,
-    uint64_t* c,
-    int*      lc,
-    uint8_t** outptr,
-    uint8_t*  outend)
-{
-    uint8_t* out = *outptr;
-    *c <<= nBits;
-    *lc += nBits;
-    *c |= bits;
+//static inline exr_result_t
+//outputBits (
+//    int       nBits,
+//    uint64_t  bits,
+//    uint64_t* c,
+//    int*      lc,
+//    uint8_t** outptr,
+//    uint8_t*  outend)
+//{
+//    uint8_t* out = *outptr;
+//    *c <<= nBits;
+//    *lc += nBits;
+//    *c |= bits;
+//    // not actually faster to calculate bytes and test range outside
+//    // of loop as this will be called with small number of bits fairly
+//    // often so this is continually going to output values
+//    while (*lc >= 8)
+//    {
+//        if (OUR_UNLIKELY(out >= outend)) return EXR_ERR_ARGUMENT_OUT_OF_RANGE;
+//        *out++ = (uint8_t) (*c >> (*lc -= 8));
+//    }
+//    *outptr = out;
+//    return EXR_ERR_SUCCESS;
+//}
 
-    while (*lc >= 8)
-    {
-        if (out >= outend) return EXR_ERR_ARGUMENT_OUT_OF_RANGE;
-        *out++ = (uint8_t) (*c >> (*lc -= 8));
+#define outputBits(nBits, bits, c, lc, out, outend)             \
+    {                                                           \
+        int xnBits = nBits;                                     \
+        c = (c << xnBits) | (bits);                             \
+        lc += xnBits;                                           \
+        while ( lc >= 8 )                                       \
+        {                                                       \
+            if (OUR_UNLIKELY(out >= outend))                    \
+                return EXR_ERR_ARGUMENT_OUT_OF_RANGE;           \
+            *out++ = (uint8_t) (c >> (lc -= 8));                \
+        }                                                       \
     }
-    *outptr = out;
-    return EXR_ERR_SUCCESS;
-}
 
 static inline uint64_t
 getBits (uint32_t nBits, uint64_t* c, uint32_t* lc, const uint8_t** inptr)
@@ -444,7 +481,6 @@ hufPackEncTable (
     uint8_t**       pcode, // o : ptr to packed table (updated)
     uint8_t*        pend)         // i : max size of table
 {
-    exr_result_t rv;
     uint8_t*     out = *pcode;
     uint64_t     c   = 0;
     int          lc  = 0;
@@ -468,24 +504,18 @@ hufPackEncTable (
             {
                 if (zerun >= SHORTEST_LONG_RUN)
                 {
-                    rv = outputBits (6, LONG_ZEROCODE_RUN, &c, &lc, &out, pend);
-                    if (rv != EXR_ERR_SUCCESS) return rv;
-                    rv = outputBits (
-                        8, zerun - SHORTEST_LONG_RUN, &c, &lc, &out, pend);
-                    if (rv != EXR_ERR_SUCCESS) return rv;
+                    outputBits (6, LONG_ZEROCODE_RUN, c, lc, out, pend);
+                    outputBits (8, zerun - SHORTEST_LONG_RUN, c, lc, out, pend);
                 }
                 else
                 {
-                    rv = outputBits (
-                        6, SHORT_ZEROCODE_RUN + zerun - 2, &c, &lc, &out, pend);
-                    if (rv != EXR_ERR_SUCCESS) return rv;
+                    outputBits (6, SHORT_ZEROCODE_RUN + zerun - 2, c, lc, out, pend);
                 }
                 continue;
             }
         }
 
-        rv = outputBits (6, (uint64_t) l, &c, &lc, &out, pend);
-        if (rv != EXR_ERR_SUCCESS) return rv;
+        outputBits (6, (uint64_t) l, c, lc, out, pend);
     }
 
     if (lc > 0)
@@ -704,43 +734,60 @@ hufFreeDecTable (exr_const_context_t pctxt, HufDec* hdecod)
 // ENCODING
 //
 
-static inline exr_result_t
-outputCode (uint64_t code, uint64_t* c, int* lc, uint8_t** out, uint8_t* outend)
-{
-    return outputBits (hufLength (code), hufCode (code), c, lc, out, outend);
-}
+//static inline exr_result_t
+//outputCode (uint64_t code, uint64_t* c, int* lc, uint8_t** out, uint8_t* outend)
+//{
+//    return outputBits (hufLength (code), hufCode (code), c, lc, out, outend);
+//}
+#define outputCode(code, c, lc, out, outend) \
+    outputBits (hufLength (code), hufCode (code), c, lc, out, outend)
 
-static inline exr_result_t
-sendCode (
-    uint64_t  sCode,
-    int       runCount,
-    uint64_t  runCode,
-    uint64_t* c,
-    int*      lc,
-    uint8_t** out,
-    uint8_t*  outend)
-{
-    exr_result_t rv;
-    if (hufLength (sCode) + hufLength (runCode) + 8 <
-        hufLength (sCode) * runCount)
-    {
-        rv = outputCode (sCode, c, lc, out, outend);
-        if (rv == EXR_ERR_SUCCESS)
-            rv = outputCode (runCode, c, lc, out, outend);
-        if (rv == EXR_ERR_SUCCESS)
-            rv = outputBits (8, (uint64_t) runCount, c, lc, out, outend);
+//static inline exr_result_t
+//sendCode (
+//    uint64_t  sCode,
+//    int       runCount,
+//    uint64_t  runCode,
+//    uint64_t* c,
+//    int*      lc,
+//    uint8_t** out,
+//    uint8_t*  outend)
+//{
+//    exr_result_t rv;
+//    if (hufLength (sCode) + hufLength (runCode) + 8 <
+//        hufLength (sCode) * runCount)
+//    {
+//        rv = outputCode (sCode, c, lc, out, outend);
+//        if (rv == EXR_ERR_SUCCESS)
+//            rv = outputCode (runCode, c, lc, out, outend);
+//        if (rv == EXR_ERR_SUCCESS)
+//            rv = outputBits (8, (uint64_t) runCount, c, lc, out, outend);
+//    }
+//    else
+//    {
+//        rv = EXR_ERR_SUCCESS;
+//        while (runCount-- >= 0)
+//        {
+//            rv = outputCode (sCode, c, lc, out, outend);
+//            if (rv != EXR_ERR_SUCCESS) break;
+//        }
+//    }
+//    return rv;
+//}
+#define sendCode(sCode, runCount, runCode, c, lc, out, outend)      \
+    if ((hufLength (sCode) + hufLength (runCode) + 8) <             \
+        (hufLength (sCode) * runCount))                             \
+    {                                                               \
+        outputCode (sCode, c, lc, out, outend);                     \
+        outputCode (runCode, c, lc, out, outend);                   \
+        outputBits (8, (uint64_t) runCount, c, lc, out, outend);    \
+    }                                                               \
+    else                                                            \
+    {                                                               \
+        while ( runCount-- >= 0 )                                   \
+        {                                                           \
+            outputCode (sCode, c, lc, out, outend);                 \
+        }                                                           \
     }
-    else
-    {
-        rv = EXR_ERR_SUCCESS;
-        while (runCount-- >= 0)
-        {
-            rv = outputCode (sCode, c, lc, out, outend);
-            if (rv != EXR_ERR_SUCCESS) break;
-        }
-    }
-    return rv;
-}
 
 //
 // Encode (compress) ni values based on the Huffman encoding table hcode:
@@ -748,64 +795,59 @@ sendCode (
 
 static inline exr_result_t
 hufEncode (
-    const uint64_t* hcode,
-    const uint16_t* in,
-    const uint64_t  ni,
-    uint32_t        rlc,
-    uint8_t*        out,
-    uint8_t*        outend,
-    uint32_t*       outbytes)
+    const uint64_t* NO_ALIAS hcode,
+    const uint16_t* NO_ALIAS in,
+    const uint64_t           ni,
+    uint32_t                 rlc,
+    uint8_t* NO_ALIAS        out,
+    uint8_t* NO_ALIAS        outend,
+    uint32_t* NO_ALIAS       outbytes)
 {
-    exr_result_t rv = EXR_ERR_SUCCESS;
-
     uint8_t* outStart = out;
     uint64_t c        = 0; // bits not yet written to out
     int      lc       = 0; // number of valid bits in c (LSB)
-    uint16_t s        = in[0];
+    uint32_t s        = in[0];
     int      cs       = 0;
-
+    uint64_t runCode  = hcode[rlc];
     //
     // Loop on input values
     //
 
     for (uint64_t i = 1; i < ni; i++)
     {
+        uint32_t ns = in[i];
         //
         // Count same values or send code
         //
 
-        if (s == in[i] && cs < 255) { cs++; }
+        if (cs == 255 || s != ns)
+        {
+            sendCode (hcode[s], cs, runCode, c, lc, out, outend);
+            cs = 0;
+            s = ns;
+        }
         else
         {
-            rv = sendCode (hcode[s], cs, hcode[rlc], &c, &lc, &out, outend);
-            if (rv != EXR_ERR_SUCCESS) break;
-            cs = 0;
+            ++cs;
         }
-
-        s = in[i];
     }
 
     //
     // Send remaining code
     //
+    sendCode (hcode[s], cs, runCode, c, lc, out, outend);
 
-    if (rv == EXR_ERR_SUCCESS)
-        rv = sendCode (hcode[s], cs, hcode[rlc], &c, &lc, &out, outend);
-
-    if (rv == EXR_ERR_SUCCESS)
+    if (lc)
     {
-        if (lc)
-        {
-            if (out >= outend) return EXR_ERR_ARGUMENT_OUT_OF_RANGE;
-            *out = (c << (8 - lc)) & 0xff;
-        }
-
-        c = (((uintptr_t) out) - ((uintptr_t) outStart)) * 8 + (uint64_t) (lc);
-        if (c > (uint64_t) UINT32_MAX) return EXR_ERR_ARGUMENT_OUT_OF_RANGE;
-        *outbytes = (uint32_t) c;
+        if (out >= outend) return EXR_ERR_ARGUMENT_OUT_OF_RANGE;
+        *out = (c << (8 - lc)) & 0xff;
     }
 
-    return rv;
+    c = (((uintptr_t) out) - ((uintptr_t) outStart)) * 8 + (uint64_t) (lc);
+    if (c > (uint64_t) UINT32_MAX) return EXR_ERR_ARGUMENT_OUT_OF_RANGE;
+    *outbytes = (uint32_t) c;
+
+    return EXR_ERR_SUCCESS;
 }
 
 //
@@ -1014,14 +1056,22 @@ readUInt (const uint8_t* b)
 /* unaligned reads are UB, so can't just cast the way c++ used to
  * (chars are special and we don't want to use those anyway) so just
  * do the simple thing... */
-
+#if 1
+static inline uint64_t
+READ64(const uint8_t * c)
+{
+    uint64_t x;
+    memcpy(&x, c, sizeof(uint64_t));
+    return __builtin_bswap64 (x);
+}
+#else
 //#define READ64(c) __builtin_bswap64 (*(const uint64_t*) (c))
 #    define READ64(c)                                                          \
         ((uint64_t) (c)[0] << 56) | ((uint64_t) (c)[1] << 48) |                \
             ((uint64_t) (c)[2] << 40) | ((uint64_t) (c)[3] << 32) |            \
             ((uint64_t) (c)[4] << 24) | ((uint64_t) (c)[5] << 16) |            \
             ((uint64_t) (c)[6] << 8) | ((uint64_t) (c)[7])
-
+#endif
 
 typedef struct FastHufDecoder
 {
@@ -1171,16 +1221,6 @@ FastHufDecoder_buildTables (
     else { fhd->_tableMin = fhd->_ljBase[minIdx]; }
     return EXR_ERR_SUCCESS;
 }
-
-#ifndef __cplusplus
-// msvc does not seem to properly enable restrict in C compiling. /sigh
-#    ifndef _MSC_VER
-#        define NO_ALIAS restrict
-#    endif
-#endif
-#ifndef NO_ALIAS
-#    define NO_ALIAS
-#endif
 
 static inline void
 FastHufDecoder_refill (
@@ -1559,10 +1599,11 @@ fasthuf_decode (
     // Current position (byte/bit) in the src data stream
     // (after the first buffer fill)
     //
-    uint64_t       buffer, bufferBack, dstIdx, tMin;
-    int            bufferNumBits, bufferBackNumBits;
-    uint32_t       rleSym;
-    const uint8_t* currByte = src + 2 * sizeof (uint64_t);
+    uint64_t buffer, bufferBack, dstIdx, tMin;
+    int      bufferNumBits, bufferBackNumBits;
+    uint32_t rleSym;
+
+    const uint8_t* NO_ALIAS currByte = src + 2 * sizeof (uint64_t);
 
     numSrcBits -= 8 * 2 * sizeof (uint64_t);
 
@@ -1628,11 +1669,11 @@ fasthuf_decode (
             codeLen = TABLE_LOOKUP_BITS + 1;
 
             /* sentinel zero can never be greater than buffer */
-            while (fhd->_ljBase[codeLen] >
-                   buffer /* && codeLen <= _maxCodeLength */)
+            /* && codeLen <= _maxCodeLength */
+            while (fhd->_ljBase[codeLen] > buffer)
                 codeLen++;
 
-            if (codeLen > fhd->_maxCodeLength)
+            if (OUR_UNLIKELY(codeLen > fhd->_maxCodeLength))
             {
                 if (pctxt)
                     pctxt->print_error (
@@ -1643,7 +1684,7 @@ fasthuf_decode (
             }
 
             id = fhd->_ljOffset[codeLen] + (buffer >> (64 - codeLen));
-            if (id < (uint64_t) fhd->_numSymbols)
+            if (OUR_LIKELY(id < (uint64_t) fhd->_numSymbols))
             {
                 symbol = fhd->_idToSymbol[id];
             }
@@ -1692,7 +1733,7 @@ fasthuf_decode (
 
             rleCount = buffer >> 56;
 
-            if (dstIdx < 1)
+            if (OUR_UNLIKELY(dstIdx < 1))
             {
                 if (pctxt)
                     pctxt->print_error (
@@ -1702,7 +1743,7 @@ fasthuf_decode (
                 return EXR_ERR_CORRUPT_CHUNK;
             }
 
-            if (dstIdx + (uint64_t) rleCount > numDstElems)
+            if (OUR_UNLIKELY(dstIdx + (uint64_t) rleCount > numDstElems))
             {
                 if (pctxt)
                     pctxt->print_error (
@@ -1712,7 +1753,7 @@ fasthuf_decode (
                 return EXR_ERR_CORRUPT_CHUNK;
             }
 
-            if (rleCount == 0 || rleCount >= (uint32_t)INT32_MAX)
+            if (OUR_UNLIKELY(rleCount == 0 || rleCount >= (uint32_t)INT32_MAX))
             {
                 if (pctxt)
                     pctxt->print_error (
@@ -1755,7 +1796,7 @@ fasthuf_decode (
         }
     }
 
-    if (numSrcBits != 0)
+    if (OUR_UNLIKELY(numSrcBits != 0))
     {
         if (pctxt)
             pctxt->print_error (
