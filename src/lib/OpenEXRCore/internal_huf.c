@@ -1070,6 +1070,9 @@ READ64(const uint8_t * c)
 #endif
 
 #ifndef HAVE_READ64
+// the previous code did (effectively) the commented out line below, but
+// the type cast to uint64_t triggers UB with an unaligned read (memcpy
+// above will be removed by the compiler and inlined to a safe load/cast)
 //#define READ64(c) __builtin_bswap64 (*(const uint64_t*) (c))
 #    define READ64(c)                                                          \
         ((uint64_t) (c)[0] << 56) | ((uint64_t) (c)[1] << 48) |                \
