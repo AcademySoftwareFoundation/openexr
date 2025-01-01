@@ -1437,7 +1437,9 @@ internal_exr_match_decode (
         /* other optimizations would not be difficult, but this will
          * be the common one (where on encode / pack we want to do the
          * opposite) */
-        if (sametype == (int) EXR_PIXEL_HALF &&
+        if (!hassampling &&
+            chanstofill == decode->channel_count &&
+            sametype == (int) EXR_PIXEL_HALF &&
             sameouttype == (int) EXR_PIXEL_FLOAT)
         {
             if (simpinterleave > 0)
