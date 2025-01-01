@@ -105,6 +105,7 @@ define_openexrcore_tests(
  testWriteDeep
 
  testHUF
+ testDWAQuantize
  testDWATable
  testB44Table
  testNoCompression
