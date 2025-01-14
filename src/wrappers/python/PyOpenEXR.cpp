@@ -1986,7 +1986,7 @@ PyPart::PyPart(const py::dict& header, const py::dict& channels, const std::stri
     }
     
     //
-    // Validate that all channel dict keys are strings, and initialze the
+    // Validate that all channel dict keys are strings, and initialize the
     // channel name field.
     //
     
@@ -2644,7 +2644,7 @@ PYBIND11_MODULE(OpenEXR, m)
              py::arg("header"),
              py::arg("channels"),
              R"pbdoc(
-             Initialize a File with metdata and pixels. Creates a single-part EXR file.
+             Initialize a File with metadata and pixels. Creates a single-part EXR file.
 
              Parameters
              ----------

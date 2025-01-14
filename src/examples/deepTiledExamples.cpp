@@ -54,7 +54,7 @@ readDeepTiledFile (
     //    - allocate memory for the pixels
     //    - describe the layout of the A, and Z pixel buffers
     //    - read the sample counts from the file
-    //    - allocate the memory requred to store the samples
+    //    - allocate the memory required to store the samples
     //    - read the pixels from the file
     //
 

@@ -280,7 +280,7 @@ You can customize these options three ways:
 Uninstall
 ~~~~~~~~~
 
-If you did a binary instal of OpenEXR via a package manager
+If you did a binary install of OpenEXR via a package manager
 (`apt-get`, `yum`, `port`, `brew`, etc), use the package manager to
 uninstall.
 
@@ -395,7 +395,7 @@ TBB Dependency
 OpenEXR can optionally use the TBB library as the default global
 thread pool as a thread provider. This allows applications which also
 use TBB for other purposes to lower the number of active threads. With
-high core count machines more prevalent, this can signficantly lower
+high core count machines more prevalent, this can significantly lower
 the number of active threads and so the improve available resources
 especially when compiling with a static library and using plugins
 which use OpenEXR.
