@@ -389,7 +389,7 @@ The channel pixel arrays must have a ``dtype`` of ``uint32``,
 ``float16``, or ``float32``.
 
 All channel pixel arrays within a given part must have the same
-dimenions. The ``write`` method will throw an exception if they are
+dimensions. The ``write`` method will throw an exception if they are
 not.
 
 .. code-block::

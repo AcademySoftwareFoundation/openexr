@@ -1312,7 +1312,7 @@ static uint16_t algoQuantize (
     //
     // 99.99% of the time, the mask or round will be a good choice,
     // but only in a few combinations of tolerance will the truncation
-    // be needed because the mask trunction will be out of range,
+    // be needed because the mask truncation will be out of range,
     // which is not surprising given we're just shifting the
     // significand of the half-float tolerance, where the tolerance is
     // against the original 32-bit value, but can be quickly tested

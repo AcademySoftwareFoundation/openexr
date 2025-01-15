@@ -94,7 +94,7 @@ writeReadCRGBA (
     ImfHeaderSetDataWindow (headerPtr, 0, 0, width - 1, height - 1);
     ImfHeaderSetDisplayWindow (headerPtr, 0, 0, width - 1, height - 1);
 
-    // Get screenWindowCenter for comparision
+    // Get screenWindowCenter for comparison
     float xScreenWindowCenterOut, yScreenWindowCenterOut;
     ImfHeaderScreenWindowCenter (headerPtr, &xScreenWindowCenterOut, &yScreenWindowCenterOut);
 
