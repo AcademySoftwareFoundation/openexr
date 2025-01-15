@@ -474,7 +474,7 @@ EXR_EXPORT exr_result_t exr_start_inplace_header_update (
  * requirement of actual file i/o.
  *
  * Note that this creates an defines an initial part for use, so one
- * can immediately start definining attributes into part index 0.
+ * can immediately start defining attributes into part index 0.
  *
  * See the initializer context documentation \ref
  * exr_context_initializer_t to be able to provide allocation
