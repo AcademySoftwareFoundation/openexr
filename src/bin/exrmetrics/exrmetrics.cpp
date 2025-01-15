@@ -44,6 +44,9 @@ using std::string;
 using std::to_string;
 using std::vector;
 
+// Flag for benchmark mode
+static bool benchmark = false;
+
 double
 timing (steady_clock::time_point start, steady_clock::time_point end)
 {
@@ -109,10 +112,13 @@ copyScanLine (InputPart& in, OutputPart& out)
     out.writePixels (height);
     steady_clock::time_point endWrite = steady_clock::now();
 
-    cout << "   \"read time\": " << timing (startRead, endRead) << ",\n";
-    cout << "   \"write time\": " << timing (startWrite, endWrite) << ",\n";
-    cout << "   \"pixel count\": " << numPixels << ",\n";
-    cout << "   \"raw size\": " << numPixels * pixelSize << ",\n";
+    if (!benchmark)
+    {
+        cout << "   \"read time\": " << timing (startRead, endRead) << ",\n";
+        cout << "   \"write time\": " << timing (startWrite, endWrite) << ",\n";
+        cout << "   \"pixel count\": " << numPixels << ",\n";
+        cout << "   \"raw size\": " << numPixels * pixelSize << ",\n";
+    }
 }
 
 void
@@ -245,11 +251,14 @@ copyTiled (TiledInputPart& in, TiledOutputPart& out)
     }
     steady_clock::time_point endWrite = steady_clock::now();
 
-    cout << "   \"read time\": " << timing (startRead, endRead) << ",\n";
-    cout << "   \"write time\": " << timing (startWrite, endWrite) << ",\n";
-    cout << "   \"total tiles\": " << tileCount << ",\n";
-    cout << "   \"pixel count\": " << totalPixels << ",\n";
-    cout << "   \"raw size\": " << totalPixels * pixelSize << ",\n";
+    if (!benchmark)
+    {
+        cout << "   \"read time\": " << timing (startRead, endRead) << ",\n";
+        cout << "   \"write time\": " << timing (startWrite, endWrite) << ",\n";
+        cout << "   \"total tiles\": " << tileCount << ",\n";
+        cout << "   \"pixel count\": " << totalPixels << ",\n";
+        cout << "   \"raw size\": " << totalPixels * pixelSize << ",\n";
+    }
 }
 
 void
@@ -335,15 +344,17 @@ copyDeepScanLine (DeepScanLineInputPart& in, DeepScanLineOutputPart& out)
     out.writePixels (height);
     steady_clock::time_point endWrite = steady_clock::now();
 
-
-    cout << "   \"count read time\": " << timing (startCountRead, endCountRead)
-         << ",\n";
-    cout << "   \"sample read time\": "
-         << timing (startSampleRead, endSampleRead) << ",\n";
-    cout << "   \"write time\": " << timing (startWrite, endWrite) << ",\n";
-    cout << "   \"pixel count\": " << numPixels << ",\n";
-    cout << "   \"raw size\": "
-         << totalSamples * bytesPerSample + numPixels * sizeof (int) << ",\n";
+    if (!benchmark)
+    {
+        cout << "   \"count read time\": " << timing (startCountRead, endCountRead)
+            << ",\n";
+        cout << "   \"sample read time\": "
+            << timing (startSampleRead, endSampleRead) << ",\n";
+        cout << "   \"write time\": " << timing (startWrite, endWrite) << ",\n";
+        cout << "   \"pixel count\": " << numPixels << ",\n";
+        cout << "   \"raw size\": "
+            << totalSamples * bytesPerSample + numPixels * sizeof (int) << ",\n";
+    }
 }
 
 void
@@ -446,15 +457,17 @@ copyDeepTiled (DeepTiledInputPart& in, DeepTiledOutputPart& out)
     out.writeTiles (0, in.numXTiles (0) - 1, 0, in.numYTiles (0) - 1, 0, 0);
     steady_clock::time_point endWrite = steady_clock::now();
 
-
-    cout << "   \"count read time\": " << timing (startCountRead, endCountRead)
-         << ",\n";
-    cout << "   \"sample read time\": "
-         << timing (startSampleRead, endSampleRead) << ",\n";
-    cout << "   \"write time\": " << timing (startWrite, endWrite) << ",\n";
-    cout << "   \"pixel count\": " << numPixels << ",\n";
-    cout << "   \"raw size\": "
-         << totalSamples * bytesPerSample + numPixels * sizeof (int) << ",\n";
+    if (!benchmark)
+    {
+        cout << "   \"count read time\": " << timing (startCountRead, endCountRead)
+            << ",\n";
+        cout << "   \"sample read time\": "
+            << timing (startSampleRead, endSampleRead) << ",\n";
+        cout << "   \"write time\": " << timing (startWrite, endWrite) << ",\n";
+        cout << "   \"pixel count\": " << numPixels << ",\n";
+        cout << "   \"raw size\": "
+            << totalSamples * bytesPerSample + numPixels * sizeof (int) << ",\n";
+    }
 }
 
 void
@@ -462,7 +475,7 @@ exrmetrics (
     const char       inFileName[],
     const char       outFileName[],
     int              part,
-    OPENEXR_IMF_NAMESPACE::Compression compression,
+    Compression      compression,
     float            level,
     int              halfMode)
 {
@@ -518,31 +531,34 @@ exrmetrics (
         }
     }
 
-    string inCompress, outCompress;
-    getCompressionNameFromId (in.header (part).compression (), inCompress);
-    getCompressionNameFromId (outHeader.compression (), outCompress);
-    cout << "{\n";
-    cout << "   \"input compression\": \"" << inCompress << "\",\n";
-    cout << "   \"output compression\": \"" << outCompress << "\",\n";
-    if (compression == ZIP_COMPRESSION || compression == ZIPS_COMPRESSION)
-    {
-        cout << "   \"zipCompressionLevel\": "
-             << outHeader.zipCompressionLevel () << ",\n";
-    }
-
-    if (compression == DWAA_COMPRESSION || compression == DWAB_COMPRESSION)
-    {
-        cout << "   \"dwaCompressionLevel\": "
-             << outHeader.dwaCompressionLevel () << ",\n";
-    }
-
     std::string type = outHeader.type ();
-    cout << "   \"part type\": \"" << type << "\",\n";
-
-    if (type == SCANLINEIMAGE)
+    if (!benchmark)
     {
-        cout << "   \"scanlines per chunk:\" : "
-             << getCompressionNumScanlines (compression) << ",\n";
+        string inCompress, outCompress;
+        getCompressionNameFromId (in.header (part).compression (), inCompress);
+        getCompressionNameFromId (outHeader.compression (), outCompress);
+        cout << "{\n";
+        cout << "   \"input compression\": \"" << inCompress << "\",\n";
+        cout << "   \"output compression\": \"" << outCompress << "\",\n";
+        if (compression == ZIP_COMPRESSION || compression == ZIPS_COMPRESSION)
+        {
+            cout << "   \"zipCompressionLevel\": "
+                << outHeader.zipCompressionLevel () << ",\n";
+        }
+
+        if (compression == DWAA_COMPRESSION || compression == DWAB_COMPRESSION)
+        {
+            cout << "   \"dwaCompressionLevel\": "
+                << outHeader.dwaCompressionLevel () << ",\n";
+        }
+
+        cout << "   \"part type\": \"" << type << "\",\n";
+
+        if (type == SCANLINEIMAGE)
+        {
+            cout << "   \"scanlines per chunk:\" : "
+                << getCompressionNumScanlines (compression) << ",\n";
+        }
     }
 
     {
@@ -579,10 +595,169 @@ exrmetrics (
                     .c_str ());
         }
     }
-    struct stat instats, outstats;
-    stat (inFileName, &instats);
-    stat (outFileName, &outstats);
-    cout << "   \"input file size\": " << instats.st_size << ",\n";
-    cout << "   \"output file size\": " << outstats.st_size << "\n";
-    cout << "}\n";
+
+    if (!benchmark)
+    {
+        struct stat instats, outstats;
+        stat (inFileName, &instats);
+        stat (outFileName, &outstats);
+        cout << "   \"input file size\": " << instats.st_size << ",\n";
+        cout << "   \"output file size\": " << outstats.st_size << "\n";
+        cout << "}\n";
+    }
+}
+
+struct PerfData
+{
+    int runs = 0;
+    double time = 0;
+};
+
+void runReadBench(PerfData &perf, const char file[], PixelType type, FrameBuffer &buf, Box2i &dw)
+{
+    for(int count = 0; count < BENCH_ROUNDS; ++count)
+    {
+        steady_clock::time_point start = steady_clock::now();
+        {
+            MultiPartInputFile in(file);
+            InputPart inpart(in, 0);
+            inpart.setFrameBuffer(buf);
+            inpart.readPixels(dw.min.y, dw.max.y);
+        }
+        steady_clock::time_point end = steady_clock::now();
+        perf.runs++;
+        perf.time += timing(start, end);
+    }
+}
+
+void runWriteBench(PerfData &perf, const char file[],  Compression id, bool half, FrameBuffer &buf, Header outHeader)
+{
+    for(int count = 0; count < BENCH_ROUNDS; ++count)
+    {
+        steady_clock::time_point start = steady_clock::now();
+        {
+            Box2i dw = outHeader.dataWindow();
+            uint64_t height = dw.max.y + 1 - dw.min.y;
+
+            outHeader.compression() = id;
+            if (half)
+            {
+                for (ChannelList::Iterator i = outHeader.channels ().begin ();
+                    i != outHeader.channels ().end ();
+                    ++i)
+                {
+                    i.channel ().type = HALF;
+                }
+            }
+            outHeader.type() = SCANLINEIMAGE;
+
+            MultiPartOutputFile out(file, &outHeader, 1);
+
+            OutputPart outPart(out, 0);
+            outPart.setFrameBuffer(buf);
+            outPart.writePixels (height);
+        }
+        steady_clock::time_point end = steady_clock::now();
+        perf.runs++;
+        perf.time += timing(start, end);
+    }
+}
+
+void printPerf(PerfData &perf)
+{
+    if (perf.runs > 0)
+        cout << "," << 1.0 / (perf.time / perf.runs);
+    else
+        cout << ",---";
+}
+
+void exrbench (const char inFileName[], int threads)
+{
+    PerfData halfReadRuns[NUM_COMPRESSION_METHODS];
+    PerfData halfWriteRuns[NUM_COMPRESSION_METHODS];
+    PerfData floatReadRuns[NUM_COMPRESSION_METHODS];
+    PerfData floatWriteRuns[NUM_COMPRESSION_METHODS];
+
+    benchmark = true;
+
+    MultiPartInputFile in(inFileName);
+    Header outHeader = in.header(0);
+    InputPart inpart(in, 0);
+    Box2i dw = inpart.header().dataWindow();
+    uint64_t width = dw.max.x + 1 - dw.min.x;
+    uint64_t height = dw.max.y + 1 - dw.min.y;
+    uint64_t numPixels = width * height;
+    int numChans = channelCount(inpart.header());
+    uint64_t offsetToOrigin = width * (uint64_t)(dw.min.y) + (uint64_t)(dw.min.x);
+
+    vector<vector<char>> halfPixels(numChans);
+    vector<vector<char>> floatPixels(numChans);
+    FrameBuffer halfBuf, floatBuf;
+
+    int channelNumber = 0;
+    for (ChannelList::ConstIterator i = inpart.header().channels().begin();
+         i != inpart.header().channels().end();
+         ++i)
+    {
+        int halfSize = pixelTypeSize(PixelType::HALF);
+        halfPixels[channelNumber].resize(numPixels * halfSize);
+        halfBuf.insert (
+            i.name(),
+            Slice (
+                PixelType::HALF,
+                halfPixels[channelNumber].data() - offsetToOrigin * halfSize,
+                halfSize,
+                halfSize * width));
+
+        int floatSize = pixelTypeSize(PixelType::FLOAT);
+        floatPixels[channelNumber].resize(numPixels * floatSize);
+        floatBuf.insert (
+            i.name(),
+            Slice (
+                PixelType::FLOAT,
+                floatPixels[channelNumber].data() - offsetToOrigin * floatSize,
+                floatSize,
+                floatSize * width));
+
+        ++channelNumber;
+    }
+
+    inpart.setFrameBuffer(halfBuf);
+    inpart.readPixels(dw.min.y, dw.max.y);
+
+    inpart.setFrameBuffer(floatBuf);
+    inpart.readPixels(dw.min.y, dw.max.y);
+
+    cout << getLibraryVersion() << "-";
+    if (threads < 1)
+        cout << "Single Threaded";
+    else
+        cout << threads << " Threads";
+    cout << ",Read(fps),Write(fps)\n";
+
+    for (int i = 0; i < static_cast<int> (NUM_COMPRESSION_METHODS); i++)
+    {
+        Compression id = static_cast<Compression>(i);
+        string name;
+        getCompressionNameFromId(id, name);
+
+        string halfFile = name + "-half.exr";
+        string floatFile = name + "-float.exr";
+
+        runWriteBench(halfWriteRuns[i], halfFile.c_str(), id, true, halfBuf, outHeader);
+        runReadBench(halfReadRuns[i], halfFile.c_str(), PixelType::HALF, halfBuf, dw);
+
+        cout << name << "-half";
+        printPerf(halfReadRuns[i]);
+        printPerf(halfWriteRuns[i]);
+        cout << "\n";
+
+        runWriteBench(floatWriteRuns[i], floatFile.c_str(), id, false, floatBuf, outHeader);
+        runReadBench(floatReadRuns[i], floatFile.c_str(), PixelType::FLOAT, floatBuf, dw);
+
+        cout << name << "-float";
+        printPerf(floatReadRuns[i]);
+        printPerf(floatWriteRuns[i]);
+        cout << "\n";
+    }
 }
