@@ -32,7 +32,7 @@ archive_override(
     urls = ["https://github.com/ebiggers/libdeflate/archive/refs/heads/master.zip"],
 )
 
-archive_override(
+git_override(
     module_name = "openjph",
     patches = [
         "//bazel:openjph_add_build_file.patch",
