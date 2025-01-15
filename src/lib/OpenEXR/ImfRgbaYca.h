@@ -47,7 +47,7 @@
 //		YCA  YCA  YCA  YCA  ... YCA  YCA
 //		YCA  YCA  YCA  YCA  ... YCA  YCA
 //
-//	Next, decimateChomaHoriz() eliminates the chroma values from
+//	Next, decimateChromaHoriz() eliminates the chroma values from
 //	the odd-numbered pixels in every scan line:
 //
 //		YCA  YA   YCA  YA   ... YCA  YA
@@ -152,7 +152,7 @@ void decimateChromaVert (int n, const Rgba* const ycaIn[N], Rgba ycaOut[/*n*/]);
 //
 // Round the luminance and chroma channels of an array of YCA
 // pixels that has already been filtered and subsampled.
-// The signifcands of the pixels' luminance and chroma values
+// The significands of the pixels' luminance and chroma values
 // are rounded to roundY and roundC bits respectively.
 //
 
@@ -175,7 +175,7 @@ reconstructChromaHoriz (int n, const Rgba ycaIn[/*n+N-1*/], Rgba ycaOut[/*n*/]);
 
 //
 // For a scan line that has only luminance and no valid chroma data,
-// reconstruct chroma from the surronding N scan lines.
+// reconstruct chroma from the surrounding N scan lines.
 //
 
 IMF_EXPORT

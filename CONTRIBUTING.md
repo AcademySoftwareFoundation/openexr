@@ -192,7 +192,7 @@ remains linear, avoiding the "bubbles" characteristic of the
 [GitFlow](https://www.endoflineblog.com/gitflow-considered-harmful)
 workflow.
 
-### Use the Fork, Luke.
+### Use the Fork, Luke
 
 In a typical workflow, you should **fork** the OpenEXR repository to
 your account. This creates a copy of the repository under your user
@@ -214,7 +214,7 @@ openexr-dev@lists.aswf.io mail list.
 
 Contributions should be submitted as GitHub pull requests. See
 [Creating a pull request](https://help.github.com/articles/creating-a-pull-request/)
-if you're unfamiliar with this concept. 
+if you're unfamiliar with this concept.
 
 The development cycle for a code change should follow this protocol:
 
@@ -336,7 +336,7 @@ code.
 
 * Function return types go on a separate line:
 
-        const float &	
+        const float &
         Header::pixelAspectRatio () const
         {
             ...
@@ -452,7 +452,7 @@ each version with three numbers: ``major.minor.patch``, where:
 
 * ``major`` - indicates incompatible API changes
 * ``minor`` - indicates functionality added in a backwards-compatible manner
-* ``patch`` - indicates backwards-compatible bug fixes 
+* ``patch`` - indicates backwards-compatible bug fixes
 
 ## Contributing to the Website
 
@@ -474,7 +474,7 @@ Building the website requires that ``sphinx``, ``breathe``, and
 ``doxygen`` are installed. It further requires the [sphinx-press-theme]
 (https://pypi.org/project/sphinx-press-theme). Complete dependencies
 are described in the [requirements.txt](website/requirements.txtg)
-file. 
+file.
 
 On Debian/Ubuntu Linux:
 
@@ -498,7 +498,7 @@ browser to preview the resulting website, that is, load
 ``file://<build-directory>/website/sphinx/index.html`` into your web
 browser.
 
-Once you submit a PR, a check labled ``docs/readthedocs.org:openexr``
+Once you submit a PR, a check labeled ``docs/readthedocs.org:openexr``
 will validate the build. Click on the ``Details`` link to
 preview. Also, a link to this preview will be added automatically to
 the PR description.
@@ -550,11 +550,11 @@ The preferred workflow is:
 
    c. Increment ``OPENEXR_VERSION_PATCH`` in
       [src/lib/OpenEXRCore/openexr_version.h](src/lib/OpenEXRCore/openexr_version.h)
-   
+
    d. Update the ``IMATH_TAG`` setting in
       [cmake/OpenEXRSetup.cmake](cmake/OpenEXRSetup.cmake) to
       correspond to the proper Imath release.
-   
+
    e. Add release notes to [CHANGES.md](CHANGES.md):
 
       - Generate a list of links to merged pull requests.
@@ -589,16 +589,16 @@ The preferred workflow is:
 
       - If there are any public CVE's, mention them explicitly with a
         link to the CVE registry item.
-      
+
       - Provide an executive summary of the patch changes, in a few
         sentences as well as bullet points if appropriate.
 
       - Choose a proposed release date at least several days in
         advance.
-      
+
    f. If there are any public CVE's, reference them in
       [SECURITY.md](SECURITY.md).
-      
+
    g. Submit the PR for others to review. The PR should go *to the
       release branch, not ``main``*, obviously.
 
@@ -611,9 +611,9 @@ The preferred workflow is:
    i. If further fixes come in that need to go into the release, push
       them to the PR branch. It's not absolutely essential that all
       changes to the release branch go in via a PR. The PR is simply a
-      convient forum for publicly discussing and reviewing the
+      convenient forum for publicly discussing and reviewing the
       composition of the release.
-   
+
 2. Tag the release with a ``-rc`` "release candidate" tag,
    e.g. ``v3.1.9-rc``.
 
@@ -636,7 +636,7 @@ The preferred workflow is:
 
    Create the release from the latest ``--rc`` tag, and give it a name
    that begins with ``v``, i.e. ``v3.1.9``.
-   
+
    Save the release as a "draft".
 
 6. Wait at least 48 hours, to give the community time to discover and
@@ -666,16 +666,16 @@ The preferred workflow is:
       with your GitHub account and git config.
 
    b. Create a signed tag with the release name via `git tag -s v3.1.9`.
-   
+
    c. Push the tag via `git push --tags`
-   
+
 8. Publish the release
 
    a. Click the "Publish release" button on the GitHub release draft
 
    b. Send an email to ``openexr-dev@lists.aswf.io`` officially
-      annoucing the release.
-   
+      announcing the release.
+
 9. Update the ``release`` branch, which should always point to the
    most recent patch of the most recent minor release, i.e. the most
    preferred release.
@@ -694,7 +694,7 @@ The preferred workflow is:
       the associated commit as well.
 
     - Also include in this PR edits to [``docs/news.rst``](docs/news.rst)
-      that add an announcment of the release.
+      that add an announcement of the release.
 
 11. After review/merge of the updates to ``docs/news.rst``, build the
     website at https://readthedocs.org/projects/openexr.
@@ -740,7 +740,7 @@ To create a new release from the ``main`` branch:
 
    - If there are any public CVE's, mention them explicitly with a
      link to the CVE registry item.
-   
+
    - Submit this change as a separate PR.
 
 3. Add a mention of the release to [``docs/news.rst``](docs/news.rst)
@@ -748,7 +748,7 @@ To create a new release from the ``main`` branch:
    - Submit this change as a separate PR.
 
 4. Increment the ``OPENEXR_LIB_SOVERSION`` setting in [CMakeLists.txt](CMakeLists.txt).
-   
+
    - The SO version increases whenever, and only when, the ABI changes
      in non-backwards-compatible ways. Consistent with the semantic
      versioning policy, this usually happens at major and minor
@@ -770,7 +770,7 @@ To create a new release from the ``main`` branch:
    of the release with link to the release candidate tag. Include the
    release notes from [CHANGES.md](CHANGES.md) for review.
 
-9. If additonal fixes need to go in before release:
+9. If additional fixes need to go in before release:
 
    a. Merge commits to the release branch. Push them directly, no need
       for a pull request.
@@ -790,7 +790,7 @@ To create a new release from the ``main`` branch:
 
     - Create the release from the latest ``--rc`` tag, and give it a name
       that begins with ``v`` and ends in ``0``, e.g. ``v3.2.0``.
-   
+
     - Save the release as a "draft".
 
 11. Wait at least 48 hours after the email announcement.
@@ -800,8 +800,8 @@ To create a new release from the ``main`` branch:
     a. Click the "Publish release" button on the GitHub release draft
 
     b. Send an email to ``openexr-dev@lists.aswf.io`` officially
-       annoucing the release.
-   
+       announcing the release.
+
 13. Update the ``release`` branch, which should always point to the
     most recent release.
 

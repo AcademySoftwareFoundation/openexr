@@ -279,7 +279,7 @@ You can customize these options three ways:
 Uninstall
 ~~~~~~~~~
 
-If you did a binary instal of OpenEXR via a package manager
+If you did a binary install of OpenEXR via a package manager
 (`apt-get`, `yum`, `port`, `brew`, etc), use the package manager to
 uninstall.
 
