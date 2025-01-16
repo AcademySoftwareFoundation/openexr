@@ -157,7 +157,7 @@ jobs:
           path: _build/${{ env.INSTALL_MANIFEST }}
 
       - name: Validate install
-        if: ${{ inputs.validate_install == 'ON'}}
+        if: ${{ inputs.validate_install == 'ON' }}
         # Validate that the build has installed the proper files by comparing against the appropriate reference manifest
         run: |
           share/ci/scripts/validate_install.py "_build/$INSTALL_MANIFEST" "share/ci/install_manifest/$INSTALL_MANIFEST"
@@ -172,6 +172,6 @@ jobs:
 
       - name: Test
         run: |
-          ctest -T Test -C ${{ inputs.build-type }} --timeout 14400 --output-on-failure -VV
+          ctest -T Test -C ${{ inputs.build-type }} --timeout 7200 --output-on-failure -VV
         working-directory: _build
         shell: bash

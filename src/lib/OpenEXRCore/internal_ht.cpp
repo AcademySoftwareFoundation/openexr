@@ -104,7 +104,6 @@ internal_exr_undo_ht (
                                  p++)
                             {
                                 *channel_pixels++ = cur_line->i32[p];
-                                // assert (*(channel_pixels - 1) == 0);
                             }
                         }
                         else
@@ -115,7 +114,6 @@ internal_exr_undo_ht (
                                  p++)
                             {
                                 *channel_pixels++ = cur_line->i32[p];
-                                // assert (*(channel_pixels - 1) == 0);
                             }
                         }
                     }
@@ -147,7 +145,6 @@ internal_exr_undo_ht (
                          p++)
                     {
                         *channel_pixels++ = cur_line->i32[p];
-                        // assert (*(channel_pixels - 1) == 0);
                     }
                 }
                 else
@@ -158,7 +155,6 @@ internal_exr_undo_ht (
                          p++)
                     {
                         *channel_pixels++ = cur_line->i32[p];
-                        // assert (*(channel_pixels - 1) == 0);
                     }
                 }
             }
@@ -208,8 +204,6 @@ internal_exr_apply_ht (exr_encode_pipeline_t* encode)
         if (encode->channels[file_c].x_samples > 1 ||
             encode->channels[file_c].y_samples > 1)
         { isPlanar = true; }
-
-        // std::cout << "  Component number, color, bitdepth: " << c << ", " << encode->channels[file_c].channel_name << ", " << siz.get_bit_depth(c) << std::endl;
 
         bpl += encode->channels[file_c].bytes_per_element *
                encode->channels[file_c].width;
@@ -266,7 +260,6 @@ internal_exr_apply_ht (exr_encode_pipeline_t* encode)
                                  p < encode->channels[file_c].width;
                                  p++)
                             {
-                                // assert (*channel_pixels == 0);
                                 cur_line->i32[p] = *channel_pixels++;
                             }
                         }
@@ -277,7 +270,6 @@ internal_exr_apply_ht (exr_encode_pipeline_t* encode)
                                  p < encode->channels[file_c].width;
                                  p++)
                             {
-                                // assert (*channel_pixels == 0);
                                 cur_line->i32[p] = *channel_pixels++;
                             }
                         }
@@ -313,7 +305,6 @@ internal_exr_apply_ht (exr_encode_pipeline_t* encode)
                          p++)
                     {
                         cur_line->i32[p] = *channel_pixels++;
-                        //assert (cur_line->i32[p] == 0);
                     }
                 }
                 else
@@ -324,7 +315,6 @@ internal_exr_apply_ht (exr_encode_pipeline_t* encode)
                          p++)
                     {
                         cur_line->i32[p] = *channel_pixels++;
-                        //assert (cur_line->i32[p] == 0);
                     }
                 }
                 assert (next_comp == c);
@@ -339,11 +329,6 @@ internal_exr_apply_ht (exr_encode_pipeline_t* encode)
     assert (output.tell () >= 0);
 
     int compressed_sz = static_cast<size_t> (output.tell ());
-
-    // std::ofstream outf ("out7.j2c", std::ios::binary);
-    // outf.write ((char*) output.get_data (), compressed_sz);
-    // outf.close ();
-
     if (compressed_sz < encode->packed_bytes)
     {
         memcpy (encode->compressed_buffer, output.get_data (), compressed_sz);
