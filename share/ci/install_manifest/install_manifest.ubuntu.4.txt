@@ -157,7 +157,6 @@ include/OpenEXR/openexr_part.h
 include/OpenEXR/openexr_std_attr.h
 include/OpenEXR/openexr_version.h
 include/OpenEXR/ImfHTCompressor.h
-include/OpenEXR/ImfHTKCompressor.h
 include/openjph/ojph_arch.h
 include/openjph/ojph_arg.h
 include/openjph/ojph_base.h

@@ -37,7 +37,6 @@ exr_result_t internal_exr_apply_dwab (exr_encode_pipeline_t* encode);
 extern "C" {
 #endif
 exr_result_t internal_exr_apply_ht (exr_encode_pipeline_t* encode);
-exr_result_t internal_exr_apply_htk (exr_encode_pipeline_t* encode);
 #ifdef __cplusplus
 }
 #endif

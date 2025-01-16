@@ -47,8 +47,6 @@ typedef enum
     EXR_COMPRESSION_DWAB  = 9,
     EXR_COMPRESSION_HT        = 10,
     EXR_COMPRESSION_HT256     = 11,
-    EXR_COMPRESSION_HTK      = 12,
-    EXR_COMPRESSION_HTK256   = 13,
     EXR_COMPRESSION_LAST_TYPE /**< Invalid value, provided for range checking. */
 } exr_compression_t;
 
