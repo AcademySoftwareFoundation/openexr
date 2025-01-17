@@ -43,9 +43,7 @@ function(OPENEXR_DEFINE_LIBRARY libname)
   if(OPENEXR_CURLIB_CURBINDIR)
     target_include_directories(${objlib} PRIVATE $<BUILD_INTERFACE:${OPENEXR_CURLIB_CURBINDIR}>)
   endif()
-
   target_link_libraries(${objlib} PUBLIC ${PROJECT_NAME}::Config ${OPENEXR_CURLIB_DEPENDENCIES} ${CMAKE_DL_LIBS} openjph)
-
   if(OPENEXR_CURLIB_PRIVATE_DEPS)
     target_link_libraries(${objlib} PRIVATE ${OPENEXR_CURLIB_PRIVATE_DEPS})
   endif()

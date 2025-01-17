@@ -169,7 +169,7 @@ define_openexr_tests(
  testExistingStreams
  testFutureProofing
  testHeader
-  testHuf
+ testHuf
  testInputPart
  testIsComplete
  testLargeDataWindowOffsets
