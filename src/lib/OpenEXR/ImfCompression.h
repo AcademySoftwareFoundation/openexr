@@ -51,9 +51,7 @@ enum IMF_EXPORT_ENUM Compression
                           // wise and faster to decode full frames
                           // than DWAA_COMPRESSION.
 
-    HT_COMPRESSION = 10,
-
-    HT256_COMPRESSION = 11,
+    HT256_COMPRESSION = 10,
 
     NUM_COMPRESSION_METHODS // number of different compression methods
 };

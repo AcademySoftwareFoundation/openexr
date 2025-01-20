@@ -336,10 +336,6 @@ newCompressor (Compression c, size_t maxScanLineSize, const Header& hdr)
                 DwaCompressor::STATIC_HUFFMAN);
             break;
 
-        case HT_COMPRESSION:
-
-            return new HTCompressor (hdr, static_cast<int> (maxScanLineSize), 0);
-
         case HT256_COMPRESSION:
 
             return new HTCompressor (hdr, static_cast<int> (maxScanLineSize), 256);
