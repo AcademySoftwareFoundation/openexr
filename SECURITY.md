@@ -61,17 +61,18 @@ See the [release notes](CHANGES.md) for more information.
 
 ## Supported Versions
 
-This gives guidance about which branches are supported with patches to
+This gives guidance about which releases/branches are supported with bug fixes and patches to
 security vulnerabilities.
 
 | Version / branch  | Supported                                            |
 | --------- | ---------------------------------------------------- |
-| main      | :white_check_mark: :construction: ALL fixes immediately, but this is a branch under development with a frequently unstable ABI and occasionally unstable API. |
-| 3.2.x    | :white_check_mark: All fixes that can be backported without breaking ABI compatibility. |
-| 3.1.x    | :warning: Only the most critical fixes, only if they can be easily backported. |
-| 3.0.x    | :warning: Only the most critical fixes, only if they can be easily backported. |
-| 2.5.x    | :warning: Only the most critical fixes, only if they can be easily backported. |
-| <= 1.x   | :x: No longer receiving patches of any kind. |
+| main      | :white_check_mark: :construction: All fixes immediately, although this branch is under development with potential unstabe ABI/API
+| 3.3.x    | :white_check_mark: All fixes that can be backported without breaking ABI compatibility |
+| 3.2.x    | :warning: Patch releases considered in response to specific requests
+| 3.1.x    | :warning: Patch releases considered in response to specific requests
+| 3.0.x    | :warning: Patch releases considered in response to specific requests
+| 2.5.x    | :warning: Patch releases considered in response to specific requests
+| <= 1.x   | :x: No longer receiving patches of any kind |
 
 ## Signed Releases
 
