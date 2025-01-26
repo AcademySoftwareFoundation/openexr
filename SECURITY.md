@@ -32,9 +32,9 @@ These vulnerabilities are present in the given versions:
 * [CVE-2020-16589](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-16589) 2.0.0, 2.0.1, 2.1.0, 2.2.0, 2.2.1, 2.3.0
 * [CVE-2020-16588](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-16588) 2.0.0, 2.0.1, 2.1.0, 2.2.0, 2.2.1, 2.3.0
 * [CVE-2020-16587](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-16587) 2.0.0, 2.0.1, 2.1.0, 2.2.0, 2.2.1, 2.3.0
-* [CVE-2020-15306](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-15306) 2.0.0, 2.0.1, 2.1.0, 2.2.0, 2.2.1, 2.3.0, 2.4.0, 2.4.1, 2.5.0, 2.5.1 
-* [CVE-2020-15305](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-15305) 2.0.0, 2.0.1, 2.1.0, 2.2.0, 2.2.1, 2.3.0, 2.4.0, 2.4.1, 2.5.0, 2.5.1 
-* [CVE-2020-15304](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-15304) 2.0.0, 2.0.1, 2.1.0, 2.2.0, 2.2.1, 2.3.0, 2.4.0, 2.4.1, 2.5.0, 2.5.1 
+* [CVE-2020-15306](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-15306) 2.0.0, 2.0.1, 2.1.0, 2.2.0, 2.2.1, 2.3.0, 2.4.0, 2.4.1, 2.5.0, 2.5.1
+* [CVE-2020-15305](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-15305) 2.0.0, 2.0.1, 2.1.0, 2.2.0, 2.2.1, 2.3.0, 2.4.0, 2.4.1, 2.5.0, 2.5.1
+* [CVE-2020-15304](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-15304) 2.0.0, 2.0.1, 2.1.0, 2.2.0, 2.2.1, 2.3.0, 2.4.0, 2.4.1, 2.5.0, 2.5.1
 * [CVE-2020-11765](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-11765) 2.0.0, 2.0.1, 2.1.0, 2.2.0, 2.2.1, 2.3.0, 2.4.0
 * [CVE-2020-11764](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-11764) 2.0.0, 2.0.1, 2.1.0, 2.2.0, 2.2.1, 2.3.0, 2.4.0
 * [CVE-2020-11763](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-11763) 2.0.0, 2.0.1, 2.1.0, 2.2.0, 2.2.1, 2.3.0, 2.4.0
@@ -65,14 +65,19 @@ This gives guidance about which releases/branches are supported with bug fixes a
 security vulnerabilities.
 
 | Version / branch  | Supported                                            |
-| --------- | ---------------------------------------------------- |
-| main      | :white_check_mark: :construction: All fixes immediately, although this branch is under development with potential unstabe ABI/API
-| 3.3.x    | :white_check_mark: All fixes that can be backported without breaking ABI compatibility |
-| 3.2.x    | :warning: Patch releases considered in response to specific requests
-| 3.1.x    | :warning: Patch releases considered in response to specific requests
-| 3.0.x    | :warning: Patch releases considered in response to specific requests
-| 2.5.x    | :warning: Patch releases considered in response to specific requests
-| <= 1.x   | :x: No longer receiving patches of any kind |
+|-------| ---------------------------------------------------- |
+| main  | :white_check_mark: :construction: All fixes immediately, although this branch is under development with potential unstable ABI/API
+| 3.3.x | :white_check_mark: All fixes that can be backported without breaking ABI compatibility
+| 3.2.x | :warning: Patch releases considered in response to specific requests
+| 3.1.x | :warning: Patch releases considered in response to specific requests
+| 3.0.x | :warning: Patch releases considered in response to specific requests
+| 2.5.x | :warning: Patch releases considered in response to specific requests
+| 2.4.x | :warning: Patch releases considered in response to specific requests
+| 2.3.x | :x: No longer receiving patches of any kind
+| 2.2.x | :x: No longer receiving patches of any kind
+| 2.1.x | :x: No longer receiving patches of any kind
+| 2.0.x | :x: No longer receiving patches of any kind
+| 1.x   | :x: No longer receiving patches of any kind
 
 ## Signed Releases
 
@@ -116,7 +121,7 @@ To verify a downloaded release at a given tag:
 
 - The library compresses/decompresses data via standard compression
   algorithms but uses no cryptographic or confidentiality protocols.
-  
+
 ### Software Dependencies
 
 OpenEXR depends on
