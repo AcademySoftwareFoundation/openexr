@@ -1469,7 +1469,7 @@ testStartWriteUTF8 (const std::string& tempdir)
 
     fnlen  = (int) strlen (outfn.c_str ());
     wcSize = MultiByteToWideChar (CP_UTF8, 0, outfn.c_str (), fnlen, NULL, 0);
-    wcFn   = malloc (sizeof (wchar_t) * (wcSize + 1));
+    wcFn   = (wchar_t*) malloc (sizeof (wchar_t) * (wcSize + 1));
     if (wcFn)
     {
         MultiByteToWideChar (CP_UTF8, 0, outfn.c_str (), fnlen, wcFn, wcSize);
