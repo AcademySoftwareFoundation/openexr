@@ -16,7 +16,12 @@
 #include <iomanip>
 #include <iostream>
 #include <memory>
-#ifndef _WIN32
+#ifdef _WIN32
+#include <fileapi.h>
+#include <inttypes.h>
+#include <strsafe.h>
+#include <windows.h>
+#else
 #include <unistd.h>
 #endif
 
