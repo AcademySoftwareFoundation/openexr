@@ -98,6 +98,7 @@ define_openexrcore_tests(
  testStartWriteDeepScan
  testStartWriteTile
  testStartWriteDeepTile
+ testStartWriteUTF8
  testWriteAttrs
  testWriteScans
  testWriteTiles
