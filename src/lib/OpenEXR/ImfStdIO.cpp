@@ -15,6 +15,10 @@
 #include <ImfStdIO.h>
 #include <errno.h>
 #include <filesystem>
+#if __cplusplus >= 202002L
+#    include <ranges>
+#    include <span>
+#endif
 
 using namespace std;
 #include "ImfNamespace.h"
@@ -27,15 +31,29 @@ namespace
 inline ifstream*
 make_ifstream (const char* filename)
 {
-    return new ifstream (std::filesystem::path (filename),
+#if __cplusplus >= 202002L
+    auto u8view = ranges::views::transform (span{filename, strlen(filename)},
+                                            [](char c) -> char8_t { return c; });
+    return new ifstream (filesystem::path (u8view.begin (), u8view.end ()),
                          ios_base::in | ios_base::binary);
+#else
+    return new ifstream (filesystem::u8path (filename),
+                         ios_base::in | ios_base::binary);
+#endif
 }
 
 inline ofstream*
 make_ofstream (const char* filename)
 {
-    return new ofstream (std::filesystem::path (filename),
+#if __cplusplus >= 202002L
+    auto u8view = ranges::views::transform (span{filename, strlen(filename)},
+                                            [](char c) -> char8_t { return c; });
+    return new ofstream (filesystem::path (u8view.begin (), u8view.end ()),
                          ios_base::out | ios_base::binary);
+#else
+    return new ofstream (filesystem::u8path (filename),
+                         ios_base::out | ios_base::binary);
+#endif
 }
 
 void

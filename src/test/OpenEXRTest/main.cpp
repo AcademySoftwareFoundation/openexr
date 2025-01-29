@@ -202,6 +202,7 @@ main (int argc, char* argv[])
     TEST (testTiledLineOrder, "basic");
     TEST (testScanLineApi, "basic");
     TEST (testExistingStreams, "core");
+    TEST (testExistingStreamsUTF8, "core");
     TEST (testStandardAttributes, "core");
     TEST (testOptimized, "basic");
     TEST (testOptimizedInterleavePatterns, "basic");

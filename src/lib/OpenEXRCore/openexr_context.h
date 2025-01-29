@@ -361,6 +361,13 @@ typedef struct _exr_context_initializer_v3
 /** @brief Check the magic number of the file and report
  * `EXR_ERR_SUCCESS` if the file appears to be a valid file (or at least
  * has the correct magic number and can be read).
+ *
+ * The filename is assumed to be a UTF-8 encoded
+ * filename, as is standard on current Unix filesystems. Under
+ * windows, this will be widened to be a wchar_t. If the user provides
+ * custom I/O routines, the responsibility passes to the user for that
+ * behavior.
+ *
  */
 EXR_EXPORT exr_result_t exr_test_file_header (
     const char* filename, const exr_context_initializer_t* ctxtdata);
@@ -379,6 +386,12 @@ EXR_EXPORT exr_result_t exr_finish (exr_context_t* ctxt);
  * informational purposes only, the system assumes the user has
  * previously opened a stream, file, or whatever and placed relevant
  * data in userdata to access that.
+ *
+ * In the default case, the filename is assumed to be a UTF-8 encoded
+ * filename, as is standard on current Unix filesystems. Under
+ * windows, this will be widened to be a wchar_t. If the user provides
+ * custom I/O routines, the responsibility passes to the user for that
+ * behavior.
  *
  * One notable attribute of the context is that once it has been
  * created and returned a successful code, it has parsed all the
@@ -414,6 +427,12 @@ typedef enum exr_default_write_mode
  * ignored. As such, the system assumes the user has previously opened
  * a stream, file, or whatever and placed relevant data in userdata to
  * access that.
+ *
+ * In the default case, the filename is assumed to be a UTF-8 encoded
+ * filename, as is standard on current Unix filesystems. Under
+ * windows, this will be widened to be a wchar_t. If the user provides
+ * custom I/O routines, the responsibility passes to the user for that
+ * behavior.
  *
  * Multi-Threading: To avoid issues with creating multi-part EXR
  * files, the library approaches writing as a multi-step process, so
