@@ -1,6 +1,16 @@
 // SPDX-License-Identifier: BSD-3-Clause
 // Copyright Contributors to the OpenEXR Project.
 
+// windows is very particular about when windows.h is included
+#ifdef _WIN32
+#include <fileapi.h>
+#include <inttypes.h>
+#include <strsafe.h>
+#include <windows.h>
+#else
+#include <unistd.h>
+#endif
+
 #include "write.h"
 
 #include "test_value.h"
@@ -16,14 +26,6 @@
 #include <iomanip>
 #include <iostream>
 #include <memory>
-#ifdef _WIN32
-#include <fileapi.h>
-#include <inttypes.h>
-#include <strsafe.h>
-#include <windows.h>
-#else
-#include <unistd.h>
-#endif
 
 static void
 err_cb (exr_const_context_t f, exr_result_t code, const char* msg)

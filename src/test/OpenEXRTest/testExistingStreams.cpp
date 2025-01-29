@@ -1094,7 +1094,7 @@ testExistingStreamsUTF8 (const std::string& tempDir)
     {
         cout << "writing";
 #ifdef _WIN32
-        _wremove (WidenFilename (outfn).c_str ());
+        _wremove (WidenFilename (outfn.c_str ()).c_str ());
 #else
         remove (outfn.c_str ());
 #endif
@@ -1145,7 +1145,7 @@ testExistingStreamsUTF8 (const std::string& tempDir)
     cout << endl;
 
 #ifdef _WIN32
-    _wremove (WidenFilename (outfn).c_str ());
+    _wremove (WidenFilename (outfn.c_str ()).c_str ());
 #else
     remove (outfn.c_str ());
 #endif
