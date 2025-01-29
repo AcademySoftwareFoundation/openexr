@@ -76,11 +76,13 @@ jobs:
         # Pre-install Imath so the builds validate finding the external installation
         if: ${{ inputs.OPENEXR_FORCE_INTERNAL_IMATH == 'OFF' }}
         run: share/ci/scripts/install_imath.sh main
+        shell: bash
 
       - name: Install libdeflate
         # Pre-install libdeflate so the builds validate finding the external installation
         if: ${{ inputs.OPENEXR_FORCE_INTERNAL_DEFLATE == 'OFF' }}
         run: share/ci/scripts/install_libdeflate.sh master
+        shell: bash
 
       - name: Install help2man
         # TODO: this could go in the ASWF Linux docker
@@ -88,6 +90,7 @@ jobs:
         # the windows builds have docs disabled.
         if: ${{ inputs.OPENEXR_INSTALL_DOCS == 'ON' }}
         run: share/ci/scripts/install_help2man.sh
+        shell: bash
 
       - name: Create build directories
         run: mkdir _install _build _examples
