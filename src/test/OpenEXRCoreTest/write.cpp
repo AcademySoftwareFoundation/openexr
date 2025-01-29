@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: BSD-3-Clause
 // Copyright Contributors to the OpenEXR Project.
 
-// windows is very particular about when windows.h is included
 #ifdef _WIN32
+// windows is very particular about when windows.h is included
+#include <windows.h>
 #include <fileapi.h>
 #include <inttypes.h>
 #include <strsafe.h>
-#include <windows.h>
 #else
 #include <unistd.h>
 #endif
