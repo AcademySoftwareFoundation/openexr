@@ -1074,3 +1074,78 @@ testExistingStreams (const std::string& tempDir)
         assert (false);
     }
 }
+
+void
+testExistingStreamsUTF8 (const std::string& tempDir)
+{
+
+    cout << "Testing reading and writing using existing streams" << endl;
+
+    const int W = 119;
+    const int H = 237;
+    Array2D<Rgba> p1 (H, W);
+
+    fillPixels1 (p1, W, H);
+
+    // per google translate, image in Japanese
+    std::string   outfn = tempDir + "画像.exr";
+
+    {
+        cout << "writing";
+#ifdef _WIN32
+        _wremove (WidenFilename (outfn.c_str ()).c_str ());
+#else
+        remove (outfn.c_str ());
+#endif
+        Header      header (
+            W,
+            H,
+            1,
+            IMATH_NAMESPACE::V2f (0, 0),
+            1,
+            INCREASING_Y,
+            NO_COMPRESSION);
+
+        RgbaOutputFile out (
+            outfn.c_str (),
+            header,
+            WRITE_RGBA);
+
+        out.setFrameBuffer (&p1[0][0], 1, W);
+        out.writePixels (H);
+    }
+
+    {
+        cout << ", reading";
+        RgbaInputFile in (outfn.c_str ());
+        const Box2i& dw = in.dataWindow ();
+        int          w  = dw.max.x - dw.min.x + 1;
+        int          h  = dw.max.y - dw.min.y + 1;
+        int          dx = dw.min.x;
+        int          dy = dw.min.y;
+
+        Array2D<Rgba> p2 (h, w);
+        in.setFrameBuffer (&p2[-dy][-dx], 1, w);
+        in.readPixels (dw.min.y, dw.max.y);
+
+        cout << ", comparing";
+        for (int y = 0; y < h; ++y)
+        {
+            for (int x = 0; x < w; ++x)
+            {
+                assert (p2[y][x].r == p1[y][x].r);
+                assert (p2[y][x].g == p1[y][x].g);
+                assert (p2[y][x].b == p1[y][x].b);
+                assert (p2[y][x].a == p1[y][x].a);
+            }
+        }
+    }
+
+    cout << endl;
+
+#ifdef _WIN32
+    _wremove (WidenFilename (outfn.c_str ()).c_str ());
+#else
+    remove (outfn.c_str ());
+#endif
+}
