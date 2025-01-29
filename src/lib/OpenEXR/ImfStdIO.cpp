@@ -27,15 +27,25 @@ namespace
 inline ifstream*
 make_ifstream (const char* filename)
 {
-    return new ifstream (std::filesystem::path (filename),
+#if __cplusplus >= 202002L
+    return new ifstream (std::filesystem::path (std::u8string ((const char8_t*)filename)),
                          ios_base::in | ios_base::binary);
+#else
+    return new ifstream (std::filesystem::u8path (filename),
+                         ios_base::in | ios_base::binary);
+#endif
 }
 
 inline ofstream*
 make_ofstream (const char* filename)
 {
-    return new ofstream (std::filesystem::path (filename),
+#if __cplusplus >= 202002L
+    return new ofstream (std::filesystem::path (std::u8string ((const char8_t*)filename)),
                          ios_base::out | ios_base::binary);
+#else
+    return new ofstream (std::filesystem::u8path (filename),
+                         ios_base::out | ios_base::binary);
+#endif
 }
 
 void

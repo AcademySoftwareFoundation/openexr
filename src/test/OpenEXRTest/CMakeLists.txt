@@ -167,6 +167,7 @@ define_openexr_tests(
  testDeepTiledBasic
  testDwaLookups
  testExistingStreams
+ testExistingStreamsUTF8
  testFutureProofing
  testHeader
  testHuf
