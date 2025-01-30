@@ -10,6 +10,8 @@
 
 #include "ImfCompression.h"
 
+const int BENCH_ROUNDS = 10;     // Number of benchmark rounds
+
 void exrmetrics (
     const char       inFileName[],
     const char       outFileName[],
@@ -17,4 +19,7 @@ void exrmetrics (
     OPENEXR_IMF_NAMESPACE::Compression compression,
     float            level,
     int              halfMode);
+
+void exrbench (const char inFileName[], int threads);
+
 #endif

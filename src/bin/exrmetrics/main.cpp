@@ -30,6 +30,8 @@ void
 usageMessage (ostream& stream, const char* program_name, bool verbose = false)
 {
     stream << "Usage: " << program_name << " [options] infile outfile" << endl;
+    stream << "       or" << endl;
+    stream << "       " << program_name << " -b infile" << endl;
 
     if (verbose)
     {
@@ -38,6 +40,8 @@ usageMessage (ostream& stream, const char* program_name, bool verbose = false)
         stream
             << "Read an OpenEXR image from infile, write an identical copy to outfile"
                " reporting time taken to read/write and file sizes.\n"
+               "or\n"
+               "Run a series of benchmarks in current directory and output a CSV report.\n"
                "\n"
                "Options:\n"
                "\n"
@@ -62,6 +66,11 @@ usageMessage (ostream& stream, const char* program_name, bool verbose = false)
                "  -h, --help    print this message\n"
                "\n"
                "      --version print version information\n"
+               "\n"
+               "  -b infile     run a series of performance benchmarks using infile as source.\n"
+               "                Benchmark performs " << BENCH_ROUNDS <<" writes and reads for each compression mode\n"
+               "                for both float and half data, then reports performance as frames\n"
+               "                per second, CSV formatted. Options other than -m and -t are ignored.\n"
                "\n";
     }
 }
@@ -77,6 +86,7 @@ main (int argc, char** argv)
     float       level    = INFINITY;
     int         halfMode = 0; // 0 - leave alone, 1 - just RGBA, 2 - everything
     Compression compression = Compression::NUM_COMPRESSION_METHODS;
+    bool        benchmark = false;
 
     int i = 1;
 
@@ -192,12 +202,25 @@ main (int argc, char** argv)
             }
             i += 2;
         }
+        else if (!strcmp (argv[i], "-b"))
+        {
+            if (i > argc - 2)
+            {
+                cerr << "Missing input file with -b option\n";
+                return 1;
+            }
+
+            benchmark = true;
+            i += 1;
+            inFile = argv[i];
+            i += 1;
+        }
         else if (!inFile)
         {
             inFile = argv[i];
             i += 1;
         }
-        else if (!outFile)
+        else if (!benchmark && !outFile)
         {
             outFile = argv[i];
             i += 1;
@@ -209,7 +232,7 @@ main (int argc, char** argv)
             return 1;
         }
     }
-    if (!inFile || !outFile)
+    if (!inFile || (!benchmark && !outFile))
     {
         cerr << "Missing input or output file\n";
         usageMessage (cerr, "exrmetrics", false);
@@ -219,11 +242,14 @@ main (int argc, char** argv)
     try
     {
         if (threads < 0)
-            setGlobalThreadCount (ThreadPool::estimateThreadCountForFileIO ());
-        else
-            setGlobalThreadCount (threads);
+            threads = ThreadPool::estimateThreadCountForFileIO ();
 
-        exrmetrics (inFile, outFile, part, compression, level, halfMode);
+        setGlobalThreadCount (threads);
+
+        if (benchmark)
+            exrbench (inFile, threads);
+        else
+            exrmetrics (inFile, outFile, part, compression, level, halfMode);
     }
     catch (std::exception& what)
     {
