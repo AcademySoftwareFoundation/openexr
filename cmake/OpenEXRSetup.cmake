@@ -297,6 +297,38 @@ else()
   set(EXR_DEFLATE_LIB)
 endif()
 
+
+#######################################
+# Get OpenJPH
+#######################################
+
+message(STATUS "Fetching OpenJPH")
+
+include(FetchContent)
+FetchContent_Declare(
+  openjph
+  GIT_REPOSITORY https://github.com/aous72/OpenJPH
+  GIT_TAG        supporting_differing_components
+)
+
+set(OJPH_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(OJPH_ENABLE_TIFF_SUPPORT OFF CACHE BOOL "" FORCE)
+set(OJPH_BUILD_EXECUTABLES OFF CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(openjph)
+install(
+ TARGETS openjph
+ EXPORT ${PROJECT_NAME}
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+  PUBLIC_HEADER
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${OPENEXR_OUTPUT_SUBDIR}
+)
+set_target_properties(openjph PROPERTIES
+  RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+)
+
 #######################################
 # Find or install Imath
 #######################################

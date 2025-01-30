@@ -28,11 +28,11 @@ testCompressionApi (const string& tempDir)
         cout << "Testing compression API functions." << endl;
 
         // update this if you add a new compressor.
-        string codecList = "none/rle/zips/zip/piz/pxr24/b44/b44a/dwaa/dwab";
+        string codecList = "none/rle/zips/zip/piz/pxr24/b44/b44a/dwaa/dwab/ht256";
 
         int numMethods = static_cast<int> (NUM_COMPRESSION_METHODS);
         // update this if you add a new compressor.
-        assert (numMethods == 10);
+        assert (numMethods == 11);
 
         for (int i = 0; i < numMethods; i++)
         {

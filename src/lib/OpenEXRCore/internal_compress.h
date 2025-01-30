@@ -33,4 +33,12 @@ exr_result_t internal_exr_apply_dwaa (exr_encode_pipeline_t* encode);
 
 exr_result_t internal_exr_apply_dwab (exr_encode_pipeline_t* encode);
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+exr_result_t internal_exr_apply_ht (exr_encode_pipeline_t* encode);
+#ifdef __cplusplus
+}
+#endif
+
 #endif /* OPENEXR_CORE_COMPRESS_H */

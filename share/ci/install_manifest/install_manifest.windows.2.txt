@@ -4,6 +4,7 @@ bin/IlmThread-$MAJOR_$MINOR_d.dll
 bin/OpenEXR-$MAJOR_$MINOR_d.dll
 bin/OpenEXRCore-$MAJOR_$MINOR_d.dll
 bin/OpenEXRUtil-$MAJOR_$MINOR_d.dll
+bin/openjph.0.19_d.dll
 bin/exr2aces.exe
 bin/exrenvmap.exe
 bin/exrheader.exe
@@ -161,6 +162,17 @@ include/OpenEXR/openexr_errors.h
 include/OpenEXR/openexr_part.h
 include/OpenEXR/openexr_std_attr.h
 include/OpenEXR/openexr_version.h
+include/OpenEXR/ImfHTCompressor.h
+include/openjph/ojph_arch.h
+include/openjph/ojph_arg.h
+include/openjph/ojph_base.h
+include/openjph/ojph_codestream.h
+include/openjph/ojph_defs.h
+include/openjph/ojph_file.h
+include/openjph/ojph_mem.h
+include/openjph/ojph_message.h
+include/openjph/ojph_params.h
+include/openjph/ojph_version.h
 lib/Iex-$MAJOR_$MINOR_d.lib
 lib/IlmThread-$MAJOR_$MINOR_d.lib
 lib/OpenEXR-$MAJOR_$MINOR_d.lib
@@ -171,6 +183,8 @@ lib/cmake/OpenEXR/OpenEXRConfigVersion.cmake
 lib/cmake/OpenEXR/OpenEXRTargets-debug.cmake
 lib/cmake/OpenEXR/OpenEXRTargets.cmake
 lib/pkgconfig/OpenEXR.pc
+lib/openjph.0.19_d.lib
+lib/pkgconfig/openjph.pc
 share/doc/OpenEXR/examples/deepExamples.cpp
 share/doc/OpenEXR/examples/deepExamples.h
 share/doc/OpenEXR/examples/deepTiledExamples.cpp
