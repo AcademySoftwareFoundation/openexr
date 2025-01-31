@@ -15,8 +15,10 @@ Description
 Read an OpenEXR file from infile and save the contents
 in ACES image file outfile.
 
-The ACES image file format is a subset of the OpenEXR file
-format.  ACES image files are restricted as follows:
+The ACES image file format defined by `SMPTE ST 2065-4`_ 
+is a subset of the OpenEXR file format.  
+
+ACES image container files generally follow these restrictions:
 
 - Images are stored as scanlines; tiles are not allowed.
 
@@ -36,6 +38,12 @@ format.  ACES image files are restricted as follows:
 - The "chromaticities" header attribute must specify
   the ACES RGB primaries and white point.
 
+Note that perfect adherence to the specification is not strictly 
+necessary for many use cases and often diverges in minor ways 
+(e.g. the use of PIZ compression in exr2aces is technically off-spec),
+but the file generated here is generally suitable for broadly
+compatible archival.
+
 Options:
 --------
 
@@ -52,3 +60,4 @@ Options:
    print version information
 
               
+.. _SMPTE ST 2065-4: https://doi.org/10.5594/SMPTE.ST2065-4.2013
