@@ -51,7 +51,9 @@ enum IMF_EXPORT_ENUM Compression
                           // wise and faster to decode full frames
                           // than DWAA_COMPRESSION.
 
-    NUM_COMPRESSION_METHODS // number of different compression methods.
+    HT256_COMPRESSION = 10,
+
+    NUM_COMPRESSION_METHODS // number of different compression methods
 };
 
 /// Returns a codec ID's short name (lowercase).
