@@ -24,7 +24,7 @@ function(OPENEXR_DEFINE_LIBRARY libname)
                           PRIVATE cxx_std_${OPENEXR_CXX_STANDARD}
                           INTERFACE cxx_std_17 )
 
-  # we are embedding libdeflate
+                          # we are embedding libdeflate
   target_include_directories(${objlib} PRIVATE ${EXR_DEFLATE_INCLUDE_DIR})
 
   if(OPENEXR_CURLIB_PRIV_EXPORT AND BUILD_SHARED_LIBS)
@@ -40,7 +40,7 @@ function(OPENEXR_DEFINE_LIBRARY libname)
   if(OPENEXR_CURLIB_CURBINDIR)
     target_include_directories(${objlib} PRIVATE $<BUILD_INTERFACE:${OPENEXR_CURLIB_CURBINDIR}>)
   endif()
-  target_link_libraries(${objlib} PUBLIC ${PROJECT_NAME}::Config ${OPENEXR_CURLIB_DEPENDENCIES})
+  target_link_libraries(${objlib} PUBLIC ${PROJECT_NAME}::Config ${OPENEXR_CURLIB_DEPENDENCIES} ${CMAKE_DL_LIBS} ${EXR_OPENJPH_LIB})
   if(OPENEXR_CURLIB_PRIVATE_DEPS)
     target_link_libraries(${objlib} PRIVATE ${OPENEXR_CURLIB_PRIVATE_DEPS})
   endif()
