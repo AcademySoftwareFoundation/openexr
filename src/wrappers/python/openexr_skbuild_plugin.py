@@ -99,8 +99,3 @@ def dynamic_metadata(
     print("openexr_skbuild_plugin: Computed version: {0}".format(version))
 
     return version
-
-def get_requires_for_dynamic_metadata(
-    _settings: Optional[Dict[str, object]] = None,
-) -> List[str]:
-    return ["cmake"]
