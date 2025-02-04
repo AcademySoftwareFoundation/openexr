@@ -565,7 +565,7 @@ extract_chunk_table (
     if (ctable == NULL)
     {
         int64_t      nread = 0;
-        uintptr_t    eptr = 0, nptr = 0;
+        uint64_t     eptr = 0, nptr = 0;
         int          complete = 1;
         uint64_t     maxoff   = ((uint64_t) -1);
         exr_result_t rv;
