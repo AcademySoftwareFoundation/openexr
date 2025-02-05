@@ -103,3 +103,76 @@ Options:
 .. describe::  --version
    
    Print version information
+
+
+Example Usage:
+--------------
+
+.. code-block::
+
+   % exrmetrics input.exr -o output.exr
+   [
+   {
+     "file": "input.exr",
+     "input file size": 3180931,
+     "pixels": 396225,
+     "channels": 4,
+     "total raw size": 3169800,
+     "compression": "none",
+     "part type": "scanlineimage",
+     "parts":
+      [
+       {
+         "part": 0,
+         "pixels": 396225,
+         "channels": 4,
+         "compression": "none",
+         "part type": "scanlineimage",
+         "total raw size": 3169800
+       }
+      ],
+     "metrics":
+      [
+       {
+         "compression": "original",
+         "pixel mode": "original",
+         "output size": 3180960,
+         "read time": 0.0061315,
+         "write time": 0.0125296,
+         "re-read time": 0.00393838
+       }
+      ]
+    }
+   ]
+   
+      
+   
+.. code-block::
+
+   % exrmetrics --bench *.exr
+   file name,compression,pixel mode,write time,count reread time,reread time
+   input.exr,none,half,0.00147702,---,0.000437916
+   input.exr,none,float,0.00124969,---,0.000425501
+   input.exr,rle,half,0.00655444,---,0.00484196
+   input.exr,rle,float,0.00823504,---,0.006153
+   input.exr,zips,half,0.0243503,---,0.00615663
+   input.exr,zips,float,0.0322755,---,0.00982083
+   input.exr,zip,half,0.0224963,---,0.00438646
+   input.exr,zip,float,0.0351248,---,0.00679192
+   input.exr,piz,half,0.0194071,---,0.00750638
+   input.exr,piz,float,0.0310976,---,0.0124893
+   input.exr,pxr24,half,0.0230168,---,0.00463231
+   input.exr,pxr24,float,0.0280254,---,0.00549154
+   input.exr,b44,half,0.00880035,---,0.00188298
+   input.exr,b44,float,0.0010236,---,0.000360021
+   input.exr,b44a,half,0.00816444,---,0.00159444
+   input.exr,b44a,float,0.00101096,---,0.000393375
+   input.exr,dwaa,half,0.0340554,---,0.00496896
+   input.exr,dwaa,float,0.0372704,---,0.00825308
+   input.exr,dwab,half,0.0249792,---,0.00452442
+   input.exr,dwab,float,0.0286153,---,0.0079899
+   
+.. code-block::
+
+   exrmetrics --convert -z zip input.exr -o output.exr
+      
