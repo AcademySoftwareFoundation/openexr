@@ -1,0 +1,11 @@
+--- MODULE.bazel
++++ MODULE.bazel
+@@ -0,0 +1,8 @@
++module(
++    name = "openjph",
++    version = "0.20.0",
++    compatibility_level = 1,
++)
++
++bazel_dep(name = "rules_cc", version = "0.1.0")
++bazel_dep(name = "rules_license", version = "1.0.0")

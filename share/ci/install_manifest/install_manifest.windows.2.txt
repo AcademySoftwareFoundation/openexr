@@ -161,6 +161,7 @@ include/OpenEXR/openexr_errors.h
 include/OpenEXR/openexr_part.h
 include/OpenEXR/openexr_std_attr.h
 include/OpenEXR/openexr_version.h
+include/OpenEXR/ImfHTCompressor.h
 lib/Iex-$MAJOR_$MINOR_d.lib
 lib/IlmThread-$MAJOR_$MINOR_d.lib
 lib/OpenEXR-$MAJOR_$MINOR_d.lib

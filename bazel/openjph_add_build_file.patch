@@ -1,0 +1,119 @@
+--- /dev/null
++++ BUILD.bazel
+@@ -0,0 +1,116 @@
++load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library")
++load("@rules_license//rules:license.bzl", "license")
++
++package(
++    default_applicable_licenses = [":license"],
++)
++
++exports_files([
++    "LICENSE",
++])
++
++license(
++    name = "license",
++    license_kinds = ["@rules_license//licenses/spdx:BSD-2-Clause"],
++    license_text = "LICENSE",
++)
++
++cc_binary(
++    name = "ojph_compress",
++    srcs = ["src/apps/ojph_compress/ojph_compress.cpp"],
++    visibility = ["//visibility:public"],
++    deps = [":ojph_expand"],
++)
++
++cc_library(
++    name = "ojph_expand",
++    srcs = [
++        "src/apps/ojph_expand/ojph_expand.cpp",
++        "src/apps/others/ojph_img_io.cpp",
++    ],
++    hdrs = [
++        "src/apps/common/ojph_img_io.h",
++    ],
++    includes = [
++        "src/apps/common",
++    ],
++    visibility = ["//visibility:public"],
++    deps = [":openjph"],
++)
++
++cc_library(
++    name = "openjph",
++    srcs = [
++        "src/core/codestream/ojph_bitbuffer_read.h",
++        "src/core/codestream/ojph_bitbuffer_write.h",
++        "src/core/codestream/ojph_codeblock.cpp",
++        "src/core/codestream/ojph_codeblock.h",
++        "src/core/codestream/ojph_codeblock_fun.cpp",
++        "src/core/codestream/ojph_codeblock_fun.h",
++        "src/core/codestream/ojph_codestream.cpp",
++        "src/core/codestream/ojph_codestream_gen.cpp",
++        "src/core/codestream/ojph_codestream_local.cpp",
++        "src/core/codestream/ojph_codestream_local.h",
++        "src/core/codestream/ojph_params.cpp",
++        "src/core/codestream/ojph_params_local.h",
++        "src/core/codestream/ojph_precinct.cpp",
++        "src/core/codestream/ojph_precinct.h",
++        "src/core/codestream/ojph_resolution.cpp",
++        "src/core/codestream/ojph_resolution.h",
++        "src/core/codestream/ojph_subband.cpp",
++        "src/core/codestream/ojph_subband.h",
++        "src/core/codestream/ojph_tile.cpp",
++        "src/core/codestream/ojph_tile.h",
++        "src/core/codestream/ojph_tile_comp.cpp",
++        "src/core/codestream/ojph_tile_comp.h",
++        "src/core/coding/ojph_block_common.cpp",
++        "src/core/coding/ojph_block_common.h",
++        "src/core/coding/ojph_block_decoder.h",
++        "src/core/coding/ojph_block_decoder32.cpp",
++        "src/core/coding/ojph_block_decoder64.cpp",
++        "src/core/coding/ojph_block_encoder.cpp",
++        "src/core/coding/ojph_block_encoder.h",
++        "src/core/coding/table0.h",
++        "src/core/coding/table1.h",
++        "src/core/common/ojph_arch.h",
++        "src/core/common/ojph_base.h",
++        "src/core/common/ojph_codestream.h",
++        "src/core/common/ojph_defs.h",
++        "src/core/common/ojph_file.h",
++        "src/core/common/ojph_message.h",
++        "src/core/common/ojph_params.h",
++        "src/core/common/ojph_version.h",
++        "src/core/others/ojph_arch.cpp",
++        "src/core/others/ojph_file.cpp",
++        "src/core/others/ojph_mem.cpp",
++        "src/core/others/ojph_message.cpp",
++        "src/core/transform/ojph_colour.cpp",
++        "src/core/transform/ojph_colour.h",
++        "src/core/transform/ojph_colour_local.h",
++        "src/core/transform/ojph_transform.cpp",
++        "src/core/transform/ojph_transform.h",
++        "src/core/transform/ojph_transform_local.h",
++    ],
++    hdrs = [
++        "src/core/common/ojph_arg.h",
++        "src/core/common/ojph_mem.h",
++    ],
++    defines = [
++        "OJPH_DISABLE_SIMD",
++        #"OJPH_DISABLE_SSE2",
++        #"OJPH_DISABLE_SSSE3",
++        #"OJPH_DISABLE_SSE4",
++        #"OJPH_DISABLE_AVX",
++        #"OJPH_DISABLE_AVX2",
++        #"OJPH_DISABLE_AVX512",
++        #"OJPH_DISABLE_NEON",
++    ],
++    includes = [
++        "src/core/codestream",
++        "src/core/coding",
++        "src/core/common",
++        "src/core/others",
++        "src/core/transform",
++    ],
++    visibility = ["//visibility:public"],
++)

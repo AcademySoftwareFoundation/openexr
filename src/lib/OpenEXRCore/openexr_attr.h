@@ -45,6 +45,7 @@ typedef enum
     EXR_COMPRESSION_B44A  = 7,
     EXR_COMPRESSION_DWAA  = 8,
     EXR_COMPRESSION_DWAB  = 9,
+    EXR_COMPRESSION_HT256     = 10,
     EXR_COMPRESSION_LAST_TYPE /**< Invalid value, provided for range checking. */
 } exr_compression_t;
 
