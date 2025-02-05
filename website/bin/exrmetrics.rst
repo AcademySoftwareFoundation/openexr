@@ -108,6 +108,8 @@ Options:
 Example Usage:
 --------------
 
+Basic usage: report sizes and read time, write time, reread time.
+
 .. code-block::
 
    % exrmetrics input.exr -o output.exr
@@ -146,7 +148,9 @@ Example Usage:
    ]
    
       
-   
+Report read time, write time, re-read time with each available
+compression type:
+
 .. code-block::
 
    % exrmetrics --bench *.exr
@@ -172,7 +176,10 @@ Example Usage:
    input.exr,dwab,half,0.0249792,---,0.00452442
    input.exr,dwab,float,0.0286153,---,0.0079899
    
+
+Just convert the file, printing no metrics:   
+
 .. code-block::
 
-   exrmetrics --convert -z zip input.exr -o output.exr
+   % exrmetrics --convert -z zip input.exr -o output.exr
       
