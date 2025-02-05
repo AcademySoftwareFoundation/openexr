@@ -26,7 +26,7 @@ Options:
 
 .. describe:: -p n
 
-   Part number to copy, or ``all for all parts. Default is ``all``.
+   Part number to copy, or ``all`` for all parts. Default is ``all``.
               
 
 .. describe:: -m
