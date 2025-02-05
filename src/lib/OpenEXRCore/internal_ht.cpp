@@ -17,6 +17,137 @@
 #include "openexr_encode.h"
 #include "internal_ht_common.h"
 
+/***********************************
+
+Structure of the HT256 chunk
+- MAGIC = 0x4854: magic number
+- PLEN: length of header payload (big endian uint32_t)
+- header payload
+    - NCH: number of channels in channel map (big endian uint16_t)
+    - for(i = 0; i < NCH; i++)
+        - CS_TO_F[i]: OpenEXR channel index corresponding to J2K component index i (big endian uint16_t)
+    - any number of opaque bytes
+- CS: JPEG 2000 Codestream
+
+***********************************/
+
+class MemoryReader
+{
+public:
+    MemoryReader (uint8_t* buffer, size_t max_sz)
+        : buffer (buffer), cur (buffer), end (buffer + max_sz){};
+
+    uint32_t pull_uint32 ()
+    {
+        if (this->end - this->cur < 4)
+            throw std::out_of_range ("Insufficient data to pull uint32_t");
+
+        uint32_t v = *this->cur++;
+        v          = (v << 8) + *this->cur++;
+        v          = (v << 8) + *this->cur++;
+        return (v << 8) + *cur++;
+    }
+
+    uint16_t pull_uint16 ()
+    {
+        if (this->end - this->cur < 2)
+            throw std::out_of_range ("Insufficient data to pull uint16_t");
+
+        uint32_t v = *cur++;
+        return (v << 8) + *cur++;
+    }
+
+protected:
+    uint8_t* buffer;
+    uint8_t* cur;
+    uint8_t* end;
+};
+
+class MemoryWriter
+{
+public:
+    MemoryWriter (uint8_t* buffer, size_t max_sz)
+        : buffer (buffer), cur (buffer), end (buffer + max_sz){};
+
+    void push_uint32 (uint32_t value)
+    {
+        if (this->end - this->cur < 4)
+            throw std::out_of_range ("Insufficient data to push uint32_t");
+
+        *this->cur++ = (value >> 24) & 0xFF;
+        *this->cur++ = (value >> 16) & 0xFF;
+        *this->cur++ = (value >> 8) & 0xFF;
+        *this->cur++ = value & 0xFF;
+    }
+
+    void push_uint16 (uint16_t value)
+    {
+        if (this->end - this->cur < 2)
+            throw std::out_of_range ("Insufficient data to push uint32_t");
+
+        *this->cur++ = (value >> 8) & 0xFF;
+        *this->cur++ = value & 0xFF;
+    }
+
+    size_t get_size () { return this->cur - this->buffer; }
+
+    uint8_t* get_buffer () { return this->buffer; }
+
+    uint8_t* get_cur () { return this->cur; }
+
+protected:
+    uint8_t* buffer;
+    uint8_t* cur;
+    uint8_t* end;
+};
+
+constexpr uint16_t HEADER_MARKER = 'H' * 256 + 'T';
+
+size_t
+write_header (
+    uint8_t*                                  buffer,
+    size_t                                    max_sz,
+    const std::vector<CodestreamChannelInfo>& map)
+{
+    constexpr uint16_t HEADER_SZ = 6;
+    MemoryWriter       payload (buffer + HEADER_SZ, max_sz - HEADER_SZ);
+    payload.push_uint16 (map.size ());
+    for (size_t i = 0; i < map.size (); i++)
+    {
+        payload.push_uint16 (map.at (i).file_index);
+    }
+
+    MemoryWriter header (buffer, max_sz);
+    header.push_uint16 (HEADER_MARKER);
+    header.push_uint32 (payload.get_size ());
+
+    return header.get_size () + payload.get_size ();
+}
+
+void
+read_header (
+    void*                               buffer,
+    size_t                              max_sz,
+    size_t&                             length,
+    std::vector<CodestreamChannelInfo>& map)
+{
+    MemoryReader header ((uint8_t*) buffer, max_sz);
+    if (header.pull_uint16 () != HEADER_MARKER)
+        throw std::runtime_error (
+            "HT256 chunk header missing does not start with magic number.");
+
+    length = header.pull_uint32 ();
+
+    if (length < 2)
+        throw std::runtime_error ("Error while reading the channel map");
+
+    map.resize (header.pull_uint16 ());
+    for (size_t i = 0; i < map.size (); i++)
+    {
+        map.at (i).file_index = header.pull_uint16 ();
+    }
+}
+
 extern "C" exr_result_t
 internal_exr_undo_ht (
     exr_decode_pipeline_t* decode,
@@ -28,12 +159,33 @@ internal_exr_undo_ht (
     exr_result_t rv = EXR_ERR_SUCCESS;
 
     std::vector<CodestreamChannelInfo> cs_to_file_ch (decode->channel_count);
-    bool                               isRGB = make_channel_map (
-        decode->channel_count, decode->channels, cs_to_file_ch);
+
+    /* read the channel map */
+
+    size_t header_sz;
+    read_header (
+        (uint8_t*) compressed_data, comp_buf_size, header_sz, cs_to_file_ch);
+    if (decode->channel_count != cs_to_file_ch.size ())
+        throw std::runtime_error ("Unexpected number of channels");
+
+    std::vector<size_t> offsets (decode->channel_count);
+    offsets[0] = 0;
+    for (int file_i = 1; file_i < decode->channel_count; file_i++)
+    {
+        offsets[file_i] = offsets[file_i - 1] +
+                          decode->channels[file_i - 1].width *
+                              decode->channels[file_i - 1].bytes_per_element;
+    }
+    for (int cs_i = 0; cs_i < decode->channel_count; cs_i++)
+    {
+        cs_to_file_ch[cs_i].raster_line_offset =
+            offsets[cs_to_file_ch[cs_i].file_index];
+    }
 
     ojph::mem_infile infile;
     infile.open (
-        reinterpret_cast<const ojph::ui8*> (compressed_data), comp_buf_size);
+        reinterpret_cast<const ojph::ui8*> (compressed_data) + header_sz,
+        comp_buf_size - header_sz);
 
     ojph::codestream cs;
     cs.read_headers (&infile);
@@ -192,7 +344,8 @@ internal_exr_apply_ht (exr_encode_pipeline_t* encode)
         int file_c = cs_to_file_ch[c].file_index;
         if (encode->channels[file_c].data_type != EXR_PIXEL_UINT)
             nlt.set_nonlinear_transform (
-                c, ojph::param_nlt::nonlinearity::OJPH_NLT_BINARY_COMPLEMENT_NLT);
+                c,
+                ojph::param_nlt::nonlinearity::OJPH_NLT_BINARY_COMPLEMENT_NLT);
         siz.set_component (
             c,
             ojph::point (
@@ -326,13 +479,20 @@ internal_exr_apply_ht (exr_encode_pipeline_t* encode)
 
     cs.flush ();
 
-    assert (output.tell () >= 0);
+    size_t header_sz = write_header (
+        (uint8_t*) encode->compressed_buffer,
+        encode->packed_bytes,
+        cs_to_file_ch);
 
+    assert (output.tell () >= 0);
     int compressed_sz = static_cast<size_t> (output.tell ());
-    if (compressed_sz < encode->packed_bytes)
+    if (compressed_sz + header_sz < encode->packed_bytes)
     {
-        memcpy (encode->compressed_buffer, output.get_data (), compressed_sz);
-        encode->compressed_bytes = compressed_sz;
+        memcpy (
+            ((uint8_t*) encode->compressed_buffer) + header_sz,
+            output.get_data (),
+            compressed_sz);
+        encode->compressed_bytes = compressed_sz + header_sz;
     }
     else
     {
