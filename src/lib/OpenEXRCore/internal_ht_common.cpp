@@ -29,7 +29,11 @@ make_channel_map (
 
     bool isRGB = r_index >= 0 && g_index >= 0 && b_index >= 0 &&
                  channels[r_index].data_type == channels[g_index].data_type &&
-                 channels[r_index].data_type == channels[b_index].data_type;
+                 channels[r_index].data_type == channels[b_index].data_type &&
+                 channels[r_index].x_samples == channels[g_index].x_samples &&
+                 channels[r_index].x_samples == channels[b_index].x_samples &&
+                 channels[r_index].y_samples == channels[g_index].y_samples &&
+                 channels[r_index].y_samples == channels[b_index].y_samples;
 
     if (isRGB)
     {
