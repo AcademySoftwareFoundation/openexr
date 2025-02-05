@@ -1,6 +1,16 @@
 // SPDX-License-Identifier: BSD-3-Clause
 // Copyright Contributors to the OpenEXR Project.
 
+#ifdef _WIN32
+// windows is very particular about when windows.h is included
+#include <windows.h>
+#include <fileapi.h>
+#include <inttypes.h>
+#include <strsafe.h>
+#else
+#include <unistd.h>
+#endif
+
 #include "write.h"
 
 #include "test_value.h"
@@ -10,6 +20,7 @@
 #include <float.h>
 #include <limits.h>
 #include <math.h>
+#include <stdio.h>
 #include <string.h>
 
 #include <iomanip>
@@ -1394,4 +1405,81 @@ testWriteMultiPart (const std::string& tempdir)
 
     EXRCORE_TEST_RVAL (exr_finish (&outf));
     remove (outfn.c_str ());
+}
+
+void
+testStartWriteUTF8 (const std::string& tempdir)
+{
+    exr_context_t outf;
+    // per google translate, image in Japanese
+    std::string   outfn = tempdir + "画像.exr";
+    int           partidx;
+
+    exr_context_initializer_t cinit = EXR_DEFAULT_CONTEXT_INITIALIZER;
+    cinit.error_handler_fn          = &err_cb;
+    cinit.zip_level = 3;
+    cinit.flags |= EXR_CONTEXT_FLAG_WRITE_LEGACY_HEADER;
+
+    exr_set_default_zip_compression_level (-1);
+
+    EXRCORE_TEST_RVAL (exr_start_write (
+        &outf, outfn.c_str (), EXR_WRITE_FILE_DIRECTLY, &cinit));
+    EXRCORE_TEST_RVAL (
+        exr_add_part (outf, "beauty", EXR_STORAGE_SCANLINE, &partidx));
+    EXRCORE_TEST (partidx == 0);
+    EXRCORE_TEST_RVAL (exr_get_count (outf, &partidx));
+    EXRCORE_TEST (partidx == 1);
+    partidx = 0;
+
+    int fw = 1;
+    int fh = 1;
+    exr_attr_box2i_t dataW = { {0, 0}, {0, 0} };
+
+    EXRCORE_TEST_RVAL (
+        exr_initialize_required_attr_simple (outf, partidx, fw, fh, EXR_COMPRESSION_NONE));
+    EXRCORE_TEST_RVAL (exr_set_data_window (outf, partidx, &dataW));
+
+    EXRCORE_TEST_RVAL (exr_add_channel (
+        outf, partidx, "h", EXR_PIXEL_HALF, EXR_PERCEPTUALLY_LOGARITHMIC, 1, 1));
+    EXRCORE_TEST_RVAL (exr_write_header (outf));
+
+    exr_chunk_info_t      cinfo;
+    exr_encode_pipeline_t encoder;
+
+    EXRCORE_TEST_RVAL (exr_write_scanline_chunk_info (outf, 0, 0, &cinfo));
+    EXRCORE_TEST_RVAL (
+        exr_encoding_initialize (outf, 0, &cinfo, &encoder));
+
+    uint16_t hval[] = { 0x1234, 0 };
+    for (int c = 0; c < encoder.channel_count; ++c)
+    {
+        encoder.channels[c].encode_from_ptr   = (const uint8_t *)hval;
+        encoder.channels[c].user_pixel_stride = 2;
+        encoder.channels[c].user_line_stride  = 2;
+    }
+    EXRCORE_TEST_RVAL (
+        exr_encoding_choose_default_routines (outf, 0, &encoder));
+    EXRCORE_TEST_RVAL (exr_encoding_run (outf, 0, &encoder));
+    EXRCORE_TEST_RVAL (exr_encoding_destroy (outf, &encoder));
+
+    EXRCORE_TEST_RVAL (exr_finish (&outf));
+#ifdef _WIN32
+    int      wcSize = 0, fnlen = 0;
+    wchar_t* wcFn = NULL;
+
+    fnlen  = (int) strlen (outfn.c_str ());
+    wcSize = MultiByteToWideChar (CP_UTF8, 0, outfn.c_str (), fnlen, NULL, 0);
+    wcFn   = (wchar_t*) malloc (sizeof (wchar_t) * (wcSize + 1));
+    if (wcFn)
+    {
+        MultiByteToWideChar (CP_UTF8, 0, outfn.c_str (), fnlen, wcFn, wcSize);
+        wcFn[wcSize] = 0;
+    }
+    EXRCORE_TEST ( _waccess (wcFn, 0) != -1 );
+    _wremove (wcFn);
+    free (wcFn);
+#else
+    EXRCORE_TEST ( access (outfn.c_str (), F_OK) != -1 );
+    remove (outfn.c_str ());
+#endif
 }
