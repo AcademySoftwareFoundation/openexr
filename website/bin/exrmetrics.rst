@@ -35,7 +35,8 @@ Options:
 
 .. describe:: -t n
 
-   Use ``n`` threads for processing files. Default is single / no threads.
+   Use a pool of ``n`` worker threads for processing files. Default is
+   single threaded (no thread pool).
 
 .. describe:: -l level
 
