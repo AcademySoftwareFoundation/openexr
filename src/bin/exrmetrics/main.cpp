@@ -59,13 +59,13 @@ usageMessage (ostream& stream, const char* program_name, bool verbose = false)
                "                              default is \"all\" \n"
                "\n"
                "  -m                          set to multi-threaded (system selected thread count)\n"
-               "  -t n                        use n threads for processing files\n"
-               "                              default is single / no threads\n"
+               "  -t n                        Use a pool of n worker threads for processing files.\n"
+	       "                              Default is single threaded (no thread pool)\n"
                "\n"
                "  -l level                    set DWA or ZIP compression level\n"
                "\n"
                "  -z,--compression list       list of compression methods to test\n"
-               "                ("
+               "                              ("
             << compressionNames.c_str ()
             << ",orig,all\n"
                "                              default orig: retains original method)\n"
@@ -299,7 +299,7 @@ jsonStats (
                         << run.metrics.totalStats.sizeData.tileCount << ",\n";
                 }
 
-                if (run.metrics.stats.size () > 0)
+                if (run.metrics.stats.size () > 1)
                 {
                     out << "  \"parts\":\n";
                     out << "   [\n";
@@ -588,7 +588,7 @@ options::parse (int argc, char* argv[])
         if (!strcmp (argv[i], "-h") || !strcmp (argv[i], "--help"))
         {
             usageMessage (cout, "exrmetrics", true);
-            return 0;
+            return 1;
         }
 
         else if (!strcmp (argv[i], "--version"))
