@@ -35,6 +35,7 @@ after build (i.e. ``cmake --target install``), configure with
    bin/exrmakepreview
    bin/exrmaketiled
    bin/exrmanifest
+   bin/exrmetrics
    bin/exrmultipart
    bin/exrmultiview
    bin/exrstdattr
