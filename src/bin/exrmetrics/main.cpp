@@ -60,7 +60,7 @@ usageMessage (ostream& stream, const char* program_name, bool verbose = false)
                "\n"
                "  -m                          set to multi-threaded (system selected thread count)\n"
                "  -t n                        Use a pool of n worker threads for processing files.\n"
-	       "                              Default is single threaded (no thread pool)\n"
+               "                              Default is single threaded (no thread pool)\n"
                "\n"
                "  -l level                    set DWA or ZIP compression level\n"
                "\n"
@@ -482,6 +482,8 @@ main (int argc, char** argv)
 
     if (opts.parse (argc, argv)) { return 1; }
 
+    if (opts.inFiles.size () == 0) { return 0; }
+
     list<runData> data;
     try
     {
@@ -588,7 +590,7 @@ options::parse (int argc, char* argv[])
         if (!strcmp (argv[i], "-h") || !strcmp (argv[i], "--help"))
         {
             usageMessage (cout, "exrmetrics", true);
-            return 1;
+            return 0;
         }
 
         else if (!strcmp (argv[i], "--version"))
