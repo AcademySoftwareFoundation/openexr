@@ -13,10 +13,63 @@ News
 .. toctree::
    :caption: News
 
-November 11, 2024 - OpenEXR 3.3.2 Released
-==========================================
+.. include:: latest_news_title.rst
+
+|latest-news-title|
+===============================================================
 
 .. _LatestNewsStart:
+
+We have a proposal that adds support for lossless JPEG 2000 coding (as
+the HT256 compressor) to OpenEXR and would welcome your feedback.
+
+The HT256 compressor uses the High-Throughput (HT) block coder and
+promises high speed and high coding efficiency, and it supports the
+full range of OpenEXR features, including 32-bit floating-point image
+channels.  The HT block coder, which is standardized in `Rec. ITU-T
+T.814
+<https://loc.gov/preservation/digital/formats/fdd/fdd000566.shtml>`_
+| `ISO/IEC 15444-15 <https://www.iso.org/standard/76621.html>`_, is
+relatively new, and is estimated to increase the speed of JPEG 2000 by
+roughly an order of magnitude. It is royalty-free, used in cinema and
+distribution servicing, and implemented in both commercial and
+open-source toolkits. The proposed integration with OpenEXR currently
+uses the `OpenJPH <https://github.com/aous72/OpenJPH>`_ open-source
+library. For ease in managing the dependency, the OpenEXR CMake
+configuration supports automatically fetching and building OpenJPH
+internally, or linking against an external installation.
+
+Support for the HT256 compressor is available now for testing and
+evaluation on the htj2k-beta branch at
+https://github.com/AcademySoftwareFoundation/openexr/tree/htj2k-beta. We
+expect to merge this to the main branch in a few weeks and release it
+officially in August, pending feedback.
+
+Note that this branch is provided for evaluation purposes only. The
+file format may change before final release, so files written with
+this evaluation branch may not be readable by future OpenEXR releases.
+
+To help evaluate performance, the branch includes a new tool,
+exrmetrics, which reports statistics about read/write time and file
+size/compression ratio. See
+`Tools/exrmetrics <https://openexr.com/en/latest/bin/exrmetrics.html>`_.
+for details.  (Note that exrmetrics is also on the main branch, but
+without HTJ2K support. It will be included with the next official
+release.)
+
+Please provide comments and feedback at the project GitHub
+Issues page, or on the ASWF #openexr slack. Ping @palemieux with
+technical questions.
+
+We are particularly interested in feedback regarding real-world
+time/space metrics, as well as any pipeline integration or build
+issues.
+
+.. _LatestNewsEnd:
+
+
+November 11, 2024 - OpenEXR v3.3.2 Released
+===========================================
 
 Patch release that fixes several bugs and build issues:
 
@@ -34,13 +87,8 @@ This release fixes:
 * OSS-fuzz `372524117 <https://issues.oss-fuzz.com/issues/372524117>`_
   Null-dereference WRITE in Imf_3_4::ScanLineProcess::run_fill
 
-.. _LatestNewsEnd:
-
-
-.. include:: latest_news_title.rst
-
-|latest-news-title|
-========================================
+October 8, 2024 - OpenEXR v3.3.1 Released
+=========================================
 
 
 Patch release that addresses several build and performance issues:
