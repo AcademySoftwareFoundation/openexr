@@ -65,7 +65,7 @@ else()
 endif()
 
 if (UNIX AND NOT APPLE AND NOT BEOS)
-  find_library(OPENEXR_EXTRA_MATH_LIB m)
+  set(OPENEXR_EXTRA_MATH_LIB m PARENT_SCOPE)
   mark_as_advanced(OPENEXR_EXTRA_MATH_LIB)
 endif()
 
