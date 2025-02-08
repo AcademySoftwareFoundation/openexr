@@ -202,7 +202,7 @@ lib/cmake/OpenEXR/OpenEXRConfigVersion.cmake
 lib/cmake/OpenEXR/OpenEXRTargets-release.cmake
 lib/cmake/OpenEXR/OpenEXRTargets.cmake
 lib/pkgconfig/Imath.pc
-bin/openjph.0.20.dll
+bin/openjph.0.21.dll
 include/openjph/ojph_arch.h
 include/openjph/ojph_arg.h
 include/openjph/ojph_base.h
@@ -216,5 +216,5 @@ include/openjph/ojph_version.h
 lib/cmake/openjph/openjph-config-release.cmake
 lib/cmake/openjph/openjph-config.cmake
 lib/cmake/openjph/openjph-configVersion.cmake
-lib/openjph.0.20.lib
+lib/openjph.0.21.lib
 lib/pkgconfig/openjph.pc
