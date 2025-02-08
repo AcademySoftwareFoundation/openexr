@@ -176,6 +176,12 @@ static const CompressionDesc IdToDesc[] = {
         256,
         true,
         false),
+    CompressionDesc (
+        "ht256",
+        "High-Throughput JPEG 2000 (OpenJPH, 256 lines)",
+        256,
+        true,
+        false),
 };
 // clang-format on
 
@@ -192,6 +198,7 @@ static const std::map<std::string, Compression> CompressionNameToId = {
     {"b44a", Compression::B44A_COMPRESSION},
     {"dwaa", Compression::DWAA_COMPRESSION},
     {"dwab", Compression::DWAB_COMPRESSION},
+    {"ht256", Compression::HT256_COMPRESSION},
 };
 
 #define UNKNOWN_COMPRESSION_ID_MSG "INVALID COMPRESSION ID"
