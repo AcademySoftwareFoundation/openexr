@@ -298,7 +298,7 @@ undo_zip_impl (
     if (res == EXR_ERR_SUCCESS)
     {
         decode->bytes_decompressed = actual_out_bytes;
-        if (comp_buf_size > actual_out_bytes)
+        if (comp_buf_size > actual_out_bytes || actual_out_bytes > uncompressed_size)
             res = EXR_ERR_CORRUPT_CHUNK;
         else
             internal_zip_reconstruct_bytes (
