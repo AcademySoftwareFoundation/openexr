@@ -923,7 +923,7 @@ The OpenEXR library predefines the following attribute types:
 |                    | * ``B44A_COMPRESSION`` = 7                                      |
 |                    | * ``DWAA_COMPRESSION`` = 8                                      |
 |                    | * ``DWAB_COMPRESSION`` = 9                                      |
-|                    | * ``HT_COMPRESSION`` = 10                                    |
+|                    | * ``HT_COMPRESSION`` = 10                                       |
 |                    |                                                                 |
 +--------------------+-----------------------------------------------------------------+
 | ``double``         | ``double``                                                      |
