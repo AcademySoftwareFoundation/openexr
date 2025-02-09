@@ -68,6 +68,14 @@ __extension__ extern __inline float32x4x2_t
 }
 #endif
 
+static inline uint8_t *simd_align_pointer (uint8_t* ptr)
+{
+    return ptr +
+        ((_SSE_ALIGNMENT - (((uintptr_t)ptr) & _SSE_ALIGNMENT_MASK)) &
+         _SSE_ALIGNMENT_MASK);
+}
+
+
 //
 // Color space conversion, Inverse 709 CSC, Y'CbCr -> R'G'B'
 //
