@@ -113,7 +113,7 @@ jobs:
       - name: Install OpenJPH
         # Pre-install OpenJPH so the builds validate finding the external installation
         if: ${{ inputs.OPENEXR_FORCE_INTERNAL_OPENJPH == 'OFF' }}
-        run: share/ci/scripts/install_openjph.sh master
+        run: share/ci/scripts/install_openjph.sh 0.21.0
         shell: bash
 
       - name: Set PATH for Imath/libdeflate DLLs

@@ -182,8 +182,8 @@ lib/libOpenEXRUtil-$MAJOR_$MINOR.$SOVERSION.dylib
 lib/libOpenEXRUtil-$MAJOR_$MINOR.dylib
 lib/libOpenEXRUtil.dylib
 lib/pkgconfig/OpenEXR.pc
-lib/libopenjph.0.20.0.dylib
-lib/libopenjph.0.20.dylib
+lib/libopenjph.0.21.0.dylib
+lib/libopenjph.0.21.dylib
 lib/libopenjph.dylib
 lib/pkgconfig/openjph.pc
 share/doc/OpenEXR/examples/deepExamples.cpp
