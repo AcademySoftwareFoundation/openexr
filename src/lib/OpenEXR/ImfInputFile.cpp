@@ -377,9 +377,21 @@ InputFile::Data::lockedSetFrameBuffer (const FrameBuffer& frameBuffer)
             _cachedOffset               = dataWindow.min.x;
 
             uint64_t tileRowSize =
-                uint64_t (_tFile->tileYSize ()) *
-                (static_cast<uint64_t> (dataWindow.max.x - dataWindow.min.x) +
-                 1U);
+                static_cast<uint64_t> (_tFile->tileYSize ()) *
+                static_cast<uint64_t> (
+                    static_cast<int64_t> (dataWindow.max.x) -
+                    static_cast<int64_t> (dataWindow.min.x) +
+                    1LL );
+
+            // before we allocate a (potentially large) chunk of ram, let's
+            // quick ensure we can read the tiles
+            if (!_ctxt->chunkTableValid (getPartIdx ()))
+            {
+                THROW (
+                    IEX_NAMESPACE::ArgExc,
+                    "Unable to use generic API to read with (partially?) corrupt chunk table in "
+                    << _ctxt->fileName () << ", part " << getPartIdx () );
+            }
 
             for (FrameBuffer::ConstIterator k = frameBuffer.begin ();
                  k != frameBuffer.end ();
