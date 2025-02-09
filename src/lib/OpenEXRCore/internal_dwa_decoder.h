@@ -320,19 +320,12 @@ LossyDctDecoder_execute (
     // Allocate a temp aligned buffer to hold a rows worth of full
     // 8x8 half-float blocks
     //
-
     rowBlockHandle = alloc_fn (
         (size_t) numComp * (size_t) numBlocksX * 64 * sizeof (uint16_t) +
         _SSE_ALIGNMENT);
     if (!rowBlockHandle) return EXR_ERR_OUT_OF_MEMORY;
 
-    rowBlock[0] = (uint16_t*) rowBlockHandle;
-
-    for (int i = 0; i < _SSE_ALIGNMENT; ++i)
-    {
-        if (((uintptr_t) (rowBlockHandle + i) & _SSE_ALIGNMENT_MASK) == 0)
-            rowBlock[0] = (uint16_t*) (rowBlockHandle + i);
-    }
+    rowBlock[0] = (uint16_t*) simd_align_pointer (rowBlockHandle);
 
     for (int comp = 1; comp < numComp; ++comp)
         rowBlock[comp] = rowBlock[comp - 1] + numBlocksX * 64;
@@ -649,8 +642,8 @@ LossyDctDecoder_execute (
                     {
                         _mm_storeu_si128 (dst, _mm_loadu_si128 (src));
 
-                        src += 8 * 8;
-                        dst += 8;
+                        ++dst;
+                        src += 8;
                     }
                 }
             }
@@ -720,9 +713,16 @@ LossyDctDecoder_execute (
 
                     dst += 8 * numFullBlocksX;
 
-                    for (int x = 0; x < maxX; ++x)
+                    if (d->_toLinear)
                     {
-                        *dst++ = d->_toLinear[*src++];
+                        for (int x = 0; x < maxX; ++x)
+                        {
+                            *dst++ = d->_toLinear[*src++];
+                        }
+                    }
+                    else
+                    {
+                        memcpy (dst, src, maxX * sizeof(uint16_t));
                     }
                 }
             }
