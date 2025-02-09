@@ -854,6 +854,7 @@ DwaCompressor_uncompress (
     if (version > 2) { return EXR_ERR_BAD_CHUNK_LEADER; }
 
     rv = DwaCompressor_setupChannelData (me);
+    if (rv != EXR_ERR_SUCCESS) { return rv; }
 
     //
     // Uncompress the UNKNOWN data into _planarUncBuffer[UNKNOWN]
@@ -1079,6 +1080,8 @@ DwaCompressor_uncompress (
         packedAcBufferEnd += decoder._packedAcCount * sizeof (uint16_t);
 
         packedDcBufferEnd += decoder._packedDcCount * sizeof (uint16_t);
+
+        totalAcUncompressedCount -= decoder._packedAcCount;
         totalDcUncompressedCount -= decoder._packedDcCount;
 
         me->_channelData[rChan].processed = 1;
@@ -1100,6 +1103,12 @@ DwaCompressor_uncompress (
         int                        pixelSize = chan->bytes_per_element;
 
         if (cd->processed) continue;
+
+        if (chan->width == 0 || chan->height == 0)
+        {
+            cd->processed = 1;
+            continue;
+        }
 
         switch (cd->compression)
         {
@@ -1138,6 +1147,7 @@ DwaCompressor_uncompress (
                     packedDcBufferEnd +=
                         (size_t) decoder._packedDcCount * sizeof (uint16_t);
 
+                    totalAcUncompressedCount -= decoder._packedAcCount;
                     totalDcUncompressedCount -= decoder._packedDcCount;
                     if (rv != EXR_ERR_SUCCESS) { return rv; }
                 }
