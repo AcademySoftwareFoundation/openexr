@@ -12,10 +12,10 @@ else
     SUDO="sudo"
 fi
 
-git clone -b add-export https://github.com/palemieux/OpenJPH.git
+git clone https://github.com/aous72/OpenJPH.git
 cd OpenJPH
 
-# git checkout ${TAG}
+git checkout ${TAG}
 
 cd build
 cmake -DOJPH_ENABLE_TIFF_SUPPORT=OFF -DCMAKE_BUILD_TYPE=Release .. 
