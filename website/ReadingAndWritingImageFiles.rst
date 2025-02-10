@@ -1777,7 +1777,7 @@ Supported compression types are:
 |                   | faster to decode full frames than              |
 |                   | ``DWAA_COMPRESSION``.                          |
 +-------------------+------------------------------------------------+
-| HT256_COMPRESSION | JPEG 2000 lossless coding, in blocks of 256    |
+| HT_COMPRESSION    | JPEG 2000 lossless coding, in blocks of 256    |
 |                   | scanlines and using the High-Throughput block  |
 |                   | coder specified in Rec. ITU-T T.814 and        |
 |                   | ISO/IEC 15444-15. The compressor offers both   |
