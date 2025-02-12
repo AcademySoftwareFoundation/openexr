@@ -926,7 +926,7 @@ void ScanLineProcess::run_fill (
                 int32_t samps = counts[sx];
                 void *dest = *((void **)outptr);
 
-                if (samps == 0)
+                if (samps == 0 || dest == nullptr)
                 {
                     outptr += fills.xStride;
                     continue;
