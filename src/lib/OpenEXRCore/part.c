@@ -609,7 +609,12 @@ exr_set_dwa_compression_level (exr_context_t ctxt, int part_index, float level)
         return EXR_UNLOCK_AND_RETURN (
             ctxt->standard_error (ctxt, EXR_ERR_NOT_OPEN_WRITE));
 
-    if (level > 0.f && level <= 100.f)
+    // avoid bad math (fp exceptions or whatever) by clamping here
+    // there has always been a clamp to 0, but on the upper end, there
+    // is a limit too, where you only get black images anyway, so that
+    // is not particularly useful, not that any large value will
+    // really be crushing the image
+    if (level >= 0.f && level <= (65504.f*100000.f))
     {
         part->dwa_compression_level = level;
         rv                          = EXR_ERR_SUCCESS;
