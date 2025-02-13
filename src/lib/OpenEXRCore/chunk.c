@@ -639,7 +639,7 @@ extract_chunk_table (
         }
         else { priv_to_native64 (ctable, part->chunk_count); }
 
-        nptr = (uintptr_t) ctable;
+        nptr = (uint64_t) ctable;
         // see if we win or not
         if (!atomic_compare_exchange_strong (
                 EXR_CONST_CAST (atomic_uintptr_t*, &(part->chunk_table)),
