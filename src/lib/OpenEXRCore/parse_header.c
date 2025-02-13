@@ -103,7 +103,7 @@ scratch_seq_read (struct _internal_exr_seq_scratch* scr, void* buf, uint64_t sz)
             outbuf += nCopy;
             nCopied += nCopy;
         }
-        else if (notdone > SCRATCH_BUFFER_SIZE)
+        else if (notdone >= SCRATCH_BUFFER_SIZE)
         {
             uint64_t nPages  = notdone / SCRATCH_BUFFER_SIZE;
             int64_t  nread   = 0;
@@ -126,10 +126,28 @@ scratch_seq_read (struct _internal_exr_seq_scratch* scr, void* buf, uint64_t sz)
         else
         {
             int64_t nread = 0;
-            rv            = scr->ctxt->do_read (
+            uint64_t toread = SCRATCH_BUFFER_SIZE;
+
+            if (scr->ctxt->file_size > 0)
+            {
+                if ((scr->fileoff + SCRATCH_BUFFER_SIZE) > scr->ctxt->file_size)
+                {
+                    toread = scr->ctxt->file_size - scr->fileoff;
+                }
+            }
+            else
+            {
+                /*
+                 * hrm, stream only with no known size, just read 1 byte at a
+                 * time to be safer
+                 */
+                toread = 1;
+            }
+
+            rv = scr->ctxt->do_read (
                 scr->ctxt,
                 scr->scratch,
-                SCRATCH_BUFFER_SIZE,
+                toread,
                 &(scr->fileoff),
                 &nread,
                 EXR_ALLOW_SHORT_READ);
