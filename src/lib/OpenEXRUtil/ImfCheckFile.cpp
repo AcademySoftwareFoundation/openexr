@@ -975,6 +975,8 @@ public:
 
     virtual bool isMemoryMapped () const { return false; }
 
+    virtual int64_t size () { return end - base; }
+
     virtual char* readMemoryMapped (int n)
     {
 
