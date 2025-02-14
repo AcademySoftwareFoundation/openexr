@@ -332,7 +332,6 @@ if(NOT TARGET Imath::Imath AND NOT Imath_FOUND)
     GIT_TAG "${OPENEXR_IMATH_TAG}"
     GIT_SHALLOW ON
       )
-
   FetchContent_GetProperties(Imath)
   if(NOT Imath_POPULATED)
     FetchContent_MakeAvailable(Imath)
