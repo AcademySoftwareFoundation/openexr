@@ -23,6 +23,16 @@ separately. To further include the tools in the OpenEXR installation
 after build (i.e. ``cmake --target install``), configure with
 ``OPENEXR_INSTALL_TOOLS=ON``. Both are on by default.
 
+In addition, some tools such as ``exrcheck`` are considered "developer"
+tools in that they are useful when developing and debugging OpenEXR
+itself. These tools may be helpful in identifying security issues,
+and as a result it is not recommended that they be used with untrusted
+input files. Although they will still be built and available in the
+build directory when the ``OPENEXR_BUILD_TOOLS=ON`` option is used,
+a separate ``OPENEXR_INSTALL_DEVELOPER_TOOLS=ON`` option should be
+enabled if installation of the developer tools is desired. That option
+is off by default.
+
 .. toctree::
    :caption: Tools
    :titlesonly:
