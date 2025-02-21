@@ -15,7 +15,7 @@ permissions:
 jobs:
   build:
     name: Python Wheels - ${{ matrix.os }}-${{ matrix.arch }}
-    runs-on: ${{ matrix.os }}-${{ matrix.arch }}
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         include:
