@@ -187,6 +187,7 @@ main (int argc, char* argv[])
     TEST (testStartWriteTile, "core_write");
     TEST (testStartWriteDeepScan, "core_write");
     TEST (testStartWriteDeepTile, "core_write");
+    TEST (testStartWriteUTF8, "core_write");
     TEST (testWriteScans, "core_write");
     TEST (testWriteTiles, "core_write");
     TEST (testWriteMultiPart, "core_write");

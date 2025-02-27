@@ -118,9 +118,27 @@ istream_nonparallel_read (
             }
         }
 
+        int64_t stream_sz = s->size ();
+        int64_t nend = nread + (int64_t)sz;
+        if (stream_sz > 0 && nend > stream_sz)
+        {
+            sz = stream_sz - nend;
+        }
+
         try
         {
-            s->read (static_cast<char*> (buffer), static_cast<int> (sz));
+            if (s->isMemoryMapped ())
+            {
+                char* data = s->readMemoryMapped (static_cast<int> (sz));
+                // TODO: in a future release, pass this through to
+                // core directly
+                if (data)
+                    memcpy (buffer, data, sz);
+            }
+            else
+            {
+                s->read (static_cast<char*> (buffer), static_cast<int> (sz));
+            }
         }
         catch (...)
         {

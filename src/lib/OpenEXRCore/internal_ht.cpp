@@ -19,7 +19,7 @@
 
 /***********************************
 
-Structure of the HT256 chunk
+Structure of the HT chunk
 - MAGIC = 0x4854: magic number
 - PLEN: length of header payload (big endian uint32_t)
 - header payload
