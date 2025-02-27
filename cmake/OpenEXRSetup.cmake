@@ -69,6 +69,7 @@ option(OPENEXR_BUILD_LIBS "Enables building of main libraries" ON)
 # Whether to build the various command line utility programs
 option(OPENEXR_BUILD_TOOLS "Enables building of utility programs" ON)
 option(OPENEXR_INSTALL_TOOLS "Install OpenEXR tools" ON)
+option(OPENEXR_INSTALL_DEVELOPER_TOOLS "Install OpenEXR developer tools" OFF)
 
 option(OPENEXR_BUILD_EXAMPLES "Build and install OpenEXR examples" ON)
 

@@ -277,6 +277,9 @@ readTileRgba (T& in, bool reduceMemory, bool reduceTime)
         int dwx = dw.min.x;
         int dwy = dw.min.y;
 
+        if (!in.isComplete ())
+            return true;
+
         Array2D<Rgba> pixels (h, w);
         in.setFrameBuffer (&pixels[-dwy][-dwx], 1, w);
         in.readTiles (0, in.numXTiles () - 1, 0, in.numYTiles () - 1);
@@ -971,6 +974,8 @@ public:
     {}
 
     virtual bool isMemoryMapped () const { return false; }
+
+    virtual int64_t size () { return end - base; }
 
     virtual char* readMemoryMapped (int n)
     {
