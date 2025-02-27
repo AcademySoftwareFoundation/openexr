@@ -453,6 +453,12 @@ Component Options
   Install the binary programs (exrheader, exrinfo,
   exrmakepreview, etc). Default is ``ON``.
   
+* ``OPENEXR_INSTALL_DEVELOPER_TOOLS``
+
+  Install the binary programs useful for developing
+  and/or debugging OpenEXR itself (e.g. exrcheck).
+  Default is ``OFF``.
+  
 * ``OPENEXR_BUILD_EXAMPLES``
 
   Build the example code. Default is ``ON``.
