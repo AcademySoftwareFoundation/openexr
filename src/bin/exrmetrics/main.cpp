@@ -14,6 +14,7 @@
 #include "ImfVersion.h"
 
 #include <algorithm>
+#include <iomanip>
 #include <iostream>
 #include <iterator>
 #include <list>
@@ -30,6 +31,7 @@ using std::list;
 using std::max;
 using std::min;
 using std::sort;
+using std::quoted;
 
 using std::numeric_limits;
 using std::ostream;
@@ -234,7 +236,6 @@ printPartStats (
         out << indent << "\"re-read time\": ";
         printTiming (data.rereadPerf, out, raw, stats);
     }
-    if (output) { out << '\n'; }
 }
 
 void
@@ -260,7 +261,7 @@ jsonStats (
                 out << " },\n";
             }
             out << " {\n"
-                << "  \"file\": \"" << run.file << "\",\n";
+                << "  \"file\":" <<  quoted(run.file) << ",\n";
             lastFileName = run.file;
             if (outputSizeData)
             {
@@ -341,10 +342,10 @@ jsonStats (
                     }
                     out << "   ],\n";
                 }
-                out << "  \"metrics\":\n";
-                out << "   [";
-                firstEntryForFile = true;
             }
+            out << "  \"metrics\":\n";
+            out << "   [";
+            firstEntryForFile = true;
         }
 
         string compName;
@@ -358,18 +359,22 @@ jsonStats (
         out << '\n';
         out << "    {\n";
         out << "      \"compression\": \"" << compName << "\",\n";
-        out << "      \"pixel mode\": \"" << modeName (run.mode) << "\",\n";
+        out << "      \"pixel mode\": \"" << modeName (run.mode) << "\"";
 
         if (outputSizeData)
         {
-            out << "      \"output size\": " << run.metrics.outputFileSize
-                << ",\n";
+            out << ",\n";
+            out << "      \"output size\": " << run.metrics.outputFileSize;
         }
-
-        printPartStats (
-            out, run.metrics.totalStats, "      ", timing, raw, stats);
-        if (run.metrics.stats.size () > 1)
+        if(timing)
         {
+             out << ",\n";
+             printPartStats ( out, run.metrics.totalStats, "      ", timing, raw, stats);
+
+        }
+        if (timing && run.metrics.stats.size () > 1)
+        {
+            out << ",\n";
             out << "      \"parts\":\n";
             out << "       [\n";
             //first print total statistics, then print all part data, unless there's only one part
@@ -377,6 +382,7 @@ jsonStats (
             {
                 out << "        {\n";
                 out << "          \"part\": " << part << ",\n";
+
                 printPartStats (
                     out,
                     run.metrics.stats[part],
@@ -384,11 +390,15 @@ jsonStats (
                     timing,
                     raw,
                     stats);
-                out << "        }";
+                out << "\n        }";
                 if (part < run.metrics.stats.size () - 1) { out << ','; }
                 out << endl;
             }
             out << "       ]\n";
+        }
+        else
+        {
+             out << "\n";
         }
         out << "    }";
         firstEntryForFile = false;
@@ -481,8 +491,6 @@ main (int argc, char** argv)
     options opts;
 
     if (opts.parse (argc, argv)) { return 1; }
-
-    if (opts.inFiles.size () == 0) { return 0; }
 
     list<runData> data;
     try

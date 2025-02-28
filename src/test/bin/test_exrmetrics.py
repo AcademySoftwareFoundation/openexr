@@ -55,22 +55,26 @@ for a in ["-p","-l","-16","-z","-t","-i","--passes","-o","--pixelmode","--time"]
     assert(result.returncode != 0), "\n"+result.stderr
     assert("Missing" in result.stderr),"expected 'Missing argument' error"
 
-command = [exrmetrics]
-image = f"{image_dir}/TestImages/GrayRampsHorizontal.exr"
-command += ["-i",image, "--passes","2","-o",outimage]
-
-result = run (command, stdout=PIPE, stderr=PIPE, universal_newlines=True)
-print(" ".join(result.args))
-print(result.returncode)
-print(result.stdout)
-print(result.stderr)
-assert(result.returncode == 0), "\n"+result.stderr
-assert(os.path.isfile(outimage)), "\nMissing " + outimage
-
-# confirm data is valid JSON (will not be true if filename contains quotes)
-data = json.loads(result.stdout)
-assert(len(data)==1),"\n Unexpected list size in JSON object"
-for x in ['file','pixels','compression','part type','total raw size']:
-  assert(x in data[0]),"\n Missing field "+x
+for image in [f"{image_dir}/TestImages/GrayRampsHorizontal.exr",f"{image_dir}/Beachball/multipart.0001.exr"]:
+    for time in ["none","read","write","reread","read,write","read,reread","read,write,reread"]:
+        for passes in ["1","2"]:
+            for nosize in range(0,2):
+              command = [exrmetrics]
+              command += ["-i",image, "--passes",passes,"--time",time,"-o",outimage]
+              if nosize:
+                  command += ['--no-size']
+              result = run (command, stdout=PIPE, stderr=PIPE, universal_newlines=True)
+              print(" ".join(result.args))
+              print(result.returncode)
+              print(result.stderr)
+              assert(result.returncode == 0), "\n"+result.stderr
+              assert(os.path.isfile(outimage)), "\nMissing " + outimage
+              if len(result.stdout):
+                # confirm data is valid JSON (will not be true if filename contains quotes)
+                data = json.loads(result.stdout)
+                assert(len(data)==1),"\n Unexpected list size in JSON object"
+                if not nosize:
+                  for x in ['file','pixels','compression','part type','total raw size']:
+                     assert(x in data[0]),"\n Missing field "+x
 
 print("success")
