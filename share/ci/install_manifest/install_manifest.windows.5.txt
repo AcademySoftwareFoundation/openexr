@@ -213,8 +213,9 @@ include/openjph/ojph_mem.h
 include/openjph/ojph_message.h
 include/openjph/ojph_params.h
 include/openjph/ojph_version.h
-lib/cmake/openjph/openjph-config-release.cmake
+lib/cmake/openjph/openjph-targets-release.cmake
+lib/cmake/openjph/openjph-targets.cmake
 lib/cmake/openjph/openjph-config.cmake
-lib/cmake/openjph/openjph-configVersion.cmake
+lib/cmake/openjph/openjph-config-version.cmake
 lib/openjph.0.21.lib
 lib/pkgconfig/openjph.pc

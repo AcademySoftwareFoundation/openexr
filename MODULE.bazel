@@ -39,6 +39,6 @@ archive_override(
         "//bazel:openjph_add_build_file.patch",
         "//bazel:openjph_module_dot_bazel.patch",
     ],
-    strip_prefix = "OpenJPH-0.21.0",
-    urls = ["https://github.com/aous72/OpenJPH/archive/refs/tags/0.21.0.zip"],
+    strip_prefix = "OpenJPH-0.21.2",
+    urls = ["https://github.com/aous72/OpenJPH/archive/refs/tags/0.21.2.zip"],
 )
