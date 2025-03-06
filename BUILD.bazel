@@ -2,6 +2,7 @@
 # Copyright (c) Contributors to the OpenEXR Project.
 
 load("@bazel_skylib//rules:expand_template.bzl", "expand_template")
+load("@rules_cc//cc:defs.bzl", "cc_library")
 
 config_setting(
     name = "windows",
