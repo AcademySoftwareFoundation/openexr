@@ -24,23 +24,23 @@ can be transported from a modern OpenEXR file into an ACES Image
 Container File, including (but not limited to) the following:
 
 - The version field must be either be 2 or 1026; a value of 2 implies 
-attribute names cannot be longer than 31 characters in length, 
-as was the case prior to OpenEXR 1.7.
+  attribute names cannot be longer than 31 characters in length, 
+  as was the case prior to OpenEXR 1.7.
 
 - Images must be stored as scanlines; tiles are not allowed.
 
 - Images must contain RGB and possibly an A channel if they are monoscopic; 
-images representing stereo pairs would add another three (or four if A is 
-present) channels. Other channels are not permitted, including channels 
-that otherwise might represent a combination of a luminance channel and 
-chromaticity channels.
+  images representing stereo pairs would add another three (or four if A is 
+  present) channels. Other channels are not permitted, including channels 
+  that otherwise might represent a combination of a luminance channel and 
+  chromaticity channels.
 
 - The image must not be compressed.
 
 - The `chromaticities` attribute must specify the ACES RGB primaries and 
-the ACES neutral as specified in SMPTE ST 2065-1.
+  the ACES neutral as specified in SMPTE ST 2065-1.
 
-- the `acesImageContainerFlag` flat must be present and have the value 1
+- The `acesImageContainerFlag` flat must be present and have the value 1.
 
 For the full set of restrictions, see `SMTPE ST 2065-4`_ (or any 
 superseding later version of that standard).
