@@ -42,7 +42,7 @@ Container File, including (but not limited to) the following:
 
 - The `acesImageContainerFlag` flat must be present and have the value 1.
 
-For the full set of restrictions, see `SMTPE ST 2065-4`_ (or any 
+For the full set of restrictions, see `SMTPE ST 2065-4  <https://doi.org/10.5594/SMPTE.ST2065-4.2013>`_ (or any 
 superseding later version of that standard).
 
 In practice, facilities and productions often use the term "ACES file" 
