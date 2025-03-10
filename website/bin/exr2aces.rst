@@ -15,7 +15,7 @@ Description
 Read an OpenEXR file from infile and save the contents
 in ACES image file outfile.
 
-The ACES Image Container File Format specified in `SMPTE ST 2065-4`_ 
+The ACES Image Container File Format specified in SMPTE ST 2065-4 
 is a subset of the OpenEXR file format defined by the implementation 
 of the time (roughly OpenEXR 1.6). 
 
@@ -72,4 +72,3 @@ Options:
    print version information
 
               
-.. _SMPTE ST 2065-4: https://doi.org/10.5594/SMPTE.ST2065-4.2013
