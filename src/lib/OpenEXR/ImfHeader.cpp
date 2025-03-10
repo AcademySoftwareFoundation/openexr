@@ -197,11 +197,6 @@ copyCompressionRecord (Header* dst, const Header* src)
     }
 };
 
-int maxImageWidth  = 0;
-int maxImageHeight = 0;
-int maxTileWidth   = 0;
-int maxTileHeight  = 0;
-
 void
 initialize (
     Header&      header,
@@ -928,6 +923,13 @@ Header::sanityCheck (bool isTiled, bool isMultipartFile) const
     }
 
     int w = (dataWindow.max.x - dataWindow.min.x + 1);
+
+    int maxImageWidth = 0, maxImageHeight = 0;
+    // TODO: this really should be accessed via the context but
+    // we don't have that fully wired through just yet, so continue
+    // to use the default as the older C++ code has done
+    exr_get_default_maximum_image_size (&maxImageWidth, &maxImageHeight);
+
     if (maxImageWidth > 0 && maxImageWidth < w)
     {
         THROW (
@@ -1054,6 +1056,12 @@ Header::sanityCheck (bool isTiled, bool isMultipartFile) const
         if (tileDesc.xSize <= 0 || tileDesc.ySize <= 0 ||
             tileDesc.xSize > INT_MAX || tileDesc.ySize > INT_MAX)
             throw IEX_NAMESPACE::ArgExc ("Invalid tile size in image header.");
+
+        int maxTileWidth = 0, maxTileHeight = 0;
+        // TODO: this really should be accessed via the context but
+        // we don't have that fully wired through just yet, so continue
+        // to use the default as the older C++ code has done
+        exr_get_default_maximum_tile_size (&maxTileWidth, &maxTileHeight);
 
         if (maxTileWidth > 0 && maxTileWidth < int (tileDesc.xSize))
         {
@@ -1261,29 +1269,25 @@ Header::sanityCheck (bool isTiled, bool isMultipartFile) const
 void
 Header::setMaxImageSize (int maxWidth, int maxHeight)
 {
-    maxImageWidth  = maxWidth;
-    maxImageHeight = maxHeight;
+    exr_set_default_maximum_image_size (maxWidth, maxHeight);
 }
 
 void
 Header::setMaxTileSize (int maxWidth, int maxHeight)
 {
-    maxTileWidth  = maxWidth;
-    maxTileHeight = maxHeight;
+    exr_set_default_maximum_tile_size (maxWidth, maxHeight);
 }
 
 void
 Header::getMaxImageSize (int& maxWidth, int& maxHeight)
 {
-    maxWidth  = maxImageWidth;
-    maxHeight = maxImageHeight;
+    exr_get_default_maximum_image_size (&maxWidth, &maxHeight);
 }
 
 void
 Header::getMaxTileSize (int& maxWidth, int& maxHeight)
 {
-    maxWidth  = maxTileWidth;
-    maxHeight = maxTileHeight;
+    exr_get_default_maximum_tile_size (&maxWidth, &maxHeight);
 }
 
 bool
