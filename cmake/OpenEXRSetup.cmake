@@ -69,6 +69,7 @@ option(OPENEXR_BUILD_LIBS "Enables building of main libraries" ON)
 # Whether to build the various command line utility programs
 option(OPENEXR_BUILD_TOOLS "Enables building of utility programs" ON)
 option(OPENEXR_INSTALL_TOOLS "Install OpenEXR tools" ON)
+option(OPENEXR_INSTALL_DEVELOPER_TOOLS "Install OpenEXR developer tools" OFF)
 
 option(OPENEXR_BUILD_EXAMPLES "Build and install OpenEXR examples" ON)
 
@@ -78,7 +79,7 @@ option(OPENEXR_TEST_LIBRARIES "Run library tests" ON)
 option(OPENEXR_TEST_TOOLS "Run tool tests" ON)
 option(OPENEXR_TEST_PYTHON "Run python binding tests" ON)
 
-# This is a variable here for use in controlling where include files are 
+# This is a variable here for use in controlling where include files are
 # installed. Care must be taken when changing this, as many things
 # probably assume this is OpenEXR
 set(OPENEXR_OUTPUT_SUBDIR OpenEXR CACHE STRING "Destination sub-folder of the include path for install")
@@ -89,7 +90,10 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 # Suffix for debug configuration libraries
 # (if you should choose to install those)
-set(CMAKE_DEBUG_POSTFIX "_d" CACHE STRING "Suffix for debug builds")
+# Don't override if the user has set it and don't save it in the cache
+if (NOT CMAKE_DEBUG_POSTFIX)
+  set(CMAKE_DEBUG_POSTFIX "_d")
+endif()
 
 if(NOT OPENEXR_IS_SUBPROJECT)
   # Usual cmake option to build shared libraries or not, only overridden if OpenEXR is a top level project,
@@ -287,10 +291,15 @@ else()
   # lib/gzip_compress.c
   # lib/gzip_decompress.c
   file(READ ${deflate_SOURCE_DIR}/lib/lib_common.h DEFLATE_HIDE)
-  string(REPLACE "visibility(\"default\")" "visibility(\"hidden\")" DEFLATE_HIDE "${DEFLATE_HIDE}")
-  string(REPLACE "__declspec(dllexport)" "/**/" DEFLATE_HIDE "${DEFLATE_HIDE}")
-  file(WRITE ${deflate_SOURCE_DIR}/lib/lib_common.h "${DEFLATE_HIDE}")
-  
+  string(REPLACE "visibility(\"default\")" "visibility(\"hidden\")" DEFLATE_HIDE_NEW "${DEFLATE_HIDE}")
+  string(REPLACE "__declspec(dllexport)" "/**/" DEFLATE_HIDE_NEW "${DEFLATE_HIDE_NEW}")
+
+  string(COMPARE EQUAL "${DEFLATE_HIDE}" "${DEFLATE_HIDE_NEW}" DEFLATE_HIDE_SAME)
+  if (NOT DEFLATE_HIDE_SAME)
+    message(STATUS "libdeflate visibility changed, updating ${deflate_SOURCE_DIR}/lib/lib_common.h")
+    file(WRITE ${deflate_SOURCE_DIR}/lib/lib_common.h "${DEFLATE_HIDE_NEW}")
+  endif()
+
   # cmake makes fetch content name lowercase for the properties (to deflate)
   list(TRANSFORM EXR_DEFLATE_SOURCES PREPEND ${deflate_SOURCE_DIR}/)
   set(EXR_DEFLATE_INCLUDE_DIR ${deflate_SOURCE_DIR})
@@ -324,7 +333,6 @@ if(NOT TARGET Imath::Imath AND NOT Imath_FOUND)
     GIT_TAG "${OPENEXR_IMATH_TAG}"
     GIT_SHALLOW ON
       )
-    
   FetchContent_GetProperties(Imath)
   if(NOT Imath_POPULATED)
     FetchContent_MakeAvailable(Imath)
@@ -334,7 +342,7 @@ if(NOT TARGET Imath::Imath AND NOT Imath_FOUND)
 
     # Propagate OpenEXR's setting for pkg-config generation to Imath:
     # If OpenEXR is generating it, the internal Imath should, too.
-    set(IMATH_INSTALL_PKG_CONFIG ${OPENEXR_INSTALL_PKG_CONFIG}) 
+    set(IMATH_INSTALL_PKG_CONFIG ${OPENEXR_INSTALL_PKG_CONFIG})
   endif()
   # the install creates this but if we're using the library locally we
   # haven't installed the header files yet, so need to extract those

@@ -435,10 +435,16 @@ testWriteBaseHeader (const std::string& tempdir)
         exr_set_dwa_compression_level (outf, 0, -2.f));
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_INVALID_ARGUMENT,
-        exr_set_dwa_compression_level (outf, 0, 420.f));
+        exr_set_dwa_compression_level (outf, 0, INFINITY));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_INVALID_ARGUMENT,
+        exr_set_dwa_compression_level (outf, 0, NAN));
     EXRCORE_TEST_RVAL (exr_set_dwa_compression_level (outf, 0, 42.f));
     EXRCORE_TEST_RVAL (exr_get_dwa_compression_level (outf, 0, &dlev));
     EXRCORE_TEST (dlev == 42.f);
+    EXRCORE_TEST_RVAL (exr_set_dwa_compression_level (outf, 0, 420.f));
+    EXRCORE_TEST_RVAL (exr_get_dwa_compression_level (outf, 0, &dlev));
+    EXRCORE_TEST (dlev == 420.f);
 
     EXRCORE_TEST_RVAL (exr_finish (&outf));
     remove (outfn.c_str ());

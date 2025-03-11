@@ -103,7 +103,7 @@ scratch_seq_read (struct _internal_exr_seq_scratch* scr, void* buf, uint64_t sz)
             outbuf += nCopy;
             nCopied += nCopy;
         }
-        else if (notdone > SCRATCH_BUFFER_SIZE)
+        else if (notdone >= SCRATCH_BUFFER_SIZE)
         {
             uint64_t nPages  = notdone / SCRATCH_BUFFER_SIZE;
             int64_t  nread   = 0;
@@ -126,10 +126,28 @@ scratch_seq_read (struct _internal_exr_seq_scratch* scr, void* buf, uint64_t sz)
         else
         {
             int64_t nread = 0;
-            rv            = scr->ctxt->do_read (
+            uint64_t toread = SCRATCH_BUFFER_SIZE;
+
+            if (scr->ctxt->file_size > 0)
+            {
+                if ((scr->fileoff + SCRATCH_BUFFER_SIZE) > scr->ctxt->file_size)
+                {
+                    toread = scr->ctxt->file_size - scr->fileoff;
+                }
+            }
+            else
+            {
+                /*
+                 * hrm, stream only with no known size, just read 1 byte at a
+                 * time to be safer
+                 */
+                toread = 1;
+            }
+
+            rv = scr->ctxt->do_read (
                 scr->ctxt,
                 scr->scratch,
-                SCRATCH_BUFFER_SIZE,
+                toread,
                 &(scr->fileoff),
                 &nread,
                 EXR_ALLOW_SHORT_READ);
@@ -1692,7 +1710,7 @@ check_populate_type (
     {
         exr_attr_list_remove (ctxt, &(curpart->attributes), curpart->type);
         curpart->type = NULL;
-        return ctxt->report_error (ctxt, rv, "Unable to read 'name' data");
+        return ctxt->report_error (ctxt, rv, "Unable to read 'type' data");
     }
     outstr[attrsz] = '\0';
 
@@ -1705,22 +1723,22 @@ check_populate_type (
         return ctxt->report_error (ctxt, rv, "Unable to read 'name' data");
     }
 
-    if (strcmp ((const char*) outstr, "scanlineimage") == 0)
+    if (attrsz == 13 && memcmp ((const char*) outstr, "scanlineimage", 13) == 0)
     {
         if (ctxt->has_nonimage_data || ctxt->is_multipart)
             curpart->storage_mode = EXR_STORAGE_SCANLINE;
     }
-    else if (strcmp ((const char*) outstr, "tiledimage") == 0)
+    else if (attrsz == 10 && memcmp ((const char*) outstr, "tiledimage", 10) == 0)
     {
         if (ctxt->has_nonimage_data || ctxt->is_multipart)
             curpart->storage_mode = EXR_STORAGE_TILED;
     }
-    else if (strcmp ((const char*) outstr, "deepscanline") == 0)
+    else if (attrsz == 12 && memcmp ((const char*) outstr, "deepscanline", 12) == 0)
     {
         if (ctxt->has_nonimage_data || ctxt->is_multipart)
             curpart->storage_mode = EXR_STORAGE_DEEP_SCANLINE;
     }
-    else if (strcmp ((const char*) outstr, "deeptile") == 0)
+    else if (attrsz == 8 && memcmp ((const char*) outstr, "deeptile", 8) == 0)
     {
         if (ctxt->has_nonimage_data || ctxt->is_multipart)
             curpart->storage_mode = EXR_STORAGE_DEEP_TILED;
@@ -1728,11 +1746,11 @@ check_populate_type (
     else
     {
         if (ctxt->strict_header)
-            ctxt->print_error (
+            rv = ctxt->print_error (
                 ctxt,
                 EXR_ERR_INVALID_ATTR,
-                "attribute 'type': Unknown type string '%s'",
-                outstr);
+                "attribute 'type': Unknown type string '%s' (length %d)",
+                outstr, attrsz);
         if (curpart->storage_mode == EXR_STORAGE_LAST_TYPE)
             curpart->storage_mode = EXR_STORAGE_UNKNOWN;
     }

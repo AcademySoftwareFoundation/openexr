@@ -602,6 +602,15 @@ readDeepTile (T& in, bool reduceMemory, bool reduceTime)
         int                    numYLevels = in.numYLevels ();
         int                    numXLevels = in.numXLevels ();
 
+        uint64_t scBytes =
+            static_cast<uint64_t> (tileWidth) *
+            static_cast<uint64_t> (tileHeight) *
+            sizeof(unsigned int);
+        if ((reduceMemory || reduceTime) && scBytes > gMaxTileBytes)
+        {
+            return false;
+        }
+
         localSampleCount.resizeErase (tileHeight, tileWidth);
 
         int channelCount = 0;
@@ -870,7 +879,11 @@ readMultiPart (MultiPartInputFile& in, bool reduceMemory, bool reduceTime)
             {
                 widePart = true;
             }
-            if (tileSize * bytesPerPixel > gMaxTileBytes) { largeTiles = true; }
+            if (in.header (part).type () == DEEPTILE)
+                tileSize *= std::max (static_cast<size_t> (bytesPerPixel), sizeof(unsigned int));
+            else
+                tileSize *= static_cast<size_t> (bytesPerPixel);
+            if (tileSize > gMaxTileBytes) { largeTiles = true; }
         }
 
         if (!reduceMemory || !widePart)
@@ -975,6 +988,8 @@ public:
 
     virtual bool isMemoryMapped () const { return false; }
 
+    virtual int64_t size () { return end - base; }
+
     virtual char* readMemoryMapped (int n)
     {
 
@@ -1076,6 +1091,10 @@ runChecks (T& source, bool reduceMemory, bool reduceTime)
         Header::setMaxImageSize (2048, 2048);
         Header::setMaxTileSize (512, 512);
     }
+    else
+    {
+        Header::setMaxTileSize (16384, 16384);
+    }
 
     //
     // multipart test: also grab the type of the first part to
@@ -1119,7 +1138,14 @@ runChecks (T& source, bool reduceMemory, bool reduceTime)
                     static_cast<uint64_t> (tileDescription.ySize);
                 int bytesPerPixel = calculateBytesPerPixel (multi.header (0));
 
-                if (tileSize * bytesPerPixel <= gMaxTileBytes)
+                if (firstPartType == DEEPTILE)
+                    tileSize *= std::max (
+                        static_cast<size_t> (bytesPerPixel),
+                        sizeof(unsigned int));
+                else
+                    tileSize *= static_cast<size_t> (bytesPerPixel);
+
+                if (tileSize <= gMaxTileBytes)
                 {
                     largeTiles = false;
                 }
