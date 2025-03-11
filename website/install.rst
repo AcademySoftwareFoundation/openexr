@@ -244,7 +244,7 @@ Building the website requires that ``sphinx``, ``breathe``, and
 ``doxygen`` are installed. It further requires the `sphinx-press-theme
 <https://pypi.org/project/sphinx-press-theme>`_. Complete dependencies
 are described in the `requirements.txt
-<https://github.com/AcademySoftwareFoundation/imath/blob/main/docs/requirements.txt>`_
+<https://github.com/AcademySoftwareFoundation/imath/blob/main/website/requirements.txt>`_
 file. 
 
 On Debian/Ubuntu Linux:
