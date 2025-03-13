@@ -55,7 +55,7 @@ for a in ["-p","-l","-16","-z","-t","-i","--passes","-o","--pixelmode","--time"]
     assert(result.returncode != 0), "\n"+result.stderr
     assert("Missing" in result.stderr),"expected 'Missing argument' error"
 
-for image in [f"{image_dir}/TestImages/GrayRampsHorizontal.exr",f"{image_dir}/Beachball/multipart.0001.exr"]:
+for image in [f"{image_dir}/TestImages/GrayRampsHorizontal.exr",f"{image_dir}/Beachball/multipart.0001.exr",f"{image_dir}/LuminanceChroma/Flowers.exr"]:
     for time in ["none","read","write","reread","read,write","read,reread","read,write,reread"]:
         for passes in ["1","2"]:
             for nosize in range(0,2):

@@ -82,15 +82,17 @@ initScanLine (
     uint64_t offsetToOrigin = width * static_cast<uint64_t> (dw.min.y) +
                               static_cast<uint64_t> (dw.min.x);
 
-    int channelNumber = 0;
-    int pixelSize     = 0;
+    int    channelNumber = 0;
+    size_t rawSize       = 0;
 
     for (ChannelList::ConstIterator i = outHeader.channels ().begin ();
          i != outHeader.channels ().end ();
          ++i)
     {
-        int samplesize = pixelTypeSize (i.channel ().type);
-        pixelSize += samplesize;
+        int    samplesize      = pixelTypeSize (i.channel ().type);
+        size_t pixelsInChannel = (width / i.channel ().xSampling) *
+                                 (height / i.channel ().ySampling);
+        rawSize += pixelsInChannel * samplesize;
         pixelData[channelNumber].resize (numPixels * samplesize);
 
         buf.insert (
@@ -99,12 +101,14 @@ initScanLine (
                 i.channel ().type,
                 pixelData[channelNumber].data () - offsetToOrigin * samplesize,
                 samplesize,
-                samplesize * width));
+                samplesize * width,
+                i.channel ().xSampling,
+                i.channel ().ySampling));
         ++channelNumber;
     }
 
     partSizeData data;
-    data.rawSize      = width * height * pixelSize;
+    data.rawSize      = rawSize;
     data.pixelCount   = width * height;
     data.partType     = in.header ().type ();
     data.compression  = in.header ().compression ();
