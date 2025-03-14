@@ -44,6 +44,7 @@ using std::string;
 using std::to_string;
 using std::vector;
 using std::chrono::steady_clock;
+using std::isinf;
 
 double
 timing (steady_clock::time_point start, steady_clock::time_point end)
