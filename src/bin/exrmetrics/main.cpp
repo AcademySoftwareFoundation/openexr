@@ -30,8 +30,8 @@ using std::endl;
 using std::list;
 using std::max;
 using std::min;
-using std::sort;
 using std::quoted;
+using std::sort;
 
 using std::numeric_limits;
 using std::ostream;
@@ -261,7 +261,7 @@ jsonStats (
                 out << " },\n";
             }
             out << " {\n"
-                << "  \"file\":" <<  quoted(run.file) << ",\n";
+                << "  \"file\":" << quoted (run.file) << ",\n";
             lastFileName = run.file;
             if (outputSizeData)
             {
@@ -366,11 +366,11 @@ jsonStats (
             out << ",\n";
             out << "      \"output size\": " << run.metrics.outputFileSize;
         }
-        if(timing)
+        if (timing)
         {
-             out << ",\n";
-             printPartStats ( out, run.metrics.totalStats, "      ", timing, raw, stats);
-
+            out << ",\n";
+            printPartStats (
+                out, run.metrics.totalStats, "      ", timing, raw, stats);
         }
         if (timing && run.metrics.stats.size () > 1)
         {
@@ -396,10 +396,7 @@ jsonStats (
             }
             out << "       ]\n";
         }
-        else
-        {
-             out << "\n";
-        }
+        else { out << "\n"; }
         out << "    }";
         firstEntryForFile = false;
     }
