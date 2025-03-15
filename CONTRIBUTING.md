@@ -743,7 +743,7 @@ To create a new release from the ``main`` branch:
 
    - Submit this change as a separate PR.
 
-3. Add a mention of the release to [``docs/news.rst``](docs/news.rst)
+3. Add a mention of the release to [``website/news.rst``](website/news.rst)
 
    - Submit this change as a separate PR.
 
