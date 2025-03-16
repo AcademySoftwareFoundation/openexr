@@ -1,9 +1,9 @@
 # cmake -B . -S ..       -DCMAKE_INSTALL_PREFIX=../_install       -DCMAKE_BUILD_TYPE=Release       -DOPENEXR_CXX_STANDARD=17       -DBUILD_SHARED_LIBS=ON       -DOPENEXR_ENABLE_THREADING=ON       -DOPENEXR_INSTALL_PKG_CONFIG=ON       -DOPENEXR_INSTALL_DOCS=OFF       -DOPENEXR_BUILD_EXAMPLES=ON       -DOPENEXR_BUILD_TOOLS=ON       -DOPENEXR_FORCE_INTERNAL_IMATH=OFF       -DOPENEXR_FORCE_INTERNAL_DEFLATE=OFF       -DBUILD_TESTING=ON       -DOPENEXR_RUN_FUZZ_TESTS='OFF'       -DCMAKE_VERBOSE_MAKEFILE='ON'
-bin/Iex-$MAJOR_$MINOR.dll
-bin/IlmThread-$MAJOR_$MINOR.dll
-bin/OpenEXR-$MAJOR_$MINOR.dll
-bin/OpenEXRCore-$MAJOR_$MINOR.dll
-bin/OpenEXRUtil-$MAJOR_$MINOR.dll
+bin/Iex-3_3.dll
+bin/IlmThread-3_3.dll
+bin/OpenEXR-3_3.dll
+bin/OpenEXRCore-3_3.dll
+bin/OpenEXRUtil-3_3.dll
 bin/exr2aces.exe
 bin/exrenvmap.exe
 bin/exrheader.exe
@@ -161,11 +161,11 @@ include/OpenEXR/openexr_errors.h
 include/OpenEXR/openexr_part.h
 include/OpenEXR/openexr_std_attr.h
 include/OpenEXR/openexr_version.h
-lib/Iex-$MAJOR_$MINOR.lib
-lib/IlmThread-$MAJOR_$MINOR.lib
-lib/OpenEXR-$MAJOR_$MINOR.lib
-lib/OpenEXRCore-$MAJOR_$MINOR.lib
-lib/OpenEXRUtil-$MAJOR_$MINOR.lib
+lib/Iex-3_3.lib
+lib/IlmThread-3_3.lib
+lib/OpenEXR-3_3.lib
+lib/OpenEXRCore-3_3.lib
+lib/OpenEXRUtil-3_3.lib
 lib/cmake/OpenEXR/OpenEXRConfig.cmake
 lib/cmake/OpenEXR/OpenEXRConfigVersion.cmake
 lib/cmake/OpenEXR/OpenEXRTargets-release.cmake
