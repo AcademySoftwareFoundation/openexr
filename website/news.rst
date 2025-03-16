@@ -190,8 +190,6 @@ pkgconf configuration files. This is now fixed.
 March 26, 2024 - OpenEXR v3.2.4 and OpenEXR v3.1.13 Released
 ============================================================
 
-.. _LatestNewsStart:
-
 OpenEXR v3.2.4 is released and available for download from `v3.2.4
 <https://github.com/AcademySoftwareFoundation/openexr/releases/tag/v3.2.4>`_.
 
@@ -206,8 +204,6 @@ Other miscellaneous changes:
 Also, the dwa bug fix has been back-ported to v3.1 and is available for
 download at `v3.1.13
 <https://github.com/AcademySoftwareFoundation/openexr/releases/tag/v3.1.13>`_.
-
-.. _LatestNewsEnd:
 
 March 6, 2024 - OpenEXR v3.2.3 Released
 =======================================
