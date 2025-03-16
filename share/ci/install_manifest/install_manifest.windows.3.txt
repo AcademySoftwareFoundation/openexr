@@ -156,11 +156,11 @@ include/OpenEXR/openexr_errors.h
 include/OpenEXR/openexr_part.h
 include/OpenEXR/openexr_std_attr.h
 include/OpenEXR/openexr_version.h
-lib/Iex-$MAJOR_$MINOR.lib
-lib/IlmThread-$MAJOR_$MINOR.lib
-lib/OpenEXR-$MAJOR_$MINOR.lib
-lib/OpenEXRCore-$MAJOR_$MINOR.lib
-lib/OpenEXRUtil-$MAJOR_$MINOR.lib
+lib/Iex-3_3.lib
+lib/IlmThread-3_3.lib
+lib/OpenEXR-3_3.lib
+lib/OpenEXRCore-3_3.lib
+lib/OpenEXRUtil-3_3.lib
 lib/cmake/OpenEXR/OpenEXRConfig.cmake
 lib/cmake/OpenEXR/OpenEXRConfigVersion.cmake
 lib/cmake/OpenEXR/OpenEXRTargets-release.cmake
