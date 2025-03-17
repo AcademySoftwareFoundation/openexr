@@ -498,7 +498,7 @@ browser to preview the resulting website, that is, load
 ``file://<build-directory>/website/sphinx/index.html`` into your web
 browser.
 
-Once you submit a PR, a check labeled ``docs/readthedocs.org:openexr``
+Once you submit a PR, a check labeled ``website/readthedocs.org:openexr``
 will validate the build. Click on the ``Details`` link to
 preview. Also, a link to this preview will be added automatically to
 the PR description.
@@ -693,10 +693,10 @@ The preferred workflow is:
     - If any changes have gone into [SECURITY.md](SECURITY), cherry-pick
       the associated commit as well.
 
-    - Also include in this PR edits to [``docs/news.rst``](docs/news.rst)
+    - Also include in this PR edits to [``website/news.rst``](website/news.rst)
       that add an announcement of the release.
 
-11. After review/merge of the updates to ``docs/news.rst``, build the
+11. After review/merge of the updates to ``website/news.rst``, build the
     website at https://readthedocs.org/projects/openexr.
 
 12. If the release has resolved any OSS-Fuzz issues, update the
