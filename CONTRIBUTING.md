@@ -498,7 +498,7 @@ browser to preview the resulting website, that is, load
 ``file://<build-directory>/website/sphinx/index.html`` into your web
 browser.
 
-Once you submit a PR, a check labeled ``website/readthedocs.org:openexr``
+Once you submit a PR, a check labeled ``docs/readthedocs.org:openexr``
 will validate the build. Click on the ``Details`` link to
 preview. Also, a link to this preview will be added automatically to
 the PR description.
