@@ -80,17 +80,17 @@
 
 ## Version 3.3.3 (March 23, 2025)
 
-Patch release with miscalleneous bug/build/documentation fixes:
+Patch release with miscellaneous bug/build/documentation fixes:
 
 * :bug: Fix a bug involving deep tiled images
 * :bug: Adjust the clamping on the dwa compression (Issue [1982](https://github.com/AcademySoftwareFoundation/openexr/issues/1982))
 * :bug: Address issues with small exr files and header parse (Issue [1984](https://github.com/AcademySoftwareFoundation/openexr/issues/1984))
 * :bug: Fix crash if user does not provide memory when filling deep framebuffer
 * :bug: Fix bad pointer SSE math causing out-of-bounds access
-* :bug: fix potential buffer overwrite with zip data
+* :bug: Fix potential buffer overwrite with zip data
 * :bug: Fix usage of utf-8 filenames for windows
 * :bug: Fix regression in reading EXR images on 32bit Windows involving `atomic_compare_exchange_strong`
-* :bug: add checks to avoid using optimizations when inappropriate (Issue [1949](https://github.com/AcademySoftwareFoundation/openexr/issues/1949))
+* :bug: Add checks to avoid using optimizations when inappropriate (Issue [1949](https://github.com/AcademySoftwareFoundation/openexr/issues/1949))
 * :bug: Convert dwa encoder to use algorithm quantize (Issue [1915](https://github.com/AcademySoftwareFoundation/openexr/issues/1915))
 * :bug: Fix incorrect v3 array size validation
 * :rocket: Add minor huf encode / decode performance optimizations
@@ -102,6 +102,8 @@ This version also introduces a new tool, `exrmetrics`, a utility to help analyiz
 [exrmetrics](https://openexr.com/en/latest/bin/exrmetrics.html) for details.
 
 This version also officially installs the `exrcheck` utility, formerly built for internal use but not installed.
+
+This version also publishes the python bindings for arm64 on Ubuntu and macOS.
 
 ### Merged Pull Requests
 
