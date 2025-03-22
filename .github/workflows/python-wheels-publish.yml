@@ -56,7 +56,7 @@ jobs:
         with:
           output-dir: wheelhouse
         env:
-          CIBW_ARCHS_LINUX: x86_64 
+          MACOSX_DEPLOYMENT_TARGET: 10.15
           CIBW_ARCHS_MACOS: x86_64 arm64 universal2
           # Build Python 3.7 through 3.12.
           # Skip python 3.6 since scikit-build-core requires 3.7+
@@ -88,20 +88,36 @@ jobs:
       id-token: write
 
     steps:
-    - name: Download Linux artifacts
+
+    - name: Download ubuntu-latest-x64 artifacts
       uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8
       with:
-        name: wheels-ubuntu-latest
+        name: wheels-ubuntu-latest-x64
         path: dist
-    - name: Download macOS artifacts
+
+    - name: Download ubuntu-24.04-arm-arm64 artifacts
       uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8
       with:
-        name: wheels-macos-latest
+        name: wheels-ubuntu-24.04-arm-arm64
         path: dist
-    - name: Download Windows artifacts
+
+    - name: Download macos-13-x64 artifacts
       uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8
       with:
-        name: wheels-windows-latest
+        name: wheels-macos-13-x64
         path: dist
+
+    - name: Download macos-latest-arm64
+      uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8
+      with:
+        name: wheels-macos-latest-arm64
+        path: dist
+
+    - name: Download windows-latest-x64 artifacts
+      uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8
+      with:
+        name: wheels-windows-latest-x64
+        path: dist
+
     - name: Publish distribution 📦 to PyPI
       uses: pypa/gh-action-pypi-publish@67339c736fd9354cd4f8cb0b744f2b82a74b5c70 # v1.12.3
