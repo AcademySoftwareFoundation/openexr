@@ -107,6 +107,9 @@ This version also publishes the python bindings for arm64 on Ubuntu and macOS.
 
 ### Merged Pull Requests
 
+* [2007](https://github.com/AcademySoftwareFoundation/openexr/pull/2007) Fix python publishing workflows to work with ARM 
+* [2005](https://github.com/AcademySoftwareFoundation/openexr/pull/2005) Update cibuildwheel to v2.23 for arm support
+* [2003](https://github.com/AcademySoftwareFoundation/openexr/pull/2003) Update news and requirements source
 * [2002](https://github.com/AcademySoftwareFoundation/openexr/pull/2002) exrmetrics: fix isinf
 * [2001](https://github.com/AcademySoftwareFoundation/openexr/pull/2001) support subsampling in exrmetrics
 * [1999](https://github.com/AcademySoftwareFoundation/openexr/pull/1999) Fix missing variables in install manifests
