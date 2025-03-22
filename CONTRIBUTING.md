@@ -693,10 +693,10 @@ The preferred workflow is:
     - If any changes have gone into [SECURITY.md](SECURITY), cherry-pick
       the associated commit as well.
 
-    - Also include in this PR edits to [``docs/news.rst``](docs/news.rst)
+    - Also include in this PR edits to [``website/news.rst``](website/news.rst)
       that add an announcement of the release.
 
-11. After review/merge of the updates to ``docs/news.rst``, build the
+11. After review/merge of the updates to ``website/news.rst``, build the
     website at https://readthedocs.org/projects/openexr.
 
 12. If the release has resolved any OSS-Fuzz issues, update the
@@ -743,7 +743,7 @@ To create a new release from the ``main`` branch:
 
    - Submit this change as a separate PR.
 
-3. Add a mention of the release to [``docs/news.rst``](docs/news.rst)
+3. Add a mention of the release to [``website/news.rst``](website/news.rst)
 
    - Submit this change as a separate PR.
 
