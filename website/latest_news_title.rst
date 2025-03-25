@@ -1,2 +1,1 @@
-.. |latest-news-title| replace:: **February 8, 2025 - Beta release of support for HTJ2K in OpenEXR**
-                                 
+.. |latest-news-title| replace:: **March 23, 2025 - OpenEXR 3.3.3 Released**
