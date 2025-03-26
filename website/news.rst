@@ -13,7 +13,9 @@ News
 .. toctree::
    :caption: News
 
-March 23, 2025 - OpenEXR 3.3.3 Released
+.. include:: latest_news_title.rst
+
+|latest-news-title|
 =======================================
 
 .. _LatestNewsStart:
@@ -55,9 +57,7 @@ This version also publishes the python bindings for arm64 on Ubuntu and macOS.
 .. _LatestNewsEnd:
 
 
-.. include:: latest_news_title.rst
-
-|latest-news-title|
+February 8, 2025 - Beta release of support for HTJ2K in OpenEXR
 ===============================================================
 
 
