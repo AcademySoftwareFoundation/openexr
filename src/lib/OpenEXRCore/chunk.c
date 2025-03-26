@@ -565,7 +565,13 @@ extract_chunk_table (
     if (ctable == NULL)
     {
         int64_t      nread = 0;
+#ifdef EXR_HAS_STD_ATOMICS
+        uintptr_t eptr = 0, nptr = 0;
+#elif defined(_MSC_VER)
         uint64_t     eptr = 0, nptr = 0;
+#else
+#    error OS unimplemented support for atomics
+#endif
         int          complete = 1;
         uint64_t     maxoff   = ((uint64_t) -1);
         exr_result_t rv;
@@ -639,7 +645,13 @@ extract_chunk_table (
         }
         else { priv_to_native64 (ctable, part->chunk_count); }
 
+#ifdef EXR_HAS_STD_ATOMICS
+        nptr = (uintptr_t) ctable;
+#elif defined(_MSC_VER)
         nptr = (uint64_t) ctable;
+#else
+#    error OS unimplemented support for atomics
+#endif
         // see if we win or not
         if (!atomic_compare_exchange_strong (
                 EXR_CONST_CAST (atomic_uintptr_t*, &(part->chunk_table)),
