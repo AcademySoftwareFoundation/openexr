@@ -53,10 +53,38 @@ using atomic_uintptr_t = std::atomic_uintptr_t;
 #        include <stdatomic.h>
 #    elif defined(_MSC_VER)
 /* msvc w/ c11 support is only very new, until we know what the preprocessor checks are, provide defaults */
+#        include <stdint.h>
 #        include <windows.h>
 /* yeah, yeah, might be a 32-bit pointer, but if we make it the same, we
  * can write less since we know support is coming (eventually) */
-typedef uint64_t atomic_uintptr_t;
+typedef uintptr_t volatile atomic_uintptr_t;
+
+static inline uintptr_t
+atomic_load (
+    uintptr_t volatile* object)
+{
+#        if UINTPTR_MAX == 0xFFFFFFFF
+    return (uintptr_t) InterlockedOr (object, 0);
+#        else
+    return (uintptr_t) InterlockedOr64 (object, 0);
+#        endif
+}
+
+static inline int
+atomic_compare_exchange_strong (
+    uintptr_t volatile* object, uintptr_t* expected, uintptr_t desired)
+{
+#        if UINTPTR_MAX == 0xFFFFFFFF
+    uintptr_t prev =
+        (uintptr_t) InterlockedCompareExchange (object, desired, *expected);
+#        else
+    uintptr_t prev =
+        (uintptr_t) InterlockedCompareExchange64 (object, desired, *expected);
+#        endif
+    if (prev == *expected) return 1;
+    *expected = prev;
+    return 0;
+}
 #    else
 #        error OS unimplemented support for atomics
 #    endif
