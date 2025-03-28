@@ -16,42 +16,6 @@
 
 /**************************************/
 
-/* for testing, we include a bunch of internal stuff into the unit tests which are in c++ */
-/* see internal_structs.h for details on the msvc guard. */
-#if !defined(_MSC_VER)
-#    if defined __has_include
-#        if __has_include(<stdatomic.h>)
-#            define EXR_HAS_STD_ATOMICS 1
-#        endif
-#    endif
-#endif
-
-#ifdef EXR_HAS_STD_ATOMICS
-#    include <stdatomic.h>
-#elif defined(_MSC_VER)
-
-/* msvc w/ c11 support is only very new, until we know what the preprocessor checks are, provide defaults */
-#    include <windows.h>
-
-#    define atomic_load(object) InterlockedOr64 ((int64_t volatile*) object, 0)
-
-static inline int
-atomic_compare_exchange_strong (
-    uint64_t volatile* object, uint64_t* expected, uint64_t desired)
-{
-    uint64_t prev =
-        (uint64_t) InterlockedCompareExchange64 (object, desired, *expected);
-    if (prev == *expected) return 1;
-    *expected = prev;
-    return 0;
-}
-
-#else
-#    error OS unimplemented support for atomics
-#endif
-
-/**************************************/
-
 exr_result_t extract_chunk_table (
     exr_const_context_t   ctxt,
     exr_const_priv_part_t part,
@@ -565,7 +529,7 @@ extract_chunk_table (
     if (ctable == NULL)
     {
         int64_t      nread = 0;
-        uint64_t     eptr = 0, nptr = 0;
+        uintptr_t    eptr = 0, nptr = 0;
         int          complete = 1;
         uint64_t     maxoff   = ((uint64_t) -1);
         exr_result_t rv;
@@ -639,7 +603,7 @@ extract_chunk_table (
         }
         else { priv_to_native64 (ctable, part->chunk_count); }
 
-        nptr = (uint64_t) ctable;
+        nptr = (uintptr_t) ctable;
         // see if we win or not
         if (!atomic_compare_exchange_strong (
                 EXR_CONST_CAST (atomic_uintptr_t*, &(part->chunk_table)),
