@@ -55,8 +55,6 @@ using atomic_uintptr_t = std::atomic_uintptr_t;
 /* msvc w/ c11 support is only very new, until we know what the preprocessor checks are, provide defaults */
 #        include <stdint.h>
 #        include <windows.h>
-/* yeah, yeah, might be a 32-bit pointer, but if we make it the same, we
- * can write less since we know support is coming (eventually) */
 typedef uintptr_t volatile atomic_uintptr_t;
 
 static inline uintptr_t
