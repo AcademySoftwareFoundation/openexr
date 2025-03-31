@@ -35,6 +35,7 @@ on:
       - 'website/src/**'
       - '!bazel/**'
       - '!src/wrappers/**'
+      - '!share/ci/**'
       - '!.github/workflows/**'
       - '.github/workflows/ci_workflow_old.yml'
   pull_request:
@@ -45,6 +46,7 @@ on:
       - 'website/src/**'
       - '!bazel/**'
       - '!src/wrappers/**'
+      - '!share/ci/**'
       - '!.github/workflows/**'
       - '.github/workflows/ci_workflow_old.yml'
 

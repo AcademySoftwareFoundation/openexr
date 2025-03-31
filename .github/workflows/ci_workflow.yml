@@ -82,6 +82,7 @@ jobs:
       namespace: ${{ matrix.namespace }}
       validate_install: ${{ matrix.validate_install || 'ON' }}
     strategy:
+      fail-fast: false
       matrix:
         include:
 
@@ -145,6 +146,7 @@ jobs:
       BUILD_TESTING: ${{ matrix.BUILD_TESTING || 'ON' }}
       validate_install: ${{ matrix.validate_install || 'ON' }}
     strategy:
+      fail-fast: false
       matrix:
         include:
 
@@ -200,6 +202,7 @@ jobs:
       BUILD_TESTING: ${{ matrix.BUILD_TESTING || 'ON' }}
       validate_install: ${{ matrix.validate_install || 'ON' }}
     strategy:
+      fail-fast: false
       matrix:
         include:
           - build: 1
@@ -232,32 +235,22 @@ jobs:
             label: vfx2022
             os: windows-2019
 
-            # Build w/msys2, mingw32 and ucrt64, both shared and
-            # static. Force internal Imath/libdeflate so the CI
-            # doesn't have to build them with msys as the shell.
+            # Build w/msys2, mingw32 and ucrt64, shared and static. 
 
           - build: 7
             label: msys2-mingw32
             msystem: MINGW32
-            OPENEXR_FORCE_INTERNAL_IMATH: 'ON'
-            OPENEXR_FORCE_INTERNAL_DEFLATE: 'ON'
 
           - build: 8
             label: msys2-mingw32, static
             msystem: MINGW32
             BUILD_SHARED_LIBS: 'OFF'
-            OPENEXR_FORCE_INTERNAL_IMATH: 'ON'
-            OPENEXR_FORCE_INTERNAL_DEFLATE: 'ON'
 
           - build: 9
             label: msys2-ucrt64
             msystem: UCRT64
-            OPENEXR_FORCE_INTERNAL_IMATH: 'ON'
-            OPENEXR_FORCE_INTERNAL_DEFLATE: 'ON'
 
           - build: 10
             label: msys2-ucrt64, static
             msystem: UCRT64
             BUILD_SHARED_LIBS: 'OFF'
-            OPENEXR_FORCE_INTERNAL_IMATH: 'ON'
-            OPENEXR_FORCE_INTERNAL_DEFLATE: 'ON'

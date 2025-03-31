@@ -82,24 +82,27 @@ jobs:
           update: true
           install: >-
             git
-            ${{ inputs.msystem == 'MINGW32' && 'mingw-w64-i686-cmake mingw-w64-i686-gcc' || '' }}
-            ${{ inputs.msystem == 'UCRT64' && 'mingw-w64-ucrt-x86_64-cmake mingw-w64-ucrt-x86_64-gcc' || '' }}
+          pacboy: >-
+            cc:p
+            cmake:p
+            imath:p
+            libdeflate:p
 
       - name: Install Imath
-        # Pre-install Imath so the builds validate finding the external installation
-        if: ${{ inputs.OPENEXR_FORCE_INTERNAL_IMATH == 'OFF' }}
+        # Pre-install Imath so the builds validate that find_package sees the external installation
+        if: inputs.OPENEXR_FORCE_INTERNAL_IMATH == 'OFF'
         run: share/ci/scripts/install_imath.sh main
         shell: bash
 
       - name: Install libdeflate
-        # Pre-install libdeflate so the builds validate finding the external installation
-        if: ${{ inputs.OPENEXR_FORCE_INTERNAL_DEFLATE == 'OFF' }}
+        # Pre-install libdeflate so the builds validate that find_package sees the external installation
+        if: inputs.OPENEXR_FORCE_INTERNAL_DEFLATE == 'OFF'
         run: share/ci/scripts/install_libdeflate.sh master
         shell: bash
 
       - name: Set PATH for Imath/libdeflate DLLs
         # When building against external Imath/libdeflate shared objects, the tests need PATH to include the dll's.
-        if: contains(inputs.os, 'windows')
+        if: contains(inputs.os, 'windows') && inputs.msystem == ''
         run: |
           echo "$PATH;C:/Program Files (x86)/Imath/bin;C:/Program Files (x86)/Imath/lib;C:/Program Files (x86)/libdeflate/bin;C:/Program Files (x86)/libdeflate/lib" >> $GITHUB_PATH
         shell: bash
@@ -164,13 +167,17 @@ jobs:
       - name: Configure, Build, Test (msys2) # requires msys2 shell
         if: inputs.msystem != ''
         run: |
+          cmake --version
           cmake $CMAKE_ARGS
           cmake --build . --target install --config ${{ inputs.build-type }}
-          ctest -T Test -C ${{ inputs.build-type }} --timeout 7200 --output-on-failure -VV
+          # TODO: OpenEXRCore.testDWATable fails w/MING32
+          if [ "${{ inputs.msystem }}" != "MINGW32" ]; then
+            ctest -T Test -C ${{ inputs.build-type }} --timeout 7200 --output-on-failure -VV
+          else
+            echo "Skipping tests for MINGW32"
+          fi
         working-directory: _build
         shell: msys2 {0}
-        # TODO: OpenEXRCore.testDWATable fails w/MING32
-        continue-on-error: true
 
       - name: Prepare install_manifest
         # Store the cmake command as the first line of the manifest,
