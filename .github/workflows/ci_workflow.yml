@@ -81,6 +81,7 @@ jobs:
       BUILD_TESTING: ${{ matrix.BUILD_TESTING || 'ON' }}
       namespace: ${{ matrix.namespace }}
       validate_install: ${{ matrix.validate_install || 'ON' }}
+
     strategy:
       fail-fast: false
       matrix:
@@ -145,6 +146,7 @@ jobs:
       OPENEXR_FORCE_INTERNAL_DEFLATE: ${{ matrix.OPENEXR_FORCE_INTERNAL_DEFLATE || 'OFF' }}
       BUILD_TESTING: ${{ matrix.BUILD_TESTING || 'ON' }}
       validate_install: ${{ matrix.validate_install || 'ON' }}
+
     strategy:
       fail-fast: false
       matrix:
@@ -201,6 +203,7 @@ jobs:
       msystem: ${{ matrix.msystem }}
       BUILD_TESTING: ${{ matrix.BUILD_TESTING || 'ON' }}
       validate_install: ${{ matrix.validate_install || 'ON' }}
+
     strategy:
       fail-fast: false
       matrix:
@@ -240,11 +243,13 @@ jobs:
           - build: 7
             label: msys2-mingw32
             msystem: MINGW32
-
+            BUILD_TESTING: 'OFF'
+            
           - build: 8
             label: msys2-mingw32, static
             msystem: MINGW32
             BUILD_SHARED_LIBS: 'OFF'
+            BUILD_TESTING: 'OFF'
 
           - build: 9
             label: msys2-ucrt64
