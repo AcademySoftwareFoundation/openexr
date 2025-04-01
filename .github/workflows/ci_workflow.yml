@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) Contributors to the OpenEXR Project.
 
+
 # The CI workflow uses steps defined in ci_steps.yml, via the "uses:"
 # directive. Linux, macOS, and Windows all share a common set of
 # configure/build/validate steps.
@@ -80,7 +81,9 @@ jobs:
       BUILD_TESTING: ${{ matrix.BUILD_TESTING || 'ON' }}
       namespace: ${{ matrix.namespace }}
       validate_install: ${{ matrix.validate_install || 'ON' }}
+
     strategy:
+      fail-fast: false
       matrix:
         include:
 
@@ -143,7 +146,9 @@ jobs:
       OPENEXR_FORCE_INTERNAL_DEFLATE: ${{ matrix.OPENEXR_FORCE_INTERNAL_DEFLATE || 'OFF' }}
       BUILD_TESTING: ${{ matrix.BUILD_TESTING || 'ON' }}
       validate_install: ${{ matrix.validate_install || 'ON' }}
+
     strategy:
+      fail-fast: false
       matrix:
         include:
 
@@ -195,9 +200,12 @@ jobs:
       OPENEXR_BUILD_TOOLS: ${{ matrix.OPENEXR_BUILD_TOOLS || 'ON' }}
       OPENEXR_FORCE_INTERNAL_IMATH: ${{ matrix.OPENEXR_FORCE_INTERNAL_IMATH || 'OFF' }}
       OPENEXR_FORCE_INTERNAL_DEFLATE: ${{ matrix.OPENEXR_FORCE_INTERNAL_DEFLATE || 'OFF' }}
+      msystem: ${{ matrix.msystem }}
       BUILD_TESTING: ${{ matrix.BUILD_TESTING || 'ON' }}
       validate_install: ${{ matrix.validate_install || 'ON' }}
+
     strategy:
+      fail-fast: false
       matrix:
         include:
           - build: 1
@@ -230,3 +238,24 @@ jobs:
             label: vfx2022
             os: windows-2019
 
+            # Build w/msys2, mingw32 and ucrt64, shared and static. 
+
+          - build: 7
+            label: msys2-mingw32
+            msystem: MINGW32
+            BUILD_TESTING: 'OFF'
+            
+          - build: 8
+            label: msys2-mingw32, static
+            msystem: MINGW32
+            BUILD_SHARED_LIBS: 'OFF'
+            BUILD_TESTING: 'OFF'
+
+          - build: 9
+            label: msys2-ucrt64
+            msystem: UCRT64
+
+          - build: 10
+            label: msys2-ucrt64, static
+            msystem: UCRT64
+            BUILD_SHARED_LIBS: 'OFF'

@@ -20,6 +20,8 @@ on:
       - 'src/lib/**'
       - 'src/wrappers/python/**'
       - 'pyproject.toml'
+      - '!share/ci/**'
+      - '!.github/workflows/**'
       - '.github/workflows/python-wheels.yml'
   pull_request:
     branches-ignore:
@@ -28,6 +30,8 @@ on:
       - 'src/lib/**'
       - 'src/wrappers/python/**'
       - 'pyproject.toml'
+      - '!share/ci/**'
+      - '!.github/workflows/**'
       - '.github/workflows/python-wheels.yml'
 
 permissions:
