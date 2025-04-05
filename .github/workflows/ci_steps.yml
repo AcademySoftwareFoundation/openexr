@@ -153,6 +153,11 @@ jobs:
                  -DILMTHREAD_NAMESPACE=${{ inputs.namespace }} \
                  -DIEX_NAMESPACE=${{ inputs.namespace }}"
           fi
+          if [ "${{ inputs.msystem }}" == "MINGW32" ]; then
+              CMAKE_ARGS="$CMAKE_ARGS \
+                 -DCMAKE_C_FLAGS='-msse2 -mfpmath=sse' \
+                 -DCMAKE_CXX_FLAGS='-msse2 -mfpmath=sse'"
+          fi
 
           echo "CMAKE_ARGS=$CMAKE_ARGS" >> $GITHUB_ENV
 
