@@ -132,29 +132,33 @@ jobs:
           # Construct the cmake command as a variable, so the
           # Configure step below can execute it, but also so we can store
           # in in the install_manifest as a debugging reference
-          CMAKE_ARGS="-B . -S .. \
-                -DCMAKE_INSTALL_PREFIX=../_install \
-                -DCMAKE_BUILD_TYPE=${{ inputs.build-type }} \
-                -DOPENEXR_CXX_STANDARD=${{ inputs.cxx-standard }} \
-                -DBUILD_SHARED_LIBS=${{ inputs.BUILD_SHARED_LIBS }} \
-                -DOPENEXR_ENABLE_THREADING=${{ inputs.OPENEXR_ENABLE_THREADING }} \
-                -DOPENEXR_INSTALL_PKG_CONFIG=${{ inputs.OPENEXR_INSTALL_PKG_CONFIG }} \
-                -DOPENEXR_INSTALL_DOCS=${{ inputs.OPENEXR_INSTALL_DOCS }} \
-                -DOPENEXR_BUILD_EXAMPLES=${{ inputs.OPENEXR_BUILD_EXAMPLES }} \
-                -DOPENEXR_BUILD_TOOLS=${{ inputs.OPENEXR_BUILD_TOOLS }} \
-                -DOPENEXR_FORCE_INTERNAL_IMATH=${{ inputs.OPENEXR_FORCE_INTERNAL_IMATH }} \
-                -DOPENEXR_FORCE_INTERNAL_DEFLATE=${{ inputs.OPENEXR_FORCE_INTERNAL_DEFLATE }} \
-                -DBUILD_TESTING=${{ inputs.BUILD_TESTING }} \
-                -DOPENEXR_RUN_FUZZ_TESTS=OFF \
-                -DCMAKE_VERBOSE_MAKEFILE=ON"
+          cmake_args=("-B" "." "-S" "..")
+          cmake_args+=("-DCMAKE_INSTALL_PREFIX=../_install")
+          cmake_args+=("-DCMAKE_BUILD_TYPE=${{ inputs.build-type }}")
+          cmake_args+=("-DOPENEXR_CXX_STANDARD=${{ inputs.cxx-standard }}")
+          cmake_args+=("-DBUILD_SHARED_LIBS=${{ inputs.BUILD_SHARED_LIBS }}")
+          cmake_args+=("-DOPENEXR_ENABLE_THREADING=${{ inputs.OPENEXR_ENABLE_THREADING }}")
+          cmake_args+=("-DOPENEXR_INSTALL_PKG_CONFIG=${{ inputs.OPENEXR_INSTALL_PKG_CONFIG }}")
+          cmake_args+=("-DOPENEXR_INSTALL_DOCS=${{ inputs.OPENEXR_INSTALL_DOCS }}")
+          cmake_args+=("-DOPENEXR_BUILD_EXAMPLES=${{ inputs.OPENEXR_BUILD_EXAMPLES }}")
+          cmake_args+=("-DOPENEXR_BUILD_TOOLS=${{ inputs.OPENEXR_BUILD_TOOLS }}")
+          cmake_args+=("-DOPENEXR_FORCE_INTERNAL_IMATH=${{ inputs.OPENEXR_FORCE_INTERNAL_IMATH }}")
+          cmake_args+=("-DOPENEXR_FORCE_INTERNAL_DEFLATE=${{ inputs.OPENEXR_FORCE_INTERNAL_DEFLATE }}")
+          cmake_args+=("-DBUILD_TESTING=${{ inputs.BUILD_TESTING }}")
+          cmake_args+=("-DOPENEXR_RUN_FUZZ_TESTS=OFF")
+          cmake_args+=("-DCMAKE_VERBOSE_MAKEFILE=ON")
           if [ -n "${{ inputs.namespace }}" ]; then
-              CMAKE_ARGS="$CMAKE_ARGS \
-                 -DOPENEXR_IMF_NAMESPACE=${{ inputs.namespace }} \
-                 -DILMTHREAD_NAMESPACE=${{ inputs.namespace }} \
-                 -DIEX_NAMESPACE=${{ inputs.namespace }}"
+            cmake_args+=("-DOPENEXR_IMF_NAMESPACE=${{ inputs.namespace }}")
+            cmake_args+=("-DILMTHREAD_NAMESPACE=${{ inputs.namespace }}")
+            cmake_args+=("-DIEX_NAMESPACE=${{ inputs.namespace }}")
+          fi
+          if [ "${{ inputs.msystem }}" == "MINGW32" ]; then
+            cmake_args+=("-DCMAKE_C_FLAGS=-msse2 -mfpmath=sse")
+            cmake_args+=("-DCMAKE_CXX_FLAGS=-msse2 -mfpmath=sse")
           fi
 
-          echo "CMAKE_ARGS=$CMAKE_ARGS" >> $GITHUB_ENV
+          quoted_args=$(printf '%q ' "${cmake_args[@]}")
+          echo "CMAKE_ARGS=$quoted_args" >> "$GITHUB_ENV"
 
           # Remove the os version from the manifest name, so it only
           # contains "ubuntu", "macos", or "windows", so the name is,
@@ -166,7 +170,8 @@ jobs:
       - name: Configure, Build, Test
         if: inputs.msystem == ''
         run: |
-          cmake $CMAKE_ARGS
+          cmake --version
+          cmake ${{ env.CMAKE_ARGS }}
           cmake --build . --target install --config ${{ inputs.build-type }}
           if [ "${{ inputs.BUILD_TESTING }}" == "ON" ]; then
             ctest -T Test -C ${{ inputs.build-type }} --timeout 7200 --output-on-failure -VV
@@ -178,12 +183,7 @@ jobs:
         if: inputs.msystem != ''
         run: |
           cmake --version
-          if [ "${{ inputs.msystem }}" == "MINGW32" ]; then
-            cmake $CMAKE_ARGS -DCMAKE_C_FLAGS='-msse2 -mfpmath=sse' \
-              -DCMAKE_CXX_FLAGS='-msse2 -mfpmath=sse'
-          else
-            cmake $CMAKE_ARGS
-          fi
+          cmake ${{ env.CMAKE_ARGS }}
           cmake --build . --target install --config ${{ inputs.build-type }}
           if [ "${{ inputs.BUILD_TESTING }}" == "ON" ]; then
             ctest -T Test -C ${{ inputs.build-type }} --timeout 7200 --output-on-failure -VV
@@ -196,7 +196,7 @@ jobs:
         # and remove the path prefix, so the manifest contains only
         # the local filenames.
         run: |
-          echo "# cmake $CMAKE_ARGS" > "_build/$INSTALL_MANIFEST"
+          echo "# cmake ${{ env.CMAKE_ARGS }}" > "_build/$INSTALL_MANIFEST"
           sort _build/install_manifest.txt | sed -e "s:^.*/_install/::" >> "_build/$INSTALL_MANIFEST"
         shell: bash
 
