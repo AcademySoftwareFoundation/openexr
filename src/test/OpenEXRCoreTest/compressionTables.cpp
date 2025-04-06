@@ -1537,7 +1537,7 @@ void testDWAQuantize (const std::string& tempdir)
 #else
     float baseErrors[] = { 0.f, 1.f, 20.f, 45.f /*default*/, 60.f, 73.f, 95.f, 100.f, 230.f };
 
-    for ( int be = 0; be < (sizeof(baseErrors)/sizeof(float)); ++be )
+    for ( int be = 0; be < static_cast<int> (sizeof(baseErrors)/sizeof(float)); ++be )
     {
         for ( int i = 0; i < 64; ++i )
         {

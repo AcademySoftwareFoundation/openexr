@@ -13,31 +13,20 @@
 
 /**************************************/
 
-#ifndef __F16C__
-static inline void
-half_to_float4 (float* out, const uint16_t* src)
-{
-    out[0] = half_to_float (src[0]);
-    out[1] = half_to_float (src[1]);
-    out[2] = half_to_float (src[2]);
-    out[3] = half_to_float (src[3]);
-}
-
-static inline void
-half_to_float8 (float* out, const uint16_t* src)
-{
-    half_to_float4 (out, src);
-    half_to_float4 (out + 4, src + 4);
-}
+/* TODO: learn arm neon intrinsics for this */
+#if (defined(__x86_64__) || defined(_M_X64))
+#    if defined(__AVX__) && (defined(__F16C__) || defined(__GNUC__) || defined(__clang__))
+#        define USE_F16C_INTRINSICS
+#    elif (defined(__GNUC__) || defined(__clang__))
+#        define ENABLE_F16C_TEST
+#    endif
 #endif
 
-#if (defined(__x86_64__) || defined(_M_X64)) && defined(__AVX__) &&            \
-    (defined(__F16C__) || defined(__GNUC__) || defined(__clang__))
-
-#    if defined(__F16C__)
+#if defined(USE_F16C_INTRINSICS) || defined(ENABLE_F16C_TEST)
+#    if defined(USE_F16C_INTRINSICS)
 static inline void
 half_to_float_buffer (float* out, const uint16_t* in, int w)
-#    elif defined(__GNUC__) || defined(__clang__)
+#    elif defined(ENABLE_F16C_TEST)
 __attribute__ ((target ("f16c"))) static void
 half_to_float_buffer_f16c (float* out, const uint16_t* in, int w)
 #    endif
@@ -89,8 +78,32 @@ half_to_float_buffer_f16c (float* out, const uint16_t* in, int w)
     }
 #    endif
 }
+#endif
 
-#    ifndef __F16C__
+#ifndef USE_F16C_INTRINSICS
+static inline void
+half_to_float4 (float* out, const uint16_t* src)
+{
+    out[0] = half_to_float (src[0]);
+    out[1] = half_to_float (src[1]);
+    out[2] = half_to_float (src[2]);
+    out[3] = half_to_float (src[3]);
+}
+
+static inline void
+half_to_float8 (float* out, const uint16_t* src)
+{
+    half_to_float4 (out, src);
+    half_to_float4 (out + 4, src + 4);
+}
+#else
+/* when we explicitly compile against f16, force it in, do not need a chooser */
+static inline void
+choose_half_to_float_impl (void)
+{}
+#endif
+
+#ifdef ENABLE_F16C_TEST
 static void
 half_to_float_buffer_impl (float* out, const uint16_t* in, int w)
 {
@@ -140,15 +153,10 @@ choose_half_to_float_impl (void)
 {
     if (has_native_half ()) half_to_float_buffer = &half_to_float_buffer_f16c;
 }
-#    else
-/* when we explicitly compile against f16, force it in */
-static inline void
-choose_half_to_float_impl (void)
-{}
 
-#    endif /* F16C */
+#endif /* ENABLE_F16C_TEST */
 
-#else
+#if !(defined(ENABLE_F16C_TEST) || defined(USE_F16C_INTRINSICS))
 
 static inline void
 half_to_float_buffer (float* out, const uint16_t* in, int w)
