@@ -32,6 +32,7 @@
 #include <ImfArray.h>
 
 #include <ImfBoxAttribute.h>
+#include <ImfBytesAttribute.h>
 #include <ImfChannelListAttribute.h>
 #include <ImfChromaticitiesAttribute.h>
 #include <ImfCompressionAttribute.h>
@@ -1251,6 +1252,9 @@ PyFile::getAttributeObject(const std::string& name, const Attribute* a)
         auto max = make_v2<float>(v->value().max);
         return py::make_tuple(min, max);
     }
+
+    if (auto v = dynamic_cast<const BytesAttribute*> (a))
+        return py::bytes(v->data(), v->dataSize());
     
     if (auto v = dynamic_cast<const ChannelListAttribute*> (a))
     {
@@ -1890,6 +1894,17 @@ PyFile::insertAttribute(Header& header, const std::string& name, const py::objec
             // Channel list: don't create an explicit chlist attribute here,
             // since the channels get created elswhere.
         }
+    }
+    else if (py::isinstance<py::bytes>(object))
+    {
+        auto bytes = py::cast<py::bytes>(object);
+        // Since there is no direct way to get the bytes pointer from the
+        // py:bytes object, we wrap it in a py::buffer and then get the
+        // pointer from the buffer_info struct. This is a zero copy operation
+        // but the memory will be copied when the BytesAttribute is created.
+        py::buffer_info info(py::buffer(bytes).request());
+        Imf::BytesAttribute bytesAttr(py::len(bytes), info.ptr);
+        header.insert(name, bytesAttr);
     }
     else if (auto v = py_cast<Compression>(object))
         header.insert(name, CompressionAttribute(static_cast<Compression>(*v)));
