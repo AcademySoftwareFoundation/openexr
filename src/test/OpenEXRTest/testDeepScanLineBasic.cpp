@@ -243,11 +243,18 @@ generateRandomFile (
             }
 }
 
+enum ReadType
+{
+    eReadBulk = 1,
+    eReadScanline,
+    eReadScanlinelFrameBuffer
+};
+
 void
 readFile (
     const std::string& filename,
     int                channelCount,
-    bool               bulkRead,
+    ReadType           readType,
     bool               randomChannels)
 {
     if (randomChannels) { cout << " reading random channels " << flush; }
@@ -352,9 +359,12 @@ readFile (
                 pointerSize * width,                // yStride// 10
                 sampleSize));                       // sampleStride
     }
-    file.setFrameBuffer (frameBuffer);
+    if (readType != eReadScanlinelFrameBuffer)
+    {
+        file.setFrameBuffer (frameBuffer);
+    }
 
-    if (bulkRead)
+    if (readType == eReadBulk)
     {
         cout << "bulk " << flush;
         file.readPixelSampleCounts (dataWindow.min.y, dataWindow.max.y);
@@ -397,10 +407,24 @@ readFile (
     else
     {
         cout << "per-line " << flush;
+        if (readType == eReadScanlinelFrameBuffer) cout << "framebuffer " << flush;
         for (int i = 0; i < dataWindow.max.y - dataWindow.min.y + 1; i++)
         {
             int y = i + dataWindow.min.y;
-            file.readPixelSampleCounts (y);
+            vector<char> buffer;
+            if (readType == eReadScanlinelFrameBuffer)
+            {
+                uint64_t pixSize = 0;
+                file.rawPixelData (y, nullptr, pixSize);
+                buffer.resize (pixSize);
+                file.rawPixelData (y, buffer.data(), pixSize);
+                file.readPixelSampleCounts (buffer.data(), frameBuffer, y, y);
+            }
+            else // readType == eReadScanline
+            {
+                file.readPixelSampleCounts (y);
+            }
+
 
             for (int j = 0; j < width; j++)
                 assert (localSampleCount[i][j] == sampleCount[i][j]);
@@ -431,7 +455,14 @@ readFile (
                 }
             }
 
-            file.readPixels (y);
+            if (readType == eReadScanlinelFrameBuffer)
+            {
+                file.readPixels (buffer.data(), frameBuffer, y, y);
+            }
+            else // readType == eReadScanline
+            {
+                file.readPixels (y);
+            }
         }
     }
 
@@ -539,8 +570,10 @@ readWriteTest (
             false,
             dataWindow,
             displayWindow);
-        readFile (filename, channelCount, false, false);
-        if (channelCount > 1) readFile (filename, channelCount, false, true);
+        readFile (filename, channelCount, eReadScanline, false);
+        if (channelCount > 1) readFile (filename, channelCount, eReadScanline, true);
+        readFile (filename, channelCount, eReadScanlinelFrameBuffer, false);
+        if (channelCount > 1) readFile (filename, channelCount, eReadScanlinelFrameBuffer, true);
         remove (filename.c_str ());
         cout << endl << flush;
 
@@ -551,8 +584,8 @@ readWriteTest (
             true,
             dataWindow,
             displayWindow);
-        readFile (filename, channelCount, true, false);
-        if (channelCount > 1) readFile (filename, channelCount, true, true);
+        readFile (filename, channelCount, eReadBulk, false);
+        if (channelCount > 1) readFile (filename, channelCount, eReadBulk, true);
         remove (filename.c_str ());
         cout << endl << flush;
     }
