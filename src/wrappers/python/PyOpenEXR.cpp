@@ -1037,18 +1037,20 @@ PyFile::write(const char* outfilename)
         //
         // Add attributes from the py::dict to the output header
         //
-        
-        for (auto a : P.header)
+        for (const auto& a: P.header)
         {
-            auto name = py::str(a.first);
-            py::object second = py::cast<py::object>(a.second);
+            std::string name   = a.first.cast<std::string> ();
+            py::object  second = py::cast<py::object> (a.second);
 
             if (name == "dataWindow")
             {
+                // Process dataWindow
                 py::tuple dw_tuple = py::cast<py::tuple> (second);
-                if (dw_tuple.size() != 4) 
+                if (!py::isinstance<py::tuple> (second) ||
+                    py::len (second) != 4)
                 {
-                    throw std::runtime_error ("dataWindow must be a tuple of 4 integers");
+                    throw std::runtime_error (
+                        "dataWindow must be a tuple of 4 integers");
                 }
 
                 int minX = dw_tuple[0].cast<int> ();
@@ -1056,11 +1058,29 @@ PyFile::write(const char* outfilename)
                 int maxX = dw_tuple[2].cast<int> ();
                 int maxY = dw_tuple[3].cast<int> ();
 
-                header.dataWindow () = Box2i (V2i (minX, minY), V2i (maxX, maxY));
+                header.dataWindow () =
+                    Box2i (V2i (minX, minY), V2i (maxX, maxY));
+            }
+            else if (name == "compression")
+            {
+                header.compression () = second.cast<Compression> ();
+            }
+            else if (name == "type")
+            {
+                header.setType (second.cast<std::string> ());
+            }
+            else if (name == "lineOrder")
+            {
+                header.lineOrder () = second.cast<LineOrder> ();
+            }
+            else if (name == "tiles")
+            {
+                header.setTileDescription (second.cast<TileDescription> ());
             }
             else
             {
-                insertAttribute(header, name, second);
+                // Handle other attributes
+                insertAttribute (header, name, second);
             }
         }
         
@@ -1068,8 +1088,6 @@ PyFile::write(const char* outfilename)
         // Add required attributes to the header
         //
         
-        header.setType(P.typeString());
-
         if (!P.header.contains("dataWindow"))
         {
             auto shape = P.shape();
@@ -1086,31 +1104,14 @@ PyFile::write(const char* outfilename)
 
         if (dataWindowWidth != pixelWidth || dataWindowHeight != pixelHeight)
         {
-            throw std::runtime_error ("dataWindow dimensions do not match pixel array shape");
+            throw std::runtime_error ("dataWindow dimensions (" + std::to_string (dataWindowWidth) + "x" + std::to_string (dataWindowHeight) + ") do not match pixel array shape (" + std::to_string (pixelWidth) + "x" + std::to_string (pixelHeight) + ")");
         }
-
-        if (P.type() == EXR_STORAGE_TILED || P.type() == EXR_STORAGE_DEEP_TILED)
-        {
-            if (P.header.contains("tiles"))
-            {       
-                auto td = P.header["tiles"].cast<const TileDescription&>();
-                header.setTileDescription (td);
-            }
-        }
-
-        if (P.header.contains("lineOrder"))
-        {
-            auto lo = P.header["lineOrder"].cast<LineOrder&>();
-            header.lineOrder() = static_cast<LineOrder>(lo);
-        }
-
-        header.compression() = P.compression();
         
         //
         // Add channels to the output header
         //
         
-        for (auto c : P.channels)
+        for (const auto& c : P.channels)
         {
             auto C = py::cast<PyChannel&>(c.second);
             auto pixelType = C.pixelType();
@@ -1160,21 +1161,19 @@ PyFile::write(const char* outfilename)
     {
         const PyPart& P = parts[part_index].cast<const PyPart&>();
 
-        auto header = headers[part_index];
+        auto& header = headers[part_index];
         const Box2i& dw = header.dataWindow();
 
-        if (P.type() == EXR_STORAGE_SCANLINE ||
-            P.type() == EXR_STORAGE_TILED)
+        if (P.type() == EXR_STORAGE_SCANLINE || P.type() == EXR_STORAGE_TILED)
         {
             P.writePixels(outfile, dw);
         }
-        else if (P.type() == EXR_STORAGE_DEEP_SCANLINE ||
-                 P.type() == EXR_STORAGE_DEEP_TILED)
+        else if (P.type() == EXR_STORAGE_DEEP_SCANLINE || P.type() == EXR_STORAGE_DEEP_TILED)
         {
             P.writeDeepPixels(outfile, dw);
         }
         else
-            throw std::runtime_error("invalid type");
+            throw std::runtime_error ("invalid type: " + std::to_string (P.type ()));
     }
 
     filename = outfilename;
