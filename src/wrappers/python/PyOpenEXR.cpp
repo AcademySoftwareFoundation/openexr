@@ -1042,7 +1042,26 @@ PyFile::write(const char* outfilename)
         {
             auto name = py::str(a.first);
             py::object second = py::cast<py::object>(a.second);
-            insertAttribute(header, name, second);
+
+            if (name == "dataWindow")
+            {
+                py::tuple dw_tuple = py::cast<py::tuple> (second);
+                if (dw_tuple.size() != 4) 
+                {
+                    throw std::runtime_error ("dataWindow must be a tuple of 4 integers");
+                }
+
+                int minX = dw_tuple[0].cast<int> ();
+                int minY = dw_tuple[1].cast<int> ();
+                int maxX = dw_tuple[2].cast<int> ();
+                int maxY = dw_tuple[3].cast<int> ();
+
+                header.dataWindow () = Box2i (V2i (minX, minY), V2i (maxX, maxY));
+            }
+            else
+            {
+                insertAttribute(header, name, second);
+            }
         }
         
         //
@@ -1055,12 +1074,6 @@ PyFile::write(const char* outfilename)
         {
             auto shape = P.shape();
             header.dataWindow().max = V2i(shape[1]-1,shape[0]-1);
-        }
-
-        if (!P.header.contains("displayWindow"))
-        {
-            auto shape = P.shape();
-            header.displayWindow().max = V2i(shape[1]-1,shape[0]-1);
         }
 
         const Box2i& dw = header.dataWindow ();
