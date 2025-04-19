@@ -1063,6 +1063,19 @@ PyFile::write(const char* outfilename)
             header.displayWindow().max = V2i(shape[1]-1,shape[0]-1);
         }
 
+        const Box2i& dw = header.dataWindow ();
+        int dataWindowWidth = dw.max.x - dw.min.x + 1;
+        int dataWindowHeight = dw.max.y - dw.min.y + 1;
+
+        auto pixelShape = P.shape ();
+        int  pixelWidth = pixelShape[1];
+        int  pixelHeight = pixelShape[0];
+
+        if (dataWindowWidth != pixelWidth || dataWindowHeight != pixelHeight)
+        {
+            throw std::runtime_error ("dataWindow dimensions do not match pixel array shape");
+        }
+
         if (P.type() == EXR_STORAGE_TILED || P.type() == EXR_STORAGE_DEEP_TILED)
         {
             if (P.header.contains("tiles"))
