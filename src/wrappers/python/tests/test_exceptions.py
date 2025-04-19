@@ -118,6 +118,46 @@ class TestExceptions(unittest.TestCase):
         self.assertEqual(p.type(), OpenEXR.tiledimage)
         self.assertEqual(p.compression(), OpenEXR.NO_COMPRESSION)
 
+    def test_InvalidDataWindow(self):
+        """Test that an invalid dataWindow raises an exception."""
+
+        invalid_header = {
+            "dataWindow": (-5, -5, -1, -1),  # Invalid rectangle
+            "compression": OpenEXR.ZIP_COMPRESSION,
+            "type": OpenEXR.scanlineimage
+        }
+
+        RGB = np.random.rand(10, 10, 3).astype(np.float32)  # Valid shape for data
+
+        with self.assertRaises(Exception):
+            with OpenEXR.File(invalid_header, {"RGB": RGB}) as outfile:
+                outfile.write("invalid_output.exr")
+
+    def test_DataWindowPixelArrayMismatch(self):
+        """Test that a dataWindow-pixel array size mismatch raises the correct RuntimeError."""
+
+        # Define a header with explicit dataWindow dimensions (51x101)
+        header = {
+            "dataWindow": (0, 0, 50, 100),  # 51 columns (50-0+1), 101 rows (100-0+1)
+            "compression": OpenEXR.ZIP_COMPRESSION,
+            "type": OpenEXR.scanlineimage
+        }
+
+        # Create mismatched pixel array (640x480 resolution: 640 columns, 480 rows)
+        mismatched_pixels = np.zeros((480, 640), dtype=np.float32)  # Shape = (height, width)
+
+        with self.assertRaises(RuntimeError) as ctx:
+            # Attempt to write with mismatched dimensions
+            with OpenEXR.File(header, {"R": mismatched_pixels}) as exr_file:
+                exr_file.write("mismatch_test.exr")
+
+        # Verify specific error message from PyOpenEXR.cpp check
+        self.assertIn(
+            "dataWindow dimensions do not match pixel array shape", 
+            str(ctx.exception),
+            "Missing/incorrect error message for dimension mismatch"
+        )
+
     def test_Channel(self):
 
         with self.assertRaises(Exception):
