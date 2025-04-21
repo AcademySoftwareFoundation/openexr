@@ -88,7 +88,7 @@ function(OPENEXR_DEFINE_LIBRARY libname)
       MACOSX_FRAMEWORK_BUNDLE_VERSION "${OPENEXR_VERSION_FULL}"
       MACOSX_FRAMEWORK_SHORT_VERSION_STRING "${OPENEXR_VERSION_API}"
       MACOSX_RPATH TRUE
-      # RESOURCE ${PublicHeaders}
+      # RESOURCE ${PublicHeaders} //
     )
   endif()
   add_library(${PROJECT_NAME}::${libname} ALIAS ${libname})
