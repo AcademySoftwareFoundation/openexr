@@ -21,19 +21,22 @@ set(OPENEXR_CXX_STANDARD "${tmp}" CACHE STRING "C++ standard to compile against"
 set(tmp)
 message(STATUS "Building against C++ Standard: ${OPENEXR_CXX_STANDARD}")
 
+# Sanitize version string for namespace definitions
+string(REPLACE "." "_" VERSION_SANITIZED "${OPENEXR_VERSION_API}")
+
 set(OPENEXR_NAMESPACE_CUSTOM "0" CACHE STRING "Whether the namespace has been customized (so external users know)")
-set(OPENEXR_INTERNAL_IMF_NAMESPACE "Imf_${OPENEXR_VERSION_API}" CACHE STRING "Real namespace for OpenEXR that will end up in compiled symbols")
+set(OPENEXR_INTERNAL_IMF_NAMESPACE "Imf_${VERSION_SANITIZED}" CACHE STRING "Real namespace for OpenEXR that will end up in compiled symbols")
 set(OPENEXR_IMF_NAMESPACE "Imf" CACHE STRING "Public namespace alias for OpenEXR")
 set(OPENEXR_PACKAGE_NAME "OpenEXR ${OPENEXR_VERSION}${OPENEXR_VERSION_RELEASE_TYPE}" CACHE STRING "Public string / label for displaying package")
 
 # Namespace-related settings, allows one to customize the
 # namespace generated, and to version the namespaces
 set(ILMTHREAD_NAMESPACE_CUSTOM "0" CACHE STRING "Whether the namespace has been customized (so external users know)")
-set(ILMTHREAD_INTERNAL_NAMESPACE "IlmThread_${OPENEXR_VERSION_API}" CACHE STRING "Real namespace for IlmThread that will end up in compiled symbols")
+set(ILMTHREAD_INTERNAL_NAMESPACE "IlmThread_${VERSION_SANITIZED}" CACHE STRING "Real namespace for IlmThread that will end up in compiled symbols")
 set(ILMTHREAD_NAMESPACE "IlmThread" CACHE STRING "Public namespace alias for IlmThread")
 
 set(IEX_NAMESPACE_CUSTOM "0" CACHE STRING "Whether the namespace has been customized (so external users know)")
-set(IEX_INTERNAL_NAMESPACE "Iex_${OPENEXR_VERSION_API}" CACHE STRING "Real namespace for Iex that will end up in compiled symbols")
+set(IEX_INTERNAL_NAMESPACE "Iex_${VERSION_SANITIZED}" CACHE STRING "Real namespace for Iex that will end up in compiled symbols")
 set(IEX_NAMESPACE "Iex" CACHE STRING "Public namespace alias for Iex")
 
 # Whether to generate and install a pkg-config file OpenEXR.pc
@@ -131,7 +134,7 @@ if(NOT CMAKE_INSTALL_RPATH)
       endif()
       set(CMAKE_INSTALL_RPATH "\\\$ORIGIN/../${tmpSysPath};${CMAKE_INSTALL_FULL_LIBDIR}")
       set(tmpSysPath)
-	elseif(APPLE)
+    elseif(APPLE)
       set(CMAKE_INSTALL_RPATH "@loader_path/../lib;@executable_path/../lib;${CMAKE_INSTALL_FULL_LIBDIR}")
     else()
       set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_FULL_LIBDIR}")
