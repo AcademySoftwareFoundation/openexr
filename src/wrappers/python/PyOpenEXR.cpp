@@ -1042,23 +1042,24 @@ PyFile::write(const char* outfilename)
         {
             auto name = py::str(a.first);
             py::object second = py::cast<py::object>(a.second);
-            if (std::string (name) == "compression")
+
+            if (name == "compression")
             {
                 header.compression () = second.cast<Compression> ();
             }
-            else if (std::string (name) == "type")
+            else if (name == "type")
             {
                 header.setType (second.cast<std::string> ());
             }
-            else if (std::string (name) == "lineOrder")
+            else if (name == "lineOrder")
             {
                 header.lineOrder () = second.cast<LineOrder> ();
             }
-            else if (std::string (name) == "tiles")
+            else if (name == "tiles")
             {
                 header.setTileDescription (second.cast<TileDescription> ());
             }
-            else if (std::string (name) == "dataWindow")
+            else if (name == "dataWindow")
             {
                 header.dataWindow () = second.cast<Box2i> ();
             }
