@@ -1040,8 +1040,8 @@ PyFile::write(const char* outfilename)
         
         for (auto a : P.header)
         {
-            auto name = py::str(a.first);
-            py::object second = py::cast<py::object>(a.second);
+            std::string name   = a.first.cast<std::string> ();
+            py::object  second = py::cast<py::object> (a.second);
 
             if (name == "compression")
             {
