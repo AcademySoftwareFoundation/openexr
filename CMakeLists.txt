@@ -32,8 +32,8 @@ project(OpenEXR VERSION ${OPENEXR_VERSION_MAJOR}.${OPENEXR_VERSION_MINOR}.${OPEN
 set(OPENEXR_VERSION_RELEASE_TYPE "-dev" CACHE STRING "Extra version tag string for OpenEXR build, such as -dev, -beta1, etc.")
 
 set(OPENEXR_VERSION ${OpenEXR_VERSION})
-set(OPENEXR_VERSION_FULL "${OpenEXR_VERSION_MAJOR}_${OpenEXR_VERSION_MINOR}_${OPENEXR_VERSION_PATCH}")
-set(OPENEXR_VERSION_API "${OpenEXR_VERSION_MAJOR}_${OpenEXR_VERSION_MINOR}")
+set(OPENEXR_VERSION_FULL "${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR}_${OPENEXR_VERSION_PATCH}")
+set(OPENEXR_VERSION_API "${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR}")
 
 project(OpenEXR VERSION ${OPENEXR_VERSION_MAJOR}.${OPENEXR_VERSION_MINOR}.${OPENEXR_VERSION_PATCH} LANGUAGES C CXX)
 
@@ -107,6 +107,19 @@ file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/cmake/OpenEXRTargets.cmake" "# Dummy fil
 
 if(OPENEXR_BUILD_EXAMPLES AND OPENEXR_BUILD_LIBS)
   add_subdirectory( src/examples )
+endif()
+
+if(OPENEXR_FRAMEWORK)
+  # Define resource files for Apple Framework
+  set(OPENEXR_RESOURCES
+    "${CMAKE_CURRENT_SOURCE_DIR}/README.md"
+    "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE.md"
+    "${CMAKE_CURRENT_BINARY_DIR}/cmake/OpenEXRConfigVersion.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/cmake/OpenEXRConfig.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/cmake/OpenEXRTargets.cmake"
+    CACHE INTERNAL "Resource files for frameworks"
+  )
+  message(STATUS "Resource files: ${OPENEXR_RESOURCES}")
 endif()
 
 # If you want to use ctest to configure, build and
