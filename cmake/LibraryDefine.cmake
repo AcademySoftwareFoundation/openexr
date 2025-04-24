@@ -69,14 +69,11 @@ function(OPENEXR_DEFINE_LIBRARY libname)
       VERSION ${OPENEXR_LIB_VERSION}
     )
   endif()
+  # Set OUTPUT_NAME to avoid suffix for frameworks
   set_target_properties(${libname} PROPERTIES
+      OUTPUT_NAME "${libname}"
       RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
   )
-  if(NOT OPENEXR_FRAMEWORK)
-    set_target_properties(${libname} PROPERTIES
-      OUTPUT_NAME "${libname}${OPENEXR_LIB_SUFFIX}"
-    )
-  endif()
   if(OPENEXR_FRAMEWORK)
     # Mark resource files for inclusion in the framework bundle
     set_source_files_properties(${OPENEXR_RESOURCES} PROPERTIES
@@ -87,8 +84,6 @@ function(OPENEXR_DEFINE_LIBRARY libname)
       FRAMEWORK_VERSION "${OPENEXR_VERSION_FULL}"
       PRODUCT_BUNDLE_IDENTIFIER "github.com/AcademySoftwareFoundation/openexr/${libname}"
       XCODE_ATTRIBUTE_INSTALL_PATH "@rpath"
-      # PUBLIC_HEADER "${PublicHeaders}"
-      OUTPUT_NAME "${libname}"
       XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY ""
       XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED "NO"
       XCODE_ATTRIBUTE_CODE_SIGNING_REQUIRED "NO"
