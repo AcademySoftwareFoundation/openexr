@@ -7,6 +7,8 @@
 #include <vector>
 #include <string>
 #include <cassert>
+#include <algorithm>
+#include <cctype>
 
 bool
 make_channel_map (
@@ -22,9 +24,13 @@ make_channel_map (
     {
         std::string c_name(channels[i].channel_name);
 
-        if (c_name == "R") { r_index = i; }
-        else if (c_name == "G") { g_index = i; }
-        else if (c_name == "B") { b_index = i; }
+        /* heuristics to determine whether RGB channels are present */
+        std::transform(c_name.begin(), c_name.end(), c_name.begin(),
+                   [](unsigned char c){ return std::tolower(c); });
+
+        if (c_name == "r" || c_name.compare(0, 3, "red") == 0) { r_index = i; }
+        else if (c_name == "g" || c_name.compare(0, 5, "green") == 0) { g_index = i; }
+        else if (c_name == "b" || c_name.compare(0, 4, "blue")== 0) { b_index = i; }
     }
 
     bool isRGB = r_index >= 0 && g_index >= 0 && b_index >= 0 &&
