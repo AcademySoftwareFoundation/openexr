@@ -25,6 +25,14 @@ struct RGBChannelParams
     int         b_index;
 };
 
+static inline bool areEqual(const char* a, const char* b) {
+#ifdef _MSC_VER
+    return _stricmp (a, b) == 0;
+#else
+    return strcasecmp (a, b) == 0;
+#endif
+}
+
 bool
 make_channel_map (
     int                                 channel_count,
@@ -65,21 +73,21 @@ make_channel_map (
 
         for (size_t j = 0; j < params_count; j++)
         {
-            if (strcasecmp (suffix, params[j].r_suffix) == 0 &&
+            if (areEqual (suffix, params[j].r_suffix) &&
                 params[j].r_index < 0)
             {
                 params[j].r_index = i;
                 break;
             }
             else if (
-                strcasecmp (suffix, params[j].g_suffix) == 0 &&
+                areEqual (suffix, params[j].g_suffix) &&
                 params[j].g_index < 0)
             {
                 params[j].g_index = i;
                 break;
             }
             else if (
-                strcasecmp (suffix, params[j].b_suffix) == 0 &&
+                areEqual (suffix, params[j].b_suffix) &&
                 params[j].b_index < 0)
             {
                 params[j].b_index = i;
