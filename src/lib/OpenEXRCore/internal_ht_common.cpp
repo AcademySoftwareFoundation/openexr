@@ -6,40 +6,107 @@
 #include "internal_ht_common.h"
 #include <vector>
 #include <string>
+#include <string.h>
 #include <cassert>
 #include <algorithm>
 #include <cctype>
 
+const std::string RED_CH_FULLNAME = "red";
+const std::string GREEN_CH_FULLNAME = "green";
+const std::string BLUE_CH_FULLNAME = "blue";
+
+struct RGBChannelParams
+{
+    const char* r_suffix;
+    const char* g_suffix;
+    const char* b_suffix;
+    int         r_index;
+    int         g_index;
+    int         b_index;
+};
+
 bool
 make_channel_map (
-    int channel_count, exr_coding_channel_info_t* channels, std::vector<CodestreamChannelInfo>& cs_to_file_ch)
+    int                                 channel_count,
+    exr_coding_channel_info_t*          channels,
+    std::vector<CodestreamChannelInfo>& cs_to_file_ch)
 {
-    int r_index = -1;
-    int g_index = -1;
-    int b_index = -1;
+    /** Heuristic detection of RGB channels so that the JPEG 2000 Reversible
+      * Color Transform (RCT), a decorrelation transform, can be applied.
+      *
+      * RGB channels are present if the either (a) the names of the channels in
+      * their entirety or (b) following the "." character match one of the
+      * triplets defined in {params}. Order of the channels and case of the
+      * channel names are ignored.
+      *
+      * Example 1: "main.b", "main.g", "main.r" match
+      * Example 2: "MainR", "MainG", "MainB" do not match
+      * Example 3: "R", "B", "B" match
+      * Example 4: "red", "green", "blue" match
+      */
 
-    cs_to_file_ch.resize(channel_count);
+    RGBChannelParams params[] = {
+        {"r", "g", "b", -1, -1, -1},
+        {"red", "green", "blue", -1, -1, -1},
+        {"red", "grn", "blu", -1, -1, -1}};
+    constexpr size_t params_count = sizeof (params) / sizeof (params[0]);
+
+    cs_to_file_ch.resize (channel_count);
 
     for (size_t i = 0; i < channel_count; i++)
     {
-        std::string c_name(channels[i].channel_name);
+        const char* channel_name = channels[i].channel_name;
+        const char* suffix       = strrchr (channel_name, '.');
+        if (suffix) { suffix += 1; }
+        else
+        {
+            suffix = channel_name;
+        }
 
-        /* heuristics to determine whether RGB channels are present */
-        std::transform(c_name.begin(), c_name.end(), c_name.begin(),
-                   [](unsigned char c){ return std::tolower(c); });
-
-        if (c_name == "r" || c_name.compare(0, 3, "red") == 0) { r_index = i; }
-        else if (c_name == "g" || c_name.compare(0, 5, "green") == 0) { g_index = i; }
-        else if (c_name == "b" || c_name.compare(0, 4, "blue")== 0) { b_index = i; }
+        for (size_t j = 0; j < params_count; j++)
+        {
+            if (strcasecmp (suffix, params[j].r_suffix) == 0 &&
+                params[j].r_index < 0)
+            {
+                params[j].r_index = i;
+                break;
+            }
+            else if (
+                strcasecmp (suffix, params[j].g_suffix) == 0 &&
+                params[j].g_index < 0)
+            {
+                params[j].g_index = i;
+                break;
+            }
+            else if (
+                strcasecmp (suffix, params[j].b_suffix) == 0 &&
+                params[j].b_index < 0)
+            {
+                params[j].b_index = i;
+                break;
+            }
+        }
     }
 
-    bool isRGB = r_index >= 0 && g_index >= 0 && b_index >= 0 &&
-                 channels[r_index].data_type == channels[g_index].data_type &&
-                 channels[r_index].data_type == channels[b_index].data_type &&
-                 channels[r_index].x_samples == channels[g_index].x_samples &&
-                 channels[r_index].x_samples == channels[b_index].x_samples &&
-                 channels[r_index].y_samples == channels[g_index].y_samples &&
-                 channels[r_index].y_samples == channels[b_index].y_samples;
+    int  r_index;
+    int  g_index;
+    int  b_index;
+    bool isRGB = false;
+
+    for (size_t j = 0; (!isRGB) && j < params_count; j++)
+    {
+        r_index = params[j].r_index;
+        g_index = params[j].g_index;
+        b_index = params[j].b_index;
+
+        isRGB = r_index > -1 && g_index > -1 && b_index > -1 &&
+                channels[r_index].data_type == channels[g_index].data_type &&
+                channels[r_index].data_type == channels[b_index].data_type &&
+                channels[r_index].x_samples == channels[g_index].x_samples &&
+                channels[r_index].x_samples == channels[b_index].x_samples &&
+                channels[r_index].y_samples == channels[g_index].y_samples &&
+                channels[r_index].y_samples == channels[b_index].y_samples;
+    }
 
     if (isRGB)
     {
