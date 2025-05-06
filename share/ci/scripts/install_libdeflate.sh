@@ -6,11 +6,7 @@ set -ex
 
 TAG="$1"
 
-if [[ $OSTYPE == "msys" ]]; then
-    SUDO=""
-else
-    SUDO="sudo"
-fi
+SUDO=$(command -v sudo >/dev/null 2>&1 && echo sudo || echo "")
 
 git clone https://github.com/ebiggers/libdeflate
 cd libdeflate
