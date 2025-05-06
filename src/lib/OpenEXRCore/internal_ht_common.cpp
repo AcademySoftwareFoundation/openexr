@@ -23,6 +23,8 @@ struct RGBChannelParams
     int         r_index;
     int         g_index;
     int         b_index;
+    const char* prefix;
+    size_t      prefix_len;
 };
 
 static inline bool areEqual(const char* a, const char* b) {
@@ -54,9 +56,9 @@ make_channel_map (
       */
 
     RGBChannelParams params[] = {
-        {"r", "g", "b", -1, -1, -1},
-        {"red", "green", "blue", -1, -1, -1},
-        {"red", "grn", "blu", -1, -1, -1}};
+        {"r", "g", "b", -1, -1, -1, NULL, 0},
+        {"red", "green", "blue", -1, -1, -1, NULL, 0},
+        {"red", "grn", "blu", -1, -1, -1, NULL, 0}};
     constexpr size_t params_count = sizeof (params) / sizeof (params[0]);
 
     cs_to_file_ch.resize (channel_count);
@@ -65,32 +67,53 @@ make_channel_map (
     {
         const char* channel_name = channels[i].channel_name;
         const char* suffix       = strrchr (channel_name, '.');
-        if (suffix) { suffix += 1; }
-        else
-        {
+        const char* prefix       = channel_name;
+        size_t      prefix_len   = 0;
+        if (suffix) {
+            suffix += 1;
+            prefix_len = suffix - prefix - 1;
+        } else {
             suffix = channel_name;
         }
 
         for (size_t j = 0; j < params_count; j++)
         {
+            if (params[j].prefix != NULL &&
+                (params[j].prefix_len != prefix_len ||
+                 strncmp (params[j].prefix, prefix, params[j].prefix_len)))
+            {
+                /* skip to the next potential match if a prefix has already been
+                record and does not match the channel prefix */
+                continue;
+            }
+
+            bool match = false;
             if (areEqual (suffix, params[j].r_suffix) &&
                 params[j].r_index < 0)
             {
                 params[j].r_index = i;
-                break;
+                match = true;
             }
             else if (
                 areEqual (suffix, params[j].g_suffix) &&
                 params[j].g_index < 0)
             {
                 params[j].g_index = i;
-                break;
+                match = true;
             }
             else if (
                 areEqual (suffix, params[j].b_suffix) &&
                 params[j].b_index < 0)
             {
                 params[j].b_index = i;
+                match = true;
+            }
+
+            if (match) {
+                /* record the prefix if one is not already recorded and move to
+                the next channel */
+                params[j].prefix = prefix;
+                params[j].prefix_len = prefix_len;
                 break;
             }
         }
