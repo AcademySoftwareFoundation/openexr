@@ -84,6 +84,7 @@ include/OpenEXR/ImfFrameBuffer.h
 include/OpenEXR/ImfFramesPerSecond.h
 include/OpenEXR/ImfGenericInputFile.h
 include/OpenEXR/ImfGenericOutputFile.h
+include/OpenEXR/ImfHTCompressor.h
 include/OpenEXR/ImfHeader.h
 include/OpenEXR/ImfHuf.h
 include/OpenEXR/ImfIDManifest.h

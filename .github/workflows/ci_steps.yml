@@ -86,6 +86,9 @@ jobs:
           if [ "${{ inputs.OPENEXR_FORCE_INTERNAL_DEFLATE }}" == "OFF" ]; then
             PACKAGES="$PACKAGES libdeflate:p"
           fi
+          if [ "${{ inputs.OPENEXR_FORCE_INTERNAL_OPENJPH }}" == "OFF" && "${{ inputs.msystem }}" != "MINGW32" ]; then
+            PACKAGES="$PACKAGES openjph:p"
+          fi
           echo "PACBOY_PACKAGES=$PACKAGES" >> $GITHUB_ENV
         shell: bash
 
@@ -112,15 +115,23 @@ jobs:
 
       - name: Install OpenJPH
         # Pre-install OpenJPH so the builds validate finding the external installation
-        if: ${{ inputs.OPENEXR_FORCE_INTERNAL_OPENJPH == 'OFF' }}
+        if: inputs.OPENEXR_FORCE_INTERNAL_OPENJPH == 'OFF' && inputs.msystem == ''
         run: share/ci/scripts/install_openjph.sh 0.21.2
         shell: bash
 
+<<<<<<< HEAD
       - name: Set PATH for Imath/libdeflate DLLs
         # When building against external Imath/libdeflate shared objects, the tests need PATH to include the dll's.
         if: contains(inputs.os, 'windows') && inputs.msystem == ''
         run: |
           echo "$PATH;C:/Program Files (x86)/Imath/bin;C:/Program Files (x86)/Imath/lib;C:/Program Files (x86)/libdeflate/bin;C:/Program Files (x86)/libdeflate/lib" >> $GITHUB_PATH
+=======
+      - name: Set PATH for Imath/libdeflate/OpenJPH DLLs
+        # When building against external Imath/libdeflate shared objects, the tests need PATH to include the dll's.
+        if: contains(inputs.os, 'windows') && inputs.msystem == ''
+        run: |
+          echo "$PATH;C:/Program Files (x86)/Imath/bin;C:/Program Files (x86)/Imath/lib;C:/Program Files (x86)/libdeflate/bin;C:/Program Files (x86)/libdeflate/lib;C:/Program Files (x86)/openjph/lib;C:/Program Files (x86)/openjph/bin" >> $GITHUB_PATH
+>>>>>>> ce8b5901 (Rebase htj2k-beta onto main (#2033))
         shell: bash
 
       - name: Install help2man
@@ -179,9 +190,19 @@ jobs:
       - name: Configure, Build, Test
         if: inputs.msystem == ''
         run: |
+<<<<<<< HEAD
           cmake --version
           cmake ${{ env.CMAKE_ARGS }}
           cmake --build . --target install --config ${{ inputs.build-type }}
+=======
+          set -x
+
+          cmake --version
+          cmake ${{ env.CMAKE_ARGS }}
+          cmake --build . --target install --config ${{ inputs.build-type }}
+
+          
+>>>>>>> ce8b5901 (Rebase htj2k-beta onto main (#2033))
           if [ "${{ inputs.BUILD_TESTING }}" == "ON" ]; then
             ctest -T Test -C ${{ inputs.build-type }} --timeout 7200 --output-on-failure -VV
           fi
