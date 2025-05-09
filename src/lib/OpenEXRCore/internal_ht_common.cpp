@@ -57,8 +57,7 @@ make_channel_map (
 
     RGBChannelParams params[] = {
         {"r", "g", "b", -1, -1, -1, NULL, 0},
-        {"red", "green", "blue", -1, -1, -1, NULL, 0},
-        {"red", "grn", "blu", -1, -1, -1, NULL, 0}};
+        {"red", "green", "blue", -1, -1, -1, NULL, 0}};
     constexpr size_t params_count = sizeof (params) / sizeof (params[0]);
 
     cs_to_file_ch.resize (channel_count);
