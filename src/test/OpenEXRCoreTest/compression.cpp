@@ -36,6 +36,9 @@
 #include <ImfOutputFile.h>
 #include <ImfTiledOutputFile.h>
 #include <half.h>
+
+#include "internal_ht_common.cpp"
+
 #ifdef __linux
 #    include <sys/types.h>
 #    include <sys/stat.h>
@@ -1691,6 +1694,60 @@ void
 testDWABCompression (const std::string& tempdir)
 {
     testComp (tempdir, EXR_COMPRESSION_DWAB);
+}
+
+struct ht_channel_map_tests {
+    exr_coding_channel_info_t   channels[6];
+    int                         channel_count;
+    bool                        pass;
+    int                         rgb_index[3];
+};
+
+void
+testHTChannelMap (const std::string& tempdir)
+{
+    std::vector<CodestreamChannelInfo> cs_to_file_ch;
+    ht_channel_map_tests               tests[] = {
+        {{{"R"}, {"G"}, {"B"}}, 3, true, {0, 1, 2}},
+        {{{"r"}, {"G"}, {"b"}}, 3, true, {0, 1, 2}},
+        {{{"B"}, {"G"}, {"R"}}, 3, true, {2, 1, 0}},
+        {{{"red"}, {"green"}, {"blue"}}, 3, true, {0, 1, 2}},
+        {{{"Red"}, {"Green"}, {"Blue"}, {"alpha"}}, 4, true, {0, 1, 2}},
+        {{{"hello.R"}, {"hello.G"}, {"hello.B"}}, 3, true, {0, 1, 2}},
+        {{{"hello.R"}, {"bye.R"}, {"hello.G"}, {"bye.R"}, {"hello.B"}, {"bye.B"}}, 6, true, {0, 2, 4}},
+        {{{"red"}, {"green"}, {"blue"}}, 3, true, {0, 1, 2}},
+        /* the following are expected to fail */
+        {{{"redqueen"}, {"greens"}, {"blueberry"}}, 3, false, {0, 1, 2}},
+        {{{"hello.R"}, {"bye.G"}, {"hello.B"}}, 3, false, {0, 2, 4}},
+    };
+    int test_count = sizeof(tests) / sizeof(ht_channel_map_tests);
+
+    for (size_t i = 0; i < test_count; i++)
+    {
+        EXRCORE_TEST (
+            make_channel_map (
+                tests[i].channel_count, tests[i].channels, cs_to_file_ch) ==
+            tests[i].pass);
+        if (tests[i].pass)
+        {
+            for (size_t j = 0; j < 3; j++)
+            {
+                EXRCORE_TEST (
+                    tests[i].rgb_index[j] == cs_to_file_ch[j].file_index);
+            }
+        }
+    }
+
+    exr_coding_channel_info_t channels_1[] = {
+        { "R" }, { "G" }, { "B" }
+    };
+
+    exr_coding_channel_info_t channels_2[] = {
+        { "R" }, { "G" }, { "1.B" }
+    };
+
+    EXRCORE_TEST (make_channel_map (3, channels_1, cs_to_file_ch));
+    EXRCORE_TEST (! make_channel_map (3, channels_2, cs_to_file_ch));
 }
 
 void

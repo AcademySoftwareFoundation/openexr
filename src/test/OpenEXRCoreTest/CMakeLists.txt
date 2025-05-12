@@ -118,6 +118,7 @@ define_openexrcore_tests(
  testB44ACompression
  testDWAACompression
  testDWABCompression
+ testHTChannelMap
  testDeepNoCompression
  testDeepZIPCompression
  testDeepZIPSCompression
