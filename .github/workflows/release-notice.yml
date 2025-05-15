@@ -25,7 +25,7 @@ jobs:
         slack_bot_token: ${{ secrets.SLACK_BOT_TOKEN }}
         slack_channel: "#release-announcements"
         project_logo: "https://artwork.aswf.io/projects/openexr/icon/color/openexr-icon-color.png"
-      uses: jmertic/slack-release-notifier@fbbf40c3020ca7707ae09ff9160206381c592fd7 # main
+      uses: jmertic/slack-release-notifier@7ed1272d4b089a8987b4c6880604cf63287b68b8 # main
 
     - name: 'Notify Slack #openexr'
       id: slack2
@@ -34,5 +34,5 @@ jobs:
         slack_bot_token: ${{ secrets.SLACK_BOT_TOKEN }}
         slack_channel: "#openexr"
         project_logo: "https://artwork.aswf.io/projects/openexr/icon/color/openexr-icon-color.png"
-      uses: jmertic/slack-release-notifier@fbbf40c3020ca7707ae09ff9160206381c592fd7 # main
+      uses: jmertic/slack-release-notifier@7ed1272d4b089a8987b4c6880604cf63287b68b8 # main
       

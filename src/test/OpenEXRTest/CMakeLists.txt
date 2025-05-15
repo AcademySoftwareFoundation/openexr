@@ -99,6 +99,8 @@ add_executable(OpenEXRTest
   testPreviewImage.h
   testRgba.cpp
   testRgba.h
+  testCRgba.cpp
+  testCRgba.h
   testRgbaThreading.cpp
   testRgbaThreading.h
   testRle.cpp
@@ -165,6 +167,7 @@ define_openexr_tests(
  testDeepTiledBasic
  testDwaLookups
  testExistingStreams
+ testExistingStreamsUTF8
  testFutureProofing
  testHeader
  testHuf
@@ -187,6 +190,7 @@ define_openexr_tests(
  testPartHelper
  testPreviewImage
  testRgba
+ testCRgba
  testRgbaThreading
  testRle
  testSampleImages

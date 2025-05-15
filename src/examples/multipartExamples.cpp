@@ -94,7 +94,7 @@ combineFiles ()
     //
     // Read multiple single-part input files and write them as a multi-part file.
     // If an input file is multi-part, only one part is copied.
-    // All input files dimentions must be the same.
+    // All input files dimensions must be the same.
     //
 
     std::vector<MultiPartInputFile*> inputFiles;

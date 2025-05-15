@@ -1,0 +1,1 @@
+.. |latest-news-title| replace:: **March 23, 2025 - OpenEXR 3.3.3 Released**

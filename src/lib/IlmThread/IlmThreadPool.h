@@ -150,6 +150,9 @@ public:
 
 protected:
     Data* _data;
+
+private:
+    ILMTHREAD_HIDDEN ThreadPool (Data&& d);
 };
 
 class ILMTHREAD_EXPORT_TYPE Task

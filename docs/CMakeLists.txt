@@ -42,20 +42,17 @@ define_manpage(exrinfo        "print exr image header metadata")
 define_manpage(exrmakepreview "generate exr preview thumbnail images")
 define_manpage(exrmaketiled   "convert exr images to tiled format")
 define_manpage(exrmanifest    "print id manifest")
+define_manpage(exrmetrics     "report read/write time")
 define_manpage(exrmultipart   "combine or split multipart exr images")
 define_manpage(exrmultiview   "convert between single/multi-view exr images")
 define_manpage(exrstdattr     "set exr image metadata")
 
-add_custom_target(docs ALL DEPENDS
-                 ${manpage_files})
+add_custom_target(docs ALL DEPENDS ${manpage_files})
 
 # Add a target to install the manpages
 
-if(INSTALL_DOCS)
-    include(GNUInstallDirs)
-    install(DIRECTORY ${MANPAGE_OUTPUT_DIR}/man1 DESTINATION ${CMAKE_INSTALL_MANDIR})
-endif()
+include(GNUInstallDirs)
+install(DIRECTORY ${MANPAGE_OUTPUT_DIR}/man1 DESTINATION ${CMAKE_INSTALL_MANDIR})
 
-# build the example code to verify that it compiles
 
 

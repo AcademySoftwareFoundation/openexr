@@ -98,6 +98,7 @@ define_openexrcore_tests(
  testStartWriteDeepScan
  testStartWriteTile
  testStartWriteDeepTile
+ testStartWriteUTF8
  testWriteAttrs
  testWriteScans
  testWriteTiles
@@ -105,6 +106,7 @@ define_openexrcore_tests(
  testWriteDeep
 
  testHUF
+ testDWAQuantize
  testDWATable
  testB44Table
  testNoCompression

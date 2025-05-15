@@ -878,121 +878,121 @@ Predefined Attribute Types
 
 The OpenEXR library predefines the following attribute types:
 
-+--------------------+----------------------------------------------------------------+
-| type name          | data                                                           |
-+====================+================================================================+
-| ``box2i``          | Four ``int``\ 's: ``xMin``, ``yMin``, ``xMax``, ``yMax``       |
-+--------------------+----------------------------------------------------------------+
-| ``box2f``          | Four ``float``\ 's: ``xMin``, ``yMin``, ``xMax``, ``yMax``     |
-+--------------------+----------------------------------------------------------------+
-| ``chlist``         | A sequence of channels followed by a null byte (``0x00``).     |
-|                    | Channel layout:                                                |
-|                    +----------------+-----------------------------------------------+
-|                    | name           | zero-terminated string, from 1 to 255 bytes   |
-|                    |                | long                                          |
-|                    +----------------+-----------------------------------------------+
-|                    | ``pixel type`` | ``int``, possible values are:                 |
-|                    |                |                                               |
-|                    |                | * ``UINT`` = 0                                |
-|                    |                | * ``HALF`` = 1                                |
-|                    |                | * ``FLOAT`` = 2                               |
-|                    |                |                                               |
-|                    +----------------+-----------------------------------------------+
-|                    | ``pLinear``    | ``usigned char``, possible values are 0 and 1 |
-|                    +----------------+-----------------------------------------------+
-|                    | ``reserved``   | three ``char``, should be zero                |
-|                    +----------------+-----------------------------------------------+
-|                    | ``xSampling``  | ``int``                                       |
-|                    +----------------+-----------------------------------------------+
-|                    | ``ySampling``  | ``int``                                       |
-+--------------------+----------------+-----------------------------------------------+
-| ``chromaticities`` | Eight ``float``: ``redX``, ``redY``, ``greenX``,               |
-|                    | ``greenY``, ``blueX``, ``blueY``, ``whiteX``, ``whiteY``       |
-+--------------------+----------------------------------------------------------------+
-| ``compression``    | ``unsigned char``, possible values are:                        |
-|                    |                                                                |
-|                    | * ``NO_COMPRESSION`` = 0                                       |
-|                    | * ``RLE_COMPRESSION`` = 1                                      |
-|                    | * ``ZIPS_COMPRESSION`` = 2                                     |
-|                    | * ``ZIP_COMPRESSION`` = 3                                      |
-|                    | * ``PIZ_COMPRESSION`` = 4                                      |
-|                    | * ``PXR24_COMPRESSION`` = 5                                    |
-|                    | * ``B44_COMPRESSION`` = 6                                      |
-|                    | * ``B44A_COMPRESSION`` = 7                                     |
-|                    | * ``DWAA_COMPRESSION`` = 8                                     |
-|                    | * ``DWAB_COMPRESSION`` = 9                                     |
-|                    |                                                                |
-+--------------------+----------------------------------------------------------------+
-| ``double``         | ``double``                                                     |
-+--------------------+----------------------------------------------------------------+
-| ``envmap``         | ``unsigned char``, possible values are:                        |
-|                    |                                                                |
-|                    | * ``ENVMAP_LATLONG`` = 0                                       |
-|                    | * ``ENVMAP_CUBE`` = 1                                          |
-|                    |                                                                |
-+--------------------+----------------------------------------------------------------+
-| ``float``          | ``float``                                                      |
-+--------------------+----------------------------------------------------------------+
-| ``int``            | ``int``                                                        |
-+--------------------+----------------------------------------------------------------+
-| ``keycode``        | Seven ``int``\ 's: ``filmMfcCode``, ``filmType``, ``prefix``,  |
-|                    | ``count``, ``perfOffset``, ``perfsPerFrame``, ``perfsPerCount``|
-+--------------------+----------------------------------------------------------------+
-| ``lineOrder``      | ``unsigned char``, possible values are:                        |
-|                    |                                                                |
-|                    | * ``INCREASING_Y`` = 0                                         |
-|                    | * ``DECREASING_Y`` = 1                                         |
-|                    | * ``RANDOM_Y`` = 2                                             |
-|                    |                                                                |
-+--------------------+----------------------------------------------------------------+
-| ``m33f``           | 9 ``float``\ 's                                                |
-+--------------------+----------------------------------------------------------------+
-| ``m44f``           | 16 ``float``\ 's                                               |
-+--------------------+----------------------------------------------------------------+
-| ``preview``        | Two ``unsigned int``\ 's, width and height, followed by        |
-|                    | 4×width×height ``unsigned char``\ 's of pixel data.            |
-|                    | Scan lines are stored top to bottom; within a scan line        |
-|                    | pixels are stored from left to right. A pixel consists of      |
-|                    | four ``unsigned char``\ 's, ``R``, ``G``, ``B``, ``A``.        |
-+--------------------+----------------------------------------------------------------+
-| ``rational``       | An ``int``, followed by an ``unsigned int``.                   |
-+--------------------+----------------------------------------------------------------+
-| ``string``         | String length, of type ``int``, followed by a sequence of      |
-|                    | ``char``\ 's.                                                  |
-+--------------------+----------------------------------------------------------------+
-| ``stringvector``   | A sequence of zero or more text strings. Each string is        | 
-|                    | represented as a string length, of type ``int``, followed by a |
-|                    | sequence of ``chars``. The number of strings can be inferred   |
-|                    | from the total attribute size                                  |
-|                    | (see the `Attribute Layout`_ section).                         |
-+--------------------+----------------------------------------------------------------+
-| ``tiledesc``       | Two ``unsigned int``\ 's: ``xSize``, ``ySize``, followed       |
-|                    | by ``mode``, of type ``unsigned char``, where                  |
-|                    |                                                                |
-|                    |     mode = levelMode + roundingMode×16                         |
-|                    |                                                                |
-|                    | Possible values for ``levelMode``:                             |
-|                    |                                                                |
-|                    | * ``ONE_LEVEL`` = 0                                            |
-|                    | * ``MIPMAP_LEVELS`` = 1                                        |
-|                    | * ``RIPMAP_LEVELS`` = 2                                        |
-|                    |                                                                |
-|                    | Possible values for ``roundingMode``:                          |
-|                    |                                                                |
-|                    | * ``ROUND_DOWN`` = 0                                           |
-|                    | * ``ROUND_UP`` = 1                                             |
-|                    |                                                                |
-+--------------------+----------------------------------------------------------------+
-| ``timecode``       | Two ``unsigned int``\ 's: ``timeAndFlags``, ``userData``.      |
-+--------------------+----------------------------------------------------------------+
-| ``v2i``            | Two ``int``\ 's                                                |
-+--------------------+----------------------------------------------------------------+
-| ``v2f``            | Two ``float``\ 's                                              |
-+--------------------+----------------------------------------------------------------+
-| ``v3i``            | Three ``int``\ 's.                                             |
-+--------------------+----------------------------------------------------------------+
-| ``v3f``            | Three ``float``\ 's.                                           |
-+--------------------+----------------------------------------------------------------+
++--------------------+-----------------------------------------------------------------+
+| type name          | data                                                            |
++====================+=================================================================+
+| ``box2i``          | Four ``int``\ 's: ``xMin``, ``yMin``, ``xMax``, ``yMax``        |
++--------------------+-----------------------------------------------------------------+
+| ``box2f``          | Four ``float``\ 's: ``xMin``, ``yMin``, ``xMax``, ``yMax``      |
++--------------------+-----------------------------------------------------------------+
+| ``chlist``         | A sequence of channels followed by a null byte (``0x00``).      |
+|                    | Channel layout:                                                 |
+|                    +----------------+------------------------------------------------+
+|                    | name           | zero-terminated string, from 1 to 255 bytes    |
+|                    |                | long                                           |
+|                    +----------------+------------------------------------------------+
+|                    | ``pixel type`` | ``int``, possible values are:                  |
+|                    |                |                                                |
+|                    |                | * ``UINT`` = 0                                 |
+|                    |                | * ``HALF`` = 1                                 |
+|                    |                | * ``FLOAT`` = 2                                |
+|                    |                |                                                |
+|                    +----------------+------------------------------------------------+
+|                    | ``pLinear``    | ``unsigned char``, possible values are 0 and 1 |
+|                    +----------------+------------------------------------------------+
+|                    | ``reserved``   | three ``char``, should be zero                 |
+|                    +----------------+------------------------------------------------+
+|                    | ``xSampling``  | ``int``                                        |
+|                    +----------------+------------------------------------------------+
+|                    | ``ySampling``  | ``int``                                        |
++--------------------+----------------+------------------------------------------------+
+| ``chromaticities`` | Eight ``float``: ``redX``, ``redY``, ``greenX``,                |
+|                    | ``greenY``, ``blueX``, ``blueY``, ``whiteX``, ``whiteY``        |
++--------------------+-----------------------------------------------------------------+
+| ``compression``    | ``unsigned char``, possible values are:                         |
+|                    |                                                                 |
+|                    | * ``NO_COMPRESSION`` = 0                                        |
+|                    | * ``RLE_COMPRESSION`` = 1                                       |
+|                    | * ``ZIPS_COMPRESSION`` = 2                                      |
+|                    | * ``ZIP_COMPRESSION`` = 3                                       |
+|                    | * ``PIZ_COMPRESSION`` = 4                                       |
+|                    | * ``PXR24_COMPRESSION`` = 5                                     |
+|                    | * ``B44_COMPRESSION`` = 6                                       |
+|                    | * ``B44A_COMPRESSION`` = 7                                      |
+|                    | * ``DWAA_COMPRESSION`` = 8                                      |
+|                    | * ``DWAB_COMPRESSION`` = 9                                      |
+|                    |                                                                 |
++--------------------+-----------------------------------------------------------------+
+| ``double``         | ``double``                                                      |
++--------------------+-----------------------------------------------------------------+
+| ``envmap``         | ``unsigned char``, possible values are:                         |
+|                    |                                                                 |
+|                    | * ``ENVMAP_LATLONG`` = 0                                        |
+|                    | * ``ENVMAP_CUBE`` = 1                                           |
+|                    |                                                                 |
++--------------------+-----------------------------------------------------------------+
+| ``float``          | ``float``                                                       |
++--------------------+-----------------------------------------------------------------+
+| ``int``            | ``int``                                                         |
++--------------------+-----------------------------------------------------------------+
+| ``keycode``        | Seven ``int``\ 's: ``filmMfcCode``, ``filmType``, ``prefix``,   |
+|                    | ``count``, ``perfOffset``, ``perfsPerFrame``, ``perfsPerCount`` |
++--------------------+-----------------------------------------------------------------+
+| ``lineOrder``      | ``unsigned char``, possible values are:                         |
+|                    |                                                                 |
+|                    | * ``INCREASING_Y`` = 0                                          |
+|                    | * ``DECREASING_Y`` = 1                                          |
+|                    | * ``RANDOM_Y`` = 2                                              |
+|                    |                                                                 |
++--------------------+-----------------------------------------------------------------+
+| ``m33f``           | 9 ``float``\ 's                                                 |
++--------------------+-----------------------------------------------------------------+
+| ``m44f``           | 16 ``float``\ 's                                                |
++--------------------+-----------------------------------------------------------------+
+| ``preview``        | Two ``unsigned int``\ 's, width and height, followed by         |
+|                    | 4×width×height ``unsigned char``\ 's of pixel data.             |
+|                    | Scan lines are stored top to bottom; within a scan line         |
+|                    | pixels are stored from left to right. A pixel consists of       |
+|                    | four ``unsigned char``\ 's, ``R``, ``G``, ``B``, ``A``.         |
++--------------------+-----------------------------------------------------------------+
+| ``rational``       | An ``int``, followed by an ``unsigned int``.                    |
++--------------------+-----------------------------------------------------------------+
+| ``string``         | String length, of type ``int``, followed by a sequence of       |
+|                    | ``char``\ 's.                                                   |
++--------------------+-----------------------------------------------------------------+
+| ``stringvector``   | A sequence of zero or more text strings. Each string is         | 
+|                    | represented as a string length, of type ``int``, followed by a  |
+|                    | sequence of ``chars``. The number of strings can be inferred    |
+|                    | from the total attribute size                                   |
+|                    | (see the `Attribute Layout`_ section).                          |
++--------------------+-----------------------------------------------------------------+
+| ``tiledesc``       | Two ``unsigned int``\ 's: ``xSize``, ``ySize``, followed        |
+|                    | by ``mode``, of type ``unsigned char``, where                   |
+|                    |                                                                 |
+|                    |     mode = levelMode + roundingMode×16                          |
+|                    |                                                                 |
+|                    | Possible values for ``levelMode``:                              |
+|                    |                                                                 |
+|                    | * ``ONE_LEVEL`` = 0                                             |
+|                    | * ``MIPMAP_LEVELS`` = 1                                         |
+|                    | * ``RIPMAP_LEVELS`` = 2                                         |
+|                    |                                                                 |
+|                    | Possible values for ``roundingMode``:                           |
+|                    |                                                                 |
+|                    | * ``ROUND_DOWN`` = 0                                            |
+|                    | * ``ROUND_UP`` = 1                                              |
+|                    |                                                                 |
++--------------------+-----------------------------------------------------------------+
+| ``timecode``       | Two ``unsigned int``\ 's: ``timeAndFlags``, ``userData``.       |
++--------------------+-----------------------------------------------------------------+
+| ``v2i``            | Two ``int``\ 's                                                 |
++--------------------+-----------------------------------------------------------------+
+| ``v2f``            | Two ``float``\ 's                                               |
++--------------------+-----------------------------------------------------------------+
+| ``v3i``            | Three ``int``\ 's.                                              |
++--------------------+-----------------------------------------------------------------+
+| ``v3f``            | Three ``float``\ 's.                                            |
++--------------------+-----------------------------------------------------------------+
 
 
 Sample File

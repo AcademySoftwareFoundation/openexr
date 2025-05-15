@@ -16,9 +16,8 @@
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 TimeCode::TimeCode ()
+    : _time (0), _user (0)
 {
-    _time = 0;
-    _user = 0;
 }
 
 TimeCode::TimeCode (
@@ -40,6 +39,7 @@ TimeCode::TimeCode (
     int  binaryGroup6,
     int  binaryGroup7,
     int  binaryGroup8)
+    : _time (0), _user (0)
 {
     setHours (hours);
     setMinutes (minutes);

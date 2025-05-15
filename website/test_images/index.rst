@@ -1182,8 +1182,8 @@ Note the following about these images:
   included here merely to illustrate that channels needn't be
   associated with a view.*
 
-* The **depth** channel is called ``"Z"`` in all cases, in keeping wih
-  the convention for deep images
+* The **depth** channel is called ``"Z"`` in all cases, in keeping with
+  the convention for deep images.
 
   The convention is optional for regular scanline and tile images, but
   is is practical to maintain it for all image types.

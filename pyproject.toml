@@ -2,7 +2,7 @@
 # Copyright (c) Contributors to the OpenEXR Project.
 
 [build-system]
-requires = ["scikit-build-core==0.8.1", "pybind11"]
+requires = ["scikit-build-core==0.10.7", "pybind11"]
 build-backend = "scikit_build_core.build"
 
 [project]
@@ -15,6 +15,10 @@ authors = [
   { name="Contributors to the OpenEXR project", email="info@openexr.com" },
 ]
 requires-python = ">=3.7"
+
+dependencies = [
+  "numpy>=1.7.0"
+]
 
 [project.urls]
 "Homepage" = "https://openexr.com"
@@ -36,7 +40,7 @@ testpaths = ["tests"]
 
 [tool.scikit-build]
 wheel.expand-macos-universal-tags = true
-sdist.exclude = [".github", "src/test", "src/examples", "website", "ASWF", "bazel", "share"]
+sdist.exclude = [".github", "src/examples", "ASWF", "bazel", "share"]
 
 # Only build the PyOpenEXR (cmake --build --target PyOpenEXR).
 cmake.targets = ["PyOpenEXR"]
@@ -60,6 +64,7 @@ OPENEXR_BUILD_PYTHON = 'ON'
 OPENEXR_BUILD_EXAMPLES = 'OFF'
 OPENEXR_BUILD_TOOLS = 'OFF'
 OPENEXR_INSTALL_TOOLS = 'OFF'
+OPENEXR_INSTALL_DEVELOPER_TOOLS = 'OFF'
 OPENEXR_INSTALL_PKG_CONFIG = 'OFF'
 OPENEXR_FORCE_INTERNAL_DEFLATE = 'ON'
 OPENEXR_FORCE_INTERNAL_IMATH = 'ON'

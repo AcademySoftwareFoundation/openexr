@@ -362,7 +362,7 @@ setupBuffer (
     else { readingBuffer.resize (size); }
 
     const char* write_ptr = writing ? &writingBuffer[0] : &readingBuffer[0];
-    // fill with random halfs, casting to floats for float channels
+    // fill with random halves, casting to floats for float channels
     int chan = 0;
     for (int i = 0; i < samples; i++)
     {

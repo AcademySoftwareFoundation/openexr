@@ -1554,7 +1554,7 @@ objectToV3(const py::object& object, Vec3<T>& v)
     else if (py::isinstance<py::array_t<T>>(object))
     {
         auto a = object.cast<py::array_t<T>>();
-        if (a.ndim() == 1 && a.size() == 2)
+        if (a.ndim() == 1 && a.size() == 3)
         {
             auto p = static_cast<T*>(a.request().ptr);
             v.x = p[0];
@@ -1660,11 +1660,8 @@ objectToBox2f(const py::object& object, Box2f& b)
     {
         auto tup = object.cast<py::tuple>();
         if (tup.size() == 2)
-        {
-            Box2f box;
-            if (objectToV2f(tup[0], box.min) && objectToV2f(tup[1], box.max))
+            if (objectToV2f(tup[0], b.min) && objectToV2f(tup[1], b.max))
                 return true;
-        }
     }
 
     return false;
@@ -1989,7 +1986,7 @@ PyPart::PyPart(const py::dict& header, const py::dict& channels, const std::stri
     }
     
     //
-    // Validate that all channel dict keys are strings, and initialze the
+    // Validate that all channel dict keys are strings, and initialize the
     // channel name field.
     //
     
@@ -2647,7 +2644,7 @@ PYBIND11_MODULE(OpenEXR, m)
              py::arg("header"),
              py::arg("channels"),
              R"pbdoc(
-             Initialize a File with metdata and pixels. Creates a single-part EXR file.
+             Initialize a File with metadata and pixels. Creates a single-part EXR file.
 
              Parameters
              ----------

@@ -22,6 +22,9 @@
 #    define IMF_HAVE_SSE2 1
 #    include <emmintrin.h>
 #    include <mmintrin.h>
+#    ifndef _MSC_VER
+#         include <x86intrin.h>
+#    endif
 #endif
 
 #if defined(__ARM_NEON)
@@ -64,6 +67,14 @@ __extension__ extern __inline float32x4x2_t
     return ret;
 }
 #endif
+
+static inline uint8_t *simd_align_pointer (uint8_t* ptr)
+{
+    return ptr +
+        ((_SSE_ALIGNMENT - (((uintptr_t)ptr) & _SSE_ALIGNMENT_MASK)) &
+         _SSE_ALIGNMENT_MASK);
+}
+
 
 //
 // Color space conversion, Inverse 709 CSC, Y'CbCr -> R'G'B'
@@ -1431,7 +1442,7 @@ dctInverse8x8_sse2_7 (float* data)
                                                                      \
     /* Sum the M1 (ymm0-3) and M2 (ymm4-7) results to get the 
      * front halves of the results, and difference to get the 
-     * back halves. The front halfs end up in ymm0-3, the back
+     * back halves. The front halves end up in ymm0-3, the back
      * halves end up in ymm12-15. 
      */                                                                \
     ROW0( IDCT_AVX_EO_TO_ROW_HALVES(0, 4, 0, 12) )                     \

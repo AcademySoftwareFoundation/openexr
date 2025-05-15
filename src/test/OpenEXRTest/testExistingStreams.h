@@ -6,3 +6,4 @@
 #include <string>
 
 void testExistingStreams (const std::string& tempDir);
+void testExistingStreamsUTF8 (const std::string& tempDir);

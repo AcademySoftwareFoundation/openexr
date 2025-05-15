@@ -54,6 +54,10 @@ build-nuget/
 *~
 .vscode
 docs/_test_images/
+dist/*
+__pycache__/
+*.py[cod]
+*$py.class
 
 # Ignore Bazel generated files
 bazel-* 

@@ -172,7 +172,9 @@ class TestUnittest(unittest.TestCase):
         header["t3i"] = (0,1,2)
         header["t3f"] = (3.4,5.6,7.8)
 
+        header["a2f"] = np.array((1.2, 3.4), 'float32')
         header["a2d"] = np.array((1.2, 3.4), 'float64')
+        header["a3f"] = np.array((1.2, 3.4, 5.6), 'float32')
         header["a3d"] = np.array((1.2, 3.4, 5.6), 'float64')
 
         header["a33f"] = np.identity(3, 'float32') 
@@ -454,7 +456,7 @@ class TestUnittest(unittest.TestCase):
         header["stringvector"] = ["do", "re", "me"]
         header["chromaticities"] = (1.0,2.0, 3.0,4.0, 5.0,6.0,7.0,8.0)
         header["box2i"] = ((0,1), (2,3))
-        header["box2f"] = ((0,1), (2,3))
+        header["box2f"] = ((0.0,1.0), (2.0,3.0))
         header["compression"] = OpenEXR.ZIPS_COMPRESSION
         header["double"] = np.array([42000.0], 'float64')
         header["float"] = 4.2
@@ -484,7 +486,7 @@ class TestUnittest(unittest.TestCase):
             # Verify reading it back gives the same data
             with OpenEXR.File(outfilename, separate_channels=True) as infile:
                 compare_files (infile, outfile)
-
+                
     def test_write_2part(self):
 
         #
@@ -523,7 +525,7 @@ class TestUnittest(unittest.TestCase):
             header["stringvector"] = ["do", "re", "me"]
             header["chromaticities"] = (1.0,2.0, 3.0,4.0, 5.0,6.0,7.0,8.0)
             header["box2i"] = ((0,1),(2,3))
-            header["box2f"] = ((0,1),(2,3))
+            header["box2f"] = ((0.0,1.0),(2.0,3.0))
             header["compression"] = OpenEXR.ZIPS_COMPRESSION
             header["double"] = np.array([42000.0], 'float64')
             header["float"] = 4.2

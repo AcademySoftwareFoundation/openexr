@@ -183,7 +183,7 @@ read_file (const char* filename)
             if (samples[i] != row + 100.f)
             {
                 cout << " sample " << i << " on row " << row
-                     << " error, shuold be " << 100.f + row << " got "
+                     << " error, should be " << 100.f + row << " got "
                      << samples[i] << endl;
                 cout << flush;
             }

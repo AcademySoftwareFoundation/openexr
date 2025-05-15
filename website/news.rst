@@ -13,10 +13,137 @@ News
 .. toctree::
    :caption: News
 
+.. include:: latest_news_title.rst
+
+|latest-news-title|
+=======================================
+
+.. _LatestNewsStart:
+
+Patch release with miscellaneous bug/build/documentation fixes:
+
+.. |bug| unicode:: U+1F41B
+   :ltrim:
+
+.. |rocket| unicode:: U+1F680
+   :ltrim:
+
+.. |hammer_and_wrench| unicode:: U+1F6E0
+   :ltrim:
+
+* |bug| Fix a bug involving deep tiled images
+* |bug| Adjust the clamping on the dwa compression (Issue `1982 <https://github.com/AcademySoftwareFoundation/openexr/issues/1982>`_)
+* |bug| Address issues with small exr files and header parse (Issue `1984 <https://github.com/AcademySoftwareFoundation/openexr/issues/1984>`_)
+* |bug| Fix crash if user does not provide memory when filling deep framebuffer
+* |bug| Fix bad pointer SSE math causing out-of-bounds access
+* |bug| Fix potential buffer overwrite with zip data
+* |bug| Fix usage of utf-8 filenames for windows
+* |bug| Fix regression in reading EXR images on 32bit Windows involving `atomic_compare_exchange_strong`
+* |bug| Add checks to avoid using optimizations when inappropriate (Issue `1949 <https://github.com/AcademySoftwareFoundation/openexr/issues/1949>`_)
+* |bug| Convert dwa encoder to use algorithm quantize (Issue `1915 <https://github.com/AcademySoftwareFoundation/openexr/issues/1915>`_)
+* |bug| Fix incorrect v3 array size validation
+* |rocket| Add minor huf encode / decode performance optimizations
+* |hammer_and_wrench| Add numpy dependency to python wrapper (Issue `1919 <https://github.com/AcademySoftwareFoundation/openexr/issues/1919>`_)
+* |hammer_and_wrench| Remove duplicate cmake dependency from skbuild plugin (Issue `1958 <https://github.com/AcademySoftwareFoundation/openexr/pull/1958>`_)
+* |hammer_and_wrench| Don't set the library postfix in the cmake cache (Issue `1981 <https://github.com/AcademySoftwareFoundation/openexr/issues/1981>`_)
+
+This version also introduces a new tool, `exrmetrics`, a utility to help analyize file i/o times and compression ratios. See
+`exrmetrics <https://openexr.com/en/latest/bin/exrmetrics.html>`_ for details.
+
+This version also officially installs the `exrcheck` utility, formerly built for internal use but not installed.
+
+This version also publishes the python bindings for arm64 on Ubuntu and macOS.
+
+.. _LatestNewsEnd:
+
+
+February 8, 2025 - Beta release of support for HTJ2K in OpenEXR
+===============================================================
+
+
+We have a proposal that adds support for lossless JPEG 2000 coding (as
+the HT256 compressor) to OpenEXR and would welcome your feedback.
+
+The HT256 compressor uses the High-Throughput (HT) block coder and
+promises high speed and high coding efficiency, and it supports the
+full range of OpenEXR features, including 32-bit floating-point image
+channels.  The HT block coder, which is standardized in `Rec. ITU-T
+T.814
+<https://loc.gov/preservation/digital/formats/fdd/fdd000566.shtml>`_
+| `ISO/IEC 15444-15 <https://www.iso.org/standard/76621.html>`_, is
+relatively new, and is estimated to increase the speed of JPEG 2000 by
+roughly an order of magnitude. It is royalty-free, used in cinema and
+distribution servicing, and implemented in both commercial and
+open-source toolkits. The proposed integration with OpenEXR currently
+uses the `OpenJPH <https://github.com/aous72/OpenJPH>`_ open-source
+library. For ease in managing the dependency, the OpenEXR CMake
+configuration supports automatically fetching and building OpenJPH
+internally, or linking against an external installation.
+
+Support for the HT256 compressor is available now for testing and
+evaluation on the htj2k-beta branch at
+https://github.com/AcademySoftwareFoundation/openexr/tree/htj2k-beta. We
+expect to merge this to the main branch in a few weeks and release it
+officially in August, pending feedback.
+
+Note that this branch is provided for evaluation purposes only. The
+file format may change before final release, so files written with
+this evaluation branch may not be readable by future OpenEXR releases.
+
+To help evaluate performance, the branch includes a new tool,
+exrmetrics, which reports statistics about read/write time and file
+size/compression ratio. See
+`Tools/exrmetrics <https://openexr.com/en/latest/bin/exrmetrics.html>`_.
+for details.  (Note that exrmetrics is also on the main branch, but
+without HTJ2K support. It will be included with the next official
+release.)
+
+Please provide comments and feedback at the project GitHub
+Issues page, or on the ASWF #openexr slack. Ping @palemieux with
+technical questions.
+
+We are particularly interested in feedback regarding real-world
+time/space metrics, as well as any pipeline integration or build
+issues.
+
+
+
+November 11, 2024 - OpenEXR v3.3.2 Released
+===========================================
+
+Patch release that fixes several bugs and build issues:
+
+* A recent change to CMake had the unintended consequence of
+  installing headers and libraries from `libdeflate` when doing an
+  internal build. This is now fixed.
+* Fix custom namespaces
+* Add thread control to `exrmetrics` tool
+* Reintroduce single cache for successive scanline reads
+* Allow empty filename when providing a custom stream
+* Handle non-seekable stream in python module's `InputFile` object
+
+This release fixes:
+
+* OSS-fuzz `372524117 <https://issues.oss-fuzz.com/issues/372524117>`_
+  Null-dereference WRITE in Imf_3_4::ScanLineProcess::run_fill
+
+October 8, 2024 - OpenEXR v3.3.1 Released
+=========================================
+
+
+Patch release that addresses several build and performance issues:
+
+* Fix a performance regression 3.3.0 in huf/piz compression
+* Replace ``FetchContent_Populate`` with ``FetchContent_MakeAvailable``
+* Build wheels for python 3.12
+* Fix a problem with python wheel sdist that caused local build to fail
+* Compile source files in parallel under MSVC
+
+
+
 September 30, 2024 - OpenEXR v3.3.0 Released
 ============================================
 
-.. _LatestNewsStart:
 
 Minor release several significant changes:
 
@@ -89,7 +216,6 @@ Minor release several significant changes:
   <https://github.com/AcademySoftwareFoundation/openexr/blob/v3.3.0-rc1/src/wrappers/python/README.md>`_
   for a synopsis.
 
-.. _LatestNewsEnd:
 
 September 9, 2024 - Imath v3.1.12 Released
 ==========================================

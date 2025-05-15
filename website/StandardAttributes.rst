@@ -904,7 +904,7 @@ These attributes describe the lens settings. All are optional.
      <td style="vertical-align: top; width:100px"> <tt> float </tt> </td>
      <td style="vertical-align: top; width:500px">
        <p style="padding-bottom:15px">
-         Mumber printed on barrel of a prime lens, or number next to index
+         Number printed on barrel of a prime lens, or number next to index
          mark on a zoom lens, in units of millimeters.
        </p>
          

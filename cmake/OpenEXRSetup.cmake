@@ -55,8 +55,17 @@ set(IEX_NAMESPACE "Iex" CACHE STRING "Public namespace alias for Iex")
 option(OPENEXR_INSTALL_PKG_CONFIG "Install OpenEXR.pc file" ON)
 
 # Whether to enable threading. This can be disabled, although thread pool and tasks
-# are still used, just processed immediately
+# are still used, just processed immediately. Note that if this is disabled, the
+# OpenEXR library may not be thread-safe and should only be used by a single thread.
 option(OPENEXR_ENABLE_THREADING "Enables threaded processing of requests" ON)
+# When set to ON, will change the thread pool to use TBB for the
+# global thread pool by default.
+#
+# Regardless of this setting, if you create your own additional thread
+# pools, those will NOT use TBB by default, as it can easily cause
+# recursive mutex deadlocks as TBB shares a single thread pool with
+# multiple arenas
+option(OPENEXR_USE_TBB "Switch internals of IlmThreadPool to use TBB by default" OFF)
 
 option(OPENEXR_USE_DEFAULT_VISIBILITY "Makes the compile use default visibility (by default compiles tidy, hidden-by-default)"     OFF)
 
@@ -75,6 +84,7 @@ option(OPENEXR_BUILD_LIBS "Enables building of main libraries" ON)
 # Whether to build the various command line utility programs
 option(OPENEXR_BUILD_TOOLS "Enables building of utility programs" ON)
 option(OPENEXR_INSTALL_TOOLS "Install OpenEXR tools" ON)
+option(OPENEXR_INSTALL_DEVELOPER_TOOLS "Install OpenEXR developer tools" OFF)
 
 option(OPENEXR_BUILD_EXAMPLES "Build and install OpenEXR examples" ON)
 
@@ -95,7 +105,10 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 # Suffix for debug configuration libraries
 # (if you should choose to install those)
-set(CMAKE_DEBUG_POSTFIX "_d" CACHE STRING "Suffix for debug builds")
+# Don't override if the user has set it and don't save it in the cache
+if (NOT CMAKE_DEBUG_POSTFIX)
+  set(CMAKE_DEBUG_POSTFIX "_d")
+endif()
 
 if(NOT OPENEXR_IS_SUBPROJECT)
   # Usual cmake option to build shared libraries or not, only overridden if OpenEXR is a top level project,
@@ -185,11 +198,18 @@ if(OPENEXR_ENABLE_THREADING)
       message(FATAL_ERROR "Unable to find a threading library, disable with OPENEXR_ENABLE_THREADING=OFF")
     endif()
   endif()
+  if(OPENEXR_USE_TBB)
+    find_package(TBB)
+    if(NOT TBB_FOUND)
+      message(FATAL_ERROR "Unable to find the OneTBB cmake library, disable with ILMTHREAD_USE_TBB=OFF or fix TBB install")
+    endif()
+  endif()
 endif()
+set (ILMTHREAD_USE_TBB ${OPENEXR_USE_TBB})
 
 option(OPENEXR_FORCE_INTERNAL_DEFLATE "Force using an internal libdeflate" OFF)
 set(OPENEXR_DEFLATE_REPO "https://github.com/ebiggers/libdeflate.git" CACHE STRING "Repo path for libdeflate source")
-set(OPENEXR_DEFLATE_TAG "v1.18" CACHE STRING "Tag to use for libdeflate source repo (defaults to primary if empty)")
+set(OPENEXR_DEFLATE_TAG "master" CACHE STRING "Tag to use for libdeflate source repo (defaults to primary if empty)")
 
 if(NOT OPENEXR_FORCE_INTERNAL_DEFLATE)
   #TODO: ^^ Release should not clone from main, this is a place holder
@@ -234,15 +254,37 @@ else()
     message(STATUS "libdeflate was not found, installing from ${OPENEXR_DEFLATE_REPO} (${OPENEXR_DEFLATE_TAG})")
   endif()
   include(FetchContent)
+  # Fetch deflate but exclude it from the "all" target.
+  # This prevents the library from being built.
   FetchContent_Declare(Deflate
     GIT_REPOSITORY "${OPENEXR_DEFLATE_REPO}"
     GIT_TAG "${OPENEXR_DEFLATE_TAG}"
     GIT_SHALLOW ON
+    EXCLUDE_FROM_ALL
     )
 
   FetchContent_GetProperties(Deflate)
-  if(NOT Deflate_POPULATED)
-    FetchContent_Populate(Deflate)
+  if(NOT deflate_POPULATED)
+    if(CMAKE_VERSION VERSION_LESS "3.30")
+      # CMake 3.30 deprecated this single argument version of
+      # FetchContent_Populate():
+      #   https://cmake.org/cmake/help/latest/policy/CMP0169.html
+      # Prior to CMake 3.28, passing the EXCLUDE_FROM_ALL option to
+      # FetchContent_Declare() does *not* have the desired effect of
+      # excluding the fetched content from the build when
+      # FetchContent_MakeAvailable() is called.
+      # Ideally we could "manually" set the EXCLUDE_FROM_ALL property on the
+      # deflate SOURCE_DIR and BINARY_DIR, but a bug that was only fixed as of
+      # CMake 3.20.3 prevents that from properly excluding the directories:
+      #   https://gitlab.kitware.com/cmake/cmake/-/issues/22234
+      # To support the full range of CMake versions without overly
+      # complicating the logic here with workarounds, we continue to use
+      # Populate for CMake versions before 3.30, and switch to MakeAvailable
+      # for CMake 3.30 and later.
+      FetchContent_Populate(Deflate)
+    else()
+      FetchContent_MakeAvailable(Deflate)
+    endif()
   endif()
 
   # Rather than actually compile something, just embed the sources
@@ -264,9 +306,14 @@ else()
   # lib/gzip_compress.c
   # lib/gzip_decompress.c
   file(READ ${deflate_SOURCE_DIR}/lib/lib_common.h DEFLATE_HIDE)
-  string(REPLACE "visibility(\"default\")" "visibility(\"hidden\")" DEFLATE_HIDE "${DEFLATE_HIDE}")
-  string(REPLACE "__declspec(dllexport)" "/**/" DEFLATE_HIDE "${DEFLATE_HIDE}")
-  file(WRITE ${deflate_SOURCE_DIR}/lib/lib_common.h "${DEFLATE_HIDE}")
+  string(REPLACE "visibility(\"default\")" "visibility(\"hidden\")" DEFLATE_HIDE_NEW "${DEFLATE_HIDE}")
+  string(REPLACE "__declspec(dllexport)" "/**/" DEFLATE_HIDE_NEW "${DEFLATE_HIDE_NEW}")
+
+  string(COMPARE EQUAL "${DEFLATE_HIDE}" "${DEFLATE_HIDE_NEW}" DEFLATE_HIDE_SAME)
+  if (NOT DEFLATE_HIDE_SAME)
+    message(STATUS "libdeflate visibility changed, updating ${deflate_SOURCE_DIR}/lib/lib_common.h")
+    file(WRITE ${deflate_SOURCE_DIR}/lib/lib_common.h "${DEFLATE_HIDE_NEW}")
+  endif()
 
   # cmake makes fetch content name lowercase for the properties (to deflate)
   list(TRANSFORM EXR_DEFLATE_SOURCES PREPEND ${deflate_SOURCE_DIR}/)
@@ -301,10 +348,9 @@ if(NOT TARGET Imath::Imath AND NOT Imath_FOUND)
     GIT_TAG "${OPENEXR_IMATH_TAG}"
     GIT_SHALLOW ON
       )
-
   FetchContent_GetProperties(Imath)
   if(NOT Imath_POPULATED)
-    FetchContent_Populate(Imath)
+    FetchContent_MakeAvailable(Imath)
 
     # Propagate OpenEXR's install setting to Imath
     set(IMATH_INSTALL ${OPENEXR_INSTALL})
@@ -312,9 +358,6 @@ if(NOT TARGET Imath::Imath AND NOT Imath_FOUND)
     # Propagate OpenEXR's setting for pkg-config generation to Imath:
     # If OpenEXR is generating it, the internal Imath should, too.
     set(IMATH_INSTALL_PKG_CONFIG ${OPENEXR_INSTALL_PKG_CONFIG})
-
-    # hrm, cmake makes Imath lowercase for the properties (to imath)
-    add_subdirectory(${imath_SOURCE_DIR} ${imath_BINARY_DIR})
   endif()
   # the install creates this but if we're using the library locally we
   # haven't installed the header files yet, so need to extract those
@@ -383,8 +426,7 @@ if(NOT TARGET Blosc2::blosc2_static AND NOT Blosc2_FOUND)
   FetchContent_GetProperties(Blosc2)
   if(NOT Blosc2_POPULATED)
     message(STATUS "Blosc2: Downloading ${BLOSC2_TAG} from ${BLOSC2_REPO}...")
-    FetchContent_Populate(Blosc2)
-    add_subdirectory(${blosc2_SOURCE_DIR} ${blosc2_BINARY_DIR})
+    FetchContent_MakeAvailable(Blosc2)
   else()
     message(STATUS "Blosc2: repo code has already been downloaded.")
   endif()

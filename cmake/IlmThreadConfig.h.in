@@ -17,6 +17,7 @@
 
 #cmakedefine01 ILMTHREAD_THREADING_ENABLED
 #cmakedefine01 ILMTHREAD_HAVE_POSIX_SEMAPHORES
+#cmakedefine01 ILMTHREAD_USE_TBB
 
 //
 // Current internal library namespace name

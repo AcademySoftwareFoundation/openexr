@@ -27,6 +27,9 @@ openexr_define_library(IlmThread
 )
 
 if(OPENEXR_ENABLE_THREADING)
+  if (ILMTHREAD_USE_TBB)
+    target_link_libraries(IlmThread PUBLIC TBB::tbb)
+  endif()
   target_link_libraries(IlmThread PUBLIC Threads::Threads)
 endif()
 

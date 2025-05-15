@@ -17,7 +17,7 @@ Definitions
 ===========
 
 +-----------------------+--------------------------------------------------------------------------+
-|       symbol          | descripion                                                               |
+|       symbol          | description                                                              |
 +=======================+==========================================================================+
 | :math:`r`             | ratio of length of original sample to a subsample: :math:`0\le r \le 1`  |
 +-----------------------+--------------------------------------------------------------------------+
@@ -33,7 +33,7 @@ Definitions
 +-----------------------+--------------------------------------------------------------------------+
 | :math:`\mathbf{c_i}`  | colour per unit length (‘instantaneous colour’) of :math:`i`             |
 +-----------------------+--------------------------------------------------------------------------+
-| :math:`t_i`           | transparency per unit length (‘intanstaneous transparency’) of :math:`i` |
+| :math:`t_i`           | transparency per unit length (‘instantaneous transparency’) of :math:`i` |
 +-----------------------+--------------------------------------------------------------------------+
 
 Subscripts :math:`_a` and :math:`_b` refer to the input samples;

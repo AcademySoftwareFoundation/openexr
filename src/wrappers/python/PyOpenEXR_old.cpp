@@ -147,20 +147,59 @@ split (const std::string& str, const char sep)
 class C_IStream : public IStream
 {
 public:
-    C_IStream (PyObject* fo) : IStream (""), _fo (fo) {}
+    C_IStream (PyObject* fo)
+        : IStream ("<Python Stream>")
+        , _fo (fo)
+        , _stream_pos (0)
+    {
+        if (! PyObject_IsTrue (
+                PyObject_CallMethod (
+                    _fo, (char*) "seekable", NULL)))
+        {
+            PyObject *data = PyObject_CallMethod (
+                _fo, (char*) "getvalue", NULL);
+            if (data)
+            {
+                char *b = NULL;
+                Py_ssize_t len = 0;
+                if (PyBytes_AsStringAndSize (data, &b, &len) == -1)
+                {
+                    Py_XDECREF (data);
+                    throw IEX_NAMESPACE::InputExc ("unable to access bytes");
+                }
+
+                if (len > 0)
+                    _stream_cache.insert (_stream_cache.begin (), b, b + len);
+                Py_DECREF (data);
+            }
+        }
+    }
     virtual bool        read (char c[], int n);
     virtual Int64       tellg ();
     virtual void        seekg (Int64 pos);
     virtual void        clear ();
-    virtual const char* fileName () const;
 
 private:
     PyObject* _fo;
+    std::vector<uint8_t> _stream_cache;
+    size_t _stream_pos;
 };
 
 bool
 C_IStream::read (char c[], int n)
 {
+    if (!_stream_cache.empty())
+    {
+        size_t bend = std::min (_stream_pos + n, _stream_cache.size ());
+        size_t ncopy = bend - _stream_pos;
+        if (ncopy)
+            memcpy (c, _stream_cache.data () + _stream_pos, ncopy);
+        _stream_pos = bend;
+        if (ncopy != n)
+            throw IEX_NAMESPACE::InputExc ("not enough data");
+        return true;
+    }
+
     PyObject* data =
         PyObject_CallMethod (_fo, (char*) "read", (char*) "(i)", n);
     if (data != NULL && PyString_AsString (data) &&
@@ -169,19 +208,20 @@ C_IStream::read (char c[], int n)
         memcpy (c, PyString_AsString (data), PyString_Size (data));
         Py_DECREF (data);
     }
-    else { throw IEX_NAMESPACE::InputExc ("file read failed"); }
-    return 0;
-}
-
-const char*
-C_IStream::fileName () const
-{
-    return "xxx";
+    else
+    {
+        Py_XDECREF (data);
+        throw IEX_NAMESPACE::InputExc ("file read failed");
+    }
+    return true;
 }
 
 Int64
 C_IStream::tellg ()
 {
+    if (!_stream_cache.empty())
+        return (Int64) _stream_pos;
+
     PyObject* rv = PyObject_CallMethod (_fo, (char*) "tell", NULL);
     if (rv != NULL && PyNumber_Check (rv))
     {
@@ -197,6 +237,12 @@ C_IStream::tellg ()
 void
 C_IStream::seekg (Int64 pos)
 {
+    if (!_stream_cache.empty ())
+    {
+        _stream_pos = std::min ((Int64)_stream_cache.size (), std::max (Int64(0), pos));
+        return;
+    }
+
     PyObject* data =
         PyObject_CallMethod (_fo, (char*) "seek", (char*) "(L)", pos);
     if (data != NULL) { Py_DECREF (data); }
@@ -327,7 +373,7 @@ channel (PyObject* self, PyObject* args, PyObject* kw)
             PyExc_TypeError, "There is no channel '%s' in the image", cname);
     }
 
-    Imf::PixelType pt;
+    PixelType pt;
     if (pixel_type != NULL)
     {
         if (PyObject_GetAttrString (pixel_type, "v") == NULL)
@@ -454,7 +500,7 @@ channels (PyObject* self, PyObject* args, PyObject* kw)
                 cname);
         }
 
-        Imf::PixelType pt;
+        PixelType pt;
         if (pixel_type != NULL)
         {
             pt = PixelType (
@@ -967,7 +1013,7 @@ outwrite (PyObject* self, PyObject* args)
             PyDict_GetItem (pixeldata, PyUnicode_FromString (i.name ()));
         if (channel_spec != NULL)
         {
-            Imf::PixelType pt       = i.channel ().type;
+            PixelType pt       = i.channel ().type;
             int            typeSize = 4;
             switch (pt)
             {
@@ -1243,7 +1289,7 @@ makeOutputFile (PyObject* self, PyObject* args, PyObject* kwds)
             PreviewImage pi (
                 PyLong_AsLong (PyObject_StealAttrString (value, "width")),
                 PyLong_AsLong (PyObject_StealAttrString (value, "height")),
-                (Imf::PreviewRgba*) PyString_AsString (
+                (PreviewRgba*) PyString_AsString (
                     PyObject_StealAttrString (value, "pixels")));
             header.insert (ks, PreviewImageAttribute (pi));
         }
@@ -1352,9 +1398,9 @@ makeOutputFile (PyObject* self, PyObject* args, PyObject* kwds)
             TileDescription td (
                 PyInt_AsLong (PyObject_StealAttrString (value, "xSize")),
                 PyInt_AsLong (PyObject_StealAttrString (value, "ySize")),
-                (Imf::LevelMode) PyInt_AsLong (PyObject_StealAttrString (
+                (LevelMode) PyInt_AsLong (PyObject_StealAttrString (
                     PyObject_StealAttrString (value, "mode"), "v")),
-                (Imf::LevelRoundingMode) PyInt_AsLong (
+                (LevelRoundingMode) PyInt_AsLong (
                     PyObject_StealAttrString (
                         PyObject_StealAttrString (value, "roundingMode"),
                         "v")));
@@ -1465,7 +1511,7 @@ isOpenExrFile (const char fileName[])
     std::ifstream f (fileName, std::ios_base::binary);
     char          bytes[4];
     f.read (bytes, sizeof (bytes));
-    return !!f && Imf::isImfMagic (bytes);
+    return !!f && isImfMagic (bytes);
 }
 
 PyObject*

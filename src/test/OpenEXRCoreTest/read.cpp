@@ -79,7 +79,7 @@ testReadBadArgs (const std::string& tempdir)
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_INVALID_ARGUMENT, exr_start_read (&f, NULL, &cinit));
     EXRCORE_TEST_RVAL_FAIL (
-        EXR_ERR_INVALID_ARGUMENT, exr_start_read (&f, "", &cinit));
+        EXR_ERR_FILE_ACCESS, exr_start_read (&f, "", &cinit));
     // windows fails on directory open, where under unix you can open
     // the directory as a file handle but not read from it
 #ifdef _WIN32

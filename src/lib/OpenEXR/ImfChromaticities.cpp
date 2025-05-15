@@ -6,7 +6,7 @@
 //-----------------------------------------------------------------------------
 //
 //	CIE (x,y) chromaticities, and conversions between
-//	RGB tiples and CIE XYZ tristimulus values.
+//	RGB triples and CIE XYZ tristimulus values.
 //
 //-----------------------------------------------------------------------------
 

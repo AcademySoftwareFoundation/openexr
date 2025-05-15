@@ -212,7 +212,7 @@ public:
     // in a threadsafe manner (where the only way that was possible
     // before was to have a larger framebuffer, set the framebuffer
     // once, then call readPixels by the external threads, although
-    // that occured with a mutex and so the reads were serialized.
+    // that occurred with a mutex and so the reads were serialized.
     // There are reasons why that might still be serialized, such as a
     // non-threadable stream.
     //----------------------------------------------

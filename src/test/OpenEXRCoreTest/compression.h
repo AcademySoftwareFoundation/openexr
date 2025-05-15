@@ -8,6 +8,7 @@
 
 void testHUF (const std::string& tempdir);
 
+void testDWAQuantize (const std::string& tempdir);
 void testDWATable (const std::string& tempdir);
 void testB44Table (const std::string& tempdir);
 
