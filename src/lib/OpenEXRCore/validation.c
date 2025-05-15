@@ -665,7 +665,8 @@ validate_deep_data (exr_context_t f, exr_priv_part_t curpart)
         // none, rle, zips
         if (curpart->comp_type != EXR_COMPRESSION_NONE &&
             curpart->comp_type != EXR_COMPRESSION_RLE &&
-            curpart->comp_type != EXR_COMPRESSION_ZIPS)
+            curpart->comp_type != EXR_COMPRESSION_ZIPS && 
+            curpart->comp_type != EXR_COMPRESSION_ZSTD)
             return f->report_error (
                 f, EXR_ERR_INVALID_ATTR, "Invalid compression for deep data");
 
