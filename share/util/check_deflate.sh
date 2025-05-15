@@ -24,6 +24,8 @@ if [[ -e current_deflate_version ]]; then
         rm -f libdeflate-config.cmake.in
         rm -rf scripts
         sed -i -f ../patchup_deflate_lib.sed lib/lib_common.h
+        sed -i -f ../patchup_deflate_lib.sed common_defs.h
+        sed -i -f ../patchup_deflate_lib.sed lib/utils.c
         cd ..
 
         rm "${filename}"

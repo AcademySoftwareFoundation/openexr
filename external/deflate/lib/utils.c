@@ -46,7 +46,7 @@ libdeflate_aligned_malloc(malloc_func_t malloc_func,
 	if (ptr) {
 		void *orig_ptr = ptr;
 
-		ptr = (void *)ALIGN((uintptr_t)ptr + sizeof(void *), alignment);
+		ptr = (void *)DEFLATE_ALIGN((uintptr_t)ptr + sizeof(void *), alignment);
 		((void **)ptr)[-1] = orig_ptr;
 	}
 	return ptr;
