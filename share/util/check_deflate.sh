@@ -18,16 +18,19 @@ if [[ -e current_deflate_version ]]; then
         cd deflate
         rm -rf .github
         rm -f .cirrus.yml
-        #rm -f CMakeLists.txt
+        rm -f CMakeLists.txt
         rm -rf programs
         rm -f libdeflate.pc.in
+        rm -f libdeflate-config.cmake.in
         rm -rf scripts
+        sed -i -f ../patchup_deflate_lib.sed lib/lib_common.h
         cd ..
 
         rm "${filename}"
         echo "$latest" > current_deflate_version
+        echo "Updated deflate to version $latest"
     else
-        echo "Deflate $latest is the same as $current in the tee"
+        echo "Deflate $latest is the same as $current in the tree"
     fi
 else
     echo "ERROR: should be run from the external directory in the OpenEXR tree"
