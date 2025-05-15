@@ -424,7 +424,7 @@ reconstruct_chunk_table (
     uint64_t              offset_start, chunk_start, max_offset;
     uint64_t*             curctable;
     exr_const_priv_part_t curpart = NULL;
-    int                   found_ci, computed_ci, partnum = 0;
+    int                   found_ci, computed_ci, partnum = 0, lastreconstruct = -1;
     size_t                chunkbytes;
 
     curpart      = ctxt->parts[ctxt->num_parts - 1];
@@ -466,6 +466,7 @@ reconstruct_chunk_table (
     if (!curctable) return EXR_ERR_OUT_OF_MEMORY;
 
     memset (curctable, 0, chunkbytes);
+
     for (int ci = 0; ci < part->chunk_count; ++ci)
     {
         if (chunktable[ci] >= offset_start && chunktable[ci] < max_offset)
@@ -485,13 +486,17 @@ reconstruct_chunk_table (
             chunk_start = 0;
             if (firstfailrv == EXR_ERR_SUCCESS) firstfailrv = rv;
         }
+        else
+        {
+            lastreconstruct = ci;
+        }
 
         if (found_ci >= 0 && found_ci < part->chunk_count)
         {
             if (curctable[found_ci] == 0) curctable[found_ci] = chunk_start;
         }
     }
-    if (firstfailrv == EXR_ERR_SUCCESS)
+    if (lastreconstruct >= 0)
         memcpy (chunktable, curctable, chunkbytes);
     ctxt->free_fn (curctable);
 
