@@ -14,7 +14,23 @@
 #include "internal_file.h"
 #include "internal_huf.h"
 
-#include <libdeflate.h>
+#include "OpenEXRConfigInternal.h"
+
+#if OPENEXR_USE_INTERNAL_DEFLATE
+#    include "../../../external/deflate/lib/lib_common.h"
+#    include "../../../external/deflate/lib/arm/cpu_features.c"
+#    include "../../../external/deflate/lib/x86/cpu_features.c"
+#    include "../../../external/deflate/lib/utils.c"
+#    include "../../../external/deflate/lib/deflate_compress.c"
+#    undef BITBUF_NBITS
+#    include "../../../external/deflate/lib/deflate_decompress.c"
+#    undef BITBUF_NBITS
+#    include "../../../external/deflate/lib/adler32.c"
+#    include "../../../external/deflate/lib/zlib_compress.c"
+#    include "../../../external/deflate/lib/zlib_decompress.c"
+#else
+#    include <libdeflate.h>
+#endif
 #include <string.h>
 
 #if (                                                                          \

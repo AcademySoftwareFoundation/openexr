@@ -193,8 +193,7 @@ endif()
 set (ILMTHREAD_USE_TBB ${OPENEXR_USE_TBB})
 
 option(OPENEXR_FORCE_INTERNAL_DEFLATE "Force using an internal libdeflate" OFF)
-set(OPENEXR_DEFLATE_REPO "https://github.com/ebiggers/libdeflate.git" CACHE STRING "Repo path for libdeflate source")
-set(OPENEXR_DEFLATE_TAG "master" CACHE STRING "Tag to use for libdeflate source repo (defaults to primary if empty)")
+set (OPENEXR_USE_INTERNAL_DEFLATE OFF)
 
 if(NOT OPENEXR_FORCE_INTERNAL_DEFLATE)
   #TODO: ^^ Release should not clone from main, this is a place holder
@@ -227,82 +226,18 @@ endif()
 
 if(EXR_DEFLATE_LIB)
   # Using external library
-  set(EXR_DEFLATE_SOURCES)
-  set(EXR_DEFLATE_INCLUDE_DIR)
+  message(STATUS "Using externally provided libdeflate: ${EXR_DEFLATE_VERSION}")
   # For OpenEXR.pc.in for static build
   set(EXR_DEFLATE_PKGCONFIG_REQUIRES "libdeflate >= ${EXR_DEFLATE_VERSION}")
 else()
   # Using internal deflate
   if(OPENEXR_FORCE_INTERNAL_DEFLATE)
-    message(STATUS "libdeflate forced internal, installing from ${OPENEXR_DEFLATE_REPO} (${OPENEXR_DEFLATE_TAG})")
+    message(STATUS "libdeflate forced internal, using vendored code")
   else()
-    message(STATUS "libdeflate was not found, installing from ${OPENEXR_DEFLATE_REPO} (${OPENEXR_DEFLATE_TAG})")
-  endif()
-  include(FetchContent)
-  # Fetch deflate but exclude it from the "all" target.
-  # This prevents the library from being built.
-  FetchContent_Declare(Deflate
-    GIT_REPOSITORY "${OPENEXR_DEFLATE_REPO}"
-    GIT_TAG "${OPENEXR_DEFLATE_TAG}"
-    GIT_SHALLOW ON
-    EXCLUDE_FROM_ALL
-    )
-
-  FetchContent_GetProperties(Deflate)
-  if(NOT deflate_POPULATED)
-    if(CMAKE_VERSION VERSION_LESS "3.30")
-      # CMake 3.30 deprecated this single argument version of
-      # FetchContent_Populate():
-      #   https://cmake.org/cmake/help/latest/policy/CMP0169.html
-      # Prior to CMake 3.28, passing the EXCLUDE_FROM_ALL option to
-      # FetchContent_Declare() does *not* have the desired effect of
-      # excluding the fetched content from the build when
-      # FetchContent_MakeAvailable() is called.
-      # Ideally we could "manually" set the EXCLUDE_FROM_ALL property on the
-      # deflate SOURCE_DIR and BINARY_DIR, but a bug that was only fixed as of
-      # CMake 3.20.3 prevents that from properly excluding the directories:
-      #   https://gitlab.kitware.com/cmake/cmake/-/issues/22234
-      # To support the full range of CMake versions without overly
-      # complicating the logic here with workarounds, we continue to use
-      # Populate for CMake versions before 3.30, and switch to MakeAvailable
-      # for CMake 3.30 and later.
-      FetchContent_Populate(Deflate)
-    else()
-      FetchContent_MakeAvailable(Deflate)
-    endif()
+    message(STATUS "libdeflate was not found, using vendored code")
   endif()
 
-  # Rather than actually compile something, just embed the sources
-  # into exrcore. This could in theory cause issues when compiling as
-  # a static library into another application which also uses
-  # libdeflate but we switch the export symbol to hidden which should
-  # hide the symbols when linking...
-  set(EXR_DEFLATE_SOURCES
-    lib/arm/cpu_features.c
-    lib/x86/cpu_features.c
-    lib/utils.c
-    lib/deflate_compress.c
-    lib/deflate_decompress.c
-    lib/adler32.c
-    lib/zlib_compress.c
-    lib/zlib_decompress.c)
-  # don't need these
-  # lib/crc32.c
-  # lib/gzip_compress.c
-  # lib/gzip_decompress.c
-  file(READ ${deflate_SOURCE_DIR}/lib/lib_common.h DEFLATE_HIDE)
-  string(REPLACE "visibility(\"default\")" "visibility(\"hidden\")" DEFLATE_HIDE_NEW "${DEFLATE_HIDE}")
-  string(REPLACE "__declspec(dllexport)" "/**/" DEFLATE_HIDE_NEW "${DEFLATE_HIDE_NEW}")
-
-  string(COMPARE EQUAL "${DEFLATE_HIDE}" "${DEFLATE_HIDE_NEW}" DEFLATE_HIDE_SAME)
-  if (NOT DEFLATE_HIDE_SAME)
-    message(STATUS "libdeflate visibility changed, updating ${deflate_SOURCE_DIR}/lib/lib_common.h")
-    file(WRITE ${deflate_SOURCE_DIR}/lib/lib_common.h "${DEFLATE_HIDE_NEW}")
-  endif()
-
-  # cmake makes fetch content name lowercase for the properties (to deflate)
-  list(TRANSFORM EXR_DEFLATE_SOURCES PREPEND ${deflate_SOURCE_DIR}/)
-  set(EXR_DEFLATE_INCLUDE_DIR ${deflate_SOURCE_DIR})
+  set (OPENEXR_USE_INTERNAL_DEFLATE ON)
   set(EXR_DEFLATE_LIB)
 endif()
 
