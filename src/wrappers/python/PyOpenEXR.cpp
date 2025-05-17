@@ -2272,8 +2272,8 @@ PYBIND11_MODULE(OpenEXR, m)
         .value("B44A_COMPRESSION", B44A_COMPRESSION)
         .value("DWAA_COMPRESSION", DWAA_COMPRESSION)
         .value("DWAB_COMPRESSION", DWAB_COMPRESSION)
-        .value("DWAB_COMPRESSION", DWAB_COMPRESSION)
         .value("HT256_COMPRESSION", HT256_COMPRESSION)
+        .value("NUM_COMPRESSION_METHODS", NUM_COMPRESSION_METHODS)
         .export_values();
     
     py::enum_<Envmap>(m, "Envmap", "Environment map type")
