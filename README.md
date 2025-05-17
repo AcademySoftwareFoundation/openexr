@@ -69,16 +69,16 @@ complete details, but to get started, the "Hello, world" [`exrwriter.cpp`](https
     main()
     {
         try {
-            int width =  10;
+            int width =  20;
             int height = 10;
             
             Imf::Array2D<Imf::Rgba> pixels(width, height);
-            for (int y=0; y<height; y++)
-                for (int x=0; x<width; x++)
-                    pixels[y][x] = Imf::Rgba(0, x / (width-1.0f), y / (height-1.0f));
+            for (int x=0; x<width; x++)
+                for (int y=0; y<height; y++)
+                    pixels[x][y] = Imf::Rgba(0, x / (width-1.0f), y / (height-1.0f));
         
             Imf::RgbaOutputFile file ("hello.exr", width, height, Imf::WRITE_RGBA);
-            file.setFrameBuffer (&pixels[0][0], 1, width);
+            file.setFrameBuffer (&pixels[0][0], height, 1);
             file.writePixels (height);
         } catch (const std::exception &e) {
             std::cerr << "Unable to read image file hello.exr:" << e.what() << std::endl;
