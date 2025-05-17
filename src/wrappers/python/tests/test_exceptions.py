@@ -118,6 +118,21 @@ class TestExceptions(unittest.TestCase):
         self.assertEqual(p.type(), OpenEXR.tiledimage)
         self.assertEqual(p.compression(), OpenEXR.NO_COMPRESSION)
 
+    def test_InvalidDataWindow(self):
+        """Test that an invalid dataWindow raises an exception."""
+
+        invalid_header = {
+            "dataWindow": (-5, -5, -1, -1),  # Invalid rectangle
+            "compression": OpenEXR.ZIP_COMPRESSION,
+            "type": OpenEXR.scanlineimage
+        }
+
+        RGB = np.random.rand(10, 10, 3).astype(np.float32)  # Valid shape for data
+
+        with self.assertRaises(Exception):
+            with OpenEXR.File(invalid_header, {"RGB": RGB}) as outfile:
+                outfile.write("invalid_output.exr")
+
     def test_Channel(self):
 
         with self.assertRaises(Exception):

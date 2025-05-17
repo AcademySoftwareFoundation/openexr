@@ -1040,9 +1040,34 @@ PyFile::write(const char* outfilename)
         
         for (auto a : P.header)
         {
-            auto name = py::str(a.first);
-            py::object second = py::cast<py::object>(a.second);
-            insertAttribute(header, name, second);
+            std::string name   = a.first.cast<std::string> ();
+            py::object  second = py::cast<py::object> (a.second);
+
+            if (name == "compression")
+            {
+                header.compression () = second.cast<Compression> ();
+            }
+            else if (name == "type")
+            {
+                header.setType (second.cast<std::string> ());
+            }
+            else if (name == "lineOrder")
+            {
+                header.lineOrder () = second.cast<LineOrder> ();
+            }
+            else if (name == "tiles")
+            {
+                header.setTileDescription (second.cast<TileDescription> ());
+            }
+            else if (name == "dataWindow")
+            {
+                header.dataWindow () = second.cast<Box2i> ();
+            }
+            else
+            {
+                // Handle other attributes
+                insertAttribute (header, name, second);
+            }
         }
         
         //

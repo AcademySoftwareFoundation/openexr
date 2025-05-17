@@ -31,8 +31,8 @@ def test_write_RGB():
 
     # Generate a 3D NumPy array for RGB channels with random values
     height, width = (20, 10)
-    RGB = np.random.rand(height, width, 3).astype('f')
-
+    RGB = np.random.rand(height, width, 3).astype(np.float32)
+    
     channels = { "RGB" : RGB }
     header = { "compression" : OpenEXR.ZIP_COMPRESSION,
                "type" : OpenEXR.scanlineimage }
@@ -122,27 +122,28 @@ def test_multipart_write():
 
     height, width = (20, 10)
 
-    Z0 = np.zeros((height, width), dtype='f')
+    Z0 = np.zeros((height, width), dtype=np.float32)
     P0 = OpenEXR.Part(header={"type" : OpenEXR.scanlineimage },
                       channels={"Z" : Z0 })
 
-    Z1 = np.ones((height, width), dtype='f')
+    Z1 = np.ones((height, width), dtype=np.float32)
     P1 = OpenEXR.Part(header={"type" : OpenEXR.scanlineimage },
                       channels={"Z" : Z1 })
 
-    f = OpenEXR.File(parts=[P0, P1])
-    f.write("readme_2part.exr")
+    with OpenEXR.File(parts=[P0, P1]) as f:
+        f.write("readme_2part.exr")
 
     with OpenEXR.File("readme_2part.exr") as o:
         assert o.parts[0].name() == "Part0"
         assert o.parts[0].type() == OpenEXR.scanlineimage
-        assert o.parts[0].width() == 10
-        assert o.parts[0].height() == 20
+        assert o.parts[0].width() == width
+        assert o.parts[0].height() == height
         assert np.array_equal(o.parts[0].channels["Z"].pixels, Z0)
+
         assert o.parts[1].name() == "Part1"
         assert o.parts[1].type() == OpenEXR.scanlineimage
-        assert o.parts[1].width() == 10
-        assert o.parts[1].height() == 20
+        assert o.parts[1].width() == width
+        assert o.parts[1].height() == height
         assert np.array_equal(o.parts[1].channels["Z"].pixels, Z1)
 
     print("ok")
