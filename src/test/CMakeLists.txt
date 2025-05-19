@@ -12,6 +12,10 @@ if (OPENEXR_TEST_LIBRARIES)
   add_subdirectory(OpenEXRFuzzTest)
 endif()
 
+if (OPENEXR_OSS_FUZZ_LIB_FUZZING_ENGINE)
+  add_subdirectory(OpenEXRFuzzTest/oss-fuzz)
+endif()
+
 if (OPENEXR_BUILD_TOOLS AND OPENEXR_TEST_TOOLS)
   add_subdirectory(bin)
 endif()

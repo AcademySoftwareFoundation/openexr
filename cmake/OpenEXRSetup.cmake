@@ -75,6 +75,8 @@ option(OPENEXR_BUILD_EXAMPLES "Build and install OpenEXR examples" ON)
 
 option(OPENEXR_BUILD_PYTHON "Build python bindings" OFF)
 
+set(OPENEXR_OSS_FUZZ_LIB_FUZZING_ENGINE "" CACHE STRING "oss-fuzz fuzzing engine library")
+
 option(OPENEXR_TEST_LIBRARIES "Run library tests" ON)
 option(OPENEXR_TEST_TOOLS "Run tool tests" ON)
 option(OPENEXR_TEST_PYTHON "Run python binding tests" ON)
