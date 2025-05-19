@@ -355,6 +355,7 @@ if(NOT EXR_OPENJPH_LIB)
     EXPORT ${PROJECT_NAME}
   )
   set_target_properties(openjph PROPERTIES
+    POSITION_INDEPENDENT_CODE ON
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
   )
   include_directories("${openjph_SOURCE_DIR}/src/core/common")
