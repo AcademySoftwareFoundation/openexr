@@ -73,6 +73,7 @@ OPENEXR_TEST_LIBRARIES = 'OFF'
 BUILD_SHARED_LIBS = 'OFF'
 CMAKE_OSX_DEPLOYMENT_TARGET = '10.15'
 CMAKE_POSITION_INDEPENDENT_CODE = 'ON'
+CMAKE_VERBOSE_MAKEFILE = 'ON'
 
 [tool.cibuildwheel]
 test-command = "pytest -s {project}/src/wrappers/python/tests"
