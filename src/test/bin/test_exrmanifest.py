@@ -4,7 +4,7 @@
 # Copyright (c) Contributors to the OpenEXR Project.
 
 import sys, os, tempfile, atexit
-from subprocess import PIPE, run
+from do_run import do_run
 
 print(f"testing exrmanifest: {sys.argv}")
 
@@ -15,39 +15,27 @@ image_dir = sys.argv[3]
 version = sys.argv[4]
 
 # no args = usage message, error
-result = run ([exrmanifest], stdout=PIPE, stderr=PIPE, universal_newlines=True)
-print(" ".join(result.args))
-assert(result.returncode != 0), "\n"+result.stderr
-assert(result.stderr.startswith ("Usage: ")), "\n"+result.stderr
+result = do_run ([exrmanifest], True)
+assert result.stderr.startswith ("Usage: ")
 
 # -h = usage message
-result = run ([exrmanifest, "-h"], stdout=PIPE, stderr=PIPE, universal_newlines=True)
-print(" ".join(result.args))
-assert(result.returncode == 0), "\n"+result.stderr
-assert(result.stdout.startswith ("Usage: ")), "\n"+result.stdout
+result = do_run ([exrmanifest, "-h"])
+assert result.stdout.startswith ("Usage: ")
 
-result = run ([exrmanifest, "--help"], stdout=PIPE, stderr=PIPE, universal_newlines=True)
-print(" ".join(result.args))
-assert(result.returncode == 0), "\n"+result.stderr
-assert(result.stdout.startswith ("Usage: ")), "\n"+result.stdout
+result = do_run ([exrmanifest, "--help"])
+assert result.stdout.startswith ("Usage: ")
 
 # --version
-result = run ([exrmanifest, "--version"], stdout=PIPE, stderr=PIPE, universal_newlines=True)
-print(" ".join(result.args))
-assert(result.returncode == 0), "\n"+result.stderr
-assert(result.stdout.startswith ("exrmanifest")), "\n"+result.stdout
-assert(version in result.stdout), "\n"+result.stdout
+result = do_run ([exrmanifest, "--version"])
+assert result.stdout.startswith ("exrmanifest")
+assert version in result.stdout
 
 # invalid arguments
-result = run ([exrmanifest, "foo.exr", "bar.exr"], stdout=PIPE, stderr=PIPE, universal_newlines=True)
-print(" ".join(result.args))
-assert(result.returncode != 0), "\n"+result.stderr
+result = do_run ([exrmanifest, "foo.exr", "bar.exr"], True)
 
 for test_image in ["11.deep.exr", "42.deep.exr", "64.deep.exr", "multivariate.deep.exr", "objectid.deep.exr"]:
     test_file = src_dir + "/test_images/" + test_image
-    result = run ([exrmanifest, test_file], stdout=PIPE, stderr=PIPE, universal_newlines=True)
-    print(" ".join(result.args))
-    assert(result.returncode == 0), "\n"+result.stderr
+    result = do_run ([exrmanifest, test_file])
     stdout_is = result.stdout
     with open (test_file + ".txt", 'r') as file:
         stdout_should_be = file.read()

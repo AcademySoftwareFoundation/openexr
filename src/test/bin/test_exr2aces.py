@@ -4,43 +4,37 @@
 # Copyright (c) Contributors to the OpenEXR Project.
 
 import sys, os, tempfile, atexit
-from subprocess import PIPE, run
+from do_run import do_run
 
-print(f"testing exr2aces: {sys.argv}")
+print(f"testing exr2aces: {' '.join(sys.argv)}")
 
 exr2aces = sys.argv[1]
 exrinfo = sys.argv[2]
 image_dir = sys.argv[3]
 version = sys.argv[4]
 
+if not os.path.isfile(exr2aces) or not os.access(exr2aces, os.X_OK):
+    print(f"error: no such file: {exr2aces}")
+    sys.exit(1)
+
 # no args = usage message, error
-result = run ([exr2aces], stdout=PIPE, stderr=PIPE, universal_newlines=True)
-print(" ".join(result.args))
-assert(result.returncode != 0), "\n"+result.stderr
-assert(result.stderr.startswith ("Usage: ")), "\n"+result.stderr
+result = do_run ([exr2aces], True)
+assert result.stderr.startswith ("Usage: ")
 
 # -h = usage message
-result = run ([exr2aces, "-h"], stdout=PIPE, stderr=PIPE, universal_newlines=True)
-print(" ".join(result.args))
-assert(result.returncode == 0), "\n"+result.stderr
-assert(result.stdout.startswith ("Usage: ")), "\n"+result.stdout
+result = do_run ([exr2aces, "-h"])
+assert result.stdout.startswith ("Usage: ")
 
-result = run ([exr2aces, "--help"], stdout=PIPE, stderr=PIPE, universal_newlines=True)
-print(" ".join(result.args))
-assert(result.returncode == 0), "\n"+result.stderr
-assert(result.stdout.startswith ("Usage: ")), "\n"+result.stdout
+result = do_run ([exr2aces, "--help"])
+assert result.stdout.startswith ("Usage: ")
 
 # --version
-result = run ([exr2aces, "--version"], stdout=PIPE, stderr=PIPE, universal_newlines=True)
-print(" ".join(result.args))
-assert(result.returncode == 0), "\n"+result.stderr
-assert(result.stdout.startswith ("exr2aces")), "\n"+result.stdout
-assert(version in result.stdout), "\n"+result.stdout
+result = do_run ([exr2aces, "--version"])
+assert result.stdout.startswith ("exr2aces")
+assert version in result.stdout
 
 # invalid arguments
-result = run ([exr2aces, "foo.exr", "bar.exr"], stdout=PIPE, stderr=PIPE, universal_newlines=True)
-print(" ".join(result.args))
-assert(result.returncode != 0), "\n"+result.stderr
+result = do_run ([exr2aces, "foo.exr", "bar.exr"], True)
 
 def find_line(keyword, lines):
     for line in lines:
@@ -55,17 +49,13 @@ def cleanup():
     print(f"deleting {outimage}")
 atexit.register(cleanup)
 
-image = f"{image_dir}/TestImages/GrayRampsHorizontal.exr"
-result = run ([exr2aces, "-v", image, outimage], stdout=PIPE, stderr=PIPE, universal_newlines=True)
-print(" ".join(result.args))
-assert(result.returncode == 0), "\n"+result.stderr
+image = f"{image_dir}/GrayRampsHorizontal.exr"
+result = do_run ([exr2aces, "-v", image, outimage])
 
-result = run ([exrinfo, "-v", outimage], stdout=PIPE, stderr=PIPE, universal_newlines=True)
-print(" ".join(result.args))
-assert(result.returncode == 0), "\n"+result.stderr
+result = do_run ([exrinfo, "-v", outimage])
 
 # confirm the output has the proper chromaticities
-assert("chromaticities: chromaticities r[0.7347, 0.2653] g[0, 1] b[0.0001, -0.077] w[0.32168, 0.33767]" in result.stdout), "\n"+result.stdout
+assert "chromaticities: chromaticities r[0.7347, 0.2653] g[0, 1] b[0.0001, -0.077] w[0.32168, 0.33767]" in result.stdout
 
 print("success")
 

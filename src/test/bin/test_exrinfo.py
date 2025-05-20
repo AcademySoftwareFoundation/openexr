@@ -4,7 +4,7 @@
 # Copyright (c) Contributors to the OpenEXR Project.
 
 import sys, os
-from subprocess import PIPE, run
+from do_run import do_run
 
 print(f"testing exrinfo: {' '.join(sys.argv)}")
 
@@ -12,28 +12,19 @@ exrinfo = sys.argv[1]
 image_dir = sys.argv[2]
 version = sys.argv[3]
 
-result = run ([exrinfo, "-h"], stdout=PIPE, stderr=PIPE, universal_newlines=True)
-print(" ".join(result.args))
-assert(result.returncode == 0), "\n"+result.stderr
-assert(result.stdout.startswith ("Usage: ")), "\n"+result.stdout
+result = do_run ([exrinfo, "-h"])
+assert result.stdout.startswith ("Usage: ")
 
-result = run ([exrinfo, "--help"], stdout=PIPE, stderr=PIPE, universal_newlines=True)
-print(" ".join(result.args))
-assert(result.returncode == 0), "\n"+result.stderr
-assert(result.stdout.startswith ("Usage: ")), "\n"+result.stdout
+result = do_run ([exrinfo, "--help"])
+assert result.stdout.startswith ("Usage: ")
 
 # --version
-result = run ([exrinfo, "--version"], stdout=PIPE, stderr=PIPE, universal_newlines=True)
-print(" ".join(result.args))
-print(result.stdout)
-assert(result.returncode == 0), "\n"+result.stderr
-assert(result.stdout.startswith ("exrinfo")), "\n"+result.stdout
-assert(version in result.stdout), "\n"+result.stdout
+result = do_run ([exrinfo, "--version"])
+assert result.stdout.startswith ("exrinfo")
+assert version in result.stdout
 
-image = f"{image_dir}/TestImages/GrayRampsHorizontal.exr"
-result = run ([exrinfo, image, "-a", "-v"], stdout=PIPE, stderr=PIPE, universal_newlines=True)
-print(" ".join(result.args))
-assert(result.returncode == 0), "\n"+result.stderr
+image = f"{image_dir}/GrayRampsHorizontal.exr"
+result = do_run ([exrinfo, image, "-a", "-v"])
 output = result.stdout.split('\n')
 try:
     assert ('pxr24' in output[1])
@@ -46,10 +37,8 @@ except AssertionError:
 
 # test image as stdio
 with open(image, 'rb') as f:
-    data = f.read()
-result = run ([exrinfo, '-', "-a", "-v"], input=data, stdout=PIPE, stderr=PIPE)
-print(" ".join(result.args))
-assert(result.returncode == 0), "\n"+result.stderr
+    image_data = f.read()
+result = do_run ([exrinfo, '-', "-a", "-v"], data=image_data)
 output = result.stdout.decode().split('\n')
 try:
     assert ('pxr24' in output[1])
