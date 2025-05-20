@@ -65,7 +65,7 @@ jobs:
           python3 -m venv _venv
           source _venv/*/activate
           pip3 install -r ../website/requirements.txt
-          cmake .. -DBUILD_WEBSITE=ON -DCMAKE_VERBOSE_MAKEFILE=ON
+          cmake .. -DBUILD_WEBSITE=ON -DCMAKE_VERBOSE_MAKEFILE=ON -DSPHINX_OPTS=""
         working-directory: _build
         shell: bash
       - name: Build
