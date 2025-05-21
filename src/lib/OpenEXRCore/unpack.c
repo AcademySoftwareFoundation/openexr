@@ -1341,19 +1341,163 @@ generic_unpack_deep_pointers (exr_decode_pipeline_t* decode)
                      (((size_t) decc->user_line_stride) / sizeof (void*));
             pixstride = ((size_t) decc->user_pixel_stride) / sizeof (void*);
 
-            for (int x = 0; x < w; ++x)
+
+            switch (decc->data_type)
             {
-                void*   outpix = *pdata;
-                PREPARE_SAMPLES (sampbuffer, prevsamps, decode)
-
-                pdata += pixstride;
-                if (outpix)
-                {
-                    uint8_t* cdata = outpix;
-
-                    UNPACK_SAMPLES (samps)
-                }
-                srcbuffer += ((size_t) bpc) * ((size_t) samps);
+                case EXR_PIXEL_HALF:
+                    switch (decc->user_data_type)
+                    {
+                        case EXR_PIXEL_HALF: {
+                            for (int x = 0; x < w; ++x)
+                            {
+                                void*   outpix = *pdata;
+                                PREPARE_SAMPLES (sampbuffer, prevsamps, decode)
+                                pdata += pixstride;
+                                if (outpix)
+                                {
+                                    uint8_t* cdata = outpix;
+                                    UNPACK_HALF_TO_HALF_SAMPLES(samps)
+                                }
+                                srcbuffer += ((size_t) bpc) * ((size_t) samps);
+                            }
+                            break;
+                        }
+                        case EXR_PIXEL_FLOAT: {
+                            for (int x = 0; x < w; ++x)
+                            {
+                                void*   outpix = *pdata;
+                                PREPARE_SAMPLES (sampbuffer, prevsamps, decode)
+                                pdata += pixstride;
+                                if (outpix)
+                                {
+                                    uint8_t* cdata = outpix;
+                                    UNPACK_HALF_TO_FLOAT_SAMPLES(samps)
+                                }
+                                srcbuffer += ((size_t) bpc) * ((size_t) samps);
+                            }
+                            break;
+                        }
+                        case EXR_PIXEL_UINT: {
+                            for (int x = 0; x < w; ++x)
+                            {
+                                void*   outpix = *pdata;
+                                PREPARE_SAMPLES (sampbuffer, prevsamps, decode)
+                                pdata += pixstride;
+                                if (outpix)
+                                {
+                                    uint8_t* cdata = outpix;
+                                    UNPACK_HALF_TO_UINT_SAMPLES(samps)
+                                }
+                                srcbuffer += ((size_t) bpc) * ((size_t) samps);
+                            }
+                            break;
+                        }
+                        default: return EXR_ERR_INVALID_ARGUMENT;
+                    }
+                    break;
+                case EXR_PIXEL_FLOAT:
+                    switch (decc->user_data_type)
+                    {
+                        case EXR_PIXEL_HALF: {
+                            for (int x = 0; x < w; ++x)
+                            {
+                                void*   outpix = *pdata;
+                                PREPARE_SAMPLES (sampbuffer, prevsamps, decode)
+                                pdata += pixstride;
+                                if (outpix)
+                                {
+                                    uint8_t* cdata = outpix;
+                                    UNPACK_FLOAT_TO_HALF_SAMPLES(samps)
+                                }
+                                srcbuffer += ((size_t) bpc) * ((size_t) samps);
+                            }
+                            break;
+                        }
+                        case EXR_PIXEL_FLOAT: {
+                            for (int x = 0; x < w; ++x)
+                            {
+                                void*   outpix = *pdata;
+                                PREPARE_SAMPLES (sampbuffer, prevsamps, decode)
+                                pdata += pixstride;
+                                if (outpix)
+                                {
+                                    uint8_t* cdata = outpix;
+                                    UNPACK_FLOAT_TO_FLOAT_SAMPLES(samps)
+                                }
+                                srcbuffer += ((size_t) bpc) * ((size_t) samps);
+                            }
+                            break;
+                        }
+                        case EXR_PIXEL_UINT: {
+                            for (int x = 0; x < w; ++x)
+                            {
+                                void*   outpix = *pdata;
+                                PREPARE_SAMPLES (sampbuffer, prevsamps, decode)
+                                pdata += pixstride;
+                                if (outpix)
+                                {
+                                    uint8_t* cdata = outpix;
+                                    UNPACK_FLOAT_TO_UINT_SAMPLES(samps)
+                                }
+                                srcbuffer += ((size_t) bpc) * ((size_t) samps);
+                            }
+                            break;
+                        }
+                        default: return EXR_ERR_INVALID_ARGUMENT;
+                    }
+                    break;
+                case EXR_PIXEL_UINT:
+                    switch (decc->user_data_type)
+                    {
+                        case EXR_PIXEL_HALF: {
+                            for (int x = 0; x < w; ++x)
+                            {
+                                void*   outpix = *pdata;
+                                PREPARE_SAMPLES (sampbuffer, prevsamps, decode)
+                                pdata += pixstride;
+                                if (outpix)
+                                {
+                                    uint8_t* cdata = outpix;
+                                    UNPACK_UINT_TO_HALF_SAMPLES(samps)
+                                }
+                                srcbuffer += ((size_t) bpc) * ((size_t) samps);
+                            }
+                            break;
+                        }
+                        case EXR_PIXEL_FLOAT: {
+                            for (int x = 0; x < w; ++x)
+                            {
+                                void*   outpix = *pdata;
+                                PREPARE_SAMPLES (sampbuffer, prevsamps, decode)
+                                pdata += pixstride;
+                                if (outpix)
+                                {
+                                    uint8_t* cdata = outpix;
+                                    UNPACK_UINT_TO_FLOAT_SAMPLES(samps)
+                                }
+                                srcbuffer += ((size_t) bpc) * ((size_t) samps);
+                            }
+                            break;
+                        }
+                        case EXR_PIXEL_UINT: {
+                            for (int x = 0; x < w; ++x)
+                            {
+                                void*   outpix = *pdata;
+                                PREPARE_SAMPLES (sampbuffer, prevsamps, decode)
+                                pdata += pixstride;
+                                if (outpix)
+                                {
+                                    uint8_t* cdata = outpix;
+                                    UNPACK_UINT_TO_UINT_SAMPLES(samps)
+                                }
+                                srcbuffer += ((size_t) bpc) * ((size_t) samps);
+                            }
+                            break;
+                        }
+                        default: return EXR_ERR_INVALID_ARGUMENT;
+                    }
+                    break;
+                default: return EXR_ERR_INVALID_ARGUMENT;
             }
         }
         sampbuffer += w;
@@ -1410,14 +1554,126 @@ generic_unpack_deep (exr_decode_pipeline_t* decode)
 
             cdata += totsamps * ((size_t) ubpc);
 
-            for (int x = 0; x < w; ++x)
+            switch (decc->data_type)
             {
-                PREPARE_SAMPLES (sampbuffer, prevsamps, decode)
+                case EXR_PIXEL_HALF:
+                    switch (decc->user_data_type)
+                    {
+                        case EXR_PIXEL_HALF: {
+                            for (int x = 0; x < w; ++x)
+                            {
+                                PREPARE_SAMPLES (sampbuffer, prevsamps, decode)
+                                UNPACK_HALF_TO_HALF_SAMPLES(samps)
 
-                UNPACK_SAMPLES (samps)
+                                srcbuffer += ((size_t) bpc) * ((size_t) samps);
+                                if (incr_tot) totsamps += (size_t) samps;
+                            }
+                            break;
+                        }
+                        case EXR_PIXEL_FLOAT: {
+                            for (int x = 0; x < w; ++x)
+                            {
+                                PREPARE_SAMPLES (sampbuffer, prevsamps, decode)
+                                UNPACK_HALF_TO_FLOAT_SAMPLES(samps)
 
-                srcbuffer += ((size_t) bpc) * ((size_t) samps);
-                if (incr_tot) totsamps += (size_t) samps;
+                                srcbuffer += ((size_t) bpc) * ((size_t) samps);
+                                if (incr_tot) totsamps += (size_t) samps;
+                            }
+                            break;
+                        }
+                        case EXR_PIXEL_UINT: {
+                            for (int x = 0; x < w; ++x)
+                            {
+                                PREPARE_SAMPLES (sampbuffer, prevsamps, decode)
+                                UNPACK_HALF_TO_UINT_SAMPLES(samps)
+
+                                srcbuffer += ((size_t) bpc) * ((size_t) samps);
+                                if (incr_tot) totsamps += (size_t) samps;
+                            }
+                            break;
+                        }
+                        default: return EXR_ERR_INVALID_ARGUMENT;
+                    }
+                    break;
+                case EXR_PIXEL_FLOAT:
+                    switch (decc->user_data_type)
+                    {
+                        case EXR_PIXEL_HALF: {
+                            for (int x = 0; x < w; ++x)
+                            {
+                                PREPARE_SAMPLES (sampbuffer, prevsamps, decode)
+                                UNPACK_FLOAT_TO_HALF_SAMPLES(samps)
+
+                                srcbuffer += ((size_t) bpc) * ((size_t) samps);
+                                if (incr_tot) totsamps += (size_t) samps;
+                            }
+                            break;
+                        }
+                        case EXR_PIXEL_FLOAT: {
+                            for (int x = 0; x < w; ++x)
+                            {
+                                PREPARE_SAMPLES (sampbuffer, prevsamps, decode)
+                                UNPACK_FLOAT_TO_FLOAT_SAMPLES(samps)
+
+                                srcbuffer += ((size_t) bpc) * ((size_t) samps);
+                                if (incr_tot) totsamps += (size_t) samps;
+                            }
+                            break;
+                        }
+                        case EXR_PIXEL_UINT: {
+                            for (int x = 0; x < w; ++x)
+                            {
+                                PREPARE_SAMPLES (sampbuffer, prevsamps, decode)
+                                UNPACK_FLOAT_TO_UINT_SAMPLES(samps)
+
+                                srcbuffer += ((size_t) bpc) * ((size_t) samps);
+                                if (incr_tot) totsamps += (size_t) samps;
+                            }
+                            break;
+                        }
+                        default: return EXR_ERR_INVALID_ARGUMENT;
+                    }
+                    break;
+                case EXR_PIXEL_UINT:
+                    switch (decc->user_data_type)
+                    {
+                        case EXR_PIXEL_HALF: {
+                            for (int x = 0; x < w; ++x)
+                            {
+                                PREPARE_SAMPLES (sampbuffer, prevsamps, decode)
+                                UNPACK_UINT_TO_HALF_SAMPLES(samps)
+
+                                srcbuffer += ((size_t) bpc) * ((size_t) samps);
+                                if (incr_tot) totsamps += (size_t) samps;
+                            }
+                            break;
+                        }
+                        case EXR_PIXEL_FLOAT: {
+                            for (int x = 0; x < w; ++x)
+                            {
+                                PREPARE_SAMPLES (sampbuffer, prevsamps, decode)
+                                UNPACK_UINT_TO_FLOAT_SAMPLES(samps)
+
+                                srcbuffer += ((size_t) bpc) * ((size_t) samps);
+                                if (incr_tot) totsamps += (size_t) samps;
+                            }
+                            break;
+                        }
+                        case EXR_PIXEL_UINT: {
+                            for (int x = 0; x < w; ++x)
+                            {
+                                PREPARE_SAMPLES (sampbuffer, prevsamps, decode)
+                                UNPACK_UINT_TO_UINT_SAMPLES(samps)
+
+                                srcbuffer += ((size_t) bpc) * ((size_t) samps);
+                                if (incr_tot) totsamps += (size_t) samps;
+                            }
+                            break;
+                        }
+                        default: return EXR_ERR_INVALID_ARGUMENT;
+                    }
+                    break;
+                default: return EXR_ERR_INVALID_ARGUMENT;
             }
         }
         sampbuffer += w;
