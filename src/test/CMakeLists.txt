@@ -12,7 +12,8 @@ if (OPENEXR_TEST_LIBRARIES)
   add_subdirectory(OpenEXRFuzzTest)
 endif()
 
-if (OPENEXR_OSS_FUZZ_LIB_FUZZING_ENGINE)
+set(LIB_FUZZING_ENGINE $ENV{LIB_FUZZING_ENGINE})
+if (OPENEXR_BUILD_OSS_FUZZ AND LIB_FUZZING_ENGINE)
   add_subdirectory(oss-fuzz)
 endif()
 

@@ -75,7 +75,15 @@ option(OPENEXR_BUILD_EXAMPLES "Build and install OpenEXR examples" ON)
 
 option(OPENEXR_BUILD_PYTHON "Build python bindings" OFF)
 
-set(OPENEXR_OSS_FUZZ_LIB_FUZZING_ENGINE "" CACHE STRING "oss-fuzz fuzzing engine library")
+option(OPENEXR_BUILD_OSS_FUZZ "Build the oss-fuzz fuzzers" OFF)
+if (OPENEXR_BUILD_OSS_FUZZ)
+  # If building the oss-fuzz fuzzers, accept the comiler/options from
+  # the environment.
+  set(CMAKE_CXX_COMILER $ENV{CXX})
+  set(CMAKE_CXX_FLAGS $ENV{CXX_FLAGS})
+  set(CMAKE_C_COMILER $ENV{CC})
+  set(CMAKE_C_FLAGS $ENV{CC_FLAGS})
+endif()
 
 option(OPENEXR_TEST_LIBRARIES "Run library tests" ON)
 option(OPENEXR_TEST_TOOLS "Run tool tests" ON)

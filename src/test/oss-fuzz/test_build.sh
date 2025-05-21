@@ -19,9 +19,9 @@ export WORK="$(dirname $SRC)"
 export OSS_FUZZ_HOME=$WORK/oss-fuzz/projects/openexr
 export OUT=$OSS_FUZZ_HOME/_out
 
-export CXX=g++
+export CXX=clang++
 export CXX_FLAGS=""
-export CC=gcc
+export CC=clang
 export CC_FLAGS=""
 
 # stub of a fuzzing engine, just to confirm the target builds
