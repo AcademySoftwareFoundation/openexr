@@ -1082,23 +1082,16 @@ unpack_32bit (exr_decode_pipeline_t* decode)
     return EXR_ERR_SUCCESS;
 }
 
-#define UNPACK_SAMPLES(samps)                                                  \
-    switch (decc->data_type)                                                   \
-    {                                                                          \
-        case EXR_PIXEL_HALF:                                                   \
-            switch (decc->user_data_type)                                      \
-            {                                                                  \
-                case EXR_PIXEL_HALF: {                                         \
+#define UNPACK_HALF_TO_HALF_SAMPLES(samps)                                     \
                     const uint16_t* src = (const uint16_t*) srcbuffer;         \
                     for (int s = 0; s < samps; ++s)                            \
                     {                                                          \
                         *((uint16_t*) cdata) = unaligned_load16 (src);         \
                         ++src;                                                 \
                         cdata += ubpc;                                         \
-                    }                                                          \
-                    break;                                                     \
-                }                                                              \
-                case EXR_PIXEL_FLOAT: {                                        \
+                    }
+
+#define UNPACK_HALF_TO_FLOAT_SAMPLES(samps)                                    \
                     const uint16_t* src = (const uint16_t*) srcbuffer;         \
                     for (int s = 0; s < samps; ++s)                            \
                     {                                                          \
@@ -1106,10 +1099,9 @@ unpack_32bit (exr_decode_pipeline_t* decode)
                         ++src;                                                 \
                         *((float*) cdata) = half_to_float (cval);              \
                         cdata += ubpc;                                         \
-                    }                                                          \
-                    break;                                                     \
-                }                                                              \
-                case EXR_PIXEL_UINT: {                                         \
+                    }
+
+#define UNPACK_HALF_TO_UINT_SAMPLES(samps)                                     \
                     const uint16_t* src = (const uint16_t*) srcbuffer;         \
                     for (int s = 0; s < samps; ++s)                            \
                     {                                                          \
@@ -1117,7 +1109,82 @@ unpack_32bit (exr_decode_pipeline_t* decode)
                         ++src;                                                 \
                         *((uint32_t*) cdata) = half_to_uint (cval);            \
                         cdata += ubpc;                                         \
-                    }                                                          \
+                    }
+
+#define UNPACK_FLOAT_TO_HALF_SAMPLES(samps)                                    \
+                    const uint32_t* src = (const uint32_t*) srcbuffer;         \
+                    for (int s = 0; s < samps; ++s)                            \
+                    {                                                          \
+                        uint32_t fint = unaligned_load32 (src);                \
+                        ++src;                                                 \
+                        *((uint16_t*) cdata) = float_to_half_int (fint);       \
+                        cdata += ubpc;                                         \
+                    }
+
+#define UNPACK_FLOAT_TO_FLOAT_SAMPLES(samps)                                   \
+                    const uint32_t* src = (const uint32_t*) srcbuffer;         \
+                    for (int s = 0; s < samps; ++s)                            \
+                    {                                                          \
+                        *((uint32_t*) cdata) = unaligned_load32 (src);         \
+                        ++src;                                                 \
+                        cdata += ubpc;                                         \
+                    }
+
+#define UNPACK_FLOAT_TO_UINT_SAMPLES(samps)                                    \
+                    const uint32_t* src = (const uint32_t*) srcbuffer;         \
+                    for (int s = 0; s < samps; ++s)                            \
+                    {                                                          \
+                        uint32_t fint = unaligned_load32 (src);                \
+                        ++src;                                                 \
+                        *((uint32_t*) cdata) = float_to_uint_int (fint);       \
+                        cdata += ubpc;                                         \
+                    }
+
+#define UNPACK_UINT_TO_HALF_SAMPLES(samps)                                     \
+                    const uint32_t* src = (const uint32_t*) srcbuffer;         \
+                    for (int s = 0; s < samps; ++s)                            \
+                    {                                                          \
+                        uint32_t fint = unaligned_load32 (src);                \
+                        ++src;                                                 \
+                        *((uint16_t*) cdata) = uint_to_half (fint);            \
+                        cdata += ubpc;                                         \
+                    }
+
+#define UNPACK_UINT_TO_FLOAT_SAMPLES(samps)                                    \
+                    const uint32_t* src = (const uint32_t*) srcbuffer;         \
+                    for (int s = 0; s < samps; ++s)                            \
+                    {                                                          \
+                        uint32_t fint = unaligned_load32 (src);                \
+                        ++src;                                                 \
+                        *((float*) cdata) = uint_to_float (fint);              \
+                        cdata += ubpc;                                         \
+                    }
+
+#define UNPACK_UINT_TO_UINT_SAMPLES(samps)                                     \
+                    const uint32_t* src = (const uint32_t*) srcbuffer;         \
+                    for (int s = 0; s < samps; ++s)                            \
+                    {                                                          \
+                        *((uint32_t*) cdata) = unaligned_load32 (src);         \
+                        ++src;                                                 \
+                        cdata += ubpc;                                         \
+                    }
+
+#define UNPACK_SAMPLES(samps)                                                  \
+    switch (decc->data_type)                                                   \
+    {                                                                          \
+        case EXR_PIXEL_HALF:                                                   \
+            switch (decc->user_data_type)                                      \
+            {                                                                  \
+                case EXR_PIXEL_HALF: {                                         \
+                    UNPACK_HALF_TO_HALF_SAMPLES(samps)                         \
+                    break;                                                     \
+                }                                                              \
+                case EXR_PIXEL_FLOAT: {                                        \
+                    UNPACK_HALF_TO_FLOAT_SAMPLES(samps)                        \
+                    break;                                                     \
+                }                                                              \
+                case EXR_PIXEL_UINT: {                                         \
+                    UNPACK_HALF_TO_UINT_SAMPLES(samps)                         \
                     break;                                                     \
                 }                                                              \
                 default: return EXR_ERR_INVALID_ARGUMENT;                      \
@@ -1127,35 +1194,15 @@ unpack_32bit (exr_decode_pipeline_t* decode)
             switch (decc->user_data_type)                                      \
             {                                                                  \
                 case EXR_PIXEL_HALF: {                                         \
-                    const uint32_t* src = (const uint32_t*) srcbuffer;         \
-                    for (int s = 0; s < samps; ++s)                            \
-                    {                                                          \
-                        uint32_t fint = unaligned_load32 (src);                \
-                        ++src;                                                 \
-                        *((uint16_t*) cdata) = float_to_half_int (fint);       \
-                        cdata += ubpc;                                         \
-                    }                                                          \
+                    UNPACK_FLOAT_TO_HALF_SAMPLES(samps)                        \
                     break;                                                     \
                 }                                                              \
                 case EXR_PIXEL_FLOAT: {                                        \
-                    const uint32_t* src = (const uint32_t*) srcbuffer;         \
-                    for (int s = 0; s < samps; ++s)                            \
-                    {                                                          \
-                        *((uint32_t*) cdata) = unaligned_load32 (src);         \
-                        ++src;                                                 \
-                        cdata += ubpc;                                         \
-                    }                                                          \
+                    UNPACK_FLOAT_TO_FLOAT_SAMPLES(samps)                       \
                     break;                                                     \
                 }                                                              \
                 case EXR_PIXEL_UINT: {                                         \
-                    const uint32_t* src = (const uint32_t*) srcbuffer;         \
-                    for (int s = 0; s < samps; ++s)                            \
-                    {                                                          \
-                        uint32_t fint = unaligned_load32 (src);                \
-                        ++src;                                                 \
-                        *((uint32_t*) cdata) = float_to_uint_int (fint);       \
-                        cdata += ubpc;                                         \
-                    }                                                          \
+                    UNPACK_FLOAT_TO_UINT_SAMPLES(samps)                        \
                     break;                                                     \
                 }                                                              \
                 default: return EXR_ERR_INVALID_ARGUMENT;                      \
@@ -1165,35 +1212,15 @@ unpack_32bit (exr_decode_pipeline_t* decode)
             switch (decc->user_data_type)                                      \
             {                                                                  \
                 case EXR_PIXEL_HALF: {                                         \
-                    const uint32_t* src = (const uint32_t*) srcbuffer;         \
-                    for (int s = 0; s < samps; ++s)                            \
-                    {                                                          \
-                        uint32_t fint = unaligned_load32 (src);                \
-                        ++src;                                                 \
-                        *((uint16_t*) cdata) = uint_to_half (fint);            \
-                        cdata += ubpc;                                         \
-                    }                                                          \
+                    UNPACK_UINT_TO_HALF_SAMPLES(samps)                         \
                     break;                                                     \
                 }                                                              \
                 case EXR_PIXEL_FLOAT: {                                        \
-                    const uint32_t* src = (const uint32_t*) srcbuffer;         \
-                    for (int s = 0; s < samps; ++s)                            \
-                    {                                                          \
-                        uint32_t fint = unaligned_load32 (src);                \
-                        ++src;                                                 \
-                        *((float*) cdata) = uint_to_float (fint);              \
-                        cdata += ubpc;                                         \
-                    }                                                          \
+                    UNPACK_UINT_TO_FLOAT_SAMPLES(samps)                        \
                     break;                                                     \
                 }                                                              \
                 case EXR_PIXEL_UINT: {                                         \
-                    const uint32_t* src = (const uint32_t*) srcbuffer;         \
-                    for (int s = 0; s < samps; ++s)                            \
-                    {                                                          \
-                        *((uint32_t*) cdata) = unaligned_load32 (src);         \
-                        ++src;                                                 \
-                        cdata += ubpc;                                         \
-                    }                                                          \
+                    UNPACK_UINT_TO_UINT_SAMPLES(samps)                         \
                     break;                                                     \
                 }                                                              \
                 default: return EXR_ERR_INVALID_ARGUMENT;                      \
