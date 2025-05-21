@@ -79,9 +79,9 @@ option(OPENEXR_BUILD_OSS_FUZZ "Build the oss-fuzz fuzzers" OFF)
 if (OPENEXR_BUILD_OSS_FUZZ)
   # If building the oss-fuzz fuzzers, accept the comiler/options from
   # the environment.
-  set(CMAKE_CXX_COMILER $ENV{CXX})
+  set(CMAKE_CXX_COMPILER $ENV{CXX})
   set(CMAKE_CXX_FLAGS $ENV{CXX_FLAGS})
-  set(CMAKE_C_COMILER $ENV{CC})
+  set(CMAKE_C_COMPILER $ENV{CC})
   set(CMAKE_C_FLAGS $ENV{CC_FLAGS})
 endif()
 
