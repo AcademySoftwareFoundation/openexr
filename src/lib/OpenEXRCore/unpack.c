@@ -1289,6 +1289,16 @@ generic_unpack (exr_decode_pipeline_t* decode)
     return EXR_ERR_SUCCESS;
 }
 
+#define PREPARE_SAMPLES(sampbuffer, prevsamps, decode)              \
+                int32_t samps = sampbuffer[x];                      \
+                if (0 == (decode->decode_flags &                    \
+                          EXR_DECODE_SAMPLE_COUNTS_AS_INDIVIDUAL))  \
+                {                                                   \
+                    int32_t tmp = samps - prevsamps;                \
+                    prevsamps   = samps;                            \
+                    samps       = tmp;                              \
+                }
+
 static exr_result_t
 generic_unpack_deep_pointers (exr_decode_pipeline_t* decode)
 {
@@ -1334,14 +1344,7 @@ generic_unpack_deep_pointers (exr_decode_pipeline_t* decode)
             for (int x = 0; x < w; ++x)
             {
                 void*   outpix = *pdata;
-                int32_t samps  = sampbuffer[x];
-                if (0 == (decode->decode_flags &
-                          EXR_DECODE_SAMPLE_COUNTS_AS_INDIVIDUAL))
-                {
-                    int32_t tmp = samps - prevsamps;
-                    prevsamps   = samps;
-                    samps       = tmp;
-                }
+                PREPARE_SAMPLES (sampbuffer, prevsamps, decode)
 
                 pdata += pixstride;
                 if (outpix)
@@ -1409,14 +1412,7 @@ generic_unpack_deep (exr_decode_pipeline_t* decode)
 
             for (int x = 0; x < w; ++x)
             {
-                int32_t samps = sampbuffer[x];
-                if (0 == (decode->decode_flags &
-                          EXR_DECODE_SAMPLE_COUNTS_AS_INDIVIDUAL))
-                {
-                    int32_t tmp = samps - prevsamps;
-                    prevsamps   = samps;
-                    samps       = tmp;
-                }
+                PREPARE_SAMPLES (sampbuffer, prevsamps, decode)
 
                 UNPACK_SAMPLES (samps)
 
