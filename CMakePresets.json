@@ -1,0 +1,25 @@
+{
+    "version": 3,
+    "cmakeMinimumRequired": {
+    "major": 3,
+        "minor": 15,
+        "patch": 0
+    },
+    "configurePresets": [
+        {
+            "name": "oss_fuzz",
+            "generator": "Ninja",
+            "cacheVariables": {
+                "CMAKE_VERBOSE_MAKEFILE": "ON",
+                "BUILD_SHARED_LIBS": "OFF",
+                "OPENEXR_FORCE_INTERNAL_IMATH": "ON",
+                "OPENEXR_FORCE_INTERNAL_DEFLATE": "ON",
+                "OPENEXR_FORCE_INTERNAL_OPENJPH": "ON",
+                "OPENEXR_BUILD_TOOLS": "OFF",
+                "OPENEXR_BUILD_EXAMPLES": "OFF",
+                "OPENEXR_BUILD_DOCS": "OFF",
+                "OPENEXR_BUILD_OSS_FUZZ": "ON"
+            }
+        }
+    ]
+}
