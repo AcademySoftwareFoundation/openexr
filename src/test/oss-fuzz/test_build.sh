@@ -14,14 +14,15 @@
 
 set -x
 
-export SRC="$(git rev-parse --show-toplevel)"
-export WORK="$(dirname $SRC)"
+export GIT_ROOT="$(git rev-parse --show-toplevel)"
+export WORK="$(dirname $GIT_ROOT)"
+export SRC=$WORK
 export OSS_FUZZ_HOME=$WORK/oss-fuzz/projects/openexr
 export OUT=$OSS_FUZZ_HOME/_out
 
-export CXX=clang++
+export CXX=$(which g++)
 export CXX_FLAGS=""
-export CC=clang
+export CC=$(which gcc)
 export CC_FLAGS=""
 
 # stub of a fuzzing engine, just to confirm the target builds
