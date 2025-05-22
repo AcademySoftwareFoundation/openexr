@@ -8,7 +8,6 @@
     "configurePresets": [
         {
             "name": "oss_fuzz",
-            "generator": "Ninja",
             "cacheVariables": {
                 "CMAKE_VERBOSE_MAKEFILE": "ON",
                 "BUILD_SHARED_LIBS": "OFF",
