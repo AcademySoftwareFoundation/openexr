@@ -69,6 +69,7 @@ expand_template(
     name = "OpenEXRConfigInternal",
     out = "src/lib/OpenEXR/OpenEXRConfigInternal.h",
     substitutions = {
+        "#cmakedefine OPENEXR_USE_INTERNAL_DEFLATE 1": "#define OPENEXR_USE_INTERNAL_DEFLATE 0",
         "#cmakedefine OPENEXR_IMF_HAVE_COMPLETE_IOMANIP 1": "#define OPENEXR_IMF_HAVE_COMPLETE_IOMANIP 1",
         "#cmakedefine OPENEXR_IMF_HAVE_DARWIN 1": "/* #undef OPENEXR_IMF_HAVE_DARWIN */",
         "#cmakedefine OPENEXR_IMF_HAVE_GCC_INLINE_ASM_AVX 1": "/* #undef OPENEXR_IMF_HAVE_GCC_INLINE_ASM_AVX */",
