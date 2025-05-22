@@ -67,4 +67,11 @@ for image in test_images:
                   for x in ['file','pixels','compression','part type','total raw size']:
                      assert x in data[0]
 
+# test -p 0 with multipart file
+multipart = f"{image_dir}/Beachball/multipart.0001.exr"
+result = run ([exrmetrics, multipart, "-p", "0", "-z","zip"], stdout=PIPE, stderr=PIPE, universal_newlines=True)
+assert(result.returncode == 0), "\n"+result.stderr
+data = json.loads(result.stdout)
+assert(len(data)==1),"\n Unexpected list size in JSON object"
+
 print("success")
