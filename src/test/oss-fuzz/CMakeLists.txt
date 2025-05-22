@@ -16,6 +16,13 @@
 #
 
 message(STATUS "Configuring oss_fuzz with $ENV{LIB_FUZZING_ENGINE}")
+message(STATUS "SRC=$ENV{SRC}")
+message(STATUS "WORK=$ENV{WORK}")
+message(STATUS "OUT=$ENV{OUT}")
+message(status "CXX=$ENV{CXX}")
+message(status "CXX_FLAGS=$ENV{CXX_FLAGS}")
+message(status "CC=$ENV{CC}")
+message(status "CC_FLAGS=$ENV{CC_FLAGS}")
 
 set(OPENEXR_FUZZERS openexr_exrcheck_fuzzer openexr_exrcorecheck_fuzzer)
 add_custom_target(oss_fuzz ALL
