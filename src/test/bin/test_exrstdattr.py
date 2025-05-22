@@ -17,6 +17,9 @@ assert(os.path.isfile(exrstdattr)), "\nMissing " + exrstdattr
 assert(os.path.isfile(exrinfo)), "\nMissing " + exrinfo
 assert(os.path.isdir(image_dir)), "\nMissing " + image_dir
 
+test_images = {}
+test_images["GrayRampsHorizontal"] = f"{image_dir}/GrayRampsHorizontal.exr"
+
 fd, outimage = tempfile.mkstemp(".exr")
 os.close(fd)
 
@@ -82,8 +85,7 @@ for a in attrs:
 command = [exrstdattr]
 for a in attrs:
     command += a 
-image = f"{image_dir}/GrayRampsHorizontal.exr"
-command += [image, outimage]
+command += [test_images["GrayRampsHorizontal"], outimage]
 
 result = do_run (command)
 assert os.path.isfile(outimage)

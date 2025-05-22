@@ -13,6 +13,9 @@ exrinfo = sys.argv[2]
 image_dir = sys.argv[3]
 version = sys.argv[4]
 
+left_image = f"{image_dir}/GammaChart.exr"
+right_image = f"{image_dir}/GrayRampsHorizontal.exr"
+
 result = do_run  ([exrmultiview], True)
 assert "Usage:" in result.stderr
 
@@ -27,9 +30,6 @@ assert result.stdout.startswith ("Usage: ")
 result = do_run  ([exrmultiview, "--version"])
 assert result.stdout.startswith ("exrmultiview")
 assert version in result.stdout
-
-left_image = f"{image_dir}/GammaChart.exr"
-right_image = f"{image_dir}/GrayRampsHorizontal.exr"
 
 fd, outimage = tempfile.mkstemp(".exr")
 os.close(fd)

@@ -13,6 +13,9 @@ exrinfo = sys.argv[2]
 image_dir = sys.argv[3]
 version = sys.argv[4]
 
+test_images = {}
+test_images["GrayRampsHorizontal"] = f"{image_dir}/GrayRampsHorizontal.exr"
+
 if not os.path.isfile(exr2aces) or not os.access(exr2aces, os.X_OK):
     print(f"error: no such file: {exr2aces}")
     sys.exit(1)
@@ -49,8 +52,7 @@ def cleanup():
     print(f"deleting {outimage}")
 atexit.register(cleanup)
 
-image = f"{image_dir}/GrayRampsHorizontal.exr"
-result = do_run ([exr2aces, "-v", image, outimage])
+result = do_run ([exr2aces, "-v", test_images["GrayRampsHorizontal"], outimage])
 
 result = do_run ([exrinfo, "-v", outimage])
 

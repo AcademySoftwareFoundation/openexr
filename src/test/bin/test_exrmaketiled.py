@@ -13,12 +13,13 @@ exrinfo = sys.argv[2]
 image_dir = sys.argv[3]
 version = sys.argv[4]
 
-image = f"{image_dir}/GammaChart.exr"
+test_images = {}
+test_images["GammaChart"] = f"{image_dir}/GammaChart.exr"
 
 assert(os.path.isfile(exrmaketiled)), "\nMissing " + exrmaketiled
 assert(os.path.isfile(exrinfo)), "\nMissing " + exrinfo
 assert(os.path.isdir(image_dir)), "\nMissing " + image_dir
-assert(os.path.isfile(image)), "\nMissing " + image
+assert(os.path.isfile(test_images["GammaChart"])), "\nMissing " + image
 
 fd, outimage = tempfile.mkstemp(".exr")
 os.close(fd)
@@ -43,7 +44,7 @@ result = do_run ([exrmaketiled, "--version"])
 assert result.stdout.startswith ("exrmaketiled")
 assert version in result.stdout
 
-result = do_run ([exrmaketiled, image, outimage])
+result = do_run ([exrmaketiled, test_images["GammaChart"], outimage])
 assert os.path.isfile(outimage)
 
 result = do_run ([exrinfo, "-v", outimage])

@@ -12,6 +12,9 @@ exrheader = sys.argv[1]
 image_dir = sys.argv[2]
 version = sys.argv[3]
 
+test_images = {}
+test_images["GrayRampsHorizontal"] = f"{image_dir}/GrayRampsHorizontal.exr"
+
 # no args = usage message
 result = do_run ([exrheader], True)
 assert result.stderr.startswith ("Usage: ")
@@ -39,8 +42,7 @@ def find_line(keyword, lines):
     return None
 
 # attributes
-image = f"{image_dir}/GrayRampsHorizontal.exr"
-result = do_run ([exrheader, image])
+result = do_run ([exrheader, test_images["GrayRampsHorizontal"]])
 
 output = result.stdout.split('\n')
 try:

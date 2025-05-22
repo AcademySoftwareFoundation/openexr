@@ -13,6 +13,9 @@ exrinfo = sys.argv[2]
 image_dir = sys.argv[3]
 version = sys.argv[4]
 
+test_images = {}
+test_images["GrayRampsHorizontal"] = f"{image_dir}/GrayRampsHorizontal.exr"
+
 assert(os.path.isfile(exrmakepreview)), "\nMissing " + exrmakepreview
 assert(os.path.isfile(exrinfo)), "\nMissing " + exrinfo
 assert(os.path.isdir(image_dir)), "\nMissing " + image_dir
@@ -33,7 +36,6 @@ result = do_run ([exrmakepreview, "--version"])
 assert result.stdout.startswith ("exrmakepreview")
 assert version in result.stdout
 
-
 def find_line(keyword, lines):
     for line in lines:
         if line.startswith(keyword):
@@ -47,8 +49,7 @@ def cleanup():
     print(f"deleting {outimage}")
 atexit.register(cleanup)
 
-image = f"{image_dir}/GrayRampsHorizontal.exr"
-result = do_run ([exrmakepreview, "-w", "50", "-e", "1", "-v", image, outimage])
+result = do_run ([exrmakepreview, "-w", "50", "-e", "1", "-v", test_images["GrayRampsHorizontal"], outimage])
 
 result = do_run ([exrinfo, "-v", outimage])
 output = result.stdout.split('\n')

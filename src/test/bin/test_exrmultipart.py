@@ -13,6 +13,10 @@ exrinfo = sys.argv[2]
 image_dir = sys.argv[3]
 version = sys.argv[4]
 
+test_images = {}
+test_images["multipart"] = f"{image_dir}/multipart.0001.exr"
+test_images["singlepart"] = f"{image_dir}/GammaChart.exr"
+
 result = do_run  ([exrmultipart], True)
 assert "Usage:" in result.stderr
 
@@ -28,8 +32,6 @@ result = do_run  ([exrmultipart, "--version"])
 assert result.stdout.startswith ("exrmultipart")
 assert version in result.stdout
 
-image = f"{image_dir}/multipart.0001.exr"
-
 fd, outimage = tempfile.mkstemp(".exr")
 os.close(fd)
 
@@ -39,23 +41,22 @@ def cleanup():
 atexit.register(cleanup)
 
 # combine
-result = do_run ([exrmultipart, "-combine", "-i", f"{image}:0", f"{image}:1", "-o", outimage])
+result = do_run ([exrmultipart, "-combine", "-i", f"{test_images['multipart']}:0", f"{test_images['multipart']}:1", "-o", outimage])
 
 result = do_run ([exrinfo, outimage])
 
 # error: can't convert multipart images
-result = do_run ([exrmultipart, "-convert", "-i", image, "-o", outimage], True)
+result = do_run ([exrmultipart, "-convert", "-i", test_images["multipart"], "-o", outimage], True)
 
 # convert
-singlepart_image = f"{image_dir}/GammaChart.exr"
-result = do_run ([exrmultipart, "-convert", "-i", singlepart_image, "-o", outimage])
+result = do_run ([exrmultipart, "-convert", "-i", test_images["singlepart"], "-o", outimage])
 
 result = do_run  ([exrinfo, outimage])
 
 # separate
 
 # get part names from the multipart image
-result = do_run  ([exrinfo, image])
+result = do_run  ([exrinfo, test_images["multipart"]])
 part_names = {}
 for p in result.stdout.split('\n part ')[1:]:
     output = p.split('\n')
@@ -64,7 +65,7 @@ for p in result.stdout.split('\n part ')[1:]:
 
 with tempfile.TemporaryDirectory() as tempdir:
 
-    result = do_run ([exrmultipart, "-separate", "-i", image, "-o", f"{tempdir}/separate"])
+    result = do_run ([exrmultipart, "-separate", "-i", test_images["multipart"], "-o", f"{tempdir}/separate"])
 
     for i in range(1, 10):
         s = f"{tempdir}/separate.{i}.exr"

@@ -15,6 +15,11 @@ version = sys.argv[4]
 assert(os.path.isfile(exrmetrics)), "\nMissing " + exrmetrics
 assert(os.path.isdir(image_dir)), "\nMissing " + image_dir
 
+test_images = {}
+test_images["GrayRampsHorizontal"] = f"{image_dir}/GrayRampsHorizontal.exr"
+test_images["multipart"] = f"{image_dir}/multipart.0001.exr"
+test_images["Flowers"] = f"{image_dir}/Flowers.exr"
+
 fd, outimage = tempfile.mkstemp(".exr")
 os.close(fd)
 
@@ -44,12 +49,12 @@ for a in ["-p","-l","-16","-z","-t","-i","--passes","-o","--pixelmode","--time"]
     result = do_run  ([exrmetrics, a], True)
     assert "Missing" in result.stderr
 
-for image in [f"{image_dir}/GrayRampsHorizontal.exr",f"{image_dir}/multipart.0001.exr",f"{image_dir}/Flowers.exr"]:
+for image in test_images:
     for time in ["none","read","write","reread","read,write","read,reread","read,write,reread"]:
         for passes in ["1","2"]:
             for nosize in range(0,2):
               command = [exrmetrics]
-              command += ["-i",image, "--passes",passes,"--time",time,"-o",outimage]
+              command += ["-i",test_images[image], "--passes",passes,"--time",time,"-o",outimage]
               if nosize:
                   command += ['--no-size']
               result = do_run (command)

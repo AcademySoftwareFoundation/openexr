@@ -12,6 +12,9 @@ exrinfo = sys.argv[1]
 image_dir = sys.argv[2]
 version = sys.argv[3]
 
+test_images = {}
+test_images["GrayRampsHorizontal"] = f"{image_dir}/GrayRampsHorizontal.exr"
+
 result = do_run ([exrinfo, "-h"])
 assert result.stdout.startswith ("Usage: ")
 
@@ -23,8 +26,7 @@ result = do_run ([exrinfo, "--version"])
 assert result.stdout.startswith ("exrinfo")
 assert version in result.stdout
 
-image = f"{image_dir}/GrayRampsHorizontal.exr"
-result = do_run ([exrinfo, image, "-a", "-v"])
+result = do_run ([exrinfo, test_images["GrayRampsHorizontal"], "-a", "-v"])
 output = result.stdout.split('\n')
 try:
     assert ('pxr24' in output[1])
@@ -36,7 +38,7 @@ except AssertionError:
     raise
 
 # test image as stdio
-with open(image, 'rb') as f:
+with open(test_images["GrayRampsHorizontal"], 'rb') as f:
     image_data = f.read()
 result = do_run ([exrinfo, '-', "-a", "-v"], data=image_data)
 output = result.stdout.decode().split('\n')

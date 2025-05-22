@@ -17,11 +17,13 @@ if(BUILD_TESTING)
            COMMAND ${Python3_EXECUTABLE}
            ${CMAKE_CURRENT_SOURCE_DIR}/test_exrinfo.py
            $<TARGET_FILE:exrinfo> ${TEST_IMAGE_DIR} ${OPENEXR_VERSION})
+  set_tests_properties(OpenEXR.bin.exrinfo PROPERTIES LABELS "OpenEXR.bin")
 
   add_test(NAME OpenEXR.bin.exrheader
            COMMAND ${Python3_EXECUTABLE}
            ${CMAKE_CURRENT_SOURCE_DIR}/test_exrheader.py
            $<TARGET_FILE:exrheader> ${TEST_IMAGE_DIR} ${OPENEXR_VERSION})
+  set_tests_properties(OpenEXR.bin.exrheader PROPERTIES LABELS "OpenEXR.bin")
 
   set(tests
       exr2aces
@@ -41,6 +43,7 @@ if(BUILD_TESTING)
            ${CMAKE_CURRENT_SOURCE_DIR}/test_${test}.py
            $<TARGET_FILE:${test}> $<TARGET_FILE:exrinfo>
            ${TEST_IMAGE_DIR} ${OPENEXR_VERSION})
+    set_tests_properties(OpenEXR.bin.${test} PROPERTIES LABELS "OpenEXR.bin")
   endforeach()
 
   # run exrcheck on test images
@@ -57,6 +60,7 @@ if(BUILD_TESTING)
            ${CMAKE_CURRENT_SOURCE_DIR}/test_exrcheck.py
            $<TARGET_FILE:exrcheck>
            ${images})
+  set_tests_properties(OpenEXR.bin.exrcheck PROPERTIES LABELS "OpenEXR.bin")
 
 endif()
 
