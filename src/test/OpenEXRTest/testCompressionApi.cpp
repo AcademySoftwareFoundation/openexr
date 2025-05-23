@@ -28,7 +28,7 @@ testCompressionApi (const string& tempDir)
         cout << "Testing compression API functions." << endl;
 
         // update this if you add a new compressor.
-        string codecList = "none/rle/zips/zip/piz/pxr24/b44/b44a/dwaa/dwab/ht256";
+        string codecList = "none/rle/zips/zip/piz/pxr24/b44/b44a/dwaa/dwab/htj2k";
 
         int numMethods = static_cast<int> (NUM_COMPRESSION_METHODS);
         // update this if you add a new compressor.
