@@ -51,6 +51,8 @@ on:
         type: string
       OPENEXR_FORCE_INTERNAL_OPENJPH:
         type: string
+      CMAKE_OSX_ARCHITECTURES:
+        type: string
       BUILD_TESTING:
         type: string
       namespace:
@@ -167,6 +169,9 @@ jobs:
           if [ "${{ inputs.msystem }}" == "MINGW32" ]; then
             cmake_args+=("-DCMAKE_C_FLAGS=-msse2 -mfpmath=sse")
             cmake_args+=("-DCMAKE_CXX_FLAGS=-msse2 -mfpmath=sse")
+          fi
+          if [ -n "${{ inputs.CMAKE_OSX_ARCHITECTURES }}" ]; then
+              cmake_args+=("CMAKE_OSX_ARCHITECTURES='${{ inputs.CMAKE_OSX_ARCHITECTURES }}'")
           fi
 
           quoted_args=$(printf '%q ' "${cmake_args[@]}")

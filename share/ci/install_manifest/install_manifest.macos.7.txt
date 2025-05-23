@@ -1,4 +1,4 @@
-# cmake -B . -S ..       -DCMAKE_INSTALL_PREFIX=../_install       -DCMAKE_BUILD_TYPE=Release       -DOPENEXR_CXX_STANDARD=17       -DBUILD_SHARED_LIBS=ON       -DOPENEXR_ENABLE_THREADING=ON       -DOPENEXR_INSTALL_PKG_CONFIG=ON       -DOPENEXR_INSTALL_DOCS=ON       -DOPENEXR_BUILD_EXAMPLES=ON       -DOPENEXR_BUILD_TOOLS=ON       -DOPENEXR_FORCE_INTERNAL_IMATH=OFF       -DOPENEXR_FORCE_INTERNAL_DEFLATE=OFF       -DBUILD_TESTING=ON       -DOPENEXR_RUN_FUZZ_TESTS='OFF'       -DCMAKE_VERBOSE_MAKEFILE='ON'
+# cmake -B . -S .. -DCMAKE_INSTALL_PREFIX=../_install -DCMAKE_BUILD_TYPE=Release -DOPENEXR_CXX_STANDARD=17 -DBUILD_SHARED_LIBS=ON -DOPENEXR_ENABLE_THREADING=ON -DOPENEXR_INSTALL_PKG_CONFIG=ON -DOPENEXR_INSTALL_DOCS=ON -DOPENEXR_BUILD_EXAMPLES=ON -DOPENEXR_BUILD_TOOLS=ON -DOPENEXR_FORCE_INTERNAL_IMATH=OFF -DOPENEXR_FORCE_INTERNAL_DEFLATE=OFF -DOPENEXR_FORCE_INTERNAL_OPENJPH=OFF -DBUILD_TESTING=ON -DOPENEXR_RUN_FUZZ_TESTS=OFF -DCMAKE_VERBOSE_MAKEFILE=ON CMAKE_OSX_ARCHITECTURES=\'x86_64\;arm64\' 
 bin/exr2aces
 bin/exrenvmap
 bin/exrheader
@@ -79,6 +79,7 @@ include/OpenEXR/ImfFrameBuffer.h
 include/OpenEXR/ImfFramesPerSecond.h
 include/OpenEXR/ImfGenericInputFile.h
 include/OpenEXR/ImfGenericOutputFile.h
+include/OpenEXR/ImfHTCompressor.h
 include/OpenEXR/ImfHeader.h
 include/OpenEXR/ImfHuf.h
 include/OpenEXR/ImfIDManifest.h
@@ -156,7 +157,6 @@ include/OpenEXR/openexr_errors.h
 include/OpenEXR/openexr_part.h
 include/OpenEXR/openexr_std_attr.h
 include/OpenEXR/openexr_version.h
-include/OpenEXR/ImfHTCompressor.h
 lib/cmake/OpenEXR/OpenEXRConfig.cmake
 lib/cmake/OpenEXR/OpenEXRConfigVersion.cmake
 lib/cmake/OpenEXR/OpenEXRTargets-release.cmake
@@ -182,10 +182,6 @@ lib/libOpenEXRUtil-$MAJOR_$MINOR.$SOVERSION.dylib
 lib/libOpenEXRUtil-$MAJOR_$MINOR.dylib
 lib/libOpenEXRUtil.dylib
 lib/pkgconfig/OpenEXR.pc
-lib/libopenjph.0.21.2.dylib
-lib/libopenjph.0.21.dylib
-lib/libopenjph.dylib
-lib/pkgconfig/openjph.pc
 share/doc/OpenEXR/examples/deepExamples.cpp
 share/doc/OpenEXR/examples/deepExamples.h
 share/doc/OpenEXR/examples/deepTiledExamples.cpp
