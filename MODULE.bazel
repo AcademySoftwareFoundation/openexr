@@ -8,6 +8,7 @@ module(
 
 bazel_dep(name = "bazel_skylib", version = "1.7.1")
 bazel_dep(name = "imath")
+bazel_dep(name = "openjph")
 bazel_dep(name = "libdeflate")
 bazel_dep(name = "platforms", version = "0.0.11")
 bazel_dep(name = "rules_cc", version = "0.1.1")
@@ -30,4 +31,14 @@ archive_override(
     ],
     strip_prefix = "libdeflate-master",
     urls = ["https://github.com/ebiggers/libdeflate/archive/refs/heads/master.zip"],
+)
+
+archive_override(
+    module_name = "openjph",
+    patches = [
+        "//bazel:openjph_add_build_file.patch",
+        "//bazel:openjph_module_dot_bazel.patch",
+    ],
+    strip_prefix = "OpenJPH-0.21.2",
+    urls = ["https://github.com/aous72/OpenJPH/archive/refs/tags/0.21.2.zip"],
 )

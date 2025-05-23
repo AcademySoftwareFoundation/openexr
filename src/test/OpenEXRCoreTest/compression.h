@@ -22,6 +22,7 @@ void testB44Compression (const std::string& tempdir);
 void testB44ACompression (const std::string& tempdir);
 void testDWAACompression (const std::string& tempdir);
 void testDWABCompression (const std::string& tempdir);
+void testHTChannelMap (const std::string& tempdir);
 
 void testDeepNoCompression (const std::string& tempdir);
 void testDeepZIPCompression (const std::string& tempdir);
