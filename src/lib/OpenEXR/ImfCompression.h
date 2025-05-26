@@ -90,6 +90,9 @@ IMF_EXPORT void setDefaultZipCompressionLevel (int level);
 /// Controls the default quality level for the DWA lossy compression
 IMF_EXPORT void setDefaultDwaCompressionLevel (float level);
 
+/// Controls the default quality level for the HTJ2K lossy compression
+IMF_EXPORT void setDefaultHtj2kCompressionLevel (float level);
+
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
 #endif
