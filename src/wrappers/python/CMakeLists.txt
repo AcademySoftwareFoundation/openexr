@@ -20,7 +20,10 @@ target_link_libraries (PyOpenEXR PRIVATE "${Python_LIBRARIES}" OpenEXR::OpenEXR 
 # but "OpenEXR" is taken as a library name by the main lib, so specify
 # the name explicitly here.
 
-set_target_properties (PyOpenEXR PROPERTIES OUTPUT_NAME "OpenEXR")
+set_target_properties (PyOpenEXR PROPERTIES
+    OUTPUT_NAME "OpenEXR"
+    POSITION_INDEPENDENT_CODE ON
+)
 
 configure_file(Imath.py ${CMAKE_CURRENT_BINARY_DIR}/Imath.py COPYONLY)
 

@@ -228,6 +228,7 @@ int exr_compression_lines_per_chunk (exr_compression_t comptype)
         case EXR_COMPRESSION_DWAA: linePerChunk = 32; break;
         case EXR_COMPRESSION_DWAB: linePerChunk = 256; break;
         case EXR_COMPRESSION_ZSTD: linePerChunk = 1; break;
+        case EXR_COMPRESSION_HT256: linePerChunk = 256; break;
         case EXR_COMPRESSION_LAST_TYPE:
         default:
             /* ERROR CONDITION */
@@ -362,6 +363,8 @@ exr_compress_chunk (exr_encode_pipeline_t* encode)
         case EXR_COMPRESSION_DWAA: rv = internal_exr_apply_dwaa (encode); break;
         case EXR_COMPRESSION_DWAB: rv = internal_exr_apply_dwab (encode); break;
         case EXR_COMPRESSION_ZSTD: rv = internal_exr_apply_zstd (encode); break;
+        case EXR_COMPRESSION_HT256:
+            rv = internal_exr_apply_ht (encode); break;
         case EXR_COMPRESSION_LAST_TYPE:
         default:
             return ctxt->print_error (
@@ -436,6 +439,10 @@ decompress_data (
             break;
         case EXR_COMPRESSION_DWAB:
             rv = internal_exr_undo_dwab (
+                decode, packbufptr, packsz, unpackbufptr, unpacksz);
+            break;
+        case EXR_COMPRESSION_HT256:
+            rv = internal_exr_undo_ht (
                 decode, packbufptr, packsz, unpackbufptr, unpacksz);
             break;
         case EXR_COMPRESSION_ZSTD:

@@ -151,6 +151,7 @@ Basic Attributes
            <li> <tt> B44A_COMPRESSION </tt> - lossy 4-by-4 pixel block compression, flat fields are compressed more </li>
            <li> <tt> DWAA_COMPRESSION </tt> - lossy DCT based compression, in blocks of 32 scanlines. More efficient for partial buffer access. </li>
            <li> <tt> DWAB_COMPRESSION </tt> - lossy DCT based compression, in blocks of 256 scanlines. More efficient space wise and faster to decode full frames than <tt>DWAA_COMPRESSION</tt>. </li>
+           <li> <tt> HT256_COMPRESSION </tt> - JPEG 2000 lossless coding, in blocks of 256 scanlines and using the High-Throughput (HT) blocker. Offers both speed and high-coding efficiency. </li>
          </ul>
        </p>
      </td>

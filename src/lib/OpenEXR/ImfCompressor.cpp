@@ -23,6 +23,7 @@
 
 #include <algorithm>
 #include <stdexcept>
+#include "ImfHTCompressor.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
@@ -343,8 +344,11 @@ newCompressor (Compression c, size_t maxScanLineSize, const Header& hdr)
                 DwaCompressor::STATIC_HUFFMAN);
             break;
 
-        case ZSTD_COMPRESSION:
+        case HT256_COMPRESSION:
 
+            return new HTCompressor (hdr, static_cast<int> (maxScanLineSize), 256);
+
+        case ZSTD_COMPRESSION:
             ret = new ZstdCompressor (hdr, maxScanLineSize, 1);
             break;
 

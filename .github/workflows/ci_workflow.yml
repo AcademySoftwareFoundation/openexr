@@ -78,6 +78,7 @@ jobs:
       OPENEXR_BUILD_TOOLS: ${{ matrix.OPENEXR_BUILD_TOOLS || 'ON' }}
       OPENEXR_FORCE_INTERNAL_IMATH: ${{ matrix.OPENEXR_FORCE_INTERNAL_IMATH || 'OFF' }}
       OPENEXR_FORCE_INTERNAL_DEFLATE: ${{ matrix.OPENEXR_FORCE_INTERNAL_DEFLATE || 'OFF' }}
+      OPENEXR_FORCE_INTERNAL_OPENJPH: ${{ matrix.OPENEXR_FORCE_INTERNAL_OPENJPH || 'OFF' }}
       BUILD_TESTING: ${{ matrix.BUILD_TESTING || 'ON' }}
       namespace: ${{ matrix.namespace }}
       validate_install: ${{ matrix.validate_install || 'ON' }}
@@ -110,6 +111,7 @@ jobs:
             OPENEXR_BUILD_TOOLS: 'OFF'
             OPENEXR_FORCE_INTERNAL_IMATH: 'ON'
             OPENEXR_FORCE_INTERNAL_DEFLATE: 'ON'
+            OPENEXR_FORCE_INTERNAL_OPENJPH: 'ON'
             BUILD_TESTING: 'OFF'
 
           - build: 6
@@ -144,6 +146,7 @@ jobs:
       OPENEXR_BUILD_TOOLS: ${{ matrix.OPENEXR_BUILD_TOOLS || 'ON' }}
       OPENEXR_FORCE_INTERNAL_IMATH: ${{ matrix.OPENEXR_FORCE_INTERNAL_IMATH || 'OFF' }}
       OPENEXR_FORCE_INTERNAL_DEFLATE: ${{ matrix.OPENEXR_FORCE_INTERNAL_DEFLATE || 'OFF' }}
+      OPENEXR_FORCE_INTERNAL_OPENJPH: ${{ matrix.OPENEXR_FORCE_INTERNAL_OPENJPH || 'OFF' }}
       BUILD_TESTING: ${{ matrix.BUILD_TESTING || 'ON' }}
       validate_install: ${{ matrix.validate_install || 'ON' }}
 
@@ -175,6 +178,7 @@ jobs:
             OPENEXR_BUILD_TOOLS: 'OFF'
             OPENEXR_FORCE_INTERNAL_IMATH: 'ON'
             OPENEXR_FORCE_INTERNAL_DEFLATE: 'ON'
+            OPENEXR_FORCE_INTERNAL_OPENJPH: 'ON'
             BUILD_TESTING: 'OFF'
 
           - build: 6
@@ -200,6 +204,7 @@ jobs:
       OPENEXR_BUILD_TOOLS: ${{ matrix.OPENEXR_BUILD_TOOLS || 'ON' }}
       OPENEXR_FORCE_INTERNAL_IMATH: ${{ matrix.OPENEXR_FORCE_INTERNAL_IMATH || 'OFF' }}
       OPENEXR_FORCE_INTERNAL_DEFLATE: ${{ matrix.OPENEXR_FORCE_INTERNAL_DEFLATE || 'OFF' }}
+      OPENEXR_FORCE_INTERNAL_OPENJPH: ${{ matrix.OPENEXR_FORCE_INTERNAL_OPENJPH || 'OFF' }}
       msystem: ${{ matrix.msystem }}
       BUILD_TESTING: ${{ matrix.BUILD_TESTING || 'ON' }}
       validate_install: ${{ matrix.validate_install || 'ON' }}
@@ -232,6 +237,7 @@ jobs:
             OPENEXR_BUILD_TOOLS: 'OFF'
             OPENEXR_FORCE_INTERNAL_IMATH: 'ON'
             OPENEXR_FORCE_INTERNAL_DEFLATE: 'ON'
+            OPENEXR_FORCE_INTERNAL_OPENJPH: 'ON'
             BUILD_TESTING: 'OFF'
 
           - build: 6

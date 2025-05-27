@@ -8,11 +8,7 @@ HELP2MAN_VERSION="1.49.3"
 HELP2MAN_URL="https://ftp.gnu.org/gnu/help2man/help2man-$HELP2MAN_VERSION.tar.xz"
 HELP2MAN_DIR="help2man-$HELP2MAN_VERSION"
 
-if [[ $OSTYPE == *msys* ]]; then
-    SUDO=""
-else
-    SUDO="sudo"
-fi
+SUDO=$(command -v sudo >/dev/null 2>&1 && echo sudo || echo "")
 
 # Download help2man source code
 echo "Downloading help2man version $HELP2MAN_VERSION..."

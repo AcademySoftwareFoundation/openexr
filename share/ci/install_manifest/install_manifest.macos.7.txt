@@ -156,6 +156,7 @@ include/OpenEXR/openexr_errors.h
 include/OpenEXR/openexr_part.h
 include/OpenEXR/openexr_std_attr.h
 include/OpenEXR/openexr_version.h
+include/OpenEXR/ImfHTCompressor.h
 lib/cmake/OpenEXR/OpenEXRConfig.cmake
 lib/cmake/OpenEXR/OpenEXRConfigVersion.cmake
 lib/cmake/OpenEXR/OpenEXRTargets-release.cmake
@@ -181,6 +182,10 @@ lib/libOpenEXRUtil-$MAJOR_$MINOR.$SOVERSION.dylib
 lib/libOpenEXRUtil-$MAJOR_$MINOR.dylib
 lib/libOpenEXRUtil.dylib
 lib/pkgconfig/OpenEXR.pc
+lib/libopenjph.0.21.2.dylib
+lib/libopenjph.0.21.dylib
+lib/libopenjph.dylib
+lib/pkgconfig/openjph.pc
 share/doc/OpenEXR/examples/deepExamples.cpp
 share/doc/OpenEXR/examples/deepExamples.h
 share/doc/OpenEXR/examples/deepTiledExamples.cpp

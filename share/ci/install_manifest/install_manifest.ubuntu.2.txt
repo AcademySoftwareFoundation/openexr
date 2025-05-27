@@ -156,6 +156,7 @@ include/OpenEXR/openexr_errors.h
 include/OpenEXR/openexr_part.h
 include/OpenEXR/openexr_std_attr.h
 include/OpenEXR/openexr_version.h
+include/OpenEXR/ImfHTCompressor.h
 lib64/cmake/OpenEXR/OpenEXRConfig.cmake
 lib64/cmake/OpenEXR/OpenEXRConfigVersion.cmake
 lib64/cmake/OpenEXR/OpenEXRTargets-debug.cmake

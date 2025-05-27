@@ -73,6 +73,19 @@ exr_result_t internal_exr_undo_dwab (
     void*                  uncompressed_data,
     uint64_t               uncompressed_size);
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+exr_result_t internal_exr_undo_ht (
+    exr_decode_pipeline_t* decode,
+    const void*            compressed_data,
+    uint64_t               comp_buf_size,
+    void*                  uncompressed_data,
+    uint64_t               uncompressed_size);
+#ifdef __cplusplus
+}
+#endif
+
 exr_result_t internal_exr_undo_zstd (
     exr_decode_pipeline_t* decode,
     const void*            compressed_data,

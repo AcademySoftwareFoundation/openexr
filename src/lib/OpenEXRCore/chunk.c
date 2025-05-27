@@ -466,6 +466,7 @@ reconstruct_chunk_table (
     if (!curctable) return EXR_ERR_OUT_OF_MEMORY;
 
     memset (curctable, 0, chunkbytes);
+
     for (int ci = 0; ci < part->chunk_count; ++ci)
     {
         if (chunktable[ci] >= offset_start && chunktable[ci] < max_offset)
@@ -492,7 +493,17 @@ reconstruct_chunk_table (
         }
     }
     if (firstfailrv == EXR_ERR_SUCCESS)
+    {
         memcpy (chunktable, curctable, chunkbytes);
+    }
+    else
+    {
+        for (int ci = 0; ci < part->chunk_count; ++ci)
+        {
+            if ( curctable[ci] != 0 )
+                chunktable[ci] = curctable[ci];
+        }
+    }
     ctxt->free_fn (curctable);
 
     return firstfailrv;

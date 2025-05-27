@@ -69,6 +69,7 @@ openexr_define_library(OpenEXR
     ImfGenericInputFile.cpp
     ImfGenericOutputFile.cpp
     ImfHeader.cpp
+    ImfHTCompressor.cpp
     ImfHuf.cpp
     ImfIDManifest.cpp
     ImfIDManifestAttribute.cpp
@@ -166,6 +167,7 @@ openexr_define_library(OpenEXR
     ImfGenericInputFile.h
     ImfGenericOutputFile.h
     ImfHeader.h
+    ImfHTCompressor.h
     ImfHuf.h
     ImfIDManifest.h
     ImfIDManifestAttribute.h
