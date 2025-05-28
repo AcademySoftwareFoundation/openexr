@@ -629,7 +629,7 @@ DeepScanLineInputFile::Data::readMemData (
         *_ctxt,
         partNumber,
         rawPixelData,
-        &frameBuffer,
+        &fb,
         scanLine1,
         scanLine2,
         fills);

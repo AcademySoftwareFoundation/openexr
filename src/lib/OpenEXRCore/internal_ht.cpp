@@ -19,7 +19,7 @@
 
 /***********************************
 
-Structure of the HT256 chunk
+Structure of the HTJ2K chunk
 - MAGIC = 0x4854: magic number
 - PLEN: length of header payload (big endian uint32_t)
 - header payload
@@ -134,7 +134,7 @@ read_header (
     MemoryReader header ((uint8_t*) buffer, max_sz);
     if (header.pull_uint16 () != HEADER_MARKER)
         throw std::runtime_error (
-            "HT256 chunk header missing does not start with magic number.");
+            "HTJ2K chunk header missing does not start with magic number.");
 
     length = header.pull_uint32 ();
 
