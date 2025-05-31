@@ -35,6 +35,7 @@ if(BUILD_TESTING)
       exrmultipart
       exrstdattr
       exrmetrics
+      exrperf
   )
 
   foreach(test ${tests})
