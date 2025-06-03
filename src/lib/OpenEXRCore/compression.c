@@ -279,7 +279,8 @@ exr_compress_chunk (exr_encode_pipeline_t* encode)
             exr_compress_max_buffer_size (maxbytes));
     //return rv;
 
-    if (encode->sample_count_table)
+    // This is never called in regular c++ usage
+    if (encode->sample_count_table!=NULL && 0)
     {
         uint64_t sampsize =
             (((uint64_t) encode->chunk.width) *

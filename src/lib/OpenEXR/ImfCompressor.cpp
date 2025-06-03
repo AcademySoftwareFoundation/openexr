@@ -96,13 +96,26 @@ int
 Compressor::compress (
     const char* inPtr, int inSize, int minY, const char*& outPtr)
 {
+    return compress (
+        inPtr, inSize, minY, outPtr, nullptr, 0);
+}
+
+int
+Compressor::compress (
+    const char*  inPtr,
+    int          inSize,
+    int          minY,
+    const char*& outPtr,
+    const char*  sampleCountTable,
+    int          sampleCountTableSize)
+{
     IMATH_NAMESPACE::Box2i range = _header.dataWindow ();
 
     range.min.y = minY;
     range.max.y = minY + _numScanLines - 1;
 
     return static_cast<int> (
-        runEncodeStep (inPtr, inSize, range, outPtr));
+        runEncodeStep (inPtr, inSize, range, outPtr, sampleCountTable, sampleCountTableSize));
 }
 
 int
@@ -145,7 +158,9 @@ Compressor::runEncodeStep (
     const char* inPtr,
     int inSize,
     IMATH_NAMESPACE::Box2i range,
-    const char*& outPtr)
+    const char*& outPtr, 
+    const char* sampleCountTable,
+    int sampleCountTableSize)
 {
     // special case
     if (inSize == 0)
@@ -177,6 +192,10 @@ Compressor::runEncodeStep (
     _encoder.packed_buffer = const_cast<char*> (inPtr);
     _encoder.packed_bytes = inSize;
 
+    _encoder.sample_count_table = const_cast<int32_t*> (
+        reinterpret_cast<const int32_t*> (sampleCountTable));
+    _encoder.sample_count_alloc_size = sampleCountTableSize;
+
     if (EXR_ERR_SUCCESS != exr_compress_chunk(&_encoder))
         throw IEX_NAMESPACE::ArgExc ("Unable to run compression routine");
 
@@ -184,6 +203,10 @@ Compressor::runEncodeStep (
 
     _encoder.packed_buffer = nullptr;
     _encoder.packed_bytes = 0;
+
+    _encoder.sample_count_table = nullptr;
+    _encoder.sample_count_alloc_size = 0;
+
 
     return _encoder.compressed_bytes;
 }
