@@ -4,7 +4,7 @@
 # Copyright (c) Contributors to the OpenEXR Project.
 
 import sys, os, tempfile, atexit
-from subprocess import PIPE, run
+from do_run import do_run
 
 print(f"testing exrstdattr: {' '.join(sys.argv)}")
 
@@ -16,6 +16,9 @@ version = sys.argv[4]
 assert(os.path.isfile(exrstdattr)), "\nMissing " + exrstdattr
 assert(os.path.isfile(exrinfo)), "\nMissing " + exrinfo
 assert(os.path.isdir(image_dir)), "\nMissing " + image_dir
+
+test_images = {}
+test_images["GrayRampsHorizontal"] = f"{image_dir}/GrayRampsHorizontal.exr"
 
 fd, outimage = tempfile.mkstemp(".exr")
 os.close(fd)
@@ -29,28 +32,20 @@ def cleanup():
 atexit.register(cleanup)
 
 # no args = usage message
-result = run ([exrstdattr], stdout=PIPE, stderr=PIPE, universal_newlines=True)
-print(" ".join(result.args))
-assert(result.returncode != 0), "\n"+result.stderr
-assert(result.stderr.startswith ("Usage: ")), "\n"+result.stderr
+result = do_run ([exrstdattr], True)
+assert result.stderr.startswith ("Usage: ")
 
 # -h = usage message
-result = run ([exrstdattr, "-h"], stdout=PIPE, stderr=PIPE, universal_newlines=True)
-print(" ".join(result.args))
-assert(result.returncode == 0), "\n"+result.stderr
-assert(result.stdout.startswith ("Usage: ")), "\n"+result.stdout
+result = do_run ([exrstdattr, "-h"])
+assert result.stdout.startswith ("Usage: ")
 
-result = run ([exrstdattr, "--help"], stdout=PIPE, stderr=PIPE, universal_newlines=True)
-print(" ".join(result.args))
-assert(result.returncode == 0), "\n"+result.stderr
-assert(result.stdout.startswith ("Usage: ")), "\n"+result.stdout
+result = do_run ([exrstdattr, "--help"])
+assert result.stdout.startswith ("Usage: ")
 
 # --version
-result = run ([exrstdattr, "--version"], stdout=PIPE, stderr=PIPE, universal_newlines=True)
-print(" ".join(result.args))
-assert(result.returncode == 0), "\n"+result.stderr
-assert(result.stdout.startswith ("exrstdattr")), "\n"+result.stdout
-assert(version in result.stdout), "\n"+result.stdout
+result = do_run ([exrstdattr, "--version"])
+assert result.stdout.startswith ("exrstdattr")
+assert version in result.stdout
 
 attrs = [
     ["-part", "0"],
@@ -85,25 +80,17 @@ attrs = [
 # test missing arguments, using just the -option but no value
 
 for a in attrs:
-    result = run ([exrstdattr, a[0]], stdout=PIPE, stderr=PIPE, universal_newlines=True)
-    print(" ".join(result.args))
-    print(result.stderr)
-    assert(result.returncode != 0), "\n"+result.stderr
+    result = do_run ([exrstdattr, a[0]], True)
 
 command = [exrstdattr]
 for a in attrs:
     command += a 
-image = f"{image_dir}/TestImages/GrayRampsHorizontal.exr"
-command += [image, outimage]
+command += [test_images["GrayRampsHorizontal"], outimage]
 
-result = run (command, stdout=PIPE, stderr=PIPE, universal_newlines=True)
-print(" ".join(result.args))
-assert(result.returncode == 0), "\n"+result.stderr
-assert(os.path.isfile(outimage)), "\nMissing " + outimage
+result = do_run (command)
+assert os.path.isfile(outimage)
 
-result = run ([exrinfo, "-v", outimage], stdout=PIPE, stderr=PIPE, universal_newlines=True)
-print(" ".join(result.args))
-assert(result.returncode == 0), "\n"+result.stderr
+result = do_run ([exrinfo, "-v", outimage])
 try:
     assert('adoptedNeutral: v2f [ 1.1, 2.2 ]' in result.stdout)
     assert('altitude: float 6.5' in result.stdout)
@@ -143,26 +130,16 @@ except AssertionError:
     raise
 
 # test for bad erase argument
-result = run ([exrstdattr, "-erase"], stdout=PIPE, stderr=PIPE, universal_newlines=True)
-print(" ".join(result.args))
-print(result.stderr)
-assert(result.returncode != 0), "\n"+result.stderr
+result = do_run ([exrstdattr, "-erase"], True)
 
 # test for errors trying to delete a critical attribute
-result = run ([exrstdattr, "-erase","dataWindow",outimage,outimage2], stdout=PIPE, stderr=PIPE, universal_newlines=True)
-print(" ".join(result.args))
-print(result.stderr)
-assert(result.returncode != 0), "\n"+result.stderr
+result = do_run ([exrstdattr, "-erase","dataWindow",outimage,outimage2], True)
 
 # test deleting 'comments'
-result = run ([exrstdattr, "-erase","comments",outimage,outimage2], stdout=PIPE, stderr=PIPE, universal_newlines=True)
-print(" ".join(result.args))
-assert(result.returncode == 0), "\n"+result.stderr
-assert(os.path.isfile(outimage2)), "\nMissing " + outimage2
+result = do_run ([exrstdattr, "-erase","comments",outimage,outimage2])
+assert os.path.isfile(outimage2)
 
-result = run ([exrinfo, "-v", outimage2], stdout=PIPE, stderr=PIPE, universal_newlines=True)
-print(" ".join(result.args))
-assert("comments" not in result.stdout)
-
+result = do_run ([exrinfo, "-v", outimage2])
+assert "comments" not in result.stdout
 
 print("success")

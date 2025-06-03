@@ -84,7 +84,8 @@ print_attr (const exr_attribute_t* a, int verbose)
                 "b44",
                 "b44a",
                 "dwaa",
-                "dwab"};
+                "dwab",
+                "htj2k"};
             printf (
                 "'%s'", (a->uc < 10 ? compressionnames[a->uc] : "<UNKNOWN>"));
             if (verbose) printf (" (0x%02X)", a->uc);

@@ -75,6 +75,16 @@ option(OPENEXR_BUILD_EXAMPLES "Build and install OpenEXR examples" ON)
 
 option(OPENEXR_BUILD_PYTHON "Build python bindings" OFF)
 
+option(OPENEXR_BUILD_OSS_FUZZ "Build the oss-fuzz fuzzers" OFF)
+if (OPENEXR_BUILD_OSS_FUZZ)
+  # If building the oss-fuzz fuzzers, accept the comiler/options from
+  # the environment.
+  set(CMAKE_CXX_COMPILER $ENV{CXX})
+  set(CMAKE_CXX_FLAGS $ENV{CXX_FLAGS})
+  set(CMAKE_C_COMPILER $ENV{CC})
+  set(CMAKE_C_FLAGS $ENV{CC_FLAGS})
+endif()
+
 option(OPENEXR_TEST_LIBRARIES "Run library tests" ON)
 option(OPENEXR_TEST_TOOLS "Run tool tests" ON)
 option(OPENEXR_TEST_PYTHON "Run python binding tests" ON)
@@ -304,6 +314,69 @@ else()
   list(TRANSFORM EXR_DEFLATE_SOURCES PREPEND ${deflate_SOURCE_DIR}/)
   set(EXR_DEFLATE_INCLUDE_DIR ${deflate_SOURCE_DIR})
   set(EXR_DEFLATE_LIB)
+endif()
+
+
+#######################################
+# Find or download OpenJPH
+#######################################
+
+message(STATUS "Locating OpenJPH")
+
+option(OPENEXR_FORCE_INTERNAL_OPENJPH "Force downloading OpenJPH from a git repo" OFF)
+
+set(OPENEXR_OJPH_REPO "https://github.com/aous72/OpenJPH.git" CACHE STRING "OpenJPH Git repo URI")
+set(OPENEXR_OJPH_TAG "0.21.2" CACHE STRING "OpenJPH Git repo tag")
+
+if (NOT OPENEXR_FORCE_INTERNAL_OPENJPH)
+  find_package(openjph 0.21 QUIET)
+
+  if(openjph_FOUND)
+    message(STATUS "Found OpenJPH using find_package.")
+    set(EXR_OPENJPH_LIB openjph)
+  else()
+    # If not found, try pkgconfig
+    find_package(PkgConfig)
+    if(PKG_CONFIG_FOUND)
+      include(FindPkgConfig)
+      pkg_check_modules(openjph IMPORTED_TARGET GLOBAL openjph=0.21)
+      if(openjph_FOUND)
+        set(EXR_OPENJPH_LIB PkgConfig::openjph)
+        message(STATUS "Found OpenJPH using PkgConfig at ${deflate_LINK_LIBRARIES}")
+      endif()
+    endif()
+  endif()
+endif()
+
+if(NOT EXR_OPENJPH_LIB)
+  include(FetchContent)
+  FetchContent_Declare(
+    openjph
+    GIT_REPOSITORY ${OPENEXR_OJPH_REPO}
+    GIT_TAG        ${OPENEXR_OJPH_TAG}
+  )
+
+  set(OJPH_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+  set(OJPH_ENABLE_TIFF_SUPPORT OFF CACHE BOOL "" FORCE)
+  set(OJPH_BUILD_EXECUTABLES OFF CACHE BOOL "" FORCE)
+  FetchContent_MakeAvailable(openjph)
+  install(
+    TARGETS openjph
+    EXPORT ${PROJECT_NAME}
+  )
+  set_target_properties(openjph PROPERTIES
+    POSITION_INDEPENDENT_CODE ON
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+  )
+  include_directories("${openjph_SOURCE_DIR}/src/core/common")
+
+  set(EXR_OPENJPH_LIB openjph)
+
+  message(STATUS "Building OpenJPH from ${OPENEXR_OJPH_REPO}.")
+endif()
+
+if (NOT EXR_OPENJPH_LIB)
+  message(ERROR "Failed to find OpenJPH.")
 endif()
 
 #######################################

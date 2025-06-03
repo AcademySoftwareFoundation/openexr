@@ -228,6 +228,7 @@ The OpenEXR module has enumerated types for certain attributes:
            <li> <tt> OpenEXR.B44A_COMPRESSION </tt>
            <li> <tt> OpenEXR.DWAA_COMPRESSION </tt>
            <li> <tt> OpenEXR.DWAB_COMPRESSION </tt> 
+           <li> <tt> OpenEXR.HTJ2K_COMPRESSION </tt> 
            <li> <tt> OpenEXR.NUM_COMPRESSION_METHODS </tt> 
          </ul>
      </td>
