@@ -161,6 +161,7 @@ typedef struct _exr_decode_pipeline
      */
     int32_t* sample_count_table;
     size_t   sample_count_alloc_size;
+    int     sample_count_valid; // We actually decompressed it.
 
     /** A scratch buffer of unpacked_size for intermediate results.
      *

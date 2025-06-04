@@ -195,6 +195,7 @@ Compressor::runEncodeStep (
     _encoder.sample_count_table = const_cast<int32_t*> (
         reinterpret_cast<const int32_t*> (sampleCountTable));
     _encoder.sample_count_alloc_size = sampleCountTableSize;
+    _encoder.skip_sample_count_table_compression = sampleCountTableSize > 0 ? 1 : 0;
 
     if (EXR_ERR_SUCCESS != exr_compress_chunk(&_encoder))
         throw IEX_NAMESPACE::ArgExc ("Unable to run compression routine");

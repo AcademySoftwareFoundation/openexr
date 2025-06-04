@@ -124,6 +124,7 @@ typedef struct _exr_encode_pipeline
      * samples must always be width * height for the chunk.
      */
     size_t sample_count_alloc_size;
+    int skip_sample_count_table_compression;
 
     /** Packed sample table (compressed, raw on disk representation)
      * for deep or other non-image data.

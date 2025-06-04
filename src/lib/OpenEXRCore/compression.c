@@ -280,7 +280,7 @@ exr_compress_chunk (exr_encode_pipeline_t* encode)
     //return rv;
 
     // This is never called in regular c++ usage
-    if (encode->sample_count_table!=NULL && 0)
+    if (encode->sample_count_table!=NULL && !encode->skip_sample_count_table_compression)
     {
         uint64_t sampsize =
             (((uint64_t) encode->chunk.width) *
@@ -327,6 +327,7 @@ exr_compress_chunk (exr_encode_pipeline_t* encode)
                 case EXR_COMPRESSION_RLE: rv = internal_exr_apply_rle (encode); break;
                 case EXR_COMPRESSION_ZIP:
                 case EXR_COMPRESSION_ZIPS: rv = internal_exr_apply_zip (encode); break;
+                case EXR_COMPRESSION_ZSTD: rv = internal_exr_apply_zstd (encode); break;
 
                 default:
                     rv = EXR_ERR_INVALID_ARGUMENT;
@@ -510,7 +511,7 @@ exr_uncompress_chunk (exr_decode_pipeline_t* decode)
             decode->chunk.sample_count_table_size,
             decode->sample_count_table,
             sampsize);
-
+        decode->sample_count_valid = 1;
         if (rv != EXR_ERR_SUCCESS)
         {
             return ctxt->print_error (

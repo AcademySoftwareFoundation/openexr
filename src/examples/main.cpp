@@ -21,14 +21,14 @@ main (int argc, char* argv[])
 {
     try
     {
-        rgbaInterfaceExamples ();
+/*        rgbaInterfaceExamples ();
         generalInterfaceExamples ();
 
         rgbaInterfaceTiledExamples ();
         generalInterfaceTiledExamples ();
-
+*/
         deepExamples ();
-        deepTiledExamples ();
+  /*      deepTiledExamples ();
 
         lowLevelIoExamples ();
 
@@ -39,7 +39,7 @@ main (int argc, char* argv[])
         //   generalInterfaceTiledExamples,
         //   deepExamples,
         //   deepTiledExamples
-        multipartExamples ();
+        multipartExamples ();*/
     }
     catch (const std::exception& exc)
     {

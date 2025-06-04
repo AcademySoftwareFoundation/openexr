@@ -11,7 +11,7 @@
 //    and 32-bit floating point depth channels.
 //
 //-----------------------------------------------------------------------------
-
+/*
 #include <ImfArray.h>
 
 #include <ImfHeader.h>
@@ -292,3 +292,4 @@ deepTiledExamples ()
     readDeepTiledFile (
         "testTiled.deep.zstd.exr", window, window, dataZ, dataA, sampleCount);
 }
+*/
