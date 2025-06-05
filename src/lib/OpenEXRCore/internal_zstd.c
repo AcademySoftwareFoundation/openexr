@@ -153,7 +153,7 @@ sort2_4ByteChannels (
     char*                            outPtr)
 {
     uint64_t       writeCount = 0;
-    uint64_t       sorting_lookup[channelsSize] = {};
+    uint64_t       sorting_lookup[channelsSize];
     const uint64_t splitPoint = compute_sorting_lookup (
         numSamplesPerChunk, channels, channelsSize, sorting_lookup);
 
