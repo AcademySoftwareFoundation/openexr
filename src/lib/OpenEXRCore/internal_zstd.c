@@ -34,6 +34,7 @@ exr_compress_zstd (
     void*                  outPtr,
     int                    outPtrSize,
     uint64_t               typeSize,
+    int32_t                level,
     serialization_callback fn_serialize)
 {
     if (inSize == 0) // Weird input data when subsampling
@@ -47,9 +48,7 @@ exr_compress_zstd (
     cparams.typesize = typeSize;
     // clevel 9 is about a 20% increase in compression compared to 5.
     // Decompression speed is unchanged.
-    int zstd_level;
-    exr_get_default_zstd_compression_level (&zstd_level);
-    cparams.clevel   = zstd_level;
+    cparams.clevel   = level;
     cparams.nthreads = 1;
     cparams.compcode = BLOSC_ZSTD; // Codec
     cparams.splitmode =
@@ -326,6 +325,11 @@ internal_exr_apply_zstd (exr_encode_pipeline_t* encode)
     const exr_coding_channel_info_t* channels     = encode->channels;
     const int                        channelsSize = encode->channel_count;
     exr_result_t                     rv           = EXR_ERR_SUCCESS;
+    int32_t level;
+    rv = exr_get_zstd_compression_level (
+        encode->context, encode->part_index, &level);
+
+    if (rv != EXR_ERR_SUCCESS) return rv;
 
     uint64_t compressedSize = 0;
     if (sampleCountTableSize > 0)
@@ -377,6 +381,7 @@ internal_exr_apply_zstd (exr_encode_pipeline_t* encode)
                 outBuffer,
                 outBufferSize,
                 2,
+                level,
                 &serialize_buffer);
             if (outSize < 0) { return EXR_ERR_UNKNOWN; }
             {
@@ -404,6 +409,7 @@ internal_exr_apply_zstd (exr_encode_pipeline_t* encode)
                 outBuffer,
                 outBufferSize,
                 4,
+                level,
                 &serialize_buffer);
             if (outSize < 0) { return EXR_ERR_UNKNOWN; }
 
@@ -423,6 +429,7 @@ internal_exr_apply_zstd (exr_encode_pipeline_t* encode)
             encode->compressed_buffer,
             encode->compressed_alloc_size,
             4,
+            level,
             &serialize_memcpy);
     }
 
