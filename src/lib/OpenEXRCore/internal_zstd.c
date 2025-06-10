@@ -316,6 +316,42 @@ DebugChannelData (
     }
 }
 
+bool needs_sorting( const exr_coding_channel_info_t* channels,
+                    const int                        channelsSize,
+                    uint64_t                         numSamplesPerChunk,
+                    uint64_t*                        splitPosition,
+                    uint8_t typeSizes[2])
+{
+    *splitPosition = 0;
+    if (channelsSize <= 0)
+    {
+        return false; // no channels, nothing to sort
+    }
+    
+    int8_t bytesPerChannel = channels[0].bytes_per_element; // if this is > 0, we have a float channel
+    bool switched_bytes_per_channel = false;
+    uint64_t writeCount =0;
+    for (int i = 1; i < channelsSize; ++i)
+    {
+        if (channels[i].bytes_per_element != bytesPerChannel)
+        {
+            if (switched_bytes_per_channel)
+            {
+                *splitPosition = 0;
+                return true; // we have already switched, so we need to sort
+            }
+            bytesPerChannel = channels[i].bytes_per_element;
+            switched_bytes_per_channel = true;
+            *splitPosition = writeCount;
+        }
+        writeCount += numSamplesPerChunk * channels[i].bytes_per_element;
+    }
+
+    typeSizes[0] = channels[0].bytes_per_element;
+    typeSizes[1] = channels[channelsSize - 1].bytes_per_element;
+    return false;
+}
+
 exr_result_t
 internal_exr_apply_zstd (exr_encode_pipeline_t* encode)
 {
@@ -345,58 +381,69 @@ internal_exr_apply_zstd (exr_encode_pipeline_t* encode)
             sampleCountTable[sampleCountTableSize - 1],
             channels,
             channelsSize);*/
-        rv = internal_encode_alloc_buffer (
-            encode,
-            EXR_TRANSCODE_BUFFER_SCRATCH1,
-            &(encode->scratch_buffer_1),
-            &(encode->scratch_alloc_size_1),
-            encode->packed_bytes);
-
-        if (rv != EXR_ERR_SUCCESS)
-            RETURN_ERRORV (
-                encode,
-                rv,
-                "[zstd]  Failed to allocate scratch buffer 1 (%" PRIu64
-                " bytes)",
-                encode->packed_bytes);
-
-        uint64_t firstFloat = sort2_4ByteChannels (
-            (const char*) inPtr,
-            sampleCountTable
-                [sampleCountTableSize -
-                 1], // handle the non cumulative samples case
+        uint64_t splitPosition = 0;
+        uint8_t typeSizes[2] = {0, 0}; // 0 = half, 1 = float
+        bool needsSorting = needs_sorting (
             channels,
             channelsSize,
-            true, // forward = true
-            (char*) encode->scratch_buffer_1);
-
-        // we have 2 byte channels
-        if (firstFloat > 0) // needed ?
+            sampleCountTable[sampleCountTableSize - 1],
+            &splitPosition,
+            typeSizes);
+        char *compressionInBuffer = NULL;    
+        if (needsSorting)
         {
-            inPtr        = (uint8_t*) encode->scratch_buffer_1;
-            inBufferSize = firstFloat;
+            rv = internal_encode_alloc_buffer (
+                encode,
+                EXR_TRANSCODE_BUFFER_SCRATCH1,
+                &(encode->scratch_buffer_1),
+                &(encode->scratch_alloc_size_1),
+                encode->packed_bytes);
+
+            if (rv != EXR_ERR_SUCCESS)
+                RETURN_ERRORV (
+                    encode,
+                    rv,
+                    "[zstd]  Failed to allocate scratch buffer 1 (%" PRIu64
+                    " bytes)",
+                    encode->packed_bytes);
+
+            splitPosition = sort2_4ByteChannels (
+                (const char*) inPtr,
+                sampleCountTable
+                    [sampleCountTableSize -
+                     1], // handle the non cumulative samples case
+                channels,
+                channelsSize,
+                true, // forward = true
+                (char*) encode->scratch_buffer_1);
+            typeSizes[0] = 2;
+            typeSizes[1] = 4;     
+            compressionInBuffer = (char*) encode->scratch_buffer_1;
+        }
+        else
+        {
+            compressionInBuffer = (char*) inPtr;
+        }
+        // we have 2 byte channels
+        if (splitPosition > 0) // needed ?
+        {
+            inPtr        = compressionInBuffer;
+            inBufferSize = splitPosition;
             long outSize = exr_compress_zstd (
                 (char*)inPtr,
                 inBufferSize,
                 outBuffer,
                 outBufferSize,
-                2,
+                typeSizes[0],
                 level,
                 &serialize_buffer);
             if (outSize < 0) { return EXR_ERR_UNKNOWN; }
-            {
-                /*char*    check     = encode->compressed_buffer;
-                uint64_t checkSize = _read_buffer_size (&check);
-                char     binaryChunk[4];
-                memcpy (binaryChunk, check, 4);
-                check += 4;*/
-            }
 
             compressedSize += outSize;
             outBuffer     = outBuffer + compressedSize;
             outBufferSize = outBufferSize - compressedSize;
             inPtr += inBufferSize;
-            inBufferSize = encode->packed_bytes - firstFloat;
+            inBufferSize = encode->packed_bytes - splitPosition;
         }
 
         // if this points to the end, it means we have all half channels
@@ -408,15 +455,10 @@ internal_exr_apply_zstd (exr_encode_pipeline_t* encode)
                 inBufferSize,
                 outBuffer,
                 outBufferSize,
-                4,
+                typeSizes[1],
                 level,
                 &serialize_buffer);
             if (outSize < 0) { return EXR_ERR_UNKNOWN; }
-
-            {
-                char*    check     = encode->compressed_buffer + compressedSize;
-                uint64_t checkSize = _read_buffer_size (&check);
-            }
 
             compressedSize += outSize;
         }
@@ -453,26 +495,45 @@ internal_exr_undo_zstd (
     const uint8_t* inPtr = (const uint8_t*) decode->packed_buffer;
     exr_result_t   rv    = EXR_ERR_SUCCESS;
 
+    char*    outPtr = NULL;
+    uint64_t outBufferSize = 0;
     if (sampleCount > 0)
     {
-        rv = internal_decode_alloc_buffer (
-            decode,
-            EXR_TRANSCODE_BUFFER_SCRATCH1,
-            &(decode->scratch_buffer_1),
-            &(decode->scratch_alloc_size_1),
-            uncompressed_size);
-
-        if (rv != EXR_ERR_SUCCESS)
-            RETURN_ERRORV (
+        uint64_t splitPosition = 0;
+        uint8_t typeSizes[2] = {0, 0}; // 0 = half, 1 = float
+        bool needsSorting = needs_sorting (
+            channels,
+            channelsSize,
+            sampleCount,
+            &splitPosition,
+            typeSizes);
+        if (needsSorting)
+        {
+            rv = internal_decode_alloc_buffer (
                 decode,
-                rv,
-                "[zstd]  Failed to allocate scratch buffer 1 (%" PRIu64
-                " bytes)",
+                EXR_TRANSCODE_BUFFER_SCRATCH1,
+                &(decode->scratch_buffer_1),
+                &(decode->scratch_alloc_size_1),
                 uncompressed_size);
 
-        char*    outPtr           = (char*) decode->scratch_buffer_1;
-        char*    inPtr            = (char*) compressed_data;
-        uint64_t outBufferSize    = decode->scratch_alloc_size_1;
+            if (rv != EXR_ERR_SUCCESS)
+                RETURN_ERRORV (
+                    decode,
+                    rv,
+                    "[zstd]  Failed to allocate scratch buffer 1 (%" PRIu64
+                    " bytes)",
+                    uncompressed_size);
+            outPtr = (char*) decode->scratch_buffer_1;
+            outBufferSize    = decode->scratch_alloc_size_1;
+        }
+        else 
+        { 
+            outPtr = (char*) uncompressed_data; 
+            outBufferSize    = uncompressed_size;
+        }
+
+
+        char*    inPtr            = (char*) compressed_data;    
         long     uncompressedSize = 0;
         {
             uint64_t compressedChannelChunkSize = _read_buffer_size (&inPtr);
@@ -495,7 +556,6 @@ internal_exr_undo_zstd (
             inPtr += compressedChannelChunkSize;
             outPtr += channelChunkUncompressedSize;
             outBufferSize -= channelChunkUncompressedSize;
-
             uncompressedSize += channelChunkUncompressedSize;
         }
         {
@@ -529,15 +589,17 @@ internal_exr_undo_zstd (
             return EXR_ERR_CORRUPT_CHUNK;
         }
 
-        // Unshuffle the data
-        uint64_t firstFloat = sort2_4ByteChannels (
-            (char*) decode->scratch_buffer_1,
-            sampleCount,
-            channels,
-            channelsSize,
-            false, // backwards
-            (char*) uncompressed_data);
-
+        if (needsSorting)
+        {
+            // Unshuffle the data
+            uint64_t firstFloat = sort2_4ByteChannels (
+                (char*) decode->scratch_buffer_1,
+                sampleCount,
+                channels,
+                channelsSize,
+                false, // backwards
+                (char*) uncompressed_data);
+        }
         //DebugChannelData (
         //    uncompressed_data, sampleCount, channels, channelsSize);
     }
