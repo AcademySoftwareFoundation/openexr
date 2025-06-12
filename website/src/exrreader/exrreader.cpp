@@ -6,7 +6,7 @@ int
 main()
 {
     try {
-        Imf::RgbaInputFile file("hello.exr");
+        Imf::RgbaInputFile file("stripes.exr");
         Imath::Box2i       dw = file.dataWindow();
         int                width  = dw.max.x - dw.min.x + 1;
         int                height = dw.max.y - dw.min.y + 1;
@@ -17,7 +17,7 @@ main()
         file.readPixels(dw.min.y, dw.max.y);
 
     } catch (const std::exception &e) {
-        std::cerr << "error reading image file hello.exr:" << e.what() << std::endl;
+        std::cerr << "error reading image file stripes.exr:" << e.what() << std::endl;
         return 1;
     }
 
