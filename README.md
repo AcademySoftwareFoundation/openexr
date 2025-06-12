@@ -64,35 +64,45 @@ complete details, but to get started, the "Hello, world" [`exrwriter.cpp`](https
     #include <ImfRgbaFile.h>
     #include <ImfArray.h>
     #include <iostream>
-    
+
     int
     main()
     {
+        int width =  100;
+        int height = 50;
+
+        Imf::Array2D<Imf::Rgba> pixels(height, width);
+        for (int y=0; y<height; y++)
+        {
+            float c = (y / 5 % 2 == 0) ? (y / (float) height) : 0.0;
+            for (int x=0; x<width; x++)
+                pixels[y][x] = Imf::Rgba(c, c, c);
+        }
+
         try {
-            int width =  10;
-            int height = 10;
-            
-            Imf::Array2D<Imf::Rgba> pixels(width, height);
-            for (int y=0; y<height; y++)
-                for (int x=0; x<width; x++)
-                    pixels[y][x] = Imf::Rgba(0, x / (width-1.0f), y / (height-1.0f));
-        
-            Imf::RgbaOutputFile file ("hello.exr", width, height, Imf::WRITE_RGBA);
+            Imf::RgbaOutputFile file ("stripes.exr", width, height, Imf::WRITE_RGBA);
             file.setFrameBuffer (&pixels[0][0], 1, width);
             file.writePixels (height);
         } catch (const std::exception &e) {
-            std::cerr << "Unable to read image file hello.exr:" << e.what() << std::endl;
+            std::cerr << "error writing image file stripes.exr:" << e.what() << std::endl;
             return 1;
         }
         return 0;
     }
+
+This creates an image 100 pixels wide and 50 pixels high with
+horizontal stripes 5 pixels high of graduated intensity, bright on the
+bottom of the image and dark towards the top. Note that ``pixel[0][0]``
+is in the upper left:
+
+![stripes](website/images/stripes.png)
 
 The [`CMakeLists.txt`](https://raw.githubusercontent.com/AcademySoftwareFoundation/openexr/main/website/src/exrwriter/CMakeLists.txt) to build:
 
     cmake_minimum_required(VERSION 3.12)
     project(exrwriter)
     find_package(OpenEXR REQUIRED)
-    
+
     add_executable(${PROJECT_NAME} exrwriter.cpp)
     target_link_libraries(${PROJECT_NAME} OpenEXR::OpenEXR)
 
@@ -135,7 +145,7 @@ API](https://openexr.readthedocs.io/en/latest/API.html#the-openexr-api).
 
   - Sign the [Contributor License
     Agreement](https://contributor.easycla.lfx.linuxfoundation.org/#/cla/project/2e8710cb-e379-4116-a9ba-964f83618cc5/user/564e571e-12d7-4857-abd4-898939accdd7)
-  
+
   - Submit a Pull Request: https://github.com/AcademySoftwareFoundation/openexr/pulls
 
 # Resources
