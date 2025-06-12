@@ -191,6 +191,9 @@ cc_library(
         "src/lib/OpenEXRCore/internal_dwa_simd.h",
         "src/lib/OpenEXRCore/internal_file.h",
         "src/lib/OpenEXRCore/internal_float_vector.h",
+        "src/lib/OpenEXRCore/internal_ht.cpp",
+        "src/lib/OpenEXRCore/internal_ht_common.h",
+        "src/lib/OpenEXRCore/internal_ht_common.cpp",
         "src/lib/OpenEXRCore/internal_huf.c",
         "src/lib/OpenEXRCore/internal_huf.h",
         "src/lib/OpenEXRCore/internal_memory.h",
@@ -264,6 +267,7 @@ cc_library(
     visibility = ["//visibility:public"],
     deps = [
         "@imath",
+        "@openjph",
         "@libdeflate//:deflate",
     ],
 )
@@ -310,6 +314,7 @@ cc_library(
         "src/lib/OpenEXR/ImfGenericInputFile.cpp",
         "src/lib/OpenEXR/ImfGenericOutputFile.cpp",
         "src/lib/OpenEXR/ImfHeader.cpp",
+        "src/lib/OpenEXR/ImfHTCompressor.cpp",
         "src/lib/OpenEXR/ImfHuf.cpp",
         "src/lib/OpenEXR/ImfIDManifest.cpp",
         "src/lib/OpenEXR/ImfIDManifestAttribute.cpp",
@@ -415,6 +420,7 @@ cc_library(
         "src/lib/OpenEXR/ImfGenericInputFile.h",
         "src/lib/OpenEXR/ImfGenericOutputFile.h",
         "src/lib/OpenEXR/ImfHeader.h",
+        "src/lib/OpenEXR/ImfHTCompressor.h",
         "src/lib/OpenEXR/ImfHuf.h",
         "src/lib/OpenEXR/ImfIDManifest.h",
         "src/lib/OpenEXR/ImfIDManifestAttribute.h",
@@ -506,6 +512,7 @@ cc_library(
         ":IlmThread",
         ":OpenEXRCore",
         "@imath",
+        "@openjph"
     ],
 )
 

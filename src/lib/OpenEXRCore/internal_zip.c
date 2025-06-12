@@ -20,7 +20,7 @@
 #    include <emmintrin.h>
 #    include <mmintrin.h>
 #endif
-#if defined __SSE4_1__
+#if defined __SSE4_1__ || (_MSC_VER >= 1300 && (_M_IX86 || _M_X64))
 #    define IMF_HAVE_SSE4_1 1
 #    include <smmintrin.h>
 #endif
@@ -33,7 +33,7 @@
 
 #ifdef IMF_HAVE_SSE4_1
 static void
-reconstruct (uint8_t* buf, uint64_t outSize)
+reconstruct (uint8_t* buf, const uint64_t outSize)
 {
     static const uint64_t bytesPerChunk = sizeof (__m128i);
     const uint64_t        vOutSize      = outSize / bytesPerChunk;
@@ -79,7 +79,7 @@ reconstruct (uint8_t* buf, uint64_t outSize)
 }
 #elif defined(IMF_HAVE_NEON_AARCH64)
 static void
-reconstruct (uint8_t* buf, uint64_t outSize)
+reconstruct (uint8_t* buf, const uint64_t outSize)
 {
     static const uint64_t bytesPerChunk = sizeof (uint8x16_t);
     const uint64_t        vOutSize      = outSize / bytesPerChunk;
@@ -128,7 +128,7 @@ reconstruct (uint8_t* buf, uint64_t outSize)
 }
 #else
 static void
-reconstruct (uint8_t* buf, uint64_t sz)
+reconstruct (uint8_t* buf, const uint64_t sz)
 {
     uint8_t* t    = buf + 1;
     uint8_t* stop = buf + sz;
@@ -145,7 +145,7 @@ reconstruct (uint8_t* buf, uint64_t sz)
 
 #ifdef IMF_HAVE_SSE2
 static void
-interleave (uint8_t* out, const uint8_t* source, uint64_t outSize)
+interleave (uint8_t* out, const uint8_t* const source, const uint64_t outSize)
 {
     static const uint64_t bytesPerChunk = 2 * sizeof (__m128i);
     const uint64_t        vOutSize      = outSize / bytesPerChunk;
@@ -176,7 +176,7 @@ interleave (uint8_t* out, const uint8_t* source, uint64_t outSize)
 
 #elif defined(IMF_HAVE_NEON_AARCH64)
 static void
-interleave (uint8_t* out, const uint8_t* source, uint64_t outSize)
+interleave (uint8_t* out, const uint8_t* const source, const uint64_t outSize)
 {
     static const uint64_t bytesPerChunk = 2 * sizeof (uint8x16_t);
     const uint64_t        vOutSize      = outSize / bytesPerChunk;
@@ -205,7 +205,7 @@ interleave (uint8_t* out, const uint8_t* source, uint64_t outSize)
 #else
 
 static void
-interleave (uint8_t* out, const uint8_t* source, uint64_t outSize)
+interleave (uint8_t* out, const uint8_t* const source, const uint64_t outSize)
 {
     const uint8_t* t1   = source;
     const uint8_t* t2   = source + (outSize + 1) / 2;
@@ -231,7 +231,7 @@ interleave (uint8_t* out, const uint8_t* source, uint64_t outSize)
 /**************************************/
 
 void
-internal_zip_reconstruct_bytes (uint8_t* out, uint8_t* source, uint64_t count)
+internal_zip_reconstruct_bytes (uint8_t* out, uint8_t* source, const uint64_t count)
 {
     reconstruct (source, count);
     interleave (out, source, count);
@@ -241,13 +241,13 @@ internal_zip_reconstruct_bytes (uint8_t* out, uint8_t* source, uint64_t count)
 
 void
 internal_zip_deconstruct_bytes (
-    uint8_t* scratch, const uint8_t* source, uint64_t count)
+    uint8_t* scratch, const uint8_t* source, const uint64_t count)
 {
     int            p;
     uint8_t*       t1   = scratch;
     uint8_t*       t2   = t1 + (count + 1) / 2;
     const uint8_t* raw  = source;
-    const uint8_t* stop = raw + count;
+    const uint8_t* const stop = raw + count;
 
     /* reorder */
     while (raw < stop)
@@ -276,11 +276,11 @@ static exr_result_t
 undo_zip_impl (
     exr_decode_pipeline_t* decode,
     const void*            compressed_data,
-    uint64_t               comp_buf_size,
+    const uint64_t         comp_buf_size,
     void*                  uncompressed_data,
-    uint64_t               uncompressed_size,
+    const uint64_t         uncompressed_size,
     void*                  scratch_data,
-    uint64_t               scratch_size)
+    const uint64_t         scratch_size)
 {
     size_t       actual_out_bytes;
     exr_result_t res;
@@ -314,9 +314,9 @@ exr_result_t
 internal_exr_undo_zip (
     exr_decode_pipeline_t* decode,
     const void*            compressed_data,
-    uint64_t               comp_buf_size,
+    const uint64_t         comp_buf_size,
     void*                  uncompressed_data,
-    uint64_t               uncompressed_size)
+    const uint64_t         uncompressed_size)
 {
     exr_result_t rv;
     uint64_t     scratchbufsz = uncompressed_size;
