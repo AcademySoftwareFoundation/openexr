@@ -13,13 +13,11 @@ cd Imath
 
 git checkout ${TAG}
 
-mkdir build
-cd build
-cmake -DCMAKE_BUILD_TYPE=Release ..
-$SUDO cmake --build . \
+cmake -S . -B _build -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF
+$SUDO cmake --build _build \
       --target install \
       --config Release \
       --parallel 2
 
-cd ../..
+cd ..
 rm -rf Imath
