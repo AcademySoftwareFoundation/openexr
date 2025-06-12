@@ -74,9 +74,9 @@ exr_compress_zstd (
     }
     else
     {
-        memcpy (outPtr, inPtr, inSize);
-        size = inSize; // We increased compression size
+        size = -1;
     }
+
 
     if (shouldFree) { free (buffer); }
 
@@ -202,7 +202,7 @@ sort2_4ByteChannels (
  * \return      int32_t the buffer size in bytes
  */
 static uint64_t
-_read_buffer_size (char** src)
+_read_uint64 (char** src)
 {
     uint64_t bufByteSize = 0;
     memcpy (&bufByteSize, *src, sizeof (bufByteSize));
@@ -219,7 +219,7 @@ _read_buffer_size (char** src)
  * \param bufByteSize   the buffer size in bytes
  */
 static void
-_write_buffer_size (char** dst, const uint64_t bufByteSize)
+_write_uint64 (char** dst, const uint64_t bufByteSize)
 {
     assert (bufByteSize <= UINT64_MAX && "write buffer size too large");
     memcpy (*dst, &bufByteSize, sizeof (bufByteSize));
@@ -237,11 +237,13 @@ _write_buffer_data (char** dst, const int32_t bufByteSize, const void* src)
     }
 }
 
+static const uint64_t MAGIC_NUMBER = 8248453963162350458; // "zstd-exr"
+
 uint64_t
 serialize_buffer (char* src, uint64_t iSize, char* dest, uint64_t oSize)
 {
     char* destPtr = dest;
-    _write_buffer_size (&destPtr, iSize);
+    _write_uint64 (&destPtr, iSize);
     _write_buffer_data (&destPtr, iSize, src);
     return (uint64_t) (destPtr - dest); // return the number of bytes written
 }
@@ -376,11 +378,6 @@ internal_exr_apply_zstd (exr_encode_pipeline_t* encode)
         char*    outBuffer     = (char*) encode->compressed_buffer;
         uint64_t outBufferSize = encode->compressed_alloc_size;
 
-        /*DebugChannelData (
-            inPtr,
-            sampleCountTable[sampleCountTableSize - 1],
-            channels,
-            channelsSize);*/
         uint64_t splitPosition = 0;
         uint8_t typeSizes[2] = {0, 0}; // 0 = half, 1 = float
         bool needsSorting = needs_sorting (
@@ -424,11 +421,16 @@ internal_exr_apply_zstd (exr_encode_pipeline_t* encode)
         {
             compressionInBuffer = (char*) inPtr;
         }
+
+        bool bufferIsCompressed = true;;
+
         // we have 2 byte channels
         if (splitPosition > 0) // needed ?
         {
             inPtr        = compressionInBuffer;
             inBufferSize = splitPosition;
+            _write_uint64 (&outBuffer, MAGIC_NUMBER);
+            outBufferSize -= sizeof (MAGIC_NUMBER);
             long outSize = exr_compress_zstd (
                 (char*)inPtr,
                 inBufferSize,
@@ -437,7 +439,7 @@ internal_exr_apply_zstd (exr_encode_pipeline_t* encode)
                 typeSizes[0],
                 level,
                 &serialize_buffer);
-            if (outSize < 0) { return EXR_ERR_UNKNOWN; }
+            if (outSize < 0) { bufferIsCompressed = false; }
 
             compressedSize += outSize;
             outBuffer     = outBuffer + compressedSize;
@@ -447,7 +449,7 @@ internal_exr_apply_zstd (exr_encode_pipeline_t* encode)
         }
 
         // if this points to the end, it means we have all half channels
-        if (inBufferSize > 0)
+        if (inBufferSize > 0 && bufferIsCompressed)
         {
             // we have 4 byte channels
             long outSize = exr_compress_zstd (
@@ -458,21 +460,37 @@ internal_exr_apply_zstd (exr_encode_pipeline_t* encode)
                 typeSizes[1],
                 level,
                 &serialize_buffer);
-            if (outSize < 0) { return EXR_ERR_UNKNOWN; }
+            if (outSize < 0) { bufferIsCompressed = false; }
 
             compressedSize += outSize;
+        }
+        if (!bufferIsCompressed)
+        {
+            // If we failed to compress, we just copy the data
+            compressedSize = encode->packed_bytes;
+            memcpy (encode->compressed_buffer, encode->packed_buffer, compressedSize);
         }
     }
     else
     {
+        char* outPtr = (char*) encode->compressed_buffer;
+        uint64_t outBufferSize = encode->compressed_alloc_size;
+        _write_uint64 (&outPtr, MAGIC_NUMBER);
+        outBufferSize -= sizeof (MAGIC_NUMBER);
         compressedSize = exr_compress_zstd (
             encode->packed_buffer,
             encode->packed_bytes,
-            encode->compressed_buffer,
-            encode->compressed_alloc_size,
+            outPtr,
+            outBufferSize,
             4,
             level,
             &serialize_memcpy);
+        if (compressedSize < 0)
+        {
+            // If we failed to compress, we just copy the data
+            compressedSize = encode->packed_bytes;
+            memcpy (encode->compressed_buffer, encode->packed_buffer, compressedSize);
+        }
     }
 
     if (compressedSize < 0) { return EXR_ERR_UNKNOWN; }
@@ -492,15 +510,23 @@ internal_exr_undo_zstd (
     const uint64_t sampleCount                = get_chunk_sample_count (decode);
     const exr_coding_channel_info_t* channels = decode->channels;
     const int                        channelsSize = decode->channel_count;
-    const uint8_t* inPtr = (const uint8_t*) decode->packed_buffer;
     exr_result_t   rv    = EXR_ERR_SUCCESS;
 
     char*    outPtr = NULL;
     uint64_t outBufferSize = 0;
+
+    uint64_t magic = _read_uint64 ((char**)&compressed_data);
+    if (magic != MAGIC_NUMBER)
+    {
+        memcpy (uncompressed_data, compressed_data, comp_buf_size);
+        return EXR_ERR_SUCCESS; // no zstd data, just copy the data
+    }
+
     if (sampleCount > 0)
     {
         uint64_t splitPosition = 0;
         uint8_t typeSizes[2] = {0, 0}; // 0 = half, 1 = float
+
         bool needsSorting = needs_sorting (
             channels,
             channelsSize,
@@ -536,7 +562,7 @@ internal_exr_undo_zstd (
         char*    inPtr            = (char*) compressed_data;    
         long     uncompressedSize = 0;
         {
-            uint64_t compressedChannelChunkSize = _read_buffer_size (&inPtr);
+            uint64_t compressedChannelChunkSize = _read_uint64 (&inPtr);
             if (compressedChannelChunkSize <= 0)
             {
                 return EXR_ERR_CORRUPT_CHUNK;
@@ -548,11 +574,6 @@ internal_exr_undo_zstd (
                 (void**)&outPtr,
                 uncompressed_size);
 
-            if (channelChunkUncompressedSize <= 0)
-            {
-                return EXR_ERR_CORRUPT_CHUNK;
-            }
-
             inPtr += compressedChannelChunkSize;
             outPtr += channelChunkUncompressedSize;
             outBufferSize -= channelChunkUncompressedSize;
@@ -563,7 +584,7 @@ internal_exr_undo_zstd (
             if ((const void*)inPtr < compressed_data + comp_buf_size)
             {
                 uint64_t compressedChannelChunkSize =
-                    _read_buffer_size (&inPtr);
+                    _read_uint64 (&inPtr);
                 if (compressedChannelChunkSize <= 0)
                 {
                     return EXR_ERR_CORRUPT_CHUNK;
