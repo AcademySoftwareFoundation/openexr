@@ -11,7 +11,7 @@
 
 #include "Iex.h"
 #include "ImfNamespace.h"
-#include <ImfBytesAttribute.h>
+#include "ImfBytesAttribute.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
@@ -22,23 +22,19 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 #endif
 
 BytesAttribute::BytesAttribute ()
-    : _dataSize (0)
 {}
 
 BytesAttribute::BytesAttribute (long        dataSize,
                                 const void* data)
-    : _dataSize (dataSize)
+    : _data (dataSize)
 {
-    _data.resizeErase (dataSize);
     memcpy ((char*) _data, (const char*) data, dataSize);
 }
 
 BytesAttribute::BytesAttribute (const BytesAttribute& other)
-    : _dataSize (other._dataSize)
-    , _data (other._dataSize)
+    : _data (other._data.size ())
 {
-    _data.resizeErase (other._dataSize);
-    memcpy ((char*) _data, (const char*) other._data, other._dataSize);
+    memcpy ((char*) _data, (const char*) other._data, other._data.size ());
 }
 
 BytesAttribute::~BytesAttribute ()
@@ -68,7 +64,7 @@ void
 BytesAttribute::writeValueTo (
     OPENEXR_IMF_INTERNAL_NAMESPACE::OStream& os, int version) const
 {
-    Xdr::write<StreamIO> (os, _data, _dataSize);
+    Xdr::write<StreamIO> (os, _data, _data.size ());
 }
 
 void
@@ -76,7 +72,6 @@ BytesAttribute::readValueFrom (
     OPENEXR_IMF_INTERNAL_NAMESPACE::IStream& is, int size, int version)
 {
     _data.resizeErase (size);
-    _dataSize = size;
     Xdr::read<StreamIO> (is, _data, size);
 }
 
@@ -96,9 +91,8 @@ BytesAttribute::copyValueFrom (const Attribute& other)
                     "to an attribute of type \"bytes\".");
     }
 
-    _data.resizeErase (oa->_dataSize);
-    _dataSize = oa->_dataSize;
-    memcpy ((char*) _data, (const char*) oa->_data, oa->_dataSize);
+    _data.resizeErase (oa->_data.size ());
+    memcpy ((char*) _data, (const char*) oa->_data, oa->_data.size ());
 }
 
 Attribute*

@@ -31,13 +31,13 @@ public:
     IMF_EXPORT BytesAttribute (long        dataSize,
                                const void* data);
     IMF_EXPORT BytesAttribute (const BytesAttribute& other);
-    IMF_EXPORT virtual ~BytesAttribute ();
+    IMF_EXPORT virtual ~BytesAttribute () = default;
 
     //-------------------------------
     // Get this attribute's type name
     //-------------------------------
 
-    IMF_EXPORT virtual const char* typeName () const;
+    IMF_EXPORT const char* typeName () const override;
 
     //------------------------------
     // Make a copy of this attribute
@@ -57,7 +57,7 @@ public:
 
     IMF_EXPORT virtual void copyValueFrom (const Attribute& other);
 
-    int                dataSize () const { return _dataSize; }
+    size_t dataSize () const { return _data.size (); }
     const Array<char>& data () const { return _data; }
 
     //--------------------------------
@@ -97,7 +97,6 @@ public:
     static void unRegisterAttributeType ();
 
 private:
-    long        _dataSize;
     Array<char> _data;
 };
 
