@@ -33,9 +33,8 @@ readDeepScanlineFile (
     const char             filename[],
     Box2i&                 displayWindow,
     Box2i&                 dataWindow,
-    Array2D<float*>& dataA,
-    Array2D<half*>& dataR,
-    Array2D<float*>& dataZ,
+    Array2D<float*>&       dataZ,
+    Array2D<half*>&        dataA,
     Array2D<unsigned int>& sampleCount)
 {
     //
@@ -63,9 +62,8 @@ readDeepScanlineFile (
 
     sampleCount.resizeErase (height, width);
 
-    dataA.resizeErase (height, width);
-    dataR.resizeErase (height, width);
     dataZ.resizeErase (height, width);
+    dataA.resizeErase (height, width);
 
     DeepFrameBuffer frameBuffer;
 
@@ -73,57 +71,52 @@ readDeepScanlineFile (
         UINT,
         (char*) (&sampleCount[0][0] - dataWindow.min.x -
                  dataWindow.min.y * width),
-        sizeof (unsigned int) * 1, // xS
-
+        sizeof (unsigned int) * 1,       // xStride
         sizeof (unsigned int) * width)); // yStride
 
     frameBuffer.insert (
-        "A",
-        DeepSlice (
-            FLOAT,
-            (char*) (&dataA[0][0] - dataWindow.min.x -
-                     dataWindow.min.y * width),
-            sizeof (float*) * 1,     // xStride for pointer array
-            sizeof (float*) * width, // yStride for pointer array
-            sizeof (float) * 1));    // stride for A data sample
-
-    frameBuffer.insert (
-        "R",
-        DeepSlice (
-            HALF,
-            (char*) (&dataR[0][0] - dataWindow.min.x -
-                     dataWindow.min.y * width),
-            sizeof (half*) * 1, // xStride for pointer
-
-            sizeof (half*) * width, // yStride for pointer array
-            sizeof (half) * 1));    // stride for Z data sample   
-
-
-    frameBuffer.insert (
-        "Z",
+        "dataZ",
         DeepSlice (
             FLOAT,
             (char*) (&dataZ[0][0] - dataWindow.min.x -
                      dataWindow.min.y * width),
-            sizeof (float*) * 1, // xStride for pointer
 
+            sizeof (float*) * 1,     // xStride for pointer array
             sizeof (float*) * width, // yStride for pointer array
             sizeof (float) * 1));    // stride for Z data sample
 
+    frameBuffer.insert (
+        "dataA",
+        DeepSlice (
+            HALF,
+            (char*) (&dataA[0][0] - dataWindow.min.x -
+                     dataWindow.min.y * width),
+            sizeof (half*) * 1,     // xStride for pointer array
+            sizeof (half*) * width, // yStride for pointer array
+            sizeof (half) * 1));    // stride for O data sample
 
     file.setFrameBuffer (frameBuffer);
-    file.readPixels (dataWindow.min.y, dataWindow.max.y);
 
-    
+    file.readPixelSampleCounts (dataWindow.min.y, dataWindow.max.y);
 
     for (int i = 0; i < height; i++)
     {
         for (int j = 0; j < width; j++)
         {
-            delete[] dataA[i][j];
-            delete[] dataR[i][j];
+
+            dataZ[i][j] = new float[sampleCount[i][j]];
+            dataA[i][j] = new half[sampleCount[i][j]];
+        }
+    }
+
+    file.readPixels (dataWindow.min.y, dataWindow.max.y);
+
+    for (int i = 0; i < height; i++)
+    {
+        for (int j = 0; j < width; j++)
+        {
             delete[] dataZ[i][j];
-            
+            delete[] dataA[i][j];
         }
     }
 }
@@ -132,28 +125,18 @@ unsigned int
 getPixelSampleCount (int i, int j)
 {
     // Dummy code creating deep data from a flat image
-    return j;
+    return 1;
 }
 
 Array2D<float> testDataZ;
 Array2D<half>  testDataA;
 
 void
-getPixelSampleData (int i, int j, Array2D<float*>& dataA, Array2D<half*>& dataR, Array2D<float*>& dataZ)
+getPixelSampleData (int i, int j, Array2D<float*>& dataZ, Array2D<half*>& dataA)
 {
-    const float z = 1;
-    const float a = 5;
-    const half r = 0.75;
-    const int nSamples = getPixelSampleCount(i, j);
-    for (int k=0;k <nSamples;k++)
-    {
-        dataR[i][j][k] = r;
-        dataZ[i][j][k] = z;//testDataZ[i][j];
-        dataA[i][j][k] = a;//testDataA[i][j];
-    }
     // Dummy code creating deep data from a flat image
-    //dataZ[i][j][0] = testDataZ[i][j];
-    //dataA[i][j][0] = testDataA[i][j];
+    dataZ[i][j][0] = testDataZ[i][j];
+    dataA[i][j][0] = testDataA[i][j];
 }
 
 void
@@ -161,14 +144,11 @@ writeDeepScanlineFile (
     const char       filename[],
     Box2i            displayWindow,
     Box2i            dataWindow,
-    Array2D<float*>& dataA,
-    Array2D<half*>& dataR,
     Array2D<float*>& dataZ,
 
-   
+    Array2D<half*>& dataA,
 
-    Array2D<unsigned int>& sampleCount,
-    Compression            compression = Compression::ZIPS_COMPRESSION)
+    Array2D<unsigned int>& sampleCount)
 
 {
     //
@@ -187,12 +167,10 @@ writeDeepScanlineFile (
 
     Header header (displayWindow, dataWindow);
 
-    header.channels ().insert ("A", Channel (FLOAT));
-    header.channels ().insert ("R", Channel (HALF));
     header.channels ().insert ("Z", Channel (FLOAT));
-    
+    header.channels ().insert ("A", Channel (HALF));
     header.setType (DEEPSCANLINE);
-    header.compression () = compression;
+    header.compression () = ZSTD_COMPRESSION;
 
     DeepScanLineOutputFile file (filename, header);
 
@@ -207,28 +185,6 @@ writeDeepScanlineFile (
         sizeof (unsigned int) * width)); // yStride
 
     frameBuffer.insert (
-        "A",
-        DeepSlice (
-            FLOAT,
-            (char*) (&dataA[0][0] - dataWindow.min.x -
-                     dataWindow.min.y * width),
-            sizeof (float*) * 1,     // xStride for pointer array
-            sizeof (float*) * width, // yStride for pointer array
-            sizeof (float) * 1));    // stride for A data sample
-
-    frameBuffer.insert (
-        "R",
-        DeepSlice (
-            HALF,
-            (char*) (&dataR[0][0] - dataWindow.min.x -
-                     dataWindow.min.y * width),
-            sizeof (half*) * 1, // xStride for pointer
-
-            sizeof (half*) * width, // yStride for pointer array
-            sizeof (half) * 1));    // stride for Z data sample   
-
-
-    frameBuffer.insert (
         "Z",
         DeepSlice (
             FLOAT,
@@ -239,7 +195,15 @@ writeDeepScanlineFile (
             sizeof (float*) * width, // yStride for pointer array
             sizeof (float) * 1));    // stride for Z data sample
 
-
+    frameBuffer.insert (
+        "A",
+        DeepSlice (
+            HALF,
+            (char*) (&dataA[0][0] - dataWindow.min.x -
+                     dataWindow.min.y * width),
+            sizeof (half*) * 1,     // xStride for pointer array
+            sizeof (half*) * width, // yStride for pointer array
+            sizeof (half) * 1));    // stride for A data sample
 
     file.setFrameBuffer (frameBuffer);
 
@@ -248,11 +212,10 @@ writeDeepScanlineFile (
         for (int j = 0; j < width; j++)
         {
             sampleCount[i][j] = getPixelSampleCount (i, j);
-            dataR[i][j]       = new half[sampleCount[i][j]];
             dataZ[i][j]       = new float[sampleCount[i][j]];
-            dataA[i][j]       = new float[sampleCount[i][j]];
+            dataA[i][j]       = new half[sampleCount[i][j]];
             // Generate data for dataZ and dataA.
-            getPixelSampleData (i, j, dataA, dataR, dataZ);
+            getPixelSampleData (i, j, dataZ, dataA);
         }
 
         file.writePixels (1);
@@ -264,7 +227,6 @@ writeDeepScanlineFile (
         {
             delete[] dataZ[i][j];
             delete[] dataA[i][j];
-            delete[] dataR[i][j];
         }
     }
 }
@@ -279,17 +241,11 @@ deepExamples ()
     window.min.setValue (0, 0);
     window.max.setValue (w - 1, h - 1);
 
-    Array2D<float*> dataA;
-    dataA.resizeErase (h, w);
-
-    Array2D<half*> dataR;
-    dataR.resizeErase (h, w);
-
-
     Array2D<float*> dataZ;
     dataZ.resizeErase (h, w);
 
-
+    Array2D<half*> dataA;
+    dataA.resizeErase (h, w);
 
     Array2D<unsigned int> sampleCount;
     sampleCount.resizeErase (h, w);
@@ -297,84 +253,10 @@ deepExamples ()
     // Create an image to be used as a source for deep data
     testDataA.resizeErase (h, w);
     testDataZ.resizeErase (h, w);
-    //drawImage2 (testDataA, testDataZ, w, h);
+    drawImage2 (testDataA, testDataZ, w, h);
 
-   {
-        writeDeepScanlineFile (
-            "test.deep.exr",
-            window,
-            window,
-            dataA,
-            dataR,
-            dataZ,
-            sampleCount,
-            Compression::ZIPS_COMPRESSION);
-            // Wipe
-            for (int w = 0; w < h; w++)
-            {
-                for (int j = 0; j < w; j++)
-                {
-                    sampleCount[w][j] = 0;
-
-                }
-            }
-    }
-    /*{
-        writeDeepScanlineFile (
-            "test.zips.exr",
-            window,
-            window,
-            dataZ,
-            dataA,
-            sampleCount,
-            Compression::ZIPS_COMPRESSION);
-    }*/
-    {
-        readDeepScanlineFile (
-            "test.deep.exr", window, window, dataA, dataR, dataZ, sampleCount);
-    }
-
-    for (int w = 0; w < h; w++)
-    {
-        for (int j = 0; j < w; j++)
-        {
-            if (sampleCount[w][j] != getPixelSampleCount (w, j))
-            {
-                std::cerr << "ERROR: sampleCount[" << w << "][" << j
-                          << "] = " << sampleCount[w][j]
-                          << ", expected " << getPixelSampleCount (w, j)
-                          << std::endl;
-            }
-
-            const float z = 1;
-            const float a = 5;
-            const half r = 0.75;
-
-            for (int k = 0;k < sampleCount[w][j]; k++)
-            {
-                if (dataA[w][j][k] != a)
-                {
-                    std::cerr << "ERROR: dataA[" << w << "][" << j
-                              << "][" << k << "] = " << dataA[w][j][k]
-                              << ", expected 5.f" << std::endl;
-                }
-                if (dataR[w][j][k] != r)
-                {
-                    std::cerr << "ERROR: dataR[" << w << "][" << j
-                              << "][" << k << "] = " << dataR[w][j][k]
-                              << ", expected 0.75f" << std::endl;
-                }
-                if (dataZ[w][j][k] != z)
-                {
-                    std::cerr << "ERROR: dataZ[" << w << "][" << j
-                              << "][" << k << "] = " << dataZ[w][j][k]
-                              << ", expected 1.f" << std::endl;
-                }
-            }
-        }
-    }
-    /*{
-        readDeepScanlineFile (
-            "test.zips.exr", window, window, dataZ, dataA, sampleCount);
-    }*/
+    writeDeepScanlineFile (
+        "test.deep.exr", window, window, dataZ, dataA, sampleCount);
+    readDeepScanlineFile (
+        "test.deep.exr", window, window, dataZ, dataA, sampleCount);
 }
