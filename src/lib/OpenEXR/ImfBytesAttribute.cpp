@@ -37,10 +37,6 @@ BytesAttribute::BytesAttribute (const BytesAttribute& other)
     memcpy ((char*) _data, (const char*) other._data, other._data.size ());
 }
 
-BytesAttribute::~BytesAttribute ()
-{
-    // empty
-}
 
 const char*
 BytesAttribute::staticTypeName ()
