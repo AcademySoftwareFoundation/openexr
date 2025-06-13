@@ -57,7 +57,7 @@ jobs:
           output-dir: wheelhouse
         env:
           MACOSX_DEPLOYMENT_TARGET: 10.15
-          CIBW_ARCHS_MACOS: x86_64 arm64 
+          CIBW_ARCHS_MACOS: x86_64 arm64 universal2
           # Build Python 3.7 through 3.12.
           # Skip python 3.6 since scikit-build-core requires 3.7+
           # Skip 32-bit wheels builds on Windows
