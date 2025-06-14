@@ -3,6 +3,7 @@
 
 # OpenEXR Release Notes
 
+* [Version 3.3.4](#version-334-june-9-2025) June 9, 2025
 * [Version 3.3.3](#version-333-march-23-2025) March 23, 2025
 * [Version 3.3.2](#version-332-november-11-2024) November 11, 2024
 * [Version 3.3.1](#version-331-october-8-2024) October 8, 2024
@@ -77,6 +78,37 @@
 * [Version 1.0.2](#version-102)
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
+
+## Version 3.3.4 (June 9, 2025)
+
+Patch release with several bug/build/performance fixes:
+
+* :bug: Fix a crash with deep scanline input
+* :bug: Fix a bug when reading a file with missing tiles
+* :bug: Fix a crash in exrmetrics
+* :hammer_and_wrench: Fix a problem with /EHsc and /MP flags that broke CUDA compilation
+* :hammer_and_wrench: Fix a build failure on MinGW
+* :rocket: Enable vectorisation for ZIP reconstruct stage on Windows
+
+### Merged Pull Requests
+
+* [2047](https://github.com/AcademySoftwareFoundation/openexr/pull/2047)
+Use default generator for oss_fuzz
+* [2046](https://github.com/AcademySoftwareFoundation/openexr/pull/2046)
+Fix crash in exrmetrics when running in single part mode.
+* [2043](https://github.com/AcademySoftwareFoundation/openexr/pull/2043)
+Enable vectorisation for ZIP reconstruct stage on Windows
+* [2042](https://github.com/AcademySoftwareFoundation/openexr/pull/2042)
+Use CMake to build oss-fuzzers
+* [2036](https://github.com/AcademySoftwareFoundation/openexr/pull/2036)
+Allow partial reconstruction of the chunk table to succeed
+* [2021](https://github.com/AcademySoftwareFoundation/openexr/pull/2021)
+Fix handling of /EHsc and /MP flags
+* [2019](https://github.com/AcademySoftwareFoundation/openexr/pull/2019)
+Fix Deep Scanline Input crash when using a framebuffer as parameter
+* [2013](https://github.com/AcademySoftwareFoundation/openexr/pull/2013)
+simplify atomic pointer code for the chunk table
+
 
 ## Version 3.3.3 (March 23, 2025)
 
