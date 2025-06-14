@@ -223,7 +223,7 @@ if(NOT OPENEXR_FORCE_INTERNAL_DEFLATE)
     find_package(PkgConfig)
     if(PKG_CONFIG_FOUND)
       include(FindPkgConfig)
-      pkg_check_modules(deflate IMPORTED_TARGET GLOBAL libdeflate)
+      pkg_check_modules(deflate IMPORTED_TARGET GLOBAL QUIET libdeflate)
       if(deflate_FOUND)
         set(EXR_DEFLATE_LIB PkgConfig::deflate)
         set(EXR_DEFLATE_VERSION ${deflate_VERSION})
@@ -256,39 +256,42 @@ endif()
 # Find or download OpenJPH
 #######################################
 
-message(STATUS "Locating OpenJPH")
-
 option(OPENEXR_FORCE_INTERNAL_OPENJPH "Force downloading OpenJPH from a git repo" OFF)
-
-set(OPENEXR_OJPH_REPO "https://github.com/aous72/OpenJPH.git" CACHE STRING "OpenJPH Git repo URI")
-set(OPENEXR_OJPH_TAG "0.21.3" CACHE STRING "OpenJPH Git repo tag")
+set(OPENEXR_OPENJPH_REPO "https://github.com/aous72/OpenJPH.git" CACHE STRING "OpenJPH git repo URI")
+set(OPENEXR_OPENJPH_TAG "0.21.3" CACHE STRING "OpenJPH git repo tag")
 
 if (NOT OPENEXR_FORCE_INTERNAL_OPENJPH)
-  find_package(openjph 0.21 QUIET)
-
+  find_package(openjph 0.21 CONFIG QUIET)
   if(openjph_FOUND)
-    message(STATUS "Found OpenJPH using find_package.")
+    message(STATUS "Using OpenJPH from ${openjph_DIR}")
     set(EXR_OPENJPH_LIB openjph)
   else()
     # If not found, try pkgconfig
     find_package(PkgConfig)
     if(PKG_CONFIG_FOUND)
       include(FindPkgConfig)
-      pkg_check_modules(openjph IMPORTED_TARGET GLOBAL openjph=0.21)
+      pkg_check_modules(openjph IMPORTED_TARGET GLOBAL QUIET openjph=0.21)
       if(openjph_FOUND)
         set(EXR_OPENJPH_LIB PkgConfig::openjph)
-        message(STATUS "Found OpenJPH using PkgConfig at ${deflate_LINK_LIBRARIES}")
+        message(STATUS "Using OpenJPH from ${openjph_LINK_LIBRARIES}")
       endif()
     endif()
   endif()
 endif()
 
 if(NOT EXR_OPENJPH_LIB)
+  # Using internal OpenJPH
+  if(OPENEXR_FORCE_INTERNAL_OPENJPH)
+    message(STATUS "OpenJPH forced internal, fetching from ${OPENEXR_OPENJPH_REPO} @ ${OPENEXR_OPENJPH_TAG}")
+  else()
+    message(STATUS "OpenJPH was not found, fetching from ${OPENEXR_OPENJPH_REPO} @ ${OPENEXR_OPENJPH_TAG}")
+  endif()
+
   include(FetchContent)
   FetchContent_Declare(
     openjph
-    GIT_REPOSITORY ${OPENEXR_OJPH_REPO}
-    GIT_TAG        ${OPENEXR_OJPH_TAG}
+    GIT_REPOSITORY ${OPENEXR_OPENJPH_REPO}
+    GIT_TAG        ${OPENEXR_OPENJPH_TAG}
   )
 
   set(OJPH_BUILD_TESTS OFF CACHE BOOL "" FORCE)
@@ -306,12 +309,10 @@ if(NOT EXR_OPENJPH_LIB)
   include_directories("${openjph_SOURCE_DIR}/src/core/common")
 
   set(EXR_OPENJPH_LIB openjph)
-
-  message(STATUS "Building OpenJPH from ${OPENEXR_OJPH_REPO}.")
 endif()
 
 if (NOT EXR_OPENJPH_LIB)
-  message(ERROR "Failed to find OpenJPH.")
+  message(ERROR "Failed to find OpenJPH")
 endif()
 
 #######################################
@@ -325,15 +326,15 @@ set(OPENEXR_IMATH_TAG "main" CACHE STRING "Tag for auto-build of Imath (branch, 
 if(NOT OPENEXR_FORCE_INTERNAL_IMATH)
   #TODO: ^^ Release should not clone from main, this is a place holder
   set(CMAKE_IGNORE_PATH "${CMAKE_CURRENT_BINARY_DIR}/_deps/imath-src/config;${CMAKE_CURRENT_BINARY_DIR}/_deps/imath-build/config")
-  find_package(Imath 3.1)
+  find_package(Imath 3.1 CONFIG QUIET)
   set(CMAKE_IGNORE_PATH)
 endif()
 
 if(NOT TARGET Imath::Imath AND NOT Imath_FOUND)
   if(OPENEXR_FORCE_INTERNAL_IMATH)
-    message(STATUS "Imath forced internal, installing from ${OPENEXR_IMATH_REPO} (${OPENEXR_IMATH_TAG})")
+    message(STATUS "Imath forced internal, fetching from ${OPENEXR_IMATH_REPO} @ ${OPENEXR_IMATH_TAG}")
   else()
-    message(STATUS "Imath was not found, installing from ${OPENEXR_IMATH_REPO} (${OPENEXR_IMATH_TAG})")
+    message(STATUS "Imath was not found, fetching from ${OPENEXR_IMATH_REPO} @ ${OPENEXR_IMATH_TAG}")
   endif()
   include(FetchContent)
   FetchContent_Declare(Imath
@@ -360,7 +361,6 @@ if(NOT TARGET Imath::Imath AND NOT Imath_FOUND)
     get_target_property(imathconfinc ImathConfig INTERFACE_INCLUDE_DIRECTORIES)
     list(APPEND imathinc ${imathconfinc})
     set(IMATH_HEADER_ONLY_INCLUDE_DIRS ${imathinc})
-    message(STATUS "Imath interface dirs ${IMATH_HEADER_ONLY_INCLUDE_DIRS}")
   endif()
 else()
   message(STATUS "Using Imath from ${Imath_DIR}")
