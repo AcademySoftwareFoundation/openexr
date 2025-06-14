@@ -17,6 +17,7 @@ on:
     branches-ignore:
       - RB-*
     paths:
+      - 'cmake/**'
       - 'src/lib/**'
       - 'src/wrappers/python/**'
       - 'pyproject.toml'
@@ -27,6 +28,7 @@ on:
     branches-ignore:
       - RB-*
     paths:
+      - 'cmake/**'
       - 'src/lib/**'
       - 'src/wrappers/python/**'
       - 'pyproject.toml'
@@ -73,7 +75,7 @@ jobs:
       - name: Build wheel
         uses: pypa/cibuildwheel@v2.23
         env:
-          CIBW_ARCHS_MACOS: x86_64 arm64 
+          CIBW_ARCHS_MACOS: x86_64 arm64 universal2
           # Build Python 3.7 through 3.12.
           # Skip python 3.6 since scikit-build-core requires 3.7+
           # Skip 32-bit wheels builds on Windows

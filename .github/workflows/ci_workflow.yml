@@ -147,6 +147,7 @@ jobs:
       OPENEXR_FORCE_INTERNAL_IMATH: ${{ matrix.OPENEXR_FORCE_INTERNAL_IMATH || 'OFF' }}
       OPENEXR_FORCE_INTERNAL_DEFLATE: ${{ matrix.OPENEXR_FORCE_INTERNAL_DEFLATE || 'OFF' }}
       OPENEXR_FORCE_INTERNAL_OPENJPH: ${{ matrix.OPENEXR_FORCE_INTERNAL_OPENJPH || 'OFF' }}
+      CMAKE_OSX_ARCHITECTURES: ${{ matrix.CMAKE_OSX_ARCHITECTURES }}
       BUILD_TESTING: ${{ matrix.BUILD_TESTING || 'ON' }}
       validate_install: ${{ matrix.validate_install || 'ON' }}
 
@@ -185,6 +186,11 @@ jobs:
             label: macos-13
             os: macos-13
 
+          - build: 7
+            label: universal2
+            CMAKE_OSX_ARCHITECTURES: "x86_64;arm64"
+
+         
   windows:
     name: 'Windows.${{ matrix.build}}: ${{ matrix.label }}'
     uses: ./.github/workflows/ci_steps.yml
