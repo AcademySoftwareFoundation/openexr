@@ -78,6 +78,39 @@ jobs:
       - name: Checkout
         uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
 
+      - name: Set Up Directories & Environment
+        run: |
+          set -x
+
+          # Be careful to use consistent paths between Windows and
+          # Linux. Convert backslashed Windows paths to Linux style via cygpath,
+          # i.e. convert D:\a\Imath\Imath to /d/a/Imath/Imath.
+
+          # WORKSPACE is the root of the project directory
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+              WORKSPACE=$(cygpath -u "$GITHUB_WORKSPACE")
+
+              # remember the install location for Imath, libdeflate, openjph
+              PROGRAM_FILES=$(cygpath -u "C:/Program Files (x86)")
+              echo "PROGRAM_FILES=$PROGRAM_FILES" >> $GITHUB_ENV
+          else
+              WORKSPACE=$GITHUB_WORKSPACE
+          fi
+          echo "WORKSPACE=$WORKSPACE" >> $GITHUB_ENV
+
+          # BUILD_DIR is the CMake build directory
+          BUILD_DIR=$WORKSPACE/_build
+          echo "BUILD_DIR=$BUILD_DIR" >> $GITHUB_ENV
+
+          # INSTALL_DIR is the CMake install directory
+          INSTALL_DIR=$WORKSPACE/_install
+          echo "INSTALL_DIR=$INSTALL_DIR" >> $GITHUB_ENV
+
+          # Initialize the PATH necessary for the tests on Windows
+          echo "OPENEXR_PATH=$INSTALL_DIR/bin:$INSTALL_DIR/lib" >> $GITHUB_ENV
+
+        shell: bash
+
       - name: Determine MSYS2 Packages
         if: inputs.msystem != ''
         run: |
@@ -106,38 +139,33 @@ jobs:
       - name: Install Imath
         # Pre-install Imath so the builds validate that find_package sees the external installation
         if: inputs.OPENEXR_FORCE_INTERNAL_IMATH == 'OFF' && inputs.msystem == ''
-        run: share/ci/scripts/install_imath.sh main
+        run: |
+          share/ci/scripts/install_imath.sh main
+          echo "OPENEXR_PATH=$OPENEXR_PATH:$PROGRAM_FILES/Imath/bin:$PROGRAM_FILES/Imath/lib" >> $GITHUB_ENV
         shell: bash
 
       - name: Install libdeflate
         # Pre-install libdeflate so the builds validate that find_package sees the external installation
         if: inputs.OPENEXR_FORCE_INTERNAL_DEFLATE == 'OFF' && inputs.msystem == ''
-        run: share/ci/scripts/install_libdeflate.sh master
+        run: |
+          share/ci/scripts/install_libdeflate.sh master
+          echo "OPENEXR_PATH=$OPENEXR_PATH:$PROGRAM_FILES/libdeflate/bin:$PROGRAM_FILES/libdeflate/lib" >> $GITHUB_ENV
         shell: bash
 
       - name: Install OpenJPH
         # Pre-install OpenJPH so the builds validate finding the external installation
         if: inputs.OPENEXR_FORCE_INTERNAL_OPENJPH == 'OFF' && inputs.msystem == ''
-        run: share/ci/scripts/install_openjph.sh 0.21.2
-        shell: bash
-
-      - name: Set PATH for Imath/libdeflate/OpenJPH DLLs
-        # When building against external Imath/libdeflate shared objects, the tests need PATH to include the dll's.
-        if: contains(inputs.os, 'windows') && inputs.msystem == ''
         run: |
-          echo "$PATH;C:/Program Files (x86)/Imath/bin;C:/Program Files (x86)/Imath/lib;C:/Program Files (x86)/libdeflate/bin;C:/Program Files (x86)/libdeflate/lib;C:/Program Files (x86)/openjph/lib;C:/Program Files (x86)/openjph/bin" >> $GITHUB_PATH
+          share/ci/scripts/install_openjph.sh 0.21.2
+          echo "OPENEXR_PATH=$OPENEXR_PATH:$PROGRAM_FILES/openjph/bin:$PROGRAM_FILES/openjph/lib" >> $GITHUB_ENV
         shell: bash
 
       - name: Install help2man
         # TODO: this could go in the ASWF Linux docker
         # container. Also, it doesn't currently work for Windows, so
         # the windows builds have docs disabled.
-        if: ${{ inputs.OPENEXR_INSTALL_DOCS == 'ON' }}
+        if: inputs.OPENEXR_INSTALL_DOCS == 'ON'
         run: share/ci/scripts/install_help2man.sh
-        shell: bash
-
-      - name: Create build directories
-        run: mkdir _install _build _examples
         shell: bash
 
       - name: Construct CMake command
@@ -145,8 +173,8 @@ jobs:
           # Construct the cmake command as a variable, so the
           # Configure step below can execute it, but also so we can store
           # in in the install_manifest as a debugging reference
-          cmake_args=("-B" "." "-S" "..")
-          cmake_args+=("-DCMAKE_INSTALL_PREFIX=../_install")
+          cmake_args=("-B" "$BUILD_DIR" -S "$WORKSPACE")
+          cmake_args+=("-DCMAKE_INSTALL_PREFIX=$INSTALL_DIR")
           cmake_args+=("-DCMAKE_BUILD_TYPE=${{ inputs.build-type }}")
           cmake_args+=("-DOPENEXR_CXX_STANDARD=${{ inputs.cxx-standard }}")
           cmake_args+=("-DBUILD_SHARED_LIBS=${{ inputs.BUILD_SHARED_LIBS }}")
@@ -177,11 +205,12 @@ jobs:
           quoted_args=$(printf '%q ' "${cmake_args[@]}")
           echo "CMAKE_ARGS=$quoted_args" >> "$GITHUB_ENV"
 
-          # Remove the os version from the manifest name, so it only
-          # contains "ubuntu", "macos", or "windows", so the name is,
-          # e.g. install_manifest.macos.1.txt
-          echo "INSTALL_MANIFEST=$(echo 'install_manifest.${{ inputs.os }}' | cut -d'-' -f1).${{ inputs.build }}.txt" >> $GITHUB_ENV
-        working-directory: _build
+          # Set the install manifest name to include the os and build number.
+          # e.g. install_manifest.macos.1.txt. Note that $RUNNER_OS is "Linux",
+          # while input.os is "ubuntu".
+          os_name=$(echo "${RUNNER_OS}" | tr '[:upper:]' '[:lower:]')  # linux, macos, windows
+          build="${{ inputs.build }}"
+          echo INSTALL_MANIFEST_FILENAME="install_manifest.${os_name}.${build}.txt" >> $GITHUB_ENV
         shell: bash
 
       - name: Configure & Build
@@ -190,8 +219,7 @@ jobs:
           set -x
           cmake --version
           cmake ${{ env.CMAKE_ARGS }}
-          cmake --build . --target install --config ${{ inputs.build-type }}
-        working-directory: _build
+          cmake --build $BUILD_DIR --target install --config ${{ inputs.build-type }}
         shell: bash
 
       - name: Configure & Build (msys2) # requires msys2 shell
@@ -200,24 +228,25 @@ jobs:
           set -x
           cmake --version
           cmake ${{ env.CMAKE_ARGS }}
-          cmake --build . --target install --config ${{ inputs.build-type }}
-        working-directory: _build
+          cmake --build $BUILD_DIR --target install --config ${{ inputs.build-type }}
         shell: msys2 {0}
 
       - name: Test
         if: inputs.BUILD_TESTING == 'ON' && inputs.msystem == ''
         run: |
           set -x
-          ctest -T Test -C ${{ inputs.build-type }} --timeout 7200 --output-on-failure -VV
-        working-directory: _build
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            export PATH="$OPENEXR_PATH:$PATH"
+          fi
+          ctest -T Test -C ${{ inputs.build-type }} --test-dir $BUILD_DIR --timeout 7200 --output-on-failure -VV
         shell: bash
 
       - name: Test (msys2) # requires msys2 shell
         if: inputs.BUILD_TESTING == 'ON' && inputs.msystem != ''
         run: |
           set -x
-          ctest -T Test -C ${{ inputs.build-type }} --timeout 7200 --output-on-failure -VV
-        working-directory: _build
+          export PATH="$OPENEXR_PATH:$PATH"
+          ctest -T Test -C ${{ inputs.build-type }} --test-dir $BUILD_DIR --timeout 7200 --output-on-failure -VV
         shell: msys2 {0}
 
       - name: Prepare install_manifest
@@ -225,22 +254,32 @@ jobs:
         # and remove the path prefix, so the manifest contains only
         # the local filenames.
         run: |
-          echo "# cmake ${{ env.CMAKE_ARGS }}" > "_build/$INSTALL_MANIFEST"
-          sort _build/install_manifest.txt | sed -e "s:^.*/_install/::" >> "_build/$INSTALL_MANIFEST"
+          set -x
+          INSTALL_MANIFEST_PATH="$BUILD_DIR/$INSTALL_MANIFEST_FILENAME"
+          echo "# SPDX-License-Identifier: BSD-3-Clause" > $INSTALL_MANIFEST_PATH
+          echo "# Copyright (c) Contributors to the OpenEXR Project." >> $INSTALL_MANIFEST_PATH
+          echo "# cmake ${{ env.CMAKE_ARGS }}" >> $INSTALL_MANIFEST_PATH
+          sort $BUILD_DIR/install_manifest.txt | sed -e "s:^.*/_install/::" >> $INSTALL_MANIFEST_PATH
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+              # upload-artifact expects a windows-style path
+              INSTALL_MANIFEST_PATH=$(cygpath -w $INSTALL_MANIFEST_PATH)
+          fi
+          echo INSTALL_MANIFEST_PATH=$INSTALL_MANIFEST_PATH >> $GITHUB_ENV
         shell: bash
 
       - name: Upload install_manifest.txt
         # Upload the manifest to make it possible to download for inspection and debugging
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: ${{ env.INSTALL_MANIFEST }}
-          path: _build/${{ env.INSTALL_MANIFEST }}
+          name: ${{ env.INSTALL_MANIFEST_FILENAME }}
+          path: ${{ env.INSTALL_MANIFEST_PATH }}
 
       - name: Validate install
-        if: ${{ inputs.validate_install == 'ON' }}
+        if: inputs.validate_install == 'ON'
         # Validate that the build has installed the proper files by comparing against the appropriate reference manifest
         run: |
-          share/ci/scripts/validate_install.py "_build/$INSTALL_MANIFEST" "share/ci/install_manifest/$INSTALL_MANIFEST"
+          set -x
+          share/ci/scripts/validate_install.py "$INSTALL_MANIFEST_PATH" "share/ci/install_manifest/$INSTALL_MANIFEST_FILENAME" 
         shell: bash
 
       - name: Website examples
@@ -252,34 +291,32 @@ jobs:
         if: inputs.namespace == '' && inputs.msystem == '' && inputs.OPENEXR_BUILD_EXAMPLES != ''
         run: |
           set -x
-          if [[ "$RUNNER_OS" == "Windows" ]]; then
-              WORKSPACE=$(cygpath -u "$GITHUB_WORKSPACE")
-          else
-              WORKSPACE=$GITHUB_WORKSPACE
-          fi
-          INSTALL_DIR=$WORKSPACE/_install
           EXRWRITER_BUILD_DIR=$WORKSPACE/_build.exrwriter
           cmake -S website/src/exrwriter -B $EXRWRITER_BUILD_DIR \
                 -DCMAKE_PREFIX_PATH=$INSTALL_DIR \
                 -DCMAKE_VERBOSE_MAKEFILE=ON
           cmake --build $EXRWRITER_BUILD_DIR --config ${{ inputs.build-type }}
           if [[ "$RUNNER_OS" == "Windows" ]]; then
-              export PATH="$INSTALL_DIR/bin;$INSTALL_DIR/lib;C:/Program Files (x86)/Imath/bin;C:/Program Files (x86)/Imath/lib;C:/Program Files (x86)/libdeflate/bin;C:/Program Files (x86)/libdeflate/lib;C:/Program Files (x86)/openjph/lib;C:/Program Files (x86)/openjph/bin;$PATH"
-              EXRWRITER=$EXRWRITER_BUILD_DIR/${{ inputs.build-type }}/exrwriter.exe
-              EXRINFO=$INSTALL_DIR/bin/exrinfo.exe
+            export PATH="$OPENEXR_PATH:$PATH"
+            EXRWRITER=$EXRWRITER_BUILD_DIR/${{ inputs.build-type }}/exrwriter.exe
+            EXRINFO=$INSTALL_DIR/bin/exrinfo.exe
           else
-              EXRWRITER=$EXRWRITER_BUILD_DIR/exrwriter
-              EXRINFO=$INSTALL_DIR/bin/exrinfo
+            EXRWRITER=$EXRWRITER_BUILD_DIR/exrwriter
+            EXRINFO=$INSTALL_DIR/bin/exrinfo
           fi
-          if [ -x "$EXRWRITER" ]; then
-              "$EXRWRITER"
-          else
-              echo "can't find exrwriter: $EXRWRITER"
-          fi
+          "$EXRWRITER"
+          # Validate that the image is as expected
           if [ -x "$EXRINFO" ]; then
-              "$EXRINFO" stripes.exr
+            expected_output=$(<website/src/exrwriter/stripes.exrinfo.txt)
+            actual_output=$("$EXRINFO" stripes.exr)
+            if [[ "$actual_output" != "$expected_output" ]]; then
+              echo "error: exrwriter produced incorrect results:"
+              echo $actual_output
+              exit 1
+            fi
           else
-              echo "can't find exrinfo: $EXRINFO"
+            echo "skipping exrinfo, no tool found."
           fi
+
         shell: bash
 
