@@ -203,8 +203,7 @@ endif()
 set (ILMTHREAD_USE_TBB ${OPENEXR_USE_TBB})
 
 option(OPENEXR_FORCE_INTERNAL_DEFLATE "Force using an internal libdeflate" OFF)
-set(OPENEXR_DEFLATE_REPO "https://github.com/ebiggers/libdeflate.git" CACHE STRING "Repo path for libdeflate source")
-set(OPENEXR_DEFLATE_TAG "master" CACHE STRING "Tag to use for libdeflate source repo (defaults to primary if empty)")
+set (OPENEXR_USE_INTERNAL_DEFLATE OFF)
 
 if(NOT OPENEXR_FORCE_INTERNAL_DEFLATE)
   #TODO: ^^ Release should not clone from main, this is a place holder
@@ -224,7 +223,7 @@ if(NOT OPENEXR_FORCE_INTERNAL_DEFLATE)
     find_package(PkgConfig)
     if(PKG_CONFIG_FOUND)
       include(FindPkgConfig)
-      pkg_check_modules(deflate IMPORTED_TARGET GLOBAL libdeflate)
+      pkg_check_modules(deflate IMPORTED_TARGET GLOBAL QUIET libdeflate)
       if(deflate_FOUND)
         set(EXR_DEFLATE_LIB PkgConfig::deflate)
         set(EXR_DEFLATE_VERSION ${deflate_VERSION})
@@ -237,82 +236,18 @@ endif()
 
 if(EXR_DEFLATE_LIB)
   # Using external library
-  set(EXR_DEFLATE_SOURCES)
-  set(EXR_DEFLATE_INCLUDE_DIR)
+  message(STATUS "Using externally provided libdeflate: ${EXR_DEFLATE_VERSION}")
   # For OpenEXR.pc.in for static build
   set(EXR_DEFLATE_PKGCONFIG_REQUIRES "libdeflate >= ${EXR_DEFLATE_VERSION}")
 else()
   # Using internal deflate
   if(OPENEXR_FORCE_INTERNAL_DEFLATE)
-    message(STATUS "libdeflate forced internal, installing from ${OPENEXR_DEFLATE_REPO} (${OPENEXR_DEFLATE_TAG})")
+    message(STATUS "libdeflate forced internal, using vendored code")
   else()
-    message(STATUS "libdeflate was not found, installing from ${OPENEXR_DEFLATE_REPO} (${OPENEXR_DEFLATE_TAG})")
-  endif()
-  include(FetchContent)
-  # Fetch deflate but exclude it from the "all" target.
-  # This prevents the library from being built.
-  FetchContent_Declare(Deflate
-    GIT_REPOSITORY "${OPENEXR_DEFLATE_REPO}"
-    GIT_TAG "${OPENEXR_DEFLATE_TAG}"
-    GIT_SHALLOW ON
-    EXCLUDE_FROM_ALL
-    )
-
-  FetchContent_GetProperties(Deflate)
-  if(NOT deflate_POPULATED)
-    if(CMAKE_VERSION VERSION_LESS "3.30")
-      # CMake 3.30 deprecated this single argument version of
-      # FetchContent_Populate():
-      #   https://cmake.org/cmake/help/latest/policy/CMP0169.html
-      # Prior to CMake 3.28, passing the EXCLUDE_FROM_ALL option to
-      # FetchContent_Declare() does *not* have the desired effect of
-      # excluding the fetched content from the build when
-      # FetchContent_MakeAvailable() is called.
-      # Ideally we could "manually" set the EXCLUDE_FROM_ALL property on the
-      # deflate SOURCE_DIR and BINARY_DIR, but a bug that was only fixed as of
-      # CMake 3.20.3 prevents that from properly excluding the directories:
-      #   https://gitlab.kitware.com/cmake/cmake/-/issues/22234
-      # To support the full range of CMake versions without overly
-      # complicating the logic here with workarounds, we continue to use
-      # Populate for CMake versions before 3.30, and switch to MakeAvailable
-      # for CMake 3.30 and later.
-      FetchContent_Populate(Deflate)
-    else()
-      FetchContent_MakeAvailable(Deflate)
-    endif()
+    message(STATUS "libdeflate was not found, using vendored code")
   endif()
 
-  # Rather than actually compile something, just embed the sources
-  # into exrcore. This could in theory cause issues when compiling as
-  # a static library into another application which also uses
-  # libdeflate but we switch the export symbol to hidden which should
-  # hide the symbols when linking...
-  set(EXR_DEFLATE_SOURCES
-    lib/arm/cpu_features.c
-    lib/x86/cpu_features.c
-    lib/utils.c
-    lib/deflate_compress.c
-    lib/deflate_decompress.c
-    lib/adler32.c
-    lib/zlib_compress.c
-    lib/zlib_decompress.c)
-  # don't need these
-  # lib/crc32.c
-  # lib/gzip_compress.c
-  # lib/gzip_decompress.c
-  file(READ ${deflate_SOURCE_DIR}/lib/lib_common.h DEFLATE_HIDE)
-  string(REPLACE "visibility(\"default\")" "visibility(\"hidden\")" DEFLATE_HIDE_NEW "${DEFLATE_HIDE}")
-  string(REPLACE "__declspec(dllexport)" "/**/" DEFLATE_HIDE_NEW "${DEFLATE_HIDE_NEW}")
-
-  string(COMPARE EQUAL "${DEFLATE_HIDE}" "${DEFLATE_HIDE_NEW}" DEFLATE_HIDE_SAME)
-  if (NOT DEFLATE_HIDE_SAME)
-    message(STATUS "libdeflate visibility changed, updating ${deflate_SOURCE_DIR}/lib/lib_common.h")
-    file(WRITE ${deflate_SOURCE_DIR}/lib/lib_common.h "${DEFLATE_HIDE_NEW}")
-  endif()
-
-  # cmake makes fetch content name lowercase for the properties (to deflate)
-  list(TRANSFORM EXR_DEFLATE_SOURCES PREPEND ${deflate_SOURCE_DIR}/)
-  set(EXR_DEFLATE_INCLUDE_DIR ${deflate_SOURCE_DIR})
+  set (OPENEXR_USE_INTERNAL_DEFLATE ON)
   set(EXR_DEFLATE_LIB)
 endif()
 
@@ -321,39 +256,42 @@ endif()
 # Find or download OpenJPH
 #######################################
 
-message(STATUS "Locating OpenJPH")
-
 option(OPENEXR_FORCE_INTERNAL_OPENJPH "Force downloading OpenJPH from a git repo" OFF)
-
-set(OPENEXR_OJPH_REPO "https://github.com/aous72/OpenJPH.git" CACHE STRING "OpenJPH Git repo URI")
-set(OPENEXR_OJPH_TAG "0.21.2" CACHE STRING "OpenJPH Git repo tag")
+set(OPENEXR_OPENJPH_REPO "https://github.com/aous72/OpenJPH.git" CACHE STRING "OpenJPH git repo URI")
+set(OPENEXR_OPENJPH_TAG "0.21.3" CACHE STRING "OpenJPH git repo tag")
 
 if (NOT OPENEXR_FORCE_INTERNAL_OPENJPH)
-  find_package(openjph 0.21 QUIET)
-
+  find_package(openjph 0.21 CONFIG QUIET)
   if(openjph_FOUND)
-    message(STATUS "Found OpenJPH using find_package.")
+    message(STATUS "Using OpenJPH from ${openjph_DIR}")
     set(EXR_OPENJPH_LIB openjph)
   else()
     # If not found, try pkgconfig
     find_package(PkgConfig)
     if(PKG_CONFIG_FOUND)
       include(FindPkgConfig)
-      pkg_check_modules(openjph IMPORTED_TARGET GLOBAL openjph=0.21)
+      pkg_check_modules(openjph IMPORTED_TARGET GLOBAL QUIET openjph=0.21)
       if(openjph_FOUND)
         set(EXR_OPENJPH_LIB PkgConfig::openjph)
-        message(STATUS "Found OpenJPH using PkgConfig at ${deflate_LINK_LIBRARIES}")
+        message(STATUS "Using OpenJPH from ${openjph_LINK_LIBRARIES}")
       endif()
     endif()
   endif()
 endif()
 
 if(NOT EXR_OPENJPH_LIB)
+  # Using internal OpenJPH
+  if(OPENEXR_FORCE_INTERNAL_OPENJPH)
+    message(STATUS "OpenJPH forced internal, fetching from ${OPENEXR_OPENJPH_REPO} @ ${OPENEXR_OPENJPH_TAG}")
+  else()
+    message(STATUS "OpenJPH was not found, fetching from ${OPENEXR_OPENJPH_REPO} @ ${OPENEXR_OPENJPH_TAG}")
+  endif()
+
   include(FetchContent)
   FetchContent_Declare(
     openjph
-    GIT_REPOSITORY ${OPENEXR_OJPH_REPO}
-    GIT_TAG        ${OPENEXR_OJPH_TAG}
+    GIT_REPOSITORY ${OPENEXR_OPENJPH_REPO}
+    GIT_TAG        ${OPENEXR_OPENJPH_TAG}
   )
 
   set(OJPH_BUILD_TESTS OFF CACHE BOOL "" FORCE)
@@ -371,12 +309,10 @@ if(NOT EXR_OPENJPH_LIB)
   include_directories("${openjph_SOURCE_DIR}/src/core/common")
 
   set(EXR_OPENJPH_LIB openjph)
-
-  message(STATUS "Building OpenJPH from ${OPENEXR_OJPH_REPO}.")
 endif()
 
 if (NOT EXR_OPENJPH_LIB)
-  message(ERROR "Failed to find OpenJPH.")
+  message(ERROR "Failed to find OpenJPH")
 endif()
 
 #######################################
@@ -390,15 +326,15 @@ set(OPENEXR_IMATH_TAG "main" CACHE STRING "Tag for auto-build of Imath (branch, 
 if(NOT OPENEXR_FORCE_INTERNAL_IMATH)
   #TODO: ^^ Release should not clone from main, this is a place holder
   set(CMAKE_IGNORE_PATH "${CMAKE_CURRENT_BINARY_DIR}/_deps/imath-src/config;${CMAKE_CURRENT_BINARY_DIR}/_deps/imath-build/config")
-  find_package(Imath 3.1)
+  find_package(Imath 3.1 CONFIG QUIET)
   set(CMAKE_IGNORE_PATH)
 endif()
 
 if(NOT TARGET Imath::Imath AND NOT Imath_FOUND)
   if(OPENEXR_FORCE_INTERNAL_IMATH)
-    message(STATUS "Imath forced internal, installing from ${OPENEXR_IMATH_REPO} (${OPENEXR_IMATH_TAG})")
+    message(STATUS "Imath forced internal, fetching from ${OPENEXR_IMATH_REPO} @ ${OPENEXR_IMATH_TAG}")
   else()
-    message(STATUS "Imath was not found, installing from ${OPENEXR_IMATH_REPO} (${OPENEXR_IMATH_TAG})")
+    message(STATUS "Imath was not found, fetching from ${OPENEXR_IMATH_REPO} @ ${OPENEXR_IMATH_TAG}")
   endif()
   include(FetchContent)
   FetchContent_Declare(Imath
@@ -425,7 +361,6 @@ if(NOT TARGET Imath::Imath AND NOT Imath_FOUND)
     get_target_property(imathconfinc ImathConfig INTERFACE_INCLUDE_DIRECTORIES)
     list(APPEND imathinc ${imathconfinc})
     set(IMATH_HEADER_ONLY_INCLUDE_DIRS ${imathinc})
-    message(STATUS "Imath interface dirs ${IMATH_HEADER_ONLY_INCLUDE_DIRS}")
   endif()
 else()
   message(STATUS "Using Imath from ${Imath_DIR}")
