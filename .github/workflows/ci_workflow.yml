@@ -247,8 +247,8 @@ jobs:
             BUILD_TESTING: 'OFF'
 
           - build: 6
-            label: vfx2022
-            os: windows-2019
+            label: vfx2023
+            os: windows-2022
 
             # Build w/msys2, mingw32 and ucrt64, shared and static. 
 
