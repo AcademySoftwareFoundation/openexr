@@ -839,6 +839,12 @@ Supported compression schemes:
        efficient space wise and faster to decode full frames than DWAA
        access.
 
+   * - HTJ2K (lossless)
+
+     - Lossless compression of RGB data by JPEG 2000 lossless coding, 
+       in blocks of 256 scanlines and using the High-Throughput (HT) blocker. 
+       Offers both speed and high-coding efficiency.
+
 Luminance/Chroma Images
 =======================
 
