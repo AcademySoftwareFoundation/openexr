@@ -138,8 +138,21 @@ Compressor::compressTile (
     Box2i        range,
     const char*& outPtr)
 {
+    return compressTile (
+        inPtr, inSize, range, outPtr, nullptr, 0);
+}
+
+int
+Compressor::compressTile (
+    const char*  inPtr,
+    int          inSize,
+    Box2i        range,
+    const char*& outPtr,
+    const char*  sampleCountTable,
+    int          sampleCountTableSize)
+{
     return static_cast<int> (
-        runEncodeStep (inPtr, inSize, range, outPtr));
+        runEncodeStep (inPtr, inSize, range, outPtr, sampleCountTable, sampleCountTableSize));
 }
 
 int

@@ -697,7 +697,7 @@ testDeepScanLineBasic (const std::string& tempDir)
         random_reseed (1);
 
         int numThreads = ThreadPool::globalThreadPool ().numThreads ();
-        ThreadPool::globalThreadPool ().setNumThreads (4);
+        ThreadPool::globalThreadPool ().setNumThreads (10);
 
         testCompressionTypeChecks ();
 
@@ -725,8 +725,8 @@ testDeepScanLineBasic (const std::string& tempDir)
                 small::minX + small::width * 2,
                 small::minY + small::height * 2));
 
-        readWriteTest (tempDir, 1, 50, dataWindow, displayWindow);
-        readWriteTest (tempDir, 3, 25, dataWindow, displayWindow);
+        readWriteTest (tempDir, 4, 50, dataWindow, displayWindow);
+        readWriteTest (tempDir, 4, 25, dataWindow, displayWindow);
         readWriteTest (tempDir, 10, 10, dataWindow, displayWindow);
 
         ThreadPool::globalThreadPool ().setNumThreads (numThreads);

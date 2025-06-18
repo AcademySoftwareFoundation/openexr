@@ -27,6 +27,8 @@ exr_get_zstd_lines_per_chunk ()
 typedef uint64_t (*serialization_callback) (
     char* src, uint64_t iSize, char* dest, uint64_t oSize);
 
+static const uint64_t SERIALIZATION_OVERHEAD = sizeof(uint64_t);
+
 long
 exr_compress_zstd (
     char*                  inPtr,
@@ -66,7 +68,7 @@ exr_compress_zstd (
     bool     shouldFree = true;
     int64_t  size = blosc2_schunk_to_buffer (_schunk, &buffer, &shouldFree);
 
-    if (size <= inSize && size <= outPtrSize && size > 0)
+    if (size+SERIALIZATION_OVERHEAD <= inSize && size + SERIALIZATION_OVERHEAD <= outPtrSize && size > 0)
     {
         //memcpy (outPtr, buffer, size);
         char* outPtrChar = (char*) outPtr;
@@ -107,10 +109,11 @@ exr_uncompress_zstd (
 
 uint64_t
 compute_sorting_lookup (
-    uint64_t                         numSamplesPerChunk,
+    const uint64_t*                   num_samples_per_row,
+    int                               height,
     const exr_coding_channel_info_t* channels,
     int                              channelsSize,
-    uint64_t*                        lookup)
+    uint64_t*                        sorting_lookup)
 {
     uint64_t writeCount = 0;
     uint64_t splitPoint = 0;
@@ -118,22 +121,30 @@ compute_sorting_lookup (
         // First, count how many half channels we have
         for (int i = 0; i < channelsSize; ++i)
         {
-            if (channels[i].bytes_per_element == 2)
+            for (int h = 0; h < height; ++h)
             {
-                lookup[i] = writeCount;
-                writeCount += numSamplesPerChunk * 2;
+                const uint64_t numSamplesPerChunk = num_samples_per_row[h];
+                if (channels[i].bytes_per_element == 2)
+                {
+                    *(sorting_lookup + h * channelsSize + i) = writeCount;
+                    writeCount += numSamplesPerChunk * channels[i].bytes_per_element;
+                }
             }
         }
     }
     splitPoint = writeCount; // This is where the half channels end
     {
-        // Now, count how many float channels we have
+        // First, count how many half channels we have
         for (int i = 0; i < channelsSize; ++i)
         {
-            if (channels[i].bytes_per_element == 4)
+            for (int h = 0; h < height; ++h)
             {
-                lookup[i] = writeCount;
-                writeCount += numSamplesPerChunk * 4;
+                const uint64_t numSamplesPerChunk = num_samples_per_row[h];
+                if (channels[i].bytes_per_element == 4)
+                {
+                    *(sorting_lookup + h * channelsSize + i) = writeCount;
+                    writeCount += numSamplesPerChunk * channels[i].bytes_per_element;
+                }
             }
         }
     }
@@ -143,54 +154,61 @@ compute_sorting_lookup (
 
 // Reads H-F-H-F-F channels and, sorts to H-H-F-F-F returns the offset of the first float.
 uint64_t
-sort2_4ByteChannels (
+sort2_4ByteChannels_tiled (
     const char*                      inPtr,
-    const uint64_t                   numSamplesPerChunk,
+    const uint64_t*                   num_samples_per_row,
     const exr_coding_channel_info_t* channels,
     const int                        channelsSize,
     const bool                       forward, // 1 = apply, 0 = un-apply
+    int                              height,
     char*                            outPtr)
 {
-    uint64_t       writeCount = 0;
-    uint64_t       sorting_lookup[channelsSize];
-    const uint64_t splitPoint = compute_sorting_lookup (
-        numSamplesPerChunk, channels, channelsSize, sorting_lookup);
+    uint64_t       sorting_lookup[channelsSize * height];
 
-    uint64_t chanStart = 0;
+    uint64_t splitPoint  = compute_sorting_lookup (
+            num_samples_per_row, height,channels, channelsSize, sorting_lookup);
+
+    uint32_t pixel_stride = 0; // maybe already computed ?
+    for (int i= 0; i < channelsSize; ++i)
+    {
+        pixel_stride += channels[i].bytes_per_element;
+    }
+    
+    uint32_t processed_stride = 0;
     for (int i = 0; i < channelsSize; ++i)
     {
-        if (forward) // apply or un-apply
+        uint64_t line_start_read = 0;
+        for (int h = 0; h < height; ++h)
         {
-            memcpy (
-                outPtr + sorting_lookup[i],
-                inPtr + chanStart,
-                numSamplesPerChunk * channels[i].bytes_per_element);
-        }
-        else
-        {
-            memcpy (
-                outPtr + chanStart,
-                inPtr + sorting_lookup[i],
-                numSamplesPerChunk * channels[i].bytes_per_element);
-        }
-        chanStart += numSamplesPerChunk * channels[i].bytes_per_element;
-    }
+            const uint64_t rowSortingLookup =
+                *(sorting_lookup + h * channelsSize + i); 
+            const uint64_t chan_start =
+                num_samples_per_row[h] * processed_stride;
 
-    /*{
-        //first channel
-        uint16_t* hdata = (uint16_t *)(outPtr);
-        float* fdata = (uint16_t *)(outPtr + splitPoint); // fullshit
+            const uint64_t writeIndex = rowSortingLookup;
+            const uint64_t readIndex  = line_start_read + chan_start;
+            const uint64_t bitSize = num_samples_per_row[h] * channels[i].bytes_per_element;
+            if (forward) // apply or un-apply
+            {
+                memcpy (
+                    outPtr + writeIndex,
+                    inPtr + readIndex,
+                    bitSize
+                    );
+            }
+            else
+            {
+                memcpy (
+                    outPtr + readIndex,
+                    inPtr + writeIndex,
+                    bitSize);
+            }
+
+            line_start_read += num_samples_per_row[h] * pixel_stride;
+        }
+
+        processed_stride += channels[i].bytes_per_element;
     }
-    {
-        // second channel
-        float* fdata = (uint16_t *)(outPtr + splitPoint);
-        float* hdata = (uint16_t *)(outPtr + splitPoint); // fullshit
-    }
-    {
-        // second channel
-        float* fdata = (uint16_t *)(outPtr + splitPoint + numSamplesPerChunk * 4);
-        float* hdata = (uint16_t *)(outPtr + splitPoint); // fullshit
-    }*/
     return splitPoint; // Return the offset of the first float
 }
 
@@ -254,73 +272,148 @@ serialize_memcpy (char* src, uint64_t iSize, char* dest, uint64_t oSize)
     memcpy (dest, src, iSize);
     return iSize; // return the number of bytes written
 }
-uint64_t
-get_chunk_sample_count (const exr_decode_pipeline_t* decode)
+bool
+get_row_sample_count_decode (const exr_decode_pipeline_t* decode, uint64_t *row_sample_counts)
 {
     int32_t*  sampleCountTable = decode->sample_count_table;
     const int sampleCountTableSize =
         decode->chunk.width *
         decode->chunk
-            .height; //decode->sample_count_alloc_size / sizeof(int32_t);
+            .height;
 
     if (decode->sample_count_valid == 1 && sampleCountTableSize > 0)
     {
-        if ((decode->decode_flags & EXR_DECODE_SAMPLE_COUNTS_AS_INDIVIDUAL) ==
-            1)
+        uint32_t readIdx = 0;
+        uint64_t sampleCount = 0;
+        for (int h = 0; h < decode->chunk.height; ++h)
         {
-            // cumulative samples
-            return sampleCountTable
-                [sampleCountTableSize -
-                 1]; // weird, might be -2 width * height???
-        }
-        else
-        {
-            uint64_t sampleCount = 0;
-            for (int i = 0; i < sampleCountTableSize; ++i)
+            if ((decode->decode_flags &
+                 EXR_DECODE_SAMPLE_COUNTS_AS_INDIVIDUAL) == 1)
             {
-                sampleCount += sampleCountTable[i];
+                // cumulative samples
+                row_sample_counts[h] =  
+                    sampleCountTable[readIdx + decode->chunk.width -1]; // weird, might be width * height???
             }
-            return sampleCount;
+            else
+            {
+                for (int i = readIdx; i < readIdx+decode->chunk.width; ++i)
+                {
+                    sampleCount += sampleCountTable[i];
+                }
+                row_sample_counts[h] =  sampleCount;
+            }
+            readIdx += decode->chunk.width; // overflow on last row ?
         }
-    }
 
-    return 0; // no samples
+        if ((decode->decode_flags & EXR_DECODE_SAMPLE_COUNTS_AS_INDIVIDUAL) == 0)
+        {
+            for (int h = 1; h < decode->chunk.height; ++h)
+            {
+                row_sample_counts[h] -=
+                    row_sample_counts[h - 1]; // assumes monotonic increase
+            }
+        }
+
+        return true; // we have a sample count table
+    }
+    return false; // we don't have a sample count table
+}
+
+bool
+get_row_sample_count_encode (const exr_encode_pipeline_t* encode, uint64_t *row_sample_counts)
+{
+    int32_t*  sampleCountTable = encode->sample_count_table;
+    const int sampleCountTableSize =
+        encode->chunk.width *
+        encode->chunk
+            .height; //decode->sample_count_alloc_size / sizeof(int32_t); 
+
+    if (encode->sample_count_alloc_size > 0 && sampleCountTableSize > 0)
+    {
+        uint32_t readIdx = 0;
+        uint64_t sampleCount = 0;
+        for (int h = 0; h < encode->chunk.height; ++h)
+        {
+            /*if ((encode->encode_flags &
+                 EXR_DECODE_SAMPLE_COUNTS_AS_INDIVIDUAL) == 1) // seems flag is not set???*/
+            {
+                // cumulative samples
+                row_sample_counts[h] =  
+                    sampleCountTable[readIdx + encode->chunk.width -1]; // weird, might be width * height???
+            }
+            /*else
+            {
+                for (int i = readIdx; i < readIdx+encode->chunk.width; ++i)
+                {
+                    sampleCount += sampleCountTable[i];
+                }
+                row_sample_counts[h] =  sampleCount;
+            }*/
+            readIdx += encode->chunk.width; // overflow on last row ?
+        }
+
+        return true; // we have a sample count table
+    }
+    return false; // we don't have a sample count table
 }
 
 void
-DebugChannelData (
-    const char*                      inPtr,
-    int                              numSamples,
-    const exr_coding_channel_info_t* channels,
-    const int                        channelsSize)
+DebugChannelData (const exr_encode_pipeline_t* encode)
 {
-    int readCount = 0;
-    for (int i = 0; i < channelsSize; ++i)
+    uint8_t* inPtr        = (uint8_t*) encode->packed_buffer;
+    int32_t*  sampleCountTable = encode->sample_count_table;
+    const int sampleCountTableSize =
+        encode->sample_count_alloc_size / sizeof (int32_t);
+    const exr_coding_channel_info_t* channels     = encode->channels;
+    const int                        channelsSize = encode->channel_count;
+
+    bool tiled = (encode->chunk.type == EXR_STORAGE_DEEP_TILED);
+
+    for (int s = encode->chunk.width-1; s < encode->chunk.width * encode->chunk.height; s+= encode->chunk.width)
     {
-        float*    fdata;
-        uint16_t* hdata;
-        if (channels[i].bytes_per_element == 2)
+        uint32_t numSamples = sampleCountTable[s];
+        int       readCount = 0;
+        for (int i = 0; i < channelsSize; ++i)
         {
-            hdata = (uint16_t*)(inPtr + readCount);
-            fdata = NULL;
+            float*    fdata;
+            uint16_t* hdata;
+            if (channels[i].bytes_per_element == 2)
+            {
+                hdata          = (uint16_t*) (inPtr + readCount);
+                fdata          = (float*) (inPtr + readCount);
+                uint16_t start = hdata[0];
+                uint16_t end   = hdata[numSamples - 1];
+                if (start != 14336 || end != 14336)
+                {
+                    printf ("Channel %hu: %s, start: %hu, end: %hu\n", i, channels[i].channel_name, start, end);
+                }
+
+            }
+            else if (channels[i].bytes_per_element == 4)
+            {
+                fdata       = (float*) (inPtr + readCount);
+                hdata       = NULL;
+                float start = fdata[0];
+                float end   = fdata[numSamples - 1];
+                if (fabs(start - 1.10000002) > 1e5 || fabs(end - 1.10000002) > 1e5)
+                {
+                    printf ("Channel %hu: %s, start: %f, end: %f\n", i, channels[i].channel_name, start, end);
+                }
+            }
+            else
+            {
+                fdata = NULL;
+                hdata = NULL;
+            }
+            readCount += numSamples * channels[i].bytes_per_element;
         }
-        else if (channels[i].bytes_per_element == 4)
-        {
-            fdata = (float*)(inPtr + readCount);
-            hdata = NULL;
-        }
-        else
-        {
-            fdata = NULL;
-            hdata = NULL;
-        }
-        readCount += numSamples * channels[i].bytes_per_element;
     }
 }
 
 bool needs_sorting( const exr_coding_channel_info_t* channels,
                     const int                        channelsSize,
-                    uint64_t                         numSamplesPerChunk,
+                    const uint64_t*                  numSamples_per_row,
+                    int height,
                     uint64_t*                        splitPosition,
                     uint8_t typeSizes[2])
 {
@@ -333,20 +426,24 @@ bool needs_sorting( const exr_coding_channel_info_t* channels,
     int8_t bytesPerChannel = channels[0].bytes_per_element; // if this is > 0, we have a float channel
     bool switched_bytes_per_channel = false;
     uint64_t writeCount =0;
-    for (int i = 1; i < channelsSize; ++i)
+    for (int i = 0; i < channelsSize; ++i)
     {
-        if (channels[i].bytes_per_element != bytesPerChannel)
+        for (int h = 0; h < height; ++h)
         {
-            if (switched_bytes_per_channel)
+            uint64_t numSamplesPerChunk = numSamples_per_row[h];
+            if (channels[i].bytes_per_element != bytesPerChannel)
             {
-                *splitPosition = 0;
-                return true; // we have already switched, so we need to sort
+                if (switched_bytes_per_channel)
+                {
+                    *splitPosition = 0;
+                    return true; // we have already switched, so we need to sort
+                }
+                bytesPerChannel = channels[i].bytes_per_element;
+                switched_bytes_per_channel = true;
+                *splitPosition = writeCount;
             }
-            bytesPerChannel = channels[i].bytes_per_element;
-            switched_bytes_per_channel = true;
-            *splitPosition = writeCount;
+            writeCount += numSamplesPerChunk * channels[i].bytes_per_element;
         }
-        writeCount += numSamplesPerChunk * channels[i].bytes_per_element;
     }
 
     typeSizes[0] = channels[0].bytes_per_element;
@@ -357,9 +454,8 @@ bool needs_sorting( const exr_coding_channel_info_t* channels,
 exr_result_t
 internal_exr_apply_zstd (exr_encode_pipeline_t* encode)
 {
-    int32_t*  sampleCountTable = encode->sample_count_table;
-    const int sampleCountTableSize =
-        encode->sample_count_alloc_size / sizeof (int32_t);
+    uint64_t row_sample_counts[encode->chunk.height];
+    bool sampleCount_valid = get_row_sample_count_encode (encode, row_sample_counts);
     const exr_coding_channel_info_t* channels     = encode->channels;
     const int                        channelsSize = encode->channel_count;
     exr_result_t                     rv           = EXR_ERR_SUCCESS;
@@ -369,8 +465,8 @@ internal_exr_apply_zstd (exr_encode_pipeline_t* encode)
 
     if (rv != EXR_ERR_SUCCESS) return rv;
 
-    uint64_t compressedSize = 0;
-    if (sampleCountTableSize > 0)
+    int64_t compressedSize = 0;
+    if (sampleCount_valid)
     {
         uint8_t* inPtr        = (uint8_t*) encode->packed_buffer;
         uint64_t inBufferSize = encode->packed_bytes;
@@ -380,10 +476,11 @@ internal_exr_apply_zstd (exr_encode_pipeline_t* encode)
 
         uint64_t splitPosition = 0;
         uint8_t typeSizes[2] = {0, 0}; // 0 = half, 1 = float
-        bool needsSorting = needs_sorting (
+        bool needsSorting = encode->chunk.type == EXR_STORAGE_DEEP_TILED || needs_sorting (
             channels,
             channelsSize,
-            sampleCountTable[sampleCountTableSize - 1],
+            row_sample_counts,
+            encode->chunk.height,
             &splitPosition,
             typeSizes);
         char *compressionInBuffer = NULL;    
@@ -404,14 +501,13 @@ internal_exr_apply_zstd (exr_encode_pipeline_t* encode)
                     " bytes)",
                     encode->packed_bytes);
 
-            splitPosition = sort2_4ByteChannels (
+            splitPosition = sort2_4ByteChannels_tiled (
                 (const char*) inPtr,
-                sampleCountTable
-                    [sampleCountTableSize -
-                     1], // handle the non cumulative samples case
+                row_sample_counts,
                 channels,
                 channelsSize,
                 true, // forward = true
+                encode->chunk.height,
                 (char*) encode->scratch_buffer_1);
             typeSizes[0] = 2;
             typeSizes[1] = 4;     
@@ -424,13 +520,14 @@ internal_exr_apply_zstd (exr_encode_pipeline_t* encode)
 
         bool bufferIsCompressed = true;;
 
+        _write_uint64 (&outBuffer, MAGIC_NUMBER);
+        outBufferSize -= sizeof (MAGIC_NUMBER);
         // we have 2 byte channels
         if (splitPosition > 0) // needed ?
         {
-            inPtr        = compressionInBuffer;
+            inPtr        = (uint8_t *)compressionInBuffer;
             inBufferSize = splitPosition;
-            _write_uint64 (&outBuffer, MAGIC_NUMBER);
-            outBufferSize -= sizeof (MAGIC_NUMBER);
+
             long outSize = exr_compress_zstd (
                 (char*)inPtr,
                 inBufferSize,
@@ -447,6 +544,7 @@ internal_exr_apply_zstd (exr_encode_pipeline_t* encode)
             inPtr += inBufferSize;
             inBufferSize = encode->packed_bytes - splitPosition;
         }
+
 
         // if this points to the end, it means we have all half channels
         if (inBufferSize > 0 && bufferIsCompressed)
@@ -491,6 +589,10 @@ internal_exr_apply_zstd (exr_encode_pipeline_t* encode)
             compressedSize = encode->packed_bytes;
             memcpy (encode->compressed_buffer, encode->packed_buffer, compressedSize);
         }
+        else
+        {
+            compressedSize += sizeof (MAGIC_NUMBER);
+        }
     }
 
     if (compressedSize < 0) { return EXR_ERR_UNKNOWN; }
@@ -507,7 +609,8 @@ internal_exr_undo_zstd (
     void*                  uncompressed_data,
     uint64_t               uncompressed_size)
 {
-    const uint64_t sampleCount                = get_chunk_sample_count (decode);
+    uint64_t row_sample_counts[decode->chunk.height];
+    bool sampleCount_valid = get_row_sample_count_decode (decode, row_sample_counts);
     const exr_coding_channel_info_t* channels = decode->channels;
     const int                        channelsSize = decode->channel_count;
     exr_result_t   rv    = EXR_ERR_SUCCESS;
@@ -515,22 +618,27 @@ internal_exr_undo_zstd (
     char*    outPtr = NULL;
     uint64_t outBufferSize = 0;
 
-    uint64_t magic = _read_uint64 ((char**)&compressed_data);
-    if (magic != MAGIC_NUMBER)
+    char*    inPtr = (char*) compressed_data;
+    
+    if (comp_buf_size < sizeof(uint64_t) ||  _read_uint64 (&inPtr) != MAGIC_NUMBER)
     {
         memcpy (uncompressed_data, compressed_data, comp_buf_size);
         return EXR_ERR_SUCCESS; // no zstd data, just copy the data
     }
 
-    if (sampleCount > 0)
+    uint64_t inPtrSize = comp_buf_size - sizeof (MAGIC_NUMBER);
+
+    if (sampleCount_valid)
     {
         uint64_t splitPosition = 0;
         uint8_t typeSizes[2] = {0, 0}; // 0 = half, 1 = float
 
-        bool needsSorting = needs_sorting (
+        bool needsSorting = decode->chunk.type == EXR_STORAGE_DEEP_TILED ||
+          needs_sorting (
             channels,
             channelsSize,
-            sampleCount,
+            row_sample_counts,
+            decode->chunk.height,
             &splitPosition,
             typeSizes);
         if (needsSorting)
@@ -557,9 +665,7 @@ internal_exr_undo_zstd (
             outPtr = (char*) uncompressed_data; 
             outBufferSize    = uncompressed_size;
         }
-
-
-        char*    inPtr            = (char*) compressed_data;    
+ 
         long     uncompressedSize = 0;
         {
             uint64_t compressedChannelChunkSize = _read_uint64 (&inPtr);
@@ -613,22 +719,21 @@ internal_exr_undo_zstd (
         if (needsSorting)
         {
             // Unshuffle the data
-            uint64_t firstFloat = sort2_4ByteChannels (
+            uint64_t firstFloat = sort2_4ByteChannels_tiled (
                 (char*) decode->scratch_buffer_1,
-                sampleCount,
+                row_sample_counts,
                 channels,
                 channelsSize,
                 false, // backwards
+                decode->chunk.height,
                 (char*) uncompressed_data);
         }
-        //DebugChannelData (
-        //    uncompressed_data, sampleCount, channels, channelsSize);
     }
     else
     {
         long uncompressedSize = exr_uncompress_zstd (
-            (char*) compressed_data,
-            comp_buf_size,
+            (char*) inPtr,
+            inPtrSize,
             &uncompressed_data,
             uncompressed_size);
         if (uncompressed_size != uncompressedSize)
