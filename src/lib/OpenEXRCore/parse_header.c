@@ -750,6 +750,36 @@ extract_attr_tiledesc (
 /**************************************/
 
 static exr_result_t
+extract_attr_bytes(
+    exr_context_t ctxt,
+    struct _internal_exr_seq_scratch* scratch,
+    exr_attr_bytes_t* attrdata,
+    const char* aname,
+    const char* tname,
+    int32_t attrsz)
+{
+    int32_t n;
+    exr_result_t rv;
+
+    rv = check_bad_attrsz(scratch, attrsz, 1, aname, tname, &n);
+    if (rv != EXR_ERR_SUCCESS) return rv;
+
+    exr_attr_bytes_destroy(ctxt, attrdata);
+    rv = exr_attr_bytes_init(ctxt, attrdata, (size_t)attrsz);
+    if (rv != EXR_ERR_SUCCESS) return rv;
+
+    rv = scratch->sequential_read(scratch, (void*)attrdata->data, (uint64_t)attrsz);
+    if (rv != EXR_ERR_SUCCESS) {
+        exr_attr_bytes_destroy(ctxt, attrdata);
+        return ctxt->print_error(
+            ctxt, rv, "Failed to read bytes attribute '%s'", aname);
+    }
+    return rv;
+}
+
+/**************************************/
+
+static exr_result_t
 extract_attr_opaque (
     exr_context_t                     ctxt,
     struct _internal_exr_seq_scratch* scratch,
@@ -2061,6 +2091,9 @@ pull_attr (
         case EXR_ATTR_BOX2F:
             rv = extract_attr_32bit (
                 ctxt, scratch, nattr->box2f, name, type, attrsz, 4);
+            break;
+        case EXR_ATTR_BYTES:
+            rv = extract_attr_bytes(ctxt, scratch, nattr->bytes, name, type, attrsz);
             break;
         case EXR_ATTR_CHLIST:
             rv = extract_attr_chlist (

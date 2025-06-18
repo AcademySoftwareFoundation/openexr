@@ -23,6 +23,7 @@
 #    include "../../lib/OpenEXRCore/float_vector.c"
 #    include "../../lib/OpenEXRCore/internal_attr.h"
 #    include "../../lib/OpenEXRCore/internal_xdr.h"
+#    include "../../lib/OpenEXRCore/bytes.c"
 #    include "../../lib/OpenEXRCore/opaque.c"
 #    include "../../lib/OpenEXRCore/preview.c"
 #    include "../../lib/OpenEXRCore/string.c"
@@ -948,6 +949,83 @@ testAttrOpaque (const std::string& tempdir)
     //testOpaqueHelper (NULL);
     exr_context_t f = createDummyFile ("<opaque>");
     testOpaqueHelper (f);
+    exr_print_context_info (f, 0);
+    exr_print_context_info (f, 1);
+    exr_finish (&f);
+}
+
+static void
+testBytesHelper (exr_context_t f)
+{
+    exr_attr_bytes_t b;
+    uint8_t               data4[] = {0xDE, 0xAD, 0xBE, 0xEF};
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_MISSING_CONTEXT_ARG, exr_attr_bytes_init (NULL, NULL, 4));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_INVALID_ARGUMENT, exr_attr_bytes_init (f, NULL, 4));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_INVALID_ARGUMENT,
+        exr_attr_bytes_init (f, &b, (size_t) INT32_MAX + 1));
+    EXRCORE_TEST_RVAL_FAIL_MALLOC (
+        EXR_ERR_OUT_OF_MEMORY, exr_attr_bytes_init (f, &b, 4));
+
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_MISSING_CONTEXT_ARG, exr_attr_bytes_destroy (NULL, &b));
+    EXRCORE_TEST_RVAL (exr_attr_bytes_destroy (f, NULL));
+
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_INVALID_ARGUMENT,
+        exr_attr_bytes_init (f, &b, (uint32_t) -1));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_INVALID_ARGUMENT,
+        exr_attr_bytes_init (f, &b, (size_t) -1));
+
+    EXRCORE_TEST_RVAL (exr_attr_bytes_init (f, &b, 4));
+    EXRCORE_TEST (b.size == 4);
+    EXRCORE_TEST (b.data != NULL);
+    exr_attr_bytes_destroy (f, &b);
+    EXRCORE_TEST (b.size == 0);
+    EXRCORE_TEST (b.data == NULL);
+
+    EXRCORE_TEST_RVAL (exr_attr_bytes_create (f, &b, 4, data4));
+    EXRCORE_TEST (b.size == 4);
+    EXRCORE_TEST (b.data != NULL);
+    EXRCORE_TEST (0 == memcmp (b.data, data4, 4));
+
+    exr_attr_bytes_t b2;
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_MISSING_CONTEXT_ARG, exr_attr_bytes_copy (NULL, &b2, &b));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_INVALID_ARGUMENT, exr_attr_bytes_copy (f, &b2, NULL));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_INVALID_ARGUMENT, exr_attr_bytes_copy (f, NULL, &b));
+    EXRCORE_TEST_RVAL (exr_attr_bytes_copy (f, &b2, &b));
+    EXRCORE_TEST (b2.size == 4);
+    EXRCORE_TEST (b2.data != NULL);
+    EXRCORE_TEST (0 == memcmp (b2.data, data4, 4));
+    EXRCORE_TEST_RVAL (exr_attr_bytes_destroy (f, &b2));
+
+    EXRCORE_TEST_RVAL (exr_attr_bytes_destroy (f, &b));
+    // make sure we can re-delete something?
+    EXRCORE_TEST_RVAL (exr_attr_bytes_destroy (f, &b));
+
+    EXRCORE_TEST_RVAL (exr_attr_bytes_init (f, &b, 0));
+    EXRCORE_TEST_RVAL (exr_attr_bytes_destroy (f, &b));
+    EXRCORE_TEST_RVAL (exr_attr_bytes_init (f, &b, 0));
+    EXRCORE_TEST_RVAL (exr_attr_bytes_create (f, &b, 4, data4));
+    EXRCORE_TEST_RVAL (exr_attr_bytes_copy (f, &b2, &b));
+    EXRCORE_TEST_RVAL (exr_attr_bytes_destroy (f, &b2));
+    EXRCORE_TEST_RVAL (exr_attr_bytes_destroy (f, &b));
+
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_INVALID_ARGUMENT, exr_attr_bytes_copy (f, &b2, NULL));
+}
+
+void
+testAttrBytes (const std::string& tempdir)
+{
+    exr_context_t f = createDummyFile ("<bytes>");
+    testBytesHelper (f);
     exr_print_context_info (f, 0);
     exr_print_context_info (f, 1);
     exr_finish (&f);

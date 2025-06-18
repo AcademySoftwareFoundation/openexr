@@ -17,6 +17,7 @@
 #include <string.h>
 
 #include <ImfBoxAttribute.h>
+#include <ImfBytesAttribute.h>
 #include <ImfChannelListAttribute.h>
 #include <ImfChromaticitiesAttribute.h>
 #include <ImfCompressionAttribute.h>
@@ -440,7 +441,12 @@ Context::header (int partidx) const
                         IMATH_NAMESPACE::V2f (cur->box2f->min),
                         IMATH_NAMESPACE::V2f (cur->box2f->max))));
                 break;
-
+            case EXR_ATTR_BYTES:
+                hdr.insert (
+                    cur->name, BytesAttribute (
+                        cur->bytes->size,
+                        cur->bytes->data));
+                break;
             case EXR_ATTR_V2I:
                 hdr.insert (
                     cur->name,

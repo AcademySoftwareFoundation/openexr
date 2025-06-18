@@ -10,6 +10,7 @@ openexr_define_library(OpenEXRCore
     #NB: If you make any of these public, make sure to update the
     # locking macros in the relative source files
     internal_attr.h
+    internal_bytes.h
     internal_channel_list.h
     internal_coding.h
     internal_constants.h
@@ -54,6 +55,7 @@ openexr_define_library(OpenEXRCore
     float_vector.c
     channel_list.c
     opaque.c
+    bytes.c
     preview.c
 
     base.c

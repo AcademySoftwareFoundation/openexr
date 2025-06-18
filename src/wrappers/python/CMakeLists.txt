@@ -13,8 +13,7 @@ find_package(Python3 COMPONENTS Interpreter Development.Module REQUIRED)
 find_package(pybind11 CONFIG REQUIRED)
 
 Python3_add_library (PyOpenEXR MODULE WITH_SOABI PyOpenEXR.cpp PyOpenEXR_old.cpp)
-
-target_link_libraries (PyOpenEXR PRIVATE "${Python_LIBRARIES}" OpenEXR::OpenEXR pybind11::headers)
+target_link_libraries (PyOpenEXR PRIVATE "${Python3_LIBRARIES}" OpenEXR::OpenEXR pybind11::headers)
 
 # The python module should be called "OpenEXR.x", not "PyOpenEXR.x".
 
@@ -35,10 +34,12 @@ install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/Imath.py DESTINATION ${PYTHON_INSTALL_
 
 if(BUILD_TESTING AND OPENEXR_TEST_PYTHON)
 
-  add_test(OpenEXR.PyOpenEXR pytest ${CMAKE_CURRENT_SOURCE_DIR}/tests)
+    add_test(
+        NAME OpenEXR.PyOpenEXR
+        COMMAND ${Python3_EXECUTABLE} -m pytest ${CMAKE_CURRENT_SOURCE_DIR}/tests)
 
-  set_tests_properties(OpenEXR.PyOpenEXR PROPERTIES
-    ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}"
-  )
+    set_tests_properties(OpenEXR.PyOpenEXR PROPERTIES
+        ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}"
+    )
 
 endif()

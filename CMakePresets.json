@@ -1,7 +1,7 @@
 {
     "version": 3,
     "cmakeMinimumRequired": {
-    "major": 3,
+        "major": 3,
         "minor": 15,
         "patch": 0
     },
@@ -18,6 +18,19 @@
                 "OPENEXR_BUILD_EXAMPLES": "OFF",
                 "OPENEXR_BUILD_DOCS": "OFF",
                 "OPENEXR_BUILD_OSS_FUZZ": "ON"
+            }
+        },
+        {
+            "name": "release",
+            "displayName": "Release (Unix Makefiles)",
+            "description": "Release build with Unix Makefiles",
+            "generator": "Unix Makefiles",
+            "binaryDir": "${sourceDir}/_build/release",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "OPENEXR_BUILD_TOOLS": "ON",
+                "OPENEXR_BUILD_EXAMPLES": "ON",
+                "OPENEXR_BUILD_PYTHON": "ON"
             }
         }
     ]

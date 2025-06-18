@@ -336,6 +336,13 @@ typedef struct
     const uint8_t* rgba;
 } exr_attr_preview_t;
 
+/** @brief Struct to define bytes attributes */
+typedef struct
+{
+    size_t  size;
+    uint8_t* data;
+} exr_attr_bytes_t;
+
 /** Custom storage structure for opaque data.
  *
  * Handlers for opaque types can be registered, then when a
@@ -394,6 +401,7 @@ typedef enum
         0,          /**< Type indicating an error or uninitialized attribute. */
     EXR_ATTR_BOX2I, /**< Integer region definition. @see exr_attr_box2i_t. */
     EXR_ATTR_BOX2F, /**< Float region definition. @see exr_attr_box2f_t. */
+    EXR_ATTR_BYTES, /**< Bytes definition. @see exr_attr_bytes_t. */
     EXR_ATTR_CHLIST, /**< Definition of channels in file @see exr_chlist_entry. */
     EXR_ATTR_CHROMATICITIES, /**< Values to specify color space of colors in file @see exr_attr_chromaticities_t. */
     EXR_ATTR_COMPRESSION,    /**< ``uint8_t`` declaring compression present. */
@@ -473,6 +481,7 @@ typedef struct
 
         exr_attr_box2i_t*          box2i;
         exr_attr_box2f_t*          box2f;
+        exr_attr_bytes_t*          bytes;
         exr_attr_chlist_t*         chlist;
         exr_attr_chromaticities_t* chromaticities;
         exr_attr_keycode_t*        keycode;
