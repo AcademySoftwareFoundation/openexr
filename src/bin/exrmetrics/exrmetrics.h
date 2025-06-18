@@ -62,16 +62,24 @@ struct fileMetrics
     uint64_t               outputFileSize;
 };
 
+
+struct Params
+{
+    const char*                        inFileName;
+    const char*                        outFileName;
+    int                                part;
+    OPENEXR_IMF_NAMESPACE::Compression compression;
+    float                              level;
+    int                                passes;
+    bool                               write;
+    bool                               reread;
+    PixelMode                          pixelMode;
+    bool                               verbose;
+    const std::string&     deepOutFileType;
+    int tileSize;
+};
+
 fileMetrics exrmetrics (
-    const char*                        inFileName,
-    const char*                        outFileName,
-    int                                part,
-    OPENEXR_IMF_NAMESPACE::Compression compression,
-    float                              level,
-    int                                passes,
-    bool                               write,
-    bool                               reread,
-    PixelMode                          pixelMode,
-    bool                               verbose);
+    const Params& params); // read file, write to output, return metrics
 
 #endif

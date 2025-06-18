@@ -82,6 +82,8 @@ usageMessage (ostream& stream, const char* program_name, bool verbose = false)
                "                              Use --type half or --type mixed instead\n"
                " --pixelmode list             list of pixel types to use (float,half,mixed,orig)\n"
                "                              mixed uses half for RGBA, float for others. Default is 'orig'\n"
+               " --tiled                      write tiled image (default is scanline)\n"
+               " --tilesize num               set tile size for tiled images (default is 64)\n"
                " --time list                  comma separated list of operations to report timing for.\n"
                "                              operations can be any of read,write,reread (use --time none for no timing)\n"
                " --no-size                    don't output size data\n"
@@ -108,6 +110,7 @@ struct options
         TIME_REREAD = 4
     };
 
+
     const char*              outFile = nullptr;
     std::vector<const char*> inFiles;
     int                      part    = -1;
@@ -120,6 +123,8 @@ struct options
     bool                     csv            = false;
     std::vector<PixelMode>   pixelModes;
     std::vector<OPENEXR_IMF_NAMESPACE::Compression> compressions;
+    std::string deep_type = "deepscanline"; // 0 for deep scanline, 1 for deep tiled
+    int tileSize = 64; // tile size for tiled images, default is 64x64
 
     int parse (int argc, char* argv[]);
 };
@@ -522,18 +527,22 @@ main (int argc, char** argv)
                         d.file        = inFile;
                         d.compression = compression;
                         d.mode        = mode;
-                        d.metrics     = exrmetrics (
-                            inFile,
-                            opts.outFile,
-                            opts.part,
-                            compression,
-                            opts.level,
-                            opts.passes,
-                            opts.outFile || opts.outputSizeData ||
-                                opts.timing & options::TIME_WRITE,
-                            opts.timing & options::TIME_REREAD,
-                            mode,
-                            opts.verbose);
+                        Params p = {
+                            .inFileName = inFile,
+                            .outFileName = opts.outFile,
+                            .part = opts.part,
+                            .compression= compression,
+                            .level=opts.level,
+                            .passes = opts.passes,
+                            .write = opts.outFile != nullptr || opts.outputSizeData ||
+                                ((opts.timing & options::TIME_WRITE) != 0),
+                            ((opts.timing & options::TIME_REREAD) != 0),
+                            .pixelMode=mode,
+                            .verbose = opts.verbose,
+                            .deepOutFileType = opts.deep_type,
+                            .tileSize = opts.tileSize
+                        };
+                        d.metrics     = exrmetrics (p);
                         data.push_back (d);
                     }
                 }
@@ -879,6 +888,26 @@ options::parse (int argc, char* argv[])
             }
             inFiles.push_back (argv[i + 1]);
             i += 2;
+        }else if (!strcmp(argv[i], "--tiled"))
+        {
+            deep_type = "deeptile"; // default is deep scanline
+            i += 1;
+        }
+        else if (!strcmp (argv[i], "--tilesize"))
+        {
+            if (i > argc - 2)
+            {
+                cerr << "Missing tile size number with --tilesize option\n";
+                return 1;
+            }
+            tileSize = atof (argv[i + 1]);
+            if (tileSize < 0)
+            {
+                cerr << "bad tileSize " << tileSize << " specified to --tilesize option\n";
+                return 1;
+            }
+
+            i += 2;
         }
         else
         {
@@ -886,6 +915,7 @@ options::parse (int argc, char* argv[])
             i += 1;
         }
     }
+    
     if (inFiles.size () == 0)
     {
         cerr << "Missing input file\n";

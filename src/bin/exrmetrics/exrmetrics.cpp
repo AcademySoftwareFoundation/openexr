@@ -960,80 +960,72 @@ modeName (PixelMode p)
     throw runtime_error ("bad pixelmode");
 }
 
+
+
 fileMetrics
-exrmetrics (
-    const char*                        inFileName,
-    const char*                        outFileName,
-    int                                part,
-    OPENEXR_IMF_NAMESPACE::Compression compression,
-    float                              level,
-    int                                passes,
-    bool                               write,
-    bool                               reread,
-    PixelMode                          pixelMode,
-    bool                               verbose)
+exrmetrics (const Params& params)
 {
 
-    if (verbose)
+    if (params.verbose)
     {
-        cerr << "read " << inFileName;
-        cerr << " as " << modeName (pixelMode) << "... ";
+        cerr << "read " << params.inFileName;
+        cerr << " as " << modeName (params.pixelMode) << "... ";
         cerr.flush ();
     }
 
-    MultiPartInputFile in (inFileName);
-    if (part != -1 && part >= in.parts ())
+    MultiPartInputFile in (params.inFileName);
+    if (params.part != -1 && params.part >= in.parts ())
     {
-        throw runtime_error ((string (inFileName) + " only contains " +
+        throw runtime_error ((string (params.inFileName) + " only contains " +
                               to_string (in.parts ()) +
-                              " parts. Cannot copy part " + to_string (part))
+                              " parts. Cannot copy part " + to_string (params.part))
                                  .c_str ());
     }
     fileMetrics metrics;
 
     //write all parts if part==-1, otherwise write single part specified
-    vector<Header> outHeaders (part == -1 ? in.parts () : 1);
-    if (part == -1)
+    vector<Header> outHeaders (params.part == -1 ? in.parts () : 1);
+    if (params.part == -1)
     {
         for (int p = 0; p < in.parts (); ++p)
         {
             outHeaders[p] = in.header (p);
         }
     }
-    else { outHeaders[0] = in.header (part); }
+    else { outHeaders[0] = in.header (params.part); }
 
     bool compressionSet = false;
 
     for (int p = 0; p < outHeaders.size(); ++p)
     {
-        if (compression < NUM_COMPRESSION_METHODS)
+        if (params.compression < NUM_COMPRESSION_METHODS)
         {
-            outHeaders[p].compression () = compression;
+            outHeaders[p].compression () = params.compression;
         }
 
-        if (!isinf (level) && level >= -1)
+        if (!isinf (params.level) && params.level >= -1)
         {
             switch (outHeaders[p].compression ())
             {
                 case DWAA_COMPRESSION:
                 case DWAB_COMPRESSION:
-                    outHeaders[p].dwaCompressionLevel () = level;
+                    outHeaders[p].dwaCompressionLevel () = params.level;
                     compressionSet                       = true;
                     break;
                 case ZIP_COMPRESSION:
                 case ZIPS_COMPRESSION:
-                    outHeaders[p].zipCompressionLevel () = level;
+                    outHeaders[p].zipCompressionLevel () = params.level;
                     compressionSet                       = true;
                     break;
                 case ZSTD_COMPRESSION :
-                    outHeaders[p].zstdCompressionLevel()=level;
+                    outHeaders[p].zstdCompressionLevel()=params.level;
                     compressionSet                       = true;
                     break;
                 default: break;
             }
         }
 
-        if (pixelMode != PIXELMODE_ORIGINAL)
+        if (params.pixelMode != PIXELMODE_ORIGINAL)
         {
             for (ChannelList::Iterator i = outHeaders[p].channels ().begin ();
                  i != outHeaders[p].channels ().end ();
@@ -1044,16 +1036,16 @@ exrmetrics (
                 const char* dot  = strrchr (name, 'r');
                 if (dot) { name = dot + 1; }
 
-                if (pixelMode == PIXELMODE_ALL_HALF ||
-                    (pixelMode == PIXELMODE_MIXED_HALF_FLOAT &&
+                if (params.pixelMode == PIXELMODE_ALL_HALF ||
+                    (params.pixelMode == PIXELMODE_MIXED_HALF_FLOAT &&
                      (!strcmp (name, "R") || !strcmp (name, "G") ||
                       !strcmp (name, "B") || !strcmp (name, "A"))))
                 {
                     i.channel ().type = HALF;
                 }
                 else if (
-                    pixelMode == PIXELMODE_ALL_FLOAT ||
-                    pixelMode == PIXELMODE_MIXED_HALF_FLOAT)
+                    params.pixelMode == PIXELMODE_ALL_FLOAT ||
+                    params.pixelMode == PIXELMODE_MIXED_HALF_FLOAT)
                 {
                     i.channel ().type = FLOAT;
                 }
@@ -1062,18 +1054,27 @@ exrmetrics (
     }
 
     // abort if level was set but no parts had a compression type with a level
-    if (!isinf (level) && level >= -1 && !compressionSet)
+    if (!isinf (params.level) && params.level >= -1 && !compressionSet)
     {
         throw runtime_error (
             "-l option only works for DWAA/DWAB,ZIP/ZIPS or ZSTD compression");
     }
 
-    vector<partData> parts (part == -1 ? in.parts () : 1);
+    vector<partData> parts (params.part == -1 ? in.parts () : 1);
     metrics.stats.resize (parts.size ());
 
-    initAndReadFile (in, outHeaders, part, parts, metrics, reread);
+    initAndReadFile (in, outHeaders, params.part, parts, metrics, params.reread);
+    if (params.deepOutFileType == DEEPTILE)
+    {
+        for(auto &h : outHeaders)
+        {
+            h.setType(DEEPTILE);
+            h.setTileDescription (
+                TileDescription (params.tileSize, params.tileSize, ONE_LEVEL));
+        }
+    }
 
-    if (write)
+    if (params.write)
     {
 
         //
@@ -1081,7 +1082,7 @@ exrmetrics (
         // precompute the total datasize, so no memory reallocation is required
         //
         uint64_t fileSize = 0;
-        if (!outFileName)
+        if (!params.outFileName)
         {
 
             DummyOStream        tmp;
@@ -1095,32 +1096,32 @@ exrmetrics (
         // write to output; re-read output back to input
         //
 
-        if (verbose)
+        if (params.verbose)
         {
             cerr << " write ";
-            if (compression != NUM_COMPRESSION_METHODS)
+            if (params.compression != NUM_COMPRESSION_METHODS)
             {
                 string name;
-                getCompressionNameFromId (compression, name);
+                getCompressionNameFromId (params.compression, name);
                 cerr << "compression " << name;
             }
             cerr << "... ";
             cerr.flush ();
         }
 
-        for (int i = 0; i < passes; ++i)
+        for (int i = 0; i < params.passes; ++i)
         {
-            if (verbose && passes > 1)
+            if (params.verbose && params.passes > 1)
             {
                 cerr << i << ' ';
                 cerr.flush ();
             }
             MemOStream           ostream (fileSize);
             MultiPartOutputFile* out;
-            if (outFileName)
+            if (params.outFileName)
             {
                 out = new MultiPartOutputFile (
-                    outFileName, outHeaders.data (), outHeaders.size ());
+                    params.outFileName, outHeaders.data (), outHeaders.size ());
             }
             else
             {
@@ -1130,11 +1131,11 @@ exrmetrics (
             writeFile (*out, parts, metrics, true);
             delete out;
 
-            if (reread)
+            if (params.reread)
             {
                 MemIStream          istream (ostream);
                 MultiPartInputFile* in;
-                if (outFileName) { in = new MultiPartInputFile (outFileName); }
+                if (params.outFileName) { in = new MultiPartInputFile (params.outFileName); }
                 else { in = new MultiPartInputFile (istream); }
 
                 rereadFile (*in, parts, metrics);
@@ -1144,11 +1145,11 @@ exrmetrics (
         }
 
         struct stat instats, outstats;
-        stat (inFileName, &instats);
+        stat (params.inFileName, &instats);
         metrics.inputFileSize = instats.st_size;
-        if (outFileName)
+        if (params.outFileName)
         {
-            stat (outFileName, &outstats);
+            stat (params.outFileName, &outstats);
             metrics.outputFileSize = outstats.st_size;
         }
         else { metrics.outputFileSize = fileSize; }
@@ -1197,6 +1198,6 @@ exrmetrics (
         }
     }
 
-    if (verbose) { cerr << endl; }
+    if (params.verbose) { cerr << endl; }
     return metrics;
 }
