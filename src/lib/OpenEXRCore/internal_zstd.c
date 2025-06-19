@@ -45,6 +45,8 @@ exr_compress_zstd (
         return 0;
     }
 
+    blosc2_init ();
+
     blosc2_cparams cparams = BLOSC2_CPARAMS_DEFAULTS;
 
     cparams.typesize = typeSize;
@@ -90,6 +92,8 @@ long
 exr_uncompress_zstd (
     char* inPtr, uint64_t inSize, void** outPtr, uint64_t outPtrSize)
 {
+    blosc2_init ();
+
     blosc2_schunk* _schunk =
         blosc2_schunk_from_buffer ((uint8_t*) inPtr, inSize, true);
 
