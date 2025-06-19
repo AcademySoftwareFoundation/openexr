@@ -460,7 +460,7 @@ endif()
 # Find or install Blosc2
 #######################################
 
-set(MINIMUM_BLOSC2_VERSION 2.11.0)
+set(MINIMUM_BLOSC2_VERSION 2.14.1)
 option(OPENEXR_FORCE_INTERNAL_BLOSC2 [=[Force using installed Blosc2.]=] OFF)
 
 set(BLOSC2_REPO "https://github.com/Blosc/c-blosc2.git" CACHE STRING "Repo path for blosc2 source")
