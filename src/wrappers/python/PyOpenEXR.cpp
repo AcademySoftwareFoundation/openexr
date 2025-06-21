@@ -1254,7 +1254,7 @@ PyFile::getAttributeObject(const std::string& name, const Attribute* a)
     }
 
     if (auto v = dynamic_cast<const BytesAttribute*> (a))
-        return py::bytes(v->data(), v->dataSize());
+        return py::bytes(v->data(), v->size());
     
     if (auto v = dynamic_cast<const ChannelListAttribute*> (a))
     {

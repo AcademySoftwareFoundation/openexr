@@ -315,7 +315,7 @@ writeReadAttr (
         assert (oa);
         assert (!strcmp (a.typeName (), "testOpaque"));
 
-        assert (hdr.typedAttribute<BytesAttribute> ("a25").dataSize () ==
+        assert (hdr.typedAttribute<BytesAttribute> ("a25").size () ==
                 byteData.size ());
         assert (
             !memcmp (

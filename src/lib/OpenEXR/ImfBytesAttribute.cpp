@@ -24,11 +24,11 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 BytesAttribute::BytesAttribute ()
 {}
 
-BytesAttribute::BytesAttribute (long        dataSize,
+BytesAttribute::BytesAttribute (size_t      size,
                                 const void* data)
-    : _data (dataSize)
+    : _data (size)
 {
-    memcpy ((char*) _data, (const char*) data, dataSize);
+    memcpy ((char*) _data, (const char*) data, size);
 }
 
 BytesAttribute::BytesAttribute (const BytesAttribute& other)

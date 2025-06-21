@@ -28,7 +28,7 @@ public:
     //----------------------------
 
     IMF_EXPORT BytesAttribute ();
-    IMF_EXPORT BytesAttribute (long        dataSize,
+    IMF_EXPORT BytesAttribute (size_t      size,
                                const void* data);
     IMF_EXPORT BytesAttribute (const BytesAttribute& other);
     IMF_EXPORT virtual ~BytesAttribute () = default;
@@ -57,7 +57,7 @@ public:
 
     IMF_EXPORT virtual void copyValueFrom (const Attribute& other);
 
-    size_t dataSize () const { return _data.size (); }
+    size_t size () const { return _data.size (); }
     const Array<char>& data () const { return _data; }
 
     //--------------------------------
