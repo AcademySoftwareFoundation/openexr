@@ -1453,6 +1453,9 @@ testAttrListHelper (exr_context_t f)
         exr_attr_list_add_by_type (f, &al, "c", "box2f", 0, NULL, &out));
     EXRCORE_TEST (out->type == EXR_ATTR_BOX2F);
     EXRCORE_TEST_RVAL (
+        exr_attr_list_add_by_type (f, &al, "by", "bytes", 0, NULL, &out));
+    EXRCORE_TEST (out->type == EXR_ATTR_BYTES);
+    EXRCORE_TEST_RVAL (
         exr_attr_list_add_by_type (f, &al, "d", "chlist", 0, NULL, &out));
     EXRCORE_TEST (out->type == EXR_ATTR_CHLIST);
     EXRCORE_TEST_RVAL (exr_attr_chlist_add (
@@ -1560,7 +1563,7 @@ testAttrListHelper (exr_context_t f)
     EXRCORE_TEST_RVAL (
         exr_attr_list_add_by_type (f, &al, "2", "v3d", 0, NULL, &out));
     EXRCORE_TEST (out->type == EXR_ATTR_V3D);
-    EXRCORE_TEST (al.num_attributes == 29);
+    EXRCORE_TEST (al.num_attributes == 30);
     EXRCORE_TEST_RVAL (exr_attr_list_compute_size (f, &al, &sz));
     EXRCORE_TEST_RVAL (exr_attr_list_find_by_name (f, &al, "x", &out));
     EXRCORE_TEST (out->type == EXR_ATTR_V2I);
@@ -1604,6 +1607,9 @@ testAttrListHelper (exr_context_t f)
     EXRCORE_TEST_RVAL (
         exr_attr_list_add (f, &al, "c", EXR_ATTR_BOX2F, 0, NULL, &out));
     EXRCORE_TEST (out->type == EXR_ATTR_BOX2F);
+    EXRCORE_TEST_RVAL (
+        exr_attr_list_add (f, &al, "by", EXR_ATTR_BYTES, 0, NULL, &out));
+    EXRCORE_TEST (out->type == EXR_ATTR_BYTES);
     EXRCORE_TEST_RVAL (
         exr_attr_list_add (f, &al, "d", EXR_ATTR_CHLIST, 0, NULL, &out));
     EXRCORE_TEST (out->type == EXR_ATTR_CHLIST);
@@ -1682,7 +1688,7 @@ testAttrListHelper (exr_context_t f)
     EXRCORE_TEST_RVAL (
         exr_attr_list_add (f, &al, "2", EXR_ATTR_V3D, 0, NULL, &out));
     EXRCORE_TEST (out->type == EXR_ATTR_V3D);
-    EXRCORE_TEST (al.num_attributes == 28);
+    EXRCORE_TEST (al.num_attributes == 29);
 
     exr_attr_list_destroy (f, &al);
 
@@ -1729,6 +1735,9 @@ testAttrListHelper (exr_context_t f)
     EXRCORE_TEST_RVAL (exr_attr_list_add_static_name (
         f, &al, "c", EXR_ATTR_BOX2F, 0, NULL, &out));
     EXRCORE_TEST (out->type == EXR_ATTR_BOX2F);
+    EXRCORE_TEST_RVAL (exr_attr_list_add_static_name (
+        f, &al, "by", EXR_ATTR_BYTES, 0, NULL, &out));
+    EXRCORE_TEST (out->type == EXR_ATTR_BYTES);
     EXRCORE_TEST_RVAL (exr_attr_list_add_static_name (
         f, &al, "d", EXR_ATTR_CHLIST, 0, NULL, &out));
     EXRCORE_TEST (out->type == EXR_ATTR_CHLIST);
@@ -1807,7 +1816,7 @@ testAttrListHelper (exr_context_t f)
     EXRCORE_TEST_RVAL (exr_attr_list_add_static_name (
         f, &al, "2", EXR_ATTR_V3D, 0, NULL, &out));
     EXRCORE_TEST (out->type == EXR_ATTR_V3D);
-    EXRCORE_TEST (al.num_attributes == 28);
+    EXRCORE_TEST (al.num_attributes == 29);
 
     exr_attr_list_destroy (f, &al);
 }
