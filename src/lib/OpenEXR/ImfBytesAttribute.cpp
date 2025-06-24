@@ -28,13 +28,19 @@ BytesAttribute::BytesAttribute (size_t      size,
                                 const void* data)
     : _data (size)
 {
-    memcpy ((char*) _data, (const char*) data, size);
+    memcpy (
+        (unsigned char*) _data,
+        (const unsigned char*) data,
+        size);
 }
 
 BytesAttribute::BytesAttribute (const BytesAttribute& other)
     : _data (other._data.size ())
 {
-    memcpy ((char*) _data, (const char*) other._data, other._data.size ());
+    memcpy (
+        (unsigned char*) _data,
+        (const unsigned char*) other._data,
+        other._data.size ());
 }
 
 
@@ -60,7 +66,7 @@ void
 BytesAttribute::writeValueTo (
     OPENEXR_IMF_INTERNAL_NAMESPACE::OStream& os, int version) const
 {
-    Xdr::write<StreamIO> (os, _data, _data.size ());
+    Xdr::writeUnsignedChars<StreamIO> (os, _data, _data.size ());
 }
 
 void
@@ -68,7 +74,7 @@ BytesAttribute::readValueFrom (
     OPENEXR_IMF_INTERNAL_NAMESPACE::IStream& is, int size, int version)
 {
     _data.resizeErase (size);
-    Xdr::read<StreamIO> (is, _data, size);
+    Xdr::readUnsignedChars<StreamIO> (is, _data, size);
 }
 
 void
@@ -88,7 +94,10 @@ BytesAttribute::copyValueFrom (const Attribute& other)
     }
 
     _data.resizeErase (oa->_data.size ());
-    memcpy ((char*) _data, (const char*) oa->_data, oa->_data.size ());
+    memcpy (
+        (unsigned char*) _data,
+        (const unsigned char*) oa->_data,
+        oa->_data.size ());
 }
 
 Attribute*

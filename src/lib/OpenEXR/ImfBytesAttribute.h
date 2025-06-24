@@ -9,6 +9,14 @@
 //-----------------------------------------------------------------------------
 //
 //	class BytesAttribute
+// 
+//  BytesAttribute allows arbitrary binary data to be stored as an attribute.
+//  It holds a sequence of bytes, with the length specified by the `size` arg.
+//
+//  Unlike OpaqueAttribute, which also stores raw bytes, BytesAttribute is
+//  explicitly intended for use when the data is known to be a byte sequence.
+//  OpaqueAttribute should remain semantically uninterpreted, whereas
+//  BytesAttribute conveys an explicit intent to store binary data.
 //
 //-----------------------------------------------------------------------------
 
@@ -58,7 +66,7 @@ public:
     IMF_EXPORT virtual void copyValueFrom (const Attribute& other);
 
     size_t size () const { return _data.size (); }
-    const Array<char>& data () const { return _data; }
+    const Array<unsigned char>& data () const { return _data; }
 
     //--------------------------------
     // Methods to support registration
@@ -97,7 +105,7 @@ public:
     static void unRegisterAttributeType ();
 
 private:
-    Array<char> _data;
+    Array<unsigned char> _data;
 };
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT

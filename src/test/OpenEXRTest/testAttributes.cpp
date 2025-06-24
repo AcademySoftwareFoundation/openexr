@@ -146,8 +146,8 @@ writeReadAttr (
     a23.push_back (150.0f);
 
     TestOpaque a24 (42);
-    std::vector<char> byteData = {
-        'I', '<', '3', '\0', 0x1F, (char)0xAA, 0x05, 'E', 'X', 'R'};
+    std::vector<unsigned char> byteData = {
+        'I', '<', '3', '\0', 0x1F, 0xAA, 0x05, 'E', 'X', 'R'};
 
     //
     // Write an image file with extra attributes in the header

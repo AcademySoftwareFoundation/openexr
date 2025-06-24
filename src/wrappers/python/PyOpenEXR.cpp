@@ -1254,8 +1254,14 @@ PyFile::getAttributeObject(const std::string& name, const Attribute* a)
     }
 
     if (auto v = dynamic_cast<const BytesAttribute*> (a))
-        return py::bytes(v->data(), v->size());
-    
+    {
+        const auto& data = v->data();
+        const auto& size = v->size();
+        const char* ptr = (size == 0) ?
+            nullptr : reinterpret_cast<const char*>(&data[0]);
+        return py::bytes(ptr, size);
+    }
+
     if (auto v = dynamic_cast<const ChannelListAttribute*> (a))
     {
         auto L = v->value();
@@ -1903,7 +1909,9 @@ PyFile::insertAttribute(Header& header, const std::string& name, const py::objec
         // pointer from the buffer_info struct. This is a zero copy operation
         // but the memory will be copied when the BytesAttribute is created.
         py::buffer_info info(py::buffer(bytes).request());
-        Imf::BytesAttribute bytesAttr(py::len(bytes), info.ptr);
+        Imf::BytesAttribute bytesAttr(
+            py::len(bytes),
+            reinterpret_cast<const unsigned char*>(info.ptr));
         header.insert(name, bytesAttr);
     }
     else if (auto v = py_cast<Compression>(object))
