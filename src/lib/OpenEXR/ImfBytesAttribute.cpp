@@ -74,6 +74,13 @@ BytesAttribute::readValueFrom (
     OPENEXR_IMF_INTERNAL_NAMESPACE::IStream& is, int size, int version)
 {
     _data.resizeErase (size);
+    // NOTE that readUnsignedChars will not propagate any error value
+    // returned by the underlying stream read, so if the underlying
+    // stream read fails, the _data will be left in an erased state.
+    // This undefined behavior is consistent with other readValueFrom
+    // implementations in the OpenEXR library. An error in the underlying
+    // stream read is very rare, it's much more likely that an exception
+    // will be thrown.
     Xdr::readUnsignedChars<StreamIO> (is, _data, size);
 }
 
@@ -82,7 +89,7 @@ BytesAttribute::copyValueFrom (const Attribute& other)
 {
     const BytesAttribute* oa = dynamic_cast<const BytesAttribute*> (&other);
 
-    if (oa == 0)
+    if (!oa)
     {
         THROW (
             IEX_NAMESPACE::TypeExc,

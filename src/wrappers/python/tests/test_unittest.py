@@ -470,6 +470,7 @@ class TestUnittest(unittest.TestCase):
         header["box2i"] = ((0,1), (2,3))
         header["box2f"] = ((0.0,1.0), (2.0,3.0))
         header["bytes"] = b"\x76\x2f\x31\x01"
+        header["bytes0"] = b''
         header["compression"] = OpenEXR.ZIPS_COMPRESSION
         header["double"] = np.array([42000.0], 'float64')
         header["float"] = 4.2

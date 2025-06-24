@@ -1289,15 +1289,15 @@ exr_attr_set_bytes (
         return EXR_UNLOCK_AND_RETURN (
             ctxt->standard_error (ctxt, EXR_ERR_ALREADY_WROTE_ATTRS));
 
-    rv = exr_attr_list_find_by_name (
-        ctxt, (exr_attribute_list_t*) &(part->attributes), name, &attr);
-
     if (!val)
         return EXR_UNLOCK_AND_RETURN (ctxt->print_error (
             ctxt,
             EXR_ERR_INVALID_ARGUMENT,
             "No input value for setting '%s', type 'bytes'",
             name));
+
+    rv = exr_attr_list_find_by_name (
+        ctxt, (exr_attribute_list_t*) &(part->attributes), name, &attr);
 
     if (rv == EXR_ERR_NO_ATTR_BY_NAME)
     {
