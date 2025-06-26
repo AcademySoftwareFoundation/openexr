@@ -727,6 +727,10 @@ void ScanLineProcess::run_mem_decode (
     if (EXR_ERR_SUCCESS != exr_decoding_initialize (ctxt, pn, &cinfo, &decoder))
         throw IEX_NAMESPACE::IoExc ("Unable to initialize decode pipeline");
 
+    // Set first to false to allow destructor to deallocate any buffers
+    // allocated during decoding.
+    first = false;
+
     decoder.decode_flags |= EXR_DECODE_NON_IMAGE_DATA_AS_POINTERS;
     decoder.decode_flags |= EXR_DECODE_SAMPLE_COUNTS_AS_INDIVIDUAL;
     if (counts_only)
