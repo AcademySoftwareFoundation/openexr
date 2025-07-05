@@ -51,9 +51,9 @@ function(OPENEXR_DEFINE_LIBRARY libname)
       C_VISIBILITY_PRESET hidden
       CXX_VISIBILITY_PRESET hidden
       VISIBILITY_INLINES_HIDDEN ON
-      )
+    )
   else()
-      target_compile_definitions(${objlib} PUBLIC OPENEXR_USE_DEFAULT_VISIBILITY)
+    target_compile_definitions(${objlib} PUBLIC OPENEXR_USE_DEFAULT_VISIBILITY)
   endif()
   if (_openexr_extra_flags)
     target_compile_options(${objlib} PRIVATE ${_openexr_extra_flags})
@@ -66,10 +66,31 @@ function(OPENEXR_DEFINE_LIBRARY libname)
       VERSION ${OPENEXR_LIB_VERSION}
     )
   endif()
+  # Set OUTPUT_NAME to avoid suffix for frameworks
   set_target_properties(${libname} PROPERTIES
-      OUTPUT_NAME "${libname}${OPENEXR_LIB_SUFFIX}"
+      OUTPUT_NAME "${libname}"
       RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
   )
+  if(OPENEXR_FRAMEWORK)
+    # Mark resource files for inclusion in the framework bundle
+    set_source_files_properties(${OPENEXR_RESOURCES} PROPERTIES
+      MACOSX_PACKAGE_LOCATION Resources
+    )
+    set_target_properties(${libname} PROPERTIES
+      FRAMEWORK TRUE
+      FRAMEWORK_VERSION "${OPENEXR_VERSION_FULL}"
+      PRODUCT_BUNDLE_IDENTIFIER "github.com/AcademySoftwareFoundation/openexr/${libname}"
+      XCODE_ATTRIBUTE_INSTALL_PATH "@rpath"
+      XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY ""
+      XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED "NO"
+      XCODE_ATTRIBUTE_CODE_SIGNING_REQUIRED "NO"
+      MACOSX_FRAMEWORK_IDENTIFIER "github.com/AcademySoftwareFoundation/openexr/${libname}"
+      MACOSX_FRAMEWORK_BUNDLE_VERSION "${OPENEXR_VERSION_FULL}"
+      MACOSX_FRAMEWORK_SHORT_VERSION_STRING "${OPENEXR_VERSION_API}"
+      MACOSX_RPATH TRUE
+    )
+    configure_framework(${libname} "${OPENEXR_RESOURCES}")
+  endif()
   add_library(${PROJECT_NAME}::${libname} ALIAS ${libname})
 
   if(OPENEXR_INSTALL)
@@ -78,12 +99,18 @@ function(OPENEXR_DEFINE_LIBRARY libname)
       RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
       LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
       ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+      FRAMEWORK DESTINATION ${CMAKE_INSTALL_LIBDIR}
       INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
       PUBLIC_HEADER
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${OPENEXR_OUTPUT_SUBDIR}
     )
+    if(OPENEXR_FRAMEWORK)
+      install(FILES ${OPENEXR_RESOURCES}
+        DESTINATION "${CMAKE_INSTALL_LIBDIR}/${libname}.framework/Resources"
+      )
+    endif()
   endif()
-  if(BUILD_SHARED_LIBS AND (NOT "${OPENEXR_LIB_SUFFIX}" STREQUAL "") AND NOT WIN32)
+  if(BUILD_SHARED_LIBS AND (NOT "${OPENEXR_LIB_SUFFIX}" STREQUAL "") AND NOT WIN32 AND NOT OPENEXR_FRAMEWORK)
     string(TOUPPER "${CMAKE_BUILD_TYPE}" uppercase_CMAKE_BUILD_TYPE)
     set(verlibname ${CMAKE_SHARED_LIBRARY_PREFIX}${libname}${OPENEXR_LIB_SUFFIX}${CMAKE_${uppercase_CMAKE_BUILD_TYPE}_POSTFIX}${CMAKE_SHARED_LIBRARY_SUFFIX})
     set(baselibname ${CMAKE_SHARED_LIBRARY_PREFIX}${libname}${CMAKE_${uppercase_CMAKE_BUILD_TYPE}_POSTFIX}${CMAKE_SHARED_LIBRARY_SUFFIX})
@@ -92,5 +119,20 @@ function(OPENEXR_DEFINE_LIBRARY libname)
     install(CODE "message(STATUS \"Creating symlink ${CMAKE_INSTALL_FULL_LIBDIR}/${baselibname} -> ${verlibname}\")")
     set(verlibname)
     set(baselibname)
+  endif()
+endfunction()
+
+function(configure_framework libname resources)
+  if(OPENEXR_FRAMEWORK)
+    set(RES_DEST_DIR "$<TARGET_BUNDLE_CONTENT_DIR:${libname}>/Resources")
+    message(STATUS "Configuring framework for ${libname}, copying resources to ${RES_DEST_DIR}")
+    message(STATUS "Resources to copy: ${resources}")
+    add_custom_command(TARGET ${libname} POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E make_directory "${RES_DEST_DIR}"
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different ${resources} "${RES_DEST_DIR}/"
+      COMMAND ${CMAKE_COMMAND} -E echo "Copied resources: ${resources} to ${RES_DEST_DIR}"
+      COMMENT "Copying resource files to ${libname}.framework/Resources in build directory"
+      VERBATIM
+    )
   endif()
 endfunction()
