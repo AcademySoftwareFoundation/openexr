@@ -12,6 +12,7 @@
 #include <ojph_params.h>
 #include <ojph_mem.h>
 #include <ojph_codestream.h>
+#include <ojph_message.h>
 
 #include "openexr_decode.h"
 #include "openexr_encode.h"
@@ -147,6 +148,146 @@ read_header (
         map.at (i).file_index = header.pull_uint16 ();
     }
 }
+
+/**
+ * OpenJPH output file that is backed by a fixed-size memory buffer
+ */
+class staticmem_outfile : public ojph::outfile_base
+  {
+  public:
+    /**  A constructor */
+    staticmem_outfile() {
+        is_open = false;
+        max_size = used_size = 0;
+        buf = cur_ptr = NULL;
+    }
+    /**  A destructor */
+    ~staticmem_outfile() override {
+        is_open = false;
+        max_size = used_size = 0;
+        buf = cur_ptr = NULL;
+    }
+
+    /**  
+     *  @brief Call this function to write a codestream to an existing memory buffer
+	 *
+     * 
+     *  @param buf pointer to existing memory buffer.
+     *  @param buf_size size of the existing memory buffer.
+     */
+    void open(void* buf, size_t buf_size) {
+        assert(this->is_open == false);
+
+        this->is_open = true;
+        this->max_size = buf_size;
+        this->used_size = 0;
+        this->buf = (ojph::ui8*) buf;
+        this->cur_ptr = this->buf;
+    }
+
+    /**  
+     *  @brief Call this function to write data to the memory file.
+	   *
+     *  This function adds new data to the memory file.  The memory buffer
+     *  of the file grows as needed.
+     *
+     *  @param ptr is a pointer to new data.
+     *  @param size the number of bytes in the new data.
+     */
+    size_t write (const void* ptr, size_t sz)
+    {
+        assert (this->is_open);
+        assert (this->max_size);
+        assert (this->buf);
+        assert (this->cur_ptr);
+
+        size_t needed_size = (size_t) tell () + sz; //needed size
+        if (needed_size > this->max_size) {
+            throw std::range_error("Buffer size exceeded");
+        }
+
+        // copy bytes into buffer and adjust cur_ptr
+        memcpy (this->cur_ptr, ptr, sz);
+        cur_ptr += sz;
+        used_size = ojph_max (used_size, (size_t) tell ());
+
+        return sz;
+    }
+    /** 
+     *  @brief Call this function to know the file size (i.e., number of 
+     *         bytes used to store the file).
+     *
+     *  @return the file size.
+     */
+    ojph::si64 tell() override { return cur_ptr - buf; }
+
+    /** 
+     *  @brief Call this function to change write pointer location; the 
+     *         function can expand file storage.
+     *
+     *  @return 0 on success, non-zero otherwise.
+     */
+    int seek (ojph::si64 offset, enum outfile_base::seek origin) override
+    {
+        if (origin == OJPH_SEEK_SET)
+            ; // do nothing
+        else if (origin == OJPH_SEEK_CUR)
+            offset += tell ();
+        else if (origin == OJPH_SEEK_END)
+            offset += (ojph::si64) this->used_size;
+        else
+        {
+            assert (0);
+            return -1;
+        }
+
+        cur_ptr = buf + offset;
+        return 0;
+    }
+
+    /** Call this function to close the file and deallocate memory
+	   *
+     *  The object can be used again after calling close
+     */
+    void close() override{
+        is_open = false;
+    }
+
+    /** 
+     *  @brief Call this function to access memory file data.
+	   *
+     *  It is not recommended to store the returned value because buffer
+     *  storage address can change between write calls.
+     *
+     *  @return a constant pointer to the data.
+     */
+    const ojph::ui8* get_data() { return buf; }
+
+    /** 
+     *  @brief Call this function to access memory file data (for const 
+     *         objects)
+	   *
+     *  This is similar to the above function, except that it can be used
+     *  with constant objects.
+     *
+     *  @return a constant pointer to the data.
+     */
+    const ojph::ui8* get_data() const { return buf; }
+
+    /** 
+     *  Returns the size of the written data
+     *
+     *  @return size of the data stored in the file
+     */
+    size_t get_size() const { return this->used_size; }
+
+  private:
+    bool is_open;
+    size_t max_size;
+    size_t used_size;
+    ojph::ui8 *buf;
+    ojph::ui8 *cur_ptr;
+  };
 
 extern "C" exr_result_t
 internal_exr_undo_ht (
@@ -374,128 +515,121 @@ internal_exr_apply_ht (exr_encode_pipeline_t* encode)
     cod.set_block_dims (128, 32);
     cod.set_num_decomposition (5);
 
-    ojph::mem_outfile output;
-
-    output.open ();
-
-    cs.write_headers (&output);
-
-    ojph::ui32      next_comp = 0;
-    ojph::line_buf* cur_line  = cs.exchange (NULL, next_comp);
-
-    if (cs.is_planar ())
-    {
-        for (ojph::ui32 c = 0; c < encode->channel_count; c++)
-        {
-            if (encode->channels[c].height == 0) continue;
-
-            const uint8_t* line_pixels =
-                static_cast<const uint8_t*> (encode->packed_buffer);
-            int file_c = cs_to_file_ch[c].file_index;
-
-            for (int64_t y = encode->chunk.start_y;
-                 y < image_height + encode->chunk.start_y;
-                 y++)
-            {
-                for (ojph::ui32 line_c = 0; line_c < encode->channel_count;
-                     line_c++)
-                {
-
-                    if (y % encode->channels[line_c].y_samples != 0) continue;
-
-                    if (line_c == file_c)
-                    {
-                        if (encode->channels[file_c].data_type ==
-                            EXR_PIXEL_HALF)
-                        {
-                            int16_t* channel_pixels = (int16_t*) (line_pixels);
-                            for (uint32_t p = 0;
-                                 p < encode->channels[file_c].width;
-                                 p++)
-                            {
-                                cur_line->i32[p] = *channel_pixels++;
-                            }
-                        }
-                        else
-                        {
-                            int32_t* channel_pixels = (int32_t*) (line_pixels);
-                            for (uint32_t p = 0;
-                                 p < encode->channels[file_c].width;
-                                 p++)
-                            {
-                                cur_line->i32[p] = *channel_pixels++;
-                            }
-                        }
-
-                        assert (next_comp == c);
-                        cur_line = cs.exchange (cur_line, next_comp);
-                    }
-
-                    line_pixels += encode->channels[line_c].bytes_per_element *
-                                   encode->channels[line_c].width;
-                }
-            }
-        }
-    }
-    else
-    {
-        const uint8_t* line_pixels =
-            static_cast<const uint8_t*> (encode->packed_buffer);
-
-        assert (bpl * image_height == encode->packed_bytes);
-
-        for (int y = 0; y < image_height; y++)
-        {
-            for (ojph::ui32 c = 0; c < encode->channel_count; c++)
-            {
-                int file_c = cs_to_file_ch[c].file_index;
-
-                if (encode->channels[file_c].data_type == EXR_PIXEL_HALF)
-                {
-                    int16_t* channel_pixels =
-                        (int16_t*) (line_pixels + cs_to_file_ch[c].raster_line_offset);
-                    for (uint32_t p = 0; p < encode->channels[file_c].width;
-                         p++)
-                    {
-                        cur_line->i32[p] = *channel_pixels++;
-                    }
-                }
-                else
-                {
-                    int32_t* channel_pixels =
-                        (int32_t*) (line_pixels + cs_to_file_ch[c].raster_line_offset);
-                    for (uint32_t p = 0; p < encode->channels[file_c].width;
-                         p++)
-                    {
-                        cur_line->i32[p] = *channel_pixels++;
-                    }
-                }
-                assert (next_comp == c);
-                cur_line = cs.exchange (cur_line, next_comp);
-            }
-            line_pixels += bpl;
-        }
-    }
-
-    cs.flush ();
-
+    /* write the header */
     size_t header_sz = write_header (
         (uint8_t*) encode->compressed_buffer,
         encode->packed_bytes,
         cs_to_file_ch);
 
-    assert (output.tell () >= 0);
-    int compressed_sz = static_cast<size_t> (output.tell ());
-    if (compressed_sz + header_sz < encode->packed_bytes)
-    {
-        memcpy (
-            ((uint8_t*) encode->compressed_buffer) + header_sz,
-            output.get_data (),
-            compressed_sz);
-        encode->compressed_bytes = compressed_sz + header_sz;
-    }
-    else
-    {
+    /* write the codestream */
+    staticmem_outfile output;
+    output.open ( ((uint8_t*) encode->compressed_buffer) + header_sz, encode->packed_bytes - header_sz);
+
+        try {
+        cs.write_headers (&output);
+
+        ojph::ui32      next_comp = 0;
+        ojph::line_buf* cur_line  = cs.exchange (NULL, next_comp);
+
+        if (cs.is_planar ())
+        {
+            for (ojph::ui32 c = 0; c < encode->channel_count; c++)
+            {
+                if (encode->channels[c].height == 0) continue;
+
+                const uint8_t* line_pixels =
+                    static_cast<const uint8_t*> (encode->packed_buffer);
+                int file_c = cs_to_file_ch[c].file_index;
+
+                for (int64_t y = encode->chunk.start_y;
+                    y < image_height + encode->chunk.start_y;
+                    y++)
+                {
+                    for (ojph::ui32 line_c = 0; line_c < encode->channel_count;
+                        line_c++)
+                    {
+
+                        if (y % encode->channels[line_c].y_samples != 0) continue;
+
+                        if (line_c == file_c)
+                        {
+                            if (encode->channels[file_c].data_type ==
+                                EXR_PIXEL_HALF)
+                            {
+                                int16_t* channel_pixels = (int16_t*) (line_pixels);
+                                for (uint32_t p = 0;
+                                    p < encode->channels[file_c].width;
+                                    p++)
+                                {
+                                    cur_line->i32[p] = *channel_pixels++;
+                                }
+                            }
+                            else
+                            {
+                                int32_t* channel_pixels = (int32_t*) (line_pixels);
+                                for (uint32_t p = 0;
+                                    p < encode->channels[file_c].width;
+                                    p++)
+                                {
+                                    cur_line->i32[p] = *channel_pixels++;
+                                }
+                            }
+
+                            assert (next_comp == c);
+                            cur_line = cs.exchange (cur_line, next_comp);
+                        }
+
+                        line_pixels += encode->channels[line_c].bytes_per_element *
+                                    encode->channels[line_c].width;
+                    }
+                }
+            }
+        }
+        else
+        {
+            const uint8_t* line_pixels =
+                static_cast<const uint8_t*> (encode->packed_buffer);
+
+            assert (bpl * image_height == encode->packed_bytes);
+
+            for (int y = 0; y < image_height; y++)
+            {
+                for (ojph::ui32 c = 0; c < encode->channel_count; c++)
+                {
+                    int file_c = cs_to_file_ch[c].file_index;
+
+                    if (encode->channels[file_c].data_type == EXR_PIXEL_HALF)
+                    {
+                        int16_t* channel_pixels =
+                            (int16_t*) (line_pixels + cs_to_file_ch[c].raster_line_offset);
+                        for (uint32_t p = 0; p < encode->channels[file_c].width;
+                            p++)
+                        {
+                            cur_line->i32[p] = *channel_pixels++;
+                        }
+                    }
+                    else
+                    {
+                        int32_t* channel_pixels =
+                            (int32_t*) (line_pixels + cs_to_file_ch[c].raster_line_offset);
+                        for (uint32_t p = 0; p < encode->channels[file_c].width;
+                            p++)
+                        {
+                            cur_line->i32[p] = *channel_pixels++;
+                        }
+                    }
+                    assert (next_comp == c);
+                    cur_line = cs.exchange (cur_line, next_comp);
+                }
+                line_pixels += bpl;
+            }
+        }
+
+        cs.flush ();
+
+        assert (output.get_size () >= 0);
+        encode->compressed_bytes = output.get_size () + header_sz;
+    } catch (const std::range_error& e) {
         encode->compressed_bytes = encode->packed_bytes;
     }
 

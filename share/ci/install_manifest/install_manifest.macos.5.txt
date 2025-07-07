@@ -229,7 +229,7 @@ lib/cmake/openjph/openjph-targets-release.cmake
 lib/cmake/openjph/openjph-targets.cmake
 lib/cmake/openjph/openjph-config.cmake
 lib/cmake/openjph/openjph-config-version.cmake
-lib/libopenjph.0.21.2.dylib
+lib/libopenjph.0.21.3.dylib
 lib/libopenjph.0.21.dylib
 lib/libopenjph.dylib
 lib/pkgconfig/openjph.pc

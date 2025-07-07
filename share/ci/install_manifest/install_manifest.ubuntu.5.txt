@@ -231,5 +231,5 @@ lib64/cmake/openjph/openjph-config.cmake
 lib64/cmake/openjph/openjph-config-version.cmake
 lib64/libopenjph.so
 lib64/libopenjph.so.0.21
-lib64/libopenjph.so.0.21.2
+lib64/libopenjph.so.0.21.3
 lib64/pkgconfig/openjph.pc

@@ -51,6 +51,8 @@ on:
         type: string
       OPENEXR_FORCE_INTERNAL_OPENJPH:
         type: string
+      CMAKE_OSX_ARCHITECTURES:
+        type: string
       BUILD_TESTING:
         type: string
       namespace:
@@ -168,6 +170,9 @@ jobs:
             cmake_args+=("-DCMAKE_C_FLAGS=-msse2 -mfpmath=sse")
             cmake_args+=("-DCMAKE_CXX_FLAGS=-msse2 -mfpmath=sse")
           fi
+          if [ -n "${{ inputs.CMAKE_OSX_ARCHITECTURES }}" ]; then
+              cmake_args+=("CMAKE_OSX_ARCHITECTURES='${{ inputs.CMAKE_OSX_ARCHITECTURES }}'")
+          fi
 
           quoted_args=$(printf '%q ' "${cmake_args[@]}")
           echo "CMAKE_ARGS=$quoted_args" >> "$GITHUB_ENV"
@@ -236,5 +241,45 @@ jobs:
         # Validate that the build has installed the proper files by comparing against the appropriate reference manifest
         run: |
           share/ci/scripts/validate_install.py "_build/$INSTALL_MANIFEST" "share/ci/install_manifest/$INSTALL_MANIFEST"
+        shell: bash
+
+      - name: Website examples
+        # Build the "hello, world" exrwriter example program from the
+        # website, both to confirm it builds and as an example of an
+        # application building against the just-installed openexr
+        # libary, to validate the cmake configuration for downstream
+        # applications.
+        if: inputs.namespace == '' && inputs.msystem == '' && inputs.OPENEXR_BUILD_EXAMPLES != ''
+        run: |
+          set -x
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+              WORKSPACE=$(cygpath -u "$GITHUB_WORKSPACE")
+          else
+              WORKSPACE=$GITHUB_WORKSPACE
+          fi
+          INSTALL_DIR=$WORKSPACE/_install
+          EXRWRITER_BUILD_DIR=$WORKSPACE/_build.exrwriter
+          cmake -S website/src/exrwriter -B $EXRWRITER_BUILD_DIR \
+                -DCMAKE_PREFIX_PATH=$INSTALL_DIR \
+                -DCMAKE_VERBOSE_MAKEFILE=ON
+          cmake --build $EXRWRITER_BUILD_DIR --config ${{ inputs.build-type }}
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+              export PATH="$INSTALL_DIR/bin;$INSTALL_DIR/lib;C:/Program Files (x86)/Imath/bin;C:/Program Files (x86)/Imath/lib;C:/Program Files (x86)/libdeflate/bin;C:/Program Files (x86)/libdeflate/lib;C:/Program Files (x86)/openjph/lib;C:/Program Files (x86)/openjph/bin;$PATH"
+              EXRWRITER=$EXRWRITER_BUILD_DIR/${{ inputs.build-type }}/exrwriter.exe
+              EXRINFO=$INSTALL_DIR/bin/exrinfo.exe
+          else
+              EXRWRITER=$EXRWRITER_BUILD_DIR/exrwriter
+              EXRINFO=$INSTALL_DIR/bin/exrinfo
+          fi
+          if [ -x "$EXRWRITER" ]; then
+              "$EXRWRITER"
+          else
+              echo "can't find exrwriter: $EXRWRITER"
+          fi
+          if [ -x "$EXRINFO" ]; then
+              "$EXRINFO" stripes.exr
+          else
+              echo "can't find exrinfo: $EXRINFO"
+          fi
         shell: bash
 
