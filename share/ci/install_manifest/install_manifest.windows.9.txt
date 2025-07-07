@@ -41,6 +41,7 @@ include/OpenEXR/ImfAcesFile.h
 include/OpenEXR/ImfArray.h
 include/OpenEXR/ImfAttribute.h
 include/OpenEXR/ImfBoxAttribute.h
+include/OpenEXR/ImfBytesAttribute.h
 include/OpenEXR/ImfCRgbaFile.h
 include/OpenEXR/ImfChannelList.h
 include/OpenEXR/ImfChannelListAttribute.h
