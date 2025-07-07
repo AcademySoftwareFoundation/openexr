@@ -39,7 +39,7 @@ public:
     IMF_EXPORT BytesAttribute (size_t      size,
                                const void* data);
     IMF_EXPORT BytesAttribute (const BytesAttribute& other);
-    IMF_EXPORT virtual ~BytesAttribute () = default;
+    IMF_EXPORT virtual ~BytesAttribute ();
 
     //-------------------------------
     // Get this attribute's type name

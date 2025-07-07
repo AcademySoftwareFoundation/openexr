@@ -43,6 +43,12 @@ BytesAttribute::BytesAttribute (const BytesAttribute& other)
         other._data.size ());
 }
 
+// Note this is defined here and not in the header file to
+// allow the Windows build to clearly separate definition from
+// declaration with respect to the DLL export macros defined in
+// ImfExport.h.
+BytesAttribute::~BytesAttribute () = default;
+
 
 const char*
 BytesAttribute::staticTypeName ()
