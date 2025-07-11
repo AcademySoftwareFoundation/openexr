@@ -724,4 +724,12 @@ IMF_STD_ATTRIBUTE_DEF_DEPRECATED (
 
 IMF_STD_ATTRIBUTE_DEF (idManifest, IDManifest, CompressedIDManifest)
 
+//
+// ColorInteropID - the OpenColorIO color space/config name
+//
+// [add description here]
+//
+
+IMF_STD_ATTRIBUTE_DEF (colorInteropID, ColorInteropID, std::string)
+
 #endif

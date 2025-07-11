@@ -1313,6 +1313,9 @@ By default, OpenEXR files have the following attributes:
   openEXR images
   <https://dl.acm.org/doi/abs/10.1145/3233085.3233086>`_ for details.
 
+**colorInteropID**
+  Color Interop ID. See `Color Interop Forum <https://lf-aswf.atlassian.net/wiki/spaces/CIF/overview>`_
+
 
 Premultiplied vs. Un-Premultiplied Color Channels
 -------------------------------------------------
