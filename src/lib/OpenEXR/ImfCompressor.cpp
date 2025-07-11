@@ -421,6 +421,13 @@ newTileCompressor (
                 DwaCompressor::STATIC_HUFFMAN);
             break;
 
+        case HTJ2K_COMPRESSION:
+
+            return new HTCompressor (
+                hdr,
+                static_cast<int> (tileLineSize),
+                static_cast<int> (numTileLines));
+
         default: break;
     }
     // clang-format on

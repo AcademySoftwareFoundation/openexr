@@ -73,7 +73,7 @@ public:
     void push_uint32 (uint32_t value)
     {
         if (this->end - this->cur < 4)
-            throw std::out_of_range ("Insufficient data to push uint32_t");
+            throw std::range_error ("Insufficient data to push uint32_t");
 
         *this->cur++ = (value >> 24) & 0xFF;
         *this->cur++ = (value >> 16) & 0xFF;
@@ -84,7 +84,7 @@ public:
     void push_uint16 (uint16_t value)
     {
         if (this->end - this->cur < 2)
-            throw std::out_of_range ("Insufficient data to push uint32_t");
+            throw std::range_error ("Insufficient data to push uint32_t");
 
         *this->cur++ = (value >> 8) & 0xFF;
         *this->cur++ = value & 0xFF;
@@ -197,7 +197,6 @@ class staticmem_outfile : public ojph::outfile_base
     size_t write (const void* ptr, size_t sz)
     {
         assert (this->is_open);
-        assert (this->max_size);
         assert (this->buf);
         assert (this->cur_ptr);
 
@@ -515,17 +514,18 @@ internal_exr_apply_ht (exr_encode_pipeline_t* encode)
     cod.set_block_dims (128, 32);
     cod.set_num_decomposition (5);
 
-    /* write the header */
-    size_t header_sz = write_header (
-        (uint8_t*) encode->compressed_buffer,
-        encode->packed_bytes,
-        cs_to_file_ch);
+    try
+    {
+        /* write the header */
+        size_t header_sz = write_header (
+            (uint8_t*) encode->compressed_buffer,
+            encode->packed_bytes,
+            cs_to_file_ch);
 
-    /* write the codestream */
-    staticmem_outfile output;
-    output.open ( ((uint8_t*) encode->compressed_buffer) + header_sz, encode->packed_bytes - header_sz);
+        /* write the codestream */
+        staticmem_outfile output;
+        output.open ( ((uint8_t*) encode->compressed_buffer) + header_sz, encode->packed_bytes - header_sz);
 
-        try {
         cs.write_headers (&output);
 
         ojph::ui32      next_comp = 0;
