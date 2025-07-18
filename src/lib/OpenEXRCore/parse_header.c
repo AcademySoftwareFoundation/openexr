@@ -748,7 +748,7 @@ extract_attr_tiledesc (
 }
 
 /**************************************/
-
+#include <assert.h>
 static exr_result_t
 extract_attr_bytes(
     exr_context_t ctxt,
@@ -759,16 +759,50 @@ extract_attr_bytes(
     int32_t attrsz)
 {
     int32_t n;
+    int32_t hint_length;
+    size_t bytes_length;
+    const char* type_hint;
     exr_result_t rv;
 
     rv = check_bad_attrsz(scratch, attrsz, 1, aname, tname, &n);
     if (rv != EXR_ERR_SUCCESS) return rv;
 
     exr_attr_bytes_destroy(ctxt, attrdata);
-    rv = exr_attr_bytes_init(ctxt, attrdata, (size_t)attrsz);
+
+    if (attrsz < sizeof(uint32_t))
+        return ctxt->print_error (
+            ctxt,
+            EXR_ERR_ATTR_SIZE_MISMATCH,
+            "Attribute '%s': Invalid size %d (exp '%s' size >= %d)",
+            aname,
+            attrsz,
+            tname,
+            sizeof(uint32_t));
+
+    rv = scratch->sequential_read (scratch, &hint_length, sizeof (uint32_t));
+    if (rv != EXR_ERR_SUCCESS)
+        return ctxt->print_error (
+            ctxt, rv, "Attribute '%s': Unable to read hint length.", aname);
+
+    hint_length = one_to_native32 (hint_length);
+    if (hint_length < 0)
+        return ctxt->print_error (
+            ctxt, EXR_ERR_INVALID_ATTR,
+            "Attribute '%s': Invalid size (%d) for type_hint.", aname, hint_length);
+
+    bytes_length = attrsz - sizeof(uint32_t) - hint_length;
+
+    rv = exr_attr_bytes_init(ctxt, attrdata, (size_t)hint_length, bytes_length);
     if (rv != EXR_ERR_SUCCESS) return rv;
 
-    rv = scratch->sequential_read(scratch, (void*)attrdata->data, (uint64_t)attrsz);
+    rv = scratch->sequential_read(scratch, (void*)attrdata->type_hint, (uint64_t)hint_length);
+    if (rv != EXR_ERR_SUCCESS) {
+        exr_attr_bytes_destroy(ctxt, attrdata);
+        return ctxt->print_error(
+            ctxt, rv, "Failed to read bytes attribute '%s'", aname);
+    }
+
+    rv = scratch->sequential_read(scratch, (void*)attrdata->data, (uint64_t)bytes_length);
     if (rv != EXR_ERR_SUCCESS) {
         exr_attr_bytes_destroy(ctxt, attrdata);
         return ctxt->print_error(

@@ -32,6 +32,19 @@
                 "OPENEXR_BUILD_EXAMPLES": "ON",
                 "OPENEXR_BUILD_PYTHON": "ON"
             }
+        },
+        {
+            "name": "debug",
+            "displayName": "Debug (Unix Makefiles)",
+            "description": "Debug build with Unix Makefiles",
+            "generator": "Unix Makefiles",
+            "binaryDir": "${sourceDir}/_build/debug",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "OPENEXR_BUILD_TOOLS": "ON",
+                "OPENEXR_BUILD_EXAMPLES": "ON",
+                "OPENEXR_BUILD_PYTHON": "ON"
+            }
         }
     ]
 }

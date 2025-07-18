@@ -36,10 +36,19 @@ public:
     //----------------------------
 
     IMF_EXPORT BytesAttribute ();
-    IMF_EXPORT BytesAttribute (size_t      size,
-                               const void* data);
+    IMF_EXPORT BytesAttribute (
+        size_t      size,
+        const void* data,
+        const std::string& typeHint = "");
+
     IMF_EXPORT BytesAttribute (const BytesAttribute& other);
     IMF_EXPORT virtual ~BytesAttribute ();
+
+    //----------
+    // Operators
+    //----------
+
+    IMF_EXPORT bool operator==(const BytesAttribute& other) const;
 
     //-------------------------------
     // Get this attribute's type name
@@ -67,6 +76,8 @@ public:
 
     size_t size () const { return _data.size (); }
     const Array<unsigned char>& data () const { return _data; }
+    IMF_EXPORT void setData(const unsigned char* data, size_t size);
+    std::string typeHint; 
 
     //--------------------------------
     // Methods to support registration

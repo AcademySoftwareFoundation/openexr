@@ -445,7 +445,8 @@ Context::header (int partidx) const
                 hdr.insert (
                     cur->name, BytesAttribute (
                         cur->bytes->size,
-                        cur->bytes->data));
+                        cur->bytes->data,
+                        std::string (cur->bytes->type_hint, cur->bytes->hint_length)));
                 break;
             case EXR_ATTR_V2I:
                 hdr.insert (

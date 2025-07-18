@@ -59,6 +59,7 @@ dist/*
 __pycache__/
 *.py[cod]
 *$py.class
+*.swp
 
 # Ignore Bazel generated files
 bazel-* 

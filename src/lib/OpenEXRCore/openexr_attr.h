@@ -341,6 +341,10 @@ typedef struct
 {
     size_t  size;
     uint8_t* data;
+    // The type hint is not null terminated when serialized. The length
+    // is instead determined by the hint_length attribute.
+    uint32_t hint_length;
+    const char *type_hint;
 } exr_attr_bytes_t;
 
 /** Custom storage structure for opaque data.

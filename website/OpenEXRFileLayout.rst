@@ -887,9 +887,15 @@ The OpenEXR library predefines the following attribute types:
 +--------------------+-----------------------------------------------------------------+
 | ``box2f``          | Four ``float``\ 's: ``xMin``, ``yMin``, ``xMax``, ``yMax``      |
 +--------------------+-----------------------------------------------------------------+
-| ``bytes``          | A sequence of ``unsigned char`` values. The attribute size      |
-|                    | (a ``size_t``) specifies the number of bytes. The bytes are     |
-|                    | stored as-is, with no interpretation or transformation.         |
+| ``bytes``          | A sequence of ``unsigned char`` values. The bytes are           |
+|                    | accompanied by an optional (but encouraged) type hint.          |
+|                    +----------------+------------------------------------------------+
+|                    | ``hintLength`` | ``unsigned int``                               |
+|                    +----------------+------------------------------------------------+
+|                    | ``typeHint``   | A sequence of chars of length ``hintLength``.  |
+|                    +-----------------------------------------------------------------+
+|                    | The bytes payload follows and can be up to INT32_MAX bytes in   |
+|                    | length.                                                         |
 +--------------------+-----------------------------------------------------------------+
 | ``chlist``         | A sequence of channels followed by a null byte (``0x00``).      |
 |                    | Channel layout:                                                 |

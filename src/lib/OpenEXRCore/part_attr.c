@@ -1313,7 +1313,12 @@ exr_attr_set_bytes (
             &(attr));
         if (rv == EXR_ERR_SUCCESS)
             rv = exr_attr_bytes_create (
-                ctxt, attr->bytes, val->size, val->data);
+                ctxt,
+                attr->bytes,
+                val->hint_length,
+                val->size,
+                val->type_hint,
+                val->data);
     }
     else if (rv == EXR_ERR_SUCCESS)
     {
@@ -1326,8 +1331,12 @@ exr_attr_set_bytes (
                 attr->type_name));
 
         if (attr->bytes->size == val->size &&
-            attr->bytes->size > 0)
+            attr->bytes->hint_length == val->hint_length)
         {
+            memcpy (
+                EXR_CONST_CAST (void*, attr->bytes->type_hint),
+                val->type_hint,
+                val->hint_length);
             memcpy (
                 EXR_CONST_CAST (void*, attr->bytes->data),
                 val->data,
@@ -1347,7 +1356,12 @@ exr_attr_set_bytes (
         {
             exr_attr_bytes_destroy (ctxt, attr->bytes);
             rv = exr_attr_bytes_create (
-                ctxt, attr->bytes, val->size, val->data);
+                ctxt,
+                attr->bytes,
+                val->hint_length,
+                val->size,
+                val->type_hint,
+                val->data);
         }
     }
     return EXR_UNLOCK_AND_RETURN (rv);

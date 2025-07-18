@@ -182,6 +182,8 @@ writeReadAttr (
         hdr.insert ("a24", TestOpaqueAttribute (a24));
         hdr.insert ("a25", BytesAttribute (
             byteData.size (), byteData.data ()));
+        hdr.insert ("a26", BytesAttribute (
+            0, nullptr, "this is a type hint"));
 
         hdr.channels ().insert (
             "F", // name
@@ -322,6 +324,9 @@ writeReadAttr (
                 &hdr.typedAttribute<BytesAttribute> ("a25").data ()[0],
                 byteData.data (),
                 byteData.size ()));
+        assert (hdr.typedAttribute<BytesAttribute> ("a25").typeHint == "");
+        assert (hdr.typedAttribute<BytesAttribute> ("a26").typeHint == "this is a type hint");
+
 
         // test the copy constructor
         OpaqueAttribute b (*oa);

@@ -1255,11 +1255,7 @@ PyFile::getAttributeObject(const std::string& name, const Attribute* a)
 
     if (auto v = dynamic_cast<const BytesAttribute*> (a))
     {
-        const auto& data = v->data();
-        const auto& size = v->size();
-        const char* ptr = (size == 0) ?
-            nullptr : reinterpret_cast<const char*>(&data[0]);
-        return py::bytes(ptr, size);
+        return py::cast(*v);
     }
 
     if (auto v = dynamic_cast<const ChannelListAttribute*> (a))
@@ -1901,18 +1897,9 @@ PyFile::insertAttribute(Header& header, const std::string& name, const py::objec
             // since the channels get created elswhere.
         }
     }
-    else if (py::isinstance<py::bytes>(object))
+    else if (py::isinstance<Imf::BytesAttribute>(object))
     {
-        auto bytes = py::cast<py::bytes>(object);
-        // Since there is no direct way to get the bytes pointer from the
-        // py:bytes object, we wrap it in a py::buffer and then get the
-        // pointer from the buffer_info struct. This is a zero copy operation
-        // but the memory will be copied when the BytesAttribute is created.
-        py::buffer_info info(py::buffer(bytes).request());
-        Imf::BytesAttribute bytesAttr(
-            py::len(bytes),
-            reinterpret_cast<const unsigned char*>(info.ptr));
-        header.insert(name, bytesAttr);
+        header.insert(name, py::cast<Imf::BytesAttribute>(object));
     }
     else if (auto v = py_cast<Compression>(object))
         header.insert(name, CompressionAttribute(static_cast<Compression>(*v)));
@@ -2317,6 +2304,40 @@ PYBIND11_MODULE(OpenEXR, m)
     // Classes for attribute types
     //
     
+    py::class_<BytesAttribute>(m, "Bytes")
+        .def(py::init([](py::bytes data, std::string type_hint) {
+            std::string_view data_view(data);
+
+            return std::make_unique<Imf::BytesAttribute>(
+                data_view.size(),
+                reinterpret_cast<const unsigned char*>(data_view.data()),
+                type_hint
+            );
+        }), py::arg("data"), py::arg("type_hint") = "")
+        .def_property("data",
+            [](const BytesAttribute& self) {
+            const auto& data = self.data();
+            const auto& size = self.size();
+            const char* ptr = (size == 0) ?
+                nullptr : reinterpret_cast<const char*>(&data[0]);
+            return py::bytes(ptr, size);
+            },
+            [](BytesAttribute& self, py::bytes value) {
+                std::string_view new_data(value);
+                self.setData(
+                    reinterpret_cast<const unsigned char*>(new_data.data()),
+                    new_data.size()
+                );
+            })
+        .def_readwrite("type_hint", &BytesAttribute::typeHint)
+        .def(py::self == py::self)
+        .def("__repr__", [](const BytesAttribute& self) {
+            return (
+                "<Bytes data=b'...' ("
+                + std::to_string(self.size()) + " bytes), "
+                + "type_hint='" + self.typeHint + "'>");
+        });
+
     py::class_<TileDescription>(m, "TileDescription", "Tile description for tiled images")
         .def(py::init())
         .def("__repr__", [](TileDescription& v) { return repr(v); })
