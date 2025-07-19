@@ -15,12 +15,6 @@ News
 
 .. include:: latest_news_title.rst
 
-|latest-news-title|
-=======================================
-
-.. _LatestNewsStart:
-
-Patch release with miscellaneous bug/build/documentation fixes:
 
 .. |bug| unicode:: U+1F41B
    :ltrim:
@@ -30,6 +24,28 @@ Patch release with miscellaneous bug/build/documentation fixes:
 
 .. |hammer_and_wrench| unicode:: U+1F6E0
    :ltrim:
+
+|latest-news-title|
+==========================================
+
+.. _LatestNewsStart:
+
+Patch release with several bug/build/performance fixes:
+
+* |bug| Fix a crash with deep scanline input
+* |bug| Fix a bug when reading a file with missing tiles
+* |bug| Fix a crash in exrmetrics
+* |hammer_and_wrench| Fix a problem with /EHsc and /MP flags that broke CUDA compilation
+* |hammer_and_wrench| Fix a build failure on MinGW
+* |rocket| Enable vectorisation for ZIP reconstruct stage on Windows
+
+.. _LatestNewsEnd:
+
+**March 23, 2025 - OpenEXR 3.3.3 Released**
+===========================================
+
+
+Patch release with miscellaneous bug/build/documentation fixes:
 
 * |bug| Fix a bug involving deep tiled images
 * |bug| Adjust the clamping on the dwa compression (Issue `1982 <https://github.com/AcademySoftwareFoundation/openexr/issues/1982>`_)
@@ -54,7 +70,6 @@ This version also officially installs the `exrcheck` utility, formerly built for
 
 This version also publishes the python bindings for arm64 on Ubuntu and macOS.
 
-.. _LatestNewsEnd:
 
 
 February 8, 2025 - Beta release of support for HTJ2K in OpenEXR

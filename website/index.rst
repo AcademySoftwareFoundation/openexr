@@ -46,6 +46,14 @@ Latest News
 
 |latest-news-title|
 
+.. |bug| unicode:: U+1F41B
+   :ltrim:
+
+.. |rocket| unicode:: U+1F680
+   :ltrim:
+
+.. |hammer_and_wrench| unicode:: U+1F6E0
+   :ltrim:
 .. highlights::
 
    .. include:: news.rst
