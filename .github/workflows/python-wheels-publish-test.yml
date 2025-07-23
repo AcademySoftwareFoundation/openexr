@@ -68,7 +68,7 @@ jobs:
           # Skip python 3.6 since scikit-build-core requires 3.7+
           # Skip 32-bit wheels builds on Windows
           # Also skip the PyPy builds, since they fail the unit tests
-          CIBW_BUILD: "cp37-* cp38-* cp39-* cp310-* cp311-* cp312-*"
+          CIBW_BUILD: "cp38-* cp39-* cp310-* cp311-* cp312-* cp313-*"
           CIBW_SKIP: "*-win32 *_i686"
           CIBW_TEST_SKIP: "*-macosx_universal2:arm64"
           CIBW_ENVIRONMENT: OPENEXR_RELEASE_CANDIDATE_TAG="${{ github.ref_name }}"
