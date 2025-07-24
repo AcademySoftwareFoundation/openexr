@@ -23,6 +23,7 @@
 #    include "../../lib/OpenEXRCore/float_vector.c"
 #    include "../../lib/OpenEXRCore/internal_attr.h"
 #    include "../../lib/OpenEXRCore/internal_xdr.h"
+#    include "../../lib/OpenEXRCore/bytes.c"
 #    include "../../lib/OpenEXRCore/opaque.c"
 #    include "../../lib/OpenEXRCore/preview.c"
 #    include "../../lib/OpenEXRCore/string.c"
@@ -953,6 +954,88 @@ testAttrOpaque (const std::string& tempdir)
     exr_finish (&f);
 }
 
+static void
+testBytesHelper (exr_context_t f)
+{
+    exr_attr_bytes_t b;
+    uint8_t               data4[] = {0x76, 0x2f, 0x31, 0x01};
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_MISSING_CONTEXT_ARG, exr_attr_bytes_init (NULL, NULL, 0, 4));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_INVALID_ARGUMENT, exr_attr_bytes_init (f, NULL, 0, 4));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_INVALID_ARGUMENT,
+        exr_attr_bytes_init (f, &b, 0, (size_t) INT32_MAX + 1));
+    EXRCORE_TEST_RVAL_FAIL_MALLOC (
+        EXR_ERR_OUT_OF_MEMORY, exr_attr_bytes_init (f, &b, 0, 4));
+
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_MISSING_CONTEXT_ARG, exr_attr_bytes_destroy (NULL, &b));
+    EXRCORE_TEST_RVAL (exr_attr_bytes_destroy (f, NULL));
+
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_INVALID_ARGUMENT,
+        exr_attr_bytes_init (f, &b, 0, (uint32_t) -1));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_INVALID_ARGUMENT,
+        exr_attr_bytes_init (f, &b, 0, (size_t) -1));
+
+    EXRCORE_TEST_RVAL (exr_attr_bytes_init (f, &b, 0, 4));
+    EXRCORE_TEST (b.size == 4);
+    EXRCORE_TEST (b.data != NULL);
+    EXRCORE_TEST (b.type_hint[0] == '\0');
+    exr_attr_bytes_destroy (f, &b);
+    EXRCORE_TEST (b.size == 0);
+    EXRCORE_TEST (b.data == NULL);
+
+    EXRCORE_TEST_RVAL (exr_attr_bytes_create (f, &b, 11, 4, "a cool hint", data4));
+    EXRCORE_TEST (b.size == 4);
+    EXRCORE_TEST (b.data != NULL);
+    EXRCORE_TEST (0 == memcmp (b.data, data4, 4));
+    EXRCORE_TEST (0 == strncmp(b.type_hint, "a cool hint", 11));
+    EXRCORE_TEST (b.type_hint[11] == '\0');
+
+    exr_attr_bytes_t b2;
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_MISSING_CONTEXT_ARG, exr_attr_bytes_copy (NULL, &b2, &b));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_INVALID_ARGUMENT, exr_attr_bytes_copy (f, &b2, NULL));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_INVALID_ARGUMENT, exr_attr_bytes_copy (f, NULL, &b));
+    EXRCORE_TEST_RVAL (exr_attr_bytes_copy (f, &b2, &b));
+    EXRCORE_TEST (b2.size == 4);
+    EXRCORE_TEST (b2.data != NULL);
+    EXRCORE_TEST (0 == memcmp (b2.data, data4, 4));
+    EXRCORE_TEST (0 == strncmp (b2.type_hint, "a cool hint", 11));
+    EXRCORE_TEST (b2.type_hint[11] == '\0');
+    EXRCORE_TEST_RVAL (exr_attr_bytes_destroy (f, &b2));
+
+    EXRCORE_TEST_RVAL (exr_attr_bytes_destroy (f, &b));
+    // make sure we can re-delete something?
+    EXRCORE_TEST_RVAL (exr_attr_bytes_destroy (f, &b));
+
+    EXRCORE_TEST_RVAL (exr_attr_bytes_init (f, &b, 0, 0));
+    EXRCORE_TEST_RVAL (exr_attr_bytes_destroy (f, &b));
+    EXRCORE_TEST_RVAL (exr_attr_bytes_init (f, &b, 0, 0));
+    EXRCORE_TEST_RVAL (exr_attr_bytes_create (f, &b, 0, 4, NULL, data4));
+    EXRCORE_TEST_RVAL (exr_attr_bytes_copy (f, &b2, &b));
+    EXRCORE_TEST_RVAL (exr_attr_bytes_destroy (f, &b2));
+    EXRCORE_TEST_RVAL (exr_attr_bytes_destroy (f, &b));
+
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_INVALID_ARGUMENT, exr_attr_bytes_copy (f, &b2, NULL));
+}
+
+void
+testAttrBytes (const std::string& tempdir)
+{
+    exr_context_t f = createDummyFile ("<bytes>");
+    testBytesHelper (f);
+    exr_print_context_info (f, 0);
+    exr_print_context_info (f, 1);
+    exr_finish (&f);
+}
+
 int s_unpack_fail = 0;
 static exr_result_t
 test_unpack (exr_context_t, const void*, int32_t, int32_t* ns, void** ptr)
@@ -1375,6 +1458,9 @@ testAttrListHelper (exr_context_t f)
         exr_attr_list_add_by_type (f, &al, "c", "box2f", 0, NULL, &out));
     EXRCORE_TEST (out->type == EXR_ATTR_BOX2F);
     EXRCORE_TEST_RVAL (
+        exr_attr_list_add_by_type (f, &al, "by", "bytes", 0, NULL, &out));
+    EXRCORE_TEST (out->type == EXR_ATTR_BYTES);
+    EXRCORE_TEST_RVAL (
         exr_attr_list_add_by_type (f, &al, "d", "chlist", 0, NULL, &out));
     EXRCORE_TEST (out->type == EXR_ATTR_CHLIST);
     EXRCORE_TEST_RVAL (exr_attr_chlist_add (
@@ -1482,7 +1568,7 @@ testAttrListHelper (exr_context_t f)
     EXRCORE_TEST_RVAL (
         exr_attr_list_add_by_type (f, &al, "2", "v3d", 0, NULL, &out));
     EXRCORE_TEST (out->type == EXR_ATTR_V3D);
-    EXRCORE_TEST (al.num_attributes == 29);
+    EXRCORE_TEST (al.num_attributes == 30);
     EXRCORE_TEST_RVAL (exr_attr_list_compute_size (f, &al, &sz));
     EXRCORE_TEST_RVAL (exr_attr_list_find_by_name (f, &al, "x", &out));
     EXRCORE_TEST (out->type == EXR_ATTR_V2I);
@@ -1526,6 +1612,9 @@ testAttrListHelper (exr_context_t f)
     EXRCORE_TEST_RVAL (
         exr_attr_list_add (f, &al, "c", EXR_ATTR_BOX2F, 0, NULL, &out));
     EXRCORE_TEST (out->type == EXR_ATTR_BOX2F);
+    EXRCORE_TEST_RVAL (
+        exr_attr_list_add (f, &al, "by", EXR_ATTR_BYTES, 0, NULL, &out));
+    EXRCORE_TEST (out->type == EXR_ATTR_BYTES);
     EXRCORE_TEST_RVAL (
         exr_attr_list_add (f, &al, "d", EXR_ATTR_CHLIST, 0, NULL, &out));
     EXRCORE_TEST (out->type == EXR_ATTR_CHLIST);
@@ -1604,7 +1693,7 @@ testAttrListHelper (exr_context_t f)
     EXRCORE_TEST_RVAL (
         exr_attr_list_add (f, &al, "2", EXR_ATTR_V3D, 0, NULL, &out));
     EXRCORE_TEST (out->type == EXR_ATTR_V3D);
-    EXRCORE_TEST (al.num_attributes == 28);
+    EXRCORE_TEST (al.num_attributes == 29);
 
     exr_attr_list_destroy (f, &al);
 
@@ -1651,6 +1740,9 @@ testAttrListHelper (exr_context_t f)
     EXRCORE_TEST_RVAL (exr_attr_list_add_static_name (
         f, &al, "c", EXR_ATTR_BOX2F, 0, NULL, &out));
     EXRCORE_TEST (out->type == EXR_ATTR_BOX2F);
+    EXRCORE_TEST_RVAL (exr_attr_list_add_static_name (
+        f, &al, "by", EXR_ATTR_BYTES, 0, NULL, &out));
+    EXRCORE_TEST (out->type == EXR_ATTR_BYTES);
     EXRCORE_TEST_RVAL (exr_attr_list_add_static_name (
         f, &al, "d", EXR_ATTR_CHLIST, 0, NULL, &out));
     EXRCORE_TEST (out->type == EXR_ATTR_CHLIST);
@@ -1729,7 +1821,7 @@ testAttrListHelper (exr_context_t f)
     EXRCORE_TEST_RVAL (exr_attr_list_add_static_name (
         f, &al, "2", EXR_ATTR_V3D, 0, NULL, &out));
     EXRCORE_TEST (out->type == EXR_ATTR_V3D);
-    EXRCORE_TEST (al.num_attributes == 28);
+    EXRCORE_TEST (al.num_attributes == 29);
 
     exr_attr_list_destroy (f, &al);
 }

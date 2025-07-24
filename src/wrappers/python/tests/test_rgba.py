@@ -68,6 +68,7 @@ class TestRGBA(unittest.TestCase):
         self.assertEqual(shape[2], 3)
 
         self.assertTrue(np.array_equal(inRGB, RGB))
+        os.remove("out.exr")
 
     def do_rgba(self, array_dtype):
 
@@ -123,6 +124,7 @@ class TestRGBA(unittest.TestCase):
         self.assertEqual(shape[2], 4)
 
         self.assertTrue(np.array_equal(inRGBA, RGBA))
+        os.remove("out.exr")
 
     def do_rgba_prefix(self, array_dtype):
 
@@ -184,6 +186,7 @@ class TestRGBA(unittest.TestCase):
         inZ = infile.channels()["left.Z"].pixels
 
         self.assertTrue(np.array_equal(inRGBA, RGBA))
+        os.remove("out.exr")
 
     def test_rgb_uint32(self):
         self.do_rgb('uint32')

@@ -12,6 +12,7 @@
 #include "Iex.h"
 #include <IlmThreadConfig.h>
 #include <ImfBoxAttribute.h>
+#include <ImfBytesAttribute.h>
 #include <ImfChannelListAttribute.h>
 #include <ImfChromaticitiesAttribute.h>
 #include <ImfCompressionAttribute.h>
@@ -1478,6 +1479,7 @@ staticInitialize ()
 
         Box2fAttribute::registerAttributeType ();
         Box2iAttribute::registerAttributeType ();
+        BytesAttribute::registerAttributeType ();
         ChannelListAttribute::registerAttributeType ();
         CompressionAttribute::registerAttributeType ();
         ChromaticitiesAttribute::registerAttributeType ();

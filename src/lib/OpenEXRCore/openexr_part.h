@@ -505,6 +505,18 @@ EXR_EXPORT exr_result_t exr_attr_set_box2f (
     const char*             name,
     const exr_attr_box2f_t* val);
 
+EXR_EXPORT exr_result_t exr_attr_get_bytes (
+    exr_const_context_t     ctxt,
+    int                     part_index,
+    const char*             name,
+    exr_attr_bytes_t*       out);
+
+EXR_EXPORT exr_result_t exr_attr_set_bytes (
+    exr_context_t           ctxt,
+    int                     part_index,
+    const char*             name,
+    const exr_attr_bytes_t* val);
+
 /** @brief Zero-copy query of channel data.
  *
  * Do not free or manipulate the @p chlist data, or use

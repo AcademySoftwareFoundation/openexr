@@ -28,6 +28,7 @@
 #include "internal_channel_list.h"
 #include "internal_float_vector.h"
 #include "internal_opaque.h"
+#include "internal_bytes.h"
 #include "internal_preview.h"
 #include "internal_string.h"
 #include "internal_string_vector.h"

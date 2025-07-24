@@ -5,46 +5,28 @@ openexr_define_library(OpenEXR
   PRIV_EXPORT OPENEXR_EXPORTS
   CURDIR ${CMAKE_CURRENT_SOURCE_DIR}
   SOURCES
-    ImfAutoArray.h
-    ImfB44Compressor.h
-    ImfCheckedArithmetic.h
-    ImfCompression.h
-    ImfCompressor.h
-    ImfDwaCompressor.h
-    ImfFastHuf.h
-    ImfInputPartData.h
-    ImfInputStreamMutex.h
-    ImfMisc.h
-    ImfOptimizedPixelReading.h
-    ImfOutputPartData.h
-    ImfOutputStreamMutex.h
-    ImfPizCompressor.h
-    ImfPxr24Compressor.h
-    ImfRle.h
-    ImfRleCompressor.h
-    ImfScanLineInputFile.h
-    ImfSimd.h
-    ImfSystemSpecific.h
-    ImfTileOffsets.h
-    ImfTiledMisc.h
-    ImfZip.h
-    ImfZipCompressor.h
     ImfAcesFile.cpp
     ImfAttribute.cpp
+    ImfAutoArray.h
     ImfB44Compressor.cpp
+    ImfB44Compressor.h
     ImfBoxAttribute.cpp
+    ImfBytesAttribute.cpp
+    ImfCRgbaFile.cpp
     ImfChannelList.cpp
     ImfChannelListAttribute.cpp
+    ImfCheckedArithmetic.h
     ImfChromaticities.cpp
     ImfChromaticitiesAttribute.cpp
     ImfCompositeDeepScanLine.cpp
+    ImfCompression.cpp
+    ImfCompression.h
     ImfCompressionAttribute.cpp
     ImfCompressor.cpp
-    ImfCompression.cpp
+    ImfCompressor.h
     ImfContext.cpp
     ImfContextInit.cpp
     ImfConvert.cpp
-    ImfCRgbaFile.cpp
     ImfDeepCompositing.cpp
     ImfDeepFrameBuffer.cpp
     ImfDeepImageStateAttribute.cpp
@@ -58,9 +40,11 @@ openexr_define_library(OpenEXR
     ImfDeepTiledOutputPart.cpp
     ImfDoubleAttribute.cpp
     ImfDwaCompressor.cpp
+    ImfDwaCompressor.h
     ImfEnvmap.cpp
     ImfEnvmapAttribute.cpp
     ImfFastHuf.cpp
+    ImfFastHuf.h
     ImfFloatAttribute.cpp
     ImfFloatVectorAttribute.cpp
     ImfFrameBuffer.cpp
@@ -72,63 +56,82 @@ openexr_define_library(OpenEXR
     ImfHuf.cpp
     ImfIDManifest.cpp
     ImfIDManifestAttribute.cpp
+    ImfIO.cpp
     ImfInputFile.cpp
     ImfInputPart.cpp
     ImfInputPartData.cpp
+    ImfInputPartData.h
+    ImfInputStreamMutex.h
     ImfIntAttribute.cpp
-    ImfIO.cpp
     ImfKeyCode.cpp
     ImfKeyCodeAttribute.cpp
     ImfLineOrderAttribute.cpp
     ImfLut.cpp
     ImfMatrixAttribute.cpp
     ImfMisc.cpp
+    ImfMisc.h
     ImfMultiPartInputFile.cpp
     ImfMultiPartOutputFile.cpp
     ImfMultiView.cpp
     ImfOpaqueAttribute.cpp
+    ImfOptimizedPixelReading.h
     ImfOutputFile.cpp
     ImfOutputPart.cpp
     ImfOutputPartData.cpp
+    ImfOutputPartData.h
+    ImfOutputStreamMutex.h
     ImfPartType.cpp
     ImfPizCompressor.cpp
+    ImfPizCompressor.h
     ImfPreviewImage.cpp
     ImfPreviewImageAttribute.cpp
     ImfPxr24Compressor.cpp
+    ImfPxr24Compressor.h
     ImfRational.cpp
     ImfRationalAttribute.cpp
     ImfRgbaFile.cpp
     ImfRgbaYca.cpp
     ImfRle.cpp
+    ImfRle.h
     ImfRleCompressor.cpp
+    ImfRleCompressor.h
     ImfScanLineInputFile.cpp
+    ImfScanLineInputFile.h
+    ImfSimd.h
     ImfStandardAttributes.cpp
     ImfStdIO.cpp
     ImfStringAttribute.cpp
     ImfStringVectorAttribute.cpp
     ImfSystemSpecific.cpp
+    ImfSystemSpecific.h
     ImfTestFile.cpp
     ImfThreading.cpp
     ImfTileDescriptionAttribute.cpp
+    ImfTileOffsets.cpp
+    ImfTileOffsets.h
     ImfTiledInputFile.cpp
     ImfTiledInputPart.cpp
     ImfTiledMisc.cpp
+    ImfTiledMisc.h
     ImfTiledOutputFile.cpp
     ImfTiledOutputPart.cpp
     ImfTiledRgbaFile.cpp
-    ImfTileOffsets.cpp
     ImfTimeCode.cpp
     ImfTimeCodeAttribute.cpp
     ImfVecAttribute.cpp
     ImfVersion.cpp
     ImfWav.cpp
     ImfZip.cpp
+    ImfZip.h
     ImfZipCompressor.cpp
+    ImfZipCompressor.h
   HEADERS
     ImfAcesFile.h
     ImfArray.h
     ImfAttribute.h
     ImfBoxAttribute.h
+    ImfBytesAttribute.h
+    ImfCRgbaFile.h
     ImfChannelList.h
     ImfChannelListAttribute.h
     ImfChromaticities.h
@@ -140,7 +143,6 @@ openexr_define_library(OpenEXR
     ImfContext.h
     ImfContextInit.h
     ImfConvert.h
-    ImfCRgbaFile.h
     ImfDeepCompositing.h
     ImfDeepFrameBuffer.h
     ImfDeepImageState.h
@@ -169,11 +171,11 @@ openexr_define_library(OpenEXR
     ImfHuf.h
     ImfIDManifest.h
     ImfIDManifestAttribute.h
+    ImfIO.h
     ImfInputFile.h
     ImfInputPart.h
     ImfInt64.h
     ImfIntAttribute.h
-    ImfIO.h
     ImfKeyCode.h
     ImfKeyCodeAttribute.h
     ImfLineOrder.h

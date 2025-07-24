@@ -78,6 +78,7 @@ def test_conversion():
 
         xin = OpenEXR.InputFile(f"{test_dir}/out.exr")
         assert array(to_code, xin.channel('L', codemap[to_code])).tolist() == original
+    os.remove(f"{test_dir}/out.exr")
 
 testList.append(("test_conversion", test_conversion))
 
@@ -136,6 +137,7 @@ def test_one():
     x = OpenEXR.OutputFile(f"{test_dir}/out.exr", h)
     x.writePixels({'R': data, 'G': data, 'B': data})
     x.close()
+    os.remove(f"{test_dir}/out.exr")
 
 testList.append(("test_one", test_one))
 
@@ -172,6 +174,7 @@ def test_types():
             assert array(code, xin.channel('L', t)).tolist() == original
             # Explicit type as kwarg
             assert array(code, xin.channel('L', pixel_type = t)).tolist() == original
+    os.remove(f"{test_dir}/out.exr")
 
 testList.append(("test_types", test_types))
 
@@ -184,6 +187,7 @@ def test_invalid_pixeltype():
         pass
     else:
         assert 0
+    os.remove(f"{test_dir}/write.exr")
 
 testList.append(("test_invalid_pixeltype", test_invalid_pixeltype))
 
@@ -200,6 +204,7 @@ def test_write_mchannels():
         x.writePixels(dict([(nm, data) for nm in chans]))
         x.close()
         assert set(OpenEXR.InputFile(f"{test_dir}/out0.exr").header()['channels']) == chans
+    os.remove(f"{test_dir}/out0.exr")
 
 testList.append(("test_write_mchannels", test_write_mchannels))
 
@@ -231,6 +236,8 @@ def test_write_chunk():
         oexr0 = load_red(f"{test_dir}/out0.exr")
         oexr1 = load_red(f"{test_dir}/out1.exr")
         assert oexr0 == oexr1
+    os.remove(f"{test_dir}/out0.exr")
+    os.remove(f"{test_dir}/out1.exr")
 
 testList.append(("test_write_chunk", test_write_chunk))
 

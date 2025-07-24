@@ -72,6 +72,7 @@ define_openexrcore_tests(
  testAttrStrings
  testAttrStringVectors
  testAttrFloatVectors
+ testAttrBytes
  testAttrChlists
  testAttrPreview
  testAttrOpaque
@@ -84,6 +85,7 @@ define_openexrcore_tests(
  testOpenTiles
  testOpenMultiPart
  testOpenDeep
+ testReadMeta
  testReadScans
  testReadTiles
  testReadMultiPart

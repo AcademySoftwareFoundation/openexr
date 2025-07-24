@@ -143,6 +143,32 @@ save_box2f (exr_context_t ctxt, const exr_attribute_t* a)
 /**************************************/
 
 static exr_result_t
+save_bytes (exr_context_t ctxt, const exr_attribute_t* a)
+{
+    exr_result_t rv;
+    int32_t      sz    = 0;
+    exr_attr_bytes_t* b = a->bytes;
+
+    if (!b || !b->data || b->size < 0)
+    {
+        return ctxt->report_error (
+            ctxt,
+            EXR_ERR_INVALID_ARGUMENT,
+            "Invalid reference to bytes attribute to save.");
+    }
+
+    sz = (int32_t) b->size;
+
+    rv = save_attr_sz (ctxt, (uint64_t) sz);
+    if (rv == EXR_ERR_SUCCESS && sz > 0)
+        rv = ctxt->do_write (
+            ctxt, b->data, (uint64_t) sz, &(ctxt->output_file_offset));
+    return rv;
+}
+
+/**************************************/
+
+static exr_result_t
 save_chlist (exr_context_t ctxt, const exr_attribute_t* a)
 {
     exr_result_t rv;
@@ -561,6 +587,7 @@ save_attr (exr_context_t ctxt, const exr_attribute_t* a)
     {
         case EXR_ATTR_BOX2I: rv = save_box2i (ctxt, a); break;
         case EXR_ATTR_BOX2F: rv = save_box2f (ctxt, a); break;
+        case EXR_ATTR_BYTES: rv = save_bytes (ctxt, a); break;
         case EXR_ATTR_CHLIST: rv = save_chlist (ctxt, a); break;
         case EXR_ATTR_CHROMATICITIES: rv = save_chromaticities (ctxt, a); break;
         case EXR_ATTR_COMPRESSION: rv = save_attr_uint8 (ctxt, a); break;
