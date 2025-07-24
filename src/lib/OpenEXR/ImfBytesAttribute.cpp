@@ -115,11 +115,15 @@ BytesAttribute::readValueFrom (
     unsigned int hintLength = 0;
     Xdr::read<StreamIO> (is, hintLength);
 
+    const size_t dataSize = size - sizeof(hintLength) - hintLength;
+    if (dataSize < 0)
+        THROW (IEX_NAMESPACE::InputExc,
+               "Invalid bytes attribute type string length: " << hintLength);
+
     typeHint.resize(hintLength);
     if (hintLength)
         Xdr::read<StreamIO> (is, &typeHint[0], hintLength);
 
-    const size_t dataSize = size - sizeof(hintLength) - hintLength; 
     _data.resizeErase (dataSize);
     // NOTE that readUnsignedChars will not propagate any error value
     // returned by the underlying stream read, so if the underlying
