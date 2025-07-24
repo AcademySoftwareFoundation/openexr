@@ -115,7 +115,7 @@ BytesAttribute::readValueFrom (
     unsigned int hintLength = 0;
     Xdr::read<StreamIO> (is, hintLength);
 
-    const size_t dataSize = size - sizeof(hintLength) - hintLength;
+    const ssize_t dataSize = size - sizeof(hintLength) - hintLength;
     if (dataSize < 0)
         THROW (IEX_NAMESPACE::InputExc,
                "Invalid bytes attribute type string length: " << hintLength);
