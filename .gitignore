@@ -46,11 +46,13 @@ Contrib/DtexToExr/DtexToExr
 *.trs
 *.project
 *.cproject
+*.framework
+*.xcframework
 .DS_Store
 abi_check
-build/
-build-win/
-build-nuget/
+build*/
+build-win*/
+build-nuget*/
 *~
 .vscode
 docs/_test_images/
