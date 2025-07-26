@@ -26,9 +26,19 @@ News
    :ltrim:
 
 |latest-news-title|
-==========================================
+======================================
 
 .. _LatestNewsStart:
+
+Patch release with a couple bug/performance fixes:
+
+* |bug| Fix for DeepScanlineInputFile read memory leak
+* |rocket| OpenEXRCore Deep pixel unpacking optimisation
+
+.. _LatestNewsEnd:
+
+June  9, 2025 - OpenEXR 3.3.4 Released
+======================================
 
 Patch release with several bug/build/performance fixes:
 
@@ -39,10 +49,9 @@ Patch release with several bug/build/performance fixes:
 * |hammer_and_wrench| Fix a build failure on MinGW
 * |rocket| Enable vectorisation for ZIP reconstruct stage on Windows
 
-.. _LatestNewsEnd:
 
-**March 23, 2025 - OpenEXR 3.3.3 Released**
-===========================================
+March 23, 2025 - OpenEXR 3.3.3 Released
+=======================================
 
 
 Patch release with miscellaneous bug/build/documentation fixes:

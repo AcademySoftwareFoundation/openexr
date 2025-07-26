@@ -3,6 +3,7 @@
 
 # OpenEXR Release Notes
 
+* [Version 3.3.5](#version-335-july-26-2025) July 26, 2025
 * [Version 3.3.4](#version-334-june-9-2025) June 9, 2025
 * [Version 3.3.3](#version-333-march-23-2025) March 23, 2025
 * [Version 3.3.2](#version-332-november-11-2024) November 11, 2024
@@ -78,6 +79,22 @@
 * [Version 1.0.2](#version-102)
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
+
+## Version 3.3.5 (July 26, 2025)
+
+Patch release with a couple bug/performance fixes:
+
+* :bug: Fix for DeepScanlineInputFile read memory leak
+* :rocket: OpenEXRCore Deep pixel unpacking optimisation
+
+### Merged Pull Requests
+
+* [2069](https://github.com/AcademySoftwareFoundation/openexr/pull/2069)
+Deep Scanline Input file read memory leak fix
+* [2067](https://github.com/AcademySoftwareFoundation/openexr/pull/2067)
+Update legacy Windows CI job from vfx2022 to vfx2023
+* [2049](https://github.com/AcademySoftwareFoundation/openexr/pull/2049)
+OpenEXRCore Deep pixel unpacking optimisation
 
 ## Version 3.3.4 (June 9, 2025)
 
