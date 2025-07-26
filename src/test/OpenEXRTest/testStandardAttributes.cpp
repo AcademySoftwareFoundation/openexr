@@ -906,6 +906,54 @@ generatedFunctions ()
     assert (hasMultiView (header) == false);
     assert (hasDeepImageState (header) == false);
     assert (hasIDManifest (header) == false);
+    assert (hasColorInteropID (header) == false);
+}
+
+void
+writeReadColorInteropID(const char fileName[])
+{
+    cout << "colorInteropID attribute" << endl;
+
+    cout << "writing, ";
+
+    static const int W = 100;
+    static const int H = 100;
+
+    Header header (W, H);
+    assert (hasColorInteropID (header) == false);
+
+    std::string id1 = "rec2100_pq_display";
+
+    addColorInteropID (header, id1);
+    assert (hasColorInteropID (header) == true);
+
+    {
+        RgbaOutputFile out (fileName, header);
+        Rgba           pixels[W];
+
+        for (int i = 0; i < W; ++i)
+        {
+            pixels[i].r = 1;
+            pixels[i].g = 1;
+            pixels[i].b = 1;
+            pixels[i].a = 1;
+        }
+
+        out.setFrameBuffer (pixels, 1, 0);
+        out.writePixels (H);
+    }
+
+    cout << "reading, comparing" << endl;
+
+    {
+        RgbaInputFile  in (fileName);
+        std::string  id2 = colorInteropID(in.header());
+
+        assert (hasColorInteropID (in.header ()) == true);
+        assert (id1 == id2);
+    }
+
+    remove (fileName);
 }
 
 } // namespace
@@ -951,6 +999,11 @@ testStandardAttributes (const std::string& tempDir)
             rationalMethods ();
             std::string filename = tempDir + "imf_test_rational.exr";
             writeReadRational (filename.c_str ());
+        }
+
+        {
+            std::string filename = tempDir + "imf_colorInteropID.exr";
+            writeReadColorInteropID (filename.c_str ());
         }
 
         generatedFunctions ();
