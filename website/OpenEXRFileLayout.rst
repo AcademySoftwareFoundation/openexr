@@ -889,6 +889,7 @@ The OpenEXR library predefines the following attribute types:
 +--------------------+-----------------------------------------------------------------+
 | ``bytes``          | A sequence of ``unsigned char`` values. The bytes are           |
 |                    | accompanied by an optional (but encouraged) type hint.          |
+|                    | (new in OpenEXR v3.4, not yet released.)                        |
 |                    +----------------+------------------------------------------------+
 |                    | ``hintLength`` | ``unsigned int``                               |
 |                    +----------------+------------------------------------------------+
