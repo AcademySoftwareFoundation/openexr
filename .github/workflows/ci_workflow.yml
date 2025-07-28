@@ -80,6 +80,7 @@ jobs:
       OPENEXR_FORCE_INTERNAL_DEFLATE: ${{ matrix.OPENEXR_FORCE_INTERNAL_DEFLATE || 'OFF' }}
       OPENEXR_FORCE_INTERNAL_OPENJPH: ${{ matrix.OPENEXR_FORCE_INTERNAL_OPENJPH || 'OFF' }}
       BUILD_TESTING: ${{ matrix.BUILD_TESTING || 'ON' }}
+      RUN_TESTING: ${{ matrix.RUN_TESTING || 'ON' }}
       namespace: ${{ matrix.namespace }}
       validate_install: ${{ matrix.validate_install || 'ON' }}
 
@@ -127,6 +128,20 @@ jobs:
             label: vfx2023
             vfx-cy: 2023
 
+          - build: 9
+            label: clang c++20
+            cxx-compiler: clang++
+            cc-compiler: clang
+            cxx-standard: 20
+            RUN_TESTING: OFF
+            validate_install: OFF
+
+          - build: 10
+            label: gcc c++20
+            cxx-standard: 20
+            RUN_TESTING: OFF
+            validate_install: OFF
+
   macOS:
     name: 'macOS.${{ matrix.build}}: ${{ matrix.label }}'
     uses: ./.github/workflows/ci_steps.yml
@@ -136,6 +151,8 @@ jobs:
       # values.
       os: ${{ matrix.os || 'macos-14' }}
       build: ${{ matrix.build }}
+      cc-compiler: ${{ matrix.cc-compiler || 'clang' }}
+      cxx-compiler: ${{ matrix.cxx-compiler || 'clang++' }}
       cxx-standard: ${{ matrix.cxx-standard || '17' }}
       build-type: ${{ matrix.build-type || 'Release' }}
       BUILD_SHARED_LIBS: ${{ matrix.BUILD_SHARED_LIBS || 'ON' }}
@@ -149,6 +166,7 @@ jobs:
       OPENEXR_FORCE_INTERNAL_OPENJPH: ${{ matrix.OPENEXR_FORCE_INTERNAL_OPENJPH || 'OFF' }}
       CMAKE_OSX_ARCHITECTURES: ${{ matrix.CMAKE_OSX_ARCHITECTURES }}
       BUILD_TESTING: ${{ matrix.BUILD_TESTING || 'ON' }}
+      RUN_TESTING: ${{ matrix.RUN_TESTING || 'ON' }}
       validate_install: ${{ matrix.validate_install || 'ON' }}
 
     strategy:
@@ -190,6 +208,19 @@ jobs:
             label: universal2
             CMAKE_OSX_ARCHITECTURES: "x86_64;arm64"
 
+          - build: 8
+            label: clang c++20
+            cxx-standard: 20
+            RUN_TESTING: OFF
+            validate_install: OFF
+         
+          - build: 9
+            label: gcc c++20
+            cc-compiler: gcc
+            cxx-compiler: g++
+            cxx-standard: 20
+            RUN_TESTING: OFF
+            validate_install: OFF
          
   windows:
     name: 'Windows.${{ matrix.build}}: ${{ matrix.label }}'
@@ -213,6 +244,7 @@ jobs:
       OPENEXR_FORCE_INTERNAL_OPENJPH: ${{ matrix.OPENEXR_FORCE_INTERNAL_OPENJPH || 'OFF' }}
       msystem: ${{ matrix.msystem }}
       BUILD_TESTING: ${{ matrix.BUILD_TESTING || 'ON' }}
+      RUN_TESTING: ${{ matrix.RUN_TESTING || 'ON' }}
       validate_install: ${{ matrix.validate_install || 'ON' }}
 
     strategy:
@@ -269,3 +301,10 @@ jobs:
             label: msys2-ucrt64, static
             msystem: UCRT64
             BUILD_SHARED_LIBS: 'OFF'
+
+          - build: 11
+            label: c++20
+            cxx-standard: 20
+            RUN_TESTING: OFF
+            validate_install: OFF
+
