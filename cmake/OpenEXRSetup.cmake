@@ -11,10 +11,9 @@ endif()
 ########################
 ## Target configuration
 
-# What C++ standard to compile for
-# VFX Platform 21 is c++17, so 21, 22, 23, 24 gives us 4+ years of 17
+# What C++ standard to compile for. 17 by default
 set(tmp 17)
-if(CMAKE_CXX_STANDARD GREATER tmp)
+if(CMAKE_CXX_STANDARD)
   set(tmp ${CMAKE_CXX_STANDARD})
 endif()
 set(OPENEXR_CXX_STANDARD "${tmp}" CACHE STRING "C++ standard to compile against")

@@ -86,7 +86,7 @@ Prerequisites
 Make sure these are installed on your system before building OpenEXR:
 
 * OpenEXR requires CMake version 3.14 or newer
-* C++ compiler that supports C++11
+* C++ compiler that supports C++17
 * Imath (auto fetched by CMake if not found) (https://github.com/AcademySoftwareFoundation/openexr)
 * libdeflate source code (auto fetched by CMake if not found) (https://github.com/ebiggers/libdeflate)
 * (optional) Intel's Thread Building Blocks library (TBB)
@@ -509,7 +509,7 @@ See the CMake documentation for more information (https://cmake.org/cmake/help/v
 
   C++ standard to compile against. This obeys the global
   ``CMAKE_CXX_STANDARD`` but doesn’t force the global setting to
-  enable sub-project inclusion. Default is ``14``.
+  enable sub-project inclusion. Default is ``17``.
 
 * ``CMAKE_CXX_COMPILER``
 

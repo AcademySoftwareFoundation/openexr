@@ -29,10 +29,15 @@ target_compile_definitions(OpenEXRCoreTest PRIVATE
   COMP_MIN=${OpenEXR_VERSION_MINOR}
   COMP_PATCH=${OpenEXR_VERSION_PATCH}
   COMP_EXTRA="${OPENEXR_VERSION_RELEASE_TYPE}"
-  )
+)
 set_target_properties(OpenEXRCoreTest PROPERTIES
   RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
-  )
+  CXX_STANDARD_REQUIRED ON
+  CXX_EXTENSIONS OFF
+)
+target_compile_features(OpenEXRCoreTest
+    PRIVATE cxx_std_${OPENEXR_CXX_STANDARD}
+)
 
 target_link_libraries(OpenEXRCoreTest Imath::Imath)
 
