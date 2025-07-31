@@ -154,6 +154,15 @@ This version also officially installs the `exrcheck` utility, formerly built for
 
 This version also publishes the python bindings for arm64 on Ubuntu and macOS.
 
+### Security Vulnerabilities
+
+This version addresses the following security vulnerabilities:
+
+* [CVE-2025-48074](https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-x22w-82jp-8rvf) Out-Of-Memory via Unbounded File Header Values
+* [CVE-2025-48073](https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-qhpm-86v7-phmm) ScanLineProcess::run_fill NULL Pointer Write In "reduceMemory" Mode
+* [CVE-2025-48072](https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-4r7w-q3jg-ff43) Out of Bounds Heap Read due to Bad Pointer Arithmetic in LossyDctDecoder_execute
+* [CVE-2025-48071](https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-h45x-qhg2-q375) Heap-Based Buffer Overflow in Deep Scanline Parsing via Forged Unpacked Size
+  
 ### Merged Pull Requests
 
 * [2007](https://github.com/AcademySoftwareFoundation/openexr/pull/2007) Fix python publishing workflows to work with ARM 

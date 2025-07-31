@@ -853,6 +853,12 @@ testWriteAttrs (const std::string& tempdir)
     }
 
     {
+        uint8_t bytes_data[] = {0x76, 0x2f, 0x31, 0x01};
+        exr_attr_bytes_t mybytes = {4, bytes_data};
+        TEST_CORNER_CASE_NAME (bytes, mybytes, int);
+    }
+
+    {
         exr_lineorder_t lo;
         TEST_CORNER_CASE_GET (exr_get_lineorder, &lo);
         EXRCORE_TEST (lo == EXR_LINEORDER_INCREASING_Y);

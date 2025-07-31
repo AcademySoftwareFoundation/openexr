@@ -7,9 +7,9 @@
 
 # This is the example code from src/wrappers/python/README.md
 
+import os
 import OpenEXR
 import numpy as np
-import random
 
 def test_write():
 
@@ -25,6 +25,7 @@ def test_write():
     with OpenEXR.File(header, channels) as outfile:
         outfile.write("readme.exr")
 
+    os.remove("readme.exr")
     print("ok")
 
 def test_write_RGB():
@@ -94,6 +95,7 @@ def test_modify():
             assert o.header()["comments"] == "test image"
             assert o.header()["longitude"] == -122.5
 
+    os.remove("readme.exr")
     print("ok")
 
 def test_multipart_write():
@@ -188,7 +190,9 @@ def test_read_deep():
             for x in range(width):
                 for z in Z[y,x]:
                     print(f"deep sample at {y},{x}: {z}")
-        
+
+    os.remove("readme_test_tiled_deep.exr")
+
 
 if __name__ == '__main__':
 
