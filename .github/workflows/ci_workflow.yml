@@ -213,7 +213,7 @@ jobs:
             cxx-standard: 20
             RUN_TESTING: OFF
             validate_install: OFF
-         
+
           - build: 9
             label: gcc c++20
             cc-compiler: gcc
@@ -221,7 +221,7 @@ jobs:
             cxx-standard: 20
             RUN_TESTING: OFF
             validate_install: OFF
-         
+
   windows:
     name: 'Windows.${{ matrix.build}}: ${{ matrix.label }}'
     uses: ./.github/workflows/ci_steps.yml
