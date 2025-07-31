@@ -1,0 +1,9 @@
+File 'stripes.exr':
+  compression: 'piz'
+  displayWindow: [ 0, 0 - 99 49 ] 100 x 50
+  dataWindow: [ 0, 0 - 99 49 ] 100 x 50
+  channels: 4 channels
+   'A': half samp 1 1
+   'B': half samp 1 1
+   'G': half samp 1 1
+   'R': half samp 1 1
