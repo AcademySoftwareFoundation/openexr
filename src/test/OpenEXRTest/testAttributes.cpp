@@ -15,6 +15,7 @@
 #include <half.h>
 
 #include <ImfBoxAttribute.h>
+#include <ImfBytesAttribute.h>
 #include <ImfChannelListAttribute.h>
 #include <ImfChromaticitiesAttribute.h>
 #include <ImfCompressionAttribute.h>
@@ -145,6 +146,8 @@ writeReadAttr (
     a23.push_back (150.0f);
 
     TestOpaque a24 (42);
+    std::vector<unsigned char> byteData = {
+        'I', '<', '3', '\0', 0x1F, 0xAA, 0x05, 'E', 'X', 'R'};
 
     //
     // Write an image file with extra attributes in the header
@@ -177,6 +180,10 @@ writeReadAttr (
         hdr.insert ("a22", FloatVectorAttribute (a22));
         hdr.insert ("a23", FloatVectorAttribute (a23));
         hdr.insert ("a24", TestOpaqueAttribute (a24));
+        hdr.insert ("a25", BytesAttribute (
+            byteData.size (), byteData.data ()));
+        hdr.insert ("a26", BytesAttribute (
+            0, nullptr, "this is a type hint"));
 
         hdr.channels ().insert (
             "F", // name
@@ -309,6 +316,17 @@ writeReadAttr (
         const OpaqueAttribute* oa = dynamic_cast<const OpaqueAttribute*> (&a);
         assert (oa);
         assert (!strcmp (a.typeName (), "testOpaque"));
+
+        assert (hdr.typedAttribute<BytesAttribute> ("a25").size () ==
+                byteData.size ());
+        assert (
+            !memcmp (
+                &hdr.typedAttribute<BytesAttribute> ("a25").data ()[0],
+                byteData.data (),
+                byteData.size ()));
+        assert (hdr.typedAttribute<BytesAttribute> ("a25").typeHint == "");
+        assert (hdr.typedAttribute<BytesAttribute> ("a26").typeHint == "this is a type hint");
+
 
         // test the copy constructor
         OpaqueAttribute b (*oa);

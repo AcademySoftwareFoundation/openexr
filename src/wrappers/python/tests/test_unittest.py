@@ -201,6 +201,8 @@ class TestUnittest(unittest.TestCase):
             with OpenEXR.File(header, channels) as outfile:
                 outfile.write(outfilename)
 
+        os.remove(outfilename)
+
     def test_read_write(self):
 
         #
@@ -256,6 +258,8 @@ class TestUnittest(unittest.TestCase):
 
             with OpenEXR.File(outfilename) as infile:
                 compare_files (infile, outfile)
+
+        os.remove(outfilename)
                 
     def test_write_uint(self):
 
@@ -289,6 +293,8 @@ class TestUnittest(unittest.TestCase):
             with OpenEXR.File(outfilename, separate_channels=True) as infile:
 
                 compare_files(infile, outfile)
+        
+        os.remove(outfilename)
 
     def test_write_half(self):
 
@@ -319,6 +325,8 @@ class TestUnittest(unittest.TestCase):
             with OpenEXR.File(outfilename, separate_channels=True) as infile:
                 compare_files (infile, outfile)
 
+        os.remove(outfilename)
+
     def test_write_tiles(self):
 
         # Construct a file from scratch and write it.
@@ -347,6 +355,8 @@ class TestUnittest(unittest.TestCase):
             # Verify reading it back gives the same data
             with OpenEXR.File(outfilename, separate_channels=True) as infile:
                 compare_files(infile, outfile)
+
+        os.remove(outfilename)
 
     def test_modify_in_place(self):
 
@@ -433,6 +443,8 @@ class TestUnittest(unittest.TestCase):
 
                 compare_files (infile, outfile)
 
+        os.remove(outfilename)
+
     def test_write_float(self):
 
         # Construct a file from scratch and write it.
@@ -457,6 +469,8 @@ class TestUnittest(unittest.TestCase):
         header["chromaticities"] = (1.0,2.0, 3.0,4.0, 5.0,6.0,7.0,8.0)
         header["box2i"] = ((0,1), (2,3))
         header["box2f"] = ((0.0,1.0), (2.0,3.0))
+        header["bytes"] = OpenEXR.Bytes(b"\x76\x2f\x31\x01", "guess to win a prize")
+        header["bytes0"] = OpenEXR.Bytes(b'')
         header["compression"] = OpenEXR.ZIPS_COMPRESSION
         header["double"] = np.array([42000.0], 'float64')
         header["float"] = 4.2
@@ -486,7 +500,9 @@ class TestUnittest(unittest.TestCase):
             # Verify reading it back gives the same data
             with OpenEXR.File(outfilename, separate_channels=True) as infile:
                 compare_files (infile, outfile)
-                
+
+        os.remove(outfilename)
+
     def test_write_2part(self):
 
         #

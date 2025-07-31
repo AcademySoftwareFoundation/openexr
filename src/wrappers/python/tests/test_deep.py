@@ -142,6 +142,9 @@ class TestDeep(unittest.TestCase):
             with OpenEXR.File("rgb_deep.exr", separate_channels=True) as infile:
 
                 compare_files(infile, outfile)
+
+        os.remove(filename)
+        os.remove("rgb_deep.exr")
                 
     def test_deep(self):
 
@@ -178,6 +181,8 @@ class TestDeep(unittest.TestCase):
             with OpenEXR.File(filename) as infile:
 
                 compare_files(infile, outfile)
+
+        os.remove(filename)
 
     def test_tiled_deep(self):
 
@@ -216,6 +221,8 @@ class TestDeep(unittest.TestCase):
             with OpenEXR.File(filename, False) as infile:
 
                 compare_files(infile, outfile)
+
+        os.remove(filename)
 
 if __name__ == '__main__':
     unittest.main()
