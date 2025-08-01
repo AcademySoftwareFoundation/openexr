@@ -103,6 +103,7 @@ protected:
 };
 
 constexpr uint16_t HEADER_MARKER = 'H' * 256 + 'T';
+constexpr uint16_t HEADER_SZ = 6;
 
 size_t
 write_header (
@@ -110,7 +111,6 @@ write_header (
     size_t                                    max_sz,
     const std::vector<CodestreamChannelInfo>& map)
 {
-    constexpr uint16_t HEADER_SZ = 6;
     MemoryWriter       payload (buffer + HEADER_SZ, max_sz - HEADER_SZ);
     payload.push_uint16 (map.size ());
     for (size_t i = 0; i < map.size (); i++)
@@ -141,6 +141,8 @@ read_header (
 
     if (length < 2)
         throw std::runtime_error ("Error while reading the channel map");
+
+    length += HEADER_SZ;
 
     map.resize (header.pull_uint16 ());
     for (size_t i = 0; i < map.size (); i++)
