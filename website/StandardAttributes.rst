@@ -1376,6 +1376,23 @@ pipeline. All are optional.
      </td>
    </tr>
 
+   <tr>
+     <td style="vertical-align: top; width:150px"> <tt> <b> colorInteropID </b> </tt>
+     </td>
+     <td style="vertical-align: top; width:100px"> <tt> string
+     </tt> </td>
+     <td style="vertical-align: top; width:500px">
+       <p style="padding-bottom:15px">
+         Color Interop ID
+       </p>
+       
+       <p style="padding-bottom:15px">
+       Add description here
+       </p>
+
+     </td>
+   </tr>
+
    </table>
    </embed>
 
