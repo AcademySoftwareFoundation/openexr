@@ -18,139 +18,6 @@
 #include "openexr_encode.h"
 #include "internal_ht_common.h"
 
-/***********************************
-
-Structure of the HTJ2K chunk
-- MAGIC = 0x4854: magic number
-- PLEN: length of header payload (big endian uint32_t)
-- header payload
-    - NCH: number of channels in channel map (big endian uint16_t)
-    - for(i = 0; i < NCH; i++)
-        - CS_TO_F[i]: OpenEXR channel index corresponding to J2K component index i (big endian uint16_t)
-    - any number of opaque bytes
-- CS: JPEG 2000 Codestream
-
-***********************************/
-
-class MemoryReader
-{
-public:
-    MemoryReader (uint8_t* buffer, size_t max_sz)
-        : buffer (buffer), cur (buffer), end (buffer + max_sz){};
-
-    uint32_t pull_uint32 ()
-    {
-        if (this->end - this->cur < 4)
-            throw std::out_of_range ("Insufficient data to pull uint32_t");
-
-        uint32_t v = *this->cur++;
-        v          = (v << 8) + *this->cur++;
-        v          = (v << 8) + *this->cur++;
-        return (v << 8) + *cur++;
-    }
-
-    uint16_t pull_uint16 ()
-    {
-        if (this->end - this->cur < 2)
-            throw std::out_of_range ("Insufficient data to pull uint16_t");
-
-        uint32_t v = *cur++;
-        return (v << 8) + *cur++;
-    }
-
-protected:
-    uint8_t* buffer;
-    uint8_t* cur;
-    uint8_t* end;
-};
-
-class MemoryWriter
-{
-public:
-    MemoryWriter (uint8_t* buffer, size_t max_sz)
-        : buffer (buffer), cur (buffer), end (buffer + max_sz){};
-
-    void push_uint32 (uint32_t value)
-    {
-        if (this->end - this->cur < 4)
-            throw std::range_error ("Insufficient data to push uint32_t");
-
-        *this->cur++ = (value >> 24) & 0xFF;
-        *this->cur++ = (value >> 16) & 0xFF;
-        *this->cur++ = (value >> 8) & 0xFF;
-        *this->cur++ = value & 0xFF;
-    }
-
-    void push_uint16 (uint16_t value)
-    {
-        if (this->end - this->cur < 2)
-            throw std::range_error ("Insufficient data to push uint32_t");
-
-        *this->cur++ = (value >> 8) & 0xFF;
-        *this->cur++ = value & 0xFF;
-    }
-
-    size_t get_size () { return this->cur - this->buffer; }
-
-    uint8_t* get_buffer () { return this->buffer; }
-
-    uint8_t* get_cur () { return this->cur; }
-
-protected:
-    uint8_t* buffer;
-    uint8_t* cur;
-    uint8_t* end;
-};
-
-constexpr uint16_t HEADER_MARKER = 'H' * 256 + 'T';
-constexpr uint16_t HEADER_SZ = 6;
-
-size_t
-write_header (
-    uint8_t*                                  buffer,
-    size_t                                    max_sz,
-    const std::vector<CodestreamChannelInfo>& map)
-{
-    MemoryWriter       payload (buffer + HEADER_SZ, max_sz - HEADER_SZ);
-    payload.push_uint16 (map.size ());
-    for (size_t i = 0; i < map.size (); i++)
-    {
-        payload.push_uint16 (map.at (i).file_index);
-    }
-
-    MemoryWriter header (buffer, max_sz);
-    header.push_uint16 (HEADER_MARKER);
-    header.push_uint32 (payload.get_size ());
-
-    return header.get_size () + payload.get_size ();
-}
-
-void
-read_header (
-    void*                               buffer,
-    size_t                              max_sz,
-    size_t&                             length,
-    std::vector<CodestreamChannelInfo>& map)
-{
-    MemoryReader header ((uint8_t*) buffer, max_sz);
-    if (header.pull_uint16 () != HEADER_MARKER)
-        throw std::runtime_error (
-            "HTJ2K chunk header missing does not start with magic number.");
-
-    length = header.pull_uint32 ();
-
-    if (length < 2)
-        throw std::runtime_error ("Error while reading the channel map");
-
-    length += HEADER_SZ;
-
-    map.resize (header.pull_uint16 ());
-    for (size_t i = 0; i < map.size (); i++)
-    {
-        map.at (i).file_index = header.pull_uint16 ();
-    }
-}
-
 /**
  * OpenJPH output file that is backed by a fixed-size memory buffer
  */
@@ -305,8 +172,8 @@ internal_exr_undo_ht (
     /* read the channel map */
 
     size_t header_sz;
-    read_header (
-        (uint8_t*) compressed_data, comp_buf_size, header_sz, cs_to_file_ch);
+    header_sz = read_header (
+        (uint8_t*) compressed_data, comp_buf_size, cs_to_file_ch);
     if (decode->channel_count != cs_to_file_ch.size ())
         throw std::runtime_error ("Unexpected number of channels");
 
