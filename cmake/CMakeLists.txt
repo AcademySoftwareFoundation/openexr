@@ -156,7 +156,7 @@ target_include_directories(IexConfig INTERFACE
 if(OPENEXR_INSTALL)
   install(TARGETS IexConfig EXPORT ${PROJECT_NAME})
 endif()
-add_library(${PROJECT_NAME}::Config ALIAS IexConfig)
+add_library(Iex::Config ALIAS IexConfig)
 
 add_library(IlmThreadConfig INTERFACE)
 target_include_directories(IlmThreadConfig INTERFACE
@@ -167,7 +167,7 @@ target_include_directories(IlmThreadConfig INTERFACE
 if(OPENEXR_INSTALL)
   install(TARGETS IlmThreadConfig EXPORT ${PROJECT_NAME})
 endif()
-add_library(${PROJECT_NAME}::Config ALIAS IlmThreadConfig)
+add_library(IlmThread::Config ALIAS IlmThreadConfig)
 
 ###################################################
 ####### Install pkg-config files if requested
