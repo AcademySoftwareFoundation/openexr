@@ -66,6 +66,7 @@ jobs:
       # DockerHub: https://hub.docker.com/u/aswf
       # Source: https://github.com/AcademySoftwareFoundation/aswf-docker
       container: aswf/ci-openexr:${{ matrix.vfx-cy || '2024' }}
+      cmake: ${{ matrix.cmake || '3.14.7' }}
       cxx-standard: ${{ matrix.cxx-standard || '17' }}
       cxx-compiler: ${{ matrix.cxx-compiler || 'g++' }}
       cc-compiler: ${{ matrix.cc-compiler || 'gcc' }}
@@ -126,6 +127,10 @@ jobs:
           - build: 8
             label: vfx2023
             vfx-cy: 2023
+
+          - build: 9
+            label: cmake 4
+            cmake: 4.0.3
 
   macOS:
     name: 'macOS.${{ matrix.build}}: ${{ matrix.label }}'
@@ -189,7 +194,6 @@ jobs:
           - build: 7
             label: universal2
             CMAKE_OSX_ARCHITECTURES: "x86_64;arm64"
-
          
   windows:
     name: 'Windows.${{ matrix.build}}: ${{ matrix.label }}'
