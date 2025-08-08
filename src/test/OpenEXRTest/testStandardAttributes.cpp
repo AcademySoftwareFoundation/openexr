@@ -922,7 +922,7 @@ writeReadColorInteropID(const char fileName[])
     Header header (W, H);
     assert (hasColorInteropID (header) == false);
 
-    std::string id1 = "rec2100_pq_display";
+    std::string id1 = "lin_ap1_scene";
 
     addColorInteropID (header, id1);
     assert (hasColorInteropID (header) == true);
