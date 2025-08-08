@@ -725,7 +725,7 @@ IMF_STD_ATTRIBUTE_DEF_DEPRECATED (
 IMF_STD_ATTRIBUTE_DEF (idManifest, IDManifest, CompressedIDManifest)
 
 //
-// ColorInteropID - the OpenColorIO color space/config name
+// ColorInteropID -- the Color Interop Forum ID that describes the color space of the RGB images.
 //
 // [add description here]
 //
