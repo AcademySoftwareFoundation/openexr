@@ -135,10 +135,15 @@ target_compile_definitions(OpenEXRTest PRIVATE ILM_IMF_TEST_IMAGEDIR="${CMAKE_CU
 target_link_libraries(OpenEXRTest OpenEXR::OpenEXR)
 set_target_properties(OpenEXRTest PROPERTIES
   RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+  CXX_STANDARD_REQUIRED ON
+  CXX_EXTENSIONS OFF
 )
 if(WIN32 AND BUILD_SHARED_LIBS)
   target_compile_definitions(OpenEXRTest PRIVATE OPENEXR_DLL)
 endif()
+target_compile_features(OpenEXRTest
+    PRIVATE cxx_std_${OPENEXR_CXX_STANDARD}
+)
 
 function(DEFINE_OPENEXR_TESTS)
   foreach(curtest IN LISTS ARGN)
