@@ -1387,7 +1387,8 @@ pipeline. All are optional.
        </p>
        
        <p style="padding-bottom:15px">
-       Add description here
+         See <a href=https://docs.google.com/document/d/1T94lYbis9uCskL_ZEMxGBF2JryLfZnjxlEoNgRHZzBE/edit?usp=sharing>An ID for Color Interop</a> 
+         and <a href=https://docs.google.com/document/d/1MTH1bq2L67ifvdDf64Amhzg4AbkIM5LG6yPHrB96Vwo/edit?usp=sharing>Identifying the Color Space of OpenEXR Files</a> for details.
        </p>
 
      </td>
