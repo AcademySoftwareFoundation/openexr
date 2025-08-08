@@ -1383,7 +1383,7 @@ pipeline. All are optional.
      </tt> </td>
      <td style="vertical-align: top; width:500px">
        <p style="padding-bottom:15px">
-         Color Interop ID
+         Provides a mechanism to identify the color space of the RGB images.
        </p>
        
        <p style="padding-bottom:15px">
