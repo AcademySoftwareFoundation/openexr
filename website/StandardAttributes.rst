@@ -1391,6 +1391,10 @@ pipeline. All are optional.
          and <a href=https://docs.google.com/document/d/1MTH1bq2L67ifvdDf64Amhzg4AbkIM5LG6yPHrB96Vwo/edit?usp=sharing>Identifying the Color Space of OpenEXR Files</a> for details.
        </p>
 
+       <p style="padding-bottom:15px">
+         New in OpenEXR v3.4, not yet released.
+       </p>
+
      </td>
    </tr>
 

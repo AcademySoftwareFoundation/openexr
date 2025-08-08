@@ -740,6 +740,8 @@ IMF_STD_ATTRIBUTE_DEF (idManifest, IDManifest, CompressedIDManifest)
 //   2. Do not set this to a default color space. If the actual color space is not known, omit
 //      the attribute or set it to "unknown".
 //
+// New in OpenEXR v3.4
+
 
 IMF_STD_ATTRIBUTE_DEF (colorInteropID, ColorInteropID, std::string)
 
