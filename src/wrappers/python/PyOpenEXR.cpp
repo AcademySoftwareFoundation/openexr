@@ -1026,7 +1026,7 @@ PyFile::write(const char* outfilename)
         
         Header header;
 
-        if (P.name().empty())
+        if (P.name().empty() && parts.size() > 1)
         {
             std::stringstream n;
             n << "Part" << part_index;

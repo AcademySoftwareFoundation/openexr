@@ -162,7 +162,7 @@ def test_write_tiled():
         f.write("readme_tiled.exr")
 
     with OpenEXR.File("readme_tiled.exr") as o:
-        assert o.parts[0].name() == "Part0"
+        assert o.parts[0].name() == ""
         assert o.parts[0].type() == OpenEXR.tiledimage
 
 def test_write_deep():
