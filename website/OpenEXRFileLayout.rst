@@ -697,7 +697,7 @@ per block depends on how the pixel data are compressed:
    * - ``DWAB_COMPRESSION``
      - 256
    * - ``HTJ2K_COMPRESSION``
-     - 256
+     - 32
 
 Each scan line block has a y coordinate of type ``int``. The block's y
 coordinate is equal to the pixel space y coordinate of the top scan line

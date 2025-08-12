@@ -178,8 +178,8 @@ static const CompressionDesc IdToDesc[] = {
         false),
     CompressionDesc (
         "htj2k",
-        "High-Throughput JPEG 2000 (OpenJPH, 256 lines)",
-        256,
+        "High-Throughput JPEG 2000 (OpenJPH, 32 lines)",
+        32,
         true,
         false),
 };
