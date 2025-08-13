@@ -23,6 +23,8 @@ on:
         type: string
       container:
         type: string
+      cmake:
+        type: string
       cxx-standard:
         type: string
       cxx-compiler:
@@ -54,6 +56,8 @@ on:
       CMAKE_OSX_ARCHITECTURES:
         type: string
       BUILD_TESTING:
+        type: string
+      RUN_TESTING:
         type: string
       namespace:
         type: string
@@ -109,6 +113,11 @@ jobs:
           # Initialize the PATH necessary for the tests on Windows
           echo "OPENEXR_PATH=$INSTALL_DIR/bin:$INSTALL_DIR/lib" >> $GITHUB_ENV
 
+          # Install gcc for macOS if necessary
+          if [[ "${{ inputs.cc-compiler }}" == "gcc" && "$RUNNER_OS" == "macOS" ]]; then
+            brew install gcc
+          fi
+
         shell: bash
 
       - name: Determine MSYS2 Packages
@@ -135,6 +144,29 @@ jobs:
           update: true
           install: git
           pacboy: ${{ env.PACBOY_PACKAGES }}
+
+      - name: Set Up CMake
+        # CMakeLists.txt specifies a minimum cmake version of 3.14 for
+        # the OpenEXR project, so use that for the CI by default.  But
+        # install a specific version to test with if a different one
+        # is specified.
+        run: |
+          set -ex
+          CMAKE=cmake
+          CTEST=ctest
+          if [[ "${{ inputs.cmake }}" != "" && "$RUNNER_OS" == "Linux" ]]; then
+            CMAKE_VERSION=${{ inputs.cmake }}
+            CURRENT_CMAKE_VERSION=$(cmake --version | head -n 1 | cut -f3 -d' ')
+            if [ "$CMAKE_VERSION" != "$CURRENT_CMAKE_VERSION" ]; then
+              wget https://github.com/Kitware/CMake/releases/download/v$CMAKE_VERSION/cmake-$CMAKE_VERSION-Linux-x86_64.tar.gz
+              tar -xzf cmake-$CMAKE_VERSION-Linux-x86_64.tar.gz 
+              CMAKE=$(find "$PWD" -type f -path "*/bin/cmake" | head -n 1)
+              CTEST=$(find "$PWD" -type f -path "*/bin/ctest" | head -n 1)
+            fi
+          fi
+          echo CMAKE="$CMAKE" >> $GITHUB_ENV
+          echo CTEST="$CTEST" >> $GITHUB_ENV
+        shell: bash
 
       - name: Install Imath
         # Pre-install Imath so the builds validate that find_package sees the external installation
@@ -217,36 +249,36 @@ jobs:
         if: inputs.msystem == ''
         run: |
           set -x
-          cmake --version
-          cmake ${{ env.CMAKE_ARGS }}
-          cmake --build $BUILD_DIR --target install --config ${{ inputs.build-type }}
+          "$CMAKE" --version
+          "$CMAKE" ${{ env.CMAKE_ARGS }}
+          "$CMAKE" --build $BUILD_DIR --target install --config ${{ inputs.build-type }}
         shell: bash
 
       - name: Configure & Build (msys2) # requires msys2 shell
         if: inputs.msystem != ''
         run: |
           set -x
-          cmake --version
-          cmake ${{ env.CMAKE_ARGS }}
-          cmake --build $BUILD_DIR --target install --config ${{ inputs.build-type }}
+          "$CMAKE" --version
+          "$CMAKE" ${{ env.CMAKE_ARGS }}
+          "$CMAKE" --build $BUILD_DIR --target install --config ${{ inputs.build-type }}
         shell: msys2 {0}
 
       - name: Test
-        if: inputs.BUILD_TESTING == 'ON' && inputs.msystem == ''
+        if: inputs.BUILD_TESTING == 'ON' && inputs.RUN_TESTING == 'ON' && inputs.msystem == ''
         run: |
           set -x
           if [[ "$RUNNER_OS" == "Windows" ]]; then
             export PATH="$OPENEXR_PATH:$PATH"
           fi
-          ctest -T Test -C ${{ inputs.build-type }} --test-dir $BUILD_DIR --timeout 7200 --output-on-failure -VV
+          "$CTEST" -T Test -C ${{ inputs.build-type }} --test-dir $BUILD_DIR --timeout 7200 --output-on-failure -VV
         shell: bash
 
       - name: Test (msys2) # requires msys2 shell
-        if: inputs.BUILD_TESTING == 'ON' && inputs.msystem != ''
+        if: inputs.BUILD_TESTING == 'ON' && inputs.RUN_TESTING == 'ON' && inputs.msystem != ''
         run: |
           set -x
           export PATH="$OPENEXR_PATH:$PATH"
-          ctest -T Test -C ${{ inputs.build-type }} --test-dir $BUILD_DIR --timeout 7200 --output-on-failure -VV
+          "$CTEST" -T Test -C ${{ inputs.build-type }} --test-dir $BUILD_DIR --timeout 7200 --output-on-failure -VV
         shell: msys2 {0}
 
       - name: Prepare install_manifest
@@ -282,7 +314,7 @@ jobs:
           share/ci/scripts/validate_install.py "$INSTALL_MANIFEST_PATH" "share/ci/install_manifest/$INSTALL_MANIFEST_FILENAME" 
         shell: bash
 
-      - name: Website examples
+      - name: Test website examples
         # Build the "hello, world" exrwriter example program from the
         # website, both to confirm it builds and as an example of an
         # application building against the just-installed openexr
@@ -292,10 +324,10 @@ jobs:
         run: |
           set -x
           EXRWRITER_BUILD_DIR=$WORKSPACE/_build.exrwriter
-          cmake -S website/src/exrwriter -B $EXRWRITER_BUILD_DIR \
+          "$CMAKE" -S website/src/exrwriter -B $EXRWRITER_BUILD_DIR \
                 -DCMAKE_PREFIX_PATH=$INSTALL_DIR \
                 -DCMAKE_VERBOSE_MAKEFILE=ON
-          cmake --build $EXRWRITER_BUILD_DIR --config ${{ inputs.build-type }}
+          "$CMAKE" --build $EXRWRITER_BUILD_DIR --config ${{ inputs.build-type }}
           if [[ "$RUNNER_OS" == "Windows" ]]; then
             export PATH="$OPENEXR_PATH:$PATH"
             EXRWRITER=$EXRWRITER_BUILD_DIR/${{ inputs.build-type }}/exrwriter.exe
@@ -317,6 +349,40 @@ jobs:
           else
             echo "skipping exrinfo, no tool found."
           fi
-
         shell: bash
 
+      - name: Test add_subdirectory
+        # Build the "hello, world" exrwriter example program from the
+        # src/test/subdirectory folder, which is the same program as
+        # above but configured via add_subdirectory(openexr). This
+        # confirms that downstream applications can use openexr in
+        # that way.
+        if: inputs.msystem == ''
+        run: |
+          set -x
+          "$CMAKE" --version
+          SUBDIRECTORY_BUILD_DIR=$WORKSPACE/_build.subdirectory
+          cmake_args=("-B" "$SUBDIRECTORY_BUILD_DIR" -S "$WORKSPACE/src/test/subdirectory")
+          cmake_args+=("-DCMAKE_POLICY_VERSION_MINIMUM=3.26")
+          cmake_args+=("-DCMAKE_VERBOSE_MAKEFILE=ON")
+          if [ -n "${{ inputs.namespace }}" ]; then
+            cmake_args+=("-DOPENEXR_IMF_NAMESPACE=${{ inputs.namespace }}")
+          fi
+          cmake_args+=("-DOPENEXR_FORCE_INTERNAL_IMATH=${{ inputs.OPENEXR_FORCE_INTERNAL_IMATH }}")
+          cmake_args+=("-DOPENEXR_FORCE_INTERNAL_DEFLATE=${{ inputs.OPENEXR_FORCE_INTERNAL_DEFLATE }}")
+          cmake_args+=("-DOPENEXR_FORCE_INTERNAL_OPENJPH=${{ inputs.OPENEXR_FORCE_INTERNAL_OPENJPH }}")
+          cmake_args+=("-DOPENEXR_BUILD_EXAMPLES=OFF")
+          cmake_args+=("-DOPENEXR_BUILD_TOOLS=OFF")
+          quoted_args=$(printf '%q ' "${cmake_args[@]}")
+          "$CMAKE" $quoted_args
+          "$CMAKE" --build $SUBDIRECTORY_BUILD_DIR --config ${{ inputs.build-type }}
+          EXRWRITER=$SUBDIRECTORY_BUILD_DIR/exrwriter
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            export PATH="$OPENEXR_PATH:$PATH"
+            EXRWRITER=$SUBDIRECTORY_BUILD_DIR/${{ inputs.build-type }}/exrwriter.exe
+          else
+            EXRWRITER=$SUBDIRECTORY_BUILD_DIR/exrwriter
+          fi
+          $EXRWRITER
+        shell: bash
+        
