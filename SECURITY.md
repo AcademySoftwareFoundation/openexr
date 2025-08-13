@@ -20,10 +20,10 @@ rapidly and post patches within 14 days if possible.
 
 These vulnerabilities are present in the given versions:
 
-* [CVE-2025-48074](https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-x22w-82jp-8rvf) 3.3.2
-* [CVE-2025-48073](https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-qhpm-86v7-phmm) 3.3.2
-* [CVE-2025-48072](https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-4r7w-q3jg-ff43) 3.3.2
-* [CVE-2025-48071](https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-h45x-qhg2-q375) 3.3.2 3.3.1 3.3.0
+* [CVE-2025-48074](https://www.cve.org/CVERecord?id=CVE-2025-48074) 3.3.2
+* [CVE-2025-48073](https://www.cve.org/CVERecord?id=CVE-2025-48073) 3.3.2
+* [CVE-2025-48072](https://www.cve.org/CVERecord?id=CVE-2025-48072) 3.3.2
+* [CVE-2025-48071](https://www.cve.org/CVERecord?id=CVE-2025-48071) 3.3.2 3.3.1 3.3.0
 * [CVE-2023-5841](https://nvd.nist.gov/vuln/detail/CVE-2023-5841) 3.1.0, 3.1.1, 3.1.2, 3.1.3 3.1.4 3.1.5 3.1.6 3.1.7 3.1.8 3.1.9 3.1.10 3.1.11 3.2.0 3.2.1
 * [CVE-2021-45942](https://nvd.nist.gov/vuln/detail/CVE-2021-45942) 3.1.0, 3.1.1, 3.1.2, 3.1.3
 * [CVE-2021-20296](https://nvd.nist.gov/vuln/detail/CVE-2021-20296) 2.4.0, 2.4.1, 2.4.2, 2.5.0, 2.5.1, 2.5.2, 2.5.3
