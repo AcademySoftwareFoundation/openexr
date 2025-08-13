@@ -55,6 +55,8 @@ on:
         type: string
       BUILD_TESTING:
         type: string
+      RUN_TESTING:
+        type: string
       namespace:
         type: string
       validate_install:
@@ -108,6 +110,11 @@ jobs:
 
           # Initialize the PATH necessary for the tests on Windows
           echo "OPENEXR_PATH=$INSTALL_DIR/bin:$INSTALL_DIR/lib" >> $GITHUB_ENV
+
+          # Install gcc for macOS if necessary
+          if [[ "${{ inputs.cc-compiler }}" == "gcc" && "$RUNNER_OS" == "macOS" ]]; then
+            brew install gcc
+          fi
 
         shell: bash
 
@@ -218,6 +225,8 @@ jobs:
         run: |
           set -x
           cmake --version
+          gcc --version || true
+          clang --version || true
           cmake ${{ env.CMAKE_ARGS }}
           cmake --build $BUILD_DIR --target install --config ${{ inputs.build-type }}
         shell: bash
@@ -232,7 +241,7 @@ jobs:
         shell: msys2 {0}
 
       - name: Test
-        if: inputs.BUILD_TESTING == 'ON' && inputs.msystem == ''
+        if: inputs.BUILD_TESTING == 'ON' && inputs.RUN_TESTING == 'ON' && inputs.msystem == ''
         run: |
           set -x
           if [[ "$RUNNER_OS" == "Windows" ]]; then
@@ -242,7 +251,7 @@ jobs:
         shell: bash
 
       - name: Test (msys2) # requires msys2 shell
-        if: inputs.BUILD_TESTING == 'ON' && inputs.msystem != ''
+        if: inputs.BUILD_TESTING == 'ON' && inputs.RUN_TESTING == 'ON' && inputs.msystem != ''
         run: |
           set -x
           export PATH="$OPENEXR_PATH:$PATH"
