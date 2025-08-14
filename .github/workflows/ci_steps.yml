@@ -353,16 +353,22 @@ jobs:
 
       - name: Test add_subdirectory
         # Build the "hello, world" exrwriter example program from the
-        # src/test/subdirectory folder, which is the same program as
-        # above but configured via add_subdirectory(openexr). This
+        # src/test/add_subdirectory folder, which is the same program as
+        # above but configured via add_subdirectory(ext/openexr).
+        # Create ext/openexr as a symlink to the repo root. This
         # confirms that downstream applications can use openexr in
         # that way.
         if: inputs.msystem == ''
         run: |
           set -x
           "$CMAKE" --version
-          SUBDIRECTORY_BUILD_DIR=$WORKSPACE/_build.subdirectory
-          cmake_args=("-B" "$SUBDIRECTORY_BUILD_DIR" -S "$WORKSPACE/src/test/subdirectory")
+          SRC="$RUNNER_TEMP/add_subdirectory"
+          cp -r "$WORKSPACE/src/test/add_subdirectory" "$SRC"
+          cp "$WORKSPACE/website/src/exrwriter/exrwriter.cpp" "$SRC"
+          mkdir -p "$SRC/ext"
+          ln -s "$WORKSPACE" "$SRC/ext/openexr"
+          ADD_SUBDIRECTORY_BUILD_DIR=$WORKSPACE/_build.add_subdirectory
+          cmake_args=("-B" "$ADD_SUBDIRECTORY_BUILD_DIR" -S "$SRC")
           cmake_args+=("-DCMAKE_POLICY_VERSION_MINIMUM=3.26")
           cmake_args+=("-DCMAKE_VERBOSE_MAKEFILE=ON")
           if [ -n "${{ inputs.namespace }}" ]; then
@@ -375,13 +381,13 @@ jobs:
           cmake_args+=("-DOPENEXR_BUILD_TOOLS=OFF")
           quoted_args=$(printf '%q ' "${cmake_args[@]}")
           "$CMAKE" $quoted_args
-          "$CMAKE" --build $SUBDIRECTORY_BUILD_DIR --config ${{ inputs.build-type }}
-          EXRWRITER=$SUBDIRECTORY_BUILD_DIR/exrwriter
+          "$CMAKE" --build $ADD_SUBDIRECTORY_BUILD_DIR --config ${{ inputs.build-type }}
+          EXRWRITER=$ADD_SUBDIRECTORY_BUILD_DIR/exrwriter
           if [[ "$RUNNER_OS" == "Windows" ]]; then
             export PATH="$OPENEXR_PATH:$PATH"
-            EXRWRITER=$SUBDIRECTORY_BUILD_DIR/${{ inputs.build-type }}/exrwriter.exe
+            EXRWRITER=$ADD_SUBDIRECTORY_BUILD_DIR/${{ inputs.build-type }}/exrwriter.exe
           else
-            EXRWRITER=$SUBDIRECTORY_BUILD_DIR/exrwriter
+            EXRWRITER=$ADD_SUBDIRECTORY_BUILD_DIR/exrwriter
           fi
           $EXRWRITER
         shell: bash
