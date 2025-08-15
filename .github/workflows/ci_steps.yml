@@ -188,7 +188,7 @@ jobs:
         # Pre-install OpenJPH so the builds validate finding the external installation
         if: inputs.OPENEXR_FORCE_INTERNAL_OPENJPH == 'OFF' && inputs.msystem == ''
         run: |
-          share/ci/scripts/install_openjph.sh 0.21.2
+          share/ci/scripts/install_openjph.sh 0.21.5
           echo "OPENEXR_PATH=$OPENEXR_PATH:$PROGRAM_FILES/openjph/bin:$PROGRAM_FILES/openjph/lib" >> $GITHUB_ENV
         shell: bash
 
