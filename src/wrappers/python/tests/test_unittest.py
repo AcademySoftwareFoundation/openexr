@@ -409,6 +409,88 @@ class TestUnittest(unittest.TestCase):
             assert equalWithRelError(m.parts[0].channels["R"].pixels[0][1], 42.0, eps)
             assert equalWithRelError(m.parts[0].channels["G"].pixels[2][3], 666.0, eps)
 
+    def test_header_only(self):
+
+        #
+        # Test modifying header when reading just the header.
+        #
+
+        multipartfilename = f"{test_dir}/multipart.exr"
+
+        height, width = (20, 10)
+        Z = np.zeros((height, width), dtype='f')
+        P0 = OpenEXR.Part({"compression" : OpenEXR.ZIP_COMPRESSION,
+                           "type" : OpenEXR.scanlineimage,
+                           "foo" : "foo0",
+                           "n" : 9,
+                           "d" : 1.0 },
+                          {"Z" : Z })
+
+        R = np.random.rand(height, width).astype('f')
+        G = np.random.rand(height, width).astype('f')
+        B = np.random.rand(height, width).astype('f')
+        P1 = OpenEXR.Part({"compression" : OpenEXR.ZIP_COMPRESSION,
+                           "type" : OpenEXR.scanlineimage,
+                           "foo" : "foo1",
+                           "m" : 9,
+                           "D" : 1.0 },
+                          { "R" : R, "G" : G, "B" : B })
+
+        f = OpenEXR.File([P0, P1])
+        f.write(multipartfilename)
+
+        # validate that the file has the proper values
+        with OpenEXR.File(multipartfilename) as o:
+            assert o.parts[0].name() == "Part0"
+            assert o.parts[0].width() == 10
+            assert o.parts[0].height() == 20
+            assert o.parts[0].header["foo"] == "foo0"
+            assert o.parts[0].header["n"] == 9
+            assert o.parts[1].name() == "Part1"
+            assert o.parts[1].width() == 10
+            assert o.parts[1].height() == 20
+            assert o.parts[1].header["foo"] == "foo1"
+            assert o.parts[1].header["m"] == 9
+
+        with OpenEXR.File(multipartfilename, separate_channels=True, header_only=True) as f:
+
+            # change the value of an existing attribute
+            f.parts[0].header["foo"] = "foo0!"
+            f.parts[0].header["n"] = 99
+            f.parts[1].header["foo"] = "foo1!"
+            f.parts[1].header["m"] = 42
+
+            # add a new attribute
+            f.parts[0].header["bar"] = "bar0"
+            f.parts[1].header["bar"] = "bar1"
+            
+            del f.parts[0].header["d"]
+            del f.parts[1].header["D"]
+            
+            # write to a new file
+            outfilename = mktemp_outfilename()
+            f.write(outfilename)
+
+        with OpenEXR.File(multipartfilename, separate_channels=True) as f:
+
+            # read the new file
+            with OpenEXR.File(outfilename, separate_channels=True) as m:
+
+                # f has the original values
+                # m has the modified values
+                # Modify f again manually and validate that they match
+            
+                f.parts[0].header["foo"] = "foo0!"
+                f.parts[0].header["n"] = 99
+                f.parts[1].header["foo"] = "foo1!"
+                f.parts[1].header["m"] = 42
+                f.parts[0].header["bar"] = "bar0"
+                f.parts[1].header["bar"] = "bar1"
+                del f.parts[0].header["d"]
+                del f.parts[1].header["D"]
+
+                compare_files(f, m)
+
     def test_preview_image(self):
 
         width = 5
@@ -495,7 +577,6 @@ class TestUnittest(unittest.TestCase):
 
             outfilename = mktemp_outfilename()
             outfile.write(outfilename)
-            print("write done.")
                   
             # Verify reading it back gives the same data
             with OpenEXR.File(outfilename, separate_channels=True) as infile:
