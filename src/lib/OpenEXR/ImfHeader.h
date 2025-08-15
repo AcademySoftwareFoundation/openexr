@@ -15,8 +15,6 @@
 #include "ImfForward.h"
 
 #include "IexBaseExc.h"
-#include "ImathBox.h"
-#include "ImathVec.h"
 #include "ImfCompression.h"
 #include "ImfLineOrder.h"
 #include "ImfName.h"
@@ -28,6 +26,9 @@
 #include <iosfwd>
 #include <map>
 #include <string>
+
+#include <Imath/ImathBox.h>
+#include <Imath/ImathVec.h>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
