@@ -89,6 +89,7 @@ Make sure these are installed on your system before building OpenEXR:
 * C++ compiler that supports C++17
 * Imath (auto fetched by CMake if not found) (https://github.com/AcademySoftwareFoundation/openexr)
 * libdeflate source code (auto fetched by CMake if not found) (https://github.com/ebiggers/libdeflate)
+* openjph (auto fetched by CMake if not found) (https://github.com/aous72/OpenJPH)
 * (optional) Intel's Thread Building Blocks library (TBB)
 
 The instructions that follow describe building OpenEXR with CMake.
