@@ -338,7 +338,7 @@ newCompressor (Compression c, size_t maxScanLineSize, const Header& hdr)
 
         case HTJ2K_COMPRESSION:
 
-            return new HTCompressor (hdr, static_cast<int> (maxScanLineSize), 256);
+            return new HTCompressor (hdr, static_cast<int> (maxScanLineSize), 32);
 
         default: break;
     }
