@@ -18,6 +18,11 @@
 #include "openexr_encode.h"
 #include "internal_ht_common.h"
 
+size_t exr_get_htj2k_lines_per_chunk ()
+{
+    return 32;
+}
+
 /**
  * OpenJPH output file that is backed by a fixed-size memory buffer
  */
