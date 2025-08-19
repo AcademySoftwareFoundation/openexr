@@ -1751,38 +1751,43 @@ on the ``Header`` object:
 
 Supported compression types are:
 
-+-------------------+------------------------------------------------+
-| RLE_COMPRESSION   | run length encoding                            |
-+-------------------+------------------------------------------------+
-| ZIPS_COMPRESSION  | zlib compression, one scan line at a time      |
-+-------------------+------------------------------------------------+
-| ZIP_COMPRESSION   | zlib compression, in blocks of 16 scan lines   |
-+-------------------+------------------------------------------------+
-| PIZ_COMPRESSION   | piz-based wavelet compression                  |
-+-------------------+------------------------------------------------+
-| PXR24_COMPRESSION | lossy 24-bit float compression                 |
-+-------------------+------------------------------------------------+
-| B44_COMPRESSION   | lossy 4-by-4 pixel block compression,          |
-|                   | fixed compression rate                         |
-+-------------------+------------------------------------------------+
-| B44A_COMPRESSION  | lossy 4-by-4 pixel block compression,          |
-|                   | flat fields are compressed more                |
-+-------------------+------------------------------------------------+
-| DWAA_COMPRESSION  | lossy DCT based compression, in blocks of      |
-|                   | 32 scanlines. More efficient for partial       |
-|                   | buffer access.                                 |
-+-------------------+------------------------------------------------+
-| DWAB_COMPRESSION  | lossy DCT based compression, in blocks of 256  |
-|                   | scanlines. More efficient space-wise and       |
-|                   | faster to decode full frames than              |
-|                   | ``DWAA_COMPRESSION``.                          |
-+-------------------+------------------------------------------------+
-| HTJ2K_COMPRESSION | JPEG 2000 lossless coding, in blocks of 256    |
-|                   | scanlines and using the High-Throughput block  |
-|                   | coder specified in Rec. ITU-T T.814 and        |
-|                   | ISO/IEC 15444-15. The compressor offers both   |
-|                   | speed and high coding efficiency.              |
-+-------------------+------------------------------------------------+
++----------------------+------------------------------------------------+
+| RLE_COMPRESSION      | run length encoding                            |
++----------------------+------------------------------------------------+
+| ZIPS_COMPRESSION     | zlib compression, one scan line at a time      |
++----------------------+------------------------------------------------+
+| ZIP_COMPRESSION      | zlib compression, in blocks of 16 scan lines   |
++----------------------+------------------------------------------------+
+| PIZ_COMPRESSION      | piz-based wavelet compression                  |
++----------------------+------------------------------------------------+
+| PXR24_COMPRESSION    | lossy 24-bit float compression                 |
++----------------------+------------------------------------------------+
+| B44_COMPRESSION      | lossy 4-by-4 pixel block compression,          |
+|                      | fixed compression rate                         |
++----------------------+------------------------------------------------+
+| B44A_COMPRESSION     | lossy 4-by-4 pixel block compression,          |
+|                      | flat fields are compressed more                |
++----------------------+------------------------------------------------+
+| DWAA_COMPRESSION     | lossy DCT based compression, in blocks of      |
+|                      | 32 scanlines. More efficient for partial       |
+|                      | buffer access.                                 |
++----------------------+------------------------------------------------+
+| DWAB_COMPRESSION     | lossy DCT based compression, in blocks of 256  |
+|                      | scanlines. More efficient space-wise and       |
+|                      | faster to decode full frames than              |
+|                      | ``DWAA_COMPRESSION``.                          |
++----------------------+------------------------------------------------+
+| HTJ2K256_COMPRESSION | JPEG 2000 lossless coding, in blocks of 256    |
+|                      | scanlines and using the High-Throughput block  |
+|                      | coder specified in Rec. ITU-T T.814 and        |
+|                      | ISO/IEC 15444-15. The compressor offers both   |
+|                      | speed and high coding efficiency.              |
++----------------------+------------------------------------------------+
+| HTJ2K32_COMPRESSION  | Same as ``HTJ2K256_COMPRESSION``, but in       |
+|                      | blocks of 32 scanlines, More efficient for     |
+|                      | partial buffer access, but slightly less       |
+|                      | efficient space-wise.                          |
++----------------------+------------------------------------------------+
 
 ``ZIP_COMPRESSION`` and ``DWA`` compression compress to a
 user-controllable compression level, which determines the space/time

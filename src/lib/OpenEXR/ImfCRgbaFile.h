@@ -80,8 +80,9 @@ typedef struct ImfRgba ImfRgba;
 #define IMF_B44A_COMPRESSION 7
 #define IMF_DWAA_COMPRESSION 8
 #define IMF_DWAB_COMPRESSION 9
-#define IMF_HTJ2K_COMPRESSION 10
-#define IMF_NUM_COMPRESSION_METHODS 11
+#define IMF_HTJ2K256_COMPRESSION 10
+#define IMF_HTJ2K32_COMPRESSION 11
+#define IMF_NUM_COMPRESSION_METHODS 12
 
 /*
 ** Channels; values must be the same as in Imf::RgbaChannels.

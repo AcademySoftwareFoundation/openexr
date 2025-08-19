@@ -2360,7 +2360,8 @@ PYBIND11_MODULE(OpenEXR, m)
         .value("B44A_COMPRESSION", B44A_COMPRESSION)
         .value("DWAA_COMPRESSION", DWAA_COMPRESSION)
         .value("DWAB_COMPRESSION", DWAB_COMPRESSION)
-        .value("HTJ2K_COMPRESSION", HTJ2K_COMPRESSION)
+        .value("HTJ2K256_COMPRESSION", HTJ2K256_COMPRESSION)
+        .value("HTJ2K32_COMPRESSION", HTJ2K32_COMPRESSION)
         .value("NUM_COMPRESSION_METHODS", NUM_COMPRESSION_METHODS)
         .export_values();
     
@@ -2713,7 +2714,8 @@ PYBIND11_MODULE(OpenEXR, m)
                  B44A_COMPRESSION
                  DWAA_COMPRESSION
                  DWAB_COMPRESSION
-                 HTJ2K_COMPRESSION
+                 HTJ2K256_COMPRESSION
+                 HTJ2K32_COMPRESSION
              )pbdoc")
         .def_readwrite("header", &PyPart::header,
              R"pbdoc(
