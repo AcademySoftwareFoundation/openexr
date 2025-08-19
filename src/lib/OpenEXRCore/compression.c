@@ -243,7 +243,7 @@ int exr_compression_lines_per_chunk (exr_compression_t comptype)
         case EXR_COMPRESSION_B44A:
         case EXR_COMPRESSION_DWAA: linePerChunk = 32; break;
         case EXR_COMPRESSION_DWAB: linePerChunk = 256; break;
-        case EXR_COMPRESSION_HTJ2K: linePerChunk = 256; break;
+        case EXR_COMPRESSION_HTJ2K: linePerChunk = exr_get_htj2k_lines_per_chunk(); break;
         case EXR_COMPRESSION_LAST_TYPE:
         default:
             /* ERROR CONDITION */
