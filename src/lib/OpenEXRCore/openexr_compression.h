@@ -104,6 +104,9 @@ exr_result_t exr_compress_chunk (exr_encode_pipeline_t *encode_state);
 EXR_EXPORT
 exr_result_t exr_uncompress_chunk (exr_decode_pipeline_t *decode_state);
 
+EXR_EXPORT
+size_t exr_get_htj2k_lines_per_chunk();
+
 #ifdef __cplusplus
 } /* extern "C" */
 #endif
