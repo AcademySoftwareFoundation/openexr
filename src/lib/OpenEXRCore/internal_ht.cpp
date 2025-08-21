@@ -177,18 +177,17 @@ internal_exr_undo_ht (
     if (decode->channel_count != cs_to_file_ch.size ())
         throw std::runtime_error ("Unexpected number of channels");
 
-    std::vector<size_t> offsets (decode->channel_count);
-    offsets[0] = 0;
-    for (int file_i = 1; file_i < decode->channel_count; file_i++)
-    {
-        offsets[file_i] = offsets[file_i - 1] +
-                          decode->channels[file_i - 1].width *
-                              decode->channels[file_i - 1].bytes_per_element;
-    }
     for (int cs_i = 0; cs_i < decode->channel_count; cs_i++)
     {
-        cs_to_file_ch[cs_i].raster_line_offset =
-            offsets[cs_to_file_ch[cs_i].file_index];
+        int file_i = cs_to_file_ch[cs_i].file_index;
+        if (file_i >= decode->channel_count)
+            return EXR_ERR_CORRUPT_CHUNK;
+
+        size_t computedoffset = 0;
+        for (int i = 0; i < file_i; ++i)
+            computedoffset += decode->channels[i].width *
+                              decode->channels[i].bytes_per_element;
+        cs_to_file_ch[cs_i].raster_line_offset = computedoffset;
     }
 
     ojph::mem_infile infile;
