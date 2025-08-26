@@ -63,7 +63,7 @@ class staticmem_outfile : public ojph::outfile_base
      *  @param ptr is a pointer to new data.
      *  @param size the number of bytes in the new data.
      */
-    size_t write (const void* ptr, size_t sz)
+    size_t write (const void* ptr, size_t sz) override
     {
         assert (this->is_open);
         assert (this->buf);
@@ -157,8 +157,8 @@ class staticmem_outfile : public ojph::outfile_base
     ojph::ui8 *cur_ptr;
   };
 
-extern "C" exr_result_t
-internal_exr_undo_ht (
+static exr_result_t
+ht_undo_impl (
     exr_decode_pipeline_t* decode,
     const void*            compressed_data,
     uint64_t               comp_buf_size,
@@ -328,7 +328,31 @@ internal_exr_undo_ht (
 }
 
 extern "C" exr_result_t
-internal_exr_apply_ht (exr_encode_pipeline_t* encode)
+internal_exr_undo_ht (
+    exr_decode_pipeline_t* decode,
+    const void*            compressed_data,
+    uint64_t               comp_buf_size,
+    void*                  uncompressed_data,
+    uint64_t               uncompressed_size)
+{
+    try
+    {
+        return ht_undo_impl (decode, compressed_data, comp_buf_size,
+                             uncompressed_data, uncompressed_size);
+    }
+    catch ( ... )
+    {
+    }
+
+    return EXR_ERR_CORRUPT_CHUNK;
+}
+
+
+////////////////////////////////////////
+
+
+static exr_result_t
+ht_apply_impl (exr_encode_pipeline_t* encode)
 {
     exr_result_t rv = EXR_ERR_SUCCESS;
 
@@ -502,4 +526,18 @@ internal_exr_apply_ht (exr_encode_pipeline_t* encode)
     }
 
     return rv;
+}
+
+extern "C" exr_result_t
+internal_exr_apply_ht (exr_encode_pipeline_t* encode)
+{
+    try
+    {
+        return ht_apply_impl (encode);
+    }
+    catch ( ... )
+    {
+    }
+
+    return EXR_ERR_INCORRECT_CHUNK;
 }
