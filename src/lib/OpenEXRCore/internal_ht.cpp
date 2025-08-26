@@ -63,7 +63,7 @@ class staticmem_outfile : public ojph::outfile_base
      *  @param ptr is a pointer to new data.
      *  @param size the number of bytes in the new data.
      */
-    size_t write (const void* ptr, size_t sz)
+    size_t write (const void* ptr, size_t sz) override
     {
         assert (this->is_open);
         assert (this->buf);
@@ -157,8 +157,8 @@ class staticmem_outfile : public ojph::outfile_base
     ojph::ui8 *cur_ptr;
   };
 
-extern "C" exr_result_t
-internal_exr_undo_ht (
+static exr_result_t
+ht_undo_impl (
     exr_decode_pipeline_t* decode,
     const void*            compressed_data,
     uint64_t               comp_buf_size,
@@ -177,18 +177,17 @@ internal_exr_undo_ht (
     if (decode->channel_count != cs_to_file_ch.size ())
         throw std::runtime_error ("Unexpected number of channels");
 
-    std::vector<size_t> offsets (decode->channel_count);
-    offsets[0] = 0;
-    for (int file_i = 1; file_i < decode->channel_count; file_i++)
-    {
-        offsets[file_i] = offsets[file_i - 1] +
-                          decode->channels[file_i - 1].width *
-                              decode->channels[file_i - 1].bytes_per_element;
-    }
     for (int cs_i = 0; cs_i < decode->channel_count; cs_i++)
     {
-        cs_to_file_ch[cs_i].raster_line_offset =
-            offsets[cs_to_file_ch[cs_i].file_index];
+        int file_i = cs_to_file_ch[cs_i].file_index;
+        if (file_i >= decode->channel_count)
+            return EXR_ERR_CORRUPT_CHUNK;
+
+        size_t computedoffset = 0;
+        for (int i = 0; i < file_i; ++i)
+            computedoffset += decode->channels[i].width *
+                              decode->channels[i].bytes_per_element;
+        cs_to_file_ch[cs_i].raster_line_offset = computedoffset;
     }
 
     ojph::mem_infile infile;
@@ -329,7 +328,31 @@ internal_exr_undo_ht (
 }
 
 extern "C" exr_result_t
-internal_exr_apply_ht (exr_encode_pipeline_t* encode)
+internal_exr_undo_ht (
+    exr_decode_pipeline_t* decode,
+    const void*            compressed_data,
+    uint64_t               comp_buf_size,
+    void*                  uncompressed_data,
+    uint64_t               uncompressed_size)
+{
+    try
+    {
+        return ht_undo_impl (decode, compressed_data, comp_buf_size,
+                             uncompressed_data, uncompressed_size);
+    }
+    catch ( ... )
+    {
+    }
+
+    return EXR_ERR_CORRUPT_CHUNK;
+}
+
+
+////////////////////////////////////////
+
+
+static exr_result_t
+ht_apply_impl (exr_encode_pipeline_t* encode)
 {
     exr_result_t rv = EXR_ERR_SUCCESS;
 
@@ -503,4 +526,18 @@ internal_exr_apply_ht (exr_encode_pipeline_t* encode)
     }
 
     return rv;
+}
+
+extern "C" exr_result_t
+internal_exr_apply_ht (exr_encode_pipeline_t* encode)
+{
+    try
+    {
+        return ht_apply_impl (encode);
+    }
+    catch ( ... )
+    {
+    }
+
+    return EXR_ERR_INCORRECT_CHUNK;
 }
