@@ -66,6 +66,8 @@ Install via `vcpkg <https://vcpkg.io/en/packages>`_:
    % .\vcpkg install openexr
 
 
+.. _build-from-source:
+
 Build from Source
 -----------------
 
@@ -76,8 +78,18 @@ Download the source from the `GitHub releases page
 <https://github.com/AcademySoftwareFoundation/openexr/releases>`_
 page, or clone the `repo <https://github.com/AcademySoftwareFoundation/openexr>`_.
 
-The ``release`` branch of the repo always points to the most advanced
-release.
+If cloning the repo, check out the ``release`` branch:
+
+.. code-block::
+
+   % git checkout release
+
+The ``release`` branch of the repo always points to the most advanced stable
+release. Other branches may contain compatible updates to older releases.
+
+The default ``main`` branch may contain experimental features which could change in future
+versions. It should only be used for testing, or for developers contributing to
+the OpenEXR project.
 
 
 Prerequisites
