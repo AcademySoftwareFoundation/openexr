@@ -83,12 +83,14 @@
 
 ## Version 3.4.0 (September 5, 2025)
 
-OpenEXR v3.4 introduces support for *lossless compression with High
-Throughput JPEG-2000 (HTJ2K)* encoding:
+OpenEXR v3.4 introduces a new, additional compression option to the
+OpenEXR file format for *lossless compression with High Throughput
+JPEG-2000 (HTJ2K)* encoding:
 
-* The new HTJ2K compressor uses the *High-Throughput (HT) block coder*, and
-  it supports the full range of OpenEXR features, including 16-bit and
-  32-bit floating-point image channels, both scanline and tiled.
+* A new HTJ2K compressor uses the *High-Throughput (HT) block
+  coder*. It supports the full range of OpenEXR features, including
+  16-bit and 32-bit floating-point image channels, both scanline and
+  tiled.
 
 * The HT block coder is standardized in [Rec. ITU-T
   T.814](https://loc.gov/preservation/digital/formats/fdd/fdd000566.shtml)
@@ -96,24 +98,47 @@ Throughput JPEG-2000 (HTJ2K)* encoding:
   is *royalty-free*, widely used in cinema and distribution servicing,
   and implemented in both commercial and open-source toolkits.
 
+* In experiments, we've found that HTJ2K produces smaller files, and
+  depending on the nature of the image data, is one of the fastest
+  compression types available in OpenEXR.
+
 * Integration with OpenEXR uses the
   [OpenJPH](https://github.com/aous72/OpenJPH) open-source
   library. For ease in managing the dependency, the OpenEXR CMake
   configuration supports *automatically fetching and building `OpenJPH`
   internally*, or linking against an *external installation*.
 
-* OpenEXR supports two new compression types: 
-
-  - `htj2k32` -- encodes/decodes chunks of 32 scanlines, offering
-    significantly faster encoding and decoding (4-6x in some cases).
+* OpenEXR supports two new compression types with distinct space/time
+  trade-offs:
 
   - `htj2k256` -- encodes/decodes chunks of 256 scanlines, producing
-    slightly smaller file sizes.
+    slightly smaller file size than `htj2k32`.
+
+  - `htj2k32` -- encodes/decodes chunks of 32 scanlines, better suited
+    to multi-threading, so it offers significantly faster encoding and
+    decoding (4-6x in some cases) than `htj2k256`, with a slight
+    increase in file size.
+
+* All existing OpenEXR compression options remain unchanged. This new
+  feature simply extends the range of compression types available.
+
+* Software compiled with OpenEXR v3.4 will be able to read HTJ2K
+  compressed OpenEXRs without any code changes. Software that writes
+  files may automatically support the new type, but may need a small
+  update to make the new type available as a user option.
 
 * :warning: This is a *backwards-compatible extension* to the OpenEXR
   file format. Files written with OpenEXR v3.4 will be readable by
   applications built against previous releases, _unless_ they use the
   new `htj2k32` or `htj2k256` compression options.
+
+* :warning: This feature was first introduced for evaluation in
+  February, 2025 via the `htj2k-beta` branch with a single 256
+  scanlines/chunk compression option, with the 32-scanline option
+  added more recently. Application software written during this
+  evaluation period will need to change `IMF_HTJ2K_COMPRESSION` to
+  `IMF_HTJ2K256_COMPRESSION`, although files written with the earlier
+  evaluation version should still read properly.
 
 ### Other New Features:
 
