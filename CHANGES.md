@@ -178,6 +178,8 @@ Throughput JPEG-2000 (HTJ2K)* encoding:
 Bump scikit-build-core from 0.11.5 to 0.11.6
 * [2105](https://github.com/AcademySoftwareFoundation/openexr/pull/2105)
 Add details about branches to install instructions
+* [2104](https://github.com/AcademySoftwareFoundation/openexr/pull/2104)
+Add support for 32-line HTJ2K Compressor
 * [2103](https://github.com/AcademySoftwareFoundation/openexr/pull/2103)
 remove extra allocation, fix invalid dereference on corrupt file
 * [2102](https://github.com/AcademySoftwareFoundation/openexr/pull/2102)
