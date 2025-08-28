@@ -109,6 +109,44 @@ The instructions that follow describe building OpenEXR with CMake.
 Note that as of OpenEXR 3, the Gnu autoconf bootstrap/configure build
 system is no longer supported.
 
+OpenEXR/Imath Version Compatibility
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+OpenEXR v3.X is _functionally_ compatible with any v3.Y release of
+Imath. If you have control over how OpenEXR and Imath are built in
+your application or facility, any combination of OpenEXR v3.X and
+Imath v3.Y will build successfully from source.
+
+However, an OpenEXR v3.X distibution (i.e. compiled `libOpenEXR`
+library) built against a specific v3.Y minor release of Imath
+*requires that minor Imath release as a link dependency*.
+
+OpenEXR uses Imath symbols in its public API, and both Imath and
+OpenEXR use suffixed namespaces that embed the minor release
+version. For example, the `V3fAttribute` class in a distribution of
+OpenEXR v3.4 built against Imath v3.2 is a template instantiation of
+`Imf_3_4::TypedAttribute<Imath_3_2::Vec3<float>>`.
+
+This means that *it is insufficient to identify a distribution of
+OpenEXR by its `major.minor` release numbers alone*. You *must*
+further identify the distribution of Imath that it was built against,
+e.g. "OpenEXR v3.4 w/Imath v3.2".
+
+It is problematic for a single application to use OpenEXR v3.4
+compiled against Imath v3.1, and also simultaneously use a distribution
+of OpenEXR v3.4 built against Imath v3.2.
+
+Because of the versioned namespaces, it _is_ possible for an
+application to use a release of Imath directly in code independent of
+OpenEXR. If this doesn't match the Imath version used by the OpenEXR
+distribution, it may still link, but the Imath symbols will be
+different so the data objects will not automatically interoperate.
+
+For simplicity, follow this best practice:
+
+* When building OpenEXR v3.4+, use Imath v3.2
+* When building OpenEXR v3.3 or before, use Imath v3.1.
+
 Linux/macOS
 ~~~~~~~~~~~
 
