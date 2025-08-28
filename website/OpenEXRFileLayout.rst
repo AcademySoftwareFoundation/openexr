@@ -696,8 +696,10 @@ per block depends on how the pixel data are compressed:
      - 32
    * - ``DWAB_COMPRESSION``
      - 256
-   * - ``HTJ2K_COMPRESSION``
+   * - ``HTJ2K256_COMPRESSION``
      - 256
+   * - ``HTJ2K32_COMPRESSION``
+     - 32
 
 Each scan line block has a y coordinate of type ``int``. The block's y
 coordinate is equal to the pixel space y coordinate of the top scan line
@@ -934,7 +936,8 @@ The OpenEXR library predefines the following attribute types:
 |                    | * ``B44A_COMPRESSION`` = 7                                      |
 |                    | * ``DWAA_COMPRESSION`` = 8                                      |
 |                    | * ``DWAB_COMPRESSION`` = 9                                      |
-|                    | * ``HTJ2K_COMPRESSION`` = 10                                    |
+|                    | * ``HTJ2K256_COMPRESSION`` = 10                                    |
+|                    | * ``HTJ2K32_COMPRESSION`` = 11                                  |
 |                    |                                                                 |
 +--------------------+-----------------------------------------------------------------+
 | ``double``         | ``double``                                                      |
