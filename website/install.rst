@@ -99,10 +99,10 @@ Make sure these are installed on your system before building OpenEXR:
 
 * OpenEXR requires CMake version 3.14 or newer
 * C++ compiler that supports C++17
-* Imath (auto-fetched by CMake if not found) (https://github.com/AcademySoftwareFoundation/Imath)
-* `libdeflate` (internal copy used by CMake if not found for
+* ``Imath`` (auto-fetched by CMake if not found) (https://github.com/AcademySoftwareFoundation/Imath)
+* ``libdeflate`` (internal copy used by CMake if not found for
   v3.4+; auto-fetched in v3.3 and before) (https://github.com/ebiggers/libdeflate)
-* openjph (auto-fetched by CMake if not found; new in v3.4, not yet released) (https://github.com/aous72/OpenJPH)
+* ``openjph`` (auto-fetched by CMake if not found; new in v3.4, not yet released) (https://github.com/aous72/OpenJPH)
 * (optional) Intel's Thread Building Blocks library (TBB)
 
 The instructions that follow describe building OpenEXR with CMake.
@@ -118,12 +118,12 @@ In most circumstances, follow this best practice:
 * When building OpenEXR v3.4+, use Imath v3.2
 * When building OpenEXR v3.3 or before, use Imath v3.1.
 
-OpenEXR v3.X is _functionally_ compatible with any v3.Y release of
+OpenEXR v3.X is *functionally* compatible with any v3.Y release of
 Imath. Therefore, if you have control over how OpenEXR and Imath are
 built in your application or facility, any combination of OpenEXR v3.X
 and Imath v3.Y can be built successfully from source.
 
-However, an OpenEXR v3.X distibution (i.e. compiled `libOpenEXR`
+However, an OpenEXR v3.X distibution (i.e. compiled ``libOpenEXR``
 library) built against a specific v3.Y minor release of Imath
 *requires that minor Imath release as a link dependency*. Furthermore,
 application code compilation units that use a specific OpenEXR v3.X
@@ -131,12 +131,13 @@ distibution must be built using the appropriate Imath release.
 
 OpenEXR uses Imath symbols in its public API, and both Imath and
 OpenEXR use suffixed namespaces that embed the minor release
-version. For example, the `V3fAttribute` class in a distribution of
+version. For example, the ``V3fAttribute`` class in a distribution of
 OpenEXR v3.4 built against Imath v3.2 is a template instantiation of
-`Imf_3_4::TypedAttribute<Imath_3_2::Vec3<float>>`, while the
+``Imf_3_4::TypedAttribute<Imath_3_2::Vec3<float>>``, while the
 corresponding class for a distribution of OpenEXR v3.4 built against
-Imath v3.1 will be `Imf_3_4::TypedAttribute<Imath_3_1::Vec3<float>>`,
-a different symbol.
+Imath v3.1 will be
+``Imf_3_4::TypedAttribute<Imath_3_1::Vec3<float>>``, a different
+symbol.
 
 This means that *it is insufficient to identify a distribution of
 OpenEXR by its `major.minor` release numbers alone*. You *must*
@@ -146,9 +147,9 @@ e.g. "OpenEXR v3.4 w/Imath v3.2".
 It is problematic for a single application to use, for example,
 OpenEXR v3.4 compiled against Imath v3.2, while simultaneously using a
 distribution of OpenEXR v3.4 built against Imath v3.1. Both sets of
-OpenEXR symbols would reside in a single namespace (i.e. `Imf_3_4::`),
-but the Imath types would differ between the two (i.e. `Imath_3_2::`
-vs `Imath_3_1::`). It is also problematic for application compilation
+OpenEXR symbols would reside in a single namespace (i.e. ``Imf_3_4::``),
+but the Imath types would differ between the two (i.e. ``Imath_3_2::``
+vs ``Imath_3_1::``). It is also problematic for application compilation
 units to use Imath classes directly, independent of OpenEXR, if they
 also include OpenEXR headers from a distribution using a different
 Imath version.
