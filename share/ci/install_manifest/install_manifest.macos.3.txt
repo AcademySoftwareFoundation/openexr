@@ -162,11 +162,11 @@ lib/cmake/OpenEXR/OpenEXRConfig.cmake
 lib/cmake/OpenEXR/OpenEXRConfigVersion.cmake
 lib/cmake/OpenEXR/OpenEXRTargets-release.cmake
 lib/cmake/OpenEXR/OpenEXRTargets.cmake
-lib/libIex-$MAJOR_$MINOR.a
-lib/libIlmThread-$MAJOR_$MINOR.a
-lib/libOpenEXR-$MAJOR_$MINOR.a
-lib/libOpenEXRCore-$MAJOR_$MINOR.a
-lib/libOpenEXRUtil-$MAJOR_$MINOR.a
+lib/libIex-${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR}.a
+lib/libIlmThread-${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR}.a
+lib/libOpenEXR-${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR}.a
+lib/libOpenEXRCore-${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR}.a
+lib/libOpenEXRUtil-${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR}.a
 lib/pkgconfig/OpenEXR.pc
 share/doc/OpenEXR/examples/deepExamples.cpp
 share/doc/OpenEXR/examples/deepExamples.h

@@ -1,9 +1,9 @@
 # cmake -B . -S ..       -DCMAKE_INSTALL_PREFIX=../_install       -DCMAKE_BUILD_TYPE=Debug       -DOPENEXR_CXX_STANDARD=17       -DBUILD_SHARED_LIBS=ON       -DOPENEXR_ENABLE_THREADING=ON       -DOPENEXR_INSTALL_PKG_CONFIG=ON       -DOPENEXR_INSTALL_DOCS=OFF       -DOPENEXR_BUILD_EXAMPLES=ON       -DOPENEXR_BUILD_TOOLS=ON       -DOPENEXR_FORCE_INTERNAL_IMATH=OFF       -DOPENEXR_FORCE_INTERNAL_DEFLATE=OFF       -DBUILD_TESTING=ON       -DOPENEXR_RUN_FUZZ_TESTS='OFF'       -DCMAKE_VERBOSE_MAKEFILE='ON'
-bin/Iex-$MAJOR_$MINOR_d.dll
-bin/IlmThread-$MAJOR_$MINOR_d.dll
-bin/OpenEXR-$MAJOR_$MINOR_d.dll
-bin/OpenEXRCore-$MAJOR_$MINOR_d.dll
-bin/OpenEXRUtil-$MAJOR_$MINOR_d.dll
+bin/Iex-${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR}_d.dll
+bin/IlmThread-${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR}_d.dll
+bin/OpenEXR-${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR}_d.dll
+bin/OpenEXRCore-${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR}_d.dll
+bin/OpenEXRUtil-${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR}_d.dll
 bin/exr2aces.exe
 bin/exrenvmap.exe
 bin/exrheader.exe
@@ -163,11 +163,11 @@ include/OpenEXR/openexr_part.h
 include/OpenEXR/openexr_std_attr.h
 include/OpenEXR/openexr_version.h
 include/OpenEXR/ImfHTCompressor.h
-lib/Iex-$MAJOR_$MINOR_d.lib
-lib/IlmThread-$MAJOR_$MINOR_d.lib
-lib/OpenEXR-$MAJOR_$MINOR_d.lib
-lib/OpenEXRCore-$MAJOR_$MINOR_d.lib
-lib/OpenEXRUtil-$MAJOR_$MINOR_d.lib
+lib/Iex-${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR}_d.lib
+lib/IlmThread-${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR}_d.lib
+lib/OpenEXR-${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR}_d.lib
+lib/OpenEXRCore-${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR}_d.lib
+lib/OpenEXRUtil-${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR}_d.lib
 lib/cmake/OpenEXR/OpenEXRConfig.cmake
 lib/cmake/OpenEXR/OpenEXRConfigVersion.cmake
 lib/cmake/OpenEXR/OpenEXRTargets-debug.cmake

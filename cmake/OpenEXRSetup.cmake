@@ -257,12 +257,11 @@ endif()
 
 option(OPENEXR_FORCE_INTERNAL_OPENJPH "Force downloading OpenJPH from a git repo" OFF)
 set(OPENEXR_OPENJPH_REPO "https://github.com/aous72/OpenJPH.git" CACHE STRING "OpenJPH git repo URI")
-set(OPENEXR_OPENJPH_TAG "0.21.5" CACHE STRING "OpenJPH git repo tag")
+set(OPENEXR_OPENJPH_TAG "master" CACHE STRING "OpenJPH git repo tag")
 
 if (NOT OPENEXR_FORCE_INTERNAL_OPENJPH)
-  find_package(openjph 0.21 CONFIG QUIET)
+  find_package(openjph CONFIG QUIET)
   if(openjph_FOUND)
-    message(STATUS "Using OpenJPH from ${openjph_DIR}")
     set(EXR_OPENJPH_LIB openjph)
   else()
     # If not found, try pkgconfig
@@ -306,6 +305,17 @@ if(NOT EXR_OPENJPH_LIB)
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
   )
   include_directories("${openjph_SOURCE_DIR}/src/core/common")
+
+  # extract the openjph version variables from ojph_version.h
+  set(openjph_version "${openjph_SOURCE_DIR}/src/core/common/ojph_version.h")
+  if(EXISTS "${openjph_version}")
+    file(STRINGS "${openjph_version}" _openjph_major REGEX "#define OPENJPH_VERSION_MAJOR")
+    file(STRINGS "${openjph_version}" _openjph_minor REGEX "#define OPENJPH_VERSION_MINOR")
+    file(STRINGS "${openjph_version}" _openjph_patch REGEX "#define OPENJPH_VERSION_PATCH")
+    string(REGEX REPLACE ".*OPENJPH_VERSION_MAJOR[ \t]+([0-9]+).*" "\\1" openjph_VERSION_MAJOR "${_openjph_major}")
+    string(REGEX REPLACE ".*OPENJPH_VERSION_MINOR[ \t]+([0-9]+).*" "\\1" openjph_VERSION_MINOR "${_openjph_minor}")
+    string(REGEX REPLACE ".*OPENJPH_VERSION_PATCH[ \t]+([0-9]+).*" "\\1" openjph_VERSION_PATCH "${_openjph_patch}")
+  endif()
 
   set(EXR_OPENJPH_LIB openjph)
 endif()
@@ -352,6 +362,19 @@ if(NOT TARGET Imath::Imath AND NOT Imath_FOUND)
     # If OpenEXR is generating it, the internal Imath should, too.
     set(IMATH_INSTALL_PKG_CONFIG ${OPENEXR_INSTALL_PKG_CONFIG})
   endif()
+
+  # extract the imath version variables from ImathConfig.h
+  set(_imath_cfg "${Imath_BINARY_DIR}/config/ImathConfig.h")
+  if(EXISTS "${_imath_cfg}")
+    file(STRINGS "${_imath_cfg}" _ver_line REGEX "IMATH_LIB_VERSION_STRING")
+    string(REGEX REPLACE ".*IMATH_LIB_VERSION_STRING[ \t]+\"([0-9.]+)\".*" "\\1" IMATH_LIB_VERSION_STRING "${_ver_line}")
+    string(REPLACE "." ";" _ver_list "${IMATH_LIB_VERSION_STRING}")
+    list(GET _ver_list 0 Imath_SOVERSION)
+    list(GET _ver_list 1 Imath_VERSION_MAJOR)
+    list(GET _ver_list 2 Imath_VERSION_MINOR)
+    list(GET _ver_list 3 Imath_VERSION_PATCH)
+  endif()
+  
   # the install creates this but if we're using the library locally we
   # haven't installed the header files yet, so need to extract those
   # and make a variable for header only usage
