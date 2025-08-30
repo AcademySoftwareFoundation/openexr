@@ -266,6 +266,13 @@ jobs:
           "$CMAKE" --build $BUILD_DIR --target install --config ${{ inputs.build-type }}
         shell: msys2 {0}
 
+      - name: Test OpenEXR.pc
+        # Validate that OpenEXR.pc works by compiling/linking the test program
+        if: runner.os == 'Linux' && inputs.OPENEXR_INSTALL_PKG_CONFIG == 'ON'
+        run: |
+          set -x
+          share/ci/scripts/validate_pkgconfig.sh $INSTALL_DIR website/src/exrwriter/exrwriter.cpp
+
       - name: Prepare install_manifest
         # Store the cmake command as the first line of the manifest,
         # and remove the path prefix, so the manifest contains only
