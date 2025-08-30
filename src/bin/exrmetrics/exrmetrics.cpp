@@ -1001,7 +1001,7 @@ exrmetrics (
 
     bool compressionSet = false;
 
-    for (int p = 0; p < outHeaders.size(); ++p)
+    for (size_t p = 0; p < outHeaders.size(); ++p)
     {
         if (compression < NUM_COMPRESSION_METHODS)
         {
