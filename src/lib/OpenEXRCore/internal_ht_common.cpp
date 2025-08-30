@@ -59,7 +59,7 @@ make_channel_map (
 
     cs_to_file_ch.resize (channel_count);
 
-    for (size_t i = 0; i < static_cast<size_t>(channel_count); i++)
+    for (int i = 0; i < channel_count; i++)
     {
         const char* channel_name = channels[i].channel_name;
         const char* suffix       = strrchr (channel_name, '.');
@@ -143,14 +143,14 @@ make_channel_map (
 
         int avail_cs_i = 3;
         int offset = 0;
-        for (size_t file_i = 0; file_i < static_cast<size_t>(channel_count); file_i++)
+        for (int file_i = 0; file_i < channel_count; file_i++)
         {
             int cs_i;
-            if (static_cast<int>(file_i) == r_index) {
+            if (file_i == r_index) {
                 cs_i = 0;
-            } else if (static_cast<int>(file_i) == g_index) {
+            } else if (file_i == g_index) {
                 cs_i = 1;
-            } else if (static_cast<int>(file_i) == b_index) {
+            } else if (file_i == b_index) {
                 cs_i = 2;
             } else {
                 cs_i = avail_cs_i++;
