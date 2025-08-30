@@ -60,19 +60,19 @@ public:
     // Make a copy of this attribute
     //------------------------------
 
-    IMF_EXPORT virtual Attribute* copy () const;
+    IMF_EXPORT Attribute* copy () const override;
 
     //----------------
     // I/O and copying
     //----------------
 
-    IMF_EXPORT virtual void writeValueTo (
-        OPENEXR_IMF_INTERNAL_NAMESPACE::OStream& os, int version) const;
+    IMF_EXPORT void writeValueTo (
+        OPENEXR_IMF_INTERNAL_NAMESPACE::OStream& os, int version) const override;
 
-    IMF_EXPORT virtual void readValueFrom (
-        OPENEXR_IMF_INTERNAL_NAMESPACE::IStream& is, int size, int version);
+    IMF_EXPORT void readValueFrom (
+        OPENEXR_IMF_INTERNAL_NAMESPACE::IStream& is, int size, int version) override;
 
-    IMF_EXPORT virtual void copyValueFrom (const Attribute& other);
+    IMF_EXPORT void copyValueFrom (const Attribute& other) override;
 
     size_t size () const { return _data.size (); }
     const Array<unsigned char>& data () const { return _data; }

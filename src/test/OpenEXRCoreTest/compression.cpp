@@ -1722,7 +1722,7 @@ testHTChannelMap (const std::string& tempdir)
     };
     int test_count = sizeof(tests) / sizeof(ht_channel_map_tests);
 
-    for (size_t i = 0; i < test_count; i++)
+    for (size_t i = 0; i < static_cast<size_t>(test_count); i++)
     {
         EXRCORE_TEST (
             make_channel_map (
