@@ -205,7 +205,7 @@ ht_undo_impl (
 
     int  bpl       = 0;
     bool is_planar = false;
-    for (ojph::ui32 c = 0; c < static_cast<ojph::ui32>(decode->channel_count); c++)
+    for (int16_t c = 0; c < decode->channel_count; c++)
     {
         bpl +=
             decode->channels[c].bytes_per_element * decode->channels[c].width;
@@ -227,7 +227,7 @@ ht_undo_impl (
     ojph::line_buf* cur_line;
     if (cs.is_planar ())
     {
-        for (uint32_t c = 0; c < static_cast<uint32_t>(decode->channel_count); c++)
+        for (int16_t c = 0; c < decode->channel_count; c++)
         {
             int file_c = cs_to_file_ch[c].file_index;
             assert (
@@ -242,7 +242,7 @@ ht_undo_impl (
                  y < image_height + decode->chunk.start_y;
                  y++)
             {
-                for (ojph::ui32 line_c = 0; line_c < static_cast<ojph::ui32>(decode->channel_count);
+                for (int16_t line_c = 0; line_c < decode->channel_count;
                      line_c++)
                 {
                     if (y % decode->channels[line_c].y_samples != 0) continue;
@@ -256,8 +256,8 @@ ht_undo_impl (
                             EXR_PIXEL_HALF)
                         {
                             int16_t* channel_pixels = (int16_t*) line_pixels;
-                            for (uint32_t p = 0;
-                                 p < static_cast<uint32_t>(decode->channels[file_c].width);
+                            for (int16_t p = 0;
+                                 p < decode->channels[file_c].width;
                                  p++)
                             {
                                 *channel_pixels++ = cur_line->i32[p];
@@ -266,8 +266,8 @@ ht_undo_impl (
                         else
                         {
                             int32_t* channel_pixels = (int32_t*) line_pixels;
-                            for (uint32_t p = 0;
-                                 p < static_cast<uint32_t>(decode->channels[file_c].width);
+                            for (int16_t p = 0;
+                                 p < decode->channels[file_c].width;
                                  p++)
                             {
                                 *channel_pixels++ = cur_line->i32[p];
@@ -289,7 +289,7 @@ ht_undo_impl (
 
         for (uint32_t y = 0; y < image_height; ++y)
         {
-            for (uint32_t c = 0; c < static_cast<uint32_t>(decode->channel_count); c++)
+            for (int16_t c = 0; c < decode->channel_count; c++)
             {
                 int file_c = cs_to_file_ch[c].file_index;
                 cur_line   = cs.pull (next_comp);
@@ -298,7 +298,7 @@ ht_undo_impl (
                 {
                     int16_t* channel_pixels =
                         (int16_t*) (line_pixels + cs_to_file_ch[c].raster_line_offset);
-                    for (uint32_t p = 0; p < static_cast<uint32_t>(decode->channels[file_c].width);
+                    for (int16_t p = 0; p < decode->channels[file_c].width;
                          p++)
                     {
                         *channel_pixels++ = cur_line->i32[p];
@@ -308,7 +308,7 @@ ht_undo_impl (
                 {
                     int32_t* channel_pixels =
                         (int32_t*) (line_pixels + cs_to_file_ch[c].raster_line_offset);
-                    for (uint32_t p = 0; p < static_cast<uint32_t>(decode->channels[file_c].width);
+                    for (int16_t p = 0; p < decode->channels[file_c].width;
                          p++)
                     {
                         *channel_pixels++ = cur_line->i32[p];
@@ -368,7 +368,7 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
     bool isPlanar = false;
     siz.set_num_components (encode->channel_count);
     int bpl = 0;
-    for (ojph::ui32 c = 0; c < static_cast<ojph::ui32>(encode->channel_count); c++)
+    for (int16_t c = 0; c < encode->channel_count; c++)
     {
         int file_c = cs_to_file_ch[c].file_index;
         if (encode->channels[file_c].data_type != EXR_PIXEL_UINT)
@@ -422,32 +422,32 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
 
         if (cs.is_planar ())
         {
-            for (ojph::ui32 c = 0; c < static_cast<ojph::ui32>(encode->channel_count); c++)
+            for (int16_t c = 0; c < encode->channel_count; c++)
             {
                 if (encode->channels[c].height == 0) continue;
 
                 const uint8_t* line_pixels =
                     static_cast<const uint8_t*> (encode->packed_buffer);
-                int file_c = cs_to_file_ch[c].file_index;
+                int16_t file_c = cs_to_file_ch[c].file_index;
 
                 for (int64_t y = encode->chunk.start_y;
                     y < image_height + encode->chunk.start_y;
                     y++)
                 {
-                    for (ojph::ui32 line_c = 0; line_c < static_cast<ojph::ui32>(encode->channel_count);
+                    for (int16_t line_c = 0; line_c < encode->channel_count;
                         line_c++)
                     {
 
                         if (y % encode->channels[line_c].y_samples != 0) continue;
 
-                        if (line_c == static_cast<ojph::ui32>(file_c))
+                        if (line_c == file_c)
                         {
                             if (encode->channels[file_c].data_type ==
                                 EXR_PIXEL_HALF)
                             {
                                 int16_t* channel_pixels = (int16_t*) (line_pixels);
-                                for (uint32_t p = 0;
-                                     p < static_cast<ojph::ui32>(encode->channels[file_c].width);
+                                for (int32_t p = 0;
+                                     p < encode->channels[file_c].width;
                                     p++)
                                 {
                                     cur_line->i32[p] = *channel_pixels++;
@@ -456,8 +456,8 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
                             else
                             {
                                 int32_t* channel_pixels = (int32_t*) (line_pixels);
-                                for (uint32_t p = 0;
-                                     p < static_cast<ojph::ui32>(encode->channels[file_c].width);
+                                for (int32_t p = 0;
+                                     p < encode->channels[file_c].width;
                                     p++)
                                 {
                                     cur_line->i32[p] = *channel_pixels++;
@@ -483,7 +483,7 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
 
             for (int y = 0; y < image_height; y++)
             {
-                for (ojph::ui32 c = 0; c < static_cast<ojph::ui32>(encode->channel_count); c++)
+                for (int16_t c = 0; c < encode->channel_count; c++)
                 {
                     int file_c = cs_to_file_ch[c].file_index;
 
@@ -491,7 +491,7 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
                     {
                         int16_t* channel_pixels =
                             (int16_t*) (line_pixels + cs_to_file_ch[c].raster_line_offset);
-                        for (uint32_t p = 0; p < static_cast<uint32_t>(encode->channels[file_c].width);
+                        for (int32_t p = 0; p < encode->channels[file_c].width;
                             p++)
                         {
                             cur_line->i32[p] = *channel_pixels++;
@@ -501,7 +501,7 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
                     {
                         int32_t* channel_pixels =
                             (int32_t*) (line_pixels + cs_to_file_ch[c].raster_line_offset);
-                        for (uint32_t p = 0; p < static_cast<uint32_t>(encode->channels[file_c].width);
+                        for (int32_t p = 0; p < encode->channels[file_c].width;
                             p++)
                         {
                             cur_line->i32[p] = *channel_pixels++;
