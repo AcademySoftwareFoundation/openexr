@@ -145,8 +145,8 @@ JPEG-2000 (HTJ2K)* encoding:
 * :sparkles: *New `colorInteropID` standard attribute*
 
   The ID string endorsed by the Color Interop Forum to communicate the
-  color space of RGB images in an interoperable manner. 
-  
+  color space of RGB images in an interoperable manner.
+
   - The contents of the string is described in the specification [An
     ID for Color
     Interop](https://docs.google.com/document/d/1T94lYbis9uCskL_ZEMxGBF2JryLfZnjxlEoNgRHZzBE/edit?usp=sharing).
@@ -161,15 +161,15 @@ JPEG-2000 (HTJ2K)* encoding:
 
   - The OpenEXR library forces no interpretations of the attribute
     contents; it is strictly application-dependent.
-    
+
   - The attribute also holds a `typeHint` string which applications
     can use to suggest the intended interpretation of the contents,
     but it is strictly informational.
 
-* :wrench: *TBB as a global thread provider* 
+* :wrench: *TBB as a global thread provider*
 
   - A new cmake option `-DOPENEXR_USE_TBB=ON` switches the internals
-    of the thread pool to use TBB by default. 
+    of the thread pool to use TBB by default.
   - Building with this option adds a link dependency on the `OneAPI
     TBB` distribution.
 
@@ -177,7 +177,7 @@ JPEG-2000 (HTJ2K)* encoding:
 
   - OpenEXR v3.4 now ships with a bundled distribution of the
     `libdeflate` library, replacing the previous "auto-fetch"
-    mechanism. 
+    mechanism.
   - By default, building OpenEXR will use a system installation of
     `libdeflate` as before, but if none is found, the build will use
     the internal copy of `libdeflate`.
@@ -199,6 +199,14 @@ JPEG-2000 (HTJ2K)* encoding:
 
 ### Merged Pull Requests:
 
+* [2115](https://github.com/AcademySoftwareFoundation/openexr/pull/2115)
+Remove openjph from OpenEXR.pc
+* [2114](https://github.com/AcademySoftwareFoundation/openexr/pull/2114)
+Remove openjph includes from ImfHTCompressor.h
+* [2113](https://github.com/AcademySoftwareFoundation/openexr/pull/2113)
+Improve handling of Imath and OpenJPH library versions
+* [2112](https://github.com/AcademySoftwareFoundation/openexr/pull/2112)
+Fix compiler warnings
 * [2106](https://github.com/AcademySoftwareFoundation/openexr/pull/2106)
 Bump scikit-build-core from 0.11.5 to 0.11.6
 * [2105](https://github.com/AcademySoftwareFoundation/openexr/pull/2105)
@@ -366,10 +374,10 @@ This version addresses the following security vulnerabilities:
 * [CVE-2025-48073](https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-qhpm-86v7-phmm) ScanLineProcess::run_fill NULL Pointer Write In "reduceMemory" Mode
 * [CVE-2025-48072](https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-4r7w-q3jg-ff43) Out of Bounds Heap Read due to Bad Pointer Arithmetic in LossyDctDecoder_execute
 * [CVE-2025-48071](https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-h45x-qhg2-q375) Heap-Based Buffer Overflow in Deep Scanline Parsing via Forged Unpacked Size
-  
+
 ### Merged Pull Requests
 
-* [2007](https://github.com/AcademySoftwareFoundation/openexr/pull/2007) Fix python publishing workflows to work with ARM 
+* [2007](https://github.com/AcademySoftwareFoundation/openexr/pull/2007) Fix python publishing workflows to work with ARM
 * [2005](https://github.com/AcademySoftwareFoundation/openexr/pull/2005) Update cibuildwheel to v2.23 for arm support
 * [2003](https://github.com/AcademySoftwareFoundation/openexr/pull/2003) Update news and requirements source
 * [2002](https://github.com/AcademySoftwareFoundation/openexr/pull/2002) exrmetrics: fix isinf
