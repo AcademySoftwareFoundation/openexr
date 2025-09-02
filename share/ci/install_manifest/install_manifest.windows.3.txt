@@ -158,11 +158,11 @@ include/OpenEXR/openexr_part.h
 include/OpenEXR/openexr_std_attr.h
 include/OpenEXR/openexr_version.h
 include/OpenEXR/ImfHTCompressor.h
-lib/Iex-$MAJOR_$MINOR.lib
-lib/IlmThread-$MAJOR_$MINOR.lib
-lib/OpenEXR-$MAJOR_$MINOR.lib
-lib/OpenEXRCore-$MAJOR_$MINOR.lib
-lib/OpenEXRUtil-$MAJOR_$MINOR.lib
+lib/Iex-${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR}.lib
+lib/IlmThread-${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR}.lib
+lib/OpenEXR-${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR}.lib
+lib/OpenEXRCore-${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR}.lib
+lib/OpenEXRUtil-${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR}.lib
 lib/cmake/OpenEXR/OpenEXRConfig.cmake
 lib/cmake/OpenEXR/OpenEXRConfigVersion.cmake
 lib/cmake/OpenEXR/OpenEXRTargets-release.cmake

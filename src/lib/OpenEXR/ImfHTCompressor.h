@@ -18,9 +18,6 @@
 
 #include "ImfCompressor.h"
 
-#include <ojph_codestream.h>
-#include <ojph_file.h>
-
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 class HTCompressor : public Compressor

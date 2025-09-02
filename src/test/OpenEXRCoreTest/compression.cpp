@@ -1720,7 +1720,7 @@ testHTChannelMap (const std::string& tempdir)
         {{{"redqueen"}, {"greens"}, {"blueberry"}}, 3, false, {0, 1, 2}},
         {{{"hello.R"}, {"bye.G"}, {"hello.B"}}, 3, false, {0, 2, 4}},
     };
-    int test_count = sizeof(tests) / sizeof(ht_channel_map_tests);
+    size_t test_count = sizeof(tests) / sizeof(ht_channel_map_tests);
 
     for (size_t i = 0; i < test_count; i++)
     {

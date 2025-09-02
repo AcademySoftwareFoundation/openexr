@@ -12,10 +12,6 @@
 #include <cctype>
 #include <stdexcept>
 
-const std::string RED_CH_FULLNAME = "red";
-const std::string GREEN_CH_FULLNAME = "green";
-const std::string BLUE_CH_FULLNAME = "blue";
-
 struct RGBChannelParams
 {
     const char* r_suffix;
@@ -63,7 +59,7 @@ make_channel_map (
 
     cs_to_file_ch.resize (channel_count);
 
-    for (size_t i = 0; i < channel_count; i++)
+    for (int i = 0; i < channel_count; i++)
     {
         const char* channel_name = channels[i].channel_name;
         const char* suffix       = strrchr (channel_name, '.');
@@ -147,7 +143,7 @@ make_channel_map (
 
         int avail_cs_i = 3;
         int offset = 0;
-        for (size_t file_i = 0; file_i < channel_count; file_i++)
+        for (int file_i = 0; file_i < channel_count; file_i++)
         {
             int cs_i;
             if (file_i == r_index) {
@@ -168,7 +164,7 @@ make_channel_map (
     else
     {
         int offset = 0;
-        for (size_t file_i = 0; file_i < channel_count; file_i++)
+        for (size_t file_i = 0; file_i < static_cast<size_t>(channel_count); file_i++)
         {
             cs_to_file_ch[file_i].file_index = file_i;
             cs_to_file_ch[file_i].raster_line_offset = offset;

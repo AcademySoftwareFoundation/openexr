@@ -28,7 +28,7 @@ BytesAttribute::BytesAttribute (
     size_t      size,
     const void* data,
     const std::string& typeHint)
-    : _data (size), typeHint (typeHint)
+    : typeHint (typeHint), _data (size) 
 {
     if (size > 0 && ! data)
     {
@@ -41,7 +41,7 @@ BytesAttribute::BytesAttribute (
 }
 
 BytesAttribute::BytesAttribute (const BytesAttribute& other)
-    : _data (other._data.size ()), typeHint (other.typeHint)
+    : typeHint (other.typeHint), _data (other._data.size ())
 {
     memcpy (
         (unsigned char*) _data,
@@ -115,7 +115,7 @@ BytesAttribute::readValueFrom (
     unsigned int hintLength = 0;
     Xdr::read<StreamIO> (is, hintLength);
 
-    if (size < sizeof(hintLength) + hintLength)
+    if (size < static_cast<int>(sizeof(hintLength) + hintLength))
         THROW (IEX_NAMESPACE::InputExc,
                "Invalid bytes attribute type string length: " << hintLength);
 
