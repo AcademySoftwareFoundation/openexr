@@ -257,7 +257,7 @@ endif()
 
 option(OPENEXR_FORCE_INTERNAL_OPENJPH "Force downloading OpenJPH from a git repo" OFF)
 set(OPENEXR_OPENJPH_REPO "https://github.com/aous72/OpenJPH.git" CACHE STRING "OpenJPH git repo URI")
-set(OPENEXR_OPENJPH_TAG "master" CACHE STRING "OpenJPH git repo tag")
+set(OPENEXR_OPENJPH_TAG "0.22.0" CACHE STRING "OpenJPH git repo tag")
 
 if (NOT OPENEXR_FORCE_INTERNAL_OPENJPH)
   find_package(openjph CONFIG QUIET)
@@ -337,7 +337,7 @@ set(EXR_OPENJPH_PKGCONFIG_REQUIRES "openjph >= 0.21.0")
 option(OPENEXR_FORCE_INTERNAL_IMATH "Force using an internal imath" OFF)
 # Check to see if Imath is installed outside of the current build directory.
 set(OPENEXR_IMATH_REPO "https://github.com/AcademySoftwareFoundation/Imath.git" CACHE STRING "Repo for auto-build of Imath")
-set(OPENEXR_IMATH_TAG "main" CACHE STRING "Tag for auto-build of Imath (branch, tag, or SHA)")
+set(OPENEXR_IMATH_TAG "v3.2.1" CACHE STRING "Tag for auto-build of Imath (branch, tag, or SHA)")
 if(NOT OPENEXR_FORCE_INTERNAL_IMATH)
   #TODO: ^^ Release should not clone from main, this is a place holder
   set(CMAKE_IGNORE_PATH "${CMAKE_CURRENT_BINARY_DIR}/_deps/imath-src/config;${CMAKE_CURRENT_BINARY_DIR}/_deps/imath-build/config")
