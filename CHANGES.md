@@ -84,18 +84,18 @@
 ## Version 3.4.0 (September 5, 2025)
 
 OpenEXR v3.4 introduces a new, additional compression option to the
-OpenEXR file format for *lossless compression with High Throughput
-JPEG-2000 (HTJ2K)* encoding:
+OpenEXR file format for **lossless compression with High Throughput
+JPEG-2000 (HTJ2K)** encoding:
 
-* A new HTJ2K compressor uses the *High-Throughput (HT) block
-  coder*. It supports the full range of OpenEXR features, including
+* A new HTJ2K compressor uses the **High-Throughput (HT) block
+  coder**. It supports the full range of OpenEXR features, including
   16-bit and 32-bit floating-point image channels, both scanline and
   tiled.
 
 * The HT block coder is standardized in [Rec. ITU-T
   T.814](https://loc.gov/preservation/digital/formats/fdd/fdd000566.shtml)
   and [ISO/IEC 15444-15](https://www.iso.org/standard/76621.html). It
-  is *royalty-free*, widely used in cinema and distribution servicing,
+  is **royalty-free**, widely used in cinema and distribution servicing,
   and implemented in both commercial and open-source toolkits.
 
 * In experiments, we've found that HTJ2K produces smaller files, and
@@ -105,8 +105,8 @@ JPEG-2000 (HTJ2K)* encoding:
 * Integration with OpenEXR uses the
   [OpenJPH](https://github.com/aous72/OpenJPH) open-source
   library. For ease in managing the dependency, the OpenEXR CMake
-  configuration supports *automatically fetching and building `OpenJPH`
-  internally*, or linking against an *external installation*.
+  configuration supports **automatically fetching and building `OpenJPH`
+  internally**, or linking against an **external installation**.
 
 * OpenEXR supports two new compression types with distinct space/time
   trade-offs:
@@ -127,7 +127,7 @@ JPEG-2000 (HTJ2K)* encoding:
   files may automatically support the new type, but may need a small
   update to make the new type available as a user option.
 
-* :warning: This is a *backwards-compatible extension* to the OpenEXR
+* :warning: This is a **backwards-compatible extension** to the OpenEXR
   file format. Files written with OpenEXR v3.4 will be readable by
   applications built against previous releases, _unless_ they use the
   new `htj2k32` or `htj2k256` compression options.
@@ -142,7 +142,7 @@ JPEG-2000 (HTJ2K)* encoding:
 
 ### Other New Features:
 
-* :sparkles: *New `colorInteropID` standard attribute*
+* :sparkles: **New `colorInteropID` standard attribute**
 
   The ID string endorsed by the Color Interop Forum to communicate the
   color space of RGB images in an interoperable manner.
@@ -155,7 +155,7 @@ JPEG-2000 (HTJ2K)* encoding:
     Color Space of OpenEXR
     Files](https://docs.google.com/document/d/1MTH1bq2L67ifvdDf64Amhzg4AbkIM5LG6yPHrB96Vwo/edit?usp=sharing)
 
-* :sparkles: *New `bytes` attribute type*
+* :sparkles: **New `bytes` attribute type**
 
   Designed to hold an arbitrary binary blob of metadata.
 
@@ -166,14 +166,14 @@ JPEG-2000 (HTJ2K)* encoding:
     can use to suggest the intended interpretation of the contents,
     but it is strictly informational.
 
-* :wrench: *TBB as a global thread provider*
+* :wrench: **TBB as a global thread provider**
 
   - A new cmake option `-DOPENEXR_USE_TBB=ON` switches the internals
     of the thread pool to use TBB by default.
   - Building with this option adds a link dependency on the `OneAPI
     TBB` distribution.
 
-* :wrench: *Vendored `libdeflate`*
+* :wrench: **Vendored `libdeflate`**
 
   - OpenEXR v3.4 now ships with a bundled distribution of the
     `libdeflate` library, replacing the previous "auto-fetch"
@@ -194,8 +194,8 @@ JPEG-2000 (HTJ2K)* encoding:
   single-part file
 * :snake: :bug: The `header_only` option for Python module's `OpenEXR.File`
   now works properly.
-* :snake: :package: :warning: `pypi` distributions now *add support
-  for Python 3.13* and *drop support for Python 3.7*.
+* :snake: :package: :warning: `pypi` distributions now **add support
+  for Python 3.13** and **drop support for Python 3.7**xc.
 
 ### Merged Pull Requests:
 
