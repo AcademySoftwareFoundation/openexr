@@ -328,6 +328,8 @@ if (NOT EXR_OPENJPH_LIB)
   message(ERROR "Failed to find OpenJPH")
 endif()
 
+set(EXR_OPENJPH_PKGCONFIG_REQUIRES "openjph >= 0.21.0")
+
 #######################################
 # Find or install Imath
 #######################################
