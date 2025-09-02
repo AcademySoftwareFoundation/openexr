@@ -30,7 +30,7 @@ fi
 
 export PKG_CONFIG_PATH="$INSTALL/$LIB/pkgconfig:/usr/local/$LIB/pkgconfig${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH}"
 
-cflags=$(pkg-config --cflags --libs OpenEXR Imath openjph libdeflate)
+cflags=$(pkg-config --cflags --libs OpenEXR Imath)
 bin=$SRC.bin
 g++ -std=c++17 $SRC $cflags -o $bin -Wl,-rpath,$INSTALL/$LIB:/usr/local/$LIB
 ./$bin
