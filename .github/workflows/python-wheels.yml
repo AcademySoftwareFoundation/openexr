@@ -14,8 +14,6 @@ on:
   # single arch)
 
   push:
-    branches-ignore:
-      - RB-*
     paths:
       - 'cmake/**'
       - 'src/lib/**'
@@ -25,8 +23,6 @@ on:
       - '!.github/workflows/**'
       - '.github/workflows/python-wheels.yml'
   pull_request:
-    branches-ignore:
-      - RB-*
     paths:
       - 'cmake/**'
       - 'src/lib/**'
