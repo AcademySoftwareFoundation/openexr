@@ -271,7 +271,11 @@ jobs:
         if: runner.os == 'Linux' && inputs.OPENEXR_INSTALL_PKG_CONFIG == 'ON'
         run: |
           set -x
-          share/ci/scripts/validate_pkgconfig.sh $INSTALL_DIR website/src/exrwriter/exrwriter.cpp
+          if [ "${{ inputs.BUILD_SHARED_LIBS }}" == "OFF" ]; then
+            ARGS="-static"
+          fi
+          share/ci/scripts/validate_pkgconfig.sh $INSTALL_DIR website/src/exrwriter/exrwriter.cpp $ARGS
+        shell: bash
 
       - name: Prepare install_manifest
         # Store the cmake command as the first line of the manifest,
