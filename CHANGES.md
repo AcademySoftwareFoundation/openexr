@@ -200,7 +200,7 @@ JPEG-2000 (HTJ2K)* encoding:
 ### Merged Pull Requests:
 
 * [2115](https://github.com/AcademySoftwareFoundation/openexr/pull/2115)
-Remove openjph from OpenEXR.pc
+Move openjph to Requires.private in OpenEXR.pc
 * [2114](https://github.com/AcademySoftwareFoundation/openexr/pull/2114)
 Remove openjph includes from ImfHTCompressor.h
 * [2113](https://github.com/AcademySoftwareFoundation/openexr/pull/2113)
