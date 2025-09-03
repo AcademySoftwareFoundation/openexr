@@ -1393,7 +1393,7 @@ pipeline. All are optional.
        </p>
 
        <p style="padding-bottom:15px">
-         New in OpenEXR v3.4, not yet released.
+         New in OpenEXR v3.4.
        </p>
 
      </td>
