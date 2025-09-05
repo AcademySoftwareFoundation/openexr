@@ -172,6 +172,7 @@ jobs:
         # Pre-install Imath so the builds validate that find_package sees the external installation
         if: inputs.OPENEXR_FORCE_INTERNAL_IMATH == 'OFF' && inputs.msystem == ''
         run: |
+          set -x
           share/ci/scripts/install_imath.sh main
           echo "OPENEXR_PATH=$OPENEXR_PATH:$PROGRAM_FILES/Imath/bin:$PROGRAM_FILES/Imath/lib" >> $GITHUB_ENV
         shell: bash
@@ -180,6 +181,7 @@ jobs:
         # Pre-install libdeflate so the builds validate that find_package sees the external installation
         if: inputs.OPENEXR_FORCE_INTERNAL_DEFLATE == 'OFF' && inputs.msystem == ''
         run: |
+          set -x
           share/ci/scripts/install_libdeflate.sh master
           echo "OPENEXR_PATH=$OPENEXR_PATH:$PROGRAM_FILES/libdeflate/bin:$PROGRAM_FILES/libdeflate/lib" >> $GITHUB_ENV
         shell: bash
@@ -188,7 +190,8 @@ jobs:
         # Pre-install OpenJPH so the builds validate finding the external installation
         if: inputs.OPENEXR_FORCE_INTERNAL_OPENJPH == 'OFF' && inputs.msystem == ''
         run: |
-          share/ci/scripts/install_openjph.sh 0.21.5
+          set -x
+          share/ci/scripts/install_openjph.sh 0.22.0
           echo "OPENEXR_PATH=$OPENEXR_PATH:$PROGRAM_FILES/openjph/bin:$PROGRAM_FILES/openjph/lib" >> $GITHUB_ENV
         shell: bash
 
@@ -263,23 +266,16 @@ jobs:
           "$CMAKE" --build $BUILD_DIR --target install --config ${{ inputs.build-type }}
         shell: msys2 {0}
 
-      - name: Test
-        if: inputs.BUILD_TESTING == 'ON' && inputs.RUN_TESTING == 'ON' && inputs.msystem == ''
+      - name: Test OpenEXR.pc
+        # Validate that OpenEXR.pc works by compiling/linking the test program
+        if: runner.os == 'Linux' && inputs.OPENEXR_INSTALL_PKG_CONFIG == 'ON'
         run: |
           set -x
-          if [[ "$RUNNER_OS" == "Windows" ]]; then
-            export PATH="$OPENEXR_PATH:$PATH"
+          if [ "${{ inputs.BUILD_SHARED_LIBS }}" == "OFF" ]; then
+            ARGS="-static"
           fi
-          "$CTEST" -T Test -C ${{ inputs.build-type }} --test-dir $BUILD_DIR --timeout 7200 --output-on-failure -VV
+          share/ci/scripts/validate_pkgconfig.sh $INSTALL_DIR website/src/exrwriter/exrwriter.cpp $ARGS
         shell: bash
-
-      - name: Test (msys2) # requires msys2 shell
-        if: inputs.BUILD_TESTING == 'ON' && inputs.RUN_TESTING == 'ON' && inputs.msystem != ''
-        run: |
-          set -x
-          export PATH="$OPENEXR_PATH:$PATH"
-          "$CTEST" -T Test -C ${{ inputs.build-type }} --test-dir $BUILD_DIR --timeout 7200 --output-on-failure -VV
-        shell: msys2 {0}
 
       - name: Prepare install_manifest
         # Store the cmake command as the first line of the manifest,
@@ -308,11 +304,51 @@ jobs:
 
       - name: Validate install
         if: inputs.validate_install == 'ON'
-        # Validate that the build has installed the proper files by comparing against the appropriate reference manifest
+        # Validate that the build has installed the proper files by
+        #  comparing against the appropriate reference manifest
         run: |
           set -x
-          share/ci/scripts/validate_install.py "$INSTALL_MANIFEST_PATH" "share/ci/install_manifest/$INSTALL_MANIFEST_FILENAME" 
+
+          # Extract "#define VAR VALUE" statements from OpenEXRConfig.h
+          # and set corresponding env vars, which validate_install.py
+          # substitutes in the manifest files. This confirms that the
+          # manifests have the proper version strings in the library filenames.
+          OpenEXRConfig=$INSTALL_DIR/include/OpenEXR/OpenEXRConfig.h
+          for var in \
+            OPENEXR_VERSION_MAJOR \
+            OPENEXR_VERSION_MINOR \
+            OPENEXR_VERSION_PATCH \
+            OPENEXR_SOVERSION \
+            OPENEXR_IMATH_VERSION_MAJOR \
+            OPENEXR_IMATH_VERSION_MINOR \
+            OPENEXR_IMATH_VERSION_PATCH \
+            OPENEXR_IMATH_SOVERSION \
+            OPENEXR_OPENJPH_VERSION_MAJOR \
+            OPENEXR_OPENJPH_VERSION_MINOR \
+            OPENEXR_OPENJPH_VERSION_PATCH; do
+            export "$var"=$(grep -E "^#define[[:space:]]+$var" "$OpenEXRConfig" | awk '{print $3}')
+          done
+      
+          share/ci/scripts/validate_install.py "$INSTALL_MANIFEST_PATH" "share/ci/install_manifest/$INSTALL_MANIFEST_FILENAME"
         shell: bash
+
+      - name: Test
+        if: inputs.BUILD_TESTING == 'ON' && inputs.RUN_TESTING == 'ON' && inputs.msystem == ''
+        run: |
+          set -x
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            export PATH="$OPENEXR_PATH:$PATH"
+          fi
+          "$CTEST" -T Test -C ${{ inputs.build-type }} --test-dir $BUILD_DIR --timeout 7200 --output-on-failure -VV
+        shell: bash
+
+      - name: Test (msys2) # requires msys2 shell
+        if: inputs.BUILD_TESTING == 'ON' && inputs.RUN_TESTING == 'ON' && inputs.msystem != ''
+        run: |
+          set -x
+          export PATH="$OPENEXR_PATH:$PATH"
+          "$CTEST" -T Test -C ${{ inputs.build-type }} --test-dir $BUILD_DIR --timeout 7200 --output-on-failure -VV
+        shell: msys2 {0}
 
       - name: Test website examples
         # Build the "hello, world" exrwriter example program from the
@@ -391,4 +427,3 @@ jobs:
           fi
           $EXRWRITER
         shell: bash
-        

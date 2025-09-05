@@ -3,6 +3,7 @@
 
 # OpenEXR Release Notes
 
+* [Version 3.4.0](#version-340-september-5-2025) September 5, 2025
 * [Version 3.3.5](#version-335-july-26-2025) July 26, 2025
 * [Version 3.3.4](#version-334-june-9-2025) June 9, 2025
 * [Version 3.3.3](#version-333-march-23-2025) March 23, 2025
@@ -79,6 +80,217 @@
 * [Version 1.0.2](#version-102)
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
+
+## Version 3.4.0 (September 5, 2025)
+
+OpenEXR v3.4 introduces a new, additional compression option to the
+OpenEXR file format for **lossless compression with High Throughput
+JPEG-2000 (HTJ2K)** encoding:
+
+* A new HTJ2K compressor uses the **High-Throughput (HT) block
+  coder**. It supports the full range of OpenEXR features, including
+  16-bit and 32-bit floating-point image channels, both scanline and
+  tiled.
+
+* The HT block coder is standardized in [Rec. ITU-T
+  T.814](https://loc.gov/preservation/digital/formats/fdd/fdd000566.shtml)
+  and [ISO/IEC 15444-15](https://www.iso.org/standard/76621.html). It
+  is **royalty-free**, widely used in cinema and distribution servicing,
+  and implemented in both commercial and open-source toolkits.
+
+* In experiments, we've found that HTJ2K produces smaller files, and
+  depending on the nature of the image data, is one of the fastest
+  compression types available in OpenEXR.
+
+* Integration with OpenEXR uses the
+  [OpenJPH](https://github.com/aous72/OpenJPH) open-source
+  library. For ease in managing the dependency, the OpenEXR CMake
+  configuration supports **automatically fetching and building `OpenJPH`
+  internally**, or linking against an **external installation**.
+
+* OpenEXR supports two new compression types with distinct space/time
+  trade-offs:
+
+  - `htj2k256` -- encodes/decodes chunks of 256 scanlines, producing
+    slightly smaller file size than `htj2k32`.
+
+  - `htj2k32` -- encodes/decodes chunks of 32 scanlines, better suited
+    to multi-threading, so it offers significantly faster encoding and
+    decoding (4-6x in some cases) than `htj2k256`, with a slight
+    increase in file size.
+
+* All existing OpenEXR compression options remain unchanged. This new
+  feature simply extends the range of compression types available.
+
+* Software compiled with OpenEXR v3.4 will be able to read HTJ2K
+  compressed OpenEXRs without any code changes. Software that writes
+  files may automatically support the new type, but may need a small
+  update to make the new type available as a user option.
+
+* :warning: This is a **backwards-compatible extension** to the OpenEXR
+  file format. Files written with OpenEXR v3.4 will be readable by
+  applications built against previous releases, _unless_ they use the
+  new `htj2k32` or `htj2k256` compression options.
+
+* :warning: This feature was first introduced for evaluation in
+  February, 2025 via the `htj2k-beta` branch with a single 256
+  scanlines/chunk compression option, with the 32-scanline option
+  added more recently. Application software written during this
+  evaluation period will need to change `IMF_HTJ2K_COMPRESSION` to
+  `IMF_HTJ2K256_COMPRESSION`, although files written with the earlier
+  evaluation version should still read properly.
+
+### Other New Features:
+
+* :sparkles: **New `colorInteropID` standard attribute**
+
+  The ID string endorsed by the Color Interop Forum to communicate the
+  color space of RGB images in an interoperable manner.
+
+  - The contents of the string is described in the specification [An
+    ID for Color
+    Interop](https://docs.google.com/document/d/1T94lYbis9uCskL_ZEMxGBF2JryLfZnjxlEoNgRHZzBE/edit?usp=sharing).
+
+  - Guidance to application developers is provided in [Identifying the
+    Color Space of OpenEXR
+    Files](https://docs.google.com/document/d/1MTH1bq2L67ifvdDf64Amhzg4AbkIM5LG6yPHrB96Vwo/edit?usp=sharing)
+
+* :sparkles: **New `bytes` attribute type**
+
+  Designed to hold an arbitrary binary blob of metadata.
+
+  - The OpenEXR library forces no interpretations of the attribute
+    contents; it is strictly application-dependent.
+
+  - The attribute also holds a `typeHint` string which applications
+    can use to suggest the intended interpretation of the contents,
+    but it is strictly informational.
+
+* :wrench: **TBB as a global thread provider**
+
+  - A new cmake option `-DOPENEXR_USE_TBB=ON` switches the internals
+    of the thread pool to use TBB by default.
+  - Building with this option adds a link dependency on the `OneAPI
+    TBB` distribution.
+
+* :wrench: **Vendored `libdeflate`**
+
+  - OpenEXR v3.4 now ships with a bundled distribution of the
+    `libdeflate` library, replacing the previous "auto-fetch"
+    mechanism.
+  - By default, building OpenEXR will use a system installation of
+    `libdeflate` as before, but if none is found, the build will use
+    the internal copy of `libdeflate`.
+  - Use `-DOPENEXR_USE_INTERNAL_DEFLATE=ON` to force the use of the
+    internal vendored version.
+
+### Bug fixes:
+
+* :bug: Using openexr via cmake `add_subdirectory` now works properly.
+
+### Changes to the OpenEXR Python module:
+
+* :snake: :bug: The Python module now allows an empty part name for a
+  single-part file
+* :snake: :bug: The `header_only` option for Python module's `OpenEXR.File`
+  now works properly.
+* :snake: :package: :warning: `pypi` distributions now **add support
+  for Python 3.13** and **drop support for Python 3.7**xc.
+
+### Merged Pull Requests:
+
+* [2115](https://github.com/AcademySoftwareFoundation/openexr/pull/2115)
+Move openjph to Requires.private in OpenEXR.pc
+* [2114](https://github.com/AcademySoftwareFoundation/openexr/pull/2114)
+Remove openjph includes from ImfHTCompressor.h
+* [2113](https://github.com/AcademySoftwareFoundation/openexr/pull/2113)
+Improve handling of Imath and OpenJPH library versions
+* [2112](https://github.com/AcademySoftwareFoundation/openexr/pull/2112)
+Fix compiler warnings
+* [2106](https://github.com/AcademySoftwareFoundation/openexr/pull/2106)
+Bump scikit-build-core from 0.11.5 to 0.11.6
+* [2105](https://github.com/AcademySoftwareFoundation/openexr/pull/2105)
+Add details about branches to install instructions
+* [2104](https://github.com/AcademySoftwareFoundation/openexr/pull/2104)
+Add support for 32-line HTJ2K Compressor
+* [2103](https://github.com/AcademySoftwareFoundation/openexr/pull/2103)
+remove extra allocation, fix invalid dereference on corrupt file
+* [2102](https://github.com/AcademySoftwareFoundation/openexr/pull/2102)
+add fallback catch to avoid exceptions from crossing C boundary
+* [2099](https://github.com/AcademySoftwareFoundation/openexr/pull/2099)
+documentation install OpenJPH
+* [2098](https://github.com/AcademySoftwareFoundation/openexr/pull/2098)
+Create symlink for the `add_subdirectory` CI test in the CI step
+* [2097](https://github.com/AcademySoftwareFoundation/openexr/pull/2097)
+Bump OpenJPH to 0.21.5
+* [2095](https://github.com/AcademySoftwareFoundation/openexr/pull/2095)
+docs: fix incorrect function names in C API docs
+* [2094](https://github.com/AcademySoftwareFoundation/openexr/pull/2094)
+Properly implement header_only for python module's OpenEXR.File
+* [2093](https://github.com/AcademySoftwareFoundation/openexr/pull/2093)
+Update CVE links in SECURITY.md to https://www.cve.org
+* [2090](https://github.com/AcademySoftwareFoundation/openexr/pull/2090)
+Fix python module to allow empty part name for single-part file
+* [2088](https://github.com/AcademySoftwareFoundation/openexr/pull/2088)
+Add CI test to validate cmake add_subdirectory(openexr)
+* [2087](https://github.com/AcademySoftwareFoundation/openexr/pull/2087)
+Fix aliases for IexConfig and IlmThreadConfig
+* [2086](https://github.com/AcademySoftwareFoundation/openexr/pull/2086)
+Fix HTJ2K chunk header length error and group common HTJ2K functions
+* [2084](https://github.com/AcademySoftwareFoundation/openexr/pull/2084)
+Add CVEs from OSTIF report to SECURITY.md and CHANGES.md
+* [2083](https://github.com/AcademySoftwareFoundation/openexr/pull/2083)
+Add CI jobs for C++20, and build tools/tests against standard
+* [2079](https://github.com/AcademySoftwareFoundation/openexr/pull/2079)
+Helper script release.py to automate release notes steps
+* [2075](https://github.com/AcademySoftwareFoundation/openexr/pull/2075)
+Add colorInteropID standard attribute
+* [2074](https://github.com/AcademySoftwareFoundation/openexr/pull/2074)
+OpenEXR - Adds New Bytes Attribute
+* [2072](https://github.com/AcademySoftwareFoundation/openexr/pull/2072)
+Add HTJ2K Compressor support to Tiled images
+* [2070](https://github.com/AcademySoftwareFoundation/openexr/pull/2070)
+Drop support for python 3.7; add support for python 3.13
+* [2066](https://github.com/AcademySoftwareFoundation/openexr/pull/2066)
+Standardize handling of directories and paths in ci_steps.yml
+* [2064](https://github.com/AcademySoftwareFoundation/openexr/pull/2064)
+Improve example reader code in README.md/website, and add to CI
+* [2063](https://github.com/AcademySoftwareFoundation/openexr/pull/2063)
+Fix problem with OpenJPH downstream dependency
+* [2061](https://github.com/AcademySoftwareFoundation/openexr/pull/2061)
+Remove realloc from HTJ2K coder
+* [2058](https://github.com/AcademySoftwareFoundation/openexr/pull/2058)
+Add macOS universal2 build to CI, and bump OpenJPG to 0.21.3
+* [2053](https://github.com/AcademySoftwareFoundation/openexr/pull/2053)
+Supplemental to 2051: Adjust the "Unknown" compression threshold to 11
+* [2051](https://github.com/AcademySoftwareFoundation/openexr/pull/2051)
+add htj2k as one of the compression names
+* [2048](https://github.com/AcademySoftwareFoundation/openexr/pull/2048)
+Rename "HT256" to "htj2k"
+* [2044](https://github.com/AcademySoftwareFoundation/openexr/pull/2044)
+Improve reliability/readability of bin tests scripts and failure output
+* [2041](https://github.com/AcademySoftwareFoundation/openexr/pull/2041)
+merge htj2k-beta branch with main
+* [2037](https://github.com/AcademySoftwareFoundation/openexr/pull/2037)
+Add vendored deflate
+* [2017](https://github.com/AcademySoftwareFoundation/openexr/pull/2017)
+Fix quoting an cmake args in `ci_workflow.yml`
+* [2016](https://github.com/AcademySoftwareFoundation/openexr/pull/2016)
+Address mingw32 issues
+* [2014](https://github.com/AcademySoftwareFoundation/openexr/pull/2014)
+Add MSYS2 jobs to CI
+* [2012](https://github.com/AcademySoftwareFoundation/openexr/pull/2012)
+Fix botched htj2k news title
+* [1995](https://github.com/AcademySoftwareFoundation/openexr/pull/1995)
+Bazel support: Bump rules_cc
+* [1886](https://github.com/AcademySoftwareFoundation/openexr/pull/1886)
+Bump github/codeql-action from 3.26.12 to 3.26.13
+* [1882](https://github.com/AcademySoftwareFoundation/openexr/pull/1882)
+Bazel Support: Use Imath and libdeflate live at head
+* [1879](https://github.com/AcademySoftwareFoundation/openexr/pull/1879)
+Fetch master branch of libdeflate on main
+* [1852](https://github.com/AcademySoftwareFoundation/openexr/pull/1852)
+Add an option to use TBB as the global provider
 
 ## Version 3.3.5 (July 26, 2025)
 
@@ -162,10 +374,10 @@ This version addresses the following security vulnerabilities:
 * [CVE-2025-48073](https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-qhpm-86v7-phmm) ScanLineProcess::run_fill NULL Pointer Write In "reduceMemory" Mode
 * [CVE-2025-48072](https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-4r7w-q3jg-ff43) Out of Bounds Heap Read due to Bad Pointer Arithmetic in LossyDctDecoder_execute
 * [CVE-2025-48071](https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-h45x-qhg2-q375) Heap-Based Buffer Overflow in Deep Scanline Parsing via Forged Unpacked Size
-  
+
 ### Merged Pull Requests
 
-* [2007](https://github.com/AcademySoftwareFoundation/openexr/pull/2007) Fix python publishing workflows to work with ARM 
+* [2007](https://github.com/AcademySoftwareFoundation/openexr/pull/2007) Fix python publishing workflows to work with ARM
 * [2005](https://github.com/AcademySoftwareFoundation/openexr/pull/2005) Update cibuildwheel to v2.23 for arm support
 * [2003](https://github.com/AcademySoftwareFoundation/openexr/pull/2003) Update news and requirements source
 * [2002](https://github.com/AcademySoftwareFoundation/openexr/pull/2002) exrmetrics: fix isinf
