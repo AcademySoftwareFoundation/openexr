@@ -1317,7 +1317,7 @@ By default, OpenEXR files have the following attributes:
   Color Interop ID. Provides a mechanism to identify the color space of the RGB images. 
   See `An ID for Color Interop <https://docs.google.com/document/d/1T94lYbis9uCskL_ZEMxGBF2JryLfZnjxlEoNgRHZzBE/edit?usp=sharing>`_ 
   and `Identifying the Color Space of OpenEXR Files <https://docs.google.com/document/d/1MTH1bq2L67ifvdDf64Amhzg4AbkIM5LG6yPHrB96Vwo/edit?usp=sharing>`_ for details.
-  New in OpenEXR v3.4, not yet released.
+  New in OpenEXR v3.4.
 
 Premultiplied vs. Un-Premultiplied Color Channels
 -------------------------------------------------
