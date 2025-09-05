@@ -891,7 +891,7 @@ The OpenEXR library predefines the following attribute types:
 +--------------------+-----------------------------------------------------------------+
 | ``bytes``          | A sequence of ``unsigned char`` values. The bytes are           |
 |                    | accompanied by an optional (but encouraged) type hint.          |
-|                    | (new in OpenEXR v3.4, not yet released.)                        |
+|                    | (new in OpenEXR v3.4)                                           |
 |                    +----------------+------------------------------------------------+
 |                    | ``hintLength`` | ``unsigned int``                               |
 |                    +----------------+------------------------------------------------+
@@ -936,7 +936,7 @@ The OpenEXR library predefines the following attribute types:
 |                    | * ``B44A_COMPRESSION`` = 7                                      |
 |                    | * ``DWAA_COMPRESSION`` = 8                                      |
 |                    | * ``DWAB_COMPRESSION`` = 9                                      |
-|                    | * ``HTJ2K256_COMPRESSION`` = 10                                    |
+|                    | * ``HTJ2K256_COMPRESSION`` = 10                                 |
 |                    | * ``HTJ2K32_COMPRESSION`` = 11                                  |
 |                    |                                                                 |
 +--------------------+-----------------------------------------------------------------+

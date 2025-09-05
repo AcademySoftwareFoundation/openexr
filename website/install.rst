@@ -102,7 +102,7 @@ Make sure these are installed on your system before building OpenEXR:
 * ``Imath`` (auto-fetched by CMake if not found) (https://github.com/AcademySoftwareFoundation/Imath)
 * ``libdeflate`` (internal copy used by CMake if not found for
   v3.4+; auto-fetched in v3.3 and before) (https://github.com/ebiggers/libdeflate)
-* ``openjph`` (auto-fetched by CMake if not found; new in v3.4, not yet released) (https://github.com/aous72/OpenJPH)
+* ``openjph`` (auto-fetched by CMake if not found; new in v3.4) (https://github.com/aous72/OpenJPH)
 * (optional) Intel's Thread Building Blocks library (TBB)
 
 The instructions that follow describe building OpenEXR with CMake.

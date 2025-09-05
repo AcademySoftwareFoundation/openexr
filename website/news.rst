@@ -16,61 +16,176 @@ News
 .. include:: latest_news_title.rst
 
 
-.. |bug| unicode:: U+1F41B
-   :ltrim:
-
-.. |rocket| unicode:: U+1F680
-   :ltrim:
-
-.. |hammer_and_wrench| unicode:: U+1F6E0
-   :ltrim:
-
 |latest-news-title|
-======================================
+===========================================
 
 .. _LatestNewsStart:
 
-Patch release with a couple bug/performance fixes:
+📺 Watch the recording of the `2025 ASWF OpenEXR Virtual Town Hall <https://youtu.be/XYdAm4OXO88>`_ to hear more about the v3.4
+release. The presentation slide deck is `here
+<https://drive.google.com/file/d/1_eT5JK3RSevbnoaJaIq2QE0wzz3tlVpX/view>`_.
 
-* |bug| Fix for DeepScanlineInputFile read memory leak
-* |rocket| OpenEXRCore Deep pixel unpacking optimisation
+OpenEXR v3.4 introduces a new, additional compression option to the
+OpenEXR file format for **lossless compression with High Throughput
+JPEG-2000 (HTJ2K)** encoding:
+
+* A new HTJ2K compressor uses the **High-Throughput (HT) block
+  coder**. It supports the full range of OpenEXR features, including
+  16-bit and 32-bit floating-point image channels, both scanline and
+  tiled.
+
+* The HT block coder is standardized in `Rec. ITU-T
+  T.814 <https://loc.gov/preservation/digital/formats/fdd/fdd000566.shtml>`_
+  and `ISO/IEC 15444-15 <https://www.iso.org/standard/76621.html>`_. It
+  is **royalty-free**, widely used in cinema and distribution servicing,
+  and implemented in both commercial and open-source toolkits.
+
+* In experiments, we've found that HTJ2K produces smaller files, and
+  depending on the nature of the image data, is one of the fastest
+  compression types available in OpenEXR.
+
+* Integration with OpenEXR uses the
+  `OpenJPH <https://github.com/aous72/OpenJPH>`_ open-source
+  library. For ease in managing the dependency, the OpenEXR CMake
+  configuration supports **automatically fetching and building `OpenJPH`
+  internally**, or linking against an **external installation**.
+
+* OpenEXR supports two new compression types with distinct space/time
+  trade-offs:
+
+  - `htj2k256` -- encodes/decodes chunks of 256 scanlines, producing
+    slightly smaller file size than `htj2k32`.
+
+  - `htj2k32` -- encodes/decodes chunks of 32 scanlines, better suited
+    to multi-threading, so it offers significantly faster encoding and
+    decoding (4-6x in some cases) than `htj2k256`, with a slight
+    increase in file size.
+
+* All existing OpenEXR compression options remain unchanged. This new
+  feature simply extends the range of compression types available.
+
+* Software compiled with OpenEXR v3.4 will be able to read HTJ2K
+  compressed OpenEXRs without any code changes. Software that writes
+  files may automatically support the new type, but may need a small
+  update to make the new type available as a user option.
+
+* ⚠️ This is a **backwards-compatible extension** to the OpenEXR
+  file format. Files written with OpenEXR v3.4 will be readable by
+  applications built against previous releases, _unless_ they use the
+  new `htj2k32` or `htj2k256` compression options.
+
+* ⚠️ This feature was first introduced for evaluation in
+  February, 2025 via the `htj2k-beta` branch with a single 256
+  scanlines/chunk compression option, with the 32-scanline option
+  added more recently. Application software written during this
+  evaluation period will need to change `IMF_HTJ2K_COMPRESSION` to
+  `IMF_HTJ2K256_COMPRESSION`, although files written with the earlier
+  evaluation version should still read properly.
+
+Other New Features:
+-------------------
+
+* ✨ **New `colorInteropID` standard attribute**
+
+  The ID string endorsed by the Color Interop Forum to communicate the
+  color space of RGB images in an interoperable manner.
+
+  - The contents of the string is described in the specification `An
+    ID for Color
+    Interop <https://docs.google.com/document/d/1T94lYbis9uCskL_ZEMxGBF2JryLfZnjxlEoNgRHZzBE/edit?usp=sharing>`_.
+
+  - Guidance to application developers is provided in `Identifying the
+    Color Space of OpenEXR
+    Files <https://docs.google.com/document/d/1MTH1bq2L67ifvdDf64Amhzg4AbkIM5LG6yPHrB96Vwo/edit?usp=sharing>`_
+
+* ✨ **New `bytes` attribute type**
+
+  Designed to hold an arbitrary binary blob of metadata.
+
+  - The OpenEXR library forces no interpretations of the attribute
+    contents; it is strictly application-dependent.
+
+  - The attribute also holds a `typeHint` string which applications
+    can use to suggest the intended interpretation of the contents,
+    but it is strictly informational.
+
+* 🔧 **TBB as a global thread provider**
+
+  - A new cmake option `-DOPENEXR_USE_TBB=ON` switches the internals
+    of the thread pool to use TBB by default.
+  - Building with this option adds a link dependency on the `OneAPI
+    TBB` distribution.
+
+* 🔧 **Vendored `libdeflate`**
+
+  - OpenEXR v3.4 now ships with a bundled distribution of the
+    `libdeflate` library, replacing the previous "auto-fetch"
+    mechanism.
+  - By default, building OpenEXR will use a system installation of
+    `libdeflate` as before, but if none is found, the build will use
+    the internal copy of `libdeflate`.
+  - Use `-DOPENEXR_USE_INTERNAL_DEFLATE=ON` to force the use of the
+    internal vendored version.
+
+Bug fixes:
+----------
+
+* 🐛 Using openexr via cmake `add_subdirectory` now works properly.
+
+Changes to the OpenEXR Python module:
+-------------------------------------
+
+* 🐍 🐛 The Python module now allows an empty part name for a
+  single-part file
+* 🐍 🐛 The `header_only` option for Python module's `OpenEXR.File`
+  now works properly.
+* 🐍 📦 ⚠️ `pypi` distributions now **add support
+  for Python 3.13** and **drop support for Python 3.7**.
 
 .. _LatestNewsEnd:
+
+July 26, 2025 - OpenEXR 3.3.5 Released
+======================================
+
+Patch release with a couple bug/performance fixes:
+
+* 🐛 Fix for DeepScanlineInputFile read memory leak
+* 🚀 OpenEXRCore Deep pixel unpacking optimisation
+
 
 June  9, 2025 - OpenEXR 3.3.4 Released
 ======================================
 
 Patch release with several bug/build/performance fixes:
 
-* |bug| Fix a crash with deep scanline input
-* |bug| Fix a bug when reading a file with missing tiles
-* |bug| Fix a crash in exrmetrics
-* |hammer_and_wrench| Fix a problem with /EHsc and /MP flags that broke CUDA compilation
-* |hammer_and_wrench| Fix a build failure on MinGW
-* |rocket| Enable vectorisation for ZIP reconstruct stage on Windows
+* 🐛 Fix a crash with deep scanline input
+* 🐛 Fix a bug when reading a file with missing tiles
+* 🐛 Fix a crash in exrmetrics
+* 🛠️ Fix a problem with /EHsc and /MP flags that broke CUDA compilation
+* 🛠️ Fix a build failure on MinGW
+* 🚀 Enable vectorisation for ZIP reconstruct stage on Windows
 
 
 March 23, 2025 - OpenEXR 3.3.3 Released
 =======================================
 
-
 Patch release with miscellaneous bug/build/documentation fixes:
 
-* |bug| Fix a bug involving deep tiled images
-* |bug| Adjust the clamping on the dwa compression (Issue `1982 <https://github.com/AcademySoftwareFoundation/openexr/issues/1982>`_)
-* |bug| Address issues with small exr files and header parse (Issue `1984 <https://github.com/AcademySoftwareFoundation/openexr/issues/1984>`_)
-* |bug| Fix crash if user does not provide memory when filling deep framebuffer
-* |bug| Fix bad pointer SSE math causing out-of-bounds access
-* |bug| Fix potential buffer overwrite with zip data
-* |bug| Fix usage of utf-8 filenames for windows
-* |bug| Fix regression in reading EXR images on 32bit Windows involving `atomic_compare_exchange_strong`
-* |bug| Add checks to avoid using optimizations when inappropriate (Issue `1949 <https://github.com/AcademySoftwareFoundation/openexr/issues/1949>`_)
-* |bug| Convert dwa encoder to use algorithm quantize (Issue `1915 <https://github.com/AcademySoftwareFoundation/openexr/issues/1915>`_)
-* |bug| Fix incorrect v3 array size validation
-* |rocket| Add minor huf encode / decode performance optimizations
-* |hammer_and_wrench| Add numpy dependency to python wrapper (Issue `1919 <https://github.com/AcademySoftwareFoundation/openexr/issues/1919>`_)
-* |hammer_and_wrench| Remove duplicate cmake dependency from skbuild plugin (Issue `1958 <https://github.com/AcademySoftwareFoundation/openexr/pull/1958>`_)
-* |hammer_and_wrench| Don't set the library postfix in the cmake cache (Issue `1981 <https://github.com/AcademySoftwareFoundation/openexr/issues/1981>`_)
+* 🐛 Fix a bug involving deep tiled images
+* 🐛 Adjust the clamping on the dwa compression (Issue `1982 <https://github.com/AcademySoftwareFoundation/openexr/issues/1982>`_)
+* 🐛 Address issues with small exr files and header parse (Issue `1984 <https://github.com/AcademySoftwareFoundation/openexr/issues/1984>`_)
+* 🐛 Fix crash if user does not provide memory when filling deep framebuffer
+* 🐛 Fix bad pointer SSE math causing out-of-bounds access
+* 🐛 Fix potential buffer overwrite with zip data
+* 🐛 Fix usage of utf-8 filenames for windows
+* 🐛 Fix regression in reading EXR images on 32bit Windows involving `atomic_compare_exchange_strong`
+* 🐛 Add checks to avoid using optimizations when inappropriate (Issue `1949 <https://github.com/AcademySoftwareFoundation/openexr/issues/1949>`_)
+* 🐛 Convert dwa encoder to use algorithm quantize (Issue `1915 <https://github.com/AcademySoftwareFoundation/openexr/issues/1915>`_)
+* 🐛 Fix incorrect v3 array size validation
+* 🚀 Add minor huf encode / decode performance optimizations
+* 🛠️ Add numpy dependency to python wrapper (Issue `1919 <https://github.com/AcademySoftwareFoundation/openexr/issues/1919>`_)
+* 🛠️ Remove duplicate cmake dependency from skbuild plugin (Issue `1958 <https://github.com/AcademySoftwareFoundation/openexr/pull/1958>`_)
+* 🛠️ Don't set the library postfix in the cmake cache (Issue `1981 <https://github.com/AcademySoftwareFoundation/openexr/issues/1981>`_)
 
 This version also introduces a new tool, `exrmetrics`, a utility to help analyize file i/o times and compression ratios. See
 `exrmetrics <https://openexr.com/en/latest/bin/exrmetrics.html>`_ for details.
