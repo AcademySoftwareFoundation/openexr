@@ -7,12 +7,12 @@
 #include <string>
 #include <fstream>
 
-#include <ojph_arch.h>
-#include <ojph_file.h>
-#include <ojph_params.h>
-#include <ojph_mem.h>
-#include <ojph_codestream.h>
-#include <ojph_message.h>
+#include <openjph/ojph_arch.h>
+#include <openjph/ojph_file.h>
+#include <openjph/ojph_params.h>
+#include <openjph/ojph_mem.h>
+#include <openjph/ojph_codestream.h>
+#include <openjph/ojph_message.h>
 
 #include "openexr_decode.h"
 #include "openexr_encode.h"
