@@ -13,17 +13,8 @@
 
 /**************************************/
 
-extern const uint16_t* exrcore_logTable;
-
 extern void b44_convertFromLinear_16 (uint16_t s[16]);
-
-
-static inline void
-convertToLinear (uint16_t s[16])
-{
-    for (int i = 0; i < 16; ++i)
-        s[i] = exrcore_logTable[s[i]];
-}
+extern void b44_convertToLinear_16 (uint16_t s[16]);
 
 /**************************************/
 
@@ -573,7 +564,7 @@ uncompress_b44_impl (
                     bIn += 14;
                 }
 
-                if (curc->p_linear) convertToLinear (s);
+                if (curc->p_linear) b44_convertToLinear_16 (s);
 
                 priv_from_native16 (s, 16);
 

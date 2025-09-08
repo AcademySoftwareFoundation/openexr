@@ -45,12 +45,14 @@
 #endif
 
 #if defined(OPENEXR_ENABLE_API_VISIBILITY)
-#include "../../lib/OpenEXRCore/internal_b44_table.c"
 #include "../../lib/OpenEXRCore/internal_b44_math.c"
 #else
-extern const uint16_t* exrcore_logTable;
 extern "C" {
 extern uint16_t b44_convertFromLinear (uint16_t x);
+extern void     b44_convertFromLinear_16 (uint16_t s[16]);
+
+extern uint16_t b44_convertToLinear (uint16_t x);
+extern void     b44_convertToLinear_16 (uint16_t s[16]);
 }
 #endif
 
@@ -1585,6 +1587,18 @@ b44FromLinearRef(uint16_t x)
     return h.bits ();
 }
 
+static uint16_t
+b44ToLinearRef (uint16_t x)
+{
+    half h;
+    h.setBits (x);
+    if (!h.isFinite () || h < 0)
+        h = 0;
+    else
+        h = 8 * log (h);
+    return h.bits ();
+}
+
 void
 testB44Table (const std::string&)
 {
@@ -1625,14 +1639,39 @@ testB44Table (const std::string&)
 
     for (int i = 0; i < iMax; i++)
     {
-        half h;
-        h.setBits (i);
+        // test single value (b44_convertToLinear) against reference
+        if (b44ToLinearRef (i) != b44_convertToLinear (i))
+        {
+            printf (
+                "#%i: %i %i\n", i, b44ToLinearRef (i), b44_convertToLinear (i));
+        }
+        EXRCORE_TEST (b44ToLinearRef (i) == b44_convertToLinear (i));
 
-        if (!h.isFinite () || h < 0)
-            h = 0;
-        else
-            h = 8 * log (h);
+        // test 16 value block (b44_convertToLinear_16) against reference
+        uint16_t block[16];
+        block[0]  = i;
+        block[1]  = i / 2;
+        block[2]  = i / 37;
+        block[3]  = ~i;
+        block[4]  = -i;
+        block[5]  = i + 12345;
+        block[6]  = 0;
+        block[7]  = i;
+        block[8]  = i;
+        block[9]  = i + 1;
+        block[10] = i - 1;
+        block[11] = i / 16;
+        block[12] = i;
+        block[13] = i * 2;
+        block[14] = i * 3;
+        block[15] = 17;
 
-        EXRCORE_TEST (exrcore_logTable[i] == h.bits ());
+        uint16_t expected[16];
+        for (int j = 0; j < 16; j++)
+            expected[j] = b44ToLinearRef (block[j]);
+
+        b44_convertToLinear_16 (block);
+        for (int j = 0; j < 16; j++)
+            EXRCORE_TEST (expected[j] == block[j]);
     }
 }
