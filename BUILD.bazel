@@ -175,7 +175,7 @@ cc_library(
         "src/lib/OpenEXRCore/float_vector.c",
         "src/lib/OpenEXRCore/internal_attr.h",
         "src/lib/OpenEXRCore/internal_b44.c",
-        "src/lib/OpenEXRCore/internal_b44_table.c",
+        "src/lib/OpenEXRCore/internal_b44_math.c",
         "src/lib/OpenEXRCore/internal_bytes.h",
         "src/lib/OpenEXRCore/internal_channel_list.h",
         "src/lib/OpenEXRCore/internal_coding.h",
