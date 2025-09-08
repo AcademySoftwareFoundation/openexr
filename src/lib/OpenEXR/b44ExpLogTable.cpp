@@ -7,11 +7,8 @@
 //
 //	b44ExpLogTable
 //
-//	A program to generate lookup tables for
+//	A program to generate lookup table
 //
-//		y = exp (x / 8)
-//
-//	and
 //		x = 8 * log (x);
 //
 //	where x and y are 16-bit floating-point numbers
@@ -49,34 +46,6 @@ main ()
             "//\n\n";
 
     const int iMax = (1 << 16);
-
-    cout << "const unsigned short expTable[] =\n"
-            "{\n"
-            "    ";
-
-    for (int i = 0; i < iMax; i++)
-    {
-        half h;
-        h.setBits (i);
-
-        if (!h.isFinite ())
-            h = 0;
-        else if (h >= 8 * log (HALF_MAX))
-            h = HALF_MAX;
-        else
-            h = exp (h / 8);
-
-        cout << "0x" << setfill ('0') << setw (4) << h.bits () << ", ";
-
-        if (i % 8 == 7)
-        {
-            cout << "\n";
-
-            if (i < iMax - 1) cout << "    ";
-        }
-    }
-
-    cout << "};\n\n";
 
     cout << "const unsigned short logTable[] =\n"
             "{\n"
