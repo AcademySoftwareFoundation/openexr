@@ -49,6 +49,7 @@
 #else
 extern const uint16_t* exrcore_expTable;
 extern const uint16_t* exrcore_logTable;
+extern void            exrcore_ensure_b44_tables ();
 #endif
 
 namespace internal_test_ns {
@@ -1571,6 +1572,7 @@ void testDWAQuantize (const std::string& tempdir)
 void
 testB44Table (const std::string&)
 {
+    exrcore_ensure_b44_tables ();
     const int iMax = (1 << 16);
 
     for (int i = 0; i < iMax; i++)
