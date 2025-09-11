@@ -13,9 +13,9 @@
 
 /**************************************/
 
-extern const uint16_t* exrcore_expTable;
-extern const uint16_t* exrcore_logTable;
-extern void            exrcore_ensure_b44_tables ();
+extern uint16_t* exrcore_expTable;
+extern uint16_t* exrcore_logTable;
+extern void      exrcore_ensure_b44_tables ();
 
 static inline void
 convertFromLinear (uint16_t s[16])

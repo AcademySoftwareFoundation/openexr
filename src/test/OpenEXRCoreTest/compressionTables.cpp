@@ -46,10 +46,11 @@
 
 #if defined(OPENEXR_ENABLE_API_VISIBILITY)
 #include "../../lib/OpenEXRCore/internal_b44_table.c"
+#include "../../lib/OpenEXRCore/internal_b44_table_init.c"
 #else
-extern const uint16_t* exrcore_expTable;
-extern const uint16_t* exrcore_logTable;
-extern void            exrcore_ensure_b44_tables ();
+extern uint16_t* exrcore_expTable;
+extern uint16_t* exrcore_logTable;
+extern void      exrcore_ensure_b44_tables ();
 #endif
 
 namespace internal_test_ns {
