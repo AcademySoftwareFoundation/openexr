@@ -10,7 +10,7 @@
 
 // Thread-safe single initiatization, using InitOnceExecuteOnce on Windows,
 // pthread_once elsewhere, or a simple variable if threading is completely disabled.
-#ifdef ILMTHREAD_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
 #    ifdef _WIN32
 #        include <windows.h>
 #        define ONCE_FLAG_INIT INIT_ONCE_STATIC_INIT
