@@ -191,7 +191,7 @@ jobs:
         if: inputs.OPENEXR_FORCE_INTERNAL_OPENJPH == 'OFF' && inputs.msystem == ''
         run: |
           set -x
-          share/ci/scripts/install_openjph.sh 0.22.0
+          share/ci/scripts/install_openjph.sh 0.23.1
           echo "OPENEXR_PATH=$OPENEXR_PATH:$PROGRAM_FILES/openjph/bin:$PROGRAM_FILES/openjph/lib" >> $GITHUB_ENV
         shell: bash
 
