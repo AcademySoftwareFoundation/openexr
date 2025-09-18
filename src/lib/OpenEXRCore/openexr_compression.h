@@ -104,6 +104,12 @@ exr_result_t exr_compress_chunk (exr_encode_pipeline_t *encode_state);
 EXR_EXPORT
 exr_result_t exr_uncompress_chunk (exr_decode_pipeline_t *decode_state);
 
+EXR_EXPORT
+exr_result_t exr_init_decompressor (exr_decode_pipeline_t* decode);
+
+EXR_EXPORT
+void exr_destroy_compressor (exr_decode_pipeline_t* decode);
+
 #ifdef __cplusplus
 } /* extern "C" */
 #endif

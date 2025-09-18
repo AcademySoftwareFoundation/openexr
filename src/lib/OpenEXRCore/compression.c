@@ -475,6 +475,34 @@ decompress_data (
 }
 
 exr_result_t
+exr_init_decompressor (exr_decode_pipeline_t* decode)
+{
+    exr_result_t rv = EXR_ERR_SUCCESS;
+
+    switch (decode->chunk.compression)
+    {
+        case EXR_COMPRESSION_HTJ2K256:
+        case EXR_COMPRESSION_HTJ2K32:
+            rv = internal_exr_decompressor_init_ht (decode);
+            break;
+    }
+
+    return rv;
+}
+
+void
+exr_destroy_compressor (exr_decode_pipeline_t* decode)
+{
+    switch (decode->chunk.compression)
+    {
+        case EXR_COMPRESSION_HTJ2K256:
+        case EXR_COMPRESSION_HTJ2K32:
+            internal_exr_decompressor_destroy_ht (decode);
+            break;
+    }
+}
+
+exr_result_t
 exr_uncompress_chunk (exr_decode_pipeline_t* decode)
 {
     exr_result_t    rv   = EXR_ERR_SUCCESS;

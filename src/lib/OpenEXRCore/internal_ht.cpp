@@ -195,10 +195,14 @@ ht_undo_impl (
         reinterpret_cast<const ojph::ui8*> (compressed_data) + header_sz,
         comp_buf_size - header_sz);
 
-    ojph::codestream cs;
-    cs.read_headers (&infile);
+    if (decode->decompress_priv_data == NULL)
+        return EXR_ERR_MISSING_CONTEXT_ARG;
 
-    ojph::param_siz siz = cs.access_siz ();
+    ojph::codestream* cs = (ojph::codestream*) decode->decompress_priv_data;
+    cs->restart();
+    cs->read_headers (&infile);
+
+    ojph::param_siz siz = cs->access_siz ();
 
     ojph::ui32 image_height =
         siz.get_image_extent ().y - siz.get_image_offset ().y;
@@ -213,19 +217,19 @@ ht_undo_impl (
             decode->channels[c].y_samples > 1)
         { is_planar = true; }
     }
-    cs.set_planar (is_planar);
+    cs->set_planar (is_planar);
 
     assert (decode->chunk.width == siz.get_image_extent ().x - siz.get_image_offset ().x);
     assert (decode->chunk.height == image_height);
     assert (decode->channel_count == siz.get_num_components ());
 
-    cs.create ();
+    cs->create ();
 
     assert (sizeof (uint16_t) == 2);
     assert (sizeof (uint32_t) == 4);
     ojph::ui32      next_comp = 0;
     ojph::line_buf* cur_line;
-    if (cs.is_planar ())
+    if (cs->is_planar ())
     {
         for (int16_t c = 0; c < decode->channel_count; c++)
         {
@@ -249,7 +253,7 @@ ht_undo_impl (
 
                     if (line_c == static_cast<ojph::ui32>(file_c))
                     {
-                        cur_line = cs.pull (next_comp);
+                        cur_line = cs->pull (next_comp);
                         assert (next_comp == c);
 
                         if (decode->channels[file_c].data_type ==
@@ -292,7 +296,7 @@ ht_undo_impl (
             for (int16_t c = 0; c < decode->channel_count; c++)
             {
                 int file_c = cs_to_file_ch[c].file_index;
-                cur_line   = cs.pull (next_comp);
+                cur_line   = cs->pull (next_comp);
                 assert (next_comp == c);
                 if (decode->channels[file_c].data_type == EXR_PIXEL_HALF)
                 {
@@ -524,6 +528,26 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
 
     return rv;
 }
+
+extern "C" exr_result_t
+internal_exr_decompressor_init_ht (exr_decode_pipeline_t* decode)
+{
+    decode->decompress_priv_data = new ojph::codestream;
+
+    return EXR_ERR_SUCCESS;
+}
+
+extern "C" void
+internal_exr_decompressor_destroy_ht (exr_decode_pipeline_t* decode)
+{
+    if (decode->decompress_priv_data)
+    {
+        ojph::codestream* cs = (ojph::codestream*) decode->decompress_priv_data;
+        delete cs;
+        decode->decompress_priv_data = NULL;
+    }
+}
+
 
 extern "C" exr_result_t
 internal_exr_apply_ht (exr_encode_pipeline_t* encode)
