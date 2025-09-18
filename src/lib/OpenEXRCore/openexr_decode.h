@@ -162,6 +162,11 @@ typedef struct _exr_decode_pipeline
     int32_t* sample_count_table;
     size_t   sample_count_alloc_size;
 
+    /** Decompressor private data (optionally allocated through decompress_init_fn()
+     * and deallocated through decompress_destroy_fn())
+     */
+    void* decompress_priv_data;
+
     /** A scratch buffer of unpacked_size for intermediate results.
      *
      * If `NULL`, will be allocated during the run of the pipeline when
@@ -221,6 +226,20 @@ typedef struct _exr_decode_pipeline
      * in most scenarios.
      */
     exr_result_t (*read_fn) (struct _exr_decode_pipeline* pipeline);
+
+    /** Function called when exr_decoding_initialize() is called.
+     *
+     * This allows the decompressor to initialize resources across calls
+     * to exr_decoding_run().
+     */
+    exr_result_t (*decompress_init_fn) (struct _exr_decode_pipeline* pipeline);
+
+    /** Function called when exr_decoding_destroy() is called.
+     *
+     * This allows the decompressor to release resources previously allocated in 
+     * decompress_init_fn().
+     */
+    void (*decompress_destroy_fn) (struct _exr_decode_pipeline* pipeline);
 
     /** Function chosen based on the compression type of the part to
      * decompress data.

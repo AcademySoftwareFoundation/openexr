@@ -82,6 +82,10 @@ exr_result_t internal_exr_undo_ht (
     uint64_t               comp_buf_size,
     void*                  uncompressed_data,
     uint64_t               uncompressed_size);
+
+exr_result_t internal_exr_decompressor_init_ht (exr_decode_pipeline_t* decode);
+
+void internal_exr_decompressor_destroy_ht (exr_decode_pipeline_t* decode);
 #ifdef __cplusplus
 }
 #endif

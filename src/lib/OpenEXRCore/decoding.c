@@ -334,6 +334,15 @@ exr_decoding_initialize (
         decode->context    = ctxt;
         decode->chunk      = *cinfo;
     }
+
+    if (rv == EXR_ERR_SUCCESS)
+    {
+        if (decode->decompress_init_fn)
+            rv = decode->decompress_init_fn (decode);
+        else
+            rv = exr_init_decompressor (decode);
+    }
+
     return rv;
 }
 
@@ -475,6 +484,10 @@ exr_decoding_choose_default_routines (
     decode->read_fn = &default_read_chunk;
     if (part->comp_type != EXR_COMPRESSION_NONE)
         decode->decompress_fn = &exr_uncompress_chunk;
+
+    decode->decompress_init_fn = &exr_init_decompressor;
+
+    decode->decompress_destroy_fn = &exr_destroy_compressor;
 
     decode->unpack_and_convert_fn = internal_exr_match_decode (
         decode,
@@ -680,6 +693,11 @@ exr_decoding_destroy (exr_const_context_t ctxt, exr_decode_pipeline_t* decode)
     if (decode)
     {
         exr_decode_pipeline_t nil = {0};
+        if (decode->decompress_destroy_fn)
+            decode->decompress_destroy_fn(decode);
+        else
+            exr_destroy_compressor(decode);
+
         if (decode->channels != decode->_quick_chan_store)
             ctxt->free_fn (decode->channels);
 
