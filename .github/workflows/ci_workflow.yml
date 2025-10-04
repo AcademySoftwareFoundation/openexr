@@ -154,7 +154,7 @@ jobs:
       # Set values for the "inputs:" as defined in ci_steps.yml
       # Note the defaults provided here for the builds that don't specify
       # values.
-      os: ${{ matrix.os || 'macos-14' }}
+      os: ${{ matrix.os || 'macos-15' }}
       build: ${{ matrix.build }}
       cc-compiler: ${{ matrix.cc-compiler || 'clang' }}
       cxx-compiler: ${{ matrix.cxx-compiler || 'clang++' }}
@@ -206,8 +206,8 @@ jobs:
             BUILD_TESTING: 'OFF'
 
           - build: 6
-            label: macos-13
-            os: macos-13
+            label: macos-14
+            os: macos-14
 
           - build: 7
             label: universal2
