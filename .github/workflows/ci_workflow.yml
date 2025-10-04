@@ -206,20 +206,24 @@ jobs:
             BUILD_TESTING: 'OFF'
 
           - build: 6
+            label: macos-15-intel
+            os: macos-15-intel
+
+          - build: 7
             label: macos-14
             os: macos-14
 
-          - build: 7
+          - build: 8
             label: universal2
             CMAKE_OSX_ARCHITECTURES: "x86_64;arm64"
 
-          - build: 8
+          - build: 9
             label: clang c++20
             cxx-standard: 20
             RUN_TESTING: OFF
             validate_install: OFF
 
-          - build: 9
+          - build: 10
             label: gcc c++20
             cc-compiler: gcc
             cxx-compiler: g++
