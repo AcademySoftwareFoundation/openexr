@@ -87,10 +87,10 @@ if(OPENEXR_BUILD_TOOLS AND OPENEXR_BUILD_LIBS)
   add_subdirectory(src/bin)
 endif()
 
-# Tell CMake where to find the OpenEXRConfig.cmake file. Makes it possible to call 
+# Tell CMake where to find the OpenEXRConfig.cmake file. Makes it possible to call
 # find_package(OpenEXR) in downstream projects
 set(OpenEXR_DIR "${CMAKE_CURRENT_BINARY_DIR}/cmake" CACHE PATH "" FORCE)
-# Add an empty OpenEXRTargets.cmake file for the config to use. 
+# Add an empty OpenEXRTargets.cmake file for the config to use.
 # Can be empty since we already defined the targets in add_subdirectory
 file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/cmake/OpenEXRTargets.cmake" "# Dummy file")
 
@@ -102,7 +102,7 @@ endif()
 # upload the results, cmake has builtin support for
 # submitting to CDash, or any server who speaks the
 # same protocol
-# 
+#
 # These settings will need to be set for your environment,
 # and then a script such as the example in
 #
@@ -113,7 +113,7 @@ endif()
 # cmake -S cmake/SampleCTestScript.cmake
 #
 # [or whatever you name the file you edit]
-# 
+#
 #set(CTEST_PROJECT_NAME "OpenEXR")
 #set(CTEST_NIGHTLY_START_TIME "01:01:01 UTC")
 #set(CTEST_DROP_METHOD "http") # there are others...
