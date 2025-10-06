@@ -265,6 +265,7 @@ if (NOT OPENEXR_FORCE_INTERNAL_OPENJPH)
     if(openjph_VERSION VERSION_LESS "0.21.0")
         message(FATAL_ERROR "OpenJPH >= 0.21.0 required, but found ${openjph_VERSION}")
     endif()
+
     message(STATUS "Using OpenJPH ${openjph_VERSION} from ${openjph_DIR}")
     set(EXR_OPENJPH_LIB openjph)
   else()
@@ -308,7 +309,24 @@ if(NOT EXR_OPENJPH_LIB)
     POSITION_INDEPENDENT_CODE ON
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
   )
-  include_directories("${openjph_SOURCE_DIR}/src/core/common")
+
+  # OpenEXR expects OpenJPH headers to live in an openjph folder,
+  # so OpenEXR's include looks like:
+  #   #include <openjph/openjph_arch.h>
+  # However, when building OpenJPH via FetchContent, the headers
+  # reside in src/core/common directory in the OpenJPH source tree.
+  # Create a symlink called "openjph" that points to "common", so the
+  # OpenEXR includes see the files they expect.
+  # Then add that as the include directory.
+  #
+  # NOTE: This can go away when we vendor in the OpenJPH code and
+  # retire the FetchContent altogether.
+  file(CREATE_LINK
+    "${openjph_SOURCE_DIR}/src/core/common"
+    "${openjph_SOURCE_DIR}/src/core/openjph"
+    SYMBOLIC
+  )
+  include_directories("${openjph_SOURCE_DIR}/src/core")
 
   # extract the openjph version variables from ojph_version.h
   set(openjph_version "${openjph_SOURCE_DIR}/src/core/common/ojph_version.h")
@@ -326,6 +344,23 @@ endif()
 
 if (NOT EXR_OPENJPH_LIB)
   message(ERROR "Failed to find OpenJPH")
+endif()
+
+if (openjph_VERSION VERSION_LESS "0.23")
+  # OpenJPH 0.22 and before incorrectly appends "openjph" to INTERFACE_INCLUDE_DIRECTORIES
+  # so OpenEXR's "#include <openjph/ojph_arch.h>" does not work.
+  # Strip the "openjph" from the setting in this case. This allows the
+  # #include statements in OpenEXRCore/internal_ht.cpp  to work properly for all openjph versions.
+  get_target_property(OPENJPH_INCLUDE_DIR openjph INTERFACE_INCLUDE_DIRECTORIES)
+  if (NOT OPENJPH_INCLUDE_DIR)
+    message(FATAL_ERROR "failed to set openjph header directory, version ${openjph_VERSION}")
+  endif()
+  string(REGEX REPLACE "/openjph/?$" "" OPENJPH_PARENT_INCLUDE_DIR "${OPENJPH_INCLUDE_DIR}")
+  set_target_properties(openjph PROPERTIES
+      INTERFACE_INCLUDE_DIRECTORIES "${OPENJPH_PARENT_INCLUDE_DIR}"
+  )
+  unset(OPENJPH_INCLUDE_DIR)
+  unset(OPENJPH_PARENT_INCLUDE_DIR)
 endif()
 
 set(EXR_OPENJPH_PKGCONFIG_REQUIRES "openjph >= 0.21.0")
