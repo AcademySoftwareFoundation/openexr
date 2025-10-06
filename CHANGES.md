@@ -3,6 +3,7 @@
 
 # OpenEXR Release Notes
 
+* [Version 3.4.1](#version-341-october-8-2025) October 8, 2025
 * [Version 3.4.0](#version-340-september-5-2025) September 5, 2025
 * [Version 3.3.5](#version-335-july-26-2025) July 26, 2025
 * [Version 3.3.4](#version-334-june-9-2025) June 9, 2025
@@ -80,6 +81,30 @@
 * [Version 1.0.2](#version-102)
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
+
+## Version 3.4.1 (October 8, 2025)
+
+Patch release that fixes a build issue: OpenJPH headers are now
+included from the openjph folder, as required by OpenJPH 0.23+.
+
+No change in functionality.
+
+### Merged Pull Requests:
+
+* [2138](https://github.com/AcademySoftwareFoundation/openexr/pull/2138)
+Bazel cleanup 
+* [2137](https://github.com/AcademySoftwareFoundation/openexr/pull/2137)
+Bump macos runners to 14 and 15, drop 13 
+* [2136](https://github.com/AcademySoftwareFoundation/openexr/pull/2136)
+Include the openjph headers from the openjph folder, required for OpenJPH 0.23+ 
+* [2127](https://github.com/AcademySoftwareFoundation/openexr/pull/2127)
+cmake: remove trailing spaces 
+* [2119](https://github.com/AcademySoftwareFoundation/openexr/pull/2119)
+News for v3.4.0 release 
+* [2118](https://github.com/AcademySoftwareFoundation/openexr/pull/2118)
+fix formatting in release notes 
+* [2107](https://github.com/AcademySoftwareFoundation/openexr/pull/2107)
+Add section on OpenEXR/Imath version compatibility to install instructions 
 
 ## Version 3.4.0 (September 5, 2025)
 
