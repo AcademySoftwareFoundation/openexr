@@ -412,7 +412,7 @@ copy of the ``libdeflate`` compression code. At configuration time, if
 CMake finds an external installation of ``libdeflate``, it will use
 it. If it fails to find an installation, it will use the internal
 copy. To force use of the internal copy, configure with
-``-DOPENEXR_USE_INTERNAL_DEFLATE=ON`.
+``-DOPENEXR_USE_INTERNAL_DEFLATE=ON``.
 
 OpenEXR release v3.2 and v3.3 auto-fetch the ``libdeflate`` source and
 build it internally if cmake does not find an external

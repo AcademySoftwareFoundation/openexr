@@ -56,12 +56,12 @@ class staticmem_outfile : public ojph::outfile_base
 
     /**  
      *  @brief Call this function to write data to the memory file.
-	   *
+     *
      *  This function adds new data to the memory file.  The memory buffer
      *  of the file grows as needed.
      *
      *  @param ptr is a pointer to new data.
-     *  @param size the number of bytes in the new data.
+     *  @param sz the number of bytes in the new data.
      */
     size_t write (const void* ptr, size_t sz) override
     {
