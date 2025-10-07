@@ -91,6 +91,10 @@ No change in functionality.
 
 ### Merged Pull Requests:
 
+* [2140](https://github.com/AcademySoftwareFoundation/openexr/pull/2140)
+Update `HELP2MAN_URL` in `install_help2man.sh`
+* [2139](https://github.com/AcademySoftwareFoundation/openexr/pull/2139)
+Fix doxygen/sphinx/rst website issues
 * [2138](https://github.com/AcademySoftwareFoundation/openexr/pull/2138)
 Bazel cleanup 
 * [2137](https://github.com/AcademySoftwareFoundation/openexr/pull/2137)
