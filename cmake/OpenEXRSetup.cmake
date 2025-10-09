@@ -202,9 +202,14 @@ endif()
 set (ILMTHREAD_USE_TBB ${OPENEXR_USE_TBB})
 
 option(OPENEXR_FORCE_INTERNAL_DEFLATE "Force using an internal libdeflate" OFF)
-set (OPENEXR_USE_INTERNAL_DEFLATE OFF)
+option(OPENEXR_FORCE_FETCHCONTENT_DEFLATE "Force fetching libdeflate from git repo (NVIDIA fork with gdeflate)" OFF)
+set(OPENEXR_DEFLATE_REPO "https://github.com/NVIDIA/libdeflate.git" CACHE STRING "Git repo for FetchContent libdeflate source")
+set(OPENEXR_DEFLATE_TAG "gdeflate" CACHE STRING "Git tag/branch for FetchContent libdeflate source")
 
-if(NOT OPENEXR_FORCE_INTERNAL_DEFLATE)
+set (OPENEXR_USE_INTERNAL_DEFLATE OFF)
+set (OPENEXR_USE_FETCHCONTENT_DEFLATE OFF)
+
+if(NOT OPENEXR_FORCE_INTERNAL_DEFLATE AND NOT OPENEXR_FORCE_FETCHCONTENT_DEFLATE)
   #TODO: ^^ Release should not clone from main, this is a place holder
   set(CMAKE_IGNORE_PATH "${CMAKE_CURRENT_BINARY_DIR}/_deps/deflate-src/config;${CMAKE_CURRENT_BINARY_DIR}/_deps/deflate-build/config")
   # First try cmake config
@@ -238,6 +243,50 @@ if(EXR_DEFLATE_LIB)
   message(STATUS "Using externally provided libdeflate: ${EXR_DEFLATE_VERSION}")
   # For OpenEXR.pc.in for static build
   set(EXR_DEFLATE_PKGCONFIG_REQUIRES "libdeflate >= ${EXR_DEFLATE_VERSION}")
+elseif(OPENEXR_FORCE_FETCHCONTENT_DEFLATE)
+  # Using FetchContent to get NVIDIA fork
+  message(STATUS "Fetching libdeflate from ${OPENEXR_DEFLATE_REPO} @ ${OPENEXR_DEFLATE_TAG}")
+  
+  include(FetchContent)
+  FetchContent_Declare(Deflate
+    GIT_REPOSITORY ${OPENEXR_DEFLATE_REPO}
+    GIT_TAG ${OPENEXR_DEFLATE_TAG}
+    GIT_SHALLOW ON
+  )
+
+  FetchContent_GetProperties(Deflate)
+  if(NOT Deflate_POPULATED)
+    FetchContent_Populate(Deflate)
+  endif()
+
+  # Build libdeflate as an OBJECT library to avoid symbol conflicts
+  # OBJECT libraries compile source files but don't create a standalone library,
+  # so symbols remain private when linked into OpenEXRCore
+  add_library(deflate_internal OBJECT
+    ${deflate_SOURCE_DIR}/lib/arm/cpu_features.c
+    ${deflate_SOURCE_DIR}/lib/x86/cpu_features.c
+    ${deflate_SOURCE_DIR}/lib/utils.c
+    ${deflate_SOURCE_DIR}/lib/deflate_compress.c
+    ${deflate_SOURCE_DIR}/lib/deflate_decompress.c
+    ${deflate_SOURCE_DIR}/lib/adler32.c
+    ${deflate_SOURCE_DIR}/lib/gdeflate_compress.c
+    ${deflate_SOURCE_DIR}/lib/gdeflate_decompress.c
+    ${deflate_SOURCE_DIR}/lib/zlib_compress.c
+    ${deflate_SOURCE_DIR}/lib/zlib_decompress.c
+  )
+  
+  target_include_directories(deflate_internal PUBLIC ${deflate_SOURCE_DIR})
+  
+  # Hide all symbols by default to prevent conflicts
+  set_target_properties(deflate_internal PROPERTIES
+    C_VISIBILITY_PRESET hidden
+    VISIBILITY_INLINES_HIDDEN YES
+    POSITION_INDEPENDENT_CODE ON
+  )
+  
+  set(EXR_DEFLATE_LIB deflate_internal)
+  set(OPENEXR_USE_FETCHCONTENT_DEFLATE ON)
+  message(STATUS "Using FetchContent libdeflate with gdeflate support")
 else()
   # Using internal deflate
   if(OPENEXR_FORCE_INTERNAL_DEFLATE)
@@ -248,6 +297,41 @@ else()
 
   set (OPENEXR_USE_INTERNAL_DEFLATE ON)
   set(EXR_DEFLATE_LIB)
+endif()
+
+#######################################
+# Check for gdeflate support in libdeflate
+#######################################
+
+if(OPENEXR_USE_INTERNAL_DEFLATE)
+  # Internal libdeflate currently lacks gdeflate support
+  set(OPENEXR_ENABLE_GDEFLATE OFF)
+  message(STATUS "Using internal libdeflate - gdeflate DISABLED")
+elseif(OPENEXR_USE_FETCHCONTENT_DEFLATE)
+  set(OPENEXR_ENABLE_GDEFLATE ON)
+  message(STATUS "Using FetchContent libdeflate from NVIDIA fork - gdeflate ENABLED")
+else()
+  # Check if external libdeflate has gdeflate support
+  include(CheckCSourceCompiles)
+  set(CMAKE_REQUIRED_LIBRARIES ${EXR_DEFLATE_LIB})
+  check_c_source_compiles("
+    #include <libdeflate.h>
+    int main() {
+      struct libdeflate_gdeflate_compressor* c = 
+        libdeflate_alloc_gdeflate_compressor(1);
+      libdeflate_free_gdeflate_compressor(c);
+      return 0;
+    }
+  " HAVE_LIBDEFLATE_GDEFLATE)
+  set(CMAKE_REQUIRED_LIBRARIES)
+  
+  if(HAVE_LIBDEFLATE_GDEFLATE)
+    set(OPENEXR_ENABLE_GDEFLATE ON)
+    message(STATUS "External libdeflate has gdeflate support - ENABLED")
+  else()
+    set(OPENEXR_ENABLE_GDEFLATE OFF)
+    message(STATUS "External libdeflate lacks gdeflate support - DISABLED")
+  endif()
 endif()
 
 
