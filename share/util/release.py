@@ -57,7 +57,8 @@ def extract_section(content, version_tag):
 
         # Stop capturing when the next subsection (##) starts
         if capture and (subsection_header_pattern.match(line) or
-                        "Merged Pull Requests" in line):
+                        "Merged Pull Requests" in line or
+                        "Merged pull requests" in line):
             break
         # Capture lines if inside the correct section and before any subsections
         if capture:
@@ -109,6 +110,15 @@ def create_draft_release(tag, release_notes):
                  text=True,
                  check=True
                  )
+
+def get_repo_url():
+    try:
+        result = run(['git', 'config', '--get', 'remote.origin.url'],
+                     stdout=PIPE, stderr=PIPE, universal_newlines=True)
+        url = result.stdout.strip()
+        return url
+    except subprocess.CalledProcessError:
+        return None  # Not a git repo or no origin remote
 
 def update_news_file(release_notes, tag, release_date):
     """
@@ -233,7 +243,11 @@ def main():
         version = base_tag
         html_notes = markdown_to_html(release_notes)
         date_string = release_date.strftime("%A, %B %e")
-        print(f"OpenEXR {version} is staged for release at tag <a href=https://github.com/AcademySoftwareFoundation/openexr/releases/tag/{tag}>{tag}</a> and will be released officially {date_string} barring any issues. <br><br> {html_notes}")
+        url = get_repo_url()
+        project = url.split('/')[-1]
+        if project == "openexr":
+            project = "OpenEXR"
+        print(f"{project} {version} is staged for release at tag <a href={url}/releases/tag/{tag}>{tag}</a> and will be released officially {date_string} barring any issues. <br><br> {html_notes}")
 
 if __name__ == "__main__":
     main()
