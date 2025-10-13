@@ -3,6 +3,7 @@
 
 # OpenEXR Release Notes
 
+* [Version 3.4.2](#version-342-october-15-2025) October 15, 2025
 * [Version 3.4.1](#version-341-october-8-2025) October 8, 2025
 * [Version 3.4.0](#version-340-september-5-2025) September 5, 2025
 * [Version 3.3.5](#version-335-july-26-2025) July 26, 2025
@@ -81,6 +82,19 @@
 * [Version 1.0.2](#version-102)
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
+
+## Version 3.4.2 (October 15, 2025)
+
+Patch release that fixes a Windows build issue introduced in v3.4.1.
+
+No change in functionality.
+
+### Merged Pull Requests:
+
+* [2146](https://github.com/AcademySoftwareFoundation/openexr/pull/2146)
+Update Bazel dependencies
+* [2144](https://github.com/AcademySoftwareFoundation/openexr/pull/2144)
+handle CMake CREATE_LINK failures for openjph headers
 
 ## Version 3.4.1 (October 8, 2025)
 
