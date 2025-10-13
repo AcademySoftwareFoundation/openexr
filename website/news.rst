@@ -17,9 +17,19 @@ News
 
 
 |latest-news-title|
-===========================================
+=========================================
 
 .. _LatestNewsStart:
+
+Patch release that fixes a build issue: OpenJPH headers are now
+included from the openjph folder, as required by OpenJPH 0.23+.
+
+No change in functionality.
+
+.. _LatestNewsEnd:
+
+September  5, 2025 - OpenEXR 3.4.0 Released
+===========================================
 
 📺 Watch the recording of the `2025 ASWF OpenEXR Virtual Town Hall
 <https://youtu.be/XYdAm4OXO88>`_ to hear more about the v3.4 release,
@@ -140,7 +150,6 @@ Changes to the OpenEXR Python module:
 * 🐍 📦 ⚠️ `pypi` distributions now **add support
   for Python 3.13** and **drop support for Python 3.7**.
 
-.. _LatestNewsEnd:
 
 July 26, 2025 - OpenEXR 3.3.5 Released
 ======================================
