@@ -17,12 +17,23 @@ News
 
 
 |latest-news-title|
-===========================================
+=========================================
 
 .. _LatestNewsStart:
 
-📺 Watch the recording of the `2025 ASWF OpenEXR Virtual Town Hall <https://youtu.be/XYdAm4OXO88>`_ to hear more about the v3.4
-release. The presentation slide deck is `here
+Patch release that fixes a build issue: OpenJPH headers are now
+included from the openjph folder, as required by OpenJPH 0.23+.
+
+No change in functionality.
+
+.. _LatestNewsEnd:
+
+September  5, 2025 - OpenEXR 3.4.0 Released
+===========================================
+
+📺 Watch the recording of the `2025 ASWF OpenEXR Virtual Town Hall
+<https://youtu.be/XYdAm4OXO88>`_ to hear more about the v3.4 release,
+or view the `presentation slide deck
 <https://drive.google.com/file/d/1_eT5JK3RSevbnoaJaIq2QE0wzz3tlVpX/view>`_.
 
 OpenEXR v3.4 introduces a new, additional compression option to the
@@ -83,7 +94,6 @@ JPEG-2000 (HTJ2K)** encoding:
   evaluation version should still read properly.
 
 Other New Features:
--------------------
 
 * ✨ **New `colorInteropID` standard attribute**
 
@@ -128,12 +138,10 @@ Other New Features:
     internal vendored version.
 
 Bug fixes:
-----------
 
 * 🐛 Using openexr via cmake `add_subdirectory` now works properly.
 
 Changes to the OpenEXR Python module:
--------------------------------------
 
 * 🐍 🐛 The Python module now allows an empty part name for a
   single-part file
@@ -142,7 +150,6 @@ Changes to the OpenEXR Python module:
 * 🐍 📦 ⚠️ `pypi` distributions now **add support
   for Python 3.13** and **drop support for Python 3.7**.
 
-.. _LatestNewsEnd:
 
 July 26, 2025 - OpenEXR 3.3.5 Released
 ======================================
