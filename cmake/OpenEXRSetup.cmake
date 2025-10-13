@@ -324,8 +324,17 @@ if(NOT EXR_OPENJPH_LIB)
   file(CREATE_LINK
     "${openjph_SOURCE_DIR}/src/core/common"
     "${openjph_SOURCE_DIR}/src/core/openjph"
+    RESULT openjph_create_link_result
     SYMBOLIC
   )
+  # Creating a symlink may fail, for example on Windows without developer
+  # mode enabled, so fallback to copying in that case.
+  if (NOT openjph_create_link_result EQUAL 0)
+    file(COPY
+      "${openjph_SOURCE_DIR}/src/core/common/"
+      DESTINATION "${openjph_SOURCE_DIR}/src/core/openjph"
+    )
+  endif()
   include_directories("${openjph_SOURCE_DIR}/src/core")
 
   # extract the openjph version variables from ojph_version.h
