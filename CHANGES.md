@@ -87,6 +87,10 @@
 
 Patch release that fixes a Windows build issue introduced in v3.4.1.
 
+This version also bumps the auto-fetched Imath version to v3.2.2,
+which resolves a build problem with newer versions of cmake, involving
+duplicate library aliases.
+
 No change in functionality.
 
 ### Merged Pull Requests:
