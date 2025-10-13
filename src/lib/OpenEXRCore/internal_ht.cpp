@@ -7,12 +7,12 @@
 #include <string>
 #include <fstream>
 
-#include <ojph_arch.h>
-#include <ojph_file.h>
-#include <ojph_params.h>
-#include <ojph_mem.h>
-#include <ojph_codestream.h>
-#include <ojph_message.h>
+#include <openjph/ojph_arch.h>
+#include <openjph/ojph_file.h>
+#include <openjph/ojph_params.h>
+#include <openjph/ojph_mem.h>
+#include <openjph/ojph_codestream.h>
+#include <openjph/ojph_message.h>
 
 #include "openexr_decode.h"
 #include "openexr_encode.h"
@@ -56,12 +56,12 @@ class staticmem_outfile : public ojph::outfile_base
 
     /**  
      *  @brief Call this function to write data to the memory file.
-	   *
+     *
      *  This function adds new data to the memory file.  The memory buffer
      *  of the file grows as needed.
      *
      *  @param ptr is a pointer to new data.
-     *  @param size the number of bytes in the new data.
+     *  @param sz the number of bytes in the new data.
      */
     size_t write (const void* ptr, size_t sz) override
     {
