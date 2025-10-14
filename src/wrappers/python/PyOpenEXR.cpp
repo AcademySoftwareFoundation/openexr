@@ -150,13 +150,29 @@ PyFile::PyFile(const py::dict& header, const py::dict& channels)
 // e.g. "left.R", "left.G", etc, the channel key is the prefix.
 //
 
-PyFile::PyFile(const std::string& filename, bool separate_channels, bool header_only)
+PyFile::PyFile(const std::string& filename, bool separate_channels, bool header_only, const py::list& part_indices)
     : filename(filename),
       _header_only(header_only),
       _inputFile(std::make_unique<MultiPartInputFile>(filename.c_str()))
 {
 
-    for (int part_index = 0; part_index < _inputFile->parts(); part_index++)
+    std::vector<int> indices_to_process;
+    if (part_indices.empty()) {
+        // If no specific parts requested, process all parts
+        for (int i = 0; i < _inputFile->parts(); i++) {
+            indices_to_process.push_back(i);
+        }
+    } else {
+        // Otherwise, process only the requested parts
+        for (auto idx : part_indices) {
+            int part_idx = py::cast<int>(idx);
+            if (part_idx >= 0 && part_idx < _inputFile->parts()) {
+                indices_to_process.push_back(part_idx);
+            }
+        }
+    }
+    
+    for (int part_index : indices_to_process)
     {
         const Header& header = _inputFile->header(part_index);
 
@@ -2757,10 +2773,11 @@ PYBIND11_MODULE(OpenEXR, m)
          >>> f.write("out.exr")
     )pbdoc")
         .def(py::init<>())
-        .def(py::init<std::string,bool,bool>(),
+        .def(py::init<std::string,bool,bool,py::list>(),
              py::arg("filename"),
              py::arg("separate_channels")=false,
              py::arg("header_only")=false,
+             py::arg("part_indices")=py::list(),
              R"pbdoc(
              Initialize a File by reading the image from the given filename.
 
@@ -2773,10 +2790,14 @@ PYBIND11_MODULE(OpenEXR, m)
                  if False (default), read pixel data into a single "RGB" or "RGBA" numpy array of dimension (height,width,3) or (height,width,4);
              header_only : bool
                  If True, read only the header metadata, not the image pixel data.
+             part_indices : list
+                 List of part indices to read. If empty, all parts are read.
 
              Example
              -------  
              >>> f = OpenEXR.File("image.exr", separate_channels=False, header_only=False)
+             >>> # Read only parts 0 and 2
+             >>> f = OpenEXR.File("multipart.exr", part_indices=[0, 2])
              )pbdoc")
         .def(py::init<py::dict,py::dict>(),
              py::arg("header"),

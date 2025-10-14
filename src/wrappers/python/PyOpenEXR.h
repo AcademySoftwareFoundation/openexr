@@ -18,7 +18,7 @@ class PyFile
 {
 public:
     PyFile();
-    PyFile(const std::string& filename, bool separate_channels = false, bool header_only = false);
+    PyFile(const std::string& filename, bool separate_channels = false, bool header_only = false, const py::list& part_indices = py::list());
     PyFile(const py::dict& header, const py::dict& channels);
     PyFile(const py::list& parts);
 
