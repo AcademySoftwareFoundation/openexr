@@ -58,8 +58,8 @@ static const char* the_error_code_names[] = {
     "EXR_ERR_USE_TILE_NONDEEP_WRITE",
     "EXR_ERR_INVALID_SAMPLE_DATA",
     "EXR_ERR_FEATURE_NOT_IMPLEMENTED",
-    'EXR_ERR_COMPRESSION_FAILED',
-    'EXR_ERR_DECOMPRESSION_FAILED',
+    "EXR_ERR_COMPRESSION_FAILED",
+    "EXR_ERR_DECOMPRESSION_FAILED",
     "EXR_ERR_UNKNOWN"};
 static int the_error_code_count =
     sizeof (the_error_code_names) / sizeof (const char*);
