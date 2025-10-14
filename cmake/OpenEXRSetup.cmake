@@ -252,6 +252,87 @@ endif()
 
 
 #######################################
+# Find or install Blosc2
+#######################################
+
+set(MINIMUM_BLOSC2_VERSION 2.11.0)
+option(OPENEXR_FORCE_INTERNAL_BLOSC2 [=[Force using installed Blosc2.]=] OFF)
+
+set(BLOSC2_REPO "https://github.com/Blosc/c-blosc2.git" CACHE STRING "Repo path for blosc2 source")
+set(BLOSC2_TAG "v${MINIMUM_BLOSC2_VERSION}" CACHE STRING "Tag to use for blosc2 source repo")
+
+# Try to find a local bloc2 install if allowed to.
+if(NOT OPENEXR_FORCE_INTERNAL_BLOSC2)
+  message(STATUS "Blosc2: Looking for local install...")
+  set(CMAKE_IGNORE_PATH "${CMAKE_CURRENT_BINARY_DIR}/_deps/blosc2-src/config;${CMAKE_CURRENT_BINARY_DIR}/_deps/blosc2-build/config")
+  find_package(Blosc2 ${MINIMUM_BLOSC2_VERSION})
+  set(CMAKE_IGNORE_PATH)
+endif()
+
+if(NOT TARGET Blosc2::blosc2_static AND NOT Blosc2_FOUND)
+  # we didn't find a local install: let's get it from its repository.
+  if(OPENEXR_FORCE_INTERNAL_BLOSC2)
+    message(STATUS "Blosc2: forced internal, installing from ${BLOSC2_REPO} (${BLOSC2_TAG})")
+  else()
+    message(STATUS "Blosc2: no local blosc2 found, installing from ${BLOSC2_REPO} (${BLOSC2_TAG})")
+  endif()
+
+  # configure the blosc2 build
+  set(BUILD_BENCHMARKS OFF CACHE INTERNAL "no benchmarks")
+  set(BUILD_EXAMPLES OFF CACHE INTERNAL "no examples")
+  set(BUILD_FUZZERS OFF CACHE INTERNAL "no fuzzer")
+  set(BUILD_SHARED OFF CACHE INTERNAL "no shared library")
+  set(BUILD_TESTS OFF CACHE INTERNAL "no tests")
+
+  include(FetchContent)
+  FetchContent_Declare(Blosc2
+    GIT_REPOSITORY "${BLOSC2_REPO}"
+    GIT_TAG "${BLOSC2_TAG}"
+    GIT_SHALLOW ON
+    GIT_PROGRESS ON)
+
+  FetchContent_GetProperties(Blosc2)
+  if(NOT Blosc2_POPULATED)
+    message(STATUS "Blosc2: Downloading ${BLOSC2_TAG} from ${BLOSC2_REPO}...")
+    FetchContent_Populate(Blosc2)
+    add_subdirectory(${blosc2_SOURCE_DIR} ${blosc2_BINARY_DIR})
+  else()
+    message(STATUS "Blosc2: repo code has already been downloaded.")
+  endif()
+
+  # the install creates this but if we're using the library locally we
+  # haven't installed the header files yet, so need to extract those
+  # and make a variable for header only usage
+  if(TARGET Blosc2::blosc2_static)
+    message(STATUS "Blosc2: Setting up blosc directories")
+
+    get_target_property(blosc2inc Blosc2::blosc2_static INCLUDE_DIRECTORIES)
+    set(BLOSC2_INCLUDE_DIRS ${blosc2inc})
+    
+    get_target_property(blosc2libdir Blosc2::blosc2_static BINARY_DIR)
+    set(BLOSC2_LIB_DIR ${blosc2libdir})
+
+    if(OPENEXR_RUN_FUZZ_TESTS)
+      target_compile_options(blosc2_static PUBLIC "-gdwarf-4")
+    endif()
+  endif()
+else()
+  message(STATUS "Blosc2: Using installed Blosc2 ${Blosc2_VERSION} from ${Blosc2_DIR}")
+  # local build
+  if(TARGET Blosc2::blosc2_static)
+    message(STATUS "Blosc2: Setting up installed blosc directories")
+    
+    get_target_property(blosc2inc Blosc2::blosc2_static INTERFACE_INCLUDE_DIRECTORIES)
+    _error_if_not_found("INTERFACE_INCLUDE_DIRECTORIES" ${blosc2inc} "")
+    set(BLOSC2_INCLUDE_DIRS ${blosc2inc})
+    
+    get_target_property(blosc2libdir Blosc2::blosc2_static BINARY_DIR)
+    _error_if_not_found("BINARY_DIR" ${blosc2libdir} "")
+    set(BLOSC2_LIB_DIR ${blosc2libdir})
+  endif()
+endif()
+
+#######################################
 # Find or download OpenJPH
 #######################################
 
