@@ -21,12 +21,24 @@ News
 
 .. _LatestNewsStart:
 
+Patch release that fixes a Windows build issue introduced in v3.4.1.
+
+This version also bumps the auto-fetched Imath version to v3.2.2,
+which resolves a build problem with newer versions of cmake, involving
+duplicate library aliases.
+
+No change in functionality.
+
+.. _LatestNewsEnd:
+
+October  8, 2025 - OpenEXR 3.4.1 Released
+=========================================
+
 Patch release that fixes a build issue: OpenJPH headers are now
 included from the openjph folder, as required by OpenJPH 0.23+.
 
 No change in functionality.
 
-.. _LatestNewsEnd:
 
 September  5, 2025 - OpenEXR 3.4.0 Released
 ===========================================
