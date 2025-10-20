@@ -1,6 +1,20 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) Contributors to the OpenEXR Project.
 
+function(_error_if_not_found prop var fallback)
+  message(STATUS "Blosc2: ${prop}  ${var}  '${fallback}'")
+  string(FIND "${var}" "-NOTFOUND" pos)
+  if(NOT pos EQUAL -1)
+    if(fallback STREQUAL "")
+      message(FATAL_ERROR "Blosc2: Property ${prop} not found: ${var}")
+    else()
+      string(SUBSTRING "${var}" 0 ${pos} var_name)
+      message(STATUS "Blosc2: Property ${prop} not found: ${var_name} falling back to '${fallback}'")
+      set(${var_name} "${fallback}" PARENT_SCOPE) 
+    endif()
+  endif()
+endfunction(_error_if_not_found)
+
 include(GNUInstallDirs)
 
 if(NOT "${CMAKE_PROJECT_NAME}" STREQUAL "${PROJECT_NAME}")
