@@ -13,22 +13,8 @@
 
 /**************************************/
 
-extern const uint16_t* exrcore_expTable;
-extern const uint16_t* exrcore_logTable;
-
-static inline void
-convertFromLinear (uint16_t s[16])
-{
-    for (int i = 0; i < 16; ++i)
-        s[i] = exrcore_expTable[s[i]];
-}
-
-static inline void
-convertToLinear (uint16_t s[16])
-{
-    for (int i = 0; i < 16; ++i)
-        s[i] = exrcore_logTable[s[i]];
-}
+extern void b44_convertFromLinear_16 (uint16_t s[16]);
+extern void b44_convertToLinear_16 (uint16_t s[16]);
 
 /**************************************/
 
@@ -477,7 +463,7 @@ compress_b44_impl (exr_encode_pipeline_t* encode, int flat_field)
                 // results to the output buffer.
                 //
 
-                if (curc->p_linear) convertFromLinear (s);
+                if (curc->p_linear) b44_convertFromLinear_16 (s);
 
                 wcount = pack (s, out, flat_field, !(curc->p_linear));
                 out += wcount;
@@ -578,7 +564,7 @@ uncompress_b44_impl (
                     bIn += 14;
                 }
 
-                if (curc->p_linear) convertToLinear (s);
+                if (curc->p_linear) b44_convertToLinear_16 (s);
 
                 priv_from_native16 (s, 16);
 
