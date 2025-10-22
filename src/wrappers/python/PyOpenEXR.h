@@ -24,6 +24,7 @@ public:
 
     py::object   __enter__();
     void         __exit__(py::args args);
+    void         close();
     
     py::dict&    header(int part_index = 0);
     py::dict&    channels(int part_index = 0);

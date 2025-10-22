@@ -1056,6 +1056,11 @@ PyFile::channels(int part_index)
 // Write the PyFile to the given filename
 //
 
+void PyFile::close() {
+    // No matter whether a partial write has finished, always close the file
+    _outputFile = nullptr;
+}
+
 void
 PyFile::write(const char* outfilename, bool header_only, const py::list& part_indices)
 {
@@ -2948,6 +2953,11 @@ PYBIND11_MODULE(OpenEXR, m)
              -------
              >>> f = OpenEXR.File("image.exr")
              >>> f.write("out.exr"))pbdoc")
+        .def("close", &PyFile::close,
+             R"pbdoc(
+             Close the file.
+             No matter whether a partial write has finished, always close the file.
+             )pbdoc")
         ;
 }
 
