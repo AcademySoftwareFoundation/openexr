@@ -49,6 +49,7 @@ Contrib/DtexToExr/DtexToExr
 .DS_Store
 abi_check
 _build/
+pybuild/
 build/
 build-win/
 build-nuget/
