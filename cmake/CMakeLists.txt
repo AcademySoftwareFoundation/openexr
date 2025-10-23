@@ -192,6 +192,7 @@ if(OPENEXR_INSTALL_PKG_CONFIG)
   function(openexr_pkg_config_help pcinfile)
     string(TOUPPER "${CMAKE_BUILD_TYPE}" uppercase_CMAKE_BUILD_TYPE)
     set(LIB_SUFFIX_DASH ${OPENEXR_LIB_SUFFIX}${CMAKE_${uppercase_CMAKE_BUILD_TYPE}_POSTFIX})
+    set(LIB_BUILD_SUFFIX ${CMAKE_${uppercase_CMAKE_BUILD_TYPE}_POSTFIX})
     if(OPENEXR_ENABLE_THREADING AND TARGET Threads::Threads)
       # hrm, can't use properties as they end up as generator expressions
       # which don't seem to evaluate
