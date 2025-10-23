@@ -319,6 +319,12 @@ typedef struct _exr_context_initializer_v3
      */
     float dwa_quality;
 
+    /** Initialize a field specifying what the default zstd compression level
+     * should be for this context. See exr_set_default_zstd_compresion_level()
+     * to set it for all contexts.
+     */
+    int zstd_level;
+
     /** Initialize with a bitwise or of the various context flags
      */
     int flags;
@@ -353,7 +359,7 @@ typedef struct _exr_context_initializer_v3
 /* clang-format off */
 /** @brief Simple macro to initialize the context initializer with default values. */
 #define EXR_DEFAULT_CONTEXT_INITIALIZER                                        \
-    { sizeof (exr_context_initializer_t), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -2, -1.f, 0, { 0, 0, 0, 0 } }
+    { sizeof (exr_context_initializer_t), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -2, -1.f, -1, 0, { 0, 0, 0, 0 } }
 /* clang-format on */
 
 /** @} */ /* context function pointer declarations */

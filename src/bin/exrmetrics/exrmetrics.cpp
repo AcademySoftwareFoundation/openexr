@@ -1022,9 +1022,10 @@ exrmetrics (
                     outHeaders[p].zipCompressionLevel () = level;
                     compressionSet                       = true;
                     break;
-                    //            case ZSTD_COMPRESSION :
-                    //                outHeader.zstdCompressionLevel()=level;
-                    //                break;
+                case ZSTD_COMPRESSION :
+                    outHeader[p].zstdCompressionLevel () = level;
+                    compressionSet                       = true;
+                    break;
                 default: break;
             }
         }

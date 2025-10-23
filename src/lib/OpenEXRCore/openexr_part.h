@@ -234,6 +234,28 @@ EXR_EXPORT exr_result_t exr_get_dwa_compression_level (
 EXR_EXPORT exr_result_t
 exr_set_dwa_compression_level (exr_context_t ctxt, int part_index, float level);
 
+/** @brief Retrieve the zstd compression level used for the specified part.
+ *
+ * This only applies when the compression method is zstd.
+ *
+ * This value is NOT persisted in the file, and only exists for the
+ * lifetime of the context, so will be at the default value when just
+ * reading a file.
+ */
+EXR_EXPORT exr_result_t exr_get_zstd_compression_level (
+    exr_const_context_t ctxt, int part_index, int* level);
+
+/** @brief Set the zstd compression method used for the specified part.
+ *
+ * This only applies when the compression method is zstd.
+ *
+ * This value is NOT persisted in the file, and only exists for the
+ * lifetime of the context, so this value will be ignored when
+ * reading a file.
+ */
+EXR_EXPORT exr_result_t
+exr_set_zstd_compression_level (exr_context_t ctxt, int part_index, int level);
+
 /**************************************/
 
 /** @defgroup PartMetadata Functions to get and set metadata for a particular part.

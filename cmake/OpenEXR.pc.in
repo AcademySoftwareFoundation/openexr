@@ -9,12 +9,13 @@ libdir=@PKG_CONFIG_INSTALL_LIBDIR@
 includedir=@PKG_CONFIG_INSTALL_INCLUDEDIR@
 OpenEXR_includedir=${includedir}/OpenEXR
 libsuffix=@LIB_SUFFIX_DASH@
+libbuildsuffix=@LIB_BUILD_SUFFIX@
 
 Name: OpenEXR
 Description: OpenEXR image library
 Version: @OPENEXR_VERSION@
 
-Libs: @exr_pthread_libs@ -L${libdir} -lOpenEXR${libsuffix} -lOpenEXRUtil${libsuffix} -lOpenEXRCore${libsuffix} -lIex${libsuffix} -lIlmThread${libsuffix}
+Libs: @exr_pthread_libs@ -L${libdir} -lOpenEXR${libsuffix} -lOpenEXRUtil${libsuffix} -lOpenEXRCore${libsuffix} -lIex${libsuffix} -lIlmThread${libsuffix} -lblosc2${libbuildsuffix} -ldl
 Cflags: -I${includedir} -I${OpenEXR_includedir} @exr_pthread_cflags@
 Requires: Imath
 Requires.private: @EXR_DEFLATE_PKGCONFIG_REQUIRES@ @EXR_OPENJPH_PKGCONFIG_REQUIRES@

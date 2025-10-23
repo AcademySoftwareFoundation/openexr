@@ -55,6 +55,9 @@ enum IMF_EXPORT_ENUM Compression
 
     HTJ2K32_COMPRESSION = 11,    // High-Throughput JPEG2000 (HTJ2K), 32 scanlines
 
+    ZSTD_COMPRESSION = 12, // blosc zstd lossless compression, one scan line
+                           // at a time.
+
     NUM_COMPRESSION_METHODS // number of different compression methods
 };
 
@@ -91,6 +94,9 @@ IMF_EXPORT void setDefaultZipCompressionLevel (int level);
 
 /// Controls the default quality level for the DWA lossy compression
 IMF_EXPORT void setDefaultDwaCompressionLevel (float level);
+
+/// Controls the default zstd compression level used. Zstd is used for
+IMF_EXPORT void setDefaultZstdCompressionLevel (int level);
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 

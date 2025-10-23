@@ -40,6 +40,7 @@ openexr_define_library(OpenEXRCore
 
     internal_rle.c
     internal_zip.c
+    internal_zstd.c
     internal_pxr24.c
     internal_b44.c
     internal_b44_table.c
@@ -104,6 +105,7 @@ openexr_define_library(OpenEXRCore
 
   DEPENDENCIES
     Imath::Imath
+    Blosc2::blosc2_static
   )
 
 if (DEFINED EXR_DEFLATE_LIB)

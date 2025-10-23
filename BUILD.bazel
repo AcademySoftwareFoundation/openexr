@@ -213,6 +213,7 @@ cc_library(
         "src/lib/OpenEXRCore/internal_win32_file_impl.h",
         "src/lib/OpenEXRCore/internal_xdr.h",
         "src/lib/OpenEXRCore/internal_zip.c",
+        "src/lib/OpenEXRCore/internal_zstd.c",
         "src/lib/OpenEXRCore/memory.c",
         "src/lib/OpenEXRCore/opaque.c",
         "src/lib/OpenEXRCore/openexr_version.h",
@@ -264,12 +265,14 @@ cc_library(
             ":windows": [],
             "//conditions:default": [
                 "-pthread",
+                "-ldl",
             ],
         }),
     visibility = ["//visibility:public"],
     deps = [
         "@imath",
         "@openjph",
+        "@c-blosc2",
         "@libdeflate//:deflate",
     ],
 )
@@ -373,6 +376,7 @@ cc_library(
         "src/lib/OpenEXR/ImfWav.cpp",
         "src/lib/OpenEXR/ImfZip.cpp",
         "src/lib/OpenEXR/ImfZipCompressor.cpp",
+        "src/lib/OpenEXR/ImfZstdCompressor.cpp",
     ],
     hdrs = [
         "src/lib/Iex/IexConfig.h",
@@ -493,6 +497,7 @@ cc_library(
         "src/lib/OpenEXR/ImfXdr.h",
         "src/lib/OpenEXR/ImfZip.h",
         "src/lib/OpenEXR/ImfZipCompressor.h",
+        "src/lib/OpenEXR/ImfZstdCompressor.h",
         "src/lib/OpenEXR/OpenEXRConfig.h",
         "src/lib/OpenEXR/OpenEXRConfigInternal.h",
     ],
@@ -509,6 +514,7 @@ cc_library(
             ":windows": [],
             "//conditions:default": [
                 "-pthread",
+                "-ldl",
             ],
         }),
     visibility = ["//visibility:public"],
@@ -517,6 +523,7 @@ cc_library(
         ":OpenEXRCore",
         "@imath",
         "@openjph"
+        "@c-blosc2",
     ],
 )
 

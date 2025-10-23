@@ -285,6 +285,10 @@ public:
     float& dwaCompressionLevel ();
     IMF_EXPORT
     float dwaCompressionLevel () const;
+    IMF_EXPORT
+    int& zstdCompressionLevel ();
+    IMF_EXPORT
+    int zstdCompressionLevel () const;
 
     //-----------------------------------------------------
     // Access to required attributes for multipart files

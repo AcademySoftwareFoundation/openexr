@@ -188,6 +188,12 @@ static const CompressionDesc IdToDesc[] = {
         32,
         true,
         false),
+    CompressionDesc (
+        "zstd",
+        "blosc zstd lossless compression, one scan line at a time.",
+        1,
+        false,
+        true),
 };
 // clang-format on
 
@@ -206,6 +212,7 @@ static const std::map<std::string, Compression> CompressionNameToId = {
     {"dwab", Compression::DWAB_COMPRESSION},
     {"htj2k256", Compression::HTJ2K256_COMPRESSION},
     {"htj2k32", Compression::HTJ2K32_COMPRESSION},
+    {"zstd", Compression::ZSTD_COMPRESSION},
 };
 
 #define UNKNOWN_COMPRESSION_ID_MSG "INVALID COMPRESSION ID"
