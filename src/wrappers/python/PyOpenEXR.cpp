@@ -1220,7 +1220,7 @@ PyFile::write(const char* outfilename, bool header_only, const py::list& part_in
     _outputFile = std::make_unique<MultiPartOutputFile>(outfilename, headers.data(), headers.size());
 
     if (header_only) {
-        py::print("OpenEXR: Only wrote header for output file:", outfilename);
+        // py::print("OpenEXR: Only wrote header for output file:", outfilename);
         return; // early stop for only writing the header
     }
 
