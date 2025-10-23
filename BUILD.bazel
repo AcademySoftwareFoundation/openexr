@@ -70,6 +70,9 @@ expand_template(
     out = "src/lib/OpenEXR/OpenEXRConfigInternal.h",
     substitutions = {
         "#cmakedefine OPENEXR_USE_INTERNAL_DEFLATE 1": "#define OPENEXR_USE_INTERNAL_DEFLATE 0",
+        "#cmakedefine OPENEXR_ENABLE_GDEFLATE 1": "/* #undef OPENEXR_ENABLE_GDEFLATE */",
+        # For gdeflate, set `_enable_gdeflate` to True in `MODULE.bazel` and replace the above line with:
+        # "#cmakedefine OPENEXR_ENABLE_GDEFLATE 1": "#define OPENEXR_ENABLE_GDEFLATE 1",
         "#cmakedefine OPENEXR_IMF_HAVE_COMPLETE_IOMANIP 1": "#define OPENEXR_IMF_HAVE_COMPLETE_IOMANIP 1",
         "#cmakedefine OPENEXR_IMF_HAVE_DARWIN 1": "/* #undef OPENEXR_IMF_HAVE_DARWIN */",
         "#cmakedefine OPENEXR_IMF_HAVE_GCC_INLINE_ASM_AVX 1": "/* #undef OPENEXR_IMF_HAVE_GCC_INLINE_ASM_AVX */",
@@ -193,6 +196,7 @@ cc_library(
         "src/lib/OpenEXRCore/internal_dwa_simd.h",
         "src/lib/OpenEXRCore/internal_file.h",
         "src/lib/OpenEXRCore/internal_float_vector.h",
+        "src/lib/OpenEXRCore/internal_gdeflate_wrapper.h",
         "src/lib/OpenEXRCore/internal_ht.cpp",
         "src/lib/OpenEXRCore/internal_ht_common.h",
         "src/lib/OpenEXRCore/internal_ht_common.cpp",
@@ -291,6 +295,7 @@ cc_library(
         "src/lib/OpenEXR/ImfCompression.cpp",
         "src/lib/OpenEXR/ImfCompressionAttribute.cpp",
         "src/lib/OpenEXR/ImfCompressor.cpp",
+        "src/lib/OpenEXR/ImfGdeflateCompressor.cpp",
         "src/lib/OpenEXR/ImfContext.cpp",
         "src/lib/OpenEXR/ImfContextInit.cpp",
         "src/lib/OpenEXR/ImfConvert.cpp",
@@ -395,6 +400,7 @@ cc_library(
         "src/lib/OpenEXR/ImfCompression.h",
         "src/lib/OpenEXR/ImfCompressionAttribute.h",
         "src/lib/OpenEXR/ImfCompressor.h",
+        "src/lib/OpenEXR/ImfGdeflateCompressor.h",
         "src/lib/OpenEXR/ImfContext.h",
         "src/lib/OpenEXR/ImfContextInit.h",
         "src/lib/OpenEXR/ImfConvert.h",

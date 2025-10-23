@@ -65,6 +65,37 @@ size_t exr_rle_uncompress_buffer (
     const void* in,
     void* out);
 
+/** Computes a buffer large enough to hold gdeflate-compressed data and returns
+ * the page count and size required for compression. */
+EXR_EXPORT
+size_t exr_compress_gdeflate_max_buffer_size (
+    size_t in_bytes,
+    uint64_t* out_page_count,
+    uint64_t* out_page_size);
+
+/** Compresses a buffer using gdeflate compression with page-based output.
+ *
+ * If the level is -1, will use the default compression set to the library
+ * \ref exr_set_default_zip_compression_level */
+EXR_EXPORT
+exr_result_t exr_compress_buffer_gdeflate (
+    exr_const_context_t ctxt,
+    int                 level,
+    const void*         in,
+    size_t              in_bytes,
+    void*               out,
+    size_t              out_bytes_avail,
+    size_t*             actual_out);
+
+/** Decompresses a buffer using gdeflate compression. */
+EXR_EXPORT
+exr_result_t exr_uncompress_buffer_gdeflate (
+    exr_const_context_t ctxt,
+    const void*         in,
+    size_t              in_bytes,
+    void*               out,
+    size_t              out_bytes_avail,
+    size_t*             actual_out);
 
 /** Routine to query the lines required per chunk to compress with the
  * specified method.
