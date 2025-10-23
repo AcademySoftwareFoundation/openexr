@@ -244,8 +244,7 @@ ScanLineInputFile::setFrameBuffer (const FrameBuffer& frameBuffer)
     std::lock_guard<std::mutex> lock (_data->_mx);
 #endif
     _data->fill_list.clear ();
-    if (_data->singleScan)
-        _data->singleScan->first = true;
+    _data->singleScan.reset();
 
     for (FrameBuffer::ConstIterator j = frameBuffer.begin ();
          j != frameBuffer.end ();
