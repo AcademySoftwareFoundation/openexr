@@ -1544,11 +1544,15 @@ exr_read_chunk (
         rv    = ctxt->do_read (
             ctxt, packed_data, toread, &dataoffset, &nread, rmode);
 
-        if (rmode == EXR_ALLOW_SHORT_READ && nread < (int64_t) toread)
-            memset (
-                ((uint8_t*) packed_data) + nread,
-                0,
-                toread - (uint64_t) (nread));
+        if (rmode == EXR_ALLOW_SHORT_READ &&
+            nread >= 0 &&
+            nread < (int64_t) toread)
+            {
+                memset (
+                    ((uint8_t*) packed_data) + nread,
+                        0,
+                (size_t)(toread - (uint64_t)nread));
+            }
     }
     else
         rv = EXR_ERR_SUCCESS;
