@@ -332,9 +332,9 @@ template <class T> void MultiPartOutputFile::deleteOutputPart (int partNumber) {
                 << " parts");
     }
 
-#if ILMTHREAD_THREADING_ENABLED
-    std::lock_guard<std::mutex> lock (*_data);
-#endif
+// #if ILMTHREAD_THREADING_ENABLED
+//     std::lock_guard<std::mutex> lock (*_data);
+// #endif
     auto it = _data->_outputFiles.find(partNumber);
     if (it == _data->_outputFiles.end()) {
         THROW (IEX_NAMESPACE::ArgExc, "MultiPartOutputFile::deleteOutputPart called with invalid part number  "
