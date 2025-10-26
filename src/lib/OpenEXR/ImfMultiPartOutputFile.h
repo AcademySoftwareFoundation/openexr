@@ -79,6 +79,7 @@ private:
     Data* _data;
 
     template <class T> IMF_HIDDEN T* getOutputPart (int partNumber);
+    template <class T> IMF_HIDDEN void deleteOutputPart (int partNumber);
 
     friend class OutputPart;
     friend class TiledOutputPart;

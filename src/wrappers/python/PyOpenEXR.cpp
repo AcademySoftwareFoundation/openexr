@@ -716,12 +716,14 @@ PyPart::writePixels(MultiPartOutputFile& outfile, const Box2i& dw) const
         OutputPart part(outfile, part_index);
         part.setFrameBuffer (frameBuffer);
         part.writePixels (height());
+        part.deleteFile(outfile, part_index);
     }
     else
     {
         TiledOutputPart part(outfile, part_index);
         part.setFrameBuffer (frameBuffer);
         part.writeTiles (0, part.numXTiles() - 1, 0, part.numYTiles() - 1);
+        part.deleteFile(outfile, part_index);
     }
 }
 
