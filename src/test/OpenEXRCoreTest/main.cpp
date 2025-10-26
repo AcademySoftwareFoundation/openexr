@@ -208,11 +208,13 @@ main (int argc, char* argv[])
     TEST (testB44ACompression, "core_compression");
     TEST (testDWAACompression, "core_compression");
     TEST (testDWABCompression, "core_compression");
+    TEST (testZstdCompression, "core_compression");
     TEST (testHTChannelMap, "core_compression");
 
     TEST (testDeepNoCompression, "core_compression");
     TEST (testDeepZIPCompression, "core_compression");
     TEST (testDeepZIPSCompression, "core_compression");
+    TEST (testDeepZstdCompression, "core_compression"); // empty dummy test
 
     if (helpMode)
     {

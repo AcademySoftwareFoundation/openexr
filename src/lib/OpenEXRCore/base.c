@@ -58,6 +58,8 @@ static const char* the_error_code_names[] = {
     "EXR_ERR_USE_TILE_NONDEEP_WRITE",
     "EXR_ERR_INVALID_SAMPLE_DATA",
     "EXR_ERR_FEATURE_NOT_IMPLEMENTED",
+    "EXR_ERR_COMPRESSION_FAILED",
+    "EXR_ERR_DECOMPRESSION_FAILED",
     "EXR_ERR_UNKNOWN"};
 static int the_error_code_count =
     sizeof (the_error_code_names) / sizeof (const char*);
@@ -98,6 +100,8 @@ static const char* the_default_errors[] = {
     "Use non-deep tile write (sample count table invalid for this part type)",
     "Invalid sample data table value",
     "Feature not yet implemented, please use C++ library",
+    "Chunk compression failed",
+    "Chunk decompression failed",
     "Unknown error code"};
 static int the_default_error_count =
     sizeof (the_default_errors) / sizeof (const char*);
@@ -209,4 +213,22 @@ void
 exr_get_default_dwa_compression_quality (float* q)
 {
     if (q) *q = sDefaultDwaLevel;
+}
+
+
+// 9 is 20% more expensive to compress. Decompression time remains constant.
+static int sDefaultZstdLevel = 5;
+
+void
+exr_set_default_zstd_compression_level (int l)
+{
+    if (l < 0) l = 0;
+    if (l > 9) l = 9;
+    sDefaultZstdLevel = l;
+}
+
+void
+exr_get_default_zstd_compression_level (int* l)
+{
+    if (l) *l = sDefaultZstdLevel;
 }

@@ -17,6 +17,7 @@
 #include "ImfPizCompressor.h"
 #include "ImfPxr24Compressor.h"
 #include "ImfRleCompressor.h"
+#include "ImfZstdCompressor.h"
 #include "ImfZipCompressor.h"
 #include "ImfZip.h"
 
@@ -54,6 +55,7 @@ Compressor::Compressor (
 
     exr_set_zip_compression_level (_ctxt, 0, hdr.zipCompressionLevel ());
     exr_set_dwa_compression_level (_ctxt, 0, hdr.dwaCompressionLevel ());
+    exr_set_zstd_compression_level (_ctxt, 0, hdr.zstdCompressionLevel ());
 
     exr_compression_t hdrcomp;
     if (EXR_ERR_SUCCESS != exr_get_compression (_ctxt, 0, &hdrcomp))

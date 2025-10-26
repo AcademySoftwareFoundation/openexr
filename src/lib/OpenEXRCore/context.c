@@ -129,6 +129,7 @@ fill_context_data (const exr_context_initializer_t* ctxtdata)
         {
             inits.zip_level   = ctxtdata->zip_level;
             inits.dwa_quality = ctxtdata->dwa_quality;
+            inits.zstd_level  = ctxtdata->zstd_level;
         }
         if (ctxtdata->size >= sizeof (struct _exr_context_initializer_v3))
         {
