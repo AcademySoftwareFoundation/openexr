@@ -761,7 +761,6 @@ extract_attr_bytes(
     int32_t n;
     int32_t hint_length;
     size_t bytes_length;
-    const char* type_hint;
     exr_result_t rv;
 
     rv = check_bad_attrsz(scratch, attrsz, 1, aname, tname, &n);
