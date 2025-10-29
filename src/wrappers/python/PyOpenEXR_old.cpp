@@ -326,12 +326,12 @@ typedef struct
 } InputFileC;
 
 static bool
-safe_ssize_mult(ssize_t a, ssize_t b, ssize_t c, ssize_t& r)
+safe_ssize_mult(Py_ssize_t a, Py_ssize_t b, Py_ssize_t c, Py_ssize_t& r)
 {
-    if (a > std::numeric_limits<ssize_t>::max() / b)
+    if (a > std::numeric_limits<Py_ssize_t>::max() / b)
         return false;
     r = a * b;
-    if (r > std::numeric_limits<ssize_t>::max() / c)
+    if (r > std::numeric_limits<Py_ssize_t>::max() / c)
         return false;
     r *= c;
     return true;
@@ -420,7 +420,7 @@ channel (PyObject* self, PyObject* args, PyObject* kw)
         return NULL;
     }
 
-    ssize_t ssize;
+    Py_ssize_t ssize;
     if (!safe_ssize_mult(typeSize, width, height, ssize))
     {
         std::stringstream err;
@@ -576,7 +576,7 @@ channels (PyObject* self, PyObject* args, PyObject* kw)
             return NULL;
         }
 
-        ssize_t ssize;
+        Py_ssize_t ssize;
         if (!safe_ssize_mult(typeSize, width, height, ssize))
         {
             std::stringstream err;
