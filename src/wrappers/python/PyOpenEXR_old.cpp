@@ -89,6 +89,7 @@ typedef int Py_ssize_t;
 #include <iomanip>
 #include <iostream>
 #include <vector>
+#include <limits>
 
 #define IMATH_VERSION                                                          \
     IMATH_VERSION_MAJOR * 10000 + IMATH_VERSION_MINOR * 100 +                  \
@@ -195,7 +196,7 @@ C_IStream::read (char c[], int n)
         if (ncopy)
             memcpy (c, _stream_cache.data () + _stream_pos, ncopy);
         _stream_pos = bend;
-        if (ncopy != n)
+        if (ncopy != (size_t) n)
             throw IEX_NAMESPACE::InputExc ("not enough data");
         return true;
     }
@@ -324,6 +325,18 @@ typedef struct
     int                     is_opened;
 } InputFileC;
 
+static bool
+safe_ssize_mult(Py_ssize_t a, Py_ssize_t b, Py_ssize_t c, Py_ssize_t& r)
+{
+    if (a > std::numeric_limits<Py_ssize_t>::max() / b)
+        return false;
+    r = a * b;
+    if (r > std::numeric_limits<Py_ssize_t>::max() / c)
+        return false;
+    r *= c;
+    return true;
+}
+
 static PyObject*
 channel (PyObject* self, PyObject* args, PyObject* kw)
 {
@@ -390,7 +403,7 @@ channel (PyObject* self, PyObject* args, PyObject* kw)
     int width     = (dw.max.x - dw.min.x + 1) / xSampling;
     int height    = (maxy - miny + 1) / ySampling;
 
-    size_t typeSize;
+    size_t typeSize = 0;
     switch (pt)
     {
         case HALF: typeSize = 2; break;
@@ -400,9 +413,40 @@ channel (PyObject* self, PyObject* args, PyObject* kw)
 
         default: PyErr_SetString (PyExc_TypeError, "Unknown type"); return NULL;
     }
-    PyObject* r = PyString_FromStringAndSize (NULL, typeSize * width * height);
+
+    if (width <= 0 || height <= 0 || typeSize == 0)
+    {
+        PyErr_SetString(PyExc_ValueError, "Invalid image dimensions");
+        return NULL;
+    }
+
+    Py_ssize_t ssize;
+    if (!safe_ssize_mult(typeSize, width, height, ssize))
+    {
+        std::stringstream err;
+        err << "Integer overflow computing allocation size: "
+            << "width=" << width << " height=" << height << " typeSize=" << typeSize;
+        PyErr_SetString(PyExc_OverflowError, err.str().c_str());
+        return NULL;
+    }
+
+    PyObject* r = PyString_FromStringAndSize (NULL, ssize);
+    if (r == 0)
+    {
+        std::stringstream err;
+        err << "Allocation failed: " << width << "x" << height;
+        PyErr_SetString (PyExc_IOError, err.str().c_str());
+        return NULL;
+    }
 
     char* pixels = PyString_AsString (r);
+    if (pixels == 0)
+    {
+        std::stringstream err;
+        err << "Allocation failed: " << width << "x" << height;
+        PyErr_SetString (PyExc_IOError, err.str().c_str());
+        return NULL;
+    }
 
     try
     {
@@ -476,9 +520,6 @@ channels (PyObject* self, PyObject* args, PyObject* kw)
     ChannelList channels = file->header ().channels ();
     FrameBuffer frameBuffer;
 
-    int width  = dw.max.x - dw.min.x + 1;
-    int height = maxy - miny + 1;
-
     PyObject* retval   = PyList_New (0);
     PyObject* iterator = PyObject_GetIter (clist);
     if (iterator == NULL)
@@ -509,7 +550,7 @@ channels (PyObject* self, PyObject* args, PyObject* kw)
         else { pt = channelPtr->type; }
 
         // Use pt to compute typeSize
-        size_t typeSize;
+        size_t typeSize = 0;
         switch (pt)
         {
             case HALF: typeSize = 2; break;
@@ -522,15 +563,49 @@ channels (PyObject* self, PyObject* args, PyObject* kw)
                 return NULL;
         }
 
+        int xSampling  = channelPtr->xSampling;
+        int ySampling  = channelPtr->ySampling;
+        size_t width   = (dw.max.x - dw.min.x + 1) / xSampling;
+        size_t height  = (maxy - miny + 1) / ySampling;
         size_t xstride = typeSize;
         size_t ystride = typeSize * width;
 
-        PyObject* r =
-            PyString_FromStringAndSize (NULL, typeSize * width * height);
+        if (width <= 0 || height <= 0 || typeSize == 0)
+        {
+            PyErr_SetString(PyExc_ValueError, "Invalid image dimensions");
+            return NULL;
+        }
+
+        Py_ssize_t ssize;
+        if (!safe_ssize_mult(typeSize, width, height, ssize))
+        {
+            std::stringstream err;
+            err << "Integer overflow computing allocation size: "
+                << "width=" << width << " height=" << height << " typeSize=" << typeSize;
+            PyErr_SetString(PyExc_OverflowError, err.str().c_str());
+            return NULL;
+        }
+
+        PyObject* r = PyString_FromStringAndSize (NULL, ssize);
+        if (r == 0)
+        {
+            std::stringstream err;
+            err << "Allocation failed: " << width << "x" << height;
+            PyErr_SetString (PyExc_IOError, err.str().c_str());
+            return NULL;
+        }
+
         PyList_Append (retval, r);
         Py_DECREF (r);
 
         char* pixels = PyString_AsString (r);
+        if (pixels == 0)
+        {
+            std::stringstream err;
+            err << "Allocation failed: " << width << "x" << height;
+            PyErr_SetString (PyExc_IOError, err.str().c_str());
+            return NULL;
+        }
 
         try
         {
@@ -553,8 +628,13 @@ channels (PyObject* self, PyObject* args, PyObject* kw)
         Py_DECREF (item);
     }
     Py_DECREF (iterator);
-    file->setFrameBuffer (frameBuffer);
-    file->readPixels (miny, maxy);
+    try {
+        file->setFrameBuffer (frameBuffer);
+        file->readPixels (miny, maxy);
+    } catch (const std::exception& e) {
+        PyErr_SetString (PyExc_IOError, e.what ());
+        return NULL;
+    }
 
     return retval;
 }
@@ -1555,7 +1635,7 @@ init_OpenEXR_old(PyObject* module)
         PyDict_SetItemString(moduleDict, def->ml_name, func);
         Py_DECREF(func);
     }
-    
+
     pModuleImath = PyImport_ImportModule ("Imath");
 
     /* initialize module variables/constants */
@@ -1563,7 +1643,7 @@ init_OpenEXR_old(PyObject* module)
     InputFile_Type.tp_init  = makeInputFile;
     OutputFile_Type.tp_new  = PyType_GenericNew;
     OutputFile_Type.tp_init = makeOutputFile;
-    
+
     if (PyType_Ready (&InputFile_Type) != 0)
         return false;
     if (PyType_Ready (&OutputFile_Type) != 0)
