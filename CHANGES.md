@@ -3,6 +3,7 @@
 
 # OpenEXR Release Notes
 
+* [Version 3.4.3](#version-342-november-3-2025) November 3, 2025
 * [Version 3.4.2](#version-342-october-15-2025) October 15, 2025
 * [Version 3.4.1](#version-341-october-8-2025) October 8, 2025
 * [Version 3.4.0](#version-340-september-5-2025) September 5, 2025
@@ -97,8 +98,14 @@ Specifically:
 Heap-buffer-overflow in generic_unpack
 * OSS-fuzz [447429458](https://issues.oss-fuzz.com/issues/447429458)
 Heap-buffer-overflow in DwaCompressor_uncompress
+* OSS-fuzz [439237843](https://issues.oss-fuzz.com/issues/439237843)
+Heap-buffer-overflow in internal_exr_undo_ht
 * OSS-fuzz [436037111](https://issues.oss-fuzz.com/issues/436037111)
 Heap-buffer-overflow in generic_unpack
+* OSS-fuzz [435779241](https://issues.oss-fuzz.com/issues/435779241)
+Heap-buffer-overflow in generic_unpack
+* OSS-fuzz [420744464](https://issues.oss-fuzz.com/issues/420744464)
+Abrt in __cxxabiv1::failed_throw
 
 Other fixes:
 * Fix a bug with re-reading a scanline file with a different set of
@@ -106,20 +113,38 @@ Other fixes:
 * Only populate `CMAKE_DEBUG_POSTFIX` with `_d` if it is undefined,
   which makes it possible to set `CMAKE_DEBUG_POSTFIX=""`.
 
-This version also bumps the auto-fetched version of OpenJPH to X.Y.Z.
+This version also bumps the auto-fetched version of OpenJPH to
+0.24.4. OpenJPH 0.24.4 addresses these OSS-Fuzz issues:
+		
+* OSS-fuzz [455374208](https://issues.oss-fuzz.com/issues/455374208)
+Floating-point-exception in ojph::local::tile::pre_alloc
+* OSS-fuzz [444963190](https://issues.oss-fuzz.com/issues/444963190)
+Index-out-of-bounds in ojph::local::param_qcd::read_qcc
+* OSS-fuzz [444878558](https://issues.oss-fuzz.com/issues/444878558)
+Segv on unknown address in ojph::local::param_qcd::~param_qcd
+* OSS-fuzz [444878557](https://issues.oss-fuzz.com/issues/444878557)
+Null-dereference READ in ojph::local::param_qcd::~param_qcd
 
 ### Merged Pull Requests:
 
+* [2166](https://github.com/AcademySoftwareFoundation/openexr/pull/2166)
+Only define CMAKE_DEBUG_POSTFIX if it is not already defined
+* [2164](https://github.com/AcademySoftwareFoundation/openexr/pull/2164)
+check storage_mode when computing chunk sizes
+* [2163](https://github.com/AcademySoftwareFoundation/openexr/pull/2163)
+Check for image size overflow in legacy python module
+* [2162](https://github.com/AcademySoftwareFoundation/openexr/pull/2162)
+verify packed/unpacked size with uncompressed data
 * [2161](https://github.com/AcademySoftwareFoundation/openexr/pull/2161)
 ImfCheckFile: handle partial deep tiles
 * [2160](https://github.com/AcademySoftwareFoundation/openexr/pull/2160)
 Fix issues with negative coordinates and sampling != 0
 * [2159](https://github.com/AcademySoftwareFoundation/openexr/pull/2159)
 Fix memset in exr_read_chunk when nread is negative
-* [2150](https://github.com/AcademySoftwareFoundation/openexr/pull/2150)
-Fix bug with re-reading scanline file with a different set of channels
 * [2156](https://github.com/AcademySoftwareFoundation/openexr/pull/2156)
 Fix handling of corrupt RLE data
+* [2150](https://github.com/AcademySoftwareFoundation/openexr/pull/2150)
+Fix bug with re-reading scanline file with a different set of channels
 
 
 ## Version 3.4.2 (October 15, 2025)
