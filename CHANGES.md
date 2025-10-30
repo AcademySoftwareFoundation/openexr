@@ -86,6 +86,42 @@
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
 
+## Version 3.4.3 (November 3, 2025)
+
+Patch release that addresses several bugs, primarily involving
+properly rejecting corrupt input data.
+
+Specifically:
+
+* OSS-fuzz [456158449](https://issues.oss-fuzz.com/issues/456158449)
+Heap-buffer-overflow in generic_unpack
+* OSS-fuzz [447429458](https://issues.oss-fuzz.com/issues/447429458)
+Heap-buffer-overflow in DwaCompressor_uncompress
+* OSS-fuzz [436037111](https://issues.oss-fuzz.com/issues/436037111)
+Heap-buffer-overflow in generic_unpack
+
+Other fixes:
+* Fix a bug with re-reading a scanline file with a different set of
+  channels.
+* Only populate `CMAKE_DEBUG_POSTFIX` with `_d` if it is undefined,
+  which makes it possible to set `CMAKE_DEBUG_POSTFIX=""`.
+
+This version also bumps the auto-fetched version of OpenJPH to X.Y.Z.
+
+### Merged Pull Requests:
+
+* [2161](https://github.com/AcademySoftwareFoundation/openexr/pull/2161)
+ImfCheckFile: handle partial deep tiles
+* [2160](https://github.com/AcademySoftwareFoundation/openexr/pull/2160)
+Fix issues with negative coordinates and sampling != 0
+* [2159](https://github.com/AcademySoftwareFoundation/openexr/pull/2159)
+Fix memset in exr_read_chunk when nread is negative
+* [2150](https://github.com/AcademySoftwareFoundation/openexr/pull/2150)
+Fix bug with re-reading scanline file with a different set of channels
+* [2156](https://github.com/AcademySoftwareFoundation/openexr/pull/2156)
+Fix handling of corrupt RLE data
+
+
 ## Version 3.4.2 (October 15, 2025)
 
 Patch release that fixes a Windows build issue introduced in v3.4.1.
