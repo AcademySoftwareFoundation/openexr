@@ -18,6 +18,10 @@
 #cmakedefine OPENEXR_USE_INTERNAL_DEFLATE 1
 
 //
+// Whether libdeflate has gdeflate support (NVIDIA fork)
+#cmakedefine OPENEXR_ENABLE_GDEFLATE 1
+
+//
 // Define and set to 1 if the target system supports a proc filesystem
 // compatible with the Linux kernel's proc filesystem.  Note that this
 // is only used by a program in the OpenEXRTest test suite, it's not

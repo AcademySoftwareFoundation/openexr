@@ -16,6 +16,7 @@ void testNoCompression (const std::string& tempdir);
 void testRLECompression (const std::string& tempdir);
 void testZIPCompression (const std::string& tempdir);
 void testZIPSCompression (const std::string& tempdir);
+void testGdeflateCompression (const std::string& tempdir);
 void testPIZCompression (const std::string& tempdir);
 void testPXR24Compression (const std::string& tempdir);
 void testB44Compression (const std::string& tempdir);
