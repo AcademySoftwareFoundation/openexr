@@ -526,8 +526,12 @@ cc_test(
     name = "IexTest",
     srcs = [
         "src/test/IexTest/main.cpp",
+        "src/test/IexTest/mathFuncs.cpp",
+        "src/test/IexTest/mathFuncs.h",
         "src/test/IexTest/testBaseExc.cpp",
         "src/test/IexTest/testBaseExc.h",
+        "src/test/IexTest/testMathExc.cpp",
+        "src/test/IexTest/testMathExc.h",
     ],
     includes = ["src/test/IexTest"],
     tags = ["manual"],  # This test is not build and executed in the CI
