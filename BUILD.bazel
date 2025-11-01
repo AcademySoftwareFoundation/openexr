@@ -582,3 +582,9 @@ cc_binary(
         ":OpenEXR",
     ],
 )
+
+alias(
+    name = "openexr",
+    actual = ":OpenEXR",
+    visibility = ["//visibility:public"],
+)
