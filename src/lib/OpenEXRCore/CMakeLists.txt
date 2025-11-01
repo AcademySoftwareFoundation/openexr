@@ -43,6 +43,7 @@ openexr_define_library(OpenEXRCore
     internal_pxr24.c
     internal_b44.c
     internal_b44_table.c
+    internal_b44_table_init.c
     internal_piz.c
     internal_ht.cpp
     internal_ht_common.cpp
