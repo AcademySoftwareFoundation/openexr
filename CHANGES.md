@@ -6,6 +6,7 @@
 * [Version 3.4.2](#version-342-october-15-2025) October 15, 2025
 * [Version 3.4.1](#version-341-october-8-2025) October 8, 2025
 * [Version 3.4.0](#version-340-september-5-2025) September 5, 2025
+* [Version 3.3.6](#version-336-november-3-2025) November 5, 2025
 * [Version 3.3.5](#version-335-july-26-2025) July 26, 2025
 * [Version 3.3.4](#version-334-june-9-2025) June 9, 2025
 * [Version 3.3.3](#version-333-march-23-2025) March 23, 2025
@@ -335,6 +336,28 @@ Bazel Support: Use Imath and libdeflate live at head
 Fetch master branch of libdeflate on main
 * [1852](https://github.com/AcademySoftwareFoundation/openexr/pull/1852)
 Add an option to use TBB as the global provider
+
+## Version 3.3.6 (November 3, 2025)
+
+Patch release that addresses several bugs, primarily involving
+properly rejecting corrupt input data.
+
+### Merged Pull Requests:
+
+* [2164](https://github.com/AcademySoftwareFoundation/openexr/pull/2164)
+check storage_mode when computing chunk sizes
+* [2163](https://github.com/AcademySoftwareFoundation/openexr/pull/2163)
+Check for image size overflow in legacy python module
+* [2162](https://github.com/AcademySoftwareFoundation/openexr/pull/2162)
+verify packed/unpacked size with uncompressed data
+* [2161](https://github.com/AcademySoftwareFoundation/openexr/pull/2161)
+ImfCheckFile: handle partial deep tiles
+* [2160](https://github.com/AcademySoftwareFoundation/openexr/pull/2160)
+Fix issues with negative coordinates and sampling != 0
+* [2159](https://github.com/AcademySoftwareFoundation/openexr/pull/2159)
+Fix memset in exr_read_chunk when nread is negative
+* [2156](https://github.com/AcademySoftwareFoundation/openexr/pull/2156)
+Fix handling of corrupt RLE data
 
 ## Version 3.3.5 (July 26, 2025)
 
