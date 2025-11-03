@@ -174,7 +174,42 @@ jobs:
         shell: bash
 
       - name: Test
+        if: ${{ inputs.BUILD_TESTING == 'ON' }}
         run: |
+          set -x
+
+          # force downloading of test images, since CMake's file download is flakey
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+              WORKSPACE=$(cygpath -u "$GITHUB_WORKSPACE")
+              echo "PROGRAM_FILES=$PROGRAM_FILES" >> $GITHUB_ENV
+          else
+              WORKSPACE=$GITHUB_WORKSPACE
+          fi
+          IMAGES_URL=https://raw.githubusercontent.com/AcademySoftwareFoundation/openexr-images/v1.0
+          images=(
+            "TestImages/GrayRampsHorizontal.exr"
+            "LuminanceChroma/Garden.exr"
+            "MultiResolution/ColorCodedLevels.exr"
+            "MultiResolution/WavyLinesLatLong.exr"
+            "MultiResolution/WavyLinesCube.exr"
+            "LuminanceChroma/Flowers.exr"
+            "MultiView/Adjuster.exr"
+             "Chromaticities/Rec709_YC.exr"
+             "Chromaticities/Rec709.exr"
+             "Chromaticities/XYZ_YC.exr"
+             "Chromaticities/XYZ.exr"
+             "TestImages/GammaChart.exr"
+             "Beachball/singlepart.0001.exr"
+             "v2/LeftView/Balls.exr"
+             "v2/Stereo/Trunks.exr"
+             "Beachball/multipart.0001.exr"
+          )
+          for image in "${images[@]}"; do
+            outfile="$WORKSPACE/_build/src/test/bin/$image"
+            mkdir -p "$(dirname "$outfile")"
+            curl -L -o "$outfile" "$IMAGES_URL/$image"
+          done
+
           ctest -T Test -C ${{ inputs.build-type }} --timeout 7200 --output-on-failure -VV
         working-directory: _build
         shell: bash
