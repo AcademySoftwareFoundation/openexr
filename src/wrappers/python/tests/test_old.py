@@ -33,10 +33,19 @@ def test_write_read():
     size = width * height
 
     h = OpenEXR.Header(width,height)
+    h['b2i'] = Imath.Box2i(Imath.V2i(0, 0), Imath.V2i(10, 10))
+    h['v2f'] = Imath.V2f(0.0, 1.0)
+    h['li'] = Imath.LineOrder(Imath.LineOrder.RANDOM_Y)
+    h['chromaticities'] = Imath.Chromaticities(Imath.V2f(0.0,1.0),Imath.V2i(2.0,3.0),Imath.V2f(4.0,5.0),Imath.V2f(6.0,7.0))
     h['channels'] = {'R' : Imath.Channel(FLOAT),
                      'G' : Imath.Channel(FLOAT),
                      'B' : Imath.Channel(FLOAT),
                      'A' : Imath.Channel(FLOAT)} 
+    h['tc'] = Imath.TimeCode(0,1,2,3)
+    h['kc'] = Imath.KeyCode(1,2,3,4,5)
+    h['r'] = Imath.Rational(1,3)
+    h['c'] =  Imath.Compression(Imath.Compression.ZIP_COMPRESSION)
+    h['td'] = Imath.TileDescription(64,64)
     o = OpenEXR.OutputFile(f"{test_dir}/write.exr", h)
     r = array('f', [n for n in range(size*0,size*1)]).tobytes()
     g = array('f', [n for n in range(size*1,size*2)]).tobytes()
@@ -47,11 +56,22 @@ def test_write_read():
     o.close()
 
     i = OpenEXR.InputFile(f"{test_dir}/write.exr")
-    h = i.header()
+    ih = i.header()
     assert r == i.channel('R')
     assert g == i.channel('G')
     assert b == i.channel('B')
     assert a == i.channel('A')
+    assert ih['b2i'] == h['b2i']
+    assert ih['v2f'] == h['v2f']
+    assert ih['chromaticities'].red == h['chromaticities'].red
+    assert ih['chromaticities'].green == h['chromaticities'].green
+    assert ih['chromaticities'].blue == h['chromaticities'].blue
+    assert ih['chromaticities'].white == h['chromaticities'].white
+    assert ih['tc'] == h['tc']
+    assert ih['kc'] == h['kc']
+    assert ih['r'] == h['r']
+    assert ih['c'] == h['c']
+    assert ih['td'] == h['td']
 
 testList.append(("test_write_read", test_write_read))
 
@@ -236,6 +256,7 @@ testList.append(("test_write_chunk", test_write_chunk))
 
 for test in testList:
     funcName = test[0]
+    print(f"calling {funcName}")
     test[1]()
 
-
+print("ok")

@@ -152,7 +152,7 @@ class TimeCode:
 
     def __repr__(self):
         # ignoring binaryGroups for now
-        return "<Imath.TimeCode instance { time: %s:%s:%s:%s, dropFrame: %s, colorFrame: %s, fieldPhase: %s, bgf0: %s, bgf1: %s, bgf2: %s" % (self.hours, self.minutes, self.seconds, self.frame, self.dropFrame, self.colorFrame, self.fieldPhase, self.bgf0, self.bgf1, self.bgf2)
+        return "<Imath.TimeCode instance { time: %s:%s:%s:%s, dropFrame: %s, colorFrame: %s, fieldPhase: %s, bgf0: %s, bgf1: %s, bgf2: %s }" % (self.hours, self.minutes, self.seconds, self.frame, self.dropFrame, self.colorFrame, self.fieldPhase, self.bgf0, self.bgf1, self.bgf2)
 
     def __eq__(self, other): 
         return self.__dict__ == other.__dict__
@@ -193,4 +193,7 @@ class TileDescription:
         self.mode = m
         self.roundingMode = r
     def __repr__(self):
-        return "<Imath.TileDescription instance %dx%d %s %s>" % (self.xSize, self.ySize, repr(self.mode), repr(self.roundingMode))
+        return "<Imath.TileDescription instance { xSize: %s, ySize: %s, mode: %s, roundingMode: %s>" % (self.xSize, self.ySize, repr(self.mode), repr(self.roundingMode))
+    def __eq__(self, other): 
+        return self.__dict__ == other.__dict__
+
