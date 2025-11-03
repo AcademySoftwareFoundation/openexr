@@ -3,7 +3,7 @@
 
 # OpenEXR Release Notes
 
-* [Version 3.3.6](#version-336-november-3-2025) November 5, 2025
+* [Version 3.3.6](#version-336-november-4-2025) November 5, 2025
 * [Version 3.3.5](#version-335-july-26-2025) July 26, 2025
 * [Version 3.3.4](#version-334-june-9-2025) June 9, 2025
 * [Version 3.3.3](#version-333-march-23-2025) March 23, 2025
@@ -86,8 +86,21 @@
 Patch release that addresses several bugs, primarily involving
 properly rejecting corrupt input data.
 
+Specifically:
+
+* Buffer overflow in PyOpenEXR_old's `channels()` and `channel()` in
+  legacy python, reported by Joshua Rogers (GitHub: MegaManSec).
+* Use after free in PyObject_StealAttrString in legacy python, reported
+  by Joshua Rogers (GitHub: MegaManSec).
+* Use of Uninitialized Memory in openexr, reported by Aldo Ristori
+  (GitHub: Kaldreic).
+* Heap-based Buffer Overflow Remote Code Execution Vulnerability,
+  reported by Trend Micro Zero Day Initiative.
+
 ### Merged Pull Requests:
 
+* [2168](https://github.com/AcademySoftwareFoundation/openexr/pull/2168)
+Fix improper use of `Py_DECREF` in legacy python module
 * [2164](https://github.com/AcademySoftwareFoundation/openexr/pull/2164)
 check storage_mode when computing chunk sizes
 * [2163](https://github.com/AcademySoftwareFoundation/openexr/pull/2163)
