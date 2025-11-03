@@ -18,11 +18,21 @@ permissions:
 
 jobs:
   build:
-    name: Python Wheels - ${{ matrix.os }} 
+    name: Python Wheels - ${{ matrix.os }}-${{ matrix.arch }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        include:
+          - os: ubuntu-latest
+            arch: x64
+          - os: ubuntu-24.04-arm
+            arch: arm64
+          - os: macos-13
+            arch: x64
+          - os: macos-latest
+            arch: arm64
+          - os: windows-latest
+            arch: x64
 
     environment:
       name: testpypi
@@ -33,10 +43,10 @@ jobs:
       
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Install Python 
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b # v5.3.0
         with:
           python-version: '3.x'
 
@@ -48,23 +58,25 @@ jobs:
         run: pipx run build --sdist . --outdir wheelhouse
 
       - name: Build wheel
-        uses: pypa/cibuildwheel@v2.16
+        uses: pypa/cibuildwheel@v2.23
         with:
           output-dir: wheelhouse
         env:
-          CIBW_ARCHS_LINUX: x86_64 
+          MACOSX_DEPLOYMENT_TARGET: 10.15
           CIBW_ARCHS_MACOS: x86_64 arm64 universal2
+          # Build Python 3.7 through 3.12.
           # Skip python 3.6 since scikit-build-core requires 3.7+
           # Skip 32-bit wheels builds on Windows
           # Also skip the PyPy builds, since they fail the unit tests
-          CIBW_SKIP: cp36-* *-win32 *_i686 pp* 
+          CIBW_BUILD: "cp38-* cp39-* cp310-* cp311-* cp312-* cp313-*"
+          CIBW_SKIP: "*-win32 *_i686"
           CIBW_TEST_SKIP: "*-macosx_universal2:arm64"
           CIBW_ENVIRONMENT: OPENEXR_RELEASE_CANDIDATE_TAG="${{ github.ref_name }}"
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4.0.0
+        uses: actions/upload-artifact@v4
         with:
-          name: wheels-${{ matrix.os }}
+          name: wheels-${{ matrix.os }}-${{ matrix.arch }}
           path: |
             ./wheelhouse/*.whl
             ./wheelhouse/*.tar.gz
@@ -83,22 +95,38 @@ jobs:
       id-token: write
 
     steps:
-    - name: Download Linux artifacts
-      uses: actions/download-artifact@v4.0.0
+
+    - name: Download ubuntu-latest-x64 artifacts
+      uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8
       with:
-        name: wheels-ubuntu-latest
+        name: wheels-ubuntu-latest-x64
         path: dist
-    - name: Download macOS artifacts
-      uses: actions/download-artifact@v4.0.0
+
+    - name: Download ubuntu-24.04-arm-arm64 artifacts
+      uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8
       with:
-        name: wheels-macos-latest
+        name: wheels-ubuntu-24.04-arm-arm64
         path: dist
-    - name: Download Windows artifacts
-      uses: actions/download-artifact@v4.0.0
+
+    - name: Download macos-13-x64 artifacts
+      uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8
       with:
-        name: wheels-windows-latest
+        name: wheels-macos-13-x64
         path: dist
+
+    - name: Download macos-latest-arm64
+      uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8
+      with:
+        name: wheels-macos-latest-arm64
+        path: dist
+
+    - name: Download windows-latest-x64 artifacts
+      uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8
+      with:
+        name: wheels-windows-latest-x64
+        path: dist
+
     - name: Publish distribution 📦 to TestPyPI
-      uses: pypa/gh-action-pypi-publish@release/v1
+      uses: pypa/gh-action-pypi-publish@67339c736fd9354cd4f8cb0b744f2b82a74b5c70 # v1.12.3
       with:
         repository-url: https://test.pypi.org/legacy/

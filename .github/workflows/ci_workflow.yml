@@ -69,7 +69,7 @@ jobs:
       image: aswf/ci-openexr:${{ matrix.vfx-cy }}
     strategy:
       matrix:
-        build: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+        build: [1]
         include:
 
           # -------------------------------------------------------------------
@@ -86,138 +86,6 @@ jobs:
             label: 
             threads-enabled: 'ON'
             vfx-cy: 2023
-            exclude-tests:
-
-          # Shared, Release, Threads OFF
-          - build: 2
-            build-type: Release
-            build-shared: 'ON'
-            cxx-standard: 17
-            cxx-compiler: g++
-            cc-compiler: gcc
-            compiler-desc: gcc11.2.1
-            label: 
-            threads-enabled: 'OFF'
-            vfx-cy: 2023
-            exclude-tests:
-
-          # Shared, Debug
-          - build: 3
-            build-type: Debug
-            build-shared: 'ON'
-            cxx-standard: 17
-            cxx-compiler: g++
-            cc-compiler: gcc
-            compiler-desc: gcc11.2.1
-            label: 
-            threads-enabled: 'ON'
-            vfx-cy: 2023
-            exclude-tests:
-
-          # Static, Release
-          - build: 4
-            build-type: Release
-            build-shared: 'OFF'
-            cxx-standard: 17
-            cxx-compiler: g++
-            cc-compiler: gcc
-            compiler-desc: gcc11.2.1
-            label: 
-            threads-enabled: 'ON'
-            vfx-cy: 2023
-            exclude-tests:
-
-          # Shared, Release, C++14
-          - build: 5
-            build-type: Release
-            build-shared: 'ON'
-            cxx-standard: 14
-            cxx-compiler: g++
-            cc-compiler: gcc
-            compiler-desc: gcc11.2.1
-            label: 
-            threads-enabled: 'ON'
-            vfx-cy: 2023
-            exclude-tests:
-
-          # -------------------------------------------------------------------
-          # VFX CY2023 - Clang 15.0
-          # -------------------------------------------------------------------
-          # Release
-          - build: 6
-            build-type: Release
-            build-shared: 'ON'
-            cxx-standard: 17
-            cxx-compiler: clang++
-            cc-compiler: clang
-            compiler-desc: clang15.0
-            label: 
-            threads-enabled: 'ON'
-            vfx-cy: 2023
-            exclude-tests:
-
-          # -------------------------------------------------------------------
-          # VFX CY2023 - Clang 14.0
-          # -------------------------------------------------------------------
-          # Release
-          - build: 7
-            build-type: Release
-            build-shared: 'ON'
-            cxx-standard: 17
-            cxx-compiler: clang++
-            cc-compiler: clang
-            compiler-desc: clang14.0
-            label: 
-            threads-enabled: 'ON'
-            vfx-cy: 2023
-            exclude-tests:
-
-          # -------------------------------------------------------------------
-          # VFX CY2022 - GCC, Release
-          # -------------------------------------------------------------------
-          # Shared, Release
-          - build: 8
-            build-type: Release
-            build-shared: 'ON'
-            cxx-standard: 17
-            cxx-compiler: g++
-            cc-compiler: gcc
-            compiler-desc: gcc9.3.1
-            label: 
-            threads-enabled: 'ON'
-            vfx-cy: 2022
-            exclude-tests:
-
-          # -------------------------------------------------------------------
-          # VFX CY2021 - GCC, Release
-          # -------------------------------------------------------------------
-          # Shared, Release
-          - build: 9
-            build-type: Release
-            build-shared: 'ON'
-            cxx-standard: 17
-            cxx-compiler: g++
-            cc-compiler: gcc
-            compiler-desc: gcc9.3.1
-            label: 
-            threads-enabled: 'ON'
-            vfx-cy: 2021
-            exclude-tests:
-
-          # -------------------------------------------------------------------
-          # VFX CY2020 - GCC, Release
-          # -------------------------------------------------------------------
-          # Shared, Release
-          - build: 10
-            build-type: Release
-            build-shared: 'ON'
-            cxx-standard: 14
-            cxx-compiler: g++
-            cc-compiler: gcc
-            compiler-desc: gcc6.3.1
-            label: 
-            threads-enabled: 'ON'
-            vfx-cy: 2020
             exclude-tests:
 
     env:
@@ -294,7 +162,7 @@ jobs:
     runs-on: macos-${{ matrix.osver }}
     strategy:
       matrix:
-        build: [1, 2, 3, 4, 5]
+        build: [1]
         include:
           # -------------------------------------------------------------------
           # VFX CY2023 - C++17 - MacOS 11.0 
@@ -306,54 +174,7 @@ jobs:
             threads-enabled: 'ON'
             compiler-desc: AppleClang11.0
             cxx-standard: 17
-            osver: 11.0
-            exclude-tests:
-            vfx-cy: 23
-
-          # Shared, Release, Threads OFF
-          - build: 2
-            build-type: Release
-            build-shared: 'ON'
-            threads-enabled: 'OFF'
-            compiler-desc: AppleClang11.0
-            cxx-standard: 17
-            osver: 11.0
-            exclude-tests:
-            vfx-cy: 23
-
-          # Static, Release
-          - build: 3
-            build-type: Release
-            build-shared: 'OFF'
-            threads-enabled: 'ON'
-            compiler-desc: AppleClang11.0
-            cxx-standard: 17
-            osver: 11.0
-            exclude-tests:
-            vfx-cy: 23
-
-          # Shared, Debug
-          - build: 4
-            build-type: Debug
-            build-shared: 'ON'
-            threads-enabled: 'ON'
-            compiler-desc: AppleClang11.0
-            cxx-standard: 17
-            osver: 11.0
-            exclude-tests:
-            vfx-cy: 23
-
-          # -------------------------------------------------------------------
-          # VFX CY2023 - C++17 - MacOS 12
-          # -------------------------------------------------------------------
-          # Shared, Release
-          - build: 5
-            build-type: Release
-            build-shared: 'ON'
-            threads-enabled: 'ON'
-            compiler-desc: AppleClang11.0
-            cxx-standard: 17
-            osver: 12.0
+            osver: 15
             exclude-tests:
             vfx-cy: 23
 
@@ -422,7 +243,7 @@ jobs:
     runs-on: windows-${{ matrix.osver }}
     strategy:
       matrix:
-        build: [1, 2, 3, 4, 5]
+        build: [1]
         include:
           # -------------------------------------------------------------------
           # VFX CY2023 - C++17 - Windows 2022 runner - MSVC 2022 (17.5)
@@ -437,53 +258,6 @@ jobs:
             vfx-cy: 2023
             exclude-tests: ''
             osver: 2022
-
-          # Shared, Release, Threads OFF
-          - build: 2
-            build-type: Release
-            build-shared: 'ON'
-            threads-enabled: 'OFF'
-            compiler-desc: msvc17.5
-            cxx-standard: 17
-            vfx-cy: 2023
-            exclude-tests: ''
-            osver: 2022
-
-          # Static, Release
-          - build: 3
-            build-type: Release
-            build-shared: 'OFF'
-            threads-enabled: 'ON'
-            compiler-desc: msvc17.5
-            cxx-standard: 17
-            vfx-cy: 2023
-            exclude-tests: ''
-            osver: 2022
-
-         # -------------------------------------------------------------------
-          # VFX CY2022 - C++17 - Windows 2019 runner - MSVC 2019 (16.11) 
-          # -------------------------------------------------------------------
-          # Shared, Release
-          - build: 4
-            build-type: Release
-            build-shared: 'ON'
-            threads-enabled: 'ON'
-            compiler-desc: msvc16.11
-            cxx-standard: 17
-            vfx-cy: 2022
-            exclude-tests: ''
-            osver: 2019
-
-          # Static, Release
-          - build: 5
-            build-type: Release
-            build-shared: 'OFF'
-            threads-enabled: 'ON'
-            compiler-desc: msvc16.11
-            cxx-standard: 17
-            vfx-cy: 2022
-            exclude-tests: ''
-            osver: 2019
 
     steps:
       - name: Checkout

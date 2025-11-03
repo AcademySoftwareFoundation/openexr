@@ -14,18 +14,22 @@ on:
   # single arch)
 
   push:
-    branches-ignore:
-      - RB-*
     paths:
+      - 'cmake/**'
+      - 'src/lib/**'
       - 'src/wrappers/python/**'
       - 'pyproject.toml'
+      - '!share/ci/**'
+      - '!.github/workflows/**'
       - '.github/workflows/python-wheels.yml'
   pull_request:
-    branches-ignore:
-      - RB-*
     paths:
+      - 'cmake/**'
+      - 'src/lib/**'
       - 'src/wrappers/python/**'
       - 'pyproject.toml'
+      - '!share/ci/**'
+      - '!.github/workflows/**'
       - '.github/workflows/python-wheels.yml'
 
 permissions:
@@ -33,19 +37,29 @@ permissions:
 
 jobs:
   build_wheels:
-    name: Python Wheels - ${{ matrix.os }} 
+    name: Python Wheels - ${{ matrix.os }}-${{ matrix.arch }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        include:
+          - os: ubuntu-latest
+            arch: x64
+          - os: ubuntu-24.04-arm
+            arch: arm64
+          - os: macos-13
+            arch: x64
+          - os: macos-latest
+            arch: arm64
+          - os: windows-latest
+            arch: x64
 
     steps:
 
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Install Python 
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b # v5.3.0
         with:
           python-version: '3.x'
 
@@ -55,20 +69,22 @@ jobs:
         run: pipx run build --sdist . --outdir wheelhouse
 
       - name: Build wheel
-        uses: pypa/cibuildwheel@v2.16
+        uses: pypa/cibuildwheel@v2.23
         env:
           CIBW_ARCHS_MACOS: x86_64 arm64 universal2
+          # Build Python 3.7 through 3.12.
           # Skip python 3.6 since scikit-build-core requires 3.7+
           # Skip 32-bit wheels builds on Windows
           # Also skip the PyPy builds, since they fail the unit tests
-          CIBW_SKIP: cp36-* *-win32 *_i686 pp* 
+          CIBW_BUILD: "cp38-* cp39-* cp310-* cp311-* cp312-* cp313-*"
+          CIBW_SKIP: "*-win32 *_i686"
           CIBW_TEST_SKIP: "*-macosx*arm64"
+          OPENEXR_TEST_IMAGE_REPO: "https://raw.githubusercontent.com/AcademySoftwareFoundation/openexr-images/main"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: wheels-${{ matrix.os }}
+          name: wheels-${{ matrix.os }}-${{ matrix.arch }}
           path: |
             ./wheelhouse/*.whl
             ./wheelhouse/*.tar.gz
-
