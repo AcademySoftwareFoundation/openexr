@@ -3,7 +3,7 @@
 
 # OpenEXR Release Notes
 
-* [Version 3.4.3](#version-342-november-3-2025) November 3, 2025
+* [Version 3.4.3](#version-343-november-4-2025) November 4, 2025
 * [Version 3.4.2](#version-342-october-15-2025) October 15, 2025
 * [Version 3.4.1](#version-341-october-8-2025) October 8, 2025
 * [Version 3.4.0](#version-340-september-5-2025) September 5, 2025
@@ -84,25 +84,36 @@
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
 
-## Version 3.4.3 (November 3, 2025)
+## Version 3.4.3 (November 4, 2025)
 
 Patch release that addresses several bugs, primarily involving
 properly rejecting corrupt input data.
 
 Specifically:
 
+- Buffer overflow in PyOpenEXR_old's `channels()` and `channel()` in
+  legacy python, reported by Joshua Rogers (GitHub: MegaManSec).
+- Use after free in PyObject_StealAttrString in legacy python, reported
+  by Joshua Rogers (GitHub: MegaManSec).
+- Use of Uninitialized Memory in openexr, reported by Aldo Ristori
+  (GitHub: Kaldreic).
+- Heap-based Buffer Overflow Remote Code Execution Vulnerability,
+  reported by Trend Micro Zero Day Initiative.
+
+Also:
+
 * OSS-fuzz [456158449](https://issues.oss-fuzz.com/issues/456158449)
-Heap-buffer-overflow in generic_unpack
+Heap-buffer-overflow in `generic_unpack`
 * OSS-fuzz [447429458](https://issues.oss-fuzz.com/issues/447429458)
-Heap-buffer-overflow in DwaCompressor_uncompress
+Heap-buffer-overflow in `DwaCompressor_uncompress`
 * OSS-fuzz [439237843](https://issues.oss-fuzz.com/issues/439237843)
-Heap-buffer-overflow in internal_exr_undo_ht
+Heap-buffer-overflow in `internal_exr_undo_ht`
 * OSS-fuzz [436037111](https://issues.oss-fuzz.com/issues/436037111)
-Heap-buffer-overflow in generic_unpack
+Heap-buffer-overflow in `generic_unpack`
 * OSS-fuzz [435779241](https://issues.oss-fuzz.com/issues/435779241)
-Heap-buffer-overflow in generic_unpack
+Heap-buffer-overflow in `generic_unpack`
 * OSS-fuzz [420744464](https://issues.oss-fuzz.com/issues/420744464)
-Abrt in __cxxabiv1::failed_throw
+Abrt in `__cxxabiv1::failed_throw`
 
 Other fixes:
 * Fix a bug with re-reading a scanline file with a different set of
@@ -114,18 +125,20 @@ This version also bumps the auto-fetched version of OpenJPH to
 0.24.4. OpenJPH 0.24.4 addresses these OSS-Fuzz issues:
 		
 * OSS-fuzz [455374208](https://issues.oss-fuzz.com/issues/455374208)
-Floating-point-exception in ojph::local::tile::pre_alloc
+Floating-point-exception in `ojph::local::tile::pre_alloc`
 * OSS-fuzz [444963190](https://issues.oss-fuzz.com/issues/444963190)
-Index-out-of-bounds in ojph::local::param_qcd::read_qcc
+Index-out-of-bounds in `ojph::local::param_qcd::read_qcc`
 * OSS-fuzz [444878558](https://issues.oss-fuzz.com/issues/444878558)
-Segv on unknown address in ojph::local::param_qcd::~param_qcd
+Segv on unknown address in `ojph::local::param_qcd::~param_qcd`
 * OSS-fuzz [444878557](https://issues.oss-fuzz.com/issues/444878557)
-Null-dereference READ in ojph::local::param_qcd::~param_qcd
+Null-dereference READ in `ojph::local::param_qcd::~param_qcd`
 
 ### Merged Pull Requests:
 
+* [2168](https://github.com/AcademySoftwareFoundation/openexr/pull/2168)
+ Fix improper use of `Py_DECREF` in legacy python module
 * [2166](https://github.com/AcademySoftwareFoundation/openexr/pull/2166)
-Only define CMAKE_DEBUG_POSTFIX if it is not already defined
+Only define `CMAKE_DEBUG_POSTFIX` if it is not already defined
 * [2164](https://github.com/AcademySoftwareFoundation/openexr/pull/2164)
 check storage_mode when computing chunk sizes
 * [2163](https://github.com/AcademySoftwareFoundation/openexr/pull/2163)
@@ -137,7 +150,7 @@ ImfCheckFile: handle partial deep tiles
 * [2160](https://github.com/AcademySoftwareFoundation/openexr/pull/2160)
 Fix issues with negative coordinates and sampling != 0
 * [2159](https://github.com/AcademySoftwareFoundation/openexr/pull/2159)
-Fix memset in exr_read_chunk when nread is negative
+Fix memset in `exr_read_chunk` when nread is negative
 * [2156](https://github.com/AcademySoftwareFoundation/openexr/pull/2156)
 Fix handling of corrupt RLE data
 * [2150](https://github.com/AcademySoftwareFoundation/openexr/pull/2150)
@@ -175,19 +188,19 @@ Update `HELP2MAN_URL` in `install_help2man.sh`
 * [2139](https://github.com/AcademySoftwareFoundation/openexr/pull/2139)
 Fix doxygen/sphinx/rst website issues
 * [2138](https://github.com/AcademySoftwareFoundation/openexr/pull/2138)
-Bazel cleanup 
+Bazel cleanup
 * [2137](https://github.com/AcademySoftwareFoundation/openexr/pull/2137)
-Bump macos runners to 14 and 15, drop 13 
+Bump macos runners to 14 and 15, drop 13
 * [2136](https://github.com/AcademySoftwareFoundation/openexr/pull/2136)
-Include the openjph headers from the openjph folder, required for OpenJPH 0.23+ 
+Include the openjph headers from the openjph folder, required for OpenJPH 0.23+
 * [2127](https://github.com/AcademySoftwareFoundation/openexr/pull/2127)
-cmake: remove trailing spaces 
+cmake: remove trailing spaces
 * [2119](https://github.com/AcademySoftwareFoundation/openexr/pull/2119)
-News for v3.4.0 release 
+News for v3.4.0 release
 * [2118](https://github.com/AcademySoftwareFoundation/openexr/pull/2118)
-fix formatting in release notes 
+fix formatting in release notes
 * [2107](https://github.com/AcademySoftwareFoundation/openexr/pull/2107)
-Add section on OpenEXR/Imath version compatibility to install instructions 
+Add section on OpenEXR/Imath version compatibility to install instructions
 
 ## Version 3.4.0 (September 5, 2025)
 
