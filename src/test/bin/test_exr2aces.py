@@ -56,6 +56,9 @@ def cleanup():
 atexit.register(cleanup)
 
 image = f"{image_dir}/TestImages/GrayRampsHorizontal.exr"
+if not os.path.isfile(image) or os.path.getsize(image) == 0:
+    sys.exit(f"WARNING: test image {image} is not valid.")
+
 result = run ([exr2aces, "-v", image, outimage], stdout=PIPE, stderr=PIPE, universal_newlines=True)
 print(" ".join(result.args))
 assert(result.returncode == 0), "\n"+result.stderr

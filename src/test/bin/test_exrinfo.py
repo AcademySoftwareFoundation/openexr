@@ -31,8 +31,13 @@ assert(result.stdout.startswith ("exrinfo")), "\n"+result.stdout
 assert(version in result.stdout), "\n"+result.stdout
 
 image = f"{image_dir}/TestImages/GrayRampsHorizontal.exr"
+if not os.path.isfile(image) or os.path.getsize(image) == 0:
+    sys.exit(f"WARNING: test image {image} is not valid.")
+
 result = run ([exrinfo, image, "-a", "-v"], stdout=PIPE, stderr=PIPE, universal_newlines=True)
 print(" ".join(result.args))
+print(f"result.stdout: {result.stdout}")
+print(f"result.stderr: {result.stderr}")
 assert(result.returncode == 0), "\n"+result.stderr
 output = result.stdout.split('\n')
 try:

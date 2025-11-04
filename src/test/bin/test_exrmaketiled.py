@@ -14,6 +14,8 @@ image_dir = sys.argv[3]
 version = sys.argv[4]
 
 image = f"{image_dir}/TestImages/GammaChart.exr"
+if not os.path.isfile(image) or os.path.getsize(image) == 0:
+    sys.exit(f"WARNING: test image {image} is not valid.")
 
 assert(os.path.isfile(exrmaketiled)), "\nMissing " + exrmaketiled
 assert(os.path.isfile(exrinfo)), "\nMissing " + exrinfo

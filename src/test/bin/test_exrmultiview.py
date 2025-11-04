@@ -37,7 +37,12 @@ assert(result.stdout.startswith ("exrmultiview")), "\n"+result.stdout
 assert(version in result.stdout), "\n"+result.stdout
 
 left_image = f"{image_dir}/TestImages/GammaChart.exr"
+if not os.path.isfile(left_image) or os.path.getsize(left_image) == 0:
+    sys.exit(f"WARNING: test image {left_image} is not valid.")
+    
 right_image = f"{image_dir}/TestImages/GrayRampsHorizontal.exr"
+if not os.path.isfile(right_image) or os.path.getsize(right_image) == 0:
+    sys.exit(f"WARNING: test image {right_image} is not valid.")
 
 fd, outimage = tempfile.mkstemp(".exr")
 os.close(fd)
