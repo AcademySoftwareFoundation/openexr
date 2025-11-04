@@ -97,10 +97,16 @@ Specifically:
 * Heap-based Buffer Overflow Remote Code Execution Vulnerability,
   reported by Trend Micro Zero Day Initiative.
 
+Other fixes:
+* Only populate `CMAKE_DEBUG_POSTFIX` with `_d` if it is undefined,
+  which makes it possible to set `CMAKE_DEBUG_POSTFIX=""`.
+
 ### Merged Pull Requests:
 
 * [2168](https://github.com/AcademySoftwareFoundation/openexr/pull/2168)
 Fix improper use of `Py_DECREF` in legacy python module
+* [2166](https://github.com/AcademySoftwareFoundation/openexr/pull/2166)
+Only define CMAKE_DEBUG_POSTFIX if it is not already defined
 * [2164](https://github.com/AcademySoftwareFoundation/openexr/pull/2164)
 check storage_mode when computing chunk sizes
 * [2163](https://github.com/AcademySoftwareFoundation/openexr/pull/2163)
