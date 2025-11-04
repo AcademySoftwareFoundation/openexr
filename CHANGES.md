@@ -91,13 +91,13 @@ properly rejecting corrupt input data.
 
 Specifically:
 
-- Buffer overflow in PyOpenEXR_old's `channels()` and `channel()` in
+* Buffer overflow in PyOpenEXR_old's `channels()` and `channel()` in
   legacy python, reported by Joshua Rogers (GitHub: MegaManSec).
-- Use after free in PyObject_StealAttrString in legacy python, reported
+* Use after free in PyObject_StealAttrString in legacy python, reported
   by Joshua Rogers (GitHub: MegaManSec).
-- Use of Uninitialized Memory in openexr, reported by Aldo Ristori
+* Use of Uninitialized Memory in openexr, reported by Aldo Ristori
   (GitHub: Kaldreic).
-- Heap-based Buffer Overflow Remote Code Execution Vulnerability,
+* Heap-based Buffer Overflow Remote Code Execution Vulnerability,
   reported by Trend Micro Zero Day Initiative.
 
 Also:
@@ -122,12 +122,18 @@ Other fixes:
   which makes it possible to set `CMAKE_DEBUG_POSTFIX=""`.
 
 This version also bumps the auto-fetched version of OpenJPH to
-0.24.4. OpenJPH 0.24.4 addresses these OSS-Fuzz issues:
+0.24.5. OpenJPH 0.24.5 addresses these OSS-Fuzz issues:
 		
+* OSS-fuzz [456837230](https://issues.oss-fuzz.com/issues/456837230)
+Crash in `ojph::local::param_cod::~param_cod`
+* OSS-fuzz [456248580](https://issues.oss-fuzz.com/issues/456248580)
+Null-dereference READ in `ojph::local::param_cod::~param_cod`
 * OSS-fuzz [455374208](https://issues.oss-fuzz.com/issues/455374208)
 Floating-point-exception in `ojph::local::tile::pre_alloc`
 * OSS-fuzz [444963190](https://issues.oss-fuzz.com/issues/444963190)
 Index-out-of-bounds in `ojph::local::param_qcd::read_qcc`
+* OSS-fuzz [444889300](https://issues.oss-fuzz.com/issues/444889300)
+Heap-buffer-overflow in `ojph::mem_infile::read`
 * OSS-fuzz [444878558](https://issues.oss-fuzz.com/issues/444878558)
 Segv on unknown address in `ojph::local::param_qcd::~param_qcd`
 * OSS-fuzz [444878557](https://issues.oss-fuzz.com/issues/444878557)
