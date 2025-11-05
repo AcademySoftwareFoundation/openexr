@@ -411,7 +411,7 @@ Fetch master branch of libdeflate on main
 * [1852](https://github.com/AcademySoftwareFoundation/openexr/pull/1852)
 Add an option to use TBB as the global provider
 
-## Version 3.3.6 (November 3, 2025)
+## Version 3.3.6 (November 4, 2025)
 
 Patch release that addresses several bugs, primarily involving
 properly rejecting corrupt input data.
