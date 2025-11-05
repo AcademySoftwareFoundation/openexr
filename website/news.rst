@@ -17,9 +17,21 @@ News
 
 
 |latest-news-title|
-=========================================
+==========================================
 
 .. _LatestNewsStart:
+
+Patch release that addresses bugs in the python module's legacy API.
+
+* Buffer overflow in PyOpenEXR_old's `channels()` and `channel()` in
+  legacy python, reported by Joshua Rogers (GitHub: MegaManSec).
+* Use after free in PyObject_StealAttrString in legacy python, reported
+  by Joshua Rogers (GitHub: MegaManSec).
+
+.. _LatestNewsEnd:
+
+October 15, 2025 - OpenEXR 3.4.2 Released
+=========================================
 
 Patch release that fixes a Windows build issue introduced in v3.4.1.
 
@@ -29,7 +41,6 @@ duplicate library aliases.
 
 No change in functionality.
 
-.. _LatestNewsEnd:
 
 October  8, 2025 - OpenEXR 3.4.1 Released
 =========================================
