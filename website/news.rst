@@ -66,7 +66,7 @@ Full changelog: `[v3.4.2..v3.4.3] <https://github.com/AcademySoftwareFoundation/
 
 .. _LatestNewsEnd:
 
-November  3, 2025 - OpenEXR 3.3.6 Released
+November  4, 2025 - OpenEXR 3.3.6 Released
 ==========================================
 
 Patch release that addresses several bugs, primarily involving
