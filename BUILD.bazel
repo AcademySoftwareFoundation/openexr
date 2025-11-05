@@ -2,6 +2,8 @@
 # Copyright (c) Contributors to the OpenEXR Project.
 
 load("@bazel_skylib//rules:expand_template.bzl", "expand_template")
+load("@rules_cc//cc:cc_binary.bzl", "cc_binary")
+load("@rules_cc//cc:cc_test.bzl", "cc_test")
 load("@rules_cc//cc:defs.bzl", "cc_library")
 
 config_setting(
@@ -13,7 +15,7 @@ expand_template(
     name = "IexConfig",
     out = "src/lib/Iex/IexConfig.h",
     substitutions = {
-        "@IEX_INTERNAL_NAMESPACE@": "Iex_3_3",
+        "@IEX_INTERNAL_NAMESPACE@": "Iex_3_4",
         "@IEX_NAMESPACE_CUSTOM@": "0",
         "@IEX_NAMESPACE@": "Iex",
     },
@@ -35,7 +37,7 @@ expand_template(
     name = "IlmThreadConfig",
     out = "src/lib/IlmThread/IlmThreadConfig.h",
     substitutions = {
-        "@ILMTHREAD_INTERNAL_NAMESPACE@": "IlmThread_3_3",
+        "@ILMTHREAD_INTERNAL_NAMESPACE@": "IlmThread_3_4",
         "@ILMTHREAD_NAMESPACE_CUSTOM@": "0",
         "@ILMTHREAD_NAMESPACE@": "IlmThread",
         "#cmakedefine01 ILMTHREAD_HAVE_POSIX_SEMAPHORES": "#define ILMTHREAD_HAVE_POSIX_SEMAPHORES 0",
@@ -50,14 +52,14 @@ expand_template(
     out = "src/lib/OpenEXR/OpenEXRConfig.h",
     substitutions = {
         "@OPENEXR_IMF_NAMESPACE@": "Imf",
-        "@OPENEXR_INTERNAL_IMF_NAMESPACE@": "Imf_3_3",
-        "@OPENEXR_LIB_VERSION@": "3.3.0",
-        "@OPENEXR_NAMESPACE_CUSTOM@": "3.3.0",
-        "@OPENEXR_PACKAGE_NAME@": "OpenEXR 3.3.0",
+        "@OPENEXR_INTERNAL_IMF_NAMESPACE@": "Imf_3_4",
+        "@OPENEXR_LIB_VERSION@": "3.4.0",
+        "@OPENEXR_NAMESPACE_CUSTOM@": "3.4.0",
+        "@OPENEXR_PACKAGE_NAME@": "OpenEXR 3.4.0",
         "@OPENEXR_VERSION_EXTRA@": "",
-        "@OPENEXR_VERSION@": "3.3.0",
+        "@OPENEXR_VERSION@": "3.4.0",
         "@OPENEXR_VERSION_MAJOR@": "3",
-        "@OPENEXR_VERSION_MINOR@": "3",
+        "@OPENEXR_VERSION_MINOR@": "4",
         "@OPENEXR_VERSION_PATCH@": "0",
         "#cmakedefine OPENEXR_ENABLE_API_VISIBILITY": "#define OPENEXR_ENABLE_API_VISIBILITY",
         "#cmakedefine OPENEXR_HAVE_LARGE_STACK 1": "/* #undef OPENEXR_HAVE_LARGE_STACK */",
@@ -195,8 +197,8 @@ cc_library(
         "src/lib/OpenEXRCore/internal_file.h",
         "src/lib/OpenEXRCore/internal_float_vector.h",
         "src/lib/OpenEXRCore/internal_ht.cpp",
-        "src/lib/OpenEXRCore/internal_ht_common.h",
         "src/lib/OpenEXRCore/internal_ht_common.cpp",
+        "src/lib/OpenEXRCore/internal_ht_common.h",
         "src/lib/OpenEXRCore/internal_huf.c",
         "src/lib/OpenEXRCore/internal_huf.h",
         "src/lib/OpenEXRCore/internal_memory.h",
@@ -270,8 +272,8 @@ cc_library(
     visibility = ["//visibility:public"],
     deps = [
         "@imath",
-        "@openjph",
         "@libdeflate//:deflate",
+        "@openjph",
     ],
 )
 
@@ -317,8 +319,8 @@ cc_library(
         "src/lib/OpenEXR/ImfFramesPerSecond.cpp",
         "src/lib/OpenEXR/ImfGenericInputFile.cpp",
         "src/lib/OpenEXR/ImfGenericOutputFile.cpp",
-        "src/lib/OpenEXR/ImfHeader.cpp",
         "src/lib/OpenEXR/ImfHTCompressor.cpp",
+        "src/lib/OpenEXR/ImfHeader.cpp",
         "src/lib/OpenEXR/ImfHuf.cpp",
         "src/lib/OpenEXR/ImfIDManifest.cpp",
         "src/lib/OpenEXR/ImfIDManifestAttribute.cpp",
@@ -424,8 +426,8 @@ cc_library(
         "src/lib/OpenEXR/ImfFramesPerSecond.h",
         "src/lib/OpenEXR/ImfGenericInputFile.h",
         "src/lib/OpenEXR/ImfGenericOutputFile.h",
-        "src/lib/OpenEXR/ImfHeader.h",
         "src/lib/OpenEXR/ImfHTCompressor.h",
+        "src/lib/OpenEXR/ImfHeader.h",
         "src/lib/OpenEXR/ImfHuf.h",
         "src/lib/OpenEXR/ImfIDManifest.h",
         "src/lib/OpenEXR/ImfIDManifestAttribute.h",
@@ -517,7 +519,7 @@ cc_library(
         ":IlmThread",
         ":OpenEXRCore",
         "@imath",
-        "@openjph"
+        "@openjph",
     ],
 )
 
@@ -525,8 +527,12 @@ cc_test(
     name = "IexTest",
     srcs = [
         "src/test/IexTest/main.cpp",
+        "src/test/IexTest/mathFuncs.cpp",
+        "src/test/IexTest/mathFuncs.h",
         "src/test/IexTest/testBaseExc.cpp",
         "src/test/IexTest/testBaseExc.h",
+        "src/test/IexTest/testMathExc.cpp",
+        "src/test/IexTest/testMathExc.h",
     ],
     includes = ["src/test/IexTest"],
     tags = ["manual"],  # This test is not build and executed in the CI
@@ -576,4 +582,10 @@ cc_binary(
     deps = [
         ":OpenEXR",
     ],
+)
+
+alias(
+    name = "openexr",
+    actual = ":OpenEXR",
+    visibility = ["//visibility:public"],
 )

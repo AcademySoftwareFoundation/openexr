@@ -761,7 +761,6 @@ extract_attr_bytes(
     int32_t n;
     int32_t hint_length;
     size_t bytes_length;
-    const char* type_hint;
     exr_result_t rv;
 
     rv = check_bad_attrsz(scratch, attrsz, 1, aname, tname, &n);
@@ -2493,7 +2492,9 @@ internal_exr_compute_chunk_offset_size (exr_priv_part_t curpart)
 
     w = (uint64_t) (((int64_t) dw.max.x) - ((int64_t) dw.min.x) + 1);
 
-    if (curpart->tiles)
+    if (curpart->storage_mode != EXR_STORAGE_SCANLINE &&
+       curpart->storage_mode != EXR_STORAGE_DEEP_SCANLINE &&
+       curpart->tiles)
     {
         const exr_attr_tiledesc_t* tiledesc  = curpart->tiles->tiledesc;
         int64_t                    tilecount = 0;

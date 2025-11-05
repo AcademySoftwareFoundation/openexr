@@ -17,12 +17,120 @@ News
 
 
 |latest-news-title|
-===========================================
+==========================================
 
 .. _LatestNewsStart:
 
-📺 Watch the recording of the `2025 ASWF OpenEXR Virtual Town Hall <https://youtu.be/XYdAm4OXO88>`_ to hear more about the v3.4
-release. The presentation slide deck is `here
+Patch release that addresses several bugs, primarily involving
+properly rejecting corrupt input data.
+
+Specifically:
+
+* Buffer overflow in PyOpenEXR_old's `channels()` and `channel()` in
+  legacy python, reported by Joshua Rogers (GitHub: MegaManSec).
+* Use after free in PyObject_StealAttrString in legacy python, reported
+  by Joshua Rogers (GitHub: MegaManSec).
+* Use of Uninitialized Memory in openexr, reported by Aldo Ristori
+  (GitHub: Kaldreic).
+* Heap-based Buffer Overflow Remote Code Execution Vulnerability,
+  reported by Trend Micro Zero Day Initiative.
+
+Also:
+
+* OSS-fuzz `456158449 <https://issues.oss-fuzz.com/issues/456158449>`_ Heap-buffer-overflow in `generic_unpack`
+* OSS-fuzz `447429458 <https://issues.oss-fuzz.com/issues/447429458>`_ Heap-buffer-overflow in `DwaCompressor_uncompress`
+* OSS-fuzz `439237843 <https://issues.oss-fuzz.com/issues/439237843>`_ Heap-buffer-overflow in `internal_exr_undo_ht`
+* OSS-fuzz `436037111 <https://issues.oss-fuzz.com/issues/436037111>`_ Heap-buffer-overflow in `generic_unpack`
+* OSS-fuzz `435779241 <https://issues.oss-fuzz.com/issues/435779241>`_ Heap-buffer-overflow in `generic_unpack`
+* OSS-fuzz `420744464 <https://issues.oss-fuzz.com/issues/420744464>`_ Abrt in `__cxxabiv1::failed_throw`
+
+Other fixes:
+
+* Fix a bug with re-reading a scanline file with a different set of
+  channels.
+* Only populate `CMAKE_DEBUG_POSTFIX` with `_d` if it is undefined,
+  which makes it possible to set `CMAKE_DEBUG_POSTFIX=""`.
+
+This version also bumps the auto-fetched version of OpenJPH to
+0.24.5. OpenJPH 0.24.5 addresses these OSS-Fuzz issues:
+		
+* OSS-fuzz `456837230 <https://issues.oss-fuzz.com/issues/456837230>`_ Crash in `ojph::local::param_cod::~param_cod`
+* OSS-fuzz `456248580 <https://issues.oss-fuzz.com/issues/456248580>`_ Null-dereference READ in `ojph::local::param_cod::~param_cod`
+* OSS-fuzz `455374208 <https://issues.oss-fuzz.com/issues/455374208>`_ Floating-point-exception in `ojph::local::tile::pre_alloc`
+* OSS-fuzz `444963190 <https://issues.oss-fuzz.com/issues/444963190>`_ Index-out-of-bounds in `ojph::local::param_qcd::read_qcc`
+* OSS-fuzz `444889300 <https://issues.oss-fuzz.com/issues/444889300>`_ Heap-buffer-overflow in `ojph::mem_infile::read`
+* OSS-fuzz `444878558 <https://issues.oss-fuzz.com/issues/444878558>`_ Segv on unknown address in `ojph::local::param_qcd::~param_qcd`
+* OSS-fuzz `444878557 <https://issues.oss-fuzz.com/issues/444878557>`_ Null-dereference READ in `ojph::local::param_qcd::~param_qcd`
+
+Full changelog: `[v3.4.2..v3.4.3] <https://github.com/AcademySoftwareFoundation/openexr/compare/v3.4.2..v3.4.3>`_
+
+.. _LatestNewsEnd:
+
+November  4, 2025 - OpenEXR 3.3.6 Released
+==========================================
+
+Patch release that addresses several bugs, primarily involving
+properly rejecting corrupt input data.
+
+Specifically:
+
+* Buffer overflow in PyOpenEXR_old's `channels()` and `channel()` in
+  legacy python, reported by Joshua Rogers (GitHub: MegaManSec).
+* Use after free in PyObject_StealAttrString in legacy python, reported
+  by Joshua Rogers (GitHub: MegaManSec).
+* Use of Uninitialized Memory in openexr, reported by Aldo Ristori
+  (GitHub: Kaldreic).
+* Heap-based Buffer Overflow Remote Code Execution Vulnerability,
+  reported by Trend Micro Zero Day Initiative.
+
+Other fixes:
+
+* Only populate `CMAKE_DEBUG_POSTFIX` with `_d` if it is undefined,
+  which makes it possible to set `CMAKE_DEBUG_POSTFIX=""`.
+
+Full changelog: `[v3.3.5..v3.3.6] <https://github.com/AcademySoftwareFoundation/openexr/compare/v3.3.5..v3.3.6>`_
+
+
+November  4, 2025 - OpenEXR 3.2.5 Released
+==========================================
+
+Patch release that addresses bugs in the python module's legacy API.
+
+* Buffer overflow in PyOpenEXR_old's `channels()` and `channel()` in
+  legacy python, reported by Joshua Rogers (GitHub: MegaManSec).
+* Use after free in PyObject_StealAttrString in legacy python, reported
+  by Joshua Rogers (GitHub: MegaManSec).
+
+Full changelog: `[v3.2.4..v3.2.5] <https://github.com/AcademySoftwareFoundation/openexr/compare/v3.2.6..v3.2.5>`_
+
+
+October 15, 2025 - OpenEXR 3.4.2 Released
+=========================================
+
+Patch release that fixes a Windows build issue introduced in v3.4.1.
+
+This version also bumps the auto-fetched Imath version to v3.2.2,
+which resolves a build problem with newer versions of cmake, involving
+duplicate library aliases.
+
+No change in functionality.
+
+
+October  8, 2025 - OpenEXR 3.4.1 Released
+=========================================
+
+Patch release that fixes a build issue: OpenJPH headers are now
+included from the openjph folder, as required by OpenJPH 0.23+.
+
+No change in functionality.
+
+
+September  5, 2025 - OpenEXR 3.4.0 Released
+===========================================
+
+📺 Watch the recording of the `2025 ASWF OpenEXR Virtual Town Hall
+<https://youtu.be/XYdAm4OXO88>`_ to hear more about the v3.4 release,
+or view the `presentation slide deck
 <https://drive.google.com/file/d/1_eT5JK3RSevbnoaJaIq2QE0wzz3tlVpX/view>`_.
 
 OpenEXR v3.4 introduces a new, additional compression option to the
@@ -83,7 +191,6 @@ JPEG-2000 (HTJ2K)** encoding:
   evaluation version should still read properly.
 
 Other New Features:
--------------------
 
 * ✨ **New `colorInteropID` standard attribute**
 
@@ -128,12 +235,10 @@ Other New Features:
     internal vendored version.
 
 Bug fixes:
-----------
 
 * 🐛 Using openexr via cmake `add_subdirectory` now works properly.
 
 Changes to the OpenEXR Python module:
--------------------------------------
 
 * 🐍 🐛 The Python module now allows an empty part name for a
   single-part file
@@ -142,7 +247,6 @@ Changes to the OpenEXR Python module:
 * 🐍 📦 ⚠️ `pypi` distributions now **add support
   for Python 3.13** and **drop support for Python 3.7**.
 
-.. _LatestNewsEnd:
 
 July 26, 2025 - OpenEXR 3.3.5 Released
 ======================================
