@@ -3,15 +3,18 @@
 
 # OpenEXR Release Notes
 
+* [Version 3.4.3](#version-343-november-4-2025) November 4, 2025
 * [Version 3.4.2](#version-342-october-15-2025) October 15, 2025
 * [Version 3.4.1](#version-341-october-8-2025) October 8, 2025
 * [Version 3.4.0](#version-340-september-5-2025) September 5, 2025
+* [Version 3.3.6](#version-336-november-4-2025) November 5, 2025
 * [Version 3.3.5](#version-335-july-26-2025) July 26, 2025
 * [Version 3.3.4](#version-334-june-9-2025) June 9, 2025
 * [Version 3.3.3](#version-333-march-23-2025) March 23, 2025
 * [Version 3.3.2](#version-332-november-11-2024) November 11, 2024
 * [Version 3.3.1](#version-331-october-8-2024) October 8, 2024
 * [Version 3.3.0](#version-330-september-30-2024) September 30, 2024
+* [Version 3.2.5](#version-325-november-4-2025) November 4, 2025
 * [Version 3.2.4](#version-324-march-26-2024) March 26, 2024
 * [Version 3.2.3](#version-323-march-6-2024) March 6, 2024
 * [Version 3.2.2](#version-322-february-11-2024) February 11, 2024
@@ -83,6 +86,79 @@
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
 
+## Version 3.4.3 (November 4, 2025)
+
+Patch release that addresses several bugs, primarily involving
+properly rejecting corrupt input data.
+
+Specifically:
+
+- Buffer overflow in PyOpenEXR_old's `channels()` and `channel()` in
+  legacy python, reported by Joshua Rogers (GitHub: MegaManSec).
+- Use after free in PyObject_StealAttrString in legacy python, reported
+  by Joshua Rogers (GitHub: MegaManSec).
+- Use of Uninitialized Memory in openexr, reported by Aldo Ristori
+  (GitHub: Kaldreic).
+- Heap-based Buffer Overflow Remote Code Execution Vulnerability,
+  reported by Trend Micro Zero Day Initiative.
+
+Also:
+
+* OSS-fuzz [456158449](https://issues.oss-fuzz.com/issues/456158449)
+Heap-buffer-overflow in `generic_unpack`
+* OSS-fuzz [447429458](https://issues.oss-fuzz.com/issues/447429458)
+Heap-buffer-overflow in `DwaCompressor_uncompress`
+* OSS-fuzz [439237843](https://issues.oss-fuzz.com/issues/439237843)
+Heap-buffer-overflow in `internal_exr_undo_ht`
+* OSS-fuzz [436037111](https://issues.oss-fuzz.com/issues/436037111)
+Heap-buffer-overflow in `generic_unpack`
+* OSS-fuzz [435779241](https://issues.oss-fuzz.com/issues/435779241)
+Heap-buffer-overflow in `generic_unpack`
+* OSS-fuzz [420744464](https://issues.oss-fuzz.com/issues/420744464)
+Abrt in `__cxxabiv1::failed_throw`
+
+Other fixes:
+* Fix a bug with re-reading a scanline file with a different set of
+  channels.
+* Only populate `CMAKE_DEBUG_POSTFIX` with `_d` if it is undefined,
+  which makes it possible to set `CMAKE_DEBUG_POSTFIX=""`.
+
+This version also bumps the auto-fetched version of OpenJPH to
+0.24.4. OpenJPH 0.24.4 addresses these OSS-Fuzz issues:
+		
+* OSS-fuzz [455374208](https://issues.oss-fuzz.com/issues/455374208)
+Floating-point-exception in `ojph::local::tile::pre_alloc`
+* OSS-fuzz [444963190](https://issues.oss-fuzz.com/issues/444963190)
+Index-out-of-bounds in `ojph::local::param_qcd::read_qcc`
+* OSS-fuzz [444878558](https://issues.oss-fuzz.com/issues/444878558)
+Segv on unknown address in `ojph::local::param_qcd::~param_qcd`
+* OSS-fuzz [444878557](https://issues.oss-fuzz.com/issues/444878557)
+Null-dereference READ in `ojph::local::param_qcd::~param_qcd`
+
+### Merged Pull Requests:
+
+* [2168](https://github.com/AcademySoftwareFoundation/openexr/pull/2168)
+ Fix improper use of `Py_DECREF` in legacy python module
+* [2166](https://github.com/AcademySoftwareFoundation/openexr/pull/2166)
+Only define `CMAKE_DEBUG_POSTFIX` if it is not already defined
+* [2164](https://github.com/AcademySoftwareFoundation/openexr/pull/2164)
+check storage_mode when computing chunk sizes
+* [2163](https://github.com/AcademySoftwareFoundation/openexr/pull/2163)
+Check for image size overflow in legacy python module
+* [2162](https://github.com/AcademySoftwareFoundation/openexr/pull/2162)
+verify packed/unpacked size with uncompressed data
+* [2161](https://github.com/AcademySoftwareFoundation/openexr/pull/2161)
+ImfCheckFile: handle partial deep tiles
+* [2160](https://github.com/AcademySoftwareFoundation/openexr/pull/2160)
+Fix issues with negative coordinates and sampling != 0
+* [2159](https://github.com/AcademySoftwareFoundation/openexr/pull/2159)
+Fix memset in `exr_read_chunk` when nread is negative
+* [2156](https://github.com/AcademySoftwareFoundation/openexr/pull/2156)
+Fix handling of corrupt RLE data
+* [2150](https://github.com/AcademySoftwareFoundation/openexr/pull/2150)
+Fix bug with re-reading scanline file with a different set of channels
+
+
 ## Version 3.4.2 (October 15, 2025)
 
 Patch release that fixes a Windows build issue introduced in v3.4.1.
@@ -110,19 +186,19 @@ Update `HELP2MAN_URL` in `install_help2man.sh`
 * [2139](https://github.com/AcademySoftwareFoundation/openexr/pull/2139)
 Fix doxygen/sphinx/rst website issues
 * [2138](https://github.com/AcademySoftwareFoundation/openexr/pull/2138)
-Bazel cleanup 
+Bazel cleanup
 * [2137](https://github.com/AcademySoftwareFoundation/openexr/pull/2137)
-Bump macos runners to 14 and 15, drop 13 
+Bump macos runners to 14 and 15, drop 13
 * [2136](https://github.com/AcademySoftwareFoundation/openexr/pull/2136)
-Include the openjph headers from the openjph folder, required for OpenJPH 0.23+ 
+Include the openjph headers from the openjph folder, required for OpenJPH 0.23+
 * [2127](https://github.com/AcademySoftwareFoundation/openexr/pull/2127)
-cmake: remove trailing spaces 
+cmake: remove trailing spaces
 * [2119](https://github.com/AcademySoftwareFoundation/openexr/pull/2119)
-News for v3.4.0 release 
+News for v3.4.0 release
 * [2118](https://github.com/AcademySoftwareFoundation/openexr/pull/2118)
-fix formatting in release notes 
+fix formatting in release notes
 * [2107](https://github.com/AcademySoftwareFoundation/openexr/pull/2107)
-Add section on OpenEXR/Imath version compatibility to install instructions 
+Add section on OpenEXR/Imath version compatibility to install instructions
 
 ## Version 3.4.0 (September 5, 2025)
 
@@ -334,6 +410,47 @@ Bazel Support: Use Imath and libdeflate live at head
 Fetch master branch of libdeflate on main
 * [1852](https://github.com/AcademySoftwareFoundation/openexr/pull/1852)
 Add an option to use TBB as the global provider
+
+## Version 3.3.6 (November 4, 2025)
+
+Patch release that addresses several bugs, primarily involving
+properly rejecting corrupt input data.
+
+Specifically:
+
+* Buffer overflow in PyOpenEXR_old's `channels()` and `channel()` in
+  legacy python, reported by Joshua Rogers (GitHub: MegaManSec).
+* Use after free in PyObject_StealAttrString in legacy python, reported
+  by Joshua Rogers (GitHub: MegaManSec).
+* Use of Uninitialized Memory in openexr, reported by Aldo Ristori
+  (GitHub: Kaldreic).
+* Heap-based Buffer Overflow Remote Code Execution Vulnerability,
+  reported by Trend Micro Zero Day Initiative.
+
+Other fixes:
+* Only populate `CMAKE_DEBUG_POSTFIX` with `_d` if it is undefined,
+  which makes it possible to set `CMAKE_DEBUG_POSTFIX=""`.
+
+### Merged Pull Requests:
+
+* [2168](https://github.com/AcademySoftwareFoundation/openexr/pull/2168)
+Fix improper use of `Py_DECREF` in legacy python module
+* [2166](https://github.com/AcademySoftwareFoundation/openexr/pull/2166)
+Only define CMAKE_DEBUG_POSTFIX if it is not already defined
+* [2164](https://github.com/AcademySoftwareFoundation/openexr/pull/2164)
+check storage_mode when computing chunk sizes
+* [2163](https://github.com/AcademySoftwareFoundation/openexr/pull/2163)
+Check for image size overflow in legacy python module
+* [2162](https://github.com/AcademySoftwareFoundation/openexr/pull/2162)
+verify packed/unpacked size with uncompressed data
+* [2161](https://github.com/AcademySoftwareFoundation/openexr/pull/2161)
+ImfCheckFile: handle partial deep tiles
+* [2160](https://github.com/AcademySoftwareFoundation/openexr/pull/2160)
+Fix issues with negative coordinates and sampling != 0
+* [2159](https://github.com/AcademySoftwareFoundation/openexr/pull/2159)
+Fix memset in exr_read_chunk when nread is negative
+* [2156](https://github.com/AcademySoftwareFoundation/openexr/pull/2156)
+Fix handling of corrupt RLE data
 
 ## Version 3.3.5 (July 26, 2025)
 
@@ -905,6 +1022,22 @@ Fix macOS arm64 build
 * [1423](https://github.com/AcademySoftwareFoundation/openexr/pull/1423)
 Propagate dwa core 3 1
 * [1418](https://github.com/AcademySoftwareFoundation/openexr/pull/1418)
+
+## Version 3.2.5 (November 4, 2025)
+
+Patch release that addresses bugs in the python module's legacy API.
+
+- Buffer overflow in PyOpenEXR_old's `channels()` and `channel()` in
+  legacy python, reported by Joshua Rogers (GitHub: MegaManSec).
+- Use after free in PyObject_StealAttrString in legacy python, reported
+  by Joshua Rogers (GitHub: MegaManSec).
+
+### Merged Pull Requests:
+
+* [2168](https://github.com/AcademySoftwareFoundation/openexr/pull/2168)
+ Fix improper use of `Py_DECREF` in legacy python module
+* [2163](https://github.com/AcademySoftwareFoundation/openexr/pull/2163)
+Check for image size overflow in legacy python module
 
 ## Version 3.2.4 (March 26, 2024)
 
