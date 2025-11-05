@@ -13,8 +13,9 @@
 
 /**************************************/
 
-extern const uint16_t* exrcore_expTable;
-extern const uint16_t* exrcore_logTable;
+extern uint16_t* exrcore_expTable;
+extern uint16_t* exrcore_logTable;
+extern void      exrcore_ensure_b44_tables ();
 
 static inline void
 convertFromLinear (uint16_t s[16])
@@ -352,6 +353,8 @@ compress_b44_impl (exr_encode_pipeline_t* encode, int flat_field)
         &(encode->scratch_alloc_size_1),
         encode->packed_bytes);
     if (rv != EXR_ERR_SUCCESS) return rv;
+
+    exrcore_ensure_b44_tables ();
 
     nOut   = 0;
     packed = encode->packed_buffer;
@@ -697,6 +700,8 @@ internal_exr_undo_b44 (
         &(decode->scratch_alloc_size_1),
         compute_scratch_buffer_size (decode, uncompressed_size));
     if (rv != EXR_ERR_SUCCESS) return rv;
+
+    exrcore_ensure_b44_tables ();
 
     return uncompress_b44_impl (
         decode,
