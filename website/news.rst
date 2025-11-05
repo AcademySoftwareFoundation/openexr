@@ -21,6 +21,31 @@ News
 
 .. _LatestNewsStart:
 
+Patch release that addresses several bugs, primarily involving
+properly rejecting corrupt input data.
+
+Specifically:
+
+* Buffer overflow in PyOpenEXR_old's `channels()` and `channel()` in
+  legacy python, reported by Joshua Rogers (GitHub: MegaManSec).
+* Use after free in PyObject_StealAttrString in legacy python, reported
+  by Joshua Rogers (GitHub: MegaManSec).
+* Use of Uninitialized Memory in openexr, reported by Aldo Ristori
+  (GitHub: Kaldreic).
+* Heap-based Buffer Overflow Remote Code Execution Vulnerability,
+  reported by Trend Micro Zero Day Initiative.
+
+Other fixes:
+* Only populate `CMAKE_DEBUG_POSTFIX` with `_d` if it is undefined,
+  which makes it possible to set `CMAKE_DEBUG_POSTFIX=""`.
+
+Full changelog: [v3.3.5..v3.3.6](https://github.com/AcademySoftwareFoundation/openexr/compare/v3.3.5..v3.3.6)
+
+.. _LatestNewsEnd:
+
+November  4, 2025 - OpenEXR 3.2.5 Released
+==========================================
+
 Patch release that addresses bugs in the python module's legacy API.
 
 * Buffer overflow in PyOpenEXR_old's `channels()` and `channel()` in
@@ -28,7 +53,8 @@ Patch release that addresses bugs in the python module's legacy API.
 * Use after free in PyObject_StealAttrString in legacy python, reported
   by Joshua Rogers (GitHub: MegaManSec).
 
-.. _LatestNewsEnd:
+Full changelog: [v3.2.4..v3.2.5](https://github.com/AcademySoftwareFoundation/openexr/compare/v3.2.6..v3.2.5)
+
 
 October 15, 2025 - OpenEXR 3.4.2 Released
 =========================================
