@@ -49,6 +49,8 @@ openexr_define_library(OpenEXRCore
     internal_ht.cpp
     internal_ht_common.cpp
     internal_dwa.c
+    internal_dwa_table.c
+    internal_dwa_table_init.c
     internal_huf.c
 
     attributes.c
