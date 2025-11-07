@@ -212,6 +212,7 @@ cc_library(
         "src/lib/OpenEXRCore/internal_string_vector.h",
         "src/lib/OpenEXRCore/internal_structs.c",
         "src/lib/OpenEXRCore/internal_structs.h",
+        "src/lib/OpenEXRCore/internal_thread.h",
         "src/lib/OpenEXRCore/internal_util.h",
         "src/lib/OpenEXRCore/internal_win32_file_impl.h",
         "src/lib/OpenEXRCore/internal_xdr.h",
