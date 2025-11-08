@@ -203,6 +203,11 @@ ht_undo_impl (
     ojph::ui32 image_height =
         siz.get_image_extent ().y - siz.get_image_offset ().y;
 
+    if (decode->chunk.width != siz.get_image_extent ().x - siz.get_image_offset ().x
+        || decode->chunk.height != image_height
+        || decode->channel_count != siz.get_num_components())
+        throw std::runtime_error ("Wrong codestream configuration");
+
     int  bpl       = 0;
     bool is_planar = false;
     for (int16_t c = 0; c < decode->channel_count; c++)
@@ -214,10 +219,6 @@ ht_undo_impl (
         { is_planar = true; }
     }
     cs.set_planar (is_planar);
-
-    assert (decode->chunk.width == siz.get_image_extent ().x - siz.get_image_offset ().x);
-    assert (decode->chunk.height == image_height);
-    assert (decode->channel_count == siz.get_num_components ());
 
     cs.create ();
 
