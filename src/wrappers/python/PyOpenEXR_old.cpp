@@ -1643,9 +1643,23 @@ init_OpenEXR_old(PyObject* module)
     PyModule_AddObject (module, "InputFile", (PyObject*) &InputFile_Type);
     PyModule_AddObject (module, "OutputFile", (PyObject*) &OutputFile_Type);
 
-    OpenEXR_error = PyErr_NewException ((char*) "OpenEXR.error", NULL, NULL);
-    PyDict_SetItemString (moduleDict, "error", OpenEXR_error);
-    Py_DECREF (OpenEXR_error);
+    PyObject *mod_name = PyObject_GetAttrString(module, "__name__");
+    if (mod_name)
+    {
+        PyObject *exc_name = PyUnicode_FromFormat("%U.error", mod_name);
+        if (exc_name)
+        {
+            PyObject *OpenEXR_error = PyErr_NewException(
+                PyUnicode_AsUTF8(exc_name), NULL, NULL);
+            if (OpenEXR_error)
+            {
+                PyDict_SetItemString(moduleDict, "error", OpenEXR_error);
+                Py_DECREF(OpenEXR_error);
+            }
+            Py_DECREF(exc_name);
+        }
+        Py_DECREF(mod_name);
+    }
 
     PyObject *item;
 
