@@ -175,7 +175,7 @@ ht_undo_impl (
     header_sz = read_header (
         (uint8_t*) compressed_data, comp_buf_size, cs_to_file_ch);
     if (static_cast<std::size_t>(decode->channel_count) != cs_to_file_ch.size ())
-        throw std::runtime_error ("Unexpected number of channels");
+        return EXR_ERR_CORRUPT_CHUNK;
 
     for (int cs_i = 0; cs_i < decode->channel_count; cs_i++)
     {
@@ -203,6 +203,11 @@ ht_undo_impl (
     ojph::ui32 image_height =
         siz.get_image_extent ().y - siz.get_image_offset ().y;
 
+    if (decode->chunk.width != siz.get_image_extent ().x - siz.get_image_offset ().x
+        || decode->chunk.height != image_height
+        || decode->channel_count != siz.get_num_components())
+        return EXR_ERR_CORRUPT_CHUNK;
+
     int  bpl       = 0;
     bool is_planar = false;
     for (int16_t c = 0; c < decode->channel_count; c++)
@@ -214,10 +219,6 @@ ht_undo_impl (
         { is_planar = true; }
     }
     cs.set_planar (is_planar);
-
-    assert (decode->chunk.width == siz.get_image_extent ().x - siz.get_image_offset ().x);
-    assert (decode->chunk.height == image_height);
-    assert (decode->channel_count == siz.get_num_components ());
 
     cs.create ();
 
