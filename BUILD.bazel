@@ -2,6 +2,8 @@
 # Copyright (c) Contributors to the OpenEXR Project.
 
 load("@bazel_skylib//rules:expand_template.bzl", "expand_template")
+load("@rules_cc//cc:cc_binary.bzl", "cc_binary")
+load("@rules_cc//cc:cc_test.bzl", "cc_test")
 load("@rules_cc//cc:defs.bzl", "cc_library")
 
 config_setting(
@@ -176,6 +178,7 @@ cc_library(
         "src/lib/OpenEXRCore/internal_attr.h",
         "src/lib/OpenEXRCore/internal_b44.c",
         "src/lib/OpenEXRCore/internal_b44_table.c",
+        "src/lib/OpenEXRCore/internal_b44_table_init.c",
         "src/lib/OpenEXRCore/internal_bytes.h",
         "src/lib/OpenEXRCore/internal_channel_list.h",
         "src/lib/OpenEXRCore/internal_coding.h",
@@ -194,8 +197,8 @@ cc_library(
         "src/lib/OpenEXRCore/internal_file.h",
         "src/lib/OpenEXRCore/internal_float_vector.h",
         "src/lib/OpenEXRCore/internal_ht.cpp",
-        "src/lib/OpenEXRCore/internal_ht_common.h",
         "src/lib/OpenEXRCore/internal_ht_common.cpp",
+        "src/lib/OpenEXRCore/internal_ht_common.h",
         "src/lib/OpenEXRCore/internal_huf.c",
         "src/lib/OpenEXRCore/internal_huf.h",
         "src/lib/OpenEXRCore/internal_memory.h",
@@ -269,8 +272,8 @@ cc_library(
     visibility = ["//visibility:public"],
     deps = [
         "@imath",
-        "@openjph",
         "@libdeflate//:deflate",
+        "@openjph",
     ],
 )
 
@@ -316,8 +319,8 @@ cc_library(
         "src/lib/OpenEXR/ImfFramesPerSecond.cpp",
         "src/lib/OpenEXR/ImfGenericInputFile.cpp",
         "src/lib/OpenEXR/ImfGenericOutputFile.cpp",
-        "src/lib/OpenEXR/ImfHeader.cpp",
         "src/lib/OpenEXR/ImfHTCompressor.cpp",
+        "src/lib/OpenEXR/ImfHeader.cpp",
         "src/lib/OpenEXR/ImfHuf.cpp",
         "src/lib/OpenEXR/ImfIDManifest.cpp",
         "src/lib/OpenEXR/ImfIDManifestAttribute.cpp",
@@ -423,8 +426,8 @@ cc_library(
         "src/lib/OpenEXR/ImfFramesPerSecond.h",
         "src/lib/OpenEXR/ImfGenericInputFile.h",
         "src/lib/OpenEXR/ImfGenericOutputFile.h",
-        "src/lib/OpenEXR/ImfHeader.h",
         "src/lib/OpenEXR/ImfHTCompressor.h",
+        "src/lib/OpenEXR/ImfHeader.h",
         "src/lib/OpenEXR/ImfHuf.h",
         "src/lib/OpenEXR/ImfIDManifest.h",
         "src/lib/OpenEXR/ImfIDManifestAttribute.h",
@@ -516,7 +519,7 @@ cc_library(
         ":IlmThread",
         ":OpenEXRCore",
         "@imath",
-        "@openjph"
+        "@openjph",
     ],
 )
 
@@ -524,8 +527,12 @@ cc_test(
     name = "IexTest",
     srcs = [
         "src/test/IexTest/main.cpp",
+        "src/test/IexTest/mathFuncs.cpp",
+        "src/test/IexTest/mathFuncs.h",
         "src/test/IexTest/testBaseExc.cpp",
         "src/test/IexTest/testBaseExc.h",
+        "src/test/IexTest/testMathExc.cpp",
+        "src/test/IexTest/testMathExc.h",
     ],
     includes = ["src/test/IexTest"],
     tags = ["manual"],  # This test is not build and executed in the CI
@@ -575,4 +582,10 @@ cc_binary(
     deps = [
         ":OpenEXR",
     ],
+)
+
+alias(
+    name = "openexr",
+    actual = ":OpenEXR",
+    visibility = ["//visibility:public"],
 )
