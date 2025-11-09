@@ -2,6 +2,8 @@
 # Copyright (c) Contributors to the OpenEXR Project.
 
 version: 2
+
+enable-beta-ecosystems: true # Required to use the Bazel ecosystems
 updates:
 
   - package-ecosystem: "github-actions"
@@ -19,4 +21,9 @@ updates:
     directory: "/"
     schedule:
       day: "monday"
+      interval: "weekly"
+
+  - package-ecosystem: "bazel" 
+    directory: "/"
+    schedule:
       interval: "weekly"
