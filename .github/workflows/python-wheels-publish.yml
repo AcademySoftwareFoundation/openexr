@@ -52,7 +52,7 @@ jobs:
         run: pipx run build --sdist . --outdir wheelhouse
 
       - name: Build wheel
-        uses: pypa/cibuildwheel@v2.23
+        uses: pypa/cibuildwheel@v3.2
         with:
           output-dir: wheelhouse
         env:
