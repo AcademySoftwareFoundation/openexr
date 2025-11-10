@@ -66,7 +66,7 @@ jobs:
           CIBW_TEST_SKIP: "*arm64"
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: wheels-${{ matrix.os }}-${{ matrix.arch }}
           path: |
