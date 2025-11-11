@@ -138,7 +138,7 @@ jobs:
 
       - name: Install MSYS2 ${{ inputs.msystem }}
         if: inputs.msystem != ''
-        uses: msys2/setup-msys2@61f9e5e925871ba6c9e3e8da24ede83ea27fa91f # v2.27.0
+        uses: msys2/setup-msys2@fb197b72ce45fb24f17bf3f807a388985654d1f2 # v2.29.0
         with:
           msystem: ${{ inputs.msystem }}
           update: true
