@@ -20,10 +20,18 @@ rapidly and post patches within 14 days if possible.
 
 These vulnerabilities are present in the given versions:
 
+* [CVE-2025-64181](https://www.cve.org/CVERecord?id=CVE-2025-64181) 3.3.0, 3.3.1, 3.3.2, 3.3.3, 3.3.4, 3.3.5, 3.4.0, 3.4.1, 3.4.2
+* [CVE-2025-64182](https://www.cve.org/CVERecord?id=CVE-2025-64182) 3.2.0, 3.2.1, 3.2.3, 3.2.4, 3.3.0, 3.3.1, 3.3.2, 3.3.3, 3.3.4, 3.3.5,
+  3.4.0, 3.4.1, 3.4.2
+* [CVE-2025-64183](https://www.cve.org/CVERecord?id=CVE-2025-64183) 3.2.0, 3.2.1, 3.2.3, 3.2.4, 3.3.0, 3.3.1, 3.3.2, 3.3.3, 3.3.4, 3.3.5,
+  3.4.0, 3.4.1, 3.4.2
 * [CVE-2025-48074](https://www.cve.org/CVERecord?id=CVE-2025-48074) 3.3.2
 * [CVE-2025-48073](https://www.cve.org/CVERecord?id=CVE-2025-48073) 3.3.2
 * [CVE-2025-48072](https://www.cve.org/CVERecord?id=CVE-2025-48072) 3.3.2
 * [CVE-2025-48071](https://www.cve.org/CVERecord?id=CVE-2025-48071) 3.3.2 3.3.1 3.3.0
+* [CVE-2025-12840](https://www.cve.org/CVERecord?id=CVE-2025-12840) 3.3.0, 3.3.1, 3.3.2, 3.3.3, 3.3.4, 3.3.5, 3.4.0, 3.4.1, 3.4.2
+* [CVE-2025-12839](https://www.cve.org/CVERecord?id=CVE-2025-12839) 3.3.0, 3.3.1, 3.3.2, 3.3.3, 3.3.4, 3.3.5, 3.4.0, 3.4.1, 3.4.2
+* [CVE-2025-12495](https://www.cve.org/CVERecord?id=CVE-2025-12495) 3.3.0, 3.3.1, 3.3.2, 3.3.3, 3.3.4, 3.3.5, 3.4.0, 3.4.1, 3.4.2
 * [CVE-2023-5841](https://nvd.nist.gov/vuln/detail/CVE-2023-5841) 3.1.0, 3.1.1, 3.1.2, 3.1.3 3.1.4 3.1.5 3.1.6 3.1.7 3.1.8 3.1.9 3.1.10 3.1.11 3.2.0 3.2.1
 * [CVE-2021-45942](https://nvd.nist.gov/vuln/detail/CVE-2021-45942) 3.1.0, 3.1.1, 3.1.2, 3.1.3
 * [CVE-2021-20296](https://nvd.nist.gov/vuln/detail/CVE-2021-20296) 2.4.0, 2.4.1, 2.4.2, 2.5.0, 2.5.1, 2.5.2, 2.5.3
