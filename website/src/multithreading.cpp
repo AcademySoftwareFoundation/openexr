@@ -1,3 +1,8 @@
+//
+// SPDX-License-Identifier: BSD-3-Clause
+// Copyright (c) Contributors to the OpenEXR Project.
+//
+
 char fileName[] = "";
 // [begin main thread create]
 // main, before application threads are created:

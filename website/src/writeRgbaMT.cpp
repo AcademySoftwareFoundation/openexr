@@ -1,3 +1,8 @@
+//
+// SPDX-License-Identifier: BSD-3-Clause
+// Copyright (c) Contributors to the OpenEXR Project.
+//
+
 void
 writeRgbaMT (const char fileName[], const Rgba* pixels, int width, int height)
 {
