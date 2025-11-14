@@ -35,6 +35,7 @@ openexr_define_library(OpenEXRCore
     internal_string.h
     internal_string_vector.h
     internal_structs.h
+    internal_thread.h
     internal_util.h
     internal_xdr.h
 
@@ -48,6 +49,8 @@ openexr_define_library(OpenEXRCore
     internal_ht.cpp
     internal_ht_common.cpp
     internal_dwa.c
+    internal_dwa_table.c
+    internal_dwa_table_init.c
     internal_huf.c
 
     attributes.c

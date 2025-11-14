@@ -100,6 +100,7 @@ DwaCompressor_construct (
     exr_result_t rv = EXR_ERR_SUCCESS;
 
     initializeFuncs ();
+    exrcore_ensure_dwa_tables();
 
     memset (me, 0, sizeof (DwaCompressor));
 
@@ -378,7 +379,7 @@ DwaCompressor_compress (DwaCompressor* me)
             &(me->_channelData[cset->idx[2]]._dctData),
             packedAcEnd,
             packedDcEnd,
-            dwaCompressorToNonlinear,
+            exrcore_dwaToNonLinearTable,
             me->_channelData[cset->idx[0]].chan->width,
             me->_channelData[cset->idx[0]].chan->height);
 
@@ -417,7 +418,7 @@ DwaCompressor_compress (DwaCompressor* me)
                     const unsigned short* nonlinearLut = NULL;
 
                     if (!pchan->p_linear)
-                        nonlinearLut = dwaCompressorToNonlinear;
+                        nonlinearLut = exrcore_dwaToNonLinearTable;
 
                     rv = LossyDctEncoder_construct (
                         &enc,
@@ -1070,7 +1071,7 @@ DwaCompressor_uncompress (
             packedAcBufferEnd + totalAcUncompressedCount * sizeof (uint16_t),
             packedDcBufferEnd,
             totalDcUncompressedCount,
-            dwaCompressorToLinear,
+            exrcore_dwaToLinearTable,
             me->_channelData[rChan].chan->width,
             me->_channelData[rChan].chan->height);
 
@@ -1123,7 +1124,7 @@ DwaCompressor_uncompress (
                     const uint16_t* linearLut = NULL;
                     LossyDctDecoder decoder;
 
-                    if (!chan->p_linear) linearLut = dwaCompressorToLinear;
+                    if (!chan->p_linear) linearLut = exrcore_dwaToLinearTable;
 
                     rv = LossyDctDecoder_construct (
                         &decoder,
