@@ -1,3 +1,8 @@
+//
+// SPDX-License-Identifier: BSD-3-Clause
+// Copyright (c) Contributors to the OpenEXR Project.
+//
+
 // Enums defined in ImfTileDescription.h
 // enum LevelMode
 // {
