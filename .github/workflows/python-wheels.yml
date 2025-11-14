@@ -69,7 +69,7 @@ jobs:
         run: pipx run build --sdist . --outdir wheelhouse
 
       - name: Build wheel
-        uses: pypa/cibuildwheel@v3.2
+        uses: pypa/cibuildwheel@v3.3
         env:
           CIBW_ARCHS_MACOS: x86_64 arm64 universal2
           # Build Python 3.8 through 3.13
