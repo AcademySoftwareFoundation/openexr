@@ -1,3 +1,8 @@
+//
+// SPDX-License-Identifier: BSD-3-Clause
+// Copyright (c) Contributors to the OpenEXR Project.
+//
+
 void
 writeTiledRgbaONE2 (
     const char fileName[], int width, int height, int tileWidth, int tileHeight)
