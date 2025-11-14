@@ -44,8 +44,8 @@ for image in test_images:
     result = do_run ([exrmanifest, test_images[image]])
     stdout_is = result.stdout
     with open (test_images[image] + ".txt", 'r') as file:
-        stdout_should_be = file.read()
-        assert stdout_is == stdout_should_be
+      stdout_should_be = "".join(l for l in file if not l.lstrip().startswith("#"))
+      assert stdout_is == stdout_should_be
 
 print("success")
 
