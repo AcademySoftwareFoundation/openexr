@@ -30,8 +30,6 @@
 #include "ImfNamespace.h"
 #include "IlmThread.h"
 #include "IlmThreadSemaphore.h"
-#include "ImfIO.h"
-#include "ImfXdr.h"
 
 #include <cstddef>
 #include <math.h>
@@ -47,15 +45,20 @@
 #if defined(OPENEXR_ENABLE_API_VISIBILITY)
 #include "../../lib/OpenEXRCore/internal_b44_table.c"
 #include "../../lib/OpenEXRCore/internal_b44_table_init.c"
+#include "../../lib/OpenEXRCore/internal_dwa_table.c"
+#include "../../lib/OpenEXRCore/internal_dwa_table_init.c"
 #else
 extern uint16_t* exrcore_expTable;
 extern uint16_t* exrcore_logTable;
 extern void      exrcore_ensure_b44_tables ();
+extern uint16_t* exrcore_dwaToLinearTable;
+extern uint16_t* exrcore_dwaToNonLinearTable;
+extern void      exrcore_ensure_dwa_tables ();
 #endif
 
 namespace internal_test_ns {
 
-#include "../../lib/OpenEXRCore/dwaLookups.h"
+#include "dwaLookups.h"
 #include "dwaQuantTables.h"
 
 } // namespace internal_test_ns
@@ -237,134 +240,26 @@ private:
 
 } // namespace
 
-//
-// Nonlinearly encode luminance. For values below 1.0, we want
-// to use a gamma 2.2 function to match what is fairly common
-// for storing output referred. However, > 1, gamma functions blow up,
-// and log functions are much better behaved. We could use a log
-// function everywhere, but it tends to over-sample dark
-// regions and undersample the brighter regions, when
-// compared to the way real devices reproduce values.
-//
-// So, above 1, use a log function which is a smooth blend
-// into the gamma function.
-//
-//  Nonlinear(linear) =
-//
-//    linear^(1./2.2)             / linear <= 1.0
-//                               |
-//    ln(linear)/ln(e^2.2) + 1    \ otherwise
-//
-//
-// toNonlinear[] needs to take in XDR format half float values,
-// and output NATIVE format float.
-//
-// toLinear[] does the opposite - takes in NATIVE half and
-// outputs XDR half values.
-//
 
 static void
 testToLinear ()
 {
-    unsigned short toLinear[65536];
-
-    toLinear[0] = 0;
-
-    for (int i = 1; i < 65536; ++i)
-    {
-        half  h;
-        float sign    = 1;
-        float logBase = pow (2.7182818, 2.2);
-
-        // map  NaN and inf to 0
-        if ((i & 0x7c00) == 0x7c00)
-        {
-            toLinear[i] = 0;
-            continue;
-        }
-
-        //
-        // _toLinear - assume i is NATIVE, but our output needs
-        //             to get flipped to XDR
-        //
-        h.setBits (i);
-        sign = 1;
-        if ((float) h < 0) { sign = -1; }
-
-        if (fabs ((float) h) <= 1.0)
-        {
-            h = (half) (sign * pow ((float) fabs ((float) h), 2.2f));
-        }
-        else
-        {
-            h = (half) (sign * pow (logBase, (float) (fabs ((float) h) - 1.0)));
-        }
-
-        {
-            char* tmp = (char*) (&toLinear[i]);
-
-            Xdr::write<CharPtrIO> (tmp, h.bits ());
-        }
-    }
-
+    exrcore_ensure_dwa_tables();
     printf ("test dwaCompressorToLinear[]\n");
     for (int i = 0; i < 65536; ++i)
         EXRCORE_TEST (
-            toLinear[i] ==
+            exrcore_dwaToLinearTable[i] ==
             internal_test_ns::dwaCompressorToLinear[i]);
 }
 
 static void
 testToNonlinear ()
 {
-    unsigned short toNonlinear[65536];
-
-    toNonlinear[0] = 0;
-
-    for (int i = 1; i < 65536; ++i)
-    {
-        unsigned short usNative, usXdr;
-        half           h;
-        float          sign    = 1;
-        float          logBase = pow (2.7182818, 2.2);
-
-        usXdr = i;
-
-        {
-            const char* tmp = (char*) (&usXdr);
-
-            Xdr::read<CharPtrIO> (tmp, usNative);
-        }
-
-        // map  NaN and inf to 0
-        if ((usNative & 0x7c00) == 0x7c00)
-        {
-            toNonlinear[i] = 0;
-            continue;
-        }
-
-        //
-        // toNonlinear - assume i is XDR
-        //
-        h.setBits (usNative);
-        sign = 1;
-        if ((float) h < 0) { sign = -1; }
-
-        if (fabs ((float) h) <= 1.0)
-        {
-            h = (half) (sign * pow (fabs ((float) h), 1.f / 2.2f));
-        }
-        else
-        {
-            h = (half) (sign * (log (fabs ((float) h)) / log (logBase) + 1.0));
-        }
-        toNonlinear[i] = h.bits ();
-    }
-
+    exrcore_ensure_dwa_tables();
     printf ("test dwaCompressorToNonlinear[]\n");
     for (int i = 0; i < 65536; ++i)
         EXRCORE_TEST (
-            toNonlinear[i] ==
+            exrcore_dwaToNonLinearTable[i] ==
             internal_test_ns::dwaCompressorToNonlinear[i]);
 }
 
