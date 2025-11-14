@@ -1,3 +1,8 @@
+//
+// SPDX-License-Identifier: BSD-3-Clause
+// Copyright (c) Contributors to the OpenEXR Project.
+//
+
 void
 readGZ2 (const char fileName[], Array2D<GZ>& pixels, int& width, int& height)
 {
