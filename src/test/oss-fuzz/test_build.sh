@@ -1,5 +1,7 @@
 #!/bin/bash -eux
 
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright (c) Contributors to the OpenEXR Project.
 
 # Test script to help debug the oss-fuzz project build.sh:
 # https://github.com/google/oss-fuzz/blob/master/projects/openexr/build.sh

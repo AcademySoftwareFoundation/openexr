@@ -121,11 +121,15 @@ def update_news_file(release_notes, tag, release_date):
     # This needs to be added as an explicit section header.
     result = run(['git', 'show', f"HEAD:website/latest_news_title.rst"],
                  stdout=PIPE, stderr=PIPE, universal_newlines=True)
-    old_section_title = result.stdout.split("replace:: ")[1].rstrip().lstrip('**').rstrip('**')
+    line = result.stdout.split('\n')[-1]
+    old_section_title = line.split("replace:: ")[1].rstrip().lstrip('**').rstrip('**')
 
     # Write the news section title to the latest_news_title.rst file,
     # so it can be include on the website front page
     with open('website/latest_news_title.rst', 'w') as f:
+        f.write("..\n")
+        f.write("  SPDX-License-Identifier: BSD-3-Clause\n")
+        f.write("  Copyright (c) Contributors to the OpenEXR Project.\n")
         f.write(f".. |latest-news-title| replace:: **{new_section_title}**")
 
     result = run(['git', 'show', f"HEAD:website/news.rst"],

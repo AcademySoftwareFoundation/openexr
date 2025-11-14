@@ -1,5 +1,8 @@
 #! /bin/bash
 
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright Contributors to the OpenEXR Project.
+
 if [[ -e current_deflate_version ]]; then
     curl https://api.github.com/repos/ebiggers/libdeflate/releases/latest > /tmp/exr_latest_deflate
     latest=`cat /tmp/exr_latest_deflate | jq -r .name`
