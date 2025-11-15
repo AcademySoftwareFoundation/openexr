@@ -3,6 +3,7 @@
 
 # OpenEXR Release Notes
 
+* [Version 3.4.4](#version-344-november-19-2025) November 19, 2025
 * [Version 3.4.3](#version-343-november-4-2025) November 4, 2025
 * [Version 3.4.2](#version-342-october-15-2025) October 15, 2025
 * [Version 3.4.1](#version-341-october-8-2025) October 8, 2025
@@ -85,6 +86,69 @@
 * [Version 1.0.2](#version-102)
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
+
+## Version 3.4.4 (November 19, 2025)
+
+Patch release with an optimization to reduce the size of the library.
+
+B44 and DWA compression tables are now initialized at first use rather
+than being hard-coded in the source code and compiled binary. This
+reduces the library size at a slight performance cost. Initialization
+takes under a millisecond, but the size of libOpenEXRCore.so is
+reduced from 890K to 360K. 
+
+There is no change in functionality in the core libraries.
+
+This also fixes a bug where importing the python module from a parent
+directory would fail.
+
+### Merged Pull Requests:
+
+* [2196](https://github.com/AcademySoftwareFoundation/pulls/2196)
+Bump github/codeql-action from 4.31.2 to 4.31.3
+* [2194](https://github.com/AcademySoftwareFoundation/pulls/2194)
+Add missing copywrite comments
+* [2192](https://github.com/AcademySoftwareFoundation/pulls/2192)
+Bump pypa/cibuildwheel from 3.2 to 3.3
+* [2190](https://github.com/AcademySoftwareFoundation/pulls/2190)
+Bump github/codeql-action from 3.27.9 to 4.31.2
+* [2189](https://github.com/AcademySoftwareFoundation/pulls/2189)
+Bump msys2/setup-msys2 from 2.27.0 to 2.29.0
+* [2188](https://github.com/AcademySoftwareFoundation/pulls/2188)
+Bump actions/download-artifact from 4.1.8 to 6.0.0
+* [2187](https://github.com/AcademySoftwareFoundation/pulls/2187)
+Bump ossf/scorecard-action from 2.4.0 to 2.4.3
+* [2186](https://github.com/AcademySoftwareFoundation/pulls/2186)
+Bump pypa/cibuildwheel from 2.23 to 3.2
+* [2185](https://github.com/AcademySoftwareFoundation/pulls/2185)
+Bump actions/cache from 4.2.0 to 4.3.0
+* [2184](https://github.com/AcademySoftwareFoundation/pulls/2184)
+Bump actions/upload-artifact from 4 to 5
+* [2183](https://github.com/AcademySoftwareFoundation/pulls/2183)
+Bump actions/checkout from 2.7.0 to 5.0.0
+* [2182](https://github.com/AcademySoftwareFoundation/pulls/2182)
+Add recent CVEs to SECURITY.md
+* [2181](https://github.com/AcademySoftwareFoundation/pulls/2181)
+Bump sigstore/gh-action-sigstore-python from 3.0.0 to 3.1.0
+* [2180](https://github.com/AcademySoftwareFoundation/pulls/2180)
+Bump actions/setup-python from 5.3.0 to 6.0.0
+* [2178](https://github.com/AcademySoftwareFoundation/pulls/2178)
+Bump snyk/actions from 0.4.0 to 1.0.0
+* [2177](https://github.com/AcademySoftwareFoundation/pulls/2177)
+Bump pypa/gh-action-pypi-publish from 1.12.3 to 1.13.0
+* [2176](https://github.com/AcademySoftwareFoundation/pulls/2176)
+Imporve Bazel support
+* [2175](https://github.com/AcademySoftwareFoundation/pulls/2175)
+Converts asserts in internal_ht.cpp to if statement that throws an exception.
+* [2174](https://github.com/AcademySoftwareFoundation/pulls/2174)
+DWA: initialize linear/nonlinear tables at runtime
+* [2173](https://github.com/AcademySoftwareFoundation/pulls/2173)
+Update macos-13 to macos-15-intel
+* [2171](https://github.com/AcademySoftwareFoundation/pulls/2171)
+Properly set `OpenEXR_error` in legacy python API
+* [2126](https://github.com/AcademySoftwareFoundation/pulls/2126)
+B44: initialize exp/log tables at runtime
+
 
 ## Version 3.4.3 (November 4, 2025)
 
