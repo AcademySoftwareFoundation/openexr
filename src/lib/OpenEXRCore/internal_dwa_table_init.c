@@ -3,9 +3,9 @@
 // Copyright (c) DreamWorks Animation LLC and Contributors of the OpenEXR Project
 //
 
-#include <half.h>
 #include <stdint.h>
 
+#include "internal_coding.h"
 #include "internal_thread.h"
 
 extern uint16_t* exrcore_dwaToLinearTable;
@@ -47,7 +47,7 @@ dwa_convertToLinear (uint16_t x)
     if ((x & 0x7c00) == 0x7c00) // infinity/nan?
         return 0;
     
-    float f = imath_half_to_float(x);
+    float f = half_to_float(x);
     float sign = f < 0.0f ? -1.0f : 1.0f;
     f = fabsf(f);
     
@@ -63,7 +63,7 @@ dwa_convertToLinear (uint16_t x)
         py = f - 1.0f;
     }
     float z = sign * powf(px, py);
-    return imath_float_to_half(z);
+    return float_to_half(z);
 }
 
 static inline uint16_t
@@ -74,7 +74,7 @@ dwa_convertToNonLinear (uint16_t x)
     if ((x & 0x7c00) == 0x7c00) // infinity/nan?
         return 0;
     
-    float f = imath_half_to_float(x);
+    float f = half_to_float(x);
     float sign = f < 0.0f ? -1.0f : 1.0f;
     f = fabsf(f);
     
@@ -87,7 +87,7 @@ dwa_convertToNonLinear (uint16_t x)
     {
         z = logf (f) / 2.2f + 1.0f;
     }
-    return imath_float_to_half(sign * z);
+    return float_to_half(sign * z);
 }
 
 
