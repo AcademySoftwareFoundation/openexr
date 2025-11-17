@@ -95,13 +95,18 @@ reduces the library size at a slight performance cost. Initialization
 takes under a millisecond, but the size of libOpenEXRCore.so is
 reduced from 890K to 360K. 
 
-There is no change in functionality in the core libraries.
+This also fixes a build issue with `ILMTHREAD_THREADING_ENABLED` which
+inadvertently enabled threading when it should have been disabed.
 
 This also fixes a bug where importing the python module from a parent
 directory would fail.
 
 ### Merged Pull Requests:
 
+* [2199](https://github.com/AcademySoftwareFoundation/pulls/2199)
+OpenEXRCore: fix `ILMTHREAD_THREADING_ENABLED` checks
+* [2198](https://github.com/AcademySoftwareFoundation/pulls/2198)
+OpenEXRCore: avoid direct dependency on imath
 * [2196](https://github.com/AcademySoftwareFoundation/pulls/2196)
 Bump github/codeql-action from 4.31.2 to 4.31.3
 * [2194](https://github.com/AcademySoftwareFoundation/pulls/2194)
