@@ -15,6 +15,18 @@
 #include <stdio.h>
 #include <string.h>
 
+OPENEXR_CORE_NAMESPACE_ENTER
+
+#ifdef _MSC_VER
+#    ifdef __cplusplus
+#        define EXR_CAST_TO_TYPE_OF(x) (decltype(x))
+#    else
+#        define EXR_CAST_TO_TYPE_OF(x) 
+#    endif
+#else
+#    define EXR_CAST_TO_TYPE_OF(x) (__typeof__(x))
+#endif
+
 /**************************************/
 
 exr_result_t
@@ -211,9 +223,14 @@ exr_initialize_required_attr_simple (
     int32_t           height,
     exr_compression_t ctype)
 {
-    exr_attr_box2i_t dispWindow = {
-        .min = {.x = 0, .y = 0}, .max = {.x = (width - 1), .y = (height - 1)}};
-    exr_attr_v2f_t swc = {.x = 0.f, .y = 0.f};
+    exr_attr_box2i_t dispWindow;
+    dispWindow.min.x = 0;
+    dispWindow.min.y = 0;
+    dispWindow.max.x = (width - 1);
+    dispWindow.max.y = (height - 1);
+    exr_attr_v2f_t swc;
+    swc.x = 0.f;
+    swc.y = 0.f;
     return exr_initialize_required_attr (
         ctxt,
         part_index,
@@ -561,7 +578,7 @@ exr_copy_unset_attributes (
 
 /**************************************/
 
-#define REQ_ATTR_GET_IMPL(name, entry, t)                                      \
+#define REQ_ATTR_GET_IMPL(name, entry, t, out_type)                            \
     EXR_LOCK_WRITE_AND_DEFINE_PART (part_index);                               \
     if (!out)                                                                  \
         return EXR_UNLOCK_WRITE_AND_RETURN (ctxt->print_error (                \
@@ -575,7 +592,7 @@ exr_copy_unset_attributes (
                 "Invalid required attribute type '%s' for '%s'",               \
                 part->name->type_name,                                         \
                 #name));                                                       \
-        *out = part->name->entry;                                              \
+        *out = (out_type) part->name->entry;                                   \
         return EXR_UNLOCK_WRITE_AND_RETURN (EXR_ERR_SUCCESS);                  \
     }                                                                          \
     return EXR_UNLOCK_WRITE_AND_RETURN (EXR_ERR_NO_ATTR_BY_NAME)
@@ -629,7 +646,7 @@ exr_result_t
 exr_get_channels (
     exr_const_context_t ctxt, int part_index, const exr_attr_chlist_t** out)
 {
-    REQ_ATTR_GET_IMPL (channels, chlist, EXR_ATTR_CHLIST);
+    REQ_ATTR_GET_IMPL (channels, chlist, EXR_ATTR_CHLIST, const exr_attr_chlist_t*);
 }
 
 /**************************************/
@@ -687,7 +704,7 @@ exr_result_t
 exr_get_compression (
     exr_const_context_t ctxt, int part_index, exr_compression_t* out)
 {
-    REQ_ATTR_GET_IMPL (compression, uc, EXR_ATTR_COMPRESSION);
+    REQ_ATTR_GET_IMPL (compression, uc, EXR_ATTR_COMPRESSION, exr_compression_t);
 }
 
 /**************************************/
@@ -782,7 +799,7 @@ exr_result_t
 exr_get_lineorder (
     exr_const_context_t ctxt, int part_index, exr_lineorder_t* out)
 {
-    REQ_ATTR_GET_IMPL (lineOrder, uc, EXR_ATTR_LINEORDER);
+    REQ_ATTR_GET_IMPL (lineOrder, uc, EXR_ATTR_LINEORDER, exr_lineorder_t);
 }
 
 /**************************************/
@@ -817,7 +834,7 @@ exr_result_t
 exr_get_pixel_aspect_ratio (
     exr_const_context_t ctxt, int part_index, float* out)
 {
-    REQ_ATTR_GET_IMPL (pixelAspectRatio, f, EXR_ATTR_FLOAT);
+    REQ_ATTR_GET_IMPL (pixelAspectRatio, f, EXR_ATTR_FLOAT, float);
 }
 
 /**************************************/
@@ -864,7 +881,7 @@ exr_result_t
 exr_get_screen_window_width (
     exr_const_context_t ctxt, int part_index, float* out)
 {
-    REQ_ATTR_GET_IMPL (screenWindowWidth, f, EXR_ATTR_FLOAT);
+    REQ_ATTR_GET_IMPL (screenWindowWidth, f, EXR_ATTR_FLOAT, float);
 }
 
 /**************************************/
@@ -1081,7 +1098,7 @@ exr_set_name (exr_context_t ctxt, int part_index, const char* val)
 exr_result_t
 exr_get_version (exr_const_context_t ctxt, int part_index, int32_t* out)
 {
-    REQ_ATTR_GET_IMPL (version, i, EXR_ATTR_INT);
+    REQ_ATTR_GET_IMPL (version, i, EXR_ATTR_INT, int32_t);
 }
 
 /**************************************/
@@ -1144,7 +1161,7 @@ exr_set_chunk_count (exr_context_t ctxt, int part_index, int32_t val)
     if (!out)                                                                  \
         return EXR_UNLOCK_WRITE_AND_RETURN (ctxt->print_error (                \
             ctxt, EXR_ERR_INVALID_ARGUMENT, "NULL output for '%s'", name));    \
-    *out = attr->entry;                                                        \
+    *out = EXR_CAST_TO_TYPE_OF(*out) attr->entry;                                     \
     return EXR_UNLOCK_WRITE_AND_RETURN (rv)
 
 #define ATTR_GET_IMPL_DEREF(t, entry)                                          \
@@ -1440,8 +1457,8 @@ exr_attr_set_channels (
                 &clist,
                 cur->name.str,
                 cur->name.length,
-                cur->pixel_type,
-                cur->p_linear,
+                (exr_pixel_type_t) cur->pixel_type,
+                (exr_perceptual_treatment_t) cur->p_linear,
                 cur->x_sampling,
                 cur->y_sampling);
             if (rv != EXR_ERR_SUCCESS)
@@ -1765,7 +1782,7 @@ exr_attr_set_lineorder (
             (int) EXR_LINEORDER_LAST_TYPE);
 
     if (name && 0 == strcmp (name, EXR_REQ_LO_STR))
-        return exr_set_lineorder (ctxt, part_index, val);
+        return exr_set_lineorder (ctxt, part_index, (exr_lineorder_t) val);
 
     {
         ATTR_SET_IMPL (EXR_ATTR_LINEORDER, uc);
@@ -2542,3 +2559,5 @@ exr_attr_set_user (
         rv = exr_attr_opaquedata_set_packed (ctxt, attr->opaque, out, size);
     return EXR_UNLOCK_AND_RETURN (rv);
 }
+
+OPENEXR_CORE_NAMESPACE_EXIT

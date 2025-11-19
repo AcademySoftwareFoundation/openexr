@@ -6,9 +6,9 @@
 #ifndef OPENEXR_ATTR_STRING_VECTOR_H
 #define OPENEXR_ATTR_STRING_VECTOR_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "OpenEXRConfig.h"
+
+OPENEXR_CORE_EXTERN_C_ENTER
 
 /** 
  * @addtogroup InternalAttributeFunctions
@@ -80,8 +80,6 @@ exr_result_t exr_attr_string_vector_add_entry (
 
 /** @} */
 
-#ifdef __cplusplus
-} /* extern "C" */
-#endif
+OPENEXR_CORE_EXTERN_C_EXIT
 
 #endif /* OPENEXR_ATTR_STRING_VECTOR_H */

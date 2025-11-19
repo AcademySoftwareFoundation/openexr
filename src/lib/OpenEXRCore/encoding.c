@@ -12,6 +12,8 @@
 
 #include "openexr_compression.h"
 
+OPENEXR_CORE_NAMESPACE_ENTER
+
 /**************************************/
 
 static exr_result_t
@@ -416,3 +418,5 @@ exr_encoding_destroy (exr_const_context_t ctxt, exr_encode_pipeline_t* encode)
     }
     return EXR_ERR_SUCCESS;
 }
+
+OPENEXR_CORE_NAMESPACE_EXIT

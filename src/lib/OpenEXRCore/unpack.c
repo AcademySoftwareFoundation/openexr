@@ -11,6 +11,8 @@
 
 #include <string.h>
 
+OPENEXR_CORE_NAMESPACE_ENTER
+
 /**************************************/
 
 /* TODO: learn arm neon intrinsics for this */
@@ -216,7 +218,7 @@ static exr_result_t
 unpack_16bit_3chan_interleave (exr_decode_pipeline_t* decode)
 {
     /* we know we're unpacking all the channels and there is no subsampling */
-    const uint8_t*  srcbuffer = decode->unpacked_buffer;
+    const uint8_t*  srcbuffer = (const uint8_t*) decode->unpacked_buffer;
     const uint16_t *in0, *in1, *in2;
     uint8_t*        out0;
     int             w, h;
@@ -262,7 +264,7 @@ static exr_result_t
 unpack_16bit_3chan_interleave_rev (exr_decode_pipeline_t* decode)
 {
     /* we know we're unpacking all the channels and there is no subsampling */
-    const uint8_t*  srcbuffer = decode->unpacked_buffer;
+    const uint8_t*  srcbuffer = (const uint8_t*) decode->unpacked_buffer;
     const uint16_t *in0, *in1, *in2;
     uint8_t*        out0;
     int             w, h;
@@ -308,7 +310,7 @@ static exr_result_t
 unpack_half_to_float_3chan_interleave (exr_decode_pipeline_t* decode)
 {
     /* we know we're unpacking all the channels and there is no subsampling */
-    const uint8_t*  srcbuffer = decode->unpacked_buffer;
+    const uint8_t*  srcbuffer = (const uint8_t*) decode->unpacked_buffer;
     const uint16_t *in0, *in1, *in2;
     uint8_t*        out0;
     int             w, h;
@@ -354,7 +356,7 @@ static exr_result_t
 unpack_half_to_float_3chan_interleave_rev (exr_decode_pipeline_t* decode)
 {
     /* we know we're unpacking all the channels and there is no subsampling */
-    const uint8_t*  srcbuffer = decode->unpacked_buffer;
+    const uint8_t*  srcbuffer = (const uint8_t*) decode->unpacked_buffer;
     const uint16_t *in0, *in1, *in2;
     uint8_t*        out0;
     int             w, h;
@@ -400,7 +402,7 @@ static exr_result_t
 unpack_16bit_3chan_planar (exr_decode_pipeline_t* decode)
 {
     /* we know we're unpacking all the channels and there is no subsampling */
-    const uint8_t*  srcbuffer = decode->unpacked_buffer;
+    const uint8_t*  srcbuffer = (const uint8_t*) decode->unpacked_buffer;
     const uint16_t *in0, *in1, *in2;
     uint8_t *       out0, *out1, *out2;
     int             w, h;
@@ -456,7 +458,7 @@ static exr_result_t
 unpack_half_to_float_3chan_planar (exr_decode_pipeline_t* decode)
 {
     /* we know we're unpacking all the channels and there is no subsampling */
-    const uint8_t*  srcbuffer = decode->unpacked_buffer;
+    const uint8_t*  srcbuffer = (const uint8_t*) decode->unpacked_buffer;
     const uint16_t *in0, *in1, *in2;
     uint8_t *       out0, *out1, *out2;
     int             w, h;
@@ -504,7 +506,7 @@ static exr_result_t
 unpack_16bit_3chan (exr_decode_pipeline_t* decode)
 {
     /* we know we're unpacking all the channels and there is no subsampling */
-    const uint8_t*  srcbuffer = decode->unpacked_buffer;
+    const uint8_t*  srcbuffer = (const uint8_t*) decode->unpacked_buffer;
     const uint16_t *in0, *in1, *in2;
     uint8_t *       out0, *out1, *out2;
     int             w, h;
@@ -556,7 +558,7 @@ static exr_result_t
 unpack_16bit_4chan_interleave (exr_decode_pipeline_t* decode)
 {
     /* we know we're unpacking all the channels and there is no subsampling */
-    const uint8_t*  srcbuffer = decode->unpacked_buffer;
+    const uint8_t*  srcbuffer = (const uint8_t*) decode->unpacked_buffer;
     const uint16_t *in0, *in1, *in2, *in3;
     uint8_t*        out0;
     int             w, h;
@@ -615,7 +617,7 @@ static exr_result_t
 unpack_16bit_4chan_interleave_rev (exr_decode_pipeline_t* decode)
 {
     /* we know we're unpacking all the channels and there is no subsampling */
-    const uint8_t*  srcbuffer = decode->unpacked_buffer;
+    const uint8_t*  srcbuffer = (const uint8_t*) decode->unpacked_buffer;
     const uint16_t *in0, *in1, *in2, *in3;
     uint8_t*        out0;
     int             w, h;
@@ -674,7 +676,7 @@ static exr_result_t
 unpack_half_to_float_4chan_interleave (exr_decode_pipeline_t* decode)
 {
     /* we know we're unpacking all the channels and there is no subsampling */
-    const uint8_t*  srcbuffer = decode->unpacked_buffer;
+    const uint8_t*  srcbuffer = (const uint8_t*) decode->unpacked_buffer;
     const uint16_t *in0, *in1, *in2, *in3;
     uint8_t*        out0;
     int             w, h;
@@ -721,7 +723,7 @@ static exr_result_t
 unpack_half_to_float_4chan_interleave_rev (exr_decode_pipeline_t* decode)
 {
     /* we know we're unpacking all the channels and there is no subsampling */
-    const uint8_t*  srcbuffer = decode->unpacked_buffer;
+    const uint8_t*  srcbuffer = (const uint8_t*) decode->unpacked_buffer;
     const uint16_t *in0, *in1, *in2, *in3;
     uint8_t*        out0;
     int             w, h;
@@ -768,7 +770,7 @@ static exr_result_t
 unpack_16bit_4chan_planar (exr_decode_pipeline_t* decode)
 {
     /* we know we're unpacking all the channels and there is no subsampling */
-    const uint8_t*  srcbuffer = decode->unpacked_buffer;
+    const uint8_t*  srcbuffer = (const uint8_t*) decode->unpacked_buffer;
     const uint16_t *in0, *in1, *in2, *in3;
     uint8_t *       out0, *out1, *out2, *out3;
     int             w, h;
@@ -830,7 +832,7 @@ static exr_result_t
 unpack_half_to_float_4chan_planar (exr_decode_pipeline_t* decode)
 {
     /* we know we're unpacking all the channels and there is no subsampling */
-    const uint8_t*  srcbuffer = decode->unpacked_buffer;
+    const uint8_t*  srcbuffer = (const uint8_t*) decode->unpacked_buffer;
     const uint16_t *in0, *in1, *in2, *in3;
     uint8_t *       out0, *out1, *out2, *out3;
     int             w, h;
@@ -882,7 +884,7 @@ static exr_result_t
 unpack_16bit_4chan (exr_decode_pipeline_t* decode)
 {
     /* we know we're unpacking all the channels and there is no subsampling */
-    const uint8_t*  srcbuffer = decode->unpacked_buffer;
+    const uint8_t*  srcbuffer = (const uint8_t*) decode->unpacked_buffer;
     const uint16_t *in0, *in1, *in2, *in3;
     uint8_t *       out0, *out1, *out2, *out3;
     int             w, h;
@@ -940,7 +942,7 @@ static exr_result_t
 unpack_16bit (exr_decode_pipeline_t* decode)
 {
     /* we know we're unpacking all the channels and there is no subsampling */
-    const uint8_t* srcbuffer = decode->unpacked_buffer;
+    const uint8_t* srcbuffer = (const uint8_t*) decode->unpacked_buffer;
     uint8_t*       cdata;
     int            w, h, pixincrement;
 
@@ -1014,7 +1016,7 @@ static exr_result_t
 unpack_32bit (exr_decode_pipeline_t* decode)
 {
     /* we know we're unpacking all the channels and there is no subsampling */
-    const uint8_t* srcbuffer = decode->unpacked_buffer;
+    const uint8_t* srcbuffer = (const uint8_t*) decode->unpacked_buffer;
     uint8_t*       cdata;
     int64_t        w, h, pixincrement;
     int            chans = decode->channel_count;
@@ -1232,7 +1234,7 @@ unpack_32bit (exr_decode_pipeline_t* decode)
 static exr_result_t
 generic_unpack (exr_decode_pipeline_t* decode)
 {
-    const uint8_t* srcbuffer = decode->unpacked_buffer;
+    const uint8_t* srcbuffer = (const uint8_t*) decode->unpacked_buffer;
     uint8_t*       cdata;
     int            w, h, bpc, ubpc, uls;
 
@@ -1302,7 +1304,7 @@ generic_unpack (exr_decode_pipeline_t* decode)
 static exr_result_t
 generic_unpack_deep_pointers (exr_decode_pipeline_t* decode)
 {
-    const uint8_t* srcbuffer  = decode->unpacked_buffer;
+    const uint8_t* srcbuffer  = (const uint8_t*) decode->unpacked_buffer;
     const int32_t* sampbuffer = decode->sample_count_table;
     void**         pdata;
     int            w, h, bpc, ubpc, uls;
@@ -1355,7 +1357,7 @@ generic_unpack_deep_pointers (exr_decode_pipeline_t* decode)
                                 pdata += pixstride;
                                 if (outpix)
                                 {
-                                    uint8_t* cdata = outpix;
+                                    uint8_t* cdata = (uint8_t*) outpix;
                                     UNPACK_HALF_TO_HALF_SAMPLES(samps)
                                 }
                                 srcbuffer += ((size_t) bpc) * ((size_t) samps);
@@ -1370,7 +1372,7 @@ generic_unpack_deep_pointers (exr_decode_pipeline_t* decode)
                                 pdata += pixstride;
                                 if (outpix)
                                 {
-                                    uint8_t* cdata = outpix;
+                                    uint8_t* cdata = (uint8_t*) outpix;
                                     UNPACK_HALF_TO_FLOAT_SAMPLES(samps)
                                 }
                                 srcbuffer += ((size_t) bpc) * ((size_t) samps);
@@ -1385,7 +1387,7 @@ generic_unpack_deep_pointers (exr_decode_pipeline_t* decode)
                                 pdata += pixstride;
                                 if (outpix)
                                 {
-                                    uint8_t* cdata = outpix;
+                                    uint8_t* cdata = (uint8_t*) outpix;
                                     UNPACK_HALF_TO_UINT_SAMPLES(samps)
                                 }
                                 srcbuffer += ((size_t) bpc) * ((size_t) samps);
@@ -1406,7 +1408,7 @@ generic_unpack_deep_pointers (exr_decode_pipeline_t* decode)
                                 pdata += pixstride;
                                 if (outpix)
                                 {
-                                    uint8_t* cdata = outpix;
+                                    uint8_t* cdata = (uint8_t*) outpix;
                                     UNPACK_FLOAT_TO_HALF_SAMPLES(samps)
                                 }
                                 srcbuffer += ((size_t) bpc) * ((size_t) samps);
@@ -1421,7 +1423,7 @@ generic_unpack_deep_pointers (exr_decode_pipeline_t* decode)
                                 pdata += pixstride;
                                 if (outpix)
                                 {
-                                    uint8_t* cdata = outpix;
+                                    uint8_t* cdata = (uint8_t*) outpix;
                                     UNPACK_FLOAT_TO_FLOAT_SAMPLES(samps)
                                 }
                                 srcbuffer += ((size_t) bpc) * ((size_t) samps);
@@ -1436,7 +1438,7 @@ generic_unpack_deep_pointers (exr_decode_pipeline_t* decode)
                                 pdata += pixstride;
                                 if (outpix)
                                 {
-                                    uint8_t* cdata = outpix;
+                                    uint8_t* cdata = (uint8_t*) outpix;
                                     UNPACK_FLOAT_TO_UINT_SAMPLES(samps)
                                 }
                                 srcbuffer += ((size_t) bpc) * ((size_t) samps);
@@ -1457,7 +1459,7 @@ generic_unpack_deep_pointers (exr_decode_pipeline_t* decode)
                                 pdata += pixstride;
                                 if (outpix)
                                 {
-                                    uint8_t* cdata = outpix;
+                                    uint8_t* cdata = (uint8_t*) outpix;
                                     UNPACK_UINT_TO_HALF_SAMPLES(samps)
                                 }
                                 srcbuffer += ((size_t) bpc) * ((size_t) samps);
@@ -1472,7 +1474,7 @@ generic_unpack_deep_pointers (exr_decode_pipeline_t* decode)
                                 pdata += pixstride;
                                 if (outpix)
                                 {
-                                    uint8_t* cdata = outpix;
+                                    uint8_t* cdata = (uint8_t*) outpix;
                                     UNPACK_UINT_TO_FLOAT_SAMPLES(samps)
                                 }
                                 srcbuffer += ((size_t) bpc) * ((size_t) samps);
@@ -1487,7 +1489,7 @@ generic_unpack_deep_pointers (exr_decode_pipeline_t* decode)
                                 pdata += pixstride;
                                 if (outpix)
                                 {
-                                    uint8_t* cdata = outpix;
+                                    uint8_t* cdata = (uint8_t*) outpix;
                                     UNPACK_UINT_TO_UINT_SAMPLES(samps)
                                 }
                                 srcbuffer += ((size_t) bpc) * ((size_t) samps);
@@ -1508,7 +1510,7 @@ generic_unpack_deep_pointers (exr_decode_pipeline_t* decode)
 static exr_result_t
 generic_unpack_deep (exr_decode_pipeline_t* decode)
 {
-    const uint8_t* srcbuffer  = decode->unpacked_buffer;
+    const uint8_t* srcbuffer  = (uint8_t*) decode->unpacked_buffer;
     const int32_t* sampbuffer = decode->sample_count_table;
     uint8_t*       cdata;
     int            w, h, bpc, ubpc, uls;
@@ -1803,3 +1805,5 @@ internal_exr_match_decode (
 
     return &generic_unpack;
 }
+
+OPENEXR_CORE_NAMESPACE_EXIT

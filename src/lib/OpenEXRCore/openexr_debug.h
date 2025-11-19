@@ -8,9 +8,9 @@
 
 #include "openexr_context.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "OpenEXRConfig.h"
+
+OPENEXR_CORE_EXTERN_C_ENTER
 
 /** @file */
 
@@ -20,8 +20,6 @@ extern "C" {
 EXR_EXPORT exr_result_t
 exr_print_context_info (exr_const_context_t c, int verbose);
 
-#ifdef __cplusplus
-} /* extern "C" */
-#endif
+OPENEXR_CORE_EXTERN_C_EXIT
 
 #endif /* OPENEXR_DEBUG_H */

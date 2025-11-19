@@ -19,6 +19,10 @@
 #elif defined(_WIN32) || defined(_WIN64)
 
 #    include <stdlib.h>
+#    ifdef NOMINMAX
+#      undef NOMINMAX
+#    endif
+#    define NOMINMAX
 #    include <windows.h>
 #    define EXR_HOST_IS_NOT_LITTLE_ENDIAN (BYTE_ORDER != LITTLE_ENDIAN)
 #    if EXR_HOST_IS_NOT_LITTLE_ENDIAN

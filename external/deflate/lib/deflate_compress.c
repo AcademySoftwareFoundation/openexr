@@ -2988,7 +2988,7 @@ static const struct {
 	u8 len_sym_cost;
 } default_litlen_costs[] = {
 	{ /* match_prob = 0.25 */
-		.used_lits_to_lit_cost = {
+		{
 			6, 6, 22, 32, 38, 43, 48, 51,
 			54, 57, 59, 61, 64, 65, 67, 69,
 			70, 72, 73, 74, 75, 76, 77, 79,
@@ -3023,9 +3023,9 @@ static const struct {
 			133, 134, 134, 134, 134, 134, 134, 134,
 			134,
 		},
-		.len_sym_cost = 109,
+		109,
 	}, { /* match_prob = 0.5 */
-		.used_lits_to_lit_cost = {
+		{
 			16, 16, 32, 41, 48, 53, 57, 60,
 			64, 66, 69, 71, 73, 75, 76, 78,
 			80, 81, 82, 83, 85, 86, 87, 88,
@@ -3060,9 +3060,9 @@ static const struct {
 			143, 143, 143, 143, 143, 143, 143, 143,
 			144,
 		},
-		.len_sym_cost = 93,
+		93,
 	}, { /* match_prob = 0.75 */
-		.used_lits_to_lit_cost = {
+		{
 			32, 32, 48, 57, 64, 69, 73, 76,
 			80, 82, 85, 87, 89, 91, 92, 94,
 			96, 97, 98, 99, 101, 102, 103, 104,
@@ -3097,7 +3097,7 @@ static const struct {
 			159, 159, 159, 159, 159, 159, 159, 159,
 			160,
 		},
-		.len_sym_cost = 84,
+		84,
 	},
 };
 
@@ -3900,7 +3900,7 @@ libdeflate_alloc_compressor_ex(int compression_level,
 			size += sizeof(c->p.f);
 	}
 
-	c = libdeflate_aligned_malloc(options->malloc_func ?
+	c = (struct libdeflate_compressor *) libdeflate_aligned_malloc(options->malloc_func ?
 				      options->malloc_func :
 				      libdeflate_default_malloc_func,
 				      MATCHFINDER_MEM_ALIGNMENT, size);
@@ -4015,7 +4015,9 @@ LIBDEFLATEAPI struct libdeflate_compressor *
 libdeflate_alloc_compressor(int compression_level)
 {
 	static const struct libdeflate_options defaults = {
-		.sizeof_options = sizeof(defaults),
+		sizeof(struct libdeflate_options),
+		NULL,
+		NULL
 	};
 	return libdeflate_alloc_compressor_ex(compression_level, &defaults);
 }
@@ -4032,18 +4034,18 @@ libdeflate_deflate_compress(struct libdeflate_compressor *c,
 	 * uncompressed blocks.
 	 */
 	if (unlikely(in_nbytes <= c->max_passthrough_size))
-		return deflate_compress_none(in, in_nbytes,
-					     out, out_nbytes_avail);
+            return deflate_compress_none((const u8*) in, in_nbytes,
+                                         (u8*) out, out_nbytes_avail);
 
 	/* Initialize the output bitstream structure. */
 	os.bitbuf = 0;
 	os.bitcount = 0;
-	os.next = out;
+	os.next = (u8*) out;
 	os.end = os.next + out_nbytes_avail;
 	os.overflow = false;
 
 	/* Call the actual compression function. */
-	(*c->impl)(c, in, in_nbytes, &os);
+	(*c->impl)(c, (u8*) in, in_nbytes, &os);
 
 	/* Return 0 if the output buffer is too small. */
 	if (os.overflow)

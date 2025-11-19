@@ -6,9 +6,9 @@
 #ifndef OPENEXR_ATTR_STRING_H
 #define OPENEXR_ATTR_STRING_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "OpenEXRConfig.h"
+
+OPENEXR_CORE_EXTERN_C_ENTER
 
 /** 
  * @addtogroup InternalAttributeFunctions
@@ -69,8 +69,6 @@ exr_result_t exr_attr_string_destroy (exr_context_t ctxt, exr_attr_string_t* s);
 
 /** @} */
 
-#ifdef __cplusplus
-} /* extern "C" */
-#endif
+OPENEXR_CORE_EXTERN_C_EXIT
 
 #endif /* OPENEXR_ATTR_STRING_H */

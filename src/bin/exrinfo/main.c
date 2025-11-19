@@ -17,6 +17,10 @@
 
 #include <stdlib.h>
 
+#if __cplusplus
+using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;
+#endif
+
 static void
 usage (FILE* stream, const char* argv0, int verbose)
 {

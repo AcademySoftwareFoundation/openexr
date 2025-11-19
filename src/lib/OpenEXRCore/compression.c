@@ -42,6 +42,8 @@
 /* value Aras found to be better trade off of speed vs size */
 #define EXR_DEFAULT_ZLIB_COMPRESS_LEVEL 4
 
+OPENEXR_CORE_NAMESPACE_ENTER
+
 /**************************************/
 
 size_t
@@ -99,9 +101,9 @@ exr_compress_buffer (
 
 #ifdef EXR_USE_CONFIG_DEFLATE_STRUCT
     struct libdeflate_options opt = {
-        .sizeof_options = sizeof (struct libdeflate_options),
-        .malloc_func    = ctxt ? ctxt->alloc_fn : internal_exr_alloc,
-        .free_func      = ctxt ? ctxt->free_fn : internal_exr_free};
+        sizeof (struct libdeflate_options),
+        ctxt ? ctxt->alloc_fn : internal_exr_alloc,
+        ctxt ? ctxt->free_fn : internal_exr_free};
 
 #else
     libdeflate_set_memory_allocator (
@@ -155,9 +157,9 @@ exr_uncompress_buffer (
     size_t                          actual_in_bytes;
 #ifdef EXR_USE_CONFIG_DEFLATE_STRUCT
     struct libdeflate_options opt = {
-        .sizeof_options = sizeof (struct libdeflate_options),
-        .malloc_func    = ctxt ? ctxt->alloc_fn : internal_exr_alloc,
-        .free_func      = ctxt ? ctxt->free_fn : internal_exr_free};
+        sizeof (struct libdeflate_options),
+        ctxt ? ctxt->alloc_fn : internal_exr_alloc,
+        ctxt ? ctxt->free_fn : internal_exr_free};
 #endif
 
 //    if (in_bytes == out_bytes_avail)
@@ -221,7 +223,7 @@ exr_rle_compress_buffer (size_t in_bytes, const void* in, void* out, size_t out_
 size_t
 exr_rle_uncompress_buffer (size_t in_bytes, size_t max_len, const void* in, void* out)
 {
-    return internal_rle_decompress (out, max_len, in, in_bytes);
+    return internal_rle_decompress ((uint8_t*) out, max_len, (const uint8_t*) in, in_bytes);
 }
 
 /**************************************/
@@ -561,3 +563,5 @@ exr_uncompress_chunk (exr_decode_pipeline_t* decode)
     }
     return rv;
 }
+
+OPENEXR_CORE_NAMESPACE_EXIT

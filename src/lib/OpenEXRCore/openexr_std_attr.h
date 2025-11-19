@@ -8,9 +8,9 @@
 
 #include "openexr_attr.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "OpenEXRConfig.h"
+
+OPENEXR_CORE_EXTERN_C_ENTER
 
 /** @file */
 
@@ -52,8 +52,6 @@ originalDataWindow
 
 /** @} */
 
-#ifdef __cplusplus
-} /* extern "C" */
-#endif
+OPENEXR_CORE_EXTERN_C_EXIT
 
 #endif /* OPENEXR_CORE_STD_ATTR_H */

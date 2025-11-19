@@ -8,6 +8,8 @@
 #include "internal_coding.h"
 #include "internal_xdr.h"
 
+OPENEXR_CORE_NAMESPACE_ENTER
+
 /**************************************/
 
 static exr_result_t
@@ -20,7 +22,7 @@ default_pack_deep (exr_encode_pipeline_t* encode)
 static exr_result_t
 default_pack (exr_encode_pipeline_t* encode)
 {
-    uint8_t*       dstbuffer = encode->packed_buffer;
+    uint8_t*       dstbuffer = (uint8_t*) encode->packed_buffer;
     const uint8_t* cdata;
     int            w, bpc, pixincrement;
     uint64_t       packed_bytes = 0;
@@ -195,3 +197,5 @@ internal_exr_match_encode (exr_encode_pipeline_t* encode, int isdeep)
 
     return &default_pack;
 }
+
+OPENEXR_CORE_NAMESPACE_EXIT

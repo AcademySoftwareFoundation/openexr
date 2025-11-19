@@ -8,6 +8,8 @@
 
 #include <string.h>
 
+OPENEXR_CORE_NAMESPACE_ENTER
+
 exr_result_t
 internal_coding_fill_channel_info (
     exr_coding_channel_info_t** channels,
@@ -26,7 +28,7 @@ internal_coding_fill_channel_info (
     if (chans <= 5) { chanfill = builtinextras; }
     else
     {
-        chanfill = ctxt->alloc_fn (
+        chanfill = (exr_coding_channel_info_t*) ctxt->alloc_fn (
             (size_t) (chans) * sizeof (exr_coding_channel_info_t));
         if (chanfill == NULL)
             return ctxt->standard_error (ctxt, EXR_ERR_OUT_OF_MEMORY);
@@ -273,3 +275,5 @@ internal_decode_alloc_buffer (
     }
     return EXR_ERR_SUCCESS;
 }
+
+OPENEXR_CORE_NAMESPACE_EXIT

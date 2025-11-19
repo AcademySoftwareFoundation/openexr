@@ -80,6 +80,7 @@ jobs:
       OPENEXR_FORCE_INTERNAL_IMATH: ${{ matrix.OPENEXR_FORCE_INTERNAL_IMATH || 'OFF' }}
       OPENEXR_FORCE_INTERNAL_DEFLATE: ${{ matrix.OPENEXR_FORCE_INTERNAL_DEFLATE || 'OFF' }}
       OPENEXR_FORCE_INTERNAL_OPENJPH: ${{ matrix.OPENEXR_FORCE_INTERNAL_OPENJPH || 'OFF' }}
+      OPENEXR_CORE_USE_NAMESPACE: ${{ matrix.OPENEXR_CORE_USE_NAMESPACE || 'OFF' }}
       BUILD_TESTING: ${{ matrix.BUILD_TESTING || 'ON' }}
       RUN_TESTING: ${{ matrix.RUN_TESTING || 'ON' }}
       namespace: ${{ matrix.namespace }}
@@ -147,6 +148,11 @@ jobs:
             RUN_TESTING: OFF
             validate_install: OFF
 
+          - build: 12
+            label: OPENEXR_CORE_USE_NAMESPACE
+            OPENEXR_CORE_USE_NAMESPACE: ON
+            validate_install: OFF
+
   macOS:
     name: 'macOS.${{ matrix.build}}: ${{ matrix.label }}'
     uses: ./.github/workflows/ci_steps.yml
@@ -169,6 +175,7 @@ jobs:
       OPENEXR_FORCE_INTERNAL_IMATH: ${{ matrix.OPENEXR_FORCE_INTERNAL_IMATH || 'OFF' }}
       OPENEXR_FORCE_INTERNAL_DEFLATE: ${{ matrix.OPENEXR_FORCE_INTERNAL_DEFLATE || 'OFF' }}
       OPENEXR_FORCE_INTERNAL_OPENJPH: ${{ matrix.OPENEXR_FORCE_INTERNAL_OPENJPH || 'OFF' }}
+      OPENEXR_CORE_USE_NAMESPACE: ${{ matrix.OPENEXR_CORE_USE_NAMESPACE || 'OFF' }}
       CMAKE_OSX_ARCHITECTURES: ${{ matrix.CMAKE_OSX_ARCHITECTURES }}
       BUILD_TESTING: ${{ matrix.BUILD_TESTING || 'ON' }}
       RUN_TESTING: ${{ matrix.RUN_TESTING || 'ON' }}
@@ -231,6 +238,11 @@ jobs:
             RUN_TESTING: OFF
             validate_install: OFF
 
+          - build: 11
+            label: OPENEXR_CORE_USE_NAMESPACE
+            OPENEXR_CORE_USE_NAMESPACE: ON
+            validate_install: OFF
+
   windows:
     name: 'Windows.${{ matrix.build}}: ${{ matrix.label }}'
     uses: ./.github/workflows/ci_steps.yml
@@ -251,6 +263,7 @@ jobs:
       OPENEXR_FORCE_INTERNAL_IMATH: ${{ matrix.OPENEXR_FORCE_INTERNAL_IMATH || 'OFF' }}
       OPENEXR_FORCE_INTERNAL_DEFLATE: ${{ matrix.OPENEXR_FORCE_INTERNAL_DEFLATE || 'OFF' }}
       OPENEXR_FORCE_INTERNAL_OPENJPH: ${{ matrix.OPENEXR_FORCE_INTERNAL_OPENJPH || 'OFF' }}
+      OPENEXR_CORE_USE_NAMESPACE: ${{ matrix.OPENEXR_CORE_USE_NAMESPACE || 'OFF' }}
       msystem: ${{ matrix.msystem }}
       BUILD_TESTING: ${{ matrix.BUILD_TESTING || 'ON' }}
       RUN_TESTING: ${{ matrix.RUN_TESTING || 'ON' }}
@@ -317,3 +330,7 @@ jobs:
             RUN_TESTING: OFF
             validate_install: OFF
 
+          - build: 12
+            label: OPENEXR_CORE_USE_NAMESPACE
+            OPENEXR_CORE_USE_NAMESPACE: ON
+            validate_install: OFF

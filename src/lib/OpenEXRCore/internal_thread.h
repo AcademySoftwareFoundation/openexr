@@ -12,6 +12,10 @@
 // pthread_once elsewhere, or a simple variable if threading is completely disabled.
 #if ILMTHREAD_THREADING_ENABLED
 #    ifdef _WIN32
+#    ifdef NOMINMAX
+#      undef NOMINMAX
+#    endif
+#    define NOMINMAX
 #        include <windows.h>
 #        define ONCE_FLAG_INIT INIT_ONCE_STATIC_INIT
 typedef INIT_ONCE once_flag;

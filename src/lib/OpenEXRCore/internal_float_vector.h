@@ -6,9 +6,9 @@
 #ifndef OPENEXR_ATTR_FLOAT_VECTOR_H
 #define OPENEXR_ATTR_FLOAT_VECTOR_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "OpenEXRConfig.h"
+
+OPENEXR_CORE_EXTERN_C_ENTER
 
 /** 
  * @addtogroup InternalAttributeFunctions
@@ -45,8 +45,6 @@ exr_attr_float_vector_destroy (exr_context_t ctxt, exr_attr_float_vector_t* fv);
 
 /** @} */
 
-#ifdef __cplusplus
-} /* extern "C" */
-#endif
+OPENEXR_CORE_EXTERN_C_EXIT
 
 #endif /* OPENEXR_ATTR_FLOAT_VECTOR_H */

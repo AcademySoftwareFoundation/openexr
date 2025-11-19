@@ -12,6 +12,8 @@
 #include <stdio.h>
 #include <string.h>
 
+OPENEXR_CORE_NAMESPACE_ENTER
+
 /**************************************/
 
 static void
@@ -74,7 +76,7 @@ print_attr (const exr_attribute_t* a, int verbose)
                 (double) a->chromaticities->white_y);
             break;
         case EXR_ATTR_COMPRESSION: {
-            static char* compressionnames[] = {
+            static const char* compressionnames[] = {
                 "none",
                 "rle",
                 "zips",
@@ -361,3 +363,5 @@ exr_print_context_info (exr_const_context_t ctxt, int verbose)
     if (ctxt->mode == EXR_CONTEXT_WRITE) internal_exr_unlock (ctxt);
     return EXR_ERR_SUCCESS;
 }
+
+OPENEXR_CORE_NAMESPACE_EXIT

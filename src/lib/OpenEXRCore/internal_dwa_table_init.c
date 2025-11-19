@@ -8,6 +8,8 @@
 #include "internal_coding.h"
 #include "internal_thread.h"
 
+OPENEXR_CORE_NAMESPACE_ENTER
+
 extern uint16_t* exrcore_dwaToLinearTable;
 extern uint16_t* exrcore_dwaToNonLinearTable;
 
@@ -106,3 +108,5 @@ exrcore_ensure_dwa_tables()
 {
     call_once (&dwa_tables_once, init_dwa_tables);
 }
+
+OPENEXR_CORE_NAMESPACE_EXIT

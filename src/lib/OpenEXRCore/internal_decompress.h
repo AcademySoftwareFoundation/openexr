@@ -8,6 +8,10 @@
 
 #include "openexr_decode.h"
 
+#include "OpenEXRConfig.h"
+
+OPENEXR_CORE_NAMESPACE_ENTER
+
 /*
  * for uncompressing, we might be doing either the deep sample count
  * table or the actual pixel data so need to receive the destination
@@ -73,17 +77,17 @@ exr_result_t internal_exr_undo_dwab (
     void*                  uncompressed_data,
     uint64_t               uncompressed_size);
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+OPENEXR_CORE_NAMESPACE_EXIT
+
+OPENEXR_CORE_EXTERN_C_ENTER
+
 exr_result_t internal_exr_undo_ht (
     exr_decode_pipeline_t* decode,
     const void*            compressed_data,
     uint64_t               comp_buf_size,
     void*                  uncompressed_data,
     uint64_t               uncompressed_size);
-#ifdef __cplusplus
-}
-#endif
+
+OPENEXR_CORE_EXTERN_C_EXIT
 
 #endif /* OPENEXR_CORE_DECOMPRESS_H */

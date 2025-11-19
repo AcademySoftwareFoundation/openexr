@@ -6,9 +6,9 @@
 #ifndef OPENEXR_ATTR_PREVIEW_H
 #define OPENEXR_ATTR_PREVIEW_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "OpenEXRConfig.h"
+
+OPENEXR_CORE_NAMESPACE_ENTER
 
 /** 
  * @addtogroup InternalAttributeFunctions
@@ -54,8 +54,6 @@ exr_attr_preview_destroy (exr_context_t ctxt, exr_attr_preview_t* p);
 
 /** @} */
 
-#ifdef __cplusplus
-} /* extern "C" */
-#endif
+OPENEXR_CORE_NAMESPACE_EXIT
 
 #endif /* OPENEXR_ATTR_PREVIEW_H */

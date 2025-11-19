@@ -11,9 +11,9 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "OpenEXRConfig.h"
+
+OPENEXR_CORE_EXTERN_C_ENTER
 
 /** @file */
 
@@ -514,8 +514,6 @@ typedef struct
 
 /** @} */
 
-#ifdef __cplusplus
-} /* extern "C" */
-#endif
+OPENEXR_CORE_EXTERN_C_EXIT
 
 #endif /* OPENEXR_ATTR_H */

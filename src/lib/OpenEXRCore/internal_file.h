@@ -8,6 +8,10 @@
 
 #include "internal_structs.h"
 
+#include "OpenEXRConfig.h"
+
+OPENEXR_CORE_NAMESPACE_ENTER
+
 #define EXR_FILE_VERSION 2
 #define EXR_FILE_VERSION_MASK 0x000000FF
 #define EXR_TILED_FLAG 0x00000200
@@ -41,5 +45,7 @@ internal_exr_validate_shared_attrs (exr_context_t ctxt,
                                     int *mismatchcount);
 exr_result_t
 internal_exr_validate_write_part (exr_context_t ctxt, exr_priv_part_t curpart);
+
+OPENEXR_CORE_NAMESPACE_EXIT
 
 #endif /* OPENEXR_PRIVATE_FILE_UTIL_H */

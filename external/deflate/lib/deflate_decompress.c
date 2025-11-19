@@ -1164,7 +1164,7 @@ libdeflate_alloc_decompressor_ex(const struct libdeflate_options *options)
 	if (options->sizeof_options != sizeof(*options))
 		return NULL;
 
-	d = (options->malloc_func ? options->malloc_func :
+	d = (struct libdeflate_decompressor *) (options->malloc_func ? options->malloc_func :
 	     libdeflate_default_malloc_func)(sizeof(*d));
 	if (d == NULL)
 		return NULL;
@@ -1195,7 +1195,9 @@ LIBDEFLATEAPI struct libdeflate_decompressor *
 libdeflate_alloc_decompressor(void)
 {
 	static const struct libdeflate_options defaults = {
-		.sizeof_options = sizeof(defaults),
+		sizeof(struct libdeflate_options),
+		NULL,
+		NULL
 	};
 	return libdeflate_alloc_decompressor_ex(&defaults);
 }

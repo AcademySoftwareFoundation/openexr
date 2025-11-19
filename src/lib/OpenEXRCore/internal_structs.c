@@ -16,11 +16,17 @@
 #if ILMTHREAD_THREADING_ENABLED
 #    ifdef _WIN32
 #        include <synchapi.h>
+#    ifdef NOMINMAX
+#      undef NOMINMAX
+#    endif
+#    define NOMINMAX
 #        include <windows.h>
 #    else
 #        include <pthread.h>
 #    endif
 #endif
+
+OPENEXR_CORE_NAMESPACE_ENTER
 
 /**************************************/
 
@@ -122,7 +128,7 @@ dispatch_print_error (
         va_end (stkargs);
         if (nwrit >= 256)
         {
-            heapbuf = ctxt->alloc_fn ((size_t) (nwrit + 1));
+            heapbuf = (char*) ctxt->alloc_fn ((size_t) (nwrit + 1));
             if (heapbuf)
             {
                 (void) vsnprintf (heapbuf, (size_t) (nwrit + 1), msg, fmtargs);
@@ -178,7 +184,15 @@ internal_exr_destroy_parts (exr_context_t ctxt)
 
         /* the first one is always the one that is part of the file */
         if (cur != &(ctxt->first_part)) { dofree (cur); }
-        else { memset (cur, 0, sizeof (struct _priv_exr_part_t)); }
+        else
+        {
+#if __cplusplus
+            struct _priv_exr_part_t nil;
+            *cur = nil;
+#else
+            memset (cur, 0, sizeof (struct _priv_exr_part_t));
+#endif
+        }
     }
 
     if (ctxt->num_parts > 1) dofree (ctxt->parts);
@@ -207,17 +221,20 @@ internal_exr_add_part (
     }
     else
     {
-        struct _priv_exr_part_t nil = {0};
-
-        part = f->alloc_fn (sizeof (struct _priv_exr_part_t));
+        part = (exr_priv_part_t) f->alloc_fn (sizeof (struct _priv_exr_part_t));
         if (!part) return f->standard_error (f, EXR_ERR_OUT_OF_MEMORY);
 
-        nptrs = f->alloc_fn (sizeof (exr_priv_part_t) * (size_t) ncount);
+        nptrs = (exr_priv_part_t*) f->alloc_fn (sizeof (exr_priv_part_t) * (size_t) ncount);
         if (!nptrs)
         {
             f->free_fn (part);
             return f->standard_error (f, EXR_ERR_OUT_OF_MEMORY);
         }
+#if __cplusplus
+        struct _priv_exr_part_t nil;
+#else
+        struct _priv_exr_part_t nil = {0};
+#endif
         *part = nil;
     }
 
@@ -328,7 +345,7 @@ internal_exr_alloc_context (
     {
         memset (memptr, 0, sizeof (struct _priv_exr_context_t));
 
-        ret       = memptr;
+        ret       = (exr_context_t) memptr;
         ret->mode = (uint8_t) mode;
         /* stash this separately so when a user queries they don't see
          * any of our internal hijinx */
@@ -483,3 +500,5 @@ internal_exr_update_default_handlers (exr_context_initializer_t* inits)
     if (!inits->alloc_fn) inits->alloc_fn = &internal_exr_alloc;
     if (!inits->free_fn) inits->free_fn = &internal_exr_free;
 }
+
+OPENEXR_CORE_NAMESPACE_EXIT

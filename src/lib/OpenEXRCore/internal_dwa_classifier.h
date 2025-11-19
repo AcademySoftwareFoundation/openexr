@@ -7,6 +7,10 @@
 #    error "only include internal_dwa_helpers.h"
 #endif
 
+#include "OpenEXRConfig.h"
+
+OPENEXR_CORE_NAMESPACE_ENTER
+
 /**************************************/
 
 typedef struct _Classifier
@@ -106,7 +110,7 @@ Classifier_read (
         // account for extra byte for nil terminator
         len += 1;
 
-        mem = alloc_fn (len);
+        mem = (char*) alloc_fn (len);
         if (!mem) return EXR_ERR_OUT_OF_MEMORY;
 
         memcpy (mem, suffix, len);
@@ -190,3 +194,6 @@ Classifier_find_suffix (const char* channel_name)
     else { suffix = channel_name; }
     return suffix;
 }
+
+OPENEXR_CORE_NAMESPACE_EXIT
+

@@ -33,7 +33,7 @@ libdeflate_zlib_compress(struct libdeflate_compressor *c,
 			 const void *in, size_t in_nbytes,
 			 void *out, size_t out_nbytes_avail)
 {
-	u8 *out_next = out;
+        u8 *out_next = (u8*) out;
 	u16 hdr;
 	unsigned compression_level;
 	unsigned level_hint;

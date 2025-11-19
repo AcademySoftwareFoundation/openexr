@@ -8,9 +8,9 @@
 
 #include <stdint.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "OpenEXRConfig.h"
+
+OPENEXR_CORE_EXTERN_C_ENTER
 
 /** @file */
 
@@ -134,8 +134,6 @@ typedef struct
     };
 } exr_coding_channel_info_t;
 
-#ifdef __cplusplus
-} /* extern "C" */
-#endif
+OPENEXR_CORE_EXTERN_C_EXIT
 
 #endif /* OPENEXR_CORE_CODING_H */

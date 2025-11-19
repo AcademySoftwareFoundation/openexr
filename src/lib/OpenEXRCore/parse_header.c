@@ -20,6 +20,8 @@
 
 #include <stdio.h>
 
+OPENEXR_CORE_NAMESPACE_ENTER
+
 /**************************************/
 
 static exr_result_t
@@ -84,7 +86,7 @@ scratch_attr_too_big (struct _internal_exr_seq_scratch* scr, int32_t attrsz)
 static exr_result_t
 scratch_seq_read (struct _internal_exr_seq_scratch* scr, void* buf, uint64_t sz)
 {
-    uint8_t*     outbuf  = buf;
+    uint8_t*     outbuf  = (uint8_t*) buf;
     uint64_t     nCopied = 0;
     uint64_t     notdone = sz;
     exr_result_t rv      = -1;
@@ -244,7 +246,7 @@ priv_init_scratch (
     scr->sequential_read = &scratch_seq_read;
     scr->sequential_skip = &scratch_seq_skip;
     scr->ctxt            = ctxt;
-    scr->scratch         = ctxt->alloc_fn (SCRATCH_BUFFER_SIZE);
+    scr->scratch         = (uint8_t*) ctxt->alloc_fn (SCRATCH_BUFFER_SIZE);
     if (scr->scratch == NULL)
         return ctxt->standard_error (ctxt, EXR_ERR_OUT_OF_MEMORY);
     return EXR_ERR_SUCCESS;
@@ -409,7 +411,7 @@ extract_attr_chlist (
             chname,
             chlen,
             (exr_pixel_type_t) ptype,
-            flags[0],
+            (exr_perceptual_treatment_t) flags[0],
             xsamp,
             ysamp);
     }
@@ -638,7 +640,7 @@ extract_attr_string_vector (
 
         if (nalloced == 0)
         {
-            clist = ctxt->alloc_fn (4 * sizeof (exr_attr_string_t));
+            clist = (exr_attr_string_t*) ctxt->alloc_fn (4 * sizeof (exr_attr_string_t));
             if (clist == NULL)
             {
                 rv = ctxt->standard_error (ctxt, EXR_ERR_OUT_OF_MEMORY);
@@ -649,7 +651,7 @@ extract_attr_string_vector (
         if ((nstr + 1) >= nalloced)
         {
             nalloced *= 2;
-            nlist = ctxt->alloc_fn (
+            nlist = (exr_attr_string_t*) ctxt->alloc_fn (
                 (size_t) (nalloced) * sizeof (exr_attr_string_t));
             if (nlist == NULL)
             {
@@ -1259,7 +1261,7 @@ check_populate_lineOrder (
          * that behavior (barring other failure)
          */
         curpart->lineOrder->uc = data;
-        curpart->lineorder     = data;
+        curpart->lineorder     = (exr_lineorder_t) data;
         return EXR_ERR_SUCCESS;
     }
 
@@ -1279,7 +1281,7 @@ check_populate_lineOrder (
             EXR_REQ_LO_STR);
 
     curpart->lineOrder->uc = data;
-    curpart->lineorder     = data;
+    curpart->lineorder     = (exr_lineorder_t) data;
     return rv;
 }
 
@@ -2894,3 +2896,5 @@ internal_exr_parse_header (exr_context_t ctxt)
     priv_destroy_scratch (&scratch);
     return internal_exr_context_restore_handlers (ctxt, rv);
 }
+
+OPENEXR_CORE_NAMESPACE_EXIT

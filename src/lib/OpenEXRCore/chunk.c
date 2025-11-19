@@ -14,6 +14,8 @@
 #include <limits.h>
 #include <string.h>
 
+OPENEXR_CORE_NAMESPACE_ENTER
+
 /**************************************/
 
 exr_result_t extract_chunk_table (
@@ -2408,3 +2410,5 @@ internal_validate_next_chunk (
     }
     return rv;
 }
+
+OPENEXR_CORE_NAMESPACE_EXIT

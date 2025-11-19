@@ -13,9 +13,9 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "OpenEXRConfig.h"
+
+OPENEXR_CORE_EXTERN_C_ENTER
 
 /** @file */
 
@@ -581,8 +581,6 @@ EXR_EXPORT exr_result_t exr_write_header (exr_context_t ctxt);
 
 /** @} */
 
-#ifdef __cplusplus
-} /* extern "C" */
-#endif
+OPENEXR_CORE_EXTERN_C_EXIT
 
 #endif /* OPENEXR_CONTEXT_H */

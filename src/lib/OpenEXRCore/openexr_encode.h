@@ -9,9 +9,9 @@
 #include "openexr_chunkio.h"
 #include "openexr_coding.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "OpenEXRConfig.h"
+
+OPENEXR_CORE_EXTERN_C_ENTER
 
 /** @file */
 
@@ -343,8 +343,6 @@ EXR_EXPORT
 exr_result_t exr_encoding_destroy (
     exr_const_context_t ctxt, exr_encode_pipeline_t* encode_pipe);
 
-#ifdef __cplusplus
-} /* extern "C" */
-#endif
+OPENEXR_CORE_EXTERN_C_EXIT
 
 #endif /* OPENEXR_CORE_ENCODE_H */

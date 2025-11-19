@@ -10,6 +10,8 @@
 
 #include <string.h>
 
+OPENEXR_CORE_NAMESPACE_ENTER
+
 /**************************************/
 
 int
@@ -314,3 +316,5 @@ exr_attr_opaquedata_set_packed (
 
     return EXR_ERR_SUCCESS;
 }
+
+OPENEXR_CORE_NAMESPACE_EXIT

@@ -18,6 +18,12 @@
 #include "openexr_encode.h"
 #include "internal_ht_common.h"
 
+#include "OpenEXRConfig.h"
+
+#ifdef OPENEXR_CORE_USE_NAMESPACE
+using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;
+#endif
+
 /**
  * OpenJPH output file that is backed by a fixed-size memory buffer
  */
@@ -325,7 +331,9 @@ ht_undo_impl (
     return rv;
 }
 
-extern "C" exr_result_t
+OPENEXR_CORE_EXTERN_C_ENTER
+
+exr_result_t
 internal_exr_undo_ht (
     exr_decode_pipeline_t* decode,
     const void*            compressed_data,
@@ -345,6 +353,7 @@ internal_exr_undo_ht (
     return EXR_ERR_CORRUPT_CHUNK;
 }
 
+OPENEXR_CORE_EXTERN_C_EXIT
 
 ////////////////////////////////////////
 
@@ -526,7 +535,9 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
     return rv;
 }
 
-extern "C" exr_result_t
+OPENEXR_CORE_EXTERN_C_ENTER
+
+exr_result_t
 internal_exr_apply_ht (exr_encode_pipeline_t* encode)
 {
     try
@@ -539,3 +550,5 @@ internal_exr_apply_ht (exr_encode_pipeline_t* encode)
 
     return EXR_ERR_INCORRECT_CHUNK;
 }
+
+OPENEXR_CORE_EXTERN_C_EXIT
