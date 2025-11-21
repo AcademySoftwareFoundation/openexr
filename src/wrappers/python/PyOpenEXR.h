@@ -18,17 +18,18 @@ class PyFile
 {
 public:
     PyFile();
-    PyFile(const std::string& filename, bool separate_channels = false, bool header_only = false);
+    PyFile(const std::string& filename, bool separate_channels = false, bool header_only = false, const py::list& part_indices = py::list());
     PyFile(const py::dict& header, const py::dict& channels);
     PyFile(const py::list& parts);
 
     py::object   __enter__();
     void         __exit__(py::args args);
+    void         close();
     
     py::dict&    header(int part_index = 0);
     py::dict&    channels(int part_index = 0);
 
-    void         write(const char* filename);
+    void         write(const char* filename, bool header_only = false, const py::list& part_indices = py::list());
     
     std::string  filename;
     py::list     parts;
@@ -37,6 +38,7 @@ protected:
     
     bool                                _header_only;
     std::unique_ptr<MultiPartInputFile> _inputFile;
+    std::unique_ptr<MultiPartOutputFile> _outputFile;
     
     py::object   getAttributeObject(const std::string& name, const Attribute* a);
     
