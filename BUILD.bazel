@@ -63,6 +63,7 @@ expand_template(
         "@OPENEXR_VERSION_PATCH@": "0",
         "#cmakedefine OPENEXR_ENABLE_API_VISIBILITY": "#define OPENEXR_ENABLE_API_VISIBILITY",
         "#cmakedefine OPENEXR_HAVE_LARGE_STACK 1": "/* #undef OPENEXR_HAVE_LARGE_STACK */",
+        "#cmakedefine OPENEXR_CORE_USE_NAMESPACE @OPENEXR_CORE_USE_NAMESPACE@": "/* #undef OPENEXR_CORE_USE_NAMESPACE */",
     },
     template = "cmake/OpenEXRConfig.h.in",
 )
