@@ -10,7 +10,9 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
-
+    exclude-paths:
+      - ".github/workflows/ci_workflow_old.yml"
+      
   - package-ecosystem: "pip"
     directory: "/"
     schedule:
