@@ -6,6 +6,10 @@
 #ifndef IMF_INTERNAL_DWA_HELPERS_H_HAS_BEEN_INCLUDED
 #define IMF_INTERNAL_DWA_HELPERS_H_HAS_BEEN_INCLUDED
 
+#include "OpenEXRConfig.h"
+
+OPENEXR_CORE_NAMESPACE_ENTER
+
 extern uint16_t* exrcore_dwaToLinearTable;
 extern uint16_t* exrcore_dwaToNonLinearTable;
 extern void      exrcore_ensure_dwa_tables ();
@@ -58,6 +62,8 @@ std_max (size_t a, size_t b)
 {
     return a < b ? b : a;
 }
+
+OPENEXR_CORE_NAMESPACE_EXIT
 
 #include "internal_dwa_simd.h"
 #include "internal_dwa_channeldata.h"

@@ -460,6 +460,12 @@ To enable this, set the flag during config:
 Namespace Options
 ~~~~~~~~~~~~~~~~~
 
+* ``OPENEXR_CORE_USE_NAMESPACE``
+
+  If ``ON``, compile the OpenEXRCore library with C++ (rather than the
+  default C) with symbols in the same namespace as OpenEXR, as defined
+  by other options.
+
 * ``OPENEXR_IMF_NAMESPACE``
 
   Public namespace alias for OpenEXR. Default is ``Imf``.
@@ -498,6 +504,26 @@ Namespace Options
 * ``ILMTHREAD_NAMESPACE_CUSTOM``
 
   Whether the namespace has been customized (so external users know)
+
+Notes on Linking Multiple Versions of OpenEXR in a Single Program
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Sometimes a plugin needs to link against a custom version of OpenEXR
+that is different from the version that the main application comes
+built against. You can accomplish this via the custom namespace
+options described above.
+
+However, the OpenEXRCore library presents an additional wrinkle, since
+it is implemented in C and by default has no namespace.
+
+In situations like this, the recommended solution is to build the
+custom version of OpenEXR with the ``OPENEXR_CORE_USE_NAMESPACE``
+option, which compiles the OpenEXRCore library as C++ with the symbols
+in the same namespace as the OpenEXR library:
+
+.. code-block::
+
+    % cmake -DOPENEXR_IMF_NAMESPACE=MyImf -DOPENEXR_CORE_USE_NAMESPACE=ON ...
 
 Component Options
 ~~~~~~~~~~~~~~~~~

@@ -5,6 +5,10 @@
 
 #include <stdint.h>
 
+#include "OpenEXRConfig.h"
+
+OPENEXR_CORE_NAMESPACE_ENTER
+
 extern uint16_t* exrcore_dwaToLinearTable;
 extern uint16_t* exrcore_dwaToNonLinearTable;
 
@@ -13,3 +17,5 @@ uint16_t* exrcore_dwaToLinearTable = exrcore_dwaToLinearTable_data;
 
 static uint16_t exrcore_dwaToNonLinearTable_data[65536];
 uint16_t* exrcore_dwaToNonLinearTable = exrcore_dwaToNonLinearTable_data;
+
+OPENEXR_CORE_NAMESPACE_EXIT

@@ -7,6 +7,20 @@
 #    error "only include internal_dwa_helpers.h"
 #endif
 
+#include "OpenEXRConfig.h"
+
+#ifdef __cplusplus
+#  if defined(_MSC_VER)
+#    define OPENEXR_RESTRICT __restrict
+#  else
+#    define OPENEXR_RESTRICT __restrict__
+#  endif
+#else
+#define OPENEXR_RESTRICT restrict
+#endif
+
+OPENEXR_CORE_NAMESPACE_ENTER
+
 //
 // 'class' for the LOSSY_DCT decoder classes
 //
@@ -320,7 +334,7 @@ LossyDctDecoder_execute (
     // Allocate a temp aligned buffer to hold a rows worth of full
     // 8x8 half-float blocks
     //
-    rowBlockHandle = alloc_fn (
+    rowBlockHandle = (uint8_t*) alloc_fn (
         (size_t) numComp * (size_t) numBlocksX * 64 * sizeof (uint16_t) +
         _SSE_ALIGNMENT);
     if (!rowBlockHandle) return EXR_ERR_OUT_OF_MEMORY;
@@ -580,8 +594,8 @@ LossyDctDecoder_execute (
             {
                 for (int y = 8 * blocky; y < 8 * blocky + maxY; ++y)
                 {
-                    __m128i* restrict dst = (__m128i *) chanData[comp]->_rows[y];
-                    __m128i const * restrict src = (__m128i const *)&rowBlock[comp][(y & 0x7) * 8];
+                    __m128i* OPENEXR_RESTRICT dst = (__m128i *) chanData[comp]->_rows[y];
+                    __m128i const * OPENEXR_RESTRICT src = (__m128i const *)&rowBlock[comp][(y & 0x7) * 8];
 
                     for (int blockx = 0; blockx < numFullBlocksX; ++blockx)
                     {
@@ -635,8 +649,8 @@ LossyDctDecoder_execute (
                 // no-op conversion to linear
                 for (int y = 8 * blocky; y < 8 * blocky + maxY; ++y)
                 {
-                    __m128i* restrict dst = (__m128i *) chanData[comp]->_rows[y];
-                    __m128i const * restrict src = (__m128i const *)&rowBlock[comp][(y & 0x7) * 8];
+                    __m128i* OPENEXR_RESTRICT dst = (__m128i *) chanData[comp]->_rows[y];
+                    __m128i const * OPENEXR_RESTRICT src = (__m128i const *)&rowBlock[comp][(y & 0x7) * 8];
 
                     for (int blockx = 0; blockx < numFullBlocksX; ++blockx)
                     {
@@ -656,11 +670,11 @@ LossyDctDecoder_execute (
 
                 for (int y = 8 * blocky; y < 8 * blocky + maxY; ++y)
                 {
-                    uint16_t* restrict dst = (uint16_t*) chanData[comp]->_rows[y];
+                    uint16_t* OPENEXR_RESTRICT dst = (uint16_t*) chanData[comp]->_rows[y];
 
                     for (int blockx = 0; blockx < numFullBlocksX; ++blockx)
                     {
-                        uint16_t* restrict src =
+                        uint16_t* OPENEXR_RESTRICT src =
                             &rowBlock[comp][blockx * 64 + ((y & 0x7) * 8)];
 
                         dst[0] = d->_toLinear[src[0]];
@@ -757,4 +771,5 @@ LossyDctDecoder_execute (
     return EXR_ERR_SUCCESS;
 }
 
-/**************************************/
+OPENEXR_CORE_NAMESPACE_EXIT
+

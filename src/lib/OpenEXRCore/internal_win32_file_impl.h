@@ -8,6 +8,10 @@
 #include <fileapi.h>
 #include <inttypes.h>
 #include <strsafe.h>
+#    ifdef NOMINMAX
+#      undef NOMINMAX
+#    endif
+#    define NOMINMAX
 #include <windows.h>
 
 #ifdef _MSC_VER
@@ -18,6 +22,8 @@
 #        define PRIu64 "I64u"
 #    endif
 #endif
+
+OPENEXR_CORE_NAMESPACE_ENTER
 
 static exr_result_t
 print_error_helper (
@@ -84,7 +90,7 @@ widen_filename (exr_context_t file, const char* fn)
 
     fnlen  = (int) strlen (fn);
     wcSize = MultiByteToWideChar (CP_UTF8, 0, fn, fnlen, NULL, 0);
-    wcFn   = file->alloc_fn (sizeof (wchar_t) * (wcSize + 1));
+    wcFn   = (wchar_t*) file->alloc_fn (sizeof (wchar_t) * (wcSize + 1));
     if (wcFn)
     {
         MultiByteToWideChar (CP_UTF8, 0, fn, fnlen, wcFn, wcSize);
@@ -104,7 +110,7 @@ static void
 default_shutdown (exr_const_context_t c, void* userdata, int failed)
 {
     /* we will handle failure before here */
-    struct _internal_exr_filehandle* fh = userdata;
+    struct _internal_exr_filehandle* fh = (struct _internal_exr_filehandle*) userdata;
     if (fh)
     {
         if (fh->fd != INVALID_HANDLE_VALUE) CloseHandle (fh->fd);
@@ -165,7 +171,7 @@ default_read_func (
 {
     int64_t                          retsz = -1;
     DWORD                            nread = 0;
-    struct _internal_exr_filehandle* fh    = userdata;
+    struct _internal_exr_filehandle* fh    = (struct _internal_exr_filehandle*) userdata;
     HANDLE                           fd;
     LARGE_INTEGER                    lint;
     OVERLAPPED                       overlap = {0};
@@ -231,7 +237,7 @@ default_write_func (
     exr_stream_error_func_ptr_t error_cb)
 {
     int64_t                          retsz = -1;
-    struct _internal_exr_filehandle* fh    = userdata;
+    struct _internal_exr_filehandle* fh    = (struct _internal_exr_filehandle*) userdata;
     HANDLE                           fd;
     DWORD                            nwrote = 0;
     LARGE_INTEGER                    lint;
@@ -292,7 +298,7 @@ default_init_read_file (exr_context_t file)
 {
     wchar_t*                         wcFn = NULL;
     HANDLE                           fd;
-    struct _internal_exr_filehandle* fh = file->user_data;
+    struct _internal_exr_filehandle* fh = (struct _internal_exr_filehandle*) file->user_data;
 
     fh->fd           = INVALID_HANDLE_VALUE;
     file->destroy_fn = &default_shutdown;
@@ -339,7 +345,7 @@ static exr_result_t
 default_init_write_file (exr_context_t file)
 {
     wchar_t*                         wcFn = NULL;
-    struct _internal_exr_filehandle* fh   = file->user_data;
+    struct _internal_exr_filehandle* fh   = (struct _internal_exr_filehandle*) file->user_data;
     HANDLE                           fd;
     const char*                      outfn = file->tmp_filename.str;
 
@@ -388,7 +394,7 @@ default_init_write_file (exr_context_t file)
 static int64_t
 default_query_size_func (exr_const_context_t ctxt, void* userdata)
 {
-    struct _internal_exr_filehandle* fh = userdata;
+    struct _internal_exr_filehandle* fh = (struct _internal_exr_filehandle*) userdata;
     int64_t                          sz = -1;
 
     if (fh->fd != INVALID_HANDLE_VALUE)
@@ -424,7 +430,7 @@ make_temp_filename (exr_context_t ret)
     if (newlen >= INT32_MAX)
         return ret->standard_error (ret, EXR_ERR_OUT_OF_MEMORY);
 
-    tmpname = ret->alloc_fn (newlen + 1);
+    tmpname = (char*) ret->alloc_fn (newlen + 1);
     if (tmpname)
     {
         // windows allows both
@@ -473,3 +479,5 @@ make_temp_filename (exr_context_t ret)
             (uint64_t) newlen + 1);
     return EXR_ERR_SUCCESS;
 }
+
+OPENEXR_CORE_NAMESPACE_EXIT

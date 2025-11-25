@@ -12,6 +12,8 @@
 #include <cctype>
 #include <stdexcept>
 
+OPENEXR_CORE_NAMESPACE_ENTER
+
 struct RGBChannelParams
 {
     const char* r_suffix;
@@ -308,3 +310,5 @@ read_header (
 
     return length;
 }
+
+OPENEXR_CORE_NAMESPACE_EXIT

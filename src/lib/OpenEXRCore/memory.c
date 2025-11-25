@@ -6,11 +6,17 @@
 #include "internal_memory.h"
 
 #ifdef _WIN32
+#    ifdef NOMINMAX
+#      undef NOMINMAX
+#    endif
+#    define NOMINMAX
 #    include <windows.h>
 #else
 #    include <stdlib.h>
 #endif
 #include <inttypes.h>
+
+OPENEXR_CORE_NAMESPACE_ENTER
 
 /**************************************/
 
@@ -77,3 +83,5 @@ internal_exr_free (void* ptr)
 #endif
     }
 }
+
+OPENEXR_CORE_NAMESPACE_EXIT

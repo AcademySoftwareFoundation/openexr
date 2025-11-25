@@ -10,9 +10,9 @@
 
 #include <stdint.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "OpenEXRConfig.h"
+
+OPENEXR_CORE_EXTERN_C_ENTER
 
 /** @file */
 
@@ -188,8 +188,6 @@ exr_result_t exr_write_deep_tile_chunk (
     const void*   sample_data,
     uint64_t      sample_data_size);
 
-#ifdef __cplusplus
-} /* extern "C" */
-#endif
+OPENEXR_CORE_EXTERN_C_EXIT
 
 #endif /* OPENEXR_CORE_CHUNKIO_H */

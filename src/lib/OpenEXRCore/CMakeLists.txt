@@ -110,6 +110,26 @@ openexr_define_library(OpenEXRCore
     Imath::Imath
   )
 
+if (OPENEXR_CORE_USE_NAMESPACE)
+  message(STATUS "Building OpenEXRCore as C++")
+  get_target_property(OPENEXR_CORE_SOURCES OpenEXRCore SOURCES)
+  list(FILTER OPENEXR_CORE_SOURCES INCLUDE REGEX "\\.c$")
+
+  # clang++ defaults to interpreting .c files as c code, for force
+  # language to c++ 
+  if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+    set(core_compile_options "/TP")
+  else()
+    set(core_compile_options "-xc++")
+  endif()
+  set_source_files_properties(${OPENEXR_CORE_SOURCES} PROPERTIES
+    LANGUAGE CXX
+    COMPILE_OPTIONS ${core_compile_options}
+  )
+else()
+  message(STATUS "Building OpenEXRCore as C")
+endif()
+
 if (DEFINED EXR_DEFLATE_LIB)
   if (BUILD_SHARED_LIBS)
     target_link_libraries(OpenEXRCore PRIVATE ${EXR_DEFLATE_LIB})
