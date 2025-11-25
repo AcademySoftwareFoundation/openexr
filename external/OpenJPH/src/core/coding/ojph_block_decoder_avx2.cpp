@@ -408,7 +408,7 @@ namespace ojph {
         vlcp->unstuff = d > 0x8F; // for next byte
       }
       vlcp->size -= tnum;
-      rev_read(vlcp);  // read another 32 buts
+      rev_read(vlcp);  // read another 32 bits
     }
 
     //************************************************************************/
