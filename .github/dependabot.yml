@@ -3,7 +3,6 @@
 
 version: 2
 
-enable-beta-ecosystems: true # Required to use the Bazel ecosystems
 updates:
 
   - package-ecosystem: "github-actions"
