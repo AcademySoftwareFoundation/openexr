@@ -186,6 +186,13 @@ internal_exr_destroy_parts (exr_context_t ctxt)
         if (cur != &(ctxt->first_part)) { dofree (cur); }
         else
         {
+            /*
+             * IMPORTANT: The following two initialization paths (C++ and C)
+             * must produce equivalent results. The struct _priv_exr_part_t
+             * should remain a POD type with all members defaulting to zero.
+             * If any member is added with a non-zero default, both branches
+             * must be updated accordingly. Any mismatch could lead to subtle bugs.
+             */
 #if __cplusplus
             struct _priv_exr_part_t nil;
             *cur = nil;
