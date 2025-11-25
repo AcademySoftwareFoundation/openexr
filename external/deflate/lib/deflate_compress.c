@@ -2988,6 +2988,9 @@ static const struct {
 	u8 len_sym_cost;
 } default_litlen_costs[] = {
 	{ /* match_prob = 0.25 */
+#ifndef __cplusplus
+		.used_lits_to_lit_cost = 
+#endif
 		{
 			6, 6, 22, 32, 38, 43, 48, 51,
 			54, 57, 59, 61, 64, 65, 67, 69,
@@ -3023,9 +3026,15 @@ static const struct {
 			133, 134, 134, 134, 134, 134, 134, 134,
 			134,
 		},
-		109,
+#ifndef __cplusplus
+		.len_sym_cost =
+#endif
+                109,
 	}, { /* match_prob = 0.5 */
-		{
+#ifndef __cplusplus
+		.used_lits_to_lit_cost =
+#endif
+                {
 			16, 16, 32, 41, 48, 53, 57, 60,
 			64, 66, 69, 71, 73, 75, 76, 78,
 			80, 81, 82, 83, 85, 86, 87, 88,
@@ -3060,9 +3069,15 @@ static const struct {
 			143, 143, 143, 143, 143, 143, 143, 143,
 			144,
 		},
-		93,
+#ifndef __cplusplus
+		.len_sym_cost =
+#endif
+                93,
 	}, { /* match_prob = 0.75 */
-		{
+#ifndef __cplusplus
+		.used_lits_to_lit_cost =
+#endif
+                {
 			32, 32, 48, 57, 64, 69, 73, 76,
 			80, 82, 85, 87, 89, 91, 92, 94,
 			96, 97, 98, 99, 101, 102, 103, 104,
@@ -3097,6 +3112,9 @@ static const struct {
 			159, 159, 159, 159, 159, 159, 159, 159,
 			160,
 		},
+#ifndef __cplusplus
+                .len_sym_cost =
+#endif
 		84,
 	},
 };
@@ -4015,9 +4033,10 @@ LIBDEFLATEAPI struct libdeflate_compressor *
 libdeflate_alloc_compressor(int compression_level)
 {
 	static const struct libdeflate_options defaults = {
-		sizeof(struct libdeflate_options),
-		NULL,
-		NULL
+#ifndef __cplusplus
+		.sizeof_options =
+#endif
+                sizeof(defaults), NULL, NULL
 	};
 	return libdeflate_alloc_compressor_ex(compression_level, &defaults);
 }

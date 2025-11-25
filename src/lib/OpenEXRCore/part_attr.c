@@ -19,12 +19,12 @@ OPENEXR_CORE_NAMESPACE_ENTER
 
 #ifdef _MSC_VER
 #    ifdef __cplusplus
-#        define EXR_CAST_TO_TYPE_OF(x) (decltype(x))
+#        define EXR_CAST_TO_TYPE_OF(t, x) (decltype(t))(x)
 #    else
-#        define EXR_CAST_TO_TYPE_OF(x) 
+#        define EXR_CAST_TO_TYPE_OF(t, x) (x)
 #    endif
 #else
-#    define EXR_CAST_TO_TYPE_OF(x) (__typeof__(x))
+#    define EXR_CAST_TO_TYPE_OF(t, x) (__typeof__(t))(x)
 #endif
 
 /**************************************/
@@ -1161,7 +1161,7 @@ exr_set_chunk_count (exr_context_t ctxt, int part_index, int32_t val)
     if (!out)                                                                  \
         return EXR_UNLOCK_WRITE_AND_RETURN (ctxt->print_error (                \
             ctxt, EXR_ERR_INVALID_ARGUMENT, "NULL output for '%s'", name));    \
-    *out = EXR_CAST_TO_TYPE_OF(*out) attr->entry;                                     \
+    *out = EXR_CAST_TO_TYPE_OF(*out, attr->entry);                             \
     return EXR_UNLOCK_WRITE_AND_RETURN (rv)
 
 #define ATTR_GET_IMPL_DEREF(t, entry)                                          \
