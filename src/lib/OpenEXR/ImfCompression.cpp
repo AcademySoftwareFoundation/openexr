@@ -188,6 +188,12 @@ static const CompressionDesc IdToDesc[] = {
         32,
         true,
         false),
+    CompressionDesc (
+        "gdeflate",
+        "gdeflate compression, in blocks of 16 scan lines.",
+        16,
+        false,
+        false),
 };
 // clang-format on
 
@@ -206,6 +212,7 @@ static const std::map<std::string, Compression> CompressionNameToId = {
     {"dwab", Compression::DWAB_COMPRESSION},
     {"htj2k256", Compression::HTJ2K256_COMPRESSION},
     {"htj2k32", Compression::HTJ2K32_COMPRESSION},
+    {"gdeflate", Compression::GDEFLATE_COMPRESSION},
 };
 
 #define UNKNOWN_COMPRESSION_ID_MSG "INVALID COMPRESSION ID"

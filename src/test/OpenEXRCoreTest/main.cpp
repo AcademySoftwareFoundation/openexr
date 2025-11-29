@@ -202,6 +202,7 @@ main (int argc, char* argv[])
     TEST (testRLECompression, "core_compression");
     TEST (testZIPCompression, "core_compression");
     TEST (testZIPSCompression, "core_compression");
+    TEST (testGdeflateCompression, "core_compression");
     TEST (testPIZCompression, "core_compression");
     TEST (testPXR24Compression, "core_compression");
     TEST (testB44Compression, "core_compression");

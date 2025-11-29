@@ -9,6 +9,8 @@
 #    define NOMINMAX
 #endif
 
+#include "OpenEXRConfigInternal.h"
+
 #include "write.h"
 
 #include "test_value.h"
@@ -686,9 +688,9 @@ struct pixels
         }
     }
 };
-static const int IMG_WIDTH    = 1371;
+static const int IMG_WIDTH    = 2049;  // large enough to trigger a multi-page chunk in gdeflate
 static const int IMG_HEIGHT   = 159;
-static const int IMG_STRIDE_X = 1376;
+static const int IMG_STRIDE_X = 2064;
 static const int IMG_DATA_X   = 17;
 static const int IMG_DATA_Y   = 29;
 
@@ -1433,6 +1435,7 @@ doWriteRead (
         case EXR_COMPRESSION_RLE:
         case EXR_COMPRESSION_ZIP:
         case EXR_COMPRESSION_ZIPS:
+        case EXR_COMPRESSION_GDEFLATE:
             restore.compareExact (p, "orig", "C loaded C");
             break;
         case EXR_COMPRESSION_PIZ:
@@ -1658,6 +1661,17 @@ void
 testZIPSCompression (const std::string& tempdir)
 {
     testComp (tempdir, EXR_COMPRESSION_ZIPS);
+}
+
+void
+testGdeflateCompression (const std::string& tempdir)
+{
+#ifdef OPENEXR_ENABLE_GDEFLATE
+    testComp (tempdir, EXR_COMPRESSION_GDEFLATE);
+#else
+    std::cout << "  gdeflate support not available - test skipped" << std::endl;
+    (void) tempdir;
+#endif
 }
 
 void
