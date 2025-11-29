@@ -321,6 +321,36 @@ MultiPartOutputFile::getOutputPart (int partNumber)
         return (T*) _data->_outputFiles[partNumber];
 }
 
+template <class T> void MultiPartOutputFile::deleteOutputPart (int partNumber) {
+    // Remove this OutputFile object to save memory when writing in a streaming fasion
+    if (partNumber < 0 || partNumber >= int (_data->_headers.size ()))
+    {
+        THROW (
+            IEX_NAMESPACE::ArgExc,
+            "MultiPartOutputFile::deleteOutputPart called with invalid part number  "
+                << partNumber << " on file with " << _data->_headers.size ()
+                << " parts");
+    }
+
+// #if ILMTHREAD_THREADING_ENABLED
+//     std::lock_guard<std::mutex> lock (*_data);
+// #endif
+    auto it = _data->_outputFiles.find(partNumber);
+    if (it == _data->_outputFiles.end()) {
+        THROW (IEX_NAMESPACE::ArgExc, "MultiPartOutputFile::deleteOutputPart called with invalid part number  "
+                << partNumber << " on file with " << _data->_headers.size ()
+                << " parts");
+    }
+    delete it->second; // created using new
+    _data->_outputFiles.erase(it);
+};
+
+// instance above function for all four types
+template void MultiPartOutputFile::deleteOutputPart<OutputFile> (int);
+template void MultiPartOutputFile::deleteOutputPart<TiledOutputFile> (int);
+template void MultiPartOutputFile::deleteOutputPart<DeepScanLineOutputFile> (int);
+template void MultiPartOutputFile::deleteOutputPart<DeepTiledOutputFile> (int);
+
 // instance above function for all four types
 template OutputFile* MultiPartOutputFile::getOutputPart<OutputFile> (int);
 template TiledOutputFile*
