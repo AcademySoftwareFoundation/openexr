@@ -60,6 +60,7 @@ expand_template(
         "@OPENEXR_VERSION_MINOR@": "4",
         "@OPENEXR_VERSION_PATCH@": "0",
         "#cmakedefine OPENEXR_ENABLE_API_VISIBILITY": "#define OPENEXR_ENABLE_API_VISIBILITY",
+        "#cmakedefine OPENEXR_CORE_FUNCTIONS_EMBEDDED": "/* #undef OPENEXR_CORE_FUNCTIONS_EMBEDDED */",
         "#cmakedefine OPENEXR_HAVE_LARGE_STACK 1": "/* #undef OPENEXR_HAVE_LARGE_STACK */",
     },
     template = "cmake/OpenEXRConfig.h.in",
