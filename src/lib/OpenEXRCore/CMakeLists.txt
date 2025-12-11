@@ -1,7 +1,13 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright Contributors to the OpenEXR Project.
 
+if (OPENEXR_FORCE_EMBEDDED_CORE)
+  message(STATUS "Building Core library as an embedded library")
+  set(coreopts EMBEDDED)
+endif()
+
 openexr_define_library(OpenEXRCore
+  ${coreopts}
   PRIV_EXPORT OPENEXRCORE_EXPORTS
   CURDIR ${CMAKE_CURRENT_SOURCE_DIR}
   SOURCES
@@ -35,6 +41,7 @@ openexr_define_library(OpenEXRCore
     internal_string.h
     internal_string_vector.h
     internal_structs.h
+    internal_thread.h
     internal_util.h
     internal_xdr.h
 
@@ -48,6 +55,8 @@ openexr_define_library(OpenEXRCore
     internal_ht.cpp
     internal_ht_common.cpp
     internal_dwa.c
+    internal_dwa_table.c
+    internal_dwa_table_init.c
     internal_huf.c
 
     attributes.c

@@ -3,14 +3,15 @@
 
 version: 2
 
-enable-beta-ecosystems: true # Required to use the Bazel ecosystems
 updates:
 
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "daily"
-
+    exclude-paths:
+      - ".github/workflows/ci_workflow_old.yml"
+      
   - package-ecosystem: "pip"
     directory: "/"
     schedule:

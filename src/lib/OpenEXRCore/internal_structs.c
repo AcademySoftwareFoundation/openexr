@@ -13,7 +13,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#ifdef ILMTHREAD_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
 #    ifdef _WIN32
 #        include <synchapi.h>
 #        include <windows.h>
@@ -28,7 +28,7 @@ static void
 default_error_handler (
     exr_const_context_t ctxt, exr_result_t code, const char* msg)
 {
-#ifdef ILMTHREAD_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
 #    ifdef _WIN32
     static CRITICAL_SECTION sMutex;
     volatile static long    initialized = 0;
@@ -40,7 +40,7 @@ default_error_handler (
 #    endif
 #endif
 
-#ifdef ILMTHREAD_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
 #    ifdef _WIN32
     EnterCriticalSection (&sMutex);
 #    else
@@ -68,7 +68,7 @@ default_error_handler (
         fprintf (stderr, "<ERROR>: %s\n", msg);
     fflush (stderr);
 
-#ifdef ILMTHREAD_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
 #    ifdef _WIN32
     LeaveCriticalSection (&sMutex);
 #    else
@@ -404,7 +404,7 @@ internal_exr_alloc_context (
         ret->read_fn    = initializers->read_fn;
         ret->write_fn   = initializers->write_fn;
 
-#ifdef ILMTHREAD_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
 #    ifdef _WIN32
         InitializeCriticalSection (&(ret->mutex));
 #    else
@@ -461,7 +461,7 @@ internal_exr_destroy_context (exr_context_t ctxt)
     exr_attr_string_destroy (ctxt, &(ctxt->tmp_filename));
     exr_attr_list_destroy (ctxt, &(ctxt->custom_handlers));
     internal_exr_destroy_parts (ctxt);
-#ifdef ILMTHREAD_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
 #    ifdef _WIN32
     DeleteCriticalSection (&(ctxt->mutex));
 #    else

@@ -21,6 +21,25 @@ News
 
 .. _LatestNewsStart:
 
+Patch release with an optimization to reduce the size of the library.
+
+B44 and DWA compression tables are now initialized at first use rather
+than being hard-coded in the source code and compiled binary. This
+reduces the library size at a slight performance cost. Initialization
+takes under a millisecond, but the size of libOpenEXRCore.so is
+reduced from 890K to 360K. 
+
+This also fixes a build issue with `ILMTHREAD_THREADING_ENABLED` which
+inadvertently enabled threading when it should have been disabed.
+
+This also fixes a bug where importing the python module from a parent
+directory would fail.
+
+.. _LatestNewsEnd:
+
+November  4, 2025 - OpenEXR 3.4.3 Released
+==========================================
+
 Patch release that addresses several bugs, primarily involving
 properly rejecting corrupt input data.
 
@@ -64,7 +83,6 @@ This version also bumps the auto-fetched version of OpenJPH to
 
 Full changelog: `[v3.4.2..v3.4.3] <https://github.com/AcademySoftwareFoundation/openexr/compare/v3.4.2..v3.4.3>`_
 
-.. _LatestNewsEnd:
 
 November  4, 2025 - OpenEXR 3.3.6 Released
 ==========================================
