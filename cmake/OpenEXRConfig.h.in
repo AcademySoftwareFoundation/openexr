@@ -93,6 +93,8 @@
 // tagged
 #cmakedefine OPENEXR_ENABLE_API_VISIBILITY
 
+#cmakedefine OPENEXR_CORE_FUNCTIONS_EMBEDDED
+
 /// \defgroup ExportMacros Macros to manage symbol visibility
 ///
 /// See website/SymbolVisibility.rst for more discussion about the
