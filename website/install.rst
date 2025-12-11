@@ -102,7 +102,8 @@ Make sure these are installed on your system before building OpenEXR:
 * ``Imath`` (auto-fetched by CMake if not found) (https://github.com/AcademySoftwareFoundation/Imath)
 * ``libdeflate`` (internal copy used by CMake if not found for
   v3.4+; auto-fetched in v3.3 and before) (https://github.com/ebiggers/libdeflate)
-* ``openjph`` (auto-fetched by CMake if not found; new in v3.4) (https://github.com/aous72/OpenJPH)
+* ``openjph`` (internal vendored copy used by CMake if not found; new
+  in v3.4; auto-fetched in v3.4.0-3.4.3) (https://github.com/aous72/OpenJPH)
 * (optional) Intel's Thread Building Blocks library (TBB)
 
 The instructions that follow describe building OpenEXR with CMake.
@@ -416,22 +417,25 @@ copy. To force use of the internal copy, configure with
 
 OpenEXR release v3.2 and v3.3 auto-fetch the ``libdeflate`` source and
 build it internally if cmake does not find an external
-installation. The internal build is linked statically, so no extra
-shared object is produced. Configuration options are:
+installation. 
 
-* ``OPENEXR_DEFLATE_REPO`` and ``OPENEXR_DEFLATE_TAG``
+``OpenJPH`` Dependency
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
-  The GitHub ``libdeflate`` repo to auto-fetch if an installed library cannot
-  be found, and the tag to sync it to. The default repo is
-  ``https://github.com/ebiggers/libdeflate.git`` and the tag is
-  ``v1.18``. The internal build is configured as a CMake subproject.
+As of OpenEXR release v3.4, OpenEXR depends on
+`OpenJPH <https://github.com/aous72/OpenJPH>`_ for
+HTJ2K compression. 
 
-* ``OPENEXR_FORCE_INTERNAL_DEFLATE``
+As of OpenEXR release v3.4.4, OpenEXR ships with an internal "vendored"
+copy of the ``OpenJPH`` library. At configuration time, if
+CMake finds an external installation of ``OpenJPH``, it will use
+it. If it fails to find an installation, it will use the internal
+copy. To force use of the internal copy, configure with
+``-DOPENEXR_FORCE_INTERNAL_OPENJPH=ON``.
 
-  If set to ``ON``, force auto-fetching and internal building of
-  ``libdeflate`` using ``OPENEXR_DEFLATE_REPO`` and
-  ``OPENEXR_DEFLATE_TAG``. This means do *not* use any existing
-  installation of ``libdeflate``.
+OpenEXR releases v3.4.0-v3.4.3 auto-fetch the ``OpenJPH`` source and
+build it internally if cmake does not find an external
+installation. 
 
 TBB Dependency
 ~~~~~~~~~~~~~~

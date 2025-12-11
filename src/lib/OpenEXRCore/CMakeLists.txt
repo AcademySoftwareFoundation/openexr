@@ -125,9 +125,51 @@ if (DEFINED EXR_DEFLATE_LIB)
 endif()
 
 if (DEFINED EXR_OPENJPH_LIB)
+
+  # External OpenJPH
+
   if (BUILD_SHARED_LIBS)
     target_link_libraries(OpenEXRCore PRIVATE ${EXR_OPENJPH_LIB})
   else()
     target_link_libraries(OpenEXRCore PUBLIC ${EXR_OPENJPH_LIB})
   endif()
+
+  if (openjph_VERSION AND openjph_VERSION VERSION_LESS "0.23")
+    # OpenJPH 0.22 and before incorrectly appends "openjph" to INTERFACE_INCLUDE_DIRECTORIES
+    # so OpenEXR's "#include <openjph/ojph_arch.h>" does not work.
+    # Strip the "openjph" from the setting in this case. This allows the
+    # #include statements in OpenEXRCore/internal_ht.cpp  to work properly for all openjph versions.
+    get_target_property(OPENJPH_INCLUDE_DIR openjph INTERFACE_INCLUDE_DIRECTORIES)
+    if (NOT OPENJPH_INCLUDE_DIR)
+      message(FATAL_ERROR "failed to set openjph header directory, version ${openjph_VERSION}")
+    endif()
+    string(REGEX REPLACE "/openjph/?$" "" OPENJPH_PARENT_INCLUDE_DIR "${OPENJPH_INCLUDE_DIR}")
+    set_target_properties(openjph PROPERTIES
+        INTERFACE_INCLUDE_DIRECTORIES "${OPENJPH_PARENT_INCLUDE_DIR}"
+    )
+    unset(OPENJPH_INCLUDE_DIR)
+    unset(OPENJPH_PARENT_INCLUDE_DIR)
+  endif()
+
+else()
+
+  # Vendored OpenJPH
+  # Note that the vendored OpenJPH cmake config forces a static build
+
+  set(OJPH_BUILD_EXECUTABLES OFF CACHE BOOL "Disable OpenJPH command-line tools" FORCE)
+  set(OPENJPH_SOURCE_DIR ${PROJECT_SOURCE_DIR}/external/OpenJPH)
+  set(OPENJPH_BINARY_DIR ${PROJECT_BINARY_DIR}/external/OpenJPH)
+  add_subdirectory(${OPENJPH_SOURCE_DIR}
+                   ${OPENJPH_BINARY_DIR}
+                   EXCLUDE_FROM_ALL)
+  set_target_properties(openjph PROPERTIES
+    POSITION_INDEPENDENT_CODE ON
+    C_VISIBILITY_PRESET hidden
+    CXX_VISIBILITY_PRESET hidden
+    VISIBILITY_INLINES_HIDDEN YES
+  )
+  target_link_libraries(OpenEXRCore PRIVATE openjph)
+  target_include_directories(OpenEXRCore PRIVATE ${OPENJPH_SOURCE_DIR}/src/core)
+
 endif()
+
