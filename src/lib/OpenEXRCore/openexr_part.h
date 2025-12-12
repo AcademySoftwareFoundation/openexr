@@ -10,9 +10,9 @@
 
 #include "openexr_attr.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "OpenEXRConfig.h"
+
+OPENEXR_CORE_EXTERN_C_ENTER
 
 /** @file */
 
@@ -856,8 +856,6 @@ EXR_EXPORT exr_result_t exr_attr_set_user (
 
 /** @} */ /* part group */
 
-#ifdef __cplusplus
-} /* extern "C" */
-#endif
+OPENEXR_CORE_EXTERN_C_EXIT
 
 #endif /* OPENEXR_PART_H */

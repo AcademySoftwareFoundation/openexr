@@ -37,6 +37,7 @@
 #include <ImfTiledOutputFile.h>
 #include <half.h>
 
+#include <ImfNamespace.h>
 #include "internal_ht_common.cpp"
 
 #ifdef __linux
@@ -146,8 +147,7 @@ internal_exr_free (void* p)
 #endif
 
 using namespace IMATH_NAMESPACE;
-namespace IMF = OPENEXR_IMF_NAMESPACE;
-using namespace IMF;
+using namespace OPENEXR_IMF_NAMESPACE;
 
 #if (IMATH_VERSION_MAJOR < 3) ||                                               \
     (IMATH_VERSION_MAJOR == 3 && IMATH_VERSION_MINOR < 1)
@@ -1074,21 +1074,21 @@ saveCPP (
         (Box2i (V2i (0, 0), V2i (fw - 1, fh - 1))),
         (Box2i (V2i (dwx, dwy), V2i (dwx + fw - 1, dwy + fh - 1))));
 
-    hdr.compression ()         = (IMF::Compression) ((int) comp);
+    hdr.compression ()         = (OPENEXR_IMF_NAMESPACE::Compression) ((int) comp);
     hdr.zipCompressionLevel () = 4;
     EXRCORE_TEST (((const Header&) hdr).zipCompressionLevel () == 4);
 
-    hdr.channels ().insert ("I", Channel (IMF::UINT, xs, ys));
+    hdr.channels ().insert ("I", Channel (OPENEXR_IMF_NAMESPACE::UINT, xs, ys));
     for (int c = 0; c < 5; ++c)
-        hdr.channels ().insert (channels[c], Channel (IMF::HALF, xs, ys));
-    hdr.channels ().insert ("F", Channel (IMF::FLOAT, xs, ys));
+        hdr.channels ().insert (channels[c], Channel (OPENEXR_IMF_NAMESPACE::HALF, xs, ys));
+    hdr.channels ().insert ("F", Channel (OPENEXR_IMF_NAMESPACE::FLOAT, xs, ys));
     {
         FrameBuffer fb;
         V2i         origin{dwx, dwy};
         fb.insert (
             "I",
             Slice::Make (
-                IMF::UINT,
+                OPENEXR_IMF_NAMESPACE::UINT,
                 p.i.data (),
                 origin,
                 fw,
@@ -1103,7 +1103,7 @@ saveCPP (
         fb.insert (
             "H",
             Slice::Make (
-                IMF::HALF,
+                OPENEXR_IMF_NAMESPACE::HALF,
                 p.h.data (),
                 origin,
                 fw,
@@ -1118,7 +1118,7 @@ saveCPP (
         fb.insert (
             "F",
             Slice::Make (
-                IMF::FLOAT,
+                OPENEXR_IMF_NAMESPACE::FLOAT,
                 p.f.data (),
                 origin,
                 fw,
@@ -1136,7 +1136,7 @@ saveCPP (
             fb.insert (
                 channels[c],
                 Slice::Make (
-                    IMF::HALF,
+                    OPENEXR_IMF_NAMESPACE::HALF,
                     p.rgba[c].data (),
                     origin,
                     fw,
@@ -1198,7 +1198,7 @@ loadCPP (
         fb.insert (
             "I",
             Slice::Make (
-                IMF::UINT,
+                OPENEXR_IMF_NAMESPACE::UINT,
                 p.i.data (),
                 origin,
                 fw,
@@ -1213,7 +1213,7 @@ loadCPP (
         fb.insert (
             "H",
             Slice::Make (
-                IMF::HALF,
+                OPENEXR_IMF_NAMESPACE::HALF,
                 p.h.data (),
                 origin,
                 fw,
@@ -1231,7 +1231,7 @@ loadCPP (
             fb.insert (
                 channels[c],
                 Slice::Make (
-                    IMF::HALF,
+                    OPENEXR_IMF_NAMESPACE::HALF,
                     p.rgba[c].data (),
                     origin,
                     fw,
@@ -1247,7 +1247,7 @@ loadCPP (
         fb.insert (
             "F",
             Slice::Make (
-                IMF::FLOAT,
+                OPENEXR_IMF_NAMESPACE::FLOAT,
                 p.f.data (),
                 origin,
                 fw,

@@ -63,6 +63,33 @@
 #define OPENEXR_IMF_NAMESPACE @OPENEXR_IMF_NAMESPACE@
 
 //
+// Option to build OpenEXRCore in a namespace using C++ instead of C
+//
+// All code in OpenEXRCore is bracketed by ENTER/EXIT pairs. Some of the code
+// needs 'extern "C" {' directives, but when compiling with C++, this must
+// revert to 'namespace OPENEXR_IMF_INTERNAL_NAMESPACE {'. In C, the NAMESPACE
+// ENTER/EXIT pairs degenerate to no-ops.
+//
+#cmakedefine OPENEXR_CORE_USE_NAMESPACE @OPENEXR_CORE_USE_NAMESPACE@
+#if __cplusplus
+#  ifdef OPENEXR_CORE_USE_NAMESPACE
+#    define OPENEXR_CORE_NAMESPACE_ENTER namespace OPENEXR_IMF_INTERNAL_NAMESPACE {
+#    define OPENEXR_CORE_NAMESPACE_EXIT }
+#    define OPENEXR_CORE_EXTERN_C_ENTER namespace OPENEXR_IMF_INTERNAL_NAMESPACE {
+#  else
+#    define OPENEXR_CORE_NAMESPACE_ENTER
+#    define OPENEXR_CORE_NAMESPACE_EXIT
+#    define OPENEXR_CORE_EXTERN_C_ENTER extern "C" {
+#  endif
+#  define OPENEXR_CORE_EXTERN_C_EXIT }
+#else
+#  define OPENEXR_CORE_NAMESPACE_ENTER 
+#  define OPENEXR_CORE_NAMESPACE_EXIT 
+#  define OPENEXR_CORE_EXTERN_C_ENTER
+#  define OPENEXR_CORE_EXTERN_C_EXIT
+#endif
+
+//
 // Version string for runtime access
 //
 

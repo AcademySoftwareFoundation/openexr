@@ -74,6 +74,8 @@ option(OPENEXR_BUILD_EXAMPLES "Build and install OpenEXR examples" ON)
 
 option(OPENEXR_BUILD_PYTHON "Build python bindings" OFF)
 
+option(OPENEXR_CORE_USE_NAMESPACE "Build the OpenEXRCore library using C++ in a namespace" OFF)
+
 option(OPENEXR_BUILD_OSS_FUZZ "Build the oss-fuzz fuzzers" OFF)
 if (OPENEXR_BUILD_OSS_FUZZ)
   # If building the oss-fuzz fuzzers, accept the comiler/options from

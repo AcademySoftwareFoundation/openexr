@@ -68,6 +68,10 @@ __extension__ extern __inline float32x4x2_t
 }
 #endif
 
+#include "OpenEXRConfig.h"
+
+OPENEXR_CORE_NAMESPACE_ENTER
+
 static inline uint8_t *simd_align_pointer (uint8_t* ptr)
 {
     return ptr +
@@ -788,8 +792,18 @@ fromHalfZigZag_f16c (uint16_t* src, float* dst)
 
 #ifdef IMF_HAVE_NEON_AARCH64
 
+#ifdef __cplusplus
+#  if defined(_MSC_VER)
+#    define OPENEXR_RESTRICT __restrict
+#  else
+#    define OPENEXR_RESTRICT __restrict__
+#  endif
+#else
+#define OPENEXR_RESTRICT restrict
+#endif
+
 void
-fromHalfZigZag_neon (uint16_t* __restrict__ src, float* __restrict__ dst)
+fromHalfZigZag_neon (uint16_t* OPENEXR_RESTRICT src, float* OPENEXR_RESTRICT dst)
 {
     uint8x16_t res_tbl[4] = {
         {0, 1, 5, 6, 14, 15, 27, 28, 2, 4, 7, 13, 16, 26, 29, 42},
@@ -2311,7 +2325,6 @@ static void
 initializeFuncs (void)
 {
     static int done = 0;
-    int        f16c = 0, avx = 0, sse2 = 0;
     if (done) return;
     done = 1;
 
@@ -2321,6 +2334,8 @@ initializeFuncs (void)
         fromHalfZigZag       = fromHalfZigZag_neon;
     }
 #else
+    int        f16c = 0, avx = 0, sse2 = 0;
+
     convertFloatToHalf64 = convertFloatToHalf64_scalar;
     fromHalfZigZag       = fromHalfZigZag_scalar;
 
@@ -2368,3 +2383,6 @@ initializeFuncs (void)
     }
 #endif
 }
+
+OPENEXR_CORE_NAMESPACE_EXIT
+

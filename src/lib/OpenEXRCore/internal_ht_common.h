@@ -10,6 +10,10 @@
 #include <stdlib.h>
 #include "openexr_coding.h"
 
+#include <OpenEXRConfig.h>
+
+OPENEXR_CORE_NAMESPACE_ENTER
+
 struct CodestreamChannelInfo
 {
     int    file_index;
@@ -30,5 +34,7 @@ size_t read_header (
     void*                               buffer,
     size_t                              max_sz,
     std::vector<CodestreamChannelInfo>& map);
+
+OPENEXR_CORE_NAMESPACE_EXIT
 
 #endif /* OPENEXR_PRIVATE_HT_COMMON_H */

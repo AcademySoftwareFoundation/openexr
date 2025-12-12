@@ -13,9 +13,9 @@
 
 #include <stddef.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "OpenEXRConfig.h"
+
+OPENEXR_CORE_EXTERN_C_ENTER
 
 /** @file */
 
@@ -104,8 +104,6 @@ exr_result_t exr_compress_chunk (exr_encode_pipeline_t *encode_state);
 EXR_EXPORT
 exr_result_t exr_uncompress_chunk (exr_decode_pipeline_t *decode_state);
 
-#ifdef __cplusplus
-} /* extern "C" */
-#endif
+OPENEXR_CORE_EXTERN_C_EXIT
 
 #endif /* OPENEXR_CORE_COMPRESSION_H */

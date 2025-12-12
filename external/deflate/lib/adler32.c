@@ -158,5 +158,5 @@ libdeflate_adler32(u32 adler, const void *buffer, size_t len)
 {
 	if (buffer == NULL) /* Return initial value. */
 		return 1;
-	return adler32_impl(adler, buffer, len);
+	return adler32_impl(adler, (const u8*) buffer, len);
 }
