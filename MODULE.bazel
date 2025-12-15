@@ -7,7 +7,7 @@ module(
 )
 
 bazel_dep(name = "bazel_skylib", version = "1.8.2")
-bazel_dep(name = "imath", version = "3.2.2")
+bazel_dep(name = "imath", version = "3.2.2.bcr.1")
 bazel_dep(name = "libdeflate", version = "1.25")
 bazel_dep(name = "openjph", version = "0.25.3")
 bazel_dep(name = "platforms", version = "1.0.0")
