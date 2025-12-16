@@ -46,7 +46,7 @@ jobs:
 
       # Upload the results as artifacts (optional)
       - name: "Upload artifact"
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: SARIF file
           path: results.sarif
