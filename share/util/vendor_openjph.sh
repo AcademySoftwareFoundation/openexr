@@ -63,13 +63,18 @@ else
 fi
 mv $OpenJPH OpenJPH
 
-# Headers live under "common" in the source but are included via
-# "openjph/ojph_arch.h". Create a "openjph" symlink to the header directory.
-ln -s common OpenJPH/src/core/openjph
-
 # Force a static build
-sed -i '' '/^option(BUILD_SHARED_LIBS "Shared Libraries" ON)/d' OpenJPH/CMakeLists.txt
-sed -i '' 's/^add_library(openjph \${SOURCES})/add_library(openjph STATIC ${SOURCES})/' OpenJPH/src/core/CMakeLists.txt
+sed -i.bak '/^option(BUILD_SHARED_LIBS "Shared Libraries" ON)/d' OpenJPH/CMakeLists.txt
+sed -i.bak 's/^add_library(openjph \${SOURCES})/add_library(openjph STATIC ${SOURCES})/' OpenJPH/src/core/CMakeLists.txt
+rm OpenJPH/CMakeLists.txt.bak
+# Headers live under "common" in the OpenJPH source but are included via
+# "openjph/ojph_arch.h". Rename the directory.
+mv OpenJPH/src/core/common OpenJPH/src/core/openjph
+
+sed -i.bak 's,/common/,/openjph/,' OpenJPH/ojph_version.cmake
+sed -i.bak 's,/common,/openjph,' OpenJPH/src/core/CMakeLists.txt
+sed -i.bak 's,common/,openjph/,' OpenJPH/src/core/CMakeLists.txt
+rm -rf OpenJPH/ojph_version.cmake.bak OpenJPH/src/core/CMakeLists.txt.bak
 
 if $do_git; then
   git add OpenJPH
