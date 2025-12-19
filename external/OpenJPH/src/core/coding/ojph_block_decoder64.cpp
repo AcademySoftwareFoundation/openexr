@@ -547,7 +547,7 @@ namespace ojph {
      *  X controls this value.
      *
      *  Unstuffing prevent sequences that are more than 0xFF7F from appearing
-     *  in the compressed sequence.  So whenever a value of 0xFF is coded, the
+     *  in the conpressed sequence.  So whenever a value of 0xFF is coded, the
      *  MSB of the next byte is set 0 and must be ignored during decoding.
      *
      *  Reading can go beyond the end of buffer by up to 3 bytes.
@@ -613,7 +613,7 @@ namespace ojph {
      *  X controls this value.
      *
      *  Unstuffing prevent sequences that are more than 0xFF7F from appearing
-     *  in the compressed sequence.  So whenever a value of 0xFF is coded, the
+     *  in the conpressed sequence.  So whenever a value of 0xFF is coded, the
      *  MSB of the next byte is set 0 and must be ignored during decoding.
      *
      *  @tparam       X is the value fed in when the bitstream is exhausted

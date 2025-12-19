@@ -289,7 +289,7 @@ else()
 
   # extract the openjph version variables from ojph_version.h
   set(openjph_SOURCE_DIR "${CMAKE_SOURCE_DIR}/external/openjph")
-  set(openjph_version "${openjph_SOURCE_DIR}/src/core/common/ojph_version.h")
+  set(openjph_version "${openjph_SOURCE_DIR}/src/core/openjph/ojph_version.h")
   if(EXISTS "${openjph_version}")
     file(STRINGS "${openjph_version}" _openjph_major REGEX "#define OPENJPH_VERSION_MAJOR")
     file(STRINGS "${openjph_version}" _openjph_minor REGEX "#define OPENJPH_VERSION_MINOR")
@@ -302,9 +302,9 @@ else()
   set(openjph_VERSION "${openjph_VERSION_MAJOR}.${openjph_VERSION_MINOR}.${openjph_VERSION_PATCH}")
   
   if(OPENEXR_FORCE_INTERNAL_OPENJPH)
-    message(STATUS "openjph forced internal, using vendored code (${openjph_VERSION})")
+    message(STATUS "openjph forced internal, using vendored code, version ${openjph_VERSION}")
   else()
-    message(STATUS "openjph was not found, using vendored code (${openjph_VERSION})")
+    message(STATUS "openjph was not found, using vendored code, version ${openjph_VERSION}")
   endif()
 
 endif()
