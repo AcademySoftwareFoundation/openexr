@@ -13,6 +13,7 @@
 #include "ImfNamespace.h"
 #include "ImfCompressor.h"
 #include "ImfB44Compressor.h"
+#include "ImfGdeflateCompressor.h"
 #include "ImfDwaCompressor.h"
 #include "ImfPizCompressor.h"
 #include "ImfPxr24Compressor.h"
@@ -344,6 +345,11 @@ newCompressor (Compression c, size_t maxScanLineSize, const Header& hdr)
 
             return new HTCompressor (hdr, static_cast<int> (maxScanLineSize), 32);
 
+        case GDEFLATE_COMPRESSION:
+
+            ret = new GdeflateCompressor (hdr, maxScanLineSize, 16);
+            break;
+
         default: break;
     }
     // clang-format on
@@ -432,6 +438,12 @@ newTileCompressor (
                 hdr,
                 static_cast<int> (tileLineSize),
                 static_cast<int> (numTileLines));
+
+        case GDEFLATE_COMPRESSION:
+
+            ret = new GdeflateCompressor (
+                hdr, tileLineSize, static_cast<int> (numTileLines));
+            break;
 
         default: break;
     }
