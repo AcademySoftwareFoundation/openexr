@@ -25,13 +25,15 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 struct Rgba
 {
-    half r;
-    half g;
-    half b;
-    half a;
+    half r = 0.0f;
+    half g = 0.0f;
+    half b = 0.0f;
+    half a = 1.0f;
 
-    Rgba () {}
-    Rgba (half r, half g, half b, half a = 1.f) : r (r), g (g), b (b), a (a) {}
+    constexpr Rgba () noexcept = default;
+    constexpr Rgba (half r, half g, half b, half a = 1.f) noexcept
+        : r (r), g (g), b (b), a (a)
+    {}
 };
 
 //
