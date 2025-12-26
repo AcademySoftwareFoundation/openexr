@@ -318,7 +318,22 @@ readPixels (const char pFilename[], int pNbChannels, Array2D<half>& pPixels)
 
     lFile.setFrameBuffer (lInputFrameBuffer);
 
+#if defined(_MSC_VER)
+    __pragma(warning(push))
+    __pragma(warning(disable: 4996))
+#elif defined(__clang__) || defined(__GNUC__)
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
     bool is_optimized = lFile.isOptimizationEnabled ();
+
+#if defined(_MSC_VER)
+    __pragma(warning(pop))
+#elif defined(__clang__) || defined(__GNUC__)
+    #pragma GCC diagnostic pop
+#endif
+        
     if (is_optimized)
     {
         cout << " optimization enabled\n";

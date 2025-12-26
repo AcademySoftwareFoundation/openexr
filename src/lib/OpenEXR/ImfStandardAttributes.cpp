@@ -111,13 +111,27 @@ IMF_STD_ATTRIBUTE_IMP (reelName, ReelName, string)
 IMF_STD_ATTRIBUTE_IMP (chromaticities, Chromaticities, Chromaticities)
 IMF_STD_ATTRIBUTE_IMP (whiteLuminance, WhiteLuminance, float)
 IMF_STD_ATTRIBUTE_IMP (adoptedNeutral, AdoptedNeutral, V2f)
+
+#if defined(_MSC_VER)
+    __pragma(warning(push))
+    __pragma(warning(disable: 4996))
+#elif defined(__clang__) || defined(__GNUC__)
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
 IMF_STD_ATTRIBUTE_IMP (renderingTransform, RenderingTransform, string)
 IMF_STD_ATTRIBUTE_IMP (lookModTransform, LookModTransform, string)
+IMF_STD_ATTRIBUTE_IMP (dwaCompressionLevel, DwaCompressionLevel, float)
+#if defined(_MSC_VER)
+    __pragma(warning(pop))
+#elif defined(__clang__) || defined(__GNUC__)
+    #pragma GCC diagnostic pop
+#endif
+
 IMF_STD_ATTRIBUTE_IMP (envmap, Envmap, Envmap)
 IMF_STD_ATTRIBUTE_IMP (wrapmodes, Wrapmodes, string)
 IMF_STD_ATTRIBUTE_IMP (multiView, MultiView, StringVector)
 IMF_STD_ATTRIBUTE_IMP (deepImageState, DeepImageState, DeepImageState)
-IMF_STD_ATTRIBUTE_IMP (dwaCompressionLevel, DwaCompressionLevel, float)
 IMF_STD_ATTRIBUTE_IMP (idManifest, IDManifest, CompressedIDManifest)
 IMF_STD_ATTRIBUTE_IMP (colorInteropID, ColorInteropID, string)
 

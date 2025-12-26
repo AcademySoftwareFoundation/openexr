@@ -899,14 +899,27 @@ generatedFunctions ()
     assert (hasChromaticities (header) == false);
     assert (hasWhiteLuminance (header) == false);
     assert (hasAdoptedNeutral (header) == false);
-    assert (hasRenderingTransform (header) == false);
-    assert (hasLookModTransform (header) == false);
     assert (hasEnvmap (header) == false);
     assert (hasWrapmodes (header) == false);
     assert (hasMultiView (header) == false);
     assert (hasDeepImageState (header) == false);
     assert (hasIDManifest (header) == false);
     assert (hasColorInteropID (header) == false);
+
+#if defined(_MSC_VER)
+    __pragma(warning(push))
+    __pragma(warning(disable: 4996))
+#elif defined(__clang__) || defined(__GNUC__)
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+    assert (hasRenderingTransform (header) == false);
+    assert (hasLookModTransform (header) == false);
+#if defined(_MSC_VER)
+    __pragma(warning(pop))
+#elif defined(__clang__) || defined(__GNUC__)
+    #pragma GCC diagnostic pop
+#endif
 }
 
 void
