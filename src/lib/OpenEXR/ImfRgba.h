@@ -28,7 +28,7 @@ struct Rgba
     half r = 0.0f;
     half g = 0.0f;
     half b = 0.0f;
-    half a = 1.0f;
+    half a = 0.0f;
 
     constexpr Rgba () noexcept = default;
     constexpr Rgba (half r, half g, half b, half a = 1.f) noexcept
