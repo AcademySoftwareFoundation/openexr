@@ -35,7 +35,7 @@ libdeflate_zlib_decompress_ex(struct libdeflate_decompressor *d,
 			      size_t *actual_in_nbytes_ret,
 			      size_t *actual_out_nbytes_ret)
 {
-	const u8 *in_next = in;
+        const u8 *in_next = (const u8*) in;
 	const u8 * const in_end = in_next + in_nbytes;
 	u16 hdr;
 	size_t actual_in_nbytes;

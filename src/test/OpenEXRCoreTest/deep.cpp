@@ -18,8 +18,7 @@
 #include <random>
 #include <vector>
 
-namespace IMF = OPENEXR_IMF_NAMESPACE;
-using namespace IMF;
+using namespace OPENEXR_IMF_NAMESPACE;
 using namespace IMATH_NAMESPACE;
 
 namespace
@@ -47,18 +46,18 @@ Header                         header;
 
 void
 generateRandomScanFile (
-    const std::string& filename, int channelCount, Compression compression)
+                        const std::string& filename, int channelCount, Compression compression)
 {
     std::cout << "  generating deep scanline file '" << filename
               << "' compression " << compression << std::endl;
     header = Header (
-        displayWindow,
-        dataWindow,
-        1,
-        IMATH_NAMESPACE::V2f (0, 0),
-        1,
-        INCREASING_Y,
-        compression);
+                     displayWindow,
+                     dataWindow,
+                     1,
+                     IMATH_NAMESPACE::V2f (0, 0),
+                     1,
+                     INCREASING_Y,
+                     compression);
 
     std::default_random_engine generator;
     auto                       generate_random_int = [&] (int range) -> int {
@@ -77,9 +76,9 @@ generateRandomScanFile (
         std::stringstream ss;
         ss << i;
         std::string str = ss.str ();
-        if (type == 0) header.channels ().insert (str, Channel (IMF::UINT));
-        if (type == 1) header.channels ().insert (str, Channel (IMF::HALF));
-        if (type == 2) header.channels ().insert (str, Channel (IMF::FLOAT));
+        if (type == 0) header.channels ().insert (str, Channel (OPENEXR_IMF_NAMESPACE::UINT));
+        if (type == 1) header.channels ().insert (str, Channel (OPENEXR_IMF_NAMESPACE::HALF));
+        if (type == 2) header.channels ().insert (str, Channel (OPENEXR_IMF_NAMESPACE::FLOAT));
         channelTypes.push_back (type);
     }
 
@@ -97,18 +96,18 @@ generateRandomScanFile (
     DeepFrameBuffer frameBuffer;
 
     frameBuffer.insertSampleCountSlice (Slice (
-        IMF::UINT, // type // 7
-        (char*) (&sampleCountScans[0][0] - dataWindow.min.x -
-                 dataWindow.min.y * width), // base
-        sizeof (unsigned int) * 1,          // xStride
-        sizeof (unsigned int) * width));    // yStride
+                                               OPENEXR_IMF_NAMESPACE::UINT, // type // 7
+                                               (char*) (&sampleCountScans[0][0] - dataWindow.min.x -
+                                                        dataWindow.min.y * width), // base
+                                               sizeof (unsigned int) * 1,          // xStride
+                                               sizeof (unsigned int) * width));    // yStride
 
     for (int i = 0; i < channelCount; i++)
     {
         PixelType type = NUM_PIXELTYPES;
-        if (channelTypes[i] == 0) type = IMF::UINT;
-        if (channelTypes[i] == 1) type = IMF::HALF;
-        if (channelTypes[i] == 2) type = IMF::FLOAT;
+        if (channelTypes[i] == 0) type = OPENEXR_IMF_NAMESPACE::UINT;
+        if (channelTypes[i] == 1) type = OPENEXR_IMF_NAMESPACE::HALF;
+        if (channelTypes[i] == 2) type = OPENEXR_IMF_NAMESPACE::FLOAT;
 
         std::stringstream ss;
         ss << i;
@@ -122,14 +121,14 @@ generateRandomScanFile (
         int pointerSize = sizeof (char*);
 
         frameBuffer.insert (
-            str, // name // 6
-            DeepSlice (
-                type, // type // 7
-                (char*) (&data[i][0][0] - dataWindow.min.x -
-                         dataWindow.min.y * width), // base // 8
-                pointerSize * 1,                    // xStride// 9
-                pointerSize * width,                // yStride// 10
-                sampleSize));                       // sampleStride
+                            str, // name // 6
+                            DeepSlice (
+                                       type, // type // 7
+                                       (char*) (&data[i][0][0] - dataWindow.min.x -
+                                                dataWindow.min.y * width), // base // 8
+                                       pointerSize * 1,                    // xStride// 9
+                                       pointerSize * width,                // yStride// 10
+                                       sampleSize));                       // sampleStride
     }
 
     file.setFrameBuffer (frameBuffer);
@@ -213,9 +212,9 @@ generateRandomTileFile (
         std::stringstream ss;
         ss << i;
         std::string str = ss.str ();
-        if (type == 0) header.channels ().insert (str, Channel (IMF::UINT));
-        if (type == 1) header.channels ().insert (str, Channel (IMF::HALF));
-        if (type == 2) header.channels ().insert (str, Channel (IMF::FLOAT));
+        if (type == 0) header.channels ().insert (str, Channel (OPENEXR_IMF_NAMESPACE::UINT));
+        if (type == 1) header.channels ().insert (str, Channel (OPENEXR_IMF_NAMESPACE::HALF));
+        if (type == 2) header.channels ().insert (str, Channel (OPENEXR_IMF_NAMESPACE::FLOAT));
         channelTypes.push_back (type);
     }
 
@@ -255,7 +254,7 @@ generateRandomTileFile (
         memOffset = dataWindow.min.x + dataWindow.min.y * width;
 
     frameBuffer.insertSampleCountSlice (Slice (
-        IMF::UINT,
+        OPENEXR_IMF_NAMESPACE::UINT,
         (char*) (&sampleCount[0][0] - memOffset),
         sizeof (unsigned int) * 1,
         sizeof (unsigned int) * width,
@@ -268,9 +267,9 @@ generateRandomTileFile (
     for (int i = 0; i < channelCount; i++)
     {
         PixelType type = NUM_PIXELTYPES;
-        if (channelTypes[i] == 0) type = IMF::UINT;
-        if (channelTypes[i] == 1) type = IMF::HALF;
-        if (channelTypes[i] == 2) type = IMF::FLOAT;
+        if (channelTypes[i] == 0) type = OPENEXR_IMF_NAMESPACE::UINT;
+        if (channelTypes[i] == 1) type = OPENEXR_IMF_NAMESPACE::HALF;
+        if (channelTypes[i] == 2) type = OPENEXR_IMF_NAMESPACE::FLOAT;
 
         std::stringstream ss;
         ss << i;

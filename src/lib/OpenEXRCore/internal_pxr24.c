@@ -12,6 +12,9 @@
 #include <string.h>
 #include "openexr_compression.h"
 
+OPENEXR_CORE_NAMESPACE_ENTER
+
+
 /**************************************/
 
 static inline uint32_t
@@ -89,9 +92,9 @@ float_to_float24 (float f)
 static exr_result_t
 apply_pxr24_impl (exr_encode_pipeline_t* encode)
 {
-    uint8_t*       out    = encode->scratch_buffer_1;
+    uint8_t*       out    = (uint8_t*) encode->scratch_buffer_1;
     uint64_t       nOut   = 0;
-    const uint8_t* lastIn = encode->packed_buffer;
+    const uint8_t* lastIn = (const uint8_t*) encode->packed_buffer;
     size_t         compbufsz;
     exr_result_t   rv;
 
@@ -269,10 +272,10 @@ undo_pxr24_impl (
 {
     size_t         outSize;
     exr_result_t   rstat;
-    uint8_t*       out    = uncompressed_data;
+    uint8_t*       out    = (uint8_t*) uncompressed_data;
     uint64_t       nOut   = 0;
     uint64_t       nDec   = 0;
-    const uint8_t* lastIn = scratch_data;
+    const uint8_t* lastIn = (const uint8_t*) scratch_data;
 
     if (scratch_size < uncompressed_size) return EXR_ERR_INVALID_ARGUMENT;
 
@@ -425,3 +428,5 @@ internal_exr_undo_pxr24 (
         decode->scratch_buffer_1,
         decode->scratch_alloc_size_1);
 }
+
+OPENEXR_CORE_NAMESPACE_EXIT

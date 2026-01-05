@@ -9,9 +9,15 @@
 
 #ifdef _MSC_VER
 #    define EXR_DCT_ALIGN __declspec (align (_SSE_ALIGNMENT))
+#elif __cplusplus
+#    define EXR_DCT_ALIGN alignas (_SSE_ALIGNMENT)
 #else
 #    define EXR_DCT_ALIGN _Alignas (_SSE_ALIGNMENT)
 #endif
+
+#include "OpenEXRConfig.h"
+
+OPENEXR_CORE_NAMESPACE_ENTER
 
 /**************************************/
 
@@ -52,7 +58,7 @@ DctCoderChannelData_push_row (
     if (d->_size == d->_row_alloc_count)
     {
         size_t    nsize = d->_size == 0 ? 16 : ((d->_size * 3) / 2);
-        uint8_t** n     = alloc_fn (nsize * sizeof (uint8_t*));
+        uint8_t** n     = (uint8_t**) alloc_fn (nsize * sizeof (uint8_t*));
         if (n)
         {
             if (d->_rows)
@@ -140,3 +146,6 @@ CscPrefixMap_find (
 
     return mapl + idx;
 }
+
+OPENEXR_CORE_NAMESPACE_EXIT
+

@@ -14,6 +14,8 @@
 #include <stdio.h>
 #include <string.h>
 
+OPENEXR_CORE_NAMESPACE_ENTER
+
 /**************************************/
 
 static exr_result_t
@@ -55,7 +57,11 @@ validate_req_attr (exr_context_t f, exr_priv_part_t curpart, int adddefault)
     {
         if (adddefault)
         {
-            exr_attr_box2i_t defdw = {{.x = 0, .y = 0}, {.x = 63, .y = 63}};
+            exr_attr_box2i_t defdw;
+            defdw.min.x = 0;
+            defdw.min.y = 0;
+            defdw.max.x = 63;
+            defdw.max.y = 63;
             rv                     = exr_attr_list_add_static_name (
                 (exr_context_t) f,
                 &(curpart->attributes),
@@ -88,7 +94,11 @@ validate_req_attr (exr_context_t f, exr_priv_part_t curpart, int adddefault)
     {
         if (adddefault)
         {
-            exr_attr_box2i_t defdw = {{.x = 0, .y = 0}, {.x = 63, .y = 63}};
+            exr_attr_box2i_t defdw;
+            defdw.min.x = 0;
+            defdw.min.y = 0;
+            defdw.max.x = 63;
+            defdw.max.y = 63;
             rv                     = exr_attr_list_add_static_name (
                 (exr_context_t) f,
                 &(curpart->attributes),
@@ -176,7 +186,9 @@ validate_req_attr (exr_context_t f, exr_priv_part_t curpart, int adddefault)
     {
         if (adddefault)
         {
-            exr_attr_v2f_t defswc = {.x = 0.f, .y = 0.f};
+            exr_attr_v2f_t defswc;
+            defswc.x = 0.f;
+            defswc.y = 0.f;
             rv                    = exr_attr_list_add_static_name (
                 (exr_context_t) f,
                 &(curpart->attributes),
@@ -861,3 +873,5 @@ internal_exr_validate_write_part (exr_context_t f, exr_priv_part_t curpart)
 
     return EXR_ERR_SUCCESS;
 }
+
+OPENEXR_CORE_NAMESPACE_EXIT

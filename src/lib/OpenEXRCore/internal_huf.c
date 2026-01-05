@@ -47,6 +47,8 @@
 #    define NO_ALIAS
 #endif
 
+OPENEXR_CORE_NAMESPACE_ENTER
+
 typedef struct _HufDec
 {
     int32_t   len;
@@ -1992,3 +1994,5 @@ internal_huf_decompress (
     }
     return rv;
 }
+
+OPENEXR_CORE_NAMESPACE_EXIT

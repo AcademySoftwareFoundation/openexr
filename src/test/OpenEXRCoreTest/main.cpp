@@ -5,6 +5,8 @@
 
 #include <openexr.h>
 
+#include <ImfNamespace.h>
+
 #include <errno.h>
 #include <iostream>
 #include <set>
@@ -27,6 +29,8 @@
 #include "read.h"
 #include "write.h"
 #include "buffer.h"
+
+using namespace OPENEXR_IMF_NAMESPACE;
 
 #if defined(ANDROID) || defined(__ANDROID_API__)
 #    define IMF_TMP_DIR "/sdcard/"

@@ -11,6 +11,8 @@
 
 #include <string.h>
 
+OPENEXR_CORE_NAMESPACE_ENTER
+
 /**************************************/
 
 exr_result_t
@@ -629,3 +631,5 @@ exr_set_dwa_compression_level (exr_context_t ctxt, int part_index, float level)
 
     return EXR_UNLOCK_AND_RETURN (rv);
 }
+
+OPENEXR_CORE_NAMESPACE_EXIT
