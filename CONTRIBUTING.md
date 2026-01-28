@@ -39,7 +39,7 @@ There are two primary ways to connect with the OpenEXR project:
 If you have trouble installing, building, or using the library, but
 there's not yet reason to suspect you've encountered a genuine bug,
 start by posting a question to the
-[openexr-dev](http://lists.aswf.io/openexr-dev) mailing list. This is
+[openexr-dev](http://lists.aswf.io/g/openexr-dev) mailing list. This is
 the place for question such has "How do I...".
 
 ### How to Report a Bug
@@ -81,7 +81,7 @@ To contribute code to the project, first read over the [GOVERNANCE](GOVERNANCE.m
 
 * An understanding of the project's development workflow.
 
-* Legal authorization, that is, you need to have signed a contributor
+* Legal authorization, that is, you need to have signed a Contributor
   License Agreement. See below for details.
 
 ## Legal Requirements
@@ -102,11 +102,11 @@ in the OpenEXR distribution must first complete a **Contributor
 License Agreement**.
 
 To contribute to OpenEXR, you must sign a CLA through the
-[EasyCLA](https://contributor.easycla.lfx.linuxfoundation.org/#/cla/project/2e8710cb-e379-4116-a9ba-964f83618cc5/user/564e571e-12d7-4857-abd4-898939accdd7?redirect=https:%2F%2Fgithub.com%2FAcademySoftwareFoundation%2Fopenexr%2Fpull%2F1154)
+[EasyCLA](https://organization.lfx.linuxfoundation.org/foundation/a09410000182dD2AAI/project/a092M00001If9ujQAB/cla)
 system, which is integrated with GitHub as a pull request check.
 
 Sign the form through [this
-link](https://contributor.easycla.lfx.linuxfoundation.org/#/cla/project/2e8710cb-e379-4116-a9ba-964f83618cc5/user/564e571e-12d7-4857-abd4-898939accdd7?redirect=https:%2F%2Fgithub.com%2FAcademySoftwareFoundation%2Fopenexr%2Fpull%2F1154)
+link](https://organization.lfx.linuxfoundation.org/foundation/a09410000182dD2AAI/project/a092M00001If9ujQAB/cla)
 prior to submitting a pull request. If you submit a pull request
 before the form is signed, the "linux-foundation-easycla" check will
 fail and a red "NOT COVERED" button will appear in the PR
