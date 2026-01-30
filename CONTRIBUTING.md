@@ -132,9 +132,11 @@ The downloadable PDF's on the EasyCLA page are provided for reference
 only. To execute the signature, sign the form online through the
 relevant links.
 
-The OpenEXR CLAs are the standard forms used by Linux Foundation
+The OpenEXR CLAs are the standard forms used by the Linux Foundation
 projects and [recommended by the ASWF
-TAC](https://github.com/AcademySoftwareFoundation/tac/blob/main/process/contributing.md#contributor-license-agreement-cla).
+TAC](https://github.com/AcademySoftwareFoundation/tac/blob/main/process/contributing.md#contributor-license-agreement-cla). 
+Note that if you have signed a CLA for a different ASWF or LF project, that 
+CLA doesn't apply here and you need to sign for this project specifically.
 
 ### Commit Sign-Off
 
