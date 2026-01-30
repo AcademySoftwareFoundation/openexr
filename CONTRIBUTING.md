@@ -102,19 +102,23 @@ in the OpenEXR distribution must first complete a **Contributor
 License Agreement**.
 
 To contribute to OpenEXR, you must sign a CLA through the
-[EasyCLA](https://organization.lfx.linuxfoundation.org/foundation/a09410000182dD2AAI/project/a092M00001If9ujQAB/cla)
+[EasyCLA](https://docs.linuxfoundation.org/lfx/easycla)
 system, which is integrated with GitHub as a pull request check.
 
-Sign the form through [this
+If a contributor opens a pull request without having a CLA on file, the 
+contributor will be guided through the process to have the appropriate 
+CLA signed. Look in the PR comments for the "linux-foundation-easycla" 
+check that would fail, and a red "NOT COVERED" button will appear in the PR
+comments; click the link in the comment to sign the CLA. For organizations, 
+you can alternatively go to [this
 link](https://organization.lfx.linuxfoundation.org/foundation/a09410000182dD2AAI/project/a092M00001If9ujQAB/cla)
-prior to submitting a pull request. If you submit a pull request
-before the form is signed, the "linux-foundation-easycla" check will
-fail and a red "NOT COVERED" button will appear in the PR
-comments. Click that link to sign the form.
+prior to submitting a pull request, which will guide you through the 
+process to have a CLA signed on behalf of the organization.
 
 * If you are an individual writing the code on your own time and
   you're **sure** you are the sole owner of any intellectual property you
-  contribute, you can sign the CLA as an **Individual Contributor**.
+  contribute, you can sign the CLA as an **Individual Contributor**. If you
+  are unsure, please contact your employer for clarity.
 
 * If you are writing the code as part of your job, or if your employer
   retains ownership to intellectual property you create, no matter how
