@@ -39,7 +39,7 @@ There are two primary ways to connect with the OpenEXR project:
 If you have trouble installing, building, or using the library, but
 there's not yet reason to suspect you've encountered a genuine bug,
 start by posting a question to the
-[openexr-dev](http://lists.aswf.io/openexr-dev) mailing list. This is
+[openexr-dev](http://lists.aswf.io/g/openexr-dev) mailing list. This is
 the place for question such has "How do I...".
 
 ### How to Report a Bug
@@ -81,7 +81,7 @@ To contribute code to the project, first read over the [GOVERNANCE](GOVERNANCE.m
 
 * An understanding of the project's development workflow.
 
-* Legal authorization, that is, you need to have signed a contributor
+* Legal authorization, that is, you need to have signed a Contributor
   License Agreement. See below for details.
 
 ## Legal Requirements
@@ -102,19 +102,23 @@ in the OpenEXR distribution must first complete a **Contributor
 License Agreement**.
 
 To contribute to OpenEXR, you must sign a CLA through the
-[EasyCLA](https://contributor.easycla.lfx.linuxfoundation.org/#/cla/project/2e8710cb-e379-4116-a9ba-964f83618cc5/user/564e571e-12d7-4857-abd4-898939accdd7?redirect=https:%2F%2Fgithub.com%2FAcademySoftwareFoundation%2Fopenexr%2Fpull%2F1154)
+[EasyCLA](https://docs.linuxfoundation.org/lfx/easycla)
 system, which is integrated with GitHub as a pull request check.
 
-Sign the form through [this
-link](https://contributor.easycla.lfx.linuxfoundation.org/#/cla/project/2e8710cb-e379-4116-a9ba-964f83618cc5/user/564e571e-12d7-4857-abd4-898939accdd7?redirect=https:%2F%2Fgithub.com%2FAcademySoftwareFoundation%2Fopenexr%2Fpull%2F1154)
-prior to submitting a pull request. If you submit a pull request
-before the form is signed, the "linux-foundation-easycla" check will
-fail and a red "NOT COVERED" button will appear in the PR
-comments. Click that link to sign the form.
+If a contributor opens a pull request without having a CLA on file, the 
+contributor will be guided through the process to have the appropriate 
+CLA signed. Look in the PR comments for the "linux-foundation-easycla" 
+check that would fail, and a red "NOT COVERED" button will appear in the PR
+comments; click the link in the comment to sign the CLA. For organizations, 
+you can alternatively go to [this
+link](https://organization.lfx.linuxfoundation.org/foundation/a09410000182dD2AAI/project/a092M00001If9ujQAB/cla)
+prior to submitting a pull request, which will guide you through the 
+process to have a CLA signed on behalf of the organization.
 
 * If you are an individual writing the code on your own time and
   you're **sure** you are the sole owner of any intellectual property you
-  contribute, you can sign the CLA as an **Individual Contributor**.
+  contribute, you can sign the CLA as an **Individual Contributor**. If you
+  are unsure, please contact your employer for clarity.
 
 * If you are writing the code as part of your job, or if your employer
   retains ownership to intellectual property you create, no matter how
@@ -128,9 +132,11 @@ The downloadable PDF's on the EasyCLA page are provided for reference
 only. To execute the signature, sign the form online through the
 relevant links.
 
-The OpenEXR CLAs are the standard forms used by Linux Foundation
+The OpenEXR CLAs are the standard forms used by the Linux Foundation
 projects and [recommended by the ASWF
-TAC](https://github.com/AcademySoftwareFoundation/tac/blob/main/process/contributing.md#contributor-license-agreement-cla).
+TAC](https://github.com/AcademySoftwareFoundation/tac/blob/main/process/contributing.md#contributor-license-agreement-cla). 
+Note that if you have signed a CLA for a different ASWF or LF project, that 
+CLA doesn't apply here and you need to sign for this project specifically.
 
 ### Commit Sign-Off
 
