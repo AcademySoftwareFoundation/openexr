@@ -24,6 +24,8 @@ openexr_define_library(OpenEXR
     ImfCompressionAttribute.cpp
     ImfCompressor.cpp
     ImfCompressor.h
+    ImfGdeflateCompressor.cpp
+    ImfGdeflateCompressor.h
     ImfContext.cpp
     ImfContextInit.cpp
     ImfConvert.cpp

@@ -278,12 +278,12 @@ undo_zip_impl (
     const void*            compressed_data,
     const uint64_t         comp_buf_size,
     void*                  uncompressed_data,
-    const uint64_t         uncompressed_size,
+    uint64_t               uncompressed_size,
     void*                  scratch_data,
-    const uint64_t         scratch_size)
+    uint64_t               scratch_size)
 {
-    size_t       actual_out_bytes;
     exr_result_t res;
+    size_t       actual_out_bytes = 0;
 
     if (scratch_size < uncompressed_size) return EXR_ERR_INVALID_ARGUMENT;
 
@@ -426,4 +426,153 @@ internal_exr_apply_zip (exr_encode_pipeline_t* encode)
     }
 
     return apply_zip_impl (encode);
+}
+
+/**************************************/
+
+static exr_result_t
+apply_gdeflate_impl (exr_encode_pipeline_t* encode)
+{
+    exr_result_t rv;
+    size_t       compbufsz = 0;
+    int          level;
+
+    rv = exr_get_zip_compression_level (
+        encode->context, encode->part_index, &level);
+    if (rv != EXR_ERR_SUCCESS) return rv;
+
+    internal_zip_deconstruct_bytes (
+        encode->scratch_buffer_1, encode->packed_buffer, encode->packed_bytes);
+
+    rv = exr_compress_buffer_gdeflate (
+        encode->context,
+        level,
+        encode->scratch_buffer_1,
+        encode->packed_bytes,
+        encode->compressed_buffer,
+        encode->compressed_alloc_size,
+        &compbufsz);
+
+    if (rv != EXR_ERR_SUCCESS)
+    {
+        exr_const_context_t pctxt = encode->context;
+        if (pctxt)
+            pctxt->report_error (
+                pctxt, rv, "Unable to compress gdeflate data");
+        return rv;
+    }
+
+    if (compbufsz > encode->packed_bytes)
+    {
+        memcpy (
+            encode->compressed_buffer,
+            encode->packed_buffer,
+            encode->packed_bytes);
+        compbufsz = encode->packed_bytes;
+    }
+    encode->compressed_bytes = compbufsz;
+
+    return EXR_ERR_SUCCESS;
+}
+
+exr_result_t
+internal_exr_apply_gdeflate (exr_encode_pipeline_t* encode)
+{
+    exr_result_t rv;
+
+    rv = internal_encode_alloc_buffer (
+        encode,
+        EXR_TRANSCODE_BUFFER_SCRATCH1,
+        &(encode->scratch_buffer_1),
+        &(encode->scratch_alloc_size_1),
+        encode->packed_bytes);
+    if (rv != EXR_ERR_SUCCESS)
+    {
+        exr_const_context_t pctxt = encode->context;
+        if (pctxt)
+            pctxt->print_error (
+                pctxt,
+                rv,
+                "Unable to allocate scratch buffer for gdeflate of %" PRIu64
+                " bytes",
+                encode->packed_bytes);
+        return rv;
+    }
+
+    return apply_gdeflate_impl (encode);
+}
+
+/**************************************/
+
+static exr_result_t
+undo_gdeflate_impl (
+    exr_decode_pipeline_t* decode,
+    const void*            compressed_data,
+    const uint64_t         comp_buf_size,
+    void*                  uncompressed_data,
+    const uint64_t         uncompressed_size,
+    void*                  scratch_data,
+    const uint64_t         scratch_size)
+{
+    size_t       actual_out_bytes;
+    exr_result_t res;
+
+    if (scratch_size < uncompressed_size) return EXR_ERR_INVALID_ARGUMENT;
+
+    res = exr_uncompress_buffer_gdeflate (
+        decode->context,
+        compressed_data,
+        comp_buf_size,
+        scratch_data,
+        scratch_size,
+        &actual_out_bytes);
+
+    if (res != EXR_ERR_SUCCESS) return res;
+
+    decode->bytes_decompressed = actual_out_bytes;
+    if (comp_buf_size > actual_out_bytes ||
+        actual_out_bytes > uncompressed_size)
+        return EXR_ERR_CORRUPT_CHUNK;
+
+    internal_zip_reconstruct_bytes (
+        uncompressed_data, scratch_data, actual_out_bytes);
+
+    return EXR_ERR_SUCCESS;
+}
+
+exr_result_t
+internal_exr_undo_gdeflate (
+    exr_decode_pipeline_t* decode,
+    const void*            compressed_data,
+    const uint64_t         comp_buf_size,
+    void*                  uncompressed_data,
+    const uint64_t         uncompressed_size)
+{
+    exr_result_t rv;
+    uint64_t     scratchbufsz = uncompressed_size;
+    if (comp_buf_size > scratchbufsz) scratchbufsz = comp_buf_size;
+
+    if (comp_buf_size == uncompressed_size)
+    {
+        decode->bytes_decompressed = comp_buf_size;
+        if (compressed_data != uncompressed_data)
+            memcpy (uncompressed_data, compressed_data, comp_buf_size);
+        return EXR_ERR_SUCCESS;
+    }
+
+    rv = internal_decode_alloc_buffer (
+        decode,
+        EXR_TRANSCODE_BUFFER_SCRATCH1,
+        &(decode->scratch_buffer_1),
+        &(decode->scratch_alloc_size_1),
+        scratchbufsz);
+    if (rv != EXR_ERR_SUCCESS) return rv;
+    return undo_gdeflate_impl (
+        decode,
+        compressed_data,
+        comp_buf_size,
+        uncompressed_data,
+        uncompressed_size,
+        decode->scratch_buffer_1,
+        decode->scratch_alloc_size_1);
 }

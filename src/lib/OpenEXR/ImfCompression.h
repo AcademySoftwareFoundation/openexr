@@ -55,6 +55,8 @@ enum IMF_EXPORT_ENUM Compression
 
     HTJ2K32_COMPRESSION = 11,    // High-Throughput JPEG2000 (HTJ2K), 32 scanlines
 
+    GDEFLATE_COMPRESSION = 12,   // gdeflate compression, in blocks of 16 scan lines
+
     NUM_COMPRESSION_METHODS // number of different compression methods
 };
 
