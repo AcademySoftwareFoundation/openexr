@@ -45,6 +45,10 @@ static int __inline __builtin_clz(uint32_t v)
 #    endif
 #endif
 
+#include "OpenEXRConfig.h"
+
+OPENEXR_CORE_NAMESPACE_ENTER
+
 //
 // Base 'class' for encoding using the lossy DCT scheme
 //
@@ -890,12 +894,22 @@ static uint16_t algoQuantize (
     return sign | handleQuantizeCloseExp (abssrc, tolSig, errTol, srcFloat);
 }
 
+#ifdef __cplusplus
+#  if defined(_MSC_VER)
+#    define OPENEXR_RESTRICT __restrict
+#  else
+#    define OPENEXR_RESTRICT __restrict__
+#  endif
+#else
+#define OPENEXR_RESTRICT restrict
+#endif
+
 static void
 quantizeCoeffAndZigXDR (
-    uint16_t* restrict    halfZigCoeff,
-    const float* restrict dctvals,
-    const float* restrict tolerances,
-    const uint16_t* restrict halftols)
+    uint16_t* OPENEXR_RESTRICT    halfZigCoeff,
+    const float* OPENEXR_RESTRICT dctvals,
+    const float* OPENEXR_RESTRICT tolerances,
+    const uint16_t* OPENEXR_RESTRICT halftols)
 {
     //static const int remap[] = {
     //    0,  1,  8,  16, 9,  2,  3,  10, 17, 24, 32, 25, 18, 11, 4,  5,
@@ -1044,8 +1058,8 @@ LossyDctEncoder_execute (
         for (int blockx = 0; blockx < numBlocksX; ++blockx)
         {
             uint16_t              h;
-            const float* restrict quantTable;
-            const uint16_t* restrict hquantTable;
+            const float* OPENEXR_RESTRICT quantTable;
+            const uint16_t* OPENEXR_RESTRICT hquantTable;
 
             for (int chan = 0; chan < numComp; ++chan)
             {
@@ -1244,3 +1258,6 @@ LossyDctEncoder_rleAc (LossyDctEncoder* e, uint16_t* block, uint16_t** acPtr)
     }
     *acPtr = curAC;
 }
+
+OPENEXR_CORE_NAMESPACE_EXIT
+

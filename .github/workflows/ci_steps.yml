@@ -53,6 +53,8 @@ on:
         type: string
       OPENEXR_FORCE_INTERNAL_OPENJPH:
         type: string
+      OPENEXR_CORE_USE_NAMESPACE:
+        type: string
       CMAKE_OSX_ARCHITECTURES:
         type: string
       BUILD_TESTING:
@@ -222,6 +224,7 @@ jobs:
           cmake_args+=("-DOPENEXR_FORCE_INTERNAL_DEFLATE=${{ inputs.OPENEXR_FORCE_INTERNAL_DEFLATE }}")
           cmake_args+=("-DOPENEXR_FORCE_INTERNAL_OPENJPH=${{ inputs.OPENEXR_FORCE_INTERNAL_OPENJPH }}")
           cmake_args+=("-DBUILD_TESTING=${{ inputs.BUILD_TESTING }}")
+          cmake_args+=("-DOPENEXR_CORE_USE_NAMESPACE=${{ inputs.OPENEXR_CORE_USE_NAMESPACE }}")
           cmake_args+=("-DOPENEXR_RUN_FUZZ_TESTS=OFF")
           cmake_args+=("-DCMAKE_VERBOSE_MAKEFILE=ON")
           if [ -n "${{ inputs.namespace }}" ]; then

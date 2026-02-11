@@ -3,12 +3,15 @@
 ** Copyright Contributors to the OpenEXR Project.
 */
 
+#include "OpenEXRConfig.h"
 #include "internal_attr.h"
 
 #include "internal_constants.h"
 #include "internal_structs.h"
 
 #include <string.h>
+
+OPENEXR_CORE_NAMESPACE_ENTER
 
 struct _internal_exr_attr_map
 {
@@ -1131,3 +1134,6 @@ exr_attr_list_remove (
 
     return attr_destroy (ctxt, attr);
 }
+
+OPENEXR_CORE_NAMESPACE_EXIT
+

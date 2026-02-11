@@ -7,6 +7,8 @@
 
 #include <openexr.h>
 
+#include <ImfNamespace.h>
+
 #include <float.h>
 #include <limits.h>
 #include <math.h>
@@ -15,6 +17,8 @@
 #include <iomanip>
 #include <iostream>
 #include <memory>
+
+using namespace OPENEXR_IMF_NAMESPACE;
 
 static void
 err_cb (exr_const_context_t f, int code, const char* msg)

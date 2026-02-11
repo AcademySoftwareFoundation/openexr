@@ -11,8 +11,12 @@
 
 #include <openexr.h>
 
+#include <ImfNamespace.h>
+
 #include "test_value.h"
 #include <vector>
+
+using namespace OPENEXR_IMF_NAMESPACE;
 
 void
 testBufferCompression (const std::string& tempdir)

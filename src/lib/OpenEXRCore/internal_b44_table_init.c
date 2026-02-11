@@ -8,6 +8,8 @@
 #include "internal_coding.h"
 #include "internal_thread.h"
 
+OPENEXR_CORE_NAMESPACE_ENTER
+
 extern uint16_t* exrcore_expTable;
 extern uint16_t* exrcore_logTable;
 
@@ -55,3 +57,5 @@ exrcore_ensure_b44_tables()
 {
     call_once (&b44_tables_once, init_b44_tables);
 }
+
+OPENEXR_CORE_NAMESPACE_EXIT

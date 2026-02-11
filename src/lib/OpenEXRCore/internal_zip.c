@@ -15,6 +15,8 @@
 
 #include "openexr_compression.h"
 
+OPENEXR_CORE_NAMESPACE_ENTER
+
 #if defined __SSE2__ || (_MSC_VER >= 1300 && (_M_IX86 || _M_X64))
 #    define IMF_HAVE_SSE2 1
 #    include <emmintrin.h>
@@ -301,8 +303,7 @@ undo_zip_impl (
         if (comp_buf_size > actual_out_bytes || actual_out_bytes > uncompressed_size)
             res = EXR_ERR_CORRUPT_CHUNK;
         else
-            internal_zip_reconstruct_bytes (
-                uncompressed_data, scratch_data, actual_out_bytes);
+            internal_zip_reconstruct_bytes ((uint8_t*) uncompressed_data, (uint8_t*) scratch_data, actual_out_bytes);
     }
 
     return res;
@@ -361,7 +362,7 @@ apply_zip_impl (exr_encode_pipeline_t* encode)
     if (rv != EXR_ERR_SUCCESS) return rv;
 
     internal_zip_deconstruct_bytes (
-        encode->scratch_buffer_1, encode->packed_buffer, encode->packed_bytes);
+                                    (uint8_t*) encode->scratch_buffer_1, (const uint8_t*) encode->packed_buffer, encode->packed_bytes);
 
     rv = exr_compress_buffer (
         encode->context,
@@ -427,3 +428,5 @@ internal_exr_apply_zip (exr_encode_pipeline_t* encode)
 
     return apply_zip_impl (encode);
 }
+
+OPENEXR_CORE_NAMESPACE_EXIT

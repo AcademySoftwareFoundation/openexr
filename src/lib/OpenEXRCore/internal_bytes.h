@@ -6,9 +6,9 @@
 #ifndef OPENEXR_ATTR_BYTES_H
 #define OPENEXR_ATTR_BYTES_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "OpenEXRConfig.h"
+
+OPENEXR_CORE_EXTERN_C_ENTER
 
 /** 
  * @addtogroup InternalAttributeFunctions
@@ -33,8 +33,6 @@ exr_attr_bytes_copy (
 
 /** @} */
 
-#ifdef __cplusplus
-} /* extern "C" */
-#endif
+OPENEXR_CORE_EXTERN_C_EXIT
 
 #endif /* OPENEXR_ATTR_BYTES_H */

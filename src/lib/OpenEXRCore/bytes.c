@@ -10,6 +10,8 @@
 
 #include <string.h>
 
+OPENEXR_CORE_NAMESPACE_ENTER
+
 /**************************************/
 
 int
@@ -124,3 +126,5 @@ exr_attr_bytes_copy (
         src_ud->type_hint,
         src_ud->data);
 }
+
+OPENEXR_CORE_NAMESPACE_EXIT
