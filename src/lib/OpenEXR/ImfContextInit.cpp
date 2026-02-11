@@ -122,7 +122,7 @@ istream_nonparallel_read (
         int64_t nend = nread + (int64_t)sz;
         if (stream_sz > 0 && nend > stream_sz)
         {
-            sz = stream_sz - nend;
+            sz = stream_sz - nread;
         }
 
         try
