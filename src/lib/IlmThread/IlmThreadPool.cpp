@@ -35,6 +35,11 @@ using namespace oneapi;
 #    endif
 #endif
 
+#if defined(__cpp_lib_atomic_shared_ptr) &&                                \
+    (__cpp_lib_atomic_shared_ptr >= 201711L)
+#    define ILMTHREAD_HAVE_ATOMIC_SHARED_PTR
+#endif
+
 ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 namespace
@@ -121,13 +126,12 @@ struct ThreadPool::Data
     Data (const Data&)            = delete;
     Data& operator= (const Data&) = delete;
 
-#    if defined(__cpp_lib_atomic_shared_ptr) &&                                \
-        (__cpp_lib_atomic_shared_ptr >= 201711L)
+#    ifdef ILMTHREAD_HAVE_ATOMIC_SHARED_PTR
     Data (Data&& other) noexcept
     {
-        ProviderPtr p = other._provider.load (std::memory_order_acquire);
+        ProviderPtr p =
+            other._provider.exchange (ProviderPtr{}, std::memory_order_acq_rel);
         _provider.store (p, std::memory_order_release);
-        other._provider.store (ProviderPtr{}, std::memory_order_release);
     }
 #    else
     Data (Data&&) = default;
@@ -137,8 +141,7 @@ struct ThreadPool::Data
 
     ProviderPtr getProvider () const
     {
-#    if defined(__cpp_lib_atomic_shared_ptr) &&                                \
-        (__cpp_lib_atomic_shared_ptr >= 201711L)
+#    ifdef ILMTHREAD_HAVE_ATOMIC_SHARED_PTR
         return _provider.load (std::memory_order_acquire);
 #    else
         return std::atomic_load (&_provider);
@@ -147,8 +150,7 @@ struct ThreadPool::Data
 
     void setProvider (ProviderPtr provider)
     {
-#    if defined(__cpp_lib_atomic_shared_ptr) &&                                \
-        (__cpp_lib_atomic_shared_ptr >= 201711L)
+#    ifdef ILMTHREAD_HAVE_ATOMIC_SHARED_PTR
         ProviderPtr curp =
             _provider.exchange (provider, std::memory_order_acq_rel);
 #    else
@@ -157,8 +159,7 @@ struct ThreadPool::Data
         if (curp && curp != provider) curp->finish ();
     }
 
-#    if defined(__cpp_lib_atomic_shared_ptr) &&                                \
-        (__cpp_lib_atomic_shared_ptr >= 201711L)
+#    ifdef ILMTHREAD_HAVE_ATOMIC_SHARED_PTR
     std::atomic<ProviderPtr> _provider;
 #    else
     ProviderPtr _provider;
@@ -500,8 +501,7 @@ ThreadPool::Data::Data ()
 
 ThreadPool::Data::Data (ThreadPoolProvider *p)
 {
-#    if defined(__cpp_lib_atomic_shared_ptr) &&                                \
-        (__cpp_lib_atomic_shared_ptr >= 201711L)
+#    ifdef ILMTHREAD_HAVE_ATOMIC_SHARED_PTR
     _provider.store (ProviderPtr (p), std::memory_order_release);
 #    else
     _provider = ProviderPtr (p);
