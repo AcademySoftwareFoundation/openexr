@@ -119,11 +119,9 @@ istream_nonparallel_read (
         }
 
         int64_t stream_sz = s->size ();
-        int64_t nend = nread + (int64_t)sz;
+        int64_t nend = nread + static_cast<int64_t>(sz);
         if (stream_sz > 0 && nend > stream_sz)
-        {
-            sz = stream_sz - nend;
-        }
+            sz = static_cast<uint64_t>(stream_sz - nread);
 
         try
         {
