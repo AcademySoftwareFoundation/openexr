@@ -140,6 +140,7 @@ pixel data.
 
 Since many common EXR files have only a single part, for convenience,
 the ``File`` object has ``header()`` and ``channels()`` methods that
+return the header and channels for the first part.
 
 Header Metadata
 ---------------
