@@ -190,11 +190,11 @@ lib64/cmake/OpenEXR/OpenEXRTargets-release.cmake
 lib64/cmake/OpenEXR/OpenEXRTargets.cmake
 lib64/libIex-3_3.so
 lib64/libIex-3_3.so.32
-lib64/libIex-3_3.so.32.3.3.6
+lib64/libIex-3_3.so.32.3.3.7
 lib64/libIex.so
 lib64/libIlmThread-3_3.so
 lib64/libIlmThread-3_3.so.32
-lib64/libIlmThread-3_3.so.32.3.3.6
+lib64/libIlmThread-3_3.so.32.3.3.7
 lib64/libIlmThread.so
 lib64/libImath-3_1.so
 lib64/libImath-3_1.so.29
@@ -202,14 +202,14 @@ lib64/libImath-3_1.so.29.11.0
 #lib64/libImath.so - missing from the manifest for Imath version 3.1 because it doesn't include PR 366
 lib64/libOpenEXR-3_3.so
 lib64/libOpenEXR-3_3.so.32
-lib64/libOpenEXR-3_3.so.32.3.3.6
+lib64/libOpenEXR-3_3.so.32.3.3.7
 lib64/libOpenEXR.so
 lib64/libOpenEXRCore-3_3.so
 lib64/libOpenEXRCore-3_3.so.32
-lib64/libOpenEXRCore-3_3.so.32.3.3.6
+lib64/libOpenEXRCore-3_3.so.32.3.3.7
 lib64/libOpenEXRCore.so
 lib64/libOpenEXRUtil-3_3.so
 lib64/libOpenEXRUtil-3_3.so.32
-lib64/libOpenEXRUtil-3_3.so.32.3.3.6
+lib64/libOpenEXRUtil-3_3.so.32.3.3.7
 lib64/libOpenEXRUtil.so
 lib64/pkgconfig/Imath.pc
