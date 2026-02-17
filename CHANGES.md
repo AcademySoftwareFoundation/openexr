@@ -3,6 +3,7 @@
 
 # OpenEXR Release Notes
 
+* [Version 3.4.5](#version-345-february-19-2026) February 19, 2026
 * [Version 3.4.4](#version-344-november-19-2025) November 19, 2025
 * [Version 3.4.3](#version-343-november-4-2025) November 4, 2025
 * [Version 3.4.2](#version-342-october-15-2025) October 15, 2025
@@ -84,6 +85,17 @@
 * [Version 1.0.2](#version-102)
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
+
+## Version 3.4.5 (February 19, 2026)
+
+Patch release that fixes an incorrect size check in
+`istream_nonparallel_read` that could lead to a buffer overflow on
+invalid input data.
+
+### Merged Pull Requests:
+
+* [2244](https://github.com/AcademySoftwareFoundation/pulls/2244)
+Fix incorrect size check in `istream_nonparallel_read`
 
 ## Version 3.4.4 (November 19, 2025)
 
