@@ -30,8 +30,8 @@ else
   version="$1"
   zip="$version.zip"
   url="https://github.com/aous72/OpenJPH/archive/refs/tags/$zip"
-  if curl --head --silent --fail "$url" > /dev/null; then
-    echo "Tag such OpenJPH tag: $version"
+  if ! curl --head --silent --fail --location "$url" > /dev/null; then
+    echo "No such OpenJPH tag: $version"
     exit 1
   fi
 fi
@@ -56,8 +56,8 @@ trap 'rm -rf "$zip" "$OpenJPH"' EXIT
 wget $url
 unzip -o "$zip" "${files[@]}"
 
-if $do_git && [ -d OpenJPH ]; then
-    git rm -rf OpenJPH
+if $do_git; then
+    git rm -rf --ignore-unmatch OpenJPH
 else
     rm -rf OpenJPH
 fi
@@ -68,8 +68,8 @@ mv $OpenJPH OpenJPH
 ln -s common OpenJPH/src/core/openjph
 
 # Force a static build
-sed -i '/^option(BUILD_SHARED_LIBS "Shared Libraries" ON)/d' OpenJPH/CMakeLists.txt
-sed -i 's/^add_library(openjph \${SOURCES})/add_library(openjph STATIC ${SOURCES})/' OpenJPH/src/core/CMakeLists.txt
+sed -i '' '/^option(BUILD_SHARED_LIBS "Shared Libraries" ON)/d' OpenJPH/CMakeLists.txt
+sed -i '' 's/^add_library(openjph \${SOURCES})/add_library(openjph STATIC ${SOURCES})/' OpenJPH/src/core/CMakeLists.txt
 
 if $do_git; then
   git add OpenJPH
