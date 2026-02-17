@@ -21,6 +21,15 @@ News
 
 .. _LatestNewsStart:
 
+Patch release that fixes an incorrect size check in
+`istream_nonparallel_read` that could lead to a buffer overflow on
+invalid input data.
+
+.. _LatestNewsEnd:
+
+November 19, 2025 - OpenEXR 3.4.4 Released
+==========================================
+
 Patch release with an optimization to reduce the size of the library.
 
 B44 and DWA compression tables are now initialized at first use rather
@@ -35,7 +44,6 @@ inadvertently enabled threading when it should have been disabed.
 This also fixes a bug where importing the python module from a parent
 directory would fail.
 
-.. _LatestNewsEnd:
 
 November  4, 2025 - OpenEXR 3.4.3 Released
 ==========================================
