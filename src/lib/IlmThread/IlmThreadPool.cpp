@@ -35,6 +35,11 @@ using namespace oneapi;
 #    endif
 #endif
 
+#if defined(__cpp_lib_atomic_shared_ptr) &&                                \
+    (__cpp_lib_atomic_shared_ptr >= 201711L)
+#    define ILMTHREAD_HAVE_ATOMIC_SHARED_PTR
+#endif
+
 ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 namespace
@@ -120,18 +125,45 @@ struct ThreadPool::Data
     ~Data ();
     Data (const Data&)            = delete;
     Data& operator= (const Data&) = delete;
-    Data (Data&&)                 = default;
-    Data& operator= (Data&&)      = delete;
 
-    ProviderPtr getProvider () const { return std::atomic_load (&_provider); }
+#    ifdef ILMTHREAD_HAVE_ATOMIC_SHARED_PTR
+    Data (Data&& other) noexcept
+    {
+        ProviderPtr p =
+            other._provider.exchange (ProviderPtr{}, std::memory_order_acq_rel);
+        _provider.store (p, std::memory_order_release);
+    }
+#    else
+    Data (Data&&) = default;
+#    endif
+
+    Data& operator= (Data&&) = delete;
+
+    ProviderPtr getProvider () const
+    {
+#    ifdef ILMTHREAD_HAVE_ATOMIC_SHARED_PTR
+        return _provider.load (std::memory_order_acquire);
+#    else
+        return std::atomic_load (&_provider);
+#    endif
+    }
 
     void setProvider (ProviderPtr provider)
     {
+#    ifdef ILMTHREAD_HAVE_ATOMIC_SHARED_PTR
+        ProviderPtr curp =
+            _provider.exchange (provider, std::memory_order_acq_rel);
+#    else
         ProviderPtr curp = std::atomic_exchange (&_provider, provider);
+#    endif
         if (curp && curp != provider) curp->finish ();
     }
 
-    std::shared_ptr<ThreadPoolProvider> _provider;
+#    ifdef ILMTHREAD_HAVE_ATOMIC_SHARED_PTR
+    std::atomic<ProviderPtr> _provider;
+#    else
+    ProviderPtr _provider;
+#    endif
 };
 
 namespace
@@ -468,9 +500,12 @@ ThreadPool::Data::Data ()
 }
 
 ThreadPool::Data::Data (ThreadPoolProvider *p)
-    : _provider (p)
 {
-    // empty
+#    ifdef ILMTHREAD_HAVE_ATOMIC_SHARED_PTR
+    _provider.store (ProviderPtr (p), std::memory_order_release);
+#    else
+    _provider = ProviderPtr (p);
+#    endif
 }
 
 ThreadPool::Data::~Data ()
