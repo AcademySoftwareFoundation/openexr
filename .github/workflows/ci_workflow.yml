@@ -173,8 +173,8 @@ jobs:
             BUILD_TESTING: 'OFF'
 
           - build: 6
-            label: macos-13
-            os: macos-13
+            label: macos-15-intel
+            os: macos-15-intel
 
   windows:
     name: 'Windows.${{ matrix.build}}: ${{ matrix.label }}'
