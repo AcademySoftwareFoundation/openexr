@@ -45,6 +45,7 @@
 #include <ImfKeyCodeAttribute.h>
 #include <ImfLineOrderAttribute.h>
 #include <ImfMatrixAttribute.h>
+#include <ImfOpaqueAttribute.h>
 #include <ImfPreviewImageAttribute.h>
 #include <ImfRationalAttribute.h>
 #include <ImfStringAttribute.h>
@@ -1549,6 +1550,13 @@ PyFile::getAttributeObject(const std::string& name, const Attribute* a)
     
     if (auto v = dynamic_cast<const V3dAttribute*> (a))
         return make_v3(v->value());
+
+
+    if (auto v = dynamic_cast<const OpaqueAttribute*> (a))
+    {
+        return py::cast(PyOpaqueAttribute(v->typeName(),v->dataSize(),v->data()));
+    }
+
     
     std::stringstream err;
     err << "unsupported attribute type: " << a->typeName();
@@ -2001,6 +2009,10 @@ PyFile::insertAttribute(Header& header, const std::string& name, const py::objec
         auto width = v->pixels.shape(1);
         PreviewImage p(width, height, pixels);
         header.insert(name, PreviewImageAttribute(p));
+    }
+    else if (auto v = py_cast<PyOpaqueAttribute>(object))
+    {
+        header.insert(name, OpaqueAttribute(v->_typeName.c_str(),v->_data.size(),v->_data.data()));
     }
     else if (auto v = py_cast<TileDescription>(object))
         header.insert(name, TileDescriptionAttribute(*v));
@@ -2492,6 +2504,12 @@ PYBIND11_MODULE(OpenEXR, m)
         .def_readwrite("pixels", &PyPreviewImage::pixels)
         ;
     
+   py::class_<PyOpaqueAttribute>(m, "OpaqueAttribute","Storage for unknown attribute types")
+        .def(py::init())
+        .def("__repr__", [](const PyOpaqueAttribute& v) { return repr(v);})
+        .def(py::self==py::self)
+        ;
+
     //
     // The File API: Channel, Part, and File
     //

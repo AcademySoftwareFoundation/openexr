@@ -221,6 +221,43 @@ PyPreviewImage::operator==(const PyPreviewImage& other) const
 }
 
 
+
+class PyOpaqueAttribute
+{
+public:
+    PyOpaqueAttribute() {}
+
+    PyOpaqueAttribute(const std::string& typeName, unsigned int dataSize,
+                   const char* data = nullptr)
+        : _typeName(typeName),_data(dataSize)
+    {
+      memcpy(_data.data(),data,dataSize);
+    }
+
+
+    inline bool operator==(const PyOpaqueAttribute& other) const;
+
+    std::string _typeName;
+    std::vector<char> _data;
+};
+
+
+inline std::ostream&
+operator<< (std::ostream& s, const PyOpaqueAttribute& P)
+{
+
+    s << "OpaqueAttribute(" << P._typeName << ',' << P._data.size() << ")";
+    return s;
+}
+
+inline bool
+PyOpaqueAttribute::operator==(const PyOpaqueAttribute& other) const
+{
+  return other._typeName==_typeName && other._data==_data;
+}
+
+
+
 inline std::ostream&
 operator<< (std::ostream& s, const Chromaticities& c)
 {
