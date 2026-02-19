@@ -58,18 +58,22 @@ unzip -o "$zip" "${files[@]}"
 
 if $do_git; then
     git rm -rf --ignore-unmatch OpenJPH
-else
-    rm -rf OpenJPH
 fi
+rm -rf OpenJPH
 mv $OpenJPH OpenJPH
-
-# Headers live under "common" in the source but are included via
-# "openjph/ojph_arch.h". Create a "openjph" symlink to the header directory.
-ln -s common OpenJPH/src/core/openjph
 
 # Force a static build
 sed -i '' '/^option(BUILD_SHARED_LIBS "Shared Libraries" ON)/d' OpenJPH/CMakeLists.txt
 sed -i '' 's/^add_library(openjph \${SOURCES})/add_library(openjph STATIC ${SOURCES})/' OpenJPH/src/core/CMakeLists.txt
+
+# Headers live under "common" in older OpenJPH releases but are included via
+# "openjph/ojph_arch.h". Rename the directory if needed.
+if [ -d OpenJPH/src/core/common ]; then
+    mv OpenJPH/src/core/common OpenJPH/src/core/openjph
+    sed -i '' 's,/common/,/openjph/,' OpenJPH/ojph_version.cmake
+    sed -i '' 's,/common,/openjph,' OpenJPH/src/core/CMakeLists.txt
+    sed -i '' 's,common/,openjph/,' OpenJPH/src/core/CMakeLists.txt
+fi
 
 if $do_git; then
   git add OpenJPH
