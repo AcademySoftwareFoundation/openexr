@@ -45,6 +45,7 @@
 #include <ImfKeyCodeAttribute.h>
 #include <ImfLineOrderAttribute.h>
 #include <ImfMatrixAttribute.h>
+#include <ImfOpaqueAttribute.h>
 #include <ImfPreviewImageAttribute.h>
 #include <ImfRationalAttribute.h>
 #include <ImfStringAttribute.h>
@@ -1336,7 +1337,13 @@ PyFile::getAttributeObject(const std::string& name, const Attribute* a)
         return py::cast(*v);
     }
 
-    if (auto v = dynamic_cast<const ChannelListAttribute*> (a))
+ 
+    if (auto v = dynamic_cast<const OpaqueAttribute*> (a))
+    {
+        return py::cast(*v);
+    }
+
+   if (auto v = dynamic_cast<const ChannelListAttribute*> (a))
     {
         auto L = v->value();
         auto l = py::list();
@@ -1549,7 +1556,7 @@ PyFile::getAttributeObject(const std::string& name, const Attribute* a)
     
     if (auto v = dynamic_cast<const V3dAttribute*> (a))
         return make_v3(v->value());
-    
+
     std::stringstream err;
     err << "unsupported attribute type: " << a->typeName();
     throw std::runtime_error(err.str());
@@ -1979,6 +1986,10 @@ PyFile::insertAttribute(Header& header, const std::string& name, const py::objec
     {
         header.insert(name, py::cast<Imf::BytesAttribute>(object));
     }
+    else if (py::isinstance<Imf::OpaqueAttribute>(object))
+    {
+        header.insert(name, py::cast<Imf::OpaqueAttribute>(object));
+    }
     else if (auto v = py_cast<Compression>(object))
         header.insert(name, CompressionAttribute(static_cast<Compression>(*v)));
     else if (auto v = py_cast<Envmap>(object))
@@ -2298,9 +2309,16 @@ repr(const T& v)
     s << v;
     return s.str();
 }
-
 } // namespace
 
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
+inline bool
+operator==(const Imf::OpaqueAttribute& a,const Imf::OpaqueAttribute& b)
+{
+ return(string(a.typeName()) == string(b.typeName()) && a.dataSize()==b.dataSize()
+		&& (a.dataSize()==0 || memcmp(&a.data()[0],&b.data()[0],a.dataSize())==0));
+}
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
 PYBIND11_MODULE(OpenEXR, m)
 {
@@ -2416,6 +2434,36 @@ PYBIND11_MODULE(OpenEXR, m)
                 + std::to_string(self.size()) + " bytes), "
                 + "type_hint='" + self.typeHint + "'>");
         });
+ 
+    py::class_<OpaqueAttribute>(m, "OpaqueAttribute")
+        .def(py::init([](py::bytes data, std::string typeName) {
+            std::string_view data_view(data);
+
+            return std::make_unique<Imf::OpaqueAttribute>(
+	        typeName.c_str(),
+                data_view.size(),
+                reinterpret_cast<const unsigned char*>(data_view.data())
+            );
+        }), py::arg("data"), py::arg("typeName") = "")
+        .def_property_readonly("data",
+            [](const OpaqueAttribute& self) {
+            const auto& data = self.data();
+            const auto& size = self.dataSize();
+            const char* ptr = (size == 0) ?
+                nullptr : reinterpret_cast<const char*>(&data[0]);
+            return py::bytes(ptr, size);
+            })
+        .def_property_readonly("typeName",
+	    [](const OpaqueAttribute& self) {
+   	    return self.typeName();
+	     })
+        .def(py::self == py::self)
+        .def("__repr__", [](const OpaqueAttribute& self) {
+            return (
+                "<OpaqueAttribute type="+string(self.typeName())+", data=b'...' ("
+                + std::to_string(self.dataSize()) + " bytes)>");
+        });
+
 
     py::class_<TileDescription>(m, "TileDescription", "Tile description for tiled images")
         .def(py::init())
