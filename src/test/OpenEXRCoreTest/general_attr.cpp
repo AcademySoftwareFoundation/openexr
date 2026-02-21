@@ -6,6 +6,8 @@
 #include "test_value.h"
 #include <openexr.h>
 
+#include <ImfNamespace.h>
+
 #include <limits.h>
 #include <string.h>
 
@@ -32,6 +34,8 @@
 #    include "../../lib/OpenEXRCore/internal_attr.h"
 #    include "../../lib/OpenEXRCore/internal_xdr.h"
 #endif
+
+using namespace OPENEXR_IMF_NAMESPACE;
 
 int64_t
 dummy_write (

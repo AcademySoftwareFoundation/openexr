@@ -9,6 +9,10 @@
 #include "openexr_errors.h"
 #include "openexr_decode.h"
 
+#include "OpenEXRConfig.h"
+
+OPENEXR_CORE_NAMESPACE_ENTER
+
 uint64_t internal_exr_huf_compress_spare_bytes (void);
 uint64_t internal_exr_huf_decompress_spare_bytes (void);
 
@@ -29,5 +33,7 @@ exr_result_t internal_huf_decompress (
     uint64_t               nRaw,
     void*                  spare,
     uint64_t               sparebytes);
+
+OPENEXR_CORE_NAMESPACE_EXIT
 
 #endif /* OPENEXR_CORE_HUF_CODING_H */

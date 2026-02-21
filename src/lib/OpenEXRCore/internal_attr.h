@@ -33,9 +33,7 @@
 #include "internal_string.h"
 #include "internal_string_vector.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+OPENEXR_CORE_EXTERN_C_ENTER
 
 int internal_exr_is_standard_type (const char* typen);
 
@@ -136,8 +134,6 @@ exr_result_t exr_attr_list_remove (
  * @}
  */
 
-#ifdef __cplusplus
-} /* extern "C" */
-#endif
+OPENEXR_CORE_EXTERN_C_EXIT
 
 #endif /* OPENEXR_INTERNAL_ATTR_H */

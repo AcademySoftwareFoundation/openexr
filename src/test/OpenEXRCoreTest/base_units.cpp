@@ -26,6 +26,8 @@
 #include "../../lib/OpenEXRCore/openexr_context.h"
 #include "../../lib/OpenEXRCore/openexr_part.h"
 
+using namespace OPENEXR_IMF_NAMESPACE;
+
 void
 testBase (const std::string& tempdir)
 {

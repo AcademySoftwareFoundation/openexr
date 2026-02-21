@@ -15,6 +15,8 @@
 #include <stdio.h>
 #include <string.h>
 
+OPENEXR_CORE_NAMESPACE_ENTER
+
 /**************************************/
 
 static exr_result_t
@@ -41,7 +43,7 @@ update_pack_unpack_ptrs (exr_decode_pipeline_t* decode)
                 (void**) &(decode->sample_count_table),
                 &(decode->sample_count_alloc_size));
 
-            decode->sample_count_table = decode->packed_sample_count_table;
+            decode->sample_count_table = (int32_t*) decode->packed_sample_count_table;
             rv                         = EXR_ERR_SUCCESS;
         }
         else
@@ -726,3 +728,5 @@ exr_decoding_destroy (exr_const_context_t ctxt, exr_decode_pipeline_t* decode)
     }
     return EXR_ERR_SUCCESS;
 }
+
+OPENEXR_CORE_NAMESPACE_EXIT

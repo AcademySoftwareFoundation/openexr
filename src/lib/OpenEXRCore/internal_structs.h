@@ -11,6 +11,10 @@
 
 #if ILMTHREAD_THREADING_ENABLED
 #    ifdef _WIN32
+#    ifdef NOMINMAX
+#      undef NOMINMAX
+#    endif
+#    define NOMINMAX
 #        include <windows.h>
 #        include <synchapi.h>
 #    else
@@ -54,6 +58,10 @@ using atomic_uintptr_t = std::atomic_uintptr_t;
 #    elif defined(_MSC_VER)
 /* msvc w/ c11 support is only very new, until we know what the preprocessor checks are, provide defaults */
 #        include <stdint.h>
+#    ifdef NOMINMAX
+#      undef NOMINMAX
+#    endif
+#    define NOMINMAX
 #        include <windows.h>
 typedef uintptr_t volatile atomic_uintptr_t;
 
@@ -87,6 +95,10 @@ atomic_compare_exchange_strong (
 #        error OS unimplemented support for atomics
 #    endif
 #endif
+
+#include "OpenEXRConfig.h"
+
+OPENEXR_CORE_NAMESPACE_ENTER
 
 struct _priv_exr_part_t
 {
@@ -140,6 +152,97 @@ struct _priv_exr_part_t
     int32_t          chunk_count;
     uint64_t         chunk_table_offset;
     atomic_uintptr_t chunk_table;
+
+#if __cplusplus && defined(OPENEXR_CORE_USE_NAMESPACE)
+    // default constructor initialized all fields to 0
+    _priv_exr_part_t ()
+        : part_index (0)
+        , storage_mode (EXR_STORAGE_LAST_TYPE)
+        , attributes {}
+        , channels (nullptr)
+        , compression (nullptr)
+        , dataWindow (nullptr)
+        , displayWindow (nullptr)
+        , lineOrder (nullptr)
+        , pixelAspectRatio (nullptr)
+        , screenWindowCenter (nullptr)
+        , screenWindowWidth (nullptr)
+        , tiles (nullptr)
+        , name (nullptr)
+        , type (nullptr)
+        , version (nullptr)
+        , chunkCount (nullptr)
+        , maxSamplesPerPixel (nullptr)
+        , data_window {}
+        , display_window {}
+        , comp_type (EXR_COMPRESSION_LAST_TYPE)
+        , lineorder (EXR_LINEORDER_LAST_TYPE)
+        , zip_compression_level (0)
+        , dwa_compression_level (0.0f)
+        , num_tile_levels_x (0)
+        , num_tile_levels_y (0)
+        , tile_level_tile_count_x (nullptr)
+        , tile_level_tile_count_y (nullptr)
+        , tile_level_tile_size_x (nullptr)
+        , tile_level_tile_size_y (nullptr)
+        , unpacked_size_per_chunk (0)
+        , lines_per_chunk (0)
+        , chan_has_line_sampling (0)
+        , chunk_count (0)
+        , chunk_table_offset (0)
+        , chunk_table (0)
+    {
+    }
+    
+    _priv_exr_part_t (const _priv_exr_part_t& other)
+    {
+        *this = other;
+    }
+
+    // Copy assignment operator - properly handles the atomic member
+    _priv_exr_part_t& operator= (const _priv_exr_part_t& other)
+    {
+        if (this != &other)
+        {
+            part_index              = other.part_index;
+            storage_mode            = other.storage_mode;
+            attributes              = other.attributes;
+            channels                = other.channels;
+            compression             = other.compression;
+            dataWindow              = other.dataWindow;
+            displayWindow           = other.displayWindow;
+            lineOrder               = other.lineOrder;
+            pixelAspectRatio        = other.pixelAspectRatio;
+            screenWindowCenter      = other.screenWindowCenter;
+            screenWindowWidth       = other.screenWindowWidth;
+            tiles                   = other.tiles;
+            name                    = other.name;
+            type                    = other.type;
+            version                 = other.version;
+            chunkCount              = other.chunkCount;
+            maxSamplesPerPixel      = other.maxSamplesPerPixel;
+            data_window             = other.data_window;
+            display_window          = other.display_window;
+            comp_type               = other.comp_type;
+            lineorder               = other.lineorder;
+            zip_compression_level   = other.zip_compression_level;
+            dwa_compression_level   = other.dwa_compression_level;
+            num_tile_levels_x       = other.num_tile_levels_x;
+            num_tile_levels_y       = other.num_tile_levels_y;
+            tile_level_tile_count_x = other.tile_level_tile_count_x;
+            tile_level_tile_count_y = other.tile_level_tile_count_y;
+            tile_level_tile_size_x  = other.tile_level_tile_size_x;
+            tile_level_tile_size_y  = other.tile_level_tile_size_y;
+            unpacked_size_per_chunk = other.unpacked_size_per_chunk;
+            lines_per_chunk         = other.lines_per_chunk;
+            chan_has_line_sampling  = other.chan_has_line_sampling;
+            chunk_count             = other.chunk_count;
+            chunk_table_offset      = other.chunk_table_offset;
+            chunk_table.store (other.chunk_table.load ());
+        }
+        return *this;
+    }
+#endif
 };
 
 typedef struct _priv_exr_part_t*       exr_priv_part_t;
@@ -349,5 +452,7 @@ exr_result_t internal_exr_alloc_context (
     enum _INTERNAL_EXR_CONTEXT_MODE  mode,
     size_t                           extra_data);
 void internal_exr_destroy_context (exr_context_t ctxt);
+
+OPENEXR_CORE_NAMESPACE_EXIT
 
 #endif /* OPENEXR_PRIVATE_STRUCTS_H */

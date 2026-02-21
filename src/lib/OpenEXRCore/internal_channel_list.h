@@ -6,9 +6,9 @@
 #ifndef OPENEXR_ATTR_CHLIST_H
 #define OPENEXR_ATTR_CHLIST_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "OpenEXRConfig.h"
+
+OPENEXR_CORE_EXTERN_C_ENTER
 
 /** 
  * @addtogroup InternalAttributeFunctions
@@ -50,8 +50,6 @@ exr_result_t exr_attr_chlist_destroy (exr_context_t ctxt, exr_attr_chlist_t*);
 
 /** @} */
 
-#ifdef __cplusplus
-} /* extern "C" */
-#endif
+OPENEXR_CORE_EXTERN_C_EXIT
 
 #endif /* OPENEXR_ATTR_CHLIST_H */

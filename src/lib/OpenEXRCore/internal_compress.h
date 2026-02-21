@@ -8,6 +8,10 @@
 
 #include "openexr_encode.h"
 
+#include "OpenEXRConfig.h"
+
+OPENEXR_CORE_NAMESPACE_ENTER
+
 uint64_t internal_rle_compress (
     void* out, uint64_t outbytes, const void* src, uint64_t srcbytes);
 
@@ -33,12 +37,12 @@ exr_result_t internal_exr_apply_dwaa (exr_encode_pipeline_t* encode);
 
 exr_result_t internal_exr_apply_dwab (exr_encode_pipeline_t* encode);
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+OPENEXR_CORE_NAMESPACE_EXIT
+
+OPENEXR_CORE_EXTERN_C_ENTER
+
 exr_result_t internal_exr_apply_ht (exr_encode_pipeline_t* encode);
-#ifdef __cplusplus
-}
-#endif
+
+OPENEXR_CORE_EXTERN_C_EXIT
 
 #endif /* OPENEXR_CORE_COMPRESS_H */
