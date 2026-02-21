@@ -27,6 +27,14 @@ invalid input data.
 
 .. _LatestNewsEnd:
 
+February 19, 2026 - OpenEXR 3.3.7 Released
+==========================================
+
+Patch release that fixes an incorrect size check in
+`istream_nonparallel_read` that could lead to a buffer overflow on
+invalid input data.
+
+
 November 19, 2025 - OpenEXR 3.4.4 Released
 ==========================================
 
