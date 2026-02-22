@@ -131,7 +131,7 @@ message(STATUS "C++ Standard is set to ${CMAKE_CXX_STANDARD}")
 if (MSVC)
   add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
 endif()
-if (CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
+if (CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU" AND NOT MSVC)
   add_compile_options(
   -fexceptions
   -Wall

@@ -108,6 +108,10 @@ namespace ojph {
 #define OJPH_OS_ANDROID
 #elif (defined __linux)
 #define OJPH_OS_LINUX
+#elif (defined __FreeBSD__)
+#define OJPH_OS_FREEBSD
+#elif (defined __OpenBSD__)
+#define OJPH_OS_OPENBSD
 #endif
 
   /////////////////////////////////////////////////////////////////////////////

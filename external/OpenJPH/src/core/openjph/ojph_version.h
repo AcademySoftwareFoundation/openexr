@@ -34,5 +34,5 @@
 //***************************************************************************/
 
 #define OPENJPH_VERSION_MAJOR 0
-#define OPENJPH_VERSION_MINOR 25
+#define OPENJPH_VERSION_MINOR 26
 #define OPENJPH_VERSION_PATCH 3

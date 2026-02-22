@@ -735,6 +735,12 @@ namespace ojph {
           OJPH_ERROR(0x00050052, "error reading SIZ marker");
         if (file->read(&cptr[c].YRsiz, 1) != 1)
           OJPH_ERROR(0x00050053, "error reading SIZ marker");
+        if ((cptr[c].SSiz & 0x7F) > 37)
+          OJPH_ERROR(0x00050054, "Wrong SIZ-SSiz value of %d", cptr[c].SSiz);
+        if (cptr[c].XRsiz == 0)
+          OJPH_ERROR(0x00050055, "Wrong SIZ-XRsiz value of %d", cptr[c].XRsiz);
+        if (cptr[c].YRsiz == 0)
+          OJPH_ERROR(0x00050056, "Wrong SIZ-YRsiz value of %d", cptr[c].YRsiz);
       }
 
       ws_kern_support_needed = (Rsiz & 0x20) != 0;
