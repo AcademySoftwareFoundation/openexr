@@ -519,6 +519,10 @@ CompositeDeepScanLine::readPixels (int start, int end)
         num_sources[ptr] = 0;
         for (size_t j = 0; j < parts; j++)
         {
+            if (total_sizes[ptr] > std::numeric_limits<unsigned int>::max() - counts[j][ptr])
+                throw IEX_NAMESPACE::ArgExc (
+                    "Cannot composite scanline: pixel cannot have more than UINT_MAX samples");
+                
             total_sizes[ptr] += counts[j][ptr];
             if (counts[j][ptr] > 0) num_sources[ptr]++;
         }
