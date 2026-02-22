@@ -120,6 +120,21 @@ jobs:
 
         shell: bash
 
+      - name: Report C Runtime Version
+        run: |
+          if [[ "$RUNNER_OS" == "Linux" ]]; then
+            ldd --version 2>&1 | head -1 || true
+          elif [[ "$RUNNER_OS" == "macOS" ]]; then
+            echo "macOS SDK: $(xcrun --show-sdk-version 2>/dev/null || echo 'unknown')"
+          fi
+        shell: bash
+
+      - name: Install Build Dependencies (Fedora)
+        if: startsWith(inputs.container, 'fedora:')
+        run: |
+          dnf install -y gcc gcc-c++ cmake make git wget libdeflate-devel
+        shell: bash
+
       - name: Determine MSYS2 Packages
         if: inputs.msystem != ''
         run: |
