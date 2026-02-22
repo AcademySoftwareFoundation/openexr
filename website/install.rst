@@ -156,6 +156,34 @@ application compilation units to use Imath classes directly,
 independent of OpenEXR, if they also include OpenEXR headers from a
 distribution built with a different Imath version.
 
+.. _embedded-core-label:
+
+Linking Multiple OpenEXR Versions in the Executable
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+It is sometimes necessary to link two different versions of the
+OpenEXR library in the same executable. An example is a DCC such as
+Nuke or Katana which ships with one version of OpenEXR but must load a
+custom plugin that links against a different version.
+
+The ``namespace`` options described below provide a mechanism to handle
+this: the custom plugin links against a custom build of OpenEXR
+configured with a unique namespace, so the symbols do not clash
+against the other version.
+
+However, the ``OpenEXRCore`` library is implemented in C, without a
+namespace option. To address this, build the custom ``OpenEXR`` library
+with the CMake option ``-DOPENEXR_FORCE_EMBEDDED_CORE=ON``, which links
+against a staticly-built ``OpenEXRCore`` library with symbols
+hidden. This prevents the ``OpenEXRCore`` library symbols in the plugin
+from clashing with the ones in the main executable. In this case, the
+installation includes no ``libOpenEXRCore.so``.
+
+This works if your plugin uses the ``OpenEXR`` C++ API. Should your
+plugin require direct access to the C API from ``OpenEXRCore``, this
+solution does not work, and you'll have resort to other symbol-hidding
+mechanisms.
+
 Linux/macOS
 ~~~~~~~~~~~
 
@@ -506,6 +534,13 @@ Namespace Options
 Component Options
 ~~~~~~~~~~~~~~~~~
 
+* ``OPENEXR_FORCE_EMBEDDED_CORE``
+
+  Option to build the ``OpenEXR`` library against a staticly-built
+  ``OpenEXRCore`` library with symbols hidden. This allows the ``OpenEXR``
+  library to be linked into an executable that already links against
+  another version of OpenEXR.  See :ref:`embedded-core-label` for more details.
+  
 * ``BUILD_TESTING``
 
   Build the testing tree. Default is ``ON``.  Note that
