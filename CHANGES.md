@@ -9,6 +9,11 @@
 * [Version 3.4.2](#version-342-october-15-2025) October 15, 2025
 * [Version 3.4.1](#version-341-october-8-2025) October 8, 2025
 * [Version 3.4.0](#version-340-september-5-2025) September 5, 2025
+<<<<<<< HEAD
+=======
+* [Version 3.3.7](#version-337-february-19-2026) February 19, 2026
+* [Version 3.3.6](#version-336-november-4-2025) November 5, 2025
+>>>>>>> ff22ba3a (Add news and release notes for v3.4.5 and v3.3.7 (#2252))
 * [Version 3.3.5](#version-335-july-26-2025) July 26, 2025
 * [Version 3.3.4](#version-334-june-9-2025) June 9, 2025
 * [Version 3.3.3](#version-333-march-23-2025) March 23, 2025
@@ -500,6 +505,61 @@ Fetch master branch of libdeflate on main
 * [1852](https://github.com/AcademySoftwareFoundation/openexr/pull/1852)
 Add an option to use TBB as the global provider
 
+<<<<<<< HEAD
+=======
+## Version 3.3.7 (February 19, 2026)
+
+Patch release that fixes an incorrect size check in
+`istream_nonparallel_read` that could lead to a buffer overflow on
+invalid input data.
+
+### Merged Pull Requests:
+
+* [2244](https://github.com/AcademySoftwareFoundation/pulls/2244)
+Fix incorrect size check in `istream_nonparallel_read`
+
+## Version 3.3.6 (November 4, 2025)
+
+Patch release that addresses several bugs, primarily involving
+properly rejecting corrupt input data.
+
+Specifically:
+
+* Buffer overflow in PyOpenEXR_old's `channels()` and `channel()` in
+  legacy python, reported by Joshua Rogers (GitHub: MegaManSec).
+* Use after free in PyObject_StealAttrString in legacy python, reported
+  by Joshua Rogers (GitHub: MegaManSec).
+* Use of Uninitialized Memory in openexr, reported by Aldo Ristori
+  (GitHub: Kaldreic).
+* Heap-based Buffer Overflow Remote Code Execution Vulnerability,
+  reported by Trend Micro Zero Day Initiative.
+
+Other fixes:
+* Only populate `CMAKE_DEBUG_POSTFIX` with `_d` if it is undefined,
+  which makes it possible to set `CMAKE_DEBUG_POSTFIX=""`.
+
+### Merged Pull Requests:
+
+* [2168](https://github.com/AcademySoftwareFoundation/openexr/pull/2168)
+Fix improper use of `Py_DECREF` in legacy python module
+* [2166](https://github.com/AcademySoftwareFoundation/openexr/pull/2166)
+Only define CMAKE_DEBUG_POSTFIX if it is not already defined
+* [2164](https://github.com/AcademySoftwareFoundation/openexr/pull/2164)
+check storage_mode when computing chunk sizes
+* [2163](https://github.com/AcademySoftwareFoundation/openexr/pull/2163)
+Check for image size overflow in legacy python module
+* [2162](https://github.com/AcademySoftwareFoundation/openexr/pull/2162)
+verify packed/unpacked size with uncompressed data
+* [2161](https://github.com/AcademySoftwareFoundation/openexr/pull/2161)
+ImfCheckFile: handle partial deep tiles
+* [2160](https://github.com/AcademySoftwareFoundation/openexr/pull/2160)
+Fix issues with negative coordinates and sampling != 0
+* [2159](https://github.com/AcademySoftwareFoundation/openexr/pull/2159)
+Fix memset in exr_read_chunk when nread is negative
+* [2156](https://github.com/AcademySoftwareFoundation/openexr/pull/2156)
+Fix handling of corrupt RLE data
+
+>>>>>>> ff22ba3a (Add news and release notes for v3.4.5 and v3.3.7 (#2252))
 ## Version 3.3.5 (July 26, 2025)
 
 Patch release with a couple bug/performance fixes:
