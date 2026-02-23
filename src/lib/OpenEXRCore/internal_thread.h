@@ -40,7 +40,7 @@
 #        define ONCE_FLAG_INIT INIT_ONCE_STATIC_INIT
 typedef INIT_ONCE once_flag;
 static BOOL CALLBACK
-exr_once_init_fn (PINIT_ONCE once, PVOID param, PVOID* ctx)
+once_init_fn (PINIT_ONCE once, PVOID param, PVOID* ctx)
 {
     void (*fn) (void) = (void (*) (void)) param;
     fn ();
@@ -49,7 +49,7 @@ exr_once_init_fn (PINIT_ONCE once, PVOID param, PVOID* ctx)
 static inline void
 call_once (once_flag* flag, void (*func) (void))
 {
-    InitOnceExecuteOnce (flag, exr_once_init_fn, (PVOID) func, NULL);
+    InitOnceExecuteOnce (flag, once_init_fn, (PVOID) func, NULL);
 }
 #    else
 #        include <pthread.h>
@@ -61,21 +61,17 @@ call_once (once_flag* flag, void (*func) (void))
     (void) pthread_once (flag, func);
 }
 #    endif
-
-#else /* !ILMTHREAD_THREADING_ENABLED */
-
+#else
 #    define ONCE_FLAG_INIT 0
 typedef int once_flag;
 static inline void
 call_once (once_flag* flag, void (*func) (void))
 {
-    if (!*flag)
-    {
+    if (!*flag) {
         *flag = 1;
         func ();
     }
 }
-
-#endif /* ILMTHREAD_THREADING_ENABLED */
+#endif
 
 #endif /* OPENEXR_PRIVATE_THREAD_H */
