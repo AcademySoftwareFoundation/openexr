@@ -6,7 +6,7 @@
 # Parse version file
 # credit: https://stackoverflow.com/a/47084079
 
-file(READ "${CMAKE_CURRENT_SOURCE_DIR}/src/core/common/ojph_version.h" VERFILE)
+file(READ "${CMAKE_CURRENT_SOURCE_DIR}/src/core/openjph/ojph_version.h" VERFILE)
 if (NOT VERFILE)
     message(FATAL_ERROR "Failed to parse ojph_version.h!")
 endif()

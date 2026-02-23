@@ -35,7 +35,9 @@
 // Date: 17 October 2025
 //***************************************************************************/
 
+#include <assert.h>
 #include <stdlib.h>
+#include <stdint.h>
 
 ////////////////////////////////////////////////////////////////////////////////
 // OS detection definitions for C only
@@ -59,10 +61,11 @@
 #define OJPH_EXPORT
 #endif
 
-////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 #ifdef OJPH_OS_WINDOWS
   OJPH_EXPORT void* ojph_aligned_malloc(size_t alignment, size_t size)
   {
+    assert(alignment != 0 && (alignment & (alignment - 1)) == 0);
     return _aligned_malloc(size, alignment);
   }
 
@@ -70,14 +73,57 @@
   {
     _aligned_free(pointer);
   }
-#else
+#elif (defined OJPH_ALIGNED_ALLOC_EXISTS)
   void* ojph_aligned_malloc(size_t alignment, size_t size)
   {
+    assert(alignment != 0 && (alignment & (alignment - 1)) == 0);
     return aligned_alloc(alignment, size);
   }
 
   void ojph_aligned_free(void* pointer)
   {
     free(pointer);
+  }
+#elif (defined OJPH_POSIX_MEMALIGN_EXISTS)
+  void* ojph_aligned_malloc(size_t alignment, size_t size)
+  {
+    assert(alignment != 0 && (alignment & (alignment - 1)) == 0);
+    void *p = NULL;
+    int e = posix_memalign(&p, alignment, size);
+    return (e ? NULL : p);
+  }
+
+  void ojph_aligned_free(void* pointer)
+  {
+    free(pointer);
+  }
+#else
+  void* ojph_aligned_malloc(size_t alignment, size_t size)
+  {
+    assert(alignment != 0 && (alignment & (alignment - 1)) == 0);
+
+    // emulate aligned_alloc
+    void* orig_ptr = malloc(size + alignment + sizeof(void*));
+    if (orig_ptr == NULL)
+      return NULL; // Allocation failed
+
+    uintptr_t start_of_mem = (uintptr_t)orig_ptr + sizeof(void*);
+    uintptr_t aligned_addr = (start_of_mem + alignment - 1) & ~(alignment - 1);
+
+    void** ptr_to_orig_ptr = (void**)aligned_addr;
+    ptr_to_orig_ptr[-1] = orig_ptr;
+
+    return (void*)aligned_addr;
+  }
+
+  void ojph_aligned_free(void* pointer)
+  {
+    if (pointer) {
+      // Retrieve the original pointer stored just before aligned pointer
+      void** ptr_to_orig_ptr = (void**)pointer;
+      void* orig_ptr = ptr_to_orig_ptr[-1];
+
+      free(orig_ptr);
+    }
   }
 #endif
