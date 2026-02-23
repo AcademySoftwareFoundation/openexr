@@ -50,7 +50,7 @@ namespace ojph {
   ////////////////////////////////////////////////////////////////////////////
   message_info info;
   message_info* local_info = &info;
-  OJPH_MSG_LEVEL message_level = OJPH_MSG_LEVEL::ALL_MSG;
+  OJPH_MSG_LEVEL message_level = OJPH_MSG_ALL_MSG;
 
   ////////////////////////////////////////////////////////////////////////////
   void configure_info(message_info* info)
@@ -74,9 +74,9 @@ namespace ojph {
   void message_info::operator()(int info_code, const char* file_name,
     int line_num, const char* fmt, ...)
   {
-    if (info_stream == NULL || message_level > OJPH_MSG_LEVEL::INFO)
+    if (info_stream == NULL || message_level > OJPH_MSG_INFO)
       return;
-    
+
     fprintf(info_stream, "ojph info 0x%08X at %s:%d: ",
       info_code, file_name, line_num);
     va_list args;
@@ -115,7 +115,7 @@ namespace ojph {
   void message_warning::operator()(int warn_code, const char* file_name,
     int line_num, const char *fmt, ...)
   {
-    if (warning_stream == NULL || message_level > OJPH_MSG_LEVEL::WARN)
+    if (warning_stream == NULL || message_level > OJPH_MSG_WARN)
       return;
 
     fprintf(warning_stream, "ojph warning 0x%08X at %s:%d: ",
@@ -156,7 +156,7 @@ namespace ojph {
   void message_error::operator()(int error_code, const char* file_name,
     int line_num, const char *fmt, ...)
   {
-    if (error_stream != NULL && message_level <= OJPH_MSG_LEVEL::ERROR)
+    if (error_stream != NULL && message_level <= OJPH_MSG_ERROR)
     {
       fprintf(error_stream, "ojph error 0x%08X at %s:%d: ",
         error_code, file_name, line_num);
@@ -173,8 +173,8 @@ namespace ojph {
   ////////////////////////////////////////////////////////////////////////////
   void set_message_level(OJPH_MSG_LEVEL level)
   {
-    assert(level >= OJPH_MSG_LEVEL::ALL_MSG && 
-           level <= OJPH_MSG_LEVEL::NO_MSG);
+    assert(level >= OJPH_MSG_ALL_MSG &&
+           level <= OJPH_MSG_NO_MSG);
     message_level = level;
   }
 
