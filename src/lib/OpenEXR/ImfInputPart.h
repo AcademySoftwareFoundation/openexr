@@ -34,6 +34,7 @@ public:
     const FrameBuffer& frameBuffer () const;
     IMF_EXPORT
     bool isComplete () const;
+    OPENEXR_DEPRECATED ("No longer meaningful")
     IMF_EXPORT
     bool isOptimizationEnabled () const;
     IMF_EXPORT
