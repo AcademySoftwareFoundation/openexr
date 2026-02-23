@@ -9,9 +9,13 @@
 #endif
 
 #include "ImfCompression.h"
+#include "ImfCompressor.h"
+#include "ImfHeader.h"
+#include "openexr_compression.h"
 
 #include <cassert>
 #include <iostream>
+#include <memory>
 
 using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;
@@ -86,6 +90,57 @@ testCompressionApi (const string& tempDir)
         string codecs;
         getCompressionNamesString ("/", codecs);
         assert (codecs == codecList);
+
+        cout << "Testing Compressor instantiation" << endl;
+
+        struct CompressorTestCase
+        {
+            Compression         compression;
+            exr_compression_t   exrCompression;
+            int                 expectedScanlines;
+            bool                expectsCompressor;
+        };
+
+        CompressorTestCase testCases[] = {
+            {NO_COMPRESSION,     EXR_COMPRESSION_NONE,    1,   false},
+            {RLE_COMPRESSION,    EXR_COMPRESSION_RLE,     1,   true},
+            {ZIPS_COMPRESSION,   EXR_COMPRESSION_ZIPS,    1,   true},
+            {ZIP_COMPRESSION,    EXR_COMPRESSION_ZIP,     16,  true},
+            {PIZ_COMPRESSION,    EXR_COMPRESSION_PIZ,     32,  true},
+            {PXR24_COMPRESSION,  EXR_COMPRESSION_PXR24,   16,  true},
+            {B44_COMPRESSION,    EXR_COMPRESSION_B44,     32,  true},
+            {B44A_COMPRESSION,   EXR_COMPRESSION_B44A,    32,  true},
+            {DWAA_COMPRESSION,   EXR_COMPRESSION_LAST_TYPE,    32,  true},
+            {DWAB_COMPRESSION,   EXR_COMPRESSION_LAST_TYPE,   256, true},
+            {HTJ2K256_COMPRESSION, EXR_COMPRESSION_LAST_TYPE, 256, true},
+            {HTJ2K32_COMPRESSION,  EXR_COMPRESSION_LAST_TYPE,  32,  true},
+        };
+
+        const size_t maxScanLineSize = 1024;
+
+        for (const auto& tc : testCases)
+        {
+            Header hdr;
+            hdr.compression () = tc.compression;
+
+            std::unique_ptr<Compressor> comp (
+                newCompressor (tc.compression, maxScanLineSize, hdr));
+
+            if (tc.expectsCompressor)
+            {
+                assert (comp != nullptr);
+                assert (comp->numScanLines () == tc.expectedScanlines);
+                assert (comp->compressionType () == tc.exrCompression);
+                int coreScanlines = exr_compression_lines_per_chunk (exr_compression_t(tc.compression));
+                assert (coreScanlines == tc.expectedScanlines);
+            }
+            else
+            {
+                assert (comp == nullptr);
+            }
+        }
+
+        cout << "ok" << endl;
     }
     catch (const exception& e)
     {

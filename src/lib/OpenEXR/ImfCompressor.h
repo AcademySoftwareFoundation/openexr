@@ -61,6 +61,12 @@ public:
     IMF_EXPORT
     virtual int numScanLines () const;
 
+    //----------------------------------------------
+    // Return the compression type used by this compressor.
+    //----------------------------------------------
+
+    exr_compression_t compressionType () const { return _comp_type; }
+
     //--------------------------------------------
     // Format of the pixel data read and written
     // by the compress() and uncompress() methods.
