@@ -118,7 +118,9 @@ namespace ojph {
       num_tiles.h = sz.get_image_extent().y - sz.get_tile_offset().y;
       num_tiles.h = ojph_div_ceil(num_tiles.h, sz.get_tile_size().h);
       if (num_tiles.area() > 65535)
-        OJPH_ERROR(0x00030011, "number of tiles cannot exceed 65535");
+        OJPH_ERROR(0x00030011, "the number of tiles cannot exceed 65535");
+      if (num_tiles.area() == 0)
+        OJPH_ERROR(0x00030012, "the number of tiles cannot be 0");
 
       //allocate tiles
       allocator->pre_alloc_obj<tile>((size_t)num_tiles.area());
@@ -716,17 +718,17 @@ namespace ojph {
       }
       com_len = swap_byte(com_len);
       file->seek(com_len - 2, infile_base::OJPH_SEEK_CUR);
-      if (msg != NULL && msg_level != OJPH_MSG_LEVEL::NO_MSG)
+      if (msg != NULL && msg_level != OJPH_MSG_NO_MSG)
       {
-        if (msg_level == OJPH_MSG_LEVEL::INFO)
+        if (msg_level == OJPH_MSG_INFO)
         {
           OJPH_INFO(0x00030001, "%s", msg);
         }
-        else if (msg_level == OJPH_MSG_LEVEL::WARN)
+        else if (msg_level == OJPH_MSG_WARN)
         {
           OJPH_WARN(0x00030001, "%s", msg);
         }
-        else if (msg_level == OJPH_MSG_LEVEL::ERROR)
+        else if (msg_level == OJPH_MSG_ERROR)
         {
           OJPH_ERROR(0x00030001, "%s", msg);
         }
@@ -753,10 +755,10 @@ namespace ojph {
           cap.read(file);
         else if (marker_idx == 1)
           //Skipping PRF marker segment; this should not cause any issues
-          skip_marker(file, "PRF", NULL, OJPH_MSG_LEVEL::NO_MSG, false);
+          skip_marker(file, "PRF", NULL, OJPH_MSG_NO_MSG, false);
         else if (marker_idx == 2)
           //Skipping CPF marker segment; this should not cause any issues
-          skip_marker(file, "CPF", NULL, OJPH_MSG_LEVEL::NO_MSG, false);
+          skip_marker(file, "CPF", NULL, OJPH_MSG_NO_MSG, false);
         else if (marker_idx == 3)
         {
           cod.read(file);
@@ -803,19 +805,19 @@ namespace ojph {
         }
         else if (marker_idx == 7)
           skip_marker(file, "RGN", "RGN is not supported yet",
-            OJPH_MSG_LEVEL::WARN, false);
+            OJPH_MSG_WARN, false);
         else if (marker_idx == 8)
           skip_marker(file, "POC", "POC is not supported yet",
-            OJPH_MSG_LEVEL::WARN, false);
+            OJPH_MSG_WARN, false);
         else if (marker_idx == 9)
           skip_marker(file, "PPM", "PPM is not supported yet",
-            OJPH_MSG_LEVEL::WARN, false);
+            OJPH_MSG_WARN, false);
         else if (marker_idx == 10)
           //Skipping TLM marker segment; this should not cause any issues
-          skip_marker(file, "TLM", NULL, OJPH_MSG_LEVEL::NO_MSG, false);
+          skip_marker(file, "TLM", NULL, OJPH_MSG_NO_MSG, false);
         else if (marker_idx == 11)
           //Skipping PLM marker segment; this should not cause any issues
-          skip_marker(file, "PLM", NULL, OJPH_MSG_LEVEL::NO_MSG, false);
+          skip_marker(file, "PLM", NULL, OJPH_MSG_NO_MSG, false);
         else if (marker_idx == 12)
           //Skipping CRG marker segment;
           skip_marker(file, "CRG", "CRG has been ignored; CRG is related to"
@@ -823,9 +825,9 @@ namespace ojph {
             " with respect to the Y' luma component. Perhaps, it is better"
             " to get the individual components and assemble the samples"
             " according to your needs",
-            OJPH_MSG_LEVEL::INFO, false);
+            OJPH_MSG_INFO, false);
         else if (marker_idx == 13)
-          skip_marker(file, "COM", NULL, OJPH_MSG_LEVEL::NO_MSG, false);
+          skip_marker(file, "COM", NULL, OJPH_MSG_NO_MSG, false);
         else if (marker_idx == 14)
           dfs.read(file);
         else if (marker_idx == 15)
@@ -891,175 +893,181 @@ namespace ojph {
         if (sot.read(infile, resilient))
         {
           ui64 tile_start_location = (ui64)infile->tell();
+          bool skip_tile = false;
 
-          if (sot.get_tile_index() > (int)num_tiles.area())
+          if (sot.get_tile_index() >= (int)num_tiles.area())
           {
-            if (resilient)
+            if (resilient) {
               OJPH_INFO(0x00030061, "wrong tile index")
+              skip_tile = true; // skip the faulty tile
+            }
             else
               OJPH_ERROR(0x00030061, "wrong tile index")
           }
 
-          if (sot.get_tile_part_index())
-          { //tile part
-            if (sot.get_num_tile_parts() &&
-              sot.get_tile_part_index() >= sot.get_num_tile_parts())
-            {
-              if (resilient)
-                OJPH_INFO(0x00030062,
-                  "error in tile part number, should be smaller than total"
-                  " number of tile parts")
-              else
-                OJPH_ERROR(0x00030062,
-                  "error in tile part number, should be smaller than total"
-                  " number of tile parts")
-            }
-
-            bool sod_found = false;
-            ui16 other_tile_part_markers[7] = { SOT, POC, PPT, PLT, COM,
-              NLT, SOD };
-            while (true)
-            {
-              int marker_idx = 0;
-              int result = 0;
-              marker_idx = find_marker(infile, other_tile_part_markers + 1, 6);
-              if (marker_idx == 0)
-                result = skip_marker(infile, "POC",
-                  "POC marker segment in a tile is not supported yet",
-                  OJPH_MSG_LEVEL::WARN, resilient);
-              else if (marker_idx == 1)
-                result = skip_marker(infile, "PPT",
-                  "PPT marker segment in a tile is not supported yet",
-                  OJPH_MSG_LEVEL::WARN, resilient);
-              else if (marker_idx == 2)
-                //Skipping PLT marker segment;this should not cause any issues
-                result = skip_marker(infile, "PLT", NULL,
-                  OJPH_MSG_LEVEL::NO_MSG, resilient);
-              else if (marker_idx == 3)
-                result = skip_marker(infile, "COM", NULL,
-                  OJPH_MSG_LEVEL::NO_MSG, resilient);
-              else if (marker_idx == 4)
-                result = skip_marker(infile, "NLT",
-                  "NLT marker in tile is not supported yet",
-                  OJPH_MSG_LEVEL::WARN, resilient);
-              else if (marker_idx == 5)
+          if (!skip_tile)
+          {
+            if (sot.get_tile_part_index())
+            { //tile part
+              if (sot.get_num_tile_parts() &&
+                sot.get_tile_part_index() >= sot.get_num_tile_parts())
               {
-                sod_found = true;
-                break;
+                if (resilient)
+                  OJPH_INFO(0x00030062,
+                    "error in tile part number, should be smaller than total"
+                    " number of tile parts")
+                else
+                  OJPH_ERROR(0x00030062,
+                    "error in tile part number, should be smaller than total"
+                    " number of tile parts")
               }
 
-              if (marker_idx == -1) //marker not found
+              bool sod_found = false;
+              ui16 other_tile_part_markers[7] = { SOT, POC, PPT, PLT, COM,
+                NLT, SOD };
+              while (true)
               {
-                if (resilient)
-                  OJPH_INFO(0x00030063,
-                    "File terminated early before start of data is found"
-                    " for tile indexed %d and tile part %d",
-                    sot.get_tile_index(), sot.get_tile_part_index())
-                else
-                  OJPH_ERROR(0x00030063,
-                    "File terminated early before start of data is found"
-                    " for tile indexed %d and tile part %d",
-                    sot.get_tile_index(), sot.get_tile_part_index())
-                break;
-              }
-              if (result == -1) //file terminated during marker seg. skipping
-              {
-                if (resilient)
-                  OJPH_INFO(0x00030064,
-                    "File terminated during marker segment skipping")
-                else
-                  OJPH_ERROR(0x00030064,
-                    "File terminated during marker segment skipping")
-                break;
-              }
-            }
-            if (sod_found)
-              tiles[sot.get_tile_index()].parse_tile_header(sot, infile,
-                tile_start_location);
-          }
-          else
-          { //first tile part
-            bool sod_found = false;
-            ui16 first_tile_part_markers[12] = { SOT, COD, COC, QCD, QCC, RGN,
-              POC, PPT, PLT, COM, NLT, SOD };
-            while (true)
-            {
-              int marker_idx = 0;
-              int result = 0;
-              marker_idx = find_marker(infile, first_tile_part_markers+1, 11);
-              if (marker_idx == 0)
-                result = skip_marker(infile, "COD",
-                  "COD marker segment in a tile is not supported yet",
-                  OJPH_MSG_LEVEL::WARN, resilient);
-              else if (marker_idx == 1)
-                result = skip_marker(infile, "COC",
-                  "COC marker segment in a tile is not supported yet",
-                  OJPH_MSG_LEVEL::WARN, resilient);
-              else if (marker_idx == 2)
-                result = skip_marker(infile, "QCD",
-                  "QCD marker segment in a tile is not supported yet",
-                  OJPH_MSG_LEVEL::WARN, resilient);
-              else if (marker_idx == 3)
-                result = skip_marker(infile, "QCC",
-                  "QCC marker segment in a tile is not supported yet",
-                  OJPH_MSG_LEVEL::WARN, resilient);
-              else if (marker_idx == 4)
-                result = skip_marker(infile, "RGN",
-                  "RGN marker segment in a tile is not supported yet",
-                  OJPH_MSG_LEVEL::WARN, resilient);
-              else if (marker_idx == 5)
-                result = skip_marker(infile, "POC",
-                  "POC marker segment in a tile is not supported yet",
-                  OJPH_MSG_LEVEL::WARN, resilient);
-              else if (marker_idx == 6)
-                result = skip_marker(infile, "PPT",
-                  "PPT marker segment in a tile is not supported yet",
-                  OJPH_MSG_LEVEL::WARN, resilient);
-              else if (marker_idx == 7)
-                //Skipping PLT marker segment;this should not cause any issues
-                result = skip_marker(infile, "PLT", NULL,
-                  OJPH_MSG_LEVEL::NO_MSG, resilient);
-              else if (marker_idx == 8)
-                result = skip_marker(infile, "COM", NULL,
-                  OJPH_MSG_LEVEL::NO_MSG, resilient);
-              else if (marker_idx == 9)
-                result = skip_marker(infile, "NLT",
-                  "PPT marker segment in a tile is not supported yet",
-                  OJPH_MSG_LEVEL::WARN, resilient);
-              else if (marker_idx == 10)
-              {
-                sod_found = true;
-                break;
-              }
+                int marker_idx = 0;
+                int result = 0;
+                marker_idx = find_marker(infile, other_tile_part_markers+1, 6);
+                if (marker_idx == 0)
+                  result = skip_marker(infile, "POC",
+                    "POC marker segment in a tile is not supported yet",
+                    OJPH_MSG_WARN, resilient);
+                else if (marker_idx == 1)
+                  result = skip_marker(infile, "PPT",
+                    "PPT marker segment in a tile is not supported yet",
+                    OJPH_MSG_WARN, resilient);
+                else if (marker_idx == 2)
+                  //Skipping PLT marker segment;this should not cause any issues
+                  result = skip_marker(infile, "PLT", NULL,
+                    OJPH_MSG_NO_MSG, resilient);
+                else if (marker_idx == 3)
+                  result = skip_marker(infile, "COM", NULL,
+                    OJPH_MSG_NO_MSG, resilient);
+                else if (marker_idx == 4)
+                  result = skip_marker(infile, "NLT",
+                    "NLT marker in tile is not supported yet",
+                    OJPH_MSG_WARN, resilient);
+                else if (marker_idx == 5)
+                {
+                  sod_found = true;
+                  break;
+                }
 
-              if (marker_idx == -1) //marker not found
-              {
-                if (resilient)
-                  OJPH_INFO(0x00030065,
-                    "File terminated early before start of data is found"
-                    " for tile indexed %d and tile part %d",
-                    sot.get_tile_index(), sot.get_tile_part_index())
-                else
-                  OJPH_ERROR(0x00030065,
-                    "File terminated early before start of data is found"
-                    " for tile indexed %d and tile part %d",
-                    sot.get_tile_index(), sot.get_tile_part_index())
-                break;
+                if (marker_idx == -1) //marker not found
+                {
+                  if (resilient)
+                    OJPH_INFO(0x00030063,
+                      "File terminated early before start of data is found"
+                      " for tile indexed %d and tile part %d",
+                      sot.get_tile_index(), sot.get_tile_part_index())
+                  else
+                    OJPH_ERROR(0x00030063,
+                      "File terminated early before start of data is found"
+                      " for tile indexed %d and tile part %d",
+                      sot.get_tile_index(), sot.get_tile_part_index())
+                  break;
+                }
+                if (result == -1) //file terminated during marker seg. skipping
+                {
+                  if (resilient)
+                    OJPH_INFO(0x00030064,
+                      "File terminated during marker segment skipping")
+                  else
+                    OJPH_ERROR(0x00030064,
+                      "File terminated during marker segment skipping")
+                  break;
+                }
               }
-              if (result == -1) //file terminated during marker seg. skipping
-              {
-                if (resilient)
-                  OJPH_INFO(0x00030066,
-                    "File terminated during marker segment skipping")
-                else
-                  OJPH_ERROR(0x00030066,
-                    "File terminated during marker segment skipping")
-                break;
-              }
+              if (sod_found)
+                tiles[sot.get_tile_index()].parse_tile_header(sot, infile,
+                  tile_start_location);
             }
-            if (sod_found)
-              tiles[sot.get_tile_index()].parse_tile_header(sot, infile,
-                tile_start_location);
+            else
+            { //first tile part
+              bool sod_found = false;
+              ui16 first_tile_part_markers[12] = { SOT, COD, COC, QCD, QCC, RGN,
+                POC, PPT, PLT, COM, NLT, SOD };
+              while (true)
+              {
+                int marker_idx = 0;
+                int result = 0;
+                marker_idx = find_marker(infile, first_tile_part_markers+1, 11);
+                if (marker_idx == 0)
+                  result = skip_marker(infile, "COD",
+                    "COD marker segment in a tile is not supported yet",
+                    OJPH_MSG_WARN, resilient);
+                else if (marker_idx == 1)
+                  result = skip_marker(infile, "COC",
+                    "COC marker segment in a tile is not supported yet",
+                    OJPH_MSG_WARN, resilient);
+                else if (marker_idx == 2)
+                  result = skip_marker(infile, "QCD",
+                    "QCD marker segment in a tile is not supported yet",
+                    OJPH_MSG_WARN, resilient);
+                else if (marker_idx == 3)
+                  result = skip_marker(infile, "QCC",
+                    "QCC marker segment in a tile is not supported yet",
+                    OJPH_MSG_WARN, resilient);
+                else if (marker_idx == 4)
+                  result = skip_marker(infile, "RGN",
+                    "RGN marker segment in a tile is not supported yet",
+                    OJPH_MSG_WARN, resilient);
+                else if (marker_idx == 5)
+                  result = skip_marker(infile, "POC",
+                    "POC marker segment in a tile is not supported yet",
+                    OJPH_MSG_WARN, resilient);
+                else if (marker_idx == 6)
+                  result = skip_marker(infile, "PPT",
+                    "PPT marker segment in a tile is not supported yet",
+                    OJPH_MSG_WARN, resilient);
+                else if (marker_idx == 7)
+                  //Skipping PLT marker segment;this should not cause any issues
+                  result = skip_marker(infile, "PLT", NULL,
+                    OJPH_MSG_NO_MSG, resilient);
+                else if (marker_idx == 8)
+                  result = skip_marker(infile, "COM", NULL,
+                    OJPH_MSG_NO_MSG, resilient);
+                else if (marker_idx == 9)
+                  result = skip_marker(infile, "NLT",
+                    "PPT marker segment in a tile is not supported yet",
+                    OJPH_MSG_WARN, resilient);
+                else if (marker_idx == 10)
+                {
+                  sod_found = true;
+                  break;
+                }
+
+                if (marker_idx == -1) //marker not found
+                {
+                  if (resilient)
+                    OJPH_INFO(0x00030065,
+                      "File terminated early before start of data is found"
+                      " for tile indexed %d and tile part %d",
+                      sot.get_tile_index(), sot.get_tile_part_index())
+                  else
+                    OJPH_ERROR(0x00030065,
+                      "File terminated early before start of data is found"
+                      " for tile indexed %d and tile part %d",
+                      sot.get_tile_index(), sot.get_tile_part_index())
+                  break;
+                }
+                if (result == -1) //file terminated during marker seg. skipping
+                {
+                  if (resilient)
+                    OJPH_INFO(0x00030066,
+                      "File terminated during marker segment skipping")
+                  else
+                    OJPH_ERROR(0x00030066,
+                      "File terminated during marker segment skipping")
+                  break;
+                }
+              }
+              if (sod_found)
+                tiles[sot.get_tile_index()].parse_tile_header(sot, infile,
+                  tile_start_location);
+            }
           }
         }
 
