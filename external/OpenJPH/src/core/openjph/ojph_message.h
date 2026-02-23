@@ -36,7 +36,7 @@
 //***************************************************************************/
 
 #ifndef OJPH_MESSAGE_H
-#define OJPH_MESSAGE_H 
+#define OJPH_MESSAGE_H
 
 #include <cstring>
 #include "ojph_arch.h"
@@ -45,38 +45,39 @@ namespace ojph {
 
   //////////////////////////////////////////////////////////////////////////////
   /**
-   * @brief This enum is use to specify the level of severity of message while 
+   * @brief This enum is use to specify the level of severity of message while
    *        processing markers
-   * 
+   *
    */
   enum OJPH_MSG_LEVEL : int
   {
-    ALL_MSG = 0,  // uninitialized or print all message
-    INFO = 1,     // info message
-    WARN = 2,     // warning message
-    ERROR = 3,    // error message (the highest severity)
-    NO_MSG = 4,   // no message (higher severity for message printing only)
+    OJPH_MSG_ALL_MSG = 0,  // uninitialized or print all message
+    OJPH_MSG_INFO = 1,     // info message
+    OJPH_MSG_WARN = 2,     // warning message
+    OJPH_MSG_ERROR = 3,    // error message (the highest severity)
+    OJPH_MSG_NO_MSG = 4,   // no message (higher severity for message printing
+                           // only)
   };
 
   //////////////////////////////////////////////////////////////////////////////
   /**
    *  @remark
-   *   There are 3 levels of messaging; they are in order of level of 
-   *   severity: INFO, WARNING, and ERROR.  ERROR is the most severe and 
+   *   There are 3 levels of messaging; they are in order of level of
+   *   severity: INFO, WARNING, and ERROR.  ERROR is the most severe and
    *   code execution must be terminated.
-   * 
-   *  @remark  
-   *   The library provides two way to customize the reporting associated with 
+   *
+   *  @remark
+   *   The library provides two way to customize the reporting associated with
    *   each messaging level:
-   *   1. Calling set_XXXX_stream; this sets the library's output file stream 
-   *      to a user defined stream, such as std_err or a log file; it can 
+   *   1. Calling set_XXXX_stream; this sets the library's output file stream
+   *      to a user defined stream, such as std_err or a log file; it can
    *      also be set to NULL to prevent reporting.
-   *   2. Calling configure_XXXX to pass a pointer to an object from a class 
-   *      derived from the corresponding message_XXXX class. The derived 
-   *      class must override the virtual operator() to perform the desired 
-   *      behaviour.  Remember for message_error, the user must throw an 
+   *   2. Calling configure_XXXX to pass a pointer to an object from a class
+   *      derived from the corresponding message_XXXX class. The derived
+   *      class must override the virtual operator() to perform the desired
+   *      behaviour.  Remember for message_error, the user must throw an
    *      exception at the end of the implementation of operator().
-   * 
+   *
    *   The customization is global, and cannot be separately tailored for
    *   each decoder's instantiation.
    */
@@ -84,16 +85,16 @@ namespace ojph {
   //////////////////////////////////////////////////////////////////////////////
   /**
    * @brief This is the base class from which all messaging levels are derived
-   * 
+   *
    *  Importantly it defined the base virtual operator() that must be defined
    *  in all derived classes.
    */
   class OJPH_EXPORT message_base {
   public:
     /**
-     * @brief Prints a message and for errors throws an exception. 
+     * @brief Prints a message and for errors throws an exception.
      *        All derived classes must override this virtual function.
-     * 
+     *
      * @param warn_code Message code (integer) for identifications.
      * @param file_name The file name where the message originates.
      * @param line_num  The line number where the message originates.
@@ -113,7 +114,7 @@ namespace ojph {
   {
     public:
       /**
-       * @brief See the base message_base::operator() for details about 
+       * @brief See the base message_base::operator() for details about
        *        parameters
        */
       virtual void operator() (int info_code, const char* file_name,
@@ -122,9 +123,9 @@ namespace ojph {
 
   //////////////////////////////////////////////////////////////////////////////
   /**
-   * @brief Replaces the info output file from the default stdout to user 
+   * @brief Replaces the info output file from the default stdout to user
    *        defined output file.
-   * 
+   *
    * @param s A pointer to the desired output file; it can be stdout, stderr,
    *          a log file, or NULL if no info messages are desired.
    */
@@ -134,7 +135,7 @@ namespace ojph {
   //////////////////////////////////////////////////////////////////////////////
   /**
    * @brief This overrides the default behaviour of handling info messages.
-   * 
+   *
    * @param info An object derived from message_info to implement the desired
    *             behaviour.
    */
@@ -143,11 +144,11 @@ namespace ojph {
 
   //////////////////////////////////////////////////////////////////////////////
   /**
-   * @brief Get the info message object, whose operator() member class is 
+   * @brief Get the info message object, whose operator() member class is
    *        called for info messages -- See the macros below.
-   * 
-   * @return message_info* returns the active message_info object, or an object 
-   *         of the message_info-derived class if one was set.  This object 
+   *
+   * @return message_info* returns the active message_info object, or an object
+   *         of the message_info-derived class if one was set.  This object
    *         handles info messages.  This is mainly to be used with the macros
    *         below.
    */
@@ -162,7 +163,7 @@ namespace ojph {
   {
     public:
       /**
-       * @brief See the base message_base::operator() for details about 
+       * @brief See the base message_base::operator() for details about
        *        parameters
        */
       virtual void operator() (int warn_code, const char* file_name,
@@ -171,9 +172,9 @@ namespace ojph {
 
   //////////////////////////////////////////////////////////////////////////////
   /**
-   * @brief Replaces the warning output file from the default stdout to user 
+   * @brief Replaces the warning output file from the default stdout to user
    *        defined output file.
-   * 
+   *
    * @param s A pointer to the desired output file; it can be stdout, stderr,
    *          a log file, or NULL if no warning messages are desired.
    */
@@ -183,8 +184,8 @@ namespace ojph {
   //////////////////////////////////////////////////////////////////////////////
   /**
    * @brief This overrides the default behaviour of handling warning messages.
-   * 
-   * @param warn An object derived from message_warning to implement the 
+   *
+   * @param warn An object derived from message_warning to implement the
    *             desired behaviour.
    */
   OJPH_EXPORT
@@ -192,12 +193,12 @@ namespace ojph {
 
   //////////////////////////////////////////////////////////////////////////////
   /**
-   * @brief Get the warning message object, whose operator() member class is 
+   * @brief Get the warning message object, whose operator() member class is
    *        called for warning messages -- See the macros below.
-   * 
+   *
    * @return message_warning* returns the active message_warning object, or an
-   *         object of the message_warning-derived class if one was set.  This 
-   *         object handles warning messages.  This is mainly to be used with 
+   *         object of the message_warning-derived class if one was set.  This
+   *         object handles warning messages.  This is mainly to be used with
    *         the macros below.
    */
   OJPH_EXPORT
@@ -211,7 +212,7 @@ namespace ojph {
   {
     public:
       /**
-       * @brief See the base message_base::operator() for details about 
+       * @brief See the base message_base::operator() for details about
        *        parameters
        */
       virtual void operator() (int warn_code, const char* file_name,
@@ -220,34 +221,34 @@ namespace ojph {
 
   //////////////////////////////////////////////////////////////////////////////
   /**
-   * @brief Replaces the error output file from the default stderr to user 
+   * @brief Replaces the error output file from the default stderr to user
    *        defined output file.
-   * 
+   *
    * @param s A pointer to the desired output file; it can be stdout, stderr,
    *          a log file, or NULL if no error messages are desired.
    */
   OJPH_EXPORT
     void set_error_stream(FILE *s);
-  
+
   //////////////////////////////////////////////////////////////////////////////
   /**
    * @brief This overrides the default behaviour of handling error messages.
-   * 
-   * @param error An object derived from message_error to implement the 
+   *
+   * @param error An object derived from message_error to implement the
    *              desired behaviour.  Remember, remember to throw an exception
    *              at the end.
    */
   OJPH_EXPORT
     void configure_error(message_error* error);
-  
+
   //////////////////////////////////////////////////////////////////////////////
   /**
-   * @brief Get the error message object, whose operator() member class is 
+   * @brief Get the error message object, whose operator() member class is
    *        called for error messages -- See the macros below.
-   * 
+   *
    * @return message_error* returns the active message_error object, or an
-   *         object of the message_error-derived class if one was set.  This 
-   *         object handles error messages.  This is mainly to be used with 
+   *         object of the message_error-derived class if one was set.  This
+   *         object handles error messages.  This is mainly to be used with
    *         the macros below.
    */
   OJPH_EXPORT
