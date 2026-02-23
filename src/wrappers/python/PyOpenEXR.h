@@ -220,7 +220,6 @@ PyPreviewImage::operator==(const PyPreviewImage& other) const
     return true;
 }
 
-
 inline std::ostream&
 operator<< (std::ostream& s, const Chromaticities& c)
 {
