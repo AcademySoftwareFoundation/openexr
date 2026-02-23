@@ -26,6 +26,9 @@ public:
     TiledOutputPart (MultiPartOutputFile& multiPartFile, int partNumber);
 
     IMF_EXPORT
+    void deleteFile (MultiPartOutputFile& multiPartFile, int partNumber);
+
+    IMF_EXPORT
     const char* fileName () const;
     IMF_EXPORT
     const Header& header () const;

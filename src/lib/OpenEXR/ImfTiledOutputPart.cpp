@@ -16,6 +16,11 @@ TiledOutputPart::TiledOutputPart (
     file = multiPartFile.getOutputPart<TiledOutputFile> (partNumber);
 }
 
+void TiledOutputPart::deleteFile (MultiPartOutputFile& multiPartFile, int partNumber)
+{
+    multiPartFile.deleteOutputPart<TiledOutputFile> (partNumber);
+}
+
 const char*
 TiledOutputPart::fileName () const
 {

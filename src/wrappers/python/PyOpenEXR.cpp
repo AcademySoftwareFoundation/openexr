@@ -17,6 +17,8 @@
 
 #include "openexr.h"
 
+#include <Iex.h>
+
 #include <ImfHeader.h>
 #include <ImfMultiPartInputFile.h>
 #include <ImfMultiPartOutputFile.h>
@@ -151,13 +153,29 @@ PyFile::PyFile(const py::dict& header, const py::dict& channels)
 // e.g. "left.R", "left.G", etc, the channel key is the prefix.
 //
 
-PyFile::PyFile(const std::string& filename, bool separate_channels, bool header_only)
+PyFile::PyFile(const std::string& filename, bool separate_channels, bool header_only, const py::list& part_indices)
     : filename(filename),
       _header_only(header_only),
       _inputFile(std::make_unique<MultiPartInputFile>(filename.c_str()))
 {
 
-    for (int part_index = 0; part_index < _inputFile->parts(); part_index++)
+    std::vector<int> indices_to_process;
+    if (part_indices.empty()) {
+        // If no specific parts requested, process all parts
+        for (int i = 0; i < _inputFile->parts(); i++) {
+            indices_to_process.push_back(i);
+        }
+    } else {
+        // Otherwise, process only the requested parts
+        for (auto idx : part_indices) {
+            int part_idx = py::cast<int>(idx);
+            if (part_idx >= 0 && part_idx < _inputFile->parts()) {
+                indices_to_process.push_back(part_idx);
+            }
+        }
+    }
+    
+    for (int part_index : indices_to_process)
     {
         const Header& header = _inputFile->header(part_index);
 
@@ -210,17 +228,29 @@ PyFile::PyFile(const std::string& filename, bool separate_channels, bool header_
             //
         
             auto type = header.type();
-            if (type == SCANLINEIMAGE || type == TILEDIMAGE)
+            try
             {
-                P.readPixels(*_inputFile, header.channels(), shape, rgbaChannels, dw, separate_channels);
+                if (type == SCANLINEIMAGE || type == TILEDIMAGE)
+                {
+                    P.readPixels(*_inputFile, header.channels(), shape, rgbaChannels, dw, separate_channels);
+                }
+                else if (type == DEEPSCANLINE || type == DEEPTILE)
+                {
+                    P.readDeepPixels(*_inputFile, type, header.channels(), shape, rgbaChannels, dw, separate_channels);
+                }
+                parts.append(py::cast<PyPart>(PyPart(P)));
             }
-            else if (type == DEEPSCANLINE || type == DEEPTILE)
+            catch (const std::exception& e)
             {
-                P.readDeepPixels(*_inputFile, type, header.channels(), shape, rgbaChannels, dw, separate_channels);
+                // Log the error and skip appending this part
+                py::print("Warning: Exception raised reading pixel data for part", part_index, "-", e.what());
             }
         }
-        
-        parts.append(py::cast<PyPart>(PyPart(P)));
+        else
+        {
+            // If only reading the header, always append this part
+            parts.append(py::cast<PyPart>(PyPart(P)));
+        }
     } // for parts
 }
 
@@ -687,12 +717,14 @@ PyPart::writePixels(MultiPartOutputFile& outfile, const Box2i& dw) const
         OutputPart part(outfile, part_index);
         part.setFrameBuffer (frameBuffer);
         part.writePixels (height());
+        part.deleteFile(outfile, part_index);
     }
     else
     {
         TiledOutputPart part(outfile, part_index);
         part.setFrameBuffer (frameBuffer);
         part.writeTiles (0, part.numXTiles() - 1, 0, part.numYTiles() - 1);
+        part.deleteFile(outfile, part_index);
     }
 }
 
@@ -1027,10 +1059,31 @@ PyFile::channels(int part_index)
 // Write the PyFile to the given filename
 //
 
+void PyFile::close() {
+    // No matter whether a partial write has finished, always close the file
+    _outputFile = nullptr;
+}
+
 void
-PyFile::write(const char* outfilename)
+PyFile::write(const char* outfilename, bool header_only, const py::list& part_indices)
 {
     std::vector<Header> headers;
+
+    if (!part_indices.empty()) {
+        if (outfilename == nullptr) {
+            THROW(
+                IEX_NAMESPACE::ArgExc,
+                "Invalid use of PyFile::write: No file created yet. "
+                "You must first create a file by calling write() with empty part_indices and header_only=true, "
+                "e.g. file.write(filename, header_only=True), before writing specific parts.");
+        }
+        // Load header from the output file using number of parts
+        for (size_t part_index = 0; part_index < parts.size(); part_index++)
+        {
+            headers.push_back(_outputFile->header(part_index));
+        }
+        goto write_parts;
+    }
 
     for (size_t part_index = 0; part_index < parts.size(); part_index++)
     {
@@ -1166,8 +1219,15 @@ PyFile::write(const char* outfilename)
         headers.push_back (header);
     }
     
-    MultiPartOutputFile outfile(outfilename, headers.data(), headers.size());
+    // MultiPartOutputFile outfile(outfilename, headers.data(), headers.size());
+    _outputFile = std::make_unique<MultiPartOutputFile>(outfilename, headers.data(), headers.size());
 
+    if (header_only) {
+        // py::print("OpenEXR: Only wrote header for output file:", outfilename);
+        return; // early stop for only writing the header
+    }
+
+write_parts:
     if (_header_only && _inputFile)
     {
         int numParts = _inputFile->parts();
@@ -1180,25 +1240,25 @@ PyFile::write(const char* outfilename)
             if (type == SCANLINEIMAGE)
             {
                 InputPart  inPart (*_inputFile, p);
-                OutputPart outPart (outfile, p);
+                OutputPart outPart (*_outputFile, p);
                 outPart.copyPixels (inPart);
             }
             else if (type == TILEDIMAGE)
             {
                 TiledInputPart  inPart (*_inputFile, p);
-                TiledOutputPart outPart (outfile, p);
+                TiledOutputPart outPart (*_outputFile, p);
                 outPart.copyPixels (inPart);
             }
             else if (type == DEEPSCANLINE)
             {
                 DeepScanLineInputPart  inPart (*_inputFile, p);
-                DeepScanLineOutputPart outPart (outfile, p);
+                DeepScanLineOutputPart outPart (*_outputFile, p);
                 outPart.copyPixels (inPart);
             }
             else if (type == DEEPTILE)
             {
                 DeepTiledInputPart  inPart (*_inputFile, p);
-                DeepTiledOutputPart outPart (outfile, p);
+                DeepTiledOutputPart outPart (*_outputFile, p);
                 outPart.copyPixels (inPart);
             }
         }
@@ -1209,7 +1269,20 @@ PyFile::write(const char* outfilename)
         // Write the channel data: add slices to the framebuffer and write.
         //
     
-        for (size_t part_index = 0; part_index < parts.size(); part_index++)
+        std::vector<int> indices_to_process;
+        if (part_indices.empty()) {
+            // If no specific parts requested, process all parts
+            for (int i = 0; i < parts.size(); i++) {
+                indices_to_process.push_back(i);
+            }
+        } else {
+            // Otherwise, process only the requested parts
+            for (auto idx : part_indices) {
+                int part_idx = py::cast<int>(idx);
+                indices_to_process.push_back(part_idx);
+            }
+        }
+        for (auto part_index : indices_to_process)
         {
             const PyPart& P = parts[part_index].cast<const PyPart&>();
 
@@ -1219,12 +1292,12 @@ PyFile::write(const char* outfilename)
             if (P.type() == EXR_STORAGE_SCANLINE ||
                 P.type() == EXR_STORAGE_TILED)
             {
-                P.writePixels(outfile, dw);
+                P.writePixels(*_outputFile, dw);
             }
             else if (P.type() == EXR_STORAGE_DEEP_SCANLINE ||
                      P.type() == EXR_STORAGE_DEEP_TILED)
             {
-                P.writeDeepPixels(outfile, dw);
+                P.writeDeepPixels(*_outputFile, dw);
             }
             else
                 throw std::runtime_error("invalid type");
@@ -2112,10 +2185,10 @@ PyPart::PyPart(const py::dict& header, const py::dict& channels, const std::stri
             throw std::invalid_argument("Channel value must be a Channel() object or a numpy pixel array");
     }
 
-    auto s = shape();
-
+    // Only compute size from channel pixels if these entries don't exist in the header
     if (!header.contains("dataWindow"))
     {
+        auto s = shape();
         auto min = make_v2<int>(V2i(0, 0));
         auto max = make_v2<int>(V2i(s[1]-1,s[0]-1));
         header["dataWindow"] =  py::make_tuple(min, max);
@@ -2123,6 +2196,7 @@ PyPart::PyPart(const py::dict& header, const py::dict& channels, const std::stri
 
     if (!header.contains("displayWindow"))
     {
+        auto s = shape();
         auto min = make_v2<int>(V2i(0, 0));
         auto max = make_v2<int>(V2i(s[1]-1,s[0]-1));
         header["displayWindow"] = py::make_tuple(min, max);
@@ -2793,10 +2867,11 @@ PYBIND11_MODULE(OpenEXR, m)
          >>> f.write("out.exr")
     )pbdoc")
         .def(py::init<>())
-        .def(py::init<std::string,bool,bool>(),
+        .def(py::init<std::string,bool,bool,py::list>(),
              py::arg("filename"),
              py::arg("separate_channels")=false,
              py::arg("header_only")=false,
+             py::arg("part_indices")=py::list(),
              R"pbdoc(
              Initialize a File by reading the image from the given filename.
 
@@ -2809,10 +2884,14 @@ PYBIND11_MODULE(OpenEXR, m)
                  if False (default), read pixel data into a single "RGB" or "RGBA" numpy array of dimension (height,width,3) or (height,width,4);
              header_only : bool
                  If True, read only the header metadata, not the image pixel data.
+             part_indices : list
+                 List of part indices to read. If empty, all parts are read.
 
              Example
              -------  
              >>> f = OpenEXR.File("image.exr", separate_channels=False, header_only=False)
+             >>> # Read only parts 0 and 2
+             >>> f = OpenEXR.File("multipart.exr", part_indices=[0, 2])
              )pbdoc")
         .def(py::init<py::dict,py::dict>(),
              py::arg("header"),
@@ -2909,6 +2988,9 @@ PYBIND11_MODULE(OpenEXR, m)
              {'A': Channel("A", xSampling=1, ySampling=1), 'B': Channel("B", xSampling=1, ySampling=1), 'G': Channel("G", xSampling=1, ySampling=1), 'R': Channel("R", xSampling=1, ySampling=1)}
              )pbdoc")
         .def("write", &PyFile::write,
+             py::arg("filename"),
+             py::arg("header_only")=false,
+             py::arg("part_indices")=py::list(),
              R"pbdoc(
              Write the File to the give file name.
 
@@ -2921,6 +3003,11 @@ PYBIND11_MODULE(OpenEXR, m)
              -------
              >>> f = OpenEXR.File("image.exr")
              >>> f.write("out.exr"))pbdoc")
+        .def("close", &PyFile::close,
+             R"pbdoc(
+             Close the file.
+             No matter whether a partial write has finished, always close the file.
+             )pbdoc")
         ;
 }
 

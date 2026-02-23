@@ -15,6 +15,11 @@ OutputPart::OutputPart (MultiPartOutputFile& multiPartFile, int partNumber)
     file = multiPartFile.getOutputPart<OutputFile> (partNumber);
 }
 
+void OutputPart::deleteFile (MultiPartOutputFile& multiPartFile, int partNumber)
+{
+    multiPartFile.deleteOutputPart<OutputFile> (partNumber);
+}
+
 const char*
 OutputPart::fileName () const
 {
