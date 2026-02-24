@@ -1,5 +1,11 @@
 # libdeflate release notes
 
+## Version 1.25
+
+* Fixed a build error with gcc 16.
+
+* The libdeflate CMake package is now relocatable.
+
 ## Version 1.24
 
 * The CMake-based build system now supports Apple Framework builds.
