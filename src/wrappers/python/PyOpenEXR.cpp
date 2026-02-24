@@ -340,7 +340,10 @@ PyPart::readPixels(MultiPartInputFile& infile, const ChannelList& channel_list,
     InputPart part (infile, part_index);
 
     part.setFrameBuffer (frameBuffer);
-    part.readPixels (dw.min.y, dw.max.y);
+    {
+        py::gil_scoped_release release;
+        part.readPixels (dw.min.y, dw.max.y);
+    }
 }
 
 void
@@ -583,11 +586,17 @@ PyPart::readDeepPixels(MultiPartInputFile& infile, const std::string& type, cons
     {
         DeepScanLineInputPart part (infile, part_index);
         part.setFrameBuffer (frameBuffer);
-        part.readPixelSampleCounts (dw.min.y, dw.max.y);
+        {
+            py::gil_scoped_release release;
+            part.readPixelSampleCounts (dw.min.y, dw.max.y);
+        }
 
         setDeepSliceData(channel_list, height, width, sliceDataMap, rgbaChannelMap, sampleCount);
 
-        part.readPixels (dw.min.y, dw.max.y);
+        {
+            py::gil_scoped_release release;
+            part.readPixels (dw.min.y, dw.max.y);
+        }
     }
     else if (type == DEEPTILE)
     {
@@ -597,11 +606,17 @@ PyPart::readDeepPixels(MultiPartInputFile& infile, const std::string& type, cons
         int numXTiles = part.numXTiles (0);
         int numYTiles = part.numYTiles (0);
 
-        part.readPixelSampleCounts (0, numXTiles - 1, 0, numYTiles - 1);
+        {
+            py::gil_scoped_release release;
+            part.readPixelSampleCounts (0, numXTiles - 1, 0, numYTiles - 1);
+        }
 
         setDeepSliceData(channel_list, height, width, sliceDataMap, rgbaChannelMap, sampleCount);
 
-        part.readTiles (0, numXTiles - 1, 0, numYTiles - 1);
+        {
+            py::gil_scoped_release release;
+            part.readTiles (0, numXTiles - 1, 0, numYTiles - 1);
+        }
     }
 }
 
@@ -686,13 +701,19 @@ PyPart::writePixels(MultiPartOutputFile& outfile, const Box2i& dw) const
     {
         OutputPart part(outfile, part_index);
         part.setFrameBuffer (frameBuffer);
-        part.writePixels (height());
+        {
+            py::gil_scoped_release release;
+            part.writePixels (height());
+        }
     }
     else
     {
         TiledOutputPart part(outfile, part_index);
         part.setFrameBuffer (frameBuffer);
-        part.writeTiles (0, part.numXTiles() - 1, 0, part.numYTiles() - 1);
+        {
+            py::gil_scoped_release release;
+            part.writeTiles (0, part.numXTiles() - 1, 0, part.numYTiles() - 1);
+        }
     }
 }
 
@@ -881,16 +902,22 @@ PyPart::writeDeepPixels(MultiPartOutputFile& outfile, const Box2i& dw) const
     {
         DeepScanLineOutputPart part(outfile, part_index);
         part.setFrameBuffer (frameBuffer);
-        part.writePixels (height);
+        {
+            py::gil_scoped_release release;
+            part.writePixels (height);
+        }
     }
     else 
     {
         DeepTiledOutputPart part(outfile, part_index);
         part.setFrameBuffer (frameBuffer);
 
-        for (int y = 0; y < part.numYTiles (0); y++)
-            for (int x = 0; x < part.numXTiles (0); x++)
-                part.writeTile (x, y, 0);
+        {
+            py::gil_scoped_release release;
+            for (int y = 0; y < part.numYTiles (0); y++)
+                for (int x = 0; x < part.numXTiles (0); x++)
+                    part.writeTile (x, y, 0);
+        }
     }
 }
 
@@ -1181,25 +1208,37 @@ PyFile::write(const char* outfilename)
             {
                 InputPart  inPart (*_inputFile, p);
                 OutputPart outPart (outfile, p);
-                outPart.copyPixels (inPart);
+                {
+                    py::gil_scoped_release release;
+                    outPart.copyPixels (inPart);
+                }
             }
             else if (type == TILEDIMAGE)
             {
                 TiledInputPart  inPart (*_inputFile, p);
                 TiledOutputPart outPart (outfile, p);
-                outPart.copyPixels (inPart);
+                {
+                    py::gil_scoped_release release;
+                    outPart.copyPixels (inPart);
+                }
             }
             else if (type == DEEPSCANLINE)
             {
                 DeepScanLineInputPart  inPart (*_inputFile, p);
                 DeepScanLineOutputPart outPart (outfile, p);
-                outPart.copyPixels (inPart);
+                {
+                    py::gil_scoped_release release;
+                    outPart.copyPixels (inPart);
+                }
             }
             else if (type == DEEPTILE)
             {
                 DeepTiledInputPart  inPart (*_inputFile, p);
                 DeepTiledOutputPart outPart (outfile, p);
-                outPart.copyPixels (inPart);
+                {
+                    py::gil_scoped_release release;
+                    outPart.copyPixels (inPart);
+                }
             }
         }
     }
