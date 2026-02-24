@@ -56,6 +56,11 @@ Foundation](https://www.aswf.io). See the project's [governance
 policies](GOVERNANCE.md), [contribution guidelines](CONTRIBUTING.md), and [code of conduct](CODE_OF_CONDUCT)
 for more information.
 
+# Building OpenEXR
+
+See the [Install instructions](https://openexr.com/en/latest/install.html) for instructions on how to build
+OpenEXR and its required prerequisites.
+
 # Quick Start
 
 See the [technical documentation](https://openexr.readthedocs.io) for
