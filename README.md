@@ -58,9 +58,8 @@ for more information.
 
 # Building OpenEXR
 
-Some dependencies are needed to build OpenEXR.
-To not repeat ourselves, the list can be found at the
-"Prerequisites" section of the docs: <https://openexr.com/en/latest/install.html#prerequisites>.
+See the [Install instructions](https://openexr.com/en/latest/install.html) for instructions on how to build
+OpenEXR and its required prerequisites.
 
 # Quick Start
 
