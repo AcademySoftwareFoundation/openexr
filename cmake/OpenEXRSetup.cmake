@@ -400,3 +400,16 @@ int main() {
     set(OPENEXR_MISSING_ARM_VLD1 TRUE)
   endif()
 endif()
+
+###########################################
+# Enable SSE2 on 32-bit x86
+###########################################
+
+if(CMAKE_SYSTEM_PROCESSOR MATCHES "^(i[3-6]86|x86)$" AND NOT MSVC)
+  include(CheckCCompilerFlag)
+  check_c_compiler_flag("-msse2" HAS_SSE2_FLAG)
+  if(HAS_SSE2_FLAG)
+    add_compile_options(-msse2 -mfpmath=sse)
+    message(STATUS "Enabling SSE2 for 32-bit x86 build")
+  endif()
+endif()
