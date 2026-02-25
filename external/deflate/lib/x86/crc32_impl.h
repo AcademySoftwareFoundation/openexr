@@ -104,7 +104,7 @@ static const u8 MAYBE_UNUSED shift_tab[48] = {
  */
 #  define crc32_x86_vpclmulqdq_avx512_vl256  crc32_x86_vpclmulqdq_avx512_vl256
 #  define SUFFIX				      _vpclmulqdq_avx512_vl256
-#  define ATTRIBUTES		_target_attribute("vpclmulqdq,pclmul,avx512bw,avx512vl" NO_EVEX512)
+#  define ATTRIBUTES		_target_attribute("vpclmulqdq,pclmul,avx512bw,avx512vl")
 #  define VL			32
 #  define USE_AVX512		1
 #  include "crc32_pclmul_template.h"
@@ -117,7 +117,7 @@ static const u8 MAYBE_UNUSED shift_tab[48] = {
  */
 #  define crc32_x86_vpclmulqdq_avx512_vl512  crc32_x86_vpclmulqdq_avx512_vl512
 #  define SUFFIX				      _vpclmulqdq_avx512_vl512
-#  define ATTRIBUTES		_target_attribute("vpclmulqdq,pclmul,avx512bw,avx512vl" EVEX512)
+#  define ATTRIBUTES		_target_attribute("vpclmulqdq,pclmul,avx512bw,avx512vl")
 #  define VL			64
 #  define USE_AVX512		1
 #  include "crc32_pclmul_template.h"

@@ -13,8 +13,8 @@ extern "C" {
 #endif
 
 #define LIBDEFLATE_VERSION_MAJOR	1
-#define LIBDEFLATE_VERSION_MINOR	24
-#define LIBDEFLATE_VERSION_STRING	"1.24"
+#define LIBDEFLATE_VERSION_MINOR	25
+#define LIBDEFLATE_VERSION_STRING	"1.25"
 
 /*
  * Users of libdeflate.dll on Windows can define LIBDEFLATE_DLL to cause
