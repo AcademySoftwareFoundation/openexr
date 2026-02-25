@@ -662,5 +662,73 @@ class TestUnittest(unittest.TestCase):
             with OpenEXR.File(outfilename, separate_channels=True) as i:
                 compare_files (i, outfile2)
 
+    def test_gil_released_during_io(self):
+
+        #
+        # Verify that the GIL is released during I/O operations by checking
+        # that a background thread can make progress while OpenEXR performs
+        # file operations.
+        #
+
+        import threading
+        import time
+
+        counter = [0]
+        stop_flag = [False]
+
+        def background_worker():
+            while not stop_flag[0]:
+                counter[0] += 1
+                time.sleep(0.001)
+
+        # Create a moderately large image to ensure I/O takes measurable time
+        width = 1000
+        height = 1000
+        size = width * height
+        R = np.random.rand(height, width).astype('f')
+        G = np.random.rand(height, width).astype('f')
+        B = np.random.rand(height, width).astype('f')
+        channels = {
+            "R": OpenEXR.Channel("R", R),
+            "G": OpenEXR.Channel("G", G),
+            "B": OpenEXR.Channel("B", B),
+        }
+
+        # Start background thread
+        thread = threading.Thread(target=background_worker)
+        thread.start()
+
+        # Let thread run briefly to establish baseline
+        time.sleep(0.05)
+        count_before = counter[0]
+
+        # Perform I/O - if GIL is released, background thread will increment counter
+        outfilename = mktemp_outfilename()
+        with OpenEXR.File({}, channels) as outfile:
+            outfile.write(outfilename)
+
+        count_after_write = counter[0]
+
+        # Now test reading
+        with OpenEXR.File(outfilename) as infile:
+            _ = infile.channels()
+
+        count_after_read = counter[0]
+
+        # Stop background thread
+        stop_flag[0] = True
+        thread.join()
+
+        # If GIL was released, background thread should have made progress during I/O
+        write_progress = count_after_write - count_before
+        read_progress = count_after_read - count_after_write
+
+        self.assertGreater(write_progress, 0,
+            f"Background thread made no progress during write (GIL not released?)")
+        self.assertGreater(read_progress, 0,
+            f"Background thread made no progress during read (GIL not released?)")
+
+        os.remove(outfilename)
+
 if __name__ == '__main__':
     unittest.main()
