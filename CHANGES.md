@@ -3,6 +3,7 @@
 
 # OpenEXR Release Notes
 
+* [Version 3.2.6](#version-326-february-26-2026) February 26, 2026
 * [Version 3.2.5](#version-325-november-4-2025) November 4, 2025
 * [Version 3.2.4](#version-324-march-26-2024) March 26, 2024
 * [Version 3.2.3](#version-323-march-6-2024) March 6, 2024
@@ -74,6 +75,16 @@
 * [Version 1.0.2](#version-102)
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
+
+## Version 3.2.6 (February 26, 2026)
+
+Patch release that prevents an integer overflow when using the
+CompositeDeepScanLine API to combine multiple deep parts.
+
+### Merged Pull Requests:
+
+* [2256](https://github.com/AcademySoftwareFoundation/pulls/2256)
+
 
 ## Version 3.2.5 (November 4, 2025)
 

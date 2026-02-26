@@ -84,7 +84,7 @@ jobs:
 
   build_and_test_macos:
     name: macOS 13 Bazel build <Apple Clang14>
-    runs-on: macos-13
+    runs-on: macos-15
 
     steps:
     - uses: actions/checkout@v4.1.1
@@ -93,7 +93,7 @@ jobs:
       uses: actions/cache@v4.0.0
       with:
         path: "/home/runner/.cache/bazel"
-        key: bazel-macos-13
+        key: bazel-macos-15
 
     - name: Build
       run: |

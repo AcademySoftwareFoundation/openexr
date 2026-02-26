@@ -10,6 +10,6 @@
 
 #    define OPENEXR_VERSION_MAJOR 3
 #    define OPENEXR_VERSION_MINOR 2
-#    define OPENEXR_VERSION_PATCH 5
+#    define OPENEXR_VERSION_PATCH 6
 
 #endif
