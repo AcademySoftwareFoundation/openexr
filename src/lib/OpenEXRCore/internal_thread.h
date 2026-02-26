@@ -8,10 +8,11 @@
 
 #include "openexr_config.h"
 
-// Thread-safe single initiatization, using InitOnceExecuteOnce on Windows,
-// pthread_once elsewhere, or a simple variable if threading is completely disabled.
 #if ILMTHREAD_THREADING_ENABLED
 #    ifdef _WIN32
+/* On Windows, use native InitOnceExecuteOnce, which avoids MSVC's
+ * problematic <threads.h>
+ */
 #        include <windows.h>
 #        define ONCE_FLAG_INIT INIT_ONCE_STATIC_INIT
 typedef INIT_ONCE once_flag;
@@ -27,7 +28,10 @@ call_once (once_flag* flag, void (*func) (void))
 {
     InitOnceExecuteOnce (flag, once_init_fn, (PVOID) func, NULL);
 }
-#    elif !defined(ONCE_FLAG_INIT)
+#    elif defined(__APPLE__)
+/*
+ * On macOS, use <pthreads.h> and pthread_once.
+ */
 #        include <pthread.h>
 #        define ONCE_FLAG_INIT PTHREAD_ONCE_INIT
 typedef pthread_once_t once_flag;
@@ -36,10 +40,17 @@ call_once (once_flag* flag, void (*func) (void))
 {
     (void) pthread_once (flag, func);
 }
+#    else
+/*
+ * On Linux, use standard <threads.h>
+ */
+#        include <threads.h>
 #    endif
 
 #else /* !ILMTHREAD_THREADING_ENABLED */
-
+/*
+ * Threading disabled, provide a stub call_once.
+ */
 #    ifndef ONCE_FLAG_INIT
 #        define ONCE_FLAG_INIT 0
 typedef int once_flag;
