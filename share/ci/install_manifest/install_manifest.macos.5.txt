@@ -188,11 +188,11 @@ lib/cmake/OpenEXR/OpenEXRConfig.cmake
 lib/cmake/OpenEXR/OpenEXRConfigVersion.cmake
 lib/cmake/OpenEXR/OpenEXRTargets-release.cmake
 lib/cmake/OpenEXR/OpenEXRTargets.cmake
-lib/libIex-3_3.32.3.3.7.dylib
+lib/libIex-3_3.32.3.3.8.dylib
 lib/libIex-3_3.32.dylib
 lib/libIex-3_3.dylib
 lib/libIex.dylib
-lib/libIlmThread-3_3.32.3.3.7.dylib
+lib/libIlmThread-3_3.32.3.3.8.dylib
 lib/libIlmThread-3_3.32.dylib
 lib/libIlmThread-3_3.dylib
 lib/libIlmThread.dylib
@@ -200,15 +200,15 @@ lib/libImath-3_1.29.11.0.dylib
 lib/libImath-3_1.29.dylib
 lib/libImath-3_1.dylib
 #lib/libImath.dylib - missing from the manifest for Imath version 3.1 because it doesn't include PR 366
-lib/libOpenEXR-3_3.32.3.3.7.dylib
+lib/libOpenEXR-3_3.32.3.3.8.dylib
 lib/libOpenEXR-3_3.32.dylib
 lib/libOpenEXR-3_3.dylib
 lib/libOpenEXR.dylib
-lib/libOpenEXRCore-3_3.32.3.3.7.dylib
+lib/libOpenEXRCore-3_3.32.3.3.8.dylib
 lib/libOpenEXRCore-3_3.32.dylib
 lib/libOpenEXRCore-3_3.dylib
 lib/libOpenEXRCore.dylib
-lib/libOpenEXRUtil-3_3.32.3.3.7.dylib
+lib/libOpenEXRUtil-3_3.32.3.3.8.dylib
 lib/libOpenEXRUtil-3_3.32.dylib
 lib/libOpenEXRUtil-3_3.dylib
 lib/libOpenEXRUtil.dylib
