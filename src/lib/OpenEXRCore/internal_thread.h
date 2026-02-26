@@ -10,7 +10,8 @@
 
 #if ILMTHREAD_THREADING_ENABLED
 #    ifdef _WIN32
-/* On Windows, use native InitOnceExecuteOnce, which avoids MSVC's
+/*
+ * On Windows, use native InitOnceExecuteOnce, which avoids MSVC's
  * problematic <threads.h>
  */
 #        include <windows.h>
@@ -28,9 +29,15 @@ call_once (once_flag* flag, void (*func) (void))
 {
     InitOnceExecuteOnce (flag, once_init_fn, (PVOID) func, NULL);
 }
-#    elif defined(__APPLE__)
+#    elif __has_include(<threads.h>)
 /*
- * On macOS, use <pthreads.h> and pthread_once.
+ * On Linux (glibc 2.28+), use standard <threads.h>
+ */
+#        include <threads.h>
+
+#    else
+/*
+ * No <threads.h> on macOS and older Linux distros: fall back to pthreads
  */
 #        include <pthread.h>
 #        define ONCE_FLAG_INIT PTHREAD_ONCE_INIT
@@ -40,19 +47,17 @@ call_once (once_flag* flag, void (*func) (void))
 {
     (void) pthread_once (flag, func);
 }
-#    else
-/*
- * On Linux, use standard <threads.h>
- */
-#        include <threads.h>
+
 #    endif
 
-#else /* !ILMTHREAD_THREADING_ENABLED */
+#endif /* ILMTHREAD_THREADING_ENABLED */
+
 /*
- * Threading disabled, provide a stub call_once.
+ * If threading is disabled, or call_once/ONCE_FLAG_INIT wasn't declared
+ * above, declare a default implementation.
  */
-#    ifndef ONCE_FLAG_INIT
-#        define ONCE_FLAG_INIT 0
+#ifndef ONCE_FLAG_INIT
+#  define ONCE_FLAG_INIT 0
 typedef int once_flag;
 static inline void
 call_once (once_flag* flag, void (*func) (void))
@@ -62,8 +67,7 @@ call_once (once_flag* flag, void (*func) (void))
         func ();
     }
 }
-#    endif
+#endif
 
-#endif /* ILMTHREAD_THREADING_ENABLED */
 
 #endif /* OPENEXR_PRIVATE_THREAD_H */
