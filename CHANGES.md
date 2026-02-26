@@ -3,6 +3,7 @@
 
 # OpenEXR Release Notes
 
+* [Version 3.3.8](#version-338-february-26-2026) February 26, 2026
 * [Version 3.3.7](#version-337-february-19-2026) February 19, 2026
 * [Version 3.3.6](#version-336-november-4-2025) November 5, 2025
 * [Version 3.3.5](#version-335-july-26-2025) July 26, 2025
@@ -82,6 +83,17 @@
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
 
+## Version 3.3.8 (February 26, 2026)
+
+Patch release that prevents an integer overflow when using the
+CompositeDeepScanLine API to combine multiple deep parts.
+
+### Merged Pull Requests:
+
+* [2256](https://github.com/AcademySoftwareFoundation/pulls/2256)
+Report an error if a deep pixel as more than UINT_MAX samples
+
+ 
 ## Version 3.3.7 (February 19, 2026)
 
 Patch release that fixes an incorrect size check in
