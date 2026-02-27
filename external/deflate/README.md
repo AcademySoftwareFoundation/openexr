@@ -154,6 +154,7 @@ following bindings:
 * Python: [deflate](https://github.com/dcwatson/deflate)
 * Ruby: [libdeflate-ruby](https://github.com/kaorimatz/libdeflate-ruby)
 * Rust: [libdeflater](https://github.com/adamkewley/libdeflater)
+* Swift: [SwiftDeflate](https://github.com/dcwatson/SwiftDeflate)
 
 Note: these are third-party projects which haven't necessarily been vetted by
 the authors of libdeflate.  Please direct all questions, bugs, and improvements

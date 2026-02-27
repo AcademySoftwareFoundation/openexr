@@ -3,6 +3,15 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright Contributors to the OpenEXR Project.
 
+# Portable sed -i: macOS requires '' argument, GNU sed doesn't
+sedi() {
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        sed -i '' "$@"
+    else
+        sed -i "$@"
+    fi
+}
+
 if [[ -e current_deflate_version ]]; then
     curl https://api.github.com/repos/ebiggers/libdeflate/releases/latest > /tmp/exr_latest_deflate
     latest=`cat /tmp/exr_latest_deflate | jq -r .name`
@@ -26,9 +35,9 @@ if [[ -e current_deflate_version ]]; then
         rm -f libdeflate.pc.in
         rm -f libdeflate-config.cmake.in
         rm -rf scripts
-        sed -i -f ../patchup_deflate_lib.sed lib/lib_common.h
-        sed -i -f ../patchup_deflate_lib.sed common_defs.h
-        sed -i -f ../patchup_deflate_lib.sed lib/utils.c
+        sedi -f ../patchup_deflate_lib.sed lib/lib_common.h
+        sedi -f ../patchup_deflate_lib.sed common_defs.h
+        sedi -f ../patchup_deflate_lib.sed lib/utils.c
         cd ..
 
         rm "${filename}"
