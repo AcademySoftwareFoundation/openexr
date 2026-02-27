@@ -100,6 +100,8 @@ Patch release with several bug fixes, enhancements, and build improvements.
   enforced, which prevents an integer overflow when using the
   `CompositeDeepScanLine` API to combine multiple deep parts.
 
+* :bug: `IlmThread` now builds properl with glibc 2.43.
+
 * :wrench: In `IlmThreadPool`, replace deprecated `std::atomic_load /
   std::atomic_exchange` overloads for `std::shared_ptr` with the C++20
   `std::atomic<std::shared_ptr<T>>` interface when available.
