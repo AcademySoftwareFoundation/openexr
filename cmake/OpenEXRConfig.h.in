@@ -127,8 +127,10 @@
 ///
 /// @{
 
+// Visibility attributes are ELF-specific; on Windows (MSVC or MinGW) they are
+// not supported and trigger -Wattributes warnings, so use empty macros there.
 #if defined(OPENEXR_ENABLE_API_VISIBILITY) &&                                  \
-    !(defined(OPENEXR_DLL) || defined(_MSC_VER))
+    !(defined(OPENEXR_DLL) || defined(_MSC_VER) || defined(_WIN32))
 #    define OPENEXR_PUBLIC_SYMBOL_ATTRIBUTE                                    \
         __attribute__ ((__visibility__ ("default")))
 #    define OPENEXR_PRIVATE_SYMBOL_ATTRIBUTE                                   \
