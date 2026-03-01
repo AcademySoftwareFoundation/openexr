@@ -142,7 +142,7 @@ Tools:
 * :sparkles: Add sanity check for correct arguments to exrstdattr, to
   catch mistakes such as ``exrstdattr input.exr output.exr -comment
   hello`` which would formerly write to a file called ``hello`` but
-  now fails with a usage errr.
+  now fails with a usage error.
 
 Also, this release bumps the vendered version of `libdeflate` to 1.25.
 
