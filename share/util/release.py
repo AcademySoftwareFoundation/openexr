@@ -74,14 +74,7 @@ def markdown_to_rst(markdown_text):
     markdown_text = re.sub(r'\[(.*?)\]\((.*?)\)', r'`\1 <\2>`_', markdown_text)
 
     # Convert the special symbols
-    markdown_text = re.sub(r':bug:', "🐛", markdown_text, flags=re.DOTALL)
-    markdown_text = re.sub(r':rocket:', "🚀", markdown_text, flags=re.DOTALL)
-    markdown_text = re.sub(r':hammer_and_wrench:', "🛠️", markdown_text, flags=re.DOTALL)
-    markdown_text = re.sub(r':wrench:', "🔧", markdown_text, flags=re.DOTALL)
-    markdown_text = re.sub(r':sparkles:', "✨", markdown_text, flags=re.DOTALL)
-    markdown_text = re.sub(r':snake:', "🐍", markdown_text, flags=re.DOTALL)
-    markdown_text = re.sub(r':package:', "📦", markdown_text, flags=re.DOTALL)
-    markdown_text = re.sub(r':warning:', "⚠️", markdown_text, flags=re.DOTALL)
+    markdown_text = convert_symbols(markdown_text)
 
     # Split into lines for further processing
     lines = markdown_text.splitlines()
@@ -176,6 +169,9 @@ def markdown_to_html(markdown_text):
     Convert markdown content to HTML.
     """
 
+    # Convert the special symbols
+    markdown_text = convert_symbols(markdown_text)
+
     result = run(
         ['pandoc', '-f', 'markdown', '-t', 'html'],  # pandoc command to convert markdown to html
         input=markdown_text,                         # pass markdown_text as stdin
@@ -195,6 +191,17 @@ def convert_to_html(release_notes):
     notes = release_notes.replace('\n', '<br>')
     html_content = f"<h2>Release Notes</h2><p>{notes}</p>"
     return html_content
+
+def convert_symbols(text):
+    text = re.sub(r':bug:', "🐛", text, flags=re.DOTALL)
+    text = re.sub(r':rocket:', "🚀", text, flags=re.DOTALL)
+    text = re.sub(r':hammer_and_wrench:', "🛠️", text, flags=re.DOTALL)
+    text = re.sub(r':wrench:', "🔧", text, flags=re.DOTALL)
+    text = re.sub(r':sparkles:', "✨", text, flags=re.DOTALL)
+    text = re.sub(r':snake:', "🐍", text, flags=re.DOTALL)
+    text = re.sub(r':package:', "📦", text, flags=re.DOTALL)
+    text = re.sub(r':warning:', "⚠️", text, flags=re.DOTALL)
+    return text
 
 def main():
     if len(sys.argv) < 3:
