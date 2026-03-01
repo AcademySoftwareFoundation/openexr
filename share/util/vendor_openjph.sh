@@ -21,11 +21,13 @@ if [[ "${1:-}" == "-git" ]]; then
     shift
 fi
 
-if [[ $# -lt 1 ]]; then
+if [[ $# -eq 0 || "$1" == "master" ]]; then
   # no version specified: use master
   version="master"
   zip="master.zip"
   url="https://github.com/aous72/OpenJPH/archive/refs/heads/$zip"
+  # Get the SHA of the master branch HEAD
+  master_sha=$(git ls-remote https://github.com/aous72/OpenJPH.git refs/heads/master | cut -f1)
 else
   version="$1"
   zip="$version.zip"
@@ -62,17 +64,27 @@ fi
 rm -rf OpenJPH
 mv $OpenJPH OpenJPH
 
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  sed_cmd=(sed -i '')
+else
+  sed_cmd=(sed -i)
+fi
+
 # Force a static build
-sed -i '' '/^option(BUILD_SHARED_LIBS "Shared Libraries" ON)/d' OpenJPH/CMakeLists.txt
-sed -i '' 's/^add_library(openjph \${SOURCES})/add_library(openjph STATIC ${SOURCES})/' OpenJPH/src/core/CMakeLists.txt
+"${sed_cmd[@]}" '/^option(BUILD_SHARED_LIBS "Shared Libraries" ON)/d' OpenJPH/CMakeLists.txt
+"${sed_cmd[@]}" 's/^add_library(openjph \${SOURCES})/add_library(openjph STATIC ${SOURCES})/' OpenJPH/src/core/CMakeLists.txt
 
 # Headers live under "common" in older OpenJPH releases but are included via
 # "openjph/ojph_arch.h". Rename the directory if needed.
 if [ -d OpenJPH/src/core/common ]; then
     mv OpenJPH/src/core/common OpenJPH/src/core/openjph
-    sed -i '' 's,/common/,/openjph/,' OpenJPH/ojph_version.cmake
-    sed -i '' 's,/common,/openjph,' OpenJPH/src/core/CMakeLists.txt
-    sed -i '' 's,common/,openjph/,' OpenJPH/src/core/CMakeLists.txt
+    "${sed_cmd[@]}" 's,/common/,/openjph/,' OpenJPH/ojph_version.cmake
+    "${sed_cmd[@]}" 's,/common,/openjph,' OpenJPH/src/core/CMakeLists.txt
+    "${sed_cmd[@]}" 's,common/,openjph/,' OpenJPH/src/core/CMakeLists.txt
+fi
+
+if [[ -n "${master_sha:-}" ]]; then
+  echo "#define OPENJPH_VERSION_SHA ${master_sha}" >> OpenJPH/src/core/openjph/ojph_version.h
 fi
 
 if $do_git; then
