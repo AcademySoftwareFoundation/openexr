@@ -103,7 +103,7 @@ Make sure these are installed on your system before building OpenEXR:
 * ``libdeflate`` (internal copy used by CMake if not found for
   v3.4+; auto-fetched in v3.3 and before) (https://github.com/ebiggers/libdeflate)
 * ``openjph`` (internal vendored copy used by CMake if not found; new
-  in v3.4; auto-fetched in v3.4.0-3.4.3) (https://github.com/aous72/OpenJPH)
+  in v3.4; auto-fetched in 3.4.5 and before) (https://github.com/aous72/OpenJPH)
 * (optional) Intel's Thread Building Blocks library (TBB)
 
 The instructions that follow describe building OpenEXR with CMake.
@@ -454,14 +454,14 @@ As of OpenEXR release v3.4, OpenEXR depends on
 `OpenJPH <https://github.com/aous72/OpenJPH>`_ for
 HTJ2K compression. 
 
-As of OpenEXR release v3.4.4, OpenEXR ships with an internal "vendored"
+As of OpenEXR release v3.4.6, OpenEXR ships with an internal "vendored"
 copy of the ``OpenJPH`` library. At configuration time, if
 CMake finds an external installation of ``OpenJPH``, it will use
 it. If it fails to find an installation, it will use the internal
 copy. To force use of the internal copy, configure with
 ``-DOPENEXR_FORCE_INTERNAL_OPENJPH=ON``.
 
-OpenEXR releases v3.4.0-v3.4.3 auto-fetch the ``OpenJPH`` source and
+OpenEXR releases v3.4.0-v3.4.5 auto-fetch the ``OpenJPH`` source and
 build it internally if cmake does not find an external
 installation. 
 
