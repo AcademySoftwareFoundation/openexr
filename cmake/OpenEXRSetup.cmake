@@ -288,18 +288,26 @@ else()
   # Using internal openjph
 
   # extract the openjph version variables from ojph_version.h
-  set(openjph_SOURCE_DIR "${CMAKE_SOURCE_DIR}/external/openjph")
+  set(openjph_SOURCE_DIR "${CMAKE_SOURCE_DIR}/external/OpenJPH")
   set(openjph_version "${openjph_SOURCE_DIR}/src/core/openjph/ojph_version.h")
   if(EXISTS "${openjph_version}")
     file(STRINGS "${openjph_version}" _openjph_major REGEX "#define OPENJPH_VERSION_MAJOR")
     file(STRINGS "${openjph_version}" _openjph_minor REGEX "#define OPENJPH_VERSION_MINOR")
     file(STRINGS "${openjph_version}" _openjph_patch REGEX "#define OPENJPH_VERSION_PATCH")
+    file(STRINGS "${openjph_version}" _openjph_sha REGEX "#define OPENJPH_VERSION_SHA")
     string(REGEX REPLACE ".*OPENJPH_VERSION_MAJOR[ \t]+([0-9]+).*" "\\1" openjph_VERSION_MAJOR "${_openjph_major}")
     string(REGEX REPLACE ".*OPENJPH_VERSION_MINOR[ \t]+([0-9]+).*" "\\1" openjph_VERSION_MINOR "${_openjph_minor}")
     string(REGEX REPLACE ".*OPENJPH_VERSION_PATCH[ \t]+([0-9]+).*" "\\1" openjph_VERSION_PATCH "${_openjph_patch}")
+    string(REGEX REPLACE ".*OPENJPH_VERSION_SHA[ \t]+([0-9a-f]+).*" "\\1" openjph_VERSION_SHA "${_openjph_sha}")
+  else()
+    message(STATUS "can't find openjph_version.h: ${openjph_version}")
   endif()
 
-  set(openjph_VERSION "${openjph_VERSION_MAJOR}.${openjph_VERSION_MINOR}.${openjph_VERSION_PATCH}")
+  if(openjph_VERSION_SHA)
+    set(openjph_VERSION "${openjph_VERSION_SHA}")
+  else()
+    set(openjph_VERSION "${openjph_VERSION_MAJOR}.${openjph_VERSION_MINOR}.${openjph_VERSION_PATCH}")
+  endif()
   
   if(OPENEXR_FORCE_INTERNAL_OPENJPH)
     message(STATUS "openjph forced internal, using vendored code, version ${openjph_VERSION}")

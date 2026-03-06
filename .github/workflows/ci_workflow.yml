@@ -65,7 +65,7 @@ jobs:
       build: ${{ matrix.build }}
       # DockerHub: https://hub.docker.com/u/aswf
       # Source: https://github.com/AcademySoftwareFoundation/aswf-docker
-      container: aswf/ci-openexr:${{ matrix.vfx-cy || '2024' }}
+      container: ${{ matrix.container || format('aswf/ci-openexr:{0}', matrix.vfx-cy || '2024') }}
       cmake: ${{ matrix.cmake || '3.14.7' }}
       cxx-standard: ${{ matrix.cxx-standard || '17' }}
       cxx-compiler: ${{ matrix.cxx-compiler || 'g++' }}
@@ -146,6 +146,16 @@ jobs:
             cxx-standard: 20
             RUN_TESTING: OFF
             validate_install: OFF
+
+          - build: 12
+            label: Fedora Rawhide
+            container: fedora:rawhide
+            cmake: '3.31.6'
+            OPENEXR_FORCE_INTERNAL_IMATH: 'ON'
+            OPENEXR_FORCE_INTERNAL_DEFLATE: 'OFF'
+            OPENEXR_FORCE_INTERNAL_OPENJPH: 'ON'
+            OPENEXR_INSTALL_DOCS: 'OFF'
+            validate_install: 'OFF'
 
   macOS:
     name: 'macOS.${{ matrix.build}}: ${{ matrix.label }}'
