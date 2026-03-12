@@ -3,6 +3,7 @@
 
 # OpenEXR Release Notes
 
+* [Version 3.4.7](#version-347-march-15-2026) March 15, 2026
 * [Version 3.4.6](#version-346-march-1-2026) March 1, 2026
 * [Version 3.4.5](#version-345-february-21-2026) February 21, 2026
 * [Version 3.4.4](#version-344-november-19-2025) November 19, 2025
@@ -88,6 +89,44 @@
 * [Version 1.0.2](#version-102)
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
+
+
+## Version 3.4.7 (March 15, 2026)
+
+Patch release bug/build fixes:
+
+* Fix an integer overflow decoding very wide htj2k images
+* Fix build failure with glibc 2.43
+* Fix Windows symbol visibility warnings
+
+### Merged Pull Requests:
+
+* [2292](https://github.com/AcademySoftwareFoundation/openexr/pulls/2292)
+Bump actions/download-artifact from 8.0.0 to 8.0.1
+
+* [2291](https://github.com/AcademySoftwareFoundation/openexr/pulls/2291)
+Fix integer overflow in htj2k decode with width > 32767
+
+* [2289](https://github.com/AcademySoftwareFoundation/openexr/pulls/2289)
+Bump scikit-build-core from 0.12.1 to 0.12.2
+
+* [2288](https://github.com/AcademySoftwareFoundation/openexr/pulls/2288)
+Bump jmertic/slack-release-notifier from 6fa159048d5313ff1177d248ad84beb627571670 to 35fad060af5559c24decdec0f701e6ba93566704
+
+* [2287](https://github.com/AcademySoftwareFoundation/openexr/pulls/2287)
+Bump pypa/cibuildwheel from 3.3 to 3.4
+
+* [2283](https://github.com/AcademySoftwareFoundation/openexr/pulls/2283)
+update SECURITY with CVE info for PR #2256
+
+* [2282](https://github.com/AcademySoftwareFoundation/openexr/pulls/2282)
+Remove website_preview_link workflow
+
+* [2281](https://github.com/AcademySoftwareFoundation/openexr/pulls/2281)
+Disable visibility attributes on Windows to fix msys2 -Wattributes warning
+
+* [2262](https://github.com/AcademySoftwareFoundation/openexr/pulls/2262)
+Fix build failure with glibc 2.43 due to C11 threads.h conflicts
 
 ## Version 3.4.6 (March 1, 2026)
 
