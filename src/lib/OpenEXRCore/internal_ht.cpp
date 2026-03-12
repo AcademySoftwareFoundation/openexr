@@ -257,7 +257,7 @@ ht_undo_impl (
                             EXR_PIXEL_HALF)
                         {
                             int16_t* channel_pixels = (int16_t*) line_pixels;
-                            for (int16_t p = 0;
+                            for (int32_t p = 0;
                                  p < decode->channels[file_c].width;
                                  p++)
                             {
@@ -267,7 +267,7 @@ ht_undo_impl (
                         else
                         {
                             int32_t* channel_pixels = (int32_t*) line_pixels;
-                            for (int16_t p = 0;
+                            for (int32_t p = 0;
                                  p < decode->channels[file_c].width;
                                  p++)
                             {
@@ -299,7 +299,7 @@ ht_undo_impl (
                 {
                     int16_t* channel_pixels =
                         (int16_t*) (line_pixels + cs_to_file_ch[c].raster_line_offset);
-                    for (int16_t p = 0; p < decode->channels[file_c].width;
+                    for (int32_t p = 0; p < decode->channels[file_c].width;
                          p++)
                     {
                         *channel_pixels++ = cur_line->i32[p];
@@ -309,7 +309,7 @@ ht_undo_impl (
                 {
                     int32_t* channel_pixels =
                         (int32_t*) (line_pixels + cs_to_file_ch[c].raster_line_offset);
-                    for (int16_t p = 0; p < decode->channels[file_c].width;
+                    for (int32_t p = 0; p < decode->channels[file_c].width;
                          p++)
                     {
                         *channel_pixels++ = cur_line->i32[p];
