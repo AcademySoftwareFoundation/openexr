@@ -23,6 +23,8 @@
 #include "ImfThreading.h"
 #include "ImfTileDescription.h"
 
+#include "ImfContextInit.h"
+
 #include <ImathBox.h>
 #include <ImathVec.h>
 #include <half.h>
@@ -275,10 +277,10 @@ private:
     // Copy constructor and assignment are not implemented
     //
 
-    TiledRgbaOutputFile (const TiledRgbaOutputFile&) = delete;
+    TiledRgbaOutputFile (const TiledRgbaOutputFile&)            = delete;
     TiledRgbaOutputFile& operator= (const TiledRgbaOutputFile&) = delete;
     TiledRgbaOutputFile (TiledRgbaOutputFile&&)                 = delete;
-    TiledRgbaOutputFile& operator= (TiledRgbaOutputFile&&) = delete;
+    TiledRgbaOutputFile& operator= (TiledRgbaOutputFile&&)      = delete;
 
     class IMF_HIDDEN ToYa;
 
@@ -293,6 +295,20 @@ private:
 class IMF_EXPORT_TYPE TiledRgbaInputFile
 {
 public:
+    //--------------------------------------------------------
+    // Constructor -- opens the file with the specified name.
+    // Destroying TiledRgbaInputFile objects constructed with
+    // this constructor automatically closes the corresponding
+    // files.
+    //--------------------------------------------------------
+
+    IMF_EXPORT
+    TiledRgbaInputFile (
+        const char name[],
+        const ContextInitializer &ctxt,
+        const std::string& layerName,
+        int numThreads = globalThreadCount ());
+
     //--------------------------------------------------------
     // Constructor -- opens the file with the specified name.
     // Destroying TiledRgbaInputFile objects constructed with
@@ -489,10 +505,10 @@ private:
     // Copy constructor and assignment are not implemented
     //
 
-    TiledRgbaInputFile (const TiledRgbaInputFile&) = delete;
+    TiledRgbaInputFile (const TiledRgbaInputFile&)            = delete;
     TiledRgbaInputFile& operator= (const TiledRgbaInputFile&) = delete;
     TiledRgbaInputFile (TiledRgbaInputFile&&)                 = delete;
-    TiledRgbaInputFile& operator= (TiledRgbaInputFile&&) = delete;
+    TiledRgbaInputFile& operator= (TiledRgbaInputFile&&)      = delete;
 
     class FromYa;
 

@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright (c) Contributors to the OpenEXR Project.
+
 The OpenEXRUtil Library
 ----------------------
 
@@ -142,7 +145,7 @@ loadImage() functions that work only on flat images or only on deep images:
     saveDeepScanLineImage()
     saveDeepTiledImage()
 
-For details the the ImfFlatImageIO.h and ImfDeepImageIO.h header files.
+For details, refer to the ImfFlatImageIO.h and ImfDeepImageIO.h header files.
 
 
 Manipulating Images in Memory

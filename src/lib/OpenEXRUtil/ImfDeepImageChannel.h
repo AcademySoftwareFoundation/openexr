@@ -72,10 +72,10 @@ protected:
     IMFUTIL_EXPORT DeepImageChannel (DeepImageLevel& level, bool pLinear);
     IMFUTIL_EXPORT virtual ~DeepImageChannel ();
 
-    DeepImageChannel (const DeepImageChannel& other) = delete;
+    DeepImageChannel (const DeepImageChannel& other)            = delete;
     DeepImageChannel& operator= (const DeepImageChannel& other) = delete;
     DeepImageChannel (DeepImageChannel&& other)                 = delete;
-    DeepImageChannel& operator= (DeepImageChannel&& other) = delete;
+    DeepImageChannel& operator= (DeepImageChannel&& other)      = delete;
 
     virtual void setSamplesToZero (
         size_t i, unsigned int oldNumSamples, unsigned int newNumSamples) = 0;
@@ -161,8 +161,8 @@ private:
 
     TypedDeepImageChannel (const TypedDeepImageChannel& other) = delete;
     TypedDeepImageChannel&
-    operator= (const TypedDeepImageChannel& other)        = delete;
-    TypedDeepImageChannel (TypedDeepImageChannel&& other) = delete;
+    operator= (const TypedDeepImageChannel& other)                   = delete;
+    TypedDeepImageChannel (TypedDeepImageChannel&& other)            = delete;
     TypedDeepImageChannel& operator= (TypedDeepImageChannel&& other) = delete;
 
     IMFUTIL_HIDDEN

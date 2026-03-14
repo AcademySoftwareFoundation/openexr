@@ -23,7 +23,7 @@
 #include <iomanip>
 #include <iostream>
 #include <vector>
-#include <algorithm>
+#include <cmath>
 
 #include <ImathRandom.h>
 #include <ImfArray.h>
@@ -36,6 +36,96 @@
 #include <ImfOutputFile.h>
 #include <ImfTiledOutputFile.h>
 #include <half.h>
+
+#include "internal_ht_common.cpp"
+
+#ifdef __linux
+#    include <sys/types.h>
+#    include <sys/stat.h>
+#    include <fcntl.h>
+#    include <unistd.h>
+
+static int
+compare_files (const char* fn, const char* fn2)
+{
+    struct stat sb1, sb2;
+    int fd1 = -1, fd2 = -1;
+    int ret = 0;
+
+    fd1 = open (fn, O_RDONLY);
+    fd2 = open (fn2, O_RDONLY);
+    if (fd1 >= 0 && fd2 >= 0)
+    {
+        if (0 == fstat (fd1, &sb1) && 0 == fstat (fd2, &sb2))
+        {
+            if (sb1.st_size != sb2.st_size)
+            {
+                std::cerr << "File sizes do not match: '" << fn << "' "
+                          << sb1.st_size << " '" << fn2 << "' " << sb2.st_size
+                          << std::endl;
+                close (fd1);
+                close (fd2);
+                return 1;
+            }
+
+            uint8_t buf1[512], buf2[512];
+            size_t  toRead   = sb1.st_size;
+            size_t  chunkReq = sizeof (buf1);
+            size_t  offset   = 0;
+            while (toRead > 0)
+            {
+                ssize_t nr1 = read (fd1, buf1, chunkReq);
+                ssize_t nr2 = read (fd2, buf2, chunkReq);
+                if (nr1 < 0 || nr2 < 0)
+                {
+                    std::cerr << "Unable to read from files " << nr1 << ", "
+                              << nr2 << std::endl;
+                    ret = -1;
+                    break;
+                }
+                if (nr1 != nr2)
+                {
+                    std::cerr << "Mismatch in read amounts " << nr1 << ", "
+                              << nr2 << std::endl;
+                    ret = -1;
+                    break;
+                }
+                if (nr1 > 0)
+                {
+                    if (memcmp (buf1, buf2, nr1) != 0)
+                    {
+                        for (ssize_t b = 0; b < nr1; ++b)
+                        {
+                            if (buf1[b] != buf2[b])
+                            {
+                                std::cerr << "Files '" << fn << "' and '" << fn2
+                                          << "' differ in chunk starting at "
+                                          << offset + b << std::endl;
+                                break;
+                            }
+                        }
+                        ret = -1;
+                        break;
+                    }
+                }
+                offset += nr1;
+                toRead -= nr1;
+            }
+        }
+        close (fd1);
+        close (fd2);
+        return ret;
+    }
+    else
+    {
+        std::cerr << "Unable to open '" << fn << "' and '" << fn2 << "'"
+                  << std::endl;
+    }
+    if (fd1 >= 0) close (fd1);
+    if (fd2 >= 0) close (fd2);
+    return -1;
+}
+#endif /* linux */
 
 #if defined(OPENEXR_ENABLE_API_VISIBILITY)
 #    include "../../lib/OpenEXRCore/internal_huf.c"
@@ -80,6 +170,28 @@ shiftAndRound (int x, int shift)
     shift += 1;
     int b = (x >> shift) & 1;
     return (x + a + b) >> shift;
+}
+
+inline bool
+withinDWAErrorBounds (const uint16_t a, const uint16_t b)
+{
+    float a1 = imath_half_to_float (a);
+    if (!std::isnan (a1))
+    {
+        float a2          = imath_half_to_float (b);
+        float denominator = std::max (1.f, std::max (fabsf (a2), fabsf (a1)));
+        if (fabs (a1 / denominator - a2 / denominator) >= 0.1)
+        {
+            std::cerr << "DWA"
+                      << " B bits " << std::hex << b << std::dec << " (" << a2
+                      << ") too different from A1 bits " << std::hex << a
+                      << std::dec << " (" << a1 << ")"
+                      << " delta " << fabs (a1 / denominator - a2 / denominator)
+                      << std::endl;
+            return false;
+        }
+    }
+    return true;
 }
 
 inline bool
@@ -370,11 +482,12 @@ struct pixels
     {
         if (a != b)
         {
-            std::cout << chan << " half at " << x << ", " << y
+            std::cout << chan << " half at " << std::dec << x << ", " << y
                       << " not equal: " << taga << " 0x" << std::hex << a
                       << std::dec << " (" << imath_half_to_float (a) << ") vs "
                       << tagb << " 0x" << std::hex << b << std::hex << " ("
-                      << imath_half_to_float (b) << ")" << std::endl;
+                      << imath_half_to_float (b) << ")" << std::dec
+                      << std::endl;
         }
         EXRCORE_TEST (a == b);
     }
@@ -514,6 +627,25 @@ struct pixels
                         }
                         EXRCORE_TEST_LOCATION (
                             withinB44ErrorBounds (orig, unc), x, y)
+                    }
+                }
+            }
+        }
+        else if (comp == EXR_COMPRESSION_DWAA || comp == EXR_COMPRESSION_DWAB)
+        {
+            for (int y = 0; y < _h; ++y)
+            {
+                for (int x = 0; x < _w; ++x)
+                {
+                    size_t idx = y * _stride_x + x;
+                    compareExact (o.h[idx], h[idx], x, y, otag, selftag, "H");
+
+                    for (int c = 0; c < 4; ++c)
+                    {
+                        EXRCORE_TEST_LOCATION (
+                            withinDWAErrorBounds (o.rgba[c][idx], rgba[c][idx]),
+                            x,
+                            y)
                     }
                 }
             }
@@ -943,8 +1075,8 @@ saveCPP (
         (Box2i (V2i (dwx, dwy), V2i (dwx + fw - 1, dwy + fh - 1))));
 
     hdr.compression ()         = (IMF::Compression) ((int) comp);
-    hdr.zipCompressionLevel () = 3;
-    EXRCORE_TEST (((const Header&) hdr).zipCompressionLevel () == 3);
+    hdr.zipCompressionLevel () = 4;
+    EXRCORE_TEST (((const Header&) hdr).zipCompressionLevel () == 4);
 
     hdr.channels ().insert ("I", Channel (IMF::UINT, xs, ys));
     for (int c = 0; c < 5; ++c)
@@ -1157,6 +1289,7 @@ doWriteRead (
 
     exr_set_default_zip_compression_level (-1);
     cinit.zip_level = 3;
+    cinit.flags |= EXR_CONTEXT_FLAG_WRITE_LEGACY_HEADER;
 
     dataW.min.x = dwx;
     dataW.min.y = dwy;
@@ -1191,7 +1324,7 @@ doWriteRead (
     if (tiled)
     {
         EXRCORE_TEST_RVAL (exr_set_tile_descriptor (
-            f, partidx, 32, 32, EXR_TILE_ONE_LEVEL, EXR_TILE_ROUND_UP));
+            f, partidx, 32, 32, EXR_TILE_ONE_LEVEL, EXR_TILE_ROUND_DOWN));
     }
 
     EXRCORE_TEST_RVAL (exr_add_channel (
@@ -1235,6 +1368,12 @@ doWriteRead (
         EXRCORE_TEST_FAIL (saveCPP);
     }
 
+#ifdef __linux
+    if (0 != compare_files (filename.c_str (), cppfilename.c_str ()))
+    {
+        EXRCORE_TEST_FAIL (compare_files);
+    }
+#endif
     pixels restore    = p;
     pixels cpprestore = p;
     pixels cpploadc   = p;
@@ -1281,10 +1420,12 @@ doWriteRead (
         EXRCORE_TEST_FAIL (loadCPP);
     }
 
-    cpploadcpp.compareExact (cpploadc, "C++ loaded C", "C++ loaded C++");
-    restore.compareExact (cpprestore, "C loaded C++", "C loaded C");
-    restore.compareExact (cpploadc, "C++ loaded C", "C loaded C");
-    restore.compareExact (cpploadcpp, "C++ loaded C++", "C loaded C");
+    {
+        restore.compareExact (cpprestore, "C loaded C++", "C loaded C");
+        cpploadcpp.compareExact (cpploadc, "C++ loaded C", "C++ loaded C++");
+        restore.compareExact (cpploadc, "C++ loaded C", "C loaded C");
+        restore.compareExact (cpploadcpp, "C++ loaded C++", "C loaded C");
+    }
 
     switch (comp)
     {
@@ -1367,10 +1508,11 @@ testHUF (const std::string& tempdir)
     // decsize 1 << 16 + 1
     // decsize 1 << 14
     EXRCORE_TEST (esize == 65537 * (8 + 8 + sizeof (uint64_t*) + 4));
-    const uint64_t hufdecsize = (sizeof (uint32_t*) + sizeof(int32_t) + sizeof(uint32_t));
+    const uint64_t hufdecsize =
+        (sizeof (uint32_t*) + sizeof (int32_t) + sizeof (uint32_t));
     // sizeof(FastHufDecoder) is bother to manually compute, just assume it's ok
     // if it's returning at least enough for the slow path
-    EXRCORE_TEST (dsize >= (65537 * sizeof(uint64_t) + 16383 * hufdecsize));
+    EXRCORE_TEST (dsize >= (65537 * sizeof (uint64_t) + 16383 * hufdecsize));
 
     std::vector<uint8_t> hspare;
 
@@ -1521,7 +1663,7 @@ testZIPSCompression (const std::string& tempdir)
 void
 testPIZCompression (const std::string& tempdir)
 {
-    //testComp (tempdir, EXR_COMPRESSION_PIZ);
+    testComp (tempdir, EXR_COMPRESSION_PIZ);
 }
 
 void
@@ -1545,13 +1687,67 @@ testB44ACompression (const std::string& tempdir)
 void
 testDWAACompression (const std::string& tempdir)
 {
-    //testComp (tempdir, EXR_COMPRESSION_DWAA);
+    testComp (tempdir, EXR_COMPRESSION_DWAA);
 }
 
 void
 testDWABCompression (const std::string& tempdir)
 {
-    //testComp (tempdir, EXR_COMPRESSION_DWAB);
+    testComp (tempdir, EXR_COMPRESSION_DWAB);
+}
+
+struct ht_channel_map_tests {
+    exr_coding_channel_info_t   channels[6];
+    int                         channel_count;
+    bool                        pass;
+    int                         rgb_index[3];
+};
+
+void
+testHTChannelMap (const std::string& tempdir)
+{
+    std::vector<CodestreamChannelInfo> cs_to_file_ch;
+    ht_channel_map_tests               tests[] = {
+        {{{"R"}, {"G"}, {"B"}}, 3, true, {0, 1, 2}},
+        {{{"r"}, {"G"}, {"b"}}, 3, true, {0, 1, 2}},
+        {{{"B"}, {"G"}, {"R"}}, 3, true, {2, 1, 0}},
+        {{{"red"}, {"green"}, {"blue"}}, 3, true, {0, 1, 2}},
+        {{{"Red"}, {"Green"}, {"Blue"}, {"alpha"}}, 4, true, {0, 1, 2}},
+        {{{"hello.R"}, {"hello.G"}, {"hello.B"}}, 3, true, {0, 1, 2}},
+        {{{"hello.R"}, {"bye.R"}, {"hello.G"}, {"bye.R"}, {"hello.B"}, {"bye.B"}}, 6, true, {0, 2, 4}},
+        {{{"red"}, {"green"}, {"blue"}}, 3, true, {0, 1, 2}},
+        /* the following are expected to fail */
+        {{{"redqueen"}, {"greens"}, {"blueberry"}}, 3, false, {0, 1, 2}},
+        {{{"hello.R"}, {"bye.G"}, {"hello.B"}}, 3, false, {0, 2, 4}},
+    };
+    size_t test_count = sizeof(tests) / sizeof(ht_channel_map_tests);
+
+    for (size_t i = 0; i < test_count; i++)
+    {
+        EXRCORE_TEST (
+            make_channel_map (
+                tests[i].channel_count, tests[i].channels, cs_to_file_ch) ==
+            tests[i].pass);
+        if (tests[i].pass)
+        {
+            for (size_t j = 0; j < 3; j++)
+            {
+                EXRCORE_TEST (
+                    tests[i].rgb_index[j] == cs_to_file_ch[j].file_index);
+            }
+        }
+    }
+
+    exr_coding_channel_info_t channels_1[] = {
+        { "R" }, { "G" }, { "B" }
+    };
+
+    exr_coding_channel_info_t channels_2[] = {
+        { "R" }, { "G" }, { "1.B" }
+    };
+
+    EXRCORE_TEST (make_channel_map (3, channels_1, cs_to_file_ch));
+    EXRCORE_TEST (! make_channel_map (3, channels_2, cs_to_file_ch));
 }
 
 void

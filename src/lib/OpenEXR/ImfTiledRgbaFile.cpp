@@ -523,10 +523,7 @@ TiledRgbaOutputFile::writeTile (int dx, int dy, int l)
 #endif
         _toYa->writeTile (dx, dy, l, l);
     }
-    else
-    {
-        _outputFile->writeTile (dx, dy, l);
-    }
+    else { _outputFile->writeTile (dx, dy, l); }
 }
 
 void
@@ -539,10 +536,7 @@ TiledRgbaOutputFile::writeTile (int dx, int dy, int lx, int ly)
 #endif
         _toYa->writeTile (dx, dy, lx, ly);
     }
-    else
-    {
-        _outputFile->writeTile (dx, dy, lx, ly);
-    }
+    else { _outputFile->writeTile (dx, dy, lx, ly); }
 }
 
 void
@@ -558,10 +552,7 @@ TiledRgbaOutputFile::writeTiles (
             for (int dx = dxMin; dx <= dxMax; dx++)
                 _toYa->writeTile (dx, dy, lx, ly);
     }
-    else
-    {
-        _outputFile->writeTiles (dxMin, dxMax, dyMin, dyMax, lx, ly);
-    }
+    else { _outputFile->writeTiles (dxMin, dxMax, dyMin, dyMax, lx, ly); }
 }
 
 void
@@ -701,43 +692,68 @@ TiledRgbaInputFile::FromYa::readTile (int dx, int dy, int lx, int ly)
     }
 }
 
-TiledRgbaInputFile::TiledRgbaInputFile (const char name[], int numThreads)
-    : _inputFile (new TiledInputFile (name, numThreads))
-    , _fromYa (0)
-    , _channelNamePrefix ("")
-{
-    if (channels () & WRITE_Y) _fromYa = new FromYa (*_inputFile);
-}
-
 TiledRgbaInputFile::TiledRgbaInputFile (
-    OPENEXR_IMF_INTERNAL_NAMESPACE::IStream& is, int numThreads)
-    : _inputFile (new TiledInputFile (is, numThreads))
-    , _fromYa (0)
-    , _channelNamePrefix ("")
-{
-    if (channels () & WRITE_Y) _fromYa = new FromYa (*_inputFile);
-}
-
-TiledRgbaInputFile::TiledRgbaInputFile (
-    const char name[], const string& layerName, int numThreads)
-    : _inputFile (new TiledInputFile (name, numThreads))
+        const char name[],
+        const ContextInitializer &ctxt,
+        const std::string& layerName,
+        int numThreads)
+    : _inputFile (new TiledInputFile (name, ctxt, numThreads))
     , _fromYa (0)
     , _channelNamePrefix (
           prefixFromLayerName (layerName, _inputFile->header ()))
 {
     if (channels () & WRITE_Y) _fromYa = new FromYa (*_inputFile);
+}
+
+TiledRgbaInputFile::TiledRgbaInputFile (const char name[], int numThreads)
+    : TiledRgbaInputFile (
+        name,
+        ContextInitializer ()
+        .silentHeaderParse (true)
+        .strictHeaderValidation (false),
+        std::string(),
+        numThreads)
+{
+}
+
+TiledRgbaInputFile::TiledRgbaInputFile (
+    OPENEXR_IMF_INTERNAL_NAMESPACE::IStream& is, int numThreads)
+    : TiledRgbaInputFile (
+        is.fileName (),
+        ContextInitializer ()
+        .silentHeaderParse (true)
+        .strictHeaderValidation (false)
+        .setInputStream (&is),
+        std::string(),
+        numThreads)
+{
+}
+
+TiledRgbaInputFile::TiledRgbaInputFile (
+    const char name[], const string& layerName, int numThreads)
+    : TiledRgbaInputFile (
+        name,
+        ContextInitializer ()
+        .silentHeaderParse (true)
+        .strictHeaderValidation (false),
+        layerName,
+        numThreads)
+{
 }
 
 TiledRgbaInputFile::TiledRgbaInputFile (
     OPENEXR_IMF_INTERNAL_NAMESPACE::IStream& is,
     const string&                            layerName,
     int                                      numThreads)
-    : _inputFile (new TiledInputFile (is, numThreads))
-    , _fromYa (0)
-    , _channelNamePrefix (
-          prefixFromLayerName (layerName, _inputFile->header ()))
+    : TiledRgbaInputFile (
+        is.fileName (),
+        ContextInitializer ()
+        .silentHeaderParse (true)
+        .strictHeaderValidation (false)
+        .setInputStream (&is),
+        layerName,
+        numThreads)
 {
-    if (channels () & WRITE_Y) _fromYa = new FromYa (*_inputFile);
 }
 
 TiledRgbaInputFile::~TiledRgbaInputFile ()
@@ -1009,10 +1025,7 @@ TiledRgbaInputFile::readTile (int dx, int dy, int l)
 #endif
         _fromYa->readTile (dx, dy, l, l);
     }
-    else
-    {
-        _inputFile->readTile (dx, dy, l);
-    }
+    else { _inputFile->readTile (dx, dy, l); }
 }
 
 void
@@ -1025,10 +1038,7 @@ TiledRgbaInputFile::readTile (int dx, int dy, int lx, int ly)
 #endif
         _fromYa->readTile (dx, dy, lx, ly);
     }
-    else
-    {
-        _inputFile->readTile (dx, dy, lx, ly);
-    }
+    else { _inputFile->readTile (dx, dy, lx, ly); }
 }
 
 void
@@ -1044,10 +1054,7 @@ TiledRgbaInputFile::readTiles (
             for (int dx = dxMin; dx <= dxMax; dx++)
                 _fromYa->readTile (dx, dy, lx, ly);
     }
-    else
-    {
-        _inputFile->readTiles (dxMin, dxMax, dyMin, dyMax, lx, ly);
-    }
+    else { _inputFile->readTiles (dxMin, dxMax, dyMin, dyMax, lx, ly); }
 }
 
 void

@@ -98,9 +98,10 @@ generateRandomScanFile (
 
     frameBuffer.insertSampleCountSlice (Slice (
         IMF::UINT, // type // 7
-        (char*) (&sampleCountScans[0][0] - dataWindow.min.x - dataWindow.min.y * width), // base
-        sizeof (unsigned int) * 1,       // xStride
-        sizeof (unsigned int) * width)); // yStride
+        (char*) (&sampleCountScans[0][0] - dataWindow.min.x -
+                 dataWindow.min.y * width), // base
+        sizeof (unsigned int) * 1,          // xStride
+        sizeof (unsigned int) * width));    // yStride
 
     for (int i = 0; i < channelCount; i++)
     {
@@ -124,10 +125,11 @@ generateRandomScanFile (
             str, // name // 6
             DeepSlice (
                 type, // type // 7
-                (char*) (&data[i][0][0] - dataWindow.min.x - dataWindow.min.y * width), // base // 8
-                pointerSize * 1,     // xStride// 9
-                pointerSize * width, // yStride// 10
-                sampleSize));        // sampleStride
+                (char*) (&data[i][0][0] - dataWindow.min.x -
+                         dataWindow.min.y * width), // base // 8
+                pointerSize * 1,                    // xStride// 9
+                pointerSize * width,                // yStride// 10
+                sampleSize));                       // sampleStride
     }
 
     file.setFrameBuffer (frameBuffer);
@@ -169,9 +171,10 @@ generateRandomScanFile (
         for (int j = 0; j < width; j++)
             for (int k = 0; k < channelCount; k++)
             {
-                if (channelTypes[k] == 0) delete[](unsigned int*) data[k][i][j];
-                if (channelTypes[k] == 1) delete[](half*) data[k][i][j];
-                if (channelTypes[k] == 2) delete[](float*) data[k][i][j];
+                if (channelTypes[k] == 0)
+                    delete[] (unsigned int*) data[k][i][j];
+                if (channelTypes[k] == 1) delete[] (half*) data[k][i][j];
+                if (channelTypes[k] == 2) delete[] (float*) data[k][i][j];
             }
 
     std::cout << "  --> done" << std::endl;
@@ -354,10 +357,11 @@ generateRandomTileFile (
                     for (int k = 0; k < channelCount; k++)
                     {
                         if (channelTypes[k] == 0)
-                            delete[](unsigned int*) data[k][i][j];
-                        if (channelTypes[k] == 1) delete[](half*) data[k][i][j];
+                            delete[] (unsigned int*) data[k][i][j];
+                        if (channelTypes[k] == 1)
+                            delete[] (half*) data[k][i][j];
                         if (channelTypes[k] == 2)
-                            delete[](float*) data[k][i][j];
+                            delete[] (float*) data[k][i][j];
                     }
         }
     std::cout << "   --> done" << std::endl;

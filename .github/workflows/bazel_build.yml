@@ -6,74 +6,84 @@
 
 name: Bazel
 
+# Skip the run on *.md changes and on changes to the website, *except*
+# for "website/src", since that code needs validation.  There's a
+# separate workflow for with website.
+
 on:
   push:
-    # Versioned branches and tags are ignored for OpenEXR <= 1.x.x
-    branches-ignore:
-      - RB-2.*
-    tags-ignore:
-      - v1.*
-      - v2.*
-    # Jobs are skipped when ONLY Markdown (*.md) files are changed
-    paths-ignore:
-      - '**.md'
+    paths:
+      - '**'
+      - '!**.md'
+      - '!website/**'
+      - 'website/src/**'
+      - '!src/wrappers/**'
+      - '!.github/workflows/**'
+      - '.github/workflows/bazel_build.yml'
   pull_request:
-    branches-ignore:
-      - RB-2.*
-    tags-ignore:
-      - v1.*
-      - v2.*
-    paths-ignore:
-      - '**.md'
+    paths:
+      - '**'
+      - '!**.md'
+      - '!website/**'
+      - 'website/src/**'
+      - '!src/wrappers/**'
+      - '!.github/workflows/**'
+      - '.github/workflows/bazel_build.yml'
+
+permissions:
+  contents: read
 
 jobs:
   build_and_test_ubuntu:
-    name: Linux Ubuntu 20.04 Bazel build <GCC 9.3.0>
-    runs-on: ubuntu-20.04
+    name: Linux Ubuntu 24.04 Bazel build <GCC 13.3.0>
+    runs-on: ubuntu-24.04
     
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
     - name: Mount Bazel cache
-      uses: actions/cache@v2
+      uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
       with:
         path: "/home/runner/.cache/bazel"
-        key: bazel-ubuntu
+        key: bazel-ubuntu-24
 
     - name: Build
       run: |
-        bazelisk build //...
+        bazel build //...
+        bazel test --test_output=errors //...
 
   build_and_test_windows:
-    name: Windows Server 2022 build <Visual Studio 2022>
-    runs-on: windows-2022
+    name: Windows Server 2025 build <Visual Studio 2022>
+    runs-on: windows-2025
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
     - name: Mount Bazel cache
-      uses: actions/cache@v2
+      uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
       with:
         path: "/home/runner/.cache/bazel"
-        key: bazel-windows
+        key: bazel-windows-2025
 
     - name: Build
       run: |
-        bazelisk build //...
+        bazel build //...
+        bazel test --test_output=errors //...
 
   build_and_test_macos:
-    name: macOS 12 Bazel build <Apple Clang14>
-    runs-on: macos-12
+    name: macOS 15 Bazel build <Apple Clang14>
+    runs-on: macos-15
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
     - name: Mount Bazel cache
-      uses: actions/cache@v2
+      uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
       with:
         path: "/home/runner/.cache/bazel"
-        key: bazel-macos
+        key: bazel-macos-15
 
     - name: Build
       run: |
-        bazelisk build //...
+        bazel build //...
+        bazel test --test_output=errors //...

@@ -3,6 +3,7 @@
 
 [![License](https://img.shields.io/github/license/AcademySoftwareFoundation/openexr)](LICENSE.md)
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/2799/badge)](https://bestpractices.coreinfrastructure.org/projects/2799)
+[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/AcademySoftwareFoundation/openexr/badge)](https://securityscorecards.dev/viewer/?uri=github.com/AcademySoftwareFoundation/openexr)
 [![Build Status](https://github.com/AcademySoftwareFoundation/openexr/workflows/CI/badge.svg)](https://github.com/AcademySoftwareFoundation/openexr/actions?query=workflow%3ACI)
 [![Analysis Status](https://github.com/AcademySoftwareFoundation/openexr/workflows/Analysis/badge.svg)](https://github.com/AcademySoftwareFoundation/openexr/actions?query=workflow%3AAnalysis)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=AcademySoftwareFoundation_openexr&metric=alert_status)](https://sonarcloud.io/dashboard?id=AcademySoftwareFoundation_openexr)
@@ -52,54 +53,70 @@ package.
 
 OpenEXR is a project of the [Academy Software
 Foundation](https://www.aswf.io). See the project's [governance
-policies](GOVERNANCE.md), [contribution guidelines](CONTRIBzuTING.md), and [code of conduct](CODE_OF_CONDUCT)
+policies](GOVERNANCE.md), [contribution guidelines](CONTRIBUTING.md), and [code of conduct](CODE_OF_CONDUCT)
 for more information.
+
+# Building OpenEXR
+
+See the [Install instructions](https://openexr.com/en/latest/install.html) for instructions on how to build
+OpenEXR and its required prerequisites.
 
 # Quick Start
 
 See the [technical documentation](https://openexr.readthedocs.io) for
-complete details, but to get started, the "hello, world" `.exr` writer program is:
+complete details, but to get started, the "Hello, world" [`exrwriter.cpp`](https://raw.githubusercontent.com/AcademySoftwareFoundation/openexr/main/website/src/exrwriter/exrwriter.cpp) writer program is:
 
     #include <ImfRgbaFile.h>
     #include <ImfArray.h>
     #include <iostream>
-    
+
+    using namespace OPENEXR_IMF_NAMESPACE;
+
     int
     main()
     {
+        int width =  100;
+        int height = 50;
+
+        Array2D<Rgba> pixels(height, width);
+        for (int y=0; y<height; y++)
+        {
+            float c = (y / 5 % 2 == 0) ? (y / (float) height) : 0.0;
+            for (int x=0; x<width; x++)
+                pixels[y][x] = Rgba(c, c, c);
+        }
+
         try {
-            int width =  10;
-            int height = 10;
-            
-            Imf::Array2D<Imf::Rgba> pixels(width, height);
-            for (int y=0; y<height; y++)
-                for (int x=0; x<width; x++)
-                    pixels[y][x] = Imf::Rgba(0, x / (width-1.0f), y / (height-1.0f));
-        
-            Imf::RgbaOutputFile file ("hello.exr", width, height, Imf::WRITE_RGBA);
+            RgbaOutputFile file ("stripes.exr", width, height, WRITE_RGBA);
             file.setFrameBuffer (&pixels[0][0], 1, width);
             file.writePixels (height);
         } catch (const std::exception &e) {
-            std::cerr << "Unable to read image file hello.exr:" << e.what() << std::endl;
+            std::cerr << "error writing image file stripes.exr:" << e.what() << std::endl;
             return 1;
         }
         return 0;
     }
 
-The `CMakeLists.txt` to build:
+This creates an image 100 pixels wide and 50 pixels high with
+horizontal stripes 5 pixels high of graduated intensity, bright on the
+bottom of the image and dark towards the top. Note that ``pixel[0][0]``
+is in the upper left:
 
-    cmake_minimum_required(VERSION 3.10)
+![stripes](website/images/stripes.png)
+
+The [`CMakeLists.txt`](https://raw.githubusercontent.com/AcademySoftwareFoundation/openexr/main/website/src/exrwriter/CMakeLists.txt) to build:
+
+    cmake_minimum_required(VERSION 3.12)
     project(exrwriter)
     find_package(OpenEXR REQUIRED)
-    
-    add_executable(${PROJECT_NAME} writer.cpp)
+
+    add_executable(${PROJECT_NAME} exrwriter.cpp)
     target_link_libraries(${PROJECT_NAME} OpenEXR::OpenEXR)
 
 To build:
 
-    $ mkdir _build
-    $ cmake -S . -B _build
-    $ make --build _build
+    $ cmake -S . -B _build -DCMAKE_PREFIX_PATH=<path to OpenEXR libraries/includes>
+    $ cmake --build _build
 
 For more details, see [The OpenEXR
 API](https://openexr.readthedocs.io/en/latest/API.html#the-openexr-api).
@@ -117,7 +134,9 @@ API](https://openexr.readthedocs.io/en/latest/API.html#the-openexr-api).
   - Technical Steering Committee meetings are open to the
     public, fortnightly on Thursdays, 1:30pm Pacific Time.
 
-  - Calendar: https://lists.aswf.io/g/openexr-dev/calendar
+  - Calendar: https://zoom-lfx.platform.linuxfoundation.org/meetings/openexr
+
+  - Meeting Notes: https://wiki.aswf.io/display/OEXR/TSC+Meetings
 
 * **Report a bug:**
 
@@ -133,7 +152,7 @@ API](https://openexr.readthedocs.io/en/latest/API.html#the-openexr-api).
 
   - Sign the [Contributor License
     Agreement](https://contributor.easycla.lfx.linuxfoundation.org/#/cla/project/2e8710cb-e379-4116-a9ba-964f83618cc5/user/564e571e-12d7-4857-abd4-898939accdd7)
-  
+
   - Submit a Pull Request: https://github.com/AcademySoftwareFoundation/openexr/pulls
 
 # Resources

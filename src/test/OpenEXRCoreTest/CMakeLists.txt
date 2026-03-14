@@ -4,7 +4,10 @@
 add_executable(OpenEXRCoreTest
   base_units.cpp
   base_units.h
+  buffer.cpp
+  buffer.h
   compression.cpp
+  compressionTables.cpp
   compression.h
   deep.cpp
   deep.h
@@ -25,11 +28,16 @@ target_compile_definitions(OpenEXRCoreTest PRIVATE
   COMP_MAJ=${OpenEXR_VERSION_MAJOR}
   COMP_MIN=${OpenEXR_VERSION_MINOR}
   COMP_PATCH=${OpenEXR_VERSION_PATCH}
-  COMP_EXTRA="\\"${OPENEXR_VERSION_RELEASE_TYPE}\\""
-  )
+  COMP_EXTRA="${OPENEXR_VERSION_RELEASE_TYPE}"
+)
 set_target_properties(OpenEXRCoreTest PROPERTIES
   RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
-  )
+  CXX_STANDARD_REQUIRED ON
+  CXX_EXTENSIONS OFF
+)
+target_compile_features(OpenEXRCoreTest
+    PRIVATE cxx_std_${OPENEXR_CXX_STANDARD}
+)
 
 target_link_libraries(OpenEXRCoreTest Imath::Imath)
 
@@ -59,12 +67,17 @@ define_openexrcore_tests(
  testBaseErrors
  testBaseLimits
  testBaseDebug
+ testCPUIdent
+ testHalf
  testXDR
+ testBufferCompression
+ testTempContext
 
  testAttrSizes
  testAttrStrings
  testAttrStringVectors
  testAttrFloatVectors
+ testAttrBytes
  testAttrChlists
  testAttrPreview
  testAttrOpaque
@@ -77,6 +90,7 @@ define_openexrcore_tests(
  testOpenTiles
  testOpenMultiPart
  testOpenDeep
+ testReadMeta
  testReadScans
  testReadTiles
  testReadMultiPart
@@ -91,6 +105,7 @@ define_openexrcore_tests(
  testStartWriteDeepScan
  testStartWriteTile
  testStartWriteDeepTile
+ testStartWriteUTF8
  testWriteAttrs
  testWriteScans
  testWriteTiles
@@ -98,6 +113,9 @@ define_openexrcore_tests(
  testWriteDeep
 
  testHUF
+ testDWAQuantize
+ testDWATable
+ testB44Table
  testNoCompression
  testRLECompression
  testZIPCompression
@@ -108,6 +126,7 @@ define_openexrcore_tests(
  testB44ACompression
  testDWAACompression
  testDWABCompression
+ testHTChannelMap
  testDeepNoCompression
  testDeepZIPCompression
  testDeepZIPSCompression

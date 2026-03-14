@@ -2,7 +2,7 @@
 # Copyright (c) Contributors to the OpenEXR Project.
 
 # We require this to get object library link library support
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.14)
 
 if(POLICY CMP0074)
   # enable find_package(<Package>) to use <Package>_ROOT as a hint
@@ -19,46 +19,48 @@ endif()
 # configuration files
 #######################################
 
-project(OpenEXR VERSION 3.2.0 LANGUAGES C CXX)
+file(READ "src/lib/OpenEXRCore/openexr_version.h" VERSION_H)
+string(REGEX MATCH "VERSION_MAJOR ([0-9]*)" _ ${VERSION_H})
+set(OPENEXR_VERSION_MAJOR ${CMAKE_MATCH_1})
+string(REGEX MATCH "VERSION_MINOR ([0-9]*)" _ ${VERSION_H})
+set(OPENEXR_VERSION_MINOR ${CMAKE_MATCH_1})
+string(REGEX MATCH "VERSION_PATCH ([0-9]*)" _ ${VERSION_H})
+set(OPENEXR_VERSION_PATCH ${CMAKE_MATCH_1})
+
+project(OpenEXR VERSION ${OPENEXR_VERSION_MAJOR}.${OPENEXR_VERSION_MINOR}.${OPENEXR_VERSION_PATCH} LANGUAGES C CXX)
 
 set(OPENEXR_VERSION_RELEASE_TYPE "-dev" CACHE STRING "Extra version tag string for OpenEXR build, such as -dev, -beta1, etc.")
 
 set(OPENEXR_VERSION ${OpenEXR_VERSION})
 set(OPENEXR_VERSION_API "${OpenEXR_VERSION_MAJOR}_${OpenEXR_VERSION_MINOR}")
 
-# Library/shared-object version using libtool versioning policy.
-# See https://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
+# The SOVERSION (i.e. numerical component of SONAME) tracks the ABI
+# version. Increment this number whenever, and only when, the ABI changes in
+# non-backwards-compatible ways.
 #
-# Library API version (CMake's library VERSION attribute) is of the
-# form CURRENT.REVISION.AGE; the CMake SOVERSION attribute corresponds
-# to just CURRENT. These produce a .so and a symlink symlink, e.g.:
-# libOpenEXR-3_1.so.29 -> libOpenEXR-3_1.so.29.0.0
-#                    ^                       ^ ^ ^
-#                    |                       | | |
-#                    CURRENT                 | | AGE
-#                                            | REVISION 
-#                                            CURRENT
-# When updating:
-#   1. no API change: CURRENT.REVISION+1.AGE
-#   2. API added:     CURRENT+1.0.AGE+1
-#   3. API changed:   CURRENT+1.0.0
-#
-set(OPENEXR_LIBTOOL_CURRENT 29)
-set(OPENEXR_LIBTOOL_REVISION 0)
-set(OPENEXR_LIBTOOL_AGE 0)
-set(OPENEXR_LIB_VERSION "${OPENEXR_LIBTOOL_CURRENT}.${OPENEXR_LIBTOOL_REVISION}.${OPENEXR_LIBTOOL_AGE}")
-set(OPENEXR_LIB_SOVERSION ${OPENEXR_LIBTOOL_CURRENT})
+# The OpenEXR project policy is to append the library version 
+# "major.minor.patch" to the SONAME to form the real shared library name.  
+# For example, in "libOpenEXR.so.31.3.2.0", "libOpenEXR.so.31" is the SONAME
+# and ".3.2.0" identifies the corresponding library release.
 
-option(OPENEXR_INSTALL "Install OpenEXR libraries" ON)
-option(OPENEXR_INSTALL_TOOLS "Install OpenEXR tools" ON)
-if(OPENEXR_INSTALL_TOOLS AND NOT OPENEXR_INSTALL)
-  message(SEND_ERROR "OPENEXR_INSTALL_TOOLS requires OPENEXR_INSTALL")
+set(OPENEXR_LIB_SOVERSION 99)
+set(OPENEXR_LIB_VERSION "${OPENEXR_LIB_SOVERSION}.${OPENEXR_VERSION}") # e.g. "31.3.2.0"
+
+if(OPENEXR_INSTALL OR OPENEXR_INSTALL_TOOLS OR OPENEXR_INSTALL_DEVELOPER_TOOLS)
+  # uninstall target
+  if(NOT TARGET uninstall)
+    configure_file(
+      "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in"
+      "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
+      IMMEDIATE @ONLY)
+    add_custom_target(uninstall
+      COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
+  endif()
 endif()
 
 include(cmake/LibraryDefine.cmake)
 include(cmake/OpenEXRSetup.cmake)
 add_subdirectory(cmake)
-
 message(STATUS "Configure ${OPENEXR_PACKAGE_NAME}, library API version: ${OPENEXR_LIB_VERSION}")
 
 # Hint: This can be set to enable custom find_package
@@ -77,18 +79,22 @@ if(BUILD_TESTING AND NOT OPENEXR_IS_SUBPROJECT)
 endif()
 
 # Include these two modules without enable/disable options
-add_subdirectory(src/lib)
-add_subdirectory(src/bin)
+if (OPENEXR_BUILD_LIBS)
+  add_subdirectory(src/lib)
+endif()
 
-# Tell CMake where to find the OpenEXRConfig.cmake file. Makes it possible to call 
+if(OPENEXR_BUILD_TOOLS AND OPENEXR_BUILD_LIBS)
+  add_subdirectory(src/bin)
+endif()
+
+# Tell CMake where to find the OpenEXRConfig.cmake file. Makes it possible to call
 # find_package(OpenEXR) in downstream projects
 set(OpenEXR_DIR "${CMAKE_CURRENT_BINARY_DIR}/cmake" CACHE PATH "" FORCE)
-# Add an empty OpenEXRTargets.cmake file for the config to use. 
+# Add an empty OpenEXRTargets.cmake file for the config to use.
 # Can be empty since we already defined the targets in add_subdirectory
 file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/cmake/OpenEXRTargets.cmake" "# Dummy file")
 
-option(OPENEXR_INSTALL_EXAMPLES "Install OpenEXR examples" ON)
-if(OPENEXR_INSTALL_EXAMPLES)
+if(OPENEXR_BUILD_EXAMPLES AND OPENEXR_BUILD_LIBS)
   add_subdirectory( src/examples )
 endif()
 
@@ -96,7 +102,7 @@ endif()
 # upload the results, cmake has builtin support for
 # submitting to CDash, or any server who speaks the
 # same protocol
-# 
+#
 # These settings will need to be set for your environment,
 # and then a script such as the example in
 #
@@ -107,7 +113,7 @@ endif()
 # cmake -S cmake/SampleCTestScript.cmake
 #
 # [or whatever you name the file you edit]
-# 
+#
 #set(CTEST_PROJECT_NAME "OpenEXR")
 #set(CTEST_NIGHTLY_START_TIME "01:01:01 UTC")
 #set(CTEST_DROP_METHOD "http") # there are others...
@@ -116,7 +122,7 @@ endif()
 #set(CTEST_DROP_SITE_CDASH TRUE)
 include(CTest)
 
-if(BUILD_TESTING AND NOT OPENEXR_IS_SUBPROJECT)
+if(BUILD_TESTING AND OPENEXR_BUILD_LIBS AND NOT OPENEXR_IS_SUBPROJECT)
   add_subdirectory(src/test)
 endif()
 
@@ -126,9 +132,21 @@ if(NOT OPENEXR_IS_SUBPROJECT)
   include(cmake/clang-format.cmake)
 endif()
 
-option(BUILD_DOCS "Set ON to build html documentation")
-if (BUILD_DOCS AND NOT OPENEXR_IS_SUBPROJECT)
-  option(INSTALL_DOCS "Set ON to install html documentation" ON)
+option(OPENEXR_INSTALL_DOCS "Set ON to install tool manpages")
+if (OPENEXR_INSTALL_DOCS AND NOT OPENEXR_IS_SUBPROJECT)
   add_subdirectory(docs)
 endif()
 
+option(BUILD_WEBSITE "Set ON to build website source")
+if (BUILD_WEBSITE AND NOT OPENEXR_IS_SUBPROJECT)
+  add_subdirectory(website)
+endif()
+
+if (OPENEXR_BUILD_LIBS AND NOT OPENEXR_IS_SUBPROJECT)
+  # Even if not building the website, still make sure the website example code compiles.
+  add_subdirectory(website/src)
+endif()
+
+if (OPENEXR_BUILD_PYTHON AND OPENEXR_BUILD_LIBS AND NOT OPENEXR_IS_SUBPROJECT)
+  add_subdirectory(src/wrappers/python)
+endif()

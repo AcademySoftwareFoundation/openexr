@@ -112,21 +112,21 @@ static inline uint16_t
 getSw ()
 {
     uint16_t sw;
-    asm volatile("fnstsw %0" : "=m"(sw) :);
+    asm volatile ("fnstsw %0" : "=m"(sw) :);
     return sw;
 }
 
 static inline void
 setCw (uint16_t cw)
 {
-    asm volatile("fldcw %0" : : "m"(cw));
+    asm volatile ("fldcw %0" : : "m"(cw));
 }
 
 static inline uint16_t
 getCw ()
 {
     uint16_t cw;
-    asm volatile("fnstcw %0" : "=m"(cw) :);
+    asm volatile ("fnstcw %0" : "=m"(cw) :);
     return cw;
 }
 
@@ -134,14 +134,14 @@ static inline void
 setMxcsr (uint32_t mxcsr, bool clearExceptions)
 {
     mxcsr &= clearExceptions ? 0xffffffc0 : 0xffffffff;
-    asm volatile("ldmxcsr %0" : : "m"(mxcsr));
+    asm volatile ("ldmxcsr %0" : : "m"(mxcsr));
 }
 
 static inline uint32_t
 getMxcsr ()
 {
     uint32_t mxcsr;
-    asm volatile("stmxcsr %0" : "=m"(mxcsr) :);
+    asm volatile ("stmxcsr %0" : "=m"(mxcsr) :);
     return mxcsr;
 }
 
@@ -203,10 +203,10 @@ void
 clearExceptions ()
 {
     uint32_t mxcsr = getMxcsr () & 0xffffffc0;
-    asm volatile("ldmxcsr %0\n"
-                 "fnclex"
-                 :
-                 : "m"(mxcsr));
+    asm volatile ("ldmxcsr %0\n"
+                  "fnclex"
+                  :
+                  : "m"(mxcsr));
 }
 
 // If the fpe was taken while doing a float-to-int cast using the x87,
@@ -243,14 +243,15 @@ restoreControlRegs (const ucontext_t& ucon, bool clearExceptions)
 inline void
 restoreControlRegs (const ucontext_t& ucon, bool clearExceptions)
 {
-#        if (defined(__GLIBC__) && defined(__i386__)) || defined(__ANDROID_API__)
+#        if (defined(__linux__) && defined(__i386__)) ||                       \
+            defined(__ANDROID_API__)
     setCw ((ucon.uc_mcontext.fpregs->cw & cwRestoreMask) | cwRestoreVal);
 #        else
     setCw ((ucon.uc_mcontext.fpregs->cwd & cwRestoreMask) | cwRestoreVal);
 #        endif
 
     _fpstate* kfp = reinterpret_cast<_fpstate*> (ucon.uc_mcontext.fpregs);
-#        if defined(__GLIBC__) && defined(__i386__)
+#        if defined(__linux__) && defined(__i386__)
     setMxcsr (kfp->magic == 0 ? kfp->mxcsr : 0, clearExceptions);
 #        else
     setMxcsr (kfp->mxcsr, clearExceptions);
@@ -443,10 +444,7 @@ void
 fpExc_ (int x)
 {
     if (fpeHandler != 0) { fpeHandler (x, ""); }
-    else
-    {
-        assert (0 != "Floating point exception");
-    }
+    else { assert (0 != "Floating point exception"); }
 }
 } // namespace
 

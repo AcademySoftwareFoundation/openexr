@@ -62,10 +62,10 @@ public:
 
     ~FastHufDecoder ();
 
-    FastHufDecoder (const FastHufDecoder& other) = delete;
+    FastHufDecoder (const FastHufDecoder& other)            = delete;
     FastHufDecoder& operator= (const FastHufDecoder& other) = delete;
     FastHufDecoder (FastHufDecoder&& other)                 = delete;
-    FastHufDecoder& operator= (FastHufDecoder&& other) = delete;
+    FastHufDecoder& operator= (FastHufDecoder&& other)      = delete;
 
     static bool enabled ();
 

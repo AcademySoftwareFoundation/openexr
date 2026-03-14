@@ -9,7 +9,7 @@
 #include "openexr_attr.h"
 #include "openexr_context.h"
 
-/** 
+/**
  * @defgroup InternalAttributeFunctions Functions for manipulating attributes
  *
  * The functions are currently internal to the library and are not
@@ -28,6 +28,7 @@
 #include "internal_channel_list.h"
 #include "internal_float_vector.h"
 #include "internal_opaque.h"
+#include "internal_bytes.h"
 #include "internal_preview.h"
 #include "internal_string.h"
 #include "internal_string_vector.h"

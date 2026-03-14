@@ -1,6 +1,16 @@
 // SPDX-License-Identifier: BSD-3-Clause
 // Copyright Contributors to the OpenEXR Project.
 
+#ifdef _WIN32
+// windows is very particular about when windows.h is included
+#include <windows.h>
+#include <fileapi.h>
+#include <inttypes.h>
+#include <strsafe.h>
+#else
+#include <unistd.h>
+#endif
+
 #include "write.h"
 
 #include "test_value.h"
@@ -10,6 +20,7 @@
 #include <float.h>
 #include <limits.h>
 #include <math.h>
+#include <stdio.h>
 #include <string.h>
 
 #include <iomanip>
@@ -149,6 +160,11 @@ testStartWriteDeepScan (const std::string& tempdir)
     EXRCORE_TEST_RVAL (exr_get_storage (outf, partidx, &storage));
     EXRCORE_TEST (storage == EXR_STORAGE_DEEP_SCANLINE);
 
+    uint32_t verflags;
+    EXRCORE_TEST_RVAL (
+        exr_get_file_version_and_flags (outf, &verflags));
+    EXRCORE_TEST (verflags == (2 | 0x00000800));
+
     EXRCORE_TEST_RVAL (exr_finish (&outf));
     remove (outfn.c_str ());
 }
@@ -248,6 +264,11 @@ testStartWriteDeepTile (const std::string& tempdir)
     EXRCORE_TEST_RVAL (exr_get_storage (outf, partidx, &storage));
     EXRCORE_TEST (storage == EXR_STORAGE_DEEP_TILED);
 
+    uint32_t verflags;
+    EXRCORE_TEST_RVAL (
+        exr_get_file_version_and_flags (outf, &verflags));
+    EXRCORE_TEST (verflags == (2 | 0x00000800));
+
     EXRCORE_TEST_RVAL (exr_finish (&outf));
     remove (outfn.c_str ());
 }
@@ -258,6 +279,7 @@ testWriteBaseHeader (const std::string& tempdir)
     exr_context_t outf;
     std::string   outfn = tempdir + "testattr.exr";
     int           partidx;
+    uint32_t      verflags;
 
     exr_context_initializer_t cinit = EXR_DEFAULT_CONTEXT_INITIALIZER;
     cinit.error_handler_fn          = &err_cb;
@@ -413,10 +435,16 @@ testWriteBaseHeader (const std::string& tempdir)
         exr_set_dwa_compression_level (outf, 0, -2.f));
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_INVALID_ARGUMENT,
-        exr_set_dwa_compression_level (outf, 0, 420.f));
+        exr_set_dwa_compression_level (outf, 0, INFINITY));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_INVALID_ARGUMENT,
+        exr_set_dwa_compression_level (outf, 0, NAN));
     EXRCORE_TEST_RVAL (exr_set_dwa_compression_level (outf, 0, 42.f));
     EXRCORE_TEST_RVAL (exr_get_dwa_compression_level (outf, 0, &dlev));
     EXRCORE_TEST (dlev == 42.f);
+    EXRCORE_TEST_RVAL (exr_set_dwa_compression_level (outf, 0, 420.f));
+    EXRCORE_TEST_RVAL (exr_get_dwa_compression_level (outf, 0, &dlev));
+    EXRCORE_TEST (dlev == 420.f);
 
     EXRCORE_TEST_RVAL (exr_finish (&outf));
     remove (outfn.c_str ());
@@ -425,8 +453,8 @@ testWriteBaseHeader (const std::string& tempdir)
         &outf, outfn.c_str (), EXR_WRITE_FILE_DIRECTLY, &cinit));
     EXRCORE_TEST_RVAL (
         exr_add_part (outf, "beauty", EXR_STORAGE_SCANLINE, &partidx));
-    exr_attr_box2i_t dataw = {-2, -3, 514, 515};
-    exr_attr_box2i_t dispw = {0, 0, 512, 512};
+    exr_attr_box2i_t dataw = {{-2, -3}, {514, 515}};
+    exr_attr_box2i_t dispw = {{0, 0}, {512, 512}};
     exr_attr_v2f_t   swc   = {0.5f, 0.5f};
     EXRCORE_TEST_RVAL (exr_initialize_required_attr (
         outf,
@@ -464,6 +492,14 @@ testWriteBaseHeader (const std::string& tempdir)
         1));
 
     EXRCORE_TEST_RVAL (exr_write_header (outf));
+    EXRCORE_TEST_RVAL (
+        exr_get_file_version_and_flags (outf, &verflags));
+    EXRCORE_TEST (verflags == 2);
+
+    uint64_t cto;
+    EXRCORE_TEST_RVAL (
+        exr_get_chunk_table_offset (outf, 0, &cto));
+    EXRCORE_TEST (cto == 364);
 
     EXRCORE_TEST_RVAL (exr_finish (&outf));
     remove (outfn.c_str ());
@@ -474,7 +510,7 @@ testWriteBaseHeader (const std::string& tempdir)
         &outf, outfn.c_str (), EXR_WRITE_FILE_DIRECTLY, &cinit));
     EXRCORE_TEST_RVAL (
         exr_add_part (outf, "beauty", EXR_STORAGE_TILED, &partidx));
-    dataw = {0, 0, 512, 512};
+    dataw = {{0, 0}, {512, 512}};
     EXRCORE_TEST_RVAL (exr_initialize_required_attr (
         outf,
         partidx,
@@ -533,6 +569,9 @@ testWriteBaseHeader (const std::string& tempdir)
     EXRCORE_TEST (txsize == 32 && tysize == 32);
 
     EXRCORE_TEST_RVAL (exr_write_header (outf));
+    EXRCORE_TEST_RVAL (
+        exr_get_file_version_and_flags (outf, &verflags));
+    EXRCORE_TEST (verflags == (2 | 0x00000200));
 
     EXRCORE_TEST_RVAL (exr_finish (&outf));
     remove (outfn.c_str ());
@@ -596,8 +635,7 @@ testWriteAttrs (const std::string& tempdir)
         EXR_ERR_ARGUMENT_OUT_OF_RANGE, exr_set_name (outf, 1, "a"));
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_INVALID_ARGUMENT, exr_set_name (outf, partidx, NULL));
-    EXRCORE_TEST_RVAL_FAIL (
-        EXR_ERR_INVALID_ARGUMENT, exr_set_name (outf, partidx, ""));
+    EXRCORE_TEST_RVAL (exr_set_name (outf, partidx, ""));
     EXRCORE_TEST_RVAL (exr_set_name (outf, partidx, "beauty"));
     EXRCORE_TEST_RVAL (exr_get_name (outf, partidx, &partname));
     EXRCORE_TEST (0 == strcmp (partname, "beauty"));
@@ -815,6 +853,12 @@ testWriteAttrs (const std::string& tempdir)
     }
 
     {
+        uint8_t bytes_data[] = {0x76, 0x2f, 0x31, 0x01};
+        exr_attr_bytes_t mybytes = {4, bytes_data};
+        TEST_CORNER_CASE_NAME (bytes, mybytes, int);
+    }
+
+    {
         exr_lineorder_t lo;
         TEST_CORNER_CASE_GET (exr_get_lineorder, &lo);
         EXRCORE_TEST (lo == EXR_LINEORDER_INCREASING_Y);
@@ -908,7 +952,7 @@ testWriteAttrs (const std::string& tempdir)
     }
 
     {
-        exr_attr_box2i_t tb2i = {1, 2, 3, 4};
+        exr_attr_box2i_t tb2i = {{1, 2}, {3, 4}};
         TEST_CORNER_CASE_NAME (box2i, tb2i, int);
         EXRCORE_TEST (tb2i.min.x == 1);
         EXRCORE_TEST (tb2i.min.y == 2);
@@ -917,7 +961,7 @@ testWriteAttrs (const std::string& tempdir)
     }
 
     {
-        exr_attr_box2f_t tb2f = {1.f, 2.f, 3.f, 4.f};
+        exr_attr_box2f_t tb2f = {{1.f, 2.f}, {3.f, 4.f}};
         TEST_CORNER_CASE_NAME (box2f, tb2f, int);
         EXRCORE_TEST (tb2f.min.x == 1.f);
         EXRCORE_TEST (tb2f.min.y == 2.f);
@@ -1293,7 +1337,6 @@ testWriteTiles (const std::string& tempdir)
     EXRCORE_TEST (partcnt == outpartcnt);
 
     exr_attr_box2i_t dw;
-    int              curchunk = 0;
     int              ty, tx;
     void*            cmem     = NULL;
     size_t           cmemsize = 0;
@@ -1367,6 +1410,88 @@ testWriteMultiPart (const std::string& tempdir)
     EXRCORE_TEST_RVAL (exr_get_storage (outf, 1, &storage));
     EXRCORE_TEST (storage == EXR_STORAGE_TILED);
 
+    uint32_t verflags;
+    EXRCORE_TEST_RVAL (
+        exr_get_file_version_and_flags (outf, &verflags));
+    EXRCORE_TEST (verflags == (2 | 0x00001000));
+
     EXRCORE_TEST_RVAL (exr_finish (&outf));
     remove (outfn.c_str ());
+}
+
+void
+testStartWriteUTF8 (const std::string& tempdir)
+{
+    exr_context_t outf;
+    // per google translate, image in Japanese
+    std::string   outfn = tempdir + "画像.exr";
+    int           partidx;
+
+    exr_context_initializer_t cinit = EXR_DEFAULT_CONTEXT_INITIALIZER;
+    cinit.error_handler_fn          = &err_cb;
+    cinit.zip_level = 3;
+    cinit.flags |= EXR_CONTEXT_FLAG_WRITE_LEGACY_HEADER;
+
+    exr_set_default_zip_compression_level (-1);
+
+    EXRCORE_TEST_RVAL (exr_start_write (
+        &outf, outfn.c_str (), EXR_WRITE_FILE_DIRECTLY, &cinit));
+    EXRCORE_TEST_RVAL (
+        exr_add_part (outf, "beauty", EXR_STORAGE_SCANLINE, &partidx));
+    EXRCORE_TEST (partidx == 0);
+    EXRCORE_TEST_RVAL (exr_get_count (outf, &partidx));
+    EXRCORE_TEST (partidx == 1);
+    partidx = 0;
+
+    int fw = 1;
+    int fh = 1;
+    exr_attr_box2i_t dataW = { {0, 0}, {0, 0} };
+
+    EXRCORE_TEST_RVAL (
+        exr_initialize_required_attr_simple (outf, partidx, fw, fh, EXR_COMPRESSION_NONE));
+    EXRCORE_TEST_RVAL (exr_set_data_window (outf, partidx, &dataW));
+
+    EXRCORE_TEST_RVAL (exr_add_channel (
+        outf, partidx, "h", EXR_PIXEL_HALF, EXR_PERCEPTUALLY_LOGARITHMIC, 1, 1));
+    EXRCORE_TEST_RVAL (exr_write_header (outf));
+
+    exr_chunk_info_t      cinfo;
+    exr_encode_pipeline_t encoder;
+
+    EXRCORE_TEST_RVAL (exr_write_scanline_chunk_info (outf, 0, 0, &cinfo));
+    EXRCORE_TEST_RVAL (
+        exr_encoding_initialize (outf, 0, &cinfo, &encoder));
+
+    uint16_t hval[] = { 0x1234, 0 };
+    for (int c = 0; c < encoder.channel_count; ++c)
+    {
+        encoder.channels[c].encode_from_ptr   = (const uint8_t *)hval;
+        encoder.channels[c].user_pixel_stride = 2;
+        encoder.channels[c].user_line_stride  = 2;
+    }
+    EXRCORE_TEST_RVAL (
+        exr_encoding_choose_default_routines (outf, 0, &encoder));
+    EXRCORE_TEST_RVAL (exr_encoding_run (outf, 0, &encoder));
+    EXRCORE_TEST_RVAL (exr_encoding_destroy (outf, &encoder));
+
+    EXRCORE_TEST_RVAL (exr_finish (&outf));
+#ifdef _WIN32
+    int      wcSize = 0, fnlen = 0;
+    wchar_t* wcFn = NULL;
+
+    fnlen  = (int) strlen (outfn.c_str ());
+    wcSize = MultiByteToWideChar (CP_UTF8, 0, outfn.c_str (), fnlen, NULL, 0);
+    wcFn   = (wchar_t*) malloc (sizeof (wchar_t) * (wcSize + 1));
+    if (wcFn)
+    {
+        MultiByteToWideChar (CP_UTF8, 0, outfn.c_str (), fnlen, wcFn, wcSize);
+        wcFn[wcSize] = 0;
+    }
+    EXRCORE_TEST ( _waccess (wcFn, 0) != -1 );
+    _wremove (wcFn);
+    free (wcFn);
+#else
+    EXRCORE_TEST ( access (outfn.c_str (), F_OK) != -1 );
+    remove (outfn.c_str ());
+#endif
 }

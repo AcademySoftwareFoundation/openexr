@@ -6,12 +6,12 @@
 #ifndef OPENEXR_CORE_UNPACK_H
 #define OPENEXR_CORE_UNPACK_H
 
+#include "openexr_config.h"
 #include "openexr_decode.h"
 #include "openexr_encode.h"
 
 #include "internal_structs.h"
 
-#include <ImathConfig.h>
 /* only recently has imath supported half in C (C++ only before),
  * allow an older version to still work, and if that is available, we
  * will favor the implementation there as it will be the latest
@@ -60,24 +60,24 @@ internal_exr_pack_fn
 internal_exr_match_encode (exr_encode_pipeline_t* encode, int isdeep);
 
 exr_result_t internal_coding_fill_channel_info (
-    exr_coding_channel_info_t**         channels,
-    int16_t*                            num_chans,
-    exr_coding_channel_info_t*          builtinextras,
-    const exr_chunk_info_t*             cinfo,
-    const struct _internal_exr_context* pctxt,
-    const struct _internal_exr_part*    part);
+    exr_coding_channel_info_t** channels,
+    int16_t*                    num_chans,
+    exr_coding_channel_info_t*  builtinextras,
+    const exr_chunk_info_t*     cinfo,
+    exr_const_context_t         pctxt,
+    exr_const_priv_part_t       part);
 
 exr_result_t internal_coding_update_channel_info (
-    exr_coding_channel_info_t*          channels,
-    int16_t                             num_chans,
-    const exr_chunk_info_t*             cinfo,
-    const struct _internal_exr_context* pctxt,
-    const struct _internal_exr_part*    part);
+    exr_coding_channel_info_t* channels,
+    int16_t                    num_chans,
+    const exr_chunk_info_t*    cinfo,
+    exr_const_context_t        pctxt,
+    exr_const_priv_part_t      part);
 
 exr_result_t internal_validate_next_chunk (
-    exr_encode_pipeline_t*              encode,
-    const struct _internal_exr_context* pctxt,
-    const struct _internal_exr_part*    part);
+    exr_encode_pipeline_t* encode,
+    exr_const_context_t    pctxt,
+    exr_const_priv_part_t  part);
 
 /**************************************/
 

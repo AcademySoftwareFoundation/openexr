@@ -851,33 +851,109 @@ generatedFunctions ()
 
     Header header;
 
+    assert (hasOriginalDataWindow (header) == false);
+    assert (hasWorldToCamera (header) == false);
+    assert (hasWorldToNDC (header) == false);
+    assert (hasAscFramingDecisionList (header) == false);
+    assert (hasSensorCenterOffset (header) == false);
+    assert (hasSensorOverallDimensions (header) == false);
+    assert (hasSensorPhotositePitch (header) == false);
+    assert (hasSensorAcquisitionRectangle (header) == false);
+    assert (hasXDensity (header) == false);
+    assert (hasLongitude (header) == false);
+    assert (hasLatitude (header) == false);
+    assert (hasAltitude (header) == false);
+    assert (hasCameraMake (header) == false);
+    assert (hasCameraModel (header) == false);
+    assert (hasCameraSerialNumber (header) == false);
+    assert (hasCameraFirmwareVersion (header) == false);
+    assert (hasCameraUuid (header) == false);
+    assert (hasCameraLabel (header) == false);
+    assert (hasCameraCCTSetting (header) == false);
+    assert (hasCameraTintSetting (header) == false);
+    assert (hasCameraColorBalance (header) == false);
+    assert (hasIsoSpeed (header) == false);
+    assert (hasExpTime (header) == false);
+    assert (hasShutterAngle (header) == false);
+    assert (hasCaptureRate (header) == false);
+    assert (hasLensMake (header) == false);
+    assert (hasLensModel (header) == false);
+    assert (hasLensSerialNumber (header) == false);
+    assert (hasLensFirmwareVersion (header) == false);
+    assert (hasNominalFocalLength (header) == false);
+    assert (hasPinholeFocalLength (header) == false);
+    assert (hasEffectiveFocalLength (header) == false);
+    assert (hasEntrancePupilOffset (header) == false);
+    assert (hasAperture (header) == false);
+    assert (hasTStop (header) == false);
+    assert (hasFocus (header) == false);
+    assert (hasOwner (header) == false);
+    assert (hasComments (header) == false);
+    assert (hasCapDate (header) == false);
+    assert (hasUtcOffset (header) == false);
+    assert (hasKeyCode (header) == false);
+    assert (hasTimeCode (header) == false);
+    assert (hasFramesPerSecond (header) == false);
+    assert (hasImageCounter (header) == false);
+    assert (hasReelName (header) == false);
     assert (hasChromaticities (header) == false);
     assert (hasWhiteLuminance (header) == false);
     assert (hasAdoptedNeutral (header) == false);
     assert (hasRenderingTransform (header) == false);
     assert (hasLookModTransform (header) == false);
-    assert (hasXDensity (header) == false);
-    assert (hasOwner (header) == false);
-    assert (hasComments (header) == false);
-    assert (hasCapDate (header) == false);
-    assert (hasUtcOffset (header) == false);
-    assert (hasLongitude (header) == false);
-    assert (hasLatitude (header) == false);
-    assert (hasAltitude (header) == false);
-    assert (hasFocus (header) == false);
-    assert (hasExpTime (header) == false);
-    assert (hasAperture (header) == false);
-    assert (hasIsoSpeed (header) == false);
     assert (hasEnvmap (header) == false);
-    assert (hasKeyCode (header) == false);
-    assert (hasTimeCode (header) == false);
     assert (hasWrapmodes (header) == false);
-    assert (hasFramesPerSecond (header) == false);
     assert (hasMultiView (header) == false);
-    assert (hasWorldToCamera (header) == false);
-    assert (hasWorldToNDC (header) == false);
     assert (hasDeepImageState (header) == false);
-    assert (hasOriginalDataWindow (header) == false);
+    assert (hasIDManifest (header) == false);
+    assert (hasColorInteropID (header) == false);
+}
+
+void
+writeReadColorInteropID(const char fileName[])
+{
+    cout << "colorInteropID attribute" << endl;
+
+    cout << "writing, ";
+
+    static const int W = 100;
+    static const int H = 100;
+
+    Header header (W, H);
+    assert (hasColorInteropID (header) == false);
+
+    std::string id1 = "lin_ap1_scene";
+
+    addColorInteropID (header, id1);
+    assert (hasColorInteropID (header) == true);
+
+    {
+        RgbaOutputFile out (fileName, header);
+        Rgba           pixels[W];
+
+        for (int i = 0; i < W; ++i)
+        {
+            pixels[i].r = 1;
+            pixels[i].g = 1;
+            pixels[i].b = 1;
+            pixels[i].a = 1;
+        }
+
+        out.setFrameBuffer (pixels, 1, 0);
+        out.writePixels (H);
+    }
+
+    cout << "reading, comparing" << endl;
+
+    {
+        RgbaInputFile  in (fileName);
+        std::string  id2 = colorInteropID(in.header());
+
+        assert (hasColorInteropID (in.header ()) == true);
+        assert (id1 == id2);
+    }
+
+    remove (fileName);
 }
 
 } // namespace
@@ -923,6 +999,11 @@ testStandardAttributes (const std::string& tempDir)
             rationalMethods ();
             std::string filename = tempDir + "imf_test_rational.exr";
             writeReadRational (filename.c_str ());
+        }
+
+        {
+            std::string filename = tempDir + "imf_colorInteropID.exr";
+            writeReadColorInteropID (filename.c_str ());
         }
 
         generatedFunctions ();

@@ -223,7 +223,7 @@ public:
     // Rounding control for luminance/chroma images:
     //
     // If the output file contains luminance and chroma channels (WRITE_YC
-    // or WRITE_YCA), then the the significands of the luminance and
+    // or WRITE_YCA), then the significands of the luminance and
     // chroma values are rounded to roundY and roundC bits respectively (see
     // function half::round()).  Rounding improves compression with minimal
     // image degradation, usually much less than the degradation caused by
@@ -250,10 +250,10 @@ public:
     void breakScanLine (int y, int offset, int length, char c);
 
 private:
-    RgbaOutputFile (const RgbaOutputFile&) = delete;
+    RgbaOutputFile (const RgbaOutputFile&)            = delete;
     RgbaOutputFile& operator= (const RgbaOutputFile&) = delete;
     RgbaOutputFile (RgbaOutputFile&&)                 = delete;
-    RgbaOutputFile& operator= (RgbaOutputFile&&) = delete;
+    RgbaOutputFile& operator= (RgbaOutputFile&&)      = delete;
 
     class IMF_HIDDEN ToYca;
 
@@ -436,10 +436,10 @@ public:
     int version () const;
 
 private:
-    RgbaInputFile (const RgbaInputFile&) = delete;
+    RgbaInputFile (const RgbaInputFile&)            = delete;
     RgbaInputFile& operator= (const RgbaInputFile&) = delete;
     RgbaInputFile (RgbaInputFile&&)                 = delete;
-    RgbaInputFile& operator= (RgbaInputFile&&) = delete;
+    RgbaInputFile& operator= (RgbaInputFile&&)      = delete;
 
     class IMF_HIDDEN FromYca;
 

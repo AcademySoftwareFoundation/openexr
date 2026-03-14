@@ -12,24 +12,25 @@
 
 #include "ImfHeader.h"
 
+#include "ImfContext.h"
+
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
 struct InputPartData
 {
+    // TODO: reconsider / update
     Header                header;
+
     int                   numThreads;
     int                   partNumber;
-    int                   version;
-    InputStreamMutex*     mutex;
-    std::vector<uint64_t> chunkOffsets;
-    bool                  completed;
+    Context               context;
+
+    InputPartData () = default;
 
     InputPartData (
-        InputStreamMutex* mutex,
-        const Header&     header,
-        int               partNumber,
-        int               numThreads,
-        int               version);
+        const Context& ctxt,
+        int            partNumber,
+        int            numThreads);
 };
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT

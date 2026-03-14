@@ -108,7 +108,7 @@ SampleCountChannel::set (int x, int y, unsigned int newNumSamples)
 {
     //
     // Set the number of samples for pixel (x,y) to newNumSamples.
-    // Compute the position of the pixel in the the various
+    // Compute the position of the pixel in the various
     // arrays that describe it.
     //
 

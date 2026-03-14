@@ -135,14 +135,8 @@ struct Span
     bool operator< (const Span& i_other) const
     {
         if (in < i_other.in) { return true; }
-        else if (in == i_other.in)
-        {
-            return index < i_other.index;
-        }
-        else
-        {
-            return false;
-        }
+        else if (in == i_other.in) { return index < i_other.index; }
+        else { return false; }
     }
 };
 

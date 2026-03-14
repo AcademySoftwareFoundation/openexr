@@ -166,10 +166,10 @@ struct BufferedTile
         delete[] sampleCountTableData;
     }
 
-    BufferedTile (const BufferedTile& other) = delete;
+    BufferedTile (const BufferedTile& other)            = delete;
     BufferedTile& operator= (const BufferedTile& other) = delete;
     BufferedTile (BufferedTile&& other)                 = delete;
-    BufferedTile& operator= (BufferedTile&& other) = delete;
+    BufferedTile& operator= (BufferedTile&& other)      = delete;
 };
 
 typedef map<TileCoord, BufferedTile*> TileMap;
@@ -270,10 +270,10 @@ struct DeepTiledOutputFile::Data
     Data (int numThreads);
     ~Data ();
 
-    Data (const Data& other) = delete;
+    Data (const Data& other)            = delete;
     Data& operator= (const Data& other) = delete;
     Data (Data&& other)                 = delete;
-    Data& operator= (Data&& other) = delete;
+    Data& operator= (Data&& other)      = delete;
 
     inline TileBuffer* getTileBuffer (int number);
     // hash function from tile
@@ -998,6 +998,9 @@ TileBufferTask::execute ()
         {
             const char* compPtr;
 
+            _tileBuffer->compressor->setTileLevel (
+                _tileBuffer->tileCoord.lx,
+                _tileBuffer->tileCoord.ly);
             uint64_t compSize = _tileBuffer->compressor->compressTile (
                 _tileBuffer->dataPtr,
                 static_cast<int> (_tileBuffer->dataSize),

@@ -11,7 +11,9 @@ explains our contribution process and procedures:
 * [Development Workflow](#Development-Workflow)
 * [Coding Style](#Coding-Style)
 * [Versioning Policy](#Versioning-Policy)
-* [Creating a Release](#Creating-a-Release)
+* [Contributing to the Website](#Contributing-to-the-Website)
+* [Creating a Patch Release](#Creating-a-Patch-Release)
+* [Creating a Major/Minor Release](#Creating-a-Major/Minor-Release)
 
 For a description of the roles and responsibilities of the various
 members of the OpenEXR community, see [GOVERNANCE](GOVERNANCE.md), and
@@ -37,7 +39,7 @@ There are two primary ways to connect with the OpenEXR project:
 If you have trouble installing, building, or using the library, but
 there's not yet reason to suspect you've encountered a genuine bug,
 start by posting a question to the
-[openexr-dev](http://lists.aswf.io/openexr-dev) mailing list. This is
+[openexr-dev](http://lists.aswf.io/g/openexr-dev) mailing list. This is
 the place for question such has "How do I...".
 
 ### How to Report a Bug
@@ -79,7 +81,7 @@ To contribute code to the project, first read over the [GOVERNANCE](GOVERNANCE.m
 
 * An understanding of the project's development workflow.
 
-* Legal authorization, that is, you need to have signed a contributor
+* Legal authorization, that is, you need to have signed a Contributor
   License Agreement. See below for details.
 
 ## Legal Requirements
@@ -100,19 +102,23 @@ in the OpenEXR distribution must first complete a **Contributor
 License Agreement**.
 
 To contribute to OpenEXR, you must sign a CLA through the
-[EasyCLA](https://contributor.easycla.lfx.linuxfoundation.org/#/cla/project/2e8710cb-e379-4116-a9ba-964f83618cc5/user/564e571e-12d7-4857-abd4-898939accdd7?redirect=https:%2F%2Fgithub.com%2FAcademySoftwareFoundation%2Fopenexr%2Fpull%2F1154)
+[EasyCLA](https://docs.linuxfoundation.org/lfx/easycla)
 system, which is integrated with GitHub as a pull request check.
 
-Sign the form through [this
-link](https://contributor.easycla.lfx.linuxfoundation.org/#/cla/project/2e8710cb-e379-4116-a9ba-964f83618cc5/user/564e571e-12d7-4857-abd4-898939accdd7?redirect=https:%2F%2Fgithub.com%2FAcademySoftwareFoundation%2Fopenexr%2Fpull%2F1154)
-prior to submitting a pull request. If you submit a pull request
-before the form is signed, the "linux-foundation-easycla" check will
-fail and a red "NOT COVERED" button will appear in the PR
-comments. Click that link to sign the form.
+If a contributor opens a pull request without having a CLA on file, the 
+contributor will be guided through the process to have the appropriate 
+CLA signed. Look in the PR comments for the "linux-foundation-easycla" 
+check that would fail, and a red "NOT COVERED" button will appear in the PR
+comments; click the link in the comment to sign the CLA. For organizations, 
+you can alternatively go to [this
+link](https://organization.lfx.linuxfoundation.org/foundation/a09410000182dD2AAI/project/a092M00001If9ujQAB/cla)
+prior to submitting a pull request, which will guide you through the 
+process to have a CLA signed on behalf of the organization.
 
 * If you are an individual writing the code on your own time and
   you're **sure** you are the sole owner of any intellectual property you
-  contribute, you can sign the CLA as an **Individual Contributor**.
+  contribute, you can sign the CLA as an **Individual Contributor**. If you
+  are unsure, please contact your employer for clarity.
 
 * If you are writing the code as part of your job, or if your employer
   retains ownership to intellectual property you create, no matter how
@@ -126,9 +132,11 @@ The downloadable PDF's on the EasyCLA page are provided for reference
 only. To execute the signature, sign the form online through the
 relevant links.
 
-The OpenEXR CLAs are the standard forms used by Linux Foundation
+The OpenEXR CLAs are the standard forms used by the Linux Foundation
 projects and [recommended by the ASWF
-TAC](https://github.com/AcademySoftwareFoundation/tac/blob/main/process/contributing.md#contributor-license-agreement-cla).
+TAC](https://github.com/AcademySoftwareFoundation/tac/blob/main/process/contributing.md#contributor-license-agreement-cla). 
+Note that if you have signed a CLA for a different ASWF or LF project, that 
+CLA doesn't apply here and you need to sign for this project specifically.
 
 ### Commit Sign-Off
 
@@ -190,7 +198,7 @@ remains linear, avoiding the "bubbles" characteristic of the
 [GitFlow](https://www.endoflineblog.com/gitflow-considered-harmful)
 workflow.
 
-### Use the Fork, Luke.
+### Use the Fork, Luke
 
 In a typical workflow, you should **fork** the OpenEXR repository to
 your account. This creates a copy of the repository under your user
@@ -210,9 +218,9 @@ openexr-dev@lists.aswf.io mail list.
 
 ### Pull Requests
 
-Contributions should be submitted as Github pull requests. See
+Contributions should be submitted as GitHub pull requests. See
 [Creating a pull request](https://help.github.com/articles/creating-a-pull-request/)
-if you're unfamiliar with this concept. 
+if you're unfamiliar with this concept.
 
 The development cycle for a code change should follow this protocol:
 
@@ -226,7 +234,7 @@ with a separate pull request.
 
 3. Push commits to your fork.
 
-4. Create a Github pull request from your topic branch.
+4. Create a GitHub pull request from your topic branch.
 
 5. Pull requests will be reviewed by project committers and contributors,
 who may discuss, offer constructive feedback, request changes, or approve
@@ -258,7 +266,7 @@ submitted, in order to solicit feedback, try to get as much consensus
 as possible, and alert all the stakeholders to be on the lookout for
 the eventual PR when it appears.
 
-* Trivial changes that don't affect functionality (typos, docs, tests)
+* Trivial changes that don't affect functionality (typos, tests, website)
 can be approved by the committer without review, after waiting at
 least 48 hours.
 
@@ -334,7 +342,7 @@ code.
 
 * Function return types go on a separate line:
 
-        const float &	
+        const float &
         Header::pixelAspectRatio () const
         {
             ...
@@ -450,21 +458,378 @@ each version with three numbers: ``major.minor.patch``, where:
 
 * ``major`` - indicates incompatible API changes
 * ``minor`` - indicates functionality added in a backwards-compatible manner
-* ``patch`` - indicates backwards-compatible bug fixes 
+* ``patch`` - indicates backwards-compatible bug fixes
 
-## Creating a Release
+## Contributing to the Website
+
+The https://openexr.com website is generated via
+[Sphinx](https://www.sphinx-doc.org) with the
+[Breathe](https://breathe.readthedocs.io) extension, using the
+[sphinx-press-theme](https://pypi.org/project/sphinx-press-theme), and
+is hosted by
+[readthedocs](https://readthedocs.org/projects/openexr). The website
+source is in [restructured
+text](https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html)
+in the ``website`` directory.
+
+To build the website locally from the source ``.rst`` files, set the
+CMake option ``BUILD_WEBSITE=ON``. This adds the ``website`` CMake
+target. Generation is off by default.
+
+Building the website requires that ``sphinx``, ``breathe``, and
+``doxygen`` are installed. It further requires the [sphinx-press-theme]
+(https://pypi.org/project/sphinx-press-theme). Complete dependencies
+are described in the [requirements.txt](website/requirements.txtg)
+file.
+
+On Debian/Ubuntu Linux:
+
+.. code-block::
+
+    % apt-get install doxygen python3-sphinx
+    % pip3 install breathe
+    % pip3 install sphinx_press_theme
+   
+    % mkdir _build
+    % cd _build
+    % cmake .. -DBUILD_WEBSITE=ON
+    % cmake --build . --target website 
+
+### Testing a Website Build
+
+When you have configured cmake with ``BUILD_WEBSITE=ON`` and done a
+build, you should find a file ``website/sphinx/index.html`` in the
+build directory which is the website source. Load this file in a
+browser to preview the resulting website, that is, load
+``file://<build-directory>/website/sphinx/index.html`` into your web
+browser.
+
+Once you submit a PR, a check labeled ``docs/readthedocs.org:openexr``
+will validate the build. Click on the ``Details`` link to
+preview. Also, a link to this preview will be added automatically to
+the PR description.
+### Test Images
+
+To contribute a new test image, commit it to the
+[openexr-images](https://github.com/AcademySoftwareFoundation/openexr-images)
+repo, along with an associated ``.jpg`` file for display on the
+website.
+
+The [website/scripts/test_images.py](website/scripts/test_images.py)
+utility processes images from
+[openexr-images](https://github.com/AcademySoftwareFoundation/openexr-images)
+to produce `.rst` files for input to Sphinx. It runs ``exrheader`` on
+the ``.exr`` to generate the image description. It also processes
+``README`` files in the image repo for additional website content,
+useful for describing a collection of images. Once the new image is in
+the ``openexr-images`` repo, run ``website/scripts/test_images.py``,
+then commit the new/modified ``.rst`` files to git and submit a PR.
+
+## Creating a Patch Release
+
+Making a patch release typically involves merging changes from the
+main branch into the release branch, since all development generally
+takes place on the main branch. The usual workflow is to group these
+changes together and merge them all just prior to a release, rather
+than merging one-by-one as the changes go into main, although merging
+along the way is acceptable as well. For OpenEXR and Imath, a patch
+release typically involves under a dozen commits, so it's not a huge
+amount of work to organize them all at once.
+
+A patch release *must* be ABI-compatible with preceding minor releases
+and should be validated with an ABI-checker tool such as
+[``abipkgdiff``](https://manpages.ubuntu.com/manpages/lunar/en/man1/abipkgdiff.1.html).
+
+These instructions are for project administrators who have "push"
+access on the GitHub repo.
+
+The preferred workflow is:
+
+1. Make a PR that merges appropriate changes from the main branch to
+   the release branch:
+
+   a. In a forked clone, create a branch to hold the patch commits,
+      e.g. ``v3.1.9-fixes``.
+
+   b. Cherry-pick the appropriate commits from ``main``, resolving any
+      merge conflicts.
+
+   c. Increment ``OPENEXR_VERSION_PATCH`` in
+      [src/lib/OpenEXRCore/openexr_version.h](src/lib/OpenEXRCore/openexr_version.h)
+
+   d. Update the ``IMATH_TAG`` setting in
+      [cmake/OpenEXRSetup.cmake](cmake/OpenEXRSetup.cmake) to
+      correspond to the proper Imath release.
+
+   e. Add release notes to [CHANGES.md](CHANGES.md):
+
+      - Generate a list of links to merged pull requests.
+
+        Use ``git log`` to identify the merged commits, and for each
+        commit, and add a link in the notes to the corresponding PR
+        that merged it to ``main``. Citing PR's in the release notes
+        is preferable to citing raw commits because the PR's often
+        have helpful information and discussion missing from the
+        commit descriptions, and the commit history is readily
+        accessible via ``git log`` anyway.
+
+        The typical OpenEXR project workflow uses "squash and merge"
+        to merge PR's into ``main``, so the changes involved in each
+        PR end up on ``main`` as a single commit. This is preferable
+        because a raw PR often includes numerous commits that address
+        comments and feedback or fix typos or mistakes, intermediate
+        steps not helpful to the preserved history of the main
+        development thread. Note that GitHub's "squash and merge"
+        helpfully appends the PR number to the commit subject line.
+
+        Note that when this PR is merged to the release branch, it
+        should go in via "rebase and merge" that the release branch
+        retains the granular changes, described below.
+
+      - Generate a list of OSS-Fuzz issues addressed.
+
+        These are security concerns, so they deserve special
+        attention. Provide a link in the notes to the issue at
+        https://bugs.chromium.org/p/oss-fuzz, including the issue id
+        number and description.
+
+      - If there are any public CVE's, mention them explicitly with a
+        link to the CVE registry item.
+
+      - Provide an executive summary of the patch changes, in a few
+        sentences as well as bullet points if appropriate.
+
+      - Choose a proposed release date at least several days in
+        advance.
+
+   f. If there are any public CVE's, reference them in
+      [SECURITY.md](SECURITY.md).
+
+   g. Submit the PR for others to review. The PR should go *to the
+      release branch, not ``main``*, obviously.
+
+   h. After others have had a chance to sanity-check the changes,
+      merge the PR *with "rebase and merge"*.  Unlike with the usual
+      PR's merged to main, it is essential to retain the individual
+      commits on the release branch. That way, the release branch
+      commit history retains the details of the changes.
+
+   i. If further fixes come in that need to go into the release, push
+      them to the PR branch. It's not absolutely essential that all
+      changes to the release branch go in via a PR. The PR is simply a
+      convenient forum for publicly discussing and reviewing the
+      composition of the release.
+
+2. Tag the release with a ``-rc`` "release candidate" tag,
+   e.g. ``v3.1.9-rc``.
+
+3. Validate ABI compatibility. Build at the release candidate tag and
+   run
+   [abipkgdiff](https://manpages.ubuntu.com/manpages/lunar/en/man1/abipkgdiff.1.html)
+   against a build of the previous patch release to confirm that no
+   ABI changes have leaked in. Additions to the ABI are acceptable for
+   a patch release, but there should be no symbol changes and no
+   symbols removed. If there are, back up and fix them before proceeding.
+
+4. Send mail to ``openexr-dev@lists.aswf.io`` announcing the staging
+   of the release with link to the release candidate tag. Include the
+   release notes from [CHANGES.md](CHANGES.md) for review.
+
+5. Draft the release on the GitHub
+   [Releases](https://github.com/AcademySoftwareFoundation/openexr/releases)
+   page.  Include the summary from the notes in
+   [CHANGES.md](CHANGES.md), but don't include the list of PR's.
+
+   Create the release from the latest ``--rc`` tag, and give it a name
+   that begins with ``v``, i.e. ``v3.1.9``.
+
+   Save the release as a "draft".
+
+6. Wait at least 48 hours, to give the community time to discover and
+   report any obvious problems. Avoid the temptation to rush changes
+   into a release and publish it immediately, as that is uncomfortably
+   error prone.
+
+   If additional fixes need to go in before release:
+
+   a. Merge commits to the release branch. Push them directly, no need
+      for a pull request.
+
+   b. Update the release notes in a separate commit.
+
+   c. Re-tag with a incremented "release candidate" number,
+      e.g. ``v3.1.9-rc2``.  
+
+   d. Send an email update to ``openexr-dev@lists.aswf.io`` notifying
+      the community of the addition and the new tag.
+
+7. Create a signed release tag
+
+   a. Make sure you have a [GPG
+      key](https://docs.github.com/en/authentication/managing-commit-signature-verification/generating-a-new-gpg-key)
+      and it is
+      [registered](https://docs.github.com/en/authentication/managing-commit-signature-verification/telling-git-about-your-signing-key)
+      with your GitHub account and git config.
+
+   b. Create a signed tag with the release name via `git tag -s v3.1.9`.
+
+   c. Push the tag via `git push --tags`
+
+8. Publish the release
+
+   a. Click the "Publish release" button on the GitHub release draft
+
+   b. Send an email to ``openexr-dev@lists.aswf.io`` officially
+      announcing the release.
+
+9. Update the ``release`` branch, which should always point to the
+   most recent patch of the most recent minor release, i.e. the most
+   preferred release.
+
+   From a clone of the main repo:
+
+       % git checkout release
+       % git merge RB-3.1
+       % git push
+         
+10. Submit a PR that adds the release notes to [CHANGES.md](CHANGES.md)
+    on the main branch. Cherry-pick the release notes commit from
+    the release branch.
+
+    - If any changes have gone into [SECURITY.md](SECURITY), cherry-pick
+      the associated commit as well.
+
+    - Also include in this PR edits to [``website/news.rst``](website/news.rst)
+      that add an announcement of the release.
+
+11. After review/merge of the updates to ``website/news.rst``, build the
+    website at https://readthedocs.org/projects/openexr.
+
+12. If the release has resolved any OSS-Fuzz issues, update the
+    associated pages at https://bugs.chromium.org/p/oss-fuzz with a
+    reference to the release.
+
+13. If the release has resolved any public CVE's, request an update
+    from the registry service providing the release and a link to the
+    release notes.
+
+## Creating a Major/Minor Release
+
+A major/minor release is created from the main branch, assuming there
+are no changes on ``main`` that should *not* go into the release. We
+don't generally allow experimental changes onto ``main``. Anything
+accepted onto ``main`` should be intended for the next release.
+
+The overall workflow is similar to a patch release, as described
+above, but it's simpler because there is no cherry-picking and merging
+of commits. The major/minor release is simply a snapshot of ``main``.
 
 To create a new release from the ``main`` branch:
 
-1. Update the release notes in ``CHANGES.md``.
+1. Confirm that the ``OPENEXR_VERSION_MAJOR``,
+   ``OPENEXR_VERSION_MINOR``, and ``OPENEXR_VERSION_PATCH`` value in
+   [src/lib/OpenEXRCore/openexr_version.h](src/lib/OpenEXRCore/openexr_version.h)
+   are correct. The OpenEXR project policy is that the values on the
+   main branch, which is the bleeding edge of development, correspond
+   to the next minor release, with the patch set to 0.
 
-   Write a high-level summary of the features and
-   improvements. Include the summary in ``CHANGES.md`` and also in the
-   Release comments.
+2. Update the release notes in [CHANGES.md](CHANGES.md):
 
-   Include the log of all PR's included beyond the previous release. 
+   - Write a high-level summary of the features and improvements.
 
-2. Create a new release on the GitHub Releases page.
+   - Include the log of all PR's that have *not* been merged into the
+     previous minor release.
 
-3. Tag the release with name beginning with ``v``', e.g. ``v2.3.0``.
+   - Mention any OSS-Fuzz issues. Provide a link in the notes to the issue at
+     https://bugs.chromium.org/p/oss-fuzz, including the issue id
+     number and description.
 
+   - If there are any public CVE's, mention them explicitly with a
+     link to the CVE registry item.
+
+   - Submit this change as a separate PR.
+
+3. Add a mention of the release to [``website/news.rst``](website/news.rst)
+
+   - Submit this change as a separate PR.
+
+4. Increment the ``OPENEXR_LIB_SOVERSION`` setting in [CMakeLists.txt](CMakeLists.txt).
+
+   - The SO version increases whenever, and only when, the ABI changes
+     in non-backwards-compatible ways. Consistent with the semantic
+     versioning policy, this usually happens at major and minor
+     releases, but never on a patch release.
+
+   - Submit this change as a separate PR for review.
+
+5. Once the above PR's are merged, create the release branch with the
+   ``RB`` prefix, e.g. ``RB-3.2``.
+
+6. Update the ``IMATH_TAG`` setting in
+   [cmake/OpenEXRSetup.cmake](cmake/OpenEXRSetup.cmake) to correspond
+   to the proper Imath release.
+
+7. Tag the release with a ``-rc`` "release candidate" tag,
+   e.g. ``v3.2.0-rc``.
+
+8. Send mail to ``openexr-dev@lists.aswf.io`` announcing the staging
+   of the release with link to the release candidate tag. Include the
+   release notes from [CHANGES.md](CHANGES.md) for review.
+
+9. If additional fixes need to go in before release:
+
+   a. Merge commits to the release branch. Push them directly, no need
+      for a pull request.
+
+   b. Update the release notes in a separate commit.
+
+   c. Re-tag with a incremented "release candidate" number,
+      e.g. ``v3.2.0-rc2``.  
+
+   d. Send a email update to ``openexr-dev@lists.aswf.io`` notifying
+      the community of the addition.
+
+10. Draft the release on the GitHub
+    [Releases](https://github.com/AcademySoftwareFoundation/openexr/releases)
+    page.  Include the summary from the notes in
+    [CHANGES.md](CHANGES.md), but don't include the list of PR's.
+
+    - Create the release from the latest ``--rc`` tag, and give it a name
+      that begins with ``v`` and ends in ``0``, e.g. ``v3.2.0``.
+
+    - Save the release as a "draft".
+
+11. Wait at least 48 hours after the email announcement.
+
+12. Publish the release
+
+    a. Click the "Publish release" button on the GitHub release draft
+
+    b. Send an email to ``openexr-dev@lists.aswf.io`` officially
+       announcing the release.
+
+13. Update the ``release`` branch, which should always point to the
+    most recent release.
+
+    From a clone of the main repo:
+
+        % git checkout release
+        % git merge RB-3.1
+        % git push
+         
+14. Increment ``OPENEXR_VERSION_MINOR`` in
+    [src/lib/OpenEXRCore/openexr_version.h](src/lib/OpenEXRCore/openexr_version.h) on the main branch
+
+    - Submit a PR for this. This leaves the release version on the
+      main branch pointing to the next minor release, as described in
+      Step #1.
+
+15. Build the website at https://readthedocs.org/projects/openexr.
+
+16. If the release has resolved any OSS-Fuzz issues, update the
+    associated pages at https://bugs.chromium.org/p/oss-fuzz with a
+    reference to the release.
+
+17. If the release has resolved any public CVE's, request an update
+    from the registry service providing the release and a link to the
+    release notes.

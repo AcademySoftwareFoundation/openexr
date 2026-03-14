@@ -26,10 +26,10 @@
 
 #ifdef _WIN32
 #else
-#include <fcntl.h>
-#include <unistd.h>
-#include <sys/mman.h>
-#include <sys/stat.h>
+#    include <fcntl.h>
+#    include <unistd.h>
+#    include <sys/mman.h>
+#    include <sys/stat.h>
 #endif
 
 #include <ImfChannelList.h>
@@ -108,10 +108,10 @@ private:
 #else
     int _f;
 #endif
-    void* _mmap;
+    void*       _mmap;
     const char* _mmapStart;
-    uint64_t _pos;
-    uint64_t _length;
+    uint64_t    _pos;
+    uint64_t    _length;
 };
 
 MMIFStream::MMIFStream (const char fileName[])
@@ -121,7 +121,7 @@ MMIFStream::MMIFStream (const char fileName[])
 #else
     , _f (-1)
 #endif
-    , _mmap (reinterpret_cast<void*>(-1))
+    , _mmap (reinterpret_cast<void*> (-1))
     , _mmapStart (nullptr)
     , _pos (0)
     , _length (0)
@@ -158,10 +158,7 @@ MMIFStream::MMIFStream (const char fileName[])
     _length = s.st_size;
 
     _mmap = CreateFileMapping (_f, 0, PAGE_READONLY, 0, 0, 0);
-    if (!_mmap)
-    {
-        throw IEX_NAMESPACE::IoExc ("Cannot memory map file.");
-    }
+    if (!_mmap) { throw IEX_NAMESPACE::IoExc ("Cannot memory map file."); }
 
     _mmapStart = reinterpret_cast<const char*> (
         MapViewOfFile (_mmap, FILE_MAP_READ, 0, 0, 0));
@@ -172,23 +169,20 @@ MMIFStream::MMIFStream (const char fileName[])
 
 #else
 
-    _f = open(fileName, O_RDONLY);
-    if (-1 == _f)
-    {
-        throw IEX_NAMESPACE::IoExc ("Cannot open file.");
-    }
+    _f = open (fileName, O_RDONLY);
+    if (-1 == _f) { throw IEX_NAMESPACE::IoExc ("Cannot open file."); }
 
     struct stat s;
-    memset(&s, 0, sizeof(struct stat));
-    if (stat(fileName, &s) != 0)
+    memset (&s, 0, sizeof (struct stat));
+    if (stat (fileName, &s) != 0)
     {
         throw IEX_NAMESPACE::IoExc ("Cannot stat file.");
     }
 
     _length = s.st_size;
 
-    _mmap = mmap(0, _length, PROT_READ, MAP_SHARED, _f, 0);
-    if (_mmap == (void*)-1)
+    _mmap = mmap (0, _length, PROT_READ, MAP_SHARED, _f, 0);
+    if (_mmap == (void*) -1)
     {
         throw IEX_NAMESPACE::IoExc ("Cannot memory map file.");
     }
@@ -200,29 +194,14 @@ MMIFStream::MMIFStream (const char fileName[])
 MMIFStream::~MMIFStream ()
 {
 #ifdef _WIN32
-    if (_mmapStart)
-    {
-        UnmapViewOfFile ((void*) _mmapStart);
-    }
-    if (_mmap)
-    {
-        CloseHandle (_mmap);
-    }
-    if (_f != INVALID_HANDLE_VALUE)
-    {
-        CloseHandle (_f);
-    }
+    if (_mmapStart) { UnmapViewOfFile ((void*) _mmapStart); }
+    if (_mmap) { CloseHandle (_mmap); }
+    if (_f != INVALID_HANDLE_VALUE) { CloseHandle (_f); }
 
 #else
 
-    if (_mmap != (void*)-1)
-    {
-        munmap(_mmap, _length);
-    }
-    if (_f != -1)
-    {
-        close(_f);
-    }
+    if (_mmap != (void*) -1) { munmap (_mmap, _length); }
+    if (_f != -1) { close (_f); }
 #endif
 }
 
@@ -255,17 +234,40 @@ MMIFStream::readMemoryMapped (int n)
     if (_pos + n > _length)
         throw IEX_NAMESPACE::InputExc ("Reading past end of file.");
 
-    char* retVal = const_cast<char*>(_mmapStart) + _pos;
+    char* retVal = const_cast<char*> (_mmapStart) + _pos;
     _pos += n;
     return retVal;
 }
 
+class PassThruIFStream : public OPENEXR_IMF_NAMESPACE::IStream
+{
+public:
+    //-------------------------------------------------------
+    // A constructor that opens the file with the given name.
+    //-------------------------------------------------------
+
+    PassThruIFStream (MMIFStream &s) : IStream(""), _s (s) {}
+
+    virtual ~PassThruIFStream () {}
+
+    virtual bool isMemoryMapped () const { return _s.isMemoryMapped (); }
+
+    virtual bool     read (char c[/*n*/], int n) { return _s.read (c, n); }
+    virtual char*    readMemoryMapped (int n) { return _s.readMemoryMapped (n); }
+    virtual uint64_t tellg () { return _s.tellg (); }
+    virtual void     seekg (uint64_t pos) { _s.seekg (pos); }
+    virtual void     clear () { _s.clear (); }
+
+private:
+    MMIFStream &_s;
+};
+
 void
 writeReadScanLines (
-    const char fileName[],
-    int width,
-    int height,
-    Compression compression,
+    const char           fileName[],
+    int                  width,
+    int                  height,
+    Compression          compression,
     const Array2D<Rgba>& p1)
 {
     //
@@ -288,7 +290,7 @@ writeReadScanLines (
         testutil::OpenStreamWithUTF8Name (
             os, fileName, ios::out | ios_base::binary);
         StdOFStream ofs (os, fileName);
-        Header header (
+        Header      header (
             width,
             height,
             1,
@@ -350,7 +352,40 @@ writeReadScanLines (
         in.setFrameBuffer (&p2[-dy][-dx], 1, w);
         in.readPixels (dw.min.y, dw.max.y);
 
-        if (!isLossyCompression(compression))
+        if (!isLossyCompression (compression))
+        {
+            cout << ", comparing";
+            for (int y = 0; y < h; ++y)
+            {
+                for (int x = 0; x < w; ++x)
+                {
+                    assert (p2[y][x].r == p1[y][x].r);
+                    assert (p2[y][x].g == p1[y][x].g);
+                    assert (p2[y][x].b == p1[y][x].b);
+                    assert (p2[y][x].a == p1[y][x].a);
+                }
+            }
+        }
+    }
+
+    {
+        cout << ", reading (memory-mapped, passthru)";
+        MMIFStream       ifs (fileName);
+        PassThruIFStream pfs (ifs);
+
+        RgbaInputFile in (pfs);
+
+        const Box2i& dw = in.dataWindow ();
+        int          w  = dw.max.x - dw.min.x + 1;
+        int          h  = dw.max.y - dw.min.y + 1;
+        int          dx = dw.min.x;
+        int          dy = dw.min.y;
+
+        Array2D<Rgba> p2 (h, w);
+        in.setFrameBuffer (&p2[-dy][-dx], 1, w);
+        in.readPixels (dw.min.y, dw.max.y);
+
+        if (!isLossyCompression (compression))
         {
             cout << ", comparing";
             for (int y = 0; y < h; ++y)
@@ -373,10 +408,10 @@ writeReadScanLines (
 
 void
 writeReadMultiPart (
-    const char fileName[],
-    int width,
-    int height,
-    Compression compression,
+    const char           fileName[],
+    int                  width,
+    int                  height,
+    Compression          compression,
     const Array2D<Rgba>& p1)
 {
     //
@@ -606,10 +641,10 @@ writeReadMultiPart (
 
 void
 writeReadTiles (
-    const char fileName[],
-    int width,
-    int height,
-    Compression compression,
+    const char           fileName[],
+    int                  width,
+    int                  height,
+    Compression          compression,
     const Array2D<Rgba>& p1)
 {
     //
@@ -630,7 +665,7 @@ writeReadTiles (
         testutil::OpenStreamWithUTF8Name (
             os, fileName, ios_base::out | ios_base::binary);
         StdOFStream ofs (os, fileName);
-        Header header (
+        Header      header (
             width,
             height,
             1,
@@ -1005,29 +1040,29 @@ testExistingStreams (const std::string& tempDir)
 
             fillPixels1 (p1, W, H);
             writeReadScanLines (
-               (tempDir + "imf_test_streams.exr").c_str (),
-               W,
-               H,
-               static_cast<Compression>(compression),
-               p1);
+                (tempDir + "imf_test_streams.exr").c_str (),
+                W,
+                H,
+                static_cast<Compression> (compression),
+                p1);
             writeReadScanLines (W, H, p1);
 
             fillPixels2 (p1, W, H);
             writeReadTiles (
-               (tempDir + "imf_test_streams2.exr").c_str (),
-               W,
-               H,
+                (tempDir + "imf_test_streams2.exr").c_str (),
+                W,
+                H,
                 static_cast<Compression> (compression),
-               p1);
+                p1);
             writeReadTiles (W, H, p1);
 
             fillPixels1 (p1, W, H);
             writeReadMultiPart (
-               (tempDir + "imf_test_streams3.exr").c_str (),
-               W,
-               H,
+                (tempDir + "imf_test_streams3.exr").c_str (),
+                W,
+                H,
                 static_cast<Compression> (compression),
-               p1);
+                p1);
             writeReadMultiPart (W, H, p1);
         }
 
@@ -1038,4 +1073,79 @@ testExistingStreams (const std::string& tempDir)
         cerr << "ERROR -- caught exception: " << e.what () << endl;
         assert (false);
     }
+}
+
+void
+testExistingStreamsUTF8 (const std::string& tempDir)
+{
+
+    cout << "Testing reading and writing using existing streams" << endl;
+
+    const int W = 119;
+    const int H = 237;
+    Array2D<Rgba> p1 (H, W);
+
+    fillPixels1 (p1, W, H);
+
+    // per google translate, image in Japanese
+    std::string   outfn = tempDir + "画像.exr";
+
+    {
+        cout << "writing";
+#ifdef _WIN32
+        _wremove (WidenFilename (outfn.c_str ()).c_str ());
+#else
+        remove (outfn.c_str ());
+#endif
+        Header      header (
+            W,
+            H,
+            1,
+            IMATH_NAMESPACE::V2f (0, 0),
+            1,
+            INCREASING_Y,
+            NO_COMPRESSION);
+
+        RgbaOutputFile out (
+            outfn.c_str (),
+            header,
+            WRITE_RGBA);
+
+        out.setFrameBuffer (&p1[0][0], 1, W);
+        out.writePixels (H);
+    }
+
+    {
+        cout << ", reading";
+        RgbaInputFile in (outfn.c_str ());
+        const Box2i& dw = in.dataWindow ();
+        int          w  = dw.max.x - dw.min.x + 1;
+        int          h  = dw.max.y - dw.min.y + 1;
+        int          dx = dw.min.x;
+        int          dy = dw.min.y;
+
+        Array2D<Rgba> p2 (h, w);
+        in.setFrameBuffer (&p2[-dy][-dx], 1, w);
+        in.readPixels (dw.min.y, dw.max.y);
+
+        cout << ", comparing";
+        for (int y = 0; y < h; ++y)
+        {
+            for (int x = 0; x < w; ++x)
+            {
+                assert (p2[y][x].r == p1[y][x].r);
+                assert (p2[y][x].g == p1[y][x].g);
+                assert (p2[y][x].b == p1[y][x].b);
+                assert (p2[y][x].a == p1[y][x].a);
+            }
+        }
+    }
+
+    cout << endl;
+
+#ifdef _WIN32
+    _wremove (WidenFilename (outfn.c_str ()).c_str ());
+#else
+    remove (outfn.c_str ());
+#endif
 }

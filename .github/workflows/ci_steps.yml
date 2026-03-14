@@ -1,0 +1,444 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright (c) Contributors to the OpenEXR Project.
+
+# These are the steps for all CI jobs. Linux, macOS, and Windows all
+# share a common set of configure/build/validate steps.  The input
+# variables control all variations of the jobs.
+#
+# Each job validates that the proper files are installed by comparing
+# the install_manifest.txt to a reference for that job. This requires
+# that each job have a corresponding reference, and that thes
+# references are updated when any change is made to the installation
+# headers/libraries/cmake/etc.
+
+name: CI Steps
+
+on:
+  workflow_call:
+    # This inputs receive values via the "with:" section in ci_workflow.yml
+    inputs:
+      build:
+        type: string
+      os:
+        type: string
+      container:
+        type: string
+      cmake:
+        type: string
+      cxx-standard:
+        type: string
+      cxx-compiler:
+        type: string
+      cc-compiler:
+        type: string
+      build-type:
+        type: string
+      msystem:
+        type: string
+      BUILD_SHARED_LIBS:
+        type: string
+      OPENEXR_ENABLE_THREADING:
+        type: string
+      OPENEXR_INSTALL_PKG_CONFIG:
+        type: string
+      OPENEXR_INSTALL_DOCS:
+        type: string
+      OPENEXR_BUILD_EXAMPLES:
+        type: string
+      OPENEXR_BUILD_TOOLS:
+        type: string
+      OPENEXR_FORCE_INTERNAL_IMATH:
+        type: string
+      OPENEXR_FORCE_INTERNAL_DEFLATE:
+        type: string
+      OPENEXR_FORCE_INTERNAL_OPENJPH:
+        type: string
+      CMAKE_OSX_ARCHITECTURES:
+        type: string
+      BUILD_TESTING:
+        type: string
+      RUN_TESTING:
+        type: string
+      namespace:
+        type: string
+      validate_install:
+        type: string
+
+jobs:
+  steps:
+    runs-on: ${{ inputs.os }}
+
+    container:
+      image: ${{ inputs.container }}
+
+    env:
+      CXX: ${{ inputs.cxx-compiler }}
+      CC: ${{ inputs.cc-compiler }}
+      ACTIONS_RUNNER_FORCE_ACTIONS_NODE_VERSION: node16
+      ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
+
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Set Up Directories & Environment
+        run: |
+          set -x
+
+          # Be careful to use consistent paths between Windows and
+          # Linux. Convert backslashed Windows paths to Linux style via cygpath,
+          # i.e. convert D:\a\Imath\Imath to /d/a/Imath/Imath.
+
+          # WORKSPACE is the root of the project directory
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+              WORKSPACE=$(cygpath -u "$GITHUB_WORKSPACE")
+
+              # remember the install location for Imath, libdeflate, openjph
+              PROGRAM_FILES=$(cygpath -u "C:/Program Files (x86)")
+              echo "PROGRAM_FILES=$PROGRAM_FILES" >> $GITHUB_ENV
+          else
+              WORKSPACE=$GITHUB_WORKSPACE
+          fi
+          echo "WORKSPACE=$WORKSPACE" >> $GITHUB_ENV
+
+          # BUILD_DIR is the CMake build directory
+          BUILD_DIR=$WORKSPACE/_build
+          echo "BUILD_DIR=$BUILD_DIR" >> $GITHUB_ENV
+
+          # INSTALL_DIR is the CMake install directory
+          INSTALL_DIR=$WORKSPACE/_install
+          echo "INSTALL_DIR=$INSTALL_DIR" >> $GITHUB_ENV
+
+          # Initialize the PATH necessary for the tests on Windows
+          echo "OPENEXR_PATH=$INSTALL_DIR/bin:$INSTALL_DIR/lib" >> $GITHUB_ENV
+
+          # Install gcc for macOS if necessary
+          if [[ "${{ inputs.cc-compiler }}" == "gcc" && "$RUNNER_OS" == "macOS" ]]; then
+            brew install gcc
+          fi
+
+        shell: bash
+
+      - name: Report C Runtime Version
+        run: |
+          if [[ "$RUNNER_OS" == "Linux" ]]; then
+            ldd --version 2>&1 | head -1 || true
+          elif [[ "$RUNNER_OS" == "macOS" ]]; then
+            echo "macOS SDK: $(xcrun --show-sdk-version 2>/dev/null || echo 'unknown')"
+          fi
+        shell: bash
+
+      - name: Install Build Dependencies (Fedora)
+        if: startsWith(inputs.container, 'fedora:')
+        run: |
+          dnf install -y gcc gcc-c++ cmake make git wget libdeflate-devel
+        shell: bash
+
+      - name: Determine MSYS2 Packages
+        if: inputs.msystem != ''
+        run: |
+          PACKAGES="cc:p cmake:p"
+          if [ "${{ inputs.OPENEXR_FORCE_INTERNAL_IMATH }}" == "OFF" ]; then
+            PACKAGES="$PACKAGES imath:p"
+          fi
+          if [ "${{ inputs.OPENEXR_FORCE_INTERNAL_DEFLATE }}" == "OFF" ]; then
+            PACKAGES="$PACKAGES libdeflate:p"
+          fi
+          if [ "${{ inputs.OPENEXR_FORCE_INTERNAL_OPENJPH }}" == "OFF" && "${{ inputs.msystem }}" != "MINGW32" ]; then
+            PACKAGES="$PACKAGES openjph:p"
+          fi
+          echo "PACBOY_PACKAGES=$PACKAGES" >> $GITHUB_ENV
+        shell: bash
+
+      - name: Install MSYS2 ${{ inputs.msystem }}
+        if: inputs.msystem != ''
+        uses: msys2/setup-msys2@4f806de0a5a7294ffabaff804b38a9b435a73bda # v2.30.0
+        with:
+          msystem: ${{ inputs.msystem }}
+          update: true
+          install: git
+          pacboy: ${{ env.PACBOY_PACKAGES }}
+
+      - name: Set Up CMake
+        # CMakeLists.txt specifies a minimum cmake version of 3.14 for
+        # the OpenEXR project, so use that for the CI by default.  But
+        # install a specific version to test with if a different one
+        # is specified.
+        run: |
+          set -ex
+          CMAKE=cmake
+          CTEST=ctest
+          if [[ "${{ inputs.cmake }}" != "" && "$RUNNER_OS" == "Linux" ]]; then
+            CMAKE_VERSION=${{ inputs.cmake }}
+            CURRENT_CMAKE_VERSION=$(cmake --version | head -n 1 | cut -f3 -d' ')
+            if [ "$CMAKE_VERSION" != "$CURRENT_CMAKE_VERSION" ]; then
+              wget https://github.com/Kitware/CMake/releases/download/v$CMAKE_VERSION/cmake-$CMAKE_VERSION-Linux-x86_64.tar.gz
+              tar -xzf cmake-$CMAKE_VERSION-Linux-x86_64.tar.gz 
+              CMAKE=$(find "$PWD" -type f -path "*/bin/cmake" | head -n 1)
+              CTEST=$(find "$PWD" -type f -path "*/bin/ctest" | head -n 1)
+            fi
+          fi
+          echo CMAKE="$CMAKE" >> $GITHUB_ENV
+          echo CTEST="$CTEST" >> $GITHUB_ENV
+        shell: bash
+
+      - name: Install Imath
+        # Pre-install Imath so the builds validate that find_package sees the external installation
+        if: inputs.OPENEXR_FORCE_INTERNAL_IMATH == 'OFF' && inputs.msystem == ''
+        run: |
+          set -x
+          share/ci/scripts/install_imath.sh main
+          echo "OPENEXR_PATH=$OPENEXR_PATH:$PROGRAM_FILES/Imath/bin:$PROGRAM_FILES/Imath/lib" >> $GITHUB_ENV
+        shell: bash
+
+      - name: Install libdeflate
+        # Pre-install libdeflate so the builds validate that find_package sees the external installation
+        if: inputs.OPENEXR_FORCE_INTERNAL_DEFLATE == 'OFF' && inputs.msystem == ''
+        run: |
+          set -x
+          share/ci/scripts/install_libdeflate.sh master
+          echo "OPENEXR_PATH=$OPENEXR_PATH:$PROGRAM_FILES/libdeflate/bin:$PROGRAM_FILES/libdeflate/lib" >> $GITHUB_ENV
+        shell: bash
+
+      - name: Install OpenJPH
+        # Pre-install OpenJPH so the builds validate finding the external installation
+        if: inputs.OPENEXR_FORCE_INTERNAL_OPENJPH == 'OFF' && inputs.msystem == ''
+        run: |
+          set -x
+          share/ci/scripts/install_openjph.sh 0.22.0
+          echo "OPENEXR_PATH=$OPENEXR_PATH:$PROGRAM_FILES/openjph/bin:$PROGRAM_FILES/openjph/lib" >> $GITHUB_ENV
+        shell: bash
+
+      - name: Install help2man
+        # TODO: this could go in the ASWF Linux docker
+        # container. Also, it doesn't currently work for Windows, so
+        # the windows builds have docs disabled.
+        if: inputs.OPENEXR_INSTALL_DOCS == 'ON'
+        run: share/ci/scripts/install_help2man.sh
+        shell: bash
+
+      - name: Construct CMake command
+        run: |
+          # Construct the cmake command as a variable, so the
+          # Configure step below can execute it, but also so we can store
+          # in in the install_manifest as a debugging reference
+          cmake_args=("-B" "$BUILD_DIR" -S "$WORKSPACE")
+          cmake_args+=("-DCMAKE_INSTALL_PREFIX=$INSTALL_DIR")
+          cmake_args+=("-DCMAKE_BUILD_TYPE=${{ inputs.build-type }}")
+          cmake_args+=("-DOPENEXR_CXX_STANDARD=${{ inputs.cxx-standard }}")
+          cmake_args+=("-DBUILD_SHARED_LIBS=${{ inputs.BUILD_SHARED_LIBS }}")
+          cmake_args+=("-DOPENEXR_ENABLE_THREADING=${{ inputs.OPENEXR_ENABLE_THREADING }}")
+          cmake_args+=("-DOPENEXR_INSTALL_PKG_CONFIG=${{ inputs.OPENEXR_INSTALL_PKG_CONFIG }}")
+          cmake_args+=("-DOPENEXR_INSTALL_DOCS=${{ inputs.OPENEXR_INSTALL_DOCS }}")
+          cmake_args+=("-DOPENEXR_BUILD_EXAMPLES=${{ inputs.OPENEXR_BUILD_EXAMPLES }}")
+          cmake_args+=("-DOPENEXR_BUILD_TOOLS=${{ inputs.OPENEXR_BUILD_TOOLS }}")
+          cmake_args+=("-DOPENEXR_FORCE_INTERNAL_IMATH=${{ inputs.OPENEXR_FORCE_INTERNAL_IMATH }}")
+          cmake_args+=("-DOPENEXR_FORCE_INTERNAL_DEFLATE=${{ inputs.OPENEXR_FORCE_INTERNAL_DEFLATE }}")
+          cmake_args+=("-DOPENEXR_FORCE_INTERNAL_OPENJPH=${{ inputs.OPENEXR_FORCE_INTERNAL_OPENJPH }}")
+          cmake_args+=("-DBUILD_TESTING=${{ inputs.BUILD_TESTING }}")
+          cmake_args+=("-DOPENEXR_RUN_FUZZ_TESTS=OFF")
+          cmake_args+=("-DCMAKE_VERBOSE_MAKEFILE=ON")
+          if [ -n "${{ inputs.namespace }}" ]; then
+            cmake_args+=("-DOPENEXR_IMF_NAMESPACE=${{ inputs.namespace }}")
+            cmake_args+=("-DILMTHREAD_NAMESPACE=${{ inputs.namespace }}")
+            cmake_args+=("-DIEX_NAMESPACE=${{ inputs.namespace }}")
+          fi
+          if [ "${{ inputs.msystem }}" == "MINGW32" ]; then
+            cmake_args+=("-DCMAKE_C_FLAGS=-msse2 -mfpmath=sse")
+            cmake_args+=("-DCMAKE_CXX_FLAGS=-msse2 -mfpmath=sse")
+          fi
+          if [ -n "${{ inputs.CMAKE_OSX_ARCHITECTURES }}" ]; then
+              cmake_args+=("CMAKE_OSX_ARCHITECTURES='${{ inputs.CMAKE_OSX_ARCHITECTURES }}'")
+          fi
+
+          quoted_args=$(printf '%q ' "${cmake_args[@]}")
+          echo "CMAKE_ARGS=$quoted_args" >> "$GITHUB_ENV"
+
+          # Set the install manifest name to include the os and build number.
+          # e.g. install_manifest.macos.1.txt. Note that $RUNNER_OS is "Linux",
+          # while input.os is "ubuntu".
+          os_name=$(echo "${RUNNER_OS}" | tr '[:upper:]' '[:lower:]')  # linux, macos, windows
+          build="${{ inputs.build }}"
+          echo INSTALL_MANIFEST_FILENAME="install_manifest.${os_name}.${build}.txt" >> $GITHUB_ENV
+        shell: bash
+
+      - name: Configure & Build
+        if: inputs.msystem == ''
+        run: |
+          set -x
+          "$CMAKE" --version
+          "$CMAKE" ${{ env.CMAKE_ARGS }}
+          "$CMAKE" --build $BUILD_DIR --target install --config ${{ inputs.build-type }}
+        shell: bash
+
+      - name: Configure & Build (msys2) # requires msys2 shell
+        if: inputs.msystem != ''
+        run: |
+          set -x
+          "$CMAKE" --version
+          "$CMAKE" ${{ env.CMAKE_ARGS }}
+          "$CMAKE" --build $BUILD_DIR --target install --config ${{ inputs.build-type }}
+        shell: msys2 {0}
+
+      - name: Test OpenEXR.pc
+        # Validate that OpenEXR.pc works by compiling/linking the test program
+        if: runner.os == 'Linux' && inputs.OPENEXR_INSTALL_PKG_CONFIG == 'ON'
+        run: |
+          set -x
+          if [ "${{ inputs.BUILD_SHARED_LIBS }}" == "OFF" ]; then
+            ARGS="-static"
+          fi
+          share/ci/scripts/validate_pkgconfig.sh $INSTALL_DIR website/src/exrwriter/exrwriter.cpp $ARGS
+        shell: bash
+
+      - name: Prepare install_manifest
+        # Store the cmake command as the first line of the manifest,
+        # and remove the path prefix, so the manifest contains only
+        # the local filenames.
+        run: |
+          set -x
+          INSTALL_MANIFEST_PATH="$BUILD_DIR/$INSTALL_MANIFEST_FILENAME"
+          echo "# SPDX-License-Identifier: BSD-3-Clause" > $INSTALL_MANIFEST_PATH
+          echo "# Copyright (c) Contributors to the OpenEXR Project." >> $INSTALL_MANIFEST_PATH
+          echo "# cmake ${{ env.CMAKE_ARGS }}" >> $INSTALL_MANIFEST_PATH
+          sort $BUILD_DIR/install_manifest.txt | sed -e "s:^.*/_install/::" >> $INSTALL_MANIFEST_PATH
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+              # upload-artifact expects a windows-style path
+              INSTALL_MANIFEST_PATH=$(cygpath -w $INSTALL_MANIFEST_PATH)
+          fi
+          echo INSTALL_MANIFEST_PATH=$INSTALL_MANIFEST_PATH >> $GITHUB_ENV
+        shell: bash
+
+      - name: Upload install_manifest.txt
+        # Upload the manifest to make it possible to download for inspection and debugging
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        with:
+          name: ${{ env.INSTALL_MANIFEST_FILENAME }}
+          path: ${{ env.INSTALL_MANIFEST_PATH }}
+
+      - name: Validate install
+        if: inputs.validate_install == 'ON'
+        # Validate that the build has installed the proper files by
+        #  comparing against the appropriate reference manifest
+        run: |
+          set -x
+
+          # Extract "#define VAR VALUE" statements from OpenEXRConfig.h
+          # and set corresponding env vars, which validate_install.py
+          # substitutes in the manifest files. This confirms that the
+          # manifests have the proper version strings in the library filenames.
+          OpenEXRConfig=$INSTALL_DIR/include/OpenEXR/OpenEXRConfig.h
+          for var in \
+            OPENEXR_VERSION_MAJOR \
+            OPENEXR_VERSION_MINOR \
+            OPENEXR_VERSION_PATCH \
+            OPENEXR_SOVERSION \
+            OPENEXR_IMATH_VERSION_MAJOR \
+            OPENEXR_IMATH_VERSION_MINOR \
+            OPENEXR_IMATH_VERSION_PATCH \
+            OPENEXR_IMATH_SOVERSION \
+            OPENEXR_OPENJPH_VERSION_MAJOR \
+            OPENEXR_OPENJPH_VERSION_MINOR \
+            OPENEXR_OPENJPH_VERSION_PATCH; do
+            export "$var"=$(grep -E "^#define[[:space:]]+$var" "$OpenEXRConfig" | awk '{print $3}')
+          done
+      
+          share/ci/scripts/validate_install.py "$INSTALL_MANIFEST_PATH" "share/ci/install_manifest/$INSTALL_MANIFEST_FILENAME"
+        shell: bash
+
+      - name: Test
+        if: inputs.BUILD_TESTING == 'ON' && inputs.RUN_TESTING == 'ON' && inputs.msystem == ''
+        run: |
+          set -x
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            export PATH="$OPENEXR_PATH:$PATH"
+          fi
+          "$CTEST" -T Test -C ${{ inputs.build-type }} --test-dir $BUILD_DIR --timeout 7200 --output-on-failure -VV
+        shell: bash
+
+      - name: Test (msys2) # requires msys2 shell
+        if: inputs.BUILD_TESTING == 'ON' && inputs.RUN_TESTING == 'ON' && inputs.msystem != ''
+        run: |
+          set -x
+          export PATH="$OPENEXR_PATH:$PATH"
+          "$CTEST" -T Test -C ${{ inputs.build-type }} --test-dir $BUILD_DIR --timeout 7200 --output-on-failure -VV
+        shell: msys2 {0}
+
+      - name: Test website examples
+        # Build the "hello, world" exrwriter example program from the
+        # website, both to confirm it builds and as an example of an
+        # application building against the just-installed openexr
+        # libary, to validate the cmake configuration for downstream
+        # applications.
+        if: inputs.namespace == '' && inputs.msystem == '' && inputs.OPENEXR_BUILD_EXAMPLES != ''
+        run: |
+          set -x
+          EXRWRITER_BUILD_DIR=$WORKSPACE/_build.exrwriter
+          "$CMAKE" -S website/src/exrwriter -B $EXRWRITER_BUILD_DIR \
+                -DCMAKE_PREFIX_PATH=$INSTALL_DIR \
+                -DCMAKE_VERBOSE_MAKEFILE=ON
+          "$CMAKE" --build $EXRWRITER_BUILD_DIR --config ${{ inputs.build-type }}
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            export PATH="$OPENEXR_PATH:$PATH"
+            EXRWRITER=$EXRWRITER_BUILD_DIR/${{ inputs.build-type }}/exrwriter.exe
+            EXRINFO=$INSTALL_DIR/bin/exrinfo.exe
+          else
+            EXRWRITER=$EXRWRITER_BUILD_DIR/exrwriter
+            EXRINFO=$INSTALL_DIR/bin/exrinfo
+          fi
+          "$EXRWRITER"
+          # Validate that the image is as expected
+          if [ -x "$EXRINFO" ]; then
+            expected_output=$(<website/src/exrwriter/stripes.exrinfo.txt)
+            actual_output=$("$EXRINFO" stripes.exr)
+            if [[ "$actual_output" != "$expected_output" ]]; then
+              echo "error: exrwriter produced incorrect results:"
+              echo $actual_output
+              exit 1
+            fi
+          else
+            echo "skipping exrinfo, no tool found."
+          fi
+        shell: bash
+
+      - name: Test add_subdirectory
+        # Build the "hello, world" exrwriter example program from the
+        # src/test/add_subdirectory folder, which is the same program as
+        # above but configured via add_subdirectory(ext/openexr).
+        # Create ext/openexr as a symlink to the repo root. This
+        # confirms that downstream applications can use openexr in
+        # that way.
+        if: inputs.msystem == ''
+        run: |
+          set -x
+          "$CMAKE" --version
+          SRC="$RUNNER_TEMP/add_subdirectory"
+          cp -r "$WORKSPACE/src/test/add_subdirectory" "$SRC"
+          cp "$WORKSPACE/website/src/exrwriter/exrwriter.cpp" "$SRC"
+          mkdir -p "$SRC/ext"
+          ln -s "$WORKSPACE" "$SRC/ext/openexr"
+          ADD_SUBDIRECTORY_BUILD_DIR=$WORKSPACE/_build.add_subdirectory
+          cmake_args=("-B" "$ADD_SUBDIRECTORY_BUILD_DIR" -S "$SRC")
+          cmake_args+=("-DCMAKE_POLICY_VERSION_MINIMUM=3.26")
+          cmake_args+=("-DCMAKE_VERBOSE_MAKEFILE=ON")
+          if [ -n "${{ inputs.namespace }}" ]; then
+            cmake_args+=("-DOPENEXR_IMF_NAMESPACE=${{ inputs.namespace }}")
+          fi
+          cmake_args+=("-DOPENEXR_FORCE_INTERNAL_IMATH=${{ inputs.OPENEXR_FORCE_INTERNAL_IMATH }}")
+          cmake_args+=("-DOPENEXR_FORCE_INTERNAL_DEFLATE=${{ inputs.OPENEXR_FORCE_INTERNAL_DEFLATE }}")
+          cmake_args+=("-DOPENEXR_FORCE_INTERNAL_OPENJPH=${{ inputs.OPENEXR_FORCE_INTERNAL_OPENJPH }}")
+          cmake_args+=("-DOPENEXR_BUILD_EXAMPLES=OFF")
+          cmake_args+=("-DOPENEXR_BUILD_TOOLS=OFF")
+          quoted_args=$(printf '%q ' "${cmake_args[@]}")
+          "$CMAKE" $quoted_args
+          "$CMAKE" --build $ADD_SUBDIRECTORY_BUILD_DIR --config ${{ inputs.build-type }}
+          EXRWRITER=$ADD_SUBDIRECTORY_BUILD_DIR/exrwriter
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            export PATH="$OPENEXR_PATH:$PATH"
+            EXRWRITER=$ADD_SUBDIRECTORY_BUILD_DIR/${{ inputs.build-type }}/exrwriter.exe
+          else
+            EXRWRITER=$ADD_SUBDIRECTORY_BUILD_DIR/exrwriter
+          fi
+          $EXRWRITER
+        shell: bash

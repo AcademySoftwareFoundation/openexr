@@ -26,6 +26,7 @@
 #include "general_attr.h"
 #include "read.h"
 #include "write.h"
+#include "buffer.h"
 
 #if defined(ANDROID) || defined(__ANDROID_API__)
 #    define IMF_TMP_DIR "/sdcard/"
@@ -148,7 +149,11 @@ main (int argc, char* argv[])
     TEST (testBaseErrors, "core");
     TEST (testBaseLimits, "core");
     TEST (testBaseDebug, "core");
+    TEST (testCPUIdent, "core");
+    TEST (testHalf, "core");
     TEST (testXDR, "core");
+    TEST (testBufferCompression, "core");
+    TEST (testTempContext, "core");
 
     TEST (testAttrSizes, "gen_attr");
     TEST (testAttrStrings, "gen_attr");
@@ -157,6 +162,7 @@ main (int argc, char* argv[])
     TEST (testAttrChlists, "gen_attr");
     TEST (testAttrPreview, "gen_attr");
     TEST (testAttrOpaque, "gen_attr");
+    TEST (testAttrBytes, "gen_attr");
     TEST (testAttrHandler, "gen_attr");
     TEST (testAttrLists, "gen_attr");
 
@@ -182,12 +188,16 @@ main (int argc, char* argv[])
     TEST (testStartWriteTile, "core_write");
     TEST (testStartWriteDeepScan, "core_write");
     TEST (testStartWriteDeepTile, "core_write");
+    TEST (testStartWriteUTF8, "core_write");
     TEST (testWriteScans, "core_write");
     TEST (testWriteTiles, "core_write");
     TEST (testWriteMultiPart, "core_write");
     TEST (testWriteDeep, "core_write");
 
     TEST (testHUF, "core_compression");
+    TEST (testDWAQuantize, "core_compression");
+    TEST (testDWATable, "core_compression");
+    TEST (testB44Table, "core_compression");
     TEST (testNoCompression, "core_compression");
     TEST (testRLECompression, "core_compression");
     TEST (testZIPCompression, "core_compression");
@@ -198,6 +208,7 @@ main (int argc, char* argv[])
     TEST (testB44ACompression, "core_compression");
     TEST (testDWAACompression, "core_compression");
     TEST (testDWABCompression, "core_compression");
+    TEST (testHTChannelMap, "core_compression");
 
     TEST (testDeepNoCompression, "core_compression");
     TEST (testDeepZIPCompression, "core_compression");

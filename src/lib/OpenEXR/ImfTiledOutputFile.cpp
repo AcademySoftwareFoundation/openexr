@@ -140,10 +140,10 @@ struct BufferedTile
 
     ~BufferedTile () { delete[] pixelData; }
 
-    BufferedTile (const BufferedTile& other) = delete;
+    BufferedTile (const BufferedTile& other)            = delete;
     BufferedTile& operator= (const BufferedTile& other) = delete;
     BufferedTile (BufferedTile&& other)                 = delete;
-    BufferedTile& operator= (BufferedTile&& other) = delete;
+    BufferedTile& operator= (BufferedTile&& other)      = delete;
 };
 
 typedef map<TileCoord, BufferedTile*> TileMap;
@@ -227,10 +227,10 @@ struct TiledOutputFile::Data
     Data (int numThreads);
     ~Data ();
 
-    Data (const Data& other) = delete;
+    Data (const Data& other)            = delete;
     Data& operator= (const Data& other) = delete;
     Data (Data&& other)                 = delete;
-    Data& operator= (Data&& other) = delete;
+    Data& operator= (Data&& other)      = delete;
 
     inline TileBuffer* getTileBuffer (int number);
     // hash function from tile
@@ -771,6 +771,9 @@ TileBufferTask::execute ()
         {
             const char* compPtr;
 
+            _tileBuffer->compressor->setTileLevel (
+                _tileBuffer->tileCoord.lx,
+                _tileBuffer->tileCoord.ly);
             int compSize = _tileBuffer->compressor->compressTile (
                 _tileBuffer->dataPtr,
                 _tileBuffer->dataSize,
@@ -1593,7 +1596,7 @@ TiledOutputFile::copyPixels (TiledInputFile& in)
 void
 TiledOutputFile::copyPixels (InputFile& in)
 {
-    copyPixels (*in.tFile ());
+    copyPixels (in.asTiledInput ());
 }
 
 void

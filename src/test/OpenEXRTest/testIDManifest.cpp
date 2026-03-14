@@ -16,7 +16,7 @@
 #include <ImfStandardAttributes.h>
 
 #include "tmpDir.h"
-#include <zlib.h>
+#include <openexr_compression.h>
 
 namespace IMF = OPENEXR_IMF_NAMESPACE;
 using namespace IMF;
@@ -69,10 +69,7 @@ operator<< (std::ostream& out, const IDManifest& mfst)
              ++s)
         {
             if (!first) { out << ','; }
-            else
-            {
-                first = false;
-            }
+            else { first = false; }
 
             out << *s;
         }
@@ -136,15 +133,18 @@ doReadWriteManifest (const IDManifest& mfst, const string& fn, bool dump)
     //
     // allocate a buffer which is guaranteed to be big enough for compression
     //
-    uLong        sourceDataSize = static_cast<uLong> (str.str ().size ());
-    uLong        compressedDataSize = compressBound (sourceDataSize);
+    size_t sourceDataSize     = str.str ().size ();
+    size_t compressedDataSize = exr_compress_max_buffer_size (sourceDataSize);
     vector<char> compressed (compressedDataSize);
 
-    ::compress (
-        reinterpret_cast<Bytef*> (compressed.data ()),
-        &compressedDataSize,
-        reinterpret_cast<const Bytef*> (str.str ().c_str ()),
-        sourceDataSize);
+    exr_compress_buffer (
+        nullptr,
+        4,
+        str.str ().c_str (),
+        sourceDataSize,
+        compressed.data (),
+        compressedDataSize,
+        &compressedDataSize);
 
     cerr << "simple zip size: " << compressedDataSize << ' ';
 #endif
@@ -299,19 +299,10 @@ randomWord (bool alphaNumeric, const std::vector<std::string>& options)
                 int index =
                     random_int (62); // 26 letters*2 for case + 10 digits
                 if (index < 26) { word[l] = 'A' + index; }
-                else if (index < 52)
-                {
-                    word[l] = 'a' + (index - 26);
-                }
-                else
-                {
-                    word[l] = '0' + (index - 52);
-                }
+                else if (index < 52) { word[l] = 'a' + (index - 26); }
+                else { word[l] = '0' + (index - 52); }
             }
-            else
-            {
-                word[l] = random_int (256);
-            }
+            else { word[l] = random_int (256); }
         }
         return word;
     }

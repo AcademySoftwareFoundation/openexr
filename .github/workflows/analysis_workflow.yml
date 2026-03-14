@@ -12,6 +12,9 @@ on:
     - cron: "0 0 * * 0"
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
 
   # ---------------------------------------------------------------------------
@@ -19,14 +22,14 @@ jobs:
   # ---------------------------------------------------------------------------
 
   linux_sonarcloud:
-    name: 'SonarCloud Linux CentOS 7 VFX CY2022 <GCC 9.3.1>'
+    name: 'SonarCloud Linux CentOS 7 VFX CY2024 <GCC 11.2.1>'
     if: github.repository == 'AcademySoftwareFoundation/openexr'
     # GH-hosted VM. The build runs in CentOS 7 'container' defined below.
     runs-on: ubuntu-latest
     container:
       # DockerHub: https://hub.docker.com/u/aswf
       # Source: https://github.com/AcademySoftwareFoundation/aswf-docker
-      image: aswf/ci-openexr:2022
+      image: aswf/ci-openexr:2024
     env:
       CXX: g++
       CC: gcc
@@ -36,7 +39,7 @@ jobs:
       - name: Setup container
         run: sudo rm -rf /usr/local/lib64/cmake/glew
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 50
       - name: Create build directories
@@ -48,7 +51,7 @@ jobs:
           cmake .. \
                 -DCMAKE_INSTALL_PREFIX=../_install \
                 -DCMAKE_BUILD_TYPE=Release \
-                -DCMAKE_CXX_STANDARD=14 \
+                -DCMAKE_CXX_STANDARD=17 \
                 -DCMAKE_CXX_FLAGS="-g -O0 -fprofile-arcs -ftest-coverage" \
                 -DCMAKE_CXX_OUTPUT_EXTENSION_REPLACE=ON \
                 -DCMAKE_C_FLAGS="-g -O0 -fprofile-arcs -ftest-coverage" \
@@ -83,20 +86,20 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: sonar-scanner -X -Dsonar.login=$SONAR_TOKEN
+        run: sonar-scanner -X
 
   # ------------------------------------------------------------------------------
   #  Valgrind memcheck test
   # ------------------------------------------------------------------------------
   linux_valgrind:
-    name: 'Valgrind Linux CentOS 7 VFX CY2022 <GCC 9.3.1>'
+    name: 'Valgrind Linux CentOS 7 VFX CY2024 <GCC 11.2.1>'
     if: github.repository == 'AcademySoftwareFoundation/openexr'
     # GH-hosted VM. The build runs in CentOS 7 'container' defined below.
     runs-on: ubuntu-latest
     container:
       # DockerHub: https://hub.docker.com/u/aswf
       # Source: https://github.com/AcademySoftwareFoundation/aswf-docker
-      image: aswf/ci-openexr:2022
+      image: aswf/ci-openexr:2024
     env:
       CXX: g++
       CC: gcc
@@ -106,7 +109,7 @@ jobs:
       - name: Setup container
         run: sudo rm -rf /usr/local/lib64/cmake/glew
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 50
       - name: Create build directories
@@ -123,7 +126,7 @@ jobs:
           cmake .. \
                 -DCMAKE_INSTALL_PREFIX=../_install \
                 -DCMAKE_BUILD_TYPE=Release \
-                -DCMAKE_CXX_STANDARD=14 \
+                -DCMAKE_CXX_STANDARD=17 \
                 -DCMAKE_VERBOSE_MAKEFILE:BOOL='OFF' \
                 -DBUILD_SHARED_LIBS='OFF' \
                 -DOPENEXR_BUILD_TOOLS='ON' \
@@ -154,14 +157,14 @@ jobs:
   #  Fuzz test
   # ------------------------------------------------------------------------------
   linux_fuzz:
-    name: 'Fuzz Test ${{ matrix.build-descrip }} Linux CentOS 7 VFX CY2022 <GCC 9.3.1>'
+    name: 'Fuzz Test ${{ matrix.build-descrip }} Linux CentOS 7 VFX CY2024 <GCC 11.2.1>'
     if: github.repository == 'AcademySoftwareFoundation/openexr'
     # GH-hosted VM. The build runs in CentOS 7 'container' defined below.
     runs-on: ubuntu-latest
     container:
       # DockerHub: https://hub.docker.com/u/aswf
       # Source: https://github.com/AcademySoftwareFoundation/aswf-docker
-      image: aswf/ci-openexr:2022
+      image: aswf/ci-openexr:2024
     strategy:
       matrix:
         build: [1, 2]
@@ -185,7 +188,7 @@ jobs:
       - name: Setup container
         run: sudo rm -rf /usr/local/lib64/cmake/glew
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 50
       - name: Create build directories
@@ -198,7 +201,7 @@ jobs:
           cmake .. \
                 -DCMAKE_INSTALL_PREFIX=../_install \
                 -DCMAKE_BUILD_TYPE=Release \
-                -DCMAKE_CXX_STANDARD=14 \
+                -DCMAKE_CXX_STANDARD=17 \
                 -DCMAKE_VERBOSE_MAKEFILE:BOOL='OFF' \
                 -DBUILD_SHARED_LIBS='OFF' \
                 -DOPENEXR_BUILD_TOOLS='ON' \

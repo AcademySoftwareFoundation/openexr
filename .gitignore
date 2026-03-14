@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright Contributors to the OpenEXR Project.
 Makefile
 Makefile.in
 autom4te.cache
@@ -45,8 +47,20 @@ Contrib/DtexToExr/DtexToExr
 *.project
 *.cproject
 .DS_Store
+abi_check
+_build/
 build/
 build-win/
 build-nuget/
 *~
 .vscode
+docs/_test_images/
+dist/*
+__pycache__/
+*.py[cod]
+*$py.class
+*.swp
+
+# Ignore Bazel generated files
+bazel-* 
+MODULE.bazel.lock

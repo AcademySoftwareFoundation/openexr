@@ -15,8 +15,6 @@ add_executable(OpenEXRTest
   random.h
   testAttributes.cpp
   testAttributes.h
-  testB44ExpLogTable.cpp
-  testB44ExpLogTable.h
   testBackwardCompatibility.cpp
   testBackwardCompatibility.h
   testBadTypeAttributes.cpp
@@ -25,6 +23,8 @@ add_executable(OpenEXRTest
   testChannels.h
   testCompositeDeepScanLine.cpp
   testCompositeDeepScanLine.h
+  testCompressionApi.cpp
+  testCompressionApi.h
   testCompression.cpp
   testCompression.h
   testConversion.cpp
@@ -49,14 +49,12 @@ add_executable(OpenEXRTest
   testDeepScanLineMultipleRead.h
   testDeepTiledBasic.cpp
   testDeepTiledBasic.h
-  testDwaCompressorSimd.cpp
-  testDwaCompressorSimd.h
-  testDwaLookups.cpp
-  testDwaLookups.h
   testExistingStreams.cpp
   testExistingStreams.h
   testFutureProofing.cpp
   testFutureProofing.h
+  testHeader.cpp
+  testHeader.h
   testHuf.cpp
   testHuf.h
   testIDManifest.cpp
@@ -101,6 +99,8 @@ add_executable(OpenEXRTest
   testPreviewImage.h
   testRgba.cpp
   testRgba.h
+  testCRgba.cpp
+  testCRgba.h
   testRgbaThreading.cpp
   testRgbaThreading.h
   testRle.cpp
@@ -135,10 +135,15 @@ target_compile_definitions(OpenEXRTest PRIVATE ILM_IMF_TEST_IMAGEDIR="${CMAKE_CU
 target_link_libraries(OpenEXRTest OpenEXR::OpenEXR)
 set_target_properties(OpenEXRTest PROPERTIES
   RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+  CXX_STANDARD_REQUIRED ON
+  CXX_EXTENSIONS OFF
 )
 if(WIN32 AND BUILD_SHARED_LIBS)
   target_compile_definitions(OpenEXRTest PRIVATE OPENEXR_DLL)
 endif()
+target_compile_features(OpenEXRTest
+    PRIVATE cxx_std_${OPENEXR_CXX_STANDARD}
+)
 
 function(DEFINE_OPENEXR_TESTS)
   foreach(curtest IN LISTS ARGN)
@@ -149,11 +154,11 @@ endfunction()
 
 define_openexr_tests(
  testAttributes
- testB44ExpLogTable
  testBackwardCompatibility
  testBadTypeAttributes
  testChannels
  testCompositeDeepScanLine
+ testCompressionApi
  testCompression
  testConversion
  testCopyDeepScanLine
@@ -165,10 +170,11 @@ define_openexr_tests(
  testDeepScanLineBasic
  testDeepScanLineMultipleRead
  testDeepTiledBasic
- testDwaCompressorSimd
  testDwaLookups
  testExistingStreams
+ testExistingStreamsUTF8
  testFutureProofing
+ testHeader
  testHuf
  testInputPart
  testIsComplete
@@ -189,6 +195,7 @@ define_openexr_tests(
  testPartHelper
  testPreviewImage
  testRgba
+ testCRgba
  testRgbaThreading
  testRle
  testSampleImages

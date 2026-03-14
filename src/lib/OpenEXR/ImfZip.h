@@ -20,10 +20,10 @@ public:
     Zip (size_t maxScanlineSize, size_t numScanLines, int level);
     ~Zip ();
 
-    Zip (const Zip& other) = delete;
+    Zip (const Zip& other)            = delete;
     Zip& operator= (const Zip& other) = delete;
     Zip (Zip&& other)                 = delete;
-    Zip& operator= (Zip&& other) = delete;
+    Zip& operator= (Zip&& other)      = delete;
 
     size_t maxRawSize ();
     size_t maxCompressedSize ();

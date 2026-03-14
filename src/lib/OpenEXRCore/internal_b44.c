@@ -13,8 +13,9 @@
 
 /**************************************/
 
-extern const uint16_t* exrcore_expTable;
-extern const uint16_t* exrcore_logTable;
+extern uint16_t* exrcore_expTable;
+extern uint16_t* exrcore_logTable;
+extern void      exrcore_ensure_b44_tables ();
 
 static inline void
 convertFromLinear (uint16_t s[16])
@@ -35,6 +36,7 @@ convertToLinear (uint16_t s[16])
 static inline int
 shiftAndRound (int x, int shift)
 {
+    int a, b;
     //
     // Compute
     //
@@ -47,9 +49,9 @@ shiftAndRound (int x, int shift)
     //
 
     x <<= 1;
-    int a = (1 << shift) - 1;
+    a = (1 << shift) - 1;
     shift += 1;
-    int b = (x >> shift) & 1;
+    b = (x >> shift) & 1;
     return (x + a + b) >> shift;
 }
 
@@ -108,6 +110,8 @@ pack (const uint16_t s[16], uint8_t b[14], int flatfields, int exactmax)
     uint16_t tMax;
     int      shift = -1;
 
+    const int bias = 0x20;
+
     for (int i = 0; i < 16; ++i)
     {
         if ((s[i] & 0x7c00) == 0x7c00)
@@ -130,8 +134,6 @@ pack (const uint16_t s[16], uint8_t b[14], int flatfields, int exactmax)
     // -32 and +31.  Then bias the differences so that they
     // end up between 0 and 63.
     //
-
-    const int bias = 0x20;
 
     do
     {
@@ -234,44 +236,79 @@ pack (const uint16_t s[16], uint8_t b[14], int flatfields, int exactmax)
 static inline void
 unpack14 (const uint8_t b[14], uint16_t s[16])
 {
+    uint16_t shift, bias;
     s[0] = ((uint16_t) (b[0] << 8)) | ((uint16_t) b[1]);
 
-    uint16_t shift = (b[2] >> 2);
-    uint16_t bias  = (uint16_t) (0x20u << shift);
+    shift = (b[2] >> 2);
+    bias  = (uint16_t) (0x20u << shift);
 
-    s[4] =
-        (uint16_t) ((uint32_t) s[0] + (uint32_t) ((((uint32_t) (b[2] << 4) | (uint32_t) (b[3] >> 4)) & 0x3fu) << shift) - bias);
-    s[8] =
-        (uint16_t) ((uint32_t) s[4] + (uint32_t) ((((uint32_t) (b[3] << 2) | (uint32_t) (b[4] >> 6)) & 0x3fu) << shift) - bias);
-    s[12] =
-        (uint16_t) ((uint32_t) s[8] + (uint32_t) ((uint32_t) (b[4] & 0x3fu) << shift) - bias);
+    s[4]  = (uint16_t) ((uint32_t) s[0] +
+                       (uint32_t) ((((uint32_t) (b[2] << 4) |
+                                     (uint32_t) (b[3] >> 4)) &
+                                    0x3fu)
+                                   << shift) -
+                       bias);
+    s[8]  = (uint16_t) ((uint32_t) s[4] +
+                       (uint32_t) ((((uint32_t) (b[3] << 2) |
+                                     (uint32_t) (b[4] >> 6)) &
+                                    0x3fu)
+                                   << shift) -
+                       bias);
+    s[12] = (uint16_t) ((uint32_t) s[8] +
+                        (uint32_t) ((uint32_t) (b[4] & 0x3fu) << shift) - bias);
 
-    s[1] =
-        (uint16_t) ((uint32_t) s[0] + (uint32_t) ((uint32_t) (b[5] >> 2) << shift) - bias);
-    s[5] =
-        (uint16_t) ((uint32_t) s[4] + (uint32_t) ((((uint32_t) (b[5] << 4) | (uint32_t) (b[6] >> 4)) & 0x3fu) << shift) - bias);
-    s[9] =
-        (uint16_t) ((uint32_t) s[8] + (uint32_t) ((((uint32_t) (b[6] << 2) | (uint32_t) (b[7] >> 6)) & 0x3fu) << shift) - bias);
-    s[13] =
-        (uint16_t) ((uint32_t) s[12] + (uint32_t) ((uint32_t) (b[7] & 0x3fu) << shift) - bias);
+    s[1]  = (uint16_t) ((uint32_t) s[0] +
+                       (uint32_t) ((uint32_t) (b[5] >> 2) << shift) - bias);
+    s[5]  = (uint16_t) ((uint32_t) s[4] +
+                       (uint32_t) ((((uint32_t) (b[5] << 4) |
+                                     (uint32_t) (b[6] >> 4)) &
+                                    0x3fu)
+                                   << shift) -
+                       bias);
+    s[9]  = (uint16_t) ((uint32_t) s[8] +
+                       (uint32_t) ((((uint32_t) (b[6] << 2) |
+                                     (uint32_t) (b[7] >> 6)) &
+                                    0x3fu)
+                                   << shift) -
+                       bias);
+    s[13] = (uint16_t) ((uint32_t) s[12] +
+                        (uint32_t) ((uint32_t) (b[7] & 0x3fu) << shift) - bias);
 
-    s[2] =
-        (uint16_t) ((uint32_t) s[1] + (uint32_t) ((uint32_t) (b[8] >> 2) << shift) - bias);
-    s[6] =
-        (uint16_t) ((uint32_t) s[5] + (uint32_t) ((((uint32_t) (b[8] << 4) | (uint32_t) (b[9] >> 4)) & 0x3fu) << shift) - bias);
-    s[10] =
-        (uint16_t) ((uint32_t) s[9] + (uint32_t) ((((uint32_t) (b[9] << 2) | (uint32_t) (b[10] >> 6)) & 0x3fu) << shift) - bias);
+    s[2]  = (uint16_t) ((uint32_t) s[1] +
+                       (uint32_t) ((uint32_t) (b[8] >> 2) << shift) - bias);
+    s[6]  = (uint16_t) ((uint32_t) s[5] +
+                       (uint32_t) ((((uint32_t) (b[8] << 4) |
+                                     (uint32_t) (b[9] >> 4)) &
+                                    0x3fu)
+                                   << shift) -
+                       bias);
+    s[10] = (uint16_t) ((uint32_t) s[9] +
+                        (uint32_t) ((((uint32_t) (b[9] << 2) |
+                                      (uint32_t) (b[10] >> 6)) &
+                                     0x3fu)
+                                    << shift) -
+                        bias);
     s[14] =
-        (uint16_t) ((uint32_t) s[13] + (uint32_t) ((uint32_t) (b[10] & 0x3fu) << shift) - bias);
+        (uint16_t) ((uint32_t) s[13] +
+                    (uint32_t) ((uint32_t) (b[10] & 0x3fu) << shift) - bias);
 
-    s[3] =
-        (uint16_t) ((uint32_t) s[2] + (uint32_t) ((uint32_t) (b[11] >> 2) << shift) - bias);
-    s[7] =
-        (uint16_t) ((uint32_t) s[6] + (uint32_t) ((((uint32_t) (b[11] << 4) | (uint32_t) (b[12] >> 4)) & 0x3fu) << shift) - bias);
-    s[11] =
-        (uint16_t) ((uint32_t) s[10] + (uint32_t) ((((uint32_t) (b[12] << 2) | (uint32_t) (b[13] >> 6)) & 0x3fu) << shift) - bias);
+    s[3]  = (uint16_t) ((uint32_t) s[2] +
+                       (uint32_t) ((uint32_t) (b[11] >> 2) << shift) - bias);
+    s[7]  = (uint16_t) ((uint32_t) s[6] +
+                       (uint32_t) ((((uint32_t) (b[11] << 4) |
+                                     (uint32_t) (b[12] >> 4)) &
+                                    0x3fu)
+                                   << shift) -
+                       bias);
+    s[11] = (uint16_t) ((uint32_t) s[10] +
+                        (uint32_t) ((((uint32_t) (b[12] << 2) |
+                                      (uint32_t) (b[13] >> 6)) &
+                                     0x3fu)
+                                    << shift) -
+                        bias);
     s[15] =
-        (uint16_t) ((uint32_t) s[14] + (uint32_t) ((uint32_t) (b[13] & 0x3fu) << shift) - bias);
+        (uint16_t) ((uint32_t) s[14] +
+                    (uint32_t) ((uint32_t) (b[13] & 0x3fu) << shift) - bias);
 
     for (int i = 0; i < 16; ++i)
     {
@@ -316,6 +353,8 @@ compress_b44_impl (exr_encode_pipeline_t* encode, int flat_field)
         &(encode->scratch_alloc_size_1),
         encode->packed_bytes);
     if (rv != EXR_ERR_SUCCESS) return rv;
+
+    exrcore_ensure_b44_tables ();
 
     nOut   = 0;
     packed = encode->packed_buffer;
@@ -387,12 +426,14 @@ compress_b44_impl (exr_encode_pipeline_t* encode, int flat_field)
             // by 4, then pad the data by repeating the
             // rightmost column and the bottom row.
             //
+            uint16_t *row0, *row1, *row2, *row3;
 
-            uint16_t* row0 = (uint16_t*) scratch;
+            row0 = (uint16_t*) scratch;
             row0 += y * nx;
-            uint16_t* row1 = row0 + nx;
-            uint16_t* row2 = row1 + nx;
-            uint16_t* row3 = row2 + nx;
+
+            row1 = row0 + nx;
+            row2 = row1 + nx;
+            row3 = row2 + nx;
 
             if (y + 3 >= ny)
             {
@@ -451,6 +492,14 @@ compress_b44_impl (exr_encode_pipeline_t* encode, int flat_field)
         scratch += nBytes;
     }
 
+    if (nOut > encode->packed_bytes)
+    {
+        memcpy (
+            encode->compressed_buffer,
+            encode->packed_buffer,
+            encode->packed_bytes);
+        nOut = encode->packed_bytes;
+    }
     encode->compressed_bytes = nOut;
     return rv;
 }
@@ -601,6 +650,7 @@ uncompress_b44_impl (
         }
     }
 
+    decode->bytes_decompressed = uncomp_buf_size;
     return EXR_ERR_SUCCESS;
 }
 
@@ -650,6 +700,8 @@ internal_exr_undo_b44 (
         &(decode->scratch_alloc_size_1),
         compute_scratch_buffer_size (decode, uncompressed_size));
     if (rv != EXR_ERR_SUCCESS) return rv;
+
+    exrcore_ensure_b44_tables ();
 
     return uncompress_b44_impl (
         decode,

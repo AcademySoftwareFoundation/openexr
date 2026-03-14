@@ -57,7 +57,11 @@
 #    define le32toh(x) OSSwapLittleToHostInt32 (x)
 #    define htole64(x) OSSwapHostToLittleInt64 (x)
 #    define le64toh(x) OSSwapLittleToHostInt64 (x)
-#    define EXR_HOST_IS_NOT_LITTLE_ENDIAN (BYTE_ORDER != LITTLE_ENDIAN)
+#    if defined(__m68k__) || defined(__POWERPC__)
+#        define EXR_HOST_IS_NOT_LITTLE_ENDIAN 1
+#    else
+#        define EXR_HOST_IS_NOT_LITTLE_ENDIAN 0
+#    endif
 
 #elif defined(__OpenBSD__) || defined(__FreeBSD__) || defined(__NetBSD__) ||   \
     defined(__DragonFly__)
@@ -150,6 +154,32 @@ priv_from_native32 (void* ptr, int n)
     (void) ptr;
     (void) n;
 #endif
+}
+
+static inline float
+one_to_native_float (float v)
+{
+    union
+    {
+        uint32_t i;
+        float    f;
+    } coerce;
+    coerce.f = v;
+    coerce.i = one_to_native32 (coerce.i);
+    return coerce.f;
+}
+
+static inline float
+one_from_native_float (float v)
+{
+    union
+    {
+        uint32_t i;
+        float    f;
+    } coerce;
+    coerce.f = v;
+    coerce.i = one_from_native32 (coerce.i);
+    return coerce.f;
 }
 
 /**************************************/

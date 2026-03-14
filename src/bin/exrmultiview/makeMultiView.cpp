@@ -71,10 +71,7 @@ makeMultiView (
 
         header = in.header ();
         if (i == 0) { d = header.dataWindow (); }
-        else
-        {
-            d.extendBy (header.dataWindow ());
-        }
+        else { d.extendBy (header.dataWindow ()); }
     }
 
     image.resize (d);

@@ -58,7 +58,7 @@ struct Schema
     const char*        _name;   // name of this scheme
     const char* const* _active; // channels to be read
     const char* const*
-                       _passive; // channels to be ignored (keep in buffer passed to inputfile, should not be overwritten)
+        _passive; // channels to be ignored (keep in buffer passed to inputfile, should not be overwritten)
     int                _banks;
     const char* const* _views; // list of views to write, or NULL
     const PixelType*   _types; // NULL for all HALF, otherwise per-channel type
@@ -252,10 +252,7 @@ compare (
                         default: cout << "don't know about that\n"; exit (1);
                     }
                 }
-                else
-                {
-                    writtenHalf = half (i.slice ().fillValue);
-                }
+                else { writtenHalf = half (i.slice ().fillValue); }
 
                 if (writtenHalf.bits () != readHalf.bits ())
                 {
@@ -289,9 +286,11 @@ setupBuffer (
     FrameBuffer&
         prereadbuf, // channels which aren't being read - indexes into the preread buffer
     FrameBuffer&
-         postreadbuf, // channels which aren't being read - indexes into the postread buffer
-    int  banks, // number of banks - channels within each bank are interleaved, banks are scanline interleaved
-    bool writing // true if should allocate
+        postreadbuf, // channels which aren't being read - indexes into the postread buffer
+    int banks, // number of banks - channels within each bank are interleaved, banks are scanline interleaved
+    bool writing, // true if should allocate
+    bool
+        allowNonfinite // true if the buffer is allowed to create infinity or NaN values
 )
 {
     Box2i dw = hdr.dataWindow ();
@@ -312,8 +311,8 @@ setupBuffer (
                 case IMF::HALF: bytes_per_pixel += 2; break;
                 case IMF::FLOAT:
                 case IMF::UINT:
-                    // some architectures (e.g arm7 cannot write 32 bit values
-                    // to addresses which aren't aligned to 32 bit addresses)
+                    // some architectures (e.g arm7) cannot write 32 bit values
+                    // to addresses which aren't aligned to 32 bit addresses
                     // so bump to next multiple of four
                     bytes_per_pixel = alignToFour (bytes_per_pixel);
                     bytes_per_pixel += 4;
@@ -360,20 +359,25 @@ setupBuffer (
     int size = samples * bytes_per_pixel;
 
     if (writing) { writingBuffer.resize (size); }
-    else
-    {
-        readingBuffer.resize (size);
-    }
+    else { readingBuffer.resize (size); }
 
     const char* write_ptr = writing ? &writingBuffer[0] : &readingBuffer[0];
-    // fill with random halfs, casting to floats for float channels
+    // fill with random halves, casting to floats for float channels
     int chan = 0;
     for (int i = 0; i < samples; i++)
     {
-        unsigned short int values =
-            random_int (std::numeric_limits<unsigned short>::max ());
         half v;
-        v.setBits (values);
+        // generate a random finite half
+        // if the value is to be cast to a float, ensure the value is not infinity
+        // or NaN, since the value is not guaranteed to round trip from half to float
+        // and back again with bit-identical precision
+        do
+        {
+            unsigned short int values =
+                random_int (std::numeric_limits<unsigned short>::max ());
+            v.setBits (values);
+        } while (!((v - v) == 0 || allowNonfinite));
+
         if (pt == NULL || pt[chan] == IMF::HALF)
         {
             *(half*) write_ptr = half (v);
@@ -481,7 +485,7 @@ setupBuffer (
 }
 
 Box2i
-writefile (Schema& scheme, FrameBuffer& buf, bool tiny)
+writefile (Schema& scheme, FrameBuffer& buf, bool tiny, bool allowNonfinite)
 {
     const int height = 128;
     const int width  = 128;
@@ -520,7 +524,8 @@ writefile (Schema& scheme, FrameBuffer& buf, bool tiny)
         dummy1,
         dummy2,
         scheme._banks,
-        true);
+        true,
+        allowNonfinite);
 
     if (scheme._views) { addMultiView (hdr, scheme.views ()); }
 
@@ -538,7 +543,8 @@ readfile (
     FrameBuffer& buf,     ///< list of channels to read: index to readingBuffer
     FrameBuffer& preread, ///< list of channels to skip: index to preReadBuffer
     FrameBuffer&
-        postread) ///< list of channels to skip: index to readingBuffer)
+         postread, ///< list of channels to skip: index to readingBuffer)
+    bool allowNonfinite)
 {
     InputFile infile (filename.c_str ());
     setupBuffer (
@@ -550,7 +556,8 @@ readfile (
         preread,
         postread,
         scheme._banks,
-        false);
+        false,
+        allowNonfinite);
     infile.setFrameBuffer (buf);
 
     cout.flush ();
@@ -569,13 +576,21 @@ test (Schema writeScheme, Schema readScheme, bool nonfatal, bool tiny)
     cout << left << setw (53) << q.str ();
 
     FrameBuffer writeFrameBuf;
-    Box2i       dw = writefile (writeScheme, writeFrameBuf, tiny);
+    // only allow NaN and infinity values if file is read and written as half float
+    // (otherwise casting between half and float may cause different bit patterns)
+    bool allowNonfinite =
+        (writeScheme._types == nullptr && readScheme._types == nullptr);
+    Box2i dw = writefile (writeScheme, writeFrameBuf, tiny, allowNonfinite);
     FrameBuffer readFrameBuf;
     FrameBuffer preReadFrameBuf;
     FrameBuffer postReadFrameBuf;
     cout.flush ();
-    bool opt =
-        readfile (readScheme, readFrameBuf, preReadFrameBuf, postReadFrameBuf);
+    bool opt = readfile (
+        readScheme,
+        readFrameBuf,
+        preReadFrameBuf,
+        postReadFrameBuf,
+        allowNonfinite);
     if (compare (readFrameBuf, writeFrameBuf, dw, nonfatal) &&
         compare (preReadFrameBuf, postReadFrameBuf, dw, nonfatal))
     {
@@ -622,10 +637,7 @@ runtests (bool nonfatal, bool tiny)
                      << Schemes[j]._name << ": known to crash\n";
                 skipped++;
             }
-            else
-            {
-                test (Schemes[i], Schemes[j], nonfatal, tiny);
-            }
+            else { test (Schemes[i], Schemes[j], nonfatal, tiny); }
             j++;
         }
         i++;

@@ -16,9 +16,14 @@
 
 #include "ImfCompression.h"
 
+#include "ImfContext.h"
+
+#include "openexr_compression.h"
+
 #include <ImathBox.h>
 
 #include <stdlib.h>
+#include <memory>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
@@ -31,7 +36,10 @@ public:
     //---------------------------------------------
 
     IMF_EXPORT
-    Compressor (const Header& hdr);
+    Compressor (const Header& hdr,
+                exr_compression_t compression_type,
+                size_t maxScanLineSize,
+                int scanlines = -1);
 
     //-----------
     // Destructor
@@ -40,13 +48,24 @@ public:
     IMF_EXPORT
     virtual ~Compressor ();
 
+    Compressor (const Compressor& other)            = delete;
+    Compressor& operator= (const Compressor& other) = delete;
+    Compressor (Compressor&& other)                 = delete;
+    Compressor& operator= (Compressor&& other)      = delete;
+
     //----------------------------------------------
     // Maximum number of scan lines processed by
     // a single call to compress() and uncompress().
     //----------------------------------------------
 
     IMF_EXPORT
-    virtual int numScanLines () const = 0;
+    virtual int numScanLines () const;
+
+    //----------------------------------------------
+    // Return the compression type used by this compressor.
+    //----------------------------------------------
+
+    exr_compression_t compressionType () const { return _comp_type; }
 
     //--------------------------------------------
     // Format of the pixel data read and written
@@ -124,7 +143,7 @@ public:
     //-------------------------------------------------------------------------
 
     virtual int
-    compress (const char* inPtr, int inSize, int minY, const char*& outPtr) = 0;
+    compress (const char* inPtr, int inSize, int minY, const char*& outPtr);
 
     IMF_EXPORT
     virtual int compressTile (
@@ -150,7 +169,7 @@ public:
     //-------------------------------------------------------------------------
 
     virtual int uncompress (
-        const char* inPtr, int inSize, int minY, const char*& outPtr) = 0;
+        const char* inPtr, int inSize, int minY, const char*& outPtr);
 
     IMF_EXPORT
     virtual int uncompressTile (
@@ -159,31 +178,44 @@ public:
         IMATH_NAMESPACE::Box2i range,
         const char*&           outPtr);
 
-private:
+    void setExpectedSize (size_t sz) { _expectedSize = sz; }
+    void setTileLevel (int lx, int ly) { _levelX = lx; _levelY = ly; }
+
+    exr_storage_t storageType () const { return _store_type; }
+    void setStorageType (exr_storage_t st) { _store_type = st; }
+
+protected:
+    Context _ctxt;
     const Header& _header;
+
+    size_t _maxScanLineSize = 0;
+    int _numScanLines = -1;
+
+    exr_compression_t _comp_type;
+    exr_storage_t _store_type;
+
+    exr_decode_pipeline_t _decoder = EXR_DECODE_PIPELINE_INITIALIZER;
+    exr_encode_pipeline_t _encoder = EXR_ENCODE_PIPELINE_INITIALIZER;
+    bool _decoder_init = false;
+    bool _encoder_init = false;
+    std::unique_ptr<char[]> _memory_buffer;
+    uint64_t _buf_sz = 0;
+    size_t _expectedSize = 0;
+
+    int _levelX = 0;
+    int _levelY = 0;
+
+    uint64_t runEncodeStep (
+        const char* inPtr,
+        int inSize,
+        IMATH_NAMESPACE::Box2i range,
+        const char*& outPtr);
+    uint64_t runDecodeStep (
+        const char* inPtr,
+        int inSize,
+        IMATH_NAMESPACE::Box2i range,
+        const char*& outPtr);
 };
-
-//--------------------------------------
-// Test if c is a valid compression type
-//--------------------------------------
-
-IMF_EXPORT
-bool isValidCompression (Compression c);
-
-//--------------------------------------
-// Test if c is valid for deep data
-//--------------------------------------
-
-IMF_EXPORT
-bool isValidDeepCompression (Compression c);
-
-//---------------------------------------
-// Return true for compression types which
-// do not guarantee that HALF type values
-// are preserved precisely
-//---------------------------------------
-IMF_EXPORT
-bool isLossyCompression (Compression c);
 
 //-----------------------------------------------------------------
 // Construct a Compressor for compression type c:

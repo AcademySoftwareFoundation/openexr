@@ -610,10 +610,7 @@ hufBuildDecTable (
 
                 delete[] p;
             }
-            else
-            {
-                pl->p = new int[1];
-            }
+            else { pl->p = new int[1]; }
 
             pl->p[pl->lit - 1] = im;
         }
@@ -785,14 +782,8 @@ int hufEncode                     // return: output size (in bits)
             while (cs-- > 0)                                                   \
                 *out++ = s;                                                    \
         }                                                                      \
-        else if (out < oe)                                                     \
-        {                                                                      \
-            *out++ = po;                                                       \
-        }                                                                      \
-        else                                                                   \
-        {                                                                      \
-            tooMuchData ();                                                    \
-        }                                                                      \
+        else if (out < oe) { *out++ = po; }                                    \
+        else { tooMuchData (); }                                               \
     }
 
 //

@@ -113,7 +113,7 @@ represents the project at ASWF TAC meetings.
 * Kimball Thurston - Weta Digital, Ltd.
 * Nick Porcino - Pixar Animation Studios
 * Christina Tempelaar-Lietz - Industrial Light & Magic
-* Joseph Goldstone - ARRI
+* Joseph Goldstone - Lilliputian Pictures LLC
 * John Mertic - The Linux Foundation
 
 ### TSC Meetings

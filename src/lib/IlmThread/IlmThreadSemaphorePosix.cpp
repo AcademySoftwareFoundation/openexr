@@ -10,12 +10,11 @@
 //
 //-----------------------------------------------------------------------------
 
-#include "IlmThreadConfig.h"
+#include "IlmThreadSemaphore.h"
 
-#if ILMTHREAD_HAVE_POSIX_SEMAPHORES
+#if ILMTHREAD_SEMAPHORE_POSIX
 
 #    include "Iex.h"
-#    include "IlmThreadSemaphore.h"
 #    include <assert.h>
 #    include <errno.h>
 
@@ -70,4 +69,4 @@ Semaphore::value () const
 
 ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_EXIT
 
-#endif
+#endif // ILMTHREAD_SEMAPHORE_POSIX

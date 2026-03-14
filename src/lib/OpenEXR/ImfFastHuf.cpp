@@ -13,15 +13,11 @@
 
 // Static enabling/disabling the fast huffman decode
 
-
-#if defined(__clang__)
+#if defined(__APPLE__) && defined(__clang__)
 //
 // Enabled for clang on Apple platforms (tested):
 //
-
-#    if defined(__APPLE__)
-#        define OPENEXR_IMF_ENABLE_FAST_HUF_DECODER
-#    endif
+#    define OPENEXR_IMF_ENABLE_FAST_HUF_DECODER
 
 #elif defined(__INTEL_COMPILER) || defined(__GNUC__)
 //
@@ -294,7 +290,7 @@ FastHufDecoder::~FastHufDecoder ()
 // Static check if the decoder is enabled.
 //
 // ATM, I only have access to little endian hardware for testing,
-// so I'm not entirely sure that we are reading fom the bit stream
+// so I'm not entirely sure that we are reading from the bit stream
 // properly on BE.
 //
 // If you happen to have more obscure hardware, check that the
@@ -328,11 +324,11 @@ FastHufDecoder::~FastHufDecoder ()
 bool
 FastHufDecoder::enabled ()
 {
-#    ifdef OPENEXR_IMF_ENABLE_FAST_HUF_DECODER
+#ifdef OPENEXR_IMF_ENABLE_FAST_HUF_DECODER
     return true;
-#    else
+#else
     return false;
-#    endif
+#endif
 }
 
 //
@@ -428,10 +424,7 @@ FastHufDecoder::buildTables (uint64_t* base, uint64_t* offset)
 
         _tableMin = 0xffffffffffffffffULL;
     }
-    else
-    {
-        _tableMin = _ljBase[minIdx];
-    }
+    else { _tableMin = _ljBase[minIdx]; }
 }
 
 //
@@ -526,10 +519,7 @@ FastHufDecoder::refill (
     //
 
     if (bufferBackNumBits <= numBits) { bufferBack = 0; }
-    else
-    {
-        bufferBack = bufferBack << numBits;
-    }
+    else { bufferBack = bufferBack << numBits; }
     bufferBackNumBits -= numBits;
 }
 

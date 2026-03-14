@@ -193,10 +193,10 @@ public:
     void updatePreviewImage (const PreviewRgba[]);
 
 private:
-    AcesOutputFile (const AcesOutputFile&) = delete;
+    AcesOutputFile (const AcesOutputFile&)            = delete;
     AcesOutputFile& operator= (const AcesOutputFile&) = delete;
     AcesOutputFile (AcesOutputFile&&)                 = delete;
-    AcesOutputFile& operator= (AcesOutputFile&&) = delete;
+    AcesOutputFile& operator= (AcesOutputFile&&)      = delete;
 
     class IMF_HIDDEN Data;
 
@@ -294,10 +294,10 @@ public:
     int version () const;
 
 private:
-    AcesInputFile (const AcesInputFile&) = delete;
+    AcesInputFile (const AcesInputFile&)            = delete;
     AcesInputFile& operator= (const AcesInputFile&) = delete;
     AcesInputFile (AcesInputFile&&)                 = delete;
-    AcesInputFile& operator= (AcesInputFile&&) = delete;
+    AcesInputFile& operator= (AcesInputFile&&)      = delete;
 
     class IMF_HIDDEN Data;
 

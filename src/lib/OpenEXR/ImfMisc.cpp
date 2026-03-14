@@ -331,7 +331,7 @@ copyIntoFrameBuffer (
     else if (format == Compressor::XDR)
     {
         //
-        // The the line or tile buffer is in XDR format.
+        // The line or tile buffer is in XDR format.
         //
         // Convert the pixels from the file's machine-
         // independent representation, and store the
@@ -470,7 +470,7 @@ copyIntoFrameBuffer (
     else
     {
         //
-        // The the line or tile buffer is in NATIVE format.
+        // The line or tile buffer is in NATIVE format.
         // Copy the results into the frame buffer.
         //
 
@@ -684,7 +684,8 @@ copyIntoDeepFrameBuffer (
                 for (int x = minX; x <= maxX; x++)
                 {
                     char* writePtr = *(
-                        char**) (base + (y - yOffsetForData) * yPointerStride + (x - xOffsetForData) * xPointerStride);
+                        char**) (base + (y - yOffsetForData) * yPointerStride +
+                                 (x - xOffsetForData) * xPointerStride);
                     if (writePtr)
                     {
                         int count = sampleCount (
@@ -711,7 +712,8 @@ copyIntoDeepFrameBuffer (
                 for (int x = minX; x <= maxX; x++)
                 {
                     char* writePtr = *(
-                        char**) (base + (y - yOffsetForData) * yPointerStride + (x - xOffsetForData) * xPointerStride);
+                        char**) (base + (y - yOffsetForData) * yPointerStride +
+                                 (x - xOffsetForData) * xPointerStride);
 
                     if (writePtr)
                     {
@@ -739,7 +741,8 @@ copyIntoDeepFrameBuffer (
                 for (int x = minX; x <= maxX; x++)
                 {
                     char* writePtr = *(
-                        char**) (base + (y - yOffsetForData) * yPointerStride + (x - xOffsetForData) * xPointerStride);
+                        char**) (base + (y - yOffsetForData) * yPointerStride +
+                                 (x - xOffsetForData) * xPointerStride);
 
                     if (writePtr)
                     {
@@ -765,7 +768,7 @@ copyIntoDeepFrameBuffer (
     else if (format == Compressor::XDR)
     {
         //
-        // The the line or tile buffer is in XDR format.
+        // The line or tile buffer is in XDR format.
         //
         // Convert the pixels from the file's machine-
         // independent representation, and store the
@@ -783,7 +786,9 @@ copyIntoDeepFrameBuffer (
                         for (int x = minX; x <= maxX; x++)
                         {
                             char* writePtr = *(
-                                char**) (base + (y - yOffsetForData) * yPointerStride + (x - xOffsetForData) * xPointerStride);
+                                char**) (base +
+                                         (y - yOffsetForData) * yPointerStride +
+                                         (x - xOffsetForData) * xPointerStride);
 
                             int count = sampleCount (
                                 sampleCountBase,
@@ -815,7 +820,9 @@ copyIntoDeepFrameBuffer (
                         for (int x = minX; x <= maxX; x++)
                         {
                             char* writePtr = *(
-                                char**) (base + (y - yOffsetForData) * yPointerStride + (x - xOffsetForData) * xPointerStride);
+                                char**) (base +
+                                         (y - yOffsetForData) * yPointerStride +
+                                         (x - xOffsetForData) * xPointerStride);
 
                             int count = sampleCount (
                                 sampleCountBase,
@@ -847,7 +854,9 @@ copyIntoDeepFrameBuffer (
                         for (int x = minX; x <= maxX; x++)
                         {
                             char* writePtr = *(
-                                char**) (base + (y - yOffsetForData) * yPointerStride + (x - xOffsetForData) * xPointerStride);
+                                char**) (base +
+                                         (y - yOffsetForData) * yPointerStride +
+                                         (x - xOffsetForData) * xPointerStride);
 
                             int count = sampleCount (
                                 sampleCountBase,
@@ -888,7 +897,9 @@ copyIntoDeepFrameBuffer (
                         for (int x = minX; x <= maxX; x++)
                         {
                             char* writePtr = *(
-                                char**) (base + (y - yOffsetForData) * yPointerStride + (x - xOffsetForData) * xPointerStride);
+                                char**) (base +
+                                         (y - yOffsetForData) * yPointerStride +
+                                         (x - xOffsetForData) * xPointerStride);
 
                             int count = sampleCount (
                                 sampleCountBase,
@@ -921,7 +932,9 @@ copyIntoDeepFrameBuffer (
                         for (int x = minX; x <= maxX; x++)
                         {
                             char* writePtr = *(
-                                char**) (base + (y - yOffsetForData) * yPointerStride + (x - xOffsetForData) * xPointerStride);
+                                char**) (base +
+                                         (y - yOffsetForData) * yPointerStride +
+                                         (x - xOffsetForData) * xPointerStride);
 
                             int count = sampleCount (
                                 sampleCountBase,
@@ -952,7 +965,9 @@ copyIntoDeepFrameBuffer (
                         for (int x = minX; x <= maxX; x++)
                         {
                             char* writePtr = *(
-                                char**) (base + (y - yOffsetForData) * yPointerStride + (x - xOffsetForData) * xPointerStride);
+                                char**) (base +
+                                         (y - yOffsetForData) * yPointerStride +
+                                         (x - xOffsetForData) * xPointerStride);
 
                             int count = sampleCount (
                                 sampleCountBase,
@@ -993,7 +1008,9 @@ copyIntoDeepFrameBuffer (
                         for (int x = minX; x <= maxX; x++)
                         {
                             char* writePtr = *(
-                                char**) (base + (y - yOffsetForData) * yPointerStride + (x - xOffsetForData) * xPointerStride);
+                                char**) (base +
+                                         (y - yOffsetForData) * yPointerStride +
+                                         (x - xOffsetForData) * xPointerStride);
 
                             int count = sampleCount (
                                 sampleCountBase,
@@ -1025,7 +1042,9 @@ copyIntoDeepFrameBuffer (
                         for (int x = minX; x <= maxX; x++)
                         {
                             char* writePtr = *(
-                                char**) (base + (y - yOffsetForData) * yPointerStride + (x - xOffsetForData) * xPointerStride);
+                                char**) (base +
+                                         (y - yOffsetForData) * yPointerStride +
+                                         (x - xOffsetForData) * xPointerStride);
 
                             int count = sampleCount (
                                 sampleCountBase,
@@ -1057,7 +1076,9 @@ copyIntoDeepFrameBuffer (
                         for (int x = minX; x <= maxX; x++)
                         {
                             char* writePtr = *(
-                                char**) (base + (y - yOffsetForData) * yPointerStride + (x - xOffsetForData) * xPointerStride);
+                                char**) (base +
+                                         (y - yOffsetForData) * yPointerStride +
+                                         (x - xOffsetForData) * xPointerStride);
 
                             int count = sampleCount (
                                 sampleCountBase,
@@ -1095,7 +1116,7 @@ copyIntoDeepFrameBuffer (
     else
     {
         //
-        // The the line or tile buffer is in NATIVE format.
+        // The line or tile buffer is in NATIVE format.
         // Copy the results into the frame buffer.
         //
 
@@ -1110,7 +1131,9 @@ copyIntoDeepFrameBuffer (
                         for (int x = minX; x <= maxX; x++)
                         {
                             char* writePtr = *(
-                                char**) (base + (y - yOffsetForData) * yPointerStride + (x - xOffsetForData) * xPointerStride);
+                                char**) (base +
+                                         (y - yOffsetForData) * yPointerStride +
+                                         (x - xOffsetForData) * xPointerStride);
 
                             int count = sampleCount (
                                 sampleCountBase,
@@ -1132,10 +1155,7 @@ copyIntoDeepFrameBuffer (
                                     writePtr += sampleStride;
                                 }
                             }
-                            else
-                            {
-                                readPtr += sizeof (unsigned int) * count;
-                            }
+                            else { readPtr += sizeof (unsigned int) * count; }
                         }
                         break;
 
@@ -1144,7 +1164,9 @@ copyIntoDeepFrameBuffer (
                         for (int x = minX; x <= maxX; x++)
                         {
                             char* writePtr = *(
-                                char**) (base + (y - yOffsetForData) * yPointerStride + (x - xOffsetForData) * xPointerStride);
+                                char**) (base +
+                                         (y - yOffsetForData) * yPointerStride +
+                                         (x - xOffsetForData) * xPointerStride);
 
                             int count = sampleCount (
                                 sampleCountBase,
@@ -1163,10 +1185,7 @@ copyIntoDeepFrameBuffer (
                                     writePtr += sampleStride;
                                 }
                             }
-                            else
-                            {
-                                readPtr += sizeof (half) * count;
-                            }
+                            else { readPtr += sizeof (half) * count; }
                         }
                         break;
 
@@ -1175,7 +1194,9 @@ copyIntoDeepFrameBuffer (
                         for (int x = minX; x <= maxX; x++)
                         {
                             char* writePtr = *(
-                                char**) (base + (y - yOffsetForData) * yPointerStride + (x - xOffsetForData) * xPointerStride);
+                                char**) (base +
+                                         (y - yOffsetForData) * yPointerStride +
+                                         (x - xOffsetForData) * xPointerStride);
 
                             int count = sampleCount (
                                 sampleCountBase,
@@ -1199,10 +1220,7 @@ copyIntoDeepFrameBuffer (
                                     writePtr += sampleStride;
                                 }
                             }
-                            else
-                            {
-                                readPtr += sizeof (float) * count;
-                            }
+                            else { readPtr += sizeof (float) * count; }
                         }
                         break;
                     default:
@@ -1221,7 +1239,9 @@ copyIntoDeepFrameBuffer (
                         for (int x = minX; x <= maxX; x++)
                         {
                             char* writePtr = *(
-                                char**) (base + (y - yOffsetForData) * yPointerStride + (x - xOffsetForData) * xPointerStride);
+                                char**) (base +
+                                         (y - yOffsetForData) * yPointerStride +
+                                         (x - xOffsetForData) * xPointerStride);
 
                             int count = sampleCount (
                                 sampleCountBase,
@@ -1246,10 +1266,7 @@ copyIntoDeepFrameBuffer (
                                     writePtr += sampleStride;
                                 }
                             }
-                            else
-                            {
-                                readPtr += sizeof (unsigned int) * count;
-                            }
+                            else { readPtr += sizeof (unsigned int) * count; }
                         }
                         break;
 
@@ -1258,7 +1275,9 @@ copyIntoDeepFrameBuffer (
                         for (int x = minX; x <= maxX; x++)
                         {
                             char* writePtr = *(
-                                char**) (base + (y - yOffsetForData) * yPointerStride + (x - xOffsetForData) * xPointerStride);
+                                char**) (base +
+                                         (y - yOffsetForData) * yPointerStride +
+                                         (x - xOffsetForData) * xPointerStride);
 
                             int count = sampleCount (
                                 sampleCountBase,
@@ -1276,10 +1295,7 @@ copyIntoDeepFrameBuffer (
                                     writePtr += sampleStride;
                                 }
                             }
-                            else
-                            {
-                                readPtr += sizeof (half) * count;
-                            }
+                            else { readPtr += sizeof (half) * count; }
                         }
                         break;
 
@@ -1288,7 +1304,9 @@ copyIntoDeepFrameBuffer (
                         for (int x = minX; x <= maxX; x++)
                         {
                             char* writePtr = *(
-                                char**) (base + (y - yOffsetForData) * yPointerStride + (x - xOffsetForData) * xPointerStride);
+                                char**) (base +
+                                         (y - yOffsetForData) * yPointerStride +
+                                         (x - xOffsetForData) * xPointerStride);
 
                             int count = sampleCount (
                                 sampleCountBase,
@@ -1311,10 +1329,7 @@ copyIntoDeepFrameBuffer (
                                     writePtr += sampleStride;
                                 }
                             }
-                            else
-                            {
-                                readPtr += sizeof (float) * count;
-                            }
+                            else { readPtr += sizeof (float) * count; }
                         }
                         break;
                     default:
@@ -1333,7 +1348,9 @@ copyIntoDeepFrameBuffer (
                         for (int x = minX; x <= maxX; x++)
                         {
                             char* writePtr = *(
-                                char**) (base + (y - yOffsetForData) * yPointerStride + (x - xOffsetForData) * xPointerStride);
+                                char**) (base +
+                                         (y - yOffsetForData) * yPointerStride +
+                                         (x - xOffsetForData) * xPointerStride);
 
                             int count = sampleCount (
                                 sampleCountBase,
@@ -1358,10 +1375,7 @@ copyIntoDeepFrameBuffer (
                                     writePtr += sampleStride;
                                 }
                             }
-                            else
-                            {
-                                readPtr += sizeof (unsigned int) * count;
-                            }
+                            else { readPtr += sizeof (unsigned int) * count; }
                         }
                         break;
 
@@ -1370,7 +1384,9 @@ copyIntoDeepFrameBuffer (
                         for (int x = minX; x <= maxX; x++)
                         {
                             char* writePtr = *(
-                                char**) (base + (y - yOffsetForData) * yPointerStride + (x - xOffsetForData) * xPointerStride);
+                                char**) (base +
+                                         (y - yOffsetForData) * yPointerStride +
+                                         (x - xOffsetForData) * xPointerStride);
 
                             int count = sampleCount (
                                 sampleCountBase,
@@ -1389,10 +1405,7 @@ copyIntoDeepFrameBuffer (
                                     writePtr += sampleStride;
                                 }
                             }
-                            else
-                            {
-                                readPtr += sizeof (half) * count;
-                            }
+                            else { readPtr += sizeof (half) * count; }
                         }
                         break;
 
@@ -1401,7 +1414,9 @@ copyIntoDeepFrameBuffer (
                         for (int x = minX; x <= maxX; x++)
                         {
                             char* writePtr = *(
-                                char**) (base + (y - yOffsetForData) * yPointerStride + (x - xOffsetForData) * xPointerStride);
+                                char**) (base +
+                                         (y - yOffsetForData) * yPointerStride +
+                                         (x - xOffsetForData) * xPointerStride);
 
                             int count = sampleCount (
                                 sampleCountBase,
@@ -1421,10 +1436,7 @@ copyIntoDeepFrameBuffer (
                                     writePtr += sampleStride;
                                 }
                             }
-                            else
-                            {
-                                readPtr += sizeof (float) * count;
-                            }
+                            else { readPtr += sizeof (float) * count; }
                         }
                         break;
                     default:
@@ -1542,7 +1554,7 @@ copyFromFrameBuffer (
     if (format == Compressor::XDR)
     {
         //
-        // The the line or tile buffer is in XDR format.
+        // The line or tile buffer is in XDR format.
         //
 
         switch (type)
@@ -1583,7 +1595,7 @@ copyFromFrameBuffer (
     else
     {
         //
-        // The the line or tile buffer is in NATIVE format.
+        // The line or tile buffer is in NATIVE format.
         //
 
         switch (type)
@@ -1656,7 +1668,7 @@ copyFromDeepFrameBuffer (
     if (format == Compressor::XDR)
     {
         //
-        // The the line or tile buffer is in XDR format.
+        // The line or tile buffer is in XDR format.
         //
 
         switch (type)
@@ -1737,7 +1749,7 @@ copyFromDeepFrameBuffer (
     else
     {
         //
-        // The the line or tile buffer is in NATIVE format.
+        // The line or tile buffer is in NATIVE format.
         //
 
         switch (type)
@@ -1989,6 +2001,12 @@ WidenFilename (const char* filename)
 {
     std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
     return converter.from_bytes (filename);
+}
+
+const char*
+getLibraryVersion ()
+{
+    return OPENEXR_VERSION_STRING;
 }
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

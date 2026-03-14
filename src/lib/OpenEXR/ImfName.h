@@ -43,8 +43,8 @@ public:
     //--------------------
 
     Name& operator= (const Name&) = default;
-    Name& operator= (Name&&) = default;
-    Name& operator           = (const char text[]);
+    Name& operator= (Name&&)      = default;
+    Name& operator= (const char text[]);
 
     //---------------------
     // Access to the string

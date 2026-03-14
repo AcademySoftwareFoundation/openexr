@@ -467,10 +467,7 @@ generateRandomFile (int partCount, const std::string& fn)
         int partType = partTypes[i];
 
         if (partType == 0) { delete (OutputPart*) parts[i]; }
-        else
-        {
-            delete (TiledOutputPart*) parts[i];
-        }
+        else { delete (TiledOutputPart*) parts[i]; }
     }
 
     delete[] tiledHalfData;

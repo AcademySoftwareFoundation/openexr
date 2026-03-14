@@ -15,9 +15,9 @@
 // internally or not
 
 #    if defined(IEX_EXPORTS)
-#        define IEX_EXPORT __declspec(dllexport)
+#        define IEX_EXPORT __declspec (dllexport)
 #    else
-#        define IEX_EXPORT __declspec(dllimport)
+#        define IEX_EXPORT __declspec (dllimport)
 #    endif
 
 // DLLs don't support these types of visibility controls, just leave them as empty

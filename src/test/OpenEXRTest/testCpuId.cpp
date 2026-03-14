@@ -28,7 +28,7 @@ testCpuId (const string&)
     std::cout << "IMF_HAVE_AVX: " << false << "\n";
 #endif
 
-    Imf::CpuId cpuId;
+    OPENEXR_IMF_NAMESPACE::CpuId cpuId;
     std::cout << "cpuId.sse2: " << cpuId.sse2 << "\n";
     std::cout << "cpuId.sse3: " << cpuId.sse3 << "\n";
     std::cout << "cpuId.ssse3: " << cpuId.ssse3 << "\n";

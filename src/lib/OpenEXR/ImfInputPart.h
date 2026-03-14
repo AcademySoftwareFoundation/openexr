@@ -41,6 +41,9 @@ public:
     IMF_EXPORT
     void readPixels (int scanLine);
     IMF_EXPORT
+    void readPixels (
+        const FrameBuffer& frameBuffer, int scanLine1, int scanLine2);
+    IMF_EXPORT
     void rawPixelData (
         int firstScanLine, const char*& pixelData, int& pixelDataSize);
 

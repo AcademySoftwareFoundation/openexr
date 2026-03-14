@@ -9,6 +9,30 @@
 #pragma once
 
 //
+// The OpenEXR release version is defined officially in
+// src/lib/OpenEXRCore/openexr_version.h, but CMake doesn't readily allow
+// that to be included here, so duplicate the settings for
+// backwards-compatibility with applications that may expect to get the
+// defines from this include.
+//
+
+#ifndef INCLUDED_OPENEXR_VERSION_H
+#define OPENEXR_VERSION_MAJOR @OPENEXR_VERSION_MAJOR@
+#define OPENEXR_VERSION_MINOR @OPENEXR_VERSION_MINOR@
+#define OPENEXR_VERSION_PATCH @OPENEXR_VERSION_PATCH@
+#define OPENEXR_SOVERSION @OPENEXR_LIB_SOVERSION@
+#endif
+
+#define OPENEXR_IMATH_SOVERSION @Imath_SOVERSION@
+#define OPENEXR_IMATH_VERSION_MAJOR @Imath_VERSION_MAJOR@
+#define OPENEXR_IMATH_VERSION_MINOR @Imath_VERSION_MINOR@
+#define OPENEXR_IMATH_VERSION_PATCH @Imath_VERSION_PATCH@
+
+#define OPENEXR_OPENJPH_VERSION_MAJOR @openjph_VERSION_MAJOR@
+#define OPENEXR_OPENJPH_VERSION_MINOR @openjph_VERSION_MINOR@
+#define OPENEXR_OPENJPH_VERSION_PATCH @openjph_VERSION_PATCH@
+
+//
 // Options / configuration based on O.S. / compiler
 /////////////////////
 
@@ -45,9 +69,6 @@
 #define OPENEXR_VERSION_STRING "@OPENEXR_VERSION@"
 #define OPENEXR_PACKAGE_STRING "@OPENEXR_PACKAGE_NAME@"
 
-#define OPENEXR_VERSION_MAJOR @OpenEXR_VERSION_MAJOR@
-#define OPENEXR_VERSION_MINOR @OpenEXR_VERSION_MINOR@
-#define OPENEXR_VERSION_PATCH @OpenEXR_VERSION_PATCH@
 #define OPENEXR_VERSION_RELEASE_TYPE "@OPENEXR_VERSION_RELEASE_TYPE@"
 // Deprecated, for back compatibility:
 #define OPENEXR_VERSION_EXTRA "@OPENEXR_VERSION_RELEASE_TYPE@"
@@ -57,10 +78,10 @@
 // clang-format on
 
 // Version as a single hex number, e.g. 0x01000300 == 1.0.3
-#define OPENEXR_VERSION_HEX                                                    \
-    ((uint32_t (OPENEXR_VERSION_MAJOR) << 24) |                                \
-     (uint32_t (OPENEXR_VERSION_MINOR) << 16) |                                \
-     (uint32_t (OPENEXR_VERSION_PATCH) << 8))
+#define OPENEXR_VERSION_HEX                                           \
+    (((OPENEXR_VERSION_MAJOR) << 24) |                                \
+     ((OPENEXR_VERSION_MINOR) << 16) |                                \
+     ((OPENEXR_VERSION_PATCH) << 8))
 
 // On modern versions of gcc & clang, __has_attribute can test support for
 // __attribute__((attr)).  Make sure it's safe for other compilers.
@@ -72,9 +93,11 @@
 // tagged
 #cmakedefine OPENEXR_ENABLE_API_VISIBILITY
 
+#cmakedefine OPENEXR_CORE_FUNCTIONS_EMBEDDED
+
 /// \defgroup ExportMacros Macros to manage symbol visibility
 ///
-/// See docs/SymbolVisibility.md for more discussion about the
+/// See website/SymbolVisibility.rst for more discussion about the
 /// motivation for these macros
 ///
 /// If we are compiling a DLL for Windows, there needs to be custom
@@ -104,8 +127,10 @@
 ///
 /// @{
 
+// Visibility attributes are ELF-specific; on Windows (MSVC or MinGW) they are
+// not supported and trigger -Wattributes warnings, so use empty macros there.
 #if defined(OPENEXR_ENABLE_API_VISIBILITY) &&                                  \
-    !(defined(OPENEXR_DLL) || defined(_MSC_VER))
+    !(defined(OPENEXR_DLL) || defined(_MSC_VER) || defined(_WIN32))
 #    define OPENEXR_PUBLIC_SYMBOL_ATTRIBUTE                                    \
         __attribute__ ((__visibility__ ("default")))
 #    define OPENEXR_PRIVATE_SYMBOL_ATTRIBUTE                                   \

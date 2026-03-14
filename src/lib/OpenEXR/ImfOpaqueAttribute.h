@@ -34,6 +34,9 @@ public:
     //----------------------------
 
     IMF_EXPORT OpaqueAttribute (const char typeName[]);
+    IMF_EXPORT OpaqueAttribute (const char  typeName[],
+                                long        dataSize,
+                                const void* data);
     IMF_EXPORT OpaqueAttribute (const OpaqueAttribute& other);
     IMF_EXPORT virtual ~OpaqueAttribute ();
 

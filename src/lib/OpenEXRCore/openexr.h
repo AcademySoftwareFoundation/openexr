@@ -6,7 +6,7 @@
 #ifndef OPENEXR_CORE_H
 #define OPENEXR_CORE_H
 
-#include "openexr_conf.h"
+#include "openexr_config.h"
 
 #include "openexr_base.h"
 #include "openexr_errors.h"
@@ -19,6 +19,8 @@
 #include "openexr_std_attr.h"
 
 #include "openexr_chunkio.h"
+
+#include "openexr_compression.h"
 
 #include "openexr_decode.h"
 #include "openexr_encode.h"

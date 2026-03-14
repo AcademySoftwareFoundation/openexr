@@ -8,6 +8,10 @@
 
 void testHUF (const std::string& tempdir);
 
+void testDWAQuantize (const std::string& tempdir);
+void testDWATable (const std::string& tempdir);
+void testB44Table (const std::string& tempdir);
+
 void testNoCompression (const std::string& tempdir);
 void testRLECompression (const std::string& tempdir);
 void testZIPCompression (const std::string& tempdir);
@@ -18,6 +22,7 @@ void testB44Compression (const std::string& tempdir);
 void testB44ACompression (const std::string& tempdir);
 void testDWAACompression (const std::string& tempdir);
 void testDWABCompression (const std::string& tempdir);
+void testHTChannelMap (const std::string& tempdir);
 
 void testDeepNoCompression (const std::string& tempdir);
 void testDeepZIPCompression (const std::string& tempdir);

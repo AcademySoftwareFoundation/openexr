@@ -13,6 +13,7 @@ void testAttrFloatVectors (const std::string& tempdir);
 void testAttrChlists (const std::string& tempdir);
 void testAttrPreview (const std::string& tempdir);
 void testAttrOpaque (const std::string& tempdir);
+void testAttrBytes (const std::string& tempdir);
 void testAttrHandler (const std::string& tempdir);
 
 void testAttrLists (const std::string& tempdir);

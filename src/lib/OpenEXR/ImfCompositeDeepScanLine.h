@@ -106,7 +106,6 @@ public:
 
     struct IMF_HIDDEN Data;
 
-
     //
     // set the maximum number of samples that will be composited.
     // If a single scanline has more samples, readPixels will throw
@@ -117,19 +116,18 @@ public:
     // arbitrarily large sample counts to be composited
     //
     IMF_EXPORT
-    static void setMaximumSampleCount(int64_t sampleCount);
+    static void setMaximumSampleCount (int64_t sampleCount);
 
     IMF_EXPORT
-    static int64_t getMaximumSampleCount();
-
+    static int64_t getMaximumSampleCount ();
 
 private:
     struct Data* _Data;
 
-    CompositeDeepScanLine (const CompositeDeepScanLine&) = delete;
+    CompositeDeepScanLine (const CompositeDeepScanLine&)            = delete;
     CompositeDeepScanLine& operator= (const CompositeDeepScanLine&) = delete;
     CompositeDeepScanLine (CompositeDeepScanLine&&)                 = delete;
-    CompositeDeepScanLine& operator= (CompositeDeepScanLine&&) = delete;
+    CompositeDeepScanLine& operator= (CompositeDeepScanLine&&)      = delete;
 };
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT

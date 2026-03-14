@@ -4,29 +4,37 @@
 # Copyright (c) Contributors to the OpenEXR Project.
 
 import sys, os, tempfile, atexit
-from subprocess import PIPE, run
+from do_run import do_run
 
-print(f"testing exrmakepreview: {sys.argv}")
+print(f"testing exrmakepreview: {' '.join(sys.argv)}")
 
 exrmakepreview = sys.argv[1]
 exrinfo = sys.argv[2]
 image_dir = sys.argv[3]
+version = sys.argv[4]
 
-assert(os.path.isfile(exrmakepreview))
-assert(os.path.isfile(exrinfo))
-assert(os.path.isdir(image_dir))
+test_images = {}
+test_images["GrayRampsHorizontal"] = f"{image_dir}/GrayRampsHorizontal.exr"
+
+assert(os.path.isfile(exrmakepreview)), "\nMissing " + exrmakepreview
+assert(os.path.isfile(exrinfo)), "\nMissing " + exrinfo
+assert(os.path.isdir(image_dir)), "\nMissing " + image_dir
 
 # no args = usage message
-result = run ([exrmakepreview], stdout=PIPE, stderr=PIPE, universal_newlines=True)
-print(" ".join(result.args))
-assert(result.returncode == 1)
-assert(result.stderr.startswith ("Usage: "))
+result = do_run ([exrmakepreview], True)
+assert result.stderr.startswith ("Usage: ")
 
 # -h = usage message
-result = run ([exrmakepreview, "-h"], stdout=PIPE, stderr=PIPE, universal_newlines=True)
-print(" ".join(result.args))
-assert(result.returncode == 1)
-assert(result.stderr.startswith ("Usage: "))
+result = do_run ([exrmakepreview, "-h"])
+assert result.stdout.startswith ("Usage: ")
+
+result = do_run ([exrmakepreview, "--help"])
+assert result.stdout.startswith ("Usage: ")
+
+# --version
+result = do_run ([exrmakepreview, "--version"])
+assert result.stdout.startswith ("exrmakepreview")
+assert version in result.stdout
 
 def find_line(keyword, lines):
     for line in lines:
@@ -41,16 +49,11 @@ def cleanup():
     print(f"deleting {outimage}")
 atexit.register(cleanup)
 
-image = f"{image_dir}/TestImages/GrayRampsHorizontal.exr"
-result = run ([exrmakepreview, "-w", "50", "-e", "1", "-v", image, outimage], stdout=PIPE, stderr=PIPE, universal_newlines=True)
-print(" ".join(result.args))
-assert(result.returncode == 0)
+result = do_run ([exrmakepreview, "-w", "50", "-e", "1", "-v", test_images["GrayRampsHorizontal"], outimage])
 
-result = run ([exrinfo, "-v", outimage], stdout=PIPE, stderr=PIPE, universal_newlines=True)
-print(" ".join(result.args))
-assert(result.returncode == 0)
+result = do_run ([exrinfo, "-v", outimage])
 output = result.stdout.split('\n')
-assert("preview 50 x 50" in find_line("  preview", output))
+assert "preview 50 x 50" in find_line("  preview", output)
 
 print("success")
 

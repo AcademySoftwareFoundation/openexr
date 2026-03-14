@@ -44,7 +44,7 @@ writeGZ1 (
     //	- create a file header
     //	- add G and Z channels to the header
     //	- open the file, and store the header in the file
-    //	- describe the memory layout of the G anx Z pixels
+    //	- describe the memory layout of the G and Z pixels
     //	- store the pixels in the file
     //
 
@@ -162,35 +162,41 @@ readGZ1 (
 
     FrameBuffer frameBuffer;
 
-    frameBuffer.insert ("R",					// name
-			Slice (IMF::HALF,			// type
-			       (char *) (&rPixels[0][0] -	// base
-					 dw.min.x -
-					 dw.min.y * width),
-			       sizeof (rPixels[0][0]) * 1,	// xStride
-			       sizeof (rPixels[0][0]) * width,	// yStride
-			       1, 1,				// x/y sampling
-			       0.0));				// fillValue
+    frameBuffer.insert (
+        "R", // name
+        Slice (
+            IMF::HALF,                // type
+            (char*) (&rPixels[0][0] - // base
+                     dw.min.x - dw.min.y * width),
+            sizeof (rPixels[0][0]) * 1,     // xStride
+            sizeof (rPixels[0][0]) * width, // yStride
+            1,
+            1,     // x/y sampling
+            0.0)); // fillValue
 
-    frameBuffer.insert ("G",					// name
-			Slice (IMF::HALF,			// type
-			       (char *) (&gPixels[0][0] -	// base
-					 dw.min.x -
-					 dw.min.y * width),
-			       sizeof (gPixels[0][0]) * 1,	// xStride
-			       sizeof (gPixels[0][0]) * width,	// yStride
-			       1, 1,				// x/y sampling
-			       0.0));				// fillValue
+    frameBuffer.insert (
+        "G", // name
+        Slice (
+            IMF::HALF,                // type
+            (char*) (&gPixels[0][0] - // base
+                     dw.min.x - dw.min.y * width),
+            sizeof (gPixels[0][0]) * 1,     // xStride
+            sizeof (gPixels[0][0]) * width, // yStride
+            1,
+            1,     // x/y sampling
+            0.0)); // fillValue
 
-    frameBuffer.insert ("Z",					// name
-			Slice (IMF::FLOAT,			// type
-			       (char *) (&zPixels[0][0] -	// base
-					 dw.min.x -
-					 dw.min.y * width),
-			       sizeof (zPixels[0][0]) * 1,	 // xStride
-			       sizeof (zPixels[0][0]) * width,	// yStride
-			       1, 1,				// x/y sampling
-			       std::numeric_limits<float>::max()));		// fillValue
+    frameBuffer.insert (
+        "Z", // name
+        Slice (
+            IMF::FLOAT,               // type
+            (char*) (&zPixels[0][0] - // base
+                     dw.min.x - dw.min.y * width),
+            sizeof (zPixels[0][0]) * 1,     // xStride
+            sizeof (zPixels[0][0]) * width, // yStride
+            1,
+            1,                                    // x/y sampling
+            std::numeric_limits<float>::max ())); // fillValue
 
     file.setFrameBuffer (frameBuffer);
     file.readPixels (dw.min.y, dw.max.y);

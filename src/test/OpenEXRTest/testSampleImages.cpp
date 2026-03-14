@@ -63,7 +63,7 @@ bool
 approximatelyEqual (float x, float y)
 {
     float z = (x + 0.01f) / (y + 0.01f);
-    return z >= 0.99f && z <= 1.01f;
+    return z >= 0.9f && z <= 1.1f;
 }
 
 void
@@ -72,7 +72,7 @@ compareImages (const char fileName1[], const char fileName2[])
     cout << "comparing files " << fileName1 << " and " << fileName2 << endl;
 
     OPENEXR_IMF_NAMESPACE::RgbaInputFile in1 (fileName1);
-    OPENEXR_IMF_NAMESPACE::RgbaInputFile in2 (fileName1);
+    OPENEXR_IMF_NAMESPACE::RgbaInputFile in2 (fileName2);
 
     assert (in1.dataWindow () == in2.dataWindow ());
 

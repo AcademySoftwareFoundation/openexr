@@ -1,0 +1,88 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright (c) Contributors to the OpenEXR Project.
+
+name: Python Wheels
+
+on:
+
+  # Run on all changes (PR and push) to the python binding
+  # source/configuration files, except on the release branches, which
+  # have their own workflow, which also publish to pypi/test.pypi.
+  # Note that changes to the core libraries will *not*
+  # trigger building the wheels. However, the main ci workflow does
+  # build and test the bindings (for a single python version on a
+  # single arch)
+
+  push:
+    paths:
+      - 'cmake/**'
+      - 'src/lib/**'
+      - 'src/wrappers/python/**'
+      - 'pyproject.toml'
+      - '!share/ci/**'
+      - '!.github/workflows/**'
+      - '.github/workflows/python-wheels.yml'
+  pull_request:
+    paths:
+      - 'cmake/**'
+      - 'src/lib/**'
+      - 'src/wrappers/python/**'
+      - 'pyproject.toml'
+      - '!share/ci/**'
+      - '!.github/workflows/**'
+      - '.github/workflows/python-wheels.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build_wheels:
+    name: Python Wheels - ${{ matrix.os }}-${{ matrix.arch }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            arch: x64
+          - os: ubuntu-24.04-arm
+            arch: arm64
+          - os: macos-15-intel
+            arch: x64
+          - os: macos-latest
+            arch: arm64
+          - os: windows-latest
+            arch: x64
+
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Install Python 
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: '3.x'
+
+      - name: Create sdist
+        # Only create it once.
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        run: pipx run build --sdist . --outdir wheelhouse
+
+      - name: Build wheel
+        uses: pypa/cibuildwheel@v3.4
+        env:
+          CIBW_ARCHS_MACOS: x86_64 arm64 universal2
+          # Build Python 3.8 through 3.13
+          # Skip 32-bit wheels builds on Windows
+          # Also skip the PyPy builds, since they fail the unit tests
+          CIBW_BUILD: "cp38-* cp39-* cp310-* cp311-* cp312-* cp313-*"
+          CIBW_SKIP: "*-win32 *_i686"
+          CIBW_TEST_SKIP: "*-macosx*arm64"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        with:
+          name: wheels-${{ matrix.os }}-${{ matrix.arch }}
+          path: |
+            ./wheelhouse/*.whl
+            ./wheelhouse/*.tar.gz

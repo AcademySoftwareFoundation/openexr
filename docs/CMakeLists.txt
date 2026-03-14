@@ -3,50 +3,56 @@
 
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 
-find_package(Doxygen REQUIRED)
-find_package(Sphinx REQUIRED)
+# man pages for the bin programs
 
-include(FindPythonPackage)
-find_python_package(sphinx-press-theme REQUIRED)
+find_program(HELP2MAN help2man)
 
-set(DOXYGEN_INPUT_DIR ${PROJECT_SOURCE_DIR}/src/lib/OpenEXRCore)
-set(DOXYGEN_OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR}/doxygen)
-set(DOXYGEN_INDEX_FILE ${DOXYGEN_OUTPUT_DIR}/html/index.html)
-set(DOXYFILE_IN ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in)
-set(DOXYFILE_OUT ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
+set(MANPAGE_OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR}/man)
+file(MAKE_DIRECTORY ${MANPAGE_OUTPUT_DIR}/man1)
 
-set(SPHINX_SOURCE ${CMAKE_CURRENT_SOURCE_DIR})
-set(SPHINX_BUILD ${CMAKE_CURRENT_BINARY_DIR}/sphinx)
-set(SPHINX_INDEX_FILE ${SPHINX_BUILD}/index.html)
+message(STATUS "MANPAGE_OUTPUT_DIR=${MANPAGE_OUTPUT_DIR}")
+message(STATUS "CMAKE_INSTALL_MANDIR=${CMAKE_INSTALL_MANDIR}")
 
-set(SPHINX_OPTS "-W" CACHE STRING "Sphinx build options")
+set(manpage_files "")
 
-configure_file(${DOXYFILE_IN} ${DOXYFILE_OUT} @ONLY)
+function(DEFINE_MANPAGE tool description)
 
-file(MAKE_DIRECTORY ${DOXYGEN_OUTPUT_DIR})
+    set(manpage_file ${MANPAGE_OUTPUT_DIR}/man1/${tool}.1)
+    set(manpage_files "${manpage_files};${manpage_file}" PARENT_SCOPE)
 
-add_custom_command(OUTPUT ${DOXYGEN_INDEX_FILE}
-                   COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYFILE_OUT}
-                   MAIN_DEPENDENCY ${DOXYFILE_OUT} ${DOXYFILE_IN}
-                   COMMENT "Running doxygen"
-                   VERBATIM)
-
-add_custom_command(OUTPUT ${SPHINX_INDEX_FILE}
-                   COMMAND 
-                     ${SPHINX_EXECUTABLE} -b html ${SPHINX_OPTS}
-                     # Tell Breathe where to find the Doxygen output
-                     -Dbreathe_projects.OpenEXR=${DOXYGEN_OUTPUT_DIR}/xml
-                   ${SPHINX_SOURCE} ${SPHINX_BUILD}
+    add_custom_command(OUTPUT ${manpage_file}
+                   COMMAND
+                   ${HELP2MAN} -n ${description} --output=${manpage_file} -N
+                   ${CMAKE_CURRENT_BINARY_DIR}/../bin/${tool} 
                    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-                   DEPENDS ${DOXYGEN_INDEX_FILE}
-                   MAIN_DEPENDENCY conf.py
-                   COMMENT "Generating documentation with Sphinx")
+                   DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/../bin/${tool}
+                   COMMENT "Generating man page for ${tool}"
+                   VERBATIM)
+endfunction()
 
-add_custom_target(docs ALL DEPENDS ${SPHINX_INDEX_FILE} ${DOXYGEN_INDEX_FILE})
+# Provide help2man a useful single-line program description. There's
+# no especially good way to embed this in the program's --help text so
+# that help2man can detect it.
 
-# Add an install target to install the docs
-if(INSTALL_DOCS)
-    include(GNUInstallDirs)
-    install(DIRECTORY ${SPHINX_BUILD}
-    DESTINATION ${CMAKE_INSTALL_DOCDIR})
-endif()
+define_manpage(exr2aces       "convert exr images to ACES format")
+define_manpage(exrcheck       "validate exr files")
+define_manpage(exrenvmap      "convert exr image environment  maps")
+define_manpage(exrheader      "print exr image header metadata")
+define_manpage(exrinfo        "print exr image header metadata")
+define_manpage(exrmakepreview "generate exr preview thumbnail images")
+define_manpage(exrmaketiled   "convert exr images to tiled format")
+define_manpage(exrmanifest    "print id manifest")
+define_manpage(exrmetrics     "report read/write time")
+define_manpage(exrmultipart   "combine or split multipart exr images")
+define_manpage(exrmultiview   "convert between single/multi-view exr images")
+define_manpage(exrstdattr     "set exr image metadata")
+
+add_custom_target(docs ALL DEPENDS ${manpage_files})
+
+# Add a target to install the manpages
+
+include(GNUInstallDirs)
+install(DIRECTORY ${MANPAGE_OUTPUT_DIR}/man1 DESTINATION ${CMAKE_INSTALL_MANDIR})
+
+
+

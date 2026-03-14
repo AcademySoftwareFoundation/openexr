@@ -12,6 +12,7 @@
 #include "Iex.h"
 #include <IlmThreadConfig.h>
 #include <ImfBoxAttribute.h>
+#include <ImfBytesAttribute.h>
 #include <ImfChannelListAttribute.h>
 #include <ImfChromaticitiesAttribute.h>
 #include <ImfCompressionAttribute.h>
@@ -45,7 +46,7 @@
 #include <sstream>
 #include <stdlib.h>
 #include <time.h>
-#include <zlib.h>
+#include <openexr_base.h>
 
 #include "ImfNamespace.h"
 #include "ImfTiledMisc.h"
@@ -64,15 +65,13 @@ using IMATH_NAMESPACE::V2i;
 namespace
 {
 
-static int   s_DefaultZipCompressionLevel = 4;
-static float s_DefaultDwaCompressionLevel = 45.f;
-
 struct CompressionRecord
 {
     CompressionRecord ()
-        : zip_level (s_DefaultZipCompressionLevel)
-        , dwa_level (s_DefaultDwaCompressionLevel)
-    {}
+    {
+        exr_get_default_zip_compression_level (&zip_level);
+        exr_get_default_dwa_compression_quality (&dwa_level);
+    }
     int   zip_level;
     float dwa_level;
 };
@@ -199,11 +198,6 @@ copyCompressionRecord (Header* dst, const Header* src)
     }
 };
 
-int maxImageWidth  = 0;
-int maxImageHeight = 0;
-int maxTileWidth   = 0;
-int maxTileHeight  = 0;
-
 void
 initialize (
     Header&      header,
@@ -259,13 +253,13 @@ sanityCheckDisplayWindow (int width, int height)
 void
 setDefaultZipCompressionLevel (int level)
 {
-    s_DefaultZipCompressionLevel = level;
+    exr_set_default_zip_compression_level (level);
 }
 
 void
 setDefaultDwaCompressionLevel (float level)
 {
-    s_DefaultDwaCompressionLevel = level;
+    exr_set_default_dwa_compression_quality (level);
 }
 
 Header::Header (
@@ -421,7 +415,11 @@ Header::erase (const char name[])
             "Image attribute name cannot be an empty string.");
 
     AttributeMap::iterator i = _map.find (name);
-    if (i != _map.end ()) _map.erase (i);
+    if (i != _map.end ())
+    {
+        delete i->second;
+        _map.erase (i);
+    }
 }
 
 void
@@ -926,6 +924,13 @@ Header::sanityCheck (bool isTiled, bool isMultipartFile) const
     }
 
     int w = (dataWindow.max.x - dataWindow.min.x + 1);
+
+    int maxImageWidth = 0, maxImageHeight = 0;
+    // TODO: this really should be accessed via the context but
+    // we don't have that fully wired through just yet, so continue
+    // to use the default as the older C++ code has done
+    exr_get_default_maximum_image_size (&maxImageWidth, &maxImageHeight);
+
     if (maxImageWidth > 0 && maxImageWidth < w)
     {
         THROW (
@@ -961,7 +966,7 @@ Header::sanityCheck (bool isTiled, bool isMultipartFile) const
 
     //
     // The pixel aspect ratio must be greater than 0.
-    // In applications, numbers like the the display or
+    // In applications, numbers like the display or the
     // data window dimensions are likely to be multiplied
     // or divided by the pixel aspect ratio; to avoid
     // arithmetic exceptions, we limit the pixel aspect
@@ -1052,6 +1057,12 @@ Header::sanityCheck (bool isTiled, bool isMultipartFile) const
         if (tileDesc.xSize <= 0 || tileDesc.ySize <= 0 ||
             tileDesc.xSize > INT_MAX || tileDesc.ySize > INT_MAX)
             throw IEX_NAMESPACE::ArgExc ("Invalid tile size in image header.");
+
+        int maxTileWidth = 0, maxTileHeight = 0;
+        // TODO: this really should be accessed via the context but
+        // we don't have that fully wired through just yet, so continue
+        // to use the default as the older C++ code has done
+        exr_get_default_maximum_tile_size (&maxTileWidth, &maxTileHeight);
 
         if (maxTileWidth > 0 && maxTileWidth < int (tileDesc.xSize))
         {
@@ -1259,31 +1270,26 @@ Header::sanityCheck (bool isTiled, bool isMultipartFile) const
 void
 Header::setMaxImageSize (int maxWidth, int maxHeight)
 {
-    maxImageWidth  = maxWidth;
-    maxImageHeight = maxHeight;
+    exr_set_default_maximum_image_size (maxWidth, maxHeight);
 }
 
 void
 Header::setMaxTileSize (int maxWidth, int maxHeight)
 {
-    maxTileWidth  = maxWidth;
-    maxTileHeight = maxHeight;
+    exr_set_default_maximum_tile_size (maxWidth, maxHeight);
 }
 
 void
 Header::getMaxImageSize (int& maxWidth, int& maxHeight)
 {
-    maxWidth = maxImageWidth;
-    maxHeight = maxImageHeight;
+    exr_get_default_maximum_image_size (&maxWidth, &maxHeight);
 }
 
 void
 Header::getMaxTileSize (int& maxWidth, int& maxHeight)
 {
-    maxWidth = maxTileWidth;
-    maxHeight= maxTileHeight;
+    exr_get_default_maximum_tile_size (&maxWidth, &maxHeight);
 }
-
 
 bool
 Header::readsNothing ()
@@ -1473,6 +1479,7 @@ staticInitialize ()
 
         Box2fAttribute::registerAttributeType ();
         Box2iAttribute::registerAttributeType ();
+        BytesAttribute::registerAttributeType ();
         ChannelListAttribute::registerAttributeType ();
         CompressionAttribute::registerAttributeType ();
         ChromaticitiesAttribute::registerAttributeType ();
@@ -1506,9 +1513,6 @@ staticInitialize ()
         // Register functions, for example specialized functions
         // for different CPU architectures.
         //
-
-        DwaCompressor::initializeFuncs ();
-        Zip::initializeFuncs ();
 
         initialized = true;
     }
