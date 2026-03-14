@@ -8,8 +8,11 @@
 # `release.py news <tag>` - edit the website/news.rst file to add reference to the tagged release
 # `release.py draft <tag>` - create a draft release on GitHub
 # `release.py candidate <tag>` - format a message about the upcoming release, print to stdout
-# `release.py pr-changes <label>` - list merged PRs with label (e.g. v3.4.7), print merge SHAs for
-#   cherry-picking, and add a Version section and Merged Pull Requests list to CHANGES.md
+# `release.py cherry <tag>` - list merged PRs with the given tag as label; print "git cherry-pick <abbrev-sha>"
+#   for each PR whose merge commit is not already on the current branch (does not edit CHANGES.md).
+# `release.py changes <tag> [date]` - edit CHANGES.md to add or update the Version section for the
+#   patch release; PRs are discovered from commit history (current branch back to previous patch tag).
+#   Optional third argument is the release date (used in section heading and TOC); default is 3 days ahead.
 
 #
 # The file `CHANGES.md` is assumed to old the release notes. When
@@ -29,7 +32,6 @@ import sys
 import re
 from subprocess import PIPE, run
 from datetime import datetime, timedelta
-import markdown
 
 def extract_section(content, version_tag):
     """Extract the section of release notes starting with a heading
@@ -207,6 +209,23 @@ def convert_to_html(release_notes):
     return html_content
 
 
+def get_pr_labels(repo_slug, pr_number):
+    """Return the set of label names on the given PR, or empty set on error."""
+    result = run(
+        [
+            "gh", "pr", "view", str(pr_number),
+            "--json", "labels",
+            "--repo", repo_slug,
+            "-q", ".labels[].name",
+        ],
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0 or not result.stdout.strip():
+        return set()
+    return set(result.stdout.strip().splitlines())
+
+
 def get_merged_prs_by_label(label):
     """
     Return merged PRs that have the given GitHub label (e.g. 'v3.4.7').
@@ -259,6 +278,181 @@ def get_repo_name_with_owner():
     if result.returncode != 0:
         return "AcademySoftwareFoundation/openexr"
     return result.stdout.strip()
+
+
+def commit_is_on_current_branch(sha):
+    """Return True if the given commit is an ancestor of HEAD (already on current branch)."""
+    result = run(
+        ["git", "merge-base", "--is-ancestor", sha, "HEAD"],
+        capture_output=True,
+    )
+    return result.returncode == 0
+
+
+def previous_patch_tag(tag):
+    """
+    Given a release tag like 'v3.4.7' or '3.4.7', return the previous patch tag (e.g. 'v3.4.6').
+    """
+    tag = tag.lstrip("v")
+    parts = tag.split(".")
+    if len(parts) < 3:
+        return None
+    try:
+        major, minor, patch = int(parts[0]), int(parts[1]), int(parts[2])
+    except ValueError:
+        return None
+    if patch <= 0:
+        return None
+    return f"v{major}.{minor}.{patch - 1}"
+
+
+def commits_between(base_ref, head_ref="HEAD"):
+    """
+    Return list of commit SHAs from head_ref back to (but not including) base_ref.
+    Newest first (as from git log).
+    """
+    result = run(
+        ["git", "log", f"{base_ref}..{head_ref}", "--format=%H"],
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        return []
+    return result.stdout.strip().splitlines()
+
+
+def get_prs_for_commit(repo_slug, commit_sha):
+    """
+    Return all pull requests associated with the given commit (may be more than one
+    if the same commit was merged via multiple PRs, e.g. main and backport).
+    Uses the GitHub API (commits/{sha}/pulls). Returns a list of dicts with keys
+    number, title, user_login (author login). Returns [] if none or on error.
+    Cherry-picked commits have a different SHA than the merge commit on the
+    source branch, so the API often returns nothing for them.
+    """
+    owner, repo = repo_slug.split("/", 1)
+    result = run(
+        [
+            "gh", "api",
+            f"repos/{owner}/{repo}/commits/{commit_sha}/pulls",
+        ],
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        return []
+    try:
+        raw = json.loads(result.stdout)
+        if not raw or not isinstance(raw, list):
+            return []
+        out = []
+        for pr in raw:
+            out.append({
+                "number": pr.get("number"),
+                "title": (pr.get("title") or "").strip(),
+                "user_login": (pr.get("user") or {}).get("login") or "",
+            })
+        return out
+    except json.JSONDecodeError:
+        return []
+
+
+def get_commit_message(sha):
+    """Return the full commit message body for the given SHA, or None."""
+    result = run(
+        ["git", "log", "-1", "--format=%B", sha],
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        return None
+    return result.stdout
+
+
+def pr_numbers_from_commit_message(message):
+    """
+    Extract PR numbers referenced in a commit message (e.g. cherry-picks or merge).
+    Matches patterns like (#2281), #2281, fixes #2281, closes #2281.
+    Returns a list of unique ints in order of first appearance.
+    """
+    if not message:
+        return []
+    # Match #N or (#N) - N is one or more digits
+    pattern = re.compile(r"#(\d+)")
+    numbers = []
+    seen = set()
+    for m in pattern.finditer(message):
+        num = int(m.group(1))
+        if num not in seen:
+            seen.add(num)
+            numbers.append(num)
+    return numbers
+
+
+def get_pr_commit_first_lines(repo_slug, pr_number):
+    """
+    Return the set of first lines of commit messages for all commits in the PR.
+    Used to detect if a PR is "in history" when the branch has cherry-picks (different SHA,
+    same message) so we don't warn about "not in commit history".
+    """
+    owner, repo = repo_slug.split("/", 1)
+    result = run(
+        [
+            "gh", "api",
+            f"repos/{owner}/{repo}/pulls/{pr_number}/commits",
+            "--jq", ".[].sha",
+        ],
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0 or not result.stdout.strip():
+        return set()
+    shas = result.stdout.strip().splitlines()
+    first_lines = set()
+    for sha in shas:
+        r2 = run(
+            [
+                "gh", "api",
+                f"repos/{owner}/{repo}/commits/{sha}",
+                "--jq", ".commit.message",
+            ],
+            capture_output=True,
+            text=True,
+        )
+        if r2.returncode == 0 and r2.stdout.strip():
+            first = r2.stdout.strip().split("\n")[0].strip()
+            if first:
+                first_lines.add(first)
+    return first_lines
+
+
+def get_pr_by_number(repo_slug, pr_number):
+    """
+    Fetch PR number, title, and author login by PR number (e.g. for cherry-picks
+    where the commit SHA is not the original merge commit).
+    Returns a dict with number, title, user_login or None.
+    """
+    result = run(
+        [
+            "gh", "pr", "view", str(pr_number),
+            "--json", "number,title,author",
+            "--repo", repo_slug,
+        ],
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        return None
+    try:
+        data = json.loads(result.stdout)
+        author = data.get("author") or {}
+        return {
+            "number": data.get("number"),
+            "title": (data.get("title") or "").strip(),
+            "user_login": author.get("login") or "",
+        }
+    except json.JSONDecodeError:
+        return None
 
 
 def version_section_anchor(version, date_str):
@@ -318,28 +512,25 @@ def update_toc(lines, version, date_str):
 def find_existing_version_section(lines, version):
     """
     If CHANGES.md already has a section for this version, return its extent,
-    the index of the ### Merged Pull Requests line (if any), and the list of
-    PRs already in the Merged Pull Requests list.
-
-    Args:
-        lines: List of lines from CHANGES.md (e.g. content.splitlines()).
-        version: Version string without leading 'v' (e.g. '3.4.7'). Must match
-            the heading after "## Version ".
+    indices of ### Merged Pull Requests and ### Merged Workflow Pull Requests (if any),
+    and the lists of PRs already in each subsection.
 
     Returns:
-        If the section exists: (header_line_index, merged_pr_index, section_end_index, existing_pr_list).
-        merged_pr_index is the line index of "### Merged Pull Requests" or None.
-        existing_pr_list is a list of dicts with keys "number" (int) and "title" (str),
-        one per PR in the section, in file order. Section extent is [header_idx, section_end_idx).
-        If the section does not exist: (None, None, None, []).
+        If the section exists: (header_idx, merged_pr_idx, workflow_pr_idx, section_end_idx,
+            existing_merged_pr_list, existing_workflow_pr_list).
+        If the section does not exist: (None, None, None, None, [], []).
     """
     version_heading = re.compile(r"^##\s+Version\s+" + re.escape(version) + r"\s*(\s|\(|$)", re.IGNORECASE)
     merged_pr_heading = re.compile(r"^###\s+Merged\s+Pull\s+Requests", re.IGNORECASE)
+    workflow_pr_heading = re.compile(r"^###\s+Merged\s+Workflow\s+Pull\s+Requests", re.IGNORECASE)
     pr_line_pattern = re.compile(r"^\*\s+\[(\d+)\]")
     header_idx = None
     merged_pr_idx = None
+    workflow_pr_idx = None
     section_end_idx = None
-    existing_pr_list = []
+    existing_merged_pr_list = []
+    existing_workflow_pr_list = []
+    current_subsection = None  # "merged" or "workflow"
 
     i = 0
     while i < len(lines):
@@ -354,6 +545,14 @@ def find_existing_version_section(lines, version):
             break
         if merged_pr_heading.match(line):
             merged_pr_idx = i
+            current_subsection = "merged"
+            i += 1
+            continue
+        if workflow_pr_heading.match(line):
+            workflow_pr_idx = i
+            current_subsection = "workflow"
+            i += 1
+            continue
         m = pr_line_pattern.match(line)
         if m:
             num = int(m.group(1))
@@ -361,13 +560,17 @@ def find_existing_version_section(lines, version):
             if i + 1 < len(lines) and lines[i + 1].strip() and not lines[i + 1].startswith("* "):
                 title = lines[i + 1].strip()
                 i += 1
-            existing_pr_list.append({"number": num, "title": title})
+            if current_subsection == "workflow":
+                existing_workflow_pr_list.append({"number": num, "title": title})
+            else:
+                existing_merged_pr_list.append({"number": num, "title": title})
         i += 1
     if header_idx is not None and section_end_idx is None:
         section_end_idx = len(lines)
     if header_idx is None:
-        return (None, None, None, [])
-    return (header_idx, merged_pr_idx, section_end_idx, existing_pr_list)
+        return (None, None, None, None, [], [])
+    return (header_idx, merged_pr_idx, workflow_pr_idx, section_end_idx,
+            existing_merged_pr_list, existing_workflow_pr_list)
 
 
 def update_existing_section(
@@ -408,7 +611,7 @@ def update_existing_section(
     existing_by_number = {p["number"]: p for p in existing_pr_list}
     api_by_number = {p["number"]: p for p in prs}
     all_numbers = sorted(set(existing_by_number) | set(api_by_number), reverse=True)
-    base_url = f"https://github.com/{repo_slug}/pulls"
+    base_url = f"https://github.com/{repo_slug}/pull"
     merged_list_lines = [
         "### Merged Pull Requests:",
         "",
@@ -426,6 +629,229 @@ def update_existing_section(
         + lines[section_end_idx:]
     )
     return new_lines
+
+
+def cmd_changes(tag):
+    """
+    Implement 'release.py changes <tag> [date]': edit CHANGES.md for the patch release.
+    PRs are discovered from commit history (current branch from previous patch tag to HEAD).
+    """
+    version = tag.lstrip("v").split("-rc")[0]
+    prev_tag = previous_patch_tag(tag)
+    if not prev_tag:
+        print(f"Cannot determine previous patch tag for {tag}", file=sys.stderr)
+        sys.exit(1)
+    # Release date: 3rd arg or 3 days ahead
+    if len(sys.argv) >= 4:
+        try:
+            release_date = datetime.strptime(sys.argv[3], "%B %d, %Y")
+        except ValueError:
+            try:
+                release_date = datetime.strptime(sys.argv[3], "%Y-%m-%d")
+            except ValueError:
+                print(f"Invalid date: {sys.argv[3]}", file=sys.stderr)
+                sys.exit(1)
+    else:
+        release_date = datetime.now() + timedelta(days=3)
+    date_str = release_date.strftime("%B %d, %Y")
+    repo_slug = get_repo_name_with_owner()
+    # Commits from previous tag to HEAD (newest first)
+    shas = commits_between(prev_tag, "HEAD")
+    merged_prs = []   # from history, non-dependabot
+    workflow_prs = [] # from history, dependabot
+    seen_merged = set()
+    seen_workflow = set()
+
+    def add_pr(pr, is_dependabot):
+        if not pr or not pr.get("number"):
+            return
+        num = pr["number"]
+        entry = {"number": num, "title": pr.get("title") or ""}
+        if is_dependabot:
+            if num not in seen_workflow:
+                seen_workflow.add(num)
+                workflow_prs.append(entry)
+        else:
+            if num not in seen_merged:
+                seen_merged.add(num)
+                merged_prs.append(entry)
+
+    for sha in shas:
+        api_prs = get_prs_for_commit(repo_slug, sha)
+        if api_prs:
+            for pr in api_prs:
+                if pr.get("number"):
+                    login = (pr.get("user_login") or "").lower()
+                    add_pr(pr, is_dependabot=("dependabot" in login))
+            continue
+        # Cherry-picks have a different SHA than the merge commit; the API won't
+        # return a PR. Parse the commit message for PR references (#N or (#N)).
+        # Use the *last* number so "update SECURITY for PR #2256 (#2283)" maps to #2283.
+        message = get_commit_message(sha)
+        numbers = pr_numbers_from_commit_message(message)
+        if numbers:
+            num = numbers[-1]
+            pr = get_pr_by_number(repo_slug, num)
+            if pr:
+                login = (pr.get("user_login") or "").lower()
+                add_pr(pr, is_dependabot=("dependabot" in login))
+    merged_prs.sort(key=lambda x: x["number"], reverse=True)
+    workflow_prs.sort(key=lambda x: x["number"], reverse=True)
+
+    # First lines of commit messages in our range (for matching cherry-picks by message).
+    # Normalize by stripping trailing " (#NNN)" so we match "Subject (#2281)" to PR's "Subject".
+    def normalize_first_line(line):
+        return re.sub(r"\s*\(#\d+\)\s*$", "", line).strip()
+
+    first_lines_in_range = set()
+    for sha in shas:
+        msg = get_commit_message(sha)
+        if msg:
+            first = msg.split("\n")[0].strip()
+            if first:
+                first_lines_in_range.add(normalize_first_line(first))
+
+    history_pr_nums = {p["number"] for p in merged_prs} | {p["number"] for p in workflow_prs}
+
+    def pr_appears_in_history(pr_num):
+        """True if PR is in our history lists or matches a commit by first-line/title."""
+        if pr_num in history_pr_nums:
+            return True
+        pr_first_lines = {normalize_first_line(l) for l in get_pr_commit_first_lines(repo_slug, pr_num)}
+        if pr_first_lines & first_lines_in_range:
+            return True
+        pr_info = get_pr_by_number(repo_slug, pr_num)
+        if pr_info and normalize_first_line(pr_info.get("title") or "") in first_lines_in_range:
+            return True
+        return False
+
+    # Validation: expected label (e.g. v3.4.7) vs commit history and labeled PRs
+    expected_label = tag if tag.startswith("v") else f"v{tag}"
+    labeled_prs = get_merged_prs_by_label(expected_label)
+    for pr in merged_prs + workflow_prs:
+        num = pr["number"]
+        labels = get_pr_labels(repo_slug, num)
+        if expected_label not in labels:
+            print(
+                f"Warning: PR #{num} is in commit history but does not have label '{expected_label}'",
+                file=sys.stderr,
+            )
+    for pr in labeled_prs:
+        num = pr["number"]
+        if not pr_appears_in_history(num):
+            print(
+                f"Warning: PR #{num} has label '{expected_label}' but does not appear in commit history (missing from release branch?)",
+                file=sys.stderr,
+            )
+    with open("CHANGES.md", "r", encoding="utf-8") as f:
+        content = f.read()
+    lines = content.splitlines()
+    (header_idx, merged_pr_idx, workflow_pr_idx, section_end_idx,
+     existing_merged, existing_workflow) = find_existing_version_section(lines, version)
+    base_url = f"https://github.com/{repo_slug}/pull"
+    current_tag = tag if tag.startswith("v") else f"v{tag}"
+    compare_url = f"https://github.com/{repo_slug}/compare/{prev_tag}..{current_tag}"
+    full_changelog_line = f"Full changelog: [{prev_tag}..{current_tag}]({compare_url})"
+    version_header_pattern = re.compile(r"^(\s*##\s+Version\s+[^\s(]+)(?:\s*\([^)]*\))?(\s*)$")
+    if header_idx is not None:
+        header_line = lines[header_idx]
+        m = version_header_pattern.match(header_line)
+        new_header = (m.group(1) + f" ({date_str})" + m.group(2)) if m else header_line
+        first_sub = merged_pr_idx if merged_pr_idx is not None else workflow_pr_idx
+        if first_sub is not None:
+            body_lines = lines[header_idx + 1 : first_sub]
+        else:
+            body_lines = lines[header_idx + 1 : section_end_idx]
+        body_lines = _ensure_full_changelog_in_body(body_lines, full_changelog_line)
+        existing_merged_nums = {p["number"] for p in existing_merged}
+        existing_workflow_nums = {p["number"] for p in existing_workflow}
+        history_merged_nums = {p["number"] for p in merged_prs}
+        history_workflow_nums = {p["number"] for p in workflow_prs}
+        for num in existing_merged_nums - history_merged_nums:
+            if num in history_workflow_nums:
+                continue  # PR is workflow/dependabot; we list it only in Workflow section
+            # PR may be a cherry-pick: same change, different SHA. Check (1) if any of this PR's
+            # commit message first lines match a commit in our range, or (2) if this PR's title
+            # matches a commit first line (same change, different PR number on another branch).
+            pr_first_lines = {normalize_first_line(l) for l in get_pr_commit_first_lines(repo_slug, num)}
+            if pr_first_lines & first_lines_in_range:
+                continue
+            pr_info = get_pr_by_number(repo_slug, num)
+            if pr_info and normalize_first_line(pr_info.get("title") or "") in first_lines_in_range:
+                continue
+            print(f"Warning: PR #{num} listed in Merged Pull Requests but not in commit history", file=sys.stderr)
+        for num in existing_workflow_nums - history_workflow_nums:
+            pr_first_lines = {normalize_first_line(l) for l in get_pr_commit_first_lines(repo_slug, num)}
+            if pr_first_lines & first_lines_in_range:
+                continue
+            print(f"Warning: PR #{num} listed in Merged Workflow Pull Requests but not in commit history", file=sys.stderr)
+        merged_by_num = {p["number"]: p for p in merged_prs}
+        workflow_by_num = {p["number"]: p for p in workflow_prs}
+        for p in existing_merged:
+            if p["number"] not in merged_by_num:
+                merged_by_num[p["number"]] = p
+        for p in existing_workflow:
+            if p["number"] not in workflow_by_num:
+                workflow_by_num[p["number"]] = p
+        # Dependabot/workflow PRs must not appear in Merged Pull Requests (only in Workflow).
+        workflow_nums = set(workflow_by_num)
+        all_merged = sorted(
+            [p for p in merged_by_num.values() if p["number"] not in workflow_nums],
+            key=lambda x: x["number"],
+            reverse=True,
+        )
+        all_workflow = sorted(workflow_by_num.values(), key=lambda x: x["number"], reverse=True)
+        merged_lines = _format_pr_subsection("### Merged Pull Requests", all_merged, base_url)
+        workflow_lines = _format_pr_subsection("### Merged Workflow Pull Requests", all_workflow, base_url)
+        new_section = [new_header] + body_lines + merged_lines + workflow_lines
+        new_lines = lines[:header_idx] + new_section + lines[section_end_idx:]
+    else:
+        insert_at = None
+        for i, line in enumerate(lines):
+            if re.match(r"^## Version ", line):
+                insert_at = i
+                break
+        if insert_at is None:
+            print("Could not find '## Version' in CHANGES.md", file=sys.stderr)
+            sys.exit(1)
+        new_header = f"## Version {version} ({date_str})"
+        body_lines = ["", "", full_changelog_line, ""]
+        merged_lines = _format_pr_subsection("### Merged Pull Requests", merged_prs, base_url)
+        workflow_lines = _format_pr_subsection("### Merged Workflow Pull Requests", workflow_prs, base_url)
+        new_section = [new_header] + body_lines + merged_lines + workflow_lines
+        new_lines = lines[:insert_at] + [""] + new_section + lines[insert_at:]
+    new_lines = update_toc(new_lines, version, date_str)
+    with open("CHANGES.md", "w", encoding="utf-8") as f:
+        f.write("\n".join(new_lines) + "\n")
+
+
+def _ensure_full_changelog_in_body(body_lines, full_changelog_line):
+    """If body already has a 'Full changelog:' line, replace it with the new one; else append it."""
+    full_changelog_re = re.compile(r"^Full changelog:\s*\[.+\]\(.+\)\s*$")
+    new_body = []
+    found = False
+    for line in body_lines:
+        if full_changelog_re.match(line.strip()):
+            new_body.append(full_changelog_line)
+            found = True
+        else:
+            new_body.append(line)
+    if not found:
+        if new_body and new_body[-1].strip() != "":
+            new_body.append("")
+        new_body.append(full_changelog_line)
+        new_body.append("")
+    return new_body
+
+
+def _format_pr_subsection(heading, prs, base_url):
+    """Return lines for a PR subsection: heading, blank, then * [num](url) and title per PR."""
+    lines = [heading, ""]
+    for pr in prs:
+        lines.append(f"* [{pr['number']}]({base_url}/{pr['number']})")
+        lines.append(pr["title"])
+        lines.append("")
+    return lines
 
 
 def add_release_section_to_changes(label, prs, repo_slug, release_date):
@@ -457,7 +883,7 @@ def add_release_section_to_changes(label, prs, repo_slug, release_date):
         content = f.read()
     lines = content.splitlines()
 
-    header_idx, merged_pr_idx, section_end_idx, existing_pr_list = find_existing_version_section(
+    header_idx, merged_pr_idx, _wf_idx, section_end_idx, existing_pr_list, _ = find_existing_version_section(
         lines, version
     )
     if header_idx is not None:
@@ -507,7 +933,7 @@ def add_release_section_to_changes(label, prs, repo_slug, release_date):
         "### Merged Pull Requests:",
         "",
     ]
-    base_url = f"https://github.com/{repo_slug}/pulls"
+    base_url = f"https://github.com/{repo_slug}/pull"
     for pr in sorted(prs, key=lambda x: x["number"], reverse=True):
         section.append(f"* [{pr['number']}]({base_url}/{pr['number']})")
         section.append(pr["title"])
@@ -522,7 +948,7 @@ def add_release_section_to_changes(label, prs, repo_slug, release_date):
 
 def main():
     if len(sys.argv) < 3:
-        print("Usage: python release.py <notes|news|draft|candidate|pr-changes> <tag-or-label> [date]")
+        print("Usage: python release.py <notes|news|draft|candidate|cherry|changes> <tag-or-label> [date]")
         sys.exit(1)
 
     action = sys.argv[1]
@@ -530,20 +956,23 @@ def main():
     # Strip leading 'v' and trailing '-rc<candidate>' if necessary
     base_tag = tag.lstrip('v').split('-rc')[0]
 
-    if action == "pr-changes":
+    if action == "cherry":
         prs = get_merged_prs_by_label(tag)
         if not prs:
             print(f"No merged PRs found with label {tag}", file=sys.stderr)
             sys.exit(1)
         for pr in prs:
-            if pr["merge_sha"]:
-                print(f"git cherry-pick {pr['merge_sha'][:7]} # {pr['number']} {pr['title']}")
-            else:
-                print(f"(PR #{pr['number']}: no merge commit)", file=sys.stderr)
-        release_date = datetime.now() + timedelta(days=3)
-        repo_slug = get_repo_name_with_owner()
-        section_text = add_release_section_to_changes(tag, prs, repo_slug, release_date)
-        print(section_text)
+            if not pr.get("merge_sha"):
+                continue
+            sha = pr["merge_sha"]
+            if commit_is_on_current_branch(sha):
+                continue
+            abbrev = sha[:7]
+            print(f"git cherry-pick {abbrev}  # {pr['number']} {pr['title']}")
+        sys.exit(0)
+
+    if action == "changes":
+        cmd_changes(tag)
         sys.exit(0)
 
     if len(sys.argv) < 3:
