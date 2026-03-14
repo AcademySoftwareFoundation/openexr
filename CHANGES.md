@@ -99,34 +99,38 @@ Patch release bug/build fixes:
 * Fix build failure with glibc 2.43
 * Fix Windows symbol visibility warnings
 
-### Merged Pull Requests:
+Full changelog: [v3.4.6..v3.4.7](https://github.com/AcademySoftwareFoundation/openexr/compare/v3.4.6..v3.4.7)
 
-* [2292](https://github.com/AcademySoftwareFoundation/openexr/pulls/2292)
-Bump actions/download-artifact from 8.0.0 to 8.0.1
+### Merged Pull Requests
 
-* [2291](https://github.com/AcademySoftwareFoundation/openexr/pulls/2291)
+* [2291](https://github.com/AcademySoftwareFoundation/openexr/pull/2291)
 Fix integer overflow in htj2k decode with width > 32767
 
-* [2289](https://github.com/AcademySoftwareFoundation/openexr/pulls/2289)
-Bump scikit-build-core from 0.12.1 to 0.12.2
-
-* [2288](https://github.com/AcademySoftwareFoundation/openexr/pulls/2288)
-Bump jmertic/slack-release-notifier from 6fa159048d5313ff1177d248ad84beb627571670 to 35fad060af5559c24decdec0f701e6ba93566704
-
-* [2287](https://github.com/AcademySoftwareFoundation/openexr/pulls/2287)
-Bump pypa/cibuildwheel from 3.3 to 3.4
-
-* [2283](https://github.com/AcademySoftwareFoundation/openexr/pulls/2283)
+* [2283](https://github.com/AcademySoftwareFoundation/openexr/pull/2283)
 update SECURITY with CVE info for PR #2256
 
-* [2282](https://github.com/AcademySoftwareFoundation/openexr/pulls/2282)
-Remove website_preview_link workflow
+* [2282](https://github.com/AcademySoftwareFoundation/openexr/pull/2282)
+Remove `website_preview_link` workflow
 
-* [2281](https://github.com/AcademySoftwareFoundation/openexr/pulls/2281)
+* [2281](https://github.com/AcademySoftwareFoundation/openexr/pull/2281)
 Disable visibility attributes on Windows to fix msys2 -Wattributes warning
 
-* [2262](https://github.com/AcademySoftwareFoundation/openexr/pulls/2262)
+* [2262](https://github.com/AcademySoftwareFoundation/openexr/pull/2262)
 Fix build failure with glibc 2.43 due to C11 threads.h conflicts
+
+### Merged Workflow Pull Requests
+
+* [2292](https://github.com/AcademySoftwareFoundation/openexr/pull/2292)
+Bump actions/download-artifact from 8.0.0 to 8.0.1
+
+* [2289](https://github.com/AcademySoftwareFoundation/openexr/pull/2289)
+Bump scikit-build-core from 0.12.1 to 0.12.2
+
+* [2288](https://github.com/AcademySoftwareFoundation/openexr/pull/2288)
+Bump jmertic/slack-release-notifier from 6fa159048d5313ff1177d248ad84beb627571670 to 35fad060af5559c24decdec0f701e6ba93566704
+
+* [2287](https://github.com/AcademySoftwareFoundation/openexr/pull/2287)
+Bump pypa/cibuildwheel from 3.3 to 3.4
 
 ## Version 3.4.6 (March 1, 2026)
 
