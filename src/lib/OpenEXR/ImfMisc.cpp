@@ -23,8 +23,12 @@
 #include <ImfTileDescription.h>
 #include <ImfXdr.h>
 
-#include <codecvt>
-#include <locale>
+#if defined(_WIN32) || defined(_WIN64)
+#    include <windows.h>
+#else
+#    include <codecvt>
+#    include <locale>
+#endif
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
@@ -1999,8 +2003,27 @@ getChunkOffsetTableSize (const Header& header)
 std::wstring
 WidenFilename (const char* filename)
 {
+#if defined(_WIN32) || defined(_WIN64)
+    if (!filename) return std::wstring ();
+    const int len = MultiByteToWideChar (
+        CP_UTF8, 0, filename, -1, nullptr, 0);
+    if (len <= 0) return std::wstring ();
+    std::wstring result (static_cast<size_t> (len - 1), 0);
+    MultiByteToWideChar (
+        CP_UTF8, 0, filename, -1, &result[0], len);
+    return result;
+#else
+#    if defined(__GNUC__) || defined(__clang__)
+#        pragma GCC diagnostic push
+#        pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#    endif
     std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
-    return converter.from_bytes (filename);
+    std::wstring out = converter.from_bytes (filename);
+#    if defined(__GNUC__) || defined(__clang__)
+#        pragma GCC diagnostic pop
+#    endif
+    return out;
+#endif
 }
 
 const char*
