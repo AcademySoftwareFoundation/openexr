@@ -110,6 +110,7 @@ public:
     //
     //---------------------------------------------------------------
 
+    OPENEXR_DEPRECATED ("No longer meaningful")
     IMF_EXPORT
     bool isOptimizationEnabled () const;
 
