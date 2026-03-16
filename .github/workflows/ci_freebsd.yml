@@ -36,7 +36,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Build and test on FreeBSD
-        uses: vmactions/freebsd-vm@v1
+        uses: vmactions/freebsd-vm@4807432c7cab1c3f97688665332c0b932062d31f  # v1
         with:
           release: '15.0'
           envs: GITHUB_REPOSITORY GITHUB_REF GITHUB_SHA
