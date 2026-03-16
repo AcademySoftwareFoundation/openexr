@@ -29,9 +29,10 @@ call_once (once_flag* flag, void (*func) (void))
 {
     InitOnceExecuteOnce (flag, once_init_fn, (PVOID) func, NULL);
 }
-#    elif __has_include(<threads.h>)
+#    elif __has_include(<threads.h>) && !defined(__FreeBSD__)
 /*
- * On Linux (glibc 2.28+), use standard <threads.h>
+ * On Linux (glibc 2.28+), use standard <threads.h>.
+ * FreeBSD requires -lstdthreads for <threads.h>; use pthread fallback instead.
  */
 #        include <threads.h>
 
