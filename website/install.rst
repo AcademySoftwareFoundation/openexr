@@ -102,7 +102,8 @@ Make sure these are installed on your system before building OpenEXR:
 * ``Imath`` (auto-fetched by CMake if not found) (https://github.com/AcademySoftwareFoundation/Imath)
 * ``libdeflate`` (internal copy used by CMake if not found for
   v3.4+; auto-fetched in v3.3 and before) (https://github.com/ebiggers/libdeflate)
-* ``openjph`` (auto-fetched by CMake if not found; new in v3.4) (https://github.com/aous72/OpenJPH)
+* ``openjph`` (internal vendored copy used by CMake if not found; new
+  in v3.4; auto-fetched in 3.4.5 and before) (https://github.com/aous72/OpenJPH)
 * (optional) Intel's Thread Building Blocks library (TBB)
 
 The instructions that follow describe building OpenEXR with CMake.
@@ -154,6 +155,34 @@ OpenEXR symbols would reside in a single namespace
 application compilation units to use Imath classes directly,
 independent of OpenEXR, if they also include OpenEXR headers from a
 distribution built with a different Imath version.
+
+.. _embedded-core-label:
+
+Linking Multiple OpenEXR Versions in the Executable
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+It is sometimes necessary to link two different versions of the
+OpenEXR library in the same executable. An example is a DCC such as
+Nuke or Katana which ships with one version of OpenEXR but must load a
+custom plugin that links against a different version.
+
+The ``namespace`` options described below provide a mechanism to handle
+this: the custom plugin links against a custom build of OpenEXR
+configured with a unique namespace, so the symbols do not clash
+against the other version.
+
+However, the ``OpenEXRCore`` library is implemented in C, without a
+namespace option. To address this, build the custom ``OpenEXR`` library
+with the CMake option ``-DOPENEXR_FORCE_EMBEDDED_CORE=ON``, which links
+against a staticly-built ``OpenEXRCore`` library with symbols
+hidden. This prevents the ``OpenEXRCore`` library symbols in the plugin
+from clashing with the ones in the main executable. In this case, the
+installation includes no ``libOpenEXRCore.so``.
+
+This works if your plugin uses the ``OpenEXR`` C++ API. Should your
+plugin require direct access to the C API from ``OpenEXRCore``, this
+solution does not work, and you'll have resort to other symbol-hidding
+mechanisms.
 
 Linux/macOS
 ~~~~~~~~~~~
@@ -412,26 +441,29 @@ copy of the ``libdeflate`` compression code. At configuration time, if
 CMake finds an external installation of ``libdeflate``, it will use
 it. If it fails to find an installation, it will use the internal
 copy. To force use of the internal copy, configure with
-``-DOPENEXR_USE_INTERNAL_DEFLATE=ON`.
+``-DOPENEXR_USE_INTERNAL_DEFLATE=ON``.
 
 OpenEXR release v3.2 and v3.3 auto-fetch the ``libdeflate`` source and
 build it internally if cmake does not find an external
-installation. The internal build is linked statically, so no extra
-shared object is produced. Configuration options are:
+installation. 
 
-* ``OPENEXR_DEFLATE_REPO`` and ``OPENEXR_DEFLATE_TAG``
+``OpenJPH`` Dependency
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
-  The GitHub ``libdeflate`` repo to auto-fetch if an installed library cannot
-  be found, and the tag to sync it to. The default repo is
-  ``https://github.com/ebiggers/libdeflate.git`` and the tag is
-  ``v1.18``. The internal build is configured as a CMake subproject.
+As of OpenEXR release v3.4, OpenEXR depends on
+`OpenJPH <https://github.com/aous72/OpenJPH>`_ for
+HTJ2K compression. 
 
-* ``OPENEXR_FORCE_INTERNAL_DEFLATE``
+As of OpenEXR release v3.4.6, OpenEXR ships with an internal "vendored"
+copy of the ``OpenJPH`` library. At configuration time, if
+CMake finds an external installation of ``OpenJPH``, it will use
+it. If it fails to find an installation, it will use the internal
+copy. To force use of the internal copy, configure with
+``-DOPENEXR_FORCE_INTERNAL_OPENJPH=ON``.
 
-  If set to ``ON``, force auto-fetching and internal building of
-  ``libdeflate`` using ``OPENEXR_DEFLATE_REPO`` and
-  ``OPENEXR_DEFLATE_TAG``. This means do *not* use any existing
-  installation of ``libdeflate``.
+OpenEXR releases v3.4.0-v3.4.5 auto-fetch the ``OpenJPH`` source and
+build it internally if cmake does not find an external
+installation. 
 
 TBB Dependency
 ~~~~~~~~~~~~~~
@@ -502,6 +534,13 @@ Namespace Options
 Component Options
 ~~~~~~~~~~~~~~~~~
 
+* ``OPENEXR_FORCE_EMBEDDED_CORE``
+
+  Option to build the ``OpenEXR`` library against a staticly-built
+  ``OpenEXRCore`` library with symbols hidden. This allows the ``OpenEXR``
+  library to be linked into an executable that already links against
+  another version of OpenEXR.  See :ref:`embedded-core-label` for more details.
+  
 * ``BUILD_TESTING``
 
   Build the testing tree. Default is ``ON``.  Note that

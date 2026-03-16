@@ -129,6 +129,9 @@ except AssertionError:
     print(result.stdout)
     raise
 
+# test for bad command
+result = do_run([exrstdattr,test_images["GrayRampsHorizontal"],outimage,"extra_argument"],True)
+
 # test for bad erase argument
 result = do_run ([exrstdattr, "-erase"], True)
 

@@ -6,7 +6,9 @@
 #ifndef IMF_INTERNAL_DWA_HELPERS_H_HAS_BEEN_INCLUDED
 #define IMF_INTERNAL_DWA_HELPERS_H_HAS_BEEN_INCLUDED
 
-#include "dwaLookups.h"
+extern uint16_t* exrcore_dwaToLinearTable;
+extern uint16_t* exrcore_dwaToNonLinearTable;
+extern void      exrcore_ensure_dwa_tables ();
 
 /**************************************/
 

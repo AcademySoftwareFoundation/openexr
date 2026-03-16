@@ -1,3 +1,8 @@
+//
+// SPDX-License-Identifier: BSD-3-Clause
+// Copyright (c) Contributors to the OpenEXR Project.
+//
+
 void
 writeRgbaWithPreview1 (
     const char fileName[], const Array2D<Rgba>& pixels, int width, int height)

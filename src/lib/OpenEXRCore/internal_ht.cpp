@@ -7,12 +7,12 @@
 #include <string>
 #include <fstream>
 
-#include <ojph_arch.h>
-#include <ojph_file.h>
-#include <ojph_params.h>
-#include <ojph_mem.h>
-#include <ojph_codestream.h>
-#include <ojph_message.h>
+#include <openjph/ojph_arch.h>
+#include <openjph/ojph_file.h>
+#include <openjph/ojph_params.h>
+#include <openjph/ojph_mem.h>
+#include <openjph/ojph_codestream.h>
+#include <openjph/ojph_message.h>
 
 #include "openexr_decode.h"
 #include "openexr_encode.h"
@@ -56,12 +56,12 @@ class staticmem_outfile : public ojph::outfile_base
 
     /**  
      *  @brief Call this function to write data to the memory file.
-	   *
+     *
      *  This function adds new data to the memory file.  The memory buffer
      *  of the file grows as needed.
      *
      *  @param ptr is a pointer to new data.
-     *  @param size the number of bytes in the new data.
+     *  @param sz the number of bytes in the new data.
      */
     size_t write (const void* ptr, size_t sz) override
     {
@@ -175,7 +175,7 @@ ht_undo_impl (
     header_sz = read_header (
         (uint8_t*) compressed_data, comp_buf_size, cs_to_file_ch);
     if (static_cast<std::size_t>(decode->channel_count) != cs_to_file_ch.size ())
-        throw std::runtime_error ("Unexpected number of channels");
+        return EXR_ERR_CORRUPT_CHUNK;
 
     for (int cs_i = 0; cs_i < decode->channel_count; cs_i++)
     {
@@ -203,6 +203,11 @@ ht_undo_impl (
     ojph::ui32 image_height =
         siz.get_image_extent ().y - siz.get_image_offset ().y;
 
+    if (decode->chunk.width != siz.get_image_extent ().x - siz.get_image_offset ().x
+        || decode->chunk.height != image_height
+        || decode->channel_count != siz.get_num_components())
+        return EXR_ERR_CORRUPT_CHUNK;
+
     int  bpl       = 0;
     bool is_planar = false;
     for (int16_t c = 0; c < decode->channel_count; c++)
@@ -214,10 +219,6 @@ ht_undo_impl (
         { is_planar = true; }
     }
     cs.set_planar (is_planar);
-
-    assert (decode->chunk.width == siz.get_image_extent ().x - siz.get_image_offset ().x);
-    assert (decode->chunk.height == image_height);
-    assert (decode->channel_count == siz.get_num_components ());
 
     cs.create ();
 
@@ -256,7 +257,7 @@ ht_undo_impl (
                             EXR_PIXEL_HALF)
                         {
                             int16_t* channel_pixels = (int16_t*) line_pixels;
-                            for (int16_t p = 0;
+                            for (int32_t p = 0;
                                  p < decode->channels[file_c].width;
                                  p++)
                             {
@@ -266,7 +267,7 @@ ht_undo_impl (
                         else
                         {
                             int32_t* channel_pixels = (int32_t*) line_pixels;
-                            for (int16_t p = 0;
+                            for (int32_t p = 0;
                                  p < decode->channels[file_c].width;
                                  p++)
                             {
@@ -298,7 +299,7 @@ ht_undo_impl (
                 {
                     int16_t* channel_pixels =
                         (int16_t*) (line_pixels + cs_to_file_ch[c].raster_line_offset);
-                    for (int16_t p = 0; p < decode->channels[file_c].width;
+                    for (int32_t p = 0; p < decode->channels[file_c].width;
                          p++)
                     {
                         *channel_pixels++ = cur_line->i32[p];
@@ -308,7 +309,7 @@ ht_undo_impl (
                 {
                     int32_t* channel_pixels =
                         (int32_t*) (line_pixels + cs_to_file_ch[c].raster_line_offset);
-                    for (int16_t p = 0; p < decode->channels[file_c].width;
+                    for (int32_t p = 0; p < decode->channels[file_c].width;
                          p++)
                     {
                         *channel_pixels++ = cur_line->i32[p];

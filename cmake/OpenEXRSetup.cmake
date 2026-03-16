@@ -100,7 +100,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 # Suffix for debug configuration libraries
 # (if you should choose to install those)
 # Don't override if the user has set it and don't save it in the cache
-if (NOT CMAKE_DEBUG_POSTFIX)
+if (NOT DEFINED CMAKE_DEBUG_POSTFIX)
   set(CMAKE_DEBUG_POSTFIX "_d")
 endif()
 
@@ -256,8 +256,6 @@ endif()
 #######################################
 
 option(OPENEXR_FORCE_INTERNAL_OPENJPH "Force downloading OpenJPH from a git repo" OFF)
-set(OPENEXR_OPENJPH_REPO "https://github.com/aous72/OpenJPH.git" CACHE STRING "OpenJPH git repo URI")
-set(OPENEXR_OPENJPH_TAG "master" CACHE STRING "OpenJPH git repo tag")
 
 if (NOT OPENEXR_FORCE_INTERNAL_OPENJPH)
   find_package(openjph CONFIG QUIET)
@@ -265,6 +263,7 @@ if (NOT OPENEXR_FORCE_INTERNAL_OPENJPH)
     if(openjph_VERSION VERSION_LESS "0.21.0")
         message(FATAL_ERROR "OpenJPH >= 0.21.0 required, but found ${openjph_VERSION}")
     endif()
+
     message(STATUS "Using OpenJPH ${openjph_VERSION} from ${openjph_DIR}")
     set(EXR_OPENJPH_LIB openjph)
   else()
@@ -275,60 +274,48 @@ if (NOT OPENEXR_FORCE_INTERNAL_OPENJPH)
       pkg_check_modules(openjph IMPORTED_TARGET GLOBAL QUIET openjph=0.21)
       if(openjph_FOUND)
         set(EXR_OPENJPH_LIB PkgConfig::openjph)
-        message(STATUS "Using OpenJPH from ${openjph_LINK_LIBRARIES}")
+        message(STATUS "Using OpenJPH ${openjph_VERSION} from ${openjph_LINK_LIBRARIES}")
       endif()
     endif()
   endif()
 endif()
 
-if(NOT EXR_OPENJPH_LIB)
-  # Using internal OpenJPH
-  if(OPENEXR_FORCE_INTERNAL_OPENJPH)
-    message(STATUS "OpenJPH forced internal, fetching from ${OPENEXR_OPENJPH_REPO} @ ${OPENEXR_OPENJPH_TAG}")
-  else()
-    message(STATUS "OpenJPH was not found, fetching from ${OPENEXR_OPENJPH_REPO} @ ${OPENEXR_OPENJPH_TAG}")
-  endif()
-
-  include(FetchContent)
-  FetchContent_Declare(
-    openjph
-    GIT_REPOSITORY ${OPENEXR_OPENJPH_REPO}
-    GIT_TAG        ${OPENEXR_OPENJPH_TAG}
-  )
-
-  set(OJPH_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-  set(OJPH_ENABLE_TIFF_SUPPORT OFF CACHE BOOL "" FORCE)
-  set(OJPH_BUILD_EXECUTABLES OFF CACHE BOOL "" FORCE)
-  FetchContent_MakeAvailable(openjph)
-  install(
-    TARGETS openjph
-    EXPORT ${PROJECT_NAME}
-  )
-  set_target_properties(openjph PROPERTIES
-    POSITION_INDEPENDENT_CODE ON
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
-  )
-  include_directories("${openjph_SOURCE_DIR}/src/core/common")
+if(EXR_OPENJPH_LIB)
+  # Using external library
+  # For OpenEXR.pc.in for static build
+  set(EXR_OPENJPH_PKGCONFIG_REQUIRES "openjph >= 0.21.0")
+else()
+  # Using internal openjph
 
   # extract the openjph version variables from ojph_version.h
-  set(openjph_version "${openjph_SOURCE_DIR}/src/core/common/ojph_version.h")
+  set(openjph_SOURCE_DIR "${CMAKE_SOURCE_DIR}/external/OpenJPH")
+  set(openjph_version "${openjph_SOURCE_DIR}/src/core/openjph/ojph_version.h")
   if(EXISTS "${openjph_version}")
     file(STRINGS "${openjph_version}" _openjph_major REGEX "#define OPENJPH_VERSION_MAJOR")
     file(STRINGS "${openjph_version}" _openjph_minor REGEX "#define OPENJPH_VERSION_MINOR")
     file(STRINGS "${openjph_version}" _openjph_patch REGEX "#define OPENJPH_VERSION_PATCH")
+    file(STRINGS "${openjph_version}" _openjph_sha REGEX "#define OPENJPH_VERSION_SHA")
     string(REGEX REPLACE ".*OPENJPH_VERSION_MAJOR[ \t]+([0-9]+).*" "\\1" openjph_VERSION_MAJOR "${_openjph_major}")
     string(REGEX REPLACE ".*OPENJPH_VERSION_MINOR[ \t]+([0-9]+).*" "\\1" openjph_VERSION_MINOR "${_openjph_minor}")
     string(REGEX REPLACE ".*OPENJPH_VERSION_PATCH[ \t]+([0-9]+).*" "\\1" openjph_VERSION_PATCH "${_openjph_patch}")
+    string(REGEX REPLACE ".*OPENJPH_VERSION_SHA[ \t]+([0-9a-f]+).*" "\\1" openjph_VERSION_SHA "${_openjph_sha}")
+  else()
+    message(STATUS "can't find openjph_version.h: ${openjph_version}")
   endif()
 
-  set(EXR_OPENJPH_LIB openjph)
-endif()
+  if(openjph_VERSION_SHA)
+    set(openjph_VERSION "${openjph_VERSION_SHA}")
+  else()
+    set(openjph_VERSION "${openjph_VERSION_MAJOR}.${openjph_VERSION_MINOR}.${openjph_VERSION_PATCH}")
+  endif()
+  
+  if(OPENEXR_FORCE_INTERNAL_OPENJPH)
+    message(STATUS "openjph forced internal, using vendored code, version ${openjph_VERSION}")
+  else()
+    message(STATUS "openjph was not found, using vendored code, version ${openjph_VERSION}")
+  endif()
 
-if (NOT EXR_OPENJPH_LIB)
-  message(ERROR "Failed to find OpenJPH")
 endif()
-
-set(EXR_OPENJPH_PKGCONFIG_REQUIRES "openjph >= 0.21.0")
 
 #######################################
 # Find or install Imath
@@ -419,5 +406,18 @@ int main() {
 
   if(NOT HAS_VLD1)
     set(OPENEXR_MISSING_ARM_VLD1 TRUE)
+  endif()
+endif()
+
+###########################################
+# Enable SSE2 on 32-bit x86
+###########################################
+
+if(CMAKE_SYSTEM_PROCESSOR MATCHES "^(i[3-6]86|x86)$" AND NOT MSVC)
+  include(CheckCCompilerFlag)
+  check_c_compiler_flag("-msse2" HAS_SSE2_FLAG)
+  if(HAS_SSE2_FLAG)
+    add_compile_options(-msse2 -mfpmath=sse)
+    message(STATUS "Enabling SSE2 for 32-bit x86 build")
   endif()
 endif()

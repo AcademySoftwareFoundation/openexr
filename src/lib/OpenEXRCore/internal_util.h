@@ -30,11 +30,12 @@ compute_sampled_height (int height, int y_sampling, int start_y)
             start = start_y + (y_sampling - start);
         else
             start = start_y;
+
         end = start_y + height - 1;
-        end -= (end < 0) ? (-end % y_sampling) : (end % y_sampling);
+        end -= (end < 0 ? -end : end) % y_sampling;
 
         if (start > end)
-            nlines = 0;
+            nlines = start == start_y ? 1 : 0;
         else
             nlines = (end - start) / y_sampling + 1;
     }

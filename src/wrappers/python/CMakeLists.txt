@@ -36,7 +36,7 @@ if(BUILD_TESTING AND OPENEXR_TEST_PYTHON)
 
     add_test(
         NAME OpenEXR.PyOpenEXR
-        COMMAND ${Python3_EXECUTABLE} -m pytest ${CMAKE_CURRENT_SOURCE_DIR}/tests)
+        COMMAND ${Python3_EXECUTABLE} -m pytest -v -s ${CMAKE_CURRENT_SOURCE_DIR}/tests)
 
     set_tests_properties(OpenEXR.PyOpenEXR PROPERTIES
         ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}"

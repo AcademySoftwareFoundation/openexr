@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright Contributors to the OpenEXR Project.
  channels  : id
  hashScheme: MurmurHash3_32
  encoding  : id

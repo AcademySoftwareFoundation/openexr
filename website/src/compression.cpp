@@ -1,3 +1,7 @@
+//
+// SPDX-License-Identifier: BSD-3-Clause
+// Copyright (c) Contributors to the OpenEXR Project.
+//
 
 int width=1; int height=1;
 // [begin setCompression]

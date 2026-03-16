@@ -279,6 +279,7 @@ attributes to the image file header: a string, called ``comments``, and a
 .. literalinclude:: src/writeRgba3.cpp
    :language: c++
    :linenos:
+   :lines: 5-
                     
 The ``setFrameBuffer()`` and ``writePixels()`` calls are the same as in the
 previous examples, but construction of the ``RgbaOutputFile`` object is
@@ -307,6 +308,7 @@ Reading an RGBA image is almost as easy as writing one:
 .. literalinclude:: src/readRgba1.cpp
    :language: c++
    :linenos:
+   :lines: 5-
                     
 Constructing an ``RgbaInputFile`` object, passing the name of the file to
 the constructor, opens the file and reads the file's header.
@@ -371,6 +373,7 @@ pixels, like blurring or sharpening, are also possible.
 .. literalinclude:: src/readRgba2.cpp
    :language: c++
    :linenos:
+   :lines: 5-
 
 Again, we open the file and read the file header by constructing an
 ``RgbaInputFile`` object. Then we allocate a memory buffer that is
@@ -580,6 +583,7 @@ accordingly. (Again, see `Writing a Cropped RGBA Image`_.)
 .. literalinclude:: src/writeGZ2.cpp
    :language: c++
    :linenos:
+   :lines: 5-
 
 Reading an Image File
 ---------------------
@@ -594,6 +598,7 @@ appropriate default value.
 .. literalinclude:: src/readGZ1.cpp
    :language: c++
    :linenos:
+   :lines: 5-
 
 First, we open the file with the specified name, by constructing an
 ``InputFile`` object.
@@ -675,6 +680,7 @@ reading only two instead of three channels, the only difference is how
 .. literalinclude:: src/readGZ2.cpp
    :language: c++
    :linenos:
+   :lines: 5-
 
 
 Which Channels are in a File?
@@ -800,6 +806,7 @@ attribute is a ``TileDescription`` object:
 .. literalinclude:: src/tileDescription.cpp
    :language: c++
    :linenos:
+   :lines: 5-
 
 Using the RGBA-only Interface for Tiled Files
 =============================================
@@ -812,6 +819,7 @@ Writing a tiled RGBA image with a single level is easy:
 .. literalinclude:: src/writeTiledRgbaONE1.cpp
    :language: c++
    :linenos:
+   :lines: 5-
       
 Opening the file and defining the pixel data layout in memory are done
 in almost the same way as for scan line based files:
@@ -856,6 +864,7 @@ in the following example:
 .. literalinclude:: src/writeTiledRgbaONE2.cpp
    :language: c++
    :linenos:
+   :lines: 5-
 
 On line 13 we allocate a ``pixels`` array with
 ``tileWidtf*tileHeight`` elements, which is just enough for one
@@ -887,6 +896,7 @@ reuse it for all levels:
 .. literalinclude:: src/writeTiledRgbaMIP1.cpp
    :language: c++
    :linenos:
+   :lines: 5-
 
 The main difference here is the use of ``MIPMAP_LEVELS`` on line 6 for
 the ``TiledRgbaOutputFile`` constructor. This signifies that the file
@@ -927,6 +937,7 @@ buffer for a single tile and reuse it for all tiles in the image:
 .. literalinclude:: src/writeTiledRgbaMIP2.cpp
    :language: c++
    :linenos:
+   :lines: 5-
 
 The structure of this code is the same as for writing a ``ONE_LEVEL``
 image using a tile-sized frame buffer, but we have to loop over more
@@ -965,6 +976,7 @@ write a ripmap file like this:
 .. literalinclude:: src/writeTiledRgbaRIP1.cpp
    :language: c++
    :linenos:
+   :lines: 5-
 
 As for ``ONE_LEVEL`` and ``MIPMAP_LEVELS`` files, the frame buffer
 doesn't have to be large enough to hold a whole level. Any frame
@@ -978,6 +990,7 @@ Reading a tiled RGBA image file is done similarly to writing one:
 .. literalinclude:: src/readTiledRgba1.cpp
    :language: c++
    :linenos:
+   :lines: 5-
 
 First we need to create a ``TiledRgbaInputFile`` object for the given
 file name. We then retrieve information about the data window in order
@@ -1005,6 +1018,7 @@ instead of scan line based:
 .. literalinclude:: src/writeTiled1.cpp
    :language: c++
    :linenos:
+   :lines: 5-
    
 As one would expect, the code here is very similar to the code in
 `Writing an Image File`_. The file's header is created in line 1,
@@ -1071,6 +1085,7 @@ The size of the image is ``width`` by ``height`` pixels.
 .. literalinclude:: src/writeDeepScanLineFile.cpp
    :language: c++
    :linenos:
+   :lines: 5-
 
 The interface for deep scan line files is similar to scan line
 files. We added two new classes to deal with deep data:
@@ -1123,6 +1138,7 @@ An example of reading a deep scan line file created by previous code.
 .. literalinclude:: src/readDeepScanLineFile.cpp
    :language: c++
    :linenos:
+   :lines: 5-
 
 The interface for deep scan line files is similar to scan line files.
 The main the difference is we use the sample count slice and deep data
@@ -1155,6 +1171,7 @@ The size of the image is ``width`` by ``height`` pixels.
 .. literalinclude:: src/writeDeepTiledFile.cpp
    :language: c++
    :linenos:
+   :lines: 5-
               
 Here, ``getSampleCountForTile`` is a user-supplied function that sets
 each item in ``sampleCount`` array to the correct ``sampleCount`` for
@@ -1181,6 +1198,7 @@ An example of reading a deep tiled file created by code explained in the
 .. literalinclude:: src/readDeepTiledFile.cpp
    :language: c++
    :linenos:
+   :lines: 5-
 
 This code demonstrates how to read the first level of a deep tiled
 file created by code explained in the `Writing a Deep Tiled File`_
@@ -1247,6 +1265,7 @@ worker threads:
 .. literalinclude:: src/writeRgbaMT.cpp
    :language: c++
    :linenos:
+   :lines: 5-
 
 Except for the call to ``setGlobalThreadCount()``, function ``writeRgbaMT()`` is
 identical to function ``writeRgba1()`` in `Writing an RGBA Image File`_, but on
@@ -1355,6 +1374,7 @@ declaration of class ``IStream`` looks like this:
 .. literalinclude:: src/IStream.cpp
    :language: c++
    :linenos:
+   :lines: 5-
           
 Our derived class needs a public constructor, and it must override four
 methods:
@@ -1362,6 +1382,7 @@ methods:
 .. literalinclude:: src/C_IStream.cpp
    :language: c++
    :linenos:
+   :lines: 5-
 
 ``read(c,n)`` reads ``n`` bytes from the file, and stores them in
 array ``c``.  If reading hits the end of the file before ``n`` bytes
@@ -1372,6 +1393,7 @@ exception. If ``read(c,n)`` hits the end of the file after reading
 .. literalinclude:: src/C_IStream_read.cpp
    :language: c++
    :linenos:
+   :lines: 5-
 
 ``tellg()`` returns the current reading position, in bytes, from the
 beginning of the file. The next ``read()`` call will begin reading at
@@ -1380,6 +1402,7 @@ the indicated position:
 .. literalinclude:: src/C_IStream_tellg.cpp
    :language: c++
    :linenos:
+   :lines: 5-
 
 ``seekg(pos)`` sets the current reading position to ``pos`` bytes from
 the beginning of the file:
@@ -1387,6 +1410,7 @@ the beginning of the file:
 .. literalinclude:: src/C_IStream_seekg.cpp
    :language: c++
    :linenos:
+   :lines: 5-
 
 ``clear()`` clears any error flags that may be set on the file after a
 ``read()`` or ``seekg()`` operation has failed:
@@ -1394,6 +1418,7 @@ the beginning of the file:
 .. literalinclude:: src/C_IStream_clear.cpp
    :language: c++
    :linenos:
+   :lines: 5-
 
 In order to read an RGBA image from an open C stdio file, we first
 make a ``C_IStream`` object. Then we create an ``RgbaInputFile``,
@@ -1404,6 +1429,7 @@ RGBA Image File`_):
 .. literalinclude:: src/readRgbaFILE.cpp
    :language: c++
    :linenos:
+   :lines: 5-
 
 Memory-Mapped I/O
 -----------------
@@ -1435,6 +1461,7 @@ addition to the functions needed for regular, non-memory-mapped input:
 .. literalinclude:: src/MemoryMappedIStream.cpp
    :language: c++
    :linenos:
+   :lines: 5-
 
 The constructor for class ``MemoryMappedIStream`` maps the contents of
 the input file into the program's address space. Memory mapping is not
@@ -1445,6 +1472,7 @@ calling ``CreateFileMapping()`` and ``MapViewOfFile()``:
 .. literalinclude:: src/MemoryMappedIStream_constructor.cpp
    :language: c++
    :linenos:
+   :lines: 5-
 
 The destructor frees the address range associated with the file by
 un-mapping the file. The POSIX version shown here uses ``munmap()``. A
@@ -1452,6 +1480,7 @@ Windows version would call ``UnmapViewOfFile()`` and
 ``CloseHandle()``:
 
 .. literalinclude:: src/MemoryMappedIStream_destructor.cpp
+   :lines: 5-
    :language: c++
    :linenos:
    
@@ -1460,6 +1489,7 @@ memory-mapped input is supported. This allows the OpenEXR library to
 call ``readMemoryMapped()`` instead of ``read()``:
 
 .. literalinclude:: src/MemoryMappedIStream_isMemoryMapped.cpp
+   :lines: 5-
    :language: c++
    :linenos:
 
@@ -1469,6 +1499,7 @@ copying data into a buffer supplied by the caller,
 thus avoiding the copy operation:
 
 .. literalinclude:: src/MemoryMappedIStream_readMemoryMapped.cpp
+   :lines: 5-
    :language: c++
    :linenos:
    
@@ -1476,6 +1507,7 @@ The ``MemoryMappedIStream`` class must also implement the regular ``read()``
 function, as well as ``tellg()`` and ``seekg()``:
 
 .. literalinclude:: src/MemoryMappedIStream_read.cpp
+   :lines: 5-
    :language: c++
    :linenos:
 
@@ -1582,6 +1614,7 @@ preview image, and how to access a preview image's pixels:
    :language: c++
    :dedent:
    :linenos:
+   :lines: 5-
    :start-after: [begin accessPreviewImage]
    :end-before: [end accessPreviewImage]
 
@@ -1597,6 +1630,7 @@ are written using the general interface, and for tiled files.
 .. literalinclude:: src/writeRgbaWithPreview1.cpp
    :language: c++
    :linenos:
+   :lines: 5-
 
 Lines 7 through 12 generate the preview image. Line 5 creates a header
 for the image file. Line 16 converts the preview image into a
@@ -1631,6 +1665,7 @@ image's floating-point pixels on the screen:
    :language: c++
    :linenos:
    :dedent:
+   :lines: 5-
    :start-after: [begin gamma]
    :end-before: [end gamma]
    
@@ -1650,6 +1685,7 @@ available. This is demonstrated in the following example:
 .. literalinclude:: src/writeRgbaWithPreview2.cpp
    :language: c++
    :linenos:
+   :lines: 5-
 
 Environment Maps
 ----------------
@@ -1725,6 +1761,7 @@ environment map, and if it does, which kind:
    :language: c++
    :linenos:
    :dedent:
+   :lines: 5-
    :start-after: [begin hasEnvmap]
    :end-before: [end hasEnvmap]
 

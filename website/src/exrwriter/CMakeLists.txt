@@ -1,3 +1,8 @@
+#
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright (c) Contributors to the OpenEXR Project.
+#
+
 cmake_minimum_required(VERSION 3.12)
 project(exrwriter)
 find_package(OpenEXR REQUIRED)

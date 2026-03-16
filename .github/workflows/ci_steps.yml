@@ -80,7 +80,7 @@ jobs:
     steps:
 
       - name: Checkout
-        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Set Up Directories & Environment
         run: |
@@ -120,6 +120,21 @@ jobs:
 
         shell: bash
 
+      - name: Report C Runtime Version
+        run: |
+          if [[ "$RUNNER_OS" == "Linux" ]]; then
+            ldd --version 2>&1 | head -1 || true
+          elif [[ "$RUNNER_OS" == "macOS" ]]; then
+            echo "macOS SDK: $(xcrun --show-sdk-version 2>/dev/null || echo 'unknown')"
+          fi
+        shell: bash
+
+      - name: Install Build Dependencies (Fedora)
+        if: startsWith(inputs.container, 'fedora:')
+        run: |
+          dnf install -y gcc gcc-c++ cmake make git wget libdeflate-devel
+        shell: bash
+
       - name: Determine MSYS2 Packages
         if: inputs.msystem != ''
         run: |
@@ -138,7 +153,7 @@ jobs:
 
       - name: Install MSYS2 ${{ inputs.msystem }}
         if: inputs.msystem != ''
-        uses: msys2/setup-msys2@61f9e5e925871ba6c9e3e8da24ede83ea27fa91f # v2.27.0
+        uses: msys2/setup-msys2@4f806de0a5a7294ffabaff804b38a9b435a73bda # v2.30.0
         with:
           msystem: ${{ inputs.msystem }}
           update: true
@@ -297,7 +312,7 @@ jobs:
 
       - name: Upload install_manifest.txt
         # Upload the manifest to make it possible to download for inspection and debugging
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: ${{ env.INSTALL_MANIFEST_FILENAME }}
           path: ${{ env.INSTALL_MANIFEST_PATH }}

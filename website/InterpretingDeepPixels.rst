@@ -642,12 +642,14 @@ Example: Splitting a Volume Sample
 
 .. literalinclude:: src/splitVolumeSample.cpp
    :linenos:
+   :lines: 5-
       
 Example: Merging Two Overlapping Samples
 ----------------------------------------
 
 .. literalinclude:: src/mergeOverlappingSamples.cpp
    :linenos:
+   :lines: 5-
 
 
       

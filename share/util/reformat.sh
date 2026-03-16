@@ -1,5 +1,8 @@
 #! /bin/sh
 
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright Contributors to the OpenEXR Project.
+
 cformat=`which clang-format`
 if [[ "${cformat}" == "" ]]; then
 	echo "ERROR: clang-format not found"

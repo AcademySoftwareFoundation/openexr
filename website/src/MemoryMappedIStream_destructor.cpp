@@ -1,5 +1,9 @@
-bool
-MemoryMappedIStream::isMemoryMapped () const
+//
+// SPDX-License-Identifier: BSD-3-Clause
+// Copyright (c) Contributors to the OpenEXR Project.
+//
+
+MemoryMappedIStream::~MemoryMappedIStream()
 {
-    return true;
+    munmap (_buffer, _fileLength);
 }

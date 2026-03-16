@@ -776,11 +776,13 @@ main (int argc, char** argv)
             }
             else
             {
-                if (inFileName == 0)
-                    inFileName = argv[i];
-                else
-                    outFileName = argv[i];
-
+                if (inFileName == 0) { inFileName = argv[i]; }
+                else if (outFileName != 0)
+                {
+                    throw invalid_argument (
+                        "Invalid arguments or too many filenames specified");
+                }
+                else { outFileName = argv[i]; }
                 i += 1;
             }
         }

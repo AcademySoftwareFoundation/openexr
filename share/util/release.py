@@ -57,7 +57,8 @@ def extract_section(content, version_tag):
 
         # Stop capturing when the next subsection (##) starts
         if capture and (subsection_header_pattern.match(line) or
-                        "Merged Pull Requests" in line):
+                        "Merged Pull Requests" in line or
+                        "Merged pull requests" in line):
             break
         # Capture lines if inside the correct section and before any subsections
         if capture:
@@ -70,7 +71,14 @@ def markdown_to_rst(markdown_text):
     Convert simple Markdown text to reStructuredText (reST) manually.
     """
     # Replace markdown links [text](url) with reST format `text <url>`_
-    markdown_text = re.sub(r'\[(.*?)\]\((.*?)\)', r'`\1 <\2>`_', markdown_text)
+    markdown_text = re.sub(
+        r'\[([\s\S]*?)\]\(([\s\S]*?)\)',
+        r'`\1 <\2>`_',
+        markdown_text
+    )
+
+    # Convert `text to ``text`` (but skip existing ``)
+    markdown_text = re.sub(r'(?<!`)`([^`]+)`(?!`)', r'``\1``', markdown_text)
 
     # Convert the special symbols
     markdown_text = re.sub(r':bug:', "🐛", markdown_text, flags=re.DOTALL)
@@ -110,6 +118,15 @@ def create_draft_release(tag, release_notes):
                  check=True
                  )
 
+def get_repo_url():
+    try:
+        result = run(['git', 'config', '--get', 'remote.origin.url'],
+                     stdout=PIPE, stderr=PIPE, universal_newlines=True)
+        url = result.stdout.strip()
+        return url
+    except subprocess.CalledProcessError:
+        return None  # Not a git repo or no origin remote
+
 def update_news_file(release_notes, tag, release_date):
     """
     Update the website/news.rst file with the release notes.
@@ -121,11 +138,15 @@ def update_news_file(release_notes, tag, release_date):
     # This needs to be added as an explicit section header.
     result = run(['git', 'show', f"HEAD:website/latest_news_title.rst"],
                  stdout=PIPE, stderr=PIPE, universal_newlines=True)
-    old_section_title = result.stdout.split("replace:: ")[1].rstrip().lstrip('**').rstrip('**')
+    line = result.stdout.split('\n')[-1]
+    old_section_title = line.split("replace:: ")[1].rstrip().lstrip('**').rstrip('**')
 
     # Write the news section title to the latest_news_title.rst file,
     # so it can be include on the website front page
     with open('website/latest_news_title.rst', 'w') as f:
+        f.write("..\n")
+        f.write("  SPDX-License-Identifier: BSD-3-Clause\n")
+        f.write("  Copyright (c) Contributors to the OpenEXR Project.\n")
         f.write(f".. |latest-news-title| replace:: **{new_section_title}**")
 
     result = run(['git', 'show', f"HEAD:website/news.rst"],
@@ -233,7 +254,11 @@ def main():
         version = base_tag
         html_notes = markdown_to_html(release_notes)
         date_string = release_date.strftime("%A, %B %e")
-        print(f"OpenEXR {version} is staged for release at tag <a href=https://github.com/AcademySoftwareFoundation/openexr/releases/tag/{tag}>{tag}</a> and will be released officially {date_string} barring any issues. <br><br> {html_notes}")
+        url = get_repo_url()
+        project = url.split('/')[-1]
+        if project == "openexr":
+            project = "OpenEXR"
+        print(f"{project} {version} is staged for release at tag <a href={url}/releases/tag/{tag}>{tag}</a> and will be released officially {date_string} barring any issues. <br><br> {html_notes}")
 
 if __name__ == "__main__":
     main()
