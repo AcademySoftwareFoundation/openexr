@@ -1065,14 +1065,14 @@ PyFile::write(const char* outfilename)
         
         Header header;
 
-        if (P.name().empty() && parts.size() > 1)
+        if (!P.name().empty())
+            header.setName (P.name());
+	else if (parts.size() > 1)
         {
             std::stringstream n;
             n << "Part" << part_index;
             header.setName (n.str());
         }
-        else
-            header.setName (P.name());
 
         //
         // Add attributes from the py::dict to the output header

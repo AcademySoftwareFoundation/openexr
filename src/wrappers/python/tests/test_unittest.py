@@ -324,6 +324,8 @@ class TestUnittest(unittest.TestCase):
             # Verify reading it back gives the same data
             with OpenEXR.File(outfilename, separate_channels=True) as infile:
                 compare_files (infile, outfile)
+                if "name" in infile.header():
+                   raise Exception(f"name attribute was added to single part half file")
 
         os.remove(outfilename)
 
