@@ -1,0 +1,60 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright (c) Contributors to the OpenEXR Project.
+#
+# Build and test on FreeBSD using a community VM action.
+# GitHub does not provide native FreeBSD runners; this uses vmactions/freebsd-vm.
+# Validates the pthread fallback in internal_thread.h (issue #2299).
+
+name: CI (FreeBSD)
+
+on:
+  push:
+    paths:
+      - '**'
+      - '!**.md'
+      - '!website/**'
+      - '!bazel/**'
+      - '!src/wrappers/**'
+      - '!.github/workflows/**'
+      - '.github/workflows/ci_freebsd.yml'
+  pull_request:
+    paths:
+      - '**'
+      - '!**.md'
+      - '!website/**'
+      - '!bazel/**'
+      - '!src/wrappers/**'
+      - '!.github/workflows/**'
+      - '.github/workflows/ci_freebsd.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  freebsd:
+    name: FreeBSD
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build and test on FreeBSD
+        uses: vmactions/freebsd-vm@4807432c7cab1c3f97688665332c0b932062d31f  # v1
+        with:
+          release: '15.0'
+          envs: GITHUB_REPOSITORY GITHUB_REF GITHUB_SHA
+          usesh: true
+          prepare: |
+            pkg install -y cmake ninja git
+          run: |
+            set -e
+            git clone --depth 1 "https://github.com/${GITHUB_REPOSITORY}.git" src
+            cd src
+            # shallow clone, only the commit that triggered the run, i.e. GITHUB_SHA
+            git fetch --depth 1 origin "${GITHUB_SHA}"
+            git checkout "${GITHUB_SHA}"
+            cmake -B _build -S . -G Ninja \
+              -DCMAKE_BUILD_TYPE=Release \
+              -DOPENEXR_FORCE_INTERNAL_IMATH=ON \
+              -DOPENEXR_FORCE_INTERNAL_DEFLATE=ON \
+              -DOPENEXR_FORCE_INTERNAL_OPENJPH=ON \
+              -DBUILD_TESTING=ON
+            cmake --build _build
+            ctest --test-dir _build --output-on-failure
