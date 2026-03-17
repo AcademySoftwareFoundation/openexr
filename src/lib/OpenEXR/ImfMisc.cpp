@@ -23,7 +23,7 @@
 #include <ImfTileDescription.h>
 #include <ImfXdr.h>
 
-#if defined(_WIN32) || defined(_WIN64)
+#ifdef _WIN32
 #    include <windows.h>
 #else
 #    include <codecvt>
@@ -2003,16 +2003,19 @@ getChunkOffsetTableSize (const Header& header)
 std::wstring
 WidenFilename (const char* filename)
 {
-#if defined(_WIN32) || defined(_WIN64)
-    if (!filename) return std::wstring ();
-    const int len = MultiByteToWideChar (
-        CP_UTF8, 0, filename, -1, nullptr, 0);
-    if (len <= 0) return std::wstring ();
-    std::wstring result (static_cast<size_t> (len - 1), 0);
-    MultiByteToWideChar (
-        CP_UTF8, 0, filename, -1, &result[0], len);
+#ifdef _WIN32
+    if (!filename)
+        return std::wstring();
+    const int len = MultiByteToWideChar(CP_UTF8, 0, filename, -1, nullptr, 0);
+    if (len <= 0)
+        return std::wstring();
+    std::wstring result(static_cast<size_t> (len - 1), 0);
+    MultiByteToWideChar(CP_UTF8, 0, filename, -1, &result[0], len);
     return result;
 #else
+    // On Linux/macOS, convert to std::wstring, although the conversion
+    // utilities are deprecated in C++17 and not yet replaced, so suppress
+    // the warnings.
 #    if defined(__GNUC__) || defined(__clang__)
 #        pragma GCC diagnostic push
 #        pragma GCC diagnostic ignored "-Wdeprecated-declarations"
