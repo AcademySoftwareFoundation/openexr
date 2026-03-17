@@ -238,6 +238,12 @@ if(EXR_DEFLATE_LIB)
   message(STATUS "Using externally provided libdeflate: ${EXR_DEFLATE_VERSION}")
   # For OpenEXR.pc.in for static build
   set(EXR_DEFLATE_PKGCONFIG_REQUIRES "libdeflate >= ${EXR_DEFLATE_VERSION}")
+  # Ensure include path is available for OpenEXRCore, in case
+  # libdeflate is not in a standard location.
+  get_target_property(EXR_DEFLATE_INCLUDE_DIRS ${EXR_DEFLATE_LIB} INTERFACE_INCLUDE_DIRECTORIES)
+  if(NOT EXR_DEFLATE_INCLUDE_DIRS AND DEFINED libdeflate_INCLUDE_DIR)
+    set(EXR_DEFLATE_INCLUDE_DIRS ${libdeflate_INCLUDE_DIR})
+  endif()
 else()
   # Using internal deflate
   if(OPENEXR_FORCE_INTERNAL_DEFLATE)
@@ -248,6 +254,7 @@ else()
 
   set (OPENEXR_USE_INTERNAL_DEFLATE ON)
   set(EXR_DEFLATE_LIB)
+  unset(EXR_DEFLATE_INCLUDE_DIRS)
 endif()
 
 
