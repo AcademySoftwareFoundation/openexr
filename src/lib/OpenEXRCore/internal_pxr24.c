@@ -257,6 +257,42 @@ internal_exr_apply_pxr24 (exr_encode_pipeline_t* encode)
 
 /**************************************/
 
+/** Byte length of the zlib payload for this chunk (packed 24-bit planes).
+ * Must match apply_pxr24_impl / undo_pxr24_impl iteration. Chunk
+ * `unpacked_size` is native pixel layout (e.g. 4 bytes/float), which is
+ * larger than this when float channels are present. */
+static uint64_t
+pxr24_packed_zlib_size (const exr_decode_pipeline_t* decode)
+{
+    uint64_t total = 0;
+
+    for (int y = 0; y < decode->chunk.height; ++y)
+    {
+        int cury = y + decode->chunk.start_y;
+
+        for (int c = 0; c < decode->channel_count; ++c)
+        {
+            const exr_coding_channel_info_t* curc = decode->channels + c;
+            int                              w    = curc->width;
+
+            if (curc->height == 0 ||
+                (curc->y_samples > 1 && (cury % curc->y_samples) != 0))
+                continue;
+
+            switch (curc->data_type)
+            {
+                case EXR_PIXEL_UINT: total += (uint64_t) w * 4; break;
+                case EXR_PIXEL_HALF: total += (uint64_t) w * 2; break;
+                case EXR_PIXEL_FLOAT: total += (uint64_t) w * 3; break;
+                default: break;
+            }
+        }
+    }
+    return total;
+}
+
+/**************************************/
+
 static exr_result_t
 undo_pxr24_impl (
     exr_decode_pipeline_t* decode,
@@ -273,6 +309,7 @@ undo_pxr24_impl (
     uint64_t       nOut   = 0;
     uint64_t       nDec   = 0;
     const uint8_t* lastIn = scratch_data;
+    uint64_t       packed_expect = pxr24_packed_zlib_size (decode);
 
     if (scratch_size < uncompressed_size) return EXR_ERR_INVALID_ARGUMENT;
 
@@ -285,6 +322,9 @@ undo_pxr24_impl (
         &outSize);
 
     if (rstat != EXR_ERR_SUCCESS) return rstat;
+
+    if ((uint64_t) outSize != packed_expect)
+        return EXR_ERR_CORRUPT_CHUNK;
 
     for (int y = 0; y < decode->chunk.height; ++y)
     {
