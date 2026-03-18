@@ -24,7 +24,7 @@ set_target_properties (PyOpenEXR PROPERTIES
 
 configure_file(Imath.py ${CMAKE_CURRENT_BINARY_DIR}/Imath.py COPYONLY)
 
-set(PYTHON_INSTALL_DIR "python/OpenEXR")
+set(PYTHON_INSTALL_DIR ${Python3_SITEARCH})
 if(SKBUILD)
   set(PYTHON_INSTALL_DIR ${SKBUILD_PLATLIB_DIR})
 endif()
