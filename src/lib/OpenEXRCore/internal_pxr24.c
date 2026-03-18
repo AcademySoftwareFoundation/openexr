@@ -286,6 +286,9 @@ undo_pxr24_impl (
 
     if (rstat != EXR_ERR_SUCCESS) return rstat;
 
+    if ((uint64_t) outSize != uncompressed_size)
+        return EXR_ERR_CORRUPT_CHUNK;
+
     for (int y = 0; y < decode->chunk.height; ++y)
     {
         int cury = y + decode->chunk.start_y;

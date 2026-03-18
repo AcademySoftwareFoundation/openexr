@@ -201,8 +201,9 @@ exr_uncompress_buffer (
         }
         else if (res == LIBDEFLATE_SHORT_OUTPUT)
         {
-            /* TODO: is this an error? */
-            return EXR_ERR_SUCCESS;
+            /* Stream ended before filling the output buffer; treat as corrupt.
+             * Otherwise callers may read uninitialized memory past actual_out. */
+            return EXR_ERR_CORRUPT_CHUNK;
         }
         return EXR_ERR_CORRUPT_CHUNK;
     }
