@@ -64,9 +64,15 @@ on:
       validate_install:
         type: string
 
+permissions:
+  contents: read
+
 jobs:
   steps:
     runs-on: ${{ inputs.os }}
+
+    permissions:
+      contents: write  # required for actions/upload-artifact
 
     container:
       image: ${{ inputs.container }}
