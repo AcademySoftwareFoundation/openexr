@@ -6,8 +6,6 @@
 #ifndef INCLUDE_TestUtilFStream_h_
 #    define INCLUDE_TestUtilFStream_h_ 1
 
-#    include <ImfMisc.h>
-
 #    include <fstream>
 #    include <string>
 
@@ -28,6 +26,18 @@
 namespace testutil
 {
 #    ifdef _WIN32
+// Convert UTF-8 filename to wide string for Windows APIs. Test-only; uses
+// MultiByteToWideChar to avoid deprecated std::codecvt_utf8.
+inline std::wstring
+WidenFilename (const char* filename)
+{
+    if (!filename || !*filename) return std::wstring ();
+    int len = MultiByteToWideChar (CP_UTF8, 0, filename, -1, nullptr, 0);
+    if (len <= 0) return std::wstring ();
+    std::wstring result (static_cast<size_t> (len) - 1, L'\0');
+    MultiByteToWideChar (CP_UTF8, 0, filename, -1, &result[0], len);
+    return result;
+}
 // This is a big work around mechanism for compiling using mingw / gcc under windows
 // until mingw 9 where they add the wide filename version of open
 #        if (                                                                  \
@@ -103,26 +113,8 @@ inline void
 OpenStreamWithUTF8Name (
     StreamType& is, const char* filename, std::ios_base::openmode mode)
 {
-
-#   ifdef _WIN32
-
-// TODO: Remove pragmas for pushing/popping deprecation warnings when WidenFilename is removed from API
-#   ifdef _MSC_VER
-#       pragma warning(push)
-#       pragma warning(disable: 4996)
-#   elif defined(__clang__) || defined(__GNUC__)
-#       pragma GCC diagnostic push
-#       pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#   endif
-
-    std::wstring wfn = OPENEXR_IMF_INTERNAL_NAMESPACE::WidenFilename (filename);
-
-#   ifdef _MSC_VER
-#       pragma warning(pop)
-#   elif defined(__clang__) || defined(__GNUC__)
-#       pragma GCC diagnostic pop
-#   endif
-
+#    ifdef _WIN32
+    std::wstring wfn = WidenFilename (filename);
 #        ifdef USE_WIDEN_FILEBUF
     using CharT   = typename StreamType::char_type;
     using TraitsT = typename StreamType::traits_type;
