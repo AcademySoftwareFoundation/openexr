@@ -250,7 +250,13 @@ testStringHelper (exr_context_t f)
     EXRCORE_TEST_RVAL (exr_attr_string_destroy (f, &s));
 
     size_t nbytes = (size_t) INT32_MAX + 1;
-    char*  tmp    = (char*) malloc (nbytes + 1);
+#if defined(__SIZEOF_SIZE_T__) && __SIZEOF_SIZE_T__ >= 8
+    char* tmp = (char*) malloc (nbytes + 1);
+#else
+    // 32-bit: nbytes+1 exceeds max object size; skip to avoid -Walloc-size-larger-than=
+    (void) nbytes; // reference nbytes to avoid unused variable warning
+    char* tmp = nullptr;
+#endif
     // might be on a low memory machine, in which case just skip the test
     if (tmp)
     {
