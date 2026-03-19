@@ -10,6 +10,8 @@
 #include "ImfNamespace.h"
 #include "OpenEXRConfigInternal.h"
 
+#include <cstdint>
+
 #include "testAttributes.h"
 #include "testBackwardCompatibility.h"
 #include "testBadTypeAttributes.h"
@@ -181,7 +183,12 @@ main (int argc, char* argv[])
     TEST (testWav, "core");
     TEST (testRgba, "basic");
     TEST (testCRgba, "basic");
+#if UINTPTR_MAX > UINT32_MAX
+    // On 32-bit machines, testLargeDataWindowOffsets() fails with integer
+    // overflow, so skip it; data windows offsets that large aren't supported
+    // on 32-bit architectures.
     TEST (testLargeDataWindowOffsets, "basic");
+#endif
     TEST (testSharedFrameBuffer, "basic");
     TEST (testRgbaThreading, "basic");
     TEST (testChannels, "basic");
