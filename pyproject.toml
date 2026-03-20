@@ -89,3 +89,6 @@ manylinux-aarch64-image = "manylinux2014"
 # Needed for full C++17 support
 [tool.cibuildwheel.macos.environment]
 MACOSX_DEPLOYMENT_TARGET = "10.15"
+# pass compilers directly to avoid Homebrew LLVM libunwind
+CMAKE_ARGS = "-DCMAKE_C_COMPILER=/usr/bin/clang -DCMAKE_CXX_COMPILER=/usr/bin/clang++"
+
