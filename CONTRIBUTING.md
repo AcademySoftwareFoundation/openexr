@@ -545,83 +545,41 @@ access on the GitHub repo.
 
 The preferred workflow is:
 
-1. Make a PR that merges appropriate changes from the main branch to
-   the release branch:
+1. Cherry-pick commits from the main branch to the release branch,
+   compose release notes, and bump the version number.
 
-   a. In a forked clone, create a branch to hold the patch commits,
-      e.g. ``v3.1.9-fixes``.
+   a. Create a new PR label for the new release, identify all PRs to
+      be included, and assign the label to them.
+   
+   b. Run `share/util/release.py cherry <tag>`. This will print the
+      SHAs for the commits associated with the labeled PRs. This will
+      print something like:
+      
+          git cherry-pick 2e32c6b # Bump actions/cache from 5.0.3 to 5.0.4 (#2311)
+          git cherry-pick 3df0122 # Pin pypa/cibuildwheel actions to release sha (#2294)
+          git cherry-pick 6155271 # Force macos cibuildwheel to use Xcode clang (#2315)
 
-   b. Cherry-pick the appropriate commits from ``main``, resolving any
-      merge conflicts.
+   c. Cherry-pick the commits (copy & execute output from `release.py`):
 
-   c. Increment ``OPENEXR_VERSION_PATCH`` in
-      [src/lib/OpenEXRCore/openexr_version.h](src/lib/OpenEXRCore/openexr_version.h)
+          git checkout RB-3.4
+          git cherry-pick 2e32c6b
+          git cherry-pick 3df0122
+          git cherry-pick 6155271
 
-   d. Update the ``IMATH_TAG`` setting in
-      [cmake/OpenEXRSetup.cmake](cmake/OpenEXRSetup.cmake) to
-      correspond to the proper Imath release.
+   d. Run `share/util/release.py changes <tag> <pr>`. This will add a
+      new section to `CHANGES.md` and add an entry to the PR list.
+   
+   e. Edit `CHANGES.md` and compose a release notes summary. Commit
+      this change.
 
-   e. Add release notes to [CHANGES.md](CHANGES.md):
+   f. Bump the version number in
+      `src/lib/OpenEXRCore/openexr_version.h`. Commit this change.
 
-      - Generate a list of links to merged pull requests.
-
-        Use ``git log`` to identify the merged commits, and for each
-        commit, and add a link in the notes to the corresponding PR
-        that merged it to ``main``. Citing PR's in the release notes
-        is preferable to citing raw commits because the PR's often
-        have helpful information and discussion missing from the
-        commit descriptions, and the commit history is readily
-        accessible via ``git log`` anyway.
-
-        The typical OpenEXR project workflow uses "squash and merge"
-        to merge PR's into ``main``, so the changes involved in each
-        PR end up on ``main`` as a single commit. This is preferable
-        because a raw PR often includes numerous commits that address
-        comments and feedback or fix typos or mistakes, intermediate
-        steps not helpful to the preserved history of the main
-        development thread. Note that GitHub's "squash and merge"
-        helpfully appends the PR number to the commit subject line.
-
-        Note that when this PR is merged to the release branch, it
-        should go in via "rebase and merge" that the release branch
-        retains the granular changes, described below.
-
-      - Generate a list of OSS-Fuzz issues addressed.
-
-        These are security concerns, so they deserve special
-        attention. Provide a link in the notes to the issue at
-        https://bugs.chromium.org/p/oss-fuzz, including the issue id
-        number and description.
-
-      - If there are any public CVE's, mention them explicitly with a
-        link to the CVE registry item.
-
-      - Provide an executive summary of the patch changes, in a few
-        sentences as well as bullet points if appropriate.
-
-      - Choose a proposed release date at least several days in
-        advance.
-
-   f. If there are any public CVE's, reference them in
-      [SECURITY.md](SECURITY.md).
-
-   g. Submit the PR for others to review. The PR should go *to the
-      release branch, not ``main``*, obviously.
-
-   h. After others have had a chance to sanity-check the changes,
-      merge the PR *with "rebase and merge"*.  Unlike with the usual
-      PR's merged to main, it is essential to retain the individual
-      commits on the release branch. That way, the release branch
-      commit history retains the details of the changes.
-
-   i. If further fixes come in that need to go into the release, push
-      them to the PR branch. It's not absolutely essential that all
-      changes to the release branch go in via a PR. The PR is simply a
-      convenient forum for publicly discussing and reviewing the
-      composition of the release.
-
+   g. Push the release branch and confirm the CI passes.
+   
 2. Tag the release with a ``-rc`` "release candidate" tag,
-   e.g. ``v3.1.9-rc``.
+   e.g. ``v3.1.9-rc``.  Push the tag via `git push --tags`. This will
+   trigger the release candidate workflow.
 
 3. Validate ABI compatibility. Build at the release candidate tag and
    run
@@ -635,15 +593,13 @@ The preferred workflow is:
    of the release with link to the release candidate tag. Include the
    release notes from [CHANGES.md](CHANGES.md) for review.
 
-5. Draft the release on the GitHub
+5. Draft the release via:
+
+        share/util/release.py draft <tag>
+       
+   Verify the notes look correct on the
    [Releases](https://github.com/AcademySoftwareFoundation/openexr/releases)
-   page.  Include the summary from the notes in
-   [CHANGES.md](CHANGES.md), but don't include the list of PR's.
-
-   Create the release from the latest ``--rc`` tag, and give it a name
-   that begins with ``v``, i.e. ``v3.1.9``.
-
-   Save the release as a "draft".
+   page and edit as appropriate. Save as a "draft".
 
 6. Wait at least 48 hours, to give the community time to discover and
    report any obvious problems. Avoid the temptation to rush changes
@@ -652,13 +608,12 @@ The preferred workflow is:
 
    If additional fixes need to go in before release:
 
-   a. Merge commits to the release branch. Push them directly, no need
-      for a pull request.
+   a. Merge commits to the release branch. Push them directly.
 
    b. Update the release notes in a separate commit.
 
    c. Re-tag with a incremented "release candidate" number,
-      e.g. ``v3.1.9-rc2``.  
+      e.g. ``v3.1.9-rc2``.
 
    d. Send an email update to ``openexr-dev@lists.aswf.io`` notifying
       the community of the addition and the new tag.
@@ -677,9 +632,12 @@ The preferred workflow is:
 
 8. Publish the release
 
-   a. Click the "Publish release" button on the GitHub release draft
+   a. Set the release to correspond to the latest release candidate
+      tag.
+   
+   b. Click the "Publish release" button on the GitHub release draft
 
-   b. Send an email to ``openexr-dev@lists.aswf.io`` officially
+   c. Send an email to ``openexr-dev@lists.aswf.io`` officially
       announcing the release.
 
 9. Update the ``release`` branch, which should always point to the
