@@ -319,7 +319,8 @@ undo_pxr24_impl (
                     ptr[3] = lastIn;
                     lastIn += w;
 
-                    if (nDec + nBytes > outSize) return EXR_ERR_CORRUPT_CHUNK;
+                    if (nDec + nBytes > outSize)
+                        return EXR_ERR_CORRUPT_CHUNK;
 
                     for (int x = 0; x < w; ++x)
                     {
@@ -345,7 +346,8 @@ undo_pxr24_impl (
                     ptr[1] = lastIn;
                     lastIn += w;
 
-                    if (nDec + nBytes > outSize) return EXR_ERR_CORRUPT_CHUNK;
+                    if (nDec + nBytes > outSize)
+                        return EXR_ERR_CORRUPT_CHUNK;
 
                     for (int x = 0; x < w; ++x)
                     {
