@@ -185,7 +185,11 @@ exr_uncompress_buffer (
         }
         else if (res == LIBDEFLATE_SHORT_OUTPUT)
         {
-            /* TODO: is this an error? */
+            /* Decompression succeeded; *actual_out is the byte count. This is
+             * not an error when out_bytes_avail exceeds the true uncompressed
+             * size (e.g. PXR24/ZIP use padded scratch buffers). Callers that
+             * need an exact payload size must compare *actual_out (see e.g.
+             * undo_pxr24_impl). */
             return EXR_ERR_SUCCESS;
         }
         return EXR_ERR_CORRUPT_CHUNK;
