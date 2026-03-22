@@ -10,7 +10,6 @@
 #include <ImfArray.h>
 #include <ImfCompressor.h>
 #include <ImfInputPart.h>
-#include <ImfMisc.h>
 #include <ImfMultiPartInputFile.h>
 #include <ImfMultiPartOutputFile.h>
 #include <ImfOutputPart.h>
@@ -127,7 +126,7 @@ MMIFStream::MMIFStream (const char fileName[])
     , _length (0)
 {
 #ifdef _WIN32
-    const std::wstring fileNameWide = WidenFilename (fileName);
+    const std::wstring fileNameWide = testutil::WidenFilename (fileName);
     try
     {
         _f = CreateFileW (
@@ -1093,7 +1092,7 @@ testExistingStreamsUTF8 (const std::string& tempDir)
     {
         cout << "writing";
 #ifdef _WIN32
-        _wremove (WidenFilename (outfn.c_str ()).c_str ());
+        _wremove (testutil::WidenFilename (outfn.c_str ()).c_str ());
 #else
         remove (outfn.c_str ());
 #endif
@@ -1144,7 +1143,7 @@ testExistingStreamsUTF8 (const std::string& tempDir)
     cout << endl;
 
 #ifdef _WIN32
-    _wremove (WidenFilename (outfn.c_str ()).c_str ());
+    _wremove (testutil::WidenFilename (outfn.c_str ()).c_str ());
 #else
     remove (outfn.c_str ());
 #endif
