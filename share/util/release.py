@@ -9,8 +9,8 @@
 # `release.py draft <tag>` - create a draft release on GitHub
 # `release.py candidate <tag>` - format a message about the upcoming release, print to stdout
 # `release.py cherry <label>` - list merged PRs with the given label, print cherry-pick lines (oldest merge first)
-# `release.py changes <tag> <pr#>` - preview CHANGES.md update for a merged PR (prints to stdout)
-
+# `release.py changes <tag> [pr#> ... ]` - add section to CHANGES.md with given PRs
+# `release.py log` - print a `git log` annotated with the labels from each commit's associated PR, if there is one.
 #
 # The file `CHANGES.md` is assumed to old the release notes. When
 # preparing a release, edit this file by hand to add a description of
