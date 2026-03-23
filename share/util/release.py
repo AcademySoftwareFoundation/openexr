@@ -187,11 +187,14 @@ def cmd_cherry(label):
 
     merged.sort(key=lambda x: x[0])
 
+    changes_prs = []
     for _merged_at, oid, title, id in merged:
         abbrev = oid[:7]
         title_one_line = " ".join(title.split())
         print(f"git cherry-pick {abbrev} # {title_one_line} (#{id})")
+        changes_prs += f" {id}" 
 
+    print(f"share/util/release.py changes {label} {changes_prs}")
 
 def prev_patch_version(base_tag):
     """
@@ -310,7 +313,7 @@ def parse_section(lines):
     return heading, merged_prs, merged_workflow_prs
 
 
-def cmd_changes(tag, pr_number):
+def cmd_changes(tag, prs):
     """
     Add a section to CHANGES.md for the given release if one doesn't already exist, and add the given PR 
     to the list if it's not already there.
@@ -381,21 +384,22 @@ def cmd_changes(tag, pr_number):
             prev_toc = i
             break
 
-    # Format the list entry for the new PR:
+    # Format the list entry for each new PR:
     # * [number](url)
     # title
-    info = gh_pr_view(pr_number)
-    title = info.get("title") or ""
-    author = (info.get("author") or {}).get("login") or ""
-    is_workflow = "dependabot" in author
-    url = get_repo_url()
-    title_one_line = " ".join(title.split())
-    pr_block = f"* [{pr_number}]({url}/pull/{pr_number})\n{title_one_line}"
-    # Add it to the appropriate section
-    if is_workflow:
-        merged_workflow_prs[pr_number] = pr_block
-    else:
-        merged_prs[pr_number] = pr_block
+    for pr_number in prs:
+        info = gh_pr_view(pr_number)
+        title = info.get("title") or ""
+        author = (info.get("author") or {}).get("login") or ""
+        is_workflow = "dependabot" in author
+        url = get_repo_url()
+        title_one_line = " ".join(title.split())
+        pr_block = f"* [{pr_number}]({url}/pull/{pr_number})\n{title_one_line}"
+        # Add it to the appropriate section
+        if is_workflow:
+            merged_workflow_prs[pr_number] = pr_block
+        else:
+            merged_prs[pr_number] = pr_block
 
     with open("CHANGES.md", "w", encoding="utf-8", newline="\n") as f:
         if toc is None:
@@ -497,7 +501,72 @@ def convert_to_html(release_notes):
     html_content = f"<h2>Release Notes</h2><p>{notes}</p>"
     return html_content
 
+def pr_labels(line):
+    """line is from `git log --pretty:format='%h %s'`, so for
+    squash/merge commits, it ends in (#<pr>).
+
+    Return the release-related labels for the identified PR, i.e.
+    labels of the form 'v<major>.<minor>.<patch>'
+    """
+
+    LOG_PR_SUFFIX_RE = re.compile(r"\(#(\d+)\)\s*$")
+    m = LOG_PR_SUFFIX_RE.search(line)
+    if not m:
+        return ""
+    pr_number = m.group(1)
+    result = run(
+        ["gh", "pr", "view", pr_number, "--json", "labels"],
+        stdout=PIPE,
+        stderr=PIPE,
+        universal_newlines=True,
+        check=False,
+    )
+    if result.returncode != 0:
+        return ""
+    try:
+        data = json.loads(result.stdout or "{}")
+    except json.JSONDecodeError:
+        return ""
+    out = []
+    for lab in data.get("labels") or []:
+        name = lab.get("name") or ""
+        if name.startswith("v"):
+            out.append(name)
+    return " ".join(out)
+
+def cmd_log():
+    """
+    Run ``git log`` and print commits annotated with the release labels for the associated PRs
+    """
+
+    # Output looks like:
+    # v3.4.7  3978976a Bump pypa/cibuildwheel from 3.3 to 3.4 (#2287)
+    #         b19cfec2 Bump github/codeql-action from 4.32.4 to 4.32.5 (#2286)
+    # v3.4.7  50ea61bd Fix build failure with glibc 2.43 due to C11 threads.h conflicts (#2262)
+
+    result = run(
+        ["git", "log", "--pretty=format:%h %s"],
+        stdout=PIPE,
+        stderr=PIPE,
+        universal_newlines=True,
+        check=False,
+    )
+    if result.returncode != 0:
+        sys.stderr.write(result.stderr or "git log failed\n")
+        sys.exit(1)
+
+    for line in result.stdout.splitlines():
+        l = pr_labels(line)
+        print(f"{l:7} {line}")
+
 def main():
+
+    if len(sys.argv) > 1:
+        action = sys.argv[1]
+        if action == "log":
+            cmd_log()
+            return
+
     if len(sys.argv) < 2:
         print(
             "Usage: python release.py "
@@ -527,12 +596,8 @@ def main():
             )
             sys.exit(1)
         tag = sys.argv[2]
-        try:
-            pr_number = int(sys.argv[3])
-        except ValueError:
-            print("PR number must be an integer.", file=sys.stderr)
-            sys.exit(1)
-        cmd_changes(tag, pr_number)
+        prs = sys.argv[3:]
+        cmd_changes(tag, prs)
         return
 
     if len(sys.argv) < 3:
