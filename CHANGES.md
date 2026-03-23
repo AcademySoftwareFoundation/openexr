@@ -3,6 +3,7 @@
 
 # OpenEXR Release Notes
 
+* [Version 3.4.8](#version-348-march-26-2026) March 26, 2026
 * [Version 3.4.7](#version-347-march-15-2026) March 15, 2026
 * [Version 3.4.6](#version-346-march-1-2026) March 1, 2026
 * [Version 3.4.5](#version-345-february-21-2026) February 21, 2026
@@ -90,6 +91,54 @@
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
 
+## Version 3.4.8 (March 26, 2026)
+
+Patch release with several bug/build fixes:
+
+- Fix an integer-overflow bug reading malformed files compressed with
+  B44A/B44B 
+- Fix a buffer-overrun bug reading malformed files compressed with PXR24
+- Fix a bug compressing half data with ZIPS/ZIP data when the
+  compressed size equals packed size
+- Single part files no longer get assigned a part name when writing
+  via the python module
+- Fix a build failure on FreeBSD involving `threads.h`
+
+This also eliminates several compiler warnings, particularly about the
+deprecated `isOptimizationEnabled()` API and deprecates standard
+attributes. 
+
+### Merged Pull Requests
+
+* [2312](https://github.com/AcademySoftwareFoundation/openexr/pull/2312)
+Fix B44/B44A integer overflow: use uint64_t for row offset
+* [2310](https://github.com/AcademySoftwareFoundation/openexr/pull/2310)
+PXR24: reject zlib output that does not match packed payload size
+* [2307](https://github.com/AcademySoftwareFoundation/openexr/pull/2307)
+Fix ZIPS/ZIP encoder corruption when compressed size equals packed size
+* [2303](https://github.com/AcademySoftwareFoundation/openexr/pull/2303)
+Fix MinGW -Walloc-size-larger-than= in general_attr string test
+* [2301](https://github.com/AcademySoftwareFoundation/openexr/pull/2301)
+don't insert name attributes into single part files
+* [2300](https://github.com/AcademySoftwareFoundation/openexr/pull/2300)
+Fix FreeBSD build failure involving threads.h, and add FreeBSD CI build
+* [2124](https://github.com/AcademySoftwareFoundation/openexr/pull/2124)
+Suppress deprecation warnings for isOptimizationEnabled and standard attributes
+
+### Merged Workflow Pull Requests
+
+* [2315](https://github.com/AcademySoftwareFoundation/openexr/pull/2315)
+Force macos cibuildwheel to use Xcode clang
+* [2311](https://github.com/AcademySoftwareFoundation/openexr/pull/2311)
+Bump actions/cache from 5.0.3 to 5.0.4
+* [2304](https://github.com/AcademySoftwareFoundation/openexr/pull/2304)
+Bump github/codeql-action from 4.32.6 to 4.33.0
+* [2297](https://github.com/AcademySoftwareFoundation/openexr/pull/2297)
+Restore Analysis build
+* [2295](https://github.com/AcademySoftwareFoundation/openexr/pull/2295)
+Restrict workflow permissions for ci_steps, release-sign, and codeql
+* [2294](https://github.com/AcademySoftwareFoundation/openexr/pull/2294)
+Pin pypa/cibuildwheel actions to release sha
 
 ## Version 3.4.7 (March 15, 2026)
 
