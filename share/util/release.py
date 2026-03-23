@@ -312,7 +312,18 @@ def parse_section(lines):
 
     return heading, merged_prs, merged_workflow_prs
 
-
+def pr_is_workflow_only(pr_number: int) -> bool:
+    """Return True if every file changed by the PR is under .github/workflows/."""
+    result = run(
+        ["gh", "pr", "view", str(pr_number), "--json", "files",
+         "--jq", "[.files[].path]"],
+        stdout=PIPE, stderr=PIPE, universal_newlines=True, check=False,
+    )
+    if result.returncode != 0:
+        sys.stderr.write(result.stderr or "gh pr view failed\n")
+        sys.exit(1)
+    paths = json.loads(result.stdout or "[]")
+    return bool(paths) and all(p.startswith(".github/workflows/") for p in paths)
 def cmd_changes(tag, prs):
     """
     Add a section to CHANGES.md for the given release if one doesn't already exist, and add the given PR 
@@ -391,7 +402,7 @@ def cmd_changes(tag, prs):
         info = gh_pr_view(pr_number)
         title = info.get("title") or ""
         author = (info.get("author") or {}).get("login") or ""
-        is_workflow = "dependabot" in author
+        is_workflow = "dependabot" in author or pr_is_workflow_only(pr_number)
         url = get_repo_url()
         title_one_line = " ".join(title.split())
         pr_block = f"* [{pr_number}]({url}/pull/{pr_number})\n{title_one_line}"
