@@ -548,26 +548,56 @@ The preferred workflow is:
 1. Cherry-pick commits from the main branch to the release branch,
    compose release notes, and bump the version number.
 
-   a. Create a new PR label for the new release, identify all PRs to
-      be included, and assign the label to them.
+   a. Create a new PR label for the new release (on the GitHub "Pull
+      Request" page), identify all PRs to be included, and assign the
+      label to them.  Run:
+
+          % share/util/release.py log
+
+      to print recent commits and their associated PRs and release
+      labels. The best practice is to ensure that every PR is labeled
+      with the release it should go into, even if that is the next
+      major release.
    
-   b. Run `share/util/release.py cherry <tag>`. This will print the
-      SHAs for the commits associated with the labeled PRs. This will
-      print something like:
+      Note that this relies on the commit message having the PR number
+      appended to the end, which GitHub adds on "Squash and
+      merge". PRs merged via "Rebase and merge" do *not* get this PR
+      number, which leaves you to manually decipher the PRs to report
+      in the release notes. Our project policy is to "Squash and
+      merge" whenever possible, unless the PR's individual commits
+      really do need to be preserved in the history.
+
+   b. Identify the main branch commits to cherry pick to the release
+      branch:
+   
+          % share/util/release.py cherry <tag>
+
+      This will print the SHAs for the commits associated with the
+      labeled PRs. The output will look something like:
       
           git cherry-pick 2e32c6b # Bump actions/cache from 5.0.3 to 5.0.4 (#2311)
           git cherry-pick 3df0122 # Pin pypa/cibuildwheel actions to release sha (#2294)
           git cherry-pick 6155271 # Force macos cibuildwheel to use Xcode clang (#2315)
+          share/util/release.py changes v3.4.8 2311 2294 2315
+          
+   c. Cherry-pick the commits (copy & execute output from `release.py cherry`):
 
-   c. Cherry-pick the commits (copy & execute output from `release.py`):
+          % git checkout RB-3.4
+          % git cherry-pick 2e32c6b
+          % git cherry-pick 3df0122
+          % git cherry-pick 6155271
 
-          git checkout RB-3.4
-          git cherry-pick 2e32c6b
-          git cherry-pick 3df0122
-          git cherry-pick 6155271
+      This may involve resolving conflicts along the way. Confirm the
+      updated branch builds successfully.
 
-   d. Run `share/util/release.py changes <tag> <pr>`. This will add a
-      new section to `CHANGES.md` and add an entry to the PR list.
+   d. Create a new section in the `CHANGES.md` release notes file:
+   
+          % share/util/release.py changes <tag> <pr list>
+
+      This is the command as printed at the end of the output of the
+      "cherry" command. This will add a new section to `CHANGES.md`
+      and add entries to the PR lists. Run this from the release
+      branch, since it's preparing a commit for there.
    
    e. Edit `CHANGES.md` and compose a release notes summary. Commit
       this change.
@@ -593,9 +623,9 @@ The preferred workflow is:
    of the release with link to the release candidate tag. Include the
    release notes from [CHANGES.md](CHANGES.md) for review.
 
-5. Draft the release via:
+5. Draft the GitHub release via:
 
-        share/util/release.py draft <tag>
+        % share/util/release.py draft <tag>
        
    Verify the notes look correct on the
    [Releases](https://github.com/AcademySoftwareFoundation/openexr/releases)
@@ -626,9 +656,13 @@ The preferred workflow is:
       [registered](https://docs.github.com/en/authentication/managing-commit-signature-verification/telling-git-about-your-signing-key)
       with your GitHub account and git config.
 
-   b. Create a signed tag with the release name via `git tag -s v3.1.9`.
+   b. Create a signed tag with the release name via:
+   
+          git tag -s v3.1.9
 
-   c. Push the tag via `git push --tags`
+   c. Push the tag via:
+
+          git push --tags
 
 8. Publish the release
 
@@ -646,9 +680,9 @@ The preferred workflow is:
 
    From a clone of the main repo:
 
-       % git checkout release
-       % git merge RB-3.1
-       % git push
+        % git checkout release
+        % git merge RB-3.1
+        % git push
          
 10. Submit a PR that adds the release notes to [CHANGES.md](CHANGES.md)
     on the main branch. Cherry-pick the release notes commit from
@@ -658,18 +692,25 @@ The preferred workflow is:
       the associated commit as well.
 
     - Also include in this PR edits to [``website/news.rst``](website/news.rst)
-      that add an announcement of the release.
+      that add an announcement of the release:
 
-11. After review/merge of the updates to ``website/news.rst``, build the
-    website at https://readthedocs.org/projects/openexr.
+            share/util/release.py news v3.4.8
 
+      This will edit the website source files to add the news item.
+
+    - Get the PR approved and merged promptly so the news item appears
+      on the website. The website rebuilds automatically at
+      https://readthedocs.org/projects/openexr on changes to the main
+      branch, so no action is required.
+      
 12. If the release has resolved any OSS-Fuzz issues, update the
     associated pages at https://bugs.chromium.org/p/oss-fuzz with a
     reference to the release.
 
-13. If the release has resolved any public CVE's, request an update
+13. If the release has resolved any public CVEs, request an update
     from the registry service providing the release and a link to the
-    release notes.
+    release notes.  Add a reference to resolved public CVEs to
+    `SECURITY.md` and submit as a PR.
 
 ## Creating a Major/Minor Release
 

@@ -187,7 +187,7 @@ def cmd_cherry(label):
 
     merged.sort(key=lambda x: x[0])
 
-    changes_prs = []
+    changes_prs = ""
     for _merged_at, oid, title, id in merged:
         abbrev = oid[:7]
         title_one_line = " ".join(title.split())
