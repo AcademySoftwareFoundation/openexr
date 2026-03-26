@@ -56,6 +56,8 @@ permissions:
 jobs:
   linux:
     name: 'Linux.${{ matrix.build}}: ${{ matrix.label }}'
+    permissions:
+      contents: write  # required by ci_steps (upload-artifact)
     uses: ./.github/workflows/ci_steps.yml
     with:
       # Set values for the "inputs:" as defined in ci_steps.yml
@@ -159,6 +161,8 @@ jobs:
 
   macOS:
     name: 'macOS.${{ matrix.build}}: ${{ matrix.label }}'
+    permissions:
+      contents: write  # required by ci_steps (upload-artifact)
     uses: ./.github/workflows/ci_steps.yml
     with:
       # Set values for the "inputs:" as defined in ci_steps.yml
@@ -243,6 +247,8 @@ jobs:
 
   windows:
     name: 'Windows.${{ matrix.build}}: ${{ matrix.label }}'
+    permissions:
+      contents: write  # required by ci_steps (upload-artifact)
     uses: ./.github/workflows/ci_steps.yml
     with:
       # Set values for the "inputs:" as defined in ci_steps.yml
