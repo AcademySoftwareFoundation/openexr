@@ -224,7 +224,7 @@ unpack_16bit_3chan_interleave (exr_decode_pipeline_t* decode)
      * not actually using y in the loop, so just pre-increment
      * the srcbuffer for any skip
      */
-    srcbuffer += decode->user_line_begin_skip * w * 6;
+    srcbuffer += (int64_t) decode->user_line_begin_skip * w * 6;
 
     /* interleaving case, we can do this! */
     for (int y = decode->user_line_begin_skip; y < h; ++y)
@@ -235,7 +235,7 @@ unpack_16bit_3chan_interleave (exr_decode_pipeline_t* decode)
         in1 = in0 + w;
         in2 = in1 + w;
 
-        srcbuffer += w * 6; // 3 * sizeof(uint16_t), avoid type conversion
+        srcbuffer += (int64_t) w * 6; // 3 * sizeof(uint16_t), avoid type conversion
         for (int x = 0; x < w; ++x)
         {
             out[0] = one_to_native16 (in0[x]);
@@ -270,7 +270,7 @@ unpack_16bit_3chan_interleave_rev (exr_decode_pipeline_t* decode)
      * not actually using y in the loop, so just pre-increment
      * the srcbuffer for any skip
      */
-    srcbuffer += decode->user_line_begin_skip * w * 6;
+    srcbuffer += (int64_t) decode->user_line_begin_skip * w * 6;
 
     /* interleaving case, we can do this! */
     for (int y = decode->user_line_begin_skip; y < h; ++y)
@@ -281,7 +281,7 @@ unpack_16bit_3chan_interleave_rev (exr_decode_pipeline_t* decode)
         in1 = in0 + w;                     // G
         in2 = in1 + w;                     // R
 
-        srcbuffer += w * 6; // 3 * sizeof(uint16_t), avoid type conversion
+        srcbuffer += (int64_t) w * 6; // 3 * sizeof(uint16_t), avoid type conversion
         for (int x = 0; x < w; ++x)
         {
             out[0] = one_to_native16 (in2[x]);
@@ -316,7 +316,7 @@ unpack_half_to_float_3chan_interleave (exr_decode_pipeline_t* decode)
      * not actually using y in the loop, so just pre-increment
      * the srcbuffer for any skip
      */
-    srcbuffer += decode->user_line_begin_skip * w * 6;
+    srcbuffer += (int64_t) decode->user_line_begin_skip * w * 6;
 
     /* interleaving case, we can do this! */
     for (int y = decode->user_line_begin_skip; y < h; ++y)
@@ -327,7 +327,7 @@ unpack_half_to_float_3chan_interleave (exr_decode_pipeline_t* decode)
         in1 = in0 + w;
         in2 = in1 + w;
 
-        srcbuffer += w * 6; // 3 * sizeof(uint16_t), avoid type conversion
+        srcbuffer += (int64_t) w * 6; // 3 * sizeof(uint16_t), avoid type conversion
         for (int x = 0; x < w; ++x)
         {
             out[0] = half_to_float (one_to_native16 (in0[x]));
@@ -362,7 +362,7 @@ unpack_half_to_float_3chan_interleave_rev (exr_decode_pipeline_t* decode)
      * not actually using y in the loop, so just pre-increment
      * the srcbuffer for any skip
      */
-    srcbuffer += decode->user_line_begin_skip * w * 6;
+    srcbuffer += (int64_t) decode->user_line_begin_skip * w * 6;
 
     /* interleaving case, we can do this! */
     for (int y = decode->user_line_begin_skip; y < h; ++y)
@@ -373,7 +373,7 @@ unpack_half_to_float_3chan_interleave_rev (exr_decode_pipeline_t* decode)
         in1 = in0 + w;
         in2 = in1 + w;
 
-        srcbuffer += w * 6; // 3 * sizeof(uint16_t), avoid type conversion
+        srcbuffer += (int64_t) w * 6; // 3 * sizeof(uint16_t), avoid type conversion
         for (int x = 0; x < w; ++x)
         {
             out[0] = half_to_float (one_to_native16 (in2[x]));
@@ -412,7 +412,7 @@ unpack_16bit_3chan_planar (exr_decode_pipeline_t* decode)
      * not actually using y in the loop, so just pre-increment
      * the srcbuffer for any skip
      */
-    srcbuffer += decode->user_line_begin_skip * w * 6;
+    srcbuffer += (int64_t) decode->user_line_begin_skip * w * 6;
 
     // planar output
     for (int y = decode->user_line_begin_skip; y < h; ++y)
@@ -420,7 +420,7 @@ unpack_16bit_3chan_planar (exr_decode_pipeline_t* decode)
         in0 = (const uint16_t*) srcbuffer;
         in1 = in0 + w;
         in2 = in1 + w;
-        srcbuffer += w * 6; // 3 * sizeof(uint16_t), avoid type conversion
+        srcbuffer += (int64_t) w * 6; // 3 * sizeof(uint16_t), avoid type conversion
                             /* specialise to memcpy if we can */
 #if EXR_HOST_IS_NOT_LITTLE_ENDIAN
         for (int x = 0; x < w; ++x)
@@ -468,7 +468,7 @@ unpack_half_to_float_3chan_planar (exr_decode_pipeline_t* decode)
      * not actually using y in the loop, so just pre-increment
      * the srcbuffer for any skip
      */
-    srcbuffer += decode->user_line_begin_skip * w * 6;
+    srcbuffer += (int64_t) decode->user_line_begin_skip * w * 6;
 
     // planar output
     for (int y = decode->user_line_begin_skip; y < h; ++y)
@@ -476,7 +476,7 @@ unpack_half_to_float_3chan_planar (exr_decode_pipeline_t* decode)
         in0 = (const uint16_t*) srcbuffer;
         in1 = in0 + w;
         in2 = in1 + w;
-        srcbuffer += w * 6; // 3 * sizeof(uint16_t), avoid type conversion
+        srcbuffer += (int64_t) w * 6; // 3 * sizeof(uint16_t), avoid type conversion
                             /* specialise to memcpy if we can */
         half_to_float_buffer ((float*) out0, in0, w);
         half_to_float_buffer ((float*) out1, in1, w);
@@ -520,14 +520,14 @@ unpack_16bit_3chan (exr_decode_pipeline_t* decode)
      * not actually using y in the loop, so just pre-increment
      * the srcbuffer for any skip
      */
-    srcbuffer += decode->user_line_begin_skip * w * 6;
+    srcbuffer += (int64_t) decode->user_line_begin_skip * w * 6;
 
     for (int y = decode->user_line_begin_skip; y < h; ++y)
     {
         in0 = (const uint16_t*) srcbuffer;
         in1 = in0 + w;
         in2 = in1 + w;
-        srcbuffer += w * 6; // 3 * sizeof(uint16_t), avoid type conversion
+        srcbuffer += (int64_t) w * 6; // 3 * sizeof(uint16_t), avoid type conversion
         for (int x = 0; x < w; ++x)
             *((uint16_t*) (out0 + x * inc0)) = one_to_native16 (in0[x]);
         for (int x = 0; x < w; ++x)
@@ -576,7 +576,7 @@ unpack_16bit_4chan_interleave (exr_decode_pipeline_t* decode)
      * not actually using y in the loop, so just pre-increment
      * the srcbuffer for any skip
      */
-    srcbuffer += decode->user_line_begin_skip * w * 8;
+    srcbuffer += (int64_t) decode->user_line_begin_skip * w * 8;
 
     /* interleaving case, we can do this! */
     for (int y = decode->user_line_begin_skip; y < h; ++y)
@@ -587,7 +587,7 @@ unpack_16bit_4chan_interleave (exr_decode_pipeline_t* decode)
         in2              = in1 + w;
         in3              = in2 + w;
 
-        srcbuffer += w * 8; // 4 * sizeof(uint16_t), avoid type conversion
+        srcbuffer += (int64_t) w * 8; // 4 * sizeof(uint16_t), avoid type conversion
         for (int x = 0; x < w; ++x)
         {
             combined.a = one_to_native16 (in0[x]);
@@ -635,7 +635,7 @@ unpack_16bit_4chan_interleave_rev (exr_decode_pipeline_t* decode)
      * not actually using y in the loop, so just pre-increment
      * the srcbuffer for any skip
      */
-    srcbuffer += decode->user_line_begin_skip * w * 8;
+    srcbuffer += (int64_t) decode->user_line_begin_skip * w * 8;
 
     /* interleaving case, we can do this! */
     for (int y = decode->user_line_begin_skip; y < h; ++y)
@@ -646,7 +646,7 @@ unpack_16bit_4chan_interleave_rev (exr_decode_pipeline_t* decode)
         in2              = in1 + w;
         in3              = in2 + w;
 
-        srcbuffer += w * 8; // 4 * sizeof(uint16_t), avoid type conversion
+        srcbuffer += (int64_t) w * 8; // 4 * sizeof(uint16_t), avoid type conversion
         for (int x = 0; x < w; ++x)
         {
             combined.a = one_to_native16 (in0[x]);
@@ -682,7 +682,7 @@ unpack_half_to_float_4chan_interleave (exr_decode_pipeline_t* decode)
      * not actually using y in the loop, so just pre-increment
      * the srcbuffer for any skip
      */
-    srcbuffer += decode->user_line_begin_skip * w * 8;
+    srcbuffer += (int64_t) decode->user_line_begin_skip * w * 8;
 
     /* interleaving case, we can do this! */
     for (int y = decode->user_line_begin_skip; y < h; ++y)
@@ -693,7 +693,7 @@ unpack_half_to_float_4chan_interleave (exr_decode_pipeline_t* decode)
         in2        = in1 + w;
         in3        = in2 + w;
 
-        srcbuffer += w * 8; // 4 * sizeof(uint16_t), avoid type conversion
+        srcbuffer += (int64_t) w * 8; // 4 * sizeof(uint16_t), avoid type conversion
         for (int x = 0; x < w; ++x)
         {
             out[0] = half_to_float (one_to_native16 (in0[x]));
@@ -729,7 +729,7 @@ unpack_half_to_float_4chan_interleave_rev (exr_decode_pipeline_t* decode)
      * not actually using y in the loop, so just pre-increment
      * the srcbuffer for any skip
      */
-    srcbuffer += decode->user_line_begin_skip * w * 8;
+    srcbuffer += (int64_t) decode->user_line_begin_skip * w * 8;
 
     /* interleaving case, we can do this! */
     for (int y = decode->user_line_begin_skip; y < h; ++y)
@@ -740,7 +740,7 @@ unpack_half_to_float_4chan_interleave_rev (exr_decode_pipeline_t* decode)
         in2        = in1 + w;
         in3        = in2 + w;
 
-        srcbuffer += w * 8; // 4 * sizeof(uint16_t), avoid type conversion
+        srcbuffer += (int64_t) w * 8; // 4 * sizeof(uint16_t), avoid type conversion
         for (int x = 0; x < w; ++x)
         {
             out[0] = half_to_float (one_to_native16 (in3[x]));
@@ -782,7 +782,7 @@ unpack_16bit_4chan_planar (exr_decode_pipeline_t* decode)
      * not actually using y in the loop, so just pre-increment
      * the srcbuffer for any skip
      */
-    srcbuffer += decode->user_line_begin_skip * w * 8;
+    srcbuffer += (int64_t) decode->user_line_begin_skip * w * 8;
 
     // planar output
     for (int y = decode->user_line_begin_skip; y < h; ++y)
@@ -791,7 +791,7 @@ unpack_16bit_4chan_planar (exr_decode_pipeline_t* decode)
         in1 = in0 + w;
         in2 = in1 + w;
         in3 = in2 + w;
-        srcbuffer += w * 8; // 4 * sizeof(uint16_t), avoid type conversion
+        srcbuffer += (int64_t) w * 8; // 4 * sizeof(uint16_t), avoid type conversion
                             /* specialize to memcpy if we can */
 #if EXR_HOST_IS_NOT_LITTLE_ENDIAN
         for (int x = 0; x < w; ++x)
@@ -844,7 +844,7 @@ unpack_half_to_float_4chan_planar (exr_decode_pipeline_t* decode)
      * not actually using y in the loop, so just pre-increment
      * the srcbuffer for any skip
      */
-    srcbuffer += decode->user_line_begin_skip * w * 8;
+    srcbuffer += (int64_t) decode->user_line_begin_skip * w * 8;
 
     // planar output
     for (int y = decode->user_line_begin_skip; y < h; ++y)
@@ -853,7 +853,7 @@ unpack_half_to_float_4chan_planar (exr_decode_pipeline_t* decode)
         in1 = in0 + w;
         in2 = in1 + w;
         in3 = in2 + w;
-        srcbuffer += w * 8; // 4 * sizeof(uint16_t), avoid type conversion
+        srcbuffer += (int64_t) w * 8; // 4 * sizeof(uint16_t), avoid type conversion
 
         half_to_float_buffer ((float*) out0, in0, w);
         half_to_float_buffer ((float*) out1, in1, w);
@@ -901,7 +901,7 @@ unpack_16bit_4chan (exr_decode_pipeline_t* decode)
      * not actually using y in the loop, so just pre-increment
      * the srcbuffer for any skip
      */
-    srcbuffer += w * decode->user_line_begin_skip * 8;
+    srcbuffer += (int64_t) w * decode->user_line_begin_skip * 8;
 
     for (int y = decode->user_line_begin_skip; y < h; ++y)
     {
@@ -909,7 +909,7 @@ unpack_16bit_4chan (exr_decode_pipeline_t* decode)
         in1 = in0 + w;
         in2 = in1 + w;
         in3 = in2 + w;
-        srcbuffer += w * 8; // 4 * sizeof(uint16_t), avoid type conversion
+        srcbuffer += (int64_t) w * 8; // 4 * sizeof(uint16_t), avoid type conversion
         for (int x = 0; x < w; ++x)
             *((uint16_t*) (out0 + x * inc0)) = one_to_native16 (in0[x]);
         for (int x = 0; x < w; ++x)
@@ -944,7 +944,7 @@ unpack_16bit (exr_decode_pipeline_t* decode)
     for (int c = 0; c < decode->channel_count; ++c)
     {
         exr_coding_channel_info_t* decc = (decode->channels + c);
-        srcbuffer += decc->width * decode->user_line_begin_skip * 2;
+        srcbuffer += (int64_t) decc->width * decode->user_line_begin_skip * 2;
     }
     h -= decode->user_line_begin_skip;
 
@@ -993,7 +993,7 @@ unpack_16bit (exr_decode_pipeline_t* decode)
                 }
             }
 #endif
-            srcbuffer += w * 2;
+            srcbuffer += (int64_t) w * 2;
         }
     }
     return EXR_ERR_SUCCESS;
@@ -1019,7 +1019,7 @@ unpack_32bit (exr_decode_pipeline_t* decode)
     for (int c = 0; c < decode->channel_count; ++c)
     {
         exr_coding_channel_info_t* decc = (decode->channels + c);
-        srcbuffer += decc->width * decode->user_line_begin_skip * 4;
+        srcbuffer += (int64_t) decc->width * decode->user_line_begin_skip * 4;
     }
     h -= decode->user_line_begin_skip;
 
@@ -1068,7 +1068,7 @@ unpack_32bit (exr_decode_pipeline_t* decode)
                 }
             }
 #endif
-            srcbuffer += w * 4;
+            srcbuffer += (int64_t) w * 4;
         }
     }
     return EXR_ERR_SUCCESS;
@@ -1255,7 +1255,7 @@ generic_unpack (exr_decode_pipeline_t* decode)
                 if ((cury % decc->y_samples) != 0) continue;
                 if (y < uls || !cdata)
                 {
-                    srcbuffer += w * bpc;
+                    srcbuffer += (int64_t) w * bpc;
                     continue;
                 }
 
@@ -1267,7 +1267,7 @@ generic_unpack (exr_decode_pipeline_t* decode)
             {
                 if (y < uls || !cdata)
                 {
-                    srcbuffer += w * bpc;
+                    srcbuffer += (int64_t) w * bpc;
                     continue;
                 }
 
@@ -1275,7 +1275,7 @@ generic_unpack (exr_decode_pipeline_t* decode)
             }
 
             UNPACK_SAMPLES (w)
-            srcbuffer += w * bpc;
+            srcbuffer += (int64_t) w * bpc;
         }
     }
     return EXR_ERR_SUCCESS;
