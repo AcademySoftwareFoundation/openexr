@@ -24,7 +24,13 @@ set_target_properties (PyOpenEXR PROPERTIES
 
 configure_file(Imath.py ${CMAKE_CURRENT_BINARY_DIR}/Imath.py COPYONLY)
 
-set(PYTHON_INSTALL_DIR ${Python3_SITEARCH})
+execute_process(
+    COMMAND "${Python3_EXECUTABLE}" -Esc
+        "import sysconfig, os; print(os.path.relpath(sysconfig.get_path('platlib'), sysconfig.get_path('data')))"
+    OUTPUT_VARIABLE PYTHON_INSTALL_DIR
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+
 if(SKBUILD)
   set(PYTHON_INSTALL_DIR ${SKBUILD_PLATLIB_DIR})
 endif()
