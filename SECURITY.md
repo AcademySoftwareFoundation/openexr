@@ -163,6 +163,32 @@ library. Malformed images could caused issues such as heap buffer
 overflows, out-of-memory faults, or segmentation faults that could be
 exploitable as denial-of-service attacks.
 
+### Image Size Limits and Out-of-Memory Failures
+
+The OpenEXR file format places no fixed limit on image size, except
+that image width and height are represented by signed 32-bit integers
+and therefore technically limited to a maximum of 2,147,483,647.
+
+Memory allocation failures caused by large image dimensions declared
+in file headers are not considered security vulnerabilities when the
+allocation size is proportional to the declared image dimensions. EXR
+files can legitimately describe very large images, and the memory
+required to decode them is inherently proportional to their pixel
+count. Exhausting available memory on a given machine is a system
+resource constraint, not a library defect — the same file that
+triggers an out-of-memory error on one machine may load successfully
+on another with more memory.
+
+The OpenEXR library provides 
+`Imf::Header::setMaxImageSize(int maxWidth,int maxHeight)` and
+`Imf::Header:"setMaxTileSize(int maxWidth,int maxHeight)` (and
+`exr_set_default_maximum_image_size()` and
+`exr_set_default_maximum_tile_size()` in OpenEXRCore) to allow
+applications to reject files with dimensions exceeding a configurable
+limit before any large allocation occurs. Applications processing
+untrusted EXR files should set these limits to values appropriate for
+their deployment environment.
+
 ### Hardening
 
 #### Testing
