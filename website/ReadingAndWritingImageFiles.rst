@@ -1567,7 +1567,7 @@ must process untrusted EXR files in an environment where failure is
 catastrophic, it may be best to provide a limit but allow it to be
 configured by the user:
 
-.. literalinclude:: src/exrreader/exrreader_max.cpp
+.. literalinclude:: src/exrreader_max/exrreader_max.cpp
    :lines: 5-
 
 Is this an OpenEXR File?
