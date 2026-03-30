@@ -1570,6 +1570,11 @@ configured by the user:
 .. literalinclude:: src/exrreader_max/exrreader_max.cpp
    :lines: 5-
 
+For very large images, the tiled OpenEXR format is more efficient, and
+reading via the tiled API is the recommended method.  Application code
+that uses the scanline API inherently require significant amounts of
+memory when opening very large tiled images.
+
 Is this an OpenEXR File?
 ------------------------
 
