@@ -21,6 +21,37 @@ News
 
 .. _LatestNewsStart:
 
+Patch release with several bug/build fixes:
+
+* Fix an integer-overflow bug reading malformed files compressed with
+  B44A/B44B 
+* Fix a buffer-overrun bug reading malformed files compressed with PXR24
+* Fix a bug compressing half data with ZIPS/ZIP data when the
+  compressed size equals packed size
+* Single part files no longer get assigned a part name when writing
+  via the python module
+* Fix a build failure on FreeBSD involving ``threads.h``
+
+This also eliminates several compiler warnings, particularly about the
+deprecated ``isOptimizationEnabled()`` API and deprecates standard
+attributes.
+
+.. _LatestNewsEnd:
+
+March  15, 2026 - OpenEXR 3.4.7 Released
+========================================
+
+Patch release bug/build fixes:
+
+* Fix an integer overflow decoding very wide htj2k images
+* Fix build failure with glibc 2.43
+* Fix Windows symbol visibility warnings
+
+Full changelog: ``v3.4.6..v3.4.7 <https://github.com/AcademySoftwareFoundation/openexr/compare/v3.4.6..v3.4.7>``_
+
+March  1, 2026 - OpenEXR 3.4.6 Released
+=======================================
+
 Patch release with several bug fixes, enhancements, and build improvements.
 
 * 🐛 A limit of ``UINT_MAX`` deep samples per pixel is now
@@ -76,7 +107,6 @@ Tools:
 
 Also, this release bumps the vendered version of ``libdeflate`` to 1.25.
 
-.. _LatestNewsEnd:
 
 March 1, 2026 - OpenEXR 3.3.8 Released
 ======================================
