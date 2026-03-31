@@ -328,7 +328,7 @@ LossyDctDecoder_execute (
     rowBlock[0] = (uint16_t*) simd_align_pointer (rowBlockHandle);
 
     for (int comp = 1; comp < numComp; ++comp)
-        rowBlock[comp] = rowBlock[comp - 1] + numBlocksX * 64;
+        rowBlock[comp] = rowBlock[comp - 1] + (size_t) numBlocksX * 64;
 
     //
     // Pack DC components together by common plane, so we can get
@@ -338,7 +338,7 @@ LossyDctDecoder_execute (
 
     currDcComp[0] = (uint16_t*) d->_packedDc;
     for (int comp = 1; comp < numComp; ++comp)
-        currDcComp[comp] = currDcComp[comp - 1] + numBlocksX * numBlocksY;
+        currDcComp[comp] = currDcComp[comp - 1] + (size_t) numBlocksX * numBlocksY;
 
     for (int blocky = 0; blocky < numBlocksY; ++blocky)
     {
