@@ -745,6 +745,13 @@ LossyDctDecoder_execute (
 
             for (int x = d->_width - 1; x >= 0; --x)
             {
+                // TODO: make an unaligned_store32f that takes the float and
+                // packages up a one_from_native_float and calls memcpy
+                // instead of the two memcpy. We should look at the metrics
+                // for dwa and see if there's a performance difference to do
+                // so at some point. See:
+                // https://github.com/AcademySoftwareFoundation/openexr/pull/2324
+
                 uint16_t h = unaligned_load16 (rowBytes + x * sizeof (uint16_t));
                 float    f = half_to_float (h);
                 uint32_t bits;
