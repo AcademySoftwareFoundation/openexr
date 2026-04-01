@@ -3,6 +3,7 @@
 
 # OpenEXR Release Notes
 
+* [Version 3.4.9](#version-349-april--3-2026) April  3, 2026
 * [Version 3.4.8](#version-348-march-26-2026) March 26, 2026
 * [Version 3.4.7](#version-347-march-15-2026) March 15, 2026
 * [Version 3.4.6](#version-346-march-1-2026) March 1, 2026
@@ -90,6 +91,57 @@
 * [Version 1.0.2](#version-102)
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
+
+## Version 3.4.9 (April  3, 2026)
+
+Patch release that addresses several security vulnerabilities.
+
+This release also fixes a build issue where the library symlinks would
+get installed in the incorrect location when overriding the cached
+install prefix path.
+
+This release addresses the following CVEs:
+* [CVE-2026-34589](https://www.cve.org/CVERecord?id=CVE-2026-34589) DWA Lossy Decoder Heap Out-of-Bounds Write
+* [CVE-2026-34588](https://www.cve.org/CVERecord?id=CVE-2026-34588) Signed 32-bit Overflow in PIZ Decoder Leads to OOB Read/Write
+* [CVE-2026-34380](https://www.cve.org/CVERecord?id=CVE-2026-34380) Signed integer overflow (undefined behavior) in undo_pxr24_impl may allow bounds-check bypass in PXR24 decompression
+* [CVE-2026-34379](https://www.cve.org/CVERecord?id=CVE-2026-34379) Misaligned write in LossyDctDecoder_execute leading to undefined behavior (DWA/DWAB decompression)
+* [CVE-2026-34378](https://www.cve.org/CVERecord?id=CVE-2026-34378) Signed integer overflow in generic_unpack() when parsing EXR files with crafted negative dataWindow.min.x
+
+### Merged Pull Requests
+
+* [2329](https://github.com/AcademySoftwareFoundation/openexr/pull/2329)
+Fix signed integer overflow in `LossyDctDecoder_execute()` pointer arithmatic
+* [2328](https://github.com/AcademySoftwareFoundation/openexr/pull/2328)
+fix integer overflow in PIZ wavelet buffer arithmetic
+* [2327](https://github.com/AcademySoftwareFoundation/openexr/pull/2327)
+Add a message about image size limits and OOM errors to SECURITY.md and website
+* [2326](https://github.com/AcademySoftwareFoundation/openexr/pull/2326)
+Fix shared lib symlink installation path
+* [2324](https://github.com/AcademySoftwareFoundation/openexr/pull/2324)
+Fix misaligned memory access in `LossyDctDecoder_execute` HALF→FLOAT expansion
+* [2323](https://github.com/AcademySoftwareFoundation/openexr/pull/2323)
+fix signed integer overflow in `undo_pxr24_impl()`
+* [2321](https://github.com/AcademySoftwareFoundation/openexr/pull/2321)
+Fix integer overflow in `srcbuffer` pointer arithmetic in `unpack_*`
+* [2317](https://github.com/AcademySoftwareFoundation/openexr/pull/2317)
+Add "cherry" and "changes" options to release.py
+
+### Merged Workflow Pull Requests
+
+* [2332](https://github.com/AcademySoftwareFoundation/openexr/pull/2332)
+Bump vmactions/freebsd-vm from 1.4.3 to 1.4.4
+* [2331](https://github.com/AcademySoftwareFoundation/openexr/pull/2331)
+Bump github/codeql-action from 4.34.1 to 4.35.1
+* [2330](https://github.com/AcademySoftwareFoundation/openexr/pull/2330)
+Bump jmertic/slack-release-notifier from f824585541879ef2a6388268eccb9be210aa6878 to 32206e01ee0b0f66865d2be13bb3c62e474b5ce0
+* [2325](https://github.com/AcademySoftwareFoundation/openexr/pull/2325)
+Bump sigstore/gh-action-sigstore-python from 3.2.0 to 3.3.0
+* [2320](https://github.com/AcademySoftwareFoundation/openexr/pull/2320)
+Bump jmertic/slack-release-notifier from 35fad060af5559c24decdec0f701e6ba93566704 to f824585541879ef2a6388268eccb9be210aa6878
+* [2319](https://github.com/AcademySoftwareFoundation/openexr/pull/2319)
+Bump msys2/setup-msys2 from 2.30.0 to 2.31.0
+* [2318](https://github.com/AcademySoftwareFoundation/openexr/pull/2318)
+Bump github/codeql-action from 4.33.0 to 4.34.1
 
 ## Version 3.4.8 (March 26, 2026)
 
