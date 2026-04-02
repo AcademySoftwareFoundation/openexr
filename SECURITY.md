@@ -20,14 +20,32 @@ rapidly and post patches within 14 days if possible.
 
 These vulnerabilities are present in the given versions:
 
+* [CVE-2026-34589](https://www.cve.org/CVERecord?id=CVE-2026-34589)
+  3.2.\*, 3.3.\*,
+  3.4.0, 3.4.1, 3.4.2, 3.4.3, 3.4.4, 3.4.5, 3.4.6, 3.4.7, 3.4.8 
+* [CVE-2026-34588](https://www.cve.org/CVERecord?id=CVE-2026-34588)
+  3.2.\*, 3.3.\*,
+  3.4.0, 3.4.1, 3.4.2, 3.4.3, 3.4.4, 3.4.5, 3.4.6, 3.4.7, 3.4.8 
+* [CVE-2026-34545](https://www.cve.org/CVERecord?id=CVE-2026-34545)
+  3.4.0, 3.4.1, 3.4.2, 3.4.3, 3.4.4, 3.4.5, 3.4.6
+* [CVE-2026-34544](https://www.cve.org/CVERecord?id=CVE-2026-34544)
+  3.4.0, 3.4.1, 3.4.2, 3.4.3, 3.4.4, 3.4.5, 3.4.6, 3.4.7
+* [CVE-2026-34543](https://www.cve.org/CVERecord?id=CVE-2026-34543)
+  3.4.0, 3.4.1, 3.4.2, 3.4.3, 3.4.4, 3.4.5, 3.4.6, 3.4.7
+* [CVE-2026-34380](https://www.cve.org/CVERecord?id=CVE-2026-34380)
+  3.4.0, 3.4.1, 3.4.2, 3.4.3, 3.4.4, 3.4.5, 3.4.6, 3.4.7, 3.4.8 
+* [CVE-2026-34379](https://www.cve.org/CVERecord?id=CVE-2026-34379)
+  3.4.0, 3.4.1, 3.4.2, 3.4.3, 3.4.4, 3.4.5, 3.4.6, 3.4.7, 3.4.8 
+* [CVE-2026-34378](https://www.cve.org/CVERecord?id=CVE-2026-34378)
+  3.4.0, 3.4.1, 3.4.2, 3.4.3, 3.4.4, 3.4.5, 3.4.6, 3.4.7, 3.4.8 
 * [CVE-2026-27622](https://www.cve.org/CVERecord?id=CVE-2026-27622) 2.\*, 3.0.\*, 3.1.\*, 3.2.0, 3.2.1, 3.2.2, 3.2.3, 3.2.4, 3.2.5, 3.3.0, 3.3.1
   3.3.2, 3.3.3, 3.3.4, 3.3.5, 3.3.6, 3.3.7, 3.4.0, 3.4.1, 3.4.2, 3.4.3, 3.4.4, 3.4.5
 * [CVE-2026-26981](https://www.cve.org/CVERecord?id=CVE-2025-64181) 3.3.0, 3.3.1, 3.3.2, 3.3.3, 3.3.4, 3.3.5, 3.3.6, 3.4.0, 3.4.1, 3.4.2, 3.4.3, 3.4.4
-* [CVE-2025-64181](https://www.cve.org/CVERecord?id=CVE-2025-64181) 3.3.0, 3.3.1, 3.3.2, 3.3.3, 3.3.4, 3.3.5, 3.4.0, 3.4.1, 3.4.2
-* [CVE-2025-64182](https://www.cve.org/CVERecord?id=CVE-2025-64182) 3.2.0, 3.2.1, 3.2.3, 3.2.4, 3.3.0, 3.3.1, 3.3.2, 3.3.3, 3.3.4, 3.3.5,
-  3.4.0, 3.4.1, 3.4.2
 * [CVE-2025-64183](https://www.cve.org/CVERecord?id=CVE-2025-64183) 3.2.0, 3.2.1, 3.2.3, 3.2.4, 3.3.0, 3.3.1, 3.3.2, 3.3.3, 3.3.4, 3.3.5,
   3.4.0, 3.4.1, 3.4.2
+* [CVE-2025-64182](https://www.cve.org/CVERecord?id=CVE-2025-64182) 3.2.0, 3.2.1, 3.2.3, 3.2.4, 3.3.0, 3.3.1, 3.3.2, 3.3.3, 3.3.4, 3.3.5,
+  3.4.0, 3.4.1, 3.4.2
+* [CVE-2025-64181](https://www.cve.org/CVERecord?id=CVE-2025-64181) 3.3.0, 3.3.1, 3.3.2, 3.3.3, 3.3.4, 3.3.5, 3.4.0, 3.4.1, 3.4.2
 * [CVE-2025-48074](https://www.cve.org/CVERecord?id=CVE-2025-48074) 3.3.2
 * [CVE-2025-48073](https://www.cve.org/CVERecord?id=CVE-2025-48073) 3.3.2
 * [CVE-2025-48072](https://www.cve.org/CVERecord?id=CVE-2025-48072) 3.3.2
@@ -82,6 +100,7 @@ security vulnerabilities.
 | Version / branch  | Supported                                            |
 |-------| ---------------------------------------------------- |
 | main  | :white_check_mark: :construction: All fixes immediately, although this branch is under development with potential unstable ABI/API
+| 3.4.x | :white_check_mark: All fixes that can be backported without breaking ABI compatibility
 | 3.3.x | :white_check_mark: All fixes that can be backported without breaking ABI compatibility
 | 3.2.x | :warning: Patch releases considered in response to specific requests
 | 3.1.x | :warning: Patch releases considered in response to specific requests
