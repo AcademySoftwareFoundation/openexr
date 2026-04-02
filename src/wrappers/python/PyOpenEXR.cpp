@@ -210,17 +210,29 @@ PyFile::PyFile(const std::string& filename, bool separate_channels, bool header_
             //
         
             auto type = header.type();
-            if (type == SCANLINEIMAGE || type == TILEDIMAGE)
+            try
             {
-                P.readPixels(*_inputFile, header.channels(), shape, rgbaChannels, dw, separate_channels);
+                if (type == SCANLINEIMAGE || type == TILEDIMAGE)
+                {
+                    P.readPixels(*_inputFile, header.channels(), shape, rgbaChannels, dw, separate_channels);
+                }
+                else if (type == DEEPSCANLINE || type == DEEPTILE)
+                {
+                    P.readDeepPixels(*_inputFile, type, header.channels(), shape, rgbaChannels, dw, separate_channels);
+                }
+                parts.append(py::cast<PyPart>(PyPart(P)));
             }
-            else if (type == DEEPSCANLINE || type == DEEPTILE)
+            catch (const std::exception& e)
             {
-                P.readDeepPixels(*_inputFile, type, header.channels(), shape, rgbaChannels, dw, separate_channels);
+                // Log the error and skip appending this part
+                py::print("Warning: Exception raised reading pixel data for part", part_index, "-", e.what());
             }
         }
-        
-        parts.append(py::cast<PyPart>(PyPart(P)));
+        else
+        {
+            // If only reading the header, always append this part
+            parts.append(py::cast<PyPart>(PyPart(P)));
+        }
     } // for parts
 }
 
