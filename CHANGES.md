@@ -21,6 +21,7 @@
 * [Version 3.3.2](#version-332-november-11-2024) November 11, 2024
 * [Version 3.3.1](#version-331-october-8-2024) October 8, 2024
 * [Version 3.3.0](#version-330-september-30-2024) September 30, 2024
+* [Version 3.2.7](#version-327-april-3-2026) April 3, 2026
 * [Version 3.2.6](#version-326-march-1-2026) March 1, 2026
 * [Version 3.2.5](#version-325-november-4-2025) November 4, 2025
 * [Version 3.2.4](#version-324-march-26-2024) March 26, 2024
@@ -113,6 +114,27 @@ attributes.
 
 ### Merged Pull Requests
 
+## Version 3.2.7 (April 3, 2026)
+
+Patch release for v3.2 that addresses the following security vulnerabilities:
+
+* [CVE-2026-34589](https://www.cve.org/CVERecord?id=CVE-2026-34589) DWA Lossy Decoder Heap Out-of-Bounds Write
+* [CVE-2026-34588](https://www.cve.org/CVERecord?id=CVE-2026-34588) Signed 32-bit Overflow in PIZ Decoder Leads to OOB Read/Write
+* [CVE-2026-34544](https://www.cve.org/CVERecord?id=CVE-2026-34544) integer overflow to OOB write in uncompress_b44_impl()
+* [CVE-2026-34543](https://www.cve.org/CVERecord?id=CVE-2026-34543) Heap information disclosure in PXR24 decompression via unchecked decompressed size (undo_pxr24_impl)
+* [CVE-2026-34380](https://www.cve.org/CVERecord?id=CVE-2026-34380) Signed integer overflow (undefined behavior) in undo_pxr24_impl may allow bounds-check bypass in PXR24 decompression
+* [CVE-2026-34379](https://www.cve.org/CVERecord?id=CVE-2026-34379) Misaligned write in LossyDctDecoder_execute leading to undefined behavior (DWA/DWAB decompression)
+
+### Merged Pull Requests
+
+* [2329](https://github.com/AcademySoftwareFoundation/openexr/pull/2329)
+Fix signed integer overflow in `LossyDctDecoder_execute()` pointer arithmatic
+* [2328](https://github.com/AcademySoftwareFoundation/openexr/pull/2328)
+fix integer overflow in PIZ wavelet buffer arithmetic
+* [2324](https://github.com/AcademySoftwareFoundation/openexr/pull/2324)
+Fix misaligned memory access in `LossyDctDecoder_execute` HALF→FLOAT expansion
+* [2323](https://github.com/AcademySoftwareFoundation/openexr/pull/2323)
+fix signed integer overflow in `undo_pxr24_impl()`
 * [2312](https://github.com/AcademySoftwareFoundation/openexr/pull/2312)
 Fix B44/B44A integer overflow: use uint64_t for row offset
 * [2310](https://github.com/AcademySoftwareFoundation/openexr/pull/2310)
