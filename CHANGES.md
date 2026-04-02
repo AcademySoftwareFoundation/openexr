@@ -3,7 +3,7 @@
 
 # OpenEXR Release Notes
 
-* [Version 3.3.9](#version-339-april--4-2026) April  4, 2026
+* [Version 3.3.9](#version-339-april-3-2026) April 3, 2026
 * [Version 3.3.8](#version-338-february-26-2026) February 26, 2026
 * [Version 3.3.7](#version-337-february-19-2026) February 19, 2026
 * [Version 3.3.6](#version-336-november-4-2025) November 5, 2025
@@ -84,11 +84,17 @@
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
 
-## Version 3.3.9 (April  4, 2026)
+## Version 3.3.9 (April 3, 2026)
 
-Patch release that addresses the following security vulnerabilities:
-* [CVE-2026-34588](https://www.cve.org/CVERecord?id=CVE-2026-34588) Signed 32-bit Overflow in PIZ Decoder Leads to OOB Read/Write
+Patch release for v3.3 that addresses the following security vulnerabilities:
+
 * [CVE-2026-34589](https://www.cve.org/CVERecord?id=CVE-2026-34589) DWA Lossy Decoder Heap Out-of-Bounds Write
+* [CVE-2026-34588](https://www.cve.org/CVERecord?id=CVE-2026-34588) Signed 32-bit Overflow in PIZ Decoder Leads to OOB Read/Write
+* [CVE-2026-34544](https://www.cve.org/CVERecord?id=CVE-2026-34544) integer overflow to OOB write in uncompress_b44_impl()
+* [CVE-2026-34543](https://www.cve.org/CVERecord?id=CVE-2026-34543) Heap information disclosure in PXR24 decompression via unchecked decompressed size (undo_pxr24_impl)
+* [CVE-2026-34380](https://www.cve.org/CVERecord?id=CVE-2026-34380) Signed integer overflow (undefined behavior) in undo_pxr24_impl may allow bounds-check bypass in PXR24 decompression
+* [CVE-2026-34379](https://www.cve.org/CVERecord?id=CVE-2026-34379) Misaligned write in LossyDctDecoder_execute leading to undefined behavior (DWA/DWAB decompression)
+* [CVE-2026-34378](https://www.cve.org/CVERecord?id=CVE-2026-34378) Signed integer overflow in generic_unpack() when parsing EXR files with crafted negative dataWindow.min.x
 
 ### Merged Pull Requests
 
@@ -96,6 +102,19 @@ Patch release that addresses the following security vulnerabilities:
 Fix signed integer overflow in `LossyDctDecoder_execute()` pointer arithmatic
 * [2328](https://github.com/AcademySoftwareFoundation/openexr/pull/2328)
 fix integer overflow in PIZ wavelet buffer arithmetic
+* [2324](https://github.com/AcademySoftwareFoundation/openexr/pull/2324)
+Fix misaligned memory access in `LossyDctDecoder_execute` HALF→FLOAT expansion
+* [2323](https://github.com/AcademySoftwareFoundation/openexr/pull/2323)
+fix signed integer overflow in `undo_pxr24_impl()`
+* [2321](https://github.com/AcademySoftwareFoundation/openexr/pull/2321)
+Fix integer overflow in `srcbuffer` pointer arithmetic in `unpack_*`
+* [2312](https://github.com/AcademySoftwareFoundation/openexr/pull/2312)
+Fix B44/B44A integer overflow: use uint64_t for row offset
+* [2310](https://github.com/AcademySoftwareFoundation/openexr/pull/2310)
+PXR24: reject zlib output that does not match packed payload size
+
+### Merged Workflow Pull Requests
+
 
 ## Version 3.3.8 (February 26, 2026)
 
