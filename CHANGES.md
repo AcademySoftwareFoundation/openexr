@@ -165,6 +165,11 @@ This also eliminates several compiler warnings, particularly about the
 deprecated `isOptimizationEnabled()` API and deprecates standard
 attributes. 
 
+This version addresses the following security vulnerabilities:
+
+* [CVE-2026-34544](https://www.cve.org/CVERecord?id=CVE-2026-34544) integer overflow to OOB write in uncompress_b44_impl()
+* [CVE-2026-34543](https://www.cve.org/CVERecord?id=CVE-2026-34543) Heap information disclosure in PXR24 decompression via unchecked decompressed size (undo_pxr24_impl)
+
 ### Merged Pull Requests
 
 * [2312](https://github.com/AcademySoftwareFoundation/openexr/pull/2312)
@@ -204,6 +209,11 @@ Patch release bug/build fixes:
 * Fix an integer overflow decoding very wide htj2k images
 * Fix build failure with glibc 2.43
 * Fix Windows symbol visibility warnings
+
+This version addresses the following security vulnerabilities:
+
+* [CVE-2026-34545](https://www.cve.org/CVERecord?id=CVE-2026-34545)
+  integer overflow lead to OOB in HTJ2K decoder
 
 ### Merged Pull Requests:
 
@@ -288,6 +298,10 @@ Tools:
   now fails with a usage error.
 
 Also, this release bumps the vendered version of `libdeflate` to 1.25.
+
+This release addresses the following CVEs:
+* [CVE-2026-27622](https://www.cve.org/CVERecord?id=CVE-2026-27622)
+CompositeDeepScanLine integer-overflow leads to heap OOB write
 
 ### Merged Pull Requests:
 
@@ -392,6 +406,10 @@ Patch release that fixes an incorrect size check in
 `istream_nonparallel_read` that could lead to a buffer overflow on
 invalid input data.
 
+This release addresses the following CVEs:
+* [CVE-2026-26981](https://www.cve.org/CVERecord?id=CVE-2026-26981)
+Heap-buffer-overflow via signed integer underflow in ImfContextInit.cpp
+
 ### Merged Pull Requests:
 
 * [2244](https://github.com/AcademySoftwareFoundation/openexr/pull/2244)
@@ -480,6 +498,20 @@ Specifically:
   (GitHub: Kaldreic).
 - Heap-based Buffer Overflow Remote Code Execution Vulnerability,
   reported by Trend Micro Zero Day Initiative.
+
+This release addresses the following CVEs:
+* [CVE-2025-64183](https://www.cve.org/CVERecord?id=CVE-2025-64183)
+Use after free in PyObject_StealAttrString
+* [CVE-2025-64182](https://www.cve.org/CVERecord?id=CVE-2025-64182)
+Buffer overflow in PyOpenEXR_old's channels() and channel()
+* [CVE-2025-64181](https://www.cve.org/CVERecord?id=CVE-2025-64181)
+Security Issue: Use of Uninitialized Memory in openexr
+* [CVE-2025-12840](https://www.cve.org/CVERecord?id=CVE-2025-12840)
+Academy Software Foundation OpenEXR EXR File Parsing Heap-based Buffer Overflow Remote Code Execution Vulnerability
+* [CVE-2025-12839](https://www.cve.org/CVERecord?id=CVE-2025-12839)
+Academy Software Foundation OpenEXR EXR File Parsing Heap-based Buffer Overflow Remote Code Execution Vulnerability
+* [CVE-2025-12495](https://www.cve.org/CVERecord?id=CVE-2025-12495)
+Academy Software Foundation OpenEXR EXR File Parsing Heap-based Buffer Overflow Remote Code Execution Vulnerability
 
 Also:
 
@@ -824,6 +856,10 @@ PXR24: reject zlib output that does not match packed payload size
 Patch release that prevents an integer overflow when using the
 `CompositeDeepScanLine` API to combine multiple deep parts.
 
+This release addresses the following CVEs:
+* [CVE-2026-27622](https://www.cve.org/CVERecord?id=CVE-2026-27622)
+CompositeDeepScanLine integer-overflow leads to heap OOB write
+
 ### Merged Pull Requests:
 
 * [2256](https://github.com/AcademySoftwareFoundation/openexr/pull/2256)
@@ -834,6 +870,11 @@ Report an error if a deep pixel as more than UINT_MAX samples
 Patch release that fixes an incorrect size check in
 `istream_nonparallel_read` that could lead to a buffer overflow on
 invalid input data.
+
+This release addresses the following CVEs:
+* [CVE-2026-26981](https://www.cve.org/CVERecord?id=CVE-2026-26981)
+Heap-buffer-overflow via signed integer underflow in ImfContextInit.cpp
+
 
 ### Merged Pull Requests:
 
@@ -859,6 +900,20 @@ Specifically:
 Other fixes:
 * Only populate `CMAKE_DEBUG_POSTFIX` with `_d` if it is undefined,
   which makes it possible to set `CMAKE_DEBUG_POSTFIX=""`.
+
+This release addresses the following CVEs:
+* [CVE-2025-64183](https://www.cve.org/CVERecord?id=CVE-2025-64183)
+Use after free in PyObject_StealAttrString
+* [CVE-2025-64182](https://www.cve.org/CVERecord?id=CVE-2025-64182)
+Buffer overflow in PyOpenEXR_old's channels() and channel()
+* [CVE-2025-64181](https://www.cve.org/CVERecord?id=CVE-2025-64181)
+Security Issue: Use of Uninitialized Memory in openexr
+* [CVE-2025-12840](https://www.cve.org/CVERecord?id=CVE-2025-12840)
+Academy Software Foundation OpenEXR EXR File Parsing Heap-based Buffer Overflow Remote Code Execution Vulnerability
+* [CVE-2025-12839](https://www.cve.org/CVERecord?id=CVE-2025-12839)
+Academy Software Foundation OpenEXR EXR File Parsing Heap-based Buffer Overflow Remote Code Execution Vulnerability
+* [CVE-2025-12495](https://www.cve.org/CVERecord?id=CVE-2025-12495)
+Academy Software Foundation OpenEXR EXR File Parsing Heap-based Buffer Overflow Remote Code Execution Vulnerability
 
 ### Merged Pull Requests:
 
@@ -1483,6 +1538,10 @@ PXR24: reject zlib output that does not match packed payload size
 Patch release that prevents an integer overflow when using the
 `CompositeDeepScanLine` API to combine multiple deep parts.
 
+This release addresses the following CVEs:
+* [CVE-2026-27622](https://www.cve.org/CVERecord?id=CVE-2026-27622)
+CompositeDeepScanLine integer-overflow leads to heap OOB write
+
 ### Merged Pull Requests:
 
 * [2256](https://github.com/AcademySoftwareFoundation/openexr/pull/2256)
@@ -1495,6 +1554,12 @@ Patch release that addresses bugs in the python module's legacy API.
   legacy python, reported by Joshua Rogers (GitHub: MegaManSec).
 - Use after free in PyObject_StealAttrString in legacy python, reported
   by Joshua Rogers (GitHub: MegaManSec).
+
+This release addresses the following CVEs:
+* [CVE-2025-64182](https://www.cve.org/CVERecord?id=CVE-2025-64182)
+Buffer overflow in PyOpenEXR_old's channels() and channel()
+* [CVE-2025-64183](https://www.cve.org/CVERecord?id=CVE-2025-64183)
+Use after free in PyObject_StealAttrString
 
 ### Merged Pull Requests:
 
