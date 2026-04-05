@@ -28,6 +28,7 @@ get installed in the incorrect location when overriding the cached
 install prefix path.
 
 This release addresses the following CVEs:
+
 * `CVE-2026-34589 <https://www.cve.org/CVERecord?id=CVE-2026-34589>`_ DWA Lossy Decoder Heap Out-of-Bounds Write
 * `CVE-2026-34588 <https://www.cve.org/CVERecord?id=CVE-2026-34588>`_ Signed 32-bit Overflow in PIZ Decoder Leads to OOB Read/Write
 * `CVE-2026-34380 <https://www.cve.org/CVERecord?id=CVE-2026-34380>`_ Signed integer overflow (undefined behavior) in undo_pxr24_impl may allow bounds-check bypass in PXR24 decompression
