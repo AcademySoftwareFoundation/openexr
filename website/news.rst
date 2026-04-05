@@ -21,6 +21,155 @@ News
 
 .. _LatestNewsStart:
 
+Patch release that addresses several security vulnerabilities.
+
+This release also fixes a build issue where the library symlinks would
+get installed in the incorrect location when overriding the cached
+install prefix path.
+
+This release addresses the following CVEs:
+
+* ``CVE-2026-34589 <https://www.cve.org/CVERecord?id=CVE-2026-34589>``_ DWA Lossy Decoder Heap Out-of-Bounds Write
+* ``CVE-2026-34588 <https://www.cve.org/CVERecord?id=CVE-2026-34588>``_ Signed 32-bit Overflow in PIZ Decoder Leads to OOB Read/Write
+* ``CVE-2026-34380 <https://www.cve.org/CVERecord?id=CVE-2026-34380>``_ Signed integer overflow (undefined behavior) in undo_pxr24_impl may allow bounds-check bypass in PXR24 decompression
+* ``CVE-2026-34379 <https://www.cve.org/CVERecord?id=CVE-2026-34379>``_ Misaligned write in LossyDctDecoder_execute leading to undefined behavior (DWA/DWAB decompression)
+* ``CVE-2026-34378 <https://www.cve.org/CVERecord?id=CVE-2026-34378>``_ Signed integer overflow in generic_unpack() when parsing EXR files with crafted negative dataWindow.min.x
+
+.. _LatestNewsEnd:
+
+April  3, 2026 - OpenEXR 3.3.9 Released
+=======================================
+
+Patch release for v3.3 that addresses the following security vulnerabilities:
+
+* ``CVE-2026-34589 <https://www.cve.org/CVERecord?id=CVE-2026-34589>``_ DWA Lossy Decoder Heap Out-of-Bounds Write
+* ``CVE-2026-34588 <https://www.cve.org/CVERecord?id=CVE-2026-34588>``_ Signed 32-bit Overflow in PIZ Decoder Leads to OOB Read/Write
+* ``CVE-2026-34544 <https://www.cve.org/CVERecord?id=CVE-2026-34544>``_ integer overflow to OOB write in uncompress_b44_impl()
+* ``CVE-2026-34543 <https://www.cve.org/CVERecord?id=CVE-2026-34543>``_ Heap information disclosure in PXR24 decompression via unchecked decompressed size (undo_pxr24_impl)
+* ``CVE-2026-34380 <https://www.cve.org/CVERecord?id=CVE-2026-34380>``_ Signed integer overflow (undefined behavior) in undo_pxr24_impl may allow bounds-check bypass in PXR24 decompression
+* ``CVE-2026-34379 <https://www.cve.org/CVERecord?id=CVE-2026-34379>``_ Misaligned write in LossyDctDecoder_execute leading to undefined behavior (DWA/DWAB decompression)
+* ``CVE-2026-34378 <https://www.cve.org/CVERecord?id=CVE-2026-34378>``_ Signed integer overflow in generic_unpack() when parsing EXR files with crafted negative dataWindow.min.x
+
+
+April  3, 2026 - OpenEXR 3.2.7 Released
+=======================================
+
+Patch release for v3.2 that addresses the following security vulnerabilities:
+
+* ``CVE-2026-34589 <https://www.cve.org/CVERecord?id=CVE-2026-34589>``_ DWA Lossy Decoder Heap Out-of-Bounds Write
+* ``CVE-2026-34588 <https://www.cve.org/CVERecord?id=CVE-2026-34588>``_ Signed 32-bit Overflow in PIZ Decoder Leads to OOB Read/Write
+* ``CVE-2026-34544 <https://www.cve.org/CVERecord?id=CVE-2026-34544>``_ integer overflow to OOB write in uncompress_b44_impl()
+* ``CVE-2026-34543 <https://www.cve.org/CVERecord?id=CVE-2026-34543>``_ Heap information disclosure in PXR24 decompression via unchecked decompressed size (undo_pxr24_impl)
+* ``CVE-2026-34380 <https://www.cve.org/CVERecord?id=CVE-2026-34380>``_ Signed integer overflow (undefined behavior) in undo_pxr24_impl may allow bounds-check bypass in PXR24 decompression
+* ``CVE-2026-34379 <https://www.cve.org/CVERecord?id=CVE-2026-34379>``_ Misaligned write in LossyDctDecoder_execute leading to undefined behavior (DWA/DWAB decompression)
+
+
+March 26, 2026 - OpenEXR 3.4.8 Released
+=======================================
+
+Patch release with several bug/build fixes:
+
+* Fix an integer-overflow bug reading malformed files compressed with
+  B44A/B44B 
+* Fix a buffer-overrun bug reading malformed files compressed with PXR24
+* Fix a bug compressing half data with ZIPS/ZIP data when the
+  compressed size equals packed size
+* Single part files no longer get assigned a part name when writing
+  via the python module
+* Fix a build failure on FreeBSD involving ``threads.h``
+
+This also eliminates several compiler warnings, particularly about the
+deprecated ``isOptimizationEnabled()`` API and deprecates standard
+attributes.
+
+
+March  15, 2026 - OpenEXR 3.4.7 Released
+========================================
+
+Patch release bug/build fixes:
+
+* Fix an integer overflow decoding very wide htj2k images
+* Fix build failure with glibc 2.43
+* Fix Windows symbol visibility warnings
+
+Full changelog: ``v3.4.6..v3.4.7 <https://github.com/AcademySoftwareFoundation/openexr/compare/v3.4.6..v3.4.7>``_
+
+March  1, 2026 - OpenEXR 3.4.6 Released
+=======================================
+
+Patch release with several bug fixes, enhancements, and build improvements.
+
+* 🐛 A limit of ``UINT_MAX`` deep samples per pixel is now
+  enforced, which prevents an integer overflow when using the
+  ``CompositeDeepScanLine`` API to combine multiple deep parts.
+
+* 🐛 ``IlmThread`` now builds properl with glibc 2.43.
+
+* 🔧 In ``IlmThreadPool``, replace deprecated ``std::atomic_load /
+  std::atomic_exchange`` overloads for ``std::shared_ptr`` with the C++20
+  ``std::atomic<std::shared_ptr<T>>`` interface when available.
+
+* 🐛 The ``ZIP`` and ``ZIPS`` Compressor objects had incorrect
+  compression types set, although the ill effects were miminal as the
+  value is seldom used.
+  
+* 🐛 Enable SSE2 on 32-bit x86 builds to fix test failures
+
+Build improvements:
+
+* 🛠️ OpenEXR now ships with an internal "vendored" copy of the
+  ``OpenJPH`` library. At configuration time, if CMake finds an
+  external installation of ``OpenJPH``, it will use it, but if that
+  fails, or the CMake configuration option
+  ``OPENEXR_FORCE_INTERNAL_OPENJPH`` is set, it will use the internal
+  copy. For OpenEXR v3.4.6, the vendored version of OpenJPH is 0.26.3.
+
+* 🛠️ A new CMake build option ``DOPENEXR_FORCE_EMBEDDED_CORE``
+  builds the ``OpenEXRCore`` library statically and links it into the
+  ``OpenEXR`` library with symbols hidden, making it possible to link
+  multiple versions of OpenEXR into the same executable. The ``OpenEXR``
+  library has namespaces for this situation, but the ``OpenEXRCore``
+  library is written in C with no configurable namespace. See `Linking
+  Multiple OpenEXR Versions in the
+  Same Executable <https://openexr.com/en/latest/install.html#linking-multiple-openexr-versions-in-the-executable>`_
+  for details.
+
+* 🛠️ Fix build failure with ``-march=sandybridge``
+
+Python:
+
+* 🐍 ✨ Add python support for Opaque Attributes
+
+* 🚀 Python module I/O operations now release the GIL,
+  preventing blocking.
+
+Tools:
+
+* ✨ Add sanity check for correct arguments to exrstdattr, to
+  catch mistakes such as ``exrstdattr input.exr output.exr -comment
+  hello`` which would formerly write to a file called ``hello`` but
+  now fails with a usage error.
+
+Also, this release bumps the vendered version of ``libdeflate`` to 1.25.
+
+
+March 1, 2026 - OpenEXR 3.3.8 Released
+======================================
+
+Patch release for the 3.3 release that prevents an integer overflow
+when using the ``CompositeDeepScanLine`` API to combine multiple deep
+parts.
+
+March 1, 2026 - OpenEXR 3.2.6 Released
+======================================
+
+Patch release for the 3.2 release that prevents an integer overflow
+when using the ``CompositeDeepScanLine`` API to combine multiple deep
+parts.
+
+February 21, 2026 - OpenEXR 3.4.5 Released
+==========================================
+
 Patch release that fixes an incorrect size check in
 `istream_nonparallel_read` that could lead to a buffer overflow on
 invalid input data.
