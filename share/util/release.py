@@ -75,15 +75,16 @@ def markdown_to_rst(markdown_text):
     """
     Convert simple Markdown text to reStructuredText (reST) manually.
     """
+
+    # Convert `text` to ``text`` (but skip existing ``)
+    markdown_text = re.sub(r'(?<!`)`([^`]+)`(?!`)', r'``\1``', markdown_text)
+
     # Replace markdown links [text](url) with reST format `text <url>`_
     markdown_text = re.sub(
         r'\[([\s\S]*?)\]\(([\s\S]*?)\)',
         r'`\1 <\2>`_',
         markdown_text
     )
-
-    # Convert `text to ``text`` (but skip existing ``)
-    markdown_text = re.sub(r'(?<!`)`([^`]+)`(?!`)', r'``\1``', markdown_text)
 
     # Convert the special symbols
     markdown_text = re.sub(r':bug:', "🐛", markdown_text, flags=re.DOTALL)
