@@ -3,6 +3,7 @@
 ** Copyright Contributors to the OpenEXR Project.
 */
 
+#include <cstdint>
 #include <limits>
 #include <string>
 #include <fstream>
@@ -183,11 +184,20 @@ ht_undo_impl (
         if (file_i >= decode->channel_count)
             return EXR_ERR_CORRUPT_CHUNK;
 
-        size_t computedoffset = 0;
+        uint64_t computedoffset = 0;
         for (int i = 0; i < file_i; ++i)
-            computedoffset += decode->channels[i].width *
-                              decode->channels[i].bytes_per_element;
-        cs_to_file_ch[cs_i].raster_line_offset = computedoffset;
+        {
+            int32_t w   = decode->channels[i].width;
+            int8_t  bpe = decode->channels[i].bytes_per_element;
+            if (w < 0 || bpe < 0) return EXR_ERR_CORRUPT_CHUNK;
+            uint64_t term = (uint64_t) w * (uint64_t) bpe;
+            if (computedoffset > std::numeric_limits<uint64_t>::max () - term)
+                return EXR_ERR_CORRUPT_CHUNK;
+            computedoffset += term;
+        }
+        if (computedoffset > std::numeric_limits<size_t>::max ())
+            return EXR_ERR_CORRUPT_CHUNK;
+        cs_to_file_ch[cs_i].raster_line_offset = (size_t) computedoffset;
     }
 
     ojph::mem_infile infile;
@@ -208,16 +218,20 @@ ht_undo_impl (
         || decode->channel_count != siz.get_num_components())
         return EXR_ERR_CORRUPT_CHUNK;
 
-    int  bpl       = 0;
-    bool is_planar = false;
+    int64_t bpl    = 0;
+    bool    is_planar = false;
     for (int16_t c = 0; c < decode->channel_count; c++)
     {
-        bpl +=
-            decode->channels[c].bytes_per_element * decode->channels[c].width;
+        int64_t term = (int64_t) decode->channels[c].bytes_per_element *
+                       (int64_t) decode->channels[c].width;
+        if (term < 0) return EXR_ERR_CORRUPT_CHUNK;
+        bpl += term;
         if (decode->channels[c].x_samples > 1 ||
             decode->channels[c].y_samples > 1)
         { is_planar = true; }
     }
+    if (bpl > (int64_t) std::numeric_limits<int>::max ())
+        return EXR_ERR_CORRUPT_CHUNK;
     cs.set_planar (is_planar);
 
     cs.create ();
@@ -286,7 +300,7 @@ ht_undo_impl (
     {
         uint8_t* line_pixels = static_cast<uint8_t*> (uncompressed_data);
 
-        assert (bpl * image_height == uncompressed_size);
+        assert (static_cast<uint64_t> (bpl) * image_height == uncompressed_size);
 
         for (uint32_t y = 0; y < image_height; ++y)
         {
@@ -316,7 +330,7 @@ ht_undo_impl (
                     }
                 }
             }
-            line_pixels += bpl;
+            line_pixels += static_cast<ptrdiff_t> (bpl);
         }
     }
 
@@ -368,7 +382,7 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
 
     bool isPlanar = false;
     siz.set_num_components (encode->channel_count);
-    int bpl = 0;
+    int64_t bpl = 0;
     for (int16_t c = 0; c < encode->channel_count; c++)
     {
         int file_c = cs_to_file_ch[c].file_index;
@@ -388,9 +402,14 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
             encode->channels[file_c].y_samples > 1)
         { isPlanar = true; }
 
-        bpl += encode->channels[file_c].bytes_per_element *
-               encode->channels[file_c].width;
+        int64_t term = (int64_t) encode->channels[file_c].bytes_per_element *
+                       (int64_t) encode->channels[file_c].width;
+        if (term < 0) return EXR_ERR_CORRUPT_CHUNK;
+        bpl += term;
     }
+
+    if (bpl > (int64_t) std::numeric_limits<int>::max ())
+        return EXR_ERR_CORRUPT_CHUNK;
 
     cs.set_planar (isPlanar);
 
@@ -480,7 +499,8 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
             const uint8_t* line_pixels =
                 static_cast<const uint8_t*> (encode->packed_buffer);
 
-            assert (bpl * image_height == encode->packed_bytes);
+            assert (static_cast<uint64_t> (bpl) * (uint64_t) image_height ==
+                    encode->packed_bytes);
 
             for (int y = 0; y < image_height; y++)
             {
@@ -511,7 +531,7 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
                     assert (next_comp == c);
                     cur_line = cs.exchange (cur_line, next_comp);
                 }
-                line_pixels += bpl;
+                line_pixels += static_cast<ptrdiff_t> (bpl);
             }
         }
 
