@@ -64,7 +64,7 @@ jobs:
         run: |
           python3 -m venv _venv
           source _venv/*/activate
-          pip3 install -r ../website/requirements.txt
+          pip3 install --require-hashes -r ../website/requirements-lock.txt
           cmake .. -DBUILD_WEBSITE=ON -DCMAKE_VERBOSE_MAKEFILE=ON -DSPHINX_OPTS=""
         working-directory: _build
         shell: bash
