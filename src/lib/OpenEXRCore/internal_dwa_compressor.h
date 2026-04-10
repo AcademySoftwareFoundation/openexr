@@ -1037,7 +1037,8 @@ DwaCompressor_uncompress (
             if (rv != EXR_ERR_SUCCESS) return rv;
 
             cd->_dctData._type = chan->data_type;
-            outBufferEnd += chan->width * chan->bytes_per_element;
+            outBufferEnd +=
+                (size_t) chan->width * (size_t) chan->bytes_per_element;
         }
     }
 
@@ -1718,8 +1719,8 @@ DwaCompressor_setupChannelData (DwaCompressor* me)
         {
             for (int byte = 1; byte < curc->bytes_per_element; ++byte)
             {
-                cd->planarUncRle[byte] =
-                    cd->planarUncRle[byte - 1] + curc->width * curc->height;
+                cd->planarUncRle[byte] = cd->planarUncRle[byte - 1] +
+                    (size_t) curc->width * (size_t) curc->height;
 
                 cd->planarUncRleEnd[byte] = cd->planarUncRle[byte];
             }
