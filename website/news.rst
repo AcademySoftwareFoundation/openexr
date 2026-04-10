@@ -21,6 +21,52 @@ News
 
 .. _LatestNewsStart:
 
+Patch release that addresses several security vulnerabilities.
+
+This release also fixes a build issue where the library symlinks would
+get installed in the incorrect location when overriding the cached
+install prefix path.
+
+This release addresses the following CVEs:
+
+* `CVE-2026-34589 <https://www.cve.org/CVERecord?id=CVE-2026-34589>`_ DWA Lossy Decoder Heap Out-of-Bounds Write
+* `CVE-2026-34588 <https://www.cve.org/CVERecord?id=CVE-2026-34588>`_ Signed 32-bit Overflow in PIZ Decoder Leads to OOB Read/Write
+* `CVE-2026-34380 <https://www.cve.org/CVERecord?id=CVE-2026-34380>`_ Signed integer overflow (undefined behavior) in undo_pxr24_impl may allow bounds-check bypass in PXR24 decompression
+* `CVE-2026-34379 <https://www.cve.org/CVERecord?id=CVE-2026-34379>`_ Misaligned write in LossyDctDecoder_execute leading to undefined behavior (DWA/DWAB decompression)
+* `CVE-2026-34378 <https://www.cve.org/CVERecord?id=CVE-2026-34378>`_ Signed integer overflow in generic_unpack() when parsing EXR files with crafted negative dataWindow.min.x
+
+.. _LatestNewsEnd:
+
+April  3, 2026 - OpenEXR 3.3.9 Released
+=======================================
+
+Patch release for v3.3 that addresses the following security vulnerabilities:
+
+* `CVE-2026-34589 <https://www.cve.org/CVERecord?id=CVE-2026-34589>`_ DWA Lossy Decoder Heap Out-of-Bounds Write
+* `CVE-2026-34588 <https://www.cve.org/CVERecord?id=CVE-2026-34588>`_ Signed 32-bit Overflow in PIZ Decoder Leads to OOB Read/Write
+* `CVE-2026-34544 <https://www.cve.org/CVERecord?id=CVE-2026-34544>`_ integer overflow to OOB write in uncompress_b44_impl()
+* `CVE-2026-34543 <https://www.cve.org/CVERecord?id=CVE-2026-34543>`_ Heap information disclosure in PXR24 decompression via unchecked decompressed size (undo_pxr24_impl)
+* `CVE-2026-34380 <https://www.cve.org/CVERecord?id=CVE-2026-34380>`_ Signed integer overflow (undefined behavior) in undo_pxr24_impl may allow bounds-check bypass in PXR24 decompression
+* `CVE-2026-34379 <https://www.cve.org/CVERecord?id=CVE-2026-34379>`_ Misaligned write in LossyDctDecoder_execute leading to undefined behavior (DWA/DWAB decompression)
+* `CVE-2026-34378 <https://www.cve.org/CVERecord?id=CVE-2026-34378>`_ Signed integer overflow in generic_unpack() when parsing EXR files with crafted negative dataWindow.min.x
+
+
+April  3, 2026 - OpenEXR 3.2.7 Released
+=======================================
+
+Patch release for v3.2 that addresses the following security vulnerabilities:
+
+* `CVE-2026-34589 <https://www.cve.org/CVERecord?id=CVE-2026-34589>`_ DWA Lossy Decoder Heap Out-of-Bounds Write
+* `CVE-2026-34588 <https://www.cve.org/CVERecord?id=CVE-2026-34588>`_ Signed 32-bit Overflow in PIZ Decoder Leads to OOB Read/Write
+* `CVE-2026-34544 <https://www.cve.org/CVERecord?id=CVE-2026-34544>`_ integer overflow to OOB write in uncompress_b44_impl()
+* `CVE-2026-34543 <https://www.cve.org/CVERecord?id=CVE-2026-34543>`_ Heap information disclosure in PXR24 decompression via unchecked decompressed size (undo_pxr24_impl)
+* `CVE-2026-34380 <https://www.cve.org/CVERecord?id=CVE-2026-34380>`_ Signed integer overflow (undefined behavior) in undo_pxr24_impl may allow bounds-check bypass in PXR24 decompression
+* `CVE-2026-34379 <https://www.cve.org/CVERecord?id=CVE-2026-34379>`_ Misaligned write in LossyDctDecoder_execute leading to undefined behavior (DWA/DWAB decompression)
+
+
+March 26, 2026 - OpenEXR 3.4.8 Released
+=======================================
+
 Patch release with several bug/build fixes:
 
 * Fix an integer-overflow bug reading malformed files compressed with
@@ -36,7 +82,6 @@ This also eliminates several compiler warnings, particularly about the
 deprecated ``isOptimizationEnabled()`` API and deprecates standard
 attributes.
 
-.. _LatestNewsEnd:
 
 March  15, 2026 - OpenEXR 3.4.7 Released
 ========================================
