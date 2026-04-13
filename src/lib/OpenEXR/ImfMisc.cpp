@@ -23,7 +23,6 @@
 #include <ImfTileDescription.h>
 #include <ImfXdr.h>
 
-#include <codecvt>
 #include <locale>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
@@ -1996,12 +1995,28 @@ getChunkOffsetTableSize (const Header& header)
         return getTiledChunkOffsetTableSize (header);
 }
 
+// Decode UTF-8 into codepoints and encode as UTF-16 stored in wchar_t
+// units (matching the behavior of the now-deprecated codecvt_utf8_utf16)
 std::wstring
 WidenFilename (const char* filename)
 {
-    std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
-    return converter.from_bytes (filename);
+    std::wstring result;
+    result.reserve(filename.size());
+    size_t pos = 0;
+    while (pos < filename.size()) {
+        uint32_t cp = decode_utf8(filename.data(), filename.size(), pos);
+        if (cp < 0x10000) {
+            result += wchar_t(cp);
+        } else {
+            // Encode as surrogate pair in wchar_t units
+            cp -= 0x10000;
+            result += wchar_t(0xD800 + (cp >> 10));
+            result += wchar_t(0xDC00 + (cp & 0x3FF));
+        }
+    }
+    return result;
 }
+
 
 const char*
 getLibraryVersion ()
