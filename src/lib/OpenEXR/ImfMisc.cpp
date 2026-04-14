@@ -1995,6 +1995,7 @@ getChunkOffsetTableSize (const Header& header)
         return getTiledChunkOffsetTableSize (header);
 }
 
+uint32_t decode_utf8(const char* data, size_t size, size_t& pos);
 // Decode UTF-8 into codepoints and encode as UTF-16 stored in wchar_t
 // units (matching the behavior of the now-deprecated codecvt_utf8_utf16)
 std::wstring
