@@ -155,6 +155,9 @@ API](https://openexr.readthedocs.io/en/latest/API.html#the-openexr-api).
 
   - Submit a Pull Request: https://github.com/AcademySoftwareFoundation/openexr/pulls
 
+  - If you'd like to contribute and could use some ideas of what to
+    do, browse "good first issues" [here](https://github.com/AcademySoftwareFoundation/openexr/contribute) or on [Clotributor](https://clotributor.dev/search?ts_query_web=openexr&page=1).
+
 # Resources
 
 - Website: http://www.openexr.com
