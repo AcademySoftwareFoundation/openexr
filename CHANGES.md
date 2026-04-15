@@ -3,6 +3,7 @@
 
 # OpenEXR Release Notes
 
+* [Version 3.2.8](#version-328-april-17-2026) April 17, 2026
 * [Version 3.2.7](#version-327-april-3-2026) April 3, 2026
 * [Version 3.2.6](#version-326-february-26-2026) February 26, 2026
 * [Version 3.2.5](#version-325-november-4-2025) November 4, 2025
@@ -76,6 +77,18 @@
 * [Version 1.0.2](#version-102)
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
+
+## Version 3.2.8 (April 17, 2026)
+
+Patch release that addresses the following security vulnerabilities:
+
+* [CVE-2026-40244](https://www.cve.org/CVERecord?id=CVE-2026-40244) Integer overflow in DWA setupChannelData planarUncRle pointer arithmetic (missed variant of CVE-2026-34589)
+* [CVE-2026-40250](https://www.cve.org/CVERecord?id=CVE-2026-40250) Integer overflow in DWA decoder outBufferEnd pointer arithmetic (missed variant of CVE-2026-34589)
+
+### Merged Pull Requests
+
+* [2346](https://github.com/AcademySoftwareFoundation/openexr/pull/2346)
+Fix integer overflow in internal_dwa_compressor.h
 
 ## Version 3.2.7 (April 3, 2026)
 
