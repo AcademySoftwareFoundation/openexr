@@ -123,6 +123,13 @@ Community
   
   - Submit a Pull Request: https://github.com/AcademySoftwareFoundation/openexr/pulls
 
+  - If you'd like to contribute and could use some ideas of what to
+    do, browse "good first issues" `here
+    <https://github.com/AcademySoftwareFoundation/openexr/contribute),contribute>`_
+    or on `Clotributor <https://clotributor.dev/search?ts_query_web=openexr&page=1>`_.
+
+
+
 Resources
 =========
 
