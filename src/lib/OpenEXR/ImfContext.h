@@ -27,6 +27,8 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 /// the main entrypoint for querying any of the metadata for all the
 /// component parts of the file, along with the global header
 /// information.
+///
+/// Constructors that take a filename expect a UTF-8 encoded path; see ImfIO.h.
 class IMF_EXPORT_TYPE Context
 {
 public:
