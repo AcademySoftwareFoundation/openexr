@@ -7,11 +7,12 @@
 #    undef NDEBUG
 #endif
 
-#include <Iex.h>
+#include "Iex.h"
+#include "ImfFlatImage.h"
+#include "ImfFlatImageIO.h"
+#include "ImfHeader.h"
+
 #include <Imath/ImathRandom.h>
-#include <ImfFlatImage.h>
-#include <ImfFlatImageIO.h>
-#include <ImfHeader.h>
 
 #include <cassert>
 #include <cstdio>

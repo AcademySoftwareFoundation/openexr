@@ -11,11 +11,11 @@
 //
 //
 
-#include <ImfChannelList.h>
-#include <ImfDeepScanLineOutputFile.h>
-#include <ImfDeepFrameBuffer.h>
-#include <ImfIDManifest.h>
-#include <ImfStandardAttributes.h>
+#include "ImfChannelList.h"
+#include "ImfDeepScanLineOutputFile.h"
+#include "ImfDeepFrameBuffer.h"
+#include "ImfIDManifest.h"
+#include "ImfStandardAttributes.h"
 
 #include <string.h>
 

@@ -31,12 +31,12 @@
 #include "ImfVersion.h"
 #include "ImfXdr.h"
 
-#include <Imath/ImathBox.h>
-
 #include "IlmThreadPool.h"
 #include "IlmThreadSemaphore.h"
 
 #include "Iex.h"
+
+#include <Imath/ImathBox.h>
 
 #include <algorithm>
 #include <assert.h>

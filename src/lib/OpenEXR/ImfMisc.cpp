@@ -10,18 +10,18 @@
 //-----------------------------------------------------------------------------
 
 #include "ImfNamespace.h"
-#include <Iex.h>
+#include "Iex.h"
+#include "ImfAttribute.h"
+#include "ImfChannelList.h"
+#include "ImfCompressor.h"
+#include "ImfConvert.h"
+#include "ImfHeader.h"
+#include "ImfMisc.h"
+#include "ImfPartType.h"
+#include "ImfStdIO.h"
+#include "ImfTileDescription.h"
+#include "ImfXdr.h"
 #include <Imath/ImathFun.h>
-#include <ImfAttribute.h>
-#include <ImfChannelList.h>
-#include <ImfCompressor.h>
-#include <ImfConvert.h>
-#include <ImfHeader.h>
-#include <ImfMisc.h>
-#include <ImfPartType.h>
-#include <ImfStdIO.h>
-#include <ImfTileDescription.h>
-#include <ImfXdr.h>
 
 #include <codecvt>
 #include <locale>

@@ -8,20 +8,23 @@
 #endif
 
 #include "IlmThread.h"
+
+#include "ImfArray.h"
+#include "ImfChannelList.h"
+#include "ImfInputFile.h"
+#include "ImfRgbaFile.h"
+#include "ImfThreading.h"
+#include "ImfTileDescriptionAttribute.h"
+#include "ImfTiledInputFile.h"
+#include "ImfTiledOutputFile.h"
+#include "ImfTiledRgbaFile.h"
+#include "ImfOutputFile.h"
+#include "ImfFrameBuffer.h"
+#include "ImfStdIO.h"
+#include "ImfHeader.h"
+
 #include <Imath/ImathRandom.h>
-#include <ImfArray.h>
-#include <ImfChannelList.h>
-#include <ImfInputFile.h>
-#include <ImfRgbaFile.h>
-#include <ImfThreading.h>
-#include <ImfTileDescriptionAttribute.h>
-#include <ImfTiledInputFile.h>
-#include <ImfTiledOutputFile.h>
-#include <ImfTiledRgbaFile.h>
-#include <ImfOutputFile.h>
-#include <ImfFrameBuffer.h>
-#include <ImfStdIO.h>
-#include <ImfHeader.h>
+
 #include <iostream>
 #include <assert.h>
 #include <math.h>

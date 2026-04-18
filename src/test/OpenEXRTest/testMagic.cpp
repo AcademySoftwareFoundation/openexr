@@ -7,9 +7,9 @@
 #    undef NDEBUG
 #endif
 
-#include <ImfStdIO.h>
-#include <ImfTestFile.h>
-#include <ImfVersion.h>
+#include "ImfStdIO.h"
+#include "ImfTestFile.h"
+#include "ImfVersion.h"
 #include <assert.h>
 #include <exception>
 #include <filesystem>

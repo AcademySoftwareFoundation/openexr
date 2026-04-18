@@ -12,10 +12,10 @@
 //-----------------------------------------------------------------------------
 
 #include "ImfNamespace.h"
-#include <ImfStdIO.h>
-#include <ImfTestFile.h>
-#include <ImfVersion.h>
-#include <ImfXdr.h>
+#include "ImfStdIO.h"
+#include "ImfTestFile.h"
+#include "ImfVersion.h"
+#include "ImfXdr.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 

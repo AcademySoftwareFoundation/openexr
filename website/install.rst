@@ -111,6 +111,42 @@ The instructions that follow describe building OpenEXR with CMake.
 Note that as of OpenEXR 3, the Gnu autoconf bootstrap/configure build
 system is no longer supported.
 
+Header Layout and ``#include`` Policy
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Public headers are installed under ``${CMAKE_INSTALL_INCLUDEDIR}`` in
+a dedicated subdirectory, by default ``OpenEXR/`` (the CMake cache
+variable ``OPENEXR_OUTPUT_SUBDIR`` controls the name). For a typical
+prefix, paths look like ``$prefix/include/OpenEXR/ImfRgbaFile.h``.
+
+Application code may use **either** of these include styles:
+
+* ``#include <ImfRgbaFile.h>`` (historical, flat filename)
+* ``#include <OpenEXR/ImfRgbaFile.h>`` (namespaced path under the parent
+  include directory)
+
+Both are supported **by design**. The exported CMake targets
+(``OpenEXR::OpenEXR``, ``OpenEXR::OpenEXRUtil``, ``OpenEXR::OpenEXRCore``,
+``OpenEXR::Iex``, ``OpenEXR::IlmThread``, and related ``OpenEXR::*Config``
+interface targets) propagate two install-interface include directories:
+``$prefix/include`` **and** ``$prefix/include/OpenEXR``. Linking against
+those targets after ``find_package(OpenEXR)`` is the recommended way to
+obtain correct flags; you should not need to add ``-I`` paths by hand.
+The same dual-path behavior is reflected in the ``pkg-config`` file
+(``Cflags`` lists both roots) for non-CMake builds.
+
+**Recommended usage:** Prefer ``find_package(OpenEXR …)`` and
+``target_link_libraries(… OpenEXR::…)`` in CMake, or ``pkg-config`` for
+other build systems, and keep either include spelling consistent within
+your project. If you must set compiler flags yourself, mirror both
+include directories above; a single ``-I$prefix/include`` without the
+``OpenEXR`` subdirectory is **not** sufficient for flat
+``#include <Imf*.h>`` lines.
+
+This layout preserves long-standing flat includes in existing code and
+documentation while keeping headers grouped under ``OpenEXR/`` on
+disk. There is no plan to remove either style in current release lines.
+
 OpenEXR/Imath Version Compatibility
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

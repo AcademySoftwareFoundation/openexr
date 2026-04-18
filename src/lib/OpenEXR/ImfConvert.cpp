@@ -13,7 +13,7 @@
 #include "ImfConvert.h"
 #include "ImfNamespace.h"
 
-#include "halfLimits.h"
+#include <Imath/halfLimits.h>
 #include <limits>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER

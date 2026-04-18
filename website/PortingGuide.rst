@@ -268,7 +268,7 @@ to the new locations:
 
 .. code-block::
 
-    #include <Imath/ImathVec.h>
+    #include <ImathVec.h>
     #include <Imath/half.h>
 
 Accommodating OpenEXR/Imath 3.x or OpenEXR 2.x

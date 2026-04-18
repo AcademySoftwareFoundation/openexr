@@ -15,7 +15,7 @@
 
 #include "ImfCompression.h"
 
-#include "stdint.h"
+#include <stdint.h>
 
 #include <vector>
 

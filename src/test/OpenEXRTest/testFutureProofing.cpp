@@ -20,32 +20,33 @@
 #include "testMultiPartFileMixingBasic.h"
 #include "tmpDir.h"
 
-#include <IlmThreadPool.h>
-#include <ImfArray.h>
-#include <ImfChannelList.h>
-#include <ImfDeepFrameBuffer.h>
-#include <ImfDeepScanLineInputFile.h>
-#include <ImfDeepScanLineInputPart.h>
-#include <ImfDeepScanLineOutputPart.h>
-#include <ImfDeepTiledInputFile.h>
-#include <ImfDeepTiledInputPart.h>
-#include <ImfDeepTiledOutputPart.h>
-#include <ImfFrameBuffer.h>
-#include <ImfInputFile.h>
-#include <ImfInputPart.h>
-#include <ImfMisc.h>
-#include <ImfMultiPartInputFile.h>
-#include <ImfMultiPartOutputFile.h>
-#include <ImfOutputPart.h>
-#include <ImfPartType.h>
-#include <ImfTiledInputFile.h>
-#include <ImfTiledInputPart.h>
-#include <ImfTiledOutputPart.h>
+#include "IlmThreadPool.h"
+#include "ImfArray.h"
+#include "ImfChannelList.h"
+#include "ImfDeepFrameBuffer.h"
+#include "ImfDeepScanLineInputFile.h"
+#include "ImfDeepScanLineInputPart.h"
+#include "ImfDeepScanLineOutputPart.h"
+#include "ImfDeepTiledInputFile.h"
+#include "ImfDeepTiledInputPart.h"
+#include "ImfDeepTiledOutputPart.h"
+#include "ImfFrameBuffer.h"
+#include "ImfInputFile.h"
+#include "ImfInputPart.h"
+#include "ImfMisc.h"
+#include "ImfMultiPartInputFile.h"
+#include "ImfMultiPartOutputFile.h"
+#include "ImfOutputPart.h"
+#include "ImfPartType.h"
+#include "ImfTiledInputFile.h"
+#include "ImfTiledInputPart.h"
+#include "ImfTiledOutputPart.h"
+#include "ImfNamespace.h"
+#include "ImfSystemSpecific.h"
 
-#include <IlmThreadNamespace.h>
+#include "IlmThreadNamespace.h"
+
 #include <Imath/ImathNamespace.h>
-#include <ImfNamespace.h>
-#include <ImfSystemSpecific.h>
 
 namespace IMF = OPENEXR_IMF_NAMESPACE;
 using namespace IMF;

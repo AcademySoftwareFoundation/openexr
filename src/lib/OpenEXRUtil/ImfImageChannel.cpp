@@ -11,7 +11,7 @@
 
 #include "ImfImageChannel.h"
 #include "ImfImageLevel.h"
-#include <Iex.h>
+#include "Iex.h"
 
 #include <cstdint>
 #include <limits>

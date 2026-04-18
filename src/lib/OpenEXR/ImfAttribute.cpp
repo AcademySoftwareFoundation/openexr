@@ -9,12 +9,12 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <Iex.h>
-#include <ImfAttribute.h>
+#include "Iex.h"
+#include "ImfAttribute.h"
 #include <map>
 #include <string.h>
 
-#include <IlmThreadConfig.h>
+#include "IlmThreadConfig.h"
 
 #if ILMTHREAD_THREADING_ENABLED
 #    include <mutex>

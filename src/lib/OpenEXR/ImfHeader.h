@@ -15,14 +15,15 @@
 #include "ImfForward.h"
 
 #include "IexBaseExc.h"
-#include <Imath/ImathBox.h>
-#include <Imath/ImathVec.h>
 #include "ImfCompression.h"
 #include "ImfLineOrder.h"
 #include "ImfName.h"
 #include "ImfTileDescription.h"
 
 #include "ImfAttribute.h"
+
+#include <Imath/ImathBox.h>
+#include <Imath/ImathVec.h>
 
 #include <cstdint>
 #include <iosfwd>
