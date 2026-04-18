@@ -3,7 +3,7 @@
 
 # OpenEXR Release Notes
 
-* [Version 3.4.10](#version-3410-april-16-2026) April 16, 2026
+* [Version 3.4.10](#version-3410-april-17-2026) April 17, 2026
 * [Version 3.4.9](#version-349-april--3-2026) April  3, 2026
 * [Version 3.4.8](#version-348-march-26-2026) March 26, 2026
 * [Version 3.4.7](#version-347-march-15-2026) March 15, 2026
@@ -100,7 +100,7 @@
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
 
-## Version 3.4.10 (April 16, 2026)
+## Version 3.4.10 (April 17, 2026)
 
 Patch release that addresses the following security vulnerabilities:
 
