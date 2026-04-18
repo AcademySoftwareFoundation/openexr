@@ -18,19 +18,19 @@
 #include "testInputPart.h"
 #include "tmpDir.h"
 
-#include <IlmThreadPool.h>
-#include <ImfArray.h>
-#include <ImfChannelList.h>
-#include <ImfFrameBuffer.h>
-#include <ImfHeader.h>
-#include <ImfInputFile.h>
-#include <ImfInputPart.h>
-#include <ImfMultiPartInputFile.h>
-#include <ImfMultiPartOutputFile.h>
-#include <ImfOutputPart.h>
-#include <ImfPartType.h>
-#include <ImfTiledOutputPart.h>
-//#include <ImfMisc.h>
+#include "IlmThreadPool.h"
+#include "ImfArray.h"
+#include "ImfChannelList.h"
+#include "ImfFrameBuffer.h"
+#include "ImfHeader.h"
+#include "ImfInputFile.h"
+#include "ImfInputPart.h"
+#include "ImfMultiPartInputFile.h"
+#include "ImfMultiPartOutputFile.h"
+#include "ImfOutputPart.h"
+#include "ImfPartType.h"
+#include "ImfTiledOutputPart.h"
+//#include "ImfMisc.h"
 
 namespace IMF = OPENEXR_IMF_NAMESPACE;
 using namespace IMF;

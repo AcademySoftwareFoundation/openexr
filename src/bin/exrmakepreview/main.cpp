@@ -12,8 +12,8 @@
 
 #include "makePreview.h"
 
-#include <ImfMisc.h>
-#include <OpenEXRConfig.h>
+#include "ImfMisc.h"
+#include "OpenEXRConfig.h"
 
 #include <exception>
 #include <iostream>

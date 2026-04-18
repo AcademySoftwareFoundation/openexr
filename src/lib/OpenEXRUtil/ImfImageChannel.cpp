@@ -11,7 +11,7 @@
 
 #include "ImfImageChannel.h"
 #include "ImfImageLevel.h"
-#include <Iex.h>
+#include "Iex.h"
 
 using namespace IMATH_NAMESPACE;
 using namespace IEX_NAMESPACE;

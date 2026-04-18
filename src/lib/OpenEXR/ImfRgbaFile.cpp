@@ -10,15 +10,15 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <Iex.h>
+#include "Iex.h"
 #include <ImathFun.h>
-#include <ImfChannelList.h>
-#include <ImfInputPart.h>
-#include <ImfMultiPartInputFile.h>
-#include <ImfOutputFile.h>
-#include <ImfRgbaFile.h>
-#include <ImfRgbaYca.h>
-#include <ImfStandardAttributes.h>
+#include "ImfChannelList.h"
+#include "ImfInputPart.h"
+#include "ImfMultiPartInputFile.h"
+#include "ImfOutputFile.h"
+#include "ImfRgbaFile.h"
+#include "ImfRgbaYca.h"
+#include "ImfStandardAttributes.h"
 #include <algorithm>
 #include <mutex>
 #include <string.h>

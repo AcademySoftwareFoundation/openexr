@@ -9,21 +9,21 @@
 //
 //-----------------------------------------------------------------------------
 
-#include "ImathForward.h"
+#include <ImathForward.h>
 #include "ImfNamespace.h"
-#include "half.h"
-#include <ImfBoxAttribute.h>
-#include <ImfCRgbaFile.h>
-#include <ImfChannelList.h>
-#include <ImfDoubleAttribute.h>
-#include <ImfFloatAttribute.h>
-#include <ImfIntAttribute.h>
-#include <ImfLut.h>
-#include <ImfMatrixAttribute.h>
-#include <ImfRgbaFile.h>
-#include <ImfStringAttribute.h>
-#include <ImfTiledRgbaFile.h>
-#include <ImfVecAttribute.h>
+#include <half.h>
+#include "ImfBoxAttribute.h"
+#include "ImfCRgbaFile.h"
+#include "ImfChannelList.h"
+#include "ImfDoubleAttribute.h"
+#include "ImfFloatAttribute.h"
+#include "ImfIntAttribute.h"
+#include "ImfLut.h"
+#include "ImfMatrixAttribute.h"
+#include "ImfRgbaFile.h"
+#include "ImfStringAttribute.h"
+#include "ImfTiledRgbaFile.h"
+#include "ImfVecAttribute.h"
 
 #include <string.h>
 

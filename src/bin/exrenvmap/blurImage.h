@@ -18,7 +18,7 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <readInputImage.h>
+#include "readInputImage.h"
 
 void blurImage (EnvmapImage& image, bool verbose);
 

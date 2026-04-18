@@ -16,8 +16,8 @@
 #include "ImfExport.h"
 #include "ImfNamespace.h"
 
-#include "ImathMatrix.h"
-#include "ImathVec.h"
+#include <ImathMatrix.h>
+#include <ImathVec.h>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 

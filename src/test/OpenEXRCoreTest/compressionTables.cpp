@@ -13,11 +13,11 @@
 
 #include "test_value.h"
 
-#include <openexr.h>
+#include "openexr.h"
 #include <half.h>
 
-#include <OpenEXRConfig.h>
-#include <OpenEXRConfigInternal.h>
+#include "OpenEXRConfig.h"
+#include "OpenEXRConfigInternal.h"
 
 #if __cplusplus >= 201103L
 #    include <thread>

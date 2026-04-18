@@ -13,17 +13,17 @@
 
 #include <ImathFun.h>
 #include <ImathMath.h>
-#include <ImfArray.h>
-#include <ImfInputFile.h>
-#include <ImfOutputFile.h>
-#include <ImfPreviewImage.h>
-#include <ImfRgbaFile.h>
-#include <ImfTiledOutputFile.h>
+#include "ImfArray.h"
+#include "ImfInputFile.h"
+#include "ImfOutputFile.h"
+#include "ImfPreviewImage.h"
+#include "ImfRgbaFile.h"
+#include "ImfTiledOutputFile.h"
 #include <algorithm>
 #include <iostream>
 #include <math.h>
 
-#include <OpenEXRConfig.h>
+#include "OpenEXRConfig.h"
 using namespace OPENEXR_IMF_NAMESPACE;
 using namespace IMATH_NAMESPACE;
 using namespace std;

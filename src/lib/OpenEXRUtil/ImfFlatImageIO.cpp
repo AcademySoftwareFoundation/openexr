@@ -10,14 +10,14 @@
 //----------------------------------------------------------------------------
 
 #include "ImfFlatImageIO.h"
-#include <Iex.h>
-#include <ImfChannelList.h>
-#include <ImfHeader.h>
-#include <ImfInputFile.h>
-#include <ImfOutputFile.h>
-#include <ImfTestFile.h>
-#include <ImfTiledInputFile.h>
-#include <ImfTiledOutputFile.h>
+#include "Iex.h"
+#include "ImfChannelList.h"
+#include "ImfHeader.h"
+#include "ImfInputFile.h"
+#include "ImfOutputFile.h"
+#include "ImfTestFile.h"
+#include "ImfTiledInputFile.h"
+#include "ImfTiledOutputFile.h"
 #include <cassert>
 #include <cstring>
 

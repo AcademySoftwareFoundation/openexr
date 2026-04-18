@@ -13,13 +13,13 @@
 #include <assert.h>
 #include <string.h>
 
-#include <IlmThreadPool.h>
-#include <ImfArray.h>
-#include <ImfChannelList.h>
-#include <ImfDeepFrameBuffer.h>
-#include <ImfDeepScanLineInputFile.h>
-#include <ImfDeepScanLineOutputFile.h>
-#include <ImfPartType.h>
+#include "IlmThreadPool.h"
+#include "ImfArray.h"
+#include "ImfChannelList.h"
+#include "ImfDeepFrameBuffer.h"
+#include "ImfDeepScanLineInputFile.h"
+#include "ImfDeepScanLineOutputFile.h"
+#include "ImfPartType.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <vector>

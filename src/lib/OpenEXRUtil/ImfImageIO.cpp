@@ -12,11 +12,11 @@
 #include "ImfImageIO.h"
 #include "ImfDeepImageIO.h"
 #include "ImfFlatImageIO.h"
-#include <Iex.h>
-#include <ImfHeader.h>
-#include <ImfMultiPartInputFile.h>
-#include <ImfPartType.h>
-#include <ImfTestFile.h>
+#include "Iex.h"
+#include "ImfHeader.h"
+#include "ImfMultiPartInputFile.h"
+#include "ImfPartType.h"
+#include "ImfTestFile.h"
 
 using namespace IMATH_NAMESPACE;
 using namespace IEX_NAMESPACE;

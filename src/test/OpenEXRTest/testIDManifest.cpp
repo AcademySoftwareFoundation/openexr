@@ -7,16 +7,16 @@
 #include <stdlib.h>
 
 #include "random.h"
-#include <ImfChannelList.h>
-#include <ImfFrameBuffer.h>
-#include <ImfHeader.h>
-#include <ImfIDManifest.h>
-#include <ImfInputFile.h>
-#include <ImfOutputFile.h>
-#include <ImfStandardAttributes.h>
+#include "ImfChannelList.h"
+#include "ImfFrameBuffer.h"
+#include "ImfHeader.h"
+#include "ImfIDManifest.h"
+#include "ImfInputFile.h"
+#include "ImfOutputFile.h"
+#include "ImfStandardAttributes.h"
 
 #include "tmpDir.h"
-#include <openexr_compression.h>
+#include "openexr_compression.h"
 
 namespace IMF = OPENEXR_IMF_NAMESPACE;
 using namespace IMF;

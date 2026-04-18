@@ -93,6 +93,17 @@ option(OPENEXR_TEST_PYTHON "Run python binding tests" ON)
 # probably assume this is OpenEXR
 set(OPENEXR_OUTPUT_SUBDIR OpenEXR CACHE STRING "Destination sub-folder of the include path for install")
 
+# When OpenEXR is pulled in via add_subdirectory(), mirror installed layout under
+# BUILD_INTERFACE so consumers can use #include <OpenEXR/...>. Not used for a normal
+# top-level OpenEXR build (clears legacy cache entry from older CMake revisions).
+if(OPENEXR_IS_SUBPROJECT)
+  set(OPENEXR_BUILD_INTERFACE_UNIFIED "${CMAKE_BINARY_DIR}/OpenEXR_build_interface_include")
+  file(MAKE_DIRECTORY "${OPENEXR_BUILD_INTERFACE_UNIFIED}/${OPENEXR_OUTPUT_SUBDIR}")
+else()
+  unset(OPENEXR_BUILD_INTERFACE_UNIFIED CACHE)
+  unset(OPENEXR_BUILD_INTERFACE_UNIFIED)
+endif()
+
 # This does not seem to be available as a per-target property,
 # but is pretty harmless to set globally
 set(CMAKE_INCLUDE_CURRENT_DIR ON)

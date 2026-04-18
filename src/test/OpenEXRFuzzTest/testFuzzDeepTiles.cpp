@@ -9,15 +9,15 @@
 
 #include "fuzzFile.h"
 
-#include <Iex.h>
-#include <IlmThread.h>
-#include <ImfArray.h>
-#include <ImfDeepFrameBuffer.h>
-#include <ImfDeepTiledInputFile.h>
-#include <ImfDeepTiledOutputFile.h>
-#include <ImfHeader.h>
-#include <ImfPartType.h>
-#include <ImfThreading.h>
+#include "Iex.h"
+#include "IlmThread.h"
+#include "ImfArray.h"
+#include "ImfDeepFrameBuffer.h"
+#include "ImfDeepTiledInputFile.h"
+#include "ImfDeepTiledOutputFile.h"
+#include "ImfHeader.h"
+#include "ImfPartType.h"
+#include "ImfThreading.h"
 #include <cassert>
 #include <iostream>
 #include <sstream>
@@ -27,12 +27,12 @@
 #include "tmpDir.h"
 
 // Handle the case when the custom namespace is not exposed
-#include <ImfChannelList.h>
-#include <ImfDeepTiledInputPart.h>
-#include <ImfDeepTiledOutputPart.h>
-#include <ImfMultiPartInputFile.h>
-#include <ImfMultiPartOutputFile.h>
-#include <ImfNamespace.h>
+#include "ImfChannelList.h"
+#include "ImfDeepTiledInputPart.h"
+#include "ImfDeepTiledOutputPart.h"
+#include "ImfMultiPartInputFile.h"
+#include "ImfMultiPartOutputFile.h"
+#include "ImfNamespace.h"
 
 namespace IMF = OPENEXR_IMF_NAMESPACE;
 using namespace IMF;

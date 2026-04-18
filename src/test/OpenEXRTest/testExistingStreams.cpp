@@ -7,17 +7,17 @@
 #    undef NDEBUG
 #endif
 
-#include <ImfArray.h>
-#include <ImfCompressor.h>
-#include <ImfInputPart.h>
-#include <ImfMisc.h>
-#include <ImfMultiPartInputFile.h>
-#include <ImfMultiPartOutputFile.h>
-#include <ImfOutputPart.h>
-#include <ImfPartType.h>
-#include <ImfRgbaFile.h>
-#include <ImfStdIO.h>
-#include <ImfTiledRgbaFile.h>
+#include "ImfArray.h"
+#include "ImfCompressor.h"
+#include "ImfInputPart.h"
+#include "ImfMisc.h"
+#include "ImfMultiPartInputFile.h"
+#include "ImfMultiPartOutputFile.h"
+#include "ImfOutputPart.h"
+#include "ImfPartType.h"
+#include "ImfRgbaFile.h"
+#include "ImfStdIO.h"
+#include "ImfTiledRgbaFile.h"
 
 #include "Iex.h"
 #include <assert.h>
@@ -32,7 +32,7 @@
 #    include <sys/stat.h>
 #endif
 
-#include <ImfChannelList.h>
+#include "ImfChannelList.h"
 #include <vector>
 
 #include "TestUtilFStream.h"

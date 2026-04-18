@@ -10,15 +10,15 @@
 #include "compareB44.h"
 #include "compareDwa.h"
 
-#include <IlmThread.h>
+#include "IlmThread.h"
 #include <ImathRandom.h>
-#include <ImfArray.h>
-#include <ImfChannelList.h>
-#include <ImfFrameBuffer.h>
-#include <ImfHeader.h>
-#include <ImfThreading.h>
-#include <ImfTiledOutputFile.h>
-#include <ImfTiledRgbaFile.h>
+#include "ImfArray.h"
+#include "ImfChannelList.h"
+#include "ImfFrameBuffer.h"
+#include "ImfHeader.h"
+#include "ImfThreading.h"
+#include "ImfTiledOutputFile.h"
+#include "ImfTiledRgbaFile.h"
 #include <algorithm>
 #include <assert.h>
 #include <math.h>

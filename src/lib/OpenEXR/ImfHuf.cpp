@@ -16,7 +16,7 @@
 #include "Iex.h"
 #include "ImfAutoArray.h"
 #include "ImfFastHuf.h"
-#include <ImfHuf.h>
+#include "ImfHuf.h"
 #include <algorithm>
 #include <cassert>
 #include <cstdint>

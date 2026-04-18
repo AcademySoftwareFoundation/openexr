@@ -11,26 +11,26 @@
 //-----------------------------------------------------------------------------
 
 #include <ImathNamespace.h>
-#include <ImfDeepScanLineInputPart.h>
-#include <ImfDeepScanLineOutputPart.h>
-#include <ImfDeepTiledInputPart.h>
-#include <ImfDeepTiledOutputPart.h>
-#include <ImfInputFile.h>
-#include <ImfInputPart.h>
-#include <ImfIntAttribute.h>
-#include <ImfMultiPartInputFile.h>
-#include <ImfMultiPartOutputFile.h>
-#include <ImfNamespace.h>
-#include <ImfOutputFile.h>
-#include <ImfOutputPart.h>
-#include <ImfPartType.h>
-#include <ImfStandardAttributes.h>
-#include <ImfTiledInputPart.h>
-#include <ImfTiledOutputFile.h>
-#include <ImfTiledOutputPart.h>
-#include <ImfVecAttribute.h>
-#include <ImfMisc.h>
-#include <OpenEXRConfig.h>
+#include "ImfDeepScanLineInputPart.h"
+#include "ImfDeepScanLineOutputPart.h"
+#include "ImfDeepTiledInputPart.h"
+#include "ImfDeepTiledOutputPart.h"
+#include "ImfInputFile.h"
+#include "ImfInputPart.h"
+#include "ImfIntAttribute.h"
+#include "ImfMultiPartInputFile.h"
+#include "ImfMultiPartOutputFile.h"
+#include "ImfNamespace.h"
+#include "ImfOutputFile.h"
+#include "ImfOutputPart.h"
+#include "ImfPartType.h"
+#include "ImfStandardAttributes.h"
+#include "ImfTiledInputPart.h"
+#include "ImfTiledOutputFile.h"
+#include "ImfTiledOutputPart.h"
+#include "ImfVecAttribute.h"
+#include "ImfMisc.h"
+#include "OpenEXRConfig.h"
 
 #include <exception>
 #include <iostream>

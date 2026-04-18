@@ -9,10 +9,10 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <Iex.h>
-#include <ImfAcesFile.h>
-#include <ImfRgbaFile.h>
-#include <ImfStandardAttributes.h>
+#include "Iex.h"
+#include "ImfAcesFile.h"
+#include "ImfRgbaFile.h"
+#include "ImfStandardAttributes.h"
 #include <algorithm>
 
 using namespace std;

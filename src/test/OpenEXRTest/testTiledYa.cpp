@@ -8,9 +8,9 @@
 #endif
 
 #include "IlmThread.h"
-#include <ImfArray.h>
-#include <ImfThreading.h>
-#include <ImfTiledRgbaFile.h>
+#include "ImfArray.h"
+#include "ImfThreading.h"
+#include "ImfTiledRgbaFile.h"
 #include <assert.h>
 #include <math.h>
 #include <stdio.h>

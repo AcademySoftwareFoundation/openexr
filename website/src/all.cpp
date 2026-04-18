@@ -3,25 +3,25 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
-#include <ImfHeader.h>
-#include <ImfArray.h>
-#include <ImfInputFile.h>
-#include <ImfFrameBuffer.h>
-#include <ImfOutputFile.h>
-#include <ImfPreviewImage.h>
-#include <ImfRgbaFile.h>
-#include <ImfRgba.h>
-#include <ImfTiledInputFile.h>
-#include <ImfTiledRgbaFile.h>
-#include <ImfDeepScanLineInputFile.h>
-#include <ImfDeepTiledInputFile.h>
-#include <ImfDeepTiledOutputFile.h>
-#include <ImfDeepFrameBuffer.h>
-#include <ImfStandardAttributes.h>
-#include <ImfChannelList.h>
-#include <ImfPartType.h>
+#include "ImfHeader.h"
+#include "ImfArray.h"
+#include "ImfInputFile.h"
+#include "ImfFrameBuffer.h"
+#include "ImfOutputFile.h"
+#include "ImfPreviewImage.h"
+#include "ImfRgbaFile.h"
+#include "ImfRgba.h"
+#include "ImfTiledInputFile.h"
+#include "ImfTiledRgbaFile.h"
+#include "ImfDeepScanLineInputFile.h"
+#include "ImfDeepTiledInputFile.h"
+#include "ImfDeepTiledOutputFile.h"
+#include "ImfDeepFrameBuffer.h"
+#include "ImfStandardAttributes.h"
+#include "ImfChannelList.h"
+#include "ImfPartType.h"
 
-#include <Iex.h>
+#include "Iex.h"
 #include <ImathFun.h>
 
 #include <cfloat>

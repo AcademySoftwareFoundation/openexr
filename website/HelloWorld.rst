@@ -18,6 +18,7 @@ This example :download:`exrwriter.cpp <src/exrwriter/exrwriter.cpp>`
 program writes a simple image ``stripes.exr``:
 
 .. literalinclude:: src/exrwriter/exrwriter.cpp
+   :language: cpp
    :lines: 5-
 
 This creates an image 100 pixels wide and 50 pixels high with
@@ -48,6 +49,7 @@ This companion example :download:`exrreader.cpp <src/exrreader/exrreader.cpp>`
 program reads the ``stripes.exr`` file written by the writer program above:
 
 .. literalinclude:: src/exrreader/exrreader.cpp
+   :language: cpp
    :lines: 5-
 
 And the :download:`CMakeLists.txt <src/exrreader/CMakeLists.txt>` file to build:

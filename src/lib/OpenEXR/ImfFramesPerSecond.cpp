@@ -9,8 +9,8 @@
 //
 //-----------------------------------------------------------------------------
 
-#include "ImathFun.h"
-#include <ImfFramesPerSecond.h>
+#include <ImathFun.h>
+#include "ImfFramesPerSecond.h"
 
 using namespace IMATH_NAMESPACE;
 #include "ImfNamespace.h"

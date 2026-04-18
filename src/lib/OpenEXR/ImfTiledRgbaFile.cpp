@@ -10,15 +10,15 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfArray.h>
-#include <ImfChannelList.h>
-#include <ImfRgbaFile.h>
-#include <ImfRgbaYca.h>
-#include <ImfStandardAttributes.h>
-#include <ImfTileDescriptionAttribute.h>
-#include <ImfTiledInputFile.h>
-#include <ImfTiledOutputFile.h>
-#include <ImfTiledRgbaFile.h>
+#include "ImfArray.h"
+#include "ImfChannelList.h"
+#include "ImfRgbaFile.h"
+#include "ImfRgbaYca.h"
+#include "ImfStandardAttributes.h"
+#include "ImfTileDescriptionAttribute.h"
+#include "ImfTiledInputFile.h"
+#include "ImfTiledOutputFile.h"
+#include "ImfTiledRgbaFile.h"
 
 #include "Iex.h"
 #include "ImfNamespace.h"

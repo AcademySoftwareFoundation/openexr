@@ -20,7 +20,7 @@
 #include "ImfTimeCodeAttribute.h"
 
 #include "ImfNamespace.h"
-#include <Iex.h>
+#include "Iex.h"
 
 #include <set>
 

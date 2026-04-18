@@ -5,11 +5,11 @@
 
 #include "ImfGenericInputFile.h"
 
-#include <Iex.h>
-#include <ImfIO.h>
-#include <ImfVersion.h>
-#include <ImfXdr.h>
-#include <OpenEXRConfig.h>
+#include "Iex.h"
+#include "ImfIO.h"
+#include "ImfVersion.h"
+#include "ImfXdr.h"
+#include "OpenEXRConfig.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 

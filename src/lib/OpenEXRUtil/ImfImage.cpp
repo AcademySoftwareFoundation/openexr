@@ -10,8 +10,8 @@
 //----------------------------------------------------------------------------
 
 #include "ImfImage.h"
-#include <Iex.h>
-#include <ImfChannelList.h>
+#include "Iex.h"
+#include "ImfChannelList.h"
 #include <algorithm>
 #include <cassert>
 

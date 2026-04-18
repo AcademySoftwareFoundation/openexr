@@ -3,10 +3,10 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
-#include <testMathExc.h>
-#include <mathFuncs.h>
-#include <IexMathFloatExc.h>
-#include <IexMathExc.h>
+#include "testMathExc.h"
+#include "mathFuncs.h"
+#include "IexMathFloatExc.h"
+#include "IexMathExc.h"
 #include <iostream>
 #include <assert.h>
 #include <string.h>

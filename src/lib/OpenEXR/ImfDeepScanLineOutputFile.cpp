@@ -9,22 +9,22 @@
 //
 //-----------------------------------------------------------------------------
 
-#include "ImathBox.h"
-#include "ImathFun.h"
+#include <ImathBox.h>
+#include <ImathFun.h>
 #include "ImfDeepFrameBuffer.h"
 #include "ImfOutputPartData.h"
 #include "ImfOutputStreamMutex.h"
-#include <ImfArray.h>
-#include <ImfChannelList.h>
-#include <ImfCompressor.h>
-#include <ImfDeepScanLineInputFile.h>
-#include <ImfDeepScanLineInputPart.h>
-#include <ImfDeepScanLineOutputFile.h>
-#include <ImfMisc.h>
-#include <ImfPartType.h>
-#include <ImfPreviewImageAttribute.h>
-#include <ImfStdIO.h>
-#include <ImfXdr.h>
+#include "ImfArray.h"
+#include "ImfChannelList.h"
+#include "ImfCompressor.h"
+#include "ImfDeepScanLineInputFile.h"
+#include "ImfDeepScanLineInputPart.h"
+#include "ImfDeepScanLineOutputFile.h"
+#include "ImfMisc.h"
+#include "ImfPartType.h"
+#include "ImfPreviewImageAttribute.h"
+#include "ImfStdIO.h"
+#include "ImfXdr.h"
 
 #include "Iex.h"
 #include "IlmThreadPool.h"

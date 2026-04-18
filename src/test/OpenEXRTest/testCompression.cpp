@@ -11,14 +11,14 @@
 
 #include "compareFloat.h"
 #include <ImathRandom.h>
-#include <ImfArray.h>
-#include <ImfChannelList.h>
-#include <ImfCompressor.h>
-#include <ImfFrameBuffer.h>
-#include <ImfHeader.h>
-#include <ImfInputFile.h>
-#include <ImfOutputFile.h>
-#include <ImfTiledOutputFile.h>
+#include "ImfArray.h"
+#include "ImfChannelList.h"
+#include "ImfCompressor.h"
+#include "ImfFrameBuffer.h"
+#include "ImfHeader.h"
+#include "ImfInputFile.h"
+#include "ImfOutputFile.h"
+#include "ImfTiledOutputFile.h"
 #include <half.h>
 
 #include <algorithm>

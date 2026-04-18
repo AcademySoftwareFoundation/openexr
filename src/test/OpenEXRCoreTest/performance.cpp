@@ -13,15 +13,15 @@
 #include <string>
 #include <vector>
 
-#include <IlmThreadPool.h>
-#include <ImfChannelList.h>
-#include <ImfCompressor.h>
-#include <ImfFrameBuffer.h>
-#include <ImfHeader.h>
-#include <ImfInputPart.h>
-#include <ImfMultiPartInputFile.h>
-#include <ImfThreading.h>
-#include <openexr.h>
+#include "IlmThreadPool.h"
+#include "ImfChannelList.h"
+#include "ImfCompressor.h"
+#include "ImfFrameBuffer.h"
+#include "ImfHeader.h"
+#include "ImfInputPart.h"
+#include "ImfMultiPartInputFile.h"
+#include "ImfThreading.h"
+#include "openexr.h"
 
 using namespace OPENEXR_IMF_NAMESPACE;
 using namespace ILMTHREAD_NAMESPACE;

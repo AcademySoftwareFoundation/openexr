@@ -10,7 +10,7 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfMultiView.h>
+#include "ImfMultiView.h"
 
 using namespace std;
 #include "ImfNamespace.h"

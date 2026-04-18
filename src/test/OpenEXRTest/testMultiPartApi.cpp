@@ -18,21 +18,21 @@
 #include "testMultiPartApi.h"
 #include "tmpDir.h"
 
-#include <ImfArray.h>
-#include <ImfChannelList.h>
-#include <ImfFrameBuffer.h>
-#include <ImfGenericOutputFile.h>
-#include <ImfHeader.h>
-#include <ImfInputPart.h>
-#include <ImfMultiPartInputFile.h>
-#include <ImfMultiPartOutputFile.h>
-#include <ImfOutputFile.h>
-#include <ImfOutputPart.h>
-#include <ImfPartType.h>
-#include <ImfTiledInputPart.h>
-#include <ImfTiledMisc.h>
-#include <ImfTiledOutputFile.h>
-#include <ImfTiledOutputPart.h>
+#include "ImfArray.h"
+#include "ImfChannelList.h"
+#include "ImfFrameBuffer.h"
+#include "ImfGenericOutputFile.h"
+#include "ImfHeader.h"
+#include "ImfInputPart.h"
+#include "ImfMultiPartInputFile.h"
+#include "ImfMultiPartOutputFile.h"
+#include "ImfOutputFile.h"
+#include "ImfOutputPart.h"
+#include "ImfPartType.h"
+#include "ImfTiledInputPart.h"
+#include "ImfTiledMisc.h"
+#include "ImfTiledOutputFile.h"
+#include "ImfTiledOutputPart.h"
 
 namespace IMF = OPENEXR_IMF_NAMESPACE;
 using namespace IMF;

@@ -5,16 +5,16 @@
 
 #include "test_value.h"
 
-#include <openexr.h>
+#include "openexr.h"
 
-#include <ImfArray.h>
-#include <ImfChannelList.h>
-#include <ImfDeepFrameBuffer.h>
-#include <ImfDeepScanLineInputFile.h>
-#include <ImfDeepScanLineOutputFile.h>
-#include <ImfDeepTiledInputFile.h>
-#include <ImfDeepTiledOutputFile.h>
-#include <ImfPartType.h>
+#include "ImfArray.h"
+#include "ImfChannelList.h"
+#include "ImfDeepFrameBuffer.h"
+#include "ImfDeepScanLineInputFile.h"
+#include "ImfDeepScanLineOutputFile.h"
+#include "ImfDeepTiledInputFile.h"
+#include "ImfDeepTiledOutputFile.h"
+#include "ImfPartType.h"
 #include <random>
 #include <vector>
 

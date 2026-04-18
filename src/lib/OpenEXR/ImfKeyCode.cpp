@@ -11,7 +11,7 @@
 
 #include "Iex.h"
 #include "ImfNamespace.h"
-#include <ImfKeyCode.h>
+#include "ImfKeyCode.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 

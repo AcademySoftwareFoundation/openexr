@@ -7,9 +7,9 @@
 #    undef NDEBUG
 #endif
 
-#include <ImfArray.h>
-#include <ImfRgbaFile.h>
-#include <ImfTiledRgbaFile.h>
+#include "ImfArray.h"
+#include "ImfRgbaFile.h"
+#include "ImfTiledRgbaFile.h"
 #include <assert.h>
 #include <stdio.h>
 

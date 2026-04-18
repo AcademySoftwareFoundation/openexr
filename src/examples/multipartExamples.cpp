@@ -11,26 +11,26 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfHeader.h>
-#include <ImfPartType.h>
-#include <ImfChannelList.h>
-#include <ImfArray.h>
+#include "ImfHeader.h"
+#include "ImfPartType.h"
+#include "ImfChannelList.h"
+#include "ImfArray.h"
 
-#include <ImfFrameBuffer.h>
-#include <ImfDeepFrameBuffer.h>
+#include "ImfFrameBuffer.h"
+#include "ImfDeepFrameBuffer.h"
 
-#include <ImfMultiPartInputFile.h>
-#include <ImfMultiPartOutputFile.h>
+#include "ImfMultiPartInputFile.h"
+#include "ImfMultiPartOutputFile.h"
 
-#include <ImfInputPart.h>
-#include <ImfTiledInputPart.h>
-#include <ImfDeepScanLineInputPart.h>
-#include <ImfDeepTiledInputPart.h>
+#include "ImfInputPart.h"
+#include "ImfTiledInputPart.h"
+#include "ImfDeepScanLineInputPart.h"
+#include "ImfDeepTiledInputPart.h"
 
-#include <ImfOutputPart.h>
-#include <ImfTiledOutputPart.h>
-#include <ImfDeepScanLineOutputPart.h>
-#include <ImfDeepTiledOutputPart.h>
+#include "ImfOutputPart.h"
+#include "ImfTiledOutputPart.h"
+#include "ImfDeepScanLineOutputPart.h"
+#include "ImfDeepTiledOutputPart.h"
 
 #include <vector>
 #include <list>

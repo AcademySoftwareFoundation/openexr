@@ -12,10 +12,10 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfArray.h>
-#include <ImfMatrixAttribute.h>
-#include <ImfRgbaFile.h>
-#include <ImfStringAttribute.h>
+#include "ImfArray.h"
+#include "ImfMatrixAttribute.h"
+#include "ImfRgbaFile.h"
+#include "ImfStringAttribute.h"
 
 #include "drawImage.h"
 

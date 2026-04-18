@@ -31,7 +31,7 @@
 #include "ImfVersion.h"
 #include "ImfXdr.h"
 
-#include "ImathBox.h"
+#include <ImathBox.h>
 
 #include "IlmThreadPool.h"
 #include "IlmThreadSemaphore.h"
