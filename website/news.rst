@@ -17,9 +17,36 @@ News
 
 
 |latest-news-title|
-=======================================
+========================================
 
 .. _LatestNewsStart:
+
+Patch release that addresses the following security vulnerabilities:
+
+* `CVE-2026-39886 <https://www.cve.org/CVERecord?id=CVE-2026-39886>`_ HTJ2K Signed Integer Overflow in ``ht_undo_impl()``
+* `CVE-2026-40244 <https://www.cve.org/CVERecord?id=CVE-2026-40244>`_ Integer overflow in DWA ``setupChannelData`` ``planarUncRle`` pointer arithmetic (missed variant of CVE-2026-34589)
+* `CVE-2026-40250 <https://www.cve.org/CVERecord?id=CVE-2026-40250>`_ Integer overflow in DWA decoder ``outBufferEnd`` pointer arithmetic (missed variant of CVE-2026-34589)
+
+.. _LatestNewsEnd:
+
+April 17, 2026 - OpenEXR 3.3.10 Released
+========================================
+
+Patch release for v3.3 that addresses the following security vulnerabilities:
+
+* `CVE-2026-40244 <https://www.cve.org/CVERecord?id=CVE-2026-40244>`_ Integer overflow in DWA ``setupChannelData`` ``planarUncRle`` pointer arithmetic (missed variant of CVE-2026-34589)
+* `CVE-2026-40250 <https://www.cve.org/CVERecord?id=CVE-2026-40250>`_ Integer overflow in DWA decoder ``outBufferEnd`` pointer arithmetic (missed variant of CVE-2026-34589)
+
+April 17, 2026 - OpenEXR 3.2.8 Released
+=======================================
+
+Patch release for v3.2 that addresses the following security vulnerabilities:
+
+* `CVE-2026-40244 <https://www.cve.org/CVERecord?id=CVE-2026-40244>`_ Integer overflow in DWA ``setupChannelData`` ``planarUncRle`` pointer arithmetic (missed variant of CVE-2026-34589)
+* `CVE-2026-40250 <https://www.cve.org/CVERecord?id=CVE-2026-40250>`_ Integer overflow in DWA decoder ``outBufferEnd`` pointer arithmetic (missed variant of CVE-2026-34589)
+
+April  3, 2026 - OpenEXR 3.4.9 Released
+=======================================
 
 Patch release that addresses several security vulnerabilities.
 
@@ -35,7 +62,6 @@ This release addresses the following CVEs:
 * `CVE-2026-34379 <https://www.cve.org/CVERecord?id=CVE-2026-34379>`_ Misaligned write in LossyDctDecoder_execute leading to undefined behavior (DWA/DWAB decompression)
 * `CVE-2026-34378 <https://www.cve.org/CVERecord?id=CVE-2026-34378>`_ Signed integer overflow in generic_unpack() when parsing EXR files with crafted negative dataWindow.min.x
 
-.. _LatestNewsEnd:
 
 April  3, 2026 - OpenEXR 3.3.9 Released
 =======================================

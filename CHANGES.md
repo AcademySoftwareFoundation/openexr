@@ -3,6 +3,7 @@
 
 # OpenEXR Release Notes
 
+* [Version 3.4.10](#version-3410-april-17-2026) April 17, 2026
 * [Version 3.4.9](#version-349-april--3-2026) April  3, 2026
 * [Version 3.4.8](#version-348-march-26-2026) March 26, 2026
 * [Version 3.4.7](#version-347-march-15-2026) March 15, 2026
@@ -13,6 +14,7 @@
 * [Version 3.4.2](#version-342-october-15-2025) October 15, 2025
 * [Version 3.4.1](#version-341-october-8-2025) October 8, 2025
 * [Version 3.4.0](#version-340-september-5-2025) September 5, 2025
+* [Version 3.3.10](#version-339-april-17-2026) April 17, 2026
 * [Version 3.3.9](#version-339-april--4-2026) April  4, 2026
 * [Version 3.3.8](#version-338-march-1-2026) March 1, 2026
 * [Version 3.3.7](#version-337-february-19-2026) February 19, 2026
@@ -23,6 +25,7 @@
 * [Version 3.3.2](#version-332-november-11-2024) November 11, 2024
 * [Version 3.3.1](#version-331-october-8-2024) October 8, 2024
 * [Version 3.3.0](#version-330-september-30-2024) September 30, 2024
+* [Version 3.2.8](#version-328-april-17-2026) April 17, 2026
 * [Version 3.2.7](#version-327-april-3-2026) April 3, 2026
 * [Version 3.2.6](#version-326-march-1-2026) March 1, 2026
 * [Version 3.2.5](#version-325-november-4-2025) November 4, 2025
@@ -96,6 +99,48 @@
 * [Version 1.0.2](#version-102)
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
+
+## Version 3.4.10 (April 17, 2026)
+
+Patch release that addresses the following security vulnerabilities:
+
+* [CVE-2026-39886](https://www.cve.org/CVERecord?id=CVE-2026-39886) HTJ2K Signed Integer Overflow in `ht_undo_impl()`
+* [CVE-2026-40244](https://www.cve.org/CVERecord?id=CVE-2026-40244) Integer overflow in DWA `setupChannelData` `planarUncRle` pointer arithmetic (missed variant of CVE-2026-34589)
+* [CVE-2026-40250](https://www.cve.org/CVERecord?id=CVE-2026-40250) Integer overflow in DWA decoder `outBufferEnd` pointer arithmetic (missed variant of CVE-2026-34589)
+
+### Merged Pull Requests
+
+* [2346](https://github.com/AcademySoftwareFoundation/openexr/pull/2346)
+Fix integer overflow in internal_dwa_compressor.h
+* [2345](https://github.com/AcademySoftwareFoundation/openexr/pull/2345)
+Fix HTJ2K bytes-per-line integer overflow in internal_ht.cpp
+* [2340](https://github.com/AcademySoftwareFoundation/openexr/pull/2340)
+Fix 3.4.9 cve list formatting
+* [2339](https://github.com/AcademySoftwareFoundation/openexr/pull/2339)
+fix link formatting typo
+* [2337](https://github.com/AcademySoftwareFoundation/openexr/pull/2337)
+notes and news for v3.4.9, v3.3.9, v3.2.7
+* [2334](https://github.com/AcademySoftwareFoundation/openexr/pull/2334)
+Add CVE-2026-34589,34588,34545,34544,34543,34380,34379,34378 to SECURITY.md
+* [2316](https://github.com/AcademySoftwareFoundation/openexr/pull/2316)
+Fix Pinned-Dependencies Scorecard alert in website workflow
+
+### Merged Workflow Pull Requests
+
+* [2360](https://github.com/AcademySoftwareFoundation/openexr/pull/2360)
+Bump actions/cache from 5.0.4 to 5.0.5
+* [2354](https://github.com/AcademySoftwareFoundation/openexr/pull/2354)
+Bump actions/upload-artifact from 7.0.0 to 7.0.1
+* [2343](https://github.com/AcademySoftwareFoundation/openexr/pull/2343)
+Bump pypa/gh-action-pypi-publish from 1.13.0 to 1.14.0
+* [2341](https://github.com/AcademySoftwareFoundation/openexr/pull/2341)
+Bump jmertic/slack-release-notifier from 32206e01ee0b0f66865d2be13bb3c62e474b5ce0 to 9d7d3a84563d2ebc8f7b2271be6c9568fedd7f3a
+* [2338](https://github.com/AcademySoftwareFoundation/openexr/pull/2338)
+Fix CodeQL SARIF upload ref for pull_request workflows
+* [2336](https://github.com/AcademySoftwareFoundation/openexr/pull/2336)
+Bump pypa/cibuildwheel from 3.4.0 to 3.4.1
+* [2333](https://github.com/AcademySoftwareFoundation/openexr/pull/2333)
+Add CI test to validate "cmake --install .. --prefix <path>
 
 ## Version 3.4.9 (April  3, 2026)
 
@@ -822,6 +867,18 @@ Fetch master branch of libdeflate on main
 * [1852](https://github.com/AcademySoftwareFoundation/openexr/pull/1852)
 Add an option to use TBB as the global provider
 
+## Version 3.3.10 (April 17, 2026)
+
+Patch release that addresses the following security vulnerabilities:
+
+* [CVE-2026-40244](https://www.cve.org/CVERecord?id=CVE-2026-40244) Integer overflow in DWA setupChannelData planarUncRle pointer arithmetic (missed variant of CVE-2026-34589)
+* [CVE-2026-40250](https://www.cve.org/CVERecord?id=CVE-2026-40250) Integer overflow in DWA decoder outBufferEnd pointer arithmetic (missed variant of CVE-2026-34589)
+
+### Merged Pull Requests
+
+* [2346](https://github.com/AcademySoftwareFoundation/openexr/pull/2346)
+Fix integer overflow in internal_dwa_compressor.h
+
 ## Version 3.3.9 (April  4, 2026)
 
 Patch release for v3.3 that addresses the following security vulnerabilities:
@@ -1506,6 +1563,18 @@ Fix macOS arm64 build
 * [1423](https://github.com/AcademySoftwareFoundation/openexr/pull/1423)
 Propagate dwa core 3 1
 * [1418](https://github.com/AcademySoftwareFoundation/openexr/pull/1418)
+
+## Version 3.2.8 (April 17, 2026)
+
+Patch release that addresses the following security vulnerabilities:
+
+* [CVE-2026-40244](https://www.cve.org/CVERecord?id=CVE-2026-40244) Integer overflow in DWA setupChannelData planarUncRle pointer arithmetic (missed variant of CVE-2026-34589)
+* [CVE-2026-40250](https://www.cve.org/CVERecord?id=CVE-2026-40250) Integer overflow in DWA decoder outBufferEnd pointer arithmetic (missed variant of CVE-2026-34589)
+
+### Merged Pull Requests
+
+* [2346](https://github.com/AcademySoftwareFoundation/openexr/pull/2346)
+Fix integer overflow in internal_dwa_compressor.h
 
 ## Version 3.2.7 (April 3, 2026)
 
