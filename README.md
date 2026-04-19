@@ -144,7 +144,10 @@ API](https://openexr.readthedocs.io/en/latest/API.html#the-openexr-api).
 
 * **Report a security vulnerability:**
 
-  - Email to security@openexr.com
+  - File a GitHub [security
+    advisory](https://github.com/AcademySoftwareFoundation/openexr/security/advisories/new).
+    Email security@openexr.com for private/secure discussion with the project
+    maintainers.
 
 * **Contribute a Fix, Feature, or Improvement:**
 
