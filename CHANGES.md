@@ -3,7 +3,7 @@
 
 # OpenEXR Release Notes
 
-* [Version 3.4.10](#version-3410-april-16-2026) April 16, 2026
+* [Version 3.4.10](#version-3410-april-17-2026) April 17, 2026
 * [Version 3.4.9](#version-349-april--3-2026) April  3, 2026
 * [Version 3.4.8](#version-348-march-26-2026) March 26, 2026
 * [Version 3.4.7](#version-347-march-15-2026) March 15, 2026
@@ -14,6 +14,7 @@
 * [Version 3.4.2](#version-342-october-15-2025) October 15, 2025
 * [Version 3.4.1](#version-341-october-8-2025) October 8, 2025
 * [Version 3.4.0](#version-340-september-5-2025) September 5, 2025
+* [Version 3.3.10](#version-339-april-17-2026) April 17, 2026
 * [Version 3.3.9](#version-339-april--4-2026) April  4, 2026
 * [Version 3.3.8](#version-338-march-1-2026) March 1, 2026
 * [Version 3.3.7](#version-337-february-19-2026) February 19, 2026
@@ -24,6 +25,7 @@
 * [Version 3.3.2](#version-332-november-11-2024) November 11, 2024
 * [Version 3.3.1](#version-331-october-8-2024) October 8, 2024
 * [Version 3.3.0](#version-330-september-30-2024) September 30, 2024
+* [Version 3.2.8](#version-328-april-17-2026) April 17, 2026
 * [Version 3.2.7](#version-327-april-3-2026) April 3, 2026
 * [Version 3.2.6](#version-326-march-1-2026) March 1, 2026
 * [Version 3.2.5](#version-325-november-4-2025) November 4, 2025
@@ -98,7 +100,7 @@
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
 
-## Version 3.4.10 (April 16, 2026)
+## Version 3.4.10 (April 17, 2026)
 
 Patch release that addresses the following security vulnerabilities:
 
@@ -881,6 +883,18 @@ Fetch master branch of libdeflate on main
 * [1852](https://github.com/AcademySoftwareFoundation/openexr/pull/1852)
 Add an option to use TBB as the global provider
 
+## Version 3.3.10 (April 17, 2026)
+
+Patch release that addresses the following security vulnerabilities:
+
+* [CVE-2026-40244](https://www.cve.org/CVERecord?id=CVE-2026-40244) Integer overflow in DWA setupChannelData planarUncRle pointer arithmetic (missed variant of CVE-2026-34589)
+* [CVE-2026-40250](https://www.cve.org/CVERecord?id=CVE-2026-40250) Integer overflow in DWA decoder outBufferEnd pointer arithmetic (missed variant of CVE-2026-34589)
+
+### Merged Pull Requests
+
+* [2346](https://github.com/AcademySoftwareFoundation/openexr/pull/2346)
+Fix integer overflow in internal_dwa_compressor.h
+
 ## Version 3.3.9 (April  4, 2026)
 
 Patch release for v3.3 that addresses the following security vulnerabilities:
@@ -1565,6 +1579,18 @@ Fix macOS arm64 build
 * [1423](https://github.com/AcademySoftwareFoundation/openexr/pull/1423)
 Propagate dwa core 3 1
 * [1418](https://github.com/AcademySoftwareFoundation/openexr/pull/1418)
+
+## Version 3.2.8 (April 17, 2026)
+
+Patch release that addresses the following security vulnerabilities:
+
+* [CVE-2026-40244](https://www.cve.org/CVERecord?id=CVE-2026-40244) Integer overflow in DWA setupChannelData planarUncRle pointer arithmetic (missed variant of CVE-2026-34589)
+* [CVE-2026-40250](https://www.cve.org/CVERecord?id=CVE-2026-40250) Integer overflow in DWA decoder outBufferEnd pointer arithmetic (missed variant of CVE-2026-34589)
+
+### Merged Pull Requests
+
+* [2346](https://github.com/AcademySoftwareFoundation/openexr/pull/2346)
+Fix integer overflow in internal_dwa_compressor.h
 
 ## Version 3.2.7 (April 3, 2026)
 
