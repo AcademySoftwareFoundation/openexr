@@ -49,6 +49,13 @@ ImageChannel::channel () const
 void
 ImageChannel::resize ()
 {
+    if (_xSampling < 1 || _ySampling < 1)
+    {
+        throw ArgExc (
+            "The x and y sampling rates for an image channel must be at "
+            "least 1.");
+    }
+
     const Box2i& dataWindow = level ().dataWindow ();
 
     if (dataWindow.min.x % _xSampling || dataWindow.min.y % _ySampling)
@@ -70,11 +77,6 @@ ImageChannel::resize ()
 
     _pixelsPerRow    = width / _xSampling;
     _pixelsPerColumn = height / _ySampling;
-
-    if (_pixelsPerRow < 0 || _pixelsPerColumn < 0)
-    {
-        throw ArgExc ("Invalid image channel dimensions.");
-    }
 
     const uint64_t w64 = static_cast<uint64_t> (_pixelsPerRow);
     const uint64_t h64 = static_cast<uint64_t> (_pixelsPerColumn);
