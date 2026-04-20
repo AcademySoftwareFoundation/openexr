@@ -8,7 +8,7 @@
 #endif
 
 #include "IlmThread.h"
-#include "ImathRandom.h"
+#include <Imath/ImathRandom.h>
 #include <ImfArray.h>
 #include <ImfChannelList.h>
 #include <ImfInputFile.h>

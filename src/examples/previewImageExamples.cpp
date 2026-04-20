@@ -10,7 +10,7 @@
 //
 //-----------------------------------------------------------------------------
 
-#include "ImathFun.h"
+#include <Imath/ImathFun.h>
 #include <ImfArray.h>
 #include <ImfPreviewImage.h>
 #include <ImfRgbaFile.h>

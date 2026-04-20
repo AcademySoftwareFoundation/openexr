@@ -9,8 +9,8 @@
 //
 //-----------------------------------------------------------------------------
 
-#include "ImathBox.h"
-#include "ImathFun.h"
+#include <Imath/ImathBox.h>
+#include <Imath/ImathFun.h>
 #include "ImfDeepFrameBuffer.h"
 #include "ImfOutputPartData.h"
 #include "ImfOutputStreamMutex.h"

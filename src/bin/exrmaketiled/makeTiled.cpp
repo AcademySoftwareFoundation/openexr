@@ -13,7 +13,7 @@
 #include "Image.h"
 
 #include "Iex.h"
-#include "ImathFun.h"
+#include <Imath/ImathFun.h>
 #include "ImfChannelList.h"
 #include "ImfDeepScanLineInputPart.h"
 #include "ImfDeepScanLineOutputPart.h"

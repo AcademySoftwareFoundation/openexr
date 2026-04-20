@@ -19,7 +19,7 @@
 #include "ImfNamespace.h"
 
 #include "ImfAttribute.h"
-#include <ImathMatrix.h>
+#include <Imath/ImathMatrix.h>
 
 #if defined(_MSC_VER)
 // suppress warning about non-exported base classes

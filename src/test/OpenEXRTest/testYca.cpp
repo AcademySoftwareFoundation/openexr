@@ -8,7 +8,7 @@
 #endif
 
 #include "IlmThread.h"
-#include "ImathMath.h"
+#include <Imath/ImathMath.h>
 #include <ImfArray.h>
 #include <ImfRgbaFile.h>
 #include <ImfThreading.h>

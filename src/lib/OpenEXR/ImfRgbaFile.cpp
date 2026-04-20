@@ -11,7 +11,7 @@
 //-----------------------------------------------------------------------------
 
 #include <Iex.h>
-#include <ImathFun.h>
+#include <Imath/ImathFun.h>
 #include <ImfChannelList.h>
 #include <ImfInputPart.h>
 #include <ImfMultiPartInputFile.h>

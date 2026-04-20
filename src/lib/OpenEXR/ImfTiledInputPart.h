@@ -9,7 +9,7 @@
 #include "ImfForward.h"
 
 #include "ImfTileDescription.h"
-#include <ImathBox.h>
+#include <Imath/ImathBox.h>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 

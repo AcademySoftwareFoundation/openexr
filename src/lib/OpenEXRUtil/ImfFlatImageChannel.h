@@ -22,7 +22,7 @@
 
 #include "ImfFrameBuffer.h"
 #include "ImfPixelType.h"
-#include <ImathBox.h>
+#include <Imath/ImathBox.h>
 #include <half.h>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER

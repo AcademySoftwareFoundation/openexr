@@ -43,7 +43,7 @@
 #include <ImfTiledOutputPart.h>
 
 #include <IlmThreadNamespace.h>
-#include <ImathNamespace.h>
+#include <Imath/ImathNamespace.h>
 #include <ImfNamespace.h>
 #include <ImfSystemSpecific.h>
 
