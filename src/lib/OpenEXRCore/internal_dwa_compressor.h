@@ -90,6 +90,26 @@ static exr_result_t DwaCompressor_setupChannelData (DwaCompressor* me);
 
 /**************************************/
 
+/* Decode: ensure a row slice fits inside the pipeline's unpacked buffer. */
+static exr_result_t
+dwa_decode_output_row_fits (
+    exr_decode_pipeline_t* decode, const uint8_t* rowStart, size_t nbytes)
+{
+    const uint8_t* base;
+    size_t         cap;
+
+    if (!decode) return EXR_ERR_CORRUPT_CHUNK;
+    base = decode->unpacked_buffer;
+    cap  = decode->unpacked_alloc_size;
+    if (!base || cap == 0) return EXR_ERR_CORRUPT_CHUNK;
+    if (rowStart < base || rowStart > base + cap) return EXR_ERR_CORRUPT_CHUNK;
+    if (nbytes > cap) return EXR_ERR_CORRUPT_CHUNK;
+    if ((size_t) (rowStart - base) > cap - nbytes) return EXR_ERR_CORRUPT_CHUNK;
+    return EXR_ERR_SUCCESS;
+}
+
+/**************************************/
+
 exr_result_t
 DwaCompressor_construct (
     DwaCompressor*         me,
@@ -1032,6 +1052,14 @@ DwaCompressor_uncompress (
 
             if ((y % chan->y_samples) != 0) continue;
 
+            {
+                size_t rowBytes =
+                    (size_t) chan->width * (size_t) chan->bytes_per_element;
+                rv = dwa_decode_output_row_fits (
+                    me->_decode, outBufferEnd, rowBytes);
+                if (rv != EXR_ERR_SUCCESS) return rv;
+            }
+
             rv = DctCoderChannelData_push_row (
                 me->alloc_fn, me->free_fn, &(cd->_dctData), outBufferEnd);
             if (rv != EXR_ERR_SUCCESS) return rv;
@@ -1173,7 +1201,18 @@ DwaCompressor_uncompress (
                         uint8_t* dst;
                         if ((y % chan->y_samples) != 0) continue;
 
+                        if ((size_t) row >= dcddata->_size)
+                        {
+                            return EXR_ERR_CORRUPT_CHUNK;
+                        }
+
                         dst = dcddata->_rows[row];
+
+                        rv = dwa_decode_output_row_fits (
+                            me->_decode,
+                            dst,
+                            (size_t) chan->width * (size_t) pixelSize);
+                        if (rv != EXR_ERR_SUCCESS) return rv;
 
                         if (pixelSize == 2)
                         {
@@ -1219,6 +1258,11 @@ DwaCompressor_uncompress (
                     {
                         if ((y % chan->y_samples) != 0) continue;
 
+                        if ((size_t) row >= dcddata->_size)
+                        {
+                            return EXR_ERR_CORRUPT_CHUNK;
+                        }
+
                         //
                         // sanity check for buffer data lying within range
                         //
@@ -1229,6 +1273,12 @@ DwaCompressor_uncompress (
                         {
                             return EXR_ERR_CORRUPT_CHUNK;
                         }
+
+                        rv = dwa_decode_output_row_fits (
+                            me->_decode,
+                            dcddata->_rows[row],
+                            dstScanlineSize);
+                        if (rv != EXR_ERR_SUCCESS) return rv;
 
                         memcpy (
                             dcddata->_rows[row],
