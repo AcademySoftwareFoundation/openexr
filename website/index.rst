@@ -19,13 +19,13 @@ OpenEXR provides the specification and reference implementation of the
 EXR file format, the professional-grade image storage format of the
 motion picture industry.
 
-The purpose of EXR format is to accurately and efficiently represent
-high-dynamic-range scene-linear image data. This is a significant difference to
-most image formats, which store images that are ready for display. Software that
-handles OpenEXR images may need to process them differently to images in other
-formats such as JPEG (see :doc:`SceneLinear` for more details). OpenEXR files
-have strong support for multi-part, multi-channel use cases, and extensive
-representation of associated metadata.
+The purpose of the EXR format is to accurately and efficiently represent
+high-dynamic-range scene-linear image data. This is a significant difference from
+most image formats, which store images that are ready for display. Software may
+need to process OpenEXR images differently from other image formats such as JPEG
+(see :doc:`SceneLinear` for more details). OpenEXR files have strong support
+for multi-part, multi-channel use cases, and extensive representation of
+associated metadata.
 
 OpenEXR is widely used in host application software where accuracy is
 critical, such as photorealistic rendering, texture access, image
