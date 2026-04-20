@@ -85,10 +85,11 @@ print_attr (const exr_attribute_t* a, int verbose)
                 "b44a",
                 "dwaa",
                 "dwab",
-                "htj2k",
+                "htj2k256",
+                "htj2k32",
                 "zstd"};
             printf (
-                "'%s'", (a->uc < 10 ? compressionnames[a->uc] : "<UNKNOWN>"));
+                "'%s'", (a->uc < EXR_COMPRESSION_LAST_TYPE ? compressionnames[a->uc] : "<UNKNOWN>"));
             if (verbose) printf (" (0x%02X)", a->uc);
             break;
         }

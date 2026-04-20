@@ -899,13 +899,74 @@ generatedFunctions ()
     assert (hasChromaticities (header) == false);
     assert (hasWhiteLuminance (header) == false);
     assert (hasAdoptedNeutral (header) == false);
-    assert (hasRenderingTransform (header) == false);
-    assert (hasLookModTransform (header) == false);
     assert (hasEnvmap (header) == false);
     assert (hasWrapmodes (header) == false);
     assert (hasMultiView (header) == false);
     assert (hasDeepImageState (header) == false);
     assert (hasIDManifest (header) == false);
+    assert (hasColorInteropID (header) == false);
+
+#if defined(_MSC_VER)
+    __pragma(warning(push))
+    __pragma(warning(disable: 4996))
+#elif defined(__clang__) || defined(__GNUC__)
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+    assert (hasRenderingTransform (header) == false);
+    assert (hasLookModTransform (header) == false);
+#if defined(_MSC_VER)
+    __pragma(warning(pop))
+#elif defined(__clang__) || defined(__GNUC__)
+    #pragma GCC diagnostic pop
+#endif
+}
+
+void
+writeReadColorInteropID(const char fileName[])
+{
+    cout << "colorInteropID attribute" << endl;
+
+    cout << "writing, ";
+
+    static const int W = 100;
+    static const int H = 100;
+
+    Header header (W, H);
+    assert (hasColorInteropID (header) == false);
+
+    std::string id1 = "lin_ap1_scene";
+
+    addColorInteropID (header, id1);
+    assert (hasColorInteropID (header) == true);
+
+    {
+        RgbaOutputFile out (fileName, header);
+        Rgba           pixels[W];
+
+        for (int i = 0; i < W; ++i)
+        {
+            pixels[i].r = 1;
+            pixels[i].g = 1;
+            pixels[i].b = 1;
+            pixels[i].a = 1;
+        }
+
+        out.setFrameBuffer (pixels, 1, 0);
+        out.writePixels (H);
+    }
+
+    cout << "reading, comparing" << endl;
+
+    {
+        RgbaInputFile  in (fileName);
+        std::string  id2 = colorInteropID(in.header());
+
+        assert (hasColorInteropID (in.header ()) == true);
+        assert (id1 == id2);
+    }
+
+    remove (fileName);
 }
 
 } // namespace
@@ -951,6 +1012,11 @@ testStandardAttributes (const std::string& tempDir)
             rationalMethods ();
             std::string filename = tempDir + "imf_test_rational.exr";
             writeReadRational (filename.c_str ());
+        }
+
+        {
+            std::string filename = tempDir + "imf_colorInteropID.exr";
+            writeReadColorInteropID (filename.c_str ());
         }
 
         generatedFunctions ();

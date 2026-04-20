@@ -23,11 +23,6 @@
 
 #include <ImathBox.h>
 
-#include <ojph_arch.h>
-#include <ojph_file.h>
-#include <ojph_params.h>
-#include <ojph_mem.h>
-
 using IMATH_NAMESPACE::Box2i;
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER

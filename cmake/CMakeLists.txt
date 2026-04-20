@@ -63,6 +63,11 @@ if (OPENEXR_USE_DEFAULT_VISIBILITY)
 else()
   set(OPENEXR_ENABLE_API_VISIBILITY ON)
 endif()
+if (OPENEXR_FORCE_EMBEDDED_CORE)
+  set(OPENEXR_CORE_FUNCTIONS_EMBEDDED ON)
+else()
+  set(OPENEXR_CORE_FUNCTIONS_EMBEDDED OFF)
+endif()
 
 if (UNIX AND NOT APPLE AND NOT BEOS)
   find_library(OPENEXR_EXTRA_MATH_LIB m)
@@ -156,7 +161,7 @@ target_include_directories(IexConfig INTERFACE
 if(OPENEXR_INSTALL)
   install(TARGETS IexConfig EXPORT ${PROJECT_NAME})
 endif()
-add_library(${PROJECT_NAME}::Config ALIAS IexConfig)
+add_library(Iex::Config ALIAS IexConfig)
 
 add_library(IlmThreadConfig INTERFACE)
 target_include_directories(IlmThreadConfig INTERFACE
@@ -167,7 +172,7 @@ target_include_directories(IlmThreadConfig INTERFACE
 if(OPENEXR_INSTALL)
   install(TARGETS IlmThreadConfig EXPORT ${PROJECT_NAME})
 endif()
-add_library(${PROJECT_NAME}::Config ALIAS IlmThreadConfig)
+add_library(IlmThread::Config ALIAS IlmThreadConfig)
 
 ###################################################
 ####### Install pkg-config files if requested

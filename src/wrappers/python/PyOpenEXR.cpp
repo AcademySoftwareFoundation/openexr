@@ -22,6 +22,8 @@
 #include <ImfMultiPartOutputFile.h>
 #include <ImfInputPart.h>
 #include <ImfOutputPart.h>
+#include <ImfTiledInputPart.h>
+#include <ImfTiledOutputPart.h>
 #include <ImfTiledOutputPart.h>
 #include <ImfDeepScanLineOutputPart.h>
 #include <ImfDeepScanLineInputPart.h>
@@ -32,6 +34,7 @@
 #include <ImfArray.h>
 
 #include <ImfBoxAttribute.h>
+#include <ImfBytesAttribute.h>
 #include <ImfChannelListAttribute.h>
 #include <ImfChromaticitiesAttribute.h>
 #include <ImfCompressionAttribute.h>
@@ -42,6 +45,7 @@
 #include <ImfKeyCodeAttribute.h>
 #include <ImfLineOrderAttribute.h>
 #include <ImfMatrixAttribute.h>
+#include <ImfOpaqueAttribute.h>
 #include <ImfPreviewImageAttribute.h>
 #include <ImfRationalAttribute.h>
 #include <ImfStringAttribute.h>
@@ -95,12 +99,18 @@ namespace {
 
 #include "PyOpenEXR.h"
 
+PyFile::PyFile()
+    : _header_only(false)
+{
+}
+    
 //
 // Create a PyFile out of a list of parts (i.e. a multi-part file)
 //
 
 PyFile::PyFile(const py::list& parts)
-    : parts(parts)
+    : parts(parts),
+      _header_only(false)
 {
     int part_index = 0;
     for (auto p : this->parts)
@@ -119,6 +129,7 @@ PyFile::PyFile(const py::list& parts)
 //
 
 PyFile::PyFile(const py::dict& header, const py::dict& channels)
+    : _header_only(false)
 {
     parts.append(py::cast<PyPart>(PyPart(header, channels, "")));
 }
@@ -141,13 +152,14 @@ PyFile::PyFile(const py::dict& header, const py::dict& channels)
 //
 
 PyFile::PyFile(const std::string& filename, bool separate_channels, bool header_only)
-    : filename(filename), header_only(header_only)
+    : filename(filename),
+      _header_only(header_only),
+      _inputFile(std::make_unique<MultiPartInputFile>(filename.c_str()))
 {
-    MultiPartInputFile infile(filename.c_str());
 
-    for (int part_index = 0; part_index < infile.parts(); part_index++)
+    for (int part_index = 0; part_index < _inputFile->parts(); part_index++)
     {
-        const Header& header = infile.header(part_index);
+        const Header& header = _inputFile->header(part_index);
 
         PyPart P;
 
@@ -172,41 +184,42 @@ PyFile::PyFile(const std::string& filename, bool separate_channels, bool header_
         // If we're only reading the header, we're done.
         //
         
-        if (header_only)
-            continue;
-        
-        //
-        // If we're gathering RGB channels, identify which channels to gather
-        // by examining common prefixes.
-        //
-        
-        std::set<std::string> rgbaChannels;
-        if (!separate_channels)
+        if (!_header_only && _inputFile)
         {
-            for (auto c = header.channels().begin(); c != header.channels().end(); c++)
+            //
+            // If we're gathering RGB channels, identify which channels to gather
+            // by examining common prefixes.
+            //
+        
+            std::set<std::string> rgbaChannels;
+            if (!separate_channels)
             {
-                std::string py_channel_name;
-                char channel_name;
-                if (P.channelNameToRGBA(header.channels(), c.name(), py_channel_name, channel_name) > 0)
-                    rgbaChannels.insert(c.name());
+                for (auto c = header.channels().begin(); c != header.channels().end(); c++)
+                {
+                    std::string py_channel_name;
+                    char channel_name;
+                    if (P.channelNameToRGBA(header.channels(), c.name(), py_channel_name, channel_name) > 0)
+                        rgbaChannels.insert(c.name());
+                }
+            }
+        
+            std::vector<size_t> shape ({height, width});
+
+            //
+            // Read the channel data, different for image vs. deep
+            //
+        
+            auto type = header.type();
+            if (type == SCANLINEIMAGE || type == TILEDIMAGE)
+            {
+                P.readPixels(*_inputFile, header.channels(), shape, rgbaChannels, dw, separate_channels);
+            }
+            else if (type == DEEPSCANLINE || type == DEEPTILE)
+            {
+                P.readDeepPixels(*_inputFile, type, header.channels(), shape, rgbaChannels, dw, separate_channels);
             }
         }
         
-        std::vector<size_t> shape ({height, width});
-
-        //
-        // Read the channel data, different for image vs. deep
-        //
-        
-        auto type = header.type();
-        if (type == SCANLINEIMAGE || type == TILEDIMAGE)
-        {
-            P.readPixels(infile, header.channels(), shape, rgbaChannels, dw, separate_channels);
-        }
-        else if (type == DEEPSCANLINE || type == DEEPTILE)
-        {
-            P.readDeepPixels(infile, type, header.channels(), shape, rgbaChannels, dw, separate_channels);
-        }
         parts.append(py::cast<PyPart>(PyPart(P)));
     } // for parts
 }
@@ -327,7 +340,10 @@ PyPart::readPixels(MultiPartInputFile& infile, const ChannelList& channel_list,
     InputPart part (infile, part_index);
 
     part.setFrameBuffer (frameBuffer);
-    part.readPixels (dw.min.y, dw.max.y);
+    {
+        py::gil_scoped_release release;
+        part.readPixels (dw.min.y, dw.max.y);
+    }
 }
 
 void
@@ -570,11 +586,17 @@ PyPart::readDeepPixels(MultiPartInputFile& infile, const std::string& type, cons
     {
         DeepScanLineInputPart part (infile, part_index);
         part.setFrameBuffer (frameBuffer);
-        part.readPixelSampleCounts (dw.min.y, dw.max.y);
+        {
+            py::gil_scoped_release release;
+            part.readPixelSampleCounts (dw.min.y, dw.max.y);
+        }
 
         setDeepSliceData(channel_list, height, width, sliceDataMap, rgbaChannelMap, sampleCount);
 
-        part.readPixels (dw.min.y, dw.max.y);
+        {
+            py::gil_scoped_release release;
+            part.readPixels (dw.min.y, dw.max.y);
+        }
     }
     else if (type == DEEPTILE)
     {
@@ -584,11 +606,17 @@ PyPart::readDeepPixels(MultiPartInputFile& infile, const std::string& type, cons
         int numXTiles = part.numXTiles (0);
         int numYTiles = part.numYTiles (0);
 
-        part.readPixelSampleCounts (0, numXTiles - 1, 0, numYTiles - 1);
+        {
+            py::gil_scoped_release release;
+            part.readPixelSampleCounts (0, numXTiles - 1, 0, numYTiles - 1);
+        }
 
         setDeepSliceData(channel_list, height, width, sliceDataMap, rgbaChannelMap, sampleCount);
 
-        part.readTiles (0, numXTiles - 1, 0, numYTiles - 1);
+        {
+            py::gil_scoped_release release;
+            part.readTiles (0, numXTiles - 1, 0, numYTiles - 1);
+        }
     }
 }
 
@@ -673,13 +701,19 @@ PyPart::writePixels(MultiPartOutputFile& outfile, const Box2i& dw) const
     {
         OutputPart part(outfile, part_index);
         part.setFrameBuffer (frameBuffer);
-        part.writePixels (height());
+        {
+            py::gil_scoped_release release;
+            part.writePixels (height());
+        }
     }
     else
     {
         TiledOutputPart part(outfile, part_index);
         part.setFrameBuffer (frameBuffer);
-        part.writeTiles (0, part.numXTiles() - 1, 0, part.numYTiles() - 1);
+        {
+            py::gil_scoped_release release;
+            part.writeTiles (0, part.numXTiles() - 1, 0, part.numYTiles() - 1);
+        }
     }
 }
 
@@ -868,16 +902,22 @@ PyPart::writeDeepPixels(MultiPartOutputFile& outfile, const Box2i& dw) const
     {
         DeepScanLineOutputPart part(outfile, part_index);
         part.setFrameBuffer (frameBuffer);
-        part.writePixels (height);
+        {
+            py::gil_scoped_release release;
+            part.writePixels (height);
+        }
     }
     else 
     {
         DeepTiledOutputPart part(outfile, part_index);
         part.setFrameBuffer (frameBuffer);
 
-        for (int y = 0; y < part.numYTiles (0); y++)
-            for (int x = 0; x < part.numXTiles (0); x++)
-                part.writeTile (x, y, 0);
+        {
+            py::gil_scoped_release release;
+            for (int y = 0; y < part.numYTiles (0); y++)
+                for (int x = 0; x < part.numXTiles (0); x++)
+                    part.writeTile (x, y, 0);
+        }
     }
 }
 
@@ -1025,14 +1065,14 @@ PyFile::write(const char* outfilename)
         
         Header header;
 
-        if (P.name().empty())
+        if (!P.name().empty())
+            header.setName (P.name());
+	else if (parts.size() > 1)
         {
             std::stringstream n;
             n << "Part" << part_index;
             header.setName (n.str());
         }
-        else
-            header.setName (P.name());
 
         //
         // Add attributes from the py::dict to the output header
@@ -1084,73 +1124,152 @@ PyFile::write(const char* outfilename)
         // Add channels to the output header
         //
         
-        for (auto c : P.channels)
+        if (_header_only && _inputFile)
         {
-            auto C = py::cast<PyChannel&>(c.second);
-            auto pixelType = C.pixelType();
-
-            int nrgba;
-            if (C.pixels.dtype().kind() == 'O')
-                nrgba = get_deep_nrgba(C.pixels);
-            else if (C.pixels.ndim() == 2)
-                nrgba = 0;
-            else
-                nrgba = C.pixels.shape(2);
-
-            if (nrgba > 0)
-            {
-                //
-                // The py::dict has a single "RGB" or "RGBA" numpy array, but
-                // the output file gets separate channels
-                //
-                
-                std::string name_prefix;
-                if (C.name == "RGB" || C.name == "RGBA")
-                    name_prefix = "";
-                else
-                    name_prefix = C.name + ".";
-
-                header.channels ().insert(name_prefix + "R", Channel (pixelType, C.xSampling, C.ySampling, C.pLinear));
-                header.channels ().insert(name_prefix + "G", Channel (pixelType, C.xSampling, C.ySampling, C.pLinear));
-                header.channels ().insert(name_prefix + "B", Channel (pixelType, C.xSampling, C.ySampling, C.pLinear));
-                if (nrgba > 3)
-                    header.channels ().insert(name_prefix + "A", Channel (pixelType, C.xSampling, C.ySampling, C.pLinear));
-            }
-            else
-                header.channels ().insert(C.name, Channel (pixelType, C.xSampling, C.ySampling, C.pLinear));
-        }
-
-
-        headers.push_back (header);
-    }
-
-    MultiPartOutputFile outfile(outfilename, headers.data(), headers.size());
-
-    //
-    // Write the channel data: add slices to the framebuffer and write.
-    //
-    
-    for (size_t part_index = 0; part_index < parts.size(); part_index++)
-    {
-        const PyPart& P = parts[part_index].cast<const PyPart&>();
-
-        auto header = headers[part_index];
-        const Box2i& dw = header.dataWindow();
-
-        if (P.type() == EXR_STORAGE_SCANLINE ||
-            P.type() == EXR_STORAGE_TILED)
-        {
-            P.writePixels(outfile, dw);
-        }
-        else if (P.type() == EXR_STORAGE_DEEP_SCANLINE ||
-                 P.type() == EXR_STORAGE_DEEP_TILED)
-        {
-            P.writeDeepPixels(outfile, dw);
+            // copy channel list from _inputFile, since the channels
+            // did not get filled in during the read.
+            auto h = _inputFile->header(part_index);
+            header.insert("channels", h["channels"]);
         }
         else
-            throw std::runtime_error("invalid type");
-    }
+        {
+            for (auto c : P.channels)
+            {
+                auto C = py::cast<PyChannel&>(c.second);
+                auto pixelType = C.pixelType();
 
+                int nrgba;
+                if (C.pixels.dtype().kind() == 'O')
+                    nrgba = get_deep_nrgba(C.pixels);
+                else if (C.pixels.ndim() == 2)
+                    nrgba = 0;
+                else
+                    nrgba = C.pixels.shape(2);
+
+                if (nrgba > 0)
+                {
+                    //
+                    // The py::dict has a single "RGB" or "RGBA" numpy
+                    // array, but the output file gets separate
+                    // channels
+                    //
+                
+                    std::string name_prefix;
+                    if (C.name == "RGB" || C.name == "RGBA")
+                        name_prefix = "";
+                    else
+                        name_prefix = C.name + ".";
+
+                    header.channels ().insert(name_prefix + "R",
+                                              Channel (pixelType,
+                                                       C.xSampling,
+                                                       C.ySampling,
+                                                       C.pLinear));
+                    header.channels ().insert(name_prefix + "G",
+                                              Channel (pixelType,
+                                                       C.xSampling,
+                                                       C.ySampling,
+                                                       C.pLinear));
+                    header.channels ().insert(name_prefix + "B",
+                                              Channel (pixelType,
+                                                       C.xSampling,
+                                                       C.ySampling,
+                                                       C.pLinear));
+                    if (nrgba > 3)
+                        header.channels ().insert(name_prefix + "A",
+                                                  Channel (pixelType,
+                                                           C.xSampling,
+                                                           C.ySampling,
+                                                           C.pLinear));
+                }
+                else
+                    header.channels ().insert(C.name, Channel (pixelType,
+                                                               C.xSampling,
+                                                               C.ySampling,
+                                                               C.pLinear));
+            }
+        }
+        
+        headers.push_back (header);
+    }
+    
+    MultiPartOutputFile outfile(outfilename, headers.data(), headers.size());
+
+    if (_header_only && _inputFile)
+    {
+        int numParts = _inputFile->parts();
+        
+        for (int p = 0; p < numParts; ++p)
+        {
+            const Header& h    = _inputFile->header (p);
+            const string& type = h.type ();
+
+            if (type == SCANLINEIMAGE)
+            {
+                InputPart  inPart (*_inputFile, p);
+                OutputPart outPart (outfile, p);
+                {
+                    py::gil_scoped_release release;
+                    outPart.copyPixels (inPart);
+                }
+            }
+            else if (type == TILEDIMAGE)
+            {
+                TiledInputPart  inPart (*_inputFile, p);
+                TiledOutputPart outPart (outfile, p);
+                {
+                    py::gil_scoped_release release;
+                    outPart.copyPixels (inPart);
+                }
+            }
+            else if (type == DEEPSCANLINE)
+            {
+                DeepScanLineInputPart  inPart (*_inputFile, p);
+                DeepScanLineOutputPart outPart (outfile, p);
+                {
+                    py::gil_scoped_release release;
+                    outPart.copyPixels (inPart);
+                }
+            }
+            else if (type == DEEPTILE)
+            {
+                DeepTiledInputPart  inPart (*_inputFile, p);
+                DeepTiledOutputPart outPart (outfile, p);
+                {
+                    py::gil_scoped_release release;
+                    outPart.copyPixels (inPart);
+                }
+            }
+        }
+    }
+    else
+    {
+        //
+        // Write the channel data: add slices to the framebuffer and write.
+        //
+    
+        for (size_t part_index = 0; part_index < parts.size(); part_index++)
+        {
+            const PyPart& P = parts[part_index].cast<const PyPart&>();
+
+            auto header = headers[part_index];
+            const Box2i& dw = header.dataWindow();
+
+            if (P.type() == EXR_STORAGE_SCANLINE ||
+                P.type() == EXR_STORAGE_TILED)
+            {
+                P.writePixels(outfile, dw);
+            }
+            else if (P.type() == EXR_STORAGE_DEEP_SCANLINE ||
+                     P.type() == EXR_STORAGE_DEEP_TILED)
+            {
+                P.writeDeepPixels(outfile, dw);
+            }
+            else
+                throw std::runtime_error("invalid type");
+        }
+    }
+    
     filename = outfilename;
 }
 
@@ -1251,8 +1370,19 @@ PyFile::getAttributeObject(const std::string& name, const Attribute* a)
         auto max = make_v2<float>(v->value().max);
         return py::make_tuple(min, max);
     }
-    
-    if (auto v = dynamic_cast<const ChannelListAttribute*> (a))
+
+    if (auto v = dynamic_cast<const BytesAttribute*> (a))
+    {
+        return py::cast(*v);
+    }
+
+ 
+    if (auto v = dynamic_cast<const OpaqueAttribute*> (a))
+    {
+        return py::cast(*v);
+    }
+
+   if (auto v = dynamic_cast<const ChannelListAttribute*> (a))
     {
         auto L = v->value();
         auto l = py::list();
@@ -1465,7 +1595,7 @@ PyFile::getAttributeObject(const std::string& name, const Attribute* a)
     
     if (auto v = dynamic_cast<const V3dAttribute*> (a))
         return make_v3(v->value());
-    
+
     std::stringstream err;
     err << "unsupported attribute type: " << a->typeName();
     throw std::runtime_error(err.str());
@@ -1891,6 +2021,14 @@ PyFile::insertAttribute(Header& header, const std::string& name, const py::objec
             // since the channels get created elswhere.
         }
     }
+    else if (py::isinstance<Imf::BytesAttribute>(object))
+    {
+        header.insert(name, py::cast<Imf::BytesAttribute>(object));
+    }
+    else if (py::isinstance<Imf::OpaqueAttribute>(object))
+    {
+        header.insert(name, py::cast<Imf::OpaqueAttribute>(object));
+    }
     else if (auto v = py_cast<Compression>(object))
         header.insert(name, CompressionAttribute(static_cast<Compression>(*v)));
     else if (auto v = py_cast<Envmap>(object))
@@ -2210,9 +2348,16 @@ repr(const T& v)
     s << v;
     return s.str();
 }
-
 } // namespace
 
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
+inline bool
+operator==(const Imf::OpaqueAttribute& a,const Imf::OpaqueAttribute& b)
+{
+ return(string(a.typeName()) == string(b.typeName()) && a.dataSize()==b.dataSize()
+		&& (a.dataSize()==0 || memcmp(&a.data()[0],&b.data()[0],a.dataSize())==0));
+}
+OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
 PYBIND11_MODULE(OpenEXR, m)
 {
@@ -2272,7 +2417,8 @@ PYBIND11_MODULE(OpenEXR, m)
         .value("B44A_COMPRESSION", B44A_COMPRESSION)
         .value("DWAA_COMPRESSION", DWAA_COMPRESSION)
         .value("DWAB_COMPRESSION", DWAB_COMPRESSION)
-        .value("HTJ2K_COMPRESSION", HTJ2K_COMPRESSION)
+        .value("HTJ2K256_COMPRESSION", HTJ2K256_COMPRESSION)
+        .value("HTJ2K32_COMPRESSION", HTJ2K32_COMPRESSION)
         .value("NUM_COMPRESSION_METHODS", NUM_COMPRESSION_METHODS)
         .export_values();
     
@@ -2294,6 +2440,70 @@ PYBIND11_MODULE(OpenEXR, m)
     // Classes for attribute types
     //
     
+    py::class_<BytesAttribute>(m, "Bytes")
+        .def(py::init([](py::bytes data, std::string type_hint) {
+            std::string_view data_view(data);
+
+            return std::make_unique<Imf::BytesAttribute>(
+                data_view.size(),
+                reinterpret_cast<const unsigned char*>(data_view.data()),
+                type_hint
+            );
+        }), py::arg("data"), py::arg("type_hint") = "")
+        .def_property("data",
+            [](const BytesAttribute& self) {
+            const auto& data = self.data();
+            const auto& size = self.size();
+            const char* ptr = (size == 0) ?
+                nullptr : reinterpret_cast<const char*>(&data[0]);
+            return py::bytes(ptr, size);
+            },
+            [](BytesAttribute& self, py::bytes value) {
+                std::string_view new_data(value);
+                self.setData(
+                    reinterpret_cast<const unsigned char*>(new_data.data()),
+                    new_data.size()
+                );
+            })
+        .def_readwrite("type_hint", &BytesAttribute::typeHint)
+        .def(py::self == py::self)
+        .def("__repr__", [](const BytesAttribute& self) {
+            return (
+                "<Bytes data=b'...' ("
+                + std::to_string(self.size()) + " bytes), "
+                + "type_hint='" + self.typeHint + "'>");
+        });
+ 
+    py::class_<OpaqueAttribute>(m, "OpaqueAttribute")
+        .def(py::init([](py::bytes data, std::string typeName) {
+            std::string_view data_view(data);
+
+            return std::make_unique<Imf::OpaqueAttribute>(
+	        typeName.c_str(),
+                data_view.size(),
+                reinterpret_cast<const unsigned char*>(data_view.data())
+            );
+        }), py::arg("data"), py::arg("typeName") = "")
+        .def_property_readonly("data",
+            [](const OpaqueAttribute& self) {
+            const auto& data = self.data();
+            const auto& size = self.dataSize();
+            const char* ptr = (size == 0) ?
+                nullptr : reinterpret_cast<const char*>(&data[0]);
+            return py::bytes(ptr, size);
+            })
+        .def_property_readonly("typeName",
+	    [](const OpaqueAttribute& self) {
+   	    return self.typeName();
+	     })
+        .def(py::self == py::self)
+        .def("__repr__", [](const OpaqueAttribute& self) {
+            return (
+                "<OpaqueAttribute type="+string(self.typeName())+", data=b'...' ("
+                + std::to_string(self.dataSize()) + " bytes)>");
+        });
+
+
     py::class_<TileDescription>(m, "TileDescription", "Tile description for tiled images")
         .def(py::init())
         .def("__repr__", [](TileDescription& v) { return repr(v); })
@@ -2591,7 +2801,8 @@ PYBIND11_MODULE(OpenEXR, m)
                  B44A_COMPRESSION
                  DWAA_COMPRESSION
                  DWAB_COMPRESSION
-                 HTJ2K_COMPRESSION
+                 HTJ2K256_COMPRESSION
+                 HTJ2K32_COMPRESSION
              )pbdoc")
         .def_readwrite("header", &PyPart::header,
              R"pbdoc(

@@ -30,12 +30,10 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-       TAG: ${{ github.ref_name }}
+      TAG: ${{ github.ref_name }}
     permissions:
-      contents: write
-      id-token: write
-      repository-projects: write
-       
+      contents: write   # required for gh release upload (attach assets)
+      id-token: write   # required for sigstore OIDC signing
     steps:
 
       - name: Set Prefix
@@ -49,13 +47,13 @@ jobs:
         shell: bash
 
       - name: Checkout
-        uses: actions/checkout@ee0669bd1cc54295c223e0bb666b733df41de1c5 # v2.7.0
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Create archive
         run: git archive --format=tar.gz -o ${OPENEXR_TARBALL} --prefix ${OPENEXR_PREFIX} ${TAG}
 
       - name: Sign archive with Sigstore
-        uses: sigstore/gh-action-sigstore-python@f514d46b907ebcd5bedc05145c03b69c1edd8b46 # v3.0.0
+        uses: sigstore/gh-action-sigstore-python@04cffa1d795717b140764e8b640de88853c92acc # v3.3.0
         with:
           inputs: ${{ env.OPENEXR_TARBALL }}
           upload-signing-artifacts: false

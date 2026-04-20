@@ -26,10 +26,9 @@ endif()
 ########################
 ## Target configuration
 
-# What C++ standard to compile for
-# VFX Platform 21 is c++17, so 21, 22, 23, 24 gives us 4+ years of 17
+# What C++ standard to compile for. 17 by default
 set(tmp 17)
-if(CMAKE_CXX_STANDARD GREATER tmp)
+if(CMAKE_CXX_STANDARD)
   set(tmp ${CMAKE_CXX_STANDARD})
 endif()
 set(OPENEXR_CXX_STANDARD "${tmp}" CACHE STRING "C++ standard to compile against")
@@ -116,7 +115,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 # Suffix for debug configuration libraries
 # (if you should choose to install those)
 # Don't override if the user has set it and don't save it in the cache
-if (NOT CMAKE_DEBUG_POSTFIX)
+if (NOT DEFINED CMAKE_DEBUG_POSTFIX)
   set(CMAKE_DEBUG_POSTFIX "_d")
 endif()
 
@@ -218,8 +217,7 @@ endif()
 set (ILMTHREAD_USE_TBB ${OPENEXR_USE_TBB})
 
 option(OPENEXR_FORCE_INTERNAL_DEFLATE "Force using an internal libdeflate" OFF)
-set(OPENEXR_DEFLATE_REPO "https://github.com/ebiggers/libdeflate.git" CACHE STRING "Repo path for libdeflate source")
-set(OPENEXR_DEFLATE_TAG "master" CACHE STRING "Tag to use for libdeflate source repo (defaults to primary if empty)")
+set (OPENEXR_USE_INTERNAL_DEFLATE OFF)
 
 if(NOT OPENEXR_FORCE_INTERNAL_DEFLATE)
   #TODO: ^^ Release should not clone from main, this is a place holder
@@ -239,7 +237,7 @@ if(NOT OPENEXR_FORCE_INTERNAL_DEFLATE)
     find_package(PkgConfig)
     if(PKG_CONFIG_FOUND)
       include(FindPkgConfig)
-      pkg_check_modules(deflate IMPORTED_TARGET GLOBAL libdeflate)
+      pkg_check_modules(deflate IMPORTED_TARGET GLOBAL QUIET libdeflate)
       if(deflate_FOUND)
         set(EXR_DEFLATE_LIB PkgConfig::deflate)
         set(EXR_DEFLATE_VERSION ${deflate_VERSION})
@@ -252,82 +250,18 @@ endif()
 
 if(EXR_DEFLATE_LIB)
   # Using external library
-  set(EXR_DEFLATE_SOURCES)
-  set(EXR_DEFLATE_INCLUDE_DIR)
+  message(STATUS "Using externally provided libdeflate: ${EXR_DEFLATE_VERSION}")
   # For OpenEXR.pc.in for static build
   set(EXR_DEFLATE_PKGCONFIG_REQUIRES "libdeflate >= ${EXR_DEFLATE_VERSION}")
 else()
   # Using internal deflate
   if(OPENEXR_FORCE_INTERNAL_DEFLATE)
-    message(STATUS "libdeflate forced internal, installing from ${OPENEXR_DEFLATE_REPO} (${OPENEXR_DEFLATE_TAG})")
+    message(STATUS "libdeflate forced internal, using vendored code")
   else()
-    message(STATUS "libdeflate was not found, installing from ${OPENEXR_DEFLATE_REPO} (${OPENEXR_DEFLATE_TAG})")
-  endif()
-  include(FetchContent)
-  # Fetch deflate but exclude it from the "all" target.
-  # This prevents the library from being built.
-  FetchContent_Declare(Deflate
-    GIT_REPOSITORY "${OPENEXR_DEFLATE_REPO}"
-    GIT_TAG "${OPENEXR_DEFLATE_TAG}"
-    GIT_SHALLOW ON
-    EXCLUDE_FROM_ALL
-    )
-
-  FetchContent_GetProperties(Deflate)
-  if(NOT deflate_POPULATED)
-    if(CMAKE_VERSION VERSION_LESS "3.30")
-      # CMake 3.30 deprecated this single argument version of
-      # FetchContent_Populate():
-      #   https://cmake.org/cmake/help/latest/policy/CMP0169.html
-      # Prior to CMake 3.28, passing the EXCLUDE_FROM_ALL option to
-      # FetchContent_Declare() does *not* have the desired effect of
-      # excluding the fetched content from the build when
-      # FetchContent_MakeAvailable() is called.
-      # Ideally we could "manually" set the EXCLUDE_FROM_ALL property on the
-      # deflate SOURCE_DIR and BINARY_DIR, but a bug that was only fixed as of
-      # CMake 3.20.3 prevents that from properly excluding the directories:
-      #   https://gitlab.kitware.com/cmake/cmake/-/issues/22234
-      # To support the full range of CMake versions without overly
-      # complicating the logic here with workarounds, we continue to use
-      # Populate for CMake versions before 3.30, and switch to MakeAvailable
-      # for CMake 3.30 and later.
-      FetchContent_Populate(Deflate)
-    else()
-      FetchContent_MakeAvailable(Deflate)
-    endif()
+    message(STATUS "libdeflate was not found, using vendored code")
   endif()
 
-  # Rather than actually compile something, just embed the sources
-  # into exrcore. This could in theory cause issues when compiling as
-  # a static library into another application which also uses
-  # libdeflate but we switch the export symbol to hidden which should
-  # hide the symbols when linking...
-  set(EXR_DEFLATE_SOURCES
-    lib/arm/cpu_features.c
-    lib/x86/cpu_features.c
-    lib/utils.c
-    lib/deflate_compress.c
-    lib/deflate_decompress.c
-    lib/adler32.c
-    lib/zlib_compress.c
-    lib/zlib_decompress.c)
-  # don't need these
-  # lib/crc32.c
-  # lib/gzip_compress.c
-  # lib/gzip_decompress.c
-  file(READ ${deflate_SOURCE_DIR}/lib/lib_common.h DEFLATE_HIDE)
-  string(REPLACE "visibility(\"default\")" "visibility(\"hidden\")" DEFLATE_HIDE_NEW "${DEFLATE_HIDE}")
-  string(REPLACE "__declspec(dllexport)" "/**/" DEFLATE_HIDE_NEW "${DEFLATE_HIDE_NEW}")
-
-  string(COMPARE EQUAL "${DEFLATE_HIDE}" "${DEFLATE_HIDE_NEW}" DEFLATE_HIDE_SAME)
-  if (NOT DEFLATE_HIDE_SAME)
-    message(STATUS "libdeflate visibility changed, updating ${deflate_SOURCE_DIR}/lib/lib_common.h")
-    file(WRITE ${deflate_SOURCE_DIR}/lib/lib_common.h "${DEFLATE_HIDE_NEW}")
-  endif()
-
-  # cmake makes fetch content name lowercase for the properties (to deflate)
-  list(TRANSFORM EXR_DEFLATE_SOURCES PREPEND ${deflate_SOURCE_DIR}/)
-  set(EXR_DEFLATE_INCLUDE_DIR ${deflate_SOURCE_DIR})
+  set (OPENEXR_USE_INTERNAL_DEFLATE ON)
   set(EXR_DEFLATE_LIB)
 endif()
 
@@ -336,62 +270,58 @@ endif()
 # Find or download OpenJPH
 #######################################
 
-message(STATUS "Locating OpenJPH")
-
 option(OPENEXR_FORCE_INTERNAL_OPENJPH "Force downloading OpenJPH from a git repo" OFF)
 
-set(OPENEXR_OJPH_REPO "https://github.com/aous72/OpenJPH.git" CACHE STRING "OpenJPH Git repo URI")
-set(OPENEXR_OJPH_TAG "0.21.2" CACHE STRING "OpenJPH Git repo tag")
-
 if (NOT OPENEXR_FORCE_INTERNAL_OPENJPH)
-  find_package(openjph 0.21 QUIET)
-
+  find_package(openjph CONFIG QUIET)
   if(openjph_FOUND)
-    message(STATUS "Found OpenJPH using find_package.")
+    if(openjph_VERSION VERSION_LESS "0.21.0")
+        message(FATAL_ERROR "OpenJPH >= 0.21.0 required, but found ${openjph_VERSION}")
+    endif()
+
+    message(STATUS "Using OpenJPH ${openjph_VERSION} from ${openjph_DIR}")
     set(EXR_OPENJPH_LIB openjph)
   else()
     # If not found, try pkgconfig
     find_package(PkgConfig)
     if(PKG_CONFIG_FOUND)
       include(FindPkgConfig)
-      pkg_check_modules(openjph IMPORTED_TARGET GLOBAL openjph=0.21)
+      pkg_check_modules(openjph IMPORTED_TARGET GLOBAL QUIET openjph=0.21)
       if(openjph_FOUND)
         set(EXR_OPENJPH_LIB PkgConfig::openjph)
-        message(STATUS "Found OpenJPH using PkgConfig at ${deflate_LINK_LIBRARIES}")
+        message(STATUS "Using OpenJPH ${openjph_VERSION} from ${openjph_LINK_LIBRARIES}")
       endif()
     endif()
   endif()
 endif()
 
-if(NOT EXR_OPENJPH_LIB)
-  include(FetchContent)
-  FetchContent_Declare(
-    openjph
-    GIT_REPOSITORY ${OPENEXR_OJPH_REPO}
-    GIT_TAG        ${OPENEXR_OJPH_TAG}
-  )
+if(EXR_OPENJPH_LIB)
+  # Using external library
+  # For OpenEXR.pc.in for static build
+  set(EXR_OPENJPH_PKGCONFIG_REQUIRES "openjph >= 0.21.0")
+else()
+  # Using internal openjph
 
-  set(OJPH_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-  set(OJPH_ENABLE_TIFF_SUPPORT OFF CACHE BOOL "" FORCE)
-  set(OJPH_BUILD_EXECUTABLES OFF CACHE BOOL "" FORCE)
-  FetchContent_MakeAvailable(openjph)
-  install(
-    TARGETS openjph
-    EXPORT ${PROJECT_NAME}
-  )
-  set_target_properties(openjph PROPERTIES
-    POSITION_INDEPENDENT_CODE ON
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
-  )
-  include_directories("${openjph_SOURCE_DIR}/src/core/common")
+  # extract the openjph version variables from ojph_version.h
+  set(openjph_SOURCE_DIR "${CMAKE_SOURCE_DIR}/external/openjph")
+  set(openjph_version "${openjph_SOURCE_DIR}/src/core/openjph/ojph_version.h")
+  if(EXISTS "${openjph_version}")
+    file(STRINGS "${openjph_version}" _openjph_major REGEX "#define OPENJPH_VERSION_MAJOR")
+    file(STRINGS "${openjph_version}" _openjph_minor REGEX "#define OPENJPH_VERSION_MINOR")
+    file(STRINGS "${openjph_version}" _openjph_patch REGEX "#define OPENJPH_VERSION_PATCH")
+    string(REGEX REPLACE ".*OPENJPH_VERSION_MAJOR[ \t]+([0-9]+).*" "\\1" openjph_VERSION_MAJOR "${_openjph_major}")
+    string(REGEX REPLACE ".*OPENJPH_VERSION_MINOR[ \t]+([0-9]+).*" "\\1" openjph_VERSION_MINOR "${_openjph_minor}")
+    string(REGEX REPLACE ".*OPENJPH_VERSION_PATCH[ \t]+([0-9]+).*" "\\1" openjph_VERSION_PATCH "${_openjph_patch}")
+  endif()
 
-  set(EXR_OPENJPH_LIB openjph)
+  set(openjph_VERSION "${openjph_VERSION_MAJOR}.${openjph_VERSION_MINOR}.${openjph_VERSION_PATCH}")
+  
+  if(OPENEXR_FORCE_INTERNAL_OPENJPH)
+    message(STATUS "openjph forced internal, using vendored code, version ${openjph_VERSION}")
+  else()
+    message(STATUS "openjph was not found, using vendored code, version ${openjph_VERSION}")
+  endif()
 
-  message(STATUS "Building OpenJPH from ${OPENEXR_OJPH_REPO}.")
-endif()
-
-if (NOT EXR_OPENJPH_LIB)
-  message(ERROR "Failed to find OpenJPH.")
 endif()
 
 #######################################
@@ -401,19 +331,19 @@ endif()
 option(OPENEXR_FORCE_INTERNAL_IMATH "Force using an internal imath" OFF)
 # Check to see if Imath is installed outside of the current build directory.
 set(OPENEXR_IMATH_REPO "https://github.com/AcademySoftwareFoundation/Imath.git" CACHE STRING "Repo for auto-build of Imath")
-set(OPENEXR_IMATH_TAG "main" CACHE STRING "Tag for auto-build of Imath (branch, tag, or SHA)")
+set(OPENEXR_IMATH_TAG "v3.2.2" CACHE STRING "Tag for auto-build of Imath (branch, tag, or SHA)")
 if(NOT OPENEXR_FORCE_INTERNAL_IMATH)
   #TODO: ^^ Release should not clone from main, this is a place holder
   set(CMAKE_IGNORE_PATH "${CMAKE_CURRENT_BINARY_DIR}/_deps/imath-src/config;${CMAKE_CURRENT_BINARY_DIR}/_deps/imath-build/config")
-  find_package(Imath 3.1)
+  find_package(Imath 3.1 CONFIG QUIET)
   set(CMAKE_IGNORE_PATH)
 endif()
 
 if(NOT TARGET Imath::Imath AND NOT Imath_FOUND)
   if(OPENEXR_FORCE_INTERNAL_IMATH)
-    message(STATUS "Imath forced internal, installing from ${OPENEXR_IMATH_REPO} (${OPENEXR_IMATH_TAG})")
+    message(STATUS "Imath forced internal, fetching from ${OPENEXR_IMATH_REPO} @ ${OPENEXR_IMATH_TAG}")
   else()
-    message(STATUS "Imath was not found, installing from ${OPENEXR_IMATH_REPO} (${OPENEXR_IMATH_TAG})")
+    message(STATUS "Imath was not found, fetching from ${OPENEXR_IMATH_REPO} @ ${OPENEXR_IMATH_TAG}")
   endif()
   include(FetchContent)
   FetchContent_Declare(Imath
@@ -432,6 +362,19 @@ if(NOT TARGET Imath::Imath AND NOT Imath_FOUND)
     # If OpenEXR is generating it, the internal Imath should, too.
     set(IMATH_INSTALL_PKG_CONFIG ${OPENEXR_INSTALL_PKG_CONFIG})
   endif()
+
+  # extract the imath version variables from ImathConfig.h
+  set(_imath_cfg "${Imath_BINARY_DIR}/config/ImathConfig.h")
+  if(EXISTS "${_imath_cfg}")
+    file(STRINGS "${_imath_cfg}" _ver_line REGEX "IMATH_LIB_VERSION_STRING")
+    string(REGEX REPLACE ".*IMATH_LIB_VERSION_STRING[ \t]+\"([0-9.]+)\".*" "\\1" IMATH_LIB_VERSION_STRING "${_ver_line}")
+    string(REPLACE "." ";" _ver_list "${IMATH_LIB_VERSION_STRING}")
+    list(GET _ver_list 0 Imath_SOVERSION)
+    list(GET _ver_list 1 Imath_VERSION_MAJOR)
+    list(GET _ver_list 2 Imath_VERSION_MINOR)
+    list(GET _ver_list 3 Imath_VERSION_PATCH)
+  endif()
+  
   # the install creates this but if we're using the library locally we
   # haven't installed the header files yet, so need to extract those
   # and make a variable for header only usage
@@ -440,10 +383,9 @@ if(NOT TARGET Imath::Imath AND NOT Imath_FOUND)
     get_target_property(imathconfinc ImathConfig INTERFACE_INCLUDE_DIRECTORIES)
     list(APPEND imathinc ${imathconfinc})
     set(IMATH_HEADER_ONLY_INCLUDE_DIRS ${imathinc})
-    message(STATUS "Imath interface dirs ${IMATH_HEADER_ONLY_INCLUDE_DIRS}")
   endif()
 else()
-  message(STATUS "Using Imath from ${Imath_DIR}")
+  message(STATUS "Using Imath ${Imath_VERSION} from ${Imath_DIR}")
   # local build
   # add_subdirectory(${IMATH_ROOT} Imath)
   # add_subdirectory(${OPENEXR_ROOT} OpenEXR)
@@ -548,5 +490,18 @@ int main() {
 
   if(NOT HAS_VLD1)
     set(OPENEXR_MISSING_ARM_VLD1 TRUE)
+  endif()
+endif()
+
+###########################################
+# Enable SSE2 on 32-bit x86
+###########################################
+
+if(CMAKE_SYSTEM_PROCESSOR MATCHES "^(i[3-6]86|x86)$" AND NOT MSVC)
+  include(CheckCCompilerFlag)
+  check_c_compiler_flag("-msse2" HAS_SSE2_FLAG)
+  if(HAS_SSE2_FLAG)
+    add_compile_options(-msse2 -mfpmath=sse)
+    message(STATUS "Enabling SSE2 for 32-bit x86 build")
   endif()
 endif()

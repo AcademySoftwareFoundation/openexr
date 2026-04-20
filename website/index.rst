@@ -46,6 +46,14 @@ Latest News
 
 |latest-news-title|
 
+.. |bug| unicode:: U+1F41B
+   :ltrim:
+
+.. |rocket| unicode:: U+1F680
+   :ltrim:
+
+.. |hammer_and_wrench| unicode:: U+1F6E0
+   :ltrim:
 .. highlights::
 
    .. include:: news.rst
@@ -69,6 +77,10 @@ arrays.
 
 Quick Start
 ===========
+
+You can :doc:`install <install>` OpenEXR using package managers or
+build the library yourself from the `source on github <https://github.com/AcademySoftwareFoundation/openexr>`_
+following the :ref:`compile instructions <build-from-source>`
 
 For a simple program that uses the C++ API to read and write a ``.exr`` file, see the
 :doc:`HelloWorld` examples.

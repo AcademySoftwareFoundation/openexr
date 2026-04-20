@@ -14,7 +14,23 @@
 #include "internal_file.h"
 #include "internal_huf.h"
 
-#include <libdeflate.h>
+#include "OpenEXRConfigInternal.h"
+
+#if OPENEXR_USE_INTERNAL_DEFLATE
+#    include "../../../external/deflate/lib/lib_common.h"
+#    include "../../../external/deflate/lib/arm/cpu_features.c"
+#    include "../../../external/deflate/lib/x86/cpu_features.c"
+#    include "../../../external/deflate/lib/utils.c"
+#    include "../../../external/deflate/lib/deflate_compress.c"
+#    undef BITBUF_NBITS
+#    include "../../../external/deflate/lib/deflate_decompress.c"
+#    undef BITBUF_NBITS
+#    include "../../../external/deflate/lib/adler32.c"
+#    include "../../../external/deflate/lib/zlib_compress.c"
+#    include "../../../external/deflate/lib/zlib_decompress.c"
+#else
+#    include <libdeflate.h>
+#endif
 #include <string.h>
 
 #if (                                                                          \
@@ -185,7 +201,11 @@ exr_uncompress_buffer (
         }
         else if (res == LIBDEFLATE_SHORT_OUTPUT)
         {
-            /* TODO: is this an error? */
+            /* Decompression succeeded; *actual_out is the byte count. This is
+             * not an error when out_bytes_avail exceeds the true uncompressed
+             * size (e.g. PXR24/ZIP use padded scratch buffers). Callers that
+             * need an exact payload size must compare *actual_out (see e.g.
+             * undo_pxr24_impl). */
             return EXR_ERR_SUCCESS;
         }
         return EXR_ERR_CORRUPT_CHUNK;
@@ -225,10 +245,11 @@ int exr_compression_lines_per_chunk (exr_compression_t comptype)
         case EXR_COMPRESSION_PIZ:
         case EXR_COMPRESSION_B44:
         case EXR_COMPRESSION_B44A:
+        case EXR_COMPRESSION_HTJ2K32:
         case EXR_COMPRESSION_DWAA: linePerChunk = 32; break;
         case EXR_COMPRESSION_DWAB: linePerChunk = 256; break;
+        case EXR_COMPRESSION_HTJ2K256: linePerChunk = 256; break;
         case EXR_COMPRESSION_ZSTD: linePerChunk = 1; break;
-        case EXR_COMPRESSION_HTJ2K: linePerChunk = 256; break;
         case EXR_COMPRESSION_LAST_TYPE:
         default:
             /* ERROR CONDITION */
@@ -364,9 +385,10 @@ exr_compress_chunk (exr_encode_pipeline_t* encode)
         case EXR_COMPRESSION_B44A: rv = internal_exr_apply_b44a (encode); break;
         case EXR_COMPRESSION_DWAA: rv = internal_exr_apply_dwaa (encode); break;
         case EXR_COMPRESSION_DWAB: rv = internal_exr_apply_dwab (encode); break;
-        case EXR_COMPRESSION_ZSTD: rv = internal_exr_apply_zstd (encode); break;
-        case EXR_COMPRESSION_HTJ2K:
+        case EXR_COMPRESSION_HTJ2K32:
+        case EXR_COMPRESSION_HTJ2K256:
             rv = internal_exr_apply_ht (encode); break;
+        case EXR_COMPRESSION_ZSTD: rv = internal_exr_apply_zstd (encode); break;
         case EXR_COMPRESSION_LAST_TYPE:
         default:
             return ctxt->print_error (
@@ -443,7 +465,8 @@ decompress_data (
             rv = internal_exr_undo_dwab (
                 decode, packbufptr, packsz, unpackbufptr, unpacksz);
             break;
-        case EXR_COMPRESSION_HTJ2K:
+        case EXR_COMPRESSION_HTJ2K256:
+        case EXR_COMPRESSION_HTJ2K32:
             rv = internal_exr_undo_ht (
                 decode, packbufptr, packsz, unpackbufptr, unpacksz);
             break;

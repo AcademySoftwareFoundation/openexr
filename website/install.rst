@@ -9,12 +9,12 @@ Install
 
 .. toctree::
    :caption: Install
-             
+
 Linux
 -----
 
 The OpenEXR library is available for download and installation in
-binary form via package managers on many Linux distributions. 
+binary form via package managers on many Linux distributions.
 
 Beware that some distributions are out of date and only provide
 distributions of outdated releases OpenEXR. We recommend against using
@@ -66,6 +66,8 @@ Install via `vcpkg <https://vcpkg.io/en/packages>`_:
    % .\vcpkg install openexr
 
 
+.. _build-from-source:
+
 Build from Source
 -----------------
 
@@ -76,8 +78,18 @@ Download the source from the `GitHub releases page
 <https://github.com/AcademySoftwareFoundation/openexr/releases>`_
 page, or clone the `repo <https://github.com/AcademySoftwareFoundation/openexr>`_.
 
-The ``release`` branch of the repo always points to the most advanced
-release.
+If cloning the repo, check out the ``release`` branch:
+
+.. code-block::
+
+   % git checkout release
+
+The ``release`` branch of the repo always points to the most advanced stable
+release. Other branches may contain compatible updates to older releases.
+
+The default ``main`` branch may contain experimental features which could change in future
+versions. It should only be used for testing, or for developers contributing to
+the OpenEXR project.
 
 
 Prerequisites
@@ -86,15 +98,91 @@ Prerequisites
 Make sure these are installed on your system before building OpenEXR:
 
 * OpenEXR requires CMake version 3.14 or newer
-* C++ compiler that supports C++11
-* Imath (auto fetched by CMake if not found) (https://github.com/AcademySoftwareFoundation/openexr)
-* libdeflate source code (auto fetched by CMake if not found) (https://github.com/ebiggers/libdeflate)
+* C++ compiler that supports C++17
+* ``Imath`` (auto-fetched by CMake if not found) (https://github.com/AcademySoftwareFoundation/Imath)
+* ``libdeflate`` (internal copy used by CMake if not found for
+  v3.4+; auto-fetched in v3.3 and before) (https://github.com/ebiggers/libdeflate)
+* ``openjph`` (internal vendored copy used by CMake if not found; new
+  in v3.4; auto-fetched in v3.4.0-3.4.3) (https://github.com/aous72/OpenJPH)
 * (optional) Intel's Thread Building Blocks library (TBB)
 
 The instructions that follow describe building OpenEXR with CMake.
 
 Note that as of OpenEXR 3, the Gnu autoconf bootstrap/configure build
 system is no longer supported.
+
+OpenEXR/Imath Version Compatibility
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In most circumstances, follow this best practice:
+
+* When building OpenEXR v3.4+, use Imath v3.2
+* When building OpenEXR v3.3 or before, use Imath v3.1.
+
+OpenEXR v3.X is *functionally* compatible with any v3.Y release of
+Imath. Therefore, if you have control over how OpenEXR and Imath are
+built in your application or facility, any combination of OpenEXR v3.X
+and Imath v3.Y can be built successfully from source.
+
+However, an OpenEXR v3.X distibution (i.e. compiled ``libOpenEXR``
+library) built against a specific v3.Y minor release of Imath
+*requires that minor Imath release as both a build-time and run-time
+dependency*. Furthermore, application code compilation units that use
+a specific OpenEXR v3.X distibution must be built using the associated
+Imath release.
+
+OpenEXR uses Imath symbols in its public API, and both Imath and
+OpenEXR use suffixed namespaces that embed the minor release
+version. For example, the ``V3fAttribute`` class in a distribution of
+OpenEXR v3.4 built against Imath v3.2 is a template instantiation of
+``Imf_3_4::TypedAttribute<Imath_3_2::Vec3<float>>``, while the
+corresponding class for a distribution of OpenEXR v3.4 built against
+Imath v3.1 will be
+``Imf_3_4::TypedAttribute<Imath_3_1::Vec3<float>>``, a different
+symbol.
+
+This means that *it is insufficient to identify a distribution of
+OpenEXR by its ``major.minor`` release numbers alone*. You *must*
+further identify the distribution of Imath that it was built against,
+e.g. "OpenEXR v3.4 w/Imath v3.2".
+
+It is problematic for a single application to use, for example,
+OpenEXR v3.4 compiled against Imath v3.2, while simultaneously using a
+distribution of OpenEXR v3.4 built against Imath v3.1. Both sets of
+OpenEXR symbols would reside in a single namespace
+(i.e. ``Imf_3_4::``), but the Imath types would differ between the two
+(i.e. ``Imath_3_2::`` vs ``Imath_3_1::``). It is also problematic for
+application compilation units to use Imath classes directly,
+independent of OpenEXR, if they also include OpenEXR headers from a
+distribution built with a different Imath version.
+
+.. _embedded-core-label:
+
+Linking Multiple OpenEXR Versions in the Executable
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+It is sometimes necessary to link two different versions of the
+OpenEXR library in the same executable. An example is a DCC such as
+Nuke or Katana which ships with one version of OpenEXR but must load a
+custom plugin that links against a different version.
+
+The ``namespace`` options described below provide a mechanism to handle
+this: the custom plugin links against a custom build of OpenEXR
+configured with a unique namespace, so the symbols do not clash
+against the other version.
+
+However, the ``OpenEXRCore`` library is implemented in C, without a
+namespace option. To address this, build the custom ``OpenEXR`` library
+with the CMake option ``-DOPENEXR_FORCE_EMBEDDED_CORE=ON``, which links
+against a staticly-built ``OpenEXRCore`` library with symbols
+hidden. This prevents the ``OpenEXRCore`` library symbols in the plugin
+from clashing with the ones in the main executable. In this case, the
+installation includes no ``libOpenEXRCore.so``.
+
+This works if your plugin uses the ``OpenEXR`` C++ API. Should your
+plugin require direct access to the C API from ``OpenEXRCore``, this
+solution does not work, and you'll have resort to other symbol-hidding
+mechanisms.
 
 Linux/macOS
 ~~~~~~~~~~~
@@ -106,7 +194,7 @@ To build via CMake, you need to first identify three directories:
 2. A temporary directory to hold the build artifacts, referred to below as
    ``$builddir``
 3. A destination directory into which to install the
-   libraries and headers, referred to below as ``$installdir``.  
+   libraries and headers, referred to below as ``$installdir``.
 
 To build:
 
@@ -179,7 +267,7 @@ library and appears between the library base name and the
     libOpenEXR-3_1.so -> libOpenEXR-3_1.so.30
     libOpenEXR-3_1.so.30 -> libOpenEXR-3_1.so.30.3.2.0
     libOpenEXR-3_1.so.30.3.2.0 (the shared object file)
-    
+
 Imath Dependency
 ----------------
 
@@ -189,7 +277,7 @@ installation of Imath cannot be found, CMake will automatically
 download it at configuration time. To link against an existing
 installation of Imath, add the Imath directory to the
 ``CMAKE_PREFIX_PATH`` setting:
- 
+
 .. code-block::
 
     % mkdir $build_directory
@@ -234,7 +322,7 @@ via `Sphinx <https://www.sphinx-doc.org>`_ with the `Breathe
 `readthedocs <https://readthedocs.org/projects/openexr>`_. The website
 source is in `restructured text
 <https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html>`_
-in the ``website`` directory.  
+in the ``website`` directory.
 
 To build the website locally from the source ``.rst`` files, set the
 CMake option ``BUILD_WEBSITE=ON``. This adds the ``website`` CMake
@@ -245,7 +333,7 @@ Building the website requires that ``sphinx``, ``breathe``, and
 <https://pypi.org/project/sphinx-press-theme>`_. Complete dependencies
 are described in the `requirements.txt
 <https://github.com/AcademySoftwareFoundation/imath/blob/main/website/requirements.txt>`_
-file. 
+file.
 
 On Debian/Ubuntu Linux:
 
@@ -254,11 +342,11 @@ On Debian/Ubuntu Linux:
     % apt-get install doxygen python3-sphinx
     % pip3 install breathe
     % pip3 install sphinx_press_theme
-   
+
     % mkdir _build
     % cd _build
     % cmake .. -DBUILD_WEBSITE=ON
-    % cmake --build . --target website 
+    % cmake --build . --target website
 
 CMake Build-time Configuration Options
 --------------------------------------
@@ -285,7 +373,7 @@ If you did a binary install of OpenEXR via a package manager
 uninstall.
 
 If you have installed from source, *and you still have the build
-tree from which you installed*, you can uninstall via: 
+tree from which you installed*, you can uninstall via:
 
 .. code-block::
 
@@ -325,7 +413,7 @@ Imath Dependency
   be set to the directory that includes the ``ImathConfig.cmake``
   file, which is typically the ``lib/cmake/Imath`` folder of the root
   install directory.
-  
+
 * ``OPENEXR_IMATH_REPO`` and ``OPENEXR_IMATH_TAG``
 
   The github Imath repo to auto-fetch if an installed library cannot
@@ -340,54 +428,42 @@ Imath Dependency
   using ``OPENEXR_IMATH_REPO`` and ``OPENEXR_IMATH_TAG``. This means
   do *not* use any existing installation of Imath.
 
-libdeflate Dependency
-~~~~~~~~~~~~~~~~~~~~~
+``libdeflate`` Dependency
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
-As of OpenEXR release v3.2, OpenEXR depends on 
+As of OpenEXR release v3.2, OpenEXR depends on
 `libdeflate <https://github.com/ebiggers/libdeflate>`_ for
 DEFLATE-based compression. Previous OpenEXR releases relied on `zlib
-<https://www.zlib.net>`_. Builds of OpenEXR can choose either an
-``libdeflate`` installation, or CMake can auto-fetch the source and build it
-internally. The internal build is linked statically, so no extra
-shared object is produced.
+<https://www.zlib.net>`_.
 
-* ``OPENEXR_DEFLATE_REPO`` and ``OPENEXR_DEFLATE_TAG``
+As of OpenEXR release v3.4, OpenEXR ships with an internal "vendored"
+copy of the ``libdeflate`` compression code. At configuration time, if
+CMake finds an external installation of ``libdeflate``, it will use
+it. If it fails to find an installation, it will use the internal
+copy. To force use of the internal copy, configure with
+``-DOPENEXR_USE_INTERNAL_DEFLATE=ON``.
 
-  The GitHub ``libdeflate`` repo to auto-fetch if an installed library cannot
-  be found, and the tag to sync it to. The default repo is
-  ``https://github.com/ebiggers/libdeflate.git`` and the tag is
-  ``v1.18``. The internal build is configured as a CMake subproject.
+OpenEXR release v3.2 and v3.3 auto-fetch the ``libdeflate`` source and
+build it internally if cmake does not find an external
+installation. 
 
-* ``OPENEXR_FORCE_INTERNAL_DEFLATE``
+``OpenJPH`` Dependency
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
-  If set to ``ON``, force auto-fetching and internal building of
-  ``libdeflate`` using ``OPENEXR_DEFLATE_REPO`` and
-  ``OPENEXR_DEFLATE_TAG``. This means do *not* use any existing
-  installation of ``libdeflate``.
+As of OpenEXR release v3.4, OpenEXR depends on
+`OpenJPH <https://github.com/aous72/OpenJPH>`_ for
+HTJ2K compression. 
 
-Test Images Dependency
-~~~~~~~~~~~~~~~~~~~~~~
+As of OpenEXR release v3.4.4, OpenEXR ships with an internal "vendored"
+copy of the ``OpenJPH`` library. At configuration time, if
+CMake finds an external installation of ``OpenJPH``, it will use
+it. If it fails to find an installation, it will use the internal
+copy. To force use of the internal copy, configure with
+``-DOPENEXR_FORCE_INTERNAL_OPENJPH=ON``.
 
-The OpenEXR test suite relies on images from the `online test image
-gallery
-<https://github.com/AcademySoftwareFoundation/openexr-images>`_, which CMake
-automatically downloads during configuration.  You can provide an
-alternate location for the test images via the ``OPENEXR_IMAGES_REPO``
-and ``OPENEXR_IMAGES_TAG`` variables.
-
-* ``OPENEXR_IMAGES_REPO`` and ``OPENEXR_IMAGES_TAG``
-
-  The images repo to auto-fetch for the test suite, and the tag to
-  sync it to.  The default repo is
-  ``https://github.com/AcademySoftwareFoundation/openexr-images.git``
-  and the tag is ``v1.0``. 
-
-Note that you can void downloading images by specifying a repo on the
-local filesystem via a ``file:`` url:
-
-.. code-block::
-
-    cmake -DOPENEXR_IMAGES_REPO=file:///my/clone/of/openexr-images -DOPENEXR_IMAGES_TAG=""
+OpenEXR releases v3.4.0-v3.4.3 auto-fetch the ``OpenJPH`` source and
+build it internally if cmake does not find an external
+installation. 
 
 TBB Dependency
 ~~~~~~~~~~~~~~
@@ -458,6 +534,13 @@ Namespace Options
 Component Options
 ~~~~~~~~~~~~~~~~~
 
+* ``OPENEXR_FORCE_EMBEDDED_CORE``
+
+  Option to build the ``OpenEXR`` library against a staticly-built
+  ``OpenEXRCore`` library with symbols hidden. This allows the ``OpenEXR``
+  library to be linked into an executable that already links against
+  another version of OpenEXR.  See :ref:`embedded-core-label` for more details.
+  
 * ``BUILD_TESTING``
 
   Build the testing tree. Default is ``ON``.  Note that
@@ -472,18 +555,18 @@ Component Options
 
   Build the binary programs (exrheader, exrinfo,
   exrmakepreview, etc). Default is ``ON``.
-  
+
 * ``OPENEXR_INSTALL_TOOLS``
 
   Install the binary programs (exrheader, exrinfo,
   exrmakepreview, etc). Default is ``ON``.
-  
+
 * ``OPENEXR_INSTALL_DEVELOPER_TOOLS``
 
   Install the binary programs useful for developing
   and/or debugging OpenEXR itself (e.g. exrcheck).
   Default is ``OFF``.
-  
+
 * ``OPENEXR_BUILD_EXAMPLES``
 
   Build the example code. Default is ``ON``.
@@ -509,16 +592,16 @@ See the CMake documentation for more information (https://cmake.org/cmake/help/v
 
   C++ standard to compile against. This obeys the global
   ``CMAKE_CXX_STANDARD`` but doesn’t force the global setting to
-  enable sub-project inclusion. Default is ``14``.
+  enable sub-project inclusion. Default is ``17``.
 
 * ``CMAKE_CXX_COMPILER``
 
-  The C++ compiler.        
+  The C++ compiler.
 
 * ``CMAKE_C_COMPILER``
 
   The C compiler.
-  
+
 * ``CMAKE_INSTALL_RPATH``
 
   For non-standard install locations where you don’t want to have to

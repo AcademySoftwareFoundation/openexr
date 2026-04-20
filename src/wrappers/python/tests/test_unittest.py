@@ -201,6 +201,8 @@ class TestUnittest(unittest.TestCase):
             with OpenEXR.File(header, channels) as outfile:
                 outfile.write(outfilename)
 
+        os.remove(outfilename)
+
     def test_read_write(self):
 
         #
@@ -256,6 +258,8 @@ class TestUnittest(unittest.TestCase):
 
             with OpenEXR.File(outfilename) as infile:
                 compare_files (infile, outfile)
+
+        os.remove(outfilename)
                 
     def test_write_uint(self):
 
@@ -289,6 +293,8 @@ class TestUnittest(unittest.TestCase):
             with OpenEXR.File(outfilename, separate_channels=True) as infile:
 
                 compare_files(infile, outfile)
+        
+        os.remove(outfilename)
 
     def test_write_half(self):
 
@@ -318,6 +324,10 @@ class TestUnittest(unittest.TestCase):
             # Verify reading it back gives the same data
             with OpenEXR.File(outfilename, separate_channels=True) as infile:
                 compare_files (infile, outfile)
+                if "name" in infile.header():
+                   raise Exception(f"name attribute was added to single part half file")
+
+        os.remove(outfilename)
 
     def test_write_tiles(self):
 
@@ -347,6 +357,8 @@ class TestUnittest(unittest.TestCase):
             # Verify reading it back gives the same data
             with OpenEXR.File(outfilename, separate_channels=True) as infile:
                 compare_files(infile, outfile)
+
+        os.remove(outfilename)
 
     def test_modify_in_place(self):
 
@@ -399,6 +411,88 @@ class TestUnittest(unittest.TestCase):
             assert equalWithRelError(m.parts[0].channels["R"].pixels[0][1], 42.0, eps)
             assert equalWithRelError(m.parts[0].channels["G"].pixels[2][3], 666.0, eps)
 
+    def test_header_only(self):
+
+        #
+        # Test modifying header when reading just the header.
+        #
+
+        multipartfilename = f"{test_dir}/multipart.exr"
+
+        height, width = (20, 10)
+        Z = np.zeros((height, width), dtype='f')
+        P0 = OpenEXR.Part({"compression" : OpenEXR.ZIP_COMPRESSION,
+                           "type" : OpenEXR.scanlineimage,
+                           "foo" : "foo0",
+                           "n" : 9,
+                           "d" : 1.0 },
+                          {"Z" : Z })
+
+        R = np.random.rand(height, width).astype('f')
+        G = np.random.rand(height, width).astype('f')
+        B = np.random.rand(height, width).astype('f')
+        P1 = OpenEXR.Part({"compression" : OpenEXR.ZIP_COMPRESSION,
+                           "type" : OpenEXR.scanlineimage,
+                           "foo" : "foo1",
+                           "m" : 9,
+                           "D" : 1.0 },
+                          { "R" : R, "G" : G, "B" : B })
+
+        f = OpenEXR.File([P0, P1])
+        f.write(multipartfilename)
+
+        # validate that the file has the proper values
+        with OpenEXR.File(multipartfilename) as o:
+            assert o.parts[0].name() == "Part0"
+            assert o.parts[0].width() == 10
+            assert o.parts[0].height() == 20
+            assert o.parts[0].header["foo"] == "foo0"
+            assert o.parts[0].header["n"] == 9
+            assert o.parts[1].name() == "Part1"
+            assert o.parts[1].width() == 10
+            assert o.parts[1].height() == 20
+            assert o.parts[1].header["foo"] == "foo1"
+            assert o.parts[1].header["m"] == 9
+
+        with OpenEXR.File(multipartfilename, separate_channels=True, header_only=True) as f:
+
+            # change the value of an existing attribute
+            f.parts[0].header["foo"] = "foo0!"
+            f.parts[0].header["n"] = 99
+            f.parts[1].header["foo"] = "foo1!"
+            f.parts[1].header["m"] = 42
+
+            # add a new attribute
+            f.parts[0].header["bar"] = "bar0"
+            f.parts[1].header["bar"] = "bar1"
+            
+            del f.parts[0].header["d"]
+            del f.parts[1].header["D"]
+            
+            # write to a new file
+            outfilename = mktemp_outfilename()
+            f.write(outfilename)
+
+        with OpenEXR.File(multipartfilename, separate_channels=True) as f:
+
+            # read the new file
+            with OpenEXR.File(outfilename, separate_channels=True) as m:
+
+                # f has the original values
+                # m has the modified values
+                # Modify f again manually and validate that they match
+            
+                f.parts[0].header["foo"] = "foo0!"
+                f.parts[0].header["n"] = 99
+                f.parts[1].header["foo"] = "foo1!"
+                f.parts[1].header["m"] = 42
+                f.parts[0].header["bar"] = "bar0"
+                f.parts[1].header["bar"] = "bar1"
+                del f.parts[0].header["d"]
+                del f.parts[1].header["D"]
+
+                compare_files(f, m)
+
     def test_preview_image(self):
 
         width = 5
@@ -433,6 +527,8 @@ class TestUnittest(unittest.TestCase):
 
                 compare_files (infile, outfile)
 
+        os.remove(outfilename)
+
     def test_write_float(self):
 
         # Construct a file from scratch and write it.
@@ -457,6 +553,9 @@ class TestUnittest(unittest.TestCase):
         header["chromaticities"] = (1.0,2.0, 3.0,4.0, 5.0,6.0,7.0,8.0)
         header["box2i"] = ((0,1), (2,3))
         header["box2f"] = ((0.0,1.0), (2.0,3.0))
+        header["bytes"] = OpenEXR.Bytes(b"\x76\x2f\x31\x01", "guess to win a prize")
+        header["bytes0"] = OpenEXR.Bytes(b'')
+        header["opaque"] = OpenEXR.OpaqueAttribute(b'',"Hello")
         header["compression"] = OpenEXR.ZIPS_COMPRESSION
         header["double"] = np.array([42000.0], 'float64')
         header["float"] = 4.2
@@ -481,12 +580,13 @@ class TestUnittest(unittest.TestCase):
 
             outfilename = mktemp_outfilename()
             outfile.write(outfilename)
-            print("write done.")
                   
             # Verify reading it back gives the same data
             with OpenEXR.File(outfilename, separate_channels=True) as infile:
                 compare_files (infile, outfile)
-                
+
+        os.remove(outfilename)
+
     def test_write_2part(self):
 
         #
@@ -563,6 +663,74 @@ class TestUnittest(unittest.TestCase):
             # Verify reading it back gives the same data
             with OpenEXR.File(outfilename, separate_channels=True) as i:
                 compare_files (i, outfile2)
+
+    def test_gil_released_during_io(self):
+
+        #
+        # Verify that the GIL is released during I/O operations by checking
+        # that a background thread can make progress while OpenEXR performs
+        # file operations.
+        #
+
+        import threading
+        import time
+
+        counter = [0]
+        stop_flag = [False]
+
+        def background_worker():
+            while not stop_flag[0]:
+                counter[0] += 1
+                time.sleep(0.001)
+
+        # Create a moderately large image to ensure I/O takes measurable time
+        width = 1000
+        height = 1000
+        size = width * height
+        R = np.random.rand(height, width).astype('f')
+        G = np.random.rand(height, width).astype('f')
+        B = np.random.rand(height, width).astype('f')
+        channels = {
+            "R": OpenEXR.Channel("R", R),
+            "G": OpenEXR.Channel("G", G),
+            "B": OpenEXR.Channel("B", B),
+        }
+
+        # Start background thread
+        thread = threading.Thread(target=background_worker)
+        thread.start()
+
+        # Let thread run briefly to establish baseline
+        time.sleep(0.05)
+        count_before = counter[0]
+
+        # Perform I/O - if GIL is released, background thread will increment counter
+        outfilename = mktemp_outfilename()
+        with OpenEXR.File({}, channels) as outfile:
+            outfile.write(outfilename)
+
+        count_after_write = counter[0]
+
+        # Now test reading
+        with OpenEXR.File(outfilename) as infile:
+            _ = infile.channels()
+
+        count_after_read = counter[0]
+
+        # Stop background thread
+        stop_flag[0] = True
+        thread.join()
+
+        # If GIL was released, background thread should have made progress during I/O
+        write_progress = count_after_write - count_before
+        read_progress = count_after_read - count_after_write
+
+        self.assertGreater(write_progress, 0,
+            f"Background thread made no progress during write (GIL not released?)")
+        self.assertGreater(read_progress, 0,
+            f"Background thread made no progress during read (GIL not released?)")
+
+        os.remove(outfilename)
 
 if __name__ == '__main__':
     unittest.main()

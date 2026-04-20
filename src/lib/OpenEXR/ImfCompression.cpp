@@ -177,9 +177,15 @@ static const CompressionDesc IdToDesc[] = {
         true,
         false),
     CompressionDesc (
-        "htj2k",
-        "High-Throughput JPEG 2000 (OpenJPH, 256 lines)",
+        "htj2k256",
+        "High-Throughput JPEG 2000 (256 lines)",
         256,
+        true,
+        false),
+   CompressionDesc (
+        "htj2k32",
+        "High-Throughput JPEG 2000 (32 lines)",
+        32,
         true,
         false),
     CompressionDesc (
@@ -204,7 +210,8 @@ static const std::map<std::string, Compression> CompressionNameToId = {
     {"b44a", Compression::B44A_COMPRESSION},
     {"dwaa", Compression::DWAA_COMPRESSION},
     {"dwab", Compression::DWAB_COMPRESSION},
-    {"htj2k", Compression::HTJ2K_COMPRESSION},
+    {"htj2k256", Compression::HTJ2K256_COMPRESSION},
+    {"htj2k32", Compression::HTJ2K32_COMPRESSION},
     {"zstd", Compression::ZSTD_COMPRESSION},
 };
 

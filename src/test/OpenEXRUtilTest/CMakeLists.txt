@@ -14,10 +14,15 @@ target_include_directories(OpenEXRUtilTest PRIVATE ../OpenEXRTest)
 target_link_libraries(OpenEXRUtilTest OpenEXR::OpenEXRUtil)
 set_target_properties(OpenEXRUtilTest PROPERTIES
   RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+  CXX_STANDARD_REQUIRED ON
+  CXX_EXTENSIONS OFF
 )
 if(WIN32 AND BUILD_SHARED_LIBS)
   target_compile_definitions(OpenEXRUtilTest PRIVATE OPENEXR_DLL)
 endif()
+target_compile_features(OpenEXRUtilTest
+    PRIVATE cxx_std_${OPENEXR_CXX_STANDARD}
+)
 
 function(DEFINE_OPENEXR_UTIL_TESTS)
   foreach(curtest IN LISTS ARGN)

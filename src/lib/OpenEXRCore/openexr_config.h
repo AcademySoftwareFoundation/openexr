@@ -14,6 +14,10 @@
 /// \addtogroup ExportMacros
 /// @{
 
+#if defined(OPENEXR_CORE_FUNCTIONS_EMBEDDED)
+#    define EXR_EXPORT OPENEXR_HIDDEN
+#else
+
 // are we making a DLL under windows (might be msvc or mingw or others)
 #if defined(OPENEXR_DLL)
 
@@ -29,6 +33,8 @@
 #else
 
 #    define EXR_EXPORT OPENEXR_EXPORT
+
+#endif
 
 #endif
 

@@ -139,6 +139,32 @@ high-quality image processing and storage applications:
   regular images. With multi-part files, different views are stored in
   different parts.
 
+Image Size Limits and Out-of-Memory Failures
+--------------------------------------------
+
+The OpenEXR file format places no fixed limit on image size, except
+that image width and height are represented by signed 32-bit integers
+and therefore technically limited to a maximum of 2,147,483,647.
+
+Attempting to read a very large image may result in an "out-of-memory
+failure. This is not considered a security vulnerability. The memory
+required to decode such an image is inherently proportional to its
+pixel count, even if compression reduces the image to a small file
+size on disk. Exhausting available memory on a given machine is a
+system resource constraint, not a library defect — the same file that
+triggers an out-of-memory error on one machine may load successfully
+on another with more memory.
+
+The OpenEXR library provides 
+``Imf::Header::setMaxImageSize(int maxWidth,int maxHeight)`` and
+``Imf::Header:"setMaxTileSize(int maxWidth,int maxHeight)`` (and
+``exr_set_default_maximum_image_size()`` and
+``exr_set_default_maximum_tile_size()`` in OpenEXRCore) to allow
+applications to reject files with dimensions exceeding a configurable
+limit before any large allocation occurs. Applications processing
+untrusted EXR files should set these limits to values appropriate for
+their deployment environment.
+
 Overview of the OpenEXR File Format
 ===================================
 
@@ -1313,6 +1339,11 @@ By default, OpenEXR files have the following attributes:
   openEXR images
   <https://dl.acm.org/doi/abs/10.1145/3233085.3233086>`_ for details.
 
+**colorInteropID**
+  Color Interop ID. Provides a mechanism to identify the color space of the RGB images. 
+  See `An ID for Color Interop <https://docs.google.com/document/d/1T94lYbis9uCskL_ZEMxGBF2JryLfZnjxlEoNgRHZzBE/edit?usp=sharing>`_ 
+  and `Identifying the Color Space of OpenEXR Files <https://docs.google.com/document/d/1MTH1bq2L67ifvdDf64Amhzg4AbkIM5LG6yPHrB96Vwo/edit?usp=sharing>`_ for details.
+  New in OpenEXR v3.4.
 
 Premultiplied vs. Un-Premultiplied Color Channels
 -------------------------------------------------

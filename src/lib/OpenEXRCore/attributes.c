@@ -21,6 +21,7 @@ struct _internal_exr_attr_map
 static struct _internal_exr_attr_map the_predefined_attr_typenames[] = {
     {"box2i", 5, EXR_ATTR_BOX2I, sizeof (exr_attr_box2i_t)},
     {"box2f", 5, EXR_ATTR_BOX2F, sizeof (exr_attr_box2f_t)},
+    {"bytes", 5, EXR_ATTR_BYTES, sizeof(exr_attr_bytes_t)},
     {"chlist", 6, EXR_ATTR_CHLIST, sizeof (exr_attr_chlist_t)},
     {"chromaticities",
      14,
@@ -75,6 +76,11 @@ attr_init (exr_context_t ctxt, exr_attribute_t* nattr)
         case EXR_ATTR_BOX2F: {
             exr_attr_box2f_t nil = {{0}};
             *(nattr->box2f)      = nil;
+            break;
+        }
+        case EXR_ATTR_BYTES: {
+            exr_attr_bytes_t nil = {0};
+            *(nattr->bytes) = nil;
             break;
         }
         case EXR_ATTR_CHLIST: {
@@ -229,6 +235,9 @@ attr_destroy (exr_context_t ctxt, exr_attribute_t* attr)
         case EXR_ATTR_OPAQUE:
             rv = exr_attr_opaquedata_destroy (ctxt, attr->opaque);
             break;
+        case EXR_ATTR_BYTES:
+            rv = exr_attr_bytes_destroy(ctxt, attr->bytes);
+            break;
         case EXR_ATTR_BOX2I:
         case EXR_ATTR_BOX2F:
         case EXR_ATTR_CHROMATICITIES:
@@ -333,6 +342,11 @@ exr_attr_list_compute_size (
         {
             case EXR_ATTR_BOX2I: retval += sizeof (*(cur->box2i)); break;
             case EXR_ATTR_BOX2F: retval += sizeof (*(cur->box2f)); break;
+            case EXR_ATTR_BYTES:
+                retval += sizeof (*(cur->bytes));
+                if (cur->bytes->data)
+                    retval += (size_t) cur->bytes->size;
+                break;
             case EXR_ATTR_CHLIST:
                 for (int c = 0; c < cur->chlist->num_channels; ++c)
                 {

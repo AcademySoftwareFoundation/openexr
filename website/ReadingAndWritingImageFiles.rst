@@ -1503,6 +1503,46 @@ are currently in use.
 Miscellaneous
 =============
 
+Image Size Limits and Out-of-Memory Failures
+--------------------------------------------
+
+The OpenEXR file format places no fixed limit on image size, except
+that image width and height are represented by signed 32-bit integers
+and therefore technically limited to a maximum of 2,147,483,647.
+
+Attempting to read a very large image may result in an "out-of-memory
+failure. This is not considered a security vulnerability. The memory
+required to decode such an image is inherently proportional to its
+pixel count, even if compression reduces the image to a small file
+size on disk. Exhausting available memory on a given machine is a
+system resource constraint, not a library defect — the same file that
+triggers an out-of-memory error on one machine may load successfully
+on another with more memory.
+
+The OpenEXR library provides 
+``Imf::Header::setMaxImageSize(int maxWidth,int maxHeight)`` and
+``Imf::Header:"setMaxTileSize(int maxWidth,int maxHeight)`` (and
+``exr_set_default_maximum_image_size()`` and
+``exr_set_default_maximum_tile_size()`` in OpenEXRCore) to allow
+applications to reject files with dimensions exceeding a configurable
+limit before any large allocation occurs. Applications processing
+untrusted EXR files should set these limits to values appropriate for
+their deployment environment.
+
+Beware of setting this limit too low.  Images of resolution greater
+than 10k are not uncommon in VFX workflows. Unless your application
+must process untrusted EXR files in an environment where failure is
+catastrophic, it may be best to provide a limit but allow it to be
+configured by the user:
+
+.. literalinclude:: src/exrreader_max/exrreader_max.cpp
+   :lines: 5-
+
+For very large images, the tiled OpenEXR format is more efficient, and
+reading via the tiled API is the recommended method.  Application code
+that uses the scanline API inherently require significant amounts of
+memory when opening very large tiled images.
+
 Is this an OpenEXR File?
 ------------------------
 
@@ -1751,38 +1791,43 @@ on the ``Header`` object:
 
 Supported compression types are:
 
-+-------------------+------------------------------------------------+
-| RLE_COMPRESSION   | run length encoding                            |
-+-------------------+------------------------------------------------+
-| ZIPS_COMPRESSION  | zlib compression, one scan line at a time      |
-+-------------------+------------------------------------------------+
-| ZIP_COMPRESSION   | zlib compression, in blocks of 16 scan lines   |
-+-------------------+------------------------------------------------+
-| PIZ_COMPRESSION   | piz-based wavelet compression                  |
-+-------------------+------------------------------------------------+
-| PXR24_COMPRESSION | lossy 24-bit float compression                 |
-+-------------------+------------------------------------------------+
-| B44_COMPRESSION   | lossy 4-by-4 pixel block compression,          |
-|                   | fixed compression rate                         |
-+-------------------+------------------------------------------------+
-| B44A_COMPRESSION  | lossy 4-by-4 pixel block compression,          |
-|                   | flat fields are compressed more                |
-+-------------------+------------------------------------------------+
-| DWAA_COMPRESSION  | lossy DCT based compression, in blocks of      |
-|                   | 32 scanlines. More efficient for partial       |
-|                   | buffer access.                                 |
-+-------------------+------------------------------------------------+
-| DWAB_COMPRESSION  | lossy DCT based compression, in blocks of 256  |
-|                   | scanlines. More efficient space-wise and       |
-|                   | faster to decode full frames than              |
-|                   | ``DWAA_COMPRESSION``.                          |
-+-------------------+------------------------------------------------+
-| HTJ2K_COMPRESSION | JPEG 2000 lossless coding, in blocks of 256    |
-|                   | scanlines and using the High-Throughput block  |
-|                   | coder specified in Rec. ITU-T T.814 and        |
-|                   | ISO/IEC 15444-15. The compressor offers both   |
-|                   | speed and high coding efficiency.              |
-+-------------------+------------------------------------------------+
++----------------------+------------------------------------------------+
+| RLE_COMPRESSION      | run length encoding                            |
++----------------------+------------------------------------------------+
+| ZIPS_COMPRESSION     | zlib compression, one scan line at a time      |
++----------------------+------------------------------------------------+
+| ZIP_COMPRESSION      | zlib compression, in blocks of 16 scan lines   |
++----------------------+------------------------------------------------+
+| PIZ_COMPRESSION      | piz-based wavelet compression                  |
++----------------------+------------------------------------------------+
+| PXR24_COMPRESSION    | lossy 24-bit float compression                 |
++----------------------+------------------------------------------------+
+| B44_COMPRESSION      | lossy 4-by-4 pixel block compression,          |
+|                      | fixed compression rate                         |
++----------------------+------------------------------------------------+
+| B44A_COMPRESSION     | lossy 4-by-4 pixel block compression,          |
+|                      | flat fields are compressed more                |
++----------------------+------------------------------------------------+
+| DWAA_COMPRESSION     | lossy DCT based compression, in blocks of      |
+|                      | 32 scanlines. More efficient for partial       |
+|                      | buffer access.                                 |
++----------------------+------------------------------------------------+
+| DWAB_COMPRESSION     | lossy DCT based compression, in blocks of 256  |
+|                      | scanlines. More efficient space-wise and       |
+|                      | faster to decode full frames than              |
+|                      | ``DWAA_COMPRESSION``.                          |
++----------------------+------------------------------------------------+
+| HTJ2K256_COMPRESSION | JPEG 2000 lossless coding, in blocks of 256    |
+|                      | scanlines and using the High-Throughput block  |
+|                      | coder specified in Rec. ITU-T T.814 and        |
+|                      | ISO/IEC 15444-15. The compressor offers both   |
+|                      | speed and high coding efficiency.              |
++----------------------+------------------------------------------------+
+| HTJ2K32_COMPRESSION  | Same as ``HTJ2K256_COMPRESSION``, but in       |
+|                      | blocks of 32 scanlines, More efficient for     |
+|                      | partial buffer access, but slightly less       |
+|                      | efficient space-wise.                          |
++----------------------+------------------------------------------------+
 
 ``ZIP_COMPRESSION`` and ``DWA`` compression compress to a
 user-controllable compression level, which determines the space/time

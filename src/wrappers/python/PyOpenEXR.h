@@ -17,7 +17,7 @@ class PyChannel;
 class PyFile 
 {
 public:
-    PyFile() {}
+    PyFile();
     PyFile(const std::string& filename, bool separate_channels = false, bool header_only = false);
     PyFile(const py::dict& header, const py::dict& channels);
     PyFile(const py::list& parts);
@@ -35,7 +35,8 @@ public:
 
 protected:
     
-    bool         header_only;
+    bool                                _header_only;
+    std::unique_ptr<MultiPartInputFile> _inputFile;
     
     py::object   getAttributeObject(const std::string& name, const Attribute* a);
     
@@ -218,7 +219,6 @@ PyPreviewImage::operator==(const PyPreviewImage& other) const
             return false;
     return true;
 }
-
 
 inline std::ostream&
 operator<< (std::ostream& s, const Chromaticities& c)

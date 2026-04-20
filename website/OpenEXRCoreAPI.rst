@@ -121,8 +121,8 @@ of I/O is a tile itself: the chunk is a tile. One can use the routines
 ``exr_get_tile_descriptor()``, ``exr_get_tile_levels()``, and
 ``exr_get_tile_sizes()`` as utilities to introspect tile information.
 
-In order to read data, use ``exr_read_scanline_block_info()`` or
-``exr_read_tile_block_info()`` to initialize a structure with the data
+In order to read data, use ``exr_read_scanline_chunk_info()`` or
+``exr_read_tile_chunk_info()`` to initialize a structure with the data
 to read one of these chunks of data. Then there are the corresponding
 ``exr_read_chunk()``, ``exr_read_deep_chunk()`` which read the
 data. Analogously, there are write versions of these functions.

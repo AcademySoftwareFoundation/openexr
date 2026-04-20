@@ -748,6 +748,69 @@ extract_attr_tiledesc (
 }
 
 /**************************************/
+#include <assert.h>
+static exr_result_t
+extract_attr_bytes(
+    exr_context_t ctxt,
+    struct _internal_exr_seq_scratch* scratch,
+    exr_attr_bytes_t* attrdata,
+    const char* aname,
+    const char* tname,
+    int32_t attrsz)
+{
+    int32_t n;
+    int32_t hint_length;
+    size_t bytes_length;
+    exr_result_t rv;
+
+    rv = check_bad_attrsz(scratch, attrsz, 1, aname, tname, &n);
+    if (rv != EXR_ERR_SUCCESS) return rv;
+
+    exr_attr_bytes_destroy(ctxt, attrdata);
+
+    if (attrsz < sizeof(uint32_t))
+        return ctxt->print_error (
+            ctxt,
+            EXR_ERR_ATTR_SIZE_MISMATCH,
+            "Attribute '%s': Invalid size %d (exp '%s' size >= %ld)",
+            aname,
+            attrsz,
+            tname,
+            sizeof(uint32_t));
+
+    rv = scratch->sequential_read (scratch, &hint_length, sizeof (uint32_t));
+    if (rv != EXR_ERR_SUCCESS)
+        return ctxt->print_error (
+            ctxt, rv, "Attribute '%s': Unable to read hint length.", aname);
+
+    hint_length = one_to_native32 (hint_length);
+    if (hint_length < 0)
+        return ctxt->print_error (
+            ctxt, EXR_ERR_INVALID_ATTR,
+            "Attribute '%s': Invalid size (%d) for type_hint.", aname, hint_length);
+
+    bytes_length = attrsz - sizeof(uint32_t) - hint_length;
+
+    rv = exr_attr_bytes_init(ctxt, attrdata, (size_t)hint_length, bytes_length);
+    if (rv != EXR_ERR_SUCCESS) return rv;
+
+    rv = scratch->sequential_read(scratch, (void*)attrdata->type_hint, (uint64_t)hint_length);
+    if (rv != EXR_ERR_SUCCESS) {
+        exr_attr_bytes_destroy(ctxt, attrdata);
+        return ctxt->print_error(
+            ctxt, rv, "Failed to read bytes attribute '%s'", aname);
+    }
+
+    rv = scratch->sequential_read(scratch, (void*)attrdata->data, (uint64_t)bytes_length);
+    if (rv != EXR_ERR_SUCCESS) {
+        exr_attr_bytes_destroy(ctxt, attrdata);
+        return ctxt->print_error(
+            ctxt, rv, "Failed to read bytes attribute '%s'", aname);
+    }
+    return rv;
+}
+
+/**************************************/
 
 static exr_result_t
 extract_attr_opaque (
@@ -2062,6 +2125,9 @@ pull_attr (
             rv = extract_attr_32bit (
                 ctxt, scratch, nattr->box2f, name, type, attrsz, 4);
             break;
+        case EXR_ATTR_BYTES:
+            rv = extract_attr_bytes(ctxt, scratch, nattr->bytes, name, type, attrsz);
+            break;
         case EXR_ATTR_CHLIST:
             rv = extract_attr_chlist (
                 ctxt, scratch, nattr->chlist, name, type, attrsz);
@@ -2426,7 +2492,9 @@ internal_exr_compute_chunk_offset_size (exr_priv_part_t curpart)
 
     w = (uint64_t) (((int64_t) dw.max.x) - ((int64_t) dw.min.x) + 1);
 
-    if (curpart->tiles)
+    if (curpart->storage_mode != EXR_STORAGE_SCANLINE &&
+       curpart->storage_mode != EXR_STORAGE_DEEP_SCANLINE &&
+       curpart->tiles)
     {
         const exr_attr_tiledesc_t* tiledesc  = curpart->tiles->tiledesc;
         int64_t                    tilecount = 0;

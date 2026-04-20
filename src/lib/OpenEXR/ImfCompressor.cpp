@@ -381,11 +381,15 @@ newCompressor (Compression c, size_t maxScanLineSize, const Header& hdr)
                 DwaCompressor::STATIC_HUFFMAN);
             break;
 
-        case HTJ2K_COMPRESSION:
+        case HTJ2K256_COMPRESSION:
 
             return new HTCompressor (hdr, static_cast<int> (maxScanLineSize), 256);
 
+        case HTJ2K32_COMPRESSION:
+
+            return new HTCompressor (hdr, static_cast<int> (maxScanLineSize), 32);
         case ZSTD_COMPRESSION:
+
             ret = new ZstdCompressor (hdr, maxScanLineSize, 1);
             break;
 
@@ -470,6 +474,13 @@ newTileCompressor (
                 DwaCompressor::STATIC_HUFFMAN);
             break;
 
+        case HTJ2K256_COMPRESSION:
+        case HTJ2K32_COMPRESSION:
+
+            return new HTCompressor (
+                hdr,
+                static_cast<int> (tileLineSize),
+                static_cast<int> (numTileLines));
         case ZSTD_COMPRESSION:
 
             ret = new ZstdCompressor (hdr, tileLineSize, numTileLines);

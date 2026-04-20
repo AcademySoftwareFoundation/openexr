@@ -39,7 +39,7 @@ There are two primary ways to connect with the OpenEXR project:
 If you have trouble installing, building, or using the library, but
 there's not yet reason to suspect you've encountered a genuine bug,
 start by posting a question to the
-[openexr-dev](http://lists.aswf.io/openexr-dev) mailing list. This is
+[openexr-dev](http://lists.aswf.io/g/openexr-dev) mailing list. This is
 the place for question such has "How do I...".
 
 ### How to Report a Bug
@@ -81,7 +81,7 @@ To contribute code to the project, first read over the [GOVERNANCE](GOVERNANCE.m
 
 * An understanding of the project's development workflow.
 
-* Legal authorization, that is, you need to have signed a contributor
+* Legal authorization, that is, you need to have signed a Contributor
   License Agreement. See below for details.
 
 ## Legal Requirements
@@ -102,19 +102,23 @@ in the OpenEXR distribution must first complete a **Contributor
 License Agreement**.
 
 To contribute to OpenEXR, you must sign a CLA through the
-[EasyCLA](https://contributor.easycla.lfx.linuxfoundation.org/#/cla/project/2e8710cb-e379-4116-a9ba-964f83618cc5/user/564e571e-12d7-4857-abd4-898939accdd7?redirect=https:%2F%2Fgithub.com%2FAcademySoftwareFoundation%2Fopenexr%2Fpull%2F1154)
+[EasyCLA](https://docs.linuxfoundation.org/lfx/easycla)
 system, which is integrated with GitHub as a pull request check.
 
-Sign the form through [this
-link](https://contributor.easycla.lfx.linuxfoundation.org/#/cla/project/2e8710cb-e379-4116-a9ba-964f83618cc5/user/564e571e-12d7-4857-abd4-898939accdd7?redirect=https:%2F%2Fgithub.com%2FAcademySoftwareFoundation%2Fopenexr%2Fpull%2F1154)
-prior to submitting a pull request. If you submit a pull request
-before the form is signed, the "linux-foundation-easycla" check will
-fail and a red "NOT COVERED" button will appear in the PR
-comments. Click that link to sign the form.
+If a contributor opens a pull request without having a CLA on file, the 
+contributor will be guided through the process to have the appropriate 
+CLA signed. Look in the PR comments for the "linux-foundation-easycla" 
+check that would fail, and a red "NOT COVERED" button will appear in the PR
+comments; click the link in the comment to sign the CLA. For organizations, 
+you can alternatively go to [this
+link](https://organization.lfx.linuxfoundation.org/foundation/a09410000182dD2AAI/project/a092M00001If9ujQAB/cla)
+prior to submitting a pull request, which will guide you through the 
+process to have a CLA signed on behalf of the organization.
 
 * If you are an individual writing the code on your own time and
   you're **sure** you are the sole owner of any intellectual property you
-  contribute, you can sign the CLA as an **Individual Contributor**.
+  contribute, you can sign the CLA as an **Individual Contributor**. If you
+  are unsure, please contact your employer for clarity.
 
 * If you are writing the code as part of your job, or if your employer
   retains ownership to intellectual property you create, no matter how
@@ -128,9 +132,11 @@ The downloadable PDF's on the EasyCLA page are provided for reference
 only. To execute the signature, sign the form online through the
 relevant links.
 
-The OpenEXR CLAs are the standard forms used by Linux Foundation
+The OpenEXR CLAs are the standard forms used by the Linux Foundation
 projects and [recommended by the ASWF
-TAC](https://github.com/AcademySoftwareFoundation/tac/blob/main/process/contributing.md#contributor-license-agreement-cla).
+TAC](https://github.com/AcademySoftwareFoundation/tac/blob/main/process/contributing.md#contributor-license-agreement-cla). 
+Note that if you have signed a CLA for a different ASWF or LF project, that 
+CLA doesn't apply here and you need to sign for this project specifically.
 
 ### Commit Sign-Off
 
@@ -539,83 +545,71 @@ access on the GitHub repo.
 
 The preferred workflow is:
 
-1. Make a PR that merges appropriate changes from the main branch to
-   the release branch:
+1. Cherry-pick commits from the main branch to the release branch,
+   compose release notes, and bump the version number.
 
-   a. In a forked clone, create a branch to hold the patch commits,
-      e.g. ``v3.1.9-fixes``.
+   a. Create a new PR label for the new release (on the GitHub "Pull
+      Request" page), identify all PRs to be included, and assign the
+      label to them.  Run:
 
-   b. Cherry-pick the appropriate commits from ``main``, resolving any
-      merge conflicts.
+          % share/util/release.py log
 
-   c. Increment ``OPENEXR_VERSION_PATCH`` in
-      [src/lib/OpenEXRCore/openexr_version.h](src/lib/OpenEXRCore/openexr_version.h)
+      to print recent commits and their associated PRs and release
+      labels. The best practice is to ensure that every PR is labeled
+      with the release it should go into, even if that is the next
+      major release.
+   
+      Note that this relies on the commit message having the PR number
+      appended to the end, which GitHub adds on "Squash and
+      merge". PRs merged via "Rebase and merge" do *not* get this PR
+      number, which leaves you to manually decipher the PRs to report
+      in the release notes. Our project policy is to "Squash and
+      merge" whenever possible, unless the PR's individual commits
+      really do need to be preserved in the history.
 
-   d. Update the ``IMATH_TAG`` setting in
-      [cmake/OpenEXRSetup.cmake](cmake/OpenEXRSetup.cmake) to
-      correspond to the proper Imath release.
+   b. Identify the main branch commits to cherry pick to the release
+      branch:
+   
+          % share/util/release.py cherry <tag>
 
-   e. Add release notes to [CHANGES.md](CHANGES.md):
+      This will print the SHAs for the commits associated with the
+      labeled PRs. The output will look something like:
+      
+          git cherry-pick 2e32c6b # Bump actions/cache from 5.0.3 to 5.0.4 (#2311)
+          git cherry-pick 3df0122 # Pin pypa/cibuildwheel actions to release sha (#2294)
+          git cherry-pick 6155271 # Force macos cibuildwheel to use Xcode clang (#2315)
+          share/util/release.py changes v3.4.8 2311 2294 2315
+          
+   c. Cherry-pick the commits (copy & execute output from `release.py cherry`):
 
-      - Generate a list of links to merged pull requests.
+          % git checkout RB-3.4
+          % git cherry-pick 2e32c6b
+          % git cherry-pick 3df0122
+          % git cherry-pick 6155271
 
-        Use ``git log`` to identify the merged commits, and for each
-        commit, and add a link in the notes to the corresponding PR
-        that merged it to ``main``. Citing PR's in the release notes
-        is preferable to citing raw commits because the PR's often
-        have helpful information and discussion missing from the
-        commit descriptions, and the commit history is readily
-        accessible via ``git log`` anyway.
+      This may involve resolving conflicts along the way. Confirm the
+      updated branch builds successfully.
 
-        The typical OpenEXR project workflow uses "squash and merge"
-        to merge PR's into ``main``, so the changes involved in each
-        PR end up on ``main`` as a single commit. This is preferable
-        because a raw PR often includes numerous commits that address
-        comments and feedback or fix typos or mistakes, intermediate
-        steps not helpful to the preserved history of the main
-        development thread. Note that GitHub's "squash and merge"
-        helpfully appends the PR number to the commit subject line.
+   d. Create a new section in the `CHANGES.md` release notes file:
+   
+          % share/util/release.py changes <tag> <pr list>
 
-        Note that when this PR is merged to the release branch, it
-        should go in via "rebase and merge" that the release branch
-        retains the granular changes, described below.
+      This is the command as printed at the end of the output of the
+      "cherry" command. This will add a new section to `CHANGES.md`
+      and add entries to the PR lists. Run this from the release
+      branch, since it's preparing a commit for there.
+   
+   e. Edit `CHANGES.md` and compose a release notes summary. Commit
+      this change.
 
-      - Generate a list of OSS-Fuzz issues addressed.
+   f. Bump the version number in
+      `src/lib/OpenEXRCore/openexr_version.h`. Commit this change.
 
-        These are security concerns, so they deserve special
-        attention. Provide a link in the notes to the issue at
-        https://bugs.chromium.org/p/oss-fuzz, including the issue id
-        number and description.
-
-      - If there are any public CVE's, mention them explicitly with a
-        link to the CVE registry item.
-
-      - Provide an executive summary of the patch changes, in a few
-        sentences as well as bullet points if appropriate.
-
-      - Choose a proposed release date at least several days in
-        advance.
-
-   f. If there are any public CVE's, reference them in
-      [SECURITY.md](SECURITY.md).
-
-   g. Submit the PR for others to review. The PR should go *to the
-      release branch, not ``main``*, obviously.
-
-   h. After others have had a chance to sanity-check the changes,
-      merge the PR *with "rebase and merge"*.  Unlike with the usual
-      PR's merged to main, it is essential to retain the individual
-      commits on the release branch. That way, the release branch
-      commit history retains the details of the changes.
-
-   i. If further fixes come in that need to go into the release, push
-      them to the PR branch. It's not absolutely essential that all
-      changes to the release branch go in via a PR. The PR is simply a
-      convenient forum for publicly discussing and reviewing the
-      composition of the release.
-
+   g. Push the release branch and confirm the CI passes.
+   
 2. Tag the release with a ``-rc`` "release candidate" tag,
-   e.g. ``v3.1.9-rc``.
+   e.g. ``v3.1.9-rc``.  Push the tag via `git push --tags`. This will
+   trigger the release candidate workflow.
 
 3. Validate ABI compatibility. Build at the release candidate tag and
    run
@@ -629,15 +623,13 @@ The preferred workflow is:
    of the release with link to the release candidate tag. Include the
    release notes from [CHANGES.md](CHANGES.md) for review.
 
-5. Draft the release on the GitHub
+5. Draft the GitHub release via:
+
+        % share/util/release.py draft <tag>
+       
+   Verify the notes look correct on the
    [Releases](https://github.com/AcademySoftwareFoundation/openexr/releases)
-   page.  Include the summary from the notes in
-   [CHANGES.md](CHANGES.md), but don't include the list of PR's.
-
-   Create the release from the latest ``--rc`` tag, and give it a name
-   that begins with ``v``, i.e. ``v3.1.9``.
-
-   Save the release as a "draft".
+   page and edit as appropriate. Save as a "draft".
 
 6. Wait at least 48 hours, to give the community time to discover and
    report any obvious problems. Avoid the temptation to rush changes
@@ -646,13 +638,12 @@ The preferred workflow is:
 
    If additional fixes need to go in before release:
 
-   a. Merge commits to the release branch. Push them directly, no need
-      for a pull request.
+   a. Merge commits to the release branch. Push them directly.
 
    b. Update the release notes in a separate commit.
 
    c. Re-tag with a incremented "release candidate" number,
-      e.g. ``v3.1.9-rc2``.  
+      e.g. ``v3.1.9-rc2``.
 
    d. Send an email update to ``openexr-dev@lists.aswf.io`` notifying
       the community of the addition and the new tag.
@@ -665,15 +656,22 @@ The preferred workflow is:
       [registered](https://docs.github.com/en/authentication/managing-commit-signature-verification/telling-git-about-your-signing-key)
       with your GitHub account and git config.
 
-   b. Create a signed tag with the release name via `git tag -s v3.1.9`.
+   b. Create a signed tag with the release name via:
+   
+          git tag -s v3.1.9
 
-   c. Push the tag via `git push --tags`
+   c. Push the tag via:
+
+          git push --tags
 
 8. Publish the release
 
-   a. Click the "Publish release" button on the GitHub release draft
+   a. Set the release to correspond to the latest release candidate
+      tag.
+   
+   b. Click the "Publish release" button on the GitHub release draft
 
-   b. Send an email to ``openexr-dev@lists.aswf.io`` officially
+   c. Send an email to ``openexr-dev@lists.aswf.io`` officially
       announcing the release.
 
 9. Update the ``release`` branch, which should always point to the
@@ -682,9 +680,9 @@ The preferred workflow is:
 
    From a clone of the main repo:
 
-       % git checkout release
-       % git merge RB-3.1
-       % git push
+        % git checkout release
+        % git merge RB-3.1
+        % git push
          
 10. Submit a PR that adds the release notes to [CHANGES.md](CHANGES.md)
     on the main branch. Cherry-pick the release notes commit from
@@ -694,18 +692,25 @@ The preferred workflow is:
       the associated commit as well.
 
     - Also include in this PR edits to [``website/news.rst``](website/news.rst)
-      that add an announcement of the release.
+      that add an announcement of the release:
 
-11. After review/merge of the updates to ``website/news.rst``, build the
-    website at https://readthedocs.org/projects/openexr.
+            share/util/release.py news v3.4.8
 
+      This will edit the website source files to add the news item.
+
+    - Get the PR approved and merged promptly so the news item appears
+      on the website. The website rebuilds automatically at
+      https://readthedocs.org/projects/openexr on changes to the main
+      branch, so no action is required.
+      
 12. If the release has resolved any OSS-Fuzz issues, update the
     associated pages at https://bugs.chromium.org/p/oss-fuzz with a
     reference to the release.
 
-13. If the release has resolved any public CVE's, request an update
+13. If the release has resolved any public CVEs, request an update
     from the registry service providing the release and a link to the
-    release notes.
+    release notes.  Add a reference to resolved public CVEs to
+    `SECURITY.md` and submit as a PR.
 
 ## Creating a Major/Minor Release
 

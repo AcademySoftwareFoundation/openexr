@@ -162,6 +162,7 @@ main (int argc, char* argv[])
     TEST (testAttrChlists, "gen_attr");
     TEST (testAttrPreview, "gen_attr");
     TEST (testAttrOpaque, "gen_attr");
+    TEST (testAttrBytes, "gen_attr");
     TEST (testAttrHandler, "gen_attr");
     TEST (testAttrLists, "gen_attr");
 

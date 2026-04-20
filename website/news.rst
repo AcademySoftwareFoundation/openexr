@@ -15,37 +15,465 @@ News
 
 .. include:: latest_news_title.rst
 
+
 |latest-news-title|
-=======================================
+===========================================
 
 .. _LatestNewsStart:
 
+Patch release that addresses several security vulnerabilities.
+
+This release also fixes a build issue where the library symlinks would
+get installed in the incorrect location when overriding the cached
+install prefix path.
+
+This release addresses the following CVEs:
+
+* `CVE-2026-34589 <https://www.cve.org/CVERecord?id=CVE-2026-34589>`_ DWA Lossy Decoder Heap Out-of-Bounds Write
+* `CVE-2026-34588 <https://www.cve.org/CVERecord?id=CVE-2026-34588>`_ Signed 32-bit Overflow in PIZ Decoder Leads to OOB Read/Write
+* `CVE-2026-34380 <https://www.cve.org/CVERecord?id=CVE-2026-34380>`_ Signed integer overflow (undefined behavior) in undo_pxr24_impl may allow bounds-check bypass in PXR24 decompression
+* `CVE-2026-34379 <https://www.cve.org/CVERecord?id=CVE-2026-34379>`_ Misaligned write in LossyDctDecoder_execute leading to undefined behavior (DWA/DWAB decompression)
+* `CVE-2026-34378 <https://www.cve.org/CVERecord?id=CVE-2026-34378>`_ Signed integer overflow in generic_unpack() when parsing EXR files with crafted negative dataWindow.min.x
+
+.. _LatestNewsEnd:
+
+April  3, 2026 - OpenEXR 3.3.9 Released
+=======================================
+
+Patch release for v3.3 that addresses the following security vulnerabilities:
+
+* `CVE-2026-34589 <https://www.cve.org/CVERecord?id=CVE-2026-34589>`_ DWA Lossy Decoder Heap Out-of-Bounds Write
+* `CVE-2026-34588 <https://www.cve.org/CVERecord?id=CVE-2026-34588>`_ Signed 32-bit Overflow in PIZ Decoder Leads to OOB Read/Write
+* `CVE-2026-34544 <https://www.cve.org/CVERecord?id=CVE-2026-34544>`_ integer overflow to OOB write in uncompress_b44_impl()
+* `CVE-2026-34543 <https://www.cve.org/CVERecord?id=CVE-2026-34543>`_ Heap information disclosure in PXR24 decompression via unchecked decompressed size (undo_pxr24_impl)
+* `CVE-2026-34380 <https://www.cve.org/CVERecord?id=CVE-2026-34380>`_ Signed integer overflow (undefined behavior) in undo_pxr24_impl may allow bounds-check bypass in PXR24 decompression
+* `CVE-2026-34379 <https://www.cve.org/CVERecord?id=CVE-2026-34379>`_ Misaligned write in LossyDctDecoder_execute leading to undefined behavior (DWA/DWAB decompression)
+* `CVE-2026-34378 <https://www.cve.org/CVERecord?id=CVE-2026-34378>`_ Signed integer overflow in generic_unpack() when parsing EXR files with crafted negative dataWindow.min.x
+
+
+April  3, 2026 - OpenEXR 3.2.7 Released
+=======================================
+
+Patch release for v3.2 that addresses the following security vulnerabilities:
+
+* `CVE-2026-34589 <https://www.cve.org/CVERecord?id=CVE-2026-34589>`_ DWA Lossy Decoder Heap Out-of-Bounds Write
+* `CVE-2026-34588 <https://www.cve.org/CVERecord?id=CVE-2026-34588>`_ Signed 32-bit Overflow in PIZ Decoder Leads to OOB Read/Write
+* `CVE-2026-34544 <https://www.cve.org/CVERecord?id=CVE-2026-34544>`_ integer overflow to OOB write in uncompress_b44_impl()
+* `CVE-2026-34543 <https://www.cve.org/CVERecord?id=CVE-2026-34543>`_ Heap information disclosure in PXR24 decompression via unchecked decompressed size (undo_pxr24_impl)
+* `CVE-2026-34380 <https://www.cve.org/CVERecord?id=CVE-2026-34380>`_ Signed integer overflow (undefined behavior) in undo_pxr24_impl may allow bounds-check bypass in PXR24 decompression
+* `CVE-2026-34379 <https://www.cve.org/CVERecord?id=CVE-2026-34379>`_ Misaligned write in LossyDctDecoder_execute leading to undefined behavior (DWA/DWAB decompression)
+
+
+March 26, 2026 - OpenEXR 3.4.8 Released
+=======================================
+
+Patch release with several bug/build fixes:
+
+* Fix an integer-overflow bug reading malformed files compressed with
+  B44A/B44B 
+* Fix a buffer-overrun bug reading malformed files compressed with PXR24
+* Fix a bug compressing half data with ZIPS/ZIP data when the
+  compressed size equals packed size
+* Single part files no longer get assigned a part name when writing
+  via the python module
+* Fix a build failure on FreeBSD involving ``threads.h``
+
+This also eliminates several compiler warnings, particularly about the
+deprecated ``isOptimizationEnabled()`` API and deprecates standard
+attributes.
+
+
+March  15, 2026 - OpenEXR 3.4.7 Released
+========================================
+
+Patch release bug/build fixes:
+
+* Fix an integer overflow decoding very wide htj2k images
+* Fix build failure with glibc 2.43
+* Fix Windows symbol visibility warnings
+
+Full changelog: ``v3.4.6..v3.4.7 <https://github.com/AcademySoftwareFoundation/openexr/compare/v3.4.6..v3.4.7>``_
+
+March  1, 2026 - OpenEXR 3.4.6 Released
+=======================================
+
+Patch release with several bug fixes, enhancements, and build improvements.
+
+* 🐛 A limit of ``UINT_MAX`` deep samples per pixel is now
+  enforced, which prevents an integer overflow when using the
+  ``CompositeDeepScanLine`` API to combine multiple deep parts.
+
+* 🐛 ``IlmThread`` now builds properl with glibc 2.43.
+
+* 🔧 In ``IlmThreadPool``, replace deprecated ``std::atomic_load /
+  std::atomic_exchange`` overloads for ``std::shared_ptr`` with the C++20
+  ``std::atomic<std::shared_ptr<T>>`` interface when available.
+
+* 🐛 The ``ZIP`` and ``ZIPS`` Compressor objects had incorrect
+  compression types set, although the ill effects were miminal as the
+  value is seldom used.
+  
+* 🐛 Enable SSE2 on 32-bit x86 builds to fix test failures
+
+Build improvements:
+
+* 🛠️ OpenEXR now ships with an internal "vendored" copy of the
+  ``OpenJPH`` library. At configuration time, if CMake finds an
+  external installation of ``OpenJPH``, it will use it, but if that
+  fails, or the CMake configuration option
+  ``OPENEXR_FORCE_INTERNAL_OPENJPH`` is set, it will use the internal
+  copy. For OpenEXR v3.4.6, the vendored version of OpenJPH is 0.26.3.
+
+* 🛠️ A new CMake build option ``DOPENEXR_FORCE_EMBEDDED_CORE``
+  builds the ``OpenEXRCore`` library statically and links it into the
+  ``OpenEXR`` library with symbols hidden, making it possible to link
+  multiple versions of OpenEXR into the same executable. The ``OpenEXR``
+  library has namespaces for this situation, but the ``OpenEXRCore``
+  library is written in C with no configurable namespace. See `Linking
+  Multiple OpenEXR Versions in the
+  Same Executable <https://openexr.com/en/latest/install.html#linking-multiple-openexr-versions-in-the-executable>`_
+  for details.
+
+* 🛠️ Fix build failure with ``-march=sandybridge``
+
+Python:
+
+* 🐍 ✨ Add python support for Opaque Attributes
+
+* 🚀 Python module I/O operations now release the GIL,
+  preventing blocking.
+
+Tools:
+
+* ✨ Add sanity check for correct arguments to exrstdattr, to
+  catch mistakes such as ``exrstdattr input.exr output.exr -comment
+  hello`` which would formerly write to a file called ``hello`` but
+  now fails with a usage error.
+
+Also, this release bumps the vendered version of ``libdeflate`` to 1.25.
+
+
+March 1, 2026 - OpenEXR 3.3.8 Released
+======================================
+
+Patch release for the 3.3 release that prevents an integer overflow
+when using the ``CompositeDeepScanLine`` API to combine multiple deep
+parts.
+
+March 1, 2026 - OpenEXR 3.2.6 Released
+======================================
+
+Patch release for the 3.2 release that prevents an integer overflow
+when using the ``CompositeDeepScanLine`` API to combine multiple deep
+parts.
+
+February 21, 2026 - OpenEXR 3.4.5 Released
+==========================================
+
+Patch release that fixes an incorrect size check in
+`istream_nonparallel_read` that could lead to a buffer overflow on
+invalid input data.
+
+.. _LatestNewsEnd:
+
+February 19, 2026 - OpenEXR 3.3.7 Released
+==========================================
+
+Patch release that fixes an incorrect size check in
+`istream_nonparallel_read` that could lead to a buffer overflow on
+invalid input data.
+
+
+November 19, 2025 - OpenEXR 3.4.4 Released
+==========================================
+
+Patch release with an optimization to reduce the size of the library.
+
+B44 and DWA compression tables are now initialized at first use rather
+than being hard-coded in the source code and compiled binary. This
+reduces the library size at a slight performance cost. Initialization
+takes under a millisecond, but the size of libOpenEXRCore.so is
+reduced from 890K to 360K. 
+
+This also fixes a build issue with `ILMTHREAD_THREADING_ENABLED` which
+inadvertently enabled threading when it should have been disabed.
+
+This also fixes a bug where importing the python module from a parent
+directory would fail.
+
+
+November  4, 2025 - OpenEXR 3.4.3 Released
+==========================================
+
+Patch release that addresses several bugs, primarily involving
+properly rejecting corrupt input data.
+
+Specifically:
+
+* Buffer overflow in PyOpenEXR_old's `channels()` and `channel()` in
+  legacy python, reported by Joshua Rogers (GitHub: MegaManSec).
+* Use after free in PyObject_StealAttrString in legacy python, reported
+  by Joshua Rogers (GitHub: MegaManSec).
+* Use of Uninitialized Memory in openexr, reported by Aldo Ristori
+  (GitHub: Kaldreic).
+* Heap-based Buffer Overflow Remote Code Execution Vulnerability,
+  reported by Trend Micro Zero Day Initiative.
+
+Also:
+
+* OSS-fuzz `456158449 <https://issues.oss-fuzz.com/issues/456158449>`_ Heap-buffer-overflow in `generic_unpack`
+* OSS-fuzz `447429458 <https://issues.oss-fuzz.com/issues/447429458>`_ Heap-buffer-overflow in `DwaCompressor_uncompress`
+* OSS-fuzz `439237843 <https://issues.oss-fuzz.com/issues/439237843>`_ Heap-buffer-overflow in `internal_exr_undo_ht`
+* OSS-fuzz `436037111 <https://issues.oss-fuzz.com/issues/436037111>`_ Heap-buffer-overflow in `generic_unpack`
+* OSS-fuzz `435779241 <https://issues.oss-fuzz.com/issues/435779241>`_ Heap-buffer-overflow in `generic_unpack`
+* OSS-fuzz `420744464 <https://issues.oss-fuzz.com/issues/420744464>`_ Abrt in `__cxxabiv1::failed_throw`
+
+Other fixes:
+
+* Fix a bug with re-reading a scanline file with a different set of
+  channels.
+* Only populate `CMAKE_DEBUG_POSTFIX` with `_d` if it is undefined,
+  which makes it possible to set `CMAKE_DEBUG_POSTFIX=""`.
+
+This version also bumps the auto-fetched version of OpenJPH to
+0.24.5. OpenJPH 0.24.5 addresses these OSS-Fuzz issues:
+		
+* OSS-fuzz `456837230 <https://issues.oss-fuzz.com/issues/456837230>`_ Crash in `ojph::local::param_cod::~param_cod`
+* OSS-fuzz `456248580 <https://issues.oss-fuzz.com/issues/456248580>`_ Null-dereference READ in `ojph::local::param_cod::~param_cod`
+* OSS-fuzz `455374208 <https://issues.oss-fuzz.com/issues/455374208>`_ Floating-point-exception in `ojph::local::tile::pre_alloc`
+* OSS-fuzz `444963190 <https://issues.oss-fuzz.com/issues/444963190>`_ Index-out-of-bounds in `ojph::local::param_qcd::read_qcc`
+* OSS-fuzz `444889300 <https://issues.oss-fuzz.com/issues/444889300>`_ Heap-buffer-overflow in `ojph::mem_infile::read`
+* OSS-fuzz `444878558 <https://issues.oss-fuzz.com/issues/444878558>`_ Segv on unknown address in `ojph::local::param_qcd::~param_qcd`
+* OSS-fuzz `444878557 <https://issues.oss-fuzz.com/issues/444878557>`_ Null-dereference READ in `ojph::local::param_qcd::~param_qcd`
+
+Full changelog: `[v3.4.2..v3.4.3] <https://github.com/AcademySoftwareFoundation/openexr/compare/v3.4.2..v3.4.3>`_
+
+
+November  4, 2025 - OpenEXR 3.3.6 Released
+==========================================
+
+Patch release that addresses several bugs, primarily involving
+properly rejecting corrupt input data.
+
+Specifically:
+
+* Buffer overflow in PyOpenEXR_old's `channels()` and `channel()` in
+  legacy python, reported by Joshua Rogers (GitHub: MegaManSec).
+* Use after free in PyObject_StealAttrString in legacy python, reported
+  by Joshua Rogers (GitHub: MegaManSec).
+* Use of Uninitialized Memory in openexr, reported by Aldo Ristori
+  (GitHub: Kaldreic).
+* Heap-based Buffer Overflow Remote Code Execution Vulnerability,
+  reported by Trend Micro Zero Day Initiative.
+
+Other fixes:
+
+* Only populate `CMAKE_DEBUG_POSTFIX` with `_d` if it is undefined,
+  which makes it possible to set `CMAKE_DEBUG_POSTFIX=""`.
+
+Full changelog: `[v3.3.5..v3.3.6] <https://github.com/AcademySoftwareFoundation/openexr/compare/v3.3.5..v3.3.6>`_
+
+
+November  4, 2025 - OpenEXR 3.2.5 Released
+==========================================
+
+Patch release that addresses bugs in the python module's legacy API.
+
+* Buffer overflow in PyOpenEXR_old's `channels()` and `channel()` in
+  legacy python, reported by Joshua Rogers (GitHub: MegaManSec).
+* Use after free in PyObject_StealAttrString in legacy python, reported
+  by Joshua Rogers (GitHub: MegaManSec).
+
+Full changelog: `[v3.2.4..v3.2.5] <https://github.com/AcademySoftwareFoundation/openexr/compare/v3.2.6..v3.2.5>`_
+
+
+October 15, 2025 - OpenEXR 3.4.2 Released
+=========================================
+
+Patch release that fixes a Windows build issue introduced in v3.4.1.
+
+This version also bumps the auto-fetched Imath version to v3.2.2,
+which resolves a build problem with newer versions of cmake, involving
+duplicate library aliases.
+
+No change in functionality.
+
+
+October  8, 2025 - OpenEXR 3.4.1 Released
+=========================================
+
+Patch release that fixes a build issue: OpenJPH headers are now
+included from the openjph folder, as required by OpenJPH 0.23+.
+
+No change in functionality.
+
+
+September  5, 2025 - OpenEXR 3.4.0 Released
+===========================================
+
+📺 Watch the recording of the `2025 ASWF OpenEXR Virtual Town Hall
+<https://youtu.be/XYdAm4OXO88>`_ to hear more about the v3.4 release,
+or view the `presentation slide deck
+<https://drive.google.com/file/d/1_eT5JK3RSevbnoaJaIq2QE0wzz3tlVpX/view>`_.
+
+OpenEXR v3.4 introduces a new, additional compression option to the
+OpenEXR file format for **lossless compression with High Throughput
+JPEG-2000 (HTJ2K)** encoding:
+
+* A new HTJ2K compressor uses the **High-Throughput (HT) block
+  coder**. It supports the full range of OpenEXR features, including
+  16-bit and 32-bit floating-point image channels, both scanline and
+  tiled.
+
+* The HT block coder is standardized in `Rec. ITU-T
+  T.814 <https://loc.gov/preservation/digital/formats/fdd/fdd000566.shtml>`_
+  and `ISO/IEC 15444-15 <https://www.iso.org/standard/76621.html>`_. It
+  is **royalty-free**, widely used in cinema and distribution servicing,
+  and implemented in both commercial and open-source toolkits.
+
+* In experiments, we've found that HTJ2K produces smaller files, and
+  depending on the nature of the image data, is one of the fastest
+  compression types available in OpenEXR.
+
+* Integration with OpenEXR uses the
+  `OpenJPH <https://github.com/aous72/OpenJPH>`_ open-source
+  library. For ease in managing the dependency, the OpenEXR CMake
+  configuration supports **automatically fetching and building `OpenJPH`
+  internally**, or linking against an **external installation**.
+
+* OpenEXR supports two new compression types with distinct space/time
+  trade-offs:
+
+  - `htj2k256` -- encodes/decodes chunks of 256 scanlines, producing
+    slightly smaller file size than `htj2k32`.
+
+  - `htj2k32` -- encodes/decodes chunks of 32 scanlines, better suited
+    to multi-threading, so it offers significantly faster encoding and
+    decoding (4-6x in some cases) than `htj2k256`, with a slight
+    increase in file size.
+
+* All existing OpenEXR compression options remain unchanged. This new
+  feature simply extends the range of compression types available.
+
+* Software compiled with OpenEXR v3.4 will be able to read HTJ2K
+  compressed OpenEXRs without any code changes. Software that writes
+  files may automatically support the new type, but may need a small
+  update to make the new type available as a user option.
+
+* ⚠️ This is a **backwards-compatible extension** to the OpenEXR
+  file format. Files written with OpenEXR v3.4 will be readable by
+  applications built against previous releases, _unless_ they use the
+  new `htj2k32` or `htj2k256` compression options.
+
+* ⚠️ This feature was first introduced for evaluation in
+  February, 2025 via the `htj2k-beta` branch with a single 256
+  scanlines/chunk compression option, with the 32-scanline option
+  added more recently. Application software written during this
+  evaluation period will need to change `IMF_HTJ2K_COMPRESSION` to
+  `IMF_HTJ2K256_COMPRESSION`, although files written with the earlier
+  evaluation version should still read properly.
+
+Other New Features:
+
+* ✨ **New `colorInteropID` standard attribute**
+
+  The ID string endorsed by the Color Interop Forum to communicate the
+  color space of RGB images in an interoperable manner.
+
+  - The contents of the string is described in the specification `An
+    ID for Color
+    Interop <https://docs.google.com/document/d/1T94lYbis9uCskL_ZEMxGBF2JryLfZnjxlEoNgRHZzBE/edit?usp=sharing>`_.
+
+  - Guidance to application developers is provided in `Identifying the
+    Color Space of OpenEXR
+    Files <https://docs.google.com/document/d/1MTH1bq2L67ifvdDf64Amhzg4AbkIM5LG6yPHrB96Vwo/edit?usp=sharing>`_
+
+* ✨ **New `bytes` attribute type**
+
+  Designed to hold an arbitrary binary blob of metadata.
+
+  - The OpenEXR library forces no interpretations of the attribute
+    contents; it is strictly application-dependent.
+
+  - The attribute also holds a `typeHint` string which applications
+    can use to suggest the intended interpretation of the contents,
+    but it is strictly informational.
+
+* 🔧 **TBB as a global thread provider**
+
+  - A new cmake option `-DOPENEXR_USE_TBB=ON` switches the internals
+    of the thread pool to use TBB by default.
+  - Building with this option adds a link dependency on the `OneAPI
+    TBB` distribution.
+
+* 🔧 **Vendored `libdeflate`**
+
+  - OpenEXR v3.4 now ships with a bundled distribution of the
+    `libdeflate` library, replacing the previous "auto-fetch"
+    mechanism.
+  - By default, building OpenEXR will use a system installation of
+    `libdeflate` as before, but if none is found, the build will use
+    the internal copy of `libdeflate`.
+  - Use `-DOPENEXR_USE_INTERNAL_DEFLATE=ON` to force the use of the
+    internal vendored version.
+
+Bug fixes:
+
+* 🐛 Using openexr via cmake `add_subdirectory` now works properly.
+
+Changes to the OpenEXR Python module:
+
+* 🐍 🐛 The Python module now allows an empty part name for a
+  single-part file
+* 🐍 🐛 The `header_only` option for Python module's `OpenEXR.File`
+  now works properly.
+* 🐍 📦 ⚠️ `pypi` distributions now **add support
+  for Python 3.13** and **drop support for Python 3.7**.
+
+.. _LatestNewsEnd:
+
+July 26, 2025 - OpenEXR 3.3.5 Released
+======================================
+
+Patch release with a couple bug/performance fixes:
+
+* 🐛 Fix for DeepScanlineInputFile read memory leak
+* 🚀 OpenEXRCore Deep pixel unpacking optimisation
+
+
+June  9, 2025 - OpenEXR 3.3.4 Released
+======================================
+
+Patch release with several bug/build/performance fixes:
+
+* 🐛 Fix a crash with deep scanline input
+* 🐛 Fix a bug when reading a file with missing tiles
+* 🐛 Fix a crash in exrmetrics
+* 🛠️ Fix a problem with /EHsc and /MP flags that broke CUDA compilation
+* 🛠️ Fix a build failure on MinGW
+* 🚀 Enable vectorisation for ZIP reconstruct stage on Windows
+
+
+March 23, 2025 - OpenEXR 3.3.3 Released
+=======================================
+
 Patch release with miscellaneous bug/build/documentation fixes:
 
-.. |bug| unicode:: U+1F41B
-   :ltrim:
-
-.. |rocket| unicode:: U+1F680
-   :ltrim:
-
-.. |hammer_and_wrench| unicode:: U+1F6E0
-   :ltrim:
-
-* |bug| Fix a bug involving deep tiled images
-* |bug| Adjust the clamping on the dwa compression (Issue `1982 <https://github.com/AcademySoftwareFoundation/openexr/issues/1982>`_)
-* |bug| Address issues with small exr files and header parse (Issue `1984 <https://github.com/AcademySoftwareFoundation/openexr/issues/1984>`_)
-* |bug| Fix crash if user does not provide memory when filling deep framebuffer
-* |bug| Fix bad pointer SSE math causing out-of-bounds access
-* |bug| Fix potential buffer overwrite with zip data
-* |bug| Fix usage of utf-8 filenames for windows
-* |bug| Fix regression in reading EXR images on 32bit Windows involving `atomic_compare_exchange_strong`
-* |bug| Add checks to avoid using optimizations when inappropriate (Issue `1949 <https://github.com/AcademySoftwareFoundation/openexr/issues/1949>`_)
-* |bug| Convert dwa encoder to use algorithm quantize (Issue `1915 <https://github.com/AcademySoftwareFoundation/openexr/issues/1915>`_)
-* |bug| Fix incorrect v3 array size validation
-* |rocket| Add minor huf encode / decode performance optimizations
-* |hammer_and_wrench| Add numpy dependency to python wrapper (Issue `1919 <https://github.com/AcademySoftwareFoundation/openexr/issues/1919>`_)
-* |hammer_and_wrench| Remove duplicate cmake dependency from skbuild plugin (Issue `1958 <https://github.com/AcademySoftwareFoundation/openexr/pull/1958>`_)
-* |hammer_and_wrench| Don't set the library postfix in the cmake cache (Issue `1981 <https://github.com/AcademySoftwareFoundation/openexr/issues/1981>`_)
+* 🐛 Fix a bug involving deep tiled images
+* 🐛 Adjust the clamping on the dwa compression (Issue `1982 <https://github.com/AcademySoftwareFoundation/openexr/issues/1982>`_)
+* 🐛 Address issues with small exr files and header parse (Issue `1984 <https://github.com/AcademySoftwareFoundation/openexr/issues/1984>`_)
+* 🐛 Fix crash if user does not provide memory when filling deep framebuffer
+* 🐛 Fix bad pointer SSE math causing out-of-bounds access
+* 🐛 Fix potential buffer overwrite with zip data
+* 🐛 Fix usage of utf-8 filenames for windows
+* 🐛 Fix regression in reading EXR images on 32bit Windows involving `atomic_compare_exchange_strong`
+* 🐛 Add checks to avoid using optimizations when inappropriate (Issue `1949 <https://github.com/AcademySoftwareFoundation/openexr/issues/1949>`_)
+* 🐛 Convert dwa encoder to use algorithm quantize (Issue `1915 <https://github.com/AcademySoftwareFoundation/openexr/issues/1915>`_)
+* 🐛 Fix incorrect v3 array size validation
+* 🚀 Add minor huf encode / decode performance optimizations
+* 🛠️ Add numpy dependency to python wrapper (Issue `1919 <https://github.com/AcademySoftwareFoundation/openexr/issues/1919>`_)
+* 🛠️ Remove duplicate cmake dependency from skbuild plugin (Issue `1958 <https://github.com/AcademySoftwareFoundation/openexr/pull/1958>`_)
+* 🛠️ Don't set the library postfix in the cmake cache (Issue `1981 <https://github.com/AcademySoftwareFoundation/openexr/issues/1981>`_)
 
 This version also introduces a new tool, `exrmetrics`, a utility to help analyize file i/o times and compression ratios. See
 `exrmetrics <https://openexr.com/en/latest/bin/exrmetrics.html>`_ for details.
@@ -54,7 +482,6 @@ This version also officially installs the `exrcheck` utility, formerly built for
 
 This version also publishes the python bindings for arm64 on Ubuntu and macOS.
 
-.. _LatestNewsEnd:
 
 
 February 8, 2025 - Beta release of support for HTJ2K in OpenEXR

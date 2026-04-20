@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright (c) Contributors to the OpenEXR Project
 # cmake -B . -S ..       -DCMAKE_INSTALL_PREFIX=../_install       -DCMAKE_BUILD_TYPE=Debug       -DOPENEXR_CXX_STANDARD=17       -DBUILD_SHARED_LIBS=ON       -DOPENEXR_ENABLE_THREADING=ON       -DOPENEXR_INSTALL_PKG_CONFIG=ON       -DOPENEXR_INSTALL_DOCS=ON       -DOPENEXR_BUILD_EXAMPLES=ON       -DOPENEXR_BUILD_TOOLS=ON       -DOPENEXR_FORCE_INTERNAL_IMATH=OFF       -DOPENEXR_FORCE_INTERNAL_DEFLATE=OFF       -DBUILD_TESTING=ON       -DOPENEXR_RUN_FUZZ_TESTS='OFF'       -DCMAKE_VERBOSE_MAKEFILE='ON'
 bin/exr2aces
 bin/exrenvmap
@@ -35,6 +37,7 @@ include/OpenEXR/ImfAcesFile.h
 include/OpenEXR/ImfArray.h
 include/OpenEXR/ImfAttribute.h
 include/OpenEXR/ImfBoxAttribute.h
+include/OpenEXR/ImfBytesAttribute.h
 include/OpenEXR/ImfCRgbaFile.h
 include/OpenEXR/ImfChannelList.h
 include/OpenEXR/ImfChannelListAttribute.h
@@ -161,24 +164,24 @@ lib/cmake/OpenEXR/OpenEXRConfig.cmake
 lib/cmake/OpenEXR/OpenEXRConfigVersion.cmake
 lib/cmake/OpenEXR/OpenEXRTargets-debug.cmake
 lib/cmake/OpenEXR/OpenEXRTargets.cmake
-lib/libIex-$MAJOR_$MINOR_d.$SOVERSION.$MAJOR.$MINOR.$PATCH.dylib
-lib/libIex-$MAJOR_$MINOR_d.$SOVERSION.dylib
-lib/libIex-$MAJOR_$MINOR_d.dylib
+lib/libIex-${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR}_d.${OPENEXR_SOVERSION}.${OPENEXR_VERSION_MAJOR}.${OPENEXR_VERSION_MINOR}.${OPENEXR_VERSION_PATCH}.dylib
+lib/libIex-${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR}_d.${OPENEXR_SOVERSION}.dylib
+lib/libIex-${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR}_d.dylib
 lib/libIex_d.dylib
-lib/libIlmThread-$MAJOR_$MINOR_d.$SOVERSION.$MAJOR.$MINOR.$PATCH.dylib
-lib/libIlmThread-$MAJOR_$MINOR_d.$SOVERSION.dylib
-lib/libIlmThread-$MAJOR_$MINOR_d.dylib
+lib/libIlmThread-${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR}_d.${OPENEXR_SOVERSION}.${OPENEXR_VERSION_MAJOR}.${OPENEXR_VERSION_MINOR}.${OPENEXR_VERSION_PATCH}.dylib
+lib/libIlmThread-${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR}_d.${OPENEXR_SOVERSION}.dylib
+lib/libIlmThread-${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR}_d.dylib
 lib/libIlmThread_d.dylib
-lib/libOpenEXR-$MAJOR_$MINOR_d.$SOVERSION.$MAJOR.$MINOR.$PATCH.dylib
-lib/libOpenEXR-$MAJOR_$MINOR_d.$SOVERSION.dylib
-lib/libOpenEXR-$MAJOR_$MINOR_d.dylib
-lib/libOpenEXRCore-$MAJOR_$MINOR_d.$SOVERSION.$MAJOR.$MINOR.$PATCH.dylib
-lib/libOpenEXRCore-$MAJOR_$MINOR_d.$SOVERSION.dylib
-lib/libOpenEXRCore-$MAJOR_$MINOR_d.dylib
+lib/libOpenEXR-${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR}_d.${OPENEXR_SOVERSION}.${OPENEXR_VERSION_MAJOR}.${OPENEXR_VERSION_MINOR}.${OPENEXR_VERSION_PATCH}.dylib
+lib/libOpenEXR-${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR}_d.${OPENEXR_SOVERSION}.dylib
+lib/libOpenEXR-${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR}_d.dylib
+lib/libOpenEXRCore-${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR}_d.${OPENEXR_SOVERSION}.${OPENEXR_VERSION_MAJOR}.${OPENEXR_VERSION_MINOR}.${OPENEXR_VERSION_PATCH}.dylib
+lib/libOpenEXRCore-${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR}_d.${OPENEXR_SOVERSION}.dylib
+lib/libOpenEXRCore-${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR}_d.dylib
 lib/libOpenEXRCore_d.dylib
-lib/libOpenEXRUtil-$MAJOR_$MINOR_d.$SOVERSION.$MAJOR.$MINOR.$PATCH.dylib
-lib/libOpenEXRUtil-$MAJOR_$MINOR_d.$SOVERSION.dylib
-lib/libOpenEXRUtil-$MAJOR_$MINOR_d.dylib
+lib/libOpenEXRUtil-${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR}_d.${OPENEXR_SOVERSION}.${OPENEXR_VERSION_MAJOR}.${OPENEXR_VERSION_MINOR}.${OPENEXR_VERSION_PATCH}.dylib
+lib/libOpenEXRUtil-${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR}_d.${OPENEXR_SOVERSION}.dylib
+lib/libOpenEXRUtil-${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR}_d.dylib
 lib/libOpenEXRUtil_d.dylib
 lib/libOpenEXR_d.dylib
 lib/pkgconfig/OpenEXR.pc

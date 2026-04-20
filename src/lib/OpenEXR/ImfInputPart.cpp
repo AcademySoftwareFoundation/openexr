@@ -55,7 +55,21 @@ InputPart::isComplete () const
 bool
 InputPart::isOptimizationEnabled () const
 {
+#if defined(_MSC_VER)
+    __pragma(warning(push))
+    __pragma(warning(disable: 4996))
+#elif defined(__clang__) || defined(__GNUC__)
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
     return file->isOptimizationEnabled ();
+
+#if defined(_MSC_VER)
+    __pragma(warning(pop))
+#elif defined(__clang__) || defined(__GNUC__)
+    #pragma GCC diagnostic pop
+#endif
 }
 
 void

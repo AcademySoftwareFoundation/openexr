@@ -140,6 +140,11 @@ pixel data.
 
 Since many common EXR files have only a single part, for convenience,
 the ``File`` object has ``header()`` and ``channels()`` methods that
+return the header and channels for the first part. Note that
+application code expecting single part files should likely validate
+that ``len(exrfile.parts)==1`` before calling these methods to prevent
+rather obscure bugs with channels being ignored.
+
 
 Header Metadata
 ---------------
@@ -228,7 +233,8 @@ The OpenEXR module has enumerated types for certain attributes:
            <li> <tt> OpenEXR.B44A_COMPRESSION </tt>
            <li> <tt> OpenEXR.DWAA_COMPRESSION </tt>
            <li> <tt> OpenEXR.DWAB_COMPRESSION </tt> 
-           <li> <tt> OpenEXR.HTJ2K_COMPRESSION </tt> 
+           <li> <tt> OpenEXR.HTJ2K256_COMPRESSION </tt> 
+           <li> <tt> OpenEXR.HTJ2K32_COMPRESSION </tt> 
            <li> <tt> OpenEXR.NUM_COMPRESSION_METHODS </tt> 
          </ul>
      </td>

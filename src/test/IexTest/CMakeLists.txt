@@ -14,10 +14,15 @@ add_executable(IexTest
 target_link_libraries(IexTest OpenEXR::Iex)
 set_target_properties(IexTest PROPERTIES
   RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+  CXX_STANDARD_REQUIRED ON
+  CXX_EXTENSIONS OFF
 )
 if(WIN32 AND BUILD_SHARED_LIBS)
   target_compile_definitions(IexTest PRIVATE OPENEXR_DLL)
 endif()
+target_compile_features(IexTest
+  PRIVATE cxx_std_${OPENEXR_CXX_STANDARD}
+)
 
 # CMAKE_CROSSCOMPILING_EMULATOR is necessary to support cross-compiling (ex: to win32 from mingw and running tests with wine)
 add_test(NAME OpenEXR.Iex COMMAND ${CMAKE_CROSSCOMPILING_EMULATOR} $<TARGET_FILE:IexTest>)

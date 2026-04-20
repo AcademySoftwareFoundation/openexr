@@ -18,6 +18,11 @@
 #include <ImfTiledInputFile.h>
 #include <ImfTiledOutputFile.h>
 #include <ImfTiledRgbaFile.h>
+#include <ImfOutputFile.h>
+#include <ImfFrameBuffer.h>
+#include <ImfStdIO.h>
+#include <ImfHeader.h>
+#include <iostream>
 #include <assert.h>
 #include <math.h>
 #include <stdio.h>
@@ -734,11 +739,82 @@ writeRead (
         true);
 }
 
+int
+testReread()
+{
+    //
+    // Test reading a file then rereading with different channels, with
+    // 32-bit channels.
+    //
+
+    int width  = 10;
+    int height = 10;
+
+    std::vector<float> R(width * height, 0.0f);
+    std::vector<float> G(width * height, 0.0f);
+    std::vector<float> B(width * height, 0.0f);
+
+    const char* path = "reread32.exr";
+
+    try {
+        Header header(width, height);
+        header.compression() = PIZ_COMPRESSION;
+        header.channels().insert("R", Channel(FLOAT));
+        header.channels().insert("G", Channel(FLOAT));
+        header.channels().insert("B", Channel(FLOAT));
+
+        OutputFile file(path, header);
+        FrameBuffer fb;
+        fb.insert("R", Slice(FLOAT, (char*)&R[0], sizeof(float), sizeof(float) * width));
+        fb.insert("G", Slice(FLOAT, (char*)&G[0], sizeof(float), sizeof(float) * width));
+        fb.insert("B", Slice(FLOAT, (char*)&B[0], sizeof(float), sizeof(float) * width));
+
+        file.setFrameBuffer(fb);
+        file.writePixels(height);
+
+    } catch (const std::exception &e) {
+        std::cerr << "Error writing image file " << path << ": " << e.what() << std::endl;
+        return 1;
+    }
+
+    InputFile inFile(path);
+
+    auto dw = inFile.header().dataWindow();
+
+    int numChannels = 3;
+    size_t chanBytes = sizeof(float);
+    size_t pixBytes  = numChannels * chanBytes;
+    size_t rowBytes  = width * pixBytes;
+    std::vector<float> exr_RGB(width * height * numChannels);
+
+    // Read RGB
+    {
+	FrameBuffer frameBuffer;
+	frameBuffer.insert("R", Slice(FLOAT, (char*) exr_RGB.data() + (chanBytes * 0), pixBytes, rowBytes, 1, 1, 0.0) );
+	frameBuffer.insert("G", Slice(FLOAT, (char*) exr_RGB.data() + (chanBytes * 1), pixBytes, rowBytes, 1, 1, 0.0) );
+	frameBuffer.insert("B", Slice(FLOAT, (char*) exr_RGB.data() + (chanBytes * 2), pixBytes, rowBytes, 1, 1, 0.0) );
+	inFile.setFrameBuffer(frameBuffer);
+	inFile.readPixels(dw.min.y, dw.max.y);
+    }
+
+    // Reread just R
+    {
+	FrameBuffer frameBuffer;
+	frameBuffer.insert("R", Slice(FLOAT, (char*) exr_RGB.data() + (chanBytes * 0), pixBytes, rowBytes, 1, 1, 0.0) );
+	inFile.setFrameBuffer(frameBuffer);
+	inFile.readPixels(dw.min.y, dw.max.y);
+    }
+
+    return 0;
+}
+
 } // namespace
 
 void
 testScanLineApi (const std::string& tempDir)
 {
+    testReread();
+
     try
     {
         cout << "Testing the scanline API for tiled files" << endl;

@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright (c) Contributors to the OpenEXR Project
 # cmake -B . -S .. -DCMAKE_INSTALL_PREFIX=../_install -DCMAKE_BUILD_TYPE=Release -DOPENEXR_CXX_STANDARD=17 -DBUILD_SHARED_LIBS=ON -DOPENEXR_ENABLE_THREADING=ON -DOPENEXR_INSTALL_PKG_CONFIG=ON -DOPENEXR_INSTALL_DOCS=OFF -DOPENEXR_BUILD_EXAMPLES=ON -DOPENEXR_BUILD_TOOLS=ON -DOPENEXR_FORCE_INTERNAL_IMATH=OFF -DOPENEXR_FORCE_INTERNAL_DEFLATE=OFF -DOPENEXR_FORCE_INTERNAL_OPENJPH=OFF -DBUILD_TESTING=ON -DOPENEXR_RUN_FUZZ_TESTS=OFF -DCMAKE_VERBOSE_MAKEFILE=ON 
 bin/exr2aces.exe
 bin/exrenvmap.exe
@@ -10,12 +12,11 @@ bin/exrmetrics.exe
 bin/exrmultipart.exe
 bin/exrmultiview.exe
 bin/exrstdattr.exe
-bin/libIex-$MAJOR_$MINOR.dll
-bin/libIlmThread-$MAJOR_$MINOR.dll
-bin/libOpenEXR-$MAJOR_$MINOR.dll
-bin/libOpenEXRCore-$MAJOR_$MINOR.dll
-bin/libOpenEXRUtil-$MAJOR_$MINOR.dll
-bin/libopenjph.dll
+bin/libIex-${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR}.dll
+bin/libIlmThread-${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR}.dll
+bin/libOpenEXR-${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR}.dll
+bin/libOpenEXRCore-${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR}.dll
+bin/libOpenEXRUtil-${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR}.dll
 include/OpenEXR/Iex.h
 include/OpenEXR/IexBaseExc.h
 include/OpenEXR/IexConfig.h
@@ -41,6 +42,7 @@ include/OpenEXR/ImfAcesFile.h
 include/OpenEXR/ImfArray.h
 include/OpenEXR/ImfAttribute.h
 include/OpenEXR/ImfBoxAttribute.h
+include/OpenEXR/ImfBytesAttribute.h
 include/OpenEXR/ImfCRgbaFile.h
 include/OpenEXR/ImfChannelList.h
 include/OpenEXR/ImfChannelListAttribute.h
@@ -163,33 +165,16 @@ include/OpenEXR/openexr_errors.h
 include/OpenEXR/openexr_part.h
 include/OpenEXR/openexr_std_attr.h
 include/OpenEXR/openexr_version.h
-include/openjph/ojph_arch.h
-include/openjph/ojph_arg.h
-include/openjph/ojph_base.h
-include/openjph/ojph_codestream.h
-include/openjph/ojph_defs.h
-include/openjph/ojph_file.h
-include/openjph/ojph_mem.h
-include/openjph/ojph_message.h
-include/openjph/ojph_params.h
-include/openjph/ojph_version.h
 lib/cmake/OpenEXR/OpenEXRConfig.cmake
 lib/cmake/OpenEXR/OpenEXRConfigVersion.cmake
 lib/cmake/OpenEXR/OpenEXRTargets-release.cmake
 lib/cmake/OpenEXR/OpenEXRTargets.cmake
-lib/cmake/openjph/openjph-config-version.cmake
-lib/cmake/openjph/openjph-config.cmake
-lib/cmake/openjph/openjph-targets-release.cmake
-lib/cmake/openjph/openjph-targets.cmake
-lib/libIex-$MAJOR_$MINOR.dll.a
-lib/libIlmThread-$MAJOR_$MINOR.dll.a
-lib/libOpenEXR-$MAJOR_$MINOR.dll.a
-lib/libOpenEXRCore-$MAJOR_$MINOR.dll.a
-lib/libOpenEXRUtil-$MAJOR_$MINOR.dll.a
+lib/libIex-${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR}.dll.a
+lib/libIlmThread-${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR}.dll.a
+lib/libOpenEXR-${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR}.dll.a
+lib/libOpenEXRCore-${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR}.dll.a
+lib/libOpenEXRUtil-${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR}.dll.a
 lib/pkgconfig/OpenEXR.pc
-lib/libopenjph.dll.a
-lib/pkgconfig/OpenEXR.pc
-lib/pkgconfig/openjph.pc
 share/doc/OpenEXR/examples/deepExamples.cpp
 share/doc/OpenEXR/examples/deepExamples.h
 share/doc/OpenEXR/examples/deepTiledExamples.cpp

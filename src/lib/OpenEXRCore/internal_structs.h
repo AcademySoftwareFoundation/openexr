@@ -9,7 +9,7 @@
 #include "openexr_config.h"
 #include "internal_attr.h"
 
-#ifdef ILMTHREAD_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
 #    ifdef _WIN32
 #        include <windows.h>
 #        include <synchapi.h>
@@ -236,7 +236,7 @@ struct _priv_exr_context_t
 
     /* mostly needed for writing, but used during read to ensure
      * custom attribute handlers are safe */
-#ifdef ILMTHREAD_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
 #    ifdef _WIN32
     CRITICAL_SECTION mutex;
 #    else
@@ -254,7 +254,7 @@ struct _priv_exr_context_t
 static inline void
 internal_exr_lock (exr_const_context_t c)
 {
-#ifdef ILMTHREAD_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
     exr_context_t nonc = EXR_CONST_CAST (exr_context_t, c);
 #    ifdef _WIN32
     EnterCriticalSection (&nonc->mutex);
@@ -267,7 +267,7 @@ internal_exr_lock (exr_const_context_t c)
 static inline void
 internal_exr_unlock (exr_const_context_t c)
 {
-#ifdef ILMTHREAD_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
     exr_context_t nonc = EXR_CONST_CAST (exr_context_t, c);
 #    ifdef _WIN32
     LeaveCriticalSection (&nonc->mutex);

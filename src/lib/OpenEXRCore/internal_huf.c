@@ -1722,7 +1722,7 @@ fasthuf_decode (
         // 8 bits of data in the buffer
         //
 
-        if (symbol == rleSym)
+        if (symbol == (int) rleSym)
         {
             uint32_t rleCount;
 

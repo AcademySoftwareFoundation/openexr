@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright (c) Contributors to the OpenEXR Project
 # cmake -B . -S ..       -DCMAKE_INSTALL_PREFIX=../_install       -DCMAKE_BUILD_TYPE=Release       -DOPENEXR_CXX_STANDARD=17       -DBUILD_SHARED_LIBS=OFF       -DOPENEXR_ENABLE_THREADING=ON       -DOPENEXR_INSTALL_PKG_CONFIG=ON       -DOPENEXR_INSTALL_DOCS=ON       -DOPENEXR_BUILD_EXAMPLES=ON       -DOPENEXR_BUILD_TOOLS=ON       -DOPENEXR_FORCE_INTERNAL_IMATH=OFF       -DOPENEXR_FORCE_INTERNAL_DEFLATE=OFF       -DBUILD_TESTING=ON       -DOPENEXR_RUN_FUZZ_TESTS='OFF'       -DCMAKE_VERBOSE_MAKEFILE='ON'
 bin/exr2aces
 bin/exrenvmap
@@ -35,6 +37,7 @@ include/OpenEXR/ImfAcesFile.h
 include/OpenEXR/ImfArray.h
 include/OpenEXR/ImfAttribute.h
 include/OpenEXR/ImfBoxAttribute.h
+include/OpenEXR/ImfBytesAttribute.h
 include/OpenEXR/ImfCRgbaFile.h
 include/OpenEXR/ImfChannelList.h
 include/OpenEXR/ImfChannelListAttribute.h
@@ -161,11 +164,11 @@ lib/cmake/OpenEXR/OpenEXRConfig.cmake
 lib/cmake/OpenEXR/OpenEXRConfigVersion.cmake
 lib/cmake/OpenEXR/OpenEXRTargets-release.cmake
 lib/cmake/OpenEXR/OpenEXRTargets.cmake
-lib/libIex-$MAJOR_$MINOR.a
-lib/libIlmThread-$MAJOR_$MINOR.a
-lib/libOpenEXR-$MAJOR_$MINOR.a
-lib/libOpenEXRCore-$MAJOR_$MINOR.a
-lib/libOpenEXRUtil-$MAJOR_$MINOR.a
+lib/libIex-${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR}.a
+lib/libIlmThread-${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR}.a
+lib/libOpenEXR-${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR}.a
+lib/libOpenEXRCore-${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR}.a
+lib/libOpenEXRUtil-${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR}.a
 lib/pkgconfig/OpenEXR.pc
 share/doc/OpenEXR/examples/deepExamples.cpp
 share/doc/OpenEXR/examples/deepExamples.h
