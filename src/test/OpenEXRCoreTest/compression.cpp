@@ -525,7 +525,10 @@ struct pixels
         } a, b;
         a.fv = af;
         b.fv = bf;
-        if (a.iv != b.iv)
+        // C vs C++ EXR paths can preserve NaN while changing quiet-NaN payload;
+        // bit-identical compare is too strict (see half test hardening, issue #1284).
+        const bool bothNan = std::isnan (af) && std::isnan (bf);
+        if (!bothNan && a.iv != b.iv)
         {
             std::cout << chan << " float at " << x << ", " << y
                       << " not equal: " << taga << " 0x" << std::hex << a.iv
@@ -533,7 +536,7 @@ struct pixels
                       << std::hex << b.iv << std::dec << " (" << bf << ")"
                       << std::endl;
         }
-        EXRCORE_TEST (a.iv == b.iv);
+        EXRCORE_TEST (bothNan || a.iv == b.iv);
     }
     void
     compareExact (const pixels& o, const char* otag, const char* selftag) const
