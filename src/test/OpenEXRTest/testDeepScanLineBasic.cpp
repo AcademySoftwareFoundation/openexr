@@ -16,6 +16,7 @@
 #include <IlmThreadPool.h>
 #include <ImfArray.h>
 #include <ImfChannelList.h>
+#include <ImfCompression.h>
 #include <ImfDeepFrameBuffer.h>
 #include <ImfDeepScanLineInputFile.h>
 #include <ImfDeepScanLineOutputFile.h>
@@ -592,6 +593,123 @@ readWriteTest (
     }
 }
 
+//
+// Deep scanline image where every pixel has sampleCount == 0 (no channel
+// sample arrays). Must succeed for every compression valid for deep data.
+//
+void
+readWriteAllZeroSampleCountsDeepScanline (const std::string& tempDir)
+{
+    const int            w = 16;
+    const int            h = 16;
+    const IMATH_NAMESPACE::Box2i dataWindow (
+        IMATH_NAMESPACE::V2i (0, 0),
+        IMATH_NAMESPACE::V2i (w - 1, h - 1));
+    const IMATH_NAMESPACE::Box2i displayWindow (
+        IMATH_NAMESPACE::V2i (0, 0),
+        IMATH_NAMESPACE::V2i (w * 2 - 1, h * 2 - 1));
+
+    for (int comp = 0; comp < NUM_COMPRESSION_METHODS; ++comp)
+    {
+        Compression c = static_cast<Compression> (comp);
+        if (!isValidDeepCompression (c))
+            continue;
+
+        string compName;
+        getCompressionNameFromId (c, compName);
+        cout << "deep scanline all-zero sampleCounts, codec " << compName << endl;
+
+        std::string filename = tempDir + "imf_test_deep_empty_scanline.exr";
+        remove (filename.c_str ());
+
+        Header hdr (
+            displayWindow,
+            dataWindow,
+            1,
+            IMATH_NAMESPACE::V2f (0, 0),
+            1,
+            INCREASING_Y,
+            c);
+        hdr.channels ().insert ("h", Channel (IMF::HALF));
+        hdr.setType (DEEPSCANLINE);
+
+        Array2D<unsigned int> sc;
+        sc.resizeErase (h, w);
+        Array2D<void*>        pdata;
+        pdata.resizeErase (h, w);
+        for (int y = 0; y < h; ++y)
+            for (int x = 0; x < w; ++x)
+            {
+                sc[y][x]    = 0;
+                pdata[y][x] = nullptr;
+            }
+
+        const int memOff = dataWindow.min.x + dataWindow.min.y * w;
+        {
+            DeepScanLineOutputFile file (filename.c_str (), hdr, 1);
+            DeepFrameBuffer       fb;
+            fb.insertSampleCountSlice (Slice (
+                IMF::UINT,
+                (char*) (&sc[0][0] - memOff),
+                sizeof (unsigned int),
+                sizeof (unsigned int) * w));
+            fb.insert (
+                "h",
+                DeepSlice (
+                    IMF::HALF,
+                    (char*) (&pdata[0][0] - memOff),
+                    sizeof (char*),
+                    sizeof (char*) * w,
+                    sizeof (half)));
+            file.setFrameBuffer (fb);
+            file.writePixels (h);
+        }
+
+        DeepScanLineInputFile inFile (filename.c_str (), 1);
+        assert (inFile.header ().compression () == c);
+        assert (inFile.header ().type () == DEEPSCANLINE);
+        assert (inFile.header ().channels () == hdr.channels ());
+        assert (inFile.header ().dataWindow () == dataWindow);
+
+        Array2D<unsigned int> readSc;
+        readSc.resizeErase (h, w);
+        Array2D<void*>      readData;
+        readData.resizeErase (h, w);
+        for (int y = 0; y < h; ++y)
+            for (int x = 0; x < w; ++x)
+                readData[y][x] = nullptr;
+
+        DeepFrameBuffer readFb;
+        readFb.insertSampleCountSlice (Slice (
+            IMF::UINT,
+            (char*) (&readSc[0][0] - memOff),
+            sizeof (unsigned int),
+            sizeof (unsigned int) * w));
+        readFb.insert (
+            "h",
+            DeepSlice (
+                IMF::HALF,
+                (char*) (&readData[0][0] - memOff),
+                sizeof (char*),
+                sizeof (char*) * w,
+                sizeof (half)));
+        inFile.setFrameBuffer (readFb);
+        inFile.readPixelSampleCounts (dataWindow.min.y, dataWindow.max.y);
+        for (int y = 0; y < h; ++y)
+            for (int x = 0; x < w; ++x)
+                assert (readSc[y][x] == 0);
+        inFile.readPixels (dataWindow.min.y, dataWindow.max.y);
+        for (int y = 0; y < h; ++y)
+            for (int x = 0; x < w; ++x)
+            {
+                assert (readSc[y][x] == 0);
+                assert (readData[y][x] == nullptr);
+            }
+
+        remove (filename.c_str ());
+    }
+}
+
 void
 testCompressionTypeChecks ()
 {
@@ -728,6 +846,8 @@ testDeepScanLineBasic (const std::string& tempDir)
         readWriteTest (tempDir, 4, 50, dataWindow, displayWindow);
         readWriteTest (tempDir, 4, 25, dataWindow, displayWindow);
         readWriteTest (tempDir, 10, 10, dataWindow, displayWindow);
+
+        readWriteAllZeroSampleCountsDeepScanline (tempDir);
 
         ThreadPool::globalThreadPool ().setNumThreads (numThreads);
 
