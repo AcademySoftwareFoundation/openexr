@@ -12,21 +12,33 @@
 #    include <intrin.h>
 #endif
 
+// Runtime CPUID must not depend on IMF_HAVE_SSE2 (__SSE2__). For example,
+// gcc -m32 often omits __SSE2__ while the hardware still supports SSE2; the
+// OpenEXRCore helpers use <cpuid.h> regardless, and CpuId must match.
+#if (defined(__GNUC__) || defined(__clang__)) && !defined(__e2k__) &&           \
+    (defined(__i386__) || defined(__x86_64__) || defined(__amd64__)) &&      \
+    (!defined(_WIN32) || defined(__MINGW32__) || defined(__MINGW64__))
+#    include <cpuid.h>
+#endif
+
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
 namespace
 {
-#if defined(IMF_HAVE_SSE2) && defined(__GNUC__) && !defined(__e2k__)
+#if (defined(__GNUC__) || defined(__clang__)) && !defined(__e2k__) &&           \
+    (defined(__i386__) || defined(__x86_64__) || defined(__amd64__)) &&      \
+    (!defined(_WIN32) || defined(__MINGW32__) || defined(__MINGW64__))
 
-// Helper functions for gcc + SSE enabled
 void
 cpuid (int n, int& eax, int& ebx, int& ecx, int& edx)
 {
-    __asm__ __volatile__ (
-        "cpuid"
-        : /* Output  */ "=a"(eax), "=b"(ebx), "=c"(ecx), "=d"(edx)
-        : /* Input   */ "a"(n)
-        : /* Clobber */);
+    unsigned int r0 = 0, r1 = 0, r2 = 0, r3 = 0;
+    if (!__get_cpuid (static_cast<unsigned int> (n), &r0, &r1, &r2, &r3))
+        r0 = r1 = r2 = r3 = 0;
+    eax = static_cast<int> (r0);
+    ebx = static_cast<int> (r1);
+    ecx = static_cast<int> (r2);
+    edx = static_cast<int> (r3);
 }
 
 #elif defined(_MSC_VER) &&                                                     \
@@ -44,7 +56,20 @@ cpuid (int n, int& eax, int& ebx, int& ecx, int& edx)
     edx = cpuInfo[3];
 }
 
-#else // IMF_HAVE_SSE2 && __GNUC__ && !__e2k__
+#elif defined(IMF_HAVE_SSE2) && defined(__GNUC__) && !defined(__e2k__)
+
+// Fallback when <cpuid.h> is unavailable (e.g. unusual Windows GCC toolchains).
+void
+cpuid (int n, int& eax, int& ebx, int& ecx, int& edx)
+{
+    __asm__ __volatile__ (
+        "cpuid"
+        : /* Output  */ "=a"(eax), "=b"(ebx), "=c"(ecx), "=d"(edx)
+        : /* Input   */ "a"(n)
+        : /* Clobber */);
+}
+
+#else
 
 // Helper functions for generic compiler - all disabled
 void
@@ -53,7 +78,7 @@ cpuid (int n, int& eax, int& ebx, int& ecx, int& edx)
     eax = ebx = ecx = edx = 0;
 }
 
-#endif // IMF_HAVE_SSE2 && __GNUC__ && !__e2k__
+#endif
 
 #ifdef IMF_HAVE_GCC_INLINEASM_X86
 
