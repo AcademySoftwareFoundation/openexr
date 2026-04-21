@@ -9,6 +9,7 @@
 #include "internal_coding.h"
 #include "internal_structs.h"
 #include <assert.h>
+#include <inttypes.h>
 #include "blosc2.h"
 
 #define RETURN_ERRORV(pipeline, err_code, msg, ...)                            \
@@ -626,6 +627,15 @@ internal_exr_apply_zstd (exr_encode_pipeline_t* encode)
     }
     else
     {
+        /* Shallow scanline/tiled: no per-row sample counts for packed pixels.
+         * Blosc typesize 4 on raw interleaved half/float is unsafe; use 2.
+         * Deep pixels should use the sampleCount_valid branch; if this path
+         * runs for deep storage anyway, keep typesize 4 for the packed buffer. */
+        const int no_table_typesize =
+            (encode->chunk.type == EXR_STORAGE_SCANLINE ||
+             encode->chunk.type == EXR_STORAGE_TILED)
+                ? 2
+                : 4;
         char* outPtr = (char*) encode->compressed_buffer;
         uint64_t outBufferSize = encode->compressed_alloc_size;
         _write_uint64 (&outPtr, MAGIC_NUMBER);
@@ -635,7 +645,7 @@ internal_exr_apply_zstd (exr_encode_pipeline_t* encode)
             encode->packed_bytes,
             outPtr,
             outBufferSize,
-            4,
+            no_table_typesize,
             level,
             &serialize_memcpy);
         if (compressedSize < 0)
