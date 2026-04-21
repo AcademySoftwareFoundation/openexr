@@ -518,22 +518,28 @@ struct pixels
         const char* tagb,
         const char* chan)
     {
-        union
-        {
-            uint32_t iv;
-            float    fv;
-        } a, b;
-        a.fv = af;
-        b.fv = bf;
-        if (a.iv != b.iv)
+#if (defined(__powerpc64__) || defined(__ppc64__)) && defined(__LITTLE_ENDIAN__) \
+    || defined(__aarch64__) \
+    || (defined(__arm__) && !defined(__aarch64__) && defined(__ARM_ARCH) && (__ARM_ARCH >= 7))
+        // On some architectures (Windows 32‑bit x86, i686 with x87 extended
+        // precision, aarch64, ppc64le, arm7), the C and C++ codepaths may
+        // generate NaN values that are not bitwise identical. Accept these
+        // special cases as equal.
+        const bool bothNaN = std::isnan(af) && std::isnan(bf);
+        if (bothNaN)
+            return;
+#endif
+        uint32_t a,b; memcpy(&a,&af,sizeof a); memcpy(&b,&bf,sizeof b);
+        const bool bothNan = std::isnan (af) && std::isnan (bf);
+        if (a != b)
         {
             std::cout << chan << " float at " << x << ", " << y
-                      << " not equal: " << taga << " 0x" << std::hex << a.iv
+                      << " not equal: " << taga << " 0x" << std::hex << a
                       << std::dec << " (" << af << ") vs " << tagb << " "
-                      << std::hex << b.iv << std::dec << " (" << bf << ")"
+                      << std::hex << b << std::dec << " (" << bf << ")"
                       << std::endl;
         }
-        EXRCORE_TEST (a.iv == b.iv);
+        EXRCORE_TEST (a == b);
     }
     void
     compareExact (const pixels& o, const char* otag, const char* selftag) const
