@@ -344,13 +344,6 @@ IDManifest::init (const char* data, const char* endOfData)
         //
         // previous string had more than 255 characters?
         //
-        const size_t minPrefixLen =
-            stringList[i - 1].size () > 255 ? size_t (2) : size_t (1);
-        if (stringList[i].size () < minPrefixLen)
-        {
-            throw IEX_NAMESPACE::InputExc (
-                "IDManifest string too small for common prefix length");
-        }
         if (stringList[i - 1].size () > 255)
         {
             common = size_t (((unsigned char) (stringList[i][0])) << 8) +
