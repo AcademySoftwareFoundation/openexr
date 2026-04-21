@@ -32,6 +32,7 @@
 #include "IlmThreadSemaphore.h"
 
 #include <cstddef>
+#include <cmath>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -67,6 +68,19 @@ using namespace OPENEXR_IMF_NAMESPACE;
 
 namespace
 {
+
+// Absolute |float(a)-float(b)| for half values, using volatile intermediates so
+// each step rounds to IEEE binary32. Without this, i686 defaults (387 stack) can
+// keep extra precision and change which candidate "wins" vs tables built with
+// SSE float math — no special compile flags required for users running tests.
+static inline float
+ieeeFloatAbsDiffHalf (const half& a, const half& b)
+{
+    volatile float af = static_cast<float> (a);
+    volatile float bf = static_cast<float> (b);
+    volatile float d  = af - bf;
+    return std::fabs (static_cast<float> (d));
+}
 
 class LutHeaderWorker
 {
@@ -160,8 +174,8 @@ public:
 
                         tmpHalf.setBits (i);
 
-                        if (fabs ((float) inputHalf - (float) tmpHalf) <
-                            fabs ((float) inputHalf - (float) closestHalf))
+                        if (ieeeFloatAbsDiffHalf (inputHalf, tmpHalf) <
+                            ieeeFloatAbsDiffHalf (inputHalf, closestHalf))
                         {
                             closestHalf = tmpHalf;
                         }
