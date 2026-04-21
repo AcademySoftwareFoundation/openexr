@@ -84,8 +84,10 @@ public:
 
         virtual void run ()
         {
-            _semaphore.post ();
             _worker.run (_output);
+            // Signal completion: ~Runner() waits so the main thread does not read
+            // worker buffers until this thread finishes (post-before-work was a race).
+            _semaphore.post ();
         }
 
     private:
