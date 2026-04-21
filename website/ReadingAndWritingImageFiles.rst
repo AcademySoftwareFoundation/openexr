@@ -72,6 +72,19 @@ worrying about complications related to tiling and multiple resolutions.
 When a multi-resolution file is read via a scan line interface, only the
 highest-resolution version of the image is accessible.
 
+File Paths and UTF-8
+--------------------
+
+File path arguments passed as ``const char*`` to the OpenEXR C++ API
+(when constructing ``InputFile``, ``OutputFile``, ``RgbaInputFile``,
+or when calling ``isOpenExrFile``) must use **UTF-8** encoding.  This
+is true on all platforms, including Microsoft Windows.  Under the
+hood, the library opens files named as ``const char*`` through
+``std::filesystem::u8path``.
+
+Note that the OpenEXRCore C layer documents the same assumption of
+**UTF-8** encoding.
+
 Multi-Part and Deep Data
 ------------------------
 
