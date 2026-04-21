@@ -288,34 +288,13 @@ get_row_sample_count_decode (const exr_decode_pipeline_t* decode, uint64_t *row_
     if (decode->sample_count_valid == 1 && sampleCountTableSize > 0)
     {
         uint32_t readIdx = 0;
-        uint64_t sampleCount = 0;
         for (int h = 0; h < decode->chunk.height; ++h)
         {
-            if ((decode->decode_flags &
-                 EXR_DECODE_SAMPLE_COUNTS_AS_INDIVIDUAL) == 1)
-            {
-                // cumulative samples
-                row_sample_counts[h] =  
-                    sampleCountTable[readIdx + decode->chunk.width -1]; // weird, might be width * height???
-            }
-            else
-            {
-                for (int i = readIdx; i < readIdx+decode->chunk.width; ++i)
-                {
-                    sampleCount += sampleCountTable[i];
-                }
-                row_sample_counts[h] =  sampleCount;
-            }
-            readIdx += decode->chunk.width; // overflow on last row ?
-        }
-
-        if ((decode->decode_flags & EXR_DECODE_SAMPLE_COUNTS_AS_INDIVIDUAL) == 0)
-        {
-            for (int h = 1; h < decode->chunk.height; ++h)
-            {
-                row_sample_counts[h] -=
-                    row_sample_counts[h - 1]; // assumes monotonic increase
-            }
+            /* Match get_row_sample_count_encode and deep writers: each row stores
+             * cumulative sample counts; the row total is the last column. */
+            row_sample_counts[h] =
+                (uint64_t) sampleCountTable[readIdx + decode->chunk.width - 1];
+            readIdx += decode->chunk.width;
         }
 
         return true; // we have a sample count table
@@ -469,6 +448,57 @@ internal_exr_apply_zstd (exr_encode_pipeline_t* encode)
 
     if (rv != EXR_ERR_SUCCESS) return rv;
 
+    /* During exr_compress_chunk, the sample table is compressed with packed_buffer
+     * swapped to packed_sample_count_table. That blob is flat int32 counts, not
+     * interleaved deep channels; do not run sort2_4ByteChannels_tiled on it.
+     * Require exact table byte size so we never confuse this with pixel data. */
+    const uint64_t sample_table_bytes =
+        (uint64_t) encode->chunk.width * (uint64_t) encode->chunk.height *
+        sizeof (int32_t);
+    const int compressing_sample_counts_only =
+        (encode->packed_sample_count_table != NULL &&
+         encode->packed_buffer == encode->packed_sample_count_table &&
+         encode->packed_bytes == sample_table_bytes);
+    if (compressing_sample_counts_only)
+    {
+        int64_t    sz;
+        char*      outPtr       = (char*) encode->compressed_buffer;
+        uint64_t   outBufferSize = encode->compressed_alloc_size;
+        _write_uint64 (&outPtr, MAGIC_NUMBER);
+        outBufferSize -= sizeof (MAGIC_NUMBER);
+        sz = exr_compress_zstd (
+            (char*) encode->packed_buffer,
+            (int) encode->packed_bytes,
+            outPtr,
+            outBufferSize,
+            4,
+            level,
+            &serialize_memcpy);
+        if (sz < 0)
+        {
+            sz = (int64_t) encode->packed_bytes;
+            memcpy (encode->compressed_buffer, encode->packed_buffer, (size_t) sz);
+        }
+        else
+        {
+            uint64_t cum = sizeof (MAGIC_NUMBER) + (uint64_t) sz;
+            if (cum < encode->packed_bytes)
+                sz += (int64_t) sizeof (MAGIC_NUMBER);
+            else
+            {
+                memcpy (
+                    encode->compressed_buffer,
+                    encode->packed_buffer,
+                    encode->packed_bytes);
+                sz = (int64_t) encode->packed_bytes;
+            }
+        }
+
+        if (sz < 0) { return EXR_ERR_UNKNOWN; }
+        encode->compressed_bytes = (size_t) sz;
+        return EXR_ERR_SUCCESS;
+    }
+
     int64_t compressedSize = 0;
     if (sampleCount_valid)
     {
@@ -548,6 +578,12 @@ internal_exr_apply_zstd (exr_encode_pipeline_t* encode)
             inPtr += inBufferSize;
             inBufferSize = encode->packed_bytes - splitPosition;
         }
+        else if (needsSorting)
+        {
+            /* splitPosition==0: no half channels; sorted data is only in scratch. */
+            inPtr        = (uint8_t*) compressionInBuffer;
+            inBufferSize = encode->packed_bytes;
+        }
 
 
         // if this points to the end, it means we have all half channels
@@ -572,6 +608,21 @@ internal_exr_apply_zstd (exr_encode_pipeline_t* encode)
             compressedSize = encode->packed_bytes;
             memcpy (encode->compressed_buffer, encode->packed_buffer, compressedSize);
         }
+        else
+        {
+            uint64_t cum =
+                sizeof (MAGIC_NUMBER) + (uint64_t) compressedSize;
+            if (cum < encode->packed_bytes)
+                compressedSize = (int64_t) cum;
+            else
+            {
+                memcpy (
+                    encode->compressed_buffer,
+                    encode->packed_buffer,
+                    encode->packed_bytes);
+                compressedSize = (int64_t) encode->packed_bytes;
+            }
+        }
     }
     else
     {
@@ -595,7 +646,18 @@ internal_exr_apply_zstd (exr_encode_pipeline_t* encode)
         }
         else
         {
-            compressedSize += sizeof (MAGIC_NUMBER);
+            uint64_t cum =
+                sizeof (MAGIC_NUMBER) + (uint64_t) compressedSize;
+            if (cum < encode->packed_bytes)
+                compressedSize = (int64_t) cum;
+            else
+            {
+                memcpy (
+                    encode->compressed_buffer,
+                    encode->packed_buffer,
+                    encode->packed_bytes);
+                compressedSize = (int64_t) encode->packed_bytes;
+            }
         }
     }
 
