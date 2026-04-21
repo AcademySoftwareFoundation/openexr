@@ -1,0 +1,75 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright Contributors to the OpenEXR Project.
+#
+# Build and test OpenEXR as 32-bit x86 (i686) ELF on an amd64 GitHub runner
+# using GCC multilib (-m32). Catches regressions that only show up on 32-bit
+# Linux (e.g. issue #1284 / testOptimizedInterleavePatterns).
+#
+# Pattern: standalone workflow, same path filters as ci_freebsd.yml.
+
+name: CI (Linux i686)
+
+on:
+  push:
+    paths:
+      - '**'
+      - '!**.md'
+      - '!website/**'
+      - '!bazel/**'
+      - '!src/wrappers/**'
+      - '!.github/workflows/**'
+      - '.github/workflows/ci_linux_i686.yml'
+  pull_request:
+    paths:
+      - '**'
+      - '!**.md'
+      - '!website/**'
+      - '!bazel/**'
+      - '!src/wrappers/**'
+      - '!.github/workflows/**'
+      - '.github/workflows/ci_linux_i686.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  linux-i686:
+    name: Linux i686 (-m32)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Install multilib toolchain
+        run: |
+          set -ex
+          sudo apt-get update
+          sudo apt-get install -y cmake ninja-build \
+            gcc-multilib g++-multilib libc6-dev-i386
+
+      - name: Configure
+        run: |
+          set -ex
+          cmake -B _build -S . -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_C_FLAGS=-m32 \
+            -DCMAKE_CXX_FLAGS=-m32 \
+            -DCMAKE_EXE_LINKER_FLAGS=-m32 \
+            -DCMAKE_SHARED_LINKER_FLAGS=-m32 \
+            -DOPENEXR_FORCE_INTERNAL_IMATH=ON \
+            -DOPENEXR_FORCE_INTERNAL_DEFLATE=ON \
+            -DOPENEXR_FORCE_INTERNAL_OPENJPH=ON \
+            -DBUILD_TESTING=ON
+        shell: bash
+
+      - name: Build
+        run: |
+          set -ex
+          cmake --build _build --parallel "$(nproc)"
+        shell: bash
+
+      - name: Test
+        run: |
+          set -ex
+          ctest --test-dir _build --output-on-failure --timeout 7200
+        shell: bash
