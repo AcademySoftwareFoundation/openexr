@@ -12,6 +12,7 @@
 
 #include "testDeepImage.h"
 #include "testFlatImage.h"
+#include "testImageChannel.h"
 #include "testIO.h"
 #include "tmpDir.h"
 #include <ImathRandom.h>
@@ -89,6 +90,7 @@ main (int argc, char* argv[])
     TEST (testFlatImage);
     TEST (testDeepImage);
     TEST (testIO);
+    TEST (testImageChannel);
     // NB: If you add a test here, make sure to enumerate it in the
     // CMakeLists.txt so it runs as part of the test suite
 
