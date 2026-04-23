@@ -77,64 +77,6 @@ static inline void shuffle_decode_2(const uint8_t* in, size_t size, uint8_t* out
 typedef uint64_t (*serialization_callback) (char* src, uint64_t iSize, char* dest, uint64_t oSize);
 static const uint64_t SERIALIZATION_OVERHEAD = sizeof(uint64_t);
 
-long exr_compress_zstd (
-    char* inPtr,
-    int                    inSize,
-    void* outPtr,
-    int                    outPtrSize,
-    uint64_t               typeSize,
-    int32_t                level,
-    serialization_callback fn_serialize)
-{
-    if (inSize <= 0) return 0;
-
-    if (!t_cctx) t_cctx = ZSTD_createCCtx();
-    if (!d_cctx) d_cctx = ZSTD_createDCtx();
-
-    size_t const cbound = ZSTD_compressBound ((size_t) inSize);
-    if (ZSTD_isError (cbound)) return -1;
-    size_t const total_need = (size_t) inSize + cbound;
-    if (total_need < (size_t) inSize) return -1; /* overflow */
-    if (t_shuffle_buf_size < total_need)
-    {
-        uint8_t* nb = (uint8_t*) realloc (t_shuffle_buf, total_need);
-        if (!nb) return -1;
-        t_shuffle_buf      = nb;
-        t_shuffle_buf_size = total_need;
-    }
-
-    /* Step 1: Shuffle data into planar byte-planes (uses first inSize bytes) */
-    if (typeSize == 4) shuffle_encode_4((uint8_t*)inPtr, inSize, t_shuffle_buf);
-    else if (typeSize == 2) shuffle_encode_2((uint8_t*)inPtr, inSize, t_shuffle_buf);
-    else memcpy(t_shuffle_buf, inPtr, inSize);
-
-    /* Step 2: Compress shuffled bytes; dst must not overlap src (ZSTD requirement). */
-    ZSTD_CCtx_reset(t_cctx, ZSTD_reset_session_only);
-    ZSTD_CCtx_setParameter(t_cctx, ZSTD_c_compressionLevel, level);
-    ZSTD_CCtx_setParameter(t_cctx, ZSTD_c_nbWorkers, 0);
-    //ZSTD_CCtx_setParameter(t_cctx, ZSTD_c_windowLog, 24);
-    //ZSTD_CCtx_setParameter(t_cctx, ZSTD_c_strategy, ZSTD_btultra);
-    /* Allow the binary tree to search the full 16MB window */
-    //ZSTD_CCtx_setParameter(t_cctx, ZSTD_c_chainLog, 24);
-    //ZSTD_CCtx_setParameter(t_cctx, ZSTD_c_hashLog, 22);
-
-    size_t cSize = ZSTD_compressCCtx (
-        t_cctx,
-        (uint8_t*) t_shuffle_buf + inSize,
-        cbound,
-        t_shuffle_buf,
-        (size_t) inSize,
-        level);
-
-    if (ZSTD_isError(cSize)) return -1;
-
-    /* Step 3: Serialize */
-    if (cSize + SERIALIZATION_OVERHEAD <= outPtrSize) {
-        return fn_serialize((char*)t_shuffle_buf + inSize, cSize, (char*)outPtr, outPtrSize);
-    }
-    
-    return -1;
-}
 
 /** shuffle_el_bytes: 2 or 4 selects shuffle_decode_*; 0 means infer from dSize (legacy). */
 long exr_uncompress_zstd (
@@ -328,9 +270,18 @@ zstd_write_exr_v1 (
     size_t const cbound = ZSTD_compressBound (inner_len);
     if (ZSTD_isError (cbound)) return -1;
     if (cbound > out_cap - ZSTD_EXR_V1_HEADER) return -1;
+
+
     ZSTD_CCtx_reset (t_cctx, ZSTD_reset_session_only);
     ZSTD_CCtx_setParameter (t_cctx, ZSTD_c_compressionLevel, level);
     ZSTD_CCtx_setParameter (t_cctx, ZSTD_c_nbWorkers, 0);
+    ZSTD_CCtx_setParameter(t_cctx, ZSTD_c_windowLog, 24);
+    ZSTD_CCtx_setParameter(t_cctx, ZSTD_c_strategy, ZSTD_btultra);
+    /* Allow the binary tree to search the full 16MB window */
+    ZSTD_CCtx_setParameter(t_cctx, ZSTD_c_chainLog, 24);
+    ZSTD_CCtx_setParameter(t_cctx, ZSTD_c_hashLog, 22);
+
+    
     uint8_t* const out = (uint8_t*) out_buf;
     size_t const cSize = ZSTD_compressCCtx (
         t_cctx,
