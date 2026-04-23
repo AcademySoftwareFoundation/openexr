@@ -1023,7 +1023,9 @@ void ScanLineProcess::copy_sample_count (
 
         ptr = reinterpret_cast<uint8_t*> (scslice.base);
         ptr += int64_t (cinfo.start_x) * xS;
-        ptr += (int64_t (fbY) + int64_t (y)) * yS;
+        /* y is chunk-relative (same indexing as sample_count_table rows);
+         * fbY is the first requested absolute line and may be mid-chunk. */
+        ptr += (int64_t (cinfo.start_y) + int64_t (y)) * yS;
 
         if (xS == sizeof(int32_t))
         {

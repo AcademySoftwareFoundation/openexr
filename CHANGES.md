@@ -272,6 +272,8 @@ Patch release that addresses the following security vulnerabilities:
 * [CVE-2026-40244](https://www.cve.org/CVERecord?id=CVE-2026-40244) Integer overflow in DWA `setupChannelData` `planarUncRle` pointer arithmetic (missed variant of CVE-2026-34589)
 * [CVE-2026-40250](https://www.cve.org/CVERecord?id=CVE-2026-40250) Integer overflow in DWA decoder `outBufferEnd` pointer arithmetic (missed variant of CVE-2026-34589)
 
+**ZSTD wire format (scanline / deep scanline):** ZSTD now uses 16 scanlines per chunk (`exr_get_zstd_lines_per_chunk()`), not 1. Readers and writers must agree on this grouping; files produced with the previous 1-line ZSTD chunk layout are not interchangeable without transcoding.
+
 ### Merged Pull Requests
 
 * [2346](https://github.com/AcademySoftwareFoundation/openexr/pull/2346)

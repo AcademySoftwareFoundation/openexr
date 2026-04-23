@@ -19,10 +19,12 @@
 #include "ImfRleCompressor.h"
 #include "ImfZipCompressor.h"
 #include "ImfZip.h"
+#include "ImfZstdCompressor.h"
 
 #include <algorithm>
 #include <stdexcept>
 #include "ImfHTCompressor.h"
+#include "openexr_compression.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
@@ -54,6 +56,7 @@ Compressor::Compressor (
 
     exr_set_zip_compression_level (_ctxt, 0, hdr.zipCompressionLevel ());
     exr_set_dwa_compression_level (_ctxt, 0, hdr.dwaCompressionLevel ());
+    exr_set_zstd_compression_level (_ctxt, 0, hdr.zstdCompressionLevel ());
 
     exr_compression_t hdrcomp;
     if (EXR_ERR_SUCCESS != exr_get_compression (_ctxt, 0, &hdrcomp))
@@ -131,7 +134,10 @@ Compressor::uncompress (
 
 int
 Compressor::compressTile (
-    const char* inPtr, int inSize, Box2i range, const char*& outPtr)
+    const char*  inPtr,
+    int          inSize,
+    Box2i        range,
+    const char*& outPtr)
 {
     return compressTile (
         inPtr, inSize, range, outPtr, nullptr, 0);
@@ -152,7 +158,10 @@ Compressor::compressTile (
 
 int
 Compressor::uncompressTile (
-    const char* inPtr, int inSize, Box2i range, const char*& outPtr)
+    const char*  inPtr,
+    int          inSize,
+    Box2i        range,
+    const char*& outPtr)
 {
     return static_cast<int> (
         runDecodeStep (inPtr, inSize, range, outPtr));
@@ -380,6 +389,11 @@ newCompressor (Compression c, size_t maxScanLineSize, const Header& hdr)
         case HTJ2K32_COMPRESSION:
 
             return new HTCompressor (hdr, static_cast<int> (maxScanLineSize), 32);
+        case ZSTD_COMPRESSION:
+
+            ret = new ZstdCompressor (
+                hdr, maxScanLineSize, exr_get_zstd_lines_per_chunk ());
+            break;
 
         default: break;
     }
@@ -469,6 +483,10 @@ newTileCompressor (
                 hdr,
                 static_cast<int> (tileLineSize),
                 static_cast<int> (numTileLines));
+        case ZSTD_COMPRESSION:
+
+            ret = new ZstdCompressor (hdr, tileLineSize, numTileLines);
+            break;
 
         default: break;
     }
