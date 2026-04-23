@@ -24,6 +24,7 @@
 #include <algorithm>
 #include <stdexcept>
 #include "ImfHTCompressor.h"
+#include "openexr_compression.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
@@ -390,7 +391,8 @@ newCompressor (Compression c, size_t maxScanLineSize, const Header& hdr)
             return new HTCompressor (hdr, static_cast<int> (maxScanLineSize), 32);
         case ZSTD_COMPRESSION:
 
-            ret = new ZstdCompressor (hdr, maxScanLineSize, 1);
+            ret = new ZstdCompressor (
+                hdr, maxScanLineSize, exr_get_zstd_lines_per_chunk ());
             break;
 
         default: break;

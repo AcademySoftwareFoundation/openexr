@@ -408,60 +408,116 @@ readFile (
     else
     {
         cout << "per-line " << flush;
-        if (readType == eReadScanlinelFrameBuffer) cout << "framebuffer " << flush;
-        for (int i = 0; i < dataWindow.max.y - dataWindow.min.y + 1; i++)
+        if (readType == eReadScanlinelFrameBuffer)
         {
-            int y = i + dataWindow.min.y;
-            vector<char> buffer;
-            if (readType == eReadScanlinelFrameBuffer)
+            /* Multi-scanline compressors (e.g. ZSTD): raw chunk APIs require
+             * scanLine2 == lastScanLineInChunk (scanLine1). */
+            cout << "framebuffer " << flush;
+            for (int i = 0; i < height;)
             {
-                uint64_t pixSize = 0;
-                file.rawPixelData (y, nullptr, pixSize);
+                int y       = i + dataWindow.min.y;
+                int yChunk0 = file.firstScanLineInChunk (y);
+                /* lastScanLineInChunk() is getChunkRange().second: for a full
+                 * chunk that is the exclusive upper bound (next chunk start),
+                 * not the last inclusive scanline. */
+                int const yChunkBound = file.lastScanLineInChunk (y);
+                int const scansPerChunk =
+                    getCompressionNumScanlines (file.header ().compression ());
+                int const yInclusiveLast =
+                    (yChunkBound < yChunk0 + scansPerChunk)
+                        ? yChunkBound
+                        : (yChunkBound - 1);
+                int iChunk0 = yChunk0 - dataWindow.min.y;
+                int iChunk1 = yInclusiveLast - dataWindow.min.y;
+
+                vector<char> buffer;
+                uint64_t     pixSize = 0;
+                file.rawPixelData (yChunk0, nullptr, pixSize);
                 buffer.resize (pixSize);
-                file.rawPixelData (y, buffer.data(), pixSize);
-                file.readPixelSampleCounts (buffer.data(), frameBuffer, y, y);
-            }
-            else // readType == eReadScanline
-            {
-                file.readPixelSampleCounts (y);
-            }
+                file.rawPixelData (yChunk0, buffer.data (), pixSize);
+                file.readPixelSampleCounts (
+                    buffer.data (), frameBuffer, yChunk0, yChunkBound);
 
-
-            for (int j = 0; j < width; j++)
-                assert (localSampleCount[i][j] == sampleCount[i][j]);
-
-            for (int j = 0; j < width; j++)
-            {
-                for (int k = 0; k < channelCount; k++)
+                for (int ii = iChunk0; ii <= iChunk1; ++ii)
                 {
-                    if (localSampleCount[i][j] > 0 &&
-                        (!randomChannels || read_channel[k] == 1))
+                    for (int j = 0; j < width; j++)
+                        assert (localSampleCount[ii][j] == sampleCount[ii][j]);
+                }
+
+                for (int ii = iChunk0; ii <= iChunk1; ++ii)
+                {
+                    for (int j = 0; j < width; j++)
                     {
-                        if (channelTypes[k] == 0)
-                            data[k][i][j] = new unsigned int[localSampleCount[i][j]];
-                        if (channelTypes[k] == 1)
-                            data[k][i][j] = new half[localSampleCount[i][j]];
-                        if (channelTypes[k] == 2)
-                            data[k][i][j] = new float[localSampleCount[i][j]];
+                        for (int k = 0; k < channelCount; k++)
+                        {
+                            if (localSampleCount[ii][j] > 0 &&
+                                (!randomChannels || read_channel[k] == 1))
+                            {
+                                if (channelTypes[k] == 0)
+                                    data[k][ii][j] =
+                                        new unsigned int[localSampleCount[ii][j]];
+                                if (channelTypes[k] == 1)
+                                    data[k][ii][j] =
+                                        new half[localSampleCount[ii][j]];
+                                if (channelTypes[k] == 2)
+                                    data[k][ii][j] =
+                                        new float[localSampleCount[ii][j]];
+                            }
+                            else { data[k][ii][j] = nullptr; }
+                        }
+                        for (int f = 0; f < fillChannels; ++f)
+                        {
+                            int32_t lsc = localSampleCount[ii][j];
+                            if (lsc > 0)
+                                data[f + channelCount][ii][j] = new float[lsc];
+                            else
+                                data[f + channelCount][ii][j] = nullptr;
+                        }
                     }
-                    else { data[k][i][j] = nullptr; }
                 }
-                for (int f = 0; f < fillChannels; ++f)
-                {
-                    int32_t lsc = localSampleCount[i][j];
-                    if (lsc > 0)
-                        data[f + channelCount][i][j] = new float[lsc];
-                    else
-                        data[f + channelCount][i][j] = nullptr;
-                }
-            }
 
-            if (readType == eReadScanlinelFrameBuffer)
-            {
-                file.readPixels (buffer.data(), frameBuffer, y, y);
+                file.readPixels (buffer.data (), frameBuffer, yChunk0, yChunkBound);
+
+                i = iChunk1 + 1;
             }
-            else // readType == eReadScanline
+        }
+        else
+        {
+            for (int i = 0; i < height; i++)
             {
+                int y = i + dataWindow.min.y;
+                file.readPixelSampleCounts (y);
+
+                for (int j = 0; j < width; j++)
+                    assert (localSampleCount[i][j] == sampleCount[i][j]);
+
+                for (int j = 0; j < width; j++)
+                {
+                    for (int k = 0; k < channelCount; k++)
+                    {
+                        if (localSampleCount[i][j] > 0 &&
+                            (!randomChannels || read_channel[k] == 1))
+                        {
+                            if (channelTypes[k] == 0)
+                                data[k][i][j] =
+                                    new unsigned int[localSampleCount[i][j]];
+                            if (channelTypes[k] == 1)
+                                data[k][i][j] = new half[localSampleCount[i][j]];
+                            if (channelTypes[k] == 2)
+                                data[k][i][j] = new float[localSampleCount[i][j]];
+                        }
+                        else { data[k][i][j] = nullptr; }
+                    }
+                    for (int f = 0; f < fillChannels; ++f)
+                    {
+                        int32_t lsc = localSampleCount[i][j];
+                        if (lsc > 0)
+                            data[f + channelCount][i][j] = new float[lsc];
+                        else
+                            data[f + channelCount][i][j] = nullptr;
+                    }
+                }
+
                 file.readPixels (y);
             }
         }

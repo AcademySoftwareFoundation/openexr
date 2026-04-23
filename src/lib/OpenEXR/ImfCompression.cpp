@@ -82,6 +82,7 @@
 
 #include "ImfNamespace.h"
 #include "ImfCompression.h"
+#include "openexr_compression.h"
 #include <map>
 #include <cctype>
 
@@ -190,8 +191,8 @@ static const CompressionDesc IdToDesc[] = {
         false),
     CompressionDesc (
         "zstd",
-        "blosc zstd lossless compression, one scan line at a time.",
-        1,
+        "zstd lossless compression, 16 scan lines at a time (see exr_get_zstd_lines_per_chunk).",
+        exr_get_zstd_lines_per_chunk (), /* overridden by getCompressionNumScanlines; keep in sync with C API */
         false,
         true),
 };

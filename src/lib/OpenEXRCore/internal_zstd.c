@@ -74,8 +74,6 @@ static inline void shuffle_decode_2(const uint8_t* in, size_t size, uint8_t* out
     }
 }
 
-size_t exr_get_zstd_lines_per_chunk () { return 1; }
-
 typedef uint64_t (*serialization_callback) (char* src, uint64_t iSize, char* dest, uint64_t oSize);
 static const uint64_t SERIALIZATION_OVERHEAD = sizeof(uint64_t);
 
@@ -114,6 +112,11 @@ long exr_compress_zstd (
     ZSTD_CCtx_reset(t_cctx, ZSTD_reset_session_only);
     ZSTD_CCtx_setParameter(t_cctx, ZSTD_c_compressionLevel, level);
     ZSTD_CCtx_setParameter(t_cctx, ZSTD_c_nbWorkers, 0);
+    //ZSTD_CCtx_setParameter(t_cctx, ZSTD_c_windowLog, 24);
+    //ZSTD_CCtx_setParameter(t_cctx, ZSTD_c_strategy, ZSTD_btultra);
+    /* Allow the binary tree to search the full 16MB window */
+    //ZSTD_CCtx_setParameter(t_cctx, ZSTD_c_chainLog, 24);
+    //ZSTD_CCtx_setParameter(t_cctx, ZSTD_c_hashLog, 22);
 
     size_t cSize = ZSTD_compressCCtx (
         t_cctx,

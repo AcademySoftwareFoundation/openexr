@@ -1,6 +1,10 @@
 /*
 ** SPDX-License-Identifier: BSD-3-Clause
 ** Copyright Contributors to the OpenEXR Project.
+**
+** This translation unit is not linked by OpenEXRCore (see CMakeLists.txt);
+** it is experimental / alternate ZSTD+Blosc paths. Chunk line count for ZSTD
+** is defined by exr_get_zstd_lines_per_chunk in compression.c.
 */
 
 #include <openexr_compression.h>
@@ -18,12 +22,6 @@
         if (pctxt) pctxt->print_error (pctxt, err_code, msg, __VA_ARGS__);     \
         return err_code;                                                       \
     }
-
-size_t
-exr_get_zstd_lines_per_chunk ()
-{
-    return 1;
-}
 
 typedef uint64_t (*serialization_callback) (
     char* src, uint64_t iSize, char* dest, uint64_t oSize);

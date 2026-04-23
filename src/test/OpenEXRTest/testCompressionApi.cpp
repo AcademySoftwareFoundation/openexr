@@ -95,6 +95,10 @@ testCompressionApi (const string& tempDir)
 
         cout << "Testing Compressor instantiation" << endl;
 
+        const int zstdLinesPerChunk = exr_get_zstd_lines_per_chunk ();
+        assert (zstdLinesPerChunk == exr_compression_lines_per_chunk (EXR_COMPRESSION_ZSTD));
+        assert (zstdLinesPerChunk == getCompressionNumScanlines (ZSTD_COMPRESSION));
+
         struct CompressorTestCase
         {
             Compression         compression;
@@ -116,6 +120,7 @@ testCompressionApi (const string& tempDir)
             {DWAB_COMPRESSION,   EXR_COMPRESSION_LAST_TYPE,   256, true},
             {HTJ2K256_COMPRESSION, EXR_COMPRESSION_LAST_TYPE, 256, true},
             {HTJ2K32_COMPRESSION,  EXR_COMPRESSION_LAST_TYPE,  32,  true},
+            {ZSTD_COMPRESSION,   EXR_COMPRESSION_ZSTD,    zstdLinesPerChunk, true},
         };
 
         const size_t maxScanLineSize = 1024;
