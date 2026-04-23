@@ -227,6 +227,7 @@ internal_exr_add_part (
 
     part->zip_compression_level = f->default_zip_level;
     part->dwa_compression_level = f->default_dwa_quality;
+    part->zstd_compression_level = f->default_zstd_level;
 
     /* put it into the part table */
     for (int p = 0; p < f->num_parts; ++p)
@@ -369,10 +370,18 @@ internal_exr_alloc_context (
 
         exr_get_default_zip_compression_level (&ret->default_zip_level);
         exr_get_default_dwa_compression_quality (&ret->default_dwa_quality);
+        exr_get_default_zstd_compression_level (&ret->default_zstd_level);
         if (initializers->zip_level >= 0)
             ret->default_zip_level = initializers->zip_level;
         if (initializers->dwa_quality >= 0.f)
             ret->default_dwa_quality = initializers->dwa_quality;
+        if (initializers->zstd_level >= 0)
+        {
+            int zl = initializers->zstd_level;
+            if (zl < 1) zl = 1;
+            if (zl > 22) zl = 22;
+            ret->default_zstd_level = zl;
+        }
 
         if (initializers->flags & EXR_CONTEXT_FLAG_STRICT_HEADER)
             ret->strict_header = 1;

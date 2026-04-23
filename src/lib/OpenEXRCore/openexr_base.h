@@ -136,6 +136,20 @@ EXR_EXPORT void exr_set_default_dwa_compression_quality (float q);
  */
 EXR_EXPORT void exr_get_default_dwa_compression_quality (float* q);
 
+/** @brief Assigns a default zstd compression level.
+ *
+ * Valid levels are 1 through 22 (libzstd). Values outside that range
+ * are clamped. The library default is 5.
+ *
+ * This value may be controlled separately on each part, but this
+ * global control determines the initial value.
+ */
+EXR_EXPORT void exr_set_default_zstd_compression_level (int l);
+
+/** @brief Retrieve the global default zstd compression level (1-22; default 5).
+ */
+EXR_EXPORT void exr_get_default_zstd_compression_level (int* l);
+
 /** @} */
 
 /**
