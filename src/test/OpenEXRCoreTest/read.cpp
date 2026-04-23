@@ -193,6 +193,12 @@ testReadMeta (const std::string& tempdir)
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_NOT_OPEN_WRITE, exr_set_dwa_compression_level (f, 0, 42.f));
 
+    int slev = -1;
+    EXRCORE_TEST_RVAL (exr_get_zstd_compression_level (f, 0, &slev));
+    EXRCORE_TEST (slev == 5);
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_NOT_OPEN_WRITE, exr_set_zstd_compression_level (f, 0, 5));
+
     exr_finish (&f);
 }
 
