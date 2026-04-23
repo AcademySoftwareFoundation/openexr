@@ -388,7 +388,7 @@ initAndReadDeepScanLine (
     {
         int samplesize = pixelTypeSize (i.channel ().type);
         sampleData[channelNumber].resize (samplesize * totalSamples);
-        int offset = 0;
+        size_t offset = 0;
         for (uint64_t p = 0; p < numPixels; ++p)
         {
             pixelPtrs[channelNumber][p] =
@@ -555,7 +555,7 @@ initAndReadDeepTiled (
     {
         int samplesize = pixelTypeSize (i.channel ().type);
         sampleData[channelNumber].resize (samplesize * totalSamples);
-        int offset = 0;
+        size_t offset = 0;
         for (uint64_t p = 0; p < numPixels; ++p)
         {
             pixelPtrs[channelNumber][p] =
