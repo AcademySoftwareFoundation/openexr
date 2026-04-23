@@ -319,9 +319,9 @@ typedef struct _exr_context_initializer_v3
      */
     float dwa_quality;
 
-    /** Initialize a field specifying what the default zstd compression level
-     * should be for this context. See exr_set_default_zstd_compresion_level()
-     * to set it for all contexts.
+    /** Default zstd compression level for this context (1-22; values are
+     * clamped). See exr_set_default_zstd_compression_level() for the global
+     * default (15).
      */
     int zstd_level;
 

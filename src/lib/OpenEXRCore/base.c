@@ -213,14 +213,14 @@ exr_get_default_dwa_compression_quality (float* q)
     if (q) *q = sDefaultDwaLevel;
 }
 
-// 9 is 20% more expensive to compress. Decompression time remains constant.
-static int sDefaultZstdLevel = 5;
+/* ZSTD levels 1-22; default matches libzstd balanced default (15). */
+static int sDefaultZstdLevel = 15;
 
 void
 exr_set_default_zstd_compression_level (int q)
 {
-    if (q < 0) q = 0;
-    if (q > 9) q = 9;
+    if (q < 1) q = 1;
+    if (q > 22) q = 22;
     sDefaultZstdLevel = q;
 }
 

@@ -658,7 +658,7 @@ exr_set_zstd_compression_level (exr_context_t ctxt, int part_index, int level)
         return EXR_UNLOCK_AND_RETURN (
             ctxt->standard_error (ctxt, EXR_ERR_NOT_OPEN_WRITE));
 
-    if (level > 0 && level <= 9)
+    if (level >= 1 && level <= 22)
     {
         part->zstd_compression_level = level;
         rv                           = EXR_ERR_SUCCESS;
@@ -668,7 +668,7 @@ exr_set_zstd_compression_level (exr_context_t ctxt, int part_index, int level)
         return EXR_UNLOCK_AND_RETURN (ctxt->report_error (
             ctxt,
             EXR_ERR_INVALID_ARGUMENT,
-            "Invalid zstd quality level specified"));
+            "Invalid zstd compression level (valid range is 1-22)"));
     }
 
     return EXR_UNLOCK_AND_RETURN (rv);

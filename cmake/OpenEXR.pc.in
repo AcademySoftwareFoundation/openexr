@@ -15,7 +15,8 @@ Name: OpenEXR
 Description: OpenEXR image library
 Version: @OPENEXR_VERSION@
 
-Libs: @exr_pthread_libs@ -L${libdir} -lOpenEXR${libsuffix} -lOpenEXRUtil${libsuffix} -lOpenEXRCore${libsuffix} -lIex${libsuffix} -lIlmThread${libsuffix} -lblosc2${libbuildsuffix} -ldl
+Libs: @exr_pthread_libs@ -L${libdir} -lOpenEXR${libsuffix} -lOpenEXRUtil${libsuffix} -lOpenEXRCore${libsuffix} -lIex${libsuffix} -lIlmThread${libsuffix} -ldl
+Libs.private: @EXR_ZSTD_PKGCONFIG_LIBS_PRIVATE@
 Cflags: -I${includedir} -I${OpenEXR_includedir} @exr_pthread_cflags@
 Requires: Imath
 Requires.private: @EXR_DEFLATE_PKGCONFIG_REQUIRES@ @EXR_OPENJPH_PKGCONFIG_REQUIRES@

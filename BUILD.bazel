@@ -276,7 +276,7 @@ cc_library(
         }),
     visibility = ["//visibility:public"],
     deps = [
-        "@c-blosc2//:c-blosc2",
+        "@zstd//:zstd",
         "@imath",
         "@libdeflate//:deflate",
         "@openjph",
@@ -524,7 +524,7 @@ cc_library(
         }),
     visibility = ["//visibility:public"],
     deps = [
-        "@c-blosc2//:c-blosc2",
+        "@zstd//:zstd",
         ":IlmThread",
         ":OpenEXRCore",
         "@imath",

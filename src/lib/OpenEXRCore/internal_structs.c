@@ -389,7 +389,12 @@ internal_exr_alloc_context (
         if (initializers->dwa_quality >= 0.f)
             ret->default_dwa_quality = initializers->dwa_quality;
         if (initializers->zstd_level >= 0)
-            ret->default_zstd_level = initializers->zstd_level;
+        {
+            int zl = initializers->zstd_level;
+            if (zl < 1) zl = 1;
+            if (zl > 22) zl = 22;
+            ret->default_zstd_level = zl;
+        }
 
         if (initializers->flags & EXR_CONTEXT_FLAG_STRICT_HEADER)
             ret->strict_header = 1;

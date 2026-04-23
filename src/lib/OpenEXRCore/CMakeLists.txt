@@ -115,7 +115,6 @@ openexr_define_library(OpenEXRCore
 
   DEPENDENCIES
     Imath::Imath
-    Blosc2::blosc2_static
   )
 
 if (DEFINED EXR_DEFLATE_LIB)

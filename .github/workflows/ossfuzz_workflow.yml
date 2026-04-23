@@ -25,7 +25,7 @@ on:
       - '!src/wrappers/**'
       - '!.github/workflows/**'
       - '.github/workflows/ossfuzz_workflow.yml'
-    # FIXME: Fuzzing build fails because we need to add libblosc2 to the list 
+    # FIXME: Fuzzing build may need libzstd on the link line when linking static OpenEXR. 
     # of linked libs in:
     # https://github.com/google/oss-fuzz/blob/master/projects/openexr/build.sh
     # ... but we can only do it once this PR is merged.

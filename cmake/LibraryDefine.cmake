@@ -38,18 +38,10 @@ function(OPENEXR_DEFINE_LIBRARY libname)
     endif()
   endif()
 
-  # we are statically linking blosc2
+  # libzstd is a private link dependency (see OpenEXRSetup.cmake); not exported in OpenEXRConfig.
   if(${objlib} STREQUAL "OpenEXR" OR ${objlib} STREQUAL "OpenEXRCore")
-    message(STATUS "Blosc2: setting up for ${objlib}...")
-    message(STATUS ">> BLOSC2_INCLUDE_DIRS: ${BLOSC2_INCLUDE_DIRS}")
-    message(STATUS ">> BLOSC2_LIB_DIR: ${BLOSC2_LIB_DIR}")
-    target_include_directories(${objlib} PRIVATE ${BLOSC2_INCLUDE_DIRS})
-    target_link_directories(${objlib} PRIVATE ${BLOSC2_LIB_DIR})
-    target_link_libraries(${objlib} PRIVATE Blosc2::blosc2_static ${CMAKE_DL_LIBS})
-    # install the static library if not using the installed lib.
-    if(TARGET blosc2_static AND NOT Blosc2_FOUND)
-      install(TARGETS blosc2_static EXPORT ${objlib})
-    endif()
+    message(STATUS "OpenEXR: linking libzstd privately to ${objlib}")
+    target_link_libraries(${objlib} PRIVATE ${OPENEXR_IMF_ZSTD_TARGET} ${CMAKE_DL_LIBS})
   endif()
 
   if(OPENEXR_CURLIB_CURDIR)

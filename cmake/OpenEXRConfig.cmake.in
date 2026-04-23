@@ -5,8 +5,8 @@
 
 include(CMakeFindDependencyMacro)
 
-# blosc2 needs threads, so we set it irrespective of OPENEXR_ENABLE_THREADING 
-# which enables threaded processing of requests.
+# Threads are commonly required by dependencies and OpenEXR options; find them
+# irrespective of OPENEXR_ENABLE_THREADING (which controls threaded request processing).
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_dependency(Threads)
 
