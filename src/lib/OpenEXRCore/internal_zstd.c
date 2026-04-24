@@ -70,7 +70,6 @@ static inline void shuffle_encode_2(const uint8_t* in, size_t size, uint8_t* out
 
 // AVX2
 __attribute__((target("avx2")))
-__attribute__((target("avx2")))
 static inline void shuffle_decode_4(const uint8_t* in, size_t size, uint8_t* out) {
     size_t elements = size / 4;
     const uint8_t *p0 = in;
