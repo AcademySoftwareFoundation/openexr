@@ -265,12 +265,25 @@ public:
     Iterator operator++ (int);
 
     IMF_EXPORT
+    Iterator& operator-- ();
+    IMF_EXPORT
+    Iterator operator-- (int);
+
+    IMF_EXPORT
+    Channel& operator* () const;
+
+    IMF_EXPORT
+    Channel* operator-> () const;
+
+    IMF_EXPORT
     const char* name () const;
     IMF_EXPORT
     Channel& channel () const;
 
 private:
     friend class ChannelList::ConstIterator;
+    friend bool operator== (Iterator&, Iterator&);
+    friend bool operator!= (Iterator&, Iterator&);
 
     ChannelList::ChannelMap::iterator _i;
 };
@@ -289,6 +302,17 @@ public:
     ConstIterator& operator++ ();
     IMF_EXPORT
     ConstIterator operator++ (int);
+
+    IMF_EXPORT
+    ConstIterator& operator-- ();
+    IMF_EXPORT
+    ConstIterator operator-- (int);
+
+    IMF_EXPORT
+    const Channel& operator* () const;
+
+    IMF_EXPORT
+    const Channel* operator-> () const;
 
     IMF_EXPORT
     const char* name () const;
@@ -333,6 +357,33 @@ ChannelList::Iterator::operator++ (int)
     return tmp;
 }
 
+inline ChannelList::Iterator&
+ChannelList::Iterator::operator-- ()
+{
+    --_i;
+    return *this;
+}
+
+inline ChannelList::Iterator
+ChannelList::Iterator::operator-- (int)
+{
+    Iterator tmp = *this;
+    --_i;
+    return tmp;
+}
+
+inline Channel&
+ChannelList::Iterator::operator* () const
+{
+    return _i->second;
+}
+
+inline Channel*
+ChannelList::Iterator::operator-> () const
+{
+    return &_i->second;
+}
+
 inline const char*
 ChannelList::Iterator::name () const
 {
@@ -343,6 +394,20 @@ inline Channel&
 ChannelList::Iterator::channel () const
 {
     return _i->second;
+}
+
+inline bool
+operator== (
+    ChannelList::Iterator& x, ChannelList::Iterator& y)
+{
+    return x._i == y._i;
+}
+
+inline bool
+operator!= (
+    ChannelList::Iterator& x, ChannelList::Iterator& y)
+{
+    return !(x == y);
 }
 
 inline ChannelList::ConstIterator::ConstIterator () : _i ()
@@ -377,6 +442,33 @@ ChannelList::ConstIterator::operator++ (int)
     ConstIterator tmp = *this;
     ++_i;
     return tmp;
+}
+
+inline ChannelList::ConstIterator&
+ChannelList::ConstIterator::operator-- ()
+{
+    --_i;
+    return *this;
+}
+
+inline ChannelList::ConstIterator
+ChannelList::ConstIterator::operator-- (int)
+{
+    ConstIterator tmp = *this;
+    --_i;
+    return tmp;
+}
+
+inline const Channel&
+ChannelList::ConstIterator::operator* () const
+{
+    return _i->second;
+}
+
+inline const Channel*
+ChannelList::ConstIterator::operator-> () const
+{
+    return &_i->second;
 }
 
 inline const char*
