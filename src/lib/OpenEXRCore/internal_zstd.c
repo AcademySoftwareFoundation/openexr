@@ -262,17 +262,22 @@ long exr_uncompress_zstd (
 uint64_t compute_sorting_lookup (const uint64_t* num_samples_per_row, int height, const exr_coding_channel_info_t* channels, int channelsSize, uint64_t* sorting_lookup)
 {
     uint64_t writeCount = 0;
-    for (int i = 0; i < channelsSize; ++i) {
-        for (int h = 0; h < height; ++h) {
+    
+    // Pass 1: 2-byte channels (half) - Interleaved PER SCANLINE
+    for (int h = 0; h < height; ++h) {
+        for (int i = 0; i < channelsSize; ++i) {
             if (channels[i].bytes_per_element == 2) {
                 *(sorting_lookup + h * channelsSize + i) = writeCount;
                 writeCount += num_samples_per_row[h] * 2;
             }
         }
     }
+    
     uint64_t splitPoint = writeCount;
-    for (int i = 0; i < channelsSize; ++i) {
-        for (int h = 0; h < height; ++h) {
+    
+    // Pass 2: 4-byte channels (float) - Interleaved PER SCANLINE
+    for (int h = 0; h < height; ++h) {
+        for (int i = 0; i < channelsSize; ++i) {
             if (channels[i].bytes_per_element == 4) {
                 *(sorting_lookup + h * channelsSize + i) = writeCount;
                 writeCount += num_samples_per_row[h] * 4;
@@ -286,22 +291,30 @@ uint64_t sort2_4ByteChannels_tiled (const char* inPtr, const uint64_t* num_sampl
 {
     uint64_t sorting_lookup[channelsSize * height];
     uint64_t splitPoint = compute_sorting_lookup(num_samples_per_row, height, channels, channelsSize, sorting_lookup);
-    uint32_t pixel_stride = 0;
-    for (int i= 0; i < channelsSize; ++i) pixel_stride += channels[i].bytes_per_element;
     
-    uint32_t processed_stride = 0;
-    for (int i = 0; i < channelsSize; ++i) {
-        uint64_t line_start_read = 0;
-        for (int h = 0; h < height; ++h) {
+    uint32_t pixel_stride = 0;
+    for (int i = 0; i < channelsSize; ++i) pixel_stride += channels[i].bytes_per_element;
+    
+    uint64_t line_start_read = 0;
+    
+    // Flipped loops: Process height first, then channels. 
+    // This perfectly matches the new layout and keeps CPU cache access sequential.
+    for (int h = 0; h < height; ++h) {
+        uint32_t processed_stride = 0;
+        
+        for (int i = 0; i < channelsSize; ++i) {
             const uint64_t writeIndex = *(sorting_lookup + h * channelsSize + i); 
             const uint64_t readIndex  = line_start_read + (num_samples_per_row[h] * processed_stride);
-            const uint64_t bitSize = num_samples_per_row[h] * channels[i].bytes_per_element;
+            const uint64_t bitSize    = num_samples_per_row[h] * channels[i].bytes_per_element;
+            
             if (forward) memcpy(outPtr + writeIndex, inPtr + readIndex, bitSize);
-            else memcpy(outPtr + readIndex, inPtr + writeIndex, bitSize);
-            line_start_read += num_samples_per_row[h] * pixel_stride;
+            else         memcpy(outPtr + readIndex, inPtr + writeIndex, bitSize);
+            
+            processed_stride += channels[i].bytes_per_element;
         }
-        processed_stride += channels[i].bytes_per_element;
+        line_start_read += num_samples_per_row[h] * pixel_stride;
     }
+    
     return splitPoint;
 }
 
