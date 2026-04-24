@@ -460,7 +460,7 @@ testWriteBaseHeader (const std::string& tempdir)
         exr_get_zstd_compression_level (outf, 0, NULL));
     int slev = -1;
     EXRCORE_TEST_RVAL (exr_get_zstd_compression_level (outf, 0, &slev));
-    EXRCORE_TEST (slev == 15);
+    EXRCORE_TEST (slev == 5);
 
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_MISSING_CONTEXT_ARG,
