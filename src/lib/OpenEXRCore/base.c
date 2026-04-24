@@ -213,8 +213,8 @@ exr_get_default_dwa_compression_quality (float* q)
     if (q) *q = sDefaultDwaLevel;
 }
 
-/* ZSTD levels 1-22; default matches libzstd balanced default (15). */
-static int sDefaultZstdLevel = 15;
+/* ZSTD levels 1-22; OpenEXR default level (was 15, libzstd's balanced default). */
+static int sDefaultZstdLevel = 5;
 
 void
 exr_set_default_zstd_compression_level (int q)

@@ -321,7 +321,7 @@ typedef struct _exr_context_initializer_v3
 
     /** Default zstd compression level for this context (1-22; values are
      * clamped). See exr_set_default_zstd_compression_level() for the global
-     * default (15).
+     * default (5).
      */
     int zstd_level;
 

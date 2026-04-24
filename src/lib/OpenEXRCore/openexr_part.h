@@ -237,7 +237,7 @@ exr_set_dwa_compression_level (exr_context_t ctxt, int part_index, float level);
 /** @brief Retrieve the zstd compression level used for the specified part.
  *
  * This only applies when the compression method is zstd. Valid levels
- * are 1 through 22; the default is 15.
+ * are 1 through 22; the default is 5.
  *
  * This value is NOT persisted in the file, and only exists for the
  * lifetime of the context, so will be at the default value when just
