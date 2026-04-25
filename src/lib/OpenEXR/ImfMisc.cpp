@@ -23,7 +23,6 @@
 #include <ImfTileDescription.h>
 #include <ImfXdr.h>
 
-#include <codecvt>
 #include <locale>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
@@ -108,6 +107,47 @@ static int
 roundToPrevMultiple (int n, int d)
 {
     return (n / d) * d;
+}
+
+
+// Decode one UTF-8 sequence starting at `src[pos]`, advance `pos` past it,
+// and return the codepoint. Returns 0xFFFD on malformed input and advances
+// past the bad byte(s). Credit: Larry Gritz (OpenImageIO #5107).
+//
+static uint32_t
+decode_utf8 (const char* src, size_t len, size_t& pos)
+{
+    auto byte    = [&](size_t i) -> uint8_t { return uint8_t(src[i]); };
+    auto is_cont = [](uint8_t b) { return (b & 0xC0) == 0x80; };
+    uint8_t b0   = byte(pos);
+    if (b0 < 0x80) {
+        pos += 1;
+        return b0;
+    } else if ((b0 & 0xE0) == 0xC0 && pos + 1 < len && is_cont(byte(pos + 1))) {
+        uint32_t cp = (uint32_t(b0 & 0x1F) << 6)
+                      | uint32_t(byte(pos + 1) & 0x3F);
+        pos += 2;
+        return cp >= 0x80 ? cp : 0xFFFD;  // reject overlong
+    } else if ((b0 & 0xF0) == 0xE0 && pos + 2 < len && is_cont(byte(pos + 1))
+               && is_cont(byte(pos + 2))) {
+        uint32_t cp = (uint32_t(b0 & 0x0F) << 12)
+                      | (uint32_t(byte(pos + 1) & 0x3F) << 6)
+                      | uint32_t(byte(pos + 2) & 0x3F);
+        pos += 3;
+        if (cp < 0x800 || (cp >= 0xD800 && cp <= 0xDFFF))
+            return 0xFFFD;  // overlong or surrogate
+        return cp;
+    } else if ((b0 & 0xF8) == 0xF0 && pos + 3 < len && is_cont(byte(pos + 1))
+               && is_cont(byte(pos + 2)) && is_cont(byte(pos + 3))) {
+        uint32_t cp = (uint32_t(b0 & 0x07) << 18)
+                      | (uint32_t(byte(pos + 1) & 0x3F) << 12)
+                      | (uint32_t(byte(pos + 2) & 0x3F) << 6)
+                      | uint32_t(byte(pos + 3) & 0x3F);
+        pos += 4;
+        return (cp >= 0x10000 && cp <= 0x10FFFF) ? cp : 0xFFFD;
+    }
+    pos += 1;  // skip bad byte
+    return 0xFFFD;
 }
 
 size_t
@@ -1999,8 +2039,27 @@ getChunkOffsetTableSize (const Header& header)
 std::wstring
 WidenFilename (const char* filename)
 {
-    std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
-    return converter.from_bytes (filename);
+    std::wstring result;
+
+    if (!filename) return result;
+
+    size_t pos = 0;
+
+    size_t stringSize = strlen(filename);
+    
+    while (pos < stringSize) {
+        uint32_t cp = decode_utf8(filename, stringSize, pos);
+        if (cp < 0x10000) {
+            result += wchar_t(cp);
+        } else {
+            // Encode as surrogate pair in wchar_t units
+            cp -= 0x10000;
+            result += wchar_t(0xD800 + (cp >> 10));
+            result += wchar_t(0xDC00 + (cp & 0x3FF));
+        }
+    }
+
+    return result;
 }
 
 const char*
