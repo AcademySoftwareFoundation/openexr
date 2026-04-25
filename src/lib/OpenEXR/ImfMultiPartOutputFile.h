@@ -32,6 +32,8 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 //                             to copy the values over from the first header.
 //  numThreads - number of threads that should be used in encoding the data.
 //
+// Constructors that open a file by path expect UTF-8; see ImfIO.h.
+//
 
 class IMF_EXPORT_TYPE MultiPartOutputFile : public GenericOutputFile
 {

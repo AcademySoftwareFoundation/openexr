@@ -115,6 +115,13 @@ readVariableLengthInteger (const char*& readPtr, const char* endPtr)
             throw IEX_NAMESPACE::InputExc (
                 "IDManifest too small for variable length integer");
         }
+        // Each chunk contributes at most 7 bits; shifts must stay < 64 or
+        // (byte & 127) << shift has undefined behavior (C++).
+        if (shift >= 64)
+        {
+            throw IEX_NAMESPACE::InputExc (
+                "Invalid variable-length integer in IDManifest");
+        }
         byte = *(unsigned char*) readPtr++;
         // top bit of byte isn't part of actual number, it just indicates there's more info to come
         // so take bottom 7 bits, shift them to the right place, and insert them
@@ -337,6 +344,13 @@ IDManifest::init (const char* data, const char* endOfData)
         //
         // previous string had more than 255 characters?
         //
+        const size_t minPrefixLen =
+            stringList[i - 1].size () > 255 ? size_t (2) : size_t (1);
+        if (stringList[i].size () < minPrefixLen)
+        {
+            throw IEX_NAMESPACE::InputExc (
+                "IDManifest string too small for common prefix length");
+        }
         if (stringList[i - 1].size () > 255)
         {
             common = size_t (((unsigned char) (stringList[i][0])) << 8) +

@@ -63,6 +63,8 @@ on:
         type: string
       validate_install:
         type: string
+      configure_install_prefix:
+        type: string
 
 permissions:
   contents: read
@@ -159,7 +161,7 @@ jobs:
 
       - name: Install MSYS2 ${{ inputs.msystem }}
         if: inputs.msystem != ''
-        uses: msys2/setup-msys2@cafece8e6baf9247cf9b1bf95097b0b983cc558d # v2.31.0
+        uses: msys2/setup-msys2@e9898307ac31d1a803454791be09ab9973336e1c # v2.31.1
         with:
           msystem: ${{ inputs.msystem }}
           update: true
@@ -229,8 +231,10 @@ jobs:
           # Construct the cmake command as a variable, so the
           # Configure step below can execute it, but also so we can store
           # in in the install_manifest as a debugging reference
+          # Configure/build with a .tmp install prefix, so we can
+          # validate the install properly overrides it.
           cmake_args=("-B" "$BUILD_DIR" -S "$WORKSPACE")
-          cmake_args+=("-DCMAKE_INSTALL_PREFIX=$INSTALL_DIR")
+          cmake_args+=("-DCMAKE_INSTALL_PREFIX=$INSTALL_DIR${{ inputs.configure_install_prefix}}")
           cmake_args+=("-DCMAKE_BUILD_TYPE=${{ inputs.build-type }}")
           cmake_args+=("-DOPENEXR_CXX_STANDARD=${{ inputs.cxx-standard }}")
           cmake_args+=("-DBUILD_SHARED_LIBS=${{ inputs.BUILD_SHARED_LIBS }}")
@@ -269,22 +273,32 @@ jobs:
           echo INSTALL_MANIFEST_FILENAME="install_manifest.${os_name}.${build}.txt" >> $GITHUB_ENV
         shell: bash
 
-      - name: Configure & Build
+      - name: Configure, Build, Install
         if: inputs.msystem == ''
         run: |
           set -x
           "$CMAKE" --version
           "$CMAKE" ${{ env.CMAKE_ARGS }}
-          "$CMAKE" --build $BUILD_DIR --target install --config ${{ inputs.build-type }}
+          if [ -n "${{ inputs.configure_install_prefix }}" ]; then
+            "$CMAKE" --build "$BUILD_DIR" --config ${{ inputs.build-type }}
+            "$CMAKE" --install "$BUILD_DIR" --prefix "$INSTALL_DIR" --config ${{ inputs.build-type }}
+          else
+            "$CMAKE" --build "$BUILD_DIR" --target install --config ${{ inputs.build-type }}
+          fi
         shell: bash
 
-      - name: Configure & Build (msys2) # requires msys2 shell
+      - name: Configure, Build, Install (msys2) # requires msys2 shell
         if: inputs.msystem != ''
         run: |
           set -x
           "$CMAKE" --version
           "$CMAKE" ${{ env.CMAKE_ARGS }}
-          "$CMAKE" --build $BUILD_DIR --target install --config ${{ inputs.build-type }}
+          if [ -n "${{ inputs.configure_install_prefix }}" ]; then
+            "$CMAKE" --build "$BUILD_DIR" --config ${{ inputs.build-type }}
+            "$CMAKE" --install "$BUILD_DIR" --prefix "$INSTALL_DIR" --config ${{ inputs.build-type }}
+          else
+            "$CMAKE" --build "$BUILD_DIR" --target install --config ${{ inputs.build-type }}
+          fi
         shell: msys2 {0}
 
       - name: Test OpenEXR.pc
@@ -318,7 +332,7 @@ jobs:
 
       - name: Upload install_manifest.txt
         # Upload the manifest to make it possible to download for inspection and debugging
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: ${{ env.INSTALL_MANIFEST_FILENAME }}
           path: ${{ env.INSTALL_MANIFEST_PATH }}
