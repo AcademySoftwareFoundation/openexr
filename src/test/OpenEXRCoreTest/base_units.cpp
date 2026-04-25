@@ -396,7 +396,7 @@ testCPUIdent (const std::string& tempdir)
         EXRCORE_TEST (false);
     }
 
-#if defined(__x86_64__) || defined(_M_X64)
+#if defined(__x86_64__) || (defined(_M_X64) && !defined(_M_ARM64EC))
     if (has_native_half () != (hf16c && havx))
     {
         std::cerr << "CPU Id test has native half mismatch" << std::endl;
