@@ -540,7 +540,14 @@ Component Options
   ``OpenEXRCore`` library with symbols hidden. This allows the ``OpenEXR``
   library to be linked into an executable that already links against
   another version of OpenEXR.  See :ref:`embedded-core-label` for more details.
-  
+
+* ``OPENEXR_ENABLE_THREADING``
+
+  Enables threaded processing of requests, using the threading library
+  found at configure time. Default is ``ON``. Disable with
+  ``-DOPENEXR_ENABLE_THREADING=OFF`` for builds on platforms where no
+  threading library is available, or to force single-threaded operation.
+
 * ``BUILD_TESTING``
 
   Build the testing tree. Default is ``ON``.  Note that
