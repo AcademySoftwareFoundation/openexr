@@ -9,7 +9,7 @@
 #include "OpenEXRConfigInternal.h"
 
 #if defined(i386) || defined(__i386__) || defined(__i386) ||                   \
-    defined(_M_X86) || defined(__x86_64__) || defined(_M_X64)
+    defined(_M_X86) || defined(__x86_64__) || (defined(_M_X64) && !defined(_M_ARM64EC))
 #    define OPENEXR_ENABLE_X86_SIMD_CHECK 1
 #else
 #    define OPENEXR_ENABLE_X86_SIMD_CHECK 0
@@ -132,7 +132,7 @@ has_native_half (void)
     int sse2, avx, f16c;
     check_for_x86_simd (&f16c, &avx, &sse2);
     return avx && f16c;
-#elif defined(__aarch64__)
+#elif defined(__aarch64__) || defined(_M_ARM64) || defined(_M_ARM64EC)
     return 1;
 #else
     return 0;
