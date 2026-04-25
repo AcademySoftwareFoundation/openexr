@@ -305,6 +305,38 @@ is installed.
 
 See below for other customization options.
 
+Python Module (Building with Custom Python)
+-------------------------------------------
+
+OpenEXR can optionally build its Python module
+(``OPENEXR_BUILD_PYTHON=ON``), which requires a Python development
+install and the ``pybind11`` package.
+
+If you need to build against a non-default Python installation, you
+must point CMake at a Python **development** environment (not just an
+interpreter). In particular, the build requires ``Python.h`` and a
+linkable Python library.
+
+OpenEXR uses CMake's ``find_package(Python3 ...)`` and
+``find_package(pybind11 ...)``.  To build against a custom Python, use
+the corresponding ``Python3_*`` variables, for example:
+
+.. code-block::
+
+    % cmake -S $srcdir -B $builddir \
+        -DOPENEXR_BUILD_PYTHON=ON \
+        -DPython3_EXECUTABLE=/path/to/python \
+        -DPython3_INCLUDE_DIR=/path/to/python/include \
+        -DPython3_LIBRARY=/path/to/python/lib/libpythonX.Y.so
+
+Notes:
+
+* Embedded Python distributions (for example, some DCC application bundles)
+  may ship a Python interpreter but omit the full development headers and
+  libraries required to compile extension modules.
+* Avoid legacy variables such as ``PYTHON_INCLUDE_DIR`` (all-caps): those are
+  from older CMake modules and may be ignored.
+
 Porting Applications from OpenEXR v2 to v3
 ------------------------------------------
 
