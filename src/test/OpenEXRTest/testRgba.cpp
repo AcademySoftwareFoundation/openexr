@@ -10,17 +10,17 @@
 #include "compareB44.h"
 #include "compareDwa.h"
 
-#include <IlmThread.h>
-#include <ImfArray.h>
-#include <ImfChannelList.h>
-#include <ImfFrameBuffer.h>
-#include <ImfHeader.h>
-#include <ImfMultiPartOutputFile.h>
-#include <ImfOutputFile.h>
-#include <ImfOutputPart.h>
-#include <ImfPartType.h>
-#include <ImfRgbaFile.h>
-#include <ImfThreading.h>
+#include "IlmThread.h"
+#include "ImfArray.h"
+#include "ImfChannelList.h"
+#include "ImfFrameBuffer.h"
+#include "ImfHeader.h"
+#include "ImfMultiPartOutputFile.h"
+#include "ImfOutputFile.h"
+#include "ImfOutputPart.h"
+#include "ImfPartType.h"
+#include "ImfRgbaFile.h"
+#include "ImfThreading.h"
 
 #include <string>
 #include <vector>

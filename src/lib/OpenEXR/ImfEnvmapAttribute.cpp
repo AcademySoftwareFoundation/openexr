@@ -11,7 +11,7 @@
 
 #define COMPILING_IMF_ENVMAP_ATTRIBUTE
 
-#include <ImfEnvmapAttribute.h>
+#include "ImfEnvmapAttribute.h"
 
 #if defined(_MSC_VER)
 // suppress warning about non-exported base classes

@@ -3,8 +3,8 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
-#include <ImfSimd.h>
-#include <ImfSystemSpecific.h>
+#include "ImfSimd.h"
+#include "ImfSystemSpecific.h"
 #include <iostream>
 
 using namespace std;

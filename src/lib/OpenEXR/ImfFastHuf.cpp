@@ -4,7 +4,7 @@
 //
 
 #include "ImfFastHuf.h"
-#include <Iex.h>
+#include "Iex.h"
 
 #include <assert.h>
 #include <math.h>

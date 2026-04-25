@@ -10,8 +10,8 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <Iex.h>
-#include <ImfChannelList.h>
+#include "Iex.h"
+#include "ImfChannelList.h"
 
 using std::set;
 using std::string;

@@ -13,7 +13,7 @@
 #include "ImfInputFile.h"
 #include "ImfOutputFile.h"
 #include "ImfStandardAttributes.h"
-#include <IlmThread.h>
+#include "IlmThread.h"
 #include <ImathBox.h>
 #include <algorithm>
 #include <assert.h>

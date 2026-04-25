@@ -11,9 +11,9 @@
 //-----------------------------------------------------------------------------
 
 #include "ImathFun.h"
-#include <ImfArray.h>
-#include <ImfPreviewImage.h>
-#include <ImfRgbaFile.h>
+#include "ImfArray.h"
+#include "ImfPreviewImage.h"
+#include "ImfRgbaFile.h"
 
 #include "drawImage.h"
 

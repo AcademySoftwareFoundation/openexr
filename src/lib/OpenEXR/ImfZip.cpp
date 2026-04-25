@@ -10,7 +10,7 @@
 #include "ImfSimd.h"
 #include "ImfSystemSpecific.h"
 
-#include <openexr_compression.h>
+#include "openexr_compression.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 

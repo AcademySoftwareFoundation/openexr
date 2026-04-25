@@ -47,8 +47,8 @@
 //
 //-----------------------------------------------------------------------------
 
-#include "ImathBox.h"
-#include "ImathVec.h"
+#include <ImathBox.h>
+#include <ImathVec.h>
 #include "ImfExport.h"
 #include "ImfForward.h"
 #include "ImfHeader.h"

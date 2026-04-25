@@ -40,6 +40,45 @@ function(OPENEXR_DEFINE_LIBRARY libname)
 
   if(OPENEXR_CURLIB_CURDIR)
     target_include_directories(${objlib} INTERFACE $<BUILD_INTERFACE:${OPENEXR_CURLIB_CURDIR}>)
+
+    # When an application builds against OpenEXR via
+    # add_subdirector(OpenEXR), if should still recognize include
+    # statements with the OpenEXR subdirectory, ie. #include
+    # <OpenEXR/ImfHeader.h>, altough in that configuration, there is
+    # no OpenEXR subdirectory, since it is the install step that
+    # places headers there; for an in-tree build, the headers are in
+    # each library.  To allow such an application to use the #include
+    # <OpenEXR/...> construct, create a directory in the build root
+    # with symbolic links to the headers in the library directories.
+    #
+    # We detect this condition via the OPENEXR_IS_SUBPROJECT setting,
+    # which is set in OpenEXRSetup.cmake when CMAKE_PROJECT_NAME is
+    # not "OpenEXR".
+    
+    if(OPENEXR_IS_SUBPROJECT AND OPENEXR_CURLIB_HEADERS)
+      foreach(_hdr IN LISTS OPENEXR_CURLIB_HEADERS)
+        if(IS_ABSOLUTE "${_hdr}")
+          set(_hdr_src "${_hdr}")
+        else()
+          set(_hdr_src "${OPENEXR_CURLIB_CURDIR}/${_hdr}")
+        endif()
+        get_filename_component(_hdr_name "${_hdr}" NAME)
+        set(_hdr_dst "${OPENEXR_BUILD_INTERFACE_UNIFIED}/${OPENEXR_OUTPUT_SUBDIR}/${_hdr_name}")
+        if(EXISTS "${_hdr_src}")
+          file(REMOVE "${_hdr_dst}")
+          if(CMAKE_HOST_UNIX)
+            file(CREATE_LINK "${_hdr_src}" "${_hdr_dst}" SYMBOLIC)
+          else()
+            execute_process(COMMAND ${CMAKE_COMMAND} -E copy_if_different "${_hdr_src}" "${_hdr_dst}")
+          endif()
+        else()
+          message(WARNING "OpenEXR build-interface include: missing public header ${_hdr_src}")
+        endif()
+      endforeach()
+    endif()
+    if(OPENEXR_IS_SUBPROJECT)
+      target_include_directories(${objlib} INTERFACE $<BUILD_INTERFACE:${OPENEXR_BUILD_INTERFACE_UNIFIED}>)
+    endif()
   endif()
   if(OPENEXR_CURLIB_CURBINDIR)
     target_include_directories(${objlib} PRIVATE $<BUILD_INTERFACE:${OPENEXR_CURLIB_CURBINDIR}>)

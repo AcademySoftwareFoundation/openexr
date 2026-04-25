@@ -10,16 +10,16 @@
 //----------------------------------------------------------------------------
 
 #include "ImfDeepImageIO.h"
-#include <Iex.h>
-#include <ImfChannelList.h>
-#include <ImfDeepScanLineInputFile.h>
-#include <ImfDeepScanLineOutputFile.h>
-#include <ImfDeepTiledInputFile.h>
-#include <ImfDeepTiledOutputFile.h>
-#include <ImfHeader.h>
-#include <ImfMultiPartInputFile.h>
-#include <ImfPartType.h>
-#include <ImfTestFile.h>
+#include "Iex.h"
+#include "ImfChannelList.h"
+#include "ImfDeepScanLineInputFile.h"
+#include "ImfDeepScanLineOutputFile.h"
+#include "ImfDeepTiledInputFile.h"
+#include "ImfDeepTiledOutputFile.h"
+#include "ImfHeader.h"
+#include "ImfMultiPartInputFile.h"
+#include "ImfPartType.h"
+#include "ImfTestFile.h"
 #include <cassert>
 #include <cstring>
 

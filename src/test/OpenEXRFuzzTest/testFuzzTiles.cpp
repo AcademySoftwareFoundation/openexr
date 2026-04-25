@@ -7,16 +7,16 @@
 #    undef NDEBUG
 #endif
 
-#include <fuzzFile.h>
-#include <tmpDir.h>
+#include "fuzzFile.h"
+#include "tmpDir.h"
 
-#include <Iex.h>
-#include <IlmThread.h>
-#include <ImfArray.h>
-#include <ImfFrameBuffer.h>
-#include <ImfHeader.h>
-#include <ImfThreading.h>
-#include <ImfTiledRgbaFile.h>
+#include "Iex.h"
+#include "IlmThread.h"
+#include "ImfArray.h"
+#include "ImfFrameBuffer.h"
+#include "ImfHeader.h"
+#include "ImfThreading.h"
+#include "ImfTiledRgbaFile.h"
 #include <cassert>
 #include <iostream>
 #include <stdio.h>
@@ -24,13 +24,13 @@
 #include <vector>
 
 // Handle the case when the custom namespace is not exposed
-#include <ImfChannelList.h>
-#include <ImfMultiPartInputFile.h>
-#include <ImfMultiPartOutputFile.h>
-#include <ImfPartType.h>
-#include <ImfTiledInputPart.h>
-#include <ImfTiledOutputPart.h>
-#include <OpenEXRConfig.h>
+#include "ImfChannelList.h"
+#include "ImfMultiPartInputFile.h"
+#include "ImfMultiPartOutputFile.h"
+#include "ImfPartType.h"
+#include "ImfTiledInputPart.h"
+#include "ImfTiledOutputPart.h"
+#include "OpenEXRConfig.h"
 using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;
 using namespace std;
 using namespace IMATH_NAMESPACE;

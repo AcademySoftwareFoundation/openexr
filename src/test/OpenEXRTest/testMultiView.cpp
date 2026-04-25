@@ -7,7 +7,7 @@
 #    undef NDEBUG
 #endif
 
-#include <ImfMultiView.h>
+#include "ImfMultiView.h"
 
 #include <assert.h>
 #include <sstream>

@@ -17,7 +17,7 @@
 #include <algorithm>
 #include <cstring>
 #include <iostream>
-#include <resizeImage.h>
+#include "resizeImage.h"
 #include <string.h>
 
 using namespace IMF;

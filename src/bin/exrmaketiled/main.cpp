@@ -12,9 +12,9 @@
 
 #include "makeTiled.h"
 
-#include <ImfHeader.h>
-#include <ImfMisc.h>
-#include <OpenEXRConfig.h>
+#include "ImfHeader.h"
+#include "ImfMisc.h"
+#include "OpenEXRConfig.h"
 
 #include <exception>
 #include <iostream>

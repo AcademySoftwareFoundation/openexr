@@ -12,11 +12,11 @@
 //
 //----------------------------------------------------------------------------
 
-#include <Iex.h>
+#include "Iex.h"
 #include <ImathBox.h>
-#include <ImfArray.h>
-#include <ImfChannelList.h>
-#include <ImfFrameBuffer.h>
+#include "ImfArray.h"
+#include "ImfChannelList.h"
+#include "ImfFrameBuffer.h"
 #include <half.h>
 
 #include <map>

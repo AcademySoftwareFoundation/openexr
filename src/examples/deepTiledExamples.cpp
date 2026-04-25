@@ -12,14 +12,14 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfArray.h>
+#include "ImfArray.h"
 
-#include <ImfHeader.h>
-#include <ImfPartType.h>
-#include <ImfChannelList.h>
-#include <ImfDeepFrameBuffer.h>
-#include <ImfDeepTiledInputFile.h>
-#include <ImfDeepTiledOutputFile.h>
+#include "ImfHeader.h"
+#include "ImfPartType.h"
+#include "ImfChannelList.h"
+#include "ImfDeepFrameBuffer.h"
+#include "ImfDeepTiledInputFile.h"
+#include "ImfDeepTiledOutputFile.h"
 
 #include "drawImage.h"
 

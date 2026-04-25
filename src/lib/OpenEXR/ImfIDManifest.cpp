@@ -9,9 +9,9 @@
 
 #include "ImfIO.h"
 #include "ImfXdr.h"
-#include <Iex.h>
-#include <ImfIDManifest.h>
-#include <openexr_compression.h>
+#include "Iex.h"
+#include "ImfIDManifest.h"
+#include "openexr_compression.h"
 
 #include <algorithm>
 #include <stdint.h>

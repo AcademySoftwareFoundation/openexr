@@ -10,11 +10,11 @@
 //-----------------------------------------------------------------------------
 
 #include "Iex.h"
-#include <ImfChannelList.h>
-#include <ImfHeader.h>
-#include <ImfMisc.h>
-#include <ImfTileDescription.h>
-#include <ImfTiledMisc.h>
+#include "ImfChannelList.h"
+#include "ImfHeader.h"
+#include "ImfMisc.h"
+#include "ImfTileDescription.h"
+#include "ImfTiledMisc.h"
 #include <algorithm>
 #include <limits>
 

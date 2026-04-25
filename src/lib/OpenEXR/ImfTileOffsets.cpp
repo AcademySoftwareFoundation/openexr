@@ -11,9 +11,9 @@
 
 #include "Iex.h"
 #include "ImfNamespace.h"
-#include <ImfIO.h>
-#include <ImfTileOffsets.h>
-#include <ImfXdr.h>
+#include "ImfIO.h"
+#include "ImfTileOffsets.h"
+#include "ImfXdr.h"
 #include <algorithm>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER

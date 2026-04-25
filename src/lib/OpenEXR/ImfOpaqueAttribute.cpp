@@ -11,7 +11,7 @@
 
 #include "Iex.h"
 #include "ImfNamespace.h"
-#include <ImfOpaqueAttribute.h>
+#include "ImfOpaqueAttribute.h"
 #include <string.h>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER

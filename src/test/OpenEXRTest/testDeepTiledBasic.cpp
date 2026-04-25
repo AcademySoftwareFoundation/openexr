@@ -13,15 +13,15 @@
 #include <assert.h>
 #include <string.h>
 
-#include <ImfDeepTiledInputFile.h>
-#include <ImfDeepTiledOutputFile.h>
+#include "ImfDeepTiledInputFile.h"
+#include "ImfDeepTiledOutputFile.h"
 
-#include <IlmThreadPool.h>
-#include <ImfArray.h>
-#include <ImfChannelList.h>
-#include <ImfDeepFrameBuffer.h>
-#include <ImfHeader.h>
-#include <ImfPartType.h>
+#include "IlmThreadPool.h"
+#include "ImfArray.h"
+#include "ImfChannelList.h"
+#include "ImfDeepFrameBuffer.h"
+#include "ImfHeader.h"
+#include "ImfPartType.h"
 
 #include <stdio.h>
 #include <stdlib.h>

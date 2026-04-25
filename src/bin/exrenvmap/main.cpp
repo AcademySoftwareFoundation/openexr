@@ -9,15 +9,15 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <EnvmapImage.h>
-#include <ImfEnvmap.h>
-#include <ImfHeader.h>
-#include <ImfMisc.h>
-#include <OpenEXRConfig.h>
+#include "EnvmapImage.h"
+#include "ImfEnvmap.h"
+#include "ImfHeader.h"
+#include "ImfMisc.h"
+#include "OpenEXRConfig.h"
 
-#include <blurImage.h>
-#include <makeCubeMap.h>
-#include <makeLatLongMap.h>
+#include "blurImage.h"
+#include "makeCubeMap.h"
+#include "makeLatLongMap.h"
 
 #include <stdexcept>
 #include <iostream>

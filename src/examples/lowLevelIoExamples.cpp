@@ -15,8 +15,8 @@
 //-----------------------------------------------------------------------------
 
 #include "Iex.h"
-#include <ImfIO.h>
-#include <ImfRgbaFile.h>
+#include "ImfIO.h"
+#include "ImfRgbaFile.h"
 
 #include "drawImage.h"
 

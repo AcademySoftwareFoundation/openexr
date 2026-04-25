@@ -5,8 +5,8 @@
 //
 
 
-#include <ImfNamespace.h>
-#include <ImfCheckFile.h>
+#include "ImfNamespace.h"
+#include "ImfCheckFile.h"
 #include <stdint.h>
 
 using OPENEXR_IMF_NAMESPACE::checkOpenEXRFile;

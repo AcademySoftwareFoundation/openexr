@@ -13,9 +13,9 @@
 //-----------------------------------------------------------------------------
 
 #include "namespaceAlias.h"
-#include <ImfCompression.h>
-#include <ImfTileDescription.h>
-#include <readInputImage.h>
+#include "ImfCompression.h"
+#include "ImfTileDescription.h"
+#include "readInputImage.h"
 
 void makeLatLongMap (
     EnvmapImage&           image,

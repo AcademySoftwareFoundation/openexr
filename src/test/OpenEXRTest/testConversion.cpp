@@ -8,15 +8,15 @@
 #endif
 
 #include "compareFloat.h"
-#include <ImfArray.h>
-#include <ImfChannelList.h>
-#include <ImfConvert.h>
-#include <ImfFrameBuffer.h>
-#include <ImfHeader.h>
-#include <ImfInputFile.h>
-#include <ImfOutputFile.h>
-#include <ImfTiledInputFile.h>
-#include <ImfTiledOutputFile.h>
+#include "ImfArray.h"
+#include "ImfChannelList.h"
+#include "ImfConvert.h"
+#include "ImfFrameBuffer.h"
+#include "ImfHeader.h"
+#include "ImfInputFile.h"
+#include "ImfOutputFile.h"
+#include "ImfTiledInputFile.h"
+#include "ImfTiledOutputFile.h"
 #include <half.h>
 
 #include <assert.h>

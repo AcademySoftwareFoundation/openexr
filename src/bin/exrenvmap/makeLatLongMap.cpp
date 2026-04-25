@@ -9,15 +9,15 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <makeLatLongMap.h>
+#include "makeLatLongMap.h"
 
 #include "Iex.h"
-#include <ImfRgbaFile.h>
-#include <ImfStandardAttributes.h>
-#include <ImfTiledRgbaFile.h>
+#include "ImfRgbaFile.h"
+#include "ImfStandardAttributes.h"
+#include "ImfTiledRgbaFile.h"
 #include <algorithm>
 #include <iostream>
-#include <resizeImage.h>
+#include "resizeImage.h"
 
 #include "namespaceAlias.h"
 using namespace IMF;

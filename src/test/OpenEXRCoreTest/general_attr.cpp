@@ -4,7 +4,7 @@
 #include "general_attr.h"
 
 #include "test_value.h"
-#include <openexr.h>
+#include "openexr.h"
 
 #include <limits.h>
 #include <string.h>

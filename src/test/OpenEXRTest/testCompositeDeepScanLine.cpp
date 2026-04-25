@@ -10,7 +10,7 @@
 #include "testCompositeDeepScanLine.h"
 #include "random.h"
 
-#include <Iex.h>
+#include "Iex.h"
 #include <assert.h>
 #include <iostream>
 #include <ostream>
@@ -20,21 +20,21 @@
 #include <typeinfo>
 #include <vector>
 
-#include <IlmThread.h>
-#include <ImfChannelList.h>
-#include <ImfCompositeDeepScanLine.h>
-#include <ImfCompression.h>
-#include <ImfDeepFrameBuffer.h>
-#include <ImfDeepScanLineInputPart.h>
-#include <ImfDeepScanLineOutputPart.h>
-#include <ImfFrameBuffer.h>
-#include <ImfHeader.h>
-#include <ImfInputFile.h>
-#include <ImfMultiPartInputFile.h>
-#include <ImfMultiPartOutputFile.h>
-#include <ImfNamespace.h>
-#include <ImfPartType.h>
-#include <ImfThreading.h>
+#include "IlmThread.h"
+#include "ImfChannelList.h"
+#include "ImfCompositeDeepScanLine.h"
+#include "ImfCompression.h"
+#include "ImfDeepFrameBuffer.h"
+#include "ImfDeepScanLineInputPart.h"
+#include "ImfDeepScanLineOutputPart.h"
+#include "ImfFrameBuffer.h"
+#include "ImfHeader.h"
+#include "ImfInputFile.h"
+#include "ImfMultiPartInputFile.h"
+#include "ImfMultiPartOutputFile.h"
+#include "ImfNamespace.h"
+#include "ImfPartType.h"
+#include "ImfThreading.h"
 
 namespace
 {

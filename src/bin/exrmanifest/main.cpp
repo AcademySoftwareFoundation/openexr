@@ -8,10 +8,10 @@
 // output all the idmanifest information found in the file as plain text
 //
 
-#include <ImfMisc.h>
-#include <ImfMultiPartInputFile.h>
-#include <ImfIDManifestAttribute.h>
-#include <ImfStandardAttributes.h>
+#include "ImfMisc.h"
+#include "ImfMultiPartInputFile.h"
+#include "ImfIDManifestAttribute.h"
+#include "ImfStandardAttributes.h"
 
 #include <iostream>
 #include <vector>

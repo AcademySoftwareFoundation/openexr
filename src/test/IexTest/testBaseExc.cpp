@@ -7,14 +7,14 @@
 #    undef NDEBUG
 #endif
 
-#include <Iex.h>
-#include <IexErrnoExc.h>
+#include "Iex.h"
+#include "IexErrnoExc.h"
 #include <assert.h>
 #include <iostream>
 #include <stdexcept>
 #include <typeinfo>
 #include <errno.h>
-#include <testBaseExc.h>
+#include "testBaseExc.h"
 
 namespace
 {

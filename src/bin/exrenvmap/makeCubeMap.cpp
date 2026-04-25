@@ -9,15 +9,15 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <makeCubeMap.h>
+#include "makeCubeMap.h"
 
 #include "Iex.h"
-#include <ImfRgbaFile.h>
-#include <ImfStandardAttributes.h>
-#include <ImfTiledRgbaFile.h>
+#include "ImfRgbaFile.h"
+#include "ImfStandardAttributes.h"
+#include "ImfTiledRgbaFile.h"
 #include <algorithm>
 #include <iostream>
-#include <resizeImage.h>
+#include "resizeImage.h"
 #include <string.h>
 #include <string>
 

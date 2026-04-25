@@ -11,7 +11,7 @@
 
 #include "IexMathFpu.h"
 
-#include <IexConfig.h>
+#include "IexConfig.h"
 #include <stdint.h>
 #include <stdio.h>
 
@@ -22,7 +22,7 @@
 #    define debug(x)
 #endif
 
-#include <IexConfigInternal.h>
+#include "IexConfigInternal.h"
 #if defined(HAVE_UCONTEXT_H) &&                                                \
     (defined(IEX_HAVE_SIGCONTEXT_CONTROL_REGISTER_SUPPORT) ||                  \
      defined(IEX_HAVE_CONTROL_REGISTER_SUPPORT))

@@ -8,7 +8,7 @@
 #endif
 
 #include <ImathRandom.h>
-#include <ImfRle.h>
+#include "ImfRle.h"
 #include <assert.h>
 #include <iostream>
 #include <string>

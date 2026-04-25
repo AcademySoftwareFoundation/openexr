@@ -13,9 +13,9 @@
 //----------------------------------------------------------------------------
 
 #include <ImathBox.h>
-#include <ImfArray.h>
-#include <ImfFrameBuffer.h>
-#include <ImfPixelType.h>
+#include "ImfArray.h"
+#include "ImfFrameBuffer.h"
+#include "ImfPixelType.h"
 #include <half.h>
 
 #include <map>
