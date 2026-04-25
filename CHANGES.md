@@ -3,6 +3,7 @@
 
 # OpenEXR Release Notes
 
+* [Version 3.4.11](#version-3411-april-29-2026) April 29, 2026
 * [Version 3.4.10](#version-3410-april-17-2026) April 17, 2026
 * [Version 3.4.9](#version-349-april--3-2026) April  3, 2026
 * [Version 3.4.8](#version-348-march-26-2026) March 26, 2026
@@ -99,6 +100,52 @@
 * [Version 1.0.2](#version-102)
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
+
+## Version 3.4.11 (April 29, 2026)
+
+Patch release that addresses the following security vulnerabilities:
+
+* [CVE-2026-42217](https://www.cve.org/CVERecord?id=CVE-2026-42217)
+Shift exponent overflow in `readVariableLengthInteger()` (`ImfIDManifest.cpp`)
+* [CVE-2026-42216](https://www.cve.org/CVERecord?id=CVE-2026-42216)
+Out-of-bounds read in `IDManifest::init()` during prefix expansion
+* [CVE-2026-41142](https://www.cve.org/CVERecord?id=CVE-2026-41142)
+Integer overflow in `ImageChannel::resize` leads to heap OOB write via OpenEXRUtil public API
+
+Also:
+
+* OSS-fuzz [504280155](https://issues.oss-fuzz.com/issues/504280155)
+Heap-buffer-overflow in `DwaCompressor_uncompress`
+
+### Merged Pull Requests
+
+* [2383](https://github.com/AcademySoftwareFoundation/openexr/pull/2383)
+validate that the uncompressed sizes recorded in the dwa header are valid
+* [2378](https://github.com/AcademySoftwareFoundation/openexr/pull/2378)
+Harden IDManifest parsing against illegal shift and string prefix OOB
+* [2377](https://github.com/AcademySoftwareFoundation/openexr/pull/2377)
+Fix OOB read when expanding IDManifest prefix-compressed strings
+* [2375](https://github.com/AcademySoftwareFoundation/openexr/pull/2375)
+Minor changes to website index page to make some sentences clearer. A…
+* [2368](https://github.com/AcademySoftwareFoundation/openexr/pull/2368)
+Add release notes and news for v3.4.10, v3.3.10, v3.2.8
+* [2367](https://github.com/AcademySoftwareFoundation/openexr/pull/2367)
+Fix int overflow in ImageChannel::resize pixel count
+* [2364](https://github.com/AcademySoftwareFoundation/openexr/pull/2364)
+Recommend GH Security Advisories for vulnerability reporting
+* [2361](https://github.com/AcademySoftwareFoundation/openexr/pull/2361)
+Add documentation and test for UTF-8 file paths
+
+### Merged Workflow Pull Requests
+
+* [2370](https://github.com/AcademySoftwareFoundation/openexr/pull/2370)
+Bump msys2/setup-msys2 from 2.31.0 to 2.31.1
+* [2366](https://github.com/AcademySoftwareFoundation/openexr/pull/2366)
+Add workflow dispatch trigger to release-sign.yml
+* [2363](https://github.com/AcademySoftwareFoundation/openexr/pull/2363)
+Bump vmactions/freebsd-vm from 1.4.4 to 1.4.5
+* [2362](https://github.com/AcademySoftwareFoundation/openexr/pull/2362)
+Bump github/codeql-action from 4.35.1 to 4.35.2
 
 ## Version 3.4.10 (April 17, 2026)
 
