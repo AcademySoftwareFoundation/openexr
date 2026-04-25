@@ -13,7 +13,7 @@
 //
 //----------------------------------------------------------------------------
 
-#include "ImathInt64.h"
+#include <Imath/ImathInt64.h>
 #include "ImfNamespace.h"
 #include <stdint.h>
 

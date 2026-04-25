@@ -28,7 +28,7 @@
 #include "ImfDeepScanLineInputFile.h"
 
 #include "Iex.h"
-#include <ImathFun.h>
+#include <Imath/ImathFun.h>
 #include <half.h>
 
 #include <algorithm>

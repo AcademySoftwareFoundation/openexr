@@ -10,7 +10,7 @@
 //-----------------------------------------------------------------------------
 
 #include "EnvmapImage.h"
-#include <ImathFun.h>
+#include <Imath/ImathFun.h>
 
 #include "namespaceAlias.h"
 using namespace IMF;

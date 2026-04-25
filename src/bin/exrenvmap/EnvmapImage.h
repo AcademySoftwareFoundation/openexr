@@ -14,7 +14,7 @@
 
 #include "namespaceAlias.h"
 
-#include <ImathBox.h>
+#include <Imath/ImathBox.h>
 #include <ImfArray.h>
 #include <ImfEnvmap.h>
 #include <ImfRgba.h>

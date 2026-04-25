@@ -21,7 +21,7 @@
 #include "ImfNamespace.h"
 
 #include "ImfAttribute.h"
-#include <ImathVec.h>
+#include <Imath/ImathVec.h>
 
 #if defined(_MSC_VER)
 // suppress warning about non-exported base classes

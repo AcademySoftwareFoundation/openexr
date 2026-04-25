@@ -27,8 +27,8 @@
 
 #include "ImfContextInit.h"
 
-#include <ImathBox.h>
-#include <ImathVec.h>
+#include <Imath/ImathBox.h>
+#include <Imath/ImathVec.h>
 #include <half.h>
 
 #include <string>

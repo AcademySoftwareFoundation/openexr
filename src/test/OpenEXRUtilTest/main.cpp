@@ -15,7 +15,7 @@
 #include "testImageChannel.h"
 #include "testIO.h"
 #include "tmpDir.h"
-#include <ImathRandom.h>
+#include <Imath/ImathRandom.h>
 
 #include <cerrno>
 #include <cstdlib>

@@ -12,7 +12,7 @@
 
 #include <IexMacros.h>
 #include <IlmThreadPool.h>
-#include <ImathBox.h>
+#include <Imath/ImathBox.h>
 #include <ImfArray.h>
 #include <ImfChannelList.h>
 #include <ImfFrameBuffer.h>

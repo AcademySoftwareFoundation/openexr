@@ -10,7 +10,7 @@
 #include "compareB44.h"
 
 #include "compareFloat.h"
-#include <ImathRandom.h>
+#include <Imath/ImathRandom.h>
 #include <ImfArray.h>
 #include <ImfChannelList.h>
 #include <ImfCompressor.h>

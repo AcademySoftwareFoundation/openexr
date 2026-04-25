@@ -11,7 +11,7 @@
 #include "ImfTileDescription.h"
 
 #include <cstdint>
-#include <ImathBox.h>
+#include <Imath/ImathBox.h>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
