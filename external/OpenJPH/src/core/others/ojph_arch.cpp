@@ -170,7 +170,7 @@ namespace ojph {
 
     #else  // Linux/FreeBSD/OpenBSD
 
-      #if defined(__aarch64__) || defined(_M_ARM64) // 64-bit ARM
+      #if defined(__aarch64__) || defined(_M_ARM64) || defined(_M_ARM64EC) // 64-bit ARM
 
         #include <sys/auxv.h>
         #ifdef OJPH_OS_LINUX

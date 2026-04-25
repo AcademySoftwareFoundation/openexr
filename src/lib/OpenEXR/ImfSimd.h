@@ -13,11 +13,11 @@
 //
 
 // GCC and Visual Studio SSE2 compiler flags
-#if defined __SSE2__ || (_MSC_VER && (_M_IX86 || _M_X64))
+#if defined __SSE2__ || (_MSC_VER && (_M_IX86 || _M_X64) && !defined(_M_ARM64EC))
 #    define IMF_HAVE_SSE2 1
 #endif
 
-#if defined __SSE4_1__ || (_MSC_VER && (_M_IX86 || _M_X64))
+#if defined __SSE4_1__ || (_MSC_VER && (_M_IX86 || _M_X64) && !defined(_M_ARM64EC))
 #    define IMF_HAVE_SSE4_1 1
 #endif
 
@@ -42,12 +42,20 @@
 #    define IMF_HAVE_F16C 1
 #endif
 
-#if defined(__ARM_NEON)
+#if defined(__ARM_NEON) || defined(_M_ARM64) || defined(_M_ARM64EC)
 #    define IMF_HAVE_NEON
 #endif
 
 #if defined(__aarch64__)
 #    define IMF_HAVE_NEON_AARCH64 1
+#endif
+
+#if defined(_M_ARM64) || defined(_M_ARM64EC)
+#    define IMF_HAVE_NEON_WINDOWS_ARM64 1
+#endif
+
+#if defined(IMF_HAVE_NEON_AARCH64) || defined(IMF_HAVE_NEON_WINDOWS_ARM64)
+#    define IMF_HAVE_NEON_ARM64 1
 #endif
 
 extern "C" {
