@@ -254,6 +254,12 @@ private:
 class IMF_EXPORT_TYPE ChannelList::Iterator
 {
 public:
+    using iterator_category = std::bidirectional_iterator_tag;
+    using value_type          = Channel;
+    using difference_type     = std::ptrdiff_t;
+    using pointer             = Channel*;
+    using reference           = Channel&;
+
     IMF_EXPORT
     Iterator ();
     IMF_EXPORT
@@ -270,20 +276,25 @@ public:
     Iterator operator-- (int);
 
     IMF_EXPORT
-    Channel& operator* () const;
+    reference operator* () const;
 
     IMF_EXPORT
-    Channel* operator-> () const;
+    pointer operator-> () const;
 
     IMF_EXPORT
     const char* name () const;
     IMF_EXPORT
-    Channel& channel () const;
+    reference channel () const;
 
 private:
     friend class ChannelList::ConstIterator;
     friend bool operator== (Iterator&, Iterator&);
+    friend bool operator== (Iterator&, const ConstIterator&);
+    friend bool operator== (const ConstIterator&, Iterator&);
+
     friend bool operator!= (Iterator&, Iterator&);
+    friend bool operator!= (Iterator&, const ConstIterator&);
+    friend bool operator!= (const ConstIterator&, Iterator&);
 
     ChannelList::ChannelMap::iterator _i;
 };
@@ -291,6 +302,12 @@ private:
 class IMF_EXPORT_TYPE ChannelList::ConstIterator
 {
 public:
+    using iterator_category = std::bidirectional_iterator_tag;
+    using value_type          = Channel;
+    using difference_type     = std::ptrdiff_t;
+    using pointer             = const Channel*;
+    using reference           = const Channel&;
+
     IMF_EXPORT
     ConstIterator ();
     IMF_EXPORT
@@ -309,19 +326,24 @@ public:
     ConstIterator operator-- (int);
 
     IMF_EXPORT
-    const Channel& operator* () const;
+    reference operator* () const;
 
     IMF_EXPORT
-    const Channel* operator-> () const;
+    pointer operator-> () const;
 
     IMF_EXPORT
     const char* name () const;
     IMF_EXPORT
-    const Channel& channel () const;
+    reference channel () const;
 
 private:
     friend bool operator== (const ConstIterator&, const ConstIterator&);
+    friend bool operator== (Iterator&, const ConstIterator&);
+    friend bool operator== (const ConstIterator&, Iterator&);
+
     friend bool operator!= (const ConstIterator&, const ConstIterator&);
+    friend bool operator!= (Iterator&, const ConstIterator&);
+    friend bool operator!= (const ConstIterator&, Iterator&);
 
     ChannelList::ChannelMap::const_iterator _i;
 };
@@ -372,13 +394,13 @@ ChannelList::Iterator::operator-- (int)
     return tmp;
 }
 
-inline Channel&
+inline ChannelList::Iterator::reference
 ChannelList::Iterator::operator* () const
 {
     return _i->second;
 }
 
-inline Channel*
+inline ChannelList::Iterator::pointer
 ChannelList::Iterator::operator-> () const
 {
     return &_i->second;
@@ -390,24 +412,10 @@ ChannelList::Iterator::name () const
     return *_i->first;
 }
 
-inline Channel&
+inline ChannelList::Iterator::reference
 ChannelList::Iterator::channel () const
 {
     return _i->second;
-}
-
-inline bool
-operator== (
-    ChannelList::Iterator& x, ChannelList::Iterator& y)
-{
-    return x._i == y._i;
-}
-
-inline bool
-operator!= (
-    ChannelList::Iterator& x, ChannelList::Iterator& y)
-{
-    return !(x == y);
 }
 
 inline ChannelList::ConstIterator::ConstIterator () : _i ()
@@ -459,13 +467,13 @@ ChannelList::ConstIterator::operator-- (int)
     return tmp;
 }
 
-inline const Channel&
+inline ChannelList::ConstIterator::reference
 ChannelList::ConstIterator::operator* () const
 {
     return _i->second;
 }
 
-inline const Channel*
+inline ChannelList::ConstIterator::pointer
 ChannelList::ConstIterator::operator-> () const
 {
     return &_i->second;
@@ -477,10 +485,17 @@ ChannelList::ConstIterator::name () const
     return *_i->first;
 }
 
-inline const Channel&
+inline ChannelList::ConstIterator::reference
 ChannelList::ConstIterator::channel () const
 {
     return _i->second;
+}
+
+inline bool
+operator== (
+    ChannelList::Iterator& x, ChannelList::Iterator& y)
+{
+    return x._i == y._i;
 }
 
 inline bool
@@ -491,8 +506,43 @@ operator== (
 }
 
 inline bool
+operator== (
+    ChannelList::Iterator& x, const ChannelList::ConstIterator& y)
+{
+    return x._i == y._i;
+}
+
+inline bool
+operator== (
+    const ChannelList::ConstIterator& x, ChannelList::Iterator& y)
+{
+    return x._i == y._i;
+}
+
+inline bool
+operator!= (
+    ChannelList::Iterator& x, ChannelList::Iterator& y)
+{
+    return !(x == y);
+}
+
+inline bool
 operator!= (
     const ChannelList::ConstIterator& x, const ChannelList::ConstIterator& y)
+{
+    return !(x == y);
+}
+
+inline bool
+operator!= (
+    ChannelList::Iterator& x, const ChannelList::ConstIterator& y)
+{
+    return !(x == y);
+}
+
+inline bool
+operator!= (
+    const ChannelList::ConstIterator& x, ChannelList::Iterator& y)
 {
     return !(x == y);
 }
