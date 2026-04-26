@@ -3,6 +3,7 @@
 
 # OpenEXR Release Notes
 
+* [Version 3.3.11](#version-3311-april-29-2026) April 29, 2026
 * [Version 3.3.10](#version-3310-april-17-2026) April 17, 2026
 * [Version 3.3.9](#version-339-april-3-2026) April 3, 2026
 * [Version 3.3.8](#version-338-february-26-2026) February 26, 2026
@@ -84,6 +85,34 @@
 * [Version 1.0.2](#version-102)
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
+
+## Version 3.3.11 (April 29, 2026)
+
+Patch release for 3.3 that addresses the following security
+vulnerabilities:
+
+* [CVE-2026-42217](https://www.cve.org/CVERecord?id=CVE-2026-42217)
+Shift exponent overflow in `readVariableLengthInteger()` (`ImfIDManifest.cpp`)
+* [CVE-2026-42216](https://www.cve.org/CVERecord?id=CVE-2026-42216)
+Out-of-bounds read in `IDManifest::init()` during prefix expansion
+* [CVE-2026-41142](https://www.cve.org/CVERecord?id=CVE-2026-41142)
+Integer overflow in `ImageChannel::resize` leads to heap OOB write via OpenEXRUtil public API
+
+Also:
+
+* OSS-fuzz [504280155](https://issues.oss-fuzz.com/issues/504280155)
+Heap-buffer-overflow in `DwaCompressor_uncompress`
+
+### Merged Pull Requests
+
+* [2383](https://github.com/AcademySoftwareFoundation/openexr/pull/2383)
+validate that the uncompressed sizes recorded in the dwa header are valid
+* [2378](https://github.com/AcademySoftwareFoundation/openexr/pull/2378)
+Harden IDManifest parsing against illegal shift and string prefix OOB
+* [2377](https://github.com/AcademySoftwareFoundation/openexr/pull/2377)
+Fix OOB read when expanding IDManifest prefix-compressed strings
+* [2367](https://github.com/AcademySoftwareFoundation/openexr/pull/2367)
+Fix int overflow in ImageChannel::resize pixel count
 
 ## Version 3.3.10 (April 17, 2026)
 
