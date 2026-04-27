@@ -217,12 +217,6 @@ shuffle_decode_bytes (
         memcpy (dst, shuf, dSize);
 }
 
-
-
-typedef uint64_t (*serialization_callback) (char* src, uint64_t iSize, char* dest, uint64_t oSize);
-static const uint64_t SERIALIZATION_OVERHEAD = sizeof(uint64_t);
-
-
 /** shuffle_el_bytes: 2 or 4 selects shuffle_decode_*; 0 means infer from dSize (legacy). */
 long exr_uncompress_zstd (
     char* inPtr, uint64_t inSize, void** outPtr, uint64_t outPtrSize, uint64_t shuffle_el_bytes)
@@ -451,17 +445,6 @@ uint64_t sort2_4ByteChannels_tiled (const char* inPtr, const uint64_t* num_sampl
     return splitPoint;
 }
 
-/* Helper serialization functions (Keep for compatibility with EXR format) */
-static uint64_t _read_uint64 (char** src) {
-    uint64_t val; memcpy(&val, *src, 8); *src += 8; return val;
-}
-static void _write_uint64 (char** dst, const uint64_t val) {
-    memcpy(*dst, &val, 8); *dst += 8;
-}
-static void _write_buffer_data (char** dst, const int32_t size, const void* src) {
-    if (size > 0) { memcpy(*dst, src, size); *dst += size; }
-}
-
 static const uint64_t MAGIC_NUMBER = 8248453963162350458; // "zstd-exr"
 
 #define ZSTD_EXR_FORMAT_V1 1u
@@ -469,6 +452,106 @@ static const uint64_t MAGIC_NUMBER = 8248453963162350458; // "zstd-exr"
 /** Reserved u32 at header+12; v1 must write 0. */
 #define ZSTD_EXR_FLAG_DELTA_AFTER_SORT 1u
 #define ZSTD_EXR_V1_HEADER 24u
+
+/** Deep pixel ZSTD wire: 1 = sort+shuffle (header v1); 2 = sort+delta+shuffle (v2). */
+#ifndef EXR_ZSTD_SORTED_WIRE_VERSION
+#    define EXR_ZSTD_SORTED_WIRE_VERSION 2
+#endif
+
+/** Encode order: SORT → DELTA → SHUFFLE → ZSTD; decode reverses ZSTD first. */
+typedef enum
+{
+    EXR_ZSTD_PHASE_SORT = 0,
+    EXR_ZSTD_PHASE_DELTA,
+    EXR_ZSTD_PHASE_SHUFFLE,
+} exr_zstd_phase_t;
+
+typedef struct
+{
+    uint32_t hdr_format;
+    uint32_t hdr_flags;
+    bool     apply_sort;
+    bool     apply_delta;
+    bool     apply_shuffle;
+} exr_zstd_pack_pipeline;
+
+static bool
+exr_zstd_pipeline_phase_enabled (
+    const exr_zstd_pack_pipeline* p, exr_zstd_phase_t ph)
+{
+    switch (ph)
+    {
+    case EXR_ZSTD_PHASE_SORT: return p->apply_sort;
+    case EXR_ZSTD_PHASE_DELTA: return p->apply_delta;
+    case EXR_ZSTD_PHASE_SHUFFLE: return p->apply_shuffle;
+    default: return false;
+    }
+}
+
+static void
+exr_zstd_build_encode_pipeline_sorted (exr_zstd_pack_pipeline* out)
+{
+#if EXR_ZSTD_SORTED_WIRE_VERSION >= 2
+    out->hdr_format   = ZSTD_EXR_FORMAT_V2;
+    out->hdr_flags    = ZSTD_EXR_FLAG_DELTA_AFTER_SORT;
+    out->apply_sort   = true;
+    out->apply_delta  = true;
+    out->apply_shuffle = true;
+#else
+    out->hdr_format    = ZSTD_EXR_FORMAT_V1;
+    out->hdr_flags     = 0;
+    out->apply_sort    = true;
+    out->apply_delta   = false;
+    out->apply_shuffle = true;
+#endif
+}
+
+static void
+exr_zstd_build_decode_pipeline (
+    uint32_t exr_fmt,
+    uint32_t exr_flg,
+    bool     use_deep_pack,
+    exr_zstd_pack_pipeline* out)
+{
+    memset (out, 0, sizeof (*out));
+    out->hdr_format    = exr_fmt;
+    out->hdr_flags     = exr_flg;
+    out->apply_shuffle = true;
+    if (!use_deep_pack) return;
+    out->apply_sort = true;
+    out->apply_delta =
+        (exr_fmt == ZSTD_EXR_FORMAT_V2 &&
+         (exr_flg & ZSTD_EXR_FLAG_DELTA_AFTER_SORT) != 0);
+}
+
+/** True when decompressing the packed sample-count table chunk, not pixel data. */
+static bool
+exr_zstd_decode_is_sample_count_chunk (
+    const exr_decode_pipeline_t* decode,
+    const void*                  compressed_data,
+    uint64_t                     uncompressed_size)
+{
+    if (!decode->packed_sample_count_table) return false;
+    const uint64_t st_bytes =
+        (uint64_t) decode->chunk.width * (uint64_t) decode->chunk.height * 4u;
+    return (compressed_data == (const void*) decode->packed_sample_count_table &&
+            uncompressed_size == st_bytes);
+}
+
+/** Per-row element count for the flat int32 sample table (width cells per row). */
+static void
+exr_zstd_sample_table_row_counts (int height, int width, uint64_t* out_rows)
+{
+    uint64_t const w = (uint64_t) width;
+    for (int h = 0; h < height; ++h) out_rows[h] = w;
+}
+
+static void
+exr_zstd_one_channel_u32 (exr_coding_channel_info_t* ch)
+{
+    memset (ch, 0, sizeof (*ch));
+    ch->bytes_per_element = 4;
+}
 
 static uint32_t
 read_u32_le (const uint8_t* p)
@@ -610,15 +693,6 @@ ZSTD_CCtx_setParameter(t_cctx, ZSTD_c_minMatch, 3);
     return 0;
 }
 
-uint64_t serialize_buffer (char* src, uint64_t iSize, char* dest, uint64_t oSize) {
-    char* d = dest; _write_uint64(&d, iSize); _write_buffer_data(&d, (int32_t)iSize, src);
-    return (uint64_t)(d - dest);
-}
-
-uint64_t serialize_memcpy (char* src, uint64_t iSize, char* dest, uint64_t oSize) {
-    memcpy(dest, src, iSize); return iSize;
-}
-
 bool get_row_sample_count_decode (const exr_decode_pipeline_t* decode, uint64_t *row_sample_counts) {
     if (decode->sample_count_valid == 1 && decode->chunk.width > 0) {
         for (int h = 0; h < decode->chunk.height; ++h)
@@ -637,23 +711,16 @@ bool get_row_sample_count_encode (const exr_encode_pipeline_t* encode, uint64_t 
     return false;
 }
 
-bool needs_sorting(const exr_coding_channel_info_t* channels, const int channelsSize, const uint64_t* numSamples, int height, uint64_t* split, uint8_t types[2]) {
-    *split = 0;
-    if (channelsSize <= 0) return false;
-    int8_t first_ts = channels[0].bytes_per_element;
-    bool switched = false; uint64_t count = 0;
-    for (int i = 0; i < channelsSize; ++i) {
-        if (channels[i].bytes_per_element != first_ts) {
-            if (switched) { *split = 0; return true; }
-            switched = true; *split = count;
-        }
-        for (int h = 0; h < height; ++h) count += numSamples[h] * channels[i].bytes_per_element;
-    }
-    types[0] = channels[0].bytes_per_element;     types[1] = channels[channelsSize-1].bytes_per_element;
-    return switched;
-}
-
 /* --- Main Pipeline Implementation --- */
+
+/** Store raw packed payload as the chunk (no ZSTD); used only when ZSTD
+ *  output (including 24-byte EXR header) is not strictly smaller than `packed`. */
+static void
+exr_zstd_encode_store_raw_chunk (exr_encode_pipeline_t* encode, size_t packed)
+{
+    memcpy (encode->compressed_buffer, encode->packed_buffer, packed);
+    encode->compressed_bytes = packed;
+}
 
 exr_result_t internal_exr_apply_zstd (exr_encode_pipeline_t* encode)
 {
@@ -666,7 +733,7 @@ exr_result_t internal_exr_apply_zstd (exr_encode_pipeline_t* encode)
     if (rv != EXR_ERR_SUCCESS) return rv;
 
     const uint64_t sample_table_bytes =
-        (uint64_t) encode->chunk.width * (uint64_t) encode->chunk.height * 4u;
+        (uint64_t) encode->chunk.width * (uint64_t) encode->chunk.height * sizeof (uint32_t);
 
     if (sampleCount_valid && encode->packed_bytes == 0)
     {
@@ -676,8 +743,10 @@ exr_result_t internal_exr_apply_zstd (exr_encode_pipeline_t* encode)
 
     const size_t packed = encode->packed_bytes;
     size_t inner_cap = packed + 16u;
-    if (inner_cap < packed) goto fallback;
-    if (encode->compressed_alloc_size < ZSTD_EXR_V1_HEADER) goto fallback;
+    if (inner_cap < packed)
+        return EXR_ERR_ARGUMENT_OUT_OF_RANGE;
+    if (encode->compressed_alloc_size < ZSTD_EXR_V1_HEADER)
+        return EXR_ERR_ARGUMENT_OUT_OF_RANGE;
     ensure_tls_resources (inner_cap);
 
     uint8_t* const inner = t_shuffle_buf;
@@ -688,108 +757,95 @@ exr_result_t internal_exr_apply_zstd (exr_encode_pipeline_t* encode)
          encode->packed_buffer == encode->packed_sample_count_table &&
          packed == (size_t) sample_table_bytes);
 
-    if (compressing_sample_counts_only)
+    /* Deep pixel or sample-count table: same sort / delta / shuffle pipeline.
+     * Sample table is one logical UINT32 channel (width cells per row); sort
+     * is a no-op for a single 4-byte channel. */
+    if (sampleCount_valid || compressing_sample_counts_only)
     {
-        inner_pos = 0;
-        if (append_inner_shuffle (
-                inner,
-                &inner_pos,
-                inner_cap,
-                (const char*) encode->packed_buffer,
-                packed,
-                4) != 0)
-            goto fallback;
-        uint64_t total_w = 0;
-        if (zstd_write_exr_v1 (
-                encode->compressed_buffer,
-                encode->compressed_alloc_size,
-                inner,
-                inner_pos,
-                level,
-                ZSTD_EXR_FORMAT_V1,
-                0,
-                &total_w) != 0)
-            goto fallback;
-        if (total_w < packed)
-        {
-            encode->compressed_bytes = total_w;
-            return EXR_ERR_SUCCESS;
-        }
-        goto fallback;
-    }
+        uint64_t row_counts_grid[encode->chunk.height];
+        const uint64_t* row_for_pack;
+        const exr_coding_channel_info_t* pack_channels;
+        int                              pack_channel_count;
+        exr_coding_channel_info_t         pack_one_channel;
 
-    if (sampleCount_valid)
-    {
-        uint64_t splitPos = 0;
-        uint8_t tSizes[2] = {0, 0};
-        bool const sorted =
-            (encode->chunk.type == EXR_STORAGE_DEEP_TILED) ||
-            needs_sorting (
-                encode->channels,
-                encode->channel_count,
-                row_sample_counts,
-                encode->chunk.height,
-                &splitPos,
-                tSizes);
-        char* inData = (char*) encode->packed_buffer;
-        if (sorted)
+        if (compressing_sample_counts_only)
         {
-            exr_result_t arv = internal_encode_alloc_buffer (
-                encode,
-                EXR_TRANSCODE_BUFFER_SCRATCH1,
-                &encode->scratch_buffer_1,
-                &encode->scratch_alloc_size_1,
-                encode->packed_bytes);
-            if (arv != EXR_ERR_SUCCESS) return arv;
+            exr_zstd_sample_table_row_counts (
+                encode->chunk.height, encode->chunk.width, row_counts_grid);
+            row_for_pack = row_counts_grid;
+            exr_zstd_one_channel_u32 (&pack_one_channel);
+            pack_channels      = &pack_one_channel;
+            pack_channel_count = 1;
+        }
+        else
+        {
+            row_for_pack       = row_sample_counts;
+            pack_channels      = encode->channels;
+            pack_channel_count = encode->channel_count;
+        }
+
+        uint64_t splitPos = 0;
+        const uint8_t tSizes[2] = {2, 4};
+        char* inData = (char*) encode->packed_buffer;
+        exr_zstd_pack_pipeline pipe;
+        memset (&pipe, 0, sizeof (pipe));
+        exr_zstd_build_encode_pipeline_sorted (&pipe);
+        exr_result_t arv = internal_encode_alloc_buffer (
+            encode,
+            EXR_TRANSCODE_BUFFER_SCRATCH1,
+            &encode->scratch_buffer_1,
+            &encode->scratch_alloc_size_1,
+            encode->packed_bytes);
+        if (arv != EXR_ERR_SUCCESS) return arv;
+        if (exr_zstd_pipeline_phase_enabled (&pipe, EXR_ZSTD_PHASE_SORT))
             splitPos = sort2_4ByteChannels_tiled (
                 (const char*) encode->packed_buffer,
-                row_sample_counts,
-                encode->channels,
-                encode->channel_count,
+                row_for_pack,
+                pack_channels,
+                pack_channel_count,
                 true,
                 encode->chunk.height,
                 (char*) encode->scratch_buffer_1);
+        if (exr_zstd_pipeline_phase_enabled (&pipe, EXR_ZSTD_PHASE_DELTA))
+        {
             if (delta_encode_sorted_layout (
                     (uint8_t*) encode->scratch_buffer_1,
                     splitPos,
                     packed,
-                    row_sample_counts,
+                    row_for_pack,
                     encode->chunk.height,
-                    encode->channels,
-                    encode->channel_count) != 0)
-                goto fallback;
-            inData = (char*) encode->scratch_buffer_1;
-            tSizes[0] = 2;
-            tSizes[1] = 4;
+                    pack_channels,
+                    pack_channel_count) != 0)
+                return EXR_ERR_COMPRESSION_FAILED;
         }
+        inData = (char*) encode->scratch_buffer_1;
 
         inner_pos = 0;
-        const uint32_t zstd_hdr_fmt =
-            sorted ? ZSTD_EXR_FORMAT_V2 : ZSTD_EXR_FORMAT_V1;
-        const uint32_t zstd_hdr_flags =
-            sorted ? ZSTD_EXR_FLAG_DELTA_AFTER_SORT : 0u;
-        if (splitPos > 0)
+        if (exr_zstd_pipeline_phase_enabled (&pipe, EXR_ZSTD_PHASE_SHUFFLE))
         {
-            if (append_inner_shuffle (
-                    inner,
-                    &inner_pos,
-                    inner_cap,
-                    inData,
-                    (size_t) splitPos,
-                    tSizes[0]) != 0)
-                goto fallback;
-        }
-        size_t const s2_in = packed - (size_t) splitPos;
-        if (s2_in > 0)
-        {
-            if (append_inner_shuffle (
-                    inner,
-                    &inner_pos,
-                    inner_cap,
-                    inData + splitPos,
-                    s2_in,
-                    tSizes[1]) != 0)
-                goto fallback;
+            if (splitPos > 0)
+            {
+                if (append_inner_shuffle (
+                        inner,
+                        &inner_pos,
+                        inner_cap,
+                        inData,
+                        (size_t) splitPos,
+                        tSizes[0]) != 0)
+                    return EXR_ERR_COMPRESSION_FAILED;
+            }
+            size_t const s2_in = packed - (size_t) splitPos;
+            if (s2_in > 0)
+            {
+                if (append_inner_shuffle (
+                        inner,
+                        &inner_pos,
+                        inner_cap,
+                        inData + splitPos,
+                        s2_in,
+                        tSizes[1]) != 0)
+                    return EXR_ERR_COMPRESSION_FAILED;
+            }
         }
         uint64_t total_w = 0;
         if (zstd_write_exr_v1 (
@@ -798,16 +854,17 @@ exr_result_t internal_exr_apply_zstd (exr_encode_pipeline_t* encode)
                 inner,
                 inner_pos,
                 level,
-                zstd_hdr_fmt,
-                zstd_hdr_flags,
+                pipe.hdr_format,
+                pipe.hdr_flags,
                 &total_w) != 0)
-            goto fallback;
+            return EXR_ERR_COMPRESSION_FAILED;
         if (total_w < packed)
         {
             encode->compressed_bytes = total_w;
             return EXR_ERR_SUCCESS;
         }
-        goto fallback;
+        exr_zstd_encode_store_raw_chunk (encode, packed);
+        return EXR_ERR_SUCCESS;
     }
 
     {
@@ -816,15 +873,22 @@ exr_result_t internal_exr_apply_zstd (exr_encode_pipeline_t* encode)
              encode->chunk.type == EXR_STORAGE_TILED)
                 ? 2
                 : 4;
+        exr_zstd_pack_pipeline shallow_pipe;
+        memset (&shallow_pipe, 0, sizeof (shallow_pipe));
+        shallow_pipe.hdr_format    = ZSTD_EXR_FORMAT_V1;
+        shallow_pipe.apply_shuffle = true;
         inner_pos = 0;
-        if (append_inner_shuffle (
-                inner,
-                &inner_pos,
-                inner_cap,
-                (const char*) encode->packed_buffer,
-                packed,
-                (uint64_t) no_table_typesize) != 0)
-            goto fallback;
+        if (exr_zstd_pipeline_phase_enabled (&shallow_pipe, EXR_ZSTD_PHASE_SHUFFLE))
+        {
+            if (append_inner_shuffle (
+                    inner,
+                    &inner_pos,
+                    inner_cap,
+                    (const char*) encode->packed_buffer,
+                    packed,
+                    (uint64_t) no_table_typesize) != 0)
+                return EXR_ERR_COMPRESSION_FAILED;
+        }
         uint64_t total_w = 0;
         if (zstd_write_exr_v1 (
                 encode->compressed_buffer,
@@ -835,18 +899,15 @@ exr_result_t internal_exr_apply_zstd (exr_encode_pipeline_t* encode)
                 ZSTD_EXR_FORMAT_V1,
                 0,
                 &total_w) != 0)
-            goto fallback;
+            return EXR_ERR_COMPRESSION_FAILED;
         if (total_w < packed)
         {
             encode->compressed_bytes = total_w;
             return EXR_ERR_SUCCESS;
         }
+        exr_zstd_encode_store_raw_chunk (encode, packed);
+        return EXR_ERR_SUCCESS;
     }
-
-fallback:
-    memcpy (encode->compressed_buffer, encode->packed_buffer, packed);
-    encode->compressed_bytes = packed;
-    return EXR_ERR_SUCCESS;
 }
 
 static exr_result_t
@@ -904,30 +965,41 @@ exr_undo_zstd_v1 (
     uint64_t row_sample_counts[decode->chunk.height];
     bool const sampleCount_valid =
         get_row_sample_count_decode (decode, row_sample_counts);
+    const bool is_sample_count_chunk =
+        exr_zstd_decode_is_sample_count_chunk (
+            decode, compressed_data, uncompressed_size);
+    const bool use_packed_pipeline =
+        is_sample_count_chunk ||
+        (sampleCount_valid && !is_sample_count_chunk);
 
-    uint64_t split = 0;
-    uint8_t  ts[2] = {0, 0};
-    bool const needs_chan_sort =
-        sampleCount_valid &&
-        needs_sorting (
-            decode->channels,
-            decode->channel_count,
-            row_sample_counts,
-            decode->chunk.height,
-            &split,
-            ts);
-    bool const sorted =
-        sampleCount_valid &&
-        ((decode->chunk.type == EXR_STORAGE_DEEP_TILED) || needs_chan_sort);
+    uint64_t row_pack_counts[decode->chunk.height];
+    exr_coding_channel_info_t         pack_one_channel;
+    const uint64_t*                   row_for_pack = row_sample_counts;
+    const exr_coding_channel_info_t* pack_channels = decode->channels;
+    int pack_channel_count = decode->channel_count;
 
-    uint64_t seg1_el = (uint64_t) ts[1];
-    if (sorted) seg1_el = 4;
+    if (use_packed_pipeline)
+    {
+        if (is_sample_count_chunk)
+        {
+            exr_zstd_sample_table_row_counts (
+                decode->chunk.height, decode->chunk.width, row_pack_counts);
+            row_for_pack = row_pack_counts;
+            exr_zstd_one_channel_u32 (&pack_one_channel);
+            pack_channels      = &pack_one_channel;
+            pack_channel_count = 1;
+        }
+    }
+
+    exr_zstd_pack_pipeline pipe;
+    exr_zstd_build_decode_pipeline (
+        exr_fmt, exr_flg, use_packed_pipeline, &pipe);
 
     uint64_t inner_lens[2];
     uint64_t inner_els[2];
     int      n_inner = 1;
 
-    if (!sampleCount_valid)
+    if (!use_packed_pipeline)
     {
         inner_lens[0] = uncompressed_size;
         inner_els[0] =
@@ -936,21 +1008,16 @@ exr_undo_zstd_v1 (
                 ? 2
                 : 4;
     }
-    else if (!sorted)
-    {
-        inner_lens[0] = uncompressed_size;
-        inner_els[0]  = seg1_el;
-    }
     else
     {
-        const int nch = decode->channel_count;
+        const int nch = pack_channel_count;
         const int nh  = decode->chunk.height;
         if (nch <= 0 || nh <= 0) return EXR_ERR_CORRUPT_CHUNK;
         uint64_t sort_lu[(nch > 0 && nh > 0) ? (nch * nh) : 1];
         const uint64_t sp = compute_sorting_lookup (
-            row_sample_counts,
+            row_for_pack,
             nh,
-            decode->channels,
+            pack_channels,
             nch,
             sort_lu);
         const uint64_t rest = uncompressed_size - sp;
@@ -975,7 +1042,7 @@ exr_undo_zstd_v1 (
     }
 
     void* target = uncompressed_data;
-    if (sorted)
+    if (pipe.apply_sort)
     {
         exr_result_t drv = internal_decode_alloc_buffer (
             decode,
@@ -991,22 +1058,30 @@ exr_undo_zstd_v1 (
     uint8_t* const qend = t_shuffle_buf + dSize;
     uint8_t*       tgt = (uint8_t*) target;
     int            seg;
-    for (seg = 0; seg < n_inner; ++seg)
+    if (exr_zstd_pipeline_phase_enabled (&pipe, EXR_ZSTD_PHASE_SHUFFLE))
     {
-        if ((size_t) (qend - q) < 8) return EXR_ERR_CORRUPT_CHUNK;
-        uint64_t ilen = read_u64_le (q);
-        q += 8;
-        if (ilen > (uint64_t) (qend - q)) return EXR_ERR_CORRUPT_CHUNK;
-        if (ilen != inner_lens[seg]) return EXR_ERR_CORRUPT_CHUNK;
-        shuffle_decode_bytes (tgt, q, (size_t) ilen, inner_els[seg]);
-        tgt += ilen;
-        q += ilen;
+        for (seg = 0; seg < n_inner; ++seg)
+        {
+            if ((size_t) (qend - q) < 8) return EXR_ERR_CORRUPT_CHUNK;
+            uint64_t ilen = read_u64_le (q);
+            q += 8;
+            if (ilen > (uint64_t) (qend - q)) return EXR_ERR_CORRUPT_CHUNK;
+            if (ilen != inner_lens[seg]) return EXR_ERR_CORRUPT_CHUNK;
+            shuffle_decode_bytes (tgt, q, (size_t) ilen, inner_els[seg]);
+            tgt += ilen;
+            q += ilen;
+        }
+        if (q != qend) return EXR_ERR_CORRUPT_CHUNK;
+        if ((size_t) (tgt - (uint8_t*) target) != (size_t) uncompressed_size)
+            return EXR_ERR_CORRUPT_CHUNK;
     }
-    if (q != qend) return EXR_ERR_CORRUPT_CHUNK;
-    if ((size_t) (tgt - (uint8_t*) target) != (size_t) uncompressed_size)
-        return EXR_ERR_CORRUPT_CHUNK;
+    else
+    {
+        if (dSize != uncompressed_size) return EXR_ERR_CORRUPT_CHUNK;
+        memcpy (target, t_shuffle_buf, dSize);
+    }
 
-    if (sorted)
+    if (pipe.apply_sort)
     {
         uint64_t split_for_delta = 0;
         if (n_inner == 2) split_for_delta = inner_lens[0];
@@ -1016,27 +1091,27 @@ exr_undo_zstd_v1 (
             else
                 split_for_delta = 0;
         }
-        if (exr_fmt == ZSTD_EXR_FORMAT_V2 &&
-            (exr_flg & ZSTD_EXR_FLAG_DELTA_AFTER_SORT) != 0)
+        if (exr_zstd_pipeline_phase_enabled (&pipe, EXR_ZSTD_PHASE_DELTA))
         {
             if (delta_decode_sorted_layout (
                     (uint8_t*) target,
                     split_for_delta,
                     (size_t) uncompressed_size,
-                    row_sample_counts,
+                    row_for_pack,
                     decode->chunk.height,
-                    decode->channels,
-                    decode->channel_count) != 0)
+                    pack_channels,
+                    pack_channel_count) != 0)
                 return EXR_ERR_CORRUPT_CHUNK;
         }
-        sort2_4ByteChannels_tiled (
-            (char*) decode->scratch_buffer_1,
-            row_sample_counts,
-            decode->channels,
-            decode->channel_count,
-            false,
-            decode->chunk.height,
-            (char*) uncompressed_data);
+        if (exr_zstd_pipeline_phase_enabled (&pipe, EXR_ZSTD_PHASE_SORT))
+            sort2_4ByteChannels_tiled (
+                (char*) decode->scratch_buffer_1,
+                row_for_pack,
+                pack_channels,
+                pack_channel_count,
+                false,
+                decode->chunk.height,
+                (char*) uncompressed_data);
     }
 
     return EXR_ERR_SUCCESS;
@@ -1044,133 +1119,25 @@ exr_undo_zstd_v1 (
 
 exr_result_t internal_exr_undo_zstd (exr_decode_pipeline_t* decode, const void* compressed_data, uint64_t comp_buf_size, void* uncompressed_data, uint64_t uncompressed_size)
 {
-    uint64_t row_sample_counts[decode->chunk.height];
-    bool sampleCount_valid = get_row_sample_count_decode (decode, row_sample_counts);
-    if (comp_buf_size < 8) {
-        memcpy(uncompressed_data, compressed_data, comp_buf_size); return EXR_ERR_SUCCESS;
-    }
+    if (comp_buf_size == 0) return EXR_ERR_SUCCESS;
+    if (comp_buf_size < ZSTD_EXR_V1_HEADER) return EXR_ERR_CORRUPT_CHUNK;
+
     uint64_t mhead;
     memcpy (&mhead, compressed_data, 8);
-    if (mhead != MAGIC_NUMBER) {
-        memcpy(uncompressed_data, compressed_data, comp_buf_size); return EXR_ERR_SUCCESS;
-    }
+    if (mhead != MAGIC_NUMBER) return EXR_ERR_CORRUPT_CHUNK;
 
-    const uint8_t* suf = (const uint8_t*) compressed_data + 8;
-    if (comp_buf_size >= ZSTD_EXR_V1_HEADER)
-    {
-        uint32_t const fmt = read_u32_le (suf);
-        uint32_t const flg = read_u32_le (suf + 4);
-        if (!((fmt == ZSTD_EXR_FORMAT_V1 && flg == 0) ||
-              (fmt == ZSTD_EXR_FORMAT_V2 &&
-               (flg & ~ZSTD_EXR_FLAG_DELTA_AFTER_SORT) == 0)))
-            goto legacy_zstd_shallow;
-        return exr_undo_zstd_v1 (
-            decode,
-            compressed_data,
-            comp_buf_size,
-            uncompressed_data,
-            uncompressed_size);
-    }
+    const uint8_t* hdr = (const uint8_t*) compressed_data;
+    uint32_t const fmt = read_u32_le (hdr + 8);
+    uint32_t const flg = read_u32_le (hdr + 12);
+    if (!((fmt == ZSTD_EXR_FORMAT_V1 && flg == 0) ||
+          (fmt == ZSTD_EXR_FORMAT_V2 &&
+           (flg & ~ZSTD_EXR_FLAG_DELTA_AFTER_SORT) == 0)))
+        return EXR_ERR_CORRUPT_CHUNK;
 
-legacy_zstd_shallow:
-    char* inPtr = (char*) compressed_data + 8;
-
-    if (sampleCount_valid) {
-        uint64_t split = 0; uint8_t ts[2] = {0, 0};
-        bool needs_chan_sort = needs_sorting (
-            decode->channels,
-            decode->channel_count,
-            row_sample_counts,
-            decode->chunk.height,
-            &split,
-            ts);
-        bool sorted =
-            (decode->chunk.type == EXR_STORAGE_DEEP_TILED) || needs_chan_sort;
-        uint64_t seg0_el = (uint64_t) ts[0];
-        uint64_t seg1_el = (uint64_t) ts[1];
-        if (sorted)
-        {
-            seg0_el = 2;
-            seg1_el = 4;
-        }
-        void* target;
-        if (sorted)
-        {
-            exr_result_t drv = internal_decode_alloc_buffer (
-                decode,
-                EXR_TRANSCODE_BUFFER_SCRATCH1,
-                &decode->scratch_buffer_1,
-                &decode->scratch_alloc_size_1,
-                uncompressed_size);
-            if (drv != EXR_ERR_SUCCESS) return drv;
-            target = decode->scratch_buffer_1;
-        }
-        else { target = uncompressed_data; }
-
-        const char* comp_end = (const char*) compressed_data + comp_buf_size;
-
-        uint64_t csz1 = _read_uint64 (&inPtr);
-        if (csz1 == 0) return EXR_ERR_CORRUPT_CHUNK;
-        const bool has_second = ((const char*) inPtr + csz1 < comp_end);
-        uint64_t el_first;
-        if (has_second) el_first = seg0_el;
-        else if (sorted)
-        {
-            if (uncompressed_size == 0) el_first = seg1_el;
-            else
-            {
-                const int         nch = decode->channel_count;
-                const int         nh  = decode->chunk.height;
-                uint64_t          sort_lu[(nch > 0 && nh > 0) ? (nch * nh) : 1];
-                const uint64_t sp = compute_sorting_lookup (
-                    row_sample_counts,
-                    nh,
-                    decode->channels,
-                    nch,
-                    sort_lu);
-                if (sp == 0) el_first = seg1_el;
-                else if (sp == uncompressed_size) el_first = seg0_el;
-                else
-                    return EXR_ERR_CORRUPT_CHUNK;
-            }
-        }
-        else
-            el_first = seg1_el;
-        long d1 = exr_uncompress_zstd (inPtr, csz1, &target, uncompressed_size, el_first);
-        if (d1 < 0) return EXR_ERR_CORRUPT_CHUNK;
-
-        uint64_t total_u = (uint64_t) d1;
-
-        if (has_second)
-        {
-            inPtr += csz1;
-            uint64_t csz2 = _read_uint64 (&inPtr);
-            if (csz2 == 0) return EXR_ERR_CORRUPT_CHUNK;
-            void* target2 = (char*) target + d1;
-            long d2 = exr_uncompress_zstd (
-                inPtr,
-                csz2,
-                &target2,
-                uncompressed_size - (uint64_t) d1,
-                seg1_el);
-            if (d2 < 0) return EXR_ERR_CORRUPT_CHUNK;
-            total_u += (uint64_t) d2;
-        }
-
-        if (total_u != uncompressed_size) return EXR_ERR_CORRUPT_CHUNK;
-
-        if (sorted) sort2_4ByteChannels_tiled((char*)decode->scratch_buffer_1, row_sample_counts, decode->channels, decode->channel_count, false, decode->chunk.height, (char*)uncompressed_data);
-    } else {
-        void* ud = uncompressed_data;
-        const uint64_t no_tbl =
-            (decode->chunk.type == EXR_STORAGE_SCANLINE ||
-             decode->chunk.type == EXR_STORAGE_TILED)
-                ? 2
-                : 4;
-        long shallow_u = exr_uncompress_zstd (
-            inPtr, comp_buf_size - 8, &ud, uncompressed_size, no_tbl);
-        if (shallow_u < 0) return EXR_ERR_CORRUPT_CHUNK;
-        if ((uint64_t) shallow_u != uncompressed_size) return EXR_ERR_CORRUPT_CHUNK;
-    }
-    return EXR_ERR_SUCCESS;
+    return exr_undo_zstd_v1 (
+        decode,
+        compressed_data,
+        comp_buf_size,
+        uncompressed_data,
+        uncompressed_size);
 }
