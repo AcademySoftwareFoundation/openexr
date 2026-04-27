@@ -289,6 +289,137 @@ uint64_t compute_sorting_lookup (const uint64_t* num_samples_per_row, int height
     return splitPoint;
 }
 
+/* Integer delta on raw half/float bits along each channel row (sorted layout). */
+static void
+delta_encode_row_u16 (uint8_t* p, uint64_t n)
+{
+    if (n <= 1) return;
+    for (uint64_t k = n - 1; k > 0; --k)
+    {
+        uint16_t a, b;
+        memcpy (&a, p + k * 2, 2);
+        memcpy (&b, p + (k - 1) * 2, 2);
+        uint16_t d = (uint16_t) ((unsigned) a - (unsigned) b);
+        memcpy (p + k * 2, &d, 2);
+    }
+}
+
+static void
+delta_decode_row_u16 (uint8_t* p, uint64_t n)
+{
+    for (uint64_t k = 1; k < n; ++k)
+    {
+        uint16_t a, b;
+        memcpy (&a, p + k * 2, 2);
+        memcpy (&b, p + (k - 1) * 2, 2);
+        uint16_t s = (uint16_t) ((unsigned) a + (unsigned) b);
+        memcpy (p + k * 2, &s, 2);
+    }
+}
+
+static void
+delta_encode_row_u32 (uint8_t* p, uint64_t n)
+{
+    if (n <= 1) return;
+    for (uint64_t k = n - 1; k > 0; --k)
+    {
+        uint32_t a, b;
+        memcpy (&a, p + k * 4, 4);
+        memcpy (&b, p + (k - 1) * 4, 4);
+        uint32_t d = a - b;
+        memcpy (p + k * 4, &d, 4);
+    }
+}
+
+static void
+delta_decode_row_u32 (uint8_t* p, uint64_t n)
+{
+    for (uint64_t k = 1; k < n; ++k)
+    {
+        uint32_t a, b;
+        memcpy (&a, p + k * 4, 4);
+        memcpy (&b, p + (k - 1) * 4, 4);
+        uint32_t s = a + b;
+        memcpy (p + k * 4, &s, 4);
+    }
+}
+
+/** Apply delta along samples within each channel row (layout from compute_sorting_lookup). */
+static int
+delta_encode_sorted_layout (
+    uint8_t*       buf,
+    uint64_t      splitPoint,
+    size_t        total_bytes,
+    const uint64_t* num_samples_per_row,
+    int           height,
+    const exr_coding_channel_info_t* channels,
+    int           channelsSize)
+{
+    uint64_t off = 0;
+    for (int h = 0; h < height; ++h)
+    {
+        for (int i = 0; i < channelsSize; ++i)
+        {
+            if (channels[i].bytes_per_element != 2) continue;
+            uint64_t n = num_samples_per_row[h];
+            delta_encode_row_u16 (buf + off, n);
+            off += (size_t) n * 2u;
+        }
+    }
+    if (off != splitPoint) return -1;
+    for (int h = 0; h < height; ++h)
+    {
+        for (int i = 0; i < channelsSize; ++i)
+        {
+            if (channels[i].bytes_per_element != 4) continue;
+            uint64_t n = num_samples_per_row[h];
+            delta_encode_row_u32 (buf + off, n);
+            off += (size_t) n * 4u;
+        }
+    }
+    if (off != (uint64_t) total_bytes) return -1;
+    return 0;
+}
+
+static int
+delta_decode_sorted_layout (
+    uint8_t*       buf,
+    uint64_t      splitPoint,
+    size_t        total_bytes,
+    const uint64_t* num_samples_per_row,
+    int           height,
+    const exr_coding_channel_info_t* channels,
+    int           channelsSize)
+{
+    uint64_t off = 0;
+    for (int h = 0; h < height; ++h)
+    {
+        for (int i = 0; i < channelsSize; ++i)
+        {
+            if (channels[i].bytes_per_element != 2) continue;
+            uint64_t n = num_samples_per_row[h];
+            delta_decode_row_u16 (buf + off, n);
+            off += (size_t) n * 2u;
+        }
+    }
+    if (off != splitPoint) return -1;
+    for (int h = 0; h < height; ++h)
+    {
+        for (int i = 0; i < channelsSize; ++i)
+        {
+            if (channels[i].bytes_per_element != 4) continue;
+            uint64_t n = num_samples_per_row[h];
+            delta_decode_row_u32 (buf + off, n);
+            off += (size_t) n * 4u;
+        }
+    }
+    if (off != (uint64_t) total_bytes) return -1;
+    return 0;
+}
+
+// this is scanline plannar: 
+// scanline 1 all R, all G, all B.
+// scanline 2 all R, all G, all B.
 uint64_t sort2_4ByteChannels_tiled (const char* inPtr, const uint64_t* num_samples_per_row, const exr_coding_channel_info_t* channels, const int channelsSize, const bool forward, int height, char* outPtr)
 {
     uint64_t sorting_lookup[channelsSize * height];
@@ -334,6 +465,9 @@ static void _write_buffer_data (char** dst, const int32_t size, const void* src)
 static const uint64_t MAGIC_NUMBER = 8248453963162350458; // "zstd-exr"
 
 #define ZSTD_EXR_FORMAT_V1 1u
+#define ZSTD_EXR_FORMAT_V2 2u
+/** Reserved u32 at header+12; v1 must write 0. */
+#define ZSTD_EXR_FLAG_DELTA_AFTER_SORT 1u
 #define ZSTD_EXR_V1_HEADER 24u
 
 static uint32_t
@@ -393,7 +527,8 @@ append_inner_shuffle (
     return 0;
 }
 
-/** Returns 0 on success; sets *out_total to bytes written (header + ZSTD). */
+/** Returns 0 on success; sets *out_total to bytes written (header + ZSTD).
+ *  hdr_format / hdr_flags: u32 LE at +8 / +12 after magic (see ZSTD_EXR_FORMAT_*). */
 static int
 zstd_write_exr_v1 (
     void*       out_buf,
@@ -401,6 +536,8 @@ zstd_write_exr_v1 (
     const uint8_t* inner,
     size_t      inner_len,
     int32_t     level,
+    uint32_t   hdr_format,
+    uint32_t   hdr_flags,
     uint64_t*   out_total)
 {
     if (out_cap < ZSTD_EXR_V1_HEADER) return -1;
@@ -466,8 +603,8 @@ ZSTD_CCtx_setParameter(t_cctx, ZSTD_c_minMatch, 3);
         level);
     if (ZSTD_isError (cSize)) return -1;
     memcpy (out, &MAGIC_NUMBER, sizeof (MAGIC_NUMBER));
-    write_u32_le (out + 8, ZSTD_EXR_FORMAT_V1);
-    write_u32_le (out + 12, 0);
+    write_u32_le (out + 8, hdr_format);
+    write_u32_le (out + 12, hdr_flags);
     write_u64_le (out + 16, cSize);
     *out_total = ZSTD_EXR_V1_HEADER + cSize;
     return 0;
@@ -569,6 +706,8 @@ exr_result_t internal_exr_apply_zstd (exr_encode_pipeline_t* encode)
                 inner,
                 inner_pos,
                 level,
+                ZSTD_EXR_FORMAT_V1,
+                0,
                 &total_w) != 0)
             goto fallback;
         if (total_w < packed)
@@ -610,12 +749,25 @@ exr_result_t internal_exr_apply_zstd (exr_encode_pipeline_t* encode)
                 true,
                 encode->chunk.height,
                 (char*) encode->scratch_buffer_1);
+            if (delta_encode_sorted_layout (
+                    (uint8_t*) encode->scratch_buffer_1,
+                    splitPos,
+                    packed,
+                    row_sample_counts,
+                    encode->chunk.height,
+                    encode->channels,
+                    encode->channel_count) != 0)
+                goto fallback;
             inData = (char*) encode->scratch_buffer_1;
             tSizes[0] = 2;
             tSizes[1] = 4;
         }
 
         inner_pos = 0;
+        const uint32_t zstd_hdr_fmt =
+            sorted ? ZSTD_EXR_FORMAT_V2 : ZSTD_EXR_FORMAT_V1;
+        const uint32_t zstd_hdr_flags =
+            sorted ? ZSTD_EXR_FLAG_DELTA_AFTER_SORT : 0u;
         if (splitPos > 0)
         {
             if (append_inner_shuffle (
@@ -646,6 +798,8 @@ exr_result_t internal_exr_apply_zstd (exr_encode_pipeline_t* encode)
                 inner,
                 inner_pos,
                 level,
+                zstd_hdr_fmt,
+                zstd_hdr_flags,
                 &total_w) != 0)
             goto fallback;
         if (total_w < packed)
@@ -678,6 +832,8 @@ exr_result_t internal_exr_apply_zstd (exr_encode_pipeline_t* encode)
                 inner,
                 inner_pos,
                 level,
+                ZSTD_EXR_FORMAT_V1,
+                0,
                 &total_w) != 0)
             goto fallback;
         if (total_w < packed)
@@ -702,6 +858,20 @@ exr_undo_zstd_v1 (
     uint64_t               uncompressed_size)
 {
     const uint8_t* hdr = (const uint8_t*) compressed_data;
+    uint32_t       exr_fmt = read_u32_le (hdr + 8);
+    uint32_t       exr_flg = read_u32_le (hdr + 12);
+    if (exr_fmt == ZSTD_EXR_FORMAT_V1)
+    {
+        if (exr_flg != 0) return EXR_ERR_CORRUPT_CHUNK;
+    }
+    else if (exr_fmt == ZSTD_EXR_FORMAT_V2)
+    {
+        if ((exr_flg & ~ZSTD_EXR_FLAG_DELTA_AFTER_SORT) != 0)
+            return EXR_ERR_CORRUPT_CHUNK;
+    }
+    else
+        return EXR_ERR_CORRUPT_CHUNK;
+
     uint64_t         outer = read_u64_le (hdr + 16);
     if (outer > comp_buf_size - ZSTD_EXR_V1_HEADER)
         return EXR_ERR_CORRUPT_CHUNK;
@@ -837,6 +1007,28 @@ exr_undo_zstd_v1 (
         return EXR_ERR_CORRUPT_CHUNK;
 
     if (sorted)
+    {
+        uint64_t split_for_delta = 0;
+        if (n_inner == 2) split_for_delta = inner_lens[0];
+        else if (n_inner == 1)
+        {
+            if (inner_els[0] == 2) split_for_delta = uncompressed_size;
+            else
+                split_for_delta = 0;
+        }
+        if (exr_fmt == ZSTD_EXR_FORMAT_V2 &&
+            (exr_flg & ZSTD_EXR_FLAG_DELTA_AFTER_SORT) != 0)
+        {
+            if (delta_decode_sorted_layout (
+                    (uint8_t*) target,
+                    split_for_delta,
+                    (size_t) uncompressed_size,
+                    row_sample_counts,
+                    decode->chunk.height,
+                    decode->channels,
+                    decode->channel_count) != 0)
+                return EXR_ERR_CORRUPT_CHUNK;
+        }
         sort2_4ByteChannels_tiled (
             (char*) decode->scratch_buffer_1,
             row_sample_counts,
@@ -845,6 +1037,7 @@ exr_undo_zstd_v1 (
             false,
             decode->chunk.height,
             (char*) uncompressed_data);
+    }
 
     return EXR_ERR_SUCCESS;
 }
@@ -863,10 +1056,14 @@ exr_result_t internal_exr_undo_zstd (exr_decode_pipeline_t* decode, const void* 
     }
 
     const uint8_t* suf = (const uint8_t*) compressed_data + 8;
-    if (comp_buf_size >= ZSTD_EXR_V1_HEADER &&
-        read_u32_le (suf) == ZSTD_EXR_FORMAT_V1 &&
-        read_u32_le (suf + 4) == 0)
+    if (comp_buf_size >= ZSTD_EXR_V1_HEADER)
     {
+        uint32_t const fmt = read_u32_le (suf);
+        uint32_t const flg = read_u32_le (suf + 4);
+        if (!((fmt == ZSTD_EXR_FORMAT_V1 && flg == 0) ||
+              (fmt == ZSTD_EXR_FORMAT_V2 &&
+               (flg & ~ZSTD_EXR_FLAG_DELTA_AFTER_SORT) == 0)))
+            goto legacy_zstd_shallow;
         return exr_undo_zstd_v1 (
             decode,
             compressed_data,
@@ -875,6 +1072,7 @@ exr_result_t internal_exr_undo_zstd (exr_decode_pipeline_t* decode, const void* 
             uncompressed_size);
     }
 
+legacy_zstd_shallow:
     char* inPtr = (char*) compressed_data + 8;
 
     if (sampleCount_valid) {
