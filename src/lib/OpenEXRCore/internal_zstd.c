@@ -13,7 +13,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include <immintrin.h>
+//#include <immintrin.h>
 
 /* Use Zstd directly */
 #include <zstd.h>
@@ -60,14 +60,23 @@ static inline void shuffle_encode_2(const uint8_t* in, size_t size, uint8_t* out
 }
 
 /* scalar */
-/*static inline void shuffle_decode_4(const uint8_t* in, size_t size, uint8_t* out) {
+static inline void shuffle_decode_4(const uint8_t* in, size_t size, uint8_t* out) {
     size_t elements = size / 4;
     const uint8_t *p0 = in, *p1 = in + elements, *p2 = in + elements * 2, *p3 = in + elements * 3;
     for (size_t i = 0; i < elements; ++i) {
         out[i * 4 + 0] = p0[i]; out[i * 4 + 1] = p1[i]; out[i * 4 + 2] = p2[i]; out[i * 4 + 3] = p3[i];
     }
-}*/
+}
 
+// scalar
+static inline void shuffle_decode_2(const uint8_t* in, size_t size, uint8_t* out) {
+    size_t elements = size / 2;
+    const uint8_t *p0 = in, *p1 = in + elements;
+    for (size_t i = 0; i < elements; ++i) {
+        out[i * 2 + 0] = p0[i]; out[i * 2 + 1] = p1[i];
+    }
+}
+/*
 // AVX2
 __attribute__((target("avx2")))
 static inline void shuffle_decode_4(const uint8_t* in, size_t size, uint8_t* out) {
@@ -149,7 +158,7 @@ static inline void shuffle_decode_2(const uint8_t* in, size_t size, uint8_t* out
         out[i * 2 + 0] = p0[i];
         out[i * 2 + 1] = p1[i];
     }
-}
+}*/
 /*
 // sse
 static inline void shuffle_decode_2(const uint8_t* in, size_t size, uint8_t* out) {
@@ -184,15 +193,8 @@ static inline void shuffle_decode_2(const uint8_t* in, size_t size, uint8_t* out
         out[i * 2 + 1] = p1[i];
     }
 }
+*/
 
-// scalar
-static inline void shuffle_decode_2(const uint8_t* in, size_t size, uint8_t* out) {
-    size_t elements = size / 2;
-    const uint8_t *p0 = in, *p1 = in + elements;
-    for (size_t i = 0; i < elements; ++i) {
-        out[i * 2 + 0] = p0[i]; out[i * 2 + 1] = p1[i];
-    }
-}*/
 
 static void
 shuffle_decode_bytes (
