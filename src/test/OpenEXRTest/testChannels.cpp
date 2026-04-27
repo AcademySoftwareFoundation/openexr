@@ -229,11 +229,11 @@ verifyIterators(void)
 
     l2 = l1;
 
-    auto it1 = l1.begin();
-    const auto cit1 = l1.begin();
+    ChannelList::Iterator it1 = l1.begin();
+    ChannelList::ConstIterator cit1 = l1.begin();
 
-    auto it2 = l2.begin();
-    const auto cit2 = l2.begin();
+    ChannelList::Iterator it2 = l2.begin();
+    ChannelList::ConstIterator cit2 = l2.begin();
 
     // Test global '==' overloads
     assert(it1 == it1);
@@ -252,7 +252,7 @@ verifyIterators(void)
     {
         // Test '*' overloads
         Channel& c = *it1;
-        const Channel& cc = *it1;
+        const Channel& cc = *cit1;
         assert(c.type == HALF);
         assert(cc.type == HALF);
         
@@ -262,22 +262,30 @@ verifyIterators(void)
 
         // Test pre/post '++' overloads
         it1++; 
+        cit1++; 
         ++it2;
+        ++cit2;
     }
 
     assert(it1 == l1.end());
+    assert(cit1 == l1.end());
     assert(it2 == l2.end()); 
+    assert(cit2 == l2.end()); 
 
     while (it1 != l1.begin())
     {
 
         // Test pre/post '--' overloads
         it1--;
+        cit1--;
         --it2;
+        --cit2;
     }
 
     assert(it1 == l1.begin());
+    assert(cit1 == l1.begin());
     assert(it2 == l2.begin());
+    assert(cit2 == l2.begin());
 }
 
 } // namespace
@@ -312,3 +320,5 @@ testChannels (const std::string& tempDir)
         assert (false);
     }
 }
+
+
