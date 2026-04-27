@@ -957,11 +957,17 @@ TileBufferTask::execute ()
 
         if (_tileBuffer->sampleCountTableCompressor)
         {
+            //
+            // Sample-count table is one tile; chunk geometry must match
+            // tileRange (not scanline compress()'s full dataWindow width).
+            //
+            _tileBuffer->sampleCountTableCompressor->setTileLevel (
+                _tileBuffer->tileCoord.lx, _tileBuffer->tileCoord.ly);
             _tileBuffer->sampleCountTableSize =
-                _tileBuffer->sampleCountTableCompressor->compress (
+                _tileBuffer->sampleCountTableCompressor->compressTile (
                     _tileBuffer->sampleCountTableBuffer,
                     static_cast<int> (tableDataSize),
-                    tileRange.min.y,
+                    tileRange,
                     _tileBuffer->sampleCountTablePtr);
         }
 

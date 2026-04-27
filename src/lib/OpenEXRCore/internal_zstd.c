@@ -255,28 +255,41 @@ long exr_uncompress_zstd (
 
 /* --- Keep the existing OpenEXR specific sorting/sampling logic below --- */
 
-uint64_t compute_sorting_lookup (const uint64_t* num_samples_per_row, int height, const exr_coding_channel_info_t* channels, int channelsSize, uint64_t* sorting_lookup)
+/** num_samples_grid[h * channelsSize + i] = samples for channel i on chunk line h
+ *  (matches default_pack in pack.c: 0 when y_samples skips the line). */
+uint64_t compute_sorting_lookup (
+    const uint64_t*                  num_samples_grid,
+    int                              height,
+    const exr_coding_channel_info_t* channels,
+    int                              channelsSize,
+    uint64_t*                        sorting_lookup)
 {
     uint64_t writeCount = 0;
-    
-    // Pass 1: 2-byte channels (half) - Interleaved PER SCANLINE
-    for (int h = 0; h < height; ++h) {
-        for (int i = 0; i < channelsSize; ++i) {
-            if (channels[i].bytes_per_element == 2) {
+
+    for (int h = 0; h < height; ++h)
+    {
+        for (int i = 0; i < channelsSize; ++i)
+        {
+            if (channels[i].bytes_per_element == 2)
+            {
                 *(sorting_lookup + h * channelsSize + i) = writeCount;
-                writeCount += num_samples_per_row[h] * 2;
+                writeCount +=
+                    num_samples_grid[h * channelsSize + i] * (uint64_t) 2;
             }
         }
     }
-    
-    uint64_t splitPoint = writeCount;
-    
-    // Pass 2: 4-byte channels (float) - Interleaved PER SCANLINE
-    for (int h = 0; h < height; ++h) {
-        for (int i = 0; i < channelsSize; ++i) {
-            if (channels[i].bytes_per_element == 4) {
+
+    uint64_t const splitPoint = writeCount;
+
+    for (int h = 0; h < height; ++h)
+    {
+        for (int i = 0; i < channelsSize; ++i)
+        {
+            if (channels[i].bytes_per_element == 4)
+            {
                 *(sorting_lookup + h * channelsSize + i) = writeCount;
-                writeCount += num_samples_per_row[h] * 4;
+                writeCount +=
+                    num_samples_grid[h * channelsSize + i] * (uint64_t) 4;
             }
         }
     }
@@ -341,13 +354,13 @@ delta_decode_row_u32 (uint8_t* p, uint64_t n)
 /** Apply delta along samples within each channel row (layout from compute_sorting_lookup). */
 static int
 delta_encode_sorted_layout (
-    uint8_t*       buf,
-    uint64_t      splitPoint,
-    size_t        total_bytes,
-    const uint64_t* num_samples_per_row,
-    int           height,
+    uint8_t*                         buf,
+    uint64_t                         splitPoint,
+    size_t                           total_bytes,
+    const uint64_t*                  num_samples_grid,
+    int                              height,
     const exr_coding_channel_info_t* channels,
-    int           channelsSize)
+    int                              channelsSize)
 {
     uint64_t off = 0;
     for (int h = 0; h < height; ++h)
@@ -355,8 +368,8 @@ delta_encode_sorted_layout (
         for (int i = 0; i < channelsSize; ++i)
         {
             if (channels[i].bytes_per_element != 2) continue;
-            uint64_t n = num_samples_per_row[h];
-            delta_encode_row_u16 (buf + off, n);
+            uint64_t const n = num_samples_grid[h * channelsSize + i];
+            if (n > 0) delta_encode_row_u16 (buf + off, n);
             off += (size_t) n * 2u;
         }
     }
@@ -366,8 +379,8 @@ delta_encode_sorted_layout (
         for (int i = 0; i < channelsSize; ++i)
         {
             if (channels[i].bytes_per_element != 4) continue;
-            uint64_t n = num_samples_per_row[h];
-            delta_encode_row_u32 (buf + off, n);
+            uint64_t const n = num_samples_grid[h * channelsSize + i];
+            if (n > 0) delta_encode_row_u32 (buf + off, n);
             off += (size_t) n * 4u;
         }
     }
@@ -377,13 +390,13 @@ delta_encode_sorted_layout (
 
 static int
 delta_decode_sorted_layout (
-    uint8_t*       buf,
-    uint64_t      splitPoint,
-    size_t        total_bytes,
-    const uint64_t* num_samples_per_row,
-    int           height,
+    uint8_t*                         buf,
+    uint64_t                         splitPoint,
+    size_t                           total_bytes,
+    const uint64_t*                  num_samples_grid,
+    int                              height,
     const exr_coding_channel_info_t* channels,
-    int           channelsSize)
+    int                              channelsSize)
 {
     uint64_t off = 0;
     for (int h = 0; h < height; ++h)
@@ -391,8 +404,8 @@ delta_decode_sorted_layout (
         for (int i = 0; i < channelsSize; ++i)
         {
             if (channels[i].bytes_per_element != 2) continue;
-            uint64_t n = num_samples_per_row[h];
-            delta_decode_row_u16 (buf + off, n);
+            uint64_t const n = num_samples_grid[h * channelsSize + i];
+            if (n > 0) delta_decode_row_u16 (buf + off, n);
             off += (size_t) n * 2u;
         }
     }
@@ -402,8 +415,8 @@ delta_decode_sorted_layout (
         for (int i = 0; i < channelsSize; ++i)
         {
             if (channels[i].bytes_per_element != 4) continue;
-            uint64_t n = num_samples_per_row[h];
-            delta_decode_row_u32 (buf + off, n);
+            uint64_t const n = num_samples_grid[h * channelsSize + i];
+            if (n > 0) delta_decode_row_u32 (buf + off, n);
             off += (size_t) n * 4u;
         }
     }
@@ -411,37 +424,45 @@ delta_decode_sorted_layout (
     return 0;
 }
 
-// this is scanline plannar: 
-// scanline 1 all R, all G, all B.
-// scanline 2 all R, all G, all B.
-uint64_t sort2_4ByteChannels_tiled (const char* inPtr, const uint64_t* num_samples_per_row, const exr_coding_channel_info_t* channels, const int channelsSize, const bool forward, int height, char* outPtr)
+/* Planar pack order (pack.c): for each chunk line h, each channel in order;
+ * subsampled channels contribute 0 bytes on skipped lines. */
+uint64_t sort2_4ByteChannels_tiled (
+    const char*                      inPtr,
+    const uint64_t*                num_samples_grid,
+    const exr_coding_channel_info_t* channels,
+    const int                      channelsSize,
+    const bool                     forward,
+    int                            height,
+    char*                          outPtr)
 {
     uint64_t sorting_lookup[channelsSize * height];
-    uint64_t splitPoint = compute_sorting_lookup(num_samples_per_row, height, channels, channelsSize, sorting_lookup);
-    
-    uint32_t pixel_stride = 0;
-    for (int i = 0; i < channelsSize; ++i) pixel_stride += channels[i].bytes_per_element;
-    
+    uint64_t splitPoint = compute_sorting_lookup (
+        num_samples_grid, height, channels, channelsSize, sorting_lookup);
+
     uint64_t line_start_read = 0;
-    
-    // Flipped loops: Process height first, then channels. 
-    // This perfectly matches the new layout and keeps CPU cache access sequential.
-    for (int h = 0; h < height; ++h) {
-        uint32_t processed_stride = 0;
-        
-        for (int i = 0; i < channelsSize; ++i) {
-            const uint64_t writeIndex = *(sorting_lookup + h * channelsSize + i); 
-            const uint64_t readIndex  = line_start_read + (num_samples_per_row[h] * processed_stride);
-            const uint64_t bitSize    = num_samples_per_row[h] * channels[i].bytes_per_element;
-            
-            if (forward) memcpy(outPtr + writeIndex, inPtr + readIndex, bitSize);
-            else         memcpy(outPtr + readIndex, inPtr + writeIndex, bitSize);
-            
-            processed_stride += channels[i].bytes_per_element;
+    for (int h = 0; h < height; ++h)
+    {
+        uint64_t row_byte_off = 0;
+        for (int i = 0; i < channelsSize; ++i)
+        {
+            const uint64_t n_hi = num_samples_grid[h * channelsSize + i];
+            const uint64_t writeIndex =
+                *(sorting_lookup + h * channelsSize + i);
+            const uint64_t readIndex = line_start_read + row_byte_off;
+            const size_t   bitSize =
+                (size_t) n_hi * (size_t) channels[i].bytes_per_element;
+            if (bitSize > 0)
+            {
+                if (forward)
+                    memcpy (outPtr + writeIndex, inPtr + readIndex, bitSize);
+                else
+                    memcpy (outPtr + readIndex, inPtr + writeIndex, bitSize);
+            }
+            row_byte_off += bitSize;
         }
-        line_start_read += num_samples_per_row[h] * pixel_stride;
+        line_start_read += row_byte_off;
     }
-    
+
     return splitPoint;
 }
 
@@ -474,6 +495,18 @@ typedef struct
     bool     apply_delta;
     bool     apply_shuffle;
 } exr_zstd_pack_pipeline;
+
+/** ZSTD chunks always use sort (± delta) → shuffle before ZSTD; the grid describes
+ *  packed sample counts per (chunk line, channel) for that inverse.
+ *  (1) Deep sample-count table only — one synthetic UINT32 “channel”, width samples/row.
+ *  (2) Deep pixels — same packed row width for every channel (from sample_count_table).
+ *  (3) Flat scan/tile — per channel/row counts match default_pack (Y subsampling). */
+typedef enum
+{
+    EXR_ZSTD_GRID_DEEP_SAMPLE_COUNT_TABLE = 0,
+    EXR_ZSTD_GRID_DEEP_PIXELS,
+    EXR_ZSTD_GRID_FLAT_SCAN_OR_TILE,
+} exr_zstd_channel_grid_scenario_t;
 
 static bool
 exr_zstd_pipeline_phase_enabled (
@@ -508,17 +541,13 @@ exr_zstd_build_encode_pipeline_sorted (exr_zstd_pack_pipeline* out)
 
 static void
 exr_zstd_build_decode_pipeline (
-    uint32_t exr_fmt,
-    uint32_t exr_flg,
-    bool     use_deep_pack,
-    exr_zstd_pack_pipeline* out)
+    uint32_t exr_fmt, uint32_t exr_flg, exr_zstd_pack_pipeline* out)
 {
     memset (out, 0, sizeof (*out));
     out->hdr_format    = exr_fmt;
     out->hdr_flags     = exr_flg;
     out->apply_shuffle = true;
-    if (!use_deep_pack) return;
-    out->apply_sort = true;
+    out->apply_sort    = true;
     out->apply_delta =
         (exr_fmt == ZSTD_EXR_FORMAT_V2 &&
          (exr_flg & ZSTD_EXR_FLAG_DELTA_AFTER_SORT) != 0);
@@ -536,14 +565,6 @@ exr_zstd_decode_is_sample_count_chunk (
         (uint64_t) decode->chunk.width * (uint64_t) decode->chunk.height * 4u;
     return (compressed_data == (const void*) decode->packed_sample_count_table &&
             uncompressed_size == st_bytes);
-}
-
-/** Per-row element count for the flat int32 sample table (width cells per row). */
-static void
-exr_zstd_sample_table_row_counts (int height, int width, uint64_t* out_rows)
-{
-    uint64_t const w = (uint64_t) width;
-    for (int h = 0; h < height; ++h) out_rows[h] = w;
 }
 
 static void
@@ -742,6 +763,72 @@ bool get_row_sample_count_encode (const exr_encode_pipeline_t* encode, uint64_t 
     return false;
 }
 
+/** Per (chunk line, channel): number of samples packed for that channel on that
+ *  line — matches default_pack in pack.c (Y subsampling skips lines with 0).
+ *  Grid is row-major: index = chunk_line * channel_count + channel_index. */
+static void
+exr_zstd_fill_channel_sample_count_grid (
+    exr_zstd_channel_grid_scenario_t   scenario,
+    int                                chunk_line_count,
+    int                                chunk_origin_y,
+    int                                chunk_pixel_width,
+    int                                channel_count,
+    uint64_t*                          channel_sample_count_grid,
+    const uint64_t*                    deep_row_end_sample_exclusive,
+    const exr_coding_channel_info_t*   channels)
+{
+    switch (scenario)
+    {
+    case EXR_ZSTD_GRID_DEEP_SAMPLE_COUNT_TABLE:
+        for (int chunk_line = 0; chunk_line < chunk_line_count; ++chunk_line)
+            channel_sample_count_grid[chunk_line * channel_count + 0] =
+                (uint64_t) chunk_pixel_width;
+        break;
+    case EXR_ZSTD_GRID_DEEP_PIXELS:
+        for (int chunk_line = 0; chunk_line < chunk_line_count; ++chunk_line)
+        {
+            uint64_t const channel_sample_count_this_row =
+                deep_row_end_sample_exclusive[chunk_line];
+            for (int channel_index = 0; channel_index < channel_count;
+                 ++channel_index)
+                channel_sample_count_grid
+                    [chunk_line * channel_count + channel_index] =
+                        channel_sample_count_this_row;
+        }
+        break;
+    case EXR_ZSTD_GRID_FLAT_SCAN_OR_TILE:
+        for (int chunk_line = 0; chunk_line < chunk_line_count; ++chunk_line)
+        {
+            int const image_line_y = chunk_line + chunk_origin_y;
+            for (int channel_index = 0; channel_index < channel_count;
+                 ++channel_index)
+            {
+                const exr_coding_channel_info_t* channel =
+                    channels + channel_index;
+                uint64_t channel_sample_count_on_this_line = 0;
+                if (channel->height > 0)
+                {
+                    if (channel->y_samples > 1)
+                    {
+                        if ((image_line_y % channel->y_samples) == 0)
+                            channel_sample_count_on_this_line =
+                                (uint64_t) channel->width;
+                    }
+                    else
+                    {
+                        channel_sample_count_on_this_line =
+                            (uint64_t) channel->width;
+                    }
+                }
+                channel_sample_count_grid
+                    [chunk_line * channel_count + channel_index] =
+                    channel_sample_count_on_this_line;
+            }
+        }
+        break;
+    }
+}
+
 /* --- Main Pipeline Implementation --- */
 
 /** Store raw packed payload as the chunk (no ZSTD); used only when ZSTD
@@ -788,159 +875,157 @@ exr_result_t internal_exr_apply_zstd (exr_encode_pipeline_t* encode)
          encode->packed_buffer == encode->packed_sample_count_table &&
          packed == (size_t) sample_table_bytes);
 
-    /* Deep pixel or sample-count table: same sort / delta / shuffle pipeline.
-     * Sample table is one logical UINT32 channel (width cells per row); sort
-     * is a no-op for a single 4-byte channel. */
-    if (sampleCount_valid || compressing_sample_counts_only)
+    const exr_storage_t storage = (exr_storage_t) encode->chunk.type;
+    /* Deep sample table without packed_sample_count_table linkage (e.g. C++
+     * Imf deep tiled compressTile(tileRange)): same layout as
+     * compressing_sample_counts_only when packed == chunk w*h*UINT32. */
+    const int deep_sample_table_standalone =
+        ((storage == EXR_STORAGE_DEEP_SCANLINE ||
+          storage == EXR_STORAGE_DEEP_TILED) &&
+         encode->sample_count_table == NULL &&
+         packed == (size_t) sample_table_bytes);
+
+    const int use_sample_count_pack_layout =
+        compressing_sample_counts_only || deep_sample_table_standalone;
+
+    const int is_flat =
+        (storage == EXR_STORAGE_SCANLINE || storage == EXR_STORAGE_TILED);
+
+    const exr_coding_channel_info_t* pack_channels;
+    int                                pack_channel_count;
+    exr_coding_channel_info_t           pack_one_channel;
+    exr_zstd_channel_grid_scenario_t    grid_scenario;
+
+    if (use_sample_count_pack_layout)
     {
-        uint64_t row_counts_grid[encode->chunk.height];
-        const uint64_t* row_for_pack;
-        const exr_coding_channel_info_t* pack_channels;
-        int                              pack_channel_count;
-        exr_coding_channel_info_t         pack_one_channel;
-
-        if (compressing_sample_counts_only)
-        {
-            exr_zstd_sample_table_row_counts (
-                encode->chunk.height, encode->chunk.width, row_counts_grid);
-            row_for_pack = row_counts_grid;
-            exr_zstd_one_channel_u32 (&pack_one_channel);
-            pack_channels      = &pack_one_channel;
-            pack_channel_count = 1;
-        }
-        else
-        {
-            row_for_pack       = row_sample_counts;
-            pack_channels      = encode->channels;
-            pack_channel_count = encode->channel_count;
-        }
-
-        uint64_t splitPos = 0;
-        const uint8_t tSizes[2] = {2, 4};
-        char* inData = (char*) encode->packed_buffer;
-        exr_zstd_pack_pipeline pipe;
-        memset (&pipe, 0, sizeof (pipe));
-        exr_zstd_build_encode_pipeline_sorted (&pipe);
-        exr_result_t arv = internal_encode_alloc_buffer (
-            encode,
-            EXR_TRANSCODE_BUFFER_SCRATCH1,
-            &encode->scratch_buffer_1,
-            &encode->scratch_alloc_size_1,
-            encode->packed_bytes);
-        if (arv != EXR_ERR_SUCCESS) return arv;
-        if (exr_zstd_pipeline_phase_enabled (&pipe, EXR_ZSTD_PHASE_SORT))
-            splitPos = sort2_4ByteChannels_tiled (
-                (const char*) encode->packed_buffer,
-                row_for_pack,
-                pack_channels,
-                pack_channel_count,
-                true,
-                encode->chunk.height,
-                (char*) encode->scratch_buffer_1);
-        if (exr_zstd_pipeline_phase_enabled (&pipe, EXR_ZSTD_PHASE_DELTA))
-        {
-            if (delta_encode_sorted_layout (
-                    (uint8_t*) encode->scratch_buffer_1,
-                    splitPos,
-                    packed,
-                    row_for_pack,
-                    encode->chunk.height,
-                    pack_channels,
-                    pack_channel_count) != 0)
-                return EXR_ERR_COMPRESSION_FAILED;
-        }
-        inData = (char*) encode->scratch_buffer_1;
-
-        inner_pos = 0;
-        if (exr_zstd_pipeline_phase_enabled (&pipe, EXR_ZSTD_PHASE_SHUFFLE))
-        {
-            if (splitPos > 0)
-            {
-                if (append_inner_shuffle (
-                        inner,
-                        &inner_pos,
-                        inner_cap,
-                        inData,
-                        (size_t) splitPos,
-                        tSizes[0]) != 0)
-                    return EXR_ERR_COMPRESSION_FAILED;
-            }
-            size_t const s2_in = packed - (size_t) splitPos;
-            if (s2_in > 0)
-            {
-                if (append_inner_shuffle (
-                        inner,
-                        &inner_pos,
-                        inner_cap,
-                        inData + splitPos,
-                        s2_in,
-                        tSizes[1]) != 0)
-                    return EXR_ERR_COMPRESSION_FAILED;
-            }
-        }
-        uint64_t total_w = 0;
-        if (zstd_write_exr_v1 (
-                encode->compressed_buffer,
-                encode->compressed_alloc_size,
-                inner,
-                inner_pos,
-                level,
-                pipe.hdr_format,
-                pipe.hdr_flags,
-                &total_w) != 0)
-            return EXR_ERR_COMPRESSION_FAILED;
-        if (total_w < packed)
-        {
-            encode->compressed_bytes = total_w;
-            return EXR_ERR_SUCCESS;
-        }
-        exr_zstd_encode_store_raw_chunk (encode, packed);
-        return EXR_ERR_SUCCESS;
+        /* (1) deep sample-count table: chunk w/h match table (Core or Imf path) */
+        exr_zstd_one_channel_u32 (&pack_one_channel);
+        pack_one_channel.width  = encode->chunk.width;
+        pack_one_channel.height = encode->chunk.height;
+        pack_channels           = &pack_one_channel;
+        pack_channel_count      = 1;
+        grid_scenario           = EXR_ZSTD_GRID_DEEP_SAMPLE_COUNT_TABLE;
     }
-
+    else if (sampleCount_valid)
     {
-        const int no_table_typesize =
-            (encode->chunk.type == EXR_STORAGE_SCANLINE ||
-             encode->chunk.type == EXR_STORAGE_TILED)
-                ? 2
-                : 4;
-        exr_zstd_pack_pipeline shallow_pipe;
-        memset (&shallow_pipe, 0, sizeof (shallow_pipe));
-        shallow_pipe.hdr_format    = ZSTD_EXR_FORMAT_V1;
-        shallow_pipe.apply_shuffle = true;
-        inner_pos = 0;
-        if (exr_zstd_pipeline_phase_enabled (&shallow_pipe, EXR_ZSTD_PHASE_SHUFFLE))
+        pack_channels      = encode->channels;
+        pack_channel_count = encode->channel_count;
+        grid_scenario      = EXR_ZSTD_GRID_DEEP_PIXELS;
+    }
+    else if (is_flat)
+    {
+        pack_channels      = encode->channels;
+        pack_channel_count = encode->channel_count;
+        grid_scenario      = EXR_ZSTD_GRID_FLAT_SCAN_OR_TILE;
+    }
+    else
+        return EXR_ERR_INVALID_ARGUMENT;
+
+    int const chunk_line_count = encode->chunk.height;
+    int const channel_count    = pack_channel_count;
+    if (chunk_line_count <= 0 || channel_count <= 0)
+        return EXR_ERR_INVALID_ARGUMENT;
+
+    uint64_t channel_sample_count_grid
+        [(size_t) chunk_line_count * (size_t) channel_count];
+
+    exr_zstd_fill_channel_sample_count_grid (
+        grid_scenario,
+        chunk_line_count,
+        encode->chunk.start_y,
+        encode->chunk.width,
+        channel_count,
+        channel_sample_count_grid,
+        row_sample_counts,
+        pack_channels);
+
+    int const pipeline_height = encode->chunk.height;
+
+    uint64_t splitPos = 0;
+    const uint8_t tSizes[2] = {2, 4};
+    char*          inData = (char*) encode->packed_buffer;
+    exr_zstd_pack_pipeline pipe;
+    memset (&pipe, 0, sizeof (pipe));
+    exr_zstd_build_encode_pipeline_sorted (&pipe);
+    exr_result_t arv = internal_encode_alloc_buffer (
+        encode,
+        EXR_TRANSCODE_BUFFER_SCRATCH1,
+        &encode->scratch_buffer_1,
+        &encode->scratch_alloc_size_1,
+        encode->packed_bytes);
+    if (arv != EXR_ERR_SUCCESS) return arv;
+    if (exr_zstd_pipeline_phase_enabled (&pipe, EXR_ZSTD_PHASE_SORT))
+        splitPos = sort2_4ByteChannels_tiled (
+            (const char*) encode->packed_buffer,
+            channel_sample_count_grid,
+            pack_channels,
+            pack_channel_count,
+            true,
+            pipeline_height,
+            (char*) encode->scratch_buffer_1);
+    if (exr_zstd_pipeline_phase_enabled (&pipe, EXR_ZSTD_PHASE_DELTA))
+    {
+        if (delta_encode_sorted_layout (
+                (uint8_t*) encode->scratch_buffer_1,
+                splitPos,
+                packed,
+                channel_sample_count_grid,
+                pipeline_height,
+                pack_channels,
+                pack_channel_count) != 0)
+            return EXR_ERR_COMPRESSION_FAILED;
+    }
+    inData = (char*) encode->scratch_buffer_1;
+
+    inner_pos = 0;
+    if (exr_zstd_pipeline_phase_enabled (&pipe, EXR_ZSTD_PHASE_SHUFFLE))
+    {
+        if (splitPos > 0)
         {
             if (append_inner_shuffle (
                     inner,
                     &inner_pos,
                     inner_cap,
-                    (const char*) encode->packed_buffer,
-                    packed,
-                    (uint64_t) no_table_typesize) != 0)
+                    inData,
+                    (size_t) splitPos,
+                    tSizes[0]) != 0)
                 return EXR_ERR_COMPRESSION_FAILED;
         }
-        uint64_t total_w = 0;
-        if (zstd_write_exr_v1 (
-                encode->compressed_buffer,
-                encode->compressed_alloc_size,
-                inner,
-                inner_pos,
-                level,
-                ZSTD_EXR_FORMAT_V1,
-                0,
-                &total_w) != 0)
-            return EXR_ERR_COMPRESSION_FAILED;
-        if (total_w < packed)
+        size_t const s2_in = packed - (size_t) splitPos;
+        if (s2_in > 0)
         {
-            encode->compressed_bytes = total_w;
-            return EXR_ERR_SUCCESS;
+            if (append_inner_shuffle (
+                    inner,
+                    &inner_pos,
+                    inner_cap,
+                    inData + splitPos,
+                    s2_in,
+                    tSizes[1]) != 0)
+                return EXR_ERR_COMPRESSION_FAILED;
         }
-        exr_zstd_encode_store_raw_chunk (encode, packed);
+    }
+    uint64_t total_w = 0;
+    if (zstd_write_exr_v1 (
+            encode->compressed_buffer,
+            encode->compressed_alloc_size,
+            inner,
+            inner_pos,
+            level,
+            pipe.hdr_format,
+            pipe.hdr_flags,
+            &total_w) != 0)
+        return EXR_ERR_COMPRESSION_FAILED;
+    if (total_w < packed)
+    {
+        encode->compressed_bytes = total_w;
         return EXR_ERR_SUCCESS;
     }
+    exr_zstd_encode_store_raw_chunk (encode, packed);
+    return EXR_ERR_SUCCESS;
 }
 
+/** Raw packed chunks skip ZSTD entirely (see exr_zstd_encode_store_raw_chunk).
+ *  Any EXR-ZSTD frame uses the same sorted-pack inverse (grid + shuffle + delta + sort). */
 static exr_result_t
 exr_undo_zstd_v1 (
     exr_decode_pipeline_t* decode,
@@ -999,54 +1084,70 @@ exr_undo_zstd_v1 (
     const bool is_sample_count_chunk =
         exr_zstd_decode_is_sample_count_chunk (
             decode, compressed_data, uncompressed_size);
-    const bool use_packed_pipeline =
-        is_sample_count_chunk ||
-        (sampleCount_valid && !is_sample_count_chunk);
+    const exr_storage_t dstorage = (exr_storage_t) decode->chunk.type;
+    const bool          is_flat =
+        (dstorage == EXR_STORAGE_SCANLINE || dstorage == EXR_STORAGE_TILED);
 
-    uint64_t row_pack_counts[decode->chunk.height];
-    exr_coding_channel_info_t         pack_one_channel;
-    const uint64_t*                   row_for_pack = row_sample_counts;
+    if (!(is_sample_count_chunk || sampleCount_valid || is_flat))
+        return EXR_ERR_CORRUPT_CHUNK;
+
+    exr_coding_channel_info_t          pack_one_channel;
     const exr_coding_channel_info_t* pack_channels = decode->channels;
-    int pack_channel_count = decode->channel_count;
+    int                              pack_channel_count = decode->channel_count;
+    exr_zstd_channel_grid_scenario_t grid_scenario;
 
-    if (use_packed_pipeline)
+    if (is_sample_count_chunk)
     {
-        if (is_sample_count_chunk)
-        {
-            exr_zstd_sample_table_row_counts (
-                decode->chunk.height, decode->chunk.width, row_pack_counts);
-            row_for_pack = row_pack_counts;
-            exr_zstd_one_channel_u32 (&pack_one_channel);
-            pack_channels      = &pack_one_channel;
-            pack_channel_count = 1;
-        }
+        exr_zstd_one_channel_u32 (&pack_one_channel);
+        pack_channels      = &pack_one_channel;
+        pack_channel_count = 1;
+        grid_scenario      = EXR_ZSTD_GRID_DEEP_SAMPLE_COUNT_TABLE;
+    }
+    else if (sampleCount_valid)
+    {
+        pack_channels      = decode->channels;
+        pack_channel_count = decode->channel_count;
+        grid_scenario      = EXR_ZSTD_GRID_DEEP_PIXELS;
+    }
+    else
+    {
+        pack_channels      = decode->channels;
+        pack_channel_count = decode->channel_count;
+        grid_scenario      = EXR_ZSTD_GRID_FLAT_SCAN_OR_TILE;
     }
 
+    int const chunk_line_count = decode->chunk.height;
+    int const channel_count    = pack_channel_count;
+
+    if (chunk_line_count <= 0 || channel_count <= 0)
+        return EXR_ERR_CORRUPT_CHUNK;
+
+    uint64_t channel_sample_count_grid
+        [(size_t) chunk_line_count * (size_t) channel_count];
+
+    exr_zstd_fill_channel_sample_count_grid (
+        grid_scenario,
+        chunk_line_count,
+        decode->chunk.start_y,
+        decode->chunk.width,
+        channel_count,
+        channel_sample_count_grid,
+        row_sample_counts,
+        pack_channels);
+
     exr_zstd_pack_pipeline pipe;
-    exr_zstd_build_decode_pipeline (
-        fr.format, fr.flags, use_packed_pipeline, &pipe);
+    exr_zstd_build_decode_pipeline (fr.format, fr.flags, &pipe);
 
     uint64_t inner_lens[2];
     uint64_t inner_els[2];
     int      n_inner = 1;
 
-    if (!use_packed_pipeline)
-    {
-        inner_lens[0] = uncompressed_size;
-        inner_els[0] =
-            (decode->chunk.type == EXR_STORAGE_SCANLINE ||
-             decode->chunk.type == EXR_STORAGE_TILED)
-                ? 2
-                : 4;
-    }
-    else
     {
         const int nch = pack_channel_count;
         const int nh  = decode->chunk.height;
-        if (nch <= 0 || nh <= 0) return EXR_ERR_CORRUPT_CHUNK;
-        uint64_t sort_lu[(nch > 0 && nh > 0) ? (nch * nh) : 1];
+        uint64_t sort_lu[(size_t) nch * (size_t) nh];
         const uint64_t sp = compute_sorting_lookup (
-            row_for_pack,
+            channel_sample_count_grid,
             nh,
             pack_channels,
             nch,
@@ -1128,7 +1229,7 @@ exr_undo_zstd_v1 (
                     (uint8_t*) target,
                     split_for_delta,
                     (size_t) uncompressed_size,
-                    row_for_pack,
+                    channel_sample_count_grid,
                     decode->chunk.height,
                     pack_channels,
                     pack_channel_count) != 0)
@@ -1137,7 +1238,7 @@ exr_undo_zstd_v1 (
         if (exr_zstd_pipeline_phase_enabled (&pipe, EXR_ZSTD_PHASE_SORT))
             sort2_4ByteChannels_tiled (
                 (char*) decode->scratch_buffer_1,
-                row_for_pack,
+                channel_sample_count_grid,
                 pack_channels,
                 pack_channel_count,
                 false,
