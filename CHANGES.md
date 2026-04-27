@@ -112,10 +112,14 @@ Out-of-bounds read in `IDManifest::init()` during prefix expansion
 * [CVE-2026-41142](https://www.cve.org/CVERecord?id=CVE-2026-41142)
 Integer overflow in `ImageChannel::resize` leads to heap OOB write via OpenEXRUtil public API
 
-Also:
-
 * OSS-fuzz [504280155](https://issues.oss-fuzz.com/issues/504280155)
 Heap-buffer-overflow in `DwaCompressor_uncompress`
+
+Also, some minor documentation updates:
+
+- GitHub Security Advisories are the preferred way of reporting
+  vulnerabilities, not email.
+- Some clarification around handling of UFT-8 of file paths
 
 ### Merged Pull Requests
 
