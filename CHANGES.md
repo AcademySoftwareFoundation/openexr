@@ -114,6 +114,12 @@ Integer overflow in `ImageChannel::resize` leads to heap OOB write via OpenEXRUt
 
 * OSS-fuzz [504280155](https://issues.oss-fuzz.com/issues/504280155)
 Heap-buffer-overflow in `DwaCompressor_uncompress`
+* OSS-fuzz [505062709](https://issues.oss-fuzz.com/issues/505062709)
+Null-dereference READ in `Imf_3_3::prefixFromLayerName`
+
+Build fixes:
+
+- Fix Windows ARM64EC build issues and correct SIMD ARM NEON path for ARM64/EC
 
 Also, some minor documentation updates:
 
@@ -125,6 +131,8 @@ Also, some minor documentation updates:
 
 * [2383](https://github.com/AcademySoftwareFoundation/openexr/pull/2383)
 validate that the uncompressed sizes recorded in the dwa header are valid
+* [2382](https://github.com/AcademySoftwareFoundation/openexr/pull/2382)
+Fix Null-dereference READ in prefixFromLayerName
 * [2378](https://github.com/AcademySoftwareFoundation/openexr/pull/2378)
 Harden IDManifest parsing against illegal shift and string prefix OOB
 * [2377](https://github.com/AcademySoftwareFoundation/openexr/pull/2377)
@@ -139,6 +147,8 @@ Fix int overflow in ImageChannel::resize pixel count
 Recommend GH Security Advisories for vulnerability reporting
 * [2361](https://github.com/AcademySoftwareFoundation/openexr/pull/2361)
 Add documentation and test for UTF-8 file paths
+* [2344](https://github.com/AcademySoftwareFoundation/openexr/pull/2344)
+Fix Windows ARM64EC build issues and correct SIMD ARM NEON path for ARM64/EC
 
 ### Merged Workflow Pull Requests
 
