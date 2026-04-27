@@ -610,6 +610,40 @@ append_inner_shuffle (
     return 0;
 }
 
+/** 24-byte EXR ZSTD prefix: magic @0, hdr_format @8, hdr_flags @12, zstd size @16 LE. */
+static void
+exr_zstd_write_exr_frame_prefix (
+    uint8_t* out,
+    uint32_t hdr_format,
+    uint32_t hdr_flags,
+    size_t   zstd_payload_size,
+    uint64_t* out_total)
+{
+    memcpy (out, &MAGIC_NUMBER, sizeof (MAGIC_NUMBER));
+    write_u32_le (out + 8, hdr_format);
+    write_u32_le (out + 12, hdr_flags);
+    write_u64_le (out + 16, (uint64_t) zstd_payload_size);
+    *out_total = ZSTD_EXR_V1_HEADER + (uint64_t) zstd_payload_size;
+}
+
+/** On-disk 24-byte EXR ZSTD chunk prefix (all fields little-endian). */
+typedef struct
+{
+    uint64_t magic;
+    uint32_t format;
+    uint32_t flags;
+    uint64_t zstd_payload_size;
+} exr_zstd_frame_header_t;
+
+static void
+exr_zstd_read_exr_frame_header (const uint8_t* buf, exr_zstd_frame_header_t* h)
+{
+    h->magic              = read_u64_le (buf);
+    h->format             = read_u32_le (buf + 8);
+    h->flags              = read_u32_le (buf + 12);
+    h->zstd_payload_size  = read_u64_le (buf + 16);
+}
+
 /** Returns 0 on success; sets *out_total to bytes written (header + ZSTD).
  *  hdr_format / hdr_flags: u32 LE at +8 / +12 after magic (see ZSTD_EXR_FORMAT_*). */
 static int
@@ -685,11 +719,8 @@ ZSTD_CCtx_setParameter(t_cctx, ZSTD_c_minMatch, 3);
         inner_len,
         level);
     if (ZSTD_isError (cSize)) return -1;
-    memcpy (out, &MAGIC_NUMBER, sizeof (MAGIC_NUMBER));
-    write_u32_le (out + 8, hdr_format);
-    write_u32_le (out + 12, hdr_flags);
-    write_u64_le (out + 16, cSize);
-    *out_total = ZSTD_EXR_V1_HEADER + cSize;
+    exr_zstd_write_exr_frame_prefix (
+        out, hdr_format, hdr_flags, cSize, out_total);
     return 0;
 }
 
@@ -919,28 +950,28 @@ exr_undo_zstd_v1 (
     uint64_t               uncompressed_size)
 {
     const uint8_t* hdr = (const uint8_t*) compressed_data;
-    uint32_t       exr_fmt = read_u32_le (hdr + 8);
-    uint32_t       exr_flg = read_u32_le (hdr + 12);
-    if (exr_fmt == ZSTD_EXR_FORMAT_V1)
+    exr_zstd_frame_header_t fr;
+    exr_zstd_read_exr_frame_header (hdr, &fr);
+    if (fr.magic != MAGIC_NUMBER) return EXR_ERR_CORRUPT_CHUNK;
+    if (fr.format == ZSTD_EXR_FORMAT_V1)
     {
-        if (exr_flg != 0) return EXR_ERR_CORRUPT_CHUNK;
+        if (fr.flags != 0) return EXR_ERR_CORRUPT_CHUNK;
     }
-    else if (exr_fmt == ZSTD_EXR_FORMAT_V2)
+    else if (fr.format == ZSTD_EXR_FORMAT_V2)
     {
-        if ((exr_flg & ~ZSTD_EXR_FLAG_DELTA_AFTER_SORT) != 0)
+        if ((fr.flags & ~ZSTD_EXR_FLAG_DELTA_AFTER_SORT) != 0)
             return EXR_ERR_CORRUPT_CHUNK;
     }
     else
         return EXR_ERR_CORRUPT_CHUNK;
 
-    uint64_t         outer = read_u64_le (hdr + 16);
-    if (outer > comp_buf_size - ZSTD_EXR_V1_HEADER)
+    if (fr.zstd_payload_size > comp_buf_size - ZSTD_EXR_V1_HEADER)
         return EXR_ERR_CORRUPT_CHUNK;
-    if (ZSTD_EXR_V1_HEADER + outer != comp_buf_size)
+    if (ZSTD_EXR_V1_HEADER + fr.zstd_payload_size != comp_buf_size)
         return EXR_ERR_CORRUPT_CHUNK;
 
     const void* zsrc = hdr + ZSTD_EXR_V1_HEADER;
-    size_t      zsz  = (size_t) outer;
+    size_t      zsz  = (size_t) fr.zstd_payload_size;
 
     unsigned long long fds = ZSTD_getFrameContentSize (zsrc, zsz);
     size_t             dst_cap;
@@ -993,7 +1024,7 @@ exr_undo_zstd_v1 (
 
     exr_zstd_pack_pipeline pipe;
     exr_zstd_build_decode_pipeline (
-        exr_fmt, exr_flg, use_packed_pipeline, &pipe);
+        fr.format, fr.flags, use_packed_pipeline, &pipe);
 
     uint64_t inner_lens[2];
     uint64_t inner_els[2];
@@ -1122,16 +1153,13 @@ exr_result_t internal_exr_undo_zstd (exr_decode_pipeline_t* decode, const void* 
     if (comp_buf_size == 0) return EXR_ERR_SUCCESS;
     if (comp_buf_size < ZSTD_EXR_V1_HEADER) return EXR_ERR_CORRUPT_CHUNK;
 
-    uint64_t mhead;
-    memcpy (&mhead, compressed_data, 8);
-    if (mhead != MAGIC_NUMBER) return EXR_ERR_CORRUPT_CHUNK;
-
     const uint8_t* hdr = (const uint8_t*) compressed_data;
-    uint32_t const fmt = read_u32_le (hdr + 8);
-    uint32_t const flg = read_u32_le (hdr + 12);
-    if (!((fmt == ZSTD_EXR_FORMAT_V1 && flg == 0) ||
-          (fmt == ZSTD_EXR_FORMAT_V2 &&
-           (flg & ~ZSTD_EXR_FLAG_DELTA_AFTER_SORT) == 0)))
+    exr_zstd_frame_header_t fr;
+    exr_zstd_read_exr_frame_header (hdr, &fr);
+    if (fr.magic != MAGIC_NUMBER) return EXR_ERR_CORRUPT_CHUNK;
+    if (!((fr.format == ZSTD_EXR_FORMAT_V1 && fr.flags == 0) ||
+          (fr.format == ZSTD_EXR_FORMAT_V2 &&
+           (fr.flags & ~ZSTD_EXR_FLAG_DELTA_AFTER_SORT) == 0)))
         return EXR_ERR_CORRUPT_CHUNK;
 
     return exr_undo_zstd_v1 (
