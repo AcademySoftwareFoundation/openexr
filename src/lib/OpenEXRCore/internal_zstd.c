@@ -455,7 +455,7 @@ static const uint64_t MAGIC_NUMBER = 8248453963162350458; // "zstd-exr"
 
 /** Deep pixel ZSTD wire: 1 = sort+shuffle (header v1); 2 = sort+delta+shuffle (v2). */
 #ifndef EXR_ZSTD_SORTED_WIRE_VERSION
-#    define EXR_ZSTD_SORTED_WIRE_VERSION 2
+#    define EXR_ZSTD_SORTED_WIRE_VERSION 1
 #endif
 
 /** Encode order: SORT → DELTA → SHUFFLE → ZSTD; decode reverses ZSTD first. */
