@@ -220,6 +220,7 @@ cc_library(
         "src/lib/OpenEXRCore/internal_xdr.h",
         "src/lib/OpenEXRCore/internal_zip.c",
         "src/lib/OpenEXRCore/internal_zstd.c",
+        "src/lib/OpenEXRCore/internal_zstd_delta.c",
         "src/lib/OpenEXRCore/internal_zstd_shuffle.c",
         "src/lib/OpenEXRCore/memory.c",
         "src/lib/OpenEXRCore/opaque.c",

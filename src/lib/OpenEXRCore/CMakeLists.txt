@@ -59,6 +59,7 @@ openexr_define_library(OpenEXRCore
     internal_dwa_table_init.c
     internal_huf.c
     internal_zstd.c
+    internal_zstd_delta.c
     internal_zstd_shuffle.c
 
     attributes.c

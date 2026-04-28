@@ -24,6 +24,11 @@ extern void exr_zstd_shuffle_encode_4 (
 extern void exr_zstd_shuffle_encode_2 (
     const uint8_t* in, size_t size, uint8_t* out);
 
+extern void delta_encode_row_u16 (uint8_t* p, uint64_t n);
+extern void delta_decode_row_u16 (uint8_t* p, uint64_t n);
+extern void delta_encode_row_u32 (uint8_t* p, uint64_t n);
+extern void delta_decode_row_u32 (uint8_t* p, uint64_t n);
+
 #define RETURN_ERRORV(pipeline, err_code, msg, ...)                            \
     {                                                                          \
         exr_const_context_t pctxt = pipeline->context;                         \
@@ -90,61 +95,6 @@ uint64_t compute_sorting_lookup (
         }
     }
     return splitPoint;
-}
-
-/* Integer delta on raw half/float bits along each channel row (sorted layout). */
-static void
-delta_encode_row_u16 (uint8_t* p, uint64_t n)
-{
-    if (n <= 1) return;
-    for (uint64_t k = n - 1; k > 0; --k)
-    {
-        uint16_t a, b;
-        memcpy (&a, p + k * 2, 2);
-        memcpy (&b, p + (k - 1) * 2, 2);
-        uint16_t d = (uint16_t) ((unsigned) a - (unsigned) b);
-        memcpy (p + k * 2, &d, 2);
-    }
-}
-
-static void
-delta_decode_row_u16 (uint8_t* p, uint64_t n)
-{
-    for (uint64_t k = 1; k < n; ++k)
-    {
-        uint16_t a, b;
-        memcpy (&a, p + k * 2, 2);
-        memcpy (&b, p + (k - 1) * 2, 2);
-        uint16_t s = (uint16_t) ((unsigned) a + (unsigned) b);
-        memcpy (p + k * 2, &s, 2);
-    }
-}
-
-static void
-delta_encode_row_u32 (uint8_t* p, uint64_t n)
-{
-    if (n <= 1) return;
-    for (uint64_t k = n - 1; k > 0; --k)
-    {
-        uint32_t a, b;
-        memcpy (&a, p + k * 4, 4);
-        memcpy (&b, p + (k - 1) * 4, 4);
-        uint32_t d = a - b;
-        memcpy (p + k * 4, &d, 4);
-    }
-}
-
-static void
-delta_decode_row_u32 (uint8_t* p, uint64_t n)
-{
-    for (uint64_t k = 1; k < n; ++k)
-    {
-        uint32_t a, b;
-        memcpy (&a, p + k * 4, 4);
-        memcpy (&b, p + (k - 1) * 4, 4);
-        uint32_t s = a + b;
-        memcpy (p + k * 4, &s, 4);
-    }
 }
 
 /** Apply delta along samples within each channel row (layout from compute_sorting_lookup). */
@@ -272,7 +222,7 @@ static const uint64_t MAGIC_NUMBER = 8248453963162350458; // "zstd-exr"
 
 /** Deep pixel ZSTD wire: 1 = sort+shuffle (header v1); 2 = sort+delta+shuffle (v2). */
 #ifndef EXR_ZSTD_SORTED_WIRE_VERSION
-#    define EXR_ZSTD_SORTED_WIRE_VERSION 1
+#    define EXR_ZSTD_SORTED_WIRE_VERSION 2
 #endif
 
 /** Encode order: SORT → DELTA → SHUFFLE → ZSTD; decode reverses ZSTD first. */
