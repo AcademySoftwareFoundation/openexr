@@ -13,10 +13,16 @@
 #include <string.h>
 #include <stdbool.h>
 #include <stdint.h>
-//#include <immintrin.h>
 
 /* Use Zstd directly */
 #include <zstd.h>
+
+extern void exr_zstd_shuffle_decode_bytes (
+    uint8_t* dst, const uint8_t* shuf, size_t dSize, uint64_t shuffle_el_bytes);
+extern void exr_zstd_shuffle_encode_4 (
+    const uint8_t* in, size_t size, uint8_t* out);
+extern void exr_zstd_shuffle_encode_2 (
+    const uint8_t* in, size_t size, uint8_t* out);
 
 #define RETURN_ERRORV(pipeline, err_code, msg, ...)                            \
     {                                                                          \
@@ -42,191 +48,17 @@ static void ensure_tls_resources(size_t required_size) {
     }
 }
 
-/* Optimized Planar Byte-Shuffle (the "Blosc" magic) */
-static inline void shuffle_encode_4(const uint8_t* in, size_t size, uint8_t* out) {
-    size_t elements = size / 4;
-    uint8_t *p0 = out, *p1 = out + elements, *p2 = out + elements * 2, *p3 = out + elements * 3;
-    for (size_t i = 0; i < elements; ++i) {
-        p0[i] = in[i * 4 + 0]; p1[i] = in[i * 4 + 1]; p2[i] = in[i * 4 + 2]; p3[i] = in[i * 4 + 3];
-    }
-}
-
-static inline void shuffle_encode_2(const uint8_t* in, size_t size, uint8_t* out) {
-    size_t elements = size / 2;
-    uint8_t *p0 = out, *p1 = out + elements;
-    for (size_t i = 0; i < elements; ++i) {
-        p0[i] = in[i * 2 + 0]; p1[i] = in[i * 2 + 1];
-    }
-}
-
-/* scalar */
-static inline void shuffle_decode_4(const uint8_t* in, size_t size, uint8_t* out) {
-    size_t elements = size / 4;
-    const uint8_t *p0 = in, *p1 = in + elements, *p2 = in + elements * 2, *p3 = in + elements * 3;
-    for (size_t i = 0; i < elements; ++i) {
-        out[i * 4 + 0] = p0[i]; out[i * 4 + 1] = p1[i]; out[i * 4 + 2] = p2[i]; out[i * 4 + 3] = p3[i];
-    }
-}
-
-// scalar
-static inline void shuffle_decode_2(const uint8_t* in, size_t size, uint8_t* out) {
-    size_t elements = size / 2;
-    const uint8_t *p0 = in, *p1 = in + elements;
-    for (size_t i = 0; i < elements; ++i) {
-        out[i * 2 + 0] = p0[i]; out[i * 2 + 1] = p1[i];
-    }
-}
-/*
-// AVX2
-__attribute__((target("avx2")))
-static inline void shuffle_decode_4(const uint8_t* in, size_t size, uint8_t* out) {
-    size_t elements = size / 4;
-    const uint8_t *p0 = in;
-    const uint8_t *p1 = in + elements;
-    const uint8_t *p2 = in + elements * 2;
-    const uint8_t *p3 = in + elements * 3;
-    size_t i = 0;
-
-    if (elements >= 32) {
-        for (; i <= elements - 32; i += 32) {
-            __m256i v0 = _mm256_loadu_si256((const __m256i*)(p0 + i));
-            __m256i v1 = _mm256_loadu_si256((const __m256i*)(p1 + i));
-            __m256i v2 = _mm256_loadu_si256((const __m256i*)(p2 + i));
-            __m256i v3 = _mm256_loadu_si256((const __m256i*)(p3 + i));
-
-            // Stage 1: Interleave 0-1 and 2-3
-            __m256i v01_lo = _mm256_unpacklo_epi8(v0, v1);
-            __m256i v01_hi = _mm256_unpackhi_epi8(v0, v1);
-            __m256i v23_lo = _mm256_unpacklo_epi8(v2, v3);
-            __m256i v23_hi = _mm256_unpackhi_epi8(v2, v3);
-
-            // Stage 2: Interleave the results (unpack 16-bit to 32-bit)
-            __m256i res0 = _mm256_unpacklo_epi16(v01_lo, v23_lo);
-            __m256i res1 = _mm256_unpackhi_epi16(v01_lo, v23_lo);
-            __m256i res2 = _mm256_unpacklo_epi16(v01_hi, v23_hi);
-            __m256i res3 = _mm256_unpackhi_epi16(v01_hi, v23_hi);
-
-            // Permute to fix the cross-lane order
-            __m256i out0 = _mm256_permute2x128_si256(res0, res1, 0x20); // Elements 0-7
-            __m256i out1 = _mm256_permute2x128_si256(res0, res1, 0x31); // Elements 16-23
-            __m256i out2 = _mm256_permute2x128_si256(res2, res3, 0x20); // Elements 8-15
-            __m256i out3 = _mm256_permute2x128_si256(res2, res3, 0x31); // Elements 24-31
-
-            // CORRECTED STORE ORDER: out0 -> out2 -> out1 -> out3
-            _mm256_storeu_si256((__m256i*)(out + i * 4),       out0);
-            _mm256_storeu_si256((__m256i*)(out + i * 4 + 32),  out2); 
-            _mm256_storeu_si256((__m256i*)(out + i * 4 + 64),  out1); 
-            _mm256_storeu_si256((__m256i*)(out + i * 4 + 96),  out3);
-        }
-    }
-
-    // Scalar fallback
-    for (; i < elements; ++i) {
-        out[i * 4 + 0] = p0[i]; out[i * 4 + 1] = p1[i];
-        out[i * 4 + 2] = p2[i]; out[i * 4 + 3] = p3[i];
-    }
-}
-
-__attribute__((target("avx2")))
-static inline void shuffle_decode_2(const uint8_t* in, size_t size, uint8_t* out) {
-    size_t elements = size / 2;
-    const uint8_t *p0 = in;
-    const uint8_t *p1 = in + elements;
-    size_t i = 0;
-
-    if (elements >= 32) {
-        for (; i <= elements - 32; i += 32) {
-            __m256i v0 = _mm256_loadu_si256((const __m256i*)(p0 + i));
-            __m256i v1 = _mm256_loadu_si256((const __m256i*)(p1 + i));
-
-            // Interleave bytes (results in lane-interleaved data)
-            __m256i lo = _mm256_unpacklo_epi8(v0, v1);
-            __m256i hi = _mm256_unpackhi_epi8(v0, v1);
-
-            // Fix the AVX2 lane issue to make it linear
-            // We want [lo_lane0, hi_lane0, lo_lane1, hi_lane1]
-            __m256i out0 = _mm256_permute2x128_si256(lo, hi, 0x20);
-            __m256i out1 = _mm256_permute2x128_si256(lo, hi, 0x31);
-
-            _mm256_storeu_si256((__m256i*)(out + i * 2),      out0);
-            _mm256_storeu_si256((__m256i*)(out + i * 2 + 32), out1);
-        }
-    }
-
-    // Scalar fallback
-    for (; i < elements; ++i) {
-        out[i * 2 + 0] = p0[i];
-        out[i * 2 + 1] = p1[i];
-    }
-}*/
-/*
-// sse
-static inline void shuffle_decode_2(const uint8_t* in, size_t size, uint8_t* out) {
-    size_t elements = size / 2;
-    const uint8_t *p0 = in;
-    const uint8_t *p1 = in + elements;
-    
-    size_t i = 0;
-    
-    // Process 16 elements (32 bytes) at a time
-    if (elements >= 16) {
-        for (; i <= elements - 16; i += 16) {
-            // Load 16 bytes from p0 and 16 bytes from p1
-            __m128i v0 = _mm_loadu_si128((const __m128i*)(p0 + i));
-            __m128i v1 = _mm_loadu_si128((const __m128i*)(p1 + i));
-            
-            // Interleave (Unpack) the bytes:
-            // res_lo: p0[0], p1[0], p0[1], p1[1] ... p0[7], p1[7]
-            // res_hi: p0[8], p1[8], p0[9], p1[9] ... p0[15], p1[15]
-            __m128i res_lo = _mm_unpacklo_epi8(v0, v1);
-            __m128i res_hi = _mm_unpackhi_epi8(v0, v1);
-            
-            // Store the interleaved result back to out
-            _mm_storeu_si128((__m128i*)(out + i * 2), res_lo);
-            _mm_storeu_si128((__m128i*)(out + i * 2 + 16), res_hi);
-        }
-    }
-
-    // Clean up remaining elements
-    for (; i < elements; ++i) {
-        out[i * 2 + 0] = p0[i];
-        out[i * 2 + 1] = p1[i];
-    }
-}
-*/
-
-
-static void
-shuffle_decode_bytes (
-    uint8_t* dst, const uint8_t* shuf, size_t dSize, uint64_t shuffle_el_bytes)
-{
-    if (shuffle_el_bytes == 4 && (dSize % 4) == 0)
-        shuffle_decode_4 (shuf, dSize, dst);
-    else if (shuffle_el_bytes == 2 && (dSize % 2) == 0)
-        shuffle_decode_2 (shuf, dSize, dst);
-    else if (shuffle_el_bytes == 0)
-    {
-        if ((dSize % 4) == 0)
-            shuffle_decode_4 (shuf, dSize, dst);
-        else if ((dSize % 2) == 0)
-            shuffle_decode_2 (shuf, dSize, dst);
-        else
-            memcpy (dst, shuf, dSize);
-    }
-    else
-        memcpy (dst, shuf, dSize);
-}
-
-/** shuffle_el_bytes: 2 or 4 selects shuffle_decode_*; 0 means infer from dSize (legacy). */
+/** \a shuffle_el_bytes must be 4 or 2 (planar unshuffle after ZSTD). */
 long exr_uncompress_zstd (
     char* inPtr, uint64_t inSize, void** outPtr, uint64_t outPtrSize, uint64_t shuffle_el_bytes)
 {
-    ensure_tls_resources(outPtrSize);
+    ensure_tls_resources (outPtrSize);
 
-    ZSTD_DCtx_reset(d_cctx, ZSTD_reset_session_only);
-    size_t dSize = ZSTD_decompressDCtx(d_cctx, t_shuffle_buf, outPtrSize, inPtr, inSize);
+    ZSTD_DCtx_reset (d_cctx, ZSTD_reset_session_only);
+    size_t dSize =
+        ZSTD_decompressDCtx (d_cctx, t_shuffle_buf, outPtrSize, inPtr, inSize);
 
-    if (ZSTD_isError(dSize)) return -1;
+    if (ZSTD_isError (dSize)) return -1;
 
     if (*outPtr == NULL)
     {
@@ -234,21 +66,8 @@ long exr_uncompress_zstd (
         if (!*outPtr) return -1;
     }
 
-    if (shuffle_el_bytes == 4 && (dSize % 4) == 0)
-        shuffle_decode_4 (t_shuffle_buf, dSize, (uint8_t*) *outPtr);
-    else if (shuffle_el_bytes == 2 && (dSize % 2) == 0)
-        shuffle_decode_2 (t_shuffle_buf, dSize, (uint8_t*) *outPtr);
-    else if (shuffle_el_bytes == 0)
-    {
-        if ((dSize % 4) == 0)
-            shuffle_decode_4 (t_shuffle_buf, dSize, (uint8_t*) *outPtr);
-        else if ((dSize % 2) == 0)
-            shuffle_decode_2 (t_shuffle_buf, dSize, (uint8_t*) *outPtr);
-        else
-            memcpy (*outPtr, t_shuffle_buf, dSize);
-    }
-    else
-        memcpy (*outPtr, t_shuffle_buf, dSize);
+    exr_zstd_shuffle_decode_bytes (
+        (uint8_t*) *outPtr, t_shuffle_buf, dSize, shuffle_el_bytes);
 
     return (long) dSize;
 }
@@ -605,9 +424,9 @@ write_u64_le (uint8_t* p, uint64_t v)
     write_u32_le (p + 4, (uint32_t) (v >> 32));
 }
 
-
+/** ZSTD inner stream (pre-ZSTD): u64 LE uncompressed segment length, then shuffled bytes. */
 static int
-append_inner_shuffle (
+zstd_inner_append_shuffled_segment (
     uint8_t* inner,
     size_t* pos,
     size_t inner_cap,
@@ -622,13 +441,30 @@ append_inner_shuffle (
     if (*pos + src_len > inner_cap) return -1;
     if (src_len == 0) return 0;
     if (typeSize == 4)
-        shuffle_encode_4 ((const uint8_t*) src, src_len, inner + *pos);
-    else if (typeSize == 2)
-        shuffle_encode_2 ((const uint8_t*) src, src_len, inner + *pos);
+        exr_zstd_shuffle_encode_4 ((const uint8_t*) src, src_len, inner + *pos);
     else
-        memcpy (inner + *pos, src, src_len);
+        exr_zstd_shuffle_encode_2 ((const uint8_t*) src, src_len, inner + *pos);
     *pos += src_len;
     return 0;
+}
+
+/** Read one inner segment: u64 LE length (must equal \a expected_len), then unshuffle. */
+static exr_result_t
+zstd_inner_read_shuffled_segment (
+    const uint8_t** q,
+    const uint8_t* qend,
+    uint8_t* tgt,
+    uint64_t expected_len,
+    uint64_t el_bytes)
+{
+    if ((size_t) (qend - *q) < 8) return EXR_ERR_CORRUPT_CHUNK;
+    uint64_t ilen = read_u64_le (*q);
+    *q += 8;
+    if (ilen > (uint64_t) (qend - *q)) return EXR_ERR_CORRUPT_CHUNK;
+    if (ilen != expected_len) return EXR_ERR_CORRUPT_CHUNK;
+    exr_zstd_shuffle_decode_bytes (tgt, *q, (size_t) ilen, el_bytes);
+    *q += ilen;
+    return EXR_ERR_SUCCESS;
 }
 
 /** 24-byte EXR ZSTD prefix: magic @0, hdr_format @8, hdr_flags @12, zstd size @16 LE. */
@@ -982,7 +818,7 @@ exr_result_t internal_exr_apply_zstd (exr_encode_pipeline_t* encode)
     {
         if (splitPos > 0)
         {
-            if (append_inner_shuffle (
+            if (zstd_inner_append_shuffled_segment (
                     inner,
                     &inner_pos,
                     inner_cap,
@@ -994,7 +830,7 @@ exr_result_t internal_exr_apply_zstd (exr_encode_pipeline_t* encode)
         size_t const s2_in = packed - (size_t) splitPos;
         if (s2_in > 0)
         {
-            if (append_inner_shuffle (
+            if (zstd_inner_append_shuffled_segment (
                     inner,
                     &inner_pos,
                     inner_cap,
@@ -1186,22 +1022,22 @@ exr_undo_zstd_v1 (
         target = decode->scratch_buffer_1;
     }
 
-    uint8_t*       q   = t_shuffle_buf;
-    uint8_t* const qend = t_shuffle_buf + dSize;
-    uint8_t*       tgt = (uint8_t*) target;
+    const uint8_t*       q    = (const uint8_t*) t_shuffle_buf;
+    const uint8_t* const qend = (const uint8_t*) t_shuffle_buf + dSize;
+    uint8_t*            tgt = (uint8_t*) target;
     int            seg;
     if (exr_zstd_pipeline_phase_enabled (&pipe, EXR_ZSTD_PHASE_SHUFFLE))
     {
         for (seg = 0; seg < n_inner; ++seg)
         {
-            if ((size_t) (qend - q) < 8) return EXR_ERR_CORRUPT_CHUNK;
-            uint64_t ilen = read_u64_le (q);
-            q += 8;
-            if (ilen > (uint64_t) (qend - q)) return EXR_ERR_CORRUPT_CHUNK;
-            if (ilen != inner_lens[seg]) return EXR_ERR_CORRUPT_CHUNK;
-            shuffle_decode_bytes (tgt, q, (size_t) ilen, inner_els[seg]);
-            tgt += ilen;
-            q += ilen;
+            exr_result_t seg_rv = zstd_inner_read_shuffled_segment (
+                &q,
+                qend,
+                tgt,
+                inner_lens[seg],
+                inner_els[seg]);
+            if (seg_rv != EXR_ERR_SUCCESS) return seg_rv;
+            tgt += inner_lens[seg];
         }
         if (q != qend) return EXR_ERR_CORRUPT_CHUNK;
         if ((size_t) (tgt - (uint8_t*) target) != (size_t) uncompressed_size)
