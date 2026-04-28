@@ -47,9 +47,20 @@ static _Thread_local size_t     t_shuffle_buf_size = 0;
 static void ensure_tls_resources(size_t required_size) {
     if (!t_cctx) t_cctx = ZSTD_createCCtx();
     if (!d_cctx) d_cctx = ZSTD_createDCtx();
+    
     if (t_shuffle_buf_size < required_size) {
-        t_shuffle_buf = (uint8_t*)realloc(t_shuffle_buf, required_size);
-        t_shuffle_buf_size = required_size;
+        // 1. FREE the old buffer to avoid realloc's internal overhead
+        if (t_shuffle_buf) free(t_shuffle_buf);
+        
+        // 2. OVERSHOOT: Allocate 25% more than needed to prevent 
+        // repeated reallocations if the next scanline is slightly bigger.
+        t_shuffle_buf_size = required_size + (required_size >> 2);
+        
+        // 3. ALIGN: Use aligned_alloc for 64-byte cache line alignment
+        // Note: size must be a multiple of alignment for aligned_alloc
+        size_t aligned_size = (t_shuffle_buf_size + 63) & ~63;
+        
+        t_shuffle_buf = (uint8_t*)aligned_alloc(64, aligned_size);
     }
 }
 
