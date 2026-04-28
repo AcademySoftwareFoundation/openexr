@@ -53,6 +53,11 @@ extern void delta_decode_row_u16 (uint8_t* p, uint64_t n);
 extern void delta_encode_row_u32 (uint8_t* p, uint64_t n);
 extern void delta_decode_row_u32 (uint8_t* p, uint64_t n);
 
+extern void delta_encode_row_u16 (uint8_t* p, uint64_t n);
+extern void delta_decode_row_u16 (uint8_t* p, uint64_t n);
+extern void delta_encode_row_u32 (uint8_t* p, uint64_t n);
+extern void delta_decode_row_u32 (uint8_t* p, uint64_t n);
+
 #define RETURN_ERRORV(pipeline, err_code, msg, ...)                            \
     {                                                                          \
         exr_const_context_t pctxt = pipeline->context;                         \
@@ -469,7 +474,7 @@ static const uint64_t MAGIC_NUMBER = 8248453963162350458; // "zstd-exr"
 
 /** Deep pixel ZSTD wire: 1 = sort+shuffle (header v1); 2 = sort+delta+shuffle (v2). */
 #ifndef EXR_ZSTD_SORTED_WIRE_VERSION
-#    define EXR_ZSTD_SORTED_WIRE_VERSION 1
+#    define EXR_ZSTD_SORTED_WIRE_VERSION 2
 #endif
 
 /** Encode order: SORT → DELTA → SHUFFLE → ZSTD; decode reverses ZSTD first.
