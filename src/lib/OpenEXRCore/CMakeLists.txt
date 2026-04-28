@@ -58,6 +58,9 @@ openexr_define_library(OpenEXRCore
     internal_dwa_table.c
     internal_dwa_table_init.c
     internal_huf.c
+    internal_zstd.c
+    internal_zstd_delta.c
+    internal_zstd_shuffle.c
 
     attributes.c
     string.c
@@ -122,6 +125,48 @@ if (DEFINED EXR_DEFLATE_LIB)
   else()
     target_link_libraries(OpenEXRCore PUBLIC ${EXR_DEFLATE_LIB})
   endif()
+endif()
+
+if (OPENEXR_IMF_ZSTD_TARGET AND NOT OPENEXR_IMF_ZSTD_TARGET STREQUAL "")
+
+  # External zstd
+
+  if (BUILD_SHARED_LIBS)
+    target_link_libraries(OpenEXRCore PRIVATE ${OPENEXR_IMF_ZSTD_TARGET})
+  else()
+    target_link_libraries(OpenEXRCore PUBLIC ${OPENEXR_IMF_ZSTD_TARGET})
+  endif()
+
+else()
+
+  # Vendored zstd
+  #
+  # Compile the vendored zstd sources directly into OpenEXRCore rather than
+  # building a separate static library. This bundles the zstd symbols into
+  # OpenEXRCore so that a static OpenEXRCore is self-contained: a separate
+  # static target is neither installed nor part of the OpenEXR export set,
+  # which both breaks install(EXPORT ...) and leaves undefined references for
+  # downstream static consumers. OpenEXRCore's hidden visibility keeps the
+  # zstd symbols out of the shared library's ABI.
+
+  set(ZSTD_LIB_DIR ${PROJECT_SOURCE_DIR}/external/zstd/lib)
+
+  file(GLOB EXR_ZSTD_SOURCES
+    ${ZSTD_LIB_DIR}/common/*.c
+    ${ZSTD_LIB_DIR}/compress/*.c
+    ${ZSTD_LIB_DIR}/decompress/*.c)
+
+  if (NOT MSVC AND CMAKE_SYSTEM_PROCESSOR MATCHES "amd64.*|AMD64.*|x86_64.*|X86_64.*")
+    enable_language(ASM)
+    list(APPEND EXR_ZSTD_SOURCES ${ZSTD_LIB_DIR}/decompress/huf_decompress_amd64.S)
+  else()
+    set_source_files_properties(${EXR_ZSTD_SOURCES} PROPERTIES
+      COMPILE_DEFINITIONS ZSTD_DISABLE_ASM)
+  endif()
+
+  target_sources(OpenEXRCore PRIVATE ${EXR_ZSTD_SOURCES})
+  target_include_directories(OpenEXRCore PRIVATE ${ZSTD_LIB_DIR})
+
 endif()
 
 if (DEFINED EXR_OPENJPH_LIB)
