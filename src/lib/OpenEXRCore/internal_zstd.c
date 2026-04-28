@@ -48,29 +48,6 @@ static void ensure_tls_resources(size_t required_size) {
     }
 }
 
-/** \a shuffle_el_bytes must be 4 or 2 (planar unshuffle after ZSTD). */
-long exr_uncompress_zstd (
-    char* inPtr, uint64_t inSize, void** outPtr, uint64_t outPtrSize, uint64_t shuffle_el_bytes)
-{
-    ensure_tls_resources (outPtrSize);
-
-    ZSTD_DCtx_reset (d_cctx, ZSTD_reset_session_only);
-    size_t dSize =
-        ZSTD_decompressDCtx (d_cctx, t_shuffle_buf, outPtrSize, inPtr, inSize);
-
-    if (ZSTD_isError (dSize)) return -1;
-
-    if (*outPtr == NULL)
-    {
-        *outPtr = malloc (dSize);
-        if (!*outPtr) return -1;
-    }
-
-    exr_zstd_shuffle_decode_bytes (
-        (uint8_t*) *outPtr, t_shuffle_buf, dSize, shuffle_el_bytes);
-
-    return (long) dSize;
-}
 
 /* --- Keep the existing OpenEXR specific sorting/sampling logic below --- */
 
