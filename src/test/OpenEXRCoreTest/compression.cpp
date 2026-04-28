@@ -531,7 +531,6 @@ struct pixels
             return;
 #endif
         uint32_t a,b; memcpy(&a,&af,sizeof a); memcpy(&b,&bf,sizeof b);
-        const bool bothNan = std::isnan (af) && std::isnan (bf);
         if (a != b)
         {
             std::cout << chan << " float at " << x << ", " << y
