@@ -181,8 +181,58 @@ delta_decode_sorted_layout (
     return 0;
 }
 
-/* Planar pack order (pack.c): for each chunk line h, each channel in order;
- * subsampled channels contribute 0 bytes on skipped lines. */
+/* Reorder a chunk between two linear layouts; see \a forward.
+ *
+ * \p num_samples_grid and \p channels follow the same contract as
+ * default_pack (unpack.c / pack.c): for chunk-relative row index \c h and
+ * channel index \c i, \c num_samples_grid[h * channelsSize + i] is the number
+ * of samples for that channel on that scanline (zero when subsampling skips it).
+ *
+ * **Forward (\p forward == true): ZSTD encode path — packed pixel order → sorted order**
+ *
+ * - **Input (\p inPtr): “packed” layout.** One contiguous byte buffer built by
+ *   walking chunk rows \c h = 0 … height−1; within each row, walking channels
+ *   \c i = 0 … channelsSize−1 in **header order**. For each (\c h,\c i),
+ *   append \c num_samples_grid[h,i] × \c channels[i].bytes_per_element bytes
+ *   (the raw scanline for that channel on that row). Subsampled channels with
+ *   zero samples contribute nothing on that row.
+ *
+ * - **Output (\p outPtr): “sorted” layout.** Same total byte length as the
+ *   input. Bytes \c [0, \p splitPoint) hold **every** 16-bit (`bytes_per_element == 2`)
+ *   channel row, in row-major order: for each \c h, for each channel \c i with
+ *   2-byte samples, that channel’s row bytes are placed contiguously in this
+ *   block at the offset computed by compute_sorting_lookup (first all half
+ *   data for the chunk). Bytes \c [\p splitPoint, total) hold **every** 32-bit
+ *   (`bytes_per_element == 4`) channel row in the same nested loop order.
+ *   Here \p splitPoint is the return value of compute_sorting_lookup (total
+ *   half-precision bytes in the chunk).
+ *
+ * **Concrete example (forward)** — channels in header order **R, G, B, A**
+ * (half / 2 bytes each), **Z** (float / 4 bytes); chunk **height = 2**;
+ * **3** samples per channel per row (flat RGBAZ, no subsampling). Per row the
+ * packed input appends R row, G row, B row, A row, Z row:
+ *
+ *     Row 0: [3× half R][3× half G][3× half B][3× half A][3× float Z]
+ *     Row 1: [3× half R][3× half G][3× half B][3× half A][3× float Z]
+ *            (each 3x half block is 6 bytes; each 3-float Z block is 12 bytes)
+ *
+ * So each row is 24 + 12 = **36** bytes; the full input is **72** bytes.
+ * \c splitPoint = 2 rows × (4 half channels × 3 samples × 2 bytes) = **48**.
+ * The sorted output groups all half data first, then all float data:
+ *
+ *     [ R row0 ][ G row0 ][ B row0 ][ A row0 ][ R row1 ][ G row1 ][ B row1 ][ A row1 ]
+ *     |______________ 48 bytes (splitPoint) ______________|
+ *     [      Z row0      ][      Z row1      ]
+ *     |____ 12 ____||____ 12 ____|
+ *
+ * i.e. half channels are no longer interleaved with Z per scanline; Z follows
+ * the entire half-precision block.
+ *
+ * **Reverse (\p forward == false): decode path — sorted → packed**
+ *
+ * \p inPtr is the sorted buffer (same layout as forward output); \p outPtr
+ * receives the packed layout (same as forward input).
+ */
 uint64_t sort2_4ByteChannels_tiled (
     const char*                      inPtr,
     const uint64_t*                num_samples_grid,
