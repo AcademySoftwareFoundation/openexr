@@ -149,6 +149,7 @@ static void shuffle_decode_2_avx2(const uint8_t* in, size_t size, uint8_t* out) 
     }
 }
 
+/*
 __attribute__((target("avx512f,avx512bw,avx512dq,avx512vl")))
 static void shuffle_decode_4_avx512(const uint8_t* in, size_t size, uint8_t* out) {
     size_t elements = size / 4;
@@ -241,7 +242,7 @@ static void shuffle_decode_2_avx512(const uint8_t* in, size_t size, uint8_t* out
         out[i * 2 + 1] = p1[i];
     }
 }
-
+*/
 #endif
 
 /* ========================================================================= */
@@ -270,18 +271,18 @@ exr_zstd_shuffle_decode_bytes (
     
     if (shuffle_el_bytes == 4) {
         /* AVX512 BW & DQ are required for the unpack+permutex2var logic */
-        if (__builtin_cpu_supports("avx512bw") && __builtin_cpu_supports("avx512dq")) {
+        /*if (__builtin_cpu_supports("avx512bw") && __builtin_cpu_supports("avx512dq")) {
             shuffle_decode_4_avx512(shuf, dSize, dst);
-        } else if (__builtin_cpu_supports("avx2")) {
+        } else */if (__builtin_cpu_supports("avx2")) {
             shuffle_decode_4_avx2(shuf, dSize, dst);
         } else {
             shuffle_decode_4_scalar(shuf, dSize, dst);
         }
     } else {
         /* AVX512 VBMI is required for the vpermi2b logic */
-        if (__builtin_cpu_supports("avx512vbmi")) {
+        /*if (__builtin_cpu_supports("avx512vbmi")) {
             shuffle_decode_2_avx512(shuf, dSize, dst);
-        } else if (__builtin_cpu_supports("avx2")) {
+        } else */if (__builtin_cpu_supports("avx2")) {
             shuffle_decode_2_avx2(shuf, dSize, dst);
         } else {
             shuffle_decode_2_scalar(shuf, dSize, dst);
