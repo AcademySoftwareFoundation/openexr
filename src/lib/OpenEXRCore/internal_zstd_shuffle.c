@@ -12,7 +12,7 @@ static void
 shuffle_encode_4_scalar (const uint8_t* in, size_t size, uint8_t* out)
 {
     size_t         elements = size / 4;
-    uint8_t *const p0       = out;
+    uint8_t* const p0       = out;
     uint8_t* const p1       = out + elements;
     uint8_t* const p2       = out + elements * 2;
     uint8_t* const p3       = out + elements * 3;
@@ -27,9 +27,9 @@ shuffle_encode_4_scalar (const uint8_t* in, size_t size, uint8_t* out)
 
 static void
 shuffle_encode_2_scalar (const uint8_t* in, size_t size, uint8_t* out)
-{   
+{
     size_t         elements = size / 2;
-    uint8_t *const p0       = out;
+    uint8_t* const p0       = out;
     uint8_t* const p1       = out + elements;
     for (size_t i = 0; i < elements; ++i)
     {
@@ -42,7 +42,7 @@ static void
 shuffle_decode_4_scalar (const uint8_t* in, size_t size, uint8_t* out)
 {
     size_t               elements = size / 4;
-    const uint8_t *const p0       = in;
+    const uint8_t* const p0       = in;
     const uint8_t* const p1       = in + elements;
     const uint8_t* const p2       = in + elements * 2;
     const uint8_t* const p3       = in + elements * 3;
@@ -59,7 +59,7 @@ static void
 shuffle_decode_2_scalar (const uint8_t* in, size_t size, uint8_t* out)
 {
     size_t               elements = size / 2;
-    const uint8_t *const p0       = in;
+    const uint8_t* const p0       = in;
     const uint8_t* const p1       = in + elements;
     for (size_t i = 0; i < elements; ++i)
     {
@@ -74,76 +74,86 @@ shuffle_decode_2_scalar (const uint8_t* in, size_t size, uint8_t* out)
 
 #if defined(__GNUC__) && defined(__x86_64__)
 
-#include <immintrin.h>
+#    include <immintrin.h>
 
-__attribute__((target("avx2")))
-static void shuffle_decode_4_avx2(const uint8_t* in, size_t size, uint8_t* out) {
-    size_t elements = size / 4;
-    const uint8_t *p0 = in;
-    const uint8_t *p1 = in + elements;
-    const uint8_t *p2 = in + elements * 2;
-    const uint8_t *p3 = in + elements * 3;
-    size_t i = 0;
+__attribute__ ((target ("avx2"))) static void
+shuffle_decode_4_avx2 (const uint8_t* in, size_t size, uint8_t* out)
+{
+    size_t         elements = size / 4;
+    const uint8_t* p0       = in;
+    const uint8_t* p1       = in + elements;
+    const uint8_t* p2       = in + elements * 2;
+    const uint8_t* p3       = in + elements * 3;
+    size_t         i        = 0;
 
-    if (elements >= 32) {
-        for (; i <= elements - 32; i += 32) {
-            __m256i v0 = _mm256_loadu_si256((const __m256i*)(p0 + i));
-            __m256i v1 = _mm256_loadu_si256((const __m256i*)(p1 + i));
-            __m256i v2 = _mm256_loadu_si256((const __m256i*)(p2 + i));
-            __m256i v3 = _mm256_loadu_si256((const __m256i*)(p3 + i));
+    if (elements >= 32)
+    {
+        for (; i <= elements - 32; i += 32)
+        {
+            __m256i v0 = _mm256_loadu_si256 ((const __m256i*) (p0 + i));
+            __m256i v1 = _mm256_loadu_si256 ((const __m256i*) (p1 + i));
+            __m256i v2 = _mm256_loadu_si256 ((const __m256i*) (p2 + i));
+            __m256i v3 = _mm256_loadu_si256 ((const __m256i*) (p3 + i));
 
-            __m256i v01_lo = _mm256_unpacklo_epi8(v0, v1);
-            __m256i v01_hi = _mm256_unpackhi_epi8(v0, v1);
-            __m256i v23_lo = _mm256_unpacklo_epi8(v2, v3);
-            __m256i v23_hi = _mm256_unpackhi_epi8(v2, v3);
+            __m256i v01_lo = _mm256_unpacklo_epi8 (v0, v1);
+            __m256i v01_hi = _mm256_unpackhi_epi8 (v0, v1);
+            __m256i v23_lo = _mm256_unpacklo_epi8 (v2, v3);
+            __m256i v23_hi = _mm256_unpackhi_epi8 (v2, v3);
 
-            __m256i res0 = _mm256_unpacklo_epi16(v01_lo, v23_lo);
-            __m256i res1 = _mm256_unpackhi_epi16(v01_lo, v23_lo);
-            __m256i res2 = _mm256_unpacklo_epi16(v01_hi, v23_hi);
-            __m256i res3 = _mm256_unpackhi_epi16(v01_hi, v23_hi);
+            __m256i res0 = _mm256_unpacklo_epi16 (v01_lo, v23_lo);
+            __m256i res1 = _mm256_unpackhi_epi16 (v01_lo, v23_lo);
+            __m256i res2 = _mm256_unpacklo_epi16 (v01_hi, v23_hi);
+            __m256i res3 = _mm256_unpackhi_epi16 (v01_hi, v23_hi);
 
-            __m256i out0 = _mm256_permute2x128_si256(res0, res1, 0x20);
-            __m256i out1 = _mm256_permute2x128_si256(res0, res1, 0x31);
-            __m256i out2 = _mm256_permute2x128_si256(res2, res3, 0x20);
-            __m256i out3 = _mm256_permute2x128_si256(res2, res3, 0x31);
+            __m256i out0 = _mm256_permute2x128_si256 (res0, res1, 0x20);
+            __m256i out1 = _mm256_permute2x128_si256 (res0, res1, 0x31);
+            __m256i out2 = _mm256_permute2x128_si256 (res2, res3, 0x20);
+            __m256i out3 = _mm256_permute2x128_si256 (res2, res3, 0x31);
 
-            _mm256_storeu_si256((__m256i*)(out + i * 4),       out0);
-            _mm256_storeu_si256((__m256i*)(out + i * 4 + 32),  out2);
-            _mm256_storeu_si256((__m256i*)(out + i * 4 + 64),  out1);
-            _mm256_storeu_si256((__m256i*)(out + i * 4 + 96),  out3);
+            _mm256_storeu_si256 ((__m256i*) (out + i * 4), out0);
+            _mm256_storeu_si256 ((__m256i*) (out + i * 4 + 32), out2);
+            _mm256_storeu_si256 ((__m256i*) (out + i * 4 + 64), out1);
+            _mm256_storeu_si256 ((__m256i*) (out + i * 4 + 96), out3);
         }
     }
 
-    for (; i < elements; ++i) {
-        out[i * 4 + 0] = p0[i]; out[i * 4 + 1] = p1[i];
-        out[i * 4 + 2] = p2[i]; out[i * 4 + 3] = p3[i];
+    for (; i < elements; ++i)
+    {
+        out[i * 4 + 0] = p0[i];
+        out[i * 4 + 1] = p1[i];
+        out[i * 4 + 2] = p2[i];
+        out[i * 4 + 3] = p3[i];
     }
 }
 
-__attribute__((target("avx2")))
-static void shuffle_decode_2_avx2(const uint8_t* in, size_t size, uint8_t* out) {
-    size_t elements = size / 2;
-    const uint8_t *p0 = in;
-    const uint8_t *p1 = in + elements;
-    size_t i = 0;
+__attribute__ ((target ("avx2"))) static void
+shuffle_decode_2_avx2 (const uint8_t* in, size_t size, uint8_t* out)
+{
+    size_t         elements = size / 2;
+    const uint8_t* p0       = in;
+    const uint8_t* p1       = in + elements;
+    size_t         i        = 0;
 
-    if (elements >= 32) {
-        for (; i <= elements - 32; i += 32) {
-            __m256i v0 = _mm256_loadu_si256((const __m256i*)(p0 + i));
-            __m256i v1 = _mm256_loadu_si256((const __m256i*)(p1 + i));
+    if (elements >= 32)
+    {
+        for (; i <= elements - 32; i += 32)
+        {
+            __m256i v0 = _mm256_loadu_si256 ((const __m256i*) (p0 + i));
+            __m256i v1 = _mm256_loadu_si256 ((const __m256i*) (p1 + i));
 
-            __m256i lo = _mm256_unpacklo_epi8(v0, v1);
-            __m256i hi = _mm256_unpackhi_epi8(v0, v1);
+            __m256i lo = _mm256_unpacklo_epi8 (v0, v1);
+            __m256i hi = _mm256_unpackhi_epi8 (v0, v1);
 
-            __m256i out0 = _mm256_permute2x128_si256(lo, hi, 0x20);
-            __m256i out1 = _mm256_permute2x128_si256(lo, hi, 0x31);
+            __m256i out0 = _mm256_permute2x128_si256 (lo, hi, 0x20);
+            __m256i out1 = _mm256_permute2x128_si256 (lo, hi, 0x31);
 
-            _mm256_storeu_si256((__m256i*)(out + i * 2),      out0);
-            _mm256_storeu_si256((__m256i*)(out + i * 2 + 32), out1);
+            _mm256_storeu_si256 ((__m256i*) (out + i * 2), out0);
+            _mm256_storeu_si256 ((__m256i*) (out + i * 2 + 32), out1);
         }
     }
 
-    for (; i < elements; ++i) {
+    for (; i < elements; ++i)
+    {
         out[i * 2 + 0] = p0[i];
         out[i * 2 + 1] = p1[i];
     }
@@ -267,26 +277,31 @@ exr_zstd_shuffle_decode_bytes (
     uint8_t* dst, const uint8_t* shuf, size_t dSize, uint64_t shuffle_el_bytes)
 {
 #if defined(__GNUC__) && defined(__x86_64__)
-    __builtin_cpu_init();
-    
-    if (shuffle_el_bytes == 4) {
+    __builtin_cpu_init ();
+
+    if (shuffle_el_bytes == 4)
+    {
         /* AVX512 BW & DQ are required for the unpack+permutex2var logic */
         /*if (__builtin_cpu_supports("avx512bw") && __builtin_cpu_supports("avx512dq")) {
             shuffle_decode_4_avx512(shuf, dSize, dst);
-        } else */if (__builtin_cpu_supports("avx2")) {
-            shuffle_decode_4_avx2(shuf, dSize, dst);
-        } else {
-            shuffle_decode_4_scalar(shuf, dSize, dst);
+        } else */
+        if (__builtin_cpu_supports ("avx2"))
+        {
+            shuffle_decode_4_avx2 (shuf, dSize, dst);
         }
-    } else {
+        else { shuffle_decode_4_scalar (shuf, dSize, dst); }
+    }
+    else
+    {
         /* AVX512 VBMI is required for the vpermi2b logic */
         /*if (__builtin_cpu_supports("avx512vbmi")) {
             shuffle_decode_2_avx512(shuf, dSize, dst);
-        } else */if (__builtin_cpu_supports("avx2")) {
-            shuffle_decode_2_avx2(shuf, dSize, dst);
-        } else {
-            shuffle_decode_2_scalar(shuf, dSize, dst);
+        } else */
+        if (__builtin_cpu_supports ("avx2"))
+        {
+            shuffle_decode_2_avx2 (shuf, dSize, dst);
         }
+        else { shuffle_decode_2_scalar (shuf, dSize, dst); }
     }
 #else
     /* Safe fallback for ARM, Windows/MSVC, or non-x86 compilation */
