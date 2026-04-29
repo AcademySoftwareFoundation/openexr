@@ -24,16 +24,23 @@ message(status "CXX_FLAGS=$ENV{CXX_FLAGS}")
 message(status "CC=$ENV{CC}")
 message(status "CC_FLAGS=$ENV{CC_FLAGS}")
 
-set(OPENEXR_FUZZERS openexr_exrcheck_fuzzer openexr_exrcorecheck_fuzzer)
+set(OPENEXR_FUZZERS openexr_exrcheck_fuzzer openexr_exrcorecheck_fuzzer openexr_encoding_fuzzer openexr_attribute_fuzzer openexr_htj2k_fuzzer openexr_roundtrip_fuzzer)
 add_custom_target(oss_fuzz ALL
-  DEPENDS openexr_exrcheck_fuzzer openexr_exrcorecheck_fuzzer
+  DEPENDS openexr_exrcheck_fuzzer openexr_exrcorecheck_fuzzer openexr_encoding_fuzzer openexr_attribute_fuzzer openexr_htj2k_fuzzer openexr_roundtrip_fuzzer
 )
 
-foreach(fuzzer IN LISTS OPENEXR_FUZZERS)
+if ($ENV{FUZZING_ENGINE} STREQUAL "afl")
+  add_library(afl_rt STATIC IMPORTED)
+  set_target_properties(afl_rt PROPERTIES IMPORTED_LOCATION /src/aflplusplus/afl-compiler-rt.o)
+endif()
 
+foreach(fuzzer IN LISTS OPENEXR_FUZZERS)
   add_executable(${fuzzer} ${fuzzer}.cc)
   target_link_libraries(${fuzzer}
     PRIVATE OpenEXR::OpenEXR OpenEXR::OpenEXRUtil $ENV{LIB_FUZZING_ENGINE})
+  if ($ENV{FUZZING_ENGINE} STREQUAL "afl")
+    target_link_libraries(${fuzzer} PRIVATE afl_rt)
+  endif()
   install(TARGETS ${fuzzer}
     DESTINATION $ENV{OUT}
     COMPONENT oss_fuzz
