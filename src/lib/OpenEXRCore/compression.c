@@ -234,7 +234,7 @@ exr_rle_uncompress_buffer (size_t in_bytes, size_t max_len, const void* in, void
 int
 exr_get_zstd_lines_per_chunk (void)
 {
-    return 16;
+    return 1;
 }
 
 int exr_compression_lines_per_chunk (exr_compression_t comptype)
