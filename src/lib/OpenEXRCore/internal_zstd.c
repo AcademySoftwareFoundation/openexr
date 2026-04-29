@@ -184,57 +184,47 @@ delta_decode_sorted_layout (
     return 0;
 }
 
-/* Reorder a chunk between two linear layouts; see \a forward.
+/* sort2_4ByteChannels_tiled — copy between “packed” and “sorted” chunk layouts.
  *
- * \p num_samples_grid and \p channels follow the same contract as
- * default_pack (unpack.c / pack.c): for chunk-relative row index \c h and
- * channel index \c i, \c num_samples_grid[h * channelsSize + i] is the number
- * of samples for that channel on that scanline (zero when subsampling skips it).
+ * num_samples_grid and channels match default_pack (see pack.c / unpack.c):
+ * for chunk row h and channel i, num_samples_grid[h * channelsSize + i] is how
+ * many samples that channel contributes on that line (0 if subsampling skips it).
  *
- * **Forward (\p forward == true): ZSTD encode path — packed pixel order → sorted order**
+ * forward == true (encode, ZSTD path before shuffle):
  *
- * - **Input (\p inPtr): “packed” layout.** One contiguous byte buffer built by
- *   walking chunk rows \c h = 0 … height−1; within each row, walking channels
- *   \c i = 0 … channelsSize−1 in **header order**. For each (\c h,\c i),
- *   append \c num_samples_grid[h,i] × \c channels[i].bytes_per_element bytes
- *   (the raw scanline for that channel on that row). Subsampled channels with
- *   zero samples contribute nothing on that row.
+ *   Input, inPtr — packed layout. Walk rows h = 0 .. height-1. On each row,
+ *   walk channels i = 0 .. channelsSize-1 in header order and append
+ *   num_samples_grid[h,i] * channels[i].bytes_per_element bytes (that channel’s
+ *   raw row). Zero-sample channels add nothing on that row.
  *
- * - **Output (\p outPtr): “sorted” layout.** Same total byte length as the
- *   input. Bytes \c [0, \p splitPoint) hold **every** 16-bit (`bytes_per_element == 2`)
- *   channel row, in row-major order: for each \c h, for each channel \c i with
- *   2-byte samples, that channel’s row bytes are placed contiguously in this
- *   block at the offset computed by compute_sorting_lookup (first all half
- *   data for the chunk). Bytes \c [\p splitPoint, total) hold **every** 32-bit
- *   (`bytes_per_element == 4`) channel row in the same nested loop order.
- *   Here \p splitPoint is the return value of compute_sorting_lookup (total
- *   half-precision bytes in the chunk).
+ *   One row as a picture (each [..] is one channel’s row bytes on that line):
  *
- * **Concrete example (forward)** — channels in header order **R, G, B, A**
- * (half / 2 bytes each), **Z** (float / 4 bytes); chunk **height = 2**;
- * **3** samples per channel per row (flat RGBAZ, no subsampling). Per row the
- * packed input appends R row, G row, B row, A row, Z row:
+ *       +-------+-------+-----+-------+-------+
+ *       | ch 0  | ch 1  | ... | ch n-1|       |
+ *       +-------+-------+-----+-------+-------+
+ *       packed row h: channels in index order
  *
- *     Row 0: [3× half R][3× half G][3× half B][3× half A][3× float Z]
- *     Row 1: [3× half R][3× half G][3× half B][3× half A][3× float Z]
- *            (each 3x half block is 6 bytes; each 3-float Z block is 12 bytes)
+ *   Output, outPtr — sorted layout. Same total length. Bytes [0, splitPoint)
+ *   are every 16-bit channel row in the chunk (all half data), in the order
+ *   compute_sorting_lookup assigns. Bytes [splitPoint, end) are every 32-bit
+ *   channel row (all float data), same ordering rule. splitPoint is what
+ *   compute_sorting_lookup returns (total half bytes in the chunk).
  *
- * So each row is 24 + 12 = **36** bytes; the full input is **72** bytes.
- * \c splitPoint = 2 rows × (4 half channels × 3 samples × 2 bytes) = **48**.
- * The sorted output groups all half data first, then all float data:
+ *   Packed vs sorted for one RGBAZ-style example (R,G,B,A half; Z float;
+ *   height 2; 3 samples per channel per row; no subsampling):
  *
- *     [ R row0 ][ G row0 ][ B row0 ][ A row0 ][ R row1 ][ G row1 ][ B row1 ][ A row1 ]
- *     |______________ 48 bytes (splitPoint) ______________|
- *     [      Z row0      ][      Z row1      ]
- *     |____ 12 ____||____ 12 ____|
+ *   Packed input (two rows, each row = R,G,B,A,Z blocks):
  *
- * i.e. half channels are no longer interleaved with Z per scanline; Z follows
- * the entire half-precision block.
+ *       row0: [R][G][B][A][Z]     row1: [R][G][B][A][Z]
+ *             6+6+6+6+12 bytes per row  -> 72 bytes total
  *
- * **Reverse (\p forward == false): decode path — sorted → packed**
+ *   Sorted output: all half rows first, then all float rows (splitPoint = 48):
  *
- * \p inPtr is the sorted buffer (same layout as forward output); \p outPtr
- * receives the packed layout (same as forward input).
+ *       [R0][G0][B0][A0][R1][G1][B1][A1] | [Z0][Z1]
+ *       |<-------- 48 bytes ----------->|
+ *
+ * forward == false (decode): inPtr is sorted, outPtr is packed; same diagrams
+ * with input and output roles swapped.
  */
 uint64_t
 sort2_4ByteChannels_tiled (
@@ -682,6 +672,56 @@ exr_zstd_encode_store_raw_chunk (exr_encode_pipeline_t* encode, size_t packed)
     encode->compressed_bytes = packed;
 }
 
+/* EXR-ZSTD chunk layout (the payload for OpenEXR compression type ZSTD).
+ * Everything multi-byte is little-endian.
+ *
+ *   byte offset
+ *   |
+ *   0         8        12       16        24                    24+N
+ *   v         v        v        v         v                       v
+ *   +---------+--------+--------+---------+-----------------------+
+ *   |  magic  | format | flags  | zstd    |  ZSTD compressed      |
+ *   |  u64 LE | u32 LE | u32 LE | payload |  frame (N bytes)      |
+ *   |  8 B    | 4 B    | 4 B    | u64 LE  |  N = payload field    |
+ *   +---------+--------+--------+---------+-----------------------+
+ *
+ *   magic (0..7): MAGIC_NUMBER in code (8-byte wire magic).
+ *   format (8..11): 1 = wire v1, 2 = wire v2 (ZSTD_EXR_FORMAT_*).
+ *   flags (12..15): must be 0 for v1; for v2, bit 0 may request delta-after-sort
+ *                   (ZSTD_EXR_FLAG_DELTA_AFTER_SORT); any other flag bits must be 0.
+ *   zstd_payload_size (16..23): N, length in bytes of the ZSTD frame only (not the 24-byte header).
+ *
+ *   Total size of the chunk body: 24 (ZSTD_EXR_V1_HEADER) + N.
+ *
+ *   Inner stream (bytes ZSTD_decompress writes; this is what ZSTD compresses on encode):
+ *
+ *   The stream is one or two back-to-back segments. Each segment has the same shape:
+ *
+ *       +------------------+----------------------+
+ *       | u64 LE length L  |  L bytes, shuffled   |
+ *       +------------------+----------------------+
+ *       8 bytes            L bytes (planar shuffle of the sorted buffer)
+ *
+ *   "Shuffled" means Blosc-style byte planes (see exr_zstd_shuffle_encode_2 / _4 and
+ *   exr_zstd_shuffle_decode_bytes): length L must be a multiple of the element size
+ *   (2 or 4 bytes) for that segment.
+ *
+ *   How many segments, and element width:
+ *
+ *   - Both half (16-bit) and float (32-bit) channel data in the chunk: two segments.
+ *     First segment: L = splitPoint from compute_sorting_lookup (all sorted half bytes),
+ *     shuffle element size 2. Second: L = remaining byte count (all sorted float bytes),
+ *     shuffle element size 4.
+ *
+ *   - Only 32-bit channels in the chunk: one segment, L = full uncompressed chunk size,
+ *     shuffle element size 4.
+ *
+ *   - Only 16-bit channels (or float block empty): one segment, L = full uncompressed size,
+ *     shuffle element size 2.
+ *
+ *   On encode, zstd_inner_append_shuffled_segment writes each segment; on decode,
+ *   zstd_inner_read_shuffled_segment reads each one and unshuffles into the target buffer.
+ */
 exr_result_t
 internal_exr_apply_zstd (exr_encode_pipeline_t* encode)
 {
