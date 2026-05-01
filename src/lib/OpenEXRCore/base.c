@@ -210,3 +210,21 @@ exr_get_default_dwa_compression_quality (float* q)
 {
     if (q) *q = sDefaultDwaLevel;
 }
+
+/**************************************/
+
+static float sDefaultJ2kQuality = 0.0003f;
+
+void
+exr_set_default_lossy_htj2k_quality (float q)
+{
+    sDefaultJ2kQuality = q;
+}
+
+/**************************************/
+
+void
+exr_get_default_lossy_htj2k_quality (float* q)
+{
+    if (q) *q = sDefaultJ2kQuality;
+}

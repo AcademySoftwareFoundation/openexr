@@ -8,6 +8,8 @@ add_executable(OpenEXRTest
   compareB44.h
   compareDwa.cpp
   compareDwa.h
+  compareHTJ2KL256.cpp
+  compareHTJ2KL256.h
   compareFloat.cpp
   compareFloat.h
   main.cpp
