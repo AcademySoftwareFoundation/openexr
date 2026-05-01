@@ -14,6 +14,12 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#if defined(_WIN32) || defined(_WIN64)
+#    include <windows.h>
+#else
+#    include <pthread.h>
+#endif
+
 /* Use Zstd directly */
 #include <zstd.h>
 
@@ -36,34 +42,137 @@ extern void delta_decode_row_u32 (uint8_t* p, uint64_t n);
         return err_code;                                                       \
     }
 
-/* * Thread Local Storage for Zstd Contexts.
- * This is crucial for performance on 32-96 core machines to avoid allocator locks.
- */
-static _Thread_local ZSTD_CCtx* t_cctx             = NULL;
-static _Thread_local ZSTD_DCtx* d_cctx             = NULL;
-static _Thread_local uint8_t*   t_shuffle_buf      = NULL;
-static _Thread_local size_t     t_shuffle_buf_size = 0;
+/* Thread-local ZSTD contexts and shuffle buffer: pthread key / Windows FLS + destructor
+ * frees them on thread exit (short-lived worker threads would otherwise leak). */
+typedef struct exr_zstd_tls_state
+{
+    ZSTD_CCtx* cctx;
+    ZSTD_DCtx* dctx;
+    uint8_t*   shuffle_buf;
+    size_t     shuffle_buf_size;
+} exr_zstd_tls_state;
+
+#if defined(_WIN32) || defined(_WIN64)
+
+static DWORD       g_exr_zstd_fls_index = FLS_OUT_OF_INDEXES;
+static INIT_ONCE   g_exr_zstd_tls_once  = INIT_ONCE_STATIC_INIT;
+
+static VOID CALLBACK
+exr_zstd_fls_destructor (PVOID lpFlsData)
+{
+    exr_zstd_tls_state* s = (exr_zstd_tls_state*) lpFlsData;
+    if (!s) return;
+    if (s->cctx) ZSTD_freeCCtx (s->cctx);
+    if (s->dctx) ZSTD_freeDCtx (s->dctx);
+    if (s->shuffle_buf) free (s->shuffle_buf);
+    free (s);
+}
+
+static BOOL CALLBACK
+exr_zstd_init_fls_once (PINIT_ONCE InitOnce, PVOID Parameter, PVOID* Context)
+{
+    (void) InitOnce;
+    (void) Parameter;
+    (void) Context;
+    g_exr_zstd_fls_index = FlsAlloc (exr_zstd_fls_destructor);
+    return (g_exr_zstd_fls_index != FLS_OUT_OF_INDEXES);
+}
+
+static exr_zstd_tls_state*
+exr_zstd_tls_get_impl (void)
+{
+    InitOnceExecuteOnce (
+        &g_exr_zstd_tls_once, exr_zstd_init_fls_once, NULL, NULL);
+    if (g_exr_zstd_fls_index == FLS_OUT_OF_INDEXES) return NULL;
+
+    exr_zstd_tls_state* s =
+        (exr_zstd_tls_state*) FlsGetValue (g_exr_zstd_fls_index);
+    if (!s)
+    {
+        s = (exr_zstd_tls_state*) calloc (1, sizeof (*s));
+        if (!s) return NULL;
+        if (!FlsSetValue (g_exr_zstd_fls_index, s))
+        {
+            free (s);
+            return NULL;
+        }
+    }
+    return s;
+}
+
+#else /* !_WIN32 */
+
+static pthread_key_t  g_exr_zstd_tls_key;
+static pthread_once_t g_exr_zstd_tls_once = PTHREAD_ONCE_INIT;
+
+static void
+exr_zstd_tls_destructor (void* p)
+{
+    exr_zstd_tls_state* s = (exr_zstd_tls_state*) p;
+    if (!s) return;
+    if (s->cctx) ZSTD_freeCCtx (s->cctx);
+    if (s->dctx) ZSTD_freeDCtx (s->dctx);
+    if (s->shuffle_buf) free (s->shuffle_buf);
+    free (s);
+}
+
+static void
+exr_zstd_create_tls_key (void)
+{
+    pthread_key_create (&g_exr_zstd_tls_key, exr_zstd_tls_destructor);
+}
+
+static exr_zstd_tls_state*
+exr_zstd_tls_get_impl (void)
+{
+    pthread_once (&g_exr_zstd_tls_once, exr_zstd_create_tls_key);
+    exr_zstd_tls_state* s =
+        (exr_zstd_tls_state*) pthread_getspecific (g_exr_zstd_tls_key);
+    if (!s)
+    {
+        s = (exr_zstd_tls_state*) calloc (1, sizeof (*s));
+        if (!s) return NULL;
+        pthread_setspecific (g_exr_zstd_tls_key, s);
+    }
+    return s;
+}
+
+#endif /* !_WIN32 */
+
+/* Fast path: avoid pthread_getspecific / FlsGetValue on every call within a thread. */
+static _Thread_local exr_zstd_tls_state* t_exr_zstd_tls_fast;
+
+static exr_zstd_tls_state*
+exr_zstd_tls_get (void)
+{
+    if (t_exr_zstd_tls_fast) return t_exr_zstd_tls_fast;
+    t_exr_zstd_tls_fast = exr_zstd_tls_get_impl ();
+    return t_exr_zstd_tls_fast;
+}
 
 static void
 ensure_tls_resources (size_t required_size)
 {
-    if (!t_cctx) t_cctx = ZSTD_createCCtx ();
-    if (!d_cctx) d_cctx = ZSTD_createDCtx ();
+    exr_zstd_tls_state* tls = exr_zstd_tls_get ();
+    if (!tls) return;
 
-    if (t_shuffle_buf_size < required_size)
+    if (!tls->cctx) tls->cctx = ZSTD_createCCtx ();
+    if (!tls->dctx) tls->dctx = ZSTD_createDCtx ();
+
+    if (tls->shuffle_buf_size < required_size)
     {
         // 1. FREE the old buffer to avoid realloc's internal overhead
-        if (t_shuffle_buf) free (t_shuffle_buf);
+        if (tls->shuffle_buf) free (tls->shuffle_buf);
 
         // 2. OVERSHOOT: Allocate 25% more than needed to prevent
         // repeated reallocations if the next scanline is slightly bigger.
-        t_shuffle_buf_size = required_size + (required_size >> 2);
+        tls->shuffle_buf_size = required_size + (required_size >> 2);
 
         // 3. ALIGN: Use aligned_alloc for 64-byte cache line alignment
         // Note: size must be a multiple of alignment for aligned_alloc
-        size_t aligned_size = (t_shuffle_buf_size + 63) & ~63;
+        size_t aligned_size = (tls->shuffle_buf_size + 63) & ~63;
 
-        t_shuffle_buf = (uint8_t*) aligned_alloc (64, aligned_size);
+        tls->shuffle_buf = (uint8_t*) aligned_alloc (64, aligned_size);
     }
 }
 
@@ -498,59 +607,20 @@ zstd_write_exr_v1 (
     uint64_t*      out_total)
 {
     if (out_cap < ZSTD_EXR_V1_HEADER) return -1;
-    if (!t_cctx) t_cctx = ZSTD_createCCtx ();
+    exr_zstd_tls_state* tls = exr_zstd_tls_get ();
+    if (!tls) return -1;
+    if (!tls->cctx) tls->cctx = ZSTD_createCCtx ();
+    if (!tls->cctx) return -1;
     size_t const cbound = ZSTD_compressBound (inner_len);
     if (ZSTD_isError (cbound)) return -1;
     if (cbound > out_cap - ZSTD_EXR_V1_HEADER) return -1;
 
-    /* * Zstd Configuration for Deep EXR 16-Scanline Chunks
- * --------------------------------------------------
- * This setup is optimized for Interleaved Byte-Shuffled data. 
- * Benchmarks show this achieves 'Ultra' density (~536MB) with 
- * 'Fast' CPU overhead by exploiting local data alignment.
- */
-
-    /* Reuse the context to avoid malloc/free contention across 96 threads. */
-    ZSTD_CCtx_reset (t_cctx, ZSTD_reset_session_only);
-
-    /* * Presets: Use Level 5 for production (balanced speed/size). 
- * Use Level 15 for archive (max density, 10x slower write). 
- */
-    ZSTD_CCtx_setParameter (t_cctx, ZSTD_c_compressionLevel, level);
-
-    /* * Set internal workers to 0 to prevent "thread bombing." 
- * Threading is handled externally at the frame/chunk level. 
- */
-    ZSTD_CCtx_setParameter (t_cctx, ZSTD_c_nbWorkers, 0);
-
-    /* * WindowLog 24 (16MB) allows the compressor to see the entire 
- * ~8MB chunk at once, enabling vertical redundancy matching 
- * between the first and last scanlines of the block. 
- */
-    ZSTD_CCtx_setParameter (t_cctx, ZSTD_c_windowLog, 24);
-
-    /* * Strategy 'fast' is sufficient here. Because of the interleaved 
- * shuffle, patterns are so well-aligned that complex binary-tree 
- * searches (btultra) yield no additional gains over simple hashing. 
- */
-    ZSTD_CCtx_setParameter (t_cctx, ZSTD_c_strategy, ZSTD_fast);
-
-    /* * High-density search logs. hashLog 22 provides 4M table entries 
- * to minimize collisions, while chainLog 24 allows deep enough 
- * searching to fully utilize the 16MB window. 
- */
-    ZSTD_CCtx_setParameter (t_cctx, ZSTD_c_chainLog, 24);
-    ZSTD_CCtx_setParameter (t_cctx, ZSTD_c_hashLog, 22);
-
-    /* * : minMatch 3 captures 3-byte repeating patterns 
- * in floating-point exponents and high-bits. This single parameter 
- * is responsible for ~19MB of savings per frame in shuffled data. 
- */
-    ZSTD_CCtx_setParameter (t_cctx, ZSTD_c_minMatch, 3);
+    /* Reuse the context to avoid malloc/free contention across many threads. */
+    ZSTD_CCtx_reset (tls->cctx, ZSTD_reset_session_only);
 
     uint8_t* const out   = (uint8_t*) out_buf;
     size_t const   cSize = ZSTD_compressCCtx (
-        t_cctx,
+        tls->cctx,
         out + ZSTD_EXR_V1_HEADER,
         out_cap - ZSTD_EXR_V1_HEADER,
         inner,
@@ -748,9 +818,14 @@ internal_exr_apply_zstd (exr_encode_pipeline_t* encode)
     if (inner_cap < packed) return EXR_ERR_ARGUMENT_OUT_OF_RANGE;
     if (encode->compressed_alloc_size < ZSTD_EXR_V1_HEADER)
         return EXR_ERR_ARGUMENT_OUT_OF_RANGE;
+
     ensure_tls_resources (inner_cap);
 
-    uint8_t* const inner     = t_shuffle_buf;
+    exr_zstd_tls_state* tls_enc = exr_zstd_tls_get ();
+    if (!tls_enc || !tls_enc->shuffle_buf)
+        return EXR_ERR_COMPRESSION_FAILED;
+
+    uint8_t* const inner     = tls_enc->shuffle_buf;
     size_t         inner_pos = 0;
 
     const int compressing_sample_counts_only =
@@ -760,16 +835,18 @@ internal_exr_apply_zstd (exr_encode_pipeline_t* encode)
 
     const exr_storage_t storage = (exr_storage_t) encode->chunk.type;
     /* Deep sample table without packed_sample_count_table linkage (e.g. C++
-     * Imf deep tiled compressTile(tileRange)): same layout as
-     * compressing_sample_counts_only when packed == chunk w*h*UINT32. */
+     * Imf deep tiled compressTile(tileRange) and the Core deep encode path
+     * that calls in to compress the sample-count table directly): same
+     * layout as compressing_sample_counts_only when packed == chunk
+     * w*h*UINT32. Decoder pairs this via uncompressed_size match. */
     const int deep_sample_table_standalone =
         ((storage == EXR_STORAGE_DEEP_SCANLINE ||
           storage == EXR_STORAGE_DEEP_TILED) &&
          encode->sample_count_table == NULL &&
          packed == (size_t) sample_table_bytes);
 
-    const int use_sample_count_pack_layout = compressing_sample_counts_only ||
-                                             deep_sample_table_standalone;
+    const int use_sample_count_pack_layout =
+        compressing_sample_counts_only || deep_sample_table_standalone;
 
     const int is_flat =
         (storage == EXR_STORAGE_SCANLINE || storage == EXR_STORAGE_TILED);
@@ -956,9 +1033,15 @@ exr_undo_zstd_v1 (
 
     ensure_tls_resources (dst_cap);
 
-    ZSTD_DCtx_reset (d_cctx, ZSTD_reset_session_only);
-    size_t dSize =
-        ZSTD_decompressDCtx (d_cctx, t_shuffle_buf, dst_cap, zsrc, zsz);
+    exr_zstd_tls_state* tls_dec = exr_zstd_tls_get ();
+    if (!tls_dec || !tls_dec->shuffle_buf)
+        return EXR_ERR_CORRUPT_CHUNK;
+    if (!tls_dec->dctx) tls_dec->dctx = ZSTD_createDCtx ();
+    if (!tls_dec->dctx) return EXR_ERR_CORRUPT_CHUNK;
+
+    ZSTD_DCtx_reset (tls_dec->dctx, ZSTD_reset_session_only);
+    size_t dSize = ZSTD_decompressDCtx (
+        tls_dec->dctx, tls_dec->shuffle_buf, dst_cap, zsrc, zsz);
     if (ZSTD_isError (dSize)) return EXR_ERR_CORRUPT_CHUNK;
 
     uint64_t   row_sample_counts[decode->chunk.height];
@@ -1064,8 +1147,8 @@ exr_undo_zstd_v1 (
         target = decode->scratch_buffer_1;
     }
 
-    const uint8_t*       q    = (const uint8_t*) t_shuffle_buf;
-    const uint8_t* const qend = (const uint8_t*) t_shuffle_buf + dSize;
+    const uint8_t*       q    = (const uint8_t*) tls_dec->shuffle_buf;
+    const uint8_t* const qend = (const uint8_t*) tls_dec->shuffle_buf + dSize;
     uint8_t*             tgt  = (uint8_t*) target;
     int                  seg;
     if (exr_zstd_pipeline_phase_enabled (&pipe, EXR_ZSTD_PHASE_SHUFFLE))
@@ -1084,7 +1167,7 @@ exr_undo_zstd_v1 (
     else
     {
         if (dSize != uncompressed_size) return EXR_ERR_CORRUPT_CHUNK;
-        memcpy (target, t_shuffle_buf, dSize);
+        memcpy (target, tls_dec->shuffle_buf, dSize);
     }
 
     if (pipe.apply_sort)
@@ -1134,12 +1217,22 @@ internal_exr_undo_zstd (
     uint64_t               uncompressed_size)
 {
     if (comp_buf_size == 0) return EXR_ERR_SUCCESS;
-    if (comp_buf_size < ZSTD_EXR_V1_HEADER) return EXR_ERR_CORRUPT_CHUNK;
 
-    const uint8_t*          hdr = (const uint8_t*) compressed_data;
+    const uint8_t* hdr = (const uint8_t*) compressed_data;
+
+    /* Raw-store fallback: encoder skips the 24-byte ZSTD-EXR header when
+     * compressed output would not be strictly smaller than the packed input
+     * (see exr_zstd_encode_store_raw_chunk). Detect by missing magic. */
+    if (comp_buf_size < ZSTD_EXR_V1_HEADER ||
+        read_u64_le (hdr) != MAGIC_NUMBER)
+    {
+        if (comp_buf_size != uncompressed_size) return EXR_ERR_CORRUPT_CHUNK;
+        memcpy (uncompressed_data, compressed_data, (size_t) comp_buf_size);
+        return EXR_ERR_SUCCESS;
+    }
+
     exr_zstd_frame_header_t fr;
     exr_zstd_read_exr_frame_header (hdr, &fr);
-    if (fr.magic != MAGIC_NUMBER) return EXR_ERR_CORRUPT_CHUNK;
     if (!((fr.format == ZSTD_EXR_FORMAT_V1 && fr.flags == 0) ||
           (fr.format == ZSTD_EXR_FORMAT_V2 &&
            (fr.flags & ~ZSTD_EXR_FLAG_DELTA_AFTER_SORT) == 0)))
