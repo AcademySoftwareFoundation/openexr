@@ -30,7 +30,7 @@
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //***************************************************************************/
 // This file is part of the OpenJPH software implementation.
-// File: ojph_mem.c
+// File: ojph_mem_c.c
 // Author: Aous Naman
 // Date: 17 October 2025
 //***************************************************************************/
