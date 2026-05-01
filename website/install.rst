@@ -111,8 +111,8 @@ The instructions that follow describe building OpenEXR with CMake.
 Note that as of OpenEXR 3, the Gnu autoconf bootstrap/configure build
 system is no longer supported.
 
-Header Layout and ``#include`` Policy
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Headers and ``#include`` Policy
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Public headers are installed under ``${CMAKE_INSTALL_INCLUDEDIR}`` in
 a dedicated subdirectory, by default ``OpenEXR/`` (the CMake cache
@@ -138,25 +138,32 @@ The same dual-path behavior is reflected in the ``pkg-config`` file
 **Recommended usage:** Prefer ``find_package(OpenEXR …)`` and
 ``target_link_libraries(… OpenEXR::…)`` in CMake, or ``pkg-config`` for
 other build systems, and keep either include spelling consistent within
-your project. If you must set compiler flags yourself, mirror both
-include directories above; a single ``-I$prefix/include`` without the
-``OpenEXR`` subdirectory is **not** sufficient for flat
-``#include <Imf*.h>`` lines.
+your project.
+
+If you are not using cmake or pkg-config and must set compiler flags
+yourself, mirror both include directories above and include
+``-I$prefix/include`` and ``-I$prefix/include/OpenEXR``; a single
+``-I$prefix/include`` without the ``OpenEXR`` subdirectory is **not**
+sufficient for flat ``#include <Imf*.h>`` lines.
 
 This layout preserves long-standing flat includes in existing code and
 documentation while keeping headers grouped under ``OpenEXR/`` on
 disk. There is no plan to remove either style in current release
 lines.
 
-Also note that within the OpenEXR source tree, all local headers are
-included with quotes, i.e. ``#include "ImfHeader.h"``, not angle
-brackets ``<>``, since for an internal build the headers come from the
-same library tree. Also note that since headers are stored alongside
-source files in each internal library directory (``OpenEXR``,
-``OpenEXRCore``, ``OpenEXRUtil``, ``Iex``, ``IlmThread``), not in a
-single common ``OpenEXR`` folder, they are included internally as bare
-files, without a ``OpenEXR/`` subdirectory. This intentionally differs
-from the installed layout.
+Headers in the OpenEXR Source Tree
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When inspecting the OpenEXR source code or investigating issues
+building the library, note that within the OpenEXR source tree, all
+local headers are included with quotes, i.e. ``#include
+"ImfHeader.h"``, not angle brackets ``<>``, since for an internal
+build the headers come from the same library tree. Also note that
+since headers are stored alongside source files in each internal
+library directory (``OpenEXR``, ``OpenEXRCore``, ``OpenEXRUtil``,
+``Iex``, ``IlmThread``), not in a single common ``OpenEXR`` folder,
+they are included internally as bare files, without a ``OpenEXR/``
+subdirectory. This intentionally differs from the installed layout.
 
 OpenEXR/Imath Version Compatibility
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
