@@ -13,7 +13,7 @@
 #include <string>
 
 #ifdef _WIN32
-#    include <ImathRandom.h>
+#    include <Imath/ImathRandom.h>
 #    include <time.h>
 #    include <windows.h>
 #else

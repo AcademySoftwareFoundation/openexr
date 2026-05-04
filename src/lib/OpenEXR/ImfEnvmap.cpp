@@ -10,7 +10,7 @@
 //-----------------------------------------------------------------------------
 
 #include "ImfEnvmap.h"
-#include "ImathFun.h"
+#include <Imath/ImathFun.h>
 #include "ImfNamespace.h"
 
 #include <algorithm>

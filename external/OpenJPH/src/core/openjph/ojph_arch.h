@@ -67,7 +67,7 @@
 // preprocessor directives for architecture
 ///////////////////////////////////////////////////////////////////////////////
 #if defined(__arm__) || defined(__TARGET_ARCH_ARM)  \
-  || defined(__aarch64__) || defined(_M_ARM64)
+  || defined(__aarch64__) || defined(_M_ARM64) || defined(_M_ARM64EC)
   #define OJPH_ARCH_ARM
 #elif defined(__i386) || defined(__i386__) || defined(_M_IX86)
   #define OJPH_ARCH_I386

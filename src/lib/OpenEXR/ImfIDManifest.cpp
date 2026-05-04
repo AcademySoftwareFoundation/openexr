@@ -529,7 +529,7 @@ IDManifest::init (const char* data, const char* endOfData)
             for (size_t i = 0; i < m.getComponents ().size (); ++i)
             {
                 int stringIndex = readVariableLengthInteger (data, endOfData);
-                if (size_t (stringIndex) > stringList.size () ||
+                if (size_t (stringIndex) >= stringList.size () ||
                     stringIndex < 0)
                 {
                     throw IEX_NAMESPACE::InputExc (

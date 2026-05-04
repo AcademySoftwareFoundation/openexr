@@ -27,8 +27,8 @@
 #include "ImfPreviewImageAttribute.h"
 #include "ImfStdIO.h"
 #include "ImfXdr.h"
-#include <ImathBox.h>
-#include <ImathFun.h>
+#include <Imath/ImathBox.h>
+#include <Imath/ImathFun.h>
 
 #include "ImfOutputPartData.h"
 

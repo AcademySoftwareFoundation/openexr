@@ -11,7 +11,7 @@
 //-----------------------------------------------------------------------------
 
 #include <Iex.h>
-#include <ImathFun.h>
+#include <Imath/ImathFun.h>
 #include <ImfChannelList.h>
 #include <ImfInputPart.h>
 #include <ImfMultiPartInputFile.h>
@@ -90,7 +90,11 @@ prefixFromLayerName (const string& layerName, const Header& header)
 {
     if (layerName.empty ()) return "";
 
-    if (hasMultiView (header) && multiView (header)[0] == layerName) return "";
+    if (hasMultiView (header))
+    {
+        StringVector sv = multiView (header);
+        if (!sv.empty() && sv[0] == layerName) return "";
+    }
 
     return layerName + ".";
 }

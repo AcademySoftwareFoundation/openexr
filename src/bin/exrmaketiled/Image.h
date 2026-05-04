@@ -12,7 +12,7 @@
 //
 //----------------------------------------------------------------------------
 
-#include <ImathBox.h>
+#include <Imath/ImathBox.h>
 #include <ImfArray.h>
 #include <ImfFrameBuffer.h>
 #include <ImfPixelType.h>

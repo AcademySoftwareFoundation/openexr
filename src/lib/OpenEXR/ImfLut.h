@@ -19,7 +19,7 @@
 
 #include "ImfRgbaFile.h"
 
-#include <ImathBox.h>
+#include <Imath/ImathBox.h>
 #include <halfFunction.h>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER

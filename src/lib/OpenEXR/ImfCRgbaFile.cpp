@@ -9,7 +9,7 @@
 //
 //-----------------------------------------------------------------------------
 
-#include "ImathForward.h"
+#include <Imath/ImathForward.h>
 #include "ImfNamespace.h"
 #include "half.h"
 #include <ImfBoxAttribute.h>

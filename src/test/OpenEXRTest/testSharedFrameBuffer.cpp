@@ -12,7 +12,7 @@
 
 #include <IlmThread.h>
 #include <IlmThreadSemaphore.h>
-#include <ImathRandom.h>
+#include <Imath/ImathRandom.h>
 #include <ImfArray.h>
 #include <ImfRgbaFile.h>
 #include <ImfThreading.h>

@@ -15,7 +15,7 @@
 #include "ImfForward.h"
 
 #include "ImfTileDescription.h"
-#include <ImathBox.h>
+#include <Imath/ImathBox.h>
 
 #include <stdio.h>
 #include <vector>

@@ -12,7 +12,7 @@
 #include "Iex.h"
 #include "IlmThreadPool.h"
 #include "IlmThreadSemaphore.h"
-#include "ImathBox.h"
+#include <Imath/ImathBox.h>
 #include "ImfOutputPartData.h"
 #include "ImfOutputStreamMutex.h"
 #include <ImfArray.h>

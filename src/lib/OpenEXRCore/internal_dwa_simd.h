@@ -18,7 +18,7 @@
 // aligned. Unaligned pointers may risk seg-faulting.
 //
 
-#if defined __SSE2__ || (_MSC_VER && (_M_IX86 || _M_X64))
+#if defined __SSE2__ || (_MSC_VER && (_M_IX86 || _M_X64) && !defined(_M_ARM64EC))
 #    define IMF_HAVE_SSE2 1
 #    include <emmintrin.h>
 #    include <mmintrin.h>
@@ -33,6 +33,22 @@
 
 #if defined(__aarch64__)
 #    define IMF_HAVE_NEON_AARCH64 1
+#endif
+
+#if defined(_M_ARM64) || defined(_M_ARM64EC)
+#    define IMF_HAVE_NEON_WINDOWS_ARM64 1
+#endif
+
+#if defined(IMF_HAVE_NEON_AARCH64) || defined(IMF_HAVE_NEON_WINDOWS_ARM64)
+#    define IMF_HAVE_NEON_ARM64 1
+#endif
+
+#if defined(IMF_HAVE_NEON_ARM64)
+#    if defined(_MSC_VER)
+#        define NEON_RESTRICT __restrict
+#    else
+#        define NEON_RESTRICT __restrict__
+#    endif
 #endif
 
 #include "internal_coding.h"
@@ -357,7 +373,7 @@ convertFloatToHalf64_scalar (uint16_t* dst, float* src)
         dst[i] = float_to_half (src[i]);
 }
 
-#ifdef IMF_HAVE_NEON_AARCH64
+#ifdef IMF_HAVE_NEON_ARM64
 
 void
 convertFloatToHalf64_neon (uint16_t* dst, float* src)
@@ -786,36 +802,50 @@ fromHalfZigZag_f16c (uint16_t* src, float* dst)
 #endif /* defined IMF_HAVE_GCC_INLINEASM_X86_64 */
 }
 
-#ifdef IMF_HAVE_NEON_AARCH64
+#ifdef IMF_HAVE_NEON_ARM64
 
 void
-fromHalfZigZag_neon (uint16_t* __restrict__ src, float* __restrict__ dst)
+fromHalfZigZag_neon (uint16_t* NEON_RESTRICT src, float* NEON_RESTRICT dst)
 {
-    uint8x16_t res_tbl[4] = {
+#    if defined(_MSC_VER)
+    static const uint8_t res_tbl_data[4][16] = {
         {0, 1, 5, 6, 14, 15, 27, 28, 2, 4, 7, 13, 16, 26, 29, 42},
         {3, 8, 12, 17, 25, 30, 41, 43, 9, 11, 18, 24, 31, 40, 44, 53},
         {10, 19, 23, 32, 39, 45, 52, 54, 20, 22, 33, 38, 46, 51, 55, 60},
         {21, 34, 37, 47, 50, 56, 59, 61, 35, 36, 48, 49, 57, 58, 62, 63}};
 
-    uint8x16x4_t vec_input_l, vec_input_h;
+    uint8x16_t res_tbl[4];
+    for (int i = 0; i < 4; i++)
+    {
+        res_tbl[i] = vld1q_u8 (res_tbl_data[i]);
+    }
 
+#    else
+    uint8x16_t res_tbl[4] = {
+        {0, 1, 5, 6, 14, 15, 27, 28, 2, 4, 7, 13, 16, 26, 29, 42},
+        {3, 8, 12, 17, 25, 30, 41, 43, 9, 11, 18, 24, 31, 40, 44, 53},
+        {10, 19, 23, 32, 39, 45, 52, 54, 20, 22, 33, 38, 46, 51, 55, 60},
+        {21, 34, 37, 47, 50, 56, 59, 61, 35, 36, 48, 49, 57, 58, 62, 63}};
+#    endif
+
+    uint8x16x4_t vec_input_l, vec_input_h;
     for (int i = 0; i < 4; i++)
     {
         uint8x16x2_t vec_in_u8 = vld2q_u8 ((uint8_t*) (src + 16 * i));
         vec_input_l.val[i]     = vec_in_u8.val[0];
         vec_input_h.val[i]     = vec_in_u8.val[1];
     }
-
 #    pragma unroll(4)
     for (int i = 0; i < 4; i++)
     {
-        uint8x16_t res_vec_l, res_vec_h;
-        res_vec_l = vqtbl4q_u8 (vec_input_l, res_tbl[i]);
-        res_vec_h = vqtbl4q_u8 (vec_input_h, res_tbl[i]);
+        uint8x16_t res_vec_l = vqtbl4q_u8 (vec_input_l, res_tbl[i]);
+        uint8x16_t res_vec_h = vqtbl4q_u8 (vec_input_h, res_tbl[i]);
+
         float16x8_t res_vec_l_f16 =
             vreinterpretq_f16_u8 (vzip1q_u8 (res_vec_l, res_vec_h));
         float16x8_t res_vec_h_f16 =
             vreinterpretq_f16_u8 (vzip2q_u8 (res_vec_l, res_vec_h));
+
         vst1q_f32 (dst + i * 16, vcvt_f32_f16 (vget_low_f16 (res_vec_l_f16)));
         vst1q_f32 (dst + i * 16 + 4, vcvt_high_f32_f16 (res_vec_l_f16));
         vst1q_f32 (
@@ -824,7 +854,7 @@ fromHalfZigZag_neon (uint16_t* __restrict__ src, float* __restrict__ dst)
     }
 }
 
-#endif // IMF_HAVE_NEON_AARCH64
+#endif //IMF_HAVE_NEON_ARM64
 
 //
 // Inverse 8x8 DCT, only inverting the DC. This assumes that
@@ -2315,7 +2345,7 @@ initializeFuncs (void)
     if (done) return;
     done = 1;
 
-#ifdef IMF_HAVE_NEON_AARCH64
+#ifdef IMF_HAVE_NEON_ARM64
     {
         convertFloatToHalf64 = convertFloatToHalf64_neon;
         fromHalfZigZag       = fromHalfZigZag_neon;

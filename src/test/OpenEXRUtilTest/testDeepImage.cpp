@@ -8,7 +8,7 @@
 #endif
 
 #include <Iex.h>
-#include <ImathRandom.h>
+#include <Imath/ImathRandom.h>
 #include <ImfDeepImage.h>
 #include <ImfDeepImageIO.h>
 #include <ImfHeader.h>

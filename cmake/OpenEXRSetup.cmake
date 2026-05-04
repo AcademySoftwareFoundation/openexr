@@ -391,6 +391,52 @@ else()
   endif()
 endif()
 
+# OpenEXR includes Imath headers from an "Imath/" subdirectory,
+# i.e. #include <Imath/ImathVec.h. The Imath library installs its
+# headers in that folder, although when Imath is built inside the
+# OpenEXR build tree (brought in via FetchContent or
+# add_subdirectory), there is no "Imath/" subdirectory. Imath’s CMake
+# exposes an include dir pointing at …/src/Imath (matches #include
+# <ImathVec.h> but doesn't match <Imath/ImathVec.h>), and ImathConfig,
+# an include dir pointing at …/config, where ImathConfig.h lives
+# (matches #include <ImathConfig.h>, not <Imath/ImathConfig.h>).
+#
+# To support #include <Imath/...> in this configuration, we must
+# create an "Imath/" directory in the build tree and symlink/copy the
+# ImathConfig.h header into it, and also provide Imath's "src/"
+# directory as a build interface include dir (because "Imath/" lives
+# underneath it).
+
+if(TARGET Imath AND TARGET ImathConfig)
+  get_target_property(_openexr_imath_imported Imath IMPORTED)
+  get_target_property(_openexr_imathcfg_imported ImathConfig IMPORTED)
+  if(NOT _openexr_imath_imported
+     AND NOT _openexr_imathcfg_imported
+     AND EXISTS "${Imath_SOURCE_DIR}/src/Imath/ImathVec.h")
+    set(_openexr_imath_gen_cfg "${Imath_BINARY_DIR}/config/ImathConfig.h")
+    set(_openexr_imath_cfg_compat "${PROJECT_BINARY_DIR}/OpenEXR_ImathIncludeCompat")
+    if(EXISTS "${_openexr_imath_gen_cfg}")
+      file(MAKE_DIRECTORY "${_openexr_imath_cfg_compat}/Imath")
+      configure_file("${_openexr_imath_gen_cfg}"
+                     "${_openexr_imath_cfg_compat}/Imath/ImathConfig.h" COPYONLY)
+    endif()
+
+    # Add the build interface include directory, but only do it once;
+    # if the cache key exists, it's already been added by a previous
+    # configuration run.
+    set(_openexr_imath_inc_patch_key "${Imath_SOURCE_DIR}|${Imath_BINARY_DIR}")
+    if(NOT OPENEXR_IMATH_SUBDIR_INCLUDE_PATCH STREQUAL _openexr_imath_inc_patch_key)
+      target_include_directories(Imath INTERFACE
+        "$<BUILD_INTERFACE:${Imath_SOURCE_DIR}/src>")
+      if(EXISTS "${_openexr_imath_gen_cfg}")
+        target_include_directories(ImathConfig INTERFACE
+          "$<BUILD_INTERFACE:${_openexr_imath_cfg_compat}>")
+      endif()
+      set(OPENEXR_IMATH_SUBDIR_INCLUDE_PATCH "${_openexr_imath_inc_patch_key}" CACHE INTERNAL "")
+    endif()
+  endif()
+endif()
+
 ###########################################
 # Check if we need to emulate vld1q_f32_x2
 ###########################################

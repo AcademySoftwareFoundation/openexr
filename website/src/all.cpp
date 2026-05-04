@@ -22,7 +22,7 @@
 #include <ImfPartType.h>
 
 #include <Iex.h>
-#include <ImathFun.h>
+#include <Imath/ImathFun.h>
 
 #include <cfloat>
 #include <algorithm>

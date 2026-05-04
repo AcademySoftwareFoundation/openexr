@@ -10,7 +10,7 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImathNamespace.h>
+#include <Imath/ImathNamespace.h>
 #include <ImfDeepScanLineInputPart.h>
 #include <ImfDeepScanLineOutputPart.h>
 #include <ImfDeepTiledInputPart.h>

@@ -11,7 +11,7 @@
 #include "compareDwa.h"
 
 #include "compareFloat.h"
-#include <ImathRandom.h>
+#include <Imath/ImathRandom.h>
 #include <ImfArray.h>
 #include <ImfChannelList.h>
 #include <ImfFrameBuffer.h>

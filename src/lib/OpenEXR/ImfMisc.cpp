@@ -11,7 +11,7 @@
 
 #include "ImfNamespace.h"
 #include <Iex.h>
-#include <ImathFun.h>
+#include <Imath/ImathFun.h>
 #include <ImfAttribute.h>
 #include <ImfChannelList.h>
 #include <ImfCompressor.h>

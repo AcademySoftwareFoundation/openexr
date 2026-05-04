@@ -67,7 +67,7 @@
 #include "testXdr.h"
 #include "testYca.h"
 
-#include "ImathRandom.h"
+#include <Imath/ImathRandom.h>
 #include "tmpDir.h"
 
 // system includes

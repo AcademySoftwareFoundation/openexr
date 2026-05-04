@@ -10,8 +10,8 @@
 //
 //-----------------------------------------------------------------------------
 #include "ImfExport.h"
-#include <ImathExport.h>
-#include <ImathNamespace.h>
+#include <Imath/ImathExport.h>
+#include <Imath/ImathNamespace.h>
 
 IMATH_INTERNAL_NAMESPACE_HEADER_ENTER
 template <class V> class IMF_EXPORT_TEMPLATE_TYPE Vec2;
