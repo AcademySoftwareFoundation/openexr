@@ -37,7 +37,17 @@ int main()
     int edx = 0;
     __asm__(
         \"xgetbv     ;\"
-        \"vzeroupper  \"
+        //
+        // This feature probe is specifically used to decide whether we can
+        // compile the DWA fast path that contains GCC-style inline asm using
+        // AVX/YMM instructions. Some toolchains (notably older Apple 'as'
+        // invoked by GCC on legacy macOS) can assemble xgetbv/vzeroupper but
+        // still reject YMM/VEX instructions with errors like:
+        //   no such instruction: `vmovaps (%rsi), %ymm0'
+        // So include a representative YMM instruction in the try-compile.
+        //
+        \"vmovaps    %%ymm0, %%ymm0 ;\"
+        \"vzeroupper                \"
         : \"=a\"(eax), \"=d\"(edx) : \"c\"(n) : );
 #else
 #    error No SSE support enabled to query AVX support
