@@ -13,6 +13,9 @@
 #include "ImfImageLevel.h"
 #include <Iex.h>
 
+#include <cstdint>
+#include <limits>
+
 using namespace IMATH_NAMESPACE;
 using namespace IEX_NAMESPACE;
 using namespace std;
@@ -46,6 +49,13 @@ ImageChannel::channel () const
 void
 ImageChannel::resize ()
 {
+    if (_xSampling < 1 || _ySampling < 1)
+    {
+        throw ArgExc (
+            "The x and y sampling rates for an image channel must be at "
+            "least 1.");
+    }
+
     const Box2i& dataWindow = level ().dataWindow ();
 
     if (dataWindow.min.x % _xSampling || dataWindow.min.y % _ySampling)
@@ -67,7 +77,17 @@ ImageChannel::resize ()
 
     _pixelsPerRow    = width / _xSampling;
     _pixelsPerColumn = height / _ySampling;
-    _numPixels       = _pixelsPerRow * _pixelsPerColumn;
+
+    const uint64_t w64 = static_cast<uint64_t> (_pixelsPerRow);
+    const uint64_t h64 = static_cast<uint64_t> (_pixelsPerColumn);
+    const uint64_t maxPixels =
+        static_cast<uint64_t> (std::numeric_limits<size_t>::max ());
+    if (w64 != 0 && h64 > maxPixels / w64)
+    {
+        throw ArgExc ("Image channel dimensions too large.");
+    }
+
+    _numPixels = static_cast<size_t> (w64 * h64);
 }
 
 void
