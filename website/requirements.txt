@@ -5,6 +5,6 @@
 #   pip-compile requirements.txt --generate-hashes -o requirements-lock.txt
 #
 colorama==0.4.6 # necessary on Windows only
-sphinx==7.2.6
+sphinx==7.4.7
 breathe==4.36.0
 sphinx-press-theme
