@@ -186,7 +186,7 @@ ht_undo_impl (
         int64_t computedoffset = 0;
         for (int i = 0; i < file_i; ++i)
             computedoffset += (int64_t) decode->channels[i].width *
-                              (size_t) decode->channels[i].bytes_per_element;
+                              (int64_t) decode->channels[i].bytes_per_element;
         cs_to_file_ch[cs_i].raster_line_offset = computedoffset;
     }
 
