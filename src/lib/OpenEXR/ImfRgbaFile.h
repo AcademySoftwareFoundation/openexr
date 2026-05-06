@@ -27,7 +27,7 @@
 #include "ImfThreading.h"
 #include <Imath/ImathBox.h>
 #include <Imath/ImathVec.h>
-#include <half.h>
+#include <Imath/half.h>
 #include <string>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER

@@ -11,7 +11,7 @@
 //-----------------------------------------------------------------------------
 
 #include "Iex.h"
-#include <ImfFrameBuffer.h>
+#include "ImfFrameBuffer.h"
 
 using namespace std;
 

@@ -10,7 +10,7 @@
 //-----------------------------------------------------------------------------
 
 #define COMPILING_IMF_FLOAT_VECTOR_ATTRIBUTE
-#include <ImfFloatVectorAttribute.h>
+#include "ImfFloatVectorAttribute.h"
 
 #if defined(_MSC_VER)
 // suppress warning about non-exported base classes

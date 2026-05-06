@@ -10,16 +10,16 @@
 // (though this tool is intended to support images from other sources)
 //
 
-#include <ImfChannelList.h>
-#include <ImfMultiPartInputFile.h>
-#include <ImfDeepScanLineInputPart.h>
-#include <ImfMultiPartOutputFile.h>
-#include <ImfDeepScanLineOutputPart.h>
-#include <ImfOutputPart.h>
-#include <ImfDeepFrameBuffer.h>
-#include <ImfIDManifest.h>
-#include <ImfStandardAttributes.h>
-#include <ImfPartType.h>
+#include "ImfChannelList.h"
+#include "ImfMultiPartInputFile.h"
+#include "ImfDeepScanLineInputPart.h"
+#include "ImfMultiPartOutputFile.h"
+#include "ImfDeepScanLineOutputPart.h"
+#include "ImfOutputPart.h"
+#include "ImfDeepFrameBuffer.h"
+#include "ImfIDManifest.h"
+#include "ImfStandardAttributes.h"
+#include "ImfPartType.h"
 #include <iomanip>
 #include <list>
 #include <map>

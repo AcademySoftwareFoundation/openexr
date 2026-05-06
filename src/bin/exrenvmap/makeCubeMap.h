@@ -15,8 +15,8 @@
 #include "namespaceAlias.h"
 #include "readInputImage.h"
 
-#include <ImfCompression.h>
-#include <ImfTileDescription.h>
+#include "ImfCompression.h"
+#include "ImfTileDescription.h"
 
 void makeCubeMap (
     EnvmapImage&           image,

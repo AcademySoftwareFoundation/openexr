@@ -11,7 +11,7 @@
 
 #include "Iex.h"
 #include "ImfNamespace.h"
-#include <ImfTimeCode.h>
+#include "ImfTimeCode.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 

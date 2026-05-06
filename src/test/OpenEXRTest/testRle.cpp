@@ -7,8 +7,10 @@
 #    undef NDEBUG
 #endif
 
+#include "ImfRle.h"
+
 #include <Imath/ImathRandom.h>
-#include <ImfRle.h>
+
 #include <assert.h>
 #include <iostream>
 #include <string>

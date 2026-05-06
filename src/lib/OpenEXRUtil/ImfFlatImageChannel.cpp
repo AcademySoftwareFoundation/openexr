@@ -20,7 +20,7 @@ IMATH_INTERNAL_NAMESPACE_HEADER_EXIT
 
 #include "ImfFlatImageChannel.h"
 #include "ImfFlatImageLevel.h"
-#include <Iex.h>
+#include "Iex.h"
 
 using namespace IMATH_NAMESPACE;
 using namespace IEX_NAMESPACE;

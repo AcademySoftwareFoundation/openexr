@@ -12,7 +12,7 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfRational.h>
+#include "ImfRational.h"
 #include <cmath>
 
 using namespace std;

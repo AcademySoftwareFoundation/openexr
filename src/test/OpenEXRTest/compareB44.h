@@ -5,8 +5,8 @@
 
 #include "ImfNamespace.h"
 
-#include <ImfArray.h>
-#include <ImfRgba.h>
+#include "ImfArray.h"
+#include "ImfRgba.h"
 
 bool withinB44ErrorBounds (const half A[4][4], const half B[4][4]);
 

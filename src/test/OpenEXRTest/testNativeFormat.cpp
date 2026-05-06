@@ -7,11 +7,11 @@
 #    undef NDEBUG
 #endif
 
-#include <ImfArray.h>
-#include <ImfChannelList.h>
-#include <ImfInputFile.h>
-#include <ImfOutputFile.h>
-#include <ImfRgbaFile.h>
+#include "ImfArray.h"
+#include "ImfChannelList.h"
+#include "ImfInputFile.h"
+#include "ImfOutputFile.h"
+#include "ImfRgbaFile.h"
 
 #include <assert.h>
 #include <stdio.h>

@@ -10,7 +10,7 @@
 #    define NOMINMAX
 #endif
 
-#include <openexr.h>
+#include "openexr.h"
 
 #include "base_units.h"
 
@@ -19,8 +19,8 @@
 #include <cstring>
 #include <iostream>
 
-#include <ImfSystemSpecific.h>
-#include <ImfNamespace.h>
+#include "ImfSystemSpecific.h"
+#include "ImfNamespace.h"
 #include "../../lib/OpenEXRCore/internal_cpuid.h"
 #include "../../lib/OpenEXRCore/internal_coding.h"
 #include "../../lib/OpenEXRCore/openexr_context.h"

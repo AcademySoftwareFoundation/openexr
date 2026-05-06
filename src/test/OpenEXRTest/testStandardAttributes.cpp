@@ -7,11 +7,13 @@
 #    undef NDEBUG
 #endif
 
+#include "ImfArray.h"
+#include "ImfFramesPerSecond.h"
+#include "ImfRgbaFile.h"
+#include "ImfStandardAttributes.h"
+
 #include <Imath/ImathRandom.h>
-#include <ImfArray.h>
-#include <ImfFramesPerSecond.h>
-#include <ImfRgbaFile.h>
-#include <ImfStandardAttributes.h>
+
 #include <assert.h>
 #include <fstream>
 #include <iomanip>

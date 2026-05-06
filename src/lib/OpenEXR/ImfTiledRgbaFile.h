@@ -29,7 +29,7 @@
 
 #include <Imath/ImathBox.h>
 #include <Imath/ImathVec.h>
-#include <half.h>
+#include <Imath/half.h>
 
 #include <string>
 

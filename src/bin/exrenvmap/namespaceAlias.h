@@ -7,8 +7,9 @@
 #define NAMESPACEALIAS_H_
 
 #include "IexNamespace.h"
-#include <Imath/ImathNamespace.h>
 #include "ImfNamespace.h"
+
+#include <Imath/ImathNamespace.h>
 
 namespace IMF   = OPENEXR_IMF_NAMESPACE;
 namespace IMATH = IMATH_NAMESPACE;

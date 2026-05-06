@@ -47,14 +47,15 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <Imath/ImathBox.h>
-#include <Imath/ImathVec.h>
 #include "ImfExport.h"
 #include "ImfForward.h"
 #include "ImfHeader.h"
 #include "ImfNamespace.h"
 #include "ImfRgba.h"
 #include "ImfThreading.h"
+
+#include <Imath/ImathBox.h>
+#include <Imath/ImathVec.h>
 
 #include <string>
 

@@ -10,11 +10,13 @@
 #include "compareB44.h"
 #include "compareDwa.h"
 
-#include <IlmThread.h>
+#include "IlmThread.h"
+#include "ImfArray.h"
+#include "ImfRgbaFile.h"
+#include "ImfThreading.h"
+
 #include <Imath/ImathRandom.h>
-#include <ImfArray.h>
-#include <ImfRgbaFile.h>
-#include <ImfThreading.h>
+
 #include <assert.h>
 #include <stdio.h>
 #include <string>

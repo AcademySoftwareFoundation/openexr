@@ -29,7 +29,7 @@
 
 #include "Iex.h"
 #include <Imath/ImathFun.h>
-#include <half.h>
+#include <Imath/half.h>
 
 #include <algorithm>
 #include <fstream>

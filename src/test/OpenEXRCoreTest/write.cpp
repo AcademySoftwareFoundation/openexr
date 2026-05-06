@@ -15,7 +15,7 @@
 
 #include "test_value.h"
 
-#include <openexr.h>
+#include "openexr.h"
 
 #include <float.h>
 #include <limits.h>

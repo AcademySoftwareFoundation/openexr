@@ -75,8 +75,8 @@
 #include "ImfNamespace.h"
 
 #include "IexMathExc.h"
+#include <Imath/half.h>
 #include <cstdint>
-#include <half.h>
 #include <limits.h>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER

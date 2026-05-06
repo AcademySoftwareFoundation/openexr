@@ -17,8 +17,8 @@
 #include <stdlib.h>
 #include <vector>
 
-#include <OpenEXRConfig.h>
-#include <OpenEXRConfigInternal.h>
+#include "OpenEXRConfig.h"
+#include "OpenEXRConfigInternal.h"
 
 #if __cplusplus >= 201103L
 #    include <thread>
@@ -29,11 +29,11 @@
 #endif
 
 #include "ImfNamespace.h"
-#include <IlmThread.h>
-#include <IlmThreadSemaphore.h>
-#include <ImfIO.h>
-#include <ImfXdr.h>
-#include <half.h>
+#include "IlmThread.h"
+#include "IlmThreadSemaphore.h"
+#include "ImfIO.h"
+#include "ImfXdr.h"
+#include <Imath/half.h>
 
 using namespace OPENEXR_IMF_NAMESPACE;
 

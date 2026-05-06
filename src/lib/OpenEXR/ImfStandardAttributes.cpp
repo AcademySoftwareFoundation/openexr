@@ -9,7 +9,7 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfStandardAttributes.h>
+#include "ImfStandardAttributes.h"
 
 #if defined(_MSC_VER)
 // suppress warning about non-exported base classes

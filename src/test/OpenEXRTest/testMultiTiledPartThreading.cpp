@@ -19,21 +19,21 @@
 
 #include "testMultiTiledPartThreading.h"
 
-#include <IlmThreadPool.h>
-#include <ImfArray.h>
-#include <ImfChannelList.h>
-#include <ImfFrameBuffer.h>
-#include <ImfGenericOutputFile.h>
-#include <ImfHeader.h>
-#include <ImfInputPart.h>
-#include <ImfMultiPartInputFile.h>
-#include <ImfMultiPartOutputFile.h>
-#include <ImfOutputFile.h>
-#include <ImfOutputPart.h>
-#include <ImfPartType.h>
-#include <ImfTiledInputPart.h>
-#include <ImfTiledOutputFile.h>
-#include <ImfTiledOutputPart.h>
+#include "IlmThreadPool.h"
+#include "ImfArray.h"
+#include "ImfChannelList.h"
+#include "ImfFrameBuffer.h"
+#include "ImfGenericOutputFile.h"
+#include "ImfHeader.h"
+#include "ImfInputPart.h"
+#include "ImfMultiPartInputFile.h"
+#include "ImfMultiPartOutputFile.h"
+#include "ImfOutputFile.h"
+#include "ImfOutputPart.h"
+#include "ImfPartType.h"
+#include "ImfTiledInputPart.h"
+#include "ImfTiledOutputFile.h"
+#include "ImfTiledOutputPart.h"
 
 namespace
 {

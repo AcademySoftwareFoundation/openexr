@@ -13,7 +13,20 @@
 
 #include "test_value.h"
 
-#include <openexr.h>
+#include "openexr.h"
+
+#include "ImfArray.h"
+#include "ImfChannelList.h"
+#include "ImfCompressor.h"
+#include "ImfFrameBuffer.h"
+#include "ImfHeader.h"
+#include "ImfHuf.h"
+#include "ImfInputFile.h"
+#include "ImfOutputFile.h"
+#include "ImfTiledOutputFile.h"
+
+#include <Imath/ImathRandom.h>
+#include <Imath/half.h>
 
 #include <memory.h>
 #include <stdlib.h>
@@ -24,18 +37,6 @@
 #include <iostream>
 #include <vector>
 #include <cmath>
-
-#include <Imath/ImathRandom.h>
-#include <ImfArray.h>
-#include <ImfChannelList.h>
-#include <ImfCompressor.h>
-#include <ImfFrameBuffer.h>
-#include <ImfHeader.h>
-#include <ImfHuf.h>
-#include <ImfInputFile.h>
-#include <ImfOutputFile.h>
-#include <ImfTiledOutputFile.h>
-#include <half.h>
 
 #include "internal_ht_common.cpp"
 

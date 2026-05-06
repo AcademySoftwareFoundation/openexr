@@ -10,36 +10,38 @@
 #include "testBackwardCompatibility.h"
 #include "TestUtilFStream.h"
 
-#include <IexMacros.h>
-#include <IlmThreadPool.h>
+#include "IexMacros.h"
+#include "IlmThreadPool.h"
+#include "ImfArray.h"
+#include "ImfChannelList.h"
+#include "ImfFrameBuffer.h"
+#include "ImfHeader.h"
+#include "ImfOutputFile.h"
+#include "ImfPreviewImage.h"
+#include "ImfTiledOutputFile.h"
+
 #include <Imath/ImathBox.h>
-#include <ImfArray.h>
-#include <ImfChannelList.h>
-#include <ImfFrameBuffer.h>
-#include <ImfHeader.h>
-#include <ImfOutputFile.h>
-#include <ImfPreviewImage.h>
-#include <ImfTiledOutputFile.h>
+
 #include <stdio.h>
 #include <stdlib.h>
-#include <tmpDir.h>
+#include "tmpDir.h"
 
-#include <ImfBoxAttribute.h>
-#include <ImfChannelListAttribute.h>
-#include <ImfChromaticitiesAttribute.h>
-#include <ImfCompressionAttribute.h>
-#include <ImfDoubleAttribute.h>
-#include <ImfEnvmapAttribute.h>
-#include <ImfFloatAttribute.h>
-#include <ImfIntAttribute.h>
-#include <ImfLineOrderAttribute.h>
-#include <ImfMatrixAttribute.h>
-#include <ImfOpaqueAttribute.h>
-#include <ImfStringAttribute.h>
-#include <ImfStringVectorAttribute.h>
-#include <ImfVecAttribute.h>
+#include "ImfBoxAttribute.h"
+#include "ImfChannelListAttribute.h"
+#include "ImfChromaticitiesAttribute.h"
+#include "ImfCompressionAttribute.h"
+#include "ImfDoubleAttribute.h"
+#include "ImfEnvmapAttribute.h"
+#include "ImfFloatAttribute.h"
+#include "ImfIntAttribute.h"
+#include "ImfLineOrderAttribute.h"
+#include "ImfMatrixAttribute.h"
+#include "ImfOpaqueAttribute.h"
+#include "ImfStringAttribute.h"
+#include "ImfStringVectorAttribute.h"
+#include "ImfVecAttribute.h"
 
-#include <half.h>
+#include <Imath/half.h>
 
 #include <assert.h>
 #include <fstream>

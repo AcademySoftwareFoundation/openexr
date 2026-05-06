@@ -8,10 +8,12 @@
 #endif
 
 #include "IlmThread.h"
+#include "ImfArray.h"
+#include "ImfRgbaFile.h"
+#include "ImfThreading.h"
+
 #include <Imath/ImathMath.h>
-#include <ImfArray.h>
-#include <ImfRgbaFile.h>
-#include <ImfThreading.h>
+
 #include <algorithm>
 #include <assert.h>
 #include <stdio.h>
