@@ -183,10 +183,12 @@ ht_undo_impl (
         if (file_i >= decode->channel_count)
             return EXR_ERR_CORRUPT_CHUNK;
 
-        size_t computedoffset = 0;
+        int64_t computedoffset = 0;
         for (int i = 0; i < file_i; ++i)
-            computedoffset += decode->channels[i].width *
-                              decode->channels[i].bytes_per_element;
+            computedoffset += (int64_t) decode->channels[i].width *
+                              (int64_t) decode->channels[i].bytes_per_element;
+        if (computedoffset > std::numeric_limits<std::size_t>::max())
+            return EXR_ERR_CORRUPT_CHUNK;
         cs_to_file_ch[cs_i].raster_line_offset = computedoffset;
     }
 
@@ -212,8 +214,8 @@ ht_undo_impl (
     bool is_planar  = false;
     for (int16_t c = 0; c < decode->channel_count; c++)
     {
-        bpl +=
-            decode->channels[c].bytes_per_element * decode->channels[c].width;
+        bpl += (int64_t) decode->channels[c].bytes_per_element *
+               (int64_t) decode->channels[c].width;
         if (decode->channels[c].x_samples > 1 ||
             decode->channels[c].y_samples > 1)
         { is_planar = true; }
@@ -278,8 +280,8 @@ ht_undo_impl (
                         }
                     }
 
-                    line_pixels += decode->channels[line_c].bytes_per_element *
-                                   decode->channels[line_c].width;
+                    line_pixels += (size_t) decode->channels[line_c].bytes_per_element *
+                                   (size_t) decode->channels[line_c].width;
                 }
             }
         }
