@@ -183,7 +183,7 @@ ht_undo_impl (
         if (file_i >= decode->channel_count)
             return EXR_ERR_CORRUPT_CHUNK;
 
-        size_t computedoffset = 0;
+        int64_t computedoffset = 0;
         for (int i = 0; i < file_i; ++i)
             computedoffset += (size_t) decode->channels[i].width *
                               (size_t) decode->channels[i].bytes_per_element;
