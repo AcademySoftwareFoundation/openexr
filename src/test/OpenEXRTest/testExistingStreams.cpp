@@ -41,9 +41,12 @@ using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;
 using namespace IMATH_NAMESPACE;
 
-#ifdef _WIN32
-#pragma warning(push,0)
-#pragma warning(disable: 4996)
+#ifdef _MSC_VER
+#   pragma warning(push,0)
+#   pragma warning(disable: 4996)
+#elif defined(__clang__) || defined(__GNUC__)
+#   pragma GCC diagnostic push
+#   pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
 
 namespace
@@ -1150,8 +1153,12 @@ testExistingStreamsUTF8 (const std::string& tempDir)
 
 #ifdef _WIN32
     _wremove (WidenFilename (outfn.c_str ()).c_str ());
-#   pragma warning(pop)
 #else
     remove (outfn.c_str ());
+#endif
+#ifdef _MSC_VER
+#   pragma warning(pop)
+#elif defined(__clang__) || defined(__GNUC__)
+#   pragma GCC diagnostic pop
 #endif
 }

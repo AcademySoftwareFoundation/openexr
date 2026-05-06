@@ -103,9 +103,15 @@ inline void
 OpenStreamWithUTF8Name (
     StreamType& is, const char* filename, std::ios_base::openmode mode)
 {
+#   ifdef _MSC_VER
+#       pragma warning(push)
+#       pragma warning(disable: 4996)
+#   elif defined(__clang__) || defined(__GNUC__)
+#       pragma GCC diagnostic push
+#       pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#   endif
+
 #   ifdef _WIN32
-#   pragma warning(push)
-#   pragma warning(disable: 4996)
 
     std::wstring wfn = OPENEXR_IMF_INTERNAL_NAMESPACE::WidenFilename (filename);
 
@@ -124,8 +130,10 @@ OpenStreamWithUTF8Name (
     is.rdbuf ()->open (filename, mode);
 #    endif
 
-#   ifdef _WIN32
-#   pragma warning(pop)
+#   ifdef _MSC_VER
+#       pragma warning(pop)
+#   elif defined(__clang__) || defined(__GNUC__)
+#       pragma GCC diagnostic pop
 #   endif
 }
 
