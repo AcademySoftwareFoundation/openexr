@@ -187,6 +187,8 @@ ht_undo_impl (
         for (int i = 0; i < file_i; ++i)
             computedoffset += (int64_t) decode->channels[i].width *
                               (int64_t) decode->channels[i].bytes_per_element;
+        if (computedoffset > std::numeric_limits<std::size_t>::max())
+            return EXR_ERR_CORRUPT_CHUNK;
         cs_to_file_ch[cs_i].raster_line_offset = computedoffset;
     }
 
