@@ -14,10 +14,11 @@
 
 #include "namespaceAlias.h"
 
-#include <ImathBox.h>
-#include <ImfArray.h>
-#include <ImfEnvmap.h>
-#include <ImfRgba.h>
+#include "ImfArray.h"
+#include "ImfEnvmap.h"
+#include "ImfRgba.h"
+
+#include <Imath/ImathBox.h>
 
 class EnvmapImage
 {

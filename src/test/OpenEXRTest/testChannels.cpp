@@ -7,13 +7,14 @@
 #    undef NDEBUG
 #endif
 
-#include "half.h"
-#include <ImfArray.h>
-#include <ImfChannelList.h>
-#include <ImfFrameBuffer.h>
-#include <ImfHeader.h>
-#include <ImfInputFile.h>
-#include <ImfOutputFile.h>
+#include "ImfArray.h"
+#include "ImfChannelList.h"
+#include "ImfFrameBuffer.h"
+#include "ImfHeader.h"
+#include "ImfInputFile.h"
+#include "ImfOutputFile.h"
+
+#include <Imath/half.h>
 
 #include <assert.h>
 #include <stdio.h>
@@ -218,6 +219,71 @@ writeRead (
     cout << endl;
 }
 
+void
+verifyIterators(void)
+{
+    ChannelList l1;
+
+    l1.insert("A", Channel(HALF));
+    l1.insert("B", Channel(HALF));
+    l1.insert("C", Channel(HALF));
+
+    ChannelList::Iterator it1 = l1.begin();
+    ChannelList::ConstIterator cit1 = l1.begin();
+
+    ChannelList::Iterator it2 = l1.end();
+    ChannelList::ConstIterator cit2 = l1.end();
+
+    // Test global '!=' overloads
+    assert(it1 != it2);
+    assert(it1 != cit2);
+    assert(cit1 != it2);
+    assert(cit1 != cit2);
+
+    // Test global '==' overloads
+    assert(it1 == it1);
+    assert(it1 == cit1);
+    assert(cit1 == it1);
+    assert(cit1 == cit1);
+
+    // Test post/pre '++' overloads
+    it1++;
+    ++it1;
+    cit1++;
+    ++cit1;
+    
+    // Test post/pre '--' overloads
+    it1--;
+    --it1;
+    cit1--;
+    --cit1;
+
+    assert(it1 == l1.begin());
+    assert(cit1 == l1.begin());
+     
+    while (it1 != l1.end())
+    {
+        
+        // Test '*' overloads
+        Channel& c = *it1;
+        const Channel& cc = *cit1;
+        assert(c.type == HALF);
+        assert(cc.type == HALF);
+        
+        // Test '->' overload
+        assert(it1->type == HALF);
+        assert(cit1->type == HALF);
+
+        // Test pre/post '++' overloads
+        it1++;
+        cit1++;
+
+    }
+
+    assert(it1 == l1.end());
+    assert(cit1 == l1.end());
+}
+
 } // namespace
 
 void
@@ -225,6 +291,10 @@ testChannels (const std::string& tempDir)
 {
     try
     {
+        cout << "Testing ChannelList Iterator behavior" << endl;
+
+        verifyIterators ();
+
         cout << "Testing filling of missing channels" << endl;
 
         const int W = 117;

@@ -11,7 +11,7 @@
 //-----------------------------------------------------------------------------
 
 #include "ImfNamespace.h"
-#include <ImfChromaticities.h>
+#include "ImfChromaticities.h"
 #include <string.h>
 
 #include <float.h>

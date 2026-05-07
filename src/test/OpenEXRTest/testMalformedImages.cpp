@@ -7,10 +7,10 @@
 #    undef NDEBUG
 #endif
 
-#include <IlmThread.h>
-#include <ImfAcesFile.h>
-#include <ImfArray.h>
-#include <ImfRgbaFile.h>
+#include "IlmThread.h"
+#include "ImfAcesFile.h"
+#include "ImfArray.h"
+#include "ImfRgbaFile.h"
 #include <assert.h>
 #include <stdio.h>
 

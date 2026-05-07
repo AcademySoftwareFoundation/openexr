@@ -9,7 +9,7 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfRgbaYca.h>
+#include "ImfRgbaYca.h"
 #include <algorithm>
 #include <assert.h>
 

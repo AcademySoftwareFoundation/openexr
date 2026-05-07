@@ -7,9 +7,11 @@
 #    undef NDEBUG
 #endif
 
-#include "ImathRandom.h"
-#include <ImfArray.h>
-#include <ImfWav.h>
+#include "ImfArray.h"
+#include "ImfWav.h"
+
+#include <Imath/ImathRandom.h>
+
 #include <assert.h>
 #include <exception>
 #include <iostream>

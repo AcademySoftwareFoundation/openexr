@@ -21,7 +21,7 @@
 #include <assert.h>
 #include <string.h>
 
-#include <ImathBox.h>
+#include <Imath/ImathBox.h>
 
 using IMATH_NAMESPACE::Box2i;
 

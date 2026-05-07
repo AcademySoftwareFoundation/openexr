@@ -111,6 +111,60 @@ The instructions that follow describe building OpenEXR with CMake.
 Note that as of OpenEXR 3, the Gnu autoconf bootstrap/configure build
 system is no longer supported.
 
+Headers and ``#include`` Policy
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Public headers are installed under ``${CMAKE_INSTALL_INCLUDEDIR}`` in
+a dedicated subdirectory, by default ``OpenEXR/`` (the CMake cache
+variable ``OPENEXR_OUTPUT_SUBDIR`` controls the name). For a typical
+prefix, paths look like ``$prefix/include/OpenEXR/ImfRgbaFile.h``.
+
+Application code may use **either** of these include styles:
+
+* ``#include <ImfRgbaFile.h>`` (historical, flat filename)
+* ``#include <OpenEXR/ImfRgbaFile.h>`` (namespaced path under the parent
+  include directory)
+
+Both are supported **by design**. The exported CMake targets
+(``OpenEXR::OpenEXR``, ``OpenEXR::OpenEXRUtil``, ``OpenEXR::OpenEXRCore``,
+``OpenEXR::Iex``, ``OpenEXR::IlmThread``, and related ``OpenEXR::*Config``
+interface targets) propagate two install-interface include directories:
+``$prefix/include`` **and** ``$prefix/include/OpenEXR``. Linking against
+those targets after ``find_package(OpenEXR)`` is the recommended way to
+obtain correct flags; you should not need to add ``-I`` paths by hand.
+The same dual-path behavior is reflected in the ``pkg-config`` file
+(``Cflags`` lists both roots) for non-CMake builds.
+
+**Recommended usage:** Prefer ``find_package(OpenEXR …)`` and
+``target_link_libraries(… OpenEXR::…)`` in CMake, or ``pkg-config`` for
+other build systems, and keep either include spelling consistent within
+your project.
+
+If you are not using cmake or pkg-config and must set compiler flags
+yourself, mirror both include directories above and include
+``-I$prefix/include`` and ``-I$prefix/include/OpenEXR``; a single
+``-I$prefix/include`` without the ``OpenEXR`` subdirectory is **not**
+sufficient for flat ``#include <Imf*.h>`` lines.
+
+This layout preserves long-standing flat includes in existing code and
+documentation while keeping headers grouped under ``OpenEXR/`` on
+disk. There is no plan to remove either style in current release
+lines.
+
+Headers in the OpenEXR Source Tree
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When inspecting the OpenEXR source code or investigating issues
+building the library, note that within the OpenEXR source tree, all
+local headers are included with quotes, i.e. ``#include
+"ImfHeader.h"``, not angle brackets ``<>``, since for an internal
+build the headers come from the same library tree. Also note that
+since headers are stored alongside source files in each internal
+library directory (``OpenEXR``, ``OpenEXRCore``, ``OpenEXRUtil``,
+``Iex``, ``IlmThread``), not in a single common ``OpenEXR`` folder,
+they are included internally as bare files, without a ``OpenEXR/``
+subdirectory. This intentionally differs from the installed layout.
+
 OpenEXR/Imath Version Compatibility
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -304,6 +358,84 @@ the ``ImathConfig.cmake`` file, which is typically the
 is installed.
 
 See below for other customization options.
+
+Imath Header Includes (``#include <Imath/...>``)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+OpenEXR source and public headers use the conventional Imath include
+form with an ``Imath/`` directory prefix, for example:
+
+.. code-block:: c++
+
+   #include <Imath/ImathVec.h>
+
+**Application code:** If you include OpenEXR headers (or copy patterns
+from them), use the same ``<Imath/...>`` style. That matches how Imath
+installs headers under ``include/Imath/`` and is preferred over flat
+includes such as ``<ImathVec.h>``.
+
+**CMake:** OpenEXR's package configuration calls ``find_dependency(Imath)``
+(see ``cmake/OpenEXRConfig.cmake.in``), and the imported targets
+(``OpenEXR::OpenEXR``, ``OpenEXR::OpenEXRUtil``, etc.) propagate usage
+requirements from Imath. For an Imath install in a non-standard
+location, point CMake at that prefix before configuring OpenEXR or
+your application—for example set ``CMAKE_PREFIX_PATH`` to the Imath
+install root, or set ``Imath_DIR`` to the directory that contains
+``ImathConfig.cmake``. You should not need extra ``target_include_directories``
+for Imath when linking against the OpenEXR imported targets, as long as
+CMake can find Imath the same way OpenEXR did.
+
+**pkg-config:** ``cmake/OpenEXR.pc.in`` lists ``Requires: Imath``. A
+working ``pkg-config --cflags OpenEXR`` invocation therefore merges
+flags from both ``OpenEXR.pc`` and ``Imath.pc``. If either library is
+installed outside default search paths, set ``PKG_CONFIG_PATH`` to
+the ``lib/pkgconfig`` directories that contain those ``.pc`` files.
+
+**Other build systems:** If you are not using CMake or pkg-config, add
+the Imath *parent* include directory to your compiler's include path:
+the directory whose immediate child is the ``Imath`` folder (typically
+``<imath-prefix>/include``), not ``<imath-prefix>/include/Imath`` by
+itself. OpenEXR's own ``-I`` flags from a manual build are analogous:
+you need both OpenEXR's include layout and Imath's, consistent with
+the installed layout.
+
+**Also of note:** When OpenEXR auto-fetches Imath inside its build tree,
+OpenEXR's CMake adds a small compatibility layer so ``<Imath/...>``
+still resolves (see ``cmake/OpenEXRSetup.cmake``); that is internal to
+the OpenEXR build and does not change how a normal installed Imath is
+consumed.
+
+Python Module (Building with Custom Python)
+-------------------------------------------
+
+OpenEXR can optionally build its Python module
+(``OPENEXR_BUILD_PYTHON=ON``), which requires a Python development
+install and the ``pybind11`` package.
+
+If you need to build against a non-default Python installation, you
+must point CMake at a Python **development** environment (not just an
+interpreter). In particular, the build requires ``Python.h`` and a
+linkable Python library.
+
+OpenEXR uses CMake's ``find_package(Python3 ...)`` and
+``find_package(pybind11 ...)``.  To build against a custom Python, use
+the corresponding ``Python3_*`` variables, for example:
+
+.. code-block::
+
+    % cmake -S $srcdir -B $builddir \
+        -DOPENEXR_BUILD_PYTHON=ON \
+        -DPython3_EXECUTABLE=/path/to/python \
+        -DPython3_INCLUDE_DIR=/path/to/python/include \
+        -DPython3_LIBRARY=/path/to/python/lib/libpythonX.Y.so
+
+Notes:
+
+* Embedded Python distributions (for example, some DCC application bundles)
+  may ship a Python interpreter but omit the full development headers and
+  libraries required to compile extension modules.
+* Avoid legacy variables such as ``PYTHON_INCLUDE_DIR`` (all-caps): those are
+  from older CMake modules and may be ignored.
 
 Porting Applications from OpenEXR v2 to v3
 ------------------------------------------

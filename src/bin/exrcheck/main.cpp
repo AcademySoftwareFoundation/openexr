@@ -1,10 +1,12 @@
 // SPDX-License-Identifier: BSD-3-Clause
 // Copyright (c) Contributors to the OpenEXR Project.
 
-#include <ImathConfig.h>
-#include <ImfCheckFile.h>
-#include <ImfMisc.h>
-#include <OpenEXRConfig.h>
+#include "ImfCheckFile.h"
+#include "ImfMisc.h"
+#include "OpenEXRConfig.h"
+
+#include <Imath/ImathConfig.h>
+#include <Imath/ImathConfig.h>
 
 #include <cstdint>
 #include <fstream>

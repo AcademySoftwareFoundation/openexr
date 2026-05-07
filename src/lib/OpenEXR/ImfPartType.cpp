@@ -4,7 +4,7 @@
 //
 
 #include "ImfNamespace.h"
-#include <ImfPartType.h>
+#include "ImfPartType.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 

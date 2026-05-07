@@ -9,7 +9,7 @@
 #    define NOMINMAX
 #endif
 
-#include <openexr.h>
+#include "openexr.h"
 
 #include "test_value.h"
 #include <vector>

@@ -10,8 +10,8 @@
  * routine, which attempts to read it using various C++ API paths.
  */
 
-#include <ImfNamespace.h>
-#include <ImfCheckFile.h>
+#include "ImfNamespace.h"
+#include "ImfCheckFile.h"
 #include <stdint.h>
 
 using OPENEXR_IMF_NAMESPACE::checkOpenEXRFile;

@@ -10,8 +10,8 @@
  * routine, specifically instructing it to use only the Core API read paths.
  */
 
-#include <ImfNamespace.h>
-#include <ImfCheckFile.h>
+#include "ImfNamespace.h"
+#include "ImfCheckFile.h"
 #include <stdint.h>
 
 using OPENEXR_IMF_NAMESPACE::checkOpenEXRFile;

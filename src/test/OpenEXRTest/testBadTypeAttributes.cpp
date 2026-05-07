@@ -25,7 +25,7 @@
 #include "ImfChannelList.h"
 #include "ImfMultiPartInputFile.h"
 #include "ImfPartType.h"
-#include <half.h>
+#include <Imath/half.h>
 #include <vector>
 
 #include <assert.h>
