@@ -41,6 +41,7 @@ using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;
 using namespace IMATH_NAMESPACE;
 
+// TODO: Remove pragmas for pushing/popping deprecation warnings when WidenFilename is removed from API
 #ifdef _MSC_VER
 #   pragma warning(push,0)
 #   pragma warning(disable: 4996)

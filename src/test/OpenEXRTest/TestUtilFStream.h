@@ -103,6 +103,8 @@ inline void
 OpenStreamWithUTF8Name (
     StreamType& is, const char* filename, std::ios_base::openmode mode)
 {
+
+// TODO: Remove pragmas for pushing/popping deprecation warnings when WidenFilename is removed from API
 #   ifdef _MSC_VER
 #       pragma warning(push)
 #       pragma warning(disable: 4996)
