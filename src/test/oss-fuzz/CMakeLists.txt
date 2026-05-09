@@ -24,9 +24,9 @@ message(status "CXX_FLAGS=$ENV{CXX_FLAGS}")
 message(status "CC=$ENV{CC}")
 message(status "CC_FLAGS=$ENV{CC_FLAGS}")
 
-set(OPENEXR_FUZZERS openexr_exrcheck_fuzzer openexr_exrcorecheck_fuzzer openexr_encoding_fuzzer openexr_attribute_fuzzer openexr_htj2k_fuzzer openexr_roundtrip_fuzzer)
+set(OPENEXR_FUZZERS openexr_exrcheck_fuzzer openexr_exrcorecheck_fuzzer openexr_encoding_fuzzer openexr_attribute_fuzzer openexr_htj2k_fuzzer openexr_roundtrip_fuzzer openexr_exrgaps_fuzzer)
 add_custom_target(oss_fuzz ALL
-  DEPENDS openexr_exrcheck_fuzzer openexr_exrcorecheck_fuzzer openexr_encoding_fuzzer openexr_attribute_fuzzer openexr_htj2k_fuzzer openexr_roundtrip_fuzzer
+  DEPENDS openexr_exrcheck_fuzzer openexr_exrcorecheck_fuzzer openexr_encoding_fuzzer openexr_attribute_fuzzer openexr_htj2k_fuzzer openexr_roundtrip_fuzzer openexr_exrgaps_fuzzer
 )
 
 if ($ENV{FUZZING_ENGINE} STREQUAL "afl")
