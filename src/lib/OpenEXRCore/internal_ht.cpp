@@ -204,11 +204,24 @@ ht_undo_impl (
 
     ojph::ui32 image_height =
         siz.get_image_extent ().y - siz.get_image_offset ().y;
+    ojph::ui32 image_width =
+        siz.get_image_extent ().x - siz.get_image_offset ().x;
 
-    if (decode->chunk.width != siz.get_image_extent ().x - siz.get_image_offset ().x
+    if (decode->chunk.width != image_width
         || decode->chunk.height != image_height
         || decode->channel_count != siz.get_num_components())
         return EXR_ERR_CORRUPT_CHUNK;
+
+    for (int cs_i = 0; cs_i < decode->channel_count; cs_i++)
+    {
+        int file_i = cs_to_file_ch[cs_i].file_index;
+
+        if (decode->channels[file_i].height != siz.get_recon_height (cs_i) ||
+            decode->channels[file_i].width != siz.get_recon_width (cs_i) ||
+            decode->channels[file_i].height != image_height / siz.get_downsampling (cs_i).y ||
+            decode->channels[file_i].width != image_width / siz.get_downsampling (cs_i).x)
+            return EXR_ERR_CORRUPT_CHUNK;
+    }
 
     int64_t bpl     = 0;
     bool is_planar  = false;
@@ -235,9 +248,6 @@ ht_undo_impl (
         for (int16_t c = 0; c < decode->channel_count; c++)
         {
             int file_c = cs_to_file_ch[c].file_index;
-            assert (
-                siz.get_recon_height (c) == decode->channels[file_c].height);
-            assert (decode->channels[file_c].width == siz.get_recon_width (c));
 
             if (decode->channels[file_c].height == 0) continue;
 
