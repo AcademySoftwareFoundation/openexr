@@ -26,6 +26,8 @@
 // C++ MultiPartInputFile/TiledInputPart API operates on file paths.
 //
 
+#include <algorithm>
+#include <cerrno>
 #include <cstdint>
 #include <cstddef>
 #include <cstdio>
@@ -42,23 +44,41 @@
 #include <ImfFrameBuffer.h>
 #include <ImfDeepFrameBuffer.h>
 #include <ImfTileDescriptionAttribute.h>
+#include <ImfPartType.h>
 
 namespace IMF = OPENEXR_IMF_NAMESPACE;
 
 namespace {
 
-constexpr size_t kMaxInput      = 4 * 1024 * 1024;
-constexpr int    kMaxTilesPerCall = 16;
-constexpr int    kMaxParts        = 8;
+constexpr size_t kMaxInput          = 4 * 1024 * 1024;
+constexpr int    kMaxTilesPerCall   = 16;
+constexpr int    kMaxParts          = 8;
+// Bound on (dx2-dx1+1)*(dy2-dy1+1) for readTiles() to avoid pathological
+// 1024-tile calls slowing fuzz throughput. 8x8 = 64 tiles per call covers
+// boundary and small-range cases without burning iteration time.
+constexpr int    kMaxRangeSide      = 8;
 
 std::string write_temp (const uint8_t* data, size_t size)
 {
     char path[] = "/tmp/exr_gaps_XXXXXX";
     int  fd     = mkstemp (path);
     if (fd < 0) return std::string ();
-    ssize_t n = write (fd, data, size);
+    size_t total = 0;
+    while (total < size)
+    {
+        ssize_t n = write (fd, data + total, size - total);
+        if (n < 0)
+        {
+            if (errno == EINTR) continue;
+            close (fd);
+            unlink (path);
+            return std::string ();
+        }
+        if (n == 0) break;
+        total += static_cast<size_t> (n);
+    }
     close (fd);
-    if (n != static_cast<ssize_t> (size))
+    if (total != size)
     {
         unlink (path);
         return std::string ();
@@ -69,7 +89,10 @@ std::string write_temp (const uint8_t* data, size_t size)
 uint32_t read_u32 (const uint8_t* p, size_t size, size_t off)
 {
     if (off + 4 > size) return 0;
-    return p[off] | (p[off + 1] << 8) | (p[off + 2] << 16) | (p[off + 3] << 24);
+    return static_cast<uint32_t> (p[off])
+         | (static_cast<uint32_t> (p[off + 1]) << 8)
+         | (static_cast<uint32_t> (p[off + 2]) << 16)
+         | (static_cast<uint32_t> (p[off + 3]) << 24);
 }
 
 void
@@ -85,8 +108,10 @@ test_tiled_random_coords (
         {
             const IMF::Header& hdr = mpif.header (p);
             if (!hdr.hasTileDescription ()) continue;
-            auto type_it = hdr.find ("type");
-            if (type_it != hdr.end ()) continue;
+            // TiledInputPart is for non-deep tiled parts. Mode 2 covers
+            // deep tiled. MultiPartInputFile auto-synthesizes a "type"
+            // attribute, so we must check the value rather than presence.
+            if (hdr.hasType () && hdr.type () == IMF::DEEPTILE) continue;
             try
             {
                 IMF::TiledInputPart tip (mpif, p);
@@ -142,9 +167,10 @@ test_tiled_range (
                 uint32_t r   = read_u32 (params, param_size, 0);
                 uint32_t s   = read_u32 (params, param_size, 4);
                 int      dx1 = r & 0xff;
-                int      dx2 = dx1 + ((r >> 8) & 0x1f);
                 int      dy1 = (r >> 16) & 0xff;
-                int      dy2 = dy1 + ((r >> 24) & 0x1f);
+                // Clamp range size so total tile count stays <= kMaxRangeSide^2.
+                int      dx2 = dx1 + (((r >> 8) & 0x1f) % kMaxRangeSide);
+                int      dy2 = dy1 + (((r >> 24) & 0x1f) % kMaxRangeSide);
                 int      lx  = s & 0x0f;
                 int      ly  = (s >> 4) & 0x0f;
                 try
@@ -176,9 +202,9 @@ test_deep_tiled (
         int n_parts = std::min (mpif.parts (), kMaxParts);
         for (int p = 0; p < n_parts; p++)
         {
-            const IMF::Header& hdr     = mpif.header (p);
-            auto               type_it = hdr.find ("type");
-            if (type_it == hdr.end ()) continue;
+            const IMF::Header& hdr = mpif.header (p);
+            // DeepTiledInputPart only accepts deep tiled parts.
+            if (!hdr.hasType () || hdr.type () != IMF::DEEPTILE) continue;
             try
             {
                 IMF::DeepTiledInputPart dtip (mpif, p);
