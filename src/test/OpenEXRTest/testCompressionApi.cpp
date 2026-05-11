@@ -68,6 +68,8 @@ testCompressionApi (const string& tempDir)
                 case ZIPS_COMPRESSION:
                 case ZIP_COMPRESSION:
                 case PIZ_COMPRESSION:
+                case HTJ2K256_COMPRESSION:
+                case HTJ2K32_COMPRESSION:
                     assert (isLossyCompression (c) == false);
                     break;
 
