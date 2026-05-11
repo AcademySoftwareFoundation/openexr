@@ -519,9 +519,6 @@ struct pixels
         const char* tagb,
         const char* chan)
     {
-#if (defined(__powerpc64__) || defined(__ppc64__)) && defined(__LITTLE_ENDIAN__) \
-    || defined(__aarch64__) \
-    || (defined(__arm__) && !defined(__aarch64__) && defined(__ARM_ARCH) && (__ARM_ARCH >= 7))
         // On some architectures (Windows 32‑bit x86, i686 with x87 extended
         // precision, aarch64, ppc64le, arm7), the C and C++ codepaths may
         // generate NaN values that are not bitwise identical. Accept these
@@ -529,7 +526,7 @@ struct pixels
         const bool bothNaN = std::isnan(af) && std::isnan(bf);
         if (bothNaN)
             return;
-#endif
+
         uint32_t a,b; memcpy(&a,&af,sizeof a); memcpy(&b,&bf,sizeof b);
         if (a != b)
         {
