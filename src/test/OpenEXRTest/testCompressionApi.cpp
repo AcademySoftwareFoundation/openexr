@@ -60,7 +60,7 @@ testCompressionApi (const string& tempDir)
 
             assert (getCompressionNumScanlines (c) > 0);
 
-            // update this if you add a new lossy compressor.
+            // update this if you add a new compressor.
             switch (c)
             {
                 case NO_COMPRESSION:
