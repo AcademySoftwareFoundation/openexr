@@ -4,9 +4,7 @@
 //
 
 //
-// Companion to openexr_exrcheck_fuzzer / openexr_exrcorecheck_fuzzer.
-//
-// The two existing fuzzers call Imf::checkOpenEXRFile(), which iterates
+// The Imf::checkOpenEXRFile()-based fuzzers iterate
 // parts and tiles in linear order with in-bounds coordinates. This fuzzer
 // targets four paths that complementary code coverage misses:
 //
