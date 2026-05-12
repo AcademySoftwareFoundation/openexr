@@ -529,6 +529,27 @@ class TestUnittest(unittest.TestCase):
 
         os.remove(outfilename)
 
+    def test_write_float_vector_ndarray(self):
+
+        channels = {
+            "Z" : np.zeros((1, 1), dtype='uint32')
+        }
+        header = {
+            "floatvector32" : np.array([0.0, 1.0, 2.0, 3.0], dtype='float32'),
+            "floatvector64" : np.array([4.0, 5.0, 6.0, 7.0], dtype='float64')
+        }
+
+        with OpenEXR.File(header, channels) as outfile:
+
+            outfilename = mktemp_outfilename()
+            outfile.write(outfilename)
+
+            with OpenEXR.File(outfilename) as infile:
+                self.assertEqual(infile.header()["floatvector32"], [0.0, 1.0, 2.0, 3.0])
+                self.assertEqual(infile.header()["floatvector64"], [4.0, 5.0, 6.0, 7.0])
+
+        os.remove(outfilename)
+
     def test_write_float(self):
 
         # Construct a file from scratch and write it.
