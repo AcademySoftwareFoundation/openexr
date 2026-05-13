@@ -871,5 +871,43 @@ class TestUnittest(unittest.TestCase):
 
         os.remove(outfilename)
 
+    def test_box2i_numpy_scalars(self):
+
+        # Verifying that numpy scalar values are also accepted for
+        # Box2i type
+
+        mn = np.array((0, 0), dtype=np.int32)
+        mx = np.array((15, 15), dtype=np.int32)
+
+        test_cases = [
+            # python int
+            ((0, 0), (15, 15)),  
+            # numpy array
+            (mn, mx),        
+            # numpy scalar values                
+            ((mn[0], mn[1]), (mx[0], mx[1])),    
+        ]
+
+        for data_window in test_cases:
+
+            w = data_window[1][0] - data_window[0][0] + 1
+            h = data_window[1][1] - data_window[0][1] + 1
+            
+            header = {
+                "type": OpenEXR.scanlineimage,
+                "dataWindow": data_window,
+            }
+            
+            channels = {"RGB": np.zeros((h, w, 3), dtype=np.float16)}
+
+            part = OpenEXR.Part(header, channels)
+            f = OpenEXR.File([part])
+            
+            outfilename = mktemp_outfilename()
+            f.write(outfilename)
+            
+            if os.path.isfile(outfilename):
+                os.remove(outfilename)
+                
 if __name__ == '__main__':
     unittest.main()
