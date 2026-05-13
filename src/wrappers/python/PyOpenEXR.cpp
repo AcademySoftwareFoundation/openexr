@@ -33,6 +33,10 @@
 #include "ImfPartType.h"
 #include "ImfArray.h"
 
+#include <cstring>
+#include <limits>
+#include <new>
+
 #include "ImfBoxAttribute.h"
 #include "ImfBytesAttribute.h"
 #include "ImfChannelListAttribute.h"
@@ -99,6 +103,195 @@ namespace {
 
 #include "PyOpenEXR.h"
 
+// tell() is on the hot path for IStream reads; avoid py::cast<uint64_t> overhead.
+uint64_t
+pyObjectToUint64(const py::object& o)
+{
+    PyObject* p = o.ptr();
+    unsigned long long v = PyLong_AsUnsignedLongLong(p);
+    if (v == static_cast<unsigned long long>(-1) && PyErr_Occurred())
+    {
+        PyErr_Clear();
+        throw std::runtime_error("expected non-negative integer from tell()");
+    }
+    return static_cast<uint64_t>(v);
+}
+
+py::object
+pyLongFromSsize(Py_ssize_t v)
+{
+    PyObject* o = PyLong_FromSsize_t(v);
+    if (!o)
+    {
+        PyErr_Clear();
+        throw std::runtime_error("failed to allocate int for stream I/O");
+    }
+    return py::reinterpret_steal<py::object>(o);
+}
+
+py::object
+pyLongFromLong(long v)
+{
+    PyObject* o = PyLong_FromLong(v);
+    if (!o)
+    {
+        PyErr_Clear();
+        throw std::runtime_error("failed to allocate int for stream I/O");
+    }
+    return py::reinterpret_steal<py::object>(o);
+}
+
+py::object
+pyLongFromUint64(uint64_t v)
+{
+    PyObject* o = PyLong_FromUnsignedLongLong(
+        static_cast<unsigned long long>(v));
+    if (!o)
+    {
+        PyErr_Clear();
+        throw std::runtime_error("failed to allocate int for stream I/O");
+    }
+    return py::reinterpret_steal<py::object>(o);
+}
+
+PythonBinaryIStream::PythonBinaryIStream(py::object fo)
+    : IStream ("<python_buffer>"), _fo(std::move(fo)), _streamSize(-1)
+{
+    py::gil_scoped_acquire gil;
+    if (!py::hasattr(_fo, "read") || 
+        !py::hasattr(_fo, "tell") ||
+        !py::hasattr(_fo, "seek"))
+    {
+        throw std::invalid_argument(
+            "binary stream must provide read(), tell(), and seek()");
+    }
+    try
+    {
+        uint64_t saved = pyObjectToUint64(_fo.attr("tell")());
+        _fo.attr("seek")(pyLongFromUint64(0), pyLongFromLong(2));
+
+        uint64_t end = pyObjectToUint64(_fo.attr("tell")());
+        _fo.attr("seek")(pyLongFromUint64(saved), pyLongFromLong(0));
+
+        if (end <= static_cast<uint64_t>(std::numeric_limits<int64_t>::max()))
+            _streamSize = static_cast<int64_t>(end);
+    }
+    catch (const std::bad_alloc&)
+    {
+        throw;
+    }
+    catch (const py::error_already_set&)
+    {
+        PyErr_Clear();
+        _streamSize = -1;
+    }
+    catch (const std::exception&)
+    {
+        _streamSize = -1;
+    }
+}
+
+bool
+PythonBinaryIStream::read(char c[], int n)
+{
+    py::gil_scoped_acquire gil;
+    py::object chunk =
+        _fo.attr("read")(pyLongFromSsize(static_cast<Py_ssize_t>(n)));
+    PyObject* p = chunk.ptr();
+    if (!PyBytes_Check(p))
+        throw std::runtime_error("stream.read() did not return bytes");
+
+    char* buf = nullptr;
+    Py_ssize_t len = 0;
+    if (PyBytes_AsStringAndSize(p, &buf, &len) == -1)
+        throw std::runtime_error("stream.read() did not return bytes");
+
+    if (len != static_cast<Py_ssize_t>(n))
+    {
+        throw std::runtime_error(
+            "Early end of file: read " + std::to_string(len) + " of " +
+            std::to_string(n) + " bytes");
+    }
+
+    if (n > 0 && buf != nullptr)
+        std::memcpy(c, buf, static_cast<size_t>(n));
+
+    if (_streamSize < 0)
+        return true;
+
+    const uint64_t pos = pyObjectToUint64(_fo.attr("tell")());
+    return pos < static_cast<uint64_t>(_streamSize);
+}
+
+uint64_t
+PythonBinaryIStream::tellg()
+{
+    py::gil_scoped_acquire gil;
+    return pyObjectToUint64(_fo.attr("tell")());
+}
+
+void
+PythonBinaryIStream::seekg(uint64_t pos)
+{
+    py::gil_scoped_acquire gil;
+    _fo.attr("seek")(pyLongFromUint64(pos), pyLongFromLong(0));
+}
+
+void
+PythonBinaryIStream::clear()
+{}
+
+int64_t
+PythonBinaryIStream::size()
+{
+    return _streamSize;
+}
+
+PythonBinaryOStream::PythonBinaryOStream(py::object fo)
+    : OStream ("<python_buffer>"), _fo(std::move(fo))
+{
+    py::gil_scoped_acquire gil;
+    if (!py::hasattr(_fo, "write") || 
+        !py::hasattr(_fo, "tell")  ||
+        !py::hasattr(_fo, "seek"))
+    {
+        throw std::invalid_argument(
+            "binary stream must provide write(), tell(), and seek()");
+    }
+}
+
+void
+PythonBinaryOStream::write(const char c[], int n)
+{
+    if (n == 0)
+        return;
+
+    py::gil_scoped_acquire gil;
+    PyObject* b =
+        PyBytes_FromStringAndSize(c, static_cast<Py_ssize_t>(n));
+    if (!b)
+    {
+        PyErr_Clear();
+        throw std::runtime_error("failed to allocate bytes for write()");
+    }
+    py::bytes data = py::reinterpret_steal<py::bytes>(b);
+    _fo.attr("write")(data);
+}
+
+uint64_t
+PythonBinaryOStream::tellp()
+{
+    py::gil_scoped_acquire gil;
+    return pyObjectToUint64(_fo.attr("tell")());
+}
+
+void
+PythonBinaryOStream::seekp(uint64_t pos)
+{
+    py::gil_scoped_acquire gil;
+    _fo.attr("seek")(pyLongFromUint64(pos), pyLongFromLong(0));
+}
+
 PyFile::PyFile()
     : _header_only(false)
 {
@@ -156,7 +349,27 @@ PyFile::PyFile(const std::string& filename, bool separate_channels, bool header_
       _header_only(header_only),
       _inputFile(std::make_unique<MultiPartInputFile>(filename.c_str()))
 {
+    readPartsFromOpenInput(separate_channels);
+}
 
+PyFile::PyFile(py::object binary_stream, bool separate_channels, bool header_only)
+    : filename("<buffer>"), _header_only(header_only)
+{
+    if (py::isinstance<py::str>(binary_stream))
+    {
+        throw std::invalid_argument(
+            "pass a filesystem path as str to OpenEXR.File(); use a binary "
+            "stream object for in-memory input");
+    }
+
+    _readStream = std::make_unique<PythonBinaryIStream>(std::move(binary_stream));
+    _inputFile  = std::make_unique<MultiPartInputFile>(*_readStream);
+    readPartsFromOpenInput(separate_channels);
+}
+
+void
+PyFile::readPartsFromOpenInput(bool separate_channels)
+{
     for (int part_index = 0; part_index < _inputFile->parts(); part_index++)
     {
         const Header& header = _inputFile->header(part_index);
@@ -1050,12 +1263,8 @@ PyFile::channels(int part_index)
     return parts[part_index].cast<PyPart&>().channels;
 }
 
-//
-// Write the PyFile to the given filename
-//
-
-void
-PyFile::write(const char* outfilename)
+std::vector<Header>
+PyFile::buildOutputHeaders()
 {
     std::vector<Header> headers;
 
@@ -1192,9 +1401,13 @@ PyFile::write(const char* outfilename)
         
         headers.push_back (header);
     }
-    
-    MultiPartOutputFile outfile(outfilename, headers.data(), headers.size());
 
+    return headers;
+}
+
+void
+PyFile::runMultiPartOutput(MultiPartOutputFile& outfile, const std::vector<Header>& headers)
+{
     if (_header_only && _inputFile)
     {
         int numParts = _inputFile->parts();
@@ -1269,8 +1482,37 @@ PyFile::write(const char* outfilename)
                 throw std::runtime_error("invalid type");
         }
     }
-    
+}
+
+//
+// Write the PyFile to the given filename
+//
+
+void
+PyFile::write(const char* outfilename)
+{
+    std::vector<Header> headers = buildOutputHeaders();
+    MultiPartOutputFile outfile(outfilename, headers.data(), headers.size());
+    runMultiPartOutput(outfile, headers);
     filename = outfilename;
+}
+
+void
+PyFile::write(py::object binary_stream)
+{
+    if (py::isinstance<py::str>(binary_stream))
+    {
+        throw std::invalid_argument(
+            "use write(path: str) for filesystem output; pass e.g. io.BytesIO "
+            "for in-memory output");
+    }
+    
+    std::vector<Header> headers = buildOutputHeaders();
+    PythonBinaryOStream pstream(std::move(binary_stream));
+    MultiPartOutputFile outfile(pstream, headers.data(), headers.size());
+    runMultiPartOutput(outfile, headers);
+
+    filename = "<buffer>";
 }
 
 //
@@ -2834,6 +3076,24 @@ PYBIND11_MODULE(OpenEXR, m)
              ">>> P0 = OpenEXR.Part({}, {\"Z\" : Z0 })\n"
              ">>> P1 = OpenEXR.Part({}, {\"Z\" : Z1 })\n"
              ">>> f = OpenEXR.File([P0, P1])")
+        .def(py::init<py::object, bool, bool>(),
+             py::arg("stream"),
+             py::arg("separate_channels") = false,
+             py::arg("header_only") = false,
+             "Initialize a File by reading from a binary stream.\n"
+             "\n"
+             "The stream must implement read(), tell(), and seek() and contain a\n"
+             "valid OpenEXR image. Pass a str path to read from the filesystem,\n"
+             "or use ``File([Part, ...])`` for an in-memory multi-part description.\n"
+             "\n"
+             "Parameters\n"
+             "----------\n"
+             "stream : io.BufferedIOBase\n"
+             "    Binary stream positioned at the start of the EXR data.\n"
+             "separate_channels : bool\n"
+             "    Same as for the filename constructor.\n"
+             "header_only : bool\n"
+             "    Same as for the filename constructor.\n")
         .def("__enter__", &PyFile::__enter__)
         .def("__exit__", &PyFile::__exit__)
         .def_readwrite("filename", &PyFile::filename,
@@ -2877,7 +3137,9 @@ PYBIND11_MODULE(OpenEXR, m)
              ">>> f = OpenEXR.File(\"image.exr\")\n"
              ">>> f.channels(0)\n"
              "{'A': Channel(\"A\", xSampling=1, ySampling=1), 'B': Channel(\"B\", xSampling=1, ySampling=1), 'G': Channel(\"G\", xSampling=1, ySampling=1), 'R': Channel(\"R\", xSampling=1, ySampling=1)}")
-        .def("write", &PyFile::write,
+        .def("write",
+             (void (PyFile::*)(const char*)) &PyFile::write,
+             py::arg("filename"),
              "Write the File to the give file name.\n"
              "\n"
              "Parameters\n"
@@ -2889,6 +3151,14 @@ PYBIND11_MODULE(OpenEXR, m)
              "-------\n"
              ">>> f = OpenEXR.File(\"image.exr\")\n"
              ">>> f.write(\"out.exr\")")
+        .def("write",
+             (void (PyFile::*)(py::object)) &PyFile::write,
+             py::arg("stream"),
+             "Write the File to a binary stream.\n"
+             "\n"
+             "The stream must implement write(), tell(), and seek(). The object\n"
+             "is written from the current seek position; callers typically pass\n"
+             "an empty BytesIO or seek to the end of existing data first.\n")
         ;
 }
 
