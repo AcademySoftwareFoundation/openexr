@@ -484,3 +484,36 @@ All deep pixel arrays within a given part must have the same number of
 samples, so the pixel arrays must have the same size and shape.  The
 ``write`` method will throw an exception if they are not.
 
+Multithreaded Reading and Writing
+=================================
+
+(new in OpenEXR v3.5)
+
+The ``File`` object constructor accepts a ``num_threads`` parameter that
+specifies the number of worker threads to use for both read/write and
+decode/encode:
+
+.. code-block::
+
+    with OpenEXR.File("image.exr", num_threads=8) as infile:
+        ...
+
+and:
+
+.. code-block::
+
+    with OpenEXR.File(header, channels, num_threads=8) as outfile:
+        ...
+
+OpenEXR maintains a process-wide thread pool to use for such
+reading. That threadpool must be initialized via
+``OpenEXR.set_global_thread_count`` before reading and writing:
+
+.. code-block::
+
+    import os
+
+    OpenEXR.set_global_thread_count(os.cpu_count())
+
+    n = OpenEXR.global_thread_count()
+
