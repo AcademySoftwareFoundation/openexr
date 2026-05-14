@@ -180,13 +180,13 @@ static const CompressionDesc IdToDesc[] = {
         "htj2k256",
         "High-Throughput JPEG 2000 (256 lines)",
         256,
-        true,
+        false,
         false),
     CompressionDesc (
         "htj2k32",
         "High-Throughput JPEG 2000 (32 lines)",
         32,
-        true,
+        false,
         false),
 };
 // clang-format on
