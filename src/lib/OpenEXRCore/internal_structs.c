@@ -264,6 +264,8 @@ internal_exr_revert_add_part (
     *new_index = -1;
 
     internal_exr_destroy_part (ctxt, part);
+    if (part != &(ctxt->first_part)) ctxt->free_fn (part);
+
     if (ncount == 0)
     {
         ctxt->num_parts = 0;
