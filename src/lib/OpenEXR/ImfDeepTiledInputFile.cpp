@@ -279,6 +279,18 @@ DeepTiledInputFile::setFrameBuffer (const DeepFrameBuffer& frameBuffer)
                        "subsampling factors.");
     }
 
+    const Slice& sampleCountSlice = frameBuffer.getSampleCountSlice ();
+    if (!sampleCountSlice.base)
+    {
+        throw IEX_NAMESPACE::ArgExc (
+            "Invalid base pointer, please set a proper sample count slice.");
+    }
+    if (sampleCountSlice.type != UINT)
+    {
+        throw IEX_NAMESPACE::ArgExc (
+            "The type of sample count slice should be UINT.");
+    }
+
     _data->frameBuffer = frameBuffer;
     _data->frameBufferValid = true;
 }
