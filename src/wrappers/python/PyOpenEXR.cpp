@@ -55,6 +55,7 @@
 #include "ImfTimeCodeAttribute.h"
 #include "ImfVecAttribute.h"
 
+#include <algorithm>
 #include <typeinfo>
 #include <sys/types.h>
 
@@ -1189,7 +1190,44 @@ PyFile::write(const char* outfilename)
                                                                C.pLinear));
             }
         }
-        
+
+        //
+        // When writing from numpy channel buffers, the dataWindow size must
+        // match the pixel array extent (shape[0] = height, shape[1] = width).
+        // Otherwise Slice setup disagrees with the buffer and native code can
+        // fault. Skip when copying pixels from an input file, when there are
+        // no channel buffers, or when any channel uses subsampling (different
+        // size rule than full-res arrays).
+        //
+        if (!(_header_only && _inputFile) && !P.channels.empty())
+        {
+            const bool anySubsampling =
+                std::any_of (P.channels.begin(),
+                             P.channels.end(),
+                             [] (const auto& kv)
+                             {
+                                 const auto& ch = kv.second.template cast<const PyChannel&>();
+                                 return ch.xSampling != 1 || ch.ySampling != 1;
+                             });
+
+            if (!anySubsampling)
+            {
+                const Box2i& dw = header.dataWindow();
+                const int dwW  = dw.max.x - dw.min.x + 1;
+                const int dwH = dw.max.y - dw.min.y + 1;
+
+                const V2i dims = P.shape();
+                if (dims[0] != dwH || dims[1] != dwW)
+                {
+                    std::stringstream err;
+                    err << "dataWindow size (" << dwW << " x " << dwH
+                        << ") does not match pixel array size (" << dims[1]
+                        << " x " << dims[0] << ")";
+                    throw std::invalid_argument(err.str());
+                }
+            }
+        }
+
         headers.push_back (header);
     }
     
