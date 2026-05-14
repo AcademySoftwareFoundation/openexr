@@ -1199,6 +1199,14 @@ void TileProcess::copy_sample_count (
     if (s.xSampling != 1 || s.ySampling != 1)
         throw IEX_NAMESPACE::ArgExc ("Tiled data should not have subsampling.");
 
+    if (s.base == nullptr)
+        throw IEX_NAMESPACE::ArgExc (
+            "Deep frame buffer is missing sample counts; call insertSampleCountSlice before reading.");
+
+    if (s.type != UINT)
+        throw IEX_NAMESPACE::ArgExc (
+            "The type of sample count slice should be UINT.");
+
     int xOffset = s.xTileCoords ? 0 : t_absX;
     int yOffset = s.yTileCoords ? 0 : t_absY;
 
