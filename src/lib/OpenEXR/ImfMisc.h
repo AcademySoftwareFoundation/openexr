@@ -438,6 +438,7 @@ int getChunkOffsetTableSize (const Header& header);
 // Convert a UTF-8 filename to a wide string (for example for Windows APIs).
 //
 
+OPENEXR_DEPRECATED ("To be removed in future releases.")
 IMF_EXPORT
 std::wstring WidenFilename (const char* filename);
 

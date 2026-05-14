@@ -127,7 +127,24 @@ MMIFStream::MMIFStream (const char fileName[])
     , _length (0)
 {
 #ifdef _WIN32
+
+    // TODO: Remove pragmas for pushing/popping deprecation warnings when WidenFilename is removed from API
+#   ifdef _MSC_VER
+#       pragma warning(push,0)
+#       pragma warning(disable: 4996)
+#   elif defined(__clang__) || defined(__GNUC__)
+#       pragma GCC diagnostic push
+#       pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#   endif
+
     const std::wstring fileNameWide = WidenFilename (fileName);
+
+#   ifdef _MSC_VER
+#       pragma warning(pop)
+#   elif defined(__clang__) || defined(__GNUC__)
+#       pragma GCC diagnostic pop
+#   endif
+
     try
     {
         _f = CreateFileW (
@@ -1093,7 +1110,23 @@ testExistingStreamsUTF8 (const std::string& tempDir)
     {
         cout << "writing";
 #ifdef _WIN32
+
+    // TODO: Remove pragmas for pushing/popping deprecation warnings when WidenFilename is removed from API
+#   ifdef _MSC_VER
+#       pragma warning(push,0)
+#       pragma warning(disable: 4996)
+#   elif defined(__clang__) || defined(__GNUC__)
+#       pragma GCC diagnostic push
+#       pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#   endif
+
         _wremove (WidenFilename (outfn.c_str ()).c_str ());
+
+#   ifdef _MSC_VER
+#       pragma warning(pop)
+#   elif defined(__clang__) || defined(__GNUC__)
+#       pragma GCC diagnostic pop
+#   endif
 #else
         remove (outfn.c_str ());
 #endif
@@ -1144,7 +1177,23 @@ testExistingStreamsUTF8 (const std::string& tempDir)
     cout << endl;
 
 #ifdef _WIN32
+
+    // TODO: Remove pragmas for pushing/popping deprecation warnings when WidenFilename is removed from API
+#   ifdef _MSC_VER
+#       pragma warning(push,0)
+#       pragma warning(disable: 4996)
+#   elif defined(__clang__) || defined(__GNUC__)
+#       pragma GCC diagnostic push
+#       pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#   endif
+
     _wremove (WidenFilename (outfn.c_str ()).c_str ());
+
+#   ifdef _MSC_VER
+#       pragma warning(pop)
+#   elif defined(__clang__) || defined(__GNUC__)
+#       pragma GCC diagnostic pop
+#   endif
 #else
     remove (outfn.c_str ());
 #endif
