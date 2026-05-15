@@ -535,8 +535,7 @@ class TestUnittest(unittest.TestCase):
             "Z" : np.zeros((1, 1), dtype='uint32')
         }
         header = {
-            "floatvector32" : np.array([0.0, 1.0, 2.0, 3.0], dtype='float32'),
-            "floatvector64" : np.array([4.0, 5.0, 6.0, 7.0], dtype='float64')
+            "floatvector32" : np.array([0.0, 1.0, 2.0, 3.0], dtype='float32')
         }
 
         with OpenEXR.File(header, channels) as outfile:
@@ -546,9 +545,20 @@ class TestUnittest(unittest.TestCase):
 
             with OpenEXR.File(outfilename) as infile:
                 self.assertEqual(infile.header()["floatvector32"], [0.0, 1.0, 2.0, 3.0])
-                self.assertEqual(infile.header()["floatvector64"], [4.0, 5.0, 6.0, 7.0])
 
         os.remove(outfilename)
+
+        header = {
+            "floatvector64" : np.array([4.0, 5.0, 6.0, 7.0], dtype='float64')
+        }
+
+        outfilename = mktemp_outfilename()
+        with self.assertRaisesRegex(Exception, "dtype=float64"):
+            with OpenEXR.File(header, channels) as outfile:
+                outfile.write(outfilename)
+
+        if os.path.exists(outfilename):
+            os.remove(outfilename)
 
     def test_write_float(self):
 

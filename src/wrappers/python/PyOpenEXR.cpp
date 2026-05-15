@@ -1843,7 +1843,7 @@ objectToFloatVectorArray(const py::object& object, std::vector<float>& v)
     auto data = static_cast<const char*>(buf.ptr);
 
     v.reserve(a.size());
-    for (ssize_t i = 0; i < a.size(); ++i)
+    for (Py_ssize_t i = 0; i < a.size(); ++i)
     {
         auto value = reinterpret_cast<const T*>(data + i * buf.strides[0]);
         v.push_back(static_cast<float>(*value));
@@ -1855,10 +1855,7 @@ objectToFloatVectorArray(const py::object& object, std::vector<float>& v)
 bool
 objectToFloatVector(const py::object& object, std::vector<float>& v)
 {
-    if (objectToFloatVectorArray<float>(object, v))
-        return true;
-
-    return objectToFloatVectorArray<double>(object, v);
+    return objectToFloatVectorArray<float>(object, v);
 }
 
 void
