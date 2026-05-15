@@ -1924,13 +1924,17 @@ objectToV2(const py::object& object, Vec2<T>& v)
     if (py::isinstance<py::tuple>(object))
     {
         auto tup = object.cast<py::tuple>();
-        if (tup.size() == 2 &&
-            py::isinstance<P>(tup[0]) &&
-            py::isinstance<P>(tup[1]))
-        {       
-            v.x = P(tup[0]);
-            v.y = P(tup[1]);
-            return true;
+        if (tup.size() == 2)
+        {
+            try
+            {
+                v.x = py::cast<T>(tup[0]);
+                v.y = py::cast<T>(tup[1]);
+                return true;
+            }
+            catch (const py::cast_error&) {
+                return false;
+            }
         }
     }
     else if (py::isinstance<py::array_t<T>>(object))
