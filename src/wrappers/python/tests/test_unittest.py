@@ -535,7 +535,8 @@ class TestUnittest(unittest.TestCase):
             "Z" : np.zeros((1, 1), dtype='uint32')
         }
         header = {
-            "floatvector32" : np.array([0.0, 1.0, 2.0, 3.0], dtype='float32')
+            "floatvector32" : np.array([0.0, 1.0, 2.0, 3.0], dtype='float32'),
+            "singlevalue32" : np.array([0.5], dtype='float32')
         }
 
         with OpenEXR.File(header, channels) as outfile:
@@ -545,6 +546,7 @@ class TestUnittest(unittest.TestCase):
 
             with OpenEXR.File(outfilename) as infile:
                 self.assertEqual(infile.header()["floatvector32"], [0.0, 1.0, 2.0, 3.0])
+                self.assertEqual(infile.header()["singlevalue32"], [0.5])
 
         os.remove(outfilename)
 

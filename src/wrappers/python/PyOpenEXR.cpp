@@ -1836,7 +1836,7 @@ objectToFloatVectorArray(const py::object& object, std::vector<float>& v)
         return false;
 
     auto a = object.cast<py::array_t<T>>();
-    if (a.ndim() != 1 || a.size() < 4)
+    if (a.ndim() != 1 || a.size() == 0)
         return false;
 
     py::buffer_info buf = a.request();
