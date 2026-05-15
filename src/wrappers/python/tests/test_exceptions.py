@@ -9,6 +9,7 @@ from __future__ import print_function
 import sys
 import os
 import numpy as np
+import tempfile
 import unittest
 
 import OpenEXR
@@ -152,6 +153,25 @@ class TestExceptions(unittest.TestCase):
             OpenEXR.Channel(np.array([0,0,0,0], dtype='uint8').reshape((height, width)), 2, 2)
         with self.assertRaises(Exception):
             OpenEXR.Channel("C", np.array([0,0,0,0], dtype='uint8').reshape((height, width)), 2, 2)
+
+    def test_dataWindow_mismatch_numpy_pixels(self):
+
+        w, h = 640, 480
+        rgb = np.zeros((w, h, 3), dtype=np.float32)
+
+        header = {
+            "type": OpenEXR.scanlineimage,
+            "compression": OpenEXR.ZIP_COMPRESSION,
+            "displayWindow": ((0, 0), (w - 1, h - 1)),
+            "dataWindow": ((0, 0), (50, 100)),
+        }
+
+        part = OpenEXR.Part(header, {"RGB": rgb})
+        f = OpenEXR.File([part])
+
+        with tempfile.NamedTemporaryFile(suffix=".exr", delete=True) as tmp:
+            with self.assertRaises(ValueError):
+                f.write(tmp.name)
 
 if __name__ == '__main__':
     unittest.main()
