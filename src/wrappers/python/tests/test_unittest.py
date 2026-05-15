@@ -908,6 +908,47 @@ class TestUnittest(unittest.TestCase):
             
             if os.path.isfile(outfilename):
                 os.remove(outfilename)
-                
+
+    def test_v2f_numpy_scalars(self):
+        # Verifying that numpy scalar values are also accepted for
+        # V2f (float vector) types. 
+
+        # Setup numpy values for testing
+        center_np_float32 = np.array((0.5, 0.75), dtype=np.float32)
+        
+        test_cases = [
+            # python float 
+            (0.0, 0.0),
+            # numpy array
+            center_np_float32,
+            # numpy float scalars 
+            (center_np_float32[0], center_np_float32[1]),
+            # numpy float64 scalars 
+            (np.float64(0.5), np.float64(0.5)),
+        ]
+
+        # Use a fixed data window for the file structure
+        data_window = ((0, 0), (15, 15))
+        w, h = 16, 16
+
+        for center_value in test_cases:
+            header = {
+                "type": OpenEXR.scanlineimage,
+                "dataWindow": data_window,
+                "displayWindow": data_window,
+                "screenWindowCenter": center_value,  
+            }
+            
+            channels = {"RGB": np.zeros((h, w, 3), dtype=np.float16)}
+
+            part = OpenEXR.Part(header, channels)
+            f = OpenEXR.File([part])
+            
+            outfilename = mktemp_outfilename()
+            f.write(outfilename)
+            
+            if os.path.isfile(outfilename):
+                os.remove(outfilename)
+
 if __name__ == '__main__':
     unittest.main()
