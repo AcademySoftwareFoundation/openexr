@@ -617,6 +617,21 @@ DeepScanLineInputFile::Data::readMemData (
     std::vector<DeepSlice> fills;
     ScanLineProcess proc;
 
+    if (countsOnly)
+    {
+        const Slice& scslice = fb.getSampleCountSlice ();
+        if (!scslice.base)
+        {
+            throw IEX_NAMESPACE::ArgExc (
+                "Invalid base pointer, please set a proper sample count slice.");
+        }
+        if (scslice.type != OPENEXR_IMF_INTERNAL_NAMESPACE::UINT)
+        {
+            throw IEX_NAMESPACE::ArgExc (
+                "The type of sample count slice should be UINT.");
+        }
+    }
+
     if (!countsOnly)
         prepFillList(fb, fills);
 
@@ -985,6 +1000,17 @@ void ScanLineProcess::copy_sample_count (
     int fbY)
 {
     const Slice& scslice = outfb->getSampleCountSlice ();
+
+    if (!scslice.base)
+    {
+        throw IEX_NAMESPACE::ArgExc (
+            "Invalid base pointer, please set a proper sample count slice.");
+    }
+    if (scslice.type != OPENEXR_IMF_INTERNAL_NAMESPACE::UINT)
+    {
+        throw IEX_NAMESPACE::ArgExc (
+            "The type of sample count slice should be UINT.");
+    }
 
     int     end = cinfo.height - decoder.user_line_end_ignore;
     int64_t xS = int64_t (scslice.xStride);
