@@ -68,7 +68,7 @@ jobs:
       # cary: Pin the version to the SHA for 2.18.0, since there appears to
       # be a problem with 2.18.1 leading to a "No space left on
       # device" failure
-      uses: github/codeql-action/init@95e58e9a2cdfd71adc6e0353d5c52f41a045d225 # v4.35.2
+      uses: github/codeql-action/init@68bde559dea0fdcac2102bfdf6230c5f70eb485e # v4.35.4
       with:
         # cary: the "linked" setting is necessary to force the run to pick up
         # the version specified in the action.
@@ -99,7 +99,7 @@ jobs:
 
     - name: Perform CodeQL Analysis
       # Pin the version to the SHA for 2.18.0 
-      uses: github/codeql-action/analyze@95e58e9a2cdfd71adc6e0353d5c52f41a045d225 # v4.35.2
+      uses: github/codeql-action/analyze@68bde559dea0fdcac2102bfdf6230c5f70eb485e # v4.35.4
       with:
         category: "/language:${{matrix.language}}"
         # For pull_request, upload against refs/pull/<n>/head + head SHA so the Code
