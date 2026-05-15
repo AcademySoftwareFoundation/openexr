@@ -3,8 +3,49 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
+#include "ImfArray.h"
+#include "ImfHeader.h"
+#include "ImfIO.h"
+
+#include <map>
+#include <memory>
+#include <set>
+#include <string>
+#include <vector>
+
 typedef Array2D<void*> Array2DVoidPtr;
 typedef std::map<std::string,std::unique_ptr<Array2DVoidPtr>> SliceDataMap;
+
+//
+// IStream / OStream adapters for binary Python streams
+//
+
+class PythonBinaryIStream : public IStream
+{
+public:
+    explicit PythonBinaryIStream(py::object fo);
+    bool read(char c[], int n) override;
+    uint64_t tellg() override;
+    void seekg(uint64_t pos) override;
+    void clear() override;
+    int64_t size() override;
+
+private:
+    py::object _fo; 
+    int64_t _streamSize;
+};
+
+class PythonBinaryOStream : public OStream
+{
+public:
+    explicit PythonBinaryOStream(py::object fo);
+    void write(const char c[], int n) override;
+    uint64_t tellp() override;
+    void seekp(uint64_t pos) override;
+
+private:
+    py::object _fo;
+};
 
 //
 // PyFile is the object that corresponds to an exr file, either for reading
@@ -19,6 +60,7 @@ class PyFile
 public:
     PyFile();
     PyFile(const std::string& filename, bool separate_channels = false, bool header_only = false);
+    PyFile(py::object binary_stream, bool separate_channels = false, bool header_only = false);
     PyFile(const py::dict& header, const py::dict& channels);
     PyFile(const py::list& parts);
 
@@ -29,13 +71,21 @@ public:
     py::dict&    channels(int part_index = 0);
 
     void         write(const char* filename);
+    void         write(py::object binary_stream);
     
     std::string  filename;
     py::list     parts;
 
+private:
+
+    void readPartsFromOpenInput(bool separate_channels);
+    void runMultiPartOutput(MultiPartOutputFile& outfile, const std::vector<Header>& headers);
+    std::vector<Header> buildOutputHeaders();
+
 protected:
     
     bool                                _header_only;
+    std::unique_ptr<IStream>            _readStream;
     std::unique_ptr<MultiPartInputFile> _inputFile;
     
     py::object   getAttributeObject(const std::string& name, const Attribute* a);
