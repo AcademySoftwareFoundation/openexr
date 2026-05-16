@@ -104,6 +104,7 @@ PyFile::PyFile()
     : _header_only(false)
 {
 }
+
     
 //
 // Create a PyFile out of a list of parts (i.e. a multi-part file)
@@ -1865,6 +1866,36 @@ objectToChromaticities(const py::object& object, Chromaticities& v)
     return false;
 }
 
+template <class T>
+bool
+objectToFloatVectorArray(const py::object& object, std::vector<float>& v)
+{
+    if (!py::isinstance<py::array_t<T>>(object))
+        return false;
+
+    auto a = object.cast<py::array_t<T>>();
+    if (a.ndim() != 1 || a.size() == 0)
+        return false;
+
+    py::buffer_info buf = a.request();
+    auto data = static_cast<const char*>(buf.ptr);
+
+    v.reserve(a.size());
+    for (Py_ssize_t i = 0; i < a.size(); ++i)
+    {
+        auto value = reinterpret_cast<const T*>(data + i * buf.strides[0]);
+        v.push_back(static_cast<float>(*value));
+    }
+
+    return true;
+}
+
+bool
+objectToFloatVector(const py::object& object, std::vector<float>& v)
+{
+    return objectToFloatVectorArray<float>(object, v);
+}
+
 void
 PyFile::insertAttribute(Header& header, const std::string& name, const py::object& object)
 {
@@ -2023,6 +2054,13 @@ PyFile::insertAttribute(Header& header, const std::string& name, const py::objec
     if (objectToChromaticities(object, c))
     {
         header.insert(name, ChromaticitiesAttribute(c));
+        return;
+    }
+
+    std::vector<float> floatVector;
+    if (objectToFloatVector(object, floatVector))
+    {
+        header.insert(name, FloatVectorAttribute(floatVector));
         return;
     }
 
@@ -2929,4 +2967,3 @@ PYBIND11_MODULE(OpenEXR, m)
              ">>> f.write(\"out.exr\")")
         ;
 }
-
