@@ -11,7 +11,7 @@
 
 #define COMPILING_IMF_KEYCODE_ATTRIBUTE
 
-#include <ImfKeyCodeAttribute.h>
+#include "ImfKeyCodeAttribute.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 

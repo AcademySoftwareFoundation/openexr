@@ -13,9 +13,9 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfEnvmap.h>
-#include <ImfForward.h>
-#include <ImfRgba.h>
+#include "ImfEnvmap.h"
+#include "ImfForward.h"
+#include "ImfRgba.h"
 
 #include "namespaceAlias.h"
 

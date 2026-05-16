@@ -11,7 +11,7 @@
 
 #define COMPILING_IMF_FLOAT_ATTRIBUTE
 
-#include <ImfFloatAttribute.h>
+#include "ImfFloatAttribute.h"
 
 #if defined(_MSC_VER)
 // suppress warning about non-exported base classes

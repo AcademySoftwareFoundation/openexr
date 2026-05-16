@@ -1,3 +1,8 @@
+//
+// SPDX-License-Identifier: BSD-3-Clause
+// Copyright (c) Contributors to the OpenEXR Project.
+//
+
 
 #ifndef INCLUDED_EXR_METRICS_H
 #define INCLUDED_EXR_METRICS_H
@@ -10,7 +15,7 @@
 
 #include "ImfCompression.h"
 
-#include "stdint.h"
+#include <stdint.h>
 
 #include <vector>
 

@@ -14,6 +14,10 @@
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
+//
+// Constructors that open a file by path expect UTF-8; see ImfIO.h.
+//
+
 /// \brief
 ///
 /// TODO: Document this

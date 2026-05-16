@@ -15,6 +15,11 @@ extern "C" {
 #endif
 
 /*
+** File names passed to ImfOpen* functions are UTF-8 encoded (see ImfIO.h in the
+** C++ API).
+*/
+
+/*
 ** Interpreting unsigned shorts as 16-bit floating point numbers
 */
 

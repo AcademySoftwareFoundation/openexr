@@ -3,7 +3,7 @@
 ** Copyright Contributors to the OpenEXR Project.
 */
 
-#include <openexr.h>
+#include "openexr.h"
 
 #include <errno.h>
 #include <iostream>
@@ -13,7 +13,7 @@
 #include <string>
 
 #ifdef _WIN32
-#    include <ImathRandom.h>
+#    include <Imath/ImathRandom.h>
 #    include <time.h>
 #    include <windows.h>
 #else

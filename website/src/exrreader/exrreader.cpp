@@ -1,5 +1,10 @@
-#include <ImfRgbaFile.h>
-#include <ImfArray.h>
+//
+// SPDX-License-Identifier: BSD-3-Clause
+// Copyright (c) Contributors to the OpenEXR Project.
+//
+
+#include "OpenEXR/ImfRgbaFile.h"
+#include "OpenEXR/ImfArray.h"
 #include <iostream>
 
 int

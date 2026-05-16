@@ -11,12 +11,12 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfArray.h>
-#include <ImfChannelList.h>
-#include <ImfInputFile.h>
-#include <ImfMatrixAttribute.h>
-#include <ImfOutputFile.h>
-#include <ImfStringAttribute.h>
+#include "ImfArray.h"
+#include "ImfChannelList.h"
+#include "ImfInputFile.h"
+#include "ImfMatrixAttribute.h"
+#include "ImfOutputFile.h"
+#include "ImfStringAttribute.h"
 
 #include "drawImage.h"
 

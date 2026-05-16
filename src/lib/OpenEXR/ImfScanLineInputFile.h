@@ -10,6 +10,8 @@
 //
 //	class ScanLineInputFile
 //
+//	Constructors that open a file by path expect UTF-8; see ImfIO.h.
+//
 //-----------------------------------------------------------------------------
 
 #include "ImfForward.h"
@@ -110,6 +112,7 @@ public:
     //
     //---------------------------------------------------------------
 
+    OPENEXR_DEPRECATED ("No longer meaningful")
     IMF_EXPORT
     bool isOptimizationEnabled () const;
 

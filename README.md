@@ -56,6 +56,11 @@ Foundation](https://www.aswf.io). See the project's [governance
 policies](GOVERNANCE.md), [contribution guidelines](CONTRIBUTING.md), and [code of conduct](CODE_OF_CONDUCT)
 for more information.
 
+# Building OpenEXR
+
+See the [Install instructions](https://openexr.com/en/latest/install.html) for instructions on how to build
+OpenEXR and its required prerequisites.
+
 # Quick Start
 
 See the [technical documentation](https://openexr.readthedocs.io) for
@@ -139,7 +144,10 @@ API](https://openexr.readthedocs.io/en/latest/API.html#the-openexr-api).
 
 * **Report a security vulnerability:**
 
-  - Email to security@openexr.com
+  - File a GitHub [security
+    advisory](https://github.com/AcademySoftwareFoundation/openexr/security/advisories/new).
+    Email security@openexr.com for private/secure discussion with the project
+    maintainers.
 
 * **Contribute a Fix, Feature, or Improvement:**
 
@@ -149,6 +157,9 @@ API](https://openexr.readthedocs.io/en/latest/API.html#the-openexr-api).
     Agreement](https://contributor.easycla.lfx.linuxfoundation.org/#/cla/project/2e8710cb-e379-4116-a9ba-964f83618cc5/user/564e571e-12d7-4857-abd4-898939accdd7)
 
   - Submit a Pull Request: https://github.com/AcademySoftwareFoundation/openexr/pulls
+
+  - If you'd like to contribute and could use some ideas of what to
+    do, browse "good first issues" [here](https://github.com/AcademySoftwareFoundation/openexr/contribute) or on [Clotributor](https://clotributor.dev/search?ts_query_web=openexr&page=1).
 
 # Resources
 

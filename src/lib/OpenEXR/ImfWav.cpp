@@ -14,7 +14,7 @@
 //-----------------------------------------------------------------------------
 
 #include "ImfNamespace.h"
-#include <ImfWav.h>
+#include "ImfWav.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 namespace

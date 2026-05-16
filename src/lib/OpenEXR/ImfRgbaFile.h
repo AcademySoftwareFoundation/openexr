@@ -13,6 +13,8 @@
 //	class RgbaOutputFile
 //	class RgbaInputFile
 //
+//	Constructors that open a file by path expect UTF-8; see ImfIO.h.
+//
 //-----------------------------------------------------------------------------
 
 #include "ImfExport.h"
@@ -23,9 +25,9 @@
 #include "ImfRgba.h"
 
 #include "ImfThreading.h"
-#include <ImathBox.h>
-#include <ImathVec.h>
-#include <half.h>
+#include <Imath/ImathBox.h>
+#include <Imath/ImathVec.h>
+#include <Imath/half.h>
 #include <string>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER

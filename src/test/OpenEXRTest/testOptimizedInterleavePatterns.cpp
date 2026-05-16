@@ -13,8 +13,11 @@
 #include "ImfInputFile.h"
 #include "ImfOutputFile.h"
 #include "ImfStandardAttributes.h"
-#include <IlmThread.h>
-#include <ImathBox.h>
+
+#include "IlmThread.h"
+
+#include <Imath/ImathBox.h>
+
 #include <algorithm>
 #include <assert.h>
 #include <iostream>
@@ -45,9 +48,8 @@ vector<char>
 vector<char>
     preReadBuffer; // buffer as it was before reading - unread, unfilled channels should be unchanged
 
-int gOptimisedReads = 0;
-int gSuccesses      = 0;
-int gFailures       = 0;
+int gSuccesses = 0;
+int gFailures  = 0;
 
 //
 // @todo Needs a description of what this is used for.
@@ -537,7 +539,7 @@ writefile (Schema& scheme, FrameBuffer& buf, bool tiny, bool allowNonfinite)
     return hdr.dataWindow ();
 }
 
-bool
+void
 readfile (
     Schema       scheme,
     FrameBuffer& buf,     ///< list of channels to read: index to readingBuffer
@@ -564,8 +566,6 @@ readfile (
     infile.readPixels (
         infile.header ().dataWindow ().min.y,
         infile.header ().dataWindow ().max.y);
-
-    return infile.isOptimizationEnabled ();
 }
 
 void
@@ -585,7 +585,7 @@ test (Schema writeScheme, Schema readScheme, bool nonfatal, bool tiny)
     FrameBuffer preReadFrameBuf;
     FrameBuffer postReadFrameBuf;
     cout.flush ();
-    bool opt = readfile (
+    readfile (
         readScheme,
         readFrameBuf,
         preReadFrameBuf,
@@ -594,13 +594,7 @@ test (Schema writeScheme, Schema readScheme, bool nonfatal, bool tiny)
     if (compare (readFrameBuf, writeFrameBuf, dw, nonfatal) &&
         compare (preReadFrameBuf, postReadFrameBuf, dw, nonfatal))
     {
-        cout << " OK ";
-        if (opt)
-        {
-            cout << "OPTIMISED ";
-            gOptimisedReads++;
-        }
-        cout << "\n";
+        cout << " OK\n";
         gSuccesses++;
     }
     else
@@ -618,9 +612,8 @@ runtests (bool nonfatal, bool tiny)
     int i       = 0;
     int skipped = 0;
 
-    gFailures       = 0;
-    gSuccesses      = 0;
-    gOptimisedReads = 0;
+    gFailures  = 0;
+    gSuccesses = 0;
 
     while (Schemes[i]._name != NULL)
     {
@@ -645,7 +638,6 @@ runtests (bool nonfatal, bool tiny)
 
     cout << gFailures << '/' << (gSuccesses + gFailures) << " runs failed\n";
     cout << skipped << " tests skipped (assumed to be bad)\n";
-    cout << gOptimisedReads << '/' << gSuccesses << " optimised\n";
 
     if (gFailures > 0)
     {
@@ -662,12 +654,12 @@ testOptimizedInterleavePatterns (const std::string& tempDir)
     filename = tempDir + "imf_test_interleave_patterns.exr";
 
     cout
-        << "Testing SSE optimisation with different interleave patterns (large images) ... "
+        << "Testing different interleave patterns (large images) ... "
         << endl;
     runtests (false, false);
 
     cout
-        << "Testing SSE optimisation with different interleave patterns (tiny images) ... "
+        << "Testing different interleave patterns (tiny images) ... "
         << endl;
     runtests (false, true);
 

@@ -7,8 +7,8 @@
 #    undef NDEBUG
 #endif
 
-#include <ImfIO.h>
-#include <ImfXdr.h>
+#include "ImfIO.h"
+#include "ImfXdr.h"
 #include <assert.h>
 #include <string.h>
 #include <typeinfo>

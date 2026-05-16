@@ -2,7 +2,7 @@
 # Copyright (c) Contributors to the OpenEXR Project.
 
 [build-system]
-requires = ["scikit-build-core==0.11.6", "pybind11"]
+requires = ["scikit-build-core==0.12.2", "pybind11"]
 build-backend = "scikit_build_core.build"
 
 [project]
@@ -89,3 +89,6 @@ manylinux-aarch64-image = "manylinux2014"
 # Needed for full C++17 support
 [tool.cibuildwheel.macos.environment]
 MACOSX_DEPLOYMENT_TARGET = "10.15"
+# pass compilers directly to avoid Homebrew LLVM libunwind
+CMAKE_ARGS = "-DCMAKE_C_COMPILER=/usr/bin/clang -DCMAKE_CXX_COMPILER=/usr/bin/clang++"
+

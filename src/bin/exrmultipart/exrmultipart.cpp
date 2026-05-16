@@ -9,25 +9,25 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfChannelList.h>
-#include <ImfDeepScanLineInputPart.h>
-#include <ImfDeepScanLineOutputPart.h>
-#include <ImfDeepTiledInputPart.h>
-#include <ImfDeepTiledOutputPart.h>
-#include <ImfInputPart.h>
-#include <ImfMultiPartInputFile.h>
-#include <ImfMultiPartOutputFile.h>
-#include <ImfOutputPart.h>
-#include <ImfPartHelper.h>
-#include <ImfPartType.h>
-#include <ImfStringAttribute.h>
-#include <ImfTiledInputPart.h>
-#include <ImfTiledOutputPart.h>
-#include <ImfMisc.h>
-#include <OpenEXRConfig.h>
+#include "ImfChannelList.h"
+#include "ImfDeepScanLineInputPart.h"
+#include "ImfDeepScanLineOutputPart.h"
+#include "ImfDeepTiledInputPart.h"
+#include "ImfDeepTiledOutputPart.h"
+#include "ImfInputPart.h"
+#include "ImfMultiPartInputFile.h"
+#include "ImfMultiPartOutputFile.h"
+#include "ImfOutputPart.h"
+#include "ImfPartHelper.h"
+#include "ImfPartType.h"
+#include "ImfStringAttribute.h"
+#include "ImfTiledInputPart.h"
+#include "ImfTiledOutputPart.h"
+#include "ImfMisc.h"
+#include "OpenEXRConfig.h"
 
-#include <Iex.h>
-#include <OpenEXRConfig.h>
+#include "Iex.h"
+#include "OpenEXRConfig.h"
 
 #include <algorithm>
 #include <assert.h>

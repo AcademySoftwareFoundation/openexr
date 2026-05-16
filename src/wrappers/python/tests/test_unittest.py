@@ -13,6 +13,7 @@ import atexit
 import unittest
 import numpy as np
 import fractions
+from io import BytesIO
 
 import OpenEXR
 
@@ -219,6 +220,34 @@ class TestUnittest(unittest.TestCase):
             with OpenEXR.File(outfilename) as outfile:
                 compare_files(outfile, infile)
 
+    def test_read_exr_from_bytesio_matches_disk(self):
+        #
+        # Read path: same bytes as on disk, opened via BytesIO, must match
+        # OpenEXR.File(path). Fails until File() accepts a binary buffer / stream.
+        #
+        infilename = f"{test_dir}/test.exr"
+        with open(infilename, "rb") as f:
+            raw = f.read()
+        buf = BytesIO(raw)
+
+        with OpenEXR.File(infilename) as from_disk:
+            with OpenEXR.File(buf) as from_buffer:
+                compare_files(from_buffer, from_disk)
+
+    def test_read_write_exr_bytesio_roundtrip(self):
+        #
+        # Full in-memory round trip (mirrors test_read_write): read from disk,
+        # write EXR bytes into a BytesIO, read back from the buffer.
+        # Fails until File.write() accepts a binary writable.
+        #
+        infilename = f"{test_dir}/test.exr"
+        with OpenEXR.File(infilename) as infile:
+            buf = BytesIO()
+            infile.write(buf)
+            buf.seek(0)
+            with OpenEXR.File(buf) as reread:
+                compare_files(reread, infile)
+
     def test_keycode(self):
 
         filmMfcCode = 1
@@ -324,6 +353,8 @@ class TestUnittest(unittest.TestCase):
             # Verify reading it back gives the same data
             with OpenEXR.File(outfilename, separate_channels=True) as infile:
                 compare_files (infile, outfile)
+                if "name" in infile.header():
+                   raise Exception(f"name attribute was added to single part half file")
 
         os.remove(outfilename)
 
@@ -527,6 +558,27 @@ class TestUnittest(unittest.TestCase):
 
         os.remove(outfilename)
 
+    def test_write_float_vector_ndarray(self):
+
+        channels = {
+            "Z" : np.zeros((1, 1), dtype='uint32')
+        }
+        header = {
+            "floatvector32" : np.array([0.0, 1.0, 2.0, 3.0], dtype='float32'),
+            "singlevalue32" : np.array([0.5], dtype='float32')
+        }
+
+        with OpenEXR.File(header, channels) as outfile:
+
+            outfilename = mktemp_outfilename()
+            outfile.write(outfilename)
+
+            with OpenEXR.File(outfilename) as infile:
+                self.assertEqual(infile.header()["floatvector32"], [0.0, 1.0, 2.0, 3.0])
+                self.assertEqual(infile.header()["singlevalue32"], [0.5])
+
+        os.remove(outfilename)
+
     def test_write_float(self):
 
         # Construct a file from scratch and write it.
@@ -553,6 +605,7 @@ class TestUnittest(unittest.TestCase):
         header["box2f"] = ((0.0,1.0), (2.0,3.0))
         header["bytes"] = OpenEXR.Bytes(b"\x76\x2f\x31\x01", "guess to win a prize")
         header["bytes0"] = OpenEXR.Bytes(b'')
+        header["opaque"] = OpenEXR.OpaqueAttribute(b'',"Hello")
         header["compression"] = OpenEXR.ZIPS_COMPRESSION
         header["double"] = np.array([42000.0], 'float64')
         header["float"] = 4.2
@@ -660,6 +713,74 @@ class TestUnittest(unittest.TestCase):
             # Verify reading it back gives the same data
             with OpenEXR.File(outfilename, separate_channels=True) as i:
                 compare_files (i, outfile2)
+
+    def test_gil_released_during_io(self):
+
+        #
+        # Verify that the GIL is released during I/O operations by checking
+        # that a background thread can make progress while OpenEXR performs
+        # file operations.
+        #
+
+        import threading
+        import time
+
+        counter = [0]
+        stop_flag = [False]
+
+        def background_worker():
+            while not stop_flag[0]:
+                counter[0] += 1
+                time.sleep(0.001)
+
+        # Create a moderately large image to ensure I/O takes measurable time
+        width = 1000
+        height = 1000
+        size = width * height
+        R = np.random.rand(height, width).astype('f')
+        G = np.random.rand(height, width).astype('f')
+        B = np.random.rand(height, width).astype('f')
+        channels = {
+            "R": OpenEXR.Channel("R", R),
+            "G": OpenEXR.Channel("G", G),
+            "B": OpenEXR.Channel("B", B),
+        }
+
+        # Start background thread
+        thread = threading.Thread(target=background_worker)
+        thread.start()
+
+        # Let thread run briefly to establish baseline
+        time.sleep(0.05)
+        count_before = counter[0]
+
+        # Perform I/O - if GIL is released, background thread will increment counter
+        outfilename = mktemp_outfilename()
+        with OpenEXR.File({}, channels) as outfile:
+            outfile.write(outfilename)
+
+        count_after_write = counter[0]
+
+        # Now test reading
+        with OpenEXR.File(outfilename) as infile:
+            _ = infile.channels()
+
+        count_after_read = counter[0]
+
+        # Stop background thread
+        stop_flag[0] = True
+        thread.join()
+
+        # If GIL was released, background thread should have made progress during I/O
+        write_progress = count_after_write - count_before
+        read_progress = count_after_read - count_after_write
+
+        self.assertGreater(write_progress, 0,
+            f"Background thread made no progress during write (GIL not released?)")
+        self.assertGreater(read_progress, 0,
+            f"Background thread made no progress during read (GIL not released?)")
+
+        os.remove(outfilename)
 
 if __name__ == '__main__':
     unittest.main()

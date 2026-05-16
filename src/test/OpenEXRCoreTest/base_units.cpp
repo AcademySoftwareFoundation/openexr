@@ -10,7 +10,7 @@
 #    define NOMINMAX
 #endif
 
-#include <openexr.h>
+#include "openexr.h"
 
 #include "base_units.h"
 
@@ -19,8 +19,8 @@
 #include <cstring>
 #include <iostream>
 
-#include <ImfSystemSpecific.h>
-#include <ImfNamespace.h>
+#include "ImfSystemSpecific.h"
+#include "ImfNamespace.h"
 #include "../../lib/OpenEXRCore/internal_cpuid.h"
 #include "../../lib/OpenEXRCore/internal_coding.h"
 #include "../../lib/OpenEXRCore/openexr_context.h"
@@ -396,7 +396,7 @@ testCPUIdent (const std::string& tempdir)
         EXRCORE_TEST (false);
     }
 
-#if defined(__x86_64__) || defined(_M_X64)
+#if defined(__x86_64__) || (defined(_M_X64) && !defined(_M_ARM64EC))
     if (has_native_half () != (hf16c && havx))
     {
         std::cerr << "CPU Id test has native half mismatch" << std::endl;

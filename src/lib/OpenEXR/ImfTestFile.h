@@ -18,6 +18,10 @@
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
+//
+// Filename parameters are UTF-8 encoded (including on Windows). See ImfIO.h.
+//
+
 IMF_EXPORT bool isOpenExrFile (const char fileName[]);
 
 IMF_EXPORT bool isOpenExrFile (const char fileName[], bool& isTiled);

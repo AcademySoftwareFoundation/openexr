@@ -7,8 +7,8 @@
 #    undef NDEBUG
 #endif
 
-#include <testBaseExc.h>
-#include <testMathExc.h>
+#include "testBaseExc.h"
+#include "testMathExc.h"
 
 #include <string.h>
 

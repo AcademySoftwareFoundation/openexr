@@ -10,27 +10,28 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImathNamespace.h>
-#include <ImfDeepScanLineInputPart.h>
-#include <ImfDeepScanLineOutputPart.h>
-#include <ImfDeepTiledInputPart.h>
-#include <ImfDeepTiledOutputPart.h>
-#include <ImfInputFile.h>
-#include <ImfInputPart.h>
-#include <ImfIntAttribute.h>
-#include <ImfMultiPartInputFile.h>
-#include <ImfMultiPartOutputFile.h>
-#include <ImfNamespace.h>
-#include <ImfOutputFile.h>
-#include <ImfOutputPart.h>
-#include <ImfPartType.h>
-#include <ImfStandardAttributes.h>
-#include <ImfTiledInputPart.h>
-#include <ImfTiledOutputFile.h>
-#include <ImfTiledOutputPart.h>
-#include <ImfVecAttribute.h>
-#include <ImfMisc.h>
-#include <OpenEXRConfig.h>
+#include "ImfDeepScanLineInputPart.h"
+#include "ImfDeepScanLineOutputPart.h"
+#include "ImfDeepTiledInputPart.h"
+#include "ImfDeepTiledOutputPart.h"
+#include "ImfInputFile.h"
+#include "ImfInputPart.h"
+#include "ImfIntAttribute.h"
+#include "ImfMultiPartInputFile.h"
+#include "ImfMultiPartOutputFile.h"
+#include "ImfNamespace.h"
+#include "ImfOutputFile.h"
+#include "ImfOutputPart.h"
+#include "ImfPartType.h"
+#include "ImfStandardAttributes.h"
+#include "ImfTiledInputPart.h"
+#include "ImfTiledOutputFile.h"
+#include "ImfTiledOutputPart.h"
+#include "ImfVecAttribute.h"
+#include "ImfMisc.h"
+#include "OpenEXRConfig.h"
+
+#include <Imath/ImathNamespace.h>
 
 #include <exception>
 #include <iostream>
@@ -776,11 +777,13 @@ main (int argc, char** argv)
             }
             else
             {
-                if (inFileName == 0)
-                    inFileName = argv[i];
-                else
-                    outFileName = argv[i];
-
+                if (inFileName == 0) { inFileName = argv[i]; }
+                else if (outFileName != 0)
+                {
+                    throw invalid_argument (
+                        "Invalid arguments or too many filenames specified");
+                }
+                else { outFileName = argv[i]; }
                 i += 1;
             }
         }

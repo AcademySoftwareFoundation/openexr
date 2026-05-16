@@ -28,8 +28,8 @@
 #include "ImfDeepScanLineInputFile.h"
 
 #include "Iex.h"
-#include <ImathFun.h>
-#include <half.h>
+#include <Imath/ImathFun.h>
+#include <Imath/half.h>
 
 #include <algorithm>
 #include <fstream>

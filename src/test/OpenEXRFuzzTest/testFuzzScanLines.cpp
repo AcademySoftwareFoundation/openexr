@@ -7,18 +7,18 @@
 #    undef NDEBUG
 #endif
 
-#include <ImfInputPart.h>
-#include <ImfMultiPartInputFile.h>
-#include <ImfMultiPartOutputFile.h>
-#include <ImfOutputPart.h>
-#include <ImfPartType.h>
+#include "ImfInputPart.h"
+#include "ImfMultiPartInputFile.h"
+#include "ImfMultiPartOutputFile.h"
+#include "ImfOutputPart.h"
+#include "ImfPartType.h"
 
-#include <ImfRgbaFile.h>
+#include "ImfRgbaFile.h"
 
-#include <Iex.h>
-#include <IlmThread.h>
-#include <ImfArray.h>
-#include <ImfThreading.h>
+#include "Iex.h"
+#include "IlmThread.h"
+#include "ImfArray.h"
+#include "ImfThreading.h"
 #include <cassert>
 #include <iostream>
 #include <stdio.h>
@@ -28,8 +28,8 @@
 #include "tmpDir.h"
 
 // Handle the case when the custom namespace is not exposed
-#include <ImfChannelList.h>
-#include <OpenEXRConfig.h>
+#include "ImfChannelList.h"
+#include "OpenEXRConfig.h"
 using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;
 using namespace std;
 using namespace IMATH_NAMESPACE;

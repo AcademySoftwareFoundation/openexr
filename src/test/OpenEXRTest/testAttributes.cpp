@@ -3,34 +3,34 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
-#include <tmpDir.h>
+#include "tmpDir.h"
 
-#include <ImfArray.h>
-#include <ImfChannelList.h>
-#include <ImfFrameBuffer.h>
-#include <ImfHeader.h>
-#include <ImfInputFile.h>
-#include <ImfOutputFile.h>
-#include <ImfVersion.h>
-#include <half.h>
+#include "ImfArray.h"
+#include "ImfChannelList.h"
+#include "ImfFrameBuffer.h"
+#include "ImfHeader.h"
+#include "ImfInputFile.h"
+#include "ImfOutputFile.h"
+#include "ImfVersion.h"
+#include <Imath/half.h>
 
-#include <ImfBoxAttribute.h>
-#include <ImfBytesAttribute.h>
-#include <ImfChannelListAttribute.h>
-#include <ImfChromaticitiesAttribute.h>
-#include <ImfCompressionAttribute.h>
-#include <ImfDeepImageStateAttribute.h>
-#include <ImfDoubleAttribute.h>
-#include <ImfEnvmapAttribute.h>
-#include <ImfFloatAttribute.h>
-#include <ImfFloatVectorAttribute.h>
-#include <ImfIntAttribute.h>
-#include <ImfLineOrderAttribute.h>
-#include <ImfMatrixAttribute.h>
-#include <ImfOpaqueAttribute.h>
-#include <ImfStringAttribute.h>
-#include <ImfStringVectorAttribute.h>
-#include <ImfVecAttribute.h>
+#include "ImfBoxAttribute.h"
+#include "ImfBytesAttribute.h"
+#include "ImfChannelListAttribute.h"
+#include "ImfChromaticitiesAttribute.h"
+#include "ImfCompressionAttribute.h"
+#include "ImfDeepImageStateAttribute.h"
+#include "ImfDoubleAttribute.h"
+#include "ImfEnvmapAttribute.h"
+#include "ImfFloatAttribute.h"
+#include "ImfFloatVectorAttribute.h"
+#include "ImfIntAttribute.h"
+#include "ImfLineOrderAttribute.h"
+#include "ImfMatrixAttribute.h"
+#include "ImfOpaqueAttribute.h"
+#include "ImfStringAttribute.h"
+#include "ImfStringVectorAttribute.h"
+#include "ImfVecAttribute.h"
 
 #include <stdio.h>
 #ifdef NDEBUG

@@ -10,7 +10,7 @@
 //----------------------------------------------------------------------------
 
 #include "ImfImageLevel.h"
-#include <Iex.h>
+#include "Iex.h"
 #include <cassert>
 
 using namespace IMATH_NAMESPACE;

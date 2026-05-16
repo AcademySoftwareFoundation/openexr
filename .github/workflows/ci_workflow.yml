@@ -56,6 +56,8 @@ permissions:
 jobs:
   linux:
     name: 'Linux.${{ matrix.build}}: ${{ matrix.label }}'
+    permissions:
+      contents: write  # required by ci_steps (upload-artifact)
     uses: ./.github/workflows/ci_steps.yml
     with:
       # Set values for the "inputs:" as defined in ci_steps.yml
@@ -65,7 +67,7 @@ jobs:
       build: ${{ matrix.build }}
       # DockerHub: https://hub.docker.com/u/aswf
       # Source: https://github.com/AcademySoftwareFoundation/aswf-docker
-      container: aswf/ci-openexr:${{ matrix.vfx-cy || '2024' }}
+      container: ${{ matrix.container || format('aswf/ci-openexr:{0}', matrix.vfx-cy || '2024') }}
       cmake: ${{ matrix.cmake || '3.14.7' }}
       cxx-standard: ${{ matrix.cxx-standard || '17' }}
       cxx-compiler: ${{ matrix.cxx-compiler || 'g++' }}
@@ -84,6 +86,7 @@ jobs:
       RUN_TESTING: ${{ matrix.RUN_TESTING || 'ON' }}
       namespace: ${{ matrix.namespace }}
       validate_install: ${{ matrix.validate_install || 'ON' }}
+      configure_install_prefix: ${{ matrix.configure_install_prefix }}
 
     strategy:
       fail-fast: false
@@ -115,6 +118,8 @@ jobs:
             OPENEXR_FORCE_INTERNAL_DEFLATE: 'ON'
             OPENEXR_FORCE_INTERNAL_OPENJPH: 'ON'
             BUILD_TESTING: 'OFF'
+            configure_install_prefix: '.tmp'
+            cmake: 3.15.7
 
           - build: 6
             label: custom namespace
@@ -147,8 +152,20 @@ jobs:
             RUN_TESTING: OFF
             validate_install: OFF
 
+          - build: 12
+            label: Fedora Rawhide
+            container: fedora:rawhide
+            cmake: '3.31.6'
+            OPENEXR_FORCE_INTERNAL_IMATH: 'ON'
+            OPENEXR_FORCE_INTERNAL_DEFLATE: 'OFF'
+            OPENEXR_FORCE_INTERNAL_OPENJPH: 'ON'
+            OPENEXR_INSTALL_DOCS: 'OFF'
+            validate_install: 'OFF'
+
   macOS:
     name: 'macOS.${{ matrix.build}}: ${{ matrix.label }}'
+    permissions:
+      contents: write  # required by ci_steps (upload-artifact)
     uses: ./.github/workflows/ci_steps.yml
     with:
       # Set values for the "inputs:" as defined in ci_steps.yml
@@ -173,6 +190,7 @@ jobs:
       BUILD_TESTING: ${{ matrix.BUILD_TESTING || 'ON' }}
       RUN_TESTING: ${{ matrix.RUN_TESTING || 'ON' }}
       validate_install: ${{ matrix.validate_install || 'ON' }}
+      configure_install_prefix: ${{ matrix.configure_install_prefix }}
 
     strategy:
       fail-fast: false
@@ -204,6 +222,8 @@ jobs:
             OPENEXR_FORCE_INTERNAL_DEFLATE: 'ON'
             OPENEXR_FORCE_INTERNAL_OPENJPH: 'ON'
             BUILD_TESTING: 'OFF'
+            configure_install_prefix: '.tmp'
+            cmake: 3.15.7
 
           - build: 6
             label: macos-15-intel
@@ -233,6 +253,8 @@ jobs:
 
   windows:
     name: 'Windows.${{ matrix.build}}: ${{ matrix.label }}'
+    permissions:
+      contents: write  # required by ci_steps (upload-artifact)
     uses: ./.github/workflows/ci_steps.yml
     with:
       # Set values for the "inputs:" as defined in ci_steps.yml
@@ -255,6 +277,7 @@ jobs:
       BUILD_TESTING: ${{ matrix.BUILD_TESTING || 'ON' }}
       RUN_TESTING: ${{ matrix.RUN_TESTING || 'ON' }}
       validate_install: ${{ matrix.validate_install || 'ON' }}
+      configure_install_prefix: ${{ matrix.configure_install_prefix }}
 
     strategy:
       fail-fast: false
@@ -286,6 +309,8 @@ jobs:
             OPENEXR_FORCE_INTERNAL_DEFLATE: 'ON'
             OPENEXR_FORCE_INTERNAL_OPENJPH: 'ON'
             BUILD_TESTING: 'OFF'
+            configure_install_prefix: '.tmp'
+            cmake: 3.15.7
 
           - build: 6
             label: vfx2023

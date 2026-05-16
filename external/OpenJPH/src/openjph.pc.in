@@ -1,0 +1,10 @@
+prefix=@CMAKE_INSTALL_PREFIX@
+libdir=@PKG_CONFIG_LIBDIR@
+includedir=@PKG_CONFIG_INCLUDEDIR@
+
+Name: @PROJECT_NAME@
+Description: @PROJECT_DESCRIPTION@
+Version: @PROJECT_VERSION@
+Requires: @PKG_CONFIG_REQUIRES@
+Libs: -L${libdir} -lopenjph
+Cflags: -I${includedir} -D_FILE_OFFSET_BITS=64

@@ -175,7 +175,7 @@ ht_undo_impl (
     header_sz = read_header (
         (uint8_t*) compressed_data, comp_buf_size, cs_to_file_ch);
     if (static_cast<std::size_t>(decode->channel_count) != cs_to_file_ch.size ())
-        throw std::runtime_error ("Unexpected number of channels");
+        return EXR_ERR_CORRUPT_CHUNK;
 
     for (int cs_i = 0; cs_i < decode->channel_count; cs_i++)
     {
@@ -183,10 +183,12 @@ ht_undo_impl (
         if (file_i >= decode->channel_count)
             return EXR_ERR_CORRUPT_CHUNK;
 
-        size_t computedoffset = 0;
+        int64_t computedoffset = 0;
         for (int i = 0; i < file_i; ++i)
-            computedoffset += decode->channels[i].width *
-                              decode->channels[i].bytes_per_element;
+            computedoffset += (int64_t) decode->channels[i].width *
+                              (int64_t) decode->channels[i].bytes_per_element;
+        if (computedoffset > std::numeric_limits<std::size_t>::max())
+            return EXR_ERR_CORRUPT_CHUNK;
         cs_to_file_ch[cs_i].raster_line_offset = computedoffset;
     }
 
@@ -202,22 +204,38 @@ ht_undo_impl (
 
     ojph::ui32 image_height =
         siz.get_image_extent ().y - siz.get_image_offset ().y;
+    ojph::ui32 image_width =
+        siz.get_image_extent ().x - siz.get_image_offset ().x;
 
-    int  bpl       = 0;
-    bool is_planar = false;
+    if (decode->chunk.width != image_width
+        || decode->chunk.height != image_height
+        || decode->channel_count != siz.get_num_components())
+        return EXR_ERR_CORRUPT_CHUNK;
+
+    for (int cs_i = 0; cs_i < decode->channel_count; cs_i++)
+    {
+        int file_i = cs_to_file_ch[cs_i].file_index;
+
+        if (decode->channels[file_i].height != siz.get_recon_height (cs_i) ||
+            decode->channels[file_i].width != siz.get_recon_width (cs_i) ||
+            decode->channels[file_i].height != image_height / siz.get_downsampling (cs_i).y ||
+            decode->channels[file_i].width != image_width / siz.get_downsampling (cs_i).x)
+            return EXR_ERR_CORRUPT_CHUNK;
+    }
+
+    int64_t bpl     = 0;
+    bool is_planar  = false;
     for (int16_t c = 0; c < decode->channel_count; c++)
     {
-        bpl +=
-            decode->channels[c].bytes_per_element * decode->channels[c].width;
+        bpl += (int64_t) decode->channels[c].bytes_per_element *
+               (int64_t) decode->channels[c].width;
         if (decode->channels[c].x_samples > 1 ||
             decode->channels[c].y_samples > 1)
         { is_planar = true; }
     }
+    if (bpl > INT32_MAX || bpl * decode->chunk.height > (int64_t) PTRDIFF_MAX)
+        return EXR_ERR_CORRUPT_CHUNK;
     cs.set_planar (is_planar);
-
-    assert (decode->chunk.width == siz.get_image_extent ().x - siz.get_image_offset ().x);
-    assert (decode->chunk.height == image_height);
-    assert (decode->channel_count == siz.get_num_components ());
 
     cs.create ();
 
@@ -230,9 +248,6 @@ ht_undo_impl (
         for (int16_t c = 0; c < decode->channel_count; c++)
         {
             int file_c = cs_to_file_ch[c].file_index;
-            assert (
-                siz.get_recon_height (c) == decode->channels[file_c].height);
-            assert (decode->channels[file_c].width == siz.get_recon_width (c));
 
             if (decode->channels[file_c].height == 0) continue;
 
@@ -256,7 +271,7 @@ ht_undo_impl (
                             EXR_PIXEL_HALF)
                         {
                             int16_t* channel_pixels = (int16_t*) line_pixels;
-                            for (int16_t p = 0;
+                            for (int32_t p = 0;
                                  p < decode->channels[file_c].width;
                                  p++)
                             {
@@ -266,7 +281,7 @@ ht_undo_impl (
                         else
                         {
                             int32_t* channel_pixels = (int32_t*) line_pixels;
-                            for (int16_t p = 0;
+                            for (int32_t p = 0;
                                  p < decode->channels[file_c].width;
                                  p++)
                             {
@@ -275,8 +290,8 @@ ht_undo_impl (
                         }
                     }
 
-                    line_pixels += decode->channels[line_c].bytes_per_element *
-                                   decode->channels[line_c].width;
+                    line_pixels += (size_t) decode->channels[line_c].bytes_per_element *
+                                   (size_t) decode->channels[line_c].width;
                 }
             }
         }
@@ -298,7 +313,7 @@ ht_undo_impl (
                 {
                     int16_t* channel_pixels =
                         (int16_t*) (line_pixels + cs_to_file_ch[c].raster_line_offset);
-                    for (int16_t p = 0; p < decode->channels[file_c].width;
+                    for (int32_t p = 0; p < decode->channels[file_c].width;
                          p++)
                     {
                         *channel_pixels++ = cur_line->i32[p];
@@ -308,7 +323,7 @@ ht_undo_impl (
                 {
                     int32_t* channel_pixels =
                         (int32_t*) (line_pixels + cs_to_file_ch[c].raster_line_offset);
-                    for (int16_t p = 0; p < decode->channels[file_c].width;
+                    for (int32_t p = 0; p < decode->channels[file_c].width;
                          p++)
                     {
                         *channel_pixels++ = cur_line->i32[p];
@@ -367,7 +382,7 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
 
     bool isPlanar = false;
     siz.set_num_components (encode->channel_count);
-    int bpl = 0;
+    int64_t bpl = 0;
     for (int16_t c = 0; c < encode->channel_count; c++)
     {
         int file_c = cs_to_file_ch[c].file_index;
@@ -390,7 +405,8 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
         bpl += encode->channels[file_c].bytes_per_element *
                encode->channels[file_c].width;
     }
-
+    if (bpl > INT32_MAX || bpl * encode->chunk.height > (int64_t) PTRDIFF_MAX)
+        return EXR_ERR_CORRUPT_CHUNK;
     cs.set_planar (isPlanar);
 
     siz.set_image_offset (ojph::point (0, 0));

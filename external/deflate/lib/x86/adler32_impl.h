@@ -82,7 +82,7 @@
  */
 #  define adler32_x86_avx512_vl256_vnni	adler32_x86_avx512_vl256_vnni
 #  define SUFFIX				   _avx512_vl256_vnni
-#  define ATTRIBUTES		_target_attribute("avx512bw,avx512vl,avx512vnni" NO_EVEX512)
+#  define ATTRIBUTES		_target_attribute("avx512bw,avx512vl,avx512vnni")
 #  define VL			32
 #  define USE_VNNI		1
 #  define USE_AVX512		1
@@ -94,7 +94,7 @@
  */
 #  define adler32_x86_avx512_vl512_vnni	adler32_x86_avx512_vl512_vnni
 #  define SUFFIX				   _avx512_vl512_vnni
-#  define ATTRIBUTES		_target_attribute("avx512bw,avx512vnni" EVEX512)
+#  define ATTRIBUTES		_target_attribute("avx512bw,avx512vnni")
 #  define VL			64
 #  define USE_VNNI		1
 #  define USE_AVX512		1

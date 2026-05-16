@@ -47,7 +47,6 @@
 #include "testMultiTiledPartThreading.h"
 #include "testMultiView.h"
 #include "testNativeFormat.h"
-#include "testOptimized.h"
 #include "testOptimizedInterleavePatterns.h"
 #include "testPartHelper.h"
 #include "testPreviewImage.h"
@@ -68,7 +67,8 @@
 #include "testXdr.h"
 #include "testYca.h"
 
-#include "ImathRandom.h"
+#include <Imath/ImathRandom.h>
+
 #include "tmpDir.h"
 
 // system includes
@@ -204,7 +204,6 @@ main (int argc, char* argv[])
     TEST (testExistingStreams, "core");
     TEST (testExistingStreamsUTF8, "core");
     TEST (testStandardAttributes, "core");
-    TEST (testOptimized, "basic");
     TEST (testOptimizedInterleavePatterns, "basic");
     TEST (testYca, "basic");
     TEST (testTiledYa, "basic");

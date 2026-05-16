@@ -219,7 +219,7 @@ internal_exr_undo_rle (
 
     unpackb =
         internal_rle_decompress (decode->scratch_buffer_1, outsz, src, packsz);
-    if (packsz > 0 && unpackb == 0)
+    if (unpackb != outsz)
         return EXR_ERR_CORRUPT_CHUNK;
 
     unpredict_and_reorder (out, decode->scratch_buffer_1, unpackb);

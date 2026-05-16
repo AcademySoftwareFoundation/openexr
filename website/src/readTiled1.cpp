@@ -1,3 +1,8 @@
+//
+// SPDX-License-Identifier: BSD-3-Clause
+// Copyright (c) Contributors to the OpenEXR Project.
+//
+
 // [begin readTiled1]
 void
 readTiled1 (const char fileName[], Array2D<GZ>& pixels, int& width, int& height)

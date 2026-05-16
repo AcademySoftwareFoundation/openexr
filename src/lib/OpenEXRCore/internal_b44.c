@@ -13,8 +13,9 @@
 
 /**************************************/
 
-extern const uint16_t* exrcore_expTable;
-extern const uint16_t* exrcore_logTable;
+extern uint16_t* exrcore_expTable;
+extern uint16_t* exrcore_logTable;
+extern void      exrcore_ensure_b44_tables ();
 
 static inline void
 convertFromLinear (uint16_t s[16])
@@ -353,6 +354,8 @@ compress_b44_impl (exr_encode_pipeline_t* encode, int flat_field)
         encode->packed_bytes);
     if (rv != EXR_ERR_SUCCESS) return rv;
 
+    exrcore_ensure_b44_tables ();
+
     nOut   = 0;
     packed = encode->packed_buffer;
     for (int y = 0; y < encode->chunk.height; ++y)
@@ -424,13 +427,13 @@ compress_b44_impl (exr_encode_pipeline_t* encode, int flat_field)
             // rightmost column and the bottom row.
             //
             uint16_t *row0, *row1, *row2, *row3;
+            /* row offset in elements: use uint64_t so y*nx cannot overflow int */
+            uint64_t row_off = (uint64_t) (y) * (uint64_t) (nx);
 
-            row0 = (uint16_t*) scratch;
-            row0 += y * nx;
-
-            row1 = row0 + nx;
-            row2 = row1 + nx;
-            row3 = row2 + nx;
+            row0 = (uint16_t*) scratch + row_off;
+            row1 = row0 + (uint64_t) nx;
+            row2 = row1 + (uint64_t) nx;
+            row3 = row2 + (uint64_t) nx;
 
             if (y + 3 >= ny)
             {
@@ -554,11 +557,12 @@ uncompress_b44_impl (
 
         for (int y = 0; y < ny; y += 4)
         {
-            row0 = (uint16_t*) scratch;
-            row0 += y * nx;
-            row1 = row0 + nx;
-            row2 = row1 + nx;
-            row3 = row2 + nx;
+            /* row offset in elements: use uint64_t so y*nx cannot overflow int */
+            uint64_t row_off = (uint64_t) (y) * (uint64_t) (nx);
+            row0 = (uint16_t*) scratch + row_off;
+            row1 = row0 + (uint64_t) nx;
+            row2 = row1 + (uint64_t) nx;
+            row3 = row2 + (uint64_t) nx;
             for (int x = 0; x < nx; x += 4)
             {
                 if (bIn + 3 > comp_buf_size) return EXR_ERR_OUT_OF_MEMORY;
@@ -697,6 +701,8 @@ internal_exr_undo_b44 (
         &(decode->scratch_alloc_size_1),
         compute_scratch_buffer_size (decode, uncompressed_size));
     if (rv != EXR_ERR_SUCCESS) return rv;
+
+    exrcore_ensure_b44_tables ();
 
     return uncompress_b44_impl (
         decode,

@@ -8,9 +8,9 @@
 #endif
 
 #include "TestUtilFStream.h"
-#include <ImfArray.h>
-#include <ImfPreviewImage.h>
-#include <ImfRgbaFile.h>
+#include "ImfArray.h"
+#include "ImfPreviewImage.h"
+#include "ImfRgbaFile.h"
 #include <assert.h>
 #include <fstream>
 #include <stdio.h>

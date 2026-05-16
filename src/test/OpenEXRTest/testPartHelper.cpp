@@ -9,7 +9,7 @@
 
 #include "testPartHelper.h"
 
-#include <ImfPartHelper.h>
+#include "ImfPartHelper.h"
 #include <algorithm>
 #include <iostream>
 #include <vector>

@@ -11,8 +11,8 @@
 //-----------------------------------------------------------------------------
 
 #include "Iex.h"
-#include <ImfMisc.h>
-#include <ImfStdIO.h>
+#include "ImfMisc.h"
+#include "ImfStdIO.h"
 #include <errno.h>
 #include <filesystem>
 #if __cplusplus >= 202002L

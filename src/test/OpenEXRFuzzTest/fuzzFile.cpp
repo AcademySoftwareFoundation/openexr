@@ -7,19 +7,19 @@
 #    undef NDEBUG
 #endif
 
-#include <fuzzFile.h>
+#include "fuzzFile.h"
 
-#include <Iex.h>
-#include <ImfArray.h>
-#include <ImfRgbaFile.h>
-#include <half.h>
+#include "Iex.h"
+#include "ImfArray.h"
+#include "ImfRgbaFile.h"
+#include <Imath/half.h>
 
 #include "../OpenEXRTest/TestUtilFStream.h"
 #include <fstream>
 #include <iostream>
 
 // Handle the case when the custom namespace is not exposed
-#include <OpenEXRConfig.h>
+#include "OpenEXRConfig.h"
 using namespace OPENEXR_IMF_INTERNAL_NAMESPACE;
 using namespace std;
 using namespace IMATH_NAMESPACE;

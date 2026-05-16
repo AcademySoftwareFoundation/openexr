@@ -27,9 +27,9 @@
 // TODO: remove
 #include "ImfInputStreamMutex.h"
 
-#include <OpenEXRConfig.h>
+#include "OpenEXRConfig.h"
 
-#include <Iex.h>
+#include "Iex.h"
 
 #include <any>
 #include <mutex>

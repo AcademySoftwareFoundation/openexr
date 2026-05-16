@@ -93,6 +93,17 @@ option(OPENEXR_TEST_PYTHON "Run python binding tests" ON)
 # probably assume this is OpenEXR
 set(OPENEXR_OUTPUT_SUBDIR OpenEXR CACHE STRING "Destination sub-folder of the include path for install")
 
+# When OpenEXR is pulled in via add_subdirectory(), mirror installed layout under
+# BUILD_INTERFACE so consumers can use #include <OpenEXR/...>. Not used for a normal
+# top-level OpenEXR build (clears legacy cache entry from older CMake revisions).
+if(OPENEXR_IS_SUBPROJECT)
+  set(OPENEXR_BUILD_INTERFACE_UNIFIED "${CMAKE_BINARY_DIR}/OpenEXR_build_interface_include")
+  file(MAKE_DIRECTORY "${OPENEXR_BUILD_INTERFACE_UNIFIED}/${OPENEXR_OUTPUT_SUBDIR}")
+else()
+  unset(OPENEXR_BUILD_INTERFACE_UNIFIED CACHE)
+  unset(OPENEXR_BUILD_INTERFACE_UNIFIED)
+endif()
+
 # This does not seem to be available as a per-target property,
 # but is pretty harmless to set globally
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -100,7 +111,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 # Suffix for debug configuration libraries
 # (if you should choose to install those)
 # Don't override if the user has set it and don't save it in the cache
-if (NOT CMAKE_DEBUG_POSTFIX)
+if (NOT DEFINED CMAKE_DEBUG_POSTFIX)
   set(CMAKE_DEBUG_POSTFIX "_d")
 endif()
 
@@ -256,8 +267,6 @@ endif()
 #######################################
 
 option(OPENEXR_FORCE_INTERNAL_OPENJPH "Force downloading OpenJPH from a git repo" OFF)
-set(OPENEXR_OPENJPH_REPO "https://github.com/aous72/OpenJPH.git" CACHE STRING "OpenJPH git repo URI")
-set(OPENEXR_OPENJPH_TAG "master" CACHE STRING "OpenJPH git repo tag")
 
 if (NOT OPENEXR_FORCE_INTERNAL_OPENJPH)
   find_package(openjph CONFIG QUIET)
@@ -276,103 +285,48 @@ if (NOT OPENEXR_FORCE_INTERNAL_OPENJPH)
       pkg_check_modules(openjph IMPORTED_TARGET GLOBAL QUIET openjph=0.21)
       if(openjph_FOUND)
         set(EXR_OPENJPH_LIB PkgConfig::openjph)
-        message(STATUS "Using OpenJPH from ${openjph_LINK_LIBRARIES}")
+        message(STATUS "Using OpenJPH ${openjph_VERSION} from ${openjph_LINK_LIBRARIES}")
       endif()
     endif()
   endif()
 endif()
 
-if(NOT EXR_OPENJPH_LIB)
-  # Using internal OpenJPH
-  if(OPENEXR_FORCE_INTERNAL_OPENJPH)
-    message(STATUS "OpenJPH forced internal, fetching from ${OPENEXR_OPENJPH_REPO} @ ${OPENEXR_OPENJPH_TAG}")
-  else()
-    message(STATUS "OpenJPH was not found, fetching from ${OPENEXR_OPENJPH_REPO} @ ${OPENEXR_OPENJPH_TAG}")
-  endif()
-
-  include(FetchContent)
-  FetchContent_Declare(
-    openjph
-    GIT_REPOSITORY ${OPENEXR_OPENJPH_REPO}
-    GIT_TAG        ${OPENEXR_OPENJPH_TAG}
-  )
-
-  set(OJPH_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-  set(OJPH_ENABLE_TIFF_SUPPORT OFF CACHE BOOL "" FORCE)
-  set(OJPH_BUILD_EXECUTABLES OFF CACHE BOOL "" FORCE)
-  FetchContent_MakeAvailable(openjph)
-  install(
-    TARGETS openjph
-    EXPORT ${PROJECT_NAME}
-  )
-  set_target_properties(openjph PROPERTIES
-    POSITION_INDEPENDENT_CODE ON
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
-  )
-
-  # OpenEXR expects OpenJPH headers to live in an openjph folder,
-  # so OpenEXR's include looks like:
-  #   #include <openjph/openjph_arch.h>
-  # However, when building OpenJPH via FetchContent, the headers
-  # reside in src/core/common directory in the OpenJPH source tree.
-  # Create a symlink called "openjph" that points to "common", so the
-  # OpenEXR includes see the files they expect.
-  # Then add that as the include directory.
-  #
-  # NOTE: This can go away when we vendor in the OpenJPH code and
-  # retire the FetchContent altogether.
-  file(CREATE_LINK
-    "${openjph_SOURCE_DIR}/src/core/common"
-    "${openjph_SOURCE_DIR}/src/core/openjph"
-    RESULT openjph_create_link_result
-    SYMBOLIC
-  )
-  # Creating a symlink may fail, for example on Windows without developer
-  # mode enabled, so fallback to copying in that case.
-  if (NOT openjph_create_link_result EQUAL 0)
-    file(COPY
-      "${openjph_SOURCE_DIR}/src/core/common/"
-      DESTINATION "${openjph_SOURCE_DIR}/src/core/openjph"
-    )
-  endif()
-  include_directories("${openjph_SOURCE_DIR}/src/core")
+if(EXR_OPENJPH_LIB)
+  # Using external library
+  # For OpenEXR.pc.in for static build
+  set(EXR_OPENJPH_PKGCONFIG_REQUIRES "openjph >= 0.21.0")
+else()
+  # Using internal openjph
 
   # extract the openjph version variables from ojph_version.h
-  set(openjph_version "${openjph_SOURCE_DIR}/src/core/common/ojph_version.h")
+  set(openjph_SOURCE_DIR "${CMAKE_SOURCE_DIR}/external/OpenJPH")
+  set(openjph_version "${openjph_SOURCE_DIR}/src/core/openjph/ojph_version.h")
   if(EXISTS "${openjph_version}")
     file(STRINGS "${openjph_version}" _openjph_major REGEX "#define OPENJPH_VERSION_MAJOR")
     file(STRINGS "${openjph_version}" _openjph_minor REGEX "#define OPENJPH_VERSION_MINOR")
     file(STRINGS "${openjph_version}" _openjph_patch REGEX "#define OPENJPH_VERSION_PATCH")
+    file(STRINGS "${openjph_version}" _openjph_sha REGEX "#define OPENJPH_VERSION_SHA")
     string(REGEX REPLACE ".*OPENJPH_VERSION_MAJOR[ \t]+([0-9]+).*" "\\1" openjph_VERSION_MAJOR "${_openjph_major}")
     string(REGEX REPLACE ".*OPENJPH_VERSION_MINOR[ \t]+([0-9]+).*" "\\1" openjph_VERSION_MINOR "${_openjph_minor}")
     string(REGEX REPLACE ".*OPENJPH_VERSION_PATCH[ \t]+([0-9]+).*" "\\1" openjph_VERSION_PATCH "${_openjph_patch}")
+    string(REGEX REPLACE ".*OPENJPH_VERSION_SHA[ \t]+([0-9a-f]+).*" "\\1" openjph_VERSION_SHA "${_openjph_sha}")
+  else()
+    message(STATUS "can't find openjph_version.h: ${openjph_version}")
   endif()
 
-  set(EXR_OPENJPH_LIB openjph)
-endif()
-
-if (NOT EXR_OPENJPH_LIB)
-  message(ERROR "Failed to find OpenJPH")
-endif()
-
-if (openjph_VERSION VERSION_LESS "0.23")
-  # OpenJPH 0.22 and before incorrectly appends "openjph" to INTERFACE_INCLUDE_DIRECTORIES
-  # so OpenEXR's "#include <openjph/ojph_arch.h>" does not work.
-  # Strip the "openjph" from the setting in this case. This allows the
-  # #include statements in OpenEXRCore/internal_ht.cpp  to work properly for all openjph versions.
-  get_target_property(OPENJPH_INCLUDE_DIR openjph INTERFACE_INCLUDE_DIRECTORIES)
-  if (NOT OPENJPH_INCLUDE_DIR)
-    message(FATAL_ERROR "failed to set openjph header directory, version ${openjph_VERSION}")
+  if(openjph_VERSION_SHA)
+    set(openjph_VERSION "${openjph_VERSION_SHA}")
+  else()
+    set(openjph_VERSION "${openjph_VERSION_MAJOR}.${openjph_VERSION_MINOR}.${openjph_VERSION_PATCH}")
   endif()
-  string(REGEX REPLACE "/openjph/?$" "" OPENJPH_PARENT_INCLUDE_DIR "${OPENJPH_INCLUDE_DIR}")
-  set_target_properties(openjph PROPERTIES
-      INTERFACE_INCLUDE_DIRECTORIES "${OPENJPH_PARENT_INCLUDE_DIR}"
-  )
-  unset(OPENJPH_INCLUDE_DIR)
-  unset(OPENJPH_PARENT_INCLUDE_DIR)
-endif()
+  
+  if(OPENEXR_FORCE_INTERNAL_OPENJPH)
+    message(STATUS "openjph forced internal, using vendored code, version ${openjph_VERSION}")
+  else()
+    message(STATUS "openjph was not found, using vendored code, version ${openjph_VERSION}")
+  endif()
 
-set(EXR_OPENJPH_PKGCONFIG_REQUIRES "openjph >= 0.21.0")
+endif()
 
 #######################################
 # Find or install Imath
@@ -448,6 +402,52 @@ else()
   endif()
 endif()
 
+# OpenEXR includes Imath headers from an "Imath/" subdirectory,
+# i.e. #include <Imath/ImathVec.h. The Imath library installs its
+# headers in that folder, although when Imath is built inside the
+# OpenEXR build tree (brought in via FetchContent or
+# add_subdirectory), there is no "Imath/" subdirectory. Imath’s CMake
+# exposes an include dir pointing at …/src/Imath (matches #include
+# <ImathVec.h> but doesn't match <Imath/ImathVec.h>), and ImathConfig,
+# an include dir pointing at …/config, where ImathConfig.h lives
+# (matches #include <ImathConfig.h>, not <Imath/ImathConfig.h>).
+#
+# To support #include <Imath/...> in this configuration, we must
+# create an "Imath/" directory in the build tree and symlink/copy the
+# ImathConfig.h header into it, and also provide Imath's "src/"
+# directory as a build interface include dir (because "Imath/" lives
+# underneath it).
+
+if(TARGET Imath AND TARGET ImathConfig)
+  get_target_property(_openexr_imath_imported Imath IMPORTED)
+  get_target_property(_openexr_imathcfg_imported ImathConfig IMPORTED)
+  if(NOT _openexr_imath_imported
+     AND NOT _openexr_imathcfg_imported
+     AND EXISTS "${Imath_SOURCE_DIR}/src/Imath/ImathVec.h")
+    set(_openexr_imath_gen_cfg "${Imath_BINARY_DIR}/config/ImathConfig.h")
+    set(_openexr_imath_cfg_compat "${PROJECT_BINARY_DIR}/OpenEXR_ImathIncludeCompat")
+    if(EXISTS "${_openexr_imath_gen_cfg}")
+      file(MAKE_DIRECTORY "${_openexr_imath_cfg_compat}/Imath")
+      configure_file("${_openexr_imath_gen_cfg}"
+                     "${_openexr_imath_cfg_compat}/Imath/ImathConfig.h" COPYONLY)
+    endif()
+
+    # Add the build interface include directory, but only do it once;
+    # if the cache key exists, it's already been added by a previous
+    # configuration run.
+    set(_openexr_imath_inc_patch_key "${Imath_SOURCE_DIR}|${Imath_BINARY_DIR}")
+    if(NOT OPENEXR_IMATH_SUBDIR_INCLUDE_PATCH STREQUAL _openexr_imath_inc_patch_key)
+      target_include_directories(Imath INTERFACE
+        "$<BUILD_INTERFACE:${Imath_SOURCE_DIR}/src>")
+      if(EXISTS "${_openexr_imath_gen_cfg}")
+        target_include_directories(ImathConfig INTERFACE
+          "$<BUILD_INTERFACE:${_openexr_imath_cfg_compat}>")
+      endif()
+      set(OPENEXR_IMATH_SUBDIR_INCLUDE_PATCH "${_openexr_imath_inc_patch_key}" CACHE INTERNAL "")
+    endif()
+  endif()
+endif()
+
 ###########################################
 # Check if we need to emulate vld1q_f32_x2
 ###########################################
@@ -463,5 +463,18 @@ int main() {
 
   if(NOT HAS_VLD1)
     set(OPENEXR_MISSING_ARM_VLD1 TRUE)
+  endif()
+endif()
+
+###########################################
+# Enable SSE2 on 32-bit x86
+###########################################
+
+if(CMAKE_SYSTEM_PROCESSOR MATCHES "^(i[3-6]86|x86)$" AND NOT MSVC)
+  include(CheckCCompilerFlag)
+  check_c_compiler_flag("-msse2" HAS_SSE2_FLAG)
+  if(HAS_SSE2_FLAG)
+    add_compile_options(-msse2 -mfpmath=sse)
+    message(STATUS "Enabling SSE2 for 32-bit x86 build")
   endif()
 endif()

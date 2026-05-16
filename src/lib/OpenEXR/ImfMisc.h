@@ -435,10 +435,10 @@ IMF_EXPORT
 int getChunkOffsetTableSize (const Header& header);
 
 //
-// Convert a filename to a wide string.  This is useful for working with
-// filenames on Windows.
+// Convert a UTF-8 filename to a wide string (for example for Windows APIs).
 //
 
+OPENEXR_DEPRECATED ("To be removed in future releases.")
 IMF_EXPORT
 std::wstring WidenFilename (const char* filename);
 

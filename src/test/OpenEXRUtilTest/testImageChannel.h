@@ -5,4 +5,4 @@
 
 #include <string>
 
-void testOptimized (const std::string& tempDir);
+void testImageChannel (const std::string& tempDir);

@@ -19,13 +19,13 @@ OpenEXR provides the specification and reference implementation of the
 EXR file format, the professional-grade image storage format of the
 motion picture industry.
 
-The purpose of EXR format is to accurately and efficiently represent
-high-dynamic-range scene-linear image data. This is a significant difference to
-most image formats, which store images that are ready for display. Software that
-handles OpenEXR images may need to process them differently to images in other
-formats such as JPEG (see :doc:`SceneLinear` for more details). OpenEXR files
-have strong support for multi-part, multi-channel use cases, and extensive
-representation of associated metadata.
+The purpose of the EXR format is to accurately and efficiently represent
+high-dynamic-range scene-linear image data. This is a significant difference from
+most image formats, which store images that are ready for display. Software may
+need to process OpenEXR images differently from other image formats such as JPEG
+(see :doc:`SceneLinear` for more details). OpenEXR files have strong support
+for multi-part, multi-channel use cases, and extensive representation of
+associated metadata.
 
 OpenEXR is widely used in host application software where accuracy is
 critical, such as photorealistic rendering, texture access, image
@@ -122,6 +122,13 @@ Community
     <https://contributor.easycla.lfx.linuxfoundation.org/#/cla/project/2e8710cb-e379-4116-a9ba-964f83618cc5/user/564e571e-12d7-4857-abd4-898939accdd7>`_
   
   - Submit a Pull Request: https://github.com/AcademySoftwareFoundation/openexr/pulls
+
+  - If you'd like to contribute and could use some ideas of what to
+    do, browse "good first issues" `here
+    <https://github.com/AcademySoftwareFoundation/openexr/contribute),contribute>`_
+    or on `Clotributor <https://clotributor.dev/search?ts_query_web=openexr&page=1>`_.
+
+
 
 Resources
 =========

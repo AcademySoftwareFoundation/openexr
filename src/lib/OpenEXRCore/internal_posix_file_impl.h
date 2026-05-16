@@ -13,7 +13,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#ifdef ILMTHREAD_THREADING_ENABLED
+#if ILMTHREAD_THREADING_ENABLED
 #    include <pthread.h>
 #endif
 #include <stdarg.h>
@@ -37,7 +37,7 @@ struct _internal_exr_filehandle
 struct _internal_exr_filehandle
 {
     int fd;
-#    ifdef ILMTHREAD_THREADING_ENABLED
+#    if ILMTHREAD_THREADING_ENABLED
     pthread_mutex_t mutex;
 #    endif
 };
@@ -54,7 +54,7 @@ default_shutdown (exr_const_context_t c, void* userdata, int failed)
     {
         if (fh->fd >= 0) close (fh->fd);
 #if !CAN_USE_PREAD
-#    ifdef ILMTHREAD_THREADING_ENABLED
+#    if ILMTHREAD_THREADING_ENABLED
         pthread_mutex_destroy (&(fh->mutex));
 #    endif
 #endif
@@ -141,7 +141,7 @@ default_read_func (
     }
 
 #if !CAN_USE_PREAD
-#    ifdef ILMTHREAD_THREADING_ENABLED
+#    if ILMTHREAD_THREADING_ENABLED
     pthread_mutex_lock (&(fh->mutex));
 #    endif
     {
@@ -152,7 +152,7 @@ default_read_func (
 #    endif
         if (spos != offset)
         {
-#    ifdef ILMTHREAD_THREADING_ENABLED
+#    if ILMTHREAD_THREADING_ENABLED
             pthread_mutex_unlock (&(fh->mutex));
 #    endif
             if (error_cb)
@@ -193,7 +193,7 @@ default_read_func (
     } while (retsz < (int64_t) sz);
 
 #if !CAN_USE_PREAD
-#    ifdef ILMTHREAD_THREADING_ENABLED
+#    if ILMTHREAD_THREADING_ENABLED
     pthread_mutex_unlock (&(fh->mutex));
 #    endif
 #endif
@@ -255,7 +255,7 @@ default_write_func (
     }
 
 #if !CAN_USE_PREAD
-#    ifdef ILMTHREAD_THREADING_ENABLED
+#    if ILMTHREAD_THREADING_ENABLED
     pthread_mutex_lock (&(fh->mutex));
 #    endif
     {
@@ -266,7 +266,7 @@ default_write_func (
 #    endif
         if (spos != offset)
         {
-#    ifdef ILMTHREAD_THREADING_ENABLED
+#    if ILMTHREAD_THREADING_ENABLED
             pthread_mutex_unlock (&(fh->mutex));
 #    endif
             if (error_cb)
@@ -306,7 +306,7 @@ default_write_func (
     } while (retsz < (int64_t) sz);
 
 #if !CAN_USE_PREAD
-#    ifdef ILMTHREAD_THREADING_ENABLED
+#    if ILMTHREAD_THREADING_ENABLED
     pthread_mutex_unlock (&(fh->mutex));
 #    endif
 #endif
@@ -332,7 +332,7 @@ default_init_read_file (exr_context_t file)
 
     fh->fd = -1;
 #if !CAN_USE_PREAD
-#    ifdef ILMTHREAD_THREADING_ENABLED
+#    if ILMTHREAD_THREADING_ENABLED
     fd = pthread_mutex_init (&(fh->mutex), NULL);
     if (fd != 0)
         return file->print_error (
@@ -369,7 +369,7 @@ default_init_write_file (exr_context_t file)
     if (outfn == NULL) outfn = file->filename.str;
 
 #if !CAN_USE_PREAD
-#    ifdef ILMTHREAD_THREADING_ENABLED
+#    if ILMTHREAD_THREADING_ENABLED
     fd = pthread_mutex_init (&(fh->mutex), NULL);
     if (fd != 0)
         return file->print_error (

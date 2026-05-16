@@ -12,6 +12,16 @@
 //
 //-----------------------------------------------------------------------------
 
+//
+// File path encoding: Any const char* string that names or opens a file,
+// including the strings passed to the protected IStream(const char*) and
+// OStream(const char*) constructors, and the value returned by fileName(),
+// is interpreted as UTF-8 on all platforms, including Microsoft
+// Windows. Callers must not pass legacy ANSI/code-page paths. This matches
+// StdIFStream/StdOFStream (via std::filesystem::u8path) and the OpenEXRCore
+// C API.
+//
+
 #include "ImfForward.h"
 
 #include <cstdint>

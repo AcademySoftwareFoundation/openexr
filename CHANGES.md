@@ -3,14 +3,35 @@
 
 # OpenEXR Release Notes
 
+* [Version 3.4.11](#version-3411-april-29-2026) April 29, 2026
+* [Version 3.4.10](#version-3410-april-17-2026) April 17, 2026
+* [Version 3.4.9](#version-349-april--3-2026) April  3, 2026
+* [Version 3.4.8](#version-348-march-26-2026) March 26, 2026
+* [Version 3.4.7](#version-347-march-15-2026) March 15, 2026
+* [Version 3.4.6](#version-346-march-1-2026) March 1, 2026
+* [Version 3.4.5](#version-345-february-21-2026) February 21, 2026
+* [Version 3.4.4](#version-344-november-19-2025) November 19, 2025
+* [Version 3.4.3](#version-343-november-4-2025) November 4, 2025
+* [Version 3.4.2](#version-342-october-15-2025) October 15, 2025
 * [Version 3.4.1](#version-341-october-8-2025) October 8, 2025
 * [Version 3.4.0](#version-340-september-5-2025) September 5, 2025
+* [Version 3.3.11](#version-3311-april-29-2026) April 29, 2026
+* [Version 3.3.10](#version-339-april-17-2026) April 17, 2026
+* [Version 3.3.9](#version-339-april--4-2026) April  4, 2026
+* [Version 3.3.8](#version-338-march-1-2026) March 1, 2026
+* [Version 3.3.7](#version-337-february-19-2026) February 19, 2026
+* [Version 3.3.6](#version-336-november-4-2025) November 5, 2025
 * [Version 3.3.5](#version-335-july-26-2025) July 26, 2025
 * [Version 3.3.4](#version-334-june-9-2025) June 9, 2025
 * [Version 3.3.3](#version-333-march-23-2025) March 23, 2025
 * [Version 3.3.2](#version-332-november-11-2024) November 11, 2024
 * [Version 3.3.1](#version-331-october-8-2024) October 8, 2024
 * [Version 3.3.0](#version-330-september-30-2024) September 30, 2024
+* [Version 3.2.9](#version-329-april-29-2026) April 29, 2026
+* [Version 3.2.8](#version-328-april-17-2026) April 17, 2026
+* [Version 3.2.7](#version-327-april-3-2026) April 3, 2026
+* [Version 3.2.6](#version-326-march-1-2026) March 1, 2026
+* [Version 3.2.5](#version-325-november-4-2025) November 4, 2025
 * [Version 3.2.4](#version-324-march-26-2024) March 26, 2024
 * [Version 3.2.3](#version-323-march-6-2024) March 6, 2024
 * [Version 3.2.2](#version-322-february-11-2024) February 11, 2024
@@ -82,6 +103,600 @@
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
 
+## Version 3.4.11 (April 29, 2026)
+
+Patch release that addresses the following security vulnerabilities:
+
+* [CVE-2026-42217](https://www.cve.org/CVERecord?id=CVE-2026-42217)
+Shift exponent overflow in `readVariableLengthInteger()` (`ImfIDManifest.cpp`)
+* [CVE-2026-42216](https://www.cve.org/CVERecord?id=CVE-2026-42216)
+Out-of-bounds read in `IDManifest::init()` during prefix expansion
+* [CVE-2026-41142](https://www.cve.org/CVERecord?id=CVE-2026-41142)
+Integer overflow in `ImageChannel::resize` leads to heap OOB write via OpenEXRUtil public API
+
+Also:
+
+* OSS-fuzz [504280155](https://issues.oss-fuzz.com/issues/504280155)
+Heap-buffer-overflow in `DwaCompressor_uncompress`
+* OSS-fuzz [505062709](https://issues.oss-fuzz.com/issues/505062709)
+Null-dereference READ in `Imf_3_3::prefixFromLayerName`
+
+Build fixes:
+
+- Fix Windows ARM64EC build issues and correct SIMD ARM NEON path for ARM64/EC
+
+Also, some minor documentation updates:
+
+- GitHub Security Advisories are the preferred way of reporting
+  vulnerabilities, not email.
+- Some clarification around handling of UFT-8 of file paths
+
+### Merged Pull Requests
+
+* [2383](https://github.com/AcademySoftwareFoundation/openexr/pull/2383)
+validate that the uncompressed sizes recorded in the dwa header are valid
+* [2382](https://github.com/AcademySoftwareFoundation/openexr/pull/2382)
+Fix Null-dereference READ in prefixFromLayerName
+* [2378](https://github.com/AcademySoftwareFoundation/openexr/pull/2378)
+Harden IDManifest parsing against illegal shift and string prefix OOB
+* [2377](https://github.com/AcademySoftwareFoundation/openexr/pull/2377)
+Fix OOB read when expanding IDManifest prefix-compressed strings
+* [2375](https://github.com/AcademySoftwareFoundation/openexr/pull/2375)
+Minor changes to website index page to make some sentences clearer. A…
+* [2368](https://github.com/AcademySoftwareFoundation/openexr/pull/2368)
+Add release notes and news for v3.4.10, v3.3.10, v3.2.8
+* [2367](https://github.com/AcademySoftwareFoundation/openexr/pull/2367)
+Fix int overflow in ImageChannel::resize pixel count
+* [2364](https://github.com/AcademySoftwareFoundation/openexr/pull/2364)
+Recommend GH Security Advisories for vulnerability reporting
+* [2361](https://github.com/AcademySoftwareFoundation/openexr/pull/2361)
+Add documentation and test for UTF-8 file paths
+* [2344](https://github.com/AcademySoftwareFoundation/openexr/pull/2344)
+Fix Windows ARM64EC build issues and correct SIMD ARM NEON path for ARM64/EC
+
+### Merged Workflow Pull Requests
+
+* [2370](https://github.com/AcademySoftwareFoundation/openexr/pull/2370)
+Bump msys2/setup-msys2 from 2.31.0 to 2.31.1
+* [2366](https://github.com/AcademySoftwareFoundation/openexr/pull/2366)
+Add workflow dispatch trigger to release-sign.yml
+* [2363](https://github.com/AcademySoftwareFoundation/openexr/pull/2363)
+Bump vmactions/freebsd-vm from 1.4.4 to 1.4.5
+* [2362](https://github.com/AcademySoftwareFoundation/openexr/pull/2362)
+Bump github/codeql-action from 4.35.1 to 4.35.2
+
+## Version 3.4.10 (April 17, 2026)
+
+Patch release that addresses the following security vulnerabilities:
+
+* [CVE-2026-39886](https://www.cve.org/CVERecord?id=CVE-2026-39886) HTJ2K Signed Integer Overflow in `ht_undo_impl()`
+* [CVE-2026-40244](https://www.cve.org/CVERecord?id=CVE-2026-40244) Integer overflow in DWA `setupChannelData` `planarUncRle` pointer arithmetic (missed variant of CVE-2026-34589)
+* [CVE-2026-40250](https://www.cve.org/CVERecord?id=CVE-2026-40250) Integer overflow in DWA decoder `outBufferEnd` pointer arithmetic (missed variant of CVE-2026-34589)
+
+### Merged Pull Requests
+
+* [2346](https://github.com/AcademySoftwareFoundation/openexr/pull/2346)
+Fix integer overflow in internal_dwa_compressor.h
+* [2345](https://github.com/AcademySoftwareFoundation/openexr/pull/2345)
+Fix HTJ2K bytes-per-line integer overflow in internal_ht.cpp
+* [2340](https://github.com/AcademySoftwareFoundation/openexr/pull/2340)
+Fix 3.4.9 cve list formatting
+* [2339](https://github.com/AcademySoftwareFoundation/openexr/pull/2339)
+fix link formatting typo
+* [2337](https://github.com/AcademySoftwareFoundation/openexr/pull/2337)
+notes and news for v3.4.9, v3.3.9, v3.2.7
+* [2334](https://github.com/AcademySoftwareFoundation/openexr/pull/2334)
+Add CVE-2026-34589,34588,34545,34544,34543,34380,34379,34378 to SECURITY.md
+* [2316](https://github.com/AcademySoftwareFoundation/openexr/pull/2316)
+Fix Pinned-Dependencies Scorecard alert in website workflow
+
+### Merged Workflow Pull Requests
+
+* [2360](https://github.com/AcademySoftwareFoundation/openexr/pull/2360)
+Bump actions/cache from 5.0.4 to 5.0.5
+* [2354](https://github.com/AcademySoftwareFoundation/openexr/pull/2354)
+Bump actions/upload-artifact from 7.0.0 to 7.0.1
+* [2343](https://github.com/AcademySoftwareFoundation/openexr/pull/2343)
+Bump pypa/gh-action-pypi-publish from 1.13.0 to 1.14.0
+* [2341](https://github.com/AcademySoftwareFoundation/openexr/pull/2341)
+Bump jmertic/slack-release-notifier from 32206e01ee0b0f66865d2be13bb3c62e474b5ce0 to 9d7d3a84563d2ebc8f7b2271be6c9568fedd7f3a
+* [2338](https://github.com/AcademySoftwareFoundation/openexr/pull/2338)
+Fix CodeQL SARIF upload ref for pull_request workflows
+* [2336](https://github.com/AcademySoftwareFoundation/openexr/pull/2336)
+Bump pypa/cibuildwheel from 3.4.0 to 3.4.1
+* [2333](https://github.com/AcademySoftwareFoundation/openexr/pull/2333)
+Add CI test to validate "cmake --install .. --prefix <path>
+
+## Version 3.4.9 (April  3, 2026)
+
+Patch release that addresses several security vulnerabilities.
+
+This release also fixes a build issue where the library symlinks would
+get installed in the incorrect location when overriding the cached
+install prefix path.
+
+This release addresses the following CVEs:
+* [CVE-2026-34589](https://www.cve.org/CVERecord?id=CVE-2026-34589) DWA Lossy Decoder Heap Out-of-Bounds Write
+* [CVE-2026-34588](https://www.cve.org/CVERecord?id=CVE-2026-34588) Signed 32-bit Overflow in PIZ Decoder Leads to OOB Read/Write
+* [CVE-2026-34380](https://www.cve.org/CVERecord?id=CVE-2026-34380) Signed integer overflow (undefined behavior) in undo_pxr24_impl may allow bounds-check bypass in PXR24 decompression
+* [CVE-2026-34379](https://www.cve.org/CVERecord?id=CVE-2026-34379) Misaligned write in LossyDctDecoder_execute leading to undefined behavior (DWA/DWAB decompression)
+* [CVE-2026-34378](https://www.cve.org/CVERecord?id=CVE-2026-34378) Signed integer overflow in generic_unpack() when parsing EXR files with crafted negative dataWindow.min.x
+
+### Merged Pull Requests
+
+* [2329](https://github.com/AcademySoftwareFoundation/openexr/pull/2329)
+Fix signed integer overflow in `LossyDctDecoder_execute()` pointer arithmatic
+* [2328](https://github.com/AcademySoftwareFoundation/openexr/pull/2328)
+fix integer overflow in PIZ wavelet buffer arithmetic
+* [2327](https://github.com/AcademySoftwareFoundation/openexr/pull/2327)
+Add a message about image size limits and OOM errors to SECURITY.md and website
+* [2326](https://github.com/AcademySoftwareFoundation/openexr/pull/2326)
+Fix shared lib symlink installation path
+* [2324](https://github.com/AcademySoftwareFoundation/openexr/pull/2324)
+Fix misaligned memory access in `LossyDctDecoder_execute` HALF→FLOAT expansion
+* [2323](https://github.com/AcademySoftwareFoundation/openexr/pull/2323)
+fix signed integer overflow in `undo_pxr24_impl()`
+* [2321](https://github.com/AcademySoftwareFoundation/openexr/pull/2321)
+Fix integer overflow in `srcbuffer` pointer arithmetic in `unpack_*`
+* [2317](https://github.com/AcademySoftwareFoundation/openexr/pull/2317)
+Add "cherry" and "changes" options to release.py
+
+### Merged Workflow Pull Requests
+
+* [2332](https://github.com/AcademySoftwareFoundation/openexr/pull/2332)
+Bump vmactions/freebsd-vm from 1.4.3 to 1.4.4
+* [2331](https://github.com/AcademySoftwareFoundation/openexr/pull/2331)
+Bump github/codeql-action from 4.34.1 to 4.35.1
+* [2330](https://github.com/AcademySoftwareFoundation/openexr/pull/2330)
+Bump jmertic/slack-release-notifier from f824585541879ef2a6388268eccb9be210aa6878 to 32206e01ee0b0f66865d2be13bb3c62e474b5ce0
+* [2325](https://github.com/AcademySoftwareFoundation/openexr/pull/2325)
+Bump sigstore/gh-action-sigstore-python from 3.2.0 to 3.3.0
+* [2320](https://github.com/AcademySoftwareFoundation/openexr/pull/2320)
+Bump jmertic/slack-release-notifier from 35fad060af5559c24decdec0f701e6ba93566704 to f824585541879ef2a6388268eccb9be210aa6878
+* [2319](https://github.com/AcademySoftwareFoundation/openexr/pull/2319)
+Bump msys2/setup-msys2 from 2.30.0 to 2.31.0
+* [2318](https://github.com/AcademySoftwareFoundation/openexr/pull/2318)
+Bump github/codeql-action from 4.33.0 to 4.34.1
+
+## Version 3.4.8 (March 26, 2026)
+
+Patch release with several bug/build fixes:
+
+- Fix an integer-overflow bug reading malformed files compressed with
+  B44A/B44B 
+- Fix a buffer-overrun bug reading malformed files compressed with PXR24
+- Fix a bug compressing half data with ZIPS/ZIP data when the
+  compressed size equals packed size
+- Single part files no longer get assigned a part name when writing
+  via the python module
+- Fix a build failure on FreeBSD involving `threads.h`
+
+This also eliminates several compiler warnings, particularly about the
+deprecated `isOptimizationEnabled()` API and deprecates standard
+attributes. 
+
+This version addresses the following security vulnerabilities:
+
+* [CVE-2026-34544](https://www.cve.org/CVERecord?id=CVE-2026-34544) integer overflow to OOB write in uncompress_b44_impl()
+* [CVE-2026-34543](https://www.cve.org/CVERecord?id=CVE-2026-34543) Heap information disclosure in PXR24 decompression via unchecked decompressed size (undo_pxr24_impl)
+
+### Merged Pull Requests
+
+* [2312](https://github.com/AcademySoftwareFoundation/openexr/pull/2312)
+Fix B44/B44A integer overflow: use uint64_t for row offset
+* [2310](https://github.com/AcademySoftwareFoundation/openexr/pull/2310)
+PXR24: reject zlib output that does not match packed payload size
+* [2307](https://github.com/AcademySoftwareFoundation/openexr/pull/2307)
+Fix ZIPS/ZIP encoder corruption when compressed size equals packed size
+* [2303](https://github.com/AcademySoftwareFoundation/openexr/pull/2303)
+Fix MinGW -Walloc-size-larger-than= in general_attr string test
+* [2301](https://github.com/AcademySoftwareFoundation/openexr/pull/2301)
+don't insert name attributes into single part files
+* [2300](https://github.com/AcademySoftwareFoundation/openexr/pull/2300)
+Fix FreeBSD build failure involving threads.h, and add FreeBSD CI build
+* [2124](https://github.com/AcademySoftwareFoundation/openexr/pull/2124)
+Suppress deprecation warnings for isOptimizationEnabled and standard attributes
+
+### Merged Workflow Pull Requests
+
+* [2315](https://github.com/AcademySoftwareFoundation/openexr/pull/2315)
+Force macos cibuildwheel to use Xcode clang
+* [2311](https://github.com/AcademySoftwareFoundation/openexr/pull/2311)
+Bump actions/cache from 5.0.3 to 5.0.4
+* [2304](https://github.com/AcademySoftwareFoundation/openexr/pull/2304)
+Bump github/codeql-action from 4.32.6 to 4.33.0
+* [2297](https://github.com/AcademySoftwareFoundation/openexr/pull/2297)
+Restore Analysis build
+* [2295](https://github.com/AcademySoftwareFoundation/openexr/pull/2295)
+Restrict workflow permissions for ci_steps, release-sign, and codeql
+* [2294](https://github.com/AcademySoftwareFoundation/openexr/pull/2294)
+Pin pypa/cibuildwheel actions to release sha
+
+## Version 3.4.7 (March 15, 2026)
+
+Patch release bug/build fixes:
+
+* Fix an integer overflow decoding very wide htj2k images
+* Fix build failure with glibc 2.43
+* Fix Windows symbol visibility warnings
+
+Full changelog: [v3.4.6..v3.4.7](https://github.com/AcademySoftwareFoundation/openexr/compare/v3.4.6..v3.4.7)
+
+This version addresses the following security vulnerabilities:
+
+* [CVE-2026-34545](https://www.cve.org/CVERecord?id=CVE-2026-34545)
+  integer overflow lead to OOB in HTJ2K decoder
+
+### Merged Pull Requests
+
+* [2291](https://github.com/AcademySoftwareFoundation/openexr/pull/2291)
+Fix integer overflow in htj2k decode with width > 32767
+
+* [2283](https://github.com/AcademySoftwareFoundation/openexr/pull/2283)
+update SECURITY with CVE info for PR #2256
+
+* [2282](https://github.com/AcademySoftwareFoundation/openexr/pull/2282)
+Remove `website_preview_link` workflow
+
+* [2281](https://github.com/AcademySoftwareFoundation/openexr/pull/2281)
+Disable visibility attributes on Windows to fix msys2 -Wattributes warning
+
+* [2262](https://github.com/AcademySoftwareFoundation/openexr/pull/2262)
+Fix build failure with glibc 2.43 due to C11 threads.h conflicts
+
+### Merged Workflow Pull Requests
+
+* [2292](https://github.com/AcademySoftwareFoundation/openexr/pull/2292)
+Bump actions/download-artifact from 8.0.0 to 8.0.1
+
+* [2289](https://github.com/AcademySoftwareFoundation/openexr/pull/2289)
+Bump scikit-build-core from 0.12.1 to 0.12.2
+
+* [2288](https://github.com/AcademySoftwareFoundation/openexr/pull/2288)
+Bump jmertic/slack-release-notifier from 6fa159048d5313ff1177d248ad84beb627571670 to 35fad060af5559c24decdec0f701e6ba93566704
+
+* [2287](https://github.com/AcademySoftwareFoundation/openexr/pull/2287)
+Bump pypa/cibuildwheel from 3.3 to 3.4
+
+## Version 3.4.6 (March 1, 2026)
+
+Patch release with several bug fixes, enhancements, and build improvements.
+
+* :bug: A limit of ``UINT_MAX`` deep samples per pixel is now
+  enforced, which prevents an integer overflow when using the
+  `CompositeDeepScanLine` API to combine multiple deep parts.
+
+* :wrench: In `IlmThreadPool`, replace deprecated `std::atomic_load /
+  std::atomic_exchange` overloads for `std::shared_ptr` with the C++20
+  `std::atomic<std::shared_ptr<T>>` interface when available.
+
+* :bug: The ``ZIP`` and ``ZIPS`` Compressor objects had incorrect
+  compression types set, although the ill effects were minimal as the
+  value is seldom used.
+  
+* :bug: Enable SSE2 on 32-bit x86 builds to fix test failures
+
+Build improvements:
+
+* :hammer_and_wrench: OpenEXR now ships with an internal "vendored" copy of the
+  ``OpenJPH`` library. At configuration time, if CMake finds an
+  external installation of ``OpenJPH``, it will use it, but if that
+  fails, or the CMake configuration option
+  ``OPENEXR_FORCE_INTERNAL_OPENJPH`` is set, it will use the internal
+  copy. For OpenEXR v3.4.6, the vendored version of OpenJPH is 0.26.3.
+
+* :hammer_and_wrench: A new CMake build option `DOPENEXR_FORCE_EMBEDDED_CORE`
+  builds the `OpenEXRCore` library statically and links it into the
+  `OpenEXR` library with symbols hidden, making it possible to link
+  multiple versions of OpenEXR into the same executable. The `OpenEXR`
+  library has namespaces for this situation, but the `OpenEXRCore`
+  library is written in C with no configurable namespace. See [Linking
+  Multiple OpenEXR Versions in the
+  Executable](https://openexr.com/en/latest/install.html#linking-multiple-openexr-versions-in-the-executable)
+  for details.
+
+* :hammer_and_wrench: Fix build failure with ``-march=sandybridge``
+
+Python:
+
+* :snake: :sparkles: Add python support for Opaque Attributes
+
+* :rocket: Python module I/O operations now release the GIL,
+  preventing blocking.
+
+Tools:
+
+* :sparkles: Add sanity check for correct arguments to exrstdattr, to
+  catch mistakes such as ``exrstdattr input.exr output.exr -comment
+  hello`` which would formerly write to a file called ``hello`` but
+  now fails with a usage error.
+
+Also, this release bumps the vendered version of `libdeflate` to 1.25.
+
+This release addresses the following CVEs:
+* [CVE-2026-27622](https://www.cve.org/CVERecord?id=CVE-2026-27622)
+CompositeDeepScanLine integer-overflow leads to heap OOB write
+
+### Merged Pull Requests:
+
+* [2274](https://github.com/AcademySoftwareFoundation/openexr/pull/2274)
+Update the vendored libdeflate to 1.25
+* [2273](https://github.com/AcademySoftwareFoundation/openexr/pull/2273)
+Release Python GIL during I/O operations in bindings
+* [2272](https://github.com/AcademySoftwareFoundation/openexr/pull/2272)
+Fix build failure with -march=sandybridge (#2231)
+* [2271](https://github.com/AcademySoftwareFoundation/openexr/pull/2271)
+Enable SSE2 on 32-bit x86 builds to fix test failures
+* [2269](https://github.com/AcademySoftwareFoundation/openexr/pull/2269)
+Mention OpenEXR dependencies on README
+* [2268](https://github.com/AcademySoftwareFoundation/openexr/pull/2268)
+Bazel: Use openjph 0.26.3
+* [2267](https://github.com/AcademySoftwareFoundation/openexr/pull/2267)
+Bump rules_cc from 0.2.16 to 0.2.17
+* [2265](https://github.com/AcademySoftwareFoundation/openexr/pull/2265)
+Bump jmertic/slack-release-notifier
+* [2264](https://github.com/AcademySoftwareFoundation/openexr/pull/2264)
+Bump github/codeql-action from 4.32.3 to 4.32.4
+* [2263](https://github.com/AcademySoftwareFoundation/openexr/pull/2263)
+Add sanity check for correct arguments to exrstdattr
+* [2261](https://github.com/AcademySoftwareFoundation/openexr/pull/2261)
+Fix sentence fragment typo in website python docs
+* [2260](https://github.com/AcademySoftwareFoundation/openexr/pull/2260)
+Add reference to `OPENEXR_FORCE_EMBEDDED_CORE` on install page
+* [2259](https://github.com/AcademySoftwareFoundation/openexr/pull/2259)
+Fix ZipCompressor to initialize compresson type correctly
+* [2258](https://github.com/AcademySoftwareFoundation/openexr/pull/2258)
+Bazel: Remove WORKSPACE.bazel file
+* [2256](https://github.com/AcademySoftwareFoundation/openexr/pull/2256)
+Report an error if a deep pixel as more than `UINT_MAX` samples
+* [2253](https://github.com/AcademySoftwareFoundation/openexr/pull/2253)
+Add CVE-2025-64181 to SECURITY.md
+* [2252](https://github.com/AcademySoftwareFoundation/openexr/pull/2252)
+Add news and release notes for v3.4.5 and v3.3.7
+* [2250](https://github.com/AcademySoftwareFoundation/openexr/pull/2250)
+Vendor OpenJPH v0.26.3
+* [2249](https://github.com/AcademySoftwareFoundation/openexr/pull/2249)
+Add python support for Opaque Attributes
+* [2248](https://github.com/AcademySoftwareFoundation/openexr/pull/2248)
+Fix tag check, git rm, and sed calls in vendor_openjph.sh
+* [2247](https://github.com/AcademySoftwareFoundation/openexr/pull/2247)
+Bump github/codeql-action from 4.31.9 to 4.32.3
+* [2243](https://github.com/AcademySoftwareFoundation/openexr/pull/2243)
+IlmThread: fix deprecated atomic `shared_ptr` ops for `shared_ptr` (GCC 15)
+* [2240](https://github.com/AcademySoftwareFoundation/openexr/pull/2240)
+Bump actions/cache from 5.0.1 to 5.0.3
+* [2239](https://github.com/AcademySoftwareFoundation/openexr/pull/2239)
+Fix links and formatting in CONTRIBUTING.md
+* [2236](https://github.com/AcademySoftwareFoundation/openexr/pull/2236)
+Bump actions/checkout from 6.0.1 to 6.0.2
+* [2235](https://github.com/AcademySoftwareFoundation/openexr/pull/2235)
+Bump actions/setup-python from 6.1.0 to 6.2.0
+* [2227](https://github.com/AcademySoftwareFoundation/openexr/pull/2227)
+Bump rules_cc from 0.2.14 to 0.2.16
+* [2226](https://github.com/AcademySoftwareFoundation/openexr/pull/2226)
+Bump bazel_skylib from 1.8.2 to 1.9.0
+* [2225](https://github.com/AcademySoftwareFoundation/openexr/pull/2225)
+Rename external/OpenJPH/src/core/common to openjph, instead of using a symlink
+* [2224](https://github.com/AcademySoftwareFoundation/openexr/pull/2224)
+Bump github/codeql-action from 4.31.8 to 4.31.9
+* [2222](https://github.com/AcademySoftwareFoundation/openexr/pull/2222)
+Bump actions/upload-artifact from 5 to 6
+* [2221](https://github.com/AcademySoftwareFoundation/openexr/pull/2221)
+Bump actions/cache from 4.3.0 to 5.0.1
+* [2220](https://github.com/AcademySoftwareFoundation/openexr/pull/2220)
+Bump msys2/setup-msys2 from 2.29.0 to 2.30.0
+* [2219](https://github.com/AcademySoftwareFoundation/openexr/pull/2219)
+Bump actions/download-artifact from 6.0.0 to 7.0.0
+* [2218](https://github.com/AcademySoftwareFoundation/openexr/pull/2218)
+Bump github/codeql-action from 4.31.7 to 4.31.8
+* [2216](https://github.com/AcademySoftwareFoundation/openexr/pull/2216)
+Add option to compile c++ libraries with an embedded core library
+* [2215](https://github.com/AcademySoftwareFoundation/openexr/pull/2215)
+Bump imath from 3.2.2 to 3.2.2.bcr.1
+* [2214](https://github.com/AcademySoftwareFoundation/openexr/pull/2214)
+Bump github/codeql-action from 4.31.5 to 4.31.7
+* [2213](https://github.com/AcademySoftwareFoundation/openexr/pull/2213)
+Bump sigstore/gh-action-sigstore-python from 3.1.0 to 3.2.0
+* [2212](https://github.com/AcademySoftwareFoundation/openexr/pull/2212)
+Bump actions/checkout from 6.0.0 to 6.0.1
+* [2210](https://github.com/AcademySoftwareFoundation/openexr/pull/2210)
+Bump actions/setup-python from 6.0.0 to 6.1.0
+* [2209](https://github.com/AcademySoftwareFoundation/openexr/pull/2209)
+Bump github/codeql-action from 4.31.4 to 4.31.5
+* [2208](https://github.com/AcademySoftwareFoundation/openexr/pull/2208)
+Remove enable-beta-ecosystem since Bazel is no officially supported
+* [2204](https://github.com/AcademySoftwareFoundation/openexr/pull/2204)
+Bump actions/checkout from 3.6.0 to 6.0.0
+* [2202](https://github.com/AcademySoftwareFoundation/openexr/pull/2202)
+Bump github/codeql-action from 4.31.3 to 4.31.4
+* [2193](https://github.com/AcademySoftwareFoundation/openexr/pull/2193)
+Vendor in an internal version of OpenJPH
+* [2167](https://github.com/AcademySoftwareFoundation/openexr/pull/2167)
+Bazel build: Bump openjph to 0.25.0 and libdeflate to 1.25
+
+## Version 3.4.5 (February 21, 2026)
+
+Patch release that fixes an incorrect size check in
+`istream_nonparallel_read` that could lead to a buffer overflow on
+invalid input data.
+
+This release addresses the following CVEs:
+* [CVE-2026-26981](https://www.cve.org/CVERecord?id=CVE-2026-26981)
+Heap-buffer-overflow via signed integer underflow in ImfContextInit.cpp
+
+### Merged Pull Requests:
+
+* [2244](https://github.com/AcademySoftwareFoundation/openexr/pull/2244)
+Fix incorrect size check in `istream_nonparallel_read`
+
+## Version 3.4.4 (November 19, 2025)
+
+Patch release with an optimization to reduce the size of the library.
+
+B44 and DWA compression tables are now initialized at first use rather
+than being hard-coded in the source code and compiled binary. This
+reduces the library size at a slight performance cost. Initialization
+takes under a millisecond, but the size of libOpenEXRCore.so is
+reduced from 890K to 360K. 
+
+This also fixes a build issue with `ILMTHREAD_THREADING_ENABLED` which
+inadvertently enabled threading when it should have been disabed.
+
+This also fixes a bug where importing the python module from a parent
+directory would fail.
+
+### Merged Pull Requests:
+
+* [2199](https://github.com/AcademySoftwareFoundation/openexr/pull/2199)
+OpenEXRCore: fix `ILMTHREAD_THREADING_ENABLED` checks
+* [2198](https://github.com/AcademySoftwareFoundation/openexr/pull/2198)
+OpenEXRCore: avoid direct dependency on imath
+* [2196](https://github.com/AcademySoftwareFoundation/openexr/pull/2196)
+Bump github/codeql-action from 4.31.2 to 4.31.3
+* [2194](https://github.com/AcademySoftwareFoundation/openexr/pull/2194)
+Add missing copywrite comments
+* [2192](https://github.com/AcademySoftwareFoundation/openexr/pull/2192)
+Bump pypa/cibuildwheel from 3.2 to 3.3
+* [2190](https://github.com/AcademySoftwareFoundation/openexr/pull/2190)
+Bump github/codeql-action from 3.27.9 to 4.31.2
+* [2189](https://github.com/AcademySoftwareFoundation/openexr/pull/2189)
+Bump msys2/setup-msys2 from 2.27.0 to 2.29.0
+* [2188](https://github.com/AcademySoftwareFoundation/openexr/pull/2188)
+Bump actions/download-artifact from 4.1.8 to 6.0.0
+* [2187](https://github.com/AcademySoftwareFoundation/openexr/pull/2187)
+Bump ossf/scorecard-action from 2.4.0 to 2.4.3
+* [2186](https://github.com/AcademySoftwareFoundation/openexr/pull/2186)
+Bump pypa/cibuildwheel from 2.23 to 3.2
+* [2185](https://github.com/AcademySoftwareFoundation/openexr/pull/2185)
+Bump actions/cache from 4.2.0 to 4.3.0
+* [2184](https://github.com/AcademySoftwareFoundation/openexr/pull/2184)
+Bump actions/upload-artifact from 4 to 5
+* [2183](https://github.com/AcademySoftwareFoundation/openexr/pull/2183)
+Bump actions/checkout from 2.7.0 to 5.0.0
+* [2182](https://github.com/AcademySoftwareFoundation/openexr/pull/2182)
+Add recent CVEs to SECURITY.md
+* [2181](https://github.com/AcademySoftwareFoundation/openexr/pull/2181)
+Bump sigstore/gh-action-sigstore-python from 3.0.0 to 3.1.0
+* [2180](https://github.com/AcademySoftwareFoundation/openexr/pull/2180)
+Bump actions/setup-python from 5.3.0 to 6.0.0
+* [2178](https://github.com/AcademySoftwareFoundation/openexr/pull/2178)
+Bump snyk/actions from 0.4.0 to 1.0.0
+* [2177](https://github.com/AcademySoftwareFoundation/openexr/pull/2177)
+Bump pypa/gh-action-pypi-publish from 1.12.3 to 1.13.0
+* [2176](https://github.com/AcademySoftwareFoundation/openexr/pull/2176)
+Imporve Bazel support
+* [2175](https://github.com/AcademySoftwareFoundation/openexr/pull/2175)
+Converts asserts in internal_ht.cpp to if statement that throws an exception.
+* [2174](https://github.com/AcademySoftwareFoundation/openexr/pull/2174)
+DWA: initialize linear/nonlinear tables at runtime
+* [2173](https://github.com/AcademySoftwareFoundation/openexr/pull/2173)
+Update macos-13 to macos-15-intel
+* [2171](https://github.com/AcademySoftwareFoundation/openexr/pull/2171)
+Properly set `OpenEXR_error` in legacy python API
+* [2126](https://github.com/AcademySoftwareFoundation/openexr/pull/2126)
+B44: initialize exp/log tables at runtime
+
+
+## Version 3.4.3 (November 4, 2025)
+
+Patch release that addresses several bugs, primarily involving
+properly rejecting corrupt input data.
+
+Specifically:
+
+- Buffer overflow in PyOpenEXR_old's `channels()` and `channel()` in
+  legacy python, reported by Joshua Rogers (GitHub: MegaManSec).
+- Use after free in PyObject_StealAttrString in legacy python, reported
+  by Joshua Rogers (GitHub: MegaManSec).
+- Use of Uninitialized Memory in openexr, reported by Aldo Ristori
+  (GitHub: Kaldreic).
+- Heap-based Buffer Overflow Remote Code Execution Vulnerability,
+  reported by Trend Micro Zero Day Initiative.
+
+This release addresses the following CVEs:
+* [CVE-2025-64183](https://www.cve.org/CVERecord?id=CVE-2025-64183)
+Use after free in PyObject_StealAttrString
+* [CVE-2025-64182](https://www.cve.org/CVERecord?id=CVE-2025-64182)
+Buffer overflow in PyOpenEXR_old's channels() and channel()
+* [CVE-2025-64181](https://www.cve.org/CVERecord?id=CVE-2025-64181)
+Security Issue: Use of Uninitialized Memory in openexr
+* [CVE-2025-12840](https://www.cve.org/CVERecord?id=CVE-2025-12840)
+Academy Software Foundation OpenEXR EXR File Parsing Heap-based Buffer Overflow Remote Code Execution Vulnerability
+* [CVE-2025-12839](https://www.cve.org/CVERecord?id=CVE-2025-12839)
+Academy Software Foundation OpenEXR EXR File Parsing Heap-based Buffer Overflow Remote Code Execution Vulnerability
+* [CVE-2025-12495](https://www.cve.org/CVERecord?id=CVE-2025-12495)
+Academy Software Foundation OpenEXR EXR File Parsing Heap-based Buffer Overflow Remote Code Execution Vulnerability
+
+Also:
+
+* OSS-fuzz [456158449](https://issues.oss-fuzz.com/issues/456158449)
+Heap-buffer-overflow in `generic_unpack`
+* OSS-fuzz [447429458](https://issues.oss-fuzz.com/issues/447429458)
+Heap-buffer-overflow in `DwaCompressor_uncompress`
+* OSS-fuzz [439237843](https://issues.oss-fuzz.com/issues/439237843)
+Heap-buffer-overflow in `internal_exr_undo_ht`
+* OSS-fuzz [436037111](https://issues.oss-fuzz.com/issues/436037111)
+Heap-buffer-overflow in `generic_unpack`
+* OSS-fuzz [435779241](https://issues.oss-fuzz.com/issues/435779241)
+Heap-buffer-overflow in `generic_unpack`
+* OSS-fuzz [420744464](https://issues.oss-fuzz.com/issues/420744464)
+Abrt in `__cxxabiv1::failed_throw`
+
+Other fixes:
+* Fix a bug with re-reading a scanline file with a different set of
+  channels.
+* Only populate `CMAKE_DEBUG_POSTFIX` with `_d` if it is undefined,
+  which makes it possible to set `CMAKE_DEBUG_POSTFIX=""`.
+
+This version also bumps the auto-fetched version of OpenJPH to
+0.24.4. OpenJPH 0.24.4 addresses these OSS-Fuzz issues:
+		
+* OSS-fuzz [455374208](https://issues.oss-fuzz.com/issues/455374208)
+Floating-point-exception in `ojph::local::tile::pre_alloc`
+* OSS-fuzz [444963190](https://issues.oss-fuzz.com/issues/444963190)
+Index-out-of-bounds in `ojph::local::param_qcd::read_qcc`
+* OSS-fuzz [444878558](https://issues.oss-fuzz.com/issues/444878558)
+Segv on unknown address in `ojph::local::param_qcd::~param_qcd`
+* OSS-fuzz [444878557](https://issues.oss-fuzz.com/issues/444878557)
+Null-dereference READ in `ojph::local::param_qcd::~param_qcd`
+
+### Merged Pull Requests:
+
+* [2168](https://github.com/AcademySoftwareFoundation/openexr/pull/2168)
+ Fix improper use of `Py_DECREF` in legacy python module
+* [2166](https://github.com/AcademySoftwareFoundation/openexr/pull/2166)
+Only define `CMAKE_DEBUG_POSTFIX` if it is not already defined
+* [2164](https://github.com/AcademySoftwareFoundation/openexr/pull/2164)
+check storage_mode when computing chunk sizes
+* [2163](https://github.com/AcademySoftwareFoundation/openexr/pull/2163)
+Check for image size overflow in legacy python module
+* [2162](https://github.com/AcademySoftwareFoundation/openexr/pull/2162)
+verify packed/unpacked size with uncompressed data
+* [2161](https://github.com/AcademySoftwareFoundation/openexr/pull/2161)
+ImfCheckFile: handle partial deep tiles
+* [2160](https://github.com/AcademySoftwareFoundation/openexr/pull/2160)
+Fix issues with negative coordinates and sampling != 0
+* [2159](https://github.com/AcademySoftwareFoundation/openexr/pull/2159)
+Fix memset in `exr_read_chunk` when nread is negative
+* [2156](https://github.com/AcademySoftwareFoundation/openexr/pull/2156)
+Fix handling of corrupt RLE data
+* [2150](https://github.com/AcademySoftwareFoundation/openexr/pull/2150)
+Fix bug with re-reading scanline file with a different set of channels
+
+
+## Version 3.4.2 (October 15, 2025)
+
+Patch release that fixes a Windows build issue introduced in v3.4.1.
+
+No change in functionality.
+
+### Merged Pull Requests:
+
+* [2146](https://github.com/AcademySoftwareFoundation/openexr/pull/2146)
+Update Bazel dependencies
+* [2144](https://github.com/AcademySoftwareFoundation/openexr/pull/2144)
+handle CMake CREATE_LINK failures for openjph headers
+
 ## Version 3.4.1 (October 8, 2025)
 
 Patch release that fixes a build issue: OpenJPH headers are now
@@ -96,19 +711,19 @@ Update `HELP2MAN_URL` in `install_help2man.sh`
 * [2139](https://github.com/AcademySoftwareFoundation/openexr/pull/2139)
 Fix doxygen/sphinx/rst website issues
 * [2138](https://github.com/AcademySoftwareFoundation/openexr/pull/2138)
-Bazel cleanup 
+Bazel cleanup
 * [2137](https://github.com/AcademySoftwareFoundation/openexr/pull/2137)
-Bump macos runners to 14 and 15, drop 13 
+Bump macos runners to 14 and 15, drop 13
 * [2136](https://github.com/AcademySoftwareFoundation/openexr/pull/2136)
-Include the openjph headers from the openjph folder, required for OpenJPH 0.23+ 
+Include the openjph headers from the openjph folder, required for OpenJPH 0.23+
 * [2127](https://github.com/AcademySoftwareFoundation/openexr/pull/2127)
-cmake: remove trailing spaces 
+cmake: remove trailing spaces
 * [2119](https://github.com/AcademySoftwareFoundation/openexr/pull/2119)
-News for v3.4.0 release 
+News for v3.4.0 release
 * [2118](https://github.com/AcademySoftwareFoundation/openexr/pull/2118)
-fix formatting in release notes 
+fix formatting in release notes
 * [2107](https://github.com/AcademySoftwareFoundation/openexr/pull/2107)
-Add section on OpenEXR/Imath version compatibility to install instructions 
+Add section on OpenEXR/Imath version compatibility to install instructions
 
 ## Version 3.4.0 (September 5, 2025)
 
@@ -320,6 +935,160 @@ Bazel Support: Use Imath and libdeflate live at head
 Fetch master branch of libdeflate on main
 * [1852](https://github.com/AcademySoftwareFoundation/openexr/pull/1852)
 Add an option to use TBB as the global provider
+
+## Version 3.3.11 (April 29, 2026)
+
+Patch release for 3.3 that addresses the following security
+vulnerabilities:
+
+* [CVE-2026-42217](https://www.cve.org/CVERecord?id=CVE-2026-42217)
+Shift exponent overflow in `readVariableLengthInteger()` (`ImfIDManifest.cpp`)
+* [CVE-2026-42216](https://www.cve.org/CVERecord?id=CVE-2026-42216)
+Out-of-bounds read in `IDManifest::init()` during prefix expansion
+* [CVE-2026-41142](https://www.cve.org/CVERecord?id=CVE-2026-41142)
+Integer overflow in `ImageChannel::resize` leads to heap OOB write via OpenEXRUtil public API
+
+Also:
+
+* OSS-fuzz [504280155](https://issues.oss-fuzz.com/issues/504280155)
+Heap-buffer-overflow in `DwaCompressor_uncompress`
+
+### Merged Pull Requests
+
+* [2383](https://github.com/AcademySoftwareFoundation/openexr/pull/2383)
+validate that the uncompressed sizes recorded in the dwa header are valid
+* [2378](https://github.com/AcademySoftwareFoundation/openexr/pull/2378)
+Harden IDManifest parsing against illegal shift and string prefix OOB
+* [2377](https://github.com/AcademySoftwareFoundation/openexr/pull/2377)
+Fix OOB read when expanding IDManifest prefix-compressed strings
+* [2367](https://github.com/AcademySoftwareFoundation/openexr/pull/2367)
+Fix int overflow in ImageChannel::resize pixel count
+
+## Version 3.3.10 (April 17, 2026)
+
+Patch release that addresses the following security vulnerabilities:
+
+* [CVE-2026-40244](https://www.cve.org/CVERecord?id=CVE-2026-40244) Integer overflow in DWA setupChannelData planarUncRle pointer arithmetic (missed variant of CVE-2026-34589)
+* [CVE-2026-40250](https://www.cve.org/CVERecord?id=CVE-2026-40250) Integer overflow in DWA decoder outBufferEnd pointer arithmetic (missed variant of CVE-2026-34589)
+
+### Merged Pull Requests
+
+* [2346](https://github.com/AcademySoftwareFoundation/openexr/pull/2346)
+Fix integer overflow in internal_dwa_compressor.h
+
+## Version 3.3.9 (April  4, 2026)
+
+Patch release for v3.3 that addresses the following security vulnerabilities:
+
+* [CVE-2026-34589](https://www.cve.org/CVERecord?id=CVE-2026-34589) DWA Lossy Decoder Heap Out-of-Bounds Write
+* [CVE-2026-34588](https://www.cve.org/CVERecord?id=CVE-2026-34588) Signed 32-bit Overflow in PIZ Decoder Leads to OOB Read/Write
+* [CVE-2026-34544](https://www.cve.org/CVERecord?id=CVE-2026-34544) integer overflow to OOB write in uncompress_b44_impl()
+* [CVE-2026-34543](https://www.cve.org/CVERecord?id=CVE-2026-34543) Heap information disclosure in PXR24 decompression via unchecked decompressed size (undo_pxr24_impl)
+* [CVE-2026-34380](https://www.cve.org/CVERecord?id=CVE-2026-34380) Signed integer overflow (undefined behavior) in undo_pxr24_impl may allow bounds-check bypass in PXR24 decompression
+* [CVE-2026-34379](https://www.cve.org/CVERecord?id=CVE-2026-34379) Misaligned write in LossyDctDecoder_execute leading to undefined behavior (DWA/DWAB decompression)
+* [CVE-2026-34378](https://www.cve.org/CVERecord?id=CVE-2026-34378) Signed integer overflow in generic_unpack() when parsing EXR files with crafted negative dataWindow.min.x
+
+### Merged Pull Requests
+
+* [2329](https://github.com/AcademySoftwareFoundation/openexr/pull/2329)
+Fix signed integer overflow in `LossyDctDecoder_execute()` pointer arithmatic
+* [2328](https://github.com/AcademySoftwareFoundation/openexr/pull/2328)
+fix integer overflow in PIZ wavelet buffer arithmetic
+* [2324](https://github.com/AcademySoftwareFoundation/openexr/pull/2324)
+Fix misaligned memory access in `LossyDctDecoder_execute` HALF→FLOAT expansion
+* [2323](https://github.com/AcademySoftwareFoundation/openexr/pull/2323)
+fix signed integer overflow in `undo_pxr24_impl()`
+* [2321](https://github.com/AcademySoftwareFoundation/openexr/pull/2321)
+Fix integer overflow in `srcbuffer` pointer arithmetic in `unpack_*`
+* [2312](https://github.com/AcademySoftwareFoundation/openexr/pull/2312)
+Fix B44/B44A integer overflow: use uint64_t for row offset
+* [2310](https://github.com/AcademySoftwareFoundation/openexr/pull/2310)
+PXR24: reject zlib output that does not match packed payload size
+
+## Version 3.3.8 (March 1, 2026)
+
+Patch release that prevents an integer overflow when using the
+`CompositeDeepScanLine` API to combine multiple deep parts.
+
+This release addresses the following CVEs:
+* [CVE-2026-27622](https://www.cve.org/CVERecord?id=CVE-2026-27622)
+CompositeDeepScanLine integer-overflow leads to heap OOB write
+
+### Merged Pull Requests:
+
+* [2256](https://github.com/AcademySoftwareFoundation/openexr/pull/2256)
+Report an error if a deep pixel as more than UINT_MAX samples
+
+## Version 3.3.7 (February 19, 2026)
+
+Patch release that fixes an incorrect size check in
+`istream_nonparallel_read` that could lead to a buffer overflow on
+invalid input data.
+
+This release addresses the following CVEs:
+* [CVE-2026-26981](https://www.cve.org/CVERecord?id=CVE-2026-26981)
+Heap-buffer-overflow via signed integer underflow in ImfContextInit.cpp
+
+
+### Merged Pull Requests:
+
+* [2244](https://github.com/AcademySoftwareFoundation/openexr/pull/2244)
+Fix incorrect size check in `istream_nonparallel_read`
+
+## Version 3.3.6 (November 4, 2025)
+
+Patch release that addresses several bugs, primarily involving
+properly rejecting corrupt input data.
+
+Specifically:
+
+* Buffer overflow in PyOpenEXR_old's `channels()` and `channel()` in
+  legacy python, reported by Joshua Rogers (GitHub: MegaManSec).
+* Use after free in PyObject_StealAttrString in legacy python, reported
+  by Joshua Rogers (GitHub: MegaManSec).
+* Use of Uninitialized Memory in openexr, reported by Aldo Ristori
+  (GitHub: Kaldreic).
+* Heap-based Buffer Overflow Remote Code Execution Vulnerability,
+  reported by Trend Micro Zero Day Initiative.
+
+Other fixes:
+* Only populate `CMAKE_DEBUG_POSTFIX` with `_d` if it is undefined,
+  which makes it possible to set `CMAKE_DEBUG_POSTFIX=""`.
+
+This release addresses the following CVEs:
+* [CVE-2025-64183](https://www.cve.org/CVERecord?id=CVE-2025-64183)
+Use after free in PyObject_StealAttrString
+* [CVE-2025-64182](https://www.cve.org/CVERecord?id=CVE-2025-64182)
+Buffer overflow in PyOpenEXR_old's channels() and channel()
+* [CVE-2025-64181](https://www.cve.org/CVERecord?id=CVE-2025-64181)
+Security Issue: Use of Uninitialized Memory in openexr
+* [CVE-2025-12840](https://www.cve.org/CVERecord?id=CVE-2025-12840)
+Academy Software Foundation OpenEXR EXR File Parsing Heap-based Buffer Overflow Remote Code Execution Vulnerability
+* [CVE-2025-12839](https://www.cve.org/CVERecord?id=CVE-2025-12839)
+Academy Software Foundation OpenEXR EXR File Parsing Heap-based Buffer Overflow Remote Code Execution Vulnerability
+* [CVE-2025-12495](https://www.cve.org/CVERecord?id=CVE-2025-12495)
+Academy Software Foundation OpenEXR EXR File Parsing Heap-based Buffer Overflow Remote Code Execution Vulnerability
+
+### Merged Pull Requests:
+
+* [2168](https://github.com/AcademySoftwareFoundation/openexr/pull/2168)
+Fix improper use of `Py_DECREF` in legacy python module
+* [2166](https://github.com/AcademySoftwareFoundation/openexr/pull/2166)
+Only define CMAKE_DEBUG_POSTFIX if it is not already defined
+* [2164](https://github.com/AcademySoftwareFoundation/openexr/pull/2164)
+check storage_mode when computing chunk sizes
+* [2163](https://github.com/AcademySoftwareFoundation/openexr/pull/2163)
+Check for image size overflow in legacy python module
+* [2162](https://github.com/AcademySoftwareFoundation/openexr/pull/2162)
+verify packed/unpacked size with uncompressed data
+* [2161](https://github.com/AcademySoftwareFoundation/openexr/pull/2161)
+ImfCheckFile: handle partial deep tiles
+* [2160](https://github.com/AcademySoftwareFoundation/openexr/pull/2160)
+Fix issues with negative coordinates and sampling != 0
+* [2159](https://github.com/AcademySoftwareFoundation/openexr/pull/2159)
+Fix memset in exr_read_chunk when nread is negative
+* [2156](https://github.com/AcademySoftwareFoundation/openexr/pull/2156)
+Fix handling of corrupt RLE data
 
 ## Version 3.3.5 (July 26, 2025)
 
@@ -891,6 +1660,107 @@ Fix macOS arm64 build
 * [1423](https://github.com/AcademySoftwareFoundation/openexr/pull/1423)
 Propagate dwa core 3 1
 * [1418](https://github.com/AcademySoftwareFoundation/openexr/pull/1418)
+
+## Version 3.2.9 (April 29, 2026)
+
+Patch release for 3.2 that addresses the following security
+vulnerabilities:
+
+* [CVE-2026-42217](https://www.cve.org/CVERecord?id=CVE-2026-42217)
+Shift exponent overflow in `readVariableLengthInteger()` (`ImfIDManifest.cpp`)
+* [CVE-2026-42216](https://www.cve.org/CVERecord?id=CVE-2026-42216)
+Out-of-bounds read in `IDManifest::init()` during prefix expansion
+* [CVE-2026-41142](https://www.cve.org/CVERecord?id=CVE-2026-41142)
+Integer overflow in `ImageChannel::resize` leads to heap OOB write via OpenEXRUtil public API
+
+Also:
+
+* OSS-fuzz [504280155](https://issues.oss-fuzz.com/issues/504280155)
+Heap-buffer-overflow in `DwaCompressor_uncompress`
+
+### Merged Pull Requests
+
+* [2383](https://github.com/AcademySoftwareFoundation/openexr/pull/2383)
+validate that the uncompressed sizes recorded in the dwa header are valid
+* [2378](https://github.com/AcademySoftwareFoundation/openexr/pull/2378)
+Harden IDManifest parsing against illegal shift and string prefix OOB
+* [2377](https://github.com/AcademySoftwareFoundation/openexr/pull/2377)
+Fix OOB read when expanding IDManifest prefix-compressed strings
+* [2367](https://github.com/AcademySoftwareFoundation/openexr/pull/2367)
+Fix int overflow in ImageChannel::resize pixel count
+
+## Version 3.2.8 (April 17, 2026)
+
+Patch release that addresses the following security vulnerabilities:
+
+* [CVE-2026-40244](https://www.cve.org/CVERecord?id=CVE-2026-40244) Integer overflow in DWA setupChannelData planarUncRle pointer arithmetic (missed variant of CVE-2026-34589)
+* [CVE-2026-40250](https://www.cve.org/CVERecord?id=CVE-2026-40250) Integer overflow in DWA decoder outBufferEnd pointer arithmetic (missed variant of CVE-2026-34589)
+
+### Merged Pull Requests
+
+* [2346](https://github.com/AcademySoftwareFoundation/openexr/pull/2346)
+Fix integer overflow in internal_dwa_compressor.h
+
+## Version 3.2.7 (April 3, 2026)
+
+Patch release for v3.2 that addresses the following security vulnerabilities:
+
+* [CVE-2026-34589](https://www.cve.org/CVERecord?id=CVE-2026-34589) DWA Lossy Decoder Heap Out-of-Bounds Write
+* [CVE-2026-34588](https://www.cve.org/CVERecord?id=CVE-2026-34588) Signed 32-bit Overflow in PIZ Decoder Leads to OOB Read/Write
+* [CVE-2026-34544](https://www.cve.org/CVERecord?id=CVE-2026-34544) integer overflow to OOB write in uncompress_b44_impl()
+* [CVE-2026-34543](https://www.cve.org/CVERecord?id=CVE-2026-34543) Heap information disclosure in PXR24 decompression via unchecked decompressed size (undo_pxr24_impl)
+* [CVE-2026-34380](https://www.cve.org/CVERecord?id=CVE-2026-34380) Signed integer overflow (undefined behavior) in undo_pxr24_impl may allow bounds-check bypass in PXR24 decompression
+* [CVE-2026-34379](https://www.cve.org/CVERecord?id=CVE-2026-34379) Misaligned write in LossyDctDecoder_execute leading to undefined behavior (DWA/DWAB decompression)
+
+### Merged Pull Requests
+
+* [2329](https://github.com/AcademySoftwareFoundation/openexr/pull/2329)
+Fix signed integer overflow in `LossyDctDecoder_execute()` pointer arithmatic
+* [2328](https://github.com/AcademySoftwareFoundation/openexr/pull/2328)
+fix integer overflow in PIZ wavelet buffer arithmetic
+* [2324](https://github.com/AcademySoftwareFoundation/openexr/pull/2324)
+Fix misaligned memory access in `LossyDctDecoder_execute` HALF→FLOAT expansion
+* [2323](https://github.com/AcademySoftwareFoundation/openexr/pull/2323)
+fix signed integer overflow in `undo_pxr24_impl()`
+* [2312](https://github.com/AcademySoftwareFoundation/openexr/pull/2312)
+Fix B44/B44A integer overflow: use uint64_t for row offset
+* [2310](https://github.com/AcademySoftwareFoundation/openexr/pull/2310)
+PXR24: reject zlib output that does not match packed payload size
+
+## Version 3.2.6 (March 1, 2026)
+
+Patch release that prevents an integer overflow when using the
+`CompositeDeepScanLine` API to combine multiple deep parts.
+
+This release addresses the following CVEs:
+* [CVE-2026-27622](https://www.cve.org/CVERecord?id=CVE-2026-27622)
+CompositeDeepScanLine integer-overflow leads to heap OOB write
+
+### Merged Pull Requests:
+
+* [2256](https://github.com/AcademySoftwareFoundation/openexr/pull/2256)
+
+## Version 3.2.5 (November 4, 2025)
+
+Patch release that addresses bugs in the python module's legacy API.
+
+- Buffer overflow in PyOpenEXR_old's `channels()` and `channel()` in
+  legacy python, reported by Joshua Rogers (GitHub: MegaManSec).
+- Use after free in PyObject_StealAttrString in legacy python, reported
+  by Joshua Rogers (GitHub: MegaManSec).
+
+This release addresses the following CVEs:
+* [CVE-2025-64182](https://www.cve.org/CVERecord?id=CVE-2025-64182)
+Buffer overflow in PyOpenEXR_old's channels() and channel()
+* [CVE-2025-64183](https://www.cve.org/CVERecord?id=CVE-2025-64183)
+Use after free in PyObject_StealAttrString
+
+### Merged Pull Requests:
+
+* [2168](https://github.com/AcademySoftwareFoundation/openexr/pull/2168)
+ Fix improper use of `Py_DECREF` in legacy python module
+* [2163](https://github.com/AcademySoftwareFoundation/openexr/pull/2163)
+Check for image size overflow in legacy python module
 
 ## Version 3.2.4 (March 26, 2024)
 
