@@ -13,6 +13,7 @@ import atexit
 import unittest
 import numpy as np
 import fractions
+from io import BytesIO
 
 import OpenEXR
 
@@ -218,6 +219,34 @@ class TestUnittest(unittest.TestCase):
 
             with OpenEXR.File(outfilename) as outfile:
                 compare_files(outfile, infile)
+
+    def test_read_exr_from_bytesio_matches_disk(self):
+        #
+        # Read path: same bytes as on disk, opened via BytesIO, must match
+        # OpenEXR.File(path). Fails until File() accepts a binary buffer / stream.
+        #
+        infilename = f"{test_dir}/test.exr"
+        with open(infilename, "rb") as f:
+            raw = f.read()
+        buf = BytesIO(raw)
+
+        with OpenEXR.File(infilename) as from_disk:
+            with OpenEXR.File(buf) as from_buffer:
+                compare_files(from_buffer, from_disk)
+
+    def test_read_write_exr_bytesio_roundtrip(self):
+        #
+        # Full in-memory round trip (mirrors test_read_write): read from disk,
+        # write EXR bytes into a BytesIO, read back from the buffer.
+        # Fails until File.write() accepts a binary writable.
+        #
+        infilename = f"{test_dir}/test.exr"
+        with OpenEXR.File(infilename) as infile:
+            buf = BytesIO()
+            infile.write(buf)
+            buf.seek(0)
+            with OpenEXR.File(buf) as reread:
+                compare_files(reread, infile)
 
     def test_keycode(self):
 
