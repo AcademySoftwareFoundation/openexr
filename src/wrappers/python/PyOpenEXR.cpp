@@ -185,29 +185,45 @@ PyFile::PyFile(const std::string& filename, bool separate_channels, bool header_
         {
             for (auto c = header.channels().begin(); c != header.channels().end(); c++)
             {
-                std::string py_channel_name;
-                char channel_name;
-                if (P.channelNameToRGBA(header.channels(), c.name(), py_channel_name, channel_name) > 0)
-                    rgbaChannels.insert(c.name());
+                for (auto c = header.channels().begin(); c != header.channels().end(); c++)
+                {
+                    std::string py_channel_name;
+                    char channel_name;
+                    if (P.channelNameToRGBA(header.channels(), c.name(), py_channel_name, channel_name) > 0)
+                        rgbaChannels.insert(c.name());
+                }
+            }
+        
+            std::vector<size_t> shape ({height, width});
+
+            //
+            // Read the channel data, different for image vs. deep
+            //
+        
+            auto type = header.type();
+            try
+            {
+                if (type == SCANLINEIMAGE || type == TILEDIMAGE)
+                {
+                    P.readPixels(*_inputFile, header.channels(), shape, rgbaChannels, dw, separate_channels);
+                }
+                else if (type == DEEPSCANLINE || type == DEEPTILE)
+                {
+                    P.readDeepPixels(*_inputFile, type, header.channels(), shape, rgbaChannels, dw, separate_channels);
+                }
+                parts.append(py::cast<PyPart>(PyPart(P)));
+            }
+            catch (const std::exception& e)
+            {
+                // Log the error and skip appending this part
+                py::print("Warning: Exception raised reading pixel data for part", part_index, "-", e.what());
             }
         }
-        
-        std::vector<size_t> shape ({height, width});
-
-        //
-        // Read the channel data, different for image vs. deep
-        //
-        
-        auto type = header.type();
-        if (type == SCANLINEIMAGE || type == TILEDIMAGE)
+        else
         {
-            P.readPixels(infile, header.channels(), shape, rgbaChannels, dw, separate_channels);
+            // If only reading the header, always append this part
+            parts.append(py::cast<PyPart>(PyPart(P)));
         }
-        else if (type == DEEPSCANLINE || type == DEEPTILE)
-        {
-            P.readDeepPixels(infile, type, header.channels(), shape, rgbaChannels, dw, separate_channels);
-        }
-        parts.append(py::cast<PyPart>(PyPart(P)));
     } // for parts
 }
 
