@@ -58,29 +58,25 @@ namespace ojph {
   ////////////////////////////////////////////////////////////////////////////
   void param_siz::set_image_extent(point dims)
   {
-    state->Xsiz = dims.x;
-    state->Ysiz = dims.y;
+    state->set_image_extent(dims);
   }
 
   ////////////////////////////////////////////////////////////////////////////
   void param_siz::set_tile_size(size s)
   {
-    state->XTsiz = s.w;
-    state->YTsiz = s.h;
+    state->set_tile_size(s);
   }
 
   ////////////////////////////////////////////////////////////////////////////
   void param_siz::set_image_offset(point offset)
-  { // WARNING need to check if these are valid
-    state->XOsiz = offset.x;
-    state->YOsiz = offset.y;
+  {
+    state->set_image_offset(offset);
   }
 
   ////////////////////////////////////////////////////////////////////////////
   void param_siz::set_tile_offset(point offset)
-  { // WARNING need to check if these are valid
-    state->XTOsiz = offset.x;
-    state->YTOsiz = offset.y;
+  {
+    state->set_tile_offset(offset);
   }
 
   ////////////////////////////////////////////////////////////////////////////
@@ -703,24 +699,24 @@ namespace ojph {
       if (file->read(&Ysiz, 4) != 4)
         OJPH_ERROR(0x00050046, "error reading SIZ marker");
       Ysiz = swap_byte(Ysiz);
-      if (file->read(&XOsiz, 4) != 4)
+      ui32 t_XOsiz, t_YOsiz;
+      if (file->read(&t_XOsiz, 4) != 4)
         OJPH_ERROR(0x00050047, "error reading SIZ marker");
-      XOsiz = swap_byte(XOsiz);
-      if (file->read(&YOsiz, 4) != 4)
+      if (file->read(&t_YOsiz, 4) != 4)
         OJPH_ERROR(0x00050048, "error reading SIZ marker");
-      YOsiz = swap_byte(YOsiz);
-      if (file->read(&XTsiz, 4) != 4)
+      set_image_offset(point(swap_byte(t_XOsiz), swap_byte(t_YOsiz)));
+      ui32 t_XTsiz, t_YTsiz;
+      if (file->read(&t_XTsiz, 4) != 4)
         OJPH_ERROR(0x00050049, "error reading SIZ marker");
-      XTsiz = swap_byte(XTsiz);
-      if (file->read(&YTsiz, 4) != 4)
+      if (file->read(&t_YTsiz, 4) != 4)
         OJPH_ERROR(0x0005004A, "error reading SIZ marker");
-      YTsiz = swap_byte(YTsiz);
-      if (file->read(&XTOsiz, 4) != 4)
+      set_tile_size(size(swap_byte(t_XTsiz), swap_byte(t_YTsiz)));
+      ui32 t_XTOsiz, t_YTOsiz;
+      if (file->read(&t_XTOsiz, 4) != 4)
         OJPH_ERROR(0x0005004B, "error reading SIZ marker");
-      XTOsiz = swap_byte(XTOsiz);
-      if (file->read(&YTOsiz, 4) != 4)
+      if (file->read(&t_YTOsiz, 4) != 4)
         OJPH_ERROR(0x0005004C, "error reading SIZ marker");
-      YTOsiz = swap_byte(YTOsiz);
+      set_tile_offset(point(swap_byte(t_XTOsiz), swap_byte(t_YTOsiz)));
       if (file->read(&Csiz, 2) != 2)
         OJPH_ERROR(0x0005004D, "error reading SIZ marker");
       Csiz = swap_byte(Csiz);
@@ -745,6 +741,8 @@ namespace ojph {
 
       ws_kern_support_needed = (Rsiz & 0x20) != 0;
       dfs_support_needed = (Rsiz & 0x80) != 0;
+
+      check_validity();
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -994,10 +992,21 @@ namespace ojph {
         OJPH_ERROR(0x0005007E, "unsupported settings in a COD-SPcod parameter");
 
       ui8 num_decompositions =  get_num_decompositions();
-      if (Scod & 1)
-        for (int i = 0; i <= num_decompositions; ++i)
+      if (Scod & 1) {
+        for (int i = 0; i <= num_decompositions; ++i) {
           if (file->read(&SPcod.precinct_size[i], 1) != 1)
             OJPH_ERROR(0x0005007B, "error reading COD segment");
+          if (i)
+            if ((SPcod.precinct_size[i] & 0x0F) == 0 ||
+              (SPcod.precinct_size[i] >> 4) == 0)
+              OJPH_ERROR(0x0005007F,
+                "Precinct width or height for resolutions other than the"
+                " coarsest must be larger than 1; here, they are %d and %d,"
+                " respectively.",
+                1 << (SPcod.precinct_size[i] & 0x0F),
+                1 << (SPcod.precinct_size[i] >> 4));
+        }
+      }
       if (Lcod != 12 + ((Scod & 1) ? 1 + SPcod.num_decomp : 0))
         OJPH_ERROR(0x0005007C, "error in COD segment length");
     }
@@ -1053,10 +1062,21 @@ namespace ojph {
         OJPH_ERROR(0x0005012D, "unsupported settings in a COC-SPcoc parameter");
 
       ui8 num_decompositions =  get_num_decompositions();
-      if (Scod & 1)
-        for (int i = 0; i <= num_decompositions; ++i)
+      if (Scod & 1) {
+        for (int i = 0; i <= num_decompositions; ++i) {
           if (file->read(&SPcod.precinct_size[i], 1) != 1)
             OJPH_ERROR(0x0005012A, "error reading COC segment");
+          if (i)
+            if ((SPcod.precinct_size[i] & 0x0F) == 0 ||
+              (SPcod.precinct_size[i] >> 4) == 0)
+              OJPH_ERROR(0x0005012E,
+                "Precinct width or height for resolutions other than the"
+                " coarsest must be larger than 1; here, they are %d and %d,"
+                " respectively.",
+                1 << (SPcod.precinct_size[i] & 0x0F),
+                1 << (SPcod.precinct_size[i] >> 4));
+        }
+      }
       ui32 t = 9;
       t += num_comps < 257 ? 0 : 1;
       t += (Scod & 1) ? 1 + num_decompositions : 0;
@@ -1196,8 +1216,10 @@ namespace ojph {
             qcd_component < 3 ? employing_color_transform : false);
         else if (qcd_wavelet_kern == param_cod::DWT_IRV97)
         {
-          if (this->base_delta == -1.0f)
-            this->base_delta = 1.0f / (float)(1 << qcd_bit_depth);
+          if (this->base_delta == -1.0f) {
+            ui32 t = ojph_min(16, qcd_bit_depth);
+            this->base_delta = 1.0f / (float)(1 << t);
+          }
           set_irrev_quant(qcd_num_decompositions);
         }
         else
@@ -1230,8 +1252,16 @@ namespace ojph {
               c < 3 ? employing_color_transform : false);
           else if (cp->get_wavelet_kern() == param_cod::DWT_IRV97)
           {
-            if (qp->base_delta == -1.0f)
-              qp->base_delta = 1.0f / (float)(1 << bit_depth);
+            if (qp->base_delta == -1.0f) {
+              if (qcd_wavelet_kern == param_cod::DWT_IRV97) {
+                assert(this->base_delta != -1.0f);
+                qp->base_delta = this->base_delta;
+              }
+              else {
+                ui32 t = ojph_min(16, qcd_bit_depth);
+                qp->base_delta = 1.0f / (float)(1 << t);
+              }
+            }
             qp->set_irrev_quant(num_decompositions);
           }
           else
@@ -1255,8 +1285,16 @@ namespace ojph {
               c < 3 ? employing_color_transform : false);
           else if (cp->get_wavelet_kern() == param_cod::DWT_IRV97)
           {
-            if (qp->base_delta == -1.0f)
-              qp->base_delta = 1.0f / (float)(1 << bit_depth);
+            if (qp->base_delta == -1.0f) {
+              if (qcd_wavelet_kern == param_cod::DWT_IRV97) {
+                assert(this->base_delta != -1.0f);
+                qp->base_delta = this->base_delta;
+              }
+              else {
+                ui32 t = ojph_min(16, qcd_bit_depth);
+                qp->base_delta = 1.0f / (float)(1 << t);
+              }
+            }
             qp->set_irrev_quant(num_decompositions);
           }
           else
@@ -1401,11 +1439,15 @@ namespace ojph {
 
     //////////////////////////////////////////////////////////////////////////
     float param_qcd::get_irrev_delta(const param_dfs* dfs,
-                                     ui32 num_decompositions,
+                                     ui32 num_decompositions, ui32 comp_num,
                                      ui32 resolution, ui32 subband) const
     {
       float arr[] = { 1.0f, 2.0f, 2.0f, 4.0f };
-      assert((Sqcd & 0x1F) == 2);
+      if ((Sqcd & 0x1F) != 2)
+        OJPH_ERROR(0x00050101, "There is something wrong in the configuration "
+          "of the codestream; for component %d, the codestream defines an "
+          "irreversible transform, for which the codestream provides a "
+          "reversible (no quantization) step sizes in Sqcd/Sqcc.", comp_num);
 
       ui32 idx;
       if (dfs != NULL && dfs->exists())
@@ -1657,6 +1699,9 @@ namespace ojph {
       if ((Sqcd & 0x1F) == 0)
       {
         num_subbands = (Lqcd - 3);
+        if (num_subbands == 0)
+          OJPH_ERROR(0x0005008A, "QCD marker segment that specifies no "
+            "quantization informtion");
         if (num_subbands > 97 || Lqcd != 3 + num_subbands)
           OJPH_ERROR(0x00050083, "wrong Lqcd value of %d in QCD marker", Lqcd);
         for (ui32 i = 0; i < num_subbands; ++i)
@@ -1674,6 +1719,9 @@ namespace ojph {
       else if ((Sqcd & 0x1F) == 2)
       {
         num_subbands = (Lqcd - 3) / 2;
+        if (num_subbands == 0)
+          OJPH_ERROR(0x0005008B, "QCD marker segment that specifies no "
+            "quantization informtion");
         if (num_subbands > 97 || Lqcd != 3 + 2 * num_subbands)
           OJPH_ERROR(0x00050086, "wrong Lqcd value of %d in QCD marker", Lqcd);
         for (ui32 i = 0; i < num_subbands; ++i)
@@ -1712,6 +1760,9 @@ namespace ojph {
       if ((Sqcd & 0x1F) == 0)
       {
         num_subbands = (Lqcd - offset);
+        if (num_subbands == 0)
+          OJPH_ERROR(0x000500AC, "QCC marker segment that specifies no "
+            "quantization informtion");
         if (num_subbands > 97 || Lqcd != offset + num_subbands)
           OJPH_ERROR(0x000500A5, "wrong Lqcd value of %d in QCC marker", Lqcd);
         for (ui32 i = 0; i < num_subbands; ++i)
@@ -1729,6 +1780,9 @@ namespace ojph {
       else if ((Sqcd & 0x1F) == 2)
       {
         num_subbands = (Lqcd - offset) / 2;
+        if (num_subbands == 0)
+          OJPH_ERROR(0x000500AD, "QCC marker segment that specifies no "
+            "quantization informtion");
         if (num_subbands > 97 || Lqcd != offset + 2 * num_subbands)
           OJPH_ERROR(0x000500A8, "wrong Lqcc value of %d in QCC marker", Lqcd);
         for (ui32 i = 0; i < num_subbands; ++i)

@@ -45,6 +45,7 @@
 #include <type_traits>
 
 #include "ojph_arch.h"
+#include "ojph_message.h"
 
 namespace ojph {
 
@@ -91,7 +92,7 @@ namespace ojph {
         allocated_data = allocated_data + (allocated_data + 19) / 20; // 5%
         store = malloc(allocated_data);
         if (store == NULL)
-          throw "malloc failed";
+          OJPH_ERROR(0x00090001, "malloc failed");
       }
       avail_obj = store;
       avail_data = (ui8*)store + size_obj;
@@ -244,11 +245,19 @@ namespace ojph {
   private:
     struct stores_list
     {
+      // Payload (coded_lists + bitstream) must start at a multiple of 16 bytes.
+      // Otherwise coded_lists::buf can be 4 mod 8, which causes misalignment
+      // on 32-bit architectures. So round sizeof(stores_list) to next
+      // multiple of 16.
+      static constexpr ui32 stores_list_size16()
+      {
+        return (ui32) ((sizeof (stores_list) + 15u) & ~15u);
+      }
       stores_list(ui32 available_bytes)
       {
         this->next_store = NULL;
         this->orig_size = this->available = available_bytes;
-        this->orig_data = this->data = (ui8*)this + sizeof(stores_list);
+        this->orig_data = this->data = (ui8*)this + stores_list_size16();
       }
       void restart()
       {
@@ -258,7 +267,7 @@ namespace ojph {
       }
       static ui32 eval_store_bytes(ui32 available_bytes)
       { // calculates how many bytes need to be allocated
-        return available_bytes + (ui32)sizeof(stores_list);
+        return available_bytes + stores_list_size16();
       }
       stores_list *next_store;
       ui8 *orig_data, *data;

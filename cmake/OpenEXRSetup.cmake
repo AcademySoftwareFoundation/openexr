@@ -271,8 +271,8 @@ option(OPENEXR_FORCE_INTERNAL_OPENJPH "Force downloading OpenJPH from a git repo
 if (NOT OPENEXR_FORCE_INTERNAL_OPENJPH)
   find_package(openjph CONFIG QUIET)
   if(openjph_FOUND)
-    if(openjph_VERSION VERSION_LESS "0.21.0")
-        message(FATAL_ERROR "OpenJPH >= 0.21.0 required, but found ${openjph_VERSION}")
+    if(openjph_VERSION VERSION_LESS "0.27.3")
+        message(FATAL_ERROR "OpenJPH >= 0.27.3 required, but found ${openjph_VERSION}")
     endif()
 
     message(STATUS "Using OpenJPH ${openjph_VERSION} from ${openjph_DIR}")
@@ -282,7 +282,7 @@ if (NOT OPENEXR_FORCE_INTERNAL_OPENJPH)
     find_package(PkgConfig)
     if(PKG_CONFIG_FOUND)
       include(FindPkgConfig)
-      pkg_check_modules(openjph IMPORTED_TARGET GLOBAL QUIET openjph=0.21)
+      pkg_check_modules(openjph IMPORTED_TARGET GLOBAL QUIET openjph=0.27.3)
       if(openjph_FOUND)
         set(EXR_OPENJPH_LIB PkgConfig::openjph)
         message(STATUS "Using OpenJPH ${openjph_VERSION} from ${openjph_LINK_LIBRARIES}")
@@ -294,7 +294,7 @@ endif()
 if(EXR_OPENJPH_LIB)
   # Using external library
   # For OpenEXR.pc.in for static build
-  set(EXR_OPENJPH_PKGCONFIG_REQUIRES "openjph >= 0.21.0")
+  set(EXR_OPENJPH_PKGCONFIG_REQUIRES "openjph >= 0.27.3")
 else()
   # Using internal openjph
 

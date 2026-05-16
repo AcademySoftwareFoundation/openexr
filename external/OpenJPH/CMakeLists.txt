@@ -40,6 +40,7 @@ option(OJPH_ENABLE_TIFF_SUPPORT "Enables input and output support for TIFF files
 option(OJPH_BUILD_TESTS "Enables building test code" OFF)
 option(OJPH_BUILD_EXECUTABLES "Enables building command line executables" ON)
 option(OJPH_BUILD_STREAM_EXPAND "Enables building ojph_stream_expand executable" OFF)
+option(OJPH_BUILD_FUZZER "Enables building oss-fuzzing target executable" OFF)
 
 option(OJPH_DISABLE_SIMD "Disables the use of SIMD instructions -- agnostic to architectures" OFF)
 option(OJPH_DISABLE_SSE "Disables the use of SSE SIMD instructions and associated files" OFF)
@@ -230,10 +231,19 @@ install(FILES "${CMAKE_BINARY_DIR}/${PROJECT_NAME}.pc"
 )
 
 ################################################################################################
-# Testing (OJPH_BUILD_TESTS)
+# Testing and fuzzing (OJPH_BUILD_TESTS)
 ################################################################################################
 
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND OJPH_BUILD_TESTS)
   enable_testing()
   add_subdirectory(tests)
 endif()
+
+################################################################################################
+# Testing and fuzzing (OJPH_BUILD_FUZZER)
+################################################################################################
+
+if(OJPH_BUILD_FUZZER)
+  add_subdirectory(fuzzing)
+endif()
+
