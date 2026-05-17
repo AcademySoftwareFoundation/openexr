@@ -1022,7 +1022,6 @@ testBytesHelper (exr_context_t f)
 
     EXRCORE_TEST_RVAL (exr_attr_bytes_init (f, &b, 0, 0));
     EXRCORE_TEST_RVAL (exr_attr_bytes_destroy (f, &b));
-    EXRCORE_TEST_RVAL (exr_attr_bytes_init (f, &b, 0, 0));
     EXRCORE_TEST_RVAL (exr_attr_bytes_create (f, &b, 0, 4, NULL, data4));
     EXRCORE_TEST_RVAL (exr_attr_bytes_copy (f, &b2, &b));
     EXRCORE_TEST_RVAL (exr_attr_bytes_destroy (f, &b2));

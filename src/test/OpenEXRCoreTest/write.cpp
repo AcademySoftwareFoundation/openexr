@@ -88,8 +88,20 @@ testStartWriteScan (const std::string& tempdir)
     EXRCORE_TEST_RVAL (
         exr_add_part (outf, "beauty", EXR_STORAGE_SCANLINE, &partidx));
     EXRCORE_TEST (partidx == 0);
-    EXRCORE_TEST_RVAL (exr_get_count (outf, &partidx));
+    /* dup name check */
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_INVALID_ARGUMENT,
+        exr_add_part (outf, "beauty", EXR_STORAGE_SCANLINE, &partidx));
+    /* this add should work, making 2 parts */
+    EXRCORE_TEST_RVAL (
+        exr_add_part (outf, "other", EXR_STORAGE_SCANLINE, &partidx));
     EXRCORE_TEST (partidx == 1);
+    /* test repeated add failure doesn't leak */
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_INVALID_ARGUMENT,
+        exr_add_part (outf, "beauty", EXR_STORAGE_SCANLINE, &partidx));
+    EXRCORE_TEST_RVAL (exr_get_count (outf, &partidx));
+    EXRCORE_TEST (partidx == 2);
     partidx = 0;
 
     exr_chunk_info_t cinfo;
@@ -105,7 +117,7 @@ testStartWriteScan (const std::string& tempdir)
         exr_get_name (outf, partidx - 1, &partname));
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_ARGUMENT_OUT_OF_RANGE,
-        exr_get_name (outf, partidx + 1, &partname));
+        exr_get_name (outf, partidx + 2, &partname));
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_INVALID_ARGUMENT, exr_get_name (outf, partidx, NULL));
     EXRCORE_TEST_RVAL (exr_get_name (outf, partidx, &partname));
@@ -119,7 +131,7 @@ testStartWriteScan (const std::string& tempdir)
         exr_get_storage (outf, partidx - 1, &storage));
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_ARGUMENT_OUT_OF_RANGE,
-        exr_get_storage (outf, partidx + 1, &storage));
+        exr_get_storage (outf, partidx + 2, &storage));
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_INVALID_ARGUMENT, exr_get_storage (outf, partidx, NULL));
     EXRCORE_TEST_RVAL (exr_get_storage (outf, partidx, &storage));
