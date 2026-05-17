@@ -20,6 +20,7 @@
 #include <list>
 #include <vector>
 
+#include <cmath>
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
@@ -89,6 +90,8 @@ usageMessage (ostream& stream, const char* program_name, bool verbose = false)
                " --csv                        print output in csv mode. If passes>1, show median timing\n"
                "                              default is JSON mode\n"
                " --passes num                 write and re-read file num times (default 1)\n"
+               " --mse                        compute MSE for half-float channels in log space over all finite\n"
+               "                              samples; compares original vs. re-read after compression\n"
                "\n"
                "  -h, --help                  print this message\n"
                "  -v                          output progress messages\n"
@@ -118,6 +121,7 @@ struct options
     bool                     outputSizeData = true;
     bool                     verbose        = false;
     bool                     csv            = false;
+    bool                     computeMSE     = false;
     std::vector<PixelMode>   pixelModes;
     std::vector<OPENEXR_IMF_NAMESPACE::Compression> compressions;
 
@@ -366,6 +370,11 @@ jsonStats (
             out << ",\n";
             out << "      \"output size\": " << run.metrics.outputFileSize;
         }
+        if (!std::isnan (run.metrics.totalStats.mse))
+        {
+            out << ",\n";
+            out << "      \"mse\": " << run.metrics.totalStats.mse;
+        }
         if (timing)
         {
             out << ",\n";
@@ -419,6 +428,7 @@ csvStats (ostream& out, list<runData>& data, bool outputSizeData, int timing)
     }
     out << ",compression,pixel mode";
     if (outputSizeData) { out << ",output size"; }
+    out << ",mse";
     if (timing & options::TIME_READ)
     {
         out << ",count read time";
@@ -455,6 +465,11 @@ csvStats (ostream& out, list<runData>& data, bool outputSizeData, int timing)
         out << ',' << compName << ',' << modeName (run.mode);
 
         if (outputSizeData) { out << ',' << run.metrics.outputFileSize; }
+        if (!std::isnan (run.metrics.totalStats.mse))
+        {
+            out << ',' << run.metrics.totalStats.mse;
+        }
+        else { out << ",---"; }
         if (timing & options::TIME_READ)
         {
             if (run.metrics.totalStats.sizeData.isDeep)
@@ -530,10 +545,13 @@ main (int argc, char** argv)
                             opts.level,
                             opts.passes,
                             opts.outFile || opts.outputSizeData ||
-                                opts.timing & options::TIME_WRITE,
-                            opts.timing & options::TIME_REREAD,
+                                opts.timing & options::TIME_WRITE ||
+                                opts.computeMSE,
+                            opts.timing & options::TIME_REREAD ||
+                                opts.computeMSE,
                             mode,
-                            opts.verbose);
+                            opts.verbose,
+                            opts.computeMSE);
                         data.push_back (d);
                     }
                 }
@@ -868,6 +886,11 @@ options::parse (int argc, char* argv[])
         else if (!strcmp (argv[i], "--no-size"))
         {
             outputSizeData = false;
+            i += 1;
+        }
+        else if (!strcmp (argv[i], "--mse"))
+        {
+            computeMSE = true;
             i += 1;
         }
         else if (!strcmp (argv[i], "-i"))
