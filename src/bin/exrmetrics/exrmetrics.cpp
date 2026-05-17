@@ -1165,6 +1165,8 @@ exrmetrics (
     //
     if (computeMSE && write && reread)
     {
+        bool anyHalfChannel = false;
+
         for (size_t p = 0; p < parts.size (); ++p)
         {
             string type = outHeaders[p].type ();
@@ -1184,6 +1186,7 @@ exrmetrics (
                  ++i, ++channelIndex)
             {
                 if (i.channel ().type != HALF) continue;
+                anyHalfChannel = true;
 
                 uint64_t pixelsInChannel =
                     (width / i.channel ().xSampling) *
@@ -1228,6 +1231,12 @@ exrmetrics (
             metrics.stats[p].mse =
                 count > 0 ? sumSq / count
                           : std::numeric_limits<double>::quiet_NaN ();
+        }
+
+        if (!anyHalfChannel)
+        {
+            cerr << "warning: --mse requires half-float channels, "
+                    "but none found in output image\n";
         }
     }
 
