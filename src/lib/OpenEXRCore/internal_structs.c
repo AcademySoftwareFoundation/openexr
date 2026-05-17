@@ -162,6 +162,10 @@ internal_exr_destroy_part (exr_context_t ctxt, exr_priv_part_t cur)
     atomic_store (&(cur->chunk_table), (uintptr_t) (0));
 #endif
     if (ctable && ((uintptr_t) ctable) != UINTPTR_MAX) dofree (ctable);
+
+    /* we avoid malloc on one part files, but need to check */
+    if (cur != &(ctxt->first_part)) { dofree (cur); }
+    else { memset (cur, 0, sizeof (struct _priv_exr_part_t)); }
 }
 
 /**************************************/
@@ -169,19 +173,11 @@ internal_exr_destroy_part (exr_context_t ctxt, exr_priv_part_t cur)
 static void
 internal_exr_destroy_parts (exr_context_t ctxt)
 {
-    exr_memory_free_func_t dofree = ctxt->free_fn;
     for (int p = 0; p < ctxt->num_parts; ++p)
-    {
-        exr_priv_part_t cur = ctxt->parts[p];
+        internal_exr_destroy_part (ctxt, ctxt->parts[p]);
 
-        internal_exr_destroy_part (ctxt, cur);
-
-        /* the first one is always the one that is part of the file */
-        if (cur != &(ctxt->first_part)) { dofree (cur); }
-        else { memset (cur, 0, sizeof (struct _priv_exr_part_t)); }
-    }
-
-    if (ctxt->num_parts > 1) dofree (ctxt->parts);
+    if (ctxt->parts != &(ctxt->init_part)) ctxt->free_fn (ctxt->parts);
+    ctxt->init_part = NULL;
     ctxt->parts     = NULL;
     ctxt->num_parts = 0;
 }
@@ -200,15 +196,14 @@ internal_exr_add_part (
 
     if (ncount == 1)
     {
-        /* no need to zilch, the parent struct will have already been zero'ed */
+        /* avoid an initial malloc by embedding a part in the struct... */
         part         = &(f->first_part);
+        /* also need a pointer to pointer... */
         f->init_part = part;
         nptrs        = &(f->init_part);
     }
     else
     {
-        struct _priv_exr_part_t nil = {0};
-
         part = f->alloc_fn (sizeof (struct _priv_exr_part_t));
         if (!part) return f->standard_error (f, EXR_ERR_OUT_OF_MEMORY);
 
@@ -218,8 +213,8 @@ internal_exr_add_part (
             f->free_fn (part);
             return f->standard_error (f, EXR_ERR_OUT_OF_MEMORY);
         }
-        *part = nil;
     }
+    memset (part, 0, sizeof (struct _priv_exr_part_t));
 
     /* assign appropriately invalid values */
     part->storage_mode         = EXR_STORAGE_LAST_TYPE;
@@ -234,16 +229,13 @@ internal_exr_add_part (
     part->dwa_compression_level = f->default_dwa_quality;
 
     /* put it into the part table */
-    if (ncount > 1)
+    for (int p = 0; p < f->num_parts; ++p)
     {
-        for (int p = 0; p < f->num_parts; ++p)
-        {
-            nptrs[p] = f->parts[p];
-        }
-        nptrs[ncount - 1] = part;
+        nptrs[p] = f->parts[p];
     }
+    nptrs[f->num_parts] = part;
 
-    if (f->num_parts > 1) { f->free_fn (f->parts); }
+    if (f->parts && f->parts != &(f->init_part)) { f->free_fn (f->parts); }
     f->parts     = nptrs;
     f->num_parts = ncount;
     if (outpart) *outpart = part;
@@ -264,20 +256,8 @@ internal_exr_revert_add_part (
     *new_index = -1;
 
     internal_exr_destroy_part (ctxt, part);
-    if (ncount == 0)
-    {
-        ctxt->num_parts = 0;
-        ctxt->init_part = NULL;
-        ctxt->parts     = NULL;
-    }
-    else if (ncount == 1)
-    {
-        if (part == &(ctxt->first_part)) ctxt->first_part = *(ctxt->parts[1]);
-        ctxt->init_part = &(ctxt->first_part);
-        ctxt->free_fn (ctxt->parts);
-        ctxt->parts = &(ctxt->init_part);
-    }
-    else
+
+    if ( ncount > 0 )
     {
         int np = 0;
         for (int p = 0; p < ctxt->num_parts; ++p)
@@ -286,6 +266,13 @@ internal_exr_revert_add_part (
             ctxt->parts[np] = ctxt->parts[p];
             ++np;
         }
+    }
+    else
+    {
+        if (ctxt->parts && ctxt->parts != &(ctxt->init_part))
+            ctxt->free_fn (ctxt->parts);
+
+        ctxt->parts = NULL;
     }
     ctxt->num_parts = ncount;
 }
