@@ -23,8 +23,12 @@
 #include "ImfTiledMisc.h"
 #include "ImfTiledOutputPart.h"
 
+#include <Imath/half.h>
+
 #include <chrono>
+#include <cmath>
 #include <ctime>
+#include <limits>
 #include <list>
 #include <stdexcept>
 #include <vector>
@@ -32,6 +36,7 @@
 
 using namespace OPENEXR_IMF_NAMESPACE;
 using IMATH_NAMESPACE::Box2i;
+using IMATH_NAMESPACE::half;
 
 using std::cerr;
 using namespace std::chrono;
@@ -968,7 +973,8 @@ exrmetrics (
     bool                               write,
     bool                               reread,
     PixelMode                          pixelMode,
-    bool                               verbose)
+    bool                               verbose,
+    bool                               computeMSE)
 {
 
     if (verbose)
@@ -1022,6 +1028,10 @@ exrmetrics (
                     outHeaders[p].zipCompressionLevel () = level;
                     compressionSet                       = true;
                     break;
+                case HTJ2KL256_COMPRESSION:
+                    outHeaders[p].lossyHTJ2KQuality () = level;
+                    compressionSet                       = true;
+                    break;
                     //            case ZSTD_COMPRESSION :
                     //                outHeader.zstdCompressionLevel()=level;
                     //                break;
@@ -1061,7 +1071,7 @@ exrmetrics (
     if (!isinf (level) && level >= -1 && !compressionSet)
     {
         throw runtime_error (
-            "-l option only works for DWAA/DWAB,ZIP/ZIPS or ZSTD compression");
+            "-l option only works for DWAA/DWAB, HTJ2KL256,ZIP/ZIPS or ZSTD compression");
     }
 
     vector<partData> parts (part == -1 ? in.parts () : 1);
@@ -1151,6 +1161,86 @@ exrmetrics (
     }
 
     //
+    // compute arcsinh-space MSE for half-float channels vs. re-read data
+    //
+    if (computeMSE && write && reread)
+    {
+        bool anyHalfChannel = false;
+
+        for (size_t p = 0; p < parts.size (); ++p)
+        {
+            string type = outHeaders[p].type ();
+            if (type != SCANLINEIMAGE && type != TILEDIMAGE) continue;
+
+            Box2i    dw     = outHeaders[p].dataWindow ();
+            uint64_t width  = dw.max.x + 1 - dw.min.x;
+            uint64_t height = dw.max.y + 1 - dw.min.y;
+
+            double   sumSq = 0.0;
+            uint64_t count = 0;
+            int      channelIndex = 0;
+
+            for (ChannelList::ConstIterator i =
+                     outHeaders[p].channels ().begin ();
+                 i != outHeaders[p].channels ().end ();
+                 ++i, ++channelIndex)
+            {
+                if (i.channel ().type != HALF) continue;
+                anyHalfChannel = true;
+
+                uint64_t pixelsInChannel =
+                    (width / i.channel ().xSampling) *
+                    (height / i.channel ().ySampling);
+
+                const half* orig     = nullptr;
+                const half* rereadPx = nullptr;
+
+                if (type == SCANLINEIMAGE)
+                {
+                    orig = reinterpret_cast<const half*> (
+                        parts[p].readBuf.scanlinePixelData[channelIndex].data ());
+                    rereadPx = reinterpret_cast<const half*> (
+                        parts[p].rereadBuf.scanlinePixelData[channelIndex].data ());
+                }
+                else
+                {
+                    if (parts[p].readBuf.tilePixelData.empty () ||
+                        parts[p].rereadBuf.tilePixelData.empty ())
+                        continue;
+                    orig = reinterpret_cast<const half*> (
+                        parts[p].readBuf.tilePixelData[0][channelIndex].data ());
+                    rereadPx = reinterpret_cast<const half*> (
+                        parts[p].rereadBuf.tilePixelData[0][channelIndex].data ());
+                }
+
+                for (uint64_t px = 0; px < pixelsInChannel; ++px)
+                {
+                    float a = static_cast<float> (orig[px]);
+                    float b = static_cast<float> (rereadPx[px]);
+                    if (std::isfinite (a) && std::isfinite (b))
+                    {
+                        double diff = std::asinh (double (a) / 0.0000001) -
+                                      std::asinh (double (b) / 0.0000001);
+                        sumSq += diff * diff;
+                        ++count;
+                    }
+                }
+            }
+
+            metrics.stats[p].mseCount = count;
+            metrics.stats[p].mse =
+                count > 0 ? sumSq / count
+                          : std::numeric_limits<double>::quiet_NaN ();
+        }
+
+        if (!anyHalfChannel)
+        {
+            cerr << "warning: --mse requires half-float channels, "
+                    "but none found in output image\n";
+        }
+    }
+
+    //
     // sum across all parts
     //
 
@@ -1191,6 +1281,25 @@ exrmetrics (
         {
             metrics.totalStats.sizeData.partType = "";
         }
+    }
+
+    // accumulate MSE as weighted average across parts (by sample count)
+    if (computeMSE && write && reread)
+    {
+        double   totalSum   = 0.0;
+        uint64_t totalCount = 0;
+        for (size_t i = 0; i < metrics.stats.size (); ++i)
+        {
+            if (metrics.stats[i].mseCount > 0)
+            {
+                totalSum += metrics.stats[i].mse * metrics.stats[i].mseCount;
+                totalCount += metrics.stats[i].mseCount;
+            }
+        }
+        metrics.totalStats.mseCount = totalCount;
+        metrics.totalStats.mse =
+            totalCount > 0 ? totalSum / totalCount
+                           : std::numeric_limits<double>::quiet_NaN ();
     }
 
     if (verbose) { cerr << endl; }

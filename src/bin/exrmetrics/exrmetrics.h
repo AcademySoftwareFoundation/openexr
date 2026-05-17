@@ -15,6 +15,7 @@
 
 #include "ImfCompression.h"
 
+#include <limits>
 #include <stdint.h>
 
 #include <vector>
@@ -56,6 +57,12 @@ struct partStats
     std::vector<double>
         rereadPerf; // for deep, times reading the sample count, otherwise times reading the entire data
 
+    // arcsinh-space MSE for half-float channels (original vs. re-read after compression)
+    // mean((asinh(a/1e-7) - asinh(b/1e-7))^2) over all finite half samples
+    // NaN if not computed
+    double   mse      = std::numeric_limits<double>::quiet_NaN ();
+    uint64_t mseCount = 0;
+
     partSizeData sizeData;
 };
 
@@ -77,6 +84,7 @@ fileMetrics exrmetrics (
     bool                               write,
     bool                               reread,
     PixelMode                          pixelMode,
-    bool                               verbose);
+    bool                               verbose,
+    bool                               computeMSE = false);
 
 #endif

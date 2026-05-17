@@ -234,6 +234,32 @@ EXR_EXPORT exr_result_t exr_get_dwa_compression_level (
 EXR_EXPORT exr_result_t
 exr_set_dwa_compression_level (exr_context_t ctxt, int part_index, float level);
 
+/** @brief Retrieve the HTJ2K compression quality used for the specified part.
+ *
+ * This only applies when the compression method is HTJ2KL256.
+ *
+ * The value is used as the irreversible quantization delta.
+ *
+ * This value is NOT persisted in the file, and only exists for the
+ * lifetime of the context, so will be at the default value when just
+ * reading a file.
+ */
+EXR_EXPORT exr_result_t exr_get_lossy_htj2k_quality (
+    exr_const_context_t ctxt, int part_index, float* level);
+
+/** @brief Set the HTJ2K compression quality for the specified part.
+ *
+ * This only applies when the compression method is HTJ2KL256.
+ *
+ * The value is used as the irreversible quantization delta.
+ *
+ * This value is NOT persisted in the file, and only exists for the
+ * lifetime of the context, so this value will be ignored when
+ * reading a file.
+ */
+EXR_EXPORT exr_result_t
+exr_set_lossy_htj2k_quality (exr_context_t ctxt, int part_index, float level);
+
 /**************************************/
 
 /** @defgroup PartMetadata Functions to get and set metadata for a particular part.

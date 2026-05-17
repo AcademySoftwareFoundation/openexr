@@ -134,23 +134,6 @@ if (DEFINED EXR_OPENJPH_LIB)
     target_link_libraries(OpenEXRCore PUBLIC ${EXR_OPENJPH_LIB})
   endif()
 
-  if (openjph_VERSION AND openjph_VERSION VERSION_LESS "0.23")
-    # OpenJPH 0.22 and before incorrectly appends "openjph" to INTERFACE_INCLUDE_DIRECTORIES
-    # so OpenEXR's "#include <openjph/ojph_arch.h>" does not work.
-    # Strip the "openjph" from the setting in this case. This allows the
-    # #include statements in OpenEXRCore/internal_ht.cpp  to work properly for all openjph versions.
-    get_target_property(OPENJPH_INCLUDE_DIR openjph INTERFACE_INCLUDE_DIRECTORIES)
-    if (NOT OPENJPH_INCLUDE_DIR)
-      message(FATAL_ERROR "failed to set openjph header directory, version ${openjph_VERSION}")
-    endif()
-    string(REGEX REPLACE "/openjph/?$" "" OPENJPH_PARENT_INCLUDE_DIR "${OPENJPH_INCLUDE_DIR}")
-    set_target_properties(openjph PROPERTIES
-        INTERFACE_INCLUDE_DIRECTORIES "${OPENJPH_PARENT_INCLUDE_DIR}"
-    )
-    unset(OPENJPH_INCLUDE_DIR)
-    unset(OPENJPH_PARENT_INCLUDE_DIR)
-  endif()
-
 else()
 
   # Vendored OpenJPH

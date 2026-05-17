@@ -271,8 +271,8 @@ option(OPENEXR_FORCE_INTERNAL_OPENJPH "Force downloading OpenJPH from a git repo
 if (NOT OPENEXR_FORCE_INTERNAL_OPENJPH)
   find_package(openjph CONFIG QUIET)
   if(openjph_FOUND)
-    if(openjph_VERSION VERSION_LESS "0.21.0")
-        message(FATAL_ERROR "OpenJPH >= 0.21.0 required, but found ${openjph_VERSION}")
+    if(openjph_VERSION VERSION_LESS "0.27.3")
+        message(FATAL_ERROR "OpenJPH >= 0.27.3 required, but found ${openjph_VERSION}")
     endif()
 
     message(STATUS "Using OpenJPH ${openjph_VERSION} from ${openjph_DIR}")
@@ -282,7 +282,7 @@ if (NOT OPENEXR_FORCE_INTERNAL_OPENJPH)
     find_package(PkgConfig)
     if(PKG_CONFIG_FOUND)
       include(FindPkgConfig)
-      pkg_check_modules(openjph IMPORTED_TARGET GLOBAL QUIET openjph=0.21)
+      pkg_check_modules(openjph IMPORTED_TARGET GLOBAL QUIET openjph=0.27.3)
       if(openjph_FOUND)
         set(EXR_OPENJPH_LIB PkgConfig::openjph)
         message(STATUS "Using OpenJPH ${openjph_VERSION} from ${openjph_LINK_LIBRARIES}")
@@ -294,7 +294,7 @@ endif()
 if(EXR_OPENJPH_LIB)
   # Using external library
   # For OpenEXR.pc.in for static build
-  set(EXR_OPENJPH_PKGCONFIG_REQUIRES "openjph >= 0.21.0")
+  set(EXR_OPENJPH_PKGCONFIG_REQUIRES "openjph >= 0.27.3")
 else()
   # Using internal openjph
 
@@ -432,18 +432,11 @@ if(TARGET Imath AND TARGET ImathConfig)
                      "${_openexr_imath_cfg_compat}/Imath/ImathConfig.h" COPYONLY)
     endif()
 
-    # Add the build interface include directory, but only do it once;
-    # if the cache key exists, it's already been added by a previous
-    # configuration run.
-    set(_openexr_imath_inc_patch_key "${Imath_SOURCE_DIR}|${Imath_BINARY_DIR}")
-    if(NOT OPENEXR_IMATH_SUBDIR_INCLUDE_PATCH STREQUAL _openexr_imath_inc_patch_key)
-      target_include_directories(Imath INTERFACE
-        "$<BUILD_INTERFACE:${Imath_SOURCE_DIR}/src>")
-      if(EXISTS "${_openexr_imath_gen_cfg}")
-        target_include_directories(ImathConfig INTERFACE
-          "$<BUILD_INTERFACE:${_openexr_imath_cfg_compat}>")
-      endif()
-      set(OPENEXR_IMATH_SUBDIR_INCLUDE_PATCH "${_openexr_imath_inc_patch_key}" CACHE INTERNAL "")
+    target_include_directories(Imath INTERFACE
+      "$<BUILD_INTERFACE:${Imath_SOURCE_DIR}/src>")
+    if(EXISTS "${_openexr_imath_gen_cfg}")
+      target_include_directories(ImathConfig INTERFACE
+        "$<BUILD_INTERFACE:${_openexr_imath_cfg_compat}>")
     endif()
   endif()
 endif()
