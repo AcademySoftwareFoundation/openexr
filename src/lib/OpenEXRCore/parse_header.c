@@ -748,7 +748,7 @@ extract_attr_tiledesc (
 }
 
 /**************************************/
-#include <assert.h>
+
 static exr_result_t
 extract_attr_bytes(
     exr_context_t ctxt,
