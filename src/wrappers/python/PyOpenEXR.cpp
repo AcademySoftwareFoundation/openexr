@@ -214,8 +214,8 @@ PythonBinaryIStream::read(char c[], int n)
             std::to_string(n) + " bytes");
     }
 
-    if (n > 0 && buf != nullptr)
-        std::memcpy(c, buf, static_cast<size_t>(n));
+    if (len > 0 && buf != nullptr)
+        std::memcpy(c, buf, static_cast<size_t>(len));
 
     if (_streamSize < 0)
         return true;
