@@ -81,6 +81,11 @@ Options:
 
    Don't output size data.
 
+.. describe:: --part-disk-size
+
+   Output the on-disk size of the data portion of each part in a multipart EXR file (including chunk headers). 
+   Useful for determining compression impact on part data. When using this option, omit ``-o``.
+
 .. describe:: --json
 
    Print output as JSON dictionary (default).

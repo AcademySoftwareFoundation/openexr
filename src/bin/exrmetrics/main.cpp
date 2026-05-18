@@ -85,7 +85,8 @@ usageMessage (ostream& stream, const char* program_name, bool verbose = false)
                " --time list                  comma separated list of operations to report timing for.\n"
                "                              operations can be any of read,write,reread (use --time none for no timing)\n"
                " --no-size                    don't output size data\n"
-               " --part-disk-size             output disk-size of each part (do not specify output file)\n"
+               " --part-disk-size             Output the on-disk size of the data portion of each part in a multipart EXR file\n"
+               "                              (including chunk headers). When using this option, omit -o\n"
                " --json                       print output as JSON dictionary (Default mode)\n"
                " --csv                        print output in csv mode. If passes>1, show median timing\n"
                "                              default is JSON mode\n"
@@ -561,7 +562,7 @@ main (int argc, char** argv)
     }
 
     // we are only able to compute part disk size if no output file is specified,
-    // causing dummy output stream to be used and evaluated.
+    // causing memory output stream to be used and allowing us to measure data output.
 
     bool showPartSizeOnDisk = opts.outputPartSizeOnDisk && !opts.outFile;
 
