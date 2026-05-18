@@ -651,7 +651,6 @@ compute_sampled_height_p (int height, int y_sampling, int start_y)
         if (tmph == 0) return 0;
         --tmph;
         nlines = tmph / y_sampling + 1;
-        printf("compute -> off %d tmph %d => %d\n", off, tmph, nlines);
     }
 
     return nlines;
