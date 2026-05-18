@@ -58,11 +58,14 @@ class PyChannel;
 class PyFile 
 {
 public:
-    PyFile();
-    PyFile(const std::string& filename, bool separate_channels = false, bool header_only = false);
-    PyFile(py::object binary_stream, bool separate_channels = false, bool header_only = false);
-    PyFile(const py::dict& header, const py::dict& channels);
-    PyFile(const py::list& parts);
+    PyFile(int num_threads = -1);
+    PyFile(const std::string& filename, bool separate_channels = false,
+           bool header_only = false, int num_threads = -1);
+    PyFile(py::object binary_stream, bool separate_channels = false, bool header_only = false,
+           int num_threads = -1);
+    PyFile(const py::dict& header, const py::dict& channels,
+           int num_threads = -1);
+    PyFile(const py::list& parts, int num_threads = -1);
 
     py::object   __enter__();
     void         __exit__(py::args args);
@@ -85,6 +88,7 @@ private:
 protected:
     
     bool                                _header_only;
+    int                                 _num_threads;
     std::unique_ptr<IStream>            _readStream;
     std::unique_ptr<MultiPartInputFile> _inputFile;
     

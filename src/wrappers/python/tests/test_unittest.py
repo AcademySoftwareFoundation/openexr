@@ -742,6 +742,67 @@ class TestUnittest(unittest.TestCase):
             with OpenEXR.File(outfilename, separate_channels=True) as i:
                 compare_files (i, outfile2)
 
+    def test_multithread_read(self):
+
+        #
+        # There's not a great way to test if multiple threads were
+        # actually used, but at least this confirms the API works.
+        #
+
+        width = 1000
+        height = 1000
+        size = width * height
+        R = np.random.rand(height, width).astype('f')
+        G = np.random.rand(height, width).astype('f')
+        B = np.random.rand(height, width).astype('f')
+        channels = {
+            "R": OpenEXR.Channel("R", R),
+            "G": OpenEXR.Channel("G", G),
+            "B": OpenEXR.Channel("B", B),
+        }
+
+        # Write a file single-threaded, then read it back in
+
+        singlethread_filename = mktemp_outfilename()
+        with OpenEXR.File({}, channels) as outfile:
+            outfile.write(singlethread_filename)
+
+        with OpenEXR.File(singlethread_filename) as i0:
+
+            # Write the same data as multithreaded, then read it back in, too.
+            
+            num_threads = 4
+            OpenEXR.set_global_thread_count(num_threads)
+            
+            multithread_filename = mktemp_outfilename()
+            with OpenEXR.File({}, channels, num_threads=num_threads) as outfile:
+                outfile.write(multithread_filename)
+
+            with OpenEXR.File(multithread_filename, num_threads=num_threads) as i1:
+                compare_files(i0, i1)
+
+    def test_num_threads_default_uses_global_pool(self):
+        #
+        # num_threads=-1 (the default) should resolve to global_thread_count()
+        # at File construction time.
+        #
+        width = 64
+        height = 64
+        R = np.random.rand(height, width).astype('f')
+        channels = {"R": OpenEXR.Channel("R", R)}
+
+        OpenEXR.set_global_thread_count(4)
+
+        outfilename = mktemp_outfilename()
+        with OpenEXR.File({}, channels) as outfile:
+            outfile.write(outfilename)
+
+        with OpenEXR.File(outfilename) as infile:
+            self.assertEqual(infile.channels()["R"].pixels.shape, (height, width))
+
+        with OpenEXR.File(outfilename, num_threads=-1) as infile:
+            self.assertEqual(infile.channels()["R"].pixels.shape, (height, width))
+        
     def test_gil_released_during_io(self):
 
         #
