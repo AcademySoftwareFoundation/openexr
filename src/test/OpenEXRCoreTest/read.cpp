@@ -694,7 +694,6 @@ static inline int hardway_height_p (int height, int y_sampling, int start_y)
         }
         ++nlines;
     }
-    printf("hard -> off %d => %d\n", off, nlines);
     return nlines;
 }
 
