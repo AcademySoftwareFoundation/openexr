@@ -72,4 +72,9 @@ result = do_run ([exrmetrics, test_images["multipart"], "-p", "0", "-z","zip"])
 data = json.loads(result.stdout)
 assert(len(data)==1),"\n Unexpected list size in JSON object"
 
+# test --part-disk-size json output
+result = do_run ([exrmetrics, test_images["multipart"], "--part-disk-size"])
+data = json.loads(result.stdout)
+assert(len(data)==1),"\n Unexpected list size in JSON object"
+
 print("success")

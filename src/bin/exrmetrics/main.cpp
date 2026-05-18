@@ -86,7 +86,7 @@ usageMessage (ostream& stream, const char* program_name, bool verbose = false)
                "                              operations can be any of read,write,reread (use --time none for no timing)\n"
                " --no-size                    don't output size data\n"
                " --part-disk-size             Output the on-disk size of the data portion of each part in a multipart EXR file\n"
-               "                              (including chunk headers). When using this option, omit -o\n"
+               "                              (including chunk headers). File output (-o) is not supported when using this option\n"
                " --json                       print output as JSON dictionary (Default mode)\n"
                " --csv                        print output in csv mode. If passes>1, show median timing\n"
                "                              default is JSON mode\n"
@@ -247,7 +247,7 @@ printPartStats (
         output = true;
         out << indent << "\"size on disk\": "
             << data.sizeOnDisk
-            << ",\n";
+            << "\n";
     }
 }
 
@@ -798,6 +798,12 @@ options::parse (int argc, char* argv[])
                 cerr << "-o output filename can only be specified once\n";
                 return 1;
             }
+            if (outputPartSizeOnDisk)
+            {
+                cerr << "--part-disk-size cannot be used with file output (-o)\n";
+                return 1;
+            }
+
             outFile = argv[i + 1];
             i += 2;
         }
@@ -892,6 +898,12 @@ options::parse (int argc, char* argv[])
         }
         else if (!strcmp (argv[i], "--part-disk-size"))
         {
+            if (outFile)
+            {
+                cerr << "--part-disk-size cannot be used with file output (-o)\n";
+                return 1;
+            }
+
             outputPartSizeOnDisk = true;
             i += 1;
         }
