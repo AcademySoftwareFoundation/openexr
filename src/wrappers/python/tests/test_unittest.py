@@ -731,6 +731,28 @@ class TestUnittest(unittest.TestCase):
 
             with OpenEXR.File(multithread_filename, num_threads=num_threads) as i1:
                 compare_files(i0, i1)
+
+    def test_num_threads_default_uses_global_pool(self):
+        #
+        # num_threads=-1 (the default) should resolve to global_thread_count()
+        # at File construction time.
+        #
+        width = 64
+        height = 64
+        R = np.random.rand(height, width).astype('f')
+        channels = {"R": OpenEXR.Channel("R", R)}
+
+        OpenEXR.set_global_thread_count(4)
+
+        outfilename = mktemp_outfilename()
+        with OpenEXR.File({}, channels) as outfile:
+            outfile.write(outfilename)
+
+        with OpenEXR.File(outfilename) as infile:
+            self.assertEqual(infile.channels()["R"].pixels.shape, (height, width))
+
+        with OpenEXR.File(outfilename, num_threads=-1) as infile:
+            self.assertEqual(infile.channels()["R"].pixels.shape, (height, width))
         
     def test_gil_released_during_io(self):
 

@@ -26,7 +26,7 @@ class TestExceptions(unittest.TestCase):
 
         # invalid argument
         with self.assertRaises(Exception):
-            f = OpenEXR.File(1)
+            f = OpenEXR.File(None)
 
         # invalid number of arguments
         with self.assertRaises(Exception):

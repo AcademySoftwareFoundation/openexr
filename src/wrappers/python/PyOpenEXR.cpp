@@ -294,9 +294,9 @@ PythonBinaryOStream::seekp(uint64_t pos)
     _fo.attr("seek")(pyLongFromUint64(pos), pyLongFromLong(0));
 }
 
-PyFile::PyFile()
+PyFile::PyFile(int num_threads)
     : _header_only(false),
-      _num_threads(globalThreadCount())
+      _num_threads(num_threads < 0 ? globalThreadCount() : num_threads)
 {
 }
     
@@ -307,7 +307,7 @@ PyFile::PyFile()
 PyFile::PyFile(const py::list& parts, int num_threads)
     : parts(parts),
       _header_only(false),
-      _num_threads(num_threads)
+      _num_threads(num_threads < 0 ? globalThreadCount() : num_threads)
 {
     int part_index = 0;
     for (auto p : this->parts)
@@ -328,7 +328,7 @@ PyFile::PyFile(const py::list& parts, int num_threads)
 PyFile::PyFile(const py::dict& header, const py::dict& channels,
                int num_threads)
     : _header_only(false),
-      _num_threads(num_threads)
+      _num_threads(num_threads < 0 ? globalThreadCount() : num_threads)
 {
     parts.append(py::cast<PyPart>(PyPart(header, channels, "")));
 }
@@ -354,8 +354,8 @@ PyFile::PyFile(const std::string& filename, bool separate_channels,
                bool header_only, int num_threads)
     : filename(filename),
       _header_only(header_only),
-      _inputFile(std::make_unique<MultiPartInputFile>(filename.c_str(), num_threads)),
-      _num_threads(num_threads)
+      _num_threads(num_threads < 0 ? globalThreadCount() : num_threads),
+      _inputFile(std::make_unique<MultiPartInputFile>(filename.c_str(), _num_threads))
 {
     readPartsFromOpenInput(separate_channels);
 }
@@ -364,7 +364,7 @@ PyFile::PyFile(py::object binary_stream, bool separate_channels,
                bool header_only, int num_threads)
     : filename("<buffer>"),
       _header_only(header_only),
-      _num_threads(num_threads)
+      _num_threads(num_threads < 0 ? globalThreadCount() : num_threads)
 {
     if (py::isinstance<py::str>(binary_stream))
     {
@@ -1549,7 +1549,8 @@ void
 PyFile::write(const char* outfilename)
 {
     std::vector<Header> headers = buildOutputHeaders();
-    MultiPartOutputFile outfile(outfilename, headers.data(), headers.size());
+    MultiPartOutputFile outfile (
+        outfilename, headers.data (), headers.size (), false, _num_threads);
     runMultiPartOutput(outfile, headers);
     filename = outfilename;
 }
@@ -1566,7 +1567,8 @@ PyFile::write(py::object binary_stream)
     
     std::vector<Header> headers = buildOutputHeaders();
     PythonBinaryOStream pstream(std::move(binary_stream));
-    MultiPartOutputFile outfile(pstream, headers.data(), headers.size());
+    MultiPartOutputFile outfile (
+        pstream, headers.data (), headers.size (), false, _num_threads);
     runMultiPartOutput(outfile, headers);
 
     filename = "<buffer>";
@@ -3091,12 +3093,20 @@ PYBIND11_MODULE(OpenEXR, m)
                                   ">>> f = OpenEXR.File(\"image.exr\")\n"
                                   ">>> f.header()[\"comment\"] = \"Hello, image.\"\n"
                                   ">>> f.write(\"out.exr\")")
-        .def(py::init<>())
+        .def(py::init<int>(),
+             py::arg("num_threads")=-1,
+             "Initialize an empy File.\n"
+             "\n"
+             "Parameters\n"
+             "----------\n"
+             "    Number of threads for multithreaded I/O and encode/decode of the File.\n"
+             "\n"
+             )
         .def(py::init<std::string,bool,bool,int>(),
              py::arg("filename"),
              py::arg("separate_channels")=false,
              py::arg("header_only")=false,
-             py::arg("num_threads")=globalThreadCount(),
+             py::arg("num_threads")=-1,
              "Initialize a File by reading the image from the given filename.\n"
              "\n"
              "Parameters\n"
@@ -3109,7 +3119,7 @@ PYBIND11_MODULE(OpenEXR, m)
              "header_only : bool\n"
              "    If True, read only the header metadata, not the image pixel data.\n"
              "num_threads : int\n"
-             "    Number of threads for multithreaded I/O and encode/decode.\n"
+             "    Number of threads for multithreaded I/O and encode/decode of the File.\n"
              "\n"
              "Example\n"
              "-------  \n"
@@ -3121,7 +3131,7 @@ PYBIND11_MODULE(OpenEXR, m)
         //
         .def(py::init<py::list,int>(),
              py::arg("parts"),
-             py::arg("num_threads")=globalThreadCount(),
+             py::arg("num_threads")=-1,
              "Initialize a File with a list of Part objects.\n"
              "\n"
              "Parameters\n"
@@ -3129,7 +3139,7 @@ PYBIND11_MODULE(OpenEXR, m)
              "parts : list\n"
              "    List of Part objects\n"
              "num_threads : int\n"
-             "    Number of threads for multithreaded I/O and encode/decode.\n"
+             "    Number of threads for multithreaded I/O and encode/decode for this File.\n"
              "\n"
              "Example\n"
              "-------\n"
@@ -3143,7 +3153,7 @@ PYBIND11_MODULE(OpenEXR, m)
              py::arg("stream"),
              py::arg("separate_channels") = false,
              py::arg("header_only") = false,
-             py::arg("num_threads")=globalThreadCount(),
+             py::arg("num_threads")=-1,
              "Initialize a File by reading from a binary stream.\n"
              "\n"
              "The stream must implement read(), tell(), and seek() and contain a\n"
@@ -3159,11 +3169,11 @@ PYBIND11_MODULE(OpenEXR, m)
              "header_only : bool\n"
              "    Same as for the filename constructor.\n"
              "num_threads : int\n"
-             "    Number of threads for multithreaded I/O and encode/decode.\n")
+             "    Number of threads for multithreaded I/O and encode/decode for this File.\n")
         .def(py::init<py::dict,py::dict,int>(),
              py::arg("header"),
              py::arg("channels"),
-             py::arg("num_threads")=globalThreadCount(),
+             py::arg("num_threads")=-1,
              "Initialize a File with metadata and pixels. Creates a single-part EXR file.\n"
              "\n"
              "Parameters\n"
@@ -3173,7 +3183,7 @@ PYBIND11_MODULE(OpenEXR, m)
              "channels : list\n"
              "    List of `Channel` objects, which hold pixel numpy arrays.\n"
              "num_threads : int\n"
-             "    Number of threads for multithreaded I/O and encode/decode.\n"
+             "    Number of threads for multithreaded I/O and encode/decode for this File.\n"
              "\n"
              "Example\n"
              "-------\n"
