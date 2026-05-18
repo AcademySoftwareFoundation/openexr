@@ -15,7 +15,6 @@
 exr_result_t
 exr_attr_string_init (exr_context_t ctxt, exr_attr_string_t* s, int32_t len)
 {
-    exr_attr_string_t nil = {0};
     if (!ctxt) return EXR_ERR_MISSING_CONTEXT_ARG;
 
     if (len < 0)
@@ -31,10 +30,10 @@ exr_attr_string_init (exr_context_t ctxt, exr_attr_string_t* s, int32_t len)
             EXR_ERR_INVALID_ARGUMENT,
             "Invalid reference to string object to initialize");
 
-    *s     = nil;
     s->str = (char*) ctxt->alloc_fn ((size_t) (len + 1));
     if (s->str == NULL)
         return ctxt->standard_error (ctxt, EXR_ERR_OUT_OF_MEMORY);
+
     s->length     = len;
     s->alloc_size = len + 1;
     return EXR_ERR_SUCCESS;
@@ -46,7 +45,6 @@ exr_result_t
 exr_attr_string_init_static_with_length (
     exr_context_t ctxt, exr_attr_string_t* s, const char* v, int32_t len)
 {
-    exr_attr_string_t nil = {0};
     if (!ctxt) return EXR_ERR_MISSING_CONTEXT_ARG;
 
     if (len < 0)
@@ -68,9 +66,9 @@ exr_attr_string_init_static_with_length (
             EXR_ERR_INVALID_ARGUMENT,
             "Invalid reference to string object to initialize");
 
-    *s        = nil;
-    s->length = len;
-    s->str    = v;
+    s->length     = len;
+    s->alloc_size = 0;
+    s->str        = v;
     return EXR_ERR_SUCCESS;
 }
 
@@ -132,7 +130,11 @@ exr_attr_string_create_with_length (
 #    pragma GCC diagnostic ignored "-Wstringop-truncation"
 #endif
             if (d)
-                strncpy (outs, d, (size_t) len);
+            {
+                size_t slen = strnlen( d, (size_t) len);
+                memcpy (outs, d, slen);
+                memset (outs + slen, '\0', ((size_t)len - slen) + 1);
+            }
             else
                 memset (outs, 0, (size_t) len);
 #ifdef _MSC_VER
@@ -143,7 +145,7 @@ exr_attr_string_create_with_length (
 #    pragma GCC diagnostic pop
 #endif
         }
-        outs[len] = '\0';
+        else outs[0] = '\0';
     }
     return rv;
 }
@@ -210,9 +212,13 @@ exr_attr_string_set_with_length (
 #    pragma GCC diagnostic ignored "-Wstringop-truncation"
 #endif
             if (d)
-                strncpy (sstr, d, (size_t) len);
+            {
+                size_t slen = strnlen( d, (size_t) len);
+                memcpy (sstr, d, slen);
+                memset (sstr + slen, '\0', ((size_t)len - slen) + 1);
+            }
             else
-                memset (sstr, 0, (size_t) len);
+                memset (sstr, 0, (size_t) (len + 1));
 #ifdef _MSC_VER
 #    pragma warning(pop)
 #elif defined(__clang__)
@@ -221,7 +227,7 @@ exr_attr_string_set_with_length (
 #    pragma GCC diagnostic pop
 #endif
         }
-        sstr[len] = '\0';
+        else sstr[0] = '\0';
         return EXR_ERR_SUCCESS;
     }
     exr_attr_string_destroy (ctxt, s);
