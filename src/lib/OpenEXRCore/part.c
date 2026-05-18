@@ -83,20 +83,16 @@ exr_add_part (
             (uint64_t) pnamelen));
     }
 
-    rv = internal_exr_add_part (ctxt, &part, new_index);
-    if (rv != EXR_ERR_SUCCESS) return EXR_UNLOCK_AND_RETURN (rv);
-
     if (ctxt->num_parts > 0)
     {
         // ensure multi part has at least some name?
         if (!partname) partname = "";
 
-        for ( int pidx = 0; pidx < ctxt->num_parts - 1; ++pidx )
+        for ( int pidx = 0; pidx < ctxt->num_parts; ++pidx )
         {
             const exr_attribute_t* pname = ctxt->parts[pidx]->name;
             if (!pname)
             {
-                internal_exr_revert_add_part (ctxt, &part, new_index);
                 return EXR_UNLOCK_AND_RETURN (
                     ctxt->print_error (
                         ctxt,
@@ -106,7 +102,6 @@ exr_add_part (
             }
             if (!strcmp (partname, pname->string->str))
             {
-                internal_exr_revert_add_part (ctxt, &part, new_index);
                 return EXR_UNLOCK_AND_RETURN (
                     ctxt->print_error (
                         ctxt,
@@ -116,6 +111,9 @@ exr_add_part (
             }
         }
     }
+
+    rv = internal_exr_add_part (ctxt, &part, new_index);
+    if (rv != EXR_ERR_SUCCESS) return EXR_UNLOCK_AND_RETURN (rv);
 
     part->storage_mode = type;
     switch (type)

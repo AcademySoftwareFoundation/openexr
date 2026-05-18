@@ -299,6 +299,7 @@ PyFile::PyFile(int num_threads)
       _num_threads(num_threads < 0 ? globalThreadCount() : num_threads)
 {
 }
+
     
 //
 // Create a PyFile out of a list of parts (i.e. a multi-part file)
@@ -434,17 +435,29 @@ PyFile::readPartsFromOpenInput(bool separate_channels)
             //
         
             auto type = header.type();
-            if (type == SCANLINEIMAGE || type == TILEDIMAGE)
+            try
             {
-                P.readPixels(*_inputFile, header.channels(), shape, rgbaChannels, dw, separate_channels);
+                if (type == SCANLINEIMAGE || type == TILEDIMAGE)
+                {
+                    P.readPixels(*_inputFile, header.channels(), shape, rgbaChannels, dw, separate_channels);
+                }
+                else if (type == DEEPSCANLINE || type == DEEPTILE)
+                {
+                    P.readDeepPixels(*_inputFile, type, header.channels(), shape, rgbaChannels, dw, separate_channels);
+                }
+                parts.append(py::cast<PyPart>(PyPart(P)));
             }
-            else if (type == DEEPSCANLINE || type == DEEPTILE)
+            catch (const std::exception& e)
             {
-                P.readDeepPixels(*_inputFile, type, header.channels(), shape, rgbaChannels, dw, separate_channels);
+                // Log the error and skip appending this part
+                py::print("Warning: Exception raised reading pixel data for part", part_index, "-", e.what());
             }
         }
-        
-        parts.append(py::cast<PyPart>(PyPart(P)));
+        else
+        {
+            // If only reading the header, always append this part
+            parts.append(py::cast<PyPart>(PyPart(P)));
+        }
     } // for parts
 }
 
@@ -2128,6 +2141,36 @@ objectToChromaticities(const py::object& object, Chromaticities& v)
     return false;
 }
 
+template <class T>
+bool
+objectToFloatVectorArray(const py::object& object, std::vector<float>& v)
+{
+    if (!py::isinstance<py::array_t<T>>(object))
+        return false;
+
+    auto a = object.cast<py::array_t<T>>();
+    if (a.ndim() != 1 || a.size() == 0)
+        return false;
+
+    py::buffer_info buf = a.request();
+    auto data = static_cast<const char*>(buf.ptr);
+
+    v.reserve(a.size());
+    for (Py_ssize_t i = 0; i < a.size(); ++i)
+    {
+        auto value = reinterpret_cast<const T*>(data + i * buf.strides[0]);
+        v.push_back(static_cast<float>(*value));
+    }
+
+    return true;
+}
+
+bool
+objectToFloatVector(const py::object& object, std::vector<float>& v)
+{
+    return objectToFloatVectorArray<float>(object, v);
+}
+
 void
 PyFile::insertAttribute(Header& header, const std::string& name, const py::object& object)
 {
@@ -2286,6 +2329,13 @@ PyFile::insertAttribute(Header& header, const std::string& name, const py::objec
     if (objectToChromaticities(object, c))
     {
         header.insert(name, ChromaticitiesAttribute(c));
+        return;
+    }
+
+    std::vector<float> floatVector;
+    if (objectToFloatVector(object, floatVector))
+    {
+        header.insert(name, FloatVectorAttribute(floatVector));
         return;
     }
 
@@ -3262,4 +3312,3 @@ PYBIND11_MODULE(OpenEXR, m)
              "an empty BytesIO or seek to the end of existing data first.\n")
         ;
 }
-
