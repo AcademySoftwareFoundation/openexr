@@ -1,8 +1,10 @@
 //
 // SPDX-License-Identifier: BSD-3-Clause
-// Copyright (c) Contributors to the OpenEXR Project.
-//
-
+// Copyright (c) Contributors to the OpenEXR Project
+#include <cstdint>
+#include <cstdio>
+#include "ImfIO.h"
+#include "IStream.cpp"
 class C_IStream: public IStream
 {
   public:
@@ -18,3 +20,4 @@ class C_IStream: public IStream
 
     FILE * _file;
 };
+

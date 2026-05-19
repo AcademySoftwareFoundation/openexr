@@ -1,25 +1,25 @@
-//
-// SPDX-License-Identifier: BSD-3-Clause
-// Copyright (c) Contributors to the OpenEXR Project.
-//
+#include <cstdint>
 
 class IStream
 {
   public:
-    virtual ~IStream ();
+    IStream(const char[]) {}
+
+    virtual ~IStream() = default;
 
     virtual bool read (char c[], int n) = 0;
     virtual uint64_t tellg () = 0;
     virtual void seekg (uint64_t pos) = 0;
-    virtual void clear ();
-    const char * fileName () const;
-    virtual bool isMemoryMapped () const;
-    virtual char * readMemoryMapped (int n);
+    virtual void clear () = 0;
 
-  protected:
-    IStream (const char fileName[]);
-    private:
+    virtual bool isMemoryMapped() const
+    {
+        return false;
+    }
 
-    // ...
+    virtual char* readMemoryMapped (int)
+    {
+        return nullptr;
+    }
 };
     
