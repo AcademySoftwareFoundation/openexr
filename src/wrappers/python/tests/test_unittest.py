@@ -13,6 +13,7 @@ import atexit
 import unittest
 import numpy as np
 import fractions
+from io import BytesIO
 
 import OpenEXR
 
@@ -218,6 +219,34 @@ class TestUnittest(unittest.TestCase):
 
             with OpenEXR.File(outfilename) as outfile:
                 compare_files(outfile, infile)
+
+    def test_read_exr_from_bytesio_matches_disk(self):
+        #
+        # Read path: same bytes as on disk, opened via BytesIO, must match
+        # OpenEXR.File(path). Fails until File() accepts a binary buffer / stream.
+        #
+        infilename = f"{test_dir}/test.exr"
+        with open(infilename, "rb") as f:
+            raw = f.read()
+        buf = BytesIO(raw)
+
+        with OpenEXR.File(infilename) as from_disk:
+            with OpenEXR.File(buf) as from_buffer:
+                compare_files(from_buffer, from_disk)
+
+    def test_read_write_exr_bytesio_roundtrip(self):
+        #
+        # Full in-memory round trip (mirrors test_read_write): read from disk,
+        # write EXR bytes into a BytesIO, read back from the buffer.
+        # Fails until File.write() accepts a binary writable.
+        #
+        infilename = f"{test_dir}/test.exr"
+        with OpenEXR.File(infilename) as infile:
+            buf = BytesIO()
+            infile.write(buf)
+            buf.seek(0)
+            with OpenEXR.File(buf) as reread:
+                compare_files(reread, infile)
 
     def test_keycode(self):
 
@@ -529,6 +558,27 @@ class TestUnittest(unittest.TestCase):
 
         os.remove(outfilename)
 
+    def test_write_float_vector_ndarray(self):
+
+        channels = {
+            "Z" : np.zeros((1, 1), dtype='uint32')
+        }
+        header = {
+            "floatvector32" : np.array([0.0, 1.0, 2.0, 3.0], dtype='float32'),
+            "singlevalue32" : np.array([0.5], dtype='float32')
+        }
+
+        with OpenEXR.File(header, channels) as outfile:
+
+            outfilename = mktemp_outfilename()
+            outfile.write(outfilename)
+
+            with OpenEXR.File(outfilename) as infile:
+                self.assertEqual(infile.header()["floatvector32"], [0.0, 1.0, 2.0, 3.0])
+                self.assertEqual(infile.header()["singlevalue32"], [0.5])
+
+        os.remove(outfilename)
+
     def test_write_float(self):
 
         # Construct a file from scratch and write it.
@@ -586,6 +636,34 @@ class TestUnittest(unittest.TestCase):
                 compare_files (infile, outfile)
 
         os.remove(outfilename)
+
+    def test_unfinished_multipart_load(self):
+
+        #
+        # Multipart files may list more part headers than have valid
+        # pixel data (interrupted write). Loading should return only
+        # parts whose pixels read successfully, not fail the entire
+        # file open.
+        #
+        # The test file unfinished_multipart.exr has 4 parts, 2 valid
+        # and 2 invalid. The default read should return 2 parts; the
+        # header_only read should return all 4 parts.
+        #
+
+        path = f"{test_dir}/unfinished_multipart.exr"
+        num_parts = 4
+        num_good = 2
+
+        with OpenEXR.File(path, separate_channels=True) as f:
+            self.assertEqual(len(f.parts), num_good)
+            for i in range(num_good):
+                self.assertIn('Z', f.parts[i].channels)
+                self.assertEqual(f.parts[i].channels['Z'].pixels.shape, (8, 8))
+            self.assertEqual(f.parts[0].name(), 'Part0')
+            self.assertEqual(f.parts[1].name(), 'Part1')
+
+        with OpenEXR.File(path, separate_channels=True, header_only=True) as f:
+            self.assertEqual(len(f.parts), num_parts)
 
     def test_write_2part(self):
 
@@ -664,6 +742,67 @@ class TestUnittest(unittest.TestCase):
             with OpenEXR.File(outfilename, separate_channels=True) as i:
                 compare_files (i, outfile2)
 
+    def test_multithread_read(self):
+
+        #
+        # There's not a great way to test if multiple threads were
+        # actually used, but at least this confirms the API works.
+        #
+
+        width = 1000
+        height = 1000
+        size = width * height
+        R = np.random.rand(height, width).astype('f')
+        G = np.random.rand(height, width).astype('f')
+        B = np.random.rand(height, width).astype('f')
+        channels = {
+            "R": OpenEXR.Channel("R", R),
+            "G": OpenEXR.Channel("G", G),
+            "B": OpenEXR.Channel("B", B),
+        }
+
+        # Write a file single-threaded, then read it back in
+
+        singlethread_filename = mktemp_outfilename()
+        with OpenEXR.File({}, channels) as outfile:
+            outfile.write(singlethread_filename)
+
+        with OpenEXR.File(singlethread_filename) as i0:
+
+            # Write the same data as multithreaded, then read it back in, too.
+            
+            num_threads = 4
+            OpenEXR.set_global_thread_count(num_threads)
+            
+            multithread_filename = mktemp_outfilename()
+            with OpenEXR.File({}, channels, num_threads=num_threads) as outfile:
+                outfile.write(multithread_filename)
+
+            with OpenEXR.File(multithread_filename, num_threads=num_threads) as i1:
+                compare_files(i0, i1)
+
+    def test_num_threads_default_uses_global_pool(self):
+        #
+        # num_threads=-1 (the default) should resolve to global_thread_count()
+        # at File construction time.
+        #
+        width = 64
+        height = 64
+        R = np.random.rand(height, width).astype('f')
+        channels = {"R": OpenEXR.Channel("R", R)}
+
+        OpenEXR.set_global_thread_count(4)
+
+        outfilename = mktemp_outfilename()
+        with OpenEXR.File({}, channels) as outfile:
+            outfile.write(outfilename)
+
+        with OpenEXR.File(outfilename) as infile:
+            self.assertEqual(infile.channels()["R"].pixels.shape, (height, width))
+
+        with OpenEXR.File(outfilename, num_threads=-1) as infile:
+            self.assertEqual(infile.channels()["R"].pixels.shape, (height, width))
+        
     def test_gil_released_during_io(self):
 
         #

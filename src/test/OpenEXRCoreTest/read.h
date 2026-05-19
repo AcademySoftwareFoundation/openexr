@@ -22,4 +22,6 @@ void testReadMultiPart (const std::string& tempdir);
 
 void testReadUnpack (const std::string& tempdir);
 
+void testSamplingCalcs (const std::string& tempdir);
+
 #endif // OPENEXR_CORE_TEST_READ_H

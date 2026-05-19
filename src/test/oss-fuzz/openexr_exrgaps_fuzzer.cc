@@ -43,10 +43,29 @@
 #include <ImfDeepFrameBuffer.h>
 #include <ImfTileDescriptionAttribute.h>
 #include <ImfPartType.h>
+#include <ImfCompositeDeepScanLine.h>
+#include <ImfTiledMisc.h>
+#include <ImfCompressor.h>
 
 namespace IMF = OPENEXR_IMF_NAMESPACE;
 
 namespace {
+
+using IMATH_NAMESPACE::Box2i;
+
+//
+// Match ImfCheckFile.cpp limits used when reduceMemory or reduceTime is true
+// (runChecks and readMultiPart).
+//
+constexpr int      kMaxImageWidth  = 2048;
+constexpr int      kMaxImageHeight = 2048;
+constexpr int      kMaxTileWidth   = 512;
+constexpr int      kMaxTileHeight  = 512;
+constexpr uint64_t kMaxDeepSamples = 1ULL << 20;
+
+constexpr uint64_t kMaxBytesPerScanline     = 8000000;
+constexpr uint64_t kMaxTileBytesPerScanline = 8000000;
+constexpr uint64_t kMaxTileBytes            = 1000 * 1000;
 
 constexpr size_t kMaxInput          = 4 * 1024 * 1024;
 constexpr int    kMaxTilesPerCall   = 16;
@@ -55,6 +74,68 @@ constexpr int    kMaxParts          = 8;
 // 1024-tile calls slowing fuzz throughput. 8x8 = 64 tiles per call covers
 // boundary and small-range cases without burning iteration time.
 constexpr int    kMaxRangeSide      = 8;
+
+void
+apply_fuzz_limits ()
+{
+    static bool limits_applied = false;
+    if (limits_applied) return;
+    limits_applied = true;
+
+    IMF::CompositeDeepScanLine::setMaximumSampleCount (kMaxDeepSamples);
+    IMF::Header::setMaxImageSize (kMaxImageWidth, kMaxImageHeight);
+    IMF::Header::setMaxTileSize (kMaxTileWidth, kMaxTileHeight);
+}
+
+//
+// Return true if readMultiPart would skip pixel I/O for this part with
+// reduceMemory enabled (wide scanline groups or oversized tiles).
+//
+bool
+part_exceeds_memory_limits (const IMF::Header& hdr)
+{
+    const Box2i& b = hdr.dataWindow ();
+    const int         bytesPerPixel =
+        static_cast<int> (IMF::calculateBytesPerPixel (hdr));
+    const uint64_t imageWidth =
+        static_cast<uint64_t> (b.max.x - b.min.x + 1);
+    const uint64_t scanlinesInBuffer =
+        static_cast<uint64_t> (IMF::numLinesInBuffer (hdr.compression ()));
+
+    if (imageWidth * static_cast<uint64_t> (bytesPerPixel) * scanlinesInBuffer >
+        kMaxBytesPerScanline)
+    {
+        return true;
+    }
+
+    if (!hdr.hasTileDescription ()) return false;
+
+    const IMF::TileDescription& td = hdr.tileDescription ();
+    const uint64_t tilesPerScanline =
+        (imageWidth + static_cast<uint64_t> (td.xSize) - 1) /
+        static_cast<uint64_t> (td.xSize);
+    uint64_t tileSize = static_cast<uint64_t> (td.xSize) *
+                        static_cast<uint64_t> (td.ySize);
+
+    if (tileSize * tilesPerScanline *
+            static_cast<uint64_t> (bytesPerPixel) >
+        kMaxTileBytesPerScanline)
+    {
+        return true;
+    }
+
+    if (hdr.hasType () && hdr.type () == IMF::DEEPTILE)
+    {
+        tileSize *= std::max (
+            static_cast<size_t> (bytesPerPixel), sizeof (unsigned int));
+    }
+    else
+    {
+        tileSize *= static_cast<uint64_t> (bytesPerPixel);
+    }
+
+    return tileSize > kMaxTileBytes;
+}
 
 std::string write_temp (const uint8_t* data, size_t size)
 {
@@ -110,6 +191,7 @@ test_tiled_random_coords (
             // deep tiled. MultiPartInputFile auto-synthesizes a "type"
             // attribute, so we must check the value rather than presence.
             if (hdr.hasType () && hdr.type () == IMF::DEEPTILE) continue;
+            if (part_exceeds_memory_limits (hdr)) continue;
             try
             {
                 IMF::TiledInputPart tip (mpif, p);
@@ -157,6 +239,7 @@ test_tiled_range (
         {
             const IMF::Header& hdr = mpif.header (p);
             if (!hdr.hasTileDescription ()) continue;
+            if (part_exceeds_memory_limits (hdr)) continue;
             try
             {
                 IMF::TiledInputPart tip (mpif, p);
@@ -203,6 +286,7 @@ test_deep_tiled (
             const IMF::Header& hdr = mpif.header (p);
             // DeepTiledInputPart only accepts deep tiled parts.
             if (!hdr.hasType () || hdr.type () != IMF::DEEPTILE) continue;
+            if (part_exceeds_memory_limits (hdr)) continue;
             try
             {
                 IMF::DeepTiledInputPart dtip (mpif, p);
@@ -271,6 +355,8 @@ test_part_iteration (
 
 extern "C" int LLVMFuzzerTestOneInput (const uint8_t* data, size_t size)
 {
+    apply_fuzz_limits ();
+
     if (size < 4 || size > kMaxInput) return 0;
 
     uint8_t mode      = data[0] % 4;

@@ -103,8 +103,26 @@ inline void
 OpenStreamWithUTF8Name (
     StreamType& is, const char* filename, std::ios_base::openmode mode)
 {
-#    ifdef _WIN32
+
+#   ifdef _WIN32
+
+// TODO: Remove pragmas for pushing/popping deprecation warnings when WidenFilename is removed from API
+#   ifdef _MSC_VER
+#       pragma warning(push)
+#       pragma warning(disable: 4996)
+#   elif defined(__clang__) || defined(__GNUC__)
+#       pragma GCC diagnostic push
+#       pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#   endif
+
     std::wstring wfn = OPENEXR_IMF_INTERNAL_NAMESPACE::WidenFilename (filename);
+
+#   ifdef _MSC_VER
+#       pragma warning(pop)
+#   elif defined(__clang__) || defined(__GNUC__)
+#       pragma GCC diagnostic pop
+#   endif
+
 #        ifdef USE_WIDEN_FILEBUF
     using CharT   = typename StreamType::char_type;
     using TraitsT = typename StreamType::traits_type;
