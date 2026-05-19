@@ -55,6 +55,7 @@ struct partStats
         countRereadPerf; // for deep only, time rereading the per-pixel sample count
     std::vector<double>
         rereadPerf; // for deep, times reading the sample count, otherwise times reading the entire data
+    uint64_t sizeOnDisk = 0; // record compressed size of part on disk.
 
     partSizeData sizeData;
 };
