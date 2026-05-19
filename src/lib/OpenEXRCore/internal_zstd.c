@@ -389,6 +389,13 @@ static const uint64_t MAGIC_NUMBER = 8248453963162350458; // "zstd-exr"
 #    define EXR_ZSTD_SORTED_WIRE_VERSION 2
 #endif
 
+/* Temporary A/B aid: when true, encode each chunk with both v1 and v2
+ * wire formats and keep the smaller one. Default false. Costs ~2x encode
+ * CPU per chunk and one extra scratch buffer of compressed_alloc_size.
+ * Decoder is unchanged; output files are always valid regardless of this
+ * flag. Remove once a heuristic replaces it. */
+static const bool g_exr_zstd_try_both_wire_versions = false;
+
 /** Encode order: SORT → DELTA → SHUFFLE → ZSTD; decode reverses ZSTD first. */
 typedef enum
 {
@@ -792,6 +799,85 @@ exr_zstd_encode_store_raw_chunk (exr_encode_pipeline_t* encode, size_t packed)
  *   On encode, zstd_inner_append_shuffled_segment writes each segment; on decode,
  *   zstd_inner_read_shuffled_segment reads each one and unshuffles into the target buffer.
  */
+
+/** Run delta (if pipe.apply_delta) on the already-sorted buffer, then shuffle
+ *  into the inner stream, then ZSTD-compress into dst. Returns 0 on success
+ *  and writes the total bytes produced (header + ZSTD payload) to *out_total.
+ *  Note: when pipe.apply_delta is true, this MUTATES sorted_buf in place. */
+static int
+exr_zstd_encode_one_wire_version (
+    const exr_zstd_pack_pipeline*    pipe,
+    uint8_t*                         sorted_buf,
+    uint64_t                         splitPos,
+    size_t                           packed,
+    const uint64_t*                  channel_sample_count_grid,
+    int                              pipeline_height,
+    const exr_coding_channel_info_t* pack_channels,
+    int                              pack_channel_count,
+    uint8_t*                         inner,
+    size_t                           inner_cap,
+    void*                            dst,
+    size_t                           dst_cap,
+    int32_t                          level,
+    uint64_t*                        out_total)
+{
+    const uint8_t tSizes[2] = {2, 4};
+
+    if (exr_zstd_pipeline_phase_enabled (pipe, EXR_ZSTD_PHASE_DELTA))
+    {
+        if (delta_encode_sorted_layout (
+                sorted_buf,
+                splitPos,
+                packed,
+                channel_sample_count_grid,
+                pipeline_height,
+                pack_channels,
+                pack_channel_count) != 0)
+            return -1;
+    }
+
+    size_t inner_pos = 0;
+    if (exr_zstd_pipeline_phase_enabled (pipe, EXR_ZSTD_PHASE_SHUFFLE))
+    {
+        if (splitPos > 0)
+        {
+            if (zstd_inner_append_shuffled_segment (
+                    inner,
+                    &inner_pos,
+                    inner_cap,
+                    (const char*) sorted_buf,
+                    (size_t) splitPos,
+                    tSizes[0]) != 0)
+                return -1;
+        }
+        size_t const s2_in = packed - (size_t) splitPos;
+        if (s2_in > 0)
+        {
+            if (zstd_inner_append_shuffled_segment (
+                    inner,
+                    &inner_pos,
+                    inner_cap,
+                    (const char*) (sorted_buf + splitPos),
+                    s2_in,
+                    tSizes[1]) != 0)
+                return -1;
+        }
+    }
+
+    *out_total = 0;
+    if (zstd_write_exr_v1 (
+            dst,
+            dst_cap,
+            inner,
+            inner_pos,
+            level,
+            pipe->hdr_format,
+            pipe->hdr_flags,
+            out_total) != 0)
+        return -1;
+    return 0;
+}
+
 exr_result_t
 internal_exr_apply_zstd (exr_encode_pipeline_t* encode)
 {
@@ -825,8 +911,7 @@ internal_exr_apply_zstd (exr_encode_pipeline_t* encode)
     if (!tls_enc || !tls_enc->shuffle_buf)
         return EXR_ERR_COMPRESSION_FAILED;
 
-    uint8_t* const inner     = tls_enc->shuffle_buf;
-    size_t         inner_pos = 0;
+    uint8_t* const inner = tls_enc->shuffle_buf;
 
     const int compressing_sample_counts_only =
         (encode->packed_sample_count_table != NULL &&
@@ -901,9 +986,7 @@ internal_exr_apply_zstd (exr_encode_pipeline_t* encode)
 
     int const pipeline_height = encode->chunk.height;
 
-    uint64_t               splitPos  = 0;
-    const uint8_t          tSizes[2] = {2, 4};
-    char*                  inData    = (char*) encode->packed_buffer;
+    uint64_t               splitPos = 0;
     exr_zstd_pack_pipeline pipe;
     memset (&pipe, 0, sizeof (pipe));
     exr_zstd_build_encode_pipeline_sorted (&pipe);
@@ -923,58 +1006,107 @@ internal_exr_apply_zstd (exr_encode_pipeline_t* encode)
             true,
             pipeline_height,
             (char*) encode->scratch_buffer_1);
-    if (exr_zstd_pipeline_phase_enabled (&pipe, EXR_ZSTD_PHASE_DELTA))
+
+    uint64_t total_w = 0;
+
+    if (!g_exr_zstd_try_both_wire_versions)
     {
-        if (delta_encode_sorted_layout (
+        if (exr_zstd_encode_one_wire_version (
+                &pipe,
                 (uint8_t*) encode->scratch_buffer_1,
                 splitPos,
                 packed,
                 channel_sample_count_grid,
                 pipeline_height,
                 pack_channels,
-                pack_channel_count) != 0)
+                pack_channel_count,
+                inner,
+                inner_cap,
+                encode->compressed_buffer,
+                encode->compressed_alloc_size,
+                level,
+                &total_w) != 0)
             return EXR_ERR_COMPRESSION_FAILED;
     }
-    inData = (char*) encode->scratch_buffer_1;
-
-    inner_pos = 0;
-    if (exr_zstd_pipeline_phase_enabled (&pipe, EXR_ZSTD_PHASE_SHUFFLE))
+    else
     {
-        if (splitPos > 0)
+        /* A/B: encode v1 first into scratch_2 (no delta, sorted buf
+         * untouched), then v2 second directly into compressed_buffer
+         * (delta mutates sorted buf last). Keep whichever is smaller. */
+        exr_result_t arv2 = internal_encode_alloc_buffer (
+            encode,
+            EXR_TRANSCODE_BUFFER_SCRATCH2,
+            &encode->scratch_buffer_2,
+            &encode->scratch_alloc_size_2,
+            encode->compressed_alloc_size);
+        if (arv2 != EXR_ERR_SUCCESS) return arv2;
+
+        exr_zstd_pack_pipeline pipe_v1;
+        memset (&pipe_v1, 0, sizeof (pipe_v1));
+        pipe_v1.hdr_format    = ZSTD_EXR_FORMAT_V1;
+        pipe_v1.hdr_flags     = 0;
+        pipe_v1.apply_sort    = true;
+        pipe_v1.apply_delta   = false;
+        pipe_v1.apply_shuffle = true;
+
+        exr_zstd_pack_pipeline pipe_v2;
+        memset (&pipe_v2, 0, sizeof (pipe_v2));
+        pipe_v2.hdr_format    = ZSTD_EXR_FORMAT_V2;
+        pipe_v2.hdr_flags     = ZSTD_EXR_FLAG_DELTA_AFTER_SORT;
+        pipe_v2.apply_sort    = true;
+        pipe_v2.apply_delta   = true;
+        pipe_v2.apply_shuffle = true;
+
+        uint64_t total_v1 = 0;
+        if (exr_zstd_encode_one_wire_version (
+                &pipe_v1,
+                (uint8_t*) encode->scratch_buffer_1,
+                splitPos,
+                packed,
+                channel_sample_count_grid,
+                pipeline_height,
+                pack_channels,
+                pack_channel_count,
+                inner,
+                inner_cap,
+                encode->scratch_buffer_2,
+                encode->scratch_alloc_size_2,
+                level,
+                &total_v1) != 0)
+            return EXR_ERR_COMPRESSION_FAILED;
+
+        uint64_t total_v2 = 0;
+        if (exr_zstd_encode_one_wire_version (
+                &pipe_v2,
+                (uint8_t*) encode->scratch_buffer_1,
+                splitPos,
+                packed,
+                channel_sample_count_grid,
+                pipeline_height,
+                pack_channels,
+                pack_channel_count,
+                inner,
+                inner_cap,
+                encode->compressed_buffer,
+                encode->compressed_alloc_size,
+                level,
+                &total_v2) != 0)
+            return EXR_ERR_COMPRESSION_FAILED;
+
+        if (total_v1 < total_v2)
         {
-            if (zstd_inner_append_shuffled_segment (
-                    inner,
-                    &inner_pos,
-                    inner_cap,
-                    inData,
-                    (size_t) splitPos,
-                    tSizes[0]) != 0)
-                return EXR_ERR_COMPRESSION_FAILED;
+            memcpy (
+                encode->compressed_buffer,
+                encode->scratch_buffer_2,
+                (size_t) total_v1);
+            total_w = total_v1;
         }
-        size_t const s2_in = packed - (size_t) splitPos;
-        if (s2_in > 0)
+        else
         {
-            if (zstd_inner_append_shuffled_segment (
-                    inner,
-                    &inner_pos,
-                    inner_cap,
-                    inData + splitPos,
-                    s2_in,
-                    tSizes[1]) != 0)
-                return EXR_ERR_COMPRESSION_FAILED;
+            total_w = total_v2;
         }
     }
-    uint64_t total_w = 0;
-    if (zstd_write_exr_v1 (
-            encode->compressed_buffer,
-            encode->compressed_alloc_size,
-            inner,
-            inner_pos,
-            level,
-            pipe.hdr_format,
-            pipe.hdr_flags,
-            &total_w) != 0)
-        return EXR_ERR_COMPRESSION_FAILED;
+
     if (total_w < packed)
     {
         encode->compressed_bytes = total_w;
