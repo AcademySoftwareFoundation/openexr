@@ -6,8 +6,6 @@
 #include "C_IStream.cpp"
 #include "Iex.h"
 
-using namespace Iex;
-
 bool
 C_IStream::read (char c[], int n)
 {
@@ -18,9 +16,9 @@ C_IStream::read (char c[], int n)
         // determine what happened.
     
         if (ferror (_file))
-            throwErrnoExc();
+            Iex_4_0::throwErrnoExc();
         else
-            throw InputExc ("Unexpected end of file.");
+            throw Iex_4_0::InputExc ("Unexpected end of file.");
     }
     
     return !feof (_file);
