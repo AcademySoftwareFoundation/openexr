@@ -113,10 +113,10 @@ vulnerabilities.
   files.
 * :bug: The compressor API incorrectly identfied `HTJ2K` and `HTJ2K256` as
   lossy; they are lossles.
-* The `WidenFilename` utility function is marked as deprecated, to be
-  removed in a future release.
 * :bug: Fix CMake AVX feature detection that caused DWA SIMD code to fail on
   certain architectures.
+* :warning: The `WidenFilename` utility function is marked as deprecated, to be
+  removed in a future release.
 * :sparkles: `exrmetrics` now print the on-disk size of the data portion of each
   part. Useful for determining compression impact on part data
 
@@ -127,8 +127,6 @@ For the python module:
 * :snake: :sparkles: Support NumPy float vector attributes
 * :snake: :sparkles: Reading now skips over invalid parts, returns the valid parts only.
 * :snake: :book: Doc strings have proper indentation
-
-### Security
 
 This release addresses the following security vulnerabilities:
 
