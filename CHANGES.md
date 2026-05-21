@@ -3,6 +3,7 @@
 
 # OpenEXR Release Notes
 
+* [Version 3.4.12](#version-3412-may-24-2026) May 24, 2026
 * [Version 3.4.11](#version-3411-april-29-2026) April 29, 2026
 * [Version 3.4.10](#version-3410-april-17-2026) April 17, 2026
 * [Version 3.4.9](#version-349-april--3-2026) April  3, 2026
@@ -102,6 +103,101 @@
 * [Version 1.0.2](#version-102)
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
+
+## Version 3.4.12 (May 24, 2026)
+
+Patch release that addresses several bugs and security
+vulnerabilities.
+
+* :bug: Fix several minor memory leaks recovering from reading invalid
+  files.
+* :bug: The compressor API incorrectly identfied `HTJ2K` and `HTJ2K256` as
+  lossy; they are lossles.
+* The `WidenFilename` utility function is marked as deprecated, to be
+  removed in a future release.
+* :bug: Fix CMake AVX feature detection that caused DWA SIMD code to fail on
+  certain architectures.
+* :sparkles: `exrmetrics` now print the on-disk size of the data portion of each
+  part. Useful for determining compression impact on part data
+
+For the python module:
+
+* :snake: :bug: Reject files where the dataWindows does not match the
+  pixel array dimensions.
+* :snake: :sparkles: Support NumPy float vector attributes
+* :snake: :sparkles: Reading now skips over invalid parts, returns the valid parts only.
+* :snake: :book: Doc strings have proper indentation
+
+### Security
+
+This release addresses the following security vulnerabilities:
+
+* [CVE-2026-45696](https://www.cve.org/CVERecord?id=CVE-2026-45696)
+OpenEXR `ht_undo_impl` heap-buffer-overflow READ via
+codestream/channel width mismatch in HTJ2K decode
+* [CVE-2026-44663](https://www.cve.org/CVERecord?id=CVE-2026-44663)
+Integer overflow in HTJ2K decoder ( `ht_undo_impl` ) leading to
+heap-buffer-overflow
+* [OSS-Fuzz 512895184](https://issues.oss-fuzz.com/issues/512895184)
+* [OSS-Fuzz 512314697](https://issues.oss-fuzz.com/issues/512314697)
+* [OSS-Fuzz 508362159](https://issues.oss-fuzz.com/issues/508362159)
+* [OSS-Fuzz 507413960](https://issues.oss-fuzz.com/issues/507413960)
+
+### Merged Pull Requests
+
+* [2424](https://github.com/AcademySoftwareFoundation/openexr/pull/2424)
+exrmetrics print disk size of part
+* [2423](https://github.com/AcademySoftwareFoundation/openexr/pull/2423)
+Fix computation of chunk height
+* [2422](https://github.com/AcademySoftwareFoundation/openexr/pull/2422)
+Fix memory leaks
+* [2421](https://github.com/AcademySoftwareFoundation/openexr/pull/2421)
+Add test to validate python module reading of unfinished parts
+* [2416](https://github.com/AcademySoftwareFoundation/openexr/pull/2416)
+Add HTJ2K256 and HTJ2K32 to data compression scheme list
+* [2414](https://github.com/AcademySoftwareFoundation/openexr/pull/2414)
+Check for invalid Slice base and type in `TileProcess::copy_sample_count`
+* [2413](https://github.com/AcademySoftwareFoundation/openexr/pull/2413)
+Python: reject dataWindow size mismatch before write
+* [2409](https://github.com/AcademySoftwareFoundation/openexr/pull/2409)
+Python: fix docstring indentation
+* [2407](https://github.com/AcademySoftwareFoundation/openexr/pull/2407)
+Support NumPy float vectors in Python headers
+* [2406](https://github.com/AcademySoftwareFoundation/openexr/pull/2406)
+Update urllib3 to 2.7 in website/requirements.txt
+* [2405](https://github.com/AcademySoftwareFoundation/openexr/pull/2405)
+Signal HTJ2K* compressors as lossless
+* [2403](https://github.com/AcademySoftwareFoundation/openexr/pull/2403)
+htj2k compressor: validate codestream dimensions
+* [2402](https://github.com/AcademySoftwareFoundation/openexr/pull/2402)
+Release notes, news, and CVE info for v3.4.11, 3.3.11, 3.2.9
+* [2398](https://github.com/AcademySoftwareFoundation/openexr/pull/2398)
+Arcmantis/warning deprecate WidenFilename
+* [2397](https://github.com/AcademySoftwareFoundation/openexr/pull/2397)
+Cast to `size_t` to avoid int overflow in `ht_undo_impl`
+* [2392](https://github.com/AcademySoftwareFoundation/openexr/pull/2392)
+Correct index rejection for string access.
+* [2388](https://github.com/AcademySoftwareFoundation/openexr/pull/2388)
+Relax NaN comparison in compression tests
+* [2387](https://github.com/AcademySoftwareFoundation/openexr/pull/2387)
+Add install instructions for python module
+* [2385](https://github.com/AcademySoftwareFoundation/openexr/pull/2385)
+cmake: require YMM asm for inline AVX probe
+* [2373](https://github.com/AcademySoftwareFoundation/openexr/pull/2373)
+Bump and pin website/requirements.txt
+* [2359](https://github.com/AcademySoftwareFoundation/openexr/pull/2359)
+Add reference to "contribute" and Clotributor in README.md and website
+* [2148](https://github.com/AcademySoftwareFoundation/openexr/pull/2148)
+Fix unfinished multi-part file loading in the python wrapper
+
+### Merged Workflow Pull Requests
+
+* [2399](https://github.com/AcademySoftwareFoundation/openexr/pull/2399)
+Bump github/codeql-action from 4.35.2 to 4.35.4
+* [2396](https://github.com/AcademySoftwareFoundation/openexr/pull/2396)
+Bump sphinx from 7.2.6 to 7.4.7 in /website
+* [2394](https://github.com/AcademySoftwareFoundation/openexr/pull/2394)
+Bump platforms from 1.0.0 to 1.1.0
 
 ## Version 3.4.11 (April 29, 2026)
 
@@ -366,14 +462,12 @@ Patch release with several bug fixes, enhancements, and build improvements.
   enforced, which prevents an integer overflow when using the
   `CompositeDeepScanLine` API to combine multiple deep parts.
 
-* :bug: `IlmThread` now builds properl with glibc 2.43.
-
 * :wrench: In `IlmThreadPool`, replace deprecated `std::atomic_load /
   std::atomic_exchange` overloads for `std::shared_ptr` with the C++20
   `std::atomic<std::shared_ptr<T>>` interface when available.
 
 * :bug: The ``ZIP`` and ``ZIPS`` Compressor objects had incorrect
-  compression types set, although the ill effects were miminal as the
+  compression types set, although the ill effects were minimal as the
   value is seldom used.
   
 * :bug: Enable SSE2 on 32-bit x86 builds to fix test failures
@@ -421,99 +515,99 @@ CompositeDeepScanLine integer-overflow leads to heap OOB write
 
 ### Merged Pull Requests:
 
-* [2274](https://github.com/AcademySoftwareFoundation/openexr/pulls/2274)
+* [2274](https://github.com/AcademySoftwareFoundation/openexr/pull/2274)
 Update the vendored libdeflate to 1.25
-* [2273](https://github.com/AcademySoftwareFoundation/openexr/pulls/2273)
+* [2273](https://github.com/AcademySoftwareFoundation/openexr/pull/2273)
 Release Python GIL during I/O operations in bindings
-* [2272](https://github.com/AcademySoftwareFoundation/openexr/pulls/2272)
+* [2272](https://github.com/AcademySoftwareFoundation/openexr/pull/2272)
 Fix build failure with -march=sandybridge (#2231)
-* [2271](https://github.com/AcademySoftwareFoundation/openexr/pulls/2271)
+* [2271](https://github.com/AcademySoftwareFoundation/openexr/pull/2271)
 Enable SSE2 on 32-bit x86 builds to fix test failures
-* [2269](https://github.com/AcademySoftwareFoundation/openexr/pulls/2269)
+* [2269](https://github.com/AcademySoftwareFoundation/openexr/pull/2269)
 Mention OpenEXR dependencies on README
-* [2268](https://github.com/AcademySoftwareFoundation/openexr/pulls/2268)
+* [2268](https://github.com/AcademySoftwareFoundation/openexr/pull/2268)
 Bazel: Use openjph 0.26.3
-* [2267](https://github.com/AcademySoftwareFoundation/openexr/pulls/2267)
+* [2267](https://github.com/AcademySoftwareFoundation/openexr/pull/2267)
 Bump rules_cc from 0.2.16 to 0.2.17
-* [2265](https://github.com/AcademySoftwareFoundation/openexr/pulls/2265)
+* [2265](https://github.com/AcademySoftwareFoundation/openexr/pull/2265)
 Bump jmertic/slack-release-notifier
-* [2264](https://github.com/AcademySoftwareFoundation/openexr/pulls/2264)
+* [2264](https://github.com/AcademySoftwareFoundation/openexr/pull/2264)
 Bump github/codeql-action from 4.32.3 to 4.32.4
-* [2263](https://github.com/AcademySoftwareFoundation/openexr/pulls/2263)
+* [2263](https://github.com/AcademySoftwareFoundation/openexr/pull/2263)
 Add sanity check for correct arguments to exrstdattr
-* [2261](https://github.com/AcademySoftwareFoundation/openexr/pulls/2261)
+* [2261](https://github.com/AcademySoftwareFoundation/openexr/pull/2261)
 Fix sentence fragment typo in website python docs
-* [2260](https://github.com/AcademySoftwareFoundation/openexr/pulls/2260)
+* [2260](https://github.com/AcademySoftwareFoundation/openexr/pull/2260)
 Add reference to `OPENEXR_FORCE_EMBEDDED_CORE` on install page
-* [2259](https://github.com/AcademySoftwareFoundation/openexr/pulls/2259)
+* [2259](https://github.com/AcademySoftwareFoundation/openexr/pull/2259)
 Fix ZipCompressor to initialize compresson type correctly
-* [2258](https://github.com/AcademySoftwareFoundation/openexr/pulls/2258)
+* [2258](https://github.com/AcademySoftwareFoundation/openexr/pull/2258)
 Bazel: Remove WORKSPACE.bazel file
-* [2256](https://github.com/AcademySoftwareFoundation/openexr/pulls/2256)
+* [2256](https://github.com/AcademySoftwareFoundation/openexr/pull/2256)
 Report an error if a deep pixel as more than `UINT_MAX` samples
-* [2253](https://github.com/AcademySoftwareFoundation/openexr/pulls/2253)
+* [2253](https://github.com/AcademySoftwareFoundation/openexr/pull/2253)
 Add CVE-2025-64181 to SECURITY.md
-* [2252](https://github.com/AcademySoftwareFoundation/openexr/pulls/2252)
+* [2252](https://github.com/AcademySoftwareFoundation/openexr/pull/2252)
 Add news and release notes for v3.4.5 and v3.3.7
-* [2250](https://github.com/AcademySoftwareFoundation/openexr/pulls/2250)
+* [2250](https://github.com/AcademySoftwareFoundation/openexr/pull/2250)
 Vendor OpenJPH v0.26.3
-* [2249](https://github.com/AcademySoftwareFoundation/openexr/pulls/2249)
+* [2249](https://github.com/AcademySoftwareFoundation/openexr/pull/2249)
 Add python support for Opaque Attributes
-* [2248](https://github.com/AcademySoftwareFoundation/openexr/pulls/2248)
+* [2248](https://github.com/AcademySoftwareFoundation/openexr/pull/2248)
 Fix tag check, git rm, and sed calls in vendor_openjph.sh
-* [2247](https://github.com/AcademySoftwareFoundation/openexr/pulls/2247)
+* [2247](https://github.com/AcademySoftwareFoundation/openexr/pull/2247)
 Bump github/codeql-action from 4.31.9 to 4.32.3
-* [2243](https://github.com/AcademySoftwareFoundation/openexr/pulls/2243)
+* [2243](https://github.com/AcademySoftwareFoundation/openexr/pull/2243)
 IlmThread: fix deprecated atomic `shared_ptr` ops for `shared_ptr` (GCC 15)
-* [2240](https://github.com/AcademySoftwareFoundation/openexr/pulls/2240)
+* [2240](https://github.com/AcademySoftwareFoundation/openexr/pull/2240)
 Bump actions/cache from 5.0.1 to 5.0.3
-* [2239](https://github.com/AcademySoftwareFoundation/openexr/pulls/2239)
+* [2239](https://github.com/AcademySoftwareFoundation/openexr/pull/2239)
 Fix links and formatting in CONTRIBUTING.md
-* [2236](https://github.com/AcademySoftwareFoundation/openexr/pulls/2236)
+* [2236](https://github.com/AcademySoftwareFoundation/openexr/pull/2236)
 Bump actions/checkout from 6.0.1 to 6.0.2
-* [2235](https://github.com/AcademySoftwareFoundation/openexr/pulls/2235)
+* [2235](https://github.com/AcademySoftwareFoundation/openexr/pull/2235)
 Bump actions/setup-python from 6.1.0 to 6.2.0
-* [2227](https://github.com/AcademySoftwareFoundation/openexr/pulls/2227)
+* [2227](https://github.com/AcademySoftwareFoundation/openexr/pull/2227)
 Bump rules_cc from 0.2.14 to 0.2.16
-* [2226](https://github.com/AcademySoftwareFoundation/openexr/pulls/2226)
+* [2226](https://github.com/AcademySoftwareFoundation/openexr/pull/2226)
 Bump bazel_skylib from 1.8.2 to 1.9.0
-* [2225](https://github.com/AcademySoftwareFoundation/openexr/pulls/2225)
+* [2225](https://github.com/AcademySoftwareFoundation/openexr/pull/2225)
 Rename external/OpenJPH/src/core/common to openjph, instead of using a symlink
-* [2224](https://github.com/AcademySoftwareFoundation/openexr/pulls/2224)
+* [2224](https://github.com/AcademySoftwareFoundation/openexr/pull/2224)
 Bump github/codeql-action from 4.31.8 to 4.31.9
-* [2222](https://github.com/AcademySoftwareFoundation/openexr/pulls/2222)
+* [2222](https://github.com/AcademySoftwareFoundation/openexr/pull/2222)
 Bump actions/upload-artifact from 5 to 6
-* [2221](https://github.com/AcademySoftwareFoundation/openexr/pulls/2221)
+* [2221](https://github.com/AcademySoftwareFoundation/openexr/pull/2221)
 Bump actions/cache from 4.3.0 to 5.0.1
-* [2220](https://github.com/AcademySoftwareFoundation/openexr/pulls/2220)
+* [2220](https://github.com/AcademySoftwareFoundation/openexr/pull/2220)
 Bump msys2/setup-msys2 from 2.29.0 to 2.30.0
-* [2219](https://github.com/AcademySoftwareFoundation/openexr/pulls/2219)
+* [2219](https://github.com/AcademySoftwareFoundation/openexr/pull/2219)
 Bump actions/download-artifact from 6.0.0 to 7.0.0
-* [2218](https://github.com/AcademySoftwareFoundation/openexr/pulls/2218)
+* [2218](https://github.com/AcademySoftwareFoundation/openexr/pull/2218)
 Bump github/codeql-action from 4.31.7 to 4.31.8
-* [2216](https://github.com/AcademySoftwareFoundation/openexr/pulls/2216)
+* [2216](https://github.com/AcademySoftwareFoundation/openexr/pull/2216)
 Add option to compile c++ libraries with an embedded core library
-* [2215](https://github.com/AcademySoftwareFoundation/openexr/pulls/2215)
+* [2215](https://github.com/AcademySoftwareFoundation/openexr/pull/2215)
 Bump imath from 3.2.2 to 3.2.2.bcr.1
-* [2214](https://github.com/AcademySoftwareFoundation/openexr/pulls/2214)
+* [2214](https://github.com/AcademySoftwareFoundation/openexr/pull/2214)
 Bump github/codeql-action from 4.31.5 to 4.31.7
-* [2213](https://github.com/AcademySoftwareFoundation/openexr/pulls/2213)
+* [2213](https://github.com/AcademySoftwareFoundation/openexr/pull/2213)
 Bump sigstore/gh-action-sigstore-python from 3.1.0 to 3.2.0
-* [2212](https://github.com/AcademySoftwareFoundation/openexr/pulls/2212)
+* [2212](https://github.com/AcademySoftwareFoundation/openexr/pull/2212)
 Bump actions/checkout from 6.0.0 to 6.0.1
-* [2210](https://github.com/AcademySoftwareFoundation/openexr/pulls/2210)
+* [2210](https://github.com/AcademySoftwareFoundation/openexr/pull/2210)
 Bump actions/setup-python from 6.0.0 to 6.1.0
-* [2209](https://github.com/AcademySoftwareFoundation/openexr/pulls/2209)
+* [2209](https://github.com/AcademySoftwareFoundation/openexr/pull/2209)
 Bump github/codeql-action from 4.31.4 to 4.31.5
-* [2208](https://github.com/AcademySoftwareFoundation/openexr/pulls/2208)
+* [2208](https://github.com/AcademySoftwareFoundation/openexr/pull/2208)
 Remove enable-beta-ecosystem since Bazel is no officially supported
-* [2204](https://github.com/AcademySoftwareFoundation/openexr/pulls/2204)
+* [2204](https://github.com/AcademySoftwareFoundation/openexr/pull/2204)
 Bump actions/checkout from 3.6.0 to 6.0.0
-* [2202](https://github.com/AcademySoftwareFoundation/openexr/pulls/2202)
+* [2202](https://github.com/AcademySoftwareFoundation/openexr/pull/2202)
 Bump github/codeql-action from 4.31.3 to 4.31.4
-* [2193](https://github.com/AcademySoftwareFoundation/openexr/pulls/2193)
+* [2193](https://github.com/AcademySoftwareFoundation/openexr/pull/2193)
 Vendor in an internal version of OpenJPH
-* [2167](https://github.com/AcademySoftwareFoundation/openexr/pulls/2167)
+* [2167](https://github.com/AcademySoftwareFoundation/openexr/pull/2167)
 Bazel build: Bump openjph to 0.25.0 and libdeflate to 1.25
 
 ## Version 3.4.5 (February 21, 2026)
@@ -528,7 +622,7 @@ Heap-buffer-overflow via signed integer underflow in ImfContextInit.cpp
 
 ### Merged Pull Requests:
 
-* [2244](https://github.com/AcademySoftwareFoundation/pulls/2244)
+* [2244](https://github.com/AcademySoftwareFoundation/openexr/pull/2244)
 Fix incorrect size check in `istream_nonparallel_read`
 
 ## Version 3.4.4 (November 19, 2025)
@@ -549,53 +643,53 @@ directory would fail.
 
 ### Merged Pull Requests:
 
-* [2199](https://github.com/AcademySoftwareFoundation/pulls/2199)
+* [2199](https://github.com/AcademySoftwareFoundation/openexr/pull/2199)
 OpenEXRCore: fix `ILMTHREAD_THREADING_ENABLED` checks
-* [2198](https://github.com/AcademySoftwareFoundation/pulls/2198)
+* [2198](https://github.com/AcademySoftwareFoundation/openexr/pull/2198)
 OpenEXRCore: avoid direct dependency on imath
-* [2196](https://github.com/AcademySoftwareFoundation/pulls/2196)
+* [2196](https://github.com/AcademySoftwareFoundation/openexr/pull/2196)
 Bump github/codeql-action from 4.31.2 to 4.31.3
-* [2194](https://github.com/AcademySoftwareFoundation/pulls/2194)
+* [2194](https://github.com/AcademySoftwareFoundation/openexr/pull/2194)
 Add missing copywrite comments
-* [2192](https://github.com/AcademySoftwareFoundation/pulls/2192)
+* [2192](https://github.com/AcademySoftwareFoundation/openexr/pull/2192)
 Bump pypa/cibuildwheel from 3.2 to 3.3
-* [2190](https://github.com/AcademySoftwareFoundation/pulls/2190)
+* [2190](https://github.com/AcademySoftwareFoundation/openexr/pull/2190)
 Bump github/codeql-action from 3.27.9 to 4.31.2
-* [2189](https://github.com/AcademySoftwareFoundation/pulls/2189)
+* [2189](https://github.com/AcademySoftwareFoundation/openexr/pull/2189)
 Bump msys2/setup-msys2 from 2.27.0 to 2.29.0
-* [2188](https://github.com/AcademySoftwareFoundation/pulls/2188)
+* [2188](https://github.com/AcademySoftwareFoundation/openexr/pull/2188)
 Bump actions/download-artifact from 4.1.8 to 6.0.0
-* [2187](https://github.com/AcademySoftwareFoundation/pulls/2187)
+* [2187](https://github.com/AcademySoftwareFoundation/openexr/pull/2187)
 Bump ossf/scorecard-action from 2.4.0 to 2.4.3
-* [2186](https://github.com/AcademySoftwareFoundation/pulls/2186)
+* [2186](https://github.com/AcademySoftwareFoundation/openexr/pull/2186)
 Bump pypa/cibuildwheel from 2.23 to 3.2
-* [2185](https://github.com/AcademySoftwareFoundation/pulls/2185)
+* [2185](https://github.com/AcademySoftwareFoundation/openexr/pull/2185)
 Bump actions/cache from 4.2.0 to 4.3.0
-* [2184](https://github.com/AcademySoftwareFoundation/pulls/2184)
+* [2184](https://github.com/AcademySoftwareFoundation/openexr/pull/2184)
 Bump actions/upload-artifact from 4 to 5
-* [2183](https://github.com/AcademySoftwareFoundation/pulls/2183)
+* [2183](https://github.com/AcademySoftwareFoundation/openexr/pull/2183)
 Bump actions/checkout from 2.7.0 to 5.0.0
-* [2182](https://github.com/AcademySoftwareFoundation/pulls/2182)
+* [2182](https://github.com/AcademySoftwareFoundation/openexr/pull/2182)
 Add recent CVEs to SECURITY.md
-* [2181](https://github.com/AcademySoftwareFoundation/pulls/2181)
+* [2181](https://github.com/AcademySoftwareFoundation/openexr/pull/2181)
 Bump sigstore/gh-action-sigstore-python from 3.0.0 to 3.1.0
-* [2180](https://github.com/AcademySoftwareFoundation/pulls/2180)
+* [2180](https://github.com/AcademySoftwareFoundation/openexr/pull/2180)
 Bump actions/setup-python from 5.3.0 to 6.0.0
-* [2178](https://github.com/AcademySoftwareFoundation/pulls/2178)
+* [2178](https://github.com/AcademySoftwareFoundation/openexr/pull/2178)
 Bump snyk/actions from 0.4.0 to 1.0.0
-* [2177](https://github.com/AcademySoftwareFoundation/pulls/2177)
+* [2177](https://github.com/AcademySoftwareFoundation/openexr/pull/2177)
 Bump pypa/gh-action-pypi-publish from 1.12.3 to 1.13.0
-* [2176](https://github.com/AcademySoftwareFoundation/pulls/2176)
+* [2176](https://github.com/AcademySoftwareFoundation/openexr/pull/2176)
 Imporve Bazel support
-* [2175](https://github.com/AcademySoftwareFoundation/pulls/2175)
+* [2175](https://github.com/AcademySoftwareFoundation/openexr/pull/2175)
 Converts asserts in internal_ht.cpp to if statement that throws an exception.
-* [2174](https://github.com/AcademySoftwareFoundation/pulls/2174)
+* [2174](https://github.com/AcademySoftwareFoundation/openexr/pull/2174)
 DWA: initialize linear/nonlinear tables at runtime
-* [2173](https://github.com/AcademySoftwareFoundation/pulls/2173)
+* [2173](https://github.com/AcademySoftwareFoundation/openexr/pull/2173)
 Update macos-13 to macos-15-intel
-* [2171](https://github.com/AcademySoftwareFoundation/pulls/2171)
+* [2171](https://github.com/AcademySoftwareFoundation/openexr/pull/2171)
 Properly set `OpenEXR_error` in legacy python API
-* [2126](https://github.com/AcademySoftwareFoundation/pulls/2126)
+* [2126](https://github.com/AcademySoftwareFoundation/openexr/pull/2126)
 B44: initialize exp/log tables at runtime
 
 
@@ -606,13 +700,13 @@ properly rejecting corrupt input data.
 
 Specifically:
 
-* Buffer overflow in PyOpenEXR_old's `channels()` and `channel()` in
+- Buffer overflow in PyOpenEXR_old's `channels()` and `channel()` in
   legacy python, reported by Joshua Rogers (GitHub: MegaManSec).
-* Use after free in PyObject_StealAttrString in legacy python, reported
+- Use after free in PyObject_StealAttrString in legacy python, reported
   by Joshua Rogers (GitHub: MegaManSec).
-* Use of Uninitialized Memory in openexr, reported by Aldo Ristori
+- Use of Uninitialized Memory in openexr, reported by Aldo Ristori
   (GitHub: Kaldreic).
-* Heap-based Buffer Overflow Remote Code Execution Vulnerability,
+- Heap-based Buffer Overflow Remote Code Execution Vulnerability,
   reported by Trend Micro Zero Day Initiative.
 
 This release addresses the following CVEs:
@@ -651,18 +745,12 @@ Other fixes:
   which makes it possible to set `CMAKE_DEBUG_POSTFIX=""`.
 
 This version also bumps the auto-fetched version of OpenJPH to
-0.24.5. OpenJPH 0.24.5 addresses these OSS-Fuzz issues:
+0.24.4. OpenJPH 0.24.4 addresses these OSS-Fuzz issues:
 		
-* OSS-fuzz [456837230](https://issues.oss-fuzz.com/issues/456837230)
-Crash in `ojph::local::param_cod::~param_cod`
-* OSS-fuzz [456248580](https://issues.oss-fuzz.com/issues/456248580)
-Null-dereference READ in `ojph::local::param_cod::~param_cod`
 * OSS-fuzz [455374208](https://issues.oss-fuzz.com/issues/455374208)
 Floating-point-exception in `ojph::local::tile::pre_alloc`
 * OSS-fuzz [444963190](https://issues.oss-fuzz.com/issues/444963190)
 Index-out-of-bounds in `ojph::local::param_qcd::read_qcc`
-* OSS-fuzz [444889300](https://issues.oss-fuzz.com/issues/444889300)
-Heap-buffer-overflow in `ojph::mem_infile::read`
 * OSS-fuzz [444878558](https://issues.oss-fuzz.com/issues/444878558)
 Segv on unknown address in `ojph::local::param_qcd::~param_qcd`
 * OSS-fuzz [444878557](https://issues.oss-fuzz.com/issues/444878557)
@@ -695,10 +783,6 @@ Fix bug with re-reading scanline file with a different set of channels
 ## Version 3.4.2 (October 15, 2025)
 
 Patch release that fixes a Windows build issue introduced in v3.4.1.
-
-This version also bumps the auto-fetched Imath version to v3.2.2,
-which resolves a build problem with newer versions of cmake, involving
-duplicate library aliases.
 
 No change in functionality.
 
