@@ -820,16 +820,6 @@ def main():
 
     # Strip leading 'v' and trailing '-rc<candidate>' if necessary
     release_version = tag.lstrip('v').split('-rc')[0]
-    print(f"release_version: {release_version}")
-#    result = run(['git', 'tag', '--list', tag], stdout=PIPE, stderr=PIPE, universal_newlines=True)
-#    if result.stdout == "":
-#        tag = f"{release_version}-rc"
-#        result = run(['git', 'tag', '--list', tag], stdout=PIPE, stderr=PIPE, universal_newlines=True)
-#        if result.stdout != "":
-#            print(f"Using {tag} instead...")
-#        else:
-#            print(f"No such tag: {tag}")
-#            sys.exit(1)
 
     # Get the content of the CHANGES.md at the specified git tag
     with open("CHANGES.md", "r") as f:
@@ -840,6 +830,18 @@ def main():
     if release_date == None:
         print("No release found.")
         return
+
+    # Convert the special symbols
+    release_notes = re.sub(r':bug:', "🐛", release_notes, flags=re.DOTALL)
+    release_notes = re.sub(r':rocket:', "🚀", release_notes, flags=re.DOTALL)
+    release_notes = re.sub(r':hammer_and_wrench:', "🛠️", release_notes, flags=re.DOTALL)
+    release_notes = re.sub(r':wrench:', "🔧", release_notes, flags=re.DOTALL)
+    release_notes = re.sub(r':sparkles:', "✨", release_notes, flags=re.DOTALL)
+    release_notes = re.sub(r':snake:', "🐍", release_notes, flags=re.DOTALL)
+    release_notes = re.sub(r':package:', "📦", release_notes, flags=re.DOTALL)
+    release_notes = re.sub(r':warning:', "⚠️", release_notes, flags=re.DOTALL)
+    release_notes = re.sub(r':book:', "📖", release_notes, flags=re.DOTALL)
+
 
     if action == "notes":
         print(release_notes)
