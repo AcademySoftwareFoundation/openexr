@@ -3064,8 +3064,8 @@ PYBIND11_MODULE(OpenEXR, m)
         ;
     
     py::class_<ConstIterator>(m, "ChannelGroupManifestEntry")
-        .def("id", &ConstIterator::id)
-        .def("text", &ConstIterator::text);
+        .def("id", &ConstIterator::id, py::return_value_policy::copy)
+        .def("text", &ConstIterator::text, py::return_value_policy::copy);
 
     py::class_<ChannelGroupIterator> (m, "ChannelGroupIterator", py::module_local ())
         .def ("__iter__",
@@ -3092,8 +3092,8 @@ PYBIND11_MODULE(OpenEXR, m)
     m.attr ("ID_MANIFEST_MURMURHASH3_64") = IDManifest::MURMURHASH3_64;
 
     py::class_<Iterator> (m, "ChannelGroupManifestEntryIterator", py::module_local ())
-        .def ("id", &Iterator::id)
-        .def ("text", &Iterator::text);
+        .def ("id", &Iterator::id, py::return_value_policy::copy)
+        .def ("text", &Iterator::text, py::return_value_policy::copy);
 
     py::class_<IDManifest::ChannelGroupManifest> (
         m, "ChannelGroupManifest", "Channel group manifest for the image")
