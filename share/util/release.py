@@ -32,7 +32,12 @@ import subprocess
 from pathlib import Path
 from subprocess import PIPE, run
 from datetime import datetime, timedelta
+from urllib.error import HTTPError, URLError
+from urllib.request import urlopen
 import markdown
+
+OSS_FUZZ_ISSUE_JSON_PREFIX = ")]}'"
+OSS_FUZZ_ISSUE_API = "https://issues.oss-fuzz.com/action/issues/{issue_id}?format=json"
 
 def extract_section(content, version_tag):
     """Extract the section of release notes starting with a heading
@@ -335,6 +340,92 @@ def _collect_addressed_security_refs(blocks: list[str]) -> tuple[list[str], list
     return cves, oss_fuzz
 
 
+def _oss_fuzz_short_title(full_title: str) -> str:
+    """
+    Strip the ``project:fuzzer:`` prefix from an OSS-Fuzz issue title, leaving
+    the crash description (matches manual CHANGES.md style).
+    """
+    parts = full_title.split(":", 2)
+    if len(parts) >= 3:
+        return parts[2].strip()
+    return full_title.strip()
+
+
+def _oss_fuzz_full_title_from_fetch(data, issue_id: str) -> str | None:
+    """Extract the full issue title from an IssueFetchResponse JSON payload."""
+    if isinstance(data, dict):
+        return None
+    target = int(issue_id)
+
+    def walk(obj):
+        if isinstance(obj, list):
+            if (
+                len(obj) >= 3
+                and obj[0] is None
+                and obj[1] == target
+                and isinstance(obj[2], list)
+                and len(obj[2]) > 5
+                and isinstance(obj[2][5], str)
+            ):
+                return obj[2][5]
+            for item in obj:
+                found = walk(item)
+                if found:
+                    return found
+        return None
+
+    return walk(data)
+
+
+def _fetch_oss_fuzz_issue_json(issue_id: str):
+    """
+    Fetch issue metadata from issues.oss-fuzz.com. Public issues return JSON;
+    private or restricted issues may return HTTP 403 or a JSON error object.
+    """
+    url = OSS_FUZZ_ISSUE_API.format(issue_id=issue_id)
+    try:
+        with urlopen(url, timeout=30) as resp:
+            raw = resp.read().decode()
+    except (HTTPError, URLError, TimeoutError, OSError) as exc:
+        print(
+            f"Warning: could not fetch OSS-Fuzz issue {issue_id}: {exc}",
+            file=sys.stderr,
+        )
+        return None
+    if raw.startswith(OSS_FUZZ_ISSUE_JSON_PREFIX):
+        raw = raw[len(OSS_FUZZ_ISSUE_JSON_PREFIX) :]
+    try:
+        return json.loads(raw)
+    except json.JSONDecodeError:
+        print(
+            f"Warning: invalid JSON fetching OSS-Fuzz issue {issue_id}",
+            file=sys.stderr,
+        )
+        return None
+
+
+def oss_fuzz_issue_titles(issue_ids: list[str]) -> dict[str, str]:
+    """
+    Map OSS-Fuzz issue id to a short title (crash description only) for use in
+    release notes. Issues that cannot be fetched are omitted from the dict.
+    """
+    titles: dict[str, str] = {}
+    for issue_id in issue_ids:
+        data = _fetch_oss_fuzz_issue_json(issue_id)
+        if data is None:
+            continue
+        if isinstance(data, dict) and data.get("message"):
+            print(
+                f"Warning: OSS-Fuzz issue {issue_id}: {data['message']}",
+                file=sys.stderr,
+            )
+            continue
+        full = _oss_fuzz_full_title_from_fetch(data, issue_id)
+        if full:
+            titles[issue_id] = _oss_fuzz_short_title(full)
+    return titles
+
+
 def _gh_pr_text_blocks(pr_number: str) -> list[str]:
     result = run(
         [
@@ -400,7 +491,47 @@ MERGED_PR_HEADING_RE = re.compile(
 MERGED_WORKFLOW_HEADING_RE = re.compile(
     r"^###\s+Merged Workflow Pull Requests\s*:?\s*$", re.IGNORECASE
 )
+SECURITY_HEADING_RE = re.compile(r"^###\s+Security\s*:?\s*$", re.IGNORECASE)
 PR_BULLET_RE = re.compile(r"^\*\s*\[(\d+)\]\(")
+
+
+def strip_security_from_heading(heading_lines: list[str]) -> list[str]:
+    """
+    Remove an existing ``### Security`` subsection from release section heading
+    lines so ``cmd_changes`` can regenerate it from current PR references.
+
+    Preserves a single blank line that separated descriptive text from
+    ``### Security``; that blank is reinserted when the section is rewritten.
+    """
+    out: list[str] = []
+    i = 0
+    n = len(heading_lines)
+    while i < n:
+        if SECURITY_HEADING_RE.match(heading_lines[i].strip()):
+            # Drop the blank line between descriptive text and ### Security.
+            if out and not out[-1].strip():
+                out.pop()
+            i += 1
+            while i < n and not heading_lines[i].startswith("### "):
+                i += 1
+            continue
+        out.append(heading_lines[i])
+        i += 1
+    return out
+
+
+def collect_security_refs_for_prs(pr_numbers: list[str]) -> tuple[list[str], list[str]]:
+    """
+    Scan the given PR numbers for CVE and OSS-Fuzz references. Returns
+    ``(cves, oss_fuzz_issue_ids)`` in first-seen order (deduped per list).
+    """
+    cves: list[str] = []
+    oss_fuzz_issues: list[str] = []
+    for pr_number in pr_numbers:
+        pr_cves, pr_oss_fuzz = pr_addressed_cves(pr_number)
+        cves.extend(pr_cves)
+        oss_fuzz_issues.extend(pr_oss_fuzz)
+    return cves, oss_fuzz_issues
 
 
 def parse_pr_blocks_dict(lines, i, stop_at_workflow_heading):
@@ -541,6 +672,7 @@ def cmd_changes(tag, prs):
         section_heading, merged_prs, merged_workflow_prs = parse_section(
             lines[section_index:footer_index]
         )
+        section_heading = strip_security_from_heading(section_heading)
     else:
         # The section does not exist, so create the stub of a new one
         section_heading = [f"## Version {base_tag} ({date_str})\n"]
@@ -561,8 +693,6 @@ def cmd_changes(tag, prs):
     # Format the list entry for each new PR:
     # * [number](url)
     # title
-    cves: list[str] = []
-    oss_fuzz_issues: list[str] = []
     for pr_number in prs:
         info = gh_pr_view(pr_number)
         title = info.get("title") or ""
@@ -576,11 +706,18 @@ def cmd_changes(tag, prs):
             merged_workflow_prs[pr_number] = pr_block
         else:
             merged_prs[pr_number] = pr_block
-        pr_cves, pr_oss_fuzz = pr_addressed_cves(pr_number)
-        cves.extend(pr_cves)
-        oss_fuzz_issues.extend(pr_oss_fuzz)
+
+    # Scan every PR listed in the section (not only those on the command line)
+    # so Security stays complete when ``changes`` is re-run incrementally.
+    all_prs_for_security = sorted(
+        set(merged_prs) | set(merged_workflow_prs),
+        key=int,
+        reverse=True,
+    )
+    cves, oss_fuzz_issues = collect_security_refs_for_prs(all_prs_for_security)
 
     advisory_titles = gh_security_advisories_cve_titles()
+    oss_fuzz_titles = oss_fuzz_issue_titles(list(dict.fromkeys(oss_fuzz_issues)))
 
     with open("CHANGES.md", "w", encoding="utf-8", newline="\n") as f:
         if toc is None:
@@ -598,18 +735,21 @@ def cmd_changes(tag, prs):
         # Write the release section
         f.write("\n".join(section_heading))
         if cves or oss_fuzz_issues:
-            f.write("\n### Security\n")
+            f.write("\n\n### Security\n")
             f.write(
                 "\nThis release addresses the following security "
                 "vulnerabilities:\n\n"
             )
             for cve in sorted(set(cves), reverse=True):
                 title = advisory_titles.get(cve, "")
-                suffix = f" {title}" if title else ""
+                suffix = f"\n{title}" if title else ""
                 f.write(f"* [{cve}](https://www.cve.org/CVERecord?id={cve}){suffix}\n")
             for issue_id in sorted(set(oss_fuzz_issues), reverse=True):
                 url = f"https://issues.oss-fuzz.com/issues/{issue_id}"
-                f.write(f"* [OSS-Fuzz {issue_id}]({url})\n")
+                f.write(f"* OSS-fuzz [{issue_id}]({url})\n")
+                short = oss_fuzz_titles.get(issue_id, "")
+                if short:
+                    f.write(f"{short}\n")
         f.write("\n### Merged Pull Requests\n\n")
         for pr, value in sorted(merged_prs.items(), reverse=True):
             f.write(value + "\n")
