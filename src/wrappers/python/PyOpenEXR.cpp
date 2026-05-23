@@ -2736,6 +2736,48 @@ PYBIND11_MODULE(OpenEXR, m)
         &globalThreadCount,
         "Return the current number of worker threads in OpenEXR's global pool.\n\n");
 
+    m.def(
+        "setMaxImageSize",
+        &Header::setMaxImageSize,
+        py::arg("max_width"),
+        py::arg("max_height"),
+        "Set the maximum allowed image width and height for subsequent OpenEXR reads "
+        "and writes in this process.\n\n"
+        "Pass ``0`` for either dimension to mean no limit for that dimension. "
+        "Maps to ``Imf::Header::setMaxImageSize()``.\n\n");
+
+    m.def(
+        "getMaxImageSize",
+        [](){
+            int w = 0;
+            int h = 0;
+            Header::getMaxImageSize (w, h);
+            return py::make_tuple (w, h);
+        },
+        "Return ``(max_width, max_height)`` for the current image dimension limits.\n\n"
+        "Maps to ``Imf::Header::getMaxImageSize()``.\n\n");
+
+    m.def(
+        "setMaxTileSize",
+        &Header::setMaxTileSize,
+        py::arg("max_width"),
+        py::arg("max_height"),
+        "Set the maximum allowed tile width and height for subsequent OpenEXR reads "
+        "and writes in this process.\n\n"
+        "Pass ``0`` for either dimension to mean no limit for that dimension. "
+        "Maps to ``Imf::Header::setMaxTileSize()``.\n\n");
+
+    m.def(
+        "getMaxTileSize",
+        [](){
+            int w = 0;
+            int h = 0;
+            Header::getMaxTileSize (w, h);
+            return py::make_tuple (w, h);
+        },
+        "Return ``(max_width, max_height)`` for the current tile dimension limits.\n\n"
+        "Maps to ``Imf::Header::getMaxTileSize()``.\n\n");
+
     //
     // Add symbols from the legacy implementation of the bindings for
     // backwards compatibility
