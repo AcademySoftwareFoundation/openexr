@@ -288,23 +288,39 @@ read_header (
     size_t                              max_sz,
     std::vector<CodestreamChannelInfo>& map)
 {
-    MemoryReader header ((uint8_t*) buffer, max_sz);
-    if (header.pull_uint16 () != HEADER_MARKER)
+    if (max_sz < HEADER_SZ)
+        throw std::runtime_error ("HTJ2K chunk is too small for a header");
+
+    MemoryReader prefix ((uint8_t*) buffer, max_sz);
+    if (prefix.pull_uint16 () != HEADER_MARKER)
         throw std::runtime_error (
             "HTJ2K chunk header missing does not start with magic number.");
 
-    size_t length = header.pull_uint32 ();
+    const uint32_t payload_len = prefix.pull_uint32 ();
 
-    if (length < 2)
+    if (payload_len < 2)
         throw std::runtime_error ("Error while reading the channel map");
 
-    length += HEADER_SZ;
+    const uint64_t total_header =
+        static_cast<uint64_t> (payload_len) + HEADER_SZ;
+    if (total_header > max_sz)
+        throw std::runtime_error (
+            "HTJ2K header length exceeds compressed chunk size");
 
-    map.resize (header.pull_uint16 ());
+    MemoryReader payload (
+        static_cast<uint8_t*> (buffer) + HEADER_SZ,
+        static_cast<size_t> (payload_len));
+
+    const uint16_t nch = payload.pull_uint16 ();
+    const uint64_t map_bytes = 2ULL + 2ULL * static_cast<uint64_t> (nch);
+    if (map_bytes > payload_len)
+        throw std::runtime_error ("HTJ2K channel map exceeds header payload");
+
+    map.resize (nch);
     for (size_t i = 0; i < map.size (); i++)
     {
-        map.at (i).file_index = header.pull_uint16 ();
+        map.at (i).file_index = payload.pull_uint16 ();
     }
 
-    return length;
+    return static_cast<size_t> (total_header);
 }
