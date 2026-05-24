@@ -182,6 +182,8 @@ ht_undo_impl (
         return EXR_ERR_CORRUPT_CHUNK;
     }
 
+    /* this should never be true since read_header() throws an exception if the
+    header is larger than comp_buf_size */
     if (header_sz > comp_buf_size)
         return EXR_ERR_CORRUPT_CHUNK;
 
