@@ -136,10 +136,15 @@ codestream/channel width mismatch in HTJ2K decode
 * [CVE-2026-44663](https://www.cve.org/CVERecord?id=CVE-2026-44663)
 Integer overflow in HTJ2K decoder ( `ht_undo_impl` ) leading to
 heap-buffer-overflow
-* [OSS-Fuzz 512895184](https://issues.oss-fuzz.com/issues/512895184)
-* [OSS-Fuzz 512314697](https://issues.oss-fuzz.com/issues/512314697)
-* [OSS-Fuzz 508362159](https://issues.oss-fuzz.com/issues/508362159)
-* [OSS-Fuzz 507413960](https://issues.oss-fuzz.com/issues/507413960)
+* [OSS-fuzz 512895184](https://issues.oss-fuzz.com/issues/512895184) 
+Null-dereference WRITE in `Imf_4_0::TileProcess::run_decode`
+* [OSS-fuzz 512314697](https://issues.oss-fuzz.com/issues/512314697)
+Direct-leak in `internal_exr_add_part`
+* [OSS-fuzz 508362159](https://issues.oss-fuzz.com/issues/508362159)
+Heap-buffer-overflow in `DwaCompressor_uncompress`
+* [OSS-fuzz 507413960](https://issues.oss-fuzz.com/issues/507413960)
+Heap-buffer-overflow in `generic_unpack`
+
 
 ### Merged Pull Requests
 
