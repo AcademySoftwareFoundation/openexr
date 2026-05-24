@@ -215,6 +215,11 @@ public:
         return (v << 8) + *cur++;
     }
 
+    size_t tell() const
+    {
+        return this->cur - this->buffer;
+    }
+
 protected:
     uint8_t* buffer;
     uint8_t* cur;
@@ -288,39 +293,23 @@ read_header (
     size_t                              max_sz,
     std::vector<CodestreamChannelInfo>& map)
 {
-    if (max_sz < HEADER_SZ)
-        throw std::runtime_error ("HTJ2K chunk is too small for a header");
-
-    MemoryReader prefix ((uint8_t*) buffer, max_sz);
-    if (prefix.pull_uint16 () != HEADER_MARKER)
+    MemoryReader header ((uint8_t*) buffer, max_sz);
+    if (header.pull_uint16 () != HEADER_MARKER)
         throw std::runtime_error (
-            "HTJ2K chunk header missing does not start with magic number.");
+            "HTJ2K chunk header does not start with magic number.");
 
-    const uint32_t payload_len = prefix.pull_uint32 ();
+    size_t payload_sz = header.pull_uint32 ();
+    size_t prefix_sz = header.tell ();
 
-    if (payload_len < 2)
-        throw std::runtime_error ("Error while reading the channel map");
-
-    const uint64_t total_header =
-        static_cast<uint64_t> (payload_len) + HEADER_SZ;
-    if (total_header > max_sz)
+    if (payload_sz + prefix_sz > max_sz)
         throw std::runtime_error (
-            "HTJ2K header length exceeds compressed chunk size");
+            "HTJ2K chunk header length is larger than the chunk size.");
 
-    MemoryReader payload (
-        static_cast<uint8_t*> (buffer) + HEADER_SZ,
-        static_cast<size_t> (payload_len));
-
-    const uint16_t nch = payload.pull_uint16 ();
-    const uint64_t map_bytes = 2ULL + 2ULL * static_cast<uint64_t> (nch);
-    if (map_bytes > payload_len)
-        throw std::runtime_error ("HTJ2K channel map exceeds header payload");
-
-    map.resize (nch);
+    map.resize (header.pull_uint16 ());
     for (size_t i = 0; i < map.size (); i++)
     {
-        map.at (i).file_index = payload.pull_uint16 ();
+        map.at (i).file_index = header.pull_uint16 ();
     }
 
-    return static_cast<size_t> (total_header);
+    return prefix_sz + payload_sz;
 }
