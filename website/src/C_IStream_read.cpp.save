@@ -1,8 +1,4 @@
 //
-// SPDX-License-Identifier: BSD-3-Clause
-// Copyright (c) Contributors to the OpenEXR Project.
-//
-
 #include <cstdio>
 #include "C_IStream.h"
 #include "Iex.h"
@@ -26,4 +22,3 @@ C_IStream::read (char c[], int n)
 
     return !feof (_file);
 }
-

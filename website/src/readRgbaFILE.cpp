@@ -11,7 +11,8 @@ readRgbaFILE (
     int&           width,
     int&           height)
 {
-    C_IStream istr (cfile, fileName);
+
+   C_IStream istr (cfile, fileName);
 
     RgbaInputFile file (istr);
 

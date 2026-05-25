@@ -5,7 +5,7 @@
 
 #include <cstdint>
 #include <cstdio>
-#include "C_IStream.cpp"
+#include "C_IStream.h"
 
 uint64_t
 C_IStream::tellg ()

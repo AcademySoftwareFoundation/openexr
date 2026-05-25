@@ -3,7 +3,8 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 #include <cstdio>
-#include "C_IStream.cpp"
+#include "C_IStream.h"
+
 void
 C_IStream::clear ()
 {
