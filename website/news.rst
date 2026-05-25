@@ -46,19 +46,17 @@ For the python module:
 This release addresses the following security vulnerabilities:
 
 * `CVE-2026-45696 <https://www.cve.org/CVERecord?id=CVE-2026-45696>`_
-OpenEXR ``ht_undo_impl`` heap-buffer-overflow READ via
-codestream/channel width mismatch in HTJ2K decode
+  OpenEXR ``ht_undo_impl`` heap-buffer-overflow READ via codestream/channel width mismatch in HTJ2K decode
 * `CVE-2026-44663 <https://www.cve.org/CVERecord?id=CVE-2026-44663>`_
-Integer overflow in HTJ2K decoder ( ``ht_undo_impl`` ) leading to
-heap-buffer-overflow
+  Integer overflow in HTJ2K decoder ( ``ht_undo_impl`` ) leading to heap-buffer-overflow
 * `OSS-fuzz 512895184 <https://issues.oss-fuzz.com/issues/512895184>`_
-Null-dereference WRITE in ``Imf_4_0::TileProcess::run_decode``
+  Null-dereference WRITE in ``Imf_4_0::TileProcess::run_decode``
 * `OSS-fuzz 512314697 <https://issues.oss-fuzz.com/issues/512314697>`_
-Direct-leak in ``internal_exr_add_part``
+  Direct-leak in ``internal_exr_add_part``
 * `OSS-fuzz 508362159 <https://issues.oss-fuzz.com/issues/508362159>`_
-Heap-buffer-overflow in ``DwaCompressor_uncompress``
+  Heap-buffer-overflow in ``DwaCompressor_uncompress``
 * `OSS-fuzz 507413960 <https://issues.oss-fuzz.com/issues/507413960>`_
-Heap-buffer-overflow in ``generic_unpack``
+  Heap-buffer-overflow in ``generic_unpack``
 
 .. _LatestNewsEnd:
 
