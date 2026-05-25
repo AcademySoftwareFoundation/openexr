@@ -746,7 +746,7 @@ def cmd_changes(tag, prs):
                 f.write(f"* [{cve}](https://www.cve.org/CVERecord?id={cve}){suffix}\n")
             for issue_id in sorted(set(oss_fuzz_issues), reverse=True):
                 url = f"https://issues.oss-fuzz.com/issues/{issue_id}"
-                f.write(f"* OSS-fuzz [{issue_id}]({url})\n")
+                f.write(f"* OSS-Fuzz [{issue_id}]({url})\n")
                 short = oss_fuzz_titles.get(issue_id, "")
                 if short:
                     f.write(f"{short}\n")
