@@ -742,20 +742,20 @@ def cmd_changes(tag, prs):
             )
             for cve in sorted(set(cves), reverse=True):
                 title = advisory_titles.get(cve, "")
-                suffix = f"\n{title}" if title else ""
+                suffix = f"\n  {title}" if title else ""
                 f.write(f"* [{cve}](https://www.cve.org/CVERecord?id={cve}){suffix}\n")
             for issue_id in sorted(set(oss_fuzz_issues), reverse=True):
                 url = f"https://issues.oss-fuzz.com/issues/{issue_id}"
                 f.write(f"* OSS-Fuzz [{issue_id}]({url})\n")
                 short = oss_fuzz_titles.get(issue_id, "")
                 if short:
-                    f.write(f"{short}\n")
+                    f.write(f"  {short}\n")
         f.write("\n### Merged Pull Requests\n\n")
         for pr, value in sorted(merged_prs.items(), reverse=True):
-            f.write(value + "\n")
+            f.write("  " + value + "\n")
         f.write("\n### Merged Workflow Pull Requests\n\n")
         for pr, value in sorted(merged_workflow_prs.items(), reverse=True):
-            f.write(value + "\n")
+            f.write("  " + value + "\n")
         # Write the rest of the file
         f.write("\n" + "\n".join(lines[footer_index:]))
 
