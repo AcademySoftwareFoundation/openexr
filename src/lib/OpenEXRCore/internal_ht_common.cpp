@@ -215,6 +215,11 @@ public:
         return (v << 8) + *cur++;
     }
 
+    size_t tell() const
+    {
+        return this->cur - this->buffer;
+    }
+
 protected:
     uint8_t* buffer;
     uint8_t* cur;
@@ -291,14 +296,14 @@ read_header (
     MemoryReader header ((uint8_t*) buffer, max_sz);
     if (header.pull_uint16 () != HEADER_MARKER)
         throw std::runtime_error (
-            "HTJ2K chunk header missing does not start with magic number.");
+            "HTJ2K chunk header does not start with magic number.");
 
-    size_t length = header.pull_uint32 ();
+    size_t payload_sz = header.pull_uint32 ();
+    size_t prefix_sz = header.tell ();
 
-    if (length < 2)
-        throw std::runtime_error ("Error while reading the channel map");
-
-    length += HEADER_SZ;
+    if (payload_sz + prefix_sz > max_sz)
+        throw std::runtime_error (
+            "HTJ2K chunk header length is larger than the chunk size.");
 
     map.resize (header.pull_uint16 ());
     for (size_t i = 0; i < map.size (); i++)
@@ -306,5 +311,5 @@ read_header (
         map.at (i).file_index = header.pull_uint16 ();
     }
 
-    return length;
+    return prefix_sz + payload_sz;
 }
