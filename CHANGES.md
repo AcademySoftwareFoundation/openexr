@@ -3,6 +3,7 @@
 
 # OpenEXR Release Notes
 
+* [Version 3.4.12](#version-3412-may-24-2026) May 24, 2026
 * [Version 3.4.11](#version-3411-april-29-2026) April 29, 2026
 * [Version 3.4.10](#version-3410-april-17-2026) April 17, 2026
 * [Version 3.4.9](#version-349-april--3-2026) April  3, 2026
@@ -102,6 +103,104 @@
 * [Version 1.0.2](#version-102)
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
+
+## Version 3.4.12 (May 24, 2026)
+
+Patch release that addresses several bugs and security
+vulnerabilities.
+
+* :bug: Fix several minor memory leaks recovering from reading invalid
+  files.
+* :bug: The compressor API incorrectly identfied `HTJ2K` and `HTJ2K256` as
+  lossy; they are lossles.
+* :bug: Fix CMake AVX feature detection that caused DWA SIMD code to fail on
+  certain architectures.
+* :warning: The `WidenFilename` utility function is marked as deprecated, to be
+  removed in a future release.
+* :sparkles: `exrmetrics` now print the on-disk size of the data portion of each
+  part. Useful for determining compression impact on part data
+
+For the python module:
+
+* :snake: :bug: Reject files where the dataWindows does not match the
+  pixel array dimensions.
+* :snake: :sparkles: Support NumPy float vector attributes
+* :snake: :sparkles: Reading now skips over invalid parts, returns the valid parts only.
+* :snake: :book: Doc strings have proper indentation
+
+This release addresses the following security vulnerabilities:
+
+* [CVE-2026-45696](https://www.cve.org/CVERecord?id=CVE-2026-45696)
+OpenEXR `ht_undo_impl` heap-buffer-overflow READ via
+codestream/channel width mismatch in HTJ2K decode
+* [CVE-2026-44663](https://www.cve.org/CVERecord?id=CVE-2026-44663)
+Integer overflow in HTJ2K decoder ( `ht_undo_impl` ) leading to
+heap-buffer-overflow
+* [OSS-fuzz 512895184](https://issues.oss-fuzz.com/issues/512895184) 
+Null-dereference WRITE in `Imf_4_0::TileProcess::run_decode`
+* [OSS-fuzz 512314697](https://issues.oss-fuzz.com/issues/512314697)
+Direct-leak in `internal_exr_add_part`
+* [OSS-fuzz 508362159](https://issues.oss-fuzz.com/issues/508362159)
+Heap-buffer-overflow in `DwaCompressor_uncompress`
+* [OSS-fuzz 507413960](https://issues.oss-fuzz.com/issues/507413960)
+Heap-buffer-overflow in `generic_unpack`
+
+
+### Merged Pull Requests
+
+* [2424](https://github.com/AcademySoftwareFoundation/openexr/pull/2424)
+exrmetrics print disk size of part
+* [2423](https://github.com/AcademySoftwareFoundation/openexr/pull/2423)
+Fix computation of chunk height
+* [2422](https://github.com/AcademySoftwareFoundation/openexr/pull/2422)
+Fix memory leaks
+* [2421](https://github.com/AcademySoftwareFoundation/openexr/pull/2421)
+Add test to validate python module reading of unfinished parts
+* [2416](https://github.com/AcademySoftwareFoundation/openexr/pull/2416)
+Add HTJ2K256 and HTJ2K32 to data compression scheme list
+* [2414](https://github.com/AcademySoftwareFoundation/openexr/pull/2414)
+Check for invalid Slice base and type in `TileProcess::copy_sample_count`
+* [2413](https://github.com/AcademySoftwareFoundation/openexr/pull/2413)
+Python: reject dataWindow size mismatch before write
+* [2409](https://github.com/AcademySoftwareFoundation/openexr/pull/2409)
+Python: fix docstring indentation
+* [2407](https://github.com/AcademySoftwareFoundation/openexr/pull/2407)
+Support NumPy float vectors in Python headers
+* [2406](https://github.com/AcademySoftwareFoundation/openexr/pull/2406)
+Update urllib3 to 2.7 in website/requirements.txt
+* [2405](https://github.com/AcademySoftwareFoundation/openexr/pull/2405)
+Signal HTJ2K* compressors as lossless
+* [2403](https://github.com/AcademySoftwareFoundation/openexr/pull/2403)
+htj2k compressor: validate codestream dimensions
+* [2402](https://github.com/AcademySoftwareFoundation/openexr/pull/2402)
+Release notes, news, and CVE info for v3.4.11, 3.3.11, 3.2.9
+* [2398](https://github.com/AcademySoftwareFoundation/openexr/pull/2398)
+Arcmantis/warning deprecate WidenFilename
+* [2397](https://github.com/AcademySoftwareFoundation/openexr/pull/2397)
+Cast to `size_t` to avoid int overflow in `ht_undo_impl`
+* [2392](https://github.com/AcademySoftwareFoundation/openexr/pull/2392)
+Correct index rejection for string access.
+* [2388](https://github.com/AcademySoftwareFoundation/openexr/pull/2388)
+Relax NaN comparison in compression tests
+* [2387](https://github.com/AcademySoftwareFoundation/openexr/pull/2387)
+Add install instructions for python module
+* [2385](https://github.com/AcademySoftwareFoundation/openexr/pull/2385)
+cmake: require YMM asm for inline AVX probe
+* [2373](https://github.com/AcademySoftwareFoundation/openexr/pull/2373)
+Bump and pin website/requirements.txt
+* [2359](https://github.com/AcademySoftwareFoundation/openexr/pull/2359)
+Add reference to "contribute" and Clotributor in README.md and website
+* [2148](https://github.com/AcademySoftwareFoundation/openexr/pull/2148)
+Fix unfinished multi-part file loading in the python wrapper
+
+### Merged Workflow Pull Requests
+
+* [2399](https://github.com/AcademySoftwareFoundation/openexr/pull/2399)
+Bump github/codeql-action from 4.35.2 to 4.35.4
+* [2396](https://github.com/AcademySoftwareFoundation/openexr/pull/2396)
+Bump sphinx from 7.2.6 to 7.4.7 in /website
+* [2394](https://github.com/AcademySoftwareFoundation/openexr/pull/2394)
+Bump platforms from 1.0.0 to 1.1.0
 
 ## Version 3.4.11 (April 29, 2026)
 
