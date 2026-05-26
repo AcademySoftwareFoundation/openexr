@@ -156,7 +156,6 @@ For the python module:
   * [2430](git@github.com:AcademySoftwareFoundation/openexr/pull/2430)
     Pin idna>=3.15 in website/requirements.txt
 
-
 ## Version 3.4.12 (May 24, 2026)
 
 Patch release that addresses several bugs and security
@@ -198,6 +197,10 @@ Heap-buffer-overflow in `DwaCompressor_uncompress`
 * [OSS-fuzz 507413960](https://issues.oss-fuzz.com/issues/507413960)
 Heap-buffer-overflow in `generic_unpack`
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> c9519c7c (Release notes and news for v3.4.12 (#2436))
 ### Merged Pull Requests
 
 * [2424](https://github.com/AcademySoftwareFoundation/openexr/pull/2424)
