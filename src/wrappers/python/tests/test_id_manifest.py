@@ -22,21 +22,9 @@ _TEST_DIR = Path(__file__).parent
 _MANIFEST_ID_EXR = _TEST_DIR / "manifest_id.exr"
 
 
-def _open_manifest_fixture_or_skip():
-    """Return OpenEXR.File for manifest_id.exr or skip if idManifest decode is missing."""
-    try:
-        return OpenEXR.File(str(_MANIFEST_ID_EXR), header_only=True)
-    except RuntimeError as e:
-        msg = str(e).lower()
-        if "unsupported attribute type" in msg and "idmanifest" in msg:
-            pytest.skip("idManifest attribute not decoded in Python yet")
-        raise
-
-
 def test_manifest_id_fixture_exists():
     """C++ generator output; used by exrheader smoke test below."""
-    assert _MANIFEST_ID_EXR.is_file(), "commit or generate manifest_id.exr in tests/"
-
+    assert _MANIFEST_ID_EXR.is_file(), "file manifest_id.exr not found in tests/"
 
 def test_manifest_id_listed_in_exrheader():
     exrheader = shutil.which("exrheader")
@@ -59,35 +47,35 @@ def test_minimal_read_fixture_like_deepidselect():
 
     Assertions match ``makeTestManifest`` in ``testIDManifest.cpp``.
     """
-    f = _open_manifest_fixture_or_skip()
-    h = f.parts[0].header
-    assert "idManifest" in h
+    with OpenEXR.File(str(_MANIFEST_ID_EXR), header_only=True) as f:
+        h = f.parts[0].header
+        assert "idManifest" in h
 
-    mid = h["idManifest"]
-    assert isinstance(mid, OpenEXR.IDManifest)
-    assert mid.size() == 2
+        mid = h["idManifest"]
+        assert isinstance(mid, OpenEXR.IDManifest)
+        assert mid.size() == 2
 
-    g0 = mid[0]
-    assert g0.getHashScheme() == "none"
-    assert set(g0.getChannels()) == {"id"}
-    assert g0.size() == 4
-    assert {int(it.id()): list(it.text()) for it in g0} == {
-        1: ["merino/body", "wool"],
-        2: ["merino/body", "skin"],
-        3: ["merino/body", "skin"],
-        4: ["merino/eye", "eye"],
-    }
+        g0 = mid[0]
+        assert g0.getHashScheme() == "none"
+        assert set(g0.getChannels()) == {"id"}
+        assert g0.size() == 4
+        assert {int(it.id()): list(it.text()) for it in g0} == {
+            1: ["merino/body", "wool"],
+            2: ["merino/body", "skin"],
+            3: ["merino/body", "skin"],
+            4: ["merino/eye", "eye"],
+        }
 
-    g1 = mid[1]
-    assert g1.getEncodingScheme() == "id2"
-    assert g1.getHashScheme() == "MurmurHash3_64"
-    assert list(g1.getComponents()) == ["instance"]
-    assert set(g1.getChannels()) == {"instance1", "instance2"}
-    assert g1.size() == 3
+        g1 = mid[1]
+        assert g1.getEncodingScheme() == "id2"
+        assert g1.getHashScheme() == "MurmurHash3_64"
+        assert list(g1.getComponents()) == ["instance"]
+        assert set(g1.getChannels()) == {"instance1", "instance2"}
+        assert g1.size() == 3
 
-    assert mid.find("id") == 0
-    assert mid.find("instance1") == 1
-    assert mid.find("missing") == mid.size()
+        assert mid.find("id") == 0
+        assert mid.find("instance1") == 1
+        assert mid.find("missing") == mid.size()
 
 
 def test_minimal_build_manifest_like_deepidexample():
