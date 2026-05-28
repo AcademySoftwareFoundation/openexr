@@ -324,7 +324,7 @@ testReadScans (const std::string& tempdir)
     EXRCORE_TEST (cinfo.sample_count_data_offset == 0);
     EXRCORE_TEST (cinfo.sample_count_table_size == 0);
 
-    exr_decode_pipeline_t decoder;
+    exr_decode_pipeline_t decoder = EXR_DECODE_PIPELINE_INITIALIZER;
     EXRCORE_TEST_RVAL (exr_decoding_initialize (f, 0, &cinfo, &decoder));
 
     EXRCORE_TEST (decoder.channel_count == 2);
@@ -513,7 +513,7 @@ testReadTiles (const std::string& tempdir)
     EXRCORE_TEST (cinfo.sample_count_data_offset == 0);
     EXRCORE_TEST (cinfo.sample_count_table_size == 0);
 
-    exr_decode_pipeline_t decoder;
+    exr_decode_pipeline_t decoder = EXR_DECODE_PIPELINE_INITIALIZER;
     EXRCORE_TEST_RVAL (exr_decoding_initialize (f, 0, &cinfo, &decoder));
 
     EXRCORE_TEST (decoder.channel_count == 2);
@@ -586,7 +586,7 @@ testReadUnpack (const std::string& tempdir)
     EXRCORE_TEST_RVAL (exr_read_tile_chunk_info (f, 0, 4, 2, 0, 0, &cinfo));
 
     {
-        exr_decode_pipeline_t decoder;
+        exr_decode_pipeline_t decoder = EXR_DECODE_PIPELINE_INITIALIZER;
         EXRCORE_TEST_RVAL (exr_decoding_initialize (f, 0, &cinfo, &decoder));
 
         std::unique_ptr<float[]>    gptr{new float[24 * 12]};
