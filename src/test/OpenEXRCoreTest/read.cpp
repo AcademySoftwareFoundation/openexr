@@ -619,43 +619,6 @@ testReadUnpack (const std::string& tempdir)
 
 #include "../../lib/OpenEXRCore/internal_util.h"
 
-static inline int
-compute_sampled_height_p (int height, int y_sampling, int start_y)
-{
-    int nlines;
-
-    if (y_sampling <= 1) return height;
-
-    if (height == 1)
-        nlines = (start_y % y_sampling) == 0 ? 1 : 0;
-    else
-    {
-        int off, tmph;
-
-        /* computed the number of times y % ysampling == 0, by
-         * computing interval based on first and last time that occurs
-         * on the given range
-         */
-        if (start_y < 0)
-        {
-            off = -start_y % y_sampling;
-        }
-        else
-        {
-            off = start_y % y_sampling;
-            if (off != 0)
-                off = (y_sampling - off);
-        }
-
-        tmph = height - off;
-        if (tmph == 0) return 0;
-        --tmph;
-        nlines = tmph / y_sampling + 1;
-    }
-
-    return nlines;
-}
-
 static inline int hardway_height (int height, int y_sampling, int start_y)
 {
     int nlines = 0;
@@ -669,29 +632,6 @@ static inline int hardway_height (int height, int y_sampling, int start_y)
     for ( int y = start_y; y < end; ++y )
     {
         if (y % y_sampling != 0) continue;
-        ++nlines;
-    }
-    return nlines;
-}
-
-static inline int hardway_height_p (int height, int y_sampling, int start_y)
-{
-    int nlines = 0;
-    int end = start_y + height;
-    int off = 0;
-
-    if (y_sampling <= 1) return height;
-
-    if (height == 1)
-        return (start_y % y_sampling) == 0 ? 1 : 0;
-
-    for ( int y = start_y; y < end; ++y )
-    {
-        if (y % y_sampling != 0)
-        {
-            if (nlines == 0) ++off;
-            continue;
-        }
         ++nlines;
     }
     return nlines;
@@ -714,8 +654,6 @@ static void test_lpc( int samp, int h, int lpc )
             int hnl = hardway_height(th, samp, ty);
             if (nl != hnl)
             {
-                compute_sampled_height_p(th, samp, ty);
-                hardway_height_p(th, samp, ty);
                 printf( "ty %d h %d (%d) samp %d lpc %d => nl %d hnl %d\n",
                         ty, th, h, samp, lpc, nl, hnl );
                 EXRCORE_TEST(nl == hnl);
