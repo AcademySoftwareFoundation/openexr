@@ -298,13 +298,15 @@ exr_decoding_initialize (
     if (part_index < 0 || part_index >= ctxt->num_parts)
         return EXR_ERR_ARGUMENT_OUT_OF_RANGE;
 
-    if (decode->pipe_size != sizeof (exr_decode_pipeline_v2_t) &&
-        decode->pipe_size != sizeof (exr_decode_pipeline_v1_t))
+    if (decode->pipe_size != sizeof (exr_decode_pipeline_v2_t))
     {
-        return ctxt->print_error (
-            ctxt,
-            EXR_ERR_INVALID_ARGUMENT,
-            "Decoding pipeline struct size must be initialized for compatibility checks");
+        /* There was no check for the pipe_size during the v1 struct
+         * versions of the library. If we add more versions of the
+         * struct later, update this condition to check for the new
+         * versions but just let the old assumption that the
+         * size is correct keep running
+         */
+        decode->pipe_size = sizeof (exr_decode_pipeline_v1_t);
     }
 
     pipe_ver = decode->pipe_size;
