@@ -18,7 +18,7 @@ if (@libdeflate_FOUND@)
   find_dependency(libdeflate)
 endif()
 
-if (@openjph_FOUND@)
+if (NOT @OPENEXR_USE_INTERNAL_OPENJPH@)
   find_dependency(openjph)
 endif()
 
