@@ -1753,6 +1753,58 @@ testHTChannelMap (const std::string& tempdir)
     EXRCORE_TEST (! make_channel_map (3, channels_2, cs_to_file_ch));
 }
 
+static bool
+read_header_throws (void* buffer, size_t max_sz)
+{
+    std::vector<CodestreamChannelInfo> map;
+    try
+    {
+        read_header (buffer, max_sz, map);
+        return false;
+    }
+    catch (...)
+    {
+        return true;
+    }
+}
+
+void
+testHTHeaderBounds (const std::string& tempdir)
+{
+    (void) tempdir;
+
+    exr_coding_channel_info_t channels[] = {
+        { "R" }, { "G" }, { "B" }
+    };
+    std::vector<CodestreamChannelInfo> cs_to_file_ch;
+    EXRCORE_TEST (make_channel_map (3, channels, cs_to_file_ch));
+
+    uint8_t buf[64];
+    const size_t hdr_sz =
+        write_header (buf, sizeof (buf), cs_to_file_ch);
+    EXRCORE_TEST (hdr_sz > HEADER_SZ);
+
+    std::vector<CodestreamChannelInfo> read_map;
+    EXRCORE_TEST (read_header (buf, hdr_sz, read_map) == hdr_sz);
+    EXRCORE_TEST (read_map.size () == 3);
+
+    EXRCORE_TEST (read_header_throws (buf, hdr_sz - 1));
+
+    uint8_t bad_plen[64];
+    memcpy (bad_plen, buf, hdr_sz);
+    bad_plen[2] = 0xff;
+    bad_plen[3] = 0xff;
+    bad_plen[4] = 0xff;
+    bad_plen[5] = 0xf0;
+    EXRCORE_TEST (read_header_throws (bad_plen, sizeof (bad_plen)));
+
+    uint8_t bad_nch[64];
+    memcpy (bad_nch, buf, hdr_sz);
+    bad_nch[HEADER_SZ]     = 0;
+    bad_nch[HEADER_SZ + 1] = 32;
+    EXRCORE_TEST (read_header_throws (bad_nch, hdr_sz));
+}
+
 void
 testDeepNoCompression (const std::string& tempdir)
 {}

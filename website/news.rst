@@ -17,9 +17,51 @@ News
 
 
 |latest-news-title|
-========================================
+======================================
 
 .. _LatestNewsStart:
+
+Patch release that addresses several bugs and security
+vulnerabilities.
+
+* 🐛 Fix several minor memory leaks recovering from reading invalid
+  files.
+* 🐛 The compressor API incorrectly identfied ``HTJ2K`` and ``HTJ2K256`` as
+  lossy; they are lossles.
+* 🐛 Fix CMake AVX feature detection that caused DWA SIMD code to fail on
+  certain architectures.
+* ⚠️ The ``WidenFilename`` utility function is marked as deprecated, to be
+  removed in a future release.
+* ✨ ``exrmetrics`` now print the on-disk size of the data portion of each
+  part. Useful for determining compression impact on part data
+
+For the python module:
+
+* 🐍 🐛 Reject files where the dataWindows does not match the
+  pixel array dimensions.
+* 🐍 ✨ Support NumPy float vector attributes
+* 🐍 ✨ Reading now skips over invalid parts, returns the valid parts only.
+* 🐍 📖 Doc strings have proper indentation
+
+This release addresses the following security vulnerabilities:
+
+* `CVE-2026-45696 <https://www.cve.org/CVERecord?id=CVE-2026-45696>`_
+  OpenEXR ``ht_undo_impl`` heap-buffer-overflow READ via codestream/channel width mismatch in HTJ2K decode
+* `CVE-2026-44663 <https://www.cve.org/CVERecord?id=CVE-2026-44663>`_
+  Integer overflow in HTJ2K decoder ( ``ht_undo_impl`` ) leading to heap-buffer-overflow
+* `OSS-fuzz 512895184 <https://issues.oss-fuzz.com/issues/512895184>`_
+  Null-dereference WRITE in ``Imf_4_0::TileProcess::run_decode``
+* `OSS-fuzz 512314697 <https://issues.oss-fuzz.com/issues/512314697>`_
+  Direct-leak in ``internal_exr_add_part``
+* `OSS-fuzz 508362159 <https://issues.oss-fuzz.com/issues/508362159>`_
+  Heap-buffer-overflow in ``DwaCompressor_uncompress``
+* `OSS-fuzz 507413960 <https://issues.oss-fuzz.com/issues/507413960>`_
+  Heap-buffer-overflow in ``generic_unpack``
+
+.. _LatestNewsEnd:
+
+April 29, 2026 - OpenEXR 3.4.11 Released
+========================================
 
 Patch release that addresses the following security vulnerabilities:
 
@@ -45,7 +87,6 @@ Also, some minor documentation updates:
   vulnerabilities, not email.
 * Some clarification around handling of UFT-8 of file paths
 
-.. _LatestNewsEnd:
 
 April 29, 2026 - OpenEXR 3.3.11 Released
 ========================================
