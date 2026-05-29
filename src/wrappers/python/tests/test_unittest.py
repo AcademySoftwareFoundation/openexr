@@ -1000,6 +1000,31 @@ class TestUnittest(unittest.TestCase):
 
             if os.path.isfile(outfilename):
                 os.remove(outfilename)
+    
+    def test_mixed_standard_and_numpy_scalars(self):
+
+        # Allow mixed types seamlessly to match our convenient API design
+        mixed_data_window = ((0, np.int32(0)), (15, np.int64(15)))
+
+        header = {
+            "type": OpenEXR.scanlineimage,
+            "dataWindow": mixed_data_window,
+        }
+
+        channels = {"RGB": np.zeros((16, 16, 3), dtype=np.float16)}
+
+        part = OpenEXR.Part(header, channels)
+        f = OpenEXR.File([part])
+
+        outfilename = mktemp_outfilename()
+
+        f.write(outfilename)
+
+        # Verify the values were preserved accurately
+        self.assertEqual(part.header["dataWindow"], ((0, 0), (15, 15)))
+
+        if os.path.isfile(outfilename):
+            os.remove(outfilename)
 
 
 if __name__ == '__main__':
