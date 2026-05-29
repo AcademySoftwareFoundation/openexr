@@ -1926,14 +1926,39 @@ objectToV2(const py::object& object, Vec2<T>& v)
         auto tup = object.cast<py::tuple>();
         if (tup.size() == 2)
         {
-            try
+            // 1. Standard Python types
+            if (py::isinstance<P> (tup[0]) && py::isinstance<P> (tup[1]))
             {
-                v.x = py::cast<T>(tup[0]);
-                v.y = py::cast<T>(tup[1]);
+                v.x = P (tup[0]);
+                v.y = P (tup[1]);
                 return true;
             }
-            catch (const py::cast_error&) {
-                return false;
+
+            // 2. Numpy scalar types
+
+            // imports numpy to access the abstract base classes
+            py::module np = py::module::import ("numpy");
+
+            // Assigning numpy equivalent to Python type P passed from the calling function
+            // objectToV2 is currently instantiated only with py::int_ and py::float_, so the ternary
+            // maps directly to numpy.integer / numpy.floating.
+            py::object target_type = std::is_same_v<P, py::int_>
+                                         ? np.attr ("integer")
+                                         : np.attr ("floating");
+
+            if (py::isinstance (tup[0], target_type) &&
+                py::isinstance (tup[1], target_type))
+            {
+                try
+                {
+                    v.x = py::cast<T> (tup[0]);
+                    v.y = py::cast<T> (tup[1]);
+                    return true;
+                }
+                catch (const py::cast_error&)
+                {
+                    return false;
+                }
             }
         }
     }

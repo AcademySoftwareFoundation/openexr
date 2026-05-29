@@ -950,5 +950,57 @@ class TestUnittest(unittest.TestCase):
             if os.path.isfile(outfilename):
                 os.remove(outfilename)
 
+    def test_box2i_float_rejection(self):
+        # dataWindow requires an integer-based bounding box (Box2i).
+        # We test Python floats, NumPy float32, and NumPy float64.
+        invalid_floats = [0.0, np.float32(0.0), np.float64(0.0)]
+        
+        for f in invalid_floats:
+            invalid_float_box = ((f, f), (f + 15.0, f + 15.0))
+            
+            header = {
+                "type": OpenEXR.scanlineimage,
+                "dataWindow": invalid_float_box, 
+            }
+            channels = {"RGB": np.zeros((16, 16, 3), dtype=np.float16)}
+
+            part = OpenEXR.Part(header, channels)
+
+            outfilename = mktemp_outfilename()
+            with self.assertRaises(Exception):
+                with OpenEXR.File([part]) as exr_file:
+                    exr_file.write(outfilename)
+
+            if os.path.isfile(outfilename):
+                os.remove(outfilename)
+
+    def test_v2f_int_rejection(self):
+        # screenWindowCenter requires floating-point coordinates (V2f).
+        # We test Python ints, NumPy int32, and NumPy int64.
+        invalid_ints = [1, np.int32(1), np.int64(1)]
+        
+        data_window = ((0, 0), (15, 15))
+        
+        for i in invalid_ints:
+            invalid_int_center = (i, i + 1) 
+            
+            header = {
+                "type": OpenEXR.scanlineimage,
+                "dataWindow": data_window,
+                "screenWindowCenter": invalid_int_center, 
+            }
+            channels = {"RGB": np.zeros((16, 16, 3), dtype=np.float16)}
+
+            part = OpenEXR.Part(header, channels)
+
+            outfilename = mktemp_outfilename()
+            with self.assertRaises(Exception):
+                with OpenEXR.File([part]) as exr_file:
+                    exr_file.write(outfilename)
+
+            if os.path.isfile(outfilename):
+                os.remove(outfilename)
+
+
 if __name__ == '__main__':
     unittest.main()
