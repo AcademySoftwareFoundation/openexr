@@ -268,10 +268,10 @@ def main() -> None:
                 if short:
                     f.write(f"  {short}\n")
         f.write("\n### Merged Pull Requests\n\n")
-        for pr, value in sorted(merged_prs.items(), reverse=True):
+        for pr, value in sorted(merged_prs.items(), key=lambda kv: int(kv[0]), reverse=True):
             f.write("  " + value + "\n")
         f.write("\n### Merged Workflow Pull Requests\n\n")
-        for pr, value in sorted(merged_workflow_prs.items(), reverse=True):
+        for pr, value in sorted(merged_workflow_prs.items(), key=lambda kv: int(kv[0]), reverse=True):
             f.write("  " + value + "\n")
         f.write("\n" + "\n".join(lines[footer_index:]))
 
