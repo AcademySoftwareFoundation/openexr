@@ -12,7 +12,12 @@ import sys
 from datetime import datetime, timedelta
 from subprocess import PIPE, run
 
-from _common import prev_patch_version, require_repo_url
+from _common import (
+    changes_anchor_date_slug,
+    format_month_day_year,
+    prev_patch_version,
+    require_repo_url,
+)
 from _security import (
     collect_security_refs_for_prs,
     gh_security_advisories_cve_titles,
@@ -189,7 +194,7 @@ def main() -> None:
         sys.exit(1)
 
     release_date = datetime.now() + timedelta(days=2)
-    date_str = release_date.strftime("%B %e, %Y")
+    date_str = format_month_day_year(release_date)
 
     if section_index is not None:
         section_heading, merged_prs, merged_workflow_prs = parse_section(
@@ -242,7 +247,7 @@ def main() -> None:
         if toc is None:
             f.write("\n".join(lines[:prev_toc]) + "\n")
             base_tag_nonum = base_tag.replace(".", "")
-            date_str_lower = date_str.lower().replace(",", "").replace(" ", "-")
+            date_str_lower = changes_anchor_date_slug(release_date)
             f.write(
                 f"* [Version {base_tag}](#version-{base_tag_nonum}-{date_str_lower}) "
                 f"{date_str}\n"

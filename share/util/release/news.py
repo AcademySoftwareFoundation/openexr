@@ -11,7 +11,7 @@ import sys
 from datetime import datetime
 from subprocess import PIPE, run
 
-from _common import load_release_notes
+from _common import format_month_day_year, load_release_notes
 
 
 def markdown_to_rst(markdown_text: str) -> str:
@@ -75,7 +75,7 @@ def _parse_latest_news_title(content: str) -> str:
 def update_news_file(
     release_notes: str, tag: str, release_date: datetime
 ) -> None:
-    date_str = release_date.strftime("%B %e, %Y")
+    date_str = format_month_day_year(release_date)
     new_section_title = f"{date_str} - OpenEXR {tag} Released"
 
     old_section_title = _parse_latest_news_title(

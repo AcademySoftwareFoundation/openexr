@@ -12,6 +12,26 @@ from pathlib import Path
 from subprocess import PIPE, run
 
 
+def format_month_day_year(dt: datetime) -> str:
+    """Portable long date, e.g. ``May 7, 2026`` (no leading zero on day)."""
+    return f"{dt.strftime('%B')} {dt.day}, {dt.year}"
+
+
+def format_weekday_month_day(dt: datetime) -> str:
+    """Portable weekday date, e.g. ``Wednesday, May 7``."""
+    return f"{dt.strftime('%A, %B')} {dt.day}"
+
+
+def parse_release_date(date_text: str) -> datetime:
+    """Parse a CHANGES.md release date, tolerating extra whitespace."""
+    return datetime.strptime(" ".join(date_text.split()), "%B %d, %Y")
+
+
+def changes_anchor_date_slug(dt: datetime) -> str:
+    """Markdown anchor fragment for a release date, e.g. ``may-7-2026``."""
+    return format_month_day_year(dt).lower().replace(",", "").replace(" ", "-")
+
+
 def extract_section(content: str, version_tag: str) -> tuple[datetime | None, str]:
     """
     Extract the section of release notes starting with a heading like
@@ -31,7 +51,7 @@ def extract_section(content: str, version_tag: str) -> tuple[datetime | None, st
     for line in lines:
         m = version_header.match(line)
         if m:
-            release_date = datetime.strptime(m.group(1), "%B %d, %Y")
+            release_date = parse_release_date(m.group(1))
             capture = True
             continue
         if capture and (

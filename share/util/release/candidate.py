@@ -9,7 +9,7 @@ from __future__ import annotations
 import sys
 from subprocess import PIPE, run
 
-from _common import load_release_notes, require_repo_url
+from _common import format_weekday_month_day, load_release_notes, require_repo_url
 
 
 def markdown_to_html(markdown_text: str) -> str:
@@ -34,7 +34,7 @@ def main() -> None:
     tag = sys.argv[1]
     release_date, release_notes, release_version = load_release_notes(tag)
     html_notes = markdown_to_html(release_notes)
-    date_string = release_date.strftime("%A, %B %e")
+    date_string = format_weekday_month_day(release_date)
     url = require_repo_url()
     project = url.split("/")[-1]
     if project == "openexr":

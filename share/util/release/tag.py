@@ -9,7 +9,7 @@ from __future__ import annotations
 import sys
 from subprocess import run
 
-from _common import load_release_notes
+from _common import format_month_day_year, load_release_notes
 
 
 def main() -> None:
@@ -18,7 +18,7 @@ def main() -> None:
         sys.exit(1)
     tag = sys.argv[1]
     release_date, release_notes, _release_version = load_release_notes(tag)
-    tag_message = f"{tag} - {release_date.strftime('%B %d, %Y')}\n{release_notes}\n"
+    tag_message = f"{tag} - {format_month_day_year(release_date)}\n{release_notes}\n"
     run(["git", "tag", "-s", tag, "-F", "-"], input=tag_message, text=True, check=True)
     run(["git", "tag", "-v", tag], check=True)
 
