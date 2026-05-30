@@ -781,6 +781,21 @@ class TestUnittest(unittest.TestCase):
             with OpenEXR.File(multithread_filename, num_threads=num_threads) as i1:
                 compare_files(i0, i1)
 
+    def test_max_image_and_tile_size(self):
+        image_w, image_h = OpenEXR.getMaxImageSize()
+        tile_w, tile_h = OpenEXR.getMaxTileSize()
+        infilename = f"{test_dir}/test.exr"
+        try:
+            OpenEXR.setMaxImageSize(5, 10)
+            OpenEXR.setMaxTileSize(512, 1024)
+            self.assertEqual(OpenEXR.getMaxImageSize(), (5, 10))
+            self.assertEqual(OpenEXR.getMaxTileSize(), (512, 1024))
+            with self.assertRaises(Exception):
+                OpenEXR.File(infilename)
+        finally:
+            OpenEXR.setMaxImageSize(image_w, image_h)
+            OpenEXR.setMaxTileSize(tile_w, tile_h)
+
     def test_num_threads_default_uses_global_pool(self):
         #
         # num_threads=-1 (the default) should resolve to global_thread_count()
