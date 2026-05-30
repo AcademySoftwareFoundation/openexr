@@ -43,6 +43,10 @@ def pr_labels(line: str) -> tuple[str, str]:
 
 
 def main() -> None:
+    if len(sys.argv) > 1:
+        print("Usage: python share/util/release/log.py", file=sys.stderr)
+        sys.exit(1)
+        
     result = run(
         ["git", "log", "--pretty=format:%h %s"],
         stdout=PIPE,

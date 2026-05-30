@@ -74,6 +74,8 @@ def main() -> None:
     merged.sort(key=lambda x: x[0])
 
     if not merged:
+        dym = f"; did you mean v{label}?" if not label.startswith('v') else ""
+        print(f"No PRs with label {label}{dym}")
         return
 
     if single:
@@ -85,7 +87,7 @@ def main() -> None:
         print(f"git cherry-pick {' '.join(o[:7] for a, o, t, i in merged)}")
 
     pr_ids = " ".join(str(i) for a, o, t, i in merged)
-    print(f"share/util/release/changes.py {label} {pr_ids}")
+    print(f"python share/util/release/changes.py {label} {pr_ids}")
 
 if __name__ == "__main__":
     try:
