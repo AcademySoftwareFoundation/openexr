@@ -111,6 +111,9 @@ part_exceeds_memory_limits (const IMF::Header& hdr)
     if (!hdr.hasTileDescription ()) return false;
 
     const IMF::TileDescription& td = hdr.tileDescription ();
+    if (td.xSize == 0)
+        return false;
+        
     const uint64_t tilesPerScanline =
         (imageWidth + static_cast<uint64_t> (td.xSize) - 1) /
         static_cast<uint64_t> (td.xSize);
