@@ -371,9 +371,13 @@ exr_encoding_run (
          part->storage_mode == EXR_STORAGE_DEEP_TILED) &&
         encode->sample_count_table != NULL)
     {
-        priv_from_native32 (
-            encode->sample_count_table,
-            encode->chunk.width * encode->chunk.height);
+        /* Process the sample count table line by line to avoid integer overflows */
+        int32_t* current_line = encode->sample_count_table;
+        for (int y = 0; y < encode->chunk.height; ++y)
+        {
+            priv_from_native32 (current_line, encode->chunk.width);
+            current_line += encode->chunk.width;
+        }
     }
 
     if (rv == EXR_ERR_SUCCESS)
@@ -418,9 +422,13 @@ exr_encoding_run (
          part->storage_mode == EXR_STORAGE_DEEP_TILED) &&
         encode->sample_count_table != NULL)
     {
-        priv_to_native32 (
-            encode->sample_count_table,
-            encode->chunk.width * encode->chunk.height);
+        /* Process the sample count table line by line to avoid integer overflows */
+        int32_t* current_line = encode->sample_count_table;
+        for (int y = 0; y < encode->chunk.height; ++y)
+        {
+            priv_to_native32 (current_line, encode->chunk.width);
+            current_line += encode->chunk.width;
+        }
     }
 
     return rv;
