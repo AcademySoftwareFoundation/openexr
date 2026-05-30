@@ -144,7 +144,7 @@ def load_release_notes(tag: str) -> tuple[datetime, str, str]:
     content = changes_path.read_text(encoding="utf-8")
     release_date, release_notes = extract_section(content, release_version)
     if release_date is None:
-        print("No release found.", file=sys.stderr)
+        print(f"No release notes found in CHANGES.md for {tag}", file=sys.stderr)
         sys.exit(1)
     release_notes = apply_release_note_emojis(release_notes)
     return release_date, release_notes, release_version

@@ -29,7 +29,7 @@ def markdown_to_html(markdown_text: str) -> str:
 
 def main() -> None:
     if len(sys.argv) < 2:
-        print("Usage: candidate.py <tag>   e.g. candidate.py v3.4.7", file=sys.stderr)
+        print("Usage: python share/util/release/candidate.py <tag> e.g. candidate.py v3.4.7-rc", file=sys.stderr)
         sys.exit(1)
     tag = sys.argv[1]
     release_date, release_notes, release_version = load_release_notes(tag)
