@@ -9,7 +9,7 @@ from __future__ import annotations
 import sys
 from subprocess import PIPE, run
 
-from _common import get_repo_url, load_release_notes
+from _common import load_release_notes, require_repo_url
 
 
 def markdown_to_html(markdown_text: str) -> str:
@@ -35,13 +35,13 @@ def main() -> None:
     release_date, release_notes, release_version = load_release_notes(tag)
     html_notes = markdown_to_html(release_notes)
     date_string = release_date.strftime("%A, %B %e")
-    url = get_repo_url() or ""
-    project = url.split("/")[-1] if url else "OpenEXR"
+    url = require_repo_url()
+    project = url.split("/")[-1]
     if project == "openexr":
         project = "OpenEXR"
     print(
         f"{project} {release_version} is staged for release at tag "
-        f"<a href={url}/releases/tag/{tag}>{tag}</a> and will be released "
+        f'<a href="{url}/releases/tag/{tag}">{tag}</a> and will be released '
         f"officially {date_string} barring any issues. <br><br> {html_notes}"
     )
 

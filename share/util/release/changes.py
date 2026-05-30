@@ -12,7 +12,7 @@ import sys
 from datetime import datetime, timedelta
 from subprocess import PIPE, run
 
-from _common import get_repo_url, prev_patch_version
+from _common import prev_patch_version, require_repo_url
 from _security import (
     collect_security_refs_for_prs,
     gh_security_advisories_cve_titles,
@@ -145,7 +145,7 @@ def pr_is_workflow_only(pr_number: str) -> bool:
 
 
 def main() -> None:
-    if len(sys.argv) < 4:
+    if len(sys.argv) < 3:
         print(
             "Usage: changes.py <tag> <pr-number> ...\n"
             "Example: changes.py v3.4.7 1234 1235",
@@ -153,8 +153,8 @@ def main() -> None:
         )
         sys.exit(1)
 
-    tag = sys.argv[2]
-    prs = sys.argv[3:]
+    tag = sys.argv[1]
+    prs = sys.argv[2:]
 
     with open("CHANGES.md", encoding="utf-8") as f:
         lines = f.read().splitlines()
@@ -215,7 +215,7 @@ def main() -> None:
             prev_toc = i
             break
 
-    url = get_repo_url()
+    url = require_repo_url()
     for pr_number in prs:
         info = gh_pr_view(pr_number)
         title = info.get("title") or ""

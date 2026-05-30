@@ -69,6 +69,13 @@ def parse_release_version(tag: str) -> str:
     return tag.lstrip("v").split("-rc")[0]
 
 
+def _strip_git_suffix(url: str) -> str:
+    url = url.strip()
+    if url.endswith(".git"):
+        return url[: -len(".git")]
+    return url
+
+
 def get_repo_url() -> str | None:
     try:
         result = run(
@@ -78,7 +85,7 @@ def get_repo_url() -> str | None:
             universal_newlines=True,
             check=False,
         )
-        url = (result.stdout or "").strip().rstrip(".git")
+        url = _strip_git_suffix(result.stdout or "")
         if url:
             return url
         result = run(
@@ -88,9 +95,20 @@ def get_repo_url() -> str | None:
             universal_newlines=True,
             check=False,
         )
-        return (result.stdout or "").strip().rstrip(".git") or None
+        return _strip_git_suffix(result.stdout or "") or None
     except OSError:
         return None
+
+
+def require_repo_url() -> str:
+    url = get_repo_url()
+    if not url:
+        print(
+            "Could not determine repository URL from git remotes.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+    return url
 
 
 def load_release_notes(tag: str) -> tuple[datetime, str, str]:

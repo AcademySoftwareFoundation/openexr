@@ -44,21 +44,43 @@ def markdown_to_rst(markdown_text: str) -> str:
     return "\n".join(rst_lines).strip()
 
 
+def _git_show(path: str) -> str:
+    result = run(
+        ["git", "show", f"HEAD:{path}"],
+        stdout=PIPE,
+        stderr=PIPE,
+        universal_newlines=True,
+        check=False,
+    )
+    if result.returncode != 0:
+        sys.stderr.write(
+            result.stderr or f"git show HEAD:{path} failed\n"
+        )
+        sys.exit(1)
+    return result.stdout
+
+
+def _parse_latest_news_title(content: str) -> str:
+    for line in reversed(content.splitlines()):
+        if "replace:: " in line:
+            title = line.split("replace:: ", 1)[1].strip()
+            return title.lstrip("**").rstrip("**")
+    print(
+        "Could not parse previous title from website/latest_news_title.rst",
+        file=sys.stderr,
+    )
+    sys.exit(1)
+
+
 def update_news_file(
     release_notes: str, tag: str, release_date: datetime
 ) -> None:
     date_str = release_date.strftime("%B %e, %Y")
     new_section_title = f"{date_str} - OpenEXR {tag} Released"
 
-    result = run(
-        ["git", "show", "HEAD:website/latest_news_title.rst"],
-        stdout=PIPE,
-        stderr=PIPE,
-        universal_newlines=True,
-        check=False,
+    old_section_title = _parse_latest_news_title(
+        _git_show("website/latest_news_title.rst")
     )
-    line = result.stdout.split("\n")[-1]
-    old_section_title = line.split("replace:: ")[1].rstrip().lstrip("**").rstrip("**")
 
     with open("website/latest_news_title.rst", "w", encoding="utf-8") as f:
         f.write("..\n")
@@ -66,18 +88,14 @@ def update_news_file(
         f.write("  Copyright (c) Contributors to the OpenEXR Project.\n")
         f.write(f".. |latest-news-title| replace:: **{new_section_title}**")
 
-    result = run(
-        ["git", "show", "HEAD:website/news.rst"],
-        stdout=PIPE,
-        stderr=PIPE,
-        universal_newlines=True,
-        check=False,
-    )
-    content = result.stdout
-    if content is None:
-        print(f"No news.rst at tag {tag}")
-
+    content = _git_show("website/news.rst")
     old_news = re.split(r"^=+\s*$", content, maxsplit=1, flags=re.MULTILINE)
+    if len(old_news) < 2:
+        print(
+            "Unexpected format in website/news.rst (missing section divider)",
+            file=sys.stderr,
+        )
+        sys.exit(1)
     old_news[1] = re.sub(
         r"\.\. _LatestNewsStart:\n", "", old_news[1], flags=re.DOTALL
     )

@@ -575,7 +575,7 @@ description or comments:
 
     Addresses CVE-2026-39886
 
-The release scripts will detect this an add appropriate entry to the
+The release scripts will detect this and add an appropriate entry to the
 release notes.
 
 When a PR addresses an OSS-Fuzz issue, mention it by url in the
@@ -583,7 +583,7 @@ description or comments:
 
     Addresses https://issues.oss-fuzz.com/issues/456158449
 
-The release scripts will detect this an add appropriate entry to the
+The release scripts will detect this and add an appropriate entry to the
 release notes.
 
 ### GPG
@@ -601,7 +601,7 @@ while on the appropriate `RB-` branch:
 
 1. Cherry-pick commits from the main branch to the release branch.
 
-   This print the SHAs for the commits associated with the
+   This prints the SHAs for the commits associated with the
    labeled PRs. The output will look something like:
       
         % python share/util/release/cherry.py v3.4.8
@@ -668,7 +668,7 @@ while on the appropriate `RB-` branch:
         % python share/util/release/candidate.py v3.4.12-rc > v3.4.12.html
 
    Load the file in a browers to render the formatting, then
-   copy/paste the contents into an email to `openexr-dev@list.aswf.io`
+   copy/paste the contents into an email to `openexr-dev@lists.aswf.io`
    and the `#openexr` Slack channel.
 
    If any problems arise after tagging the candidate, fix them in
@@ -722,7 +722,7 @@ while on the appropriate `RB-` branch:
         % python share/util/release/news.py v3.4.12
 
    This pulls the release notes from `CHANGES.md` and inserts a news
-   item in `website/news.html`.
+   item in `website/news.rst` and `website/latest_news_title.rst`.
 
    Commit this change, and then cherry-pick the commit from the
    release branch containing the notes and submit the pair as a

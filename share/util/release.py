@@ -839,7 +839,7 @@ def pr_labels(line):
     """line is from `git log --pretty:format='%h %s'`, so for
     squash/merge commits, it ends in (#<pr>).
 
-    Return the pr nmber and its release-related labels, i.e.
+    Return the PR number and its release-related labels, i.e.
     labels of the form 'v<major>.<minor>.<patch>'
     """
 
