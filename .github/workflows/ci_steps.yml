@@ -279,6 +279,11 @@ jobs:
           set -x
           "$CMAKE" --version
           "$CMAKE" ${{ env.CMAKE_ARGS }}
+          # Reconfigure in the same build dir to catch Imath include-path
+          # regressions on CMake reconfigure (see #2441).
+          if [ "${{ inputs.OPENEXR_FORCE_INTERNAL_IMATH }}" == "ON" ]; then
+            "$CMAKE" ${{ env.CMAKE_ARGS }}
+          fi
           if [ -n "${{ inputs.configure_install_prefix }}" ]; then
             "$CMAKE" --build "$BUILD_DIR" --config ${{ inputs.build-type }}
             "$CMAKE" --install "$BUILD_DIR" --prefix "$INSTALL_DIR" --config ${{ inputs.build-type }}
@@ -293,6 +298,11 @@ jobs:
           set -x
           "$CMAKE" --version
           "$CMAKE" ${{ env.CMAKE_ARGS }}
+          # Reconfigure in the same build dir to catch Imath include-path
+          # regressions on CMake reconfigure (see #2441).
+          if [ "${{ inputs.OPENEXR_FORCE_INTERNAL_IMATH }}" == "ON" ]; then
+            "$CMAKE" ${{ env.CMAKE_ARGS }}
+          fi
           if [ -n "${{ inputs.configure_install_prefix }}" ]; then
             "$CMAKE" --build "$BUILD_DIR" --config ${{ inputs.build-type }}
             "$CMAKE" --install "$BUILD_DIR" --prefix "$INSTALL_DIR" --config ${{ inputs.build-type }}
