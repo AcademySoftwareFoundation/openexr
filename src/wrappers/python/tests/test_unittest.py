@@ -784,11 +784,14 @@ class TestUnittest(unittest.TestCase):
     def test_max_image_and_tile_size(self):
         image_w, image_h = OpenEXR.getMaxImageSize()
         tile_w, tile_h = OpenEXR.getMaxTileSize()
+        infilename = f"{test_dir}/test.exr"
         try:
-            OpenEXR.setMaxImageSize(2048, 4096)
+            OpenEXR.setMaxImageSize(5, 10)
             OpenEXR.setMaxTileSize(512, 1024)
-            self.assertEqual(OpenEXR.getMaxImageSize(), (2048, 4096))
+            self.assertEqual(OpenEXR.getMaxImageSize(), (5, 10))
             self.assertEqual(OpenEXR.getMaxTileSize(), (512, 1024))
+            with self.assertRaises(Exception):
+                OpenEXR.File(infilename)
         finally:
             OpenEXR.setMaxImageSize(image_w, image_h)
             OpenEXR.setMaxTileSize(tile_w, tile_h)
