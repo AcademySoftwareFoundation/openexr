@@ -892,20 +892,31 @@ class TestUnittest(unittest.TestCase):
 
             w = data_window[1][0] - data_window[0][0] + 1
             h = data_window[1][1] - data_window[0][1] + 1
-            
+
             header = {
                 "type": OpenEXR.scanlineimage,
                 "dataWindow": data_window,
             }
-            
+
             channels = {"RGB": np.zeros((h, w, 3), dtype=np.float16)}
 
             part = OpenEXR.Part(header, channels)
             f = OpenEXR.File([part])
-            
+
             outfilename = mktemp_outfilename()
             f.write(outfilename)
-            
+
+            # Read back and verify the file structure & attributes
+            with OpenEXR.File(outfilename, header_only=True) as infile:
+                actual_window = infile.parts[0].header["dataWindow"]
+                # Since getAttributeObject returns tuples of numpy arrays,
+                # we need to convert them to standard python tuples before comparison
+                actual_tuple = (
+                    (int(actual_window[0][0]), int(actual_window[0][1])),
+                    (int(actual_window[1][0]), int(actual_window[1][1]))
+                )
+                self.assertEqual(actual_tuple, ((0, 0), (15, 15)))
+
             if os.path.isfile(outfilename):
                 os.remove(outfilename)
 
@@ -946,6 +957,35 @@ class TestUnittest(unittest.TestCase):
             
             outfilename = mktemp_outfilename()
             f.write(outfilename)
+
+            # Read back and verify the file structure & attributes
+            with OpenEXR.File(outfilename, header_only=True) as inf:
+                header_to_verify = inf.parts[0].header
+
+                # Since getAttributeObject returns tuples of numpy arrays,
+                # we need to convert them to standard python tuples before comparison
+                act_dw = header_to_verify["dataWindow"]
+                dw_tuple = (
+                    (int(act_dw[0][0]), int(act_dw[0][1])),
+                    (int(act_dw[1][0]), int(act_dw[1][1]))
+                )
+                self.assertEqual(dw_tuple, ((0, 0), (15, 15)))
+                
+                act_disp = header_to_verify["displayWindow"]
+                disp_tuple = (
+                    (int(act_disp[0][0]), int(act_disp[0][1])),
+                    (int(act_disp[1][0]), int(act_disp[1][1]))
+                )
+                self.assertEqual(disp_tuple, ((0, 0), (15, 15)))
+                
+                actual_center = header_to_verify["screenWindowCenter"]
+                center_tuple = (float(actual_center[0]), float(actual_center[1]))
+                
+                expected_center = (float(center_value[0]), float(center_value[1]))
+                
+                # Uses assertAlmostEqual on individual items to compare float values 
+                self.assertAlmostEqual(center_tuple[0], expected_center[0], places=5)
+                self.assertAlmostEqual(center_tuple[1], expected_center[1], places=5)
             
             if os.path.isfile(outfilename):
                 os.remove(outfilename)
@@ -1020,8 +1060,15 @@ class TestUnittest(unittest.TestCase):
 
         f.write(outfilename)
 
-        # Verify the values were preserved accurately
-        self.assertEqual(part.header["dataWindow"], ((0, 0), (15, 15)))
+        with OpenEXR.File(outfilename, header_only=True) as inf:
+            act_dw = inf.parts[0].header["dataWindow"]
+            # Since getAttributeObject returns tuples of numpy arrays,
+            # we need to convert them to standard python tuples before comparison
+            dw_tuple = (
+                (int(act_dw[0][0]), int(act_dw[0][1])),
+                (int(act_dw[1][0]), int(act_dw[1][1]))
+            )
+            self.assertEqual(dw_tuple, ((0, 0), (15, 15)))
 
         if os.path.isfile(outfilename):
             os.remove(outfilename)

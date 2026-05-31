@@ -1916,7 +1916,22 @@ PyFile::getAttributeObject(const std::string& name, const Attribute* a)
     
     return py::none();
 }
-    
+
+// Static helper functions to cache NumPy types and avoid repeated imports
+py::object
+numpy_integer ()
+{
+    static py::object type = py::module::import ("numpy").attr ("integer");
+    return type;
+}
+
+py::object
+numpy_floating ()
+{
+    static py::object type = py::module::import ("numpy").attr ("floating");
+    return type;
+}
+
 template <class P, class T>
 bool
 objectToV2(const py::object& object, Vec2<T>& v)
@@ -1936,15 +1951,12 @@ objectToV2(const py::object& object, Vec2<T>& v)
 
             // 2. Numpy scalar types included
 
-            // imports numpy to access the abstract base classes
-            py::module np = py::module::import ("numpy");
-
             // Assigning numpy equivalent to Python type P passed from the calling function
             // objectToV2 is currently instantiated only with py::int_ and py::float_, so the ternary
             // maps directly to numpy.integer / numpy.floating.
             py::object target_type = std::is_same_v<P, py::int_>
-                                         ? np.attr ("integer")
-                                         : np.attr ("floating");
+                                         ? numpy_integer ()
+                                         : numpy_floating ();
 
             // Allowing tuples that contain numpy scalars
             if ((py::isinstance<P> (tup[0]) ||
