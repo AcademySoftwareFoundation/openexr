@@ -886,5 +886,208 @@ class TestUnittest(unittest.TestCase):
 
         os.remove(outfilename)
 
+    def test_box2i_numpy_scalars(self):
+
+        # Verifying that numpy scalar values are also accepted for
+        # Box2i type
+
+        mn = np.array((0, 0), dtype=np.int32)
+        mx = np.array((15, 15), dtype=np.int32)
+
+        test_cases = [
+            # python int
+            ((0, 0), (15, 15)),  
+            # numpy array
+            (mn, mx),        
+            # numpy scalar values                
+            ((mn[0], mn[1]), (mx[0], mx[1])),    
+        ]
+
+        for data_window in test_cases:
+
+            w = data_window[1][0] - data_window[0][0] + 1
+            h = data_window[1][1] - data_window[0][1] + 1
+
+            header = {
+                "type": OpenEXR.scanlineimage,
+                "dataWindow": data_window,
+            }
+
+            channels = {"RGB": np.zeros((h, w, 3), dtype=np.float16)}
+
+            part = OpenEXR.Part(header, channels)
+            f = OpenEXR.File([part])
+
+            outfilename = mktemp_outfilename()
+            f.write(outfilename)
+
+            # Read back and verify the file structure & attributes
+            with OpenEXR.File(outfilename, header_only=True) as infile:
+                actual_window = infile.parts[0].header["dataWindow"]
+                # Since getAttributeObject returns tuples of numpy arrays,
+                # we need to convert them to standard python tuples before comparison
+                actual_tuple = (
+                    (int(actual_window[0][0]), int(actual_window[0][1])),
+                    (int(actual_window[1][0]), int(actual_window[1][1]))
+                )
+                self.assertEqual(actual_tuple, ((0, 0), (15, 15)))
+
+            if os.path.isfile(outfilename):
+                os.remove(outfilename)
+
+    def test_v2f_numpy_scalars(self):
+        # Verifying that numpy scalar values are also accepted for
+        # V2f (float vector) types. 
+
+        # Setup numpy values for testing
+        center_np_float32 = np.array((0.5, 0.75), dtype=np.float32)
+        
+        test_cases = [
+            # python float 
+            (0.0, 0.0),
+            # numpy array
+            center_np_float32,
+            # numpy float scalars 
+            (center_np_float32[0], center_np_float32[1]),
+            # numpy float64 scalars 
+            (np.float64(0.5), np.float64(0.5)),
+        ]
+
+        # Use a fixed data window for the file structure
+        data_window = ((0, 0), (15, 15))
+        w, h = 16, 16
+
+        for center_value in test_cases:
+            header = {
+                "type": OpenEXR.scanlineimage,
+                "dataWindow": data_window,
+                "displayWindow": data_window,
+                "screenWindowCenter": center_value,  
+            }
+            
+            channels = {"RGB": np.zeros((h, w, 3), dtype=np.float16)}
+
+            part = OpenEXR.Part(header, channels)
+            f = OpenEXR.File([part])
+            
+            outfilename = mktemp_outfilename()
+            f.write(outfilename)
+
+            # Read back and verify the file structure & attributes
+            with OpenEXR.File(outfilename, header_only=True) as inf:
+                header_to_verify = inf.parts[0].header
+
+                # Since getAttributeObject returns tuples of numpy arrays,
+                # we need to convert them to standard python tuples before comparison
+                act_dw = header_to_verify["dataWindow"]
+                dw_tuple = (
+                    (int(act_dw[0][0]), int(act_dw[0][1])),
+                    (int(act_dw[1][0]), int(act_dw[1][1]))
+                )
+                self.assertEqual(dw_tuple, ((0, 0), (15, 15)))
+                
+                act_disp = header_to_verify["displayWindow"]
+                disp_tuple = (
+                    (int(act_disp[0][0]), int(act_disp[0][1])),
+                    (int(act_disp[1][0]), int(act_disp[1][1]))
+                )
+                self.assertEqual(disp_tuple, ((0, 0), (15, 15)))
+                
+                actual_center = header_to_verify["screenWindowCenter"]
+                center_tuple = (float(actual_center[0]), float(actual_center[1]))
+                
+                expected_center = (float(center_value[0]), float(center_value[1]))
+                
+                # Uses assertAlmostEqual on individual items to compare float values 
+                self.assertAlmostEqual(center_tuple[0], expected_center[0], places=5)
+                self.assertAlmostEqual(center_tuple[1], expected_center[1], places=5)
+            
+            if os.path.isfile(outfilename):
+                os.remove(outfilename)
+
+    def test_box2i_float_rejection(self):
+        # dataWindow requires an integer-based bounding box (Box2i).
+        # We test Python floats, NumPy float32, and NumPy float64.
+        invalid_floats = [0.0, np.float32(0.0), np.float64(0.0)]
+        
+        for f in invalid_floats:
+            invalid_float_box = ((f, f), (f + 15.0, f + 15.0))
+            
+            header = {
+                "type": OpenEXR.scanlineimage,
+                "dataWindow": invalid_float_box, 
+            }
+            channels = {"RGB": np.zeros((16, 16, 3), dtype=np.float16)}
+
+            part = OpenEXR.Part(header, channels)
+
+            outfilename = mktemp_outfilename()
+            with self.assertRaises(Exception):
+                with OpenEXR.File([part]) as exr_file:
+                    exr_file.write(outfilename)
+
+            if os.path.isfile(outfilename):
+                os.remove(outfilename)
+
+    def test_v2f_int_rejection(self):
+        # screenWindowCenter requires floating-point coordinates (V2f).
+        # We test Python ints, NumPy int32, and NumPy int64.
+        invalid_ints = [1, np.int32(1), np.int64(1)]
+        
+        data_window = ((0, 0), (15, 15))
+        
+        for i in invalid_ints:
+            invalid_int_center = (i, i + 1) 
+            
+            header = {
+                "type": OpenEXR.scanlineimage,
+                "dataWindow": data_window,
+                "screenWindowCenter": invalid_int_center, 
+            }
+            channels = {"RGB": np.zeros((16, 16, 3), dtype=np.float16)}
+
+            part = OpenEXR.Part(header, channels)
+
+            outfilename = mktemp_outfilename()
+            with self.assertRaises(Exception):
+                with OpenEXR.File([part]) as exr_file:
+                    exr_file.write(outfilename)
+
+            if os.path.isfile(outfilename):
+                os.remove(outfilename)
+    
+    def test_mixed_standard_and_numpy_scalars(self):
+
+        # Allow mixed types seamlessly to match our convenient API design
+        mixed_data_window = ((0, np.int32(0)), (15, np.int64(15)))
+
+        header = {
+            "type": OpenEXR.scanlineimage,
+            "dataWindow": mixed_data_window,
+        }
+
+        channels = {"RGB": np.zeros((16, 16, 3), dtype=np.float16)}
+
+        part = OpenEXR.Part(header, channels)
+        f = OpenEXR.File([part])
+
+        outfilename = mktemp_outfilename()
+
+        f.write(outfilename)
+
+        with OpenEXR.File(outfilename, header_only=True) as inf:
+            act_dw = inf.parts[0].header["dataWindow"]
+            # Since getAttributeObject returns tuples of numpy arrays,
+            # we need to convert them to standard python tuples before comparison
+            dw_tuple = (
+                (int(act_dw[0][0]), int(act_dw[0][1])),
+                (int(act_dw[1][0]), int(act_dw[1][1]))
+            )
+            self.assertEqual(dw_tuple, ((0, 0), (15, 15)))
+
+        if os.path.isfile(outfilename):
+            os.remove(outfilename)
+
+
 if __name__ == '__main__':
     unittest.main()
