@@ -6,7 +6,7 @@
 * [Version 3.4.12](#version-3412-may-24-2026) May 24, 2026
 * [Version 3.4.11](#version-3411-april-29-2026) April 29, 2026
 * [Version 3.4.10](#version-3410-april-17-2026) April 17, 2026
-* [Version 3.4.9](#version-349-april--3-2026) April  3, 2026
+* [Version 3.4.9](#version-349-april-3-2026) April 3, 2026
 * [Version 3.4.8](#version-348-march-26-2026) March 26, 2026
 * [Version 3.4.7](#version-347-march-15-2026) March 15, 2026
 * [Version 3.4.6](#version-346-march-1-2026) March 1, 2026
@@ -18,7 +18,7 @@
 * [Version 3.4.0](#version-340-september-5-2025) September 5, 2025
 * [Version 3.3.11](#version-3311-april-29-2026) April 29, 2026
 * [Version 3.3.10](#version-339-april-17-2026) April 17, 2026
-* [Version 3.3.9](#version-339-april--4-2026) April  4, 2026
+* [Version 3.3.9](#version-339-april-4-2026) April 4, 2026
 * [Version 3.3.8](#version-338-march-1-2026) March 1, 2026
 * [Version 3.3.7](#version-337-february-19-2026) February 19, 2026
 * [Version 3.3.6](#version-336-november-4-2025) November 5, 2025
@@ -306,7 +306,7 @@ Bump pypa/cibuildwheel from 3.4.0 to 3.4.1
 * [2333](https://github.com/AcademySoftwareFoundation/openexr/pull/2333)
 Add CI test to validate "cmake --install .. --prefix <path>
 
-## Version 3.4.9 (April  3, 2026)
+## Version 3.4.9 (April 3, 2026)
 
 Patch release that addresses several security vulnerabilities.
 
@@ -1075,7 +1075,7 @@ Patch release that addresses the following security vulnerabilities:
 * [2346](https://github.com/AcademySoftwareFoundation/openexr/pull/2346)
 Fix integer overflow in internal_dwa_compressor.h
 
-## Version 3.3.9 (April  4, 2026)
+## Version 3.3.9 (April 4, 2026)
 
 Patch release for v3.3 that addresses the following security vulnerabilities:
 
@@ -6730,7 +6730,7 @@ we're working to restore them.
 
 * Added new function, isImfMagic (). (Florian Kainz)
 	
-## Version 1.0.6:
+## Version 1.0.6
 
 * Added README.win32 to disted files.
 
@@ -6856,7 +6856,7 @@ the source code.
 * OpenEXR is now covered by a modified BSD license.  See LICENSE
 	  for the new terms.
 
-## Version 1.0.3:
+## Version 1.0.3
 
 ### Detailed Changes:
 
