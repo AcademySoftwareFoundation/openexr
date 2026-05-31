@@ -21,7 +21,7 @@
 #include "ImfChannelList.h"
 #include "ImfPartType.h"
 
-#include "Iex.h"
+#include <Iex.h>
 #include <Imath/ImathFun.h>
 
 #include <cfloat>

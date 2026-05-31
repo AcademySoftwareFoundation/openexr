@@ -5,7 +5,7 @@
 
 #include <cstdio>
 #include "C_IStream.h"
-#include "Iex.h"
+#include <Iex.h>
 
 using namespace IEX_NAMESPACE;
 

@@ -9,7 +9,7 @@
 #include <cstdint>
 #include <cstdio>
 
-#include "ImfIO.h"
+#include <ImfIO.h>
 
 class C_IStream : public OPENEXR_IMF_NAMESPACE::IStream
 {

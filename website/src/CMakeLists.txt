@@ -2,7 +2,6 @@
 # Copyright (c) Contributors to the OpenEXR Project
 
 add_executable(website_src
-    envmap.cpp
 
     C_IStream_read.cpp
     C_IStream_seekg.cpp
