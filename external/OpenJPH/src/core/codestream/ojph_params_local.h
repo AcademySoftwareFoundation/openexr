@@ -701,7 +701,7 @@ namespace ojph {
                     ui32 resolution, ui32 subband) const;
       ui32 propose_precision(const param_cod* cod) const;
       float get_irrev_delta(const param_dfs* dfs,
-                            ui32 num_decompositions,
+                            ui32 num_decompositions, ui32 comp_num,
                             ui32 resolution, ui32 subband) const;
       bool write(outfile_base *file);
       bool write_qcc(outfile_base *file, ui32 num_comps);

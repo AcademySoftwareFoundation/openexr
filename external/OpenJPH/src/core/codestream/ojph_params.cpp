@@ -1401,11 +1401,15 @@ namespace ojph {
 
     //////////////////////////////////////////////////////////////////////////
     float param_qcd::get_irrev_delta(const param_dfs* dfs,
-                                     ui32 num_decompositions,
+                                     ui32 num_decompositions, ui32 comp_num,
                                      ui32 resolution, ui32 subband) const
     {
       float arr[] = { 1.0f, 2.0f, 2.0f, 4.0f };
-      assert((Sqcd & 0x1F) == 2);
+      if ((Sqcd & 0x1F) != 2)
+        OJPH_ERROR(0x00050101, "There is something wrong in the configuration "
+          "of the codestream; for component %d, the codestream defines an "
+          "irreversible transform, for which the codestream provides a "
+          "reversible (no quantization) step sizes in Sqcd/Sqcc.", comp_num);
 
       ui32 idx;
       if (dfs != NULL && dfs->exists())
