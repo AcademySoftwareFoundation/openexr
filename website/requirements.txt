@@ -9,4 +9,4 @@ sphinx==7.4.7
 breathe==4.36.0
 sphinx-press-theme
 urllib3>=2.7 # transitive via requests; floor for security fixes
-idna>=3.15  # transitive via requests; floor for CVE-2026-45409 / GHSA-65pc-fj4g-8rjx
+idna>=3.17  # transitive via requests; floor for CVE-2026-45409 / GHSA-65pc-fj4g-8rjx
