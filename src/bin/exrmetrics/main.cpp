@@ -946,6 +946,7 @@ options::parse (int argc, char* argv[])
             }
 
             outputPartSizeOnDisk = true;
+            i += 1;
         }
         else if (!strcmp (argv[i], "--mse"))
         {
