@@ -20,6 +20,7 @@
 #include <list>
 #include <vector>
 
+#include <cmath>
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
@@ -91,6 +92,11 @@ usageMessage (ostream& stream, const char* program_name, bool verbose = false)
                " --csv                        print output in csv mode. If passes>1, show median timing\n"
                "                              default is JSON mode\n"
                " --passes num                 write and re-read file num times (default 1)\n"
+               " --mse                        compute MSE per part, comparing original vs. re-read after compression.\n"
+               "                              Parts must have uniform channel types. Half and float channels use\n"
+               "                              signed log-space MSE (reported as \"log_mse\"), skipping non-finite\n"
+               "                              original samples; non-finite re-read samples produce NaN. Uint\n"
+               "                              channels use linear MSE (reported as \"mse\").\n"
                "\n"
                "  -h, --help                  print this message\n"
                "  -v                          output progress messages\n"
@@ -121,6 +127,7 @@ struct options
     bool                     outputPartSizeOnDisk = false;
     bool                     verbose        = false;
     bool                     csv            = false;
+    bool                     computeMSE     = false;
     std::vector<PixelMode>   pixelModes;
     std::vector<OPENEXR_IMF_NAMESPACE::Compression> compressions;
 
@@ -259,7 +266,8 @@ jsonStats (
     int            timing,
     bool           partSize,
     bool           raw,
-    bool           stats)
+    bool           stats,
+    bool           computeMSE)
 {
 
     static const char* lastFileName = nullptr;
@@ -386,25 +394,37 @@ jsonStats (
             printPartStats (
                 out, run.metrics.totalStats, "      ", timing,false, raw, stats);
         }
-        if (timing && run.metrics.stats.size () > 1)
+        if (timing && run.metrics.stats.size () > 1 || computeMSE)
         {
             out << ",\n";
             out << "      \"parts\":\n";
             out << "       [\n";
-            //first print total statistics, then print all part data, unless there's only one part
             for (size_t part = 0; part < run.metrics.stats.size (); ++part)
             {
                 out << "        {\n";
-                out << "          \"part\": " << part << ",\n";
-
-                printPartStats (
-                    out,
-                    run.metrics.stats[part],
-                    "          ",
-                    timing,
-                    partSize,
-                    raw,
-                    stats);
+                out << "          \"part\": " << part;
+                if (computeMSE)
+                {
+                    out << ",\n";
+                    const char* mseKey =
+                        run.metrics.stats[part].mseKind != MSE_LOG_INT
+                            ? "log_mse"
+                            : "mse";
+                    out << "          \"" << mseKey
+                        << "\": " << run.metrics.stats[part].mse;
+                }
+                if (timing)
+                {
+                    out << ",\n";
+                    printPartStats (
+                        out,
+                        run.metrics.stats[part],
+                        "          ",
+                        timing,
+                        partSize,
+                        raw,
+                        stats);
+                }
                 out << "\n        }";
                 if (part < run.metrics.stats.size () - 1) { out << ','; }
                 out << endl;
@@ -425,7 +445,7 @@ jsonStats (
 }
 
 void
-csvStats (ostream& out, list<runData>& data, bool outputSizeData, int timing)
+csvStats (ostream& out, list<runData>& data, bool outputSizeData, int timing, bool computeMSE)
 {
     out << "file name";
     if (outputSizeData)
@@ -434,6 +454,7 @@ csvStats (ostream& out, list<runData>& data, bool outputSizeData, int timing)
     }
     out << ",compression,pixel mode";
     if (outputSizeData) { out << ",output size"; }
+    if (computeMSE) { out << ",mse"; }
     if (timing & options::TIME_READ)
     {
         out << ",count read time";
@@ -470,6 +491,23 @@ csvStats (ostream& out, list<runData>& data, bool outputSizeData, int timing)
         out << ',' << compName << ',' << modeName (run.mode);
 
         if (outputSizeData) { out << ',' << run.metrics.outputFileSize; }
+        if (computeMSE)
+            out << ',';
+            for (size_t p = 0; p < run.metrics.stats.size (); ++p)
+            {
+                if (p > 0) { out << '|'; }
+                switch (run.metrics.stats[p].mseKind) {
+                    case MSE_LOG_INT:
+                        out << "mse:" << run.metrics.stats[p].mse;
+                        break;
+                    case MSE_LOG_HALF:
+                    case MSE_LOG_FLOAT:
+                        out << "log_mse:" << run.metrics.stats[p].mse;
+                        break;
+                    default:
+                        out << "---";
+                }
+            }
         if (timing & options::TIME_READ)
         {
             if (run.metrics.totalStats.sizeData.isDeep)
@@ -545,10 +583,13 @@ main (int argc, char** argv)
                             opts.level,
                             opts.passes,
                             opts.outFile || opts.outputSizeData ||
-                                opts.timing & options::TIME_WRITE,
-                            opts.timing & options::TIME_REREAD,
+                            opts.timing & options::TIME_WRITE ||
+                            opts.computeMSE,
+                            opts.timing & options::TIME_REREAD ||
+                            opts.computeMSE,
                             mode,
-                            opts.verbose);
+                            opts.verbose,
+                            opts.computeMSE);
                         data.push_back (d);
                     }
                 }
@@ -571,12 +612,12 @@ main (int argc, char** argv)
 
         if (opts.csv)
         {
-            csvStats (cout, data, opts.outputSizeData, opts.timing);
+            csvStats (cout, data, opts.outputSizeData, opts.timing, opts.computeMSE);
         }
         else
         {
             jsonStats (
-                cout, data, opts.outputSizeData, opts.timing,showPartSizeOnDisk, true, true);
+                cout, data, opts.outputSizeData, opts.timing, showPartSizeOnDisk, true, true, opts.computeMSE);
         }
     }
 
@@ -905,6 +946,10 @@ options::parse (int argc, char* argv[])
             }
 
             outputPartSizeOnDisk = true;
+        }
+        else if (!strcmp (argv[i], "--mse"))
+        {
+            computeMSE = true;
             i += 1;
         }
         else if (!strcmp (argv[i], "-i"))

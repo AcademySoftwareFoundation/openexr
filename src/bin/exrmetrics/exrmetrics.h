@@ -15,6 +15,7 @@
 
 #include "ImfCompression.h"
 
+#include <limits>
 #include <stdint.h>
 
 #include <vector>
@@ -43,6 +44,14 @@ struct partSizeData
     std::string partType = "";
 };
 
+enum MSEKind
+{
+    MSE_NONE,
+    MSE_LOG_HALF,
+    MSE_LOG_FLOAT,
+    MSE_LOG_INT
+};
+
 struct partStats
 {
     std::vector<double>
@@ -56,6 +65,10 @@ struct partStats
     std::vector<double>
         rereadPerf; // for deep, times reading the sample count, otherwise times reading the entire data
     uint64_t sizeOnDisk = 0; // record compressed size of part on disk.
+
+    MSEKind  mseKind  = MSE_NONE;
+    double   mse      = std::numeric_limits<double>::quiet_NaN ();
+    uint64_t mseCount = 0;
 
     partSizeData sizeData;
 };
@@ -78,6 +91,7 @@ fileMetrics exrmetrics (
     bool                               write,
     bool                               reread,
     PixelMode                          pixelMode,
-    bool                               verbose);
+    bool                               verbose,
+    bool                               computeMSE = false);
 
 #endif
