@@ -5,6 +5,7 @@
 //
 
 #include "exrmetrics.h"
+#include "mseutils.h"
 
 #include "ImfChannelList.h"
 #include "ImfDeepFrameBuffer.h"
@@ -23,8 +24,12 @@
 #include "ImfTiledMisc.h"
 #include "ImfTiledOutputPart.h"
 
+#include <Imath/half.h>
+
 #include <chrono>
+#include <cmath>
 #include <ctime>
+#include <limits>
 #include <list>
 #include <stdexcept>
 #include <vector>
@@ -32,6 +37,7 @@
 
 using namespace OPENEXR_IMF_NAMESPACE;
 using IMATH_NAMESPACE::Box2i;
+using IMATH_NAMESPACE::half;
 
 using std::cerr;
 using namespace std::chrono;
@@ -988,7 +994,8 @@ exrmetrics (
     bool                               write,
     bool                               reread,
     PixelMode                          pixelMode,
-    bool                               verbose)
+    bool                               verbose,
+    bool                               computeMSE)
 {
 
     if (verbose)
@@ -1176,10 +1183,121 @@ exrmetrics (
     }
 
     //
+    // compute MSE vs. re-read data
+    //
+    if (computeMSE && write && reread)
+    {
+        for (size_t p = 0; p < parts.size (); ++p)
+        {
+            metrics.stats[p].mseCount = 0;
+            metrics.stats[p].mse = std::numeric_limits<double>::quiet_NaN ();
+            string partType = outHeaders[p].type ();
+            if (partType != SCANLINEIMAGE && partType != TILEDIMAGE) continue;
+            
+            // skip parts with mixed channel types or with no channels
+            {
+                auto chBegin = outHeaders[p].channels ().begin ();
+                auto chEnd   = outHeaders[p].channels ().end ();
+                if (chBegin == chEnd) continue;
+                PixelType firstType  = chBegin.channel ().type;
+                bool      allSameType = true;
+                for (auto i = chBegin; i != chEnd; ++i)
+                {
+                    if (i.channel ().type != firstType)
+                    {
+                        allSameType = false;
+                        break;
+                    }
+                }
+                if (!allSameType) continue;
+            }
+
+            Box2i    dw     = outHeaders[p].dataWindow ();
+            uint64_t width  = dw.max.x + 1 - dw.min.x;
+            uint64_t height = dw.max.y + 1 - dw.min.y;
+
+            double   sumSq = 0.0;
+            uint64_t count = 0;
+            int      channelIndex = 0;
+
+            for (ChannelList::ConstIterator i =
+                     outHeaders[p].channels ().begin ();
+                 i != outHeaders[p].channels ().end ();
+                 ++i, ++channelIndex)
+            {
+                if (i.channel ().type != HALF && i.channel ().type != FLOAT &&
+                    i.channel ().type != UINT)
+                    continue;
+
+                uint64_t pixelsInChannel =
+                    (width / i.channel ().xSampling) *
+                    (height / i.channel ().ySampling);
+
+                const char* origData   = nullptr;
+                const char* rereadData = nullptr;
+
+                if (partType == SCANLINEIMAGE)
+                {
+                    origData =
+                        parts[p].readBuf.scanlinePixelData[channelIndex].data ();
+                    rereadData =
+                        parts[p].rereadBuf.scanlinePixelData[channelIndex].data ();
+                }
+                else
+                {
+                    if (parts[p].readBuf.tilePixelData.empty () ||
+                        parts[p].rereadBuf.tilePixelData.empty ())
+                        continue;
+                    origData =
+                        parts[p].readBuf.tilePixelData[0][channelIndex].data ();
+                    rereadData =
+                        parts[p].rereadBuf.tilePixelData[0][channelIndex].data ();
+                }
+
+                if (i.channel ().type == HALF)
+                {
+                    metrics.stats[p].mseKind = MSE_LOG_HALF;
+                    accumMSE (
+                        reinterpret_cast<const half*> (origData),
+                        reinterpret_cast<const half*> (rereadData),
+                        pixelsInChannel,
+                        sumSq,
+                        count);
+                }
+                else if (i.channel ().type == FLOAT)
+                {
+                    metrics.stats[p].mseKind = MSE_LOG_FLOAT;
+                    accumMSE (
+                        reinterpret_cast<const float*> (origData),
+                        reinterpret_cast<const float*> (rereadData),
+                        pixelsInChannel,
+                        sumSq,
+                        count);
+                }
+                else
+                {
+                    metrics.stats[p].mseKind = MSE_LOG_INT;
+                    accumMSE (
+                        reinterpret_cast<const unsigned int*> (origData),
+                        reinterpret_cast<const unsigned int*> (rereadData),
+                        pixelsInChannel,
+                        sumSq,
+                        count);
+                }
+            }
+
+            metrics.stats[p].mseCount = count;
+            metrics.stats[p].mse =
+                count > 0 ? sumSq / count
+                          : std::numeric_limits<double>::quiet_NaN ();
+        }
+    }
+
+    //
     // sum across all parts
     //
 
-    metrics.totalStats = metrics.stats[0];
+    metrics.totalStats      = metrics.stats[0];
     for (size_t i = 1; i < metrics.stats.size (); ++i)
     {
         accumulate (metrics.totalStats.readPerf, metrics.stats[i].readPerf);
