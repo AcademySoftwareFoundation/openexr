@@ -17,6 +17,7 @@ accumMSE<half> (
     double&     sumSq,
     uint64_t&   count)
 {
+    const double LN_HALF_DENORM_MIN = std::log(HALF_DENORM_MIN);
     for (uint64_t px = 0; px < pixelsInChannel; ++px)
     {
         double a = static_cast<double> (orig[px]);
@@ -24,8 +25,8 @@ accumMSE<half> (
         if (!std::isfinite (b)) { count = 0; sumSq = 0.0; return; }
         if (std::isfinite (a))
         {
-            double diff = (a < 0 ? -1.0 : 1.0) * std::log (std::abs (a) + HALF_DENORM_MIN) -
-                          (b < 0 ? -1.0 : 1.0) * std::log (std::abs (b) + HALF_DENORM_MIN);
+            double diff = (a < 0 ? -1.0 : 1.0) * (std::log (std::abs (a) + HALF_DENORM_MIN) - LN_HALF_DENORM_MIN) -
+                          (b < 0 ? -1.0 : 1.0) * (std::log (std::abs (b) + HALF_DENORM_MIN) - LN_HALF_DENORM_MIN);
             sumSq += diff * diff;
             ++count;
         }
@@ -41,6 +42,7 @@ accumMSE<float> (
     double&      sumSq,
     uint64_t&    count)
 {
+    const double ln_eps = std::log (std::numeric_limits<float>::denorm_min ());
     constexpr double eps = std::numeric_limits<float>::denorm_min ();
     for (uint64_t px = 0; px < pixelsInChannel; ++px)
     {
@@ -49,8 +51,8 @@ accumMSE<float> (
         if (!std::isfinite (b)) { count = 0; sumSq = 0.0; return; }
         if (std::isfinite (a))
         {
-            double diff = (a < 0 ? -1.0 : 1.0) * std::log (std::abs (a) + eps) -
-                          (b < 0 ? -1.0 : 1.0) * std::log (std::abs (b) + eps);
+            double diff = (a < 0 ? -1.0 : 1.0) * (std::log (std::abs (a) + eps) - ln_eps) -
+                          (b < 0 ? -1.0 : 1.0) * (std::log (std::abs (b) + eps) - ln_eps);
             sumSq += diff * diff;
             ++count;
         }
