@@ -128,11 +128,27 @@ if (DEFINED EXR_DEFLATE_LIB)
 endif()
 
 if (OPENEXR_IMF_ZSTD_TARGET AND NOT OPENEXR_IMF_ZSTD_TARGET STREQUAL "")
+
+  # External zstd
+
   if (BUILD_SHARED_LIBS)
     target_link_libraries(OpenEXRCore PRIVATE ${OPENEXR_IMF_ZSTD_TARGET})
   else()
     target_link_libraries(OpenEXRCore PUBLIC ${OPENEXR_IMF_ZSTD_TARGET})
   endif()
+
+else()
+
+  # Vendored zstd
+
+  set(ZSTD_SOURCE_DIR ${PROJECT_SOURCE_DIR}/external/zstd)
+  set(ZSTD_BINARY_DIR ${PROJECT_BINARY_DIR}/external/zstd)
+  add_subdirectory(${ZSTD_SOURCE_DIR}
+                   ${ZSTD_BINARY_DIR}
+                   EXCLUDE_FROM_ALL)
+  target_link_libraries(OpenEXRCore PRIVATE zstd)
+  target_include_directories(OpenEXRCore PRIVATE ${ZSTD_SOURCE_DIR}/lib)
+
 endif()
 
 if (DEFINED EXR_OPENJPH_LIB)
