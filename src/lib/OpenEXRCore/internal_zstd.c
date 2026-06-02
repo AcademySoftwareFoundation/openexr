@@ -16,9 +16,27 @@
 
 #if defined(_WIN32) || defined(_WIN64)
 #    include <windows.h>
+#    include <malloc.h>
 #else
 #    include <pthread.h>
 #endif
+
+#if defined(_MSC_VER)
+#    define EXR_ZSTD_THREAD_LOCAL __declspec (thread)
+#else
+#    define EXR_ZSTD_THREAD_LOCAL _Thread_local
+#endif
+
+static void
+exr_zstd_free_shuffle_buf (uint8_t* buf)
+{
+    if (!buf) return;
+#if defined(_WIN32) || defined(_WIN64)
+    _aligned_free (buf);
+#else
+    free (buf);
+#endif
+}
 
 /* Use Zstd directly */
 #include <zstd.h>
@@ -64,7 +82,7 @@ exr_zstd_fls_destructor (PVOID lpFlsData)
     if (!s) return;
     if (s->cctx) ZSTD_freeCCtx (s->cctx);
     if (s->dctx) ZSTD_freeDCtx (s->dctx);
-    if (s->shuffle_buf) free (s->shuffle_buf);
+    if (s->shuffle_buf) exr_zstd_free_shuffle_buf (s->shuffle_buf);
     free (s);
 }
 
@@ -112,7 +130,7 @@ exr_zstd_tls_destructor (void* p)
     if (!s) return;
     if (s->cctx) ZSTD_freeCCtx (s->cctx);
     if (s->dctx) ZSTD_freeDCtx (s->dctx);
-    if (s->shuffle_buf) free (s->shuffle_buf);
+    if (s->shuffle_buf) exr_zstd_free_shuffle_buf (s->shuffle_buf);
     free (s);
 }
 
@@ -140,7 +158,7 @@ exr_zstd_tls_get_impl (void)
 #endif /* !_WIN32 */
 
 /* Fast path: avoid pthread_getspecific / FlsGetValue on every call within a thread. */
-static _Thread_local exr_zstd_tls_state* t_exr_zstd_tls_fast;
+static EXR_ZSTD_THREAD_LOCAL exr_zstd_tls_state* t_exr_zstd_tls_fast;
 
 static exr_zstd_tls_state*
 exr_zstd_tls_get (void)
@@ -162,18 +180,38 @@ ensure_tls_resources (size_t required_size)
     if (tls->shuffle_buf_size < required_size)
     {
         // 1. FREE the old buffer to avoid realloc's internal overhead
-        if (tls->shuffle_buf) free (tls->shuffle_buf);
+        if (tls->shuffle_buf) exr_zstd_free_shuffle_buf (tls->shuffle_buf);
 
         // 2. OVERSHOOT: Allocate 25% more than needed to prevent
         // repeated reallocations if the next scanline is slightly bigger.
         tls->shuffle_buf_size = required_size + (required_size >> 2);
 
-        // 3. ALIGN: Use aligned_alloc for 64-byte cache line alignment
-        // Note: size must be a multiple of alignment for aligned_alloc
+        // 3. ALIGN: 64-byte cache line alignment
         size_t aligned_size = (tls->shuffle_buf_size + 63) & ~63;
 
+#if defined(_WIN32) || defined(_WIN64)
+        tls->shuffle_buf = (uint8_t*) _aligned_malloc (aligned_size, 64);
+#else
         tls->shuffle_buf = (uint8_t*) aligned_alloc (64, aligned_size);
+#endif
     }
+}
+
+/** Byte size for zstd metadata in scratch_buffer_2: grid + sorting lookup. */
+static exr_result_t
+exr_zstd_meta_scratch_byte_size (
+    int chunk_line_count, int channel_count, size_t* out_bytes)
+{
+    if (chunk_line_count <= 0 || channel_count <= 0)
+        return EXR_ERR_INVALID_ARGUMENT;
+
+    size_t meta_count =
+        (size_t) chunk_line_count * (size_t) channel_count;
+    if (meta_count > SIZE_MAX / (2 * sizeof (uint64_t)))
+        return EXR_ERR_ARGUMENT_OUT_OF_RANGE;
+
+    *out_bytes = 2 * meta_count * sizeof (uint64_t);
+    return EXR_ERR_SUCCESS;
 }
 
 /* --- Keep the existing OpenEXR specific sorting/sampling logic below --- */
@@ -372,9 +410,9 @@ sort2_4ByteChannels_tiled (
     const int                        channelsSize,
     const bool                       forward,
     int                              height,
-    char*                            outPtr)
+    char*                            outPtr,
+    uint64_t*                        sorting_lookup)
 {
-    uint64_t sorting_lookup[channelsSize * height];
     uint64_t splitPoint = compute_sorting_lookup (
         num_samples_grid, height, channels, channelsSize, sorting_lookup);
 
@@ -915,9 +953,6 @@ exr_zstd_encode_one_wire_version (
 exr_result_t
 internal_exr_apply_zstd (exr_encode_pipeline_t* encode)
 {
-    uint64_t   row_sample_counts[encode->chunk.height];
-    bool const sampleCount_valid =
-        get_row_sample_count_encode (encode, row_sample_counts);
     int32_t      level = 5;
     exr_result_t rv    = exr_get_zstd_compression_level (
         encode->context, encode->part_index, &level);
@@ -927,25 +962,11 @@ internal_exr_apply_zstd (exr_encode_pipeline_t* encode)
                                         (uint64_t) encode->chunk.height *
                                         sizeof (uint32_t);
 
-    if (sampleCount_valid && encode->packed_bytes == 0)
-    {
-        encode->compressed_bytes = 0;
-        return EXR_ERR_SUCCESS;
-    }
-
     const size_t packed    = encode->packed_bytes;
     size_t       inner_cap = packed + 16u;
     if (inner_cap < packed) return EXR_ERR_ARGUMENT_OUT_OF_RANGE;
     if (encode->compressed_alloc_size < ZSTD_EXR_V1_HEADER)
         return EXR_ERR_ARGUMENT_OUT_OF_RANGE;
-
-    ensure_tls_resources (inner_cap);
-
-    exr_zstd_tls_state* tls_enc = exr_zstd_tls_get ();
-    if (!tls_enc || !tls_enc->shuffle_buf)
-        return EXR_ERR_COMPRESSION_FAILED;
-
-    uint8_t* const inner = tls_enc->shuffle_buf;
 
     const int compressing_sample_counts_only =
         (encode->packed_sample_count_table != NULL &&
@@ -973,7 +994,7 @@ internal_exr_apply_zstd (exr_encode_pipeline_t* encode)
     exr_zstd_channel_grid_scenario_t grid_scenario;
     if (use_sample_count_pack_layout)
         grid_scenario = EXR_ZSTD_GRID_DEEP_SAMPLE_COUNT_TABLE;
-    else if (sampleCount_valid)
+    else if (encode->sample_count_alloc_size > 0)
         grid_scenario = EXR_ZSTD_GRID_DEEP_PIXELS;
     else if (is_flat)
         grid_scenario = EXR_ZSTD_GRID_FLAT_SCAN_OR_TILE;
@@ -996,8 +1017,41 @@ internal_exr_apply_zstd (exr_encode_pipeline_t* encode)
     if (chunk_line_count <= 0 || channel_count <= 0)
         return EXR_ERR_INVALID_ARGUMENT;
 
-    uint64_t channel_sample_count_grid
-        [(size_t) chunk_line_count * (size_t) channel_count];
+    size_t meta_scratch_bytes = 0;
+    rv = exr_zstd_meta_scratch_byte_size (
+        chunk_line_count, channel_count, &meta_scratch_bytes);
+    if (rv != EXR_ERR_SUCCESS) return rv;
+
+    rv = internal_encode_alloc_buffer (
+        encode,
+        EXR_TRANSCODE_BUFFER_SCRATCH2,
+        &encode->scratch_buffer_2,
+        &encode->scratch_alloc_size_2,
+        meta_scratch_bytes);
+    if (rv != EXR_ERR_SUCCESS) return rv;
+
+    size_t const meta_count =
+        (size_t) chunk_line_count * (size_t) channel_count;
+    uint64_t* const channel_sample_count_grid =
+        (uint64_t*) encode->scratch_buffer_2;
+    uint64_t* const sorting_lookup = channel_sample_count_grid + meta_count;
+
+    bool const sampleCount_valid =
+        get_row_sample_count_encode (encode, sorting_lookup);
+
+    if (sampleCount_valid && encode->packed_bytes == 0)
+    {
+        encode->compressed_bytes = 0;
+        return EXR_ERR_SUCCESS;
+    }
+
+    ensure_tls_resources (inner_cap);
+
+    exr_zstd_tls_state* tls_enc = exr_zstd_tls_get ();
+    if (!tls_enc || !tls_enc->shuffle_buf)
+        return EXR_ERR_COMPRESSION_FAILED;
+
+    uint8_t* const inner = tls_enc->shuffle_buf;
 
     exr_zstd_fill_channel_sample_count_grid (
         grid_scenario,
@@ -1006,7 +1060,7 @@ internal_exr_apply_zstd (exr_encode_pipeline_t* encode)
         encode->chunk.width,
         channel_count,
         channel_sample_count_grid,
-        row_sample_counts,
+        sorting_lookup,
         pack_channels);
 
     int const pipeline_height = encode->chunk.height;
@@ -1028,7 +1082,8 @@ internal_exr_apply_zstd (exr_encode_pipeline_t* encode)
         pack_channel_count,
         true,
         pipeline_height,
-        (char*) encode->scratch_buffer_1);
+        (char*) encode->scratch_buffer_1,
+        sorting_lookup);
 
     uint64_t total_w = 0;
 
@@ -1118,22 +1173,20 @@ exr_undo_zstd_v1 (
         tls_dec->dctx, tls_dec->shuffle_buf, dst_cap, zsrc, zsz);
     if (ZSTD_isError (dSize)) return EXR_ERR_CORRUPT_CHUNK;
 
-    uint64_t   row_sample_counts[decode->chunk.height];
-    bool const sampleCount_valid =
-        get_row_sample_count_decode (decode, row_sample_counts);
     const bool is_sample_count_chunk = exr_zstd_decode_is_sample_count_chunk (
         decode, compressed_data, uncompressed_size);
     const exr_storage_t dstorage = (exr_storage_t) decode->chunk.type;
     const bool          is_flat =
         (dstorage == EXR_STORAGE_SCANLINE || dstorage == EXR_STORAGE_TILED);
 
-    if (!(is_sample_count_chunk || sampleCount_valid || is_flat))
+    if (!(is_sample_count_chunk || decode->sample_count_valid == 1 ||
+          is_flat))
         return EXR_ERR_CORRUPT_CHUNK;
 
     exr_zstd_channel_grid_scenario_t grid_scenario;
     if (is_sample_count_chunk)
         grid_scenario = EXR_ZSTD_GRID_DEEP_SAMPLE_COUNT_TABLE;
-    else if (sampleCount_valid)
+    else if (decode->sample_count_valid == 1 && decode->chunk.width > 0)
         grid_scenario = EXR_ZSTD_GRID_DEEP_PIXELS;
     else
         grid_scenario = EXR_ZSTD_GRID_FLAT_SCAN_OR_TILE;
@@ -1155,8 +1208,26 @@ exr_undo_zstd_v1 (
     if (chunk_line_count <= 0 || channel_count <= 0)
         return EXR_ERR_CORRUPT_CHUNK;
 
-    uint64_t channel_sample_count_grid
-        [(size_t) chunk_line_count * (size_t) channel_count];
+    size_t meta_scratch_bytes = 0;
+    exr_result_t meta_rv = exr_zstd_meta_scratch_byte_size (
+        chunk_line_count, channel_count, &meta_scratch_bytes);
+    if (meta_rv != EXR_ERR_SUCCESS) return meta_rv;
+
+    meta_rv = internal_decode_alloc_buffer (
+        decode,
+        EXR_TRANSCODE_BUFFER_SCRATCH2,
+        &decode->scratch_buffer_2,
+        &decode->scratch_alloc_size_2,
+        meta_scratch_bytes);
+    if (meta_rv != EXR_ERR_SUCCESS) return meta_rv;
+
+    size_t const meta_count =
+        (size_t) chunk_line_count * (size_t) channel_count;
+    uint64_t* const channel_sample_count_grid =
+        (uint64_t*) decode->scratch_buffer_2;
+    uint64_t* const sorting_lookup = channel_sample_count_grid + meta_count;
+
+    (void) get_row_sample_count_decode (decode, sorting_lookup);
 
     exr_zstd_fill_channel_sample_count_grid (
         grid_scenario,
@@ -1165,20 +1236,18 @@ exr_undo_zstd_v1 (
         decode->chunk.width,
         channel_count,
         channel_sample_count_grid,
-        row_sample_counts,
+        sorting_lookup,
         pack_channels);
 
     exr_zstd_pack_pipeline pipe;
     exr_zstd_build_decode_pipeline (fr.format, fr.flags, &pipe);
 
-    uint64_t split;
-    {
-        const int nch = pack_channel_count;
-        const int nh  = decode->chunk.height;
-        uint64_t  sort_lu[(size_t) nch * (size_t) nh];
-        split = compute_sorting_lookup (
-            channel_sample_count_grid, nh, pack_channels, nch, sort_lu);
-    }
+    uint64_t split = compute_sorting_lookup (
+        channel_sample_count_grid,
+        chunk_line_count,
+        pack_channels,
+        pack_channel_count,
+        sorting_lookup);
 
     uint64_t  inner_lens[2];
     uint64_t  inner_els[2];
@@ -1230,7 +1299,8 @@ exr_undo_zstd_v1 (
         pack_channel_count,
         false,
         decode->chunk.height,
-        (char*) uncompressed_data);
+        (char*) uncompressed_data,
+        sorting_lookup);
 
     return EXR_ERR_SUCCESS;
 }
