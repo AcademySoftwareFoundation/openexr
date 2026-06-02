@@ -10,8 +10,8 @@
 //
 //-----------------------------------------------------------------------------
 #include "ImfExport.h"
-#include <ImathExport.h>
-#include <ImathNamespace.h>
+#include <Imath/ImathExport.h>
+#include <Imath/ImathNamespace.h>
 
 IMATH_INTERNAL_NAMESPACE_HEADER_ENTER
 template <class V> class IMF_EXPORT_TEMPLATE_TYPE Vec2;
@@ -21,7 +21,7 @@ IMATH_INTERNAL_NAMESPACE_HEADER_EXIT
 
 #define COMPILING_IMF_BOX_ATTRIBUTE
 
-#include <ImfBoxAttribute.h>
+#include "ImfBoxAttribute.h"
 
 #if defined(_MSC_VER)
 // suppress warning about non-exported base classes

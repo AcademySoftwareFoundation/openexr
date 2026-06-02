@@ -12,7 +12,7 @@
 #include "ImfSampleCountChannel.h"
 #include "ImfDeepImageLevel.h"
 #include "ImfImage.h"
-#include <Iex.h>
+#include "Iex.h"
 
 using namespace IMATH_NAMESPACE;
 using namespace IEX_NAMESPACE;

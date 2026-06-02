@@ -20,9 +20,13 @@ rapidly and post patches within 14 days if possible.
 
 | CVE | Affected Versions | Patched Versions |
 | --- | ----------------- | ---------------- |
+
+| [CVE-2026-42217](https://www.cve.org/CVERecord?id=CVE-2026-42217) | 3.2.0–3.2.8, 3.3.0–3.3.10, 3.4.0–3.4.10 | 3.2.9, 3.3.11, 3.4.11 |
+| [CVE-2026-42216](https://www.cve.org/CVERecord?id=CVE-2026-42216) | 3.2.0–3.2.8, 3.3.0–3.3.10, 3.4.0–3.4.10 | 3.2.9, 3.3.11, 3.4.11 |
+| [CVE-2026-41142](https://www.cve.org/CVERecord?id=CVE-2026-41142) | 3.2.0–3.2.8, 3.3.0–3.3.10, 3.4.0–3.4.10 | 3.2.9, 3.3.11, 3.4.11 |
 | [CVE-2026-40250](https://www.cve.org/CVERecord?id=CVE-2026-40250) | 3.2.0–3.2.7, 3.3.0–3.3.9, 3.4.0–3.4.9 | 3.2.8, 3.3.10, 3.4.10 |
 | [CVE-2026-40244](https://www.cve.org/CVERecord?id=CVE-2026-40244) | 3.2.0–3.2.7, 3.3.0–3.3.9, 3.4.0–3.4.9 | 3.2.8, 3.3.10, 3.4.10 |
-| [CVE-2026-39886](https://www.cve.org/CVERecord?id=CVE-2026-39886) | 3.4.0–3.4.8 | 3.4.10 |
+| [CVE-2026-39886](https://www.cve.org/CVERecord?id=CVE-2026-39886) | 3.4.0–3.4.9 | 3.4.10 |
 | [CVE-2026-34589](https://www.cve.org/CVERecord?id=CVE-2026-34589) | 3.2.0–3.2.6, 3.3.0–3.3.8, 3.4.0–3.4.8 | 3.2.7, 3.3.9, 3.4.9 |
 | [CVE-2026-34588](https://www.cve.org/CVERecord?id=CVE-2026-34588) | 3.1.x, 3.2.0–3.2.6, 3.3.0–3.3.8, 3.4.0–3.4.8 | 3.2.7, 3.3.9, 3.4.9 |
 | [CVE-2026-34545](https://www.cve.org/CVERecord?id=CVE-2026-34545) | 3.4.0–3.4.6 | 3.4.7 |

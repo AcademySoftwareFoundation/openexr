@@ -17,9 +17,141 @@ News
 
 
 |latest-news-title|
-===========================================
+======================================
 
 .. _LatestNewsStart:
+
+Patch release that addresses several bugs and security
+vulnerabilities.
+
+* 🐛 Fix several minor memory leaks recovering from reading invalid
+  files.
+* 🐛 The compressor API incorrectly identfied ``HTJ2K`` and ``HTJ2K256`` as
+  lossy; they are lossles.
+* 🐛 Fix CMake AVX feature detection that caused DWA SIMD code to fail on
+  certain architectures.
+* ⚠️ The ``WidenFilename`` utility function is marked as deprecated, to be
+  removed in a future release.
+* ✨ ``exrmetrics`` now print the on-disk size of the data portion of each
+  part. Useful for determining compression impact on part data
+
+For the python module:
+
+* 🐍 🐛 Reject files where the dataWindows does not match the
+  pixel array dimensions.
+* 🐍 ✨ Support NumPy float vector attributes
+* 🐍 ✨ Reading now skips over invalid parts, returns the valid parts only.
+* 🐍 📖 Doc strings have proper indentation
+
+This release addresses the following security vulnerabilities:
+
+* `CVE-2026-45696 <https://www.cve.org/CVERecord?id=CVE-2026-45696>`_
+  OpenEXR ``ht_undo_impl`` heap-buffer-overflow READ via codestream/channel width mismatch in HTJ2K decode
+* `CVE-2026-44663 <https://www.cve.org/CVERecord?id=CVE-2026-44663>`_
+  Integer overflow in HTJ2K decoder ( ``ht_undo_impl`` ) leading to heap-buffer-overflow
+* `OSS-fuzz 512895184 <https://issues.oss-fuzz.com/issues/512895184>`_
+  Null-dereference WRITE in ``Imf_4_0::TileProcess::run_decode``
+* `OSS-fuzz 512314697 <https://issues.oss-fuzz.com/issues/512314697>`_
+  Direct-leak in ``internal_exr_add_part``
+* `OSS-fuzz 508362159 <https://issues.oss-fuzz.com/issues/508362159>`_
+  Heap-buffer-overflow in ``DwaCompressor_uncompress``
+* `OSS-fuzz 507413960 <https://issues.oss-fuzz.com/issues/507413960>`_
+  Heap-buffer-overflow in ``generic_unpack``
+
+.. _LatestNewsEnd:
+
+April 29, 2026 - OpenEXR 3.4.11 Released
+========================================
+
+Patch release that addresses the following security vulnerabilities:
+
+* `CVE-2026-42217 <https://www.cve.org/CVERecord?id=CVE-2026-42217>`_
+Shift exponent overflow in ``readVariableLengthInteger()`` (``ImfIDManifest.cpp``)
+* `CVE-2026-42216 <https://www.cve.org/CVERecord?id=CVE-2026-42216>`_
+Out-of-bounds read in ``IDManifest::init()`` during prefix expansion
+* `CVE-2026-41142 <https://www.cve.org/CVERecord?id=CVE-2026-41142>`_
+Integer overflow in ``ImageChannel::resize`` leads to heap OOB write via OpenEXRUtil public API
+
+* OSS-fuzz `504280155 <https://issues.oss-fuzz.com/issues/504280155>`_
+Heap-buffer-overflow in ``DwaCompressor_uncompress``
+* OSS-fuzz `505062709 <https://issues.oss-fuzz.com/issues/505062709>`_
+Null-dereference READ in ``Imf_3_3::prefixFromLayerName``
+
+Build fixes:
+
+* Fix Windows ARM64EC build issues and correct SIMD ARM NEON path for ARM64/EC
+
+Also, some minor documentation updates:
+
+* GitHub Security Advisories are the preferred way of reporting
+  vulnerabilities, not email.
+* Some clarification around handling of UFT-8 of file paths
+
+
+April 29, 2026 - OpenEXR 3.3.11 Released
+========================================
+
+Patch release for 3.3 that addresses the following security
+vulnerabilities:
+
+* `CVE-2026-42217 <https://www.cve.org/CVERecord?id=CVE-2026-42217>`_
+Shift exponent overflow in ``readVariableLengthInteger()`` (``ImfIDManifest.cpp``)
+* `CVE-2026-42216 <https://www.cve.org/CVERecord?id=CVE-2026-42216>`_
+Out-of-bounds read in ``IDManifest::init()`` during prefix expansion
+* `CVE-2026-41142 <https://www.cve.org/CVERecord?id=CVE-2026-41142>`_
+Integer overflow in ``ImageChannel::resize`` leads to heap OOB write via OpenEXRUtil public API
+
+Also:
+
+* OSS-fuzz `504280155 <https://issues.oss-fuzz.com/issues/504280155>`_
+Heap-buffer-overflow in ``DwaCompressor_uncompress``
+
+April 29, 2026 - OpenEXR 3.2.9 Released
+=======================================
+
+Patch release for 3.2 that addresses the following security
+vulnerabilities:
+
+* `CVE-2026-42217 <https://www.cve.org/CVERecord?id=CVE-2026-42217>`_
+Shift exponent overflow in ``readVariableLengthInteger()`` (``ImfIDManifest.cpp``)
+* `CVE-2026-42216 <https://www.cve.org/CVERecord?id=CVE-2026-42216>`_
+Out-of-bounds read in ``IDManifest::init()`` during prefix expansion
+* `CVE-2026-41142 <https://www.cve.org/CVERecord?id=CVE-2026-41142>`_
+Integer overflow in ``ImageChannel::resize`` leads to heap OOB write via OpenEXRUtil public API
+
+Also:
+
+* OSS-fuzz `504280155 <https://issues.oss-fuzz.com/issues/504280155>`_
+Heap-buffer-overflow in ``DwaCompressor_uncompress``
+
+April 17, 2026 - OpenEXR 3.4.10 Released
+========================================
+
+Patch release that addresses the following security vulnerabilities:
+
+* `CVE-2026-39886 <https://www.cve.org/CVERecord?id=CVE-2026-39886>`_ HTJ2K Signed Integer Overflow in ``ht_undo_impl()``
+* `CVE-2026-40244 <https://www.cve.org/CVERecord?id=CVE-2026-40244>`_ Integer overflow in DWA ``setupChannelData`` ``planarUncRle`` pointer arithmetic (missed variant of CVE-2026-34589)
+* `CVE-2026-40250 <https://www.cve.org/CVERecord?id=CVE-2026-40250>`_ Integer overflow in DWA decoder ``outBufferEnd`` pointer arithmetic (missed variant of CVE-2026-34589)
+
+
+April 17, 2026 - OpenEXR 3.3.10 Released
+========================================
+
+Patch release for v3.3 that addresses the following security vulnerabilities:
+
+* `CVE-2026-40244 <https://www.cve.org/CVERecord?id=CVE-2026-40244>`_ Integer overflow in DWA ``setupChannelData`` ``planarUncRle`` pointer arithmetic (missed variant of CVE-2026-34589)
+* `CVE-2026-40250 <https://www.cve.org/CVERecord?id=CVE-2026-40250>`_ Integer overflow in DWA decoder ``outBufferEnd`` pointer arithmetic (missed variant of CVE-2026-34589)
+
+April 17, 2026 - OpenEXR 3.2.8 Released
+=======================================
+
+Patch release for v3.2 that addresses the following security vulnerabilities:
+
+* `CVE-2026-40244 <https://www.cve.org/CVERecord?id=CVE-2026-40244>`_ Integer overflow in DWA ``setupChannelData`` ``planarUncRle`` pointer arithmetic (missed variant of CVE-2026-34589)
+* `CVE-2026-40250 <https://www.cve.org/CVERecord?id=CVE-2026-40250>`_ Integer overflow in DWA decoder ``outBufferEnd`` pointer arithmetic (missed variant of CVE-2026-34589)
+
+April  3, 2026 - OpenEXR 3.4.9 Released
+=======================================
 
 Patch release that addresses several security vulnerabilities.
 
@@ -35,7 +167,6 @@ This release addresses the following CVEs:
 * `CVE-2026-34379 <https://www.cve.org/CVERecord?id=CVE-2026-34379>`_ Misaligned write in LossyDctDecoder_execute leading to undefined behavior (DWA/DWAB decompression)
 * `CVE-2026-34378 <https://www.cve.org/CVERecord?id=CVE-2026-34378>`_ Signed integer overflow in generic_unpack() when parsing EXR files with crafted negative dataWindow.min.x
 
-.. _LatestNewsEnd:
 
 April  3, 2026 - OpenEXR 3.3.9 Released
 =======================================
@@ -174,7 +305,6 @@ Patch release that fixes an incorrect size check in
 `istream_nonparallel_read` that could lead to a buffer overflow on
 invalid input data.
 
-.. _LatestNewsEnd:
 
 February 19, 2026 - OpenEXR 3.3.7 Released
 ==========================================
@@ -430,7 +560,6 @@ Changes to the OpenEXR Python module:
 * 🐍 📦 ⚠️ `pypi` distributions now **add support
   for Python 3.13** and **drop support for Python 3.7**.
 
-.. _LatestNewsEnd:
 
 July 26, 2025 - OpenEXR 3.3.5 Released
 ======================================

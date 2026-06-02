@@ -18,7 +18,7 @@
 #include "ImfName.h"
 #include "ImfPixelType.h"
 
-#include <ImathBox.h>
+#include <Imath/ImathBox.h>
 
 #include <cstdint>
 #include <map>

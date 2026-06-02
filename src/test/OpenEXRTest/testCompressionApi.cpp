@@ -60,7 +60,7 @@ testCompressionApi (const string& tempDir)
 
             assert (getCompressionNumScanlines (c) > 0);
 
-            // update this if you add a new lossy compressor.
+            // update this if you add a new compressor.
             switch (c)
             {
                 case NO_COMPRESSION:
@@ -69,6 +69,8 @@ testCompressionApi (const string& tempDir)
                 case ZIP_COMPRESSION:
                 case PIZ_COMPRESSION:
                 case ZSTD_COMPRESSION:
+                case HTJ2K256_COMPRESSION:
+                case HTJ2K32_COMPRESSION:
                     assert (isLossyCompression (c) == false);
                     break;
 

@@ -8,8 +8,8 @@
 #pragma once
 
 #include "OpenEXRConfig.h"
-#include <IlmThreadConfig.h>
-#include <ImathConfig.h>
+#include "IlmThreadConfig.h"
+#include <Imath/ImathConfig.h>
 
 /// \addtogroup ExportMacros
 /// @{

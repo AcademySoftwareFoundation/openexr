@@ -29,7 +29,6 @@
 #include <stdexcept>
 #include <vector>
 #include <sys/stat.h>
-#include <iomanip>
 
 using namespace OPENEXR_IMF_NAMESPACE;
 using IMATH_NAMESPACE::Box2i;
@@ -38,11 +37,9 @@ using std::cerr;
 using namespace std::chrono;
 using std::cout;
 using std::endl;
-using std::fixed;
 using std::list;
 using std::min;
 using std::runtime_error;
-using std::setprecision;
 using std::string;
 using std::to_string;
 using std::vector;
@@ -767,11 +764,21 @@ writeFile (
     MultiPartOutputFile& out,
     vector<partData>&    parts,
     fileMetrics&         metrics,
-    bool                 logPerformance)
+    bool                 logPerformance,
+    OStream*             os = nullptr)
 {
     //
     // Call initialization functions, Read image from source.
     //
+
+    uint64_t lastPosition  = 0;
+    uint64_t currentPosition = 0;
+
+    if (os)
+    {
+        lastPosition = os->tellp();
+    }
+
     for (size_t p = 0; p < parts.size (); ++p)
     {
         string type = out.header (p).type ();
@@ -783,6 +790,7 @@ writeFile (
                 outpart,
                 parts[p].readBuf.scanlineBuf,
                 logPerformance ? &metrics.stats[p].writePerf : nullptr);
+            if (os) currentPosition = os->tellp();
         }
         else if (type == TILEDIMAGE)
         {
@@ -791,6 +799,7 @@ writeFile (
                 outpart,
                 parts[p].readBuf.tiledBuf,
                 logPerformance ? &metrics.stats[p].writePerf : nullptr);
+            if (os) currentPosition = os->tellp();
         }
         else if (type == DEEPSCANLINE)
         {
@@ -799,6 +808,7 @@ writeFile (
                 outpart,
                 parts[p].readBuf.deepbuf,
                 logPerformance ? &metrics.stats[p].writePerf : nullptr);
+            if (os) currentPosition = os->tellp();
         }
         else if (type == DEEPTILE)
         {
@@ -807,6 +817,13 @@ writeFile (
                 outpart,
                 parts[p].readBuf.deepbuf,
                 logPerformance ? &metrics.stats[p].writePerf : nullptr);
+            if (os) currentPosition = os->tellp();
+        }
+
+        if (os)
+        {
+            metrics.stats[p].sizeOnDisk = currentPosition - lastPosition;
+            lastPosition = currentPosition;
         }
     }
 }
@@ -960,72 +977,79 @@ modeName (PixelMode p)
     throw runtime_error ("bad pixelmode");
 }
 
-
-
 fileMetrics
-exrmetrics (const Params& params)
+exrmetrics (
+    const char*                        inFileName,
+    const char*                        outFileName,
+    int                                part,
+    OPENEXR_IMF_NAMESPACE::Compression compression,
+    float                              level,
+    int                                passes,
+    bool                               write,
+    bool                               reread,
+    PixelMode                          pixelMode,
+    bool                               verbose)
 {
 
-    if (params.verbose)
+    if (verbose)
     {
-        cerr << "read " << params.inFileName;
-        cerr << " as " << modeName (params.pixelMode) << "... ";
+        cerr << "read " << inFileName;
+        cerr << " as " << modeName (pixelMode) << "... ";
         cerr.flush ();
     }
 
-    MultiPartInputFile in (params.inFileName);
-    if (params.part != -1 && params.part >= in.parts ())
+    MultiPartInputFile in (inFileName);
+    if (part != -1 && part >= in.parts ())
     {
-        throw runtime_error ((string (params.inFileName) + " only contains " +
+        throw runtime_error ((string (inFileName) + " only contains " +
                               to_string (in.parts ()) +
-                              " parts. Cannot copy part " + to_string (params.part))
+                              " parts. Cannot copy part " + to_string (part))
                                  .c_str ());
     }
     fileMetrics metrics;
 
     //write all parts if part==-1, otherwise write single part specified
-    vector<Header> outHeaders (params.part == -1 ? in.parts () : 1);
-    if (params.part == -1)
+    vector<Header> outHeaders (part == -1 ? in.parts () : 1);
+    if (part == -1)
     {
         for (int p = 0; p < in.parts (); ++p)
         {
             outHeaders[p] = in.header (p);
         }
     }
-    else { outHeaders[0] = in.header (params.part); }
+    else { outHeaders[0] = in.header (part); }
 
     bool compressionSet = false;
 
     for (size_t p = 0; p < outHeaders.size(); ++p)
     {
-        if (params.compression < NUM_COMPRESSION_METHODS)
+        if (compression < NUM_COMPRESSION_METHODS)
         {
-            outHeaders[p].compression () = params.compression;
+            outHeaders[p].compression () = compression;
         }
 
-        if (!isinf (params.level) && params.level >= -1)
+        if (!isinf (level) && level >= -1)
         {
             switch (outHeaders[p].compression ())
             {
                 case DWAA_COMPRESSION:
                 case DWAB_COMPRESSION:
-                    outHeaders[p].dwaCompressionLevel () = params.level;
+                    outHeaders[p].dwaCompressionLevel () = level;
                     compressionSet                       = true;
                     break;
                 case ZIP_COMPRESSION:
                 case ZIPS_COMPRESSION:
-                    outHeaders[p].zipCompressionLevel () = params.level;
+                    outHeaders[p].zipCompressionLevel () = level;
                     compressionSet                       = true;
                     break;
-                case ZSTD_COMPRESSION :
-                    outHeaders[p].zstdCompressionLevel()=params.level;
-                    compressionSet                       = true;
-                    break;
+                    //            case ZSTD_COMPRESSION :
+                    //                outHeader.zstdCompressionLevel()=level;
+                    //                break;
                 default: break;
             }
         }
 
-        if (params.pixelMode != PIXELMODE_ORIGINAL)
+        if (pixelMode != PIXELMODE_ORIGINAL)
         {
             for (ChannelList::Iterator i = outHeaders[p].channels ().begin ();
                  i != outHeaders[p].channels ().end ();
@@ -1036,16 +1060,16 @@ exrmetrics (const Params& params)
                 const char* dot  = strrchr (name, 'r');
                 if (dot) { name = dot + 1; }
 
-                if (params.pixelMode == PIXELMODE_ALL_HALF ||
-                    (params.pixelMode == PIXELMODE_MIXED_HALF_FLOAT &&
+                if (pixelMode == PIXELMODE_ALL_HALF ||
+                    (pixelMode == PIXELMODE_MIXED_HALF_FLOAT &&
                      (!strcmp (name, "R") || !strcmp (name, "G") ||
                       !strcmp (name, "B") || !strcmp (name, "A"))))
                 {
                     i.channel ().type = HALF;
                 }
                 else if (
-                    params.pixelMode == PIXELMODE_ALL_FLOAT ||
-                    params.pixelMode == PIXELMODE_MIXED_HALF_FLOAT)
+                    pixelMode == PIXELMODE_ALL_FLOAT ||
+                    pixelMode == PIXELMODE_MIXED_HALF_FLOAT)
                 {
                     i.channel ().type = FLOAT;
                 }
@@ -1054,27 +1078,18 @@ exrmetrics (const Params& params)
     }
 
     // abort if level was set but no parts had a compression type with a level
-    if (!isinf (params.level) && params.level >= -1 && !compressionSet)
+    if (!isinf (level) && level >= -1 && !compressionSet)
     {
         throw runtime_error (
             "-l option only works for DWAA/DWAB,ZIP/ZIPS or ZSTD compression");
     }
 
-    vector<partData> parts (params.part == -1 ? in.parts () : 1);
+    vector<partData> parts (part == -1 ? in.parts () : 1);
     metrics.stats.resize (parts.size ());
 
-    initAndReadFile (in, outHeaders, params.part, parts, metrics, params.reread);
-    if (params.deepOutFileType == DEEPTILE)
-    {
-        for(auto &h : outHeaders)
-        {
-            h.setType(DEEPTILE);
-            h.setTileDescription (
-                TileDescription (params.tileSize, params.tileSize, ONE_LEVEL));
-        }
-    }
+    initAndReadFile (in, outHeaders, part, parts, metrics, reread);
 
-    if (params.write)
+    if (write)
     {
 
         //
@@ -1082,7 +1097,7 @@ exrmetrics (const Params& params)
         // precompute the total datasize, so no memory reallocation is required
         //
         uint64_t fileSize = 0;
-        if (!params.outFileName)
+        if (!outFileName)
         {
 
             DummyOStream        tmp;
@@ -1096,46 +1111,47 @@ exrmetrics (const Params& params)
         // write to output; re-read output back to input
         //
 
-        if (params.verbose)
+        if (verbose)
         {
             cerr << " write ";
-            if (params.compression != NUM_COMPRESSION_METHODS)
+            if (compression != NUM_COMPRESSION_METHODS)
             {
                 string name;
-                getCompressionNameFromId (params.compression, name);
+                getCompressionNameFromId (compression, name);
                 cerr << "compression " << name;
             }
             cerr << "... ";
             cerr.flush ();
         }
 
-        for (int i = 0; i < params.passes; ++i)
+        for (int i = 0; i < passes; ++i)
         {
-            if (params.verbose && params.passes > 1)
+            if (verbose && passes > 1)
             {
                 cerr << i << ' ';
                 cerr.flush ();
             }
             MemOStream           ostream (fileSize);
             MultiPartOutputFile* out;
-            if (params.outFileName)
+            if (outFileName)
             {
                 out = new MultiPartOutputFile (
-                    params.outFileName, outHeaders.data (), outHeaders.size ());
+                    outFileName, outHeaders.data (), outHeaders.size ());
+                writeFile (*out, parts, metrics, true);
             }
             else
             {
                 out = new MultiPartOutputFile (
                     ostream, outHeaders.data (), outHeaders.size ());
+                writeFile (*out, parts, metrics, true,&ostream);
             }
-            writeFile (*out, parts, metrics, true);
             delete out;
 
-            if (params.reread)
+            if (reread)
             {
                 MemIStream          istream (ostream);
                 MultiPartInputFile* in;
-                if (params.outFileName) { in = new MultiPartInputFile (params.outFileName); }
+                if (outFileName) { in = new MultiPartInputFile (outFileName); }
                 else { in = new MultiPartInputFile (istream); }
 
                 rereadFile (*in, parts, metrics);
@@ -1145,11 +1161,11 @@ exrmetrics (const Params& params)
         }
 
         struct stat instats, outstats;
-        stat (params.inFileName, &instats);
+        stat (inFileName, &instats);
         metrics.inputFileSize = instats.st_size;
-        if (params.outFileName)
+        if (outFileName)
         {
-            stat (params.outFileName, &outstats);
+            stat (outFileName, &outstats);
             metrics.outputFileSize = outstats.st_size;
         }
         else { metrics.outputFileSize = fileSize; }
@@ -1198,6 +1214,6 @@ exrmetrics (const Params& params)
         }
     }
 
-    if (params.verbose) { cerr << endl; }
+    if (verbose) { cerr << endl; }
     return metrics;
 }

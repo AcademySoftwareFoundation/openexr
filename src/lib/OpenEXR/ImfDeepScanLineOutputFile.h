@@ -10,6 +10,8 @@
 //
 //      class DeepScanLineOutputFile
 //
+//      Constructors that open a file by path expect UTF-8; see ImfIO.h.
+//
 //-----------------------------------------------------------------------------
 
 #include "ImfExport.h"

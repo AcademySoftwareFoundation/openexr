@@ -11,8 +11,8 @@
 
 #include "ImfImageDataWindow.h"
 #include "ImfImage.h"
-#include <Iex.h>
-#include <ImfHeader.h>
+#include "Iex.h"
+#include "ImfHeader.h"
 #include <algorithm>
 #include <cassert>
 

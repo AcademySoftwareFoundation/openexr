@@ -64,7 +64,7 @@ usageMessage (ostream& stream, const char* program_name, bool verbose = false)
                "  -t n                        Use a pool of n worker threads for processing files.\n"
                "                              Default is single threaded (no thread pool)\n"
                "\n"
-               "  -l level      set DWA, ZIP, or ZSTD compression level (ZSTD: 1-22)\n"
+               "  -l level                    set DWA or ZIP compression level\n"
                "\n"
                "  -z,--compression list       list of compression methods to test\n"
                "                              ("
@@ -82,11 +82,11 @@ usageMessage (ostream& stream, const char* program_name, bool verbose = false)
                "                              Use --type half or --type mixed instead\n"
                " --pixelmode list             list of pixel types to use (float,half,mixed,orig)\n"
                "                              mixed uses half for RGBA, float for others. Default is 'orig'\n"
-               " --tiled                      write tiled image (default is scanline)\n"
-               " --tilesize num               set tile size for tiled images (default is 64)\n"
                " --time list                  comma separated list of operations to report timing for.\n"
                "                              operations can be any of read,write,reread (use --time none for no timing)\n"
                " --no-size                    don't output size data\n"
+               " --part-disk-size             Output the on-disk size of the data portion of each part in a multipart EXR file\n"
+               "                              (including chunk headers). File output (-o) is not supported when using this option\n"
                " --json                       print output as JSON dictionary (Default mode)\n"
                " --csv                        print output in csv mode. If passes>1, show median timing\n"
                "                              default is JSON mode\n"
@@ -110,7 +110,6 @@ struct options
         TIME_REREAD = 4
     };
 
-
     const char*              outFile = nullptr;
     std::vector<const char*> inFiles;
     int                      part    = -1;
@@ -119,12 +118,11 @@ struct options
     int                      passes  = 1;
     int                      timing  = TIME_READ | TIME_REREAD | TIME_WRITE;
     bool                     outputSizeData = true;
+    bool                     outputPartSizeOnDisk = false;
     bool                     verbose        = false;
     bool                     csv            = false;
     std::vector<PixelMode>   pixelModes;
     std::vector<OPENEXR_IMF_NAMESPACE::Compression> compressions;
-    std::string deep_type = "deepscanline"; // 0 for deep scanline, 1 for deep tiled
-    int tileSize = 64; // tile size for tiled images, default is 64x64
 
     int parse (int argc, char* argv[]);
 };
@@ -201,6 +199,7 @@ printPartStats (
     const partStats& data,
     const string     indent,
     int              timing,
+    bool             partSize,
     bool             raw,
     bool             stats)
 {
@@ -241,6 +240,15 @@ printPartStats (
         out << indent << "\"re-read time\": ";
         printTiming (data.rereadPerf, out, raw, stats);
     }
+
+    if (partSize)
+    {
+        if (output) { out << ",\n"; }
+        output = true;
+        out << indent << "\"size on disk\": "
+            << data.sizeOnDisk
+            << "\n";
+    }
 }
 
 void
@@ -249,6 +257,7 @@ jsonStats (
     list<runData>& data,
     bool           outputSizeData,
     int            timing,
+    bool           partSize,
     bool           raw,
     bool           stats)
 {
@@ -375,7 +384,7 @@ jsonStats (
         {
             out << ",\n";
             printPartStats (
-                out, run.metrics.totalStats, "      ", timing, raw, stats);
+                out, run.metrics.totalStats, "      ", timing,false, raw, stats);
         }
         if (timing && run.metrics.stats.size () > 1)
         {
@@ -393,6 +402,7 @@ jsonStats (
                     run.metrics.stats[part],
                     "          ",
                     timing,
+                    partSize,
                     raw,
                     stats);
                 out << "\n        }";
@@ -527,22 +537,18 @@ main (int argc, char** argv)
                         d.file        = inFile;
                         d.compression = compression;
                         d.mode        = mode;
-                        Params p = {
-                            .inFileName = inFile,
-                            .outFileName = opts.outFile,
-                            .part = opts.part,
-                            .compression= compression,
-                            .level=opts.level,
-                            .passes = opts.passes,
-                            .write = opts.outFile != nullptr || opts.outputSizeData ||
-                                ((opts.timing & options::TIME_WRITE) != 0),
-                            ((opts.timing & options::TIME_REREAD) != 0),
-                            .pixelMode=mode,
-                            .verbose = opts.verbose,
-                            .deepOutFileType = opts.deep_type,
-                            .tileSize = opts.tileSize
-                        };
-                        d.metrics     = exrmetrics (p);
+                        d.metrics     = exrmetrics (
+                            inFile,
+                            opts.outFile,
+                            opts.part,
+                            compression,
+                            opts.level,
+                            opts.passes,
+                            opts.outFile || opts.outputSizeData ||
+                                opts.timing & options::TIME_WRITE,
+                            opts.timing & options::TIME_REREAD,
+                            mode,
+                            opts.verbose);
                         data.push_back (d);
                     }
                 }
@@ -555,6 +561,11 @@ main (int argc, char** argv)
         return 1;
     }
 
+    // we are only able to compute part disk size if no output file is specified,
+    // causing memory output stream to be used and allowing us to measure data output.
+
+    bool showPartSizeOnDisk = opts.outputPartSizeOnDisk && !opts.outFile;
+
     if (opts.timing || opts.outputSizeData)
     {
 
@@ -565,7 +576,7 @@ main (int argc, char** argv)
         else
         {
             jsonStats (
-                cout, data, opts.outputSizeData, opts.timing, true, true);
+                cout, data, opts.outputSizeData, opts.timing,showPartSizeOnDisk, true, true);
         }
     }
 
@@ -787,6 +798,12 @@ options::parse (int argc, char* argv[])
                 cerr << "-o output filename can only be specified once\n";
                 return 1;
             }
+            if (outputPartSizeOnDisk)
+            {
+                cerr << "--part-disk-size cannot be used with file output (-o)\n";
+                return 1;
+            }
+
             outFile = argv[i + 1];
             i += 2;
         }
@@ -879,6 +896,17 @@ options::parse (int argc, char* argv[])
             outputSizeData = false;
             i += 1;
         }
+        else if (!strcmp (argv[i], "--part-disk-size"))
+        {
+            if (outFile)
+            {
+                cerr << "--part-disk-size cannot be used with file output (-o)\n";
+                return 1;
+            }
+
+            outputPartSizeOnDisk = true;
+            i += 1;
+        }
         else if (!strcmp (argv[i], "-i"))
         {
             if (i > argc - 2)
@@ -888,26 +916,6 @@ options::parse (int argc, char* argv[])
             }
             inFiles.push_back (argv[i + 1]);
             i += 2;
-        }else if (!strcmp(argv[i], "--tiled"))
-        {
-            deep_type = "deeptile"; // default is deep scanline
-            i += 1;
-        }
-        else if (!strcmp (argv[i], "--tilesize"))
-        {
-            if (i > argc - 2)
-            {
-                cerr << "Missing tile size number with --tilesize option\n";
-                return 1;
-            }
-            tileSize = atof (argv[i + 1]);
-            if (tileSize < 0)
-            {
-                cerr << "bad tileSize " << tileSize << " specified to --tilesize option\n";
-                return 1;
-            }
-
-            i += 2;
         }
         else
         {
@@ -915,7 +923,6 @@ options::parse (int argc, char* argv[])
             i += 1;
         }
     }
-    
     if (inFiles.size () == 0)
     {
         cerr << "Missing input file\n";

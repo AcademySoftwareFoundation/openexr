@@ -27,6 +27,8 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 //
 // if runCoreCheck is true, only uses the OpenEXRCore (C) API, otherwise uses the OpenEXR (C++) API
 //
+// fileName is a UTF-8 encoded path; see ImfIO.h.
+//
 
 IMFUTIL_EXPORT bool checkOpenEXRFile (
     const char* fileName,

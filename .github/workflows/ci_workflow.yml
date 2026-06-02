@@ -86,6 +86,7 @@ jobs:
       RUN_TESTING: ${{ matrix.RUN_TESTING || 'ON' }}
       namespace: ${{ matrix.namespace }}
       validate_install: ${{ matrix.validate_install || 'ON' }}
+      configure_install_prefix: ${{ matrix.configure_install_prefix }}
 
     strategy:
       fail-fast: false
@@ -117,6 +118,8 @@ jobs:
             OPENEXR_FORCE_INTERNAL_DEFLATE: 'ON'
             OPENEXR_FORCE_INTERNAL_OPENJPH: 'ON'
             BUILD_TESTING: 'OFF'
+            configure_install_prefix: '.tmp'
+            cmake: 3.15.7
 
           - build: 6
             label: custom namespace
@@ -187,6 +190,7 @@ jobs:
       BUILD_TESTING: ${{ matrix.BUILD_TESTING || 'ON' }}
       RUN_TESTING: ${{ matrix.RUN_TESTING || 'ON' }}
       validate_install: ${{ matrix.validate_install || 'ON' }}
+      configure_install_prefix: ${{ matrix.configure_install_prefix }}
 
     strategy:
       fail-fast: false
@@ -218,6 +222,8 @@ jobs:
             OPENEXR_FORCE_INTERNAL_DEFLATE: 'ON'
             OPENEXR_FORCE_INTERNAL_OPENJPH: 'ON'
             BUILD_TESTING: 'OFF'
+            configure_install_prefix: '.tmp'
+            cmake: 3.15.7
 
           - build: 6
             label: macos-15-intel
@@ -271,6 +277,7 @@ jobs:
       BUILD_TESTING: ${{ matrix.BUILD_TESTING || 'ON' }}
       RUN_TESTING: ${{ matrix.RUN_TESTING || 'ON' }}
       validate_install: ${{ matrix.validate_install || 'ON' }}
+      configure_install_prefix: ${{ matrix.configure_install_prefix }}
 
     strategy:
       fail-fast: false
@@ -302,6 +309,8 @@ jobs:
             OPENEXR_FORCE_INTERNAL_DEFLATE: 'ON'
             OPENEXR_FORCE_INTERNAL_OPENJPH: 'ON'
             BUILD_TESTING: 'OFF'
+            configure_install_prefix: '.tmp'
+            cmake: 3.15.7
 
           - build: 6
             label: vfx2023

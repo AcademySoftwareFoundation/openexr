@@ -12,12 +12,12 @@
 //
 //----------------------------------------------------------------------------
 
-#include <ImfCompression.h>
-#include <ImfMultiPartInputFile.h>
-#include <ImfMultiPartOutputFile.h>
-#include <ImfPartType.h>
-#include <ImfTileDescription.h>
-#include <OpenEXRConfig.h>
+#include "ImfCompression.h"
+#include "ImfMultiPartInputFile.h"
+#include "ImfMultiPartOutputFile.h"
+#include "ImfPartType.h"
+#include "ImfTileDescription.h"
+#include "OpenEXRConfig.h"
 
 #include <set>
 #include <string>

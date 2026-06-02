@@ -35,5 +35,4 @@ jobs:
         slack_channel: "#openexr"
         project_logo: "https://artwork.aswf.io/projects/openexr/icon/color/openexr-icon-color.png"
       uses: jmertic/slack-release-notifier@9d7d3a84563d2ebc8f7b2271be6c9568fedd7f3a # main
-
       

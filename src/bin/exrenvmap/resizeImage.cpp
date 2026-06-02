@@ -11,7 +11,7 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <resizeImage.h>
+#include "resizeImage.h"
 
 #include "Iex.h"
 #include <string.h>

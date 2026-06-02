@@ -93,6 +93,17 @@ option(OPENEXR_TEST_PYTHON "Run python binding tests" ON)
 # probably assume this is OpenEXR
 set(OPENEXR_OUTPUT_SUBDIR OpenEXR CACHE STRING "Destination sub-folder of the include path for install")
 
+# When OpenEXR is pulled in via add_subdirectory(), mirror installed layout under
+# BUILD_INTERFACE so consumers can use #include <OpenEXR/...>. Not used for a normal
+# top-level OpenEXR build (clears legacy cache entry from older CMake revisions).
+if(OPENEXR_IS_SUBPROJECT)
+  set(OPENEXR_BUILD_INTERFACE_UNIFIED "${CMAKE_BINARY_DIR}/OpenEXR_build_interface_include")
+  file(MAKE_DIRECTORY "${OPENEXR_BUILD_INTERFACE_UNIFIED}/${OPENEXR_OUTPUT_SUBDIR}")
+else()
+  unset(OPENEXR_BUILD_INTERFACE_UNIFIED CACHE)
+  unset(OPENEXR_BUILD_INTERFACE_UNIFIED)
+endif()
+
 # This does not seem to be available as a per-target property,
 # but is pretty harmless to set globally
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -288,18 +299,26 @@ else()
   # Using internal openjph
 
   # extract the openjph version variables from ojph_version.h
-  set(openjph_SOURCE_DIR "${CMAKE_SOURCE_DIR}/external/openjph")
+  set(openjph_SOURCE_DIR "${CMAKE_SOURCE_DIR}/external/OpenJPH")
   set(openjph_version "${openjph_SOURCE_DIR}/src/core/openjph/ojph_version.h")
   if(EXISTS "${openjph_version}")
     file(STRINGS "${openjph_version}" _openjph_major REGEX "#define OPENJPH_VERSION_MAJOR")
     file(STRINGS "${openjph_version}" _openjph_minor REGEX "#define OPENJPH_VERSION_MINOR")
     file(STRINGS "${openjph_version}" _openjph_patch REGEX "#define OPENJPH_VERSION_PATCH")
+    file(STRINGS "${openjph_version}" _openjph_sha REGEX "#define OPENJPH_VERSION_SHA")
     string(REGEX REPLACE ".*OPENJPH_VERSION_MAJOR[ \t]+([0-9]+).*" "\\1" openjph_VERSION_MAJOR "${_openjph_major}")
     string(REGEX REPLACE ".*OPENJPH_VERSION_MINOR[ \t]+([0-9]+).*" "\\1" openjph_VERSION_MINOR "${_openjph_minor}")
     string(REGEX REPLACE ".*OPENJPH_VERSION_PATCH[ \t]+([0-9]+).*" "\\1" openjph_VERSION_PATCH "${_openjph_patch}")
+    string(REGEX REPLACE ".*OPENJPH_VERSION_SHA[ \t]+([0-9a-f]+).*" "\\1" openjph_VERSION_SHA "${_openjph_sha}")
+  else()
+    message(STATUS "can't find openjph_version.h: ${openjph_version}")
   endif()
 
-  set(openjph_VERSION "${openjph_VERSION_MAJOR}.${openjph_VERSION_MINOR}.${openjph_VERSION_PATCH}")
+  if(openjph_VERSION_SHA)
+    set(openjph_VERSION "${openjph_VERSION_SHA}")
+  else()
+    set(openjph_VERSION "${openjph_VERSION_MAJOR}.${openjph_VERSION_MINOR}.${openjph_VERSION_PATCH}")
+  endif()
   
   if(OPENEXR_FORCE_INTERNAL_OPENJPH)
     message(STATUS "openjph forced internal, using vendored code, version ${openjph_VERSION}")
@@ -412,6 +431,45 @@ message(STATUS "OpenEXR: linking ${OPENEXR_IMF_ZSTD_TARGET} (find_package zstd C
 
 # For pkg-config Libs.private (static consumers); not exported via OpenEXRConfig.cmake.in
 set(EXR_ZSTD_PKGCONFIG_LIBS_PRIVATE "-lzstd")
+
+# OpenEXR includes Imath headers from an "Imath/" subdirectory,
+# i.e. #include <Imath/ImathVec.h. The Imath library installs its
+# headers in that folder, although when Imath is built inside the
+# OpenEXR build tree (brought in via FetchContent or
+# add_subdirectory), there is no "Imath/" subdirectory. Imath’s CMake
+# exposes an include dir pointing at …/src/Imath (matches #include
+# <ImathVec.h> but doesn't match <Imath/ImathVec.h>), and ImathConfig,
+# an include dir pointing at …/config, where ImathConfig.h lives
+# (matches #include <ImathConfig.h>, not <Imath/ImathConfig.h>).
+#
+# To support #include <Imath/...> in this configuration, we must
+# create an "Imath/" directory in the build tree and symlink/copy the
+# ImathConfig.h header into it, and also provide Imath's "src/"
+# directory as a build interface include dir (because "Imath/" lives
+# underneath it).
+
+if(TARGET Imath AND TARGET ImathConfig)
+  get_target_property(_openexr_imath_imported Imath IMPORTED)
+  get_target_property(_openexr_imathcfg_imported ImathConfig IMPORTED)
+  if(NOT _openexr_imath_imported
+     AND NOT _openexr_imathcfg_imported
+     AND EXISTS "${Imath_SOURCE_DIR}/src/Imath/ImathVec.h")
+    set(_openexr_imath_gen_cfg "${Imath_BINARY_DIR}/config/ImathConfig.h")
+    set(_openexr_imath_cfg_compat "${PROJECT_BINARY_DIR}/OpenEXR_ImathIncludeCompat")
+    if(EXISTS "${_openexr_imath_gen_cfg}")
+      file(MAKE_DIRECTORY "${_openexr_imath_cfg_compat}/Imath")
+      configure_file("${_openexr_imath_gen_cfg}"
+                     "${_openexr_imath_cfg_compat}/Imath/ImathConfig.h" COPYONLY)
+    endif()
+
+    target_include_directories(Imath INTERFACE
+      "$<BUILD_INTERFACE:${Imath_SOURCE_DIR}/src>")
+    if(EXISTS "${_openexr_imath_gen_cfg}")
+      target_include_directories(ImathConfig INTERFACE
+        "$<BUILD_INTERFACE:${_openexr_imath_cfg_compat}>")
+    endif()
+  endif()
+endif()
 
 ###########################################
 # Check if we need to emulate vld1q_f32_x2

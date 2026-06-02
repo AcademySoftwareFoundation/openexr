@@ -21,8 +21,8 @@
 #include "ImfChannelList.h"
 #include "ImfFrameBuffer.h"
 #include "ImfPixelType.h"
-#include <ImathBox.h>
-#include <half.h>
+#include <Imath/ImathBox.h>
+#include <Imath/half.h>
 
 #include <cstring>
 #include <typeinfo>

@@ -15,7 +15,7 @@
 
 #include "ImfCompression.h"
 
-#include "stdint.h"
+#include <stdint.h>
 
 #include <vector>
 
@@ -55,6 +55,7 @@ struct partStats
         countRereadPerf; // for deep only, time rereading the per-pixel sample count
     std::vector<double>
         rereadPerf; // for deep, times reading the sample count, otherwise times reading the entire data
+    uint64_t sizeOnDisk = 0; // record compressed size of part on disk.
 
     partSizeData sizeData;
 };
@@ -67,24 +68,16 @@ struct fileMetrics
     uint64_t               outputFileSize;
 };
 
-
-struct Params
-{
-    const char*                        inFileName;
-    const char*                        outFileName;
-    int                                part;
-    OPENEXR_IMF_NAMESPACE::Compression compression;
-    float                              level;
-    int                                passes;
-    bool                               write;
-    bool                               reread;
-    PixelMode                          pixelMode;
-    bool                               verbose;
-    const std::string&     deepOutFileType;
-    int tileSize;
-};
-
 fileMetrics exrmetrics (
-    const Params& params); // read file, write to output, return metrics
+    const char*                        inFileName,
+    const char*                        outFileName,
+    int                                part,
+    OPENEXR_IMF_NAMESPACE::Compression compression,
+    float                              level,
+    int                                passes,
+    bool                               write,
+    bool                               reread,
+    PixelMode                          pixelMode,
+    bool                               verbose);
 
 #endif

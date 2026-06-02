@@ -11,6 +11,8 @@
 //      Functions to load deep images from OpenEXR files
 //      and to save deep images in OpenEXR files.
 //
+//      File name parameters are UTF-8 paths; see ImfIO.h.
+//
 //----------------------------------------------------------------------------
 
 #include "ImfNamespace.h"

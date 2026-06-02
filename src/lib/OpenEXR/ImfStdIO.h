@@ -13,6 +13,10 @@
 //
 //-----------------------------------------------------------------------------
 
+//
+// Constructors taking const char fileName[] expect a UTF-8 path; see ImfIO.h.
+//
+
 #include "ImfExport.h"
 #include "ImfNamespace.h"
 

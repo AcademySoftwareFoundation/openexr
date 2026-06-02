@@ -13,7 +13,20 @@
 
 #include "test_value.h"
 
-#include <openexr.h>
+#include "openexr.h"
+
+#include "ImfArray.h"
+#include "ImfChannelList.h"
+#include "ImfCompressor.h"
+#include "ImfFrameBuffer.h"
+#include "ImfHeader.h"
+#include "ImfHuf.h"
+#include "ImfInputFile.h"
+#include "ImfOutputFile.h"
+#include "ImfTiledOutputFile.h"
+
+#include <Imath/ImathRandom.h>
+#include <Imath/half.h>
 
 #include <memory.h>
 #include <stdlib.h>
@@ -24,18 +37,6 @@
 #include <iostream>
 #include <vector>
 #include <cmath>
-
-#include <ImathRandom.h>
-#include <ImfArray.h>
-#include <ImfChannelList.h>
-#include <ImfCompressor.h>
-#include <ImfFrameBuffer.h>
-#include <ImfHeader.h>
-#include <ImfHuf.h>
-#include <ImfInputFile.h>
-#include <ImfOutputFile.h>
-#include <ImfTiledOutputFile.h>
-#include <half.h>
 
 #include "internal_ht_common.cpp"
 
@@ -518,22 +519,24 @@ struct pixels
         const char* tagb,
         const char* chan)
     {
-        union
-        {
-            uint32_t iv;
-            float    fv;
-        } a, b;
-        a.fv = af;
-        b.fv = bf;
-        if (a.iv != b.iv)
+        // On some architectures (Windows 32‑bit x86, i686 with x87 extended
+        // precision, aarch64, ppc64le, arm7), the C and C++ codepaths may
+        // generate NaN values that are not bitwise identical. Accept these
+        // special cases as equal.
+        const bool bothNaN = std::isnan(af) && std::isnan(bf);
+        if (bothNaN)
+            return;
+
+        uint32_t a,b; memcpy(&a,&af,sizeof a); memcpy(&b,&bf,sizeof b);
+        if (a != b)
         {
             std::cout << chan << " float at " << x << ", " << y
-                      << " not equal: " << taga << " 0x" << std::hex << a.iv
+                      << " not equal: " << taga << " 0x" << std::hex << a
                       << std::dec << " (" << af << ") vs " << tagb << " "
-                      << std::hex << b.iv << std::dec << " (" << bf << ")"
+                      << std::hex << b << std::dec << " (" << bf << ")"
                       << std::endl;
         }
-        EXRCORE_TEST (a.iv == b.iv);
+        EXRCORE_TEST (a == b);
     }
     void
     compareExact (const pixels& o, const char* otag, const char* selftag) const
@@ -1753,6 +1756,58 @@ testHTChannelMap (const std::string& tempdir)
 
     EXRCORE_TEST (make_channel_map (3, channels_1, cs_to_file_ch));
     EXRCORE_TEST (! make_channel_map (3, channels_2, cs_to_file_ch));
+}
+
+static bool
+read_header_throws (void* buffer, size_t max_sz)
+{
+    std::vector<CodestreamChannelInfo> map;
+    try
+    {
+        read_header (buffer, max_sz, map);
+        return false;
+    }
+    catch (...)
+    {
+        return true;
+    }
+}
+
+void
+testHTHeaderBounds (const std::string& tempdir)
+{
+    (void) tempdir;
+
+    exr_coding_channel_info_t channels[] = {
+        { "R" }, { "G" }, { "B" }
+    };
+    std::vector<CodestreamChannelInfo> cs_to_file_ch;
+    EXRCORE_TEST (make_channel_map (3, channels, cs_to_file_ch));
+
+    uint8_t buf[64];
+    const size_t hdr_sz =
+        write_header (buf, sizeof (buf), cs_to_file_ch);
+    EXRCORE_TEST (hdr_sz > HEADER_SZ);
+
+    std::vector<CodestreamChannelInfo> read_map;
+    EXRCORE_TEST (read_header (buf, hdr_sz, read_map) == hdr_sz);
+    EXRCORE_TEST (read_map.size () == 3);
+
+    EXRCORE_TEST (read_header_throws (buf, hdr_sz - 1));
+
+    uint8_t bad_plen[64];
+    memcpy (bad_plen, buf, hdr_sz);
+    bad_plen[2] = 0xff;
+    bad_plen[3] = 0xff;
+    bad_plen[4] = 0xff;
+    bad_plen[5] = 0xf0;
+    EXRCORE_TEST (read_header_throws (bad_plen, sizeof (bad_plen)));
+
+    uint8_t bad_nch[64];
+    memcpy (bad_nch, buf, hdr_sz);
+    bad_nch[HEADER_SZ]     = 0;
+    bad_nch[HEADER_SZ + 1] = 32;
+    EXRCORE_TEST (read_header_throws (bad_nch, hdr_sz));
 }
 
 void

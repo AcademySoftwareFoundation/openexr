@@ -20,7 +20,7 @@
 #include "ImfFlatImageChannel.h"
 #include "ImfImageLevel.h"
 #include "ImfUtilExport.h"
-#include <ImathBox.h>
+#include <Imath/ImathBox.h>
 #include <map>
 #include <string>
 

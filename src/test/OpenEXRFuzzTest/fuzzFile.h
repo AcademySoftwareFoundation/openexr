@@ -6,7 +6,7 @@
 #ifndef INCLUDED_FUZZ_FILE_H
 #define INCLUDED_FUZZ_FILE_H
 
-#include <ImathRandom.h>
+#include <Imath/ImathRandom.h>
 
 void fuzzFile (
     const char goodFile[],

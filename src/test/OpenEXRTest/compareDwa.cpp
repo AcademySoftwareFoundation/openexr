@@ -11,7 +11,7 @@
 #include <math.h>
 
 #include "compareDwa.h"
-#include "half.h"
+#include <Imath/half.h>
 
 using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;

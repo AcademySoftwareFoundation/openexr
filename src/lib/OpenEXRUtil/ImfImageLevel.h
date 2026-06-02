@@ -18,7 +18,7 @@
 #include "ImfImageChannel.h"
 #include "ImfImageChannelRenaming.h"
 #include "ImfUtilExport.h"
-#include <ImathBox.h>
+#include <Imath/ImathBox.h>
 #include <string>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER

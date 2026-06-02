@@ -11,6 +11,8 @@
 //	class InputFile -- a scanline-based interface that can be used
 //	to read both scanline-based and tiled OpenEXR image files.
 //
+//	Constructors that open a file by path expect UTF-8; see ImfIO.h.
+//
 //-----------------------------------------------------------------------------
 
 #include "ImfForward.h"

@@ -7,17 +7,18 @@
 #    undef NDEBUG
 #endif
 
-#include <IlmThread.h>
-#include <ImathRandom.h>
-#include <ImfArray.h>
-#include <ImfChannelList.h>
-#include <ImfFrameBuffer.h>
-#include <ImfHeader.h>
-#include <ImfInputFile.h>
-#include <ImfThreading.h>
-#include <ImfTiledInputFile.h>
-#include <ImfTiledOutputFile.h>
-#include <half.h>
+#include "IlmThread.h"
+#include "ImfArray.h"
+#include "ImfChannelList.h"
+#include "ImfFrameBuffer.h"
+#include "ImfHeader.h"
+#include "ImfInputFile.h"
+#include "ImfThreading.h"
+#include "ImfTiledInputFile.h"
+#include "ImfTiledOutputFile.h"
+
+#include <Imath/ImathRandom.h>
+#include <Imath/half.h>
 
 #include <assert.h>
 #include <stdio.h>

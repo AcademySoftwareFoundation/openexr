@@ -7,16 +7,16 @@
 #    undef NDEBUG
 #endif
 
-#include <ImfArray.h>
-#include <ImfAttribute.h>
-#include <ImfChannelList.h>
-#include <ImfFrameBuffer.h>
-#include <ImfHeader.h>
-#include <ImfInputFile.h>
-#include <ImfIntAttribute.h>
-#include <ImfOpaqueAttribute.h>
-#include <ImfOutputFile.h>
-#include <half.h>
+#include "ImfArray.h"
+#include "ImfAttribute.h"
+#include "ImfChannelList.h"
+#include "ImfFrameBuffer.h"
+#include "ImfHeader.h"
+#include "ImfInputFile.h"
+#include "ImfIntAttribute.h"
+#include "ImfOpaqueAttribute.h"
+#include "ImfOutputFile.h"
+#include <Imath/half.h>
 
 #include <assert.h>
 #include <stdio.h>

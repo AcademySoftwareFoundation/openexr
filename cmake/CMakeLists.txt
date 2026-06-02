@@ -37,7 +37,17 @@ int main()
     int edx = 0;
     __asm__(
         \"xgetbv     ;\"
-        \"vzeroupper  \"
+        //
+        // This feature probe is specifically used to decide whether we can
+        // compile the DWA fast path that contains GCC-style inline asm using
+        // AVX/YMM instructions. Some toolchains (notably older Apple 'as'
+        // invoked by GCC on legacy macOS) can assemble xgetbv/vzeroupper but
+        // still reject YMM/VEX instructions with errors like:
+        //   no such instruction: `vmovaps (%rsi), %ymm0'
+        // So include a representative YMM instruction in the try-compile.
+        //
+        \"vmovaps    %%ymm0, %%ymm0 ;\"
+        \"vzeroupper                \"
         : \"=a\"(eax), \"=d\"(edx) : \"c\"(n) : );
 #else
 #    error No SSE support enabled to query AVX support
@@ -124,6 +134,28 @@ configure_file(IexConfig.h.in ${CMAKE_CURRENT_BINARY_DIR}/IexConfig.h)
 configure_file(IexConfigInternal.h.in ${CMAKE_CURRENT_BINARY_DIR}/IexConfigInternal.h)
 configure_file(IlmThreadConfig.h.in ${CMAKE_CURRENT_BINARY_DIR}/IlmThreadConfig.h)
 
+# See comment in LibraryDefine.cmake regarding applications that build
+# OpenEXR via add_subdirectory(): In that configuration, the *Config.h
+# headers need to be linked/copied to the OpenEXR/ subdirectory to
+# support use of #include <OpenEXR/...> when building in-tree. This is
+# only necessary when OpenEXR is a subproject, i.e. added to an
+# application via add_subdirectory().
+
+if(OPENEXR_IS_SUBPROJECT)
+  foreach(_hdr IN ITEMS OpenEXRConfig.h IexConfig.h IlmThreadConfig.h)
+    set(_cfg_src "${CMAKE_CURRENT_BINARY_DIR}/${_hdr}")
+    set(_cfg_dst "${OPENEXR_BUILD_INTERFACE_UNIFIED}/${OPENEXR_OUTPUT_SUBDIR}/${_hdr}")
+    if(EXISTS "${_cfg_src}")
+      file(REMOVE "${_cfg_dst}")
+      if(CMAKE_HOST_UNIX)
+        file(CREATE_LINK "${_cfg_src}" "${_cfg_dst}" SYMBOLIC)
+      else()
+        execute_process(COMMAND ${CMAKE_COMMAND} -E copy_if_different "${_cfg_src}" "${_cfg_dst}")
+      endif()
+    endif()
+  endforeach()
+endif()
+
 ###################################################
 ####### Install public config headers
 
@@ -143,7 +175,12 @@ endif()
 
 add_library(OpenEXRConfig INTERFACE)
 target_include_directories(OpenEXRConfig INTERFACE
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)
+if(OPENEXR_IS_SUBPROJECT)
+  target_include_directories(OpenEXRConfig INTERFACE
+    $<BUILD_INTERFACE:${OPENEXR_BUILD_INTERFACE_UNIFIED}>)
+endif()
+target_include_directories(OpenEXRConfig INTERFACE
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${OPENEXR_OUTPUT_SUBDIR}>)
 
@@ -154,7 +191,12 @@ add_library(${PROJECT_NAME}::Config ALIAS OpenEXRConfig)
 
 add_library(IexConfig INTERFACE)
 target_include_directories(IexConfig INTERFACE
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)
+if(OPENEXR_IS_SUBPROJECT)
+  target_include_directories(IexConfig INTERFACE
+    $<BUILD_INTERFACE:${OPENEXR_BUILD_INTERFACE_UNIFIED}>)
+endif()
+target_include_directories(IexConfig INTERFACE
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${OPENEXR_OUTPUT_SUBDIR}>)
 
@@ -165,7 +207,12 @@ add_library(Iex::Config ALIAS IexConfig)
 
 add_library(IlmThreadConfig INTERFACE)
 target_include_directories(IlmThreadConfig INTERFACE
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)
+if(OPENEXR_IS_SUBPROJECT)
+  target_include_directories(IlmThreadConfig INTERFACE
+    $<BUILD_INTERFACE:${OPENEXR_BUILD_INTERFACE_UNIFIED}>)
+endif()
+target_include_directories(IlmThreadConfig INTERFACE
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${OPENEXR_OUTPUT_SUBDIR}>)
 

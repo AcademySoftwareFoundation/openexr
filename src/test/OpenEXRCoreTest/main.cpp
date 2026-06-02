@@ -3,7 +3,7 @@
 ** Copyright Contributors to the OpenEXR Project.
 */
 
-#include <openexr.h>
+#include "openexr.h"
 
 #include <errno.h>
 #include <iostream>
@@ -13,7 +13,7 @@
 #include <string>
 
 #ifdef _WIN32
-#    include <ImathRandom.h>
+#    include <Imath/ImathRandom.h>
 #    include <time.h>
 #    include <windows.h>
 #else
@@ -178,6 +178,7 @@ main (int argc, char* argv[])
     TEST (testReadMultiPart, "core_read");
     TEST (testReadDeep, "core_read");
     TEST (testReadUnpack, "core_read");
+    TEST (testSamplingCalcs, "core_read");
 
     TEST (testWriteBadArgs, "core_write");
     TEST (testWriteBadFiles, "core_write");
@@ -210,6 +211,7 @@ main (int argc, char* argv[])
     TEST (testDWABCompression, "core_compression");
     TEST (testZstdCompression, "core_compression");
     TEST (testHTChannelMap, "core_compression");
+    TEST (testHTHeaderBounds, "core_compression");
 
     TEST (testDeepNoCompression, "core_compression");
     TEST (testDeepZIPCompression, "core_compression");

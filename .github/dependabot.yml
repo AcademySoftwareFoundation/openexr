@@ -11,12 +11,18 @@ updates:
       interval: "daily"
     exclude-paths:
       - ".github/workflows/ci_workflow_old.yml"
-      
+
   - package-ecosystem: "pip"
-    directory: "/"
+    directory: "/website"
     schedule:
       day: "monday"
       interval: "weekly"
+    # Hashed lockfile is regenerated locally with pip-compile; do not let
+    # Dependabot rewrite it (transitive bumps belong in requirements.txt or
+    # a deliberate lock regen, not automated lock-only PRs).
+    exclude-paths:
+      - "website/requirements-lock.txt"
+      - "website/requirements.txt.lock"
 
   - package-ecosystem: "gitsubmodule"
     directory: "/"
@@ -24,7 +30,7 @@ updates:
       day: "monday"
       interval: "weekly"
 
-  - package-ecosystem: "bazel" 
+  - package-ecosystem: "bazel"
     directory: "/"
     schedule:
       interval: "weekly"

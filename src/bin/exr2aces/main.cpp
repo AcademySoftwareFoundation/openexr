@@ -10,18 +10,18 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfAcesFile.h>
-#include <ImfArray.h>
-#include <ImfRgbaFile.h>
-#include <ImfMisc.h>
-#include <OpenEXRConfig.h>
+#include "ImfAcesFile.h"
+#include "ImfArray.h"
+#include "ImfRgbaFile.h"
+#include "ImfMisc.h"
+#include "OpenEXRConfig.h"
 #include <exception>
 #include <iostream>
 #include <stdlib.h>
 #include <string.h>
 #include <string>
 
-#include <OpenEXRConfig.h>
+#include "OpenEXRConfig.h"
 using namespace OPENEXR_IMF_NAMESPACE;
 using namespace IMATH_NAMESPACE;
 using namespace std;

@@ -15,18 +15,33 @@
 
 #include "openexr_compression.h"
 
-#if defined __SSE2__ || (_MSC_VER >= 1300 && (_M_IX86 || _M_X64))
+#if defined __SSE2__ || (_MSC_VER >= 1300 && (_M_IX86 || _M_X64) && !defined(_M_ARM64EC))
 #    define IMF_HAVE_SSE2 1
 #    include <emmintrin.h>
 #    include <mmintrin.h>
 #endif
-#if defined __SSE4_1__ || (_MSC_VER >= 1300 && (_M_IX86 || _M_X64))
+#if defined __SSE4_1__ || (_MSC_VER >= 1300 && (_M_IX86 || _M_X64) && !defined(_M_ARM64EC))
 #    define IMF_HAVE_SSE4_1 1
 #    include <smmintrin.h>
 #endif
 #if defined(__aarch64__)
 #    define IMF_HAVE_NEON_AARCH64 1
-#    include <arm_neon.h>
+#endif
+
+#if defined(_M_ARM64) || defined(_M_ARM64EC)
+#    define IMF_HAVE_NEON_WINDOWS_ARM64 1
+#endif
+
+#if defined(IMF_HAVE_NEON_AARCH64) || defined(IMF_HAVE_NEON_WINDOWS_ARM64)
+#    define IMF_HAVE_NEON_ARM64 1
+#endif
+
+#if defined(IMF_HAVE_NEON_ARM64)
+#    if defined(_MSC_VER)
+#        include <arm64_neon.h>
+#    else
+#        include <arm_neon.h>
+#    endif
 #endif
 
 /**************************************/
@@ -77,7 +92,7 @@ reconstruct (uint8_t* buf, const uint64_t outSize)
         prev      = d;
     }
 }
-#elif defined(IMF_HAVE_NEON_AARCH64)
+#elif defined(IMF_HAVE_NEON_ARM64)
 static void
 reconstruct (uint8_t* buf, const uint64_t outSize)
 {
@@ -174,7 +189,7 @@ interleave (uint8_t* out, const uint8_t* const source, const uint64_t outSize)
         *(sOut++) = (i % 2 == 0) ? *(t1++) : *(t2++);
 }
 
-#elif defined(IMF_HAVE_NEON_AARCH64)
+#elif defined(IMF_HAVE_NEON_ARM64)
 static void
 interleave (uint8_t* out, const uint8_t* const source, const uint64_t outSize)
 {

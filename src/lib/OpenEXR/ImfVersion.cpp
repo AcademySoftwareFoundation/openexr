@@ -10,7 +10,7 @@
 //-----------------------------------------------------------------------------
 
 #include "ImfNamespace.h"
-#include <ImfVersion.h>
+#include "ImfVersion.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 

@@ -3,7 +3,7 @@
 ** Copyright Contributors to the OpenEXR Project.
 */
 
-#include <openexr.h>
+#include "openexr.h"
 #include <stdio.h>
 #include <string.h>
 

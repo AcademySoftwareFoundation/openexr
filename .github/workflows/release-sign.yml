@@ -14,12 +14,20 @@
 #   % pip install sigstore
 #   % sigstore verify github --cert-identity https://github.com/AcademySoftwareFoundation/openexr/.github/workflows/release-sign.yml@refs/tags/<tag> openexr-<tag>.tar.gz
 #
+# To sign an existing release after publish (e.g. workflow fix): Actions →
+# Sign Release → Run workflow → enter the release tag (e.g. v3.2.8).
 
 name: Sign Release
 
 on:
   release:
     types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to sign (e.g. v3.2.8)"
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -30,7 +38,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      TAG: ${{ github.ref_name }}
+      TAG: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.tag || github.ref_name }}
     permissions:
       contents: write   # required for gh release upload (attach assets)
       id-token: write   # required for sigstore OIDC signing
@@ -48,6 +56,8 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.tag || github.ref }}
 
       - name: Create archive
         run: git archive --format=tar.gz -o ${OPENEXR_TARBALL} --prefix ${OPENEXR_PREFIX} ${TAG}

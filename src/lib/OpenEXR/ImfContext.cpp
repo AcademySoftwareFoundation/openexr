@@ -16,31 +16,31 @@
 
 #include <string.h>
 
-#include <ImfBoxAttribute.h>
-#include <ImfBytesAttribute.h>
-#include <ImfChannelListAttribute.h>
-#include <ImfChromaticitiesAttribute.h>
-#include <ImfCompressionAttribute.h>
-#include <ImfCompressor.h>
-#include <ImfDeepImageStateAttribute.h>
-#include <ImfDoubleAttribute.h>
-#include <ImfDwaCompressor.h>
-#include <ImfEnvmapAttribute.h>
-#include <ImfFloatAttribute.h>
-#include <ImfFloatVectorAttribute.h>
-#include <ImfIDManifestAttribute.h>
-#include <ImfIntAttribute.h>
-#include <ImfKeyCodeAttribute.h>
-#include <ImfLineOrderAttribute.h>
-#include <ImfMatrixAttribute.h>
-#include <ImfOpaqueAttribute.h>
-#include <ImfPreviewImageAttribute.h>
-#include <ImfRationalAttribute.h>
-#include <ImfStringAttribute.h>
-#include <ImfStringVectorAttribute.h>
-#include <ImfTileDescriptionAttribute.h>
-#include <ImfTimeCodeAttribute.h>
-#include <ImfVecAttribute.h>
+#include "ImfBoxAttribute.h"
+#include "ImfBytesAttribute.h"
+#include "ImfChannelListAttribute.h"
+#include "ImfChromaticitiesAttribute.h"
+#include "ImfCompressionAttribute.h"
+#include "ImfCompressor.h"
+#include "ImfDeepImageStateAttribute.h"
+#include "ImfDoubleAttribute.h"
+#include "ImfDwaCompressor.h"
+#include "ImfEnvmapAttribute.h"
+#include "ImfFloatAttribute.h"
+#include "ImfFloatVectorAttribute.h"
+#include "ImfIDManifestAttribute.h"
+#include "ImfIntAttribute.h"
+#include "ImfKeyCodeAttribute.h"
+#include "ImfLineOrderAttribute.h"
+#include "ImfMatrixAttribute.h"
+#include "ImfOpaqueAttribute.h"
+#include "ImfPreviewImageAttribute.h"
+#include "ImfRationalAttribute.h"
+#include "ImfStringAttribute.h"
+#include "ImfStringVectorAttribute.h"
+#include "ImfTileDescriptionAttribute.h"
+#include "ImfTimeCodeAttribute.h"
+#include "ImfVecAttribute.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 

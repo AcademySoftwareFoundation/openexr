@@ -26,12 +26,9 @@
 #include "IexExport.h"
 #include "IexForward.h"
 
-IEX_EXPORT void iex_debugTrap ();
-
 #define THROW(type, text)                                                      \
     do                                                                         \
     {                                                                          \
-        iex_debugTrap ();                                                      \
         std::stringstream _iex_throw_s;                                        \
         _iex_throw_s << text;                                                  \
         throw type (_iex_throw_s);                                             \

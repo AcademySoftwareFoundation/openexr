@@ -7,8 +7,8 @@
 #    undef NDEBUG
 #endif
 
-#include <ImfBoxAttribute.h>
-#include <ImfHeader.h>
+#include "ImfBoxAttribute.h"
+#include "ImfHeader.h"
 
 #include <exception>
 #include <iostream>

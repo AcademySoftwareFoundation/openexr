@@ -769,6 +769,17 @@ DwaCompressor_uncompress (
         return EXR_ERR_CORRUPT_CHUNK;
     }
 
+    /* check for overflow conditions in the unc sizes, corrupt file no
+       need to check the rleUncompressedSize, the zipped rle data will
+       be checked below */
+    if (unknownUncompressedSize > uncompressed_size ||
+        rleRawSize > uncompressed_size ||
+        (unknownUncompressedSize + rleRawSize) > uncompressed_size ||
+        totalAcUncompressedCount > uncompressed_size)
+    {
+        return EXR_ERR_CORRUPT_CHUNK;
+    }
+
     if ((int64_t) unknownUncompressedSize < 0 ||
         (int64_t) unknownCompressedSize < 0 || (int64_t) acCompressedSize < 0 ||
         (int64_t) dcCompressedSize < 0 || (int64_t) rleCompressedSize < 0 ||

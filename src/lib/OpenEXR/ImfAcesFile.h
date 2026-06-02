@@ -43,16 +43,19 @@
 //	converted to CIE XYZ, a color adaptation transform shifts the
 //	white point, and the result is converted to ACES RGB.
 //
+//	String parameters that name a file to open are UTF-8 paths; see ImfIO.h.
+//
 //-----------------------------------------------------------------------------
 
-#include "ImathBox.h"
-#include "ImathVec.h"
 #include "ImfExport.h"
 #include "ImfForward.h"
 #include "ImfHeader.h"
 #include "ImfNamespace.h"
 #include "ImfRgba.h"
 #include "ImfThreading.h"
+
+#include <Imath/ImathBox.h>
+#include <Imath/ImathVec.h>
 
 #include <string>
 

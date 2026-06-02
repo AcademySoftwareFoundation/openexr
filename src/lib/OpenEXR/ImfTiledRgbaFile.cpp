@@ -10,15 +10,15 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <ImfArray.h>
-#include <ImfChannelList.h>
-#include <ImfRgbaFile.h>
-#include <ImfRgbaYca.h>
-#include <ImfStandardAttributes.h>
-#include <ImfTileDescriptionAttribute.h>
-#include <ImfTiledInputFile.h>
-#include <ImfTiledOutputFile.h>
-#include <ImfTiledRgbaFile.h>
+#include "ImfArray.h"
+#include "ImfChannelList.h"
+#include "ImfRgbaFile.h"
+#include "ImfRgbaYca.h"
+#include "ImfStandardAttributes.h"
+#include "ImfTileDescriptionAttribute.h"
+#include "ImfTiledInputFile.h"
+#include "ImfTiledOutputFile.h"
+#include "ImfTiledRgbaFile.h"
 
 #include "Iex.h"
 #include "ImfNamespace.h"
@@ -94,7 +94,11 @@ prefixFromLayerName (const string& layerName, const Header& header)
 {
     if (layerName.empty ()) return "";
 
-    if (hasMultiView (header) && multiView (header)[0] == layerName) return "";
+    if (hasMultiView (header))
+    {
+        StringVector sv = multiView (header);
+        if (!sv.empty() && sv[0] == layerName) return "";
+    }
 
     return layerName + ".";
 }

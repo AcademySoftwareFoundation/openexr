@@ -20,7 +20,7 @@
 
 #include "openexr_compression.h"
 
-#include <ImathBox.h>
+#include <Imath/ImathBox.h>
 
 #include <stdlib.h>
 #include <memory>

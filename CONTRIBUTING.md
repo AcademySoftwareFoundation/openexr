@@ -508,6 +508,7 @@ Once you submit a PR, a check labeled ``docs/readthedocs.org:openexr``
 will validate the build. Click on the ``Details`` link to
 preview. Also, a link to this preview will be added automatically to
 the PR description.
+
 ### Test Images
 
 To contribute a new test image, commit it to the
@@ -527,154 +528,182 @@ then commit the new/modified ``.rst`` files to git and submit a PR.
 
 ## Creating a Patch Release
 
-Making a patch release typically involves merging changes from the
-main branch into the release branch, since all development generally
-takes place on the main branch. The usual workflow is to group these
-changes together and merge them all just prior to a release, rather
-than merging one-by-one as the changes go into main, although merging
-along the way is acceptable as well. For OpenEXR and Imath, a patch
-release typically involves under a dozen commits, so it's not a huge
-amount of work to organize them all at once.
+These instructions are for project administrators who have "push"
+access on the GitHub repo.
+
+Making a patch release involves merging changes from the main branch
+into the release branch, since all development takes place on the main
+branch. The process involves these steps:
+
+1. Cherry-pick commits from main to the RB- release branch
+2. Bump the version number
+3. Add release notes to CHANGES.md
+4. Create a "release candidate" tag and announce it publicly
+5. Draft the GitHub release
+6. Create a signed release tag
+7. Publish the release
+8. Add an entry to the website news page
+
+Helper scripts in ``share/util/release/`` automate many of the steps
+in the process.
 
 A patch release *must* be ABI-compatible with preceding minor releases
 and should be validated with an ABI-checker tool such as
 [``abipkgdiff``](https://manpages.ubuntu.com/manpages/lunar/en/man1/abipkgdiff.1.html).
 
-These instructions are for project administrators who have "push"
-access on the GitHub repo.
+### Labeling PRs for Release
 
-The preferred workflow is:
+Commits for the patch release are identified via labels on PRs. Create
+a label for the release, beginning with a `v`, as in
+``v3.4.11``. Assign this label to all PRs to be included in the
+release.
 
-1. Cherry-pick commits from the main branch to the release branch,
-   compose release notes, and bump the version number.
+If a PR should be merged into more than one release branch, i.e. a fix
+goes into v3.4 and v3.3, simply add multiple labels, one per release.
 
-   a. Create a new PR label for the new release (on the GitHub "Pull
-      Request" page), identify all PRs to be included, and assign the
-      label to them.  Run:
+It's good practice to label _every_ PR to identify what
+release it goes into, even if it's the next minor/major release. That
+helps make sure PRs don't get overlooked.
 
-          % share/util/release.py log
+The `share/util/release/log.py` script prints all PRs in the order
+they were merged, annotated by their release labels.
 
-      to print recent commits and their associated PRs and release
-      labels. The best practice is to ensure that every PR is labeled
-      with the release it should go into, even if that is the next
-      major release.
-   
-      Note that this relies on the commit message having the PR number
-      appended to the end, which GitHub adds on "Squash and
-      merge". PRs merged via "Rebase and merge" do *not* get this PR
-      number, which leaves you to manually decipher the PRs to report
-      in the release notes. Our project policy is to "Squash and
-      merge" whenever possible, unless the PR's individual commits
-      really do need to be preserved in the history.
+### Security Issues
 
-   b. Identify the main branch commits to cherry pick to the release
-      branch:
-   
-          % share/util/release.py cherry <tag>
+When a PR addresses a security vulnerability, mention it in the
+description or comments:
 
-      This will print the SHAs for the commits associated with the
-      labeled PRs. The output will look something like:
+    Addresses CVE-2026-39886
+
+The release scripts will detect this and add an appropriate entry to the
+release notes.
+
+When a PR addresses an OSS-Fuzz issue, mention it by url in the
+description or comments:
+
+    Addresses https://issues.oss-fuzz.com/issues/456158449
+
+The release scripts will detect this and add an appropriate entry to the
+release notes.
+
+### GPG
+
+The signed git tags associated with the release require a [GPG
+key](https://docs.github.com/en/authentication/managing-commit-signature-verification/generating-a-new-gpg-key)
+that is
+[registered](https://docs.github.com/en/authentication/managing-commit-signature-verification/telling-git-about-your-signing-key)
+with your GitHub account and git config.
+
+## Release Workflow
+
+Once all PRs have appropriate release labels, follow these steps, all
+while on the appropriate `RB-` branch:
+
+1. Cherry-pick commits from the main branch to the release branch.
+
+   This prints the SHAs for the commits associated with the
+   labeled PRs. The output will look something like:
       
-          git cherry-pick 2e32c6b # Bump actions/cache from 5.0.3 to 5.0.4 (#2311)
-          git cherry-pick 3df0122 # Pin pypa/cibuildwheel actions to release sha (#2294)
-          git cherry-pick 6155271 # Force macos cibuildwheel to use Xcode clang (#2315)
-          share/util/release.py changes v3.4.8 2311 2294 2315
+        % python share/util/release/cherry.py v3.4.8
+        git cherry-pick 2e32c6b 3df0122 6155271
+        changes.py v3.4.8 2311 2294 2315
           
-   c. Cherry-pick the commits (copy & execute output from `release.py cherry`):
+   Copy/paste the `git cherry-pick` command to the shell.
 
-          % git checkout RB-3.4
-          % git cherry-pick 2e32c6b
-          % git cherry-pick 3df0122
-          % git cherry-pick 6155271
+   If there are conflicts, resolve them and continue.
 
-      This may involve resolving conflicts along the way. Confirm the
-      updated branch builds successfully.
+   If the conflicts are too messy to resolve, consider
+   cherry-picking the commits one at a time. The `cherry.py`
+   script accepts a `--single` option that prints the commits one
+   `git cherry-pick` command per line:
 
-   d. Create a new section in the `CHANGES.md` release notes file:
+        % python share/util/release/cherry.py --single v3.4.8
+        git cherry-pick 2e32c6b # Bump actions/cache from 5.0.3 to 5.0.4 (#2311)
+        git cherry-pick 3df0122 # Pin pypa/cibuildwheel actions to release sha (#2294)
+        git cherry-pick 6155271 # Force macos cibuildwheel to use Xcode clang (#2315)
+        changes.py v3.4.8 2311 2294 2315
+
+2. Bump the OpenEXR version.
+
+   Edit the number in `src/lib/OpenEXRCore/openexr_version.h`. Commit
+   and push the change.
+
+3. Create an entry in the release notes file `CHANGES.md`.
+
+   The `changes.py` script takes a list of PRs
+   and adds entries in the `CHANGES.md` file:
+        
+        % python share/util/release/changes.py v3.4.8 2311 2294 2315
+
+   This adds the `Merged Pull Requests` and the
+   `Merged Workflow Requests` sections. It also adds a `Security` section
+   that lists the CVEs and OSS-Fuzz issues addressed. 
    
-          % share/util/release.py changes <tag> <pr list>
+   Edit the section by hand to add a summary.
 
-      This is the command as printed at the end of the output of the
-      "cherry" command. This will add a new section to `CHANGES.md`
-      and add entries to the PR lists. Run this from the release
-      branch, since it's preparing a commit for there.
+4. Create a `-rc` "release candidate" tag.
+
+   Obviously, build locally and confirm nothing broke in the
+   cherry-picking commits and resolving conflicts.
    
-   e. Edit `CHANGES.md` and compose a release notes summary. Commit
-      this change.
+   Push the release branch and confirm the CI succeeds before creating
+   the release candidate tag.
 
-   f. Bump the version number in
-      `src/lib/OpenEXRCore/openexr_version.h`. Commit this change.
-
-   g. Push the release branch and confirm the CI passes.
+   Create the tag with a `-rc` suffix, e.g. `v3.4.12-rc`.
    
-2. Tag the release with a ``-rc`` "release candidate" tag,
-   e.g. ``v3.1.9-rc``.  Push the tag via `git push --tags`. This will
-   trigger the release candidate workflow.
+   The `tag.py` script create a signed tag using the release notes as
+   the tag message:
 
-3. Validate ABI compatibility. Build at the release candidate tag and
-   run
-   [abipkgdiff](https://manpages.ubuntu.com/manpages/lunar/en/man1/abipkgdiff.1.html)
-   against a build of the previous patch release to confirm that no
-   ABI changes have leaked in. Additions to the ABI are acceptable for
-   a patch release, but there should be no symbol changes and no
-   symbols removed. If there are, back up and fix them before proceeding.
+        % python share/util/release/tag.py v3.4.12-rc
 
-4. Send mail to ``openexr-dev@lists.aswf.io`` announcing the staging
-   of the release with link to the release candidate tag. Include the
-   release notes from [CHANGES.md](CHANGES.md) for review.
+   Adding the release notes as the tag message is good practice.
 
-5. Draft the GitHub release via:
+   Push the tags. This triggers the `python-wheels-publish-test`
+   CI workflow. Confirm it succeeds.
 
-        % share/util/release.py draft <tag>
+   Run the `candidate.py` script to format a
+   message about the release candidate, formatted in HTML. Pipe the
+   output to a `.html` file:
+   
+        % python share/util/release/candidate.py v3.4.12-rc > v3.4.12.html
+
+   Load the file in a browers to render the formatting, then
+   copy/paste the contents into an email to `openexr-dev@lists.aswf.io`
+   and the `#openexr` Slack channel.
+
+   If any problems arise after tagging the candidate, fix them in
+   subsequent commits and create an
+   additional tag with a number appended:
+   
+        % python share/util/release/tag.py v3.4.12-rc2
+
+5. Draft the GitHub release
+
+        % python share/util/release/draft.py v3.4.12
        
    Verify the notes look correct on the
    [Releases](https://github.com/AcademySoftwareFoundation/openexr/releases)
-   page and edit as appropriate. Save as a "draft".
+   page and edit as appropriate. Save as a "draft". DO NOT PUBLISH THE
+   RELEASE YET.
 
-6. Wait at least 48 hours, to give the community time to discover and
-   report any obvious problems. Avoid the temptation to rush changes
-   into a release and publish it immediately, as that is uncomfortably
-   error prone.
+6. Create a signed release tag
 
-   If additional fixes need to go in before release:
-
-   a. Merge commits to the release branch. Push them directly.
-
-   b. Update the release notes in a separate commit.
-
-   c. Re-tag with a incremented "release candidate" number,
-      e.g. ``v3.1.9-rc2``.
-
-   d. Send an email update to ``openexr-dev@lists.aswf.io`` notifying
-      the community of the addition and the new tag.
-
-7. Create a signed release tag
-
-   a. Make sure you have a [GPG
-      key](https://docs.github.com/en/authentication/managing-commit-signature-verification/generating-a-new-gpg-key)
-      and it is
-      [registered](https://docs.github.com/en/authentication/managing-commit-signature-verification/telling-git-about-your-signing-key)
-      with your GitHub account and git config.
-
-   b. Create a signed tag with the release name via:
+   Assuming you have your PGP key set up, create the release tag at
+   the same commit as the release candidate:
    
-          git tag -s v3.1.9
+        % python share/util/release/tag.py v3.4.12
 
-   c. Push the tag via:
+7. Publish the release
 
-          git push --tags
+   Set the GitHub release to correspond to the release tag (the `Tag:
+   Select tag` option), then click the "Publish release" button on the
+   GitHub release draft.
 
-8. Publish the release
-
-   a. Set the release to correspond to the latest release candidate
-      tag.
+   Monitor the GitHub actions on the
+   `https://github.com/AcademySoftwareFoundation/openexr` repo to
+   ensure everything builds properly. 
    
-   b. Click the "Publish release" button on the GitHub release draft
-
-   c. Send an email to ``openexr-dev@lists.aswf.io`` officially
-      announcing the release.
-
-9. Update the ``release`` branch, which should always point to the
+   Update the `release` branch, which should always point to the
    most recent patch of the most recent minor release, i.e. the most
    preferred release.
 
@@ -683,152 +712,65 @@ The preferred workflow is:
         % git checkout release
         % git merge RB-3.1
         % git push
-         
-10. Submit a PR that adds the release notes to [CHANGES.md](CHANGES.md)
-    on the main branch. Cherry-pick the release notes commit from
-    the release branch.
 
-    - If any changes have gone into [SECURITY.md](SECURITY), cherry-pick
-      the associated commit as well.
+   Publishing the release triggers a post on the `#openexr` Slack
+   channel, but you must manually send an email to
+   `openexr-dev@lists.aswf.io` officially announcing the release.
 
-    - Also include in this PR edits to [``website/news.rst``](website/news.rst)
-      that add an announcement of the release:
+8. Add an entry to the website news page.
 
-            share/util/release.py news v3.4.8
+        % python share/util/release/news.py v3.4.12
 
-      This will edit the website source files to add the news item.
+   This pulls the release notes from `CHANGES.md` and inserts a news
+   item in `website/news.rst` and `website/latest_news_title.rst`.
 
-    - Get the PR approved and merged promptly so the news item appears
-      on the website. The website rebuilds automatically at
-      https://readthedocs.org/projects/openexr on changes to the main
-      branch, so no action is required.
-      
-12. If the release has resolved any OSS-Fuzz issues, update the
-    associated pages at https://bugs.chromium.org/p/oss-fuzz with a
-    reference to the release.
-
-13. If the release has resolved any public CVEs, request an update
-    from the registry service providing the release and a link to the
-    release notes.  Add a reference to resolved public CVEs to
-    `SECURITY.md` and submit as a PR.
+   Commit this change, and then cherry-pick the commit from the
+   release branch containing the notes and submit the pair as a
+   PR. This pulls the release notes for the patch into the main branch.
 
 ## Creating a Major/Minor Release
 
 A major/minor release is created from the main branch, assuming there
 are no changes on ``main`` that should *not* go into the release. We
 don't generally allow experimental changes onto ``main``. Anything
-accepted onto ``main`` should be intended for the next release.
+accepted onto ``main`` should be intended for the next minor/major
+(not _patch_)release.
 
 The overall workflow is similar to a patch release, as described
-above, but it's simpler because there is no cherry-picking and merging
-of commits. The major/minor release is simply a snapshot of ``main``.
+above, but it's simpler because there is no cherry-picking of
+commits. The major/minor release is simply a snapshot of ``main``.
 
-To create a new release from the ``main`` branch:
+To create a new release from the ``main`` branch, start by creating
+the new "release branch", e.g. `RB-3.5` from the tip of `main`. Then
+follow the same instructions above as for a patch release.
 
-1. Confirm that the ``OPENEXR_VERSION_MAJOR``,
+Assuming all PRs that have _not_ been merged into a patch release are
+labeled with the new minor release, e.g. `v3.5`, the helper scripts in
+`share/util/release` will automate the various steps in generating the
+release notes, drafting the release, and helping with the various
+announcements. 
+
+In addition to the above:
+    
+1. Increment the ``OPENEXR_LIB_SOVERSION`` setting in [CMakeLists.txt](CMakeLists.txt).
+
+   The SO version increases whenever, and only when, the ABI changes
+   in non-backwards-compatible ways. Consistent with the semantic
+   versioning policy, this usually happens at major and minor
+   releases, but never on a patch release.
+
+   Commit this change to the `RB-` branch.
+
+
+2. Confirm that the ``OPENEXR_VERSION_MAJOR``,
    ``OPENEXR_VERSION_MINOR``, and ``OPENEXR_VERSION_PATCH`` value in
    [src/lib/OpenEXRCore/openexr_version.h](src/lib/OpenEXRCore/openexr_version.h)
-   are correct. The OpenEXR project policy is that the values on the
-   main branch, which is the bleeding edge of development, correspond
-   to the next minor release, with the patch set to 0.
+   are correct on the main branch. The OpenEXR project policy is that
+   the values on the main branch, which is the bleeding edge of
+   development, correspond to the next minor release, with the patch
+   set to 0.
 
-2. Update the release notes in [CHANGES.md](CHANGES.md):
-
-   - Write a high-level summary of the features and improvements.
-
-   - Include the log of all PR's that have *not* been merged into the
-     previous minor release.
-
-   - Mention any OSS-Fuzz issues. Provide a link in the notes to the issue at
-     https://bugs.chromium.org/p/oss-fuzz, including the issue id
-     number and description.
-
-   - If there are any public CVE's, mention them explicitly with a
-     link to the CVE registry item.
-
-   - Submit this change as a separate PR.
-
-3. Add a mention of the release to [``website/news.rst``](website/news.rst)
-
-   - Submit this change as a separate PR.
-
-4. Increment the ``OPENEXR_LIB_SOVERSION`` setting in [CMakeLists.txt](CMakeLists.txt).
-
-   - The SO version increases whenever, and only when, the ABI changes
-     in non-backwards-compatible ways. Consistent with the semantic
-     versioning policy, this usually happens at major and minor
-     releases, but never on a patch release.
-
-   - Submit this change as a separate PR for review.
-
-5. Once the above PR's are merged, create the release branch with the
-   ``RB`` prefix, e.g. ``RB-3.2``.
-
-6. Update the ``IMATH_TAG`` setting in
+3. Update the ``IMATH_TAG`` setting in
    [cmake/OpenEXRSetup.cmake](cmake/OpenEXRSetup.cmake) to correspond
    to the proper Imath release.
 
-7. Tag the release with a ``-rc`` "release candidate" tag,
-   e.g. ``v3.2.0-rc``.
-
-8. Send mail to ``openexr-dev@lists.aswf.io`` announcing the staging
-   of the release with link to the release candidate tag. Include the
-   release notes from [CHANGES.md](CHANGES.md) for review.
-
-9. If additional fixes need to go in before release:
-
-   a. Merge commits to the release branch. Push them directly, no need
-      for a pull request.
-
-   b. Update the release notes in a separate commit.
-
-   c. Re-tag with a incremented "release candidate" number,
-      e.g. ``v3.2.0-rc2``.  
-
-   d. Send a email update to ``openexr-dev@lists.aswf.io`` notifying
-      the community of the addition.
-
-10. Draft the release on the GitHub
-    [Releases](https://github.com/AcademySoftwareFoundation/openexr/releases)
-    page.  Include the summary from the notes in
-    [CHANGES.md](CHANGES.md), but don't include the list of PR's.
-
-    - Create the release from the latest ``--rc`` tag, and give it a name
-      that begins with ``v`` and ends in ``0``, e.g. ``v3.2.0``.
-
-    - Save the release as a "draft".
-
-11. Wait at least 48 hours after the email announcement.
-
-12. Publish the release
-
-    a. Click the "Publish release" button on the GitHub release draft
-
-    b. Send an email to ``openexr-dev@lists.aswf.io`` officially
-       announcing the release.
-
-13. Update the ``release`` branch, which should always point to the
-    most recent release.
-
-    From a clone of the main repo:
-
-        % git checkout release
-        % git merge RB-3.1
-        % git push
-         
-14. Increment ``OPENEXR_VERSION_MINOR`` in
-    [src/lib/OpenEXRCore/openexr_version.h](src/lib/OpenEXRCore/openexr_version.h) on the main branch
-
-    - Submit a PR for this. This leaves the release version on the
-      main branch pointing to the next minor release, as described in
-      Step #1.
-
-15. Build the website at https://readthedocs.org/projects/openexr.
-
-16. If the release has resolved any OSS-Fuzz issues, update the
-    associated pages at https://bugs.chromium.org/p/oss-fuzz with a
-    reference to the release.
-
-17. If the release has resolved any public CVE's, request an update
-    from the registry service providing the release and a link to the
-    release notes.

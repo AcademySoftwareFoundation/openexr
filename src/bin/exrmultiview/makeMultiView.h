@@ -14,7 +14,7 @@
 //----------------------------------------------------------------------------
 
 #include "namespaceAlias.h"
-#include <ImfCompression.h>
+#include "ImfCompression.h"
 #include <string>
 #include <vector>
 
