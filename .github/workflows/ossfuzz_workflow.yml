@@ -25,12 +25,6 @@ on:
       - '!src/wrappers/**'
       - '!.github/workflows/**'
       - '.github/workflows/ossfuzz_workflow.yml'
-    # FIXME: Fuzzing build may need libzstd on the link line when linking static OpenEXR. 
-    # of linked libs in:
-    # https://github.com/google/oss-fuzz/blob/master/projects/openexr/build.sh
-    # ... but we can only do it once this PR is merged.
-    branches-ignore:  # FIXME: REMOVE THIS CONDITION BEFORE MERGING !
-      - 'main'
 
 permissions:
   contents: read

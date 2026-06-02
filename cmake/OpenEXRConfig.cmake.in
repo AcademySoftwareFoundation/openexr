@@ -5,10 +5,12 @@
 
 include(CMakeFindDependencyMacro)
 
-# Threads are commonly required by dependencies and OpenEXR options; find them
-# irrespective of OPENEXR_ENABLE_THREADING (which controls threaded request processing).
-set(THREADS_PREFER_PTHREAD_FLAG ON)
-find_dependency(Threads)
+set(openexr_needthreads @OPENEXR_ENABLE_THREADING@)
+if (openexr_needthreads)
+  set(THREADS_PREFER_PTHREAD_FLAG ON)
+  find_dependency(Threads)
+endif()
+unset(openexr_needthreads)
 
 find_dependency(Imath)
 
@@ -18,6 +20,10 @@ endif()
 
 if (@openjph_FOUND@)
   find_dependency(openjph)
+endif()
+
+if (@zstd_FOUND@)
+  find_dependency(zstd CONFIG)
 endif()
 
 include("${CMAKE_CURRENT_LIST_DIR}/@PROJECT_NAME@Targets.cmake")

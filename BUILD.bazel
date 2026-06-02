@@ -273,7 +273,6 @@ cc_library(
             ":windows": [],
             "//conditions:default": [
                 "-pthread",
-                "-ldl",
             ],
         }),
     visibility = ["//visibility:public"],
@@ -521,7 +520,6 @@ cc_library(
             ":windows": [],
             "//conditions:default": [
                 "-pthread",
-                "-ldl",
             ],
         }),
     visibility = ["//visibility:public"],

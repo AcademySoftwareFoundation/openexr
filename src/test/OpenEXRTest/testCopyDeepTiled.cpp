@@ -511,7 +511,7 @@ testCopyDeepTiled (const std::string& tempDir)
         random_reseed (1);
 
         int numThreads = ThreadPool::globalThreadPool ().numThreads ();
-        ThreadPool::globalThreadPool ().setNumThreads (10);
+        ThreadPool::globalThreadPool ().setNumThreads (2);
 
         readCopyWriteTest (3, 4, tempDir);
         readCopyWriteTest (5, 4, tempDir);

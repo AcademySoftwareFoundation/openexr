@@ -225,8 +225,8 @@ internal_exr_add_part (
     part->chunk_count          = -1;
     part->lines_per_chunk      = -1;
 
-    part->zip_compression_level  = f->default_zip_level;
-    part->dwa_compression_level  = f->default_dwa_quality;
+    part->zip_compression_level = f->default_zip_level;
+    part->dwa_compression_level = f->default_dwa_quality;
     part->zstd_compression_level = f->default_zstd_level;
 
     /* put it into the part table */

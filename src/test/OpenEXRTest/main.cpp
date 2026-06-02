@@ -104,27 +104,6 @@ using namespace std;
         cout << "\n=======\nRunning " << TEST_STRING (x) << endl;              \
         x (tempDir);                                                           \
     }
-#define TEST_COMP(x, y)                                                        \
-    if (helpMode)                                                              \
-    {                                                                          \
-        tests.insert (string (TEST_STRING (x) " [comp_id]"));                  \
-        suites.insert (string (y));                                            \
-    }                                                                          \
-    else if (                                                                  \
-        argc < 2 ||                                                            \
-        (!strcmp (argv[1], TEST_STRING (x)) || !strcmp (argv[1], y)))          \
-    {                                                                          \
-        cout << "\n=======\nRunning " << TEST_STRING (x) << endl;              \
-        if (argc == 3)                                                         \
-        {                                                                      \
-            cout << "  - Testing only compression method # " << argv[2]        \
-                 << endl;                                                      \
-            int comp = atoi (argv[2]);                                         \
-            x (tempDir, comp);                                                 \
-        }                                                                      \
-        else                                                                   \
-            x (tempDir);                                                       \
-    }
 
 string
 makeTempDir ()
@@ -211,7 +190,7 @@ main (int argc, char* argv[])
     TEST (testCustomAttributes, "core");
     TEST (testLineOrder, "basic");
     TEST (testCompressionApi, "basic");
-    TEST_COMP (testCompression, "basic");
+    TEST (testCompression, "basic");
     TEST (testCopyPixels, "basic");
     TEST (testLut, "basic");
     TEST (testSampleImages, "basic");

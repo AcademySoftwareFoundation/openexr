@@ -262,7 +262,7 @@ generateRandomFile (
     // Set up the output file
     //
     remove (filename.c_str ());
-    DeepTiledOutputFile file (filename.c_str (), header, 1);
+    DeepTiledOutputFile file (filename.c_str (), header, 8);
 
     DeepFrameBuffer frameBuffer;
 

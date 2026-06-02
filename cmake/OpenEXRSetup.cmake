@@ -335,7 +335,7 @@ endif()
 option(OPENEXR_FORCE_INTERNAL_IMATH "Force using an internal imath" OFF)
 # Check to see if Imath is installed outside of the current build directory.
 set(OPENEXR_IMATH_REPO "https://github.com/AcademySoftwareFoundation/Imath.git" CACHE STRING "Repo for auto-build of Imath")
-set(OPENEXR_IMATH_TAG "v3.2.2" CACHE STRING "Tag for auto-build of Imath (branch, tag, or SHA)")
+set(OPENEXR_IMATH_TAG "main" CACHE STRING "Tag for auto-build of Imath (branch, tag, or SHA)")
 if(NOT OPENEXR_FORCE_INTERNAL_IMATH)
   #TODO: ^^ Release should not clone from main, this is a place holder
   set(CMAKE_IGNORE_PATH "${CMAKE_CURRENT_BINARY_DIR}/_deps/imath-src/config;${CMAKE_CURRENT_BINARY_DIR}/_deps/imath-build/config")
@@ -429,7 +429,8 @@ endif()
 
 message(STATUS "OpenEXR: linking ${OPENEXR_IMF_ZSTD_TARGET} (find_package zstd CONFIG)")
 
-# For pkg-config Libs.private (static consumers); not exported via OpenEXRConfig.cmake.in
+# For pkg-config Libs.private (static consumers); CMake consumers resolve zstd
+# via find_dependency(zstd) in OpenEXRConfig.cmake.in
 set(EXR_ZSTD_PKGCONFIG_LIBS_PRIVATE "-lzstd")
 
 # OpenEXR includes Imath headers from an "Imath/" subdirectory,

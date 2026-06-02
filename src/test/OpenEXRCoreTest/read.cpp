@@ -146,10 +146,13 @@ testReadMeta (const std::string& tempdir)
         EXR_ERR_ARGUMENT_OUT_OF_RANGE,
         exr_get_chunk_table_offset (f, -1, NULL));
     EXRCORE_TEST_RVAL_FAIL (
-        EXR_ERR_ARGUMENT_OUT_OF_RANGE, exr_get_chunk_table_offset (f, 2, NULL));
+        EXR_ERR_ARGUMENT_OUT_OF_RANGE,
+        exr_get_chunk_table_offset (f, 2, NULL));
     EXRCORE_TEST_RVAL_FAIL (
-        EXR_ERR_INVALID_ARGUMENT, exr_get_chunk_table_offset (f, 0, NULL));
-    EXRCORE_TEST_RVAL (exr_get_chunk_table_offset (f, 0, &cto));
+        EXR_ERR_INVALID_ARGUMENT,
+        exr_get_chunk_table_offset (f, 0, NULL));
+    EXRCORE_TEST_RVAL (
+        exr_get_chunk_table_offset (f, 0, &cto));
     EXRCORE_TEST (cto == 331);
 
     EXRCORE_TEST_RVAL_FAIL (

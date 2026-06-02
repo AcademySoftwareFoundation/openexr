@@ -8,7 +8,7 @@
 
 //-----------------------------------------------------------------------------
 //
-//  class Compressor
+//	class Compressor
 //
 //-----------------------------------------------------------------------------
 
@@ -93,52 +93,52 @@ public:
     // Compress an array of bytes that represents the contents of up to
     // numScanLines() scan lines:
     //
-    //      inPtr       Input buffer (uncompressed data).
+    //	    inPtr		Input buffer (uncompressed data).
     //
-    //      inSize      Number of bytes in the input buffer
+    //	    inSize		Number of bytes in the input buffer
     //
-    //      minY        Minimum y coordinate of the scan lines to
-    //                  be compressed
+    //	    minY		Minimum y coordinate of the scan lines to
+    //				be compressed
     //
-    //      outPtr      Pointer to output buffer
+    //	    outPtr		Pointer to output buffer
     //
-    //      return value    Size of compressed data in output buffer
+    //	    return value	Size of compressed data in output buffer
     //
     // Arrangement of uncompressed pixel data in the input buffer:
     //
-    //  Before calling
+    //	Before calling
     //
-    //          compress (buf, size, minY, ...);
+    //	        compress (buf, size, minY, ...);
     //
-    //  the InputFile::writePixels() method gathers pixel data from the
-    //  frame buffer, fb, and places them in buffer buf, like this:
+    //	the InputFile::writePixels() method gathers pixel data from the
+    // 	frame buffer, fb, and places them in buffer buf, like this:
     //
     //  char *endOfBuf = buf;
     //
-    //  for (int y = minY;
-    //       y <= min (minY + numScanLines() - 1, header().dataWindow().max.y);
-    //       ++y)
-    //  {
-    //      for (ChannelList::ConstIterator c = header().channels().begin();
-    //           c != header().channels().end();
-    //           ++c)
-    //      {
-    //      if (modp (y, c.channel().ySampling) != 0)
-    //          continue;
+    //	for (int y = minY;
+    //	     y <= min (minY + numScanLines() - 1, header().dataWindow().max.y);
+    //	     ++y)
+    //	{
+    //	    for (ChannelList::ConstIterator c = header().channels().begin();
+    //		 c != header().channels().end();
+    //		 ++c)
+    //	    {
+    //		if (modp (y, c.channel().ySampling) != 0)
+    //		    continue;
     //
-    //      for (int x = header().dataWindow().min.x;
-    //           x <= header().dataWindow().max.x;
-    //           ++x)
-    //      {
-    //          if (modp (x, c.channel().xSampling) != 0)
-    //              continue;
+    //		for (int x = header().dataWindow().min.x;
+    //		     x <= header().dataWindow().max.x;
+    //		     ++x)
+    //		{
+    //		    if (modp (x, c.channel().xSampling) != 0)
+    //			continue;
     //
-    //          Xdr::write<CharPtrIO> (endOfBuf, fb.pixel (c, x, y));
-    //      }
-    //      }
-    //  }
+    //		    Xdr::write<CharPtrIO> (endOfBuf, fb.pixel (c, x, y));
+    //		}
+    //	    }
+    //	}
     //
-    //  int size = endOfBuf - buf;
+    //	int size = endOfBuf - buf;
     //
     //-------------------------------------------------------------------------
 
@@ -147,7 +147,7 @@ public:
 
     virtual int
     compress (const char* inPtr, int inSize, int minY, const char*& outPtr,
-             const char* sampleCountTable, int sampleCountTableSize);
+              const char* sampleCountTable, int sampleCountTableSize);
 
     IMF_EXPORT
     virtual int compressTile (
@@ -155,26 +155,28 @@ public:
         int                    inSize,
         IMATH_NAMESPACE::Box2i range,
         const char*&           outPtr);
-        virtual int
-    compressTile (const char*            inPtr,
+
+    virtual int compressTile (
+        const char*            inPtr,
         int                    inSize,
         IMATH_NAMESPACE::Box2i range,
         const char*&           outPtr,
-        const char* sampleCountTable, int sampleCountTableSize);
+        const char*            sampleCountTable,
+        int                    sampleCountTableSize);
 
     //-------------------------------------------------------------------------
     // Uncompress an array of bytes that has been compressed by compress():
     //
-    //      inPtr       Input buffer (compressed data).
+    //	    inPtr		Input buffer (compressed data).
     //
-    //      inSize      Number of bytes in the input buffer
+    //	    inSize		Number of bytes in the input buffer
     //
-    //      minY        Minimum y coordinate of the scan lines to
-    //                  be uncompressed
+    //	    minY		Minimum y coordinate of the scan lines to
+    //				be uncompressed
     //
-    //      outPtr      Pointer to output buffer
+    //	    outPtr		Pointer to output buffer
     //
-    //      return value    Size of uncompressed data in output buffer
+    //	    return value	Size of uncompressed data in output buffer
     //
     //-------------------------------------------------------------------------
 
@@ -219,8 +221,9 @@ protected:
         const char* inPtr,
         int inSize,
         IMATH_NAMESPACE::Box2i range,
-        const char*& outPtr, 
-        const char* sampleCountTable = nullptr, int sampleCountTableSize = 0);
+        const char*& outPtr,
+        const char* sampleCountTable = nullptr,
+        int sampleCountTableSize     = 0);
     uint64_t runDecodeStep (
         const char* inPtr,
         int inSize,
@@ -231,15 +234,15 @@ protected:
 //-----------------------------------------------------------------
 // Construct a Compressor for compression type c:
 //
-//  maxScanLineSize     Maximum number of bytes per uncompressed
-//                      scan line.
+//  maxScanLineSize	Maximum number of bytes per uncompressed
+//			scan line.
 //
-//  header              Header of the input or output file whose
-//                      pixels will be compressed or uncompressed.
+//  header		Header of the input or output file whose
+//			pixels will be compressed or uncompressed.
 //
-//  return value        A pointer to a new Compressor object (it
-//                      is the caller's responsibility to delete
-//                      the object), or 0 (if c is NO_COMPRESSION).
+//  return value	A pointer to a new Compressor object (it
+//			is the caller's responsibility to delete
+//			the object), or 0 (if c is NO_COMPRESSION).
 //
 //-----------------------------------------------------------------
 
@@ -250,17 +253,17 @@ newCompressor (Compression c, size_t maxScanLineSize, const Header& hdr);
 //-----------------------------------------------------------------
 // Construct a Compressor for compression type c for a tiled image:
 //
-//  tileLineSize    Maximum number of bytes per uncompressed
-//                  line in a tile.
+//  tileLineSize	Maximum number of bytes per uncompressed
+//			line in a tile.
 //
-//  numTileLines    Maximum number of lines in a tile.
+//  numTileLines	Maximum number of lines in a tile.
 //
-//  header          Header of the input or output file whose
-//                  pixels will be compressed or uncompressed.
+//  header		Header of the input or output file whose
+//			pixels will be compressed or uncompressed.
 //
-//  return value    A pointer to a new Compressor object (it
-//                  is the caller's responsibility to delete
-//                  the object), or 0 (if c is NO_COMPRESSION).
+//  return value	A pointer to a new Compressor object (it
+//			is the caller's responsibility to delete
+//			the object), or 0 (if c is NO_COMPRESSION).
 //
 //-----------------------------------------------------------------
 

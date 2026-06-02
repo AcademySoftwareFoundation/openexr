@@ -386,7 +386,7 @@ testCopyDeepScanLine (const std::string& tempDir)
         random_reseed (1);
 
         int numThreads = ThreadPool::globalThreadPool ().numThreads ();
-        ThreadPool::globalThreadPool ().setNumThreads (10);
+        ThreadPool::globalThreadPool ().setNumThreads (4);
 
         readCopyWriteTest (tempDir, 1, 100);
         readCopyWriteTest (tempDir, 3, 50);

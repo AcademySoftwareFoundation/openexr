@@ -5,7 +5,6 @@ openexr_define_library(OpenEXR
   PRIV_EXPORT OPENEXR_EXPORTS
   CURDIR ${CMAKE_CURRENT_SOURCE_DIR}
   SOURCES
-    ImfZstdCompressor.h
     ImfAcesFile.cpp
     ImfAttribute.cpp
     ImfAutoArray.h

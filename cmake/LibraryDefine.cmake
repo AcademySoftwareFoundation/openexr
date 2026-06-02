@@ -38,12 +38,6 @@ function(OPENEXR_DEFINE_LIBRARY libname)
     endif()
   endif()
 
-  # libzstd is a private link dependency (see OpenEXRSetup.cmake); not exported in OpenEXRConfig.
-  if(${objlib} STREQUAL "OpenEXR" OR ${objlib} STREQUAL "OpenEXRCore")
-    message(STATUS "OpenEXR: linking libzstd privately to ${objlib}")
-    target_link_libraries(${objlib} PRIVATE ${OPENEXR_IMF_ZSTD_TARGET} ${CMAKE_DL_LIBS})
-  endif()
-
   if(OPENEXR_CURLIB_CURDIR)
     target_include_directories(${objlib} INTERFACE $<BUILD_INTERFACE:${OPENEXR_CURLIB_CURDIR}>)
 

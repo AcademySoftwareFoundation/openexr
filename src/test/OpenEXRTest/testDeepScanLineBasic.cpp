@@ -13,14 +13,14 @@
 #include <assert.h>
 #include <string.h>
 
-#include <IlmThreadPool.h>
-#include <ImfArray.h>
-#include <ImfChannelList.h>
-#include <ImfCompression.h>
-#include <ImfDeepFrameBuffer.h>
-#include <ImfDeepScanLineInputFile.h>
-#include <ImfDeepScanLineOutputFile.h>
-#include <ImfPartType.h>
+#include "IlmThreadPool.h"
+#include "ImfArray.h"
+#include "ImfChannelList.h"
+#include "ImfCompression.h"
+#include "ImfDeepFrameBuffer.h"
+#include "ImfDeepScanLineInputFile.h"
+#include "ImfDeepScanLineOutputFile.h"
+#include "ImfPartType.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <vector>
@@ -415,7 +415,7 @@ readFile (
             cout << "framebuffer " << flush;
             for (int i = 0; i < height;)
             {
-                int y       = i + dataWindow.min.y;
+                int y = i + dataWindow.min.y;
                 int yChunk0 = file.firstScanLineInChunk (y);
                 /* lastScanLineInChunk() is getChunkRange().second: for a full
                  * chunk that is the exclusive upper bound (next chunk start),
@@ -431,12 +431,11 @@ readFile (
                 int iChunk1 = yInclusiveLast - dataWindow.min.y;
 
                 vector<char> buffer;
-                uint64_t     pixSize = 0;
+                uint64_t pixSize = 0;
                 file.rawPixelData (yChunk0, nullptr, pixSize);
                 buffer.resize (pixSize);
-                file.rawPixelData (yChunk0, buffer.data (), pixSize);
-                file.readPixelSampleCounts (
-                    buffer.data (), frameBuffer, yChunk0, yChunkBound);
+                file.rawPixelData (yChunk0, buffer.data(), pixSize);
+                file.readPixelSampleCounts (buffer.data(), frameBuffer, yChunk0, yChunkBound);
 
                 for (int ii = iChunk0; ii <= iChunk1; ++ii)
                 {
@@ -454,14 +453,11 @@ readFile (
                                 (!randomChannels || read_channel[k] == 1))
                             {
                                 if (channelTypes[k] == 0)
-                                    data[k][ii][j] =
-                                        new unsigned int[localSampleCount[ii][j]];
+                                    data[k][ii][j] = new unsigned int[localSampleCount[ii][j]];
                                 if (channelTypes[k] == 1)
-                                    data[k][ii][j] =
-                                        new half[localSampleCount[ii][j]];
+                                    data[k][ii][j] = new half[localSampleCount[ii][j]];
                                 if (channelTypes[k] == 2)
-                                    data[k][ii][j] =
-                                        new float[localSampleCount[ii][j]];
+                                    data[k][ii][j] = new float[localSampleCount[ii][j]];
                             }
                             else { data[k][ii][j] = nullptr; }
                         }
@@ -476,7 +472,7 @@ readFile (
                     }
                 }
 
-                file.readPixels (buffer.data (), frameBuffer, yChunk0, yChunkBound);
+                file.readPixels (buffer.data(), frameBuffer, yChunk0, yChunkBound);
 
                 i = iChunk1 + 1;
             }
@@ -499,8 +495,7 @@ readFile (
                             (!randomChannels || read_channel[k] == 1))
                         {
                             if (channelTypes[k] == 0)
-                                data[k][i][j] =
-                                    new unsigned int[localSampleCount[i][j]];
+                                data[k][i][j] = new unsigned int[localSampleCount[i][j]];
                             if (channelTypes[k] == 1)
                                 data[k][i][j] = new half[localSampleCount[i][j]];
                             if (channelTypes[k] == 2)
@@ -656,8 +651,8 @@ readWriteTest (
 void
 readWriteAllZeroSampleCountsDeepScanline (const std::string& tempDir)
 {
-    const int            w = 16;
-    const int            h = 16;
+    const int w = 16;
+    const int h = 16;
     const IMATH_NAMESPACE::Box2i dataWindow (
         IMATH_NAMESPACE::V2i (0, 0),
         IMATH_NAMESPACE::V2i (w - 1, h - 1));
@@ -691,19 +686,19 @@ readWriteAllZeroSampleCountsDeepScanline (const std::string& tempDir)
 
         Array2D<unsigned int> sc;
         sc.resizeErase (h, w);
-        Array2D<void*>        pdata;
+        Array2D<void*> pdata;
         pdata.resizeErase (h, w);
         for (int y = 0; y < h; ++y)
             for (int x = 0; x < w; ++x)
             {
-                sc[y][x]    = 0;
+                sc[y][x] = 0;
                 pdata[y][x] = nullptr;
             }
 
         const int memOff = dataWindow.min.x + dataWindow.min.y * w;
         {
             DeepScanLineOutputFile file (filename.c_str (), hdr, 1);
-            DeepFrameBuffer       fb;
+            DeepFrameBuffer fb;
             fb.insertSampleCountSlice (Slice (
                 IMF::UINT,
                 (char*) (&sc[0][0] - memOff),
@@ -729,7 +724,7 @@ readWriteAllZeroSampleCountsDeepScanline (const std::string& tempDir)
 
         Array2D<unsigned int> readSc;
         readSc.resizeErase (h, w);
-        Array2D<void*>      readData;
+        Array2D<void*> readData;
         readData.resizeErase (h, w);
         for (int y = 0; y < h; ++y)
             for (int x = 0; x < w; ++x)

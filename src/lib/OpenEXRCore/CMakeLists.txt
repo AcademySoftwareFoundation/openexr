@@ -127,6 +127,14 @@ if (DEFINED EXR_DEFLATE_LIB)
   endif()
 endif()
 
+if (OPENEXR_IMF_ZSTD_TARGET AND NOT OPENEXR_IMF_ZSTD_TARGET STREQUAL "")
+  if (BUILD_SHARED_LIBS)
+    target_link_libraries(OpenEXRCore PRIVATE ${OPENEXR_IMF_ZSTD_TARGET})
+  else()
+    target_link_libraries(OpenEXRCore PUBLIC ${OPENEXR_IMF_ZSTD_TARGET})
+  endif()
+endif()
+
 if (DEFINED EXR_OPENJPH_LIB)
 
   # External OpenJPH
