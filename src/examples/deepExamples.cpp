@@ -125,7 +125,7 @@ unsigned int
 getPixelSampleCount (int i, int j)
 {
     // Dummy code creating deep data from a flat image
-    return 3;
+    return 1;
 }
 
 Array2D<float> testDataZ;
@@ -134,15 +134,8 @@ Array2D<half>  testDataA;
 void
 getPixelSampleData (int i, int j, Array2D<float*>& dataZ, Array2D<half*>& dataA)
 {
-    // Dummy code creating deep data from a flat image
-    float z = 1.1;
-    half a = 0.5;
-    for (int k=0; k < getPixelSampleCount(i, j); k++)
-    {
-        dataZ[i][j][k] = z; //testDataZ[i][j];
-        dataA[i][j][k] = a;//testDataA[i][j];
-    }
-
+    dataZ[i][j][0] = testDataZ[i][j];
+    dataA[i][j][0] = testDataA[i][j];
 }
 
 void
