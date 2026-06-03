@@ -59,6 +59,7 @@
 #include "ImfTileDescriptionAttribute.h"
 #include "ImfTimeCodeAttribute.h"
 #include "ImfVecAttribute.h"
+#include "ImfIDManifestAttribute.h"
 
 #include <algorithm>
 #include <typeinfo>
@@ -1909,6 +1910,13 @@ PyFile::getAttributeObject(const std::string& name, const Attribute* a)
     
     if (auto v = dynamic_cast<const V3dAttribute*> (a))
         return make_v3(v->value());
+    
+    if (auto v = dynamic_cast<const IDManifestAttribute*> (a))
+    {
+        const CompressedIDManifest& cmpd = v->value();
+        IDManifest decoded = IDManifest(cmpd);
+        return py::cast(decoded);
+    }
 
     std::stringstream err;
     err << "unsupported attribute type: " << a->typeName();
@@ -2484,6 +2492,11 @@ PyFile::insertAttribute(Header& header, const std::string& name, const py::objec
         Rational r(n, d);
         header.insert(name, RationalAttribute(r));
     }
+    else if (py::isinstance<IDManifest>(object))
+    {
+        const IDManifest& m = object.cast<IDManifest>();
+        header.insert(name, IDManifestAttribute(CompressedIDManifest(m)));
+    }
     else
     {
         auto t = py::str(object.attr("__class__").attr("__name__"));
@@ -2754,9 +2767,26 @@ operator==(const Imf::OpaqueAttribute& a,const Imf::OpaqueAttribute& b)
 }
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
+namespace
+{
+    // Python iteration glue: C++ uses separate begin/end ConstIterators, not operator*.
+    struct ChannelGroupIterator
+    {
+        const IDManifest::ChannelGroupManifest* group;
+        IDManifest::ChannelGroupManifest::ConstIterator cur, end;
+
+        ChannelGroupIterator (const IDManifest::ChannelGroupManifest& g)
+            : group (&g), cur (g.begin ()), end (g.end ())
+        {}
+    };
+
+}
+
 PYBIND11_MODULE(OpenEXR, m)
 {
     using namespace py::literals;
+    using ConstIterator = IDManifest::ChannelGroupManifest::ConstIterator; 
+    using Iterator = IDManifest::ChannelGroupManifest::Iterator;
 
     m.doc() = "Read and write EXR high-dynamic range image files";
     
@@ -3033,6 +3063,150 @@ PYBIND11_MODULE(OpenEXR, m)
         .def_readwrite("pixels", &PyPreviewImage::pixels)
         ;
     
+    py::class_<ConstIterator>(m, "ChannelGroupManifestEntry")
+        .def("id", &ConstIterator::id, py::return_value_policy::copy)
+        .def("text", &ConstIterator::text, py::return_value_policy::copy);
+
+    py::class_<ChannelGroupIterator> (m, "ChannelGroupIterator", py::module_local ())
+        .def ("__iter__",
+              [] (ChannelGroupIterator& self) -> ChannelGroupIterator& { return self; })
+        .def ("__next__",
+              [] (ChannelGroupIterator& self) -> ConstIterator {
+                  if (self.cur == self.end)
+                    throw py::stop_iteration ();
+                  ConstIterator out = self.cur; 
+                  ++self.cur; 
+                  return out;
+              });
+
+    py::enum_<IDManifest::IdLifetime> (m, "IdLifetime")
+        .value ("LIFETIME_FRAME", IDManifest::LIFETIME_FRAME)
+        .value ("LIFETIME_SHOT", IDManifest::LIFETIME_SHOT)
+        .value ("LIFETIME_STABLE", IDManifest::LIFETIME_STABLE)
+        .export_values ();
+
+    m.attr ("ID_MANIFEST_NOTHASHED")     = IDManifest::NOTHASHED;
+    m.attr ("ID_MANIFEST_ID_SCHEME")     = IDManifest::ID_SCHEME;
+    m.attr ("ID_MANIFEST_ID2_SCHEME")    = IDManifest::ID2_SCHEME;
+    m.attr ("ID_MANIFEST_MURMURHASH3_32") = IDManifest::MURMURHASH3_32;
+    m.attr ("ID_MANIFEST_MURMURHASH3_64") = IDManifest::MURMURHASH3_64;
+
+    py::class_<Iterator> (m, "ChannelGroupManifestEntryIterator", py::module_local ())
+        .def ("id", &Iterator::id, py::return_value_policy::copy)
+        .def ("text", &Iterator::text, py::return_value_policy::copy);
+
+    py::class_<IDManifest::ChannelGroupManifest> (
+        m, "ChannelGroupManifest", "Channel group manifest for the image")
+        .def (py::init ())
+        .def ("getHashScheme", &IDManifest::ChannelGroupManifest::getHashScheme)
+        .def (
+            "getChannels",
+            [] (const IDManifest::ChannelGroupManifest& g) {
+                return g.getChannels ();
+            })
+        .def ("getEncodingScheme", &IDManifest::ChannelGroupManifest::getEncodingScheme)
+        .def ("getComponents", &IDManifest::ChannelGroupManifest::getComponents)
+        .def ("getLifetime", &IDManifest::ChannelGroupManifest::getLifetime)
+        .def ("setHashScheme", &IDManifest::ChannelGroupManifest::setHashScheme)
+        .def ("setEncodingScheme", &IDManifest::ChannelGroupManifest::setEncodingScheme)
+        .def ("setComponents", &IDManifest::ChannelGroupManifest::setComponents)
+        .def ("setComponent", &IDManifest::ChannelGroupManifest::setComponent)
+        .def ("setChannel", &IDManifest::ChannelGroupManifest::setChannel)
+        .def (
+            "setChannels",
+            [] (IDManifest::ChannelGroupManifest& g, py::iterable channels) {
+                std::set<std::string> s;
+                for (const py::handle item : channels)
+                    s.insert (item.cast<std::string> ());
+                g.setChannels (s);
+            })
+        .def (
+            "setLifetime",
+            py::overload_cast<const IDManifest::IdLifetime&> (
+                &IDManifest::ChannelGroupManifest::setLifetime))
+        .def (
+            "setLifetime",
+            [] (IDManifest::ChannelGroupManifest& g, int lifetime) {
+                if (lifetime < 0 || lifetime > 2)
+                    throw std::invalid_argument (
+                        "lifetime must be 0 (frame), 1 (shot), or 2 (stable)");
+                g.setLifetime (static_cast<IDManifest::IdLifetime> (lifetime));
+            })
+        .def (
+            "insert",
+            py::overload_cast<const std::string&> (
+                &IDManifest::ChannelGroupManifest::insert))
+        .def (
+            "insert",
+            py::overload_cast<const std::vector<std::string>&> (
+                &IDManifest::ChannelGroupManifest::insert))
+        .def (
+            "insert",
+            py::overload_cast<uint64_t, const std::string&> (
+                &IDManifest::ChannelGroupManifest::insert))
+        .def (
+            "insert",
+            py::overload_cast<uint64_t, const std::vector<std::string>&> (
+                &IDManifest::ChannelGroupManifest::insert))
+        .def (
+            "find",
+            py::overload_cast<uint64_t> (
+                &IDManifest::ChannelGroupManifest::find))
+        .def (
+            "find",
+            py::overload_cast<uint64_t> (
+                &IDManifest::ChannelGroupManifest::find, py::const_))
+        .def ("erase", &IDManifest::ChannelGroupManifest::erase)
+        .def ("size", &IDManifest::ChannelGroupManifest::size)
+        .def (
+            "__lshift__",
+            [] (IDManifest::ChannelGroupManifest& g, uint64_t id)
+                -> IDManifest::ChannelGroupManifest& {
+                g << id;
+                return g;
+            },
+            py::return_value_policy::reference_internal)
+        .def (
+            "__lshift__",
+            [] (IDManifest::ChannelGroupManifest& g, const std::string& text)
+                -> IDManifest::ChannelGroupManifest& {
+                g << text;
+                return g;
+            },
+            py::return_value_policy::reference_internal)
+        .def (
+            "__iter__",
+            [] (const IDManifest::ChannelGroupManifest& g) {
+                return ChannelGroupIterator (g);
+            },
+            py::keep_alive<0, 1> ());
+
+    py::class_<IDManifest> (m, "IDManifest", "ID manifest for the image")
+        .def (py::init<> ())
+        .def (py::init<const CompressedIDManifest&> ())
+        .def ("size", &IDManifest::size)
+        .def (
+            "__getitem__",
+            [] (IDManifest& self, size_t index)
+                -> IDManifest::ChannelGroupManifest& { return self[index]; },
+            py::return_value_policy::reference_internal)
+        .def (
+            "add",
+            [] (IDManifest& m, const IDManifest::ChannelGroupManifest& cgm)
+                -> IDManifest::ChannelGroupManifest& { return m.add (cgm); },
+            py::return_value_policy::reference_internal)
+        .def (
+            "add",
+            [] (IDManifest& m, const std::set<std::string>& group)
+                -> IDManifest::ChannelGroupManifest& { return m.add (group); },
+            py::return_value_policy::reference_internal)
+        .def (
+            "add",
+            [] (IDManifest& m, const std::string& ch)
+                -> IDManifest::ChannelGroupManifest& { return m.add (ch); },
+            py::return_value_policy::reference_internal)
+        .def ("find", &IDManifest::find)
+        .def ("merge", &IDManifest::merge);
     //
     // The File API: Channel, Part, and File
     //
