@@ -435,7 +435,7 @@ if(OPENEXR_IMF_ZSTD_TARGET AND NOT OPENEXR_IMF_ZSTD_TARGET STREQUAL "")
 else()
   # Using internal zstd
 
-  set(zstd_SOURCE_DIR "${CMAKE_SOURCE_DIR}/external/zstd")
+  set(zstd_SOURCE_DIR "${PROJECT_SOURCE_DIR}/external/zstd")
   set(zstd_version "${zstd_SOURCE_DIR}/lib/zstd.h")
   if(EXISTS "${zstd_version}")
     file(STRINGS "${zstd_version}" _zstd_major REGEX "#define ZSTD_VERSION_MAJOR")
