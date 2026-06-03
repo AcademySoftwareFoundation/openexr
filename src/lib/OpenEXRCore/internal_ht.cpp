@@ -6,6 +6,9 @@
 #include <limits>
 #include <string>
 #include <fstream>
+#ifdef __AVX2__
+#include <immintrin.h>
+#endif
 
 #include <openjph/ojph_arch.h>
 #include <openjph/ojph_file.h>
@@ -288,22 +291,28 @@ ht_undo_impl (
                             EXR_PIXEL_HALF)
                         {
                             int16_t* channel_pixels = (int16_t*) line_pixels;
-                            for (int32_t p = 0;
-                                 p < decode->channels[file_c].width;
-                                 p++)
+                            int32_t width = decode->channels[file_c].width;
+                            int32_t p = 0;
+#ifdef __AVX2__
+                            for (; p + 8 <= width; p += 8)
                             {
-                                *channel_pixels++ = cur_line->i32[p];
+                                __m256i v32 = _mm256_loadu_si256(
+                                    reinterpret_cast<const __m256i*>(cur_line->i32 + p));
+                                __m256i v16 = _mm256_permute4x64_epi64(
+                                    _mm256_packs_epi32(v32, _mm256_setzero_si256()), 0x08);
+                                _mm_storeu_si128(
+                                    reinterpret_cast<__m128i*>(channel_pixels + p),
+                                    _mm256_castsi256_si128(v16));
                             }
+#endif
+                            for (; p < width; p++)
+                                channel_pixels[p] = (int16_t)cur_line->i32[p];
                         }
                         else
                         {
                             int32_t* channel_pixels = (int32_t*) line_pixels;
-                            for (int32_t p = 0;
-                                 p < decode->channels[file_c].width;
-                                 p++)
-                            {
-                                *channel_pixels++ = cur_line->i32[p];
-                            }
+                            memcpy(channel_pixels, cur_line->i32,
+                                   (size_t)decode->channels[file_c].width * sizeof(int32_t));
                         }
                     }
 
@@ -330,21 +339,29 @@ ht_undo_impl (
                 {
                     int16_t* channel_pixels =
                         (int16_t*) (line_pixels + cs_to_file_ch[c].raster_line_offset);
-                    for (int32_t p = 0; p < decode->channels[file_c].width;
-                         p++)
+                    int32_t width = decode->channels[file_c].width;
+                    int32_t p = 0;
+#ifdef __AVX2__
+                    for (; p + 8 <= width; p += 8)
                     {
-                        *channel_pixels++ = cur_line->i32[p];
+                        __m256i v32 = _mm256_loadu_si256(
+                            reinterpret_cast<const __m256i*>(cur_line->i32 + p));
+                        __m256i v16 = _mm256_permute4x64_epi64(
+                            _mm256_packs_epi32(v32, _mm256_setzero_si256()), 0x08);
+                        _mm_storeu_si128(
+                            reinterpret_cast<__m128i*>(channel_pixels + p),
+                            _mm256_castsi256_si128(v16));
                     }
+#endif
+                    for (; p < width; p++)
+                        channel_pixels[p] = (int16_t)cur_line->i32[p];
                 }
                 else
                 {
                     int32_t* channel_pixels =
                         (int32_t*) (line_pixels + cs_to_file_ch[c].raster_line_offset);
-                    for (int32_t p = 0; p < decode->channels[file_c].width;
-                         p++)
-                    {
-                        *channel_pixels++ = cur_line->i32[p];
-                    }
+                    memcpy(channel_pixels, cur_line->i32,
+                           (size_t)decode->channels[file_c].width * sizeof(int32_t));
                 }
             }
             line_pixels += bpl;
@@ -479,22 +496,26 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
                                 EXR_PIXEL_HALF)
                             {
                                 int16_t* channel_pixels = (int16_t*) (line_pixels);
-                                for (int32_t p = 0;
-                                     p < encode->channels[file_c].width;
-                                    p++)
+                                int32_t width = encode->channels[file_c].width;
+                                int32_t p = 0;
+#ifdef __AVX2__
+                                for (; p + 8 <= width; p += 8)
                                 {
-                                    cur_line->i32[p] = *channel_pixels++;
+                                    __m128i v16 = _mm_loadu_si128(
+                                        reinterpret_cast<const __m128i*>(channel_pixels + p));
+                                    _mm256_storeu_si256(
+                                        reinterpret_cast<__m256i*>(cur_line->i32 + p),
+                                        _mm256_cvtepi16_epi32(v16));
                                 }
+#endif
+                                for (; p < width; p++)
+                                    cur_line->i32[p] = channel_pixels[p];
                             }
                             else
                             {
                                 int32_t* channel_pixels = (int32_t*) (line_pixels);
-                                for (int32_t p = 0;
-                                     p < encode->channels[file_c].width;
-                                    p++)
-                                {
-                                    cur_line->i32[p] = *channel_pixels++;
-                                }
+                                memcpy(cur_line->i32, channel_pixels,
+                                       (size_t)encode->channels[file_c].width * sizeof(int32_t));
                             }
 
                             assert (next_comp == c);
@@ -524,21 +545,27 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
                     {
                         int16_t* channel_pixels =
                             (int16_t*) (line_pixels + cs_to_file_ch[c].raster_line_offset);
-                        for (int32_t p = 0; p < encode->channels[file_c].width;
-                            p++)
+                        int32_t width = encode->channels[file_c].width;
+                        int32_t p = 0;
+#ifdef __AVX2__
+                        for (; p + 8 <= width; p += 8)
                         {
-                            cur_line->i32[p] = *channel_pixels++;
+                            __m128i v16 = _mm_loadu_si128(
+                                reinterpret_cast<const __m128i*>(channel_pixels + p));
+                            _mm256_storeu_si256(
+                                reinterpret_cast<__m256i*>(cur_line->i32 + p),
+                                _mm256_cvtepi16_epi32(v16));
                         }
+#endif
+                        for (; p < width; p++)
+                            cur_line->i32[p] = channel_pixels[p];
                     }
                     else
                     {
                         int32_t* channel_pixels =
                             (int32_t*) (line_pixels + cs_to_file_ch[c].raster_line_offset);
-                        for (int32_t p = 0; p < encode->channels[file_c].width;
-                            p++)
-                        {
-                            cur_line->i32[p] = *channel_pixels++;
-                        }
+                        memcpy(cur_line->i32, channel_pixels,
+                               (size_t)encode->channels[file_c].width * sizeof(int32_t));
                     }
                     assert (next_comp == c);
                     cur_line = cs.exchange (cur_line, next_comp);
