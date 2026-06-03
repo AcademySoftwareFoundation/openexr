@@ -5,8 +5,9 @@
 #
 # Download a given release of zstd and vendor it into the source tree.
 # This removes the existing lib content under external/zstd and runs
-# "git add" on the new content. The hand-written external/zstd/CMakeLists.txt
-# is preserved.
+# "git add" on the new content. The vendored zstd sources are compiled
+# directly into OpenEXRCore (see src/lib/OpenEXRCore/CMakeLists.txt); there
+# is no separate CMake project under external/zstd.
 #
 # Run this from the project root:
 #
@@ -71,4 +72,4 @@ if $do_git; then
   git add zstd/lib zstd/LICENSE zstd/README.md current_zstd_version
 fi
 
-echo "Vendored zstd ${version} into external/zstd (CMakeLists.txt unchanged)"
+echo "Vendored zstd ${version} into external/zstd"
