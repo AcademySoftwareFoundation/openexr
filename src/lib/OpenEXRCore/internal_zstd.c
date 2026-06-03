@@ -17,7 +17,7 @@
 #if defined(_WIN32) || defined(_WIN64)
 #    include <windows.h>
 #    include <malloc.h>
-#else
+#elif ILMTHREAD_THREADING_ENABLED
 #    include <pthread.h>
 #endif
 
@@ -118,7 +118,7 @@ exr_zstd_tls_get_impl (void)
     return s;
 }
 
-#else /* !_WIN32 */
+#elif ILMTHREAD_THREADING_ENABLED /* pthreads */
 
 static pthread_key_t  g_exr_zstd_tls_key;
 static pthread_once_t g_exr_zstd_tls_once = PTHREAD_ONCE_INIT;
@@ -155,10 +155,26 @@ exr_zstd_tls_get_impl (void)
     return s;
 }
 
-#endif /* !_WIN32 */
+#else /* threading disabled: single-threaded, one static state */
+
+/* Freed at process exit; not reclaimed deterministically, which matches the
+ * lifetime semantics of a single-threaded build. */
+static exr_zstd_tls_state g_exr_zstd_single;
+
+static exr_zstd_tls_state*
+exr_zstd_tls_get_impl (void)
+{
+    return &g_exr_zstd_single;
+}
+
+#endif
 
 /* Fast path: avoid pthread_getspecific / FlsGetValue on every call within a thread. */
+#if ILMTHREAD_THREADING_ENABLED
 static EXR_ZSTD_THREAD_LOCAL exr_zstd_tls_state* t_exr_zstd_tls_fast;
+#else
+static exr_zstd_tls_state* t_exr_zstd_tls_fast;
+#endif
 
 static exr_zstd_tls_state*
 exr_zstd_tls_get (void)
