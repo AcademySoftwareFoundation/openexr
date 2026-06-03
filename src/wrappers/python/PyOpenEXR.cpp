@@ -1916,7 +1916,22 @@ PyFile::getAttributeObject(const std::string& name, const Attribute* a)
     
     return py::none();
 }
-    
+
+// Static helper functions to cache NumPy types and avoid repeated imports
+py::object
+numpy_integer ()
+{
+    static py::object type = py::module::import ("numpy").attr ("integer");
+    return type;
+}
+
+py::object
+numpy_floating ()
+{
+    static py::object type = py::module::import ("numpy").attr ("floating");
+    return type;
+}
+
 template <class P, class T>
 bool
 objectToV2(const py::object& object, Vec2<T>& v)
@@ -1924,13 +1939,42 @@ objectToV2(const py::object& object, Vec2<T>& v)
     if (py::isinstance<py::tuple>(object))
     {
         auto tup = object.cast<py::tuple>();
-        if (tup.size() == 2 &&
-            py::isinstance<P>(tup[0]) &&
-            py::isinstance<P>(tup[1]))
-        {       
-            v.x = P(tup[0]);
-            v.y = P(tup[1]);
-            return true;
+        if (tup.size() == 2)
+        {
+            // 1. Standard Python types only
+            if (py::isinstance<P> (tup[0]) && py::isinstance<P> (tup[1]))
+            {
+                v.x = P (tup[0]);
+                v.y = P (tup[1]);
+                return true;
+            }
+
+            // 2. Numpy scalar types included
+
+            // Assigning numpy equivalent to Python type P passed from the calling function
+            // objectToV2 is currently instantiated only with py::int_ and py::float_, so the ternary
+            // maps directly to numpy.integer / numpy.floating.
+            py::object target_type = std::is_same_v<P, py::int_>
+                                         ? numpy_integer ()
+                                         : numpy_floating ();
+
+            // Allowing tuples that contain numpy scalars
+            if ((py::isinstance<P> (tup[0]) ||
+                 py::isinstance (tup[0], target_type)) &&
+                (py::isinstance<P> (tup[1]) ||
+                 py::isinstance (tup[1], target_type)))
+            {
+                try
+                {
+                    v.x = py::cast<T> (tup[0]);
+                    v.y = py::cast<T> (tup[1]);
+                    return true;
+                }
+                catch (const py::cast_error&)
+                {
+                    return false;
+                }
+            }
         }
     }
     else if (py::isinstance<py::array_t<T>>(object))
@@ -2735,6 +2779,48 @@ PYBIND11_MODULE(OpenEXR, m)
         "global_thread_count",
         &globalThreadCount,
         "Return the current number of worker threads in OpenEXR's global pool.\n\n");
+
+    m.def(
+        "setMaxImageSize",
+        &Header::setMaxImageSize,
+        py::arg("max_width"),
+        py::arg("max_height"),
+        "Set the maximum allowed image width and height for subsequent OpenEXR reads "
+        "and writes in this process.\n\n"
+        "Pass ``0`` for either dimension to mean no limit for that dimension. "
+        "Maps to ``Imf::Header::setMaxImageSize()``.\n\n");
+
+    m.def(
+        "getMaxImageSize",
+        [](){
+            int w = 0;
+            int h = 0;
+            Header::getMaxImageSize (w, h);
+            return py::make_tuple (w, h);
+        },
+        "Return ``(max_width, max_height)`` for the current image dimension limits.\n\n"
+        "Maps to ``Imf::Header::getMaxImageSize()``.\n\n");
+
+    m.def(
+        "setMaxTileSize",
+        &Header::setMaxTileSize,
+        py::arg("max_width"),
+        py::arg("max_height"),
+        "Set the maximum allowed tile width and height for subsequent OpenEXR reads "
+        "and writes in this process.\n\n"
+        "Pass ``0`` for either dimension to mean no limit for that dimension. "
+        "Maps to ``Imf::Header::setMaxTileSize()``.\n\n");
+
+    m.def(
+        "getMaxTileSize",
+        [](){
+            int w = 0;
+            int h = 0;
+            Header::getMaxTileSize (w, h);
+            return py::make_tuple (w, h);
+        },
+        "Return ``(max_width, max_height)`` for the current tile dimension limits.\n\n"
+        "Maps to ``Imf::Header::getMaxTileSize()``.\n\n");
 
     //
     // Add symbols from the legacy implementation of the bindings for

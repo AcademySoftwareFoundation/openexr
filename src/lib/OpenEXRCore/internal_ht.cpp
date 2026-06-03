@@ -172,8 +172,25 @@ ht_undo_impl (
     /* read the channel map */
 
     size_t header_sz;
-    header_sz = read_header (
-        (uint8_t*) compressed_data, comp_buf_size, cs_to_file_ch);
+    try
+    {
+        header_sz = read_header (
+            (uint8_t*) compressed_data, comp_buf_size, cs_to_file_ch);
+    }
+    catch (...)
+    {
+        return EXR_ERR_CORRUPT_CHUNK;
+    }
+
+    /* this should never be true since read_header() throws an exception if the
+    header is larger than comp_buf_size */
+    if (header_sz > comp_buf_size)
+        return EXR_ERR_CORRUPT_CHUNK;
+
+    const uint64_t codestream_sz = comp_buf_size - header_sz;
+    if (codestream_sz == 0)
+        return EXR_ERR_CORRUPT_CHUNK;
+
     if (static_cast<std::size_t>(decode->channel_count) != cs_to_file_ch.size ())
         return EXR_ERR_CORRUPT_CHUNK;
 
@@ -195,7 +212,7 @@ ht_undo_impl (
     ojph::mem_infile infile;
     infile.open (
         reinterpret_cast<const ojph::ui8*> (compressed_data) + header_sz,
-        comp_buf_size - header_sz);
+        codestream_sz);
 
     ojph::codestream cs;
     cs.read_headers (&infile);
