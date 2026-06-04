@@ -1299,9 +1299,13 @@ doWriteRead (
     dataW.max.x = dwx + fw - 1;
     dataW.max.y = dwy + fh - 1;
 
-    std::cout << "  " << pattern << " tiled: " << (tiled ? "yes" : "no")
-              << " sampling " << xs << ", " << ys << " comp " << (int) comp
-              << std::endl;
+    std::string codec;
+    getCompressionNameFromId(Compression(comp), codec);
+
+    std::cout << "  " << std::left << std::setw (9) << pattern
+              << " tiled: " << std::setw (3) << (tiled ? "yes" : "no")
+              << "  sampling " << xs << ", " << ys << "  comp "
+              << codec << " (" << comp << ")" << std::endl;
 
     EXRCORE_TEST_RVAL (exr_start_write (
         &f, filename.c_str (), EXR_WRITE_FILE_DIRECTLY, &cinit));
@@ -1436,6 +1440,7 @@ doWriteRead (
         case EXR_COMPRESSION_RLE:
         case EXR_COMPRESSION_ZIP:
         case EXR_COMPRESSION_ZIPS:
+        case EXR_COMPRESSION_ZSTD:
             restore.compareExact (p, "orig", "C loaded C");
             break;
         case EXR_COMPRESSION_PIZ:
@@ -1806,6 +1811,12 @@ testHTHeaderBounds (const std::string& tempdir)
 }
 
 void
+testZstdCompression (const std::string& tempdir)
+{
+    testComp (tempdir, EXR_COMPRESSION_ZSTD);
+}
+
+void
 testDeepNoCompression (const std::string& tempdir)
 {}
 
@@ -1815,4 +1826,8 @@ testDeepZIPCompression (const std::string& tempdir)
 
 void
 testDeepZIPSCompression (const std::string& tempdir)
+{}
+
+void
+testDeepZstdCompression (const std::string& tempdir)
 {}
