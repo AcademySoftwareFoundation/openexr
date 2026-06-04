@@ -746,7 +746,9 @@ LineBufferTask::execute ()
                 _lineBuffer->dataPtr,
                 static_cast<int> (_lineBuffer->dataSize),
                 _lineBuffer->minY,
-                compPtr);
+                compPtr, 
+            _lineBuffer->sampleCountTableBuffer, // uncompressed sample count table
+                tableDataSize );
 
             if (compSize < _lineBuffer->dataSize)
             {

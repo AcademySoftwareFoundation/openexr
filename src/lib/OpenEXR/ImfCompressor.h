@@ -145,12 +145,22 @@ public:
     virtual int
     compress (const char* inPtr, int inSize, int minY, const char*& outPtr);
 
+    virtual int
+    compress (const char* inPtr, int inSize, int minY, const char*& outPtr,
+             const char* sampleCountTable, int sampleCountTableSize);
+
     IMF_EXPORT
     virtual int compressTile (
         const char*            inPtr,
         int                    inSize,
         IMATH_NAMESPACE::Box2i range,
         const char*&           outPtr);
+        virtual int
+    compressTile (const char*            inPtr,
+        int                    inSize,
+        IMATH_NAMESPACE::Box2i range,
+        const char*&           outPtr,
+        const char* sampleCountTable, int sampleCountTableSize);
 
     //-------------------------------------------------------------------------
     // Uncompress an array of bytes that has been compressed by compress():
@@ -209,7 +219,8 @@ protected:
         const char* inPtr,
         int inSize,
         IMATH_NAMESPACE::Box2i range,
-        const char*& outPtr);
+        const char*& outPtr, 
+        const char* sampleCountTable = nullptr, int sampleCountTableSize = 0);
     uint64_t runDecodeStep (
         const char* inPtr,
         int inSize,
