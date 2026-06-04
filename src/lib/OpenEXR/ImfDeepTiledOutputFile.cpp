@@ -1005,7 +1005,9 @@ TileBufferTask::execute ()
                 _tileBuffer->dataPtr,
                 static_cast<int> (_tileBuffer->dataSize),
                 tileRange,
-                compPtr);
+                compPtr,
+                _tileBuffer->sampleCountTableBuffer, // uncompressed sample count table
+                tableDataSize);
 
             if (compSize < _tileBuffer->dataSize)
             {

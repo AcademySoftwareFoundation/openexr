@@ -120,6 +120,17 @@ readDeepTiledFile (
     {
         for (int j = 0; j < width; j++)
         {
+            for (int k = 0; k < sampleCount[i][j]; k++)
+            {
+                auto z = dataZ[i][j][k];
+                auto a = dataA[i][j][k];
+                if (z != 1.1f || a != 0.5)
+                {
+                    // Process the data as needed
+                    // For example, you could print or visualize it
+                    std::cout << "Pixel (" << i << ", " << j << ") - Z: " << z << ", A: " << a << endl;
+                }
+            }
             delete[] dataZ[i][j];
             delete[] dataA[i][j];
         }
@@ -182,7 +193,7 @@ writeDeepTiledFile (
     header.channels ().insert ("Z", Channel (FLOAT));
     header.channels ().insert ("A", Channel (HALF));
     header.setType (DEEPTILE);
-    header.compression () = ZIPS_COMPRESSION;
+    header.compression () = ZSTD_COMPRESSION;
 
     header.setTileDescription (
         TileDescription (tileSizeX, tileSizeY, ONE_LEVEL));
@@ -256,8 +267,8 @@ deepTiledExamples ()
     int w = 800;
     int h = 600;
 
-    int tileSizeX = 64;
-    int tileSizeY = 64;
+    int tileSizeX = 50;
+    int tileSizeY = 5;
 
     Box2i window;
     window.min.setValue (0, 0);

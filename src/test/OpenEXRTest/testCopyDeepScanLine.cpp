@@ -354,13 +354,14 @@ readCopyWriteTest (const std::string& tempDir, int channelCount, int testTimes)
 
     for (int i = 0; i < testTimes; i++)
     {
-        int         compressionIndex = i % 3;
+        int         compressionIndex = i % 4;
         Compression compression;
         switch (compressionIndex)
         {
             case 0: compression = NO_COMPRESSION; break;
             case 1: compression = RLE_COMPRESSION; break;
             case 2: compression = ZIPS_COMPRESSION; break;
+            case 3: compression = ZSTD_COMPRESSION; break;
         }
 
         generateRandomFile (source_filename, channelCount, compression);
@@ -385,7 +386,7 @@ testCopyDeepScanLine (const std::string& tempDir)
         random_reseed (1);
 
         int numThreads = ThreadPool::globalThreadPool ().numThreads ();
-        ThreadPool::globalThreadPool ().setNumThreads (4);
+        ThreadPool::globalThreadPool ().setNumThreads (10);
 
         readCopyWriteTest (tempDir, 1, 100);
         readCopyWriteTest (tempDir, 3, 50);

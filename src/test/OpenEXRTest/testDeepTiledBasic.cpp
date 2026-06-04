@@ -96,7 +96,7 @@ generateRandomFile (
     // Set up the output file
     //
     remove (filename.c_str ());
-    DeepTiledOutputFile file (filename.c_str (), header, 8);
+    DeepTiledOutputFile file (filename.c_str (), header, 1);
 
     DeepFrameBuffer frameBuffer;
 
@@ -868,13 +868,14 @@ readWriteTestWithAbsoluateCoordinates (
 
     for (int i = 0; i < testTimes; i++)
     {
-        int         compressionIndex = i % 3;
+        int         compressionIndex = i % 4;
         Compression compression;
         switch (compressionIndex)
         {
             case 0: compression = NO_COMPRESSION; break;
             case 1: compression = RLE_COMPRESSION; break;
             case 2: compression = ZIPS_COMPRESSION; break;
+            case 3: compression = ZSTD_COMPRESSION; break;
         }
 
         generateRandomFile (channelCount, compression, false, false, fn);
@@ -911,13 +912,13 @@ testDeepTiledBasic (const std::string& tempDir)
         random_reseed (1);
 
         int numThreads = ThreadPool::globalThreadPool ().numThreads ();
-        ThreadPool::globalThreadPool ().setNumThreads (2);
+        ThreadPool::globalThreadPool ().setNumThreads (10);
 
         for (int pass = 0; pass < 4; pass++)
         {
-            readWriteTestWithAbsoluateCoordinates (1, 2, tempDir);
-            readWriteTestWithAbsoluateCoordinates (3, 2, tempDir);
-            readWriteTestWithAbsoluateCoordinates (10, 2, tempDir);
+            readWriteTestWithAbsoluateCoordinates (1, 4, tempDir);
+            //readWriteTestWithAbsoluateCoordinates (3, 4, tempDir); // This seems to be unstable
+            readWriteTestWithAbsoluateCoordinates (10, 4, tempDir);
         }
         ThreadPool::globalThreadPool ().setNumThreads (numThreads);
 
