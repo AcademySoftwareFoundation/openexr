@@ -28,19 +28,19 @@ jobs:
           ref: ${{ github.event_name == 'release' && github.event.release.tag_name || github.ref }}
 
       - name: Verify RB-* release ref
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          REF_NAME: ${{ github.ref_name }}
         run: |
           set -euo pipefail
-          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            if [[ "${{ github.ref_name }}" != RB-* ]]; then
-              echo "::error::workflow_dispatch must use an RB-* branch (not ${{ github.ref_name }})."
-              exit 1
-            fi
-          elif [[ "${{ github.event_name }}" == "release" ]]; then
-            case "${{ github.event.release.target_commitish }}" in
-              RB-*) exit 0 ;;
-            esac
+
+          if [[ "$EVENT_NAME" == "workflow_dispatch" && "$REF_NAME" != RB-* ]]; then
+            echo "::error::workflow_dispatch must use an RB-* branch (not $REF_NAME)."
+            exit 1
           fi
+
           git fetch origin '+refs/heads/RB-*:refs/remotes/origin/RB-*' || git fetch origin
+
           if ! git branch -r --contains HEAD | grep -E -q 'origin/RB-'; then
             echo "::error::Ref must be on an RB-* release branch (not main)."
             git branch -r --contains HEAD || true
