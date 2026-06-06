@@ -9,6 +9,7 @@
 # Download images from the openexr-images repo, and for each image,
 # read it as both separate channels (default) and as RGB channels,
 # write it, read the written file, and confirm it's identical.
+# Also checks File(BytesIO) read and write-to-BytesIO round-trip vs path.
 #
 
 from __future__ import print_function
@@ -20,6 +21,7 @@ import unittest
 import numpy as np
 import math
 from subprocess import PIPE, run
+from io import BytesIO
 
 import OpenEXR
 
@@ -344,6 +346,16 @@ class TestImages(unittest.TestCase):
                 self.print_file(separate_channels, verbose_pixels)
                 self.print_channel_names(separate_channels)
 
+            # IStream: same bytes as on disk opened via BytesIO
+            with open(filename, "rb") as rf:
+                raw = rf.read()
+
+            print(f"Reading {url} via BytesIO (IStream)...")
+            with OpenEXR.File(BytesIO(raw)) as from_buffer:
+                print(f"Comparing separate_channels vs BytesIO read...")
+                compare_files(separate_channels, from_buffer)
+                print(f"Comparing separate_channels vs BytesIO read...done.")
+
             # Write it out
 
             print(f"Writing separate_channels.exr...")
@@ -387,6 +399,17 @@ class TestImages(unittest.TestCase):
 
                     print(f"Comparing separate_channels to separate_channels3...")
                     compare_files(separate_channels, separate_channels3)
+
+            # OStream: write EXR to BytesIO, read back, compare to path read
+            print(f"Writing {url} to BytesIO (OStream)...")
+            mem_buf = BytesIO()
+            separate_channels.write(mem_buf)
+
+            print(f"Reading back from BytesIO...")
+            with OpenEXR.File(BytesIO(mem_buf.getvalue())) as from_mem:
+                print(f"Comparing separate_channels vs in-memory write/read...")
+                compare_files(separate_channels, from_mem)
+                print(f"Comparing separate_channels vs in-memory write/read...done.")
 
         print("ok.")
 

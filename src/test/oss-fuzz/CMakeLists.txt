@@ -29,7 +29,7 @@ add_custom_target(oss_fuzz ALL
   DEPENDS ${OPENEXR_FUZZERS}
 )
 
-if ($ENV{FUZZING_ENGINE} STREQUAL "afl")
+if ("$ENV{FUZZING_ENGINE}" STREQUAL "afl")
   add_library(afl_rt STATIC IMPORTED)
   set_target_properties(afl_rt PROPERTIES IMPORTED_LOCATION /src/aflplusplus/afl-compiler-rt.o)
 endif()
@@ -37,12 +37,12 @@ endif()
 foreach(fuzzer IN LISTS OPENEXR_FUZZERS)
   add_executable(${fuzzer} ${fuzzer}.cc)
   target_link_libraries(${fuzzer}
-    PRIVATE OpenEXR::OpenEXR OpenEXR::OpenEXRUtil $ENV{LIB_FUZZING_ENGINE})
-  if ($ENV{FUZZING_ENGINE} STREQUAL "afl")
+    PRIVATE OpenEXR::OpenEXR OpenEXR::OpenEXRUtil "$ENV{LIB_FUZZING_ENGINE}")
+  if ("$ENV{FUZZING_ENGINE}" STREQUAL "afl")
     target_link_libraries(${fuzzer} PRIVATE afl_rt)
   endif()
   install(TARGETS ${fuzzer}
-    DESTINATION $ENV{OUT}
+    DESTINATION "$ENV{OUT}"
     COMPONENT oss_fuzz
   )
 

@@ -178,6 +178,7 @@ main (int argc, char* argv[])
     TEST (testReadMultiPart, "core_read");
     TEST (testReadDeep, "core_read");
     TEST (testReadUnpack, "core_read");
+    TEST (testSamplingCalcs, "core_read");
 
     TEST (testWriteBadArgs, "core_write");
     TEST (testWriteBadFiles, "core_write");
@@ -209,6 +210,7 @@ main (int argc, char* argv[])
     TEST (testDWAACompression, "core_compression");
     TEST (testDWABCompression, "core_compression");
     TEST (testHTChannelMap, "core_compression");
+    TEST (testHTHeaderBounds, "core_compression");
 
     TEST (testDeepNoCompression, "core_compression");
     TEST (testDeepZIPCompression, "core_compression");

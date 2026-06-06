@@ -53,12 +53,16 @@ jobs:
           - os: windows-latest
             arch: x64
 
-    steps:
+    permissions:
+      contents: read
+      actions: write
 
+    steps:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-      - name: Install Python 
+      - name: Install Python
+        if: ${{ matrix.os == 'ubuntu-latest' }}
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
         with:
           python-version: '3.x'
@@ -66,10 +70,12 @@ jobs:
       - name: Create sdist
         # Only create it once.
         if: ${{ matrix.os == 'ubuntu-latest' }}
-        run: pipx run build --sdist . --outdir wheelhouse
+        run: pipx run build==1.2.2.post1 --sdist . --outdir wheelhouse
 
       - name: Build wheel
         uses: pypa/cibuildwheel@8d2b08b68458a16aeb24b64e68a09ab1c8e82084  # v3.4.1
+        with:
+          output-dir: wheelhouse
         env:
           CIBW_ARCHS_MACOS: x86_64 arm64 universal2
           # Build Python 3.8 through 3.13
@@ -77,7 +83,6 @@ jobs:
           # Also skip the PyPy builds, since they fail the unit tests
           CIBW_BUILD: "cp38-* cp39-* cp310-* cp311-* cp312-* cp313-*"
           CIBW_SKIP: "*-win32 *_i686"
-          CIBW_TEST_SKIP: "*-macosx*arm64"
 
       - name: Upload artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1

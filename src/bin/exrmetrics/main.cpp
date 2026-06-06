@@ -85,6 +85,8 @@ usageMessage (ostream& stream, const char* program_name, bool verbose = false)
                " --time list                  comma separated list of operations to report timing for.\n"
                "                              operations can be any of read,write,reread (use --time none for no timing)\n"
                " --no-size                    don't output size data\n"
+               " --part-disk-size             Output the on-disk size of the data portion of each part in a multipart EXR file\n"
+               "                              (including chunk headers). File output (-o) is not supported when using this option\n"
                " --json                       print output as JSON dictionary (Default mode)\n"
                " --csv                        print output in csv mode. If passes>1, show median timing\n"
                "                              default is JSON mode\n"
@@ -116,6 +118,7 @@ struct options
     int                      passes  = 1;
     int                      timing  = TIME_READ | TIME_REREAD | TIME_WRITE;
     bool                     outputSizeData = true;
+    bool                     outputPartSizeOnDisk = false;
     bool                     verbose        = false;
     bool                     csv            = false;
     std::vector<PixelMode>   pixelModes;
@@ -196,6 +199,7 @@ printPartStats (
     const partStats& data,
     const string     indent,
     int              timing,
+    bool             partSize,
     bool             raw,
     bool             stats)
 {
@@ -236,6 +240,15 @@ printPartStats (
         out << indent << "\"re-read time\": ";
         printTiming (data.rereadPerf, out, raw, stats);
     }
+
+    if (partSize)
+    {
+        if (output) { out << ",\n"; }
+        output = true;
+        out << indent << "\"size on disk\": "
+            << data.sizeOnDisk
+            << "\n";
+    }
 }
 
 void
@@ -244,6 +257,7 @@ jsonStats (
     list<runData>& data,
     bool           outputSizeData,
     int            timing,
+    bool           partSize,
     bool           raw,
     bool           stats)
 {
@@ -370,7 +384,7 @@ jsonStats (
         {
             out << ",\n";
             printPartStats (
-                out, run.metrics.totalStats, "      ", timing, raw, stats);
+                out, run.metrics.totalStats, "      ", timing,false, raw, stats);
         }
         if (timing && run.metrics.stats.size () > 1)
         {
@@ -388,6 +402,7 @@ jsonStats (
                     run.metrics.stats[part],
                     "          ",
                     timing,
+                    partSize,
                     raw,
                     stats);
                 out << "\n        }";
@@ -546,6 +561,11 @@ main (int argc, char** argv)
         return 1;
     }
 
+    // we are only able to compute part disk size if no output file is specified,
+    // causing memory output stream to be used and allowing us to measure data output.
+
+    bool showPartSizeOnDisk = opts.outputPartSizeOnDisk && !opts.outFile;
+
     if (opts.timing || opts.outputSizeData)
     {
 
@@ -556,7 +576,7 @@ main (int argc, char** argv)
         else
         {
             jsonStats (
-                cout, data, opts.outputSizeData, opts.timing, true, true);
+                cout, data, opts.outputSizeData, opts.timing,showPartSizeOnDisk, true, true);
         }
     }
 
@@ -778,6 +798,12 @@ options::parse (int argc, char* argv[])
                 cerr << "-o output filename can only be specified once\n";
                 return 1;
             }
+            if (outputPartSizeOnDisk)
+            {
+                cerr << "--part-disk-size cannot be used with file output (-o)\n";
+                return 1;
+            }
+
             outFile = argv[i + 1];
             i += 2;
         }
@@ -868,6 +894,17 @@ options::parse (int argc, char* argv[])
         else if (!strcmp (argv[i], "--no-size"))
         {
             outputSizeData = false;
+            i += 1;
+        }
+        else if (!strcmp (argv[i], "--part-disk-size"))
+        {
+            if (outFile)
+            {
+                cerr << "--part-disk-size cannot be used with file output (-o)\n";
+                return 1;
+            }
+
+            outputPartSizeOnDisk = true;
             i += 1;
         }
         else if (!strcmp (argv[i], "-i"))

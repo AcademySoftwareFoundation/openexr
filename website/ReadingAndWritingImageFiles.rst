@@ -1548,6 +1548,8 @@ are currently in use.
 Miscellaneous
 =============
 
+.. _image-size-limits:
+
 Image Size Limits and Out-of-Memory Failures
 --------------------------------------------
 

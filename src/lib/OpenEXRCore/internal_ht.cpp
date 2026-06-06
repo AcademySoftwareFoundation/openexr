@@ -172,8 +172,25 @@ ht_undo_impl (
     /* read the channel map */
 
     size_t header_sz;
-    header_sz = read_header (
-        (uint8_t*) compressed_data, comp_buf_size, cs_to_file_ch);
+    try
+    {
+        header_sz = read_header (
+            (uint8_t*) compressed_data, comp_buf_size, cs_to_file_ch);
+    }
+    catch (...)
+    {
+        return EXR_ERR_CORRUPT_CHUNK;
+    }
+
+    /* this should never be true since read_header() throws an exception if the
+    header is larger than comp_buf_size */
+    if (header_sz > comp_buf_size)
+        return EXR_ERR_CORRUPT_CHUNK;
+
+    const uint64_t codestream_sz = comp_buf_size - header_sz;
+    if (codestream_sz == 0)
+        return EXR_ERR_CORRUPT_CHUNK;
+
     if (static_cast<std::size_t>(decode->channel_count) != cs_to_file_ch.size ())
         return EXR_ERR_CORRUPT_CHUNK;
 
@@ -195,7 +212,7 @@ ht_undo_impl (
     ojph::mem_infile infile;
     infile.open (
         reinterpret_cast<const ojph::ui8*> (compressed_data) + header_sz,
-        comp_buf_size - header_sz);
+        codestream_sz);
 
     ojph::codestream cs;
     cs.read_headers (&infile);
@@ -204,11 +221,24 @@ ht_undo_impl (
 
     ojph::ui32 image_height =
         siz.get_image_extent ().y - siz.get_image_offset ().y;
+    ojph::ui32 image_width =
+        siz.get_image_extent ().x - siz.get_image_offset ().x;
 
-    if (decode->chunk.width != siz.get_image_extent ().x - siz.get_image_offset ().x
+    if (decode->chunk.width != image_width
         || decode->chunk.height != image_height
         || decode->channel_count != siz.get_num_components())
         return EXR_ERR_CORRUPT_CHUNK;
+
+    for (int cs_i = 0; cs_i < decode->channel_count; cs_i++)
+    {
+        int file_i = cs_to_file_ch[cs_i].file_index;
+
+        if (decode->channels[file_i].height != siz.get_recon_height (cs_i) ||
+            decode->channels[file_i].width != siz.get_recon_width (cs_i) ||
+            decode->channels[file_i].height != image_height / siz.get_downsampling (cs_i).y ||
+            decode->channels[file_i].width != image_width / siz.get_downsampling (cs_i).x)
+            return EXR_ERR_CORRUPT_CHUNK;
+    }
 
     int64_t bpl     = 0;
     bool is_planar  = false;
@@ -235,9 +265,6 @@ ht_undo_impl (
         for (int16_t c = 0; c < decode->channel_count; c++)
         {
             int file_c = cs_to_file_ch[c].file_index;
-            assert (
-                siz.get_recon_height (c) == decode->channels[file_c].height);
-            assert (decode->channels[file_c].width == siz.get_recon_width (c));
 
             if (decode->channels[file_c].height == 0) continue;
 

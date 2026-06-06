@@ -96,6 +96,7 @@ define_openexrcore_tests(
  testReadMultiPart
  testReadDeep
  testReadUnpack
+ testSamplingCalcs
 
  testWriteBadArgs
  testWriteBadFiles
@@ -127,6 +128,7 @@ define_openexrcore_tests(
  testDWAACompression
  testDWABCompression
  testHTChannelMap
+ testHTHeaderBounds
  testDeepNoCompression
  testDeepZIPCompression
  testDeepZIPSCompression
