@@ -764,11 +764,21 @@ writeFile (
     MultiPartOutputFile& out,
     vector<partData>&    parts,
     fileMetrics&         metrics,
-    bool                 logPerformance)
+    bool                 logPerformance,
+    OStream*             os = nullptr)
 {
     //
     // Call initialization functions, Read image from source.
     //
+
+    uint64_t lastPosition  = 0;
+    uint64_t currentPosition = 0;
+
+    if (os)
+    {
+        lastPosition = os->tellp();
+    }
+
     for (size_t p = 0; p < parts.size (); ++p)
     {
         string type = out.header (p).type ();
@@ -780,6 +790,7 @@ writeFile (
                 outpart,
                 parts[p].readBuf.scanlineBuf,
                 logPerformance ? &metrics.stats[p].writePerf : nullptr);
+            if (os) currentPosition = os->tellp();
         }
         else if (type == TILEDIMAGE)
         {
@@ -788,6 +799,7 @@ writeFile (
                 outpart,
                 parts[p].readBuf.tiledBuf,
                 logPerformance ? &metrics.stats[p].writePerf : nullptr);
+            if (os) currentPosition = os->tellp();
         }
         else if (type == DEEPSCANLINE)
         {
@@ -796,6 +808,7 @@ writeFile (
                 outpart,
                 parts[p].readBuf.deepbuf,
                 logPerformance ? &metrics.stats[p].writePerf : nullptr);
+            if (os) currentPosition = os->tellp();
         }
         else if (type == DEEPTILE)
         {
@@ -804,6 +817,13 @@ writeFile (
                 outpart,
                 parts[p].readBuf.deepbuf,
                 logPerformance ? &metrics.stats[p].writePerf : nullptr);
+            if (os) currentPosition = os->tellp();
+        }
+
+        if (os)
+        {
+            metrics.stats[p].sizeOnDisk = currentPosition - lastPosition;
+            lastPosition = currentPosition;
         }
     }
 }
@@ -1117,13 +1137,14 @@ exrmetrics (
             {
                 out = new MultiPartOutputFile (
                     outFileName, outHeaders.data (), outHeaders.size ());
+                writeFile (*out, parts, metrics, true);
             }
             else
             {
                 out = new MultiPartOutputFile (
                     ostream, outHeaders.data (), outHeaders.size ());
+                writeFile (*out, parts, metrics, true,&ostream);
             }
-            writeFile (*out, parts, metrics, true);
             delete out;
 
             if (reread)
