@@ -268,6 +268,9 @@ endif()
 
 option(OPENEXR_FORCE_INTERNAL_OPENJPH "Force downloading OpenJPH from a git repo" OFF)
 
+set(OPENEXR_USE_INTERNAL_OPENJPH 0 CACHE INTERNAL
+    "Whether OpenEXR bundles vendored OpenJPH into OpenEXRCore (0 or 1)")
+
 if (NOT OPENEXR_FORCE_INTERNAL_OPENJPH)
   find_package(openjph CONFIG QUIET)
   if(openjph_FOUND)
@@ -297,6 +300,8 @@ if(EXR_OPENJPH_LIB)
   set(EXR_OPENJPH_PKGCONFIG_REQUIRES "openjph >= 0.21.0")
 else()
   # Using internal openjph
+  set(OPENEXR_USE_INTERNAL_OPENJPH 1 CACHE INTERNAL
+      "Whether OpenEXR bundles vendored OpenJPH into OpenEXRCore (0 or 1)" FORCE)
 
   # extract the openjph version variables from ojph_version.h
   set(openjph_SOURCE_DIR "${CMAKE_SOURCE_DIR}/external/OpenJPH")
