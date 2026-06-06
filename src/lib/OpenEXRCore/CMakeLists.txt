@@ -153,10 +153,12 @@ if (DEFINED EXR_OPENJPH_LIB)
 
 else()
 
-  # Vendored OpenJPH
-  # Note that the vendored OpenJPH cmake config forces a static build
+  # Vendored OpenJPH (bundled into OpenEXRCore; not installed or exported)
 
+  set(OJPH_INSTALL OFF CACHE BOOL "Do not install bundled OpenJPH" FORCE)
   set(OJPH_BUILD_EXECUTABLES OFF CACHE BOOL "Disable OpenJPH command-line tools" FORCE)
+  set(OJPH_LIB_TYPE OBJECT CACHE STRING "Bundled OpenJPH library type" FORCE)
+
   set(OPENJPH_SOURCE_DIR ${PROJECT_SOURCE_DIR}/external/OpenJPH)
   set(OPENJPH_BINARY_DIR ${PROJECT_BINARY_DIR}/external/OpenJPH)
   add_subdirectory(${OPENJPH_SOURCE_DIR}
@@ -168,8 +170,14 @@ else()
     CXX_VISIBILITY_PRESET hidden
     VISIBILITY_INLINES_HIDDEN YES
   )
-  target_link_libraries(OpenEXRCore PRIVATE openjph)
   target_include_directories(OpenEXRCore PRIVATE ${OPENJPH_SOURCE_DIR}/src/core)
+
+  target_sources(OpenEXRCore PRIVATE $<TARGET_OBJECTS:openjph>)
+  get_target_property(_openexr_ojph_iface_defs openjph INTERFACE_COMPILE_DEFINITIONS)
+  if (_openexr_ojph_iface_defs)
+    target_compile_definitions(OpenEXRCore PRIVATE ${_openexr_ojph_iface_defs})
+  endif()
+  unset(_openexr_ojph_iface_defs)
 
 endif()
 
