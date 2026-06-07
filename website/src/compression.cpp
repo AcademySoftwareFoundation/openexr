@@ -3,7 +3,15 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
-int width=1; int height=1;
+#include <ImfHeader.h>
+#include <ImfChannelList.h>
+#include <ImfCompression.h>
+
+using namespace OPENEXR_IMF_NAMESPACE;
+
+int width = 1;
+int height = 1;
+
 // [begin setCompression]
 Header header (width, height);
 header.channels().insert ("G", Channel (HALF));
@@ -16,3 +24,4 @@ header.zipCompressionLevel() = 6;
 setDefaultZipCompressionLevel (6);
 setDefaultDwaCompressionLevel (45.0f);
 // [end setCompressionDefault]
+
