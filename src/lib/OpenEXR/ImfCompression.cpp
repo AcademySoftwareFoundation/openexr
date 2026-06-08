@@ -191,7 +191,7 @@ static const CompressionDesc IdToDesc[] = {
         false),
     CompressionDesc (
         "zstd",
-        "zstd lossless compression, 16 scan lines at a time (see exr_get_zstd_lines_per_chunk).",
+        "zstd lossless compression, 1 scan line at a time.",
         exr_get_zstd_lines_per_chunk (), /* overridden by getCompressionNumScanlines; keep in sync with C API */
         false,
         true),

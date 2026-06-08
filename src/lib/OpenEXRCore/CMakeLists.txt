@@ -127,14 +127,14 @@ if (DEFINED EXR_DEFLATE_LIB)
   endif()
 endif()
 
-if (OPENEXR_IMF_ZSTD_TARGET AND NOT OPENEXR_IMF_ZSTD_TARGET STREQUAL "")
+if (DEFINED EXR_ZSTD_LIB)
 
   # External zstd
 
   if (BUILD_SHARED_LIBS)
-    target_link_libraries(OpenEXRCore PRIVATE ${OPENEXR_IMF_ZSTD_TARGET})
+    target_link_libraries(OpenEXRCore PRIVATE ${EXR_ZSTD_LIB})
   else()
-    target_link_libraries(OpenEXRCore PUBLIC ${OPENEXR_IMF_ZSTD_TARGET})
+    target_link_libraries(OpenEXRCore PUBLIC ${EXR_ZSTD_LIB})
   endif()
 
 else()
@@ -151,10 +151,33 @@ else()
 
   set(ZSTD_LIB_DIR ${PROJECT_SOURCE_DIR}/external/zstd/lib)
 
-  file(GLOB EXR_ZSTD_SOURCES
-    ${ZSTD_LIB_DIR}/common/*.c
-    ${ZSTD_LIB_DIR}/compress/*.c
-    ${ZSTD_LIB_DIR}/decompress/*.c)
+  set(EXR_ZSTD_SOURCES
+    ${ZSTD_LIB_DIR}/common/debug.c
+    ${ZSTD_LIB_DIR}/common/entropy_common.c
+    ${ZSTD_LIB_DIR}/common/error_private.c
+    ${ZSTD_LIB_DIR}/common/fse_decompress.c
+    ${ZSTD_LIB_DIR}/common/pool.c
+    ${ZSTD_LIB_DIR}/common/threading.c
+    ${ZSTD_LIB_DIR}/common/xxhash.c
+    ${ZSTD_LIB_DIR}/common/zstd_common.c
+    ${ZSTD_LIB_DIR}/compress/fse_compress.c
+    ${ZSTD_LIB_DIR}/compress/hist.c
+    ${ZSTD_LIB_DIR}/compress/huf_compress.c
+    ${ZSTD_LIB_DIR}/compress/zstd_compress.c
+    ${ZSTD_LIB_DIR}/compress/zstd_compress_literals.c
+    ${ZSTD_LIB_DIR}/compress/zstd_compress_sequences.c
+    ${ZSTD_LIB_DIR}/compress/zstd_compress_superblock.c
+    ${ZSTD_LIB_DIR}/compress/zstd_double_fast.c
+    ${ZSTD_LIB_DIR}/compress/zstd_fast.c
+    ${ZSTD_LIB_DIR}/compress/zstd_lazy.c
+    ${ZSTD_LIB_DIR}/compress/zstd_ldm.c
+    ${ZSTD_LIB_DIR}/compress/zstd_opt.c
+    ${ZSTD_LIB_DIR}/compress/zstd_preSplit.c
+    ${ZSTD_LIB_DIR}/compress/zstdmt_compress.c
+    ${ZSTD_LIB_DIR}/decompress/huf_decompress.c
+    ${ZSTD_LIB_DIR}/decompress/zstd_ddict.c
+    ${ZSTD_LIB_DIR}/decompress/zstd_decompress.c
+    ${ZSTD_LIB_DIR}/decompress/zstd_decompress_block.c)
 
   if (NOT MSVC AND CMAKE_SYSTEM_PROCESSOR MATCHES "amd64.*|AMD64.*|x86_64.*|X86_64.*")
     enable_language(ASM)

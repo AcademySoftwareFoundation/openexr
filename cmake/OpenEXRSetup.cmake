@@ -407,53 +407,49 @@ endif()
 #######################################
 
 option(OPENEXR_FORCE_INTERNAL_ZSTD "Force using an internal zstd" OFF)
-
 set(OPENEXR_MINIMUM_ZSTD_VERSION 1.5.0)
-set(OPENEXR_IMF_ZSTD_TARGET "")
+set(OPENEXR_USE_INTERNAL_ZSTD OFF)
 
 if(NOT OPENEXR_FORCE_INTERNAL_ZSTD)
   find_package(zstd ${OPENEXR_MINIMUM_ZSTD_VERSION} CONFIG QUIET)
-  # When building shared OpenEXR, prefer shared libzstd. Distro static libzstd.a
-  # is often compiled without -fPIC and cannot be linked into a shared library.
-  if(BUILD_SHARED_LIBS AND TARGET zstd::libzstd_shared)
-    set(OPENEXR_IMF_ZSTD_TARGET zstd::libzstd_shared)
-  elseif(TARGET zstd::libzstd_static)
-    set(OPENEXR_IMF_ZSTD_TARGET zstd::libzstd_static)
-  elseif(TARGET zstd::libzstd_shared)
-    set(OPENEXR_IMF_ZSTD_TARGET zstd::libzstd_shared)
+  if(zstd_FOUND)
+    if(TARGET zstd::libzstd_shared)
+      set(EXR_ZSTD_LIB zstd::libzstd_shared)
+    else()
+      set(EXR_ZSTD_LIB zstd::libzstd_static)
+    endif()
+    set(EXR_ZSTD_VERSION ${zstd_VERSION})
+    message(STATUS "Using zstd from ${zstd_DIR}")
+  else()
+    # If not found, try pkgconfig
+    find_package(PkgConfig)
+    if(PKG_CONFIG_FOUND)
+      include(FindPkgConfig)
+      pkg_check_modules(libzstd IMPORTED_TARGET GLOBAL QUIET libzstd)
+      if(libzstd_FOUND)
+        set(EXR_ZSTD_LIB PkgConfig::libzstd)
+        set(EXR_ZSTD_VERSION ${libzstd_VERSION})
+        message(STATUS "Using zstd from ${libzstd_LINK_LIBRARIES}")
+      endif()
+    endif()
   endif()
 endif()
 
-if(OPENEXR_IMF_ZSTD_TARGET AND NOT OPENEXR_IMF_ZSTD_TARGET STREQUAL "")
-  message(STATUS "Using zstd from find_package (${OPENEXR_IMF_ZSTD_TARGET})")
+if(EXR_ZSTD_LIB)
+  # Using external library
+  message(STATUS "Using externally provided zstd: ${EXR_ZSTD_VERSION}")
   # For OpenEXR.pc.in for static build
-  if(zstd_VERSION)
-    set(EXR_ZSTD_PKGCONFIG_REQUIRES "libzstd >= ${zstd_VERSION}")
-  else()
-    set(EXR_ZSTD_PKGCONFIG_REQUIRES "libzstd >= ${OPENEXR_MINIMUM_ZSTD_VERSION}")
-  endif()
+  set(EXR_ZSTD_PKGCONFIG_REQUIRES "libzstd >= ${EXR_ZSTD_VERSION}")
 else()
   # Using internal zstd
-
-  set(zstd_SOURCE_DIR "${PROJECT_SOURCE_DIR}/external/zstd")
-  set(zstd_version "${zstd_SOURCE_DIR}/lib/zstd.h")
-  if(EXISTS "${zstd_version}")
-    file(STRINGS "${zstd_version}" _zstd_major REGEX "#define ZSTD_VERSION_MAJOR")
-    file(STRINGS "${zstd_version}" _zstd_minor REGEX "#define ZSTD_VERSION_MINOR")
-    file(STRINGS "${zstd_version}" _zstd_patch REGEX "#define ZSTD_VERSION_RELEASE")
-    string(REGEX REPLACE ".*ZSTD_VERSION_MAJOR[ \t]+([0-9]+).*" "\\1" zstd_VERSION_MAJOR "${_zstd_major}")
-    string(REGEX REPLACE ".*ZSTD_VERSION_MINOR[ \t]+([0-9]+).*" "\\1" zstd_VERSION_MINOR "${_zstd_minor}")
-    string(REGEX REPLACE ".*ZSTD_VERSION_RELEASE[ \t]+([0-9]+).*" "\\1" zstd_VERSION_PATCH "${_zstd_patch}")
-    set(zstd_VERSION "${zstd_VERSION_MAJOR}.${zstd_VERSION_MINOR}.${zstd_VERSION_PATCH}")
-  else()
-    message(STATUS "can't find zstd.h: ${zstd_version}")
-  endif()
-
   if(OPENEXR_FORCE_INTERNAL_ZSTD)
-    message(STATUS "zstd forced internal, using vendored code, version ${zstd_VERSION}")
+    message(STATUS "zstd forced internal, using vendored code")
   else()
-    message(STATUS "zstd was not found, using vendored code, version ${zstd_VERSION}")
+    message(STATUS "zstd was not found, using vendored code")
   endif()
+
+  set(OPENEXR_USE_INTERNAL_ZSTD ON)
+  set(EXR_ZSTD_LIB)
 endif()
 
 # OpenEXR includes Imath headers from an "Imath/" subdirectory,
