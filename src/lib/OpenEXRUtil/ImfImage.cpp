@@ -14,6 +14,8 @@
 #include "ImfChannelList.h"
 #include <algorithm>
 #include <cassert>
+#include <climits>
+#include <cstdint>
 
 using namespace IMATH_NAMESPACE;
 using namespace IEX_NAMESPACE;
@@ -24,37 +26,71 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 namespace
 {
 
+int64_t
+pixelExtent (int64_t minCoord, int64_t maxCoord)
+{
+    if (maxCoord < minCoord) return 0;
+
+    return maxCoord - minCoord + 1;
+}
+
+void
+validateDataWindow (const Box2i64& dw)
+{
+    if (dw.min.x > dw.max.x + 1 || dw.min.y > dw.max.y + 1)
+    {
+        THROW (ArgExc, "Invalid data window for image resize.");
+    }
+
+    if (dw.min.x <= -(INT_MAX / 2) || dw.min.y <= -(INT_MAX / 2) ||
+        dw.max.x >= (INT_MAX / 2) || dw.max.y >= (INT_MAX / 2))
+    {
+        THROW (ArgExc, "Invalid data window for image resize.");
+    }
+
+    const int64_t w = pixelExtent (dw.min.x, dw.max.x);
+    const int64_t h = pixelExtent (dw.min.y, dw.max.y);
+
+    if (w < 0 || h < 0 || w > INT_MAX || h > INT_MAX)
+    {
+        THROW (ArgExc, "Invalid data window for image resize.");
+    }
+}
+
 int
-levelSize (int min, int max, int l, LevelRoundingMode levelRoundingMode)
+levelSize (
+    int64_t           minCoord,
+    int64_t           maxCoord,
+    int               l,
+    LevelRoundingMode levelRoundingMode)
 {
     assert (l >= 0);
 
-    if (max < min) return 0;
+    int64_t a = pixelExtent (minCoord, maxCoord);
+    if (a == 0) return 0;
 
-    int a    = max - min + 1;
-    int b    = (1 << l);
-    int size = a / b;
+    if (a > INT_MAX)
+    {
+        THROW (ArgExc, "Invalid level size for image resize.");
+    }
+
+    int64_t b    = int64_t (1) << l;
+    int64_t size = a / b;
 
     if (levelRoundingMode == ROUND_UP && size * b < a) size += 1;
 
-    return std::max (size, 1);
-}
+    size = std::max (size, int64_t (1));
 
-Box2i
-computeDataWindowForLevel (
-    const Box2i& dataWindow, int lx, int ly, LevelRoundingMode lrMode)
-{
-    V2i levelMax =
-        dataWindow.min +
-        V2i (
-            levelSize (dataWindow.min.x, dataWindow.max.x, lx, lrMode) - 1,
-            levelSize (dataWindow.min.y, dataWindow.max.y, ly, lrMode) - 1);
+    if (size > INT_MAX)
+    {
+        THROW (ArgExc, "Invalid level size for image resize.");
+    }
 
-    return Box2i (dataWindow.min, levelMax);
+    return int (size);
 }
 
 int
-floorLog2 (int x)
+floorLog2 (int64_t x)
 {
     //
     // For x > 0, floorLog2(y) returns floor(log(x)/log(2)).
@@ -72,7 +108,7 @@ floorLog2 (int x)
 }
 
 int
-ceilLog2 (int x)
+ceilLog2 (int64_t x)
 {
     //
     // For x > 0, ceilLog2(y) returns ceil(log(x)/log(2)).
@@ -93,7 +129,7 @@ ceilLog2 (int x)
 }
 
 int
-roundLog2 (int x, LevelRoundingMode levelRoundingMode)
+roundLog2 (int64_t x, LevelRoundingMode levelRoundingMode)
 {
     if (x < 1) return 1;
 
@@ -102,10 +138,13 @@ roundLog2 (int x, LevelRoundingMode levelRoundingMode)
 
 int
 computeNumXLevels (
-    const Box2i&      dataWindow,
+    const Box2i64&    dw,
     LevelMode         levelMode,
     LevelRoundingMode levelRoundingMode)
 {
+    const int64_t w = pixelExtent (dw.min.x, dw.max.x);
+    const int64_t h = pixelExtent (dw.min.y, dw.max.y);
+
     int n = 0;
 
     switch (levelMode)
@@ -113,21 +152,12 @@ computeNumXLevels (
         case ONE_LEVEL: n = 1; break;
 
         case MIPMAP_LEVELS:
-
-        {
-            int w = dataWindow.max.x - dataWindow.min.x + 1;
-            int h = dataWindow.max.y - dataWindow.min.y + 1;
-            n     = roundLog2 (std::max (w, h), levelRoundingMode) + 1;
-        }
-        break;
+            n = roundLog2 (std::max (w, h), levelRoundingMode) + 1;
+            break;
 
         case RIPMAP_LEVELS:
-
-        {
-            int w = dataWindow.max.x - dataWindow.min.x + 1;
-            n     = roundLog2 (w, levelRoundingMode) + 1;
-        }
-        break;
+            n = roundLog2 (w, levelRoundingMode) + 1;
+            break;
 
         default: assert (false);
     }
@@ -137,10 +167,13 @@ computeNumXLevels (
 
 int
 computeNumYLevels (
-    const Box2i&      dataWindow,
+    const Box2i64&    dw,
     LevelMode         levelMode,
     LevelRoundingMode levelRoundingMode)
 {
+    const int64_t w = pixelExtent (dw.min.x, dw.max.x);
+    const int64_t h = pixelExtent (dw.min.y, dw.max.y);
+
     int n = 0;
 
     switch (levelMode)
@@ -148,21 +181,12 @@ computeNumYLevels (
         case ONE_LEVEL: n = 1; break;
 
         case MIPMAP_LEVELS:
-
-        {
-            int w = dataWindow.max.x - dataWindow.min.x + 1;
-            int h = dataWindow.max.y - dataWindow.min.y + 1;
-            n     = roundLog2 (std::max (w, h), levelRoundingMode) + 1;
-        }
-        break;
+            n = roundLog2 (std::max (w, h), levelRoundingMode) + 1;
+            break;
 
         case RIPMAP_LEVELS:
-
-        {
-            int h = dataWindow.max.y - dataWindow.min.y + 1;
-            n     = roundLog2 (h, levelRoundingMode) + 1;
-        }
-        break;
+            n = roundLog2 (h, levelRoundingMode) + 1;
+            break;
 
         default: assert (false);
     }
@@ -261,8 +285,7 @@ Image::levelWidth (int lx) const
                 << lx << ".");
     }
 
-    return levelSize (
-        _dataWindow.min.x, _dataWindow.max.x, lx, _levelRoundingMode);
+    return levelSize (_dataWindow.min.x, _dataWindow.max.x, lx, _levelRoundingMode);
 }
 
 int
@@ -277,8 +300,7 @@ Image::levelHeight (int ly) const
                 << ly << ".");
     }
 
-    return levelSize (
-        _dataWindow.min.y, _dataWindow.max.y, ly, _levelRoundingMode);
+    return levelSize (_dataWindow.min.y, _dataWindow.max.y, ly, _levelRoundingMode);
 }
 
 void
@@ -297,10 +319,18 @@ Image::resize (
     {
         clearLevels ();
 
-        int nx = computeNumXLevels (dataWindow, levelMode, levelRoundingMode);
-        int ny = computeNumYLevels (dataWindow, levelMode, levelRoundingMode);
+        const Box2i64 dw (dataWindow.min, dataWindow.max);
+
+        validateDataWindow (dw);
+
+        int nx = computeNumXLevels (dw, levelMode, levelRoundingMode);
+        int ny = computeNumYLevels (dw, levelMode, levelRoundingMode);
 
         _levels.resizeErase (ny, nx);
+
+        for (int y = 0; y < ny; ++y)
+            for (int x = 0; x < nx; ++x)
+                _levels[y][x] = nullptr;
 
         for (int y = 0; y < ny; ++y)
         {
@@ -312,8 +342,9 @@ Image::resize (
                     continue;
                 }
 
-                Box2i levelDataWindow = computeDataWindowForLevel (
-                    dataWindow, x, y, levelRoundingMode);
+                const V2i ls (levelSize (dw.min.x, dw.max.x, x, levelRoundingMode) - 1,
+                              levelSize (dw.min.y, dw.max.y, y, levelRoundingMode) - 1);
+                const Box2i levelDataWindow (dataWindow.min, dataWindow.min + ls);
 
                 _levels[y][x] = newLevel (x, y, levelDataWindow);
 
