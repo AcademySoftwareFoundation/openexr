@@ -22,15 +22,14 @@ accumMSE<half> (
     {
         double a = static_cast<double> (orig[px]);
         double b = static_cast<double> (reread[px]);
+        if (!std::isfinite (a)) { continue; }
         if (!std::isfinite (b)) { count = 0; sumSq = 0.0; return; }
-        if (std::isfinite (a))
-        {
-            double diff = (a < 0 ? -1.0 : 1.0) * (std::log (std::abs (a) + HALF_DENORM_MIN) - LN_HALF_DENORM_MIN) -
-                          (b < 0 ? -1.0 : 1.0) * (std::log (std::abs (b) + HALF_DENORM_MIN) - LN_HALF_DENORM_MIN);
-            sumSq += diff * diff;
-            ++count;
-        }
-    }
+
+        double diff = (a < 0 ? -1.0 : 1.0) * (std::log (std::abs (a) + HALF_DENORM_MIN) - LN_HALF_DENORM_MIN) -
+                        (b < 0 ? -1.0 : 1.0) * (std::log (std::abs (b) + HALF_DENORM_MIN) - LN_HALF_DENORM_MIN);
+        sumSq += diff * diff;
+        ++count;
+}
 }
 
 template <>
@@ -48,30 +47,10 @@ accumMSE<float> (
     {
         double a = static_cast<double> (orig[px]);
         double b = static_cast<double> (reread[px]);
+        if (!std::isfinite (a)) { continue; }
         if (!std::isfinite (b)) { count = 0; sumSq = 0.0; return; }
-        if (std::isfinite (a))
-        {
-            double diff = (a < 0 ? -1.0 : 1.0) * (std::log (std::abs (a) + eps) - ln_eps) -
-                          (b < 0 ? -1.0 : 1.0) * (std::log (std::abs (b) + eps) - ln_eps);
-            sumSq += diff * diff;
-            ++count;
-        }
-    }
-}
-
-template <>
-void
-accumMSE<unsigned int> (
-    const unsigned int* orig,
-    const unsigned int* reread,
-    uint64_t            pixelsInChannel,
-    double&             sumSq,
-    uint64_t&           count)
-{
-    for (uint64_t px = 0; px < pixelsInChannel; ++px)
-    {
-        double diff =
-            static_cast<double> (orig[px]) - static_cast<double> (reread[px]);
+        double diff = (a < 0 ? -1.0 : 1.0) * (std::log (std::abs (a) + eps) - ln_eps) -
+                        (b < 0 ? -1.0 : 1.0) * (std::log (std::abs (b) + eps) - ln_eps);
         sumSq += diff * diff;
         ++count;
     }

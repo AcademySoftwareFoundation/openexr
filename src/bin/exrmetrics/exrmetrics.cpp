@@ -1225,8 +1225,7 @@ exrmetrics (
                  i != outHeaders[p].channels ().end ();
                  ++i, ++channelIndex)
             {
-                if (i.channel ().type != HALF && i.channel ().type != FLOAT &&
-                    i.channel ().type != UINT)
+                if (i.channel ().type != HALF && i.channel ().type != FLOAT)
                     continue;
 
                 uint64_t pixelsInChannel =
@@ -1270,16 +1269,6 @@ exrmetrics (
                     accumMSE (
                         reinterpret_cast<const float*> (origData),
                         reinterpret_cast<const float*> (rereadData),
-                        pixelsInChannel,
-                        sumSq,
-                        count);
-                }
-                else
-                {
-                    metrics.stats[p].mseKind = MSE_LOG_INT;
-                    accumMSE (
-                        reinterpret_cast<const unsigned int*> (origData),
-                        reinterpret_cast<const unsigned int*> (rereadData),
                         pixelsInChannel,
                         sumSq,
                         count);

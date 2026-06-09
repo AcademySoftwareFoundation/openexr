@@ -49,7 +49,6 @@ enum MSEKind
     MSE_NONE,
     MSE_LOG_HALF,
     MSE_LOG_FLOAT,
-    MSE_LOG_INT
 };
 
 struct partStats

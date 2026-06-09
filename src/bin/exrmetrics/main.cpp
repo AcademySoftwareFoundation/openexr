@@ -92,11 +92,10 @@ usageMessage (ostream& stream, const char* program_name, bool verbose = false)
                " --csv                        print output in csv mode. If passes>1, show median timing\n"
                "                              default is JSON mode\n"
                " --passes num                 write and re-read file num times (default 1)\n"
-               " --mse                        compute MSE per part, comparing original vs. re-read after compression.\n"
-               "                              Parts must have uniform channel types. Half and float channels use\n"
-               "                              signed log-space MSE (reported as \"log_mse\"), skipping non-finite\n"
-               "                              original samples; non-finite re-read samples produce NaN. Uint\n"
-               "                              channels use linear MSE (reported as \"mse\").\n"
+               " --mse                        compute LogMSE per part, comparing original vs. re-read after compression.\n"
+               "                              Parts must have uniform half or float channel types. Samples that are non-finite\n"
+               "                              in the original are skipped. Samples that are finite in the original and not finite\n"
+               "                              in the re-read result in Nan."
                "\n"
                "  -h, --help                  print this message\n"
                "  -v                          output progress messages\n"
@@ -406,11 +405,7 @@ jsonStats (
                 if (computeMSE)
                 {
                     out << ",\n";
-                    const char* mseKey =
-                        run.metrics.stats[part].mseKind != MSE_LOG_INT
-                            ? "log_mse"
-                            : "mse";
-                    out << "          \"" << mseKey
+                    out << "          \"" << "log_mse"
                         << "\": " << run.metrics.stats[part].mse;
                 }
                 if (timing)
@@ -497,9 +492,6 @@ csvStats (ostream& out, list<runData>& data, bool outputSizeData, int timing, bo
             {
                 if (p > 0) { out << '|'; }
                 switch (run.metrics.stats[p].mseKind) {
-                    case MSE_LOG_INT:
-                        out << "mse:" << run.metrics.stats[p].mse;
-                        break;
                     case MSE_LOG_HALF:
                     case MSE_LOG_FLOAT:
                         out << "log_mse:" << run.metrics.stats[p].mse;
