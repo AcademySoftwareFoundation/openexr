@@ -14,6 +14,7 @@
 #include <ImfHeader.h>
 
 #include <cassert>
+#include <climits>
 #include <cstdio>
 
 using namespace OPENEXR_IMF_NAMESPACE;
@@ -571,6 +572,29 @@ testRenameChannels ()
     assert (caught);
 }
 
+void
+testResizeInvalidDataWindow ()
+{
+    cout << "    resize with invalid data window" << endl;
+
+    FlatImage img;
+    img.insertChannel ("R", HALF);
+
+    bool caught = false;
+    try
+    {
+        img.resize (
+            Box2i (V2i (1, INT_MIN), V2i (1, 1)), ONE_LEVEL, ROUND_DOWN);
+    }
+    catch (const std::exception&)
+    {
+        caught = true;
+    }
+    assert (caught);
+
+    img.resize (Box2i (V2i (0, 0), V2i (1, 1)), ONE_LEVEL, ROUND_DOWN);
+}
+
 } // namespace
 
 void
@@ -586,6 +610,7 @@ testFlatImage (const string& tempDir)
         testCropping (tempDir + "cropped.exr");
         testRenameChannel ();
         testRenameChannels ();
+        testResizeInvalidDataWindow ();
 
         cout << "ok\n" << endl;
     }
