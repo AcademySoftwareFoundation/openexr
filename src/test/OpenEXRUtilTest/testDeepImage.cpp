@@ -451,6 +451,32 @@ testSetSampleCounts ()
 }
 
 void
+testSetSampleCountRowOffset ()
+{
+    //
+    // Regression test for GHSA-54cp-3rq6-7mq8: row-based sample count setter
+    // must use dataWindow.min.y (not min.x) when mapping row index to Y.
+    //
+
+    cout << "sample count row setter with non-zero data window origin"
+         << endl;
+
+    DeepImage img;
+    img.insertChannel ("Z", FLOAT, 1, 1, false);
+
+    const Box2i dataWindow (V2i (0, 1), V2i (1, 1));
+    img.resize (dataWindow, ONE_LEVEL, ROUND_DOWN);
+
+    SampleCountChannel& sc = img.level (0).sampleCounts ();
+
+    unsigned int counts[2] = {1, 1};
+    sc.set (0, counts);
+
+    assert (sc.at (0, 1) == 1);
+    assert (sc.at (1, 1) == 1);
+}
+
+void
 testShiftPixels ()
 {
     cout << "pixel shifting" << endl;
@@ -683,6 +709,7 @@ testDeepImage (const string& tempDir)
         testScanLineImages (tempDir + "deepScanLines.exr");
         testTiledImages (tempDir + "deepTiles.exr");
         testSetSampleCounts ();
+        testSetSampleCountRowOffset ();
         testShiftPixels ();
         testCropping (tempDir + "deepCropped.exr");
         testRenameChannel ();
