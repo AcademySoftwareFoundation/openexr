@@ -12,6 +12,7 @@
 #include "ImfImageLevel.h"
 #include <Iex.h>
 #include <cassert>
+#include <cstdint>
 
 using namespace IMATH_NAMESPACE;
 using namespace IEX_NAMESPACE;
@@ -36,8 +37,8 @@ ImageLevel::~ImageLevel ()
 void
 ImageLevel::resize (const Box2i& dataWindow)
 {
-    if (dataWindow.max.x < dataWindow.min.x - 1 ||
-        dataWindow.max.y < dataWindow.min.y - 1)
+    if (int64_t (dataWindow.min.x) > int64_t (dataWindow.max.x) + 1 ||
+        int64_t (dataWindow.min.y) > int64_t (dataWindow.max.y) + 1)
     {
         THROW (
             ArgExc,
