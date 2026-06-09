@@ -31,12 +31,4 @@ void accumMSE<float> (
     double&      sumSq,
     uint64_t&    count);
 
-template <>
-void accumMSE<unsigned int> (
-    const unsigned int* orig,
-    const unsigned int* reread,
-    uint64_t            pixelsInChannel,
-    double&             sumSq,
-    uint64_t&           count);
-
 #endif
