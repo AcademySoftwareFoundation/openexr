@@ -234,7 +234,7 @@ EXR_EXPORT exr_result_t exr_get_dwa_compression_level (
 EXR_EXPORT exr_result_t
 exr_set_dwa_compression_level (exr_context_t ctxt, int part_index, float level);
 
-/** @brief Retrieve the HTJ2K compression quality used for the specified part.
+/** @brief Retrieve the lossy HTJ2K compression quality used for the specified part.
  *
  * This only applies when the compression method is HTJ2KL256.
  *
