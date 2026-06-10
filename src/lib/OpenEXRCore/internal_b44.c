@@ -729,6 +729,8 @@ internal_exr_undo_b44a (
         compute_scratch_buffer_size (decode, uncompressed_size));
     if (rv != EXR_ERR_SUCCESS) return rv;
 
+    exrcore_ensure_b44_tables ();
+
     return uncompress_b44_impl (
         decode,
         compressed_data,
