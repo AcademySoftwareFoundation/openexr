@@ -447,7 +447,7 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
         exr_get_lossy_htj2k_quality (
             encode->context, encode->part_index, &lossy_htj2k_quality);
         if (lossy_htj2k_quality <= 0.f) {
-            return EXR_ERR_INCORRECT_CHUNK;
+            return EXR_ERR_INVALID_ARGUMENT;
         }
 
         ojph::param_qcd qcd = cs.access_qcd ();
