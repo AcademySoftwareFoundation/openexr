@@ -44,11 +44,11 @@ struct partSizeData
     std::string partType = "";
 };
 
-enum MSEKind
+enum DistortionMetric
 {
-    MSE_NONE,
-    MSE_LOG_HALF,
-    MSE_LOG_FLOAT,
+    DISTORTION_METRIC_NONE,
+    LOG_MSE_HALF,
+    LOG_MSE_FLOAT,
 };
 
 struct partStats
@@ -65,9 +65,9 @@ struct partStats
         rereadPerf; // for deep, times reading the sample count, otherwise times reading the entire data
     uint64_t sizeOnDisk = 0; // record compressed size of part on disk.
 
-    MSEKind  mseKind  = MSE_NONE;
-    double   mse      = std::numeric_limits<double>::quiet_NaN ();
-    uint64_t mseCount = 0;
+    DistortionMetric  metricKind  = DISTORTION_METRIC_NONE; // kind of distortion metric used
+    double   distortion      = std::numeric_limits<double>::quiet_NaN (); // distortion computed using the distortion metric
+    uint64_t distortionCount = 0; // number of samples used to compute the distortion
 
     partSizeData sizeData;
 };
@@ -91,6 +91,6 @@ fileMetrics exrmetrics (
     bool                               reread,
     PixelMode                          pixelMode,
     bool                               verbose,
-    bool                               computeMSE = false);
+    bool                               computeDistortion = false);
 
 #endif

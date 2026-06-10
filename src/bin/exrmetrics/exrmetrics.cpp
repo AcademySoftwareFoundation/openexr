@@ -5,7 +5,7 @@
 //
 
 #include "exrmetrics.h"
-#include "mseutils.h"
+#include "distortionUtils.h"
 
 #include "ImfChannelList.h"
 #include "ImfDeepFrameBuffer.h"
@@ -995,7 +995,7 @@ exrmetrics (
     bool                               reread,
     PixelMode                          pixelMode,
     bool                               verbose,
-    bool                               computeMSE)
+    bool                               computeDistortion)
 {
 
     if (verbose)
@@ -1088,7 +1088,7 @@ exrmetrics (
     if (!isinf (level) && level >= -1 && !compressionSet)
     {
         throw runtime_error (
-            "-l option only works for DWAA/DWAB,ZIP/ZIPS or ZSTD compression");
+            "-l option only works for DWAA/DWAB, HTJ2KL256,ZIP/ZIPS or ZSTD compression");
     }
 
     vector<partData> parts (part == -1 ? in.parts () : 1);
@@ -1179,14 +1179,14 @@ exrmetrics (
     }
 
     //
-    // compute MSE vs. re-read data
+    // compute distortion vs. re-read data
     //
-    if (computeMSE && write && reread)
+    if (computeDistortion && write && reread)
     {
         for (size_t p = 0; p < parts.size (); ++p)
         {
-            metrics.stats[p].mseCount = 0;
-            metrics.stats[p].mse = std::numeric_limits<double>::quiet_NaN ();
+            metrics.stats[p].distortionCount = 0;
+            metrics.stats[p].distortion = std::numeric_limits<double>::quiet_NaN ();
             string partType = outHeaders[p].type ();
             if (partType != SCANLINEIMAGE && partType != TILEDIMAGE) continue;
             
@@ -1251,8 +1251,8 @@ exrmetrics (
 
                 if (i.channel ().type == HALF)
                 {
-                    metrics.stats[p].mseKind = MSE_LOG_HALF;
-                    accumMSE (
+                    metrics.stats[p].metricKind = LOG_MSE_HALF;
+                    accumLogMSE (
                         reinterpret_cast<const half*> (origData),
                         reinterpret_cast<const half*> (rereadData),
                         pixelsInChannel,
@@ -1261,8 +1261,8 @@ exrmetrics (
                 }
                 else if (i.channel ().type == FLOAT)
                 {
-                    metrics.stats[p].mseKind = MSE_LOG_FLOAT;
-                    accumMSE (
+                    metrics.stats[p].metricKind = LOG_MSE_FLOAT;
+                    accumLogMSE (
                         reinterpret_cast<const float*> (origData),
                         reinterpret_cast<const float*> (rereadData),
                         pixelsInChannel,
@@ -1271,8 +1271,8 @@ exrmetrics (
                 }
             }
 
-            metrics.stats[p].mseCount = count;
-            metrics.stats[p].mse =
+            metrics.stats[p].distortionCount = count;
+            metrics.stats[p].distortion =
                 count > 0 ? sumSq / count
                           : std::numeric_limits<double>::quiet_NaN ();
         }

@@ -65,7 +65,7 @@ usageMessage (ostream& stream, const char* program_name, bool verbose = false)
                "  -t n                        Use a pool of n worker threads for processing files.\n"
                "                              Default is single threaded (no thread pool)\n"
                "\n"
-               "  -l level                    set DWA or ZIP compression level\n"
+               "  -l level                    set compression level for DWA, ZIP and lossy HTJ2K\n"
                "\n"
                "  -z,--compression list       list of compression methods to test\n"
                "                              ("
@@ -92,7 +92,7 @@ usageMessage (ostream& stream, const char* program_name, bool verbose = false)
                " --csv                        print output in csv mode. If passes>1, show median timing\n"
                "                              default is JSON mode\n"
                " --passes num                 write and re-read file num times (default 1)\n"
-               " --mse                        compute LogMSE per part, comparing original vs. re-read after compression.\n"
+               " --distortion                        compute LogMSE per part, comparing original vs. re-read after compression.\n"
                "                              Parts must have uniform half or float channel types. Samples that are non-finite\n"
                "                              in the original are skipped. Samples that are finite in the original and not finite\n"
                "                              in the re-read result in Nan."
@@ -126,7 +126,7 @@ struct options
     bool                     outputPartSizeOnDisk = false;
     bool                     verbose        = false;
     bool                     csv            = false;
-    bool                     computeMSE     = false;
+    bool                     computeDistortion     = false;
     std::vector<PixelMode>   pixelModes;
     std::vector<OPENEXR_IMF_NAMESPACE::Compression> compressions;
 
@@ -266,7 +266,7 @@ jsonStats (
     bool           partSize,
     bool           raw,
     bool           stats,
-    bool           computeMSE)
+    bool           computeDistortion)
 {
 
     static const char* lastFileName = nullptr;
@@ -393,7 +393,7 @@ jsonStats (
             printPartStats (
                 out, run.metrics.totalStats, "      ", timing,false, raw, stats);
         }
-        if (timing && run.metrics.stats.size () > 1 || computeMSE)
+        if (timing && run.metrics.stats.size () > 1 || computeDistortion)
         {
             out << ",\n";
             out << "      \"parts\":\n";
@@ -402,11 +402,11 @@ jsonStats (
             {
                 out << "        {\n";
                 out << "          \"part\": " << part;
-                if (computeMSE)
+                if (computeDistortion)
                 {
                     out << ",\n";
                     out << "          \"" << "log_mse"
-                        << "\": " << run.metrics.stats[part].mse;
+                        << "\": " << run.metrics.stats[part].distortion;
                 }
                 if (timing)
                 {
@@ -440,7 +440,7 @@ jsonStats (
 }
 
 void
-csvStats (ostream& out, list<runData>& data, bool outputSizeData, int timing, bool computeMSE)
+csvStats (ostream& out, list<runData>& data, bool outputSizeData, int timing, bool computeDistortion)
 {
     out << "file name";
     if (outputSizeData)
@@ -449,7 +449,7 @@ csvStats (ostream& out, list<runData>& data, bool outputSizeData, int timing, bo
     }
     out << ",compression,pixel mode";
     if (outputSizeData) { out << ",output size"; }
-    if (computeMSE) { out << ",mse"; }
+    if (computeDistortion) { out << ",distortion"; }
     if (timing & options::TIME_READ)
     {
         out << ",count read time";
@@ -486,15 +486,15 @@ csvStats (ostream& out, list<runData>& data, bool outputSizeData, int timing, bo
         out << ',' << compName << ',' << modeName (run.mode);
 
         if (outputSizeData) { out << ',' << run.metrics.outputFileSize; }
-        if (computeMSE)
+        if (computeDistortion)
             out << ',';
             for (size_t p = 0; p < run.metrics.stats.size (); ++p)
             {
                 if (p > 0) { out << '|'; }
-                switch (run.metrics.stats[p].mseKind) {
-                    case MSE_LOG_HALF:
-                    case MSE_LOG_FLOAT:
-                        out << "log_mse:" << run.metrics.stats[p].mse;
+                switch (run.metrics.stats[p].metricKind) {
+                    case LOG_MSE_HALF:
+                    case LOG_MSE_FLOAT:
+                        out << "log_mse:" << run.metrics.stats[p].distortion;
                         break;
                     default:
                         out << "---";
@@ -576,12 +576,12 @@ main (int argc, char** argv)
                             opts.passes,
                             opts.outFile || opts.outputSizeData ||
                             opts.timing & options::TIME_WRITE ||
-                            opts.computeMSE,
+                            opts.computeDistortion,
                             opts.timing & options::TIME_REREAD ||
-                            opts.computeMSE,
+                            opts.computeDistortion,
                             mode,
                             opts.verbose,
-                            opts.computeMSE);
+                            opts.computeDistortion);
                         data.push_back (d);
                     }
                 }
@@ -604,12 +604,12 @@ main (int argc, char** argv)
 
         if (opts.csv)
         {
-            csvStats (cout, data, opts.outputSizeData, opts.timing, opts.computeMSE);
+            csvStats (cout, data, opts.outputSizeData, opts.timing, opts.computeDistortion);
         }
         else
         {
             jsonStats (
-                cout, data, opts.outputSizeData, opts.timing, showPartSizeOnDisk, true, true, opts.computeMSE);
+                cout, data, opts.outputSizeData, opts.timing, showPartSizeOnDisk, true, true, opts.computeDistortion);
         }
     }
 
@@ -940,9 +940,9 @@ options::parse (int argc, char* argv[])
             outputPartSizeOnDisk = true;
             i += 1;
         }
-        else if (!strcmp (argv[i], "--mse"))
+        else if (!strcmp (argv[i], "--distortion"))
         {
-            computeMSE = true;
+            computeDistortion = true;
             i += 1;
         }
         else if (!strcmp (argv[i], "-i"))

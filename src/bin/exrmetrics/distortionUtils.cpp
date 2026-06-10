@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 // Copyright (c) Contributors to the OpenEXR Project.
 
-#include "mseutils.h"
+#include "distortionUtils.h"
 
 #include <cmath>
 #include <limits>
@@ -10,7 +10,7 @@ using IMATH_NAMESPACE::half;
 
 template <>
 void
-accumMSE<half> (
+accumLogMSE<half> (
     const half* orig,
     const half* reread,
     uint64_t    pixelsInChannel,
@@ -34,7 +34,7 @@ accumMSE<half> (
 
 template <>
 void
-accumMSE<float> (
+accumLogMSE<float> (
     const float* orig,
     const float* reread,
     uint64_t     pixelsInChannel,
