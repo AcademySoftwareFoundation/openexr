@@ -145,7 +145,7 @@ EXR_EXPORT void exr_get_default_dwa_compression_quality (float* q);
  */
 EXR_EXPORT void exr_set_default_lossy_htj2k_quality (float q);
 
-/** @brief Retrieve the global default HTJ2K compression quality.
+/** @brief Retrieve the global default lossy HTJ2K compression quality.
  */
 EXR_EXPORT void exr_get_default_lossy_htj2k_quality (float* q);
 
