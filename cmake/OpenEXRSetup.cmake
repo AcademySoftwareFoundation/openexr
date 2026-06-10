@@ -402,6 +402,56 @@ else()
   endif()
 endif()
 
+#######################################
+# Find or use vendored libzstd
+#######################################
+
+option(OPENEXR_FORCE_INTERNAL_ZSTD "Force using an internal zstd" OFF)
+set(OPENEXR_MINIMUM_ZSTD_VERSION 1.5.0)
+set(OPENEXR_USE_INTERNAL_ZSTD OFF)
+
+if(NOT OPENEXR_FORCE_INTERNAL_ZSTD)
+  find_package(zstd ${OPENEXR_MINIMUM_ZSTD_VERSION} CONFIG QUIET)
+  if(zstd_FOUND)
+    if(TARGET zstd::libzstd_shared)
+      set(EXR_ZSTD_LIB zstd::libzstd_shared)
+    else()
+      set(EXR_ZSTD_LIB zstd::libzstd_static)
+    endif()
+    set(EXR_ZSTD_VERSION ${zstd_VERSION})
+    message(STATUS "Using zstd from ${zstd_DIR}")
+  else()
+    # If not found, try pkgconfig
+    find_package(PkgConfig)
+    if(PKG_CONFIG_FOUND)
+      include(FindPkgConfig)
+      pkg_check_modules(libzstd IMPORTED_TARGET GLOBAL QUIET libzstd)
+      if(libzstd_FOUND)
+        set(EXR_ZSTD_LIB PkgConfig::libzstd)
+        set(EXR_ZSTD_VERSION ${libzstd_VERSION})
+        message(STATUS "Using zstd from ${libzstd_LINK_LIBRARIES}")
+      endif()
+    endif()
+  endif()
+endif()
+
+if(EXR_ZSTD_LIB)
+  # Using external library
+  message(STATUS "Using externally provided zstd: ${EXR_ZSTD_VERSION}")
+  # For OpenEXR.pc.in for static build
+  set(EXR_ZSTD_PKGCONFIG_REQUIRES "libzstd >= ${EXR_ZSTD_VERSION}")
+else()
+  # Using internal zstd
+  if(OPENEXR_FORCE_INTERNAL_ZSTD)
+    message(STATUS "zstd forced internal, using vendored code")
+  else()
+    message(STATUS "zstd was not found, using vendored code")
+  endif()
+
+  set(OPENEXR_USE_INTERNAL_ZSTD ON)
+  set(EXR_ZSTD_LIB)
+endif()
+
 # OpenEXR includes Imath headers from an "Imath/" subdirectory,
 # i.e. #include <Imath/ImathVec.h. The Imath library installs its
 # headers in that folder, although when Imath is built inside the

@@ -51,6 +51,8 @@ on:
         type: string
       OPENEXR_FORCE_INTERNAL_DEFLATE:
         type: string
+      OPENEXR_FORCE_INTERNAL_ZSTD:
+        type: string
       OPENEXR_FORCE_INTERNAL_OPENJPH:
         type: string
       CMAKE_OSX_ARCHITECTURES:
@@ -153,6 +155,9 @@ jobs:
           if [ "${{ inputs.OPENEXR_FORCE_INTERNAL_DEFLATE }}" == "OFF" ]; then
             PACKAGES="$PACKAGES libdeflate:p"
           fi
+          if [ "${{ inputs.OPENEXR_FORCE_INTERNAL_ZSTD }}" == "OFF" ]; then
+            PACKAGES="$PACKAGES zstd:p"
+          fi
           if [ "${{ inputs.OPENEXR_FORCE_INTERNAL_OPENJPH }}" == "OFF" && "${{ inputs.msystem }}" != "MINGW32" ]; then
             PACKAGES="$PACKAGES openjph:p"
           fi
@@ -209,6 +214,15 @@ jobs:
           echo "OPENEXR_PATH=$OPENEXR_PATH:$PROGRAM_FILES/libdeflate/bin:$PROGRAM_FILES/libdeflate/lib" >> $GITHUB_ENV
         shell: bash
 
+      - name: Install zstd
+        # Pre-install zstd so the builds validate that find_package sees the external installation
+        if: inputs.OPENEXR_FORCE_INTERNAL_ZSTD == 'OFF' && inputs.msystem == ''
+        run: |
+          set -x
+          share/ci/scripts/install_zstd.sh v1.5.7
+          echo "OPENEXR_PATH=$OPENEXR_PATH:$PROGRAM_FILES/zstd/bin:$PROGRAM_FILES/zstd/lib" >> $GITHUB_ENV
+        shell: bash
+
       - name: Install OpenJPH
         # Pre-install OpenJPH so the builds validate finding the external installation
         if: inputs.OPENEXR_FORCE_INTERNAL_OPENJPH == 'OFF' && inputs.msystem == ''
@@ -245,6 +259,7 @@ jobs:
           cmake_args+=("-DOPENEXR_BUILD_TOOLS=${{ inputs.OPENEXR_BUILD_TOOLS }}")
           cmake_args+=("-DOPENEXR_FORCE_INTERNAL_IMATH=${{ inputs.OPENEXR_FORCE_INTERNAL_IMATH }}")
           cmake_args+=("-DOPENEXR_FORCE_INTERNAL_DEFLATE=${{ inputs.OPENEXR_FORCE_INTERNAL_DEFLATE }}")
+          cmake_args+=("-DOPENEXR_FORCE_INTERNAL_ZSTD=${{ inputs.OPENEXR_FORCE_INTERNAL_ZSTD }}")
           cmake_args+=("-DOPENEXR_FORCE_INTERNAL_OPENJPH=${{ inputs.OPENEXR_FORCE_INTERNAL_OPENJPH }}")
           cmake_args+=("-DBUILD_TESTING=${{ inputs.BUILD_TESTING }}")
           cmake_args+=("-DOPENEXR_RUN_FUZZ_TESTS=OFF")
@@ -457,6 +472,7 @@ jobs:
           fi
           cmake_args+=("-DOPENEXR_FORCE_INTERNAL_IMATH=${{ inputs.OPENEXR_FORCE_INTERNAL_IMATH }}")
           cmake_args+=("-DOPENEXR_FORCE_INTERNAL_DEFLATE=${{ inputs.OPENEXR_FORCE_INTERNAL_DEFLATE }}")
+          cmake_args+=("-DOPENEXR_FORCE_INTERNAL_ZSTD=${{ inputs.OPENEXR_FORCE_INTERNAL_ZSTD }}")
           cmake_args+=("-DOPENEXR_FORCE_INTERNAL_OPENJPH=${{ inputs.OPENEXR_FORCE_INTERNAL_OPENJPH }}")
           cmake_args+=("-DOPENEXR_BUILD_EXAMPLES=OFF")
           cmake_args+=("-DOPENEXR_BUILD_TOOLS=OFF")

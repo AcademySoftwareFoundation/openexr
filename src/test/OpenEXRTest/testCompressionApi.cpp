@@ -32,11 +32,11 @@ testCompressionApi (const string& tempDir)
         cout << "Testing compression API functions." << endl;
 
         // update this if you add a new compressor.
-        string codecList = "none/rle/zips/zip/piz/pxr24/b44/b44a/dwaa/dwab/htj2k256/htj2k32";
+        string codecList = "none/rle/zips/zip/piz/pxr24/b44/b44a/dwaa/dwab/htj2k256/htj2k32/zstd";
 
         int numMethods = static_cast<int> (NUM_COMPRESSION_METHODS);
         // update this if you add a new compressor.
-        assert (numMethods == 12);
+        assert (numMethods == 13);
 
         for (int i = 0; i < numMethods; i++)
         {
@@ -68,6 +68,7 @@ testCompressionApi (const string& tempDir)
                 case ZIPS_COMPRESSION:
                 case ZIP_COMPRESSION:
                 case PIZ_COMPRESSION:
+                case ZSTD_COMPRESSION:
                 case HTJ2K256_COMPRESSION:
                 case HTJ2K32_COMPRESSION:
                     assert (isLossyCompression (c) == false);
@@ -82,6 +83,7 @@ testCompressionApi (const string& tempDir)
                 case NO_COMPRESSION:
                 case RLE_COMPRESSION:
                 case ZIPS_COMPRESSION:
+                case ZSTD_COMPRESSION:
                     assert (isValidDeepCompression (c) == true);
                     break;
 
@@ -94,6 +96,10 @@ testCompressionApi (const string& tempDir)
         assert (codecs == codecList);
 
         cout << "Testing Compressor instantiation" << endl;
+
+        const int zstdLinesPerChunk = exr_get_zstd_lines_per_chunk ();
+        assert (zstdLinesPerChunk == exr_compression_lines_per_chunk (EXR_COMPRESSION_ZSTD));
+        assert (zstdLinesPerChunk == getCompressionNumScanlines (ZSTD_COMPRESSION));
 
         struct CompressorTestCase
         {
@@ -116,6 +122,7 @@ testCompressionApi (const string& tempDir)
             {DWAB_COMPRESSION,   EXR_COMPRESSION_LAST_TYPE,   256, true},
             {HTJ2K256_COMPRESSION, EXR_COMPRESSION_LAST_TYPE, 256, true},
             {HTJ2K32_COMPRESSION,  EXR_COMPRESSION_LAST_TYPE,  32,  true},
+            {ZSTD_COMPRESSION,   EXR_COMPRESSION_ZSTD,    zstdLinesPerChunk, true},
         };
 
         const size_t maxScanLineSize = 1024;

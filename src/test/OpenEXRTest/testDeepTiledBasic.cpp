@@ -16,12 +16,14 @@
 #include "ImfDeepTiledInputFile.h"
 #include "ImfDeepTiledOutputFile.h"
 
-#include "IlmThreadPool.h"
-#include "ImfArray.h"
-#include "ImfChannelList.h"
-#include "ImfDeepFrameBuffer.h"
-#include "ImfHeader.h"
-#include "ImfPartType.h"
+#include <IlmThreadPool.h>
+#include <ImfArray.h>
+#include <ImfChannelList.h>
+#include <ImfCompression.h>
+#include <ImfDeepFrameBuffer.h>
+#include <ImfHeader.h>
+#include <ImfPartType.h>
+#include <ImfTileDescription.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -48,6 +50,170 @@ const Box2i
 vector<int>                    channelTypes;
 Array2D<Array2D<unsigned int>> sampleCountWhole;
 Header                         header;
+
+//
+// Deep tiled image where every pixel has sampleCount == 0. Must succeed for
+// every compression valid for deep data.
+//
+void
+readWriteAllZeroSampleCountsDeepTiled (const std::string& tempDir)
+{
+    const int            tw = 16;
+    const int            th = 16;
+    const int            w  = 32;
+    const int            h  = 32;
+    const IMATH_NAMESPACE::Box2i dataWindow (
+        IMATH_NAMESPACE::V2i (0, 0),
+        IMATH_NAMESPACE::V2i (w - 1, h - 1));
+    const IMATH_NAMESPACE::Box2i displayWindow (
+        IMATH_NAMESPACE::V2i (0, 0),
+        IMATH_NAMESPACE::V2i (w * 2 - 1, h * 2 - 1));
+
+    for (int comp = 0; comp < NUM_COMPRESSION_METHODS; ++comp)
+    {
+        Compression c = static_cast<Compression> (comp);
+        if (!isValidDeepCompression (c))
+            continue;
+
+        string compName;
+        getCompressionNameFromId (c, compName);
+        cout << "deep tiled all-zero sampleCounts, codec " << compName << endl;
+
+        std::string filename = tempDir + "imf_test_deep_empty_tiled.exr";
+        remove (filename.c_str ());
+
+        Header hdr (
+            displayWindow,
+            dataWindow,
+            1,
+            IMATH_NAMESPACE::V2f (0, 0),
+            1,
+            INCREASING_Y,
+            c);
+        hdr.channels ().insert ("h", Channel (IMF::HALF));
+        hdr.setType (DEEPTILE);
+        hdr.setTileDescription (TileDescription (tw, th, ONE_LEVEL));
+
+        Array2D<unsigned int> sc;
+        sc.resizeErase (h, w);
+        Array2D<void*> pdata;
+        pdata.resizeErase (h, w);
+        for (int y = 0; y < h; ++y)
+            for (int x = 0; x < w; ++x)
+            {
+                sc[y][x]    = 0;
+                pdata[y][x] = nullptr;
+            }
+
+        const int memOff = dataWindow.min.x + dataWindow.min.y * w;
+        {
+            DeepTiledOutputFile file (filename.c_str (), hdr, 1);
+            DeepFrameBuffer    fb;
+            fb.insertSampleCountSlice (Slice (
+                IMF::UINT,
+                (char*) (&sc[0][0] - memOff),
+                sizeof (unsigned int),
+                sizeof (unsigned int) * w));
+            fb.insert (
+                "h",
+                DeepSlice (
+                    IMF::HALF,
+                    (char*) (&pdata[0][0] - memOff),
+                    sizeof (char*),
+                    sizeof (char*) * w,
+                    sizeof (half)));
+            file.setFrameBuffer (fb);
+
+            for (int ly = 0; ly < file.numYLevels (); ++ly)
+            {
+                for (int lx = 0; lx < file.numXLevels (); ++lx)
+                {
+                    file.writeTiles (
+                        0,
+                        file.numXTiles (lx) - 1,
+                        0,
+                        file.numYTiles (ly) - 1,
+                        lx,
+                        ly);
+                }
+            }
+        }
+
+        DeepTiledInputFile inFile (filename.c_str (), 1);
+        assert (inFile.header ().compression () == c);
+        assert (inFile.header ().type () == DEEPTILE);
+        assert (inFile.header ().channels () == hdr.channels ());
+        assert (inFile.header ().dataWindow () == dataWindow);
+        assert (inFile.header ().tileDescription () == hdr.tileDescription ());
+
+        Array2D<unsigned int> readSc;
+        readSc.resizeErase (h, w);
+        Array2D<void*>      readData;
+        readData.resizeErase (h, w);
+        for (int y = 0; y < h; ++y)
+            for (int x = 0; x < w; ++x)
+                readData[y][x] = nullptr;
+
+        DeepFrameBuffer readFb;
+        readFb.insertSampleCountSlice (Slice (
+            IMF::UINT,
+            (char*) (&readSc[0][0] - memOff),
+            sizeof (unsigned int),
+            sizeof (unsigned int) * w));
+        readFb.insert (
+            "h",
+            DeepSlice (
+                IMF::HALF,
+                (char*) (&readData[0][0] - memOff),
+                sizeof (char*),
+                sizeof (char*) * w,
+                sizeof (half)));
+        inFile.setFrameBuffer (readFb);
+
+        for (int ly = 0; ly < inFile.numYLevels (); ++ly)
+        {
+            for (int lx = 0; lx < inFile.numXLevels (); ++lx)
+            {
+                Box2i dataWindowL = inFile.dataWindowForLevel (lx, ly);
+                inFile.readPixelSampleCounts (
+                    0,
+                    inFile.numXTiles (lx) - 1,
+                    0,
+                    inFile.numYTiles (ly) - 1,
+                    lx,
+                    ly);
+                for (int y = dataWindowL.min.y; y <= dataWindowL.max.y; ++y)
+                {
+                    for (int x = dataWindowL.min.x; x <= dataWindowL.max.x; ++x)
+                    {
+                        int dwy = y - dataWindowL.min.y;
+                        int dwx = x - dataWindowL.min.x;
+                        assert (readSc[dwy][dwx] == 0);
+                    }
+                }
+                inFile.readTiles (
+                    0,
+                    inFile.numXTiles (lx) - 1,
+                    0,
+                    inFile.numYTiles (ly) - 1,
+                    lx,
+                    ly);
+                for (int y = dataWindowL.min.y; y <= dataWindowL.max.y; ++y)
+                {
+                    for (int x = dataWindowL.min.x; x <= dataWindowL.max.x; ++x)
+                    {
+                        int dwy = y - dataWindowL.min.y;
+                        int dwx = x - dataWindowL.min.x;
+                        assert (readSc[dwy][dwx] == 0);
+                        assert (readData[dwy][dwx] == nullptr);
+                    }
+                }
+            }
+        }
+
+        remove (filename.c_str ());
+    }
+}
 
 void
 generateRandomFile (
@@ -868,13 +1034,14 @@ readWriteTestWithAbsoluateCoordinates (
 
     for (int i = 0; i < testTimes; i++)
     {
-        int         compressionIndex = i % 3;
+        int         compressionIndex = i % 4;
         Compression compression;
         switch (compressionIndex)
         {
             case 0: compression = NO_COMPRESSION; break;
             case 1: compression = RLE_COMPRESSION; break;
             case 2: compression = ZIPS_COMPRESSION; break;
+            case 3: compression = ZSTD_COMPRESSION; break;
         }
 
         generateRandomFile (channelCount, compression, false, false, fn);
@@ -911,14 +1078,17 @@ testDeepTiledBasic (const std::string& tempDir)
         random_reseed (1);
 
         int numThreads = ThreadPool::globalThreadPool ().numThreads ();
-        ThreadPool::globalThreadPool ().setNumThreads (2);
+        ThreadPool::globalThreadPool ().setNumThreads (10);
 
         for (int pass = 0; pass < 4; pass++)
         {
-            readWriteTestWithAbsoluateCoordinates (1, 2, tempDir);
-            readWriteTestWithAbsoluateCoordinates (3, 2, tempDir);
-            readWriteTestWithAbsoluateCoordinates (10, 2, tempDir);
+            readWriteTestWithAbsoluateCoordinates (1, 4, tempDir);
+            readWriteTestWithAbsoluateCoordinates (3, 4, tempDir); // This seems to be unstable
+            readWriteTestWithAbsoluateCoordinates (10, 4, tempDir);
         }
+
+        readWriteAllZeroSampleCountsDeepTiled (tempDir);
+
         ThreadPool::globalThreadPool ().setNumThreads (numThreads);
 
         cout << "ok\n" << endl;
