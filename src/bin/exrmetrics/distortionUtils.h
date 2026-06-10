@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: BSD-3-Clause
 // Copyright (c) Contributors to the OpenEXR Project.
 
-#ifndef INCLUDED_MSE_UTILS_H
-#define INCLUDED_MSE_UTILS_H
+#ifndef INCLUDED_DISTORTION_UTILS_H
+#define INCLUDED_DISTORTION_UTILS_H
 
 #include <half.h>
 #include <cstdint>
 
 template <typename T>
-void accumMSE (
+void accumLogMSE (
     const T*  orig,
     const T*  reread,
     uint64_t  pixelsInChannel,
@@ -16,7 +16,7 @@ void accumMSE (
     uint64_t& count);
 
 template <>
-void accumMSE<IMATH_NAMESPACE::half> (
+void accumLogMSE<IMATH_NAMESPACE::half> (
     const IMATH_NAMESPACE::half* orig,
     const IMATH_NAMESPACE::half* reread,
     uint64_t                     pixelsInChannel,
@@ -24,7 +24,7 @@ void accumMSE<IMATH_NAMESPACE::half> (
     uint64_t&                    count);
 
 template <>
-void accumMSE<float> (
+void accumLogMSE<float> (
     const float* orig,
     const float* reread,
     uint64_t     pixelsInChannel,
