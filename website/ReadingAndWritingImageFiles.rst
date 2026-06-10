@@ -1384,7 +1384,7 @@ stdio file (of type ``FILE``) that has already been opened. To do
 this, we derive a new class, ``C_IStream``, from ``IStream``. The
 declaration of class ``IStream`` looks like this:
 
-.. literalinclude:: src/IStream.cpp
+.. literalinclude:: src/IStream.h
    :language: c++
    :linenos:
    :lines: 5-
@@ -1392,7 +1392,7 @@ declaration of class ``IStream`` looks like this:
 Our derived class needs a public constructor, and it must override four
 methods:
 
-.. literalinclude:: src/C_IStream.cpp
+.. literalinclude:: src/C_IStream.h
    :language: c++
    :linenos:
    :lines: 5-

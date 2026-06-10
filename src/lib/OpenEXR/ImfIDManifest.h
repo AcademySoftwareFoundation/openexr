@@ -12,6 +12,7 @@
 #include "ImfForward.h"
 
 #include <cstdint>
+#include <deque>
 #include <map>
 #include <set>
 #include <string>
@@ -220,7 +221,9 @@ public:
     };
 
 private:
-    std::vector<ChannelGroupManifest> _manifest;
+    // deque vs vector: add() returns references to groups; vector may reallocate
+    // and invalidate them when another group is added 
+    std::deque<ChannelGroupManifest> _manifest;
 
 public:
     // add a new channel group definition to the table, presumably populated with mappings
