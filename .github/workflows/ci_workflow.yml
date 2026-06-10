@@ -162,6 +162,12 @@ jobs:
             OPENEXR_INSTALL_DOCS: 'OFF'
             validate_install: 'OFF'
 
+          - build: 13
+            label: STATIC w/vendored OpenJPH
+            OPENEXR_FORCE_INTERNAL_OPENJPH: 'ON'
+            BUILD_SHARED_LIBS: 'OFF'
+            RUN_TESTING: OFF
+
   macOS:
     name: 'macOS.${{ matrix.build}}: ${{ matrix.label }}'
     permissions:

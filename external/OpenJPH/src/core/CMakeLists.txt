@@ -127,7 +127,10 @@ elseif (CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
   endif()
 endif()
 
-add_library(openjph STATIC ${SOURCES})
+if (NOT DEFINED OJPH_LIB_TYPE)
+  set(OJPH_LIB_TYPE STATIC)
+endif()
+add_library(openjph ${OJPH_LIB_TYPE} ${SOURCES})
 
 ## The option BUILD_SHARED_LIBS
 if (BUILD_SHARED_LIBS AND WIN32)
@@ -169,12 +172,14 @@ else()
       VERSION "${OPENJPH_VERSION}")
 endif()
 
-install(TARGETS openjph
-  EXPORT openjph-targets
-)
+if (OJPH_INSTALL)
+  install(TARGETS openjph
+    EXPORT openjph-targets
+  )
 
-install(DIRECTORY openjph/
-  DESTINATION include/openjph
-  FILES_MATCHING
-  PATTERN "*.h"
-)
+  install(DIRECTORY openjph/
+    DESTINATION include/openjph
+    FILES_MATCHING
+    PATTERN "*.h"
+  )
+endif()

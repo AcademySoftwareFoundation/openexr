@@ -112,6 +112,8 @@ SampleCountChannel::set (int x, int y, unsigned int newNumSamples)
     // arrays that describe it.
     //
 
+    boundsCheck (x, y);
+
     size_t i = (_base + y * pixelsPerRow () + x) - _numSamples;
 
     if (newNumSamples <= _numSamples[i])
@@ -222,8 +224,18 @@ SampleCountChannel::set (int x, int y, unsigned int newNumSamples)
 void
 SampleCountChannel::set (int r, unsigned int newNumSamples[])
 {
+    if (r < 0 || r >= pixelsPerColumn ())
+    {
+        THROW (
+            ArgExc,
+            "Attempt to set sample counts for row "
+            << r
+            << " in an image channel with "
+            << pixelsPerColumn () << " rows.");
+    }
+
     int x = level ().dataWindow ().min.x;
-    int y = r + level ().dataWindow ().min.x;
+    int y = r + level ().dataWindow ().min.y;
 
     for (int i = 0; i < pixelsPerRow (); ++i, ++x)
         set (x, y, newNumSamples[i]);
