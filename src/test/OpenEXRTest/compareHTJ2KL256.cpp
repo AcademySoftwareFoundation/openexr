@@ -48,7 +48,7 @@ checkHTJ2KSample (unsigned int src, unsigned int tst)
             return false;
         }
     } else {
-        if (diff / src > 0.5)
+        if ((double) diff / src > 0.5)
         {
             return false;
         }
