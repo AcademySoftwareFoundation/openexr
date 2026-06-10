@@ -136,7 +136,7 @@ EXR_EXPORT void exr_set_default_dwa_compression_quality (float q);
  */
 EXR_EXPORT void exr_get_default_dwa_compression_quality (float* q);
 
-/** @brief Assigns a default HTJ2K compression quality.
+/** @brief Assigns a default lossy HTJ2K compression quality.
  *
  * The value is used as the irreversible quantization delta (q-step) value
  *
