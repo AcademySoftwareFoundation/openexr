@@ -125,6 +125,8 @@ openexr_define_library(OpenEXR
     ImfZip.h
     ImfZipCompressor.cpp
     ImfZipCompressor.h
+    ImfZstdCompressor.cpp
+    ImfZstdCompressor.h
   HEADERS
     ImfAcesFile.h
     ImfArray.h

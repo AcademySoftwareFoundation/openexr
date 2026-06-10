@@ -231,6 +231,12 @@ exr_rle_uncompress_buffer (size_t in_bytes, size_t max_len, const void* in, void
 /**************************************/
 /**************************************/
 
+int
+exr_get_zstd_lines_per_chunk (void)
+{
+    return 1;
+}
+
 int exr_compression_lines_per_chunk (exr_compression_t comptype)
 {
     int linePerChunk = -1;
@@ -249,6 +255,7 @@ int exr_compression_lines_per_chunk (exr_compression_t comptype)
         case EXR_COMPRESSION_DWAA: linePerChunk = 32; break;
         case EXR_COMPRESSION_DWAB: linePerChunk = 256; break;
         case EXR_COMPRESSION_HTJ2K256: linePerChunk = 256; break;
+        case EXR_COMPRESSION_ZSTD: linePerChunk = exr_get_zstd_lines_per_chunk (); break;
         case EXR_COMPRESSION_LAST_TYPE:
         default:
             /* ERROR CONDITION */
@@ -299,7 +306,8 @@ exr_compress_chunk (exr_encode_pipeline_t* encode)
             exr_compress_max_buffer_size (maxbytes));
     //return rv;
 
-    if (encode->sample_count_table)
+    // This is never called in regular c++ usage
+    if (encode->sample_count_table!=NULL && !encode->skip_sample_count_table_compression)
     {
         uint64_t sampsize =
             (((uint64_t) encode->chunk.width) *
@@ -346,6 +354,7 @@ exr_compress_chunk (exr_encode_pipeline_t* encode)
                 case EXR_COMPRESSION_RLE: rv = internal_exr_apply_rle (encode); break;
                 case EXR_COMPRESSION_ZIP:
                 case EXR_COMPRESSION_ZIPS: rv = internal_exr_apply_zip (encode); break;
+                case EXR_COMPRESSION_ZSTD: rv = internal_exr_apply_zstd (encode); break;
 
                 default:
                     rv = EXR_ERR_INVALID_ARGUMENT;
@@ -385,6 +394,7 @@ exr_compress_chunk (exr_encode_pipeline_t* encode)
         case EXR_COMPRESSION_HTJ2K32:
         case EXR_COMPRESSION_HTJ2K256:
             rv = internal_exr_apply_ht (encode); break;
+        case EXR_COMPRESSION_ZSTD: rv = internal_exr_apply_zstd (encode); break;
         case EXR_COMPRESSION_LAST_TYPE:
         default:
             return ctxt->print_error (
@@ -466,6 +476,10 @@ decompress_data (
             rv = internal_exr_undo_ht (
                 decode, packbufptr, packsz, unpackbufptr, unpacksz);
             break;
+        case EXR_COMPRESSION_ZSTD:
+            rv = internal_exr_undo_zstd (
+                decode, packbufptr, packsz, unpackbufptr, unpacksz);
+            break;
         case EXR_COMPRESSION_LAST_TYPE:
         default:
             return ctxt->print_error (
@@ -526,7 +540,7 @@ exr_uncompress_chunk (exr_decode_pipeline_t* decode)
             decode->chunk.sample_count_table_size,
             decode->sample_count_table,
             sampsize);
-
+        decode->sample_count_valid = 1;
         if (rv != EXR_ERR_SUCCESS)
         {
             return ctxt->print_error (

@@ -19,10 +19,12 @@
 #include "ImfRleCompressor.h"
 #include "ImfZipCompressor.h"
 #include "ImfZip.h"
+#include "ImfZstdCompressor.h"
 
 #include <algorithm>
 #include <stdexcept>
 #include "ImfHTCompressor.h"
+#include "openexr_compression.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
@@ -54,6 +56,7 @@ Compressor::Compressor (
 
     exr_set_zip_compression_level (_ctxt, 0, hdr.zipCompressionLevel ());
     exr_set_dwa_compression_level (_ctxt, 0, hdr.dwaCompressionLevel ());
+    exr_set_zstd_compression_level (_ctxt, 0, hdr.zstdCompressionLevel ());
 
     exr_compression_t hdrcomp;
     if (EXR_ERR_SUCCESS != exr_get_compression (_ctxt, 0, &hdrcomp))
@@ -94,13 +97,26 @@ int
 Compressor::compress (
     const char* inPtr, int inSize, int minY, const char*& outPtr)
 {
+    return compress (
+        inPtr, inSize, minY, outPtr, nullptr, 0);
+}
+
+int
+Compressor::compress (
+    const char*  inPtr,
+    int          inSize,
+    int          minY,
+    const char*& outPtr,
+    const char*  sampleCountTable,
+    int          sampleCountTableSize)
+{
     IMATH_NAMESPACE::Box2i range = _header.dataWindow ();
 
     range.min.y = minY;
     range.max.y = minY + _numScanLines - 1;
 
     return static_cast<int> (
-        runEncodeStep (inPtr, inSize, range, outPtr));
+        runEncodeStep (inPtr, inSize, range, outPtr, sampleCountTable, sampleCountTableSize));
 }
 
 int
@@ -118,15 +134,34 @@ Compressor::uncompress (
 
 int
 Compressor::compressTile (
-    const char* inPtr, int inSize, Box2i range, const char*& outPtr)
+    const char*  inPtr,
+    int          inSize,
+    Box2i        range,
+    const char*& outPtr)
+{
+    return compressTile (
+        inPtr, inSize, range, outPtr, nullptr, 0);
+}
+
+int
+Compressor::compressTile (
+    const char*  inPtr,
+    int          inSize,
+    Box2i        range,
+    const char*& outPtr,
+    const char*  sampleCountTable,
+    int          sampleCountTableSize)
 {
     return static_cast<int> (
-        runEncodeStep (inPtr, inSize, range, outPtr));
+        runEncodeStep (inPtr, inSize, range, outPtr, sampleCountTable, sampleCountTableSize));
 }
 
 int
 Compressor::uncompressTile (
-    const char* inPtr, int inSize, Box2i range, const char*& outPtr)
+    const char*  inPtr,
+    int          inSize,
+    Box2i        range,
+    const char*& outPtr)
 {
     return static_cast<int> (
         runDecodeStep (inPtr, inSize, range, outPtr));
@@ -137,7 +172,9 @@ Compressor::runEncodeStep (
     const char* inPtr,
     int inSize,
     IMATH_NAMESPACE::Box2i range,
-    const char*& outPtr)
+    const char*& outPtr, 
+    const char* sampleCountTable,
+    int sampleCountTableSize)
 {
     // special case
     if (inSize == 0)
@@ -169,6 +206,11 @@ Compressor::runEncodeStep (
     _encoder.packed_buffer = const_cast<char*> (inPtr);
     _encoder.packed_bytes = inSize;
 
+    _encoder.sample_count_table = const_cast<int32_t*> (
+        reinterpret_cast<const int32_t*> (sampleCountTable));
+    _encoder.sample_count_alloc_size = sampleCountTableSize;
+    _encoder.skip_sample_count_table_compression = sampleCountTableSize > 0 ? 1 : 0;
+
     if (EXR_ERR_SUCCESS != exr_compress_chunk(&_encoder))
         throw IEX_NAMESPACE::ArgExc ("Unable to run compression routine");
 
@@ -176,6 +218,10 @@ Compressor::runEncodeStep (
 
     _encoder.packed_buffer = nullptr;
     _encoder.packed_bytes = 0;
+
+    _encoder.sample_count_table = nullptr;
+    _encoder.sample_count_alloc_size = 0;
+
 
     return _encoder.compressed_bytes;
 }
@@ -343,6 +389,11 @@ newCompressor (Compression c, size_t maxScanLineSize, const Header& hdr)
         case HTJ2K32_COMPRESSION:
 
             return new HTCompressor (hdr, static_cast<int> (maxScanLineSize), 32);
+        case ZSTD_COMPRESSION:
+
+            ret = new ZstdCompressor (
+                hdr, maxScanLineSize, exr_get_zstd_lines_per_chunk ());
+            break;
 
         default: break;
     }
@@ -432,6 +483,10 @@ newTileCompressor (
                 hdr,
                 static_cast<int> (tileLineSize),
                 static_cast<int> (numTileLines));
+        case ZSTD_COMPRESSION:
+
+            ret = new ZstdCompressor (hdr, tileLineSize, numTileLines);
+            break;
 
         default: break;
     }
