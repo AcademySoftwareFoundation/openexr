@@ -58,6 +58,9 @@ openexr_define_library(OpenEXRCore
     internal_dwa_table.c
     internal_dwa_table_init.c
     internal_huf.c
+    internal_zstd.c
+    internal_zstd_delta.c
+    internal_zstd_shuffle.c
 
     attributes.c
     string.c
@@ -122,6 +125,71 @@ if (DEFINED EXR_DEFLATE_LIB)
   else()
     target_link_libraries(OpenEXRCore PUBLIC ${EXR_DEFLATE_LIB})
   endif()
+endif()
+
+if (DEFINED EXR_ZSTD_LIB)
+
+  # External zstd
+
+  if (BUILD_SHARED_LIBS)
+    target_link_libraries(OpenEXRCore PRIVATE ${EXR_ZSTD_LIB})
+  else()
+    target_link_libraries(OpenEXRCore PUBLIC ${EXR_ZSTD_LIB})
+  endif()
+
+else()
+
+  # Vendored zstd
+  #
+  # Compile the vendored zstd sources directly into OpenEXRCore rather than
+  # building a separate static library. This bundles the zstd symbols into
+  # OpenEXRCore so that a static OpenEXRCore is self-contained: a separate
+  # static target is neither installed nor part of the OpenEXR export set,
+  # which both breaks install(EXPORT ...) and leaves undefined references for
+  # downstream static consumers. OpenEXRCore's hidden visibility keeps the
+  # zstd symbols out of the shared library's ABI.
+
+  set(ZSTD_LIB_DIR ${PROJECT_SOURCE_DIR}/external/zstd/lib)
+
+  set(EXR_ZSTD_SOURCES
+    ${ZSTD_LIB_DIR}/common/debug.c
+    ${ZSTD_LIB_DIR}/common/entropy_common.c
+    ${ZSTD_LIB_DIR}/common/error_private.c
+    ${ZSTD_LIB_DIR}/common/fse_decompress.c
+    ${ZSTD_LIB_DIR}/common/pool.c
+    ${ZSTD_LIB_DIR}/common/threading.c
+    ${ZSTD_LIB_DIR}/common/xxhash.c
+    ${ZSTD_LIB_DIR}/common/zstd_common.c
+    ${ZSTD_LIB_DIR}/compress/fse_compress.c
+    ${ZSTD_LIB_DIR}/compress/hist.c
+    ${ZSTD_LIB_DIR}/compress/huf_compress.c
+    ${ZSTD_LIB_DIR}/compress/zstd_compress.c
+    ${ZSTD_LIB_DIR}/compress/zstd_compress_literals.c
+    ${ZSTD_LIB_DIR}/compress/zstd_compress_sequences.c
+    ${ZSTD_LIB_DIR}/compress/zstd_compress_superblock.c
+    ${ZSTD_LIB_DIR}/compress/zstd_double_fast.c
+    ${ZSTD_LIB_DIR}/compress/zstd_fast.c
+    ${ZSTD_LIB_DIR}/compress/zstd_lazy.c
+    ${ZSTD_LIB_DIR}/compress/zstd_ldm.c
+    ${ZSTD_LIB_DIR}/compress/zstd_opt.c
+    ${ZSTD_LIB_DIR}/compress/zstd_preSplit.c
+    ${ZSTD_LIB_DIR}/compress/zstdmt_compress.c
+    ${ZSTD_LIB_DIR}/decompress/huf_decompress.c
+    ${ZSTD_LIB_DIR}/decompress/zstd_ddict.c
+    ${ZSTD_LIB_DIR}/decompress/zstd_decompress.c
+    ${ZSTD_LIB_DIR}/decompress/zstd_decompress_block.c)
+
+  if (NOT MSVC AND CMAKE_SYSTEM_PROCESSOR MATCHES "amd64.*|AMD64.*|x86_64.*|X86_64.*")
+    enable_language(ASM)
+    list(APPEND EXR_ZSTD_SOURCES ${ZSTD_LIB_DIR}/decompress/huf_decompress_amd64.S)
+  else()
+    set_source_files_properties(${EXR_ZSTD_SOURCES} PROPERTIES
+      COMPILE_DEFINITIONS ZSTD_DISABLE_ASM)
+  endif()
+
+  target_sources(OpenEXRCore PRIVATE ${EXR_ZSTD_SOURCES})
+  target_include_directories(OpenEXRCore PRIVATE ${ZSTD_LIB_DIR})
+
 endif()
 
 if (DEFINED EXR_OPENJPH_LIB)
