@@ -276,6 +276,7 @@ unpack_sample_table (exr_const_context_t ctxt, exr_decode_pipeline_t* decode)
             ctxt, EXR_ERR_INVALID_SAMPLE_DATA, "Corrupt sample count table");
     }
 
+    decode->sample_count_valid = 1;
     return rv;
 }
 
@@ -536,6 +537,7 @@ exr_decoding_update (
     rv = internal_coding_update_channel_info (
         decode->channels, decode->channel_count, cinfo, ctxt, part);
     decode->chunk = *cinfo;
+    decode->sample_count_valid = 0;
 
     return rv;
 }

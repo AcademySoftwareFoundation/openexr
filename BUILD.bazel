@@ -73,6 +73,7 @@ expand_template(
     out = "src/lib/OpenEXR/OpenEXRConfigInternal.h",
     substitutions = {
         "#cmakedefine OPENEXR_USE_INTERNAL_DEFLATE 1": "#define OPENEXR_USE_INTERNAL_DEFLATE 0",
+        "#cmakedefine OPENEXR_USE_INTERNAL_ZSTD 1": "#define OPENEXR_USE_INTERNAL_ZSTD 0",
         "#cmakedefine OPENEXR_IMF_HAVE_COMPLETE_IOMANIP 1": "#define OPENEXR_IMF_HAVE_COMPLETE_IOMANIP 1",
         "#cmakedefine OPENEXR_IMF_HAVE_DARWIN 1": "/* #undef OPENEXR_IMF_HAVE_DARWIN */",
         "#cmakedefine OPENEXR_IMF_HAVE_GCC_INLINE_ASM_AVX 1": "/* #undef OPENEXR_IMF_HAVE_GCC_INLINE_ASM_AVX */",
@@ -219,6 +220,9 @@ cc_library(
         "src/lib/OpenEXRCore/internal_win32_file_impl.h",
         "src/lib/OpenEXRCore/internal_xdr.h",
         "src/lib/OpenEXRCore/internal_zip.c",
+        "src/lib/OpenEXRCore/internal_zstd.c",
+        "src/lib/OpenEXRCore/internal_zstd_delta.c",
+        "src/lib/OpenEXRCore/internal_zstd_shuffle.c",
         "src/lib/OpenEXRCore/memory.c",
         "src/lib/OpenEXRCore/opaque.c",
         "src/lib/OpenEXRCore/openexr_version.h",
@@ -274,6 +278,7 @@ cc_library(
         }),
     visibility = ["//visibility:public"],
     deps = [
+        "@zstd//:zstd",
         "@imath",
         "@libdeflate//:deflate",
         "@openjph",
@@ -379,6 +384,7 @@ cc_library(
         "src/lib/OpenEXR/ImfWav.cpp",
         "src/lib/OpenEXR/ImfZip.cpp",
         "src/lib/OpenEXR/ImfZipCompressor.cpp",
+        "src/lib/OpenEXR/ImfZstdCompressor.cpp",
     ],
     hdrs = [
         "src/lib/Iex/IexConfig.h",
@@ -499,6 +505,7 @@ cc_library(
         "src/lib/OpenEXR/ImfXdr.h",
         "src/lib/OpenEXR/ImfZip.h",
         "src/lib/OpenEXR/ImfZipCompressor.h",
+        "src/lib/OpenEXR/ImfZstdCompressor.h",
         "src/lib/OpenEXR/OpenEXRConfig.h",
         "src/lib/OpenEXR/OpenEXRConfigInternal.h",
     ],
@@ -519,6 +526,7 @@ cc_library(
         }),
     visibility = ["//visibility:public"],
     deps = [
+        "@zstd//:zstd",
         ":IlmThread",
         ":OpenEXRCore",
         "@imath",
