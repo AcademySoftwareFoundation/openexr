@@ -37,6 +37,7 @@
 
 #include <cmath>
 #include <climits>
+#include <mutex>
 
 #include "ojph_defs.h"
 #include "ojph_arch.h"
@@ -105,26 +106,22 @@ namespace ojph {
        float *r, float *g, float *b, ui32 repeat) = NULL;
 
     //////////////////////////////////////////////////////////////////////////
-    static bool colour_transform_functions_initialized = false;
-
-    //////////////////////////////////////////////////////////////////////////
     void init_colour_transform_functions()
     {
-      if (colour_transform_functions_initialized)
-        return;
-
+      static std::once_flag colour_transform_functions_init_flag;
+      std::call_once(colour_transform_functions_init_flag, []() {
 #if !defined(OJPH_ENABLE_WASM_SIMD) || !defined(OJPH_EMSCRIPTEN)
 
-      rev_convert = gen_rev_convert;
-      rev_convert_nlt_type3 = gen_rev_convert_nlt_type3;
-      irv_convert_to_integer = gen_irv_convert_to_integer;
-      irv_convert_to_float = gen_irv_convert_to_float;
-      irv_convert_to_integer_nlt_type3 = gen_irv_convert_to_integer_nlt_type3;
-      irv_convert_to_float_nlt_type3 = gen_irv_convert_to_float_nlt_type3;
-      rct_forward = gen_rct_forward;
-      rct_backward = gen_rct_backward;
-      ict_forward = gen_ict_forward;
-      ict_backward = gen_ict_backward;
+        rev_convert = gen_rev_convert;
+        rev_convert_nlt_type3 = gen_rev_convert_nlt_type3;
+        irv_convert_to_integer = gen_irv_convert_to_integer;
+        irv_convert_to_float = gen_irv_convert_to_float;
+        irv_convert_to_integer_nlt_type3 = gen_irv_convert_to_integer_nlt_type3;
+        irv_convert_to_float_nlt_type3 = gen_irv_convert_to_float_nlt_type3;
+        rct_forward = gen_rct_forward;
+        rct_backward = gen_rct_backward;
+        ict_forward = gen_ict_forward;
+        ict_backward = gen_ict_backward;
 
   #ifndef OJPH_DISABLE_SIMD
 
@@ -186,20 +183,19 @@ namespace ojph {
 
 #else // OJPH_ENABLE_WASM_SIMD
 
-      rev_convert = wasm_rev_convert;
-      rev_convert_nlt_type3 = wasm_rev_convert_nlt_type3;
-      irv_convert_to_integer = wasm_irv_convert_to_integer;
-      irv_convert_to_float = wasm_irv_convert_to_float;
-      irv_convert_to_integer_nlt_type3 = wasm_irv_convert_to_integer_nlt_type3;
-      irv_convert_to_float_nlt_type3 = wasm_irv_convert_to_float_nlt_type3;
-      rct_forward = wasm_rct_forward;
-      rct_backward = wasm_rct_backward;
-      ict_forward = wasm_ict_forward;
-      ict_backward = wasm_ict_backward;
+        rev_convert = wasm_rev_convert;
+        rev_convert_nlt_type3 = wasm_rev_convert_nlt_type3;
+        irv_convert_to_integer = wasm_irv_convert_to_integer;
+        irv_convert_to_float = wasm_irv_convert_to_float;
+        irv_convert_to_integer_nlt_type3 = wasm_irv_convert_to_integer_nlt_type3;
+        irv_convert_to_float_nlt_type3 = wasm_irv_convert_to_float_nlt_type3;
+        rct_forward = wasm_rct_forward;
+        rct_backward = wasm_rct_backward;
+        ict_forward = wasm_ict_forward;
+        ict_backward = wasm_ict_backward;
 
 #endif // !OJPH_ENABLE_WASM_SIMD
-
-      colour_transform_functions_initialized = true;
+      });
     }
 
     //////////////////////////////////////////////////////////////////////////
