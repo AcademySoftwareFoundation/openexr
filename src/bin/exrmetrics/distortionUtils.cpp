@@ -17,7 +17,7 @@ accumLogMSE<half> (
     double&     sumSq,
     uint64_t&   count)
 {
-    const double LN_HALF_DENORM_MIN = std::log(HALF_DENORM_MIN);
+    static const double LN_HALF_DENORM_MIN = std::log(HALF_DENORM_MIN);
     for (uint64_t px = 0; px < pixelsInChannel; ++px)
     {
         double a = static_cast<double> (orig[px]);
@@ -41,8 +41,8 @@ accumLogMSE<float> (
     double&      sumSq,
     uint64_t&    count)
 {
-    const double ln_eps = std::log (std::numeric_limits<float>::denorm_min ());
-    constexpr double eps = std::numeric_limits<float>::denorm_min ();
+    static const double ln_eps = std::log (std::numeric_limits<float>::denorm_min ());
+    static constexpr double eps = std::numeric_limits<float>::denorm_min ();
     for (uint64_t px = 0; px < pixelsInChannel; ++px)
     {
         double a = static_cast<double> (orig[px]);
