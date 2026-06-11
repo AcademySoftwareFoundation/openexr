@@ -9,6 +9,7 @@
 
 #include "compareB44.h"
 #include "compareDwa.h"
+#include "compareHTJ2KL256.h"
 
 #include "compareFloat.h"
 #include "ImfArray.h"
@@ -328,19 +329,25 @@ writeRead (
         {
             for (int x = 0; x < w; ++x)
             {
-                assert (pi1[y][x] == pi2[y][x]);
-
-                if (comp != B44_COMPRESSION && comp != B44A_COMPRESSION &&
-                    comp != DWAA_COMPRESSION && comp != DWAB_COMPRESSION)
+                if (comp == HTJ2KL256_COMPRESSION)
                 {
-                    assert (ph1[y][x] == ph2[y][x]);
-                }
+                    assert (checkHTJ2KSample (ph1[y][x], ph2[y][x]));
+                    assert (checkHTJ2KSample (pi1[y][x], pi2[y][x]));
+                    assert (checkHTJ2KSample (pf1[y][x], pf2[y][x]));
+                } else {
+                    assert (pi1[y][x] == pi2[y][x]);
 
-                assert (equivalent (pf1[y][x], pf2[y][x], comp));
+                    if (comp != B44_COMPRESSION && comp != B44A_COMPRESSION &&
+                        comp != DWAA_COMPRESSION && comp != DWAB_COMPRESSION)
+                    {
+                        assert (ph1[y][x] == ph2[y][x]);
+                    }
+
+                    assert (equivalent (pf1[y][x], pf2[y][x], comp));
+                }
             }
         }
     }
-
     {
         cout << ", reading and comparing (tile-by-tile)" << flush;
 
@@ -436,18 +443,26 @@ writeRead (
                          x < xSize && x2 <= win.max.x;
                          ++x, x2++)
                     {
-                        assert (pi1[oY + y][oX + x] == pi2[y][x]);
-
-                        if (comp != B44_COMPRESSION &&
-                            comp != B44A_COMPRESSION &&
-                            comp != DWAA_COMPRESSION &&
-                            comp != DWAB_COMPRESSION)
+                        if (comp == HTJ2KL256_COMPRESSION)
                         {
-                            assert (ph1[oY + y][oX + x] == ph2[y][x]);
-                        }
+                            assert (checkHTJ2KSample (ph1[oY + y][oX + x], ph2[y][x]));
+                            assert (checkHTJ2KSample (pi1[oY + y][oX + x], pi2[y][x]));
+                            assert (checkHTJ2KSample (pf1[oY + y][oX + x], pf2[y][x]));
+                        } else {
+                            assert (pi1[oY + y][oX + x] == pi2[y][x]);
 
-                        assert (
-                            equivalent (pf1[oY + y][oX + x], pf2[y][x], comp));
+                            if (comp != B44_COMPRESSION &&
+                                comp != B44A_COMPRESSION &&
+                                comp != DWAA_COMPRESSION &&
+                                comp != DWAB_COMPRESSION &&
+                                comp != HTJ2KL256_COMPRESSION)
+                            {
+                                assert (ph1[oY + y][oX + x] == ph2[y][x]);
+                            }
+
+                            assert (
+                                equivalent (pf1[oY + y][oX + x], pf2[y][x], comp));
+                        }
                     }
                 }
             }

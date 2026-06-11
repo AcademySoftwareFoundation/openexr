@@ -36,6 +36,7 @@
 //***************************************************************************/
 
 #include <cstdio>
+#include <mutex>
 
 #include "ojph_arch.h"
 #include "ojph_mem.h"
@@ -93,25 +94,21 @@ namespace ojph {
       (const param_atk* atk, const line_buf* dst, const line_buf* lsrc,
         const line_buf* hsrc, ui32 width, bool even) = NULL;
 
-    ////////////////////////////////////////////////////////////////////////////
-    static bool wavelet_transform_functions_initialized = false;
-
     //////////////////////////////////////////////////////////////////////////
     void init_wavelet_transform_functions()
     {
-      if (wavelet_transform_functions_initialized)
-        return;
-
+      static std::once_flag wavelet_transform_functions_init_flag;
+      std::call_once(wavelet_transform_functions_init_flag, [](){
 #if !defined(OJPH_ENABLE_WASM_SIMD) || !defined(OJPH_EMSCRIPTEN)
 
-      rev_vert_step             = gen_rev_vert_step;
-      rev_horz_ana              = gen_rev_horz_ana;
-      rev_horz_syn              = gen_rev_horz_syn;
+        rev_vert_step             = gen_rev_vert_step;
+        rev_horz_ana              = gen_rev_horz_ana;
+        rev_horz_syn              = gen_rev_horz_syn;
 
-      irv_vert_step             = gen_irv_vert_step;
-      irv_vert_times_K          = gen_irv_vert_times_K;
-      irv_horz_ana              = gen_irv_horz_ana;
-      irv_horz_syn              = gen_irv_horz_syn;
+        irv_vert_step             = gen_irv_vert_step;
+        irv_vert_times_K          = gen_irv_vert_times_K;
+        irv_horz_ana              = gen_irv_horz_ana;
+        irv_horz_syn              = gen_irv_horz_syn;
 
   #ifndef OJPH_DISABLE_SIMD
 
@@ -185,8 +182,7 @@ namespace ojph {
         irv_horz_ana              = wasm_irv_horz_ana;
         irv_horz_syn              = wasm_irv_horz_syn;
 #endif // !OJPH_ENABLE_WASM_SIMD
-
-      wavelet_transform_functions_initialized = true;
+      });
     }
     
     //////////////////////////////////////////////////////////////////////////

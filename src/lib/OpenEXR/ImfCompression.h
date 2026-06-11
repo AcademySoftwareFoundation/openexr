@@ -51,9 +51,11 @@ enum IMF_EXPORT_ENUM Compression
                           // wise and faster to decode full frames
                           // than DWAA_COMPRESSION.
 
-    HTJ2K256_COMPRESSION = 10,   // High-Throughput JPEG2000 (HTJ2K), 256 scanlines
+    HTJ2K256_COMPRESSION = 10,   // High-Throughput JPEG2000 (HTJ2K), lossless, 256 scanlines
 
-    HTJ2K32_COMPRESSION = 11,    // High-Throughput JPEG2000 (HTJ2K), 32 scanlines
+    HTJ2K32_COMPRESSION = 11,    // High-Throughput JPEG2000 (HTJ2K), lossless, 32 scanlines
+
+    HTJ2KL256_COMPRESSION = 12,  // High-Throughput JPEG2000 (HTJ2K), lossy, 256 scanlines
 
     NUM_COMPRESSION_METHODS // number of different compression methods
 };

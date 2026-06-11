@@ -9,6 +9,7 @@
 
 #include "compareB44.h"
 #include "compareDwa.h"
+#include "compareHTJ2KL256.h"
 
 #include "IlmThread.h"
 #include "ImfArray.h"
@@ -188,27 +189,40 @@ writeReadCRGBA (
         }
         else
         {
+            int comp = ImfHeaderCompression (inputFileHeaderPtr);
             for (int y = 0; y < h; ++y)
             {
                 for (int x = 0; x < w; ++x)
                 {  
                     if (channels & IMF_WRITE_R)
-                        assert (p2[y][x].r == p1[y][x].r);
+                        if (comp == IMF_HTJ2KL256_COMPRESSION)
+                            assert (checkHTJ2KSample(p2[y][x].r, p1[y][x].r));
+                        else
+                            assert (p2[y][x].r == p1[y][x].r);
                     else
                         assert (ImfHalfToFloat(p2[y][x].r) == 0.0);
 
                     if (channels & IMF_WRITE_G)
-                        assert (p2[y][x].g == p1[y][x].g);
+                        if (comp == IMF_HTJ2KL256_COMPRESSION)
+                            assert (checkHTJ2KSample(p2[y][x].g, p1[y][x].g));
+                        else
+                            assert (p2[y][x].g == p1[y][x].g);
                     else
                         assert (ImfHalfToFloat(p2[y][x].g) == 0.0);
 
                     if (channels & IMF_WRITE_B)
-                        assert (p2[y][x].b == p1[y][x].b);
+                        if (comp == IMF_HTJ2KL256_COMPRESSION)
+                            assert (checkHTJ2KSample(p2[y][x].b, p1[y][x].b));
+                        else
+                            assert (p2[y][x].b == p1[y][x].b);
                     else
                         assert (ImfHalfToFloat(p2[y][x].b) == 0.0);
 
                     if (channels & IMF_WRITE_A) 
-                        assert (p2[y][x].a == p1[y][x].a);
+                        if (comp == IMF_HTJ2KL256_COMPRESSION)
+                            assert (checkHTJ2KSample(p2[y][x].a, p1[y][x].a));
+                        else
+                            assert (p2[y][x].a == p1[y][x].a);
                     else
                         assert (ImfHalfToFloat(p2[y][x].a) == 1.0);       
                 }
