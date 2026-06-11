@@ -286,6 +286,10 @@ public:
     float& dwaCompressionLevel ();
     IMF_EXPORT
     float dwaCompressionLevel () const;
+    IMF_EXPORT
+    float& lossyHTJ2KQuality ();
+    IMF_EXPORT
+    float lossyHTJ2KQuality () const;
 
     //-----------------------------------------------------
     // Access to required attributes for multipart files

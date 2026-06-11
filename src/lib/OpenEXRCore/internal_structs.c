@@ -227,6 +227,7 @@ internal_exr_add_part (
 
     part->zip_compression_level = f->default_zip_level;
     part->dwa_compression_level = f->default_dwa_quality;
+    part->lossy_htj2k_quality = f->default_lossy_htj2k_quality;
 
     /* put it into the part table */
     for (int p = 0; p < f->num_parts; ++p)
@@ -369,10 +370,13 @@ internal_exr_alloc_context (
 
         exr_get_default_zip_compression_level (&ret->default_zip_level);
         exr_get_default_dwa_compression_quality (&ret->default_dwa_quality);
+        exr_get_default_lossy_htj2k_quality (&ret->default_lossy_htj2k_quality);
         if (initializers->zip_level >= 0)
             ret->default_zip_level = initializers->zip_level;
         if (initializers->dwa_quality >= 0.f)
             ret->default_dwa_quality = initializers->dwa_quality;
+        if (initializers->lossy_htj2k_quality > 0.f)
+            ret->default_lossy_htj2k_quality = initializers->lossy_htj2k_quality;
 
         if (initializers->flags & EXR_CONTEXT_FLAG_STRICT_HEADER)
             ret->strict_header = 1;

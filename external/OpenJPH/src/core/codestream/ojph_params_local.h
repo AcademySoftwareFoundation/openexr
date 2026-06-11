@@ -217,21 +217,35 @@ namespace ojph {
         cptr[comp_num].YRsiz = (ui8)downsampling.y;
       }
 
-      void check_validity(const param_cod& cod)
-      {
-        this->cod = &cod;
+      void set_image_extent(point dims) { Xsiz = dims.x; Ysiz = dims.y; }
+      point get_image_extent() const { return point(Xsiz, Ysiz); }
+      void set_tile_size(size s) { XTsiz = s.w; YTsiz = s.h; }
+      size get_tile_size() const { return size(XTsiz, YTsiz); }
+      void set_image_offset(point offset)
+      { XOsiz = offset.x; YOsiz = offset.y; }
+      point get_image_offset() const
+      { return point(XOsiz, YOsiz); }
+      void set_tile_offset(point offset)
+      { XTOsiz = offset.x; YTOsiz = offset.y; }
+      point get_tile_offset() const
+      { return point(XTOsiz, YTOsiz); }
 
-        if (XTsiz == 0 && YTsiz == 0)
-        { XTsiz = Xsiz + XOsiz; YTsiz = Ysiz + YOsiz; }
+      void set_cod(const param_cod& cod) { this->cod = &cod; }
+
+      void check_validity()
+      {
         if (Xsiz == 0 || Ysiz == 0 || XTsiz == 0 || YTsiz == 0)
           OJPH_ERROR(0x00040001,
-            "You cannot set image extent nor tile size to zero");
+            "Image extent and/or tile size cannot be zero");
         if (XTOsiz > XOsiz || YTOsiz > YOsiz)
           OJPH_ERROR(0x00040002,
-            "tile offset has to be smaller than image offset");
+            "Tile offset has to be smaller than the image offset");
         if (XTsiz + XTOsiz <= XOsiz || YTsiz + YTOsiz <= YOsiz)
           OJPH_ERROR(0x00040003,
-            "the top left tile must intersect with the image");
+            "The top left tile must intersect with the image");
+        if (Xsiz <= XOsiz || Ysiz <= YOsiz)
+          OJPH_ERROR(0x00040004,
+            "The image extent must be larger than the image offset");
       }
 
       ui16 get_num_components() const { return Csiz; }
@@ -701,7 +715,7 @@ namespace ojph {
                     ui32 resolution, ui32 subband) const;
       ui32 propose_precision(const param_cod* cod) const;
       float get_irrev_delta(const param_dfs* dfs,
-                            ui32 num_decompositions,
+                            ui32 num_decompositions, ui32 comp_num,
                             ui32 resolution, ui32 subband) const;
       bool write(outfile_base *file);
       bool write_qcc(outfile_base *file, ui32 num_comps);
