@@ -42,6 +42,7 @@
 #include <cstdint>
 #include <climits>
 #include <immintrin.h>
+#include <mutex>
 
 #include "ojph_mem.h"
 #include "ojph_arch.h"
@@ -221,16 +222,15 @@ namespace ojph {
     }
 
     /////////////////////////////////////////////////////////////////////////
-    static bool tables_initialized = false;
-
-    /////////////////////////////////////////////////////////////////////////
     bool initialize_block_encoder_tables_avx2() {
-      if (!tables_initialized) {
+      static bool tables_initialized = false;
+      static std::once_flag tables_initialized_flag;
+      std::call_once(tables_initialized_flag, []() {
         memset(vlc_tbl0, 0, 2048 * sizeof(ui32));
         memset(vlc_tbl1, 0, 2048 * sizeof(ui32));
         tables_initialized = vlc_init_tables();
         tables_initialized = tables_initialized && uvlc_init_tables();
-      }
+      });
       return tables_initialized;
     }
 

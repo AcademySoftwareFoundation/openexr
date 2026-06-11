@@ -18,7 +18,7 @@ The standard is available free of charge from [ITU website](https://www.itu.int/
 * [Usage Example](./docs/usage_examples.md)
 * [Web-based Demos](./docs/web_demos.md)
 * [Doxygen Documentation Style](./docs/doxygen_style.md)
+* [OSS-Fuzzing](./docs/fuzzing.md)
 
 # Repositories #
 [![Packaging status](https://repology.org/badge/vertical-allrepos/openjph.svg)](https://repology.org/project/openjph/versions)
-

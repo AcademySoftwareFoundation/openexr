@@ -9,6 +9,7 @@
 
 #include "compareB44.h"
 #include "compareDwa.h"
+#include "compareHTJ2KL256.h"
 
 #include "IlmThread.h"
 #include "IlmThreadSemaphore.h"
@@ -218,27 +219,40 @@ writeReadRGBA (
         }
         else
         {
+            int comp = in.compression ();
             for (int y = 0; y < h; ++y)
             {
                 for (int x = 0; x < w; ++x)
                 {
                     if (channels & WRITE_R)
-                        assert (p2[y][x].r == p1[y][x].r);
+                        if (comp == HTJ2KL256_COMPRESSION)
+                            assert (checkHTJ2KSample(p2[y][x].r, p1[y][x].r));
+                        else
+                            assert (p2[y][x].r == p1[y][x].r);
                     else
                         assert (p2[y][x].r == 0);
 
                     if (channels & WRITE_G)
-                        assert (p2[y][x].g == p1[y][x].g);
+                        if (comp == HTJ2KL256_COMPRESSION)
+                            assert (checkHTJ2KSample(p2[y][x].g, p1[y][x].g));
+                        else
+                            assert (p2[y][x].g == p1[y][x].g);
                     else
                         assert (p2[y][x].g == 0);
 
                     if (channels & WRITE_B)
-                        assert (p2[y][x].b == p1[y][x].b);
+                        if (comp == HTJ2KL256_COMPRESSION)
+                            assert (checkHTJ2KSample(p2[y][x].b, p1[y][x].b));
+                        else
+                            assert (p2[y][x].b == p1[y][x].b);
                     else
                         assert (p2[y][x].b == 0);
 
                     if (channels & WRITE_A)
-                        assert (p2[y][x].a == p1[y][x].a);
+                        if (comp == HTJ2KL256_COMPRESSION)
+                            assert (checkHTJ2KSample(p2[y][x].a, p1[y][x].a));
+                        else
+                            assert (p2[y][x].a == p1[y][x].a);
                     else
                         assert (p2[y][x].a == 1);
                 }
