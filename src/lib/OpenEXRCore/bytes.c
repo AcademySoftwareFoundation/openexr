@@ -76,11 +76,25 @@ exr_attr_bytes_create (
     const void* t,
     const void* d)
 {
+    if (h > 0 && !t)
+        return ctxt->print_error (
+            ctxt,
+            EXR_ERR_INVALID_ARGUMENT,
+            "Invalid NULL type hint for bytes attribute with hint length %u",
+            h);
+
+    if (b > 0 && !d)
+        return ctxt->print_error (
+            ctxt,
+            EXR_ERR_INVALID_ARGUMENT,
+            "Invalid NULL bytes data for bytes attribute with size %zu",
+            b);
+
     exr_result_t rv = exr_attr_bytes_init (ctxt, u, h, b);
     if (rv == EXR_ERR_SUCCESS)
     {
-        if (d && u->data) memcpy ((void*) u->data, d, b);
-        if (d && u->type_hint) memcpy ((void*) u->type_hint, t, h);
+        if (b > 0 && u->data) memcpy ((void*) u->data, d, b);
+        if (h > 0 && u->type_hint) memcpy ((void*) u->type_hint, t, h);
     }
 
     return rv;
