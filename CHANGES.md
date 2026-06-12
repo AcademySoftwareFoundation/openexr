@@ -3,6 +3,7 @@
 
 # OpenEXR Release Notes
 
+* [Version 3.4.13](#version-3413-june-14-2026) June 14, 2026
 * [Version 3.4.12](#version-3412-may-24-2026) May 24, 2026
 * [Version 3.4.11](#version-3411-april-29-2026) April 29, 2026
 * [Version 3.4.10](#version-3410-april-17-2026) April 17, 2026
@@ -103,6 +104,58 @@
 * [Version 1.0.2](#version-102)
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
+
+## Version 3.4.13 (June 14, 2026)
+
+Patch release that addresses several bugs and security
+vulnerabilities.
+
+* :bug: Fixes to handling deep images and very large imagess with the OpenEXRUtil library
+* :bug: Fix initiliazation issue in B44A decoding 
+* :bug: Validate HTJ2K chunk header length before decode
+* :bug: Fix when building statically and using the vendored OpenJPH library
+
+For the python module:
+
+* :snake: :sparkles: Support NumPy scalar values Box2i and V2f tuple bindings
+
+
+### Merged Pull Requests
+
+  * [2464](git@github.com:AcademySoftwareFoundation/openexr/pull/2464)
+    Fix heap out-of-bounds write in SampleCountChannel row setter.
+  * [2463](git@github.com:AcademySoftwareFoundation/openexr/pull/2463)
+    Fix integer overflow and invalid delete in OpenEXRUtil Image::resize()
+  * [2451](git@github.com:AcademySoftwareFoundation/openexr/pull/2451)
+    Initialize B44 tables before B44A decode
+  * [2445](git@github.com:AcademySoftwareFoundation/openexr/pull/2445)
+    Fix: Allow NumPy scalar values in Box2i and V2f tuple bindings
+  * [2444](git@github.com:AcademySoftwareFoundation/openexr/pull/2444)
+    Fix vendored OpenJPH for static builds
+  * [2442](git@github.com:AcademySoftwareFoundation/openexr/pull/2442)
+    Bugfix: Fix integer overflows
+  * [2438](git@github.com:AcademySoftwareFoundation/openexr/pull/2438)
+    Break release.py into separate small scripts for each step
+  * [2436](git@github.com:AcademySoftwareFoundation/openexr/pull/2436)
+    Release notes and news for v3.4.12
+  * [2434](git@github.com:AcademySoftwareFoundation/openexr/pull/2434)
+    Validate HTJ2K chunk header length before decode
+
+### Merged Workflow Pull Requests
+
+  * [2462](git@github.com:AcademySoftwareFoundation/openexr/pull/2462)
+    Update idna requirement from >=3.17 to >=3.18 in /website
+  * [2450](git@github.com:AcademySoftwareFoundation/openexr/pull/2450)
+    Update idna requirement from >=3.15 to >=3.17 in /website
+  * [2449](git@github.com:AcademySoftwareFoundation/openexr/pull/2449)
+    Bump vmactions/freebsd-vm from 1.4.5 to 1.4.6
+  * [2437](git@github.com:AcademySoftwareFoundation/openexr/pull/2437)
+    Bump github/codeql-action from 4.35.4 to 4.36.0
+  * [2433](git@github.com:AcademySoftwareFoundation/openexr/pull/2433)
+    Tighten python publish workflow security/efficiency
+  * [2430](git@github.com:AcademySoftwareFoundation/openexr/pull/2430)
+    Pin idna>=3.15 in website/requirements.txt
+
 
 ## Version 3.4.12 (May 24, 2026)
 
