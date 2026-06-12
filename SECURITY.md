@@ -25,12 +25,14 @@ bugfix, document it in a GitHub security advisory or release notes when
 helpful, and do not request a CVE for API-only or caller-controlled
 failures with no realistic adversarial path.
 
-Flaws whose root cause lies in a bundled dependency (such as OpenJPH) are
-fixed upstream; the upstream project owns the CVE when one is warranted.
-OpenEXR addresses them by updating the dependency and noting the upstream
-advisory in release notes. We request a CVE for OpenEXR itself only when
-the flaw is in our code and untrusted input can reach it through normal
-use of the library.
+Flaws whose root cause lies in a bundled dependency (such as OpenJPH)
+are fixed upstream; the upstream project owns the CVE when one is
+warranted.  Note that this applies even when a flaw is detected in
+dependency code vendored into OpenEXR's `external/` source directory.
+OpenEXR addresses them by updating the dependency and noting the
+upstream advisory in release notes. We request a CVE for OpenEXR
+itself only when the flaw is in our code and untrusted input can reach
+it through normal use of the library.
 
 ## Known Vulnerabilities
 
