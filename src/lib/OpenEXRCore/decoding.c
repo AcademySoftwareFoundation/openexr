@@ -11,6 +11,8 @@
 #include "internal_decompress.h"
 #include "internal_structs.h"
 #include "internal_xdr.h"
+#include "internal_xdr.h"
+#include "internal_legacy_structs.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -284,8 +286,8 @@ exr_decoding_initialize (
     const exr_chunk_info_t* cinfo,
     exr_decode_pipeline_t*  decode)
 {
+    size_t                pipe_ver;
     exr_result_t          rv;
-    exr_decode_pipeline_t nil = {0};
     exr_const_priv_part_t part;
 
     if (!ctxt) return EXR_ERR_MISSING_CONTEXT_ARG;
@@ -296,9 +298,23 @@ exr_decoding_initialize (
     if (part_index < 0 || part_index >= ctxt->num_parts)
         return EXR_ERR_ARGUMENT_OUT_OF_RANGE;
 
-    part = ctxt->parts[part_index];
+    if (decode->pipe_size != sizeof (exr_decode_pipeline_v2_t))
+    {
+        /* There was no check for the pipe_size during the v1 struct
+         * versions of the library. If we add more versions of the
+         * struct later, update this condition to check for the new
+         * versions but just let the old assumption that the
+         * size is correct keep running
+         */
+        decode->pipe_size = sizeof (exr_decode_pipeline_v1_t);
+    }
 
-    *decode = nil;
+    pipe_ver = decode->pipe_size;
+    part     = ctxt->parts[part_index];
+
+    // ensure everything is 0 / null...
+    memset (decode, 0, pipe_ver);
+    decode->pipe_size = pipe_ver;
 
     if (part->storage_mode == EXR_STORAGE_DEEP_SCANLINE ||
         part->storage_mode == EXR_STORAGE_DEEP_TILED)
@@ -675,11 +691,12 @@ exr_decoding_run (
 exr_result_t
 exr_decoding_destroy (exr_const_context_t ctxt, exr_decode_pipeline_t* decode)
 {
+    size_t pipe_ver;
+
     if (!ctxt) return EXR_ERR_MISSING_CONTEXT_ARG;
 
     if (decode)
     {
-        exr_decode_pipeline_t nil = {0};
         if (decode->channels != decode->_quick_chan_store)
             ctxt->free_fn (decode->channels);
 
@@ -722,7 +739,21 @@ exr_decoding_destroy (exr_const_context_t ctxt, exr_decode_pipeline_t* decode)
             EXR_TRANSCODE_BUFFER_PACKED_SAMPLES,
             &(decode->packed_sample_count_table),
             &(decode->packed_sample_count_alloc_size));
-        *decode = nil;
+
+        if (decode->pipe_size > sizeof (exr_decode_pipeline_v1_t))
+        {
+            /* safe to check the compression context member and free routine */
+            if (decode->compression_context && decode->free_compression_context)
+            {
+                decode->free_compression_context (decode);
+            }
+        }
+
+        /* zilch out everything except the version field */
+        pipe_ver = decode->pipe_size;
+
+        memset (decode, 0, pipe_ver);
+        decode->pipe_size = pipe_ver;
     }
     return EXR_ERR_SUCCESS;
 }

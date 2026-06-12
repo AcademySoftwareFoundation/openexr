@@ -13,6 +13,7 @@
 #include "internal_coding.h"
 #include "internal_file.h"
 #include "internal_huf.h"
+#include "internal_legacy_structs.h"
 
 #include "OpenEXRConfigInternal.h"
 
@@ -141,6 +142,101 @@ exr_compress_buffer (
 
 /**************************************/
 
+static struct libdeflate_decompressor*
+create_deflate_context (exr_const_context_t ctxt)
+{
+#ifdef EXR_USE_CONFIG_DEFLATE_STRUCT
+    struct libdeflate_options opt = {
+        .sizeof_options = sizeof (struct libdeflate_options),
+        .malloc_func    = ctxt ? ctxt->alloc_fn : internal_exr_alloc,
+        .free_func      = ctxt ? ctxt->free_fn : internal_exr_free};
+#endif
+
+#ifdef EXR_USE_CONFIG_DEFLATE_STRUCT
+    return libdeflate_alloc_decompressor_ex (&opt);
+#else
+    libdeflate_set_memory_allocator (
+        ctxt ? ctxt->alloc_fn : internal_exr_alloc,
+        ctxt ? ctxt->free_fn : internal_exr_free);
+    return libdeflate_alloc_decompressor ();
+#endif
+}
+
+static inline exr_result_t
+translate_deflate_result (
+    enum libdeflate_result res,
+    size_t actual_in_bytes,
+    size_t in_bytes)
+{
+    if (res == LIBDEFLATE_SUCCESS)
+    {
+        if (in_bytes == actual_in_bytes) return EXR_ERR_SUCCESS;
+        /* it's an error to not consume the full buffer, right? */
+    }
+    else if (res == LIBDEFLATE_INSUFFICIENT_SPACE)
+    {
+        return EXR_ERR_OUT_OF_MEMORY;
+    }
+    else if (res == LIBDEFLATE_SHORT_OUTPUT)
+    {
+        /* Decompression succeeded; *actual_out is the byte count. This is
+         * not an error when out_bytes_avail exceeds the true uncompressed
+         * size (e.g. PXR24/ZIP use padded scratch buffers). Callers that
+         * need an exact payload size must compare *actual_out (see e.g.
+         * undo_pxr24_impl). */
+        return EXR_ERR_SUCCESS;
+    }
+    return EXR_ERR_CORRUPT_CHUNK;
+}
+
+/**************************************/
+
+static void internal_free_zip_context (exr_decode_pipeline_t* decode)
+{
+    struct libdeflate_decompressor* decomp = decode->compression_context;
+    if (decomp)
+        libdeflate_free_decompressor (decomp);
+}
+
+exr_result_t internal_exr_decode_uncompress_buffer (
+    exr_decode_pipeline_t* decode,
+    const void*            in,
+    size_t                 in_bytes,
+    void*                  out,
+    size_t                 out_bytes_avail,
+    size_t*                actual_out)
+{
+    if (decode->pipe_size >= sizeof (exr_decode_pipeline_v2_t))
+    {
+        struct libdeflate_decompressor* decomp;
+        enum libdeflate_result          res;
+        size_t                          actual_in_bytes;
+
+        /* we can cache the context... */
+        if (decode->compression_context == NULL)
+        {
+            decode->compression_context = create_deflate_context (decode->context);
+            decode->free_compression_context = &internal_free_zip_context;
+        }
+        decomp = decode->compression_context;
+
+        res = libdeflate_zlib_decompress_ex (
+            decomp,
+            in,
+            in_bytes,
+            out,
+            out_bytes_avail,
+            &actual_in_bytes,
+            actual_out);
+
+        return translate_deflate_result (res, actual_in_bytes, in_bytes);
+    }
+    return exr_uncompress_buffer (decode->context, in, in_bytes,
+                                  out, out_bytes_avail, actual_out);
+}
+
+/**************************************/
+
 exr_result_t
 exr_uncompress_buffer (
     exr_const_context_t ctxt,
@@ -153,30 +249,8 @@ exr_uncompress_buffer (
     struct libdeflate_decompressor* decomp;
     enum libdeflate_result          res;
     size_t                          actual_in_bytes;
-#ifdef EXR_USE_CONFIG_DEFLATE_STRUCT
-    struct libdeflate_options opt = {
-        .sizeof_options = sizeof (struct libdeflate_options),
-        .malloc_func    = ctxt ? ctxt->alloc_fn : internal_exr_alloc,
-        .free_func      = ctxt ? ctxt->free_fn : internal_exr_free};
-#endif
 
-//    if (in_bytes == out_bytes_avail)
-//    {
-//        if (actual_out) *actual_out = in_bytes;
-//        if (in != out)
-//            memcpy(out, in, in_bytes);
-//
-//        return EXR_ERR_SUCCESS;
-//    }
-
-#ifdef EXR_USE_CONFIG_DEFLATE_STRUCT
-    decomp = libdeflate_alloc_decompressor_ex (&opt);
-#else
-    libdeflate_set_memory_allocator (
-        ctxt ? ctxt->alloc_fn : internal_exr_alloc,
-        ctxt ? ctxt->free_fn : internal_exr_free);
-    decomp = libdeflate_alloc_decompressor ();
-#endif
+    decomp = create_deflate_context (ctxt);
     if (decomp)
     {
         res = libdeflate_zlib_decompress_ex (
@@ -190,25 +264,7 @@ exr_uncompress_buffer (
 
         libdeflate_free_decompressor (decomp);
 
-        if (res == LIBDEFLATE_SUCCESS)
-        {
-            if (in_bytes == actual_in_bytes) return EXR_ERR_SUCCESS;
-            /* it's an error to not consume the full buffer, right? */
-        }
-        else if (res == LIBDEFLATE_INSUFFICIENT_SPACE)
-        {
-            return EXR_ERR_OUT_OF_MEMORY;
-        }
-        else if (res == LIBDEFLATE_SHORT_OUTPUT)
-        {
-            /* Decompression succeeded; *actual_out is the byte count. This is
-             * not an error when out_bytes_avail exceeds the true uncompressed
-             * size (e.g. PXR24/ZIP use padded scratch buffers). Callers that
-             * need an exact payload size must compare *actual_out (see e.g.
-             * undo_pxr24_impl). */
-            return EXR_ERR_SUCCESS;
-        }
-        return EXR_ERR_CORRUPT_CHUNK;
+        return translate_deflate_result (res, actual_in_bytes, in_bytes);
     }
     return EXR_ERR_OUT_OF_MEMORY;
 }

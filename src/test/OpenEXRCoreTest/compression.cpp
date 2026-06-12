@@ -909,7 +909,7 @@ static void
 doDecodeScan (exr_context_t f, pixels& p, int xs, int ys)
 {
     exr_chunk_info_t      cinfo;
-    exr_decode_pipeline_t decoder;
+    exr_decode_pipeline_t decoder = EXR_DECODE_PIPELINE_INITIALIZER;
     int32_t               scansperchunk;
     exr_attr_box2i_t      dw;
     bool                  first = true;
@@ -990,7 +990,7 @@ doDecodeTile (exr_context_t f, pixels& p, int xs, int ys)
     int                   y, endy;
     int                   x, endx;
     exr_chunk_info_t      cinfo;
-    exr_decode_pipeline_t decoder;
+    exr_decode_pipeline_t decoder = EXR_DECODE_PIPELINE_INITIALIZER;
     bool                  first = true;
 
     EXRCORE_TEST (xs == 1 && ys == 1);

@@ -60,7 +60,7 @@ struct TileProcess
 
     bool                  first = true;
     exr_chunk_info_t      cinfo;
-    exr_decode_pipeline_t decoder;
+    exr_decode_pipeline_t decoder = EXR_DECODE_PIPELINE_INITIALIZER;
 
     TileProcess*          next;
 };
