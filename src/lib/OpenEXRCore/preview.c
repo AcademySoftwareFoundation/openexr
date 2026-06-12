@@ -59,13 +59,19 @@ exr_attr_preview_create (
     uint32_t            h,
     const uint8_t*      d)
 {
+    size_t copybytes = (size_t) w * (size_t) h * (size_t) 4;
+
+    if (copybytes > 0 && !d)
+        return ctxt->print_error (
+            ctxt,
+            EXR_ERR_INVALID_ARGUMENT,
+            "Invalid NULL preview rgba data for %u x %u preview",
+            w,
+            h);
+
     exr_result_t rv = exr_attr_preview_init (ctxt, p, w, h);
-    if (rv == EXR_ERR_SUCCESS)
-    {
-        size_t copybytes = w * h * 4;
-        if (copybytes > 0)
-            memcpy (EXR_CONST_CAST (uint8_t*, p->rgba), d, copybytes);
-    }
+    if (rv == EXR_ERR_SUCCESS && copybytes > 0)
+        memcpy (EXR_CONST_CAST (uint8_t*, p->rgba), d, copybytes);
     return rv;
 }
 
