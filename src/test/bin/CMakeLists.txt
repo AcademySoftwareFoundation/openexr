@@ -46,6 +46,20 @@ if(BUILD_TESTING)
     set_tests_properties(OpenEXR.bin.${test} PROPERTIES LABELS "OpenEXR.bin")
   endforeach()
 
+  # exrmetrics internals
+  add_executable(testDistortionUtils
+    testDistortionUtils.cpp
+    ${CMAKE_SOURCE_DIR}/src/bin/exrmetrics/distortionUtils.cpp)
+  target_link_libraries(testDistortionUtils OpenEXR::OpenEXR)
+  target_include_directories(testDistortionUtils PRIVATE
+    ${CMAKE_SOURCE_DIR}/src/bin/exrmetrics)
+  target_compile_features(testDistortionUtils PRIVATE
+    cxx_std_${OPENEXR_CXX_STANDARD})
+  add_test(NAME OpenEXR.bin.testDistortionUtils
+           COMMAND testDistortionUtils)
+  set_tests_properties(OpenEXR.bin.testDistortionUtils PROPERTIES
+    LABELS "OpenEXR.bin")
+
   # run exrcheck on test images
   set(images
       ${TEST_IMAGE_DIR}/GrayRampsHorizontal.exr
