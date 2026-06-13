@@ -1933,6 +1933,12 @@ exr_attr_set_preview (
         {
             size_t copybytes =
                 (size_t) val->width * (size_t) val->height * (size_t) 4;
+            if (copybytes > 0 && !val->rgba)
+                return EXR_UNLOCK_AND_RETURN (ctxt->print_error (
+                    ctxt,
+                    EXR_ERR_INVALID_ARGUMENT,
+                    "Invalid NULL preview rgba data for setting '%s'",
+                    name));
             memcpy (
                 EXR_CONST_CAST (void*, attr->preview->rgba),
                 val->rgba,
