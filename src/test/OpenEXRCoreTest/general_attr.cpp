@@ -1028,6 +1028,39 @@ testBytesHelper (exr_context_t f)
     EXRCORE_TEST_RVAL (exr_attr_bytes_destroy (f, &b));
 
     EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_INVALID_ARGUMENT,
+        exr_attr_bytes_create (f, &b, 1, 1, NULL, data4));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_INVALID_ARGUMENT,
+        exr_attr_bytes_create (f, &b, 0, 4, "hint", NULL));
+
+    {
+        exr_attr_bytes_t bytes;
+        bytes.size        = 1;
+        bytes.data        = data4;
+        bytes.hint_length = 1;
+        bytes.type_hint   = NULL;
+        EXRCORE_TEST_RVAL_FAIL (
+            EXR_ERR_INVALID_ARGUMENT,
+            exr_attr_set_bytes (f, 0, "badBytes", &bytes));
+    }
+
+    {
+        exr_attr_bytes_t bytes;
+        bytes.size        = 4;
+        bytes.data        = data4;
+        bytes.hint_length = 11;
+        bytes.type_hint   = "a cool hint";
+        EXRCORE_TEST_RVAL (
+            exr_attr_set_bytes (f, 0, "goodBytes", &bytes));
+
+        bytes.type_hint = NULL;
+        EXRCORE_TEST_RVAL_FAIL (
+            EXR_ERR_INVALID_ARGUMENT,
+            exr_attr_set_bytes (f, 0, "goodBytes", &bytes));
+    }
+
+    EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_INVALID_ARGUMENT, exr_attr_bytes_copy (f, &b2, NULL));
 }
 
