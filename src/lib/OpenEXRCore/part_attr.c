@@ -1333,14 +1333,28 @@ exr_attr_set_bytes (
         if (attr->bytes->size == val->size &&
             attr->bytes->hint_length == val->hint_length)
         {
-            memcpy (
-                EXR_CONST_CAST (void*, attr->bytes->type_hint),
-                val->type_hint,
-                val->hint_length);
-            memcpy (
-                EXR_CONST_CAST (void*, attr->bytes->data),
-                val->data,
-                val->size);
+            if (val->hint_length > 0 && !val->type_hint)
+                return EXR_UNLOCK_AND_RETURN (ctxt->print_error (
+                    ctxt,
+                    EXR_ERR_INVALID_ARGUMENT,
+                    "Invalid NULL type hint for setting '%s'",
+                    name));
+            if (val->size > 0 && !val->data)
+                return EXR_UNLOCK_AND_RETURN (ctxt->print_error (
+                    ctxt,
+                    EXR_ERR_INVALID_ARGUMENT,
+                    "Invalid NULL bytes data for setting '%s'",
+                    name));
+            if (val->hint_length > 0)
+                memcpy (
+                    EXR_CONST_CAST (void*, attr->bytes->type_hint),
+                    val->type_hint,
+                    val->hint_length);
+            if (val->size > 0)
+                memcpy (
+                    EXR_CONST_CAST (void*, attr->bytes->data),
+                    val->data,
+                    val->size);
         }
         else if (ctxt->mode != EXR_CONTEXT_WRITE && ctxt->mode != EXR_CONTEXT_TEMPORARY)
         {
