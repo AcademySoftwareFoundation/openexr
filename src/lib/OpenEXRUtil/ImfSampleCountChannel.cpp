@@ -32,6 +32,15 @@ roundListSizeUp (unsigned int n)
 
     if (n == 0) return 0;
 
+    if (n > 0x80000000u)
+    {
+        THROW (
+            ArgExc,
+            "Sample count "
+                << n
+                << " is too large (cannot round up to next power of two)");
+    }
+
     unsigned int s = 1;
 
     while (s < n)
