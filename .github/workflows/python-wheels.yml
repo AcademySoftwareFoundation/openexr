@@ -73,15 +73,15 @@ jobs:
         run: pipx run build==1.2.2.post1 --sdist . --outdir wheelhouse
 
       - name: Build wheel
-        uses: pypa/cibuildwheel@8d2b08b68458a16aeb24b64e68a09ab1c8e82084  # v3.4.1
+        uses: pypa/cibuildwheel@294735312765b09d24a2fbec22660ce817587d55  # v4.1.0
         with:
           output-dir: wheelhouse
         env:
           CIBW_ARCHS_MACOS: x86_64 arm64 universal2
-          # Build Python 3.8 through 3.13
+          # Build Python 3.9 through 3.13
           # Skip 32-bit wheels builds on Windows
           # Also skip the PyPy builds, since they fail the unit tests
-          CIBW_BUILD: "cp38-* cp39-* cp310-* cp311-* cp312-* cp313-*"
+          CIBW_BUILD: "cp39-* cp310-* cp311-* cp312-* cp313-*"
           CIBW_SKIP: "*-win32 *_i686"
 
       - name: Upload artifact
