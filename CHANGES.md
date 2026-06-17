@@ -3,7 +3,7 @@
 
 # OpenEXR Release Notes
 
-* [Version 3.4.13](#version-3413-june-14-2026) June 14, 2026
+* [Version 3.4.13](#version-3413-june-19-2026) June 19, 2026
 * [Version 3.4.12](#version-3412-may-24-2026) May 24, 2026
 * [Version 3.4.11](#version-3411-april-29-2026) April 29, 2026
 * [Version 3.4.10](#version-3410-april-17-2026) April 17, 2026
@@ -105,55 +105,88 @@
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
 
-## Version 3.4.13 (June 14, 2026)
+## Version 3.4.13 (June 19, 2026)
 
 Patch release that addresses several bugs and security
 vulnerabilities.
 
-* :bug: Fixes to handling deep images and very large imagess with the OpenEXRUtil library
+* :bug: Fix a regression introduced in v3.4.11 in decoding of DWAA compression
+* :bug: Fix to handling deep images and very large images with the OpenEXRUtil library
 * :bug: Fix initiliazation issue in B44A decoding 
 * :bug: Validate HTJ2K chunk header length before decode
-* :bug: Fix when building statically and using the vendored OpenJPH library
+* :hammer_and_wrench: Fix when building statically and using the vendored OpenJPH library
 
 For the python module:
 
 * :snake: :sparkles: Support NumPy scalar values Box2i and V2f tuple bindings
 
+This release addresses the following security vulnerabilities:
 
+* [CVE-2026-55373](https://www.cve.org/CVERecord?id=CVE-2026-55373)
+  OpenEXRUtil `SampleCountChannel` `endEdit()` can loop forever on `UINT_MAX` sample counts
+* [CVE-2026-55371](https://www.cve.org/CVERecord?id=CVE-2026-55371)
+  OpenEXRCore `exr_attr_set_bytes()` accepts NULL `type_hint` with positive `hint_length`
+* [CVE-2026-55059](https://www.cve.org/CVERecord?id=CVE-2026-55059)
+  OpenEXRUtil `SampleCountChannel` row setter heap out-of-bounds write
+* [CVE-2026-54920](https://www.cve.org/CVERecord?id=CVE-2026-54920)
+  Integer Overflow and Use of Uninitialized Pointer leading to Invalid Delete in OpenEXRUtil Image Resize
+* [CVE-2026-53532](https://www.cve.org/CVERecord?id=CVE-2026-53532)
+  Unhandled assert abort in HTJ2K decoder via crafted QCD marker (DoS)
+  
 ### Merged Pull Requests
 
-  * [2464](git@github.com:AcademySoftwareFoundation/openexr/pull/2464)
-    Fix heap out-of-bounds write in SampleCountChannel row setter.
-  * [2463](git@github.com:AcademySoftwareFoundation/openexr/pull/2463)
-    Fix integer overflow and invalid delete in OpenEXRUtil Image::resize()
-  * [2451](git@github.com:AcademySoftwareFoundation/openexr/pull/2451)
-    Initialize B44 tables before B44A decode
-  * [2445](git@github.com:AcademySoftwareFoundation/openexr/pull/2445)
-    Fix: Allow NumPy scalar values in Box2i and V2f tuple bindings
-  * [2444](git@github.com:AcademySoftwareFoundation/openexr/pull/2444)
-    Fix vendored OpenJPH for static builds
-  * [2442](git@github.com:AcademySoftwareFoundation/openexr/pull/2442)
-    Bugfix: Fix integer overflows
-  * [2438](git@github.com:AcademySoftwareFoundation/openexr/pull/2438)
-    Break release.py into separate small scripts for each step
-  * [2436](git@github.com:AcademySoftwareFoundation/openexr/pull/2436)
-    Release notes and news for v3.4.12
-  * [2434](git@github.com:AcademySoftwareFoundation/openexr/pull/2434)
-    Validate HTJ2K chunk header length before decode
+  * [2476](https://github.com/AcademySoftwareFoundation/openexr/pull/2476)
+Fix the DWAA size checks regression
+  * [2472](https://github.com/AcademySoftwareFoundation/openexr/pull/2472)
+Unlock write context in exr_get_chunk_table_offset() return paths
+  * [2471](https://github.com/AcademySoftwareFoundation/openexr/pull/2471)
+Add section on CVE Assignment to SECURITY.md
+  * [2470](https://github.com/AcademySoftwareFoundation/openexr/pull/2470)
+Reject NULL bytes type_hint and data in exr_attr_bytes_create()
+  * [2468](https://github.com/AcademySoftwareFoundation/openexr/pull/2468)
+Fix infinite loop in SampleCountChannel roundListSizeUp()
+  * [2466](https://github.com/AcademySoftwareFoundation/openexr/pull/2466)
+Fix install manifest for linux build 13
+  * [2464](https://github.com/AcademySoftwareFoundation/openexr/pull/2464)
+Fix heap out-of-bounds write in SampleCountChannel row setter.
+  * [2463](https://github.com/AcademySoftwareFoundation/openexr/pull/2463)
+Fix integer overflow and invalid delete in OpenEXRUtil Image::resize()
+  * [2451](https://github.com/AcademySoftwareFoundation/openexr/pull/2451)
+Initialize B44 tables before B44A decode
+  * [2445](https://github.com/AcademySoftwareFoundation/openexr/pull/2445)
+Fix: Allow NumPy scalar values in Box2i and V2f tuple bindings
+  * [2444](https://github.com/AcademySoftwareFoundation/openexr/pull/2444)
+Fix vendored OpenJPH for static builds
+  * [2442](https://github.com/AcademySoftwareFoundation/openexr/pull/2442)
+Bugfix: Fix interger overflows
+  * [2438](https://github.com/AcademySoftwareFoundation/openexr/pull/2438)
+Break release.py into separate small scripts for each step
+  * [2436](https://github.com/AcademySoftwareFoundation/openexr/pull/2436)
+Release notes and news for v3.4.12
+  * [2434](https://github.com/AcademySoftwareFoundation/openexr/pull/2434)
+Validate HTJ2K chunk header length before decode
+  * [2433](https://github.com/AcademySoftwareFoundation/openexr/pull/2433)
+Tighten python publish workflow security/efficiency
+  * [2430](https://github.com/AcademySoftwareFoundation/openexr/pull/2430)
+Pin idna>=3.15 in website/requirements.txt
 
 ### Merged Workflow Pull Requests
 
-  * [2462](git@github.com:AcademySoftwareFoundation/openexr/pull/2462)
-    Update idna requirement from >=3.17 to >=3.18 in /website
-  * [2450](git@github.com:AcademySoftwareFoundation/openexr/pull/2450)
-    Update idna requirement from >=3.15 to >=3.17 in /website
-  * [2449](git@github.com:AcademySoftwareFoundation/openexr/pull/2449)
-    Bump vmactions/freebsd-vm from 1.4.5 to 1.4.6
-  * [2437](git@github.com:AcademySoftwareFoundation/openexr/pull/2437)
-    Bump github/codeql-action from 4.35.4 to 4.36.0
-  * [2433](git@github.com:AcademySoftwareFoundation/openexr/pull/2433)
+  * [2474](https://github.com/AcademySoftwareFoundation/openexr/pull/2474)
+Bump msys2/setup-msys2 from 2.31.1 to 2.32.0
+  * [2467](https://github.com/AcademySoftwareFoundation/openexr/pull/2467)
+Bump sigstore/gh-action-sigstore-python from 3.3.0 to 3.4.0
+  * [2462](https://github.com/AcademySoftwareFoundation/openexr/pull/2462)
+Update idna requirement from >=3.17 to >=3.18 in /website
+  * [2450](https://github.com/AcademySoftwareFoundation/openexr/pull/2450)
+Update idna requirement from >=3.15 to >=3.17 in /website
+  * [2449](https://github.com/AcademySoftwareFoundation/openexr/pull/2449)
+Bump vmactions/freebsd-vm from 1.4.5 to 1.4.6
+  * [2437](https://github.com/AcademySoftwareFoundation/openexr/pull/2437)
+Bump github/codeql-action from 4.35.4 to 4.36.0
+    * [2433](git@github.com:AcademySoftwareFoundation/openexr/pull/2433)
     Tighten python publish workflow security/efficiency
-  * [2430](git@github.com:AcademySoftwareFoundation/openexr/pull/2430)
+    * [2430](git@github.com:AcademySoftwareFoundation/openexr/pull/2430)
     Pin idna>=3.15 in website/requirements.txt
 
 
