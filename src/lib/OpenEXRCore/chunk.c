@@ -516,10 +516,11 @@ exr_get_chunk_table_offset (
     EXR_LOCK_WRITE_AND_DEFINE_PART (part_index);
 
     if (!chunk_offset_out)
-        return ctxt->standard_error (ctxt, EXR_ERR_INVALID_ARGUMENT);
+        return EXR_UNLOCK_WRITE_AND_RETURN (
+            ctxt->standard_error (ctxt, EXR_ERR_INVALID_ARGUMENT));
 
     *chunk_offset_out = part->chunk_table_offset;
-    return EXR_ERR_SUCCESS;
+    return EXR_UNLOCK_WRITE_AND_RETURN (EXR_ERR_SUCCESS);
 }
 
 exr_result_t
