@@ -15,6 +15,7 @@
 #include <Imath/ImathRandom.h>
 
 #include <cassert>
+#include <climits>
 #include <cstdio>
 
 using namespace OPENEXR_IMF_NAMESPACE;
@@ -698,6 +699,46 @@ testRenameChannels ()
     assert (caught);
 }
 
+void
+testRoundListSizeUpLimits ()
+{
+    cout << "            roundListSizeUp limits" << endl;
+
+    auto expectArgExc = [] (auto&& fn) {
+        bool caught = false;
+        try
+        {
+            fn ();
+        }
+        catch (const ArgExc&)
+        {
+            caught = true;
+        }
+        assert (caught);
+    };
+
+    expectArgExc ([&] {
+        DeepImage img;
+        img.resize (Box2i (V2i (0, 0), V2i (0, 0)), ONE_LEVEL, ROUND_DOWN);
+        img.level (0).sampleCounts ().set (0, 0, UINT_MAX);
+    });
+
+    expectArgExc ([&] {
+        DeepImage img;
+        img.resize (Box2i (V2i (0, 0), V2i (0, 0)), ONE_LEVEL, ROUND_DOWN);
+        img.level (0).sampleCounts ().set (0, 0, 0x80000001u);
+    });
+
+    expectArgExc ([&] {
+        DeepImage img;
+        img.resize (Box2i (V2i (0, 0), V2i (0, 0)), ONE_LEVEL, ROUND_DOWN);
+        SampleCountChannel& samples = img.level (0).sampleCounts ();
+        unsigned int*       counts  = samples.beginEdit ();
+        counts[0]                   = UINT_MAX;
+        samples.endEdit ();
+    });
+}
+
 } // namespace
 
 void
@@ -711,6 +752,7 @@ testDeepImage (const string& tempDir)
         testTiledImages (tempDir + "deepTiles.exr");
         testSetSampleCounts ();
         testSetSampleCountRowOffset ();
+        testRoundListSizeUpLimits ();
         testShiftPixels ();
         testCropping (tempDir + "deepCropped.exr");
         testRenameChannel ();
