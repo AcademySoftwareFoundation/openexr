@@ -773,8 +773,7 @@ DwaCompressor_uncompress (
        be checked below */
     if (unknownUncompressedSize > uncompressed_size ||
         rleRawSize > uncompressed_size ||
-        (unknownUncompressedSize + rleRawSize) > uncompressed_size ||
-        totalAcUncompressedCount > uncompressed_size)
+        (unknownUncompressedSize + rleRawSize) > uncompressed_size)
     {
         return EXR_ERR_CORRUPT_CHUNK;
     }
