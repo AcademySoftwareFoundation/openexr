@@ -64,6 +64,13 @@ jobs:
         - /node20217:/node20217:rw,rshared
         - /node20217:/__e/node20:ro,rshared
 
+    # GitHub Actions defaulted to Node 24 in June 2026; the runner binary
+    # requires glibc >= 2.27, which these VFX2021/2022 containers lack.
+    # Opt back into Node 20 and use the glibc-2.17 build installed below.
+    # See: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+    env:
+      ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
+
     strategy:
       matrix:
         include:
