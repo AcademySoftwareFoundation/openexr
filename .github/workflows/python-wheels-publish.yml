@@ -60,8 +60,10 @@ jobs:
             arch: arm64
           - os: macos-15-intel
             arch: x64
+            cibw_archs_macos: x86_64 universal2
           - os: macos-latest
             arch: arm64
+            cibw_archs_macos: arm64
           - os: windows-latest
             arch: x64
 
@@ -90,7 +92,8 @@ jobs:
           output-dir: wheelhouse
         env:
           MACOSX_DEPLOYMENT_TARGET: 10.15
-          CIBW_ARCHS_MACOS: x86_64 arm64 universal2
+          # Split macOS arches across runners so artifact merge does not collide on filenames.
+          CIBW_ARCHS_MACOS: ${{ matrix.cibw_archs_macos }}
           # Build Python 3.9 through 3.13
           # Skip 32-bit wheels builds on Windows
           # Also skip the PyPy builds, since they fail the unit tests
