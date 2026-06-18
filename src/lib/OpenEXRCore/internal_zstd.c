@@ -467,7 +467,9 @@ static const uint64_t MAGIC_NUMBER = 8248453963162350458; // "zstd-exr"
 #define ZSTD_EXR_FLAG_DELTA_AFTER_SORT 1u
 #define ZSTD_EXR_V1_HEADER 24u
 
-/** Deep pixel ZSTD wire: 1 = sort+shuffle (header v1); 2 = sort+delta+shuffle (v2). */
+/** ZSTD wire: 1 = sort+shuffle (header v1); 2 = sort+delta+shuffle (v2).
+ *  This is the default wire version (overridable at build time); flat chunks
+ *  are bumped to v2 at runtime, see exr_zstd_build_encode_pipeline_sorted. */
 #ifndef EXR_ZSTD_SORTED_WIRE_VERSION
 #    define EXR_ZSTD_SORTED_WIRE_VERSION 1
 #endif
@@ -494,17 +496,18 @@ typedef enum
 } exr_zstd_channel_grid_scenario_t;
 
 static void
-exr_zstd_build_encode_pipeline_sorted (exr_zstd_pack_pipeline* out)
+exr_zstd_build_encode_pipeline_sorted (
+    exr_zstd_channel_grid_scenario_t scenario, exr_zstd_pack_pipeline* out)
 {
-#if EXR_ZSTD_SORTED_WIRE_VERSION >= 2
-    out->hdr_format  = ZSTD_EXR_FORMAT_V2;
-    out->hdr_flags   = ZSTD_EXR_FLAG_DELTA_AFTER_SORT;
-    out->apply_delta = true;
-#else
-    out->hdr_format  = ZSTD_EXR_FORMAT_V1;
-    out->hdr_flags   = 0;
-    out->apply_delta = false;
-#endif
+    /* Delta along the sample axis helps flat scanline/tiled data but tends to
+     * hurt deep data (e.g. uncorrelated float Z, where it scrambles the
+     * exponent byte plane), so flat chunks use v2 (delta); everything else
+     * uses the default wire version. */
+    out->hdr_format = (scenario == EXR_ZSTD_GRID_FLAT_SCAN_OR_TILE)
+                          ? ZSTD_EXR_FORMAT_V2
+                          : (uint32_t) EXR_ZSTD_SORTED_WIRE_VERSION;
+    out->apply_delta = (out->hdr_format == ZSTD_EXR_FORMAT_V2);
+    out->hdr_flags   = out->apply_delta ? ZSTD_EXR_FLAG_DELTA_AFTER_SORT : 0;
 }
 
 static void
@@ -1082,7 +1085,7 @@ internal_exr_apply_zstd (exr_encode_pipeline_t* encode)
     int const pipeline_height = encode->chunk.height;
 
     exr_zstd_pack_pipeline pipe;
-    exr_zstd_build_encode_pipeline_sorted (&pipe);
+    exr_zstd_build_encode_pipeline_sorted (grid_scenario, &pipe);
     exr_result_t arv = internal_encode_alloc_buffer (
         encode,
         EXR_TRANSCODE_BUFFER_SCRATCH1,
