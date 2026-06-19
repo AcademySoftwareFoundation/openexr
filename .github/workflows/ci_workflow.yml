@@ -110,6 +110,7 @@ jobs:
                 -DCMAKE_CXX_FLAGS=${{ matrix.cxx-flags }} \
                 -DCMAKE_VERBOSE_MAKEFILE:BOOL='OFF' \
                 -DBUILD_SHARED_LIBS=${{ matrix.build-shared }} \
+                -DOPENEXR_FORCE_INTERNAL_IMATH='ON' \
                 -DOPENEXR_INSTALL_TOOLS='ON' \
                 -DOPENEXR_INSTALL_DOCS='ON' \
                 -DOPENEXR_RUN_FUZZ_TESTS='OFF' \
