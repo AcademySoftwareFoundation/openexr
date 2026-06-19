@@ -30,6 +30,7 @@
 * [Version 3.3.2](#version-332-november-11-2024) November 11, 2024
 * [Version 3.3.1](#version-331-october-8-2024) October 8, 2024
 * [Version 3.3.0](#version-330-september-30-2024) September 30, 2024
+* [Version 3.2.10](#version-3210-june-21-2026) June 21, 2026
 * [Version 3.2.9](#version-329-april-29-2026) April 29, 2026
 * [Version 3.2.8](#version-328-april-17-2026) April 17, 2026
 * [Version 3.2.7](#version-327-april-3-2026) April 3, 2026
@@ -1882,6 +1883,41 @@ Fix macOS arm64 build
 * [1423](https://github.com/AcademySoftwareFoundation/openexr/pull/1423)
 Propagate dwa core 3 1
 * [1418](https://github.com/AcademySoftwareFoundation/openexr/pull/1418)
+
+## Version 3.2.10 (June 21, 2026)
+
+Patch release for 3.2 addressing security issues
+
+### Security
+
+This release addresses the following security vulnerabilities:
+
+* [CVE-2026-55373](https://www.cve.org/CVERecord?id=CVE-2026-55373)
+  OpenEXRUtil SampleCountChannel endEdit() can loop forever on UINT_MAX sample counts
+* [CVE-2026-55059](https://www.cve.org/CVERecord?id=CVE-2026-55059)
+  OpenEXRUtil SampleCountChannel row setter heap out-of-bounds write
+* [CVE-2026-54920](https://www.cve.org/CVERecord?id=CVE-2026-54920)
+  Integer Overflow and Use of Uninitialized Pointer leading to Invalid Delete in OpenEXRUtil Image Resize
+
+### Merged Pull Requests
+
+  * [2476](git@github.com:AcademySoftwareFoundation/openexr/pull/2476)
+Fix the DWAA size checks regression
+  * [2472](git@github.com:AcademySoftwareFoundation/openexr/pull/2472)
+Unlock write context in exr_get_chunk_table_offset() return paths
+  * [2468](git@github.com:AcademySoftwareFoundation/openexr/pull/2468)
+Fix infinite loop in SampleCountChannel roundListSizeUp()
+  * [2464](git@github.com:AcademySoftwareFoundation/openexr/pull/2464)
+Fix heap out-of-bounds write in SampleCountChannel row setter.
+  * [2463](git@github.com:AcademySoftwareFoundation/openexr/pull/2463)
+Fix integer overflow and invalid delete in OpenEXRUtil Image::resize()
+  * [2442](git@github.com:AcademySoftwareFoundation/openexr/pull/2442)
+Bugfix: Fix interger overflows
+  * [2438](git@github.com:AcademySoftwareFoundation/openexr/pull/2438)
+Break release.py into separate small scripts for each step
+
+### Merged Workflow Pull Requests
+
 
 ## Version 3.2.9 (April 29, 2026)
 
