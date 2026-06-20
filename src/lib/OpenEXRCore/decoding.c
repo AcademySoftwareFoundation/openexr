@@ -215,8 +215,8 @@ static exr_result_t
 unpack_sample_table (exr_const_context_t ctxt, exr_decode_pipeline_t* decode)
 {
     exr_result_t rv           = EXR_ERR_SUCCESS;
-    int32_t      w            = decode->chunk.width;
-    int32_t      h            = decode->chunk.height;
+    int64_t      w            = decode->chunk.width;
+    int64_t      h            = decode->chunk.height;
     uint64_t     totsamp      = 0;
     int32_t*     samptable    = decode->sample_count_table;
     size_t       combSampSize = 0;
