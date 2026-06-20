@@ -8,6 +8,8 @@
 
 #include "ImfForward.h"
 
+#include <cstddef>
+
 //-------------------------------------------------------------------------
 //
 // class Array
@@ -211,7 +213,7 @@ template <class T>
 inline void
 Array2D<T>::resizeErase (long sizeX, long sizeY)
 {
-    T* tmp = new T[sizeX * sizeY];
+    T* tmp = new T[(size_t) sizeX * (size_t) sizeY];
     delete[] _data;
     _sizeX = sizeX;
     _sizeY = sizeY;
@@ -226,7 +228,7 @@ Array2D<T>::resizeEraseUnsafe (long sizeX, long sizeY)
     _data  = 0;
     _sizeX = 0;
     _sizeY = 0;
-    _data  = new T[sizeX * sizeY];
+    _data  = new T[(size_t) sizeX * (size_t) sizeY];
     _sizeX = sizeX;
     _sizeY = sizeY;
 }
