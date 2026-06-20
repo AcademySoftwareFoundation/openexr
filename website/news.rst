@@ -17,9 +17,40 @@ News
 
 
 |latest-news-title|
-======================================
+=======================================
 
 .. _LatestNewsStart:
+
+Patch release that addresses several bugs and security
+vulnerabilities.
+
+* 🐛 Fix a regression introduced in v3.4.11 in decoding of DWAA compression
+* 🐛 Fix to handling deep images and very large images with the OpenEXRUtil library
+* 🐛 Fix initiliazation issue in B44A decoding 
+* 🐛 Validate HTJ2K chunk header length before decode
+* 🛠️ Fix when building statically and using the vendored OpenJPH library
+
+For the python module:
+
+* 🐍 ✨ Support NumPy scalar values Box2i and V2f tuple bindings
+
+This release addresses the following security vulnerabilities:
+
+* `CVE-2026-55373 <https://www.cve.org/CVERecord?id=CVE-2026-55373>`_
+  OpenEXRUtil ``SampleCountChannel`` ``endEdit()`` can loop forever on ``UINT_MAX`` sample counts
+* `CVE-2026-55371 <https://www.cve.org/CVERecord?id=CVE-2026-55371>`_
+  OpenEXRCore ``exr_attr_set_bytes()`` accepts NULL ``type_hint`` with positive ``hint_length``
+* `CVE-2026-55059 <https://www.cve.org/CVERecord?id=CVE-2026-55059>`_
+  OpenEXRUtil ``SampleCountChannel`` row setter heap out-of-bounds write
+* `CVE-2026-54920 <https://www.cve.org/CVERecord?id=CVE-2026-54920>`_
+  Integer Overflow and Use of Uninitialized Pointer leading to Invalid Delete in OpenEXRUtil Image Resize
+* `CVE-2026-53532 <https://www.cve.org/CVERecord?id=CVE-2026-53532>`_
+  Unhandled assert abort in HTJ2K decoder via crafted QCD marker (DoS)
+
+.. _LatestNewsEnd:
+
+May 24, 2026 - OpenEXR 3.4.12 Released
+======================================
 
 Patch release that addresses several bugs and security
 vulnerabilities.
@@ -58,7 +89,6 @@ This release addresses the following security vulnerabilities:
 * `OSS-fuzz 507413960 <https://issues.oss-fuzz.com/issues/507413960>`_
   Heap-buffer-overflow in ``generic_unpack``
 
-.. _LatestNewsEnd:
 
 April 29, 2026 - OpenEXR 3.4.11 Released
 ========================================
