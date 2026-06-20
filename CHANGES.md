@@ -132,20 +132,6 @@ This release addresses the following security vulnerabilities:
   Integer Overflow and Use of Uninitialized Pointer leading to Invalid Delete in OpenEXRUtil Image Resize
 * [CVE-2026-53532](https://www.cve.org/CVERecord?id=CVE-2026-53532)
   Unhandled assert abort in HTJ2K decoder via crafted QCD marker (DoS)
-  
-
-### Security
-
-This release addresses the following security vulnerabilities:
-
-* [CVE-2026-55373](https://www.cve.org/CVERecord?id=CVE-2026-55373)
-  OpenEXRUtil SampleCountChannel endEdit() can loop forever on UINT_MAX sample counts
-* [CVE-2026-55371](https://www.cve.org/CVERecord?id=CVE-2026-55371)
-  OpenEXRCore exr_attr_set_bytes() accepts NULL type_hint with positive hint_length
-* [CVE-2026-55059](https://www.cve.org/CVERecord?id=CVE-2026-55059)
-  OpenEXRUtil SampleCountChannel row setter heap out-of-bounds write
-* [CVE-2026-54920](https://www.cve.org/CVERecord?id=CVE-2026-54920)
-  Integer Overflow and Use of Uninitialized Pointer leading to Invalid Delete in OpenEXRUtil Image Resize
 
 ### Merged Pull Requests
 
