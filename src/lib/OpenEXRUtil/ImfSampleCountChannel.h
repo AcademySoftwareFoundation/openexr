@@ -316,7 +316,7 @@ SampleCountChannel::at (int x, int y) const
 inline const unsigned int*
 SampleCountChannel::row (int n) const
 {
-    return _base + n * pixelsPerRow ();
+    return _numSamples + n * pixelsPerRow ();
 }
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
