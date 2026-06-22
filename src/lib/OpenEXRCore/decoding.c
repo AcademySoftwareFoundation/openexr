@@ -341,8 +341,8 @@ unpack_sample_table (
     const struct _internal_exr_context* pctxt, exr_decode_pipeline_t* decode)
 {
     exr_result_t rv           = EXR_ERR_SUCCESS;
-    int32_t      w            = decode->chunk.width;
-    int32_t      h            = decode->chunk.height;
+    int64_t      w            = decode->chunk.width;
+    int64_t      h            = decode->chunk.height;
     uint64_t     totsamp      = 0;
     int32_t*     samptable    = decode->sample_count_table;
     size_t       combSampSize = 0;
@@ -352,7 +352,7 @@ unpack_sample_table (
 
     if ((decode->decode_flags & EXR_DECODE_SAMPLE_COUNTS_AS_INDIVIDUAL))
     {
-        for (int32_t y = 0; y < h; ++y)
+        for (int64_t y = 0; y < h; ++y)
         {
             int32_t *cursampline = samptable + y * w;
             int32_t prevsamp = 0;
@@ -373,7 +373,7 @@ unpack_sample_table (
     }
     else
     {
-        for (int32_t y = 0; y < h; ++y)
+        for (int64_t y = 0; y < h; ++y)
         {
             int32_t *cursampline = samptable + y * w;
             int32_t prevsamp = 0;
