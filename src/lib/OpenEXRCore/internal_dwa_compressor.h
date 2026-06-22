@@ -1403,10 +1403,15 @@ DwaCompressor_initializeBuffers (DwaCompressor* me, size_t* bufferSize)
     if (maxLossyDctAcSize * numLossyDctChans > me->_packedAcBufferSize)
     {
         me->_packedAcBufferSize = maxLossyDctAcSize * numLossyDctChans;
+        if (me->_packedAcBufferSize > SIZE_MAX)
+        {
+            return EXR_ERR_OUT_OF_MEMORY;
+        }
+
         if (me->_packedAcBuffer != NULL) me->free_fn (me->_packedAcBuffer);
-        me->_packedAcBuffer = me->alloc_fn (me->_packedAcBufferSize);
+        me->_packedAcBuffer = me->alloc_fn ((size_t) me->_packedAcBufferSize);
         if (!me->_packedAcBuffer) return EXR_ERR_OUT_OF_MEMORY;
-        memset (me->_packedAcBuffer, 0, me->_packedAcBufferSize);
+        memset (me->_packedAcBuffer, 0, (size_t) me->_packedAcBufferSize);
     }
 
     //
@@ -1416,19 +1421,29 @@ DwaCompressor_initializeBuffers (DwaCompressor* me, size_t* bufferSize)
     if (maxLossyDctDcSize * numLossyDctChans > me->_packedDcBufferSize)
     {
         me->_packedDcBufferSize = maxLossyDctDcSize * numLossyDctChans;
+        if (me->_packedDcBufferSize > SIZE_MAX)
+        {
+            return EXR_ERR_OUT_OF_MEMORY;
+        }
+
         if (me->_packedDcBuffer != NULL) me->free_fn (me->_packedDcBuffer);
-        me->_packedDcBuffer = me->alloc_fn (me->_packedDcBufferSize);
+        me->_packedDcBuffer = me->alloc_fn ((size_t) me->_packedDcBufferSize);
         if (!me->_packedDcBuffer) return EXR_ERR_OUT_OF_MEMORY;
-        memset (me->_packedDcBuffer, 0, me->_packedDcBufferSize);
+        memset (me->_packedDcBuffer, 0, (size_t) me->_packedDcBufferSize);
     }
 
     if (rleBufferSize > me->_rleBufferSize)
     {
         me->_rleBufferSize = rleBufferSize;
+        if (rleBufferSize > SIZE_MAX)
+        {
+            return EXR_ERR_OUT_OF_MEMORY;
+        }
+
         if (me->_rleBuffer != 0) me->free_fn (me->_rleBuffer);
-        me->_rleBuffer = me->alloc_fn (rleBufferSize);
+        me->_rleBuffer = me->alloc_fn ((size_t) rleBufferSize);
         if (!me->_rleBuffer) return EXR_ERR_OUT_OF_MEMORY;
-        memset (me->_rleBuffer, 0, rleBufferSize);
+        memset (me->_rleBuffer, 0, (size_t) rleBufferSize);
     }
 
     //
