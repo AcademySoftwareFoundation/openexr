@@ -72,12 +72,14 @@ update_pack_unpack_ptrs (exr_decode_pipeline_t* decode)
     }
     else
     {
+        if (decode->chunk.unpacked_size != (size_t) decode->chunk.unpacked_size)
+            return EXR_ERR_OUT_OF_MEMORY;
         rv = internal_decode_alloc_buffer (
             decode,
             EXR_TRANSCODE_BUFFER_UNPACKED,
             &(decode->unpacked_buffer),
             &(decode->unpacked_alloc_size),
-            decode->chunk.unpacked_size);
+            (size_t) decode->chunk.unpacked_size);
     }
 
     return rv;
