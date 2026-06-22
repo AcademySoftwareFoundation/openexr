@@ -1127,9 +1127,6 @@ Add an option to use TBB as the global provider
 
 ## Version 3.3.12 (June 21, 2026)
 
-
-### Security
-
 This release addresses the following security vulnerabilities:
 
 * [CVE-2026-55373](https://www.cve.org/CVERecord?id=CVE-2026-55373)
@@ -1155,9 +1152,6 @@ Fix integer overflow and invalid delete in OpenEXRUtil Image::resize()
 Bugfix: Fix interger overflows
   * [2438](git@github.com:AcademySoftwareFoundation/openexr/pull/2438)
 Break release.py into separate small scripts for each step
-
-### Merged Workflow Pull Requests
-
 
 ## Version 3.3.11 (April 29, 2026)
 
@@ -1886,9 +1880,7 @@ Propagate dwa core 3 1
 
 ## Version 3.2.10 (June 21, 2026)
 
-Patch release for 3.2 addressing security issues
-
-### Security
+Patch release for 3.2 addressing security issues.
 
 This release addresses the following security vulnerabilities:
 
@@ -1915,9 +1907,6 @@ Fix integer overflow and invalid delete in OpenEXRUtil Image::resize()
 Bugfix: Fix interger overflows
   * [2438](git@github.com:AcademySoftwareFoundation/openexr/pull/2438)
 Break release.py into separate small scripts for each step
-
-### Merged Workflow Pull Requests
-
 
 ## Version 3.2.9 (April 29, 2026)
 
