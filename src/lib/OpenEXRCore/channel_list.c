@@ -221,6 +221,13 @@ exr_attr_chlist_duplicate (
     if (!chl || !srcchl) return EXR_ERR_INVALID_ARGUMENT;
 
     numchans = srcchl->num_channels;
+    if (numchans > 0 && !srcchl->entries)
+        return ctxt->print_error (
+            ctxt,
+            EXR_ERR_INVALID_ARGUMENT,
+            "Invalid NULL channel list entries with %d channels",
+            numchans);
+
     rv       = exr_attr_chlist_init (ctxt, chl, numchans);
     if (rv != EXR_ERR_SUCCESS) return rv;
 

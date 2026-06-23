@@ -774,6 +774,20 @@ testChlistHelper (exr_context_t f)
         1, EXR_ERR_OUT_OF_MEMORY, exr_attr_chlist_duplicate (f, &cl2, &cl));
     EXRCORE_TEST_RVAL (exr_attr_chlist_destroy (f, &cl2));
 
+    {
+        exr_attr_chlist_t bad = {0};
+        bad.num_channels      = 1;
+        bad.entries           = NULL;
+        EXRCORE_TEST_RVAL_FAIL (
+            EXR_ERR_INVALID_ARGUMENT,
+            exr_attr_chlist_duplicate (f, &cl2, &bad));
+        EXRCORE_TEST_RVAL_FAIL (
+            EXR_ERR_INVALID_ARGUMENT, exr_set_channels (f, 0, &bad));
+        EXRCORE_TEST_RVAL_FAIL (
+            EXR_ERR_INVALID_ARGUMENT,
+            exr_attr_set_channels (f, 0, "badChlist", &bad));
+    }
+
     /* without a file, max will be 31 */
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_NAME_TOO_LONG,
