@@ -26,12 +26,14 @@ update_pack_unpack_ptrs (exr_decode_pipeline_t* decode)
     if (stortype == EXR_STORAGE_DEEP_SCANLINE ||
         stortype == EXR_STORAGE_DEEP_TILED)
     {
-        size_t sampsize =
-            (((size_t) decode->chunk.width) * ((size_t) decode->chunk.height));
+        uint64_t sampsize64 =
+            ((uint64_t) decode->chunk.width) * ((uint64_t) decode->chunk.height);
 
         if ((decode->decode_flags & EXR_DECODE_SAMPLE_COUNTS_AS_INDIVIDUAL))
-            sampsize += 1;
-        sampsize *= sizeof (int32_t);
+            sampsize64 += 1;
+        sampsize64 *= sizeof (int32_t);
+        if (sampsize64 != (size_t) sampsize64) return EXR_ERR_OUT_OF_MEMORY;
+        size_t sampsize = (size_t) sampsize64;
 
         if (decode->chunk.sample_count_table_size == sampsize)
         {
