@@ -379,8 +379,8 @@ initAndReadDeepScanLine (
 
     sampleData.resize (numChans);
     channelNumber = 0;
-    for (ChannelList::ConstIterator i = in.header ().channels ().begin ();
-         i != in.header ().channels ().end ();
+    for (ChannelList::ConstIterator i = outHeader.channels ().begin ();
+         i != outHeader.channels ().end ();
          ++i)
     {
         int samplesize = pixelTypeSize (i.channel ().type);
