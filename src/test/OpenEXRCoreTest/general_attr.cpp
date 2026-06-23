@@ -862,6 +862,35 @@ testPreviewHelper (exr_context_t f)
     // make sure we can re-delete something?
     EXRCORE_TEST_RVAL (exr_attr_preview_destroy (f, &p));
 
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_INVALID_ARGUMENT, exr_attr_preview_create (f, &p, 1, 1, NULL));
+
+    {
+        exr_attr_preview_t preview;
+        preview.width      = 1;
+        preview.height     = 1;
+        preview.alloc_size = 0;
+        preview.rgba       = NULL;
+        EXRCORE_TEST_RVAL_FAIL (
+            EXR_ERR_INVALID_ARGUMENT,
+            exr_attr_set_preview (f, 0, "badPreview", &preview));
+    }
+
+    {
+        exr_attr_preview_t preview;
+        preview.width      = 1;
+        preview.height     = 1;
+        preview.alloc_size = 4;
+        preview.rgba       = data1x1;
+        EXRCORE_TEST_RVAL (
+            exr_attr_set_preview (f, 0, "goodPreview", &preview));
+
+        preview.rgba = NULL;
+        EXRCORE_TEST_RVAL_FAIL (
+            EXR_ERR_INVALID_ARGUMENT,
+            exr_attr_set_preview (f, 0, "goodPreview", &preview));
+    }
+
     EXRCORE_TEST_RVAL_FAIL_MALLOC (
         EXR_ERR_OUT_OF_MEMORY, exr_attr_preview_create (f, &p, 1, 1, data1x1));
 }
@@ -1040,6 +1069,39 @@ testBytesHelper (exr_context_t f)
     EXRCORE_TEST_RVAL (exr_attr_bytes_copy (f, &b2, &b));
     EXRCORE_TEST_RVAL (exr_attr_bytes_destroy (f, &b2));
     EXRCORE_TEST_RVAL (exr_attr_bytes_destroy (f, &b));
+
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_INVALID_ARGUMENT,
+        exr_attr_bytes_create (f, &b, 1, 1, NULL, data4));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_INVALID_ARGUMENT,
+        exr_attr_bytes_create (f, &b, 0, 4, "hint", NULL));
+
+    {
+        exr_attr_bytes_t bytes;
+        bytes.size        = 1;
+        bytes.data        = data4;
+        bytes.hint_length = 1;
+        bytes.type_hint   = NULL;
+        EXRCORE_TEST_RVAL_FAIL (
+            EXR_ERR_INVALID_ARGUMENT,
+            exr_attr_set_bytes (f, 0, "badBytes", &bytes));
+    }
+
+    {
+        exr_attr_bytes_t bytes;
+        bytes.size        = 4;
+        bytes.data        = data4;
+        bytes.hint_length = 11;
+        bytes.type_hint   = "a cool hint";
+        EXRCORE_TEST_RVAL (
+            exr_attr_set_bytes (f, 0, "goodBytes", &bytes));
+
+        bytes.type_hint = NULL;
+        EXRCORE_TEST_RVAL_FAIL (
+            EXR_ERR_INVALID_ARGUMENT,
+            exr_attr_set_bytes (f, 0, "goodBytes", &bytes));
+    }
 
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_INVALID_ARGUMENT, exr_attr_bytes_copy (f, &b2, NULL));

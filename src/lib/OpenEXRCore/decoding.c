@@ -26,12 +26,14 @@ update_pack_unpack_ptrs (exr_decode_pipeline_t* decode)
     if (stortype == EXR_STORAGE_DEEP_SCANLINE ||
         stortype == EXR_STORAGE_DEEP_TILED)
     {
-        size_t sampsize =
-            (((size_t) decode->chunk.width) * ((size_t) decode->chunk.height));
+        uint64_t sampsize64 =
+            ((uint64_t) decode->chunk.width) * ((uint64_t) decode->chunk.height);
 
         if ((decode->decode_flags & EXR_DECODE_SAMPLE_COUNTS_AS_INDIVIDUAL))
-            sampsize += 1;
-        sampsize *= sizeof (int32_t);
+            sampsize64 += 1;
+        sampsize64 *= sizeof (int32_t);
+        if (sampsize64 != (size_t) sampsize64) return EXR_ERR_OUT_OF_MEMORY;
+        size_t sampsize = (size_t) sampsize64;
 
         if (decode->chunk.sample_count_table_size == sampsize)
         {
@@ -72,12 +74,14 @@ update_pack_unpack_ptrs (exr_decode_pipeline_t* decode)
     }
     else
     {
+        if (decode->chunk.unpacked_size != (size_t) decode->chunk.unpacked_size)
+            return EXR_ERR_OUT_OF_MEMORY;
         rv = internal_decode_alloc_buffer (
             decode,
             EXR_TRANSCODE_BUFFER_UNPACKED,
             &(decode->unpacked_buffer),
             &(decode->unpacked_alloc_size),
-            decode->chunk.unpacked_size);
+            (size_t) decode->chunk.unpacked_size);
     }
 
     return rv;
@@ -215,8 +219,8 @@ static exr_result_t
 unpack_sample_table (exr_const_context_t ctxt, exr_decode_pipeline_t* decode)
 {
     exr_result_t rv           = EXR_ERR_SUCCESS;
-    int32_t      w            = decode->chunk.width;
-    int32_t      h            = decode->chunk.height;
+    int64_t      w            = decode->chunk.width;
+    int64_t      h            = decode->chunk.height;
     uint64_t     totsamp      = 0;
     int32_t*     samptable    = decode->sample_count_table;
     size_t       combSampSize = 0;
@@ -226,7 +230,7 @@ unpack_sample_table (exr_const_context_t ctxt, exr_decode_pipeline_t* decode)
 
     if ((decode->decode_flags & EXR_DECODE_SAMPLE_COUNTS_AS_INDIVIDUAL))
     {
-        for (int32_t y = 0; y < h; ++y)
+        for (int64_t y = 0; y < h; ++y)
         {
             int32_t* cursampline = samptable + y * w;
             int32_t  prevsamp    = 0;
@@ -246,7 +250,7 @@ unpack_sample_table (exr_const_context_t ctxt, exr_decode_pipeline_t* decode)
     }
     else
     {
-        for (int32_t y = 0; y < h; ++y)
+        for (int64_t y = 0; y < h; ++y)
         {
             int32_t* cursampline = samptable + y * w;
             int32_t  prevsamp    = 0;

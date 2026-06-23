@@ -199,14 +199,14 @@ template <class T>
 inline T*
 TypedFlatImageChannel<T>::row (int r)
 {
-    return _base + r * pixelsPerRow ();
+    return _pixels + r * pixelsPerRow ();
 }
 
 template <class T>
 inline const T*
 TypedFlatImageChannel<T>::row (int n) const
 {
-    return _base + n * pixelsPerRow ();
+    return _pixels + n * pixelsPerRow ();
 }
 
 #ifndef COMPILING_IMF_FLAT_IMAGE_CHANNEL

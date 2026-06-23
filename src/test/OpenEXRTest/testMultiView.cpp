@@ -111,6 +111,13 @@ testMultiViewFunctions ()
         viewFromChannelName ("devon.and.cornwall.longwool", multiView) == "");
 
     //
+    // Regression test for GHSA-g8f2-r72m-48vx: empty multiView must not
+    // index element 0; dotless channels belong to no named view.
+    //
+
+    assert (viewFromChannelName ("R", StringVector ()) == "");
+
+    //
     // Test areCounterparts()
     //
 
