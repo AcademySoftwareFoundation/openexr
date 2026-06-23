@@ -177,6 +177,13 @@ readStringList (
         Xdr::read<CharPtrIO> (readPtr, numberOfStrings);
     }
 
+
+    if (numberOfStrings < 0)
+    {
+        throw IEX_NAMESPACE::InputExc (
+            "Negative count for number of strings");
+    }
+
     if (readPtr + numberOfStrings > endPtr)
     {
         throw IEX_NAMESPACE::InputExc (
@@ -193,7 +200,7 @@ readStringList (
 
     for (int i = 0; i < numberOfStrings; ++i)
     {
-        totalTableSize = readVariableLengthInteger (readPtr, endPtr);
+        totalTableSize += readVariableLengthInteger (readPtr, endPtr);
     }
 
 
