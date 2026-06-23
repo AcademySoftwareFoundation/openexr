@@ -55,11 +55,11 @@ June 21, 2026 - OpenEXR 3.3.12 and OpenEXR v3.2.10 Released
 Patch releases for v3.3 and v3.2 that address the following security
 vulnerabilities:
 
-* [CVE-2026-55373](https://www.cve.org/CVERecord?id=CVE-2026-55373)
-  OpenEXRUtil SampleCountChannel endEdit() can loop forever on UINT_MAX sample counts
-* [CVE-2026-55059](https://www.cve.org/CVERecord?id=CVE-2026-55059)
-  OpenEXRUtil SampleCountChannel row setter heap out-of-bounds write
-* [CVE-2026-54920](https://www.cve.org/CVERecord?id=CVE-2026-54920)
+* `CVE-2026-55373 <https://www.cve.org/CVERecord?id=CVE-2026-55373>`_
+  OpenEXRUtil ``SampleCountChannel`` ``endEdit()`` can loop forever on ``UINT_MAX`` sample counts
+* `CVE-2026-55059 <https://www.cve.org/CVERecord?id=CVE-2026-55059>`_
+  OpenEXRUtil ``SampleCountChannel`` row setter heap out-of-bounds write
+* `CVE-2026-54920 <https://www.cve.org/CVERecord?id=CVE-2026-54920>`_
   Integer Overflow and Use of Uninitialized Pointer leading to Invalid Delete in OpenEXRUtil Image Resize
 
 
