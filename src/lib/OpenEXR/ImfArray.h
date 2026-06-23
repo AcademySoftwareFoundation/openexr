@@ -7,6 +7,7 @@
 #define INCLUDED_IMF_ARRAY_H
 
 #include "ImfForward.h"
+#include "IexBaseExc.h"
 
 #include <cstddef>
 
@@ -56,8 +57,11 @@ public:
         _data = 0;
         _size = 0;
     }
-    Array (long size)
+    Array (long size) : _size (0), _data (0)
     {
+        if (size < 0)
+            throw IEX_NAMESPACE::ArgExc ("Array size must be non-negative");
+
         _data = new T[size];
         _size = size;
     }
@@ -160,6 +164,9 @@ template <class T>
 inline void
 Array<T>::resizeErase (long size)
 {
+    if (size < 0)
+        throw IEX_NAMESPACE::ArgExc ("Array size must be non-negative");
+
     T* tmp = new T[size];
     delete[] _data;
     _size = size;
@@ -170,6 +177,9 @@ template <class T>
 inline void
 Array<T>::resizeEraseUnsafe (long size)
 {
+    if (size < 0)
+        throw IEX_NAMESPACE::ArgExc ("Array size must be non-negative");
+
     delete[] _data;
     _data = 0;
     _size = 0;
@@ -185,9 +195,14 @@ inline Array2D<T>::Array2D () : _sizeX (0), _sizeY (0), _data (0)
 
 template <class T>
 inline Array2D<T>::Array2D (long sizeX, long sizeY)
-    : _sizeX (sizeX), _sizeY (sizeY), _data (new T[sizeX * sizeY])
+    : _sizeX (0), _sizeY (0), _data (0)
 {
-    // empty
+    if (sizeX < 0 || sizeY < 0)
+        throw IEX_NAMESPACE::ArgExc ("Array2D dimensions must be non-negative");
+
+    _sizeX = sizeX;
+    _sizeY = sizeY;
+    _data  = new T[(size_t) sizeX * (size_t) sizeY];
 }
 
 template <class T> inline Array2D<T>::~Array2D ()
@@ -213,6 +228,9 @@ template <class T>
 inline void
 Array2D<T>::resizeErase (long sizeX, long sizeY)
 {
+    if (sizeX < 0 || sizeY < 0)
+        throw IEX_NAMESPACE::ArgExc ("Array2D dimensions must be non-negative");
+
     T* tmp = new T[(size_t) sizeX * (size_t) sizeY];
     delete[] _data;
     _sizeX = sizeX;
@@ -224,6 +242,9 @@ template <class T>
 inline void
 Array2D<T>::resizeEraseUnsafe (long sizeX, long sizeY)
 {
+    if (sizeX < 0 || sizeY < 0)
+        throw IEX_NAMESPACE::ArgExc ("Array2D dimensions must be non-negative");
+
     delete[] _data;
     _data  = 0;
     _sizeX = 0;
