@@ -64,6 +64,9 @@ jobs:
         - /node20217:/node20217:rw,rshared
         - /node20217:/__e/node20:ro,rshared
 
+    env:
+      ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
+
     strategy:
       matrix:
         include:

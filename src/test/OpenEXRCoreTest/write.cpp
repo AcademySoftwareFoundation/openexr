@@ -88,6 +88,17 @@ testStartWriteScan (const std::string& tempdir)
     EXRCORE_TEST_RVAL (
         exr_add_part (outf, "beauty", EXR_STORAGE_SCANLINE, &partidx));
     EXRCORE_TEST (partidx == 0);
+    {
+        uint64_t chunk_table_offset = 0;
+        int      count              = 0;
+        EXRCORE_TEST_RVAL (
+            exr_get_chunk_table_offset (outf, 0, &chunk_table_offset));
+        EXRCORE_TEST_RVAL_FAIL (
+            EXR_ERR_INVALID_ARGUMENT,
+            exr_get_chunk_table_offset (outf, 0, NULL));
+        EXRCORE_TEST_RVAL (exr_get_count (outf, &count));
+        EXRCORE_TEST (count == 1);
+    }
     /* dup name check */
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_INVALID_ARGUMENT,

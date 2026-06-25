@@ -248,14 +248,14 @@ template <class T>
 inline T* const*
 TypedDeepImageChannel<T>::row (int r)
 {
-    return _base + r * pixelsPerRow ();
+    return _sampleListPointers + r * pixelsPerRow ();
 }
 
 template <class T>
 inline const T* const*
 TypedDeepImageChannel<T>::row (int r) const
 {
-    return _base + r * pixelsPerRow ();
+    return _sampleListPointers + r * pixelsPerRow ();
 }
 
 #ifndef COMPILING_IMF_DEEP_IMAGE_CHANNEL

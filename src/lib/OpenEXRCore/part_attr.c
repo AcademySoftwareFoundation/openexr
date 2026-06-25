@@ -1333,14 +1333,28 @@ exr_attr_set_bytes (
         if (attr->bytes->size == val->size &&
             attr->bytes->hint_length == val->hint_length)
         {
-            memcpy (
-                EXR_CONST_CAST (void*, attr->bytes->type_hint),
-                val->type_hint,
-                val->hint_length);
-            memcpy (
-                EXR_CONST_CAST (void*, attr->bytes->data),
-                val->data,
-                val->size);
+            if (val->hint_length > 0 && !val->type_hint)
+                return EXR_UNLOCK_AND_RETURN (ctxt->print_error (
+                    ctxt,
+                    EXR_ERR_INVALID_ARGUMENT,
+                    "Invalid NULL type hint for setting '%s'",
+                    name));
+            if (val->size > 0 && !val->data)
+                return EXR_UNLOCK_AND_RETURN (ctxt->print_error (
+                    ctxt,
+                    EXR_ERR_INVALID_ARGUMENT,
+                    "Invalid NULL bytes data for setting '%s'",
+                    name));
+            if (val->hint_length > 0)
+                memcpy (
+                    EXR_CONST_CAST (void*, attr->bytes->type_hint),
+                    val->type_hint,
+                    val->hint_length);
+            if (val->size > 0)
+                memcpy (
+                    EXR_CONST_CAST (void*, attr->bytes->data),
+                    val->data,
+                    val->size);
         }
         else if (ctxt->mode != EXR_CONTEXT_WRITE && ctxt->mode != EXR_CONTEXT_TEMPORARY)
         {
@@ -1419,37 +1433,9 @@ exr_attr_set_channels (
     if (rv == EXR_ERR_SUCCESS)
     {
         exr_attr_chlist_t clist;
-        int               numchans;
 
-        if (!channels)
-            return EXR_UNLOCK_AND_RETURN (ctxt->report_error (
-                ctxt,
-                EXR_ERR_INVALID_ARGUMENT,
-                "No channels provided for channel list"));
-
-        numchans = channels->num_channels;
-        rv       = exr_attr_chlist_init (ctxt, &clist, numchans);
+        rv = exr_attr_chlist_duplicate (ctxt, &clist, channels);
         if (rv != EXR_ERR_SUCCESS) return EXR_UNLOCK_AND_RETURN (rv);
-
-        for (int c = 0; c < numchans; ++c)
-        {
-            const exr_attr_chlist_entry_t* cur = channels->entries + c;
-
-            rv = exr_attr_chlist_add_with_length (
-                ctxt,
-                &clist,
-                cur->name.str,
-                cur->name.length,
-                cur->pixel_type,
-                cur->p_linear,
-                cur->x_sampling,
-                cur->y_sampling);
-            if (rv != EXR_ERR_SUCCESS)
-            {
-                exr_attr_chlist_destroy (ctxt, &clist);
-                return EXR_UNLOCK_AND_RETURN (rv);
-            }
-        }
 
         exr_attr_chlist_destroy (ctxt, attr->chlist);
         *(attr->chlist) = clist;
@@ -1933,6 +1919,12 @@ exr_attr_set_preview (
         {
             size_t copybytes =
                 (size_t) val->width * (size_t) val->height * (size_t) 4;
+            if (copybytes > 0 && !val->rgba)
+                return EXR_UNLOCK_AND_RETURN (ctxt->print_error (
+                    ctxt,
+                    EXR_ERR_INVALID_ARGUMENT,
+                    "Invalid NULL preview rgba data for setting '%s'",
+                    name));
             memcpy (
                 EXR_CONST_CAST (void*, attr->preview->rgba),
                 val->rgba,
