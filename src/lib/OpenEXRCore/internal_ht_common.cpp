@@ -172,6 +172,21 @@ make_channel_map (
         }
     }
 
+    /** Heuristic detection of channels containing visual light samples */
+    for (size_t cs_i = 0; cs_i < cs_to_file_ch.size (); cs_i++)
+    {
+        const char* name   = channels[cs_to_file_ch[cs_i].file_index].channel_name;
+        const char* suffix = strrchr (name, '.');
+        suffix             = suffix ? suffix + 1 : name;
+
+        cs_to_file_ch[cs_i].kind =
+            (areEqual (suffix, "r") || areEqual (suffix, "g") ||
+             areEqual (suffix, "b") || areEqual (suffix, "red") ||
+             areEqual (suffix, "green") || areEqual (suffix, "blue"))
+                ? visual
+                : data;
+    }
+
     return isRGB;
 }
 

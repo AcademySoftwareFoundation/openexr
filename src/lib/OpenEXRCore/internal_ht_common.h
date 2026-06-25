@@ -10,12 +10,19 @@
 #include <stdlib.h>
 #include "openexr_coding.h"
 
+/** Indicates the kind of samples carried by a channel */
+enum J2KChannelKind {
+    visual,
+    data
+};
+
 /** Maps a JPEG 2000 codestream component index to the corresponding OpenEXR
  *  file channel index and its byte offset within a packed raster line. */
 struct CodestreamChannelInfo
 {
-    int    file_index;
-    size_t raster_line_offset;
+    J2KChannelKind kind;
+    int            file_index;
+    size_t         raster_line_offset;
 };
 
 /** Build a codestream-to-file channel map for @p channel_count OpenEXR
