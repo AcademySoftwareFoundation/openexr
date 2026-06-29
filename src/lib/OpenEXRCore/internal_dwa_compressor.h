@@ -867,6 +867,26 @@ DwaCompressor_uncompress (
     rv = DwaCompressor_setupChannelData (me);
     if (rv != EXR_ERR_SUCCESS) { return rv; }
 
+    uint64_t requiredRleSize = 0;
+    for (int c = 0; c < me->_numChannels; ++c)
+    {
+        if (me->_channelData[c].compression == RLE)
+            requiredRleSize += (uint64_t) me->_channelData[c].planarUncSize;
+    }
+
+    if (requiredRleSize > 0)
+    {
+        if (rleRawSize < requiredRleSize || rleCompressedSize == 0)
+        {
+            return EXR_ERR_CORRUPT_CHUNK;
+        }
+    }
+    else if (
+        rleRawSize > 0 || rleCompressedSize > 0 || rleUncompressedSize > 0)
+    {
+        return EXR_ERR_CORRUPT_CHUNK;
+    }
+
     //
     // Uncompress the UNKNOWN data into _planarUncBuffer[UNKNOWN]
     //
