@@ -194,11 +194,15 @@ ht_undo_impl (
     if (static_cast<std::size_t>(decode->channel_count) != cs_to_file_ch.size ())
         return EXR_ERR_CORRUPT_CHUNK;
 
+    std::vector<bool> seen (decode->channel_count, false);
     for (int cs_i = 0; cs_i < decode->channel_count; cs_i++)
     {
         int file_i = cs_to_file_ch[cs_i].file_index;
         if (file_i >= decode->channel_count)
             return EXR_ERR_CORRUPT_CHUNK;
+        if (seen[file_i])
+            return EXR_ERR_CORRUPT_CHUNK;
+        seen[file_i] = true;
 
         int64_t computedoffset = 0;
         for (int i = 0; i < file_i; ++i)
