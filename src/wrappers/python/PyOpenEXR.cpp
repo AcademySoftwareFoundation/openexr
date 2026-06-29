@@ -681,11 +681,12 @@ PyPart::setDeepSliceData(const ChannelList& channel_list, size_t height, size_t 
         size_t channel_offset = 0;
         if (C._nrgba > 0)
         {
-            if (!strcmp(c.name(), "G"))
+            char last = c.name()[strlen(c.name()) - 1];
+            if (last == 'G')
                 channel_offset = 1;
-            else if (!strcmp(c.name(), "B"))
+            else if (last == 'B')
                 channel_offset = 2;
-            else if (!strcmp(c.name(), "A"))
+            else if (last == 'A')
                 channel_offset = 3;
         }
 
