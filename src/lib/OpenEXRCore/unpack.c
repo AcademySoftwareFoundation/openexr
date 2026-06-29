@@ -1267,8 +1267,10 @@ generic_unpack (exr_decode_pipeline_t* decode)
                     continue;
                 }
 
+                const int fb_y = uls + (int) decode->chunk.start_y;
                 cdata +=
-                    ((uint64_t) ((y - uls) / decc->y_samples) *
+                    ((uint64_t) (cury / decc->y_samples -
+                                  fb_y / decc->y_samples) *
                      (uint64_t) decc->user_line_stride);
             }
             else
