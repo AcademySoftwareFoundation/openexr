@@ -449,6 +449,8 @@ testReadDeep (const std::string& tempdir)
                 exr_read_deep_chunk (f, 0, &cinfo, &packed[0], &sampdata[0]));
             if (comps[cp] == NO_COMPRESSION)
             {
+                const uint32_t* sampcount =
+                    reinterpret_cast<const uint32_t*> (sampdata.data ());
                 size_t N = sampdata.size () / sizeof (uint32_t);
                 EXRCORE_TEST (N == width);
                 size_t bps = 0;
@@ -458,18 +460,7 @@ testReadDeep (const std::string& tempdir)
                     if (c == 1) bps += sizeof (uint16_t);
                     if (c == 2) bps += sizeof (float);
                 }
-                // The deep sample-count table is stored little-endian on disk
-                // and exr_read_deep_chunk returns it raw, so read the last
-                // count as little-endian rather than reinterpreting it as a
-                // host-order int (fixes this test on big-endian, #1175).
-                const uint8_t* sc =
-                    sampdata.data () + (N - 1) * sizeof (uint32_t);
-                uint32_t lastCount =
-                    static_cast<uint32_t> (sc[0]) |
-                    (static_cast<uint32_t> (sc[1]) << 8) |
-                    (static_cast<uint32_t> (sc[2]) << 16) |
-                    (static_cast<uint32_t> (sc[3]) << 24);
-                EXRCORE_TEST (packed.size () == lastCount * bps);
+                EXRCORE_TEST (packed.size () == (sampcount[N - 1]) * bps);
             }
 
             EXRCORE_TEST_RVAL (
