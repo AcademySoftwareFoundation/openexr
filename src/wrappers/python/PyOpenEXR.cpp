@@ -507,11 +507,21 @@ PyPart::readPixels(MultiPartInputFile& infile, const ChannelList& channel_list,
             std::vector<size_t> c_shape = shape;
 
             //
+            // For subsampled channels, shrink the allocated array to
+            // the actual sampled dimensions so no stale rows/columns
+            // are returned to Python.
+            //
+            if (C.xSampling > 1)
+                c_shape[1] = (shape[1] - 1) / C.xSampling + 1;
+            if (C.ySampling > 1)
+                c_shape[0] = (shape[0] - 1) / C.ySampling + 1;
+
+            //
             // If this channel belongs to one of the rgba's, give
             // the PyChannel the extra dimension and the proper shape.
             // nrgba is 3 for RGB and 4 for RGBA.
             //
-            
+
             if (rgbaChannels.find(c.name()) != rgbaChannels.end())
                 c_shape.push_back(nrgba);
 
