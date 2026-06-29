@@ -307,7 +307,7 @@ read_header (
             "HTJ2K chunk header length is larger than the chunk size.");
 
     map.resize (header.pull_uint16 (), {-1, 0});
-    std::unordered_set<int> seen;
+    std::unordered_set<int> seen(map.size());
     for (size_t i = 0; i < map.size (); i++)
     {
         map.at (i).file_index = header.pull_uint16 ();
