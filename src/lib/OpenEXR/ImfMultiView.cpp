@@ -118,7 +118,7 @@ viewFromChannelName (const string& channel, const StringVector& multiView)
         // in the name belong to the default view.
         //
 
-        return multiView[0];
+        return defaultViewName (multiView);
     }
     else
     {
