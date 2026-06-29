@@ -378,7 +378,9 @@ getTiledChunkOffsetTableSize (const Header& header)
                     "Bad level mode getting chunk offset table size");
         }
         delete[] numXTiles;
+        numXTiles = nullptr;
         delete[] numYTiles;
+        numYTiles = nullptr;
 
         return static_cast<int> (lineOffsetSize);
     }
