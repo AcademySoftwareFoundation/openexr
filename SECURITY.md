@@ -33,8 +33,9 @@ We do not request a CVE for:
   conda-forge, vcpkg) build for 64-bit exclusively, a CVE creates
   unnecessary work for maintainers who are not actually affected.
 
-- Tool-only crashes (exrmetrics, exrinfo) — the library itself is safe;
-  only users who run that tool on untrusted input are exposed.
+- Developer-tool-only crashes (exrmetrics, exrcheck) — the library
+  itself and standard utility programs are safe; only users who run
+  one of the developer tools on untrusted input are exposed.
 
 - Information disclosure requiring heap grooming with no targeted leak
   — the attacker gets unpredictable stale data, not secrets.
