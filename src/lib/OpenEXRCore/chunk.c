@@ -1640,6 +1640,13 @@ exr_read_deep_chunk (
 
     if (rv != EXR_ERR_SUCCESS) return rv;
 
+    /* the on-disk sample count table is little-endian; convert to native so
+     * callers receive host-order counts (matching unpacked pixel data) */
+    if (sample_data && cinfo->sample_count_table_size > 0)
+        priv_to_native32 (
+            sample_data,
+            (int) (cinfo->sample_count_table_size / sizeof (uint32_t)));
+
     if (packed_data && cinfo->packed_size > 0)
     {
         dataoffset = cinfo->data_offset;
