@@ -3,6 +3,7 @@
 
 # OpenEXR Release Notes
 
+* [Version 3.4.13](#version-3413-june-19-2026) June 19, 2026
 * [Version 3.4.12](#version-3412-may-24-2026) May 24, 2026
 * [Version 3.4.11](#version-3411-april-29-2026) April 29, 2026
 * [Version 3.4.10](#version-3410-april-17-2026) April 17, 2026
@@ -16,6 +17,7 @@
 * [Version 3.4.2](#version-342-october-15-2025) October 15, 2025
 * [Version 3.4.1](#version-341-october-8-2025) October 8, 2025
 * [Version 3.4.0](#version-340-september-5-2025) September 5, 2025
+* [Version 3.3.12](#version-3312-june-21-2026) June 21, 2026
 * [Version 3.3.11](#version-3311-april-29-2026) April 29, 2026
 * [Version 3.3.10](#version-339-april-17-2026) April 17, 2026
 * [Version 3.3.9](#version-339-april-4-2026) April 4, 2026
@@ -28,6 +30,7 @@
 * [Version 3.3.2](#version-332-november-11-2024) November 11, 2024
 * [Version 3.3.1](#version-331-october-8-2024) October 8, 2024
 * [Version 3.3.0](#version-330-september-30-2024) September 30, 2024
+* [Version 3.2.10](#version-3210-june-21-2026) June 21, 2026
 * [Version 3.2.9](#version-329-april-29-2026) April 29, 2026
 * [Version 3.2.8](#version-328-april-17-2026) April 17, 2026
 * [Version 3.2.7](#version-327-april-3-2026) April 3, 2026
@@ -103,6 +106,93 @@
 * [Version 1.0.2](#version-102)
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
+
+## Version 3.4.13 (June 19, 2026)
+
+Patch release that addresses several bugs and security
+vulnerabilities.
+
+* :bug: Fix a regression introduced in v3.4.11 in decoding of DWAA compression
+* :bug: Fix to handling deep images and very large images with the OpenEXRUtil library
+* :bug: Fix initiliazation issue in B44A decoding 
+* :bug: Validate HTJ2K chunk header length before decode
+* :hammer_and_wrench: Fix when building statically and using the vendored OpenJPH library
+
+For the python module:
+
+* :snake: :sparkles: Support NumPy scalar values Box2i and V2f tuple bindings
+
+This release addresses the following security vulnerabilities:
+
+* [CVE-2026-55373](https://www.cve.org/CVERecord?id=CVE-2026-55373)
+  OpenEXRUtil `SampleCountChannel` `endEdit()` can loop forever on `UINT_MAX` sample counts
+* [CVE-2026-55371](https://www.cve.org/CVERecord?id=CVE-2026-55371)
+  OpenEXRCore `exr_attr_set_bytes()` accepts NULL `type_hint` with positive `hint_length`
+* [CVE-2026-55059](https://www.cve.org/CVERecord?id=CVE-2026-55059)
+  OpenEXRUtil `SampleCountChannel` row setter heap out-of-bounds write
+* [CVE-2026-54920](https://www.cve.org/CVERecord?id=CVE-2026-54920)
+  Integer Overflow and Use of Uninitialized Pointer leading to Invalid Delete in OpenEXRUtil Image Resize
+* [CVE-2026-53532](https://www.cve.org/CVERecord?id=CVE-2026-53532)
+  Unhandled assert abort in HTJ2K decoder via crafted QCD marker (DoS)
+
+### Merged Pull Requests
+
+* [2476](https://github.com/AcademySoftwareFoundation/openexr/pull/2476)
+  Fix the DWAA size checks regression
+* [2472](https://github.com/AcademySoftwareFoundation/openexr/pull/2472)
+  Unlock write context in exr_get_chunk_table_offset() return paths
+* [2471](https://github.com/AcademySoftwareFoundation/openexr/pull/2471)
+  Add section on CVE Assignment to SECURITY.md
+* [2470](https://github.com/AcademySoftwareFoundation/openexr/pull/2470)
+  Reject NULL bytes type_hint and data in exr_attr_bytes_create()
+* [2468](https://github.com/AcademySoftwareFoundation/openexr/pull/2468)
+  Fix infinite loop in SampleCountChannel roundListSizeUp()
+* [2466](https://github.com/AcademySoftwareFoundation/openexr/pull/2466)
+  Fix install manifest for linux build 13
+* [2464](https://github.com/AcademySoftwareFoundation/openexr/pull/2464)
+  Fix heap out-of-bounds write in SampleCountChannel row setter.
+* [2463](https://github.com/AcademySoftwareFoundation/openexr/pull/2463)
+  Fix integer overflow and invalid delete in OpenEXRUtil Image::resize()
+* [2451](https://github.com/AcademySoftwareFoundation/openexr/pull/2451)
+  Initialize B44 tables before B44A decode
+* [2445](https://github.com/AcademySoftwareFoundation/openexr/pull/2445)
+  Fix: Allow NumPy scalar values in Box2i and V2f tuple bindings
+* [2444](https://github.com/AcademySoftwareFoundation/openexr/pull/2444)
+  Fix vendored OpenJPH for static builds
+* [2442](https://github.com/AcademySoftwareFoundation/openexr/pull/2442)
+  Bugfix: Fix interger overflows
+* [2438](https://github.com/AcademySoftwareFoundation/openexr/pull/2438)
+  Break release.py into separate small scripts for each step
+* [2436](https://github.com/AcademySoftwareFoundation/openexr/pull/2436)
+  Release notes and news for v3.4.12
+* [2434](https://github.com/AcademySoftwareFoundation/openexr/pull/2434)
+  Validate HTJ2K chunk header length before decode
+* [2433](https://github.com/AcademySoftwareFoundation/openexr/pull/2433)
+  Tighten python publish workflow security/efficiency
+* [2430](https://github.com/AcademySoftwareFoundation/openexr/pull/2430)
+  Pin idna>=3.15 in website/requirements.txt
+
+### Merged Workflow Pull Requests
+
+* [2479](https://github.com/AcademySoftwareFoundation/openexr/pull/2479)
+  Split macOS wheel arches across CI runners
+* [2474](https://github.com/AcademySoftwareFoundation/openexr/pull/2474)
+  Bump msys2/setup-msys2 from 2.31.1 to 2.32.0
+* [2467](https://github.com/AcademySoftwareFoundation/openexr/pull/2467)
+  Bump sigstore/gh-action-sigstore-python from 3.3.0 to 3.4.0
+* [2462](https://github.com/AcademySoftwareFoundation/openexr/pull/2462)
+  Update idna requirement from >=3.17 to >=3.18 in /website
+* [2450](https://github.com/AcademySoftwareFoundation/openexr/pull/2450)
+  Update idna requirement from >=3.15 to >=3.17 in /website
+* [2449](https://github.com/AcademySoftwareFoundation/openexr/pull/2449)
+  Bump vmactions/freebsd-vm from 1.4.5 to 1.4.6
+* [2437](https://github.com/AcademySoftwareFoundation/openexr/pull/2437)
+  Bump github/codeql-action from 4.35.4 to 4.36.0
+* [2433](git@github.com:AcademySoftwareFoundation/openexr/pull/2433)
+  Tighten python publish workflow security/efficiency
+* [2430](git@github.com:AcademySoftwareFoundation/openexr/pull/2430)
+  Pin idna>=3.15 in website/requirements.txt
+
 
 ## Version 3.4.12 (May 24, 2026)
 
@@ -1035,6 +1125,34 @@ Fetch master branch of libdeflate on main
 * [1852](https://github.com/AcademySoftwareFoundation/openexr/pull/1852)
 Add an option to use TBB as the global provider
 
+## Version 3.3.12 (June 21, 2026)
+
+This release addresses the following security vulnerabilities:
+
+* [CVE-2026-55373](https://www.cve.org/CVERecord?id=CVE-2026-55373)
+  OpenEXRUtil SampleCountChannel endEdit() can loop forever on UINT_MAX sample counts
+* [CVE-2026-55059](https://www.cve.org/CVERecord?id=CVE-2026-55059)
+  OpenEXRUtil SampleCountChannel row setter heap out-of-bounds write
+* [CVE-2026-54920](https://www.cve.org/CVERecord?id=CVE-2026-54920)
+  Integer Overflow and Use of Uninitialized Pointer leading to Invalid Delete in OpenEXRUtil Image Resize
+
+### Merged Pull Requests
+
+  * [2476](git@github.com:AcademySoftwareFoundation/openexr/pull/2476)
+Fix the DWAA size checks regression
+  * [2472](git@github.com:AcademySoftwareFoundation/openexr/pull/2472)
+Unlock write context in exr_get_chunk_table_offset() return paths
+  * [2468](git@github.com:AcademySoftwareFoundation/openexr/pull/2468)
+Fix infinite loop in SampleCountChannel roundListSizeUp()
+  * [2464](git@github.com:AcademySoftwareFoundation/openexr/pull/2464)
+Fix heap out-of-bounds write in SampleCountChannel row setter.
+  * [2463](git@github.com:AcademySoftwareFoundation/openexr/pull/2463)
+Fix integer overflow and invalid delete in OpenEXRUtil Image::resize()
+  * [2442](git@github.com:AcademySoftwareFoundation/openexr/pull/2442)
+Bugfix: Fix interger overflows
+  * [2438](git@github.com:AcademySoftwareFoundation/openexr/pull/2438)
+Break release.py into separate small scripts for each step
+
 ## Version 3.3.11 (April 29, 2026)
 
 Patch release for 3.3 that addresses the following security
@@ -1759,6 +1877,36 @@ Fix macOS arm64 build
 * [1423](https://github.com/AcademySoftwareFoundation/openexr/pull/1423)
 Propagate dwa core 3 1
 * [1418](https://github.com/AcademySoftwareFoundation/openexr/pull/1418)
+
+## Version 3.2.10 (June 21, 2026)
+
+Patch release for 3.2 addressing security issues.
+
+This release addresses the following security vulnerabilities:
+
+* [CVE-2026-55373](https://www.cve.org/CVERecord?id=CVE-2026-55373)
+  OpenEXRUtil SampleCountChannel endEdit() can loop forever on UINT_MAX sample counts
+* [CVE-2026-55059](https://www.cve.org/CVERecord?id=CVE-2026-55059)
+  OpenEXRUtil SampleCountChannel row setter heap out-of-bounds write
+* [CVE-2026-54920](https://www.cve.org/CVERecord?id=CVE-2026-54920)
+  Integer Overflow and Use of Uninitialized Pointer leading to Invalid Delete in OpenEXRUtil Image Resize
+
+### Merged Pull Requests
+
+  * [2476](git@github.com:AcademySoftwareFoundation/openexr/pull/2476)
+Fix the DWAA size checks regression
+  * [2472](git@github.com:AcademySoftwareFoundation/openexr/pull/2472)
+Unlock write context in exr_get_chunk_table_offset() return paths
+  * [2468](git@github.com:AcademySoftwareFoundation/openexr/pull/2468)
+Fix infinite loop in SampleCountChannel roundListSizeUp()
+  * [2464](git@github.com:AcademySoftwareFoundation/openexr/pull/2464)
+Fix heap out-of-bounds write in SampleCountChannel row setter.
+  * [2463](git@github.com:AcademySoftwareFoundation/openexr/pull/2463)
+Fix integer overflow and invalid delete in OpenEXRUtil Image::resize()
+  * [2442](git@github.com:AcademySoftwareFoundation/openexr/pull/2442)
+Bugfix: Fix interger overflows
+  * [2438](git@github.com:AcademySoftwareFoundation/openexr/pull/2438)
+Break release.py into separate small scripts for each step
 
 ## Version 3.2.9 (April 29, 2026)
 
