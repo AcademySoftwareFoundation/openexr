@@ -2,21 +2,21 @@
 // This software is released under the 2-Clause BSD license, included
 // below.
 //
-// Copyright (c) 2022, Aous Naman 
+// Copyright (c) 2022, Aous Naman
 // Copyright (c) 2022, Kakadu Software Pty Ltd, Australia
 // Copyright (c) 2022, The University of New South Wales, Australia
-// 
+//
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
 // met:
-// 
+//
 // 1. Redistributions of source code must retain the above copyright
 // notice, this list of conditions and the following disclaimer.
-// 
+//
 // 2. Redistributions in binary form must reproduce the above copyright
 // notice, this list of conditions and the following disclaimer in the
 // documentation and/or other materials provided with the distribution.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
 // IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 // TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
@@ -36,7 +36,7 @@
 //***************************************************************************/
 
 #include <climits>
-#include <cstddef> 
+#include <cstddef>
 #include <wasm_simd128.h>
 
 #include "ojph_defs.h"
@@ -47,10 +47,9 @@ namespace ojph {
     //////////////////////////////////////////////////////////////////////////
     void wasm_mem_clear(void* addr, size_t count)
     {
-      float* p = (float*)addr;
       v128_t zero = wasm_i32x4_splat(0);
-      for (size_t i = 0; i < count; i += 16, p += 4)
-        wasm_v128_store(p, zero);
+      for (size_t i = 0; i < count; i += 16, addr = (char*)addr + 16)
+        wasm_v128_store(addr, zero);
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -76,12 +75,12 @@ namespace ojph {
     }
 
     //////////////////////////////////////////////////////////////////////////
-    void wasm_rev_tx_to_cb32(const void *sp, ui32 *dp, ui32 K_max, 
+    void wasm_rev_tx_to_cb32(const void *sp, ui32 *dp, ui32 K_max,
                              float delta_inv, ui32 count, ui32* max_val)
     {
       ojph_unused(delta_inv);
 
-      // convert to sign and magnitude and keep max_val      
+      // convert to sign and magnitude and keep max_val
       ui32 shift = 31 - K_max;
       v128_t m0 = wasm_i32x4_splat(INT_MIN);
       v128_t zero = wasm_i32x4_splat(0);
@@ -122,7 +121,7 @@ namespace ojph {
       }
       wasm_v128_store(max_val, tmax);
     }
-                           
+
     //////////////////////////////////////////////////////////////////////////
     void wasm_irv_tx_to_cb32(const void *sp, ui32 *dp, ui32 K_max,
                              float delta_inv, ui32 count, ui32* max_val)
@@ -174,7 +173,7 @@ namespace ojph {
     }
 
     //////////////////////////////////////////////////////////////////////////
-    void wasm_rev_tx_from_cb32(const ui32 *sp, void *dp, ui32 K_max, 
+    void wasm_rev_tx_from_cb32(const ui32 *sp, void *dp, ui32 K_max,
                                float delta, ui32 count)
     {
       ojph_unused(delta);
@@ -197,7 +196,7 @@ namespace ojph {
     }
 
     //////////////////////////////////////////////////////////////////////////
-    void wasm_irv_tx_from_cb32(const ui32 *sp, void *dp, ui32 K_max, 
+    void wasm_irv_tx_from_cb32(const ui32 *sp, void *dp, ui32 K_max,
                                float delta, ui32 count)
     {
       ojph_unused(K_max);
@@ -217,12 +216,12 @@ namespace ojph {
     }
 
     //////////////////////////////////////////////////////////////////////////
-    void wasm_rev_tx_to_cb64(const void *sp, ui64 *dp, ui32 K_max, 
+    void wasm_rev_tx_to_cb64(const void *sp, ui64 *dp, ui32 K_max,
                              float delta_inv, ui32 count, ui64* max_val)
     {
       ojph_unused(delta_inv);
 
-      // convert to sign and magnitude and keep max_val      
+      // convert to sign and magnitude and keep max_val
       ui32 shift = 63 - K_max;
       v128_t m0 = wasm_i64x2_splat(LLONG_MIN);
       v128_t zero = wasm_i64x2_splat(0);
@@ -261,10 +260,10 @@ namespace ojph {
       }
 
       wasm_v128_store(max_val, tmax);
-    }   
+    }
 
     //////////////////////////////////////////////////////////////////////////
-    void wasm_rev_tx_from_cb64(const ui64 *sp, void *dp, ui32 K_max, 
+    void wasm_rev_tx_from_cb64(const ui64 *sp, void *dp, ui32 K_max,
                                float delta, ui32 count)
     {
       ojph_unused(delta);

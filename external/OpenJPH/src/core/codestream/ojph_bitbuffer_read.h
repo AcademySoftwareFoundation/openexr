@@ -40,6 +40,7 @@
 #define OJPH_BITBUFFER_READ_H
 
 #include "ojph_defs.h"
+#include "ojph_arch.h"
 #include "ojph_file.h"
 
 namespace ojph {
@@ -79,7 +80,7 @@ namespace ojph {
     {
       if (bbp->bytes_left > 0)
       {
-        ui32 t = 0;
+        ui8 t = 0;
         if (bbp->file->read(&t, 1) != 1)
           throw "error reading from file";
         bbp->tmp = t;
@@ -195,7 +196,7 @@ namespace ojph {
             ui16 com_len;
             if (bbp->file->read(&com_len, 2) != 2)
               throw "error reading from file";
-            com_len = swap_byte(com_len);
+            com_len = swap_bytes_if_le(com_len);
             if (com_len != 4)
               throw "something is wrong with SOP length";
             int result = 

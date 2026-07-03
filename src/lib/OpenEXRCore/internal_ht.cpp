@@ -457,7 +457,7 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
         for (int16_t c = 0; c < encode->channel_count; c++)
         {
             if (cs_channel_info[c].kind != visual)
-                cod.get_coc(c).set_reversible(true);
+                cod.set_reversible(c, true);
         }
     }
 

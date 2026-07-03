@@ -2,21 +2,21 @@
 // This software is released under the 2-Clause BSD license, included
 // below.
 //
-// Copyright (c) 2019, Aous Naman 
+// Copyright (c) 2019, Aous Naman
 // Copyright (c) 2019, Kakadu Software Pty Ltd, Australia
 // Copyright (c) 2019, The University of New South Wales, Australia
-// 
+//
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
 // met:
-// 
+//
 // 1. Redistributions of source code must retain the above copyright
 // notice, this list of conditions and the following disclaimer.
-// 
+//
 // 2. Redistributions in binary form must reproduce the above copyright
 // notice, this list of conditions and the following disclaimer in the
 // documentation and/or other materials provided with the distribution.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
 // IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 // TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
@@ -61,16 +61,19 @@ namespace ojph {
     void sse_mem_clear(void* addr, size_t count);
     void avx_mem_clear(void* addr, size_t count);
     void wasm_mem_clear(void* addr, size_t count);
+    void vsx_mem_clear(void* addr, size_t count);
 
     //////////////////////////////////////////////////////////////////////////
     ui32  gen_find_max_val32(ui32* address);
     ui32 sse2_find_max_val32(ui32* address);
     ui32 avx2_find_max_val32(ui32* address);
     ui32 wasm_find_max_val32(ui32* address);
+    ui32 vsx_find_max_val32(ui32* address);
     ui64  gen_find_max_val64(ui64* address);
     ui64 sse2_find_max_val64(ui64* address);
     ui64 avx2_find_max_val64(ui64* address);
     ui64 wasm_find_max_val64(ui64* address);
+    ui64 vsx_find_max_val64(ui64* address);
 
 
     //////////////////////////////////////////////////////////////////////////
@@ -88,8 +91,12 @@ namespace ojph {
                              float delta_inv, ui32 count, ui32* max_val);
     void wasm_rev_tx_to_cb32(const void *sp, ui32 *dp, ui32 K_max,
                              float delta_inv, ui32 count, ui32* max_val);
+    void vsx_rev_tx_to_cb32(const void *sp, ui32 *dp, ui32 K_max,
+                            float delta_inv, ui32 count, ui32* max_val);
     void wasm_irv_tx_to_cb32(const void *sp, ui32 *dp, ui32 K_max,
                              float delta_inv, ui32 count, ui32* max_val);
+    void vsx_irv_tx_to_cb32(const void *sp, ui32 *dp, ui32 K_max,
+                            float delta_inv, ui32 count, ui32* max_val);
 
     void  gen_rev_tx_to_cb64(const void *sp, ui64 *dp, ui32 K_max,
                              float delta_inv, ui32 count, ui64* max_val);
@@ -99,6 +106,8 @@ namespace ojph {
                              float delta_inv, ui32 count, ui64* max_val);
     void wasm_rev_tx_to_cb64(const void *sp, ui64 *dp, ui32 K_max,
                              float delta_inv, ui32 count, ui64* max_val);
+    void vsx_rev_tx_to_cb64(const void *sp, ui64 *dp, ui32 K_max,
+                            float delta_inv, ui32 count, ui64* max_val);
 
     //////////////////////////////////////////////////////////////////////////
     void  gen_rev_tx_from_cb32(const ui32 *sp, void *dp, ui32 K_max,
@@ -115,8 +124,12 @@ namespace ojph {
                                float delta, ui32 count);
     void wasm_rev_tx_from_cb32(const ui32 *sp, void *dp, ui32 K_max,
                                float delta, ui32 count);
+    void vsx_rev_tx_from_cb32(const ui32 *sp, void *dp, ui32 K_max,
+                              float delta, ui32 count);
     void wasm_irv_tx_from_cb32(const ui32 *sp, void *dp, ui32 K_max,
                                float delta, ui32 count);
+    void vsx_irv_tx_from_cb32(const ui32 *sp, void *dp, ui32 K_max,
+                              float delta, ui32 count);
 
     void  gen_rev_tx_from_cb64(const ui64 *sp, void *dp, ui32 K_max,
                                float delta, ui32 count);
@@ -124,8 +137,12 @@ namespace ojph {
                                float delta, ui32 count);
     void avx2_rev_tx_from_cb64(const ui64 *sp, void *dp, ui32 K_max,
                                float delta, ui32 count);
+    void gen_irv_tx_from_cb64(const ui64 *sp, void *dp, ui32 K_max,
+                              float delta, ui32 count);
     void wasm_rev_tx_from_cb64(const ui64 *sp, void *dp, ui32 K_max,
-                               float delta, ui32 count);                               
+                               float delta, ui32 count);
+    void vsx_rev_tx_from_cb64(const ui64 *sp, void *dp, ui32 K_max,
+                              float delta, ui32 count);
 
     void codeblock_fun::init(bool reversible) {
 
@@ -155,11 +172,11 @@ namespace ojph {
       else
       {
         tx_to_cb64 = NULL;
-        tx_from_cb64 = NULL;
+        tx_from_cb64 = gen_irv_tx_from_cb64;
       }
       encode_cb64 = ojph_encode_codeblock64;
       bool result = initialize_block_encoder_tables();
-      assert(result); ojph_unused(result);      
+      assert(result); ojph_unused(result);
 
   #ifndef OJPH_DISABLE_SIMD
 
@@ -190,7 +207,7 @@ namespace ojph {
           else
           {
             tx_to_cb64 = NULL;
-            tx_from_cb64 = NULL;
+            tx_from_cb64 = gen_irv_tx_from_cb64;
           }
         }
       #endif // !OJPH_DISABLE_SSE2
@@ -229,7 +246,7 @@ namespace ojph {
           else
           {
             tx_to_cb64 = NULL;
-            tx_from_cb64 = NULL;
+            tx_from_cb64 = gen_irv_tx_from_cb64;
           }
         }
       #endif // !OJPH_DISABLE_AVX2
@@ -243,7 +260,41 @@ namespace ojph {
       #endif // !OJPH_DISABLE_AVX512
 
     #elif defined(OJPH_ARCH_ARM)
-    
+
+    #elif defined(OJPH_ARCH_PPC64LE)
+
+      // 128-bit VSX kernels; see ojph_simd_vsx.h.
+      // The SIMD block decoder is used everywhere on POWER10 (ISA 3.1),
+      // where it beats the scalar decoder on all measured content.  On
+      // POWER9 it wins for irreversible content (more magnitude bits
+      // per sample) but trails the scalar decoder slightly on
+      // reversible content, so it is dispatched only for the former.
+      if (get_cpu_ext_level() >= PPC_CPU_EXT_LEVEL_ARCH_3_1 ||
+          (!reversible &&
+           get_cpu_ext_level() >= PPC_CPU_EXT_LEVEL_ARCH_3_00))
+        decode_cb32 = ojph_decode_codeblock_vsx;
+      if (get_cpu_ext_level() >= PPC_CPU_EXT_LEVEL_ARCH_3_00) {
+        find_max_val32 = vsx_find_max_val32;
+        mem_clear = vsx_mem_clear;
+        if (reversible) {
+          tx_to_cb32 = vsx_rev_tx_to_cb32;
+          tx_from_cb32 = vsx_rev_tx_from_cb32;
+        }
+        else {
+          tx_to_cb32 = vsx_irv_tx_to_cb32;
+          tx_from_cb32 = vsx_irv_tx_from_cb32;
+        }
+        find_max_val64 = vsx_find_max_val64;
+        if (reversible) {
+          tx_to_cb64 = vsx_rev_tx_to_cb64;
+          tx_from_cb64 = vsx_rev_tx_from_cb64;
+        }
+        else {
+          tx_to_cb64 = NULL;
+          tx_from_cb64 = gen_irv_tx_from_cb64;
+        }
+      }
+
     #endif // !(defined(OJPH_ARCH_X86_64) || defined(OJPH_ARCH_I386))
 
   #endif // !OJPH_DISABLE_SIMD
@@ -273,11 +324,11 @@ namespace ojph {
       else
       {
         tx_to_cb64 = NULL;
-        tx_from_cb64 = NULL;
+        tx_from_cb64 = gen_irv_tx_from_cb64;
       }
       encode_cb64 = ojph_encode_codeblock64;
       bool result = initialize_block_encoder_tables();
-      assert(result); ojph_unused(result);      
+      assert(result); ojph_unused(result);
 
 #endif // !OJPH_ENABLE_WASM_SIMD
 
