@@ -309,11 +309,12 @@ read_header (
     map.resize (header.pull_uint16 (), {-1, 0, 0});
     for (size_t i = 0; i < map.size (); i++)
     {
-        map.at (i).file_index = header.pull_uint16 ();
-        if (map.at (i).scratch > 0)
+        uint16_t file_index = header.pull_uint16 ();
+        if (file_index >= map.size() || map.at (file_index).scratch > 0)
             throw std::runtime_error (
-                "HTJ2K chunk header contains duplicate file_index values.");
-        map.at (i).scratch = 1;
+                "HTJ2K chunk header contains invalid file_index values.");
+        map.at (i).file_index = file_index;
+        map.at (file_index).scratch = 1;
     }
 
     return prefix_sz + payload_sz;
