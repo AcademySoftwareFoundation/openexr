@@ -177,6 +177,25 @@ namespace ojph {
 
     #elif defined(OJPH_ARCH_ARM)
 
+    #elif defined(OJPH_ARCH_PPC64LE)
+
+        if (get_cpu_ext_level() >= PPC_CPU_EXT_LEVEL_ARCH_3_00)
+        {
+          // 128-bit VSX kernels; see ojph_simd_vsx.h
+          rev_convert = vsx_rev_convert;
+          rev_convert_nlt_type3 = vsx_rev_convert_nlt_type3;
+          irv_convert_to_integer = vsx_irv_convert_to_integer;
+          irv_convert_to_float = vsx_irv_convert_to_float;
+          irv_convert_to_integer_nlt_type3 =
+            vsx_irv_convert_to_integer_nlt_type3;
+          irv_convert_to_float_nlt_type3 =
+            vsx_irv_convert_to_float_nlt_type3;
+          rct_forward = vsx_rct_forward;
+          rct_backward = vsx_rct_backward;
+          ict_forward = vsx_ict_forward;
+          ict_backward = vsx_ict_backward;
+        }
+
     #endif // !(defined(OJPH_ARCH_X86_64) || defined(OJPH_ARCH_I386))
 
   #endif // !OJPH_DISABLE_SIMD

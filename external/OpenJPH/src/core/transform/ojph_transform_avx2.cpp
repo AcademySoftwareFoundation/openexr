@@ -2,21 +2,21 @@
 // This software is released under the 2-Clause BSD license, included
 // below.
 //
-// Copyright (c) 2019, Aous Naman 
+// Copyright (c) 2019, Aous Naman
 // Copyright (c) 2019, Kakadu Software Pty Ltd, Australia
 // Copyright (c) 2019, The University of New South Wales, Australia
-// 
+//
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
 // met:
-// 
+//
 // 1. Redistributions of source code must retain the above copyright
 // notice, this list of conditions and the following disclaimer.
-// 
+//
 // 2. Redistributions in binary form must reproduce the above copyright
 // notice, this list of conditions and the following disclaimer in the
 // documentation and/or other materials provided with the distribution.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
 // IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 // TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
@@ -56,8 +56,8 @@ namespace ojph {
 
     /////////////////////////////////////////////////////////////////////////
     // https://github.com/seung-lab/dijkstra3d/blob/master/libdivide.h
-    static inline 
-    __m256i avx2_mm256_srai_epi64(__m256i a, int amt, __m256i m) 
+    static inline
+    __m256i avx2_mm256_srai_epi64(__m256i a, int amt, __m256i m)
     {
       // note than m must be obtained using
       // __m256i m = _mm256_set1_epi64x(1ULL << (63 - amt));
@@ -85,7 +85,7 @@ namespace ojph {
     }
 
     //////////////////////////////////////////////////////////////////////////
-    static inline 
+    static inline
     void avx2_interleave32(float* dp, float* spl, float* sph, int width)
     {
       for (; width > 0; width -= 16, dp += 16, spl += 8, sph += 8)
@@ -102,43 +102,50 @@ namespace ojph {
     }
 
     //////////////////////////////////////////////////////////////////////////
-    static inline 
-    void avx2_deinterleave64(double* dpl, double* dph, double* sp, int width)
+    static inline
+    void avx2_deinterleave64(void* dpl, void* dph, const void* sp, int width)
     {
-      for (; width > 0; width -= 8, sp += 8, dpl += 4, dph += 4)
+      for (; width > 0; width -= 8,
+             sp = (const char*)sp + 64,
+             dpl = (char*)dpl + 32,
+             dph = (char*)dph + 32)
       {
-        __m256d a = _mm256_load_pd(sp);
-        __m256d b = _mm256_load_pd(sp + 4);
-        __m256d c = _mm256_permute2f128_pd(a, b, (2 << 4) | (0));
-        __m256d d = _mm256_permute2f128_pd(a, b, (3 << 4) | (1));
-        __m256d e = _mm256_shuffle_pd(c, d, 0x0);
-        __m256d f = _mm256_shuffle_pd(c, d, 0xF);
-        _mm256_store_pd(dpl, e);
-        _mm256_store_pd(dph, f);
+        __m256i a = _mm256_load_si256((const __m256i*)sp);
+        __m256i b = _mm256_load_si256((const __m256i*)((const char*)sp + 32));
+        __m256i c = _mm256_permute2f128_si256(a, b, (2 << 4) | (0));
+        __m256i d = _mm256_permute2f128_si256(a, b, (3 << 4) | (1));
+        __m256i e = _mm256_unpacklo_epi64(c, d);
+        __m256i f = _mm256_unpackhi_epi64(c, d);
+        _mm256_store_si256((__m256i*)dpl, e);
+        _mm256_store_si256((__m256i*)dph, f);
       }
     }
 
     //////////////////////////////////////////////////////////////////////////
-    static inline 
-    void avx2_interleave64(double* dp, double* spl, double* sph, int width)
+    static inline
+    void avx2_interleave64(void* dp, const void* spl, const void* sph,
+                           int width)
     {
-      for (; width > 0; width -= 8, dp += 8, spl += 4, sph += 4)
+      for (; width > 0; width -= 8,
+             dp = (char*)dp + 64,
+             spl = (const char*)spl + 32,
+             sph = (const char*)sph + 32)
       {
-        __m256d a = _mm256_load_pd(spl);
-        __m256d b = _mm256_load_pd(sph);
-        __m256d c = _mm256_unpacklo_pd(a, b);
-        __m256d d = _mm256_unpackhi_pd(a, b);
-        __m256d e = _mm256_permute2f128_pd(c, d, (2 << 4) | (0));
-        __m256d f = _mm256_permute2f128_pd(c, d, (3 << 4) | (1));
-        _mm256_store_pd(dp, e);
-        _mm256_store_pd(dp + 4, f);
+        __m256i a = _mm256_load_si256((const __m256i*)spl);
+        __m256i b = _mm256_load_si256((const __m256i*)sph);
+        __m256i c = _mm256_unpacklo_epi64(a, b);
+        __m256i d = _mm256_unpackhi_epi64(a, b);
+        __m256i e = _mm256_permute2f128_si256(c, d, (2 << 4) | (0));
+        __m256i f = _mm256_permute2f128_si256(c, d, (3 << 4) | (1));
+        _mm256_store_si256((__m256i*)dp, e);
+        _mm256_store_si256((__m256i*)((char*)dp + 32), f);
       }
     }
 
     /////////////////////////////////////////////////////////////////////////
     static
-    void avx2_rev_vert_step32(const lifting_step* s, const line_buf* sig, 
-                              const line_buf* other, const line_buf* aug, 
+    void avx2_rev_vert_step32(const lifting_step* s, const line_buf* sig,
+                              const line_buf* other, const line_buf* aug,
                               ui32 repeat, bool synthesis)
     {
       const si32 a = s->rev.Aatk;
@@ -149,7 +156,7 @@ namespace ojph {
 
       si32* dst = aug->i32;
       const si32* src1 = sig->i32, * src2 = other->i32;
-      // The general definition of the wavelet in Part 2 is slightly 
+      // The general definition of the wavelet in Part 2 is slightly
       // different to part 2, although they are mathematically equivalent
       // here, we identify the simpler form from Part 1 and employ them
       if (a == 1)
@@ -267,19 +274,19 @@ namespace ojph {
 
     /////////////////////////////////////////////////////////////////////////
     static
-    void avx2_rev_vert_step64(const lifting_step* s, const line_buf* sig, 
-                              const line_buf* other, const line_buf* aug, 
+    void avx2_rev_vert_step64(const lifting_step* s, const line_buf* sig,
+                              const line_buf* other, const line_buf* aug,
                               ui32 repeat, bool synthesis)
     {
       const si32 a = s->rev.Aatk;
       const si32 b = s->rev.Batk;
       const ui8 e = s->rev.Eatk;
       __m256i vb = _mm256_set1_epi64x(b);
-      __m256i ve = _mm256_set1_epi64x(1LL << (63 - e));      
+      __m256i ve = _mm256_set1_epi64x(1LL << (63 - e));
 
       si64* dst = aug->i64;
       const si64* src1 = sig->i64, * src2 = other->i64;
-      // The general definition of the wavelet in Part 2 is slightly 
+      // The general definition of the wavelet in Part 2 is slightly
       // different to part 2, although they are mathematically equivalent
       // here, we identify the simpler form from Part 1 and employ them
       if (a == 1)
@@ -377,23 +384,23 @@ namespace ojph {
     }
 
     /////////////////////////////////////////////////////////////////////////
-    void avx2_rev_vert_step(const lifting_step* s, const line_buf* sig, 
-                            const line_buf* other, const line_buf* aug, 
+    void avx2_rev_vert_step(const lifting_step* s, const line_buf* sig,
+                            const line_buf* other, const line_buf* aug,
                             ui32 repeat, bool synthesis)
     {
-      if (((sig != NULL) && (sig->flags & line_buf::LFT_32BIT)) || 
+      if (((sig != NULL) && (sig->flags & line_buf::LFT_32BIT)) ||
           ((aug != NULL) && (aug->flags & line_buf::LFT_32BIT)) ||
-          ((other != NULL) && (other->flags & line_buf::LFT_32BIT))) 
+          ((other != NULL) && (other->flags & line_buf::LFT_32BIT)))
       {
         assert((sig == NULL || sig->flags & line_buf::LFT_32BIT) &&
-               (other == NULL || other->flags & line_buf::LFT_32BIT) && 
+               (other == NULL || other->flags & line_buf::LFT_32BIT) &&
                (aug == NULL || aug->flags & line_buf::LFT_32BIT));
         avx2_rev_vert_step32(s, sig, other, aug, repeat, synthesis);
       }
-      else 
+      else
       {
         assert((sig == NULL || sig->flags & line_buf::LFT_64BIT) &&
-               (other == NULL || other->flags & line_buf::LFT_64BIT) && 
+               (other == NULL || other->flags & line_buf::LFT_64BIT) &&
                (aug == NULL || aug->flags & line_buf::LFT_64BIT));
         avx2_rev_vert_step64(s, sig, other, aug, repeat, synthesis);
       }
@@ -401,8 +408,8 @@ namespace ojph {
 
     /////////////////////////////////////////////////////////////////////////
     static
-    void avx2_rev_horz_ana32(const param_atk* atk, const line_buf* ldst, 
-                             const line_buf* hdst, const line_buf* src, 
+    void avx2_rev_horz_ana32(const param_atk* atk, const line_buf* ldst,
+                             const line_buf* hdst, const line_buf* src,
                              ui32 width, bool even)
     {
       if (width > 1)
@@ -569,17 +576,17 @@ namespace ojph {
 
     /////////////////////////////////////////////////////////////////////////
     static
-    void avx2_rev_horz_ana64(const param_atk* atk, const line_buf* ldst, 
-                             const line_buf* hdst, const line_buf* src, 
+    void avx2_rev_horz_ana64(const param_atk* atk, const line_buf* ldst,
+                             const line_buf* hdst, const line_buf* src,
                              ui32 width, bool even)
     {
       if (width > 1)
       {
         // split src into ldst and hdst
         {
-          double* dpl = (double*)(even ? ldst->p : hdst->p);
-          double* dph = (double*)(even ? hdst->p : ldst->p);
-          double* sp  = (double*)src->p;
+          void* dpl = even ? ldst->p : hdst->p;
+          void* dph = even ? hdst->p : ldst->p;
+          const void* sp = src->p;
           int w = (int)width;
           avx2_deinterleave64(dpl, dph, sp, w);
         }
@@ -717,29 +724,29 @@ namespace ojph {
     }
 
     /////////////////////////////////////////////////////////////////////////
-    void avx2_rev_horz_ana(const param_atk* atk, const line_buf* ldst, 
-                           const line_buf* hdst, const line_buf* src, 
+    void avx2_rev_horz_ana(const param_atk* atk, const line_buf* ldst,
+                           const line_buf* hdst, const line_buf* src,
                            ui32 width, bool even)
     {
-      if (src->flags & line_buf::LFT_32BIT) 
+      if (src->flags & line_buf::LFT_32BIT)
       {
         assert((ldst == NULL || ldst->flags & line_buf::LFT_32BIT) &&
                (hdst == NULL || hdst->flags & line_buf::LFT_32BIT));
         avx2_rev_horz_ana32(atk, ldst, hdst, src, width, even);
       }
-      else 
+      else
       {
         assert((ldst == NULL || ldst->flags & line_buf::LFT_64BIT) &&
-               (hdst == NULL || hdst->flags & line_buf::LFT_64BIT) && 
+               (hdst == NULL || hdst->flags & line_buf::LFT_64BIT) &&
                (src == NULL || src->flags & line_buf::LFT_64BIT));
         avx2_rev_horz_ana64(atk, ldst, hdst, src, width, even);
       }
-    } 
-    
+    }
+
     //////////////////////////////////////////////////////////////////////////
     static
-    void avx2_rev_horz_syn32(const param_atk* atk, const line_buf* dst, 
-                             const line_buf* lsrc, const line_buf* hsrc, 
+    void avx2_rev_horz_syn32(const param_atk* atk, const line_buf* dst,
+                             const line_buf* lsrc, const line_buf* hsrc,
                              ui32 width, bool even)
     {
       if (width > 1)
@@ -906,8 +913,8 @@ namespace ojph {
 
     //////////////////////////////////////////////////////////////////////////
     static
-    void avx2_rev_horz_syn64(const param_atk* atk, const line_buf* dst, 
-                             const line_buf* lsrc, const line_buf* hsrc, 
+    void avx2_rev_horz_syn64(const param_atk* atk, const line_buf* dst,
+                             const line_buf* lsrc, const line_buf* hsrc,
                              ui32 width, bool even)
     {
       if (width > 1)
@@ -924,7 +931,7 @@ namespace ojph {
           const si32 b = s->rev.Batk;
           const ui8 e  = s->rev.Eatk;
           __m256i vb = _mm256_set1_epi64x(b);
-          __m256i ve = _mm256_set1_epi64x(1LL << (63 - e));      
+          __m256i ve = _mm256_set1_epi64x(1LL << (63 - e));
 
           // extension
           oth[-1] = oth[0];
@@ -1038,9 +1045,9 @@ namespace ojph {
 
         // combine both lsrc and hsrc into dst
         {
-          double* dp  = (double*)dst->p;
-          double* spl = (double*)(even ? lsrc->p : hsrc->p);
-          double* sph = (double*)(even ? hsrc->p : lsrc->p);
+          void* dp = dst->p;
+          const void* spl = even ? lsrc->p : hsrc->p;
+          const void* sph = even ? hsrc->p : lsrc->p;
           int w = (int)width;
           avx2_interleave64(dp, spl, sph, w);
         }
@@ -1051,23 +1058,23 @@ namespace ojph {
         else
           dst->i64[0] = hsrc->i64[0] >> 1;
       }
-    }    
+    }
 
     /////////////////////////////////////////////////////////////////////////
-    void avx2_rev_horz_syn(const param_atk* atk, const line_buf* dst, 
-                           const line_buf* lsrc, const line_buf* hsrc, 
+    void avx2_rev_horz_syn(const param_atk* atk, const line_buf* dst,
+                           const line_buf* lsrc, const line_buf* hsrc,
                            ui32 width, bool even)
     {
-      if (dst->flags & line_buf::LFT_32BIT) 
+      if (dst->flags & line_buf::LFT_32BIT)
       {
-        assert((lsrc == NULL || lsrc->flags & line_buf::LFT_32BIT) && 
+        assert((lsrc == NULL || lsrc->flags & line_buf::LFT_32BIT) &&
                (hsrc == NULL || hsrc->flags & line_buf::LFT_32BIT));
         avx2_rev_horz_syn32(atk, dst, lsrc, hsrc, width, even);
       }
-      else 
+      else
       {
         assert((dst == NULL || dst->flags & line_buf::LFT_64BIT) &&
-               (lsrc == NULL || lsrc->flags & line_buf::LFT_64BIT) && 
+               (lsrc == NULL || lsrc->flags & line_buf::LFT_64BIT) &&
                (hsrc == NULL || hsrc->flags & line_buf::LFT_64BIT));
         avx2_rev_horz_syn64(atk, dst, lsrc, hsrc, width, even);
       }

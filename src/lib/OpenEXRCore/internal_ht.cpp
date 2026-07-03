@@ -386,9 +386,9 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
 {
     exr_result_t rv = EXR_ERR_SUCCESS;
 
-    std::vector<CodestreamChannelInfo> cs_to_file_ch (encode->channel_count);
+    std::vector<CodestreamChannelInfo> cs_channel_info (encode->channel_count);
     bool                               isRGB = make_channel_map (
-        encode->channel_count, encode->channels, cs_to_file_ch);
+        encode->channel_count, encode->channels, cs_channel_info);
 
     int image_height = encode->chunk.height;
     int image_width  = encode->chunk.width;
@@ -403,7 +403,7 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
     int64_t bpl = 0;
     for (int16_t c = 0; c < encode->channel_count; c++)
     {
-        int file_c = cs_to_file_ch[c].file_index;
+        int file_c = cs_channel_info[c].file_index;
         if (encode->channels[file_c].data_type != EXR_PIXEL_UINT)
             nlt.set_nonlinear_transform (
                 c,
@@ -452,6 +452,13 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
 
         ojph::param_qcd qcd = cs.access_qcd ();
         qcd.set_irrev_quant (lossy_htj2k_quality);
+
+        /* exclude data channels */
+        for (int16_t c = 0; c < encode->channel_count; c++)
+        {
+            if (cs_channel_info[c].kind != visual)
+                cod.set_reversible(c, true);
+        }
     }
 
     try
@@ -460,7 +467,7 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
         size_t header_sz = write_header (
             (uint8_t*) encode->compressed_buffer,
             encode->packed_bytes,
-            cs_to_file_ch);
+            cs_channel_info);
 
         /* write the codestream */
         staticmem_outfile output;
@@ -479,7 +486,7 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
 
                 const uint8_t* line_pixels =
                     static_cast<const uint8_t*> (encode->packed_buffer);
-                int16_t file_c = cs_to_file_ch[c].file_index;
+                int16_t file_c = cs_channel_info[c].file_index;
 
                 for (int64_t y = encode->chunk.start_y;
                     y < image_height + encode->chunk.start_y;
@@ -536,12 +543,12 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
             {
                 for (int16_t c = 0; c < encode->channel_count; c++)
                 {
-                    int file_c = cs_to_file_ch[c].file_index;
+                    int file_c = cs_channel_info[c].file_index;
 
                     if (encode->channels[file_c].data_type == EXR_PIXEL_HALF)
                     {
                         int16_t* channel_pixels =
-                            (int16_t*) (line_pixels + cs_to_file_ch[c].raster_line_offset);
+                            (int16_t*) (line_pixels + cs_channel_info[c].raster_line_offset);
                         for (int32_t p = 0; p < encode->channels[file_c].width;
                             p++)
                         {
@@ -551,7 +558,7 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
                     else
                     {
                         int32_t* channel_pixels =
-                            (int32_t*) (line_pixels + cs_to_file_ch[c].raster_line_offset);
+                            (int32_t*) (line_pixels + cs_channel_info[c].raster_line_offset);
                         for (int32_t p = 0; p < encode->channels[file_c].width;
                             p++)
                         {
