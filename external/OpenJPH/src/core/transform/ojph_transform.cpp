@@ -168,6 +168,21 @@ namespace ojph {
     
     #elif defined(OJPH_ARCH_ARM)
 
+    #elif defined(OJPH_ARCH_PPC64LE)
+
+        if (get_cpu_ext_level() >= PPC_CPU_EXT_LEVEL_ARCH_3_00)
+        {
+          // 128-bit VSX kernels; see ojph_simd_vsx.h
+          rev_vert_step             = vsx_rev_vert_step;
+          rev_horz_ana              = vsx_rev_horz_ana;
+          rev_horz_syn              = vsx_rev_horz_syn;
+
+          irv_vert_step             = vsx_irv_vert_step;
+          irv_vert_times_K          = vsx_irv_vert_times_K;
+          irv_horz_ana              = vsx_irv_horz_ana;
+          irv_horz_syn              = vsx_irv_horz_syn;
+        }
+
     #endif // !(defined(OJPH_ARCH_X86_64) || defined(OJPH_ARCH_I386))
 
   #endif // !OJPH_DISABLE_SIMD

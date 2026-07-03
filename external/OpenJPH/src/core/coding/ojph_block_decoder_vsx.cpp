@@ -30,18 +30,15 @@
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //***************************************************************************/
 // This file is part of the OpenJPH software implementation.
-// File: ojph_block_decoder_ssse3.cpp
+// File: ojph_block_decoder_vsx.cpp
 // Author: Aous Naman
 // Date: 13 May 2022
 //***************************************************************************/
 
 //***************************************************************************/
-/** @file ojph_block_decoder_ssse3.cpp
- *  @brief implements a faster HTJ2K block decoder using ssse3
+/** @file ojph_block_decoder_vsx.cpp
+ *  @brief implements a faster HTJ2K block decoder using POWER VSX simd
  */
-
-#include "ojph_arch.h"
-#if defined(OJPH_ARCH_I386) || defined(OJPH_ARCH_X86_64)
 
 #include <string>
 #include <iostream>
@@ -50,12 +47,21 @@
 #include <cstring>
 #include "ojph_block_common.h"
 #include "ojph_block_decoder.h"
+#include "ojph_arch.h"
 #include "ojph_message.h"
 
-#include <immintrin.h>
+#include "ojph_simd_vsx.h"
 
 namespace ojph {
   namespace local {
+
+    //************************************************************************/
+    /** @brief Macros that help with typing and space
+     */
+    #define OJPH_REPEAT2(a) a,a
+    #define OJPH_REPEAT4(a) a,a,a,a
+    #define OJPH_REPEAT8(a) a,a,a,a,a,a,a,a
+    #define OJPH_REPEAT16(a) a,a,a,a,a,a,a,a,a,a,a,a,a,a,a,a
 
     //************************************************************************/
     /** @brief MEL state structure for reading and decoding the MEL bitstream
@@ -581,7 +587,7 @@ namespace ojph {
     /** @brief State structure for reading and unstuffing of forward-growing
      *         bitstreams; these are: MagSgn and SPP bitstreams
      */
-    struct frwd_struct_ssse3 {
+    struct frwd_struct {
       const ui8* data;  //!<pointer to bitstream
       ui8 tmp[48];      //!<temporary buffer of read data + 16 extra
       ui32 bits;        //!<number of bits stored in tmp
@@ -598,45 +604,45 @@ namespace ojph {
      *  X controls this value.
      *
      *  Unstuffing prevent sequences that are more than 0xFF7F from appearing
-     *  in the compressed sequence.  So whenever a value of 0xFF is coded, the
+     *  in the conpressed sequence.  So whenever a value of 0xFF is coded, the
      *  MSB of the next byte is set 0 and must be ignored during decoding.
      *
      *  Reading can go beyond the end of buffer by up to 16 bytes.
      *
      *  @tparam       X is the value fed in when the bitstream is exhausted
-     *  @param  [in]  msp is a pointer to frwd_struct_ssse3 structure
+     *  @param  [in]  msp is a pointer to frwd_struct structure
      *
      */
     template<int X>
     static inline
-    void frwd_read(frwd_struct_ssse3 *msp)
+    void frwd_read(frwd_struct *msp)
     {
       assert(msp->bits <= 128);
 
-      __m128i offset, val, validity, all_xff;
-      val = _mm_loadu_si128((__m128i*)msp->data);
+      v128_t offset, val, validity, all_xff;
+      val = vsx_v128_load(msp->data);
       int bytes = msp->size >= 16 ? 16 : msp->size;
-      validity = _mm_set1_epi8((char)bytes);
+      validity = vsx_i8x16_splat((char)bytes);
       msp->data += bytes;
       msp->size -= bytes;
-      int bits = 128;
-      offset = _mm_set_epi64x(0x0F0E0D0C0B0A0908,0x0706050403020100);
-      validity = _mm_cmpgt_epi8(validity, offset);
-      all_xff = _mm_set1_epi8(-1);
+      ui32 bits = 128;
+      offset = vsx_i64x2_const(0x0706050403020100,0x0F0E0D0C0B0A0908);
+      validity = vsx_i8x16_gt(validity, offset);
+      all_xff = vsx_i8x16_const(OJPH_REPEAT16(-1));
       if (X == 0xFF) // the compiler should remove this if statement
       {
-        __m128i t = _mm_xor_si128(validity, all_xff); // complement
-        val = _mm_or_si128(t, val); // fill with 0xFF
+        v128_t t = vsx_v128_xor(validity, all_xff); // complement
+        val = vsx_v128_or(t, val); // fill with 0xFF
       }
       else if (X == 0)
-        val = _mm_and_si128(validity, val); // fill with zeros
+        val = vsx_v128_and(validity, val); // fill with zeros
       else
         assert(0);
 
-      __m128i ff_bytes;
-      ff_bytes = _mm_cmpeq_epi8(val, all_xff);
-      ff_bytes = _mm_and_si128(ff_bytes, validity);
-      ui32 flags = (ui32)_mm_movemask_epi8(ff_bytes);
+      v128_t ff_bytes;
+      ff_bytes = vsx_i8x16_eq(val, all_xff);
+      ff_bytes = vsx_v128_and(ff_bytes, validity);
+      ui32 flags = vsx_i8x16_bitmask(ff_bytes);
       flags <<= 1; // unstuff following byte
       ui32 next_unstuff = flags >> 16;
       flags |= msp->unstuff;
@@ -650,60 +656,62 @@ namespace ojph {
         ui32 loc = 31 - count_leading_zeros(flags);
         flags ^= 1 << loc;
 
-        __m128i m, t, c;
-        t = _mm_set1_epi8((char)loc);
-        m = _mm_cmpgt_epi8(offset, t);
+        v128_t m, t, c;
+        t = vsx_i8x16_splat((char)loc);
+        m = vsx_i8x16_gt(offset, t);
 
-        t = _mm_and_si128(m, val);  // keep bits at locations larger than loc
-        c = _mm_srli_epi64(t, 1);   // 1 bits left
-        t = _mm_srli_si128(t, 8);   // 8 bytes left
-        t = _mm_slli_epi64(t, 63);  // keep the MSB only
-        t = _mm_or_si128(t, c);     // combine the above 3 steps
+        t = vsx_v128_and(m, val);    // keep bits at locations larger than loc
+        c = vsx_u64x2_shr(t, 1);     // 1 bits left
+        t = vsx_i64x2_shuffle(t, vsx_i64x2_const(0, 0), 1, 2);
+        t = vsx_i64x2_shl(t, 63);    // keep the MSB only
+        t = vsx_v128_or(t, c);       // combine the above 3 steps
 
-        val = _mm_or_si128(t, _mm_andnot_si128(m, val));
+        val = vsx_v128_or(t, vsx_v128_andnot(val, m));
       }
 
       // combine with earlier data
       assert(msp->bits >= 0 && msp->bits <= 128);
       int cur_bytes = msp->bits >> 3;
-      int cur_bits = msp->bits & 7;
-      __m128i b1, b2;
-      b1 = _mm_sll_epi64(val, _mm_set1_epi64x(cur_bits));
-      b2 = _mm_slli_si128(val, 8);  // 8 bytes right
-      b2 = _mm_srl_epi64(b2, _mm_set1_epi64x(64-cur_bits));
-      b1 = _mm_or_si128(b1, b2);
-      b2 = _mm_loadu_si128((__m128i*)(msp->tmp + cur_bytes));
-      b2 = _mm_or_si128(b1, b2);
-      _mm_storeu_si128((__m128i*)(msp->tmp + cur_bytes), b2);
+      ui32 cur_bits = msp->bits & 7;
+      v128_t b1, b2;
+      b1 = vsx_i64x2_shl(val, cur_bits);
+      //next shift 8 bytes right
+      b2 = vsx_i64x2_shuffle(vsx_i64x2_const(0, 0), val, 1, 2);
+      b2 = vsx_u64x2_shr(b2, 64u - cur_bits);
+      b2 = (cur_bits > 0) ? b2 : vsx_i64x2_const(0, 0);
+      b1 = vsx_v128_or(b1, b2);
+      b2 = vsx_v128_load(msp->tmp + cur_bytes);
+      b2 = vsx_v128_or(b1, b2);
+      vsx_v128_store(msp->tmp + cur_bytes, b2);
 
-      int consumed_bits = bits < 128 - cur_bits ? bits : 128 - cur_bits;
-      cur_bytes = (msp->bits + (ui32)consumed_bits + 7) >> 3; // round up
-      int upper = _mm_extract_epi16(val, 7);
-      upper >>= consumed_bits - 128 + 16;
+      ui32 consumed_bits = bits < 128u - cur_bits ? bits : 128u - cur_bits;
+      cur_bytes = (msp->bits + consumed_bits + 7) >> 3; // round up
+      int upper = vsx_u16x8_extract_lane(val, 7);
+      upper >>= consumed_bits + 16 - 128;
       msp->tmp[cur_bytes] = (ui8)upper; // copy byte
 
-      msp->bits += (ui32)bits;
+      msp->bits += bits;
       msp->unstuff = next_unstuff;   // next unstuff
       assert(msp->unstuff == 0 || msp->unstuff == 1);
     }
 
     //************************************************************************/
-    /** @brief Initialize frwd_struct_ssse3 struct and reads some bytes
+    /** @brief Initialize frwd_struct struct and reads some bytes
      *
      *  @tparam      X is the value fed in when the bitstream is exhausted.
      *               See frwd_read regarding the template
-     *  @param [in]  msp is a pointer to frwd_struct_ssse3
+     *  @param [in]  msp is a pointer to frwd_struct
      *  @param [in]  data is a pointer to the start of data
      *  @param [in]  size is the number of byte in the bitstream
      */
     template<int X>
     static inline
-    void frwd_init(frwd_struct_ssse3 *msp, const ui8* data, int size)
+    void frwd_init(frwd_struct *msp, const ui8* data, int size)
     {
       msp->data = data;
-      _mm_storeu_si128((__m128i *)msp->tmp, _mm_setzero_si128());
-      _mm_storeu_si128((__m128i *)msp->tmp + 1, _mm_setzero_si128());
-      _mm_storeu_si128((__m128i *)msp->tmp + 2, _mm_setzero_si128());
+      vsx_v128_store(msp->tmp, vsx_i64x2_const(0, 0));
+      vsx_v128_store(msp->tmp + 16, vsx_i64x2_const(0, 0));
+      vsx_v128_store(msp->tmp + 32, vsx_i64x2_const(0, 0));
 
       msp->bits = 0;
       msp->unstuff = 0;
@@ -713,53 +721,56 @@ namespace ojph {
     }
 
     //************************************************************************/
-    /** @brief Consume num_bits bits from the bitstream of frwd_struct_ssse3
+    /** @brief Consume num_bits bits from the bitstream of frwd_struct
      *
-     *  @param [in]  msp is a pointer to frwd_struct_ssse3
+     *  @param [in]  msp is a pointer to frwd_struct
      *  @param [in]  num_bits is the number of bit to consume
      */
     static inline
-    void frwd_advance(frwd_struct_ssse3 *msp, ui32 num_bits)
+    void frwd_advance(frwd_struct *msp, ui32 num_bits)
     {
       assert(num_bits > 0 && num_bits <= msp->bits && num_bits < 128);
       msp->bits -= num_bits;
 
-      __m128i *p = (__m128i*)(msp->tmp + ((num_bits >> 3) & 0x18));
+      v128_t *p = (v128_t*)(msp->tmp + ((num_bits >> 3) & 0x18));
       num_bits &= 63;
 
-      __m128i v0, v1, c0, c1, t;
-      v0 = _mm_loadu_si128(p);
-      v1 = _mm_loadu_si128(p + 1);
+      v128_t v0, v1, c0, c1, t;
+      v0 = vsx_v128_load(p);
+      v1 = vsx_v128_load(p + 1);
 
       // shift right by num_bits
-      c0 = _mm_srl_epi64(v0, _mm_set1_epi64x(num_bits));
-      t = _mm_srli_si128(v0, 8);
-      t = _mm_sll_epi64(t, _mm_set1_epi64x(64 - num_bits));
-      c0 = _mm_or_si128(c0, t);
-      t = _mm_slli_si128(v1, 8);
-      t = _mm_sll_epi64(t, _mm_set1_epi64x(64 - num_bits));
-      c0 = _mm_or_si128(c0, t);
+      c0 = vsx_u64x2_shr(v0, num_bits);
+      t = vsx_i64x2_shuffle(v0, vsx_i64x2_const(0, 0), 1, 2);
+      t = vsx_i64x2_shl(t, 64 - num_bits);
+      t = (num_bits > 0) ? t : vsx_i64x2_const(0, 0);
+      c0 = vsx_v128_or(c0, t);
+      t = vsx_i64x2_shuffle(vsx_i64x2_const(0, 0), v1, 1, 2);
+      t = vsx_i64x2_shl(t, 64 - num_bits);
+      t = (num_bits > 0) ? t : vsx_i64x2_const(0, 0);
+      c0 = vsx_v128_or(c0, t);
 
-      _mm_storeu_si128((__m128i*)msp->tmp, c0);
+      vsx_v128_store(msp->tmp, c0);
 
-      c1 = _mm_srl_epi64(v1, _mm_set1_epi64x(num_bits));
-      t = _mm_srli_si128(v1, 8);
-      t = _mm_sll_epi64(t, _mm_set1_epi64x(64 - num_bits));
-      c1 = _mm_or_si128(c1, t);
+      c1 = vsx_u64x2_shr(v1, num_bits);
+      t = vsx_i64x2_shuffle(v1, vsx_i64x2_const(0, 0), 1, 2);
+      t = vsx_i64x2_shl(t, 64 - num_bits);
+      t = (num_bits > 0) ? t : vsx_i64x2_const(0, 0);
+      c1 = vsx_v128_or(c1, t);
 
-      _mm_storeu_si128((__m128i*)msp->tmp + 1, c1);
+      vsx_v128_store(msp->tmp + 16, c1);
     }
 
     //************************************************************************/
-    /** @brief Fetches 32 bits from the frwd_struct_ssse3 bitstream
+    /** @brief Fetches 32 bits from the frwd_struct bitstream
      *
      *  @tparam      X is the value fed in when the bitstream is exhausted.
      *               See frwd_read regarding the template
-     *  @param [in]  msp is a pointer to frwd_struct_ssse3
+     *  @param [in]  msp is a pointer to frwd_struct
      */
     template<int X>
     static inline
-    __m128i frwd_fetch(frwd_struct_ssse3 *msp)
+    v128_t frwd_fetch(frwd_struct *msp)
     {
       if (msp->bits <= 128)
       {
@@ -767,8 +778,111 @@ namespace ojph {
         if (msp->bits <= 128) //need to test
           frwd_read<X>(msp);
       }
-      __m128i t = _mm_loadu_si128((__m128i*)msp->tmp);
+      v128_t t = vsx_v128_load(msp->tmp);
       return t;
+    }
+
+    //************************************************************************/
+    /** @brief Destuffs a bitstream into a contiguous buffer, upfront
+     *
+     *  Removes bit stuffing once for the whole stream, so that fetching
+     *  bits at a given position later needs no serial state; this keeps
+     *  the per-quad bit-consumption chain in general-purpose registers
+     *  (pos += bits) instead of shifting a vector-resident window, which
+     *  on POWER costs vector stores/reloads through the stack.
+     *
+     *  @tparam      X is the value fed in when the bitstream is exhausted
+     *  @param [in]  src is a pointer to the start of the bitstream
+     *  @param [in]  size is the number of bytes in the bitstream
+     *  @param [in]  dst is the destination buffer, of capacity cap + 72
+     *  @param [in]  cap is the destination capacity, excluding padding
+     *  @return      the clamp offset; bytes at or beyond this offset hold
+     *               no stream bits (they read as X)
+     */
+    template<int X>
+    static inline
+    ui32 destuff_frwd(const ui8* src, int size, ui8* dst, ui32 cap)
+    {
+      if (size < 0)
+        size = 0;
+      ui8* o = dst;
+      ui8* o_end = dst + cap;
+      const ui8* s = src;
+      const ui8* s_end = src + size;
+      ui64 acc = 0;       // partial output byte, low nb bits are valid
+      ui32 nb = 0;        // number of valid bits in acc; always < 8
+      bool prev_ff = false;
+
+      // fast path; 16 source bytes at a time when they contain no 0xFF
+      while (s + 16 <= s_end && o + 24 <= o_end)
+      {
+        v128_t v = vsx_v128_load(s);
+        if (vec_any_eq((vsx_v_u8)v, vec_splats((unsigned char)0xFF))
+            || prev_ff)
+        { // process these 16 bytes one at a time
+          for (int i = 0; i < 16; ++i) {
+            ui8 b = *s++;
+            acc |= (ui64)b << nb;
+            nb += prev_ff ? 7u : 8u;
+            prev_ff = (b == 0xFFu);
+            if (nb >= 8) { *o++ = (ui8)acc; acc >>= 8; nb -= 8; }
+          }
+          continue;
+        }
+        ui64 v0, v1;
+        memcpy(&v0, s, 8);
+        memcpy(&v1, s + 8, 8);
+        ui64 w0 = acc | (v0 << nb);
+        ui64 w1 = (v1 << nb) | (nb ? (v0 >> (64 - nb)) : 0);
+        memcpy(o, &w0, 8);
+        memcpy(o + 8, &w1, 8);
+        acc = nb ? (v1 >> (64 - nb)) : 0;
+        o += 16;
+        s += 16;
+      }
+      // tail; one byte at a time
+      while (s < s_end && o < o_end)
+      {
+        ui8 b = *s++;
+        acc |= (ui64)b << nb;
+        nb += prev_ff ? 7u : 8u;
+        prev_ff = (b == 0xFFu);
+        if (nb >= 8) { *o++ = (ui8)acc; acc >>= 8; nb -= 8; }
+      }
+      // fill the bits above nb with X, and pad with X bytes
+      ui32 fill = (X == 0xFF) ? (0xFFu << nb) : 0;
+      *o = (ui8)((ui32)acc | fill);
+      memset(o + 1, X, 64);
+      return (ui32)(o - dst) + 1;
+    }
+
+    //************************************************************************/
+    /** @brief Fetches 128 bits from a destuffed bitstream buffer
+     *
+     *  Returns the 128 bits starting at bit position pos of the buffer
+     *  produced by destuff_frwd.  Carries no serial state; fetches at
+     *  independent positions can execute out of order.  The byte offset
+     *  is clamped to limit so that positions past the end of the stream
+     *  read from the padding without leaving the buffer.
+     *
+     *  @param [in]  dbuf is the destuffed bitstream buffer
+     *  @param [in]  limit is the clamp offset returned by destuff_frwd
+     *  @param [in]  pos is the absolute bit position to fetch from
+     */
+    static inline
+    v128_t vsx_dfetch(const ui8* dbuf, ui32 limit, ui32 pos)
+    {
+      ui32 off = pos >> 3;
+      off = off < limit ? off : limit;
+      const ui8* p = dbuf + off;
+      v128_t v = vsx_v128_load(p);
+      v128_t w = vsx_v128_load(p + 8);
+      int k = (int)(pos & 7);
+      v128_t r = vsx_u64x2_shr(v, k);
+      // shift left by 64 - k without branching on k == 0; vector shifts
+      // are modulo 64, so the shift is split into 1 and 63 - k
+      v128_t c = vsx_i64x2_shl(vsx_i64x2_shl(w, 1), 63 - k);
+      return vsx_v128_or(r, c);
     }
 
     //************************************************************************/
@@ -781,102 +895,108 @@ namespace ojph {
      *  @param magsgn   structure for forward data buffer
      *  @param p        bitplane at which we are decoding
      *  @param vn       used for handling E values (stores v_n values)
-     *  @return __m128i decoded quad
+     *  @return v128_t decoded quad
      */
     template <int N>
     static inline
-    __m128i decode_one_quad32(const __m128i inf_u_q, __m128i U_q,
-                              frwd_struct_ssse3* magsgn, ui32 p, __m128i& vn)
+    v128_t decode_one_quad32(const v128_t inf_u_q, v128_t U_q,
+                              frwd_struct* magsgn, ui32 p, v128_t& vn)
     {
-      __m128i w0;    // workers
-      __m128i insig; // lanes hold FF's if samples are insignificant
-      __m128i flags; // lanes hold e_k, e_1, and rho
-      __m128i row;   // decoded row
+      v128_t w0;    // workers
+      v128_t insig; // lanes hold FF's if samples are insignificant
+      v128_t flags; // lanes hold e_k, e_1, and rho
+      v128_t row;   // decoded row
 
-      row = _mm_setzero_si128();
-      w0 = _mm_shuffle_epi32(inf_u_q, _MM_SHUFFLE(N, N, N, N));
+      row = vsx_i64x2_const(0, 0);
+      w0 = vsx_i32x4_shuffle(inf_u_q, inf_u_q, N, N, N, N);
       // we keeps e_k, e_1, and rho in w2
-      flags = _mm_and_si128(w0, _mm_set_epi32(0x8880, 0x4440, 0x2220, 0x1110));
-      insig = _mm_cmpeq_epi32(flags, _mm_setzero_si128());
-      if (_mm_movemask_epi8(insig) != 0xFFFF) //are all insignificant?
+      flags = vsx_v128_and(w0, vsx_i32x4_const(0x1110,0x2220,0x4440,0x8880));
+      insig = vsx_i32x4_eq(flags, vsx_i64x2_const(0, 0));
+      if (vsx_i8x16_bitmask(insig) != 0xFFFF) //are all insignificant?
       {
-        U_q = _mm_shuffle_epi32(U_q, _MM_SHUFFLE(N, N, N, N));
-        flags = _mm_mullo_epi16(flags, _mm_set_epi16(1,1,2,2,4,4,8,8));
-        __m128i ms_vec = frwd_fetch<0xFF>(magsgn);
+        U_q = vsx_i32x4_shuffle(U_q, U_q, N, N, N, N);
+        flags = vsx_i16x8_mul(flags, vsx_i16x8_const(8,8,4,4,2,2,1,1));
+        v128_t ms_vec = frwd_fetch<0xFF>(magsgn);
 
         // U_q holds U_q for this quad
         // flags has e_k, e_1, and rho such that e_k is sitting in the
         // 0x8000, e_1 in 0x800, and rho in 0x80
 
         // next e_k and m_n
-        __m128i m_n;
-        w0 = _mm_srli_epi32(flags, 15); // e_k
-        m_n = _mm_sub_epi32(U_q, w0);
-        m_n = _mm_andnot_si128(insig, m_n);
+        v128_t m_n;
+        w0 = vsx_u32x4_shr(flags, 15); // e_k
+        m_n = vsx_i32x4_sub(U_q, w0);
+        m_n = vsx_v128_andnot(m_n, insig);
 
         // find cumulative sums
         // to find at which bit in ms_vec the sample starts
-        __m128i inc_sum = m_n; // inclusive scan
-        inc_sum = _mm_add_epi32(inc_sum, _mm_bslli_si128(inc_sum, 4));
-        inc_sum = _mm_add_epi32(inc_sum, _mm_bslli_si128(inc_sum, 8));
-        int total_mn = _mm_extract_epi16(inc_sum, 6);
-        __m128i ex_sum = _mm_bslli_si128(inc_sum, 4); // exclusive scan
+        v128_t ex_sum, shfl, inc_sum = m_n; // inclusive scan
+        shfl = vsx_i32x4_shuffle(vsx_i64x2_const(0,0), inc_sum, 3, 4, 5, 6);
+        inc_sum = vsx_i32x4_add(inc_sum, shfl);
+        shfl = vsx_i64x2_shuffle(vsx_i64x2_const(0,0), inc_sum, 1, 2);
+        inc_sum = vsx_i32x4_add(inc_sum, shfl);
+        int total_mn = vsx_u16x8_extract_lane(inc_sum, 6);
+        ex_sum = vsx_i32x4_shuffle(vsx_i64x2_const(0,0), inc_sum, 3, 4, 5, 6);
 
         // find the starting byte and starting bit
-        __m128i byte_idx = _mm_srli_epi32(ex_sum, 3);
-        __m128i bit_idx = _mm_and_si128(ex_sum, _mm_set1_epi32(7));
-        byte_idx = _mm_shuffle_epi8(byte_idx,
-          _mm_set_epi32(0x0C0C0C0C, 0x08080808, 0x04040404, 0x00000000));
-        byte_idx = _mm_add_epi32(byte_idx, _mm_set1_epi32(0x03020100));
-        __m128i d0 = _mm_shuffle_epi8(ms_vec, byte_idx);
-        byte_idx = _mm_add_epi32(byte_idx, _mm_set1_epi32(0x01010101));
-        __m128i d1 = _mm_shuffle_epi8(ms_vec, byte_idx);
+        v128_t byte_idx = vsx_u32x4_shr(ex_sum, 3);
+        v128_t bit_idx =
+          vsx_v128_and(ex_sum, vsx_i32x4_const(OJPH_REPEAT4(7)));
+        byte_idx = vsx_i8x16_swizzle(byte_idx,
+          vsx_i32x4_const(0x00000000, 0x04040404, 0x08080808, 0x0C0C0C0C));
+        byte_idx =
+          vsx_i32x4_add(byte_idx, vsx_i32x4_const(OJPH_REPEAT4(0x03020100)));
+        v128_t d0 = vsx_i8x16_swizzle(ms_vec, byte_idx);
+        byte_idx =
+          vsx_i32x4_add(byte_idx, vsx_i32x4_const(OJPH_REPEAT4(0x01010101)));
+        v128_t d1 = vsx_i8x16_swizzle(ms_vec, byte_idx);
 
         // shift samples values to correct location
-        bit_idx = _mm_or_si128(bit_idx, _mm_slli_epi32(bit_idx, 16));
-        __m128i bit_shift = _mm_shuffle_epi8(
-          _mm_set_epi8(1, 3, 7, 15, 31, 63, 127, -1,
-                       1, 3, 7, 15, 31, 63, 127, -1), bit_idx);
-        bit_shift = _mm_add_epi16(bit_shift, _mm_set1_epi16(0x0101));
-        d0 = _mm_mullo_epi16(d0, bit_shift);
-        d0 = _mm_srli_epi16(d0, 8); // we should have 8 bits in the LSB
-        d1 = _mm_mullo_epi16(d1, bit_shift);
-        d1 = _mm_and_si128(d1, _mm_set1_epi32((si32)0xFF00FF00)); // 8 in MSB
-        d0 = _mm_or_si128(d0, d1);
+        bit_idx = vsx_v128_or(bit_idx, vsx_i32x4_shl(bit_idx, 16));
+        v128_t bit_shift = vsx_i8x16_swizzle(
+          vsx_i8x16_const(-1, 127, 63, 31, 15, 7, 3, 1,
+                           -1, 127, 63, 31, 15, 7, 3, 1), bit_idx);
+        bit_shift =
+          vsx_i16x8_add(bit_shift, vsx_i16x8_const(OJPH_REPEAT8(0x0101)));
+        d0 = vsx_i16x8_mul(d0, bit_shift);
+        d0 = vsx_u16x8_shr(d0, 8); // we should have 8 bits in the LSB
+        d1 = vsx_i16x8_mul(d1, bit_shift);
+        d1 =  // 8 in MSB
+          vsx_v128_and(d1, vsx_u32x4_const(OJPH_REPEAT4(0xFF00FF00)));
+        d0 = vsx_v128_or(d0, d1);
 
         // find location of e_k and mask
-        __m128i shift;
-        __m128i ones = _mm_set1_epi32(1);
-        __m128i twos = _mm_set1_epi32(2);
-        __m128i U_q_m1 = _mm_sub_epi32(U_q, ones);
-        U_q_m1 = _mm_and_si128(U_q_m1, _mm_set_epi32(0,0,0,0x1F));
-        w0 = _mm_sub_epi32(twos, w0);
-        shift = _mm_sll_epi32(w0, U_q_m1); // U_q_m1 must be no more than 31
-        ms_vec = _mm_and_si128(d0, _mm_sub_epi32(shift, ones));
+        v128_t shift;
+        v128_t ones = vsx_i32x4_const(OJPH_REPEAT4(1));
+        v128_t twos = vsx_i32x4_const(OJPH_REPEAT4(2));
+        ui32 U_q_m1 = vsx_u32x4_extract_lane(U_q, 0) - 1u;
+        w0 = vsx_i32x4_sub(twos, w0);
+        shift = vsx_i32x4_shl(w0, U_q_m1);
+        ms_vec = vsx_v128_and(d0, vsx_i32x4_sub(shift, ones));
 
         // next e_1
-        w0 = _mm_and_si128(flags, _mm_set1_epi32(0x800));
-        w0 = _mm_cmpeq_epi32(w0, _mm_setzero_si128());
-        w0 = _mm_andnot_si128(w0, shift);  // e_1 in correct position
-        ms_vec = _mm_or_si128(ms_vec, w0); // e_1
-        w0 = _mm_slli_epi32(ms_vec, 31);   // sign
-        ms_vec = _mm_or_si128(ms_vec, ones); // bin center
-        __m128i tvn = ms_vec;
-        ms_vec = _mm_add_epi32(ms_vec, twos);// + 2
-        ms_vec = _mm_slli_epi32(ms_vec, (si32)p - 1);
-        ms_vec = _mm_or_si128(ms_vec, w0); // sign
-        row = _mm_andnot_si128(insig, ms_vec); // significant only
+        w0 = vsx_v128_and(flags, vsx_i32x4_const(OJPH_REPEAT4(0x800)));
+        w0 = vsx_i32x4_eq(w0, vsx_i64x2_const(0, 0));
+        w0 = vsx_v128_andnot(shift, w0);  // e_1 in correct position
+        ms_vec = vsx_v128_or(ms_vec, w0); // e_1
+        w0 = vsx_i32x4_shl(ms_vec, 31);   // sign
+        ms_vec = vsx_v128_or(ms_vec, ones); // bin center
+        v128_t tvn = ms_vec;
+        ms_vec = vsx_i32x4_add(ms_vec, twos);// + 2
+        ms_vec = vsx_i32x4_shl(ms_vec, p - 1);
+        ms_vec = vsx_v128_or(ms_vec, w0); // sign
+        row = vsx_v128_andnot(ms_vec, insig); // significant only
 
-        ms_vec = _mm_andnot_si128(insig, tvn); // significant only
+        ms_vec = vsx_v128_andnot(tvn, insig); // significant only
         if (N == 0) // the compiler should remove one
-          tvn = _mm_shuffle_epi8(ms_vec,
-            _mm_set_epi32(-1, -1, 0x0F0E0D0C, 0x07060504));
+          tvn = vsx_i8x16_swizzle(ms_vec,
+            vsx_i32x4_const(0x07060504, 0x0F0E0D0C, -1, -1));
         else if (N == 1)
-          tvn = _mm_shuffle_epi8(ms_vec,
-            _mm_set_epi32(-1, 0x0F0E0D0C, 0x07060504, -1));
+          tvn = vsx_i8x16_swizzle(ms_vec,
+            vsx_i32x4_const(-1, 0x07060504, 0x0F0E0D0C, -1));
         else
           assert(0);
-        vn = _mm_or_si128(vn, tvn);
+        vn = vsx_v128_or(vn, tvn);
 
         if (total_mn)
           frwd_advance(magsgn, (ui32)total_mn);
@@ -892,113 +1012,123 @@ namespace ojph {
      *  @param magsgn   structure for forward data buffer
      *  @param p        bitplane at which we are decoding
      *  @param vn       used for handling E values (stores v_n values)
-     *  @return __m128i decoded quad
+     *  @return v128_t decoded quad
      */
     static inline
-    __m128i decode_two_quad16(const __m128i inf_u_q, __m128i U_q,
-                              frwd_struct_ssse3* magsgn, ui32 p, __m128i& vn)
+    v128_t decode_two_quad16(const v128_t inf_u_q, v128_t U_q,
+                              const ui8* dbuf, ui32 limit, ui32& pos,
+                              ui32 p, v128_t& vn)
     {
-      __m128i w0;     // workers
-      __m128i insig;  // lanes hold FF's if samples are insignificant
-      __m128i flags;  // lanes hold e_k, e_1, and rho
-      __m128i row;    // decoded row
+      v128_t w0;     // workers
+      v128_t insig;  // lanes hold FF's if samples are insignificant
+      v128_t flags;  // lanes hold e_k, e_1, and rho
+      v128_t row;    // decoded row
 
-      row = _mm_setzero_si128();
-      w0 = _mm_shuffle_epi8(inf_u_q,
-        _mm_set_epi16(0x0504, 0x0504, 0x0504, 0x0504,
-                      0x0100, 0x0100, 0x0100, 0x0100));
+      row = vsx_i64x2_const(0, 0);
+      w0 = vsx_i8x16_swizzle(inf_u_q,
+        vsx_i16x8_const(0x0100, 0x0100, 0x0100, 0x0100,
+                         0x0504, 0x0504, 0x0504, 0x0504));
       // we keeps e_k, e_1, and rho in w2
-      flags = _mm_and_si128(w0,
-        _mm_set_epi16((si16)0x8880, 0x4440, 0x2220, 0x1110,
-                      (si16)0x8880, 0x4440, 0x2220, 0x1110));
-      insig = _mm_cmpeq_epi16(flags, _mm_setzero_si128());
-      if (_mm_movemask_epi8(insig) != 0xFFFF) //are all insignificant?
+      flags = vsx_v128_and(w0,
+        vsx_u16x8_const(0x1110, 0x2220, 0x4440, 0x8880,
+                         0x1110, 0x2220, 0x4440, 0x8880));
+      insig = vsx_i16x8_eq(flags, vsx_i64x2_const(0, 0));
+      if (vsx_i8x16_bitmask(insig) != 0xFFFF) //are all insignificant?
       {
-        U_q = _mm_shuffle_epi8(U_q,
-          _mm_set_epi16(0x0504, 0x0504, 0x0504, 0x0504,
-                        0x0100, 0x0100, 0x0100, 0x0100));
-        flags = _mm_mullo_epi16(flags, _mm_set_epi16(1,2,4,8,1,2,4,8));
-        __m128i ms_vec = frwd_fetch<0xFF>(magsgn);
+        U_q = vsx_i8x16_swizzle(U_q,
+          vsx_i16x8_const(0x0100, 0x0100, 0x0100, 0x0100,
+                           0x0504, 0x0504, 0x0504, 0x0504));
+        flags = vsx_i16x8_mul(flags, vsx_i16x8_const(8,4,2,1,8,4,2,1));
+        v128_t ms_vec = vsx_dfetch(dbuf, limit, pos);
 
         // U_q holds U_q for this quad
         // flags has e_k, e_1, and rho such that e_k is sitting in the
         // 0x8000, e_1 in 0x800, and rho in 0x80
 
         // next e_k and m_n
-        __m128i m_n;
-        w0 = _mm_srli_epi16(flags, 15); // e_k
-        m_n = _mm_sub_epi16(U_q, w0);
-        m_n = _mm_andnot_si128(insig, m_n);
+        v128_t m_n;
+        w0 = vsx_u16x8_shr(flags, 15); // e_k
+        m_n = vsx_i16x8_sub(U_q, w0);
+        m_n = vsx_v128_andnot(m_n, insig);
 
         // find cumulative sums
         // to find at which bit in ms_vec the sample starts
-        __m128i inc_sum = m_n; // inclusive scan
-        inc_sum = _mm_add_epi16(inc_sum, _mm_bslli_si128(inc_sum, 2));
-        inc_sum = _mm_add_epi16(inc_sum, _mm_bslli_si128(inc_sum, 4));
-        inc_sum = _mm_add_epi16(inc_sum, _mm_bslli_si128(inc_sum, 8));
-        int total_mn = _mm_extract_epi16(inc_sum, 7);
-        __m128i ex_sum = _mm_bslli_si128(inc_sum, 2); // exclusive scan
+        v128_t ex_sum, shfl, inc_sum = m_n; // inclusive scan
+        shfl = vsx_i16x8_shuffle(vsx_i64x2_const(0,0),
+          inc_sum, 7, 8, 9, 10, 11, 12, 13, 14);
+        inc_sum = vsx_i16x8_add(inc_sum, shfl);
+        shfl = vsx_i32x4_shuffle(vsx_i64x2_const(0,0), inc_sum, 3, 4, 5, 6);
+        inc_sum = vsx_i16x8_add(inc_sum, shfl);
+        shfl = vsx_i64x2_shuffle(vsx_i64x2_const(0,0), inc_sum, 1, 2);
+        inc_sum = vsx_i16x8_add(inc_sum, shfl);
+        int total_mn = vsx_u16x8_extract_lane(inc_sum, 7);
+        ex_sum = vsx_i16x8_shuffle(vsx_i64x2_const(0,0),
+          inc_sum, 7, 8, 9, 10, 11, 12, 13, 14);
 
         // find the starting byte and starting bit
-        __m128i byte_idx = _mm_srli_epi16(ex_sum, 3);
-        __m128i bit_idx = _mm_and_si128(ex_sum, _mm_set1_epi16(7));
-        byte_idx = _mm_shuffle_epi8(byte_idx,
-          _mm_set_epi16(0x0E0E, 0x0C0C, 0x0A0A, 0x0808,
-                        0x0606, 0x0404, 0x0202, 0x0000));
-        byte_idx = _mm_add_epi16(byte_idx, _mm_set1_epi16(0x0100));
-        __m128i d0 = _mm_shuffle_epi8(ms_vec, byte_idx);
-        byte_idx = _mm_add_epi16(byte_idx, _mm_set1_epi16(0x0101));
-        __m128i d1 = _mm_shuffle_epi8(ms_vec, byte_idx);
+        v128_t byte_idx = vsx_u16x8_shr(ex_sum, 3);
+        v128_t bit_idx =
+          vsx_v128_and(ex_sum, vsx_i16x8_const(OJPH_REPEAT8(7)));
+        byte_idx = vsx_i8x16_swizzle(byte_idx,
+          vsx_i16x8_const(0x0000, 0x0202, 0x0404, 0x0606,
+                           0x0808, 0x0A0A, 0x0C0C, 0x0E0E));
+        byte_idx =
+          vsx_i16x8_add(byte_idx, vsx_i16x8_const(OJPH_REPEAT8(0x0100)));
+        v128_t d0 = vsx_i8x16_swizzle(ms_vec, byte_idx);
+        byte_idx =
+          vsx_i16x8_add(byte_idx, vsx_i16x8_const(OJPH_REPEAT8(0x0101)));
+        v128_t d1 = vsx_i8x16_swizzle(ms_vec, byte_idx);
 
         // shift samples values to correct location
-        __m128i bit_shift = _mm_shuffle_epi8(
-          _mm_set_epi8(1, 3, 7, 15, 31, 63, 127, -1,
-                       1, 3, 7, 15, 31, 63, 127, -1), bit_idx);
-        bit_shift = _mm_add_epi16(bit_shift, _mm_set1_epi16(0x0101));
-        d0 = _mm_mullo_epi16(d0, bit_shift);
-        d0 = _mm_srli_epi16(d0, 8); // we should have 8 bits in the LSB
-        d1 = _mm_mullo_epi16(d1, bit_shift);
-        d1 = _mm_and_si128(d1, _mm_set1_epi16((si16)0xFF00)); // 8 in MSB
-        d0 = _mm_or_si128(d0, d1);
+        v128_t bit_shift = vsx_i8x16_swizzle(
+          vsx_i8x16_const(-1, 127, 63, 31, 15, 7, 3, 1,
+                           -1, 127, 63, 31, 15, 7, 3, 1), bit_idx);
+        bit_shift =
+          vsx_i16x8_add(bit_shift, vsx_i16x8_const(OJPH_REPEAT8(0x0101)));
+        d0 = vsx_i16x8_mul(d0, bit_shift);
+        d0 = vsx_u16x8_shr(d0, 8); // we should have 8 bits in the LSB
+        d1 = vsx_i16x8_mul(d1, bit_shift);
+        d1 = // 8 in MSB
+          vsx_v128_and(d1, vsx_i16x8_const(OJPH_REPEAT8((si16)0xFF00)));
+        d0 = vsx_v128_or(d0, d1);
 
         // find location of e_k and mask
-        __m128i shift, t0, t1, Uq0, Uq1;
-        __m128i ones = _mm_set1_epi16(1);
-        __m128i twos = _mm_set1_epi16(2);
-        __m128i U_q_m1 = _mm_sub_epi32(U_q, ones);
-        Uq0 = _mm_and_si128(U_q_m1, _mm_set_epi32(0,0,0,0x1F));
-        Uq1 = _mm_bsrli_si128(U_q_m1, 14);
-        w0 = _mm_sub_epi16(twos, w0);
-        t0 = _mm_and_si128(w0, _mm_set_epi64x(0, -1));
-        t1 = _mm_and_si128(w0, _mm_set_epi64x(-1, 0));
-        t0 = _mm_sll_epi16(t0, Uq0);
-        t1 = _mm_sll_epi16(t1, Uq1);
-        shift = _mm_or_si128(t0, t1);
-        ms_vec = _mm_and_si128(d0, _mm_sub_epi16(shift, ones));
+        v128_t shift, t0, t1;
+        v128_t ones = vsx_i16x8_const(OJPH_REPEAT8(1));
+        v128_t twos = vsx_i16x8_const(OJPH_REPEAT8(2));
+        v128_t U_q_m1 = vsx_i32x4_sub(U_q, ones);
+        ui32 Uq0 = vsx_u16x8_extract_lane(U_q_m1, 0);
+        ui32 Uq1 = vsx_u16x8_extract_lane(U_q_m1, 4);
+        w0 = vsx_i16x8_sub(twos, w0);
+        t0 = vsx_v128_and(w0, vsx_i64x2_const(-1, 0));
+        t1 = vsx_v128_and(w0, vsx_i64x2_const(0, -1));
+        t0 = vsx_i32x4_shl(t0, Uq0);
+        t1 = vsx_i32x4_shl(t1, Uq1);
+        shift = vsx_v128_or(t0, t1);
+        ms_vec = vsx_v128_and(d0, vsx_i16x8_sub(shift, ones));
 
         // next e_1
-        w0 = _mm_and_si128(flags, _mm_set1_epi16(0x800));
-        w0 = _mm_cmpeq_epi16(w0, _mm_setzero_si128());
-        w0 = _mm_andnot_si128(w0, shift);  // e_1 in correct position
-        ms_vec = _mm_or_si128(ms_vec, w0); // e_1
-        w0 = _mm_slli_epi16(ms_vec, 15);   // sign
-        ms_vec = _mm_or_si128(ms_vec, ones); // bin center
-        __m128i tvn = ms_vec;
-        ms_vec = _mm_add_epi16(ms_vec, twos);// + 2
-        ms_vec = _mm_slli_epi16(ms_vec, (si32)p - 1);
-        ms_vec = _mm_or_si128(ms_vec, w0); // sign
-        row = _mm_andnot_si128(insig, ms_vec); // significant only
+        w0 = vsx_v128_and(flags, vsx_i16x8_const(OJPH_REPEAT8(0x800)));
+        w0 = vsx_i16x8_eq(w0, vsx_i64x2_const(0, 0));
+        w0 = vsx_v128_andnot(shift, w0);  // e_1 in correct position
+        ms_vec = vsx_v128_or(ms_vec, w0); // e_1
+        w0 = vsx_i16x8_shl(ms_vec, 15);   // sign
+        ms_vec = vsx_v128_or(ms_vec, ones); // bin center
+        v128_t tvn = ms_vec;
+        ms_vec = vsx_i16x8_add(ms_vec, twos);// + 2
+        ms_vec = vsx_i16x8_shl(ms_vec, p - 1);
+        ms_vec = vsx_v128_or(ms_vec, w0); // sign
+        row = vsx_v128_andnot(ms_vec, insig); // significant only
 
-        ms_vec = _mm_andnot_si128(insig, tvn); // significant only
-        w0 = _mm_shuffle_epi8(ms_vec,
-          _mm_set_epi16(-1, -1, -1, -1, -1, -1, 0x0706, 0x0302));
-        vn = _mm_or_si128(vn, w0);
-        w0 = _mm_shuffle_epi8(ms_vec,
-          _mm_set_epi16(-1, -1, -1, -1, -1, 0x0F0E, 0x0B0A, -1));
-        vn = _mm_or_si128(vn, w0);
+        ms_vec = vsx_v128_andnot(tvn, insig); // significant only
+        w0 = vsx_i8x16_swizzle(ms_vec,
+          vsx_i16x8_const(0x0302, 0x0706, -1, -1, -1, -1, -1, -1));
+        vn = vsx_v128_or(vn, w0);
+        w0 = vsx_i8x16_swizzle(ms_vec,
+          vsx_i16x8_const(-1, 0x0B0A, 0x0F0E, -1, -1, -1, -1, -1));
+        vn = vsx_v128_or(vn, w0);
 
-        if (total_mn)
-          frwd_advance(magsgn, (ui32)total_mn);
+        pos += (ui32)total_mn;
       }
       return row;
     }
@@ -1021,11 +1151,11 @@ namespace ojph {
      *  @param [in]   stride is the decoded codeblock buffer stride
      *  @param [in]   stripe_causal is true for stripe causal mode
      */
-    bool ojph_decode_codeblock_ssse3(ui8* coded_data, ui32* decoded_data,
-                                     ui32 missing_msbs, ui32 num_passes,
-                                     ui32 lengths1, ui32 lengths2,
-                                     ui32 width, ui32 height, ui32 stride,
-                                     bool stripe_causal)
+    bool ojph_decode_codeblock_vsx(ui8* coded_data, ui32* decoded_data,
+                                    ui32 missing_msbs, ui32 num_passes,
+                                    ui32 lengths1, ui32 lengths2,
+                                    ui32 width, ui32 height, ui32 stride,
+                                    bool stripe_causal)
     {
       static bool insufficient_precision = false;
       static bool modify_code = false;
@@ -1035,14 +1165,14 @@ namespace ojph {
       {
         OJPH_WARN(0x00010001, "A malformed codeblock that has more than "
                               "one coding pass, but zero length for "
-                              "2nd and potential 3rd pass.");
+                              "2nd and potential 3rd pass.\n");
         num_passes = 1;
       }
 
       if (num_passes > 3)
       {
         OJPH_WARN(0x00010002, "We do not support more than 3 coding passes; "
-                              "This codeblocks has %d passes.",
+                              "This codeblocks has %d passes.\n",
                               num_passes);
         return false;
       }
@@ -1054,7 +1184,7 @@ namespace ojph {
           insufficient_precision = true;
           OJPH_WARN(0x00010003, "32 bits are not enough to decode this "
                                 "codeblock. This message will not be "
-                                "displayed again.");
+                                "displayed again.\n");
         }
         return false;
       }
@@ -1065,7 +1195,7 @@ namespace ojph {
           OJPH_WARN(0x00010004, "Not enough precision to decode the cleanup "
                                 "pass. The code can be modified to support "
                                 "this case. This message will not be "
-                                "displayed again.");
+                                "displayed again.\n");
         }
          return false;         // 32 bits are not enough to decode this
        }
@@ -1078,7 +1208,7 @@ namespace ojph {
             OJPH_WARN(0x00010005, "Not enough precision to decode the SgnProp "
                                   "nor MagRef passes; both will be skipped. "
                                   "This message will not be displayed "
-                                  "again.");
+                                  "again.\n");
           }
         }
       }
@@ -1088,7 +1218,7 @@ namespace ojph {
 
       if (lengths1 < 2)
       {
-        OJPH_WARN(0x00010006, "Wrong codeblock length.");
+        OJPH_WARN(0x00010006, "Wrong codeblock length.\n");
         return false;
       }
 
@@ -1363,7 +1493,7 @@ namespace ojph {
             // quad 0 length
             len = uvlc_entry & 0x7; // quad 0 suffix length
             uvlc_entry >>= 3;
-            ui16 u_q = (ui16)((uvlc_entry & 7) + (tmp & ~(0xFFU << len)));
+            ui16 u_q = (ui16)((uvlc_entry & 7) + (tmp & ~(0xFU << len))); //u_q
             sp[1] = u_q;
             u_q = (ui16)((uvlc_entry >> 3) + (tmp >> len)); // u_q
             sp[3] = u_q;
@@ -1391,7 +1521,7 @@ namespace ojph {
         const int v_n_size = 512 + 8;
         ui32 v_n_scratch[2 * v_n_size] = {0}; // 4+ kB
 
-        frwd_struct_ssse3 magsgn;
+        frwd_struct magsgn;
         frwd_init<0xFF>(&magsgn, coded_data, lcup - scup);
 
         {
@@ -1403,34 +1533,35 @@ namespace ojph {
           for (ui32 x = 0; x < width; x += 4, sp += 4, vp += 2, dp += 4)
           {
             //here we process two quads
-            __m128i w0, w1; // workers
-            __m128i inf_u_q, U_q;
+            v128_t w0, w1; // workers
+            v128_t inf_u_q, U_q;
             // determine U_q
             {
-              inf_u_q = _mm_loadu_si128((__m128i*)sp);
-              U_q = _mm_srli_epi32(inf_u_q, 16);
+              inf_u_q = vsx_v128_load(sp);
+              U_q = vsx_u32x4_shr(inf_u_q, 16);
 
-              w0 = _mm_cmpgt_epi32(U_q, _mm_set1_epi32((int)mmsbp2));
-              int i = _mm_movemask_epi8(w0);
+              w0 = vsx_i32x4_gt(U_q, vsx_u32x4_splat(mmsbp2));
+              ui32 i = vsx_i8x16_bitmask(w0);
               if (i & 0xFF) // only the lower two U_q
                 return false;
             }
 
-            __m128i vn = _mm_set1_epi32(2);
-            __m128i row0 = decode_one_quad32<0>(inf_u_q, U_q, &magsgn, p, vn);
-            __m128i row1 = decode_one_quad32<1>(inf_u_q, U_q, &magsgn, p, vn);
-            w0 = _mm_loadu_si128((__m128i*)vp);
-            w0 = _mm_and_si128(w0, _mm_set_epi32(0,0,0,-1));
-            w0 = _mm_or_si128(w0, vn);
-            _mm_storeu_si128((__m128i*)vp, w0);
+            v128_t vn = vsx_i32x4_const(OJPH_REPEAT4(2));
+            v128_t row0 = decode_one_quad32<0>(inf_u_q, U_q, &magsgn, p, vn);
+            v128_t row1 = decode_one_quad32<1>(inf_u_q, U_q, &magsgn, p, vn);
+            w0 = vsx_v128_load(vp);
+            w0 = vsx_v128_and(w0, vsx_i32x4_const(-1,0,0,0));
+            w0 = vsx_v128_or(w0, vn);
+            vsx_v128_store(vp, w0);
 
             //interleave in ssse3 style
-            w0 = _mm_unpacklo_epi32(row0, row1);
-            w1 = _mm_unpackhi_epi32(row0, row1);
-            row0 = _mm_unpacklo_epi32(w0, w1);
-            row1 = _mm_unpackhi_epi32(w0, w1);
-            _mm_store_si128((__m128i*)dp, row0);
-            _mm_store_si128((__m128i*)(dp + stride), row1);
+
+            w0 = vsx_i32x4_shuffle(row0, row1, 0, 4, 1, 5);
+            w1 = vsx_i32x4_shuffle(row0, row1, 2, 6, 3, 7);
+            row0 = vsx_i32x4_shuffle(w0, w1, 0, 4, 1, 5);
+            row1 = vsx_i32x4_shuffle(w0, w1, 2, 6, 3, 7);
+            vsx_v128_store(dp, row0);
+            vsx_v128_store(dp + stride, row1);
           }
         }
 
@@ -1439,37 +1570,37 @@ namespace ojph {
           {
             // perform 31 - count_leading_zeros(*vp) here
             ui32 *vp = v_n_scratch;
-            const __m128i lut_lo = _mm_set_epi8(
-              4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 7, 31
+            const v128_t lut_lo = vsx_i8x16_const(
+              31, 7, 6, 6, 5, 5, 5, 5, 4, 4, 4, 4, 4, 4, 4, 4
             );
-            const __m128i lut_hi = _mm_set_epi8(
-              0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 3, 31
+            const v128_t lut_hi = vsx_i8x16_const(
+              31, 3, 2, 2, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0
             );
-            const __m128i nibble_mask = _mm_set1_epi8(0x0F);
-            const __m128i byte_offset8 = _mm_set1_epi16(8);
-            const __m128i byte_offset16 = _mm_set1_epi16(16);
-            const __m128i cc = _mm_set1_epi32(31);
+            const v128_t nibble_mask = vsx_i8x16_const(OJPH_REPEAT16(0x0F));
+            const v128_t byte_offset8 = vsx_i16x8_const(OJPH_REPEAT8(8));
+            const v128_t byte_offset16 = vsx_i16x8_const(OJPH_REPEAT8(16));
+            const v128_t cc = vsx_i32x4_const(OJPH_REPEAT4(31));
             for (ui32 x = 0; x <= width; x += 8, vp += 4)
             {
-              __m128i v, t; // workers
-              v = _mm_loadu_si128((__m128i*)vp);
+              v128_t v, t; // workers
+              v = vsx_v128_load(vp);
 
-              t = _mm_and_si128(nibble_mask, v);
-              v = _mm_and_si128(_mm_srli_epi16(v, 4), nibble_mask);
-              t = _mm_shuffle_epi8(lut_lo, t);
-              v = _mm_shuffle_epi8(lut_hi, v);
-              v = _mm_min_epu8(v, t);
+              t = vsx_v128_and(nibble_mask, v);
+              v = vsx_v128_and(vsx_u16x8_shr(v, 4), nibble_mask);
+              t = vsx_i8x16_swizzle(lut_lo, t);
+              v = vsx_i8x16_swizzle(lut_hi, v);
+              v = vsx_u8x16_min(v, t);
 
-              t = _mm_srli_epi16(v, 8);
-              v = _mm_or_si128(v, byte_offset8);
-              v = _mm_min_epu8(v, t);
+              t = vsx_u16x8_shr(v, 8);
+              v = vsx_v128_or(v, byte_offset8);
+              v = vsx_u8x16_min(v, t);
 
-              t = _mm_srli_epi32(v, 16);
-              v = _mm_or_si128(v, byte_offset16);
-              v = _mm_min_epu8(v, t);
+              t = vsx_u32x4_shr(v, 16);
+              v = vsx_v128_or(v, byte_offset16);
+              v = vsx_u8x16_min(v, t);
 
-              v = _mm_sub_epi16(cc, v);
-              _mm_storeu_si128((__m128i*)(vp + v_n_size), v);
+              v = vsx_i16x8_sub(cc, v);
+              vsx_v128_store(vp + v_n_size, v);
             }
           }
 
@@ -1481,50 +1612,51 @@ namespace ojph {
           for (ui32 x = 0; x < width; x += 4, sp += 4, vp += 2, dp += 4)
           {
             //process two quads
-            __m128i w0, w1; // workers
-            __m128i inf_u_q, U_q;
+            v128_t w0, w1; // workers
+            v128_t inf_u_q, U_q;
             // determine U_q
             {
-              __m128i gamma, emax, kappa, u_q; // needed locally
+              v128_t gamma, emax, kappa, u_q; // needed locally
 
-              inf_u_q = _mm_loadu_si128((__m128i*)sp);
-              gamma = _mm_and_si128(inf_u_q, _mm_set1_epi32(0xF0));
-              w0 = _mm_sub_epi32(gamma, _mm_set1_epi32(1));
-              gamma = _mm_and_si128(gamma, w0);
-              gamma = _mm_cmpeq_epi32(gamma, _mm_setzero_si128());
+              inf_u_q = vsx_v128_load(sp);
+              gamma =
+                vsx_v128_and(inf_u_q, vsx_i32x4_const(OJPH_REPEAT4(0xF0)));
+              w0 = vsx_i32x4_sub(gamma, vsx_i32x4_const(OJPH_REPEAT4(1)));
+              gamma = vsx_v128_and(gamma, w0);
+              gamma = vsx_i32x4_eq(gamma, vsx_i64x2_const(0, 0));
 
-              emax = _mm_loadu_si128((__m128i*)(vp + v_n_size));
-              w0 = _mm_bsrli_si128(emax, 4);
-              emax = _mm_max_epi16(w0, emax); // no max_epi32 in ssse3
-              emax = _mm_andnot_si128(gamma, emax);
+              emax = vsx_v128_load(vp + v_n_size);
+              w0 = vsx_i32x4_shuffle(emax, vsx_i64x2_const(0,0), 1, 2, 3, 4);
+              emax = vsx_i16x8_max(w0, emax); // no max_epi32 in ssse3
+              emax = vsx_v128_andnot(emax, gamma);
 
-              kappa = _mm_set1_epi32(1);
-              kappa = _mm_max_epi16(emax, kappa); // no max_epi32 in ssse3
+              kappa = vsx_i32x4_const(OJPH_REPEAT4(1));
+              kappa = vsx_i16x8_max(emax, kappa); // no max_epi32 in ssse3
 
-              u_q = _mm_srli_epi32(inf_u_q, 16);
-              U_q = _mm_add_epi32(u_q, kappa);
+              u_q = vsx_u32x4_shr(inf_u_q, 16);
+              U_q = vsx_i32x4_add(u_q, kappa);
 
-              w0 = _mm_cmpgt_epi32(U_q, _mm_set1_epi32((int)mmsbp2));
-              int i = _mm_movemask_epi8(w0);
+              w0 = vsx_i32x4_gt(U_q, vsx_u32x4_splat(mmsbp2));
+              ui32 i = vsx_i8x16_bitmask(w0);
               if (i & 0xFF) // only the lower two U_q
                 return false;
             }
 
-            __m128i vn = _mm_set1_epi32(2);
-            __m128i row0 = decode_one_quad32<0>(inf_u_q, U_q, &magsgn, p, vn);
-            __m128i row1 = decode_one_quad32<1>(inf_u_q, U_q, &magsgn, p, vn);
-            w0 = _mm_loadu_si128((__m128i*)vp);
-            w0 = _mm_and_si128(w0, _mm_set_epi32(0,0,0,-1));
-            w0 = _mm_or_si128(w0, vn);
-            _mm_storeu_si128((__m128i*)vp, w0);
+            v128_t vn = vsx_i32x4_const(OJPH_REPEAT4(2));
+            v128_t row0 = decode_one_quad32<0>(inf_u_q, U_q, &magsgn, p, vn);
+            v128_t row1 = decode_one_quad32<1>(inf_u_q, U_q, &magsgn, p, vn);
+            w0 = vsx_v128_load(vp);
+            w0 = vsx_v128_and(w0, vsx_i32x4_const(-1,0,0,0));
+            w0 = vsx_v128_or(w0, vn);
+            vsx_v128_store(vp, w0);
 
             //interleave in ssse3 style
-            w0 = _mm_unpacklo_epi32(row0, row1);
-            w1 = _mm_unpackhi_epi32(row0, row1);
-            row0 = _mm_unpacklo_epi32(w0, w1);
-            row1 = _mm_unpackhi_epi32(w0, w1);
-            _mm_store_si128((__m128i*)dp, row0);
-            _mm_store_si128((__m128i*)(dp + stride), row1);
+            w0 = vsx_i32x4_shuffle(row0, row1, 0, 4, 1, 5);
+            w1 = vsx_i32x4_shuffle(row0, row1, 2, 6, 3, 7);
+            row0 = vsx_i32x4_shuffle(w0, w1, 0, 4, 1, 5);
+            row1 = vsx_i32x4_shuffle(w0, w1, 2, 6, 3, 7);
+            vsx_v128_store(dp, row0);
+            vsx_v128_store(dp + stride, row1);
           }
         }
       }
@@ -1542,8 +1674,13 @@ namespace ojph {
         const int v_n_size = 512 + 8;
         ui16 v_n_scratch[2 * v_n_size] = {0}; // 2+ kB
 
-        frwd_struct_ssse3 magsgn;
-        frwd_init<0xFF>(&magsgn, coded_data, lcup - scup);
+        // destuff the MagSgn bitstream upfront; per-quad consumption then
+        // advances a bit position in a GPR (see destuff_frwd)
+        const ui32 dbuf_cap = 4096 * 15 / 8;
+        ui8 dbuf[dbuf_cap + 72];
+        ui32 limit = destuff_frwd<0xFF>(coded_data, lcup - scup,
+                                        dbuf, dbuf_cap);
+        ui32 pos = 0;
 
         {
           ui16 *sp = scratch;
@@ -1554,35 +1691,35 @@ namespace ojph {
           for (ui32 x = 0; x < width; x += 4, sp += 4, vp += 2, dp += 4)
           {
             //here we process two quads
-            __m128i w0, w1; // workers
-            __m128i inf_u_q, U_q;
+            v128_t w0, w1; // workers
+            v128_t inf_u_q, U_q;
             // determine U_q
             {
-              inf_u_q = _mm_loadu_si128((__m128i*)sp);
-              U_q = _mm_srli_epi32(inf_u_q, 16);
+              inf_u_q = vsx_v128_load(sp);
+              U_q = vsx_u32x4_shr(inf_u_q, 16);
 
-              w0 = _mm_cmpgt_epi32(U_q, _mm_set1_epi32((int)mmsbp2));
-              int i = _mm_movemask_epi8(w0);
+              w0 = vsx_i32x4_gt(U_q, vsx_u32x4_splat(mmsbp2));
+              ui32 i = vsx_i8x16_bitmask(w0);
               if (i & 0xFF) // only the lower two U_q
                 return false;
             }
 
-            __m128i vn = _mm_set1_epi16(2);
-            __m128i row = decode_two_quad16(inf_u_q, U_q, &magsgn, p, vn);
-            w0 = _mm_loadu_si128((__m128i*)vp);
-            w0 = _mm_and_si128(w0, _mm_set_epi16(0,0,0,0,0,0,0,-1));
-            w0 = _mm_or_si128(w0, vn);
-            _mm_storeu_si128((__m128i*)vp, w0);
+            v128_t vn = vsx_i16x8_const(OJPH_REPEAT8(2));
+            v128_t row = decode_two_quad16(inf_u_q, U_q, dbuf, limit, pos, p, vn);
+            w0 = vsx_v128_load(vp);
+            w0 = vsx_v128_and(w0, vsx_i16x8_const(-1,0,0,0,0,0,0,0));
+            w0 = vsx_v128_or(w0, vn);
+            vsx_v128_store(vp, w0);
 
             //interleave in ssse3 style
-            w0 = _mm_shuffle_epi8(row,
-              _mm_set_epi16(0x0D0C, -1, 0x0908, -1,
-                            0x0504, -1, 0x0100, -1));
-            _mm_store_si128((__m128i*)dp, w0);
-            w1 = _mm_shuffle_epi8(row,
-              _mm_set_epi16(0x0F0E, -1, 0x0B0A, -1,
-                            0x0706, -1, 0x0302, -1));
-            _mm_store_si128((__m128i*)(dp + stride), w1);
+            w0 = vsx_i8x16_swizzle(row,
+              vsx_i16x8_const(-1, 0x0100, -1, 0x0504,
+                               -1, 0x0908, -1, 0x0D0C));
+            vsx_v128_store(dp, w0);
+            w1 = vsx_i8x16_swizzle(row,
+              vsx_i16x8_const(-1, 0x0302, -1, 0x0706,
+                               -1, 0x0B0A, -1, 0x0F0E));
+            vsx_v128_store(dp + stride, w1);
           }
         }
 
@@ -1591,32 +1728,32 @@ namespace ojph {
           {
             // perform 15 - count_leading_zeros(*vp) here
             ui16 *vp = v_n_scratch;
-            const __m128i lut_lo = _mm_set_epi8(
-              4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 7, 15
+            const v128_t lut_lo = vsx_i8x16_const(
+              15, 7, 6, 6, 5, 5, 5, 5, 4, 4, 4, 4, 4, 4, 4, 4
             );
-            const __m128i lut_hi = _mm_set_epi8(
-              0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 3, 15
+            const v128_t lut_hi = vsx_i8x16_const(
+              15, 3, 2, 2, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0
             );
-            const __m128i nibble_mask = _mm_set1_epi8(0x0F);
-            const __m128i byte_offset8 = _mm_set1_epi16(8);
-            const __m128i cc = _mm_set1_epi16(15);
+            const v128_t nibble_mask = vsx_i8x16_const(OJPH_REPEAT16(0x0F));
+            const v128_t byte_offset8 = vsx_i16x8_const(OJPH_REPEAT8(8));
+            const v128_t cc = vsx_i16x8_const(OJPH_REPEAT8(15));
             for (ui32 x = 0; x <= width; x += 16, vp += 8)
             {
-              __m128i v, t; // workers
-              v = _mm_loadu_si128((__m128i*)vp);
+              v128_t v, t; // workers
+              v = vsx_v128_load(vp);
 
-              t = _mm_and_si128(nibble_mask, v);
-              v = _mm_and_si128(_mm_srli_epi16(v, 4), nibble_mask);
-              t = _mm_shuffle_epi8(lut_lo, t);
-              v = _mm_shuffle_epi8(lut_hi, v);
-              v = _mm_min_epu8(v, t);
+              t = vsx_v128_and(nibble_mask, v);
+              v = vsx_v128_and(vsx_u16x8_shr(v, 4), nibble_mask);
+              t = vsx_i8x16_swizzle(lut_lo, t);
+              v = vsx_i8x16_swizzle(lut_hi, v);
+              v = vsx_u8x16_min(v, t);
 
-              t = _mm_srli_epi16(v, 8);
-              v = _mm_or_si128(v, byte_offset8);
-              v = _mm_min_epu8(v, t);
+              t = vsx_u16x8_shr(v, 8);
+              v = vsx_v128_or(v, byte_offset8);
+              v = vsx_u8x16_min(v, t);
 
-              v = _mm_sub_epi16(cc, v);
-              _mm_storeu_si128((__m128i*)(vp + v_n_size), v);
+              v = vsx_i16x8_sub(cc, v);
+              vsx_v128_store(vp + v_n_size, v);
             }
           }
 
@@ -1628,53 +1765,55 @@ namespace ojph {
           for (ui32 x = 0; x < width; x += 4, sp += 4, vp += 2, dp += 4)
           {
             //process two quads
-            __m128i w0, w1; // workers
-            __m128i inf_u_q, U_q;
+            v128_t w0, w1; // workers
+            v128_t inf_u_q, U_q;
             // determine U_q
             {
-              __m128i gamma, emax, kappa, u_q; // needed locally
+              v128_t gamma, emax, kappa, u_q; // needed locally
 
-              inf_u_q = _mm_loadu_si128((__m128i*)sp);
-              gamma = _mm_and_si128(inf_u_q, _mm_set1_epi32(0xF0));
-              w0 = _mm_sub_epi32(gamma, _mm_set1_epi32(1));
-              gamma = _mm_and_si128(gamma, w0);
-              gamma = _mm_cmpeq_epi32(gamma, _mm_setzero_si128());
+              inf_u_q = vsx_v128_load(sp);
+              gamma =
+                vsx_v128_and(inf_u_q, vsx_i32x4_const(OJPH_REPEAT4(0xF0)));
+              w0 = vsx_i32x4_sub(gamma, vsx_i32x4_const(OJPH_REPEAT4(1)));
+              gamma = vsx_v128_and(gamma, w0);
+              gamma = vsx_i32x4_eq(gamma, vsx_i64x2_const(0, 0));
 
-              emax = _mm_loadu_si128((__m128i*)(vp + v_n_size));
-              w0 = _mm_bsrli_si128(emax, 2);
-              emax = _mm_max_epi16(w0, emax); // no max_epi32 in ssse3
-              emax = _mm_shuffle_epi8(emax,
-                _mm_set_epi16(-1, 0x0706, -1, 0x0504,
-                              -1, 0x0302, -1, 0x0100));
-              emax = _mm_andnot_si128(gamma, emax);
+              emax = vsx_v128_load(vp + v_n_size);
+              w0 = vsx_i16x8_shuffle(emax,
+                vsx_i64x2_const(0, 0), 1, 2, 3, 4, 5, 6, 7, 8);
+              emax = vsx_i16x8_max(w0, emax); // no max_epi32 in ssse3
+              emax = vsx_i8x16_swizzle(emax,
+                vsx_i16x8_const(0x0100, -1, 0x0302, -1,
+                                 0x0504, -1, 0x0706, -1));
+              emax = vsx_v128_andnot(emax, gamma);
 
-              kappa = _mm_set1_epi32(1);
-              kappa = _mm_max_epi16(emax, kappa); // no max_epi32 in ssse3
+              kappa = vsx_i32x4_const(OJPH_REPEAT4(1));
+              kappa = vsx_i16x8_max(emax, kappa); // no max_epi32 in ssse3
 
-              u_q = _mm_srli_epi32(inf_u_q, 16);
-              U_q = _mm_add_epi32(u_q, kappa);
+              u_q = vsx_u32x4_shr(inf_u_q, 16);
+              U_q = vsx_i32x4_add(u_q, kappa);
 
-              w0 = _mm_cmpgt_epi32(U_q, _mm_set1_epi32((int)mmsbp2));
-              int i = _mm_movemask_epi8(w0);
+              w0 = vsx_i32x4_gt(U_q, vsx_u32x4_splat(mmsbp2));
+              ui32 i = vsx_i8x16_bitmask(w0);
               if (i & 0xFF) // only the lower two U_q
                 return false;
             }
 
-            __m128i vn = _mm_set1_epi16(2);
-            __m128i row = decode_two_quad16(inf_u_q, U_q, &magsgn, p, vn);
-            w0 = _mm_loadu_si128((__m128i*)vp);
-            w0 = _mm_and_si128(w0, _mm_set_epi16(0,0,0,0,0,0,0,-1));
-            w0 = _mm_or_si128(w0, vn);
-            _mm_storeu_si128((__m128i*)vp, w0);
+            v128_t vn = vsx_i16x8_const(OJPH_REPEAT8(2));
+            v128_t row = decode_two_quad16(inf_u_q, U_q, dbuf, limit, pos, p, vn);
+            w0 = vsx_v128_load(vp);
+            w0 = vsx_v128_and(w0, vsx_i16x8_const(-1,0,0,0,0,0,0,0));
+            w0 = vsx_v128_or(w0, vn);
+            vsx_v128_store(vp, w0);
 
-            w0 = _mm_shuffle_epi8(row,
-              _mm_set_epi16(0x0D0C, -1, 0x0908, -1,
-                            0x0504, -1, 0x0100, -1));
-            _mm_store_si128((__m128i*)dp, w0);
-            w1 = _mm_shuffle_epi8(row,
-              _mm_set_epi16(0x0F0E, -1, 0x0B0A, -1,
-                            0x0706, -1, 0x0302, -1));
-            _mm_store_si128((__m128i*)(dp + stride), w1);
+            w0 = vsx_i8x16_swizzle(row,
+              vsx_i16x8_const(-1, 0x0100, -1, 0x0504,
+                               -1, 0x0908, -1, 0x0D0C));
+            vsx_v128_store(dp, w0);
+            w1 = vsx_i8x16_swizzle(row,
+              vsx_i16x8_const(-1, 0x0302, -1, 0x0706,
+                               -1, 0x0B0A, -1, 0x0F0E));
+            vsx_v128_store(dp + stride, w1);
           }
         }
 
@@ -1700,44 +1839,43 @@ namespace ojph {
         {
           ui32 y;
 
-          const __m128i mask_3 = _mm_set1_epi32(0x30);
-          const __m128i mask_C = _mm_set1_epi32(0xC0);
-          const __m128i shuffle_mask = _mm_set_epi32(-1, -1, -1, 0x0C080400);
+          const v128_t mask_3 = vsx_i32x4_const(OJPH_REPEAT4(0x30));
+          const v128_t mask_C = vsx_i32x4_const(OJPH_REPEAT4(0xC0));
+          const v128_t shuffle_mask = vsx_i32x4_const(0x0C080400,-1,-1,-1);
           for (y = 0; y < height; y += 4)
           {
             ui16* sp = scratch + (y >> 1) * sstr;
             ui16* dp = sigma + (y >> 2) * mstr;
             for (ui32 x = 0; x < width; x += 8, sp += 8, dp += 2)
             {
-              __m128i s0, s1, u3, uC, t0, t1;
+              v128_t s0, s1, u3, uC, t0, t1;
 
-              s0 = _mm_loadu_si128((__m128i*)(sp));
-              u3 = _mm_and_si128(s0, mask_3);
-              u3 = _mm_srli_epi32(u3, 4);
-              uC = _mm_and_si128(s0, mask_C);
-              uC = _mm_srli_epi32(uC, 2);
-              t0 = _mm_or_si128(u3, uC);
+              s0 = vsx_v128_load(sp);
+              u3 = vsx_v128_and(s0, mask_3);
+              u3 = vsx_u32x4_shr(u3, 4);
+              uC = vsx_v128_and(s0, mask_C);
+              uC = vsx_u32x4_shr(uC, 2);
+              t0 = vsx_v128_or(u3, uC);
 
-              s1 = _mm_loadu_si128((__m128i*)(sp + sstr));
-              u3 = _mm_and_si128(s1, mask_3);
-              u3 = _mm_srli_epi32(u3, 2);
-              uC = _mm_and_si128(s1, mask_C);
-              t1 = _mm_or_si128(u3, uC);
+              s1 = vsx_v128_load(sp + sstr);
+              u3 = vsx_v128_and(s1, mask_3);
+              u3 = vsx_u32x4_shr(u3, 2);
+              uC = vsx_v128_and(s1, mask_C);
+              t1 = vsx_v128_or(u3, uC);
 
-              __m128i r = _mm_or_si128(t0, t1);
-              r = _mm_shuffle_epi8(r, shuffle_mask);
+              v128_t r = vsx_v128_or(t0, t1);
+              r = vsx_i8x16_swizzle(r, shuffle_mask);
 
-              dp[0] = (ui16)_mm_extract_epi16(r, 0);
-              dp[1] = (ui16)_mm_extract_epi16(r, 1);
+              vsx_v128_store32_lane(dp, r, 0);
             }
             dp[0] = 0; // set an extra entry on the right with 0
           }
           {
             // reset one row after the codeblock
             ui16* dp = sigma + (y >> 2) * mstr;
-            __m128i zero = _mm_setzero_si128();
+            v128_t zero = vsx_i64x2_const(0, 0);
             for (ui32 x = 0; x < width; x += 32, dp += 8)
-              _mm_storeu_si128((__m128i*)dp, zero);
+              vsx_v128_store(dp, zero);
             dp[0] = 0; // set an extra entry on the right with 0
           }
         }
@@ -1755,7 +1893,7 @@ namespace ojph {
           // We add an extra 8 entries, just in case we need more
           ui16 prev_row_sig[256 + 8] = {0}; // 528 Bytes
 
-          frwd_struct_ssse3 sigprop;
+          frwd_struct sigprop;
           frwd_init<0>(&sigprop, coded_data + lengths1, (int)lengths2);
 
           for (ui32 y = 0; y < height; y += 4)
@@ -1821,8 +1959,8 @@ namespace ojph {
               ui32 new_sig = mbr;
               if (new_sig)
               {
-                __m128i cwd_vec = frwd_fetch<0>(&sigprop);
-                ui32 cwd = (ui32)_mm_extract_epi16(cwd_vec, 0);
+                v128_t cwd_vec = frwd_fetch<0>(&sigprop);
+                ui32 cwd = vsx_u32x4_extract_lane(cwd_vec, 0);
 
                 ui32 cnt = 0;
                 ui32 col_mask = 0xFu;
@@ -1884,73 +2022,81 @@ namespace ojph {
 
                 if (new_sig)
                 {
-                  cwd |= (ui32)_mm_extract_epi16(cwd_vec, 1) << (16 - cnt);
-
                   // Spread new_sig, such that each bit is in one byte with a
                   // value of 0 if new_sig bit is 0, and 0xFF if new_sig is 1
-                  __m128i new_sig_vec = _mm_set1_epi16((si16)new_sig);
-                  new_sig_vec = _mm_shuffle_epi8(new_sig_vec,
-                    _mm_set_epi8(1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0));
-                  new_sig_vec = _mm_and_si128(new_sig_vec,
-                    _mm_set1_epi64x((si64)0x8040201008040201));
-                  new_sig_vec = _mm_cmpeq_epi8(new_sig_vec,
-                    _mm_set1_epi64x((si64)0x8040201008040201));
+                  v128_t new_sig_vec = vsx_i16x8_splat((si16)new_sig);
+                  new_sig_vec = vsx_i8x16_swizzle(new_sig_vec,
+                    vsx_i8x16_const(0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1));
+                  new_sig_vec = vsx_v128_and(new_sig_vec,
+                    vsx_u64x2_const(OJPH_REPEAT2(0x8040201008040201)));
+                  new_sig_vec = vsx_i8x16_eq(new_sig_vec,
+                    vsx_u64x2_const(OJPH_REPEAT2(0x8040201008040201)));
 
                   // find cumulative sums
                   // to find which bit in cwd we should extract
-                  __m128i inc_sum = new_sig_vec; // inclusive scan
-                  inc_sum = _mm_abs_epi8(inc_sum); // cvrt to 0 or 1
-                  inc_sum = _mm_add_epi8(inc_sum, _mm_bslli_si128(inc_sum, 1));
-                  inc_sum = _mm_add_epi8(inc_sum, _mm_bslli_si128(inc_sum, 2));
-                  inc_sum = _mm_add_epi8(inc_sum, _mm_bslli_si128(inc_sum, 4));
-                  inc_sum = _mm_add_epi8(inc_sum, _mm_bslli_si128(inc_sum, 8));
-                  cnt += (ui32)_mm_extract_epi16(inc_sum, 7) >> 8;
+                  v128_t ex_sum, shfl, inc_sum = new_sig_vec; // inclusive scan
+                  inc_sum = vsx_i8x16_abs(inc_sum); // cvrt to 0 or 1
+                  shfl = vsx_i8x16_shuffle(vsx_i64x2_const(0,0), inc_sum,
+                    15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30);
+                  inc_sum = vsx_i8x16_add(inc_sum, shfl);
+                  shfl = vsx_i16x8_shuffle(vsx_i64x2_const(0,0), inc_sum,
+                    7, 8, 9, 10, 11, 12, 13, 14);
+                  inc_sum = vsx_i8x16_add(inc_sum, shfl);
+                  shfl = vsx_i32x4_shuffle(vsx_i64x2_const(0,0), inc_sum,
+                    3, 4, 5, 6);
+                  inc_sum = vsx_i8x16_add(inc_sum, shfl);
+                  shfl = vsx_i64x2_shuffle(vsx_i64x2_const(0,0), inc_sum,
+                    1, 2);
+                  inc_sum = vsx_i8x16_add(inc_sum, shfl);
+                  cnt += vsx_u8x16_extract_lane(inc_sum, 15);
                   // exclusive scan
-                  __m128i ex_sum = _mm_bslli_si128(inc_sum, 1);
+                  ex_sum = vsx_i8x16_shuffle(vsx_i64x2_const(0,0), inc_sum,
+                    15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30);
 
                   // Spread cwd, such that each bit is in one byte
                   // with a value of 0 or 1.
-                  cwd_vec = _mm_set1_epi16((si16)cwd);
-                  cwd_vec = _mm_shuffle_epi8(cwd_vec,
-                    _mm_set_epi8(1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0));
-                  cwd_vec = _mm_and_si128(cwd_vec,
-                    _mm_set1_epi64x((si64)0x8040201008040201));
-                  cwd_vec = _mm_cmpeq_epi8(cwd_vec,
-                    _mm_set1_epi64x((si64)0x8040201008040201));
-                  cwd_vec = _mm_abs_epi8(cwd_vec);
+                  cwd_vec = vsx_i16x8_splat((si16)cwd);
+                  cwd_vec = vsx_i8x16_swizzle(cwd_vec,
+                    vsx_i8x16_const(0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1));
+                  cwd_vec = vsx_v128_and(cwd_vec,
+                    vsx_u64x2_const(OJPH_REPEAT2(0x8040201008040201)));
+                  cwd_vec = vsx_i8x16_eq(cwd_vec,
+                    vsx_u64x2_const(OJPH_REPEAT2(0x8040201008040201)));
+                  cwd_vec = vsx_i8x16_abs(cwd_vec);
 
                   // Obtain bit from cwd_vec correspondig to ex_sum
                   // Basically, collect needed bits from cwd_vec
-                  __m128i v = _mm_shuffle_epi8(cwd_vec, ex_sum);
+                  v128_t v = vsx_i8x16_swizzle(cwd_vec, ex_sum);
 
                   // load data and set spp coefficients
-                  __m128i m =
-                    _mm_set_epi8(-1,-1,-1,12,-1,-1,-1,8,-1,-1,-1,4,-1,-1,-1,0);
-                  __m128i val = _mm_set1_epi32(3 << (p - 2));
+                  v128_t m = vsx_i8x16_const(
+                    0,-1,-1,-1,4,-1,-1,-1,8,-1,-1,-1,12,-1,-1,-1);
+                  v128_t val = vsx_i32x4_splat(3 << (p - 2));
                   ui32 *dp = dpp;
                   for (int c = 0; c < 4; ++ c) {
-                    __m128i s0, s0_ns, s0_val;
+                    v128_t s0, s0_ns, s0_val;
                     // load coefficients
-                    s0 = _mm_load_si128((__m128i*)dp);
+                    s0 = vsx_v128_load(dp);
 
                     // epi32 is -1 only for coefficient that
                     // are changed during the SPP
-                    s0_ns = _mm_shuffle_epi8(new_sig_vec, m);
-                    s0_ns = _mm_cmpeq_epi32(s0_ns, _mm_set1_epi32(0xFF));
+                    s0_ns = vsx_i8x16_swizzle(new_sig_vec, m);
+                    s0_ns = vsx_i32x4_eq(s0_ns,
+                      vsx_i32x4_const(OJPH_REPEAT4(0xFF)));
 
                     // obtain sign for coefficients in SPP
-                    s0_val = _mm_shuffle_epi8(v, m);
-                    s0_val = _mm_slli_epi32(s0_val, 31);
-                    s0_val = _mm_or_si128(s0_val, val);
-                    s0_val = _mm_and_si128(s0_val, s0_ns);
+                    s0_val = vsx_i8x16_swizzle(v, m);
+                    s0_val = vsx_i32x4_shl(s0_val, 31);
+                    s0_val = vsx_v128_or(s0_val, val);
+                    s0_val = vsx_v128_and(s0_val, s0_ns);
 
                     // update vector
-                    s0 = _mm_or_si128(s0, s0_val);
+                    s0 = vsx_v128_or(s0, s0_val);
                     // store coefficients
-                    _mm_store_si128((__m128i*)dp, s0);
+                    vsx_v128_store(dp, s0);
                     // prepare for next row
                     dp += stride;
-                    m = _mm_add_epi32(m, _mm_set1_epi32(1));
+                    m = vsx_i32x4_add(m, vsx_i32x4_const(OJPH_REPEAT4(1)));
                   }
                 }
                 frwd_advance(&sigprop, cnt);
@@ -1994,65 +2140,77 @@ namespace ojph {
                 // data is 32 bit (4 bytes)
 
                 // spread the 16 bits in sig to 0 or 1 bytes in sig_vec
-                __m128i sig_vec = _mm_set1_epi16((si16)sig);
-                sig_vec = _mm_shuffle_epi8(sig_vec,
-                  _mm_set_epi8(1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0));
-                sig_vec = _mm_and_si128(sig_vec,
-                  _mm_set1_epi64x((si64)0x8040201008040201));
-                sig_vec = _mm_cmpeq_epi8(sig_vec,
-                  _mm_set1_epi64x((si64)0x8040201008040201));
-                sig_vec = _mm_abs_epi8(sig_vec);
+                v128_t sig_vec = vsx_i16x8_splat((si16)sig);
+                sig_vec = vsx_i8x16_swizzle(sig_vec,
+                  vsx_i8x16_const(0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1));
+                sig_vec = vsx_v128_and(sig_vec,
+                  vsx_u64x2_const(OJPH_REPEAT2(0x8040201008040201)));
+                sig_vec = vsx_i8x16_eq(sig_vec,
+                  vsx_u64x2_const(OJPH_REPEAT2(0x8040201008040201)));
+                sig_vec = vsx_i8x16_abs(sig_vec);
 
                 // find cumulative sums
                 // to find which bit in cwd we should extract
-                __m128i inc_sum = sig_vec; // inclusive scan
-                inc_sum = _mm_add_epi8(inc_sum, _mm_bslli_si128(inc_sum, 1));
-                inc_sum = _mm_add_epi8(inc_sum, _mm_bslli_si128(inc_sum, 2));
-                inc_sum = _mm_add_epi8(inc_sum, _mm_bslli_si128(inc_sum, 4));
-                inc_sum = _mm_add_epi8(inc_sum, _mm_bslli_si128(inc_sum, 8));
-                total_bits = _mm_extract_epi16(inc_sum, 7) >> 8;
-                __m128i ex_sum = _mm_bslli_si128(inc_sum, 1); // exclusive scan
+                v128_t ex_sum, shfl, inc_sum = sig_vec; // inclusive scan
+                shfl = vsx_i8x16_shuffle(vsx_i64x2_const(0,0), inc_sum,
+                  15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30);
+                inc_sum = vsx_i8x16_add(inc_sum, shfl);
+                shfl = vsx_i16x8_shuffle(vsx_i64x2_const(0,0), inc_sum,
+                  7, 8, 9, 10, 11, 12, 13, 14);
+                inc_sum = vsx_i8x16_add(inc_sum, shfl);
+                shfl = vsx_i32x4_shuffle(vsx_i64x2_const(0,0), inc_sum,
+                  3, 4, 5, 6);
+                inc_sum = vsx_i8x16_add(inc_sum, shfl);
+                shfl = vsx_i64x2_shuffle(vsx_i64x2_const(0,0), inc_sum,
+                  1, 2);
+                inc_sum = vsx_i8x16_add(inc_sum, shfl);
+                total_bits = vsx_u8x16_extract_lane(inc_sum, 15);
+                // exclusive scan
+                ex_sum = vsx_i8x16_shuffle(vsx_i64x2_const(0,0), inc_sum,
+                  15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30);
 
                 // Spread the 16 bits in cwd to inverted 0 or 1 bytes in
                 // cwd_vec. Then, convert these to a form suitable
                 // for coefficient modifications; in particular, a value
                 // of 0 is presented as binary 11, and a value of 1 is
                 // represented as binary 01
-                __m128i cwd_vec = _mm_set1_epi16((si16)cwd);
-                cwd_vec = _mm_shuffle_epi8(cwd_vec,
-                  _mm_set_epi8(1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0));
-                cwd_vec = _mm_and_si128(cwd_vec,
-                  _mm_set1_epi64x((si64)0x8040201008040201));
-                cwd_vec = _mm_cmpeq_epi8(cwd_vec,
-                  _mm_set1_epi64x((si64)0x8040201008040201));
-                cwd_vec = _mm_add_epi8(cwd_vec, _mm_set1_epi8(1));
-                cwd_vec = _mm_add_epi8(cwd_vec, cwd_vec);
-                cwd_vec = _mm_or_si128(cwd_vec, _mm_set1_epi8(1));
+                v128_t cwd_vec = vsx_i16x8_splat((si16)cwd);
+                cwd_vec = vsx_i8x16_swizzle(cwd_vec,
+                  vsx_i8x16_const(0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1));
+                cwd_vec = vsx_v128_and(cwd_vec,
+                  vsx_u64x2_const(OJPH_REPEAT2(0x8040201008040201)));
+                cwd_vec = vsx_i8x16_eq(cwd_vec,
+                  vsx_u64x2_const(OJPH_REPEAT2(0x8040201008040201)));
+                cwd_vec =
+                  vsx_i8x16_add(cwd_vec, vsx_i8x16_const(OJPH_REPEAT16(1)));
+                cwd_vec = vsx_i8x16_add(cwd_vec, cwd_vec);
+                cwd_vec =
+                  vsx_v128_or(cwd_vec, vsx_i8x16_const(OJPH_REPEAT16(1)));
 
                 // load data and insert the mrp bit
-                __m128i m =
-                  _mm_set_epi8(-1,-1,-1,12,-1,-1,-1,8,-1,-1,-1,4,-1,-1,-1,0);
+                v128_t m = vsx_i8x16_const(0,-1,-1,-1,4,-1,-1,-1,
+                                            8,-1,-1,-1,12,-1,-1,-1);
                 ui32 *dp = dpp;
                 for (int c = 0; c < 4; ++c) {
-                  __m128i s0, s0_sig, s0_idx, s0_val;
+                  v128_t s0, s0_sig, s0_idx, s0_val;
                   // load coefficients
-                  s0 = _mm_load_si128((__m128i*)dp);
+                  s0 = vsx_v128_load(dp);
                   // find significant samples in this row
-                  s0_sig = _mm_shuffle_epi8(sig_vec, m);
-                  s0_sig = _mm_cmpeq_epi8(s0_sig, _mm_setzero_si128());
+                  s0_sig = vsx_i8x16_swizzle(sig_vec, m);
+                  s0_sig = vsx_i8x16_eq(s0_sig, vsx_i64x2_const(0, 0));
                   // get MRP bit index, and MRP pattern
-                  s0_idx = _mm_shuffle_epi8(ex_sum, m);
-                  s0_val = _mm_shuffle_epi8(cwd_vec, s0_idx);
+                  s0_idx = vsx_i8x16_swizzle(ex_sum, m);
+                  s0_val = vsx_i8x16_swizzle(cwd_vec, s0_idx);
                   // keep data from significant samples only
-                  s0_val = _mm_andnot_si128(s0_sig, s0_val);
+                  s0_val = vsx_v128_andnot(s0_val, s0_sig);
                   // move mrp bits to correct position, and employ
-                  s0_val = _mm_slli_epi32(s0_val, (si32)p - 2);
-                  s0 = _mm_xor_si128(s0, s0_val);
+                  s0_val = vsx_i32x4_shl(s0_val, p - 2);
+                  s0 = vsx_v128_xor(s0, s0_val);
                   // store coefficients
-                  _mm_store_si128((__m128i*)dp, s0);
+                  vsx_v128_store(dp, s0);
                   // prepare for next row
                   dp += stride;
-                  m = _mm_add_epi32(m, _mm_set1_epi32(1));
+                  m = vsx_i32x4_add(m, vsx_i32x4_const(OJPH_REPEAT4(1)));
                 }
               }
               // consume data according to the number of bits set
@@ -2066,5 +2224,3 @@ namespace ojph {
     }
   }
 }
-
-#endif

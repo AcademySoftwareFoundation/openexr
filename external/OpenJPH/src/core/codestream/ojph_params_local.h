@@ -602,6 +602,9 @@ namespace ojph {
       ////////////////////////////////////////
       param_cod* add_coc_object(ui32 comp_idx);
 
+      ///////////////////////////////////////
+      param_cod* get_or_add_coc(ui32 comp_idx);
+
       ////////////////////////////////////////
       const param_atk* access_atk() const { return atk; }
 
@@ -629,8 +632,15 @@ namespace ojph {
         type = top_cod ? COC_MAIN : COD_MAIN;
         Lcod = 0;
         Scod = 0;
+        SPcod = cod_SPcod();  // SPcod is initialized to default values
         next = NULL;
         atk = NULL;
+        // For COC marker segment:
+        // Lcod will be initialized on writing the marker segment to disk
+        // Scod is initialized to 0
+        // SGcod does not exist in COC
+        // SPcoc is initialized to default values
+        // atk is initialized to NULL
         this->top_cod = top_cod;
         this->comp_idx = comp_idx;
       }
@@ -691,6 +701,11 @@ namespace ojph {
         QCC_TILE  = 4   // not implemented
       };
 
+      ////////////////////////////////////////
+      enum qfactor_const : ui8 {
+        QFACTOR_UNSET = 0
+      };
+
     public:
       param_qcd(param_qcd* top_qcd = NULL, ui16 comp_idx = OJPH_QCD_DEFAULT)
       { avail = NULL; init(top_qcd, comp_idx); }
@@ -707,8 +722,11 @@ namespace ojph {
       }
 
       void check_validity(const param_siz& siz, const param_cod& cod);
+      void make_quant_steps(ui32 comp_num, const param_cod &cod, const param_siz &siz);
+      bool is_qcc_needed(ui32 comp_num, const param_cod &cod, const param_siz &siz);
       void set_delta(float delta) { base_delta = delta; }
       void set_delta(ui32 comp_idx, float delta);
+      void set_qfactor(ui32 comp_idx, ojph::param_qcd::comp_type ctype, ui8 qfactor);
       ui32 get_num_guard_bits() const;
       ui32 get_MAGB() const;
       ui32 get_Kmax(const param_dfs* dfs, ui32 num_decompositions,
@@ -731,12 +749,16 @@ namespace ojph {
       ////////////////////////////////////////
       void init(param_qcd* top_qcd, ui16 comp_idx)
       {
+        is_init = false;
         type = top_qcd ? QCC_MAIN : QCD_MAIN;
         Lqcd = 0;
         Sqcd = 0;
         memset(&SPqcd, 0, sizeof(SPqcd));
         num_subbands = 0;
         base_delta = -1.0f;
+        qfactor = QFACTOR_UNSET;
+        ctype = ojph::param_qcd::OJPH_COMP_Y;
+        sampling = ojph::point(1, 1);
         enabled = true;
         next = NULL;
         this->top_qcd = top_qcd;
@@ -769,6 +791,7 @@ namespace ojph {
 
     private: // QCD variables
       qcd_type type;
+      bool is_init;     // have the quantization steps been generated
       ui16 Lqcd;
       ui8 Sqcd;
       union
@@ -777,11 +800,21 @@ namespace ojph {
         ui16 u16[97];
       } SPqcd;
       ui32 num_subbands;  // number of subbands
-      float base_delta;   // base quantization step size -- all other
-                          // step sizes are derived from it.
       bool enabled;       // enabled if two, and ignored if false
       param_qcd *next;    // pointer to create chains of qcc marker segments
       param_qcd *top_qcd; // pointer to the top QCD (this is the default)
+
+      // variables used to generate the quantization step sizes
+      float base_delta;   // base quantization step size -- all other
+                          // step sizes are derived from it.
+      ui8 qfactor;
+      ojph::param_qcd::comp_type ctype;
+      bool is_color_trans;
+      ui32 num_decomps;
+      ui32 bit_depth;
+      bool is_signed;
+      ui32 wavelet_kern;
+      ojph::point sampling;
 
     private: // QCC only variables
       ui16 comp_idx;
