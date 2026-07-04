@@ -691,12 +691,14 @@ internal_exr_undo_b44 (
     uint64_t               uncompressed_size)
 {
     exr_result_t rv;
+    uint64_t     scratch_sz = compute_scratch_buffer_size (decode, uncompressed_size);
+    if (scratch_sz != (size_t) scratch_sz) return EXR_ERR_OUT_OF_MEMORY;
     rv = internal_decode_alloc_buffer (
         decode,
         EXR_TRANSCODE_BUFFER_SCRATCH1,
         &(decode->scratch_buffer_1),
         &(decode->scratch_alloc_size_1),
-        compute_scratch_buffer_size (decode, uncompressed_size));
+        (size_t) scratch_sz);
     if (rv != EXR_ERR_SUCCESS) return rv;
 
     return uncompress_b44_impl (
@@ -716,12 +718,14 @@ internal_exr_undo_b44a (
     uint64_t               uncompressed_size)
 {
     exr_result_t rv;
+    uint64_t     scratch_sz = compute_scratch_buffer_size (decode, uncompressed_size);
+    if (scratch_sz != (size_t) scratch_sz) return EXR_ERR_OUT_OF_MEMORY;
     rv = internal_decode_alloc_buffer (
         decode,
         EXR_TRANSCODE_BUFFER_SCRATCH1,
         &(decode->scratch_buffer_1),
         &(decode->scratch_alloc_size_1),
-        compute_scratch_buffer_size (decode, uncompressed_size));
+        (size_t) scratch_sz);
     if (rv != EXR_ERR_SUCCESS) return rv;
 
     return uncompress_b44_impl (
