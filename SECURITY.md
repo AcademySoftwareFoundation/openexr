@@ -37,9 +37,6 @@ We do not request a CVE for:
   itself and standard utility programs are safe; only users who run
   one of the developer tools on untrusted input are exposed.
 
-- Information disclosure requiring heap grooming with no targeted leak
-  — the attacker gets unpredictable stale data, not secrets.
-
 Flaws whose root cause lies in a bundled dependency (such as OpenJPH)
 are fixed upstream; the upstream project owns the CVE when one is
 warranted. This applies even when a flaw is detected in dependency code
