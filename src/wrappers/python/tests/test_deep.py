@@ -224,6 +224,73 @@ class TestDeep(unittest.TestCase):
 
         os.remove(filename)
 
+    def test_mixed_type_rgb_coalesce_deep_rejected(self):
+        dataWindow = ((0, 0), (0, 0))
+        height = width = 1
+
+        B = np.empty((height, width), dtype=object)
+        G = np.empty((height, width), dtype=object)
+        R = np.empty((height, width), dtype=object)
+        B[0, 0] = np.array([1.0, 2.0], dtype='float16')
+        G[0, 0] = np.array([1.0, 2.0], dtype='float32')
+        R[0, 0] = np.array([1.0, 2.0], dtype='float32')
+
+        channels = {"B": B, "G": G, "R": R}
+        header = {
+            "compression": OpenEXR.ZIPS_COMPRESSION,
+            "type": OpenEXR.deepscanline,
+            "dataWindow": dataWindow,
+        }
+
+        fd, path = tempfile.mkstemp(suffix=".exr")
+        os.close(fd)
+        try:
+            with OpenEXR.File(header, channels) as outfile:
+                outfile.write(path)
+
+            with self.assertRaises(Exception) as ctx:
+                OpenEXR.File(path)
+            self.assertIn("separate_channels", str(ctx.exception))
+
+            with OpenEXR.File(path, separate_channels=True) as infile:
+                self.assertIn("B", infile.channels())
+                self.assertIn("G", infile.channels())
+                self.assertIn("R", infile.channels())
+        finally:
+            if os.path.exists(path):
+                os.remove(path)
+
+    def test_mixed_type_rgb_coalesce_flat_rejected(self):
+        dataWindow = ((0, 0), (0, 0))
+
+        channels = {
+            "B": np.array([[1.0]], dtype='float16'),
+            "G": np.array([[2.0]], dtype='float32'),
+            "R": np.array([[3.0]], dtype='float32'),
+        }
+        header = {
+            "type": OpenEXR.scanlineimage,
+            "dataWindow": dataWindow,
+        }
+
+        fd, path = tempfile.mkstemp(suffix=".exr")
+        os.close(fd)
+        try:
+            with OpenEXR.File(header, channels) as outfile:
+                outfile.write(path)
+
+            with self.assertRaises(Exception) as ctx:
+                OpenEXR.File(path)
+            self.assertIn("separate_channels", str(ctx.exception))
+
+            with OpenEXR.File(path, separate_channels=True) as infile:
+                self.assertIn("B", infile.channels())
+                self.assertIn("G", infile.channels())
+                self.assertIn("R", infile.channels())
+        finally:
+            if os.path.exists(path):
+                os.remove(path)
+
 if __name__ == '__main__':
     unittest.main()
     print("OK")

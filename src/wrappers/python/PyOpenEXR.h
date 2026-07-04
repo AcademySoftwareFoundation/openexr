@@ -140,8 +140,12 @@ class PyPart
                                   const std::vector<size_t>& shape, const std::set<std::string>& rgbaChannels,
                                   const Box2i& dw, bool separate_channels);
     int            channelNameToRGBA(const ChannelList& channel_list, const std::string& name,
-                                     std::string& py_channel_name, char& channel_name);
-    
+                                     std::string& py_channel_name, char& channel_name) const;
+
+    void           validateCoalescedChannelTypes(
+        const ChannelList&           channel_list,
+        const std::set<std::string>& rgbaChannels) const;
+
 };
 
 //
