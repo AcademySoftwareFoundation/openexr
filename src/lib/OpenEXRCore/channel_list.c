@@ -173,7 +173,17 @@ exr_attr_chlist_add_with_length (
 
     if (newcount > clist->num_alloced)
     {
-        int nsz = clist->num_alloced * 2;
+        int nsz;
+
+        /* perhaps an arbitrary limit, but that is a LOT of channels */
+        if (clist->num_alloced >= (INT32_MAX / 2))
+        {
+            exr_attr_string_destroy (ctxt, &(nent.name));
+            return ctxt->standard_error (ctxt, EXR_ERR_OUT_OF_MEMORY);
+        }
+
+        nsz = clist->num_alloced * 2;
+
         if (newcount > nsz) nsz = newcount + 1;
         nlist = (exr_attr_chlist_entry_t*) ctxt->alloc_fn (
             sizeof (*nlist) * (size_t) nsz);
