@@ -224,6 +224,19 @@ ht_undo_impl (
     ojph::ui32 image_width =
         siz.get_image_extent ().x - siz.get_image_offset ().x;
 
+    ojph::size  tile_size   = siz.get_tile_size ();
+    ojph::point tile_offset = siz.get_tile_offset ();
+    if (!validate_htj2k_siz_geometry (
+            siz.get_image_extent ().x,
+            siz.get_image_extent ().y,
+            siz.get_image_offset ().x,
+            siz.get_image_offset ().y,
+            tile_size.w,
+            tile_size.h,
+            tile_offset.x,
+            tile_offset.y))
+        return EXR_ERR_CORRUPT_CHUNK;
+
     if (decode->chunk.width != image_width
         || decode->chunk.height != image_height
         || decode->channel_count != siz.get_num_components())

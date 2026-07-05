@@ -313,3 +313,29 @@ read_header (
 
     return prefix_sz + payload_sz;
 }
+
+bool
+validate_htj2k_siz_geometry (
+    uint32_t xsiz,
+    uint32_t ysiz,
+    uint32_t xosiz,
+    uint32_t yosiz,
+    uint32_t xtsiz,
+    uint32_t ytsiz,
+    uint32_t xtosiz,
+    uint32_t ytosiz)
+{
+    if (xtsiz == 0 && ytsiz == 0)
+    {
+        xtsiz = xsiz + xosiz;
+        ytsiz = ysiz + yosiz;
+    }
+
+    if (xsiz == 0 || ysiz == 0 || xtsiz == 0 || ytsiz == 0) return false;
+
+    if (xtosiz > xosiz || ytosiz > yosiz) return false;
+
+    if (xtsiz + xtosiz <= xosiz || ytsiz + ytosiz <= yosiz) return false;
+
+    return true;
+}

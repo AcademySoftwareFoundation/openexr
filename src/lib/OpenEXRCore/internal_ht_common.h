@@ -84,4 +84,18 @@ size_t read_header (
     size_t                              max_sz,
     std::vector<CodestreamChannelInfo>& map);
 
+/** Validate JPEG 2000 SIZ image/tile geometry before HTJ2K decode.
+ *
+ *  Matches the tile/image intersection rules enforced by OpenJPH on encode.
+ */
+bool validate_htj2k_siz_geometry (
+    uint32_t xsiz,
+    uint32_t ysiz,
+    uint32_t xosiz,
+    uint32_t yosiz,
+    uint32_t xtsiz,
+    uint32_t ytsiz,
+    uint32_t xtosiz,
+    uint32_t ytosiz);
+
 #endif /* OPENEXR_PRIVATE_HT_COMMON_H */
