@@ -84,7 +84,7 @@ build-verbosity = 1
 
 manylinux-x86_64-image = "manylinux2014"
 manylinux-i686-image = "manylinux2014"
-manylinux-aarch64-image = "manylinux2014"
+manylinux-aarch64-image = "manylinux_2_28"
 
 # Needed for full C++17 support
 [tool.cibuildwheel.macos.environment]
