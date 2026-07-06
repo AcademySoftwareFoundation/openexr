@@ -80,8 +80,6 @@ initScanLine (
     int      numChans  = channelCount (in.header ());
 
     pixelData.resize (numChans);
-    uint64_t offsetToOrigin = width * static_cast<uint64_t> (dw.min.y) +
-                              static_cast<uint64_t> (dw.min.x);
 
     int    channelNumber = 0;
     size_t rawSize       = 0;
@@ -98,9 +96,10 @@ initScanLine (
 
         buf.insert (
             i.name (),
-            Slice (
+            Slice::Make (
                 i.channel ().type,
-                pixelData[channelNumber].data () - offsetToOrigin * samplesize,
+                pixelData[channelNumber].data (),
+                dw,
                 samplesize,
                 samplesize * width,
                 i.channel ().xSampling,
