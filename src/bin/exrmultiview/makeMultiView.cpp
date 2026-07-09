@@ -28,77 +28,6 @@ using namespace IMF;
 using namespace IMATH_NAMESPACE;
 using namespace std;
 
-namespace {
-
-void
-validateDataWindowForChannel (
-    const Box2i& dataWindow, const Channel& channel, const string& chanName)
-{
-    if (dataWindow.min.x % channel.xSampling)
-    {
-        THROW (
-            IEX_NAMESPACE::ArgExc,
-            "The minimum x coordinate of the "
-            "image's data window is not a multiple "
-            "of the x subsampling factor of "
-            "the \""
-                << chanName << "\" channel.");
-    }
-
-    if (dataWindow.min.y % channel.ySampling)
-    {
-        THROW (
-            IEX_NAMESPACE::ArgExc,
-            "The minimum y coordinate of the "
-            "image's data window is not a multiple "
-            "of the y subsampling factor of "
-            "the \""
-                << chanName << "\" channel.");
-    }
-
-    if ((dataWindow.max.x - dataWindow.min.x + 1) % channel.xSampling)
-    {
-        THROW (
-            IEX_NAMESPACE::ArgExc,
-            "Number of pixels per row in the "
-            "image's data window is not a multiple "
-            "of the x subsampling factor of "
-            "the \""
-                << chanName << "\" channel.");
-    }
-
-    if ((dataWindow.max.y - dataWindow.min.y + 1) % channel.ySampling)
-    {
-        THROW (
-            IEX_NAMESPACE::ArgExc,
-            "Number of pixels per column in the "
-            "image's data window is not a multiple "
-            "of the y subsampling factor of "
-            "the \""
-                << chanName << "\" channel.");
-    }
-}
-
-void
-validateUnionDataWindowForInputs (
-    const Box2i& dataWindow, const vector<const char*>& inFileNames)
-{
-    for (const char* fileName : inFileNames)
-    {
-        InputFile in (fileName);
-
-        for (ChannelList::ConstIterator j = in.header ().channels ().begin ();
-             j != in.header ().channels ().end ();
-             ++j)
-        {
-            validateDataWindowForChannel (
-                dataWindow, j.channel (), j.name ());
-        }
-    }
-}
-
-} // namespace
-
 void
 makeMultiView (
     const vector<string>&      viewNames,
@@ -145,8 +74,6 @@ makeMultiView (
         else { d.extendBy (header.dataWindow ()); }
     }
 
-    validateUnionDataWindowForInputs (d, inFileNames);
-
     image.resize (d);
 
     header.dataWindow () = d;
@@ -180,6 +107,14 @@ makeMultiView (
             string         inChanName = j.name ();
             string outChanName = insertViewName (inChanName, viewNames, i);
 
+            if (inChannel.xSampling != 1 || inChannel.ySampling != 1)
+                THROW (IEX_NAMESPACE::ArgExc,
+                       "no support for subsampling:"
+                       << " channel " << inChanName
+                       << " of " << inFileNames[i]
+                       << " has subsampling " << inChannel.xSampling
+                       << ", " << inChannel.ySampling);
+            
             image.addChannel (outChanName, inChannel);
             image.channel (outChanName).black ();
 
