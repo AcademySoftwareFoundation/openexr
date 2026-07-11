@@ -689,6 +689,33 @@ DwaCompressor_compress (DwaCompressor* me)
 /**************************************/
 
 exr_result_t
+validate_size(DwaCompressor* me, CompressorScheme compression,
+              uint64_t compressedSize, uint64_t uncompressedSize,
+              uint64_t extraSize)
+{
+    uint64_t requiredSize = 0;
+    for (int c = 0; c < me->_numChannels; ++c)
+    {
+        if (me->_channelData[c].compression == compression)
+            requiredSize += (uint64_t) me->_channelData[c].planarUncSize;
+    }
+
+    if (requiredSize > 0)
+    {
+        if (uncompressedSize < requiredSize || compressedSize == 0)
+        {
+            return EXR_ERR_CORRUPT_CHUNK;
+        }
+    }
+    else if (uncompressedSize > 0 || compressedSize > 0 || extraSize > 0)
+    {
+        return EXR_ERR_CORRUPT_CHUNK;
+    }
+
+    return EXR_ERR_SUCCESS;
+}
+
+exr_result_t
 DwaCompressor_uncompress (
     DwaCompressor* me,
     const uint8_t* inPtr,
@@ -867,6 +894,12 @@ DwaCompressor_uncompress (
     rv = DwaCompressor_setupChannelData (me);
     if (rv != EXR_ERR_SUCCESS) { return rv; }
 
+    rv = validate_size(me, UNKNOWN, unknownCompressedSize, unknownUncompressedSize, 0);
+    if (rv != EXR_ERR_SUCCESS) { return rv; }
+    
+    rv = validate_size(me, RLE, rleCompressedSize, rleRawSize, rleUncompressedSize);
+    if (rv != EXR_ERR_SUCCESS) { return rv; }
+    
     //
     // Uncompress the UNKNOWN data into _planarUncBuffer[UNKNOWN]
     //
