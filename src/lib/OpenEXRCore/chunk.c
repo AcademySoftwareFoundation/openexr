@@ -1006,7 +1006,7 @@ exr_read_scanline_chunk_info (
         if (rv != EXR_ERR_SUCCESS) { return rv; }
         priv_to_native64 (ddata, 3);
 
-        if (ddata[0] < 0)
+        if (ddata[0] < 0 || ddata[0] > (int64_t) INT_MAX)
         {
             return ctxt->print_error (
                 ctxt,
