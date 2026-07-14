@@ -32,7 +32,9 @@
 #include <algorithm>
 #include <assert.h>
 #include <cctype>
+#include <cstdint>
 #include <iostream>
+#include <limits>
 #include <sstream>
 #include <stdlib.h>
 #include <utility> // pair
@@ -50,6 +52,31 @@ using namespace OPENEXR_IMF_NAMESPACE;
 #else
 #    define IMF_PATH_SEPARATOR "/"
 #endif
+
+namespace {
+
+//
+// Validate that count * samplesize fits in size_t before resizing a vector.
+//
+
+size_t
+vectorSize (int64_t count, size_t samplesize)
+{
+    if (count < 0)
+        throw IEX_NAMESPACE::OverflowExc ("invalid vector size");
+
+    const size_t size_t_max = std::numeric_limits<size_t>::max ();
+    if (sizeof (size_t) < sizeof (int64_t) && count > static_cast<int64_t> (size_t_max))
+        throw IEX_NAMESPACE::OverflowExc ("invalid vector size");
+
+    const size_t c = static_cast<size_t> (count);
+    if (samplesize > 0 && c > size_t_max / samplesize)
+        throw IEX_NAMESPACE::OverflowExc ("invalid vector size");
+
+    return c * samplesize;
+}
+
+} // namespace
 
 void
 copy_tile (
@@ -323,7 +350,7 @@ convert (
         // compute size of channel
         size_t samplesize = sizeof (float);
         if (chan.channel ().type == HALF) { samplesize = sizeof (half); }
-        channelstore[i].resize (samplesize * pixel_count);
+        channelstore[i].resize (vectorSize (pixel_count, samplesize));
 
         output_framebuffers[part].insert (
             output_channels[i].name,
