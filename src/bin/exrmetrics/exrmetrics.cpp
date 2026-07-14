@@ -25,6 +25,7 @@
 
 #include <chrono>
 #include <ctime>
+#include <limits>
 #include <list>
 #include <stdexcept>
 #include <vector>
@@ -45,6 +46,25 @@ using std::to_string;
 using std::vector;
 using std::chrono::steady_clock;
 using std::isinf;
+
+namespace {
+
+//
+// Validate that count*sampleSize casts to size_t without overflow, before
+// using the value to resize a std::vector.
+//
+
+size_t
+vectorSize (uint64_t count, int sampleSize = 1)
+{
+    const uint64_t sampleSizeU = static_cast<uint64_t> (sampleSize);
+    const uint64_t maxSize     = std::numeric_limits<size_t>::max ();
+    if (sampleSizeU > 0 && count > maxSize / sampleSizeU)
+        throw IEX_NAMESPACE::OverflowExc ("Integer multiplication overflow.");
+    return static_cast<size_t> (count * sampleSizeU);
+}
+
+} // namespace
 
 double
 timing (steady_clock::time_point start, steady_clock::time_point end)
@@ -92,7 +112,7 @@ initScanLine (
         size_t pixelsInChannel = (width / i.channel ().xSampling) *
                                  (height / i.channel ().ySampling);
         rawSize += pixelsInChannel * samplesize;
-        pixelData[channelNumber].resize (numPixels * samplesize);
+        pixelData[channelNumber].resize (vectorSize (numPixels, samplesize));
 
         buf.insert (
             i.name (),
@@ -205,7 +225,7 @@ initTiled (
                 {
                     int samplesize = pixelTypeSize (i.channel ().type);
                     pixelData[levelIndex][channelNumber].resize (
-                        numPixels * samplesize);
+                        vectorSize (numPixels, samplesize));
 
                     buf[levelIndex].insert (
                         i.name (),
@@ -324,7 +344,7 @@ initAndReadDeepScanLine (
     uint64_t height    = dw.max.y + 1 - dw.min.y;
     uint64_t numPixels = width * height;
     int      numChans  = channelCount (in.header ());
-    sampleCount.resize (numPixels);
+    sampleCount.resize (vectorSize (numPixels));
 
     uint64_t offsetToOrigin = width * static_cast<uint64_t> (dw.min.y) +
                               static_cast<uint64_t> (dw.min.x);
@@ -342,7 +362,7 @@ initAndReadDeepScanLine (
          i != outHeader.channels ().end ();
          ++i)
     {
-        pixelPtrs[channelNumber].resize (numPixels);
+        pixelPtrs[channelNumber].resize (vectorSize (numPixels));
         int samplesize = pixelTypeSize (i.channel ().type);
         buf.insert (
             i.name (),
@@ -492,7 +512,7 @@ initAndReadDeepTiled (
                               static_cast<uint64_t> (dw.min.x);
 
     pixelPtrs.resize (numChans);
-    sampleCount.resize (numPixels);
+    sampleCount.resize (vectorSize (numPixels));
 
     buf.insertSampleCountSlice (Slice (
         UINT,
@@ -506,7 +526,7 @@ initAndReadDeepTiled (
          i != outHeader.channels ().end ();
          ++i)
     {
-        pixelPtrs[channelNumber].resize (numPixels);
+        pixelPtrs[channelNumber].resize (vectorSize (numPixels));
         int samplesize = pixelTypeSize (i.channel ().type);
         buf.insert (
             i.name (),
