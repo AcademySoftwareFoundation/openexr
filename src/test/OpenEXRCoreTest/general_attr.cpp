@@ -803,6 +803,22 @@ testChlistHelper (exr_context_t f)
 
     // make sure we can re-delete something?
     EXRCORE_TEST_RVAL (exr_attr_chlist_destroy (f, &cl));
+
+    for ( int curc = 0; curc < 384; ++curc )
+    {
+        char cname[32];
+        /* use zero pad to avoid dealing with lexical ordering of channels */
+        snprintf (cname, 32, "c%03d", curc);
+        EXRCORE_TEST_RVAL (exr_attr_chlist_add (
+                               f, &cl, cname, EXR_PIXEL_HALF, EXR_PERCEPTUALLY_LINEAR, 1, 2));
+        EXRCORE_TEST (cl.num_channels == (curc + 1));
+        EXRCORE_TEST (0 == strcmp (cl.entries[curc].name.str, cname));
+        EXRCORE_TEST (cl.entries[curc].pixel_type == EXR_PIXEL_HALF);
+        EXRCORE_TEST (cl.entries[curc].p_linear == (uint8_t) EXR_PERCEPTUALLY_LINEAR);
+        EXRCORE_TEST (cl.entries[curc].x_sampling == 1);
+        EXRCORE_TEST (cl.entries[curc].y_sampling == 2);
+    }
+    EXRCORE_TEST_RVAL (exr_attr_chlist_destroy (f, &cl));
 }
 
 void
