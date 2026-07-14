@@ -873,18 +873,21 @@ DwaCompressor_uncompress (
 
     if (unknownCompressedSize > 0)
     {
+        size_t actualUnknown;
+
         if (unknownUncompressedSize > me->_planarUncBufferSize[UNKNOWN])
         {
             return EXR_ERR_CORRUPT_CHUNK;
         }
 
-        if (EXR_ERR_SUCCESS != exr_uncompress_buffer (
-                                   me->_decode->context,
-                                   compressedUnknownBuf,
-                                   unknownCompressedSize,
-                                   me->_planarUncBuffer[UNKNOWN],
-                                   unknownUncompressedSize,
-                                   NULL))
+        rv = exr_uncompress_buffer (
+            me->_decode->context,
+            compressedUnknownBuf,
+            unknownCompressedSize,
+            me->_planarUncBuffer[UNKNOWN],
+            unknownUncompressedSize,
+            &actualUnknown);
+        if (rv != EXR_ERR_SUCCESS || actualUnknown != unknownUncompressedSize)
         {
             return EXR_ERR_CORRUPT_CHUNK;
         }
