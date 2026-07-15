@@ -13,7 +13,7 @@ explains our contribution process and procedures:
 * [Versioning Policy](#Versioning-Policy)
 * [Contributing to the Website](#Contributing-to-the-Website)
 * [Creating a Patch Release](#Creating-a-Patch-Release)
-* [Creating a Major/Minor Release](#Creating-a-Major/Minor-Release)
+* [Creating a Major/Minor Release](#creating-a-majorminor-release)
 
 For a description of the roles and responsibilities of the various
 members of the OpenEXR community, see [GOVERNANCE](GOVERNANCE.md), and
@@ -241,7 +241,7 @@ who may discuss, offer constructive feedback, request changes, or approve
 the work.
 
 6. Upon receiving the required number of committer approvals (as
-outlined in [Required Approvals](#required-approvals)), a committer
+outlined in [Required Approvals](#code-review-and-required-approvals)), a committer
 other than the PR contributor may merge changes into the ``main``
 branch.
 
@@ -479,7 +479,7 @@ target. Generation is off by default.
 Building the website requires that ``sphinx``, ``breathe``, and
 ``doxygen`` are installed. It further requires the [sphinx-press-theme]
 (https://pypi.org/project/sphinx-press-theme). Complete dependencies
-are described in the [requirements.txt](website/requirements.txtg)
+are described in the [requirements.txt](website/requirements.txt)
 file.
 
 On Debian/Ubuntu Linux:
