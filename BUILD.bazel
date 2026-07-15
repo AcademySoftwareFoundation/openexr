@@ -203,6 +203,7 @@ cc_library(
         "src/lib/OpenEXRCore/internal_ht_common.h",
         "src/lib/OpenEXRCore/internal_huf.c",
         "src/lib/OpenEXRCore/internal_huf.h",
+        "src/lib/OpenEXRCore/internal_legacy_structs.h",
         "src/lib/OpenEXRCore/internal_memory.h",
         "src/lib/OpenEXRCore/internal_opaque.h",
         "src/lib/OpenEXRCore/internal_piz.c",
