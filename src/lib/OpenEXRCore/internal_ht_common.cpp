@@ -180,9 +180,10 @@ make_channel_map (
         suffix             = suffix ? suffix + 1 : name;
 
         cs_to_file_ch[cs_i].kind =
-            (areEqual (suffix, "r") || areEqual (suffix, "g") ||
-             areEqual (suffix, "b") || areEqual (suffix, "red") ||
-             areEqual (suffix, "green") || areEqual (suffix, "blue"))
+            (areEqual (suffix, "r") || areEqual (suffix, "g") || areEqual (suffix, "b") ||
+             areEqual (suffix, "red") || areEqual (suffix, "green") || areEqual (suffix, "blue") ||
+             areEqual (suffix, "grn") || areEqual (suffix, "blu") ||
+             areEqual (suffix, "y") || areEqual (suffix, "ry") || areEqual (suffix, "by"))
                 ? visual
                 : data;
     }
