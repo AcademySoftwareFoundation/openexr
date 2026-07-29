@@ -830,6 +830,47 @@ internal_exr_validate_shared_attrs (exr_context_t ctxt,
     if (rv != EXR_ERR_SUCCESS)
         mismatchattr[misidx++] = "chromaticities";
 
+    /*
+     * colorInteropID only needs to be set on the first part; later parts
+     * may omit it (inheriting the first part's color space) or set it to
+     * "data" to mark images that should not be color managed. Any other
+     * value on a later part that differs from the first part's is a
+     * mismatch.
+     */
+    rv  = exr_get_attribute_by_name (ctxt, 0, "colorInteropID", &battr);
+    rv1 = exr_get_attribute_by_name (ctxt, curpartidx, "colorInteropID", &cattr);
+    if (EXR_ERR_SUCCESS == rv1)
+    {
+        if (cattr->type != EXR_ATTR_STRING)
+        {
+            rv = EXR_ERR_ATTR_TYPE_MISMATCH;
+        }
+        else if (
+            cattr->string->length == 4 &&
+            0 == memcmp (cattr->string->str, "data", 4))
+        {
+            rv = EXR_ERR_SUCCESS;
+        }
+        else if (
+            EXR_ERR_SUCCESS == rv && battr->type == EXR_ATTR_STRING &&
+            battr->string->length == cattr->string->length &&
+            0 == memcmp (
+                     battr->string->str,
+                     cattr->string->str,
+                     (size_t) cattr->string->length))
+        {
+            rv = EXR_ERR_SUCCESS;
+        }
+        else
+        {
+            rv = EXR_ERR_ATTR_TYPE_MISMATCH;
+        }
+    }
+    else
+        rv = EXR_ERR_SUCCESS; // this part has none, inherits from part 0
+    if (rv != EXR_ERR_SUCCESS)
+        mismatchattr[misidx++] = "colorInteropID";
+
     *mismatchcount = misidx;
     return misidx == 0 ? EXR_ERR_SUCCESS : EXR_ERR_ATTR_TYPE_MISMATCH;
 }

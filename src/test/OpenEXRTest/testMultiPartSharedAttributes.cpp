@@ -26,6 +26,7 @@
 #include "ImfOutputFile.h"
 #include "ImfOutputPart.h"
 #include "ImfPartType.h"
+#include "ImfStandardAttributes.h"
 #include "ImfTiledInputPart.h"
 #include "ImfTiledOutputFile.h"
 #include "ImfTiledOutputPart.h"
@@ -257,6 +258,71 @@ testChromaticities (const vector<Header>& hs, const std::string& fn)
 }
 
 void
+testColorInteropID (const vector<Header>& hs, const std::string& fn)
+{
+    vector<Header> headers (hs);
+
+    for (size_t i = 0; i < headers.size (); i++)
+        addColorInteropID (headers[i], "lin_ap1_scene");
+
+    //
+    // A later part with a colorInteropID that differs from the first
+    // part's, and is not "data", is a conflict.
+    //
+    {
+        Header newHeader (headers[0]);
+        newHeader.setName (headers[0].name () + string ("_newHeader"));
+        newHeader.channels ().insert ("Dummy", Channel ());
+        addColorInteropID (newHeader, "lin_rec709_scene");
+
+        vector<Header> conflictingHeaders (headers);
+        conflictingHeaders.push_back (newHeader);
+        testMultiPartOutputFileForExpectedFailure (
+            conflictingHeaders,
+            fn,
+            "Shared Attributes : colorInteropID : should fail for != values");
+    }
+
+    //
+    // A later part set to "data" is allowed, even though it differs
+    // from the first part's value.
+    //
+    {
+        Header dataHeader (headers[0]);
+        dataHeader.setName (headers[0].name () + string ("_dataHeader"));
+        dataHeader.channels ().insert ("Dummy", Channel ());
+        addColorInteropID (dataHeader, "data");
+
+        vector<Header> dataHeaders (headers);
+        dataHeaders.push_back (dataHeader);
+
+        remove (fn.c_str ());
+        MultiPartOutputFile file (
+            fn.c_str (), &dataHeaders[0], dataHeaders.size ());
+    }
+
+    //
+    // A later part that omits colorInteropID entirely inherits the
+    // first part's value and is also allowed.
+    //
+    {
+        Header noAttrHeader (headers[0]);
+        noAttrHeader.setName (headers[0].name () + string ("_noAttrHeader"));
+        noAttrHeader.channels ().insert ("Dummy", Channel ());
+        noAttrHeader.erase ("colorInteropID");
+
+        vector<Header> noAttrHeaders (headers);
+        noAttrHeaders.push_back (noAttrHeader);
+
+        remove (fn.c_str ());
+        MultiPartOutputFile file (
+            fn.c_str (), &noAttrHeaders[0], noAttrHeaders.size ());
+    }
+
+    return;
+}
+
+void
 testSharedAttributes (const std::string& fn)
 {
     //
@@ -265,6 +331,7 @@ testSharedAttributes (const std::string& fn)
     // Pixel Aspect Ratio
     // TimeCode
     // Chromaticities
+    // ColorInteropID
     //
 
     int            partCount = 3;
@@ -287,6 +354,7 @@ testSharedAttributes (const std::string& fn)
     testPixelAspectRatio (headers, fn);
     testTimeCode (headers, fn);
     testChromaticities (headers, fn);
+    testColorInteropID (headers, fn);
 }
 
 template <class T>

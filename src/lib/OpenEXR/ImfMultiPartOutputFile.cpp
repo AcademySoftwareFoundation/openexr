@@ -14,6 +14,7 @@
 #include "ImfOutputPartData.h"
 #include "ImfOutputStreamMutex.h"
 #include "ImfPartType.h"
+#include "ImfStandardAttributes.h"
 #include "ImfStdIO.h"
 #include "ImfThreading.h"
 #include "ImfTiledOutputFile.h"
@@ -377,6 +378,18 @@ MultiPartOutputFile::Data::overrideSharedAttributesValues (
         dst.insert ("chromaticities", *chromaticities);
     else
         dst.erase ("chromaticities");
+
+    //
+    // ColorInteropID -- leave a part's existing "data" tag alone, since
+    // it marks image data that is intentionally not color managed.
+    //
+    if (!hasColorInteropID (dst) || colorInteropID (dst) != "data")
+    {
+        if (hasColorInteropID (src))
+            addColorInteropID (dst, colorInteropID (src));
+        else
+            dst.erase ("colorInteropID");
+    }
 }
 
 bool
@@ -444,6 +457,23 @@ MultiPartOutputFile::Data::checkSharedAttributesValues (
             conflict = true;
             conflictingAttributes.push_back (
                 ChromaticitiesAttribute::staticTypeName ());
+        }
+    }
+
+    //
+    // ColorInteropID -- a part after the first may omit it (inheriting
+    // the first part's value), or set it to "data" to mark image data
+    // that should not be color managed. Any other value that differs
+    // from the first part's is a conflict.
+    //
+    if (hasColorInteropID (dst) && colorInteropID (dst) != "data")
+    {
+        if ((hasColorInteropID (src) &&
+             colorInteropID (src) != colorInteropID (dst)) ||
+            (!hasColorInteropID (src)))
+        {
+            conflict = true;
+            conflictingAttributes.push_back ("colorInteropID");
         }
     }
 

@@ -34,6 +34,13 @@ acesChromaticities ()
     return acesChr;
 }
 
+const std::string&
+acesColorInteropID ()
+{
+    static const std::string acesID = "lin_ap0_scene";
+    return acesID;
+}
+
 class AcesOutputFile::Data
 {
 public:
@@ -92,6 +99,7 @@ AcesOutputFile::AcesOutputFile (
     Header newHeader = header;
     addChromaticities (newHeader, acesChromaticities ());
     addAdoptedNeutral (newHeader, acesChromaticities ().white);
+    addColorInteropID (newHeader, acesColorInteropID ());
 
     _data->rgbaFile =
         new RgbaOutputFile (name.c_str (), newHeader, rgbaChannels, numThreads);
@@ -111,6 +119,7 @@ AcesOutputFile::AcesOutputFile (
     Header newHeader = header;
     addChromaticities (newHeader, acesChromaticities ());
     addAdoptedNeutral (newHeader, acesChromaticities ().white);
+    addColorInteropID (newHeader, acesColorInteropID ());
 
     _data->rgbaFile = new RgbaOutputFile (os, header, rgbaChannels, numThreads);
 
@@ -143,6 +152,7 @@ AcesOutputFile::AcesOutputFile (
 
     addChromaticities (newHeader, acesChromaticities ());
     addAdoptedNeutral (newHeader, acesChromaticities ().white);
+    addColorInteropID (newHeader, acesColorInteropID ());
 
     _data->rgbaFile =
         new RgbaOutputFile (name.c_str (), newHeader, rgbaChannels, numThreads);
@@ -176,6 +186,7 @@ AcesOutputFile::AcesOutputFile (
 
     addChromaticities (newHeader, acesChromaticities ());
     addAdoptedNeutral (newHeader, acesChromaticities ().white);
+    addColorInteropID (newHeader, acesColorInteropID ());
 
     _data->rgbaFile =
         new RgbaOutputFile (name.c_str (), newHeader, rgbaChannels, numThreads);
@@ -312,6 +323,8 @@ AcesInputFile::Data::~Data ()
 void
 AcesInputFile::Data::initColorConversion ()
 {
+    // TODO: Add support for colorInteropID.
+
     const Header& header = rgbaFile->header ();
 
     Chromaticities fileChr;

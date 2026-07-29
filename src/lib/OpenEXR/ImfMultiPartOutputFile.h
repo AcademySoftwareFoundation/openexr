@@ -21,8 +21,12 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 // * Pixel Aspect Ratio
 // * Time Code
 // * Chromaticities
+// * ColorInteropID
 // The first header forms the basis for the set of attributes that are shared
-// across the constituent parts.
+// across the constituent parts. A part after the first may omit
+// colorInteropID (inheriting the first part's value), or set it to "data"
+// to mark image data that should not be color managed; any other value
+// that differs from the first part's is a conflict.
 //
 // Parameters
 //  headers - pointer to array of headers; one for each part of the image file

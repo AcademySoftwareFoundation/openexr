@@ -70,6 +70,7 @@ attrs = [
     ["-adoptedNeutral", "1.1", "2.2"],
     ["-whiteLuminance", "17.1"],
     ["-chromaticities", "1", "2", "3", "4", "5", "6", "7", "8"],
+    ["-colorInteropID", "lin_ap1_scene"],
     ["-int", "test_int", "42"],
     ["-float", "test_float", "4.2"],
     ["-string", "test_string", "forty two"],
@@ -99,6 +100,7 @@ try:
     assert('channels: chlist 1 channels' in result.stdout)
     assert('\'Y\': half samp 1 1' in result.stdout)
     assert('chromaticities: chromaticities r[1, 2] g[3, 4] b[5, 6] w[7, 8]' in result.stdout)
+    assert('colorInteropID: string \'lin_ap1_scene\'' in result.stdout)
     assert('comments: string \'blah blah blah\'' in result.stdout)
     assert('compression: compression \'pxr24\' (0x05)' in result.stdout)
     assert('dataWindow: box2i [ 0, 0 - 799 799 ] 800 x 800' in result.stdout)

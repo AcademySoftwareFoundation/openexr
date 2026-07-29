@@ -6,6 +6,9 @@
 #ifndef INCLUDED_IMF_ACES_FILE_H
 #define INCLUDED_IMF_ACES_FILE_H
 
+// TODO: The text below needs to be updated to reflect the actual
+// SMPTE ST 2065-4 standard.
+
 //-----------------------------------------------------------------------------
 //
 //	ACES image file I/O.
@@ -66,6 +69,13 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 //
 
 const Chromaticities& acesChromaticities ();
+
+//
+// The colorInteropID value for ACES2065-1, per the
+// Color Interop Forum recommendation for OpenEXR files.
+//
+
+const std::string& acesColorInteropID ();
 
 //
 // ACES output file.
