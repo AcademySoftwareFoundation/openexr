@@ -706,6 +706,9 @@ namespace ojph {
         QFACTOR_UNSET = 0
       };
 
+      ////////////////////////////////////////
+      using comp_type = ojph::param_qcd::comp_type;
+
     public:
       param_qcd(param_qcd* top_qcd = NULL, ui16 comp_idx = OJPH_QCD_DEFAULT)
       { avail = NULL; init(top_qcd, comp_idx); }
@@ -722,11 +725,12 @@ namespace ojph {
       }
 
       void check_validity(const param_siz& siz, const param_cod& cod);
-      void make_quant_steps(ui32 comp_num, const param_cod &cod, const param_siz &siz);
-      bool is_qcc_needed(ui32 comp_num, const param_cod &cod, const param_siz &siz);
+      void make_quant_steps(ui32 comp_num, const param_cod &cod,
+                            const param_siz &siz);
+      bool is_qcc_needed(ui32 comp_num, const param_cod &cod,
+                         const param_siz &siz);
       void set_delta(float delta) { base_delta = delta; }
-      void set_delta(ui32 comp_idx, float delta);
-      void set_qfactor(ui32 comp_idx, ojph::param_qcd::comp_type ctype, ui8 qfactor);
+      void set_qfactor(ui8 qfactor);
       ui32 get_num_guard_bits() const;
       ui32 get_MAGB() const;
       ui32 get_Kmax(const param_dfs* dfs, ui32 num_decompositions,
@@ -740,6 +744,8 @@ namespace ojph {
       void read(infile_base *file);
       void read_qcc(infile_base *file, ui32 num_comps);
 
+      void set_delta(ui32 comp_idx, float delta);
+      void set_qfactor(ui32 comp_idx, comp_type ctype, ui8 qfactor);
       param_qcd* get_qcc(ui32 comp_idx);
       const param_qcd* get_qcc(ui32 comp_idx) const;
       param_qcd* add_qcc_object(ui32 comp_idx);
@@ -757,7 +763,7 @@ namespace ojph {
         num_subbands = 0;
         base_delta = -1.0f;
         qfactor = QFACTOR_UNSET;
-        ctype = ojph::param_qcd::OJPH_COMP_Y;
+        ctype = comp_type::OJPH_COMP_Y;
         sampling = ojph::point(1, 1);
         enabled = true;
         next = NULL;
@@ -780,6 +786,7 @@ namespace ojph {
       void set_rev_quant(ui32 num_decomps, ui32 bit_depth,
                          bool is_employing_color_transform);
       void set_irrev_quant(ui32 num_decomps);
+      void encode_SPqcd(ui32 subband_index, float delta);
       ui32 get_largest_Kmax() const;
       bool internal_write_qcc(outfile_base *file, ui32 num_comps);
       void trim_non_existing_components(ui32 num_comps);
@@ -808,7 +815,7 @@ namespace ojph {
       float base_delta;   // base quantization step size -- all other
                           // step sizes are derived from it.
       ui8 qfactor;
-      ojph::param_qcd::comp_type ctype;
+      comp_type ctype;
       bool is_color_trans;
       ui32 num_decomps;
       ui32 bit_depth;

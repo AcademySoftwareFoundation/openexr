@@ -622,10 +622,10 @@ namespace ojph {
       v128_t offset, val, validity, all_xff;
       val = vsx_v128_load(msp->data);
       int bytes = msp->size >= 16 ? 16 : msp->size;
-      validity = vsx_i8x16_splat((char)bytes);
+      validity = vsx_i8x16_splat((signed char)bytes);
       msp->data += bytes;
       msp->size -= bytes;
-      ui32 bits = 128;
+      int bits = 128;
       offset = vsx_i64x2_const(0x0706050403020100,0x0F0E0D0C0B0A0908);
       validity = vsx_i8x16_gt(validity, offset);
       all_xff = vsx_i8x16_const(OJPH_REPEAT16(-1));
@@ -642,7 +642,7 @@ namespace ojph {
       v128_t ff_bytes;
       ff_bytes = vsx_i8x16_eq(val, all_xff);
       ff_bytes = vsx_v128_and(ff_bytes, validity);
-      ui32 flags = vsx_i8x16_bitmask(ff_bytes);
+      ui32 flags = (ui32)vsx_i8x16_bitmask(ff_bytes);
       flags <<= 1; // unstuff following byte
       ui32 next_unstuff = flags >> 16;
       flags |= msp->unstuff;
@@ -657,7 +657,7 @@ namespace ojph {
         flags ^= 1 << loc;
 
         v128_t m, t, c;
-        t = vsx_i8x16_splat((char)loc);
+        t = vsx_i8x16_splat((signed char)loc);
         m = vsx_i8x16_gt(offset, t);
 
         t = vsx_v128_and(m, val);    // keep bits at locations larger than loc
@@ -672,25 +672,25 @@ namespace ojph {
       // combine with earlier data
       assert(msp->bits >= 0 && msp->bits <= 128);
       int cur_bytes = msp->bits >> 3;
-      ui32 cur_bits = msp->bits & 7;
+      int cur_bits = (int)(msp->bits & 7);
       v128_t b1, b2;
       b1 = vsx_i64x2_shl(val, cur_bits);
       //next shift 8 bytes right
       b2 = vsx_i64x2_shuffle(vsx_i64x2_const(0, 0), val, 1, 2);
-      b2 = vsx_u64x2_shr(b2, 64u - cur_bits);
+      b2 = vsx_u64x2_shr(b2, 64 - cur_bits);
       b2 = (cur_bits > 0) ? b2 : vsx_i64x2_const(0, 0);
       b1 = vsx_v128_or(b1, b2);
       b2 = vsx_v128_load(msp->tmp + cur_bytes);
       b2 = vsx_v128_or(b1, b2);
       vsx_v128_store(msp->tmp + cur_bytes, b2);
 
-      ui32 consumed_bits = bits < 128u - cur_bits ? bits : 128u - cur_bits;
+      ui32 consumed_bits = (ui32)(bits < 128-cur_bits ? bits : 128-cur_bits);
       cur_bytes = (msp->bits + consumed_bits + 7) >> 3; // round up
       int upper = vsx_u16x8_extract_lane(val, 7);
       upper >>= consumed_bits + 16 - 128;
       msp->tmp[cur_bytes] = (ui8)upper; // copy byte
 
-      msp->bits += bits;
+      msp->bits += (ui32)bits;
       msp->unstuff = next_unstuff;   // next unstuff
       assert(msp->unstuff == 0 || msp->unstuff == 1);
     }
@@ -740,21 +740,21 @@ namespace ojph {
       v1 = vsx_v128_load(p + 1);
 
       // shift right by num_bits
-      c0 = vsx_u64x2_shr(v0, num_bits);
+      c0 = vsx_u64x2_shr(v0, (int)num_bits);
       t = vsx_i64x2_shuffle(v0, vsx_i64x2_const(0, 0), 1, 2);
-      t = vsx_i64x2_shl(t, 64 - num_bits);
+      t = vsx_i64x2_shl(t, 64 - (int)num_bits);
       t = (num_bits > 0) ? t : vsx_i64x2_const(0, 0);
       c0 = vsx_v128_or(c0, t);
       t = vsx_i64x2_shuffle(vsx_i64x2_const(0, 0), v1, 1, 2);
-      t = vsx_i64x2_shl(t, 64 - num_bits);
+      t = vsx_i64x2_shl(t, 64 - (int)num_bits);
       t = (num_bits > 0) ? t : vsx_i64x2_const(0, 0);
       c0 = vsx_v128_or(c0, t);
 
       vsx_v128_store(msp->tmp, c0);
 
-      c1 = vsx_u64x2_shr(v1, num_bits);
+      c1 = vsx_u64x2_shr(v1, (int)num_bits);
       t = vsx_i64x2_shuffle(v1, vsx_i64x2_const(0, 0), 1, 2);
-      t = vsx_i64x2_shl(t, 64 - num_bits);
+      t = vsx_i64x2_shl(t, 64 - (int)num_bits);
       t = (num_bits > 0) ? t : vsx_i64x2_const(0, 0);
       c1 = vsx_v128_or(c1, t);
 
@@ -971,7 +971,7 @@ namespace ojph {
         v128_t twos = vsx_i32x4_const(OJPH_REPEAT4(2));
         ui32 U_q_m1 = vsx_u32x4_extract_lane(U_q, 0) - 1u;
         w0 = vsx_i32x4_sub(twos, w0);
-        shift = vsx_i32x4_shl(w0, U_q_m1);
+        shift = vsx_i32x4_shl(w0, (int)U_q_m1);
         ms_vec = vsx_v128_and(d0, vsx_i32x4_sub(shift, ones));
 
         // next e_1
@@ -983,7 +983,7 @@ namespace ojph {
         ms_vec = vsx_v128_or(ms_vec, ones); // bin center
         v128_t tvn = ms_vec;
         ms_vec = vsx_i32x4_add(ms_vec, twos);// + 2
-        ms_vec = vsx_i32x4_shl(ms_vec, p - 1);
+        ms_vec = vsx_i32x4_shl(ms_vec, (int)p - 1);
         ms_vec = vsx_v128_or(ms_vec, w0); // sign
         row = vsx_v128_andnot(ms_vec, insig); // significant only
 
@@ -1102,8 +1102,8 @@ namespace ojph {
         w0 = vsx_i16x8_sub(twos, w0);
         t0 = vsx_v128_and(w0, vsx_i64x2_const(-1, 0));
         t1 = vsx_v128_and(w0, vsx_i64x2_const(0, -1));
-        t0 = vsx_i32x4_shl(t0, Uq0);
-        t1 = vsx_i32x4_shl(t1, Uq1);
+        t0 = vsx_i32x4_shl(t0, (int)Uq0);
+        t1 = vsx_i32x4_shl(t1, (int)Uq1);
         shift = vsx_v128_or(t0, t1);
         ms_vec = vsx_v128_and(d0, vsx_i16x8_sub(shift, ones));
 
@@ -1116,7 +1116,7 @@ namespace ojph {
         ms_vec = vsx_v128_or(ms_vec, ones); // bin center
         v128_t tvn = ms_vec;
         ms_vec = vsx_i16x8_add(ms_vec, twos);// + 2
-        ms_vec = vsx_i16x8_shl(ms_vec, p - 1);
+        ms_vec = vsx_i16x8_shl(ms_vec, (int)p - 1);
         ms_vec = vsx_v128_or(ms_vec, w0); // sign
         row = vsx_v128_andnot(ms_vec, insig); // significant only
 
@@ -1541,7 +1541,7 @@ namespace ojph {
               U_q = vsx_u32x4_shr(inf_u_q, 16);
 
               w0 = vsx_i32x4_gt(U_q, vsx_u32x4_splat(mmsbp2));
-              ui32 i = vsx_i8x16_bitmask(w0);
+              ui32 i = (ui32)vsx_i8x16_bitmask(w0);
               if (i & 0xFF) // only the lower two U_q
                 return false;
             }
@@ -1637,7 +1637,7 @@ namespace ojph {
               U_q = vsx_i32x4_add(u_q, kappa);
 
               w0 = vsx_i32x4_gt(U_q, vsx_u32x4_splat(mmsbp2));
-              ui32 i = vsx_i8x16_bitmask(w0);
+              ui32 i = (ui32)vsx_i8x16_bitmask(w0);
               if (i & 0xFF) // only the lower two U_q
                 return false;
             }
@@ -1699,7 +1699,7 @@ namespace ojph {
               U_q = vsx_u32x4_shr(inf_u_q, 16);
 
               w0 = vsx_i32x4_gt(U_q, vsx_u32x4_splat(mmsbp2));
-              ui32 i = vsx_i8x16_bitmask(w0);
+              ui32 i = (ui32)vsx_i8x16_bitmask(w0);
               if (i & 0xFF) // only the lower two U_q
                 return false;
             }
@@ -1794,7 +1794,7 @@ namespace ojph {
               U_q = vsx_i32x4_add(u_q, kappa);
 
               w0 = vsx_i32x4_gt(U_q, vsx_u32x4_splat(mmsbp2));
-              ui32 i = vsx_i8x16_bitmask(w0);
+              ui32 i = (ui32)vsx_i8x16_bitmask(w0);
               if (i & 0xFF) // only the lower two U_q
                 return false;
             }
@@ -2204,7 +2204,7 @@ namespace ojph {
                   // keep data from significant samples only
                   s0_val = vsx_v128_andnot(s0_val, s0_sig);
                   // move mrp bits to correct position, and employ
-                  s0_val = vsx_i32x4_shl(s0_val, p - 2);
+                  s0_val = vsx_i32x4_shl(s0_val, (int)p - 2);
                   s0 = vsx_v128_xor(s0, s0_val);
                   // store coefficients
                   vsx_v128_store(dp, s0);

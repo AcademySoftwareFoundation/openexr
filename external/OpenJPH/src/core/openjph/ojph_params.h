@@ -169,11 +169,19 @@ namespace ojph {
   class OJPH_EXPORT param_qcd
   {
   public:
-    enum comp_type : ui8 {
-      OJPH_COMP_Y,
-      OJPH_COMP_CB,
-      OJPH_COMP_CR
+    enum comp_type : ui8 { // Note the numbers are used by the code
+      OJPH_COMP_Y         = 0,
+      OJPH_COMP_CB        = 1,
+      OJPH_COMP_CR        = 2,
+      OJPH_COMP_UNDEFINED = 0xFF
     };
+    static comp_type ui8_2_comp_type(ui8 c)
+    {
+      if (c >= OJPH_COMP_Y && c <= OJPH_COMP_CR)
+        return static_cast<comp_type>(c);
+      else
+        return OJPH_COMP_UNDEFINED;
+    }
 
     param_qcd(local::param_qcd* p) : state(p) {}
 
@@ -186,6 +194,26 @@ namespace ojph {
      * @param delta
      */
     void set_irrev_quant(float delta);
+
+    /**
+     * @brief Sets Qfactor
+     *
+     * This is a top level Qfactor; it will automatically set the qfactor;
+     * if you have one or two channels they will be set to luminance
+     * (or Y) visual weighting. If you have three or more, the first three
+     * will be set to Y, Cb, Cr; channels 4 onwards will be set to luminance.
+     * If that does not match the desired behaviour; then do not set the
+     * top level qfactor, but set the Qfactor for individual channels
+     * according to desired visual weighting type, using
+     * set_qfactor(ui32 comp_idx, comp_type ctype, ui8 qfactor);
+     *
+     * Note that setting Qfactor takes precedence over setting an
+     * irreversible quantization base delta.
+     *
+     * @param qfactor Compression quality as an integer between
+     *                1 (worst quality) and 100 (best quality)
+     */
+    void set_qfactor(ui8 qfactor);
 
     /**
      * @brief Set the irreversible quantization base delta for a specific
@@ -203,11 +231,14 @@ namespace ojph {
     /**
      * @brief Sets Qfactor for a specific component.
      *
-     * Setting Qfactor takes precedence over setting an irreversible quantization base delta
+     * Setting Qfactor takes precedence over setting an irreversible
+     * quantization base delta
      *
      * @param comp_idx Component index
-     * @param ctype Indicates whether the component is a Y, Cb or Cr channel, after the ICT if present
-     * @param qfactor Compression quality as an integer between 1 (worst quality) and 100 (best quality)
+     * @param ctype Indicates whether the component is a Y, Cb or Cr channel,
+     *              after the ICT if present
+     * @param qfactor Compression quality as an integer between
+     *                1 (worst quality) and 100 (best quality)
      */
     void set_qfactor(ui32 comp_idx, comp_type ctype, ui8 qfactor);
 

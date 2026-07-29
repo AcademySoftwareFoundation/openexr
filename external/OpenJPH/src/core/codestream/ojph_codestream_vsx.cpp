@@ -81,7 +81,7 @@ namespace ojph {
       ojph_unused(delta_inv);
 
       // convert to sign and magnitude and keep max_val
-      ui32 shift = 31 - K_max;
+      int shift = 31 - (int)K_max;
       v128_t m0 = vsx_i32x4_splat(INT_MIN);
       v128_t zero = vsx_i32x4_splat(0);
       v128_t one = vsx_i32x4_splat(1);
@@ -177,7 +177,7 @@ namespace ojph {
                                float delta, ui32 count)
     {
       ojph_unused(delta);
-      ui32 shift = 31 - K_max;
+      int shift = 31 - (int)K_max;
       v128_t m1 = vsx_i32x4_splat(INT_MAX);
       v128_t zero = vsx_i32x4_splat(0);
       v128_t one = vsx_i32x4_splat(1);
@@ -222,7 +222,7 @@ namespace ojph {
       ojph_unused(delta_inv);
 
       // convert to sign and magnitude and keep max_val
-      ui32 shift = 63 - K_max;
+      int shift = 63 - (int)K_max;
       v128_t m0 = vsx_i64x2_splat(LLONG_MIN);
       v128_t zero = vsx_i64x2_splat(0);
       v128_t one = vsx_i64x2_splat(1);
@@ -267,7 +267,7 @@ namespace ojph {
                                float delta, ui32 count)
     {
       ojph_unused(delta);
-      ui32 shift = 63 - K_max;
+      int shift = 63 - (int)K_max;
       v128_t m1 = vsx_i64x2_splat(LLONG_MAX);
       v128_t zero = vsx_i64x2_splat(0);
       v128_t one = vsx_i64x2_splat(1);
