@@ -197,7 +197,7 @@ PyFile::PyFile(const std::string& filename, bool separate_channels, bool header_
             std::vector<size_t> shape ({height, width});
 
             if (!separate_channels)
-                P.validateCoalescedChannelTypes (header.channels (), rgbaChannels);
+                P.validateCoalescedChannels (header.channels (), rgbaChannels);
 
             //
             // Read the channel data, different for image vs. deep
@@ -240,7 +240,7 @@ PyPart::readPixels(MultiPartInputFile& infile, const ChannelList& channel_list,
                    const Box2i& dw, bool separate_channels)
 {
     if (!separate_channels)
-        validateCoalescedChannelTypes (channel_list, rgbaChannels);
+        validateCoalescedChannels (channel_list, rgbaChannels);
 
     FrameBuffer frameBuffer;
 
@@ -493,7 +493,7 @@ PyPart::readDeepPixels(MultiPartInputFile& infile, const std::string& type, cons
                        const Box2i& dw, bool separate_channels)
 {
     if (!separate_channels)
-        validateCoalescedChannelTypes (channel_list, rgbaChannels);
+        validateCoalescedChannels (channel_list, rgbaChannels);
 
     size_t width  = dw.max.x - dw.min.x + 1;
     size_t height = dw.max.y - dw.min.y + 1;
@@ -947,18 +947,20 @@ pixelTypeName (PixelType type)
 } // namespace
 
 //
-// Only combine RGB(A) channels into a single numpy array when they all have
-// the same pixel type. For example, if red is HALF and green is FLOAT, an
-// attempt to return an RGB pixel array will throw an exception.
+// Only combine RGB(A) channels into a single numpy array when coalescing is
+// unambiguous: all channels in a group must share the same pixel type, and no
+// literal channel name may collide with a coalesced group key (for example,
+// literal "left" plus "left.R", "left.G", "left.B", each of which would
+// attempt to add a channel dictionary entry with key "left"). 
 //
-// Note that attempting to combine mixed-type channels causes a failure of
+// Note that attempting to coalesce invalid channel layouts causes a failure of
 // the entire file read, whereas other read errors simply skip the offending
 // part. This is reasonable behavior since the condition is not a defect in
 // the data itself, but simply an inability to return the data in the format
 // the user requested.
 
 void
-PyPart::validateCoalescedChannelTypes (
+PyPart::validateCoalescedChannels (
     const ChannelList&           channel_list,
     const std::set<std::string>& rgbaChannels) const
 {
@@ -966,6 +968,7 @@ PyPart::validateCoalescedChannelTypes (
         return;
 
     std::map<std::string, PixelType> groupType;
+    std::set<std::string>            coalescedKeys;
 
     for (auto c = channel_list.begin (); c != channel_list.end (); ++c)
     {
@@ -983,6 +986,8 @@ PyPart::validateCoalescedChannelTypes (
         if (channelNameToRGBA (channel_list, c.name (), py_channel_name, channel_name) <= 0)
             continue;
 
+        coalescedKeys.insert (py_channel_name);
+
         const PixelType channelType = c.channel ().type;
         auto            it          = groupType.find (py_channel_name);
         if (it == groupType.end ())
@@ -994,6 +999,22 @@ PyPart::validateCoalescedChannelTypes (
                 << "\": channel \"" << c.name () << "\" has pixel type "
                 << pixelTypeName (channelType) << " but other channels in the group "
                 << "have pixel type " << pixelTypeName (it->second)
+                << "; use separate_channels=True";
+            throw std::invalid_argument (err.str ());
+        }
+    }
+
+    for (auto c = channel_list.begin (); c != channel_list.end (); ++c)
+    {
+        if (rgbaChannels.find (c.name ()) != rgbaChannels.end ())
+            continue;
+
+        if (coalescedKeys.find (c.name ()) != coalescedKeys.end ())
+        {
+            std::stringstream err;
+            err << "cannot coalesce channels into \"" << c.name ()
+                << "\": channel \"" << c.name ()
+                << "\" collides with a coalesced RGB/RGBA group key"
                 << "; use separate_channels=True";
             throw std::invalid_argument (err.str ());
         }
