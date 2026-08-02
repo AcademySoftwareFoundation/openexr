@@ -45,7 +45,8 @@ writeRead (
     const Array2D<half>& h2out,
     const char           fileName[],
     int                  width,
-    int                  height)
+    int                  height,
+    bool                 manyC)
 {
     //
     // Write an image file with three channels, H1, H2 and H3.
@@ -78,6 +79,17 @@ writeRead (
             1,    // xSampling
             1)    // ySampling
     );
+    if (manyC)
+    {
+        for ( int curc = 0; curc < 132; ++curc )
+        {
+            char cname[32];
+            snprintf (cname, 32, "c%03d", curc);
+            hdr.channels ().insert (
+                cname,
+                Channel (HALF, 1, 1));
+        }
+    }
 
     {
         FrameBuffer fb;
@@ -104,7 +116,10 @@ writeRead (
                 1)                            // ySampling
         );
 
-        cout << "writing" << flush;
+        if (manyC)
+            cout << "Many Channels: writing" << flush;
+        else
+            cout << "Values: writing" << flush;
 
         remove (fileName);
         OutputFile out (fileName, hdr);
@@ -213,6 +228,41 @@ writeRead (
                 assert (h4in[y][x] == 3.0);
             }
         }
+
+        if (manyC)
+        {
+            for ( int curc = 0; curc < 132; ++curc )
+            {
+                char cname[32];
+                snprintf (cname, 32, "c%03d", curc);
+
+                cout << " " << curc << flush;
+                Array2D<half> testcin (h, w);
+
+                FrameBuffer fb;
+
+                /* if the channel isn't there, will fill with 3 but we should have 0 */
+                fb.insert (
+                    cname, // name
+                    Slice (
+                        HALF,                    // type
+                        (char*) &testcin[-dy][-dx], // base
+                        sizeof (testcin[0][0]),     // xStride
+                        sizeof (testcin[0][0]) * w, // yStride
+                        1, 1, 3.0)
+                           );
+
+                in.setFrameBuffer (fb);
+                in.readPixels (dw.min.y, dw.max.y);
+                for (int y = 0; y < h; ++y)
+                {
+                    for (int x = 0; x < w; ++x)
+                    {
+                        assert (testcin[y][x] == 0.0);
+                    }
+                }
+            }
+        }
     }
 
     remove (fileName);
@@ -306,7 +356,8 @@ testChannels (const std::string& tempDir)
 
         std::string filename = tempDir + "imf_test_channels.exr";
 
-        writeRead (ph1, ph2, filename.c_str (), W, H);
+        writeRead (ph1, ph2, filename.c_str (), W, H, false);
+        writeRead (ph1, ph2, filename.c_str (), W, H, true);
 
         cout << "ok\n" << endl;
     }
