@@ -142,7 +142,7 @@ class PyPart
     int            channelNameToRGBA(const ChannelList& channel_list, const std::string& name,
                                      std::string& py_channel_name, char& channel_name) const;
 
-    void           validateCoalescedChannelTypes(
+    void           validateCoalescedChannels(
         const ChannelList&           channel_list,
         const std::set<std::string>& rgbaChannels) const;
 
