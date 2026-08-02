@@ -688,7 +688,7 @@ DwaCompressor_compress (DwaCompressor* me)
 
 /**************************************/
 
-exr_result_t
+static exr_result_t
 validate_size(DwaCompressor* me, CompressorScheme compression,
               uint64_t compressedSize, uint64_t uncompressedSize,
               uint64_t extraSize)
@@ -697,7 +697,17 @@ validate_size(DwaCompressor* me, CompressorScheme compression,
     for (int c = 0; c < me->_numChannels; ++c)
     {
         if (me->_channelData[c].compression == compression)
-            requiredSize += (uint64_t) me->_channelData[c].planarUncSize;
+        {
+            uint64_t chanSize = (uint64_t) me->_channelData[c].planarUncSize;
+
+            /* guard against wraparound when accumulating attacker-influenced
+             * per-channel sizes; a wrap would understate requiredSize and
+             * defeat the validation below */
+            if (chanSize > UINT64_MAX - requiredSize)
+                return EXR_ERR_CORRUPT_CHUNK;
+
+            requiredSize += chanSize;
+        }
     }
 
     if (requiredSize > 0)
