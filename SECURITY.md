@@ -18,27 +18,46 @@ rapidly and post patches within 14 days if possible.
 
 ## CVE Assignment
 
-We request a CVE when an untrusted party can plausibly trigger the flaw
-through normal product inputs (for example, a crafted EXR or other data
-the application is meant to process); otherwise we treat it as a regular
-bugfix, document it in a GitHub security advisory or release notes when
-helpful, and do not request a CVE for API-only or caller-controlled
-failures with no realistic adversarial path.
+Our criteria for requesting a CVE are:
+
+- Memory safety violations (out-of-bounds write, use-after-free, heap
+  corruption) reachable on mainstream 64-bit architectures through the
+  public library API, confirmed in an unsanitized build on a mainstream
+  platform, and affecting library code so that every downstream consumer
+  inherits the risk.
+
+We do not request a CVE for:
+
+- 32-bit-only bugs — bugs on 32-bit systems are real and will be fixed,
+  but since the vast majority of downstream packages (Linux distros,
+  conda-forge, vcpkg) build for 64-bit exclusively, a CVE creates
+  unnecessary work for maintainers who are not actually affected.
+
+- Developer-tool-only crashes (exrmetrics, exrcheck) — the library
+  itself and standard utility programs are safe; only users who run
+  one of the developer tools on untrusted input are exposed.
 
 Flaws whose root cause lies in a bundled dependency (such as OpenJPH)
 are fixed upstream; the upstream project owns the CVE when one is
-warranted.  Note that this applies even when a flaw is detected in
-dependency code vendored into OpenEXR's `external/` source directory.
-OpenEXR addresses them by updating the dependency and noting the
-upstream advisory in release notes. We request a CVE for OpenEXR
-itself only when the flaw is in our code and untrusted input can reach
-it through normal use of the library.
+warranted. This applies even when a flaw is detected in dependency code
+vendored into OpenEXR's `external/` source directory. OpenEXR addresses
+such flaws by updating the dependency and noting the upstream advisory
+in the release notes. We request a CVE for OpenEXR itself only when the
+flaw is in our code and untrusted input can reach it through normal use
+of the library.
 
 ## Known Vulnerabilities
 
 | CVE | Affected Versions | Patched Versions |
 | --- | ----------------- | ---------------- |
 
+| [CVE-2026-55373](https://www.cve.org/CVERecord?id=CVE-2026-55373) | 2.x, 3.0.x, 3.1.x, 3.2.0–3.2.9, 3.3.0–3.3.11, 3.4.0–3.4.12 | 3.2.10, 3.3.12, 3.4.13 |
+| [CVE-2026-55371](https://www.cve.org/CVERecord?id=CVE-2026-55371) | 3.4.0–3.4.12 | 3.4.13 |
+| [CVE-2026-55059](https://www.cve.org/CVERecord?id=CVE-2026-55059) | 2.x, 3.0.x, 3.1.x, 3.2.0–3.2.9, 3.3.0–3.3.11, 3.4.0–3.4.12 | 3.2.10, 3.3.12, 3.4.13 |
+| [CVE-2026-54920](https://www.cve.org/CVERecord?id=CVE-2026-54920) | 2.x, 3.0.x, 3.1.x, 3.2.0–3.2.9, 3.3.0–3.3.11, 3.4.0–3.4.12 | 3.2.10, 3.3.12, 3.4.13 |
+| [CVE-2026-53532](https://www.cve.org/CVERecord?id=CVE-2026-53532) | 3.4.0–3.4.12 | 3.4.13 |
+| [CVE-2026-45696](https://www.cve.org/CVERecord?id=CVE-2026-45696) | 3.4.0–3.4.11 | 3.4.12 |
+| [CVE-2026-44663](https://www.cve.org/CVERecord?id=CVE-2026-44663) | 3.4.0–3.4.11 | 3.4.12 |
 | [CVE-2026-42217](https://www.cve.org/CVERecord?id=CVE-2026-42217) | 3.2.0–3.2.8, 3.3.0–3.3.10, 3.4.0–3.4.10 | 3.2.9, 3.3.11, 3.4.11 |
 | [CVE-2026-42216](https://www.cve.org/CVERecord?id=CVE-2026-42216) | 3.2.0–3.2.8, 3.3.0–3.3.10, 3.4.0–3.4.10 | 3.2.9, 3.3.11, 3.4.11 |
 | [CVE-2026-41142](https://www.cve.org/CVERecord?id=CVE-2026-41142) | 3.2.0–3.2.8, 3.3.0–3.3.10, 3.4.0–3.4.10 | 3.2.9, 3.3.11, 3.4.11 |

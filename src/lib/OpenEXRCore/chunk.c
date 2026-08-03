@@ -1006,7 +1006,7 @@ exr_read_scanline_chunk_info (
         if (rv != EXR_ERR_SUCCESS) { return rv; }
         priv_to_native64 (ddata, 3);
 
-        if (ddata[0] < 0)
+        if (ddata[0] < 0 || ddata[0] > (int64_t) INT_MAX)
         {
             return ctxt->print_error (
                 ctxt,
@@ -1120,6 +1120,17 @@ exr_read_scanline_chunk_info (
     if (cinfo->packed_size == 0 && cinfo->unpacked_size > 0)
         return ctxt->report_error (
             ctxt, EXR_ERR_INVALID_ARGUMENT, "Invalid packed size of 0");
+
+    if (part->comp_type == EXR_COMPRESSION_NONE &&
+        cinfo->packed_size != cinfo->unpacked_size)
+    {
+        return ctxt->print_error (
+            ctxt,
+            EXR_ERR_BAD_CHUNK_LEADER,
+            "Mismatch between unpacked and packed size with uncompressed data: packed is %" PRIu64 "; unpacked is %" PRIu64,
+            cinfo->packed_size, cinfo->unpacked_size);
+    }
+
     return EXR_ERR_SUCCESS;
 }
 
