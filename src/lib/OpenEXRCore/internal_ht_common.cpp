@@ -305,7 +305,7 @@ read_header (
         throw std::runtime_error (
             "HTJ2K chunk header length is larger than the chunk size.");
 
-    map.resize (header.pull_uint16 (), {-1, 0, 0});
+    map.resize (header.pull_uint16 (), {visual, -1, 0, 0});
     for (size_t i = 0; i < map.size (); i++)
     {
         uint16_t file_index = header.pull_uint16 ();
