@@ -14,9 +14,10 @@
  *  file channel index and its byte offset within a packed raster line. */
 struct CodestreamChannelInfo
 {
-    int    file_index;
-    size_t raster_line_offset;
-    int    scratch; // used when reading from a file
+    J2KChannelKind kind;
+    int            file_index;
+    size_t         raster_line_offset;
+    int            scratch; // used when reading from a file
 };
 
 /** Build a codestream-to-file channel map for @p channel_count OpenEXR
