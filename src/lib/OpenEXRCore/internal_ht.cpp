@@ -270,9 +270,16 @@ ht_undo_impl (
 
             uint8_t* line_pixels = static_cast<uint8_t*> (uncompressed_data);
 
-            for (int64_t y = decode->chunk.start_y;
-                 y < image_height + decode->chunk.start_y;
-                 y++)
+            /* image_height is an unsigned OpenJPH type; compute the loop
+             * bounds in a signed 64-bit type so that a negative start_y
+             * (from a negative data-window Y origin) does not get
+             * promoted to unsigned and wrap the end condition to a huge
+             * positive value, which would cause the loop to run far past
+             * the declared image data (CWE-190 / CWE-835). */
+            const int64_t start_y = static_cast<int64_t> (decode->chunk.start_y);
+            const int64_t end_y   = start_y + static_cast<int64_t> (image_height);
+
+            for (int64_t y = start_y; y < end_y; y++)
             {
                 for (int16_t line_c = 0; line_c < decode->channel_count;
                      line_c++)
