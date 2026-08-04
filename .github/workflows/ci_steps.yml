@@ -147,13 +147,14 @@ jobs:
         if: inputs.msystem != ''
         run: |
           PACKAGES="cc:p cmake:p"
-          if [ "${{ inputs.OPENEXR_FORCE_INTERNAL_IMATH }}" == "OFF" ]; then
+          # mingw32 has no package for imath and openjph
+          if [[ "${{ inputs.OPENEXR_FORCE_INTERNAL_IMATH }}" == "OFF" && "${{ inputs.msystem }}" != "MINGW32" ]]; then
             PACKAGES="$PACKAGES imath:p"
           fi
           if [ "${{ inputs.OPENEXR_FORCE_INTERNAL_DEFLATE }}" == "OFF" ]; then
             PACKAGES="$PACKAGES libdeflate:p"
           fi
-          if [ "${{ inputs.OPENEXR_FORCE_INTERNAL_OPENJPH }}" == "OFF" && "${{ inputs.msystem }}" != "MINGW32" ]; then
+          if [[ "${{ inputs.OPENEXR_FORCE_INTERNAL_OPENJPH }}" == "OFF" && "${{ inputs.msystem }}" != "MINGW32" ]]; then
             PACKAGES="$PACKAGES openjph:p"
           fi
           echo "PACBOY_PACKAGES=$PACKAGES" >> $GITHUB_ENV
@@ -200,6 +201,14 @@ jobs:
           echo "OPENEXR_PATH=$OPENEXR_PATH:$PROGRAM_FILES/Imath/bin:$PROGRAM_FILES/Imath/lib" >> $GITHUB_ENV
         shell: bash
 
+      - name: Install Imath (msys2)
+        # mingw32 has no package for imath, so install manually
+        if: inputs.OPENEXR_FORCE_INTERNAL_IMATH == 'OFF' && inputs.msystem == 'MINGW32'
+        run: |
+          set -x
+          share/ci/scripts/install_imath.sh main
+        shell: msys2 {0}
+
       - name: Install libdeflate
         # Pre-install libdeflate so the builds validate that find_package sees the external installation
         if: inputs.OPENEXR_FORCE_INTERNAL_DEFLATE == 'OFF' && inputs.msystem == ''
@@ -217,6 +226,14 @@ jobs:
           share/ci/scripts/install_openjph.sh 0.22.0
           echo "OPENEXR_PATH=$OPENEXR_PATH:$PROGRAM_FILES/openjph/bin:$PROGRAM_FILES/openjph/lib" >> $GITHUB_ENV
         shell: bash
+
+      - name: Install OpenJPH (msys2)
+        # mingw32 has no package for openjph, so install manually
+        if: inputs.OPENEXR_FORCE_INTERNAL_OPENJPH == 'OFF' && inputs.msystem == 'MINGW32'
+        run: |
+          set -x
+          share/ci/scripts/install_openjph.sh 0.22.0
+        shell: msys2 {0}
 
       - name: Install help2man
         # TODO: this could go in the ASWF Linux docker
