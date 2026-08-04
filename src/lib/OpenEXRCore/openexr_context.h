@@ -325,9 +325,11 @@ typedef struct _exr_context_initializer_v4
 
     /** Initialize the default HTJ2K compression quality.
      *
-     * The value is passed directly to the irreversible quantization step via
-     * ojph::param_qcd::set_irrev_quant() when the compression
-     * type is HTJ2KL256.
+     * The value is a JPEG-style Qfactor between 1 (worst quality, highest
+     * compression) and 100 (best quality, least compression), passed directly
+     * to ojph::param_qcd::set_qfactor() when the compression type is HTJ2KL256.
+     * See "Guideline on controlling JPEG 2000 image quality using a single
+     * parameter" at jpeg.org for a description of Qfactor.
      *
      * See exr_set_default_lossy_htj2k_quality() to set the default for all
      * contexts.
