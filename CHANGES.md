@@ -3,6 +3,7 @@
 
 # OpenEXR Release Notes
 
+* [Version 3.4.14](#version-3414-august-6-2026) August 6, 2026
 * [Version 3.4.13](#version-3413-june-19-2026) June 19, 2026
 * [Version 3.4.12](#version-3412-may-24-2026) May 24, 2026
 * [Version 3.4.11](#version-3411-april-29-2026) April 29, 2026
@@ -104,6 +105,267 @@
 * [Version 1.0.2](#version-102)
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
+
+## Version 3.4.14 (August 6, 2026)
+
+v3.4.14 is a security-focused patch release. It fixes 15 CVEs plus a
+broad set of additional hardening changes uncovered by the same
+fuzzing/audit effort.
+
+For each of these vulnerabilities, an attacker's vector is a
+maliciously crafted `.exr` file that must be opened by a victim,
+whether through the OpenEXR/OpenEXRUtil C++ libraries, the
+command-line tools (`exrmetrics`, `exrmultiview`, `exrmultipart`), or
+the PyOpenEXR Python bindings. The primary flaw for most of the CVEs
+is **memory corruption** — heap buffer overflows and out-of-bounds
+reads/writes — which at minimum crashes the reading process (denial of
+service) and in several cases could plausibly be leveraged for
+information disclosure or, in the worst cases, arbitrary code
+execution.
+
+No user interaction beyond opening the file is required, so any
+pipeline, service, or application that decodes untrusted or
+third-party EXR files should treat this as a priority
+upgrade. Severity generally ranges from **moderate** (crash-only, or
+requiring an uncommon build configuration) to **high** (heap overflow
+reachable with a small, easily-crafted file on common configurations).
+
+The individual vulnerabilities fall into four broad groups:
+
+* **PyOpenEXR RGB-channel-coalescing bugs**
+  ([CVE-2026-68514](https://www.cve.org/CVERecord?id=CVE-2026-68514),
+  [CVE-2026-68513](https://www.cve.org/CVERecord?id=CVE-2026-68513),
+  [CVE-2026-62986](https://www.cve.org/CVERecord?id=CVE-2026-62986),
+  [CVE-2026-61703](https://www.cve.org/CVERecord?id=CVE-2026-61703)).
+  When the Python bindings combine per-channel data (e.g. `left.R`,
+  `left.G`, `left.B`) into a single coalesced RGB array, conflicting or
+  mismatched channel names/types were not fully validated, which could
+  undersize the destination NumPy buffer. The result is a heap buffer
+  overflow on read, or, in the deep-image case, disclosure of
+  uninitialized ("stale") heap memory through the returned array. This
+  affects only code paths that read files with `separate_channels=False`
+  (the default for RGB coalescing).
+
+* **Integer-overflow-driven heap overflows on 32-bit (ILP32) builds**
+  ([CVE-2026-59985](https://www.cve.org/CVERecord?id=CVE-2026-59985),
+  [CVE-2026-59984](https://www.cve.org/CVERecord?id=CVE-2026-59984),
+  [CVE-2026-59983](https://www.cve.org/CVERecord?id=CVE-2026-59983),
+  [CVE-2026-59982](https://www.cve.org/CVERecord?id=CVE-2026-59982),
+  [CVE-2026-59981](https://www.cve.org/CVERecord?id=CVE-2026-59981),
+  [CVE-2026-59189](https://www.cve.org/CVERecord?id=CVE-2026-59189),
+  [CVE-2026-59186](https://www.cve.org/CVERecord?id=CVE-2026-59186)).
+  On platforms where `size_t`/`int` are 32 bits, buffer sizes computed
+  from attacker-controlled header fields (dimensions, sample counts,
+  tile sizes) could overflow before an allocation or bounds check,
+  yielding an undersized buffer and a subsequent heap out-of-bounds
+  read or write during RLE, B44/B44A, or DWAA decompression, deep
+  sample-count-table decoding, or large-tile handling. These do not
+  affect typical 64-bit desktop/server builds, but are significant for
+  32-bit Linux, embedded, and some mobile/CI targets.
+
+* **Heap out-of-bounds access in `OpenEXRUtil` and the command-line
+  tools with non-default data windows**
+  ([CVE-2026-59981](https://www.cve.org/CVERecord?id=CVE-2026-59981),
+  [CVE-2026-59189](https://www.cve.org/CVERecord?id=CVE-2026-59189),
+  [CVE-2026-59187](https://www.cve.org/CVERecord?id=CVE-2026-59187),
+  [CVE-2026-59186](https://www.cve.org/CVERecord?id=CVE-2026-59186),
+  [CVE-2026-59184](https://www.cve.org/CVERecord?id=CVE-2026-59184)).
+  `FlatImageChannel`/`DeepImageChannel`/`SampleCountChannel` row
+  addressing, and the deep-pixel path in `exrmetrics`, assumed a
+  data window originating at (0, 0). Crafted files with a nonzero data
+  window origin, or subsampled channels, caused row-address
+  computations to land outside the allocated buffer, producing a heap
+  read or write out of bounds.
+
+* **Crashes from malformed metadata (denial of service)**
+  ([CVE-2026-61555](https://www.cve.org/CVERecord?id=CVE-2026-61555),
+  [CVE-2026-59183](https://www.cve.org/CVERecord?id=CVE-2026-59183)).
+  An empty `multiView` attribute could crash `viewFromChannelName()`,
+  and a signed integer overflow while decoding deep tile chunks could
+  lead to an out-of-bounds access. Both are reachable simply by opening
+  a crafted file and result in a crash rather than corrupting memory
+  in an attacker-controlled way.
+
+Beyond the formally-numbered CVEs, this release includes a large batch
+of fixes found by the same audit/fuzzing effort:
+
+* reject truncated or short compressed streams before unpacking
+  (zlib, RLE, DWA, `NO_COMPRESSION`) instead of reading past the end
+  of the input;
+
+* reject oversized allocation requests instead of overflowing size
+  computations (`Array2D`, exrmetrics, exrmultipart channel stores,
+  DWAA/B44 scratch buffers);
+
+* add `NULL`-pointer checks in several `OpenEXRCore` C-API setters
+  (channel list duplication, preview image, `bytes` attributes);
+
+* fix a `Name::operator=` truncation/termination bug;
+
+* close a double-free warning in `ImfTiledMisc`.
+
+This release also fixes a long-standing correctness bug (not a
+security issue) in byte-swapping float-vector attributes that caused
+incorrect results and test failures on big-endian s390x builds.
+
+This release also bumps the vendored OpenJPH version to 0.31.0.
+
+CVEs addressed:
+
+* [CVE-2026-68514](https://www.cve.org/CVERecord?id=CVE-2026-68514)
+  PyOpenEXR deep prefixed literal RGB key collision heap buffer overflow
+* [CVE-2026-68513](https://www.cve.org/CVERecord?id=CVE-2026-68513)
+  PyOpenEXR prefixed literal RGB key collision heap buffer overflow
+* [CVE-2026-62986](https://www.cve.org/CVERecord?id=CVE-2026-62986)
+  PyOpenEXR deep prefixed RGB stale lane disclosure
+* [CVE-2026-61703](https://www.cve.org/CVERecord?id=CVE-2026-61703)
+  PyOpenEXR deep mixed RGB heap buffer overflow
+* [CVE-2026-61555](https://www.cve.org/CVERecord?id=CVE-2026-61555)
+  empty multiView viewFromChannelName file crash
+* [CVE-2026-59985](https://www.cve.org/CVERecord?id=CVE-2026-59985)
+  ILP32 OpenEXRCore RLE decode heap OOB read DoS
+* [CVE-2026-59984](https://www.cve.org/CVERecord?id=CVE-2026-59984)
+  ILP32 B44 InputFile decode scratch buffer overflow
+* [CVE-2026-59983](https://www.cve.org/CVERecord?id=CVE-2026-59983)
+  ILP32 DeepTiledInputFile sample count table decode OOB read
+* [CVE-2026-59982](https://www.cve.org/CVERecord?id=CVE-2026-59982)
+  ILP32 DWAA InputFile packed AC buffer overflow
+* [CVE-2026-59981](https://www.cve.org/CVERecord?id=CVE-2026-59981)
+  OpenEXRUtil SampleCountChannel row nonzero dataWindow heap OOB read
+* [CVE-2026-59189](https://www.cve.org/CVERecord?id=CVE-2026-59189)
+  OpenEXRUtil DeepImageChannel row nonzero dataWindow heap OOB read
+* [CVE-2026-59187](https://www.cve.org/CVERecord?id=CVE-2026-59187)
+  OpenEXR exrmetrics deep pixelmode heap buffer overflow
+* [CVE-2026-59186](https://www.cve.org/CVERecord?id=CVE-2026-59186)
+  OpenEXR ILP32 TiledRgbaInputFile large tile Array2D heap OOB write
+* [CVE-2026-59184](https://www.cve.org/CVERecord?id=CVE-2026-59184)
+  OpenEXRUtil FlatImageChannel row nonzero dataWindow heap OOB write
+* [CVE-2026-59183](https://www.cve.org/CVERecord?id=CVE-2026-59183)
+  Signed Integer Overflow Leading to Out-of-Bounds Memory Access in Deep Tile Decoding
+
+### Merged Pull Requests
+
+* [2569](https://github.com/AcademySoftwareFoundation/openexr/pull/2569)
+  Fix MSYS2 MINGW32 CI: build Imath/OpenJPH from source instead of pacboy
+* [2567](https://github.com/AcademySoftwareFoundation/openexr/pull/2567)
+  Fix handling of subsampled channels in PyOpenEXR
+* [2566](https://github.com/AcademySoftwareFoundation/openexr/pull/2566)
+  Reject DWA RLE and UNKNOWN streams shorter than required channel data.
+* [2565](https://github.com/AcademySoftwareFoundation/openexr/pull/2565)
+  fix signed/unsigned wraparound in HTJ2K planar decode row loop
+* [2550](https://github.com/AcademySoftwareFoundation/openexr/pull/2550)
+  zero-fill deep sample-count table for zero-length compressed input
+* [2548](https://github.com/AcademySoftwareFoundation/openexr/pull/2548)
+  Reject ``NO_COMPRESSION`` scanline chunks with short packed size.
+* [2547](https://github.com/AcademySoftwareFoundation/openexr/pull/2547)
+  Reject short zlib inflates before pixel unpack.
+* [2543](https://github.com/AcademySoftwareFoundation/openexr/pull/2543)
+  Fix subsampled row addressing in ``generic_unpack`` for multi-line chunks
+* [2541](https://github.com/AcademySoftwareFoundation/openexr/pull/2541)
+  Reject oversized channelstore allocations in exrmultipart convert
+* [2540](https://github.com/AcademySoftwareFoundation/openexr/pull/2540)
+  Reject oversized Array2D allocations on ILP32
+* [2539](https://github.com/AcademySoftwareFoundation/openexr/pull/2539)
+  Reject oversized exrmetrics vector allocations on ILP32
+* [2535](https://github.com/AcademySoftwareFoundation/openexr/pull/2535)
+  Fix missing ``INT_MAX`` cap on deep scanline ``sample_count_table_size``
+* [2530](https://github.com/AcademySoftwareFoundation/openexr/pull/2530)
+  Fix exrmultiview heap OOB when union dataWindow misaligns with subsampling
+* [2529](https://github.com/AcademySoftwareFoundation/openexr/pull/2529)
+  Refuse to coalesce RGB channels when there's a conflicting channel name
+* [2528](https://github.com/AcademySoftwareFoundation/openexr/pull/2528)
+  Fix exrmetrics heap OOB on subsampled scanlines
+* [2527](https://github.com/AcademySoftwareFoundation/openexr/pull/2527)
+  Upgrade manylinux cibuildwheel images to manylinux_2_28
+* [2522](https://github.com/AcademySoftwareFoundation/openexr/pull/2522)
+  Fix name comparison in deep prefixed RGB channel coalescing
+* [2516](https://github.com/AcademySoftwareFoundation/openexr/pull/2516)
+  htj2k: Check for duplication ``file_index`` values when reading file header
+* [2510](https://github.com/AcademySoftwareFoundation/openexr/pull/2510)
+  Core: byte-swap the float vector data, not the attribute struct (fixes big-endian crash)
+* [2509](https://github.com/AcademySoftwareFoundation/openexr/pull/2509)
+  Return native-order deep sample counts from ``exr_read_deep_chunk``
+* [2504](https://github.com/AcademySoftwareFoundation/openexr/pull/2504)
+  fix --help message in exrmetrics
+* [2503](https://github.com/AcademySoftwareFoundation/openexr/pull/2503)
+  prevent warning of potential double-free in ImfTiledMisc
+* [2502](https://github.com/AcademySoftwareFoundation/openexr/pull/2502)
+  Reject mixed pixel types when coalescing RGB channels in PyOpenEXR.
+* [2500](https://github.com/AcademySoftwareFoundation/openexr/pull/2500)
+  Fix ``Name::operator=`` to null-terminate long strings
+* [2498](https://github.com/AcademySoftwareFoundation/openexr/pull/2498)
+  Avoid memory allocation in idmanifest parsing
+* [2496](https://github.com/AcademySoftwareFoundation/openexr/pull/2496)
+  Fix empty multiView crash in ``viewFromChannelName()``
+* [2494](https://github.com/AcademySoftwareFoundation/openexr/pull/2494)
+  Reject oversized DWAA buffer allocations on ILP32
+* [2493](https://github.com/AcademySoftwareFoundation/openexr/pull/2493)
+  Fix ILP32 unpacked buffer size truncation in RLE decode
+* [2492](https://github.com/AcademySoftwareFoundation/openexr/pull/2492)
+  Fix ILP32 deep sample-count table size overflow in decoding
+* [2491](https://github.com/AcademySoftwareFoundation/openexr/pull/2491)
+  Fix ILP32 B44/B44A scratch buffer overflow in decode
+* [2490](https://github.com/AcademySoftwareFoundation/openexr/pull/2490)
+  Reject negative pixelDataSize in ``rawPixelDataToBuffer()``
+* [2488](https://github.com/AcademySoftwareFoundation/openexr/pull/2488)
+  Fix OpenEXRUtil ``row()`` OOB read with non-zero data window origin
+* [2487](https://github.com/AcademySoftwareFoundation/openexr/pull/2487)
+  Fix deep pixelmode heap buffer overflow in exrmetrics
+* [2486](https://github.com/AcademySoftwareFoundation/openexr/pull/2486)
+  Fix integer overflow in ``Array2D::resizeErase()`` on ILP32/LLP64 builds
+* [2484](https://github.com/AcademySoftwareFoundation/openexr/pull/2484)
+  Fix signed integer overflow in ``unpack_sample_table()``
+* [2473](https://github.com/AcademySoftwareFoundation/openexr/pull/2473)
+  Reject NULL channel list entries in ``exr_attr_chlist_duplicate()``
+* [2469](https://github.com/AcademySoftwareFoundation/openexr/pull/2469)
+  Reject NULL preview rgba data in ``exr_attr_set_preview()``
+
+### Merged Workflow Pull Requests
+
+* [2568](https://github.com/AcademySoftwareFoundation/openexr/pull/2568)
+  Bump the codeql group with 3 updates
+* [2564](https://github.com/AcademySoftwareFoundation/openexr/pull/2564)
+  Bump pypa/gh-action-pypi-publish from 1.14.1 to 1.14.2
+* [2563](https://github.com/AcademySoftwareFoundation/openexr/pull/2563)
+  Bump sigstore/gh-action-sigstore-python from 3.4.0 to 3.5.0
+* [2558](https://github.com/AcademySoftwareFoundation/openexr/pull/2558)
+  Bump bazel_skylib from 1.9.0 to 1.9.2
+* [2557](https://github.com/AcademySoftwareFoundation/openexr/pull/2557)
+  Bump ossf/scorecard-action from 2.4.3 to 2.4.4
+* [2556](https://github.com/AcademySoftwareFoundation/openexr/pull/2556)
+  Bump the codeql group with 3 updates
+* [2555](https://github.com/AcademySoftwareFoundation/openexr/pull/2555)
+  Bump actions/checkout from 7.0.0 to 7.0.1
+* [2554](https://github.com/AcademySoftwareFoundation/openexr/pull/2554)
+  Bump actions/setup-python from 6.3.0 to 7.0.0
+* [2553](https://github.com/AcademySoftwareFoundation/openexr/pull/2553)
+  Bump pypa/gh-action-pypi-publish from 1.14.0 to 1.14.1
+* [2552](https://github.com/AcademySoftwareFoundation/openexr/pull/2552)
+  Bump vmactions/freebsd-vm from 1.5.0 to 1.5.2
+* [2551](https://github.com/AcademySoftwareFoundation/openexr/pull/2551)
+  Bump the codeql group with 3 updates
+* [2538](https://github.com/AcademySoftwareFoundation/openexr/pull/2538)
+  Bump rules_cc from 0.2.20 to 0.2.22
+* [2514](https://github.com/AcademySoftwareFoundation/openexr/pull/2514)
+  Bump actions/cache from 6.0.0 to 6.1.0
+* [2513](https://github.com/AcademySoftwareFoundation/openexr/pull/2513)
+  Bump vmactions/freebsd-vm from 1.4.8 to 1.5.0
+* [2511](https://github.com/AcademySoftwareFoundation/openexr/pull/2511)
+  Bump rules_cc from 0.2.19 to 0.2.20
+* [2506](https://github.com/AcademySoftwareFoundation/openexr/pull/2506)
+  Bump actions/cache from 5.0.5 to 6.0.0
+* [2505](https://github.com/AcademySoftwareFoundation/openexr/pull/2505)
+  Bump actions/setup-python from 6.2.0 to 6.3.0
+* [2495](https://github.com/AcademySoftwareFoundation/openexr/pull/2495)
+  Bump vmactions/freebsd-vm from 1.4.6 to 1.4.8
+* [2483](https://github.com/AcademySoftwareFoundation/openexr/pull/2483)
+  Fix CI-old workflow failure due to Node 24 on old VFX platform containers
+* [2481](https://github.com/AcademySoftwareFoundation/openexr/pull/2481)
+  Bump actions/checkout from 6.0.3 to 7.0.0
+* [2460](https://github.com/AcademySoftwareFoundation/openexr/pull/2460)
+  Bump rules_cc from 0.2.18 to 0.2.19
+* [2386](https://github.com/AcademySoftwareFoundation/openexr/pull/2386)
+  Bump rules_cc from 0.2.17 to 0.2.18
 
 ## Version 3.4.13 (June 19, 2026)
 
