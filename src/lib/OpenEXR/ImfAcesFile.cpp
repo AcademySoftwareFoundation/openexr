@@ -22,23 +22,32 @@ using namespace IEX_NAMESPACE;
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
-const Chromaticities&
-acesChromaticities ()
-{
-    static const Chromaticities acesChr (
-        V2f (0.73470f, 0.26530f),  // red
-        V2f (0.00000f, 1.00000f),  // green
-        V2f (0.00010f, -0.07700f), // blue
-        V2f (0.32168f, 0.33767f)); // white
-
-    return acesChr;
-}
-
 const std::string&
 acesColorInteropID ()
 {
     static const std::string acesID = "lin_ap0_scene";
     return acesID;
+}
+
+namespace
+{
+
+Chromaticities
+acesChromaticitiesInit ()
+{
+    Chromaticities acesChr;
+    colorInteropIDToChromaticities (acesColorInteropID (), acesChr);
+    return acesChr;
+}
+
+} // namespace
+
+const Chromaticities&
+acesChromaticities ()
+{
+    static const Chromaticities acesChr = acesChromaticitiesInit ();
+
+    return acesChr;
 }
 
 class AcesOutputFile::Data

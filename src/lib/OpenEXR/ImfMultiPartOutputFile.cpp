@@ -53,21 +53,31 @@ struct MultiPartOutputFile::Data : public OutputStreamMutex
     void do_header_sanity_checks (bool overrideSharedAttributes);
 
     // ------------------------------------------------
-    // Given a source header, we copy over all the 'shared attributes' to
-    // the destination header and remove any conflicting ones.
+    // Force the 'shared attributes' of the destination header to match the
+    // source header: each shared attribute present in src is copied over
+    // dst's value, and each one absent from src is erased from dst.
+    // colorInteropID is the exception, and is only ever touched when dst
+    // already carries a value other than "data": a dst that omits it
+    // inherits src's value implicitly, and a dst tagged "data" marks image
+    // data that is deliberately not color managed.
     // ------------------------------------------------
     void overrideSharedAttributesValues (const Header& src, Header& dst);
 
     // ------------------------------------------------
-    // Given a source header, we check the destination header for any
-    // attributes that are part of the shared attribute set. For attributes
-    // present in both we check the values. For attribute present in
-    // destination but absent in source we return false.
-    // For attributes present in src but missing from dst we return false
-    // and add the attribute to dst.
-    // We return false for all other cases.
-    // If we return true then we also populate the conflictingAttributes
-    // vector with the names of the attributes that failed the above.
+    // Compare the 'shared attributes' of the destination header against the
+    // source header without modifying either. Returns true if any of them
+    // conflict, in which case the names of the offending attributes are
+    // appended to conflictingAttributes; returns false if they are
+    // consistent.
+    //
+    // An attribute conflicts when it is present in both headers with
+    // differing values, or when it is present in dst but absent from src.
+    // An attribute absent from dst is not a conflict. colorInteropID is the
+    // one exception: dst may also set it to "data" regardless of src's
+    // value.
+    //
+    // This is a write-time check. The readers accept a file whose
+    // colorInteropID does not conform; see ImfMultiPartOutputFile.h.
     // ------------------------------------------------
     bool checkSharedAttributesValues (
         const Header&             src,
@@ -128,9 +138,9 @@ MultiPartOutputFile::Data::do_header_sanity_checks (
             else
             {
                 std::vector<std::string> conflictingAttributes;
-                bool                     valid = checkSharedAttributesValues (
+                bool                     conflict = checkSharedAttributesValues (
                     _headers[0], _headers[i], conflictingAttributes);
-                if (valid)
+                if (conflict)
                 {
                     string excMsg (
                         "Conflicting attributes found for header :: ");
@@ -380,10 +390,13 @@ MultiPartOutputFile::Data::overrideSharedAttributesValues (
         dst.erase ("chromaticities");
 
     //
-    // ColorInteropID -- leave a part's existing "data" tag alone, since
-    // it marks image data that is intentionally not color managed.
+    // ColorInteropID -- a part that omits it inherits the first part's
+    // value, so leave it absent rather than copying the value in. Leave a
+    // part's existing "data" tag alone too, since it marks image data that
+    // is intentionally not color managed. Any other value is forced to
+    // match the source.
     //
-    if (!hasColorInteropID (dst) || colorInteropID (dst) != "data")
+    if (hasColorInteropID (dst) && colorInteropID (dst) != "data")
     {
         if (hasColorInteropID (src))
             addColorInteropID (dst, colorInteropID (src));
@@ -468,9 +481,8 @@ MultiPartOutputFile::Data::checkSharedAttributesValues (
     //
     if (hasColorInteropID (dst) && colorInteropID (dst) != "data")
     {
-        if ((hasColorInteropID (src) &&
-             colorInteropID (src) != colorInteropID (dst)) ||
-            (!hasColorInteropID (src)))
+        if ( (hasColorInteropID (src) && colorInteropID (src) != colorInteropID (dst)) ||
+             (!hasColorInteropID (src)) )
         {
             conflict = true;
             conflictingAttributes.push_back ("colorInteropID");

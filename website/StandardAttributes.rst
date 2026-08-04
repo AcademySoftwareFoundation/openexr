@@ -1277,6 +1277,18 @@ optional.
      </td>
    </tr>
 
+   <tr>
+      <td style="vertical-align: top; width:150px"> <tt> <b> acesImageContainerFlag </b>
+      </tt> </td>
+      <td style="vertical-align: top; width:100px"> <tt> int </tt> </td>
+      <td style="vertical-align: top; width:500px">
+       <p style="padding-bottom:15px">
+         If present and contains the value 1, specifies that the file complies
+         with SMPTE ST 2065-4 "ACES Image Container File Layout".
+       </p>
+     </td>
+   </tr>
+
    </table>
    </embed>
 

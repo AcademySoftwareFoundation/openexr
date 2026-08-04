@@ -834,42 +834,52 @@ internal_exr_validate_shared_attrs (exr_context_t ctxt,
      * colorInteropID only needs to be set on the first part; later parts
      * may omit it (inheriting the first part's color space) or set it to
      * "data" to mark images that should not be color managed. Any other
-     * value on a later part that differs from the first part's is a
-     * mismatch.
+     * value on a later part that differs from the first part's does not
+     * conform.
+     *
+     * Unlike the attributes above, this is metadata rather than structure:
+     * a non-conforming value makes a part's color space ambiguous but does
+     * not make the file unreadable, so it is only reported under strict
+     * validation. The C++ readers all disable strict validation, and so
+     * accept such files.
      */
-    rv  = exr_get_attribute_by_name (ctxt, 0, "colorInteropID", &battr);
-    rv1 = exr_get_attribute_by_name (ctxt, curpartidx, "colorInteropID", &cattr);
-    if (EXR_ERR_SUCCESS == rv1)
+    if (ctxt->strict_header)
     {
-        if (cattr->type != EXR_ATTR_STRING)
+        rv = exr_get_attribute_by_name (ctxt, 0, "colorInteropID", &battr);
+        rv1 =
+            exr_get_attribute_by_name (ctxt, curpartidx, "colorInteropID", &cattr);
+        if (EXR_ERR_SUCCESS == rv1)
         {
-            rv = EXR_ERR_ATTR_TYPE_MISMATCH;
-        }
-        else if (
-            cattr->string->length == 4 &&
-            0 == memcmp (cattr->string->str, "data", 4))
-        {
-            rv = EXR_ERR_SUCCESS;
-        }
-        else if (
-            EXR_ERR_SUCCESS == rv && battr->type == EXR_ATTR_STRING &&
-            battr->string->length == cattr->string->length &&
-            0 == memcmp (
-                     battr->string->str,
-                     cattr->string->str,
-                     (size_t) cattr->string->length))
-        {
-            rv = EXR_ERR_SUCCESS;
+            if (cattr->type != EXR_ATTR_STRING)
+            {
+                rv = EXR_ERR_ATTR_TYPE_MISMATCH;
+            }
+            else if (
+                cattr->string->length == 4 &&
+                0 == memcmp (cattr->string->str, "data", 4))
+            {
+                rv = EXR_ERR_SUCCESS;
+            }
+            else if (
+                EXR_ERR_SUCCESS == rv && battr->type == EXR_ATTR_STRING &&
+                battr->string->length == cattr->string->length &&
+                0 == memcmp (
+                         battr->string->str,
+                         cattr->string->str,
+                         (size_t) cattr->string->length))
+            {
+                rv = EXR_ERR_SUCCESS;
+            }
+            else
+            {
+                rv = EXR_ERR_ATTR_TYPE_MISMATCH;
+            }
         }
         else
-        {
-            rv = EXR_ERR_ATTR_TYPE_MISMATCH;
-        }
+            rv = EXR_ERR_SUCCESS; // this part has none, inherits from part 0
+        if (rv != EXR_ERR_SUCCESS)
+            mismatchattr[misidx++] = "colorInteropID";
     }
-    else
-        rv = EXR_ERR_SUCCESS; // this part has none, inherits from part 0
-    if (rv != EXR_ERR_SUCCESS)
-        mismatchattr[misidx++] = "colorInteropID";
 
     *mismatchcount = misidx;
     return misidx == 0 ? EXR_ERR_SUCCESS : EXR_ERR_ATTR_TYPE_MISMATCH;

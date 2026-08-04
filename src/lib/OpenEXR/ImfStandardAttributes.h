@@ -642,6 +642,14 @@ IMF_STD_ATTRIBUTE_DEF (whiteLuminance, WhiteLuminance, float)
 IMF_STD_ATTRIBUTE_DEF (adoptedNeutral, AdoptedNeutral, IMATH_NAMESPACE::V2f)
 
 //
+// acesImageContainerFlag -- if present and contains the value 1, 
+// specifies that the file complies with SMPTE ST 2065-4 "ACES 
+// Image Container File Layout".
+//
+
+IMF_STD_ATTRIBUTE_DEF (acesImageContainerFlag, AcesImageContainerFlag, int)
+
+//
 // renderingTransform, lookModTransform -- specify the names of the
 // CTL functions that implements the intended color rendering and look
 // modification transforms for this image.

@@ -1001,11 +1001,20 @@ Forum has published a recommendation for how to do that, please see
 for details. This makes use of the ``colorInteropID`` attribute, which now
 supersedes the previous ``chromaticities`` attribute for most purposes.
 
+The ``chromaticities`` attribute allows one to specify the CIE x,y coordinates
+for the red, green, and blue primaries and white. Unfortunately trust in this
+attribute has been lost over time. For example, some applications write linear
+Rec.709 chromaticities even if the image is not actually that. In other cases,
+applications report that the image is linear Rec.709, even if the chromaticities
+is not present. This situation is one of the main reasons why the colorInteropID
+is now the recommended way of identifying the color space in OpenEXR files.
+
 The presence of stale or incorrect metadata is a major problem.
 Application developers are asked to take care when writing OpenEXR
 files to avoid writing or propagating color space metadata which may
 be incorrect. The colorInteropID should be omitted or set to ``unknown``
-unless the application is confident in the value being written.
+unless the application is confident in the value being written. The
+absence of the colorInteropID does *not* imply the file is linear Rec.709.
 
 .. _channel-names-label:
    
@@ -1161,6 +1170,10 @@ By default, OpenEXR files have the following attributes:
   neutral during color rendering.  Pixels in the image file whose
   (x,y) coordinates match the adoptedNeutral value should be mapped to
   neutral values on the display.
+
+**acesImageContainerFlag**
+  If present and contains the value 1, specifies that the file complies
+  with SMPTE ST 2065-4 "ACES Image Container File Layout".
 
 **renderingTransform**, lookModTransform
   Specify the names of the CTL functions that implements the intended

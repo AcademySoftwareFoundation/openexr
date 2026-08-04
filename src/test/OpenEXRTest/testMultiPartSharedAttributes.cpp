@@ -10,11 +10,14 @@
 #include "testMultiPartSharedAttributes.h"
 #include "random.h"
 
+#include "openexr.h"
+
 #include "IexBaseExc.h"
 #include "ImfArray.h"
 #include "ImfBoxAttribute.h"
 #include "ImfChannelList.h"
 #include "ImfChromaticitiesAttribute.h"
+#include "ImfContextInit.h"
 #include "ImfFloatAttribute.h"
 #include "ImfFrameBuffer.h"
 #include "ImfGenericOutputFile.h"
@@ -34,6 +37,7 @@
 
 #include <assert.h>
 #include <iostream>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
@@ -322,6 +326,219 @@ testColorInteropID (const vector<Header>& hs, const std::string& fn)
     return;
 }
 
+//
+// Build a two part file whose second part has a colorInteropID that does
+// not conform to the shared attribute rules. The C++ writer refuses to
+// produce such a file, so use the core API, which does not validate shared
+// attributes on write.
+//
+// Note that every chunk of every part has to be written: the core treats a
+// write left incomplete as failed, and discards the file.
+//
+void
+writeNonConformingColorInteropID (const std::string& fn)
+{
+    static const char* names[]  = {"first", "second"};
+    static const char* ids[]    = {"lin_ap1_scene", "lin_ap0_scene"};
+    static const int   numParts = 2;
+
+    // a single uncompressed scanline, so that each part is one chunk
+    static const int width = 16;
+
+    exr_context_t             f     = nullptr;
+    exr_context_initializer_t cinit = EXR_DEFAULT_CONTEXT_INITIALIZER;
+
+    remove (fn.c_str ());
+
+    assert (
+        exr_start_write (&f, fn.c_str (), EXR_WRITE_FILE_DIRECTLY, &cinit) ==
+        EXR_ERR_SUCCESS);
+
+    for (int p = 0; p < numParts; p++)
+    {
+        int partidx = -1;
+        assert (
+            exr_add_part (f, names[p], EXR_STORAGE_SCANLINE, &partidx) ==
+            EXR_ERR_SUCCESS);
+        assert (partidx == p);
+
+        exr_attr_box2i_t dataw = {{0, 0}, {width - 1, 0}};
+        exr_attr_box2i_t dispw = {{0, 0}, {width - 1, 0}};
+        exr_attr_v2f_t   swc   = {0.f, 0.f};
+
+        assert (
+            exr_initialize_required_attr (
+                f,
+                partidx,
+                &dataw,
+                &dispw,
+                1.f,
+                &swc,
+                1.f,
+                EXR_LINEORDER_INCREASING_Y,
+                EXR_COMPRESSION_NONE) == EXR_ERR_SUCCESS);
+
+        assert (
+            exr_add_channel (
+                f,
+                partidx,
+                "R",
+                EXR_PIXEL_HALF,
+                EXR_PERCEPTUALLY_LOGARITHMIC,
+                1,
+                1) == EXR_ERR_SUCCESS);
+
+        assert (
+            exr_attr_set_string (f, partidx, "colorInteropID", ids[p]) ==
+            EXR_ERR_SUCCESS);
+    }
+
+    assert (exr_write_header (f) == EXR_ERR_SUCCESS);
+
+    vector<uint16_t> pixels (width, 0);
+
+    for (int p = 0; p < numParts; p++)
+    {
+        exr_chunk_info_t      cinfo;
+        exr_encode_pipeline_t encoder;
+
+        assert (
+            exr_write_scanline_chunk_info (f, p, 0, &cinfo) ==
+            EXR_ERR_SUCCESS);
+        assert (
+            exr_encoding_initialize (f, p, &cinfo, &encoder) ==
+            EXR_ERR_SUCCESS);
+
+        encoder.channels[0].encode_from_ptr =
+            reinterpret_cast<const uint8_t*> (pixels.data ());
+        encoder.channels[0].user_pixel_stride =
+            static_cast<int32_t> (sizeof (uint16_t));
+        encoder.channels[0].user_line_stride =
+            static_cast<int32_t> (sizeof (uint16_t) * width);
+
+        assert (
+            exr_encoding_choose_default_routines (f, p, &encoder) ==
+            EXR_ERR_SUCCESS);
+        assert (exr_encoding_run (f, p, &encoder) == EXR_ERR_SUCCESS);
+        assert (exr_encoding_destroy (f, &encoder) == EXR_ERR_SUCCESS);
+    }
+
+    assert (exr_finish (&f) == EXR_ERR_SUCCESS);
+}
+
+void
+testNonConformingColorInteropIDIsReadable (const std::string& fn)
+{
+    //
+    // A colorInteropID that does not conform makes a part's color space
+    // ambiguous, but does not make the file unreadable: the readers accept
+    // it, and return the attribute as written rather than normalizing it.
+    // Only a reader that asks for strict header validation rejects it.
+    //
+
+    writeNonConformingColorInteropID (fn);
+
+    {
+        MultiPartInputFile in (fn.c_str ());
+
+        assert (in.parts () == 2);
+        assert (colorInteropID (in.header (0)) == "lin_ap1_scene");
+        assert (colorInteropID (in.header (1)) == "lin_ap0_scene");
+    }
+
+    //
+    // the same file under strict header validation is rejected
+    //
+
+    {
+        bool caught = false;
+
+        try
+        {
+            MultiPartInputFile in (
+                fn.c_str (),
+                ContextInitializer ()
+                    // the failure is expected, so don't print it
+                    .silentHeaderParse (true)
+                    .strictHeaderValidation (true));
+            cerr << "ERROR -- Shared Attributes : colorInteropID : "
+                    "non-conforming file should fail strict validation"
+                 << endl;
+            assert (false);
+        }
+        catch (const IEX_NAMESPACE::BaseExc& e)
+        {
+            // expected behaviour
+            caught = true;
+        }
+
+        assert (caught);
+    }
+
+    remove (fn.c_str ());
+}
+
+void
+testColorInteropIDOverride (const vector<Header>& hs, const std::string& fn)
+{
+    //
+    // With overrideSharedAttributes set, the first part's colorInteropID is
+    // imposed on any later part carrying a conflicting value. A later part
+    // that omits the attribute keeps it absent -- it inherits the first
+    // part's value implicitly, so there is nothing to copy -- and a part
+    // tagged "data" keeps that tag.
+    //
+
+    const string firstID = "lin_ap1_scene";
+
+    vector<Header> headers;
+
+    Header first (hs[0]);
+    first.setName ("first");
+    addColorInteropID (first, firstID);
+    headers.push_back (first);
+
+    Header omitted (first);
+    omitted.setName ("omitted");
+    omitted.erase ("colorInteropID");
+    headers.push_back (omitted);
+
+    Header data (first);
+    data.setName ("dataTagged");
+    addColorInteropID (data, "data");
+    headers.push_back (data);
+
+    Header conflicting (first);
+    conflicting.setName ("conflicting");
+    addColorInteropID (conflicting, "lin_rec709_scene");
+    headers.push_back (conflicting);
+
+    remove (fn.c_str ());
+    {
+        MultiPartOutputFile file (
+            fn.c_str (), &headers[0], headers.size (), true);
+    }
+
+    MultiPartInputFile file (fn.c_str ());
+    assert (file.parts () == 4);
+
+    assert (hasColorInteropID (file.header (0)));
+    assert (colorInteropID (file.header (0)) == firstID);
+
+    // absent stays absent: the first part's value is not copied in
+    assert (!hasColorInteropID (file.header (1)));
+
+    // the "data" tag survives the override
+    assert (hasColorInteropID (file.header (2)));
+    assert (colorInteropID (file.header (2)) == "data");
+
+    // the conflicting value is replaced by the first part's
+    assert (hasColorInteropID (file.header (3)));
+    assert (colorInteropID (file.header (3)) == firstID);
+
+    return;
+}
+
 void
 testSharedAttributes (const std::string& fn)
 {
@@ -355,6 +572,8 @@ testSharedAttributes (const std::string& fn)
     testTimeCode (headers, fn);
     testChromaticities (headers, fn);
     testColorInteropID (headers, fn);
+    testColorInteropIDOverride (headers, fn);
+    testNonConformingColorInteropIDIsReadable (fn);
 }
 
 template <class T>

@@ -74,6 +74,11 @@ const Chromaticities& acesChromaticities ();
 // The colorInteropID value for ACES2065-1, per the
 // Color Interop Forum recommendation for OpenEXR files.
 //
+// AcesOutputFile sets the chromaticities attribute as well as the
+// colorInteropID attribute. The Color Interop Forum recommends against
+// setting both, but makes an exception for ST 2065-4 compliance, which
+// requires the chromaticities.
+//
 
 const std::string& acesColorInteropID ();
 

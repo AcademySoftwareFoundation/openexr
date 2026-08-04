@@ -7,6 +7,7 @@
 #    undef NDEBUG
 #endif
 
+#include "ImfAcesFile.h"
 #include "ImfArray.h"
 #include "ImfFramesPerSecond.h"
 #include "ImfRgbaFile.h"
@@ -971,6 +972,185 @@ writeReadColorInteropID(const char fileName[])
     remove (fileName);
 }
 
+void
+convertColorInteropIDAndChromaticities ()
+{
+    cout << "conversion between colorInteropID and chromaticities" << endl;
+
+    static const char* ids[] = {
+        "lin_rec709_scene",
+        "lin_ap0_scene",
+        "lin_ap1_scene",
+        "lin_p3d65_scene",
+        "lin_rec2020_scene",
+        "lin_adobergb_scene"};
+    static const size_t numIds = sizeof (ids) / sizeof (ids[0]);
+
+    //
+    // Every supported ID round trips, and the six entries are distinct.
+    //
+
+    for (size_t i = 0; i < numIds; i++)
+    {
+        Chromaticities c;
+        assert (colorInteropIDToChromaticities (ids[i], c) == true);
+
+        std::string id;
+        assert (chromaticitiesToColorInteropID (c, id) == true);
+        assert (id == ids[i]);
+
+        for (size_t j = 0; j < i; j++)
+        {
+            Chromaticities other;
+            assert (colorInteropIDToChromaticities (ids[j], other) == true);
+            assert (other != c);
+        }
+    }
+
+    //
+    // Spot check the table values, including the negative blue y of
+    // lin_ap0_scene.
+    //
+
+    {
+        Chromaticities c;
+        assert (colorInteropIDToChromaticities ("lin_ap0_scene", c) == true);
+        assert (c.red == V2f (0.73470f, 0.26530f));
+        assert (c.green == V2f (0.00000f, 1.00000f));
+        assert (c.blue == V2f (0.00010f, -0.07700f));
+        assert (c.white == V2f (0.32168f, 0.33767f));
+    }
+
+    //
+    // Unsupported values are reported by the return value, and leave the
+    // output argument untouched.
+    //
+
+    {
+        static const char* unsupported[] = {
+            "unknown", "data", "", "srgb_display", "lin_ap1", "LIN_AP1_SCENE"};
+        static const size_t numUnsupported =
+            sizeof (unsupported) / sizeof (unsupported[0]);
+
+        const Chromaticities sentinel (
+            V2f (1.f, 2.f), V2f (3.f, 4.f), V2f (5.f, 6.f), V2f (7.f, 8.f));
+
+        for (size_t i = 0; i < numUnsupported; i++)
+        {
+            Chromaticities c = sentinel;
+            assert (
+                colorInteropIDToChromaticities (unsupported[i], c) == false);
+            assert (c == sentinel);
+        }
+
+        std::string id = "untouched";
+        assert (chromaticitiesToColorInteropID (sentinel, id) == false);
+        assert (id == "untouched");
+    }
+
+    //
+    // Chromaticities within the tolerance of a table entry match it; those
+    // outside do not.
+    //
+
+    {
+        Chromaticities c;
+        assert (
+            colorInteropIDToChromaticities ("lin_p3d65_scene", c) == true);
+
+        Chromaticities near = c;
+        near.red.x += 0.0005f;
+        near.white.y -= 0.0005f;
+
+        std::string id;
+        assert (chromaticitiesToColorInteropID (near, id) == true);
+        assert (id == "lin_p3d65_scene");
+
+        Chromaticities far = c;
+        far.red.x += 0.002f;
+
+        id = "untouched";
+        assert (chromaticitiesToColorInteropID (far, id) == false);
+        assert (id == "untouched");
+
+        // a tolerance wide enough to cover the difference matches again
+        assert (chromaticitiesToColorInteropID (far, id, 0.002f) == true);
+        assert (id == "lin_p3d65_scene");
+    }
+
+    //
+    // The Rec.709 primaries are defined twice in the library: here and as
+    // the Chromaticities default constructor. They must agree.
+    //
+
+    {
+        Chromaticities rec709;
+        assert (
+            colorInteropIDToChromaticities ("lin_rec709_scene", rec709) ==
+            true);
+        assert (rec709 == Chromaticities ());
+    }
+}
+
+void
+writeReadAcesFileChromaticities (const char fileName[])
+{
+    cout << "ACES file chromaticities and colorInteropID" << endl;
+
+    cout << "writing, ";
+
+    static const int W = 32;
+    static const int H = 32;
+
+    {
+        AcesOutputFile out (fileName, W, H);
+
+        Rgba pixels[W];
+
+        for (int i = 0; i < W; ++i)
+        {
+            pixels[i].r = 0.5f;
+            pixels[i].g = 0.5f;
+            pixels[i].b = 0.5f;
+            pixels[i].a = 1;
+        }
+
+        out.setFrameBuffer (pixels, 1, 0);
+        out.writePixels (H);
+    }
+
+    cout << "reading, comparing" << endl;
+
+    //
+    // An ACES file sets the chromaticities attribute as well as the
+    // colorInteropID attribute, for ST 2065-4 compliance. The two must
+    // agree: the chromaticities have to be the entry the colorInteropID
+    // table gives for the file's own ID. This is what keeps the ACES
+    // primaries from drifting away from that table.
+    //
+
+    {
+        RgbaInputFile in (fileName);
+        const Header& h = in.header ();
+
+        assert (hasColorInteropID (h) == true);
+        assert (hasChromaticities (h) == true);
+
+        Chromaticities fromID;
+        assert (
+            colorInteropIDToChromaticities (colorInteropID (h), fromID) ==
+            true);
+        assert (fromID == chromaticities (h));
+
+        std::string id;
+        assert (
+            chromaticitiesToColorInteropID (chromaticities (h), id) == true);
+        assert (id == colorInteropID (h));
+    }
+
+    remove (fileName);
+}
+
 } // namespace
 
 void
@@ -981,6 +1161,8 @@ testStandardAttributes (const std::string& tempDir)
         cout << "Testing optional standard attributes" << endl;
 
         convertRGBtoXYZ ();
+
+        convertColorInteropIDAndChromaticities ();
 
         {
             std::string filename = tempDir + "imf_test_chromaticities.exr";
@@ -1019,6 +1201,11 @@ testStandardAttributes (const std::string& tempDir)
         {
             std::string filename = tempDir + "imf_colorInteropID.exr";
             writeReadColorInteropID (filename.c_str ());
+        }
+
+        {
+            std::string filename = tempDir + "imf_test_acesfile_chromaticities.exr";
+            writeReadAcesFileChromaticities (filename.c_str ());
         }
 
         generatedFunctions ();

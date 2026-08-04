@@ -8,6 +8,8 @@
 #include "ImfUtilExport.h"
 
 #include <cstddef>
+#include <string>
+#include <vector>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
@@ -46,6 +48,35 @@ IMFUTIL_EXPORT bool checkOpenEXRFile (
     bool        reduceMemory = false,
     bool        reduceTime   = false,
     bool        runCoreCheck = false);
+
+//
+// overloaded versions of checkOpenEXRFile that also collect warnings
+//
+// A warning describes a problem that does not make the file malformed or
+// unsafe to read, but that does make its contents questionable -- notably
+// color space metadata that is inconsistent or does not conform. Warnings
+// do not affect the return value: a file that reads correctly returns false
+// whether or not warnings were found.
+//
+// Any previous contents of warnings are cleared. Warnings are only
+// collected when runCoreCheck is false; the OpenEXRCore (C) API path does
+// not report them.
+//
+
+IMFUTIL_EXPORT bool checkOpenEXRFile (
+    const char*               fileName,
+    std::vector<std::string>& warnings,
+    bool                      reduceMemory = false,
+    bool                      reduceTime   = false,
+    bool                      runCoreCheck = false);
+
+IMFUTIL_EXPORT bool checkOpenEXRFile (
+    const char*               data,
+    size_t                    numBytes,
+    std::vector<std::string>& warnings,
+    bool                      reduceMemory = false,
+    bool                      reduceTime   = false,
+    bool                      runCoreCheck = false);
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
