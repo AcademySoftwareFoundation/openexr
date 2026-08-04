@@ -182,15 +182,25 @@ namespace ojph {
         allocator->pre_alloc_obj<param_tlm::Ttlm_Ptlm_pair>(num_tileparts);
 
       //precinct scratch buffer
-      ui32 num_decomps = cod.get_num_decompositions();
-      size log_cb = cod.get_log_block_dims();
-
+      // The precinct scratch is shared by all components, but each component
+      // may override the codeblock/precinct geometry via a COC marker.  The
+      // per-component tag-tree storage (resolution.cpp) is derived from that
+      // component's effective params, so size the shared buffer from the
+      // largest ratio across every component (the main COD and all COC
+      // overrides).  Sizing from the COD alone under-reserves the buffer for
+      // any component whose COC declares a smaller codeblock than the COD.
       size ratio;
-      for (ui32 r = 0; r <= num_decomps; ++r)
+      for (ui32 c = 0; c < num_comps; ++c)
       {
-        size log_PP = cod.get_log_precinct_size(r);
-        ratio.w = ojph_max(ratio.w, log_PP.w - ojph_min(log_cb.w, log_PP.w));
-        ratio.h = ojph_max(ratio.h, log_PP.h - ojph_min(log_cb.h, log_PP.h));
+        const param_cod* cdp = cod.get_coc(c);
+        ui32 num_decomps = cdp->get_num_decompositions();
+        size log_cb = cdp->get_log_block_dims();
+        for (ui32 r = 0; r <= num_decomps; ++r)
+        {
+          size log_PP = cdp->get_log_precinct_size(r);
+          ratio.w = ojph_max(ratio.w, log_PP.w - ojph_min(log_cb.w, log_PP.w));
+          ratio.h = ojph_max(ratio.h, log_PP.h - ojph_min(log_cb.h, log_PP.h));
+        }
       }
       ui32 max_ratio = ojph_max(ratio.w, ratio.h);
       max_ratio = 1 << max_ratio;
@@ -630,7 +640,7 @@ namespace ojph {
       this->pre_alloc();
       this->finalize_alloc();
 
-      ui16 t = swap_byte(JP2K_MARKER::SOC);
+      ui16 t = swap_bytes_if_le((ui16)JP2K_MARKER::SOC);
       if (file->write(&t, 2) != 2)
         OJPH_ERROR(0x00030022, "Error writing to file");
 
@@ -655,29 +665,36 @@ namespace ojph {
       if (!nlt.write(file))
         OJPH_ERROR(0x00030027, "Error writing to file");
 
-      char buf[] = "      OpenJPH Ver "
+      const char* version_str = "OpenJPH Ver "
         OJPH_INT_TO_STRING(OPENJPH_VERSION_MAJOR) "."
         OJPH_INT_TO_STRING(OPENJPH_VERSION_MINOR) "."
         OJPH_INT_TO_STRING(OPENJPH_VERSION_PATCH) ".";
-      size_t len = strlen(buf);
-      *(ui16*)buf = swap_byte(JP2K_MARKER::COM);
-      *(ui16*)(buf + 2) = swap_byte((ui16)(len - 2));
-      //1 for General use (IS 8859-15:1999 (Latin) values)
-      *(ui16*)(buf + 4) = swap_byte((ui16)(1));
-      if (file->write(buf, len) != len)
+      size_t data_len = strlen(version_str);
+
+      t = swap_bytes_if_le((ui16)JP2K_MARKER::COM);
+      if (file->write(&t, sizeof(ui16)) != sizeof(ui16))
         OJPH_ERROR(0x00030028, "Error writing to file");
+      t = swap_bytes_if_le((ui16)(data_len + 4));
+      if (file->write(&t, sizeof(ui16)) != sizeof(ui16))
+        OJPH_ERROR(0x0003002D, "Error writing to file");
+      //1 for General use (IS 8859-15:1999 (Latin) values)
+      t = swap_bytes_if_le((ui16)(1));
+      if (file->write(&t, sizeof(ui16)) != sizeof(ui16))
+        OJPH_ERROR(0x0003002E, "Error writing to file");
+      if (file->write(version_str, data_len) != data_len)
+        OJPH_ERROR(0x0003002F, "Error writing to file");
 
       if (comments != NULL) {
         for (ui32 i = 0; i < num_comments; ++i)
         {
-          t = swap_byte(JP2K_MARKER::COM);
+          t = swap_bytes_if_le((ui16)JP2K_MARKER::COM);
           if (file->write(&t, 2) != 2)
             OJPH_ERROR(0x00030029, "Error writing to file");
-          t = swap_byte((ui16)(comments[i].len + 4));
+          t = swap_bytes_if_le((ui16)(comments[i].len + 4));
           if (file->write(&t, 2) != 2)
             OJPH_ERROR(0x0003002A, "Error writing to file");
           //1 for General use (IS 8859-15:1999 (Latin) values)
-          t = swap_byte(comments[i].Rcom);
+          t = swap_bytes_if_le(comments[i].Rcom);
           if (file->write(&t, 2) != 2)
             OJPH_ERROR(0x0003002B, "Error writing to file");
           if (file->write(comments[i].data, comments[i].len)!=comments[i].len)
@@ -726,7 +743,7 @@ namespace ojph {
         else
           OJPH_ERROR(0x00030041, "error reading marker");
       }
-      com_len = swap_byte(com_len);
+      com_len = swap_bytes_if_le(com_len);
       file->seek(com_len - 2, infile_base::OJPH_SEEK_CUR);
       if (msg != NULL && msg_level != OJPH_MSG_NO_MSG)
       {
@@ -1141,7 +1158,7 @@ namespace ojph {
       }
       for (si32 i = 0; i < repeat; ++i)
         tiles[i].flush(outfile);
-      ui16 t = swap_byte(JP2K_MARKER::EOC);
+      ui16 t = swap_bytes_if_le((ui16)JP2K_MARKER::EOC);
       if (!outfile->write(&t, 2))
         OJPH_ERROR(0x00030071, "Error writing to file");
     }

@@ -110,6 +110,7 @@ namespace ojph {
       ui32 recon_ty1 = recon_tile_rect.org.y + recon_tile_rect.siz.h;
 
       ui32 width = 0;
+      rect colour_comp_rect[3];
       for (ui32 i = 0; i < num_comps; ++i)
       {
         point downsamp = szp->get_downsampling(i);
@@ -129,6 +130,9 @@ namespace ojph {
         comp_rect.siz.w = tcx1 - tcx0;
         comp_rect.siz.h = tcy1 - tcy0;
 
+        if (i < 3)
+          colour_comp_rect[i] = comp_rect;
+
         rect recon_comp_rect;
         recon_comp_rect.org.x = recon_tcx0;
         recon_comp_rect.org.y = recon_tcy0;
@@ -147,7 +151,7 @@ namespace ojph {
         for (ui32 i = 0; i < 3; ++i)
           reversible[i] = codestream->get_coc(i)->is_reversible();
         if (reversible[0] != reversible[1] || reversible[1] != reversible[2])
-          OJPH_ERROR(0x000300A2, "When the colour transform is employed. "
+          OJPH_ERROR(0x000300A2, "When the colour transform is employed, "
             "all colour components must undergo either reversible or "
             "irreversible wavelet transform; if not, then it is not clear "
             "what colour transform should be used (reversible or "
@@ -156,6 +160,21 @@ namespace ojph {
             reversible[0] ? "reversible" : "irreversible",
             reversible[1] ? "reversible" : "irreversible",
             reversible[2] ? "reversible" : "irreversible");
+
+        if (colour_comp_rect[0] != colour_comp_rect[1] ||
+          colour_comp_rect[1] != colour_comp_rect[2])
+          OJPH_ERROR(0x000300A3, "When the colour transform is employed, "
+            "the first three colour components must have the same rectangle; "
+            "i.e., the same origin on the canvas and the same width and "
+            "height. The first three components have the following "
+            "origin-size (x,y)-(w,h) values. Component 0 (%d,%d)-(%d,%d), "
+            "Component 1 (%d,%d)-(%d,%d), Component 2 (%d,%d)-(%d,%d)",
+            colour_comp_rect[0].org.x, colour_comp_rect[0].org.y,
+            colour_comp_rect[0].siz.w, colour_comp_rect[0].siz.h,
+            colour_comp_rect[1].org.x, colour_comp_rect[1].org.y,
+            colour_comp_rect[1].siz.w, colour_comp_rect[1].siz.h,
+            colour_comp_rect[2].org.x, colour_comp_rect[2].org.y,
+            colour_comp_rect[2].siz.w, colour_comp_rect[2].siz.h);
 
         allocator->pre_alloc_obj<line_buf>(3);
         if (reversible[0])
@@ -274,8 +293,8 @@ namespace ojph {
           OJPH_ERROR(0x000300A1, "Mismatch between Ssiz (bit_depth = %d, "
             "is_signed = %s) from SIZ marker segment, and BDnlt "
             "(bit_depth = %d, is_signed = %s) from NLT marker segment, "
-            "for component %d", i, num_bits[i],
-            is_signed[i] ? "True" : "False", bd, is ? "True" : "False");
+            "for component %d", num_bits[i],
+            is_signed[i] ? "True" : "False", bd, is ? "True" : "False", i);
         if (result == false)
           nlt_type3[i] = param_nlt::nonlinearity::OJPH_NLT_NO_NLT;
         cur_line[i] = 0;
@@ -575,7 +594,7 @@ namespace ojph {
           OJPH_ERROR(0x00030081, "Error writing to file");
 
         //write start of data
-        ui16 t = swap_byte(JP2K_MARKER::SOD);
+        ui16 t = swap_bytes_if_le((ui16)JP2K_MARKER::SOD);
         if (!file->write(&t, 2))
           OJPH_ERROR(0x00030082, "Error writing to file");
       }
@@ -603,7 +622,7 @@ namespace ojph {
               OJPH_ERROR(0x00030083, "Error writing to file");
 
             //write start of data
-            ui16 t = swap_byte(JP2K_MARKER::SOD);
+            ui16 t = swap_bytes_if_le((ui16)JP2K_MARKER::SOD);
             if (!file->write(&t, 2))
               OJPH_ERROR(0x00030084, "Error writing to file");
 
@@ -623,7 +642,7 @@ namespace ojph {
                                (ui8)(c + r * num_comps), (ui8)num_tileparts))
                   OJPH_ERROR(0x00030085, "Error writing to file");
                 //write start of data
-                ui16 t = swap_byte(JP2K_MARKER::SOD);
+                ui16 t = swap_bytes_if_le((ui16)JP2K_MARKER::SOD);
                 if (!file->write(&t, 2))
                   OJPH_ERROR(0x00030086, "Error writing to file");
                 comps[c].write_precincts(r, file);
@@ -644,7 +663,7 @@ namespace ojph {
               OJPH_ERROR(0x00030087, "Error writing to file");
 
             //write start of data
-            ui16 t = swap_byte(JP2K_MARKER::SOD);
+            ui16 t = swap_bytes_if_le((ui16)JP2K_MARKER::SOD);
             if (!file->write(&t, 2))
               OJPH_ERROR(0x00030088, "Error writing to file");
           }
@@ -719,7 +738,7 @@ namespace ojph {
               OJPH_ERROR(0x0003008A, "Error writing to file");
 
             //write start of data
-            ui16 t = swap_byte(JP2K_MARKER::SOD);
+            ui16 t = swap_bytes_if_le((ui16)JP2K_MARKER::SOD);
             if (!file->write(&t, 2))
               OJPH_ERROR(0x0003008B, "Error writing to file");
           }

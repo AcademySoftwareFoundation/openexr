@@ -2,21 +2,21 @@
 // This software is released under the 2-Clause BSD license, included
 // below.
 //
-// Copyright (c) 2022, Aous Naman 
+// Copyright (c) 2022, Aous Naman
 // Copyright (c) 2022, Kakadu Software Pty Ltd, Australia
 // Copyright (c) 2022, The University of New South Wales, Australia
-// 
+//
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
 // met:
-// 
+//
 // 1. Redistributions of source code must retain the above copyright
 // notice, this list of conditions and the following disclaimer.
-// 
+//
 // 2. Redistributions in binary form must reproduce the above copyright
 // notice, this list of conditions and the following disclaimer in the
 // documentation and/or other materials provided with the distribution.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
 // IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 // TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
@@ -35,6 +35,8 @@
 // Date: 15 May 2022
 //***************************************************************************/
 
+#include <climits>
+
 #include "ojph_defs.h"
 #include "ojph_arch.h"
 
@@ -44,9 +46,7 @@ namespace ojph {
     //////////////////////////////////////////////////////////////////////////
     void gen_mem_clear(void* addr, size_t count)
     {
-      si64* p = (si64*)addr;
-      for (size_t i = 0; i < count; i += 8)
-        *p++ = 0;
+      memset(addr, 0, count);
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -56,8 +56,8 @@ namespace ojph {
     ui64 gen_find_max_val64(ui64* addr) { return addr[0]; }
 
     //////////////////////////////////////////////////////////////////////////
-    void gen_rev_tx_to_cb32(const void *sp, ui32 *dp, ui32 K_max, 
-                            float delta_inv, ui32 count, 
+    void gen_rev_tx_to_cb32(const void *sp, ui32 *dp, ui32 K_max,
+                            float delta_inv, ui32 count,
                             ui32* max_val)
     {
       ojph_unused(delta_inv);
@@ -78,8 +78,8 @@ namespace ojph {
     }
 
     //////////////////////////////////////////////////////////////////////////
-    void gen_rev_tx_to_cb64(const void *sp, ui64 *dp, ui32 K_max, 
-                            float delta_inv, ui32 count, 
+    void gen_rev_tx_to_cb64(const void *sp, ui64 *dp, ui32 K_max,
+                            float delta_inv, ui32 count,
                             ui64* max_val)
     {
       ojph_unused(delta_inv);
@@ -101,7 +101,7 @@ namespace ojph {
 
     //////////////////////////////////////////////////////////////////////////
     void gen_irv_tx_to_cb32(const void *sp, ui32 *dp, ui32 K_max,
-                            float delta_inv, ui32 count, 
+                            float delta_inv, ui32 count,
                             ui32* max_val)
     {
       ojph_unused(K_max);
@@ -166,6 +166,21 @@ namespace ojph {
         *p++ = (v & 0x80000000U) ? -val : val;
       }
     }
-    
+
+    //////////////////////////////////////////////////////////////////////////
+    void gen_irv_tx_from_cb64(const ui64 *sp, void *dp, ui32 K_max,
+                              float delta, ui32 count)
+    {
+      ojph_unused(K_max);
+      //convert to sign and magnitude
+      float *p = (float*)dp;
+      for (ui32 i = count; i > 0; --i)
+      {
+        ui64 v = *sp++;
+        float val = (float)(v & LLONG_MAX) * delta;
+        *p++ = (v & (ui64)LLONG_MIN) ? -val : val;
+      }
+    }
+
  }
 }
