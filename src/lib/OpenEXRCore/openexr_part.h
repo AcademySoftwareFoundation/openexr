@@ -234,15 +234,18 @@ EXR_EXPORT exr_result_t exr_get_dwa_compression_level (
 EXR_EXPORT exr_result_t
 exr_set_dwa_compression_level (exr_context_t ctxt, int part_index, float level);
 
-/** @brief Retrieve the lossy HTJ2K compression quality used for the specified part.
+/** @brief Retrieve the lossy HTJ2K compression quality used for the specified
+ * part.
  *
  * This only applies when the compression method is HTJ2KL256.
  *
- * The value is used as the irreversible quantization delta.
+ * The value is a JPEG-style Qfactor between 1 (worst quality, highest
+ * compression) and 100 (best quality, least compression). See "Guideline on
+ * controlling JPEG 2000 image quality using a single parameter" at jpeg.org for
+ * a description of Qfactor.
  *
- * This value is NOT persisted in the file, and only exists for the
- * lifetime of the context, so will be at the default value when just
- * reading a file.
+ * This value is NOT persisted in the file, and only exists for the lifetime of
+ * the context, so will be at the default value when just reading a file.
  */
 EXR_EXPORT exr_result_t exr_get_lossy_htj2k_quality (
     exr_const_context_t ctxt, int part_index, float* level);
@@ -251,11 +254,13 @@ EXR_EXPORT exr_result_t exr_get_lossy_htj2k_quality (
  *
  * This only applies when the compression method is HTJ2KL256.
  *
- * The value is used as the irreversible quantization delta.
+ * The value must be a JPEG-style Qfactor between 1 (worst quality, highest
+ * compression) and 100 (best quality, least compression). See "Guideline on
+ * controlling JPEG 2000 image quality using a single parameter" at jpeg.org for
+ * a description of Qfactor.
  *
- * This value is NOT persisted in the file, and only exists for the
- * lifetime of the context, so this value will be ignored when
- * reading a file.
+ * This value is NOT persisted in the file, and only exists for the lifetime of
+ * the context, so this value will be ignored when reading a file.
  */
 EXR_EXPORT exr_result_t
 exr_set_lossy_htj2k_quality (exr_context_t ctxt, int part_index, float level);
