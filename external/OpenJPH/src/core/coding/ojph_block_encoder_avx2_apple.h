@@ -35,14 +35,6 @@
 // File: ojph_block_encoder_avx2.cpp
 //***************************************************************************/
 
-// Apple Clang on Intel produces corrupt bitstreams with several of the
-// scalar optimizations below (branchless VLC drain, 64-bit MagSgn, etc.)
-// for reasons not yet identified. Since this file is x86-only, the guard
-// does not affect Apple Silicon builds (which use NEON, not AVX2).
-#if defined(__apple_build_version__)
-#include "ojph_block_encoder_avx2_apple.h"
-#else
-
 #include "ojph_arch.h"
 #if defined(OJPH_ARCH_I386) || defined(OJPH_ARCH_X86_64)
 
@@ -81,8 +73,6 @@ namespace ojph {
     static ui32 vlc_tbl1[2048];
 
     //UVLC encoding
-    static ui32 uvlc_tbl_pair1[33 * 33];
-    static ui32 uvlc_tbl_pair2[33 * 33];
     static ui32 ulvc_cwd_pre[33];
     static int ulvc_cwd_pre_len[33];
     static ui32 ulvc_cwd_suf[33];
@@ -233,56 +223,6 @@ namespace ojph {
     }
 
     /////////////////////////////////////////////////////////////////////////
-    static void uvlc_init_pair_tables()
-    {
-      for (int uq0 = 0; uq0 < 33; ++uq0) {
-        for (int uq1 = 0; uq1 < 33; ++uq1) {
-          ui32 cwd; int len;
-
-          cwd = 0; len = 0;
-          if (uq0 > 2 && uq1 > 2) {
-            cwd |= ulvc_cwd_pre[uq0 - 2];
-            len += ulvc_cwd_pre_len[uq0 - 2];
-            cwd |= ulvc_cwd_pre[uq1 - 2] << len;
-            len += ulvc_cwd_pre_len[uq1 - 2];
-            cwd |= ulvc_cwd_suf[uq0 - 2] << len;
-            len += ulvc_cwd_suf_len[uq0 - 2];
-            cwd |= ulvc_cwd_suf[uq1 - 2] << len;
-            len += ulvc_cwd_suf_len[uq1 - 2];
-          } else if (uq0 > 2 && uq1 > 0) {
-            cwd |= ulvc_cwd_pre[uq0];
-            len += ulvc_cwd_pre_len[uq0];
-            cwd |= (ui32)(uq1 - 1) << len;
-            len += 1;
-            cwd |= ulvc_cwd_suf[uq0] << len;
-            len += ulvc_cwd_suf_len[uq0];
-          } else {
-            cwd |= ulvc_cwd_pre[uq0];
-            len += ulvc_cwd_pre_len[uq0];
-            cwd |= ulvc_cwd_pre[uq1] << len;
-            len += ulvc_cwd_pre_len[uq1];
-            cwd |= ulvc_cwd_suf[uq0] << len;
-            len += ulvc_cwd_suf_len[uq0];
-            cwd |= ulvc_cwd_suf[uq1] << len;
-            len += ulvc_cwd_suf_len[uq1];
-          }
-          uvlc_tbl_pair1[uq0 * 33 + uq1] = (cwd << 5) | (ui32)len;
-
-          cwd = 0; len = 0;
-          cwd |= ulvc_cwd_pre[uq0];
-          len += ulvc_cwd_pre_len[uq0];
-          cwd |= ulvc_cwd_pre[uq1] << len;
-          len += ulvc_cwd_pre_len[uq1];
-          cwd |= ulvc_cwd_suf[uq0] << len;
-          len += ulvc_cwd_suf_len[uq0];
-          cwd |= ulvc_cwd_suf[uq1] << len;
-          len += ulvc_cwd_suf_len[uq1];
-          uvlc_tbl_pair2[uq0 * 33 + uq1] = (cwd << 5) | (ui32)len;
-        }
-      }
-    }
-
-    /////////////////////////////////////////////////////////////////////////
     bool initialize_block_encoder_tables_avx2() {
       static bool tables_initialized = false;
       static std::once_flag tables_initialized_flag;
@@ -291,7 +231,6 @@ namespace ojph {
         memset(vlc_tbl1, 0, 2048 * sizeof(ui32));
         tables_initialized = vlc_init_tables();
         tables_initialized = tables_initialized && uvlc_init_tables();
-        uvlc_init_pair_tables();
       });
       return tables_initialized;
     }
@@ -327,20 +266,16 @@ namespace ojph {
       melp->threshold = 1; // this is 1 << mel_exp[melp->k];
     }
 
-    static const int mel_exp[13] = {0,0,0,1,1,1,2,2,2,3,3,4,5};
-
     //////////////////////////////////////////////////////////////////////////
     static inline void
-    mel_emit_bits(mel_struct* melp, ui32 bits, int num_bits)
+    mel_emit_bit(mel_struct* melp, int v)
     {
-      melp->tmp = (melp->tmp << num_bits) | (int)bits;
-      melp->remaining_bits -= num_bits;
-      if (melp->remaining_bits <= 0) {
-        int excess = -melp->remaining_bits;
-        ui8 byte = (ui8)(melp->tmp >> excess);
-        melp->buf[melp->pos++] = byte;
-        melp->tmp &= (1 << excess) - 1;
-        melp->remaining_bits += 8 - (byte == 0xFF);
+      melp->tmp = (melp->tmp << 1) + v;
+      melp->remaining_bits--;
+      if (melp->remaining_bits == 0) {
+        melp->buf[melp->pos++] = (ui8)melp->tmp;
+        melp->remaining_bits = (melp->tmp == 0xFF ? 7 : 8);
+        melp->tmp = 0;
       }
     }
 
@@ -348,59 +283,33 @@ namespace ojph {
     static inline void
     mel_encode(mel_struct* melp, bool bit)
     {
+      //MEL exponent
+      static const int mel_exp[13] = {0,0,0,1,1,1,2,2,2,3,3,4,5};
+
       if (bit == false) {
         ++melp->run;
         if (melp->run >= melp->threshold) {
-          mel_emit_bits(melp, 1, 1);
+          mel_emit_bit(melp, 1);
           melp->run = 0;
           melp->k = ojph_min(12, melp->k + 1);
           melp->threshold = 1 << mel_exp[melp->k];
         }
       } else {
+        mel_emit_bit(melp, 0);
         int t = mel_exp[melp->k];
-        mel_emit_bits(melp, (ui32)melp->run & ((1u << t) - 1), t + 1);
+        while (t > 0) {
+          mel_emit_bit(melp, (melp->run >> --t) & 1);
+        }
         melp->run = 0;
         melp->k = ojph_max(0, melp->k - 1);
         melp->threshold = 1 << mel_exp[melp->k];
       }
     }
 
-    //////////////////////////////////////////////////////////////////////////
-    // static inline void
-    // mel_advance_run(mel_struct* melp, ui32 n)
-    // {
-    //   ui32 remaining = n;
-    //   while (remaining > 0) {
-    //     ui32 space = (ui32)melp->threshold - (ui32)melp->run;
-    //     if (remaining >= space) {
-    //       remaining -= space;
-    //       mel_emit_bits(melp, 1, 1);
-    //       melp->run = 0;
-    //       melp->k = ojph_min(12, melp->k + 1);
-    //       melp->threshold = 1 << mel_exp[melp->k];
-    //     } else {
-    //       melp->run += (int)remaining;
-    //       remaining = 0;
-    //     }
-    //   }
-    // }
-
-    //////////////////////////////////////////////////////////////////////////
-    // static inline void
-    // mel_encode_significance(mel_struct* melp)
-    // {
-    //   int t = mel_exp[melp->k];
-    //   mel_emit_bits(melp, melp->run & ((1u << t) - 1), t + 1);
-    //   melp->run = 0;
-    //   melp->k = ojph_max(0, melp->k - 1);
-    //   melp->threshold = 1 << mel_exp[melp->k];
-    // }
-
     /////////////////////////////////////////////////////////////////////////
     //
     /////////////////////////////////////////////////////////////////////////
-
-    struct vlc_struct {
+    struct vlc_struct_avx2 {
       //storage
       ui8* buf;      //pointer to data buffer
       ui32 pos;      //position of next writing within buf
@@ -413,7 +322,7 @@ namespace ojph {
 
     //////////////////////////////////////////////////////////////////////////
     static inline void
-    vlc_init(vlc_struct* vlcp, ui32 buffer_size, ui8* data)
+    vlc_init(vlc_struct_avx2* vlcp, ui32 buffer_size, ui8* data)
     {
       vlcp->buf = data + buffer_size - 1; //points to last byte
       vlcp->pos = 1;                      //locations will be all -pos
@@ -427,40 +336,39 @@ namespace ojph {
 
     //////////////////////////////////////////////////////////////////////////
     static inline void
-    vlc_drain(vlc_struct* vlcp)
+    vlc_encode(vlc_struct_avx2* vlcp, ui32 cwd, int cwd_len)
     {
+      vlcp->tmp |= (ui64)cwd << vlcp->used_bits;
+      vlcp->used_bits += cwd_len;
+
       while (vlcp->used_bits >= 8) {
-        int escape = (int)vlcp->last_greater_than_8F;
-        int is_7f = (int)((vlcp->tmp & 0x7F) == 0x7F);
-        int need_stuff = (escape & is_7f) != 0 ? 1 : 0;
-        int bits = 8 - need_stuff;
+          ui8 tmp;
 
-        ui8 byte = (ui8)(vlcp->tmp & ((1u << bits) - 1));
-        *(vlcp->buf - vlcp->pos) = byte;
-        vlcp->pos++;
-        vlcp->tmp >>= bits;
-        vlcp->used_bits -= bits;
-        vlcp->last_greater_than_8F = byte > 0x8F;
-      }
-    }
+          if (unlikely(vlcp->last_greater_than_8F)) {
+              tmp = vlcp->tmp & 0x7F;
 
-    //////////////////////////////////////////////////////////////////////////
-    static inline void
-    vlc_encode(vlc_struct* vlcp, ui64 cwd, int cwd_len)
-    {
-      while (true) {
-        int avail = 64 - vlcp->used_bits;
-        if (likely(avail > 0 && cwd_len <= avail)) {
-          vlcp->tmp |= cwd << vlcp->used_bits;
-          vlcp->used_bits += cwd_len;
-          return;
-        }
-        if (likely(avail > 0)) // available space smaller than needed
-          vlcp->tmp |= cwd << vlcp->used_bits;
-        vlcp->used_bits = 64;
-        vlc_drain(vlcp);
-        cwd >>= avail;
-        cwd_len -= avail;
+              if (likely(tmp != 0x7F)) {
+                  tmp = vlcp->tmp & 0xFF;
+                  *(vlcp->buf - vlcp->pos) = tmp;
+                  vlcp->last_greater_than_8F = tmp > 0x8F;
+                  vlcp->tmp >>= 8;
+                  vlcp->used_bits -= 8;
+              } else {
+                  *(vlcp->buf - vlcp->pos) = tmp;
+                  vlcp->last_greater_than_8F = false;
+                  vlcp->tmp >>= 7;
+                  vlcp->used_bits -= 7;
+              }
+
+          } else {
+              tmp = vlcp->tmp & 0xFF;
+              *(vlcp->buf - vlcp->pos) = tmp;
+              vlcp->last_greater_than_8F = tmp > 0x8F;
+              vlcp->tmp >>= 8;
+              vlcp->used_bits -= 8;
+          }
+
+          vlcp->pos++;
       }
     }
 
@@ -468,10 +376,10 @@ namespace ojph {
     //
     //////////////////////////////////////////////////////////////////////////
     static inline void
-    terminate_mel_vlc(mel_struct* melp, vlc_struct* vlcp)
+    terminate_mel_vlc(mel_struct* melp, vlc_struct_avx2* vlcp)
     {
       if (melp->run > 0)
-        mel_emit_bits(melp, 1, 1);
+        mel_emit_bit(melp, 1);
 
       if (vlcp->last_greater_than_8F && (vlcp->tmp & 0x7f) == 0x7f) {
         *(vlcp->buf - vlcp->pos) = 0x7f;
@@ -509,16 +417,15 @@ namespace ojph {
 /////////////////////////////////////////////////////////////////////////
 //
 /////////////////////////////////////////////////////////////////////////
-
     struct ms_struct {
       //storage
-      ui8* buf;        //pointer to data buffer
-      ui32 pos;        //position of next writing within buf
-      ui32 buf_size;   //size of buffer, which we must not exceed
+      ui8* buf;      //pointer to data buffer
+      ui32 pos;      //position of next writing within buf
+      ui32 buf_size; //size of buffer, which we must not exceed
 
-      int used_bits;   //number of occupied bits in tmp
-      ui64 tmp;        //temporary storage of coded bits (64-bit accumulator)
-      bool last_was_ff;//true if the last written byte was 0xFF
+      int max_bits;  //maximum number of bits that can be store in tmp
+      int used_bits; //number of occupied bits in tmp
+      ui32 tmp;      //temporary storage of coded bits
     };
 
     //////////////////////////////////////////////////////////////////////////
@@ -528,129 +435,51 @@ namespace ojph {
       msp->buf = data;
       msp->pos = 0;
       msp->buf_size = buffer_size;
+      msp->max_bits = 8;
       msp->used_bits = 0;
       msp->tmp = 0;
-      msp->last_was_ff = false;
     }
 
     //////////////////////////////////////////////////////////////////////////
     static inline void
-    ms_drain(ms_struct* msp)
+    ms_encode(ms_struct* msp, ui64 cwd, int cwd_len)
     {
-      if (msp->last_was_ff) {
-        if (msp->used_bits < 7)
-          return;
-        msp->buf[msp->pos++] = (ui8)(msp->tmp & 0x7F);
-        msp->tmp >>= 7;
-        msp->used_bits -= 7;
-        msp->last_was_ff = false;
-      }
-
-      while (msp->used_bits >= 8) {
-        int n_bytes = msp->used_bits >> 3;
-        if (n_bytes > 8) n_bytes = 8;
-
-        ui64 word = msp->tmp;
-        ui64 valid_mask = (n_bytes < 8)
-                        ? (1ULL << (n_bytes * 8)) - 1 : ~(ui64)0;
-
-        ui64 w = ~word;
-        ui64 ff_detect = (w - 0x0101010101010101ULL) & ~w
-                       & 0x8080808080808080ULL;
-        ff_detect &= valid_mask;
-
-        if (likely(ff_detect == 0)) {
-          memcpy(msp->buf + msp->pos, &word, (size_t)n_bytes);
-          msp->pos += (ui32)n_bytes;
-          if (n_bytes < 8)
-            msp->tmp >>= (n_bytes * 8);
-          else
-            msp->tmp = 0;
-          msp->used_bits -= n_bytes * 8;
-        } else {
-          int ff_pos = (int)(count_trailing_zeros(ff_detect) >> 3);
-          int safe = ff_pos + 1;
-          memcpy(msp->buf + msp->pos, &word, (size_t)safe);
-          msp->pos += (ui32)safe;
-          int bits = safe * 8;
-          if (bits < 64)
-            msp->tmp >>= bits;
-          else
-            msp->tmp = 0;
-          msp->used_bits -= bits;
-
-          if (msp->used_bits >= 7) {
-            msp->buf[msp->pos++] = (ui8)(msp->tmp & 0x7F);
-            msp->tmp >>= 7;
-            msp->used_bits -= 7;
-            msp->last_was_ff = false;
-          } else {
-            msp->last_was_ff = true;
-            return;
-          }
+      while (cwd_len > 0)
+      {
+        if (msp->pos >= msp->buf_size)
+          OJPH_ERROR(0x00020005, "magnitude sign encoder's buffer is full");
+        int t = ojph_min(msp->max_bits - msp->used_bits, cwd_len);
+        msp->tmp |= ((ui32)(cwd & ((1U << t) - 1))) << msp->used_bits;
+        msp->used_bits += t;
+        cwd >>= t;
+        cwd_len -= t;
+        if (msp->used_bits >= msp->max_bits)
+        {
+          msp->buf[msp->pos++] = (ui8)msp->tmp;
+          msp->max_bits = (msp->tmp == 0xFF) ? 7 : 8;
+          msp->tmp = 0;
+          msp->used_bits = 0;
         }
       }
     }
-
-    //////////////////////////////////////////////////////////////////////////
-    static inline void
-    ms_encode_nodefer(ms_struct* msp, ui64 cwd, int cwd_len)
-    {
-      while (true) {
-        int avail = 64 - msp->used_bits;
-        if (likely(avail > 0 && cwd_len <= avail)) {
-          msp->tmp |= cwd << msp->used_bits;
-          msp->used_bits += cwd_len;
-          return;
-        }
-        if (likely(avail > 0)) // available space smaller than needed
-          msp->tmp |= cwd << msp->used_bits;
-        msp->used_bits = 64;
-        ms_drain(msp);
-        cwd >>= avail;
-        cwd_len -= avail;
-      }
-    }
-
-    //////////////////////////////////////////////////////////////////////////
-    // static inline void
-    // ms_encode(ms_struct* msp, ui64 cwd, int cwd_len)
-    // {
-    //   int avail = 64 - msp->used_bits;
-    //   if (likely(cwd_len <= avail)) {
-    //     msp->tmp |= cwd << msp->used_bits;
-    //     msp->used_bits += cwd_len;
-    //   } else {
-    //     msp->tmp |= (cwd & ((1ULL << avail) - 1)) << msp->used_bits;
-    //     msp->used_bits = 64;
-    //     ms_drain(msp);
-    //     cwd >>= avail;
-    //     cwd_len -= avail;
-    //     msp->tmp |= cwd << msp->used_bits;
-    //     msp->used_bits += cwd_len;
-    //   }
-    //   ms_drain(msp);
-    // }
 
     //////////////////////////////////////////////////////////////////////////
     static inline void
     ms_terminate(ms_struct* msp)
     {
-      ms_drain(msp);
       if (msp->used_bits)
       {
-        int max_bits = msp->last_was_ff ? 7 : 8;
-        int t = max_bits - msp->used_bits;
-        ui32 byte = (ui32)(msp->tmp & ((1ULL << msp->used_bits) - 1));
-        byte |= (0xFFu & ((1u << t) - 1)) << msp->used_bits;
-        if (byte != 0xFF)
+        int t = msp->max_bits - msp->used_bits; //unused bits
+        msp->tmp |= (0xFF & ((1U << t) - 1)) << msp->used_bits;
+        msp->used_bits += t;
+        if (msp->tmp != 0xFF)
         {
           if (msp->pos >= msp->buf_size)
             OJPH_ERROR(0x00020006, "magnitude sign encoder's buffer is full");
-          msp->buf[msp->pos++] = (ui8)byte;
+          msp->buf[msp->pos++] = (ui8)msp->tmp;
         }
       }
-      else if (msp->last_was_ff)
+      else if (msp->max_bits == 7)
         msp->pos--;
     }
 
@@ -837,10 +666,23 @@ static void proc_ms_encode(ms_struct *msp,
     m_vec[3] = _mm256_and_si256(mask, tmp);
 
     rotate_matrix(m_vec);
+    /* s_vec from
+     * s_vec[0]:[0, 0], [0, 2] ... [0,14], [0, 16], [0, 18] ... [0,30]
+     * s_vec[1]:[1, 0], [1, 2] ... [1,14], [1, 16], [1, 18] ... [1,30]
+     * s_vec[2]:[0, 1], [0, 3] ... [0,15], [0, 17], [0, 19] ... [0,31]
+     * s_vec[3]:[1, 1], [1, 3] ... [1,15], [1, 17], [1, 19] ... [1,31]
+     * to
+     * s_vec[0]:[0, 0], [1, 0], [0, 1], [1, 1], [0, 2], [1, 2]...[0, 7], [1, 7]
+     * s_vec[1]:[0, 8], [1, 8], [0, 9], [1, 9], [0,10], [1,10]...[0,15], [1,15]
+     * s_vec[2]:[0,16], [1,16], [0,17], [1,17], [0,18], [1,18]...[0,23], [1,23]
+     * s_vec[3]:[0,24], [1,24], [0,25], [1,25], [0,26], [1,26]...[0,31], [1,31]
+     */
     rotate_matrix(s_vec);
 
     ui32 cwd[8];
     int cwd_len[8];
+    ui64 _cwd = 0;
+    int _cwd_len = 0;
 
     /* Each iteration process 8 bytes * 2 lines */
     for (ui32 i = 0; i < 4; ++i) {
@@ -853,32 +695,15 @@ static void proc_ms_encode(ms_struct *msp,
         tmp = _mm256_and_si256(tmp, s_vec[i]);
         _mm256_storeu_si256((__m256i*)cwd, tmp);
 
-        for (ui32 j = 0; j < 4; j += 2) {
-            ui32 idx0 = j * 2;
-            ui64 _cwd     = cwd[idx0];
-            int  _cwd_len = cwd_len[idx0];
-            _cwd     |= ((ui64)cwd[idx0 + 1]) << _cwd_len;
-            _cwd_len += cwd_len[idx0 + 1];
-
-            ui32 idx1 = (j + 1) * 2;
-            int len1 = cwd_len[idx1] + cwd_len[idx1 + 1];
-            if (likely(_cwd_len + len1 <= 64)) {
-                _cwd     |= ((ui64)cwd[idx1]) << _cwd_len;
-                _cwd_len += cwd_len[idx1];
-                _cwd     |= ((ui64)cwd[idx1 + 1]) << _cwd_len;
-                _cwd_len += cwd_len[idx1 + 1];
-                ms_encode_nodefer(msp, _cwd, _cwd_len);
-            } else {
-                ms_encode_nodefer(msp, _cwd, _cwd_len);
-                _cwd     = cwd[idx1];
-                _cwd_len = cwd_len[idx1];
-                _cwd     |= ((ui64)cwd[idx1 + 1]) << _cwd_len;
-                _cwd_len += cwd_len[idx1 + 1];
-                ms_encode_nodefer(msp, _cwd, _cwd_len);
-            }
+        for (ui32 j = 0; j < 4; ++j) {
+            ui32 idx = j * 2;
+            _cwd     = cwd[idx];
+            _cwd_len = cwd_len[idx];
+            _cwd     |= ((ui64)cwd[idx + 1]) << _cwd_len;
+            _cwd_len += cwd_len[idx + 1];
+            ms_encode(msp, _cwd, _cwd_len);
         }
     }
-    ms_drain(msp);
 }
 
 static __m256i cal_eps_vec(__m256i *eq_vec, __m256i &u_q_vec,
@@ -982,7 +807,7 @@ static __m256i proc_cq2(ui32 x, __m256i *cx_val_vec, __m256i &rho_vec,
     auto tmp = _mm256_permutevar8x32_epi32(lcxp1_vec, right_shift);
 
 #ifdef OJPH_ARCH_X86_64
-    tmp = _mm256_insert_epi64(tmp,
+    tmp = _mm256_insert_epi64(tmp, 
       _mm_cvtsi128_si64(_mm256_castsi256_si128(cx_val_vec[x + 1])), 3);
 #elif (defined OJPH_ARCH_I386)
     int lsb = _mm_cvtsi128_si32(_mm256_castsi256_si128(cx_val_vec[x + 1]));
@@ -993,7 +818,7 @@ static __m256i proc_cq2(ui32 x, __m256i *cx_val_vec, __m256i &rho_vec,
     #error Error unsupport compiler
 #endif
     tmp = _mm256_slli_epi32(tmp, 2);
-    auto tmp1 = _mm256_insert_epi32(lcxp1_vec,
+    auto tmp1 = _mm256_insert_epi32(lcxp1_vec, 
       _mm_cvtsi128_si32(_mm256_castsi256_si128(cx_val_vec[x + 1])), 7);
     tmp = _mm256_add_epi32(tmp1, tmp);
 
@@ -1006,6 +831,8 @@ static __m256i proc_cq2(ui32 x, __m256i *cx_val_vec, __m256i &rho_vec,
 
     return _mm256_or_si256(tmp, tmp1);
 }
+
+using fn_proc_cq = __m256i (*)(ui32, __m256i *, __m256i &, const __m256i);
 
 static void proc_mel_encode1(mel_struct *melp, __m256i &cq_vec,
                              __m256i &rho_vec, __m256i u_q_vec, ui32 ignore,
@@ -1056,183 +883,133 @@ static void proc_mel_encode2(mel_struct *melp, __m256i &cq_vec,
 {
     ojph_unused(u_q_vec);
     ojph_unused(right_shift);
+    int32_t mel_need_encode[8];
+    int32_t mel_bit[8];
 
-    __m256i need = _mm256_cmpeq_epi32(cq_vec, ZERO);
-    ui32 mask = (ui32)_mm256_movemask_epi8(need);
-    mask &= 0x88888888;
+    /* Prepare mel_encode params */
+    /* if (c_q[i] == 0) { */
+    _mm256_storeu_si256((__m256i*)mel_need_encode, _mm256_cmpeq_epi32(cq_vec, ZERO));
+    /*   mel_encode(&mel, rho[i] != 0); */
+    _mm256_storeu_si256((__m256i*)mel_bit, _mm256_srli_epi32(avx2_cmpneq_epi32(rho_vec, ZERO), 31));
+    /* } */
 
     ui32 i_max = 8 - (ignore / 2);
-    if (i_max < 8)
-        mask &= (1u << (i_max * 4)) - 1;
 
-    if (mask == 0)
-        return;
-
-    int32_t mel_bit[8];
-    _mm256_storeu_si256((__m256i*)mel_bit,
-        _mm256_srli_epi32(avx2_cmpneq_epi32(rho_vec, ZERO), 31));
-
-    while (mask) {
-        ui32 bit_pos = (ui32)count_trailing_zeros(mask);
-        ui32 i = bit_pos / 4;
-        mel_encode(melp, mel_bit[i]);
-        mask &= mask - 1;
+    for (ui32 i = 0; i < i_max; ++i) {
+        if (mel_need_encode[i]) {
+            mel_encode(melp, mel_bit[i]);
+        }
     }
 }
 
 using fn_proc_mel_encode = void (*)(mel_struct *, __m256i &, __m256i &,
                                     __m256i, ui32, const __m256i);
 
-static inline void
-build_vlc_uvlc_pair(ui32 *tuple, ui32 *u_q, ui32 i,
-                    const ui32 *uvlc_tbl, ui64 &val, int &size)
-{
-    val = tuple[i + 0] >> 4;
-    size = tuple[i + 0] & 7;
-
-    val |= (ui64)(tuple[i + 1] >> 4) << size;
-    size += tuple[i + 1] & 7;
-
-    ui32 entry = uvlc_tbl[u_q[i] * 33 + u_q[i + 1]];
-    val |= (ui64)(entry >> 5) << size;
-    size += entry & 0x1F;
-}
-
-static void proc_vlc_encode(vlc_struct *vlcp, ui32 *tuple,
-                            ui32 *u_q, ui32 ignore, const ui32 *uvlc_tbl)
+static void proc_vlc_encode1(vlc_struct_avx2 *vlcp, ui32 *tuple,
+                             ui32 *u_q, ui32 ignore)
 {
     ui32 i_max = 8 - (ignore / 2);
 
-    ui32 i = 0;
-    for (; i + 2 < i_max; i += 4) {
-        ui64 val1; int size1;
-        build_vlc_uvlc_pair(tuple, u_q, i, uvlc_tbl, val1, size1);
-        ui64 val2; int size2;
-        build_vlc_uvlc_pair(tuple, u_q, i + 2, uvlc_tbl, val2, size2);
-        vlc_encode(vlcp, val1 | (val2 << size1), size1 + size2);
-    }
-    if (i < i_max) {
-        ui64 val; int size;
-        build_vlc_uvlc_pair(tuple, u_q, i, uvlc_tbl, val, size);
+    for (ui32 i = 0; i < i_max; i += 2) {
+        /* 7 bits */
+        ui32 val = tuple[i + 0] >> 4;
+        int size = tuple[i + 0] & 7;
+
+        if (i + 1 < i_max) {
+            /* 7 bits */
+            val |= (tuple[i + 1] >> 4) << size;
+            size += tuple[i + 1] & 7;
+        }
+
+        if (u_q[i] > 2 && u_q[i + 1] > 2) {
+            /* 3 bits */
+            val |= (ulvc_cwd_pre[u_q[i] - 2]) << size;
+            size += ulvc_cwd_pre_len[u_q[i] - 2];
+
+            /* 3 bits */
+            val |= (ulvc_cwd_pre[u_q[i + 1] - 2]) << size;
+            size += ulvc_cwd_pre_len[u_q[i + 1] - 2];
+
+            /* 5 bits */
+            val |= (ulvc_cwd_suf[u_q[i] - 2]) << size;
+            size += ulvc_cwd_suf_len[u_q[i] - 2];
+
+            /* 5 bits */
+            val |= (ulvc_cwd_suf[u_q[i + 1] - 2]) << size;
+            size += ulvc_cwd_suf_len[u_q[i + 1] - 2];
+
+        } else if (u_q[i] > 2 && u_q[i + 1] > 0) {
+            /* 3 bits */
+            val |= (ulvc_cwd_pre[u_q[i]]) << size;
+            size += ulvc_cwd_pre_len[u_q[i]];
+
+            /* 1 bit */
+            val |= (u_q[i + 1] - 1) << size;
+            size += 1;
+
+            /* 5 bits */
+            val |= (ulvc_cwd_suf[u_q[i]]) << size;
+            size += ulvc_cwd_suf_len[u_q[i]];
+
+        } else {
+            /* 3 bits */
+            val |= (ulvc_cwd_pre[u_q[i]]) << size;
+            size += ulvc_cwd_pre_len[u_q[i]];
+
+            /* 3 bits */
+            val |= (ulvc_cwd_pre[u_q[i + 1]]) << size;
+            size += ulvc_cwd_pre_len[u_q[i + 1]];
+
+            /* 5 bits */
+            val |= (ulvc_cwd_suf[u_q[i]]) << size;
+            size += ulvc_cwd_suf_len[u_q[i]];
+
+            /* 5 bits */
+            val |= (ulvc_cwd_suf[u_q[i + 1]]) << size;
+            size += ulvc_cwd_suf_len[u_q[i + 1]];
+        }
+
         vlc_encode(vlcp, val, size);
     }
 }
 
-template<int PASS>
-OJPH_FORCE_INLINE void encode_x_loop(
-    ui32 *sp, ui32 stride, ui32 height, ui32 y,
-    ui32 n_loop, ui32 _width, ui32 ignore, ui32 p,
-    mel_struct &mel, vlc_struct &vlc, ms_struct &ms,
-    __m256i *e_val_vec, __m256i &prev_e_val_vec,
-    __m256i *cx_val_vec, __m256i &prev_cx_val_vec,
-    ui32 &prev_cq,
-    const __m256i &right_shift, const __m256i &left_shift)
+static void proc_vlc_encode2(vlc_struct_avx2 *vlcp, ui32 *tuple,
+                             ui32 *u_q, ui32 ignore)
 {
-    ui32 *vlc_tbl = (PASS == 1) ? vlc_tbl0 : vlc_tbl1;
+    ui32 i_max = 8 - (ignore / 2);
 
-    __m256i tmp, tmp1;
-    __m256i eq_vec[4];
-    __m256i s_vec[4];
-    __m256i src_vec[4];
+    for (ui32 i = 0; i < i_max; i += 2) {
+        /* 7 bits */
+        ui32 val = tuple[i + 0] >> 4;
+        int size = tuple[i + 0] & 7;
 
-    /* 16 bytes per iteration */
-    for (ui32 x = 0; x < n_loop; ++x) {
-
-        /* t = sp[i]; */
-        if ((x == (n_loop - 1)) && (_width % 16)) {
-            ui32 tmp_buf[16] = { 0 };
-            memcpy(tmp_buf, sp, (_width % 16) * sizeof(ui32));
-            src_vec[0] = _mm256_loadu_si256((__m256i*)(tmp_buf));
-            src_vec[2] = _mm256_loadu_si256((__m256i*)(tmp_buf + 8));
-            if (y + 1 < height) {
-                memcpy(tmp_buf, sp + stride, (_width % 16) * sizeof(ui32));
-                src_vec[1] = _mm256_loadu_si256((__m256i*)(tmp_buf));
-                src_vec[3] = _mm256_loadu_si256((__m256i*)(tmp_buf + 8));
-            }
-            else {
-                src_vec[1] = ZERO;
-                src_vec[3] = ZERO;
-            }
-        }
-        else {
-            src_vec[0] = _mm256_loadu_si256((__m256i*)(sp));
-            src_vec[2] = _mm256_loadu_si256((__m256i*)(sp + 8));
-
-            if (y + 1 < height) {
-                src_vec[1] = _mm256_loadu_si256((__m256i*)(sp + stride));
-                src_vec[3] = _mm256_loadu_si256((__m256i*)(sp + 8 + stride));
-            }
-            else {
-                src_vec[1] = ZERO;
-                src_vec[3] = ZERO;
-            }
-            sp += 16;
+        if (i + 1 < i_max) {
+            /* 7 bits */
+            val |= (tuple[i + 1] >> 4) << size;
+            size += tuple[i + 1] & 7;
         }
 
-        __m256i rho_vec, e_qmax_vec;
-        proc_pixel(src_vec, p, eq_vec, s_vec, rho_vec, e_qmax_vec);
+        /* 3 bits */
+        val |= ulvc_cwd_pre[u_q[i]] << size;
+        size += ulvc_cwd_pre_len[u_q[i]];
 
-        // max_e[(i + 1) % num] = ojph_max(lep[i + 1], lep[i + 2]) - 1;
-        tmp = _mm256_permutevar8x32_epi32(e_val_vec[x], right_shift);
-        tmp = _mm256_insert_epi32(tmp, _mm_cvtsi128_si32(_mm256_castsi256_si128(e_val_vec[x + 1])), 7);
+        /* 3 bits */
+        val |= (ulvc_cwd_pre[u_q[i + 1]]) << size;
+        size += ulvc_cwd_pre_len[u_q[i + 1]];
 
-        auto max_e_vec = _mm256_max_epi32(tmp, e_val_vec[x]);
-        max_e_vec = _mm256_sub_epi32(max_e_vec, ONE);
+        /* 5 bits */
+        val |= (ulvc_cwd_suf[u_q[i + 0]]) << size;
+        size += ulvc_cwd_suf_len[u_q[i + 0]];
 
-        // kappa[i] = (rho[i] & (rho[i] - 1)) ? ojph_max(1, max_e[i]) : 1;
-        tmp = _mm256_max_epi32(max_e_vec, ONE);
-        tmp1 = _mm256_sub_epi32(rho_vec, ONE);
-        tmp1 = _mm256_and_si256(rho_vec, tmp1);
+        /* 5 bits */
+        val |= (ulvc_cwd_suf[u_q[i + 1]]) << size;
+        size += ulvc_cwd_suf_len[u_q[i + 1]];
 
-        auto cmp = _mm256_cmpeq_epi32(tmp1, ZERO);
-        auto kappa_vec1_ = _mm256_and_si256(cmp, ONE);
-        auto kappa_vec2_ = _mm256_and_si256(_mm256_xor_si256(cmp, _mm256_set1_epi32((int32_t)0xffffffff)), tmp);
-        const __m256i kappa_vec = _mm256_max_epi32(kappa_vec1_, kappa_vec2_);
-
-        if (PASS == 1)
-            tmp = proc_cq1(x, cx_val_vec, rho_vec, right_shift);
-        else
-            tmp = proc_cq2(x, cx_val_vec, rho_vec, right_shift);
-
-        auto cq_vec = _mm256_permutevar8x32_epi32(tmp, left_shift);
-        cq_vec = _mm256_insert_epi32(cq_vec, prev_cq, 0);
-        prev_cq = (ui32)_mm256_extract_epi32(tmp, 7);
-
-        update_lep(x, prev_e_val_vec, eq_vec, e_val_vec, left_shift);
-        update_lcxp(x, prev_cx_val_vec, rho_vec, cx_val_vec, left_shift);
-
-        /* Uq[i] = ojph_max(e_qmax[i], kappa[i]); */
-        /* u_q[i] = Uq[i] - kappa[i]; */
-        auto uq_vec = _mm256_max_epi32(kappa_vec, e_qmax_vec);
-        auto u_q_vec = _mm256_sub_epi32(uq_vec, kappa_vec);
-
-        auto eps_vec = cal_eps_vec(eq_vec, u_q_vec, e_qmax_vec);
-        __m256i tuple_vec = cal_tuple(cq_vec, rho_vec, eps_vec, vlc_tbl);
-        ui32 _ignore = ((n_loop - 1) == x) ? ignore : 0;
-
-        if (PASS == 1)
-            proc_mel_encode1(&mel, cq_vec, rho_vec, u_q_vec, _ignore,
-                             right_shift);
-        else
-            proc_mel_encode2(&mel, cq_vec, rho_vec, u_q_vec, _ignore,
-                             right_shift);
-
-        proc_ms_encode(&ms, tuple_vec, uq_vec, rho_vec, s_vec);
-
-        ui32 u_q[10];
-        ui32 tuple[10];
-        tuple_vec = _mm256_srli_epi32(tuple_vec, 4);
-        _mm256_storeu_si256((__m256i*)tuple, tuple_vec);
-        _mm256_storeu_si256((__m256i*)u_q, u_q_vec);
-        {
-          ui32 i_max = 8 - (_ignore / 2);
-          if (i_max & 1) { tuple[i_max] = 0; u_q[i_max] = 0; }
-          tuple[8] = 0; u_q[8] = 0;
-        }
-        proc_vlc_encode(&vlc, tuple, u_q, _ignore,
-            (PASS == 1) ? uvlc_tbl_pair1 : uvlc_tbl_pair2);
+        vlc_encode(vlcp, val, size);
     }
 }
+
+using fn_proc_vlc_encode = void (*)(vlc_struct_avx2 *, ui32 *, ui32 *, ui32);
 
 void ojph_encode_codeblock_avx2(ui32* buf, ui32 missing_msbs,
                                 ui32 num_passes, ui32 _width, ui32 height,
@@ -1256,7 +1033,7 @@ void ojph_encode_codeblock_avx2(ui32* buf, ui32 missing_msbs,
 
     mel_struct mel;
     mel_init(&mel, mel_size, mel_buf);
-    vlc_struct vlc;
+    vlc_struct_avx2 vlc;
     vlc_init(&vlc, vlc_size, vlc_buf);
     ms_struct ms;
     ms_init(&ms, ms_size, ms_buf);
@@ -1283,9 +1060,9 @@ void ojph_encode_codeblock_avx2(ui32* buf, ui32 missing_msbs,
     ui32 n_loop = (width + 15) / 16;
 
     __m256i e_val_vec[65];
-    for (ui32 i = 0; i < ojph_min(64, n_loop); ++i)
+    for (ui32 i = 0; i <ojph_min(64, n_loop); ++i) {
         e_val_vec[i] = ZERO;
-
+    }
     __m256i prev_e_val_vec = ZERO;
 
     __m256i cx_val_vec[65];
@@ -1293,14 +1070,21 @@ void ojph_encode_codeblock_avx2(ui32* buf, ui32 missing_msbs,
 
     ui32 prev_cq = 0;
 
-    __m256i tmp;
+    __m256i eq_vec[4];
+    __m256i s_vec[4];
+    __m256i src_vec[4];
+
+    ui32 *vlc_tbl = vlc_tbl0;
+    fn_proc_cq proc_cq = proc_cq1;
+    fn_proc_mel_encode proc_mel_encode = proc_mel_encode1;
+    fn_proc_vlc_encode proc_vlc_encode = proc_vlc_encode1;
 
     /* 2 lines per iteration */
     for (ui32 y = 0; y < height; y += 2)
     {
         e_val_vec[n_loop] = prev_e_val_vec;
         /* lcxp[0] = (ui8)((rho[0] & 8) >> 3); */
-        tmp = _mm256_and_si256(prev_cx_val_vec, _mm256_set1_epi32(8));
+        __m256i tmp = _mm256_and_si256(prev_cx_val_vec, _mm256_set1_epi32(8));
         cx_val_vec[n_loop] = _mm256_srli_epi32(tmp, 3);
 
         prev_e_val_vec = ZERO;
@@ -1308,27 +1092,119 @@ void ojph_encode_codeblock_avx2(ui32* buf, ui32 missing_msbs,
 
         ui32 *sp = buf + y * stride;
 
-        if (y == 0)
-            encode_x_loop<1>(sp, stride, height, y, n_loop, _width,
-                             ignore, p, mel, vlc, ms,
-                             e_val_vec, prev_e_val_vec,
-                             cx_val_vec, prev_cx_val_vec, prev_cq,
-                             right_shift, left_shift);
-        else
-            encode_x_loop<2>(sp, stride, height, y, n_loop, _width,
-                             ignore, p, mel, vlc, ms,
-                             e_val_vec, prev_e_val_vec,
-                             cx_val_vec, prev_cx_val_vec, prev_cq,
-                             right_shift, left_shift);
+        /* 16 bytes per iteration */
+        for (ui32 x = 0; x < n_loop; ++x) {
+
+            /* t = sp[i]; */
+            if ((x == (n_loop - 1)) && (_width % 16)) {
+                ui32 tmp_buf[16] = { 0 };
+                memcpy(tmp_buf, sp, (_width % 16) * sizeof(ui32));
+                src_vec[0] = _mm256_loadu_si256((__m256i*)(tmp_buf));
+                src_vec[2] = _mm256_loadu_si256((__m256i*)(tmp_buf + 8));
+                if (y + 1 < height) {
+                    memcpy(tmp_buf, sp + stride, (_width % 16) * sizeof(ui32));
+                    src_vec[1] = _mm256_loadu_si256((__m256i*)(tmp_buf));
+                    src_vec[3] = _mm256_loadu_si256((__m256i*)(tmp_buf + 8));
+                }
+                else {
+                    src_vec[1] = ZERO;
+                    src_vec[3] = ZERO;
+                }
+            }
+            else {
+                src_vec[0] = _mm256_loadu_si256((__m256i*)(sp));
+                src_vec[2] = _mm256_loadu_si256((__m256i*)(sp + 8));
+
+                if (y + 1 < height) {
+                    src_vec[1] = _mm256_loadu_si256((__m256i*)(sp + stride));
+                    src_vec[3] = _mm256_loadu_si256((__m256i*)(sp + 8 + stride));
+                }
+                else {
+                    src_vec[1] = ZERO;
+                    src_vec[3] = ZERO;
+                }
+                sp += 16;
+            }
+
+            /* src_vec layout:
+             * src_vec[0]:[0, 0],[0, 1],[0, 2],[0, 3],[0, 4],[0, 5],.[0, 6],.[0, 7]
+             * src_vec[1]:[1, 0],[1, 1],[1, 2],[1, 3],[1, 4],[1, 5],.[1, 6],.[1, 7]
+             * src_vec[2]:[0, 8],[0, 9],[0,10],[0,11],[0,12],[0,13],.[0,14], [0,15]
+             * src_vec[3]:[1, 8],[1, 9],[1,10],[1,11],[1,12],[1,13],.[1,14], [1,15]
+             */
+            __m256i rho_vec, e_qmax_vec;
+            proc_pixel(src_vec, p, eq_vec, s_vec, rho_vec, e_qmax_vec);
+
+            // max_e[(i + 1) % num] = ojph_max(lep[i + 1], lep[i + 2]) - 1;
+            tmp = _mm256_permutevar8x32_epi32(e_val_vec[x], right_shift);
+            tmp = _mm256_insert_epi32(tmp, _mm_cvtsi128_si32(_mm256_castsi256_si128(e_val_vec[x + 1])), 7);
+
+            auto max_e_vec = _mm256_max_epi32(tmp, e_val_vec[x]);
+            max_e_vec = _mm256_sub_epi32(max_e_vec, ONE);
+
+            // kappa[i] = (rho[i] & (rho[i] - 1)) ? ojph_max(1, max_e[i]) : 1;
+            tmp = _mm256_max_epi32(max_e_vec, ONE);
+            __m256i tmp1 = _mm256_sub_epi32(rho_vec, ONE);
+            tmp1 = _mm256_and_si256(rho_vec, tmp1);
+
+            auto cmp = _mm256_cmpeq_epi32(tmp1, ZERO);
+            auto kappa_vec1_ = _mm256_and_si256(cmp, ONE);
+            auto kappa_vec2_ = _mm256_and_si256(_mm256_xor_si256(cmp, _mm256_set1_epi32((int32_t)0xffffffff)), tmp);
+            const __m256i kappa_vec = _mm256_max_epi32(kappa_vec1_, kappa_vec2_);
+
+            /* cq[1 - 16] = cq_vec
+             * cq[0] = prev_cq_vec[0]
+             */
+            tmp = proc_cq(x, cx_val_vec, rho_vec, right_shift);
+
+            auto cq_vec = _mm256_permutevar8x32_epi32(tmp, left_shift);
+            cq_vec = _mm256_insert_epi32(cq_vec, prev_cq, 0);
+            prev_cq = (ui32)_mm256_extract_epi32(tmp, 7);
+
+            update_lep(x, prev_e_val_vec, eq_vec, e_val_vec, left_shift);
+            update_lcxp(x, prev_cx_val_vec, rho_vec, cx_val_vec, left_shift);
+
+            /* Uq[i] = ojph_max(e_qmax[i], kappa[i]); */
+            /* u_q[i] = Uq[i] - kappa[i]; */
+            auto uq_vec = _mm256_max_epi32(kappa_vec, e_qmax_vec);
+            auto u_q_vec = _mm256_sub_epi32(uq_vec, kappa_vec);
+
+            auto eps_vec = cal_eps_vec(eq_vec, u_q_vec, e_qmax_vec);
+            __m256i tuple_vec = cal_tuple(cq_vec, rho_vec, eps_vec, vlc_tbl);
+            ui32 _ignore = ((n_loop - 1) == x) ? ignore : 0;
+
+            proc_mel_encode(&mel, cq_vec, rho_vec, u_q_vec, _ignore,
+                            right_shift);
+
+            proc_ms_encode(&ms, tuple_vec, uq_vec, rho_vec, s_vec);
+
+            // vlc_encode(&vlc, tuple[i*2+0] >> 8, (tuple[i*2+0] >> 4) & 7);
+            // vlc_encode(&vlc, tuple[i*2+1] >> 8, (tuple[i*2+1] >> 4) & 7);
+            ui32 u_q[8];
+            ui32 tuple[8];
+            /* The tuple is scaled by 4 due to:
+             * vlc_encode(&vlc, tuple0 >> 8, (tuple0 >> 4) & 7, true);
+             * So in the vlc_encode, the tuple will only be scaled by 2.
+             */
+            tuple_vec = _mm256_srli_epi32(tuple_vec, 4);
+            _mm256_storeu_si256((__m256i*)tuple, tuple_vec);
+            _mm256_storeu_si256((__m256i*)u_q, u_q_vec);
+
+            proc_vlc_encode(&vlc, tuple, u_q, _ignore);
+        }
 
         tmp = _mm256_permutevar8x32_epi32(cx_val_vec[0], right_shift);
         tmp = _mm256_slli_epi32(tmp, 2);
         tmp = _mm256_add_epi32(tmp, cx_val_vec[0]);
         prev_cq = (ui32)_mm_cvtsi128_si32(_mm256_castsi256_si128(tmp));
+
+        proc_cq = proc_cq2;
+        vlc_tbl = vlc_tbl1;
+        proc_mel_encode = proc_mel_encode2;
+        proc_vlc_encode = proc_vlc_encode2;
     }
 
     ms_terminate(&ms);
-    vlc_drain(&vlc);
     terminate_mel_vlc(&mel, &vlc);
 
     //copy to elastic
@@ -1352,4 +1228,3 @@ void ojph_encode_codeblock_avx2(ui32* buf, ui32 missing_msbs,
 } /* namespace ojph */
 
 #endif
-#endif // !defined(__apple_build_version__)
