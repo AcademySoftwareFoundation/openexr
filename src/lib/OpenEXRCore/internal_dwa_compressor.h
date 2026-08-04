@@ -688,6 +688,43 @@ DwaCompressor_compress (DwaCompressor* me)
 
 /**************************************/
 
+static exr_result_t
+validate_size(DwaCompressor* me, CompressorScheme compression,
+              uint64_t compressedSize, uint64_t uncompressedSize,
+              uint64_t extraSize)
+{
+    uint64_t requiredSize = 0;
+    for (int c = 0; c < me->_numChannels; ++c)
+    {
+        if (me->_channelData[c].compression == compression)
+        {
+            uint64_t chanSize = (uint64_t) me->_channelData[c].planarUncSize;
+
+            /* guard against wraparound when accumulating attacker-influenced
+             * per-channel sizes; a wrap would understate requiredSize and
+             * defeat the validation below */
+            if (chanSize > UINT64_MAX - requiredSize)
+                return EXR_ERR_CORRUPT_CHUNK;
+
+            requiredSize += chanSize;
+        }
+    }
+
+    if (requiredSize > 0)
+    {
+        if (uncompressedSize < requiredSize || compressedSize == 0)
+        {
+            return EXR_ERR_CORRUPT_CHUNK;
+        }
+    }
+    else if (uncompressedSize > 0 || compressedSize > 0 || extraSize > 0)
+    {
+        return EXR_ERR_CORRUPT_CHUNK;
+    }
+
+    return EXR_ERR_SUCCESS;
+}
+
 exr_result_t
 DwaCompressor_uncompress (
     DwaCompressor* me,
@@ -867,27 +904,30 @@ DwaCompressor_uncompress (
     rv = DwaCompressor_setupChannelData (me);
     if (rv != EXR_ERR_SUCCESS) { return rv; }
 
+    rv = validate_size(me, UNKNOWN, unknownCompressedSize, unknownUncompressedSize, 0);
+    if (rv != EXR_ERR_SUCCESS) { return rv; }
+    
+    rv = validate_size(me, RLE, rleCompressedSize, rleRawSize, rleUncompressedSize);
+    if (rv != EXR_ERR_SUCCESS) { return rv; }
+    
     //
     // Uncompress the UNKNOWN data into _planarUncBuffer[UNKNOWN]
     //
 
     if (unknownCompressedSize > 0)
     {
-        size_t actualUnknown;
-
         if (unknownUncompressedSize > me->_planarUncBufferSize[UNKNOWN])
         {
             return EXR_ERR_CORRUPT_CHUNK;
         }
 
-        rv = exr_uncompress_buffer (
-            me->_decode->context,
-            compressedUnknownBuf,
-            unknownCompressedSize,
-            me->_planarUncBuffer[UNKNOWN],
-            unknownUncompressedSize,
-            &actualUnknown);
-        if (rv != EXR_ERR_SUCCESS || actualUnknown != unknownUncompressedSize)
+        if (EXR_ERR_SUCCESS != exr_uncompress_buffer (
+                                   me->_decode->context,
+                                   compressedUnknownBuf,
+                                   unknownCompressedSize,
+                                   me->_planarUncBuffer[UNKNOWN],
+                                   unknownUncompressedSize,
+                                   NULL))
         {
             return EXR_ERR_CORRUPT_CHUNK;
         }
