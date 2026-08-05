@@ -232,7 +232,7 @@ jobs:
         if: inputs.OPENEXR_FORCE_INTERNAL_OPENJPH == 'OFF' && inputs.msystem == 'MINGW32'
         run: |
           set -x
-          share/ci/scripts/install_openjph.sh 0.22.0
+          share/ci/scripts/install_openjph.sh 0.31.0
         shell: msys2 {0}
 
       - name: Install help2man
