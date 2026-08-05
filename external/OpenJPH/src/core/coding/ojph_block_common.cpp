@@ -5,7 +5,8 @@
 // Copyright (c) 2022, Aous Naman 
 // Copyright (c) 2022, Kakadu Software Pty Ltd, Australia
 // Copyright (c) 2022, The University of New South Wales, Australia
-// 
+// Copyright (c) 2026, Osamu Watanabe
+//
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
 // met:
@@ -32,6 +33,7 @@
 // This file is part of the OpenJPH software implementation.
 // File: ojph_block_common.cpp
 // Author: Aous Naman
+// Author: Osamu Watanabe
 // Date: 13 May 2022
 //***************************************************************************/
 
@@ -102,9 +104,14 @@ namespace ojph {
 
     /// @brief uvlc_tbl0 contains decoding information for initial row of quads
     ui16 uvlc_tbl0[256+64] = { 0 };
-    /// @brief uvlc_tbl1 contains decoding information for non-initial row of 
+    /// @brief uvlc_tbl1 contains decoding information for non-initial row of
     ///        quads
     ui16 uvlc_tbl1[256] = { 0 };
+    /// @brief uvlc_tbl1_wide: wider UVLC table for non-initial rows.
+    ///        Index = mode(2 bits) * 1024 + vlc_data(10 bits) = 12 bits.
+    ///        Entry bits: [4:0]=total_bits, [12:5]=u_q0, [20:13]=u_q1.
+    ///        total_bits == 0x1F means fallback to original decode path.
+    ui32 uvlc_tbl1_wide[4096] = { 0 };
     /// @brief uvlc_bias contains decoding info. for initial row of quads
     ui8 uvlc_bias[256+64] = { 0 };
     /// @}
@@ -330,6 +337,85 @@ namespace ojph {
     }
 
     //************************************************************************/
+    /** @ingroup uvlc_decoding_tables_grp
+     *  @brief Initializes uvlc_tbl1_wide: wider UVLC table for non-initial
+     *         rows. Index = mode(2b) * 1024 + vlc(10b). Entry packs
+     *         total_bits[4:0], u_q0[12:5], u_q1[20:13].
+     *         total_bits == 0x1F signals fallback to original decode.
+     */
+    static bool uvlc_init_wide_table()
+    {
+      static const ui8 dec[8] = {
+        3 | (5 << 2) | (5 << 5), //000
+        1 | (0 << 2) | (1 << 5), //xx1
+        2 | (0 << 2) | (2 << 5), //x10
+        1 | (0 << 2) | (1 << 5), //xx1
+        3 | (1 << 2) | (3 << 5), //100
+        1 | (0 << 2) | (1 << 5), //xx1
+        2 | (0 << 2) | (2 << 5), //x10
+        1 | (0 << 2) | (1 << 5)  //xx1
+      };
+
+      for (ui32 idx = 0; idx < 4096; ++idx)
+      {
+        ui32 mode = idx >> 10;       // 2 bits
+        ui32 vlc = idx & 0x3FF;      // 10 bits
+
+        if (mode == 0) {
+          uvlc_tbl1_wide[idx] = 0;
+          continue;
+        }
+
+        if (mode <= 2) // single UVLC (one u_off set)
+        {
+          ui32 d = dec[vlc & 0x7];
+          ui32 prefix_len = d & 0x3;
+          ui32 suffix_len = (d >> 2) & 0x7;
+          ui32 u_pfx = d >> 5;
+          ui32 suffix_val = (vlc >> prefix_len) & ((1u << suffix_len) - 1);
+          ui32 u_val = u_pfx + suffix_val;
+          ui32 total = prefix_len + suffix_len;
+          ui32 u_q0 = (mode == 1) ? u_val : 0;
+          ui32 u_q1 = (mode == 2) ? u_val : 0;
+          uvlc_tbl1_wide[idx] = total | (u_q0 << 5) | (u_q1 << 13);
+          continue;
+        }
+
+        // mode == 3: both u_off set
+        // Bitstream layout: [prefix0][prefix1][suffix0][suffix1]
+        ui32 d0 = dec[vlc & 0x7];
+        ui32 p0_len = d0 & 0x3;
+        ui32 s0_len = (d0 >> 2) & 0x7;
+        ui32 u0_pfx = d0 >> 5;
+
+        ui32 vlc1 = vlc >> p0_len;  // consume prefix0
+        ui32 d1 = dec[vlc1 & 0x7];
+        ui32 p1_len = d1 & 0x3;
+        ui32 s1_len = (d1 >> 2) & 0x7;
+        ui32 u1_pfx = d1 >> 5;
+
+        ui32 total_prefix = p0_len + p1_len;
+        ui32 total_suffix = s0_len + s1_len;
+        ui32 total = total_prefix + total_suffix;
+
+        if (total > 10) {
+          uvlc_tbl1_wide[idx] = 0x1F; // fallback sentinel
+          continue;
+        }
+
+        // suffixes follow both prefixes in the bitstream
+        ui32 suffix_bits = vlc >> total_prefix;
+        ui32 s0_val = suffix_bits & ((1u << s0_len) - 1);
+        ui32 s1_val = (suffix_bits >> s0_len) & ((1u << s1_len) - 1);
+
+        ui32 u_q0 = u0_pfx + s0_val;
+        ui32 u_q1 = u1_pfx + s1_val;
+        uvlc_tbl1_wide[idx] = total | (u_q0 << 5) | (u_q1 << 13);
+      }
+      return true;
+    }
+
+    //************************************************************************/
     /** @ingroup vlc_decoding_tables_grp
      *  @brief Initializes VLC tables vlc_tbl0 and vlc_tbl1
      */
@@ -340,6 +426,12 @@ namespace ojph {
      *  @brief Initializes UVLC tables uvlc_tbl0 and uvlc_tbl1
      */
     static bool uvlc_tables_initialized = uvlc_init_tables();
+
+    //************************************************************************/
+    /** @ingroup uvlc_decoding_tables_grp
+     *  @brief Initializes wide UVLC table uvlc_tbl1_wide
+     */
+    static bool uvlc_wide_initialized = uvlc_init_wide_table();
 
   } // !namespace local
 } // !namespace ojph
