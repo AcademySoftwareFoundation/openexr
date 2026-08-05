@@ -348,6 +348,11 @@ IDManifest::IDManifest (const char* data, const char* endOfData)
 void
 IDManifest::init (const char* data, const char* endOfData)
 {
+    if (data + sizeof (unsigned int) > endOfData)
+    {
+        throw IEX_NAMESPACE::InputExc (
+            "IDManifest too small for version field");
+    }
 
     unsigned int version;
     Xdr::read<CharPtrIO> (data, version);
@@ -576,6 +581,29 @@ IDManifest::init (const char* data, const char* endOfData)
 IDManifest::IDManifest (const CompressedIDManifest& compressed)
 {
     //
+    // Reject an implausible declared uncompressed size before allocating
+    // anything for it. The declared size is otherwise an unvalidated
+    // 64-bit value taken directly from the file, used as a buffer size
+    // before decompression (and thus before any check on its contents),
+    // which allows a tiny file to force an enormous, fully-committed
+    // allocation (a denial of service) or, at 0, a null-pointer
+    // dereference during `init`. zlib's maximum expansion ratio is
+    // approximately 1032:1, so a declared size that exceeds that ratio
+    // applied to the compressed size cannot be honest.
+    //
+    static const uint64_t MAX_MANIFEST_SIZE = 256 * 1024 * 1024;
+    static const uint64_t MAX_EXPANSION     = 1032;
+
+    if (compressed._uncompressedDataSize == 0 ||
+        compressed._uncompressedDataSize > MAX_MANIFEST_SIZE ||
+        compressed._uncompressedDataSize >
+            compressed._compressedDataSize * MAX_EXPANSION)
+    {
+        throw IEX_NAMESPACE::InputExc (
+            "IDManifest has an implausible uncompressed data size");
+    }
+
+    //
     // decompress the compressed manifest
     //
 
@@ -599,7 +627,7 @@ IDManifest::IDManifest (const CompressedIDManifest& compressed)
             "IDManifest decompression (zlib) failed: mismatch in decompressed data size");
     }
 
-    init ((const char*) &uncomp[0], (const char*) &uncomp[0] + outSize);
+    init (uncomp.data (), uncomp.data () + outSize);
 }
 
 void
