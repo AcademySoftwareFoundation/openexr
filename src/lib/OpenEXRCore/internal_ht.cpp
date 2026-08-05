@@ -465,15 +465,32 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
     {
         cod.set_reversible (false);
 
-        float lossy_htj2k_quality = -1.f;
+        float qfactor = -1.f;
         exr_get_lossy_htj2k_quality (
-            encode->context, encode->part_index, &lossy_htj2k_quality);
-        if (lossy_htj2k_quality < 1.f || lossy_htj2k_quality > 100.f) {
+            encode->context, encode->part_index, &qfactor);
+        if (qfactor < 1.f || qfactor > 150.f) {
             return EXR_ERR_INVALID_ARGUMENT;
         }
 
         ojph::param_qcd qcd = cs.access_qcd ();
-        qcd.set_qfactor ((ojph::ui8) std::lround (lossy_htj2k_quality));
+        if (qfactor <= 99)
+        {
+            qcd.set_qfactor ((ojph::ui8) std::lround (qfactor));
+        }
+        else
+        {
+            // qcd.set_irrev_quant (pow(2, (-13.5 * qfactor / 100) - 3.0));
+            double k = pow(2, -16.5);
+            // double n = log(0.002/k)/log(51.);
+            //double qstep = 0.002 * pow((150. - qfactor)/51., n) + k;
+            double scaled_q = (qfactor - 99.)/51.;
+            double kd = 0.002 - 51. * k;
+            double kc = 0.1/kd - 1;
+            double kb = 0.0002/kd - 0.102;
+            double alpha_m = (1 - scaled_q)*(0.002 + kb * scaled_q)/(1 + kc * scaled_q);
+            double qstep = alpha_m + k;
+            qcd.set_irrev_quant (qstep);
+        }
 
         /* set all channels but the first 3 channels to reversible */
         for (int16_t c = 3; c < encode->channel_count; c++)
