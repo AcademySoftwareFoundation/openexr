@@ -213,13 +213,13 @@ exr_get_default_dwa_compression_quality (float* q)
 
 /**************************************/
 
-static float sDefaultJ2kQuality = 80.f;
+static float sDefaultJ2kQuality = 130.f;
 
 void
 exr_set_default_lossy_htj2k_quality (float q)
 {
     if (q < 1.f) q = 1.f;
-    if (q > 100.f) q = 100.f;
+    if (q > 150.f) q = 150.f;
     sDefaultJ2kQuality = q;
 }
 
