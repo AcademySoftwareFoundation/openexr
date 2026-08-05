@@ -5,7 +5,8 @@
 // Copyright (c) 2019, Aous Naman
 // Copyright (c) 2019, Kakadu Software Pty Ltd, Australia
 // Copyright (c) 2019, The University of New South Wales, Australia
-// Copyright (c) 2023, Intel Corporation
+// Copyright (c) 2024, Intel Corporation
+// Copyright (c) 2026, Osamu Watanabe
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -31,11 +32,11 @@
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //***************************************************************************/
 // This file is part of the OpenJPH software implementation.
-// File: ojph_block_encoder_avx512.cpp
+// File: ojph_block_encoder_avx2.cpp
 //***************************************************************************/
 
 #include "ojph_arch.h"
-#if defined(OJPH_ARCH_X86_64)
+#if defined(OJPH_ARCH_I386) || defined(OJPH_ARCH_X86_64)
 
 #include <cassert>
 #include <cstring>
@@ -45,6 +46,7 @@
 #include <mutex>
 
 #include "ojph_mem.h"
+#include "ojph_arch.h"
 #include "ojph_block_encoder.h"
 #include "ojph_message.h"
 
@@ -221,7 +223,7 @@ namespace ojph {
     }
 
     /////////////////////////////////////////////////////////////////////////
-    bool initialize_block_encoder_tables_avx512() {
+    bool initialize_block_encoder_tables_avx2() {
       static bool tables_initialized = false;
       static std::once_flag tables_initialized_flag;
       std::call_once(tables_initialized_flag, []() {
@@ -307,7 +309,7 @@ namespace ojph {
     /////////////////////////////////////////////////////////////////////////
     //
     /////////////////////////////////////////////////////////////////////////
-    struct vlc_struct_avx512 {
+    struct vlc_struct_avx2 {
       //storage
       ui8* buf;      //pointer to data buffer
       ui32 pos;      //position of next writing within buf
@@ -320,7 +322,7 @@ namespace ojph {
 
     //////////////////////////////////////////////////////////////////////////
     static inline void
-    vlc_init(vlc_struct_avx512* vlcp, ui32 buffer_size, ui8* data)
+    vlc_init(vlc_struct_avx2* vlcp, ui32 buffer_size, ui8* data)
     {
       vlcp->buf = data + buffer_size - 1; //points to last byte
       vlcp->pos = 1;                      //locations will be all -pos
@@ -334,7 +336,7 @@ namespace ojph {
 
     //////////////////////////////////////////////////////////////////////////
     static inline void
-    vlc_encode(vlc_struct_avx512* vlcp, ui32 cwd, int cwd_len)
+    vlc_encode(vlc_struct_avx2* vlcp, ui32 cwd, int cwd_len)
     {
       vlcp->tmp |= (ui64)cwd << vlcp->used_bits;
       vlcp->used_bits += cwd_len;
@@ -374,7 +376,7 @@ namespace ojph {
     //
     //////////////////////////////////////////////////////////////////////////
     static inline void
-    terminate_mel_vlc(mel_struct* melp, vlc_struct_avx512* vlcp)
+    terminate_mel_vlc(mel_struct* melp, vlc_struct_avx2* vlcp)
     {
       if (melp->run > 0)
         mel_emit_bit(melp, 1);
@@ -481,117 +483,112 @@ namespace ojph {
         msp->pos--;
     }
 
-#define ZERO _mm512_setzero_epi32()
-#define ONE  _mm512_set1_epi32(1)
+#define ZERO _mm256_setzero_si256()
+#define ONE  _mm256_set1_epi32(1)
 
-#if 0
-static void print_epi32(const char *msg, __m512i &val)
-{
-    uint32_t A[16] = {0};
+// https://stackoverflow.com/a/58827596
+inline __m256i avx2_lzcnt_epi32(__m256i v) {
+    // prevent value from being rounded up to the next power of two
+    v = _mm256_andnot_si256(_mm256_srli_epi32(v, 8), v);  // keep 8 MSB
 
-    _mm512_store_epi32(A, val);
+    v = _mm256_castps_si256(_mm256_cvtepi32_ps(v));    // convert an integer to float
+    v = _mm256_srli_epi32(v, 23);                   // shift down the exponent
+    v = _mm256_subs_epu16(_mm256_set1_epi32(158), v);  // undo bias
+    v = _mm256_min_epi16(v, _mm256_set1_epi32(32));    // clamp at 32
 
-    printf("%s: ", msg);
-    for (int i = 0; i < 16; ++i) {
-        printf("%X ", A[i]);
-    }
-    printf("\n");
+    return v;
 }
-#endif
 
-static void proc_pixel(__m512i *src_vec, ui32 p,
-                       __m512i *eq_vec, __m512i *s_vec,
-                       __m512i &rho_vec, __m512i &e_qmax_vec)
+inline __m256i avx2_cmpneq_epi32(__m256i v, __m256i v2) {
+    return _mm256_xor_si256(_mm256_cmpeq_epi32(v, v2), _mm256_set1_epi32((int32_t)0xffffffff));
+}
+
+static void proc_pixel(__m256i *src_vec, ui32 p,
+                       __m256i *eq_vec, __m256i *s_vec,
+                       __m256i &rho_vec, __m256i &e_qmax_vec)
 {
-    __m512i val_vec[4];
-    __m512i _eq_vec[4];
-    __m512i _s_vec[4];
-    __m512i _rho_vec[4];
-    ui16 val_mask[4];
+    __m256i val_vec[4];
+    __m256i _eq_vec[4];
+    __m256i _s_vec[4];
+    __m256i _rho_vec[4];
 
     for (ui32 i = 0; i < 4; ++i) {
         /* val = t + t; //multiply by 2 and get rid of sign */
-        val_vec[i] = _mm512_add_epi32(src_vec[i], src_vec[i]);
+        val_vec[i] = _mm256_add_epi32(src_vec[i], src_vec[i]);
 
         /* val >>= p;  // 2 \mu_p + x */
-        val_vec[i] = _mm512_srli_epi32(val_vec[i], p);
+        val_vec[i] = _mm256_srli_epi32(val_vec[i], (int)p);
 
         /* val &= ~1u; // 2 \mu_p */
-        val_vec[i] = _mm512_and_epi32(val_vec[i], _mm512_set1_epi32((int)~1u));
+        val_vec[i] = _mm256_and_si256(val_vec[i], _mm256_set1_epi32((int)~1u));
 
         /* if (val) { */
-        val_mask[i] = _mm512_cmpneq_epi32_mask(val_vec[i], ZERO);
+        const __m256i val_notmask = avx2_cmpneq_epi32(val_vec[i], ZERO);
 
         /*   rho[i] = 1 << i;
          *   rho is processed below.
          */
 
         /*   e_q[i] = 32 - (int)count_leading_ZEROs(--val); //2\mu_p - 1 */
-        val_vec[i] = _mm512_mask_sub_epi32(ZERO, val_mask[i], val_vec[i], ONE);
-        _eq_vec[i] = _mm512_mask_lzcnt_epi32(ZERO, val_mask[i], val_vec[i]);
-        _eq_vec[i] = _mm512_mask_sub_epi32(ZERO, val_mask[i],
-                                           _mm512_set1_epi32(32), _eq_vec[i]);
+        val_vec[i] = _mm256_sub_epi32(val_vec[i], ONE);
+        _eq_vec[i] = avx2_lzcnt_epi32(val_vec[i]);
+        _eq_vec[i] = _mm256_sub_epi32(_mm256_set1_epi32(32), _eq_vec[i]);
 
         /*   e_qmax[i] = ojph_max(e_qmax[i], e_q[j]);
          *   e_qmax is processed below
          */
 
         /*   s[0] = --val + (t >> 31); //v_n = 2(\mu_p-1) + s_n */
-        val_vec[i] = _mm512_mask_sub_epi32(ZERO, val_mask[i], val_vec[i], ONE);
-        _s_vec[i] = _mm512_mask_srli_epi32(ZERO, val_mask[i], src_vec[i], 31);
-        _s_vec[i] =
-          _mm512_mask_add_epi32(ZERO, val_mask[i], _s_vec[i], val_vec[i]);
+        val_vec[i] = _mm256_sub_epi32(val_vec[i], ONE);
+        _s_vec[i] = _mm256_srli_epi32(src_vec[i], 31);
+        _s_vec[i] = _mm256_add_epi32(_s_vec[i], val_vec[i]);
+
+        _eq_vec[i] = _mm256_and_si256(_eq_vec[i], val_notmask);
+        _s_vec[i] = _mm256_and_si256(_s_vec[i], val_notmask);
+        val_vec[i] = _mm256_srli_epi32(val_notmask, 31);
         /* } */
     }
 
-    val_vec[0] = _mm512_mask_mov_epi32(ZERO, val_mask[0], ONE);
-    val_vec[1] = _mm512_mask_mov_epi32(ZERO, val_mask[1], ONE);
-    val_vec[2] = _mm512_mask_mov_epi32(ZERO, val_mask[2], ONE);
-    val_vec[3] = _mm512_mask_mov_epi32(ZERO, val_mask[3], ONE);
-    e_qmax_vec = ZERO;
-
-    const __m512i idx[2] = {
-        _mm512_set_epi32(14, 12, 10, 8, 6, 4, 2, 0, 14, 12, 10, 8, 6, 4, 2, 0),
-        _mm512_set_epi32(15, 13, 11, 9, 7, 5, 3, 1, 15, 13, 11, 9, 7, 5, 3, 1),
-    };
+    const __m256i idx = _mm256_set_epi32(7, 5, 3, 1, 6, 4, 2, 0);
 
     /* Reorder from
-     * *_vec[0]:[0, 0], [0, 1], [0, 2], [0, 3], [0, 4], [0, 5]...[0,14], [0,15]
-     * *_vec[1]:[1, 0], [1, 1], [1, 2], [1, 3], [1, 4], [1, 5]...[1,14], [1,15]
-     * *_vec[2]:[0,16], [0,17], [0,18], [0,19], [0,20], [0,21]...[0,30], [0,31]
-     * *_vec[3]:[1,16], [1,17], [1,18], [1,19], [1,20], [1,21]...[1,30], [1,31]
+     * *_vec[0]:[0, 0], [0, 1], [0, 2], [0, 3], [0, 4], [0, 5], [0, 6], [0, 7]
+     * *_vec[1]:[1, 0], [1, 1], [1, 2], [1, 3], [1, 4], [1, 5],.[1, 6], [1, 7]
+     * *_vec[2]:[0, 8], [0, 9], [0,10], [0,11], [0,12], [0,13], [0,14], [0,15]
+     * *_vec[3]:[1, 8], [1, 9], [1,10], [1,11], [1,12], [1,13], [1,14], [1,15]
      * to
-     * *_vec[0]:[0, 0], [0, 2] ... [0,14], [0,16], [0,18] ... [0,30]
-     * *_vec[1]:[1, 0], [1, 2] ... [1,14], [1,16], [1,18] ... [1,30]
-     * *_vec[2]:[0, 1], [0, 3] ... [0,15], [0,17], [0,19] ... [0,31]
-     * *_vec[3]:[1, 1], [1, 3] ... [1,15], [1,17], [1,19] ... [1,31]
+     * *_vec[0]:[0, 0], [0, 2], [0, 4], [0, 6], [0, 8], [0,10], [0,12], [0,14]
+     * *_vec[1]:[1, 0], [1, 2], [1, 4], [1, 6], [1, 8], [1,10], [1,12], [1,14]
+     * *_vec[2]:[0, 1], [0, 3], [0, 5], [0, 7], [0, 9], [0,11], [0,13], [0,15]
+     * *_vec[3]:[1, 1], [1, 3], [1, 5], [1, 7], [1, 9], [1,11], [1,13], [1,15]
      */
-    for (ui32 i = 0; i < 4; ++i) {
-        ui32 e_idx = i >> 1;
-        ui32 o_idx = i & 0x1;
+    __m256i tmp1, tmp2;
+    for (ui32 i = 0; i < 2; ++i) {
+        tmp1 = _mm256_permutevar8x32_epi32(_eq_vec[0 + i], idx);
+        tmp2 = _mm256_permutevar8x32_epi32(_eq_vec[2 + i], idx);
+        eq_vec[0 + i] = _mm256_permute2x128_si256(tmp1, tmp2, (0 << 0) + (2 << 4));
+        eq_vec[2 + i] = _mm256_permute2x128_si256(tmp1, tmp2, (1 << 0) + (3 << 4));
 
-        eq_vec[i] = _mm512_permutexvar_epi32(idx[e_idx], _eq_vec[o_idx]);
-        eq_vec[i] = _mm512_mask_permutexvar_epi32(eq_vec[i], 0xFF00,
-                                                  idx[e_idx],
-                                                  _eq_vec[o_idx + 2]);
+        tmp1 = _mm256_permutevar8x32_epi32(_s_vec[0 + i], idx);
+        tmp2 = _mm256_permutevar8x32_epi32(_s_vec[2 + i], idx);
+        s_vec[0 + i] = _mm256_permute2x128_si256(tmp1, tmp2, (0 << 0) + (2 << 4));
+        s_vec[2 + i] = _mm256_permute2x128_si256(tmp1, tmp2, (1 << 0) + (3 << 4));
 
-        s_vec[i] = _mm512_permutexvar_epi32(idx[e_idx], _s_vec[o_idx]);
-        s_vec[i] = _mm512_mask_permutexvar_epi32(s_vec[i], 0xFF00,
-                                                 idx[e_idx],
-                                                 _s_vec[o_idx + 2]);
-
-        _rho_vec[i] = _mm512_permutexvar_epi32(idx[e_idx], val_vec[o_idx]);
-        _rho_vec[i] = _mm512_mask_permutexvar_epi32(_rho_vec[i], 0xFF00,
-                                                    idx[e_idx],
-                                                    val_vec[o_idx + 2]);
-        _rho_vec[i] = _mm512_slli_epi32(_rho_vec[i], i);
-
-        e_qmax_vec = _mm512_max_epi32(e_qmax_vec, eq_vec[i]);
+        tmp1 = _mm256_permutevar8x32_epi32(val_vec[0 + i], idx);
+        tmp2 = _mm256_permutevar8x32_epi32(val_vec[2 + i], idx);
+        _rho_vec[0 + i] = _mm256_permute2x128_si256(tmp1, tmp2, (0 << 0) + (2 << 4));
+        _rho_vec[2 + i] = _mm256_permute2x128_si256(tmp1, tmp2, (1 << 0) + (3 << 4));
     }
 
-    rho_vec = _mm512_or_epi32(_rho_vec[0], _rho_vec[1]);
-    rho_vec = _mm512_or_epi32(rho_vec, _rho_vec[2]);
-    rho_vec = _mm512_or_epi32(rho_vec, _rho_vec[3]);
+    e_qmax_vec = _mm256_max_epi32(eq_vec[0], eq_vec[1]);
+    e_qmax_vec = _mm256_max_epi32(e_qmax_vec, eq_vec[2]);
+    e_qmax_vec = _mm256_max_epi32(e_qmax_vec, eq_vec[3]);
+    _rho_vec[1] = _mm256_slli_epi32(_rho_vec[1], 1);
+    _rho_vec[2] = _mm256_slli_epi32(_rho_vec[2], 2);
+    _rho_vec[3] = _mm256_slli_epi32(_rho_vec[3], 3);
+    rho_vec = _mm256_or_si256(_rho_vec[0], _rho_vec[1]);
+    rho_vec = _mm256_or_si256(rho_vec, _rho_vec[2]);
+    rho_vec = _mm256_or_si256(rho_vec, _rho_vec[3]);
 }
 
 /* from [0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, ...]
@@ -607,69 +604,66 @@ static void proc_pixel(__m512i *src_vec, ui32 p,
  *
  *      [..]
  */
-static void rotate_matrix(__m512i *matrix)
+static void rotate_matrix(__m256i *matrix)
 {
-    __m512i _matrix[4];
-    _matrix[0] = _mm512_unpacklo_epi32(matrix[0], matrix[1]);
-    _matrix[1] = _mm512_unpackhi_epi32(matrix[0], matrix[1]);
-    _matrix[2] = _mm512_unpacklo_epi32(matrix[2], matrix[3]);
-    _matrix[3] = _mm512_unpackhi_epi32(matrix[2], matrix[3]);
+    __m256i tmp1 = _mm256_unpacklo_epi32(matrix[0], matrix[1]);
+    __m256i tmp2 = _mm256_unpacklo_epi32(matrix[2], matrix[3]);
+    __m256i tmp3 = _mm256_unpackhi_epi32(matrix[0], matrix[1]);
+    __m256i tmp4 = _mm256_unpackhi_epi32(matrix[2], matrix[3]);
 
-    matrix[0] = _mm512_unpacklo_epi64(_matrix[0], _matrix[2]);
-    matrix[1] = _mm512_unpackhi_epi64(_matrix[0], _matrix[2]);
-    matrix[2] = _mm512_unpacklo_epi64(_matrix[1], _matrix[3]);
-    matrix[3] = _mm512_unpackhi_epi64(_matrix[1], _matrix[3]);
+    matrix[0] = _mm256_unpacklo_epi64(tmp1, tmp2);
+    matrix[1] = _mm256_unpacklo_epi64(tmp3, tmp4);
+    matrix[2] = _mm256_unpackhi_epi64(tmp1, tmp2);
+    matrix[3] = _mm256_unpackhi_epi64(tmp3, tmp4);
 
-    _matrix[0] = _mm512_shuffle_i32x4(matrix[0], matrix[1], 0x88);
-    _matrix[1] = _mm512_shuffle_i32x4(matrix[2], matrix[3], 0x88);
-    _matrix[2] = _mm512_shuffle_i32x4(matrix[0], matrix[1], 0xDD);
-    _matrix[3] = _mm512_shuffle_i32x4(matrix[2], matrix[3], 0xDD);
+    tmp1 = _mm256_permute2x128_si256(matrix[0], matrix[2], 0x20);
+    matrix[2] = _mm256_permute2x128_si256(matrix[0], matrix[2], 0x31);
+    matrix[0] = tmp1;
 
-    matrix[0] = _mm512_shuffle_i32x4(_matrix[0], _matrix[1], 0x88);
-    matrix[1] = _mm512_shuffle_i32x4(_matrix[2], _matrix[3], 0x88);
-    matrix[2] = _mm512_shuffle_i32x4(_matrix[0], _matrix[1], 0xDD);
-    matrix[3] = _mm512_shuffle_i32x4(_matrix[2], _matrix[3], 0xDD);
+    tmp1 = _mm256_permute2x128_si256(matrix[1], matrix[3], 0x20);
+    matrix[3] = _mm256_permute2x128_si256(matrix[1], matrix[3], 0x31);
+    matrix[1] = tmp1;
 }
 
 static void proc_ms_encode(ms_struct *msp,
-                           __m512i &tuple_vec,
-                           __m512i &uq_vec,
-                           __m512i &rho_vec,
-                           __m512i *s_vec)
+                           __m256i &tuple_vec,
+                           __m256i &uq_vec,
+                           __m256i &rho_vec,
+                           __m256i *s_vec)
 {
-    __m512i m_vec[4];
+    __m256i m_vec[4];
 
     /* Prepare parameters for ms_encode */
     /* m = (rho[i] & 1) ? Uq[i] - ((tuple[i] & 1) >> 0) : 0; */
-    auto tmp = _mm512_and_epi32(tuple_vec, ONE);
-    tmp = _mm512_sub_epi32(uq_vec, tmp);
-    auto tmp1 = _mm512_and_epi32(rho_vec, ONE);
-    auto mask = _mm512_cmpneq_epi32_mask(tmp1, ZERO);
-    m_vec[0] = _mm512_mask_mov_epi32(ZERO, mask, tmp);
+    auto tmp = _mm256_and_si256(tuple_vec, ONE);
+    tmp = _mm256_sub_epi32(uq_vec, tmp);
+    auto tmp1 = _mm256_and_si256(rho_vec, ONE);
+    auto mask = avx2_cmpneq_epi32(tmp1, ZERO);
+    m_vec[0] = _mm256_and_si256(mask, tmp);
 
     /* m = (rho[i] & 2) ? Uq[i] - ((tuple[i] & 2) >> 1) : 0; */
-    tmp = _mm512_and_epi32(tuple_vec, _mm512_set1_epi32(2));
-    tmp = _mm512_srli_epi32(tmp, 1);
-    tmp = _mm512_sub_epi32(uq_vec, tmp);
-    tmp1 = _mm512_and_epi32(rho_vec, _mm512_set1_epi32(2));
-    mask = _mm512_cmpneq_epi32_mask(tmp1, ZERO);
-    m_vec[1] = _mm512_mask_mov_epi32(ZERO, mask, tmp);
+    tmp = _mm256_and_si256(tuple_vec, _mm256_set1_epi32(2));
+    tmp = _mm256_srli_epi32(tmp, 1);
+    tmp = _mm256_sub_epi32(uq_vec, tmp);
+    tmp1 = _mm256_and_si256(rho_vec, _mm256_set1_epi32(2));
+    mask = avx2_cmpneq_epi32(tmp1, ZERO);
+    m_vec[1] = _mm256_and_si256(mask, tmp);
 
     /* m = (rho[i] & 4) ? Uq[i] - ((tuple[i] & 4) >> 2) : 0; */
-    tmp = _mm512_and_epi32(tuple_vec, _mm512_set1_epi32(4));
-    tmp = _mm512_srli_epi32(tmp, 2);
-    tmp = _mm512_sub_epi32(uq_vec, tmp);
-    tmp1 = _mm512_and_epi32(rho_vec, _mm512_set1_epi32(4));
-    mask = _mm512_cmpneq_epi32_mask(tmp1, ZERO);
-    m_vec[2] = _mm512_mask_mov_epi32(ZERO, mask, tmp);
+    tmp = _mm256_and_si256(tuple_vec, _mm256_set1_epi32(4));
+    tmp = _mm256_srli_epi32(tmp, 2);
+    tmp = _mm256_sub_epi32(uq_vec, tmp);
+    tmp1 = _mm256_and_si256(rho_vec, _mm256_set1_epi32(4));
+    mask = avx2_cmpneq_epi32(tmp1, ZERO);
+    m_vec[2] = _mm256_and_si256(mask, tmp);
 
     /* m = (rho[i] & 8) ? Uq[i] - ((tuple[i] & 8) >> 3) : 0; */
-    tmp = _mm512_and_epi32(tuple_vec, _mm512_set1_epi32(8));
-    tmp = _mm512_srli_epi32(tmp, 3);
-    tmp = _mm512_sub_epi32(uq_vec, tmp);
-    tmp1 = _mm512_and_epi32(rho_vec, _mm512_set1_epi32(8));
-    mask = _mm512_cmpneq_epi32_mask(tmp1, ZERO);
-    m_vec[3] = _mm512_mask_mov_epi32(ZERO, mask, tmp);
+    tmp = _mm256_and_si256(tuple_vec, _mm256_set1_epi32(8));
+    tmp = _mm256_srli_epi32(tmp, 3);
+    tmp = _mm256_sub_epi32(uq_vec, tmp);
+    tmp1 = _mm256_and_si256(rho_vec, _mm256_set1_epi32(8));
+    mask = avx2_cmpneq_epi32(tmp1, ZERO);
+    m_vec[3] = _mm256_and_si256(mask, tmp);
 
     rotate_matrix(m_vec);
     /* s_vec from
@@ -685,8 +679,8 @@ static void proc_ms_encode(ms_struct *msp,
      */
     rotate_matrix(s_vec);
 
-    ui32 cwd[16];
-    int cwd_len[16];
+    ui32 cwd[8];
+    int cwd_len[8];
     ui64 _cwd = 0;
     int _cwd_len = 0;
 
@@ -695,13 +689,13 @@ static void proc_ms_encode(ms_struct *msp,
         /* cwd = s[i * 4 + 0] & ((1U << m) - 1)
          * cwd_len = m
          */
-        _mm512_storeu_si512(cwd_len, m_vec[i]);
-        tmp = _mm512_sllv_epi32(ONE, m_vec[i]);
-        tmp = _mm512_sub_epi32(tmp, ONE);
-        tmp = _mm512_and_epi32(tmp, s_vec[i]);
-        _mm512_storeu_si512(cwd, tmp);
+        _mm256_storeu_si256((__m256i *)cwd_len, m_vec[i]);
+        tmp = _mm256_sllv_epi32(ONE, m_vec[i]);
+        tmp = _mm256_sub_epi32(tmp, ONE);
+        tmp = _mm256_and_si256(tmp, s_vec[i]);
+        _mm256_storeu_si256((__m256i*)cwd, tmp);
 
-        for (ui32 j = 0; j < 8; ++j) {
+        for (ui32 j = 0; j < 4; ++j) {
             ui32 idx = j * 2;
             _cwd     = cwd[idx];
             _cwd_len = cwd_len[idx];
@@ -712,8 +706,8 @@ static void proc_ms_encode(ms_struct *msp,
     }
 }
 
-static __m512i cal_eps_vec(__m512i *eq_vec, __m512i &u_q_vec,
-                           __m512i &e_qmax_vec)
+static __m256i cal_eps_vec(__m256i *eq_vec, __m256i &u_q_vec,
+                           __m256i &e_qmax_vec)
 {
     /* if (u_q[i] > 0) {
      *     eps[i] |= (e_q[i * 4 + 0] == e_qmax[i]);
@@ -722,188 +716,199 @@ static __m512i cal_eps_vec(__m512i *eq_vec, __m512i &u_q_vec,
      *     eps[i] |= (e_q[i * 4 + 3] == e_qmax[i]) << 3;
      * }
      */
-    auto u_q_mask = _mm512_cmpgt_epi32_mask(u_q_vec, ZERO);
+    auto u_q_mask = _mm256_cmpgt_epi32(u_q_vec, ZERO);
 
-    auto mask = _mm512_cmpeq_epi32_mask(eq_vec[0], e_qmax_vec);
-    auto tmp = _mm512_mask_mov_epi32(ZERO, mask, ONE);
-    auto eps_vec = _mm512_mask_mov_epi32(ZERO, u_q_mask, tmp);
+    auto mask = _mm256_cmpeq_epi32(eq_vec[0], e_qmax_vec);
+    auto eps_vec = _mm256_srli_epi32(mask, 31);
 
-    mask = _mm512_cmpeq_epi32_mask(eq_vec[1], e_qmax_vec);
-    tmp = _mm512_mask_mov_epi32(ZERO, mask, ONE);
-    tmp = _mm512_slli_epi32(tmp, 1);
-    eps_vec = _mm512_mask_or_epi32(ZERO, u_q_mask, eps_vec, tmp);
+    mask = _mm256_cmpeq_epi32(eq_vec[1], e_qmax_vec);
+    auto tmp = _mm256_srli_epi32(mask, 31);
+    tmp = _mm256_slli_epi32(tmp, 1);
+    eps_vec = _mm256_or_si256(eps_vec, tmp);
 
-    mask = _mm512_cmpeq_epi32_mask(eq_vec[2], e_qmax_vec);
-    tmp = _mm512_mask_mov_epi32(ZERO, mask, ONE);
-    tmp = _mm512_slli_epi32(tmp, 2);
-    eps_vec = _mm512_mask_or_epi32(ZERO, u_q_mask, eps_vec, tmp);
+    mask = _mm256_cmpeq_epi32(eq_vec[2], e_qmax_vec);
+    tmp = _mm256_srli_epi32(mask, 31);
+    tmp = _mm256_slli_epi32(tmp, 2);
+    eps_vec = _mm256_or_si256(eps_vec, tmp);
 
-    mask = _mm512_cmpeq_epi32_mask(eq_vec[3], e_qmax_vec);
-    tmp = _mm512_mask_mov_epi32(ZERO, mask, ONE);
-    tmp = _mm512_slli_epi32(tmp, 3);
+    mask = _mm256_cmpeq_epi32(eq_vec[3], e_qmax_vec);
+    tmp = _mm256_srli_epi32(mask, 31);
+    tmp = _mm256_slli_epi32(tmp, 3);
+    eps_vec = _mm256_or_si256(eps_vec, tmp);
 
-    return  _mm512_mask_or_epi32(ZERO, u_q_mask, eps_vec, tmp);
+    return  _mm256_and_si256(u_q_mask, eps_vec);
 }
 
-static void update_lep(ui32 x, __m512i &prev_e_val_vec,
-                       __m512i *eq_vec, __m512i *e_val_vec,
-                       const __m512i left_shift)
+static void update_lep(ui32 x, __m256i &prev_e_val_vec,
+                       __m256i *eq_vec, __m256i *e_val_vec,
+                       const __m256i left_shift)
 {
     /* lep[0] = ojph_max(lep[0], (ui8)e_q[1]); lep++;
      * lep[0] = (ui8)e_q[3];
      * Compare e_q[1] with e_q[3] of the prevous round.
      */
-    auto tmp = _mm512_mask_permutexvar_epi32(prev_e_val_vec, 0xFFFE,
-                                             left_shift, eq_vec[3]);
-    prev_e_val_vec = _mm512_mask_permutexvar_epi32(ZERO, 0x1, left_shift,
-                                                   eq_vec[3]);
-    e_val_vec[x] = _mm512_max_epi32(eq_vec[1], tmp);
+    auto tmp = _mm256_permutevar8x32_epi32(eq_vec[3], left_shift);
+    tmp = _mm256_insert_epi32(tmp, _mm_cvtsi128_si32(_mm256_castsi256_si128(prev_e_val_vec)), 0);
+    prev_e_val_vec = _mm256_insert_epi32(ZERO, _mm256_extract_epi32(eq_vec[3], 7), 0);
+    e_val_vec[x] = _mm256_max_epi32(eq_vec[1], tmp);
 }
 
 
-static void update_lcxp(ui32 x, __m512i &prev_cx_val_vec,
-                        __m512i &rho_vec, __m512i *cx_val_vec,
-                        const __m512i left_shift)
+static void update_lcxp(ui32 x, __m256i &prev_cx_val_vec,
+                        __m256i &rho_vec, __m256i *cx_val_vec,
+                        const __m256i left_shift)
 {
     /* lcxp[0] = (ui8)(lcxp[0] | (ui8)((rho[0] & 2) >> 1)); lcxp++;
      * lcxp[0] = (ui8)((rho[0] & 8) >> 3);
      * Or (rho[0] & 2) and (rho[0] of the previous round & 8).
      */
-    auto tmp = _mm512_mask_permutexvar_epi32(prev_cx_val_vec, 0xFFFE,
-                                             left_shift, rho_vec);
-    prev_cx_val_vec = _mm512_mask_permutexvar_epi32(ZERO, 0x1, left_shift,
-                                                    rho_vec);
+    auto tmp = _mm256_permutevar8x32_epi32(rho_vec, left_shift);
+    tmp = _mm256_insert_epi32(tmp, _mm_cvtsi128_si32(_mm256_castsi256_si128(prev_cx_val_vec)), 0);
+    prev_cx_val_vec = _mm256_insert_epi32(ZERO, _mm256_extract_epi32(rho_vec, 7), 0);
 
-    tmp = _mm512_and_epi32(tmp, _mm512_set1_epi32(8));
-    tmp = _mm512_srli_epi32(tmp, 3);
+    tmp = _mm256_and_si256(tmp, _mm256_set1_epi32(8));
+    tmp = _mm256_srli_epi32(tmp, 3);
 
-    auto tmp1 = _mm512_and_epi32(rho_vec, _mm512_set1_epi32(2));
-    tmp1 = _mm512_srli_epi32(tmp1, 1);
-    cx_val_vec[x] = _mm512_or_epi32(tmp, tmp1);
+    auto tmp1 = _mm256_and_si256(rho_vec, _mm256_set1_epi32(2));
+    tmp1 = _mm256_srli_epi32(tmp1, 1);
+    cx_val_vec[x] = _mm256_or_si256(tmp, tmp1);
 }
 
-static __m512i cal_tuple(__m512i &cq_vec, __m512i &rho_vec,
-                         __m512i &eps_vec, ui32 *vlc_tbl)
+static __m256i cal_tuple(__m256i &cq_vec, __m256i &rho_vec,
+                         __m256i &eps_vec, ui32 *vlc_tbl)
 {
     /* tuple[i] = vlc_tbl1[(c_q[i] << 8) + (rho[i] << 4) + eps[i]]; */
-    auto tmp = _mm512_slli_epi32(cq_vec, 8);
-    auto tmp1 = _mm512_slli_epi32(rho_vec, 4);
-    tmp = _mm512_add_epi32(tmp, tmp1);
-    tmp = _mm512_add_epi32(tmp, eps_vec);
-    return _mm512_i32gather_epi32(tmp, vlc_tbl, 4);
+    auto tmp = _mm256_slli_epi32(cq_vec, 8);
+    auto tmp1 = _mm256_slli_epi32(rho_vec, 4);
+    tmp = _mm256_add_epi32(tmp, tmp1);
+    tmp = _mm256_add_epi32(tmp, eps_vec);
+    return _mm256_i32gather_epi32((const int *)vlc_tbl, tmp, 4);
 }
 
-static __m512i proc_cq1(ui32 x, __m512i *cx_val_vec, __m512i &rho_vec,
-                        const __m512i right_shift)
+static __m256i proc_cq1(ui32 x, __m256i *cx_val_vec, __m256i &rho_vec,
+                        const __m256i right_shift)
 {
     ojph_unused(x);
     ojph_unused(cx_val_vec);
     ojph_unused(right_shift);
 
     /* c_q[i + 1] = (rho[i] >> 1) | (rho[i] & 1); */
-    auto tmp = _mm512_srli_epi32(rho_vec, 1);
-    auto tmp1 = _mm512_and_epi32(rho_vec, _mm512_set1_epi32(1));
-    return _mm512_or_epi32(tmp, tmp1);
+    auto tmp = _mm256_srli_epi32(rho_vec, 1);
+    auto tmp1 = _mm256_and_si256(rho_vec, ONE);
+    return _mm256_or_si256(tmp, tmp1);
 }
 
-static __m512i proc_cq2(ui32 x, __m512i *cx_val_vec, __m512i &rho_vec,
-                        const __m512i right_shift)
+static __m256i proc_cq2(ui32 x, __m256i *cx_val_vec, __m256i &rho_vec,
+                        const __m256i right_shift)
 {
     // c_q[i + 1] = (lcxp[i + 1] + (lcxp[i + 2] << 2))
     //            | (((rho[i] & 4) >> 1) | ((rho[i] & 8) >> 2));
-    auto lcxp1_vec = _mm512_permutexvar_epi32(right_shift, cx_val_vec[x]);
-    auto lcxp2_vec = _mm512_permutexvar_epi32(right_shift, cx_val_vec[x + 1]);
-    auto tmp = _mm512_permutexvar_epi32(right_shift, lcxp1_vec);
-    tmp = _mm512_mask_permutexvar_epi32(tmp, 0xC000, right_shift, lcxp2_vec);
-    tmp = _mm512_slli_epi32(tmp, 2);
-    auto tmp1 = _mm512_mask_mov_epi32(lcxp1_vec, 0x8000, lcxp2_vec);
-    tmp = _mm512_add_epi32(tmp1, tmp);
+    auto lcxp1_vec = _mm256_permutevar8x32_epi32(cx_val_vec[x], right_shift);
+    auto tmp = _mm256_permutevar8x32_epi32(lcxp1_vec, right_shift);
 
-    tmp1 = _mm512_and_epi32(rho_vec, _mm512_set1_epi32(4));
-    tmp1 = _mm512_srli_epi32(tmp1, 1);
-    tmp = _mm512_or_epi32(tmp, tmp1);
+#ifdef OJPH_ARCH_X86_64
+    tmp = _mm256_insert_epi64(tmp, 
+      _mm_cvtsi128_si64(_mm256_castsi256_si128(cx_val_vec[x + 1])), 3);
+#elif (defined OJPH_ARCH_I386)
+    int lsb = _mm_cvtsi128_si32(_mm256_castsi256_si128(cx_val_vec[x + 1]));
+    tmp = _mm256_insert_epi32(tmp, lsb, 6);
+    int msb = _mm_extract_epi32(_mm256_castsi256_si128(cx_val_vec[x + 1]), 1);
+    tmp = _mm256_insert_epi32(tmp, msb, 7);
+#else
+    #error Error unsupport compiler
+#endif
+    tmp = _mm256_slli_epi32(tmp, 2);
+    auto tmp1 = _mm256_insert_epi32(lcxp1_vec, 
+      _mm_cvtsi128_si32(_mm256_castsi256_si128(cx_val_vec[x + 1])), 7);
+    tmp = _mm256_add_epi32(tmp1, tmp);
 
-    tmp1 = _mm512_and_epi32(rho_vec, _mm512_set1_epi32(8));
-    tmp1 = _mm512_srli_epi32(tmp1, 2);
+    tmp1 = _mm256_and_si256(rho_vec, _mm256_set1_epi32(4));
+    tmp1 = _mm256_srli_epi32(tmp1, 1);
+    tmp = _mm256_or_si256(tmp, tmp1);
 
-    return _mm512_or_epi32(tmp, tmp1);
+    tmp1 = _mm256_and_si256(rho_vec, _mm256_set1_epi32(8));
+    tmp1 = _mm256_srli_epi32(tmp1, 2);
+
+    return _mm256_or_si256(tmp, tmp1);
 }
 
-using fn_proc_cq = __m512i (*)(ui32, __m512i *, __m512i &, const __m512i);
+using fn_proc_cq = __m256i (*)(ui32, __m256i *, __m256i &, const __m256i);
 
-static void proc_mel_encode1(mel_struct *melp, __m512i &cq_vec,
-                             __m512i &rho_vec, __m512i u_q_vec, ui32 ignore,
-                             const __m512i right_shift)
+static void proc_mel_encode1(mel_struct *melp, __m256i &cq_vec,
+                             __m256i &rho_vec, __m256i u_q_vec, ui32 ignore,
+                             const __m256i right_shift)
 {
+    int32_t mel_need_encode[8];
+    int32_t mel_need_encode2[8];
+    int32_t mel_bit[8];
+    int32_t mel_bit2[8];
     /* Prepare mel_encode params */
     /* if (c_q[i] == 0) { */
-    auto mel_need_encode = _mm512_cmpeq_epi32_mask(cq_vec, ZERO);
+    _mm256_storeu_si256((__m256i *)mel_need_encode, _mm256_cmpeq_epi32(cq_vec, ZERO));
     /*   mel_encode(&mel, rho[i] != 0); */
-    auto mel_bit = _mm512_cmpneq_epi32_mask(rho_vec, ZERO);
+    _mm256_storeu_si256((__m256i*)mel_bit, _mm256_srli_epi32(avx2_cmpneq_epi32(rho_vec, ZERO), 31));
     /* } */
 
     /*   mel_encode(&mel, ojph_min(u_q[i], u_q[i + 1]) > 2); */
-    auto tmp = _mm512_permutexvar_epi32(right_shift, u_q_vec);
-    auto tmp1 = _mm512_min_epi32(u_q_vec, tmp);
-    auto mel_bit2 = (ui16)_mm512_cmpgt_epi32_mask(tmp1, _mm512_set1_epi32(2));
+    auto tmp = _mm256_permutevar8x32_epi32(u_q_vec, right_shift);
+    auto tmp1 = _mm256_min_epi32(u_q_vec, tmp);
+    _mm256_storeu_si256((__m256i*)mel_bit2, _mm256_srli_epi32(_mm256_cmpgt_epi32(tmp1, _mm256_set1_epi32(2)), 31));
 
     /* if (u_q[i] > 0 && u_q[i + 1] > 0) { } */
-    auto mel_need_encode2 = (ui16)_mm512_cmpgt_epi32_mask(u_q_vec, ZERO);
-    mel_need_encode2 =
-      mel_need_encode2 & (ui16)_mm512_cmpgt_epi32_mask(tmp, ZERO);
+    auto need_encode2 = _mm256_cmpgt_epi32(u_q_vec, ZERO);
+    _mm256_storeu_si256((__m256i*)mel_need_encode2, _mm256_and_si256(need_encode2, _mm256_cmpgt_epi32(tmp, ZERO)));
 
-    ui32 i_max = 16 - (ignore / 2);
+    ui32 i_max = 8 - (ignore / 2);
 
     for (ui32 i = 0; i < i_max; i += 2) {
-        auto mask = 1 << i;
-        if (0 != (mel_need_encode & mask)) {
-            mel_encode(melp, mel_bit & mask);
+        if (mel_need_encode[i]) {
+            mel_encode(melp, mel_bit[i]);
         }
 
         if (i + 1 < i_max) {
-            auto mask = 1 << (i + 1);
-            if (0 != (mel_need_encode & mask)) {
-                mel_encode(melp, mel_bit & mask);
+            if (mel_need_encode[i + 1]) {
+                mel_encode(melp, mel_bit[i + 1]);
             }
         }
 
-        if (0 != (mel_need_encode2 & mask)) {
-            mel_encode(melp, mel_bit2 & mask);
+        if (mel_need_encode2[i]) {
+            mel_encode(melp, mel_bit2[i]);
         }
     }
 }
 
-static void proc_mel_encode2(mel_struct *melp, __m512i &cq_vec,
-                             __m512i &rho_vec, __m512i u_q_vec, ui32 ignore,
-                             const __m512i right_shift)
+static void proc_mel_encode2(mel_struct *melp, __m256i &cq_vec,
+                             __m256i &rho_vec, __m256i u_q_vec, ui32 ignore,
+                             const __m256i right_shift)
 {
     ojph_unused(u_q_vec);
     ojph_unused(right_shift);
+    int32_t mel_need_encode[8];
+    int32_t mel_bit[8];
 
     /* Prepare mel_encode params */
     /* if (c_q[i] == 0) { */
-    auto mel_need_encode = _mm512_cmpeq_epi32_mask(cq_vec, ZERO);
+    _mm256_storeu_si256((__m256i*)mel_need_encode, _mm256_cmpeq_epi32(cq_vec, ZERO));
     /*   mel_encode(&mel, rho[i] != 0); */
-    auto mel_bit = _mm512_cmpneq_epi32_mask(rho_vec, ZERO);
+    _mm256_storeu_si256((__m256i*)mel_bit, _mm256_srli_epi32(avx2_cmpneq_epi32(rho_vec, ZERO), 31));
     /* } */
 
-    ui32 i_max = 16 - (ignore / 2);
+    ui32 i_max = 8 - (ignore / 2);
 
     for (ui32 i = 0; i < i_max; ++i) {
-        auto mask = 1 << i;
-        if (0 != (mel_need_encode & mask)) {
-            mel_encode(melp, mel_bit & mask);
+        if (mel_need_encode[i]) {
+            mel_encode(melp, mel_bit[i]);
         }
     }
 }
 
-using fn_proc_mel_encode = void (*)(mel_struct *, __m512i &, __m512i &,
-                                    __m512i, ui32, const __m512i);
+using fn_proc_mel_encode = void (*)(mel_struct *, __m256i &, __m256i &,
+                                    __m256i, ui32, const __m256i);
 
-static void proc_vlc_encode1(vlc_struct_avx512 *vlcp, ui32 *tuple,
+static void proc_vlc_encode1(vlc_struct_avx2 *vlcp, ui32 *tuple,
                              ui32 *u_q, ui32 ignore)
 {
-    ui32 i_max = 16 - (ignore / 2);
+    ui32 i_max = 8 - (ignore / 2);
 
     for (ui32 i = 0; i < i_max; i += 2) {
         /* 7 bits */
@@ -968,10 +973,10 @@ static void proc_vlc_encode1(vlc_struct_avx512 *vlcp, ui32 *tuple,
     }
 }
 
-static void proc_vlc_encode2(vlc_struct_avx512 *vlcp, ui32 *tuple,
+static void proc_vlc_encode2(vlc_struct_avx2 *vlcp, ui32 *tuple,
                              ui32 *u_q, ui32 ignore)
 {
-    ui32 i_max = 16 - (ignore / 2);
+    ui32 i_max = 8 - (ignore / 2);
 
     for (ui32 i = 0; i < i_max; i += 2) {
         /* 7 bits */
@@ -1004,17 +1009,17 @@ static void proc_vlc_encode2(vlc_struct_avx512 *vlcp, ui32 *tuple,
     }
 }
 
-using fn_proc_vlc_encode = void (*)(vlc_struct_avx512 *, ui32 *, ui32 *, ui32);
+using fn_proc_vlc_encode = void (*)(vlc_struct_avx2 *, ui32 *, ui32 *, ui32);
 
-void ojph_encode_codeblock_avx512(ui32* buf, ui32 missing_msbs,
-                                  ui32 num_passes, ui32 _width, ui32 height,
-                                  ui32 stride, ui32* lengths,
-                                  ojph::mem_elastic_allocator *elastic,
-                                  ojph::coded_lists *& coded)
+void ojph_encode_codeblock_avx2(ui32* buf, ui32 missing_msbs,
+                                ui32 num_passes, ui32 _width, ui32 height,
+                                ui32 stride, ui32* lengths,
+                                ojph::mem_elastic_allocator *elastic,
+                                ojph::coded_lists *& coded)
 {
     ojph_unused(num_passes);                      //currently not used
 
-    ui32 width = (_width + 31) & ~31u;
+    ui32 width = (_width + 15) & ~15u;
     ui32 ignore = width - _width;
     const int ms_size = (16384 * 16 + 14) / 15; //more than enough
     const int mel_vlc_size = 3072;              //more than enough
@@ -1028,12 +1033,12 @@ void ojph_encode_codeblock_avx512(ui32* buf, ui32 missing_msbs,
 
     mel_struct mel;
     mel_init(&mel, mel_size, mel_buf);
-    vlc_struct_avx512 vlc;
+    vlc_struct_avx2 vlc;
     vlc_init(&vlc, vlc_size, vlc_buf);
     ms_struct ms;
     ms_init(&ms, ms_size, ms_buf);
 
-    ui32 p = 30 - missing_msbs;
+    const ui32 p = 30 - missing_msbs;
 
     //e_val: E values for a line (these are the highest set bit)
     //cx_val: is the context values
@@ -1044,36 +1049,30 @@ void ojph_encode_codeblock_avx512(ui32* buf, ui32 missing_msbs,
     //For a 1024 pixels, we need 512 bytes, the 2 extra,
     // one for the non-existing earlier quad, and one for beyond the
     // the end
-    const __m512i right_shift = _mm512_set_epi32(
-      0, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1
+    const __m256i right_shift = _mm256_set_epi32(
+        0, 7, 6, 5, 4, 3, 2, 1
     );
 
-    const __m512i left_shift = _mm512_set_epi32(
-      14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0, 15
+    const __m256i left_shift = _mm256_set_epi32(
+        6, 5, 4, 3, 2, 1, 0, 7
     );
 
-    __m512i e_val_vec[33];
-    for (ui32 i = 0; i < 32; ++i) {
+    ui32 n_loop = (width + 15) / 16;
+
+    __m256i e_val_vec[65];
+    for (ui32 i = 0; i <ojph_min(64, n_loop); ++i) {
         e_val_vec[i] = ZERO;
     }
-    __m512i prev_e_val_vec = ZERO;
+    __m256i prev_e_val_vec = ZERO;
 
-    __m512i cx_val_vec[33];
-    __m512i prev_cx_val_vec = ZERO;
+    __m256i cx_val_vec[65];
+    __m256i prev_cx_val_vec = ZERO;
 
-    __m512i prev_cq_vec = ZERO;
+    ui32 prev_cq = 0;
 
-    __m512i tmp;
-    __m512i tmp1;
-
-    __m512i eq_vec[4];
-    __m512i s_vec[4];
-    __m512i src_vec[4];
-    __m512i rho_vec;
-    __m512i e_qmax_vec;
-    __m512i kappa_vec;
-
-    ui32 n_loop = (width + 31) / 32;
+    __m256i eq_vec[4];
+    __m256i s_vec[4];
+    __m256i src_vec[4];
 
     ui32 *vlc_tbl = vlc_tbl0;
     fn_proc_cq proc_cq = proc_cq1;
@@ -1085,82 +1084,93 @@ void ojph_encode_codeblock_avx512(ui32* buf, ui32 missing_msbs,
     {
         e_val_vec[n_loop] = prev_e_val_vec;
         /* lcxp[0] = (ui8)((rho[0] & 8) >> 3); */
-        tmp = _mm512_and_epi32(prev_cx_val_vec, _mm512_set1_epi32(8));
-        tmp = _mm512_srli_epi32(tmp, 3);
-        cx_val_vec[n_loop] = tmp;
+        __m256i tmp = _mm256_and_si256(prev_cx_val_vec, _mm256_set1_epi32(8));
+        cx_val_vec[n_loop] = _mm256_srli_epi32(tmp, 3);
 
         prev_e_val_vec = ZERO;
         prev_cx_val_vec = ZERO;
 
         ui32 *sp = buf + y * stride;
 
-        /* 32 bytes per iteration */
+        /* 16 bytes per iteration */
         for (ui32 x = 0; x < n_loop; ++x) {
 
-            // mask to stop loading unnecessary data
-            si32 true_x = (si32)x << 5;
-            ui32 mask32 = 0xFFFFFFFFu;
-            si32 entries = true_x + 32 - (si32)_width;
-            mask32 >>= ((entries >= 0) ? entries : 0);
-            __mmask16 load_mask0 = _cvtu32_mask16(mask32);
-            __mmask16 load_mask1 = _cvtu32_mask16(mask32 >> 16);
-
             /* t = sp[i]; */
-            src_vec[0] = _mm512_maskz_loadu_epi32(load_mask0, sp);
-            src_vec[2] = _mm512_maskz_loadu_epi32(load_mask1, sp + 16);
-
-            if (y + 1 < height) {
-                src_vec[1] = _mm512_maskz_loadu_epi32(load_mask0, sp + stride);
-                src_vec[3] =
-                  _mm512_maskz_loadu_epi32(load_mask1, sp + 16 + stride);
-            } else {
-                src_vec[1] = ZERO;
-                src_vec[3] = ZERO;
+            if ((x == (n_loop - 1)) && (_width % 16)) {
+                ui32 tmp_buf[16] = { 0 };
+                memcpy(tmp_buf, sp, (_width % 16) * sizeof(ui32));
+                src_vec[0] = _mm256_loadu_si256((__m256i*)(tmp_buf));
+                src_vec[2] = _mm256_loadu_si256((__m256i*)(tmp_buf + 8));
+                if (y + 1 < height) {
+                    memcpy(tmp_buf, sp + stride, (_width % 16) * sizeof(ui32));
+                    src_vec[1] = _mm256_loadu_si256((__m256i*)(tmp_buf));
+                    src_vec[3] = _mm256_loadu_si256((__m256i*)(tmp_buf + 8));
+                }
+                else {
+                    src_vec[1] = ZERO;
+                    src_vec[3] = ZERO;
+                }
             }
-            sp += 32;
+            else {
+                src_vec[0] = _mm256_loadu_si256((__m256i*)(sp));
+                src_vec[2] = _mm256_loadu_si256((__m256i*)(sp + 8));
+
+                if (y + 1 < height) {
+                    src_vec[1] = _mm256_loadu_si256((__m256i*)(sp + stride));
+                    src_vec[3] = _mm256_loadu_si256((__m256i*)(sp + 8 + stride));
+                }
+                else {
+                    src_vec[1] = ZERO;
+                    src_vec[3] = ZERO;
+                }
+                sp += 16;
+            }
 
             /* src_vec layout:
-             * src_vec[0]:[0, 0],[0, 1],[0, 2],[0, 3],[0, 4],[0, 5]...[0,15]
-             * src_vec[1]:[1, 0],[1, 1],[1, 2],[1, 3],[1, 4],[1, 5]...[1,15]
-             * src_vec[2]:[0,16],[0,17],[0,18],[0,19],[0,20],[0,21]...[0,31]
-             * src_vec[3]:[1,16],[1,17],[1,18],[1,19],[1,20],[1,21]...[1,31]
+             * src_vec[0]:[0, 0],[0, 1],[0, 2],[0, 3],[0, 4],[0, 5],.[0, 6],.[0, 7]
+             * src_vec[1]:[1, 0],[1, 1],[1, 2],[1, 3],[1, 4],[1, 5],.[1, 6],.[1, 7]
+             * src_vec[2]:[0, 8],[0, 9],[0,10],[0,11],[0,12],[0,13],.[0,14], [0,15]
+             * src_vec[3]:[1, 8],[1, 9],[1,10],[1,11],[1,12],[1,13],.[1,14], [1,15]
              */
+            __m256i rho_vec, e_qmax_vec;
             proc_pixel(src_vec, p, eq_vec, s_vec, rho_vec, e_qmax_vec);
 
             // max_e[(i + 1) % num] = ojph_max(lep[i + 1], lep[i + 2]) - 1;
-            tmp = _mm512_permutexvar_epi32(right_shift, e_val_vec[x]);
-            tmp = _mm512_mask_permutexvar_epi32(tmp, 0x8000, right_shift,
-                                                e_val_vec[x + 1]);
-            auto mask = _mm512_cmpgt_epi32_mask(e_val_vec[x], tmp);
-            auto max_e_vec = _mm512_mask_mov_epi32(tmp, mask, e_val_vec[x]);
-            max_e_vec = _mm512_sub_epi32(max_e_vec, ONE);
+            tmp = _mm256_permutevar8x32_epi32(e_val_vec[x], right_shift);
+            tmp = _mm256_insert_epi32(tmp, _mm_cvtsi128_si32(_mm256_castsi256_si128(e_val_vec[x + 1])), 7);
+
+            auto max_e_vec = _mm256_max_epi32(tmp, e_val_vec[x]);
+            max_e_vec = _mm256_sub_epi32(max_e_vec, ONE);
 
             // kappa[i] = (rho[i] & (rho[i] - 1)) ? ojph_max(1, max_e[i]) : 1;
-            tmp = _mm512_max_epi32(max_e_vec, ONE);
-            tmp1 = _mm512_sub_epi32(rho_vec, ONE);
-            tmp1 = _mm512_and_epi32(rho_vec, tmp1);
-            mask = _mm512_cmpneq_epi32_mask(tmp1, ZERO);
-            kappa_vec = _mm512_mask_mov_epi32(ONE, mask, tmp);
+            tmp = _mm256_max_epi32(max_e_vec, ONE);
+            __m256i tmp1 = _mm256_sub_epi32(rho_vec, ONE);
+            tmp1 = _mm256_and_si256(rho_vec, tmp1);
+
+            auto cmp = _mm256_cmpeq_epi32(tmp1, ZERO);
+            auto kappa_vec1_ = _mm256_and_si256(cmp, ONE);
+            auto kappa_vec2_ = _mm256_and_si256(_mm256_xor_si256(cmp, _mm256_set1_epi32((int32_t)0xffffffff)), tmp);
+            const __m256i kappa_vec = _mm256_max_epi32(kappa_vec1_, kappa_vec2_);
 
             /* cq[1 - 16] = cq_vec
              * cq[0] = prev_cq_vec[0]
              */
             tmp = proc_cq(x, cx_val_vec, rho_vec, right_shift);
-            auto cq_vec = _mm512_mask_permutexvar_epi32(prev_cq_vec, 0xFFFE,
-                                                        left_shift, tmp);
-            prev_cq_vec = _mm512_mask_permutexvar_epi32(ZERO, 0x1, left_shift,
-                                                        tmp);
+
+            auto cq_vec = _mm256_permutevar8x32_epi32(tmp, left_shift);
+            cq_vec = _mm256_insert_epi32(cq_vec, prev_cq, 0);
+            prev_cq = (ui32)_mm256_extract_epi32(tmp, 7);
 
             update_lep(x, prev_e_val_vec, eq_vec, e_val_vec, left_shift);
             update_lcxp(x, prev_cx_val_vec, rho_vec, cx_val_vec, left_shift);
 
             /* Uq[i] = ojph_max(e_qmax[i], kappa[i]); */
             /* u_q[i] = Uq[i] - kappa[i]; */
-            auto uq_vec = _mm512_max_epi32(kappa_vec, e_qmax_vec);
-            auto u_q_vec = _mm512_sub_epi32(uq_vec, kappa_vec);
+            auto uq_vec = _mm256_max_epi32(kappa_vec, e_qmax_vec);
+            auto u_q_vec = _mm256_sub_epi32(uq_vec, kappa_vec);
 
             auto eps_vec = cal_eps_vec(eq_vec, u_q_vec, e_qmax_vec);
-            __m512i tuple_vec = cal_tuple(cq_vec, rho_vec, eps_vec, vlc_tbl);
+            __m256i tuple_vec = cal_tuple(cq_vec, rho_vec, eps_vec, vlc_tbl);
             ui32 _ignore = ((n_loop - 1) == x) ? ignore : 0;
 
             proc_mel_encode(&mel, cq_vec, rho_vec, u_q_vec, _ignore,
@@ -1170,21 +1180,23 @@ void ojph_encode_codeblock_avx512(ui32* buf, ui32 missing_msbs,
 
             // vlc_encode(&vlc, tuple[i*2+0] >> 8, (tuple[i*2+0] >> 4) & 7);
             // vlc_encode(&vlc, tuple[i*2+1] >> 8, (tuple[i*2+1] >> 4) & 7);
-            ui32 u_q[16];
-            ui32 tuple[16];
+            ui32 u_q[8];
+            ui32 tuple[8];
             /* The tuple is scaled by 4 due to:
              * vlc_encode(&vlc, tuple0 >> 8, (tuple0 >> 4) & 7, true);
              * So in the vlc_encode, the tuple will only be scaled by 2.
              */
-            tuple_vec = _mm512_srli_epi32(tuple_vec, 4);
-            _mm512_storeu_si512(tuple, tuple_vec);
-            _mm512_storeu_si512(u_q, u_q_vec);
+            tuple_vec = _mm256_srli_epi32(tuple_vec, 4);
+            _mm256_storeu_si256((__m256i*)tuple, tuple_vec);
+            _mm256_storeu_si256((__m256i*)u_q, u_q_vec);
+
             proc_vlc_encode(&vlc, tuple, u_q, _ignore);
         }
 
-        tmp = _mm512_permutexvar_epi32(right_shift, cx_val_vec[0]);
-        tmp = _mm512_slli_epi32(tmp, 2);
-        prev_cq_vec = _mm512_maskz_add_epi32(0x1, tmp, cx_val_vec[0]);
+        tmp = _mm256_permutevar8x32_epi32(cx_val_vec[0], right_shift);
+        tmp = _mm256_slli_epi32(tmp, 2);
+        tmp = _mm256_add_epi32(tmp, cx_val_vec[0]);
+        prev_cq = (ui32)_mm_cvtsi128_si32(_mm256_castsi256_si128(tmp));
 
         proc_cq = proc_cq2;
         vlc_tbl = vlc_tbl1;
