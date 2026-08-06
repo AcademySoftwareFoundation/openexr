@@ -138,7 +138,12 @@ EXR_EXPORT void exr_get_default_dwa_compression_quality (float* q);
 
 /** @brief Assigns a default lossy HTJ2K compression quality.
  *
- * The value is used as the irreversible quantization delta (q-step) value
+ * For values between 1 and 99, the value corresponds directly to Qfactor as
+ * specified in "Guideline on controlling JPEG 2000 image quality using a
+ * single parameter" at jpeg.org (1 is worst quality/highest compression, 99
+ * is close to best quality/least compression). Values between 100 and 150
+ * map onto the Qfactor range between 99 and 100, giving finer-grained
+ * control over that highest-quality end of the scale.
  *
  * This value may be controlled separately on each part, but this global control
  * determines the initial value.

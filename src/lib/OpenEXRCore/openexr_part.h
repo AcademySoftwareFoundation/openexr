@@ -234,15 +234,20 @@ EXR_EXPORT exr_result_t exr_get_dwa_compression_level (
 EXR_EXPORT exr_result_t
 exr_set_dwa_compression_level (exr_context_t ctxt, int part_index, float level);
 
-/** @brief Retrieve the lossy HTJ2K compression quality used for the specified part.
+/** @brief Retrieve the lossy HTJ2K compression quality used for the specified
+ * part.
  *
  * This only applies when the compression method is HTJ2KL256.
  *
- * The value is used as the irreversible quantization delta.
+ * For values between 1 and 99, the value corresponds directly to Qfactor as
+ * specified in "Guideline on controlling JPEG 2000 image quality using a
+ * single parameter" at jpeg.org (1 is worst quality/highest compression, 99
+ * is close to best quality/least compression). Values between 100 and 150
+ * map onto the Qfactor range between 99 and 100, giving finer-grained
+ * control over that highest-quality end of the scale.
  *
- * This value is NOT persisted in the file, and only exists for the
- * lifetime of the context, so will be at the default value when just
- * reading a file.
+ * This value is NOT persisted in the file, and only exists for the lifetime of
+ * the context, so will be at the default value when just reading a file.
  */
 EXR_EXPORT exr_result_t exr_get_lossy_htj2k_quality (
     exr_const_context_t ctxt, int part_index, float* level);
@@ -251,11 +256,15 @@ EXR_EXPORT exr_result_t exr_get_lossy_htj2k_quality (
  *
  * This only applies when the compression method is HTJ2KL256.
  *
- * The value is used as the irreversible quantization delta.
+ * For values between 1 and 99, the value corresponds directly to Qfactor as
+ * specified in "Guideline on controlling JPEG 2000 image quality using a
+ * single parameter" at jpeg.org (1 is worst quality/highest compression, 99
+ * is close to best quality/least compression). Values between 100 and 150
+ * map onto the Qfactor range between 99 and 100, giving finer-grained
+ * control over that highest-quality end of the scale.
  *
- * This value is NOT persisted in the file, and only exists for the
- * lifetime of the context, so this value will be ignored when
- * reading a file.
+ * This value is NOT persisted in the file, and only exists for the lifetime of
+ * the context, so this value will be ignored when reading a file.
  */
 EXR_EXPORT exr_result_t
 exr_set_lossy_htj2k_quality (exr_context_t ctxt, int part_index, float level);

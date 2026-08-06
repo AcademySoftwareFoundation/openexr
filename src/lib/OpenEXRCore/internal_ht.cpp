@@ -3,6 +3,7 @@
 ** Copyright Contributors to the OpenEXR Project.
 */
 
+#include <cmath>
 #include <limits>
 #include <string>
 #include <fstream>
@@ -439,33 +440,58 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
 
     exr_compression_t comp = EXR_COMPRESSION_HTJ2K256;
     exr_get_compression (encode->context, encode->part_index, &comp);
-    bool lossy = (comp == EXR_COMPRESSION_HTJ2KL256);
 
     ojph::param_cod cod = cs.access_cod ();
 
     cod.set_color_transform (isRGB && !isPlanar);
-    cod.set_reversible (!lossy);
     cod.set_block_dims (128, 32);
     cod.set_num_decomposition (5);
 
+    /* enable lossy compression on the first 3 channels, only if the compressor
+    is EXR_COMPRESSION_HTJ2KL256, we have RGB channels, all RGB channels are
+    visual, and none of the RGB channels are subsampled */
+    bool lossy = comp == EXR_COMPRESSION_HTJ2KL256 && isRGB;
+    if (lossy) {
+        for (int16_t c = 0; c < 3; c++)
+        {
+            int file_c = cs_channel_info[c].file_index;
+            lossy      = cs_channel_info[c].kind == J2KChannelKind::visual &&
+                        encode->channels[file_c].x_samples == 1 &&
+                        encode->channels[file_c].y_samples == 1;
+        }
+    }
+
     if (lossy)
     {
-        float lossy_htj2k_quality = -1.f;
+        cod.set_reversible (false);
+
+        float qfactor = -1.f;
         exr_get_lossy_htj2k_quality (
-            encode->context, encode->part_index, &lossy_htj2k_quality);
-        if (lossy_htj2k_quality <= 0.f) {
+            encode->context, encode->part_index, &qfactor);
+        if (qfactor < 1.f || qfactor > 150.f) {
             return EXR_ERR_INVALID_ARGUMENT;
         }
 
         ojph::param_qcd qcd = cs.access_qcd ();
-        qcd.set_irrev_quant (lossy_htj2k_quality);
-
-        /* exclude data channels */
-        for (int16_t c = 0; c < encode->channel_count; c++)
+        if (qfactor <= 99)
         {
-            if (cs_channel_info[c].kind != visual)
-                cod.set_reversible(c, true);
+            qcd.set_qfactor ((ojph::ui8) std::lround (qfactor));
         }
+        else
+        {
+            double k = pow(2, -16.5);
+            double scaled_q = (qfactor - 99.)/51.;
+            double kd = 1/(25500. * k) - 51.;
+            double alpha_m = 0.002*(1 - scaled_q)/(1 + 50. * scaled_q + kd * pow(scaled_q, 2));
+            double qstep = alpha_m + k;
+            qcd.set_irrev_quant (qstep);
+        }
+
+        /* set all channels but the first 3 channels to reversible */
+        for (int16_t c = 3; c < encode->channel_count; c++)
+            cod.set_reversible (c, true);
+    } else {
+        cod.set_reversible (true);
     }
 
     try
