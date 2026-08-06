@@ -487,7 +487,8 @@ IDManifest::init (const char* data, const char* endOfData)
          ++manifestEntry)
     {
 
-        ChannelGroupManifest m;
+        _manifest.push_back(ChannelGroupManifest());
+        ChannelGroupManifest& m = _manifest.back();
 
         //
         // read header of this manifest entry
@@ -573,7 +574,6 @@ IDManifest::init (const char* data, const char* endOfData)
                 (insertion.first)->second[i] = stringList[mapping[stringIndex]];
             }
         }
-	_manifest.push_back(m);
     }
 }
 
