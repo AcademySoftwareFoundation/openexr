@@ -479,15 +479,10 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
         }
         else
         {
-            // qcd.set_irrev_quant (pow(2, (-13.5 * qfactor / 100) - 3.0));
             double k = pow(2, -16.5);
-            // double n = log(0.002/k)/log(51.);
-            //double qstep = 0.002 * pow((150. - qfactor)/51., n) + k;
             double scaled_q = (qfactor - 99.)/51.;
-            double kd = 0.002 - 51. * k;
-            double kc = 0.1/kd - 1;
-            double kb = 0.0002/kd - 0.102;
-            double alpha_m = (1 - scaled_q)*(0.002 + kb * scaled_q)/(1 + kc * scaled_q);
+            double kd = 1/(25500. * k) - 51.;
+            double alpha_m = 0.002*(1 - scaled_q)/(1 + 50. * scaled_q + kd * pow(scaled_q, 2));
             double qstep = alpha_m + k;
             qcd.set_irrev_quant (qstep);
         }
