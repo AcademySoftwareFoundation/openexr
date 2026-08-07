@@ -478,13 +478,17 @@ IDManifest::init (const char* data, const char* endOfData)
 
     _manifest.clear ();
 
-    _manifest.resize (manifestEntries);
+    if (manifestEntries <0)
+    {
+        throw IEX_NAMESPACE::InputExc ("bad number of ChannelGroupsManifests in IDManifest");
+    }
 
     for (int manifestEntry = 0; manifestEntry < manifestEntries;
          ++manifestEntry)
     {
 
-        ChannelGroupManifest& m = _manifest[manifestEntry];
+        _manifest.push_back(ChannelGroupManifest());
+        ChannelGroupManifest& m = _manifest.back();
 
         //
         // read header of this manifest entry
