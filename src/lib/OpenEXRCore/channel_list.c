@@ -173,7 +173,17 @@ exr_attr_chlist_add_with_length (
 
     if (newcount > clist->num_alloced)
     {
-        int nsz = clist->num_alloced * 2;
+        int nsz;
+
+        /* perhaps an arbitrary limit, but that is a LOT of channels */
+        if (clist->num_alloced >= (INT32_MAX / 2))
+        {
+            exr_attr_string_destroy (ctxt, &(nent.name));
+            return ctxt->standard_error (ctxt, EXR_ERR_OUT_OF_MEMORY);
+        }
+
+        nsz = clist->num_alloced * 2;
+
         if (newcount > nsz) nsz = newcount + 1;
         nlist = (exr_attr_chlist_entry_t*) ctxt->alloc_fn (
             sizeof (*nlist) * (size_t) nsz);
@@ -221,6 +231,13 @@ exr_attr_chlist_duplicate (
     if (!chl || !srcchl) return EXR_ERR_INVALID_ARGUMENT;
 
     numchans = srcchl->num_channels;
+    if (numchans > 0 && !srcchl->entries)
+        return ctxt->print_error (
+            ctxt,
+            EXR_ERR_INVALID_ARGUMENT,
+            "Invalid NULL channel list entries with %d channels",
+            numchans);
+
     rv       = exr_attr_chlist_init (ctxt, chl, numchans);
     if (rv != EXR_ERR_SUCCESS) return rv;
 

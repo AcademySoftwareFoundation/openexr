@@ -72,6 +72,7 @@ inline Name&
 Name::operator= (const char text[])
 {
     strncpy (_text, text, MAX_LENGTH);
+    _text[MAX_LENGTH] = 0;
     return *this;
 }
 

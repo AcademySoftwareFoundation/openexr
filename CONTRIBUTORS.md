@@ -82,6 +82,7 @@ If you know of missing, please email info@openexr.com or submit a PR.
 * Matt Pharr
 * Md Sadman Chowdhury
 * Michael Thomas
+* Moira Shooter
 * Nicholas Yue
 * Nick Porcino
 * Nick Rasmussen

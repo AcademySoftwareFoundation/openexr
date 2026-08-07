@@ -55,7 +55,7 @@ jobs:
         shell: bash
 
       - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.tag || github.ref }}
 
@@ -63,7 +63,7 @@ jobs:
         run: git archive --format=tar.gz -o ${OPENEXR_TARBALL} --prefix ${OPENEXR_PREFIX} ${TAG}
 
       - name: Sign archive with Sigstore
-        uses: sigstore/gh-action-sigstore-python@04cffa1d795717b140764e8b640de88853c92acc # v3.3.0
+        uses: sigstore/gh-action-sigstore-python@790bc6befb9d733738f18d8f895854b453640ec9 # v3.5.0
         with:
           inputs: ${{ env.OPENEXR_TARBALL }}
           upload-signing-artifacts: false

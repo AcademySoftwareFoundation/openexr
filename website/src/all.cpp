@@ -21,7 +21,7 @@
 #include "ImfChannelList.h"
 #include "ImfPartType.h"
 
-#include "Iex.h"
+#include <Iex.h>
 #include <Imath/ImathFun.h>
 
 #include <cfloat>
@@ -73,14 +73,11 @@ getSampleDataForTile(int i, int j, int tileSizeX, int tileSizeY,
 
 
 namespace WEBSITE_SRC {
-#include "IStream.cpp"
+#include "IStream.h"
 }
 
-#include "C_IStream.cpp"
-#include "C_IStream_clear.cpp"
-#include "C_IStream_read.cpp"
-#include "C_IStream_seekg.cpp"
-#include "C_IStream_tellg.cpp"
+#include "C_IStream.h"
+
 #ifndef _WIN32
 #include "MemoryMappedIStream.cpp"
 #include "MemoryMappedIStream_isMemoryMapped.cpp"

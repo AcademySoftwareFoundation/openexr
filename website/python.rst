@@ -484,6 +484,76 @@ All deep pixel arrays within a given part must have the same number of
 samples, so the pixel arrays must have the same size and shape.  The
 ``write`` method will throw an exception if they are not.
 
+Maximum Image and Tile Dimensions
+=================================
+
+(new in OpenEXR v3.5)
+
+By default, OpenEXR places no limit on image size, and through
+compression, small files can represent images too large to load into
+memory, leading to failure on read. Applications reading untrusted
+images should take steps to prevent this.  See :ref:`Image Size Limits
+and Out-of-Memory Failures <image-size-limits>` for more details.
+
+By default, ``OpenEXR.File`` allocates NumPy arrays to store full pixel
+data, although if you only need metadata, you can provide
+``header_only=True``, which will read only the headers without the
+pixel data. This provides a way of querying image dimensions before a
+full read.
+
+OpenEXR can reject files whose width or height exceed configurable limits
+**before** allocating large buffers. The limits are **process-wide** (shared by
+all OpenEXR I/O in the process, including the legacy ``InputFile`` /
+``OutputFile`` API).
+
+``OpenEXR.setMaxImageSize(max_width, max_height)``
+    Set the maximum allowed image width and height. Use ``0`` for either
+    argument to mean no limit for that dimension. Corresponds to
+    ``Imf::Header::setMaxImageSize()`` in the C++ API.
+
+``OpenEXR.getMaxImageSize()``
+    Return ``(max_width, max_height)`` for the current image limits.
+    Corresponds to ``Imf::Header::getMaxImageSize()``.
+
+``OpenEXR.setMaxTileSize(max_width, max_height)``
+    Set the maximum allowed tile width and height. Use ``0`` for either
+    argument to mean no limit for that dimension. Corresponds to
+    ``Imf::Header::setMaxTileSize()``.
+
+``OpenEXR.getMaxTileSize()``
+    Return ``(max_width, max_height)`` for the current tile limits.
+    Corresponds to ``Imf::Header::getMaxTileSize()``.
+
+Recommended usage
+-----------------
+
+If your application reads **untrusted** EXR files (user uploads, network
+sources, malware scanners, etc.), call ``setMaxImageSize`` and
+``setMaxTileSize`` **once at startup**, before opening any files, with limits
+appropriate for your deployment. That reduces the risk of excessive memory
+use from hostile dimension metadata.
+
+Production VFX pipelines often work with images larger than 10k pixels; a
+limit that is too low will reject legitimate assets. Prefer a configurable
+limit (environment variable, config file, or command-line option) over a
+hard-coded value. For a minimal C++ example that sets limits before opening a
+file, see ``website/src/exrreader_max/exrreader_max.cpp``.
+
+.. code-block::
+
+    import OpenEXR
+
+    # Example: cap scanline images at 16k and tiles at 4k (adjust for your site).
+    OpenEXR.setMaxImageSize(16384, 16384)
+    OpenEXR.setMaxTileSize(4096, 4096)
+
+    with OpenEXR.File("untrusted.exr") as infile:
+        ...
+
+These settings do not replace normal memory planning: decoding a very large
+but in-bounds image can still require substantial RAM. They only prevent
+OpenEXR from accepting dimensions above your chosen ceiling.
+
 Multithreaded Reading and Writing
 =================================
 

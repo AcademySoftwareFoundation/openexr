@@ -688,6 +688,43 @@ DwaCompressor_compress (DwaCompressor* me)
 
 /**************************************/
 
+static exr_result_t
+validate_size(DwaCompressor* me, CompressorScheme compression,
+              uint64_t compressedSize, uint64_t uncompressedSize,
+              uint64_t extraSize)
+{
+    uint64_t requiredSize = 0;
+    for (int c = 0; c < me->_numChannels; ++c)
+    {
+        if (me->_channelData[c].compression == compression)
+        {
+            uint64_t chanSize = (uint64_t) me->_channelData[c].planarUncSize;
+
+            /* guard against wraparound when accumulating attacker-influenced
+             * per-channel sizes; a wrap would understate requiredSize and
+             * defeat the validation below */
+            if (chanSize > UINT64_MAX - requiredSize)
+                return EXR_ERR_CORRUPT_CHUNK;
+
+            requiredSize += chanSize;
+        }
+    }
+
+    if (requiredSize > 0)
+    {
+        if (uncompressedSize < requiredSize || compressedSize == 0)
+        {
+            return EXR_ERR_CORRUPT_CHUNK;
+        }
+    }
+    else if (uncompressedSize > 0 || compressedSize > 0 || extraSize > 0)
+    {
+        return EXR_ERR_CORRUPT_CHUNK;
+    }
+
+    return EXR_ERR_SUCCESS;
+}
+
 exr_result_t
 DwaCompressor_uncompress (
     DwaCompressor* me,
@@ -774,8 +811,7 @@ DwaCompressor_uncompress (
        be checked below */
     if (unknownUncompressedSize > uncompressed_size ||
         rleRawSize > uncompressed_size ||
-        (unknownUncompressedSize + rleRawSize) > uncompressed_size ||
-        totalAcUncompressedCount > uncompressed_size)
+        (unknownUncompressedSize + rleRawSize) > uncompressed_size)
     {
         return EXR_ERR_CORRUPT_CHUNK;
     }
@@ -868,6 +904,12 @@ DwaCompressor_uncompress (
     rv = DwaCompressor_setupChannelData (me);
     if (rv != EXR_ERR_SUCCESS) { return rv; }
 
+    rv = validate_size(me, UNKNOWN, unknownCompressedSize, unknownUncompressedSize, 0);
+    if (rv != EXR_ERR_SUCCESS) { return rv; }
+    
+    rv = validate_size(me, RLE, rleCompressedSize, rleRawSize, rleUncompressedSize);
+    if (rv != EXR_ERR_SUCCESS) { return rv; }
+    
     //
     // Uncompress the UNKNOWN data into _planarUncBuffer[UNKNOWN]
     //
@@ -1404,10 +1446,15 @@ DwaCompressor_initializeBuffers (DwaCompressor* me, size_t* bufferSize)
     if (maxLossyDctAcSize * numLossyDctChans > me->_packedAcBufferSize)
     {
         me->_packedAcBufferSize = maxLossyDctAcSize * numLossyDctChans;
+        if (me->_packedAcBufferSize > SIZE_MAX)
+        {
+            return EXR_ERR_OUT_OF_MEMORY;
+        }
+
         if (me->_packedAcBuffer != NULL) me->free_fn (me->_packedAcBuffer);
-        me->_packedAcBuffer = me->alloc_fn (me->_packedAcBufferSize);
+        me->_packedAcBuffer = me->alloc_fn ((size_t) me->_packedAcBufferSize);
         if (!me->_packedAcBuffer) return EXR_ERR_OUT_OF_MEMORY;
-        memset (me->_packedAcBuffer, 0, me->_packedAcBufferSize);
+        memset (me->_packedAcBuffer, 0, (size_t) me->_packedAcBufferSize);
     }
 
     //
@@ -1417,19 +1464,29 @@ DwaCompressor_initializeBuffers (DwaCompressor* me, size_t* bufferSize)
     if (maxLossyDctDcSize * numLossyDctChans > me->_packedDcBufferSize)
     {
         me->_packedDcBufferSize = maxLossyDctDcSize * numLossyDctChans;
+        if (me->_packedDcBufferSize > SIZE_MAX)
+        {
+            return EXR_ERR_OUT_OF_MEMORY;
+        }
+
         if (me->_packedDcBuffer != NULL) me->free_fn (me->_packedDcBuffer);
-        me->_packedDcBuffer = me->alloc_fn (me->_packedDcBufferSize);
+        me->_packedDcBuffer = me->alloc_fn ((size_t) me->_packedDcBufferSize);
         if (!me->_packedDcBuffer) return EXR_ERR_OUT_OF_MEMORY;
-        memset (me->_packedDcBuffer, 0, me->_packedDcBufferSize);
+        memset (me->_packedDcBuffer, 0, (size_t) me->_packedDcBufferSize);
     }
 
     if (rleBufferSize > me->_rleBufferSize)
     {
         me->_rleBufferSize = rleBufferSize;
+        if (rleBufferSize > SIZE_MAX)
+        {
+            return EXR_ERR_OUT_OF_MEMORY;
+        }
+
         if (me->_rleBuffer != 0) me->free_fn (me->_rleBuffer);
-        me->_rleBuffer = me->alloc_fn (rleBufferSize);
+        me->_rleBuffer = me->alloc_fn ((size_t) rleBufferSize);
         if (!me->_rleBuffer) return EXR_ERR_OUT_OF_MEMORY;
-        memset (me->_rleBuffer, 0, rleBufferSize);
+        memset (me->_rleBuffer, 0, (size_t) rleBufferSize);
     }
 
     //

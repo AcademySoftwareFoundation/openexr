@@ -177,21 +177,53 @@ readStringList (
         Xdr::read<CharPtrIO> (readPtr, numberOfStrings);
     }
 
-    vector<size_t> lengths (numberOfStrings);
 
-    for (int i = 0; i < numberOfStrings; ++i)
+    if (numberOfStrings < 0)
     {
-        lengths[i] = readVariableLengthInteger (readPtr, endPtr);
+        throw IEX_NAMESPACE::InputExc (
+            "Negative count for number of strings");
     }
+
+    if (readPtr + numberOfStrings > endPtr)
+    {
+        throw IEX_NAMESPACE::InputExc (
+            "IDManifest too small for string length table");
+    }
+
+
+    //
+    // compute total table size
+    //
+    const char* tablePtr = readPtr;
+
+    size_t totalTableSize = 0;
+
+    for (int i = 0; i < numberOfStrings; ++i)
+    {
+        totalTableSize += readVariableLengthInteger (readPtr, endPtr);
+    }
+
+
+    if(readPtr + totalTableSize > endPtr)
+    {
+        throw IEX_NAMESPACE::InputExc ("IDManifest too small for string table");
+    }
+
+    //
+    // now tablePtr points to size of string in string table, and readPtr
+    // points to the string itself
+    //
+
     for (int i = 0; i < numberOfStrings; ++i)
     {
 
-        if (readPtr + lengths[i] > endPtr)
+        size_t length = readVariableLengthInteger (tablePtr, endPtr);
+        if (readPtr + length > endPtr)
         {
             throw IEX_NAMESPACE::InputExc ("IDManifest too small for string");
         }
-        outputVector.insert (outputVector.end (), string (readPtr, lengths[i]));
-        readPtr += lengths[i];
+        outputVector.insert (outputVector.end (), string (readPtr, length));
+        readPtr += length;
     }
 }
 
@@ -446,13 +478,17 @@ IDManifest::init (const char* data, const char* endOfData)
 
     _manifest.clear ();
 
-    _manifest.resize (manifestEntries);
+    if (manifestEntries <0)
+    {
+        throw IEX_NAMESPACE::InputExc ("bad number of ChannelGroupsManifests in IDManifest");
+    }
 
     for (int manifestEntry = 0; manifestEntry < manifestEntries;
          ++manifestEntry)
     {
 
-        ChannelGroupManifest& m = _manifest[manifestEntry];
+        _manifest.push_back(ChannelGroupManifest());
+        ChannelGroupManifest& m = _manifest.back();
 
         //
         // read header of this manifest entry

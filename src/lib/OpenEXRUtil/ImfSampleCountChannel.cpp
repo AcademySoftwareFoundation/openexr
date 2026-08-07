@@ -32,6 +32,15 @@ roundListSizeUp (unsigned int n)
 
     if (n == 0) return 0;
 
+    if (n > 0x80000000u)
+    {
+        THROW (
+            ArgExc,
+            "Sample count "
+                << n
+                << " is too large (cannot round up to next power of two)");
+    }
+
     unsigned int s = 1;
 
     while (s < n)
@@ -111,6 +120,8 @@ SampleCountChannel::set (int x, int y, unsigned int newNumSamples)
     // Compute the position of the pixel in the various
     // arrays that describe it.
     //
+
+    boundsCheck (x, y);
 
     size_t i = (_base + y * pixelsPerRow () + x) - _numSamples;
 
@@ -222,8 +233,18 @@ SampleCountChannel::set (int x, int y, unsigned int newNumSamples)
 void
 SampleCountChannel::set (int r, unsigned int newNumSamples[])
 {
+    if (r < 0 || r >= pixelsPerColumn ())
+    {
+        THROW (
+            ArgExc,
+            "Attempt to set sample counts for row "
+            << r
+            << " in an image channel with "
+            << pixelsPerColumn () << " rows.");
+    }
+
     int x = level ().dataWindow ().min.x;
-    int y = r + level ().dataWindow ().min.x;
+    int y = r + level ().dataWindow ().min.y;
 
     for (int i = 0; i < pixelsPerRow (); ++i, ++x)
         set (x, y, newNumSamples[i]);

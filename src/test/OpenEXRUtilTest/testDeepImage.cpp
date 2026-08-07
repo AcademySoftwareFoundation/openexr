@@ -15,6 +15,7 @@
 #include <Imath/ImathRandom.h>
 
 #include <cassert>
+#include <climits>
 #include <cstdio>
 
 using namespace OPENEXR_IMF_NAMESPACE;
@@ -452,6 +453,65 @@ testSetSampleCounts ()
 }
 
 void
+testSetSampleCountRowOffset ()
+{
+    //
+    // Regression test for GHSA-54cp-3rq6-7mq8: row-based sample count setter
+    // must use dataWindow.min.y (not min.x) when mapping row index to Y.
+    //
+
+    cout << "sample count row setter with non-zero data window origin"
+         << endl;
+
+    DeepImage img;
+    img.insertChannel ("Z", FLOAT, 1, 1, false);
+
+    const Box2i dataWindow (V2i (0, 1), V2i (1, 1));
+    img.resize (dataWindow, ONE_LEVEL, ROUND_DOWN);
+
+    SampleCountChannel& sc = img.level (0).sampleCounts ();
+
+    unsigned int counts[2] = {1, 1};
+    sc.set (0, counts);
+
+    assert (sc.at (0, 1) == 1);
+    assert (sc.at (1, 1) == 1);
+}
+
+void
+testDeepChannelRowOffset ()
+{
+    //
+    // Regression test for GHSA-hwmv-39v6-739m: row() is 0-based relative
+    // to the data window and must not use the _base pointer offset.
+    //
+
+    cout << "deep channel row() with non-zero data window origin" << endl;
+
+    DeepImage img;
+    img.insertChannel ("Z", FLOAT, 1, 1, false);
+
+    const Box2i dataWindow (V2i (1024, -1024), V2i (1031, -1017));
+    img.resize (dataWindow, ONE_LEVEL, ROUND_DOWN);
+
+    DeepImageLevel&               level   = img.level (0);
+    TypedDeepImageChannel<float>& channel = level.typedChannel<float> ("Z");
+    SampleCountChannel&           sc      = level.sampleCounts ();
+
+    assert (channel.row (0)[0] ==
+            channel.at (dataWindow.min.x, dataWindow.min.y));
+    assert (&sc.row (0)[0] == &sc.at (dataWindow.min.x, dataWindow.min.y));
+
+    const int lastRow = channel.pixelsPerColumn () - 1;
+    const int lastCol = channel.pixelsPerRow () - 1;
+
+    assert (channel.row (lastRow)[lastCol] ==
+            channel.at (dataWindow.max.x, dataWindow.max.y));
+    assert (&sc.row (lastRow)[lastCol] ==
+            &sc.at (dataWindow.max.x, dataWindow.max.y));
+}
+
+void
 testShiftPixels ()
 {
     cout << "pixel shifting" << endl;
@@ -672,6 +732,46 @@ testRenameChannels ()
     assert (caught);
 }
 
+void
+testRoundListSizeUpLimits ()
+{
+    cout << "            roundListSizeUp limits" << endl;
+
+    auto expectArgExc = [] (auto&& fn) {
+        bool caught = false;
+        try
+        {
+            fn ();
+        }
+        catch (const ArgExc&)
+        {
+            caught = true;
+        }
+        assert (caught);
+    };
+
+    expectArgExc ([&] {
+        DeepImage img;
+        img.resize (Box2i (V2i (0, 0), V2i (0, 0)), ONE_LEVEL, ROUND_DOWN);
+        img.level (0).sampleCounts ().set (0, 0, UINT_MAX);
+    });
+
+    expectArgExc ([&] {
+        DeepImage img;
+        img.resize (Box2i (V2i (0, 0), V2i (0, 0)), ONE_LEVEL, ROUND_DOWN);
+        img.level (0).sampleCounts ().set (0, 0, 0x80000001u);
+    });
+
+    expectArgExc ([&] {
+        DeepImage img;
+        img.resize (Box2i (V2i (0, 0), V2i (0, 0)), ONE_LEVEL, ROUND_DOWN);
+        SampleCountChannel& samples = img.level (0).sampleCounts ();
+        unsigned int*       counts  = samples.beginEdit ();
+        counts[0]                   = UINT_MAX;
+        samples.endEdit ();
+    });
+}
+
 } // namespace
 
 void
@@ -684,6 +784,9 @@ testDeepImage (const string& tempDir)
         testScanLineImages (tempDir + "deepScanLines.exr");
         testTiledImages (tempDir + "deepTiles.exr");
         testSetSampleCounts ();
+        testSetSampleCountRowOffset ();
+        testDeepChannelRowOffset ();
+        testRoundListSizeUpLimits ();
         testShiftPixels ();
         testCropping (tempDir + "deepCropped.exr");
         testRenameChannel ();

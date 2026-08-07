@@ -40,6 +40,7 @@ option(OJPH_ENABLE_TIFF_SUPPORT "Enables input and output support for TIFF files
 option(OJPH_BUILD_TESTS "Enables building test code" OFF)
 option(OJPH_BUILD_EXECUTABLES "Enables building command line executables" ON)
 option(OJPH_BUILD_STREAM_EXPAND "Enables building ojph_stream_expand executable" OFF)
+option(OJPH_INSTALL "Install OpenJPH libraries, headers, and CMake config" ON)
 
 option(OJPH_DISABLE_SIMD "Disables the use of SIMD instructions -- agnostic to architectures" OFF)
 option(OJPH_DISABLE_SSE "Disables the use of SSE SIMD instructions and associated files" OFF)
@@ -188,46 +189,48 @@ endif()
 # Install
 ################################################################################################
 
-install(EXPORT openjph-targets
-  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/openjph
-)
+if (OJPH_INSTALL)
+  install(EXPORT openjph-targets
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/openjph
+  )
 
-include(CMakePackageConfigHelpers)
+  include(CMakePackageConfigHelpers)
 
-configure_package_config_file(${CMAKE_CURRENT_SOURCE_DIR}/src/openjph-config.cmake.in
-  "${CMAKE_CURRENT_BINARY_DIR}/openjph-config.cmake"
-  INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/openjph
-)
+  configure_package_config_file(${CMAKE_CURRENT_SOURCE_DIR}/src/openjph-config.cmake.in
+    "${CMAKE_CURRENT_BINARY_DIR}/openjph-config.cmake"
+    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/openjph
+  )
 
-write_basic_package_version_file(${CMAKE_CURRENT_BINARY_DIR}/openjph-config-version.cmake
-                                 COMPATIBILITY SameMinorVersion)
+  write_basic_package_version_file(${CMAKE_CURRENT_BINARY_DIR}/openjph-config-version.cmake
+                                   COMPATIBILITY SameMinorVersion)
 
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/openjph-config.cmake
-              ${CMAKE_CURRENT_BINARY_DIR}/openjph-config-version.cmake
-  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/openjph
-)
+  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/openjph-config.cmake
+                ${CMAKE_CURRENT_BINARY_DIR}/openjph-config-version.cmake
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/openjph
+  )
 
-if(IS_ABSOLUTE "${CMAKE_INSTALL_INCLUDEDIR}")
-  set(PKG_CONFIG_INCLUDEDIR "${CMAKE_INSTALL_INCLUDEDIR}")
-else()
-  set(PKG_CONFIG_INCLUDEDIR "\${prefix}/${CMAKE_INSTALL_INCLUDEDIR}")
+  if(IS_ABSOLUTE "${CMAKE_INSTALL_INCLUDEDIR}")
+    set(PKG_CONFIG_INCLUDEDIR "${CMAKE_INSTALL_INCLUDEDIR}")
+  else()
+    set(PKG_CONFIG_INCLUDEDIR "\${prefix}/${CMAKE_INSTALL_INCLUDEDIR}")
+  endif()
+
+  if(IS_ABSOLUTE "${CMAKE_INSTALL_LIBDIR}")
+    set(PKG_CONFIG_LIBDIR "${CMAKE_INSTALL_LIBDIR}")
+  else()
+    set(PKG_CONFIG_LIBDIR "\${prefix}/${CMAKE_INSTALL_LIBDIR}")
+  endif()
+
+  configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/openjph.pc.in"
+    "${CMAKE_BINARY_DIR}/${PROJECT_NAME}.pc"
+    @ONLY
+  )
+
+  install(FILES "${CMAKE_BINARY_DIR}/${PROJECT_NAME}.pc"
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
+  )
 endif()
-
-if(IS_ABSOLUTE "${CMAKE_INSTALL_LIBDIR}")
-  set(PKG_CONFIG_LIBDIR "${CMAKE_INSTALL_LIBDIR}")
-else()
-  set(PKG_CONFIG_LIBDIR "\${prefix}/${CMAKE_INSTALL_LIBDIR}")
-endif()
-
-configure_file(
-  "${CMAKE_CURRENT_SOURCE_DIR}/src/openjph.pc.in"
-  "${CMAKE_BINARY_DIR}/${PROJECT_NAME}.pc"
-  @ONLY
-)
-
-install(FILES "${CMAKE_BINARY_DIR}/${PROJECT_NAME}.pc"
-  DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
-)
 
 ################################################################################################
 # Testing (OJPH_BUILD_TESTS)

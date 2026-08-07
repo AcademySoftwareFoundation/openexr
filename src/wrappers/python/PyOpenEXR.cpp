@@ -59,6 +59,7 @@
 #include "ImfTileDescriptionAttribute.h"
 #include "ImfTimeCodeAttribute.h"
 #include "ImfVecAttribute.h"
+#include "ImfIDManifestAttribute.h"
 
 #include <algorithm>
 #include <typeinfo>
@@ -430,6 +431,9 @@ PyFile::readPartsFromOpenInput(bool separate_channels)
         
             std::vector<size_t> shape ({height, width});
 
+            if (!separate_channels)
+                P.validateCoalescedChannels (header.channels (), rgbaChannels);
+
             //
             // Read the channel data, different for image vs. deep
             //
@@ -446,6 +450,10 @@ PyFile::readPartsFromOpenInput(bool separate_channels)
                     P.readDeepPixels(*_inputFile, type, header.channels(), shape, rgbaChannels, dw, separate_channels);
                 }
                 parts.append(py::cast<PyPart>(PyPart(P)));
+            }
+            catch (const std::invalid_argument&)
+            {
+                throw;
             }
             catch (const std::exception& e)
             {
@@ -466,6 +474,9 @@ PyPart::readPixels(MultiPartInputFile& infile, const ChannelList& channel_list,
                    const std::vector<size_t>& shape, const std::set<std::string>& rgbaChannels,
                    const Box2i& dw, bool separate_channels)
 {
+    if (!separate_channels)
+        validateCoalescedChannels (channel_list, rgbaChannels);
+
     FrameBuffer frameBuffer;
 
     for (auto c = channel_list.begin(); c != channel_list.end(); c++)
@@ -496,11 +507,21 @@ PyPart::readPixels(MultiPartInputFile& infile, const ChannelList& channel_list,
             std::vector<size_t> c_shape = shape;
 
             //
+            // For subsampled channels, shrink the allocated array to
+            // the actual sampled dimensions so no stale rows/columns
+            // are returned to Python.
+            //
+            if (C.xSampling > 1)
+                c_shape[1] = (shape[1] - 1) / C.xSampling + 1;
+            if (C.ySampling > 1)
+                c_shape[0] = (shape[0] - 1) / C.ySampling + 1;
+
+            //
             // If this channel belongs to one of the rgba's, give
             // the PyChannel the extra dimension and the proper shape.
             // nrgba is 3 for RGB and 4 for RGBA.
             //
-            
+
             if (rgbaChannels.find(c.name()) != rgbaChannels.end())
                 c_shape.push_back(nrgba);
 
@@ -559,7 +580,10 @@ PyPart::readPixels(MultiPartInputFile& infile, const ChannelList& channel_list,
             }
         }
 
-        size_t yStride = xStride * shape[1] / C.xSampling;
+        size_t sampledWidth = (C.xSampling > 1)
+            ? (shape[1] - 1) / C.xSampling + 1
+            : shape[1];
+        size_t yStride = xStride * sampledWidth;
 
         frameBuffer.insert (c.name(),
                             Slice::Make (c.channel().type,
@@ -670,11 +694,12 @@ PyPart::setDeepSliceData(const ChannelList& channel_list, size_t height, size_t 
         size_t channel_offset = 0;
         if (C._nrgba > 0)
         {
-            if (!strcmp(c.name(), "G"))
+            char last = c.name()[strlen(c.name()) - 1];
+            if (last == 'G')
                 channel_offset = 1;
-            else if (!strcmp(c.name(), "B"))
+            else if (last == 'B')
                 channel_offset = 2;
-            else if (!strcmp(c.name(), "A"))
+            else if (last == 'A')
                 channel_offset = 3;
         }
 
@@ -718,6 +743,9 @@ PyPart::readDeepPixels(MultiPartInputFile& infile, const std::string& type, cons
                        const std::vector<size_t>& shape, const std::set<std::string>& rgbaChannels,
                        const Box2i& dw, bool separate_channels)
 {
+    if (!separate_channels)
+        validateCoalescedChannels (channel_list, rgbaChannels);
+
     size_t width  = dw.max.x - dw.min.x + 1;
     size_t height = dw.max.y - dw.min.y + 1;
     auto dw_offset = dw.min.y * width + dw.min.x;
@@ -1176,9 +1204,101 @@ PyPart::writeDeepPixels(MultiPartOutputFile& outfile, const Box2i& dw) const
 // channel_name is returned as the single character name of the channel
 //
 
+namespace
+{
+
+const char*
+pixelTypeName (PixelType type)
+{
+    switch (type)
+    {
+        case UINT: return "UINT";
+        case HALF: return "HALF";
+        case FLOAT: return "FLOAT";
+        default: return "unknown";
+    }
+}
+
+} // namespace
+
+//
+// Only combine RGB(A) channels into a single numpy array when coalescing is
+// unambiguous: all channels in a group must share the same pixel type, and no
+// literal channel name may collide with a coalesced group key (for example,
+// literal "left" plus "left.R", "left.G", "left.B", each of which would
+// attempt to add a channel dictionary entry with key "left"). 
+//
+// Note that attempting to coalesce invalid channel layouts causes a failure of
+// the entire file read, whereas other read errors simply skip the offending
+// part. This is reasonable behavior since the condition is not a defect in
+// the data itself, but simply an inability to return the data in the format
+// the user requested.
+
+void
+PyPart::validateCoalescedChannels (
+    const ChannelList&           channel_list,
+    const std::set<std::string>& rgbaChannels) const
+{
+    if (rgbaChannels.empty ())
+        return;
+
+    std::map<std::string, PixelType> groupType;
+    std::set<std::string>            coalescedKeys;
+
+    for (auto c = channel_list.begin (); c != channel_list.end (); ++c)
+    {
+        if (rgbaChannels.find (c.name ()) == rgbaChannels.end ())
+            continue;
+
+        // py_channel_name is the name of the combined channel, i.e. if the
+        // file has left.R, left.G, left.B, then py_channel_name is "left".
+        // It's allowable to have "left" be FLOAT and "right" be HALF, but
+        // all RGB channels within "left" and "right" must have the same
+        // type.
+
+        std::string py_channel_name;
+        char        channel_name;
+        if (channelNameToRGBA (channel_list, c.name (), py_channel_name, channel_name) <= 0)
+            continue;
+
+        coalescedKeys.insert (py_channel_name);
+
+        const PixelType channelType = c.channel ().type;
+        auto            it          = groupType.find (py_channel_name);
+        if (it == groupType.end ())
+            groupType[py_channel_name] = channelType;
+        else if (it->second != channelType)
+        {
+            std::stringstream err;
+            err << "cannot coalesce channels into \"" << py_channel_name
+                << "\": channel \"" << c.name () << "\" has pixel type "
+                << pixelTypeName (channelType) << " but other channels in the group "
+                << "have pixel type " << pixelTypeName (it->second)
+                << "; use separate_channels=True";
+            throw std::invalid_argument (err.str ());
+        }
+    }
+
+    for (auto c = channel_list.begin (); c != channel_list.end (); ++c)
+    {
+        if (rgbaChannels.find (c.name ()) != rgbaChannels.end ())
+            continue;
+
+        if (coalescedKeys.find (c.name ()) != coalescedKeys.end ())
+        {
+            std::stringstream err;
+            err << "cannot coalesce channels into \"" << c.name ()
+                << "\": channel \"" << c.name ()
+                << "\" collides with a coalesced RGB/RGBA group key"
+                << "; use separate_channels=True";
+            throw std::invalid_argument (err.str ());
+        }
+    }
+}
+
 int
 PyPart::channelNameToRGBA(const ChannelList& channel_list, const std::string& name,
-                          std::string& py_channel_name, char& channel_name)
+                          std::string& py_channel_name, char& channel_name) const
 {
     py_channel_name = name;
     channel_name = py_channel_name.back();
@@ -1909,6 +2029,13 @@ PyFile::getAttributeObject(const std::string& name, const Attribute* a)
     
     if (auto v = dynamic_cast<const V3dAttribute*> (a))
         return make_v3(v->value());
+    
+    if (auto v = dynamic_cast<const IDManifestAttribute*> (a))
+    {
+        const CompressedIDManifest& cmpd = v->value();
+        IDManifest decoded = IDManifest(cmpd);
+        return py::cast(decoded);
+    }
 
     std::stringstream err;
     err << "unsupported attribute type: " << a->typeName();
@@ -1916,7 +2043,22 @@ PyFile::getAttributeObject(const std::string& name, const Attribute* a)
     
     return py::none();
 }
-    
+
+// Static helper functions to cache NumPy types and avoid repeated imports
+py::object
+numpy_integer ()
+{
+    static py::object type = py::module::import ("numpy").attr ("integer");
+    return type;
+}
+
+py::object
+numpy_floating ()
+{
+    static py::object type = py::module::import ("numpy").attr ("floating");
+    return type;
+}
+
 template <class P, class T>
 bool
 objectToV2(const py::object& object, Vec2<T>& v)
@@ -1924,13 +2066,42 @@ objectToV2(const py::object& object, Vec2<T>& v)
     if (py::isinstance<py::tuple>(object))
     {
         auto tup = object.cast<py::tuple>();
-        if (tup.size() == 2 &&
-            py::isinstance<P>(tup[0]) &&
-            py::isinstance<P>(tup[1]))
-        {       
-            v.x = P(tup[0]);
-            v.y = P(tup[1]);
-            return true;
+        if (tup.size() == 2)
+        {
+            // 1. Standard Python types only
+            if (py::isinstance<P> (tup[0]) && py::isinstance<P> (tup[1]))
+            {
+                v.x = P (tup[0]);
+                v.y = P (tup[1]);
+                return true;
+            }
+
+            // 2. Numpy scalar types included
+
+            // Assigning numpy equivalent to Python type P passed from the calling function
+            // objectToV2 is currently instantiated only with py::int_ and py::float_, so the ternary
+            // maps directly to numpy.integer / numpy.floating.
+            py::object target_type = std::is_same_v<P, py::int_>
+                                         ? numpy_integer ()
+                                         : numpy_floating ();
+
+            // Allowing tuples that contain numpy scalars
+            if ((py::isinstance<P> (tup[0]) ||
+                 py::isinstance (tup[0], target_type)) &&
+                (py::isinstance<P> (tup[1]) ||
+                 py::isinstance (tup[1], target_type)))
+            {
+                try
+                {
+                    v.x = py::cast<T> (tup[0]);
+                    v.y = py::cast<T> (tup[1]);
+                    return true;
+                }
+                catch (const py::cast_error&)
+                {
+                    return false;
+                }
+            }
         }
     }
     else if (py::isinstance<py::array_t<T>>(object))
@@ -2440,6 +2611,11 @@ PyFile::insertAttribute(Header& header, const std::string& name, const py::objec
         Rational r(n, d);
         header.insert(name, RationalAttribute(r));
     }
+    else if (py::isinstance<IDManifest>(object))
+    {
+        const IDManifest& m = object.cast<IDManifest>();
+        header.insert(name, IDManifestAttribute(CompressedIDManifest(m)));
+    }
     else
     {
         auto t = py::str(object.attr("__class__").attr("__name__"));
@@ -2710,9 +2886,26 @@ operator==(const Imf::OpaqueAttribute& a,const Imf::OpaqueAttribute& b)
 }
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 
+namespace
+{
+    // Python iteration glue: C++ uses separate begin/end ConstIterators, not operator*.
+    struct ChannelGroupIterator
+    {
+        const IDManifest::ChannelGroupManifest* group;
+        IDManifest::ChannelGroupManifest::ConstIterator cur, end;
+
+        ChannelGroupIterator (const IDManifest::ChannelGroupManifest& g)
+            : group (&g), cur (g.begin ()), end (g.end ())
+        {}
+    };
+
+}
+
 PYBIND11_MODULE(OpenEXR, m)
 {
     using namespace py::literals;
+    using ConstIterator = IDManifest::ChannelGroupManifest::ConstIterator; 
+    using Iterator = IDManifest::ChannelGroupManifest::Iterator;
 
     m.doc() = "Read and write EXR high-dynamic range image files";
     
@@ -2735,6 +2928,48 @@ PYBIND11_MODULE(OpenEXR, m)
         "global_thread_count",
         &globalThreadCount,
         "Return the current number of worker threads in OpenEXR's global pool.\n\n");
+
+    m.def(
+        "setMaxImageSize",
+        &Header::setMaxImageSize,
+        py::arg("max_width"),
+        py::arg("max_height"),
+        "Set the maximum allowed image width and height for subsequent OpenEXR reads "
+        "and writes in this process.\n\n"
+        "Pass ``0`` for either dimension to mean no limit for that dimension. "
+        "Maps to ``Imf::Header::setMaxImageSize()``.\n\n");
+
+    m.def(
+        "getMaxImageSize",
+        [](){
+            int w = 0;
+            int h = 0;
+            Header::getMaxImageSize (w, h);
+            return py::make_tuple (w, h);
+        },
+        "Return ``(max_width, max_height)`` for the current image dimension limits.\n\n"
+        "Maps to ``Imf::Header::getMaxImageSize()``.\n\n");
+
+    m.def(
+        "setMaxTileSize",
+        &Header::setMaxTileSize,
+        py::arg("max_width"),
+        py::arg("max_height"),
+        "Set the maximum allowed tile width and height for subsequent OpenEXR reads "
+        "and writes in this process.\n\n"
+        "Pass ``0`` for either dimension to mean no limit for that dimension. "
+        "Maps to ``Imf::Header::setMaxTileSize()``.\n\n");
+
+    m.def(
+        "getMaxTileSize",
+        [](){
+            int w = 0;
+            int h = 0;
+            Header::getMaxTileSize (w, h);
+            return py::make_tuple (w, h);
+        },
+        "Return ``(max_width, max_height)`` for the current tile dimension limits.\n\n"
+        "Maps to ``Imf::Header::getMaxTileSize()``.\n\n");
 
     //
     // Add symbols from the legacy implementation of the bindings for
@@ -2947,6 +3182,150 @@ PYBIND11_MODULE(OpenEXR, m)
         .def_readwrite("pixels", &PyPreviewImage::pixels)
         ;
     
+    py::class_<ConstIterator>(m, "ChannelGroupManifestEntry")
+        .def("id", &ConstIterator::id, py::return_value_policy::copy)
+        .def("text", &ConstIterator::text, py::return_value_policy::copy);
+
+    py::class_<ChannelGroupIterator> (m, "ChannelGroupIterator", py::module_local ())
+        .def ("__iter__",
+              [] (ChannelGroupIterator& self) -> ChannelGroupIterator& { return self; })
+        .def ("__next__",
+              [] (ChannelGroupIterator& self) -> ConstIterator {
+                  if (self.cur == self.end)
+                    throw py::stop_iteration ();
+                  ConstIterator out = self.cur; 
+                  ++self.cur; 
+                  return out;
+              });
+
+    py::enum_<IDManifest::IdLifetime> (m, "IdLifetime")
+        .value ("LIFETIME_FRAME", IDManifest::LIFETIME_FRAME)
+        .value ("LIFETIME_SHOT", IDManifest::LIFETIME_SHOT)
+        .value ("LIFETIME_STABLE", IDManifest::LIFETIME_STABLE)
+        .export_values ();
+
+    m.attr ("ID_MANIFEST_NOTHASHED")     = IDManifest::NOTHASHED;
+    m.attr ("ID_MANIFEST_ID_SCHEME")     = IDManifest::ID_SCHEME;
+    m.attr ("ID_MANIFEST_ID2_SCHEME")    = IDManifest::ID2_SCHEME;
+    m.attr ("ID_MANIFEST_MURMURHASH3_32") = IDManifest::MURMURHASH3_32;
+    m.attr ("ID_MANIFEST_MURMURHASH3_64") = IDManifest::MURMURHASH3_64;
+
+    py::class_<Iterator> (m, "ChannelGroupManifestEntryIterator", py::module_local ())
+        .def ("id", &Iterator::id, py::return_value_policy::copy)
+        .def ("text", &Iterator::text, py::return_value_policy::copy);
+
+    py::class_<IDManifest::ChannelGroupManifest> (
+        m, "ChannelGroupManifest", "Channel group manifest for the image")
+        .def (py::init ())
+        .def ("getHashScheme", &IDManifest::ChannelGroupManifest::getHashScheme)
+        .def (
+            "getChannels",
+            [] (const IDManifest::ChannelGroupManifest& g) {
+                return g.getChannels ();
+            })
+        .def ("getEncodingScheme", &IDManifest::ChannelGroupManifest::getEncodingScheme)
+        .def ("getComponents", &IDManifest::ChannelGroupManifest::getComponents)
+        .def ("getLifetime", &IDManifest::ChannelGroupManifest::getLifetime)
+        .def ("setHashScheme", &IDManifest::ChannelGroupManifest::setHashScheme)
+        .def ("setEncodingScheme", &IDManifest::ChannelGroupManifest::setEncodingScheme)
+        .def ("setComponents", &IDManifest::ChannelGroupManifest::setComponents)
+        .def ("setComponent", &IDManifest::ChannelGroupManifest::setComponent)
+        .def ("setChannel", &IDManifest::ChannelGroupManifest::setChannel)
+        .def (
+            "setChannels",
+            [] (IDManifest::ChannelGroupManifest& g, py::iterable channels) {
+                std::set<std::string> s;
+                for (const py::handle item : channels)
+                    s.insert (item.cast<std::string> ());
+                g.setChannels (s);
+            })
+        .def (
+            "setLifetime",
+            py::overload_cast<const IDManifest::IdLifetime&> (
+                &IDManifest::ChannelGroupManifest::setLifetime))
+        .def (
+            "setLifetime",
+            [] (IDManifest::ChannelGroupManifest& g, int lifetime) {
+                if (lifetime < 0 || lifetime > 2)
+                    throw std::invalid_argument (
+                        "lifetime must be 0 (frame), 1 (shot), or 2 (stable)");
+                g.setLifetime (static_cast<IDManifest::IdLifetime> (lifetime));
+            })
+        .def (
+            "insert",
+            py::overload_cast<const std::string&> (
+                &IDManifest::ChannelGroupManifest::insert))
+        .def (
+            "insert",
+            py::overload_cast<const std::vector<std::string>&> (
+                &IDManifest::ChannelGroupManifest::insert))
+        .def (
+            "insert",
+            py::overload_cast<uint64_t, const std::string&> (
+                &IDManifest::ChannelGroupManifest::insert))
+        .def (
+            "insert",
+            py::overload_cast<uint64_t, const std::vector<std::string>&> (
+                &IDManifest::ChannelGroupManifest::insert))
+        .def (
+            "find",
+            py::overload_cast<uint64_t> (
+                &IDManifest::ChannelGroupManifest::find))
+        .def (
+            "find",
+            py::overload_cast<uint64_t> (
+                &IDManifest::ChannelGroupManifest::find, py::const_))
+        .def ("erase", &IDManifest::ChannelGroupManifest::erase)
+        .def ("size", &IDManifest::ChannelGroupManifest::size)
+        .def (
+            "__lshift__",
+            [] (IDManifest::ChannelGroupManifest& g, uint64_t id)
+                -> IDManifest::ChannelGroupManifest& {
+                g << id;
+                return g;
+            },
+            py::return_value_policy::reference_internal)
+        .def (
+            "__lshift__",
+            [] (IDManifest::ChannelGroupManifest& g, const std::string& text)
+                -> IDManifest::ChannelGroupManifest& {
+                g << text;
+                return g;
+            },
+            py::return_value_policy::reference_internal)
+        .def (
+            "__iter__",
+            [] (const IDManifest::ChannelGroupManifest& g) {
+                return ChannelGroupIterator (g);
+            },
+            py::keep_alive<0, 1> ());
+
+    py::class_<IDManifest> (m, "IDManifest", "ID manifest for the image")
+        .def (py::init<> ())
+        .def (py::init<const CompressedIDManifest&> ())
+        .def ("size", &IDManifest::size)
+        .def (
+            "__getitem__",
+            [] (IDManifest& self, size_t index)
+                -> IDManifest::ChannelGroupManifest& { return self[index]; },
+            py::return_value_policy::reference_internal)
+        .def (
+            "add",
+            [] (IDManifest& m, const IDManifest::ChannelGroupManifest& cgm)
+                -> IDManifest::ChannelGroupManifest& { return m.add (cgm); },
+            py::return_value_policy::reference_internal)
+        .def (
+            "add",
+            [] (IDManifest& m, const std::set<std::string>& group)
+                -> IDManifest::ChannelGroupManifest& { return m.add (group); },
+            py::return_value_policy::reference_internal)
+        .def (
+            "add",
+            [] (IDManifest& m, const std::string& ch)
+                -> IDManifest::ChannelGroupManifest& { return m.add (ch); },
+            py::return_value_policy::reference_internal)
+        .def ("find", &IDManifest::find)
+        .def ("merge", &IDManifest::merge);
     //
     // The File API: Channel, Part, and File
     //

@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright Contributors to the OpenEXR Project.
 
@@ -8,6 +8,7 @@
 # `release.py news <tag>` - edit the website/news.rst file to add reference to the tagged release
 # `release.py draft <tag>` - create a draft release on GitHub
 # `release.py candidate <tag>` - format a message about the upcoming release, print to stdout
+# `release.py tag <tag>` - create a signed annotated git tag with the release notes as the tag message
 # `release.py cherry <label>` - list merged PRs with the given label, print cherry-pick lines (oldest merge first)
 # `release.py changes <tag> [pr#> ... ]` - add section to CHANGES.md with given PRs
 # `release.py log` - print a `git log` annotated with the labels from each commit's associated PR, if there is one.
@@ -31,7 +32,12 @@ import subprocess
 from pathlib import Path
 from subprocess import PIPE, run
 from datetime import datetime, timedelta
+from urllib.error import HTTPError, URLError
+from urllib.request import urlopen
 import markdown
+
+OSS_FUZZ_ISSUE_JSON_PREFIX = ")]}'"
+OSS_FUZZ_ISSUE_API = "https://issues.oss-fuzz.com/action/issues/{issue_id}?format=json"
 
 def extract_section(content, version_tag):
     """Extract the section of release notes starting with a heading
@@ -189,13 +195,15 @@ def cmd_cherry(label):
     merged.sort(key=lambda x: x[0])
 
     changes_prs = ""
+    
     for _merged_at, oid, title, id in merged:
         abbrev = oid[:7]
         title_one_line = " ".join(title.split())
         print(f"git cherry-pick {abbrev} # {title_one_line} (#{id})")
         changes_prs += f" {id}" 
 
-    print(f"share/util/release.py changes {label} {changes_prs}")
+    print(f"git cherry-pick {' '.join(o[:7] for a, o, t, i in merged)}")
+    print(f"release.py changes {label} {' '.join(str(id) for a, o, t, id in merged)}")
 
 def prev_patch_version(base_tag):
     """
@@ -218,7 +226,7 @@ def gh_pr_view(pr_number):
             "gh",
             "pr",
             "view",
-            str(pr_number),
+            pr_number,
             "--json",
             "title,author",
         ],
@@ -233,13 +241,297 @@ def gh_pr_view(pr_number):
     return json.loads(result.stdout)
 
 
+def gh_security_advisories_cve_titles() -> dict[str, str]:
+    """
+    List all repository security advisories for the current repo via ``gh api``
+    (``GET .../security-advisories``, paginated). Build a dict mapping each
+    assigned ``CVE-YYYY-NNNN`` id (uppercase) to the advisory ``summary``
+    (GitHub's short title). Entries without ``cve_id`` are omitted.
+
+    Requires ``gh`` authentication with permission to read repository security
+    advisories. Returns ``{}`` if ``gh`` fails, the repo cannot be resolved, or
+    the response is not a JSON array. If multiple advisories share the same
+    ``cve_id``, the first wins.
+    """
+    r = run(
+        ["gh", "repo", "view", "--json", "nameWithOwner", "-q", ".nameWithOwner"],
+        stdout=PIPE,
+        stderr=PIPE,
+        universal_newlines=True,
+        check=False,
+    )
+    if r.returncode != 0:
+        return {}
+    nwo = (r.stdout or "").strip()
+    if "/" not in nwo:
+        return {}
+
+    r2 = run(
+        [
+            "gh",
+            "api",
+            f"repos/{nwo}/security-advisories",
+            "--paginate",
+        ],
+        stdout=PIPE,
+        stderr=PIPE,
+        universal_newlines=True,
+        check=False,
+    )
+    if r2.returncode != 0:
+        return {}
+
+    try:
+        items = json.loads(r2.stdout or "[]")
+    except json.JSONDecodeError:
+        return {}
+
+    if not isinstance(items, list):
+        return {}
+
+    out: dict[str, str] = {}
+    for item in items:
+        if not isinstance(item, dict):
+            continue
+        cve = item.get("cve_id")
+        if not cve or not isinstance(cve, str):
+            continue
+        key = cve.strip().upper()
+        summary = item.get("summary")
+        title = summary.strip() if isinstance(summary, str) else ""
+        if key not in out:
+            out[key] = title
+    return out
+
+
+# Line must contain address / addresses / addressed / addressing (word-boundary);
+# collect every CVE-YYYY-nnnn and OSS-Fuzz issue URL on that line.
+PR_LINE_ADDRESS_RE = re.compile(r"(?i)\bAddress(?:es|ed|ing)?\b")
+CVE_ID_RE = re.compile(r"CVE-\d{4}-\d+", re.IGNORECASE)
+OSS_FUZZ_ISSUE_RE = re.compile(
+    r"https://issues\.oss-fuzz\.com/issues/(\d+)", re.IGNORECASE
+)
+
+
+def _collect_addressed_security_refs(blocks: list[str]) -> tuple[list[str], list[str]]:
+    """
+    On each line containing ``Address`` / ``Addresses`` / etc., collect CVE ids
+    and OSS-Fuzz issue ids (from ``https://issues.oss-fuzz.com/issues/<id>`` URLs).
+    Returns ``(cves, oss_fuzz_issue_ids)`` in first-seen order within each list.
+    """
+    cves: list[str] = []
+    cves_seen: set[str] = set()
+    oss_fuzz: list[str] = []
+    oss_seen: set[str] = set()
+    for block in blocks:
+        for line in block.splitlines():
+            if not PR_LINE_ADDRESS_RE.search(line):
+                continue
+            for m in CVE_ID_RE.finditer(line):
+                cve = m.group(0).upper()
+                if cve not in cves_seen:
+                    cves_seen.add(cve)
+                    cves.append(cve)
+            for m in OSS_FUZZ_ISSUE_RE.finditer(line):
+                issue_id = m.group(1)
+                if issue_id not in oss_seen:
+                    oss_seen.add(issue_id)
+                    oss_fuzz.append(issue_id)
+    return cves, oss_fuzz
+
+
+def _oss_fuzz_short_title(full_title: str) -> str:
+    """
+    Strip the ``project:fuzzer:`` prefix from an OSS-Fuzz issue title, leaving
+    the crash description (matches manual CHANGES.md style).
+    """
+    parts = full_title.split(":", 2)
+    if len(parts) >= 3:
+        return parts[2].strip()
+    return full_title.strip()
+
+
+def _oss_fuzz_full_title_from_fetch(data, issue_id: str) -> str | None:
+    """Extract the full issue title from an IssueFetchResponse JSON payload."""
+    if isinstance(data, dict):
+        return None
+    target = int(issue_id)
+
+    def walk(obj):
+        if isinstance(obj, list):
+            if (
+                len(obj) >= 3
+                and obj[0] is None
+                and obj[1] == target
+                and isinstance(obj[2], list)
+                and len(obj[2]) > 5
+                and isinstance(obj[2][5], str)
+            ):
+                return obj[2][5]
+            for item in obj:
+                found = walk(item)
+                if found:
+                    return found
+        return None
+
+    return walk(data)
+
+
+def _fetch_oss_fuzz_issue_json(issue_id: str):
+    """
+    Fetch issue metadata from issues.oss-fuzz.com. Public issues return JSON;
+    private or restricted issues may return HTTP 403 or a JSON error object.
+    """
+    url = OSS_FUZZ_ISSUE_API.format(issue_id=issue_id)
+    try:
+        with urlopen(url, timeout=30) as resp:
+            raw = resp.read().decode()
+    except (HTTPError, URLError, TimeoutError, OSError) as exc:
+        print(
+            f"Warning: could not fetch OSS-Fuzz issue {issue_id}: {exc}",
+            file=sys.stderr,
+        )
+        return None
+    if raw.startswith(OSS_FUZZ_ISSUE_JSON_PREFIX):
+        raw = raw[len(OSS_FUZZ_ISSUE_JSON_PREFIX) :]
+    try:
+        return json.loads(raw)
+    except json.JSONDecodeError:
+        print(
+            f"Warning: invalid JSON fetching OSS-Fuzz issue {issue_id}",
+            file=sys.stderr,
+        )
+        return None
+
+
+def oss_fuzz_issue_titles(issue_ids: list[str]) -> dict[str, str]:
+    """
+    Map OSS-Fuzz issue id to a short title (crash description only) for use in
+    release notes. Issues that cannot be fetched are omitted from the dict.
+    """
+    titles: dict[str, str] = {}
+    for issue_id in issue_ids:
+        data = _fetch_oss_fuzz_issue_json(issue_id)
+        if data is None:
+            continue
+        if isinstance(data, dict) and data.get("message"):
+            print(
+                f"Warning: OSS-Fuzz issue {issue_id}: {data['message']}",
+                file=sys.stderr,
+            )
+            continue
+        full = _oss_fuzz_full_title_from_fetch(data, issue_id)
+        if full:
+            titles[issue_id] = _oss_fuzz_short_title(full)
+    return titles
+
+
+def _gh_pr_text_blocks(pr_number: str) -> list[str]:
+    result = run(
+        [
+            "gh",
+            "pr",
+            "view",
+            pr_number,
+            "--json",
+            "body,comments,reviews",
+        ],
+        stdout=PIPE,
+        stderr=PIPE,
+        universal_newlines=True,
+        check=False,
+    )
+    if result.returncode != 0:
+        sys.stderr.write(result.stderr or "gh pr view failed\n")
+        sys.exit(1)
+    data = json.loads(result.stdout or "{}")
+    blocks: list[str] = []
+    body = data.get("body")
+    if body:
+        blocks.append(body)
+    for c in data.get("comments") or []:
+        if isinstance(c, dict):
+            b = c.get("body")
+            if b:
+                blocks.append(b)
+    for r in data.get("reviews") or []:
+        if isinstance(r, dict):
+            b = r.get("body")
+            if b:
+                blocks.append(b)
+    return blocks
+
+
+def pr_addressed_cves(pr_number: str) -> tuple[list[str], list[str]]:
+    """
+    Scan the GitHub PR description, issue comments, and review bodies.
+    On each line that contains ``Address``, ``Addresses``, ``address``, etc.
+    (case-insensitive, word-boundary match), collect:
+
+    * every ``CVE-<year>-<number>`` substring
+    * every OSS-Fuzz issue referenced as
+      ``https://issues.oss-fuzz.com/issues/<id>``
+
+    Return ``(cves, oss_fuzz_issue_ids)``, each list in first-seen order.
+    Empty lists if nothing matches.
+
+    This approximates prose such as "Addresses CVE-2024-12345" or
+    "Addresses https://issues.oss-fuzz.com/issues/512314697".
+    """
+
+    if not pr_number:
+        return [], []
+
+    return _collect_addressed_security_refs(_gh_pr_text_blocks(pr_number))
+
+
 MERGED_PR_HEADING_RE = re.compile(
     r"^###\s+Merged Pull Requests\s*:?\s*$", re.IGNORECASE
 )
 MERGED_WORKFLOW_HEADING_RE = re.compile(
     r"^###\s+Merged Workflow Pull Requests\s*:?\s*$", re.IGNORECASE
 )
+SECURITY_HEADING_RE = re.compile(r"^###\s+Security\s*:?\s*$", re.IGNORECASE)
 PR_BULLET_RE = re.compile(r"^\*\s*\[(\d+)\]\(")
+
+
+def strip_security_from_heading(heading_lines: list[str]) -> list[str]:
+    """
+    Remove an existing ``### Security`` subsection from release section heading
+    lines so ``cmd_changes`` can regenerate it from current PR references.
+
+    Preserves a single blank line that separated descriptive text from
+    ``### Security``; that blank is reinserted when the section is rewritten.
+    """
+    out: list[str] = []
+    i = 0
+    n = len(heading_lines)
+    while i < n:
+        if SECURITY_HEADING_RE.match(heading_lines[i].strip()):
+            # Drop the blank line between descriptive text and ### Security.
+            if out and not out[-1].strip():
+                out.pop()
+            i += 1
+            while i < n and not heading_lines[i].startswith("### "):
+                i += 1
+            continue
+        out.append(heading_lines[i])
+        i += 1
+    return out
+
+
+def collect_security_refs_for_prs(pr_numbers: list[str]) -> tuple[list[str], list[str]]:
+    """
+    Scan the given PR numbers for CVE and OSS-Fuzz references. Returns
+    ``(cves, oss_fuzz_issue_ids)`` in first-seen order (deduped per list).
+    """
+    cves: list[str] = []
+    oss_fuzz_issues: list[str] = []
+    for pr_number in pr_numbers:
+        pr_cves, pr_oss_fuzz = pr_addressed_cves(pr_number)
+        cves.extend(pr_cves)
+        oss_fuzz_issues.extend(pr_oss_fuzz)
+    return cves, oss_fuzz_issues
 
 
 def parse_pr_blocks_dict(lines, i, stop_at_workflow_heading):
@@ -259,7 +551,7 @@ def parse_pr_blocks_dict(lines, i, stop_at_workflow_heading):
             break
         mo = PR_BULLET_RE.match(line.strip())
         if mo:
-            pr = int(mo.group(1))
+            pr = mo.group(1)
             bullet = line
             if i + 1 < n:
                 nxt = lines[i + 1]
@@ -304,19 +596,19 @@ def parse_section(lines):
     merged_prs = {}
     if i < n and MERGED_PR_HEADING_RE.match(lines[i].strip()):
         i += 1
-        merged_prs, i = _parse_pr_blocks_dict(lines, i, stop_at_workflow_heading=True)
+        merged_prs, i = parse_pr_blocks_dict(lines, i, stop_at_workflow_heading=True)
 
     merged_workflow_prs = {}
     if i < n and MERGED_WORKFLOW_HEADING_RE.match(lines[i].strip()):
         i += 1
-        merged_workflow_prs, i = _parse_pr_blocks_dict(lines, i, stop_at_workflow_heading=False)
+        merged_workflow_prs, i = parse_pr_blocks_dict(lines, i, stop_at_workflow_heading=False)
 
     return heading, merged_prs, merged_workflow_prs
 
-def pr_is_workflow_only(pr_number: int) -> bool:
+def pr_is_workflow_only(pr_number: str) -> bool:
     """Return True if every file changed by the PR is under .github/workflows/."""
     result = run(
-        ["gh", "pr", "view", str(pr_number), "--json", "files",
+        ["gh", "pr", "view", pr_number, "--json", "files",
          "--jq", "[.files[].path]"],
         stdout=PIPE, stderr=PIPE, universal_newlines=True, check=False,
     )
@@ -325,6 +617,7 @@ def pr_is_workflow_only(pr_number: int) -> bool:
         sys.exit(1)
     paths = json.loads(result.stdout or "[]")
     return bool(paths) and all(p.startswith(".github/workflows/") for p in paths)
+
 def cmd_changes(tag, prs):
     """
     Add a section to CHANGES.md for the given release if one doesn't already exist, and add the given PR 
@@ -370,7 +663,7 @@ def cmd_changes(tag, prs):
         )
         sys.exit(1)
 
-    release_date = datetime.now() + timedelta(days=3)
+    release_date = datetime.now() + timedelta(days=2)
     date_str = release_date.strftime("%B %e, %Y")
 
     if section_index is not None:
@@ -379,6 +672,7 @@ def cmd_changes(tag, prs):
         section_heading, merged_prs, merged_workflow_prs = parse_section(
             lines[section_index:footer_index]
         )
+        section_heading = strip_security_from_heading(section_heading)
     else:
         # The section does not exist, so create the stub of a new one
         section_heading = [f"## Version {base_tag} ({date_str})\n"]
@@ -413,6 +707,18 @@ def cmd_changes(tag, prs):
         else:
             merged_prs[pr_number] = pr_block
 
+    # Scan every PR listed in the section (not only those on the command line)
+    # so Security stays complete when ``changes`` is re-run incrementally.
+    all_prs_for_security = sorted(
+        set(merged_prs) | set(merged_workflow_prs),
+        key=int,
+        reverse=True,
+    )
+    cves, oss_fuzz_issues = collect_security_refs_for_prs(all_prs_for_security)
+
+    advisory_titles = gh_security_advisories_cve_titles()
+    oss_fuzz_titles = oss_fuzz_issue_titles(list(dict.fromkeys(oss_fuzz_issues)))
+
     with open("CHANGES.md", "w", encoding="utf-8", newline="\n") as f:
         if toc is None:
             # No table of contents entry for this release, so add one.
@@ -428,12 +734,28 @@ def cmd_changes(tag, prs):
             f.write("\n".join(lines[:header_index]) + "\n")
         # Write the release section
         f.write("\n".join(section_heading))
+        if cves or oss_fuzz_issues:
+            f.write("\n\n### Security\n")
+            f.write(
+                "\nThis release addresses the following security "
+                "vulnerabilities:\n\n"
+            )
+            for cve in sorted(set(cves), reverse=True):
+                title = advisory_titles.get(cve, "")
+                suffix = f"\n  {title}" if title else ""
+                f.write(f"* [{cve}](https://www.cve.org/CVERecord?id={cve}){suffix}\n")
+            for issue_id in sorted(set(oss_fuzz_issues), reverse=True):
+                url = f"https://issues.oss-fuzz.com/issues/{issue_id}"
+                f.write(f"* OSS-Fuzz [{issue_id}]({url})\n")
+                short = oss_fuzz_titles.get(issue_id, "")
+                if short:
+                    f.write(f"  {short}\n")
         f.write("\n### Merged Pull Requests\n\n")
         for pr, value in sorted(merged_prs.items(), reverse=True):
-            f.write(value + "\n")
+            f.write("  " + value + "\n")
         f.write("\n### Merged Workflow Pull Requests\n\n")
         for pr, value in sorted(merged_workflow_prs.items(), reverse=True):
-            f.write(value + "\n")
+            f.write("  " + value + "\n")
         # Write the rest of the file
         f.write("\n" + "\n".join(lines[footer_index:]))
 
@@ -517,14 +839,14 @@ def pr_labels(line):
     """line is from `git log --pretty:format='%h %s'`, so for
     squash/merge commits, it ends in (#<pr>).
 
-    Return the release-related labels for the identified PR, i.e.
+    Return the PR number and its release-related labels, i.e.
     labels of the form 'v<major>.<minor>.<patch>'
     """
 
     LOG_PR_SUFFIX_RE = re.compile(r"\(#(\d+)\)\s*$")
     m = LOG_PR_SUFFIX_RE.search(line)
     if not m:
-        return ""
+        return "", ""
     pr_number = m.group(1)
     result = run(
         ["gh", "pr", "view", pr_number, "--json", "labels"],
@@ -534,17 +856,17 @@ def pr_labels(line):
         check=False,
     )
     if result.returncode != 0:
-        return ""
+        return pr_number, ""
     try:
         data = json.loads(result.stdout or "{}")
     except json.JSONDecodeError:
-        return ""
+        return pr_number, ""
     out = []
     for lab in data.get("labels") or []:
         name = lab.get("name") or ""
         if name.startswith("v"):
             out.append(name)
-    return " ".join(out)
+    return pr_number, " ".join(out)
 
 def cmd_log():
     """
@@ -568,8 +890,22 @@ def cmd_log():
         sys.exit(1)
 
     for line in result.stdout.splitlines():
-        l = pr_labels(line)
-        print(f"{l:7} {line}")
+        pr, l = pr_labels(line)
+        pr_cves, pr_oss_fuzz = pr_addressed_cves(pr)
+        extras = " ".join(pr_cves + [f"oss-fuzz:{i}" for i in pr_oss_fuzz])
+        print(f"{l:7} {line} {extras}")
+
+def cmd_tag(tag, release_date, release_notes) -> None:
+    """
+    Create a signed annotated tag at the current ``HEAD`` using the
+    given release date and notes
+    """
+
+    tag_message = f"{tag} - {release_date}\n{release_notes}\n"
+    
+    cmd = ["git", "tag", "-s", tag, "-F", "-"]
+    run(cmd, input=tag_message, text=True, check=True)
+
 
 def main():
 
@@ -582,8 +918,9 @@ def main():
     if len(sys.argv) < 2:
         print(
             "Usage: python release.py "
-            "<notes|news|draft|candidate|cherry|changes> ...\n"
-            "  release.py changes <tag> <pr-number>   e.g. release.py changes v3.4.7 1234"
+            "<notes|news|draft|candidate|tag|cherry|changes> ...\n"
+            "  release.py changes <tag> <pr-number>   e.g. release.py changes v3.4.7 1234\n"
+            "  release.py tag <tag> [--force]       e.g. release.py tag v3.4.7"
         )
         sys.exit(1)
 
@@ -615,40 +952,36 @@ def main():
     if len(sys.argv) < 3:
         print(
             "Usage: python release.py "
-            "<notes|news|draft|candidate|cherry|changes> <tag-or-label> [date]"
+            "<notes|news|draft|candidate|tag|cherry|changes> <tag-or-label> [date]"
         )
         sys.exit(1)
 
     tag = sys.argv[2]
 
     # Strip leading 'v' and trailing '-rc<candidate>' if necessary
-    base_tag = tag.lstrip('v').split('-rc')[0]
-    result = run(['git', 'tag', '--list', tag], stdout=PIPE, stderr=PIPE, universal_newlines=True)
-    if result.stdout == "":
-        tag += "-rc"
-        result = run(['git', 'tag', '--list', tag], stdout=PIPE, stderr=PIPE, universal_newlines=True)
-        if result.stdout != "":
-            print(f"Using {tag} instead...")
-        else:
-            print(f"No such tag: {tag}")
-            sys.exit(1)
+    release_version = tag.lstrip('v').split('-rc')[0]
 
     # Get the content of the CHANGES.md at the specified git tag
-    try:
-        result = run(['git', 'show', f"{tag}:CHANGES.md"], stdout=PIPE, stderr=PIPE, universal_newlines=True)
-        content = result.stdout
-        if content == None or content == "":
-            print(f"No news.txt at tag {tag}")
-            sys.exit(1)
-    except Exception as e:
-        print(f"Error: {e}")
-        sys.exit(1)
+    with open("CHANGES.md", "r") as f:
+        content = f.read()
 
     # Extract the release notes
-    release_date, release_notes = extract_section(content, base_tag)
+    release_date, release_notes = extract_section(content, release_version)
     if release_date == None:
         print("No release found.")
         return
+
+    # Convert the special symbols
+    release_notes = re.sub(r':bug:', "🐛", release_notes, flags=re.DOTALL)
+    release_notes = re.sub(r':rocket:', "🚀", release_notes, flags=re.DOTALL)
+    release_notes = re.sub(r':hammer_and_wrench:', "🛠️", release_notes, flags=re.DOTALL)
+    release_notes = re.sub(r':wrench:', "🔧", release_notes, flags=re.DOTALL)
+    release_notes = re.sub(r':sparkles:', "✨", release_notes, flags=re.DOTALL)
+    release_notes = re.sub(r':snake:', "🐍", release_notes, flags=re.DOTALL)
+    release_notes = re.sub(r':package:', "📦", release_notes, flags=re.DOTALL)
+    release_notes = re.sub(r':warning:', "⚠️", release_notes, flags=re.DOTALL)
+    release_notes = re.sub(r':book:', "📖", release_notes, flags=re.DOTALL)
+
 
     if action == "notes":
         print(release_notes)
@@ -658,17 +991,19 @@ def main():
 
     elif action == "news":
         rst_text = markdown_to_rst(release_notes)
-        update_news_file(rst_text, base_tag, release_date)
+        update_news_file(rst_text, release_version, release_date)
 
     elif action == "candidate":
-        version = base_tag
         html_notes = markdown_to_html(release_notes)
         date_string = release_date.strftime("%A, %B %e")
         url = get_repo_url()
         project = url.split('/')[-1]
         if project == "openexr":
             project = "OpenEXR"
-        print(f"{project} {version} is staged for release at tag <a href={url}/releases/tag/{tag}>{tag}</a> and will be released officially {date_string} barring any issues. <br><br> {html_notes}")
+        print(f"{project} {release_version} is staged for release at tag <a href={url}/releases/tag/{tag}>{tag}</a> and will be released officially {date_string} barring any issues. <br><br> {html_notes}")
 
+    elif action == "tag":
+        cmd_tag(tag, release_date, release_notes)
+        
 if __name__ == "__main__":
     main()

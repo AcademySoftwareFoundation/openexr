@@ -70,9 +70,42 @@ else
   sed_cmd=(sed -i)
 fi
 
-# Force a static build
+# OpenEXR-specific CMake changes for bundled OpenJPH builds:
+# - remove BUILD_SHARED_LIBS option (OpenEXR controls linking)
+# - add OJPH_INSTALL option to guard install/export/pkg-config
+# - add OJPH_LIB_TYPE (STATIC/OBJECT) for bundled library type
 "${sed_cmd[@]}" '/^option(BUILD_SHARED_LIBS "Shared Libraries" ON)/d' OpenJPH/CMakeLists.txt
-"${sed_cmd[@]}" 's/^add_library(openjph \${SOURCES})/add_library(openjph STATIC ${SOURCES})/' OpenJPH/src/core/CMakeLists.txt
+
+"${sed_cmd[@]}" '/^option(OJPH_BUILD_STREAM_EXPAND/a\
+option(OJPH_INSTALL "Install OpenJPH libraries, headers, and CMake config" ON)
+' OpenJPH/CMakeLists.txt
+
+"${sed_cmd[@]}" '/^install(EXPORT openjph-targets/i\
+if (OJPH_INSTALL)
+' OpenJPH/CMakeLists.txt
+
+"${sed_cmd[@]}" '/DESTINATION ${CMAKE_INSTALL_LIBDIR}\/pkgconfig/{
+n
+a\
+endif()
+}' OpenJPH/CMakeLists.txt
+
+"${sed_cmd[@]}" '/^add_library(openjph ${SOURCES})$/c\
+if (NOT DEFINED OJPH_LIB_TYPE)\
+  set(OJPH_LIB_TYPE STATIC)\
+endif()\
+add_library(openjph ${OJPH_LIB_TYPE} ${SOURCES})
+' OpenJPH/src/core/CMakeLists.txt
+
+"${sed_cmd[@]}" '/^install(TARGETS openjph/i\
+if (OJPH_INSTALL)
+' OpenJPH/src/core/CMakeLists.txt
+
+"${sed_cmd[@]}" '/PATTERN "\*\.h"/{
+n
+a\
+endif()
+}' OpenJPH/src/core/CMakeLists.txt
 
 # Headers live under "common" in older OpenJPH releases but are included via
 # "openjph/ojph_arch.h". Rename the directory if needed.

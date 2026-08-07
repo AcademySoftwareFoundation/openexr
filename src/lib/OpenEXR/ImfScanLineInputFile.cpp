@@ -361,7 +361,8 @@ ScanLineInputFile::rawPixelDataToBuffer (
     if (EXR_ERR_SUCCESS == exr_read_scanline_chunk_info (
                                _ctxt, _data->partNumber, scanLine, &cinfo))
     {
-        if (cinfo.packed_size > static_cast<uint64_t> (pixelDataSize))
+        if (pixelDataSize < 0 ||
+            cinfo.packed_size > static_cast<uint64_t> (pixelDataSize))
         {
             THROW (
                 IEX_NAMESPACE::ArgExc,

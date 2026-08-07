@@ -7,6 +7,12 @@
 #define INCLUDED_IMF_ARRAY_H
 
 #include "ImfForward.h"
+#include "IexBaseExc.h"
+#include "IexMathExc.h"
+
+#include <cstddef>
+#include <cstdint>
+#include <limits>
 
 //-------------------------------------------------------------------------
 //
@@ -54,8 +60,11 @@ public:
         _data = 0;
         _size = 0;
     }
-    Array (long size)
+    Array (long size) : _size (0), _data (0)
     {
+        if (size < 0)
+            throw IEX_NAMESPACE::ArgExc ("Array size must be non-negative");
+
         _data = new T[size];
         _size = size;
     }
@@ -154,10 +163,28 @@ private:
 // Implementation
 //---------------
 
+namespace {
+
+inline size_t
+array2DElementCount (long sizeX, long sizeY)
+{
+    const uint64_t x       = static_cast<uint64_t> (sizeX);
+    const uint64_t y       = static_cast<uint64_t> (sizeY);
+    const uint64_t maxSize = std::numeric_limits<size_t>::max ();
+    if (y > 0 && x > maxSize / y)
+        throw IEX_NAMESPACE::OverflowExc ("Array2D dimensions too large");
+    return static_cast<size_t> (x * y);
+}
+
+} // namespace
+
 template <class T>
 inline void
 Array<T>::resizeErase (long size)
 {
+    if (size < 0)
+        throw IEX_NAMESPACE::ArgExc ("Array size must be non-negative");
+
     T* tmp = new T[size];
     delete[] _data;
     _size = size;
@@ -168,6 +195,9 @@ template <class T>
 inline void
 Array<T>::resizeEraseUnsafe (long size)
 {
+    if (size < 0)
+        throw IEX_NAMESPACE::ArgExc ("Array size must be non-negative");
+
     delete[] _data;
     _data = 0;
     _size = 0;
@@ -183,9 +213,14 @@ inline Array2D<T>::Array2D () : _sizeX (0), _sizeY (0), _data (0)
 
 template <class T>
 inline Array2D<T>::Array2D (long sizeX, long sizeY)
-    : _sizeX (sizeX), _sizeY (sizeY), _data (new T[sizeX * sizeY])
+    : _sizeX (0), _sizeY (0), _data (0)
 {
-    // empty
+    if (sizeX < 0 || sizeY < 0)
+        throw IEX_NAMESPACE::ArgExc ("Array2D dimensions must be non-negative");
+
+    _sizeX = sizeX;
+    _sizeY = sizeY;
+    _data  = new T[array2DElementCount (sizeX, sizeY)];
 }
 
 template <class T> inline Array2D<T>::~Array2D ()
@@ -211,7 +246,10 @@ template <class T>
 inline void
 Array2D<T>::resizeErase (long sizeX, long sizeY)
 {
-    T* tmp = new T[sizeX * sizeY];
+    if (sizeX < 0 || sizeY < 0)
+        throw IEX_NAMESPACE::ArgExc ("Array2D dimensions must be non-negative");
+
+    T* tmp = new T[array2DElementCount (sizeX, sizeY)];
     delete[] _data;
     _sizeX = sizeX;
     _sizeY = sizeY;
@@ -222,11 +260,14 @@ template <class T>
 inline void
 Array2D<T>::resizeEraseUnsafe (long sizeX, long sizeY)
 {
+    if (sizeX < 0 || sizeY < 0)
+        throw IEX_NAMESPACE::ArgExc ("Array2D dimensions must be non-negative");
+
     delete[] _data;
     _data  = 0;
     _sizeX = 0;
     _sizeY = 0;
-    _data  = new T[sizeX * sizeY];
+    _data  = new T[array2DElementCount (sizeX, sizeY)];
     _sizeX = sizeX;
     _sizeY = sizeY;
 }
