@@ -40,10 +40,13 @@ Container File, including (but not limited to) the following:
 - The `chromaticities` attribute must specify the ACES RGB primaries and 
   the ACES neutral as specified in SMPTE ST 2065-1.
 
-- The `acesImageContainerFlag` flat must be present and have the value 1.
+- The `acesImageContainerFlag` attribute must be present and have the value 1.
 
 For the full set of restrictions, see `SMTPE ST 2065-4  <https://doi.org/10.5594/SMPTE.ST2065-4.2013>`_ (or any 
 superseding later version of that standard).
+
+Though not required by ST 2065-4, this function sets the colorInteropID attribute
+to "lin_ap0_scene".
 
 In practice, facilities and productions often use the term "ACES file" 
 to mean OpenEXR files containing linear scene data expressed as 
@@ -52,9 +55,11 @@ ST 2065-1, where equal amounts of those primaries produce a color the
 chromaticity of which matches that of the ACES neutral. The image data 
 might be compressed using one of the OpenEXR's library's built-in compression 
 functions, even though strict compliance with ST 2065-4 would forbid such 
-compression; the `acesImageContainerFile` flag might be missing; and the 
-`chromaticities` attribute might contain chromaticities that do not actually 
-match those found in ST 2065-1.
+compression; and the `acesImageContainerFile` flag might be missing.
+
+If the `chromaticities` attribute of inFile contains chromaticities that
+do not match ST 2065-1, a 3x3 matrix will be computed and applied to convert
+the color space while generating outFile.
 
 Options:
 --------

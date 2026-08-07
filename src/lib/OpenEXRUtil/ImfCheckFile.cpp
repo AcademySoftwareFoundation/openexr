@@ -27,7 +27,10 @@
 #include "openexr.h"
 
 #include <algorithm>
+#include <cmath>
+#include <sstream>
 #include <stdlib.h>
+#include <string>
 #include <vector>
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
@@ -839,14 +842,175 @@ enumsValid (const Header& hdr)
     return true;
 }
 
+//
+// Quote a string for a warning message, truncating it if it is long.
+//
+// Attribute values and part names come from the file, so they can be
+// arbitrarily long; this code runs on untrusted input, including under
+// reduceMemory, so messages must not be proportional to their size.
+//
+std::string
+quoteForMessage (const std::string& s)
+{
+    const size_t maxLength = 64;
+
+    if (s.size () <= maxLength) { return "'" + s + "'"; }
+
+    return "'" + s.substr (0, maxLength) + "...' (truncated)";
+}
+
+//
+// Describe a part for a warning message.
+//
+std::string
+partLabel (const Header& hdr, int part)
+{
+    std::ostringstream s;
+
+    s << "part " << part;
+    if (hdr.hasName ()) s << " (" << quoteForMessage (hdr.name ()) << ")";
+    s << ": ";
+
+    return s.str ();
+}
+
+//
+// Report inconsistencies in a part's color space metadata.
+//
+// Unlike enumsValid(), none of this makes the file malformed or unsafe to
+// read. These are semantic problems that leave a part's color space
+// ambiguous, so they are reported as warnings and do not affect the verdict.
+//
+void
+checkColorMetadata (
+    const Header& hdr, int part, std::vector<std::string>& warnings)
+{
+    if (hasColorInteropID (hdr))
+    {
+        const std::string& id = colorInteropID (hdr);
+
+        //
+        // An empty ID says nothing; the attribute should be omitted instead.
+        //
+
+        if (id.empty ())
+        {
+            warnings.push_back (partLabel (hdr, part) + "colorInteropID is empty");
+        }
+
+        //
+        // If the ID names a color space with defined chromaticities, and the
+        // part also carries chromaticities, the two should agree. Matching
+        // through the reverse lookup applies the recommended tolerance.
+        //
+
+        Chromaticities fromID;
+        if (hasChromaticities (hdr) &&
+            colorInteropIDToChromaticities (id, fromID))
+        {
+            std::string fromChromaticities;
+            if (!chromaticitiesToColorInteropID (
+                    chromaticities (hdr), fromChromaticities))
+            {
+                warnings.push_back (
+                    partLabel (hdr, part) + "colorInteropID is " +
+                    quoteForMessage (id) +
+                    " but the chromaticities do not match any known color "
+                    "space");
+            }
+            else if (fromChromaticities != id)
+            {
+                warnings.push_back (
+                    partLabel (hdr, part) + "colorInteropID is " +
+                    quoteForMessage (id) +
+                    " but the chromaticities are those of " +
+                    quoteForMessage (fromChromaticities));
+            }
+        }
+
+        //
+        // A part tagged "data" is deliberately not color managed, so
+        // colorimetry attributes on it are contradictory.
+        //
+
+        if (id == "data")
+        {
+            if (hasChromaticities (hdr))
+                warnings.push_back (
+                    partLabel (hdr, part) +
+                    "colorInteropID is 'data' but the part has a "
+                    "chromaticities attribute");
+            if (hasWhiteLuminance (hdr))
+                warnings.push_back (
+                    partLabel (hdr, part) +
+                    "colorInteropID is 'data' but the part has a "
+                    "whiteLuminance attribute");
+            if (hasAdoptedNeutral (hdr))
+                warnings.push_back (
+                    partLabel (hdr, part) +
+                    "colorInteropID is 'data' but the part has an "
+                    "adoptedNeutral attribute");
+        }
+    }
+}
+
+//
+// Report a colorInteropID that does not conform to the shared attribute
+// rules for multipart files: a part after the first may omit the attribute,
+// inheriting the first part's value, or set it to "data", but any other
+// value that differs from the first part's leaves its color space ambiguous.
+//
+// The readers accept such files; only a reader that asks for strict header
+// validation rejects them, so this is reported as a warning.
+//
+void
+checkSharedColorInteropID (
+    const Header&             first,
+    const Header&             hdr,
+    int                       part,
+    std::vector<std::string>& warnings)
+{
+    if (!hasColorInteropID (hdr)) return;
+
+    const std::string& id = colorInteropID (hdr);
+
+    if (id == "data") return;
+
+    if (!hasColorInteropID (first))
+    {
+        warnings.push_back (
+            partLabel (hdr, part) + "colorInteropID is " +
+            quoteForMessage (id) + " but part 0 has none");
+    }
+    else if (colorInteropID (first) != id)
+    {
+        warnings.push_back (
+            partLabel (hdr, part) + "colorInteropID is " +
+            quoteForMessage (id) + " but part 0's is " +
+            quoteForMessage (colorInteropID (first)));
+    }
+}
+
 bool
-readMultiPart (MultiPartInputFile& in, bool reduceMemory, bool reduceTime)
+readMultiPart (
+    MultiPartInputFile&       in,
+    bool                      reduceMemory,
+    bool                      reduceTime,
+    std::vector<std::string>& warnings)
 {
     bool threw = false;
     for (int part = 0; part < in.parts (); ++part)
     {
 
         if (!enumsValid (in.header (part))) { threw = true; }
+
+        checkColorMetadata (in.header (part), part, warnings);
+
+        if (part > 0)
+        {
+            checkSharedColorInteropID (
+                in.header (0), in.header (part), part, warnings);
+        }
 
         bool     widePart      = false;
         bool     largeTiles    = false;
@@ -1079,7 +1243,11 @@ resetInput (PtrIStream& stream)
 
 template <class T>
 bool
-runChecks (T& source, bool reduceMemory, bool reduceTime)
+runChecks (
+    T&                        source,
+    bool                      reduceMemory,
+    bool                      reduceTime,
+    std::vector<std::string>& warnings)
 {
 
     //
@@ -1168,7 +1336,7 @@ runChecks (T& source, bool reduceMemory, bool reduceTime)
                 largeTiles = false;
             }
 
-            threw = readMultiPart (multi, reduceMemory, reduceTime);
+            threw = readMultiPart (multi, reduceMemory, reduceTime, warnings);
         }
         catch (...)
         {
@@ -1825,14 +1993,51 @@ runCoreChecks (
 
 bool
 checkOpenEXRFile (
-    const char* fileName, bool reduceMemory, bool reduceTime, bool runCoreCheck)
+    const char*               fileName,
+    std::vector<std::string>& warnings,
+    bool                      reduceMemory,
+    bool                      reduceTime,
+    bool                      runCoreCheck)
 {
+    warnings.clear ();
 
     if (runCoreCheck)
     {
         return runCoreChecks (fileName, reduceMemory, reduceTime);
     }
-    else { return runChecks (fileName, reduceMemory, reduceTime); }
+    else { return runChecks (fileName, reduceMemory, reduceTime, warnings); }
+}
+
+bool
+checkOpenEXRFile (
+    const char* fileName, bool reduceMemory, bool reduceTime, bool runCoreCheck)
+{
+    std::vector<std::string> warnings;
+
+    return checkOpenEXRFile (
+        fileName, warnings, reduceMemory, reduceTime, runCoreCheck);
+}
+
+bool
+checkOpenEXRFile (
+    const char*               data,
+    size_t                    numBytes,
+    std::vector<std::string>& warnings,
+    bool                      reduceMemory,
+    bool                      reduceTime,
+    bool                      runCoreCheck)
+{
+    warnings.clear ();
+
+    if (runCoreCheck)
+    {
+        return runCoreChecks (data, numBytes, reduceMemory, reduceTime);
+    }
+    else
+    {
+        PtrIStream stream (data, numBytes);
+        return runChecks (stream, reduceMemory, reduceTime, warnings);
+    }
 }
 
 bool
@@ -1843,16 +2048,10 @@ checkOpenEXRFile (
     bool        reduceTime,
     bool        runCoreCheck)
 {
+    std::vector<std::string> warnings;
 
-    if (runCoreCheck)
-    {
-        return runCoreChecks (data, numBytes, reduceMemory, reduceTime);
-    }
-    else
-    {
-        PtrIStream stream (data, numBytes);
-        return runChecks (stream, reduceMemory, reduceTime);
-    }
+    return checkOpenEXRFile (
+        data, numBytes, warnings, reduceMemory, reduceTime, runCoreCheck);
 }
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

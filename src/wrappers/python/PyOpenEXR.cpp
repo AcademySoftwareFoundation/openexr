@@ -41,6 +41,7 @@
 #include "ImfBoxAttribute.h"
 #include "ImfBytesAttribute.h"
 #include "ImfChannelListAttribute.h"
+#include "ImfChromaticities.h"
 #include "ImfChromaticitiesAttribute.h"
 #include "ImfCompressionAttribute.h"
 #include "ImfDoubleAttribute.h"
@@ -2970,6 +2971,63 @@ PYBIND11_MODULE(OpenEXR, m)
         },
         "Return ``(max_width, max_height)`` for the current tile dimension limits.\n\n"
         "Maps to ``Imf::Header::getMaxTileSize()``.\n\n");
+
+    m.def(
+        "colorInteropIDToChromaticities",
+        [](const std::string& id) -> py::object {
+            Chromaticities c;
+            if (!colorInteropIDToChromaticities (id, c))
+                return py::none();
+            return py::make_tuple(c.red.x, c.red.y,
+                                  c.green.x, c.green.y,
+                                  c.blue.x, c.blue.y,
+                                  c.white.x, c.white.y);
+        },
+        py::arg("id"),
+        "Return the chromaticities for a color interop ID, in the same 8-tuple "
+        "form as the ``chromaticities`` header attribute: ``(red.x, red.y, "
+        "green.x, green.y, blue.x, blue.y, white.x, white.y)``.\n\n"
+        "Only the six IDs that denote linear, scene-referred RGB color spaces "
+        "have a defined mapping: ``lin_rec709_scene``, ``lin_ap0_scene``, "
+        "``lin_ap1_scene``, ``lin_p3d65_scene``, ``lin_rec2020_scene`` and "
+        "``lin_adobergb_scene``. Returns ``None`` for any other value, "
+        "including ``unknown`` and ``data``.\n\n"
+        "Note that the Color Interop Forum recommends against setting the "
+        "``chromaticities`` attribute when setting ``colorInteropID``, other "
+        "than for ST 2065-4 compliance. This is intended for feeding legacy "
+        "consumers that understand only chromaticities.\n\n"
+        "Maps to ``Imf::colorInteropIDToChromaticities()``.\n\n");
+
+    m.def(
+        "chromaticitiesToColorInteropID",
+        [](const py::object& chromaticities, float tolerance) -> py::object {
+            Chromaticities c;
+            if (!objectToChromaticities (chromaticities, c))
+            {
+                std::stringstream err;
+                err << "invalid chromaticities: expected a tuple of 8 floats, got "
+                    << py::str(chromaticities);
+                throw std::invalid_argument(err.str());
+            }
+
+            std::string id;
+            if (!chromaticitiesToColorInteropID (c, id, tolerance))
+                return py::none();
+            return py::cast(id);
+        },
+        py::arg("chromaticities"),
+        py::arg("tolerance") = 0.001f,
+        "Return the color interop ID for a set of chromaticities, given in the "
+        "same 8-tuple form as the ``chromaticities`` header attribute: "
+        "``(red.x, red.y, green.x, green.y, blue.x, blue.y, white.x, "
+        "white.y)``.\n\n"
+        "The chromaticities are matched against the six IDs that denote "
+        "linear, scene-referred RGB color spaces, comparing all four "
+        "coordinates within ``tolerance`` in x and y. Returns ``None`` if none "
+        "of them match. The six are mutually distinct by at least 0.005, so a "
+        "``tolerance`` above roughly 0.0025 may match more than one, in which "
+        "case the first is returned.\n\n"
+        "Maps to ``Imf::chromaticitiesToColorInteropID()``.\n\n");
 
     //
     // Add symbols from the legacy implementation of the bindings for

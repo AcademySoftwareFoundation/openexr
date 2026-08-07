@@ -34,6 +34,9 @@ usageMessage (ostream& stream, const char* program_name, bool verbose = false)
 {
     stream << "Usage: " << program_name << " [options] infile outfile" << endl;
 
+    // TODO: The text below needs to be updated to reflect the actual
+    // SMPTE ST 2065-4 standard.
+
     if (verbose)
         stream
             << "\n"

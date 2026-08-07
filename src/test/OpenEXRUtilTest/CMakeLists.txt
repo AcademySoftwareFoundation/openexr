@@ -11,6 +11,8 @@ add_executable(OpenEXRUtilTest
   testIO.h
   testImageChannel.cpp
   testImageChannel.h
+  testCheckFileWarnings.cpp
+  testCheckFileWarnings.h
  )
 target_include_directories(OpenEXRUtilTest PRIVATE ../OpenEXRTest)
 target_link_libraries(OpenEXRUtilTest OpenEXR::OpenEXRUtil)
@@ -38,4 +40,5 @@ define_openexr_util_tests(
   testDeepImage
   testIO
   testImageChannel
+  testCheckFileWarnings
 )

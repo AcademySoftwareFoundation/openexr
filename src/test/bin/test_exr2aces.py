@@ -59,6 +59,9 @@ result = do_run ([exrinfo, "-v", outimage])
 # confirm the output has the proper chromaticities
 assert "chromaticities: chromaticities r[0.7347, 0.2653] g[0, 1] b[0.0001, -0.077] w[0.32168, 0.33767]" in result.stdout
 
+# confirm the output has the proper colorInteropID
+assert "colorInteropID: string 'lin_ap0_scene'" in result.stdout
+
 print("success")
 
 
