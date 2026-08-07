@@ -6,6 +6,7 @@
 #include <limits>
 #include <string>
 #include <fstream>
+#include <memory>
 
 #include <openjph/ojph_arch.h>
 #include <openjph/ojph_file.h>
@@ -17,6 +18,7 @@
 #include "openexr_decode.h"
 #include "openexr_encode.h"
 #include "internal_ht_common.h"
+#include "internal_legacy_structs.h"
 
 /**
  * OpenJPH output file that is backed by a fixed-size memory buffer
@@ -157,6 +159,20 @@ class staticmem_outfile : public ojph::outfile_base
     ojph::ui8 *cur_ptr;
   };
 
+struct ht_context_cache
+{
+    std::vector<CodestreamChannelInfo> cs_to_file_ch;
+    ojph::codestream cs;
+};
+
+static void destroy_ht_decompress_context (exr_decode_pipeline_t* decode)
+{
+    ht_context_cache* ctxt = static_cast<ht_context_cache*> (decode->compression_context);
+    delete ctxt;
+    decode->compression_context = NULL;
+    decode->free_compression_context = NULL;
+}
+
 static exr_result_t
 ht_undo_impl (
     exr_decode_pipeline_t* decode,
@@ -167,10 +183,29 @@ ht_undo_impl (
 {
     exr_result_t rv = EXR_ERR_SUCCESS;
 
-    std::vector<CodestreamChannelInfo> cs_to_file_ch (decode->channel_count);
+    std::unique_ptr<ht_context_cache> legacy_support;
+
+    ht_context_cache* ctxt;
+    if (decode->pipe_size >= sizeof (exr_decode_pipeline_v2_t))
+    {
+        ctxt = static_cast<ht_context_cache*> (decode->compression_context);
+        if ( ! ctxt )
+        {
+            ctxt = new ht_context_cache;
+            decode->compression_context = ctxt;
+            decode->free_compression_context = &destroy_ht_decompress_context;
+        }
+    }
+    else
+    {
+        legacy_support = std::make_unique<ht_context_cache>();
+        ctxt = legacy_support.get();
+    }
+
+    std::vector<CodestreamChannelInfo> &cs_to_file_ch = ctxt->cs_to_file_ch;
+    cs_to_file_ch.resize(decode->channel_count);
 
     /* read the channel map */
-
     size_t header_sz;
     try
     {
@@ -214,7 +249,8 @@ ht_undo_impl (
         reinterpret_cast<const ojph::ui8*> (compressed_data) + header_sz,
         codestream_sz);
 
-    ojph::codestream cs;
+    ojph::codestream &cs = ctxt->cs;
+    cs.restart ();
     cs.read_headers (&infile);
 
     ojph::param_siz siz = cs.access_siz ();
