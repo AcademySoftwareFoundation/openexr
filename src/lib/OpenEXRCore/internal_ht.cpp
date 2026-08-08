@@ -161,7 +161,6 @@ class staticmem_outfile : public ojph::outfile_base
 
 struct ht_context_cache
 {
-    std::vector<CodestreamChannelInfo> cs_to_file_ch;
     ojph::codestream cs;
 };
 
@@ -202,8 +201,10 @@ ht_undo_impl (
         ctxt = legacy_support.get();
     }
 
-    std::vector<CodestreamChannelInfo> &cs_to_file_ch = ctxt->cs_to_file_ch;
-    cs_to_file_ch.resize(decode->channel_count);
+    /* cs_to_file_ch is cheap to construct and its "scratch" duplicate-detection
+     * marker in read_header() must start clean on every chunk, so it is kept
+     * as a local (not cached on ctxt, unlike the far more expensive cs below). */
+    std::vector<CodestreamChannelInfo> cs_to_file_ch (decode->channel_count);
 
     /* read the channel map */
     size_t header_sz;
