@@ -473,23 +473,43 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
         }
 
         ojph::param_qcd qcd = cs.access_qcd ();
-        if (qfactor <= 99)
+
+        /*
+         * Qfactor is intended for quality levels consistent with 8-bit imagery.
+         * It is therefore extended here from 97 to 150 to take into account the
+         * fact that OpenEXR accommodates 32-bit imagery.
+         */
+        if (qfactor < 97.)
         {
             qcd.set_qfactor ((ojph::ui8) std::lround (qfactor));
         }
         else
         {
-            double k = pow(2, -16.5);
-            double scaled_q = (qfactor - 99.)/51.;
-            double kd = 1/(25500. * k) - 51.;
-            double alpha_m = 0.002*(1 - scaled_q)/(1 + 50. * scaled_q + kd * pow(scaled_q, 2));
-            double qstep = alpha_m + k;
-            qcd.set_irrev_quant (qstep);
+            double scaled_q = (qfactor - 97.)/53.;
+            double delta_ref = 0.005 * pow(2, -28.478*scaled_q) + 0.001 * pow(2, -10.534*scaled_q);
+
+            /*
+             * Setting Qstep taking into account the gain from the ICT
+             * converting encoded color-difference components to RGB (see
+             * "Controlling JPEG 2000 image quality using a single parameter
+             * (Qfactor) v2.0").
+             */
+
+            /* Y */
+            qcd.set_irrev_quant (delta_ref);
+            /* Cb */
+            qcd.set_irrev_quant (1, delta_ref / sqrt(3.2584/3.));
+            /* Cr */
+            qcd.set_irrev_quant (1, delta_ref / sqrt(2.4756/3.));
+
         }
 
         /* set all channels but the first 3 channels to reversible */
         for (int16_t c = 3; c < encode->channel_count; c++)
+        {
             cod.set_reversible (c, true);
+        }
+
     } else {
         cod.set_reversible (true);
     }
