@@ -2,6 +2,14 @@
   SPDX-License-Identifier: BSD-3-Clause
   Copyright Contributors to the OpenEXR Project.
 
+.. warning::
+
+   As of OpenEXR v3.5, `exr2aces` is deprecated and will be removed
+   from distribution in a future release.
+
+   `exr2aces` was originally developed to help validate the API, not
+   for use in production. It has not kept in sync with the ACES standard.
+   
 exr2aces
 ########
 
