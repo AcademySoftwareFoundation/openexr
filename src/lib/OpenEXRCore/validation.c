@@ -840,8 +840,8 @@ internal_exr_validate_shared_attrs (exr_context_t ctxt,
      * Unlike the attributes above, this is metadata rather than structure:
      * a non-conforming value makes a part's color space ambiguous but does
      * not make the file unreadable, so it is only reported under strict
-     * validation. The C++ readers all disable strict validation, and so
-     * accept such files.
+     * validation. The C++ readers all disable strict validation by default,
+     * and thus accept such files.
      */
     if (ctxt->strict_header)
     {

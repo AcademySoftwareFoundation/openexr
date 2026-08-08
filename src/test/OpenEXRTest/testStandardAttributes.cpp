@@ -19,6 +19,7 @@
 #include <fstream>
 #include <iomanip>
 #include <stdio.h>
+#include <string.h>
 
 using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;
@@ -1092,63 +1093,361 @@ convertColorInteropIDAndChromaticities ()
     }
 }
 
+//
+// The following tests are similar to src/test/OpenEXRCoreTest/color_interop.cpp
+// and validate that ImfStandardAttributes.cpp faithfully forwards the corresponding
+// functions from the Core API.
+//
+
 void
-writeReadAcesFileChromaticities (const char fileName[])
+checkColorMetadataConsistency ()
 {
-    cout << "ACES file chromaticities and colorInteropID" << endl;
+    cout << "checking color space metadata for consistency" << endl;
 
-    cout << "writing, ";
+    Chromaticities ap1;
+    Chromaticities ap0;
+    Chromaticities rec709;
+    assert (colorInteropIDToChromaticities ("lin_ap1_scene", ap1));
+    assert (colorInteropIDToChromaticities ("lin_ap0_scene", ap0));
+    assert (colorInteropIDToChromaticities ("lin_rec709_scene", rec709));
 
-    static const int W = 32;
-    static const int H = 32;
+    //
+    // With no colorInteropID, the chromaticities are not checked.
+    //
 
     {
-        AcesOutputFile out (fileName, W, H);
+        Header h;
+        addChromaticities (h, rec709);
+        addWhiteLuminance (h, 100.f);
+        assert (checkColorMetadata (h) == COLOR_METADATA_OK);
+    }
 
-        Rgba pixels[W];
+    //
+    // A colorInteropID that agrees with the chromaticities is clean.
+    //
 
-        for (int i = 0; i < W; ++i)
+    {
+        Header h;
+        addColorInteropID (h, "lin_ap1_scene");
+        addChromaticities (h, ap1);
+        assert (checkColorMetadata (h) == COLOR_METADATA_OK);
+    }
+
+    //
+    // An ID with no chromaticities mapping is not checked against them.
+    //
+
+    {
+        Header h;
+        addColorInteropID (h, "ocio:lin_awg4_scene");
+        addChromaticities (h, rec709);
+        assert (checkColorMetadata (h) == COLOR_METADATA_OK);
+    }
+
+    //
+    // An ID that disagrees with the chromaticities is reported.
+    //
+
+    {
+        Header h;
+        addColorInteropID (h, "lin_ap1_scene");
+        addChromaticities (h, rec709);
+        assert (
+            checkColorMetadata (h) == COLOR_METADATA_CHROMATICITIES_DIFFER);
+    }
+
+    //
+    // Chromaticities that match no known color space at all are the same
+    // finding: they are not the ones the ID names.
+    //
+
+    {
+        Header h;
+        addColorInteropID (h, "lin_ap1_scene");
+        addChromaticities (
+            h,
+            Chromaticities (
+                V2f (0.1f, 0.2f),
+                V2f (0.3f, 0.4f),
+                V2f (0.5f, 0.6f),
+                V2f (0.7f, 0.8f)));
+        assert (
+            checkColorMetadata (h) == COLOR_METADATA_CHROMATICITIES_DIFFER);
+    }
+
+    //
+    // An empty ID says nothing; it should be omitted, or "unknown", instead.
+    //
+
+    {
+        Header h;
+        addColorInteropID (h, "");
+        assert (checkColorMetadata (h) == COLOR_METADATA_EMPTY_INTEROP_ID);
+    }
+
+    //
+    // A part tagged "data" should not carry colorimetry attributes. Each
+    // offending attribute is reported separately, and they combine.
+    //
+
+    {
+        Header h;
+        addColorInteropID (h, "data");
+        assert (checkColorMetadata (h) == COLOR_METADATA_OK);
+    }
+
+    {
+        Header h;
+        addColorInteropID (h, "data");
+        addChromaticities (h, ap1);
+        assert (
+            checkColorMetadata (h) ==
+            COLOR_METADATA_DATA_HAS_CHROMATICITIES);
+    }
+
+    {
+        Header h;
+        addColorInteropID (h, "data");
+        addChromaticities (h, ap1);
+        addWhiteLuminance (h, 100.f);
+        addAdoptedNeutral (h, V2f (0.32168f, 0.33767f));
+        assert (
+            checkColorMetadata (h) ==
+            (COLOR_METADATA_DATA_HAS_CHROMATICITIES |
+             COLOR_METADATA_DATA_HAS_WHITE_LUMINANCE |
+             COLOR_METADATA_DATA_HAS_ADOPTED_NEUTRAL));
+    }
+
+    //
+    // In a multipart file, a later part may omit colorInteropID, inheriting
+    // the first part's, or set it to "data".
+    //
+
+    {
+        Header first;
+        addColorInteropID (first, "lin_ap1_scene");
+
         {
-            pixels[i].r = 0.5f;
-            pixels[i].g = 0.5f;
-            pixels[i].b = 0.5f;
-            pixels[i].a = 1;
+            Header later;
+            assert (checkColorMetadata (later, first) == COLOR_METADATA_OK);
         }
 
-        out.setFrameBuffer (pixels, 1, 0);
-        out.writePixels (H);
+        {
+            Header later;
+            addColorInteropID (later, "data");
+            assert (checkColorMetadata (later, first) == COLOR_METADATA_OK);
+        }
+
+        {
+            Header later;
+            addColorInteropID (later, "lin_ap1_scene");
+            assert (checkColorMetadata (later, first) == COLOR_METADATA_OK);
+        }
+
+        //
+        // Any other value that differs from the first part's leaves the
+        // part's color space ambiguous.
+        //
+
+        {
+            Header later;
+            addColorInteropID (later, "lin_ap0_scene");
+            assert (
+                checkColorMetadata (later, first) ==
+                COLOR_METADATA_INTEROP_ID_NOT_SHARED);
+        }
     }
 
-    cout << "reading, comparing" << endl;
-
     //
-    // An ACES file sets the chromaticities attribute as well as the
-    // colorInteropID attribute, for ST 2065-4 compliance. The two must
-    // agree: the chromaticities have to be the entry the colorInteropID
-    // table gives for the file's own ID. This is what keeps the ACES
-    // primaries from drifting away from that table.
+    // A later part cannot inherit from a first part that has no ID either.
     //
 
     {
-        RgbaInputFile in (fileName);
-        const Header& h = in.header ();
-
-        assert (hasColorInteropID (h) == true);
-        assert (hasChromaticities (h) == true);
-
-        Chromaticities fromID;
+        Header first;
+        Header later;
+        addColorInteropID (later, "lin_ap1_scene");
         assert (
-            colorInteropIDToChromaticities (colorInteropID (h), fromID) ==
-            true);
-        assert (fromID == chromaticities (h));
-
-        std::string id;
-        assert (
-            chromaticitiesToColorInteropID (chromaticities (h), id) == true);
-        assert (id == colorInteropID (h));
+            checkColorMetadata (later, first) ==
+            COLOR_METADATA_INTEROP_ID_NOT_SHARED);
     }
 
-    remove (fileName);
+    //
+    // The shared attribute rule is only checked by the two-header overload;
+    // the same header on its own is clean.
+    //
+
+    {
+        Header first;
+        Header later;
+        addColorInteropID (later, "lin_ap1_scene");
+        assert (checkColorMetadata (later) == COLOR_METADATA_OK);
+    }
+
+    //
+    // Per-part and shared problems are reported together.
+    //
+
+    {
+        Header first;
+        addColorInteropID (first, "lin_ap1_scene");
+
+        Header later;
+        addColorInteropID (later, "lin_ap0_scene");
+        addChromaticities (later, rec709);
+
+        assert (
+            checkColorMetadata (later, first) ==
+            (COLOR_METADATA_CHROMATICITIES_DIFFER |
+             COLOR_METADATA_INTEROP_ID_NOT_SHARED));
+    }
+
+    //
+    // acesImageContainerFlag asserts ST 2065-4 compliance, which requires
+    // the color space be ACES2065-1. A header that says so consistently is
+    // clean, and the colorInteropID may be omitted.
+    //
+
+    {
+        Header h;
+        addAcesImageContainerFlag (h, 1);
+        addColorInteropID (h, "lin_ap0_scene");
+        addChromaticities (h, ap0);
+        assert (checkColorMetadata (h) == COLOR_METADATA_OK);
+    }
+
+    {
+        Header h;
+        addAcesImageContainerFlag (h, 1);
+        addChromaticities (h, ap0);
+        assert (checkColorMetadata (h) == COLOR_METADATA_OK);
+    }
+
+    //
+    // The chromaticities may not be omitted; ST 2065-4 requires them.
+    //
+
+    {
+        Header h;
+        addAcesImageContainerFlag (h, 1);
+        addColorInteropID (h, "lin_ap0_scene");
+        assert (
+            checkColorMetadata (h) ==
+            COLOR_METADATA_ACES_FLAG_NO_CHROMATICITIES);
+    }
+
+    //
+    // A present colorInteropID has to agree, and so do the chromaticities.
+    // Here the two agree with each other, so only the ACES rule is broken.
+    //
+
+    {
+        Header h;
+        addAcesImageContainerFlag (h, 1);
+        addColorInteropID (h, "lin_rec709_scene");
+        addChromaticities (h, rec709);
+        assert (
+            checkColorMetadata (h) ==
+            (COLOR_METADATA_ACES_FLAG_INTEROP_ID_NOT_AP0 |
+             COLOR_METADATA_ACES_FLAG_CHROMATICITIES_NOT_AP0));
+    }
+
+    //
+    // 1 is the only defined value of the flag.
+    //
+
+    {
+        Header h;
+        addAcesImageContainerFlag (h, 0);
+        addColorInteropID (h, "lin_ap0_scene");
+        addChromaticities (h, ap0);
+        assert (checkColorMetadata (h) == COLOR_METADATA_ACES_FLAG_NOT_ONE);
+    }
+
+    //
+    // An attribute of the wrong type is reported the same way as a wrong
+    // value. hasAcesImageContainerFlag() is false for it, so this is the
+    // case that would otherwise slip through unchecked.
+    //
+
+    {
+        Header h;
+        h.insert ("acesImageContainerFlag", StringAttribute ("yes"));
+        addColorInteropID (h, "lin_ap0_scene");
+        addChromaticities (h, ap0);
+        assert (hasAcesImageContainerFlag (h) == false);
+        assert (checkColorMetadata (h) == COLOR_METADATA_ACES_FLAG_NOT_ONE);
+    }
+
+    //
+    // Without the flag, none of this is checked: a header with no
+    // chromaticities is unremarkable.
+    //
+
+    {
+        Header h;
+        addColorInteropID (h, "lin_ap0_scene");
+        assert (checkColorMetadata (h) == COLOR_METADATA_OK);
+    }
+
+    //
+    // A part tagged "data" cannot also be an ACES container.
+    //
+
+    {
+        Header h;
+        addAcesImageContainerFlag (h, 1);
+        addColorInteropID (h, "data");
+        addChromaticities (h, ap0);
+        assert (
+            checkColorMetadata (h) ==
+            (COLOR_METADATA_DATA_HAS_CHROMATICITIES |
+             COLOR_METADATA_ACES_FLAG_INTEROP_ID_NOT_AP0));
+    }
+
+    //
+    // The flag alone, with no other color metadata at all, still makes a
+    // claim, so it is still checked.
+    //
+
+    {
+        Header h;
+        addAcesImageContainerFlag (h, 1);
+        assert (
+            checkColorMetadata (h) ==
+            COLOR_METADATA_ACES_FLAG_NO_CHROMATICITIES);
+    }
+
+    //
+    // Every flag has a description, and they are distinct.
+    //
+
+    {
+        static const ColorMetadataWarning warnings[] = {
+            COLOR_METADATA_EMPTY_INTEROP_ID,
+            COLOR_METADATA_CHROMATICITIES_DIFFER,
+            COLOR_METADATA_DATA_HAS_CHROMATICITIES,
+            COLOR_METADATA_DATA_HAS_WHITE_LUMINANCE,
+            COLOR_METADATA_DATA_HAS_ADOPTED_NEUTRAL,
+            COLOR_METADATA_INTEROP_ID_NOT_SHARED,
+            COLOR_METADATA_ACES_FLAG_NOT_ONE,
+            COLOR_METADATA_ACES_FLAG_INTEROP_ID_NOT_AP0,
+            COLOR_METADATA_ACES_FLAG_NO_CHROMATICITIES,
+            COLOR_METADATA_ACES_FLAG_CHROMATICITIES_NOT_AP0};
+        static const size_t numWarnings =
+            sizeof (warnings) / sizeof (warnings[0]);
+
+        for (size_t i = 0; i < numWarnings; i++)
+        {
+            const char* s = colorMetadataWarningToString (warnings[i]);
+            assert (s != nullptr);
+            assert (s[0] != '\0');
+
+            for (size_t j = 0; j < i; j++)
+                assert (
+                    strcmp (s, colorMetadataWarningToString (warnings[j])) !=
+                    0);
+        }
+    }
 }
 
 } // namespace
@@ -1163,6 +1462,8 @@ testStandardAttributes (const std::string& tempDir)
         convertRGBtoXYZ ();
 
         convertColorInteropIDAndChromaticities ();
+
+        checkColorMetadataConsistency ();
 
         {
             std::string filename = tempDir + "imf_test_chromaticities.exr";
@@ -1201,11 +1502,6 @@ testStandardAttributes (const std::string& tempDir)
         {
             std::string filename = tempDir + "imf_colorInteropID.exr";
             writeReadColorInteropID (filename.c_str ());
-        }
-
-        {
-            std::string filename = tempDir + "imf_test_acesfile_chromaticities.exr";
-            writeReadAcesFileChromaticities (filename.c_str ());
         }
 
         generatedFunctions ();

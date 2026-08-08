@@ -132,10 +132,7 @@ IMF_EXPORT IMATH_NAMESPACE::M44f
 // chromaticitiesToColorInteropID matches a set of chromaticities against
 // the table within +/- tolerance in x and y, comparing all four
 // coordinates. The default tolerance is the value the recommendation
-// suggests. The six entries are mutually distinct by at least 0.005, so
-// they are unambiguous at that tolerance; a tolerance above roughly 0.0025
-// may match more than one entry, in which case the first match in the
-// order listed above is returned.
+// suggests. 
 //
 // New in OpenEXR v3.4
 //

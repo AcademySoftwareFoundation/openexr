@@ -22,30 +22,14 @@ using namespace IEX_NAMESPACE;
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
-const std::string&
-acesColorInteropID ()
-{
-    static const std::string acesID = "lin_ap0_scene";
-    return acesID;
-}
-
-namespace
-{
-
-Chromaticities
-acesChromaticitiesInit ()
-{
-    Chromaticities acesChr;
-    colorInteropIDToChromaticities (acesColorInteropID (), acesChr);
-    return acesChr;
-}
-
-} // namespace
-
 const Chromaticities&
 acesChromaticities ()
 {
-    static const Chromaticities acesChr = acesChromaticitiesInit ();
+    static const Chromaticities acesChr (
+        V2f (0.73470f, 0.26530f),  // red
+        V2f (0.00000f, 1.00000f),  // green
+        V2f (0.00010f, -0.07700f), // blue
+        V2f (0.32168f, 0.33767f)); // white
 
     return acesChr;
 }
@@ -108,7 +92,6 @@ AcesOutputFile::AcesOutputFile (
     Header newHeader = header;
     addChromaticities (newHeader, acesChromaticities ());
     addAdoptedNeutral (newHeader, acesChromaticities ().white);
-    addColorInteropID (newHeader, acesColorInteropID ());
 
     _data->rgbaFile =
         new RgbaOutputFile (name.c_str (), newHeader, rgbaChannels, numThreads);
@@ -128,7 +111,6 @@ AcesOutputFile::AcesOutputFile (
     Header newHeader = header;
     addChromaticities (newHeader, acesChromaticities ());
     addAdoptedNeutral (newHeader, acesChromaticities ().white);
-    addColorInteropID (newHeader, acesColorInteropID ());
 
     _data->rgbaFile = new RgbaOutputFile (os, header, rgbaChannels, numThreads);
 
@@ -161,7 +143,6 @@ AcesOutputFile::AcesOutputFile (
 
     addChromaticities (newHeader, acesChromaticities ());
     addAdoptedNeutral (newHeader, acesChromaticities ().white);
-    addColorInteropID (newHeader, acesColorInteropID ());
 
     _data->rgbaFile =
         new RgbaOutputFile (name.c_str (), newHeader, rgbaChannels, numThreads);
@@ -195,7 +176,6 @@ AcesOutputFile::AcesOutputFile (
 
     addChromaticities (newHeader, acesChromaticities ());
     addAdoptedNeutral (newHeader, acesChromaticities ().white);
-    addColorInteropID (newHeader, acesColorInteropID ());
 
     _data->rgbaFile =
         new RgbaOutputFile (name.c_str (), newHeader, rgbaChannels, numThreads);
@@ -332,8 +312,6 @@ AcesInputFile::Data::~Data ()
 void
 AcesInputFile::Data::initColorConversion ()
 {
-    // TODO: Add support for colorInteropID.
-
     const Header& header = rgbaFile->header ();
 
     Chromaticities fileChr;

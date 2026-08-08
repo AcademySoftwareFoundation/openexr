@@ -75,9 +75,16 @@ public:
 
     void         write(const char* filename);
     void         write(py::object binary_stream);
-    
+
     std::string  filename;
     py::list     parts;
+
+    // Used to build a temporary Header from a header attribute dict, e.g.
+    // for checkColorMetadata(), which only needs the attributes, not a
+    // full part.
+    static void  insertAttribute(Header& header,
+                                 const std::string& name,
+                                 const py::object& object);
 
 private:
 
@@ -86,17 +93,13 @@ private:
     std::vector<Header> buildOutputHeaders();
 
 protected:
-    
+
     bool                                _header_only;
     int                                 _num_threads;
     std::unique_ptr<IStream>            _readStream;
     std::unique_ptr<MultiPartInputFile> _inputFile;
-    
+
     py::object   getAttributeObject(const std::string& name, const Attribute* a);
-    
-    void         insertAttribute(Header& header,
-                                 const std::string& name,
-                                 const py::object& object);
 
 };
 

@@ -264,6 +264,11 @@ testChromaticities (const vector<Header>& hs, const std::string& fn)
 void
 testColorInteropID (const vector<Header>& hs, const std::string& fn)
 {
+    //
+    // Test MultiPartOutputFile with overrideSharedAttributes set to false,
+    // which is the default.
+    //
+
     vector<Header> headers (hs);
 
     for (size_t i = 0; i < headers.size (); i++)
@@ -271,7 +276,7 @@ testColorInteropID (const vector<Header>& hs, const std::string& fn)
 
     //
     // A later part with a colorInteropID that differs from the first
-    // part's, and is not "data", is a conflict.
+    // part's, and is not "data", is a conflict. The output attempt throws.
     //
     {
         Header newHeader (headers[0]);
@@ -322,6 +327,68 @@ testColorInteropID (const vector<Header>& hs, const std::string& fn)
         MultiPartOutputFile file (
             fn.c_str (), &noAttrHeaders[0], noAttrHeaders.size ());
     }
+
+    return;
+}
+
+void
+testColorInteropIDOverride (const vector<Header>& hs, const std::string& fn)
+{
+    //
+    // With overrideSharedAttributes true, the first part's colorInteropID is
+    // imposed on any later part carrying a conflicting value. A later part
+    // that omits the attribute keeps it absent -- it inherits the first
+    // part's value implicitly, so there is nothing to copy -- and a part
+    // tagged "data" keeps that tag.
+    //
+
+    const string firstID = "lin_ap1_scene";
+
+    vector<Header> headers;
+
+    Header first (hs[0]);
+    first.setName ("first");
+    addColorInteropID (first, firstID);
+    headers.push_back (first);
+
+    Header omitted (first);
+    omitted.setName ("omitted");
+    omitted.erase ("colorInteropID");
+    headers.push_back (omitted);
+
+    Header data (first);
+    data.setName ("dataTagged");
+    addColorInteropID (data, "data");
+    headers.push_back (data);
+
+    Header conflicting (first);
+    conflicting.setName ("conflicting");
+    addColorInteropID (conflicting, "lin_rec709_scene");
+    headers.push_back (conflicting);
+
+    remove (fn.c_str ());
+    {
+        MultiPartOutputFile file (
+            fn.c_str (), &headers[0], headers.size (), 
+            /* overrideSharedAttributes = */ true);
+    }
+
+    MultiPartInputFile file (fn.c_str ());
+    assert (file.parts () == 4);
+
+    assert (hasColorInteropID (file.header (0)));
+    assert (colorInteropID (file.header (0)) == firstID);
+
+    // Absent stays absent: the first part's value is not copied in.
+    assert (!hasColorInteropID (file.header (1)));
+
+    // The "data" tag survives the override.
+    assert (hasColorInteropID (file.header (2)));
+    assert (colorInteropID (file.header (2)) == "data");
+
+    // The conflicting value is replaced by the first part's.
+    assert (hasColorInteropID (file.header (3)));
+    assert (colorInteropID (file.header (3)) == firstID);
 
     return;
 }
@@ -447,9 +514,8 @@ testNonConformingColorInteropIDIsReadable (const std::string& fn)
     }
 
     //
-    // the same file under strict header validation is rejected
+    // The same file under strict header validation is rejected.
     //
-
     {
         bool caught = false;
 
@@ -476,67 +542,6 @@ testNonConformingColorInteropIDIsReadable (const std::string& fn)
     }
 
     remove (fn.c_str ());
-}
-
-void
-testColorInteropIDOverride (const vector<Header>& hs, const std::string& fn)
-{
-    //
-    // With overrideSharedAttributes set, the first part's colorInteropID is
-    // imposed on any later part carrying a conflicting value. A later part
-    // that omits the attribute keeps it absent -- it inherits the first
-    // part's value implicitly, so there is nothing to copy -- and a part
-    // tagged "data" keeps that tag.
-    //
-
-    const string firstID = "lin_ap1_scene";
-
-    vector<Header> headers;
-
-    Header first (hs[0]);
-    first.setName ("first");
-    addColorInteropID (first, firstID);
-    headers.push_back (first);
-
-    Header omitted (first);
-    omitted.setName ("omitted");
-    omitted.erase ("colorInteropID");
-    headers.push_back (omitted);
-
-    Header data (first);
-    data.setName ("dataTagged");
-    addColorInteropID (data, "data");
-    headers.push_back (data);
-
-    Header conflicting (first);
-    conflicting.setName ("conflicting");
-    addColorInteropID (conflicting, "lin_rec709_scene");
-    headers.push_back (conflicting);
-
-    remove (fn.c_str ());
-    {
-        MultiPartOutputFile file (
-            fn.c_str (), &headers[0], headers.size (), true);
-    }
-
-    MultiPartInputFile file (fn.c_str ());
-    assert (file.parts () == 4);
-
-    assert (hasColorInteropID (file.header (0)));
-    assert (colorInteropID (file.header (0)) == firstID);
-
-    // absent stays absent: the first part's value is not copied in
-    assert (!hasColorInteropID (file.header (1)));
-
-    // the "data" tag survives the override
-    assert (hasColorInteropID (file.header (2)));
-    assert (colorInteropID (file.header (2)) == "data");
-
-    // the conflicting value is replaced by the first part's
-    assert (hasColorInteropID (file.header (3)));
-    assert (colorInteropID (file.header (3)) == firstID);
-
-    return;
 }
 
 void

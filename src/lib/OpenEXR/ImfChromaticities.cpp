@@ -14,7 +14,8 @@
 #include "ImfChromaticities.h"
 #include <string.h>
 
-#include <cmath>
+#include "openexr.h"
+
 #include <float.h>
 #include <stdexcept>
 
@@ -140,115 +141,60 @@ XYZtoRGB (const Chromaticities& chroma, float Y)
     return RGBtoXYZ (chroma, Y).inverse ();
 }
 
-namespace
-{
-
 //
-// The chromaticities of the linear, scene-referred color interop IDs, per
-// the Color Interop Forum recommendation for OpenEXR files. This is the
-// library's single definition of these primaries; acesChromaticities()
-// takes the lin_ap0_scene entry from here.
+// The table of interop IDs and their chromaticities lives in OpenEXRCore,
+// so that the C API, the C++ API and exrinfo all share one definition of
+// these primaries. These two functions are adapters over it.
 //
-
-// Held as plain floats rather than Chromaticities so that the table is
-// constant-initialized into read-only data, with no run-time construction.
-
-struct ColorInteropIDChromaticities
-{
-    const char* id;
-    float       red[2];
-    float       green[2];
-    float       blue[2];
-    float       white[2];
-};
-
-const ColorInteropIDChromaticities colorInteropIDChromaticitiesTable[] = {
-    {"lin_rec709_scene",
-     {0.6400f, 0.3300f},
-     {0.3000f, 0.6000f},
-     {0.1500f, 0.0600f},
-     {0.3127f, 0.3290f}},
-    {"lin_ap0_scene",
-     {0.73470f, 0.26530f},
-     {0.00000f, 1.00000f},
-     {0.00010f, -0.07700f},
-     {0.32168f, 0.33767f}},
-    {"lin_ap1_scene",
-     {0.7130f, 0.2930f},
-     {0.1650f, 0.8300f},
-     {0.1280f, 0.0440f},
-     {0.32168f, 0.33767f}},
-    {"lin_p3d65_scene",
-     {0.6800f, 0.3200f},
-     {0.2650f, 0.6900f},
-     {0.1500f, 0.0600f},
-     {0.3127f, 0.3290f}},
-    {"lin_rec2020_scene",
-     {0.7080f, 0.2920f},
-     {0.1700f, 0.7970f},
-     {0.1310f, 0.0460f},
-     {0.3127f, 0.3290f}},
-    {"lin_adobergb_scene",
-     {0.6400f, 0.3300f},
-     {0.2100f, 0.7100f},
-     {0.1500f, 0.0600f},
-     {0.3127f, 0.3290f}}};
-
-const size_t numColorInteropIDChromaticities =
-    sizeof (colorInteropIDChromaticitiesTable) /
-    sizeof (colorInteropIDChromaticitiesTable[0]);
-
-bool
-withinTolerance (const float a[2], const IMATH_NAMESPACE::V2f& b, float tolerance)
-{
-    return std::abs (a[0] - b.x) <= tolerance &&
-           std::abs (a[1] - b.y) <= tolerance;
-}
-
-} // namespace
 
 bool
 colorInteropIDToChromaticities (const std::string& id, Chromaticities& chroma)
 {
-    for (size_t i = 0; i < numColorInteropIDChromaticities; i++)
-    {
-        const ColorInteropIDChromaticities& e =
-            colorInteropIDChromaticitiesTable[i];
+    //
+    // An embedded NUL would make c_str() below compare as a shorter, and
+    // possibly valid, ID.
+    //
 
-        if (id == e.id)
-        {
-            chroma = Chromaticities (
-                IMATH_NAMESPACE::V2f (e.red[0], e.red[1]),
-                IMATH_NAMESPACE::V2f (e.green[0], e.green[1]),
-                IMATH_NAMESPACE::V2f (e.blue[0], e.blue[1]),
-                IMATH_NAMESPACE::V2f (e.white[0], e.white[1]));
-            return true;
-        }
-    }
+    if (id.find ('\0') != std::string::npos) return false;
 
-    return false;
+    exr_attr_chromaticities_t c;
+
+    if (EXR_ERR_SUCCESS !=
+        exr_color_interop_id_to_chromaticities (id.c_str (), &c))
+        return false;
+
+    chroma = Chromaticities (
+        IMATH_NAMESPACE::V2f (c.red_x, c.red_y),
+        IMATH_NAMESPACE::V2f (c.green_x, c.green_y),
+        IMATH_NAMESPACE::V2f (c.blue_x, c.blue_y),
+        IMATH_NAMESPACE::V2f (c.white_x, c.white_y));
+
+    return true;
 }
 
 bool
 chromaticitiesToColorInteropID (
     const Chromaticities& chroma, std::string& id, float tolerance)
 {
-    for (size_t i = 0; i < numColorInteropIDChromaticities; i++)
-    {
-        const ColorInteropIDChromaticities& e =
-            colorInteropIDChromaticitiesTable[i];
+    const exr_attr_chromaticities_t c = {
+        chroma.red.x,
+        chroma.red.y,
+        chroma.green.x,
+        chroma.green.y,
+        chroma.blue.x,
+        chroma.blue.y,
+        chroma.white.x,
+        chroma.white.y};
 
-        if (withinTolerance (e.red, chroma.red, tolerance) &&
-            withinTolerance (e.green, chroma.green, tolerance) &&
-            withinTolerance (e.blue, chroma.blue, tolerance) &&
-            withinTolerance (e.white, chroma.white, tolerance))
-        {
-            id = e.id;
-            return true;
-        }
-    }
+    const char* match = nullptr;
 
-    return false;
+    if (EXR_ERR_SUCCESS !=
+        exr_chromaticities_to_color_interop_id (&c, tolerance, &match))
+        return false;
+
+    id = match;
+
+    return true;
 }
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

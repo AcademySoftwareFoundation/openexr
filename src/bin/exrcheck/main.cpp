@@ -10,7 +10,6 @@
 
 #include <cstdint>
 #include <fstream>
-#include <string>
 #include <iostream>
 #include <ostream>
 #include <string.h>
@@ -40,7 +39,6 @@ usageMessage (ostream& stream, const char* program_name, bool verbose = false)
                "  -t            avoid spending excessive time (some files will not be fully checked)\n"
                "  -s            use stream API instead of file API\n"
                "  -c            add core library checks\n"
-               "  -w            treat warnings as errors\n"
                "  -h, --help    print this message\n"
                "      --version print version information\n"
                "\n"
@@ -50,12 +48,11 @@ usageMessage (ostream& stream, const char* program_name, bool verbose = false)
 
 bool
 exrCheck (
-    const char*       filename,
-    bool              reduceMemory,
-    bool              reduceTime,
-    bool              useStream,
-    bool              enableCoreCheck,
-    vector<string>&   warnings)
+    const char* filename,
+    bool        reduceMemory,
+    bool        reduceTime,
+    bool        useStream,
+    bool        enableCoreCheck)
 {
     if (useStream)
     {
@@ -94,17 +91,12 @@ exrCheck (
             return true;
         }
         return checkOpenEXRFile (
-            data.data (),
-            length,
-            warnings,
-            reduceMemory,
-            reduceTime,
-            enableCoreCheck);
+            data.data (), length, reduceMemory, reduceTime, enableCoreCheck);
     }
     else
     {
         return checkOpenEXRFile (
-            filename, warnings, reduceMemory, reduceTime, enableCoreCheck);
+            filename, reduceMemory, reduceTime, enableCoreCheck);
     }
 }
 
@@ -122,7 +114,6 @@ main (int argc, char** argv)
     bool enableCoreCheck = false;
     bool badFileFound    = false;
     bool useStream       = false;
-    bool strictWarnings  = false;
     for (int i = 1; i < argc; ++i)
     {
         if (!strcmp (argv[i], "-h") || !strcmp (argv[i], "--help"))
@@ -143,7 +134,6 @@ main (int argc, char** argv)
         else if (!strcmp (argv[i], "-t")) { reduceTime = true; }
         else if (!strcmp (argv[i], "-s")) { useStream = true; }
         else if (!strcmp (argv[i], "-c")) { enableCoreCheck = true; }
-        else if (!strcmp (argv[i], "-w")) { strictWarnings = true; }
         else if (!strcmp (argv[i], "--version"))
         {
             const char* libraryVersion = getLibraryVersion ();
@@ -173,29 +163,14 @@ main (int argc, char** argv)
             cout << " file " << argv[i] << ' ';
             cout.flush ();
 
-            vector<string> warnings;
-            bool           hasError = exrCheck (
-                argv[i],
-                reduceMemory,
-                reduceTime,
-                useStream,
-                enableCoreCheck,
-                warnings);
-
+            bool hasError = exrCheck (
+                argv[i], reduceMemory, reduceTime, useStream, enableCoreCheck);
             if (hasError)
             {
                 cout << "bad\n";
                 badFileFound = true;
             }
-            else if (!warnings.empty () && strictWarnings)
-            {
-                cout << "bad\n";
-                badFileFound = true;
-            }
             else { cout << "OK\n"; }
-
-            for (size_t w = 0; w < warnings.size (); ++w)
-                cout << "   warning: " << warnings[w] << '\n';
         }
     }
 

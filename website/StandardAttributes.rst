@@ -1230,7 +1230,8 @@ optional.
      </tt> </td>
      <td style="vertical-align: top; width:500px">
        <p style="padding-bottom:15px">
-         Provides a mechanism to identify the color space of the RGB images.
+         Provides a mechanism to identify the color space of the RGB images. Please note
+         that the ID must follow a specific structure as defined in the following references.
        </p>
        
        <p style="padding-bottom:15px">

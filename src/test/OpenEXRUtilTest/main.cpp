@@ -10,7 +10,6 @@
 #include "ImfNamespace.h"
 #include "OpenEXRConfigInternal.h"
 
-#include "testCheckFileWarnings.h"
 #include "testDeepImage.h"
 #include "testFlatImage.h"
 #include "testImageChannel.h"
@@ -92,7 +91,6 @@ main (int argc, char* argv[])
     TEST (testDeepImage);
     TEST (testIO);
     TEST (testImageChannel);
-    TEST (testCheckFileWarnings);
     // NB: If you add a test here, make sure to enumerate it in the
     // CMakeLists.txt so it runs as part of the test suite
 

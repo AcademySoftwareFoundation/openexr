@@ -1001,13 +1001,18 @@ Forum has published a recommendation for how to do that, please see
 for details. This makes use of the ``colorInteropID`` attribute, which now
 supersedes the previous ``chromaticities`` attribute for most purposes.
 
+Since OpenEXR images are supposed to be linear, the colorInteropID should refer
+to a linear space but the library does not require that to be the case.
+
 The ``chromaticities`` attribute allows one to specify the CIE x,y coordinates
 for the red, green, and blue primaries and white. Unfortunately trust in this
 attribute has been lost over time. For example, some applications write linear
 Rec.709 chromaticities even if the image is not actually that. In other cases,
 applications report that the image is linear Rec.709, even if the chromaticities
 is not present. This situation is one of the main reasons why the colorInteropID
-is now the recommended way of identifying the color space in OpenEXR files.
+is now the recommended way of identifying the color space in OpenEXR files. API
+functions have been added to allow conversion between chromaticities and the
+colorInteropID for the most common color spaces.
 
 The presence of stale or incorrect metadata is a major problem.
 Application developers are asked to take care when writing OpenEXR
