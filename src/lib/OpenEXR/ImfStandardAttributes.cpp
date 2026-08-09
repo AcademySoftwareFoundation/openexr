@@ -154,7 +154,7 @@ namespace
 //
 // The two enumerations are declared separately so that neither public
 // header has to include the other's, which makes it possible for them to
-// drift. Pin them together here.
+// drift. Use a compile-time assert to validate consistency.
 //
 
 #define IMF_ASSERT_SAME_WARNING(imfName, coreName)                             \

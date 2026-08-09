@@ -76,9 +76,9 @@ originalDataWindow
  * Recommendations/04_OpenEXRFiles/OpenEXRFiles.md>.
  *
  * Note that the recommendation is that the chromaticities attribute not be
- * set when setting the colorInteropID, other than for ST 2065-4
- * compliance. This function is intended for feeding legacy consumers that
- * understand only chromaticities.
+ * set when setting the colorInteropID, other than for ST 2065-4 compliance.
+ * This function is intended for feeding legacy consumers that understand
+ * only chromaticities.
  *
  * @return EXR_ERR_SUCCESS if @p color_interop_id has a defined mapping, in
  * which case @p chromaticities is filled in; EXR_ERR_NO_ATTR_BY_NAME for
@@ -158,7 +158,7 @@ typedef enum exr_color_metadata_warning
 /** @brief The color space metadata of one part, as input to
  * exr_check_color_metadata_values().
  *
- * All strings are NUL-terminated and are only read for the duration of the
+ * All strings are NULL-terminated and are only read for the duration of the
  * call.
  */
 typedef struct

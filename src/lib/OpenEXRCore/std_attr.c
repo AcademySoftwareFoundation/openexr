@@ -27,7 +27,8 @@
  * Please note that these are simply the most common linear colorInteropIDs,
  * this is not an exhaustive list. More IDs may be added over time. More
  * info about the Color Interop ID may be found in this document:
- * https://github.com/AcademySoftwareFoundation/ColorInterop/blob/main/Recommendations/03_ColorInteropID/ColorInteropID.md
+ * https://github.com/AcademySoftwareFoundation/ColorInterop/blob/main/
+ * Recommendations/03_ColorInteropID/ColorInteropID.md
  */
 
 typedef struct
@@ -45,7 +46,7 @@ static const exr_priv_color_interop_id_chromaticities_t
     the_color_interop_id_chromaticities[] = {
         /*                          red                green               blue              white */
         {"lin_rec709_scene",   { 0.6400f,  0.3300f,  0.3000f,  0.6000f,  0.1500f,   0.0600f, D65_WHITE}},
-        {"lin_ap0_scene",      {0.73470f, 0.26530f, 0.00000f, 1.00000f, 0.00010f, -0.07700f, ACES_WHITE}},
+        {"lin_ap0_scene",      { 0.7347f,  0.2653f,  0.0000f,  1.0000f,  0.0001f,  -0.0770f, ACES_WHITE}},
         {"lin_ap1_scene",      { 0.7130f,  0.2930f,  0.1650f,  0.8300f,  0.1280f,   0.0440f, ACES_WHITE}},
         {"lin_p3d65_scene",    { 0.6800f,  0.3200f,  0.2650f,  0.6900f,  0.1500f,   0.0600f, D65_WHITE}},
         {"lin_rec2020_scene",  { 0.7080f,  0.2920f,  0.1700f,  0.7970f,  0.1310f,   0.0460f, D65_WHITE}},

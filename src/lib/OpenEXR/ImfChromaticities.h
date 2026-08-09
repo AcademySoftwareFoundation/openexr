@@ -134,8 +134,6 @@ IMF_EXPORT IMATH_NAMESPACE::M44f
 // coordinates. The default tolerance is the value the recommendation
 // suggests. 
 //
-// New in OpenEXR v3.4
-//
 
 IMF_EXPORT bool
 colorInteropIDToChromaticities (const std::string& id, Chromaticities& chroma);

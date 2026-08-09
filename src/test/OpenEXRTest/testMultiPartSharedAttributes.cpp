@@ -201,7 +201,7 @@ testTimeCode (const vector<Header>& hs, const std::string& fn)
         "Shared Attributes : timecode : should fail for !presence");
 
     //
-    // Test against a vector of headers that has chromaticities attribute
+    // Test against a vector of headers that has the timecode attribute
     // but of differing value
     //
     for (size_t i = 0; i < headers.size (); i++)
