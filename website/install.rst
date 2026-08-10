@@ -104,6 +104,8 @@ Make sure these are installed on your system before building OpenEXR:
   v3.4+; auto-fetched in v3.3 and before) (https://github.com/ebiggers/libdeflate)
 * ``openjph`` (internal vendored copy used by CMake if not found; new
   in v3.4; auto-fetched in 3.4.5 and before) (https://github.com/aous72/OpenJPH)
+* ``zstd`` (internal vendored copy used by CMake if a suitable external
+  install is not found; new in v4.0) (https://github.com/facebook/zstd)
 * (optional) Intel's Thread Building Blocks library (TBB)
 
 The instructions that follow describe building OpenEXR with CMake.
@@ -596,6 +598,20 @@ copy. To force use of the internal copy, configure with
 OpenEXR releases v3.4.0-v3.4.5 auto-fetch the ``OpenJPH`` source and
 build it internally if cmake does not find an external
 installation. 
+
+``zstd`` Dependency
+~~~~~~~~~~~~~~~~~~~
+
+As of OpenEXR release v4.0, OpenEXR depends on
+`zstd <https://github.com/facebook/zstd>`_ for
+ZSTD lossless compression.
+
+As of OpenEXR release v4.0, OpenEXR ships with an internal "vendored"
+copy of the ``zstd`` library. At configuration time, if
+CMake finds an external installation of ``zstd`` (minimum version
+1.5.0), it will use it. If it fails to find an installation, it will use
+the internal copy. To force use of the internal copy, configure with
+``-DOPENEXR_FORCE_INTERNAL_ZSTD=ON``.
 
 TBB Dependency
 ~~~~~~~~~~~~~~
