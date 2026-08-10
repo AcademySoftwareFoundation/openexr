@@ -224,9 +224,15 @@ def main() -> None:
     for pr_number in prs:
         info = gh_pr_view(pr_number)
         title = info.get("title") or ""
-        author = (info.get("author") or {}).get("login") or ""
-        is_workflow = "dependabot" in author or pr_is_workflow_only(pr_number)
+        author_info = info.get("author") or {}
+        author_login = author_info.get("login") or ""
+        is_workflow = "dependabot" in author_login or pr_is_workflow_only(pr_number)
         title_one_line = " ".join(title.split())
+        author_name = author_info.get("name") or ""
+        if author_login and author_name:
+            title_one_line += f" (by @{author_login}/{author_name})"
+        elif author_login:
+            title_one_line += f" (by @{author_login})"
         pr_block = f"* [{pr_number}]({url}/pull/{pr_number})\n{title_one_line}"
         if is_workflow:
             merged_workflow_prs[pr_number] = pr_block
