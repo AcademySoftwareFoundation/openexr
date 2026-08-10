@@ -1880,8 +1880,11 @@ Supported compression types are:
 |                      | partial buffer access, but slightly less       |
 |                      | efficient space-wise.                          |
 +----------------------+------------------------------------------------+
+| ZSTD_COMPRESSION     | zstd lossless compression, one scan line at a  |
+|                      | time.                                          |
++----------------------+------------------------------------------------+
 
-``ZIP_COMPRESSION`` and ``DWA`` compression compress to a
+``ZIP_COMPRESSION``, ``DWA`` compression, and ``ZSTD_COMPRESSION`` compress to a
 user-controllable compression level, which determines the space/time
 tradeoff. You can control these levels either by setting a global
 default or by setting the level directly on the ``Header`` object.
@@ -1893,7 +1896,8 @@ default or by setting the level directly on the ``Header`` object.
    :end-before: [end setCompressionDefault]
 
 The default zip compression level is 4 for OpenEXR v3.1.3+ and 6 for
-previous versions. The default DWA compression level is 45.0f.
+previous versions. The default DWA compression level is 45.0f. The
+default zstd compression level is 5 (valid range 1 through 22).
 
 Alternatively, set the compression level on the ``Header`` object:
 
