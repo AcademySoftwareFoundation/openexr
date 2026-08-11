@@ -184,11 +184,17 @@ exr_zstd_tls_get (void)
     return t_exr_zstd_tls_fast;
 }
 
-static void
+/** Returns true on success (tls->shuffle_buf is valid and at least
+ *  required_size bytes), false on failure (allocation failure or the
+ *  overshoot/alignment arithmetic below would overflow size_t). On failure
+ *  tls->shuffle_buf / tls->shuffle_buf_size are reset to a known-empty state
+ *  so a subsequent, smaller request is not fooled into believing a stale
+ *  (and possibly undersized, from a prior overflow) buffer is sufficient. */
+static bool
 ensure_tls_resources (size_t required_size)
 {
     exr_zstd_tls_state* tls = exr_zstd_tls_get ();
-    if (!tls) return;
+    if (!tls) return false;
 
     if (!tls->cctx) tls->cctx = ZSTD_createCCtx ();
     if (!tls->dctx) tls->dctx = ZSTD_createDCtx ();
@@ -197,20 +203,34 @@ ensure_tls_resources (size_t required_size)
     {
         // 1. FREE the old buffer to avoid realloc's internal overhead
         if (tls->shuffle_buf) exr_zstd_free_shuffle_buf (tls->shuffle_buf);
+        tls->shuffle_buf      = NULL;
+        tls->shuffle_buf_size = 0;
 
         // 2. OVERSHOOT: Allocate 25% more than needed to prevent
         // repeated reallocations if the next scanline is slightly bigger.
-        tls->shuffle_buf_size = required_size + (required_size >> 2);
+        // required_size can come from an untrusted/attacker-influenced size
+        // field, so this arithmetic (and the alignment step below) must not
+        // be allowed to silently wrap around to a small value: that would
+        // yield an undersized allocation while callers still believe
+        // shuffle_buf_size covers required_size, leading to a heap buffer
+        // overflow when the buffer is later written past its real size.
+        size_t overshoot;
+        if (required_size > SIZE_MAX - (required_size >> 2)) return false;
+        overshoot = required_size + (required_size >> 2);
 
         // 3. ALIGN: 64-byte cache line alignment
-        size_t aligned_size = (tls->shuffle_buf_size + 63) & ~63;
+        if (overshoot > SIZE_MAX - 63) return false;
+        size_t aligned_size = (overshoot + 63) & ~(size_t) 63;
 
 #if defined(_WIN32) || defined(_WIN64)
         tls->shuffle_buf = (uint8_t*) _aligned_malloc (aligned_size, 64);
 #else
         tls->shuffle_buf = (uint8_t*) aligned_alloc (64, aligned_size);
 #endif
+        if (!tls->shuffle_buf) return false;
+        tls->shuffle_buf_size = overshoot;
     }
+    return true;
 }
 
 /** Byte size for zstd metadata in scratch_buffer_2: grid + sorting lookup. */
@@ -1064,7 +1084,8 @@ internal_exr_apply_zstd (exr_encode_pipeline_t* encode)
         return EXR_ERR_SUCCESS;
     }
 
-    ensure_tls_resources (inner_cap);
+    if (!ensure_tls_resources (inner_cap))
+        return EXR_ERR_COMPRESSION_FAILED;
 
     exr_zstd_tls_state* tls_enc = exr_zstd_tls_get ();
     if (!tls_enc || !tls_enc->shuffle_buf)
@@ -1158,6 +1179,11 @@ exr_undo_zstd_v1 (
     else
         return EXR_ERR_CORRUPT_CHUNK;
 
+    /* Defense in depth: internal_exr_undo_zstd() (the only caller) already
+     * guarantees comp_buf_size >= ZSTD_EXR_V1_HEADER, but check again here so
+     * this function stays safe against unsigned underflow below even if that
+     * invariant is ever relaxed by future refactoring. */
+    if (comp_buf_size < ZSTD_EXR_V1_HEADER) return EXR_ERR_CORRUPT_CHUNK;
     if (fr.zstd_payload_size > comp_buf_size - ZSTD_EXR_V1_HEADER)
         return EXR_ERR_CORRUPT_CHUNK;
     if (ZSTD_EXR_V1_HEADER + fr.zstd_payload_size != comp_buf_size)
@@ -1166,20 +1192,34 @@ exr_undo_zstd_v1 (
     const void* zsrc = hdr + ZSTD_EXR_V1_HEADER;
     size_t      zsz  = (size_t) fr.zstd_payload_size;
 
+    /* ZSTD_getFrameContentSize() reads the declared content size out of the
+     * (untrusted) compressed payload itself: a hand-crafted frame can claim
+     * an arbitrary size there while its real body decodes to something else
+     * entirely. That value must never be used directly to size the
+     * destination buffer -- doing so lets a malicious chunk drive the
+     * allocation size (and, further, the capacity handed to
+     * ZSTD_decompressDCtx) to whatever it likes, independent of the chunk's
+     * already-validated uncompressed_size. The inner (pre-ZSTD) stream this
+     * encoder ever produces is uncompressed_size bytes of packed pixel data
+     * plus at most two 8-byte segment length prefixes (see
+     * zstd_inner_append_shuffled_segment / exr_zstd_segment_layout), so a
+     * legitimate declared content size can never exceed uncompressed_size +
+     * 16. Reject anything outside that trusted bound instead of trusting fds
+     * alone. */
+    if (uncompressed_size > (uint64_t) SIZE_MAX - 16) return EXR_ERR_CORRUPT_CHUNK;
+    uint64_t const max_dst = uncompressed_size + 16;
+
     unsigned long long fds = ZSTD_getFrameContentSize (zsrc, zsz);
     size_t             dst_cap;
-    if (fds == ZSTD_CONTENTSIZE_ERROR || fds == ZSTD_CONTENTSIZE_UNKNOWN)
-    {
-        if (uncompressed_size > (uint64_t) SIZE_MAX - 16)
-            return EXR_ERR_CORRUPT_CHUNK;
-        dst_cap = (size_t) uncompressed_size + 16;
-    }
-    else if (fds > (unsigned long long) SIZE_MAX)
-        return EXR_ERR_CORRUPT_CHUNK;
+    if (fds == ZSTD_CONTENTSIZE_ERROR) { return EXR_ERR_CORRUPT_CHUNK; }
+    if (fds == ZSTD_CONTENTSIZE_UNKNOWN) { dst_cap = (size_t) max_dst; }
     else
+    {
+        if (fds > (unsigned long long) max_dst) return EXR_ERR_CORRUPT_CHUNK;
         dst_cap = (size_t) fds;
+    }
 
-    ensure_tls_resources (dst_cap);
+    if (!ensure_tls_resources (dst_cap)) return EXR_ERR_CORRUPT_CHUNK;
 
     exr_zstd_tls_state* tls_dec = exr_zstd_tls_get ();
     if (!tls_dec || !tls_dec->shuffle_buf)
