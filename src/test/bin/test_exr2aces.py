@@ -22,17 +22,23 @@ if not os.path.isfile(exr2aces) or not os.access(exr2aces, os.X_OK):
 
 # no args = usage message, error
 result = do_run ([exr2aces], True)
-assert result.stderr.startswith ("Usage: ")
+lines = result.stderr.splitlines()
+assert len(lines) == 2
+assert lines[0].startswith ("Warning: ")
+assert lines[1].startswith ("Usage: ")
 
 # -h = usage message
 result = do_run ([exr2aces, "-h"])
+assert result.stderr.startswith ("Warning: ")
 assert result.stdout.startswith ("Usage: ")
 
 result = do_run ([exr2aces, "--help"])
+assert result.stderr.startswith ("Warning: ")
 assert result.stdout.startswith ("Usage: ")
 
 # --version
 result = do_run ([exr2aces, "--version"])
+assert result.stderr.startswith ("Warning: ")
 assert result.stdout.startswith ("exr2aces")
 assert version in result.stdout
 

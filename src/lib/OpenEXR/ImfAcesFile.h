@@ -71,7 +71,8 @@ const Chromaticities& acesChromaticities ();
 // ACES output file.
 //
 
-class IMF_EXPORT_TYPE AcesOutputFile
+class IMF_EXPORT_TYPE OPENEXR_DEPRECATED ("AcesOutputFile is deprecated")
+    AcesOutputFile
 {
 public:
     //---------------------------------------------------
@@ -210,7 +211,8 @@ private:
 // ACES input file
 //
 
-class IMF_EXPORT_TYPE AcesInputFile
+class IMF_EXPORT_TYPE OPENEXR_DEPRECATED ("AcesInputFile is deprecated")
+    AcesInputFile
 {
 public:
     //-------------------------------------------------------
