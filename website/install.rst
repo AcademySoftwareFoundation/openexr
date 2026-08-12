@@ -602,7 +602,7 @@ installation.
 ``zstd`` Dependency
 ~~~~~~~~~~~~~~~~~~~
 
-As of OpenEXR release v4.0, OpenEXR depends on
+As of OpenEXR release v3.5, OpenEXR depends on
 `zstd <https://github.com/facebook/zstd>`_ for
 ZSTD lossless compression.
 
