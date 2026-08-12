@@ -105,7 +105,7 @@ Make sure these are installed on your system before building OpenEXR:
 * ``openjph`` (internal vendored copy used by CMake if not found; new
   in v3.4; auto-fetched in 3.4.5 and before) (https://github.com/aous72/OpenJPH)
 * ``zstd`` (internal vendored copy used by CMake if a suitable external
-  install is not found; new in v4.0) (https://github.com/facebook/zstd)
+  install is not found; new in v3.5) (https://github.com/facebook/zstd)
 * (optional) Intel's Thread Building Blocks library (TBB)
 
 The instructions that follow describe building OpenEXR with CMake.
