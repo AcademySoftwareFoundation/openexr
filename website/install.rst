@@ -606,7 +606,7 @@ As of OpenEXR release v3.5, OpenEXR depends on
 `zstd <https://github.com/facebook/zstd>`_ for
 ZSTD lossless compression.
 
-As of OpenEXR release v4.0, OpenEXR ships with an internal "vendored"
+As of OpenEXR release v3.5, OpenEXR ships with an internal "vendored"
 copy of the ``zstd`` library. At configuration time, if
 CMake finds an external installation of ``zstd`` (minimum version
 1.5.0), it will use it. If it fails to find an installation, it will use
