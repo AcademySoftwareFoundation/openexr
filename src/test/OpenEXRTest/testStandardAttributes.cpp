@@ -386,6 +386,10 @@ writeReadKeyCode (const char fileName[])
         3,      // perfsPerFrame
         80);    // perfsPerCount
 
+    KeyCode k2 = k1;
+
+    assert (k2 == k1);
+    
     assert (k1.filmMfcCode () == 12);
     assert (k1.filmType () == 34);
     assert (k1.prefix () == 123456);
