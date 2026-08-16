@@ -19,6 +19,7 @@
 #include "openexr_encode.h"
 #include "openexr_part.h"
 #include "internal_ht_common.h"
+#include "internal_ht_quality.h"
 
 /**
  * OpenJPH output file that is backed by a fixed-size memory buffer
@@ -468,9 +469,7 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
         float qfactor = -1.f;
         exr_get_lossy_htj2k_quality (
             encode->context, encode->part_index, &qfactor);
-        if (qfactor < 1.f || qfactor > 150.f) {
-            return EXR_ERR_INVALID_ARGUMENT;
-        }
+        if (!is_lossy_htj2k_quality (qfactor)) { return EXR_ERR_INVALID_ARGUMENT; }
 
         ojph::param_qcd qcd = cs.access_qcd ();
 

@@ -264,6 +264,12 @@ setDefaultDwaCompressionLevel (float level)
     exr_set_default_dwa_compression_quality (level);
 }
 
+void
+setDefaultLossyHTJ2KQuality (float quality)
+{
+    exr_set_default_lossy_htj2k_quality (quality);
+}
+
 Header::Header (
     int         width,
     int         height,
