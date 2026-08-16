@@ -97,7 +97,7 @@ namespace ojph {
 
       ui32 val = 0xFFFFFFFF;       // feed in 0xFF if buffer is exhausted
       if (melp->size > 4) {        // if there is data in the MEL segment
-        val = *(ui32*)melp->data;  // read 32 bits from MEL data
+        val = load_le_ui32(melp->data); // read 32 bits from MEL data
         melp->data += 4;           // advance pointer
         melp->size -= 4;           // reduce counter
       }
@@ -315,7 +315,7 @@ namespace ojph {
       if (vlcp->size > 3)  // if there are more than 3 bytes left in VLC
       {
         // (vlcp->data - 3) move pointer back to read 32 bits at once
-        val = *(ui32*)(vlcp->data - 3); // then read 32 bits
+        val = load_le_ui32(vlcp->data - 3); // then read 32 bits
         vlcp->data -= 4;          // move data pointer back by 4
         vlcp->size -= 4;          // reduce available byte by 4
       }
@@ -458,7 +458,7 @@ namespace ojph {
       ui32 val = 0;
       if (mrp->size > 3) // If there are 3 byte or more
       { // (mrp->data - 3) move pointer back to read 32 bits at once
-        val = *(ui32*)(mrp->data - 3); // read 32 bits
+        val = load_le_ui32(mrp->data - 3); // read 32 bits
         mrp->data -= 4;                // move back pointer
         mrp->size -= 4;                // reduce count
       }
@@ -612,7 +612,7 @@ namespace ojph {
 
       ui32 val = 0;
       if (msp->size > 3) {
-        val = *(ui32*)msp->data;  // read 32 bits
+        val = load_le_ui32(msp->data); // read 32 bits
         msp->data += 4;           // increment pointer
         msp->size -= 4;           // reduce size
       }
@@ -1408,13 +1408,13 @@ namespace ojph {
               // We need data for at least 5 columns out of 8.
               // Therefore loading 32 bits is easier than loading 16 bits
               // twice.
-              ui32 ps = *(ui32*)prev_sig;
-              ui32 ns = *(ui32*)(cur_sig + mstr);
+              ui32 ps = load_le_ui16x2(prev_sig);
+              ui32 ns = load_le_ui16x2(cur_sig + mstr);
               ui32 u = (ps & 0x88888888) >> 3; // the row on top
               if (!stripe_causal)
                 u |= (ns & 0x11111111) << 3;   // the row below
 
-              ui32 cs = *(ui32*)cur_sig;
+              ui32 cs = load_le_ui16x2(cur_sig);
               // vertical integration
               ui32 mbr =  cs;                // this sig. info.
               mbr |= (cs & 0x77777777) << 1; //above neighbors
@@ -1566,16 +1566,16 @@ namespace ojph {
 
           for (ui32 y = 0; y < height; y += 4)
           {
-            ui32 *cur_sig = (ui32*)(sigma + (y >> 2) * mstr);
+            ui16 *cur_sig = sigma + (y >> 2) * mstr;
             ui32 *dpp = decoded_data + y * stride;
             ui32 half = 1 << (p - 2);
-            for (ui32 i = 0; i < width; i += 8)
+            for (ui32 i = 0; i < width; i += 8, cur_sig += 2)
             {
               //Process one entry from sigma array at a time
               // Each nibble (4 bits) in the sigma array represents 4 rows,
               // and the 32 bits contain 8 columns
               ui32 cwd = rev_fetch_mrp(&magref); // get 32 bit data
-              ui32 sig = *cur_sig++; // 32 bit that will be processed now
+              ui32 sig = load_le_ui16x2(cur_sig); // 32 bits processed now
               ui32 col_mask = 0xFu;  // a mask for a column in sig
               if (sig) // if any of the 32 bits are set
               {

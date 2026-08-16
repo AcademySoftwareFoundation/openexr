@@ -2,21 +2,21 @@
 // This software is released under the 2-Clause BSD license, included
 // below.
 //
-// Copyright (c) 2019, Aous Naman 
+// Copyright (c) 2019, Aous Naman
 // Copyright (c) 2019, Kakadu Software Pty Ltd, Australia
 // Copyright (c) 2019, The University of New South Wales, Australia
-// 
+//
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
 // met:
-// 
+//
 // 1. Redistributions of source code must retain the above copyright
 // notice, this list of conditions and the following disclaimer.
-// 
+//
 // 2. Redistributions in binary form must reproduce the above copyright
 // notice, this list of conditions and the following disclaimer in the
 // documentation and/or other materials provided with the distribution.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
 // IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 // TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
@@ -56,7 +56,7 @@ namespace ojph {
 
     /////////////////////////////////////////////////////////////////////////
     // https://github.com/seung-lab/dijkstra3d/blob/master/libdivide.h
-    static inline __m128i sse2_mm_srai_epi64(__m128i a, int amt, __m128i m) 
+    static inline __m128i sse2_mm_srai_epi64(__m128i a, int amt, __m128i m)
     {
       // note than m must be obtained using
       // __m128i m = _mm_set1_epi64x(1ULL << (63 - amt));
@@ -97,39 +97,46 @@ namespace ojph {
     }
 
     //////////////////////////////////////////////////////////////////////////
-    static inline 
-    void sse2_deinterleave64(double* dpl, double* dph, double* sp, int width)
+    static inline
+    void sse2_deinterleave64(void* dpl, void* dph, const void* sp, int width)
     {
-      for (; width > 0; width -= 4, sp += 4, dpl += 2, dph += 2)
+      for (; width > 0; width -= 4,
+             sp = (const char*)sp + 32,
+             dpl = (char*)dpl + 16,
+             dph = (char*)dph + 16)
       {
-        __m128d a = _mm_load_pd(sp);
-        __m128d b = _mm_load_pd(sp + 2);
-        __m128d c = _mm_shuffle_pd(a, b, 0);
-        __m128d d = _mm_shuffle_pd(a, b, 3);
-        _mm_store_pd(dpl, c);
-        _mm_store_pd(dph, d);
+        __m128i a = _mm_load_si128((const __m128i*)sp);
+        __m128i b = _mm_load_si128((const __m128i*)((const char*)sp + 16));
+        __m128i c = _mm_unpacklo_epi64(a, b);
+        __m128i d = _mm_unpackhi_epi64(a, b);
+        _mm_store_si128((__m128i*)dpl, c);
+        _mm_store_si128((__m128i*)dph, d);
       }
-    }    
+    }
 
     //////////////////////////////////////////////////////////////////////////
-    static inline 
-    void sse2_interleave64(double* dp, double* spl, double* sph, int width)
+    static inline
+    void sse2_interleave64(void* dp, const void* spl, const void* sph,
+                           int width)
     {
-      for (; width > 0; width -= 4, dp += 4, spl += 2, sph += 2)
+      for (; width > 0; width -= 4,
+             dp = (char*)dp + 32,
+             spl = (const char*)spl + 16,
+             sph = (const char*)sph + 16)
       {
-        __m128d a = _mm_load_pd(spl);
-        __m128d b = _mm_load_pd(sph);
-        __m128d c = _mm_unpacklo_pd(a, b);
-        __m128d d = _mm_unpackhi_pd(a, b);
-        _mm_store_pd(dp, c);
-        _mm_store_pd(dp + 2, d);
+        __m128i a = _mm_load_si128((const __m128i*)spl);
+        __m128i b = _mm_load_si128((const __m128i*)sph);
+        __m128i c = _mm_unpacklo_epi64(a, b);
+        __m128i d = _mm_unpackhi_epi64(a, b);
+        _mm_store_si128((__m128i*)dp, c);
+        _mm_store_si128((__m128i*)((char*)dp + 16), d);
       }
     }
 
     /////////////////////////////////////////////////////////////////////////
     static
-    void sse2_rev_vert_step32(const lifting_step* s, const line_buf* sig, 
-                              const line_buf* other, const line_buf* aug, 
+    void sse2_rev_vert_step32(const lifting_step* s, const line_buf* sig,
+                              const line_buf* other, const line_buf* aug,
                               ui32 repeat, bool synthesis)
     {
       const si32 a = s->rev.Aatk;
@@ -139,7 +146,7 @@ namespace ojph {
 
       si32* dst = aug->i32;
       const si32* src1 = sig->i32, * src2 = other->i32;
-      // The general definition of the wavelet in Part 2 is slightly 
+      // The general definition of the wavelet in Part 2 is slightly
       // different to part 2, although they are mathematically equivalent
       // here, we identify the simpler form from Part 1 and employ them
       if (a == 1)
@@ -239,8 +246,8 @@ namespace ojph {
 
     /////////////////////////////////////////////////////////////////////////
     static
-    void sse2_rev_vert_step64(const lifting_step* s, const line_buf* sig, 
-                              const line_buf* other, const line_buf* aug, 
+    void sse2_rev_vert_step64(const lifting_step* s, const line_buf* sig,
+                              const line_buf* other, const line_buf* aug,
                               ui32 repeat, bool synthesis)
     {
       const si64 a = s->rev.Aatk;
@@ -251,7 +258,7 @@ namespace ojph {
 
       si64* dst = aug->i64;
       const si64* src1 = sig->i64, * src2 = other->i64;
-      // The general definition of the wavelet in Part 2 is slightly 
+      // The general definition of the wavelet in Part 2 is slightly
       // different to part 2, although they are mathematically equivalent
       // here, we identify the simpler form from Part 1 and employ them
       if (a == 1)
@@ -348,23 +355,23 @@ namespace ojph {
     }
 
     /////////////////////////////////////////////////////////////////////////
-    void sse2_rev_vert_step(const lifting_step* s, const line_buf* sig, 
-                            const line_buf* other, const line_buf* aug, 
+    void sse2_rev_vert_step(const lifting_step* s, const line_buf* sig,
+                            const line_buf* other, const line_buf* aug,
                             ui32 repeat, bool synthesis)
     {
-      if (((sig != NULL) && (sig->flags & line_buf::LFT_32BIT)) || 
+      if (((sig != NULL) && (sig->flags & line_buf::LFT_32BIT)) ||
           ((aug != NULL) && (aug->flags & line_buf::LFT_32BIT)) ||
-          ((other != NULL) && (other->flags & line_buf::LFT_32BIT))) 
+          ((other != NULL) && (other->flags & line_buf::LFT_32BIT)))
       {
         assert((sig == NULL || sig->flags & line_buf::LFT_32BIT) &&
-               (other == NULL || other->flags & line_buf::LFT_32BIT) && 
+               (other == NULL || other->flags & line_buf::LFT_32BIT) &&
                (aug == NULL || aug->flags & line_buf::LFT_32BIT));
         sse2_rev_vert_step32(s, sig, other, aug, repeat, synthesis);
       }
-      else 
+      else
       {
         assert((sig == NULL || sig->flags & line_buf::LFT_64BIT) &&
-               (other == NULL || other->flags & line_buf::LFT_64BIT) && 
+               (other == NULL || other->flags & line_buf::LFT_64BIT) &&
                (aug == NULL || aug->flags & line_buf::LFT_64BIT));
         sse2_rev_vert_step64(s, sig, other, aug, repeat, synthesis);
       }
@@ -372,8 +379,8 @@ namespace ojph {
 
     /////////////////////////////////////////////////////////////////////////
     static
-    void sse2_rev_horz_ana32(const param_atk* atk, const line_buf* ldst, 
-                             const line_buf* hdst, const line_buf* src, 
+    void sse2_rev_horz_ana32(const param_atk* atk, const line_buf* ldst,
+                             const line_buf* hdst, const line_buf* src,
                              ui32 width, bool even)
     {
       if (width > 1)
@@ -519,17 +526,17 @@ namespace ojph {
 
     /////////////////////////////////////////////////////////////////////////
     static
-    void sse2_rev_horz_ana64(const param_atk* atk, const line_buf* ldst, 
-                             const line_buf* hdst, const line_buf* src, 
+    void sse2_rev_horz_ana64(const param_atk* atk, const line_buf* ldst,
+                             const line_buf* hdst, const line_buf* src,
                              ui32 width, bool even)
     {
       if (width > 1)
       {
         // split src into ldst and hdst
         {
-          double* dpl = (double*)(even ? ldst->p : hdst->p);
-          double* dph = (double*)(even ? hdst->p : ldst->p);
-          double* sp  = (double*)src->p;
+          void* dpl = even ? ldst->p : hdst->p;
+          void* dph = even ? hdst->p : ldst->p;
+          const void* sp = src->p;
           int w = (int)width;
           sse2_deinterleave64(dpl, dph, sp, w);
         }
@@ -666,28 +673,28 @@ namespace ojph {
     }
 
     /////////////////////////////////////////////////////////////////////////
-    void sse2_rev_horz_ana(const param_atk* atk, const line_buf* ldst, 
-                           const line_buf* hdst, const line_buf* src, 
+    void sse2_rev_horz_ana(const param_atk* atk, const line_buf* ldst,
+                           const line_buf* hdst, const line_buf* src,
                            ui32 width, bool even)
     {
-      if (src->flags & line_buf::LFT_32BIT) 
+      if (src->flags & line_buf::LFT_32BIT)
       {
         assert((ldst == NULL || ldst->flags & line_buf::LFT_32BIT) &&
                (hdst == NULL || hdst->flags & line_buf::LFT_32BIT));
         sse2_rev_horz_ana32(atk, ldst, hdst, src, width, even);
       }
-      else 
+      else
       {
         assert((ldst == NULL || ldst->flags & line_buf::LFT_64BIT) &&
-               (hdst == NULL || hdst->flags & line_buf::LFT_64BIT) && 
+               (hdst == NULL || hdst->flags & line_buf::LFT_64BIT) &&
                (src == NULL || src->flags & line_buf::LFT_64BIT));
         sse2_rev_horz_ana64(atk, ldst, hdst, src, width, even);
       }
-    }    
-    
+    }
+
     //////////////////////////////////////////////////////////////////////////
-    void sse2_rev_horz_syn32(const param_atk* atk, const line_buf* dst, 
-                             const line_buf* lsrc, const line_buf* hsrc, 
+    void sse2_rev_horz_syn32(const param_atk* atk, const line_buf* dst,
+                             const line_buf* lsrc, const line_buf* hsrc,
                              ui32 width, bool even)
     {
       if (width > 1)
@@ -834,8 +841,8 @@ namespace ojph {
     }
 
     //////////////////////////////////////////////////////////////////////////
-    void sse2_rev_horz_syn64(const param_atk* atk, const line_buf* dst, 
-                             const line_buf* lsrc, const line_buf* hsrc, 
+    void sse2_rev_horz_syn64(const param_atk* atk, const line_buf* dst,
+                             const line_buf* lsrc, const line_buf* hsrc,
                              ui32 width, bool even)
     {
       if (width > 1)
@@ -965,9 +972,9 @@ namespace ojph {
 
         // combine both lsrc and hsrc into dst
         {
-          double* dp  = (double*)dst->p;
-          double* spl = (double*)(even ? lsrc->p : hsrc->p);
-          double* sph = (double*)(even ? hsrc->p : lsrc->p);
+          void* dp = dst->p;
+          const void* spl = even ? lsrc->p : hsrc->p;
+          const void* sph = even ? hsrc->p : lsrc->p;
           int w = (int)width;
           sse2_interleave64(dp, spl, sph, w);
         }
@@ -981,24 +988,24 @@ namespace ojph {
     }
 
     /////////////////////////////////////////////////////////////////////////
-    void sse2_rev_horz_syn(const param_atk* atk, const line_buf* dst, 
-                           const line_buf* lsrc, const line_buf* hsrc, 
+    void sse2_rev_horz_syn(const param_atk* atk, const line_buf* dst,
+                           const line_buf* lsrc, const line_buf* hsrc,
                            ui32 width, bool even)
     {
-      if (dst->flags & line_buf::LFT_32BIT) 
+      if (dst->flags & line_buf::LFT_32BIT)
       {
-        assert((lsrc == NULL || lsrc->flags & line_buf::LFT_32BIT) && 
+        assert((lsrc == NULL || lsrc->flags & line_buf::LFT_32BIT) &&
                (hsrc == NULL || hsrc->flags & line_buf::LFT_32BIT));
         sse2_rev_horz_syn32(atk, dst, lsrc, hsrc, width, even);
       }
-      else 
+      else
       {
         assert((dst == NULL || dst->flags & line_buf::LFT_64BIT) &&
-               (lsrc == NULL || lsrc->flags & line_buf::LFT_64BIT) && 
+               (lsrc == NULL || lsrc->flags & line_buf::LFT_64BIT) &&
                (hsrc == NULL || hsrc->flags & line_buf::LFT_64BIT));
         sse2_rev_horz_syn64(atk, dst, lsrc, hsrc, width, even);
       }
-    }    
+    }
 
   } // !local
 } // !ojph
