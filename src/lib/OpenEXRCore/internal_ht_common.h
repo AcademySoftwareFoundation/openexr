@@ -29,7 +29,7 @@
  * The lossy HTJ2KL256 quality level ranges from 1 to 150 and controls the level
  * of distortion in the compressed image. Values below 97 are passed through
  * directly as the Qfactor scheme described in "Controlling JPEG 2000 image
- * quality using a single parameter (Qfactor) v2.0". Qfactor is defined over [0,
+ * quality using a single parameter (Qfactor) v2.0". Qfactor is defined over [1,
  * 100] and is tuned for lower-quality imagery. Values from 97 to 150 are an
  * OpenEXR-specific extension of that range, added to reach the higher quality
  * levels needed for OpenEXR's 32-bit float imagery. In that extended range, the
