@@ -16,6 +16,7 @@
 * [Version 3.4.2](#version-342-october-15-2025) October 15, 2025
 * [Version 3.4.1](#version-341-october-8-2025) October 8, 2025
 * [Version 3.4.0](#version-340-september-5-2025) September 5, 2025
+* [Version 3.3.14](#version-3314-august-21-2026) August 21, 2026
 * [Version 3.3.13](#version-3313-august-6-2026) August 6, 2026
 * [Version 3.3.12](#version-3312-june-21-2026) June 21, 2026
 * [Version 3.3.11](#version-3311-april-29-2026) April 29, 2026
@@ -1031,6 +1032,26 @@ Bazel Support: Use Imath and libdeflate live at head
 Fetch master branch of libdeflate on main
 * [1852](https://github.com/AcademySoftwareFoundation/openexr/pull/1852)
 Add an option to use TBB as the global provider
+
+## Version 3.3.14 (August 21, 2026)
+
+v3.4.15 fixes two memory issues when parsing IDManifests. Corrupt
+or maliciously formed OpenEXR images could trigger excessive memory
+allocation, but only in code which decodes the idmanifest attribute.
+Other code is unaffected, even when handling files with idmanifest attributes
+
+CVEs have been requested for these issues.
+
+
+### Merged Pull Requests
+
+  * [2575](git@github.com:AcademySoftwareFoundation/openexr/pull/2575)
+don't preallocate manifest when parsing IDManifests
+  * [2572](git@github.com:AcademySoftwareFoundation/openexr/pull/2572)
+Bound IDManifest uncompressed size and version-field read
+
+### Merged Workflow Pull Requests
+
 
 ## Version 3.3.13 (August 6, 2026)
 
