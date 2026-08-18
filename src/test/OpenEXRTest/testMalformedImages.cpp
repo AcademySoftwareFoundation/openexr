@@ -34,6 +34,14 @@ readImage (const char inFileName[])
     int           width;
     int           height;
 
+#ifdef _MSC_VER
+#    pragma warning(push)
+#    pragma warning(disable : 4996)
+#elif defined(__clang__) || defined(__GNUC__)
+#    pragma GCC diagnostic push
+#    pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
     {
         cout << "Reading file " << inFileName << endl;
 
@@ -49,6 +57,12 @@ readImage (const char inFileName[])
         in.setFrameBuffer (&p[0][0] - dw.min.x - dw.min.y * width, 1, width);
         in.readPixels (dw.min.y, dw.max.y);
     }
+
+#ifdef _MSC_VER
+#    pragma warning(pop)
+#elif defined(__clang__) || defined(__GNUC__)
+#    pragma GCC diagnostic pop
+#endif
 }
 
 void

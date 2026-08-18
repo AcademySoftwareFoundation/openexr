@@ -75,7 +75,7 @@ jobs:
         run: pipx run build==1.2.2.post1 --sdist . --outdir wheelhouse
 
       - name: Build wheel
-        uses: pypa/cibuildwheel@294735312765b09d24a2fbec22660ce817587d55  # v4.1.0
+        uses: pypa/cibuildwheel@1828c10ab37f080699c7b81cea34097c684a7074  # v4.2.0
         with:
           output-dir: wheelhouse
         env:

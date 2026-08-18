@@ -17,9 +17,152 @@ News
 
 
 |latest-news-title|
-=======================================
+=========================================================
 
 .. _LatestNewsStart:
+
+v3.4.14, v3.3.13, and v3.2.11 are a security-focused patch
+releases. v3.4.14 fixes 15 CVEs plus a broad set of additional
+hardening changes uncovered by the same fuzzing/audit effort. v3.3.13
+and v3.2.11 backport the relevent CVE fixes to the v3.3 and v3.2
+release stream, respectively. See the individual release notes for
+details.
+
+For each of these vulnerabilities, an attacker's vector is a
+maliciously crafted ``.exr`` file that must be opened by a victim,
+whether through the OpenEXR/OpenEXRUtil C++ libraries, the
+command-line tools (``exrmetrics``, ``exrmultiview``, ``exrmultipart``), or
+the PyOpenEXR Python bindings. The primary flaw for most of the CVEs
+is **memory corruption** — heap buffer overflows and out-of-bounds
+reads/writes — which at minimum crashes the reading process (denial of
+service) and in several cases could plausibly be leveraged for
+information disclosure or, in the worst cases, arbitrary code
+execution.
+
+No user interaction beyond opening the file is required, so any
+pipeline, service, or application that decodes untrusted or
+third-party EXR files should treat this as a priority
+upgrade. Severity generally ranges from **moderate** (crash-only, or
+requiring an uncommon build configuration) to **high** (heap overflow
+reachable with a small, easily-crafted file on common configurations).
+
+The individual vulnerabilities fall into four broad groups:
+
+* **PyOpenEXR RGB-channel-coalescing bugs**
+  (`CVE-2026-68514 <https://www.cve.org/CVERecord?id=CVE-2026-68514>`_,
+  `CVE-2026-68513 <https://www.cve.org/CVERecord?id=CVE-2026-68513>`_,
+  `CVE-2026-62986 <https://www.cve.org/CVERecord?id=CVE-2026-62986>`_,
+  `CVE-2026-61703 <https://www.cve.org/CVERecord?id=CVE-2026-61703>`_).
+  When the Python bindings combine per-channel data (e.g. ``left.R``,
+  ``left.G``, ``left.B``) into a single coalesced RGB array, conflicting or
+  mismatched channel names/types were not fully validated, which could
+  undersize the destination NumPy buffer. The result is a heap buffer
+  overflow on read, or, in the deep-image case, disclosure of
+  uninitialized ("stale") heap memory through the returned array. This
+  affects only code paths that read files with ``separate_channels=False``
+  (the default for RGB coalescing).
+
+* **Integer-overflow-driven heap overflows on 32-bit (ILP32) builds**
+  (`CVE-2026-59985 <https://www.cve.org/CVERecord?id=CVE-2026-59985>`_,
+  `CVE-2026-59984 <https://www.cve.org/CVERecord?id=CVE-2026-59984>`_,
+  `CVE-2026-59983 <https://www.cve.org/CVERecord?id=CVE-2026-59983>`_,
+  `CVE-2026-59982 <https://www.cve.org/CVERecord?id=CVE-2026-59982>`_,
+  `CVE-2026-59981 <https://www.cve.org/CVERecord?id=CVE-2026-59981>`_,
+  `CVE-2026-59189 <https://www.cve.org/CVERecord?id=CVE-2026-59189>`_,
+  `CVE-2026-59186 <https://www.cve.org/CVERecord?id=CVE-2026-59186>`_).
+  On platforms where ``size_t``/``int`` are 32 bits, buffer sizes computed
+  from attacker-controlled header fields (dimensions, sample counts,
+  tile sizes) could overflow before an allocation or bounds check,
+  yielding an undersized buffer and a subsequent heap out-of-bounds
+  read or write during RLE, B44/B44A, or DWAA decompression, deep
+  sample-count-table decoding, or large-tile handling. These do not
+  affect typical 64-bit desktop/server builds, but are significant for
+  32-bit Linux, embedded, and some mobile/CI targets.
+
+* **Heap out-of-bounds access in ``OpenEXRUtil`` and the command-line
+  tools with non-default data windows**
+  (`CVE-2026-59981 <https://www.cve.org/CVERecord?id=CVE-2026-59981>`_,
+  `CVE-2026-59189 <https://www.cve.org/CVERecord?id=CVE-2026-59189>`_,
+  `CVE-2026-59187 <https://www.cve.org/CVERecord?id=CVE-2026-59187>`_,
+  `CVE-2026-59186 <https://www.cve.org/CVERecord?id=CVE-2026-59186>`_,
+  `CVE-2026-59184 <https://www.cve.org/CVERecord?id=CVE-2026-59184>`_).
+  ``FlatImageChannel``/``DeepImageChannel``/``SampleCountChannel`` row
+  addressing, and the deep-pixel path in ``exrmetrics``, assumed a
+  data window originating at (0, 0). Crafted files with a nonzero data
+  window origin, or subsampled channels, caused row-address
+  computations to land outside the allocated buffer, producing a heap
+  read or write out of bounds.
+
+* **Crashes from malformed metadata (denial of service)**
+  (`CVE-2026-61555 <https://www.cve.org/CVERecord?id=CVE-2026-61555>`_,
+  `CVE-2026-59183 <https://www.cve.org/CVERecord?id=CVE-2026-59183>`_).
+  An empty ``multiView`` attribute could crash ``viewFromChannelName()``,
+  and a signed integer overflow while decoding deep tile chunks could
+  lead to an out-of-bounds access. Both are reachable simply by opening
+  a crafted file and result in a crash rather than corrupting memory
+  in an attacker-controlled way.
+
+Beyond the formally-numbered CVEs, this release includes a large batch
+of fixes found by the same audit/fuzzing effort:
+
+* reject truncated or short compressed streams before unpacking
+  (zlib, RLE, DWA, ``NO_COMPRESSION``) instead of reading past the end
+  of the input;
+
+* reject oversized allocation requests instead of overflowing size
+  computations (``Array2D``, exrmetrics, exrmultipart channel stores,
+  DWAA/B44 scratch buffers);
+
+* add ``NULL``-pointer checks in several ``OpenEXRCore`` C-API setters
+  (channel list duplication, preview image, ``bytes`` attributes);
+
+* fix a ``Name::operator=`` truncation/termination bug;
+
+* close a double-free warning in ``ImfTiledMisc``.
+
+This release also fixes a long-standing correctness bug (not a
+security issue) in byte-swapping float-vector attributes that caused
+incorrect results and test failures on big-endian s390x builds.
+
+This release also bumps the vendored OpenJPH version to 0.31.0.
+
+CVEs addressed:
+
+* `CVE-2026-68514 <https://www.cve.org/CVERecord?id=CVE-2026-68514>`_
+  PyOpenEXR deep prefixed literal RGB key collision heap buffer overflow
+* `CVE-2026-68513 <https://www.cve.org/CVERecord?id=CVE-2026-68513>`_
+  PyOpenEXR prefixed literal RGB key collision heap buffer overflow
+* `CVE-2026-62986 <https://www.cve.org/CVERecord?id=CVE-2026-62986>`_
+  PyOpenEXR deep prefixed RGB stale lane disclosure
+* `CVE-2026-61703 <https://www.cve.org/CVERecord?id=CVE-2026-61703>`_
+  PyOpenEXR deep mixed RGB heap buffer overflow
+* `CVE-2026-61555 <https://www.cve.org/CVERecord?id=CVE-2026-61555>`_
+  empty multiView viewFromChannelName file crash
+* `CVE-2026-59985 <https://www.cve.org/CVERecord?id=CVE-2026-59985>`_
+  ILP32 OpenEXRCore RLE decode heap OOB read DoS
+* `CVE-2026-59984 <https://www.cve.org/CVERecord?id=CVE-2026-59984>`_
+  ILP32 B44 InputFile decode scratch buffer overflow
+* `CVE-2026-59983 <https://www.cve.org/CVERecord?id=CVE-2026-59983>`_
+  ILP32 DeepTiledInputFile sample count table decode OOB read
+* `CVE-2026-59982 <https://www.cve.org/CVERecord?id=CVE-2026-59982>`_
+  ILP32 DWAA InputFile packed AC buffer overflow
+* `CVE-2026-59981 <https://www.cve.org/CVERecord?id=CVE-2026-59981>`_
+  OpenEXRUtil SampleCountChannel row nonzero dataWindow heap OOB read
+* `CVE-2026-59189 <https://www.cve.org/CVERecord?id=CVE-2026-59189>`_
+  OpenEXRUtil DeepImageChannel row nonzero dataWindow heap OOB read
+* `CVE-2026-59187 <https://www.cve.org/CVERecord?id=CVE-2026-59187>`_
+  OpenEXR exrmetrics deep pixelmode heap buffer overflow
+* `CVE-2026-59186 <https://www.cve.org/CVERecord?id=CVE-2026-59186>`_
+  OpenEXR ILP32 TiledRgbaInputFile large tile Array2D heap OOB write
+* `CVE-2026-59184 <https://www.cve.org/CVERecord?id=CVE-2026-59184>`_
+  OpenEXRUtil FlatImageChannel row nonzero dataWindow heap OOB write
+* `CVE-2026-59183 <https://www.cve.org/CVERecord?id=CVE-2026-59183>`_
+  Signed Integer Overflow Leading to Out-of-Bounds Memory Access in Deep Tile Decoding
+
+.. _LatestNewsEnd:
+
+June 19, 2026 - OpenEXR 3.4.13 Released
+=======================================
 
 Patch release that addresses several bugs and security
 vulnerabilities.
@@ -47,7 +190,6 @@ This release addresses the following security vulnerabilities:
 * `CVE-2026-53532 <https://www.cve.org/CVERecord?id=CVE-2026-53532>`_
   Unhandled assert abort in HTJ2K decoder via crafted QCD marker (DoS)
 
-.. _LatestNewsEnd:
 
 June 21, 2026 - OpenEXR 3.3.12 and OpenEXR v3.2.10 Released
 ===========================================================
