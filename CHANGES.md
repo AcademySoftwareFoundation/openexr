@@ -3,6 +3,7 @@
 
 # OpenEXR Release Notes
 
+* [Version 3.4.15](#version-3415-august-21-2026) August 21, 2026
 * [Version 3.4.14](#version-3414-august-6-2026) August 6, 2026
 * [Version 3.4.13](#version-3413-june-19-2026) June 19, 2026
 * [Version 3.4.12](#version-3412-may-24-2026) May 24, 2026
@@ -105,6 +106,40 @@
 * [Version 1.0.2](#version-102)
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
+
+## Version 3.4.15 (August 21, 2026)
+
+v3.4.15 fixes two memory issues when parsing IDManifests. Corrupt
+or maliciously formed OpenEXR images could trigger excessive memory
+allocation, but only in code which decodes the idmanifest attribute.
+Other code is unaffected, even when handling files with idmanifest attributes
+
+CVEs have been requested for these issues.
+
+This release also fixes a missing export for Windows builds, and reduces
+compiler warnings when compiling example code.
+
+### Merged Pull Requests
+
+  * [2594](git@github.com:AcademySoftwareFoundation/openexr/pull/2594)
+Add missing IMF_EXPORT to KeyCode::operator==
+  * [2582](git@github.com:AcademySoftwareFoundation/openexr/pull/2582)
+Fix/suppress compiler warnings
+  * [2575](git@github.com:AcademySoftwareFoundation/openexr/pull/2575)
+don't preallocate manifest when parsing IDManifests
+  * [2572](git@github.com:AcademySoftwareFoundation/openexr/pull/2572)
+Bound IDManifest uncompressed size and version-field read
+
+### Merged Workflow Pull Requests
+
+  * [2598](git@github.com:AcademySoftwareFoundation/openexr/pull/2598)
+Bump the codeql group with 3 updates
+  * [2585](git@github.com:AcademySoftwareFoundation/openexr/pull/2585)
+Bump the codeql group with 3 updates
+  * [2574](git@github.com:AcademySoftwareFoundation/openexr/pull/2574)
+Bump vmactions/freebsd-vm from 1.5.2 to 1.5.3
+  * [2573](git@github.com:AcademySoftwareFoundation/openexr/pull/2573)
+Bump the codeql group with 3 updates
 
 ## Version 3.4.14 (August 6, 2026)
 
