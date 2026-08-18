@@ -323,13 +323,8 @@ typedef struct _exr_context_initializer_v4
      */
     int flags;
 
-    /** Initialize the default HTJ2K compression quality.
-     *
-     * The value is passed directly to the irreversible quantization step via
-     * ojph::param_qcd::set_irrev_quant() when the compression
-     * type is HTJ2KL256.
-     *
-     * See exr_set_default_lossy_htj2k_quality() to set the default for all
+    /** Initialize the default HTJ2K compression quality. See
+     * exr_set_default_lossy_htj2k_quality() to set the default for all
      * contexts.
      */
     float lossy_htj2k_quality;
