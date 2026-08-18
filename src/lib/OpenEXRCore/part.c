@@ -7,6 +7,7 @@
 
 #include "internal_attr.h"
 #include "internal_constants.h"
+#include "internal_ht_quality.h"
 #include "internal_structs.h"
 
 #include <math.h>
@@ -657,11 +658,11 @@ exr_set_lossy_htj2k_quality (exr_context_t ctxt, int part_index, float level)
         return EXR_UNLOCK_AND_RETURN (
             ctxt->standard_error (ctxt, EXR_ERR_NOT_OPEN_WRITE));
 
-    if (!isfinite (level))
+    if (!is_lossy_htj2k_quality (level))
         return EXR_UNLOCK_AND_RETURN (ctxt->report_error (
             ctxt,
             EXR_ERR_INVALID_ARGUMENT,
-            "Invalid j2k quality level specified"));
+            "Invalid HTJ2K quality level specified, must be between 1 and 150"));
 
     part->lossy_htj2k_quality = level;
     rv                          = EXR_ERR_SUCCESS;

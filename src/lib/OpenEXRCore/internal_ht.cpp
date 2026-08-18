@@ -3,6 +3,7 @@
 ** Copyright Contributors to the OpenEXR Project.
 */
 
+#include <cmath>
 #include <limits>
 #include <string>
 #include <fstream>
@@ -18,6 +19,7 @@
 #include "openexr_encode.h"
 #include "openexr_part.h"
 #include "internal_ht_common.h"
+#include "internal_ht_quality.h"
 
 /**
  * OpenJPH output file that is backed by a fixed-size memory buffer
@@ -439,33 +441,76 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
 
     exr_compression_t comp = EXR_COMPRESSION_HTJ2K256;
     exr_get_compression (encode->context, encode->part_index, &comp);
-    bool lossy = (comp == EXR_COMPRESSION_HTJ2KL256);
 
     ojph::param_cod cod = cs.access_cod ();
 
     cod.set_color_transform (isRGB && !isPlanar);
-    cod.set_reversible (!lossy);
     cod.set_block_dims (128, 32);
     cod.set_num_decomposition (5);
 
+    /* enable lossy compression on the first 3 channels, only if the compressor
+    is EXR_COMPRESSION_HTJ2KL256, we have RGB channels, all RGB channels are
+    visual, and none of the RGB channels are subsampled */
+    bool lossy = comp == EXR_COMPRESSION_HTJ2KL256 && isRGB;
+    if (lossy) {
+        for (int16_t c = 0; c < 3; c++)
+        {
+            int file_c = cs_channel_info[c].file_index;
+            lossy      = cs_channel_info[c].kind == J2KChannelKind::visual &&
+                        encode->channels[file_c].x_samples == 1 &&
+                        encode->channels[file_c].y_samples == 1;
+        }
+    }
+
     if (lossy)
     {
-        float lossy_htj2k_quality = -1.f;
+        cod.set_reversible (false);
+
+        float qfactor = -1.f;
         exr_get_lossy_htj2k_quality (
-            encode->context, encode->part_index, &lossy_htj2k_quality);
-        if (lossy_htj2k_quality <= 0.f) {
-            return EXR_ERR_INVALID_ARGUMENT;
-        }
+            encode->context, encode->part_index, &qfactor);
+        if (!is_lossy_htj2k_quality (qfactor)) { return EXR_ERR_INVALID_ARGUMENT; }
 
         ojph::param_qcd qcd = cs.access_qcd ();
-        qcd.set_irrev_quant (lossy_htj2k_quality);
 
-        /* exclude data channels */
-        for (int16_t c = 0; c < encode->channel_count; c++)
+        /*
+         * Qfactor is intended for quality levels consistent with 8-bit imagery.
+         * It is therefore extended here from 97 to 150 to take into account the
+         * fact that OpenEXR accommodates 32-bit imagery.
+         */
+        if (qfactor < 97.)
         {
-            if (cs_channel_info[c].kind != visual)
-                cod.set_reversible(c, true);
+            qcd.set_qfactor ((ojph::ui8) std::lround (qfactor));
         }
+        else
+        {
+            double scaled_q = (qfactor - 97.)/53.;
+            double delta_ref = 0.005 * pow(2, -28.478*scaled_q) + 0.001 * pow(2, -10.534*scaled_q);
+
+            /*
+             * Setting Qstep taking into account the gain from the ICT
+             * converting encoded color-difference components to RGB (see
+             * "Controlling JPEG 2000 image quality using a single parameter
+             * (Qfactor) v2.0").
+             */
+
+            /* Y */
+            qcd.set_irrev_quant (delta_ref);
+            /* Cb */
+            qcd.set_irrev_quant (1, delta_ref / sqrt(3.2584/3.));
+            /* Cr */
+            qcd.set_irrev_quant (1, delta_ref / sqrt(2.4756/3.));
+
+        }
+
+        /* set all channels but the first 3 channels to reversible */
+        for (int16_t c = 3; c < encode->channel_count; c++)
+        {
+            cod.set_reversible (c, true);
+        }
+
+    } else {
+        cod.set_reversible (true);
     }
 
     try
