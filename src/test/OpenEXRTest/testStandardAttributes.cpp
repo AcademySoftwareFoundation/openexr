@@ -7,7 +7,6 @@
 #    undef NDEBUG
 #endif
 
-#include "ImfAcesFile.h"
 #include "ImfArray.h"
 #include "ImfFramesPerSecond.h"
 #include "ImfRgbaFile.h"
