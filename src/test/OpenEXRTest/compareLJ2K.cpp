@@ -22,19 +22,18 @@ checkHTJ2KSample (double src, double tst)
     {
         return true;
     }
-    if (fabs (src) < 1e-5)
+
+    if (fabs (src - tst) <= 2e-4)
     {
-        if (fabs (src - tst) > 1e-4)
-        {
-            return false;
-        }
-    }
-    else if (fabs ((src - tst) / src) > 0.5)
-    {
-        return false;
+        return true;
     }
 
-    return true;
+    if (fabs (src) >= 1e-5 && fabs ((src - tst) / src) <= 0.5)
+    {
+        return true;
+    }
+
+    return false;
 }
 
 bool

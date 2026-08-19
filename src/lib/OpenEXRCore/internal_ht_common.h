@@ -8,6 +8,9 @@
 
 #include <vector>
 #include <stdlib.h>
+#include <math.h>
+#include <string.h>
+#include <half.h>
 #include "openexr_coding.h"
 
 /**
@@ -126,5 +129,54 @@ size_t read_header (
     void*                               buffer,
     size_t                              max_sz,
     std::vector<CodestreamChannelInfo>& map);
+
+
+inline double tf_to_linear(double x)
+{
+    double sign = x < 0 ? -1.0f : 1.0f;
+    double v = fabs(x);
+    if (v <= 1.0f)
+    {
+        return sign * pow(v, 2.2f);
+    }
+    return sign * exp(2.2f * (v - 1.0f));
+}
+
+inline double tf_from_linear(double x)
+{
+    double sign = x < 0 ? -1.0f : 1.0f;
+    double v = fabs(x);
+    if (v <= 1.0f)
+    {
+        return sign * pow(v, 1.0f / 2.2f);
+    }
+    return sign * (log(v) / 2.2f + 1.0f);
+}
+
+static double INT16_HALF_FACTOR = 5424.23808866629; /* 32,767 / (log(65,504) / 2.2 + 1.0) */
+
+inline half int16_to_half(int16_t f)
+{
+    return tf_to_linear(((double) f) / INT16_HALF_FACTOR);
+}
+
+static int16_t half_to_int16(half h)
+{
+    if (! h.isFinite()) return 0;
+    return (int16_t) roundf(tf_from_linear((double) h) * INT16_HALF_FACTOR);
+}
+
+static double INT32_FLOAT_FACTOR = 51961246.180338; /* 2,147,483,647 / (log(3.40×10^38) / 2.2 + 1.0) */
+
+inline float int32_to_float(int32_t f)
+{
+    return tf_to_linear(((double) f) / INT32_FLOAT_FACTOR);
+}
+
+static int32_t float_to_int32(float h)
+{
+    if (! isfinite(h)) return 0;
+    return (int32_t) roundf(tf_from_linear((double) h) * INT32_FLOAT_FACTOR);
+}
 
 #endif /* OPENEXR_PRIVATE_HT_COMMON_H */
