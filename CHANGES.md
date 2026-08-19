@@ -34,6 +34,7 @@
 * [Version 3.3.2](#version-332-november-11-2024) November 11, 2024
 * [Version 3.3.1](#version-331-october-8-2024) October 8, 2024
 * [Version 3.3.0](#version-330-september-30-2024) September 30, 2024
+* [Version 3.2.12](#version-3212-august-21-2026) August 21, 2026
 * [Version 3.2.11](#version-3211-august-6-2026) August 6, 2026
 * [Version 3.2.10](#version-3210-june-21-2026) June 21, 2026
 * [Version 3.2.9](#version-329-april-29-2026) April 29, 2026
@@ -2354,6 +2355,26 @@ Fix macOS arm64 build
 * [1423](https://github.com/AcademySoftwareFoundation/openexr/pull/1423)
 Propagate dwa core 3 1
 * [1418](https://github.com/AcademySoftwareFoundation/openexr/pull/1418)
+
+## Version 3.2.12 (August 21, 2026)
+
+v3.2.12 fixes two memory issues when parsing IDManifests. Corrupt
+or maliciously formed OpenEXR images could trigger excessive memory
+allocation, but only in code which decodes the idmanifest attribute.
+Other code is unaffected, even when handling files with idmanifest attributes
+
+CVEs have been requested for these issues.
+
+
+### Merged Pull Requests
+
+  * [2575](git@github.com:AcademySoftwareFoundation/openexr/pull/2575)
+don't preallocate manifest when parsing IDManifests
+  * [2572](git@github.com:AcademySoftwareFoundation/openexr/pull/2572)
+Bound IDManifest uncompressed size and version-field read
+
+### Merged Workflow Pull Requests
+
 
 ## Version 3.2.11 (August 6, 2026)
 
