@@ -49,6 +49,8 @@ on:
         type: string
       OPENEXR_FORCE_INTERNAL_IMATH:
         type: string
+      OPENEXR_IMATH_TAG:
+        type: string
       OPENEXR_FORCE_INTERNAL_DEFLATE:
         type: string
       OPENEXR_FORCE_INTERNAL_OPENJPH:
@@ -197,7 +199,7 @@ jobs:
         if: inputs.OPENEXR_FORCE_INTERNAL_IMATH == 'OFF' && inputs.msystem == ''
         run: |
           set -x
-          share/ci/scripts/install_imath.sh main
+          share/ci/scripts/install_imath.sh "${{ inputs.OPENEXR_IMATH_TAG }}"
           echo "OPENEXR_PATH=$OPENEXR_PATH:$PROGRAM_FILES/Imath/bin:$PROGRAM_FILES/Imath/lib" >> $GITHUB_ENV
         shell: bash
 
@@ -206,7 +208,7 @@ jobs:
         if: inputs.OPENEXR_FORCE_INTERNAL_IMATH == 'OFF' && inputs.msystem == 'MINGW32'
         run: |
           set -x
-          share/ci/scripts/install_imath.sh main
+          share/ci/scripts/install_imath.sh "${{ inputs.OPENEXR_IMATH_TAG }}"
         shell: msys2 {0}
 
       - name: Install libdeflate
@@ -261,6 +263,7 @@ jobs:
           cmake_args+=("-DOPENEXR_BUILD_EXAMPLES=${{ inputs.OPENEXR_BUILD_EXAMPLES }}")
           cmake_args+=("-DOPENEXR_BUILD_TOOLS=${{ inputs.OPENEXR_BUILD_TOOLS }}")
           cmake_args+=("-DOPENEXR_FORCE_INTERNAL_IMATH=${{ inputs.OPENEXR_FORCE_INTERNAL_IMATH }}")
+          cmake_args+=("-DOPENEXR_IMATH_TAG=${{ inputs.OPENEXR_IMATH_TAG }}")
           cmake_args+=("-DOPENEXR_FORCE_INTERNAL_DEFLATE=${{ inputs.OPENEXR_FORCE_INTERNAL_DEFLATE }}")
           cmake_args+=("-DOPENEXR_FORCE_INTERNAL_OPENJPH=${{ inputs.OPENEXR_FORCE_INTERNAL_OPENJPH }}")
           cmake_args+=("-DBUILD_TESTING=${{ inputs.BUILD_TESTING }}")
