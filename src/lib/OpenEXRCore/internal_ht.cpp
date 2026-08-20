@@ -500,7 +500,7 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
             /* Cb */
             qcd.set_irrev_quant (1, delta_ref / sqrt(3.2584/3.));
             /* Cr */
-            qcd.set_irrev_quant (1, delta_ref / sqrt(2.4756/3.));
+            qcd.set_irrev_quant (2, delta_ref / sqrt(2.4756/3.));
 
         }
 
