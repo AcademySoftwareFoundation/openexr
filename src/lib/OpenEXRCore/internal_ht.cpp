@@ -456,7 +456,8 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
         for (int16_t c = 0; c < 3; c++)
         {
             int file_c = cs_channel_info[c].file_index;
-            lossy      = cs_channel_info[c].kind == J2KChannelKind::visual &&
+            lossy      = lossy &&
+                         cs_channel_info[c].kind == J2KChannelKind::visual &&
                         encode->channels[file_c].x_samples == 1 &&
                         encode->channels[file_c].y_samples == 1;
         }
