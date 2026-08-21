@@ -17,6 +17,7 @@
 #include "openexr_part.h"
 
 #include "openexr_std_attr.h"
+#include "openexr_color_metadata.h"
 
 #include "openexr_chunkio.h"
 

@@ -21,6 +21,7 @@
 #endif
 
 #include "base_units.h"
+#include "color_metadata.h"
 #include "compression.h"
 #include "deep.h"
 #include "general_attr.h"
@@ -165,6 +166,10 @@ main (int argc, char* argv[])
     TEST (testAttrBytes, "gen_attr");
     TEST (testAttrHandler, "gen_attr");
     TEST (testAttrLists, "gen_attr");
+
+    TEST (testColorInteropChromaticities, "color_metadata");
+    TEST (testColorMetadataValues, "color_metadata");
+    TEST (testColorMetadataFile, "color_metadata");
 
     TEST (testReadBadArgs, "core_read");
     TEST (testReadBadFiles, "core_read");

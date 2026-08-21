@@ -24,6 +24,7 @@ extern "C" {
 
 /*
 chromaticities
+colorInteropID
 whiteLuminance
 adoptedNeutral
 xDensity
