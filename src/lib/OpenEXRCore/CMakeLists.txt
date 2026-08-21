@@ -24,6 +24,7 @@ openexr_define_library(OpenEXRCore
     internal_cpuid.h
     internal_decompress.h
     internal_dwa_channeldata.h
+    internal_dwa_clamp.h
     internal_dwa_classifier.h
     internal_dwa_compressor.h
     internal_dwa_decoder.h

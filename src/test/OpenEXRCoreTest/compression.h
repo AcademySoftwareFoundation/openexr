@@ -22,6 +22,8 @@ void testB44Compression (const std::string& tempdir);
 void testB44ACompression (const std::string& tempdir);
 void testDWAACompression (const std::string& tempdir);
 void testDWABCompression (const std::string& tempdir);
+void testDWAAInfinity (const std::string& tempdir);
+void testDWABInfinity (const std::string& tempdir);
 void testHTChannelMap (const std::string& tempdir);
 void testHTHeaderBounds (const std::string& tempdir);
 

@@ -209,6 +209,8 @@ main (int argc, char* argv[])
     TEST (testB44ACompression, "core_compression");
     TEST (testDWAACompression, "core_compression");
     TEST (testDWABCompression, "core_compression");
+    TEST (testDWAAInfinity, "core_compression");
+    TEST (testDWABInfinity, "core_compression");
     TEST (testHTChannelMap, "core_compression");
     TEST (testHTHeaderBounds, "core_compression");
 

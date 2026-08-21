@@ -9,6 +9,8 @@
 #include <limits.h>
 #include <float.h>
 
+#include "internal_dwa_clamp.h"
+
 #ifdef _WIN32
 #    include <intrin.h>
 #elif defined(__x86_64__)
@@ -914,10 +916,10 @@ quantizeCoeffAndZigXDR (
     // manually unrolling seems to help on at least x86
     for ( int i = 0; i < 64; i += 4 )
     {
-        uint16_t       src0     = float_to_half (dctvals[i+0]);
-        uint16_t       src1     = float_to_half (dctvals[i+1]);
-        uint16_t       src2     = float_to_half (dctvals[i+2]);
-        uint16_t       src3     = float_to_half (dctvals[i+3]);
+        uint16_t       src0     = dwaClampHalf (float_to_half (dctvals[i+0]));
+        uint16_t       src1     = dwaClampHalf (float_to_half (dctvals[i+1]));
+        uint16_t       src2     = dwaClampHalf (float_to_half (dctvals[i+2]));
+        uint16_t       src3     = dwaClampHalf (float_to_half (dctvals[i+3]));
         const float    errTol0  = tolerances[i+0];
         const float    errTol1  = tolerances[i+1];
         const float    errTol2  = tolerances[i+2];
@@ -1013,13 +1015,9 @@ LossyDctEncoder_execute (
             {
                 //
                 // Clamp to half ranges, instead of just casting. This
-                // avoids introducing Infs which end up getting zeroed later
+                // avoids introducing Infs that the DCT can't represent.
                 //
-                float src = one_to_native_float (srcXdr[x]);
-                if (src > 65504.f)
-                    src = 65504.f;
-                else if (src < -65504.f)
-                    src = -65504.f;
+                float src = dwaClampFloat (one_to_native_float (srcXdr[x]));
                 tmpHalfBufferPtr[x] = one_from_native16 (float_to_half (src));
             }
 
@@ -1082,7 +1080,7 @@ LossyDctEncoder_execute (
                         h = ((const uint16_t*) (chanData[chan]->_rows)[vy])[vx];
 
                         if (e->_toNonlinear) { h = e->_toNonlinear[h]; }
-                        else { h = one_to_native16 (h); }
+                        else { h = dwaClampHalf (one_to_native16 (h)); }
 
                         chanData[chan]->_dctData[y * 8 + x] = half_to_float (h);
                     } // x

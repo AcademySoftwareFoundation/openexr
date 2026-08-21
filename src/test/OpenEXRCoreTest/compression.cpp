@@ -37,6 +37,7 @@
 #include <iostream>
 #include <vector>
 #include <cmath>
+#include <limits>
 
 #include "internal_ht_common.cpp"
 
@@ -1697,6 +1698,157 @@ void
 testDWABCompression (const std::string& tempdir)
 {
     testComp (tempdir, EXR_COMPRESSION_DWAB);
+}
+
+////////////////////////////////////////
+
+//
+// Test handling of inf and large values for DWA lossy compression.
+// Decompression should not result in any inf values, even when
+// they were in the input or DCT ringing produces them.
+//
+
+static const int DWA_PATTERN_WIDTH = 65;
+static const int DWA_INF_HEIGHT    = 33;
+
+enum DwaInfPattern
+{
+    DWA_PATTERN_CHECKERBOARD_MAX_VALUES,
+    DWA_PATTERN_INF_POSITIVE,
+    DWA_PATTERN_INF_NEGATIVE,
+    DWA_PATTERN_NAN,
+    DWA_INF_NUM_PATTERNS
+};
+
+static float
+dwaInfPixel (DwaInfPattern pattern, int x, int y)
+{
+    const float inf     = std::numeric_limits<float>::infinity ();
+    const float halfMax = HALF_MAX;
+
+    switch (pattern)
+    {
+        case DWA_PATTERN_CHECKERBOARD_MAX_VALUES:
+            return ((x + y) & 1) ? halfMax : -halfMax;
+        case DWA_PATTERN_INF_POSITIVE: return inf;
+        case DWA_PATTERN_INF_NEGATIVE: return -inf;
+        default: return std::numeric_limits<float>::quiet_NaN ();
+    }
+}
+
+static void
+testDWAInfinity (const std::string& tempdir, exr_compression_t comp)
+{
+    const char*  chans[]   = {"R", "G", "B", "Y"};
+    const int    numChans  = 4;
+    const float  levels[]  = {0.f, 45.f, 100.0f, 300.f};
+    const size_t numPixels = (size_t) DWA_PATTERN_WIDTH * DWA_INF_HEIGHT;
+
+    std::string filename = tempdir + "dwa_infinity.exr";
+
+    for (int pattern = 0; pattern < DWA_INF_NUM_PATTERNS; ++pattern)
+    {
+        std::vector<half> src (numPixels);
+        for (int y = 0; y < DWA_INF_HEIGHT; ++y)
+            for (int x = 0; x < DWA_PATTERN_WIDTH; ++x)
+                src[(size_t) y * DWA_PATTERN_WIDTH + x] =
+                    half (dwaInfPixel ((DwaInfPattern) pattern, x, y));
+
+        for (size_t l = 0; l < sizeof (levels) / sizeof (levels[0]); ++l)
+        {
+            for (int pLinear = 0; pLinear < 2; ++pLinear)
+            {
+                //
+                // Write image
+                //
+                {
+                    Header hdr (DWA_PATTERN_WIDTH, DWA_INF_HEIGHT);
+                    hdr.compression ()         = (Compression) comp;
+                    hdr.dwaCompressionLevel () = levels[l];
+
+                    FrameBuffer fb;
+                    for (int c = 0; c < numChans; ++c)
+                    {
+                        hdr.channels ().insert (
+                            chans[c], Channel (HALF, 1, 1, pLinear != 0));
+                        fb.insert (
+                            chans[c],
+                            Slice (
+                                HALF,
+                                (char*) src.data (),
+                                sizeof (half),
+                                sizeof (half) * DWA_PATTERN_WIDTH));
+                    }
+
+                    OutputFile out (filename.c_str (), hdr);
+                    out.setFrameBuffer (fb);
+                    out.writePixels (DWA_INF_HEIGHT);
+                }
+
+                //
+                // Read image
+                //
+                std::vector<half> dst ((size_t) numChans * numPixels);
+                {
+                    InputFile   in (filename.c_str ());
+                    FrameBuffer fb;
+                    for (int c = 0; c < numChans; ++c)
+                        fb.insert (
+                            chans[c],
+                            Slice (
+                                HALF,
+                                (char*) (dst.data () + (size_t) c * numPixels),
+                                sizeof (half),
+                                sizeof (half) * DWA_PATTERN_WIDTH));
+                    in.setFrameBuffer (fb);
+                    in.readPixels (0, DWA_INF_HEIGHT - 1);
+                }
+
+                //
+                // Check values are finite.
+                //
+                for (size_t i = 0; i < dst.size (); ++i)
+                {
+                    const half s = src[i % numPixels];
+                    EXRCORE_TEST (
+                        dst[i].isFinite () || dst[i].bits () == s.bits ());
+                }
+
+                //
+                // Check inf maps to a high value after being clamped to HALF_MAX,
+                // the roundtrip is not exact. pLinear doesn't preserve high values
+                // at all and ends up around 8000, but is meant for channels like RY
+                // and BY that are ratios in a small range.
+                //
+                //
+                if (!pLinear && (pattern == DWA_PATTERN_INF_POSITIVE ||
+                                 pattern == DWA_PATTERN_INF_NEGATIVE))
+                {
+                    const float nearMax = 0.9f * (float) HALF_MAX;
+                    float expect = (pattern == DWA_PATTERN_INF_POSITIVE) ? 1.f
+                                                                         : -1.f;
+                    for (size_t i = 0; i < dst.size (); ++i)
+                        EXRCORE_TEST (
+                            (float) dst[i] * expect > nearMax ||
+                            dst[i].bits () == src[i % numPixels].bits ());
+                }
+            }
+        }
+    }
+
+    remove (filename.c_str ());
+}
+
+void
+testDWAAInfinity (const std::string& tempdir)
+{
+    testDWAInfinity (tempdir, EXR_COMPRESSION_DWAA);
+}
+
+void
+testDWABInfinity (const std::string& tempdir)
+{
+    testDWAInfinity (tempdir, EXR_COMPRESSION_DWAB);
 }
 
 struct ht_channel_map_tests {
