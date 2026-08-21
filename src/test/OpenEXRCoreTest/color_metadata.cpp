@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 // Copyright Contributors to the OpenEXR Project.
 
-#include "color_interop.h"
+#include "color_metadata.h"
 
 #include "test_value.h"
 #include "openexr.h"

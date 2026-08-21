@@ -8,6 +8,7 @@
 #endif
 
 #include "ImfArray.h"
+#include "ImfColorMetadata.h"
 #include "ImfFramesPerSecond.h"
 #include "ImfRgbaFile.h"
 #include "ImfStandardAttributes.h"
@@ -1093,7 +1094,7 @@ convertColorInteropIDAndChromaticities ()
 }
 
 //
-// The following tests are similar to src/test/OpenEXRCoreTest/color_interop.cpp
+// The following tests are similar to src/test/OpenEXRCoreTest/color_metadata.cpp
 // and validate that ImfStandardAttributes.cpp faithfully forwards the corresponding
 // functions from the Core API.
 //

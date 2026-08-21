@@ -32,6 +32,7 @@
 #include "ImfDeepFrameBuffer.h"
 #include "ImfPartType.h"
 #include "ImfStandardAttributes.h"
+#include "ImfColorMetadata.h"
 #include "ImfThreading.h"
 #include "ImfArray.h"
 

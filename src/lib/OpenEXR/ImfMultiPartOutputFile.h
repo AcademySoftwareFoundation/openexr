@@ -31,7 +31,7 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 // Note that this is a write-time rule. A colorInteropID that does not
 // conform makes a part's color space ambiguous, but does not make a file
 // unreadable, so the readers accept such files; only a reader that asks
-// for strict header validation reports them. Use exrcheck to test a file
+// for strict header validation reports them. Use exrinfo to test a file
 // for conformance.
 //
 // Parameters
