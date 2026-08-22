@@ -18,6 +18,7 @@ header.channels().insert ("G", Channel (HALF));
 header.channels().insert ("Z", Channel (FLOAT));
 header.compression() = ZIP_COMPRESSION;
 header.zipCompressionLevel() = 6;
+header.zstdCompressionLevel() = 5;
 // [end setCompression]
 
 // [begin setCompressionDefault]
