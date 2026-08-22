@@ -106,16 +106,17 @@ public:
     //------------------------------------------------------------
     // Constructors and destructor: default behavior. This assumes
     // that the type T is copyable/assignable/moveable.
-    //------------------------------------------------------------
+    //
+    // Notes: although the copy/move constructors and assignment operator
+    // have default behavior, provide explicit implementations rather than
+    // =default, since Windows mingw/msys2 clang fails to export implicitly
+    // defined member functions.
+    // ------------------------------------------------------------
 
-    TypedAttribute () = default;
+    TypedAttribute ();
     TypedAttribute (const T& value);
     TypedAttribute (const TypedAttribute<T>& other);
     TypedAttribute (TypedAttribute<T>&& other);
-
-    //NB: if we use a default destructor, it wreaks havoc with where the vtable and such end up
-    //at least under mingw+windows, and since we are providing extern template instantiations
-    //this will be pretty trim and should reduce code bloat
     virtual ~TypedAttribute ();
 
     TypedAttribute& operator= (const TypedAttribute<T>& other);
@@ -202,6 +203,13 @@ private:
 //------------------------------------
 // Implementation of TypedAttribute<T>
 //------------------------------------
+
+template <class T>
+TypedAttribute<T>::TypedAttribute()
+    : Attribute (), _value ()
+{
+    // empty
+}
 
 template <class T>
 TypedAttribute<T>::TypedAttribute (const T& value)
