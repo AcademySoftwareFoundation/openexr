@@ -63,7 +63,7 @@ extern "C" {
  */
 typedef struct _exr_decode_pipeline
 {
-    /** Used for versioning the decode pipeline in the future.
+    /** Used for detecting the version of the decode pipeline.
      *
      * \ref EXR_DECODE_PIPELINE_INITIALIZER
      */
@@ -264,6 +264,28 @@ typedef struct _exr_decode_pipeline
      * this being used.
      */
     exr_coding_channel_info_t _quick_chan_store[5];
+
+    /** Some compression methods (using external libraries) require additional
+     * contexts to be constructed. Rather than re-initialize those every chunk,
+     * allow the context to be re-used across chunks.
+     *
+     * NB: Do not store thread-specific data or contexts which use
+     * thread-specific data using this mechanism, as the decode pipeline is
+     * free to be used by multiple threads from invocation to invocation
+     * (just not concurrently).
+     *
+     * If the context is not NULL upon destruction, or if somehow the
+     * compression changes during an update, the \ref free_compression_context
+     * function will be invoked. If that free routine is not provided,
+     * memory may leak.
+     */
+    void* compression_context;
+
+    /** Cleanup routine for the \ref compression_context member.
+     * If a compression context is set, but this routine is NULL,
+     * no attempt to free will be made, so your program might leak.
+     */
+    void (*free_compression_context) (struct _exr_decode_pipeline* pipeline);
 } exr_decode_pipeline_t;
 
 /** @brief Simple macro to initialize an empty decode pipeline. */

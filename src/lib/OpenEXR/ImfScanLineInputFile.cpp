@@ -65,7 +65,7 @@ struct ScanLineProcess
     exr_result_t          last_decode_err = EXR_ERR_UNKNOWN;
     bool                  first = true;
     exr_chunk_info_t      cinfo;
-    exr_decode_pipeline_t decoder;
+    exr_decode_pipeline_t decoder = EXR_DECODE_PIPELINE_INITIALIZER;
 
     // requirement to use process group
     ScanLineProcess* next;
