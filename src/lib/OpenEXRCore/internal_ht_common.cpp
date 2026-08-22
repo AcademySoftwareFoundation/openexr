@@ -172,6 +172,22 @@ make_channel_map (
         }
     }
 
+    /** Heuristic detection of channels containing visual light samples */
+    for (size_t cs_i = 0; cs_i < cs_to_file_ch.size (); cs_i++)
+    {
+        const char* name   = channels[cs_to_file_ch[cs_i].file_index].channel_name;
+        const char* suffix = strrchr (name, '.');
+        suffix             = suffix ? suffix + 1 : name;
+
+        cs_to_file_ch[cs_i].kind =
+            (areEqual (suffix, "r") || areEqual (suffix, "g") || areEqual (suffix, "b") ||
+             areEqual (suffix, "red") || areEqual (suffix, "green") || areEqual (suffix, "blue") ||
+             areEqual (suffix, "grn") || areEqual (suffix, "blu") ||
+             areEqual (suffix, "y") || areEqual (suffix, "ry") || areEqual (suffix, "by"))
+                ? visual
+                : data;
+    }
+
     return isRGB;
 }
 
@@ -305,7 +321,7 @@ read_header (
         throw std::runtime_error (
             "HTJ2K chunk header length is larger than the chunk size.");
 
-    map.resize (header.pull_uint16 (), {-1, 0, 0});
+    map.resize (header.pull_uint16 (), {visual, -1, 0, 0});
     for (size_t i = 0; i < map.size (); i++)
     {
         uint16_t file_index = header.pull_uint16 ();

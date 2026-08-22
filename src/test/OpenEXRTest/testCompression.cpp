@@ -8,6 +8,7 @@
 #endif
 
 #include "compareB44.h"
+#include "compareHTJ2KL256.h"
 
 #include "compareFloat.h"
 #include "ImfArray.h"
@@ -409,16 +410,38 @@ writeRead (
 
         assert (ii == in.header ().channels ().end ());
 
-        for (int y = 0; y < h / ys; ++y)
+        // uint32 and float samples
+        if (comp != HTJ2KL256_COMPRESSION)
         {
-            for (int x = 0; x < w / xs; ++x)
+            for (int y = 0; y < h / ys; ++y)
             {
-                assert (array1.i[y][x] == array2.i[y][x]);
-                assert (equivalent (array1.f[y][x], array2.f[y][x], comp));
+                for (int x = 0; x < w / xs; ++x)
+                {
+                    assert (array1.i[y][x] == array2.i[y][x]);
+                    assert (equivalent (array1.f[y][x], array2.f[y][x], comp));
+                }
+            }
+        }
 
-                if (!isLossyCompression (comp))
+        // single channel half samples
+        if (comp != HTJ2KL256_COMPRESSION && comp != B44_COMPRESSION && comp != B44A_COMPRESSION)
+        {
+            for (int y = 0; y < h / ys; ++y)
+            {
+                for (int x = 0; x < w / xs; ++x)
                 {
                     assert (array1.h[y][x].bits () == array2.h[y][x].bits ());
+                }
+            }
+        }
+
+        // rgba half samples
+        if (!isLossyCompression (comp))
+        {
+            for (int y = 0; y < h / ys; ++y)
+            {
+                for (int x = 0; x < w / xs; ++x)
+                {
                     for (int c = 0; c < 4; ++c)
                     {
                         assert (
@@ -448,12 +471,8 @@ writeRead (
                 compareB44 (w / xs, h / ys, ph3, array2.rgba[c]);
             }
         }
-        if (comp == DWAA_COMPRESSION || comp == DWAB_COMPRESSION)
+        else if (comp == DWAA_COMPRESSION || comp == DWAB_COMPRESSION)
         {
-            for (int y = 0; y < h / ys; ++y)
-                for (int x = 0; x < w / xs; ++x)
-                    assert (array1.h[y][x].bits () == array2.h[y][x].bits ());
-
             for (int c = 0; c < 4; ++c)
             {
                 for (int y = 0; y < h / ys; ++y)
@@ -479,6 +498,24 @@ writeRead (
                             }
                         }
                     }
+            }
+        }
+        else if (comp == HTJ2KL256_COMPRESSION)
+        {
+            for (int y = 0; y < h / ys; ++y)
+            {
+                for (int x = 0; x < w / xs; ++x)
+                {
+                    assert (checkHTJ2KSample (array1.i[y][x], array2.i[y][x]));
+                    assert (checkHTJ2KSample (array1.f[y][x], array2.f[y][x]));
+                    assert (checkHTJ2KSample (array1.h[y][x], array2.h[y][x]));
+
+                    for (int c = 0; c < 4; ++c)
+                    {
+                         assert (checkHTJ2KSample (array1.rgba[c][y][x],
+                                                   array2.rgba[c][y][x]));
+                    }
+                }
             }
         }
     }

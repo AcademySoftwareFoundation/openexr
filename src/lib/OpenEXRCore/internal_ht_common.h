@@ -10,13 +10,55 @@
 #include <stdlib.h>
 #include "openexr_coding.h"
 
+/**
+ *
+ * Routines are common to the three HTJ2K compression methods:
+ *  - EXR_COMPRESSION_HTJ2K256: lossless coding in blocks of 256 scanlines,
+ *    using the High-Throughput block coder specified in Rec. ITU-T T.814 and
+ *    ISO/IEC 15444-15.
+ *  - EXR_COMPRESSION_HTJ2K32: same lossless coding as HTJ2K256, but in blocks
+ *    of 32 scanlines, trading some coding efficiency for cheaper partial-buffer
+ *    access.
+ *  - EXR_COMPRESSION_HTJ2KL256: same block coder and block size as HTJ2K256,
+ *    but with lossy coding, producing smaller files at the cost of distortion
+ *    controlled via a quality level parameter.
+ *
+ * EXR_COMPRESSION_HTJ2KL256
+ * -------------------------
+ *
+ * The lossy HTJ2KL256 quality level ranges from 1 to 150 and controls the level
+ * of distortion in the compressed image. Values below 97 are passed through
+ * directly as the Qfactor scheme described in "Controlling JPEG 2000 image
+ * quality using a single parameter (Qfactor) v2.0". Qfactor is defined over [1,
+ * 100] and is tuned for lower-quality imagery. Values from 97 to 150 are an
+ * OpenEXR-specific extension of that range, added to reach the higher quality
+ * levels needed for OpenEXR's 32-bit float imagery. In that extended range, the
+ * quality value is mapped to an explicit quantization step value via an
+ * exponential model. See internal_ht.cpp for the actual Qfactor-to-Qstep
+ * computation. Values around 108 are generally visually lossless over the
+ * entire range of half-float values.
+ *
+ * In contrast with DWAA/DWAB, HTJ2KL256 does not apply a transfer function, and
+ * treats equally all pixel values across the half-float or float dynamic range.
+ *
+ * HTJ2KL256 apply lossy compression to RGB channels only, and use lossless
+ * compression otherwise.
+ */
+
+/** Indicates the kind of samples carried by a channel */
+enum J2KChannelKind {
+    visual,
+    data
+};
+
 /** Maps a JPEG 2000 codestream component index to the corresponding OpenEXR
  *  file channel index and its byte offset within a packed raster line. */
 struct CodestreamChannelInfo
 {
-    int    file_index;
-    size_t raster_line_offset;
-    int    scratch; // used when reading from a file
+    J2KChannelKind kind;
+    int            file_index;
+    size_t         raster_line_offset;
+    int            scratch; // used when reading from a file
 };
 
 /** Build a codestream-to-file channel map for @p channel_count OpenEXR
