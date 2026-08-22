@@ -6,6 +6,7 @@
 #include <stdint.h>
 
 #include "internal_coding.h"
+#include "internal_dwa_clamp.h"
 #include "internal_thread.h"
 
 extern uint16_t* exrcore_dwaToLinearTable;
@@ -44,9 +45,11 @@ dwa_convertToLinear (uint16_t x)
 {
     if (x == 0)
         return 0;
-    if ((x & 0x7c00) == 0x7c00) // infinity/nan?
+    if ((x & 0x7fff) > 0x7c00) // nan?
         return 0;
-    
+    if ((x & 0x7fff) == 0x7c00) // infinity?
+        return (uint16_t) ((x & 0x8000) | DWA_HALF_MAX_BITS);
+
     float f = half_to_float(x);
     float sign = f < 0.0f ? -1.0f : 1.0f;
     f = fabsf(f);
@@ -63,17 +66,16 @@ dwa_convertToLinear (uint16_t x)
         py = f - 1.0f;
     }
     float z = sign * powf(px, py);
-    return float_to_half(z);
+    return float_to_half (dwaClampFloat (z));
 }
 
 static inline uint16_t
 dwa_convertToNonLinear (uint16_t x)
 {
+    x = dwaClampHalf (x);
     if (x == 0)
         return 0;
-    if ((x & 0x7c00) == 0x7c00) // infinity/nan?
-        return 0;
-    
+
     float f = half_to_float(x);
     float sign = f < 0.0f ? -1.0f : 1.0f;
     f = fabsf(f);
@@ -87,7 +89,7 @@ dwa_convertToNonLinear (uint16_t x)
     {
         z = logf (f) / 2.2f + 1.0f;
     }
-    return float_to_half(sign * z);
+    return float_to_half (dwaClampFloat (sign * z));
 }
 
 

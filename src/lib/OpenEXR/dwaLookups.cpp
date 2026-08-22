@@ -35,6 +35,8 @@
 #include "ImfXdr.h"
 #include <Imath/half.h>
 
+#include "../OpenEXRCore/internal_dwa_clamp.h"
+
 using namespace OPENEXR_IMF_NAMESPACE;
 
 namespace
@@ -305,10 +307,22 @@ generateToLinear ()
         float sign    = 1;
         float logBase = pow (2.7182818, 2.2);
 
-        // map  NaN and inf to 0
-        if ((i & 0x7c00) == 0x7c00)
+        //
+        // map NaN to 0, and inf to +-HALF_MAX
+        //
+        if ((i & 0x7fff) > 0x7c00)
         {
             toLinear[i] = 0;
+            continue;
+        }
+
+        if ((i & 0x7fff) == 0x7c00)
+        {
+            unsigned short inf =
+                (unsigned short) ((i & 0x8000) | DWA_HALF_MAX_BITS);
+            char* tmp = (char*) (&toLinear[i]);
+
+            Xdr::write<CharPtrIO> (tmp, inf);
             continue;
         }
 
@@ -322,11 +336,13 @@ generateToLinear ()
 
         if (fabs ((float) h) <= 1.0)
         {
-            h = (half) (sign * pow ((float) fabs ((float) h), 2.2f));
+            h = (half) dwaClampFloat (
+                sign * pow ((float) fabs ((float) h), 2.2f));
         }
         else
         {
-            h = (half) (sign * pow (logBase, (float) (fabs ((float) h) - 1.0)));
+            h = (half) dwaClampFloat (
+                sign * pow (logBase, (float) (fabs ((float) h) - 1.0)));
         }
 
         {
@@ -368,8 +384,11 @@ generateToNonlinear ()
             Xdr::read<CharPtrIO> (tmp, usNative);
         }
 
-        // map  NaN and inf to 0
-        if ((usNative & 0x7c00) == 0x7c00)
+        //
+        // map NaN to 0, and inf to +-HALF_MAX
+        //
+        usNative = dwaClampHalf (usNative);
+        if (usNative == 0)
         {
             toNonlinear[i] = 0;
             continue;
@@ -384,11 +403,13 @@ generateToNonlinear ()
 
         if (fabs ((float) h) <= 1.0)
         {
-            h = (half) (sign * pow (fabs ((float) h), 1.f / 2.2f));
+            h = (half) dwaClampFloat (
+                sign * pow (fabs ((float) h), 1.f / 2.2f));
         }
         else
         {
-            h = (half) (sign * (log (fabs ((float) h)) / log (logBase) + 1.0));
+            h = (half) dwaClampFloat (
+                sign * (log (fabs ((float) h)) / log (logBase) + 1.0));
         }
         toNonlinear[i] = h.bits ();
     }

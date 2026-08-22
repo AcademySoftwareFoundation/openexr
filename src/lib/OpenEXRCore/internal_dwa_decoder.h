@@ -7,6 +7,8 @@
 #    error "only include internal_dwa_helpers.h"
 #endif
 
+#include "internal_dwa_clamp.h"
+
 //
 // 'class' for the LOSSY_DCT decoder classes
 //
@@ -512,17 +514,30 @@ LossyDctDecoder_execute (
             {
                 if (!blockIsConstant)
                 {
-                    (*convertFloatToHalf64) (
-                        &rowBlock[comp][blockx * 64], chanData[comp]->_dctData);
+                    //
+                    // toLinear clamps as part of the table lookup, for
+                    // other cases clamp as part of this conversion.
+                    //
+                    if (d->_toLinear)
+                        (*convertFloatToHalf64) (
+                            &rowBlock[comp][blockx * 64],
+                            chanData[comp]->_dctData);
+                    else
+                        (*convertFloatToHalf64_clamped) (
+                            &rowBlock[comp][blockx * 64],
+                            chanData[comp]->_dctData);
                 }
                 else
                 {
+                    float dc = chanData[comp]->_dctData[0];
+                    if (!d->_toLinear)
+                        dc = dwaClampFloat (dc);
+
 #ifdef IMF_HAVE_SSE2
 
                     __m128i* dst = (__m128i*) &rowBlock[comp][blockx * 64];
 
-                    dst[0] = _mm_set1_epi16 (
-                        (short) float_to_half (chanData[comp]->_dctData[0]));
+                    dst[0] = _mm_set1_epi16 ((short) float_to_half (dc));
 
                     dst[1] = dst[0];
                     dst[2] = dst[0];
@@ -536,7 +551,7 @@ LossyDctDecoder_execute (
 
                     uint16_t* dst = &rowBlock[comp][blockx * 64];
 
-                    dst[0] = float_to_half (chanData[comp]->_dctData[0]);
+                    dst[0] = float_to_half (dc);
 
                     for (int i = 1; i < 64; ++i)
                     {

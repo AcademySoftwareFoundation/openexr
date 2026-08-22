@@ -188,6 +188,7 @@ cc_library(
         "src/lib/OpenEXRCore/internal_decompress.h",
         "src/lib/OpenEXRCore/internal_dwa.c",
         "src/lib/OpenEXRCore/internal_dwa_channeldata.h",
+        "src/lib/OpenEXRCore/internal_dwa_clamp.h",
         "src/lib/OpenEXRCore/internal_dwa_classifier.h",
         "src/lib/OpenEXRCore/internal_dwa_compressor.h",
         "src/lib/OpenEXRCore/internal_dwa_decoder.h",

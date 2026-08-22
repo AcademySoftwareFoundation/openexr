@@ -52,6 +52,7 @@
 #endif
 
 #include "internal_coding.h"
+#include "internal_dwa_clamp.h"
 
 #if defined(OPENEXR_IMF_HAVE_GCC_INLINE_ASM_AVX) &&                            \
     (defined(_M_X64) || defined(__x86_64__))
@@ -373,6 +374,13 @@ convertFloatToHalf64_scalar (uint16_t* dst, float* src)
         dst[i] = float_to_half (src[i]);
 }
 
+static void
+convertFloatToHalf64_clamped_scalar (uint16_t* dst, float* src)
+{
+    for (int i = 0; i < 64; ++i)
+        dst[i] = float_to_half (dwaClampFloat (src[i]));
+}
+
 #ifdef IMF_HAVE_NEON_ARM64
 
 void
@@ -381,6 +389,35 @@ convertFloatToHalf64_neon (uint16_t* dst, float* src)
     for (int i = 0; i < 64; i += 8)
     {
         float32x4x2_t vec_fp32 = vld1q_f32_x2 (src + i);
+        vst1q_u16 (
+            dst + i,
+            vcombine_u16 (
+                vreinterpret_u16_f16 (vcvt_f16_f32 (vec_fp32.val[0])),
+                vreinterpret_u16_f16 (vcvt_f16_f32 (vec_fp32.val[1]))));
+    }
+}
+
+void
+convertFloatToHalf64_clamped_neon (uint16_t* dst, float* src)
+{
+    const float32x4_t maxv = vdupq_n_f32 (DWA_HALF_MAX);
+    const float32x4_t minv = vdupq_n_f32 (-DWA_HALF_MAX);
+
+    for (int i = 0; i < 64; i += 8)
+    {
+        float32x4x2_t vec_fp32 = vld1q_f32_x2 (src + i);
+
+        // Set NaN to zero and clamp.
+        vec_fp32.val[0] = vreinterpretq_f32_u32 (vandq_u32 (
+            vreinterpretq_u32_f32 (vec_fp32.val[0]),
+            vceqq_f32 (vec_fp32.val[0], vec_fp32.val[0])));
+        vec_fp32.val[1] = vreinterpretq_f32_u32 (vandq_u32 (
+            vreinterpretq_u32_f32 (vec_fp32.val[1]),
+            vceqq_f32 (vec_fp32.val[1], vec_fp32.val[1])));
+
+        vec_fp32.val[0] = vminq_f32 (vmaxq_f32 (vec_fp32.val[0], minv), maxv);
+        vec_fp32.val[1] = vminq_f32 (vmaxq_f32 (vec_fp32.val[1], minv), maxv);
+
         vst1q_u16 (
             dst + i,
             vcombine_u16 (
@@ -451,6 +488,28 @@ convertFloatToHalf64_f16c (uint16_t* dst, float* src)
 #else
     convertFloatToHalf64_scalar (dst, src);
 #endif /* IMF_HAVE_GCC_INLINEASM_X86 */
+}
+
+static void
+convertFloatToHalf64_clamped_f16c (uint16_t* dst, float* src)
+{
+#ifdef IMF_HAVE_SSE2
+    const __m128 maxv = _mm_set1_ps (DWA_HALF_MAX);
+    const __m128 minv = _mm_set1_ps (-DWA_HALF_MAX);
+
+    for (int i = 0; i < 64; i += 4)
+    {
+        __m128 v = _mm_load_ps (src + i);
+        // Set NaN to zero and clamp.
+        v = _mm_and_ps (v, _mm_cmpeq_ps (v, v));
+        v = _mm_min_ps (_mm_max_ps (v, minv), maxv);
+        _mm_store_ps (src + i, v);
+    }
+
+    convertFloatToHalf64_f16c (dst, src);
+#else
+    convertFloatToHalf64_clamped_scalar (dst, src);
+#endif /* IMF_HAVE_SSE2 */
 }
 
 //
@@ -2318,6 +2377,9 @@ dctForward8x8 (float* data)
 static void (*convertFloatToHalf64) (uint16_t*, float*) =
     convertFloatToHalf64_scalar;
 
+static void (*convertFloatToHalf64_clamped) (uint16_t*, float*) =
+    convertFloatToHalf64_clamped_scalar;
+
 //
 // Function pointer for dispatching a fromHalfZigZag_ impl
 //
@@ -2347,12 +2409,14 @@ initializeFuncs (void)
 
 #ifdef IMF_HAVE_NEON_ARM64
     {
-        convertFloatToHalf64 = convertFloatToHalf64_neon;
-        fromHalfZigZag       = fromHalfZigZag_neon;
+        convertFloatToHalf64         = convertFloatToHalf64_neon;
+        convertFloatToHalf64_clamped = convertFloatToHalf64_clamped_neon;
+        fromHalfZigZag               = fromHalfZigZag_neon;
     }
 #else
-    convertFloatToHalf64 = convertFloatToHalf64_scalar;
-    fromHalfZigZag       = fromHalfZigZag_scalar;
+    convertFloatToHalf64         = convertFloatToHalf64_scalar;
+    convertFloatToHalf64_clamped = convertFloatToHalf64_clamped_scalar;
+    fromHalfZigZag               = fromHalfZigZag_scalar;
 
     check_for_x86_simd (&f16c, &avx, &sse2);
 
@@ -2362,8 +2426,9 @@ initializeFuncs (void)
 
     if (avx && f16c)
     {
-        convertFloatToHalf64 = convertFloatToHalf64_f16c;
-        fromHalfZigZag       = fromHalfZigZag_f16c;
+        convertFloatToHalf64         = convertFloatToHalf64_f16c;
+        convertFloatToHalf64_clamped = convertFloatToHalf64_clamped_f16c;
+        fromHalfZigZag               = fromHalfZigZag_f16c;
     }
 
     dctInverse8x8_0 = dctInverse8x8_scalar_0;
