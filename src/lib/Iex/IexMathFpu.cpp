@@ -416,11 +416,10 @@ setFpExceptionHandler (FpExceptionHandler handler)
 {
     if (fpeHandler == 0)
     {
-        struct sigaction action;
+        struct sigaction action = {0};
         sigemptyset (&action.sa_mask);
         action.sa_flags     = SA_SIGINFO | SA_NOMASK;
         action.sa_sigaction = (void (*) (int, siginfo_t*, void*)) catchSigFpe;
-        action.sa_restorer  = 0;
 
         sigaction (SIGFPE, &action, 0);
     }
