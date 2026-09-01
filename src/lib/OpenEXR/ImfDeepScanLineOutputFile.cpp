@@ -15,6 +15,7 @@
 #include "ImfArray.h"
 #include "ImfChannelList.h"
 #include "ImfCompressor.h"
+#include "ImfCompressorDeepInternal.h"
 #include "ImfDeepScanLineInputFile.h"
 #include "ImfDeepScanLineInputPart.h"
 #include "ImfDeepScanLineOutputFile.h"
@@ -742,7 +743,8 @@ LineBufferTask::execute ()
         {
             const char* compPtr;
 
-            uint64_t compSize = compressor->compress (
+            uint64_t compSize = compressWithSampleCountTable (
+                *compressor,
                 _lineBuffer->dataPtr,
                 static_cast<int> (_lineBuffer->dataSize),
                 _lineBuffer->minY,

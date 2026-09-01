@@ -277,8 +277,6 @@ exr_zstd_shuffle_decode_bytes (
     uint8_t* dst, const uint8_t* shuf, size_t dSize, uint64_t shuffle_el_bytes)
 {
 #if defined(__GNUC__) && defined(__x86_64__)
-    __builtin_cpu_init ();
-
     if (shuffle_el_bytes == 4)
     {
         /* AVX512 BW & DQ are required for the unpack+permutex2var logic */

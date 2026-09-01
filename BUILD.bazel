@@ -407,6 +407,7 @@ cc_library(
         "src/lib/OpenEXR/ImfCompression.h",
         "src/lib/OpenEXR/ImfCompressionAttribute.h",
         "src/lib/OpenEXR/ImfCompressor.h",
+        "src/lib/OpenEXR/ImfCompressorDeepInternal.h",
         "src/lib/OpenEXR/ImfContext.h",
         "src/lib/OpenEXR/ImfContextInit.h",
         "src/lib/OpenEXR/ImfConvert.h",
