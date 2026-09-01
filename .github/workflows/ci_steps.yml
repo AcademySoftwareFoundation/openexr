@@ -216,7 +216,7 @@ jobs:
         if: inputs.OPENEXR_FORCE_INTERNAL_DEFLATE == 'OFF' && inputs.msystem == ''
         run: |
           set -x
-          share/ci/scripts/install_libdeflate.sh master
+          share/ci/scripts/install_libdeflate.sh 92e6a0db9fa848d742f9eb286c92afc60f2c3dda # v1.26
           echo "OPENEXR_PATH=$OPENEXR_PATH:$PROGRAM_FILES/libdeflate/bin:$PROGRAM_FILES/libdeflate/lib" >> $GITHUB_ENV
         shell: bash
 
