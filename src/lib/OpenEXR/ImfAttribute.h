@@ -106,19 +106,21 @@ public:
     //------------------------------------------------------------
     // Constructors and destructor: default behavior. This assumes
     // that the type T is copyable/assignable/moveable.
-    //------------------------------------------------------------
+    //
+    // Notes: although the copy/move constructors and assignment operator
+    // have default behavior, provide explicit implementations rather than
+    // =default, since Windows mingw/msys2 clang fails to export implicitly
+    // defined member functions.
+    // ------------------------------------------------------------
 
-    TypedAttribute () = default;
+    TypedAttribute ();
     TypedAttribute (const T& value);
-    TypedAttribute (const TypedAttribute<T>& other) = default;
-    TypedAttribute (TypedAttribute<T>&& other)      = default;
-    //NB: if we use a default destructor, it wreaks havoc with where the vtable and such end up
-    //at least under mingw+windows, and since we are providing extern template instantiations
-    //this will be pretty trim and should reduce code bloat
+    TypedAttribute (const TypedAttribute<T>& other);
+    TypedAttribute (TypedAttribute<T>&& other);
     virtual ~TypedAttribute ();
 
-    TypedAttribute& operator= (const TypedAttribute<T>& other) = default;
-    TypedAttribute& operator= (TypedAttribute<T>&& other)      = default;
+    TypedAttribute& operator= (const TypedAttribute<T>& other);
+    TypedAttribute& operator= (TypedAttribute<T>&& other);
 
     //--------------------------------
     // Access to the attribute's value
@@ -203,10 +205,47 @@ private:
 //------------------------------------
 
 template <class T>
+TypedAttribute<T>::TypedAttribute()
+    : Attribute (), _value ()
+{
+    // empty
+}
+
+template <class T>
 TypedAttribute<T>::TypedAttribute (const T& value)
     : Attribute (), _value (value)
 {
     // empty
+}
+
+template <class T>
+TypedAttribute<T>::TypedAttribute (const TypedAttribute<T>& other)
+    : Attribute (other), _value (other._value)
+{
+    // empty
+}
+
+template <class T>
+TypedAttribute<T>::TypedAttribute (TypedAttribute<T>&& other)
+    : Attribute (other), _value (std::move (other._value))
+{
+    // empty
+}
+
+template <class T>
+TypedAttribute<T>&
+TypedAttribute<T>::operator= (const TypedAttribute<T>& other)
+{
+    if (this != &other) _value = other._value;
+    return *this;
+}
+
+template <class T>
+TypedAttribute<T>&
+TypedAttribute<T>::operator= (TypedAttribute<T>&& other)
+{
+    if (this != &other) _value = std::move (other._value);
+    return *this;
 }
 
 template <class T> TypedAttribute<T>::~TypedAttribute ()
