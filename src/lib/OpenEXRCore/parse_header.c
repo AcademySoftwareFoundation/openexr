@@ -557,7 +557,7 @@ extract_attr_float_vector (
                 tname);
         }
 
-        priv_to_native32 (attrdata->arr, n);
+        priv_to_native32 (EXR_CONST_CAST (void*, attrdata->arr), n);
     }
 
     return rv;
@@ -2857,7 +2857,7 @@ internal_exr_parse_header (exr_context_t ctxt)
     {
         for ( int p = 1; p < ctxt->num_parts; ++p )
         {
-            const char *mismatch[5] = { NULL, NULL, NULL, NULL, NULL };
+            const char *mismatch[4] = { NULL, NULL, NULL, NULL };
             int mismatchcount = 0;
             exr_priv_part_t curp = ctxt->parts[p];
 
@@ -2872,7 +2872,7 @@ internal_exr_parse_header (exr_context_t ctxt)
                 rv = ctxt->print_error (
                     ctxt,
                     rv,
-                    "Part %d (%s) has non-conforming shared attributes: %s%s%s%s%s%s%s%s%s",
+                    "Part %d (%s) has non-conforming shared attributes: %s%s%s%s%s%s%s",
                     p, curp->name ? curp->name->string->str : "<missing name>",
                     mismatch[0] ? mismatch[0] : "",
                     mismatch[0] ? " " : "",
@@ -2880,9 +2880,7 @@ internal_exr_parse_header (exr_context_t ctxt)
                     mismatch[1] ? " " : "",
                     mismatch[2] ? mismatch[2] : "",
                     mismatch[2] ? " " : "",
-                    mismatch[3] ? mismatch[3] : "",
-                    mismatch[3] ? " " : "",
-                    mismatch[4] ? mismatch[4] : "");
+                    mismatch[3] ? mismatch[3] : "");
 
                 // MultiPartInputFile would fail unconditionally
                 break;

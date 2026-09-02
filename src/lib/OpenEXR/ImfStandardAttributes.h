@@ -614,7 +614,10 @@ IMF_STD_ATTRIBUTE_DEF (chromaticities, Chromaticities, Chromaticities)
 // of OpenEXR Files": <https://github.com/AcademySoftwareFoundation/ColorInterop/
 // blob/main/Recommendations/04_OpenEXRFiles/OpenEXRFiles.md>
 // 
-// Please adhere to the following usage guidance:
+// Applications should call checkColorMetadata (or exr_check_color_metadata in
+// the core API) before writing files to ensure the recommendations are followed.
+//
+// In addition, please adhere to the following important usage guidance:
 //   1. If the color space of an image is modified, do not forward the stale
 //      attribute value.
 //   2. Do not set this to a default color space. If the actual color space

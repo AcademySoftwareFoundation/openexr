@@ -30,10 +30,9 @@ const size_t numIDs = sizeof (allIDs) / sizeof (allIDs[0]);
 // Write a two part file whose parts have the given colorInteropID values,
 // passing NULL to leave the attribute off a part.
 //
-// The C++ writer refuses to produce a file whose parts have conflicting
-// colorInteropID values, so use the core API, which does not validate
-// shared attributes on write. Every chunk of every part has to be written:
-// the core treats a write left incomplete as failed, and discards the file.
+// This is a core-only test, so the file is written directly with the core
+// API. Every chunk of every part has to be written: the core treats a
+// write left incomplete as failed, and discards the file.
 //
 void
 writeTwoPart (const std::string& fn, const char* firstID, const char* secondID)

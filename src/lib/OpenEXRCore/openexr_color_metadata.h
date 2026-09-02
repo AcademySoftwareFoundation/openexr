@@ -185,10 +185,11 @@ EXR_EXPORT exr_result_t exr_check_color_metadata_values (
  *
  * When @p part_index is greater than zero, the part's colorInteropID is
  * additionally checked against the first part's, and
- * EXR_COLOR_METADATA_INTEROP_ID_NOT_SHARED may be reported. Note that a
- * context opened with EXR_CONTEXT_FLAG_STRICT_HEADER fails to parse such a
- * file outright, so that flag will report the same problem as an error
- * instead.
+ * EXR_COLOR_METADATA_INTEROP_ID_NOT_SHARED may be reported. As decided in
+ * PR #2560, this is the only place that rule is enforced: a context opened
+ * with EXR_CONTEXT_FLAG_STRICT_HEADER does not reject such a file, and
+ * writing one is not restricted either. Call this function (or the C++
+ * checkColorMetadata) to check for compliance.
  *
  * @param ctxt The context to check.
  * @param part_index Which part of @p ctxt to check.

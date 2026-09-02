@@ -51,9 +51,7 @@ While OpenEXR should only contain linear color spaces, no attempt is made to
 warn regarding the presence of a non-linear colorInteropID.
 
 None of these make a file malformed or unsafe to read, so warnings do not
-affect the exit status. Use ``exrcheck`` to test whether a file is
-well formed. Note that ``--strict`` rejects a file that breaks the shared
-attribute rule outright, and so prints no header or warnings at all for it.
+affect the exit status and ``--strict`` does not reject a file for them.
 
 The same checks are available to applications as
 ``Imf::checkColorMetadata()`` and ``exr_check_color_metadata()``.

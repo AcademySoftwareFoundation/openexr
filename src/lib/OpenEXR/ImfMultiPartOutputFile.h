@@ -21,18 +21,8 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 // * Pixel Aspect Ratio
 // * Time Code
 // * Chromaticities
-// * ColorInteropID
 // The first header forms the basis for the set of attributes that are shared
 // across the constituent parts. 
-//
-// A part after the first may omit colorInteropID (inheriting the first part's
-// value), or set it to "data" to mark image data that should not be color
-// managed; any other value that differs from the first part's is a conflict.
-// Note that this is a write-time rule. A colorInteropID that does not
-// conform makes a part's color space ambiguous, but does not make a file
-// unreadable, so the readers accept such files; only a reader that asks
-// for strict header validation reports them. Use exrinfo to test a file
-// for conformance.
 //
 // Parameters
 //  headers - pointer to array of headers; one for each part of the image file

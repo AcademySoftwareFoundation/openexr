@@ -1014,7 +1014,11 @@ is now the recommended way of identifying the color space in OpenEXR files. API
 functions have been added to allow conversion between chromaticities and the
 colorInteropID for the most common color spaces.
 
-The presence of stale or incorrect metadata is a major problem.
+The functions checkColorMetadata (and exr_check_color_metadata in the core API)
+are provided as a way for developers to ensure that color space metadata in the
+header (or multiple headers in a multi-part file) is self-consistent.
+
+However, the presence of stale or incorrect metadata is a major problem.
 Application developers are asked to take care when writing OpenEXR
 files to avoid writing or propagating color space metadata which may
 be incorrect. The colorInteropID should be omitted or set to ``unknown``
