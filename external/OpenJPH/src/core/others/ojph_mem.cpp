@@ -112,7 +112,10 @@ namespace ojph {
   ////////////////////////////////////////////////////////////////////////////
   void mem_elastic_allocator::get_buffer(ui32 needed_bytes, coded_lists* &p)
   {
-    ui32 extended_bytes = needed_bytes + (ui32)sizeof(coded_lists);
+    // Round up so each coded_lists (and coded_lists::buf) stays 16-byte aligned
+    // within the store; avoids alignment fault on 32-bit architectures
+    ui32 raw = needed_bytes + (ui32)sizeof (coded_lists);
+    ui32 extended_bytes = (raw + 15u) & ~15u;
 
     if (store == NULL)
       cur_store = store = allocate(&store, extended_bytes);

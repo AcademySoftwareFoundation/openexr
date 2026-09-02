@@ -22,7 +22,7 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 // * Time Code
 // * Chromaticities
 // The first header forms the basis for the set of attributes that are shared
-// across the constituent parts. 
+// across the constituent parts.
 //
 // Parameters
 //  headers - pointer to array of headers; one for each part of the image file

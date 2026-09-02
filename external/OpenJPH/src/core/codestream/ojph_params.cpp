@@ -38,6 +38,7 @@
 #define _USE_MATH_DEFINES
 #include <cmath>
 
+#include "ojph_arch.h"
 #include "ojph_base.h"
 #include "ojph_file.h"
 #include "ojph_params.h"
@@ -58,29 +59,25 @@ namespace ojph {
   ////////////////////////////////////////////////////////////////////////////
   void param_siz::set_image_extent(point dims)
   {
-    state->Xsiz = dims.x;
-    state->Ysiz = dims.y;
+    state->set_image_extent(dims);
   }
 
   ////////////////////////////////////////////////////////////////////////////
   void param_siz::set_tile_size(size s)
   {
-    state->XTsiz = s.w;
-    state->YTsiz = s.h;
+    state->set_tile_size(s);
   }
 
   ////////////////////////////////////////////////////////////////////////////
   void param_siz::set_image_offset(point offset)
-  { // WARNING need to check if these are valid
-    state->XOsiz = offset.x;
-    state->YOsiz = offset.y;
+  {
+    state->set_image_offset(offset);
   }
 
   ////////////////////////////////////////////////////////////////////////////
   void param_siz::set_tile_offset(point offset)
-  { // WARNING need to check if these are valid
-    state->XTOsiz = offset.x;
-    state->YTOsiz = offset.y;
+  {
+    state->set_tile_offset(offset);
   }
 
   ////////////////////////////////////////////////////////////////////////////
@@ -255,12 +252,32 @@ namespace ojph {
   }
 
   ////////////////////////////////////////////////////////////////////////////
-  param_coc param_cod::get_coc(ui32 component_idx)
+  void param_cod::set_num_decomposition(ui32 comp_idx, ui32 num_decompositions)
   {
-    local::param_cod *p = state->get_coc(component_idx);
-    if (p == state) // no COC segment marker for this component
-      p = state->add_coc_object(component_idx);
-    return param_coc(p);
+    local::param_cod* cdp = state->get_or_add_coc(comp_idx);
+    ojph::param_cod(cdp).set_num_decomposition(num_decompositions);
+  }
+
+  ////////////////////////////////////////////////////////////////////////////
+  void param_cod::set_block_dims(ui32 comp_idx, ui32 width, ui32 height)
+  {
+    local::param_cod* cdp = state->get_or_add_coc(comp_idx);
+    ojph::param_cod(cdp).set_block_dims(width, height);
+  }
+
+  ////////////////////////////////////////////////////////////////////////////
+  void param_cod::set_precinct_size(ui32 comp_idx, int num_levels,
+                                    size* precinct_size)
+  {
+    local::param_cod* cdp = state->get_or_add_coc(comp_idx);
+    ojph::param_cod(cdp).set_precinct_size(num_levels, precinct_size);
+  }
+
+  ////////////////////////////////////////////////////////////////////////////
+  void param_cod::set_reversible(ui32 comp_idx, bool reversible)
+  {
+    local::param_cod* cdp = state->get_or_add_coc(comp_idx);
+    ojph::param_cod(cdp).set_reversible(reversible);
   }
 
   ////////////////////////////////////////////////////////////////////////////
@@ -354,56 +371,32 @@ namespace ojph {
   }
 
   ////////////////////////////////////////////////////////////////////////////
-  //
-  //
-  //
-  //
-  //
-  ////////////////////////////////////////////////////////////////////////////
+  ui32 param_cod::get_num_decompositions(ui32 comp_idx) const
+  { return state->get_coc(comp_idx)->get_num_decompositions(); }
 
   ////////////////////////////////////////////////////////////////////////////
-  void param_coc::set_num_decomposition(ui32 num_decompositions)
-  { ojph::param_cod(state).set_num_decomposition(num_decompositions); }
+  size param_cod::get_block_dims(ui32 comp_idx) const
+  { return state->get_coc(comp_idx)->get_block_dims(); }
 
   ////////////////////////////////////////////////////////////////////////////
-  void param_coc::set_block_dims(ui32 width, ui32 height)
-  { ojph::param_cod(state).set_block_dims(width, height); }
+  size param_cod::get_log_block_dims(ui32 comp_idx) const
+  { return state->get_coc(comp_idx)->get_log_block_dims(); }
 
   ////////////////////////////////////////////////////////////////////////////
-  void param_coc::set_precinct_size(int num_levels, size* precinct_size)
-  { ojph::param_cod(state).set_precinct_size(num_levels, precinct_size); }
+  bool param_cod::is_reversible(ui32 comp_idx) const
+  { return state->get_coc(comp_idx)->is_reversible(); }
 
   ////////////////////////////////////////////////////////////////////////////
-  void param_coc::set_reversible(bool reversible)
-  { ojph::param_cod(state).set_reversible(reversible); }
+  size param_cod::get_precinct_size(ui32 comp_idx, ui32 level_num) const
+  { return state->get_coc(comp_idx)->get_precinct_size(level_num); }
 
   ////////////////////////////////////////////////////////////////////////////
-  ui32 param_coc::get_num_decompositions() const
-  { return ojph::param_cod(state).get_num_decompositions(); }
+  size param_cod::get_log_precinct_size(ui32 comp_idx, ui32 level_num) const
+  { return state->get_coc(comp_idx)->get_log_precinct_size(level_num); }
 
   ////////////////////////////////////////////////////////////////////////////
-  size param_coc::get_block_dims() const
-  { return ojph::param_cod(state).get_block_dims(); }
-
-  ////////////////////////////////////////////////////////////////////////////
-  size param_coc::get_log_block_dims() const
-  { return ojph::param_cod(state).get_log_block_dims(); }
-
-  ////////////////////////////////////////////////////////////////////////////
-  bool param_coc::is_reversible() const
-  { return ojph::param_cod(state).is_reversible(); }
-
-  ////////////////////////////////////////////////////////////////////////////
-  size param_coc::get_precinct_size(ui32 level_num) const
-  { return ojph::param_cod(state).get_precinct_size(level_num); }
-
-  ////////////////////////////////////////////////////////////////////////////
-  size param_coc::get_log_precinct_size(ui32 level_num) const
-  { return ojph::param_cod(state).get_log_precinct_size(level_num); }
-
-  ////////////////////////////////////////////////////////////////////////////
-  bool param_coc::get_block_vertical_causality() const
-  { return ojph::param_cod(state).get_block_vertical_causality(); }
+  bool param_cod::get_block_vertical_causality(ui32 comp_idx) const
+  { return state->get_coc(comp_idx)->get_block_vertical_causality(); }
 
 
   ////////////////////////////////////////////////////////////////////////////
@@ -421,9 +414,19 @@ namespace ojph {
   }
 
   //////////////////////////////////////////////////////////////////////////
+  void param_qcd::set_qfactor(ui8 qfactor) {
+    state->set_qfactor(qfactor);
+  }
+
+  //////////////////////////////////////////////////////////////////////////
   void param_qcd::set_irrev_quant(ui32 comp_idx, float delta)
   {
     state->set_delta(comp_idx, delta);
+  }
+
+  //////////////////////////////////////////////////////////////////////////
+  void param_qcd::set_qfactor(ui32 comp_idx, comp_type ctype, ui8 qfactor) {
+    state->set_qfactor(comp_idx, ctype, qfactor);
   }
 
   ////////////////////////////////////////////////////////////////////////////
@@ -488,41 +491,6 @@ namespace ojph {
   //////////////////////////////////////////////////////////////////////////
 
   namespace local {
-
-    //////////////////////////////////////////////////////////////////////////
-    static inline
-    ui16 swap_byte(ui16 t)
-    {
-      return (ui16)((t << 8) | (t >> 8));
-    }
-
-    //////////////////////////////////////////////////////////////////////////
-    static inline
-    ui32 swap_byte(ui32 t)
-    {
-      ui32 u = swap_byte((ui16)(t & 0xFFFFu));
-      u <<= 16;
-      u |= swap_byte((ui16)(t >> 16));
-      return u;
-    }
-
-    //////////////////////////////////////////////////////////////////////////
-    static inline
-    ui64 swap_byte(ui64 t)
-    {
-      ui64 u = swap_byte((ui32)(t & 0xFFFFFFFFu));
-      u <<= 32;
-      u |= swap_byte((ui32)(t >> 32));
-      return u;
-    }
-
-    //////////////////////////////////////////////////////////////////////////
-    //
-    //
-    //
-    //
-    //
-    //////////////////////////////////////////////////////////////////////////
 
     //////////////////////////////////////////////////////////////////////////
     //static
@@ -626,6 +594,204 @@ namespace ojph {
       2.8671e+00f, 2.8671e+00f, 2.8671e+00f, 2.8671e+00f, 2.8671e+00f,
       2.8671e+00f, 2.8671e+00f };
 
+    //////////////////////////////////////////////////////////////////////////
+    //static
+    class visual_weights
+    {
+      public:
+        enum colour_format : ui32
+        {
+          VW_COLOUR_FORMAT_400 = 0,
+          VW_COLOUR_FORMAT_420 = 1,
+          VW_COLOUR_FORMAT_422 = 2,
+          VW_COLOUR_FORMAT_444 = 3,
+          VW_COLOUR_FORMAT_ERROR = 4
+        };
+        using comp_type = param_qcd::comp_type;
+
+    public:
+      static colour_format get_format(const point& component_subsampling)
+      {
+        if (component_subsampling.x == 2 && component_subsampling.y == 2)
+          return VW_COLOUR_FORMAT_420;
+        else if (component_subsampling.x == 2 && component_subsampling.y == 1)
+          return VW_COLOUR_FORMAT_422;
+        else if (component_subsampling.x == 1 && component_subsampling.y == 1)
+          return VW_COLOUR_FORMAT_444;
+        else
+          return VW_COLOUR_FORMAT_ERROR;
+      }
+
+    public:
+      static const float* get_weights(ui32 format, ui32 comp_type)
+      {
+        if (comp_type == comp_type::OJPH_COMP_Y)
+          return y;
+        else if (comp_type == comp_type::OJPH_COMP_CB)
+        {
+          if (format == VW_COLOUR_FORMAT_420)        return cb420;
+          else if (format == VW_COLOUR_FORMAT_422)   return cb422;
+          else if (format == VW_COLOUR_FORMAT_444)   return cb444;
+          else {
+            assert(0);
+            return y;
+          }
+        }
+        else if (comp_type == comp_type::OJPH_COMP_CR)
+        {
+          if (format == VW_COLOUR_FORMAT_420)        return cr420;
+          else if (format == VW_COLOUR_FORMAT_422)   return cr422;
+          else if (format == VW_COLOUR_FORMAT_444)   return cr444;
+          else {
+            assert(0);
+            return y;
+          }
+        }
+        else {
+          assert(0);
+          return y;
+        }
+      }
+
+      static const float* get_no_weights()
+      { return no_weights; }
+
+      static float get_weight(const float *v, ui32 decomposition_level,
+                              ui32 subband_idx)
+
+      {
+        if (subband_idx == 0)
+          return v[18];
+        else {
+          assert(subband_idx >= 1 && subband_idx <= 3);
+          assert(decomposition_level > 0);
+          decomposition_level = ojph_min(decomposition_level, 6);
+          ui32 index = (decomposition_level - 1) * 3 + (3 - subband_idx);
+          return v[index];
+        }
+      }
+
+      //////////////////////////
+      static float get_gain(ui32 comp_type)
+      {
+        if (comp_type == comp_type::OJPH_COMP_Y)
+          return 1.0f;
+        else if (comp_type == comp_type::OJPH_COMP_CB)
+          return 1.8051f / 1.7321f;
+        else if (comp_type == comp_type::OJPH_COMP_CR)
+          return 1.5734f / 1.7321f;
+        else {
+          assert(0);
+          return 0.0f;
+        }
+      }
+
+      //////////////////////////
+      static float get_delta_ref(ui32 qfactor, ui32 bit_depth,
+                                 float& power)
+      {
+        // returns delta_ref & power to be used with visual weights
+        constexpr uint8_t t0     = 65, t1 = 97;
+        constexpr float alpha_t0 = 0.04f, alpha_t1 = 0.10f;
+        constexpr float m_t0     = 2.0f * (1.0f - t0 / 100.0f);
+        constexpr float m_t1     = 2.0f * (1.0f - t1 / 100.0f);
+
+        float m_q;
+        if (qfactor < 50)
+          m_q = 50.0f / (float)qfactor;
+        else
+          m_q = 2.0f * (1.0f - (float)qfactor / 100.0f);
+
+        float alpha_q;
+        if (qfactor <= t0)
+        {
+          power = 1.0f;
+          alpha_q = alpha_t0;
+        }
+        else if (qfactor < t1)
+        {
+          power = std::log(m_q) - std::log(m_t1);
+          power /= std::log(m_t0) - std::log(m_t1);
+          alpha_q = alpha_t1 * std::pow(alpha_t0 / alpha_t1, power);
+        }
+        else
+        {
+          power = 0.0f;
+          alpha_q = alpha_t1;
+        }
+        const float eps = std::sqrt(0.5f) * std::ldexp(1.0f, -(int)bit_depth);
+        return alpha_q * m_q + eps;
+      }
+
+    private:
+      static const float cb420[19];
+      static const float cr420[19];
+      static const float cb422[19];
+      static const float cr422[19];
+      static const float cb444[19];
+      static const float cr444[19];
+      static const float y[19];
+      static const float no_weights[19];
+    };
+
+    //////////////////////////////////////////////////////////////////////////
+    const float visual_weights::cb420[19] = {
+      0.2724f, 0.5128f, 0.5128f,              // level 1
+      0.6692f, 0.9382f, 0.9382f,              // level 2
+      1.0888f, 1.3046f, 1.3046f,              // level 3
+      1.4156f, 1.5594f, 1.5594f,              // level 4
+      2.0f,    2.0f,    2.0f,                 // level 5
+      2.0f,    2.0f,    2.0f,    2.0f};       // level 6 + LL
+    const float visual_weights::cr420[19] = {
+      0.5196f, 0.8260f, 0.8260f,              // level 1
+      1.0080f, 1.2928f, 1.2928f,              // level 2
+      1.4440f, 1.6508f, 1.6508f,              // level 3
+      1.7538f, 1.8848f, 1.8848f,              // level 4
+      2.0f,    2.0f,    2.0f,                 // level 5
+      2.0f,    2.0f,    2.0f,    2.0f};       // level 6 + LL
+    const float visual_weights::cb422[19] = {
+      0.1220f, 0.1220f, 0.3626f,              // level 1
+      0.3626f, 0.3626f, 0.6634f,              // level 2
+      0.6634f, 0.6634f, 0.9225f,              // level 3
+      0.9225f, 0.9225f, 1.1027f,              // level 4
+      1.1027f, 1.1027f, 1.4142f,              // level 5
+      1.4142f, 1.4142f, 1.4142f, 1.4142f};    // level 6 + LL
+    const float visual_weights::cr422[19] = {
+      0.2595f, 0.2595f, 0.5841f,              // level 1
+      0.5841f, 0.5841f, 0.9141f,              // level 2
+      0.9141f, 0.9141f, 1.1673f,              // level 3
+      1.1673f, 1.1673f, 1.3328f,              // level 4
+      1.3328f, 1.3328f, 1.4142f,              // level 5
+      1.4142f, 1.4142f, 1.4142f, 1.4142f};    // level 6 + LL
+    const float visual_weights::cb444[19] = {
+      0.0263f, 0.0863f, 0.0863f,              // level 1
+      0.1362f, 0.2564f, 0.2564f,              // level 2
+      0.3346f, 0.4691f, 0.4691f,              // level 3
+      0.5444f, 0.6523f, 0.6523f,              // level 4
+      0.7078f, 0.7797f, 0.7797f,              // level 5
+      1.0f,    1.0f,    1.0f,    1.0f};       // level 6 + LL
+    const float visual_weights::cr444[19] = {
+      0.0773f, 0.1835f, 0.1835f,              // level 1
+      0.2598f, 0.4130f, 0.4130f,              // level 2
+      0.5040f, 0.6464f, 0.6464f,              // level 3
+      0.7220f, 0.8254f, 0.8254f,              // level 4
+      0.8769f, 0.9424f, 0.9424f,              // level 5
+      1.0f,    1.0f,    1.0f,    1.0f};       // level 6 + LL
+    const float visual_weights::y[19]     = {
+      0.0901f, 0.2758f, 0.2758f,              // level 1
+      0.7018f, 0.8378f, 0.8378f,              // level 2
+      1.0f,    1.0f,    1.0f,                 // level 3
+      1.0f,    1.0f,    1.0f,                 // level 4
+      1.0f,    1.0f,    1.0f,                 // level 5
+      1.0f,    1.0f,    1.0f,    1.0f};       // level 6 + LL
+    const float visual_weights::no_weights[19] = {
+      1.0f,    1.0f,    1.0f,                 // level 1
+      1.0f,    1.0f,    1.0f,                 // level 2
+      1.0f,    1.0f,    1.0f,                 // level 3
+      1.0f,    1.0f,    1.0f,                 // level 4
+      1.0f,    1.0f,    1.0f,                 // level 5
+      1.0f,    1.0f,    1.0f,    1.0f};       // level 6 + LL
+
 
     //////////////////////////////////////////////////////////////////////////
     //
@@ -641,40 +807,44 @@ namespace ojph {
       //marker size excluding header
       Lsiz = (ui16)(38 + 3 * Csiz);
 
-      ui8 buf[4];
+      ui8  buf1;
+      ui16 buf2;
+      ui32 buf4;
       bool result = true;
 
-      *(ui16*)buf = JP2K_MARKER::SIZ;
-      *(ui16*)buf = swap_byte(*(ui16*)buf);
-      result &= file->write(&buf, 2) == 2;
-      *(ui16*)buf = swap_byte(Lsiz);
-      result &= file->write(&buf, 2) == 2;
-      *(ui16*)buf = swap_byte(Rsiz);
-      result &= file->write(&buf, 2) == 2;
-      *(ui32*)buf = swap_byte(Xsiz);
-      result &= file->write(&buf, 4) == 4;
-      *(ui32*)buf = swap_byte(Ysiz);
-      result &= file->write(&buf, 4) == 4;
-      *(ui32*)buf = swap_byte(XOsiz);
-      result &= file->write(&buf, 4) == 4;
-      *(ui32*)buf = swap_byte(YOsiz);
-      result &= file->write(&buf, 4) == 4;
-      *(ui32*)buf = swap_byte(XTsiz);
-      result &= file->write(&buf, 4) == 4;
-      *(ui32*)buf = swap_byte(YTsiz);
-      result &= file->write(&buf, 4) == 4;
-      *(ui32*)buf = swap_byte(XTOsiz);
-      result &= file->write(&buf, 4) == 4;
-      *(ui32*)buf = swap_byte(YTOsiz);
-      result &= file->write(&buf, 4) == 4;
-      *(ui16*)buf = swap_byte(Csiz);
-      result &= file->write(&buf, 2) == 2;
+      buf2 = JP2K_MARKER::SIZ;
+      buf2 = swap_bytes_if_le(buf2);
+      result &= file->write(&buf2, sizeof(ui16)) == sizeof(ui16);
+      buf2 = swap_bytes_if_le(Lsiz);
+      result &= file->write(&buf2, sizeof(ui16)) == sizeof(ui16);
+      buf2 = swap_bytes_if_le(Rsiz);
+      result &= file->write(&buf2, sizeof(ui16)) == sizeof(ui16);
+      buf4 = swap_bytes_if_le(Xsiz);
+      result &= file->write(&buf4, sizeof(ui32)) == sizeof(ui32);
+      buf4 = swap_bytes_if_le(Ysiz);
+      result &= file->write(&buf4, sizeof(ui32)) == sizeof(ui32);
+      buf4 = swap_bytes_if_le(XOsiz);
+      result &= file->write(&buf4, sizeof(ui32)) == sizeof(ui32);
+      buf4 = swap_bytes_if_le(YOsiz);
+      result &= file->write(&buf4, sizeof(ui32)) == sizeof(ui32);
+      buf4 = swap_bytes_if_le(XTsiz);
+      result &= file->write(&buf4, sizeof(ui32)) == sizeof(ui32);
+      buf4 = swap_bytes_if_le(YTsiz);
+      result &= file->write(&buf4, sizeof(ui32)) == sizeof(ui32);
+      buf4 = swap_bytes_if_le(XTOsiz);
+      result &= file->write(&buf4, sizeof(ui32)) == sizeof(ui32);
+      buf4 = swap_bytes_if_le(YTOsiz);
+      result &= file->write(&buf4, sizeof(ui32)) == sizeof(ui32);
+      buf2 = swap_bytes_if_le(Csiz);
+      result &= file->write(&buf2, sizeof(ui16)) == sizeof(ui16);
       for (int c = 0; c < Csiz; ++c)
       {
-        buf[0] = cptr[c].SSiz;
-        buf[1] = cptr[c].XRsiz;
-        buf[2] = cptr[c].YRsiz;
-        result &= file->write(&buf, 3) == 3;
+        buf1 = cptr[c].SSiz;
+        result &= file->write(&buf1, sizeof(ui8)) == sizeof(ui8);
+        buf1 = cptr[c].XRsiz;
+        result &= file->write(&buf1, sizeof(ui8)) == sizeof(ui8);
+        buf1 = cptr[c].YRsiz;
+        result &= file->write(&buf1, sizeof(ui8)) == sizeof(ui8);
       }
 
       return result;
@@ -685,13 +855,13 @@ namespace ojph {
     {
       if (file->read(&Lsiz, 2) != 2)
         OJPH_ERROR(0x00050041, "error reading SIZ marker");
-      Lsiz = swap_byte(Lsiz);
+      Lsiz = swap_bytes_if_le(Lsiz);
       int num_comps = (Lsiz - 38) / 3;
       if (Lsiz != 38 + 3 * num_comps)
         OJPH_ERROR(0x00050042, "error in SIZ marker length");
       if (file->read(&Rsiz, 2) != 2)
         OJPH_ERROR(0x00050043, "error reading SIZ marker");
-      Rsiz = swap_byte(Rsiz);
+      Rsiz = swap_bytes_if_le(Rsiz);
       if ((Rsiz & 0x4000) == 0)
         OJPH_ERROR(0x00050044,
           "Rsiz bit 14 is not set (this is not a JPH file)");
@@ -699,33 +869,41 @@ namespace ojph {
         OJPH_WARN(0x00050001, "Rsiz in SIZ has unimplemented fields");
       if (file->read(&Xsiz, 4) != 4)
         OJPH_ERROR(0x00050045, "error reading SIZ marker");
-      Xsiz = swap_byte(Xsiz);
+      Xsiz = swap_bytes_if_le(Xsiz);
       if (file->read(&Ysiz, 4) != 4)
         OJPH_ERROR(0x00050046, "error reading SIZ marker");
-      Ysiz = swap_byte(Ysiz);
-      if (file->read(&XOsiz, 4) != 4)
+      Ysiz = swap_bytes_if_le(Ysiz);
+      ui32 t_XOsiz, t_YOsiz;
+      if (file->read(&t_XOsiz, 4) != 4)
         OJPH_ERROR(0x00050047, "error reading SIZ marker");
-      XOsiz = swap_byte(XOsiz);
-      if (file->read(&YOsiz, 4) != 4)
+      if (file->read(&t_YOsiz, 4) != 4)
         OJPH_ERROR(0x00050048, "error reading SIZ marker");
-      YOsiz = swap_byte(YOsiz);
-      if (file->read(&XTsiz, 4) != 4)
+      set_image_offset(point(
+        swap_bytes_if_le(t_XOsiz),
+        swap_bytes_if_le(t_YOsiz)));
+      ui32 t_XTsiz, t_YTsiz;
+      if (file->read(&t_XTsiz, 4) != 4)
         OJPH_ERROR(0x00050049, "error reading SIZ marker");
-      XTsiz = swap_byte(XTsiz);
-      if (file->read(&YTsiz, 4) != 4)
+      if (file->read(&t_YTsiz, 4) != 4)
         OJPH_ERROR(0x0005004A, "error reading SIZ marker");
-      YTsiz = swap_byte(YTsiz);
-      if (file->read(&XTOsiz, 4) != 4)
+      set_tile_size(size(
+        swap_bytes_if_le(t_XTsiz),
+        swap_bytes_if_le(t_YTsiz)));
+      ui32 t_XTOsiz, t_YTOsiz;
+      if (file->read(&t_XTOsiz, 4) != 4)
         OJPH_ERROR(0x0005004B, "error reading SIZ marker");
-      XTOsiz = swap_byte(XTOsiz);
-      if (file->read(&YTOsiz, 4) != 4)
+      if (file->read(&t_YTOsiz, 4) != 4)
         OJPH_ERROR(0x0005004C, "error reading SIZ marker");
-      YTOsiz = swap_byte(YTOsiz);
+      set_tile_offset(point(
+        swap_bytes_if_le(t_XTOsiz),
+        swap_bytes_if_le(t_YTOsiz)));
       if (file->read(&Csiz, 2) != 2)
         OJPH_ERROR(0x0005004D, "error reading SIZ marker");
-      Csiz = swap_byte(Csiz);
+      Csiz = swap_bytes_if_le(Csiz);
       if (Csiz != num_comps)
         OJPH_ERROR(0x0005004E, "Csiz does not match the SIZ marker size");
+      if (Csiz == 0)
+        OJPH_ERROR(0x0005004F, "Wrong Csiz value of 0 in SIZ marker segment");
       set_num_components(Csiz);
       for (int c = 0; c < Csiz; ++c)
       {
@@ -745,6 +923,8 @@ namespace ojph {
 
       ws_kern_support_needed = (Rsiz & 0x20) != 0;
       dfs_support_needed = (Rsiz & 0x80) != 0;
+
+      check_validity();
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -790,19 +970,20 @@ namespace ojph {
       //marker size excluding header
       Lcap = 8;
 
-      char buf[4];
+      ui16 buf2;
+      ui32 buf4;
       bool result = true;
 
-      *(ui16*)buf = JP2K_MARKER::CAP;
-      *(ui16*)buf = swap_byte(*(ui16*)buf);
-      result &= file->write(&buf, 2) == 2;
-      *(ui16*)buf = swap_byte(Lcap);
-      result &= file->write(&buf, 2) == 2;
-      *(ui32*)buf = swap_byte(Pcap);
-      result &= file->write(&buf, 4) == 4;
+      buf2 = JP2K_MARKER::CAP;
+      buf2 = swap_bytes_if_le(buf2);
+      result &= file->write(&buf2, sizeof(ui16)) == sizeof(ui16);
+      buf2 = swap_bytes_if_le(Lcap);
+      result &= file->write(&buf2, sizeof(ui16)) == sizeof(ui16);
+      buf4 = swap_bytes_if_le(Pcap);
+      result &= file->write(&buf4, sizeof(ui32)) == sizeof(ui32);
 
-      *(ui16*)buf = swap_byte(Ccap[0]);
-      result &= file->write(&buf, 2) == 2;
+      buf2 = swap_bytes_if_le(Ccap[0]);
+      result &= file->write(&buf2, sizeof(ui16)) == sizeof(ui16);
 
       return result;
     }
@@ -812,10 +993,10 @@ namespace ojph {
     {
       if (file->read(&Lcap, 2) != 2)
         OJPH_ERROR(0x00050061, "error reading CAP marker");
-      Lcap = swap_byte(Lcap);
+      Lcap = swap_bytes_if_le(Lcap);
       if (file->read(&Pcap, 4) != 4)
         OJPH_ERROR(0x00050062, "error reading CAP marker");
-      Pcap = swap_byte(Pcap);
+      Pcap = swap_bytes_if_le(Pcap);
       ui32 count = population_count(Pcap);
       if (Pcap & 0xFFFDFFFF)
         OJPH_ERROR(0x00050063,
@@ -859,34 +1040,38 @@ namespace ojph {
       Lcod = 12;
       Lcod = (ui16)(Lcod + (Scod & 1 ? 1 + SPcod.num_decomp : 0));
 
-      ui8 buf[4];
+      ui8  buf1;
+      ui16 buf2;
       bool result = true;
 
-      *(ui16*)buf = JP2K_MARKER::COD;
-      *(ui16*)buf = swap_byte(*(ui16*)buf);
-      result &= file->write(&buf, 2) == 2;
-      *(ui16*)buf = swap_byte(Lcod);
-      result &= file->write(&buf, 2) == 2;
-      *(ui8*)buf = Scod;
-      result &= file->write(&buf, 1) == 1;
-      *(ui8*)buf = SGCod.prog_order;
-      result &= file->write(&buf, 1) == 1;
-      *(ui16*)buf = swap_byte(SGCod.num_layers);
-      result &= file->write(&buf, 2) == 2;
-      *(ui8*)buf = SGCod.mc_trans;
-      result &= file->write(&buf, 1) == 1;
-      buf[0] = SPcod.num_decomp;
-      buf[1] = SPcod.block_width;
-      buf[2] = SPcod.block_height;
-      buf[3] = SPcod.block_style;
-      result &= file->write(&buf, 4) == 4;
-      *(ui8*)buf = SPcod.wavelet_trans;
-      result &= file->write(&buf, 1) == 1;
+      buf2 = JP2K_MARKER::COD;
+      buf2 = swap_bytes_if_le(buf2);
+      result &= file->write(&buf2, sizeof(ui16)) == sizeof(ui16);
+      buf2 = swap_bytes_if_le(Lcod);
+      result &= file->write(&buf2, sizeof(ui16)) == sizeof(ui16);
+      buf1 = Scod;
+      result &= file->write(&buf1, sizeof(ui8)) == sizeof(ui8);
+      buf1 = SGCod.prog_order;
+      result &= file->write(&buf1, sizeof(ui8)) == sizeof(ui8);
+      buf2 = swap_bytes_if_le(SGCod.num_layers);
+      result &= file->write(&buf2, sizeof(ui16)) == sizeof(ui16);
+      buf1 = SGCod.mc_trans;
+      result &= file->write(&buf1, sizeof(ui8)) == sizeof(ui8);
+      buf1 = SPcod.num_decomp;
+      result &= file->write(&buf1, sizeof(ui8)) == sizeof(ui8);
+      buf1 = SPcod.block_width;
+      result &= file->write(&buf1, sizeof(ui8)) == sizeof(ui8);
+      buf1 = SPcod.block_height;
+      result &= file->write(&buf1, sizeof(ui8)) == sizeof(ui8);
+      buf1 = SPcod.block_style;
+      result &= file->write(&buf1, sizeof(ui8)) == sizeof(ui8);
+      buf1 = SPcod.wavelet_trans;
+      result &= file->write(&buf1, sizeof(ui8)) == sizeof(ui8);
       if (Scod & 1)
         for (int i = 0; i <= SPcod.num_decomp; ++i)
         {
-          *(ui8*)buf = SPcod.precinct_size[i];
-          result &= file->write(&buf, 1) == 1;
+          buf1 = SPcod.precinct_size[i];
+          result &= file->write(&buf1, sizeof(ui8)) == sizeof(ui8);
         }
 
       return result;
@@ -916,38 +1101,42 @@ namespace ojph {
       Lcod = num_comps < 257 ? 9 : 10;
       Lcod = (ui16)(Lcod + (Scod & 1 ? 1 + SPcod.num_decomp : 0));
 
-      ui8 buf[4];
+      ui8  buf1;
+      ui16 buf2;
       bool result = true;
 
-      *(ui16*)buf = JP2K_MARKER::COC;
-      *(ui16*)buf = swap_byte(*(ui16*)buf);
-      result &= file->write(&buf, 2) == 2;
-      *(ui16*)buf = swap_byte(Lcod);
-      result &= file->write(&buf, 2) == 2;
+      buf2 = JP2K_MARKER::COC;
+      buf2 = swap_bytes_if_le(buf2);
+      result &= file->write(&buf2, sizeof(ui16)) == sizeof(ui16);
+      buf2 = swap_bytes_if_le(Lcod);
+      result &= file->write(&buf2, sizeof(ui16)) == sizeof(ui16);
       if (num_comps < 257)
       {
-        *(ui8*)buf = (ui8)comp_idx;
-        result &= file->write(&buf, 1) == 1;
+        buf1 = (ui8)comp_idx;
+        result &= file->write(&buf1, sizeof(ui8)) == sizeof(ui8);
       }
       else
       {
-        *(ui16*)buf = swap_byte(comp_idx);
-        result &= file->write(&buf, 2) == 2;
+        buf2 = swap_bytes_if_le(comp_idx);
+        result &= file->write(&buf2, sizeof(ui16)) == sizeof(ui16);
       }
-      *(ui8*)buf = Scod;
-      result &= file->write(&buf, 1) == 1;
-      buf[0] = SPcod.num_decomp;
-      buf[1] = SPcod.block_width;
-      buf[2] = SPcod.block_height;
-      buf[3] = SPcod.block_style;
-      result &= file->write(&buf, 4) == 4;
-      *(ui8*)buf = SPcod.wavelet_trans;
-      result &= file->write(&buf, 1) == 1;
+      buf1 = Scod;
+      result &= file->write(&buf1, sizeof(ui8)) == sizeof(ui8);
+      buf1 = SPcod.num_decomp;
+      result &= file->write(&buf1, sizeof(ui8)) == sizeof(ui8);
+      buf1 = SPcod.block_width;
+      result &= file->write(&buf1, sizeof(ui8)) == sizeof(ui8);
+      buf1 = SPcod.block_height;
+      result &= file->write(&buf1, sizeof(ui8)) == sizeof(ui8);
+      buf1 = SPcod.block_style;
+      result &= file->write(&buf1, sizeof(ui8)) == sizeof(ui8);
+      buf1 = SPcod.wavelet_trans;
+      result &= file->write(&buf1, sizeof(ui8)) == sizeof(ui8);
       if (Scod & 1)
         for (int i = 0; i <= SPcod.num_decomp; ++i)
         {
-          *(ui8*)buf = SPcod.precinct_size[i];
-          result &= file->write(&buf, 1) == 1;
+          buf1 = SPcod.precinct_size[i];
+          result &= file->write(&buf1, sizeof(ui8)) == sizeof(ui8);
         }
 
       return result;
@@ -960,7 +1149,7 @@ namespace ojph {
 
       if (file->read(&Lcod, 2) != 2)
         OJPH_ERROR(0x00050071, "error reading COD segment");
-      Lcod = swap_byte(Lcod);
+      Lcod = swap_bytes_if_le(Lcod);
       if (file->read(&Scod, 1) != 1)
         OJPH_ERROR(0x00050072, "error reading COD segment");
       if (file->read(&SGCod.prog_order, 1) != 1)
@@ -968,7 +1157,7 @@ namespace ojph {
       if (file->read(&SGCod.num_layers, 2) != 2)
       { OJPH_ERROR(0x00050074, "error reading COD segment"); }
       else
-        SGCod.num_layers = swap_byte(SGCod.num_layers);
+        SGCod.num_layers = swap_bytes_if_le(SGCod.num_layers);
       if (file->read(&SGCod.mc_trans, 1) != 1)
         OJPH_ERROR(0x00050075, "error reading COD segment");
       if (file->read(&SPcod.num_decomp, 1) != 1)
@@ -994,10 +1183,21 @@ namespace ojph {
         OJPH_ERROR(0x0005007E, "unsupported settings in a COD-SPcod parameter");
 
       ui8 num_decompositions =  get_num_decompositions();
-      if (Scod & 1)
-        for (int i = 0; i <= num_decompositions; ++i)
+      if (Scod & 1) {
+        for (int i = 0; i <= num_decompositions; ++i) {
           if (file->read(&SPcod.precinct_size[i], 1) != 1)
             OJPH_ERROR(0x0005007B, "error reading COD segment");
+          if (i)
+            if ((SPcod.precinct_size[i] & 0x0F) == 0 ||
+              (SPcod.precinct_size[i] >> 4) == 0)
+              OJPH_ERROR(0x0005007F,
+                "Precinct width or height for resolutions other than the"
+                " coarsest must be larger than 1; here, they are %d and %d,"
+                " respectively.",
+                1 << (SPcod.precinct_size[i] & 0x0F),
+                1 << (SPcod.precinct_size[i] >> 4));
+        }
+      }
       if (Lcod != 12 + ((Scod & 1) ? 1 + SPcod.num_decomp : 0))
         OJPH_ERROR(0x0005007C, "error in COD segment length");
     }
@@ -1013,7 +1213,7 @@ namespace ojph {
       this->top_cod = top_cod;
       if (file->read(&Lcod, 2) != 2)
         OJPH_ERROR(0x00050121, "error reading COC segment");
-      Lcod = swap_byte(Lcod);
+      Lcod = swap_bytes_if_le(Lcod);
       if (num_comps < 257) {
         ui8 t;
         if (file->read(&t, 1) != 1)
@@ -1023,7 +1223,7 @@ namespace ojph {
       else {
         if (file->read(&comp_idx, 2) != 2)
           OJPH_ERROR(0x00050123, "error reading COC segment");
-        comp_idx = swap_byte(comp_idx);
+        comp_idx = swap_bytes_if_le(comp_idx);
       }
       if (file->read(&Scod, 1) != 1)
         OJPH_ERROR(0x00050124, "error reading COC segment");
@@ -1053,10 +1253,21 @@ namespace ojph {
         OJPH_ERROR(0x0005012D, "unsupported settings in a COC-SPcoc parameter");
 
       ui8 num_decompositions =  get_num_decompositions();
-      if (Scod & 1)
-        for (int i = 0; i <= num_decompositions; ++i)
+      if (Scod & 1) {
+        for (int i = 0; i <= num_decompositions; ++i) {
           if (file->read(&SPcod.precinct_size[i], 1) != 1)
             OJPH_ERROR(0x0005012A, "error reading COC segment");
+          if (i)
+            if ((SPcod.precinct_size[i] & 0x0F) == 0 ||
+              (SPcod.precinct_size[i] >> 4) == 0)
+              OJPH_ERROR(0x0005012E,
+                "Precinct width or height for resolutions other than the"
+                " coarsest must be larger than 1; here, they are %d and %d,"
+                " respectively.",
+                1 << (SPcod.precinct_size[i] & 0x0F),
+                1 << (SPcod.precinct_size[i] >> 4));
+        }
+      }
       ui32 t = 9;
       t += num_comps < 257 ? 0 : 1;
       t += (Scod & 1) ? 1 + num_decompositions : 0;
@@ -1127,6 +1338,16 @@ namespace ojph {
     }
 
     //////////////////////////////////////////////////////////////////////////
+    param_cod* param_cod::get_or_add_coc(ui32 comp_idx)
+    {
+      assert(type == COD_MAIN);
+      local::param_cod *p = get_coc(comp_idx);
+      if (p == this)
+        p = add_coc_object(comp_idx);
+      return p;
+    }
+
+    //////////////////////////////////////////////////////////////////////////
     //
     //
     //
@@ -1137,142 +1358,137 @@ namespace ojph {
     //////////////////////////////////////////////////////////////////////////
     void param_qcd::check_validity(const param_siz& siz, const param_cod& cod)
     {
+      assert(this->type == QCD_MAIN);
+
       ui32 num_comps = siz.get_num_components();
       trim_non_existing_components(num_comps);
 
-      // first check that all the component captured by QCD have the same
-      // bit_depth and signedness
-      bool all_same = true;
-      bool other_comps_exist = false;
-      ui32 first_comp = 0xFFFF; // an impossible component
+      // initialize QCD based on the first component that is (a) associated with
+      // COD and (b) does not have a COC, or the first component othewise.
+      ui32 qcd_comp = 0;
+      for (ui32 c = 0; c < num_comps; ++c)
       {
-        ui32 num_decompositions = 0;
-        ui32 bit_depth = 0;
-        bool is_signed = false;
-        ui32 wavelet_kern = param_cod::DWT_IRV97;
-
-        for (ui32 c = 0; c < num_comps; ++c)
+        if (cod.get_coc(c) == &cod && get_qcc(c) == this)
         {
-          if (get_qcc(c) == this) // no qcc defined for component c
+          qcd_comp = c;
+          break;
+        }
+      }
+
+      // check if only the top QCD has qfactor set, if so, check if any
+      // of the first component has COC and qfactor set properly
+      if (this->qfactor != QFACTOR_UNSET)
+      {
+        if (num_comps < 3) // one or two components
+        {
+          for (ui32 i = 0; i < num_comps; ++i)
           {
-            const param_cod *p = cod.get_coc(c);
-            if (bit_depth == 0) // first component captured by QCD
+            param_qcd* q = get_qcc(i);
+            if (q == this)
             {
-              num_decompositions = p->get_num_decompositions();
-              bit_depth = siz.get_bit_depth(c);
-              is_signed = siz.is_signed(c);
-              wavelet_kern = p->get_wavelet_kern();
-              first_comp = c;
-            }
-            else
-            {
-              all_same = all_same
-                && (num_decompositions == p->get_num_decompositions())
-                && (bit_depth == siz.get_bit_depth(c))
-                && (is_signed == siz.is_signed(c))
-                && (wavelet_kern == p->get_wavelet_kern());
+              q = add_qcc_object(i);
+              set_qfactor(i, comp_type::OJPH_COMP_Y, this->qfactor);
             }
           }
-          else
-            other_comps_exist = true;
         }
-      }
-
-      // configure QCD according COD
-      ui32 qcd_num_decompositions;
-      ui32 qcd_bit_depth;
-      bool qcd_is_signed;
-      ui32 qcd_wavelet_kern;
-      {
-        ui32 qcd_component = first_comp != 0xFFFF ? first_comp : 0;
-        bool employing_color_transform = cod.is_employing_color_transform();
-        qcd_num_decompositions = cod.get_num_decompositions();
-        qcd_bit_depth = siz.get_bit_depth(qcd_component);
-        qcd_is_signed = siz.is_signed(qcd_component);
-        qcd_wavelet_kern = cod.get_wavelet_kern();
-        this->num_subbands = 1 + 3 * qcd_num_decompositions;
-        if (qcd_wavelet_kern == param_cod::DWT_REV53)
-          set_rev_quant(qcd_num_decompositions, qcd_bit_depth,
-            qcd_component < 3 ? employing_color_transform : false);
-        else if (qcd_wavelet_kern == param_cod::DWT_IRV97)
+        else if (num_comps >= 3)
         {
-          if (this->base_delta == -1.0f)
-            this->base_delta = 1.0f / (float)(1 << qcd_bit_depth);
-          set_irrev_quant(qcd_num_decompositions);
-        }
-        else
-          assert(0);
-      }
-
-      // if not all the same and captured by QCD, then create QCC for them
-      if (!all_same)
-      {
-        bool employing_color_transform = cod.is_employing_color_transform();
-        for (ui32 c = 0; c < num_comps; ++c)
-        {
-          const param_cod *cp = cod.get_coc(c);
-          if (qcd_num_decompositions == cp->get_num_decompositions()
-              && qcd_bit_depth == siz.get_bit_depth(c)
-              && qcd_is_signed == siz.is_signed(c)
-              && qcd_wavelet_kern == cp->get_wavelet_kern())
-            continue; // captured by QCD
-
-          // Does not match QCD, must have QCC
-          param_qcd *qp = get_qcc(c);
-          if (qp == this) // no QCC was defined, create QCC
-            qp = this->add_qcc_object(c);
-
-          ui32 num_decompositions = cp->get_num_decompositions();
-          qp->num_subbands = 1 + 3 * num_decompositions;
-          ui32 bit_depth = siz.get_bit_depth(c);
-          if (cp->get_wavelet_kern() == param_cod::DWT_REV53)
-            qp->set_rev_quant(num_decompositions, bit_depth,
-              c < 3 ? employing_color_transform : false);
-          else if (cp->get_wavelet_kern() == param_cod::DWT_IRV97)
-          {
-            if (qp->base_delta == -1.0f)
-              qp->base_delta = 1.0f / (float)(1 << bit_depth);
-            qp->set_irrev_quant(num_decompositions);
+          for (ui32 i = 0; i < num_comps; ++i) {
+            param_qcd* q = get_qcc(i);
+            if (q == this)
+            {
+              q = add_qcc_object(i);
+              ui8 ci = (ui8)(i < 3u ? i : 0u);
+              comp_type t = ojph::param_qcd::ui8_2_comp_type(ci);
+              set_qfactor(i, t, this->qfactor);
+            }
           }
-          else
-            assert(0);
         }
       }
-      else if (other_comps_exist) // Some are captured by QCD
+
+      this->make_quant_steps(qcd_comp, cod, siz);
+
+      // initialize every QCC, creating one for every component that (a) cannot
+      // use QCD and (b) does not already have a QCC
+      // NOTE: Qfactor always creates a QCC and QCD cannot be reused
+      for (ui32 c = 0; c < num_comps; ++c)
       {
-        bool employing_color_transform = cod.is_employing_color_transform();
-        for (ui32 c = 0; c < num_comps; ++c)
+        param_qcd *qcc = this->get_qcc(c);
+        const param_cod *coc = cod.get_coc(c);
+
+        // check if a QCC exists for the component
+        if (qcc == this)
         {
-          param_qcd *qp = get_qcc(c);
-          if (qp == this) // if captured by QCD continue
+          // if none exists, do not create one if QCD can be reused
+          if (!this->is_qcc_needed(c, *coc, siz))
             continue;
-          const param_cod *cp = cod.get_coc(c);
-          ui32 num_decompositions = cp->get_num_decompositions();
-          qp->num_subbands = 1 + 3 * num_decompositions;
-          ui32 bit_depth = siz.get_bit_depth(c);
-          if (cp->get_wavelet_kern() == param_cod::DWT_REV53)
-            qp->set_rev_quant(num_decompositions, bit_depth,
-              c < 3 ? employing_color_transform : false);
-          else if (cp->get_wavelet_kern() == param_cod::DWT_IRV97)
-          {
-            if (qp->base_delta == -1.0f)
-              qp->base_delta = 1.0f / (float)(1 << bit_depth);
-            qp->set_irrev_quant(num_decompositions);
-          }
-          else
-            assert(0);
+
+          qcc = this->add_qcc_object(c);
+          qcc->set_delta(this->base_delta);
         }
+
+        qcc->make_quant_steps(c, *coc, siz);
       }
     }
 
     //////////////////////////////////////////////////////////////////////////
-    void param_qcd::set_delta(ui32 comp_idx, float delta)
+    void param_qcd::make_quant_steps(ui32 comp_num, const param_cod &cod,
+                                     const param_siz &siz)
     {
-      assert(type == QCD_MAIN);
-      param_qcd *p = get_qcc(comp_idx);
-      if (p == NULL)
-        p = add_qcc_object(comp_idx);
-      p->set_delta(delta);
+      if (this->is_init)
+        OJPH_ERROR(0x00040001, "Quantization step sizes already initialized.");
+
+      this->is_init = true;
+
+      this->num_decomps = cod.get_num_decompositions();
+      this->bit_depth = siz.get_bit_depth(comp_num);
+      this->is_signed = siz.is_signed(comp_num);
+      this->is_color_trans = cod.is_employing_color_transform();
+      this->wavelet_kern = cod.get_wavelet_kern();
+      this->sampling = siz.get_downsampling(comp_num);
+      this->num_subbands = 1 + 3 * this->num_decomps;
+
+      if (this->wavelet_kern == param_cod::DWT_REV53)
+        this->set_rev_quant(this->num_decomps, this->bit_depth,
+                            comp_num < 3 ? this->is_color_trans : false);
+      else if (this->wavelet_kern == param_cod::DWT_IRV97)
+      {
+        if (this->base_delta == -1.0f)
+        {
+          ui32 t = ojph_min(16, bit_depth);
+          this->base_delta = 1.0f / (float)(1 << t);
+        }
+        else if (qfactor != QFACTOR_UNSET)
+          OJPH_WARN(0x00040002, "qstep for component %d is ignored, because "
+            "qfactor is set.", comp_num);
+
+        this->set_irrev_quant(this->num_decomps);
+      }
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    bool param_qcd::is_qcc_needed(ui32 comp_num, const param_cod &cod,
+                                  const param_siz &siz)
+    {
+      if (! this->is_init)
+        OJPH_ERROR(0x00040001, "Quantization step sizes not initialized.");
+
+      return this->num_decomps != cod.get_num_decompositions() ||
+              this->bit_depth != siz.get_bit_depth(comp_num) ||
+              this->is_signed != siz.is_signed(comp_num) ||
+              this->is_color_trans != cod.is_employing_color_transform() ||
+              this->wavelet_kern != cod.get_wavelet_kern();
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    void param_qcd::set_qfactor(ui8 qfactor) {
+      assert(this->type == QCD_MAIN);
+
+      if (qfactor < 1 || qfactor > 100)
+        OJPH_ERROR(0x00050181, "Qfactor must be between 1 and 100, "
+          "but was set to %i.", qfactor);
+
+      this->qfactor = qfactor;
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -1326,42 +1542,73 @@ namespace ojph {
     void param_qcd::set_irrev_quant(ui32 num_decomps)
     {
       int guard_bits = 1;
-      Sqcd = (ui8)((guard_bits<<5)|0x2);//one guard bit, scalar quantization
-      int s = 0;
+      Sqcd = (ui8)((guard_bits<<5)|0x2); //one guard bit, scalar quantization
+
+      float g_c = 1.0f;
+      float delta_ref = base_delta;
+      float power = 1.0f;
+      const float* weights = visual_weights::get_no_weights();
+
+      if (qfactor != QFACTOR_UNSET)
+      {
+        visual_weights::colour_format format =
+          visual_weights::get_format(this->sampling);
+        if (format == visual_weights::VW_COLOUR_FORMAT_ERROR)
+          OJPH_ERROR(0x00050161, "Qfactor can only be used on components "
+            "with 4:4:4, 4:2:2 or 4:2:0 sampling");
+        if (this->ctype == comp_type::OJPH_COMP_Y &&
+          this->sampling.x != 1 && this->sampling.y != 1)
+          OJPH_ERROR(0x00050162, "Qfactor can only be used for a Y or "
+            "luminance component when it is not downsampled.");
+
+        // calculate component gain
+        g_c = visual_weights::get_gain(this->ctype);
+
+        // calculate delta_ref & power
+        delta_ref = visual_weights::get_delta_ref(qfactor, bit_depth, power);
+
+        // find visual weight
+        weights = visual_weights::get_weights(format, this->ctype);
+      }
+
+      // LL band
+      ui32 b = 0;
+      float w_b;
       float gain_l = sqrt_energy_gains::get_gain_l(num_decomps, false);
-      float delta_b = base_delta / (gain_l * gain_l);
-      int exp = 0, mantissa;
-      while (delta_b < 1.0f)
-      { exp++; delta_b *= 2.0f; }
-      //with rounding, there is a risk of becoming equal to 1<<12
-      // but that should not happen in reality
-      mantissa = (int)round(delta_b * (float)(1<<11)) - (1<<11);
-      mantissa = mantissa < (1<<11) ? mantissa : 0x7FF;
-      SPqcd.u16[s++] = (ui16)((exp << 11) | mantissa);
+      w_b = visual_weights::get_weight(weights, num_decomps, b);
+      w_b = std::pow(w_b, power);
+      encode_SPqcd(b++, delta_ref / (gain_l * gain_l * g_c * w_b));
+
+      // LL, HL, LH, HH, HL, LH, HH...
       for (ui32 d = num_decomps; d > 0; --d)
       {
+        // compute square root of the enery gain factor W_g
         float gain_l = sqrt_energy_gains::get_gain_l(d, false);
         float gain_h = sqrt_energy_gains::get_gain_h(d - 1, false);
 
-        delta_b = base_delta / (gain_l * gain_h);
-
-        int exp = 0, mantissa;
-        while (delta_b < 1.0f)
-        { exp++; delta_b *= 2.0f; }
-        mantissa = (int)round(delta_b * (float)(1<<11)) - (1<<11);
-        mantissa = mantissa < (1<<11) ? mantissa : 0x7FF;
-        SPqcd.u16[s++] = (ui16)((exp << 11) | mantissa);
-        SPqcd.u16[s++] = (ui16)((exp << 11) | mantissa);
-
-        delta_b = base_delta / (gain_h * gain_h);
-
-        exp = 0;
-        while (delta_b < 1)
-        { exp++; delta_b *= 2.0f; }
-        mantissa = (int)round(delta_b * (float)(1<<11)) - (1<<11);
-        mantissa = mantissa < (1<<11) ? mantissa : 0x7FF;
-        SPqcd.u16[s++] = (ui16)((exp << 11) | mantissa);
+        w_b = visual_weights::get_weight(weights, d, 1);
+        w_b = std::pow(w_b, power);
+        encode_SPqcd(b++, delta_ref / (gain_h * gain_l * g_c * w_b));
+        w_b = visual_weights::get_weight(weights, d, 2);
+        w_b = std::pow(w_b, power);
+        encode_SPqcd(b++, delta_ref / (gain_l * gain_h * g_c * w_b));
+        w_b = visual_weights::get_weight(weights, d, 3);
+        w_b = std::pow(w_b, power);
+        encode_SPqcd(b++, delta_ref / (gain_h * gain_h * g_c * w_b));
       }
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    void param_qcd::encode_SPqcd(ui32 subband_index, float delta)
+    {
+      int exp = 0, mantissa;
+      while (delta < 1.0f)
+      { exp++; delta *= 2.0f; }
+      mantissa = (int)round(delta * (float)(1<<11)) - (1<<11);
+      // with rounding, there is a risk that the mantissa becomes
+      // equal to 1<<11
+      mantissa = mantissa < (1<<11) ? mantissa : 0x7FF;
+      SPqcd.u16[subband_index] = (ui16)((exp << 11) | mantissa);
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -1401,11 +1648,15 @@ namespace ojph {
 
     //////////////////////////////////////////////////////////////////////////
     float param_qcd::get_irrev_delta(const param_dfs* dfs,
-                                     ui32 num_decompositions,
+                                     ui32 num_decompositions, ui32 comp_num,
                                      ui32 resolution, ui32 subband) const
     {
       float arr[] = { 1.0f, 2.0f, 2.0f, 4.0f };
-      assert((Sqcd & 0x1F) == 2);
+      if ((Sqcd & 0x1F) != 2)
+        OJPH_ERROR(0x00050101, "There is something wrong in the configuration "
+          "of the codestream; for component %d, the codestream defines an "
+          "irreversible transform, for which the codestream provides a "
+          "reversible (no quantization) step sizes in Sqcd/Sqcc.", comp_num);
 
       ui32 idx;
       if (dfs != NULL && dfs->exists())
@@ -1413,7 +1664,7 @@ namespace ojph {
       else
         idx = resolution ? (resolution - 1) * 3 + subband : 0;
       if (idx >= num_subbands) {
-        OJPH_INFO(0x00050101, "Trying to access quantization step size for "
+        OJPH_INFO(0x00050102, "Trying to access quantization step size for "
           "subband %d when the QCD/QCC marker segment specifies "
           "quantization step sizes for %d subbands only.  To continue "
           "decoding, we are using the step size for subband %d, which can "
@@ -1537,28 +1788,29 @@ namespace ojph {
       else
         assert(0);
 
-      char buf[4];
+      ui8  buf1;
+      ui16 buf2;
       bool result = true;
 
-      *(ui16*)buf = JP2K_MARKER::QCD;
-      *(ui16*)buf = swap_byte(*(ui16*)buf);
-      result &= file->write(&buf, 2) == 2;
-      *(ui16*)buf = swap_byte(Lqcd);
-      result &= file->write(&buf, 2) == 2;
-      *(ui8*)buf = Sqcd;
-      result &= file->write(&buf, 1) == 1;
+      buf2 = JP2K_MARKER::QCD;
+      buf2 = swap_bytes_if_le(buf2);
+      result &= file->write(&buf2, sizeof(ui16)) == sizeof(ui16);
+      buf2 = swap_bytes_if_le(Lqcd);
+      result &= file->write(&buf2, sizeof(ui16)) == sizeof(ui16);
+      buf1 = Sqcd;
+      result &= file->write(&buf1, sizeof(ui8)) == sizeof(ui8);
 
       if (irrev == 0)
         for (ui32 i = 0; i < num_subbands; ++i)
         {
-          *(ui8*)buf = SPqcd.u8[i];
-          result &= file->write(&buf, 1) == 1;
+          buf1 = SPqcd.u8[i];
+          result &= file->write(&buf1, sizeof(ui8)) == sizeof(ui8);
         }
       else if (irrev == 2)
         for (ui32 i = 0; i < num_subbands; ++i)
         {
-          *(ui16*)buf = swap_byte(SPqcd.u16[i]);
-          result &= file->write(&buf, 2) == 2;
+          buf2 = swap_bytes_if_le(SPqcd.u16[i]);
+          result &= file->write(&buf2, sizeof(ui16)) == sizeof(ui16);
         }
       else
         assert(0);
@@ -1595,37 +1847,38 @@ namespace ojph {
       else
         assert(0);
 
-      char buf[4];
+      ui8  buf1;
+      ui16 buf2;
       bool result = true;
 
-      *(ui16*)buf = JP2K_MARKER::QCC;
-      *(ui16*)buf = swap_byte(*(ui16*)buf);
-      result &= file->write(&buf, 2) == 2;
-      *(ui16*)buf = swap_byte(Lqcd);
-      result &= file->write(&buf, 2) == 2;
+      buf2 = JP2K_MARKER::QCC;
+      buf2 = swap_bytes_if_le(buf2);
+      result &= file->write(&buf2, sizeof(ui16)) == sizeof(ui16);
+      buf2 = swap_bytes_if_le(Lqcd);
+      result &= file->write(&buf2, sizeof(ui16)) == sizeof(ui16);
       if (num_comps < 257)
       {
-        *(ui8*)buf = (ui8)comp_idx;
-        result &= file->write(&buf, 1) == 1;
+        buf1 = (ui8)comp_idx;
+        result &= file->write(&buf1, sizeof(ui8)) == sizeof(ui8);
       }
       else
       {
-        *(ui16*)buf = swap_byte(comp_idx);
-        result &= file->write(&buf, 2) == 2;
+        buf2 = swap_bytes_if_le(comp_idx);
+        result &= file->write(&buf2, sizeof(ui16)) == sizeof(ui16);
       }
-      *(ui8*)buf = Sqcd;
-      result &= file->write(&buf, 1) == 1;
+      buf1 = Sqcd;
+      result &= file->write(&buf1, sizeof(ui8)) == sizeof(ui8);
       if (irrev == 0)
         for (ui32 i = 0; i < num_subbands; ++i)
         {
-          *(ui8*)buf = SPqcd.u8[i];
-          result &= file->write(&buf, 1) == 1;
+          buf1 = SPqcd.u8[i];
+          result &= file->write(&buf1, sizeof(ui8)) == sizeof(ui8);
         }
       else if (irrev == 2)
         for (ui32 i = 0; i < num_subbands; ++i)
         {
-          *(ui16*)buf = swap_byte(SPqcd.u16[i]);
-          result &= file->write(&buf, 2) == 2;
+          buf2 = swap_bytes_if_le(SPqcd.u16[i]);
+          result &= file->write(&buf2, sizeof(ui16)) == sizeof(ui16);
         }
       else
         assert(0);
@@ -1651,12 +1904,15 @@ namespace ojph {
     {
       if (file->read(&Lqcd, 2) != 2)
         OJPH_ERROR(0x00050081, "error reading QCD marker");
-      Lqcd = swap_byte(Lqcd);
+      Lqcd = swap_bytes_if_le(Lqcd);
       if (file->read(&Sqcd, 1) != 1)
         OJPH_ERROR(0x00050082, "error reading QCD marker");
       if ((Sqcd & 0x1F) == 0)
       {
         num_subbands = (Lqcd - 3);
+        if (num_subbands == 0)
+          OJPH_ERROR(0x0005008A, "QCD marker segment that specifies no "
+            "quantization informtion");
         if (num_subbands > 97 || Lqcd != 3 + num_subbands)
           OJPH_ERROR(0x00050083, "wrong Lqcd value of %d in QCD marker", Lqcd);
         for (ui32 i = 0; i < num_subbands; ++i)
@@ -1674,13 +1930,16 @@ namespace ojph {
       else if ((Sqcd & 0x1F) == 2)
       {
         num_subbands = (Lqcd - 3) / 2;
+        if (num_subbands == 0)
+          OJPH_ERROR(0x0005008B, "QCD marker segment that specifies no "
+            "quantization informtion");
         if (num_subbands > 97 || Lqcd != 3 + 2 * num_subbands)
           OJPH_ERROR(0x00050086, "wrong Lqcd value of %d in QCD marker", Lqcd);
         for (ui32 i = 0; i < num_subbands; ++i)
         {
           if (file->read(&SPqcd.u16[i], 2) != 2)
             OJPH_ERROR(0x00050087, "error reading QCD marker");
-          SPqcd.u16[i] = swap_byte(SPqcd.u16[i]);
+          SPqcd.u16[i] = swap_bytes_if_le(SPqcd.u16[i]);
         }
       }
       else
@@ -1692,7 +1951,7 @@ namespace ojph {
     {
       if (file->read(&Lqcd, 2) != 2)
         OJPH_ERROR(0x000500A1, "error reading QCC marker");
-      Lqcd = swap_byte(Lqcd);
+      Lqcd = swap_bytes_if_le(Lqcd);
       if (num_comps < 257)
       {
         ui8 v;
@@ -1704,7 +1963,7 @@ namespace ojph {
       {
         if (file->read(&comp_idx, 2) != 2)
           OJPH_ERROR(0x000500A3, "error reading QCC marker");
-        comp_idx = swap_byte(comp_idx);
+        comp_idx = swap_bytes_if_le(comp_idx);
       }
       if (file->read(&Sqcd, 1) != 1)
         OJPH_ERROR(0x000500A4, "error reading QCC marker");
@@ -1712,6 +1971,9 @@ namespace ojph {
       if ((Sqcd & 0x1F) == 0)
       {
         num_subbands = (Lqcd - offset);
+        if (num_subbands == 0)
+          OJPH_ERROR(0x000500AC, "QCC marker segment that specifies no "
+            "quantization informtion");
         if (num_subbands > 97 || Lqcd != offset + num_subbands)
           OJPH_ERROR(0x000500A5, "wrong Lqcd value of %d in QCC marker", Lqcd);
         for (ui32 i = 0; i < num_subbands; ++i)
@@ -1729,17 +1991,47 @@ namespace ojph {
       else if ((Sqcd & 0x1F) == 2)
       {
         num_subbands = (Lqcd - offset) / 2;
+        if (num_subbands == 0)
+          OJPH_ERROR(0x000500AD, "QCC marker segment that specifies no "
+            "quantization informtion");
         if (num_subbands > 97 || Lqcd != offset + 2 * num_subbands)
           OJPH_ERROR(0x000500A8, "wrong Lqcc value of %d in QCC marker", Lqcd);
         for (ui32 i = 0; i < num_subbands; ++i)
         {
           if (file->read(&SPqcd.u16[i], 2) != 2)
             OJPH_ERROR(0x000500A9, "error reading QCC marker");
-          SPqcd.u16[i] = swap_byte(SPqcd.u16[i]);
+          SPqcd.u16[i] = swap_bytes_if_le(SPqcd.u16[i]);
         }
       }
       else
         OJPH_ERROR(0x000500AA, "wrong Sqcc value in QCC marker");
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    void param_qcd::set_delta(ui32 comp_idx, float delta)
+    {
+      assert(type == QCD_MAIN);
+      param_qcd *p = get_qcc(comp_idx);
+      if (p == NULL)
+        p = add_qcc_object(comp_idx);
+      p->set_delta(delta);
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    void param_qcd::set_qfactor(ui32 comp_idx, comp_type ctype, ui8 qfactor)
+    {
+      assert(this->type == QCD_MAIN);
+
+      if (qfactor < 1 || qfactor > 100)
+        OJPH_ERROR(0x00050191, "Qfactor must be between 1 and 100, "
+          "but was set to %i.", qfactor);
+
+      param_qcd *p = get_qcc(comp_idx);
+      if (p == this)
+        p = add_qcc_object(comp_idx);
+
+      p->qfactor = qfactor;
+      p->ctype = ctype;
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -1920,20 +2212,20 @@ namespace ojph {
       if (is_any_enabled() == false)
         return true;
 
-      char buf[2];
+      ui16 buf2;
       bool result = true;
       const param_nlt* p = this;
       while (p)
       {
         if (p->enabled)
         {
-          *(ui16*)buf = JP2K_MARKER::NLT;
-          *(ui16*)buf = swap_byte(*(ui16*)buf);
-          result &= file->write(&buf, 2) == 2;
-          *(ui16*)buf = swap_byte(p->Lnlt);
-          result &= file->write(&buf, 2) == 2;
-          *(ui16*)buf = swap_byte(p->Cnlt);
-          result &= file->write(&buf, 2) == 2;
+          buf2 = JP2K_MARKER::NLT;
+          buf2 = swap_bytes_if_le(buf2);
+          result &= file->write(&buf2, sizeof(ui16)) == sizeof(ui16);
+          buf2 = swap_bytes_if_le(p->Lnlt);
+          result &= file->write(&buf2, sizeof(ui16)) == sizeof(ui16);
+          buf2 = swap_bytes_if_le(p->Cnlt);
+          result &= file->write(&buf2, sizeof(ui16)) == sizeof(ui16);
           result &= file->write(&p->BDnlt, 1) == 1;
           result &= file->write(&p->Tnlt, 1) == 1;
         }
@@ -1945,23 +2237,32 @@ namespace ojph {
     //////////////////////////////////////////////////////////////////////////
     void param_nlt::read(infile_base* file)
     {
-      ui8 buf[6];
+      ui16 buf2_len;
+      ui16 buf2_comp;
+      ui8  buf1_BDnlt;
+      ui8  buf1_Tnlt;
 
-      if (file->read(buf, 6) != 6)
+      if (file->read(&buf2_len, sizeof(ui16)) != sizeof(ui16))
         OJPH_ERROR(0x00050141, "error reading NLT marker segment");
+      if (file->read(&buf2_comp, sizeof(ui16)) != sizeof(ui16))
+        OJPH_ERROR(0x00050142, "error reading NLT marker segment");
+      if (file->read(&buf1_BDnlt, sizeof(ui8)) != sizeof(ui8))
+        OJPH_ERROR(0x00050143, "error reading NLT marker segment");
+      if (file->read(&buf1_Tnlt, sizeof(ui8)) != sizeof(ui8))
+        OJPH_ERROR(0x00050144, "error reading NLT marker segment");
 
-      ui16 length = swap_byte(*(ui16*)buf);
-      if (length != 6 || (buf[5] != 3 && buf[5] != 0)) // wrong length or type
-        OJPH_ERROR(0x00050142, "Unsupported NLT type %d\n", buf[5]);
+      ui16 length = swap_bytes_if_le(buf2_len);
+      if (length != 6 || (buf1_Tnlt != 3 && buf1_Tnlt != 0))
+        OJPH_ERROR(0x00050145, "Unsupported NLT type %d\n", buf1_Tnlt);
 
-      ui16 comp = swap_byte(*(ui16*)(buf + 2));
+      ui16 comp = swap_bytes_if_le(buf2_comp);
       param_nlt* p = get_nlt_object(comp);
       if (p == NULL)
         p = add_object(comp);
       p->enabled = true;
       p->Cnlt = comp;
-      p->BDnlt = buf[4];
-      p->Tnlt = buf[5];
+      p->BDnlt = buf1_BDnlt;
+      p->Tnlt = buf1_Tnlt;
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -2041,20 +2342,21 @@ namespace ojph {
     //////////////////////////////////////////////////////////////////////////
     bool param_sot::write(outfile_base *file, ui32 payload_len)
     {
-      char buf[4];
+      ui16 buf2;
+      ui32 buf4;
       bool result = true;
 
       this->Psot = payload_len + 14; //inc. SOT marker, field & SOD
 
-      *(ui16*)buf = JP2K_MARKER::SOT;
-      *(ui16*)buf = swap_byte(*(ui16*)buf);
-      result &= file->write(&buf, 2) == 2;
-      *(ui16*)buf = swap_byte(Lsot);
-      result &= file->write(&buf, 2) == 2;
-      *(ui16*)buf = swap_byte(Isot);
-      result &= file->write(&buf, 2) == 2;
-      *(ui32*)buf = swap_byte(Psot);
-      result &= file->write(&buf, 4) == 4;
+      buf2 = JP2K_MARKER::SOT;
+      buf2 = swap_bytes_if_le(buf2);
+      result &= file->write(&buf2, sizeof(ui16)) == sizeof(ui16);
+      buf2 = swap_bytes_if_le(Lsot);
+      result &= file->write(&buf2, sizeof(ui16)) == sizeof(ui16);
+      buf2 = swap_bytes_if_le(Isot);
+      result &= file->write(&buf2, sizeof(ui16)) == sizeof(ui16);
+      buf4 = swap_bytes_if_le(Psot);
+      result &= file->write(&buf4, sizeof(ui32)) == sizeof(ui32);
       result &= file->write(&TPsot, 1) == 1;
       result &= file->write(&TNsot, 1) == 1;
 
@@ -2065,18 +2367,19 @@ namespace ojph {
     bool param_sot::write(outfile_base *file, ui32 payload_len,
                           ui8 TPsot, ui8 TNsot)
     {
-      char buf[4];
+      ui32 buf4;
+      ui16 buf2;
       bool result = true;
 
-      *(ui16*)buf = JP2K_MARKER::SOT;
-      *(ui16*)buf = swap_byte(*(ui16*)buf);
-      result &= file->write(&buf, 2) == 2;
-      *(ui16*)buf = swap_byte(Lsot);
-      result &= file->write(&buf, 2) == 2;
-      *(ui16*)buf = swap_byte(Isot);
-      result &= file->write(&buf, 2) == 2;
-      *(ui32*)buf = swap_byte(payload_len + 14);
-      result &= file->write(&buf, 4) == 4;
+      buf2 = JP2K_MARKER::SOT;
+      buf2 = swap_bytes_if_le(buf2);
+      result &= file->write(&buf2, sizeof(ui16)) == sizeof(ui16);
+      buf2 = swap_bytes_if_le(Lsot);
+      result &= file->write(&buf2, sizeof(ui16)) == sizeof(ui16);
+      buf2 = swap_bytes_if_le(Isot);
+      result &= file->write(&buf2, sizeof(ui16)) == sizeof(ui16);
+      buf4 = swap_bytes_if_le(payload_len + 14);
+      result &= file->write(&buf4, sizeof(ui32)) == sizeof(ui32);
       result &= file->write(&TPsot, 1) == 1;
       result &= file->write(&TNsot, 1) == 1;
 
@@ -2094,7 +2397,7 @@ namespace ojph {
           Lsot = 0; Isot = 0; Psot = 0; TPsot = 0; TNsot = 0;
           return false;
         }
-        Lsot = swap_byte(Lsot);
+        Lsot = swap_bytes_if_le(Lsot);
         if (Lsot != 10)
         {
           OJPH_INFO(0x00050092, "error in SOT length");
@@ -2107,7 +2410,7 @@ namespace ojph {
           Lsot = 0; Isot = 0; Psot = 0; TPsot = 0; TNsot = 0;
           return false;
         }
-        Isot = swap_byte(Isot);
+        Isot = swap_bytes_if_le(Isot);
         if (Isot == 0xFFFF)
         {
           OJPH_INFO(0x00050094, "tile index in SOT marker cannot be 0xFFFF");
@@ -2120,7 +2423,7 @@ namespace ojph {
           Lsot = 0; Isot = 0; Psot = 0; TPsot = 0; TNsot = 0;
           return false;
         }
-        Psot = swap_byte(Psot);
+        Psot = swap_bytes_if_le(Psot);
         if (file->read(&TPsot, 1) != 1)
         {
           OJPH_INFO(0x00050096, "error reading SOT marker");
@@ -2138,17 +2441,17 @@ namespace ojph {
       {
         if (file->read(&Lsot, 2) != 2)
           OJPH_ERROR(0x00050091, "error reading SOT marker");
-        Lsot = swap_byte(Lsot);
+        Lsot = swap_bytes_if_le(Lsot);
         if (Lsot != 10)
           OJPH_ERROR(0x00050092, "error in SOT length");
         if (file->read(&Isot, 2) != 2)
           OJPH_ERROR(0x00050093, "error reading SOT tile index");
-        Isot = swap_byte(Isot);
+        Isot = swap_bytes_if_le(Isot);
         if (Isot == 0xFFFF)
           OJPH_ERROR(0x00050094, "tile index in SOT marker cannot be 0xFFFF");
         if (file->read(&Psot, 4) != 4)
           OJPH_ERROR(0x00050095, "error reading SOT marker");
-        Psot = swap_byte(Psot);
+        Psot = swap_bytes_if_le(Psot);
         if (file->read(&TPsot, 1) != 1)
           OJPH_ERROR(0x00050096, "error reading SOT marker");
         if (file->read(&TNsot, 1) != 1)
@@ -2194,22 +2497,23 @@ namespace ojph {
     bool param_tlm::write(outfile_base *file)
     {
       assert(next_pair_index == num_pairs);
-      char buf[4];
+      ui16 buf2;
+      ui32 buf4;
       bool result = true;
 
-      *(ui16*)buf = JP2K_MARKER::TLM;
-      *(ui16*)buf = swap_byte(*(ui16*)buf);
-      result &= file->write(&buf, 2) == 2;
-      *(ui16*)buf = swap_byte(Ltlm);
-      result &= file->write(&buf, 2) == 2;
+      buf2 = JP2K_MARKER::TLM;
+      buf2 = swap_bytes_if_le(buf2);
+      result &= file->write(&buf2, sizeof(ui16)) == sizeof(ui16);
+      buf2 = swap_bytes_if_le(Ltlm);
+      result &= file->write(&buf2, sizeof(ui16)) == sizeof(ui16);
       result &= file->write(&Ztlm, 1) == 1;
       result &= file->write(&Stlm, 1) == 1;
       for (ui32 i = 0; i < num_pairs; ++i)
       {
-        *(ui16*)buf = swap_byte(pairs[i].Ttlm);
-        result &= file->write(&buf, 2) == 2;
-        *(ui32*)buf = swap_byte(pairs[i].Ptlm);
-        result &= file->write(&buf, 4) == 4;
+        buf2 = swap_bytes_if_le(pairs[i].Ttlm);
+        result &= file->write(&buf2, sizeof(ui16)) == sizeof(ui16);
+        buf4 = swap_bytes_if_le(pairs[i].Ptlm);
+        result &= file->write(&buf4, sizeof(ui32)) == sizeof(ui32);
       }
       return result;
     }
@@ -2309,16 +2613,19 @@ namespace ojph {
 
       if (file->read(&Ldfs, 2) != 2)
         OJPH_ERROR(0x000500D1, "error reading DFS-Ldfs parameter");
-      Ldfs = swap_byte(Ldfs);
+      Ldfs = swap_bytes_if_le(Ldfs);
       if (file->read(&Sdfs, 2) != 2)
         OJPH_ERROR(0x000500D2, "error reading DFS-Sdfs parameter");
-      Sdfs = swap_byte(Sdfs);
+      Sdfs = swap_bytes_if_le(Sdfs);
       if (Sdfs > 15)
         OJPH_ERROR(0x000500D3, "The DFS-Sdfs parameter is %d, which is "
           "larger than the permissible 15", Sdfs);
       ui8 t, l_Ids = 0;
       if (file->read(&l_Ids, 1) != 1)
         OJPH_ERROR(0x000500D4, "error reading DFS-Ids parameter");
+      if (l_Ids == 0)
+        OJPH_ERROR(0x000500D8,
+          "The value of the Ids member in the DFS marker segment cannot be 0");
       constexpr int max_Ddfs = sizeof(Ddfs) * 4;
       if (l_Ids > max_Ddfs)
         OJPH_INFO(0x000500D5, "The DFS-Ids parameter is %d; while this is "
@@ -2390,27 +2697,25 @@ namespace ojph {
         ui16 v;
         if (file->read(&v, 2) != 2) return false;
         bytes -= 2;
-        K = swap_byte(v);
+        K = swap_bytes_if_le(v);
       }
       else if (coeff_type == 2) { // float
-        union {
-          float f;
-          ui32 i;
-        } v;
-        if (file->read(&v.i, 4) != 4) return false;
+        ui32 i;
+        if (file->read(&i, sizeof(ui32)) != sizeof(ui32)) return false;
         bytes -= 4;
-        v.i = swap_byte(v.i);
-        K = v.f;
+        i = swap_bytes_if_le(i);
+        float f;
+        memcpy(&f, &i, sizeof(float));
+        K = f;
       }
       else if (coeff_type == 3) { // double
-        union {
-          double d;
-          ui64 i;
-        } v;
-        if (file->read(&v.i, 8) != 8) return false;
+        ui64 i;
+        if (file->read(&i, sizeof(ui64)) != sizeof(ui64)) return false;
         bytes -= 8;
-        v.i = swap_byte(v.i);
-        K = (float)v.d;
+        i = swap_bytes_if_le(i);
+        double d;
+        memcpy(&d, &i, sizeof(double));
+        K = (float)d;
       }
       else if (coeff_type == 4) { // 128 bit float
         ui64 v, v1;
@@ -2418,12 +2723,8 @@ namespace ojph {
         bytes -= 8;
         if (file->read(&v1, 8) != 8) return false; // v1 not needed
         bytes -= 8;
-        v = swap_byte(v);
+        v = swap_bytes_if_le(v);
 
-        union {
-          float f;
-          ui32 i;
-        } s;
         // convert the MSB of 128b float to 32b float
         // 32b float has 1 sign bit, 8 exponent (offset 127), 23 mantissa
         // 128b float has 1 sign bit, 15 exponent (offset 16383), 112 mantissa
@@ -2432,11 +2733,13 @@ namespace ojph {
         e += 127;
         e = e & 0xFF;                          // removes MSBs if negative
         e <<= 23;                              // move bits to their location
-        s.i = 0;
-        s.i |= ((ui32)(v >> 32) & 0x80000000); // copy sign bit
-        s.i |= (ui32)e;                        // copy exponent
-        s.i |= (ui32)((v >> 25) & 0x007FFFFF); // copy 23 mantissa
-        K = s.f;
+        ui32 i = 0;
+        i |= ((ui32)(v >> 32) & 0x80000000); // copy sign bit
+        i |= (ui32)e;                        // copy exponent
+        i |= (ui32)((v >> 25) & 0x007FFFFF); // copy 23 mantissa
+        float f;
+        memcpy(&f, &i, sizeof(float));
+        K = f;
       }
       return true;
     }
@@ -2456,7 +2759,7 @@ namespace ojph {
         si16 v;
         if (file->read(&v, 2) != 2) return false;
         bytes -= 2;
-        K = (si16)swap_byte((ui16)v);
+        K = (si16)swap_bytes_if_le((ui16)v);
       }
       else
         return false;
@@ -2471,13 +2774,13 @@ namespace ojph {
 
       if (file->read(&Latk, 2) != 2)
         OJPH_ERROR(0x000500E1, "error reading ATK-Latk parameter");
-      Latk = swap_byte(Latk);
+      Latk = swap_bytes_if_le(Latk);
       si32 bytes = Latk - 2;
       ojph::ui16 temp_Satk;
       if (file->read(&temp_Satk, 2) != 2)
         OJPH_ERROR(0x000500E2, "error reading ATK-Satk parameter");
       bytes -= 2;
-      temp_Satk = swap_byte(temp_Satk);
+      temp_Satk = swap_bytes_if_le(temp_Satk);
       int tmp_idx = temp_Satk & 0xFF;
       if ((top_atk && top_atk->get_atk(tmp_idx) != NULL)
         || tmp_idx == 0 || tmp_idx == 1)
@@ -2523,7 +2826,7 @@ namespace ojph {
           if (file->read(&d[s].rev.Batk, 2) != 2)
             OJPH_ERROR(0x000500EA, "error reading ATK-Batk parameter");
           bytes -= 2;
-          d[s].rev.Batk = (si16)swap_byte((ui16)d[s].rev.Batk);
+          d[s].rev.Batk = (si16)swap_bytes_if_le((ui16)d[s].rev.Batk);
           ui8 LCatk;
           if (file->read(&LCatk, 1) != 1)
             OJPH_ERROR(0x000500EB, "error reading ATK-LCatk parameter");
@@ -2595,7 +2898,7 @@ namespace ojph {
     //////////////////////////////////////////////////////////////////////////
     param_atk* param_atk::add_object()
     {
-      assert(top_atk = NULL);
+      assert(top_atk == NULL);
       param_atk *p = this;
       while (p->next != NULL)
         p = p->next;

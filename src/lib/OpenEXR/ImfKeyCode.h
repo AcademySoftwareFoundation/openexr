@@ -93,6 +93,7 @@ public:
     IMF_EXPORT
     KeyCode& operator= (const KeyCode& other);
 
+    IMF_EXPORT
     bool operator== (const KeyCode& other) const;
 
     //----------------------------

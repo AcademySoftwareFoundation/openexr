@@ -3,6 +3,21 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
+// This file assembles a collection of documentation code snippets
+// (via #include of individual .cpp files below) that are compiled
+// here purely to verify they build, not to be run in any meaningful
+// way. As a result, several of the snippets intentionally leave
+// variables unused; suppress those warnings for the whole file
+// rather than editing each snippet.
+#if defined(_MSC_VER)
+#    pragma warning(push)
+#    pragma warning(disable : 4101) // unused local variable
+#elif defined(__GNUC__) || defined(__clang__)
+#    pragma GCC diagnostic push
+#    pragma GCC diagnostic ignored "-Wunused-variable"
+#    pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+#endif
+
 #include "ImfHeader.h"
 #include "ImfArray.h"
 #include "ImfInputFile.h"
@@ -134,3 +149,9 @@ int
 main(int argc, char* argv[])
 {
 }
+
+#if defined(_MSC_VER)
+#    pragma warning(pop)
+#elif defined(__GNUC__) || defined(__clang__)
+#    pragma GCC diagnostic pop
+#endif
