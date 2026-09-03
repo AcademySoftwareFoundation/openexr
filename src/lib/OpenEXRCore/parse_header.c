@@ -557,7 +557,7 @@ extract_attr_float_vector (
                 tname);
         }
 
-        priv_to_native32 ((void*) attrdata->arr, n);
+        priv_to_native32 (EXR_CONST_CAST(void*, attrdata->arr), n);
     }
 
     return rv;
