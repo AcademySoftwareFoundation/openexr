@@ -32,7 +32,7 @@ testCompressionApi (const string& tempDir)
         cout << "Testing compression API functions." << endl;
 
         // update this if you add a new compressor.
-        string codecList = "none/rle/zips/zip/piz/pxr24/b44/b44a/dwaa/dwab/htj2k256/htj2k32/htj2kl256";
+        string codecList = "none/rle/zips/zip/piz/pxr24/b44/b44a/dwaa/dwab/htj2k256/htj2k32/lj2k";
 
         int numMethods = static_cast<int> (NUM_COMPRESSION_METHODS);
         // update this if you add a new compressor.
@@ -116,7 +116,7 @@ testCompressionApi (const string& tempDir)
             {DWAB_COMPRESSION,   EXR_COMPRESSION_LAST_TYPE,   256, true},
             {HTJ2K256_COMPRESSION,  EXR_COMPRESSION_LAST_TYPE, 256, true},
             {HTJ2K32_COMPRESSION,   EXR_COMPRESSION_LAST_TYPE,  32, true},
-            {HTJ2KL256_COMPRESSION, EXR_COMPRESSION_LAST_TYPE, 256, true},
+            {LJ2K_COMPRESSION, EXR_COMPRESSION_LAST_TYPE, 256, true},
         };
 
         const size_t maxScanLineSize = 1024;

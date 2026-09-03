@@ -8,7 +8,7 @@
 #endif
 
 #include "compareB44.h"
-#include "compareHTJ2KL256.h"
+#include "compareLJ2K.h"
 
 #include "compareFloat.h"
 #include "ImfArray.h"
@@ -411,7 +411,7 @@ writeRead (
         assert (ii == in.header ().channels ().end ());
 
         // uint32 and float samples
-        if (comp != HTJ2KL256_COMPRESSION)
+        if (comp != LJ2K_COMPRESSION)
         {
             for (int y = 0; y < h / ys; ++y)
             {
@@ -424,7 +424,7 @@ writeRead (
         }
 
         // single channel half samples
-        if (comp != HTJ2KL256_COMPRESSION && comp != B44_COMPRESSION && comp != B44A_COMPRESSION)
+        if (comp != LJ2K_COMPRESSION && comp != B44_COMPRESSION && comp != B44A_COMPRESSION)
         {
             for (int y = 0; y < h / ys; ++y)
             {
@@ -500,7 +500,7 @@ writeRead (
                     }
             }
         }
-        else if (comp == HTJ2KL256_COMPRESSION)
+        else if (comp == LJ2K_COMPRESSION)
         {
             for (int y = 0; y < h / ys; ++y)
             {

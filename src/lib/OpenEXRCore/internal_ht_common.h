@@ -19,14 +19,14 @@
  *  - EXR_COMPRESSION_HTJ2K32: same lossless coding as HTJ2K256, but in blocks
  *    of 32 scanlines, trading some coding efficiency for cheaper partial-buffer
  *    access.
- *  - EXR_COMPRESSION_HTJ2KL256: same block coder and block size as HTJ2K256,
+ *  - EXR_COMPRESSION_LJ2K: same block coder and block size as HTJ2K256,
  *    but with lossy coding, producing smaller files at the cost of distortion
  *    controlled via a quality level parameter.
  *
- * EXR_COMPRESSION_HTJ2KL256
+ * EXR_COMPRESSION_LJ2K
  * -------------------------
  *
- * The lossy HTJ2KL256 quality level ranges from 1 to 150 and controls the level
+ * The lossy LJ2K quality level ranges from 1 to 150 and controls the level
  * of distortion in the compressed image. Values below 97 are passed through
  * directly as the Qfactor scheme described in "Controlling JPEG 2000 image
  * quality using a single parameter (Qfactor) v2.0". Qfactor is defined over [1,
@@ -38,10 +38,10 @@
  * computation. Values around 108 are generally visually lossless over the
  * entire range of half-float values.
  *
- * In contrast with DWAA/DWAB, HTJ2KL256 does not apply a transfer function, and
+ * In contrast with DWAA/DWAB, LJ2K does not apply a transfer function, and
  * treats equally all pixel values across the half-float or float dynamic range.
  *
- * HTJ2KL256 apply lossy compression to RGB channels only, and use lossless
+ * LJ2K apply lossy compression to RGB channels only, and use lossless
  * compression otherwise.
  */
 

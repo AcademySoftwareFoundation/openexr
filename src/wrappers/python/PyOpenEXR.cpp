@@ -3022,7 +3022,7 @@ PYBIND11_MODULE(OpenEXR, m)
         .value("DWAB_COMPRESSION", DWAB_COMPRESSION)
         .value("HTJ2K256_COMPRESSION", HTJ2K256_COMPRESSION)
         .value("HTJ2K32_COMPRESSION", HTJ2K32_COMPRESSION)
-        .value("HTJ2KL256_COMPRESSION", HTJ2KL256_COMPRESSION)
+        .value("LJ2K_COMPRESSION", LJ2K_COMPRESSION)
         .value("NUM_COMPRESSION_METHODS", NUM_COMPRESSION_METHODS)
         .export_values();
     
@@ -3504,7 +3504,7 @@ PYBIND11_MODULE(OpenEXR, m)
              "    DWAB_COMPRESSION\n"
              "    HTJ2K256_COMPRESSION\n"
              "    HTJ2K32_COMPRESSION\n"
-             "    HTJ2KL256_COMPRESSION")
+             "    LJ2K_COMPRESSION")
         .def_readwrite("header", &PyPart::header,
              "dict : The header metadata.")
         .def_readwrite("channels", &PyPart::channels,

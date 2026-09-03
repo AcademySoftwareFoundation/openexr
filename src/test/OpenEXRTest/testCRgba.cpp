@@ -9,7 +9,7 @@
 
 #include "compareB44.h"
 #include "compareDwa.h"
-#include "compareHTJ2KL256.h"
+#include "compareLJ2K.h"
 
 #include "IlmThread.h"
 #include "ImfArray.h"
@@ -195,7 +195,7 @@ writeReadCRGBA (
                 for (int x = 0; x < w; ++x)
                 {  
                     if (channels & IMF_WRITE_R)
-                        if (comp == IMF_HTJ2KL256_COMPRESSION)
+                        if (comp == IMF_LJ2K_COMPRESSION)
                             assert (checkHTJ2KSample(p2[y][x].r, p1[y][x].r));
                         else
                             assert (p2[y][x].r == p1[y][x].r);
@@ -203,7 +203,7 @@ writeReadCRGBA (
                         assert (ImfHalfToFloat(p2[y][x].r) == 0.0);
 
                     if (channels & IMF_WRITE_G)
-                        if (comp == IMF_HTJ2KL256_COMPRESSION)
+                        if (comp == IMF_LJ2K_COMPRESSION)
                             assert (checkHTJ2KSample(p2[y][x].g, p1[y][x].g));
                         else
                             assert (p2[y][x].g == p1[y][x].g);
@@ -211,7 +211,7 @@ writeReadCRGBA (
                         assert (ImfHalfToFloat(p2[y][x].g) == 0.0);
 
                     if (channels & IMF_WRITE_B)
-                        if (comp == IMF_HTJ2KL256_COMPRESSION)
+                        if (comp == IMF_LJ2K_COMPRESSION)
                             assert (checkHTJ2KSample(p2[y][x].b, p1[y][x].b));
                         else
                             assert (p2[y][x].b == p1[y][x].b);
@@ -219,7 +219,7 @@ writeReadCRGBA (
                         assert (ImfHalfToFloat(p2[y][x].b) == 0.0);
 
                     if (channels & IMF_WRITE_A) 
-                        if (comp == IMF_HTJ2KL256_COMPRESSION)
+                        if (comp == IMF_LJ2K_COMPRESSION)
                             assert (checkHTJ2KSample(p2[y][x].a, p1[y][x].a));
                         else
                             assert (p2[y][x].a == p1[y][x].a);

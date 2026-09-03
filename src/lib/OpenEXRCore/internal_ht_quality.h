@@ -8,10 +8,10 @@
 
 #include <math.h>
 
-/** Lower bound of the valid range for the HTJ2KL256 lossy quality level. */
+/** Lower bound of the valid range for the LJ2K lossy quality level. */
 #define MIN_LOSSY_HTJ2K_QUALITY 1.f
 
-/** Upper bound of the valid range for the HTJ2KL256 lossy quality level. */
+/** Upper bound of the valid range for the LJ2K lossy quality level. */
 #define MAX_LOSSY_HTJ2K_QUALITY 150.f
 
 static inline int

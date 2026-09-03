@@ -9,7 +9,7 @@
 
 #include "compareB44.h"
 #include "compareDwa.h"
-#include "compareHTJ2KL256.h"
+#include "compareLJ2K.h"
 
 #include "compareFloat.h"
 #include "ImfArray.h"
@@ -329,7 +329,7 @@ writeRead (
         {
             for (int x = 0; x < w; ++x)
             {
-                if (comp == HTJ2KL256_COMPRESSION)
+                if (comp == LJ2K_COMPRESSION)
                 {
                     assert (checkHTJ2KSample (ph1[y][x], ph2[y][x]));
                     assert (checkHTJ2KSample (pi1[y][x], pi2[y][x]));
@@ -443,7 +443,7 @@ writeRead (
                          x < xSize && x2 <= win.max.x;
                          ++x, x2++)
                     {
-                        if (comp == HTJ2KL256_COMPRESSION)
+                        if (comp == LJ2K_COMPRESSION)
                         {
                             assert (checkHTJ2KSample (ph1[oY + y][oX + x], ph2[y][x]));
                             assert (checkHTJ2KSample (pi1[oY + y][oX + x], pi2[y][x]));
@@ -455,7 +455,7 @@ writeRead (
                                 comp != B44A_COMPRESSION &&
                                 comp != DWAA_COMPRESSION &&
                                 comp != DWAB_COMPRESSION &&
-                                comp != HTJ2KL256_COMPRESSION)
+                                comp != LJ2K_COMPRESSION)
                             {
                                 assert (ph1[oY + y][oX + x] == ph2[y][x]);
                             }

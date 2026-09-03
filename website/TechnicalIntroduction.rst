@@ -877,7 +877,7 @@ Supported compression schemes:
        scanlines, using `JPEG 2000 Part 15 (High-throughput JPEG 2000)
        <https://www.itu.int/rec/T-REC-T.814>`_,
 
-   * - HTJ2KL256 (lossy)
+   * - LJ2K (lossy)
 
      - Lossy compression of HALF and FLOAT data types in blocks of 256
        scanlines, using `JPEG 2000 Part 15 (High-throughput JPEG 2000)
@@ -1354,7 +1354,7 @@ By default, OpenEXR files have the following attributes:
   method.
 
 **lossyHTJ2KQuality**
-  Sets the quality level for images compressed with the HTJ2KL256
+  Sets the quality level for images compressed with the LJ2K
   compressor.
 
 **ID Manifest**

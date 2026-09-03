@@ -9,7 +9,7 @@
 
 #include "compareB44.h"
 #include "compareDwa.h"
-#include "compareHTJ2KL256.h"
+#include "compareLJ2K.h"
 
 #include "IlmThread.h"
 #include "ImfArray.h"
@@ -160,7 +160,7 @@ writeReadRGBA (
                 for (int x = 0; x < w; ++x)
                 {
                     if (channels & WRITE_R)
-                        if (comp == HTJ2KL256_COMPRESSION)
+                        if (comp == LJ2K_COMPRESSION)
                             assert (checkHTJ2KSample(p2[y][x].r, p1[y][x].r));
                         else
                             assert (p2[y][x].r == p1[y][x].r);
@@ -168,7 +168,7 @@ writeReadRGBA (
                         assert (p2[y][x].r == 0);
 
                     if (channels & WRITE_G)
-                        if (comp == HTJ2KL256_COMPRESSION)
+                        if (comp == LJ2K_COMPRESSION)
                             assert (checkHTJ2KSample(p2[y][x].g, p1[y][x].g));
                         else
                             assert (p2[y][x].g == p1[y][x].g);
@@ -176,7 +176,7 @@ writeReadRGBA (
                         assert (p2[y][x].g == 0);
 
                     if (channels & WRITE_B)
-                        if (comp == HTJ2KL256_COMPRESSION)
+                        if (comp == LJ2K_COMPRESSION)
                             assert (checkHTJ2KSample(p2[y][x].b, p1[y][x].b));
                         else
                             assert (p2[y][x].b == p1[y][x].b);
@@ -184,7 +184,7 @@ writeReadRGBA (
                         assert (p2[y][x].b == 0);
 
                     if (channels & WRITE_A)
-                        if (comp == HTJ2KL256_COMPRESSION)
+                        if (comp == LJ2K_COMPRESSION)
                             assert (checkHTJ2KSample(p2[y][x].a, p1[y][x].a));
                         else
                             assert (p2[y][x].a == p1[y][x].a);

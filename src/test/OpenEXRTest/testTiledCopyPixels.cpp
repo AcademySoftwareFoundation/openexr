@@ -7,7 +7,7 @@
 #    undef NDEBUG
 #endif
 
-#include "compareHTJ2KL256.h"
+#include "compareLJ2K.h"
 
 #include "ImfArray.h"
 #include "ImfChannelList.h"
@@ -313,7 +313,7 @@ writeCopyReadMIP (
             for (int y = 0; y < in1.levelHeight (l); ++y)
                 for (int x = 0; x < in1.levelWidth (l); ++x)
                 {
-                    if (comp == HTJ2KL256_COMPRESSION)
+                    if (comp == LJ2K_COMPRESSION)
                     {
                         assert (checkHTJ2KSample ((levels2[l])[y][x], (levels1[l])[y][x]));
                         assert (checkHTJ2KSample ((levels2[l])[y][x], (levels[l])[y][x]));
@@ -494,7 +494,7 @@ writeCopyReadRIP (
                 for (int y = 0; y < in1.levelHeight (ly); ++y)
                     for (int x = 0; x < in1.levelWidth (lx); ++x)
                     {
-                        if (comp == HTJ2KL256_COMPRESSION)
+                        if (comp == LJ2K_COMPRESSION)
                         {
                             assert (checkHTJ2KSample ((levels2[ly][lx])[y][x], (levels1[ly][lx])[y][x]));
                             assert (checkHTJ2KSample ((levels2[ly][lx])[y][x], (levels[ly][lx])[y][x]));

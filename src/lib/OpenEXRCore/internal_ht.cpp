@@ -449,9 +449,9 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
     cod.set_num_decomposition (5);
 
     /* enable lossy compression on the first 3 channels, only if the compressor
-    is EXR_COMPRESSION_HTJ2KL256, we have RGB channels, all RGB channels are
+    is EXR_COMPRESSION_LJ2K, we have RGB channels, all RGB channels are
     visual, and none of the RGB channels are subsampled */
-    bool lossy = comp == EXR_COMPRESSION_HTJ2KL256 && isRGB;
+    bool lossy = comp == EXR_COMPRESSION_LJ2K && isRGB;
     if (lossy) {
         for (int16_t c = 0; c < 3; c++)
         {

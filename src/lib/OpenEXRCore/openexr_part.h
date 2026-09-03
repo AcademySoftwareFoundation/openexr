@@ -237,7 +237,7 @@ exr_set_dwa_compression_level (exr_context_t ctxt, int part_index, float level);
 /** @brief Retrieve the lossy HTJ2K compression quality used for the specified
  * part.
  *
- * This only applies when the compression method is HTJ2KL256.
+ * This only applies when the compression method is LJ2K.
  *
  * This value is NOT persisted in the file, and only exists for the lifetime of
  * the context, so will be at the default value when just reading a file.
@@ -247,7 +247,7 @@ EXR_EXPORT exr_result_t exr_get_lossy_htj2k_quality (
 
 /** @brief Set the lossy HTJ2K compression quality for the specified part.
  *
- * This only applies when the compression method is HTJ2KL256.
+ * This only applies when the compression method is LJ2K.
  *
  * This value is NOT persisted in the file, and only exists for the lifetime of
  * the context, so this value will be ignored when reading a file.

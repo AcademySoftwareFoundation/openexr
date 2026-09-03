@@ -55,7 +55,7 @@ enum IMF_EXPORT_ENUM Compression
 
     HTJ2K32_COMPRESSION = 11,    // High-Throughput JPEG2000 (HTJ2K), lossless, 32 scanlines
 
-    HTJ2KL256_COMPRESSION = 12,  // High-Throughput JPEG2000 (HTJ2K), lossy, 256 scanlines
+    LJ2K_COMPRESSION = 12,  // High-Throughput JPEG2000 (HTJ2K), lossy, 256 scanlines
 
     NUM_COMPRESSION_METHODS // number of different compression methods
 };

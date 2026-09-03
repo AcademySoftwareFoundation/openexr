@@ -7,7 +7,7 @@
 #    undef NDEBUG
 #endif
 
-#include "compareHTJ2KL256.h"
+#include "compareLJ2K.h"
 
 #include "IlmThread.h"
 #include "ImfArray.h"
@@ -195,7 +195,7 @@ writeCopyReadONE (
 
         for (int y = 0; y < h; ++y)
             for (int x = 0; x < w; ++x)
-                if (comp == HTJ2KL256_COMPRESSION)
+                if (comp == LJ2K_COMPRESSION)
                 {
                     assert (checkHTJ2KSample (ph1[y][x], ph2[y][x]));
                 } else {
@@ -397,7 +397,7 @@ writeCopyReadMIP (
         for (int l = 0; l < numLevels; ++l)
             for (int y = 0; y < in.levelHeight (l); ++y)
                 for (int x = 0; x < in.levelWidth (l); ++x)
-                    if (comp == HTJ2KL256_COMPRESSION)
+                    if (comp == LJ2K_COMPRESSION)
                     {
                         assert (checkHTJ2KSample ((levels2[l])[y][x], (levels[l])[y][x]));
                     } else {
@@ -624,7 +624,7 @@ writeCopyReadRIP (
             for (int lx = 0; lx < numXLevels; ++lx)
                 for (int y = 0; y < in.levelHeight (ly); ++y)
                     for (int x = 0; x < in.levelWidth (lx); ++x)
-                        if (comp == HTJ2KL256_COMPRESSION)
+                        if (comp == LJ2K_COMPRESSION)
                         {
                             assert (checkHTJ2KSample ((levels2[ly][lx])[y][x], (levels[ly][lx])[y][x]));
                         } else {

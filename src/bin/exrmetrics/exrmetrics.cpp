@@ -1064,7 +1064,7 @@ exrmetrics (
                     //            case ZSTD_COMPRESSION :
                     //                outHeader.zstdCompressionLevel()=level;
                     //                break;
-                case HTJ2KL256_COMPRESSION:
+                case LJ2K_COMPRESSION:
                     outHeaders[p].lossyHTJ2KQuality ()   = level;
                     compressionSet                       = true;
                     break;
@@ -1104,7 +1104,7 @@ exrmetrics (
     if (!isinf (level) && level >= -1 && !compressionSet)
     {
         throw runtime_error (
-            "-l option only works for DWAA/DWAB, ZIP/ZIPS, HTJ2KL256 or ZSTD compression");
+            "-l option only works for DWAA/DWAB, ZIP/ZIPS, LJ2K or ZSTD compression");
     }
 
     vector<partData> parts (part == -1 ? in.parts () : 1);

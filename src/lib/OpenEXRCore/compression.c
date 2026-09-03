@@ -249,7 +249,7 @@ int exr_compression_lines_per_chunk (exr_compression_t comptype)
         case EXR_COMPRESSION_DWAA: linePerChunk = 32; break;
         case EXR_COMPRESSION_DWAB:
         case EXR_COMPRESSION_HTJ2K256:
-        case EXR_COMPRESSION_HTJ2KL256: linePerChunk = 256; break;
+        case EXR_COMPRESSION_LJ2K: linePerChunk = 256; break;
         case EXR_COMPRESSION_LAST_TYPE:
         default:
             /* ERROR CONDITION */
@@ -385,7 +385,7 @@ exr_compress_chunk (exr_encode_pipeline_t* encode)
         case EXR_COMPRESSION_DWAB: rv = internal_exr_apply_dwab (encode); break;
         case EXR_COMPRESSION_HTJ2K32:
         case EXR_COMPRESSION_HTJ2K256:
-        case EXR_COMPRESSION_HTJ2KL256:
+        case EXR_COMPRESSION_LJ2K:
             rv = internal_exr_apply_ht (encode); break;
         case EXR_COMPRESSION_LAST_TYPE:
         default:
@@ -465,7 +465,7 @@ decompress_data (
             break;
         case EXR_COMPRESSION_HTJ2K256:
         case EXR_COMPRESSION_HTJ2K32:
-        case EXR_COMPRESSION_HTJ2KL256:
+        case EXR_COMPRESSION_LJ2K:
             rv = internal_exr_undo_ht (
                 decode, packbufptr, packsz, unpackbufptr, unpacksz);
             break;

@@ -9,7 +9,7 @@
 
 #include "compareB44.h"
 #include "compareDwa.h"
-#include "compareHTJ2KL256.h"
+#include "compareLJ2K.h"
 
 #include "IlmThread.h"
 #include "ImfArray.h"
@@ -152,7 +152,7 @@ writeReadRGBAONE (
                 for (int x = 0; x < w; ++x)
                 {
                     if (channels & WRITE_R)
-                        if (comp == HTJ2KL256_COMPRESSION)
+                        if (comp == LJ2K_COMPRESSION)
                             assert (checkHTJ2KSample(p2[y][x].r, p1[y][x].r));
                         else
                             assert (p2[y][x].r == p1[y][x].r);
@@ -160,7 +160,7 @@ writeReadRGBAONE (
                         assert (p2[y][x].r == 0);
 
                     if (channels & WRITE_G)
-                        if (comp == HTJ2KL256_COMPRESSION)
+                        if (comp == LJ2K_COMPRESSION)
                             assert (checkHTJ2KSample(p2[y][x].g, p1[y][x].g));
                         else
                             assert (p2[y][x].g == p1[y][x].g);
@@ -168,7 +168,7 @@ writeReadRGBAONE (
                         assert (p2[y][x].g == 0);
 
                     if (channels & WRITE_B)
-                        if (comp == HTJ2KL256_COMPRESSION)
+                        if (comp == LJ2K_COMPRESSION)
                             assert (checkHTJ2KSample(p2[y][x].b, p1[y][x].b));
                         else
                             assert (p2[y][x].b == p1[y][x].b);
@@ -176,7 +176,7 @@ writeReadRGBAONE (
                         assert (p2[y][x].b == 0);
 
                     if (channels & WRITE_A)
-                        if (comp == HTJ2KL256_COMPRESSION)
+                        if (comp == LJ2K_COMPRESSION)
                             assert (checkHTJ2KSample(p2[y][x].a, p1[y][x].a));
                         else
                             assert (p2[y][x].a == p1[y][x].a);
@@ -466,10 +466,10 @@ writeRead (
 
     if (comp != B44_COMPRESSION && comp != B44A_COMPRESSION &&
         comp != DWAA_COMPRESSION && comp != DWAB_COMPRESSION &&
-        comp != HTJ2KL256_COMPRESSION)
+        comp != LJ2K_COMPRESSION)
     {
         //
-        // Skip mipmaps and ripmaps with B44, DWA, or HTJ2KL256 compression;
+        // Skip mipmaps and ripmaps with B44, DWA, or LJ2K compression;
         // writing an image with a single resolution level, above, should be
         // enough to verify that these compression types work with tiled files.
         //

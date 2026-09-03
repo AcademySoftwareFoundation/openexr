@@ -1880,7 +1880,7 @@ Supported compression types are:
 |                       | partial buffer access, but slightly less       |
 |                       | efficient space-wise.                          |
 +-----------------------+------------------------------------------------+
-| HTJ2KL256_COMPRESSION | Same as ``HTJ2K256_COMPRESSION`` but with      |
+| LJ2K_COMPRESSION | Same as ``HTJ2K256_COMPRESSION`` but with      |
 |                       | lossy coding, resulting in smaller files at    |
 |                       | the expense of introducing distortion. The     |
 |                       | amount of distortion can be controlled from    |
@@ -1891,7 +1891,7 @@ Supported compression types are:
 For the ``ZIP_COMPRESSION`` compressor, a single level parameter controls
 the tradeoff between compression speed and file size.
 
-For the ``DWA`` and ``HTJ2KL256_COMPRESSION`` compressors, a single level
+For the ``DWA`` and ``LJ2K_COMPRESSION`` compressors, a single level
 parameter controls the tradeoff between quality and file size. Additional
 details on HTJ2K256_COMPRESSION are provided at ``internal_ht_common.h``.
 
