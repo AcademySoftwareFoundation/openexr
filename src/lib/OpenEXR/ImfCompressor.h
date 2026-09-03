@@ -145,24 +145,12 @@ public:
     virtual int
     compress (const char* inPtr, int inSize, int minY, const char*& outPtr);
 
-    virtual int
-    compress (const char* inPtr, int inSize, int minY, const char*& outPtr,
-              const char* sampleCountTable, int sampleCountTableSize);
-
     IMF_EXPORT
     virtual int compressTile (
         const char*            inPtr,
         int                    inSize,
         IMATH_NAMESPACE::Box2i range,
         const char*&           outPtr);
-
-    virtual int compressTile (
-        const char*            inPtr,
-        int                    inSize,
-        IMATH_NAMESPACE::Box2i range,
-        const char*&           outPtr,
-        const char*            sampleCountTable,
-        int                    sampleCountTableSize);
 
     //-------------------------------------------------------------------------
     // Uncompress an array of bytes that has been compressed by compress():
@@ -197,6 +185,24 @@ public:
     void setStorageType (exr_storage_t st) { _store_type = st; }
 
 protected:
+    friend int compressWithSampleCountTable (
+        Compressor&  compressor,
+        const char*  inPtr,
+        int          inSize,
+        int          minY,
+        const char*& outPtr,
+        const char*  sampleCountTable,
+        int          sampleCountTableSize);
+
+    friend int compressTileWithSampleCountTable (
+        Compressor&            compressor,
+        const char*            inPtr,
+        int                    inSize,
+        IMATH_NAMESPACE::Box2i range,
+        const char*&           outPtr,
+        const char*            sampleCountTable,
+        int                    sampleCountTableSize);
+
     Context _ctxt;
     const Header& _header;
 

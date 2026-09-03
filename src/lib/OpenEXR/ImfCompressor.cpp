@@ -24,6 +24,7 @@
 #include <algorithm>
 #include <stdexcept>
 #include "ImfHTCompressor.h"
+#include "ImfCompressorDeepInternal.h"
 #include "openexr_compression.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
@@ -97,12 +98,13 @@ int
 Compressor::compress (
     const char* inPtr, int inSize, int minY, const char*& outPtr)
 {
-    return compress (
-        inPtr, inSize, minY, outPtr, nullptr, 0);
+    return compressWithSampleCountTable (
+        *this, inPtr, inSize, minY, outPtr, nullptr, 0);
 }
 
 int
-Compressor::compress (
+compressWithSampleCountTable (
+    Compressor&  compressor,
     const char*  inPtr,
     int          inSize,
     int          minY,
@@ -110,13 +112,13 @@ Compressor::compress (
     const char*  sampleCountTable,
     int          sampleCountTableSize)
 {
-    IMATH_NAMESPACE::Box2i range = _header.dataWindow ();
+    IMATH_NAMESPACE::Box2i range = compressor._header.dataWindow ();
 
     range.min.y = minY;
-    range.max.y = minY + _numScanLines - 1;
+    range.max.y = minY + compressor._numScanLines - 1;
 
     return static_cast<int> (
-        runEncodeStep (inPtr, inSize, range, outPtr, sampleCountTable, sampleCountTableSize));
+        compressor.runEncodeStep (inPtr, inSize, range, outPtr, sampleCountTable, sampleCountTableSize));
 }
 
 int
@@ -139,12 +141,13 @@ Compressor::compressTile (
     Box2i        range,
     const char*& outPtr)
 {
-    return compressTile (
-        inPtr, inSize, range, outPtr, nullptr, 0);
+    return compressTileWithSampleCountTable (
+        *this, inPtr, inSize, range, outPtr, nullptr, 0);
 }
 
 int
-Compressor::compressTile (
+compressTileWithSampleCountTable (
+    Compressor&  compressor,
     const char*  inPtr,
     int          inSize,
     Box2i        range,
@@ -153,7 +156,7 @@ Compressor::compressTile (
     int          sampleCountTableSize)
 {
     return static_cast<int> (
-        runEncodeStep (inPtr, inSize, range, outPtr, sampleCountTable, sampleCountTableSize));
+        compressor.runEncodeStep (inPtr, inSize, range, outPtr, sampleCountTable, sampleCountTableSize));
 }
 
 int

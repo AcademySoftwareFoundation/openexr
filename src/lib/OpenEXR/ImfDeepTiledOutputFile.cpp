@@ -14,6 +14,7 @@
 #include "ImfArray.h"
 #include "ImfChannelList.h"
 #include "ImfCompressor.h"
+#include "ImfCompressorDeepInternal.h"
 #include "ImfDeepFrameBuffer.h"
 #include "ImfDeepTiledInputFile.h"
 #include "ImfDeepTiledInputPart.h"
@@ -1007,7 +1008,8 @@ TileBufferTask::execute ()
             _tileBuffer->compressor->setTileLevel (
                 _tileBuffer->tileCoord.lx,
                 _tileBuffer->tileCoord.ly);
-            uint64_t compSize = _tileBuffer->compressor->compressTile (
+            uint64_t compSize = compressTileWithSampleCountTable (
+                *_tileBuffer->compressor,
                 _tileBuffer->dataPtr,
                 static_cast<int> (_tileBuffer->dataSize),
                 tileRange,
