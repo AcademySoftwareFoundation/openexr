@@ -131,6 +131,20 @@ namespace ojph {
     /**  A destructor */
     ~mem_outfile() override;
 
+    mem_outfile(mem_outfile const&) = delete;
+    mem_outfile& operator=(mem_outfile const&) = delete;
+
+    /**
+     * Move construction leaves the moved-from value in default constructed state
+     * and transfers ownership of the internal state to the moved-to instance.
+     **/
+    mem_outfile(mem_outfile &&) noexcept;
+    /**
+     * move assignment with the same ownership transfer semantics as
+     * move construction.
+     **/
+    mem_outfile& operator=(mem_outfile&&) noexcept;
+
     /**
      *  @brief Call this function to open a memory file.
 	   *
@@ -219,6 +233,12 @@ namespace ojph {
      size_t get_buf_size() const { return buf_size; }
 
   private:
+
+    /**
+     * @brief A utility function to swap the contents of two instances
+     */
+    void swap(mem_outfile& other) noexcept;
+  
     /**
      *  @brief This function expands storage by x1.5 needed space.
      *
@@ -291,6 +311,20 @@ namespace ojph {
     mem_infile() { close(); }
     ~mem_infile() override { }
 
+    mem_infile(mem_infile const&) = delete;
+    mem_infile& operator=(mem_infile const&) = delete;
+
+    /**
+     * Move construction leaves the moved-from value in default constructed state
+     * and transfers ownership of the internal state to the moved-to instance.
+     **/
+    mem_infile(mem_infile &&) noexcept;
+    /**
+     * move assignment with the same ownership transfer semantics as
+     * move construction.
+     **/
+    mem_infile& operator=(mem_infile&&) noexcept;
+
     void open(const ui8* data, size_t size);
 
     //read reads size bytes, returns the number of bytes read
@@ -302,6 +336,9 @@ namespace ojph {
     void close() override { data = cur_ptr = NULL; size = 0; }
 
   private:
+    // swap the contents of two instances
+    void swap(mem_infile&) noexcept;
+
     const ui8 *data, *cur_ptr;
     size_t size;
   };

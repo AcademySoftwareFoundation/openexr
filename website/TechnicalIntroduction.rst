@@ -866,14 +866,21 @@ Supported compression schemes:
        access.
 
    * - HTJ2K256 (lossless)
- 
-     - Lossless compression of HALF, FLOAT and UINT data types in blocks of 256 scanlines, 
-       using `JPEG 2000 Part 15 (High-throughput JPEG 2000) <https://www.itu.int/rec/T-REC-T.814>`_, 
+
+     - Lossless compression of HALF, FLOAT and UINT data types in blocks of 256
+       scanlines, using `JPEG 2000 Part 15 (High-throughput JPEG 2000)
+       <https://www.itu.int/rec/T-REC-T.814>`_,
 
    * - HTJ2K32 (lossless)
- 
-     - Lossless compression of HALF, FLOAT and UINT data types in blocks of 32 scanlines, 
-       using `JPEG 2000 Part 15 (High-throughput JPEG 2000) <https://www.itu.int/rec/T-REC-T.814>`_, 
+     - Lossless compression of HALF, FLOAT and UINT data types in blocks of 32
+       scanlines, using `JPEG 2000 Part 15 (High-throughput JPEG 2000)
+       <https://www.itu.int/rec/T-REC-T.814>`_,
+
+   * - LJ2K (lossy)
+
+     - Lossy compression of HALF and FLOAT data types in blocks of 256
+       scanlines, using `JPEG 2000 Part 15 (High-throughput JPEG 2000)
+       <https://www.itu.int/rec/T-REC-T.814>`_,
 
    * - ZSTD (lossless)
 
@@ -1353,6 +1360,10 @@ By default, OpenEXR files have the following attributes:
 **zstdCompressionLevel**
   Sets the compression level for images compressed with the ZSTD
   method. Valid levels are 1 through 22; the default is 5.
+
+**lossyHTJ2KQuality**
+  Sets the quality level for images compressed with the LJ2K
+  compressor.
 
 **ID Manifest**
   ID manifest. See `A scheme for storing object ID manifests in

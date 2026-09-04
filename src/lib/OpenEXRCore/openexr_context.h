@@ -323,7 +323,11 @@ typedef struct _exr_context_initializer_v4
      */
     int flags;
 
-    uint8_t pad[4];
+    /** Initialize the default HTJ2K compression quality. See
+     * exr_set_default_lossy_htj2k_quality() to set the default for all
+     * contexts.
+     */
+    float lossy_htj2k_quality;
 
     /** Default zstd compression level for this context (1-22; values are
      * clamped). See exr_set_default_zstd_compression_level() for the global
@@ -359,7 +363,7 @@ typedef struct _exr_context_initializer_v4
 /* clang-format off */
 /** @brief Simple macro to initialize the context initializer with default values. */
 #define EXR_DEFAULT_CONTEXT_INITIALIZER                                        \
-    { sizeof (exr_context_initializer_t), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -2, -1.f, 0, { 0, 0, 0, 0 }, -1 }
+    { sizeof (exr_context_initializer_t), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -2, -1.f, 0, 0.f, -1 }
 /* clang-format on */
 
 /** @} */ /* context function pointer declarations */

@@ -1,0 +1,21 @@
+/* The "press" theme's dark-mode rules (.theme-dark) only restyle its own
+ * VuePress-style ".custom-block.warning" containers; they never touch the
+ * ".admonition.warning" markup that Sphinx actually generates for the
+ * reStructuredText ".. warning::" directive. As a result, in dark mode a
+ * warning admonition keeps its light-mode colors: a translucent yellow
+ * background composited over the dark page background turns dark olive,
+ * and the dark-brown text color is nearly the same tone, making the text
+ * effectively invisible. Give ".admonition.warning" (and ".caution", which
+ * shares the same light-mode styling) the same dark-mode treatment already
+ * used for ".custom-block.warning".
+ */
+.theme-dark .admonition.warning,
+.theme-dark .admonition.caution {
+    background-color: #404040;
+    color: #d5b100;
+}
+
+.theme-dark .admonition.warning .admonition-title,
+.theme-dark .admonition.caution .admonition-title {
+    color: #d5b100;
+}

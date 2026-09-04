@@ -471,6 +471,50 @@ testWriteBaseHeader (const std::string& tempdir)
 
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_MISSING_CONTEXT_ARG,
+        exr_get_lossy_htj2k_quality (NULL, 0, NULL));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_ARGUMENT_OUT_OF_RANGE,
+        exr_get_lossy_htj2k_quality (outf, -1, NULL));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_ARGUMENT_OUT_OF_RANGE,
+        exr_get_lossy_htj2k_quality (outf, 5, NULL));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_INVALID_ARGUMENT,
+        exr_get_lossy_htj2k_quality (outf, 0, NULL));
+    float hlev = -3.f;
+    EXRCORE_TEST_RVAL (exr_get_lossy_htj2k_quality (outf, 0, &hlev));
+    EXRCORE_TEST (hlev == 110.f);
+
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_MISSING_CONTEXT_ARG,
+        exr_set_lossy_htj2k_quality (NULL, 0, 5));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_ARGUMENT_OUT_OF_RANGE,
+        exr_set_lossy_htj2k_quality (outf, -1, 5));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_ARGUMENT_OUT_OF_RANGE,
+        exr_set_lossy_htj2k_quality (outf, 5, 5));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_INVALID_ARGUMENT,
+        exr_set_lossy_htj2k_quality (outf, 0, 0.f));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_INVALID_ARGUMENT,
+        exr_set_lossy_htj2k_quality (outf, 0, 151.f));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_INVALID_ARGUMENT,
+        exr_set_lossy_htj2k_quality (outf, 0, INFINITY));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_INVALID_ARGUMENT,
+        exr_set_lossy_htj2k_quality (outf, 0, NAN));
+    EXRCORE_TEST_RVAL (exr_set_lossy_htj2k_quality (outf, 0, 42.f));
+    EXRCORE_TEST_RVAL (exr_get_lossy_htj2k_quality (outf, 0, &hlev));
+    EXRCORE_TEST (hlev == 42.f);
+    EXRCORE_TEST_RVAL (exr_set_lossy_htj2k_quality (outf, 0, 150.f));
+    EXRCORE_TEST_RVAL (exr_get_lossy_htj2k_quality (outf, 0, &hlev));
+    EXRCORE_TEST (hlev == 150.f);
+
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_MISSING_CONTEXT_ARG,
         exr_get_zstd_compression_level (NULL, 0, NULL));
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_ARGUMENT_OUT_OF_RANGE,

@@ -87,6 +87,7 @@ print_attr (const exr_attribute_t* a, int verbose)
                 "dwab",
                 "htj2k256",
                 "htj2k32",
+                "lj2k",
                 "zstd"};
             printf (
                 "'%s'", (a->uc < EXR_COMPRESSION_LAST_TYPE ? compressionnames[a->uc] : "<UNKNOWN>"));

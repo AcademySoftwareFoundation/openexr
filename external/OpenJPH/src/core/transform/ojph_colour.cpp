@@ -37,6 +37,7 @@
 
 #include <cmath>
 #include <climits>
+#include <mutex>
 
 #include "ojph_defs.h"
 #include "ojph_arch.h"
@@ -105,26 +106,22 @@ namespace ojph {
        float *r, float *g, float *b, ui32 repeat) = NULL;
 
     //////////////////////////////////////////////////////////////////////////
-    static bool colour_transform_functions_initialized = false;
-
-    //////////////////////////////////////////////////////////////////////////
     void init_colour_transform_functions()
     {
-      if (colour_transform_functions_initialized)
-        return;
-
+      static std::once_flag colour_transform_functions_init_flag;
+      std::call_once(colour_transform_functions_init_flag, []() {
 #if !defined(OJPH_ENABLE_WASM_SIMD) || !defined(OJPH_EMSCRIPTEN)
 
-      rev_convert = gen_rev_convert;
-      rev_convert_nlt_type3 = gen_rev_convert_nlt_type3;
-      irv_convert_to_integer = gen_irv_convert_to_integer;
-      irv_convert_to_float = gen_irv_convert_to_float;
-      irv_convert_to_integer_nlt_type3 = gen_irv_convert_to_integer_nlt_type3;
-      irv_convert_to_float_nlt_type3 = gen_irv_convert_to_float_nlt_type3;
-      rct_forward = gen_rct_forward;
-      rct_backward = gen_rct_backward;
-      ict_forward = gen_ict_forward;
-      ict_backward = gen_ict_backward;
+        rev_convert = gen_rev_convert;
+        rev_convert_nlt_type3 = gen_rev_convert_nlt_type3;
+        irv_convert_to_integer = gen_irv_convert_to_integer;
+        irv_convert_to_float = gen_irv_convert_to_float;
+        irv_convert_to_integer_nlt_type3 = gen_irv_convert_to_integer_nlt_type3;
+        irv_convert_to_float_nlt_type3 = gen_irv_convert_to_float_nlt_type3;
+        rct_forward = gen_rct_forward;
+        rct_backward = gen_rct_backward;
+        ict_forward = gen_ict_forward;
+        ict_backward = gen_ict_backward;
 
   #ifndef OJPH_DISABLE_SIMD
 
@@ -180,26 +177,44 @@ namespace ojph {
 
     #elif defined(OJPH_ARCH_ARM)
 
+    #elif defined(OJPH_ARCH_PPC64LE)
+
+        if (get_cpu_ext_level() >= PPC_CPU_EXT_LEVEL_ARCH_3_00)
+        {
+          // 128-bit VSX kernels; see ojph_simd_vsx.h
+          rev_convert = vsx_rev_convert;
+          rev_convert_nlt_type3 = vsx_rev_convert_nlt_type3;
+          irv_convert_to_integer = vsx_irv_convert_to_integer;
+          irv_convert_to_float = vsx_irv_convert_to_float;
+          irv_convert_to_integer_nlt_type3 =
+            vsx_irv_convert_to_integer_nlt_type3;
+          irv_convert_to_float_nlt_type3 =
+            vsx_irv_convert_to_float_nlt_type3;
+          rct_forward = vsx_rct_forward;
+          rct_backward = vsx_rct_backward;
+          ict_forward = vsx_ict_forward;
+          ict_backward = vsx_ict_backward;
+        }
+
     #endif // !(defined(OJPH_ARCH_X86_64) || defined(OJPH_ARCH_I386))
 
   #endif // !OJPH_DISABLE_SIMD
 
 #else // OJPH_ENABLE_WASM_SIMD
 
-      rev_convert = wasm_rev_convert;
-      rev_convert_nlt_type3 = wasm_rev_convert_nlt_type3;
-      irv_convert_to_integer = wasm_irv_convert_to_integer;
-      irv_convert_to_float = wasm_irv_convert_to_float;
-      irv_convert_to_integer_nlt_type3 = wasm_irv_convert_to_integer_nlt_type3;
-      irv_convert_to_float_nlt_type3 = wasm_irv_convert_to_float_nlt_type3;
-      rct_forward = wasm_rct_forward;
-      rct_backward = wasm_rct_backward;
-      ict_forward = wasm_ict_forward;
-      ict_backward = wasm_ict_backward;
+        rev_convert = wasm_rev_convert;
+        rev_convert_nlt_type3 = wasm_rev_convert_nlt_type3;
+        irv_convert_to_integer = wasm_irv_convert_to_integer;
+        irv_convert_to_float = wasm_irv_convert_to_float;
+        irv_convert_to_integer_nlt_type3 = wasm_irv_convert_to_integer_nlt_type3;
+        irv_convert_to_float_nlt_type3 = wasm_irv_convert_to_float_nlt_type3;
+        rct_forward = wasm_rct_forward;
+        rct_backward = wasm_rct_backward;
+        ict_forward = wasm_ict_forward;
+        ict_backward = wasm_ict_backward;
 
 #endif // !OJPH_ENABLE_WASM_SIMD
-
-      colour_transform_functions_initialized = true;
+      });
     }
 
     //////////////////////////////////////////////////////////////////////////

@@ -47,7 +47,8 @@ typedef enum
     EXR_COMPRESSION_DWAB  = 9,
     EXR_COMPRESSION_HTJ2K256  = 10,
     EXR_COMPRESSION_HTJ2K32   = 11,
-    EXR_COMPRESSION_ZSTD   = 12,
+    EXR_COMPRESSION_LJ2K = 12, /**< High-Throughput JPEG 2000, lossy, 256 scanlines */
+    EXR_COMPRESSION_ZSTD = 13, /**< zstd lossless compression, one scan line at a time */
     EXR_COMPRESSION_LAST_TYPE /**< Invalid value, provided for range checking. */
 } exr_compression_t;
 

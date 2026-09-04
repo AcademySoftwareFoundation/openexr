@@ -136,6 +136,7 @@ fill_context_data (const exr_context_initializer_t* ctxtdata)
         }
         if (ctxtdata->size >= sizeof (struct _exr_context_initializer_v4))
         {
+            inits.lossy_htj2k_quality = ctxtdata->lossy_htj2k_quality;
             inits.zstd_level = ctxtdata->zstd_level;
         }
     }

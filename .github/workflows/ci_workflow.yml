@@ -80,6 +80,7 @@ jobs:
       OPENEXR_BUILD_EXAMPLES: ${{ matrix.OPENEXR_BUILD_EXAMPLES || 'ON' }}
       OPENEXR_BUILD_TOOLS: ${{ matrix.OPENEXR_BUILD_TOOLS || 'ON' }}
       OPENEXR_FORCE_INTERNAL_IMATH: ${{ matrix.OPENEXR_FORCE_INTERNAL_IMATH || 'OFF' }}
+      OPENEXR_IMATH_TAG: ${{ matrix.OPENEXR_IMATH_TAG || '5f27ba266d3ea1565e912570c30b5eafc89959f1' }} # v3.2.3
       OPENEXR_FORCE_INTERNAL_DEFLATE: ${{ matrix.OPENEXR_FORCE_INTERNAL_DEFLATE || 'OFF' }}
       OPENEXR_FORCE_INTERNAL_ZSTD: ${{ matrix.OPENEXR_FORCE_INTERNAL_ZSTD || 'OFF' }}
       OPENEXR_FORCE_INTERNAL_OPENJPH: ${{ matrix.OPENEXR_FORCE_INTERNAL_OPENJPH || 'OFF' }}
@@ -193,6 +194,7 @@ jobs:
       OPENEXR_BUILD_EXAMPLES: ${{ matrix.OPENEXR_BUILD_EXAMPLES || 'ON' }}
       OPENEXR_BUILD_TOOLS: ${{ matrix.OPENEXR_BUILD_TOOLS || 'ON' }}
       OPENEXR_FORCE_INTERNAL_IMATH: ${{ matrix.OPENEXR_FORCE_INTERNAL_IMATH || 'OFF' }}
+      OPENEXR_IMATH_TAG: ${{ matrix.OPENEXR_IMATH_TAG || '5f27ba266d3ea1565e912570c30b5eafc89959f1' }} # v3.2.3
       OPENEXR_FORCE_INTERNAL_DEFLATE: ${{ matrix.OPENEXR_FORCE_INTERNAL_DEFLATE || 'OFF' }}
       OPENEXR_FORCE_INTERNAL_ZSTD: ${{ matrix.OPENEXR_FORCE_INTERNAL_ZSTD || 'OFF' }}
       OPENEXR_FORCE_INTERNAL_OPENJPH: ${{ matrix.OPENEXR_FORCE_INTERNAL_OPENJPH || 'OFF' }}
@@ -282,6 +284,7 @@ jobs:
       OPENEXR_BUILD_EXAMPLES: ${{ matrix.OPENEXR_BUILD_EXAMPLES || 'ON' }}
       OPENEXR_BUILD_TOOLS: ${{ matrix.OPENEXR_BUILD_TOOLS || 'ON' }}
       OPENEXR_FORCE_INTERNAL_IMATH: ${{ matrix.OPENEXR_FORCE_INTERNAL_IMATH || 'OFF' }}
+      OPENEXR_IMATH_TAG: ${{ matrix.OPENEXR_IMATH_TAG || '5f27ba266d3ea1565e912570c30b5eafc89959f1' }} # v3.2.3
       OPENEXR_FORCE_INTERNAL_DEFLATE: ${{ matrix.OPENEXR_FORCE_INTERNAL_DEFLATE || 'OFF' }}
       OPENEXR_FORCE_INTERNAL_ZSTD: ${{ matrix.OPENEXR_FORCE_INTERNAL_ZSTD || 'OFF' }}
       OPENEXR_FORCE_INTERNAL_OPENJPH: ${{ matrix.OPENEXR_FORCE_INTERNAL_OPENJPH || 'OFF' }}
@@ -352,6 +355,19 @@ jobs:
           - build: 11
             label: c++20
             cxx-standard: 20
+            RUN_TESTING: OFF
+            validate_install: OFF
+
+          - build: 12
+            label: msys2-clang64
+            msystem: CLANG64
+            RUN_TESTING: OFF
+            validate_install: OFF
+
+          - build: 13
+            label: clang
+            cxx-compiler: clang++
+            cc-compiler: clang
             RUN_TESTING: OFF
             validate_install: OFF
 

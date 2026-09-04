@@ -13,6 +13,8 @@ add_executable(OpenEXRCoreTest
   deep.h
   general_attr.cpp
   general_attr.h
+  initializer_compat.cpp
+  initializer_compat.h
   main.cpp
   read.cpp
   read.h
@@ -72,6 +74,7 @@ define_openexrcore_tests(
  testXDR
  testBufferCompression
  testTempContext
+ testInitializerCompat
 
  testAttrSizes
  testAttrStrings
