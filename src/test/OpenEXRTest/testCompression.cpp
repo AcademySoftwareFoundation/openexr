@@ -526,7 +526,13 @@ writeRead (
 
 void
 writeRead (
-    const std::string& tempDir, pixelArray& array, int w, int h, int dx, int dy)
+    const std::string& tempDir,
+    pixelArray&         array,
+    int                 w,
+    int                 h,
+    int                 dx,
+    int                 dy,
+    Compression         comp)
 {
     std::string filename = tempDir + "imf_test_comp.exr";
 
@@ -534,35 +540,31 @@ writeRead (
     {
         for (int ys = 1; ys <= 2; ++ys)
         {
+            writeRead (
+                array,
+                filename.c_str (),
+                false,
+                w * xs,
+                h * ys,
+                dx * xs,
+                dy * ys,
+                comp,
+                xs,
+                ys);
 
-            for (int comp = 0; comp < NUM_COMPRESSION_METHODS; ++comp)
+            if (xs == 1 && ys == 1)
             {
                 writeRead (
                     array,
                     filename.c_str (),
-                    false,
+                    true,
                     w * xs,
                     h * ys,
                     dx * xs,
                     dy * ys,
-                    Compression (comp),
+                    comp,
                     xs,
                     ys);
-
-                if (xs == 1 && ys == 1)
-                {
-                    writeRead (
-                        array,
-                        filename.c_str (),
-                        true,
-                        w * xs,
-                        h * ys,
-                        dx * xs,
-                        dy * ys,
-                        Compression (comp),
-                        xs,
-                        ys);
-                }
             }
         }
     }
@@ -595,17 +597,24 @@ testCompression (const std::string& tempDir)
 
         assert (NUM_PIXELTYPES == 3);
 
-        fillPixels1 (array, W, H);
-        writeRead (tempDir, array, W, H, DX, DY);
+        for (int comp = 0; comp < NUM_COMPRESSION_METHODS; ++comp)
+        {
+            fillPixels1 (array, W, H);
+            writeRead (tempDir, array, W, H, DX, DY, Compression (comp));
 
-        fillPixels2 (array, W, H);
-        writeRead (tempDir, array, W, H, DX, DY);
+            fillPixels2 (array, W, H);
+            writeRead (tempDir, array, W, H, DX, DY, Compression (comp));
 
-        fillPixels3 (array, W, H);
-        writeRead (tempDir, array, W, H, DX, DY);
+            fillPixels3 (array, W, H);
+            writeRead (tempDir, array, W, H, DX, DY, Compression (comp));
 
-        fillPixels4 (array, W, H);
-        writeRead (tempDir, array, W, H, DX, DY);
+            /* random noise is not a relevant test for lossy coding */
+            if (comp != LJ2K_COMPRESSION)
+            {
+                fillPixels4 (array, W, H);
+                writeRead (tempDir, array, W, H, DX, DY, Compression (comp));
+            }
+        }
 
         cout << "ok\n" << endl;
     }
