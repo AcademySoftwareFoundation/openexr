@@ -230,7 +230,7 @@ jobs:
         if: inputs.OPENEXR_FORCE_INTERNAL_ZSTD == 'OFF' && inputs.msystem == ''
         run: |
           set -x
-          share/ci/scripts/install_zstd.sh v1.5.7
+          share/ci/scripts/install_zstd.sh f8745da6ff1ad1e7bab384bd1f9d742439278e99 # v1.5.7
           echo "OPENEXR_PATH=$OPENEXR_PATH:$PROGRAM_FILES/zstd/bin:$PROGRAM_FILES/zstd/lib" >> $GITHUB_ENV
         shell: bash
 
