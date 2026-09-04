@@ -202,6 +202,7 @@ cc_library(
         "src/lib/OpenEXRCore/internal_ht.cpp",
         "src/lib/OpenEXRCore/internal_ht_common.cpp",
         "src/lib/OpenEXRCore/internal_ht_common.h",
+        "src/lib/OpenEXRCore/internal_ht_quality.h",
         "src/lib/OpenEXRCore/internal_huf.c",
         "src/lib/OpenEXRCore/internal_huf.h",
         "src/lib/OpenEXRCore/internal_memory.h",

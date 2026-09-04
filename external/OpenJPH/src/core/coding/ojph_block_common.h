@@ -5,7 +5,8 @@
 // Copyright (c) 2022, Aous Naman 
 // Copyright (c) 2022, Kakadu Software Pty Ltd, Australia
 // Copyright (c) 2022, The University of New South Wales, Australia
-// 
+// Copyright (c) 2026, Osamu Watanabe
+//
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
 // met:
@@ -32,6 +33,7 @@
 // This file is part of the OpenJPH software implementation.
 // File: ojph_block_common.h
 // Author: Aous Naman
+// Author: Osamu Watanabe
 // Date: 13 May 2022
 //***************************************************************************/
 
@@ -44,6 +46,7 @@ namespace ojph{
     extern ui16 vlc_tbl1[1024];
     extern ui16 uvlc_tbl0[256+64];
     extern ui16 uvlc_tbl1[256];
+    extern ui32 uvlc_tbl1_wide[4096];
     extern ui8 uvlc_bias[256+64];
   } // !namespace local
 } // !namespace ojph

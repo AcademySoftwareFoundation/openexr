@@ -1,4 +1,4 @@
-//***************************************************************************/
+//***************************************************************************;
 // This software is released under the 2-Clause BSD license, included
 // below.
 //
@@ -42,6 +42,7 @@
 
 #include <cassert>
 #include <cstddef>
+#include <utility>
 
 #include "ojph_mem.h"
 #include "ojph_file.h"
@@ -95,19 +96,33 @@ namespace ojph {
     fh = NULL;
   }
 
-  //*************************************************************************/
+  ////////////////////////////////////////////////////////////////////////////
+  //
+  //
   // mem_outfile
-  //*************************************************************************/
+  //
+  //
+  ////////////////////////////////////////////////////////////////////////////
 
-  /**  */
+  ////////////////////////////////////////////////////////////////////////////
   mem_outfile::mem_outfile()
   {
     is_open = clear_mem = false;
     buf_size = used_size = 0;
-    buf = cur_ptr = NULL;
+    buf = cur_ptr = nullptr;
   }
 
-  /**  */
+  ////////////////////////////////////////////////////////////////////////////
+  void mem_outfile::swap(mem_outfile& other) noexcept {
+    std::swap(this->is_open,other.is_open);
+    std::swap(this->clear_mem,other.clear_mem);
+    std::swap(this->buf_size,other.buf_size);
+    std::swap(this->used_size,other.used_size);
+    std::swap(this->buf,other.buf);
+    std::swap(this->cur_ptr,other.cur_ptr);
+  }
+
+  ////////////////////////////////////////////////////////////////////////////
   mem_outfile::~mem_outfile()
   {
     if (buf)
@@ -117,7 +132,23 @@ namespace ojph {
     buf = cur_ptr = NULL;
   }
 
-  /**  */
+  ////////////////////////////////////////////////////////////////////////////
+  mem_outfile::mem_outfile(mem_outfile&& rhs) noexcept: mem_outfile()
+  {
+    this->swap(rhs);
+  }
+
+  ////////////////////////////////////////////////////////////////////////////
+  mem_outfile& mem_outfile::operator=(mem_outfile&& rhs) noexcept
+  {
+    if (this != &rhs) {
+      mem_outfile tmp(std::move(rhs));
+      this->swap(tmp);
+    }
+    return *this;
+  }
+
+  ////////////////////////////////////////////////////////////////////////////
   void mem_outfile::open(size_t initial_size, bool clear_mem)
   {
     assert(this->is_open == false);
@@ -131,12 +162,13 @@ namespace ojph {
     this->cur_ptr = this->buf;
   }
 
-  /**  */
+  ////////////////////////////////////////////////////////////////////////////
   void mem_outfile::close() {
     is_open = false;
     cur_ptr = buf;
   }
 
+  ////////////////////////////////////////////////////////////////////////////
   /** The seek function expands the buffer whenever offset goes beyond
    *  the buffer end
    */
@@ -162,6 +194,7 @@ namespace ojph {
     return 0;
   }
 
+  ////////////////////////////////////////////////////////////////////////////
   /** Whenever the need arises, the buffer is expanded by a factor approx 1.5x
    */
   size_t mem_outfile::write(const void *ptr, size_t new_size)
@@ -183,7 +216,7 @@ namespace ojph {
     return new_size;
   }
 
-  /** */
+  ////////////////////////////////////////////////////////////////////////////
   void mem_outfile::write_to_file(const char *file_name) const
   {
     assert(is_open == false);
@@ -196,7 +229,7 @@ namespace ojph {
     fclose(f);
   }
 
-  /** */
+  ////////////////////////////////////////////////////////////////////////////
   void mem_outfile::expand_storage(size_t needed_size, bool clear_all)
   {
     if (needed_size > buf_size)
@@ -285,6 +318,22 @@ namespace ojph {
   ////////////////////////////////////////////////////////////////////////////
 
   ////////////////////////////////////////////////////////////////////////////
+  mem_infile::mem_infile(mem_infile&& rhs) noexcept: mem_infile()
+  {
+    this->swap(rhs);
+  }
+
+  ////////////////////////////////////////////////////////////////////////////
+  mem_infile& mem_infile::operator=(mem_infile&& rhs) noexcept
+  {
+    if (this != &rhs) {
+      mem_infile tmp(std::move(rhs));
+      this->swap(tmp);
+    }
+    return *this;
+  }
+
+  ////////////////////////////////////////////////////////////////////////////
   void mem_infile::open(const ui8* data, size_t size)
   {
     assert(this->data == NULL);
@@ -342,5 +391,12 @@ namespace ojph {
     return result;
   }
 
+  ////////////////////////////////////////////////////////////////////////////
+  void mem_infile::swap(mem_infile& other) noexcept
+  {
+    std::swap(this->data,other.data);
+    std::swap(this->cur_ptr,other.cur_ptr);
+    std::swap(this->size,other.size);
+  }
 
 }

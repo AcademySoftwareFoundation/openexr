@@ -1066,6 +1066,10 @@ exrmetrics (
                         static_cast<int> (level);
                     compressionSet = true;
                     break;
+                case LJ2K_COMPRESSION:
+                    outHeaders[p].lossyHTJ2KQuality ()   = level;
+                    compressionSet                       = true;
+                    break;
                 default: break;
             }
         }
@@ -1102,7 +1106,7 @@ exrmetrics (
     if (!isinf (level) && level >= -1 && !compressionSet)
     {
         throw runtime_error (
-            "-l option only works for DWAA/DWAB,ZIP/ZIPS or ZSTD compression");
+            "-l option only works for DWAA/DWAB, ZIP/ZIPS, LJ2K or ZSTD compression");
     }
 
     vector<partData> parts (part == -1 ? in.parts () : 1);

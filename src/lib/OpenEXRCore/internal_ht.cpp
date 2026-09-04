@@ -3,6 +3,7 @@
 ** Copyright Contributors to the OpenEXR Project.
 */
 
+#include <cmath>
 #include <limits>
 #include <string>
 #include <fstream>
@@ -16,7 +17,9 @@
 
 #include "openexr_decode.h"
 #include "openexr_encode.h"
+#include "openexr_part.h"
 #include "internal_ht_common.h"
+#include "internal_ht_quality.h"
 
 /**
  * OpenJPH output file that is backed by a fixed-size memory buffer
@@ -256,6 +259,7 @@ ht_undo_impl (
 
     cs.create ();
 
+    ojph::param_cod cod = cs.access_cod ();
     assert (sizeof (uint16_t) == 2);
     assert (sizeof (uint32_t) == 4);
     ojph::ui32      next_comp = 0;
@@ -299,17 +303,23 @@ ht_undo_impl (
                                  p < decode->channels[file_c].width;
                                  p++)
                             {
-                                *channel_pixels++ = cur_line->i32[p];
+                                if (!cod.is_reversible(c))
+                                    *channel_pixels++ = (int16_t) int16_to_half(cur_line->i32[p]).bits();
+                                else
+                                    *channel_pixels++ = cur_line->i32[p];
                             }
                         }
                         else
                         {
-                            int32_t* channel_pixels = (int32_t*) line_pixels;
+                            uint32_t* channel_pixels = (uint32_t*) line_pixels;
                             for (int32_t p = 0;
                                  p < decode->channels[file_c].width;
                                  p++)
                             {
-                                *channel_pixels++ = cur_line->i32[p];
+                                if (!cod.is_reversible(c))
+                                    *((float*) channel_pixels++) = int32_to_float(cur_line->i32[p]);
+                                else
+                                    *channel_pixels++ = (uint32_t) cur_line->i32[p];
                             }
                         }
                     }
@@ -340,17 +350,23 @@ ht_undo_impl (
                     for (int32_t p = 0; p < decode->channels[file_c].width;
                          p++)
                     {
-                        *channel_pixels++ = cur_line->i32[p];
+                        if (!cod.is_reversible(c))
+                            *channel_pixels++ = (int16_t) int16_to_half(cur_line->i32[p]).bits();
+                        else
+                            *channel_pixels++ = cur_line->i32[p];
                     }
                 }
                 else
                 {
-                    int32_t* channel_pixels =
-                        (int32_t*) (line_pixels + cs_to_file_ch[c].raster_line_offset);
+                    uint32_t* channel_pixels =
+                        (uint32_t*) (line_pixels + cs_to_file_ch[c].raster_line_offset);
                     for (int32_t p = 0; p < decode->channels[file_c].width;
                          p++)
                     {
-                        *channel_pixels++ = cur_line->i32[p];
+                        if (!cod.is_reversible(c))
+                            *((float*) channel_pixels++) = int32_to_float(cur_line->i32[p]);
+                        else
+                            *channel_pixels++ = (uint32_t) cur_line->i32[p];
                     }
                 }
             }
@@ -392,9 +408,9 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
 {
     exr_result_t rv = EXR_ERR_SUCCESS;
 
-    std::vector<CodestreamChannelInfo> cs_to_file_ch (encode->channel_count);
+    std::vector<CodestreamChannelInfo> cs_channel_info (encode->channel_count);
     bool                               isRGB = make_channel_map (
-        encode->channel_count, encode->channels, cs_to_file_ch);
+        encode->channel_count, encode->channels, cs_channel_info);
 
     int image_height = encode->chunk.height;
     int image_width  = encode->chunk.width;
@@ -405,15 +421,108 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
     ojph::param_nlt nlt = cs.access_nlt ();
 
     bool isPlanar = false;
+    for (int16_t c = 0; c < encode->channel_count; c++)
+    {
+        if (encode->channels[c].x_samples > 1 ||
+            encode->channels[c].y_samples > 1)
+        {
+            isPlanar = true;
+            break;
+        }
+    }
+
     siz.set_num_components (encode->channel_count);
+    cs.set_planar (isPlanar);
+
+    siz.set_image_offset (ojph::point (0, 0));
+    siz.set_image_extent (ojph::point (image_width, image_height));
+
+    exr_compression_t comp = EXR_COMPRESSION_HTJ2K256;
+    exr_get_compression (encode->context, encode->part_index, &comp);
+
+    ojph::param_cod cod = cs.access_cod ();
+
+    cod.set_color_transform (isRGB && !isPlanar);
+    cod.set_block_dims (128, 32);
+    cod.set_num_decomposition (5);
+
+    /* enable lossy compression on the first 3 channels, only if the compressor
+    is EXR_COMPRESSION_LJ2K, we have RGB channels, all RGB channels are
+    visual, not UINT and not subsampled */
+    bool lossy = comp == EXR_COMPRESSION_LJ2K && isRGB;
+    if (lossy) {
+        for (int16_t c = 0; c < 3; c++)
+        {
+            int file_c = cs_channel_info[c].file_index;
+            lossy      = lossy &&
+                            cs_channel_info[c].kind == J2KChannelKind::visual &&
+                            encode->channels[file_c].data_type != EXR_PIXEL_UINT &&
+                            encode->channels[file_c].x_samples == 1 &&
+                            encode->channels[file_c].y_samples == 1;
+        }
+    }
+
+    if (lossy)
+    {
+        cod.set_reversible (false);
+
+        float qfactor = -1.f;
+        exr_get_lossy_htj2k_quality (
+            encode->context, encode->part_index, &qfactor);
+        if (!is_lossy_htj2k_quality (qfactor)) { return EXR_ERR_INVALID_ARGUMENT; }
+
+        ojph::param_qcd qcd = cs.access_qcd ();
+
+        /*
+         * Qfactor is intended for quality levels consistent with 8-bit imagery.
+         * It is therefore extended here from 97 to 150 to take into account the
+         * fact that OpenEXR accommodates 32-bit imagery.
+         */
+        if (qfactor < 97.)
+        {
+            qcd.set_qfactor ((ojph::ui8) std::lround (qfactor));
+        }
+        else
+        {
+            double scaled_q = (qfactor - 97.)/53.;
+            double delta_ref = 0.005 * pow(2, -28.478*scaled_q) + 0.001 * pow(2, -10.534*scaled_q);
+
+            /*
+             * Setting Qstep taking into account the gain from the ICT
+             * converting encoded color-difference components to RGB (see
+             * "Controlling JPEG 2000 image quality using a single parameter
+             * (Qfactor) v2.0").
+             */
+
+            /* Y */
+            qcd.set_irrev_quant (delta_ref);
+            /* Cb */
+            qcd.set_irrev_quant (1, delta_ref / sqrt(3.2584/3.));
+            /* Cr */
+            qcd.set_irrev_quant (2, delta_ref / sqrt(2.4756/3.));
+
+        }
+
+        /* set all channels but the first 3 channels to reversible */
+        for (int16_t c = 3; c < encode->channel_count; c++)
+        {
+            cod.set_reversible (c, true);
+        }
+
+    } else {
+        cod.set_reversible (true);
+    }
+
     int64_t bpl = 0;
     for (int16_t c = 0; c < encode->channel_count; c++)
     {
-        int file_c = cs_to_file_ch[c].file_index;
-        if (encode->channels[file_c].data_type != EXR_PIXEL_UINT)
+        int file_c = cs_channel_info[c].file_index;
+        /* only channels that are EXR_PIXEL_HALF or EXR_PIXEL_FLOAT *and* are not lossy and not RGB */
+        if (encode->channels[file_c].data_type != EXR_PIXEL_UINT && cod.is_reversible(c))
             nlt.set_nonlinear_transform (
                 c,
                 ojph::param_nlt::nonlinearity::OJPH_NLT_BINARY_COMPLEMENT_NLT);
+
         siz.set_component (
             c,
             ojph::point (
@@ -422,26 +531,11 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
             encode->channels[file_c].data_type == EXR_PIXEL_HALF ? 16 : 32,
             encode->channels[file_c].data_type != EXR_PIXEL_UINT);
 
-        if (encode->channels[file_c].x_samples > 1 ||
-            encode->channels[file_c].y_samples > 1)
-        { isPlanar = true; }
-
         bpl += encode->channels[file_c].bytes_per_element *
                encode->channels[file_c].width;
     }
     if (bpl > INT32_MAX || bpl * encode->chunk.height > (int64_t) PTRDIFF_MAX)
         return EXR_ERR_CORRUPT_CHUNK;
-    cs.set_planar (isPlanar);
-
-    siz.set_image_offset (ojph::point (0, 0));
-    siz.set_image_extent (ojph::point (image_width, image_height));
-
-    ojph::param_cod cod = cs.access_cod ();
-
-    cod.set_color_transform (isRGB && !isPlanar);
-    cod.set_reversible (true);
-    cod.set_block_dims (128, 32);
-    cod.set_num_decomposition (5);
 
     try
     {
@@ -449,7 +543,7 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
         size_t header_sz = write_header (
             (uint8_t*) encode->compressed_buffer,
             encode->packed_bytes,
-            cs_to_file_ch);
+            cs_channel_info);
 
         /* write the codestream */
         staticmem_outfile output;
@@ -468,7 +562,7 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
 
                 const uint8_t* line_pixels =
                     static_cast<const uint8_t*> (encode->packed_buffer);
-                int16_t file_c = cs_to_file_ch[c].file_index;
+                int16_t file_c = cs_channel_info[c].file_index;
 
                 for (int64_t y = encode->chunk.start_y;
                     y < image_height + encode->chunk.start_y;
@@ -490,7 +584,10 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
                                      p < encode->channels[file_c].width;
                                     p++)
                                 {
-                                    cur_line->i32[p] = *channel_pixels++;
+                                    if (! cod.is_reversible(c))
+                                        cur_line->i32[p] = half_to_int16(half (half::FromBits, (uint16_t) (*channel_pixels++)));
+                                    else
+                                        cur_line->i32[p] = *channel_pixels++;
                                 }
                             }
                             else
@@ -500,7 +597,10 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
                                      p < encode->channels[file_c].width;
                                     p++)
                                 {
-                                    cur_line->i32[p] = *channel_pixels++;
+                                    if (! cod.is_reversible(c))
+                                        cur_line->i32[p] = float_to_int32(*((float *)channel_pixels++));
+                                    else
+                                        cur_line->i32[p] = *channel_pixels++;
                                 }
                             }
 
@@ -525,26 +625,32 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
             {
                 for (int16_t c = 0; c < encode->channel_count; c++)
                 {
-                    int file_c = cs_to_file_ch[c].file_index;
+                    int file_c = cs_channel_info[c].file_index;
 
                     if (encode->channels[file_c].data_type == EXR_PIXEL_HALF)
                     {
                         int16_t* channel_pixels =
-                            (int16_t*) (line_pixels + cs_to_file_ch[c].raster_line_offset);
+                            (int16_t*) (line_pixels + cs_channel_info[c].raster_line_offset);
                         for (int32_t p = 0; p < encode->channels[file_c].width;
                             p++)
                         {
-                            cur_line->i32[p] = *channel_pixels++;
+                            if (! cod.is_reversible(c))
+                                cur_line->i32[p] = half_to_int16(half (half::FromBits, (uint16_t) (*channel_pixels++)));
+                            else
+                                cur_line->i32[p] = *channel_pixels++;
                         }
                     }
                     else
                     {
                         int32_t* channel_pixels =
-                            (int32_t*) (line_pixels + cs_to_file_ch[c].raster_line_offset);
+                            (int32_t*) (line_pixels + cs_channel_info[c].raster_line_offset);
                         for (int32_t p = 0; p < encode->channels[file_c].width;
                             p++)
                         {
-                            cur_line->i32[p] = *channel_pixels++;
+                            if (! cod.is_reversible(c))
+                                cur_line->i32[p] = float_to_int32(*((float *)channel_pixels++));
+                            else
+                                cur_line->i32[p] = *channel_pixels++;
                         }
                     }
                     assert (next_comp == c);

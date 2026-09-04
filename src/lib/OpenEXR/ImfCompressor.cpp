@@ -57,6 +57,7 @@ Compressor::Compressor (
 
     exr_set_zip_compression_level (_ctxt, 0, hdr.zipCompressionLevel ());
     exr_set_dwa_compression_level (_ctxt, 0, hdr.dwaCompressionLevel ());
+    exr_set_lossy_htj2k_quality (_ctxt, 0, hdr.lossyHTJ2KQuality ());
     exr_set_zstd_compression_level (_ctxt, 0, hdr.zstdCompressionLevel ());
 
     exr_compression_t hdrcomp;
@@ -386,6 +387,7 @@ newCompressor (Compression c, size_t maxScanLineSize, const Header& hdr)
             break;
 
         case HTJ2K256_COMPRESSION:
+        case LJ2K_COMPRESSION:
 
             return new HTCompressor (hdr, static_cast<int> (maxScanLineSize), 256);
 
@@ -481,6 +483,7 @@ newTileCompressor (
 
         case HTJ2K256_COMPRESSION:
         case HTJ2K32_COMPRESSION:
+        case LJ2K_COMPRESSION:
 
             return new HTCompressor (
                 hdr,
