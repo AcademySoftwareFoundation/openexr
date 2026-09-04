@@ -82,6 +82,7 @@
 
 #include "ImfNamespace.h"
 #include "ImfCompression.h"
+#include "openexr_compression.h"
 #include <map>
 #include <cctype>
 
@@ -178,16 +179,28 @@ static const CompressionDesc IdToDesc[] = {
         false),
     CompressionDesc (
         "htj2k256",
-        "High-Throughput JPEG 2000 (256 lines)",
+        "High-Throughput JPEG 2000, lossless (256 lines)",
         256,
         false,
         false),
-    CompressionDesc (
+   CompressionDesc (
         "htj2k32",
-        "High-Throughput JPEG 2000 (32 lines)",
+        "High-Throughput JPEG 2000, lossless (32 lines)",
         32,
         false,
         false),
+    CompressionDesc (
+        "lj2k",
+        "High-Throughput JPEG 2000, lossy (256 lines)",
+        256,
+        true,
+        false),
+    CompressionDesc (
+        "zstd",
+        "zstd lossless compression, 1 scan line at a time.",
+        exr_get_zstd_lines_per_chunk (), /* overridden by getCompressionNumScanlines; keep in sync with C API */
+        false,
+        true),
 };
 // clang-format on
 
@@ -206,6 +219,8 @@ static const std::map<std::string, Compression> CompressionNameToId = {
     {"dwab", Compression::DWAB_COMPRESSION},
     {"htj2k256", Compression::HTJ2K256_COMPRESSION},
     {"htj2k32", Compression::HTJ2K32_COMPRESSION},
+    {"lj2k", Compression::LJ2K_COMPRESSION},
+    {"zstd", Compression::ZSTD_COMPRESSION},
 };
 
 #define UNKNOWN_COMPRESSION_ID_MSG "INVALID COMPRESSION ID"

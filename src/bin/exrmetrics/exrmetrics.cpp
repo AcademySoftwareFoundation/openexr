@@ -404,7 +404,7 @@ initAndReadDeepScanLine (
     {
         int samplesize = pixelTypeSize (i.channel ().type);
         sampleData[channelNumber].resize (samplesize * totalSamples);
-        int offset = 0;
+        size_t offset = 0;
         for (uint64_t p = 0; p < numPixels; ++p)
         {
             pixelPtrs[channelNumber][p] =
@@ -571,7 +571,7 @@ initAndReadDeepTiled (
     {
         int samplesize = pixelTypeSize (i.channel ().type);
         sampleData[channelNumber].resize (samplesize * totalSamples);
-        int offset = 0;
+        size_t offset = 0;
         for (uint64_t p = 0; p < numPixels; ++p)
         {
             pixelPtrs[channelNumber][p] =
@@ -1061,9 +1061,15 @@ exrmetrics (
                     outHeaders[p].zipCompressionLevel () = level;
                     compressionSet                       = true;
                     break;
-                    //            case ZSTD_COMPRESSION :
-                    //                outHeader.zstdCompressionLevel()=level;
-                    //                break;
+                case ZSTD_COMPRESSION:
+                    outHeaders[p].zstdCompressionLevel () =
+                        static_cast<int> (level);
+                    compressionSet = true;
+                    break;
+                case LJ2K_COMPRESSION:
+                    outHeaders[p].lossyHTJ2KQuality ()   = level;
+                    compressionSet                       = true;
+                    break;
                 default: break;
             }
         }
@@ -1100,7 +1106,7 @@ exrmetrics (
     if (!isinf (level) && level >= -1 && !compressionSet)
     {
         throw runtime_error (
-            "-l option only works for DWAA/DWAB,ZIP/ZIPS or ZSTD compression");
+            "-l option only works for DWAA/DWAB, ZIP/ZIPS, LJ2K or ZSTD compression");
     }
 
     vector<partData> parts (part == -1 ? in.parts () : 1);

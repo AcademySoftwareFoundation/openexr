@@ -286,6 +286,17 @@ public:
     float& dwaCompressionLevel ();
     IMF_EXPORT
     float dwaCompressionLevel () const;
+    IMF_EXPORT
+    float& lossyHTJ2KQuality ();
+    IMF_EXPORT
+    float lossyHTJ2KQuality () const;
+    // Valid levels are 1 through 22 (libzstd range). Values outside
+    // that range are clamped. The library default is 5.
+    IMF_EXPORT
+    int& zstdCompressionLevel ();
+    IMF_EXPORT
+    int zstdCompressionLevel () const;
+    IMF_EXPORT
 
     //-----------------------------------------------------
     // Access to required attributes for multipart files
