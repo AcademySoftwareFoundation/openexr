@@ -105,6 +105,18 @@ public:
         return *this;
     }
 
+    ContextInitializer& setLossyHTJ2KQuality (float jq) noexcept
+    {
+        _initializer.lossy_htj2k_quality = jq;
+        return *this;
+    }
+
+    ContextInitializer& setZstdLevel (int zl) noexcept
+    {
+        _initializer.zstd_level = zl;
+        return *this;
+    }
+
     ContextInitializer& strictHeaderValidation (bool onoff) noexcept
     {
         setFlag (EXR_CONTEXT_FLAG_STRICT_HEADER, onoff);

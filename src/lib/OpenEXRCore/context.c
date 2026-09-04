@@ -134,6 +134,11 @@ fill_context_data (const exr_context_initializer_t* ctxtdata)
         {
             inits.flags = ctxtdata->flags;
         }
+        if (ctxtdata->size >= sizeof (struct _exr_context_initializer_v4))
+        {
+            inits.lossy_htj2k_quality = ctxtdata->lossy_htj2k_quality;
+            inits.zstd_level = ctxtdata->zstd_level;
+        }
     }
 
     internal_exr_update_default_handlers (&inits);
