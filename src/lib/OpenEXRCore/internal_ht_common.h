@@ -233,8 +233,10 @@ inline float int32_to_float(int32_t f)
 static int32_t float_to_int32(float h)
 {
     if (isnan (h)) return 0;
-    if (isinf (h)) return h < 0 ? -INT32_MAX : INT32_MAX;
-    return (int32_t) roundf(tf_from_linear((double) h) * INT32_FLOAT_FACTOR);
+    double v = round (tf_from_linear ((double) h) * INT32_FLOAT_FACTOR);
+    if (v > (double) INT32_MAX) return INT32_MAX;
+    if (v < -(double) INT32_MAX) return -INT32_MAX;
+    return (int32_t) v;
 }
 
 #endif /* OPENEXR_PRIVATE_HT_COMMON_H */
