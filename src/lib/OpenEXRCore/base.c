@@ -7,6 +7,8 @@
 #include "openexr_errors.h"
 #include "openexr_version.h"
 
+#include "internal_ht_quality.h"
+
 /**************************************/
 
 void
@@ -209,4 +211,22 @@ void
 exr_get_default_dwa_compression_quality (float* q)
 {
     if (q) *q = sDefaultDwaLevel;
+}
+
+/**************************************/
+
+static float sDefaultJ2kQuality = 110.f;
+
+void
+exr_set_default_lossy_htj2k_quality (float q)
+{
+    sDefaultJ2kQuality = clamp_lossy_htj2k_quality (q);
+}
+
+/**************************************/
+
+void
+exr_get_default_lossy_htj2k_quality (float* q)
+{
+    if (q) *q = sDefaultJ2kQuality;
 }
