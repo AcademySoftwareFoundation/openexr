@@ -78,6 +78,12 @@ size_t exr_rle_uncompress_buffer (
 EXR_EXPORT
 int exr_compression_lines_per_chunk (exr_compression_t comptype);
 
+/** Scanlines packed into one ZSTD chunk for scanline / deep-scanline parts.
+ *  Tunable constant; must stay in sync with C++ getCompressionNumScanlines for
+ *  ZSTD_COMPRESSION. */
+EXR_EXPORT
+int exr_get_zstd_lines_per_chunk (void);
+
 /** Exposes a method to apply compression to a chunk of data.
  *
  * This can be useful for inheriting default behavior of the

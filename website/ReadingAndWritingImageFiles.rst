@@ -1880,16 +1880,20 @@ Supported compression types are:
 |                       | partial buffer access, but slightly less       |
 |                       | efficient space-wise.                          |
 +-----------------------+------------------------------------------------+
-| LJ2K_COMPRESSION | Same as ``HTJ2K256_COMPRESSION`` but with      |
+| LJ2K_COMPRESSION      | Same as ``HTJ2K256_COMPRESSION`` but with      |
 |                       | lossy coding, resulting in smaller files at    |
 |                       | the expense of introducing distortion. The     |
 |                       | amount of distortion can be controlled from    |
 |                       | visually lossless for larger files, to visible |
 |                       | artifacts for smaller files.                   |
 +-----------------------+------------------------------------------------+
+| ZSTD_COMPRESSION      | zstd lossless compression, one scan line at a  |
+|                       | time.                                          |
++-----------------------+------------------------------------------------+
 
-For the ``ZIP_COMPRESSION`` compressor, a single level parameter controls
-the tradeoff between compression speed and file size.
+For the ``ZIP_COMPRESSION`` and ``ZSTD_COMPRESSION`` compressors, a single
+level parameter controls the tradeoff between compression speed and file
+size.
 
 For the ``DWA`` and ``LJ2K_COMPRESSION`` compressors, a single level
 parameter controls the tradeoff between quality and file size. Additional
@@ -1906,7 +1910,8 @@ default or by setting the level directly on the ``Header`` object.
 
 The default zip compression level is 4 for OpenEXR v3.1.3+ and 6 for
 previous versions. The default DWA compression level is 45.0f.
-The default HTJ2K quality level is 110.0f.
+The default HTJ2K quality level is 110.0f. The default zstd compression
+level is 5 (valid range 1 through 22).
 
 Alternatively, set the compression level on the ``Header`` object:
 

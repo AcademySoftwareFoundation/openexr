@@ -32,6 +32,10 @@
 #define OPENEXR_OPENJPH_VERSION_MINOR @openjph_VERSION_MINOR@
 #define OPENEXR_OPENJPH_VERSION_PATCH @openjph_VERSION_PATCH@
 
+#define OPENEXR_ZSTD_VERSION_MAJOR @zstd_VERSION_MAJOR@
+#define OPENEXR_ZSTD_VERSION_MINOR @zstd_VERSION_MINOR@
+#define OPENEXR_ZSTD_VERSION_PATCH @zstd_VERSION_PATCH@
+
 //
 // Options / configuration based on O.S. / compiler
 /////////////////////

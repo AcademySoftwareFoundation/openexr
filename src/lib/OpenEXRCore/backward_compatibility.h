@@ -60,7 +60,7 @@ struct _exr_context_initializer_v3
     int                           zip_level;
     float                         dwa_quality;
     int                           flags;
-    float                         lossy_htj2k_quality;
+    uint8_t                       pad[4];
 };
 
 #endif /* OPENEXR_BACKWARD_COMPATIBILITY_H */

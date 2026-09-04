@@ -872,7 +872,6 @@ Supported compression schemes:
        <https://www.itu.int/rec/T-REC-T.814>`_,
 
    * - HTJ2K32 (lossless)
-
      - Lossless compression of HALF, FLOAT and UINT data types in blocks of 32
        scanlines, using `JPEG 2000 Part 15 (High-throughput JPEG 2000)
        <https://www.itu.int/rec/T-REC-T.814>`_,
@@ -883,6 +882,11 @@ Supported compression schemes:
        scanlines, using `JPEG 2000 Part 15 (High-throughput JPEG 2000)
        <https://www.itu.int/rec/T-REC-T.814>`_,
 
+   * - ZSTD (lossless)
+
+     - Lossless compression using the `zstd <https://github.com/facebook/zstd>`_
+       library, one scan line at a time. The compression level (1 through
+       22; default 5) controls the space/time tradeoff.
 
 Luminance/Chroma Images
 =======================
@@ -1352,6 +1356,10 @@ By default, OpenEXR files have the following attributes:
 **dwaCompressionLevel**
   Sets the quality level for images compressed with the DWAA or DWAB
   method.
+
+**zstdCompressionLevel**
+  Sets the compression level for images compressed with the ZSTD
+  method. Valid levels are 1 through 22; the default is 5.
 
 **lossyHTJ2KQuality**
   Sets the quality level for images compressed with the LJ2K

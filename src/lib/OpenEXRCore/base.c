@@ -100,6 +100,8 @@ static const char* the_default_errors[] = {
     "Use non-deep tile write (sample count table invalid for this part type)",
     "Invalid sample data table value",
     "Feature not yet implemented, please use C++ library",
+    "Chunk compression failed",
+    "Chunk decompression failed",
     "Unknown error code"};
 static int the_default_error_count =
     sizeof (the_default_errors) / sizeof (const char*);
@@ -229,4 +231,21 @@ void
 exr_get_default_lossy_htj2k_quality (float* q)
 {
     if (q) *q = sDefaultJ2kQuality;
+}
+
+/* ZSTD levels 1-22; OpenEXR default level (5 offers a good balance of speed and compression ratio). */
+static int sDefaultZstdLevel = 5;
+
+void
+exr_set_default_zstd_compression_level (int q)
+{
+    if (q < 1) q = 1;
+    if (q > 22) q = 22;
+    sDefaultZstdLevel = q;
+}
+
+void
+exr_get_default_zstd_compression_level (int* q)
+{
+    if (q) *q = sDefaultZstdLevel;
 }

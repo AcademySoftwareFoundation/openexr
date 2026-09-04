@@ -111,6 +111,12 @@ public:
         return *this;
     }
 
+    ContextInitializer& setZstdLevel (int zl) noexcept
+    {
+        _initializer.zstd_level = zl;
+        return *this;
+    }
+
     ContextInitializer& strictHeaderValidation (bool onoff) noexcept
     {
         setFlag (EXR_CONTEXT_FLAG_STRICT_HEADER, onoff);

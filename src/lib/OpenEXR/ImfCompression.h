@@ -57,6 +57,8 @@ enum IMF_EXPORT_ENUM Compression
 
     LJ2K_COMPRESSION = 12,  // High-Throughput JPEG2000 (HTJ2K), lossy, 256 scanlines
 
+    ZSTD_COMPRESSION = 13, // zstd lossless compression, one scan line
+                           // at a time.
     NUM_COMPRESSION_METHODS // number of different compression methods
 };
 
