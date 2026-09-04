@@ -24,6 +24,7 @@
 #include "compression.h"
 #include "deep.h"
 #include "general_attr.h"
+#include "initializer_compat.h"
 #include "read.h"
 #include "write.h"
 #include "buffer.h"
@@ -154,6 +155,7 @@ main (int argc, char* argv[])
     TEST (testXDR, "core");
     TEST (testBufferCompression, "core");
     TEST (testTempContext, "core");
+    TEST (testInitializerCompat, "core");
 
     TEST (testAttrSizes, "gen_attr");
     TEST (testAttrStrings, "gen_attr");
