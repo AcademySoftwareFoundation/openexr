@@ -31,6 +31,8 @@
 #include "ImfDeepTiledInputPart.h"
 #include "ImfDeepFrameBuffer.h"
 #include "ImfPartType.h"
+#include "ImfStandardAttributes.h"
+#include "ImfColorMetadata.h"
 #include "ImfThreading.h"
 #include "ImfArray.h"
 
@@ -41,6 +43,7 @@
 #include "ImfBoxAttribute.h"
 #include "ImfBytesAttribute.h"
 #include "ImfChannelListAttribute.h"
+#include "ImfChromaticities.h"
 #include "ImfChromaticitiesAttribute.h"
 #include "ImfCompressionAttribute.h"
 #include "ImfDoubleAttribute.h"
@@ -2899,6 +2902,22 @@ namespace
         {}
     };
 
+    // Build a temporary Header from a header attribute dict, e.g. as
+    // returned by File.header(), for functions like checkColorMetadata()
+    // that only examine attributes and don't need a full part.
+    Header
+    headerFromDict (const py::dict& d)
+    {
+        Header header;
+        for (auto item : d)
+        {
+            auto name = py::str (item.first);
+            py::object value = py::cast<py::object> (item.second);
+            PyFile::insertAttribute (header, name, value);
+        }
+        return header;
+    }
+
 }
 
 PYBIND11_MODULE(OpenEXR, m)
@@ -2971,6 +2990,109 @@ PYBIND11_MODULE(OpenEXR, m)
         "Return ``(max_width, max_height)`` for the current tile dimension limits.\n\n"
         "Maps to ``Imf::Header::getMaxTileSize()``.\n\n");
 
+    m.def(
+        "colorInteropIDToChromaticities",
+        [](const std::string& id) -> py::object {
+            Chromaticities c;
+            if (!colorInteropIDToChromaticities (id, c))
+                return py::none();
+            return py::make_tuple(c.red.x, c.red.y,
+                                  c.green.x, c.green.y,
+                                  c.blue.x, c.blue.y,
+                                  c.white.x, c.white.y);
+        },
+        py::arg("id"),
+        "Return the chromaticities for a color interop ID, in the same 8-tuple "
+        "form as the ``chromaticities`` header attribute: ``(red.x, red.y, "
+        "green.x, green.y, blue.x, blue.y, white.x, white.y)``.\n\n"
+        "Only the six IDs that denote linear, scene-referred RGB color spaces "
+        "have a defined mapping: ``lin_rec709_scene``, ``lin_ap0_scene``, "
+        "``lin_ap1_scene``, ``lin_p3d65_scene``, ``lin_rec2020_scene`` and "
+        "``lin_adobergb_scene``. Returns ``None`` for any other value, "
+        "including ``unknown`` and ``data``.\n\n"
+        "Note that the Color Interop Forum recommends against setting the "
+        "``chromaticities`` attribute when setting ``colorInteropID``, other "
+        "than for ST 2065-4 compliance. This is intended for feeding legacy "
+        "consumers that understand only chromaticities.\n\n"
+        "Maps to ``Imf::colorInteropIDToChromaticities()``.\n\n");
+
+    m.def(
+        "chromaticitiesToColorInteropID",
+        [](const py::object& chromaticities, float tolerance) -> py::object {
+            Chromaticities c;
+            if (!objectToChromaticities (chromaticities, c))
+            {
+                std::stringstream err;
+                err << "invalid chromaticities: expected a tuple of 8 floats, got "
+                    << py::str(chromaticities);
+                throw std::invalid_argument(err.str());
+            }
+
+            std::string id;
+            if (!chromaticitiesToColorInteropID (c, id, tolerance))
+                return py::none();
+            return py::cast(id);
+        },
+        py::arg("chromaticities"),
+        py::arg("tolerance") = 0.001f,
+        "Return the color interop ID for a set of chromaticities, given in the "
+        "same 8-tuple form as the ``chromaticities`` header attribute: "
+        "``(red.x, red.y, green.x, green.y, blue.x, blue.y, white.x, "
+        "white.y)``.\n\n"
+        "The chromaticities are matched against the six IDs that denote "
+        "linear, scene-referred RGB color spaces, comparing all four "
+        "coordinates within ``tolerance`` in x and y. Returns ``None`` if none "
+        "of them match. The six are mutually distinct by at least 0.005, so a "
+        "``tolerance`` above roughly 0.0025 may match more than one, in which "
+        "case the first is returned.\n\n"
+        "Maps to ``Imf::chromaticitiesToColorInteropID()``.\n\n");
+
+    m.def(
+        "checkColorMetadata",
+        [](const py::dict& header, const py::object& first_part_header) -> unsigned int {
+            Header h = headerFromDict (header);
+
+            if (first_part_header.is_none())
+                return checkColorMetadata (h);
+
+            Header h0 = headerFromDict (first_part_header.cast<py::dict>());
+            return checkColorMetadata (h, h0);
+        },
+        py::arg("header"),
+        py::arg("first_part_header") = py::none(),
+        "Check a header's ``colorInteropID``, ``chromaticities``, "
+        "``whiteLuminance``, ``adoptedNeutral`` and "
+        "``acesImageContainerFlag`` attributes for combinations that leave "
+        "the part's color space ambiguous or self-contradictory.\n\n"
+        "``header`` is a header attribute dict, as returned by "
+        "``File.header()``. Pass the first part's header dict as "
+        "``first_part_header`` when checking a part after the first in a "
+        "multipart file; this additionally checks the shared attribute "
+        "rules and may report "
+        "``ColorMetadataWarning.INTEROP_ID_NOT_SHARED``.\n\n"
+        "Returns zero or more ``ColorMetadataWarning`` flags OR'd "
+        "together, or ``ColorMetadataWarning.OK`` if nothing was found. A "
+        "header with neither ``colorInteropID`` nor "
+        "``acesImageContainerFlag`` makes no claim about its color space, "
+        "and so never produces a warning.\n\n"
+        "None of these make a file malformed or unsafe to read, which is "
+        "why this is separate from file validation: they are warnings "
+        "about the meaning of the metadata, not errors.\n\n"
+        "Maps to ``Imf::checkColorMetadata()``.\n\n");
+
+    m.def(
+        "colorMetadataWarningToString",
+        [](unsigned int warning) {
+            return colorMetadataWarningToString (
+                static_cast<ColorMetadataWarning> (warning));
+        },
+        py::arg("warning"),
+        "Return a human-readable description of a single "
+        "``ColorMetadataWarning`` flag returned by ``checkColorMetadata()``. "
+        "Describes one flag, so callers reporting a set of warnings should "
+        "test each flag in turn rather than passing the combined value.\n\n"
+        "Maps to ``Imf::colorMetadataWarningToString()``.\n\n");
+
     //
     // Add symbols from the legacy implementation of the bindings for
     // backwards compatibility
@@ -3039,6 +3161,22 @@ PYBIND11_MODULE(OpenEXR, m)
         .value("deepscanline", EXR_STORAGE_DEEP_SCANLINE)
         .value("deeptile", EXR_STORAGE_DEEP_TILED)
         .value("NUM_STORAGE_TYPES", EXR_STORAGE_LAST_TYPE)
+        .export_values();
+
+    py::enum_<ColorMetadataWarning>(m, "ColorMetadataWarning", py::arithmetic(),
+        "Individual color-metadata inconsistencies reported by "
+        "checkColorMetadata(); flags are OR'd together in its return value")
+        .value("OK", COLOR_METADATA_OK)
+        .value("EMPTY_INTEROP_ID", COLOR_METADATA_EMPTY_INTEROP_ID)
+        .value("CHROMATICITIES_DIFFER", COLOR_METADATA_CHROMATICITIES_DIFFER)
+        .value("DATA_HAS_CHROMATICITIES", COLOR_METADATA_DATA_HAS_CHROMATICITIES)
+        .value("DATA_HAS_WHITE_LUMINANCE", COLOR_METADATA_DATA_HAS_WHITE_LUMINANCE)
+        .value("DATA_HAS_ADOPTED_NEUTRAL", COLOR_METADATA_DATA_HAS_ADOPTED_NEUTRAL)
+        .value("INTEROP_ID_NOT_SHARED", COLOR_METADATA_INTEROP_ID_NOT_SHARED)
+        .value("ACES_FLAG_NOT_ONE", COLOR_METADATA_ACES_FLAG_NOT_ONE)
+        .value("ACES_FLAG_INTEROP_ID_NOT_AP0", COLOR_METADATA_ACES_FLAG_INTEROP_ID_NOT_AP0)
+        .value("ACES_FLAG_NO_CHROMATICITIES", COLOR_METADATA_ACES_FLAG_NO_CHROMATICITIES)
+        .value("ACES_FLAG_CHROMATICITIES_NOT_AP0", COLOR_METADATA_ACES_FLAG_CHROMATICITIES_NOT_AP0)
         .export_values();
 
     //

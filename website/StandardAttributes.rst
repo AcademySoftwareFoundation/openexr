@@ -1217,8 +1217,32 @@ optional.
      <td style="vertical-align: top; width:500px">
        <p style="padding-bottom:15px">
          For RGB images, specifies the CIE (x,y) chromaticities of the
-         primaries and the white point.
+         primaries and the white point. Note: For most purposes, this
+         attribute has now been superseded by the colorInteropID.
        </p>
+     </td>
+   </tr>
+
+   <tr>
+     <td style="vertical-align: top; width:150px"> <tt> <b> colorInteropID </b> </tt>
+     </td>
+     <td style="vertical-align: top; width:100px"> <tt> string
+     </tt> </td>
+     <td style="vertical-align: top; width:500px">
+       <p style="padding-bottom:15px">
+         Provides a mechanism to identify the color space of the RGB images. Please note
+         that the ID must follow a specific structure as defined in the following references.
+       </p>
+       
+       <p style="padding-bottom:15px">
+         See <a href=https://github.com/AcademySoftwareFoundation/ColorInterop/blob/main/Recommendations/03_ColorInteropID/ColorInteropID.md>An ID for Color Interop</a> 
+         and <a href=https://github.com/AcademySoftwareFoundation/ColorInterop/blob/main/Recommendations/04_OpenEXRFiles/OpenEXRFiles.md>Identifying the Color Space of OpenEXR Files</a> for details.
+       </p>
+
+       <p style="padding-bottom:15px">
+         New in OpenEXR v3.4.
+       </p>
+
      </td>
    </tr>
 
@@ -1250,6 +1274,18 @@ optional.
          neutral during color rendering.  Pixels in the image file whose
          (x,y) coordinates match the <tt>adoptedNeutral</tt> value should be mapped to
          neutral values on the display.
+       </p>
+     </td>
+   </tr>
+
+   <tr>
+      <td style="vertical-align: top; width:150px"> <tt> <b> acesImageContainerFlag </b>
+      </tt> </td>
+      <td style="vertical-align: top; width:100px"> <tt> int </tt> </td>
+      <td style="vertical-align: top; width:500px">
+       <p style="padding-bottom:15px">
+         If present and contains the value 1, specifies that the file complies
+         with SMPTE ST 2065-4 "ACES Image Container File Layout".
        </p>
      </td>
    </tr>
@@ -1374,28 +1410,6 @@ pipeline. All are optional.
        <p style="padding-bottom:15px">
          ID manifest.
        </p>
-     </td>
-   </tr>
-
-   <tr>
-     <td style="vertical-align: top; width:150px"> <tt> <b> colorInteropID </b> </tt>
-     </td>
-     <td style="vertical-align: top; width:100px"> <tt> string
-     </tt> </td>
-     <td style="vertical-align: top; width:500px">
-       <p style="padding-bottom:15px">
-         Provides a mechanism to identify the color space of the RGB images.
-       </p>
-       
-       <p style="padding-bottom:15px">
-         See <a href=https://docs.google.com/document/d/1T94lYbis9uCskL_ZEMxGBF2JryLfZnjxlEoNgRHZzBE/edit?usp=sharing>An ID for Color Interop</a> 
-         and <a href=https://docs.google.com/document/d/1MTH1bq2L67ifvdDf64Amhzg4AbkIM5LG6yPHrB96Vwo/edit?usp=sharing>Identifying the Color Space of OpenEXR Files</a> for details.
-       </p>
-
-       <p style="padding-bottom:15px">
-         New in OpenEXR v3.4.
-       </p>
-
      </td>
    </tr>
 

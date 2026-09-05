@@ -104,6 +104,8 @@ prefixFromLayerName (const string& layerName, const Header& header)
 V3f
 ywFromHeader (const Header& header)
 {
+    // TODO: Add support for colorInteropID.
+
     Chromaticities cr;
 
     if (hasChromaticities (header)) cr = chromaticities (header);

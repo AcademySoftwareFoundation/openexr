@@ -15,6 +15,7 @@
 #include "ImfBoxAttribute.h"
 #include "ImfChannelList.h"
 #include "ImfChromaticitiesAttribute.h"
+#include "ImfContextInit.h"
 #include "ImfFloatAttribute.h"
 #include "ImfFrameBuffer.h"
 #include "ImfGenericOutputFile.h"
@@ -26,6 +27,7 @@
 #include "ImfOutputFile.h"
 #include "ImfOutputPart.h"
 #include "ImfPartType.h"
+#include "ImfStandardAttributes.h"
 #include "ImfTiledInputPart.h"
 #include "ImfTiledOutputFile.h"
 #include "ImfTiledOutputPart.h"
@@ -196,7 +198,7 @@ testTimeCode (const vector<Header>& hs, const std::string& fn)
         "Shared Attributes : timecode : should fail for !presence");
 
     //
-    // Test against a vector of headers that has chromaticities attribute
+    // Test against a vector of headers that has the timecode attribute
     // but of differing value
     //
     for (size_t i = 0; i < headers.size (); i++)
@@ -256,6 +258,57 @@ testChromaticities (const vector<Header>& hs, const std::string& fn)
     return;
 }
 
+//
+// As decided in PR #2560, there is no hard restriction placed on the
+// ability to write or read multi-part files that do not follow the
+// colorInteropID recommendations, not even under strict header validation.
+// Programs should call checkColorMetadata before writing to ensure they
+// comply with the recommendations.
+//
+void
+testNonConformingColorInteropIDIsWritableAndReadable (
+    const vector<Header>& hs, const std::string& fn)
+{
+    Header first (hs[0]);
+    first.setName ("first");
+    addColorInteropID (first, "lin_ap1_scene");
+
+    Header second (hs[0]);
+    second.setName ("second");
+    addColorInteropID (second, "lin_ap0_scene");
+
+    vector<Header> headers;
+    headers.push_back (first);
+    headers.push_back (second);
+
+    remove (fn.c_str ());
+    {
+        MultiPartOutputFile file (fn.c_str (), &headers[0], headers.size ());
+    }
+
+    {
+        MultiPartInputFile in (fn.c_str ());
+
+        assert (in.parts () == 2);
+        assert (colorInteropID (in.header (0)) == "lin_ap1_scene");
+        assert (colorInteropID (in.header (1)) == "lin_ap0_scene");
+    }
+
+    //
+    // The same file also opens fine under strict header validation.
+    //
+    {
+        MultiPartInputFile in (
+            fn.c_str (), ContextInitializer ().strictHeaderValidation (true));
+
+        assert (in.parts () == 2);
+        assert (colorInteropID (in.header (0)) == "lin_ap1_scene");
+        assert (colorInteropID (in.header (1)) == "lin_ap0_scene");
+    }
+
+    remove (fn.c_str ());
+}
+
 void
 testSharedAttributes (const std::string& fn)
 {
@@ -265,6 +318,11 @@ testSharedAttributes (const std::string& fn)
     // Pixel Aspect Ratio
     // TimeCode
     // Chromaticities
+    //
+    // colorInteropID is not a shared attribute -- see
+    // testNonConformingColorInteropIDIsWritableAndReadable,
+    // though programs are expected to manually impose similar
+    // constraints on it.
     //
 
     int            partCount = 3;
@@ -287,6 +345,7 @@ testSharedAttributes (const std::string& fn)
     testPixelAspectRatio (headers, fn);
     testTimeCode (headers, fn);
     testChromaticities (headers, fn);
+    testNonConformingColorInteropIDIsWritableAndReadable (headers, fn);
 }
 
 template <class T>

@@ -831,6 +831,14 @@ internal_exr_validate_shared_attrs (exr_context_t ctxt,
     if (rv != EXR_ERR_SUCCESS)
         mismatchattr[misidx++] = "chromaticities";
 
+    /*
+     * As decided in PR #2560, there is no hard restriction placed on the
+     * ability to read (or write) multi-part files that do not follow the
+     * colorInteropID recommendations. Programs should call
+     * exr_check_color_metadata_values before writing to ensure they comply
+     * with the recommendations.
+     */
+
     *mismatchcount = misidx;
     return misidx == 0 ? EXR_ERR_SUCCESS : EXR_ERR_ATTR_TYPE_MISMATCH;
 }
