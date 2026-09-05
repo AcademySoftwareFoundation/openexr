@@ -698,11 +698,11 @@ Other New Features:
 
   - The contents of the string is described in the specification `An
     ID for Color
-    Interop <https://docs.google.com/document/d/1T94lYbis9uCskL_ZEMxGBF2JryLfZnjxlEoNgRHZzBE/edit?usp=sharing>`_.
+    Interop <https://github.com/AcademySoftwareFoundation/ColorInterop/blob/main/Recommendations/03_ColorInteropID/ColorInteropID.md>`_.
 
   - Guidance to application developers is provided in `Identifying the
     Color Space of OpenEXR
-    Files <https://docs.google.com/document/d/1MTH1bq2L67ifvdDf64Amhzg4AbkIM5LG6yPHrB96Vwo/edit?usp=sharing>`_
+    Files <https://github.com/AcademySoftwareFoundation/ColorInterop/blob/main/Recommendations/04_OpenEXRFiles/OpenEXRFiles.md>`_
 
 * ✨ **New `bytes` attribute type**
 

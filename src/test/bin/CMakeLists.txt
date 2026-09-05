@@ -16,7 +16,8 @@ if(BUILD_TESTING)
   add_test(NAME OpenEXR.bin.exrinfo
            COMMAND ${Python3_EXECUTABLE}
            ${CMAKE_CURRENT_SOURCE_DIR}/test_exrinfo.py
-           $<TARGET_FILE:exrinfo> ${TEST_IMAGE_DIR} ${OPENEXR_VERSION})
+           $<TARGET_FILE:exrinfo> ${TEST_IMAGE_DIR} ${OPENEXR_VERSION}
+           $<TARGET_FILE:exrstdattr>)
   set_tests_properties(OpenEXR.bin.exrinfo PROPERTIES LABELS "OpenEXR.bin")
 
   add_test(NAME OpenEXR.bin.exrheader

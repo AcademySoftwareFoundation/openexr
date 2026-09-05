@@ -6,6 +6,8 @@ add_executable(OpenEXRCoreTest
   base_units.h
   buffer.cpp
   buffer.h
+  color_metadata.cpp
+  color_metadata.h
   compression.cpp
   compressionTables.cpp
   compression.h
@@ -86,6 +88,10 @@ define_openexrcore_tests(
  testAttrOpaque
  testAttrHandler
  testAttrLists
+
+ testColorInteropChromaticities
+ testColorMetadataValues
+ testColorMetadataFile
 
  testReadBadArgs
  testReadBadFiles

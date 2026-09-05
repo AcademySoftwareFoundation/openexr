@@ -79,6 +79,7 @@ openexr_define_library(OpenEXRCore
     part.c
     part_attr.c
     std_attr.c
+    color_metadata.c
 
     parse_header.c
     write_header.c
@@ -101,6 +102,7 @@ openexr_define_library(OpenEXRCore
     openexr_base.h
     openexr_chunkio.h
     openexr_coding.h
+    openexr_color_metadata.h
     openexr_compression.h
     openexr_config.h
     openexr_context.h

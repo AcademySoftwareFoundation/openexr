@@ -601,6 +601,33 @@ IMF_STD_ATTRIBUTE_DEF (reelName, ReelName, std::string)
 IMF_STD_ATTRIBUTE_DEF (chromaticities, Chromaticities, Chromaticities)
 
 //
+// ColorInteropID -- the Color Interop Forum ID describing the color space of 
+// the RGB images.
+//
+// This is a specially designed string used to communicate the color space of 
+// the image in an interoperable manner. The contents of the string is described
+// in the specification "An ID for Color Interop":
+// <https://github.com/AcademySoftwareFoundation/ColorInterop/blob/main/
+// Recommendations/03_ColorInteropID/ColorInteropID.md>
+//
+// Guidance to application developers is provided in "Identifying the Color Space 
+// of OpenEXR Files": <https://github.com/AcademySoftwareFoundation/ColorInterop/
+// blob/main/Recommendations/04_OpenEXRFiles/OpenEXRFiles.md>
+// 
+// Applications should call checkColorMetadata (or exr_check_color_metadata in
+// the core API) before writing files to ensure the recommendations are followed.
+//
+// In addition, please adhere to the following important usage guidance:
+//   1. If the color space of an image is modified, do not forward the stale
+//      attribute value.
+//   2. Do not set this to a default color space. If the actual color space
+//      is not known, omit the attribute or set it to "unknown".
+//
+// New in OpenEXR v3.4
+
+IMF_STD_ATTRIBUTE_DEF (colorInteropID, ColorInteropID, std::string)
+
+//
 // whiteLuminance -- for RGB images, defines the luminance, in Nits
 // (candelas per square meter) of the RGB value (1.0, 1.0, 1.0).
 //
@@ -620,6 +647,14 @@ IMF_STD_ATTRIBUTE_DEF (whiteLuminance, WhiteLuminance, float)
 //
 
 IMF_STD_ATTRIBUTE_DEF (adoptedNeutral, AdoptedNeutral, IMATH_NAMESPACE::V2f)
+
+//
+// acesImageContainerFlag -- if present and contains the value 1, 
+// specifies that the file complies with SMPTE ST 2065-4 "ACES 
+// Image Container File Layout".
+//
+
+IMF_STD_ATTRIBUTE_DEF (acesImageContainerFlag, AcesImageContainerFlag, int)
 
 //
 // renderingTransform, lookModTransform -- specify the names of the
@@ -723,26 +758,5 @@ IMF_STD_ATTRIBUTE_DEF_DEPRECATED (
 //
 
 IMF_STD_ATTRIBUTE_DEF (idManifest, IDManifest, CompressedIDManifest)
-
-//
-// ColorInteropID -- the Color Interop Forum ID that describes the color space of the RGB images.
-//
-// This is a specially designed string used to communicate the color space of 
-// the image in an interoperable manner. The contents of the string is described
-// in the specification "An ID for Color Interop":
-// <https://docs.google.com/document/d/1T94lYbis9uCskL_ZEMxGBF2JryLfZnjxlEoNgRHZzBE/edit?usp=sharing>
-//
-// Guidance to application developers is provided in "Identifying the Color Space of OpenEXR Files":
-// <https://docs.google.com/document/d/1MTH1bq2L67ifvdDf64Amhzg4AbkIM5LG6yPHrB96Vwo/edit?usp=sharing>
-// 
-// Please adhere to the following usage guidance:
-//   1. If the color space of an image is modified, do not forward the stale attribute value.
-//   2. Do not set this to a default color space. If the actual color space is not known, omit
-//      the attribute or set it to "unknown".
-//
-// New in OpenEXR v3.4
-
-
-IMF_STD_ATTRIBUTE_DEF (colorInteropID, ColorInteropID, std::string)
 
 #endif
