@@ -84,7 +84,12 @@ usageMessage (ostream& stream, const char* program_name, bool verbose = false)
                "  -chromaticities f f f f f f f f\n"
                "        CIE xy chromaticities for the red, green\n"
                "        and blue primaries, and for the white point\n"
-               "        (8 floats)\n"
+               "        (8 floats). This attribute is superseded by\n"
+               "        colorInteropID for most purposes.\n"
+               "\n"
+               "  -colorInteropID s\n"
+               "        Color Interop Forum ID that identifies the\n"
+               "        color space of the RGB image data (string)\n"
                "\n"
                "  -whiteLuminance f\n"
                "        white luminance, in candelas per square meter\n"
@@ -643,6 +648,10 @@ main (int argc, char** argv)
             else if (!strcmp (argv[i], "-chromaticities"))
             {
                 getChromaticities (attrName, argc, argv, i, part, attrs);
+            }
+            else if (!strcmp (argv[i], "-colorInteropID"))
+            {
+                getString (attrName, argc, argv, i, part, attrs);
             }
             else if (!strcmp (argv[i], "-whiteLuminance"))
             {

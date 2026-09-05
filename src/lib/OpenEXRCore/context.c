@@ -137,6 +137,7 @@ fill_context_data (const exr_context_initializer_t* ctxtdata)
         if (ctxtdata->size >= sizeof (struct _exr_context_initializer_v4))
         {
             inits.lossy_htj2k_quality = ctxtdata->lossy_htj2k_quality;
+            inits.zstd_level = ctxtdata->zstd_level;
         }
     }
 
@@ -707,6 +708,18 @@ exr_write_header (exr_context_t ctxt)
 
         rv = internal_exr_validate_write_part (ctxt, curp);
     }
+
+    /*
+     * TODO: the write path validates each part on its own, but never calls
+     * internal_exr_validate_shared_attrs, which the read path applies to
+     * every part after the first (see internal_exr_parse_header). So this
+     * will happily write a multipart file whose parts disagree on an
+     * attribute that has to be shared -- chromaticities, for instance --
+     * and no reader will then be able to open it, because that check is not
+     * conditional on strict_header. The writer should apply the same rule,
+     * so that the failure surfaces here rather than in whoever reads the
+     * file later.
+     */
 
     ctxt->output_file_offset = 0;
 

@@ -65,7 +65,7 @@ usageMessage (ostream& stream, const char* program_name, bool verbose = false)
                "  -t n                        Use a pool of n worker threads for processing files.\n"
                "                              Default is single threaded (no thread pool)\n"
                "\n"
-               "  -l level                    set compression level for DWA, ZIP and LJ2K\n"
+               "  -l level                    set compression level for DWA, ZIP, ZSTD and LJ2K\n"
                "\n"
                "  -z,--compression list       list of compression methods to test\n"
                "                              ("

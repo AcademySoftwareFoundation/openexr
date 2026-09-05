@@ -513,6 +513,50 @@ testWriteBaseHeader (const std::string& tempdir)
     EXRCORE_TEST_RVAL (exr_get_lossy_htj2k_quality (outf, 0, &hlev));
     EXRCORE_TEST (hlev == 150.f);
 
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_MISSING_CONTEXT_ARG,
+        exr_get_zstd_compression_level (NULL, 0, NULL));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_ARGUMENT_OUT_OF_RANGE,
+        exr_get_zstd_compression_level (outf, -1, NULL));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_ARGUMENT_OUT_OF_RANGE,
+        exr_get_zstd_compression_level (outf, 5, NULL));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_INVALID_ARGUMENT,
+        exr_get_zstd_compression_level (outf, 0, NULL));
+    int slev = -1;
+    EXRCORE_TEST_RVAL (exr_get_zstd_compression_level (outf, 0, &slev));
+    EXRCORE_TEST (slev == 5);
+
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_MISSING_CONTEXT_ARG,
+        exr_set_zstd_compression_level (NULL, 0, 5));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_ARGUMENT_OUT_OF_RANGE,
+        exr_set_zstd_compression_level (outf, -1, 5));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_ARGUMENT_OUT_OF_RANGE,
+        exr_set_zstd_compression_level (outf, 5, 5));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_INVALID_ARGUMENT,
+        exr_set_zstd_compression_level (outf, 0, -1));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_INVALID_ARGUMENT,
+        exr_set_zstd_compression_level (outf, 0, 0));
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_INVALID_ARGUMENT,
+        exr_set_zstd_compression_level (outf, 0, 23));
+    EXRCORE_TEST_RVAL (exr_set_zstd_compression_level (outf, 0, 10));
+    EXRCORE_TEST_RVAL (exr_get_zstd_compression_level (outf, 0, &slev));
+    EXRCORE_TEST (slev == 10);
+    EXRCORE_TEST_RVAL (exr_set_zstd_compression_level (outf, 0, 22));
+    EXRCORE_TEST_RVAL (exr_get_zstd_compression_level (outf, 0, &slev));
+    EXRCORE_TEST (slev == 22);
+    EXRCORE_TEST_RVAL (exr_set_zstd_compression_level (outf, 0, 1));
+    EXRCORE_TEST_RVAL (exr_get_zstd_compression_level (outf, 0, &slev));
+    EXRCORE_TEST (slev == 1);
+
     EXRCORE_TEST_RVAL (exr_finish (&outf));
     remove (outfn.c_str ());
 

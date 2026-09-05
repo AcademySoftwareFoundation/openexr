@@ -665,7 +665,8 @@ validate_deep_data (exr_context_t f, exr_priv_part_t curpart)
         // none, rle, zips
         if (curpart->comp_type != EXR_COMPRESSION_NONE &&
             curpart->comp_type != EXR_COMPRESSION_RLE &&
-            curpart->comp_type != EXR_COMPRESSION_ZIPS)
+            curpart->comp_type != EXR_COMPRESSION_ZIPS && 
+            curpart->comp_type != EXR_COMPRESSION_ZSTD)
             return f->report_error (
                 f, EXR_ERR_INVALID_ATTR, "Invalid compression for deep data");
 
@@ -829,6 +830,14 @@ internal_exr_validate_shared_attrs (exr_context_t ctxt,
         rv = EXR_ERR_SUCCESS; // both missing, ok
     if (rv != EXR_ERR_SUCCESS)
         mismatchattr[misidx++] = "chromaticities";
+
+    /*
+     * As decided in PR #2560, there is no hard restriction placed on the
+     * ability to read (or write) multi-part files that do not follow the
+     * colorInteropID recommendations. Programs should call
+     * exr_check_color_metadata_values before writing to ensure they comply
+     * with the recommendations.
+     */
 
     *mismatchcount = misidx;
     return misidx == 0 ? EXR_ERR_SUCCESS : EXR_ERR_ATTR_TYPE_MISMATCH;

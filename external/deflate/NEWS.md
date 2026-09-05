@@ -1,5 +1,30 @@
 # libdeflate release notes
 
+## Version 1.26
+
+* Added support for compression level -1 as an alias for the default compression
+  level (6).
+
+* libdeflate now requires a C11 compiler.  For Visual Studio builds, this bumps
+  the minimum version up to Visual Studio 2019 v16.8.
+
+* Fixed build failures with clang 18 specifically (clang 19+ unaffected).
+
+* Fixed build failure with glibc 2.43 and later.
+
+* Enabled unaligned access optimizations on all PowerPC variants.
+
+* Improved CRC-32 performance on Arm Neoverse V-Series processors by selecting a
+  faster CRC-32 implementation for these processors.
+
+* The CMakeLists.txt now supports the user overriding `CMAKE_C_FLAGS_RELEASE`.
+
+* The CMakeLists.txt no longer runs installation commands when it is built as a
+  subproject.
+
+* The prebuilt Windows binaries are now 64-bit only.  Prebuilt 32-bit binaries
+  are no longer provided, though they can still be built by users.
+
 ## Version 1.25
 
 * Fixed a build error with gcc 16.

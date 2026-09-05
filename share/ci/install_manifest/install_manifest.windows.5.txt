@@ -74,6 +74,7 @@ include/OpenEXR/ImfChannelListAttribute.h
 include/OpenEXR/ImfCheckFile.h
 include/OpenEXR/ImfChromaticities.h
 include/OpenEXR/ImfChromaticitiesAttribute.h
+include/OpenEXR/ImfColorMetadata.h
 include/OpenEXR/ImfCompositeDeepScanLine.h
 include/OpenEXR/ImfCompression.h
 include/OpenEXR/ImfCompressionAttribute.h
@@ -179,6 +180,7 @@ include/OpenEXR/openexr_attr.h
 include/OpenEXR/openexr_base.h
 include/OpenEXR/openexr_chunkio.h
 include/OpenEXR/openexr_coding.h
+include/OpenEXR/openexr_color_metadata.h
 include/OpenEXR/openexr_compression.h
 include/OpenEXR/openexr_config.h
 include/OpenEXR/openexr_context.h

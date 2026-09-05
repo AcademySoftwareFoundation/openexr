@@ -407,6 +407,73 @@ else()
   endif()
 endif()
 
+#######################################
+# Find or use vendored libzstd
+#######################################
+
+option(OPENEXR_FORCE_INTERNAL_ZSTD "Force using an internal zstd" OFF)
+set(OPENEXR_MINIMUM_ZSTD_VERSION 1.5.0)
+set(OPENEXR_USE_INTERNAL_ZSTD OFF)
+
+if(NOT OPENEXR_FORCE_INTERNAL_ZSTD)
+  find_package(zstd ${OPENEXR_MINIMUM_ZSTD_VERSION} CONFIG QUIET)
+  if(zstd_FOUND)
+    if(TARGET zstd::libzstd_shared)
+      set(EXR_ZSTD_LIB zstd::libzstd_shared)
+    else()
+      set(EXR_ZSTD_LIB zstd::libzstd_static)
+    endif()
+    set(EXR_ZSTD_VERSION ${zstd_VERSION})
+    message(STATUS "Using zstd ${EXR_ZSTD_VERSION} from ${zstd_DIR}")
+  else()
+    # If not found, try pkgconfig
+    find_package(PkgConfig)
+    if(PKG_CONFIG_FOUND)
+      include(FindPkgConfig)
+      pkg_check_modules(libzstd IMPORTED_TARGET GLOBAL QUIET libzstd)
+      if(libzstd_FOUND)
+        set(EXR_ZSTD_LIB PkgConfig::libzstd)
+        set(EXR_ZSTD_VERSION ${libzstd_VERSION})
+        message(STATUS "Using zstd ${EXR_ZSTD_VERSION} from ${libzstd_LINK_LIBRARIES}")
+      endif()
+    endif()
+  endif()
+endif()
+
+if(EXR_ZSTD_LIB)
+  # Using external library
+  if(NOT DEFINED zstd_VERSION_MAJOR)
+    string(REGEX MATCH "^([0-9]+)\\.([0-9]+)\\.([0-9]+)" _zstd_version_match "${EXR_ZSTD_VERSION}")
+    set(zstd_VERSION_MAJOR "${CMAKE_MATCH_1}")
+    set(zstd_VERSION_MINOR "${CMAKE_MATCH_2}")
+    set(zstd_VERSION_PATCH "${CMAKE_MATCH_3}")
+  endif()
+  # For OpenEXR.pc.in for static build
+  set(EXR_ZSTD_PKGCONFIG_REQUIRES "libzstd >= ${EXR_ZSTD_VERSION}")
+else()
+  # Using internal zstd
+  set(zstd_version "${CMAKE_SOURCE_DIR}/external/zstd/lib/zstd.h")
+  if(EXISTS "${zstd_version}")
+    file(STRINGS "${zstd_version}" _zstd_major REGEX "#define ZSTD_VERSION_MAJOR")
+    file(STRINGS "${zstd_version}" _zstd_minor REGEX "#define ZSTD_VERSION_MINOR")
+    file(STRINGS "${zstd_version}" _zstd_patch REGEX "#define ZSTD_VERSION_RELEASE")
+    string(REGEX REPLACE ".*ZSTD_VERSION_MAJOR[ \t]+([0-9]+).*" "\\1" zstd_VERSION_MAJOR "${_zstd_major}")
+    string(REGEX REPLACE ".*ZSTD_VERSION_MINOR[ \t]+([0-9]+).*" "\\1" zstd_VERSION_MINOR "${_zstd_minor}")
+    string(REGEX REPLACE ".*ZSTD_VERSION_RELEASE[ \t]+([0-9]+).*" "\\1" zstd_VERSION_PATCH "${_zstd_patch}")
+  else()
+    message(STATUS "can't find zstd.h: ${zstd_version}")
+  endif()
+
+  if(OPENEXR_FORCE_INTERNAL_ZSTD)
+    message(STATUS "zstd forced internal, using vendored code, version ${zstd_VERSION_MAJOR}.${zstd_VERSION_MINOR}.${zstd_VERSION_PATCH}")
+  else()
+    message(STATUS "zstd was not found, using vendored code, version ${zstd_VERSION_MAJOR}.${zstd_VERSION_MINOR}.${zstd_VERSION_PATCH}")
+  endif()
+
+  set(OPENEXR_USE_INTERNAL_ZSTD ON)
+  set(EXR_ZSTD_LIB)
+endif()
+
 # OpenEXR includes Imath headers from an "Imath/" subdirectory,
 # i.e. #include <Imath/ImathVec.h. The Imath library installs its
 # headers in that folder, although when Imath is built inside the
