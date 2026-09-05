@@ -51,10 +51,14 @@ enum IMF_EXPORT_ENUM Compression
                           // wise and faster to decode full frames
                           // than DWAA_COMPRESSION.
 
-    HTJ2K256_COMPRESSION = 10,   // High-Throughput JPEG2000 (HTJ2K), 256 scanlines
+    HTJ2K256_COMPRESSION = 10,   // High-Throughput JPEG2000 (HTJ2K), lossless, 256 scanlines
 
-    HTJ2K32_COMPRESSION = 11,    // High-Throughput JPEG2000 (HTJ2K), 32 scanlines
+    HTJ2K32_COMPRESSION = 11,    // High-Throughput JPEG2000 (HTJ2K), lossless, 32 scanlines
 
+    LJ2K_COMPRESSION = 12,  // High-Throughput JPEG2000 (HTJ2K), lossy, 256 scanlines
+
+    ZSTD_COMPRESSION = 13, // zstd lossless compression, one scan line
+                           // at a time.
     NUM_COMPRESSION_METHODS // number of different compression methods
 };
 
@@ -91,6 +95,9 @@ IMF_EXPORT void setDefaultZipCompressionLevel (int level);
 
 /// Controls the default quality level for the DWA lossy compression
 IMF_EXPORT void setDefaultDwaCompressionLevel (float level);
+
+/// Controls the default quality level for the lossy HTJ2K compression
+IMF_EXPORT void setDefaultLossyHTJ2KQuality (float quality);
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
 

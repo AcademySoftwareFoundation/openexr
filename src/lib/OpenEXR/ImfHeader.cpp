@@ -71,9 +71,13 @@ struct CompressionRecord
     {
         exr_get_default_zip_compression_level (&zip_level);
         exr_get_default_dwa_compression_quality (&dwa_level);
+        exr_get_default_lossy_htj2k_quality (&lossy_htj2k_quality);
+        exr_get_default_zstd_compression_level (&zstd_level);
     }
     int   zip_level;
     float dwa_level;
+    float lossy_htj2k_quality;
+    int   zstd_level;
 };
 // NB: This is extra complicated than one would normally write to
 // handle scenario that seems to happen on MacOS/Windows (probably
@@ -260,6 +264,12 @@ void
 setDefaultDwaCompressionLevel (float level)
 {
     exr_set_default_dwa_compression_quality (level);
+}
+
+void
+setDefaultLossyHTJ2KQuality (float quality)
+{
+    exr_set_default_lossy_htj2k_quality (quality);
 }
 
 Header::Header (
@@ -693,6 +703,18 @@ Header::zipCompressionLevel () const
     return retrieveCompressionRecord (this).zip_level;
 }
 
+int&
+Header::zstdCompressionLevel ()
+{
+    return retrieveCompressionRecord (this).zstd_level;
+}
+
+int
+Header::zstdCompressionLevel () const
+{
+    return retrieveCompressionRecord (this).zstd_level;
+}
+
 float&
 Header::dwaCompressionLevel ()
 {
@@ -703,6 +725,18 @@ float
 Header::dwaCompressionLevel () const
 {
     return retrieveCompressionRecord (this).dwa_level;
+}
+
+float&
+Header::lossyHTJ2KQuality ()
+{
+    return retrieveCompressionRecord (this).lossy_htj2k_quality;
+}
+
+float
+Header::lossyHTJ2KQuality () const
+{
+    return retrieveCompressionRecord (this).lossy_htj2k_quality;
 }
 
 void

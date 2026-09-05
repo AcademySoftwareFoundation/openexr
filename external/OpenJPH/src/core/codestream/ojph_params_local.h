@@ -217,21 +217,35 @@ namespace ojph {
         cptr[comp_num].YRsiz = (ui8)downsampling.y;
       }
 
-      void check_validity(const param_cod& cod)
-      {
-        this->cod = &cod;
+      void set_image_extent(point dims) { Xsiz = dims.x; Ysiz = dims.y; }
+      point get_image_extent() const { return point(Xsiz, Ysiz); }
+      void set_tile_size(size s) { XTsiz = s.w; YTsiz = s.h; }
+      size get_tile_size() const { return size(XTsiz, YTsiz); }
+      void set_image_offset(point offset)
+      { XOsiz = offset.x; YOsiz = offset.y; }
+      point get_image_offset() const
+      { return point(XOsiz, YOsiz); }
+      void set_tile_offset(point offset)
+      { XTOsiz = offset.x; YTOsiz = offset.y; }
+      point get_tile_offset() const
+      { return point(XTOsiz, YTOsiz); }
 
-        if (XTsiz == 0 && YTsiz == 0)
-        { XTsiz = Xsiz + XOsiz; YTsiz = Ysiz + YOsiz; }
+      void set_cod(const param_cod& cod) { this->cod = &cod; }
+
+      void check_validity()
+      {
         if (Xsiz == 0 || Ysiz == 0 || XTsiz == 0 || YTsiz == 0)
           OJPH_ERROR(0x00040001,
-            "You cannot set image extent nor tile size to zero");
+            "Image extent and/or tile size cannot be zero");
         if (XTOsiz > XOsiz || YTOsiz > YOsiz)
           OJPH_ERROR(0x00040002,
-            "tile offset has to be smaller than image offset");
+            "Tile offset has to be smaller than the image offset");
         if (XTsiz + XTOsiz <= XOsiz || YTsiz + YTOsiz <= YOsiz)
           OJPH_ERROR(0x00040003,
-            "the top left tile must intersect with the image");
+            "The top left tile must intersect with the image");
+        if (Xsiz <= XOsiz || Ysiz <= YOsiz)
+          OJPH_ERROR(0x00040004,
+            "The image extent must be larger than the image offset");
       }
 
       ui16 get_num_components() const { return Csiz; }
@@ -588,6 +602,9 @@ namespace ojph {
       ////////////////////////////////////////
       param_cod* add_coc_object(ui32 comp_idx);
 
+      ///////////////////////////////////////
+      param_cod* get_or_add_coc(ui32 comp_idx);
+
       ////////////////////////////////////////
       const param_atk* access_atk() const { return atk; }
 
@@ -615,8 +632,15 @@ namespace ojph {
         type = top_cod ? COC_MAIN : COD_MAIN;
         Lcod = 0;
         Scod = 0;
+        SPcod = cod_SPcod();  // SPcod is initialized to default values
         next = NULL;
         atk = NULL;
+        // For COC marker segment:
+        // Lcod will be initialized on writing the marker segment to disk
+        // Scod is initialized to 0
+        // SGcod does not exist in COC
+        // SPcoc is initialized to default values
+        // atk is initialized to NULL
         this->top_cod = top_cod;
         this->comp_idx = comp_idx;
       }
@@ -677,6 +701,14 @@ namespace ojph {
         QCC_TILE  = 4   // not implemented
       };
 
+      ////////////////////////////////////////
+      enum qfactor_const : ui8 {
+        QFACTOR_UNSET = 0
+      };
+
+      ////////////////////////////////////////
+      using comp_type = ojph::param_qcd::comp_type;
+
     public:
       param_qcd(param_qcd* top_qcd = NULL, ui16 comp_idx = OJPH_QCD_DEFAULT)
       { avail = NULL; init(top_qcd, comp_idx); }
@@ -693,21 +725,27 @@ namespace ojph {
       }
 
       void check_validity(const param_siz& siz, const param_cod& cod);
+      void make_quant_steps(ui32 comp_num, const param_cod &cod,
+                            const param_siz &siz);
+      bool is_qcc_needed(ui32 comp_num, const param_cod &cod,
+                         const param_siz &siz);
       void set_delta(float delta) { base_delta = delta; }
-      void set_delta(ui32 comp_idx, float delta);
+      void set_qfactor(ui8 qfactor);
       ui32 get_num_guard_bits() const;
       ui32 get_MAGB() const;
       ui32 get_Kmax(const param_dfs* dfs, ui32 num_decompositions,
                     ui32 resolution, ui32 subband) const;
       ui32 propose_precision(const param_cod* cod) const;
       float get_irrev_delta(const param_dfs* dfs,
-                            ui32 num_decompositions,
+                            ui32 num_decompositions, ui32 comp_num,
                             ui32 resolution, ui32 subband) const;
       bool write(outfile_base *file);
       bool write_qcc(outfile_base *file, ui32 num_comps);
       void read(infile_base *file);
       void read_qcc(infile_base *file, ui32 num_comps);
 
+      void set_delta(ui32 comp_idx, float delta);
+      void set_qfactor(ui32 comp_idx, comp_type ctype, ui8 qfactor);
       param_qcd* get_qcc(ui32 comp_idx);
       const param_qcd* get_qcc(ui32 comp_idx) const;
       param_qcd* add_qcc_object(ui32 comp_idx);
@@ -717,12 +755,16 @@ namespace ojph {
       ////////////////////////////////////////
       void init(param_qcd* top_qcd, ui16 comp_idx)
       {
+        is_init = false;
         type = top_qcd ? QCC_MAIN : QCD_MAIN;
         Lqcd = 0;
         Sqcd = 0;
         memset(&SPqcd, 0, sizeof(SPqcd));
         num_subbands = 0;
         base_delta = -1.0f;
+        qfactor = QFACTOR_UNSET;
+        ctype = comp_type::OJPH_COMP_Y;
+        sampling = ojph::point(1, 1);
         enabled = true;
         next = NULL;
         this->top_qcd = top_qcd;
@@ -744,6 +786,7 @@ namespace ojph {
       void set_rev_quant(ui32 num_decomps, ui32 bit_depth,
                          bool is_employing_color_transform);
       void set_irrev_quant(ui32 num_decomps);
+      void encode_SPqcd(ui32 subband_index, float delta);
       ui32 get_largest_Kmax() const;
       bool internal_write_qcc(outfile_base *file, ui32 num_comps);
       void trim_non_existing_components(ui32 num_comps);
@@ -755,6 +798,7 @@ namespace ojph {
 
     private: // QCD variables
       qcd_type type;
+      bool is_init;     // have the quantization steps been generated
       ui16 Lqcd;
       ui8 Sqcd;
       union
@@ -763,11 +807,21 @@ namespace ojph {
         ui16 u16[97];
       } SPqcd;
       ui32 num_subbands;  // number of subbands
-      float base_delta;   // base quantization step size -- all other
-                          // step sizes are derived from it.
       bool enabled;       // enabled if two, and ignored if false
       param_qcd *next;    // pointer to create chains of qcc marker segments
       param_qcd *top_qcd; // pointer to the top QCD (this is the default)
+
+      // variables used to generate the quantization step sizes
+      float base_delta;   // base quantization step size -- all other
+                          // step sizes are derived from it.
+      ui8 qfactor;
+      comp_type ctype;
+      bool is_color_trans;
+      ui32 num_decomps;
+      ui32 bit_depth;
+      bool is_signed;
+      ui32 wavelet_kern;
+      ojph::point sampling;
 
     private: // QCC only variables
       ui16 comp_idx;

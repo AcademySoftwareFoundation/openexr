@@ -866,15 +866,27 @@ Supported compression schemes:
        access.
 
    * - HTJ2K256 (lossless)
- 
-     - Lossless compression of HALF, FLOAT and UINT data types in blocks of 256 scanlines, 
-       using `JPEG 2000 Part 15 (High-throughput JPEG 2000) <https://www.itu.int/rec/T-REC-T.814>`_, 
+
+     - Lossless compression of HALF, FLOAT and UINT data types in blocks of 256
+       scanlines, using `JPEG 2000 Part 15 (High-throughput JPEG 2000)
+       <https://www.itu.int/rec/T-REC-T.814>`_,
 
    * - HTJ2K32 (lossless)
- 
-     - Lossless compression of HALF, FLOAT and UINT data types in blocks of 32 scanlines, 
-       using `JPEG 2000 Part 15 (High-throughput JPEG 2000) <https://www.itu.int/rec/T-REC-T.814>`_, 
-       
+     - Lossless compression of HALF, FLOAT and UINT data types in blocks of 32
+       scanlines, using `JPEG 2000 Part 15 (High-throughput JPEG 2000)
+       <https://www.itu.int/rec/T-REC-T.814>`_,
+
+   * - LJ2K (lossy)
+
+     - Lossy compression of HALF and FLOAT data types in blocks of 256
+       scanlines, using `JPEG 2000 Part 15 (High-throughput JPEG 2000)
+       <https://www.itu.int/rec/T-REC-T.814>`_,
+
+   * - ZSTD (lossless)
+
+     - Lossless compression using the `zstd <https://github.com/facebook/zstd>`_
+       library, one scan line at a time. The compression level (1 through
+       22; default 5) controls the space/time tradeoff.
 
 Luminance/Chroma Images
 =======================
@@ -990,52 +1002,40 @@ Recommendations
 RGB Color
 ---------
 
-Simply calling the R channel red is not sufficient information to
+Simply calling the ``R`` channel red is not sufficient information to
 determine accurately the color that should be displayed for a given
-pixel value. The OpenEXR library defines a ``chromaticities`` attribute,
-which specifies the CIE x,y coordinates for red, green, blue, and
-white; that is, for the RGB triples (1, 0, 0), (0, 1, 0), (0, 0, 1),
-and (1, 1, 1). The x,y coordinates of all possible RGB triples can be
-derived from the chromaticities attribute. If the primaries and white
-point for a given display are known, a file-to-display color transform
-can correctly be done. The OpenEXR library does not perform this
-transformation; it is left to the display software. The chromaticities
-attribute is optional, and many programs that write OpenEXR omit
-it. If a file doesn't have a chromaticities attribute, display
-software should assume that the file's primaries and the white point
-match Rec. ITU-R BT.709-3:
+pixel value -- one needs to know the color space encoding being used.
+The OpenEXR library does not provide color transformation functionality,
+so it is helpful to match the file contents with a color space supported
+by a color management system, such as OpenColorIO. The ASWF Color Interop
+Forum has published a recommendation for how to do that, please see
+`Identifying the Color Space of OpenEXR Files <https://github.com/AcademySoftwareFoundation/ColorInterop/blob/main/Recommendations/04_OpenEXRFiles/OpenEXRFiles.md>`_
+for details. This makes use of the ``colorInteropID`` attribute, which now
+supersedes the previous ``chromaticities`` attribute for most purposes.
 
-+-------+----------------+
-|       | CIE x,y        |
-+=======+================+
-| red   | 0.6400, 0.3300 |
-+-------+----------------+
-| green | 0.3000, 0.6000 |
-+-------+----------------+
-| blue  | 0.1500, 0.0600 |
-+-------+----------------+
-| white | 0.3127, 0.3290 |
-+-------+----------------+
+Since OpenEXR images are supposed to be linear, the colorInteropID should refer
+to a linear space but the library does not require that to be the case.
 
-CIE XYZ Color
--------------
+The ``chromaticities`` attribute allows one to specify the CIE x,y coordinates
+for the red, green, and blue primaries and white. Unfortunately trust in this
+attribute has been lost over time. For example, some applications write linear
+Rec.709 chromaticities even if the image is not actually that. In other cases,
+applications report that the image is linear Rec.709, even if the chromaticities
+is not present. This situation is one of the main reasons why the colorInteropID
+is now the recommended way of identifying the color space in OpenEXR files. API
+functions have been added to allow conversion between chromaticities and the
+colorInteropID for the most common color spaces.
 
-In an OpenEXR file whose pixels represent CIE XYZ tristimulus values,
-the pixels' X, Y and Z components should be stored in the file's R, G
-and B channels. The file header should contain a chromaticities
-attribute with the following values:
+The functions checkColorMetadata (and exr_check_color_metadata in the core API)
+are provided as a way for developers to ensure that color space metadata in the
+header (or multiple headers in a multi-part file) is self-consistent.
 
-+-------+----------------+
-|       | CIE x,y        |
-+=======+================+
-| red   | 1, 0           |
-+-------+----------------+
-| green | 0, 1           |
-+-------+----------------+
-| blue  | 0, 0           |
-+-------+----------------+
-| white | 1/3, 1/3       |
-+-------+----------------+
+However, the presence of stale or incorrect metadata is a major problem.
+Application developers are asked to take care when writing OpenEXR
+files to avoid writing or propagating color space metadata which may
+be incorrect. The colorInteropID should be omitted or set to ``unknown``
+unless the application is confident in the value being written. The
+absence of the colorInteropID does *not* imply the file is linear Rec.709.
 
 .. _channel-names-label:
    
@@ -1065,6 +1065,10 @@ with more than three color channels.
    * - AR, AG, AB
      - red, green and blue alpha/opacity, for colored mattes (required to composite
        images of objects like colored glass correctly).
+
+The channel names ``R``, ``G``, and ``B`` should be avoided for non-color
+images such as normal maps or motion vectors since that naming will typically
+trigger color management to be applied.
 
 In an image file with many channels it is sometimes useful to group
 the channels into *layers*, that is, into sets of channels that
@@ -1165,7 +1169,14 @@ By default, OpenEXR files have the following attributes:
 
 **chromaticities**
   For RGB images, specifies the CIE (x,y) chromaticities of the
-  primaries and the white point.
+  primaries and the white point. Note: For most purposes, this
+  attribute has now been superseded by the colorInteropID.
+
+**colorInteropID**
+  Color Interop ID. Provides a mechanism to identify the color space of the RGB images. 
+  See `An ID for Color Interop <https://github.com/AcademySoftwareFoundation/ColorInterop/blob/main/Recommendations/03_ColorInteropID/ColorInteropID.md>`_ 
+  and `Identifying the Color Space of OpenEXR Files <https://github.com/AcademySoftwareFoundation/ColorInterop/blob/main/Recommendations/04_OpenEXRFiles/OpenEXRFiles.md>`_ for details.
+  New in OpenEXR v3.4.
 
 **whiteLuminance**
   For RGB images, defines the luminance, in Nits (candelas per square
@@ -1181,6 +1192,9 @@ By default, OpenEXR files have the following attributes:
   (x,y) coordinates match the adoptedNeutral value should be mapped to
   neutral values on the display.
 
+**acesImageContainerFlag**
+  If present and contains the value 1, specifies that the file complies
+  with SMPTE ST 2065-4 "ACES Image Container File Layout".
 
 **renderingTransform**, lookModTransform
   Specify the names of the CTL functions that implements the intended
@@ -1345,16 +1359,18 @@ By default, OpenEXR files have the following attributes:
   Sets the quality level for images compressed with the DWAA or DWAB
   method.
 
+**zstdCompressionLevel**
+  Sets the compression level for images compressed with the ZSTD
+  method. Valid levels are 1 through 22; the default is 5.
+
+**lossyHTJ2KQuality**
+  Sets the quality level for images compressed with the LJ2K
+  compressor.
+
 **ID Manifest**
   ID manifest. See `A scheme for storing object ID manifests in
   openEXR images
   <https://dl.acm.org/doi/abs/10.1145/3233085.3233086>`_ for details.
-
-**colorInteropID**
-  Color Interop ID. Provides a mechanism to identify the color space of the RGB images. 
-  See `An ID for Color Interop <https://docs.google.com/document/d/1T94lYbis9uCskL_ZEMxGBF2JryLfZnjxlEoNgRHZzBE/edit?usp=sharing>`_ 
-  and `Identifying the Color Space of OpenEXR Files <https://docs.google.com/document/d/1MTH1bq2L67ifvdDf64Amhzg4AbkIM5LG6yPHrB96Vwo/edit?usp=sharing>`_ for details.
-  New in OpenEXR v3.4.
 
 Premultiplied vs. Un-Premultiplied Color Channels
 -------------------------------------------------

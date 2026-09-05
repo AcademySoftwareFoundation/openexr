@@ -44,10 +44,18 @@ Options for setting attribute values:
 -------------------------------------
 
 .. describe:: -chromaticities f f f f f f f f
-              
+
               CIE xy chromaticities for the red, green
               and blue primaries, and for the white point
-              (8 floats)
+              (8 floats). This attribute is superseded by
+              colorInteropID for most purposes.
+
+.. describe:: -colorInteropID s
+
+              Color Interop Forum ID that identifies the
+              color space of the RGB image data (string).
+              See `An ID for Color Interop <https://github.com/AcademySoftwareFoundation/ColorInterop/blob/main/Recommendations/03_ColorInteropID/ColorInteropID.md>`_ 
+              for the format requirements for this string.
 
 .. describe:: -whiteLuminance f
 

@@ -39,8 +39,10 @@ class IMF_EXPORT_TYPE DeepScanLineInputFile;
 class IMF_EXPORT_TYPE DeepScanLineOutputFile;
 class IMF_EXPORT_TYPE DeepTiledInputFile;
 class IMF_EXPORT_TYPE DeepTiledOutputFile;
-class IMF_EXPORT_TYPE AcesInputFile;
-class IMF_EXPORT_TYPE AcesOutputFile;
+class OPENEXR_DEPRECATED ("AcesInputFile is deprecated")
+    IMF_EXPORT_TYPE AcesInputFile;
+class OPENEXR_DEPRECATED ("AcesOutputFile is deprecated")
+    IMF_EXPORT_TYPE AcesOutputFile;
 class IMF_EXPORT_TYPE TiledInputPart;
 class IMF_EXPORT_TYPE TiledInputFile;
 class IMF_EXPORT_TYPE TileOffsets;

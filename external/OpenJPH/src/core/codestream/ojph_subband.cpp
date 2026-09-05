@@ -3,21 +3,21 @@
 // This software is released under the 2-Clause BSD license, included
 // below.
 //
-// Copyright (c) 2019, Aous Naman 
+// Copyright (c) 2019, Aous Naman
 // Copyright (c) 2019, Kakadu Software Pty Ltd, Australia
 // Copyright (c) 2019, The University of New South Wales, Australia
-// 
+//
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
 // met:
-// 
+//
 // 1. Redistributions of source code must retain the above copyright
 // notice, this list of conditions and the following disclaimer.
-// 
+//
 // 2. Redistributions in binary form must reproduce the above copyright
 // notice, this list of conditions and the following disclaimer in the
 // documentation and/or other materials provided with the distribution.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
 // IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 // TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
@@ -127,7 +127,8 @@ namespace ojph {
       this->band_rect = band_rect;
       this->parent = res;
 
-      const param_cod* cdp = codestream->get_coc(parent->get_comp_num());
+      ui32 comp_num = parent->get_comp_num();
+      const param_cod* cdp = codestream->get_coc(comp_num);
       this->reversible = cdp->access_atk()->is_reversible();
       size log_cb = cdp->get_log_block_dims();
       log_PP = cdp->get_log_precinct_size(res_num);
@@ -149,14 +150,14 @@ namespace ojph {
         if (dfs != NULL)
           dfs = dfs->get_dfs(cdp->get_dfs_index());
       }
-      ui32 comp_num = parent->get_comp_num();
       const param_qcd* qcd = codestream->access_qcd()->get_qcc(comp_num);
       ui32 num_decomps = cdp->get_num_decompositions();
       this->K_max = qcd->get_Kmax(dfs, num_decomps, this->res_num, band_num);
       if (!reversible)
       {
-        float d = 
-          qcd->get_irrev_delta(dfs, num_decomps, res_num, subband_num);
+        float d =
+          qcd->get_irrev_delta(dfs, num_decomps,
+            comp_num, res_num, subband_num);
         d /= (float)(1u << (31 - this->K_max));
         delta = d;
         delta_inv = (1.0f/d);
@@ -199,7 +200,7 @@ namespace ojph {
         ui32 cbx1 = ojph_min(tbx1, x_lower_bound + (i + 1) * nominal.w);
         cb_size.w = cbx1 - cbx0;
         blocks[i].finalize_alloc(codestream, this, nominal, cb_size,
-                                 coded_cbs + i, K_max, line_offset, 
+                                 coded_cbs + i, K_max, line_offset,
                                  precision, comp_num);
         line_offset += cb_size.w;
       }
@@ -210,7 +211,7 @@ namespace ojph {
       ui32 width = band_rect.siz.w + 1;
       if (reversible)
       {
-        if (precision <= 32)      
+        if (precision <= 32)
           lines->wrap(allocator->post_alloc_data<si32>(width, 1), width, 1);
         else
           lines->wrap(allocator->post_alloc_data<si64>(width, 1), width, 1);

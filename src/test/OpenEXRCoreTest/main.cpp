@@ -21,9 +21,11 @@
 #endif
 
 #include "base_units.h"
+#include "color_metadata.h"
 #include "compression.h"
 #include "deep.h"
 #include "general_attr.h"
+#include "initializer_compat.h"
 #include "read.h"
 #include "write.h"
 #include "buffer.h"
@@ -154,6 +156,7 @@ main (int argc, char* argv[])
     TEST (testXDR, "core");
     TEST (testBufferCompression, "core");
     TEST (testTempContext, "core");
+    TEST (testInitializerCompat, "core");
 
     TEST (testAttrSizes, "gen_attr");
     TEST (testAttrStrings, "gen_attr");
@@ -165,6 +168,10 @@ main (int argc, char* argv[])
     TEST (testAttrBytes, "gen_attr");
     TEST (testAttrHandler, "gen_attr");
     TEST (testAttrLists, "gen_attr");
+
+    TEST (testColorInteropChromaticities, "color_metadata");
+    TEST (testColorMetadataValues, "color_metadata");
+    TEST (testColorMetadataFile, "color_metadata");
 
     TEST (testReadBadArgs, "core_read");
     TEST (testReadBadFiles, "core_read");
@@ -209,12 +216,14 @@ main (int argc, char* argv[])
     TEST (testB44ACompression, "core_compression");
     TEST (testDWAACompression, "core_compression");
     TEST (testDWABCompression, "core_compression");
+    TEST (testZstdCompression, "core_compression");
     TEST (testHTChannelMap, "core_compression");
     TEST (testHTHeaderBounds, "core_compression");
 
     TEST (testDeepNoCompression, "core_compression");
     TEST (testDeepZIPCompression, "core_compression");
     TEST (testDeepZIPSCompression, "core_compression");
+    TEST (testDeepZstdCompression, "core_compression");
 
     if (helpMode)
     {

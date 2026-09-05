@@ -264,6 +264,9 @@ typedef struct _exr_decode_pipeline
      * this being used.
      */
     exr_coding_channel_info_t _quick_chan_store[5];
+
+    /** Set when the sample count table has been decompressed. */
+    int sample_count_valid;
 } exr_decode_pipeline_t;
 
 /** @brief Simple macro to initialize an empty decode pipeline. */
