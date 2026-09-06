@@ -35,18 +35,18 @@ extern "C" {
 /** Enum declaring allowed values for \c uint8_t value stored in built-in compression type. */
 typedef enum
 {
-    EXR_COMPRESSION_NONE  = 0,
-    EXR_COMPRESSION_RLE   = 1,
-    EXR_COMPRESSION_ZIPS  = 2,
-    EXR_COMPRESSION_ZIP   = 3,
-    EXR_COMPRESSION_PIZ   = 4,
-    EXR_COMPRESSION_PXR24 = 5,
-    EXR_COMPRESSION_B44   = 6,
-    EXR_COMPRESSION_B44A  = 7,
-    EXR_COMPRESSION_DWAA  = 8,
-    EXR_COMPRESSION_DWAB  = 9,
-    EXR_COMPRESSION_HTJ2K256  = 10,
-    EXR_COMPRESSION_HTJ2K32   = 11,
+    EXR_COMPRESSION_NONE  = 0, /**< no compression */
+    EXR_COMPRESSION_RLE   = 1, /**< run length encoding */
+    EXR_COMPRESSION_ZIPS  = 2, /**< zlib/deflate compression, 1 scanline per chunk */
+    EXR_COMPRESSION_ZIP   = 3, /**< zlib/deflate compression, blocks of 16 scan lines */
+    EXR_COMPRESSION_PIZ   = 4, /**< piz-based wavelet compression */
+    EXR_COMPRESSION_PXR24 = 5, /**< Lossy 24-bit float compression */
+    EXR_COMPRESSION_B44   = 6, /**< Lossy 4x4 block compression, fixed compression rate */
+    EXR_COMPRESSION_B44A  = 7, /**< Lossy 4x4 block compression, flat fields compressed more */
+    EXR_COMPRESSION_DWAA  = 8, /**< Lossy DCT based compression, 32 scanlines */
+    EXR_COMPRESSION_DWAB  = 9, /**< Lossy DCT, 256 scanlines, more space efficient than DWAA, at an overhead of more scanlines per chunk */
+    EXR_COMPRESSION_HTJ2K256  = 10, /**< High-Throughput JPEG 2000, lossless, 256 scanlines */
+    EXR_COMPRESSION_HTJ2K32   = 11, /**< High-Throughput JPEG 2000, lossless, 32 scanlines */
     EXR_COMPRESSION_LJ2K = 12, /**< High-Throughput JPEG 2000, lossy, 256 scanlines */
     EXR_COMPRESSION_ZSTD = 13, /**< zstd lossless compression, one scan line at a time */
     EXR_COMPRESSION_LAST_TYPE /**< Invalid value, provided for range checking. */

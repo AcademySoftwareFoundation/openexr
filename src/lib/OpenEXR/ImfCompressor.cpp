@@ -328,7 +328,8 @@ Compressor::runDecodeStep (
 Compressor*
 newCompressor (Compression c, size_t maxScanLineSize, const Header& hdr)
 {
-    Compressor* ret = nullptr;
+    Compressor* ret   = nullptr;
+    int         scans = getCompressionNumScanlines (c);
 
     // clang-format off
     switch (c)
@@ -340,32 +341,32 @@ newCompressor (Compression c, size_t maxScanLineSize, const Header& hdr)
 
         case ZIPS_COMPRESSION:
 
-            ret = new ZipCompressor (hdr, maxScanLineSize, 1);
+            ret = new ZipCompressor (hdr, maxScanLineSize, scans);
             break;
 
         case ZIP_COMPRESSION:
 
-            ret = new ZipCompressor (hdr, maxScanLineSize, 16);
+            ret = new ZipCompressor (hdr, maxScanLineSize, scans);
             break;
 
         case PIZ_COMPRESSION:
 
-            ret = new PizCompressor (hdr, maxScanLineSize, 32);
+            ret = new PizCompressor (hdr, maxScanLineSize, scans);
             break;
 
         case PXR24_COMPRESSION:
 
-            ret = new Pxr24Compressor (hdr, maxScanLineSize, 16);
+            ret = new Pxr24Compressor (hdr, maxScanLineSize, scans);
             break;
 
         case B44_COMPRESSION:
 
-            ret = new B44Compressor (hdr, maxScanLineSize, 32, false);
+            ret = new B44Compressor (hdr, maxScanLineSize, scans, false);
             break;
 
         case B44A_COMPRESSION:
 
-            ret = new B44Compressor (hdr, maxScanLineSize, 32, true);
+            ret = new B44Compressor (hdr, maxScanLineSize, scans, true);
             break;
 
         case DWAA_COMPRESSION:
@@ -373,7 +374,7 @@ newCompressor (Compression c, size_t maxScanLineSize, const Header& hdr)
             ret = new DwaCompressor (
                 hdr,
                 static_cast<int> (maxScanLineSize),
-                32,
+                scans,
                 DwaCompressor::STATIC_HUFFMAN);
             break;
 
@@ -382,22 +383,22 @@ newCompressor (Compression c, size_t maxScanLineSize, const Header& hdr)
             ret = new DwaCompressor (
                 hdr,
                 static_cast<int> (maxScanLineSize),
-                256,
+                scans,
                 DwaCompressor::STATIC_HUFFMAN);
             break;
 
         case HTJ2K256_COMPRESSION:
         case LJ2K_COMPRESSION:
 
-            return new HTCompressor (hdr, static_cast<int> (maxScanLineSize), 256);
+            return new HTCompressor (hdr, static_cast<int> (maxScanLineSize), scans);
 
         case HTJ2K32_COMPRESSION:
 
-            return new HTCompressor (hdr, static_cast<int> (maxScanLineSize), 32);
+            return new HTCompressor (hdr, static_cast<int> (maxScanLineSize), scans);
+
         case ZSTD_COMPRESSION:
 
-            ret = new ZstdCompressor (
-                hdr, maxScanLineSize, exr_get_zstd_lines_per_chunk ());
+            ret = new ZstdCompressor (hdr, maxScanLineSize, scans);
             break;
 
         default: break;

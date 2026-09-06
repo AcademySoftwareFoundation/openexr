@@ -78,11 +78,49 @@ size_t exr_rle_uncompress_buffer (
 EXR_EXPORT
 int exr_compression_lines_per_chunk (exr_compression_t comptype);
 
-/** Scanlines packed into one ZSTD chunk for scanline / deep-scanline parts.
- *  Tunable constant; must stay in sync with C++ getCompressionNumScanlines for
- *  ZSTD_COMPRESSION. */
+/** Routine to give a short name for a compression type.
+ *
+ * This is useful for building user-facing routines.
+ */
 EXR_EXPORT
-int exr_get_zstd_lines_per_chunk (void);
+const char *exr_compression_name (exr_compression_t comptype);
+
+/** Routine to map a short compression name back to a compression type.
+ *
+ * This is useful for building user-facing routines and similar
+ * string-based storage where you may not want the integer.
+ *
+ * This will return EXR_COMPRESSION_LAST_TYPE when the name is invalid
+ * or otherwise unrecognised.
+ */
+EXR_EXPORT
+exr_compression_t exr_compression_type_from_name (const char *compname);
+
+/** Routine to give a short description for a compression type.
+ *
+ * This is useful for building user-facing routines.
+ */
+EXR_EXPORT
+const char *exr_compression_description (exr_compression_t comptype);
+
+/** Routine to query whether the compression mechanism is lossy.
+ *
+ * when this returns 1 when the compression type is valid and
+ * does NOT preserve data integrity.
+ *
+ * Returns 0 otherwise.
+ */
+EXR_EXPORT
+int exr_compression_is_lossy (exr_compression_t comptype);
+
+/** Routine to query whether the compression mechanism is valid for deep
+ * compression.
+ *
+ * Returns 1 when the compression type is valid to compress deep data.
+ * Returns 0 otherwise.
+ */
+EXR_EXPORT
+int exr_compression_is_valid_for_deep (exr_compression_t comptype);
 
 /** Exposes a method to apply compression to a chunk of data.
  *
