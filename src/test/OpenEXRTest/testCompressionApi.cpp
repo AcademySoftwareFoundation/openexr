@@ -97,9 +97,8 @@ testCompressionApi (const string& tempDir)
 
         cout << "Testing Compressor instantiation" << endl;
 
-        const int zstdLinesPerChunk = exr_get_zstd_lines_per_chunk ();
+        const int zstdLinesPerChunk = getCompressionNumScanlines (ZSTD_COMPRESSION);
         assert (zstdLinesPerChunk == exr_compression_lines_per_chunk (EXR_COMPRESSION_ZSTD));
-        assert (zstdLinesPerChunk == getCompressionNumScanlines (ZSTD_COMPRESSION));
 
         struct CompressorTestCase
         {

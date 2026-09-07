@@ -8,6 +8,7 @@
 #include "internal_constants.h"
 
 #include "openexr_part.h"
+#include "openexr_compression.h"
 
 #include <limits.h>
 #include <math.h>
@@ -662,11 +663,7 @@ validate_deep_data (exr_context_t f, exr_priv_part_t curpart)
     {
         const exr_attr_chlist_t* channels = curpart->channels->chlist;
 
-        // none, rle, zips
-        if (curpart->comp_type != EXR_COMPRESSION_NONE &&
-            curpart->comp_type != EXR_COMPRESSION_RLE &&
-            curpart->comp_type != EXR_COMPRESSION_ZIPS && 
-            curpart->comp_type != EXR_COMPRESSION_ZSTD)
+        if (! exr_compression_is_valid_for_deep (curpart->comp_type))
             return f->report_error (
                 f, EXR_ERR_INVALID_ATTR, "Invalid compression for deep data");
 

@@ -88,174 +88,25 @@
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
-/// Store codec properties so they may be queried in various places.
-struct CompressionDesc
-{
-    std::string name;         // short name
-    std::string desc;         // method description
-    int         numScanlines; // number of scanlines required
-    bool        lossy;        // true if lossy algorithm
-    bool        deep;         // true is capable of compressing deep data
-
-    CompressionDesc (
-        std::string _name,
-        std::string _desc,
-        int         _scanlines,
-        bool        _lossy,
-        bool        _deep)
-    {
-        name         = _name;
-        desc         = _desc;
-        numScanlines = _scanlines;
-        lossy        = _lossy;
-        deep         = _deep;
-    }
-};
-
-// NOTE: IdToDesc order MUST match Imf::Compression enum.
-// clang-format off
-static const CompressionDesc IdToDesc[] = {
-    CompressionDesc (
-        "none",
-        "no compression.",
-        1,
-        false,
-        true),
-    CompressionDesc (
-        "rle",
-        "run-length encoding.",
-        1,
-        false,
-        true),
-    CompressionDesc (
-        "zips",
-        "zlib compression, one scan line at a time.",
-        1,
-        false,
-        true),
-    CompressionDesc (
-        "zip",
-        "zlib compression, in blocks of 16 scan lines.",
-        16,
-        false,
-        false),
-    CompressionDesc (
-        "piz",
-        "piz-based wavelet compression, in blocks of 32 scan lines.",
-        32,
-        false,
-        false),
-    CompressionDesc (
-        "pxr24",
-        "lossy 24-bit float compression, in blocks of 16 scan lines.",
-        16,
-        true,
-        false),
-    CompressionDesc (
-        "b44",
-        "lossy 4-by-4 pixel block compression, fixed compression rate.",
-        32,
-        true,
-        false),
-    CompressionDesc (
-        "b44a",
-        "lossy 4-by-4 pixel block compression, flat fields are compressed more.",
-        32,
-        true,
-        false),
-    CompressionDesc (
-        "dwaa",
-        "lossy DCT based compression, in blocks of 32 scanlines. More efficient "
-        "for partial buffer access.",
-        32,
-        true,
-        false),
-    CompressionDesc (
-        "dwab",
-        "lossy DCT based compression, in blocks of 256 scanlines. More efficient "
-        "space wise and faster to decode full frames than DWAA_COMPRESSION.",
-        256,
-        true,
-        false),
-    CompressionDesc (
-        "htj2k256",
-        "High-Throughput JPEG 2000, lossless (256 lines)",
-        256,
-        false,
-        false),
-   CompressionDesc (
-        "htj2k32",
-        "High-Throughput JPEG 2000, lossless (32 lines)",
-        32,
-        false,
-        false),
-    CompressionDesc (
-        "lj2k",
-        "High-Throughput JPEG 2000, lossy (256 lines)",
-        256,
-        true,
-        false),
-    CompressionDesc (
-        "zstd",
-        "zstd lossless compression, 1 scan line at a time.",
-        exr_get_zstd_lines_per_chunk (), /* overridden by getCompressionNumScanlines; keep in sync with C API */
-        false,
-        true),
-};
-// clang-format on
-
-// NOTE: CompressionNameToId order MUST match Imf::Compression enum.
-static const std::map<std::string, Compression> CompressionNameToId = {
-    {"no", Compression::NO_COMPRESSION},
-    {"none", Compression::NO_COMPRESSION},
-    {"rle", Compression::RLE_COMPRESSION},
-    {"zips", Compression::ZIPS_COMPRESSION},
-    {"zip", Compression::ZIP_COMPRESSION},
-    {"piz", Compression::PIZ_COMPRESSION},
-    {"pxr24", Compression::PXR24_COMPRESSION},
-    {"b44", Compression::B44_COMPRESSION},
-    {"b44a", Compression::B44A_COMPRESSION},
-    {"dwaa", Compression::DWAA_COMPRESSION},
-    {"dwab", Compression::DWAB_COMPRESSION},
-    {"htj2k256", Compression::HTJ2K256_COMPRESSION},
-    {"htj2k32", Compression::HTJ2K32_COMPRESSION},
-    {"lj2k", Compression::LJ2K_COMPRESSION},
-    {"zstd", Compression::ZSTD_COMPRESSION},
-};
-
-#define UNKNOWN_COMPRESSION_ID_MSG "INVALID COMPRESSION ID"
-
 /// Returns a codec ID's short name (lowercase).
 void
 getCompressionNameFromId (Compression id, std::string& name)
 {
-    if (id < NO_COMPRESSION || id >= NUM_COMPRESSION_METHODS)
-        name = UNKNOWN_COMPRESSION_ID_MSG;
-    name = IdToDesc[static_cast<int> (id)].name;
+    name = exr_compression_name (static_cast<exr_compression_t> (id));
 }
 
 /// Returns a codec ID's short description (lowercase).
 void
 getCompressionDescriptionFromId (Compression id, std::string& desc)
 {
-    if (id < NO_COMPRESSION || id >= NUM_COMPRESSION_METHODS)
-        desc = UNKNOWN_COMPRESSION_ID_MSG;
-    desc = IdToDesc[static_cast<int> (id)].name + ": " +
-           IdToDesc[static_cast<int> (id)].desc;
+    desc = exr_compression_description (static_cast<exr_compression_t> (id));
 }
 
 /// Returns the codec name's ID, NUM_COMPRESSION_METHODS if not found.
 void
 getCompressionIdFromName (const std::string& name, Compression& id)
 {
-    std::string lowercaseName (name);
-    for (auto& ch: lowercaseName)
-        ch = std::tolower (ch);
-
-    auto it = CompressionNameToId.find (lowercaseName);
-    id      = it != CompressionNameToId.end ()
-                  ? it->second
-                  : Compression::NUM_COMPRESSION_METHODS;
+    id = static_cast<Compression> (exr_compression_type_from_name (name.c_str()));
 }
 
 /// Return true if a compression id exists.
@@ -272,33 +123,30 @@ getCompressionNamesString (const std::string& separator, std::string& str)
     int i = 0;
     for (; i < static_cast<int> (NUM_COMPRESSION_METHODS) - 1; i++)
     {
-        str += IdToDesc[i].name + separator;
+        str += exr_compression_name (static_cast<exr_compression_t> (i)) + separator;
     }
-    str += IdToDesc[i].name;
+    str += exr_compression_name (static_cast<exr_compression_t> (i));
 }
 
 /// Return the number of scan lines expected by a given compression method.
 int
 getCompressionNumScanlines (Compression id)
 {
-    if (id < NO_COMPRESSION || id >= NUM_COMPRESSION_METHODS) return -1;
-    return IdToDesc[static_cast<int> (id)].numScanlines;
+    return exr_compression_lines_per_chunk (static_cast<exr_compression_t> (id));
 }
 
 /// Return true is the compression method exists and doesn't preserve data integrity.
 bool
 isLossyCompression (Compression id)
 {
-    return id >= NO_COMPRESSION && id < NUM_COMPRESSION_METHODS &&
-           IdToDesc[static_cast<int> (id)].lossy;
+    return exr_compression_is_lossy (static_cast<exr_compression_t> (id));
 }
 
 /// Return true is the compression method exists and supports deep data.
 bool
 isValidDeepCompression (Compression id)
 {
-    return id >= NO_COMPRESSION && id < NUM_COMPRESSION_METHODS &&
-           IdToDesc[static_cast<int> (id)].deep;
+    return exr_compression_is_valid_for_deep (static_cast<exr_compression_t> (id));
 }
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT
