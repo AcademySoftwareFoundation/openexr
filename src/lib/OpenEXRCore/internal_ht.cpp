@@ -166,6 +166,7 @@ struct ht_context_cache
 {
     std::vector<CodestreamChannelInfo> cs_to_file_ch;
     ojph::codestream cs;
+    size_t header_sz = 0;
 };
 
 static void destroy_ht_decompress_context (exr_decode_pipeline_t* decode)
@@ -206,50 +207,72 @@ ht_undo_impl (
     }
 
     std::vector<CodestreamChannelInfo> &cs_to_file_ch = ctxt->cs_to_file_ch;
-    cs_to_file_ch.clear();
+    bool resetOffsets = false;
+    if (static_cast<std::size_t>(decode->channel_count) != cs_to_file_ch.size ())
+    {
+        resetOffsets = true;
+        cs_to_file_ch.clear();
 
-    /* read the channel map */
-    size_t header_sz;
-    try
-    {
-        header_sz = read_header (
-            (uint8_t*) compressed_data, comp_buf_size, cs_to_file_ch);
+        /* read the channel map */
+        try
+        {
+            ctxt->header_sz = read_header (
+                (uint8_t*) compressed_data, comp_buf_size, cs_to_file_ch);
+        }
+        catch (...)
+        {
+            return EXR_ERR_CORRUPT_CHUNK;
+        }
     }
-    catch (...)
+    else
     {
-        return EXR_ERR_CORRUPT_CHUNK;
+        exr_storage_t storage;
+        // need to reset this when reading tiles in case the width changes
+        // (which happens on partial border tiles)
+        if (EXR_ERR_SUCCESS == exr_get_storage(decode->context, decode->part_index, &storage))
+        {
+            resetOffsets = (storage == EXR_STORAGE_TILED);
+        }
+        else
+            return EXR_ERR_CORRUPT_CHUNK;
     }
 
     /* this should never be true since read_header() throws an exception if the
-    header is larger than comp_buf_size */
-    if (header_sz > comp_buf_size)
+       header is larger than comp_buf_size */
+    if (ctxt->header_sz > comp_buf_size)
         return EXR_ERR_CORRUPT_CHUNK;
 
-    const uint64_t codestream_sz = comp_buf_size - header_sz;
+    // the compressed buffer size might change, so can't cache the codestream_sz
+    const uint64_t codestream_sz = comp_buf_size - ctxt->header_sz;
     if (codestream_sz == 0)
         return EXR_ERR_CORRUPT_CHUNK;
 
     if (static_cast<std::size_t>(decode->channel_count) != cs_to_file_ch.size ())
         return EXR_ERR_CORRUPT_CHUNK;
 
-    for (int cs_i = 0; cs_i < decode->channel_count; cs_i++)
+    if (resetOffsets)
     {
-        int file_i = cs_to_file_ch[cs_i].file_index;
-        if (file_i >= decode->channel_count)
-            return EXR_ERR_CORRUPT_CHUNK;
+        for (int cs_i = 0; cs_i < decode->channel_count; cs_i++)
+        {
+            int file_i = cs_to_file_ch[cs_i].file_index;
+            if (file_i >= decode->channel_count)
+                return EXR_ERR_CORRUPT_CHUNK;
 
-        int64_t computedoffset = 0;
-        for (int i = 0; i < file_i; ++i)
-            computedoffset += (int64_t) decode->channels[i].width *
-                              (int64_t) decode->channels[i].bytes_per_element;
-        if (computedoffset > std::numeric_limits<std::size_t>::max())
-            return EXR_ERR_CORRUPT_CHUNK;
-        cs_to_file_ch[cs_i].raster_line_offset = computedoffset;
+            int64_t computedoffset = 0;
+            for (int i = 0; i < file_i; ++i)
+                computedoffset += (int64_t) decode->channels[i].width *
+                    (int64_t) decode->channels[i].bytes_per_element;
+
+            if (computedoffset > std::numeric_limits<std::size_t>::max())
+                return EXR_ERR_CORRUPT_CHUNK;
+
+            cs_to_file_ch[cs_i].raster_line_offset = computedoffset;
+        }
     }
 
     ojph::mem_infile infile;
     infile.open (
-        reinterpret_cast<const ojph::ui8*> (compressed_data) + header_sz,
+        reinterpret_cast<const ojph::ui8*> (compressed_data) + ctxt->header_sz,
         codestream_sz);
 
     ojph::codestream &cs = ctxt->cs;
