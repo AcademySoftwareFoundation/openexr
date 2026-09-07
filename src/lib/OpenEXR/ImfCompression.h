@@ -18,48 +18,32 @@
 #include "ImfForward.h"
 #include <string>
 
+#include "openexr_attr.h"
+
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 
-// All available compression methods.
-// NOTE: Must be extended to add a new codec. Ids must be continuous.
+// All available compression methods. This is a type that is not
+// easily replaced by the core C library as it is a c++ type and so
+// not easily aliased as it would need to be in the global namespace
+// (or have different names). Instead, we replicate it, but keep the
+// numbers in sync.
 enum IMF_EXPORT_ENUM Compression
 {
-    NO_COMPRESSION = 0, // no compression.
-
-    RLE_COMPRESSION = 1, // run length encoding.
-
-    ZIPS_COMPRESSION = 2, // zlib compression, one scan line at a time.
-
-    ZIP_COMPRESSION = 3, // zlib compression, in blocks of 16 scan lines.
-
-    PIZ_COMPRESSION = 4, // piz-based wavelet compression.
-
-    PXR24_COMPRESSION = 5, // lossy 24-bit float compression
-
-    B44_COMPRESSION = 6, // lossy 4-by-4 pixel block compression,
-                         // fixed compression rate.
-
-    B44A_COMPRESSION = 7, // lossy 4-by-4 pixel block compression,
-                          // flat fields are compressed more.
-
-    DWAA_COMPRESSION = 8, // lossy DCT based compression, in blocks
-                          // of 32 scanlines. More efficient for partial
-                          // buffer access.
-
-    DWAB_COMPRESSION = 9, // lossy DCT based compression, in blocks
-                          // of 256 scanlines. More efficient space
-                          // wise and faster to decode full frames
-                          // than DWAA_COMPRESSION.
-
-    HTJ2K256_COMPRESSION = 10,   // High-Throughput JPEG2000 (HTJ2K), lossless, 256 scanlines
-
-    HTJ2K32_COMPRESSION = 11,    // High-Throughput JPEG2000 (HTJ2K), lossless, 32 scanlines
-
-    LJ2K_COMPRESSION = 12,  // High-Throughput JPEG2000 (HTJ2K), lossy, 256 scanlines
-
-    ZSTD_COMPRESSION = 13, // zstd lossless compression, one scan line
-                           // at a time.
-    NUM_COMPRESSION_METHODS // number of different compression methods
+    NO_COMPRESSION = EXR_COMPRESSION_NONE,
+    RLE_COMPRESSION = EXR_COMPRESSION_RLE,
+    ZIPS_COMPRESSION = EXR_COMPRESSION_ZIPS,
+    ZIP_COMPRESSION = EXR_COMPRESSION_ZIP,
+    PIZ_COMPRESSION = EXR_COMPRESSION_PIZ,
+    PXR24_COMPRESSION = EXR_COMPRESSION_PXR24,
+    B44_COMPRESSION = EXR_COMPRESSION_B44,
+    B44A_COMPRESSION = EXR_COMPRESSION_B44A,
+    DWAA_COMPRESSION = EXR_COMPRESSION_DWAA,
+    DWAB_COMPRESSION = EXR_COMPRESSION_DWAB,
+    HTJ2K256_COMPRESSION = EXR_COMPRESSION_HTJ2K256,
+    HTJ2K32_COMPRESSION = EXR_COMPRESSION_HTJ2K32,
+    LJ2K_COMPRESSION = EXR_COMPRESSION_LJ2K,
+    ZSTD_COMPRESSION = EXR_COMPRESSION_ZSTD,
+    NUM_COMPRESSION_METHODS = EXR_COMPRESSION_LAST_TYPE
 };
 
 /// Returns a codec ID's short name (lowercase).
