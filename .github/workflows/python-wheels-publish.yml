@@ -66,6 +66,10 @@ jobs:
             cibw_archs_macos: arm64
           - os: windows-latest
             arch: x64
+            cibw_archs_windows: AMD64
+          - os: windows-11-arm
+            arch: arm64
+            cibw_archs_windows: ARM64
 
     permissions:
       contents: read
@@ -94,11 +98,13 @@ jobs:
           MACOSX_DEPLOYMENT_TARGET: 10.15
           # Split macOS arches across runners so artifact merge does not collide on filenames.
           CIBW_ARCHS_MACOS: ${{ matrix.cibw_archs_macos }}
+          CIBW_ARCHS_WINDOWS: ${{ matrix.cibw_archs_windows }}
           # Build Python 3.9 through 3.13
           # Skip 32-bit wheels builds on Windows
           # Also skip the PyPy builds, since they fail the unit tests
           CIBW_BUILD: "cp39-* cp310-* cp311-* cp312-* cp313-*"
-          CIBW_SKIP: "*-win32 *_i686"
+          # NumPy's Windows ARM64 wheels require Python 3.11 or newer.
+          CIBW_SKIP: "*-win32 *_i686 cp39-win_arm64 cp310-win_arm64"
 
       - name: Upload artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
