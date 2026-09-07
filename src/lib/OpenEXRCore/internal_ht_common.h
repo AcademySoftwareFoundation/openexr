@@ -199,7 +199,7 @@ inline half int16_to_half(int32_t f)
  *  @param h  Sample value.
  *  @return   Signed 16-bit integer sample, in [-32767, 32767].
  */
-static int16_t half_to_int16(half h)
+static inline int16_t half_to_int16(half h)
 {
     if (h.isNan()) return 0;
     if (h.isInfinity()) return h.isNegative() ? -32767 : 32767;
@@ -230,7 +230,7 @@ inline float int32_to_float(int32_t f)
  *  @param h  Sample value.
  *  @return   Signed 32-bit integer sample.
  */
-static int32_t float_to_int32(float h)
+static inline int32_t float_to_int32(float h)
 {
     if (isnan (h)) return 0;
     double v = round (tf_from_linear ((double) h) * INT32_FLOAT_FACTOR);
