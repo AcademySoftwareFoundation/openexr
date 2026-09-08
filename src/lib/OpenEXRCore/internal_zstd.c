@@ -265,36 +265,36 @@ compute_sorting_lookup (
     int                              height,
     const exr_coding_channel_info_t* channels,
     int                              channelsSize,
+    bool                             channel_major,
     uint64_t*                        sorting_lookup)
 {
     uint64_t writeCount = 0;
+    uint64_t splitPoint = 0;
 
-    for (int h = 0; h < height; ++h)
+    for (int pass = 0; pass < 2; ++pass)
     {
-        for (int i = 0; i < channelsSize; ++i)
+        int const want = (pass == 0) ? 2 : 4;
+        /* Row-major places row 0 of every channel, then row 1 of every
+         * channel, and so on. Channel-major places all of channel 0's rows
+         * together, then all of channel 1's: with more than one line in a
+         * chunk that keeps each channel's samples contiguous, so the byte
+         * planes stay homogeneous and zstd's matches stay local. The two
+         * orders are identical when a chunk holds a single line. */
+        int const outer = channel_major ? channelsSize : height;
+        int const inner = channel_major ? height : channelsSize;
+        for (int o = 0; o < outer; ++o)
         {
-            if (channels[i].bytes_per_element == 2)
+            for (int n = 0; n < inner; ++n)
             {
+                int const h = channel_major ? n : o;
+                int const i = channel_major ? o : n;
+                if (channels[i].bytes_per_element != want) continue;
                 *(sorting_lookup + h * channelsSize + i) = writeCount;
                 writeCount +=
-                    num_samples_grid[h * channelsSize + i] * (uint64_t) 2;
+                    num_samples_grid[h * channelsSize + i] * (uint64_t) want;
             }
         }
-    }
-
-    uint64_t const splitPoint = writeCount;
-
-    for (int h = 0; h < height; ++h)
-    {
-        for (int i = 0; i < channelsSize; ++i)
-        {
-            if (channels[i].bytes_per_element == 4)
-            {
-                *(sorting_lookup + h * channelsSize + i) = writeCount;
-                writeCount +=
-                    num_samples_grid[h * channelsSize + i] * (uint64_t) 4;
-            }
-        }
+        if (pass == 0) splitPoint = writeCount;
     }
     return splitPoint;
 }
@@ -309,29 +309,34 @@ delta_encode_sorted_layout (
     const uint64_t*                  num_samples_grid,
     int                              height,
     const exr_coding_channel_info_t* channels,
-    int                              channelsSize)
+    int                              channelsSize,
+    bool                             channel_major)
 {
     uint64_t off = 0;
-    for (int h = 0; h < height; ++h)
+    for (int pass = 0; pass < 2; ++pass)
     {
-        for (int i = 0; i < channelsSize; ++i)
+        int const want  = (pass == 0) ? 2 : 4;
+        int const outer = channel_major ? channelsSize : height;
+        int const inner = channel_major ? height : channelsSize;
+        for (int o = 0; o < outer; ++o)
         {
-            if (channels[i].bytes_per_element != 2) continue;
-            uint64_t const n = num_samples_grid[h * channelsSize + i];
-            if (n > 0) zigzag_delta_encode_row_u16 (buf + off, n);
-            off += (size_t) n * 2u;
+            for (int n_i = 0; n_i < inner; ++n_i)
+            {
+                int const h = channel_major ? n_i : o;
+                int const i = channel_major ? o : n_i;
+                if (channels[i].bytes_per_element != want) continue;
+                uint64_t const n = num_samples_grid[h * channelsSize + i];
+                if (n > 0)
+                {
+                    if (want == 2)
+                        zigzag_delta_encode_row_u16 (buf + off, n);
+                    else
+                        zigzag_delta_encode_row_u32 (buf + off, n);
+                }
+                off += (size_t) n * (size_t) want;
+            }
         }
-    }
-    if (off != splitPoint) return -1;
-    for (int h = 0; h < height; ++h)
-    {
-        for (int i = 0; i < channelsSize; ++i)
-        {
-            if (channels[i].bytes_per_element != 4) continue;
-            uint64_t const n = num_samples_grid[h * channelsSize + i];
-            if (n > 0) zigzag_delta_encode_row_u32 (buf + off, n);
-            off += (size_t) n * 4u;
-        }
+        if (pass == 0 && off != splitPoint) return -1;
     }
     if (off != (uint64_t) total_bytes) return -1;
     return 0;
@@ -345,29 +350,34 @@ delta_decode_sorted_layout (
     const uint64_t*                  num_samples_grid,
     int                              height,
     const exr_coding_channel_info_t* channels,
-    int                              channelsSize)
+    int                              channelsSize,
+    bool                             channel_major)
 {
     uint64_t off = 0;
-    for (int h = 0; h < height; ++h)
+    for (int pass = 0; pass < 2; ++pass)
     {
-        for (int i = 0; i < channelsSize; ++i)
+        int const want  = (pass == 0) ? 2 : 4;
+        int const outer = channel_major ? channelsSize : height;
+        int const inner = channel_major ? height : channelsSize;
+        for (int o = 0; o < outer; ++o)
         {
-            if (channels[i].bytes_per_element != 2) continue;
-            uint64_t const n = num_samples_grid[h * channelsSize + i];
-            if (n > 0) zigzag_delta_decode_row_u16 (buf + off, n);
-            off += (size_t) n * 2u;
+            for (int n_i = 0; n_i < inner; ++n_i)
+            {
+                int const h = channel_major ? n_i : o;
+                int const i = channel_major ? o : n_i;
+                if (channels[i].bytes_per_element != want) continue;
+                uint64_t const n = num_samples_grid[h * channelsSize + i];
+                if (n > 0)
+                {
+                    if (want == 2)
+                        zigzag_delta_decode_row_u16 (buf + off, n);
+                    else
+                        zigzag_delta_decode_row_u32 (buf + off, n);
+                }
+                off += (size_t) n * (size_t) want;
+            }
         }
-    }
-    if (off != splitPoint) return -1;
-    for (int h = 0; h < height; ++h)
-    {
-        for (int i = 0; i < channelsSize; ++i)
-        {
-            if (channels[i].bytes_per_element != 4) continue;
-            uint64_t const n = num_samples_grid[h * channelsSize + i];
-            if (n > 0) zigzag_delta_decode_row_u32 (buf + off, n);
-            off += (size_t) n * 4u;
-        }
+        if (pass == 0 && off != splitPoint) return -1;
     }
     if (off != (uint64_t) total_bytes) return -1;
     return 0;
@@ -452,11 +462,17 @@ sort2_4ByteChannels_tiled (
     const int                        channelsSize,
     const bool                       forward,
     int                              height,
+    bool                             channel_major,
     char*                            outPtr,
     uint64_t*                        sorting_lookup)
 {
     uint64_t splitPoint = compute_sorting_lookup (
-        num_samples_grid, height, channels, channelsSize, sorting_lookup);
+        num_samples_grid,
+        height,
+        channels,
+        channelsSize,
+        channel_major,
+        sorting_lookup);
 
     uint64_t line_start_read = 0;
     for (int h = 0; h < height; ++h)
@@ -958,7 +974,8 @@ exr_zstd_encode_one_wire_version (
                 channel_sample_count_grid,
                 pipeline_height,
                 pack_channels,
-                pack_channel_count) != 0)
+                pack_channel_count,
+                pipe->hdr_format == ZSTD_EXR_FORMAT_V2) != 0)
             return -1;
     }
 
@@ -1130,6 +1147,7 @@ internal_exr_apply_zstd (exr_encode_pipeline_t* encode)
         pack_channel_count,
         true,
         pipeline_height,
+        pipe.hdr_format == ZSTD_EXR_FORMAT_V2,
         (char*) encode->scratch_buffer_1,
         sorting_lookup);
 
@@ -1309,11 +1327,14 @@ exr_undo_zstd_v1 (
     exr_zstd_pack_pipeline pipe;
     exr_zstd_build_decode_pipeline (fr.format, fr.flags, &pipe);
 
+    bool const channel_major = (fr.format == ZSTD_EXR_FORMAT_V2);
+    
     uint64_t split = compute_sorting_lookup (
         channel_sample_count_grid,
         chunk_line_count,
         pack_channels,
         pack_channel_count,
+        channel_major,
         sorting_lookup);
 
     uint64_t  inner_lens[2];
@@ -1355,7 +1376,8 @@ exr_undo_zstd_v1 (
                 channel_sample_count_grid,
                 decode->chunk.height,
                 pack_channels,
-                pack_channel_count) != 0)
+                pack_channel_count,
+                channel_major) != 0)
             return EXR_ERR_CORRUPT_CHUNK;
     }
 
@@ -1366,6 +1388,7 @@ exr_undo_zstd_v1 (
         pack_channel_count,
         false,
         decode->chunk.height,
+        channel_major,
         (char*) uncompressed_data,
         sorting_lookup);
 
