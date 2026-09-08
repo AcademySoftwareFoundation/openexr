@@ -17,9 +17,25 @@ News
 
 
 |latest-news-title|
-=========================================================
+==========================================================
 
 .. _LatestNewsStart:
+
+v3.4.15, v3.3.14, and v3.2.12 fix two memory issues when parsing
+IDManifests. Corrupt or maliciously formed OpenEXR images could
+trigger excessive memory allocation, but only in code which decodes
+the idmanifest attribute.  Other code is unaffected, even when
+handling files with idmanifest attributes
+
+CVEs have been requested for these issues.
+
+The v3.4.15 release also fixes a missing export for Windows builds,
+and reduces compiler warnings when compiling example code.
+
+.. _LatestNewsEnd:
+
+August 6, 2026 - OpenEXR 3.4.14, 3.3.13, v3.2.11 Released
+=========================================================
 
 v3.4.14, v3.3.13, and v3.2.11 are a security-focused patch
 releases. v3.4.14 fixes 15 CVEs plus a broad set of additional
@@ -159,7 +175,6 @@ CVEs addressed:
 * `CVE-2026-59183 <https://www.cve.org/CVERecord?id=CVE-2026-59183>`_
   Signed Integer Overflow Leading to Out-of-Bounds Memory Access in Deep Tile Decoding
 
-.. _LatestNewsEnd:
 
 June 19, 2026 - OpenEXR 3.4.13 Released
 =======================================
@@ -252,16 +267,16 @@ April 29, 2026 - OpenEXR 3.4.11 Released
 Patch release that addresses the following security vulnerabilities:
 
 * `CVE-2026-42217 <https://www.cve.org/CVERecord?id=CVE-2026-42217>`_
-Shift exponent overflow in ``readVariableLengthInteger()`` (``ImfIDManifest.cpp``)
+  Shift exponent overflow in ``readVariableLengthInteger()`` (``ImfIDManifest.cpp``)
 * `CVE-2026-42216 <https://www.cve.org/CVERecord?id=CVE-2026-42216>`_
-Out-of-bounds read in ``IDManifest::init()`` during prefix expansion
+  Out-of-bounds read in ``IDManifest::init()`` during prefix expansion
 * `CVE-2026-41142 <https://www.cve.org/CVERecord?id=CVE-2026-41142>`_
-Integer overflow in ``ImageChannel::resize`` leads to heap OOB write via OpenEXRUtil public API
+  Integer overflow in ``ImageChannel::resize`` leads to heap OOB write via OpenEXRUtil public API
 
 * OSS-fuzz `504280155 <https://issues.oss-fuzz.com/issues/504280155>`_
-Heap-buffer-overflow in ``DwaCompressor_uncompress``
+  Heap-buffer-overflow in ``DwaCompressor_uncompress``
 * OSS-fuzz `505062709 <https://issues.oss-fuzz.com/issues/505062709>`_
-Null-dereference READ in ``Imf_3_3::prefixFromLayerName``
+  Null-dereference READ in ``Imf_3_3::prefixFromLayerName``
 
 Build fixes:
 
@@ -281,16 +296,16 @@ Patch release for 3.3 that addresses the following security
 vulnerabilities:
 
 * `CVE-2026-42217 <https://www.cve.org/CVERecord?id=CVE-2026-42217>`_
-Shift exponent overflow in ``readVariableLengthInteger()`` (``ImfIDManifest.cpp``)
+  Shift exponent overflow in ``readVariableLengthInteger()`` (``ImfIDManifest.cpp``)
 * `CVE-2026-42216 <https://www.cve.org/CVERecord?id=CVE-2026-42216>`_
-Out-of-bounds read in ``IDManifest::init()`` during prefix expansion
+  Out-of-bounds read in ``IDManifest::init()`` during prefix expansion
 * `CVE-2026-41142 <https://www.cve.org/CVERecord?id=CVE-2026-41142>`_
-Integer overflow in ``ImageChannel::resize`` leads to heap OOB write via OpenEXRUtil public API
+  Integer overflow in ``ImageChannel::resize`` leads to heap OOB write via OpenEXRUtil public API
 
 Also:
 
 * OSS-fuzz `504280155 <https://issues.oss-fuzz.com/issues/504280155>`_
-Heap-buffer-overflow in ``DwaCompressor_uncompress``
+  Heap-buffer-overflow in ``DwaCompressor_uncompress``
 
 April 29, 2026 - OpenEXR 3.2.9 Released
 =======================================
@@ -299,16 +314,16 @@ Patch release for 3.2 that addresses the following security
 vulnerabilities:
 
 * `CVE-2026-42217 <https://www.cve.org/CVERecord?id=CVE-2026-42217>`_
-Shift exponent overflow in ``readVariableLengthInteger()`` (``ImfIDManifest.cpp``)
+  Shift exponent overflow in ``readVariableLengthInteger()`` (``ImfIDManifest.cpp``)
 * `CVE-2026-42216 <https://www.cve.org/CVERecord?id=CVE-2026-42216>`_
-Out-of-bounds read in ``IDManifest::init()`` during prefix expansion
+  Out-of-bounds read in ``IDManifest::init()`` during prefix expansion
 * `CVE-2026-41142 <https://www.cve.org/CVERecord?id=CVE-2026-41142>`_
-Integer overflow in ``ImageChannel::resize`` leads to heap OOB write via OpenEXRUtil public API
+  Integer overflow in ``ImageChannel::resize`` leads to heap OOB write via OpenEXRUtil public API
 
 Also:
 
 * OSS-fuzz `504280155 <https://issues.oss-fuzz.com/issues/504280155>`_
-Heap-buffer-overflow in ``DwaCompressor_uncompress``
+  Heap-buffer-overflow in ``DwaCompressor_uncompress``
 
 April 17, 2026 - OpenEXR 3.4.10 Released
 ========================================
@@ -409,7 +424,7 @@ Patch release bug/build fixes:
 * Fix build failure with glibc 2.43
 * Fix Windows symbol visibility warnings
 
-Full changelog: ``v3.4.6..v3.4.7 <https://github.com/AcademySoftwareFoundation/openexr/compare/v3.4.6..v3.4.7>``_
+Full changelog: `v3.4.6..v3.4.7 <https://github.com/AcademySoftwareFoundation/openexr/compare/v3.4.6..v3.4.7>`_
 
 March  1, 2026 - OpenEXR 3.4.6 Released
 =======================================
