@@ -59,6 +59,99 @@ delta_decode_row_u32_scalar (uint8_t* p, uint64_t n)
     }
 }
 
+/* ------------------------------------------------------------------------- */
+/* ZIGZAG                                                                    */
+/*                                                                           */
+/* Plain delta stores a small negative difference as a large unsigned value: */
+/* -1 becomes 0xffff, which sets every bit in every byte plane and defeats   */
+/* the planar shuffle that follows. Zigzag folds the sign into the low bit   */
+/* (0, -1, 1, -2 -> 0, 1, 2, 3) so small differences of either sign stay     */
+/* small and the high byte planes stay near zero.                            */
+/*                                                                           */
+/* Only the mapping of each difference changes; the differencing itself is   */
+/* still delta_{encode,decode}_row_*, so the decoder can un-zigzag in one    */
+/* elementwise pass and reuse the existing prefix-sum.                       */
+/*                                                                           */
+/* Borrowed from meshoptimizer's vertex codec, which zigzags its deltas for  */
+/* the same reason. meshoptimizer is by Arseny Kapoulkine, MIT licensed:     */
+/* https://github.com/zeux/meshoptimizer                                     */
+/* ------------------------------------------------------------------------- */
+
+static inline uint16_t
+zigzag_u16 (uint16_t v)
+{
+    return (uint16_t) ((v << 1) ^ (uint16_t) (0u - (unsigned) (v >> 15)));
+}
+
+static inline uint16_t
+unzigzag_u16 (uint16_t v)
+{
+    return (uint16_t) ((v >> 1) ^ (uint16_t) (0u - (unsigned) (v & 1u)));
+}
+
+static inline uint32_t
+zigzag_u32 (uint32_t v)
+{
+    return (v << 1) ^ (uint32_t) (0u - (v >> 31));
+}
+
+static inline uint32_t
+unzigzag_u32 (uint32_t v)
+{
+    return (v >> 1) ^ (uint32_t) (0u - (v & 1u));
+}
+
+/* Element 0 of a row is stored verbatim by delta_encode_row_*, so the zigzag
+ * passes below deliberately skip it too. */
+
+static void
+zigzag_row_u16 (uint8_t* p, uint64_t n)
+{
+    for (uint64_t k = 1; k < n; ++k)
+    {
+        uint16_t v;
+        memcpy (&v, p + k * 2, 2);
+        v = zigzag_u16 (v);
+        memcpy (p + k * 2, &v, 2);
+    }
+}
+
+static void
+unzigzag_row_u16 (uint8_t* p, uint64_t n)
+{
+    for (uint64_t k = 1; k < n; ++k)
+    {
+        uint16_t v;
+        memcpy (&v, p + k * 2, 2);
+        v = unzigzag_u16 (v);
+        memcpy (p + k * 2, &v, 2);
+    }
+}
+
+static void
+zigzag_row_u32 (uint8_t* p, uint64_t n)
+{
+    for (uint64_t k = 1; k < n; ++k)
+    {
+        uint32_t v;
+        memcpy (&v, p + k * 4, 4);
+        v = zigzag_u32 (v);
+        memcpy (p + k * 4, &v, 4);
+    }
+}
+
+static void
+unzigzag_row_u32 (uint8_t* p, uint64_t n)
+{
+    for (uint64_t k = 1; k < n; ++k)
+    {
+        uint32_t v;
+        memcpy (&v, p + k * 4, 4);
+        v = unzigzag_u32 (v);
+        memcpy (p + k * 4, &v, 4);
+    }
+}
+
 /* ========================================================================= */
 /* AVX2 IMPLEMENTATIONS                                                      */
 /* ========================================================================= */
@@ -274,4 +367,31 @@ delta_decode_row_u32 (uint8_t* p, uint64_t n)
     }
 #endif
     delta_decode_row_u32_scalar (p, n);
+}
+void
+zigzag_delta_encode_row_u16 (uint8_t* p, uint64_t n)
+{
+    delta_encode_row_u16 (p, n);
+    zigzag_row_u16 (p, n);
+}
+
+void
+zigzag_delta_decode_row_u16 (uint8_t* p, uint64_t n)
+{
+    unzigzag_row_u16 (p, n);
+    delta_decode_row_u16 (p, n);
+}
+
+void
+zigzag_delta_encode_row_u32 (uint8_t* p, uint64_t n)
+{
+    delta_encode_row_u32 (p, n);
+    zigzag_row_u32 (p, n);
+}
+
+void
+zigzag_delta_decode_row_u32 (uint8_t* p, uint64_t n)
+{
+    unzigzag_row_u32 (p, n);
+    delta_decode_row_u32 (p, n);
 }
