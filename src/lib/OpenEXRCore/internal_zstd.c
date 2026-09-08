@@ -53,6 +53,11 @@ extern void delta_decode_row_u16 (uint8_t* p, uint64_t n);
 extern void delta_encode_row_u32 (uint8_t* p, uint64_t n);
 extern void delta_decode_row_u32 (uint8_t* p, uint64_t n);
 
+extern void zigzag_delta_encode_row_u16 (uint8_t* p, uint64_t n);
+extern void zigzag_delta_decode_row_u16 (uint8_t* p, uint64_t n);
+extern void zigzag_delta_encode_row_u32 (uint8_t* p, uint64_t n);
+extern void zigzag_delta_decode_row_u32 (uint8_t* p, uint64_t n);
+
 #define RETURN_ERRORV(pipeline, err_code, msg, ...)                            \
     {                                                                          \
         exr_const_context_t pctxt = pipeline->context;                         \
@@ -294,7 +299,8 @@ compute_sorting_lookup (
     return splitPoint;
 }
 
-/** Apply delta along samples within each channel row (layout from compute_sorting_lookup). */
+/** Apply zigzag delta along samples within each channel row (layout from
+ *  compute_sorting_lookup). */
 static int
 delta_encode_sorted_layout (
     uint8_t*                         buf,
@@ -312,7 +318,7 @@ delta_encode_sorted_layout (
         {
             if (channels[i].bytes_per_element != 2) continue;
             uint64_t const n = num_samples_grid[h * channelsSize + i];
-            if (n > 0) delta_encode_row_u16 (buf + off, n);
+            if (n > 0) zigzag_delta_encode_row_u16 (buf + off, n);
             off += (size_t) n * 2u;
         }
     }
@@ -323,7 +329,7 @@ delta_encode_sorted_layout (
         {
             if (channels[i].bytes_per_element != 4) continue;
             uint64_t const n = num_samples_grid[h * channelsSize + i];
-            if (n > 0) delta_encode_row_u32 (buf + off, n);
+            if (n > 0) zigzag_delta_encode_row_u32 (buf + off, n);
             off += (size_t) n * 4u;
         }
     }
@@ -348,7 +354,7 @@ delta_decode_sorted_layout (
         {
             if (channels[i].bytes_per_element != 2) continue;
             uint64_t const n = num_samples_grid[h * channelsSize + i];
-            if (n > 0) delta_decode_row_u16 (buf + off, n);
+            if (n > 0) zigzag_delta_decode_row_u16 (buf + off, n);
             off += (size_t) n * 2u;
         }
     }
@@ -359,7 +365,7 @@ delta_decode_sorted_layout (
         {
             if (channels[i].bytes_per_element != 4) continue;
             uint64_t const n = num_samples_grid[h * channelsSize + i];
-            if (n > 0) delta_decode_row_u32 (buf + off, n);
+            if (n > 0) zigzag_delta_decode_row_u32 (buf + off, n);
             off += (size_t) n * 4u;
         }
     }
@@ -487,7 +493,7 @@ static const uint64_t MAGIC_NUMBER = 8248453963162350458; // "zstd-exr"
 #define ZSTD_EXR_FLAG_DELTA_AFTER_SORT 1u
 #define ZSTD_EXR_V1_HEADER 24u
 
-/** ZSTD wire: 1 = sort+shuffle (header v1); 2 = sort+delta+shuffle (v2).
+/** ZSTD wire: 1 = sort+shuffle (header v1); 2 = sort+zigzag delta+shuffle (v2).
  *  This is the default wire version (overridable at build time); flat chunks
  *  are bumped to v2 at runtime, see exr_zstd_build_encode_pipeline_sorted. */
 #ifndef EXR_ZSTD_SORTED_WIRE_VERSION
@@ -495,7 +501,9 @@ static const uint64_t MAGIC_NUMBER = 8248453963162350458; // "zstd-exr"
 #endif
 
 /** Encode order: SORT → DELTA → SHUFFLE → ZSTD; decode reverses ZSTD first.
- *  Sort and shuffle always run; only delta is optional (V2 wire format). */
+ *  Sort and shuffle always run; only the delta is optional (V2 wire format).
+ *  The delta is zigzag-mapped; the header is unchanged from v2 as first
+ *  written, so no flag bit is spent to say so. */
 typedef struct
 {
     uint32_t hdr_format;
