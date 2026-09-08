@@ -175,7 +175,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
                 for (int y = 0; y < h; y += lines) {
                     exr_chunk_info_t cinfo;
                     if (exr_read_scanline_chunk_info(rf, p, y + dw.min.y, &cinfo) == EXR_ERR_SUCCESS) {
-                        exr_decode_pipeline_t decoder;
+                        exr_decode_pipeline_t decoder = EXR_DECODE_PIPELINE_INITIALIZER;
                         if (exr_decoding_initialize(rf, p, &cinfo, &decoder) == EXR_ERR_SUCCESS) {
                             std::vector<std::vector<uint8_t>> out_data(decoder.channel_count);
                             for (int c = 0; c < decoder.channel_count; ++c) {
@@ -198,7 +198,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
                     for (int x = 0; x < tx; ++x) {
                         exr_chunk_info_t cinfo;
                         if (exr_read_tile_chunk_info(rf, p, x, y, 0, 0, &cinfo) == EXR_ERR_SUCCESS) {
-                            exr_decode_pipeline_t decoder;
+                            exr_decode_pipeline_t decoder = EXR_DECODE_PIPELINE_INITIALIZER;
                             if (exr_decoding_initialize(rf, p, &cinfo, &decoder) == EXR_ERR_SUCCESS) {
                                 std::vector<std::vector<uint8_t>> out_data(decoder.channel_count);
                                 for (int c = 0; c < decoder.channel_count; ++c) {

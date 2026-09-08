@@ -45,7 +45,7 @@ public:
     void execute () override
     {
         exr_chunk_info_t      cinfo = {0};
-        exr_decode_pipeline_t chunk;
+        exr_decode_pipeline_t chunk = EXR_DECODE_PIPELINE_INITIALIZER;
         exr_result_t rv = exr_read_scanline_chunk_info (_f, 0, _y, &cinfo);
         if (rv == EXR_ERR_SUCCESS)
             rv = exr_decoding_initialize (_f, 0, &cinfo, &chunk);
@@ -144,7 +144,7 @@ read_pixels_raw (exr_context_t f)
         }
 #else
         exr_chunk_info_t      cinfo = {0};
-        exr_decode_pipeline_t chunk = {0};
+        exr_decode_pipeline_t chunk = EXR_DECODE_PIPELINE_INITIALIZER;
         for (int y = dw.min.y; y <= dw.max.y;)
         {
             exr_result_t rv = exr_read_scanline_chunk_info (f, 0, y, &cinfo);

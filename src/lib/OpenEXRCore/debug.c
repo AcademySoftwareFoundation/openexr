@@ -8,6 +8,7 @@
 #include "internal_constants.h"
 #include "internal_structs.h"
 #include "openexr_attr.h"
+#include "openexr_compression.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -74,23 +75,7 @@ print_attr (const exr_attribute_t* a, int verbose)
                 (double) a->chromaticities->white_y);
             break;
         case EXR_ATTR_COMPRESSION: {
-            static char* compressionnames[] = {
-                "none",
-                "rle",
-                "zips",
-                "zip",
-                "piz",
-                "pxr24",
-                "b44",
-                "b44a",
-                "dwaa",
-                "dwab",
-                "htj2k256",
-                "htj2k32",
-                "lj2k",
-                "zstd"};
-            printf (
-                "'%s'", (a->uc < EXR_COMPRESSION_LAST_TYPE ? compressionnames[a->uc] : "<UNKNOWN>"));
+            printf ("'%s'", exr_compression_name ((exr_compression_t)a->uc));
             if (verbose) printf (" (0x%02X)", a->uc);
             break;
         }
