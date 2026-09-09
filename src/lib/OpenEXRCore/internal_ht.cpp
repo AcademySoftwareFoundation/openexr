@@ -189,13 +189,20 @@ struct ht_context_cache
  * nothing has to be added to the chunk header.  This analysis relies on the
  * image origin being (0, 0) and on the codestream having a single tile; if
  * either is ever changed the parity at both ends has to be re-examined.
+ *
+ * Returns the padded length, or -1 when num_decomps is outside the range
+ * this arithmetic supports (a codestream may carry up to 32) or when the
+ * padded length would no longer fit in a 32-bit dimension.
  */
-static inline int
-ht_padded_length (int n, int num_decomps)
+static inline int64_t
+ht_padded_length (int64_t n, int num_decomps)
 {
-    const int m = 1 << num_decomps;
+    if (n < 0 || num_decomps < 0 || num_decomps > 30) return -1;
+    const int64_t m = (int64_t) 1 << num_decomps;
     /* smallest n' >= n with n' == 1 (mod m) */
-    return n + (((1 - n) % m) + m) % m;
+    const int64_t padded = n + (((1 - n) % m) + m) % m;
+    if (padded > (int64_t) std::numeric_limits<int32_t>::max ()) return -1;
+    return padded;
 }
 
 static void destroy_ht_decompress_context (exr_decode_pipeline_t* decode)
@@ -329,11 +336,13 @@ ht_undo_impl (
     {
         ojph::param_cod cod0 = cs.access_cod ();
         const int       nd   = (int) cod0.get_num_decompositions ();
+        /* ht_padded_length() returns -1 for an unsupported nd, which can
+         * never equal a real extent, so that case is rejected here too. */
         if (cod0.is_reversible () ||
-            image_width !=
-                (ojph::ui32) ht_padded_length (decode->chunk.width, nd) ||
-            image_height !=
-                (ojph::ui32) ht_padded_length (decode->chunk.height, nd))
+            (int64_t) image_width !=
+                ht_padded_length (decode->chunk.width, nd) ||
+            (int64_t) image_height !=
+                ht_padded_length (decode->chunk.height, nd))
             return EXR_ERR_CORRUPT_CHUNK;
         padded = true;
     }
@@ -593,11 +602,18 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
      * last column so that every dimension is == 1 (mod 2^L); see
      * ht_padded_length().  The padding is only applied to interleaved
      * (unsubsampled) chunks; the decoder recognises it from the SIZ marker. */
-    const bool pad = lossy && !isPlanar;
-    if (pad)
+    if (lossy && !isPlanar)
     {
-        image_width  = ht_padded_length (chunk_width, num_decomps);
-        image_height = ht_padded_length (chunk_height, num_decomps);
+        const int64_t pw = ht_padded_length (chunk_width, num_decomps);
+        const int64_t ph = ht_padded_length (chunk_height, num_decomps);
+        /* If the padded size would not fit in a 32-bit dimension the chunk
+         * is coded unpadded; that is still a valid file, the decoder accepts
+         * the chunk size as-is. */
+        if (pw > 0 && ph > 0)
+        {
+            image_width  = (int) pw;
+            image_height = (int) ph;
+        }
     }
 
     siz.set_image_offset (ojph::point (0, 0));
@@ -816,6 +832,14 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
         assert (output.get_size () >= 0);
         encode->compressed_bytes = output.get_size () + header_sz;
     } catch (const std::range_error& e) {
+        /* The codestream is larger than the uncompressed chunk: store the
+         * chunk uncompressed, as the other codecs do. */
+        if (encode->compressed_alloc_size < encode->packed_bytes)
+            return EXR_ERR_OUT_OF_MEMORY;
+        memcpy (
+            encode->compressed_buffer,
+            encode->packed_buffer,
+            encode->packed_bytes);
         encode->compressed_bytes = encode->packed_bytes;
     }
 
