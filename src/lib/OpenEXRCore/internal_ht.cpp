@@ -190,14 +190,25 @@ struct ht_context_cache
  * image origin being (0, 0) and on the codestream having a single tile; if
  * either is ever changed the parity at both ends has to be re-examined.
  *
- * Returns the padded length, or -1 when num_decomps is outside the range
- * this arithmetic supports (a codestream may carry up to 32) or when the
- * padded length would no longer fit in a 32-bit dimension.
+ * HT_NUM_DECOMPS is the number of decomposition levels the encoder writes
+ * and, deliberately, also the largest number the decoder accepts for a
+ * padded codestream: the padding is at most 2^L - 1 rows and columns, so
+ * bounding L keeps the padded extent within a small, content-independent
+ * margin of the chunk size, which the image and tile size limits of the
+ * context have already vetted.  A codestream may declare up to 32 levels;
+ * anything above this constant is rejected as corrupt.  If the encoder
+ * ever needs more levels, raise the constant (files written with the
+ * larger value are then rejected by older readers).
+ *
+ * Returns the padded length, or -1 when num_decomps is out of range or
+ * the padded length would no longer fit in a 32-bit dimension.
  */
+static const int HT_NUM_DECOMPS = 5;
+
 static inline int64_t
 ht_padded_length (int64_t n, int num_decomps)
 {
-    if (n < 0 || num_decomps < 0 || num_decomps > 30) return -1;
+    if (n < 0 || num_decomps < 0 || num_decomps > HT_NUM_DECOMPS) return -1;
     const int64_t m = (int64_t) 1 << num_decomps;
     /* smallest n' >= n with n' == 1 (mod m) */
     const int64_t padded = n + (((1 - n) % m) + m) % m;
@@ -576,7 +587,7 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
 
     ojph::param_cod cod = cs.access_cod ();
 
-    const int num_decomps = 5;
+    const int num_decomps = HT_NUM_DECOMPS;
 
     cod.set_color_transform (isRGB && !isPlanar);
     cod.set_block_dims (128, 32);
