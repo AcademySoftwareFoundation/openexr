@@ -115,6 +115,8 @@ add_executable(OpenEXRTest
   testStandardAttributes.h
   testTiledCompression.cpp
   testTiledCompression.h
+  testLJ2KBoundary.cpp
+  testLJ2KBoundary.h
   testTiledCopyPixels.cpp
   testTiledCopyPixels.h
   testTiledLineOrder.cpp
@@ -202,6 +204,7 @@ define_openexr_tests(
  testSharedFrameBuffer
  testStandardAttributes
  testTiledCompression
+ testLJ2KBoundary
  testTiledCopyPixels
  testTiledLineOrder
  testTiledRgba

@@ -169,6 +169,53 @@ struct ht_context_cache
     size_t header_sz = 0;
 };
 
+/*
+ * Chunk-boundary padding for lossy (irreversible) coding.
+ *
+ * Every chunk is coded as an independent codestream whose image origin is
+ * (0, 0).  With the whole-sample symmetric extension of JPEG 2000, a chunk
+ * dimension that is even at any decomposition level puts the fold of the
+ * extension on a high-pass position, and the quantization error of the
+ * resulting coefficient shows up as a visible step on the last row / column
+ * of the chunk.  The fold sits on a low-pass position at every one of the L
+ * levels if and only if the coded length n' satisfies
+ *
+ *     n' == 1 (mod 2^L)
+ *
+ * (the image origin being 0).  So, for lossy coding, the last row and the
+ * last column are replicated until both dimensions satisfy this, and the
+ * replicated samples are dropped again after decoding.  The padded size is
+ * carried by the SIZ marker of the codestream and L by its COD marker, so
+ * nothing has to be added to the chunk header.  This analysis relies on the
+ * image origin being (0, 0) and on the codestream having a single tile; if
+ * either is ever changed the parity at both ends has to be re-examined.
+ *
+ * HT_NUM_DECOMPS is the number of decomposition levels the encoder writes
+ * and, deliberately, also the largest number the decoder accepts for a
+ * padded codestream: the padding is at most 2^L - 1 rows and columns, so
+ * bounding L keeps the padded extent within a small, content-independent
+ * margin of the chunk size, which the image and tile size limits of the
+ * context have already vetted.  A codestream may declare up to 32 levels;
+ * anything above this constant is rejected as corrupt.  If the encoder
+ * ever needs more levels, raise the constant (files written with the
+ * larger value are then rejected by older readers).
+ *
+ * Returns the padded length, or -1 when num_decomps is out of range or
+ * the padded length would no longer fit in a 32-bit dimension.
+ */
+static const int HT_NUM_DECOMPS = 5;
+
+static inline int64_t
+ht_padded_length (int64_t n, int num_decomps)
+{
+    if (n < 0 || num_decomps < 0 || num_decomps > HT_NUM_DECOMPS) return -1;
+    const int64_t m = (int64_t) 1 << num_decomps;
+    /* smallest n' >= n with n' == 1 (mod m) */
+    const int64_t padded = n + (((1 - n) % m) + m) % m;
+    if (padded > (int64_t) std::numeric_limits<int32_t>::max ()) return -1;
+    return padded;
+}
+
 static void destroy_ht_decompress_context (exr_decode_pipeline_t* decode)
 {
     ht_context_cache* ctxt = static_cast<ht_context_cache*> (decode->compression_context);
@@ -286,19 +333,53 @@ ht_undo_impl (
     ojph::ui32 image_width =
         siz.get_image_extent ().x - siz.get_image_offset ().x;
 
-    if (decode->chunk.width != image_width
-        || decode->chunk.height != image_height
-        || decode->channel_count != siz.get_num_components())
+    if (decode->channel_count != siz.get_num_components ())
         return EXR_ERR_CORRUPT_CHUNK;
+
+    /* The codestream is either exactly the chunk, or (lossy coding) the
+     * chunk padded by row / column replication to the size that keeps every
+     * fold of the wavelet transform on a low-pass position, see
+     * ht_padded_length().  In the padded case the extra rows and columns are
+     * decoded and discarded below. */
+    bool padded = false;
+    if (decode->chunk.width != image_width ||
+        decode->chunk.height != image_height)
+    {
+        ojph::param_cod cod0 = cs.access_cod ();
+        const int       nd   = (int) cod0.get_num_decompositions ();
+        /* ht_padded_length() returns -1 for an unsupported nd, which can
+         * never equal a real extent, so that case is rejected here too. */
+        if (cod0.is_reversible () ||
+            (int64_t) image_width !=
+                ht_padded_length (decode->chunk.width, nd) ||
+            (int64_t) image_height !=
+                ht_padded_length (decode->chunk.height, nd))
+            return EXR_ERR_CORRUPT_CHUNK;
+        padded = true;
+    }
 
     for (int cs_i = 0; cs_i < decode->channel_count; cs_i++)
     {
         int file_i = cs_to_file_ch[cs_i].file_index;
 
-        if (decode->channels[file_i].height != siz.get_recon_height (cs_i) ||
+        if (padded)
+        {
+            /* padding is only produced for unsubsampled (interleaved) chunks */
+            if (siz.get_downsampling (cs_i).x != 1 ||
+                siz.get_downsampling (cs_i).y != 1 ||
+                decode->channels[file_i].height != decode->chunk.height ||
+                decode->channels[file_i].width != decode->chunk.width ||
+                siz.get_recon_height (cs_i) != image_height ||
+                siz.get_recon_width (cs_i) != image_width)
+                return EXR_ERR_CORRUPT_CHUNK;
+        }
+        else if (
+            decode->channels[file_i].height != siz.get_recon_height (cs_i) ||
             decode->channels[file_i].width != siz.get_recon_width (cs_i) ||
-            decode->channels[file_i].height != image_height / siz.get_downsampling (cs_i).y ||
-            decode->channels[file_i].width != image_width / siz.get_downsampling (cs_i).x)
+            decode->channels[file_i].height !=
+                image_height / siz.get_downsampling (cs_i).y ||
+            decode->channels[file_i].width !=
+                image_width / siz.get_downsampling (cs_i).x)
             return EXR_ERR_CORRUPT_CHUNK;
     }
 
@@ -314,6 +395,7 @@ ht_undo_impl (
     }
     if (bpl > INT32_MAX || bpl * decode->chunk.height > (int64_t) PTRDIFF_MAX)
         return EXR_ERR_CORRUPT_CHUNK;
+    if (padded && is_planar) return EXR_ERR_CORRUPT_CHUNK;
     cs.set_planar (is_planar);
 
     cs.create ();
@@ -393,8 +475,12 @@ ht_undo_impl (
     {
         uint8_t* line_pixels = static_cast<uint8_t*> (uncompressed_data);
 
-        assert (bpl * image_height == uncompressed_size);
+        const uint32_t out_height = (uint32_t) decode->chunk.height;
+        assert (bpl * out_height == uncompressed_size);
 
+        /* image_height / image_width are the (possibly padded) codestream
+         * dimensions; only the first chunk.height rows and chunk.width
+         * samples of each row are copied out, the rest is discarded. */
         for (uint32_t y = 0; y < image_height; ++y)
         {
             for (int16_t c = 0; c < decode->channel_count; c++)
@@ -402,6 +488,7 @@ ht_undo_impl (
                 int file_c = cs_to_file_ch[c].file_index;
                 cur_line   = cs.pull (next_comp);
                 assert (next_comp == c);
+                if (y >= out_height) continue;
                 if (decode->channels[file_c].data_type == EXR_PIXEL_HALF)
                 {
                     int16_t* channel_pixels =
@@ -471,8 +558,10 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
     bool                               isRGB = make_channel_map (
         encode->channel_count, encode->channels, cs_channel_info);
 
-    int image_height = encode->chunk.height;
-    int image_width  = encode->chunk.width;
+    const int chunk_height = encode->chunk.height;
+    const int chunk_width  = encode->chunk.width;
+    int       image_height = chunk_height;
+    int       image_width  = chunk_width;
 
     ojph::codestream cs;
 
@@ -493,17 +582,16 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
     siz.set_num_components (encode->channel_count);
     cs.set_planar (isPlanar);
 
-    siz.set_image_offset (ojph::point (0, 0));
-    siz.set_image_extent (ojph::point (image_width, image_height));
-
     exr_compression_t comp = EXR_COMPRESSION_HTJ2K256;
     exr_get_compression (encode->context, encode->part_index, &comp);
 
     ojph::param_cod cod = cs.access_cod ();
 
+    const int num_decomps = HT_NUM_DECOMPS;
+
     cod.set_color_transform (isRGB && !isPlanar);
     cod.set_block_dims (128, 32);
-    cod.set_num_decomposition (5);
+    cod.set_num_decomposition (num_decomps);
 
     /* enable lossy compression on the first 3 channels, only if the compressor
     is EXR_COMPRESSION_LJ2K, we have RGB channels, all RGB channels are
@@ -520,6 +608,27 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
                             encode->channels[file_c].y_samples == 1;
         }
     }
+
+    /* Lossy coding: pad the coded array by replicating the last row and the
+     * last column so that every dimension is == 1 (mod 2^L); see
+     * ht_padded_length().  The padding is only applied to interleaved
+     * (unsubsampled) chunks; the decoder recognises it from the SIZ marker. */
+    if (lossy && !isPlanar)
+    {
+        const int64_t pw = ht_padded_length (chunk_width, num_decomps);
+        const int64_t ph = ht_padded_length (chunk_height, num_decomps);
+        /* If the padded size would not fit in a 32-bit dimension the chunk
+         * is coded unpadded; that is still a valid file, the decoder accepts
+         * the chunk size as-is. */
+        if (pw > 0 && ph > 0)
+        {
+            image_width  = (int) pw;
+            image_height = (int) ph;
+        }
+    }
+
+    siz.set_image_offset (ojph::point (0, 0));
+    siz.set_image_extent (ojph::point (image_width, image_height));
 
     if (lossy)
     {
@@ -678,20 +787,28 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
             const uint8_t* line_pixels =
                 static_cast<const uint8_t*> (encode->packed_buffer);
 
-            assert (bpl * image_height == encode->packed_bytes);
+            assert (bpl * chunk_height == encode->packed_bytes);
 
+            /* image_height / image_width may exceed the chunk size by the
+             * padding: rows beyond the chunk repeat its last row, samples
+             * beyond the chunk width repeat the last sample of the row. */
             for (int y = 0; y < image_height; y++)
             {
+                const uint8_t* src_line =
+                    line_pixels +
+                    (int64_t) (y < chunk_height ? y : chunk_height - 1) * bpl;
+
                 for (int16_t c = 0; c < encode->channel_count; c++)
                 {
                     int file_c = cs_channel_info[c].file_index;
+                    const int32_t cw     = encode->channels[file_c].width;
 
                     if (encode->channels[file_c].data_type == EXR_PIXEL_HALF)
                     {
                         int16_t* channel_pixels =
-                            (int16_t*) (line_pixels + cs_channel_info[c].raster_line_offset);
-                        for (int32_t p = 0; p < encode->channels[file_c].width;
-                            p++)
+                            (int16_t*) (src_line +
+                                        cs_channel_info[c].raster_line_offset);
+                        for (int32_t p = 0; p < cw; p++)
                         {
                             if (! cod.is_reversible(c))
                                 cur_line->i32[p] = half_to_int16(half (half::FromBits, (uint16_t) (*channel_pixels++)));
@@ -702,9 +819,9 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
                     else
                     {
                         int32_t* channel_pixels =
-                            (int32_t*) (line_pixels + cs_channel_info[c].raster_line_offset);
-                        for (int32_t p = 0; p < encode->channels[file_c].width;
-                            p++)
+                            (int32_t*) (src_line +
+                                        cs_channel_info[c].raster_line_offset);
+                        for (int32_t p = 0; p < cw; p++)
                         {
                             if (! cod.is_reversible(c))
                                 cur_line->i32[p] = float_to_int32(*((float *)channel_pixels++));
@@ -712,10 +829,12 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
                                 cur_line->i32[p] = *channel_pixels++;
                         }
                     }
+                    for (int32_t p = cw; p < image_width; p++)
+                        cur_line->i32[p] = cur_line->i32[cw - 1];
+
                     assert (next_comp == c);
                     cur_line = cs.exchange (cur_line, next_comp);
                 }
-                line_pixels += bpl;
             }
         }
 
@@ -724,6 +843,14 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
         assert (output.get_size () >= 0);
         encode->compressed_bytes = output.get_size () + header_sz;
     } catch (const std::range_error& e) {
+        /* The codestream is larger than the uncompressed chunk: store the
+         * chunk uncompressed, as the other codecs do. */
+        if (encode->compressed_alloc_size < encode->packed_bytes)
+            return EXR_ERR_OUT_OF_MEMORY;
+        memcpy (
+            encode->compressed_buffer,
+            encode->packed_buffer,
+            encode->packed_bytes);
         encode->compressed_bytes = encode->packed_bytes;
     }
 
