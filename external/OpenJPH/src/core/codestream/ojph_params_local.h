@@ -837,13 +837,197 @@ namespace ojph {
     //
     //
     ///////////////////////////////////////////////////////////////////////////
+
+    // nlt_rec for easy exchange
+    struct nlt_rec {
+      using nonlinearity = ojph::param_nlt::nonlinearity;
+
+      static ui8 get_bpp(ui32 t) { return (t <= 8) ? 1 : ((t <= 16) ? 2 : 4); }
+      nlt_rec() { points_store = NULL; store_size = 0; init(); }
+      void init() {
+        BDnlt = 0; Tnlt = nonlinearity::OJPH_NLT_UNDEFINED;
+        d_min = d_max = pt_val = num_points = 0; bytes_per_point = 0;
+        marker_points = NULL;
+        // decode
+        dec_points = NULL;
+        fd_min = fd_max = delta = inv_delta = multiplier = 0.0f;
+        // encode
+        enc_points = NULL; enc_num_points = 0;
+      }
+      ui8 get_type() const { return Tnlt; }
+      ui8 get_bit_depth() const { return (ui8)((BDnlt & 0x7F) + 1u); }
+      ui8 get_bpp() const { return get_bpp(pt_val); }
+      bool is_signed() const { return (BDnlt & 0x80) != 0; }
+      ui32 cal_marker_points_size() const
+      { return (ui32)num_points * (ui32)get_bpp(); }
+      ui8 BDnlt;         // Decoded image component bit depth parameter
+      ui8 Tnlt;          // Type of non-linearity
+      ui32 d_min, d_max; // Dmin and Dmax
+      ui32 pt_val;       // Precision of points in bits
+      ui32 num_points;   // number of points in LUT points from 2 to 8192
+      void* marker_points; // pointer to marker points
+      ui8 bytes_per_point;  // number of bytes per point, derived from pt_val
+
+      // point storage
+      void* points_store;// store for all needed storage
+      ui32 store_size;   // storage size in bytes
+
+      // memebers for decoding
+      float* dec_points;     // LUT points for decoding -- must be float
+      float fd_min, fd_max;  // float d_min and d_max
+      float delta, inv_delta;// delta is (dmax-dmin) / (num_points - 1)
+      float multiplier;      // multiplier to convert to final integer
+      ui32 cal_store_size_for_decoding()
+      { return (ui32)num_points * (ui32)(get_bpp() + sizeof(float)); }
+      void assign_pointers_for_decoding()
+      {
+        dec_points = (float*)points_store;  enc_points = NULL;
+        marker_points = (ui8*)dec_points + num_points * sizeof(float);
+      }
+      void prepare_for_decoding()
+      {
+        double d = 1.0 / (double)((1ull << 32) - 1);
+        fd_min = (float)((double)d_min * d);
+        fd_max = (float)((double)d_max * d);
+        delta = (fd_max - fd_min) / (float)(num_points - 1);
+        inv_delta = (float)(num_points - 1) / (fd_max - fd_min);
+        multiplier = (float)(1ull << get_bit_depth());
+        float divider = 1 / multiplier;
+        if (bytes_per_point == 1) {
+          ui8* sp = (ui8*)marker_points;
+          float* dp = dec_points;
+          for (ui32 i = 0; i < num_points; ++i)
+            *dp++ = *sp++ * divider;
+        }
+        else if (bytes_per_point == 2) {
+          ui16* sp = (ui16*)marker_points;
+          float* dp = dec_points;
+          for (ui32 i = 0; i < num_points; ++i)
+            *dp++ = *sp++ * divider;
+        }
+        else if (bytes_per_point == 4) {
+          ui32* sp = (ui32*)marker_points;
+          float* dp = dec_points;
+          for (ui32 i = 0; i < num_points; ++i)
+            *dp++ = (float)*sp++ * divider;
+        }
+      }
+
+      // memebers for encoding -- we also use some from decoding
+      float* enc_points;     // LUT points for encoding -- must be float
+      ui32 enc_num_points;   // # of points for encoding (larger than decoding)
+      float ft_min, ft_max;  // float d_min and d_max
+      ui32 cal_store_size_for_encoding(ui32 enc_num_points)
+      {
+        this->enc_num_points = enc_num_points;
+        return (ui32)enc_num_points * (ui32)(get_bpp() + sizeof(float));
+      }
+      void assign_pointers_for_encoding()
+      {
+        enc_points = (float*)points_store;  dec_points = NULL;
+        marker_points = (ui8*)enc_points + enc_num_points * sizeof(float);
+      }
+      void prepare_for_encoding()
+      {
+        double d = 1.0 / (double)((1ull << 32) - 1);
+        fd_min = (float)((double)d_min * d);
+        fd_max = (float)((double)d_max * d);
+
+        // create lookup table for encoding
+        float mul = (float)(1ull << pt_val);
+        float div = 1.0f / mul;
+        if (bytes_per_point == 1) {
+          ui8* p = (ui8*)marker_points;
+          enc_points[0] = ft_min = (float)p[0] * div;
+          ft_max = (float)p[num_points - 1] * div;
+          enc_points[enc_num_points - 1] = ft_max;
+          delta = (ft_max - ft_min) / (float)(enc_num_points - 1);
+          inv_delta = (float)(enc_num_points - 1) / (ft_max - ft_min);
+
+          ui32 k = 0;
+          float y_k = (float)p[k] * div, y_kp1 = (float)p[k + 1] * div;
+          float dt = (fd_max - fd_min) / (float)(num_points - 1);
+          float d_k = fd_min, d_kp1 = fd_min + dt;
+          for (ui32 i = 1; i < enc_num_points - 1; ++i)
+          {
+            float z = ft_min + (float)i * delta;
+            while (k + 1 < num_points - 1 && z >= y_kp1)
+            {
+              ++k;
+              d_k   = d_kp1;
+              d_kp1 = fd_min + (float)(k + 1) * dt;
+              y_k   = y_kp1;
+              y_kp1 = (float)p[k + 1] * div;
+            }
+            enc_points[i] = d_k + (z - y_k) * dt / (y_kp1 - y_k);
+          }
+        }
+        else if (bytes_per_point == 2) {
+          ui16* p = (ui16*)marker_points;
+          enc_points[0] = ft_min = (float)p[0] * div;
+          ft_max = (float)p[num_points - 1] * div;
+          enc_points[enc_num_points - 1] = ft_max;
+          delta = (ft_max - ft_min) / (float)(enc_num_points - 1);
+          inv_delta = (float)(enc_num_points - 1) / (ft_max - ft_min);
+
+          ui32 k = 0;
+          float y_k = (float)p[k] * div, y_kp1 = (float)p[k + 1] * div;
+          float dt = (fd_max - fd_min) / (float)(num_points - 1);
+          float d_k = fd_min, d_kp1 = fd_min + dt;
+          for (ui32 i = 1; i < enc_num_points - 1; ++i)
+          {
+            float z = ft_min + (float)i * delta;
+            while (k + 1 < num_points - 1 && z >= y_kp1)
+            {
+              ++k;
+              d_k   = d_kp1;
+              d_kp1 = fd_min + (float)(k + 1) * dt;
+              y_k   = y_kp1;
+              y_kp1 = (float)p[k + 1] * div;
+            }
+            enc_points[i] = d_k + (z - y_k) * dt / (y_kp1 - y_k);
+          }
+        }
+        else if (bytes_per_point == 4) {
+          ui32* p = (ui32*)marker_points;
+          enc_points[0] = ft_min = (float)p[0] * div;
+          ft_max = (float)p[num_points - 1] * div;
+          enc_points[enc_num_points - 1] = ft_max;
+          delta = (ft_max - ft_min) / (float)(enc_num_points - 1);
+          inv_delta = (float)(enc_num_points - 1) / (ft_max - ft_min);
+
+          ui32 k = 0;
+          float y_k = (float)p[k] * div, y_kp1 = (float)p[k + 1] * div;
+          float dt = (fd_max - fd_min) / (float)(num_points - 1);
+          float d_k = fd_min, d_kp1 = fd_min + dt;
+          for (ui32 i = 1; i < enc_num_points - 1; ++i)
+          {
+            float z = ft_min + (float)i * delta;
+            while (k + 1 < num_points - 1 && z >= y_kp1)
+            {
+              ++k;
+              d_k   = d_kp1;
+              d_kp1 = fd_min + (float)(k + 1) * dt;
+              y_k   = y_kp1;
+              y_kp1 = (float)p[k + 1] * div;
+            }
+            enc_points[i] = d_k + (z - y_k) * dt / (y_kp1 - y_k);;
+          }
+        }
+      }
+    };
+
     // data structures used by param_nlt
     struct param_nlt
     {
       using special_comp_num = ojph::param_nlt::special_comp_num;
       using nonlinearity = ojph::param_nlt::nonlinearity;
+
     public:
-      param_nlt() { avail = NULL; init(); }
+      param_nlt() {
+        avail = NULL;
+        init();
+      }
       ~param_nlt() { destroy(); }
 
       ////////////////////////////////////////
@@ -857,26 +1041,42 @@ namespace ojph {
       }
 
       void check_validity(param_siz& siz);
+
       void set_nonlinear_transform(ui32 comp_num, ui8 nl_type);
-      bool get_nonlinear_transform(ui32 comp_num, ui8& bit_depth,
-                                   bool& is_signed, ui8& nl_type) const;
+
+      void set_nonlinear_transform(ui32 comp_num,
+                                   ui8 decoded_bit_depth,
+                                   bool decoded_signedness,
+                                   ui32 d_min, ui32 d_max, ui8 pt_val,
+                                   ui16 num_points, void* points, ui8 nl_type);
+
+      bool get_nonlinear_transform(ui32 comp_num,
+                                   ui8& decoded_bit_depth,
+                                   bool& decoded_signedness,
+                                   ui8& nl_type) const;
+
       bool write(outfile_base* file) const;
-      void read(infile_base* file);
+      bool read(infile_base* file);
+
+      const nlt_rec* get_nlt_rec(ui32 comp_num) const;
 
     private:
       ////////////////////////////////////////
       void init()
       {
-        Lnlt = 6;
+        Lnlt = 0;
         Cnlt = special_comp_num::ALL_COMPS; // default
-        BDnlt = 0;
-        Tnlt = nonlinearity::OJPH_NLT_UNDEFINED;
+        rec.init();
         enabled = false; next = NULL;
       }
 
       ////////////////////////////////////////
       void destroy()
       {
+        if (rec.points_store) {
+          delete[] (ui8*)rec.points_store;
+          rec.points_store = NULL;
+        }
         if (avail)
           delete avail;
         if (next) {
@@ -895,10 +1095,7 @@ namespace ojph {
     private:
       ui16 Lnlt;         // length of the marker segment excluding marker
       ui16 Cnlt;         // Component involved in the transformation
-      ui8 BDnlt;         // Decoded image component bit depth parameter
-      ui8 Tnlt;          // Type of non-linearity
-      bool enabled;      // true if this object is used
-      param_nlt* next;   // for chaining NLT markers
+      nlt_rec rec;       // NLT properties
 
       // The top level param_nlt object is not allocated, but as part of
       // codestream, and is used to manage allocated next objects.
@@ -906,6 +1103,8 @@ namespace ojph {
       // param_nlt object.
 
     private: // on restart, already allocated param_nlt objs are stored here
+      bool enabled;      // true if this object is used
+      param_nlt* next;   // for chaining NLT markers
       param_nlt* avail;
     };
 
