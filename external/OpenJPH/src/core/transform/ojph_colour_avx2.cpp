@@ -45,6 +45,9 @@
 #include "ojph_mem.h"
 #include "ojph_colour.h"
 
+#include "ojph_params.h"
+#include "../codestream/ojph_params_local.h"
+
 #include <immintrin.h>
 
 namespace ojph {
@@ -295,7 +298,7 @@ namespace ojph {
       if (is_signed)
       {
         __m256i zero = _mm256_setzero_si256();
-        __m256i bias = 
+        __m256i bias =
           _mm256_set1_epi32(-(si32)((1ULL << (bit_depth - 1)) + 1));
         for (int i = (int)width; i > 0; i -= 8, sp += 8, dp += 8) {
           __m256 t = _mm256_loadu_ps(sp);
@@ -334,7 +337,7 @@ namespace ojph {
       line_buf *dst_line, ui32 dst_line_offset,
       ui32 bit_depth, bool is_signed, ui32 width)
     {
-      local_avx2_irv_convert_to_integer<false>(src_line, dst_line, 
+      local_avx2_irv_convert_to_integer<false>(src_line, dst_line,
         dst_line_offset, bit_depth, is_signed, width);
     }
 
@@ -343,13 +346,114 @@ namespace ojph {
       line_buf *dst_line, ui32 dst_line_offset,
       ui32 bit_depth, bool is_signed, ui32 width)
     {
-      local_avx2_irv_convert_to_integer<true>(src_line, dst_line, 
+      local_avx2_irv_convert_to_integer<true>(src_line, dst_line,
         dst_line_offset, bit_depth, is_signed, width);
     }
 
     //////////////////////////////////////////////////////////////////////////
+    template<int NLT_TYPE>
+    static inline
+    void local_avx2_irv_convert_to_integer_nlt2or4(const line_buf *src_line,
+      line_buf *dst_line, ui32 dst_line_offset,
+      ui32 bit_depth, bool is_signed, ui32 width, const nlt_rec* rec)
+    {
+      assert((src_line->flags & line_buf::LFT_32BIT) &&
+             (src_line->flags & line_buf::LFT_INTEGER) == 0 &&
+             (dst_line->flags & line_buf::LFT_32BIT) &&
+             (dst_line->flags & line_buf::LFT_INTEGER));
+      ojph_unused(bit_depth);
+      ojph_unused(is_signed);
+
+      assert(rec->get_bit_depth() <= 32);
+      const float* sp = src_line->f32;
+      si32* dp = dst_line->i32 + dst_line_offset;
+
+      __m256 mul = _mm256_set1_ps(rec->multiplier);
+      __m256 d_min = _mm256_set1_ps(rec->fd_min);
+      __m256 d_max = _mm256_set1_ps(rec->fd_max);
+      __m256 delta = _mm256_set1_ps(rec->delta);
+      __m256 inv_delta = _mm256_set1_ps(rec->inv_delta);
+      const float* lut = rec->dec_points;
+
+      __m256 half_ps = _mm256_set1_ps(0.5f);
+      __m256i one = _mm256_set1_epi32(1);
+
+      if (rec->is_signed())
+      {
+        __m256 half =
+          _mm256_set1_ps((float)(1ULL << (rec->get_bit_depth() - 1)));
+        __m256i bias =
+          _mm256_set1_epi32(-(si32)((1ULL << (rec->get_bit_depth() - 1)) + 1));
+        __m256i zero = _mm256_setzero_si256();
+        for (int i = (int)width; i > 0; i -= 8, sp += 8, dp += 8) {
+          __m256 t = _mm256_loadu_ps(sp);
+          t = _mm256_add_ps(t, half_ps);                 // convert to [0, 1]
+          t = _mm256_max_ps(t, d_min);
+          t = _mm256_min_ps(t, d_max);
+          __m256i k = _mm256_cvttps_epi32(
+            _mm256_mul_ps(_mm256_sub_ps(t, d_min), inv_delta));
+          __m256 d_k = _mm256_add_ps(d_min,
+            _mm256_mul_ps(_mm256_cvtepi32_ps(k), delta));
+          __m256 t_k = _mm256_i32gather_ps(lut, k, 4);
+          __m256 t_kp1 = _mm256_i32gather_ps(lut, _mm256_add_epi32(k, one), 4);
+          __m256 z = _mm256_add_ps(t_k,
+            _mm256_mul_ps(_mm256_mul_ps(_mm256_sub_ps(t, d_k), inv_delta),
+              _mm256_sub_ps(t_kp1, t_k)));
+          __m256i v =
+            _mm256_cvtps_epi32(_mm256_sub_ps(_mm256_mul_ps(z, mul), half));
+          if (NLT_TYPE == 4)
+          {
+            __m256i c = _mm256_cmpgt_epi32(zero, v); // 0xFFFFFFFF for -ve val
+            __m256i neg = _mm256_sub_epi32(bias, v); // - bias - value
+            neg = _mm256_and_si256(c, neg);          // keep only - bias - val
+            v = _mm256_andnot_si256(c, v);           // keep only +ve or 0
+            v = _mm256_or_si256(neg, v);             // combine
+          }
+          _mm256_storeu_si256((__m256i*)dp, v);
+        }
+      }
+      else
+      {
+        for (int i = (int)width; i > 0; i -= 8, sp += 8, dp += 8) {
+          __m256 t = _mm256_loadu_ps(sp);
+          t = _mm256_add_ps(t, half_ps);                 // convert to [0, 1]
+          t = _mm256_max_ps(t, d_min);
+          t = _mm256_min_ps(t, d_max);
+          __m256i k = _mm256_cvttps_epi32(
+            _mm256_mul_ps(_mm256_sub_ps(t, d_min), inv_delta));
+          __m256 d_k = _mm256_add_ps(d_min,
+            _mm256_mul_ps(_mm256_cvtepi32_ps(k), delta));
+          __m256 t_k = _mm256_i32gather_ps(lut, k, 4);
+          __m256 t_kp1 =
+            _mm256_i32gather_ps(lut, _mm256_add_epi32(k, one), 4);
+          __m256 z = _mm256_add_ps(t_k,
+            _mm256_mul_ps(_mm256_mul_ps(_mm256_sub_ps(t, d_k), inv_delta),
+              _mm256_sub_ps(t_kp1, t_k)));
+          __m256i v = _mm256_cvtps_epi32(_mm256_mul_ps(z, mul));
+          _mm256_storeu_si256((__m256i*)dp, v);
+        }
+      }
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    void avx2_irv_convert_to_integer_nlt(const line_buf *src_line,
+      line_buf *dst_line, ui32 dst_line_offset,
+      ui32 bit_depth, bool is_signed, ui32 width, const nlt_rec* rec)
+    {
+      using nl = nlt_rec::nonlinearity;
+      if (rec->get_type() == nl::OJPH_NLT_LUT_STYLE_NLT)
+        local_avx2_irv_convert_to_integer_nlt2or4<2>(src_line, dst_line,
+          dst_line_offset, bit_depth, is_signed, width, rec);
+      else if (rec->get_type() == nl::OJPH_NLT_BINARY_COMPLEMENT_PLUS_LUT)
+        local_avx2_irv_convert_to_integer_nlt2or4<4>(src_line, dst_line,
+          dst_line_offset, bit_depth, is_signed, width, rec);
+      else
+        assert(0);
+    }
+
+    //////////////////////////////////////////////////////////////////////////
     template<bool NLT_TYPE3>
-    static inline    
+    static inline
     void local_avx2_irv_convert_to_float(const line_buf *src_line,
       ui32 src_line_offset, line_buf *dst_line,
       ui32 bit_depth, bool is_signed, ui32 width)
@@ -367,12 +471,12 @@ namespace ojph {
       if (is_signed)
       {
         __m256i zero = _mm256_setzero_si256();
-        __m256i bias = 
+        __m256i bias =
           _mm256_set1_epi32(-(si32)((1ULL << (bit_depth - 1)) + 1));
         for (int i = (int)width; i > 0; i -= 8, sp += 8, dp += 8) {
           __m256i t = _mm256_loadu_si256((__m256i*)sp);
           if (NLT_TYPE3)
-          {          
+          {
             __m256i c = _mm256_cmpgt_epi32(zero, t); // 0xFFFFFFFF for -ve val
             __m256i neg = _mm256_sub_epi32(bias, t); // - bias - value
             neg = _mm256_and_si256(c, neg);          // keep only - bias - val
@@ -397,7 +501,7 @@ namespace ojph {
       }
     }
 
-        //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
     void avx2_irv_convert_to_float(const line_buf *src_line,
       ui32 src_line_offset, line_buf *dst_line,
       ui32 bit_depth, bool is_signed, ui32 width)
@@ -413,6 +517,101 @@ namespace ojph {
     {
       local_avx2_irv_convert_to_float<true>(src_line, src_line_offset,
         dst_line, bit_depth, is_signed, width);
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    template<int NLT_TYPE>
+    static inline
+    void local_avx2_irv_convert_to_float_nlt2or4(const line_buf *src_line,
+      ui32 src_line_offset, line_buf *dst_line,
+      ui32 bit_depth, bool is_signed, ui32 width, const nlt_rec* rec)
+    {
+      assert((src_line->flags & line_buf::LFT_32BIT) &&
+             (src_line->flags & line_buf::LFT_INTEGER) &&
+             (dst_line->flags & line_buf::LFT_32BIT) &&
+             (dst_line->flags & line_buf::LFT_INTEGER) == 0);
+
+      assert(bit_depth <= 32);
+      __m256 mul = _mm256_set1_ps((float)(1.0 / (double)(1ULL << bit_depth)));
+      __m256 d_min = _mm256_set1_ps(rec->ft_min);
+      __m256 d_max = _mm256_set1_ps(rec->ft_max);
+      __m256 delta = _mm256_set1_ps(rec->delta);
+      __m256 inv_delta = _mm256_set1_ps(rec->inv_delta);
+      const float* lut = rec->enc_points;
+
+      __m256 half_ps = _mm256_set1_ps(0.5f);
+      __m256i one = _mm256_set1_epi32(1);
+
+      const si32* sp = src_line->i32 + src_line_offset;
+      float* dp = dst_line->f32;
+      if (rec->is_signed())
+      {
+        __m256i bias =
+          _mm256_set1_epi32(-(si32)((1ULL << (rec->get_bit_depth() - 1)) + 1));
+        __m256i zero = _mm256_setzero_si256();
+        for (int i = (int)width; i > 0; i -= 8, sp += 8, dp += 8) {
+          __m256i v = _mm256_loadu_si256((__m256i*)sp);
+          if (NLT_TYPE == 4)
+          {
+            __m256i c = _mm256_cmpgt_epi32(zero, v); // 0xFFFFFFFF for -ve val
+            __m256i neg = _mm256_sub_epi32(bias, v); // - bias - value
+            neg = _mm256_and_si256(c, neg);          // keep only - bias - val
+            v = _mm256_andnot_si256(c, v);           // keep only +ve or 0
+            v = _mm256_or_si256(neg, v);             // combine
+          }
+          __m256 t = _mm256_add_ps(                  // convert to [0, 1]
+            _mm256_mul_ps(_mm256_cvtepi32_ps(v), mul), half_ps);
+          t = _mm256_max_ps(t, d_min);
+          t = _mm256_min_ps(t, d_max);
+          __m256i k = _mm256_cvttps_epi32(
+            _mm256_mul_ps(_mm256_sub_ps(t, d_min), inv_delta));
+          __m256 d_k = _mm256_add_ps(d_min,
+            _mm256_mul_ps(_mm256_cvtepi32_ps(k), delta));
+          __m256 t_k = _mm256_i32gather_ps(lut, k, 4);
+          __m256 t_kp1 =
+            _mm256_i32gather_ps(lut, _mm256_add_epi32(k, one), 4);
+          __m256 y = _mm256_add_ps(t_k,
+            _mm256_mul_ps(_mm256_mul_ps(_mm256_sub_ps(t, d_k), inv_delta),
+              _mm256_sub_ps(t_kp1, t_k)));
+          _mm256_storeu_ps(dp, _mm256_sub_ps(y, half_ps));
+        }
+      }
+      else
+      {
+        for (int i = (int)width; i > 0; i -= 8, sp += 8, dp += 8) {
+          __m256i v = _mm256_loadu_si256((__m256i*)sp);
+          __m256 t = _mm256_mul_ps(_mm256_cvtepi32_ps(v), mul);  // in [0, 1]
+          t = _mm256_max_ps(t, d_min);
+          t = _mm256_min_ps(t, d_max);
+          __m256i k = _mm256_cvttps_epi32(
+            _mm256_mul_ps(_mm256_sub_ps(t, d_min), inv_delta));
+          __m256 d_k = _mm256_add_ps(d_min,
+            _mm256_mul_ps(_mm256_cvtepi32_ps(k), delta));
+          __m256 t_k = _mm256_i32gather_ps(lut, k, 4);
+          __m256 t_kp1 =
+            _mm256_i32gather_ps(lut, _mm256_add_epi32(k, one), 4);
+          __m256 y = _mm256_add_ps(t_k,
+            _mm256_mul_ps(_mm256_mul_ps(_mm256_sub_ps(t, d_k), inv_delta),
+              _mm256_sub_ps(t_kp1, t_k)));
+          _mm256_storeu_ps(dp, _mm256_sub_ps(y, half_ps));
+        }
+      }
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    void avx2_irv_convert_to_float_nlt(const line_buf *src_line,
+      ui32 src_line_offset, line_buf *dst_line,
+      ui32 bit_depth, bool is_signed, ui32 width, const nlt_rec* rec)
+    {
+      using nl = nlt_rec::nonlinearity;
+      if (rec->get_type() == nl::OJPH_NLT_LUT_STYLE_NLT)
+        local_avx2_irv_convert_to_float_nlt2or4<2>(src_line,
+          src_line_offset, dst_line, bit_depth, is_signed, width, rec);
+      else if (rec->get_type() == nl::OJPH_NLT_BINARY_COMPLEMENT_PLUS_LUT)
+        local_avx2_irv_convert_to_float_nlt2or4<4>(src_line,
+          src_line_offset, dst_line, bit_depth, is_signed, width, rec);
+      else
+        assert(0);
     }
 
 
