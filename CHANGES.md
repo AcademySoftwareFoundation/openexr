@@ -148,16 +148,7 @@
     other channels are losslessly coded.
 
   - The amount of distortion is controlled via a quality level
-    parameter that ranges from 1 to 150. Values below 97 are passed
-    through directly as the Qfactor scheme described in "Controlling
-    JPEG 2000 image quality using a single parameter (Qfactor)
-    v2.0". Qfactor is defined over [1, 100] and is tuned for
-    lower-quality imagery. Values from 97 to 150 are an
-    OpenEXR-specific extension of that range, added to reach the
-    higher quality levels needed for 32-bit float image. In that
-    extended range, the quality value is mapped to an explicit
-    quantization step value via an exponential model. Values around
-    108 are generally visually lossless for 16-bit half-float images.
+    parameter that ranges from 1 to 150. 
 
   - As with DWA, lossy RGB channels are first transformed to a
     non-linear preceptual domain before coding. The transformation is
