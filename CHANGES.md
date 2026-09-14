@@ -277,6 +277,10 @@ This release addresses the following security vulnerabilities:
 
 ### Documentation Pull Requests
 
+* [2638](https://github.com/AcademySoftwareFoundation/openexr/pull/2638)
+  Release notes for v3.5.0
+* [2634](https://github.com/AcademySoftwareFoundation/openexr/pull/2634)
+  docs: Fix SECURITY.md formatting
 * [2624](https://github.com/AcademySoftwareFoundation/openexr/pull/2624)
   Release notes and news for v3.4.15, v3.3.14, v3.2.12 (by @cary-ilm/Cary Phillips)
 * [2580](https://github.com/AcademySoftwareFoundation/openexr/pull/2580)
@@ -306,60 +310,64 @@ This release addresses the following security vulnerabilities:
 
 ### Merged Workflow Pull Requests
 
+* [2636](https://github.com/AcademySoftwareFoundation/openexr/pull/2636)
+  Bump vmactions/freebsd-vm from 1.5.5 to 1.5.6
+* [2635](https://github.com/AcademySoftwareFoundation/openexr/pull/2635)
+  Bump the codeql group with 3 updates
 * [2631](https://github.com/AcademySoftwareFoundation/openexr/pull/2631)
   Add Windows ARM64 Python wheel CI (by @xieofxie)
 * [2630](https://github.com/AcademySoftwareFoundation/openexr/pull/2630)
-  Bump pypa/cibuildwheel from 4.2.0 to 4.2.1 (by @app/dependabot)
+  Bump pypa/cibuildwheel from 4.2.0 to 4.2.1
 * [2576](https://github.com/AcademySoftwareFoundation/openexr/pull/2576)
-  Bump pypa/cibuildwheel from 4.1.1 to 4.2.0 (by @app/dependabot)
+  Bump pypa/cibuildwheel from 4.1.1 to 4.2.0
 * [2559](https://github.com/AcademySoftwareFoundation/openexr/pull/2559)
-  Bump pypa/cibuildwheel from 4.1.0 to 4.1.1 (by @app/dependabot)
+  Bump pypa/cibuildwheel from 4.1.0 to 4.1.1
 * [2537](https://github.com/AcademySoftwareFoundation/openexr/pull/2537)
-  Bump the codeql group with 3 updates (by @app/dependabot)
+  Bump the codeql group with 3 updates
 * [2523](https://github.com/AcademySoftwareFoundation/openexr/pull/2523)
   Group CodeQL GitHub Actions bumps in Dependabot. (by @cary-ilm/Cary Phillips)
 * [2521](https://github.com/AcademySoftwareFoundation/openexr/pull/2521)
-  Bump github/codeql-action/init from 4.36.2 to 4.36.3 (by @app/dependabot)
+  Bump github/codeql-action/init from 4.36.2 to 4.36.3
 * [2520](https://github.com/AcademySoftwareFoundation/openexr/pull/2520)
-  Bump github/codeql-action/upload-sarif from 4.36.2 to 4.36.3 (by @app/dependabot)
+  Bump github/codeql-action/upload-sarif from 4.36.2 to 4.36.3
 * [2519](https://github.com/AcademySoftwareFoundation/openexr/pull/2519)
-  Bump github/codeql-action/analyze from 4.36.2 to 4.36.3 (by @app/dependabot)
+  Bump github/codeql-action/analyze from 4.36.2 to 4.36.3
 * [2477](https://github.com/AcademySoftwareFoundation/openexr/pull/2477)
   Drop support for Python 3.8 (by @cary-ilm/Cary Phillips)
 * [2475](https://github.com/AcademySoftwareFoundation/openexr/pull/2475)
-  Bump pypa/cibuildwheel from 3.4.1 to 4.1.0 (by @app/dependabot)
+  Bump pypa/cibuildwheel from 3.4.1 to 4.1.0
 * [2459](https://github.com/AcademySoftwareFoundation/openexr/pull/2459)
-  Bump github/codeql-action from 4.36.0 to 4.36.2 (by @app/dependabot)
+  Bump github/codeql-action from 4.36.0 to 4.36.2
 * [2455](https://github.com/AcademySoftwareFoundation/openexr/pull/2455)
-  Bump actions/checkout from 6.0.2 to 6.0.3 (by @app/dependabot)
+  Bump actions/checkout from 6.0.2 to 6.0.3
 * [2446](https://github.com/AcademySoftwareFoundation/openexr/pull/2446)
-  Bump openjph from 0.27.0 to 0.27.3.bcr.1 (by @app/dependabot)
+  Bump openjph from 0.27.0 to 0.27.3.bcr.1
 * [2410](https://github.com/AcademySoftwareFoundation/openexr/pull/2410)
   Add missing quotes around ENV in src/test/oss-fuzz/CMakeLists.txt (by @cary-ilm/Cary Phillips)
 * [2400](https://github.com/AcademySoftwareFoundation/openexr/pull/2400)
-  Bump openjph from 0.26.3.bcr.1 to 0.27.0 (by @app/dependabot)
+  Bump openjph from 0.26.3.bcr.1 to 0.27.0
 * [2386](https://github.com/AcademySoftwareFoundation/openexr/pull/2386)
-  Bump rules_cc from 0.2.17 to 0.2.18 (by @app/dependabot)
+  Bump rules_cc from 0.2.17 to 0.2.18
 * [2371](https://github.com/AcademySoftwareFoundation/openexr/pull/2371)
-  Bump packaging from 26.0 to 26.1 (by @app/dependabot)
+  Bump packaging from 26.0 to 26.1
 * [2348](https://github.com/AcademySoftwareFoundation/openexr/pull/2348)
-  Bump requests from 2.32.5 to 2.33.0 in /website (by @app/dependabot)
+  Bump requests from 2.32.5 to 2.33.0 in /website
 * [2347](https://github.com/AcademySoftwareFoundation/openexr/pull/2347)
-  Bump pygments from 2.19.2 to 2.20.0 in /website (by @app/dependabot)
+  Bump pygments from 2.19.2 to 2.20.0 in /website
 * [2286](https://github.com/AcademySoftwareFoundation/openexr/pull/2286)
-  Bump github/codeql-action from 4.32.4 to 4.32.5 (by @app/dependabot)
+  Bump github/codeql-action from 4.32.4 to 4.32.5
 * [2285](https://github.com/AcademySoftwareFoundation/openexr/pull/2285)
-  Bump scikit-build-core from 0.11.6 to 0.12.1 (by @app/dependabot)
+  Bump scikit-build-core from 0.11.6 to 0.12.1
 * [2284](https://github.com/AcademySoftwareFoundation/openexr/pull/2284)
-  Bump jmertic/slack-release-notifier from 5221a45213eddc6206886797beb079e091c93406 to 6fa159048d5313ff1177d248ad84beb627571670 (by @app/dependabot)
+  Bump jmertic/slack-release-notifier from 5221a45213eddc6206886797beb079e091c93406 to 6fa159048d5313ff1177d248ad84beb627571670
 * [2278](https://github.com/AcademySoftwareFoundation/openexr/pull/2278)
-  Bump actions/download-artifact from 7.0.0 to 8.0.0 (by @app/dependabot)
+  Bump actions/download-artifact from 7.0.0 to 8.0.0
 * [2277](https://github.com/AcademySoftwareFoundation/openexr/pull/2277)
-  Bump actions/upload-artifact from 6.0.0 to 7.0.0 (by @app/dependabot)
+  Bump actions/upload-artifact from 6.0.0 to 7.0.0
 * [2206](https://github.com/AcademySoftwareFoundation/openexr/pull/2206)
-  Bump openjph from 0.25.2 to 0.25.3 (by @app/dependabot)
+  Bump openjph from 0.25.2 to 0.25.3
 * [2179](https://github.com/AcademySoftwareFoundation/openexr/pull/2179)
-  Bump readthedocs/actions from 1.2 to 1.5 (by @app/dependabot)
+  Bump readthedocs/actions from 1.2 to 1.5
 * [2116](https://github.com/AcademySoftwareFoundation/openexr/pull/2116)
   CI fixes: (by @cary-ilm/Cary Phillips)
 
