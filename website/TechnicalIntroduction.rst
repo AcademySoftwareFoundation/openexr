@@ -880,7 +880,12 @@ Supported compression schemes:
 
      - Lossy compression of HALF and FLOAT data types in blocks of 256
        scanlines, using `JPEG 2000 Part 15 (High-throughput JPEG 2000)
-       <https://www.itu.int/rec/T-REC-T.814>`_,
+       <https://www.itu.int/rec/T-REC-T.814>`_. To avoid a visible
+       discontinuity at chunk and tile boundaries, the coded array is padded
+       by replicating its last row and last column until each dimension is
+       congruent to 1 modulo 2^L (L being the number of wavelet
+       decomposition levels); the padding is removed again when the chunk is
+       decoded.
 
    * - ZSTD (lossless)
 
