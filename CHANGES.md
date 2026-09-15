@@ -212,6 +212,8 @@ This release addresses the following security vulnerabilities:
 
 ### Merged Pull Requests
 
+* [2633](https://github.com/AcademySoftwareFoundation/openexr/pull/2633)
+  LJ2K: pad lossy chunks so that wavelet folds stay on low-pass positions
 * [2627](https://github.com/AcademySoftwareFoundation/openexr/pull/2627)
   Reconsitute compression ctxt cache (by @kdt3rd/Kimball Thurston)
 * [2626](https://github.com/AcademySoftwareFoundation/openexr/pull/2626)
