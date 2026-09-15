@@ -719,6 +719,13 @@ Component Options
 
   Build the example code. Default is ``ON``.
 
+* ``OPENEXR_ENABLE_THREADING``
+
+  Enables threaded processing of requests. Default is ``ON``. When
+  disabled, the thread pool and tasks are still used but processed
+  immediately, and the OpenEXR library may not be thread-safe and
+  should only be used by a single thread.
+
 Additional CMake Options
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
