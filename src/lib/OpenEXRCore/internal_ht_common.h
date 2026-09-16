@@ -10,7 +10,7 @@
 #include <float.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include <math.h>
+#include <cmath>
 #include <string.h>
 #include <half.h>
 #include "openexr_coding.h"
@@ -232,7 +232,7 @@ inline float int32_to_float(int32_t f)
  */
 static inline int32_t float_to_int32(float h)
 {
-    if (isnan (h)) return 0;
+    if (std::isnan (h)) return 0;
     double v = round (tf_from_linear ((double) h) * INT32_FLOAT_FACTOR);
     if (v > (double) INT32_MAX) return INT32_MAX;
     if (v < -(double) INT32_MAX) return -INT32_MAX;
