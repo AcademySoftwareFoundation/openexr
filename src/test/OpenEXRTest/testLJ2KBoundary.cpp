@@ -13,12 +13,16 @@
 #include "ImfTiledRgbaFile.h"
 #include "ImfCompression.h"
 
+#include <openexr.h>
+
 #include <Imath/ImathBox.h>
 
 #include <assert.h>
 #include <cmath>
 #include <iostream>
 #include <string>
+#include <algorithm>
+#include <vector>
 
 using namespace OPENEXR_IMF_NAMESPACE;
 using namespace IMATH_NAMESPACE;
@@ -230,6 +234,91 @@ testCornerSizes (const string& tempDir)
     cout << "corner sizes ok" << endl;
 }
 
+//
+// Read the first chunk of a scanline file through the C API and return the
+// raw (compressed) chunk bytes.
+//
+void
+readRawChunk (const string& fn, vector<uint8_t>& raw)
+{
+    exr_context_t             ctxt;
+    exr_context_initializer_t cinit = EXR_DEFAULT_CONTEXT_INITIALIZER;
+    exr_chunk_info_t          cinfo;
+    exr_attr_box2i_t          dw;
+
+    assert (exr_start_read (&ctxt, fn.c_str (), &cinit) == EXR_ERR_SUCCESS);
+    assert (exr_get_data_window (ctxt, 0, &dw) == EXR_ERR_SUCCESS);
+    assert (
+        exr_read_scanline_chunk_info (ctxt, 0, dw.min.y, &cinfo) ==
+        EXR_ERR_SUCCESS);
+    raw.resize (cinfo.packed_size);
+    assert (exr_read_chunk (ctxt, 0, &cinfo, raw.data ()) == EXR_ERR_SUCCESS);
+    exr_finish (&ctxt);
+}
+
+bool
+containsText (const vector<uint8_t>& raw, const string& text)
+{
+    return search (raw.begin (), raw.end (), text.begin (), text.end ()) !=
+           raw.end ();
+}
+
+//
+// A padded chunk declares its padding in a COM marker segment of the
+// codestream ("OpenEXR LJ2K padding: rows=R cols=C"); an unpadded chunk
+// (width and height both 1 mod 32) and a lossless HTJ2K chunk carry none.
+//
+void
+testPaddingComment (const string& tempDir)
+{
+    string fn = tempDir + "imf_test_lj2k_boundary_com.exr";
+
+    struct Case
+    {
+        int         width, height;
+        Compression comp;
+        const char* expect; // NULL: no padding comment expected
+    };
+    const Case cases[] = {
+        // scanline chunks are 256 rows; the first chunk is inspected
+        {512, 256, LJ2K_COMPRESSION, "OpenEXR LJ2K padding: rows=1 cols=1"},
+        {513, 256, LJ2K_COMPRESSION, "OpenEXR LJ2K padding: rows=1 cols=0"},
+        {512, 1, LJ2K_COMPRESSION, "OpenEXR LJ2K padding: rows=0 cols=1"},
+        {500, 300, LJ2K_COMPRESSION, "OpenEXR LJ2K padding: rows=1 cols=13"},
+        {513, 1, LJ2K_COMPRESSION, NULL},
+        {512, 256, HTJ2K256_COMPRESSION, NULL},
+    };
+
+    for (const Case& c: cases)
+    {
+        Array2D<Rgba> px (c.height, c.width);
+        fillGradient (px, c.width, c.height);
+        {
+            Header hdr (c.width, c.height);
+            hdr.compression ()       = c.comp;
+            hdr.lossyHTJ2KQuality () = 60.f;
+            RgbaOutputFile out (fn.c_str (), hdr, WRITE_RGBA);
+            out.setFrameBuffer (&px[0][0], 1, c.width);
+            out.writePixels (c.height);
+        }
+
+        vector<uint8_t> raw;
+        readRawChunk (fn, raw);
+        if (c.expect)
+        {
+            // COM marker (0xFF64), then Lcom, Rcom = 1 and the text
+            const uint8_t sig[] = {0xFF, 0x64};
+            assert (
+                search (raw.begin (), raw.end (), sig, sig + 2) != raw.end ());
+            assert (containsText (raw, c.expect));
+        }
+        else
+            assert (!containsText (raw, "OpenEXR LJ2K padding"));
+        remove (fn.c_str ());
+    }
+    cout << "padding comment ok" << endl;
+}
+
 } // namespace
 
 void
@@ -244,6 +333,7 @@ testLJ2KBoundary (const string& tempDir)
         testTiles (tempDir, 512, 512, 64, 45.f);
         testTiles (tempDir, 500, 300, 64, 60.f);
         testCornerSizes (tempDir);
+        testPaddingComment (tempDir);
 
         cout << "ok\n" << endl;
     }

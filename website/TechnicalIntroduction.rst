@@ -885,7 +885,10 @@ Supported compression schemes:
        by replicating its last row and last column until each dimension is
        congruent to 1 modulo 2^L (L being the number of wavelet
        decomposition levels); the padding is removed again when the chunk is
-       decoded.
+       decoded. A padded codestream declares this in a COM marker segment of
+       its main header (``OpenEXR LJ2K padding: rows=R cols=C``), so that the
+       extension rows and columns can be identified without the OpenEXR
+       container.
 
    * - ZSTD (lossless)
 
