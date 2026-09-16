@@ -212,8 +212,14 @@ This release addresses the following security vulnerabilities:
 
 ### Merged Pull Requests
 
+* [2648](https://github.com/AcademySoftwareFoundation/openexr/pull/2648)
+  Fix HTJ2k Compile issues (by @vlazar-ilm/Vlad Lazar)
+* [2640](https://github.com/AcademySoftwareFoundation/openexr/pull/2640)
+  LJ2K: declare the chunk padding in a COM marker segment (by
+  @osamu620/Osamu Watanabe)
 * [2633](https://github.com/AcademySoftwareFoundation/openexr/pull/2633)
-  LJ2K: pad lossy chunks so that wavelet folds stay on low-pass positions
+  LJ2K: pad lossy chunks so that wavelet folds stay on low-pass
+  positions (by @osamu620/Osamu Watanabe)
 * [2627](https://github.com/AcademySoftwareFoundation/openexr/pull/2627)
   Reconsitute compression ctxt cache (by @kdt3rd/Kimball Thurston)
 * [2626](https://github.com/AcademySoftwareFoundation/openexr/pull/2626)
