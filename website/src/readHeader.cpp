@@ -3,6 +3,15 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
+#include <ImfHeader.h>
+#include <ImfRgba.h>
+#include <ImfRgbaFile.h>
+#include <ImfStandardAttributes.h>
+
+using namespace std;
+using namespace IMATH_NAMESPACE;
+using namespace OPENEXR_IMF_NAMESPACE;
+
 // [begin readHeader]
 void
 readHeader (const char fileName[])
@@ -21,7 +30,7 @@ readHeader (const char fileName[])
         cout << "cameraTransformn" << cameraTransform->value () << flush;
 }
 // [end readHeader]
- 
+
 // [begin readComments]
 void
 readComments (const char fileName[], string &comments)

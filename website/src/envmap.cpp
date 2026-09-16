@@ -3,13 +3,35 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
-char fileName[] = "";
-// [begin hasEnvmap]
-RgbaInputFile file (fileName);
+#include <ImfInputFile.h>
+#include <ImfRgbaFile.h>
+#include <ImfEnvmap.h>
 
-if (hasEnvmap (file.header()))
+using namespace OPENEXR_IMF_NAMESPACE;
+
+bool hasEnvmap(Header header)
 {
-    Envmap type = envmap (file.header());
-    // ...
+    return true;
 }
-// [end hasEnvmap]
+
+Envmap
+envmap (Header header)
+{
+    
+}
+
+void
+envmap1 ()
+{
+    char fileName[] = "";
+    // [begin hasEnvmap]
+    RgbaInputFile file (fileName);
+
+    if (hasEnvmap (file.header()))
+    {
+        Envmap type = envmap (file.header());
+        // ...
+    }
+    // [end hasEnvmap]
+
+}

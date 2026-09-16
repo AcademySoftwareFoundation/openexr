@@ -3,11 +3,19 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
+#include <ImfHeader.h>
+#include <ImfInputFile.h>
+#include <ImfChannelList.h>
+
+using namespace std;
+using namespace IMATH_NAMESPACE;
+using namespace OPENEXR_IMF_NAMESPACE;
+
 void
 readChannels(const char fileName[])
 {
     InputFile file (fileName);
-   
+
     // [begin useIterator]
     const ChannelList &channels = file.header().channels();
 
@@ -17,7 +25,7 @@ readChannels(const char fileName[])
         // ...
     }
     // [end useIterator]
-   
+
     // [begin directAccess]
     // const ChannelList &channels = file.header().channels();
 
@@ -25,7 +33,7 @@ readChannels(const char fileName[])
 
     const Channel *channelPtr = channels.findChannel("G");
     // [end directAccess]
-    
+
 }
 
 void
@@ -53,6 +61,3 @@ readLayers (const char fileName[])
     }
     // [end layers]
 }
-
-
-

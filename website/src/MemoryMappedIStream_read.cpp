@@ -2,13 +2,19 @@
 // SPDX-License-Identifier: BSD-3-Clause
 // Copyright (c) Contributors to the OpenEXR Project.
 //
+#include "MemoryMappedIStream.h"
+
+#include <Iex.h>
+#include <cstring>
+
+using namespace IEX_NAMESPACE;
 
 bool
 MemoryMappedIStream::read (char c[], int n)
 {
     if (_readPosition >= _fileLength)
         throw InputExc ("Unexpected end of file.");
-    
+
     if (_readPosition + n > _fileLength)
         throw InputExc ("Reading past end of file.");
 
@@ -31,4 +37,3 @@ MemoryMappedIStream::seekg (uint64_t pos)
 {
     _readPosition = pos;
 }
-
