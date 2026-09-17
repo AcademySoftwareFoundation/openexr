@@ -3,6 +3,21 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
+#include <ImfHeader.h>
+#include <ImfArray.h>
+#include <ImfFrameBuffer.h>
+#include <ImfChannelList.h>
+#include <ImfTiledOutputFile.h>
+
+using namespace IMATH_NAMESPACE;
+using namespace OPENEXR_IMF_NAMESPACE;
+
+struct GZ
+{
+    half g;
+    float z;
+};
+
 void
 writeTiled1 (
     const char   fileName[],

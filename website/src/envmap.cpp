@@ -6,19 +6,9 @@
 #include <ImfInputFile.h>
 #include <ImfRgbaFile.h>
 #include <ImfEnvmap.h>
+#include <ImfStandardAttributes.h>
 
 using namespace OPENEXR_IMF_NAMESPACE;
-
-bool hasEnvmap(Header header)
-{
-    return true;
-}
-
-Envmap
-envmap (Header header)
-{
-    
-}
 
 void
 envmap1 ()

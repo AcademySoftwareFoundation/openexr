@@ -30,6 +30,8 @@ add_library(website_src OBJECT
     writeRgba2.cpp
     writeRgba3.cpp
     writeRgbaMT.cpp
+    writeTiledRgbaONE1.cpp
+    writeTiled1.cpp
     readChannelsAndLayers.cpp
     tileDescription.cpp
     validExrFile.cpp

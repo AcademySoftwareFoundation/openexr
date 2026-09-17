@@ -7,7 +7,10 @@
 #include <ImfInputFile.h>
 #include <ImfChannelList.h>
 
-using namespace std;
+using std::cout;
+using std::set;
+using std::string;
+using std::endl;
 using namespace IMATH_NAMESPACE;
 using namespace OPENEXR_IMF_NAMESPACE;
 
@@ -44,11 +47,11 @@ readLayers (const char fileName[])
     // [begin layers]
     const ChannelList &channels = file.header().channels(); ;
 
-    std::set<string> layerNames;
+    set<string> layerNames;
 
     channels.layers (layerNames);
 
-    for (std::set<std::string>::const_iterator i = layerNames.begin(); i != layerNames.end(); ++i)
+    for (set<string>::const_iterator i = layerNames.begin(); i != layerNames.end(); ++i)
     {
         cout << "layer " << *i << endl;
 
