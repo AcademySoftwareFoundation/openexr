@@ -27,8 +27,8 @@
 namespace
 {
 /* EXPERIMENTAL: NLT type 4 point tables for lossy RGB channels */
-const std::vector<uint16_t> half_nlt_lut  = build_nlt_lut_16 (517);
-const std::vector<uint32_t> float_nlt_lut = build_nlt_lut_32 (517);
+const std::vector<uint16_t> half_nlt_lut  = build_nlt_lut_16 (513);
+const std::vector<uint32_t> float_nlt_lut = build_nlt_lut_32 (2049);
 } // namespace
 
 /**
