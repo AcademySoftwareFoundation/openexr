@@ -28,7 +28,6 @@ namespace
 {
 /* EXPERIMENTAL: NLT type 4 point tables for lossy RGB channels */
 const std::vector<uint16_t> half_nlt_lut  = build_nlt_lut_16 (513);
-const std::vector<uint32_t> float_nlt_lut = build_nlt_lut_32 (2049);
 } // namespace
 
 /**
@@ -688,8 +687,7 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
         else if (encode->channels[file_c].data_type != EXR_PIXEL_UINT && !cod.is_reversible(c))
         {
             /* EXPERIMENTAL: OpenJPH's Type 4 NLT LUT is used*/
-            bool is_half = encode->channels[file_c].data_type == EXR_PIXEL_HALF;
-            if (is_half)
+            if (encode->channels[file_c].data_type == EXR_PIXEL_HALF)
                 nlt.set_nonlinear_transform (
                     c, 16, true, 0u, 0xFFFFFFFFu, 16,
                     (ojph::ui16) half_nlt_lut.size (),
@@ -697,10 +695,7 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
                     ojph::param_nlt::nonlinearity::OJPH_NLT_BINARY_COMPLEMENT_PLUS_LUT);
             else
                 nlt.set_nonlinear_transform (
-                    c, 32, true, 0u, 0xFFFFFFFFu, 32,
-                    (ojph::ui16) float_nlt_lut.size (),
-                    (void*) float_nlt_lut.data (),
-                    ojph::param_nlt::nonlinearity::OJPH_NLT_BINARY_COMPLEMENT_PLUS_LUT);
+                    c, ojph::param_nlt::nonlinearity::OJPH_NLT_BINARY_COMPLEMENT_NLT);
         }
 
         siz.set_component (
