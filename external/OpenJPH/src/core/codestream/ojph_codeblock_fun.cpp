@@ -269,11 +269,17 @@ namespace ojph {
       // POWER9 it wins for irreversible content (more magnitude bits
       // per sample) but trails the scalar decoder slightly on
       // reversible content, so it is dispatched only for the former.
+      // POWER8 (ISA 2.07) keeps the scalar decoder: it has less vector
+      // load/permute throughput than POWER9, which already loses on
+      // reversible content, so the SIMD decoder is not expected to win.
+      // Because it is never dispatched below POWER9, the decoder is
+      // built at the POWER9 baseline; see src/core/CMakeLists.txt.
+      // The remaining kernels below are a gain at every level.
       if (get_cpu_ext_level() >= PPC_CPU_EXT_LEVEL_ARCH_3_1 ||
           (!reversible &&
            get_cpu_ext_level() >= PPC_CPU_EXT_LEVEL_ARCH_3_00))
         decode_cb32 = ojph_decode_codeblock_vsx;
-      if (get_cpu_ext_level() >= PPC_CPU_EXT_LEVEL_ARCH_3_00) {
+      if (get_cpu_ext_level() >= PPC_CPU_EXT_LEVEL_ARCH_2_07) {
         find_max_val32 = vsx_find_max_val32;
         mem_clear = vsx_mem_clear;
         if (reversible) {

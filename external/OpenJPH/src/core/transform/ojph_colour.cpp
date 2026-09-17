@@ -211,7 +211,7 @@ namespace ojph {
 
     #elif defined(OJPH_ARCH_PPC64LE)
 
-        if (get_cpu_ext_level() >= PPC_CPU_EXT_LEVEL_ARCH_3_00)
+        if (get_cpu_ext_level() >= PPC_CPU_EXT_LEVEL_ARCH_2_07)
         {
           // 128-bit VSX kernels; see ojph_simd_vsx.h
           rev_convert = vsx_rev_convert;
@@ -436,11 +436,24 @@ namespace ojph {
     }
 
     //////////////////////////////////////////////////////////////////////////
+    // The LUT style nonlinearities, types 2 and 4, are implemented for the
+    // irreversible wavelet only.  param_nlt::check_validity refuses to write a
+    // codestream that combines them with the reversible wavelet, so this entry
+    // point is unreachable while that check is in place.
+    //////////////////////////////////////////////////////////////////////////
     void gen_rev_encode_nlt(
       const line_buf *src_line, const ui32 src_line_offset,
       line_buf *dst_line, ui32 bit_depth, bool is_signed, ui32 width,
       const nlt_rec* rec)
     {
+      ojph_unused(src_line);
+      ojph_unused(src_line_offset);
+      ojph_unused(dst_line);
+      ojph_unused(bit_depth);
+      ojph_unused(is_signed);
+      ojph_unused(width);
+      ojph_unused(rec);
+      assert(0);
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -449,6 +462,20 @@ namespace ojph {
       line_buf *dst_line, const ui32 dst_line_offset,
       ui32 bit_depth, bool is_signed, ui32 width, const nlt_rec* rec)
     {
+      // A codestream can still carry a LUT style nonlinearity together with the
+      // reversible wavelet, because other encoders may produce one; this
+      // library cannot invert such a nonlinearity, so the samples are passed
+      // through unchanged.  The caller was warned about that when the headers
+      // of the codestream were read, which is why this is not a failure here.
+      ojph_unused(src_line);
+      ojph_unused(src_line_offset);
+      ojph_unused(dst_line);
+      ojph_unused(dst_line_offset);
+      ojph_unused(bit_depth);
+      ojph_unused(is_signed);
+      ojph_unused(width);
+      ojph_unused(rec);
+      assert(0);
     }
 
 #if !defined(OJPH_ENABLE_WASM_SIMD) || !defined(OJPH_EMSCRIPTEN)

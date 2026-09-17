@@ -170,7 +170,7 @@ namespace ojph {
 
     #elif defined(OJPH_ARCH_PPC64LE)
 
-        if (get_cpu_ext_level() >= PPC_CPU_EXT_LEVEL_ARCH_3_00)
+        if (get_cpu_ext_level() >= PPC_CPU_EXT_LEVEL_ARCH_2_07)
         {
           // 128-bit VSX kernels; see ojph_simd_vsx.h
           rev_vert_step             = vsx_rev_vert_step;

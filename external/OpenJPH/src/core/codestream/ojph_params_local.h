@@ -702,9 +702,7 @@ namespace ojph {
       };
 
       ////////////////////////////////////////
-      enum qfactor_const : ui8 {
-        QFACTOR_UNSET = 0
-      };
+      const float QFACTOR_UNSET = 0.0f;
 
       ////////////////////////////////////////
       using comp_type = ojph::param_qcd::comp_type;
@@ -730,7 +728,7 @@ namespace ojph {
       bool is_qcc_needed(ui32 comp_num, const param_cod &cod,
                          const param_siz &siz);
       void set_delta(float delta) { base_delta = delta; }
-      void set_qfactor(ui8 qfactor);
+      void set_qfactor(float qfactor);
       ui32 get_num_guard_bits() const;
       ui32 get_MAGB() const;
       ui32 get_Kmax(const param_dfs* dfs, ui32 num_decompositions,
@@ -745,7 +743,7 @@ namespace ojph {
       void read_qcc(infile_base *file, ui32 num_comps);
 
       void set_delta(ui32 comp_idx, float delta);
-      void set_qfactor(ui32 comp_idx, comp_type ctype, ui8 qfactor);
+      void set_qfactor(ui32 comp_idx, comp_type ctype, float qfactor);
       param_qcd* get_qcc(ui32 comp_idx);
       const param_qcd* get_qcc(ui32 comp_idx) const;
       param_qcd* add_qcc_object(ui32 comp_idx);
@@ -814,7 +812,7 @@ namespace ojph {
       // variables used to generate the quantization step sizes
       float base_delta;   // base quantization step size -- all other
                           // step sizes are derived from it.
-      ui8 qfactor;
+      float qfactor;
       comp_type ctype;
       bool is_color_trans;
       ui32 num_decomps;
@@ -838,7 +836,7 @@ namespace ojph {
     //
     ///////////////////////////////////////////////////////////////////////////
 
-    // nlt_rec for easy exchange
+    // nlt_rec for easy exchange and processing of NLT types 2 and 4
     struct nlt_rec {
       using nonlinearity = ojph::param_nlt::nonlinearity;
 
@@ -878,143 +876,33 @@ namespace ojph {
       float delta, inv_delta;// delta is (dmax-dmin) / (num_points - 1)
       float multiplier;      // multiplier to convert to final integer
       ui32 cal_store_size_for_decoding()
-      { return (ui32)num_points * (ui32)(get_bpp() + sizeof(float)); }
+      { // add 2 extra points, one before the dec_points table and one after
+        return (ui32)(num_points + 2u) * (ui32)sizeof(float)
+          + (ui32)num_points * (ui32)get_bpp();
+      }
       void assign_pointers_for_decoding()
-      {
-        dec_points = (float*)points_store;  enc_points = NULL;
-        marker_points = (ui8*)dec_points + num_points * sizeof(float);
+      { // 2 extra points, one before the dec_points table and one after
+        dec_points = (float*)points_store + 1;  enc_points = NULL;
+        marker_points = (ui8*)dec_points + (num_points + 1) * sizeof(float);
       }
-      void prepare_for_decoding()
-      {
-        double d = 1.0 / (double)((1ull << 32) - 1);
-        fd_min = (float)((double)d_min * d);
-        fd_max = (float)((double)d_max * d);
-        delta = (fd_max - fd_min) / (float)(num_points - 1);
-        inv_delta = (float)(num_points - 1) / (fd_max - fd_min);
-        multiplier = (float)(1ull << get_bit_depth());
-        float divider = 1 / multiplier;
-        if (bytes_per_point == 1) {
-          ui8* sp = (ui8*)marker_points;
-          float* dp = dec_points;
-          for (ui32 i = 0; i < num_points; ++i)
-            *dp++ = *sp++ * divider;
-        }
-        else if (bytes_per_point == 2) {
-          ui16* sp = (ui16*)marker_points;
-          float* dp = dec_points;
-          for (ui32 i = 0; i < num_points; ++i)
-            *dp++ = *sp++ * divider;
-        }
-        else if (bytes_per_point == 4) {
-          ui32* sp = (ui32*)marker_points;
-          float* dp = dec_points;
-          for (ui32 i = 0; i < num_points; ++i)
-            *dp++ = (float)*sp++ * divider;
-        }
-      }
+      void prepare_for_decoding();
 
       // memebers for encoding -- we also use some from decoding
       float* enc_points;     // LUT points for encoding -- must be float
       ui32 enc_num_points;   // # of points for encoding (larger than decoding)
       float ft_min, ft_max;  // float d_min and d_max
       ui32 cal_store_size_for_encoding(ui32 enc_num_points)
-      {
+      { // add 2 extra points, one before the enc_num_points table and one after
         this->enc_num_points = enc_num_points;
-        return (ui32)enc_num_points * (ui32)(get_bpp() + sizeof(float));
+        return (ui32)(enc_num_points + 2u) * (ui32)sizeof(float)
+          + (ui32)num_points * (ui32)get_bpp();
       }
       void assign_pointers_for_encoding()
-      {
-        enc_points = (float*)points_store;  dec_points = NULL;
-        marker_points = (ui8*)enc_points + enc_num_points * sizeof(float);
+      { // 2 extra points, one before the enc_num_points table and one after
+        enc_points = (float*)points_store + 1;  dec_points = NULL;
+        marker_points = (ui8*)enc_points + (enc_num_points + 1) * sizeof(float);
       }
-      void prepare_for_encoding()
-      {
-        double d = 1.0 / (double)((1ull << 32) - 1);
-        fd_min = (float)((double)d_min * d);
-        fd_max = (float)((double)d_max * d);
-
-        // create lookup table for encoding
-        float mul = (float)(1ull << pt_val);
-        float div = 1.0f / mul;
-        if (bytes_per_point == 1) {
-          ui8* p = (ui8*)marker_points;
-          enc_points[0] = ft_min = (float)p[0] * div;
-          ft_max = (float)p[num_points - 1] * div;
-          enc_points[enc_num_points - 1] = ft_max;
-          delta = (ft_max - ft_min) / (float)(enc_num_points - 1);
-          inv_delta = (float)(enc_num_points - 1) / (ft_max - ft_min);
-
-          ui32 k = 0;
-          float y_k = (float)p[k] * div, y_kp1 = (float)p[k + 1] * div;
-          float dt = (fd_max - fd_min) / (float)(num_points - 1);
-          float d_k = fd_min, d_kp1 = fd_min + dt;
-          for (ui32 i = 1; i < enc_num_points - 1; ++i)
-          {
-            float z = ft_min + (float)i * delta;
-            while (k + 1 < num_points - 1 && z >= y_kp1)
-            {
-              ++k;
-              d_k   = d_kp1;
-              d_kp1 = fd_min + (float)(k + 1) * dt;
-              y_k   = y_kp1;
-              y_kp1 = (float)p[k + 1] * div;
-            }
-            enc_points[i] = d_k + (z - y_k) * dt / (y_kp1 - y_k);
-          }
-        }
-        else if (bytes_per_point == 2) {
-          ui16* p = (ui16*)marker_points;
-          enc_points[0] = ft_min = (float)p[0] * div;
-          ft_max = (float)p[num_points - 1] * div;
-          enc_points[enc_num_points - 1] = ft_max;
-          delta = (ft_max - ft_min) / (float)(enc_num_points - 1);
-          inv_delta = (float)(enc_num_points - 1) / (ft_max - ft_min);
-
-          ui32 k = 0;
-          float y_k = (float)p[k] * div, y_kp1 = (float)p[k + 1] * div;
-          float dt = (fd_max - fd_min) / (float)(num_points - 1);
-          float d_k = fd_min, d_kp1 = fd_min + dt;
-          for (ui32 i = 1; i < enc_num_points - 1; ++i)
-          {
-            float z = ft_min + (float)i * delta;
-            while (k + 1 < num_points - 1 && z >= y_kp1)
-            {
-              ++k;
-              d_k   = d_kp1;
-              d_kp1 = fd_min + (float)(k + 1) * dt;
-              y_k   = y_kp1;
-              y_kp1 = (float)p[k + 1] * div;
-            }
-            enc_points[i] = d_k + (z - y_k) * dt / (y_kp1 - y_k);
-          }
-        }
-        else if (bytes_per_point == 4) {
-          ui32* p = (ui32*)marker_points;
-          enc_points[0] = ft_min = (float)p[0] * div;
-          ft_max = (float)p[num_points - 1] * div;
-          enc_points[enc_num_points - 1] = ft_max;
-          delta = (ft_max - ft_min) / (float)(enc_num_points - 1);
-          inv_delta = (float)(enc_num_points - 1) / (ft_max - ft_min);
-
-          ui32 k = 0;
-          float y_k = (float)p[k] * div, y_kp1 = (float)p[k + 1] * div;
-          float dt = (fd_max - fd_min) / (float)(num_points - 1);
-          float d_k = fd_min, d_kp1 = fd_min + dt;
-          for (ui32 i = 1; i < enc_num_points - 1; ++i)
-          {
-            float z = ft_min + (float)i * delta;
-            while (k + 1 < num_points - 1 && z >= y_kp1)
-            {
-              ++k;
-              d_k   = d_kp1;
-              d_kp1 = fd_min + (float)(k + 1) * dt;
-              y_k   = y_kp1;
-              y_kp1 = (float)p[k + 1] * div;
-            }
-            enc_points[i] = d_k + (z - y_k) * dt / (y_kp1 - y_k);;
-          }
-        }
-      }
+      void prepare_for_encoding();
     };
 
     // data structures used by param_nlt
@@ -1040,7 +928,16 @@ namespace ojph {
         this->init();
       }
 
-      void check_validity(param_siz& siz);
+      void check_validity(param_siz& siz, const param_cod& cod);
+
+      ////////////////////////////////////////
+      // Returns the index of the first component that uses a LUT nonlinearity
+      // type (types 2 or 4) with a reversible wavelet, which is not supported
+      // yet, as it makes no sense, becausse the LUT itself is not reversible.
+      // This function returns the first component that has this problem or
+      // or -1 when there is no such component.
+      int find_unsupported_nlt(const param_siz& siz,
+                               const param_cod& cod) const;
 
       void set_nonlinear_transform(ui32 comp_num, ui8 nl_type);
 
@@ -1213,9 +1110,12 @@ namespace ojph {
       bool write(outfile_base *file);
 
     private:
-      ui16 Ltlm;
-      ui8 Ztlm;
-      ui8 Stlm;
+      enum : ui32 {
+        // Ltlm is 16 bits and spans itself, Ztlm, Stlm and 6 bytes per entry
+        MAX_PAIRS_PER_SEG = (65535 - 4) / 6,
+        MAX_SEGMENTS      = 256, // Ztlm is 8 bits
+      };
+
       Ttlm_Ptlm_pair* pairs;
       ui32 num_pairs;
       ui32 next_pair_index;

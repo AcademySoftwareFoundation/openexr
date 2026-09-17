@@ -526,6 +526,7 @@ namespace ojph {
       ui32 src_line_offset, line_buf *dst_line,
       ui32 bit_depth, bool is_signed, ui32 width, const nlt_rec* rec)
     {
+      ojph_unused(is_signed);
       assert((src_line->flags & line_buf::LFT_32BIT) &&
              (src_line->flags & line_buf::LFT_INTEGER) &&
              (dst_line->flags & line_buf::LFT_32BIT) &&

@@ -239,7 +239,7 @@ jobs:
         if: inputs.OPENEXR_FORCE_INTERNAL_OPENJPH == 'OFF' && inputs.msystem == ''
         run: |
           set -x
-          share/ci/scripts/install_openjph.sh 0.31.0
+          share/ci/scripts/install_openjph.sh 0.32.0
           echo "OPENEXR_PATH=$OPENEXR_PATH:$PROGRAM_FILES/openjph/bin:$PROGRAM_FILES/openjph/lib" >> $GITHUB_ENV
         shell: bash
 
@@ -248,7 +248,7 @@ jobs:
         if: inputs.OPENEXR_FORCE_INTERNAL_OPENJPH == 'OFF' && inputs.msystem == 'MINGW32'
         run: |
           set -x
-          share/ci/scripts/install_openjph.sh 0.31.0
+          share/ci/scripts/install_openjph.sh 0.32.0
         shell: msys2 {0}
 
       - name: Install help2man

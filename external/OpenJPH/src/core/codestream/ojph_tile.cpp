@@ -38,6 +38,7 @@
 
 #include <climits>
 #include <cmath>
+#include <exception>
 
 #include "ojph_mem.h"
 #include "ojph_params.h"
@@ -970,6 +971,26 @@ namespace ojph {
           OJPH_INFO(0x00030092, "%s", error)
         else
           OJPH_ERROR(0x00030092, "%s", error)
+      }
+      // The decode path is meant to throw const char* only, but a nested
+      // OJPH_ERROR throws std::runtime_error and the allocators can throw
+      // std::bad_alloc.  These two handlers make sure such throws are also
+      // subject to the resilience setting, instead of unwinding past
+      // parse_tile_header.  In the non-resilient case the throw is passed on
+      // unchanged, because it has already been reported at its origin.
+      catch (const std::exception& error)
+      {
+        if (resilient)
+          OJPH_INFO(0x00030093, "%s", error.what())
+        else
+          throw;
+      }
+      catch (...)
+      {
+        if (resilient)
+          OJPH_INFO(0x00030094, "unknown error while parsing a tile header")
+        else
+          throw;
       }
       file->seek((si64)tile_end_location, infile_base::OJPH_SEEK_SET);
     }
