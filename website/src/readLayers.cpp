@@ -3,7 +3,7 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
-#include <ImfHeader.h>
+// [begin readLayers]
 #include <ImfInputFile.h>
 #include <ImfChannelList.h>
 
@@ -11,40 +11,14 @@ using std::cout;
 using std::set;
 using std::string;
 using std::endl;
-using namespace IMATH_NAMESPACE;
+
 using namespace OPENEXR_IMF_NAMESPACE;
-
-void
-readChannels(const char fileName[])
-{
-    InputFile file (fileName);
-
-    // [begin useIterator]
-    const ChannelList &channels = file.header().channels();
-
-    for (ChannelList::ConstIterator i = channels.begin(); i != channels.end(); ++i)
-    {
-        const Channel &channel = i.channel();
-        // ...
-    }
-    // [end useIterator]
-
-    // [begin directAccess]
-    // const ChannelList &channels = file.header().channels();
-
-    const Channel &channel = channels["G"];
-
-    const Channel *channelPtr = channels.findChannel("G");
-    // [end directAccess]
-
-}
 
 void
 readLayers (const char fileName[])
 {
     InputFile file (fileName);
 
-    // [begin layers]
     const ChannelList &channels = file.header().channels(); ;
 
     set<string> layerNames;
@@ -62,5 +36,5 @@ readLayers (const char fileName[])
             cout << "tchannel " << j.name() << endl;
         }
     }
-    // [end layers]
 }
+// [end readLayers]

@@ -16,11 +16,16 @@ add_library(website_src OBJECT
     readGZ1.cpp
     readGZ2.cpp
     readHeader.cpp
+    readComments1.cpp
+    readComments2.cpp
     readRgba1.cpp
     readRgba2.cpp
     readRgbaFILE.cpp
     readTiled1.cpp
     readTiledRgba1.cpp
+    readChannels1.cpp
+    readChannels2.cpp
+    readLayers.cpp
     splitVolumeSample.cpp
     writeDeepScanLineFile.cpp
     writeDeepTiledFile.cpp
@@ -32,7 +37,6 @@ add_library(website_src OBJECT
     writeRgbaMT.cpp
     writeTiledRgbaONE1.cpp
     writeTiled1.cpp
-    readChannelsAndLayers.cpp
     tileDescription.cpp
     validExrFile.cpp
     previewImageExamples.cpp

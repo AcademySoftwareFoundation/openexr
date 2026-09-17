@@ -437,7 +437,7 @@ become invalid as soon as the ``RgbaInputFile`` object is
 destroyed. Therefore, the following will not work:
 
 
-.. literalinclude:: src/readHeader.cpp
+.. literalinclude:: src/readComments1.cpp
    :language: c++
    :linenos:
    :start-after: [begin readCommentsError]
@@ -446,7 +446,7 @@ destroyed. Therefore, the following will not work:
 ``readComments()`` must copy the attribute's value before it returns; for
 example, like this:
 
-.. literalinclude:: src/readHeader.cpp
+.. literalinclude:: src/readComments2.cpp
    :language: c++
    :linenos:
    :start-after: [begin readComments]
@@ -710,7 +710,7 @@ The file's header contains the file's channel list. Using iterators
 similar to those in the C++ Standard Template Library, we can iterate
 over the channels:
 
-.. literalinclude:: src/readChannelsAndLayers.cpp
+.. literalinclude:: src/readChannels1.cpp
    :language: c++
    :linenos:
    :dedent:
@@ -720,7 +720,7 @@ over the channels:
 Channels can also be accessed by name, either with the ``[]`` operator, or
 with the f ``indChannel()`` function:
 
-.. literalinclude:: src/readChannelsAndLayers.cpp
+.. literalinclude:: src/readChannels2.cpp
    :language: c++
    :linenos:
    :dedent:
@@ -763,12 +763,12 @@ corresponding layer.
 The following sample code prints the layers in a ``ChannelList`` and
 the channels in each layer:
 
-.. literalinclude:: src/readChannelsAndLayers.cpp
+.. literalinclude:: src/readLayers.cpp
    :language: c++
    :linenos:
    :dedent:
-   :start-after: [begin layers]
-   :end-before: [end layers]
+   :start-after: [begin readLayers]
+   :end-before: [end readLayers]
 
 Tiles, Levels and Level Modes
 =============================
