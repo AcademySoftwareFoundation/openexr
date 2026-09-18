@@ -1390,7 +1390,7 @@ namespace ojph {
             // quad 0 length
             len = uvlc_entry & 0x7; // quad 0 suffix length
             uvlc_entry >>= 3;
-            ui16 u_q = (ui16)((uvlc_entry & 7) + (tmp & ~(0xFU << len))); //u_q
+            ui16 u_q = (ui16)((uvlc_entry & 7) + (tmp & ~(0xFFU << len))); //u_q
             sp[1] = u_q;
             u_q = (ui16)((uvlc_entry >> 3) + (tmp >> len)); // u_q
             sp[3] = u_q;

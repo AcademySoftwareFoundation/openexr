@@ -79,7 +79,7 @@ else()
       endif()
 
       # Set compilation flags
-      if (MSVC)
+      if (MSVC AND NOT CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
         set_source_files_properties(codestream/ojph_codestream_avx.cpp PROPERTIES COMPILE_FLAGS "/arch:AVX")
         set_source_files_properties(codestream/ojph_codestream_avx2.cpp PROPERTIES COMPILE_FLAGS "/arch:AVX2")
         set_source_files_properties(coding/ojph_block_decoder_avx2.cpp PROPERTIES COMPILE_FLAGS "/arch:AVX2")
@@ -119,17 +119,25 @@ else()
         AND (CMAKE_SYSTEM_PROCESSOR MATCHES "ppc64le|powerpc64le"))
       if (NOT OJPH_DISABLE_SIMD)
         # native 128-bit VSX kernels (see ojph_simd_vsx.h).  Supported
-        # targets are POWER9 (ISA 3.0) and newer, little-endian only.
-        # The block decoder dispatch is selective; see
-        # ojph_codeblock_fun.cpp.
+        # targets are POWER8 (ISA 2.07) and newer, little-endian only.
+        # Kernels are selected at run-time from the ISA level reported
+        # by get_cpu_ext_level(); see ojph_codeblock_fun.cpp.
+        #
+        # Most kernels are built at the POWER8 baseline so that they can
+        # be dispatched on POWER8 as well.  The block decoder is the
+        # exception: it is dispatched only on POWER9 and newer (it is
+        # load/permute bound and does not pay off on POWER8), so it is
+        # built at the POWER9 baseline, where lxvx/xxperm cost it about
+        # 10% less than the ISA 2.07 sequences.  Its object is never
+        # entered on POWER8, so the newer instructions are safe.
         list(APPEND SOURCES ${CODESTREAM_VSX} ${CODING_VSX} ${TRANSFORM_VSX})
         source_group("codestream" FILES ${CODESTREAM_VSX})
         source_group("coding" FILES ${CODING_VSX})
         source_group("transform" FILES ${TRANSFORM_VSX})
-        set_source_files_properties(codestream/ojph_codestream_vsx.cpp PROPERTIES COMPILE_FLAGS "-mcpu=power9")
+        set_source_files_properties(codestream/ojph_codestream_vsx.cpp PROPERTIES COMPILE_FLAGS "-mcpu=power8")
         set_source_files_properties(coding/ojph_block_decoder_vsx.cpp PROPERTIES COMPILE_FLAGS "-mcpu=power9")
-        set_source_files_properties(transform/ojph_transform_vsx.cpp PROPERTIES COMPILE_FLAGS "-mcpu=power9")
-        set_source_files_properties(transform/ojph_colour_vsx.cpp PROPERTIES COMPILE_FLAGS "-mcpu=power9")
+        set_source_files_properties(transform/ojph_transform_vsx.cpp PROPERTIES COMPILE_FLAGS "-mcpu=power8")
+        set_source_files_properties(transform/ojph_colour_vsx.cpp PROPERTIES COMPILE_FLAGS "-mcpu=power8")
       endif()
     endif()
 

@@ -24,6 +24,12 @@
 #include "internal_ht_quality.h"
 #include "internal_legacy_structs.h"
 
+namespace
+{
+/* EXPERIMENTAL: NLT type 4 point tables for lossy RGB channels */
+const std::vector<uint16_t> half_nlt_lut  = build_nlt_lut_16 (513);
+} // namespace
+
 /**
  * OpenJPH output file that is backed by a fixed-size memory buffer
  */
@@ -401,7 +407,6 @@ ht_undo_impl (
 
     cs.create ();
 
-    ojph::param_cod cod = cs.access_cod ();
     assert (sizeof (uint16_t) == 2);
     assert (sizeof (uint32_t) == 4);
     ojph::ui32      next_comp = 0;
@@ -445,10 +450,7 @@ ht_undo_impl (
                                  p < decode->channels[file_c].width;
                                  p++)
                             {
-                                if (!cod.is_reversible(c))
-                                    *channel_pixels++ = (int16_t) int16_to_half(cur_line->i32[p]).bits();
-                                else
-                                    *channel_pixels++ = cur_line->i32[p];
+                                *channel_pixels++ = cur_line->i32[p];
                             }
                         }
                         else
@@ -458,10 +460,7 @@ ht_undo_impl (
                                  p < decode->channels[file_c].width;
                                  p++)
                             {
-                                if (!cod.is_reversible(c))
-                                    *((float*) channel_pixels++) = int32_to_float(cur_line->i32[p]);
-                                else
-                                    *channel_pixels++ = (uint32_t) cur_line->i32[p];
+                                *channel_pixels++ = (uint32_t) cur_line->i32[p];
                             }
                         }
                     }
@@ -497,10 +496,7 @@ ht_undo_impl (
                     for (int32_t p = 0; p < decode->channels[file_c].width;
                          p++)
                     {
-                        if (!cod.is_reversible(c))
-                            *channel_pixels++ = (int16_t) int16_to_half(cur_line->i32[p]).bits();
-                        else
-                            *channel_pixels++ = cur_line->i32[p];
+                        *channel_pixels++ = cur_line->i32[p];
                     }
                 }
                 else
@@ -510,10 +506,7 @@ ht_undo_impl (
                     for (int32_t p = 0; p < decode->channels[file_c].width;
                          p++)
                     {
-                        if (!cod.is_reversible(c))
-                            *((float*) channel_pixels++) = int32_to_float(cur_line->i32[p]);
-                        else
-                            *channel_pixels++ = (uint32_t) cur_line->i32[p];
+                        *channel_pixels++ = (uint32_t) cur_line->i32[p];
                     }
                 }
             }
@@ -691,6 +684,19 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
             nlt.set_nonlinear_transform (
                 c,
                 ojph::param_nlt::nonlinearity::OJPH_NLT_BINARY_COMPLEMENT_NLT);
+        else if (encode->channels[file_c].data_type != EXR_PIXEL_UINT && !cod.is_reversible(c))
+        {
+            /* EXPERIMENTAL: OpenJPH's Type 4 NLT LUT is used*/
+            if (encode->channels[file_c].data_type == EXR_PIXEL_HALF)
+                nlt.set_nonlinear_transform (
+                    c, 16, true, 0u, 0xFFFFFFFFu, 16,
+                    (ojph::ui16) half_nlt_lut.size (),
+                    (void*) half_nlt_lut.data (),
+                    ojph::param_nlt::nonlinearity::OJPH_NLT_BINARY_COMPLEMENT_PLUS_LUT);
+            else
+                nlt.set_nonlinear_transform (
+                    c, ojph::param_nlt::nonlinearity::OJPH_NLT_BINARY_COMPLEMENT_NLT);
+        }
 
         siz.set_component (
             c,
@@ -774,10 +780,7 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
                                      p < encode->channels[file_c].width;
                                     p++)
                                 {
-                                    if (! cod.is_reversible(c))
-                                        cur_line->i32[p] = half_to_int16(half (half::FromBits, (uint16_t) (*channel_pixels++)));
-                                    else
-                                        cur_line->i32[p] = *channel_pixels++;
+                                    cur_line->i32[p] = *channel_pixels++;
                                 }
                             }
                             else
@@ -787,10 +790,7 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
                                      p < encode->channels[file_c].width;
                                     p++)
                                 {
-                                    if (! cod.is_reversible(c))
-                                        cur_line->i32[p] = float_to_int32(*((float *)channel_pixels++));
-                                    else
-                                        cur_line->i32[p] = *channel_pixels++;
+                                    cur_line->i32[p] = *channel_pixels++;
                                 }
                             }
 
@@ -832,10 +832,7 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
                                         cs_channel_info[c].raster_line_offset);
                         for (int32_t p = 0; p < cw; p++)
                         {
-                            if (! cod.is_reversible(c))
-                                cur_line->i32[p] = half_to_int16(half (half::FromBits, (uint16_t) (*channel_pixels++)));
-                            else
-                                cur_line->i32[p] = *channel_pixels++;
+                            cur_line->i32[p] = *channel_pixels++;
                         }
                     }
                     else
@@ -845,10 +842,7 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
                                         cs_channel_info[c].raster_line_offset);
                         for (int32_t p = 0; p < cw; p++)
                         {
-                            if (! cod.is_reversible(c))
-                                cur_line->i32[p] = float_to_int32(*((float *)channel_pixels++));
-                            else
-                                cur_line->i32[p] = *channel_pixels++;
+                            cur_line->i32[p] = *channel_pixels++;
                         }
                     }
                     for (int32_t p = cw; p < image_width; p++)
