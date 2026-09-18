@@ -42,7 +42,7 @@ the following eight C++ classes:
 .. list-table::
    :header-rows: 1
    :align: left
-   
+
    * -
      - tiles
      - scan lines
@@ -54,7 +54,7 @@ the following eight C++ classes:
    * -
      - ``TiledOutputFile``
      - ``OutputFile``
-     - 
+     -
    * - RGBA only
      - ``TiledRgbaInputFile``
      -
@@ -97,12 +97,12 @@ single-part scan line and tile files and writing multi-part and deep
 data files.
 
 +-------------------------+------------------------------------------------+---------------------------------------+
-| Feature                 | scan line and tile                             | Multi-part and deep data              | 
+| Feature                 | scan line and tile                             | Multi-part and deep data              |
 +=========================+================================================+=======================================+
 | Channel names may be    | Some channel names are reserved                | Channel name “sample count” is        |
 | reserved                | in practice, but were never                    | reserved for a pixel sample count     |
 |                         | formally defined.                              | slice in frame buffer.                |
-|                         |                                                |                                       | 
+|                         |                                                |                                       |
 |                         |                                                | **Note:** The name “sample count”     |
 |                         |                                                | (all lowercase) is subject to change. |
 +-------------------------+------------------------------------------------+---------------------------------------+
@@ -293,7 +293,7 @@ attributes to the image file header: a string, called ``comments``, and a
    :language: c++
    :linenos:
    :lines: 5-
-                    
+
 The ``setFrameBuffer()`` and ``writePixels()`` calls are the same as in the
 previous examples, but construction of the ``RgbaOutputFile`` object is
 different. The constructors in the previous examples automatically
@@ -322,7 +322,7 @@ Reading an RGBA image is almost as easy as writing one:
    :language: c++
    :linenos:
    :lines: 5-
-                    
+
 Constructing an ``RgbaInputFile`` object, passing the name of the file to
 the constructor, opens the file and reads the file's header.
 
@@ -437,7 +437,7 @@ become invalid as soon as the ``RgbaInputFile`` object is
 destroyed. Therefore, the following will not work:
 
 
-.. literalinclude:: src/readHeader.cpp
+.. literalinclude:: src/readComments1.cpp
    :language: c++
    :linenos:
    :start-after: [begin readCommentsError]
@@ -446,7 +446,7 @@ destroyed. Therefore, the following will not work:
 ``readComments()`` must copy the attribute's value before it returns; for
 example, like this:
 
-.. literalinclude:: src/readHeader.cpp
+.. literalinclude:: src/readComments2.cpp
    :language: c++
    :linenos:
    :start-after: [begin readComments]
@@ -516,7 +516,7 @@ pixels of each scan line are contiguous in memory.
    :linenos:
    :start-after: [begin writeGZ1]
    :end-before: [end writeGZ1]
-      
+
 On line 8, an OpenEXR header is created, and the header's display
 window and data window are both set to ``(0, 0) - (width-1,
 height-1)``.
@@ -537,7 +537,7 @@ specifies the pixel data type (``HALF``, ``FLOAT``, or ``UINT``); the
 other three arguments define the memory address of pixel ``(x,y)`` as
 
 .. code-block::
-   
+
     base + x * xStride + y * yStride.
 
 **Note:** ``base`` is of type ``char*``, and that offsets from
@@ -710,7 +710,7 @@ The file's header contains the file's channel list. Using iterators
 similar to those in the C++ Standard Template Library, we can iterate
 over the channels:
 
-.. literalinclude:: src/readChannelsAndLayers.cpp
+.. literalinclude:: src/readChannels1.cpp
    :language: c++
    :linenos:
    :dedent:
@@ -720,7 +720,7 @@ over the channels:
 Channels can also be accessed by name, either with the ``[]`` operator, or
 with the f ``indChannel()`` function:
 
-.. literalinclude:: src/readChannelsAndLayers.cpp
+.. literalinclude:: src/readChannels2.cpp
    :language: c++
    :linenos:
    :dedent:
@@ -763,12 +763,12 @@ corresponding layer.
 The following sample code prints the layers in a ``ChannelList`` and
 the channels in each layer:
 
-.. literalinclude:: src/readChannelsAndLayers.cpp
+.. literalinclude:: src/readLayers.cpp
    :language: c++
    :linenos:
    :dedent:
-   :start-after: [begin layers]
-   :end-before: [end layers]
+   :start-after: [begin readLayers]
+   :end-before: [end readLayers]
 
 Tiles, Levels and Level Modes
 =============================
@@ -796,7 +796,7 @@ stored in the file.  There are three different level modes:
        combinations of reducing the resolution of the image by powers of two
        independently in x and y direction. Used for texture mapping, like
        ``MIPMAP_LEVELS``. The additional levels in a ``RIPMAP_LEVELS`` file can
-       help to accelerate anisotropic filtering during texture lookups. 
+       help to accelerate anisotropic filtering during texture lookups.
 
 In ``MIPMAP_LEVELS`` and ``RIPMAP_LEVELS`` mode, the size (width or height)
 of each level is computed by halving the size of the level with the next
@@ -833,7 +833,7 @@ Writing a tiled RGBA image with a single level is easy:
    :language: c++
    :linenos:
    :lines: 5-
-      
+
 Opening the file and defining the pixel data layout in memory are done
 in almost the same way as for scan line based files:
 
@@ -1032,7 +1032,7 @@ instead of scan line based:
    :language: c++
    :linenos:
    :lines: 5-
-   
+
 As one would expect, the code here is very similar to the code in
 `Writing an Image File`_. The file's header is created in line 1,
 while lines 2 and 3 specify the names and types of the image channels
@@ -1185,7 +1185,7 @@ The size of the image is ``width`` by ``height`` pixels.
    :language: c++
    :linenos:
    :lines: 5-
-              
+
 Here, ``getSampleCountForTile`` is a user-supplied function that sets
 each item in ``sampleCount`` array to the correct ``sampleCount`` for
 each pixel in the tile, and ``getSampleDataForTile`` is a
@@ -1388,7 +1388,7 @@ declaration of class ``IStream`` looks like this:
    :language: c++
    :linenos:
    :lines: 5-
-          
+
 Our derived class needs a public constructor, and it must override four
 methods:
 
@@ -1471,7 +1471,7 @@ input. In order to do this, a derived class must override two virtual
 functions, ``isMemoryMapped()`` and ``readMemoryMapped()``, in
 addition to the functions needed for regular, non-memory-mapped input:
 
-.. literalinclude:: src/MemoryMappedIStream.cpp
+.. literalinclude:: src/MemoryMappedIStream.h
    :language: c++
    :linenos:
    :lines: 5-
@@ -1496,7 +1496,7 @@ Windows version would call ``UnmapViewOfFile()`` and
    :lines: 5-
    :language: c++
    :linenos:
-   
+
 Function ``isMemoryMapped()`` returns ``true`` to indicate that
 memory-mapped input is supported. This allows the OpenEXR library to
 call ``readMemoryMapped()`` instead of ``read()``:
@@ -1515,7 +1515,7 @@ thus avoiding the copy operation:
    :lines: 5-
    :language: c++
    :linenos:
-   
+
 The ``MemoryMappedIStream`` class must also implement the regular ``read()``
 function, as well as ``tellg()`` and ``seekg()``:
 
@@ -1566,7 +1566,7 @@ system resource constraint, not a library defect — the same file that
 triggers an out-of-memory error on one machine may load successfully
 on another with more memory.
 
-The OpenEXR library provides 
+The OpenEXR library provides
 ``Imf::Header::setMaxImageSize(int maxWidth,int maxHeight)`` and
 ``Imf::Header:"setMaxTileSize(int maxWidth,int maxHeight)`` (and
 ``exr_set_default_maximum_image_size()`` and
@@ -1703,7 +1703,7 @@ original width and height:
    :dedent:
    :start-after: [begin makePreviewImage]
    :end-before: [end makePreviewImage]
-              
+
 To make this example easier to read, scaling the image is done by just
 sampling every eighth pixel of every eighth scan line. This can lead
 to aliasing artifacts in the preview image; for a higher-quality
@@ -1723,7 +1723,7 @@ image's floating-point pixels on the screen:
    :lines: 5-
    :start-after: [begin gamma]
    :end-before: [end gamma]
-   
+
 ``makePreviewImage()`` converts the pixels' alpha component to
 unsigned char by by linearly mapping the range ``[0.0, 1.0]`` to
 ``[0,255]``.
@@ -1772,12 +1772,12 @@ type. Two values are possible:
        coordinate corresponds to its latitude. The pixel in the upper
        left corner of the data window has latitude +π/2 and longitude
        +π; the pixel in the lower right corner has latitude -π/2 and
-       longitude -π. 
-                
+       longitude -π.
+
        In 3D space, latitudes -π/2 and +π/2 correspond to the negative
        and positive y direction. Latitude 0, longitude 0 points in the
        positive z direction; latitude 0, longitude π/2 points in the
-       positive x direction. 
+       positive x direction.
 
    * -
      - For a latitude-longitude map, the size of the data window
@@ -1785,15 +1785,15 @@ type. Two values are possible:
        integer greater than 0.
 
        .. image:: images/latlong.png
-          
+
    * - ``ENVMAP_CUBE``
      - **Cube Map** The environment is projected onto the six faces
        of an axis-aligned cube. The cube's faces are then arranged in
-       a 2D image as shown below. 
+       a 2D image as shown below.
    * -
      - For a cube map, the size of the data window should be N by 6×N
        pixels (width by height), where N can be any integer greater
-       than 0. 
+       than 0.
 
        .. image:: images/envcube.png
 

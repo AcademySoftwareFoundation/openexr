@@ -10,13 +10,17 @@
 //     MIPMAP_LEVELS,
 //     RIPMAP_LEVELS
 // };
-    
+
 // enum LevelRoundingMode
 // {
 //     ROUND_DOWN,
 //     ROUND_UP
 // };
-    
+
+#include <ImfTileDescription.h>
+
+using namespace OPENEXR_IMF_NAMESPACE;
+
 class TileDescription
 {
   public:

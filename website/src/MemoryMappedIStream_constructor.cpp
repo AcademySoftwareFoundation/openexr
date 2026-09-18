@@ -3,6 +3,15 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
+#include "MemoryMappedIStream.h"
+
+#include <Iex.h>
+
+#include <fcntl.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
 MemoryMappedIStream::MemoryMappedIStream (const char fileName[])
    : IStream (fileName),
      _buffer (0),
