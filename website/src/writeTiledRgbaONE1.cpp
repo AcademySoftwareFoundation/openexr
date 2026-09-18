@@ -3,6 +3,11 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
+#include <ImfTiledRgbaFile.h>
+#include <ImfRgba.h>
+
+using namespace OPENEXR_IMF_NAMESPACE;
+
 void
 writeTiledRgbaONE1 (
     const char  fileName[],
