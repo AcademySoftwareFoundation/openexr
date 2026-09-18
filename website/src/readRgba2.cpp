@@ -3,6 +3,16 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
+#include <ImfRgbaFile.h>
+#include <ImfRgba.h>
+#include <ImfArray.h>
+
+#include <algorithm>
+
+using std::min;
+using namespace IMATH_NAMESPACE;
+using namespace OPENEXR_IMF_NAMESPACE;
+
 void
 readRgba2 (const char fileName[])
 {

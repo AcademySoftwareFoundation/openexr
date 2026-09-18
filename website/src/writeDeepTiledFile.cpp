@@ -3,6 +3,23 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
+#include <ImfHeader.h>
+#include <ImfChannelList.h>
+#include <ImfPartType.h>
+#include <ImfArray.h>
+#include <ImfDeepTiledOutputFile.h>
+#include <ImfDeepFrameBuffer.h>
+
+using namespace IMATH_NAMESPACE;
+using namespace OPENEXR_IMF_NAMESPACE;
+
+void
+getSampleDataForTile(int i, int j, int tileSizeX, int tileSizeY,
+                     Array2D<unsigned int>& sampleCount,
+                     Array2D<float*>& dataZ, Array2D<half*>& dataA)
+{
+}
+
 void
 writeDeepTiledFile (
     const char filename[],
@@ -71,7 +88,7 @@ writeDeepTiledFile (
             file.writeTile (i, j, 0);
         }
     }
-    
+
     for (int i = 0; i < height; i++)
     {
         for (int j = 0; j < width; j++)

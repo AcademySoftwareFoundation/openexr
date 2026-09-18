@@ -3,7 +3,17 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
+
+
 // [begin writeRgba2]
+#include <ImfRgba.h>
+#include <ImfRgbaFile.h>
+#include <ImfChannelList.h>
+#include <ImfFrameBuffer.h>
+
+using namespace IMATH_NAMESPACE;
+using namespace OPENEXR_IMF_NAMESPACE;
+
 void
 writeRgba2 (
     const char   fileName[],
@@ -34,4 +44,3 @@ writeRgba2ResizeFrameBuffer (
     file.setFrameBuffer (pixels - dataWindow.min.x - dataWindow.min.y * dwWidth, 1, dwWidth);
     // [end writeRgba2ResizeFrameBuffer]
 }
-

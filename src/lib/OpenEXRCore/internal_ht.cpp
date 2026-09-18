@@ -4,6 +4,7 @@
 */
 
 #include <cmath>
+#include <cstdio>
 #include <limits>
 #include <string>
 #include <fstream>
@@ -717,7 +718,28 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
         staticmem_outfile output;
         output.open ( ((uint8_t*) encode->compressed_buffer) + header_sz, encode->packed_bytes - header_sz);
 
-        cs.write_headers (&output);
+        /* When the chunk is padded, declare it in the codestream itself with
+         * a COM marker segment (Rcom = 1, Latin text) in the main header, so
+         * that an extracted codestream is self-describing: the last `rows`
+         * rows and `cols` columns are extension samples to be discarded
+         * after decoding.  Every decoder skips COM segments; the OpenEXR
+         * decoder does not need it, since the chunk size tells it what to
+         * drop. */
+        char                   com_text[64];
+        ojph::comment_exchange com;
+        ojph::ui32             num_com = 0;
+        if (image_height != chunk_height || image_width != chunk_width)
+        {
+            snprintf (
+                com_text,
+                sizeof (com_text),
+                "OpenEXR LJ2K padding: rows=%d cols=%d",
+                image_height - chunk_height,
+                image_width - chunk_width);
+            com.set_string (com_text);
+            num_com = 1;
+        }
+        cs.write_headers (&output, num_com ? &com : NULL, num_com);
 
         ojph::ui32      next_comp = 0;
         ojph::line_buf* cur_line  = cs.exchange (NULL, next_comp);

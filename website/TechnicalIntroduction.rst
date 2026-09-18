@@ -359,35 +359,38 @@ image, each with a different resolution. Each version is called a
 on the file's *level mode*. Currently, OpenEXR supports three level
 modes:
 
-+-------------------+-------------------------------------------------------------------+
-|     mode name     | description                                                       |
-+-------------------+-------------------------------------------------------------------+
-| ``ONE_LEVEL``     | The file contains only a single full-resolution level. A tiled    |
-|                   | ``ONE_LEVEL`` file is equivalent to a scan line based file; the   |
-|                   | only difference is that pixels are accessed by tile rather than   |
-|                   | by scan line.                                                     |
-+-------------------+-------------------------------------------------------------------+
-| ``MIPMAP_LEVELS`` | The file contains multiple versions of the image. Each            |
-|                   | successive level is half the resolution of the previous level     |
-|                   | in both dimensions. The lowest-resolution level contains only a   |
-|                   | single pixel. For example, if the first level, with full          |
-|                   | resolution, contains 16×8 pixels, then the file contains four     |
-|                   | more levels with 8×4, 4×2, 2×1, and 1×1 pixels respectively.      |
-+-------------------+-------------------------------------------------------------------+
-| ``RIPMAP_LEVELS`` | Like ``MIPMAP_LEVELS``, but with more levels. The levels include  |
-|                   | all combinations of reducing the resolution of the first level    |
-|                   | by powers of two independently in both dimensions. For example,   |
-|                   | if the first level contains 4×4 pixels, then the file contains    |
-|                   | eight more levels, with the following resolutions:                |
-|                   |                                                                   |
-|                   | +-----+-----+-----+                                               |
-|                   | |     | 2x4 | 1x4 |                                               |
-|                   | +-----+-----+-----+                                               |
-|                   | | 4x2 | 2x2 | 1x2 |                                               |
-|                   | +-----+-----+-----+                                               |
-|                   | | 4x1 | 2x1 | 1x1 |                                               |
-|                   | +-----+-----+-----+                                               |
-+-------------------+-------------------------------------------------------------------+
+.. table::
+   :align: left
+
+   +-------------------+-------------------------------------------------------------------+
+   |     mode name     | description                                                       |
+   +-------------------+-------------------------------------------------------------------+
+   | ``ONE_LEVEL``     | The file contains only a single full-resolution level. A tiled    |
+   |                   | ``ONE_LEVEL`` file is equivalent to a scan line based file; the   |
+   |                   | only difference is that pixels are accessed by tile rather than   |
+   |                   | by scan line.                                                     |
+   +-------------------+-------------------------------------------------------------------+
+   | ``MIPMAP_LEVELS`` | The file contains multiple versions of the image. Each            |
+   |                   | successive level is half the resolution of the previous level     |
+   |                   | in both dimensions. The lowest-resolution level contains only a   |
+   |                   | single pixel. For example, if the first level, with full          |
+   |                   | resolution, contains 16×8 pixels, then the file contains four     |
+   |                   | more levels with 8×4, 4×2, 2×1, and 1×1 pixels respectively.      |
+   +-------------------+-------------------------------------------------------------------+
+   | ``RIPMAP_LEVELS`` | Like ``MIPMAP_LEVELS``, but with more levels. The levels include  |
+   |                   | all combinations of reducing the resolution of the first level    |
+   |                   | by powers of two independently in both dimensions. For example,   |
+   |                   | if the first level contains 4×4 pixels, then the file contains    |
+   |                   | eight more levels, with the following resolutions:                |
+   |                   |                                                                   |
+   |                   | +-----+-----+-----+                                               |
+   |                   | |     | 2x4 | 1x4 |                                               |
+   |                   | +-----+-----+-----+                                               |
+   |                   | | 4x2 | 2x2 | 1x2 |                                               |
+   |                   | +-----+-----+-----+                                               |
+   |                   | | 4x1 | 2x1 | 1x1 |                                               |
+   |                   | +-----+-----+-----+                                               |
+   +-------------------+-------------------------------------------------------------------+
        
 Level numbers, level size and rounding mode
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -675,77 +678,80 @@ file.
 
 For tiled files, line order is interpreted as follows:
 
-+------------------+------------------------------------------------------------------------------------+
-| line order       | description                                                                        |
-+==================+====================================================================================+
-| ``INCREASING_Y`` | The tiles for each level are stored in a contiguous                                |
-|                  | block. The levels are ordered like this:                                           |
-|                  |                                                                                    |
-|                  | +--------------------+-------------------+-----+--------------------------------+  |
-|                  | | (0, 0)             | (1, 0)            | ... | (n :sub:`x` -1, 0)             |  | 
-|                  | +--------------------+-------------------+-----+--------------------------------+  |
-|                  | | (0, 1)             | (1, 1)            | ... | (n :sub:`x` -1, 1)             |  |
-|                  | +--------------------+-------------------+-----+--------------------------------+  |
-|                  | | ...                | ...               | ... | ...                            |  |
-|                  | +--------------------+-------------------+-----+--------------------------------+  |
-|                  | | (0, n :sub:`y` -1) | (1,n :sub:`y` -1) | ... | (n :sub:`x` -1, n :sub:`y` -1) |  |
-|                  | +--------------------+-------------------+-----+--------------------------------+  |
-|                  |                                                                                    |
-|                  | where:                                                                             |
-|                  |                                                                                    |
-|                  |     n\ :sub:`x` = rf(log\ :sub:`2`\ (w)) + 1,                                      |
-|                  |     n\ :sub:`y` = rf(log\ :sub:`2`\ (h)) + 1                                       |
-|                  |                                                                                    |
-|                  | if the file's level mode is ``RIPMAP_LEVELS``, or                                  |
-|                  |                                                                                    |
-|                  |     n\ :sub:`x` = n\ :sub:`y` = rf(log\ :sub:`2`\ (max(w,h)) + 1                   |
-|                  |                                                                                    |
-|                  | if the level mode is ``MIPMAP_LEVELS``, or                                         |
-|                  |                                                                                    |
-|                  |     n\ :sub:`x` = n\ :sub:`y` = 1                                                  |
-|                  |                                                                                    |
-|                  | if the level mode is ``ONE_LEVEL``.                                                |
-|                  |                                                                                    |
-|                  | In each level, the tiles are stored in the following order:                        |
-|                  |                                                                                    |
-|                  | +--------------------+-------------------+-----+--------------------------------+  |
-|                  | | (0, 0)             | (1, 0)            | ... | (t :sub:`x` -1, 0)             |  |
-|                  | +--------------------+-------------------+-----+--------------------------------+  |
-|                  | | (0, 1)             | (1, 1)            | ... | (t :sub:`x` -1, 1)             |  |
-|                  | +--------------------+-------------------+-----+--------------------------------+  |
-|                  | | ...                | ...               | ... | ...                            |  |  
-|                  | +--------------------+-------------------+-----+--------------------------------+  |
-|                  | | (0, t :sub:`y` -1) | (1,t :sub:`y` -1) | ... | (t :sub:`x` -1, t :sub:`y` -1) |  |
-|                  | +--------------------+-------------------+-----+--------------------------------+  |
-|                  |                                                                                    |
-|                  | where t\ :sub:`x` and t\ :sub:`y` are the number of tiles in the x and y           |
-|                  | direction respectively, for that particular level.                                 |
-+------------------+------------------------------------------------------------------------------------+
-| ``DECREASING_Y`` | Levels are ordered as for ``INCREASING_Y``, but within each level, the tiles are   |
-|                  | stored in this order:                                                              |
-|                  |                                                                                    |
-|                  | +--------------------+-------------------+-----+--------------------------------+  |
-|                  | | (0, t :sub:`y` -1) | (1,t :sub:`y` -1) | ... | (t :sub:`x` -1, t :sub:`y` -1) |  |  
-|                  | +--------------------+-------------------+-----+--------------------------------+  |
-|                  | | (0, t :sub:`y` -2) | (1,t :sub:`y` -2) | ... | (t :sub:`x` -1, t :sub:`y` -2) |  |
-|                  | +--------------------+-------------------+-----+--------------------------------+  |
-|                  | | ...                | ...               | ... | ...                            |  |
-|                  | +--------------------+-------------------+-----+--------------------------------+  |
-|                  | | (0, 0)             | (1, 0)            | ... | (t :sub:`x` -1, 0)             |  |
-|                  | +--------------------+-------------------+-----+--------------------------------+  |
-|                  |                                                                                    |
-+------------------+------------------------------------------------------------------------------------+
-| ``RANDOM_Y``     | When a file is written, tiles are not sorted; they are stored in the file in the   |
-|                  | order they are produced by the application program.                                |
-|                  |                                                                                    |
-|                  | If an application program produces tiles in an essentially random order, selecting | 
-|                  | ``INCREASSING_Y`` or ``DECREASING_Y`` line order may force the OpenEXR library to  |
-|                  | allocate significant amounts of memory to buffer tiles until they can be stored in |
-|                  | the file in the proper order. If memory is scarce, allocating this extra memory    |
-|                  | can be avoided by setting the file's line order to ``RANDOM_Y``. In this case the  |
-|                  | library doesn't buffer and sort tiles; each tile is immediately stored in the      |
-|                  | file.                                                                              |
-+------------------+------------------------------------------------------------------------------------+
+.. table::
+   :align: left
+   
+   +------------------+------------------------------------------------------------------------------------+
+   | line order       | description                                                                        |
+   +==================+====================================================================================+
+   | ``INCREASING_Y`` | The tiles for each level are stored in a contiguous                                |
+   |                  | block. The levels are ordered like this:                                           |
+   |                  |                                                                                    |
+   |                  | +--------------------+-------------------+-----+--------------------------------+  |
+   |                  | | (0, 0)             | (1, 0)            | ... | (n :sub:`x` -1, 0)             |  | 
+   |                  | +--------------------+-------------------+-----+--------------------------------+  |
+   |                  | | (0, 1)             | (1, 1)            | ... | (n :sub:`x` -1, 1)             |  |
+   |                  | +--------------------+-------------------+-----+--------------------------------+  |
+   |                  | | ...                | ...               | ... | ...                            |  |
+   |                  | +--------------------+-------------------+-----+--------------------------------+  |
+   |                  | | (0, n :sub:`y` -1) | (1,n :sub:`y` -1) | ... | (n :sub:`x` -1, n :sub:`y` -1) |  |
+   |                  | +--------------------+-------------------+-----+--------------------------------+  |
+   |                  |                                                                                    |
+   |                  | where:                                                                             |
+   |                  |                                                                                    |
+   |                  |     n\ :sub:`x` = rf(log\ :sub:`2`\ (w)) + 1,                                      |
+   |                  |     n\ :sub:`y` = rf(log\ :sub:`2`\ (h)) + 1                                       |
+   |                  |                                                                                    |
+   |                  | if the file's level mode is ``RIPMAP_LEVELS``, or                                  |
+   |                  |                                                                                    |
+   |                  |     n\ :sub:`x` = n\ :sub:`y` = rf(log\ :sub:`2`\ (max(w,h)) + 1                   |
+   |                  |                                                                                    |
+   |                  | if the level mode is ``MIPMAP_LEVELS``, or                                         |
+   |                  |                                                                                    |
+   |                  |     n\ :sub:`x` = n\ :sub:`y` = 1                                                  |
+   |                  |                                                                                    |
+   |                  | if the level mode is ``ONE_LEVEL``.                                                |
+   |                  |                                                                                    |
+   |                  | In each level, the tiles are stored in the following order:                        |
+   |                  |                                                                                    |
+   |                  | +--------------------+-------------------+-----+--------------------------------+  |
+   |                  | | (0, 0)             | (1, 0)            | ... | (t :sub:`x` -1, 0)             |  |
+   |                  | +--------------------+-------------------+-----+--------------------------------+  |
+   |                  | | (0, 1)             | (1, 1)            | ... | (t :sub:`x` -1, 1)             |  |
+   |                  | +--------------------+-------------------+-----+--------------------------------+  |
+   |                  | | ...                | ...               | ... | ...                            |  |  
+   |                  | +--------------------+-------------------+-----+--------------------------------+  |
+   |                  | | (0, t :sub:`y` -1) | (1,t :sub:`y` -1) | ... | (t :sub:`x` -1, t :sub:`y` -1) |  |
+   |                  | +--------------------+-------------------+-----+--------------------------------+  |
+   |                  |                                                                                    |
+   |                  | where t\ :sub:`x` and t\ :sub:`y` are the number of tiles in the x and y           |
+   |                  | direction respectively, for that particular level.                                 |
+   +------------------+------------------------------------------------------------------------------------+
+   | ``DECREASING_Y`` | Levels are ordered as for ``INCREASING_Y``, but within each level, the tiles are   |
+   |                  | stored in this order:                                                              |
+   |                  |                                                                                    |
+   |                  | +--------------------+-------------------+-----+--------------------------------+  |
+   |                  | | (0, t :sub:`y` -1) | (1,t :sub:`y` -1) | ... | (t :sub:`x` -1, t :sub:`y` -1) |  |  
+   |                  | +--------------------+-------------------+-----+--------------------------------+  |
+   |                  | | (0, t :sub:`y` -2) | (1,t :sub:`y` -2) | ... | (t :sub:`x` -1, t :sub:`y` -2) |  |
+   |                  | +--------------------+-------------------+-----+--------------------------------+  |
+   |                  | | ...                | ...               | ... | ...                            |  |
+   |                  | +--------------------+-------------------+-----+--------------------------------+  |
+   |                  | | (0, 0)             | (1, 0)            | ... | (t :sub:`x` -1, 0)             |  |
+   |                  | +--------------------+-------------------+-----+--------------------------------+  |
+   |                  |                                                                                    |
+   +------------------+------------------------------------------------------------------------------------+
+   | ``RANDOM_Y``     | When a file is written, tiles are not sorted; they are stored in the file in the   |
+   |                  | order they are produced by the application program.                                |
+   |                  |                                                                                    |
+   |                  | If an application program produces tiles in an essentially random order, selecting | 
+   |                  | ``INCREASSING_Y`` or ``DECREASING_Y`` line order may force the OpenEXR library to  |
+   |                  | allocate significant amounts of memory to buffer tiles until they can be stored in |
+   |                  | the file in the proper order. If memory is scarce, allocating this extra memory    |
+   |                  | can be avoided by setting the file's line order to ``RANDOM_Y``. In this case the  |
+   |                  | library doesn't buffer and sort tiles; each tile is immediately stored in the      |
+   |                  | file.                                                                              |
+   +------------------+------------------------------------------------------------------------------------+
 
 Deep Data
 ^^^^^^^^^
@@ -885,7 +891,10 @@ Supported compression schemes:
        by replicating its last row and last column until each dimension is
        congruent to 1 modulo 2^L (L being the number of wavelet
        decomposition levels); the padding is removed again when the chunk is
-       decoded.
+       decoded. A padded codestream declares this in a COM marker segment of
+       its main header (``OpenEXR LJ2K padding: rows=R cols=C``), so that the
+       extension rows and columns can be identified without the OpenEXR
+       container.
 
    * - ZSTD (lossless)
 
