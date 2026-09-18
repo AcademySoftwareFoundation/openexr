@@ -165,13 +165,17 @@ line are contiguous in memory. The ``setFrameBuffer()`` function takes
 three arguments, ``base``, ``xStride``, and ``ystride``. To find the address
 of pixel ``(x,y)``, the ``RgbaOutputFile`` object computes
 
-    base + x * xStride + y * yStride.
+.. math::
+    
+    \text{base} + x * \text{xStride} + y * \text{yStride}
 
 In this case, ``base``, ``xStride`` and ``yStride`` are set to
 ``pixels``, ``1``, and ``width``, respectively, indicating that pixel
 ``(x,y)`` can be found at memory address
 
-    pixels + 1 * x + width * y.
+.. math::
+       
+    \text{pixels} + 1 * x + \text{width} * y 
 
 The call to ``writePixels(),`` on line 3, copies the image's pixels from
 memory to the file. The argument to ``writePixels()``, ``height``, specifies
@@ -253,24 +257,23 @@ coordinates ``(dataWindow.min.x, dataWindow.min.y)``, the arguments to the
 
 With these settings, evaluation of
 
-.. code-block::
+.. math::
 
-    base + x * xStride + y * yStride
+    \texttt{base} + x \cdot \texttt{xStride} + y \cdot \texttt{yStride}       
 
 for pixel ``(dataWindow.min.x, dataWindow.min.y)`` produces
 
-.. code-block::
+.. math::
 
-    pixels - dataWindow.min.x - dataWindow.min.y * dwWidth
-       + dataWindow.min.x * 1
-       + dataWindow.min.y * dwWidth
-
-    = pixels -
-        - dataWindow.min.x
-        - dataWindow.min.y * (dataWindow.max.x - dataWindow.min.x + 1)
-        + dataWindow.min.x
-        + dataWindow.min.y * (dataWindow.max.x - dataWindow.min.x + 1)
-    = pixels,
+   \begin{aligned}
+   &\texttt{pixels}
+     - \texttt{dataWindow.min.x}
+     - \texttt{dataWindow.min.y} \cdot \texttt{dwWidth} \\
+   &\quad
+     + \texttt{dataWindow.min.x} \cdot 1
+     + \texttt{dataWindow.min.y} \cdot \texttt{dwWidth} \\[4pt]
+   &= \texttt{pixels}
+   \end{aligned}
 
 which is exactly what we want. Similarly, calculating the addresses for pixels
 ``(dataWindow.min.x+1, dataWindow.min.y)`` and ``(dataWindow.min.x,
@@ -523,10 +526,10 @@ arguments, ``type``, ``base``, ``xStride``, and ``yStride``. ``type``
 specifies the pixel data type (``HALF``, ``FLOAT``, or ``UINT``); the
 other three arguments define the memory address of pixel ``(x,y)`` as
 
-.. code-block::
+.. math::
 
-    base + x * xStride + y * yStride.
-
+    \texttt{base} + x \cdot \texttt{xStride} + y \cdot \texttt{yStride}
+    
 **Note:** ``base`` is of type ``char*``, and that offsets from
 ``base`` are not implicitly multiplied by the size of an individual
 pixel, as in the RGBA-only interface. ``xStride`` and ``yStride`` must
@@ -613,9 +616,9 @@ the corresponding buffer's layout. For the R channel, pixel
 the ``type``, ``xStride`` and ``yStride`` of the corresponding
 ``Slice`` object as shown above, evaluating
 
-.. code-block::
+.. math::
 
-    base + x * xStride + y * yStride
+    \texttt{base} + x \cdot \texttt{xStride} + y \cdot \texttt{yStride} 
 
 for pixel ``(dw.min.x, dw.min.y)`` produces
 
@@ -868,9 +871,9 @@ files. The values for the ``base``, ``xStride``, and ``yStride``
 arguments to the ``setFrameBuffer()`` call must be chosen so that
 evaluating the expression
 
-.. code-block::
+.. math::
 
-    base + x * xStride + y * yStride
+    \texttt{base} + x \cdot \texttt{xStride} + y \cdot \texttt{yStride}
 
 produces the address of the pixel with coordinates ``(x,y)``.
 
@@ -891,15 +894,27 @@ will contain multiple levels, each level being a factor of 2 smaller
 in both dimensions than the previous level. Mipmap images contain
 ``n`` levels, with level numbers
 
-    (0,0), (1,1), ... (n-1,n-1),
+.. math::
 
+    (0,0),\ (1,1),\ \ldots,\ (n-1,n-1)
+ 
 where
 
-    n = floor (log (max (width, height)) / log (2)) + 1
+.. math::
+   
+    n = \left\lfloor
+        \frac{\log(\max(width, height))}{\log(2)}
+        \right\rfloor + 1
 
+ 
 if the level size rounding mode is ``ROUND_DOWN``, or
 
-    n = ceil (log (max (width, height)) / log (2)) + 1
+.. math::
+
+    n = \left\lceil
+        \frac{\log(\max(width, height))}{\log(2)}
+        \right\rceil + 1
+
 
 if the level size rounding mode is ``ROUND_UP``. Note that even though
 level numbers are pairs of integers, ``(lx,ly)``, only levels where
@@ -939,21 +954,41 @@ the resolution of the image by powers of two independently in both
 dimensions. Ripmap files contains ``nx*ny`` levels, with level
 numbers:
 
-    (0, 0), (1, 0), ... (nx-1, 0),
-    (0, 1), (1, 1), ... (nx-1, 1),
-    ...
-    (0,ny-1), (1,ny-1), ... (nx-1,ny-1)
-
+.. math::
+  
+    \begin{aligned}
+    (0,0),\ (1,0),\ &\ldots,\ (nx-1,0),\\
+    (0,1),\ (1,1),\ &\ldots,\ (nx-1,1),\\
+    &\ldots,\\
+    (0,ny-1),\ (1,ny-1),\ &\ldots,\ (nx-1,ny-1)
+    \end{aligned}
+    
 where
 
-    nx = floor (log (width) / log (2)) + 1
-    ny = floor (log (height) / log (2)) + 1
+.. math::
 
+    \begin{aligned}
+    \text{nx} &= \left\lfloor
+                \frac{\log(width)}{\log(2)}
+                \right\rfloor + 1\\[1em]
+    \text{ny} &= \left\lfloor
+                \frac{\log(height)}{\log(2)}
+                \right\rfloor + 1
+    \end{aligned}
+    
 if the level size rounding mode is ``ROUND_DOWN``, or
 
-    nx = ceil (log (width) / log (2)) + 1
-    ny = ceil (log (height) / log (2)) + 1
+.. math::
 
+    \begin{aligned}
+    \texttt{nx} &=  \left\lceil
+                   \frac{\log(width)}{\log(2)}
+                   \right\rceil + 1\\[1em]
+    \texttt{ny} &=  \left\lceil
+                   \frac{\log(height)}{\log(2)}
+                   \right\rceil + 1
+    \end{aligned}
+    
 if the level size rounding mode is ``ROUND_UP``.
 
 With a frame buffer that is large enough to hold level ``(0,0)``, we can
