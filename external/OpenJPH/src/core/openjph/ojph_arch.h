@@ -173,12 +173,13 @@ namespace ojph {
     ARM_CPU_EXT_LEVEL_SVE2 = 3,
   };
 
-  // POWER9 (ISA 3.0) is the minimum supported SIMD level; older CPUs
-  // (POWER8 and earlier) use the generic code paths
+  // POWER8 (ISA 2.07) is the minimum supported SIMD level; older CPUs
+  // (POWER7 and earlier) use the generic code paths
   enum : int {
     PPC_CPU_EXT_LEVEL_GENERIC = 0,
-    PPC_CPU_EXT_LEVEL_ARCH_3_00 = 1, // ISA 3.0  (POWER9)
-    PPC_CPU_EXT_LEVEL_ARCH_3_1 = 2,  // ISA 3.1  (POWER10)
+    PPC_CPU_EXT_LEVEL_ARCH_2_07 = 1, // ISA 2.07 (POWER8)
+    PPC_CPU_EXT_LEVEL_ARCH_3_00 = 2, // ISA 3.0  (POWER9)
+    PPC_CPU_EXT_LEVEL_ARCH_3_1 = 3,  // ISA 3.1  (POWER10)
   };
 
   /////////////////////////////////////////////////////////////////////////////

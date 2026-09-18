@@ -573,7 +573,7 @@ namespace ojph {
       cod.update_atk(&atk);
       qcd.check_validity(siz, cod);
       cap.check_validity(cod, qcd);
-      nlt.check_validity(siz);
+      nlt.check_validity(siz, cod);
       if (profile == OJPH_PN_IMF)
         check_imf_validity();
       else if (profile == OJPH_PN_BROADCAST)
@@ -874,6 +874,17 @@ namespace ojph {
 
       if (received_markers != 3)
         OJPH_ERROR(0x00030052, "markers error, COD and QCD are required");
+
+      // A LUT style nonlinearity, type 2 or type 4, cannot currently be
+      // applied with the reversible wavelet.  A codestream may still carry
+      // that combination, but this library cannot decode this codestream yet.
+      int unsupported_nlt = nlt.find_unsupported_nlt(siz, cod);
+      if (unsupported_nlt >= 0)
+        OJPH_ERROR(0x00030059, "The codestream uses a LUT style nonlinearity "
+          "(type 2 or type 4) together with the reversible (5/3) wavelet for "
+          "component %d.  This does not make sense since LUT itself is not "
+          "reversible. This library does not implement the processing path "
+          "needed for this conbination.", unsupported_nlt);
 
       this->infile = file;
       planar = cod.is_employing_color_transform() ? 0 : 1;
