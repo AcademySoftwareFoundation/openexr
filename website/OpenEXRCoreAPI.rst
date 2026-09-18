@@ -47,7 +47,7 @@ To get started, here is a simple code snippet that starts to read a
 file:
 
 .. code-block::
-   :linenos:
+   
       
     exr_context_initializer_t ctxtinit = EXR_DEFAULT_CONTEXT_INITIALIZER;
     exr_context_t myfile;
@@ -92,7 +92,7 @@ a sorted order, or the order within which they appear in the file. One
 example might be to retrieve the data window:
 
 .. code-block::
-   :linenos:
+   
 
     exr_attr_box2i_t datawindow;
     exr_result_t rv = exr_get_data_window(ctxt, 0, &datawindow);
@@ -540,4 +540,3 @@ Debugging
 ^^^^^^^^^
 
 .. doxygenfunction:: exr_print_context_info
-
