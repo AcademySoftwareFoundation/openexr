@@ -3,6 +3,12 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
+#include "MemoryMappedIStream.h"
+
+#include <Iex.h>
+
+using namespace IEX_NAMESPACE;
+
 char *
 MemoryMappedIStream::readMemoryMapped (int n)
 {
@@ -19,4 +25,3 @@ MemoryMappedIStream::readMemoryMapped (int n)
     return data;
 
 }
-
