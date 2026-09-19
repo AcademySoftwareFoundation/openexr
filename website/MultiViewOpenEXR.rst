@@ -185,15 +185,29 @@ view name is followed by a period and a final channel name in the format
 For example, each of the following names corresponds to a channel in
 either the ``left`` or the ``right`` view:
 
-    ``lighting.left.R lighting.left.G lighting.left.B``
+.. code-block:: text
 
-    ``lighting.right.R lighting.right.G lighting.right.B``
+   lighting.left.R
+   lighting.left.G
+   lighting.left.B
 
-    ``noshadows.nearscene.right.R noshadows.nearscene.right.G``
+   lighting.right.R
+   lighting.right.G
+   lighting.right.B
 
-    ``noshadows.nearscene.left.R noshadows.nearscene.left.G``
+   noshadows.nearscene.right.R
+   noshadows.nearscene.right.G
 
-    ``left.R left.G left.B left.A left.X left.Y left.shadows``
+   noshadows.nearscene.left.R
+   noshadows.nearscene.left.G
+
+   left.R
+   left.G
+   left.B
+   left.A
+   left.X
+   left.Y
+   left.shadows
 
 Note that, although ``view.channel`` is a valid name under this
 scheme, ``layer.view`` (for example, ``speed.left``) is not
@@ -217,11 +231,15 @@ default view should be labeled ``R``, ``G``, ``B`` and ``A``. For example, if
 a file has a ``right`` and a ``left`` view, and the ``right`` view is the
 default view, then the channels must be named
 
-    ``R G B A left.R left.G left.B left.A``
+.. code-block:: text
+
+    R G B A left.R left.G left.B left.A
 
 rather than
 
-    ``right.R right.G right.B right.A left.R left.G left.B left.A.``
+.. code-block:: text
+
+    right.R right.G right.B right.A left.R left.G left.B left.A.
 
 Channels labeled ``R``, ``G``, ``B`` and ``A`` will be understood by any OpenEXR
 viewing software, even if the software does not explicitly recognize
@@ -267,16 +285,17 @@ For example, the following table shows several different combinations of
      - ``R`` ``G`` ``B`` ``A``
        ``right.R`` ``right.G`` ``right.B`` ``right.A``
    * - ``right left``
-     - ``R`` ``G`` ``B`` ``A
+     - ``R`` ``G`` ``B`` ``A``
        ``left.R`` ``left.G`` ``left.B`` ``left.A``
    * - ``mono right left``
-     - ``R`` ``G`` ``B`` ``A
+     - ``R`` ``G`` ``B`` ``A``
        ``right.R`` ``right.G`` ``right.B`` ``right.A``
        ``left.R`` ``left.G`` ``left.B`` ``left.A``
    * - ``mono right left``
      - ``mono.X`` ``mono.Y``
        ``right.X`` ``right.Y``
        ``left.X`` ``left.Y``
+       
        (default channel naming is optional for non-RGBA data)
 
 
@@ -332,6 +351,8 @@ Meanwhile, it is recommended that software vendors provide a mechanism
 allowing users to identify which file name extensions they will employ
 for multi-view OpenEXR files. For example, software may understand the
 environment variable
+
+.. code-block:: text
 
     MULTIVIEW_EXR_EXT="SXR"
 
