@@ -241,12 +241,15 @@ namespace ojph {
         unsigned long hwcap2 = getauxval(AT_HWCAP2);
         level = PPC_CPU_EXT_LEVEL_GENERIC;
         if ((hwcap & PPC_FEATURE_HAS_VSX) &&
-            (hwcap2 & PPC_FEATURE2_ARCH_3_00)) {
-          level = PPC_CPU_EXT_LEVEL_ARCH_3_00;
-        #ifdef PPC_FEATURE2_ARCH_3_1
-          if (hwcap2 & PPC_FEATURE2_ARCH_3_1)
-            level = PPC_CPU_EXT_LEVEL_ARCH_3_1;
-        #endif
+            (hwcap2 & PPC_FEATURE2_ARCH_2_07)) {
+          level = PPC_CPU_EXT_LEVEL_ARCH_2_07;
+          if (hwcap2 & PPC_FEATURE2_ARCH_3_00) {
+            level = PPC_CPU_EXT_LEVEL_ARCH_3_00;
+          #ifdef PPC_FEATURE2_ARCH_3_1
+            if (hwcap2 & PPC_FEATURE2_ARCH_3_1)
+              level = PPC_CPU_EXT_LEVEL_ARCH_3_1;
+          #endif
+          }
         }
         return true;
       }

@@ -37,6 +37,8 @@
 
 #define _USE_MATH_DEFINES
 #include <cmath>
+#include <climits>
+#include <new>
 
 #include "ojph_arch.h"
 #include "ojph_base.h"
@@ -414,7 +416,7 @@ namespace ojph {
   }
 
   //////////////////////////////////////////////////////////////////////////
-  void param_qcd::set_qfactor(ui8 qfactor) {
+  void param_qcd::set_qfactor(float qfactor) {
     state->set_qfactor(qfactor);
   }
 
@@ -425,7 +427,8 @@ namespace ojph {
   }
 
   //////////////////////////////////////////////////////////////////////////
-  void param_qcd::set_qfactor(ui32 comp_idx, comp_type ctype, ui8 qfactor) {
+  void param_qcd::set_qfactor(ui32 comp_idx, comp_type ctype, float qfactor)
+  {
     state->set_qfactor(comp_idx, ctype, qfactor);
   }
 
@@ -444,11 +447,25 @@ namespace ojph {
   }
 
   ////////////////////////////////////////////////////////////////////////////
-  bool param_nlt::get_nonlinear_transform(ui32 comp_num, ui8& bit_depth,
-                                          bool& is_signed, ui8& nl_type) const
+  void param_nlt::set_nonlinear_transform(ui32 comp_num,
+                                          ui8 decoded_bit_depth,
+                                          bool decoded_signedness,
+                                          ui32 d_min, ui32 d_max, ui8 pt_val,
+                                          ui16 num_points, void* points,
+                                          ui8 nl_type)
   {
-    return state->get_nonlinear_transform(comp_num, bit_depth, is_signed,
-                                          nl_type);
+    state->set_nonlinear_transform(comp_num, decoded_bit_depth,
+      decoded_signedness, d_min, d_max, pt_val, num_points, points, nl_type);
+  }
+
+  ////////////////////////////////////////////////////////////////////////////
+  bool param_nlt::get_nonlinear_transform(ui32 comp_num,
+                                          ui8& decoded_bit_depth,
+                                          bool& decoded_signedness,
+                                          ui8& nl_type) const
+  {
+    return state->get_nonlinear_transform(comp_num, decoded_bit_depth,
+      decoded_signedness, nl_type);
   }
 
   ////////////////////////////////////////////////////////////////////////////
@@ -687,20 +704,21 @@ namespace ojph {
       }
 
       //////////////////////////
-      static float get_delta_ref(ui32 qfactor, ui32 bit_depth,
+      static float get_delta_ref(float qfactor, ui32 bit_depth,
                                  float& power)
       {
         // returns delta_ref & power to be used with visual weights
-        constexpr uint8_t t0     = 65, t1 = 97;
+        constexpr float t0       = 65.0f;
+        constexpr float t1       = 97.0f;
         constexpr float alpha_t0 = 0.04f, alpha_t1 = 0.10f;
         constexpr float m_t0     = 2.0f * (1.0f - t0 / 100.0f);
         constexpr float m_t1     = 2.0f * (1.0f - t1 / 100.0f);
 
         float m_q;
-        if (qfactor < 50)
-          m_q = 50.0f / (float)qfactor;
+        if (qfactor < 50.0f)
+          m_q = 50.0f / qfactor;
         else
-          m_q = 2.0f * (1.0f - (float)qfactor / 100.0f);
+          m_q = 2.0f * (1.0f - qfactor / 100.0f);
 
         float alpha_q;
         if (qfactor <= t0)
@@ -1481,10 +1499,10 @@ namespace ojph {
     }
 
     //////////////////////////////////////////////////////////////////////////
-    void param_qcd::set_qfactor(ui8 qfactor) {
+    void param_qcd::set_qfactor(float qfactor) {
       assert(this->type == QCD_MAIN);
 
-      if (qfactor < 1 || qfactor > 100)
+      if (qfactor < 1.0f || qfactor > 100.0f)
         OJPH_ERROR(0x00050181, "Qfactor must be between 1 and 100, "
           "but was set to %i.", qfactor);
 
@@ -2018,11 +2036,11 @@ namespace ojph {
     }
 
     //////////////////////////////////////////////////////////////////////////
-    void param_qcd::set_qfactor(ui32 comp_idx, comp_type ctype, ui8 qfactor)
+    void param_qcd::set_qfactor(ui32 comp_idx, comp_type ctype, float qfactor)
     {
       assert(this->type == QCD_MAIN);
 
-      if (qfactor < 1 || qfactor > 100)
+      if (qfactor < 1.0f || qfactor > 100.0f)
         OJPH_ERROR(0x00050191, "Qfactor must be between 1 and 100, "
           "but was set to %i.", qfactor);
 
@@ -2084,16 +2102,181 @@ namespace ojph {
     //////////////////////////////////////////////////////////////////////////
 
     //////////////////////////////////////////////////////////////////////////
-    void param_nlt::check_validity(param_siz& siz)
+    void nlt_rec::prepare_for_decoding()
+    {
+      double d = 1.0 / (double)((1ull << 32) - 1);
+      fd_min = (float)((double)d_min * d);
+      fd_max = (float)((double)d_max * d);
+      delta = (fd_max - fd_min) / (float)(num_points - 1);
+      inv_delta = (float)(num_points - 1) / (fd_max - fd_min);
+      multiplier = (float)(1ull << get_bit_depth());
+      float divider = 1 / multiplier;
+      if (bytes_per_point == 1) {
+        ui8* sp = (ui8*)marker_points;
+        float* dp = dec_points;
+        for (ui32 i = 0; i < num_points; ++i)
+          *dp++ = *sp++ * divider;
+        dec_points[-1] = dec_points[0];
+        dec_points[num_points] = dec_points[num_points - 1];
+      }
+      else if (bytes_per_point == 2) {
+        ui16* sp = (ui16*)marker_points;
+        float* dp = dec_points;
+        for (ui32 i = 0; i < num_points; ++i)
+          *dp++ = *sp++ * divider;
+        dec_points[-1] = dec_points[0];
+        dec_points[num_points] = dec_points[num_points - 1];
+      }
+      else if (bytes_per_point == 4) {
+        ui32* sp = (ui32*)marker_points;
+        float* dp = dec_points;
+        for (ui32 i = 0; i < num_points; ++i)
+          *dp++ = (float)*sp++ * divider;
+        dec_points[-1] = dec_points[0];
+        dec_points[num_points] = dec_points[num_points - 1];
+      }
+      else
+        assert(0);
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    void nlt_rec::prepare_for_encoding()
+    {
+      double d = 1.0 / (double)((1ull << 32) - 1);
+      fd_min = (float)((double)d_min * d);
+      fd_max = (float)((double)d_max * d);
+
+      // create lookup table for encoding
+      float mul = (float)(1ull << pt_val);
+      float div = 1.0f / mul;
+      if (bytes_per_point == 1)
+      {
+        ui8* p = (ui8*)marker_points;
+        enc_points[-1] = enc_points[0] = ft_min = (float)p[0] * div;
+        ft_max = (float)p[num_points - 1] * div;
+        enc_points[enc_num_points] = enc_points[enc_num_points - 1] = ft_max;
+        delta = (ft_max - ft_min) / (float)(enc_num_points - 1);
+        inv_delta = (float)(enc_num_points - 1) / (ft_max - ft_min);
+
+        ui32 k = 0;
+        float y_k = (float)p[k] * div, y_kp1 = (float)p[k + 1] * div;
+        float dt = (fd_max - fd_min) / (float)(num_points - 1);
+        float d_k = fd_min, d_kp1 = fd_min + dt;
+        for (ui32 i = 1; i < enc_num_points - 1; ++i)
+        {
+          float z = ft_min + (float)i * delta;
+          while (k + 1 < num_points - 1 && z >= y_kp1)
+          {
+            ++k;
+            d_k   = d_kp1;
+            d_kp1 = fd_min + (float)(k + 1) * dt;
+            y_k   = y_kp1;
+            y_kp1 = (float)p[k + 1] * div;
+          }
+          enc_points[i] = d_k + (z - y_k) * dt / (y_kp1 - y_k);
+        }
+      }
+      else if (bytes_per_point == 2) {
+        ui16* p = (ui16*)marker_points;
+        enc_points[-1] = enc_points[0] = ft_min = (float)p[0] * div;
+        ft_max = (float)p[num_points - 1] * div;
+        enc_points[enc_num_points] = enc_points[enc_num_points - 1] = ft_max;
+        delta = (ft_max - ft_min) / (float)(enc_num_points - 1);
+        inv_delta = (float)(enc_num_points - 1) / (ft_max - ft_min);
+
+        ui32 k = 0;
+        float y_k = (float)p[k] * div, y_kp1 = (float)p[k + 1] * div;
+        float dt = (fd_max - fd_min) / (float)(num_points - 1);
+        float d_k = fd_min, d_kp1 = fd_min + dt;
+        for (ui32 i = 1; i < enc_num_points - 1; ++i)
+        {
+          float z = ft_min + (float)i * delta;
+          while (k + 1 < num_points - 1 && z >= y_kp1)
+          {
+            ++k;
+            d_k   = d_kp1;
+            d_kp1 = fd_min + (float)(k + 1) * dt;
+            y_k   = y_kp1;
+            y_kp1 = (float)p[k + 1] * div;
+          }
+          enc_points[i] = d_k + (z - y_k) * dt / (y_kp1 - y_k);
+        }
+      }
+      else if (bytes_per_point == 4) {
+        ui32* p = (ui32*)marker_points;
+        enc_points[-1] = enc_points[0] = ft_min = (float)p[0] * div;
+        ft_max = (float)p[num_points - 1] * div;
+        enc_points[enc_num_points] = enc_points[enc_num_points - 1] = ft_max;
+        delta = (ft_max - ft_min) / (float)(enc_num_points - 1);
+        inv_delta = (float)(enc_num_points - 1) / (ft_max - ft_min);
+
+        ui32 k = 0;
+        float y_k = (float)p[k] * div, y_kp1 = (float)p[k + 1] * div;
+        float dt = (fd_max - fd_min) / (float)(num_points - 1);
+        float d_k = fd_min, d_kp1 = fd_min + dt;
+        for (ui32 i = 1; i < enc_num_points - 1; ++i)
+        {
+          float z = ft_min + (float)i * delta;
+          while (k + 1 < num_points - 1 && z >= y_kp1)
+          {
+            ++k;
+            d_k   = d_kp1;
+            d_kp1 = fd_min + (float)(k + 1) * dt;
+            y_k   = y_kp1;
+            y_kp1 = (float)p[k + 1] * div;
+          }
+          enc_points[i] = d_k + (z - y_k) * dt / (y_kp1 - y_k);;
+        }
+      }
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    int param_nlt::find_unsupported_nlt(const param_siz& siz,
+                                        const param_cod& cod) const
+    {
+      ui32 num_comps = siz.get_num_components();
+      for (ui32 c = 0; c < num_comps; ++c)
+      {
+        const nlt_rec* rec = get_nlt_rec(c);
+        if (rec == NULL)
+          continue;
+        ui8 type = rec->get_type();
+        // the LUT style nonlinearities are implemented for the irreversible
+        // (9/7) wavelet only
+        if ((type == nonlinearity::OJPH_NLT_LUT_STYLE_NLT ||
+             type == nonlinearity::OJPH_NLT_BINARY_COMPLEMENT_PLUS_LUT) &&
+            cod.get_coc(c)->is_reversible())
+          return (int)c;
+      }
+      return -1;
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    void param_nlt::check_validity(param_siz& siz, const param_cod& cod)
     {
       if (is_any_enabled() == false)
         return;
 
-      if (this->enabled && this->Tnlt == nonlinearity::OJPH_NLT_NO_NLT)
+      // the reversible wavelet cannot be used with a LUT style nonlinearity,
+      // because applying that nonlinearity would need the samples of the
+      // component to be transformed in a way this library cannot invert;
+      // refusing it here is better than writing a codestream whose nonlinearity
+      // a decoder cannot undo
+      int comp = find_unsupported_nlt(siz, cod);
+      if (comp >= 0)
+        OJPH_ERROR(0x000501B1, "The LUT style nonlinearities (type 2, LUT "
+          "style, and type 4, binary complement followed by a LUT) are "
+          "supported with the irreversible (9/7) wavelet only; component %d of "
+          "this codestream is coded with the reversible (5/3) wavelet. Use the "
+          "irreversible wavelet for that component, use the binary complement "
+          "nonlinearity (type 3), or do not use a nonlinearity with it.",
+          comp);
+
+      if (this->enabled && this->rec.Tnlt == nonlinearity::OJPH_NLT_UNDEFINED)
         this->enabled = false;
 
       if (this->enabled &&
-          this->Tnlt == nonlinearity::OJPH_NLT_BINARY_COMPLEMENT_NLT)
+          this->rec.Tnlt == nonlinearity::OJPH_NLT_BINARY_COMPLEMENT_NLT)
       {
         bool all_same = true;
         ui32 num_comps = siz.get_num_components();
@@ -2124,15 +2307,15 @@ namespace ojph {
           }
           else
           { // can be type 0 or type 3
-            p->BDnlt = (ui8)(siz.get_bit_depth(c) - 1);
-            p->BDnlt = (ui8)(p->BDnlt | (siz.is_signed(c) ? 0x80 : 0));
+            p->rec.BDnlt = (ui8)(siz.get_bit_depth(c) - 1);
+            p->rec.BDnlt = (ui8)(p->rec.BDnlt | (siz.is_signed(c) ? 0x80 : 0));
           }
         }
 
         if (all_same && bit_depth != 0)
         { // all the same, and some components are captured by ALL_COMPS
-          this->BDnlt = (ui8)(bit_depth - 1);
-          this->BDnlt = (ui8)(this->BDnlt | (is_signed ? 0x80 : 0));
+          this->rec.BDnlt = (ui8)(bit_depth - 1);
+          this->rec.BDnlt = (ui8)(this->rec.BDnlt | (is_signed ? 0x80 : 0));
         }
         else if (!all_same)
         { // have different settings or no component is captured by ALL_COMPS
@@ -2145,9 +2328,9 @@ namespace ojph {
               if (p == NULL)
                 p = add_object(c);
               p->enabled = true;
-              p->Tnlt = nonlinearity::OJPH_NLT_BINARY_COMPLEMENT_NLT;
-              p->BDnlt = (ui8)(siz.get_bit_depth(c) - 1);
-              p->BDnlt = (ui8)(p->BDnlt | (siz.is_signed(c) ? 0x80 : 0));
+              p->rec.Tnlt = nonlinearity::OJPH_NLT_BINARY_COMPLEMENT_NLT;
+              p->rec.BDnlt = (ui8)(siz.get_bit_depth(c) - 1);
+              p->rec.BDnlt = (ui8)(p->rec.BDnlt | (siz.is_signed(c) ? 0x80:0));
             }
           }
         }
@@ -2156,12 +2339,12 @@ namespace ojph {
         // fill NLT segment markers with correct information
         ui32 num_comps = siz.get_num_components();
         for (ui32 c = 0; c < num_comps; ++c)
-        { // captured by ALL_COMPS
+        {
           param_nlt* p = get_nlt_object(c);
           if (p != NULL && p->enabled)
           { // can be type 0 or type 3
-            p->BDnlt = (ui8)(siz.get_bit_depth(c) - 1);
-            p->BDnlt = (ui8)(p->BDnlt | (siz.is_signed(c) ? 0x80 : 0));
+            p->rec.BDnlt = (ui8)(siz.get_bit_depth(c) - 1);
+            p->rec.BDnlt = (ui8)(p->rec.BDnlt | (siz.is_signed(c) ? 0x80 : 0));
           }
         }
       }
@@ -2178,12 +2361,142 @@ namespace ojph {
       if (nl_type != ojph::param_nlt::OJPH_NLT_NO_NLT &&
           nl_type != ojph::param_nlt::OJPH_NLT_BINARY_COMPLEMENT_NLT)
       OJPH_ERROR(0x00050171, "Nonliearities other than type 0 "
-        "(No Nonlinearity) or type  3 (Binary Binary Complement to Sign "
-        "Magnitude Conversion) are not supported yet");
+        "(No Nonlinearity) or type 3 (Binary Binary Complement to Sign "
+        "Magnitude Conversion) are not supported in this function call");
       param_nlt* p = get_nlt_object(comp_num);
       if (p == NULL)
         p = add_object(comp_num);
-      p->Tnlt = nl_type;
+      p->Lnlt = 6;
+      p->rec.Tnlt = nl_type;
+      p->enabled = true;
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    void param_nlt::set_nonlinear_transform(ui32 comp_num,
+                                            ui8 decoded_bit_depth,
+                                            bool decoded_signedness,
+                                            ui32 d_min, ui32 d_max, ui8 pt_val,
+                                            ui16 num_points, void* points,
+                                            ui8 nl_type)
+    {
+      if (nl_type != ojph::param_nlt::OJPH_NLT_LUT_STYLE_NLT &&
+          nl_type != ojph::param_nlt::OJPH_NLT_BINARY_COMPLEMENT_PLUS_LUT)
+        OJPH_ERROR(0x000501A1, "Nonliearities other than type 1 "
+          "(LUT Nonlinearity) or type 4 (Binary Binary Complement to Sign "
+          "Magnitude Conversion followed by LUT Nonlinearity) are not "
+          "supported in this function call");
+      if (pt_val == 0 || pt_val > 32)
+        OJPH_ERROR(0x000501A2, "pt_val must be larger than 0 and "
+          "smaller than or equal to 32; you provided, %d", pt_val);
+      if (decoded_bit_depth == 0 || decoded_bit_depth > 38)
+        OJPH_ERROR(0x000501A3, "decoded_bit_depth must be larger than 0 and "
+          "smaller than or equal to 38; you provided, %d", decoded_bit_depth);
+      if (d_min >= d_max)
+        OJPH_ERROR(0x000501A4, "d_max must be larger than d_min; you "
+          "provided %d and %d", d_min, d_max);
+      if (num_points < 2 || num_points > 8192)
+        OJPH_ERROR(0x000501A5, "The number of points must be larger or equal "
+          "to 2 and smaller or equal to 8192 -- the code will convert this "
+          "number to a number in the range 1 to 8191 for the NLT marker "
+          "segement; you provided %d", num_points);
+
+      param_nlt* p = get_nlt_object(comp_num);
+      if (p == NULL)
+        p = add_object(comp_num);
+
+      p->Lnlt = (ui16)(17u + (ui32)num_points * (ui32)p->rec.get_bpp(pt_val));
+      p->rec.BDnlt =
+        (ui8)((decoded_bit_depth - 1) | (decoded_signedness ? 0x80 : 0));
+      p->rec.Tnlt = nl_type;
+
+      p->rec.d_min = d_min;
+      p->rec.d_max = d_max;
+      p->rec.pt_val = pt_val;
+      p->rec.num_points = num_points;
+      p->rec.bytes_per_point = p->rec.get_bpp(pt_val);
+
+      // Check that the LUT has increasing entries or has almost flat segments
+      ui32 v_min = 0, v_max = 0;
+      ui32 smallest_gap = UINT_MAX;
+      if (p->rec.bytes_per_point == 1)
+      {
+        ui8* p = (ui8*)points;
+        for (int k = 0; k < num_points - 1; ++k)
+        {
+          if (p[k+1] > p[k])
+            smallest_gap = ojph_min(smallest_gap, (ui32)(p[k+1] - p[k]));
+          else
+            OJPH_ERROR(0x000501A6, "The LUT must have increasing sequence "
+              "of numbers; here we have at LUT[%d+1] <= LUT[%d], with values "
+              "%d and %d.", k, k, p[k+1], p[k]);
+        }
+        v_min = (ui32)p[0]; v_max = (ui32)p[num_points - 1];
+      }
+      else if (p->rec.bytes_per_point == 2)
+      {
+        ui16* p = (ui16*)points;
+        for (int k = 0; k < num_points - 1; ++k)
+        {
+          if (p[k+1] > p[k])
+            smallest_gap = ojph_min(smallest_gap, (ui32)(p[k+1] - p[k]));
+          else
+            OJPH_ERROR(0x000501A7, "The LUT must have increasing sequence "
+              "of numbers; here we have at LUT[%d+1] <= LUT[%d], with values "
+              "%d and %d.", k, k, p[k+1], p[k]);
+        }
+        v_min = (ui32)p[0]; v_max = (ui32)p[num_points - 1];
+      }
+      else if (p->rec.bytes_per_point == 4)
+      {
+        ui32* p = (ui32*)points;
+        for (int k = 0; k < num_points - 1; ++k)
+        {
+          if (p[k+1] > p[k])
+            smallest_gap = ojph_min(smallest_gap, p[k+1] - p[k]);
+          else
+            OJPH_ERROR(0x000501A8, "The LUT must have increasing sequence "
+              "of numbers; here we have at LUT[%d+1] <= LUT[%d], with values "
+              "%d and %d.", k, k, p[k+1], p[k]);
+        }
+        v_min = (ui32)p[0]; v_max = (ui32)p[num_points - 1];
+      }
+      else
+        assert(0);
+
+      // find ceil of the ratio to a power of 2
+      ui32 ienc_pnts;
+      float enc_pnts = std::ceil((float)(v_max-v_min) / (float)(smallest_gap));
+      if (enc_pnts > 8192.0f)
+      {
+        ienc_pnts = 8192;
+        OJPH_WARN(0x000501A1, "Encoding with LUT is performed with an "
+          "encoding LUT, derived from the LUT you provided; however, "
+          "because the provided LUT has almost flat segment or segments, "
+          "these are hard to invert.  We are limiting the encoding "
+          "LUT to 8192 entries, which means that some segment of the "
+          "LUT table might be ignored during encoding.")
+      }
+      else {
+        ienc_pnts = (ui32)enc_pnts;
+        ienc_pnts = 32 - count_leading_zeros(ienc_pnts);
+        ienc_pnts = 1u << ienc_pnts;
+      }
+
+      ui32 len = p->rec.cal_store_size_for_encoding(ienc_pnts);
+      if (len > p->rec.store_size)
+      {
+        if (p->rec.points_store)
+          delete[] (ui8*)p->rec.points_store;
+        p->rec.store_size = 0;
+        p->rec.points_store = new (std::nothrow) ui8[len];
+        if (p->rec.points_store == NULL)
+          OJPH_ERROR(0x000501A9, "Failed to allocated memory");
+        p->rec.store_size = len;
+      }
+      p->rec.assign_pointers_for_encoding();
+      memcpy(p->rec.marker_points, points, num_points * p->rec.bytes_per_point);
+      p->rec.prepare_for_encoding();
+
       p->enabled = true;
     }
 
@@ -2192,15 +2505,17 @@ namespace ojph {
     param_nlt::get_nonlinear_transform(ui32 comp_num, ui8& bit_depth,
                                        bool& is_signed, ui8& nl_type) const
     {
+      // top level must be ALL_COMPS; cannot call this functions from
+      // non-top nlt
       assert(Cnlt == special_comp_num::ALL_COMPS);
       const param_nlt* p = get_nlt_object(comp_num);
       p = (p && p->enabled) ? p : this;
       if (p->enabled)
       {
-        bit_depth = (ui8)((p->BDnlt & 0x7F) + 1);
+        bit_depth = (ui8)((p->rec.BDnlt & 0x7F) + 1);
         bit_depth = bit_depth <= 38 ? bit_depth : 38;
-        is_signed = (p->BDnlt & 0x80) == 0x80;
-        nl_type = (nonlinearity)p->Tnlt;
+        is_signed = (p->rec.BDnlt & 0x80) == 0x80;
+        nl_type = (nonlinearity)p->rec.Tnlt;
         return true;
       }
       return false;
@@ -2212,7 +2527,9 @@ namespace ojph {
       if (is_any_enabled() == false)
         return true;
 
+      ui8 buf1;
       ui16 buf2;
+      ui32 buf4;
       bool result = true;
       const param_nlt* p = this;
       while (p)
@@ -2226,8 +2543,49 @@ namespace ojph {
           result &= file->write(&buf2, sizeof(ui16)) == sizeof(ui16);
           buf2 = swap_bytes_if_le(p->Cnlt);
           result &= file->write(&buf2, sizeof(ui16)) == sizeof(ui16);
-          result &= file->write(&p->BDnlt, 1) == 1;
-          result &= file->write(&p->Tnlt, 1) == 1;
+          result &= file->write(&p->rec.BDnlt, 1) == 1;
+          result &= file->write(&p->rec.Tnlt, 1) == 1;
+          if (p->rec.Tnlt == nonlinearity::OJPH_NLT_LUT_STYLE_NLT ||
+            p->rec.Tnlt == nonlinearity::OJPH_NLT_BINARY_COMPLEMENT_PLUS_LUT)
+          {
+            buf2 = (ui16)(p->rec.num_points - 1);
+            buf2 = swap_bytes_if_le(buf2);
+            result &= file->write(&buf2, sizeof(ui16)) == sizeof(ui16);
+            buf4 = swap_bytes_if_le(p->rec.d_min);
+            result &= file->write(&buf4, sizeof(ui32)) == sizeof(ui32);
+            buf4 = swap_bytes_if_le(p->rec.d_max);
+            result &= file->write(&buf4, sizeof(ui32)) == sizeof(ui32);
+            // pt_val is a single byte in the marker segment; it must not be
+            // written through the address of the 32 bit member, which would
+            // write its most significant (and usually zero) byte on a
+            // big-endian machine
+            buf1 = (ui8)p->rec.pt_val;
+            result &= file->write(&buf1, sizeof(ui8)) == sizeof(ui8);
+
+            ui32 len = p->rec.bytes_per_point * p->rec.num_points;
+            if (p->rec.bytes_per_point == 1)
+              result &= file->write(p->rec.marker_points, len) == len;
+            else if (p->rec.bytes_per_point == 2)
+            {
+              char* sp = (char*)p->rec.marker_points;
+              for (ui32 i = 0; i < p->rec.num_points; ++i, sp += 2)
+              {
+                memcpy(&buf2, sp, 2); // not to violate strict aliasing
+                buf2 = swap_bytes_if_le(buf2);
+                result &= file->write(&buf2, sizeof(ui16)) == sizeof(ui16);
+              }
+            }
+            else
+            {
+              char* sp = (char*)p->rec.marker_points;
+              for (ui32 i = 0; i < p->rec.num_points; ++i, sp += 4)
+              {
+                memcpy(&buf4, sp, 4); // not to violate strict aliasing
+                buf4 = swap_bytes_if_le(buf4);
+                result &= file->write(&buf4, sizeof(ui32)) == sizeof(ui32);
+              }
+            }
+          }
         }
         p = p->next;
       }
@@ -2235,34 +2593,141 @@ namespace ojph {
     }
 
     //////////////////////////////////////////////////////////////////////////
-    void param_nlt::read(infile_base* file)
+    bool param_nlt::read(infile_base* file)
     {
       ui16 buf2_len;
       ui16 buf2_comp;
       ui8  buf1_BDnlt;
       ui8  buf1_Tnlt;
+      bool result = true;
 
-      if (file->read(&buf2_len, sizeof(ui16)) != sizeof(ui16))
-        OJPH_ERROR(0x00050141, "error reading NLT marker segment");
-      if (file->read(&buf2_comp, sizeof(ui16)) != sizeof(ui16))
-        OJPH_ERROR(0x00050142, "error reading NLT marker segment");
-      if (file->read(&buf1_BDnlt, sizeof(ui8)) != sizeof(ui8))
-        OJPH_ERROR(0x00050143, "error reading NLT marker segment");
-      if (file->read(&buf1_Tnlt, sizeof(ui8)) != sizeof(ui8))
-        OJPH_ERROR(0x00050144, "error reading NLT marker segment");
+      result &= file->read(&buf2_len, sizeof(ui16)) == sizeof(ui16);
+      result &= file->read(&buf2_comp, sizeof(ui16)) == sizeof(ui16);
+      result &= file->read(&buf1_BDnlt, sizeof(ui8)) == sizeof(ui8);
+      result &= file->read(&buf1_Tnlt, sizeof(ui8)) == sizeof(ui8);
+
+      if (buf1_Tnlt != nonlinearity::OJPH_NLT_NO_NLT &&
+        buf1_Tnlt != nonlinearity::OJPH_NLT_BINARY_COMPLEMENT_NLT &&
+        buf1_Tnlt != nonlinearity::OJPH_NLT_LUT_STYLE_NLT &&
+        buf1_Tnlt != nonlinearity::OJPH_NLT_BINARY_COMPLEMENT_PLUS_LUT)
+        OJPH_ERROR(0x00050141, "Unsupported nonlinearity type in an "
+          "NLT marker segment, with a value of", buf1_Tnlt);
 
       ui16 length = swap_bytes_if_le(buf2_len);
-      if (length != 6 || (buf1_Tnlt != 3 && buf1_Tnlt != 0))
-        OJPH_ERROR(0x00050145, "Unsupported NLT type %d\n", buf1_Tnlt);
+      if (buf1_Tnlt == nonlinearity::OJPH_NLT_NO_NLT ||
+        buf1_Tnlt == nonlinearity::OJPH_NLT_BINARY_COMPLEMENT_NLT)
+      {
+        if (length != 6)
+          OJPH_ERROR(0x00050142, "Somethins is wrong with this NLT "
+            "marker segment -- it has an incorrect length of %d",
+            length);
+      }
 
       ui16 comp = swap_bytes_if_le(buf2_comp);
+      if (comp > 16383 && comp != special_comp_num::ALL_COMPS)
+        OJPH_ERROR(0x00050143, "Something is wrong with this NLT "
+          "marker segment -- it has an incorrect component index of %d",
+          comp);
+
       param_nlt* p = get_nlt_object(comp);
       if (p == NULL)
         p = add_object(comp);
       p->enabled = true;
       p->Cnlt = comp;
-      p->BDnlt = buf1_BDnlt;
-      p->Tnlt = buf1_Tnlt;
+      p->rec.BDnlt = buf1_BDnlt;
+      if ((buf1_BDnlt & 0x7F) + 1 > 38)
+        OJPH_ERROR(0x00050144, "The NLT marker segment has an invalid bit "
+          "depth of %d", (buf1_BDnlt & 0x7F) + 1);
+      p->rec.Tnlt = buf1_Tnlt;
+
+      if (buf1_Tnlt == nonlinearity::OJPH_NLT_LUT_STYLE_NLT ||
+        buf1_Tnlt == nonlinearity::OJPH_NLT_BINARY_COMPLEMENT_PLUS_LUT)
+      {
+        ui16 buf2_num_points;
+        ui32 buf4_d_min, buf4_d_max;
+        ui8 buf_pt_val;
+
+        result &= file->read(&buf2_num_points, sizeof(ui16)) == sizeof(ui16);
+        result &= file->read(&buf4_d_min, sizeof(ui32)) == sizeof(ui32);
+        result &= file->read(&buf4_d_max, sizeof(ui32)) == sizeof(ui32);
+        result &= file->read(&buf_pt_val, sizeof(ui8)) == sizeof(ui8);
+
+        buf2_num_points = swap_bytes_if_le(buf2_num_points);
+        buf4_d_min = swap_bytes_if_le(buf4_d_min);
+        buf4_d_max = swap_bytes_if_le(buf4_d_max);
+
+        if (buf2_num_points < 1 || buf2_num_points > 8191)
+          OJPH_ERROR(0x00050145, "The NLT marker segment has an invalid "
+            "number of points field", buf2_num_points);
+        if (buf4_d_min >= buf4_d_max)
+          OJPH_ERROR(0x00050146, "In an NLT marker segment, Dmin must smaller "
+            "than Dmax; here we have %d and %d", buf4_d_min, buf4_d_max);
+        if (buf_pt_val == 0 || buf_pt_val > 32)
+          OJPH_ERROR(0x00050147, "In an NLT marker segment, the value of "
+            "pt_val must be larger than 0 and smaller or equal to 32; "
+            "here, we have %d", buf_pt_val);
+
+        p->rec.num_points = buf2_num_points + 1;
+        p->rec.d_min = buf4_d_min;
+        p->rec.d_max = buf4_d_max;
+        p->rec.pt_val = buf_pt_val;
+        p->rec.bytes_per_point = p->rec.get_bpp(buf_pt_val);
+
+        // read the points
+        ui32 len = p->rec.cal_store_size_for_decoding();
+        if (p->rec.store_size < len)
+        {
+          if (p->rec.points_store)
+            delete[] (ui8*)p->rec.points_store;
+          p->rec.store_size = 0;
+          p->rec.points_store = new (std::nothrow) ui8[len];
+          if (p->rec.points_store == NULL)
+            OJPH_ERROR(0x00050148, "Failed to allocated memory");
+          p->rec.store_size = len;
+        }
+        p->rec.assign_pointers_for_decoding();
+
+        if (p->rec.bytes_per_point == 1)
+          result &= file->read(p->rec.marker_points, len) == len;
+        else if (p->rec.bytes_per_point == 2)
+        {
+          ui16 buf2;
+          char* dp = (char*)p->rec.marker_points;
+          for (ui32 i = 0; i < p->rec.num_points; ++i, dp += 2)
+          {
+            result &= file->read(&buf2, sizeof(ui16)) == sizeof(ui16);
+            buf2 = swap_bytes_if_le(buf2);
+            memcpy(dp, &buf2, 2); // not to violate strict aliasing
+          }
+        }
+        else
+        {
+          ui32 buf4;
+          char* dp = (char*)p->rec.marker_points;
+          for (ui32 i = 0; i < p->rec.num_points; ++i, dp += 4)
+          {
+            result &= file->read(&buf4, sizeof(ui32)) == sizeof(ui32);
+            buf4 = swap_bytes_if_le(buf4);
+            memcpy(dp, &buf4, 4); // not to violate strict aliasing
+          }
+        }
+        p->rec.prepare_for_decoding();
+      }
+
+      return result;
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    const nlt_rec* param_nlt::get_nlt_rec(ui32 comp_num) const
+    {
+      assert(Cnlt == special_comp_num::ALL_COMPS);
+      const param_nlt* p = get_nlt_object(comp_num);
+      if (p && p->enabled)
+        return &p->rec;
+      else if (this->enabled)
+        return &this->rec;
+      else
+        return NULL;
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -2277,6 +2742,10 @@ namespace ojph {
     //////////////////////////////////////////////////////////////////////////
     const param_nlt* param_nlt::get_nlt_object(ui32 comp_num) const
     {
+      // top level must be ALL_COMPS; cannot call this functions from
+      // non-top nlt
+      assert(Cnlt == special_comp_num::ALL_COMPS);
+
       const param_nlt* p = this;
       while (p && p->Cnlt != comp_num)
         p = p->next;
@@ -2287,7 +2756,7 @@ namespace ojph {
     param_nlt* param_nlt::add_object(ui32 comp_num)
     {
       assert(comp_num != special_comp_num::ALL_COMPS);
-      assert(Cnlt == special_comp_num::ALL_COMPS);
+      assert(Cnlt == special_comp_num::ALL_COMPS);      // top level
       param_nlt* p = this;
       while (p->next != NULL) {
         assert(p->Cnlt != comp_num);
@@ -2471,17 +2940,14 @@ namespace ojph {
     //////////////////////////////////////////////////////////////////////////
     void param_tlm::init(ui32 num_pairs, Ttlm_Ptlm_pair *store)
     {
-      if (4 + 6 * num_pairs > 65535)
-        OJPH_ERROR(0x000500B1, "Trying to allocate more than 65535 bytes for "
-                   "a TLM marker; this can be resolved by having more than "
-                   "one TLM marker, but the code does not support this. "
-                   "In any case, this limit means that we have 10922 "
-                   "tileparts or more, which is a huge number.");
+      if (num_pairs > MAX_PAIRS_PER_SEG * MAX_SEGMENTS)
+        OJPH_ERROR(0x000500B1, "Trying to store %d tileparts in TLM markers, "
+                   "but at most %d can be indexed; a codestream can carry "
+                   "%d TLM marker segments of %d entries each.",
+                   num_pairs, MAX_PAIRS_PER_SEG * MAX_SEGMENTS,
+                   MAX_SEGMENTS, MAX_PAIRS_PER_SEG);
       this->num_pairs = num_pairs;
       pairs = store;
-      Ltlm = (ui16)(4 + 6 * num_pairs);
-      Ztlm = 0;
-      Stlm = 0x60;
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -2501,20 +2967,32 @@ namespace ojph {
       ui32 buf4;
       bool result = true;
 
-      buf2 = JP2K_MARKER::TLM;
-      buf2 = swap_bytes_if_le(buf2);
-      result &= file->write(&buf2, sizeof(ui16)) == sizeof(ui16);
-      buf2 = swap_bytes_if_le(Ltlm);
-      result &= file->write(&buf2, sizeof(ui16)) == sizeof(ui16);
-      result &= file->write(&Ztlm, 1) == 1;
-      result &= file->write(&Stlm, 1) == 1;
-      for (ui32 i = 0; i < num_pairs; ++i)
+      ui32 written = 0;
+      ui32 z = 0;
+      do
       {
-        buf2 = swap_bytes_if_le(pairs[i].Ttlm);
+        ui32 left = num_pairs - written;
+        ui32 count = left < MAX_PAIRS_PER_SEG ? left : MAX_PAIRS_PER_SEG;
+        ui8 Ztlm = (ui8)z;
+        ui8 Stlm = 0x60; // 2-byte Ttlm, 4-byte Ptlm
+
+        buf2 = JP2K_MARKER::TLM;
+        buf2 = swap_bytes_if_le(buf2);
         result &= file->write(&buf2, sizeof(ui16)) == sizeof(ui16);
-        buf4 = swap_bytes_if_le(pairs[i].Ptlm);
-        result &= file->write(&buf4, sizeof(ui32)) == sizeof(ui32);
-      }
+        buf2 = swap_bytes_if_le((ui16)(4 + 6 * count));
+        result &= file->write(&buf2, sizeof(ui16)) == sizeof(ui16);
+        result &= file->write(&Ztlm, 1) == 1;
+        result &= file->write(&Stlm, 1) == 1;
+        for (ui32 i = written; i < written + count; ++i)
+        {
+          buf2 = swap_bytes_if_le(pairs[i].Ttlm);
+          result &= file->write(&buf2, sizeof(ui16)) == sizeof(ui16);
+          buf4 = swap_bytes_if_le(pairs[i].Ptlm);
+          result &= file->write(&buf4, sizeof(ui32)) == sizeof(ui32);
+        }
+        written += count;
+        ++z;
+      } while (written < num_pairs);
       return result;
     }
 
