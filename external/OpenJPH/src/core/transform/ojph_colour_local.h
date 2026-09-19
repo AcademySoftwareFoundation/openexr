@@ -71,6 +71,18 @@ namespace ojph {
       si64 shift, ui32 width);
 
     //////////////////////////////////////////////////////////////////////////
+    void gen_rev_encode_nlt(
+      const line_buf *src_line, const ui32 src_line_offset,
+      line_buf *dst_line, ui32 bit_depth, bool is_signed, ui32 width,
+      const nlt_rec *rec);
+
+    //////////////////////////////////////////////////////////////////////////
+    void gen_rev_decode_nlt(
+      const line_buf *src_line, const ui32 src_line_offset,
+      line_buf *dst_line, const ui32 dst_line_offset,
+      ui32 bit_depth, bool is_signed, ui32 width, const nlt_rec *rec);
+
+    //////////////////////////////////////////////////////////////////////////
     void gen_rev_convert_nlt_type3(
       const line_buf *src_line, const ui32 src_line_offset,
       line_buf *dst_line, const ui32 dst_line_offset,
@@ -87,9 +99,19 @@ namespace ojph {
       ui32 bit_depth, bool is_signed, ui32 width);
 
     //////////////////////////////////////////////////////////////////////////
+    void gen_irv_convert_to_float_nlt(
+      const line_buf *src_line, ui32 src_line_offset, line_buf *dst_line,
+      ui32 bit_depth, bool is_signed, ui32 width, const nlt_rec *rec);
+
+    //////////////////////////////////////////////////////////////////////////
     void gen_irv_convert_to_float_nlt_type3(
       const line_buf *src_line, ui32 src_line_offset,
       line_buf *dst_line, ui32 bit_depth, bool is_signed, ui32 width);
+
+    //////////////////////////////////////////////////////////////////////////
+    void gen_irv_convert_to_integer_nlt(
+      const line_buf *src_line, line_buf *dst_line, ui32 dst_line_offset,
+      ui32 bit_depth, bool is_signed, ui32 width, const nlt_rec *rec);
 
     //////////////////////////////////////////////////////////////////////////
     void gen_irv_convert_to_integer_nlt_type3(
@@ -144,6 +166,11 @@ namespace ojph {
       ui32 bit_depth, bool is_signed, ui32 width);
 
     //////////////////////////////////////////////////////////////////////////
+    void sse2_irv_convert_to_integer_nlt(
+      const line_buf *src_line, line_buf *dst_line, ui32 dst_line_offset,
+      ui32 bit_depth, bool is_signed, ui32 width, const nlt_rec *rec);
+
+    //////////////////////////////////////////////////////////////////////////
     void sse2_irv_convert_to_integer_nlt_type3(
       const line_buf *src_line, line_buf *dst_line, ui32 dst_line_offset,
       ui32 bit_depth, bool is_signed, ui32 width);
@@ -172,6 +199,12 @@ namespace ojph {
     void sse2_irv_convert_to_float(
       const line_buf *src_line, ui32 src_line_offset,
       line_buf *dst_line, ui32 bit_depth, bool is_signed, ui32 width);
+
+    //////////////////////////////////////////////////////////////////////////
+    void sse2_irv_convert_to_float_nlt(
+      const line_buf *src_line, ui32 src_line_offset,
+      line_buf *dst_line, ui32 bit_depth, bool is_signed, ui32 width,
+      const nlt_rec *rec);
 
     //////////////////////////////////////////////////////////////////////////
     void sse2_irv_convert_to_float_nlt_type3(
@@ -235,9 +268,20 @@ namespace ojph {
       line_buf *dst_line, ui32 bit_depth, bool is_signed, ui32 width);
 
     //////////////////////////////////////////////////////////////////////////
+    void avx2_irv_convert_to_integer_nlt(
+      const line_buf *src_line, line_buf *dst_line, ui32 dst_line_offset,
+      ui32 bit_depth, bool is_signed, ui32 width, const nlt_rec *rec);
+
+    //////////////////////////////////////////////////////////////////////////
     void avx2_irv_convert_to_integer_nlt_type3(
       const line_buf *src_line, line_buf *dst_line, ui32 dst_line_offset,
       ui32 bit_depth, bool is_signed, ui32 width);
+
+    //////////////////////////////////////////////////////////////////////////
+    void avx2_irv_convert_to_float_nlt(
+      const line_buf *src_line, ui32 src_line_offset,
+      line_buf *dst_line, ui32 bit_depth, bool is_signed, ui32 width,
+      const nlt_rec *rec);
 
     //////////////////////////////////////////////////////////////////////////
     void avx2_irv_convert_to_float_nlt_type3(

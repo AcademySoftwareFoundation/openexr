@@ -84,6 +84,7 @@ jobs:
       OPENEXR_FORCE_INTERNAL_DEFLATE: ${{ matrix.OPENEXR_FORCE_INTERNAL_DEFLATE || 'OFF' }}
       OPENEXR_FORCE_INTERNAL_ZSTD: ${{ matrix.OPENEXR_FORCE_INTERNAL_ZSTD || 'OFF' }}
       OPENEXR_FORCE_INTERNAL_OPENJPH: ${{ matrix.OPENEXR_FORCE_INTERNAL_OPENJPH || 'OFF' }}
+      openjph_version:  ${{ matrix.openjph_version || '0.32.0' }}
       BUILD_TESTING: ${{ matrix.BUILD_TESTING || 'ON' }}
       RUN_TESTING: ${{ matrix.RUN_TESTING || 'ON' }}
       namespace: ${{ matrix.namespace }}
@@ -170,7 +171,13 @@ jobs:
             label: STATIC w/vendored OpenJPH
             OPENEXR_FORCE_INTERNAL_OPENJPH: 'ON'
             BUILD_SHARED_LIBS: 'OFF'
-            RUN_TESTING: OFF
+            RUN_TESTING: 'OFF'
+
+          - build: 14
+            label: outdated OpenJPH
+            openjph_version: '0.31.0'
+            validate_install: 'OFF'
+            BUILD_TESTING: 'OFF'
 
   macOS:
     name: 'macOS.${{ matrix.build}}: ${{ matrix.label }}'
@@ -198,6 +205,7 @@ jobs:
       OPENEXR_FORCE_INTERNAL_DEFLATE: ${{ matrix.OPENEXR_FORCE_INTERNAL_DEFLATE || 'OFF' }}
       OPENEXR_FORCE_INTERNAL_ZSTD: ${{ matrix.OPENEXR_FORCE_INTERNAL_ZSTD || 'OFF' }}
       OPENEXR_FORCE_INTERNAL_OPENJPH: ${{ matrix.OPENEXR_FORCE_INTERNAL_OPENJPH || 'OFF' }}
+      openjph_version:  ${{ matrix.openjph_version || '0.32.0' }}
       CMAKE_OSX_ARCHITECTURES: ${{ matrix.CMAKE_OSX_ARCHITECTURES }}
       BUILD_TESTING: ${{ matrix.BUILD_TESTING || 'ON' }}
       RUN_TESTING: ${{ matrix.RUN_TESTING || 'ON' }}
@@ -288,6 +296,7 @@ jobs:
       OPENEXR_FORCE_INTERNAL_DEFLATE: ${{ matrix.OPENEXR_FORCE_INTERNAL_DEFLATE || 'OFF' }}
       OPENEXR_FORCE_INTERNAL_ZSTD: ${{ matrix.OPENEXR_FORCE_INTERNAL_ZSTD || 'OFF' }}
       OPENEXR_FORCE_INTERNAL_OPENJPH: ${{ matrix.OPENEXR_FORCE_INTERNAL_OPENJPH || 'OFF' }}
+      openjph_version:  ${{ matrix.openjph_version || '0.32.0' }}
       msystem: ${{ matrix.msystem }}
       BUILD_TESTING: ${{ matrix.BUILD_TESTING || 'ON' }}
       RUN_TESTING: ${{ matrix.RUN_TESTING || 'ON' }}
