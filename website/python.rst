@@ -28,18 +28,19 @@ this may not be the module for you. But if your application is
 comfortable reading entire files into memory and can deal with pixel
 data in numpy arrays, the OpenEXR module is a suitable option.
 
-A Note about Backwards Compatibility
-====================================
 
-The v3.3 release of the OpenEXR module provides an entirely new API in
-the form of the ``OpenEXR.File`` object. This API is full-featured and
-fully supported going forward.
-
-The original implementation of the OpenEXR python bindings prior to
-the v3.3 release used the ``InputFile`` and ``OutputFile``
-objects. This API is limited in scope, and is now deprecated. It is
-still distributed as is for backwards compatibility, but usage is
-discouraged.
+.. admonition:: A Note about Backwards Compatibility
+    :class: caution
+    
+    The v3.3 release of the OpenEXR module provides an entirely new API in
+    the form of the ``OpenEXR.File`` object. This API is full-featured and
+    fully supported going forward.
+    
+    The original implementation of the OpenEXR python bindings prior to
+    the v3.3 release used the ``InputFile`` and ``OutputFile``
+    objects. This API is limited in scope, and is now deprecated. It is
+    still distributed as is for backwards compatibility, but usage is
+    discouraged.
 
 Example Images
 ==============
@@ -631,4 +632,3 @@ Parallelism is most effective for large scanline or tiled files read from
 or written to disk. In-memory streams (for example ``io.BytesIO``) still
 acquire the GIL on each stream call, so multithreading provides less
 benefit there.
-
