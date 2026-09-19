@@ -3,6 +3,12 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
+#include <ImfArray.h>
+#include <ImfTiledRgbaFile.h>
+
+using namespace IMATH_NAMESPACE;
+using namespace OPENEXR_IMF_NAMESPACE;
+
 void
 readTiledRgba1 (
     const char fileName[], Array2D<Rgba>& pixels, int& width, int& height)

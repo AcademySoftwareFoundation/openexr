@@ -35,8 +35,11 @@
 // 128-bit SIMD helpers for POWER VSX, used by the ojph_*_vsx.cpp
 // kernels.  Lane numbering and operation semantics follow the same
 // conventions as the other 128-bit kernels in this codebase (lane 0
-// is the lowest memory address).  Supported targets are POWER9
-// (ISA 3.0) and newer, little-endian only (ppc64le).
+// is the lowest memory address).  Supported targets are POWER8
+// (ISA 2.07) and newer, little-endian only (ppc64le).  Everything
+// here is expressible at the ISA 2.07 baseline; the one newer
+// instruction used, vec_extractm (ISA 3.1), is guarded and has an
+// ISA 2.07 fallback.
 //***************************************************************************/
 
 #ifndef OJPH_SIMD_VSX_H
@@ -266,8 +269,10 @@ static inline v128_t vsx_i64x2_extend_low_i32x4(v128_t a)
   // return (v128_t)__builtin_convertvector(
   //   __builtin_shufflevector(v, v, 0, 1), vsx_v_i64);
 
-  // Unpacks and sign-extends elements 0 and 1 on Little Endian
-  return (v128_t)vec_unpackl((vsx_v_i32)a);
+  // vec_unpackh's "high" half is the one holding elements 0 and 1; the
+  // compiler keeps that mapping on both endiannesses, so this sign-extends
+  // elements 0 and 1.
+  return (v128_t)vec_unpackh((vsx_v_i32)a);
 }
 static inline v128_t vsx_i64x2_extend_high_i32x4(v128_t a)
 {
@@ -275,8 +280,10 @@ static inline v128_t vsx_i64x2_extend_high_i32x4(v128_t a)
   // return (v128_t)__builtin_convertvector(
   //   __builtin_shufflevector(v, v, 2, 3), vsx_v_i64);
 
-  // Unpacks and sign-extends elements 2 and 3 on Little Endian
-  return (v128_t)vec_unpackh((vsx_v_i32)a);
+  // vec_unpackl's "low" half is the one holding elements 2 and 3; the
+  // compiler keeps that mapping on both endiannesses, so this sign-extends
+  // elements 2 and 3.
+  return (v128_t)vec_unpackl((vsx_v_i32)a);
 }
 
 //---------------------------------------------------------------------------

@@ -102,7 +102,7 @@ Make sure these are installed on your system before building OpenEXR:
 * ``Imath`` (auto-fetched by CMake if not found) (https://github.com/AcademySoftwareFoundation/Imath)
 * ``libdeflate`` (internal copy used by CMake if not found for
   v3.4+; auto-fetched in v3.3 and before) (https://github.com/ebiggers/libdeflate)
-* ``openjph`` (internal vendored copy used by CMake if not found; new
+* ``openjph`` (minimum version 0.32.0; internal vendored copy used by CMake if not found; new
   in v3.4; auto-fetched in 3.4.5 and before) (https://github.com/aous72/OpenJPH)
 * ``zstd`` (internal vendored copy used by CMake if a suitable external
   install is not found; new in v3.5) (https://github.com/facebook/zstd)
@@ -588,10 +588,12 @@ As of OpenEXR release v3.4, OpenEXR depends on
 `OpenJPH <https://github.com/aous72/OpenJPH>`_ for
 HTJ2K compression. 
 
+A minimum version of 0.32.0 is required.
+
 As of OpenEXR release v3.4.6, OpenEXR ships with an internal "vendored"
 copy of the ``OpenJPH`` library. At configuration time, if
 CMake finds an external installation of ``OpenJPH``, it will use
-it. If it fails to find an installation, it will use the internal
+it. If it fails to find an acceptable installation, it will use the internal
 copy. To force use of the internal copy, configure with
 ``-DOPENEXR_FORCE_INTERNAL_OPENJPH=ON``.
 

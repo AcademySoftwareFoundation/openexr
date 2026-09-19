@@ -3,6 +3,13 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
+#include <ImfTiledRgbaFile.h>
+#include <ImfRgba.h>
+#include <ImfArray.h>
+
+using namespace IMATH_NAMESPACE;
+using namespace OPENEXR_IMF_NAMESPACE;
+
 void
 writeTiledRgbaMIP2 (
     const char fileName[], int width, int height, int tileWidth, int tileHeight)

@@ -46,12 +46,11 @@ Simple Example
 To get started, here is a simple code snippet that starts to read a
 file:
 
-.. code-block::
-   :linenos:
+.. code-block:: c
       
     exr_context_initializer_t ctxtinit = EXR_DEFAULT_CONTEXT_INITIALIZER;
     exr_context_t myfile;
-    exr_result_t rv = exr_start_read(&myfile, “/tmp/foo.exr”, &ctxtinit);
+    exr_result_t rv = exr_start_read(&myfile, "/tmp/foo.exr", &ctxtinit);
     if (rv != EXR_ERR_SUCCESS)
     {
       /* do something about the error */
@@ -91,8 +90,7 @@ attributes by type. Further, the attributes can be accessed either in
 a sorted order, or the order within which they appear in the file. One
 example might be to retrieve the data window:
 
-.. code-block::
-   :linenos:
+.. code-block:: c
 
     exr_attr_box2i_t datawindow;
     exr_result_t rv = exr_get_data_window(ctxt, 0, &datawindow);
@@ -540,4 +538,3 @@ Debugging
 ^^^^^^^^^
 
 .. doxygenfunction:: exr_print_context_info
-
