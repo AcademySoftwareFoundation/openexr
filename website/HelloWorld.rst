@@ -9,7 +9,6 @@ Hello, World
 
 .. toctree::
    :caption: Hello, World
-   :maxdepth: 1
 
 Write an Image
 ==============
@@ -61,6 +60,3 @@ To build:
 
 .. literalinclude:: src/exrreader/build.sh
    :lines: 5-
-
-
-              

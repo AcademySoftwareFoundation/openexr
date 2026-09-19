@@ -8,13 +8,58 @@ OpenEXR
 #######
 
 .. toctree::
-   :caption: OpenEXR
-   :maxdepth: 1
+    :hidden:
+    :caption: Home
+
+    Install <install>
+    API <API>
+    Concepts <concepts>
+    tools
+    UserGuide
+    news
+    about
+    python
+    test_images/index
+    license
+    
+The professional-grade image storage format of the motion picture industry.
+
+.. |fas-book| raw:: html
+
+   <i class="fas fa-book sd-text-primary"></i>
+
+.. |fas-chalkboard-user| raw:: html
+
+   <i class="fas fa-chalkboard-user sd-text-primary"></i>
+
+.. grid:: 1 2 2 3
+   :gutter: 3
+
+   .. grid-item-card:: |fas-book| User guide
+      :link: UserGuide
+      :link-type: doc
+
+      Get Started with OpenEXR.
+
+   .. grid-item-card:: :fas:`code;sd-text-primary` C API Reference 
+      :link: OpenEXRCoreAPI 
+      :link-type: doc
+
+      Read OpenEXR's C API.
+
+   .. grid-item-card:: :fab:`python;sd-text-primary` Python API 
+      :link: python
+      :link-type: doc
+
+      Learn how to read and write EXR images using Python.
+      
+Overview
+========
 
 .. sidebar:: 
 
      .. image:: images/windowExample1.small.png
-
+     
 OpenEXR provides the specification and reference implementation of the
 EXR file format, the professional-grade image storage format of the
 motion picture industry.
@@ -36,24 +81,11 @@ OpenEXR is a project of the `Academy Software Foundation
 
 .. include:: latest_news_title.rst
 
-Latest News
-===========
-
-.. image:: images/news.png
-   :width: 50
-   :height: 50
-   :align: left
+:fas:`newspaper;sd-text-primary` Latest News
+============================================
 
 |latest-news-title|
 
-.. |bug| unicode:: U+1F41B
-   :ltrim:
-
-.. |rocket| unicode:: U+1F680
-   :ltrim:
-
-.. |hammer_and_wrench| unicode:: U+1F6E0
-   :ltrim:
 .. highlights::
 
    .. include:: news.rst
@@ -75,18 +107,8 @@ Imath also includes optional python bindings for all types and
 functions, including optimized implementations of vector and matrix
 arrays.
 
-Quick Start
-===========
-
-You can :doc:`install <install>` OpenEXR using package managers or
-build the library yourself from the `source on github <https://github.com/AcademySoftwareFoundation/openexr>`_
-following the :ref:`compile instructions <build-from-source>`
-
-For a simple program that uses the C++ API to read and write a ``.exr`` file, see the
-:doc:`HelloWorld` examples.
-
-Community
-=========
+:fas:`users;sd-text-primary` Community
+======================================
 
 * **Ask a question:**
 
@@ -139,6 +161,3 @@ Resources
   <https://github.com/AcademySoftwareFoundation/openexr/blob/main/CHANGES.md>`_
 - Contributors: `CONTRIBUTORS.md <https://github.com/AcademySoftwareFoundation/openexr/blob/main/CONTRIBUTORS.md>`_
 - Porting Guide: :doc:`PortingGuide`
-  
-.. include:: toc_redirect.rst
-
