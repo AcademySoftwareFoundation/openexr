@@ -289,14 +289,20 @@ Application programs that write deep OpenEXR files can add a
 pixels in the image are tidy or not. The attribute is of type
 ``DeepImageState``, and can have the following values:
 
-=================== =====================================================
-Value               Interpretation
-=================== =====================================================
-``MESSY``           Samples may not be sorted, and overlaps are possible.
-``SORTED``          Samples are sorted, but overlaps are possible.
-``NON_OVERLAPPING`` Samples do not overlap, but may not be sorted.
-``TIDY``            Samples are sorted and do not overlap.
-=================== =====================================================
+.. list-table::
+    :header-rows: 1
+    :align: left
+
+    * - Value
+      - Interpretation
+    * - ``MESSY``
+      - Samples may not be sorted, and overlaps are possible.
+    * - ``SORTED``
+      - Samples are sorted, but overlaps are possible.
+    * - ``NON_OVERLAPPING``
+      - Samples do not overlap, but may not be sorted.
+    * - ``TIDY``
+      - Samples are sorted and do not overlap.
 
 If the header does not contain a **deepImageState** attribute, then file
 readers should assume that the image is ``MESSY``. The OpenEXR file I/O
@@ -641,15 +647,10 @@ Example: Splitting a Volume Sample
 ----------------------------------
 
 .. literalinclude:: src/splitVolumeSample.cpp
-   :linenos:
    :lines: 5-
       
 Example: Merging Two Overlapping Samples
 ----------------------------------------
 
 .. literalinclude:: src/mergeOverlappingSamples.cpp
-   :linenos:
    :lines: 5-
-
-
-      

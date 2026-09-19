@@ -164,7 +164,7 @@ Packing
 Data in an OpenEXR file are densely packed; the file contains no
 "padding". For example, consider the following C struct:
 
-.. code-block::
+.. code-block:: c
 
     struct SI
     {
