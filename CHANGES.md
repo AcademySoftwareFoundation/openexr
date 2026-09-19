@@ -181,7 +181,6 @@
   - Support for the `idManifest` attribute and object
   - Support for multithreaded read and write
   - Support for reading/writing from/to `BytesIO` object
-  - Improved `ChannelList` Iterator API
   - Add `setMaxImageSize/setMaxTileSize` functions
 
 * Other changes:
@@ -191,12 +190,16 @@
   - Improved handling of many channels
   - All Imath headers are now included internally via `#include <Imath/...>`
   - Remove `iex_debugTrap()` function (was not used)
+  - Improved `ChannelList` Iterator API
+  - Fixed a bug that with DWA compression that could silently produce
+    corrupted files. 
 
 * Also of note:
 
   - The vendored version of deflate is 1.26
-  - The vendored version of openjph is 0.31.0
-
+  - The vendored version of OpenJPH is 0.32.0
+  - The minimum required version of OpenJPH is 0.32.0
+  
 ### Security
 
 This release addresses the following security vulnerabilities:
@@ -212,11 +215,23 @@ This release addresses the following security vulnerabilities:
 
 ### Merged Pull Requests
 
+* [2660](https://github.com/AcademySoftwareFoundation/openexr/pull/2660)
+  Look for version headers in `CMAKE_CURRENT_SOURCE_DIR/external`  (by @cary-ilm/Cary Phillips)
+* [2656](https://github.com/AcademySoftwareFoundation/openexr/pull/2656)
+  Bump zstd from 1.5.7.bcr.1 to 1.5.7.bcr.2
+* [2655](https://github.com/AcademySoftwareFoundation/openexr/pull/2655)
+  Bump rules_cc from 0.2.22 to 0.2.25
+* [2654](https://github.com/AcademySoftwareFoundation/openexr/pull/2654)
+  Bump required OpenJPH to 0.32.0 (by @cary-ilm/Cary Phillips)
+* [2650](https://github.com/AcademySoftwareFoundation/openexr/pull/2650)
+  Fix null pointer memcpy in BytesAttribute for zero-length data (by @x4evexnol/babayaga)
 * [2648](https://github.com/AcademySoftwareFoundation/openexr/pull/2648)
-  Fix HTJ2k Compile issues (by @vlazar-ilm/Vlad Lazar)
+  Fix DWAB corrupted file (by @vlazar-ilm/Vlad Lazar)
 * [2640](https://github.com/AcademySoftwareFoundation/openexr/pull/2640)
   LJ2K: declare the chunk padding in a COM marker segment (by
   @osamu620/Osamu Watanabe)
+* [2637](https://github.com/AcademySoftwareFoundation/openexr/pull/2637)
+  LJ2K: Use J2K Type 4 NLT LUT to apply the transfer function (by @palemieux/Pierre-Anthony Lemieux)
 * [2633](https://github.com/AcademySoftwareFoundation/openexr/pull/2633)
   LJ2K: pad lossy chunks so that wavelet folds stay on low-pass
   positions (by @osamu620/Osamu Watanabe)
@@ -285,10 +300,19 @@ This release addresses the following security vulnerabilities:
 
 ### Documentation Pull Requests
 
+* [2652](https://github.com/AcademySoftwareFoundation/openexr/pull/2652)
+  website: improve documentation code and equation formatting (by @QuantaDude/Abhirup Bhattacharyya)
+* [2651](https://github.com/AcademySoftwareFoundation/openexr/pull/2651)
+  Set 'align: left' for tables that had central text alignment in
+  TechnicalIntroduction.rst for better formatting (by @dmitryshurov/Dmitry Shurov)
+* [2649](https://github.com/AcademySoftwareFoundation/openexr/pull/2649)
+  website: document LJ2K compression (by @QuantaDude/Abhirup Bhattacharyya)
+* [2647](https://github.com/AcademySoftwareFoundation/openexr/pull/2647)
+  website: compile documentation examples independently (by @QuantaDude/Abhirup Bhattacharyya)
 * [2638](https://github.com/AcademySoftwareFoundation/openexr/pull/2638)
-  Release notes for v3.5.0
+  Release notes for v3.5.0 (by @cary-ilm/Cary Phillips)
 * [2634](https://github.com/AcademySoftwareFoundation/openexr/pull/2634)
-  docs: Fix SECURITY.md formatting
+  docs: Fix SECURITY.md formatting (by @lgritz/Larry Gritz)
 * [2624](https://github.com/AcademySoftwareFoundation/openexr/pull/2624)
   Release notes and news for v3.4.15, v3.3.14, v3.2.12 (by @cary-ilm/Cary Phillips)
 * [2580](https://github.com/AcademySoftwareFoundation/openexr/pull/2580)
