@@ -352,6 +352,8 @@ allowing users to identify which file name extensions they will employ
 for multi-view OpenEXR files. For example, software may understand the
 environment variable
 
+.. code-block:: text
+
     MULTIVIEW_EXR_EXT="SXR"
 
 or provide a similar facility in a configuration file or registry entry.

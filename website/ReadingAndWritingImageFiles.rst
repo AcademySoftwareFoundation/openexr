@@ -622,7 +622,7 @@ the ``type``, ``xStride`` and ``yStride`` of the corresponding
 
 for pixel ``(dw.min.x, dw.min.y)`` produces
 
-.. code-block::
+.. code-block:: c
 
     (char*)(&rPixels[0][0] - dw.min.x - dw.min.y * width)
      + dw.min.x * sizeof (rPixels[0][0]) * 1
@@ -1128,12 +1128,9 @@ be ``sizeof(float)``. If we name the stride for deep data
 samples ``sampleStride``, then the memory address of the i-th sample of
 this channel in pixel ``(x, y)`` is
 
-.. code-block::
+.. math::
 
-    base +
-       x * xStride +
-       y * yStride +
-       i * sampleStride
+        \text{base} + x \cdot \text{xStride} + y \cdot \text{yStride} + i \cdot \text{sampleStride}
 
 Because we may not know the data until we are going to write it, the
 deep data file must support postponed initialization, as shown in the
