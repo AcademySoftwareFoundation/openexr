@@ -1106,6 +1106,15 @@ OutputFile::writePixels (int numScanLines)
                 _data->missingScanLines -= numLines;
 
                 //
+                // A background compression task may have failed without
+                // clearing partiallyFull; surface that before treating the
+                // buffer as legitimately incomplete.
+                //
+
+                if (writeBuffer->hasException)
+                    throw IEX_NAMESPACE::IoExc (writeBuffer->exception);
+
+                //
                 // If the line buffer is only partially full, then it is
                 // not complete and we cannot write it to disk yet.
                 //
