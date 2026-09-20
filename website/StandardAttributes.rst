@@ -153,6 +153,7 @@ Basic Attributes
            <li> <tt> DWAB_COMPRESSION </tt> - lossy DCT based compression, in blocks of 256 scanlines. More efficient space wise and faster to decode full frames than <tt>DWAA_COMPRESSION</tt>. </li>
            <li> <tt> HTJ2K256_COMPRESSION </tt> - JPEG 2000 lossless coding, in blocks of 256 scanlines and using the High-Throughput (HT) blocker. Offers both speed and high-coding efficiency. </li>
            <li> <tt> HTJ2K32_COMPRESSION </tt> - JPEG 2000 lossless coding, in blocks of 32 scanlines and using the High-Throughput (HT) blocker. Offers both speed and high-coding efficiency. </li>
+           <li> <tt> LJ2K_COMPRESSION </tt> - JPEG 2000 lossy coding, in blocks of 256 scanlines and using the High-Throughput (HT) block coder. Offers smaller files at the expense of introducing distortion. </li>
          </ul>
        </p>
      </td>

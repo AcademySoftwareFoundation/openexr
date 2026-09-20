@@ -272,12 +272,8 @@ set(OPENEXR_USE_INTERNAL_OPENJPH 0 CACHE INTERNAL
     "Whether OpenEXR bundles vendored OpenJPH into OpenEXRCore (0 or 1)")
 
 if (NOT OPENEXR_FORCE_INTERNAL_OPENJPH)
-  find_package(openjph CONFIG QUIET)
+  find_package(openjph 0.32.0 CONFIG QUIET)
   if(openjph_FOUND)
-    if(openjph_VERSION VERSION_LESS "0.32.0")
-        message(FATAL_ERROR "OpenJPH >= 0.32.0 required, but found ${openjph_VERSION}")
-    endif()
-
     message(STATUS "Using OpenJPH ${openjph_VERSION} from ${openjph_DIR}")
     set(EXR_OPENJPH_LIB openjph)
   else()

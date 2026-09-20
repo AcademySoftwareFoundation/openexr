@@ -162,7 +162,7 @@ If you are *only* concerned with OpenEXR/Imath 3.x going forward, this is
 the recommended way to find the libraries in a downstream project that uses
 the CMake build system:
 
-.. code-block::
+.. code-block:: cmake
 
     find_package(Imath CONFIG)
     find_package(OpenEXR CONFIG)
@@ -172,7 +172,7 @@ portions.
 
 And then your project can reference the imported targets like this:
 
-.. code-block::
+.. code-block:: CMake
 
     target_link_libraries (my_target
         PRIVATE
@@ -196,7 +196,7 @@ names.  We have found the following idioms to work:
 
 Finding either/both packages:
 
-.. code-block::
+.. code-block:: CMake
 
     # First, try to find just the right config files
     find_package(Imath CONFIG)
@@ -210,7 +210,7 @@ To link against them, we use CMake generator expressions so that we can
 reference *both* sets of targets, but it will only use the ones
 corresponding to the package version that was found.
 
-.. code-block::
+.. code-block:: CMake
 
     target_link_libraries (my_target
         PRIVATE
@@ -259,14 +259,14 @@ OpenEXR/Imath 3.x Only
 If you know that you are only using Imath 3.x, then just change any
 include directions, like this:
 
-.. code-block::
+.. code-block:: c
 
     #include <OpenEXR/ImathVec.h>
     #include <OpenEXR/half.h>
 
 to the new locations:
 
-.. code-block::
+.. code-block:: c
 
     #include <ImathVec.h>
     #include <Imath/half.h>
@@ -278,7 +278,7 @@ If you want your software to be able to build against either OpenEXR 2.x or
 3.x (depending on which dependency is available at build time), we recommend
 using a more complicated idiom:
 
-.. code-block::
+.. code-block:: c
 
     // The version can reliably be found in this header file from OpenEXR,
     // for both 2.x and 3.x:
@@ -380,7 +380,7 @@ File/Class-specific Changes
   option puts it in the global namespace, except when compiling for
   CUDA, in which case the 'half' type refers to the CUDA type:
 
-.. code-block::
+.. code-block:: cpp
 
       #ifndef __CUDACC__
       using half = IMATH_INTERNAL_NAMESPACE::half;
@@ -388,16 +388,16 @@ File/Class-specific Changes
       #include <cuda_fp16.h>
       #endif
 
-  If you desire to use Imath::half inside a CUDA kernel, you can refer
-  to it via the namespace, or define ``CUDA_NO_HALF`` to avoid the CUDA
-  type altogether.
+If you desire to use Imath::half inside a CUDA kernel, you can refer
+to it via the namespace, or define ``CUDA_NO_HALF`` to avoid the CUDA
+type altogether.
 
 * ``HALF_MIN`` has changed value. It is now the smallest **normalized**
    positive value, returned by ``std::numeric_limits<half>::min()``.
 
 * New constructor from a bit pattern:
 
-.. code-block::
+.. code-block:: cpp
 
       enum FromBitsTag
       {
@@ -602,4 +602,3 @@ python bindings. In particular:
    - ``Matrix22``, ``Matrix33``, ``Matrix44``
    - ``Box``
    - ``Shear6``
-

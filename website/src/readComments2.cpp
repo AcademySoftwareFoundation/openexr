@@ -3,25 +3,17 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
-#include <ImfInputFile.h>
+// [begin readComments]
 #include <ImfRgbaFile.h>
-#include <ImfEnvmap.h>
 #include <ImfStandardAttributes.h>
 
 using namespace OPENEXR_IMF_NAMESPACE;
 
 void
-envmap1 ()
+readComments (const char fileName[], string &comments)
 {
-    char fileName[] = "";
-    // [begin hasEnvmap]
     RgbaInputFile file (fileName);
 
-    if (hasEnvmap (file.header()))
-    {
-        Envmap type = envmap (file.header());
-        // ...
-    }
-    // [end hasEnvmap]
-
+    comments = file.header().typedAttribute<StringAttribute>("comments").value();
 }
+// [end readComments]
