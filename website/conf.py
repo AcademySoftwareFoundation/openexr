@@ -140,14 +140,6 @@ exclude_patterns = ['_build']
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-#html_theme = 'agogo'
-#html_theme = 'default' # good
-#html_theme = 'nature' # too green
-#html_theme = 'sphinxdoc'
-
-#html_theme = 'bizstyle' # OK
-#html_theme = "press"
-
 html_theme = "pydata_sphinx_theme"
 html_theme_options = {
 #  "external_links": [
@@ -231,7 +223,7 @@ html_favicon = "images/openexr-fav.ico"
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
 
-# Custom style sheet overrides applied on top of the "press" theme, e.g. to
+# Custom style sheet overrides applied on top of the "pydata" theme, e.g. to
 # fix admonitions that are unreadable in dark mode.
 html_css_files = ['custom.css']
 

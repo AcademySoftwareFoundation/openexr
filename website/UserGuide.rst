@@ -13,7 +13,7 @@ User guide
     install
     HelloWorld
     python
-    concepts
+    TechnicalIntroduction
 
 Start by :doc:`installing the package <install>` and
 :doc:`writing your first OpenEXR code <HelloWorld>`, or read the
