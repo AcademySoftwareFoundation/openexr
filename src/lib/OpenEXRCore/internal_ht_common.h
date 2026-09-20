@@ -176,8 +176,7 @@ inline double tf_to_linear(double x)
 }
 
 /**
- * EXPERIMENTAL: native OpenJPH NLT (type 4, LUT + binary-complement-to-sign-
- * magnitude) support, tracking https://github.com/aous72/OpenJPH/pull/356.
+ * Native OpenJPH NLT type 4, (LUT + binary-complement-to-sign- magnitude)
  */
 
 /** Implements sign-to-magnitude conversion as specified in Rec. ITU-T T.801 */
@@ -221,15 +220,24 @@ inline std::vector<uint16_t> build_nlt_lut_16(int32_t num_points)
 
 /** Implements the decoding transfer function tf_from_linear() as a LUT
  *  appropriate for 32-bit samples (float) and for
- *  ojph::param_nlt::set_nonlinear_transform() 
+ *  ojph::param_nlt::set_nonlinear_transform()
  *
- *  @param num_points  Number of table entries between 2 and 8192.
- *  @return            num_points table entries.
+ *  Unlike build_nlt_lut_16(), which spans half's actual finite range, @p
+ *  max_linear is caller-supplied so it can be set from the actual (or
+ *  robustly-estimated) magnitude of the samples being coded, e.g. per chunk.
+ *  Using a fixed max_linear such as FLT_MAX wastes nearly all of the table's
+ *  resolution on magnitudes no real image reaches.
+ *
+ *  @param num_points   Number of table entries between 2 and 8192. Denser is
+ *                      not better: OpenJPH inverts the table for encoding and
+ *                      caps that inverse at 8192 entries.
+ *  @param max_linear   Largest finite linear-light magnitude the table needs to
+ *                      represent without saturating.
+ *  @return             num_points table entries.
  */
-inline std::vector<uint32_t> build_nlt_lut_32(int32_t num_points)
+inline std::vector<uint32_t> build_nlt_lut_32(int32_t num_points, double max_linear)
 {
     static const int64_t BIT_DEPTH_LIMIT = (int64_t) 1 << 32;
-    const double max_linear = (double) FLT_MAX;
 
     const double INT32_FLOAT_FACTOR = (double) INT32_MAX / tf_from_linear (max_linear);
     const double d_min  = -(double) INT32_MAX;
