@@ -300,7 +300,7 @@ else()
       "Whether OpenEXR bundles vendored OpenJPH into OpenEXRCore (0 or 1)" FORCE)
 
   # extract the openjph version variables from ojph_version.h
-  set(openjph_SOURCE_DIR "${CMAKE_SOURCE_DIR}/external/OpenJPH")
+  set(openjph_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/external/OpenJPH")
   set(openjph_version "${openjph_SOURCE_DIR}/src/core/openjph/ojph_version.h")
   if(EXISTS "${openjph_version}")
     file(STRINGS "${openjph_version}" _openjph_major REGEX "#define OPENJPH_VERSION_MAJOR")
@@ -448,7 +448,7 @@ if(EXR_ZSTD_LIB)
   set(EXR_ZSTD_PKGCONFIG_REQUIRES "libzstd >= ${EXR_ZSTD_VERSION}")
 else()
   # Using internal zstd
-  set(zstd_version "${CMAKE_SOURCE_DIR}/external/zstd/lib/zstd.h")
+  set(zstd_version "${CMAKE_CURRENT_SOURCE_DIR}/external/zstd/lib/zstd.h")
   if(EXISTS "${zstd_version}")
     file(STRINGS "${zstd_version}" _zstd_major REGEX "#define ZSTD_VERSION_MAJOR")
     file(STRINGS "${zstd_version}" _zstd_minor REGEX "#define ZSTD_VERSION_MINOR")
