@@ -24,6 +24,116 @@
 #include "internal_ht_quality.h"
 #include "internal_legacy_structs.h"
 
+namespace
+{
+/* NLT type 4 point tables for lossy RGB channels. Most float imagery lies
+ * within half's range, so the float table for that range is precomputed;
+ * only chunks exceeding it get a table built for their own range. */
+const int32_t float_nlt_lut_points = 257;
+const std::vector<uint16_t> half_nlt_lut = build_nlt_lut_16 (513);
+const std::vector<uint32_t> float_nlt_lut_half_range =
+    build_nlt_lut_32 (float_nlt_lut_points, HALF_MAX);
+
+/* Returns the range the float NLT table has to cover for a chunk: half's
+ * max unless the chunk's RGB samples exceed it. */
+double
+chunk_max_linear_float (
+    exr_encode_pipeline_t*                    encode,
+    const std::vector<CodestreamChannelInfo>& cs_channel_info,
+    bool                                       isPlanar,
+    int                                        chunk_height)
+{
+    const uint8_t* packed =
+        static_cast<const uint8_t*> (encode->packed_buffer);
+    double max_abs = 0.0;
+
+    if (isPlanar)
+    {
+        for (int16_t c = 0; c < 3; c++)
+        {
+            int file_c = cs_channel_info[c].file_index;
+            if (encode->channels[file_c].data_type != EXR_PIXEL_FLOAT)
+                continue;
+            if (encode->channels[file_c].height == 0) continue;
+
+            const uint8_t* line_pixels = packed;
+
+            for (int64_t y = encode->chunk.start_y;
+                 y < chunk_height + encode->chunk.start_y;
+                 y++)
+            {
+                for (int16_t line_c = 0; line_c < encode->channel_count;
+                     line_c++)
+                {
+                    if (y % encode->channels[line_c].y_samples != 0)
+                        continue;
+
+                    if (line_c == file_c)
+                    {
+                        const float* p =
+                            reinterpret_cast<const float*> (line_pixels);
+                        for (int32_t x = 0;
+                             x < encode->channels[file_c].width;
+                             x++)
+                        {
+                            float v = p[x];
+                            if (std::isfinite (v))
+                            {
+                                double av = std::fabs ((double) v);
+                                if (av > max_abs) max_abs = av;
+                            }
+                        }
+                    }
+
+                    line_pixels +=
+                        (int64_t) encode->channels[line_c].bytes_per_element *
+                        encode->channels[line_c].width;
+                }
+            }
+        }
+    }
+    else
+    {
+        int64_t bpl = 0;
+        for (int16_t c = 0; c < encode->channel_count; c++)
+        {
+            int file_c = cs_channel_info[c].file_index;
+            bpl += (int64_t) encode->channels[file_c].bytes_per_element *
+                   encode->channels[file_c].width;
+        }
+
+        for (int16_t c = 0; c < 3; c++)
+        {
+            int file_c = cs_channel_info[c].file_index;
+            if (encode->channels[file_c].data_type != EXR_PIXEL_FLOAT)
+                continue;
+
+            const int32_t cw = encode->channels[file_c].width;
+            for (int y = 0; y < chunk_height; y++)
+            {
+                const float* p = reinterpret_cast<const float*> (
+                    packed + (int64_t) y * bpl +
+                    cs_channel_info[c].raster_line_offset);
+                for (int32_t x = 0; x < cw; x++)
+                {
+                    float v = p[x];
+                    if (std::isfinite (v))
+                    {
+                        double av = std::fabs ((double) v);
+                        if (av > max_abs) max_abs = av;
+                    }
+                }
+            }
+        }
+    }
+
+    /* Safety margin so the observed max doesn't sit exactly on the table's
+     * saturation boundary. */
+    const double margin = 1.05;
+    return max_abs > HALF_MAX ? max_abs * margin : (double) HALF_MAX;
+}
+} // namespace
+
 /**
  * OpenJPH output file that is backed by a fixed-size memory buffer
  */
@@ -401,7 +511,6 @@ ht_undo_impl (
 
     cs.create ();
 
-    ojph::param_cod cod = cs.access_cod ();
     assert (sizeof (uint16_t) == 2);
     assert (sizeof (uint32_t) == 4);
     ojph::ui32      next_comp = 0;
@@ -445,10 +554,7 @@ ht_undo_impl (
                                  p < decode->channels[file_c].width;
                                  p++)
                             {
-                                if (!cod.is_reversible(c))
-                                    *channel_pixels++ = (int16_t) int16_to_half(cur_line->i32[p]).bits();
-                                else
-                                    *channel_pixels++ = cur_line->i32[p];
+                                *channel_pixels++ = cur_line->i32[p];
                             }
                         }
                         else
@@ -458,10 +564,7 @@ ht_undo_impl (
                                  p < decode->channels[file_c].width;
                                  p++)
                             {
-                                if (!cod.is_reversible(c))
-                                    *((float*) channel_pixels++) = int32_to_float(cur_line->i32[p]);
-                                else
-                                    *channel_pixels++ = (uint32_t) cur_line->i32[p];
+                                *channel_pixels++ = (uint32_t) cur_line->i32[p];
                             }
                         }
                     }
@@ -497,10 +600,7 @@ ht_undo_impl (
                     for (int32_t p = 0; p < decode->channels[file_c].width;
                          p++)
                     {
-                        if (!cod.is_reversible(c))
-                            *channel_pixels++ = (int16_t) int16_to_half(cur_line->i32[p]).bits();
-                        else
-                            *channel_pixels++ = cur_line->i32[p];
+                        *channel_pixels++ = cur_line->i32[p];
                     }
                 }
                 else
@@ -510,10 +610,7 @@ ht_undo_impl (
                     for (int32_t p = 0; p < decode->channels[file_c].width;
                          p++)
                     {
-                        if (!cod.is_reversible(c))
-                            *((float*) channel_pixels++) = int32_to_float(cur_line->i32[p]);
-                        else
-                            *channel_pixels++ = (uint32_t) cur_line->i32[p];
+                        *channel_pixels++ = (uint32_t) cur_line->i32[p];
                     }
                 }
             }
@@ -610,6 +707,16 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
         }
     }
 
+    /* Compute the maximum sample value or HALF_MAX whichever is larger if RGB
+    float samples are used. This is used in generating the decoding LUT.*/
+    bool rgbIsFloat = lossy &&
+        encode->channels[cs_channel_info[0].file_index].data_type ==
+            EXR_PIXEL_FLOAT;
+    double chunk_max_linear = HALF_MAX;
+    if (rgbIsFloat)
+        chunk_max_linear = chunk_max_linear_float (
+            encode, cs_channel_info, isPlanar, chunk_height);
+
     /* Lossy coding: pad the coded array by replicating the last row and the
      * last column so that every dimension is == 1 (mod 2^L); see
      * ht_padded_length().  The padding is only applied to interleaved
@@ -656,6 +763,17 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
             double scaled_q = (qfactor - 97.)/53.;
             double delta_ref = 0.005 * pow(2, -28.478*scaled_q) + 0.001 * pow(2, -10.534*scaled_q);
 
+            if (rgbIsFloat)
+            {
+                /* The quantization step is a fraction of the table's full
+                 * scale. Scale it so a given Qfactor means the same step in
+                 * the transfer function domain as for half, whose table spans
+                 * half's max. This is 1 unless the chunk exceeds half's range. */
+                double lut_gain =
+                    tf_from_linear (HALF_MAX) / tf_from_linear (chunk_max_linear);
+                delta_ref *= lut_gain;
+            }
+
             /*
              * Setting Qstep taking into account the gain from the ICT
              * converting encoded color-difference components to RGB (see
@@ -682,6 +800,16 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
         cod.set_reversible (true);
     }
 
+    const std::vector<uint32_t>* float_nlt_lut = &float_nlt_lut_half_range;
+    std::vector<uint32_t>        float_nlt_lut_chunk;
+    /* Only compute the float LUT if the max sample value is greater than HALF_MAX. */
+    if (rgbIsFloat && chunk_max_linear > HALF_MAX)
+    {
+        float_nlt_lut_chunk =
+            build_nlt_lut_32 (float_nlt_lut_points, chunk_max_linear);
+        float_nlt_lut = &float_nlt_lut_chunk;
+    }
+
     int64_t bpl = 0;
     for (int16_t c = 0; c < encode->channel_count; c++)
     {
@@ -691,6 +819,22 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
             nlt.set_nonlinear_transform (
                 c,
                 ojph::param_nlt::nonlinearity::OJPH_NLT_BINARY_COMPLEMENT_NLT);
+        else if (encode->channels[file_c].data_type != EXR_PIXEL_UINT && !cod.is_reversible(c))
+        {
+            /* OpenJPH's Type 4 NLT LUT is used*/
+            if (encode->channels[file_c].data_type == EXR_PIXEL_HALF)
+                nlt.set_nonlinear_transform (
+                    c, 16, true, 0u, 0xFFFFFFFFu, 16,
+                    (ojph::ui16) half_nlt_lut.size (),
+                    (void*) half_nlt_lut.data (),
+                    ojph::param_nlt::nonlinearity::OJPH_NLT_BINARY_COMPLEMENT_PLUS_LUT);
+            else
+                nlt.set_nonlinear_transform (
+                    c, 32, true, 0u, 0xFFFFFFFFu, 32,
+                    (ojph::ui16) float_nlt_lut->size (),
+                    (void*) float_nlt_lut->data (),
+                    ojph::param_nlt::nonlinearity::OJPH_NLT_BINARY_COMPLEMENT_PLUS_LUT);
+        }
 
         siz.set_component (
             c,
@@ -774,10 +918,7 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
                                      p < encode->channels[file_c].width;
                                     p++)
                                 {
-                                    if (! cod.is_reversible(c))
-                                        cur_line->i32[p] = half_to_int16(half (half::FromBits, (uint16_t) (*channel_pixels++)));
-                                    else
-                                        cur_line->i32[p] = *channel_pixels++;
+                                    cur_line->i32[p] = *channel_pixels++;
                                 }
                             }
                             else
@@ -787,10 +928,7 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
                                      p < encode->channels[file_c].width;
                                     p++)
                                 {
-                                    if (! cod.is_reversible(c))
-                                        cur_line->i32[p] = float_to_int32(*((float *)channel_pixels++));
-                                    else
-                                        cur_line->i32[p] = *channel_pixels++;
+                                    cur_line->i32[p] = *channel_pixels++;
                                 }
                             }
 
@@ -832,10 +970,7 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
                                         cs_channel_info[c].raster_line_offset);
                         for (int32_t p = 0; p < cw; p++)
                         {
-                            if (! cod.is_reversible(c))
-                                cur_line->i32[p] = half_to_int16(half (half::FromBits, (uint16_t) (*channel_pixels++)));
-                            else
-                                cur_line->i32[p] = *channel_pixels++;
+                            cur_line->i32[p] = *channel_pixels++;
                         }
                     }
                     else
@@ -845,10 +980,7 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
                                         cs_channel_info[c].raster_line_offset);
                         for (int32_t p = 0; p < cw; p++)
                         {
-                            if (! cod.is_reversible(c))
-                                cur_line->i32[p] = float_to_int32(*((float *)channel_pixels++));
-                            else
-                                cur_line->i32[p] = *channel_pixels++;
+                            cur_line->i32[p] = *channel_pixels++;
                         }
                     }
                     for (int32_t p = cw; p < image_width; p++)

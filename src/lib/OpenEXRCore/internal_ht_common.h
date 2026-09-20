@@ -44,11 +44,11 @@
  * entire range of half-float values.
  *
  * As with DWAA/DWAB, lossy RGB channels are first transformed to a non-linear
- * domain before being quantized for coding (see
- * tf_from_linear()/tf_to_linear()). The transformation compresses highlights
- * logarithmically above |x| == 1, then scaled to fill the signed 16- or 32-bit
- * integer range the block coder operates on (see
- * half_to_int16()/int16_to_half() and float_to_int32()/int32_to_float()).
+ * domain before being quantized for coding (see tf_from_linear()/
+ * tf_to_linear()). The transformation compresses highlights logarithmically
+ * above |x| == 1. *EXPERIMENTAL* this transformation is performed by OpenJPH as
+ * a native NLT LUT (type 4, tracking
+ * https://github.com/aous72/OpenJPH/pull/356).
  *
  * LJ2K apply lossy compression to RGB channels only, and use lossless
  * compression otherwise.
@@ -138,8 +138,7 @@ size_t read_header (
 
 
 /** Transforms samples on lossy RGB channels of LJ2K before they
- *  are quantized to integers for the block coder (see half_to_int16() and
- *  float_to_int32()).
+ *  are quantized to integers for the block coder (see build_nlt_lut()).
  *
  *  This transfer function is equivalent to that used by the DWA compressor.
  *
@@ -176,67 +175,91 @@ inline double tf_to_linear(double x)
     return sign * exp(2.2f * (v - 1.0f));
 }
 
-static double INT16_HALF_FACTOR = 5424.23808866629; /* 32,767 / (log(65,504) / 2.2 + 1.0) */
-
-/** Convert a decoded lossy LJ2K 16-bit sample back to a `half` value, undoing
- *  half_to_int16(). Decoded samples are clamped to [-32767, 32767], which is
- *  the range of half_to_int16().
- *
- *  @param f  Signed integer sample as produced by the block decoder.
- *  @return   Reconstructed `half` value.
+/**
+ * Native OpenJPH NLT type 4, (LUT + binary-complement-to-sign- magnitude)
  */
-inline half int16_to_half(int32_t f)
+
+/** Implements sign-to-magnitude conversion as specified in Rec. ITU-T T.801 */
+static inline int64_t nlt_smag(int64_t v, int bit_depth)
 {
-    if (f > 32767) f = 32767;
-    if (f < -32767) f = -32767;
-    return tf_to_linear(((double) f) / INT16_HALF_FACTOR);
+    int64_t bias = ((int64_t) 1 << (bit_depth - 1)) + 1;
+    return (v >= 0) ? v : (-v - bias);
 }
 
-/** Convert a `half` sample from a lossy RGB channel to the signed 16-bit
- *  integer domain used by the LJ2K block coder. NaN is mapped to 0 and
- *  +/-infinity to +/-32,767.
+/** Implements the decoding transfer function tf_from_linear() as a LUT
+ *  appropriate for 16-bit samples (float) and for
+ *  ojph::param_nlt::set_nonlinear_transform() 
  *
- *  @param h  Sample value.
- *  @return   Signed 16-bit integer sample, in [-32767, 32767].
+ *  @param num_points  Number of table entries between 2 and 8192.
+ *  @return            num_points table entries.
  */
-static inline int16_t half_to_int16(half h)
+inline std::vector<uint16_t> build_nlt_lut_16(int32_t num_points)
 {
-    if (h.isNan()) return 0;
-    if (h.isInfinity()) return h.isNegative() ? -32767 : 32767;
-    return (int16_t) roundf(tf_from_linear((double) h) * INT16_HALF_FACTOR);
+    static const int32_t BIT_DEPTH_LIMIT = 1 << 16;
+    const double max_linear = 65504.0; // half's max finite value
+
+    const double INT16_HALF_FACTOR = 32767.0 / tf_from_linear (max_linear);
+    const double d_min  = -32767.0;
+    const double d_max  = 32767.0;
+    const double delta  = (d_max - d_min) / (double) (num_points - 1);
+
+    std::vector<uint16_t> points(num_points);
+    for (int32_t i = 0; i < num_points; i++)
+    {
+        double s      = d_min + (double) i * delta;
+        double linear = tf_to_linear (s / INT16_HALF_FACTOR);
+
+        int32_t raw_bits_signed = (int16_t) half ((float) linear).bits ();
+        int32_t v_after_f       = (int32_t) nlt_smag (raw_bits_signed, 16);
+
+        double  z = (double) v_after_f / (double) BIT_DEPTH_LIMIT + 0.5;
+        points[i] = (uint16_t) llround (z * (double) (BIT_DEPTH_LIMIT - 1));
+    }
+    return points;
 }
 
-static double INT32_FLOAT_FACTOR = 51961246.180338; /* 2,147,483,647 / (log(FLT_MAX) / 2.2 + 1.0) */
-
-/** Convert a decoded lossy LJ2K 32-bit component sample back to a `float`
- *  value, undoing float_to_int32().
+/** Implements the decoding transfer function tf_from_linear() as a LUT
+ *  appropriate for 32-bit samples (float) and for
+ *  ojph::param_nlt::set_nonlinear_transform()
  *
- *  @param f  Signed integer sample as produced by the block decoder.
- *  @return   Reconstructed `float` value, clamped to +/-FLT_MAX to absorb
- *            floating-point rounding error in the transfer function math.
- */
-inline float int32_to_float(int32_t f)
-{
-    double v = tf_to_linear (((double) f) / INT32_FLOAT_FACTOR);
-    if (v > (double) FLT_MAX) return FLT_MAX;
-    if (v < -(double) FLT_MAX) return -FLT_MAX;
-    return (float) v;
-}
-
-/** Convert a `float` sample from a lossy RGB channel to the signed 32-bit
- *  integer domain used by the LJ2K block coder. NaN is mapped to 0 and
- *  +/-infinity to +/-INT32_MAX
+ *  Unlike build_nlt_lut_16(), which spans half's actual finite range, @p
+ *  max_linear is caller-supplied so it can be set from the actual (or
+ *  robustly-estimated) magnitude of the samples being coded, e.g. per chunk.
+ *  Using a fixed max_linear such as FLT_MAX wastes nearly all of the table's
+ *  resolution on magnitudes no real image reaches.
  *
- *  @param h  Sample value.
- *  @return   Signed 32-bit integer sample.
+ *  @param num_points   Number of table entries between 2 and 8192. Denser is
+ *                      not better: OpenJPH inverts the table for encoding and
+ *                      caps that inverse at 8192 entries.
+ *  @param max_linear   Largest finite linear-light magnitude the table needs to
+ *                      represent without saturating.
+ *  @return             num_points table entries.
  */
-static inline int32_t float_to_int32(float h)
+inline std::vector<uint32_t> build_nlt_lut_32(int32_t num_points, double max_linear)
 {
-    if (isnan (h)) return 0;
-    double v = round (tf_from_linear ((double) h) * INT32_FLOAT_FACTOR);
-    if (v > (double) INT32_MAX) return INT32_MAX;
-    if (v < -(double) INT32_MAX) return -INT32_MAX;
-    return (int32_t) v;
+    static const int64_t BIT_DEPTH_LIMIT = (int64_t) 1 << 32;
+
+    const double INT32_FLOAT_FACTOR = (double) INT32_MAX / tf_from_linear (max_linear);
+    const double d_min  = -(double) INT32_MAX;
+    const double d_max  = (double) INT32_MAX;
+    const double delta  = (d_max - d_min) / (double) (num_points - 1);
+
+    std::vector<uint32_t> points(num_points);
+    for (int32_t i = 0; i < num_points; i++)
+    {
+        double s      = d_min + (double) i * delta;
+        double linear = tf_to_linear (s / INT32_FLOAT_FACTOR);
+
+        float    f = (float) linear;
+        uint32_t unsigned_bits;
+        memcpy (&unsigned_bits, &f, sizeof (unsigned_bits));
+        int64_t raw_bits_signed = (int32_t) unsigned_bits;
+        int64_t v_after_f       = nlt_smag (raw_bits_signed, 32);
+
+        double z = (double) v_after_f / (double) BIT_DEPTH_LIMIT + 0.5;
+        points[i] = (uint32_t) llround (z * (double) (BIT_DEPTH_LIMIT - 1));
+    }
+    return points;
 }
 
 #endif /* OPENEXR_PRIVATE_HT_COMMON_H */
