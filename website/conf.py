@@ -178,6 +178,7 @@ html_theme_options = {
         "json_url": "https://openexr.readthedocs.io/en/latest/_static/switcher.json",
         "version_match": version_match,
     },
+    "check_switcher": False,
     "logo": {
         "image_light": "images/openexr-horizontal-color.png",
         "image_dark": "images/openexr-horizontal-white.png",
