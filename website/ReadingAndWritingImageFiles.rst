@@ -96,36 +96,39 @@ This table describes the significant differences between writing
 single-part scan line and tile files and writing multi-part and deep
 data files.
 
-+-------------------------+------------------------------------------------+---------------------------------------+
-| Feature                 | scan line and tile                             | Multi-part and deep data              |
-+=========================+================================================+=======================================+
-| Channel names may be    | Some channel names are reserved                | Channel name “sample count” is        |
-| reserved                | in practice, but were never                    | reserved for a pixel sample count     |
-|                         | formally defined.                              | slice in frame buffer.                |
-|                         |                                                |                                       |
-|                         |                                                | **Note:** The name “sample count”     |
-|                         |                                                | (all lowercase) is subject to change. |
-+-------------------------+------------------------------------------------+---------------------------------------+
-| Multiple parts          | Single-part format is intended for             |                                       |
-|                         | storing a single multichannel image            | Multi-part files support multiple     |
-|                         |                                                | independent parts. This allows        |
-|                         |                                                | storing multiple views in the same    |
-|                         |                                                | file for stereo images, storing       |
-|                         |                                                | multiple resolutions in different     |
-|                         |                                                | parts. It is possible to include      |
-|                         |                                                | one or more scan line, tile, deep     |
-|                         |                                                | scan line or deep tile format         |
-|                         |                                                | images within a multi-part file.      |
-|                         |                                                |                                       |
-|                         |                                                | Custom data formats can also be       |
-|                         |                                                | used to store additional parts,       |
-|                         |                                                | but this is outside the scope of      |
-|                         |                                                | this document.                        |
-+-------------------------+------------------------------------------------+---------------------------------------+
-| Backwards-compatible    | The new formats share the same abstract low-level IO as OpenEXR                        |
-| low-level io available  | 1.7. It is therefore possible to use the same libraries to                             |
-|                         | implement low level IO to read both formats.                                           |
-+-------------------------+------------------------------------------------+---------------------------------------+
+.. table::
+   :align: left
+
+   +-------------------------+------------------------------------------------+---------------------------------------+
+   | Feature                 | scan line and tile                             | Multi-part and deep data              |
+   +=========================+================================================+=======================================+
+   | Channel names may be    | Some channel names are reserved                | Channel name “sample count” is        |
+   | reserved                | in practice, but were never                    | reserved for a pixel sample count     |
+   |                         | formally defined.                              | slice in frame buffer.                |
+   |                         |                                                |                                       |
+   |                         |                                                | **Note:** The name “sample count”     |
+   |                         |                                                | (all lowercase) is subject to change. |
+   +-------------------------+------------------------------------------------+---------------------------------------+
+   | Multiple parts          | Single-part format is intended for             |                                       |
+   |                         | storing a single multichannel image            | Multi-part files support multiple     |
+   |                         |                                                | independent parts. This allows        |
+   |                         |                                                | storing multiple views in the same    |
+   |                         |                                                | file for stereo images, storing       |
+   |                         |                                                | multiple resolutions in different     |
+   |                         |                                                | parts. It is possible to include      |
+   |                         |                                                | one or more scan line, tile, deep     |
+   |                         |                                                | scan line or deep tile format         |
+   |                         |                                                | images within a multi-part file.      |
+   |                         |                                                |                                       |
+   |                         |                                                | Custom data formats can also be       |
+   |                         |                                                | used to store additional parts,       |
+   |                         |                                                | but this is outside the scope of      |
+   |                         |                                                | this document.                        |
+   +-------------------------+------------------------------------------------+---------------------------------------+
+   | Backwards-compatible    | The new formats share the same abstract low-level IO as OpenEXR                        |
+   | low-level io available  | 1.7. It is therefore possible to use the same libraries to                             |
+   |                         | implement low level IO to read both formats.                                           |
+   +-------------------------+------------------------------------------------+---------------------------------------+
 
 
 Using the RGBA-only Interface for Scan Line Based Files
@@ -1817,53 +1820,56 @@ on the ``Header`` object:
 
 Supported compression types are:
 
-+-----------------------+------------------------------------------------+
-| RLE_COMPRESSION       | run length encoding                            |
-+-----------------------+------------------------------------------------+
-| ZIPS_COMPRESSION      | zlib compression, one scan line at a time      |
-+-----------------------+------------------------------------------------+
-| ZIP_COMPRESSION       | zlib compression, in blocks of 16 scan lines   |
-+-----------------------+------------------------------------------------+
-| PIZ_COMPRESSION       | piz-based wavelet compression                  |
-+-----------------------+------------------------------------------------+
-| PXR24_COMPRESSION     | lossy 24-bit float compression                 |
-+-----------------------+------------------------------------------------+
-| B44_COMPRESSION       | lossy 4-by-4 pixel block compression,          |
-|                       | fixed compression rate                         |
-+-----------------------+------------------------------------------------+
-| B44A_COMPRESSION      | lossy 4-by-4 pixel block compression,          |
-|                       | flat fields are compressed more                |
-+-----------------------+------------------------------------------------+
-| DWAA_COMPRESSION      | lossy DCT based compression, in blocks of      |
-|                       | 32 scanlines. More efficient for partial       |
-|                       | buffer access.                                 |
-+-----------------------+------------------------------------------------+
-| DWAB_COMPRESSION      | lossy DCT based compression, in blocks of 256  |
-|                       | scanlines. More efficient space-wise and       |
-|                       | faster to decode full frames than              |
-|                       | ``DWAA_COMPRESSION``.                          |
-+-----------------------+------------------------------------------------+
-| HTJ2K256_COMPRESSION  | JPEG 2000 lossless coding, in blocks of 256    |
-|                       | scanlines and using the High-Throughput block  |
-|                       | coder specified in Rec. ITU-T T.814 and        |
-|                       | ISO/IEC 15444-15. The compressor offers both   |
-|                       | speed and high coding efficiency.              |
-+-----------------------+------------------------------------------------+
-| HTJ2K32_COMPRESSION   | Same as ``HTJ2K256_COMPRESSION``, but in       |
-|                       | blocks of 32 scanlines, More efficient for     |
-|                       | partial buffer access, but slightly less       |
-|                       | efficient space-wise.                          |
-+-----------------------+------------------------------------------------+
-| LJ2K_COMPRESSION      | Same as ``HTJ2K256_COMPRESSION`` but with      |
-|                       | lossy coding, resulting in smaller files at    |
-|                       | the expense of introducing distortion. The     |
-|                       | amount of distortion can be controlled from    |
-|                       | visually lossless for larger files, to visible |
-|                       | artifacts for smaller files.                   |
-+-----------------------+------------------------------------------------+
-| ZSTD_COMPRESSION      | zstd lossless compression, one scan line at a  |
-|                       | time.                                          |
-+-----------------------+------------------------------------------------+
+.. table::
+   :align: left
+
+   +-----------------------+------------------------------------------------+
+   | RLE_COMPRESSION       | run length encoding                            |
+   +-----------------------+------------------------------------------------+
+   | ZIPS_COMPRESSION      | zlib compression, one scan line at a time      |
+   +-----------------------+------------------------------------------------+
+   | ZIP_COMPRESSION       | zlib compression, in blocks of 16 scan lines   |
+   +-----------------------+------------------------------------------------+
+   | PIZ_COMPRESSION       | piz-based wavelet compression                  |
+   +-----------------------+------------------------------------------------+
+   | PXR24_COMPRESSION     | lossy 24-bit float compression                 |
+   +-----------------------+------------------------------------------------+
+   | B44_COMPRESSION       | lossy 4-by-4 pixel block compression,          |
+   |                       | fixed compression rate                         |
+   +-----------------------+------------------------------------------------+
+   | B44A_COMPRESSION      | lossy 4-by-4 pixel block compression,          |
+   |                       | flat fields are compressed more                |
+   +-----------------------+------------------------------------------------+
+   | DWAA_COMPRESSION      | lossy DCT based compression, in blocks of      |
+   |                       | 32 scanlines. More efficient for partial       |
+   |                       | buffer access.                                 |
+   +-----------------------+------------------------------------------------+
+   | DWAB_COMPRESSION      | lossy DCT based compression, in blocks of 256  |
+   |                       | scanlines. More efficient space-wise and       |
+   |                       | faster to decode full frames than              |
+   |                       | ``DWAA_COMPRESSION``.                          |
+   +-----------------------+------------------------------------------------+
+   | HTJ2K256_COMPRESSION  | JPEG 2000 lossless coding, in blocks of 256    |
+   |                       | scanlines and using the High-Throughput block  |
+   |                       | coder specified in Rec. ITU-T T.814 and        |
+   |                       | ISO/IEC 15444-15. The compressor offers both   |
+   |                       | speed and high coding efficiency.              |
+   +-----------------------+------------------------------------------------+
+   | HTJ2K32_COMPRESSION   | Same as ``HTJ2K256_COMPRESSION``, but in       |
+   |                       | blocks of 32 scanlines, More efficient for     |
+   |                       | partial buffer access, but slightly less       |
+   |                       | efficient space-wise.                          |
+   +-----------------------+------------------------------------------------+
+   | LJ2K_COMPRESSION      | Same as ``HTJ2K256_COMPRESSION`` but with      |
+   |                       | lossy coding, resulting in smaller files at    |
+   |                       | the expense of introducing distortion. The     |
+   |                       | amount of distortion can be controlled from    |
+   |                       | visually lossless for larger files, to visible |
+   |                       | artifacts for smaller files.                   |
+   +-----------------------+------------------------------------------------+
+   | ZSTD_COMPRESSION      | zstd lossless compression, one scan line at a  |
+   |                       | time.                                          |
+   +-----------------------+------------------------------------------------+
 
 For the ``ZIP_COMPRESSION`` and ``ZSTD_COMPRESSION`` compressors, a single
 level parameter controls the tradeoff between compression speed and file
