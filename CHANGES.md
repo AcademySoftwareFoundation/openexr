@@ -3,7 +3,7 @@
 
 # OpenEXR Release Notes
 
-* [Version 3.5.0](#version-350-september-19-2026) September 19, 2026
+* [Version 3.5.0](#version-350-september-21-2026) September 21, 2026
 * [Version 3.4.15](#version-3415-august-21-2026) August 21, 2026
 * [Version 3.4.14](#version-3414-august-6-2026) August 6, 2026
 * [Version 3.4.13](#version-3413-june-19-2026) June 19, 2026
@@ -114,7 +114,7 @@
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
 
-## Version 3.5.0 (September 19, 2026)
+## Version 3.5.0 (September 21, 2026)
 
 * Support for lossless compression via
   [Zstandard](https://github.com/facebook/zstd)
@@ -127,8 +127,9 @@
   - Deep image gains: Extensive testing with Deep scanlines shows a
     20–30% size reduction compared to ZIPS based on image channels
     (with the best gains on Deep Alpha and Deep ID).
-  - Flat image speed: Achieves comparable compression sizes to ZIPS,
-    but with slightly faster compression speeds. 
+  - Flat image file size: Achieves comparable compressed sizes to ZIPS.
+  - Flat image speed: Delivers slightly faster compression and
+    decompression speeds compared to ZIPS
   - Introduces a new dependency on the zstd library; a vendored
     version (v1.5.7) is provided as a fallback if no installed version
     is present.
