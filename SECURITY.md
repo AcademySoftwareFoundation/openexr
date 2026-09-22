@@ -145,8 +145,9 @@ security vulnerabilities.
 | Version / branch  | Supported                                            |
 |-------| ---------------------------------------------------- |
 | main  | :white_check_mark: :construction: All fixes immediately, although this branch is under development with potential unstable ABI/API
-| 3.4.x | :white_check_mark: All fixes that can be backported without breaking ABI compatibility
-| 3.3.x | :white_check_mark: All fixes that can be backported without breaking ABI compatibility
+| 3.5.x | :white_check_mark: All fixes that can be backported without breaking ABI compatibility
+| 3.4.x | :white_check_mark: All security-related patches that can be backported without breaking ABI compatibility
+| 3.3.x | :white_check_mark: All security-related patches that can be backported without breaking ABI compatibility
 | 3.2.x | :warning: Patch releases considered in response to specific requests
 | 3.1.x | :warning: Patch releases considered in response to specific requests
 | 3.0.x | :warning: Patch releases considered in response to specific requests
