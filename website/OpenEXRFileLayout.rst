@@ -16,10 +16,13 @@ The text assumes that the reader is familiar with OpenEXR terms such as
 "channel", "attribute", "data window" or "chunk". For an explanation of
 those terms see :doc:`TechnicalIntroduction`.
 
-**Note:** This document does not define the OpenEXR file format.  OpenEXR is
-defined as the file format that is read and written by the OpenEXR open-source
-C++ library. If this document and the OpenEXR library disagree, then the library
-takes precedence.
+.. admonition:: This isn't the definition!
+    :class: important 
+
+    This document does not define the OpenEXR file format.  OpenEXR is
+    defined as the file format that is read and written by the OpenEXR open-source
+    C++ library. If this document and the OpenEXR library disagree, then the library
+    takes precedence.
 
 Backwards Compatibility and New or Changed Functionality
 ========================================================
@@ -356,12 +359,15 @@ All valid combinations of the version field bits are as follows:
      - 1
      - 1
 
-**Note:** The version field bits define what capabilities must be
-available in the software so it can handle the file, rather than the
-exact format of the file. While the 9 and 11 bit settings must agree
-with the type attributes of all parts, in OpenEXR 2.0 the data format of
-each type is definitively set by the type attribute in that part's
-header alone.
+.. admonition:: Note
+    :class: note
+    
+    The version field bits define what capabilities must be
+    available in the software so it can handle the file, rather than the
+    exact format of the file. While the 9 and 11 bit settings must agree
+    with the type attributes of all parts, in OpenEXR 2.0 the data format of
+    each type is definitively set by the type attribute in that part's
+    header alone.
 
 Component Three: Header
 =======================

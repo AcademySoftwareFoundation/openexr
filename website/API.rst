@@ -47,4 +47,3 @@ applications seeking the highest possible performance.
    OpenEXRCoreAPI
               
 * :ref:`genindex`
-

@@ -9,7 +9,6 @@ Hello, World
 
 .. toctree::
    :caption: Hello, World
-   :maxdepth: 1
 
 Write an Image
 ==============
@@ -33,11 +32,13 @@ The :download:`CMakeLists.txt <src/exrwriter/CMakeLists.txt>` file to
 build is:
    
 .. literalinclude:: src/exrwriter/CMakeLists.txt
+   :language: cmake
    :lines: 5-
 
 To build:
 
 .. literalinclude:: src/exrwriter/build.sh
+   :language: console
    :lines: 5-
 
 For more details, see :ref:`The OpenEXR API`.
@@ -55,12 +56,11 @@ program reads the ``stripes.exr`` file written by the writer program above:
 And the :download:`CMakeLists.txt <src/exrreader/CMakeLists.txt>` file to build:
    
 .. literalinclude:: src/exrreader/CMakeLists.txt
+   :language: cmake
    :lines: 5-
 
 To build:
 
 .. literalinclude:: src/exrreader/build.sh
+   :language: console
    :lines: 5-
-
-
-              
