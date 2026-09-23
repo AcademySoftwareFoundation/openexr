@@ -3,6 +3,7 @@
 
 # OpenEXR Release Notes
 
+* [Version 3.5.1](#version-351-september-25-2026) September 25, 2026
 * [Version 3.5.0](#version-350-september-21-2026) September 21, 2026
 * [Version 3.4.15](#version-3415-august-21-2026) August 21, 2026
 * [Version 3.4.14](#version-3414-august-6-2026) August 6, 2026
@@ -113,6 +114,20 @@
 * [Version 1.0.2](#version-102)
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
+
+## Version 3.5.1 (September 25, 2026)
+
+Patch release that addresses a security vulnerability in ZSTD:
+- fix heap buffer overflow in ZSTD deep scanline decoding
+
+Also, the v3.5.0 release incorrectly identified the
+`OPENEXR_VERSION_RELEASE_TYPE` and associated `OPENEXR_PACKAGE_NAME`
+as `-dev`.
+
+### Merged Pull Requests
+
+* [2669](https://github.com/AcademySoftwareFoundation/openexr/pull/2669)
+  Fix heap buffer overflow in ZSTD deep scanline decoding (by @cary-ilm/Cary Phillips)
 
 ## Version 3.5.0 (September 21, 2026)
 
