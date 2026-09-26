@@ -679,6 +679,8 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
 
     siz.set_num_components (encode->channel_count);
     cs.set_planar (isPlanar);
+    cs.request_tlm_marker (true);
+    cs.set_tilepart_divisions (true, false);
 
     exr_compression_t comp = EXR_COMPRESSION_HTJ2K256;
     exr_get_compression (encode->context, encode->part_index, &comp);
