@@ -3,6 +3,7 @@
 
 # OpenEXR Release Notes
 
+* [Version 3.4.16](#version-3416-september-28-2026) September 28, 2026
 * [Version 3.4.15](#version-3415-august-21-2026) August 21, 2026
 * [Version 3.4.14](#version-3414-august-6-2026) August 6, 2026
 * [Version 3.4.13](#version-3413-june-19-2026) June 19, 2026
@@ -106,6 +107,21 @@
 * [Version 1.0.2](#version-102)
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
+
+## Version 3.4.16 (September 28, 2026)
+
+v3.4.16 fixes a bug which created unreadable DWAB files in certain circumstances.
+There is also a fix to prevent 'undefined behavior' warnings with the BytesAttribute
+
+### Merged Pull Requests
+
+  * [2653](https://github.com/AcademySoftwareFoundation/openexr/pull/2653)
+Fix DWAB corrupted file
+  * [2650](https://github.com/AcademySoftwareFoundation/openexr/pull/2650)
+Fix null pointer memcpy in BytesAttribute for zero-length data (follow-up to #2615)
+
+### Merged Workflow Pull Requests
+
 
 ## Version 3.4.15 (August 21, 2026)
 
