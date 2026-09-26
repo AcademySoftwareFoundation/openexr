@@ -690,6 +690,7 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
     cod.set_color_transform (isRGB && !isPlanar);
     cod.set_block_dims (128, 32);
     cod.set_num_decomposition (num_decomps);
+    cod.set_progression_order ("RPCL");
 
     /* enable lossy compression on the first 3 channels, only if the compressor
     is EXR_COMPRESSION_LJ2K, we have RGB channels, all RGB channels are
