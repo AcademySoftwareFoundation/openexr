@@ -14,15 +14,36 @@ unset(openexr_needthreads)
 
 find_dependency(Imath)
 
-if (@libdeflate_FOUND@)
+# A static OpenEXRCore links to any dependency found via pkg-config through
+# a PkgConfig:: imported target, which must be recreated here.
+macro(openexr_find_pkgconfig_dependency prefix module)
+  if (NOT TARGET PkgConfig::${prefix})
+    find_dependency(PkgConfig)
+    pkg_check_modules(${prefix} REQUIRED QUIET IMPORTED_TARGET GLOBAL ${module})
+  endif()
+endmacro()
+
+if ("@EXR_DEFLATE_LIB@" STREQUAL "PkgConfig::deflate")
+  if (NOT @BUILD_SHARED_LIBS@)
+    openexr_find_pkgconfig_dependency(deflate libdeflate)
+  endif()
+elseif (@libdeflate_FOUND@)
   find_dependency(libdeflate)
 endif()
 
-if (NOT @OPENEXR_USE_INTERNAL_OPENJPH@)
+if ("@EXR_OPENJPH_LIB@" STREQUAL "PkgConfig::openjph")
+  if (NOT @BUILD_SHARED_LIBS@)
+    openexr_find_pkgconfig_dependency(openjph "openjph=@openjph_VERSION@")
+  endif()
+elseif (NOT @OPENEXR_USE_INTERNAL_OPENJPH@)
   find_dependency(openjph)
 endif()
 
-if (@zstd_FOUND@)
+if ("@EXR_ZSTD_LIB@" STREQUAL "PkgConfig::libzstd")
+  if (NOT @BUILD_SHARED_LIBS@)
+    openexr_find_pkgconfig_dependency(libzstd libzstd)
+  endif()
+elseif (@zstd_FOUND@)
   find_dependency(zstd CONFIG)
 endif()
 
