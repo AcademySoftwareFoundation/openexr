@@ -3,7 +3,7 @@
 
 # OpenEXR Release Notes
 
-* [Version 3.5.0](#version-350-september-19-2026) September 19, 2026
+* [Version 3.5.0](#version-350-september-21-2026) September 21, 2026
 * [Version 3.4.15](#version-3415-august-21-2026) August 21, 2026
 * [Version 3.4.14](#version-3414-august-6-2026) August 6, 2026
 * [Version 3.4.13](#version-3413-june-19-2026) June 19, 2026
@@ -114,7 +114,7 @@
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
 
-## Version 3.5.0 (September 19, 2026)
+## Version 3.5.0 (September 21, 2026)
 
 * Support for lossless compression via
   [Zstandard](https://github.com/facebook/zstd)
@@ -127,8 +127,9 @@
   - Deep image gains: Extensive testing with Deep scanlines shows a
     20–30% size reduction compared to ZIPS based on image channels
     (with the best gains on Deep Alpha and Deep ID).
-  - Flat image speed: Achieves comparable compression sizes to ZIPS,
-    but with slightly faster compression speeds. 
+  - Flat image file size: Achieves comparable compressed sizes to ZIPS.
+  - Flat image speed: Delivers slightly faster compression and
+    decompression speeds compared to ZIPS
   - Introduces a new dependency on the zstd library; a vendored
     version (v1.5.7) is provided as a fallback if no installed version
     is present.
@@ -181,7 +182,6 @@
   - Support for the `idManifest` attribute and object
   - Support for multithreaded read and write
   - Support for reading/writing from/to `BytesIO` object
-  - Improved `ChannelList` Iterator API
   - Add `setMaxImageSize/setMaxTileSize` functions
 
 * Other changes:
@@ -191,12 +191,16 @@
   - Improved handling of many channels
   - All Imath headers are now included internally via `#include <Imath/...>`
   - Remove `iex_debugTrap()` function (was not used)
+  - Improved `ChannelList` Iterator API
+  - Fixed a bug that with DWA compression that could silently produce
+    corrupted files. 
 
 * Also of note:
 
   - The vendored version of deflate is 1.26
-  - The vendored version of openjph is 0.31.0
-
+  - The vendored version of OpenJPH is 0.32.0
+  - The minimum required version of OpenJPH is 0.32.0
+  
 ### Security
 
 This release addresses the following security vulnerabilities:
@@ -212,6 +216,26 @@ This release addresses the following security vulnerabilities:
 
 ### Merged Pull Requests
 
+* [2660](https://github.com/AcademySoftwareFoundation/openexr/pull/2660)
+  Look for version headers in `CMAKE_CURRENT_SOURCE_DIR/external`  (by @cary-ilm/Cary Phillips)
+* [2656](https://github.com/AcademySoftwareFoundation/openexr/pull/2656)
+  Bump zstd from 1.5.7.bcr.1 to 1.5.7.bcr.2
+* [2655](https://github.com/AcademySoftwareFoundation/openexr/pull/2655)
+  Bump rules_cc from 0.2.22 to 0.2.25
+* [2654](https://github.com/AcademySoftwareFoundation/openexr/pull/2654)
+  Bump required OpenJPH to 0.32.0 (by @cary-ilm/Cary Phillips)
+* [2650](https://github.com/AcademySoftwareFoundation/openexr/pull/2650)
+  Fix null pointer memcpy in BytesAttribute for zero-length data (by @x4evexnol/babayaga)
+* [2648](https://github.com/AcademySoftwareFoundation/openexr/pull/2648)
+  Fix DWAB corrupted file (by @vlazar-ilm/Vlad Lazar)
+* [2640](https://github.com/AcademySoftwareFoundation/openexr/pull/2640)
+  LJ2K: declare the chunk padding in a COM marker segment (by
+  @osamu620/Osamu Watanabe)
+* [2637](https://github.com/AcademySoftwareFoundation/openexr/pull/2637)
+  LJ2K: Use J2K Type 4 NLT LUT to apply the transfer function (by @palemieux/Pierre-Anthony Lemieux)
+* [2633](https://github.com/AcademySoftwareFoundation/openexr/pull/2633)
+  LJ2K: pad lossy chunks so that wavelet folds stay on low-pass
+  positions (by @osamu620/Osamu Watanabe)
 * [2627](https://github.com/AcademySoftwareFoundation/openexr/pull/2627)
   Reconsitute compression ctxt cache (by @kdt3rd/Kimball Thurston)
 * [2626](https://github.com/AcademySoftwareFoundation/openexr/pull/2626)
@@ -277,6 +301,19 @@ This release addresses the following security vulnerabilities:
 
 ### Documentation Pull Requests
 
+* [2652](https://github.com/AcademySoftwareFoundation/openexr/pull/2652)
+  website: improve documentation code and equation formatting (by @QuantaDude/Abhirup Bhattacharyya)
+* [2651](https://github.com/AcademySoftwareFoundation/openexr/pull/2651)
+  Set 'align: left' for tables that had central text alignment in
+  TechnicalIntroduction.rst for better formatting (by @dmitryshurov/Dmitry Shurov)
+* [2649](https://github.com/AcademySoftwareFoundation/openexr/pull/2649)
+  website: document LJ2K compression (by @QuantaDude/Abhirup Bhattacharyya)
+* [2647](https://github.com/AcademySoftwareFoundation/openexr/pull/2647)
+  website: compile documentation examples independently (by @QuantaDude/Abhirup Bhattacharyya)
+* [2638](https://github.com/AcademySoftwareFoundation/openexr/pull/2638)
+  Release notes for v3.5.0 (by @cary-ilm/Cary Phillips)
+* [2634](https://github.com/AcademySoftwareFoundation/openexr/pull/2634)
+  docs: Fix SECURITY.md formatting (by @lgritz/Larry Gritz)
 * [2624](https://github.com/AcademySoftwareFoundation/openexr/pull/2624)
   Release notes and news for v3.4.15, v3.3.14, v3.2.12 (by @cary-ilm/Cary Phillips)
 * [2580](https://github.com/AcademySoftwareFoundation/openexr/pull/2580)
@@ -306,60 +343,64 @@ This release addresses the following security vulnerabilities:
 
 ### Merged Workflow Pull Requests
 
+* [2636](https://github.com/AcademySoftwareFoundation/openexr/pull/2636)
+  Bump vmactions/freebsd-vm from 1.5.5 to 1.5.6
+* [2635](https://github.com/AcademySoftwareFoundation/openexr/pull/2635)
+  Bump the codeql group with 3 updates
 * [2631](https://github.com/AcademySoftwareFoundation/openexr/pull/2631)
   Add Windows ARM64 Python wheel CI (by @xieofxie)
 * [2630](https://github.com/AcademySoftwareFoundation/openexr/pull/2630)
-  Bump pypa/cibuildwheel from 4.2.0 to 4.2.1 (by @app/dependabot)
+  Bump pypa/cibuildwheel from 4.2.0 to 4.2.1
 * [2576](https://github.com/AcademySoftwareFoundation/openexr/pull/2576)
-  Bump pypa/cibuildwheel from 4.1.1 to 4.2.0 (by @app/dependabot)
+  Bump pypa/cibuildwheel from 4.1.1 to 4.2.0
 * [2559](https://github.com/AcademySoftwareFoundation/openexr/pull/2559)
-  Bump pypa/cibuildwheel from 4.1.0 to 4.1.1 (by @app/dependabot)
+  Bump pypa/cibuildwheel from 4.1.0 to 4.1.1
 * [2537](https://github.com/AcademySoftwareFoundation/openexr/pull/2537)
-  Bump the codeql group with 3 updates (by @app/dependabot)
+  Bump the codeql group with 3 updates
 * [2523](https://github.com/AcademySoftwareFoundation/openexr/pull/2523)
   Group CodeQL GitHub Actions bumps in Dependabot. (by @cary-ilm/Cary Phillips)
 * [2521](https://github.com/AcademySoftwareFoundation/openexr/pull/2521)
-  Bump github/codeql-action/init from 4.36.2 to 4.36.3 (by @app/dependabot)
+  Bump github/codeql-action/init from 4.36.2 to 4.36.3
 * [2520](https://github.com/AcademySoftwareFoundation/openexr/pull/2520)
-  Bump github/codeql-action/upload-sarif from 4.36.2 to 4.36.3 (by @app/dependabot)
+  Bump github/codeql-action/upload-sarif from 4.36.2 to 4.36.3
 * [2519](https://github.com/AcademySoftwareFoundation/openexr/pull/2519)
-  Bump github/codeql-action/analyze from 4.36.2 to 4.36.3 (by @app/dependabot)
+  Bump github/codeql-action/analyze from 4.36.2 to 4.36.3
 * [2477](https://github.com/AcademySoftwareFoundation/openexr/pull/2477)
   Drop support for Python 3.8 (by @cary-ilm/Cary Phillips)
 * [2475](https://github.com/AcademySoftwareFoundation/openexr/pull/2475)
-  Bump pypa/cibuildwheel from 3.4.1 to 4.1.0 (by @app/dependabot)
+  Bump pypa/cibuildwheel from 3.4.1 to 4.1.0
 * [2459](https://github.com/AcademySoftwareFoundation/openexr/pull/2459)
-  Bump github/codeql-action from 4.36.0 to 4.36.2 (by @app/dependabot)
+  Bump github/codeql-action from 4.36.0 to 4.36.2
 * [2455](https://github.com/AcademySoftwareFoundation/openexr/pull/2455)
-  Bump actions/checkout from 6.0.2 to 6.0.3 (by @app/dependabot)
+  Bump actions/checkout from 6.0.2 to 6.0.3
 * [2446](https://github.com/AcademySoftwareFoundation/openexr/pull/2446)
-  Bump openjph from 0.27.0 to 0.27.3.bcr.1 (by @app/dependabot)
+  Bump openjph from 0.27.0 to 0.27.3.bcr.1
 * [2410](https://github.com/AcademySoftwareFoundation/openexr/pull/2410)
   Add missing quotes around ENV in src/test/oss-fuzz/CMakeLists.txt (by @cary-ilm/Cary Phillips)
 * [2400](https://github.com/AcademySoftwareFoundation/openexr/pull/2400)
-  Bump openjph from 0.26.3.bcr.1 to 0.27.0 (by @app/dependabot)
+  Bump openjph from 0.26.3.bcr.1 to 0.27.0
 * [2386](https://github.com/AcademySoftwareFoundation/openexr/pull/2386)
-  Bump rules_cc from 0.2.17 to 0.2.18 (by @app/dependabot)
+  Bump rules_cc from 0.2.17 to 0.2.18
 * [2371](https://github.com/AcademySoftwareFoundation/openexr/pull/2371)
-  Bump packaging from 26.0 to 26.1 (by @app/dependabot)
+  Bump packaging from 26.0 to 26.1
 * [2348](https://github.com/AcademySoftwareFoundation/openexr/pull/2348)
-  Bump requests from 2.32.5 to 2.33.0 in /website (by @app/dependabot)
+  Bump requests from 2.32.5 to 2.33.0 in /website
 * [2347](https://github.com/AcademySoftwareFoundation/openexr/pull/2347)
-  Bump pygments from 2.19.2 to 2.20.0 in /website (by @app/dependabot)
+  Bump pygments from 2.19.2 to 2.20.0 in /website
 * [2286](https://github.com/AcademySoftwareFoundation/openexr/pull/2286)
-  Bump github/codeql-action from 4.32.4 to 4.32.5 (by @app/dependabot)
+  Bump github/codeql-action from 4.32.4 to 4.32.5
 * [2285](https://github.com/AcademySoftwareFoundation/openexr/pull/2285)
-  Bump scikit-build-core from 0.11.6 to 0.12.1 (by @app/dependabot)
+  Bump scikit-build-core from 0.11.6 to 0.12.1
 * [2284](https://github.com/AcademySoftwareFoundation/openexr/pull/2284)
-  Bump jmertic/slack-release-notifier from 5221a45213eddc6206886797beb079e091c93406 to 6fa159048d5313ff1177d248ad84beb627571670 (by @app/dependabot)
+  Bump jmertic/slack-release-notifier from 5221a45213eddc6206886797beb079e091c93406 to 6fa159048d5313ff1177d248ad84beb627571670
 * [2278](https://github.com/AcademySoftwareFoundation/openexr/pull/2278)
-  Bump actions/download-artifact from 7.0.0 to 8.0.0 (by @app/dependabot)
+  Bump actions/download-artifact from 7.0.0 to 8.0.0
 * [2277](https://github.com/AcademySoftwareFoundation/openexr/pull/2277)
-  Bump actions/upload-artifact from 6.0.0 to 7.0.0 (by @app/dependabot)
+  Bump actions/upload-artifact from 6.0.0 to 7.0.0
 * [2206](https://github.com/AcademySoftwareFoundation/openexr/pull/2206)
-  Bump openjph from 0.25.2 to 0.25.3 (by @app/dependabot)
+  Bump openjph from 0.25.2 to 0.25.3
 * [2179](https://github.com/AcademySoftwareFoundation/openexr/pull/2179)
-  Bump readthedocs/actions from 1.2 to 1.5 (by @app/dependabot)
+  Bump readthedocs/actions from 1.2 to 1.5
 * [2116](https://github.com/AcademySoftwareFoundation/openexr/pull/2116)
   CI fixes: (by @cary-ilm/Cary Phillips)
 
