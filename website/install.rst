@@ -8,8 +8,8 @@ Install
 ========
 
 .. toctree::
-    :caption: Install
-   
+   :caption: Install
+
 Linux
 -----
 
@@ -110,12 +110,8 @@ Make sure these are installed on your system before building OpenEXR:
 
 The instructions that follow describe building OpenEXR with CMake.
 
-
-.. admonition:: Note
-    :class: attention
-
-    As of OpenEXR 3, the Gnu autoconf bootstrap/configure build
-    system is no longer supported.
+Note that as of OpenEXR 3, the Gnu autoconf bootstrap/configure build
+system is no longer supported.
 
 Headers and ``#include`` Policy
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -810,3 +806,4 @@ initial generation:
 .. code-block::
 
     % cmake -G “Ninja” ..
+

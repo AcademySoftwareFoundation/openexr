@@ -102,11 +102,8 @@ The deep OpenEXR files need to contain the following elements:
 
 -  Manifest data stored in the file’s metadata as an attribute, or in a side-car file.
 
-.. admonition:: Note
-    :class: note
-    
-    OpenEXR 3.0+ provides a data structure
-    and attribute for efficient storage. For more details see :ref:`idmanifest-label`
+   -  **NOTE**:  OpenEXR 3.0+ provides a data structure
+      and attribute for efficient storage. For more details see :ref:`idmanifest-label`
 
 
 Sample storage

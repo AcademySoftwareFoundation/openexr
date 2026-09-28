@@ -5,6 +5,7 @@ Test Images
 
 .. toctree::
    :caption: Test Images
+   :maxdepth: 2
 
    toctree
 
@@ -2145,3 +2146,4 @@ composited, flattened image, with no depth channel, as a regular
 
    </table>
    </embed>
+

@@ -166,10 +166,9 @@ the CMake build system:
 
     find_package(Imath CONFIG)
     find_package(OpenEXR CONFIG)
-.. admonition:: Note 
-    :class: note
-    
-    The second line may be omitted if you only need the Imath portions.
+
+Note that the second line may be omitted if you only need the Imath
+portions.
 
 And then your project can reference the imported targets like this:
 
