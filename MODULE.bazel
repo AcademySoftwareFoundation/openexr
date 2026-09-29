@@ -3,7 +3,6 @@
 
 module(
     name = "openexr",
-    compatibility_level = 1,
 )
 
 bazel_dep(name = "bazel_skylib", version = "1.9.2")
@@ -14,3 +13,62 @@ bazel_dep(name = "platforms", version = "1.1.0")
 bazel_dep(name = "rules_cc", version = "0.2.25")
 bazel_dep(name = "zstd", version = "1.5.7.bcr.2")
 
+# Documentation (Doxygen + Sphinx/Breathe), see //website:docs.
+bazel_dep(name = "rules_doxygen", version = "2.6.4", dev_dependency = True)
+bazel_dep(name = "rules_python", version = "2.3.4", dev_dependency = True)
+bazel_dep(name = "sphinxdocs", version = "2.3.4", dev_dependency = True)
+
+doxygen_extension = use_extension(
+    "@rules_doxygen//:extensions.bzl",
+    "doxygen_extension",
+    dev_dependency = True,
+)
+
+# Matches the doxygen shipped by ubuntu-24.04, which the CMake website build uses.
+# Note: doxygen 1.9.1 (pinned in .github/workflows/website.yml) links against
+# libclang-9.so.1, which is not available on ubuntu-24.04.
+DOXYGEN_VERSION = "1.9.8"
+
+[
+    doxygen_extension.configuration(
+        platform = platform,
+        sha256 = sha256,
+        version = DOXYGEN_VERSION,
+    )
+    for platform, sha256 in {
+        "windows": "03f98f585acee18df0575262feffccc8a93a5aeacd4ee8c21872aeef12532244",
+        "linux": "dda773bdc62384b7d796fe8b6c5029daad72483e4c8ad4abf6ee9fb98b649388",
+        "linux-arm": "dda773bdc62384b7d796fe8b6c5029daad72483e4c8ad4abf6ee9fb98b649388",
+        "mac": "028d120e4baea55005c7ec1086bbbd56802730bcf80f99d730b56cbb5816f197",
+    }.items()
+]
+
+# Doxygen 1.9.8's macOS archive is Intel-only; use the native ARM release.
+doxygen_extension.configuration(
+    platform = "mac-arm",
+    sha256 = "f473c0f76cc969309b86c0f441934e844bc9c049112ae3482678bd45a7c8a28c",
+    version = "1.16.1",
+)
+
+use_repo(doxygen_extension, "doxygen")
+
+PYTHON_VERSION = "3.14"
+
+python = use_extension(
+    "@rules_python//python/extensions:python.bzl",
+    "python",
+    dev_dependency = True,
+)
+python.toolchain(python_version = PYTHON_VERSION)
+
+pip = use_extension(
+    "@rules_python//python/extensions:pip.bzl",
+    "pip",
+    dev_dependency = True,
+)
+pip.parse(
+    hub_name = "docs_pypi",
+    python_version = PYTHON_VERSION,
+    requirements_lock = "//website:requirements-lock.txt",
+)
+use_repo(pip, "docs_pypi")

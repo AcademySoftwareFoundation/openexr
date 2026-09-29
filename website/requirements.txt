@@ -6,7 +6,7 @@
 #
 colorama==0.4.6 # necessary on Windows only
 sphinx==8.2.3
-breathe==4.36.0
+breathe==5.0.0
 pydata-sphinx-theme==0.22.0
 sphinx-design==0.7.0
 sphinx-copybutton==0.5.2

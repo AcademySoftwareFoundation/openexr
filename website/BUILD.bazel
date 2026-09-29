@@ -1,0 +1,110 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright (c) Contributors to the OpenEXR Project.
+
+load("@doxygen//:doxygen.bzl", "doxygen")
+load("@sphinxdocs//sphinxdocs:sphinx.bzl", "sphinx_build_binary", "sphinx_docs")
+
+package(default_visibility = ["//visibility:public"])
+
+exports_files(["requirements-lock.txt"])
+
+# Keep in sync with Doxyfile.in, which drives the equivalent CMake build.
+doxygen(
+    name = "doxygen",
+    srcs = ["//:OpenEXRCore_doc_srcs"],
+    case_sense_names = False,
+    configurations = [
+        "PREDEFINED = IEX_EXPORT=\"\" \\",
+        "             IEX_INTERNAL_NAMESPACE=Iex \\",
+        "             IEX_INTERNAL_NAMESPACE_SOURCE_ENTER=\"namespace Iex {\" \\",
+        "             IEX_INTERNAL_NAMESPACE_SOURCE_EXIT=\"}\" \\",
+        "             IEX_INTERNAL_NAMESPACE_HEADER_ENTER=\"namespace Iex {\" \\",
+        "             IEX_INTERNAL_NAMESPACE_HEADER_EXIT=\"}\" \\",
+        "             ILMTHREAD_EXPORT=\"\" \\",
+        "             ILMTHREAD_INTERNAL_NAMESPACE=IlmThread \\",
+        "             ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_ENTER=\"namespace IlmThread {\" \\",
+        "             ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_EXIT=\"}\" \\",
+        "             ILMTHREAD_INTERNAL_NAMESPACE_HEADER_ENTER=\"namespace IlmThread {\" \\",
+        "             ILMTHREAD_INTERNAL_NAMESPACE_HEADER_EXIT=\"}\" \\",
+        "             OPENEXR_IMF_INTERNAL_NAMESPACE=Imf \\",
+        "             OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER=\"namespace Imf {\" \\",
+        "             OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT=\"}\" \\",
+        "             OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER=\"namespace Imf {\" \\",
+        "             OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT=\"}\" \\",
+        "             IMF_EXPORT=\"\" \\",
+        "             IMF_EXPORT_TYPE=\"\" \\",
+        "             IMF_EXPORT_EXTERN_TEMPLATE=\"\" \\",
+        "             IMF_EXPORT_ENUM=\"\" \\",
+        "             IMF_EXPORT_TEMPLATE_TYPE=\"\" \\",
+        "             IMF_EXPORT_TEMPLATE_INSTANCE=\"\" \\",
+        "             OPENEXR_EXPORT=\"\" \\",
+        "             EXR_EXPORT=\"\"",
+    ],
+    distribute_group_doc = True,
+    enable_preprocessing = True,
+    generate_html = False,
+    generate_latex = False,
+    generate_man = False,
+    generate_rtf = False,
+    generate_xml = True,
+    javadoc_autobrief = True,
+    macro_expansion = True,
+    outs = ["xml"],
+    project_name = "OpenEXR",
+    quiet = True,
+    recursive = True,
+    warn_if_undocumented = False,
+)
+
+filegroup(
+    name = "doxygen_xml",
+    srcs = [":doxygen"],
+    output_group = "xml",
+)
+
+sphinx_build_binary(
+    name = "sphinx-build",
+    deps = [
+        "@docs_pypi//breathe",
+        "@docs_pypi//pydata_sphinx_theme",
+        "@docs_pypi//sphinx",
+        "@docs_pypi//sphinx_copybutton",
+        "@docs_pypi//sphinx_design",
+    ],
+)
+
+sphinx_docs(
+    name = "docs",
+    srcs = glob(
+        include = [
+            "**/*.rst",
+            "**/*.dot",
+            "_static/**",
+            "_templates/**",
+            "downloads/**",
+            "images/**",
+            "src/**",
+            "test_images.txt",
+        ],
+        exclude = ["scripts/**"],
+    ),
+    # The persistent worker does not work on Windows (sphinxdocs 2.3.4).
+    allow_persistent_workers = False,
+    config = "conf_bazel.py",
+    # Turn Sphinx warnings into errors, as the CMake build does.
+    # "-j1" overrides the "--jobs=auto" sphinxdocs passes: sphinx_press_theme does
+    # not declare itself parallel-read-safe, which "-W" turns into an error.
+    extra_opts = [
+        "-W",
+        "-j1",
+    ],
+    formats = ["html"],
+    renamed_srcs = {
+        # conf_bazel.py evaluates conf.py with the CWD set to _upstream/.
+        "conf.py": "_upstream/conf.py",
+        "//:CMakeLists.txt": "CMakeLists.txt",
+        # Matches breathe_projects in conf.py, which resolves against confdir.
+        ":doxygen_xml": "doxygen/xml",
+    },
+    sphinx = ":sphinx-build",
+)
