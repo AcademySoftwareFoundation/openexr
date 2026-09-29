@@ -13,12 +13,6 @@
 #include <Imath/ImathExport.h>
 #include <Imath/ImathNamespace.h>
 
-IMATH_INTERNAL_NAMESPACE_HEADER_ENTER
-template <class V> class IMF_EXPORT_TEMPLATE_TYPE Vec2;
-template <class V> class IMF_EXPORT_TEMPLATE_TYPE Vec3;
-template <class V> class IMF_EXPORT_TEMPLATE_TYPE Box;
-IMATH_INTERNAL_NAMESPACE_HEADER_EXIT
-
 #define COMPILING_IMF_BOX_ATTRIBUTE
 
 #include "ImfBoxAttribute.h"

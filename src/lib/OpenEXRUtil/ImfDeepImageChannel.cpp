@@ -12,10 +12,6 @@
 #include <Imath/ImathExport.h>
 #include <Imath/ImathNamespace.h>
 
-IMATH_INTERNAL_NAMESPACE_HEADER_ENTER
-class IMFUTIL_EXPORT_TYPE half;
-IMATH_INTERNAL_NAMESPACE_HEADER_EXIT
-
 #define COMPILING_IMF_DEEP_IMAGE_CHANNEL
 
 #include "ImfDeepImageChannel.h"
