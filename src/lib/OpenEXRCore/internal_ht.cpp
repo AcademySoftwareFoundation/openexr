@@ -5,6 +5,7 @@
 
 #include <cmath>
 #include <cstdio>
+#include <cstring>
 #include <limits>
 #include <string>
 #include <fstream>
@@ -559,12 +560,19 @@ ht_undo_impl (
                         }
                         else
                         {
-                            uint32_t* channel_pixels = (uint32_t*) line_pixels;
+                            /* line_pixels is not guaranteed to be 4-byte
+                             * aligned here (the preceding channels' byte
+                             * widths need not sum to a multiple of 4), so
+                             * store through memcpy rather than a uint32_t*
+                             * dereference to avoid a misaligned access. */
+                            uint8_t* channel_pixels = line_pixels;
                             for (int32_t p = 0;
                                  p < decode->channels[file_c].width;
                                  p++)
                             {
-                                *channel_pixels++ = (uint32_t) cur_line->i32[p];
+                                uint32_t v = (uint32_t) cur_line->i32[p];
+                                memcpy (channel_pixels, &v, sizeof (v));
+                                channel_pixels += sizeof (v);
                             }
                         }
                     }
@@ -605,12 +613,20 @@ ht_undo_impl (
                 }
                 else
                 {
-                    uint32_t* channel_pixels =
-                        (uint32_t*) (line_pixels + cs_to_file_ch[c].raster_line_offset);
+                    /* bpl (the per-row stride) and raster_line_offset are
+                     * not guaranteed to be multiples of 4, so line_pixels +
+                     * raster_line_offset is not guaranteed to be 4-byte
+                     * aligned on every row; store through memcpy rather
+                     * than a uint32_t* dereference to avoid a misaligned
+                     * access. */
+                    uint8_t* channel_pixels =
+                        line_pixels + cs_to_file_ch[c].raster_line_offset;
                     for (int32_t p = 0; p < decode->channels[file_c].width;
                          p++)
                     {
-                        *channel_pixels++ = (uint32_t) cur_line->i32[p];
+                        uint32_t v = (uint32_t) cur_line->i32[p];
+                        memcpy (channel_pixels, &v, sizeof (v));
+                        channel_pixels += sizeof (v);
                     }
                 }
             }
@@ -926,12 +942,20 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
                             }
                             else
                             {
-                                int32_t* channel_pixels = (int32_t*) (line_pixels);
+                                /* line_pixels is not guaranteed to be
+                                 * 4-byte aligned here (see the analogous
+                                 * comment in ht_undo_impl), so load
+                                 * through memcpy rather than an int32_t*
+                                 * dereference. */
+                                const uint8_t* channel_pixels = line_pixels;
                                 for (int32_t p = 0;
                                      p < encode->channels[file_c].width;
                                     p++)
                                 {
-                                    cur_line->i32[p] = *channel_pixels++;
+                                    int32_t v;
+                                    memcpy (&v, channel_pixels, sizeof (v));
+                                    cur_line->i32[p] = v;
+                                    channel_pixels += sizeof (v);
                                 }
                             }
 
@@ -978,12 +1002,19 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
                     }
                     else
                     {
-                        int32_t* channel_pixels =
-                            (int32_t*) (src_line +
-                                        cs_channel_info[c].raster_line_offset);
+                        /* src_line + raster_line_offset is not
+                         * guaranteed to be 4-byte aligned (see the
+                         * analogous comment in ht_undo_impl), so load
+                         * through memcpy rather than an int32_t*
+                         * dereference. */
+                        const uint8_t* channel_pixels =
+                            src_line + cs_channel_info[c].raster_line_offset;
                         for (int32_t p = 0; p < cw; p++)
                         {
-                            cur_line->i32[p] = *channel_pixels++;
+                            int32_t v;
+                            memcpy (&v, channel_pixels, sizeof (v));
+                            cur_line->i32[p] = v;
+                            channel_pixels += sizeof (v);
                         }
                     }
                     for (int32_t p = cw; p < image_width; p++)
