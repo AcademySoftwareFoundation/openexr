@@ -336,6 +336,40 @@ static void destroy_ht_decompress_context (exr_decode_pipeline_t* decode)
     decode->free_compression_context = NULL;
 }
 
+/* Decodes one line of samples into the EXR pixel buffer; with legacy_tf
+ * the legacy transfer function is undone on the way. */
+static inline void
+decode_line (
+    void*             dst,
+    const ojph::si32* src,
+    int32_t           width,
+    exr_pixel_type_t  type,
+    bool              legacy_tf)
+{
+    if (type == EXR_PIXEL_HALF)
+    {
+        int16_t* out = static_cast<int16_t*> (dst);
+        if (legacy_tf)
+            for (int32_t p = 0; p < width; p++)
+                *out++ = (int16_t) legacy_int16_to_half (src[p]).bits ();
+        else
+            for (int32_t p = 0; p < width; p++)
+                *out++ = src[p];
+    }
+    else if (legacy_tf)
+    {
+        float* out = static_cast<float*> (dst);
+        for (int32_t p = 0; p < width; p++)
+            *out++ = legacy_int32_to_float (src[p]);
+    }
+    else
+    {
+        uint32_t* out = static_cast<uint32_t*> (dst);
+        for (int32_t p = 0; p < width; p++)
+            *out++ = (uint32_t) src[p];
+    }
+}
+
 static exr_result_t
 ht_undo_impl (
     exr_decode_pipeline_t* decode,
@@ -521,12 +555,16 @@ ht_undo_impl (
 
     cs.create ();
 
-    /* v3.5.0/v3.5.1 LJ2K files (HeaderMagic::V1) have the transfer function
-     * applied outside the codestream; undo it on lossy channels here. */
-    const bool legacy_tf =
-        comp == EXR_COMPRESSION_LJ2K && ctxt->magic == HeaderMagic::V1;
     ojph::param_cod cod = cs.access_cod ();
-
+    /* v3.5.0/v3.5.1 LJ2K files (HeaderMagic::V1) have the transfer function
+     * applied outside the codestream, so it is undone after decoding on their
+     * lossy components. */
+    std::vector<bool> is_ch_legacy_lossy (decode->channel_count, false);
+    if (comp == EXR_COMPRESSION_LJ2K && ctxt->magic == HeaderMagic::V1)
+    {
+        for (int c = 0; c < decode->channel_count; c++)
+            is_ch_legacy_lossy[c] = !cod.is_reversible (c);
+    }
 
     assert (sizeof (uint16_t) == 2);
     assert (sizeof (uint32_t) == 4);
@@ -563,34 +601,12 @@ ht_undo_impl (
                         cur_line = cs.pull (next_comp);
                         assert (next_comp == c);
 
-                        if (decode->channels[file_c].data_type ==
-                            EXR_PIXEL_HALF)
-                        {
-                            int16_t* channel_pixels = (int16_t*) line_pixels;
-                            for (int32_t p = 0;
-                                 p < decode->channels[file_c].width;
-                                 p++)
-                            {
-                                *channel_pixels++ = (legacy_tf && !cod.is_reversible (c))
-                                    ? (int16_t) legacy_int16_to_half (cur_line->i32[p]).bits ()
-                                    : cur_line->i32[p];
-                            }
-                        }
-                        else
-                        {
-                            uint32_t* channel_pixels = (uint32_t*) line_pixels;
-                            for (int32_t p = 0;
-                                 p < decode->channels[file_c].width;
-                                 p++)
-                            {
-                                {
-                                if (legacy_tf && !cod.is_reversible (c))
-                                    *((float*) channel_pixels++) = legacy_int32_to_float (cur_line->i32[p]);
-                                else
-                                    *channel_pixels++ = (uint32_t) cur_line->i32[p];
-                            }
-                            }
-                        }
+                        decode_line (
+                            line_pixels,
+                            cur_line->i32,
+                            decode->channels[file_c].width,
+                            static_cast<exr_pixel_type_t> (decode->channels[file_c].data_type),
+                            is_ch_legacy_lossy[c]);
                     }
 
                     line_pixels += (size_t) decode->channels[line_c].bytes_per_element *
@@ -617,33 +633,12 @@ ht_undo_impl (
                 cur_line   = cs.pull (next_comp);
                 assert (next_comp == c);
                 if (y >= out_height) continue;
-                if (decode->channels[file_c].data_type == EXR_PIXEL_HALF)
-                {
-                    int16_t* channel_pixels =
-                        (int16_t*) (line_pixels + cs_to_file_ch[c].raster_line_offset);
-                    for (int32_t p = 0; p < decode->channels[file_c].width;
-                         p++)
-                    {
-                        *channel_pixels++ = (legacy_tf && !cod.is_reversible (c))
-                                    ? (int16_t) legacy_int16_to_half (cur_line->i32[p]).bits ()
-                                    : cur_line->i32[p];
-                    }
-                }
-                else
-                {
-                    uint32_t* channel_pixels =
-                        (uint32_t*) (line_pixels + cs_to_file_ch[c].raster_line_offset);
-                    for (int32_t p = 0; p < decode->channels[file_c].width;
-                         p++)
-                    {
-                        {
-                                if (legacy_tf && !cod.is_reversible (c))
-                                    *((float*) channel_pixels++) = legacy_int32_to_float (cur_line->i32[p]);
-                                else
-                                    *channel_pixels++ = (uint32_t) cur_line->i32[p];
-                            }
-                    }
-                }
+                decode_line (
+                    line_pixels + cs_to_file_ch[c].raster_line_offset,
+                    cur_line->i32,
+                    decode->channels[file_c].width,
+                    static_cast<exr_pixel_type_t> (decode->channels[file_c].data_type),
+                    is_ch_legacy_lossy[c]);
             }
             line_pixels += bpl;
         }
