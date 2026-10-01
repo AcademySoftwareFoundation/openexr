@@ -278,6 +278,7 @@ struct ht_context_cache
     std::vector<CodestreamChannelInfo> cs_to_file_ch;
     ojph::codestream cs;
     size_t header_sz = 0;
+    HeaderMagic magic = HeaderMagic::V1;
 };
 
 /*
@@ -364,8 +365,11 @@ ht_undo_impl (
         ctxt = legacy_support.get();
     }
 
-    std::vector<CodestreamChannelInfo> &cs_to_file_ch = ctxt->cs_to_file_ch;
-    bool resetOffsets = false;
+    exr_compression_t comp = EXR_COMPRESSION_HTJ2K256;
+    exr_get_compression (decode->context, decode->part_index, &comp);
+
+    std::vector<CodestreamChannelInfo>& cs_to_file_ch = ctxt->cs_to_file_ch;
+    bool                                resetOffsets = false;
     if (static_cast<std::size_t>(decode->channel_count) != cs_to_file_ch.size ())
     {
         resetOffsets = true;
@@ -375,12 +379,18 @@ ht_undo_impl (
         try
         {
             ctxt->header_sz = read_header (
-                (uint8_t*) compressed_data, comp_buf_size, cs_to_file_ch);
+                (uint8_t*) compressed_data, comp_buf_size, cs_to_file_ch, ctxt->magic);
         }
         catch (...)
         {
             return EXR_ERR_CORRUPT_CHUNK;
         }
+
+        /* V1 is the only valid magic number, except for LJ2K, where V2 is
+           also valid */
+        if (ctxt->magic != HeaderMagic::V1 &&
+            !(comp == EXR_COMPRESSION_LJ2K && ctxt->magic == HeaderMagic::V2))
+            return EXR_ERR_CORRUPT_CHUNK;
     }
     else
     {
@@ -511,6 +521,13 @@ ht_undo_impl (
 
     cs.create ();
 
+    /* v3.5.0/v3.5.1 LJ2K files (HeaderMagic::V1) have the transfer function
+     * applied outside the codestream; undo it on lossy channels here. */
+    const bool legacy_tf =
+        comp == EXR_COMPRESSION_LJ2K && ctxt->magic == HeaderMagic::V1;
+    ojph::param_cod cod = cs.access_cod ();
+
+
     assert (sizeof (uint16_t) == 2);
     assert (sizeof (uint32_t) == 4);
     ojph::ui32      next_comp = 0;
@@ -554,7 +571,9 @@ ht_undo_impl (
                                  p < decode->channels[file_c].width;
                                  p++)
                             {
-                                *channel_pixels++ = cur_line->i32[p];
+                                *channel_pixels++ = (legacy_tf && !cod.is_reversible (c))
+                                    ? (int16_t) legacy_int16_to_half (cur_line->i32[p]).bits ()
+                                    : cur_line->i32[p];
                             }
                         }
                         else
@@ -564,7 +583,12 @@ ht_undo_impl (
                                  p < decode->channels[file_c].width;
                                  p++)
                             {
-                                *channel_pixels++ = (uint32_t) cur_line->i32[p];
+                                {
+                                if (legacy_tf && !cod.is_reversible (c))
+                                    *((float*) channel_pixels++) = legacy_int32_to_float (cur_line->i32[p]);
+                                else
+                                    *channel_pixels++ = (uint32_t) cur_line->i32[p];
+                            }
                             }
                         }
                     }
@@ -600,7 +624,9 @@ ht_undo_impl (
                     for (int32_t p = 0; p < decode->channels[file_c].width;
                          p++)
                     {
-                        *channel_pixels++ = cur_line->i32[p];
+                        *channel_pixels++ = (legacy_tf && !cod.is_reversible (c))
+                                    ? (int16_t) legacy_int16_to_half (cur_line->i32[p]).bits ()
+                                    : cur_line->i32[p];
                     }
                 }
                 else
@@ -610,7 +636,12 @@ ht_undo_impl (
                     for (int32_t p = 0; p < decode->channels[file_c].width;
                          p++)
                     {
-                        *channel_pixels++ = (uint32_t) cur_line->i32[p];
+                        {
+                                if (legacy_tf && !cod.is_reversible (c))
+                                    *((float*) channel_pixels++) = legacy_int32_to_float (cur_line->i32[p]);
+                                else
+                                    *channel_pixels++ = (uint32_t) cur_line->i32[p];
+                            }
                     }
                 }
             }
@@ -859,7 +890,9 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
         size_t header_sz = write_header (
             (uint8_t*) encode->compressed_buffer,
             encode->packed_bytes,
-            cs_channel_info);
+            cs_channel_info,
+            comp == EXR_COMPRESSION_LJ2K ? HeaderMagic::V2 : HeaderMagic::V1
+        );
 
         /* write the codestream */
         staticmem_outfile output;
