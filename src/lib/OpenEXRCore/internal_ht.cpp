@@ -5,6 +5,7 @@
 
 #include <cmath>
 #include <cstdio>
+#include <cstring>
 #include <limits>
 #include <string>
 #include <fstream>
@@ -70,13 +71,16 @@ chunk_max_linear_float (
 
                     if (line_c == file_c)
                     {
-                        const float* p =
-                            reinterpret_cast<const float*> (line_pixels);
                         for (int32_t x = 0;
                              x < encode->channels[file_c].width;
                              x++)
                         {
-                            float v = p[x];
+                            /* samples may be unaligned */
+                            float v;
+                            memcpy (
+                                &v,
+                                line_pixels + (int64_t) x * sizeof (float),
+                                sizeof (float));
                             if (std::isfinite (v))
                             {
                                 double av = std::fabs ((double) v);
@@ -111,12 +115,13 @@ chunk_max_linear_float (
             const int32_t cw = encode->channels[file_c].width;
             for (int y = 0; y < chunk_height; y++)
             {
-                const float* p = reinterpret_cast<const float*> (
-                    packed + (int64_t) y * bpl +
-                    cs_channel_info[c].raster_line_offset);
+                const uint8_t* p = packed + (int64_t) y * bpl +
+                                   cs_channel_info[c].raster_line_offset;
                 for (int32_t x = 0; x < cw; x++)
                 {
-                    float v = p[x];
+                    /* samples may be unaligned */
+                    float v;
+                    memcpy (&v, p + (int64_t) x * sizeof (float), sizeof (float));
                     if (std::isfinite (v))
                     {
                         double av = std::fabs ((double) v);
@@ -346,27 +351,39 @@ decode_line (
     exr_pixel_type_t  type,
     bool              legacy_tf)
 {
+    /* Channels of different sample sizes are packed back to back, so dst
+     * may not be aligned to the sample size: store samples with memcpy. */
+    uint8_t* out = static_cast<uint8_t*> (dst);
     if (type == EXR_PIXEL_HALF)
     {
-        int16_t* out = static_cast<int16_t*> (dst);
         if (legacy_tf)
-            for (int32_t p = 0; p < width; p++)
-                *out++ = (int16_t) legacy_int16_to_half (src[p]).bits ();
+            for (int32_t p = 0; p < width; p++, out += sizeof (int16_t))
+            {
+                int16_t v = (int16_t) legacy_int16_to_half (src[p]).bits ();
+                memcpy (out, &v, sizeof (v));
+            }
         else
-            for (int32_t p = 0; p < width; p++)
-                *out++ = src[p];
+            for (int32_t p = 0; p < width; p++, out += sizeof (int16_t))
+            {
+                int16_t v = (int16_t) src[p];
+                memcpy (out, &v, sizeof (v));
+            }
     }
     else if (legacy_tf)
     {
-        float* out = static_cast<float*> (dst);
-        for (int32_t p = 0; p < width; p++)
-            *out++ = legacy_int32_to_float (src[p]);
+        for (int32_t p = 0; p < width; p++, out += sizeof (float))
+        {
+            float v = legacy_int32_to_float (src[p]);
+            memcpy (out, &v, sizeof (v));
+        }
     }
     else
     {
-        uint32_t* out = static_cast<uint32_t*> (dst);
-        for (int32_t p = 0; p < width; p++)
-            *out++ = (uint32_t) src[p];
+        for (int32_t p = 0; p < width; p++, out += sizeof (uint32_t))
+        {
+            uint32_t v = (uint32_t) src[p];
+            memcpy (out, &v, sizeof (v));
+        }
     }
 }
 
@@ -944,22 +961,32 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
                             if (encode->channels[file_c].data_type ==
                                 EXR_PIXEL_HALF)
                             {
-                                int16_t* channel_pixels = (int16_t*) (line_pixels);
                                 for (int32_t p = 0;
                                      p < encode->channels[file_c].width;
                                     p++)
                                 {
-                                    cur_line->i32[p] = *channel_pixels++;
+                                    /* samples may be unaligned */
+                                    int16_t v;
+                                    memcpy (
+                                        &v,
+                                        line_pixels + (int64_t) p * sizeof (v),
+                                        sizeof (v));
+                                    cur_line->i32[p] = v;
                                 }
                             }
                             else
                             {
-                                int32_t* channel_pixels = (int32_t*) (line_pixels);
                                 for (int32_t p = 0;
                                      p < encode->channels[file_c].width;
                                     p++)
                                 {
-                                    cur_line->i32[p] = *channel_pixels++;
+                                    /* samples may be unaligned */
+                                    int32_t v;
+                                    memcpy (
+                                        &v,
+                                        line_pixels + (int64_t) p * sizeof (v),
+                                        sizeof (v));
+                                    cur_line->i32[p] = v;
                                 }
                             }
 
@@ -994,24 +1021,32 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
                     int file_c = cs_channel_info[c].file_index;
                     const int32_t cw     = encode->channels[file_c].width;
 
+                    const uint8_t* channel_pixels =
+                        src_line + cs_channel_info[c].raster_line_offset;
                     if (encode->channels[file_c].data_type == EXR_PIXEL_HALF)
                     {
-                        int16_t* channel_pixels =
-                            (int16_t*) (src_line +
-                                        cs_channel_info[c].raster_line_offset);
                         for (int32_t p = 0; p < cw; p++)
                         {
-                            cur_line->i32[p] = *channel_pixels++;
+                            /* samples may be unaligned */
+                            int16_t v;
+                            memcpy (
+                                &v,
+                                channel_pixels + (int64_t) p * sizeof (v),
+                                sizeof (v));
+                            cur_line->i32[p] = v;
                         }
                     }
                     else
                     {
-                        int32_t* channel_pixels =
-                            (int32_t*) (src_line +
-                                        cs_channel_info[c].raster_line_offset);
                         for (int32_t p = 0; p < cw; p++)
                         {
-                            cur_line->i32[p] = *channel_pixels++;
+                            /* samples may be unaligned */
+                            int32_t v;
+                            memcpy (
+                                &v,
+                                channel_pixels + (int64_t) p * sizeof (v),
+                                sizeof (v));
+                            cur_line->i32[p] = v;
                         }
                     }
                     for (int32_t p = cw; p < image_width; p++)
