@@ -3,6 +3,8 @@
 
 # OpenEXR Release Notes
 
+* [Version 3.5.2](#version-352-october-2-2026) October 2, 2026
+* [Version 3.5.1](#version-351-september-25-2026) September 25, 2026
 * [Version 3.5.0](#version-350-september-21-2026) September 21, 2026
 * [Version 3.4.15](#version-3415-august-21-2026) August 21, 2026
 * [Version 3.4.14](#version-3414-august-6-2026) August 6, 2026
@@ -113,6 +115,77 @@
 * [Version 1.0.2](#version-102)
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
+
+## Version 3.5.2 (October 2, 2026)
+
+Patch release that introduces the use of OpenJPH's built-in LUT to
+apply the decode/encode transfer function for lossy LJ2K compression.
+
+:warning: WARNING: EXR files written by OpenEXR v3.5.0 and v3.5.1
+using lossy LJ2K compression lack the LUT in their codestream and
+should be regenerated. This v3.5.2 release includes a backwards
+compatibility fallback so that such files can be successfully decoded,
+but for best results, please regenerate any files using LJ2K written
+by v3.5.0 and v3.5.1.
+
+Also in this release:
+
+* Prebuilt wheels Python 3.14.
+* Fix for a bug when when statically linking when libdeflate, zstd, or
+  OpenJPH is found via pkg-config rather than CMake config.
+* Pin the `IMATH_TAG` to `v3.2.3`; it was previously incorrectly set to `main`.
+* Pin the JPEG 2000 progression order to RPCL and adds TLM markers to
+  allow efficient random access to resolution layers for J2K compression. 
+
+### Merged Pull Requests
+
+* [2694](https://github.com/AcademySoftwareFoundation/openexr/pull/2694)
+  LJ2K: add compatibility with v3.5.0 an v3.5.1 files (by @palemieux/Pierre-Anthony Lemieux)
+* [2688](https://github.com/AcademySoftwareFoundation/openexr/pull/2688)
+  Fix integer overflow in exrcheck's readCoreTiledPart tile size accumulation (by @cary-ilm/Cary Phillips)
+* [2679](https://github.com/AcademySoftwareFoundation/openexr/pull/2679)
+  Remove forward declarations in `IMATH_INTERNAL_NAMESPACE` (by @cary-ilm/Cary Phillips)
+* [2673](https://github.com/AcademySoftwareFoundation/openexr/pull/2673)
+  Recreate pkg-config dependency targets in OpenEXRConfig.cmake (by @lgritz/Larry Gritz)
+* [2672](https://github.com/AcademySoftwareFoundation/openexr/pull/2672)
+  J2K: pin progression order to RPCL and add TLM (by @palemieux/Pierre-Anthony Lemieux)
+* [2637](https://github.com/AcademySoftwareFoundation/openexr/pull/2637)
+  LJ2K: Use J2K Type 4 NLT LUT to apply the transfer function (by @palemieux/Pierre-Anthony Lemieux)
+
+### Merged Workflow Pull Requests
+
+* [2692](https://github.com/AcademySoftwareFoundation/openexr/pull/2692)
+  Bump jmertic/slack-release-notifier from 20260820 to 20260930 (by @app/dependabot)
+* [2689](https://github.com/AcademySoftwareFoundation/openexr/pull/2689)
+  Bump msys2/setup-msys2 from 2.32.0 to 2.33.0 (by @app/dependabot)
+* [2685](https://github.com/AcademySoftwareFoundation/openexr/pull/2685)
+  Build wheel for Python 3.14 (by @cary-ilm/Cary Phillips)
+* [2677](https://github.com/AcademySoftwareFoundation/openexr/pull/2677)
+  Bump vmactions/freebsd-vm from 1.5.7 to 1.5.8 (by @app/dependabot)
+* [2676](https://github.com/AcademySoftwareFoundation/openexr/pull/2676)
+  Bump the codeql group with 3 updates (by @app/dependabot)
+* [2664](https://github.com/AcademySoftwareFoundation/openexr/pull/2664)
+  Bump vmactions/freebsd-vm from 1.5.6 to 1.5.7 (by @app/dependabot)
+* [2663](https://github.com/AcademySoftwareFoundation/openexr/pull/2663)
+  Bump the codeql group with 3 updates (by @app/dependabot)
+* [2662](https://github.com/AcademySoftwareFoundation/openexr/pull/2662)
+  Update urllib3 requirement from >=2.7 to >=2.8.0 in /website (by @app/dependabot)
+* [2661](https://github.com/AcademySoftwareFoundation/openexr/pull/2661)
+  Update idna requirement from >=3.19 to >=3.20 in /website (by @app/dependabot)
+
+## Version 3.5.1 (September 25, 2026)
+
+Patch release that addresses a security vulnerability in ZSTD:
+- fix heap buffer overflow in ZSTD deep scanline decoding
+
+Also, the v3.5.0 release incorrectly identified the
+`OPENEXR_VERSION_RELEASE_TYPE` and associated `OPENEXR_PACKAGE_NAME`
+as `-dev`.
+
+### Merged Pull Requests
+
+* [2669](https://github.com/AcademySoftwareFoundation/openexr/pull/2669)
+  Fix heap buffer overflow in ZSTD deep scanline decoding (by @cary-ilm/Cary Phillips)
 
 ## Version 3.5.0 (September 21, 2026)
 
@@ -231,8 +304,6 @@ This release addresses the following security vulnerabilities:
 * [2640](https://github.com/AcademySoftwareFoundation/openexr/pull/2640)
   LJ2K: declare the chunk padding in a COM marker segment (by
   @osamu620/Osamu Watanabe)
-* [2637](https://github.com/AcademySoftwareFoundation/openexr/pull/2637)
-  LJ2K: Use J2K Type 4 NLT LUT to apply the transfer function (by @palemieux/Pierre-Anthony Lemieux)
 * [2633](https://github.com/AcademySoftwareFoundation/openexr/pull/2633)
   LJ2K: pad lossy chunks so that wavelet folds stay on low-pass
   positions (by @osamu620/Osamu Watanabe)
