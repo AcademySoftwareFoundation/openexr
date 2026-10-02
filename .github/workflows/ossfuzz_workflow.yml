@@ -32,24 +32,62 @@ permissions:
 jobs:
   Fuzzing:
     runs-on: ubuntu-latest
+    env:
+      FUZZ_SECONDS: 300
     steps:
+    - name: Checkout OpenEXR
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        path: openexr
+
+    - name: Checkout OSS-Fuzz
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        repository: google/oss-fuzz
+        path: oss-fuzz
+
     - name: Build Fuzzers
       id: build
-      uses: google/oss-fuzz/infra/cifuzz/actions/build_fuzzers@32f1d4deadc82279ec9001a837f2424e185c69a2 # master
-      with:
-        oss-fuzz-project-name: 'openexr'
-        dry-run: false
-        language: c++
+      working-directory: oss-fuzz
+      run: python3 infra/helper.py build_fuzzers --sanitizer address openexr "$GITHUB_WORKSPACE/openexr"
+
+    - name: Check Fuzzer Build
+      working-directory: oss-fuzz
+      run: python3 infra/helper.py check_build --sanitizer address openexr
+
     - name: Run Fuzzers
-      uses: google/oss-fuzz/infra/cifuzz/actions/run_fuzzers@32f1d4deadc82279ec9001a837f2424e185c69a2 # master
-      with:
-        oss-fuzz-project-name: 'openexr'
-        fuzz-seconds: 300
-        dry-run: false
-        language: c++
+      working-directory: oss-fuzz
+      run: |
+        # fuzzers - all executables in build/out/openexr/openexr_*_fuzzer
+        mapfile -t fuzzers < <(
+          find build/out/openexr -maxdepth 1 -type f -executable \
+            -name 'openexr_*_fuzzer' -printf '%f\n'
+        )
+        if [[ ${#fuzzers[@]} -eq 0 ]]; then
+          echo "No fuzz targets found" >&2
+          exit 1
+        fi
+        per_target=$(( FUZZ_SECONDS / ${#fuzzers[@]} ))
+        if [[ $per_target -lt 10 ]]; then
+          per_target=10
+        fi
+        status=0
+        for fuzzer in "${fuzzers[@]}"; do
+          echo "::group::Fuzzing $fuzzer for ${per_target}s"
+          python3 infra/helper.py run_fuzzer --sanitizer address openexr "$fuzzer" -- \
+            -max_total_time="$per_target" -rss_limit_mb=2560 || status=1
+          echo "::endgroup::"
+        done
+        exit $status
+
     - name: Upload Crash
       uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
       if: failure() && steps.build.outcome == 'success'
       with:
         name: artifacts
-        path: ./out/artifacts
+        path: |
+          oss-fuzz/build/out/openexr/crash-*
+          oss-fuzz/build/out/openexr/leak-*
+          oss-fuzz/build/out/openexr/oom-*
+          oss-fuzz/build/out/openexr/timeout-*
+        if-no-files-found: ignore

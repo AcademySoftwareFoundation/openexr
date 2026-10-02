@@ -55,6 +55,26 @@ const int gTargetPixelsToRead = 1 << 28;
 const int gMaxScanlinesToRead = 1 << 20;
 
 //
+// Accumulate total += a * b * c, checking for uint64_t overflow in both the
+// multiplication and the running addition. Returns false (and leaves total
+// unmodified) if an overflow would occur.
+//
+static bool
+accumOverflowSafe (uint64_t& total, uint64_t a, uint64_t b, uint64_t c)
+{
+    if (a != 0 && b > UINT64_MAX / a) return false;
+    uint64_t ab = a * b;
+
+    if (ab != 0 && c > UINT64_MAX / ab) return false;
+    uint64_t abc = ab * c;
+
+    if (total > UINT64_MAX - abc) return false;
+
+    total += abc;
+    return true;
+}
+
+//
 // compute row stride appropriate to process files quickly
 // only used for the 'Rgba' interfaces, which read potentially non-existent channels
 //
@@ -1558,7 +1578,8 @@ readCoreTiledPart (
                             break;
                         }
 
-                        uint64_t bytes = 0;
+                        uint64_t bytes    = 0;
+                        bool     overflow = false;
                         for (int c = 0; c < decoder.channel_count; c++)
                         {
                             exr_coding_channel_info_t& outc =
@@ -1569,9 +1590,22 @@ readCoreTiledPart (
                                 outc.user_bytes_per_element;
                             outc.user_line_stride =
                                 outc.user_pixel_stride * curtw;
-                            bytes += (uint64_t) curtw *
-                                     (uint64_t) outc.user_bytes_per_element *
-                                     (uint64_t) curth;
+                            if (!accumOverflowSafe (
+                                    bytes,
+                                    (uint64_t) curtw,
+                                    (uint64_t) outc.user_bytes_per_element,
+                                    (uint64_t) curth))
+                            {
+                                overflow = true;
+                                break;
+                            }
+                        }
+
+                        if (overflow)
+                        {
+                            frv       = EXR_ERR_INVALID_ATTR;
+                            keepgoing = false;
+                            break;
                         }
 
                         doread = true;
