@@ -3,6 +3,7 @@
 ** Copyright Contributors to the OpenEXR Project.
 */
 
+#include <cstring>
 #include <limits>
 #include <string>
 #include <fstream>
@@ -294,22 +295,26 @@ ht_undo_impl (
                         if (decode->channels[file_c].data_type ==
                             EXR_PIXEL_HALF)
                         {
-                            int16_t* channel_pixels = (int16_t*) line_pixels;
+                            /* samples may be unaligned */
+                            uint8_t* channel_pixels = line_pixels;
                             for (int32_t p = 0;
                                  p < decode->channels[file_c].width;
-                                 p++)
+                                 p++, channel_pixels += sizeof (int16_t))
                             {
-                                *channel_pixels++ = cur_line->i32[p];
+                                int16_t v = (int16_t) cur_line->i32[p];
+                                memcpy (channel_pixels, &v, sizeof (v));
                             }
                         }
                         else
                         {
-                            int32_t* channel_pixels = (int32_t*) line_pixels;
+                            /* samples may be unaligned */
+                            uint8_t* channel_pixels = line_pixels;
                             for (int32_t p = 0;
                                  p < decode->channels[file_c].width;
-                                 p++)
+                                 p++, channel_pixels += sizeof (int32_t))
                             {
-                                *channel_pixels++ = cur_line->i32[p];
+                                int32_t v = cur_line->i32[p];
+                                memcpy (channel_pixels, &v, sizeof (v));
                             }
                         }
                     }
@@ -335,22 +340,26 @@ ht_undo_impl (
                 assert (next_comp == c);
                 if (decode->channels[file_c].data_type == EXR_PIXEL_HALF)
                 {
-                    int16_t* channel_pixels =
-                        (int16_t*) (line_pixels + cs_to_file_ch[c].raster_line_offset);
+                    /* samples may be unaligned */
+                    uint8_t* channel_pixels =
+                        line_pixels + cs_to_file_ch[c].raster_line_offset;
                     for (int32_t p = 0; p < decode->channels[file_c].width;
-                         p++)
+                         p++, channel_pixels += sizeof (int16_t))
                     {
-                        *channel_pixels++ = cur_line->i32[p];
+                        int16_t v = (int16_t) cur_line->i32[p];
+                        memcpy (channel_pixels, &v, sizeof (v));
                     }
                 }
                 else
                 {
-                    int32_t* channel_pixels =
-                        (int32_t*) (line_pixels + cs_to_file_ch[c].raster_line_offset);
+                    /* samples may be unaligned */
+                    uint8_t* channel_pixels =
+                        line_pixels + cs_to_file_ch[c].raster_line_offset;
                     for (int32_t p = 0; p < decode->channels[file_c].width;
-                         p++)
+                         p++, channel_pixels += sizeof (int32_t))
                     {
-                        *channel_pixels++ = cur_line->i32[p];
+                        int32_t v = cur_line->i32[p];
+                        memcpy (channel_pixels, &v, sizeof (v));
                     }
                 }
             }
@@ -485,22 +494,28 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
                             if (encode->channels[file_c].data_type ==
                                 EXR_PIXEL_HALF)
                             {
-                                int16_t* channel_pixels = (int16_t*) (line_pixels);
+                                /* samples may be unaligned */
+                                const uint8_t* channel_pixels = line_pixels;
                                 for (int32_t p = 0;
                                      p < encode->channels[file_c].width;
-                                    p++)
+                                    p++, channel_pixels += sizeof (int16_t))
                                 {
-                                    cur_line->i32[p] = *channel_pixels++;
+                                    int16_t v;
+                                    memcpy (&v, channel_pixels, sizeof (v));
+                                    cur_line->i32[p] = v;
                                 }
                             }
                             else
                             {
-                                int32_t* channel_pixels = (int32_t*) (line_pixels);
+                                /* samples may be unaligned */
+                                const uint8_t* channel_pixels = line_pixels;
                                 for (int32_t p = 0;
                                      p < encode->channels[file_c].width;
-                                    p++)
+                                    p++, channel_pixels += sizeof (int32_t))
                                 {
-                                    cur_line->i32[p] = *channel_pixels++;
+                                    int32_t v;
+                                    memcpy (&v, channel_pixels, sizeof (v));
+                                    cur_line->i32[p] = v;
                                 }
                             }
 
@@ -529,22 +544,28 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
 
                     if (encode->channels[file_c].data_type == EXR_PIXEL_HALF)
                     {
-                        int16_t* channel_pixels =
-                            (int16_t*) (line_pixels + cs_to_file_ch[c].raster_line_offset);
+                        /* samples may be unaligned */
+                        const uint8_t* channel_pixels =
+                            line_pixels + cs_to_file_ch[c].raster_line_offset;
                         for (int32_t p = 0; p < encode->channels[file_c].width;
-                            p++)
+                            p++, channel_pixels += sizeof (int16_t))
                         {
-                            cur_line->i32[p] = *channel_pixels++;
+                            int16_t v;
+                            memcpy (&v, channel_pixels, sizeof (v));
+                            cur_line->i32[p] = v;
                         }
                     }
                     else
                     {
-                        int32_t* channel_pixels =
-                            (int32_t*) (line_pixels + cs_to_file_ch[c].raster_line_offset);
+                        /* samples may be unaligned */
+                        const uint8_t* channel_pixels =
+                            line_pixels + cs_to_file_ch[c].raster_line_offset;
                         for (int32_t p = 0; p < encode->channels[file_c].width;
-                            p++)
+                            p++, channel_pixels += sizeof (int32_t))
                         {
-                            cur_line->i32[p] = *channel_pixels++;
+                            int32_t v;
+                            memcpy (&v, channel_pixels, sizeof (v));
+                            cur_line->i32[p] = v;
                         }
                     }
                     assert (next_comp == c);
