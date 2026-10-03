@@ -1376,7 +1376,7 @@ exr_read_tile_chunk_info (
          * may be smaller than normal tile size, just check that it is
          * at least a multiple of int32_t
          */
-        if (ddata[0] < 0 ||
+        if (ddata[0] < 0 || ddata[0] > (int64_t) INT_MAX ||
             (part->comp_type == EXR_COMPRESSION_NONE &&
              0 != (ddata[0] % sizeof(int32_t))) ||
             (ddata[0] == 0 && (ddata[1] != 0 || ddata[2] != 0)))
