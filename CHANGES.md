@@ -147,7 +147,7 @@ Also in this release:
 * [2688](https://github.com/AcademySoftwareFoundation/openexr/pull/2688)
   Fix integer overflow in exrcheck's readCoreTiledPart tile size accumulation (by @cary-ilm/Cary Phillips)
 * [2679](https://github.com/AcademySoftwareFoundation/openexr/pull/2679)
-  Remove forward declarations in `IMATH_INTERNAL_NAMESPACE` (by @cary-ilm/Cary Phillips)
+  Remove forward declarations in IMATH_INTERNAL_NAMESPACE (by @cary-ilm/Cary Phillips)
 * [2673](https://github.com/AcademySoftwareFoundation/openexr/pull/2673)
   Recreate pkg-config dependency targets in OpenEXRConfig.cmake (by @lgritz/Larry Gritz)
 * [2672](https://github.com/AcademySoftwareFoundation/openexr/pull/2672)
@@ -189,6 +189,11 @@ as `-dev`.
 
 * [2669](https://github.com/AcademySoftwareFoundation/openexr/pull/2669)
   Fix heap buffer overflow in ZSTD deep scanline decoding (by @cary-ilm/Cary Phillips)
+* [2660](https://github.com/AcademySoftwareFoundation/openexr/pull/2660)
+  Look for version headers in CMAKE_CURRENT_SOURCE_DIR/external (by @cary-ilm/Cary Phillips)
+
+### Merged Workflow Pull Requests
+
 
 ## Version 3.5.0 (September 21, 2026)
 
@@ -276,7 +281,7 @@ as `-dev`.
   - The vendored version of deflate is 1.26
   - The vendored version of OpenJPH is 0.32.0
   - The minimum required version of OpenJPH is 0.32.0
-  
+
 ### Security
 
 This release addresses the following security vulnerabilities:
@@ -292,24 +297,16 @@ This release addresses the following security vulnerabilities:
 
 ### Merged Pull Requests
 
-* [2660](https://github.com/AcademySoftwareFoundation/openexr/pull/2660)
-  Look for version headers in `CMAKE_CURRENT_SOURCE_DIR/external`  (by @cary-ilm/Cary Phillips)
-* [2656](https://github.com/AcademySoftwareFoundation/openexr/pull/2656)
-  Bump zstd from 1.5.7.bcr.1 to 1.5.7.bcr.2
-* [2655](https://github.com/AcademySoftwareFoundation/openexr/pull/2655)
-  Bump rules_cc from 0.2.22 to 0.2.25
 * [2654](https://github.com/AcademySoftwareFoundation/openexr/pull/2654)
   Bump required OpenJPH to 0.32.0 (by @cary-ilm/Cary Phillips)
-* [2650](https://github.com/AcademySoftwareFoundation/openexr/pull/2650)
-  Fix null pointer memcpy in BytesAttribute for zero-length data (by @x4evexnol/babayaga)
-* [2648](https://github.com/AcademySoftwareFoundation/openexr/pull/2648)
+* [2653](https://github.com/AcademySoftwareFoundation/openexr/pull/2653)
   Fix DWAB corrupted file (by @vlazar-ilm/Vlad Lazar)
+* [2650](https://github.com/AcademySoftwareFoundation/openexr/pull/2650)
+  Fix null pointer memcpy in BytesAttribute for zero-length data (follow-up to #2615) (by @x4evexnol/babayaga)
 * [2640](https://github.com/AcademySoftwareFoundation/openexr/pull/2640)
-  LJ2K: declare the chunk padding in a COM marker segment (by
-  @osamu620/Osamu Watanabe)
+  LJ2K: declare the chunk padding in a COM marker segment (by @osamu620/Osamu Watanabe)
 * [2633](https://github.com/AcademySoftwareFoundation/openexr/pull/2633)
-  LJ2K: pad lossy chunks so that wavelet folds stay on low-pass
-  positions (by @osamu620/Osamu Watanabe)
+  LJ2K: pad lossy chunks so that wavelet folds stay on low-pass positions (by @osamu620/Osamu Watanabe)
 * [2627](https://github.com/AcademySoftwareFoundation/openexr/pull/2627)
   Reconsitute compression ctxt cache (by @kdt3rd/Kimball Thurston)
 * [2626](https://github.com/AcademySoftwareFoundation/openexr/pull/2626)
@@ -322,16 +319,42 @@ This release addresses the following security vulnerabilities:
   LJ2K: handle non-finite and out-of-bound samples gracefully (by @palemieux/Pierre-Anthony Lemieux)
 * [2618](https://github.com/AcademySoftwareFoundation/openexr/pull/2618)
   Update vendored libdeflate to 1.26 (by @cary-ilm/Cary Phillips)
+* [2615](https://github.com/AcademySoftwareFoundation/openexr/pull/2615)
+  check for dataSize==0 before memcpy in OpaqueAttribute (by @peterhillman)
+* [2605](https://github.com/AcademySoftwareFoundation/openexr/pull/2605)
+  IexMathFpu.cpp: Don't set sigaction.sa_restorer (by @AdrianBunk/Adrian Bunk)
+* [2602](https://github.com/AcademySoftwareFoundation/openexr/pull/2602)
+  Remove `IMF_EXPORT` from inline Iterator methods (by @cary-ilm/Cary Phillips)
+* [2601](https://github.com/AcademySoftwareFoundation/openexr/pull/2601)
+  Add explicit implementations of TypedAttribute copy/move constructors (by @cary-ilm/Cary Phillips)
 * [2599](https://github.com/AcademySoftwareFoundation/openexr/pull/2599)
   Add support for loss HTJ2K compressor (LJ2K) (by @palemieux/Pierre-Anthony Lemieux)
+* [2595](https://github.com/AcademySoftwareFoundation/openexr/pull/2595)
+  Bump vendored OpenJPH to 0.31.0 (by @cary-ilm/Cary Phillips)
+* [2593](https://github.com/AcademySoftwareFoundation/openexr/pull/2593)
+  Replace (void*) with EXR_CONST_CAST in extract_attr_float_vector (by @cary-ilm/Cary Phillips)
+* [2588](https://github.com/AcademySoftwareFoundation/openexr/pull/2588)
+  Fix integer overflow and untrusted size handling in ZSTD codec (by @cary-ilm/Cary Phillips)
+* [2583](https://github.com/AcademySoftwareFoundation/openexr/pull/2583)
+  Add zstd version macros to OpenEXRConfig.h (by @cary-ilm/Cary Phillips)
 * [2581](https://github.com/AcademySoftwareFoundation/openexr/pull/2581)
   Mark AcesInputFile/AcesOutputFile and exr2aces as deprecated (by @cary-ilm/Cary Phillips)
 * [2577](https://github.com/AcademySoftwareFoundation/openexr/pull/2577)
   Revert "Add compression context cache (#2440)" (by @cary-ilm/Cary Phillips)
 * [2560](https://github.com/AcademySoftwareFoundation/openexr/pull/2560)
   Refine colorInteropID support (by @doug-walker/Doug Walker)
+* [2549](https://github.com/AcademySoftwareFoundation/openexr/pull/2549)
+  Fix broken links identified in ASWF Health Check 2026 (by @cary-ilm/Cary Phillips)
 * [2525](https://github.com/AcademySoftwareFoundation/openexr/pull/2525)
   Add check to avoid overflow, add tests for reading / writing many channels (by @kthurston/Kimball Thurston)
+* [2523](https://github.com/AcademySoftwareFoundation/openexr/pull/2523)
+  Group CodeQL GitHub Actions bumps in Dependabot. (by @cary-ilm/Cary Phillips)
+* [2518](https://github.com/AcademySoftwareFoundation/openexr/pull/2518)
+  Fix python ZSTD (by @TodicaIonut/Todica Ionut)
+* [2478](https://github.com/AcademySoftwareFoundation/openexr/pull/2478)
+  Zstd flat always delta encode (by @vlazar-ilm/Vlad Lazar)
+* [2465](https://github.com/AcademySoftwareFoundation/openexr/pull/2465)
+  Fix setting the level in the exrmetrics (#2) (by @vlazar-ilm/Vlad Lazar)
 * [2453](https://github.com/AcademySoftwareFoundation/openexr/pull/2453)
   Use std::deque for IDManifest storage to keep references stable (by @mshooter-ilm/Moira Shooter)
 * [2443](https://github.com/AcademySoftwareFoundation/openexr/pull/2443)
@@ -344,14 +367,14 @@ This release addresses the following security vulnerabilities:
   Add Python bindings for idManifest (IDManifest) header attribute (by @mshooter-ilm/Moira Shooter)
 * [2429](https://github.com/AcademySoftwareFoundation/openexr/pull/2429)
   Check for xSize==0 in gaps fuzzer `part_exceeds_memory_limits` (by @cary-ilm/Cary Phillips)
-* [2428](https://github.com/AcademySoftwareFoundation/openexr/pull/2428)
-  Add required includes to website examples (by @ijayhub/Ijay)
 * [2419](https://github.com/AcademySoftwareFoundation/openexr/pull/2419)
   Impose memory limits in `openexr_exrgaps_fuzzer` (by @cary-ilm/Cary Phillips)
 * [2418](https://github.com/AcademySoftwareFoundation/openexr/pull/2418)
   Add support for multithreading in Python module (by @cary-ilm/Cary Phillips)
 * [2412](https://github.com/AcademySoftwareFoundation/openexr/pull/2412)
   Ability to read/write from/to BytesIO buffers in Python API (by @mshooter-ilm/Moira Shooter)
+* [2410](https://github.com/AcademySoftwareFoundation/openexr/pull/2410)
+  Add missing quotes around ENV in src/test/oss-fuzz/CMakeLists.txt (by @cary-ilm/Cary Phillips)
 * [2401](https://github.com/AcademySoftwareFoundation/openexr/pull/2401)
   test/oss-fuzz: add `openexr_exrgaps_fuzzer` (by @jortles/Anthony Hurtado)
 * [2391](https://github.com/AcademySoftwareFoundation/openexr/pull/2391)
@@ -372,14 +395,15 @@ This release addresses the following security vulnerabilities:
   Make the release.py generic, so it works with Imath (by @cary-ilm/Cary Phillips)
 * [2117](https://github.com/AcademySoftwareFoundation/openexr/pull/2117)
   Bump version on main branch to 4.0.0 (by @cary-ilm/Cary Phillips)
+* [2116](https://github.com/AcademySoftwareFoundation/openexr/pull/2116)
+  CI fixes: (by @cary-ilm/Cary Phillips)
 
-### Documentation Pull Requests
+## Merged Documentation Pull Requests
 
 * [2652](https://github.com/AcademySoftwareFoundation/openexr/pull/2652)
   website: improve documentation code and equation formatting (by @QuantaDude/Abhirup Bhattacharyya)
 * [2651](https://github.com/AcademySoftwareFoundation/openexr/pull/2651)
-  Set 'align: left' for tables that had central text alignment in
-  TechnicalIntroduction.rst for better formatting (by @dmitryshurov/Dmitry Shurov)
+  Set 'align: left' for tables that had central text alignment in website docs (by @dmitryshurov/Dmitry Shurov)
 * [2649](https://github.com/AcademySoftwareFoundation/openexr/pull/2649)
   website: document LJ2K compression (by @QuantaDude/Abhirup Bhattacharyya)
 * [2647](https://github.com/AcademySoftwareFoundation/openexr/pull/2647)
@@ -390,16 +414,20 @@ This release addresses the following security vulnerabilities:
   docs: Fix SECURITY.md formatting (by @lgritz/Larry Gritz)
 * [2624](https://github.com/AcademySoftwareFoundation/openexr/pull/2624)
   Release notes and news for v3.4.15, v3.3.14, v3.2.12 (by @cary-ilm/Cary Phillips)
+* [2587](https://github.com/AcademySoftwareFoundation/openexr/pull/2587)
+  Add CVEs fixed in v3.4.14, v3.3.13, v3.2.11 to SECURITY.md (by @cary-ilm/Cary Phillips)
+* [2584](https://github.com/AcademySoftwareFoundation/openexr/pull/2584)
+  Add contributors to release notes via share/util/release scripts (by @cary-ilm/Cary Phillips)
 * [2580](https://github.com/AcademySoftwareFoundation/openexr/pull/2580)
   Release notes and news for v3.4.14, v3.3.13, v3.2.11 (by @cary-ilm/Cary Phillips)
-* [2549](https://github.com/AcademySoftwareFoundation/openexr/pull/2549)
-  Fix broken links identified in ASWF Health Check 2026 (by @cary-ilm/Cary Phillips)
 * [2512](https://github.com/AcademySoftwareFoundation/openexr/pull/2512)
   Update security policy regarding CVE requests (by @cary-ilm/Cary Phillips)
 * [2501](https://github.com/AcademySoftwareFoundation/openexr/pull/2501)
   Update SECURITY.md with CVE fixes from v3.4.12 and 3.4.13 (by @cary-ilm/Cary Phillips)
 * [2497](https://github.com/AcademySoftwareFoundation/openexr/pull/2497)
   Release notes and news for v3.4.13, v3.3.12, and v3.2.10 (by @cary-ilm/Cary Phillips)
+* [2428](https://github.com/AcademySoftwareFoundation/openexr/pull/2428)
+  Add required includes to website examples (by @ijayhub/Ijay)
 * [2322](https://github.com/AcademySoftwareFoundation/openexr/pull/2322)
   news and release notes for v3.4.8 and v3.4.7 (by @cary-ilm/Cary Phillips)
 * [2280](https://github.com/AcademySoftwareFoundation/openexr/pull/2280)
@@ -414,69 +442,85 @@ This release addresses the following security vulnerabilities:
   release notes and news for v3.4.3, v3.3.6, and 3.2.5 (by @cary-ilm/Cary Phillips)
 * [2152](https://github.com/AcademySoftwareFoundation/openexr/pull/2152)
   Release notes and news for v3.4.2 (by @cary-ilm/Cary Phillips)
+* [2142](https://github.com/AcademySoftwareFoundation/openexr/pull/2142)
+  Release notes and website news for v3.4.1 (by @cary-ilm/Cary Phillips)
 
 ### Merged Workflow Pull Requests
 
+* [2656](https://github.com/AcademySoftwareFoundation/openexr/pull/2656)
+  Bump zstd from 1.5.7.bcr.1 to 1.5.7.bcr.2 (by @app/dependabot)
+* [2655](https://github.com/AcademySoftwareFoundation/openexr/pull/2655)
+  Bump rules_cc from 0.2.22 to 0.2.25 (by @app/dependabot)
 * [2636](https://github.com/AcademySoftwareFoundation/openexr/pull/2636)
-  Bump vmactions/freebsd-vm from 1.5.5 to 1.5.6
+  Bump vmactions/freebsd-vm from 1.5.5 to 1.5.6 (by @app/dependabot)
 * [2635](https://github.com/AcademySoftwareFoundation/openexr/pull/2635)
-  Bump the codeql group with 3 updates
+  Bump the codeql group with 3 updates (by @app/dependabot)
 * [2631](https://github.com/AcademySoftwareFoundation/openexr/pull/2631)
   Add Windows ARM64 Python wheel CI (by @xieofxie)
 * [2630](https://github.com/AcademySoftwareFoundation/openexr/pull/2630)
-  Bump pypa/cibuildwheel from 4.2.0 to 4.2.1
+  Bump pypa/cibuildwheel from 4.2.0 to 4.2.1 (by @app/dependabot)
+* [2619](https://github.com/AcademySoftwareFoundation/openexr/pull/2619)
+  Bump the codeql group with 3 updates (by @app/dependabot)
+* [2613](https://github.com/AcademySoftwareFoundation/openexr/pull/2613)
+  Bump imath from 3.2.2.bcr.1 to 3.2.3 (by @app/dependabot)
+* [2611](https://github.com/AcademySoftwareFoundation/openexr/pull/2611)
+  Bump vmactions/freebsd-vm from 1.5.3 to 1.5.5 (by @app/dependabot)
+* [2609](https://github.com/AcademySoftwareFoundation/openexr/pull/2609)
+  Bump the codeql group with 3 updates (by @app/dependabot)
+* [2608](https://github.com/AcademySoftwareFoundation/openexr/pull/2608)
+  Update idna requirement from >=3.18 to >=3.19 in /website (by @app/dependabot)
+* [2604](https://github.com/AcademySoftwareFoundation/openexr/pull/2604)
+  Add Windows clang builds (by @cary-ilm/Cary Phillips)
+* [2603](https://github.com/AcademySoftwareFoundation/openexr/pull/2603)
+  Pin imath and slack-release-notifier versions in CI (by @cary-ilm/Cary Phillips)
+* [2579](https://github.com/AcademySoftwareFoundation/openexr/pull/2579)
+  Bump openjph from 0.27.3.bcr.1 to 0.31.0 (by @app/dependabot)
 * [2576](https://github.com/AcademySoftwareFoundation/openexr/pull/2576)
-  Bump pypa/cibuildwheel from 4.1.1 to 4.2.0
+  Bump pypa/cibuildwheel from 4.1.1 to 4.2.0 (by @app/dependabot)
 * [2559](https://github.com/AcademySoftwareFoundation/openexr/pull/2559)
-  Bump pypa/cibuildwheel from 4.1.0 to 4.1.1
+  Bump pypa/cibuildwheel from 4.1.0 to 4.1.1 (by @app/dependabot)
 * [2537](https://github.com/AcademySoftwareFoundation/openexr/pull/2537)
-  Bump the codeql group with 3 updates
-* [2523](https://github.com/AcademySoftwareFoundation/openexr/pull/2523)
-  Group CodeQL GitHub Actions bumps in Dependabot. (by @cary-ilm/Cary Phillips)
+  Bump the codeql group with 3 updates (by @app/dependabot)
 * [2521](https://github.com/AcademySoftwareFoundation/openexr/pull/2521)
-  Bump github/codeql-action/init from 4.36.2 to 4.36.3
+  Bump github/codeql-action/init from 4.36.2 to 4.36.3 (by @app/dependabot)
 * [2520](https://github.com/AcademySoftwareFoundation/openexr/pull/2520)
-  Bump github/codeql-action/upload-sarif from 4.36.2 to 4.36.3
+  Bump github/codeql-action/upload-sarif from 4.36.2 to 4.36.3 (by @app/dependabot)
 * [2519](https://github.com/AcademySoftwareFoundation/openexr/pull/2519)
-  Bump github/codeql-action/analyze from 4.36.2 to 4.36.3
+  Bump github/codeql-action/analyze from 4.36.2 to 4.36.3 (by @app/dependabot)
 * [2477](https://github.com/AcademySoftwareFoundation/openexr/pull/2477)
   Drop support for Python 3.8 (by @cary-ilm/Cary Phillips)
 * [2475](https://github.com/AcademySoftwareFoundation/openexr/pull/2475)
-  Bump pypa/cibuildwheel from 3.4.1 to 4.1.0
+  Bump pypa/cibuildwheel from 3.4.1 to 4.1.0 (by @app/dependabot)
 * [2459](https://github.com/AcademySoftwareFoundation/openexr/pull/2459)
-  Bump github/codeql-action from 4.36.0 to 4.36.2
+  Bump github/codeql-action from 4.36.0 to 4.36.2 (by @app/dependabot)
 * [2455](https://github.com/AcademySoftwareFoundation/openexr/pull/2455)
-  Bump actions/checkout from 6.0.2 to 6.0.3
+  Bump actions/checkout from 6.0.2 to 6.0.3 (by @app/dependabot)
 * [2446](https://github.com/AcademySoftwareFoundation/openexr/pull/2446)
-  Bump openjph from 0.27.0 to 0.27.3.bcr.1
-* [2410](https://github.com/AcademySoftwareFoundation/openexr/pull/2410)
-  Add missing quotes around ENV in src/test/oss-fuzz/CMakeLists.txt (by @cary-ilm/Cary Phillips)
+  Bump openjph from 0.27.0 to 0.27.3.bcr.1 (by @app/dependabot)
 * [2400](https://github.com/AcademySoftwareFoundation/openexr/pull/2400)
-  Bump openjph from 0.26.3.bcr.1 to 0.27.0
+  Bump openjph from 0.26.3.bcr.1 to 0.27.0 (by @app/dependabot)
 * [2386](https://github.com/AcademySoftwareFoundation/openexr/pull/2386)
-  Bump rules_cc from 0.2.17 to 0.2.18
+  Bump rules_cc from 0.2.17 to 0.2.18 (by @app/dependabot)
 * [2371](https://github.com/AcademySoftwareFoundation/openexr/pull/2371)
-  Bump packaging from 26.0 to 26.1
+  Bump packaging from 26.0 to 26.1 (by @app/dependabot)
 * [2348](https://github.com/AcademySoftwareFoundation/openexr/pull/2348)
-  Bump requests from 2.32.5 to 2.33.0 in /website
+  Bump requests from 2.32.5 to 2.33.0 in /website (by @app/dependabot)
 * [2347](https://github.com/AcademySoftwareFoundation/openexr/pull/2347)
-  Bump pygments from 2.19.2 to 2.20.0 in /website
+  Bump pygments from 2.19.2 to 2.20.0 in /website (by @app/dependabot)
 * [2286](https://github.com/AcademySoftwareFoundation/openexr/pull/2286)
-  Bump github/codeql-action from 4.32.4 to 4.32.5
+  Bump github/codeql-action from 4.32.4 to 4.32.5 (by @app/dependabot)
 * [2285](https://github.com/AcademySoftwareFoundation/openexr/pull/2285)
-  Bump scikit-build-core from 0.11.6 to 0.12.1
+  Bump scikit-build-core from 0.11.6 to 0.12.1 (by @app/dependabot)
 * [2284](https://github.com/AcademySoftwareFoundation/openexr/pull/2284)
-  Bump jmertic/slack-release-notifier from 5221a45213eddc6206886797beb079e091c93406 to 6fa159048d5313ff1177d248ad84beb627571670
+  Bump jmertic/slack-release-notifier from 5221a45213eddc6206886797beb079e091c93406 to 6fa159048d5313ff1177d248ad84beb627571670 (by @app/dependabot)
 * [2278](https://github.com/AcademySoftwareFoundation/openexr/pull/2278)
-  Bump actions/download-artifact from 7.0.0 to 8.0.0
+  Bump actions/download-artifact from 7.0.0 to 8.0.0 (by @app/dependabot)
 * [2277](https://github.com/AcademySoftwareFoundation/openexr/pull/2277)
-  Bump actions/upload-artifact from 6.0.0 to 7.0.0
+  Bump actions/upload-artifact from 6.0.0 to 7.0.0 (by @app/dependabot)
 * [2206](https://github.com/AcademySoftwareFoundation/openexr/pull/2206)
-  Bump openjph from 0.25.2 to 0.25.3
+  Bump openjph from 0.25.2 to 0.25.3 (by @app/dependabot)
 * [2179](https://github.com/AcademySoftwareFoundation/openexr/pull/2179)
-  Bump readthedocs/actions from 1.2 to 1.5
-* [2116](https://github.com/AcademySoftwareFoundation/openexr/pull/2116)
-  CI fixes: (by @cary-ilm/Cary Phillips)
+  Bump readthedocs/actions from 1.2 to 1.5 (by @app/dependabot)
 
 ## Version 3.4.15 (August 21, 2026)
 
