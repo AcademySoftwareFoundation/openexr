@@ -126,16 +126,19 @@ using lossy LJ2K compression lack the LUT in their codestream and
 should be regenerated. This v3.5.2 release includes a backwards
 compatibility fallback so that such files can be successfully decoded,
 but for best results, please regenerate any files using LJ2K written
-by v3.5.0 and v3.5.1.
+by v3.5.0 and v3.5.1. Note that this was incorrectly reported as being
+included in v3.5.0.
 
 Also in this release:
 
 * Prebuilt wheels Python 3.14.
 * Fix for a bug when when statically linking when libdeflate, zstd, or
-  OpenJPH is found via pkg-config rather than CMake config.
+  OpenJPH is found via pkg-config rather than CMake config (#2673).
 * Pin the `IMATH_TAG` to `v3.2.3`; it was previously incorrectly set to `main`.
 * Pin the JPEG 2000 progression order to RPCL and adds TLM markers to
-  allow efficient random access to resolution layers for J2K compression. 
+  allow efficient random access to resolution layers for J2K
+  compression (#2672)
+* Fix for a failure case in exrcheck involving large images (#2688)
 
 ### Merged Pull Requests
 
