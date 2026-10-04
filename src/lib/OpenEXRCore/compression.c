@@ -18,6 +18,28 @@
 #include "OpenEXRConfigInternal.h"
 
 #if OPENEXR_USE_INTERNAL_DEFLATE
+/*
+ * On NetBSD, system headers already pulled in above transitively via
+ * <stdint.h> (e.g. <sys/bswap.h>) declare real, non-static bswap16/32/64
+ * functions. The vendored libdeflate sources declare their own static
+ * inline functions of the same names, which conflicts ("static declaration
+ * follows non-static declaration"). Rename libdeflate's symbols for the
+ * scope of these includes so they can't collide with the system's.
+ * (NetBSD's <sys/bswap.h> also defines bswap16/32/64 as function-like
+ * macros, so undefine those first to avoid a macro-redefinition warning.)
+ */
+#    ifdef bswap16
+#        undef bswap16
+#    endif
+#    ifdef bswap32
+#        undef bswap32
+#    endif
+#    ifdef bswap64
+#        undef bswap64
+#    endif
+#    define bswap16 openexr_deflate_bswap16
+#    define bswap32 openexr_deflate_bswap32
+#    define bswap64 openexr_deflate_bswap64
 #    include "../../../external/deflate/lib/lib_common.h"
 #    include "../../../external/deflate/lib/arm/cpu_features.c"
 #    include "../../../external/deflate/lib/x86/cpu_features.c"
@@ -29,6 +51,9 @@
 #    include "../../../external/deflate/lib/adler32.c"
 #    include "../../../external/deflate/lib/zlib_compress.c"
 #    include "../../../external/deflate/lib/zlib_decompress.c"
+#    undef bswap16
+#    undef bswap32
+#    undef bswap64
 #else
 #    include <libdeflate.h>
 #endif
