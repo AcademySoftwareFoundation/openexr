@@ -92,6 +92,19 @@ bool make_channel_map (
     exr_coding_channel_info_t*          channels,
     std::vector<CodestreamChannelInfo>& cs_to_file_ch);
 
+/**
+ * - HTJ2K256 and HTJ2K32: HeaderMagic::V1 is always written.
+ * - LJ2K: HeaderMagic::V2 is always written and signals that LUT-based LJ2K is
+ *   used. HeaderMagic::V1 is used for backward compatibility with v3.5.0 and
+ *   v3.5.1 and must never be written.
+ */
+
+enum class HeaderMagic : uint16_t
+{
+    V1 = 'H' * 256 + 'T', /* used for HTJ2K256 and HTJ2K32 */
+    V2 = 'H' * 256 + 'L', /* used for LJ2K */
+};
+
 /** Write an HTJ2K chunk header into @p buffer.
  *
  *  The header encodes the channel map so that a decoder can reconstruct the
@@ -109,13 +122,15 @@ bool make_channel_map (
  *  @param buffer   Destination buffer; must be at least @p max_sz bytes.
  *  @param max_sz   Capacity of @p buffer in bytes.
  *  @param map      Channel map produced by make_channel_map().
+ *  @param magic    Magic number written to the header
  *  @return Number of bytes written; the JPEG 2000 codestream should be
  *          placed at this offset within @p buffer.
  */
 size_t write_header (
     uint8_t*                                  buffer,
     size_t                                    max_sz,
-    const std::vector<CodestreamChannelInfo>& map);
+    const std::vector<CodestreamChannelInfo>& map,
+    HeaderMagic                               magic);
 
 /** Parse an HTJ2K chunk header from @p buffer and populate the channel map.
  *
@@ -126,6 +141,7 @@ size_t write_header (
  *  @param buffer   Chunk data; must be at least @p max_sz bytes.
  *  @param max_sz   Number of readable bytes starting at @p buffer.
  *  @param map      Populated with one entry per J2K component on success.
+*   @param magic    Magic number read from the header
  *  @return Byte offset of the JPEG 2000 codestream within @p buffer, i.e. the
  *          total size of the header including its payload.
  *  @throws std::runtime_error if the magic number is absent, the header is
@@ -134,7 +150,8 @@ size_t write_header (
 size_t read_header (
     void*                               buffer,
     size_t                              max_sz,
-    std::vector<CodestreamChannelInfo>& map);
+    std::vector<CodestreamChannelInfo>& map,
+    HeaderMagic&                        magic);
 
 
 /** Transforms samples on lossy RGB channels of LJ2K before they
@@ -173,6 +190,35 @@ inline double tf_to_linear(double x)
         return sign * pow(v, 2.2f);
     }
     return sign * exp(2.2f * (v - 1.0f));
+}
+
+/** Legacy (v3.5.0/v3.5.1) LJ2K decoding: files with HeaderMagic::V1 were written
+ *  with the transfer function applied to the samples before coding, so it is
+ *  undone here after decoding rather than by an NLT LUT in the codestream.
+ */
+static const double LEGACY_INT16_HALF_FACTOR = 5424.23808866629; /* 32,767 / (log(65,504) / 2.2 + 1.0) */
+
+/** Convert a decoded legacy lossy LJ2K 16-bit sample back to a `half` value.
+ *  Decoded samples are clamped to [-32767, 32767].
+ */
+inline half legacy_int16_to_half(int32_t f)
+{
+    if (f > 32767) f = 32767;
+    if (f < -32767) f = -32767;
+    return tf_to_linear(((double) f) / LEGACY_INT16_HALF_FACTOR);
+}
+
+static const double LEGACY_INT32_FLOAT_FACTOR = 51961246.180338; /* 2,147,483,647 / (log(FLT_MAX) / 2.2 + 1.0) */
+
+/** Convert a decoded legacy lossy LJ2K 32-bit sample back to a `float` value,
+ *  clamped to +/-FLT_MAX to absorb floating-point rounding error.
+ */
+inline float legacy_int32_to_float(int32_t f)
+{
+    double v = tf_to_linear (((double) f) / LEGACY_INT32_FLOAT_FACTOR);
+    if (v > (double) FLT_MAX) return FLT_MAX;
+    if (v < -(double) FLT_MAX) return -FLT_MAX;
+    return (float) v;
 }
 
 /**
