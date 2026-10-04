@@ -96,11 +96,6 @@ half_to_float8 (float* out, const uint16_t* src)
     half_to_float4 (out, src);
     half_to_float4 (out + 4, src + 4);
 }
-#else
-/* when we explicitly compile against f16, force it in, do not need a chooser */
-static inline void
-choose_half_to_float_impl (void)
-{}
 #endif
 
 #ifdef ENABLE_F16C_TEST
@@ -148,7 +143,10 @@ half_to_float_buffer_impl (float* out, const uint16_t* in, int w)
 static void (*half_to_float_buffer) (float*, const uint16_t*, int) =
     &half_to_float_buffer_impl;
 
-static inline void
+/* Execute this once at startup; has_native_half() is deterministic and only
+ * reads CPU feature bits, so the value is a per-process constant. 
+ */
+__attribute__ ((constructor)) static void
 choose_half_to_float_impl (void)
 {
     if (has_native_half ()) half_to_float_buffer = &half_to_float_buffer_f16c;
@@ -203,10 +201,6 @@ half_to_float_buffer (float* out, const uint16_t* in, int w)
     }
 #    endif
 }
-
-static void
-choose_half_to_float_impl (void)
-{}
 
 #endif
 
@@ -1703,17 +1697,6 @@ internal_exr_match_decode (
     int                    simpinterleaverev,
     int                    simplineoff)
 {
-#ifdef EXR_HAS_STD_ATOMICS
-    static atomic_int init_cpu_check = 1;
-#else
-    static int init_cpu_check = 1;
-#endif
-    if (init_cpu_check)
-    {
-        choose_half_to_float_impl ();
-        init_cpu_check = 0;
-    }
-
     if (isdeep)
     {
         if ((decode->decode_flags & EXR_DECODE_NON_IMAGE_DATA_AS_POINTERS))
