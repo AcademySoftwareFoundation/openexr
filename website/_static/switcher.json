@@ -1,0 +1,17 @@
+[
+  {
+    "name": "latest",
+    "version": "latest",
+    "url": "https://openexr.readthedocs.io/en/latest/"
+  },
+  {
+    "name": "stable",
+    "version": "stable",
+    "url": "https://openexr.readthedocs.io/en/stable/"
+  },
+  {
+    "name": "3.1",
+    "version": "RB-3.1",
+    "url": "https://openexr.readthedocs.io/en/RB-3.1/"
+  }
+]
