@@ -142,7 +142,7 @@ make_channel_map (
         cs_to_file_ch[2].file_index = b_index;
 
         int avail_cs_i = 3;
-        int offset = 0;
+        size_t offset = 0;
         for (int file_i = 0; file_i < channel_count; file_i++)
         {
             int cs_i;
@@ -158,17 +158,17 @@ make_channel_map (
 
             cs_to_file_ch[cs_i].file_index = file_i;
             cs_to_file_ch[cs_i].raster_line_offset = offset;
-            offset += channels[file_i].width * channels[file_i].bytes_per_element;
+            offset += (size_t) channels[file_i].width * (size_t) channels[file_i].bytes_per_element;
         }
     }
     else
     {
-        int offset = 0;
+        size_t offset = 0;
         for (size_t file_i = 0; file_i < static_cast<size_t>(channel_count); file_i++)
         {
             cs_to_file_ch[file_i].file_index = file_i;
             cs_to_file_ch[file_i].raster_line_offset = offset;
-            offset += channels[file_i].width * channels[file_i].bytes_per_element;
+            offset += (size_t) channels[file_i].width * (size_t) channels[file_i].bytes_per_element;
         }
     }
 
