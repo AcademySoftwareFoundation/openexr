@@ -15,11 +15,6 @@
 #include <Imath/ImathExport.h>
 #include <Imath/ImathNamespace.h>
 
-IMATH_INTERNAL_NAMESPACE_HEADER_ENTER
-template <class V> class IMF_EXPORT_TEMPLATE_TYPE Matrix33;
-template <class V> class IMF_EXPORT_TEMPLATE_TYPE Matrix44;
-IMATH_INTERNAL_NAMESPACE_HEADER_EXIT
-
 #define COMPILING_IMF_MATRIX_ATTRIBUTE
 
 #include "ImfMatrixAttribute.h"

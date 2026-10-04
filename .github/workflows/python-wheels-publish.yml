@@ -99,10 +99,10 @@ jobs:
           # Split macOS arches across runners so artifact merge does not collide on filenames.
           CIBW_ARCHS_MACOS: ${{ matrix.cibw_archs_macos }}
           CIBW_ARCHS_WINDOWS: ${{ matrix.cibw_archs_windows }}
-          # Build Python 3.9 through 3.13
+          # Build Python 3.9 through 3.15
           # Skip 32-bit wheels builds on Windows
           # Also skip the PyPy builds, since they fail the unit tests
-          CIBW_BUILD: "cp39-* cp310-* cp311-* cp312-* cp313-*"
+          CIBW_BUILD: "cp39-* cp310-* cp311-* cp312-* cp313-* cp314-* cp315-*"
           # NumPy's Windows ARM64 wheels require Python 3.11 or newer.
           CIBW_SKIP: "*-win32 *_i686 cp39-win_arm64 cp310-win_arm64"
 

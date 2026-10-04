@@ -85,6 +85,12 @@ testReadBadArgs (const std::string& tempdir)
 #ifdef _WIN32
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_FILE_ACCESS, exr_start_read (&f, fn.c_str (), &cinit));
+#elif defined(__NetBSD__)
+    // NetBSD allows reading raw directory entries via read(), so the
+    // read succeeds but returns data that isn't a valid OpenEXR header,
+    // rather than failing with an I/O error as on other unix platforms.
+    EXRCORE_TEST_RVAL_FAIL (
+        EXR_ERR_FILE_BAD_HEADER, exr_start_read (&f, fn.c_str (), &cinit));
 #else
     EXRCORE_TEST_RVAL_FAIL (
         EXR_ERR_READ_IO, exr_start_read (&f, fn.c_str (), &cinit));
