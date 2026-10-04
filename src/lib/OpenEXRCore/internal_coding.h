@@ -30,7 +30,13 @@
 #    include <x86intrin.h>
 #endif
 
+#ifdef __cplusplus
+#include <cmath>
+using std::isnan;
+using std::isinf;
+#else
 #include <math.h>
+#endif
 
 #ifdef __cplusplus
 extern "C" {
