@@ -1,0 +1,69 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright (c) Contributors to the OpenEXR Project.
+#
+# Build and test on NetBSD using a community VM action.
+# GitHub does not provide native NetBSD runners; this uses vmactions/netbsd-vm.
+# Validates the pthread fallback in internal_thread.h (issue #2299).
+
+name: CI (NetBSD)
+
+on:
+  push:
+    paths:
+      - '**'
+      - '!**.md'
+      - '!website/**'
+      - '!bazel/**'
+      - '!src/wrappers/**'
+      - '!.github/workflows/**'
+      - '.github/workflows/ci_netbsd.yml'
+  pull_request:
+    paths:
+      - '**'
+      - '!**.md'
+      - '!website/**'
+      - '!bazel/**'
+      - '!src/wrappers/**'
+      - '!.github/workflows/**'
+      - '.github/workflows/ci_netbsd.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  netbsd:
+    name: NetBSD
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build and test on NetBSD
+        uses: vmactions/netbsd-vm@c8a0d7ddb84619a7a8cc4e652efa7950b3fd9f92 # v1.5.2
+        with:
+          release: '10.2'
+          envs: GITHUB_REPOSITORY GITHUB_REF GITHUB_SHA
+          usesh: true
+          prepare: |
+            /usr/sbin/pkg_add pkgin
+            pkgin -y update
+            pkgin -y install cmake ninja-build git
+          run: |
+            set -e
+            git clone --depth 1 "https://github.com/${GITHUB_REPOSITORY}.git" src
+            cd src
+            # shallow clone, only the commit that triggered the run, i.e. GITHUB_SHA
+            git fetch --depth 1 origin "${GITHUB_SHA}"
+            git checkout "${GITHUB_SHA}"
+            cmake -B _build -S . -G Ninja \
+              -DCMAKE_BUILD_TYPE=Release \
+              -DOPENEXR_FORCE_INTERNAL_IMATH=ON \
+              -DOPENEXR_IMATH_TAG='5f27ba266d3ea1565e912570c30b5eafc89959f1' \
+              -DOPENEXR_FORCE_INTERNAL_DEFLATE=ON \
+              -DOPENEXR_FORCE_INTERNAL_ZSTD=ON \
+              -DOPENEXR_FORCE_INTERNAL_OPENJPH=ON \
+              -DBUILD_TESTING=ON
+            cmake --build _build
+            # NetBSD's sem_init() consumes a file descriptor per semaphore,
+            # and some tests (e.g. testMultiPartThreading) create many
+            # semaphores concurrently, exceeding the VM's default per-process
+            # open-file limit. Raise it before running the test suite.
+            ulimit -n 4096
+            ctest --test-dir _build --output-on-failure

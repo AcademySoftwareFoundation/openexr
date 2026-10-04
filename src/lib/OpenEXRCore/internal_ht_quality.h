@@ -6,7 +6,12 @@
 #ifndef OPENEXR_PRIVATE_HT_QUALITY_H
 #define OPENEXR_PRIVATE_HT_QUALITY_H
 
+#ifdef __cplusplus
+#include <cmath>
+using std::isfinite;
+#else
 #include <math.h>
+#endif
 
 /** Lower bound of the valid range for the LJ2K lossy quality level. */
 #define MIN_LOSSY_HTJ2K_QUALITY 1.f
