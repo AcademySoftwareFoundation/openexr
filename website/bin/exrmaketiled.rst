@@ -10,13 +10,13 @@ exrmaketiled
     exrmaketiled [options] infile outfile
 
 Description
------------
+===========
 
 Read an OpenEXR image from infile, produce a tiled
 version of the image, and save the result in outfile.
 
 Options:
---------
+========
 
 .. describe:: -o            
 

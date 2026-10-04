@@ -5,7 +5,7 @@
 .. _About OpenEXR:
 
 About OpenEXR
-=============
+#############
 
 .. toctree::
    :caption: About
@@ -30,7 +30,7 @@ Read the origin story of OpenEXR on the `ASWF Blog
 OpenEXR is included in the `VFX Reference Platform <https://vfxplatform.com>`_.
 
 OpenEXR Features
-----------------
+================
 
 * High dynamic range and color precision.
 * Support for 16-bit floating-point, 32-bit floating-point, and
@@ -58,7 +58,7 @@ OpenEXR Features
   library in the same process space.
 
 OpenEXR and Imath Version 3
-----------------------------
+============================
 
 With the release of OpenEXR 3, the Imath library formerly distributed
 via the IlmBase component of OpenEXR is now an independent library
@@ -74,7 +74,7 @@ releases and how to address them. Also refer to the porting guide for
 details about changes to Imath.
 
 New Features in OpenEXR v3.1
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+----------------------------
 
 The 3.1 release of OpenEXR introduces a new library, OpenEXRCore,
 which is the result of a significant re-thinking of how OpenEXR
@@ -109,7 +109,7 @@ the API will remain consistent, or only have additions.
 See :doc:`ReadingAndWritingImageFiles` for more information.
 
 Credits
-=======
+~~~~~~~
 
 The ILM OpenEXR file format was originally designed and implemented at
 Industrial Light & Magic by Florian Kainz, Wojciech Jarosz, and Rod

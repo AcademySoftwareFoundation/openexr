@@ -5,22 +5,22 @@
 .. toctree::
    :hidden:
 
-   concepts
+   Concepts <concepts>
 
 .. toctree::
    :hidden:
 
-   tools
+   Tools <tools>
 
 .. toctree::
    :hidden:
 
-   API
+   API <API>
 
 .. toctree::
    :hidden:
 
-   python
+   Python <python>
 
 .. toctree::
    :hidden:
@@ -40,7 +40,7 @@
 .. toctree::
    :hidden:
 
-   about
+   About <about>
 
 .. toctree::
    :hidden:

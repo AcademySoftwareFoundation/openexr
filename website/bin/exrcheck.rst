@@ -10,11 +10,11 @@ exrcheck
     exrcheck [options] imagefile [imagefile ...]
 
 Description
------------
+===========
 Read exr files to validate their contents and the correct behavior of the software.
 
 Options:
---------
+========
 
 .. describe:: -m
 
