@@ -5,7 +5,7 @@
 .. _License:
 
 License
-=======
+#######
 
 .. toctree::
    :caption: License

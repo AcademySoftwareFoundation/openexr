@@ -1,0 +1,31 @@
+{# Displays the current page's Table of Contents.
+
+   Pages that consist mainly of a ".. toctree::" (e.g. concepts.rst,
+   API.rst, tools.rst) have no in-page sub-headings, so the default
+   pydata-sphinx-theme page-toc (derived from headings) is empty.
+   Fall back to listing just the page's own, direct toctree entries
+   (precomputed in conf.py as "own_toctree_entries": the top-level
+   sections of *this* page only, not Sphinx's global/ancestor-aware
+   toctree() context function, which would render the whole site's
+   nested navigation), so every page gets an "On this page" listing
+   in the secondary (right) sidebar. #}
+{% set page_toc = generate_toc_html() %}
+{%- if page_toc | length < 1 and own_toctree_entries %}
+  {%- set ns = namespace(html="<ul>") -%}
+  {%- for title, docname in own_toctree_entries -%}
+    {%- set ns.html = ns.html ~ '<li><a class="reference internal" href="' ~ pathto(docname) ~ '">' ~ title ~ "</a></li>" -%}
+  {%- endfor -%}
+  {%- set ns.html = ns.html ~ "</ul>" -%}
+  {%- set page_toc = ns.html -%}
+{%- endif %}
+{%- if page_toc and page_toc | length >= 1 %}
+{%- set page_navigation_heading_id = unique_html_id("pst-page-navigation-heading") -%}
+  <div
+    id="{{ page_navigation_heading_id }}"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> {{ _('On this page') }}
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="{{ page_navigation_heading_id }}">
+    {{ page_toc }}
+  </nav>
+{%- endif %}

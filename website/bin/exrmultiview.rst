@@ -10,7 +10,7 @@ exrmultiview
     exrmultiview [options] viewname1 infile1 viewname2 infile2 ... outfile
 
 Description
------------
+===========
 
 Combine two or more single-view OpenEXR image files into
 a single multi-view image file.  On the command line,
@@ -27,7 +27,7 @@ views in output file ``imgLR.exr``.  The left view becomes
 the default view.
 
 Options:
---------
+========
 
 .. describe:: -z x          
 

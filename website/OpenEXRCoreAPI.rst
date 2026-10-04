@@ -41,7 +41,7 @@ handle deep vs shallow image files. However, largely all the same
 functions are used to read and write this atomic data.
 
 Simple Example
---------------
+==============
 
 To get started, here is a simple code snippet that starts to read a
 file:
@@ -57,7 +57,7 @@ file:
     }
 
 Reading and Writing
--------------------
+===================
 
 This will open a file and parse the header. One can immediately notice
 this context initializer structure. This provides a path to specify
@@ -96,7 +96,7 @@ example might be to retrieve the data window:
     exr_result_t rv = exr_get_data_window(ctxt, 0, &datawindow);
 
 Data Types
-----------
+==========
 
 Notice that this example does not use the traditional Imath types
 here. The Imath types C++ objects with a rich set of functions, but
@@ -107,7 +107,7 @@ types such as the vector types (i.e. ``exr_attr_v3f_t``) should
 transparently convert to their respective Imath type.
 
 Chunks
-------
+======
 
 Once the calling program has created the context, inspected the header
 data to decide the next course of action, and started to operate on a
@@ -126,7 +126,7 @@ to read one of these chunks of data. Then there are the corresponding
 data. Analogously, there are write versions of these functions.
 
 Encode and Decode
------------------
+=================
 
 The above is very simple, but only provides the raw, compressed and
 packed data. These are preferred if you are writing a utility to
@@ -173,16 +173,16 @@ structure with information for that chunk, including how many bits
 would result from unpacking that chunk, and it’s raw position on disk.
 
 Reference
----------
+=========
 
 Basic Types
-^^^^^^^^^^^
+-----------
 
 .. doxygentypedef:: exr_result_t
                     
 
 Basic Enumerated Types
-^^^^^^^^^^^^^^^^^^^^^^
+----------------------
 
 .. doxygenenum:: exr_compression_t
 .. doxygenenum:: exr_envmap_t
@@ -196,7 +196,7 @@ Basic Enumerated Types
 .. doxygenenum:: exr_default_write_mode
 
 Global State
-^^^^^^^^^^^^
+------------
 
 .. doxygentypedef:: exr_memory_allocation_func_t
 .. doxygentypedef:: exr_memory_free_func_t
@@ -209,7 +209,7 @@ Global State
 .. doxygenfunction:: exr_set_default_memory_routines
 
 Chunk Reading
-^^^^^^^^^^^^^
+-------------
 
 .. doxygenfunction:: exr_read_scanline_chunk_info
 .. doxygenfunction:: exr_read_tile_chunk_info
@@ -217,13 +217,13 @@ Chunk Reading
 .. doxygenfunction:: exr_read_deep_chunk
 
 Chunks
-^^^^^^
+------
 
 .. doxygenfunction:: exr_get_chunk_table_offset
 .. doxygenstruct:: exr_chunk_info_t
 
 Chunk Writing
-^^^^^^^^^^^^^
+-------------
 
 .. doxygenfunction:: exr_write_scanline_chunk_info
 .. doxygenfunction:: exr_write_tile_chunk_info
@@ -233,13 +233,13 @@ Chunk Writing
 .. doxygenfunction:: exr_write_deep_tile_chunk
 
 Open for Read
-^^^^^^^^^^^^^
+-------------
 
 .. doxygenfunction:: exr_test_file_header
 .. doxygenfunction:: exr_start_read
 
 Open for Write
-^^^^^^^^^^^^^^
+--------------
 
 .. doxygenfunction:: exr_start_write
 .. doxygenfunction:: exr_start_inplace_header_update
@@ -247,7 +247,7 @@ Open for Write
 .. doxygenfunction:: exr_set_longname_support
 
 Close
-^^^^^
+-----
 
 .. doxygentypedef:: exr_destroy_stream_func_ptr_t
 
@@ -255,7 +255,7 @@ Close
 
 
 Context
-^^^^^^^
+-------
 
 .. doxygentypedef:: exr_context_t
 .. doxygentypedef:: exr_const_context_t
@@ -270,7 +270,7 @@ Context
 .. doxygenfunction:: exr_register_attr_type_handler
 
 Decoding
-^^^^^^^^
+--------
 
 .. doxygenstruct:: _exr_decode_pipeline
    :members:
@@ -283,7 +283,7 @@ Decoding
 .. doxygenfunction:: exr_decoding_destroy
 
 Encoding
-^^^^^^^^
+--------
 
 .. doxygenenum:: exr_transcoding_pipeline_buffer_id
                     
@@ -302,7 +302,7 @@ Encoding
 .. doxygenfunction:: exr_encoding_destroy
 
 Attribute Values
-^^^^^^^^^^^^^^^^
+----------------
 
 
 
@@ -405,7 +405,7 @@ Attribute Values
    :undoc-members:
 
 Reading
-^^^^^^^
+-------
 
 .. doxygentypedef:: exr_read_func_ptr_t
 .. doxygentypedef:: exr_query_size_func_ptr_t
@@ -472,7 +472,7 @@ Reading
 .. doxygenfunction:: exr_attr_get_user
 
 Writing
-^^^^^^^
+-------
 
 .. doxygentypedef:: exr_write_func_ptr_t
 
@@ -525,7 +525,7 @@ Writing
 
                      
 Error Handling
-^^^^^^^^^^^^^^
+--------------
 
 .. doxygenenum:: exr_error_code_t
 
@@ -535,6 +535,6 @@ Error Handling
 .. doxygenfunction:: exr_get_error_code_as_string
 
 Debugging
-^^^^^^^^^
+---------
 
 .. doxygenfunction:: exr_print_context_info

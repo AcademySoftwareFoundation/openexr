@@ -10,12 +10,12 @@ exrmetrics
     exrmetrics [options] infile [infile2...] [-o outfile]
 
 Description
------------
+===========
 
 Read an OpenEXR image from infile, write an identical copy to outfile reporting time taken to read/write and file sizes.
 
 Options:
---------
+========
 
 .. describe:: -o file
 
@@ -112,7 +112,7 @@ Options:
 
 
 Example Usage:
---------------
+==============
 
 Basic usage: report sizes and read time, write time, reread time.
 

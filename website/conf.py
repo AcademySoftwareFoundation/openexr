@@ -148,7 +148,7 @@ html_theme_options = {
     "pygments_light_style": "vs",
     "pygments_dark_style": "monokai",
     
-    "header_links_before_dropdown": 4,
+    "header_links_before_dropdown": 9,
     "icon_links": [
         {
             # Label for this link
@@ -186,7 +186,7 @@ html_theme_options = {
         "text": "",
     },
     "navbar_start": ["navbar-logo"],
-    "navbar_center": ["version-switcher", "navbar-nav"],
+    "navbar_center": ["navbar-nav"],
     "navbar_end": [ "theme-switcher", "navbar-icon-links"],
     
 }
@@ -242,7 +242,11 @@ html_last_updated_fmt = '%b %d, %Y'
 html_use_smartypants = True
 
 # Custom sidebar templates, maps document names to template names.
-#html_sidebars = {}
+# Disable the left "primary" sidebar site-wide so all navigation
+# (the "On this page" outline) appears in the right secondary
+# sidebar for every page, rather than some pages showing a
+# toctree-derived "Section Navigation" on the left.
+html_sidebars = {"**": []}
 
 # Additional templates that should be rendered to pages, maps page names to
 # template names.
@@ -355,3 +359,22 @@ texinfo_documents = [
 
 # If true, do not generate a @detailmenu in the "Top" node's menu.
 #texinfo_no_detailmenu = False
+
+# For "index" pages such as concepts.rst, API.rst, and tools.rst,
+# whose content is primarily a ".. toctree::" listing sub-documents
+# rather than in-page sub-headings, the "On this page" secondary
+# sidebar (see _templates/page-toc.html) has nothing to show by
+# default. Precompute just the current page's own, direct toctree
+# entries (its top-level sections only, not the whole site's nested
+# toctree) so the template can fall back to listing those instead.
+def _add_own_toctree_entries(app, pagename, templatename, context, doctree):
+    env = app.builder.env
+    entries = []
+    for child in env.toctree_includes.get(pagename, []):
+        if child in env.titles:
+            entries.append((env.titles[child].astext(), child))
+    context["own_toctree_entries"] = entries
+
+
+def setup(app):
+    app.connect("html-page-context", _add_own_toctree_entries)

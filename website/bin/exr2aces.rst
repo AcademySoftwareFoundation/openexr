@@ -21,7 +21,7 @@ exr2aces
     exr2aces [options] infile outfile
 
 Description
------------
+===========
 
 Read an OpenEXR file from infile and save the contents
 in ACES image file outfile.
@@ -68,7 +68,7 @@ compression; the `acesImageContainerFile` flag might be missing; and the
 match those found in ST 2065-1.
 
 Options:
---------
+========
 
 .. describe:: -v, --verbose
    
