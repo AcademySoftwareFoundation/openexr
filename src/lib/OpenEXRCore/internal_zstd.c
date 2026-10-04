@@ -21,6 +21,10 @@
 #    include <pthread.h>
 #endif
 
+#ifdef __APPLE__
+#include <AvailabilityMacros.h>
+#endif
+
 #if defined(_MSC_VER)
 #    define EXR_ZSTD_THREAD_LOCAL __declspec (thread)
 #else
@@ -224,6 +228,15 @@ ensure_tls_resources (size_t required_size)
 
 #if defined(_WIN32) || defined(_WIN64)
         tls->shuffle_buf = (uint8_t*) _aligned_malloc (aligned_size, 64);
+#elif defined(__APPLE__) && (MAC_OS_X_VERSION_MIN_REQUIRED < 101500)
+        // aligned_alloc is only declared by the macOS 10.15+ SDK and only
+        // exists at runtime from 10.15 on; posix_memalign exists from 10.6 on
+        // and its memory is also released by free ().
+        {
+            void* p = NULL;
+            if (posix_memalign (&p, 64, aligned_size) != 0) p = NULL;
+            tls->shuffle_buf = (uint8_t*) p;
+        }
 #else
         tls->shuffle_buf = (uint8_t*) aligned_alloc (64, aligned_size);
 #endif
