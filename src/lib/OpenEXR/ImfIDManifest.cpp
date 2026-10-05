@@ -14,6 +14,7 @@
 #include "openexr_compression.h"
 
 #include <algorithm>
+#include <limits>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
@@ -348,6 +349,11 @@ IDManifest::IDManifest (const char* data, const char* endOfData)
 void
 IDManifest::init (const char* data, const char* endOfData)
 {
+    if (data + sizeof (unsigned int) > endOfData)
+    {
+        throw IEX_NAMESPACE::InputExc (
+            "IDManifest too small for version field");
+    }
 
     unsigned int version;
     Xdr::read<CharPtrIO> (data, version);
@@ -478,13 +484,17 @@ IDManifest::init (const char* data, const char* endOfData)
 
     _manifest.clear ();
 
-    _manifest.resize (manifestEntries);
+    if (manifestEntries <0)
+    {
+        throw IEX_NAMESPACE::InputExc ("bad number of ChannelGroupsManifests in IDManifest");
+    }
 
     for (int manifestEntry = 0; manifestEntry < manifestEntries;
          ++manifestEntry)
     {
 
-        ChannelGroupManifest& m = _manifest[manifestEntry];
+        _manifest.push_back(ChannelGroupManifest());
+        ChannelGroupManifest& m = _manifest.back();
 
         //
         // read header of this manifest entry
@@ -576,6 +586,34 @@ IDManifest::init (const char* data, const char* endOfData)
 IDManifest::IDManifest (const CompressedIDManifest& compressed)
 {
     //
+    // Reject an implausible declared uncompressed size before allocating
+    // anything for it. The declared size is otherwise an unvalidated
+    // 64-bit value taken directly from the file, used as a buffer size
+    // before decompression (and thus before any check on its contents),
+    // which allows a tiny file to force an enormous, fully-committed
+    // allocation (a denial of service) or, at 0, a null-pointer
+    // dereference during `init`.
+    //
+    // OpenEXR places no fixed limit on data size (see setMaxImageSize(),
+    // which is off/unlimited by default), so a manifest legitimately may
+    // be very large; an absolute cap here would reject valid files. What
+    // must hold regardless of size is zlib's own maximum expansion ratio
+    // of ~1032:1, so scale the bound by the compressed size actually
+    // present in the file instead of an arbitrary constant.
+    //
+    static const uint64_t MAX_EXPANSION = 1032;
+
+    if (compressed._uncompressedDataSize == 0 ||
+        compressed._compressedDataSize >
+            std::numeric_limits<uint64_t>::max () / MAX_EXPANSION ||
+        compressed._uncompressedDataSize >
+            compressed._compressedDataSize * MAX_EXPANSION)
+    {
+        throw IEX_NAMESPACE::InputExc (
+            "IDManifest has an implausible uncompressed data size");
+    }
+
+    //
     // decompress the compressed manifest
     //
 
@@ -599,7 +637,7 @@ IDManifest::IDManifest (const CompressedIDManifest& compressed)
             "IDManifest decompression (zlib) failed: mismatch in decompressed data size");
     }
 
-    init ((const char*) &uncomp[0], (const char*) &uncomp[0] + outSize);
+    init (uncomp.data (), uncomp.data () + outSize);
 }
 
 void

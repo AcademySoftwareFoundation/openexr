@@ -3,25 +3,36 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
+
+#include <ImfArray.h>
+#include <ImfPreviewImage.h>
+#include <ImfRgbaFile.h>
+#include <algorithm>
+#include <Imath/ImathFun.h>
+
+using namespace IMATH_NAMESPACE;
+using namespace OPENEXR_IMF_NAMESPACE;
+using std::max;
+
 void
 accessPreviewImage (const char fileName[])
 {
     // [begin accessPreviewImage]
     RgbaInputFile file (fileName);
-        
+
     if (file.header().hasPreviewImage())
     {
         const PreviewImage &preview = file.header().previewImage();
-        
+
         for (int y = 0; y < preview.height(); ++y)
         {
             for (int x = 0; x < preview.width(); ++x)
             {
-        
+
                 const PreviewRgba &pixel = preview.pixel (x, y);
-        
+
                 // ...
-        
+
             }
         }
     }
@@ -33,7 +44,7 @@ unsigned char
 gamma (float x)
 {
     x = pow (5.5555f * max (0.f, x), 0.4545f) * 84.66f;
-    return (unsigned char) IMATH_NAMESPACE::clamp (x, 0.f, 255.f);
+    return (unsigned char) clamp (x, 0.f, 255.f);
 }
 // [end gamma]
 
@@ -65,7 +76,7 @@ makePreviewImage (
             outPixel.r = gamma (inPixel.r);
             outPixel.g = gamma (inPixel.g);
             outPixel.b = gamma (inPixel.b);
-            outPixel.a = static_cast<int> (IMATH_NAMESPACE::clamp (inPixel.a * 255.f, 0.f, 255.f) + 0.5f);
+            outPixel.a = static_cast<int> (clamp (inPixel.a * 255.f, 0.f, 255.f) + 0.5f);
         }
     }
 }

@@ -203,6 +203,39 @@ class TestRGBA(unittest.TestCase):
     def test_rgba_f(self):
         self.do_rgba('f')
 
+    def test_literal_rgb_key_collision_flat_rejected(self):
+        dataWindow = ((0, 0), (1, 1))
+
+        channels = {
+            "left": np.array([[10.0, 11.0], [12.0, 13.0]], dtype='float16'),
+            "left.R": np.array([[10.0, 11.0], [12.0, 13.0]], dtype='float16'),
+            "left.G": np.array([[20.0, 21.0], [22.0, 23.0]], dtype='float16'),
+            "left.B": np.array([[30.0, 31.0], [32.0, 33.0]], dtype='float16'),
+        }
+        header = {
+            "type": OpenEXR.scanlineimage,
+            "dataWindow": dataWindow,
+        }
+
+        fd, path = tempfile.mkstemp(suffix=".exr")
+        os.close(fd)
+        try:
+            with OpenEXR.File(header, channels) as outfile:
+                outfile.write(path)
+
+            with self.assertRaises(ValueError) as ctx:
+                OpenEXR.File(path)
+            self.assertIn("separate_channels", str(ctx.exception))
+
+            with OpenEXR.File(path, separate_channels=True) as infile:
+                self.assertIn("left", infile.channels())
+                self.assertIn("left.R", infile.channels())
+                self.assertIn("left.G", infile.channels())
+                self.assertIn("left.B", infile.channels())
+        finally:
+            if os.path.exists(path):
+                os.remove(path)
+
 if __name__ == '__main__':
     unittest.main()
     print("OK")

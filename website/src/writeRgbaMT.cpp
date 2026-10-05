@@ -3,6 +3,12 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
+#include <ImfRgba.h>
+#include <ImfRgbaFile.h>
+#include <ImfThreading.h>
+
+using namespace OPENEXR_IMF_NAMESPACE;
+
 void
 writeRgbaMT (const char fileName[], const Rgba* pixels, int width, int height)
 {

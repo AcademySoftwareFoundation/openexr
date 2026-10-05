@@ -3,6 +3,15 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
+#include "C_IStream.h"
+
+#include <ImfArray.h>
+#include <ImfInputFile.h>
+#include <ImfRgbaFile.h>
+
+using namespace IMATH_NAMESPACE;
+using namespace OPENEXR_IMF_NAMESPACE;
+
 void
 readRgbaFILE (
     FILE*          cfile,

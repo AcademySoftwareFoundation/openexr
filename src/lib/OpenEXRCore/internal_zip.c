@@ -302,8 +302,8 @@ undo_zip_impl (
 
     if (scratch_size < uncompressed_size) return EXR_ERR_INVALID_ARGUMENT;
 
-    res = exr_uncompress_buffer (
-        decode->context,
+    res = internal_exr_decode_uncompress_buffer (
+        decode,
         compressed_data,
         comp_buf_size,
         scratch_data,
@@ -313,7 +313,7 @@ undo_zip_impl (
     if (res == EXR_ERR_SUCCESS)
     {
         decode->bytes_decompressed = actual_out_bytes;
-        if (comp_buf_size > actual_out_bytes || actual_out_bytes > uncompressed_size)
+        if (actual_out_bytes != uncompressed_size)
             res = EXR_ERR_CORRUPT_CHUNK;
         else
             internal_zip_reconstruct_bytes (

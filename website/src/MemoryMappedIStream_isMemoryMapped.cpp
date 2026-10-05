@@ -3,6 +3,8 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
+#include "MemoryMappedIStream.h"
+
 bool
 MemoryMappedIStream::isMemoryMapped () const
 {

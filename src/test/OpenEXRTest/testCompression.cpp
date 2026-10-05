@@ -8,6 +8,7 @@
 #endif
 
 #include "compareB44.h"
+#include "compareLJ2K.h"
 
 #include "compareFloat.h"
 #include "ImfArray.h"
@@ -409,16 +410,38 @@ writeRead (
 
         assert (ii == in.header ().channels ().end ());
 
-        for (int y = 0; y < h / ys; ++y)
+        // uint32 and float samples
+        if (comp != LJ2K_COMPRESSION)
         {
-            for (int x = 0; x < w / xs; ++x)
+            for (int y = 0; y < h / ys; ++y)
             {
-                assert (array1.i[y][x] == array2.i[y][x]);
-                assert (equivalent (array1.f[y][x], array2.f[y][x], comp));
+                for (int x = 0; x < w / xs; ++x)
+                {
+                    assert (array1.i[y][x] == array2.i[y][x]);
+                    assert (equivalent (array1.f[y][x], array2.f[y][x], comp));
+                }
+            }
+        }
 
-                if (!isLossyCompression (comp))
+        // single channel half samples
+        if (comp != LJ2K_COMPRESSION && comp != B44_COMPRESSION && comp != B44A_COMPRESSION)
+        {
+            for (int y = 0; y < h / ys; ++y)
+            {
+                for (int x = 0; x < w / xs; ++x)
                 {
                     assert (array1.h[y][x].bits () == array2.h[y][x].bits ());
+                }
+            }
+        }
+
+        // rgba half samples
+        if (!isLossyCompression (comp))
+        {
+            for (int y = 0; y < h / ys; ++y)
+            {
+                for (int x = 0; x < w / xs; ++x)
+                {
                     for (int c = 0; c < 4; ++c)
                     {
                         assert (
@@ -448,12 +471,8 @@ writeRead (
                 compareB44 (w / xs, h / ys, ph3, array2.rgba[c]);
             }
         }
-        if (comp == DWAA_COMPRESSION || comp == DWAB_COMPRESSION)
+        else if (comp == DWAA_COMPRESSION || comp == DWAB_COMPRESSION)
         {
-            for (int y = 0; y < h / ys; ++y)
-                for (int x = 0; x < w / xs; ++x)
-                    assert (array1.h[y][x].bits () == array2.h[y][x].bits ());
-
             for (int c = 0; c < 4; ++c)
             {
                 for (int y = 0; y < h / ys; ++y)
@@ -481,6 +500,24 @@ writeRead (
                     }
             }
         }
+        else if (comp == LJ2K_COMPRESSION)
+        {
+            for (int y = 0; y < h / ys; ++y)
+            {
+                for (int x = 0; x < w / xs; ++x)
+                {
+                    assert (checkHTJ2KSample (array1.i[y][x], array2.i[y][x]));
+                    assert (checkHTJ2KSample (array1.f[y][x], array2.f[y][x]));
+                    assert (checkHTJ2KSample (array1.h[y][x], array2.h[y][x]));
+
+                    for (int c = 0; c < 4; ++c)
+                    {
+                         assert (checkHTJ2KSample (array1.rgba[c][y][x],
+                                                   array2.rgba[c][y][x]));
+                    }
+                }
+            }
+        }
     }
 
     remove (fileName);
@@ -489,7 +526,13 @@ writeRead (
 
 void
 writeRead (
-    const std::string& tempDir, pixelArray& array, int w, int h, int dx, int dy)
+    const std::string& tempDir,
+    pixelArray&         array,
+    int                 w,
+    int                 h,
+    int                 dx,
+    int                 dy,
+    Compression         comp)
 {
     std::string filename = tempDir + "imf_test_comp.exr";
 
@@ -497,35 +540,31 @@ writeRead (
     {
         for (int ys = 1; ys <= 2; ++ys)
         {
+            writeRead (
+                array,
+                filename.c_str (),
+                false,
+                w * xs,
+                h * ys,
+                dx * xs,
+                dy * ys,
+                comp,
+                xs,
+                ys);
 
-            for (int comp = 0; comp < NUM_COMPRESSION_METHODS; ++comp)
+            if (xs == 1 && ys == 1)
             {
                 writeRead (
                     array,
                     filename.c_str (),
-                    false,
+                    true,
                     w * xs,
                     h * ys,
                     dx * xs,
                     dy * ys,
-                    Compression (comp),
+                    comp,
                     xs,
                     ys);
-
-                if (xs == 1 && ys == 1)
-                {
-                    writeRead (
-                        array,
-                        filename.c_str (),
-                        true,
-                        w * xs,
-                        h * ys,
-                        dx * xs,
-                        dy * ys,
-                        Compression (comp),
-                        xs,
-                        ys);
-                }
             }
         }
     }
@@ -558,17 +597,24 @@ testCompression (const std::string& tempDir)
 
         assert (NUM_PIXELTYPES == 3);
 
-        fillPixels1 (array, W, H);
-        writeRead (tempDir, array, W, H, DX, DY);
+        for (int comp = 0; comp < NUM_COMPRESSION_METHODS; ++comp)
+        {
+            fillPixels1 (array, W, H);
+            writeRead (tempDir, array, W, H, DX, DY, Compression (comp));
 
-        fillPixels2 (array, W, H);
-        writeRead (tempDir, array, W, H, DX, DY);
+            fillPixels2 (array, W, H);
+            writeRead (tempDir, array, W, H, DX, DY, Compression (comp));
 
-        fillPixels3 (array, W, H);
-        writeRead (tempDir, array, W, H, DX, DY);
+            fillPixels3 (array, W, H);
+            writeRead (tempDir, array, W, H, DX, DY, Compression (comp));
 
-        fillPixels4 (array, W, H);
-        writeRead (tempDir, array, W, H, DX, DY);
+            /* random noise is not a relevant test for lossy coding */
+            if (comp != LJ2K_COMPRESSION)
+            {
+                fillPixels4 (array, W, H);
+                writeRead (tempDir, array, W, H, DX, DY, Compression (comp));
+            }
+        }
 
         cout << "ok\n" << endl;
     }

@@ -185,6 +185,24 @@ public:
     void setStorageType (exr_storage_t st) { _store_type = st; }
 
 protected:
+    friend int compressWithSampleCountTable (
+        Compressor&  compressor,
+        const char*  inPtr,
+        int          inSize,
+        int          minY,
+        const char*& outPtr,
+        const char*  sampleCountTable,
+        int          sampleCountTableSize);
+
+    friend int compressTileWithSampleCountTable (
+        Compressor&            compressor,
+        const char*            inPtr,
+        int                    inSize,
+        IMATH_NAMESPACE::Box2i range,
+        const char*&           outPtr,
+        const char*            sampleCountTable,
+        int                    sampleCountTableSize);
+
     Context _ctxt;
     const Header& _header;
 
@@ -209,7 +227,9 @@ protected:
         const char* inPtr,
         int inSize,
         IMATH_NAMESPACE::Box2i range,
-        const char*& outPtr);
+        const char*& outPtr,
+        const char* sampleCountTable = nullptr,
+        int sampleCountTableSize     = 0);
     uint64_t runDecodeStep (
         const char* inPtr,
         int inSize,

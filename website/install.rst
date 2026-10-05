@@ -5,13 +5,13 @@
 .. _Install:
 
 Install
-========
+#######
 
 .. toctree::
    :caption: Install
 
 Linux
------
+=====
 
 The OpenEXR library is available for download and installation in
 binary form via package managers on many Linux distributions.
@@ -41,7 +41,7 @@ To install via ``apt-get`` on Ubuntu:
     % sudo apt-get install openexr
 
 macOS
------
+=====
 
 On macOS, install via `Homebrew <https://formulae.brew.sh/formula/openexr>`_:
 
@@ -57,7 +57,7 @@ Alternatively, you can install on macOS via `MacPorts
    % port install openexr
 
 Windows
--------
+=======
 
 Install via `vcpkg <https://vcpkg.io/en/packages>`_:
 
@@ -69,7 +69,7 @@ Install via `vcpkg <https://vcpkg.io/en/packages>`_:
 .. _build-from-source:
 
 Build from Source
------------------
+=================
 
 OpenEXR builds on Linux, macOS, Microsoft Windows via CMake, and is
 cross-compilable on other systems.
@@ -93,7 +93,7 @@ the OpenEXR project.
 
 
 Prerequisites
-~~~~~~~~~~~~~
+-------------
 
 Make sure these are installed on your system before building OpenEXR:
 
@@ -102,8 +102,10 @@ Make sure these are installed on your system before building OpenEXR:
 * ``Imath`` (auto-fetched by CMake if not found) (https://github.com/AcademySoftwareFoundation/Imath)
 * ``libdeflate`` (internal copy used by CMake if not found for
   v3.4+; auto-fetched in v3.3 and before) (https://github.com/ebiggers/libdeflate)
-* ``openjph`` (internal vendored copy used by CMake if not found; new
+* ``openjph`` (minimum version 0.32.0; internal vendored copy used by CMake if not found; new
   in v3.4; auto-fetched in 3.4.5 and before) (https://github.com/aous72/OpenJPH)
+* ``zstd`` (internal vendored copy used by CMake if a suitable external
+  install is not found; new in v3.5) (https://github.com/facebook/zstd)
 * (optional) Intel's Thread Building Blocks library (TBB)
 
 The instructions that follow describe building OpenEXR with CMake.
@@ -112,7 +114,7 @@ Note that as of OpenEXR 3, the Gnu autoconf bootstrap/configure build
 system is no longer supported.
 
 Headers and ``#include`` Policy
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-------------------------------
 
 Public headers are installed under ``${CMAKE_INSTALL_INCLUDEDIR}`` in
 a dedicated subdirectory, by default ``OpenEXR/`` (the CMake cache
@@ -152,7 +154,7 @@ disk. There is no plan to remove either style in current release
 lines.
 
 Headers in the OpenEXR Source Tree
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+----------------------------------
 
 When inspecting the OpenEXR source code or investigating issues
 building the library, note that within the OpenEXR source tree, all
@@ -166,7 +168,7 @@ they are included internally as bare files, without a ``OpenEXR/``
 subdirectory. This intentionally differs from the installed layout.
 
 OpenEXR/Imath Version Compatibility
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-----------------------------------
 
 In most circumstances, follow this best practice:
 
@@ -213,7 +215,7 @@ distribution built with a different Imath version.
 .. _embedded-core-label:
 
 Linking Multiple OpenEXR Versions in the Executable
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+---------------------------------------------------
 
 It is sometimes necessary to link two different versions of the
 OpenEXR library in the same executable. An example is a DCC such as
@@ -239,7 +241,7 @@ solution does not work, and you'll have resort to other symbol-hidding
 mechanisms.
 
 Linux/macOS
-~~~~~~~~~~~
+-----------
 
 To build via CMake, you need to first identify three directories:
 
@@ -272,7 +274,7 @@ no arguments, as above, ``make install`` installs the header files in
 executable programs in ``/usr/local/bin``.
 
 Windows
-~~~~~~~
+-------
 
 Under Windows, if you are using a command line-based setup, such as
 cygwin, you can of course follow the above. For Visual Studio, cmake
@@ -288,7 +290,7 @@ can specify a local install directory to cmake via the
     % cmake .. -DCMAKE_INSTALL_PREFIX=$openexr_install_directory
 
 Library Names
--------------
+=============
 
 By default, libraries are installed with the following names/symlinks:
 
@@ -308,7 +310,7 @@ v3.2.0. This naming scheme reinforces the correspondence between the
 real filename of the ``.so`` and the release it corresponds to.
 
 Library Suffix
-~~~~~~~~~~~~~~
+--------------
 
 The ``OPENEXR_LIB_SUFFIX`` CMake option designates a suffix for the
 library and appears between the library base name and the
@@ -323,7 +325,7 @@ library and appears between the library base name and the
     libOpenEXR-3_1.so.30.3.2.0 (the shared object file)
 
 Imath Dependency
-----------------
+================
 
 OpenEXR depends on `Imath
 <https://github.com/AcademySoftwareFoundation/Imath>`_. If a suitable
@@ -360,7 +362,7 @@ is installed.
 See below for other customization options.
 
 Imath Header Includes (``#include <Imath/...>``)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+------------------------------------------------
 
 OpenEXR source and public headers use the conventional Imath include
 form with an ``Imath/`` directory prefix, for example:
@@ -406,7 +408,7 @@ the OpenEXR build and does not change how a normal installed Imath is
 consumed.
 
 Python Module (Building with Custom Python)
--------------------------------------------
+===========================================
 
 OpenEXR can optionally build its Python module
 (``OPENEXR_BUILD_PYTHON=ON``), which requires a Python development
@@ -438,14 +440,14 @@ Notes:
   from older CMake modules and may be ignored.
 
 Porting Applications from OpenEXR v2 to v3
-------------------------------------------
+==========================================
 
 See the :doc:`PortingGuide` for details about differences from previous
 releases and how to address them. Also refer to the porting guide for
 details about changes to Imath.
 
 Building the Website
---------------------
+====================
 
 The `https://openexr.com <https://openexr.com>`_ website is generated
 via `Sphinx <https://www.sphinx-doc.org>`_ with the `Breathe
@@ -481,7 +483,7 @@ On Debian/Ubuntu Linux:
     % cmake --build . --target website
 
 CMake Build-time Configuration Options
---------------------------------------
+======================================
 
 The default CMake configuration options are stored in
 ``cmake/OpenEXRSetup.cmake``. To see a complete set of option
@@ -498,7 +500,7 @@ You can customize these options three ways:
 3. Specify them as command-line arguments when you invoke cmake.
 
 Uninstall
-~~~~~~~~~
+---------
 
 If you did a binary install of OpenEXR via a package manager
 (`apt-get`, `yum`, `port`, `brew`, etc), use the package manager to
@@ -521,7 +523,7 @@ The `uninstall` relies on CMake's `install_manifest.txt` for the record
 of what was installed.
 
 Library Naming Options
-~~~~~~~~~~~~~~~~~~~~~~
+----------------------
 
 * ``OPENEXR_LIB_SUFFIX``
 
@@ -530,7 +532,7 @@ Library Naming Options
   see the section on library names
 
 Imath Dependency
-~~~~~~~~~~~~~~~~
+----------------
 
 * ``CMAKE_PREFIX_PATH``
 
@@ -561,7 +563,7 @@ Imath Dependency
   do *not* use any existing installation of Imath.
 
 ``libdeflate`` Dependency
-~~~~~~~~~~~~~~~~~~~~~~~~~
+-------------------------
 
 As of OpenEXR release v3.2, OpenEXR depends on
 `libdeflate <https://github.com/ebiggers/libdeflate>`_ for
@@ -580,16 +582,18 @@ build it internally if cmake does not find an external
 installation. 
 
 ``OpenJPH`` Dependency
-~~~~~~~~~~~~~~~~~~~~~~~~~
+-------------------------
 
 As of OpenEXR release v3.4, OpenEXR depends on
 `OpenJPH <https://github.com/aous72/OpenJPH>`_ for
 HTJ2K compression. 
 
+A minimum version of 0.32.0 is required.
+
 As of OpenEXR release v3.4.6, OpenEXR ships with an internal "vendored"
 copy of the ``OpenJPH`` library. At configuration time, if
 CMake finds an external installation of ``OpenJPH``, it will use
-it. If it fails to find an installation, it will use the internal
+it. If it fails to find an acceptable installation, it will use the internal
 copy. To force use of the internal copy, configure with
 ``-DOPENEXR_FORCE_INTERNAL_OPENJPH=ON``.
 
@@ -597,8 +601,22 @@ OpenEXR releases v3.4.0-v3.4.5 auto-fetch the ``OpenJPH`` source and
 build it internally if cmake does not find an external
 installation. 
 
+``zstd`` Dependency
+-------------------
+
+As of OpenEXR release v3.5, OpenEXR depends on
+`zstd <https://github.com/facebook/zstd>`_ for
+ZSTD lossless compression.
+
+As of OpenEXR release v3.5, OpenEXR ships with an internal "vendored"
+copy of the ``zstd`` library. At configuration time, if
+CMake finds an external installation of ``zstd`` (minimum version
+1.5.0), it will use it. If it fails to find an installation, it will use
+the internal copy. To force use of the internal copy, configure with
+``-DOPENEXR_FORCE_INTERNAL_ZSTD=ON``.
+
 TBB Dependency
-~~~~~~~~~~~~~~
+--------------
 
 OpenEXR can optionally use the TBB library as the default global
 thread pool as a thread provider. This allows applications which also
@@ -622,7 +640,7 @@ To enable this, set the flag during config:
     cmake -DOPENEXR_USE_TBB=ON ...
 
 Namespace Options
-~~~~~~~~~~~~~~~~~
+-----------------
 
 * ``OPENEXR_IMF_NAMESPACE``
 
@@ -664,7 +682,7 @@ Namespace Options
   Whether the namespace has been customized (so external users know)
 
 Component Options
-~~~~~~~~~~~~~~~~~
+-----------------
 
 * ``OPENEXR_FORCE_EMBEDDED_CORE``
 
@@ -704,7 +722,7 @@ Component Options
   Build the example code. Default is ``ON``.
 
 Additional CMake Options
-~~~~~~~~~~~~~~~~~~~~~~~~
+------------------------
 
 See the CMake documentation for more information (https://cmake.org/cmake/help/v3.12/).
 
@@ -749,7 +767,7 @@ See the CMake documentation for more information (https://cmake.org/cmake/help/v
   Echo all compile commands during make. Default is ``OFF``.
 
 Cross Compiling / Specifying Specific Compilers
------------------------------------------------
+===============================================
 
 When trying to either cross-compile for a different platform, or for
 tasks such as specifying a compiler set to match the `VFX reference
@@ -779,7 +797,7 @@ More documentation:
 * Cross compiling: https://gitlab.kitware.com/cmake/community/wikis/doc/cmake/
 
 Ninja
------
+=====
 
 If you have `Ninja <https://ninja-build.org>`_ installed, it is faster
 than make. You can generate ninja files using cmake when doing the

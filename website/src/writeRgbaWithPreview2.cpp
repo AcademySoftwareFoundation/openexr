@@ -3,6 +3,16 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
+#include <ImfHeader.h>
+#include <ImfArray.h>
+#include <ImfRgba.h>
+#include <ImfRgbaFile.h>
+#include <ImfPreviewImage.h>
+#include <Imath/ImathFun.h>
+
+using namespace OPENEXR_IMF_NAMESPACE;
+using namespace IMATH_NAMESPACE;
+
 void
 writeRgbaWithPreview2 (const char fileName[], int width, int height)
 {

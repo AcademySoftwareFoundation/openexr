@@ -8,6 +8,8 @@ add_executable(OpenEXRTest
   compareB44.h
   compareDwa.cpp
   compareDwa.h
+  compareLJ2K.cpp
+  compareLJ2K.h
   compareFloat.cpp
   compareFloat.h
   main.cpp
@@ -113,6 +115,8 @@ add_executable(OpenEXRTest
   testStandardAttributes.h
   testTiledCompression.cpp
   testTiledCompression.h
+  testLJ2KBoundary.cpp
+  testLJ2KBoundary.h
   testTiledCopyPixels.cpp
   testTiledCopyPixels.h
   testTiledLineOrder.cpp
@@ -200,6 +204,7 @@ define_openexr_tests(
  testSharedFrameBuffer
  testStandardAttributes
  testTiledCompression
+ testLJ2KBoundary
  testTiledCopyPixels
  testTiledLineOrder
  testTiledRgba

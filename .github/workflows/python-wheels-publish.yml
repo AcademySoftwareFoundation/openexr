@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
           ref: ${{ github.event_name == 'release' && github.event.release.tag_name || github.ref }}
@@ -66,6 +66,10 @@ jobs:
             cibw_archs_macos: arm64
           - os: windows-latest
             arch: x64
+            cibw_archs_windows: AMD64
+          - os: windows-11-arm
+            arch: arm64
+            cibw_archs_windows: ARM64
 
     permissions:
       contents: read
@@ -73,11 +77,11 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Install Python
         if: ${{ matrix.os == 'ubuntu-latest' }}
-        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: '3.x'
 
@@ -87,18 +91,20 @@ jobs:
         run: pipx run build==1.2.2.post1 --sdist . --outdir wheelhouse
 
       - name: Build wheel
-        uses: pypa/cibuildwheel@294735312765b09d24a2fbec22660ce817587d55  # v4.1.0
+        uses: pypa/cibuildwheel@e090b81e30c4d855ea63bf4b6e59204c09a101ae  # v4.2.1
         with:
           output-dir: wheelhouse
         env:
           MACOSX_DEPLOYMENT_TARGET: 10.15
           # Split macOS arches across runners so artifact merge does not collide on filenames.
           CIBW_ARCHS_MACOS: ${{ matrix.cibw_archs_macos }}
-          # Build Python 3.9 through 3.13
+          CIBW_ARCHS_WINDOWS: ${{ matrix.cibw_archs_windows }}
+          # Build Python 3.9 through 3.15
           # Skip 32-bit wheels builds on Windows
           # Also skip the PyPy builds, since they fail the unit tests
-          CIBW_BUILD: "cp39-* cp310-* cp311-* cp312-* cp313-*"
-          CIBW_SKIP: "*-win32 *_i686"
+          CIBW_BUILD: "cp39-* cp310-* cp311-* cp312-* cp313-* cp314-* cp315-*"
+          # NumPy's Windows ARM64 wheels require Python 3.11 or newer.
+          CIBW_SKIP: "*-win32 *_i686 cp39-win_arm64 cp310-win_arm64"
 
       - name: Upload artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -132,4 +138,4 @@ jobs:
           path: dist
 
       - name: Publish distribution 📦 to PyPI
-        uses: pypa/gh-action-pypi-publish@cef221092ed1bacb1cc03d23a2d87d1d172e277b # v1.14.0
+        uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33 # v1.14.2

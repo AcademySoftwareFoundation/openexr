@@ -2,21 +2,21 @@
 // This software is released under the 2-Clause BSD license, included
 // below.
 //
-// Copyright (c) 2019, Aous Naman 
+// Copyright (c) 2019, Aous Naman
 // Copyright (c) 2019, Kakadu Software Pty Ltd, Australia
 // Copyright (c) 2019, The University of New South Wales, Australia
-// 
+//
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
 // met:
-// 
+//
 // 1. Redistributions of source code must retain the above copyright
 // notice, this list of conditions and the following disclaimer.
-// 
+//
 // 2. Redistributions in binary form must reproduce the above copyright
 // notice, this list of conditions and the following disclaimer in the
 // documentation and/or other materials provided with the distribution.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
 // IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 // TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
@@ -57,7 +57,7 @@ namespace ojph {
   {
     //////////////////////////////////////////////////////////////////////////
     void resolution::pre_alloc(codestream* codestream, const rect& res_rect,
-                               const rect& recon_res_rect, 
+                               const rect& recon_res_rect,
                                ui32 comp_num, ui32 res_num)
     {
       mem_fixed_allocator* allocator = codestream->get_allocator();
@@ -150,7 +150,7 @@ namespace ojph {
           tby1 = try1 >> 1;
           re.org.y = tby0;
           re.siz.h = tby1 - tby0;
-          subband::pre_alloc(codestream, re, comp_num, res_num, 
+          subband::pre_alloc(codestream, re, comp_num, res_num,
                              transform_flags);
         }
         else if (ds == param_dfs::HORZ_DWT)
@@ -170,7 +170,7 @@ namespace ojph {
           tbx1 = trx1 >> 1;
           re.org.x = tbx0;
           re.siz.w = tbx1 - tbx0;
-          subband::pre_alloc(codestream, re, comp_num, res_num, 
+          subband::pre_alloc(codestream, re, comp_num, res_num,
                              transform_flags);
         }
         else
@@ -183,7 +183,7 @@ namespace ojph {
         }
       }
       else
-        subband::pre_alloc(codestream, res_rect, comp_num, res_num, 
+        subband::pre_alloc(codestream, res_rect, comp_num, res_num,
                            transform_flags);
 
       //prealloc precincts
@@ -219,7 +219,7 @@ namespace ojph {
             allocator->pre_alloc_data<si32>(width, 1);
             allocator->pre_alloc_data<si32>(width, 1);
           }
-          else 
+          else
           {
             for (ui32 i = 0; i < num_steps; ++i)
               allocator->pre_alloc_data<si64>(width, 1);
@@ -328,7 +328,7 @@ namespace ojph {
               child_res = allocator->post_alloc_obj<resolution>(1);
               child_res->finalize_alloc(codestream, re,
                 skipped_res_for_recon ? recon_res_rect : re, comp_num,
-                res_num - 1, comp_downsamp, next_res_downsamp, 
+                res_num - 1, comp_downsamp, next_res_downsamp,
                 parent_tile_comp, this);
             }
             else
@@ -407,7 +407,7 @@ namespace ojph {
         num_precincts.w -= trx0 >> log_PP.w;
         num_precincts.h = (try1 + (1 << log_PP.h) - 1) >> log_PP.h;
         num_precincts.h -= try0 >> log_PP.h;
-        precincts = 
+        precincts =
           allocator->post_alloc_obj<precinct>((size_t)num_precincts.area());
         ui64 num = num_precincts.area();
         for (ui64 i = 0; i < num; ++i)
@@ -508,7 +508,7 @@ namespace ojph {
               allocator->post_alloc_data<si64>(width, 1), width, 1);
           }
         }
-        else 
+        else
         {
             for (ui32 i = 0; i < num_steps; ++i)
               ssp[i].line->wrap(
@@ -528,7 +528,7 @@ namespace ojph {
 
     //////////////////////////////////////////////////////////////////////////
     line_buf* resolution::get_line()
-    { 
+    {
       if (vert_even)
       {
         ++cur_line;
@@ -742,11 +742,11 @@ namespace ojph {
               {
                 if (vert_even) { // even
                   if (transform_flags & HORZ_TRX)
-                    rev_horz_syn(atk, aug->line, child_res->pull_line(), 
+                    rev_horz_syn(atk, aug->line, child_res->pull_line(),
                       bands[1].pull_line(), width, horz_even);
                   else
                     memcpy(aug->line->p, child_res->pull_line()->p,
-                      (size_t)width 
+                      (size_t)width
                       * (aug->line->flags & line_buf::LFT_SIZE_MASK));
                   aug->active = true;
                   vert_even = !vert_even;
@@ -755,11 +755,11 @@ namespace ojph {
                 }
                 else {
                   if (transform_flags & HORZ_TRX)
-                    rev_horz_syn(atk, sig->line, bands[2].pull_line(), 
+                    rev_horz_syn(atk, sig->line, bands[2].pull_line(),
                       bands[3].pull_line(), width, horz_even);
                   else
                     memcpy(sig->line->p, bands[2].pull_line()->p,
-                      (size_t)width 
+                      (size_t)width
                       * (sig->line->flags & line_buf::LFT_SIZE_MASK));
                   sig->active = true;
                   vert_even = !vert_even;
@@ -799,7 +799,7 @@ namespace ojph {
                   bands[1].pull_line(), width, horz_even);
               else
                 memcpy(aug->line->p, child_res->pull_line()->p,
-                  (size_t)width 
+                  (size_t)width
                   * (aug->line->flags & line_buf::LFT_SIZE_MASK));
             }
             else
@@ -809,11 +809,11 @@ namespace ojph {
                   bands[3].pull_line(), width, horz_even);
               else
                 memcpy(aug->line->p, bands[2].pull_line()->p,
-                  (size_t)width 
+                  (size_t)width
                   * (aug->line->flags & line_buf::LFT_SIZE_MASK));
               if (aug->line->flags & line_buf::LFT_32BIT)
               {
-                si32* sp = aug->line->i32;                
+                si32* sp = aug->line->i32;
                 for (ui32 i = width; i > 0; --i)
                   *sp++ >>= 1;
               }
@@ -843,9 +843,9 @@ namespace ojph {
               {
                 if (vert_even) { // even
                   if (transform_flags & HORZ_TRX)
-                    irv_horz_syn(atk, aug->line, child_res->pull_line(), 
+                    irv_horz_syn(atk, aug->line, child_res->pull_line(),
                       bands[1].pull_line(), width, horz_even);
-                  else 
+                  else
                     memcpy(aug->line->f32, child_res->pull_line()->f32,
                       width * sizeof(float));
                   aug->active = true;
@@ -859,7 +859,7 @@ namespace ojph {
                 }
                 else {
                   if (transform_flags & HORZ_TRX)
-                    irv_horz_syn(atk, sig->line, bands[2].pull_line(), 
+                    irv_horz_syn(atk, sig->line, bands[2].pull_line(),
                       bands[3].pull_line(), width, horz_even);
                   else
                     memcpy(sig->line->f32, bands[2].pull_line()->f32,
@@ -924,7 +924,7 @@ namespace ojph {
         }
       }
       else
-      { 
+      {
         if (reversible)
         {
           if (transform_flags & HORZ_TRX)

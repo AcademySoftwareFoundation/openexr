@@ -75,6 +75,14 @@ exr2aces (const char inFileName[], const char outFileName[], bool verbose)
     int           width;
     int           height;
 
+#ifdef _MSC_VER
+#    pragma warning(push)
+#    pragma warning(disable : 4996)
+#elif defined(__clang__) || defined(__GNUC__)
+#    pragma GCC diagnostic push
+#    pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
     {
         if (verbose) cout << "Reading file " << inFileName << endl;
 
@@ -110,6 +118,12 @@ exr2aces (const char inFileName[], const char outFileName[], bool verbose)
         out.setFrameBuffer (ComputeBasePointer (&p[0][0], dw), 1, width);
         out.writePixels (height);
     }
+
+#ifdef _MSC_VER
+#    pragma warning(pop)
+#elif defined(__clang__) || defined(__GNUC__)
+#    pragma GCC diagnostic pop
+#endif
 }
 
 } // namespace
@@ -120,6 +134,10 @@ main (int argc, char** argv)
     const char* inFile  = 0;
     const char* outFile = 0;
     bool        verbose = false;
+
+    cerr << "Warning: " << argv[0]
+         << " is deprecated and will be removed from distribution in an upcoming release."
+         << endl;
 
     //
     // Parse the command line.

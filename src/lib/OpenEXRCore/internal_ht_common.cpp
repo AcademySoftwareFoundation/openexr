@@ -142,7 +142,7 @@ make_channel_map (
         cs_to_file_ch[2].file_index = b_index;
 
         int avail_cs_i = 3;
-        int offset = 0;
+        size_t offset = 0;
         for (int file_i = 0; file_i < channel_count; file_i++)
         {
             int cs_i;
@@ -158,18 +158,34 @@ make_channel_map (
 
             cs_to_file_ch[cs_i].file_index = file_i;
             cs_to_file_ch[cs_i].raster_line_offset = offset;
-            offset += channels[file_i].width * channels[file_i].bytes_per_element;
+            offset += (size_t) channels[file_i].width * (size_t) channels[file_i].bytes_per_element;
         }
     }
     else
     {
-        int offset = 0;
+        size_t offset = 0;
         for (size_t file_i = 0; file_i < static_cast<size_t>(channel_count); file_i++)
         {
             cs_to_file_ch[file_i].file_index = file_i;
             cs_to_file_ch[file_i].raster_line_offset = offset;
-            offset += channels[file_i].width * channels[file_i].bytes_per_element;
+            offset += (size_t) channels[file_i].width * (size_t) channels[file_i].bytes_per_element;
         }
+    }
+
+    /** Heuristic detection of channels containing visual light samples */
+    for (size_t cs_i = 0; cs_i < cs_to_file_ch.size (); cs_i++)
+    {
+        const char* name   = channels[cs_to_file_ch[cs_i].file_index].channel_name;
+        const char* suffix = strrchr (name, '.');
+        suffix             = suffix ? suffix + 1 : name;
+
+        cs_to_file_ch[cs_i].kind =
+            (areEqual (suffix, "r") || areEqual (suffix, "g") || areEqual (suffix, "b") ||
+             areEqual (suffix, "red") || areEqual (suffix, "green") || areEqual (suffix, "blue") ||
+             areEqual (suffix, "grn") || areEqual (suffix, "blu") ||
+             areEqual (suffix, "y") || areEqual (suffix, "ry") || areEqual (suffix, "by"))
+                ? visual
+                : data;
     }
 
     return isRGB;
@@ -178,7 +194,7 @@ make_channel_map (
 /***********************************
 
 Structure of the HTJ2K chunk
-- MAGIC = 0x4854: magic number
+- MAGIC: magic number signaling the decoding semantics of the JPEG 2000 codestream
 - PLEN: length of header payload (big endian uint32_t)
 - header payload
     - NCH: number of channels in channel map (big endian uint16_t)
@@ -264,14 +280,15 @@ protected:
     uint8_t* end;
 };
 
-constexpr uint16_t HEADER_MARKER = 'H' * 256 + 'T';
+
 constexpr uint16_t HEADER_SZ = 6;
 
 size_t
 write_header (
     uint8_t*                                  buffer,
     size_t                                    max_sz,
-    const std::vector<CodestreamChannelInfo>& map)
+    const std::vector<CodestreamChannelInfo>& map,
+    HeaderMagic                               magic)
 {
     MemoryWriter       payload (buffer + HEADER_SZ, max_sz - HEADER_SZ);
     payload.push_uint16 (map.size ());
@@ -281,7 +298,7 @@ write_header (
     }
 
     MemoryWriter header (buffer, max_sz);
-    header.push_uint16 (HEADER_MARKER);
+    header.push_uint16 (static_cast<uint16_t> (magic));
     header.push_uint32 (payload.get_size ());
 
     return header.get_size () + payload.get_size ();
@@ -291,12 +308,17 @@ size_t
 read_header (
     void*                               buffer,
     size_t                              max_sz,
-    std::vector<CodestreamChannelInfo>& map)
+    std::vector<CodestreamChannelInfo>& map,
+    HeaderMagic&                        magic)
 {
     MemoryReader header ((uint8_t*) buffer, max_sz);
-    if (header.pull_uint16 () != HEADER_MARKER)
+
+    const uint16_t raw_magic = header.pull_uint16 ();
+    if (raw_magic != static_cast<uint16_t> (HeaderMagic::V1) &&
+        raw_magic != static_cast<uint16_t> (HeaderMagic::V2))
         throw std::runtime_error (
-            "HTJ2K chunk header does not start with magic number.");
+            "HTJ2K chunk header does not start with a valid magic number.");
+    magic = static_cast<HeaderMagic> (raw_magic);
 
     size_t payload_sz = header.pull_uint32 ();
     size_t prefix_sz = header.tell ();
@@ -305,10 +327,15 @@ read_header (
         throw std::runtime_error (
             "HTJ2K chunk header length is larger than the chunk size.");
 
-    map.resize (header.pull_uint16 ());
+    map.resize (header.pull_uint16 (), {visual, -1, 0, 0});
     for (size_t i = 0; i < map.size (); i++)
     {
-        map.at (i).file_index = header.pull_uint16 ();
+        uint16_t file_index = header.pull_uint16 ();
+        if (file_index >= map.size() || map.at (file_index).scratch > 0)
+            throw std::runtime_error (
+                "HTJ2K chunk header contains invalid file_index values.");
+        map.at (i).file_index = file_index;
+        map.at (file_index).scratch = 1;
     }
 
     return prefix_sz + payload_sz;

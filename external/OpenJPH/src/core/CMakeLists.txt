@@ -5,11 +5,13 @@ file(GLOB CODESTREAM_SSE2  "codestream/*_sse2.cpp")
 file(GLOB CODESTREAM_AVX   "codestream/*_avx.cpp")
 file(GLOB CODESTREAM_AVX2  "codestream/*_avx2.cpp")
 file(GLOB CODESTREAM_WASM  "codestream/*_wasm.cpp")
+file(GLOB CODESTREAM_VSX   "codestream/*_vsx.cpp")
 file(GLOB CODING           "coding/*.cpp" "coding/*.h")
 file(GLOB CODING_SSSE3     "coding/*_ssse3.cpp")
 file(GLOB CODING_WASM      "coding/*_wasm.cpp")
 file(GLOB CODING_AVX2      "coding/*_avx2.cpp")
 file(GLOB CODING_AVX512    "coding/*_avx512.cpp")
+file(GLOB CODING_VSX       "coding/*_vsx.cpp")
 file(GLOB COMMON           "openjph/*.h")
 file(GLOB OTHERS           "others/*.cpp" "others/*.c")
 file(GLOB TRANSFORM        "transform/*.cpp" "transform/*.h")
@@ -19,10 +21,11 @@ file(GLOB TRANSFORM_AVX    "transform/*_avx.cpp")
 file(GLOB TRANSFORM_AVX2   "transform/*_avx2.cpp")
 file(GLOB TRANSFORM_AVX512 "transform/*_avx512.cpp")
 file(GLOB TRANSFORM_WASM   "transform/*_wasm.cpp")
+file(GLOB TRANSFORM_VSX    "transform/*_vsx.cpp")
 
-list(REMOVE_ITEM CODESTREAM ${CODESTREAM_SSE} ${CODESTREAM_SSE2} ${CODESTREAM_AVX} ${CODESTREAM_AVX2} ${CODESTREAM_WASM})
-list(REMOVE_ITEM CODING ${CODING_SSSE3} ${CODING_WASM} ${CODING_AVX2} ${CODING_AVX512})
-list(REMOVE_ITEM TRANSFORM ${TRANSFORM_SSE} ${TRANSFORM_SSE2} ${TRANSFORM_AVX} ${TRANSFORM_AVX2} ${TRANSFORM_AVX512} ${TRANSFORM_WASM})
+list(REMOVE_ITEM CODESTREAM ${CODESTREAM_SSE} ${CODESTREAM_SSE2} ${CODESTREAM_AVX} ${CODESTREAM_AVX2} ${CODESTREAM_WASM} ${CODESTREAM_VSX})
+list(REMOVE_ITEM CODING ${CODING_SSSE3} ${CODING_WASM} ${CODING_AVX2} ${CODING_AVX512} ${CODING_VSX})
+list(REMOVE_ITEM TRANSFORM ${TRANSFORM_SSE} ${TRANSFORM_SSE2} ${TRANSFORM_AVX} ${TRANSFORM_AVX2} ${TRANSFORM_AVX512} ${TRANSFORM_WASM} ${TRANSFORM_VSX})
 list(APPEND SOURCES ${CODESTREAM} ${CODING} ${COMMON} ${OTHERS} ${TRANSFORM})
 
 source_group("codestream"        FILES ${CODESTREAM})
@@ -76,7 +79,7 @@ else()
       endif()
 
       # Set compilation flags
-      if (MSVC)
+      if (MSVC AND NOT CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
         set_source_files_properties(codestream/ojph_codestream_avx.cpp PROPERTIES COMPILE_FLAGS "/arch:AVX")
         set_source_files_properties(codestream/ojph_codestream_avx2.cpp PROPERTIES COMPILE_FLAGS "/arch:AVX2")
         set_source_files_properties(coding/ojph_block_decoder_avx2.cpp PROPERTIES COMPILE_FLAGS "/arch:AVX2")
@@ -112,6 +115,32 @@ else()
 
     endif()
 
+    if (("${OJPH_TARGET_ARCH}" MATCHES "OJPH_ARCH_PPC64")
+        AND (CMAKE_SYSTEM_PROCESSOR MATCHES "ppc64le|powerpc64le"))
+      if (NOT OJPH_DISABLE_SIMD)
+        # native 128-bit VSX kernels (see ojph_simd_vsx.h).  Supported
+        # targets are POWER8 (ISA 2.07) and newer, little-endian only.
+        # Kernels are selected at run-time from the ISA level reported
+        # by get_cpu_ext_level(); see ojph_codeblock_fun.cpp.
+        #
+        # Most kernels are built at the POWER8 baseline so that they can
+        # be dispatched on POWER8 as well.  The block decoder is the
+        # exception: it is dispatched only on POWER9 and newer (it is
+        # load/permute bound and does not pay off on POWER8), so it is
+        # built at the POWER9 baseline, where lxvx/xxperm cost it about
+        # 10% less than the ISA 2.07 sequences.  Its object is never
+        # entered on POWER8, so the newer instructions are safe.
+        list(APPEND SOURCES ${CODESTREAM_VSX} ${CODING_VSX} ${TRANSFORM_VSX})
+        source_group("codestream" FILES ${CODESTREAM_VSX})
+        source_group("coding" FILES ${CODING_VSX})
+        source_group("transform" FILES ${TRANSFORM_VSX})
+        set_source_files_properties(codestream/ojph_codestream_vsx.cpp PROPERTIES COMPILE_FLAGS "-mcpu=power8")
+        set_source_files_properties(coding/ojph_block_decoder_vsx.cpp PROPERTIES COMPILE_FLAGS "-mcpu=power9")
+        set_source_files_properties(transform/ojph_transform_vsx.cpp PROPERTIES COMPILE_FLAGS "-mcpu=power8")
+        set_source_files_properties(transform/ojph_colour_vsx.cpp PROPERTIES COMPILE_FLAGS "-mcpu=power8")
+      endif()
+    endif()
+
   endif()
 
 endif()
@@ -140,7 +169,11 @@ endif()
 ## include library version/name
 set_target_properties(openjph PROPERTIES POSITION_INDEPENDENT_CODE ON)
 target_compile_definitions(openjph PUBLIC _FILE_OFFSET_BITS=64)
-target_include_directories(openjph PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/openjph> $<INSTALL_INTERFACE:include>)
+target_include_directories(openjph PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/openjph>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/shared>
+  $<INSTALL_INTERFACE:include>
+)
 
 ## This is to check if aligned_alloc or posix_memalign is available
 # We want the code to compile for C11 and C++11.
@@ -173,13 +206,13 @@ else()
 endif()
 
 if (OJPH_INSTALL)
-  install(TARGETS openjph
-    EXPORT openjph-targets
-  )
+install(TARGETS openjph
+  EXPORT openjph-targets
+)
 
-  install(DIRECTORY openjph/
-    DESTINATION include/openjph
-    FILES_MATCHING
-    PATTERN "*.h"
-  )
+install(DIRECTORY openjph/
+  DESTINATION include/openjph
+  FILES_MATCHING
+  PATTERN "*.h"
+)
 endif()

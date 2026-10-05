@@ -50,6 +50,7 @@ Contrib/DtexToExr/DtexToExr
 abi_check
 _build/
 build/
+build.*/
 build-win/
 build-nuget/
 *~

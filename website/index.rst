@@ -2,6 +2,16 @@
   SPDX-License-Identifier: BSD-3-Clause
   Copyright Contributors to the OpenEXR Project.
 
+..
+  The entire website document set uses the following heading
+  directives:
+
+  #### top level
+  ==== section headings
+  ---- subsection headings
+  ~~~~ level 4 headings
+  ^^^^ level 5 headings
+
 .. _OpenEXR:
 
 OpenEXR

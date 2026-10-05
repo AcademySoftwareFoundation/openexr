@@ -50,7 +50,21 @@ of the library.
 
 | CVE | Affected Versions | Patched Versions |
 | --- | ----------------- | ---------------- |
-
+| [CVE-2026-68514](https://www.cve.org/CVERecord?id=CVE-2026-68514) | 3.3.0–3.3.12, 3.4.0–3.4.13 | 3.3.13, 3.4.14 |
+| [CVE-2026-68513](https://www.cve.org/CVERecord?id=CVE-2026-68513) | 3.3.0–3.3.12, 3.4.0–3.4.13 | 3.3.13, 3.4.14 |
+| [CVE-2026-62986](https://www.cve.org/CVERecord?id=CVE-2026-62986) | 3.3.0–3.3.12, 3.4.0–3.4.13 | 3.3.13, 3.4.14 |
+| [CVE-2026-61703](https://www.cve.org/CVERecord?id=CVE-2026-61703) | 3.3.0–3.3.12, 3.4.0–3.4.13 | 3.3.13, 3.4.14 |
+| [CVE-2026-61555](https://www.cve.org/CVERecord?id=CVE-2026-61555) | 2.x, 3.0.x, 3.1.x, 3.2.0–3.2.10, 3.3.0–3.3.12, 3.4.0–3.4.13 | 3.2.11, 3.3.13, 3.4.14 |
+| [CVE-2026-59985](https://www.cve.org/CVERecord?id=CVE-2026-59985) | 3.2.0–3.2.10, 3.3.0–3.3.12, 3.4.0–3.4.13 | 3.2.11, 3.3.13, 3.4.14 |
+| [CVE-2026-59984](https://www.cve.org/CVERecord?id=CVE-2026-59984) | 3.1.x, 3.2.0–3.2.10, 3.3.0–3.3.12, 3.4.0–3.4.13 | 3.2.11, 3.3.13, 3.4.14 |
+| [CVE-2026-59983](https://www.cve.org/CVERecord?id=CVE-2026-59983) | 2.x, 3.0.x, 3.1.x, 3.2.0–3.2.10, 3.3.0–3.3.12, 3.4.0–3.4.13 | 3.2.11, 3.3.13, 3.4.14 |
+| [CVE-2026-59982](https://www.cve.org/CVERecord?id=CVE-2026-59982) | 3.1.x, 3.2.0–3.2.10, 3.3.0–3.3.12, 3.4.0–3.4.13 | 3.2.11, 3.3.13, 3.4.14 |
+| [CVE-2026-59981](https://www.cve.org/CVERecord?id=CVE-2026-59981) | 2.x, 3.0.x, 3.1.x, 3.2.0–3.2.10, 3.3.0–3.3.12, 3.4.0–3.4.13 | 3.2.11, 3.3.13, 3.4.14 |
+| [CVE-2026-59189](https://www.cve.org/CVERecord?id=CVE-2026-59189) | 2.x, 3.0.x, 3.1.x, 3.2.0–3.2.10, 3.3.0–3.3.12, 3.4.0–3.4.13 | 3.2.11, 3.3.13, 3.4.14 |
+| [CVE-2026-59187](https://www.cve.org/CVERecord?id=CVE-2026-59187) | 3.3.0–3.3.12, 3.4.0–3.4.13 | 3.3.13, 3.4.14 |
+| [CVE-2026-59186](https://www.cve.org/CVERecord?id=CVE-2026-59186) | 2.x, 3.0.x, 3.1.x, 3.2.0–3.2.10, 3.3.0–3.3.12, 3.4.0–3.4.13 | 3.2.11, 3.3.13, 3.4.14 |
+| [CVE-2026-59184](https://www.cve.org/CVERecord?id=CVE-2026-59184) | 2.x, 3.0.x, 3.1.x, 3.2.0–3.2.10, 3.3.0–3.3.12, 3.4.0–3.4.13 | 3.2.11, 3.3.13, 3.4.14 |
+| [CVE-2026-59183](https://www.cve.org/CVERecord?id=CVE-2026-59183) | 3.1.x, 3.2.0–3.2.10, 3.3.0–3.3.12, 3.4.0–3.4.13 | 3.2.11, 3.3.13, 3.4.14 |
 | [CVE-2026-55373](https://www.cve.org/CVERecord?id=CVE-2026-55373) | 2.x, 3.0.x, 3.1.x, 3.2.0–3.2.9, 3.3.0–3.3.11, 3.4.0–3.4.12 | 3.2.10, 3.3.12, 3.4.13 |
 | [CVE-2026-55371](https://www.cve.org/CVERecord?id=CVE-2026-55371) | 3.4.0–3.4.12 | 3.4.13 |
 | [CVE-2026-55059](https://www.cve.org/CVERecord?id=CVE-2026-55059) | 2.x, 3.0.x, 3.1.x, 3.2.0–3.2.9, 3.3.0–3.3.11, 3.4.0–3.4.12 | 3.2.10, 3.3.12, 3.4.13 |
@@ -131,8 +145,9 @@ security vulnerabilities.
 | Version / branch  | Supported                                            |
 |-------| ---------------------------------------------------- |
 | main  | :white_check_mark: :construction: All fixes immediately, although this branch is under development with potential unstable ABI/API
-| 3.4.x | :white_check_mark: All fixes that can be backported without breaking ABI compatibility
-| 3.3.x | :white_check_mark: All fixes that can be backported without breaking ABI compatibility
+| 3.5.x | :white_check_mark: All fixes that can be backported without breaking ABI compatibility
+| 3.4.x | :white_check_mark: All security-related patches that can be backported without breaking ABI compatibility
+| 3.3.x | :white_check_mark: All security-related patches that can be backported without breaking ABI compatibility
 | 3.2.x | :warning: Patch releases considered in response to specific requests
 | 3.1.x | :warning: Patch releases considered in response to specific requests
 | 3.0.x | :warning: Patch releases considered in response to specific requests

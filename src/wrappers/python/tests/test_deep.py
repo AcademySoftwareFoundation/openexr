@@ -291,6 +291,50 @@ class TestDeep(unittest.TestCase):
             if os.path.exists(path):
                 os.remove(path)
 
+    def test_literal_rgb_key_collision_deep_rejected(self):
+        dataWindow = ((0, 0), (0, 0))
+        height = width = 1
+
+        left = np.empty((height, width), dtype=object)
+        left_R = np.empty((height, width), dtype=object)
+        left_G = np.empty((height, width), dtype=object)
+        left_B = np.empty((height, width), dtype=object)
+        left[0, 0] = np.array([10.0, 11.0, 12.0, 13.0], dtype='float16')
+        left_R[0, 0] = np.array([10.0, 11.0, 12.0, 13.0], dtype='float16')
+        left_G[0, 0] = np.array([20.0, 21.0, 22.0, 23.0], dtype='float16')
+        left_B[0, 0] = np.array([30.0, 31.0, 32.0, 33.0], dtype='float16')
+
+        channels = {
+            "left": left,
+            "left.R": left_R,
+            "left.G": left_G,
+            "left.B": left_B,
+        }
+        header = {
+            "compression": OpenEXR.ZIPS_COMPRESSION,
+            "type": OpenEXR.deepscanline,
+            "dataWindow": dataWindow,
+        }
+
+        fd, path = tempfile.mkstemp(suffix=".exr")
+        os.close(fd)
+        try:
+            with OpenEXR.File(header, channels) as outfile:
+                outfile.write(path)
+
+            with self.assertRaises(ValueError) as ctx:
+                OpenEXR.File(path)
+            self.assertIn("separate_channels", str(ctx.exception))
+
+            with OpenEXR.File(path, separate_channels=True) as infile:
+                self.assertIn("left", infile.channels())
+                self.assertIn("left.R", infile.channels())
+                self.assertIn("left.G", infile.channels())
+                self.assertIn("left.B", infile.channels())
+        finally:
+            if os.path.exists(path):
+                os.remove(path)
+
 if __name__ == '__main__':
     unittest.main()
     print("OK")

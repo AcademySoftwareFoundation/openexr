@@ -2,21 +2,21 @@
 // This software is released under the 2-Clause BSD license, included
 // below.
 //
-// Copyright (c) 2022, Aous Naman 
+// Copyright (c) 2022, Aous Naman
 // Copyright (c) 2022, Kakadu Software Pty Ltd, Australia
 // Copyright (c) 2022, The University of New South Wales, Australia
-// 
+//
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
 // met:
-// 
+//
 // 1. Redistributions of source code must retain the above copyright
 // notice, this list of conditions and the following disclaimer.
-// 
+//
 // 2. Redistributions in binary form must reproduce the above copyright
 // notice, this list of conditions and the following disclaimer in the
 // documentation and/or other materials provided with the distribution.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
 // IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 // TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
@@ -47,10 +47,9 @@ namespace ojph {
     //////////////////////////////////////////////////////////////////////////
     void sse_mem_clear(void* addr, size_t count)
     {
-      float* p = (float*)addr;
-      __m128 zero = _mm_setzero_ps();
-      for (size_t i = 0; i < count; i += 16, p += 4)
-        _mm_storeu_ps(p, zero);
+      __m128i zero = _mm_setzero_si128();
+      for (size_t i = 0; i < count; i += 16, addr = (char*)addr + 16)
+        _mm_storeu_si128((__m128i*)addr, zero);
     }
   }
 }

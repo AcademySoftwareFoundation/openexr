@@ -4,6 +4,14 @@
 //
 
 // [begin writeRgba1]
+#include <ImfRgba.h>
+#include <ImfRgbaFile.h>
+#include <ImfChannelList.h>
+#include <ImfFrameBuffer.h>
+
+using namespace IMATH_NAMESPACE;
+using namespace OPENEXR_IMF_NAMESPACE;
+
 void
 writeRgba1 (const char fileName[], const Rgba* pixels, int width, int height)
 {

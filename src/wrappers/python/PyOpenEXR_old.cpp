@@ -104,7 +104,6 @@ using namespace std;
 using namespace OPENEXR_IMF_NAMESPACE;
 using namespace IMATH_NAMESPACE;
 
-static PyObject* OpenEXR_error = NULL;
 static PyObject* pModuleImath;
 
 int

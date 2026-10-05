@@ -84,7 +84,7 @@ struct ScanLineProcess
     bool                  first = true;
     bool                  counts_only = false;
     exr_chunk_info_t      cinfo;
-    exr_decode_pipeline_t decoder;
+    exr_decode_pipeline_t decoder = EXR_DECODE_PIPELINE_INITIALIZER;
 
     ScanLineProcess*      next;
 };
@@ -1023,7 +1023,10 @@ void ScanLineProcess::copy_sample_count (
 
         ptr = reinterpret_cast<uint8_t*> (scslice.base);
         ptr += int64_t (cinfo.start_x) * xS;
-        ptr += (int64_t (fbY) + int64_t (y)) * yS;
+        /* y is chunk-relative (same indexing as sample_count_table rows);
+         * fbY is the first requested absolute line and may be mid-chunk. 
+         This allows for multi-scanline deep codecs to work. */
+        ptr += (int64_t (cinfo.start_y) + int64_t (y)) * yS;
 
         if (xS == sizeof(int32_t))
         {

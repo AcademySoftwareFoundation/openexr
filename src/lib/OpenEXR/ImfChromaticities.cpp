@@ -14,6 +14,8 @@
 #include "ImfChromaticities.h"
 #include <string.h>
 
+#include "openexr.h"
+
 #include <float.h>
 #include <stdexcept>
 
@@ -137,6 +139,62 @@ IMATH_NAMESPACE::M44f
 XYZtoRGB (const Chromaticities& chroma, float Y)
 {
     return RGBtoXYZ (chroma, Y).inverse ();
+}
+
+//
+// The table of interop IDs and their chromaticities lives in OpenEXRCore,
+// so that the C API, the C++ API and exrinfo all share one definition of
+// these primaries. These two functions are adapters over it.
+//
+
+bool
+colorInteropIDToChromaticities (const std::string& id, Chromaticities& chroma)
+{
+    //
+    // An embedded NUL would make c_str() below compare as a shorter, and
+    // possibly valid, ID.
+    //
+
+    if (id.find ('\0') != std::string::npos) return false;
+
+    exr_attr_chromaticities_t c;
+
+    if (EXR_ERR_SUCCESS !=
+        exr_color_interop_id_to_chromaticities (id.c_str (), &c))
+        return false;
+
+    chroma = Chromaticities (
+        IMATH_NAMESPACE::V2f (c.red_x, c.red_y),
+        IMATH_NAMESPACE::V2f (c.green_x, c.green_y),
+        IMATH_NAMESPACE::V2f (c.blue_x, c.blue_y),
+        IMATH_NAMESPACE::V2f (c.white_x, c.white_y));
+
+    return true;
+}
+
+bool
+chromaticitiesToColorInteropID (
+    const Chromaticities& chroma, std::string& id, float tolerance)
+{
+    const exr_attr_chromaticities_t c = {
+        chroma.red.x,
+        chroma.red.y,
+        chroma.green.x,
+        chroma.green.y,
+        chroma.blue.x,
+        chroma.blue.y,
+        chroma.white.x,
+        chroma.white.y};
+
+    const char* match = nullptr;
+
+    if (EXR_ERR_SUCCESS !=
+        exr_chromaticities_to_color_interop_id (&c, tolerance, &match))
+        return false;
+
+    id = match;
+
+    return true;
 }
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

@@ -11,12 +11,12 @@ exrmanifest
 
 
 Description
------------
+===========
 
 Read exr files and print the contents of the embedded manifest.
 
 Options:
---------
+========
 
 .. describe:: -v, --verbose
    

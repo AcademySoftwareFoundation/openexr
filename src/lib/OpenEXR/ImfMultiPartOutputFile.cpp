@@ -127,9 +127,9 @@ MultiPartOutputFile::Data::do_header_sanity_checks (
             else
             {
                 std::vector<std::string> conflictingAttributes;
-                bool                     valid = checkSharedAttributesValues (
+                bool                     conflict = checkSharedAttributesValues (
                     _headers[0], _headers[i], conflictingAttributes);
-                if (valid)
+                if (conflict)
                 {
                     string excMsg (
                         "Conflicting attributes found for header :: ");
@@ -377,6 +377,14 @@ MultiPartOutputFile::Data::overrideSharedAttributesValues (
         dst.insert ("chromaticities", *chromaticities);
     else
         dst.erase ("chromaticities");
+
+    //
+    // As decided in PR #2560, there is no hard restriction placed on the
+    // ability to write multi-part files that do not follow the
+    // colorInteropID recommendations. Programs should call
+    // checkColorMetadata before writing to ensure they comply with the
+    // recommendations.
+    //
 }
 
 bool
@@ -446,6 +454,14 @@ MultiPartOutputFile::Data::checkSharedAttributesValues (
                 ChromaticitiesAttribute::staticTypeName ());
         }
     }
+
+    //
+    // As decided in PR #2560, there is no hard restriction placed on the
+    // ability to write multi-part files that do not follow the
+    // colorInteropID recommendations. Programs should call
+    // checkColorMetadata before writing to ensure they comply with the
+    // recommendations.
+    //
 
     return conflict;
 }

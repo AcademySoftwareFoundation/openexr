@@ -107,6 +107,14 @@ makeMultiView (
             string         inChanName = j.name ();
             string outChanName = insertViewName (inChanName, viewNames, i);
 
+            if (inChannel.xSampling != 1 || inChannel.ySampling != 1)
+                THROW (IEX_NAMESPACE::ArgExc,
+                       "no support for subsampling:"
+                       << " channel " << inChanName
+                       << " of " << inFileNames[i]
+                       << " has subsampling " << inChannel.xSampling
+                       << ", " << inChannel.ySampling);
+            
             image.addChannel (outChanName, inChannel);
             image.channel (outChanName).black ();
 

@@ -84,7 +84,7 @@ def parse_pr_blocks_dict(lines, i, stop_at_workflow_heading):
         mo = PR_BULLET_RE.match(line.strip())
         if mo:
             pr = mo.group(1)
-            bullet = line
+            bullet = line.strip()
             if i + 1 < n:
                 nxt = lines[i + 1]
                 if stop_at_workflow_heading and MERGED_WORKFLOW_HEADING_RE.match(
@@ -97,7 +97,7 @@ def parse_pr_blocks_dict(lines, i, stop_at_workflow_heading):
                     out[pr] = bullet
                     i += 1
                     continue
-                out[pr] = "\n".join([bullet, nxt])
+                out[pr] = "\n".join([bullet, "  " + nxt.strip()])
                 i += 2
                 continue
             out[pr] = bullet
@@ -224,10 +224,16 @@ def main() -> None:
     for pr_number in prs:
         info = gh_pr_view(pr_number)
         title = info.get("title") or ""
-        author = (info.get("author") or {}).get("login") or ""
-        is_workflow = "dependabot" in author or pr_is_workflow_only(pr_number)
+        author_info = info.get("author") or {}
+        author_login = author_info.get("login") or ""
+        is_workflow = "dependabot" in author_login or pr_is_workflow_only(pr_number)
         title_one_line = " ".join(title.split())
-        pr_block = f"* [{pr_number}]({url}/pull/{pr_number})\n{title_one_line}"
+        author_name = author_info.get("name") or ""
+        if author_login and author_name:
+            title_one_line += f" (by @{author_login}/{author_name})"
+        elif author_login:
+            title_one_line += f" (by @{author_login})"
+        pr_block = f"* [{pr_number}]({url}/pull/{pr_number})\n  {title_one_line}"
         if is_workflow:
             merged_workflow_prs[pr_number] = pr_block
         else:
@@ -274,10 +280,10 @@ def main() -> None:
                     f.write(f"  {short}\n")
         f.write("\n### Merged Pull Requests\n\n")
         for pr, value in sorted(merged_prs.items(), key=lambda kv: int(kv[0]), reverse=True):
-            f.write("  " + value + "\n")
+            f.write(value + "\n")
         f.write("\n### Merged Workflow Pull Requests\n\n")
         for pr, value in sorted(merged_workflow_prs.items(), key=lambda kv: int(kv[0]), reverse=True):
-            f.write("  " + value + "\n")
+            f.write(value + "\n")
         f.write("\n" + "\n".join(lines[footer_index:]))
 
 

@@ -17,9 +17,295 @@ News
 
 
 |latest-news-title|
-=======================================
+========================================
 
 .. _LatestNewsStart:
+
+Patch release that introduces the use of OpenJPH's built-in LUT to
+apply the decode/encode transfer function for lossy LJ2K compression.
+
+⚠️ WARNING: EXR files written by OpenEXR v3.5.0 and v3.5.1
+using lossy LJ2K compression lack the LUT in their codestream and
+should be regenerated. This v3.5.2 release includes a backwards
+compatibility fallback so that such files can be successfully decoded,
+but for best results, please regenerate any files using LJ2K written
+by v3.5.0 and v3.5.1. Note that this was incorrectly reported as being
+included in v3.5.0.
+
+Also in this release:
+
+* Prebuilt wheels Python 3.14.
+* Fix for a bug when when statically linking when libdeflate, zstd, or
+  OpenJPH is found via pkg-config rather than CMake config (#2673).
+* Pin the ``IMATH_TAG`` to ``v3.2.3``; it was previously incorrectly set to ``main``.
+* Pin the JPEG 2000 progression order to RPCL and adds TLM markers to
+  allow efficient random access to resolution layers for J2K
+  compression (#2672)
+* Fix for a failure case in exrcheck involving large images (#2688)
+
+.. _LatestNewsEnd:
+
+September 21, 2026 - OpenEXR 3.5.0 Released
+===========================================
+
+* Support for lossless compression via
+  `Zstandard <https://github.com/facebook/zstd>`_
+
+  - Introduces ``ZSTD_COMPRESSION/EXR_COMPRESSION_ZSTD`` enum
+  - Features a custom data prep stage that includes ByteShuffle,
+    optional Delta Encoding, and custom data reordering.
+  - Universal lossless support: Works for all image types (including
+    Deep) and supports all OpenEXR pixel/data types.
+  - Deep image gains: Extensive testing with Deep scanlines shows a
+    20–30% size reduction compared to ZIPS based on image channels
+    (with the best gains on Deep Alpha and Deep ID).
+  - Flat image file size: Achieves comparable compressed sizes to ZIPS.
+  - Flat image speed: Delivers slightly faster compression and
+    decompression speeds compared to ZIPS
+  - Introduces a new dependency on the zstd library; a vendored
+    version (v1.5.7) is provided as a fallback if no installed version
+    is present.
+
+* Support for lossy compression based on the High Throughput JPEG 2000
+  (HTJ2K) standard.
+
+  - The LJ2K compressor uses the same JPEG 2000 constraints and codec
+    library (OpenJPH) as HTJ2K256, but with lossy coding, producing
+    smaller files at the cost of distortion.
+
+  - LJ2K should generally offer reduced file sizes and higher
+    throughput compared to DWA.
+
+  - Currently supports 16-bit HALF, 32-bit FLOAT and 32-bit UINT
+    channels. Lossy coding is currently applied only to RGB channels;
+    other channels are losslessly coded.
+
+  - The amount of distortion is controlled via a quality level
+    parameter that ranges from 1 to 150. 
+
+  - As with DWA, lossy RGB channels are first transformed to a
+    non-linear preceptual domain before coding. The transformation is
+    log-based when the sample's magnitude is greater than 1, and
+    power-law otherwise.
+
+* Improved support for the ``colorInteropID`` standard attribute as a
+  mechanism to identify the color space of the RGB images:
+
+  - Added support for ``colorInteropID`` to command-line tool ``exrstdattr``.
+  - Added API functions to validate color metadata in the header to both the C++ and core APIs.
+  - Extended the exrinfo command-line tool to print warnings regarding header color metadata.
+  - Added helper functions to convert between chromaticities and ``colorInteropID``.
+  - Added Python bindings for all new functions.
+  - See `An ID for Color
+    Interop <https://github.com/AcademySoftwareFoundation/ColorInterop/blob/main/Recommendations/03_ColorInteropID/ColorInteropID.md>`_
+    and `Identifying the Color Space of OpenEXR
+    Files <https://github.com/AcademySoftwareFoundation/ColorInterop/blob/main/Recommendations/04_OpenEXRFiles/OpenEXRFiles.md>`_
+    for details. 
+
+* Support for a cache for a (de)compression context in the core decode pipeline.
+
+  - This is a backwards compatible change (i.e. older versions of code
+    compiled against previous headers will still work), with the
+    exception that it does add the requirement that application code
+    actually use the provided initializer when defining
+    ``exr_decode_pipeline_t`` objects. 
+
+* For the OpenEXR python module:
+  - Support for the ``idManifest`` attribute and object
+  - Support for multithreaded read and write
+  - Support for reading/writing from/to ``BytesIO`` object
+  - Add ``setMaxImageSize/setMaxTileSize`` functions
+
+* Other changes:
+
+  - ``AcesInputFile/AcesOutputFile`` and ``exr2aces`` as marked as
+    deprecated and will be removed in a future release.
+  - Improved handling of many channels
+  - All Imath headers are now included internally via ``#include <Imath/...>``
+  - Remove ``iex_debugTrap()`` function (was not used)
+  - Improved ``ChannelList`` Iterator API
+  - Fixed a bug that with DWA compression that could silently produce
+    corrupted files. 
+
+* Also of note:
+
+  - The vendored version of deflate is 1.26
+  - The vendored version of OpenJPH is 0.32.0
+  - The minimum required version of OpenJPH is 0.32.0
+  
+### Security
+
+This release addresses the following security vulnerabilities:
+
+* OSS-Fuzz `514487287 <https://issues.oss-fuzz.com/issues/514487287>`_
+  Floating-point-exception in ``part_exceeds_memory_limits``
+* OSS-Fuzz `514423826 <https://issues.oss-fuzz.com/issues/514423826>`_
+  Divide-by-zero in ``part_exceeds_memory_limits``
+* OSS-Fuzz `513282267 <https://issues.oss-fuzz.com/issues/513282267>`_
+  Timeout in ``openexr_exrgaps_fuzzer``
+* OSS-Fuzz `512988066 <https://issues.oss-fuzz.com/issues/512988066>`_
+  Out-of-memory in ``openexr_exrgaps_fuzzer``
+
+
+August 21, 2026 - OpenEXR 3.4.15, 3.3.14, 3.2.12 Released
+=========================================================
+
+v3.4.15, v3.3.14, and v3.2.12 fix two memory issues when parsing
+IDManifests. Corrupt or maliciously formed OpenEXR images could
+trigger excessive memory allocation, but only in code which decodes
+the idmanifest attribute.  Other code is unaffected, even when
+handling files with idmanifest attributes
+
+CVEs have been requested for these issues.
+
+The v3.4.15 release also fixes a missing export for Windows builds,
+and reduces compiler warnings when compiling example code.
+
+
+August 6, 2026 - OpenEXR 3.4.14, 3.3.13, v3.2.11 Released
+=========================================================
+
+v3.4.14, v3.3.13, and v3.2.11 are a security-focused patch
+releases. v3.4.14 fixes 15 CVEs plus a broad set of additional
+hardening changes uncovered by the same fuzzing/audit effort. v3.3.13
+and v3.2.11 backport the relevent CVE fixes to the v3.3 and v3.2
+release stream, respectively. See the individual release notes for
+details.
+
+For each of these vulnerabilities, an attacker's vector is a
+maliciously crafted ``.exr`` file that must be opened by a victim,
+whether through the OpenEXR/OpenEXRUtil C++ libraries, the
+command-line tools (``exrmetrics``, ``exrmultiview``, ``exrmultipart``), or
+the PyOpenEXR Python bindings. The primary flaw for most of the CVEs
+is **memory corruption** — heap buffer overflows and out-of-bounds
+reads/writes — which at minimum crashes the reading process (denial of
+service) and in several cases could plausibly be leveraged for
+information disclosure or, in the worst cases, arbitrary code
+execution.
+
+No user interaction beyond opening the file is required, so any
+pipeline, service, or application that decodes untrusted or
+third-party EXR files should treat this as a priority
+upgrade. Severity generally ranges from **moderate** (crash-only, or
+requiring an uncommon build configuration) to **high** (heap overflow
+reachable with a small, easily-crafted file on common configurations).
+
+The individual vulnerabilities fall into four broad groups:
+
+* **PyOpenEXR RGB-channel-coalescing bugs**
+  (`CVE-2026-68514 <https://www.cve.org/CVERecord?id=CVE-2026-68514>`_,
+  `CVE-2026-68513 <https://www.cve.org/CVERecord?id=CVE-2026-68513>`_,
+  `CVE-2026-62986 <https://www.cve.org/CVERecord?id=CVE-2026-62986>`_,
+  `CVE-2026-61703 <https://www.cve.org/CVERecord?id=CVE-2026-61703>`_).
+  When the Python bindings combine per-channel data (e.g. ``left.R``,
+  ``left.G``, ``left.B``) into a single coalesced RGB array, conflicting or
+  mismatched channel names/types were not fully validated, which could
+  undersize the destination NumPy buffer. The result is a heap buffer
+  overflow on read, or, in the deep-image case, disclosure of
+  uninitialized ("stale") heap memory through the returned array. This
+  affects only code paths that read files with ``separate_channels=False``
+  (the default for RGB coalescing).
+
+* **Integer-overflow-driven heap overflows on 32-bit (ILP32) builds**
+  (`CVE-2026-59985 <https://www.cve.org/CVERecord?id=CVE-2026-59985>`_,
+  `CVE-2026-59984 <https://www.cve.org/CVERecord?id=CVE-2026-59984>`_,
+  `CVE-2026-59983 <https://www.cve.org/CVERecord?id=CVE-2026-59983>`_,
+  `CVE-2026-59982 <https://www.cve.org/CVERecord?id=CVE-2026-59982>`_,
+  `CVE-2026-59981 <https://www.cve.org/CVERecord?id=CVE-2026-59981>`_,
+  `CVE-2026-59189 <https://www.cve.org/CVERecord?id=CVE-2026-59189>`_,
+  `CVE-2026-59186 <https://www.cve.org/CVERecord?id=CVE-2026-59186>`_).
+  On platforms where ``size_t``/``int`` are 32 bits, buffer sizes computed
+  from attacker-controlled header fields (dimensions, sample counts,
+  tile sizes) could overflow before an allocation or bounds check,
+  yielding an undersized buffer and a subsequent heap out-of-bounds
+  read or write during RLE, B44/B44A, or DWAA decompression, deep
+  sample-count-table decoding, or large-tile handling. These do not
+  affect typical 64-bit desktop/server builds, but are significant for
+  32-bit Linux, embedded, and some mobile/CI targets.
+
+* **Heap out-of-bounds access in ``OpenEXRUtil`` and the command-line
+  tools with non-default data windows**
+  (`CVE-2026-59981 <https://www.cve.org/CVERecord?id=CVE-2026-59981>`_,
+  `CVE-2026-59189 <https://www.cve.org/CVERecord?id=CVE-2026-59189>`_,
+  `CVE-2026-59187 <https://www.cve.org/CVERecord?id=CVE-2026-59187>`_,
+  `CVE-2026-59186 <https://www.cve.org/CVERecord?id=CVE-2026-59186>`_,
+  `CVE-2026-59184 <https://www.cve.org/CVERecord?id=CVE-2026-59184>`_).
+  ``FlatImageChannel``/``DeepImageChannel``/``SampleCountChannel`` row
+  addressing, and the deep-pixel path in ``exrmetrics``, assumed a
+  data window originating at (0, 0). Crafted files with a nonzero data
+  window origin, or subsampled channels, caused row-address
+  computations to land outside the allocated buffer, producing a heap
+  read or write out of bounds.
+
+* **Crashes from malformed metadata (denial of service)**
+  (`CVE-2026-61555 <https://www.cve.org/CVERecord?id=CVE-2026-61555>`_,
+  `CVE-2026-59183 <https://www.cve.org/CVERecord?id=CVE-2026-59183>`_).
+  An empty ``multiView`` attribute could crash ``viewFromChannelName()``,
+  and a signed integer overflow while decoding deep tile chunks could
+  lead to an out-of-bounds access. Both are reachable simply by opening
+  a crafted file and result in a crash rather than corrupting memory
+  in an attacker-controlled way.
+
+Beyond the formally-numbered CVEs, this release includes a large batch
+of fixes found by the same audit/fuzzing effort:
+
+* reject truncated or short compressed streams before unpacking
+  (zlib, RLE, DWA, ``NO_COMPRESSION``) instead of reading past the end
+  of the input;
+
+* reject oversized allocation requests instead of overflowing size
+  computations (``Array2D``, exrmetrics, exrmultipart channel stores,
+  DWAA/B44 scratch buffers);
+
+* add ``NULL``-pointer checks in several ``OpenEXRCore`` C-API setters
+  (channel list duplication, preview image, ``bytes`` attributes);
+
+* fix a ``Name::operator=`` truncation/termination bug;
+
+* close a double-free warning in ``ImfTiledMisc``.
+
+This release also fixes a long-standing correctness bug (not a
+security issue) in byte-swapping float-vector attributes that caused
+incorrect results and test failures on big-endian s390x builds.
+
+This release also bumps the vendored OpenJPH version to 0.31.0.
+
+CVEs addressed:
+
+* `CVE-2026-68514 <https://www.cve.org/CVERecord?id=CVE-2026-68514>`_
+  PyOpenEXR deep prefixed literal RGB key collision heap buffer overflow
+* `CVE-2026-68513 <https://www.cve.org/CVERecord?id=CVE-2026-68513>`_
+  PyOpenEXR prefixed literal RGB key collision heap buffer overflow
+* `CVE-2026-62986 <https://www.cve.org/CVERecord?id=CVE-2026-62986>`_
+  PyOpenEXR deep prefixed RGB stale lane disclosure
+* `CVE-2026-61703 <https://www.cve.org/CVERecord?id=CVE-2026-61703>`_
+  PyOpenEXR deep mixed RGB heap buffer overflow
+* `CVE-2026-61555 <https://www.cve.org/CVERecord?id=CVE-2026-61555>`_
+  empty multiView viewFromChannelName file crash
+* `CVE-2026-59985 <https://www.cve.org/CVERecord?id=CVE-2026-59985>`_
+  ILP32 OpenEXRCore RLE decode heap OOB read DoS
+* `CVE-2026-59984 <https://www.cve.org/CVERecord?id=CVE-2026-59984>`_
+  ILP32 B44 InputFile decode scratch buffer overflow
+* `CVE-2026-59983 <https://www.cve.org/CVERecord?id=CVE-2026-59983>`_
+  ILP32 DeepTiledInputFile sample count table decode OOB read
+* `CVE-2026-59982 <https://www.cve.org/CVERecord?id=CVE-2026-59982>`_
+  ILP32 DWAA InputFile packed AC buffer overflow
+* `CVE-2026-59981 <https://www.cve.org/CVERecord?id=CVE-2026-59981>`_
+  OpenEXRUtil SampleCountChannel row nonzero dataWindow heap OOB read
+* `CVE-2026-59189 <https://www.cve.org/CVERecord?id=CVE-2026-59189>`_
+  OpenEXRUtil DeepImageChannel row nonzero dataWindow heap OOB read
+* `CVE-2026-59187 <https://www.cve.org/CVERecord?id=CVE-2026-59187>`_
+  OpenEXR exrmetrics deep pixelmode heap buffer overflow
+* `CVE-2026-59186 <https://www.cve.org/CVERecord?id=CVE-2026-59186>`_
+  OpenEXR ILP32 TiledRgbaInputFile large tile Array2D heap OOB write
+* `CVE-2026-59184 <https://www.cve.org/CVERecord?id=CVE-2026-59184>`_
+  OpenEXRUtil FlatImageChannel row nonzero dataWindow heap OOB write
+* `CVE-2026-59183 <https://www.cve.org/CVERecord?id=CVE-2026-59183>`_
+  Signed Integer Overflow Leading to Out-of-Bounds Memory Access in Deep Tile Decoding
+
+
+June 19, 2026 - OpenEXR 3.4.13 Released
+=======================================
 
 Patch release that addresses several bugs and security
 vulnerabilities.
@@ -47,7 +333,6 @@ This release addresses the following security vulnerabilities:
 * `CVE-2026-53532 <https://www.cve.org/CVERecord?id=CVE-2026-53532>`_
   Unhandled assert abort in HTJ2K decoder via crafted QCD marker (DoS)
 
-.. _LatestNewsEnd:
 
 June 21, 2026 - OpenEXR 3.3.12 and OpenEXR v3.2.10 Released
 ===========================================================
@@ -110,16 +395,16 @@ April 29, 2026 - OpenEXR 3.4.11 Released
 Patch release that addresses the following security vulnerabilities:
 
 * `CVE-2026-42217 <https://www.cve.org/CVERecord?id=CVE-2026-42217>`_
-Shift exponent overflow in ``readVariableLengthInteger()`` (``ImfIDManifest.cpp``)
+  Shift exponent overflow in ``readVariableLengthInteger()`` (``ImfIDManifest.cpp``)
 * `CVE-2026-42216 <https://www.cve.org/CVERecord?id=CVE-2026-42216>`_
-Out-of-bounds read in ``IDManifest::init()`` during prefix expansion
+  Out-of-bounds read in ``IDManifest::init()`` during prefix expansion
 * `CVE-2026-41142 <https://www.cve.org/CVERecord?id=CVE-2026-41142>`_
-Integer overflow in ``ImageChannel::resize`` leads to heap OOB write via OpenEXRUtil public API
+  Integer overflow in ``ImageChannel::resize`` leads to heap OOB write via OpenEXRUtil public API
 
 * OSS-fuzz `504280155 <https://issues.oss-fuzz.com/issues/504280155>`_
-Heap-buffer-overflow in ``DwaCompressor_uncompress``
+  Heap-buffer-overflow in ``DwaCompressor_uncompress``
 * OSS-fuzz `505062709 <https://issues.oss-fuzz.com/issues/505062709>`_
-Null-dereference READ in ``Imf_3_3::prefixFromLayerName``
+  Null-dereference READ in ``Imf_3_3::prefixFromLayerName``
 
 Build fixes:
 
@@ -139,16 +424,16 @@ Patch release for 3.3 that addresses the following security
 vulnerabilities:
 
 * `CVE-2026-42217 <https://www.cve.org/CVERecord?id=CVE-2026-42217>`_
-Shift exponent overflow in ``readVariableLengthInteger()`` (``ImfIDManifest.cpp``)
+  Shift exponent overflow in ``readVariableLengthInteger()`` (``ImfIDManifest.cpp``)
 * `CVE-2026-42216 <https://www.cve.org/CVERecord?id=CVE-2026-42216>`_
-Out-of-bounds read in ``IDManifest::init()`` during prefix expansion
+  Out-of-bounds read in ``IDManifest::init()`` during prefix expansion
 * `CVE-2026-41142 <https://www.cve.org/CVERecord?id=CVE-2026-41142>`_
-Integer overflow in ``ImageChannel::resize`` leads to heap OOB write via OpenEXRUtil public API
+  Integer overflow in ``ImageChannel::resize`` leads to heap OOB write via OpenEXRUtil public API
 
 Also:
 
 * OSS-fuzz `504280155 <https://issues.oss-fuzz.com/issues/504280155>`_
-Heap-buffer-overflow in ``DwaCompressor_uncompress``
+  Heap-buffer-overflow in ``DwaCompressor_uncompress``
 
 April 29, 2026 - OpenEXR 3.2.9 Released
 =======================================
@@ -157,16 +442,16 @@ Patch release for 3.2 that addresses the following security
 vulnerabilities:
 
 * `CVE-2026-42217 <https://www.cve.org/CVERecord?id=CVE-2026-42217>`_
-Shift exponent overflow in ``readVariableLengthInteger()`` (``ImfIDManifest.cpp``)
+  Shift exponent overflow in ``readVariableLengthInteger()`` (``ImfIDManifest.cpp``)
 * `CVE-2026-42216 <https://www.cve.org/CVERecord?id=CVE-2026-42216>`_
-Out-of-bounds read in ``IDManifest::init()`` during prefix expansion
+  Out-of-bounds read in ``IDManifest::init()`` during prefix expansion
 * `CVE-2026-41142 <https://www.cve.org/CVERecord?id=CVE-2026-41142>`_
-Integer overflow in ``ImageChannel::resize`` leads to heap OOB write via OpenEXRUtil public API
+  Integer overflow in ``ImageChannel::resize`` leads to heap OOB write via OpenEXRUtil public API
 
 Also:
 
 * OSS-fuzz `504280155 <https://issues.oss-fuzz.com/issues/504280155>`_
-Heap-buffer-overflow in ``DwaCompressor_uncompress``
+  Heap-buffer-overflow in ``DwaCompressor_uncompress``
 
 April 17, 2026 - OpenEXR 3.4.10 Released
 ========================================
@@ -267,7 +552,7 @@ Patch release bug/build fixes:
 * Fix build failure with glibc 2.43
 * Fix Windows symbol visibility warnings
 
-Full changelog: ``v3.4.6..v3.4.7 <https://github.com/AcademySoftwareFoundation/openexr/compare/v3.4.6..v3.4.7>``_
+Full changelog: `v3.4.6..v3.4.7 <https://github.com/AcademySoftwareFoundation/openexr/compare/v3.4.6..v3.4.7>`_
 
 March  1, 2026 - OpenEXR 3.4.6 Released
 =======================================
@@ -556,11 +841,11 @@ Other New Features:
 
   - The contents of the string is described in the specification `An
     ID for Color
-    Interop <https://docs.google.com/document/d/1T94lYbis9uCskL_ZEMxGBF2JryLfZnjxlEoNgRHZzBE/edit?usp=sharing>`_.
+    Interop <https://github.com/AcademySoftwareFoundation/ColorInterop/blob/main/Recommendations/03_ColorInteropID/ColorInteropID.md>`_.
 
   - Guidance to application developers is provided in `Identifying the
     Color Space of OpenEXR
-    Files <https://docs.google.com/document/d/1MTH1bq2L67ifvdDf64Amhzg4AbkIM5LG6yPHrB96Vwo/edit?usp=sharing>`_
+    Files <https://github.com/AcademySoftwareFoundation/ColorInterop/blob/main/Recommendations/04_OpenEXRFiles/OpenEXRFiles.md>`_
 
 * ✨ **New `bytes` attribute type**
 

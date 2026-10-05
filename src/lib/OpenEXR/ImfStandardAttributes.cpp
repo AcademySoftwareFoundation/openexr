@@ -109,8 +109,10 @@ IMF_STD_ATTRIBUTE_IMP (framesPerSecond, FramesPerSecond, Rational)
 IMF_STD_ATTRIBUTE_IMP (imageCounter, ImageCounter, int)
 IMF_STD_ATTRIBUTE_IMP (reelName, ReelName, string)
 IMF_STD_ATTRIBUTE_IMP (chromaticities, Chromaticities, Chromaticities)
+IMF_STD_ATTRIBUTE_IMP (colorInteropID, ColorInteropID, string)
 IMF_STD_ATTRIBUTE_IMP (whiteLuminance, WhiteLuminance, float)
 IMF_STD_ATTRIBUTE_IMP (adoptedNeutral, AdoptedNeutral, V2f)
+IMF_STD_ATTRIBUTE_IMP (acesImageContainerFlag, AcesImageContainerFlag, int)
 
 #if defined(_MSC_VER)
     __pragma(warning(push))
@@ -133,6 +135,5 @@ IMF_STD_ATTRIBUTE_IMP (wrapmodes, Wrapmodes, string)
 IMF_STD_ATTRIBUTE_IMP (multiView, MultiView, StringVector)
 IMF_STD_ATTRIBUTE_IMP (deepImageState, DeepImageState, DeepImageState)
 IMF_STD_ATTRIBUTE_IMP (idManifest, IDManifest, CompressedIDManifest)
-IMF_STD_ATTRIBUTE_IMP (colorInteropID, ColorInteropID, string)
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

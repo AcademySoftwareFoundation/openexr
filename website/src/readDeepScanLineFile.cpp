@@ -3,6 +3,19 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
+#include <ImfHeader.h>
+#include <ImfArray.h>
+#include <ImfInputFile.h>
+#include <ImfFrameBuffer.h>
+#include <ImfDeepScanLineInputFile.h>
+#include <ImfDeepFrameBuffer.h>
+
+#include <Iex.h>
+
+using namespace IMATH_NAMESPACE;
+using namespace IEX_NAMESPACE;
+using namespace OPENEXR_IMF_NAMESPACE;
+
 void
 readDeepScanLineFile (
     const char             filename[],

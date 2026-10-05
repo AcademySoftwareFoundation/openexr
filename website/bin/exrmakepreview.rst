@@ -10,7 +10,7 @@ exrmakepreview
     exrmakepreview [options] infile outfile
 
 Description
------------
+===========
 
 Read an OpenEXR image from infile, generate a preview
 image, add it to the image's header, and save the result
@@ -18,7 +18,7 @@ in outfile.  Infile and outfile must not refer to the same
 file (the program cannot edit an image file "in place").
 
 Options:
---------
+========
 
 .. describe:: -w x          
 

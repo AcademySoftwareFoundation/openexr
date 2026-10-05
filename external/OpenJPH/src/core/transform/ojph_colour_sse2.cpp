@@ -45,6 +45,9 @@
 #include "ojph_mem.h"
 #include "ojph_colour.h"
 
+#include "ojph_params.h"
+#include "../codestream/ojph_params_local.h"
+
 #include <emmintrin.h>
 
 namespace ojph {
@@ -180,7 +183,7 @@ namespace ojph {
       line_buf *dst_line, ui32 dst_line_offset,
       ui32 bit_depth, bool is_signed, ui32 width)
     {
-      local_sse2_irv_convert_to_integer<false>(src_line, dst_line, 
+      local_sse2_irv_convert_to_integer<false>(src_line, dst_line,
         dst_line_offset, bit_depth, is_signed, width);
     }
 
@@ -189,8 +192,124 @@ namespace ojph {
       line_buf *dst_line, ui32 dst_line_offset,
       ui32 bit_depth, bool is_signed, ui32 width)
     {
-      local_sse2_irv_convert_to_integer<true>(src_line, dst_line, 
+      local_sse2_irv_convert_to_integer<true>(src_line, dst_line,
         dst_line_offset, bit_depth, is_signed, width);
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    template<int NLT_TYPE>
+    static inline
+    void local_sse2_irv_convert_to_integer_nlt2or4(const line_buf *src_line,
+      line_buf *dst_line, ui32 dst_line_offset,
+      ui32 bit_depth, bool is_signed, ui32 width, const nlt_rec* rec)
+    {
+      ojph_unused(bit_depth);
+      ojph_unused(is_signed);
+
+      assert((src_line->flags & line_buf::LFT_32BIT) &&
+             (src_line->flags & line_buf::LFT_INTEGER) == 0 &&
+             (dst_line->flags & line_buf::LFT_32BIT) &&
+             (dst_line->flags & line_buf::LFT_INTEGER));
+
+      assert(bit_depth <= 32);
+      uint32_t rounding_mode = _MM_GET_ROUNDING_MODE();
+      _MM_SET_ROUNDING_MODE(_MM_ROUND_NEAREST);
+
+      const float* sp = src_line->f32;
+      si32* dp = dst_line->i32 + dst_line_offset;
+
+      __m128 mul = _mm_set1_ps(rec->multiplier);
+      __m128 d_min = _mm_set1_ps(rec->fd_min);
+      __m128 d_max = _mm_set1_ps(rec->fd_max);
+      __m128 delta = _mm_set1_ps(rec->delta);
+      __m128 inv_delta = _mm_set1_ps(rec->inv_delta);
+      const float* lut = rec->dec_points;
+
+      __m128 half_ps = _mm_set1_ps(0.5f);
+
+      if (rec->is_signed())
+      {
+        __m128 half = _mm_set1_ps((float)(1ULL << (rec->get_bit_depth() - 1)));
+        __m128i bias =
+          _mm_set1_epi32(-(si32)((1ULL << (rec->get_bit_depth() - 1)) + 1));
+        __m128i zero = _mm_setzero_si128();
+        for (int i = (int)width; i > 0; i -= 4, sp += 4, dp += 4) {
+          __m128 t = _mm_loadu_ps(sp);
+          t = _mm_add_ps(t, half_ps);                 // convert to [0, 1]
+          t = _mm_max_ps(t, d_min);
+          t = _mm_min_ps(t, d_max);
+          __m128i k = _mm_cvttps_epi32(
+            _mm_mul_ps(_mm_sub_ps(t, d_min), inv_delta));
+          __m128 d_k = _mm_add_ps(d_min,
+            _mm_mul_ps(_mm_cvtepi32_ps(k), delta));
+          // SSE2 has no gather; perform the LUT lookup 4 times and build
+          // the vector from the individual results
+          si32 kk[4];
+          _mm_storeu_si128((__m128i*)kk, k);
+          __m128 t_k = _mm_set_ps(lut[kk[3]], lut[kk[2]],
+                                  lut[kk[1]], lut[kk[0]]);
+          __m128 t_kp1 = _mm_set_ps(lut[kk[3] + 1], lut[kk[2] + 1],
+                                    lut[kk[1] + 1], lut[kk[0] + 1]);
+          __m128 z = _mm_add_ps(t_k,
+            _mm_mul_ps(_mm_mul_ps(_mm_sub_ps(t, d_k), inv_delta),
+              _mm_sub_ps(t_kp1, t_k)));
+          __m128i v =
+            _mm_cvtps_epi32(_mm_sub_ps(_mm_mul_ps(z, mul), half));
+          if (NLT_TYPE == 4)
+          {
+            __m128i c = _mm_cmpgt_epi32(zero, v); // 0xFFFFFFFF for -ve val
+            __m128i neg = _mm_sub_epi32(bias, v); // - bias - value
+            neg = _mm_and_si128(c, neg);          // keep only - bias - val
+            v = _mm_andnot_si128(c, v);           // keep only +ve or 0
+            v = _mm_or_si128(neg, v);             // combine
+          }
+          _mm_storeu_si128((__m128i*)dp, v);
+        }
+      }
+      else
+      {
+        for (int i = (int)width; i > 0; i -= 4, sp += 4, dp += 4) {
+          __m128 t = _mm_loadu_ps(sp);
+          t = _mm_add_ps(t, half_ps);                 // convert to [0, 1]
+          t = _mm_max_ps(t, d_min);
+          t = _mm_min_ps(t, d_max);
+          __m128i k = _mm_cvttps_epi32(
+            _mm_mul_ps(_mm_sub_ps(t, d_min), inv_delta));
+          __m128 d_k = _mm_add_ps(d_min,
+            _mm_mul_ps(_mm_cvtepi32_ps(k), delta));
+          // SSE2 has no gather; perform the LUT lookup 4 times and build
+          // the vector from the individual results
+          si32 kk[4];
+          _mm_storeu_si128((__m128i*)kk, k);
+          __m128 t_k = _mm_set_ps(lut[kk[3]], lut[kk[2]],
+                                  lut[kk[1]], lut[kk[0]]);
+          __m128 t_kp1 = _mm_set_ps(lut[kk[3] + 1], lut[kk[2] + 1],
+                                    lut[kk[1] + 1], lut[kk[0] + 1]);
+          __m128 z = _mm_add_ps(t_k,
+            _mm_mul_ps(_mm_mul_ps(_mm_sub_ps(t, d_k), inv_delta),
+              _mm_sub_ps(t_kp1, t_k)));
+          __m128i v = _mm_cvtps_epi32(_mm_mul_ps(z, mul));
+          _mm_storeu_si128((__m128i*)dp, v);
+        }
+      }
+
+      _MM_SET_ROUNDING_MODE(rounding_mode);
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    void sse2_irv_convert_to_integer_nlt(const line_buf *src_line,
+      line_buf *dst_line, ui32 dst_line_offset,
+      ui32 bit_depth, bool is_signed, ui32 width, const nlt_rec* rec)
+    {
+      using nl = nlt_rec::nonlinearity;
+      if (rec->get_type() == nl::OJPH_NLT_LUT_STYLE_NLT)
+        local_sse2_irv_convert_to_integer_nlt2or4<2>(src_line, dst_line,
+          dst_line_offset, bit_depth, is_signed, width, rec);
+      else if (rec->get_type() == nl::OJPH_NLT_BINARY_COMPLEMENT_PLUS_LUT)
+        local_sse2_irv_convert_to_integer_nlt2or4<4>(src_line, dst_line,
+          dst_line_offset, bit_depth, is_signed, width, rec);
+      else
+        assert(0);
     }
 
     /////////////////////////////////////////////////////////////////////////
@@ -459,6 +578,112 @@ namespace ojph {
     {
       local_sse2_irv_convert_to_float<true>(src_line, src_line_offset,
         dst_line, bit_depth, is_signed, width);
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    template<int NLT_TYPE>
+    static inline
+    void local_sse2_irv_convert_to_float_nlt2or4(const line_buf *src_line,
+      ui32 src_line_offset, line_buf *dst_line,
+      ui32 bit_depth, bool is_signed, ui32 width, const nlt_rec* rec)
+    {
+      ojph_unused(is_signed);
+
+      assert((src_line->flags & line_buf::LFT_32BIT) &&
+             (src_line->flags & line_buf::LFT_INTEGER) &&
+             (dst_line->flags & line_buf::LFT_32BIT) &&
+             (dst_line->flags & line_buf::LFT_INTEGER) == 0);
+
+      assert(bit_depth <= 32);
+      __m128 mul = _mm_set1_ps((float)(1.0 / (double)(1ULL << bit_depth)));
+      __m128 d_min = _mm_set1_ps(rec->ft_min);
+      __m128 d_max = _mm_set1_ps(rec->ft_max);
+      __m128 delta = _mm_set1_ps(rec->delta);
+      __m128 inv_delta = _mm_set1_ps(rec->inv_delta);
+      const float* lut = rec->enc_points;
+
+      __m128 half_ps = _mm_set1_ps(0.5f);
+
+      const si32* sp = src_line->i32 + src_line_offset;
+      float* dp = dst_line->f32;
+      if (rec->is_signed())
+      {
+        __m128i bias =
+          _mm_set1_epi32(-(si32)((1ULL << (rec->get_bit_depth() - 1)) + 1));
+        __m128i zero = _mm_setzero_si128();
+        for (int i = (int)width; i > 0; i -= 4, sp += 4, dp += 4) {
+          __m128i v = _mm_loadu_si128((__m128i*)sp);
+          if (NLT_TYPE == 4)
+          {
+            __m128i c = _mm_cmpgt_epi32(zero, v); // 0xFFFFFFFF for -ve val
+            __m128i neg = _mm_sub_epi32(bias, v); // - bias - value
+            neg = _mm_and_si128(c, neg);          // keep only - bias - val
+            v = _mm_andnot_si128(c, v);           // keep only +ve or 0
+            v = _mm_or_si128(neg, v);             // combine
+          }
+          __m128 t = _mm_add_ps(                      // convert to [0, 1]
+            _mm_mul_ps(_mm_cvtepi32_ps(v), mul), half_ps);
+          t = _mm_max_ps(t, d_min);
+          t = _mm_min_ps(t, d_max);
+          __m128i k = _mm_cvttps_epi32(
+            _mm_mul_ps(_mm_sub_ps(t, d_min), inv_delta));
+          __m128 d_k = _mm_add_ps(d_min,
+            _mm_mul_ps(_mm_cvtepi32_ps(k), delta));
+          // SSE2 has no gather; perform the LUT lookup 4 times and build
+          // the vector from the individual results
+          si32 kk[4];
+          _mm_storeu_si128((__m128i*)kk, k);
+          __m128 t_k = _mm_set_ps(lut[kk[3]], lut[kk[2]],
+                                  lut[kk[1]], lut[kk[0]]);
+          __m128 t_kp1 = _mm_set_ps(lut[kk[3] + 1], lut[kk[2] + 1],
+                                    lut[kk[1] + 1], lut[kk[0] + 1]);
+          __m128 y = _mm_add_ps(t_k,
+            _mm_mul_ps(_mm_mul_ps(_mm_sub_ps(t, d_k), inv_delta),
+              _mm_sub_ps(t_kp1, t_k)));
+          _mm_storeu_ps(dp, _mm_sub_ps(y, half_ps));
+        }
+      }
+      else
+      {
+        for (int i = (int)width; i > 0; i -= 4, sp += 4, dp += 4) {
+          __m128i v = _mm_loadu_si128((__m128i*)sp);
+          __m128 t = _mm_mul_ps(_mm_cvtepi32_ps(v), mul);  // in [0, 1]
+          t = _mm_max_ps(t, d_min);
+          t = _mm_min_ps(t, d_max);
+          __m128i k = _mm_cvttps_epi32(
+            _mm_mul_ps(_mm_sub_ps(t, d_min), inv_delta));
+          __m128 d_k = _mm_add_ps(d_min,
+            _mm_mul_ps(_mm_cvtepi32_ps(k), delta));
+          // SSE2 has no gather; perform the LUT lookup 4 times and build
+          // the vector from the individual results
+          si32 kk[4];
+          _mm_storeu_si128((__m128i*)kk, k);
+          __m128 t_k = _mm_set_ps(lut[kk[3]], lut[kk[2]],
+                                  lut[kk[1]], lut[kk[0]]);
+          __m128 t_kp1 = _mm_set_ps(lut[kk[3] + 1], lut[kk[2] + 1],
+                                    lut[kk[1] + 1], lut[kk[0] + 1]);
+          __m128 y = _mm_add_ps(t_k,
+            _mm_mul_ps(_mm_mul_ps(_mm_sub_ps(t, d_k), inv_delta),
+              _mm_sub_ps(t_kp1, t_k)));
+          _mm_storeu_ps(dp, _mm_sub_ps(y, half_ps));
+        }
+      }
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    void sse2_irv_convert_to_float_nlt(const line_buf *src_line,
+      ui32 src_line_offset, line_buf *dst_line,
+      ui32 bit_depth, bool is_signed, ui32 width, const nlt_rec* rec)
+    {
+      using nl = nlt_rec::nonlinearity;
+      if (rec->get_type() == nl::OJPH_NLT_LUT_STYLE_NLT)
+        local_sse2_irv_convert_to_float_nlt2or4<2>(src_line,
+          src_line_offset, dst_line, bit_depth, is_signed, width, rec);
+      else if (rec->get_type() == nl::OJPH_NLT_BINARY_COMPLEMENT_PLUS_LUT)
+        local_sse2_irv_convert_to_float_nlt2or4<4>(src_line,
+          src_line_offset, dst_line, bit_depth, is_signed, width, rec);
+      else
+        assert(0);
     }
 
     //////////////////////////////////////////////////////////////////////////

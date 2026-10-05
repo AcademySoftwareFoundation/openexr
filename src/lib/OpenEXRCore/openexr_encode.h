@@ -277,6 +277,9 @@ typedef struct _exr_encode_pipeline
      * this being used.
      */
     exr_coding_channel_info_t _quick_chan_store[5];
+
+    /** When set, skip compressing the sample count table separately. */
+    int skip_sample_count_table_compression;
 } exr_encode_pipeline_t;
 
 /** @brief Simple macro to initialize an empty decode pipeline. */

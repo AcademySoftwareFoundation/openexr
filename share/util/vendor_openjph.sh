@@ -107,15 +107,6 @@ a\
 endif()
 }' OpenJPH/src/core/CMakeLists.txt
 
-# Headers live under "common" in older OpenJPH releases but are included via
-# "openjph/ojph_arch.h". Rename the directory if needed.
-if [ -d OpenJPH/src/core/common ]; then
-    mv OpenJPH/src/core/common OpenJPH/src/core/openjph
-    "${sed_cmd[@]}" 's,/common/,/openjph/,' OpenJPH/ojph_version.cmake
-    "${sed_cmd[@]}" 's,/common,/openjph,' OpenJPH/src/core/CMakeLists.txt
-    "${sed_cmd[@]}" 's,common/,openjph/,' OpenJPH/src/core/CMakeLists.txt
-fi
-
 if [[ -n "${master_sha:-}" ]]; then
   echo "#define OPENJPH_VERSION_SHA ${master_sha}" >> OpenJPH/src/core/openjph/ojph_version.h
 fi

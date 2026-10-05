@@ -140,7 +140,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
             exr_chunk_info_t cinfo;
             if (exr_read_scanline_chunk_info(rf, part_idx, y, &cinfo) != EXR_ERR_SUCCESS) break;
 
-            exr_decode_pipeline_t decoder;
+            exr_decode_pipeline_t decoder = EXR_DECODE_PIPELINE_INITIALIZER;
             if (exr_decoding_initialize(rf, part_idx, &cinfo, &decoder) != EXR_ERR_SUCCESS) break;
 
             std::vector<std::vector<uint8_t>> out_data(decoder.channel_count);

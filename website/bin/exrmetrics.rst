@@ -10,12 +10,12 @@ exrmetrics
     exrmetrics [options] infile [infile2...] [-o outfile]
 
 Description
------------
+===========
 
 Read an OpenEXR image from infile, write an identical copy to outfile reporting time taken to read/write and file sizes.
 
 Options:
---------
+========
 
 .. describe:: -o file
 
@@ -112,11 +112,11 @@ Options:
 
 
 Example Usage:
---------------
+==============
 
 Basic usage: report sizes and read time, write time, reread time.
 
-.. code-block::
+.. code-block:: console
 
    % exrmetrics input.exr -o output.exr
    [
@@ -157,7 +157,7 @@ Basic usage: report sizes and read time, write time, reread time.
 Report read time, write time, re-read time with each available
 compression type:
 
-.. code-block::
+.. code-block:: console
 
    % exrmetrics --bench *.exr
    file name,compression,pixel mode,write time,count reread time,reread time
@@ -185,7 +185,6 @@ compression type:
 
 Just convert the file, printing no metrics:   
 
-.. code-block::
+.. code-block:: console
 
    % exrmetrics --convert -z zip input.exr -o output.exr
-      

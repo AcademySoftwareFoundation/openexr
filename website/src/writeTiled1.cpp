@@ -3,6 +3,21 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
+#include <ImfHeader.h>
+#include <ImfArray.h>
+#include <ImfFrameBuffer.h>
+#include <ImfChannelList.h>
+#include <ImfTiledOutputFile.h>
+
+using namespace IMATH_NAMESPACE;
+using namespace OPENEXR_IMF_NAMESPACE;
+
+struct GZ
+{
+    half g;
+    float z;
+};
+
 void
 writeTiled1 (
     const char   fileName[],
@@ -13,33 +28,33 @@ writeTiled1 (
     int          tileHeight)
 {
 
-    Header header (width, height);                    // 1
-    header.channels ().insert ("G", Channel (HALF));  // 2
-    header.channels ().insert ("Z", Channel (FLOAT)); // 3
+    Header header (width, height);                                      // 1
+    header.channels ().insert ("G", Channel (HALF));                    // 2
+    header.channels ().insert ("Z", Channel (FLOAT));                   // 3
 
     header.setTileDescription (
-        TileDescription (tileWidth, tileHeight, ONE_LEVEL)); // 4
+        TileDescription (tileWidth, tileHeight, ONE_LEVEL));            // 4
 
-    TiledOutputFile out (fileName, header); // 5
+    TiledOutputFile out (fileName, header);                             // 5
 
-    FrameBuffer frameBuffer; // 6
-
-    frameBuffer.insert (
-        "G", // name // 7
-        Slice (
-            HALF,                            // type // 8
-            (char*) &pixels[0][0].g,         // base // 9
-            sizeof (pixels[0][0]) * 1,       // xStride // 10
-            sizeof (pixels[0][0]) * width)); // yStride // 11
+    FrameBuffer frameBuffer;                                            // 6
 
     frameBuffer.insert (
-        "Z", // name // 12
+        "G",                                 // name                    // 7
         Slice (
-            FLOAT,                           // type // 13
-            (char*) &pixels[0][0].z,         // base // 14
-            sizeof (pixels[0][0]) * 1,       // xStride // 15
-            sizeof (pixels[0][0]) * width)); // yStride // 16
+            HALF,                            // type                    // 8
+            (char*) &pixels[0][0].g,         // base                    // 9
+            sizeof (pixels[0][0]) * 1,       // xStride                 // 10
+            sizeof (pixels[0][0]) * width)); // yStride                 // 11
 
-    out.setFrameBuffer (frameBuffer);                                  // 17
-    out.writeTiles (0, out.numXTiles () - 1, 0, out.numYTiles () - 1); // 18
+    frameBuffer.insert (
+        "Z",                                 // name                    // 12
+        Slice (
+            FLOAT,                           // type                    // 13
+            (char*) &pixels[0][0].z,         // base                    // 14
+            sizeof (pixels[0][0]) * 1,       // xStride                 // 15
+            sizeof (pixels[0][0]) * width)); // yStride                 // 16
+
+    out.setFrameBuffer (frameBuffer);                                   // 17
+    out.writeTiles (0, out.numXTiles () - 1, 0, out.numYTiles () - 1);  // 18
 }

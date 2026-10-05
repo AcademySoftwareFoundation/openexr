@@ -164,7 +164,7 @@ Packing
 Data in an OpenEXR file are densely packed; the file contains no
 "padding". For example, consider the following C struct:
 
-.. code-block::
+.. code-block:: c
 
     struct SI
     {
@@ -187,26 +187,29 @@ High-Level Layout
 Depending on whether the pixels in an OpenEXR file are stored as scan
 lines or as tiles, the file consists of the following components:
 
-+-----------+-----------------------------------------------+-----------------------------------+
-| Component | single-part file with...                      |  multi-part file:                 |
-+===========+=======================+=======================+===================================+
-|           | scan-lines:           | tiles:                |                                   |
-+-----------+-----------------------+-----------------------+-----------------------------------+
-| one       | ``magic number``      | ``magic number``      | ``magic number``                  |
-+-----------+-----------------------+-----------------------+-----------------------------------+
-| two       | ``version field``     | ``version field``     | ``version field``                 | 
-+-----------+-----------------------+-----------------------+-----------------------------------+
-| three     | ``header``            | ``header``            | * ``part 0 header``               | 
-|           |                       |                       | * ``[part 1 header]``             | 
-|           |                       |                       | * ``...``                         | 
-|           |                       |                       | * ``[<empty header>]``            | 
-+-----------+-----------------------+-----------------------+-----------------------------------+
-| four      | ``line offset table`` | ``line offset table`` | * ``part 0 chunk offset table``   |
-|           |                       |                       | * ``[part 0 chunk offset table]`` |
-|           |                       |                       | * ``...``                         |
-+-----------+-----------------------+-----------------------+-----------------------------------+
-| five      | ``scan line blocks``  | ``tiles``             | ``chunks``                        |
-+-----------+-----------------------+-----------------------+-----------------------------------+
+.. table::
+   :align: left
+
+   +-----------+-----------------------------------------------+-----------------------------------+
+   | Component | single-part file with...                      |  multi-part file:                 |
+   +===========+=======================+=======================+===================================+
+   |           | scan-lines:           | tiles:                |                                   |
+   +-----------+-----------------------+-----------------------+-----------------------------------+
+   | one       | ``magic number``      | ``magic number``      | ``magic number``                  |
+   +-----------+-----------------------+-----------------------+-----------------------------------+
+   | two       | ``version field``     | ``version field``     | ``version field``                 |
+   +-----------+-----------------------+-----------------------+-----------------------------------+
+   | three     | ``header``            | ``header``            | * ``part 0 header``               |
+   |           |                       |                       | * ``[part 1 header]``             |
+   |           |                       |                       | * ``...``                         |
+   |           |                       |                       | * ``[<empty header>]``            |
+   +-----------+-----------------------+-----------------------+-----------------------------------+
+   | four      | ``line offset table`` | ``line offset table`` | * ``part 0 chunk offset table``   |
+   |           |                       |                       | * ``[part 0 chunk offset table]`` |
+   |           |                       |                       | * ``...``                         |
+   +-----------+-----------------------+-----------------------+-----------------------------------+
+   | five      | ``scan line blocks``  | ``tiles``             | ``chunks``                        |
+   +-----------+-----------------------+-----------------------+-----------------------------------+
 
 It is the version field part which indicates whether the file is single
 or multi-part and whether the file contains deep data. “Chunk” is a
@@ -244,65 +247,68 @@ Version Field
 The version field, of type ``int``, is the four-byte group following the
 magic number, and it is treated as two separate bit fields.
 
-+---------------------+-------------------------------------------------------------------------------------------------------------------------+
-| Byte/bit position   | Description and notes                                                                                                   |
-+=====================+=========================================================================================================================+
-| first byte          | The 8 least significant bits, they                                                                                      |
-| (bits 0 through 7)  | contain the file format version number.                                                                                 |
-|                     |                                                                                                                         |
-|                     | The current OpenEXR version number is version 2.                                                                        |
-+---------------------+---------------------------------------+---------------------------------------------------------------------------------+
-| second, third and   | The 24 most significant bits, these are treated as a set of boolean flags.                                              |
-| fourth bytes (bits  |                                                                                                                         |
-| 8 through 31)       +-----------------------------+---------------------------------------+---------------------------------------------------+
-|                     | Bit 9 (the single tile bit) | Indicates that this is a single-part  | If bit 9 is 1:                                    |
-|                     | bit mask: 0x200             | file which is in tiled format.        | * this is a regular single-part image and the     |
-|                     |                             |                                       | pixels are stored as tiles, and                   |
-|                     |                             |                                       | * bits 11 and 12 must be 0.                       |
-|                     |                             |                                       |                                                   |
-|                     |                             |                                       | If bit 9 is 0, and bits 11 and 12 are also 0:     |
-|                     |                             |                                       | the data is stored as regular single-part scan    |
-|                     |                             |                                       | line file.                                        |
-|                     |                             |                                       |                                                   |
-|                     |                             |                                       | This bit is for backwards compatibility with      |
-|                     |                             |                                       | older libraries: it is only set when there is     |
-|                     |                             |                                       | one "normal" tiled image in the file.             |
-|                     +-----------------------------+---------------------------------------+---------------------------------------------------+
-|                     | Bit 10 (the long name bit)  | Indicates whether the file contains   |                                                   |
-|                     | bit mask: 0x400             | “long names”.                         |                                                   |
-|                     |                             |                                       | If bit 10 is 1, the maximum length is 255 bytes.  |
-|                     |                             |                                       |                                                   |
-|                     |                             |                                       | If bit 10 is 0, the maximum length of attribute   |
-|                     |                             |                                       | names, attribute type names and channel names     |
-|                     |                             |                                       | is 31 bytes.                                      |
-|                     +-----------------------------+---------------------------------------+---------------------------------------------------+
-|                     | Bit 11 (the non-image bit)  | Indicates whether the file contains   | If bit 11 is 1, there is at least one             |
-|                     | bit mask: 0x800             | any “non-image parts” (deep data).    | part which is not a regular scan line             |
-|                     |                             |                                       | image or regular tiled image (that is, it         |
-|                     |                             |                                       | is a deep format).                                |
-|                     |                             |                                       |                                                   |
-|                     |                             |                                       | If bit 11 is 0, all parts are entirely            |
-|                     |                             |                                       | single or multiple scan line or tiled images.     |
-|                     |                             |                                       |                                                   |
-|                     |                             |                                       | New in 2.0.                                       |
-|                     +-----------------------------+---------------------------------------+---------------------------------------------------+
-|                     | Bit 12 (the multipart bit)  | Indicates the file is a               | If bit 12 is 1:                                   |
-|                     | bit mask: 0x1000            | multi-part file.                      | * the file does not contain exactly 1             |
-|                     |                             |                                       | part and the 'end of header' byte                 |
-|                     |                             |                                       | must be included at the end of each               |
-|                     |                             |                                       | header part, and                                  |
-|                     |                             |                                       | * the part number fields must be added            |
-|                     |                             |                                       | to the chunks.                                    |
-|                     |                             |                                       |                                                   |
-|                     |                             |                                       | If bit 12 is 0, this is not a multi-part          |
-|                     |                             |                                       | file and the 'end of header' byte and             |
-|                     |                             |                                       | part number fields in chunks must                 |
-|                     |                             |                                       | be omitted.                                       |
-|                     |                             |                                       |                                                   |
-|                     |                             |                                       | New in 2.0.                                       |
-|                     +-----------------------------+---------------------------------------+---------------------------------------------------+
-|                     | The remaining 19 flags in the version field are currently unused and should be set to 0.                                |
-+---------------------+-------------------------------------------------------------------------------------------------------------------------+
+.. table::
+   :align: left
+
+   +---------------------+-------------------------------------------------------------------------------------------------------------------------+
+   | Byte/bit position   | Description and notes                                                                                                   |
+   +=====================+=========================================================================================================================+
+   | first byte          | The 8 least significant bits, they                                                                                      |
+   | (bits 0 through 7)  | contain the file format version number.                                                                                 |
+   |                     |                                                                                                                         |
+   |                     | The current OpenEXR version number is version 2.                                                                        |
+   +---------------------+---------------------------------------+---------------------------------------------------------------------------------+
+   | second, third and   | The 24 most significant bits, these are treated as a set of boolean flags.                                              |
+   | fourth bytes (bits  |                                                                                                                         |
+   | 8 through 31)       +-----------------------------+---------------------------------------+---------------------------------------------------+
+   |                     | Bit 9 (the single tile bit) | Indicates that this is a single-part  | If bit 9 is 1:                                    |
+   |                     | bit mask: 0x200             | file which is in tiled format.        | * this is a regular single-part image and the     |
+   |                     |                             |                                       | pixels are stored as tiles, and                   |
+   |                     |                             |                                       | * bits 11 and 12 must be 0.                       |
+   |                     |                             |                                       |                                                   |
+   |                     |                             |                                       | If bit 9 is 0, and bits 11 and 12 are also 0:     |
+   |                     |                             |                                       | the data is stored as regular single-part scan    |
+   |                     |                             |                                       | line file.                                        |
+   |                     |                             |                                       |                                                   |
+   |                     |                             |                                       | This bit is for backwards compatibility with      |
+   |                     |                             |                                       | older libraries: it is only set when there is     |
+   |                     |                             |                                       | one "normal" tiled image in the file.             |
+   |                     +-----------------------------+---------------------------------------+---------------------------------------------------+
+   |                     | Bit 10 (the long name bit)  | Indicates whether the file contains   |                                                   |
+   |                     | bit mask: 0x400             | “long names”.                         |                                                   |
+   |                     |                             |                                       | If bit 10 is 1, the maximum length is 255 bytes.  |
+   |                     |                             |                                       |                                                   |
+   |                     |                             |                                       | If bit 10 is 0, the maximum length of attribute   |
+   |                     |                             |                                       | names, attribute type names and channel names     |
+   |                     |                             |                                       | is 31 bytes.                                      |
+   |                     +-----------------------------+---------------------------------------+---------------------------------------------------+
+   |                     | Bit 11 (the non-image bit)  | Indicates whether the file contains   | If bit 11 is 1, there is at least one             |
+   |                     | bit mask: 0x800             | any “non-image parts” (deep data).    | part which is not a regular scan line             |
+   |                     |                             |                                       | image or regular tiled image (that is, it         |
+   |                     |                             |                                       | is a deep format).                                |
+   |                     |                             |                                       |                                                   |
+   |                     |                             |                                       | If bit 11 is 0, all parts are entirely            |
+   |                     |                             |                                       | single or multiple scan line or tiled images.     |
+   |                     |                             |                                       |                                                   |
+   |                     |                             |                                       | New in 2.0.                                       |
+   |                     +-----------------------------+---------------------------------------+---------------------------------------------------+
+   |                     | Bit 12 (the multipart bit)  | Indicates the file is a               | If bit 12 is 1:                                   |
+   |                     | bit mask: 0x1000            | multi-part file.                      | * the file does not contain exactly 1             |
+   |                     |                             |                                       | part and the 'end of header' byte                 |
+   |                     |                             |                                       | must be included at the end of each               |
+   |                     |                             |                                       | header part, and                                  |
+   |                     |                             |                                       | * the part number fields must be added            |
+   |                     |                             |                                       | to the chunks.                                    |
+   |                     |                             |                                       |                                                   |
+   |                     |                             |                                       | If bit 12 is 0, this is not a multi-part          |
+   |                     |                             |                                       | file and the 'end of header' byte and             |
+   |                     |                             |                                       | part number fields in chunks must                 |
+   |                     |                             |                                       | be omitted.                                       |
+   |                     |                             |                                       |                                                   |
+   |                     |                             |                                       | New in 2.0.                                       |
+   |                     +-----------------------------+---------------------------------------+---------------------------------------------------+
+   |                     | The remaining 19 flags in the version field are currently unused and should be set to 0.                                |
+   +---------------------+-------------------------------------------------------------------------------------------------------------------------+
 
 Version field, valid values
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -882,134 +888,137 @@ Predefined Attribute Types
 
 The OpenEXR library predefines the following attribute types:
 
-+--------------------+-----------------------------------------------------------------+
-| type name          | data                                                            |
-+====================+=================================================================+
-| ``box2i``          | Four ``int``\ 's: ``xMin``, ``yMin``, ``xMax``, ``yMax``        |
-+--------------------+-----------------------------------------------------------------+
-| ``box2f``          | Four ``float``\ 's: ``xMin``, ``yMin``, ``xMax``, ``yMax``      |
-+--------------------+-----------------------------------------------------------------+
-| ``bytes``          | A sequence of ``unsigned char`` values. The bytes are           |
-|                    | accompanied by an optional (but encouraged) type hint.          |
-|                    | (new in OpenEXR v3.4)                                           |
-|                    +----------------+------------------------------------------------+
-|                    | ``hintLength`` | ``unsigned int``                               |
-|                    +----------------+------------------------------------------------+
-|                    | ``typeHint``   | A sequence of chars of length ``hintLength``.  |
-|                    +-----------------------------------------------------------------+
-|                    | The bytes payload follows and can be up to INT32_MAX bytes in   |
-|                    | length.                                                         |
-+--------------------+-----------------------------------------------------------------+
-| ``chlist``         | A sequence of channels followed by a null byte (``0x00``).      |
-|                    | Channel layout:                                                 |
-|                    +----------------+------------------------------------------------+
-|                    | name           | zero-terminated string, from 1 to 255 bytes    |
-|                    |                | long                                           |
-|                    +----------------+------------------------------------------------+
-|                    | ``pixel type`` | ``int``, possible values are:                  |
-|                    |                |                                                |
-|                    |                | * ``UINT`` = 0                                 |
-|                    |                | * ``HALF`` = 1                                 |
-|                    |                | * ``FLOAT`` = 2                                |
-|                    |                |                                                |
-|                    +----------------+------------------------------------------------+
-|                    | ``pLinear``    | ``unsigned char``, possible values are 0 and 1 |
-|                    +----------------+------------------------------------------------+
-|                    | ``reserved``   | three ``char``, should be zero                 |
-|                    +----------------+------------------------------------------------+
-|                    | ``xSampling``  | ``int``                                        |
-|                    +----------------+------------------------------------------------+
-|                    | ``ySampling``  | ``int``                                        |
-+--------------------+----------------+------------------------------------------------+
-| ``chromaticities`` | Eight ``float``: ``redX``, ``redY``, ``greenX``,                |
-|                    | ``greenY``, ``blueX``, ``blueY``, ``whiteX``, ``whiteY``        |
-+--------------------+-----------------------------------------------------------------+
-| ``compression``    | ``unsigned char``, possible values are:                         |
-|                    |                                                                 |
-|                    | * ``NO_COMPRESSION`` = 0                                        |
-|                    | * ``RLE_COMPRESSION`` = 1                                       |
-|                    | * ``ZIPS_COMPRESSION`` = 2                                      |
-|                    | * ``ZIP_COMPRESSION`` = 3                                       |
-|                    | * ``PIZ_COMPRESSION`` = 4                                       |
-|                    | * ``PXR24_COMPRESSION`` = 5                                     |
-|                    | * ``B44_COMPRESSION`` = 6                                       |
-|                    | * ``B44A_COMPRESSION`` = 7                                      |
-|                    | * ``DWAA_COMPRESSION`` = 8                                      |
-|                    | * ``DWAB_COMPRESSION`` = 9                                      |
-|                    | * ``HTJ2K256_COMPRESSION`` = 10                                 |
-|                    | * ``HTJ2K32_COMPRESSION`` = 11                                  |
-|                    |                                                                 |
-+--------------------+-----------------------------------------------------------------+
-| ``double``         | ``double``                                                      |
-+--------------------+-----------------------------------------------------------------+
-| ``envmap``         | ``unsigned char``, possible values are:                         |
-|                    |                                                                 |
-|                    | * ``ENVMAP_LATLONG`` = 0                                        |
-|                    | * ``ENVMAP_CUBE`` = 1                                           |
-|                    |                                                                 |
-+--------------------+-----------------------------------------------------------------+
-| ``float``          | ``float``                                                       |
-+--------------------+-----------------------------------------------------------------+
-| ``int``            | ``int``                                                         |
-+--------------------+-----------------------------------------------------------------+
-| ``keycode``        | Seven ``int``\ 's: ``filmMfcCode``, ``filmType``, ``prefix``,   |
-|                    | ``count``, ``perfOffset``, ``perfsPerFrame``, ``perfsPerCount`` |
-+--------------------+-----------------------------------------------------------------+
-| ``lineOrder``      | ``unsigned char``, possible values are:                         |
-|                    |                                                                 |
-|                    | * ``INCREASING_Y`` = 0                                          |
-|                    | * ``DECREASING_Y`` = 1                                          |
-|                    | * ``RANDOM_Y`` = 2                                              |
-|                    |                                                                 |
-+--------------------+-----------------------------------------------------------------+
-| ``m33f``           | 9 ``float``\ 's                                                 |
-+--------------------+-----------------------------------------------------------------+
-| ``m44f``           | 16 ``float``\ 's                                                |
-+--------------------+-----------------------------------------------------------------+
-| ``preview``        | Two ``unsigned int``\ 's, width and height, followed by         |
-|                    | 4×width×height ``unsigned char``\ 's of pixel data.             |
-|                    | Scan lines are stored top to bottom; within a scan line         |
-|                    | pixels are stored from left to right. A pixel consists of       |
-|                    | four ``unsigned char``\ 's, ``R``, ``G``, ``B``, ``A``.         |
-+--------------------+-----------------------------------------------------------------+
-| ``rational``       | An ``int``, followed by an ``unsigned int``.                    |
-+--------------------+-----------------------------------------------------------------+
-| ``string``         | String length, of type ``int``, followed by a sequence of       |
-|                    | ``char``\ 's.                                                   |
-+--------------------+-----------------------------------------------------------------+
-| ``stringvector``   | A sequence of zero or more text strings. Each string is         | 
-|                    | represented as a string length, of type ``int``, followed by a  |
-|                    | sequence of ``chars``. The number of strings can be inferred    |
-|                    | from the total attribute size                                   |
-|                    | (see the `Attribute Layout`_ section).                          |
-+--------------------+-----------------------------------------------------------------+
-| ``tiledesc``       | Two ``unsigned int``\ 's: ``xSize``, ``ySize``, followed        |
-|                    | by ``mode``, of type ``unsigned char``, where                   |
-|                    |                                                                 |
-|                    |     mode = levelMode + roundingMode×16                          |
-|                    |                                                                 |
-|                    | Possible values for ``levelMode``:                              |
-|                    |                                                                 |
-|                    | * ``ONE_LEVEL`` = 0                                             |
-|                    | * ``MIPMAP_LEVELS`` = 1                                         |
-|                    | * ``RIPMAP_LEVELS`` = 2                                         |
-|                    |                                                                 |
-|                    | Possible values for ``roundingMode``:                           |
-|                    |                                                                 |
-|                    | * ``ROUND_DOWN`` = 0                                            |
-|                    | * ``ROUND_UP`` = 1                                              |
-|                    |                                                                 |
-+--------------------+-----------------------------------------------------------------+
-| ``timecode``       | Two ``unsigned int``\ 's: ``timeAndFlags``, ``userData``.       |
-+--------------------+-----------------------------------------------------------------+
-| ``v2i``            | Two ``int``\ 's                                                 |
-+--------------------+-----------------------------------------------------------------+
-| ``v2f``            | Two ``float``\ 's                                               |
-+--------------------+-----------------------------------------------------------------+
-| ``v3i``            | Three ``int``\ 's.                                              |
-+--------------------+-----------------------------------------------------------------+
-| ``v3f``            | Three ``float``\ 's.                                            |
-+--------------------+-----------------------------------------------------------------+
+.. table::
+   :align: left
+
+   +--------------------+-----------------------------------------------------------------+
+   | type name          | data                                                            |
+   +====================+=================================================================+
+   | ``box2i``          | Four ``int``\ 's: ``xMin``, ``yMin``, ``xMax``, ``yMax``        |
+   +--------------------+-----------------------------------------------------------------+
+   | ``box2f``          | Four ``float``\ 's: ``xMin``, ``yMin``, ``xMax``, ``yMax``      |
+   +--------------------+-----------------------------------------------------------------+
+   | ``bytes``          | A sequence of ``unsigned char`` values. The bytes are           |
+   |                    | accompanied by an optional (but encouraged) type hint.          |
+   |                    | (new in OpenEXR v3.4)                                           |
+   |                    +----------------+------------------------------------------------+
+   |                    | ``hintLength`` | ``unsigned int``                               |
+   |                    +----------------+------------------------------------------------+
+   |                    | ``typeHint``   | A sequence of chars of length ``hintLength``.  |
+   |                    +-----------------------------------------------------------------+
+   |                    | The bytes payload follows and can be up to INT32_MAX bytes in   |
+   |                    | length.                                                         |
+   +--------------------+-----------------------------------------------------------------+
+   | ``chlist``         | A sequence of channels followed by a null byte (``0x00``).      |
+   |                    | Channel layout:                                                 |
+   |                    +----------------+------------------------------------------------+
+   |                    | name           | zero-terminated string, from 1 to 255 bytes    |
+   |                    |                | long                                           |
+   |                    +----------------+------------------------------------------------+
+   |                    | ``pixel type`` | ``int``, possible values are:                  |
+   |                    |                |                                                |
+   |                    |                | * ``UINT`` = 0                                 |
+   |                    |                | * ``HALF`` = 1                                 |
+   |                    |                | * ``FLOAT`` = 2                                |
+   |                    |                |                                                |
+   |                    +----------------+------------------------------------------------+
+   |                    | ``pLinear``    | ``unsigned char``, possible values are 0 and 1 |
+   |                    +----------------+------------------------------------------------+
+   |                    | ``reserved``   | three ``char``, should be zero                 |
+   |                    +----------------+------------------------------------------------+
+   |                    | ``xSampling``  | ``int``                                        |
+   |                    +----------------+------------------------------------------------+
+   |                    | ``ySampling``  | ``int``                                        |
+   +--------------------+----------------+------------------------------------------------+
+   | ``chromaticities`` | Eight ``float``: ``redX``, ``redY``, ``greenX``,                |
+   |                    | ``greenY``, ``blueX``, ``blueY``, ``whiteX``, ``whiteY``        |
+   +--------------------+-----------------------------------------------------------------+
+   | ``compression``    | ``unsigned char``, possible values are:                         |
+   |                    |                                                                 |
+   |                    | * ``NO_COMPRESSION`` = 0                                        |
+   |                    | * ``RLE_COMPRESSION`` = 1                                       |
+   |                    | * ``ZIPS_COMPRESSION`` = 2                                      |
+   |                    | * ``ZIP_COMPRESSION`` = 3                                       |
+   |                    | * ``PIZ_COMPRESSION`` = 4                                       |
+   |                    | * ``PXR24_COMPRESSION`` = 5                                     |
+   |                    | * ``B44_COMPRESSION`` = 6                                       |
+   |                    | * ``B44A_COMPRESSION`` = 7                                      |
+   |                    | * ``DWAA_COMPRESSION`` = 8                                      |
+   |                    | * ``DWAB_COMPRESSION`` = 9                                      |
+   |                    | * ``HTJ2K256_COMPRESSION`` = 10                                 |
+   |                    | * ``HTJ2K32_COMPRESSION`` = 11                                  |
+   |                    |                                                                 |
+   +--------------------+-----------------------------------------------------------------+
+   | ``double``         | ``double``                                                      |
+   +--------------------+-----------------------------------------------------------------+
+   | ``envmap``         | ``unsigned char``, possible values are:                         |
+   |                    |                                                                 |
+   |                    | * ``ENVMAP_LATLONG`` = 0                                        |
+   |                    | * ``ENVMAP_CUBE`` = 1                                           |
+   |                    |                                                                 |
+   +--------------------+-----------------------------------------------------------------+
+   | ``float``          | ``float``                                                       |
+   +--------------------+-----------------------------------------------------------------+
+   | ``int``            | ``int``                                                         |
+   +--------------------+-----------------------------------------------------------------+
+   | ``keycode``        | Seven ``int``\ 's: ``filmMfcCode``, ``filmType``, ``prefix``,   |
+   |                    | ``count``, ``perfOffset``, ``perfsPerFrame``, ``perfsPerCount`` |
+   +--------------------+-----------------------------------------------------------------+
+   | ``lineOrder``      | ``unsigned char``, possible values are:                         |
+   |                    |                                                                 |
+   |                    | * ``INCREASING_Y`` = 0                                          |
+   |                    | * ``DECREASING_Y`` = 1                                          |
+   |                    | * ``RANDOM_Y`` = 2                                              |
+   |                    |                                                                 |
+   +--------------------+-----------------------------------------------------------------+
+   | ``m33f``           | 9 ``float``\ 's                                                 |
+   +--------------------+-----------------------------------------------------------------+
+   | ``m44f``           | 16 ``float``\ 's                                                |
+   +--------------------+-----------------------------------------------------------------+
+   | ``preview``        | Two ``unsigned int``\ 's, width and height, followed by         |
+   |                    | 4×width×height ``unsigned char``\ 's of pixel data.             |
+   |                    | Scan lines are stored top to bottom; within a scan line         |
+   |                    | pixels are stored from left to right. A pixel consists of       |
+   |                    | four ``unsigned char``\ 's, ``R``, ``G``, ``B``, ``A``.         |
+   +--------------------+-----------------------------------------------------------------+
+   | ``rational``       | An ``int``, followed by an ``unsigned int``.                    |
+   +--------------------+-----------------------------------------------------------------+
+   | ``string``         | String length, of type ``int``, followed by a sequence of       |
+   |                    | ``char``\ 's.                                                   |
+   +--------------------+-----------------------------------------------------------------+
+   | ``stringvector``   | A sequence of zero or more text strings. Each string is         |
+   |                    | represented as a string length, of type ``int``, followed by a  |
+   |                    | sequence of ``chars``. The number of strings can be inferred    |
+   |                    | from the total attribute size                                   |
+   |                    | (see the `Attribute Layout`_ section).                          |
+   +--------------------+-----------------------------------------------------------------+
+   | ``tiledesc``       | Two ``unsigned int``\ 's: ``xSize``, ``ySize``, followed        |
+   |                    | by ``mode``, of type ``unsigned char``, where                   |
+   |                    |                                                                 |
+   |                    |     mode = levelMode + roundingMode×16                          |
+   |                    |                                                                 |
+   |                    | Possible values for ``levelMode``:                              |
+   |                    |                                                                 |
+   |                    | * ``ONE_LEVEL`` = 0                                             |
+   |                    | * ``MIPMAP_LEVELS`` = 1                                         |
+   |                    | * ``RIPMAP_LEVELS`` = 2                                         |
+   |                    |                                                                 |
+   |                    | Possible values for ``roundingMode``:                           |
+   |                    |                                                                 |
+   |                    | * ``ROUND_DOWN`` = 0                                            |
+   |                    | * ``ROUND_UP`` = 1                                              |
+   |                    |                                                                 |
+   +--------------------+-----------------------------------------------------------------+
+   | ``timecode``       | Two ``unsigned int``\ 's: ``timeAndFlags``, ``userData``.       |
+   +--------------------+-----------------------------------------------------------------+
+   | ``v2i``            | Two ``int``\ 's                                                 |
+   +--------------------+-----------------------------------------------------------------+
+   | ``v2f``            | Two ``float``\ 's                                               |
+   +--------------------+-----------------------------------------------------------------+
+   | ``v3i``            | Three ``int``\ 's.                                              |
+   +--------------------+-----------------------------------------------------------------+
+   | ``v3f``            | Three ``float``\ 's.                                            |
+   +--------------------+-----------------------------------------------------------------+
 
 
 Sample File
@@ -1031,6 +1040,7 @@ Download the :download:`sample.exr <downloads/sample.exr>`.
 
 .. table::
   :width: 50%
+  :align: left
 
   +-----------+------------+-----------------------+
   |byte       |value       |description            |

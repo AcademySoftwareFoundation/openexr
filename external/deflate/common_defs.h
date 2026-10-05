@@ -159,8 +159,8 @@ typedef size_t machine_word_t;
 #endif
 #ifdef _MSC_VER
 #  define MSVC_PREREQ(version)	(_MSC_VER >= (version))
-#  if !MSVC_PREREQ(1900)
-#    error "MSVC versions older than Visual Studio 2015 are no longer supported"
+#  if !MSVC_PREREQ(1928)
+#    error "MSVC versions older than Visual Studio 2019 v16.8 are no longer supported"
 #  endif
 #else
 #  define MSVC_PREREQ(version)	0
@@ -211,20 +211,6 @@ typedef size_t machine_word_t;
 #else
 #  define NORETURN
 #endif
-
-/*
- * restrict - hint that writes only occur through the given pointer.
- *
- * Don't use MSVC's __restrict, since it has nonstandard behavior.
- * Standard restrict is okay, if it is supported.
- */
-#if !defined(__STDC_VERSION__) || (__STDC_VERSION__ < 201112L)
-#  if defined(__GNUC__) || defined(__clang__)
-#    define restrict		__restrict__
-#  else
-#    define restrict
-#  endif
-#endif /* else assume 'restrict' is usable as-is */
 
 /* likely(expr) - hint that an expression is usually true */
 #if defined(__GNUC__) || __has_builtin(__builtin_expect)
@@ -402,7 +388,8 @@ static forceinline u64 bswap64(u64 v)
  */
 #if (defined(__GNUC__) || defined(__clang__)) && \
 	(defined(ARCH_X86_64) || defined(ARCH_X86_32) || \
-	 defined(__ARM_FEATURE_UNALIGNED) || defined(__powerpc64__) || \
+	 defined(__ARM_FEATURE_UNALIGNED) || \
+	 defined(__powerpc64__) || defined(__powerpc__) || defined(__POWERPC__) || \
 	 defined(__riscv_misaligned_fast) || \
 	 /*
 	  * For all compilation purposes, WebAssembly behaves like any other CPU

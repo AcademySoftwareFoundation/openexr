@@ -32,7 +32,8 @@ OpaqueAttribute::OpaqueAttribute (const char  typeName[],
     : _typeName (typeName), _dataSize (dataSize)
 {
     _data.resizeErase (dataSize);
-    memcpy ((char*) _data, (const char*) data, dataSize);
+    if (dataSize>0)
+       memcpy ((char*) _data, (const char*) data, dataSize);
 }
 
 OpaqueAttribute::OpaqueAttribute (const OpaqueAttribute& other)
@@ -41,7 +42,8 @@ OpaqueAttribute::OpaqueAttribute (const OpaqueAttribute& other)
     , _data (other._dataSize)
 {
     _data.resizeErase (other._dataSize);
-    memcpy ((char*) _data, (const char*) other._data, other._dataSize);
+    if (other._dataSize>0)
+       memcpy ((char*) _data, (const char*) other._data, other._dataSize);
 }
 
 OpaqueAttribute::~OpaqueAttribute ()
@@ -97,7 +99,8 @@ OpaqueAttribute::copyValueFrom (const Attribute& other)
 
     _data.resizeErase (oa->_dataSize);
     _dataSize = oa->_dataSize;
-    memcpy ((char*) _data, (const char*) oa->_data, oa->_dataSize);
+    if (oa->_dataSize>0)
+        memcpy ((char*) _data, (const char*) oa->_data, oa->_dataSize);
 }
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

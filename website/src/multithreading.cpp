@@ -3,25 +3,35 @@
 // Copyright (c) Contributors to the OpenEXR Project.
 //
 
-char fileName[] = "";
-// [begin main thread create]
-// main, before application threads are created:
+#include <ImfHeader.h>
+#include <ImfInputFile.h>
+#include <ImfOutputFile.h>
+#include <ImfThreading.h>
+
+using namespace OPENEXR_IMF_NAMESPACE;
+
+void 
+multithreading ()
+{
+    char fileName[] = "";
+    // [begin main thread create]
+    // main, before application threads are created:
+        
+    setGlobalThreadCount (4);
+    // [begin applications input thread]
+    // application's input thread
     
-setGlobalThreadCount (4);
-// [begin applications input thread]
-// application's input thread
-
-InputFile in (fileName);
-
-// ...
-// [end applications input thread]
-
-Header header = in.header();
-// [begin applications output thread]
-// application's output thread
-
-OutputFile out (fileName, header, 2);
-
-// ...
-// [end applications output thread]
-
+    InputFile in (fileName);
+    
+    // ...
+    // [end applications input thread]
+    
+    Header header = in.header();
+    // [begin applications output thread]
+    // application's output thread
+    
+    OutputFile out (fileName, header, 2);
+    
+    // ...
+    // [end applications output thread]
+}

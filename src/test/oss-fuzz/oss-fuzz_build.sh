@@ -10,10 +10,6 @@
 
 set -x
 
-# Vendor in OpenJPH from its master branch, so we're sure the fuzzer gets
-# the bleeding edge.
-./share/util/vendor_openjph.sh master
-
 cmake -S $SRC/openexr -B $BUILD_DIR --preset oss_fuzz
 cmake --build $BUILD_DIR --target oss_fuzz -j"$(nproc)"
 cmake --install $BUILD_DIR --component oss_fuzz

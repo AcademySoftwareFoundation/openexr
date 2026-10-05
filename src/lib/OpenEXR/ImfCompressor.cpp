@@ -19,10 +19,13 @@
 #include "ImfRleCompressor.h"
 #include "ImfZipCompressor.h"
 #include "ImfZip.h"
+#include "ImfZstdCompressor.h"
 
 #include <algorithm>
 #include <stdexcept>
 #include "ImfHTCompressor.h"
+#include "ImfCompressorDeepInternal.h"
+#include "openexr_compression.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
@@ -54,6 +57,8 @@ Compressor::Compressor (
 
     exr_set_zip_compression_level (_ctxt, 0, hdr.zipCompressionLevel ());
     exr_set_dwa_compression_level (_ctxt, 0, hdr.dwaCompressionLevel ());
+    exr_set_lossy_htj2k_quality (_ctxt, 0, hdr.lossyHTJ2KQuality ());
+    exr_set_zstd_compression_level (_ctxt, 0, hdr.zstdCompressionLevel ());
 
     exr_compression_t hdrcomp;
     if (EXR_ERR_SUCCESS != exr_get_compression (_ctxt, 0, &hdrcomp))
@@ -94,13 +99,27 @@ int
 Compressor::compress (
     const char* inPtr, int inSize, int minY, const char*& outPtr)
 {
-    IMATH_NAMESPACE::Box2i range = _header.dataWindow ();
+    return compressWithSampleCountTable (
+        *this, inPtr, inSize, minY, outPtr, nullptr, 0);
+}
+
+int
+compressWithSampleCountTable (
+    Compressor&  compressor,
+    const char*  inPtr,
+    int          inSize,
+    int          minY,
+    const char*& outPtr,
+    const char*  sampleCountTable,
+    int          sampleCountTableSize)
+{
+    IMATH_NAMESPACE::Box2i range = compressor._header.dataWindow ();
 
     range.min.y = minY;
-    range.max.y = minY + _numScanLines - 1;
+    range.max.y = minY + compressor._numScanLines - 1;
 
     return static_cast<int> (
-        runEncodeStep (inPtr, inSize, range, outPtr));
+        compressor.runEncodeStep (inPtr, inSize, range, outPtr, sampleCountTable, sampleCountTableSize));
 }
 
 int
@@ -118,15 +137,35 @@ Compressor::uncompress (
 
 int
 Compressor::compressTile (
-    const char* inPtr, int inSize, Box2i range, const char*& outPtr)
+    const char*  inPtr,
+    int          inSize,
+    Box2i        range,
+    const char*& outPtr)
+{
+    return compressTileWithSampleCountTable (
+        *this, inPtr, inSize, range, outPtr, nullptr, 0);
+}
+
+int
+compressTileWithSampleCountTable (
+    Compressor&  compressor,
+    const char*  inPtr,
+    int          inSize,
+    Box2i        range,
+    const char*& outPtr,
+    const char*  sampleCountTable,
+    int          sampleCountTableSize)
 {
     return static_cast<int> (
-        runEncodeStep (inPtr, inSize, range, outPtr));
+        compressor.runEncodeStep (inPtr, inSize, range, outPtr, sampleCountTable, sampleCountTableSize));
 }
 
 int
 Compressor::uncompressTile (
-    const char* inPtr, int inSize, Box2i range, const char*& outPtr)
+    const char*  inPtr,
+    int          inSize,
+    Box2i        range,
+    const char*& outPtr)
 {
     return static_cast<int> (
         runDecodeStep (inPtr, inSize, range, outPtr));
@@ -137,7 +176,9 @@ Compressor::runEncodeStep (
     const char* inPtr,
     int inSize,
     IMATH_NAMESPACE::Box2i range,
-    const char*& outPtr)
+    const char*& outPtr, 
+    const char* sampleCountTable,
+    int sampleCountTableSize)
 {
     // special case
     if (inSize == 0)
@@ -169,6 +210,11 @@ Compressor::runEncodeStep (
     _encoder.packed_buffer = const_cast<char*> (inPtr);
     _encoder.packed_bytes = inSize;
 
+    _encoder.sample_count_table = const_cast<int32_t*> (
+        reinterpret_cast<const int32_t*> (sampleCountTable));
+    _encoder.sample_count_alloc_size = sampleCountTableSize;
+    _encoder.skip_sample_count_table_compression = sampleCountTableSize > 0 ? 1 : 0;
+
     if (EXR_ERR_SUCCESS != exr_compress_chunk(&_encoder))
         throw IEX_NAMESPACE::ArgExc ("Unable to run compression routine");
 
@@ -176,6 +222,10 @@ Compressor::runEncodeStep (
 
     _encoder.packed_buffer = nullptr;
     _encoder.packed_bytes = 0;
+
+    _encoder.sample_count_table = nullptr;
+    _encoder.sample_count_alloc_size = 0;
+
 
     return _encoder.compressed_bytes;
 }
@@ -278,7 +328,8 @@ Compressor::runDecodeStep (
 Compressor*
 newCompressor (Compression c, size_t maxScanLineSize, const Header& hdr)
 {
-    Compressor* ret = nullptr;
+    Compressor* ret   = nullptr;
+    int         scans = getCompressionNumScanlines (c);
 
     // clang-format off
     switch (c)
@@ -290,32 +341,32 @@ newCompressor (Compression c, size_t maxScanLineSize, const Header& hdr)
 
         case ZIPS_COMPRESSION:
 
-            ret = new ZipCompressor (hdr, maxScanLineSize, 1);
+            ret = new ZipCompressor (hdr, maxScanLineSize, scans);
             break;
 
         case ZIP_COMPRESSION:
 
-            ret = new ZipCompressor (hdr, maxScanLineSize, 16);
+            ret = new ZipCompressor (hdr, maxScanLineSize, scans);
             break;
 
         case PIZ_COMPRESSION:
 
-            ret = new PizCompressor (hdr, maxScanLineSize, 32);
+            ret = new PizCompressor (hdr, maxScanLineSize, scans);
             break;
 
         case PXR24_COMPRESSION:
 
-            ret = new Pxr24Compressor (hdr, maxScanLineSize, 16);
+            ret = new Pxr24Compressor (hdr, maxScanLineSize, scans);
             break;
 
         case B44_COMPRESSION:
 
-            ret = new B44Compressor (hdr, maxScanLineSize, 32, false);
+            ret = new B44Compressor (hdr, maxScanLineSize, scans, false);
             break;
 
         case B44A_COMPRESSION:
 
-            ret = new B44Compressor (hdr, maxScanLineSize, 32, true);
+            ret = new B44Compressor (hdr, maxScanLineSize, scans, true);
             break;
 
         case DWAA_COMPRESSION:
@@ -323,7 +374,7 @@ newCompressor (Compression c, size_t maxScanLineSize, const Header& hdr)
             ret = new DwaCompressor (
                 hdr,
                 static_cast<int> (maxScanLineSize),
-                32,
+                scans,
                 DwaCompressor::STATIC_HUFFMAN);
             break;
 
@@ -332,17 +383,25 @@ newCompressor (Compression c, size_t maxScanLineSize, const Header& hdr)
             ret = new DwaCompressor (
                 hdr,
                 static_cast<int> (maxScanLineSize),
-                256,
+                scans,
                 DwaCompressor::STATIC_HUFFMAN);
             break;
 
         case HTJ2K256_COMPRESSION:
+        case LJ2K_COMPRESSION:
 
-            return new HTCompressor (hdr, static_cast<int> (maxScanLineSize), 256);
+            ret = new HTCompressor (hdr, static_cast<int> (maxScanLineSize), scans);
+            break;
 
         case HTJ2K32_COMPRESSION:
 
-            return new HTCompressor (hdr, static_cast<int> (maxScanLineSize), 32);
+            ret = new HTCompressor (hdr, static_cast<int> (maxScanLineSize), scans);
+            break;
+
+        case ZSTD_COMPRESSION:
+
+            ret = new ZstdCompressor (hdr, maxScanLineSize, scans);
+            break;
 
         default: break;
     }
@@ -427,11 +486,16 @@ newTileCompressor (
 
         case HTJ2K256_COMPRESSION:
         case HTJ2K32_COMPRESSION:
+        case LJ2K_COMPRESSION:
 
             return new HTCompressor (
                 hdr,
                 static_cast<int> (tileLineSize),
                 static_cast<int> (numTileLines));
+        case ZSTD_COMPRESSION:
+
+            ret = new ZstdCompressor (hdr, tileLineSize, numTileLines);
+            break;
 
         default: break;
     }

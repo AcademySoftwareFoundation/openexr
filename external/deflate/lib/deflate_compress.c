@@ -3885,6 +3885,13 @@ libdeflate_alloc_compressor_ex(int compression_level,
 	if (options->sizeof_options != sizeof(*options))
 		return NULL;
 
+	/*
+	 * Note: For similarity with zlib's API, -1 is accepted as an alias for
+	 * the default compression level.
+	 */
+	if (compression_level == -1)
+		compression_level = 6;
+
 	if (compression_level < 0 || compression_level > 12)
 		return NULL;
 

@@ -2,21 +2,21 @@
 // This software is released under the 2-Clause BSD license, included
 // below.
 //
-// Copyright (c) 2019, Aous Naman 
+// Copyright (c) 2019, Aous Naman
 // Copyright (c) 2019, Kakadu Software Pty Ltd, Australia
 // Copyright (c) 2019, The University of New South Wales, Australia
-// 
+//
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
 // met:
-// 
+//
 // 1. Redistributions of source code must retain the above copyright
 // notice, this list of conditions and the following disclaimer.
-// 
+//
 // 2. Redistributions in binary form must reproduce the above copyright
 // notice, this list of conditions and the following disclaimer in the
 // documentation and/or other materials provided with the distribution.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
 // IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 // TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
@@ -38,6 +38,7 @@
 
 #include <climits>
 #include <cmath>
+#include <exception>
 
 #include "ojph_mem.h"
 #include "ojph_params.h"
@@ -68,7 +69,7 @@ namespace ojph {
       allocator->pre_alloc_obj<ui32>(num_comps); //for num_bits
       allocator->pre_alloc_obj<bool>(num_comps); //for is_signed
       allocator->pre_alloc_obj<bool>(num_comps); //for reversible
-      allocator->pre_alloc_obj<ui8>(num_comps);  //for nlt_type3
+      allocator->pre_alloc_obj<const nlt_rec*>(num_comps);
       allocator->pre_alloc_obj<ui32>(num_comps); //for cur_line
 
       {
@@ -110,6 +111,7 @@ namespace ojph {
       ui32 recon_ty1 = recon_tile_rect.org.y + recon_tile_rect.siz.h;
 
       ui32 width = 0;
+      rect colour_comp_rect[3];
       for (ui32 i = 0; i < num_comps; ++i)
       {
         point downsamp = szp->get_downsampling(i);
@@ -129,6 +131,9 @@ namespace ojph {
         comp_rect.siz.w = tcx1 - tcx0;
         comp_rect.siz.h = tcy1 - tcy0;
 
+        if (i < 3)
+          colour_comp_rect[i] = comp_rect;
+
         rect recon_comp_rect;
         recon_comp_rect.org.x = recon_tcx0;
         recon_comp_rect.org.y = recon_tcy0;
@@ -147,7 +152,7 @@ namespace ojph {
         for (ui32 i = 0; i < 3; ++i)
           reversible[i] = codestream->get_coc(i)->is_reversible();
         if (reversible[0] != reversible[1] || reversible[1] != reversible[2])
-          OJPH_ERROR(0x000300A2, "When the colour transform is employed. "
+          OJPH_ERROR(0x000300A2, "When the colour transform is employed, "
             "all colour components must undergo either reversible or "
             "irreversible wavelet transform; if not, then it is not clear "
             "what colour transform should be used (reversible or "
@@ -156,6 +161,21 @@ namespace ojph {
             reversible[0] ? "reversible" : "irreversible",
             reversible[1] ? "reversible" : "irreversible",
             reversible[2] ? "reversible" : "irreversible");
+
+        if (colour_comp_rect[0] != colour_comp_rect[1] ||
+          colour_comp_rect[1] != colour_comp_rect[2])
+          OJPH_ERROR(0x000300A3, "When the colour transform is employed, "
+            "the first three colour components must have the same rectangle; "
+            "i.e., the same origin on the canvas and the same width and "
+            "height. The first three components have the following "
+            "origin-size (x,y)-(w,h) values. Component 0 (%d,%d)-(%d,%d), "
+            "Component 1 (%d,%d)-(%d,%d), Component 2 (%d,%d)-(%d,%d)",
+            colour_comp_rect[0].org.x, colour_comp_rect[0].org.y,
+            colour_comp_rect[0].siz.w, colour_comp_rect[0].siz.h,
+            colour_comp_rect[1].org.x, colour_comp_rect[1].org.y,
+            colour_comp_rect[1].siz.w, colour_comp_rect[1].siz.h,
+            colour_comp_rect[2].org.x, colour_comp_rect[2].org.y,
+            colour_comp_rect[2].siz.w, colour_comp_rect[2].siz.h);
 
         allocator->pre_alloc_obj<line_buf>(3);
         if (reversible[0])
@@ -169,9 +189,12 @@ namespace ojph {
 
     //////////////////////////////////////////////////////////////////////////
     void tile::finalize_alloc(codestream *codestream, const rect& tile_rect,
-                              ui32 tile_idx, ui32& offset, 
+                              ui32 tile_idx, ui32& offset,
                               ui32 &num_tileparts)
     {
+      constexpr ui8 type3 =
+        param_nlt::nonlinearity::OJPH_NLT_BINARY_COMPLEMENT_NLT;
+
       //this->parent = codestream;
       mem_fixed_allocator* allocator = codestream->get_allocator();
 
@@ -192,7 +215,7 @@ namespace ojph {
       num_bits = allocator->post_alloc_obj<ui32>(num_comps);
       is_signed = allocator->post_alloc_obj<bool>(num_comps);
       reversible = allocator->post_alloc_obj<bool>(num_comps);
-      nlt_type3 = allocator->post_alloc_obj<ui8>(num_comps);
+      nlt_ptr = allocator->post_alloc_obj<const nlt_rec*>(num_comps);
       cur_line = allocator->post_alloc_obj<ui32>(num_comps);
 
       profile = codestream->get_profile();
@@ -238,8 +261,6 @@ namespace ojph {
       ui32 width = 0;
       for (ui32 i = 0; i < num_comps; ++i)
       {
-        ui8 bd; bool is; // used for nlt_type3
-
         point downsamp = szp->get_downsampling(i);
         point recon_downsamp = szp->get_recon_downsampling(i);
 
@@ -252,7 +273,7 @@ namespace ojph {
         ui32 recon_tcx1 = ojph_div_ceil(tx1, recon_downsamp.x);
         ui32 recon_tcy1 = ojph_div_ceil(ty1, recon_downsamp.y);
 
-        line_offsets[i] = 
+        line_offsets[i] =
           recon_tcx0 - ojph_div_ceil(tx0 - offset, recon_downsamp.x);
         comp_rects[i].org.x = tcx0;
         comp_rects[i].org.y = tcy0;
@@ -263,21 +284,26 @@ namespace ojph {
         recon_comp_rects[i].siz.w = recon_tcx1 - recon_tcx0;
         recon_comp_rects[i].siz.h = recon_tcy1 - recon_tcy0;
 
-        comps[i].finalize_alloc(codestream, this, i, comp_rects[i], 
+        comps[i].finalize_alloc(codestream, this, i, comp_rects[i],
           recon_comp_rects[i]);
         width = ojph_max(width, recon_comp_rects[i].siz.w);
 
         num_bits[i] = szp->get_bit_depth(i);
         is_signed[i] = szp->is_signed(i);
-        bool result = nlp->get_nonlinear_transform(i, bd, is, nlt_type3[i]);
-        if (result == true && (bd != num_bits[i] || is != is_signed[i]))
-          OJPH_ERROR(0x000300A1, "Mismatch between Ssiz (bit_depth = %d, "
-            "is_signed = %s) from SIZ marker segment, and BDnlt "
-            "(bit_depth = %d, is_signed = %s) from NLT marker segment, "
-            "for component %d", i, num_bits[i], 
-            is_signed[i] ? "True" : "False", bd, is ? "True" : "False");
-        if (result == false)
-          nlt_type3[i] = param_nlt::nonlinearity::OJPH_NLT_NO_NLT;
+        nlt_ptr[i] = nlp->get_nlt_rec(i);
+
+        if (nlt_ptr[i])
+        {
+          ui8 bd = nlt_ptr[i]->get_bit_depth();
+          ui8 nlt_type = nlt_ptr[i]->get_type();
+          bool is = nlt_ptr[i]->is_signed();
+          if (nlt_type == type3 && (bd != num_bits[i] || is != is_signed[i]))
+            OJPH_ERROR(0x000300A1, "Mismatch between Ssiz (bit_depth = %d, "
+              "is_signed = %s) from SIZ marker segment, and BDnlt "
+              "(bit_depth = %d, is_signed = %s) from NLT marker segment, "
+              "for component %d", num_bits[i],
+              is_signed[i] ? "True" : "False", bd, is ? "True" : "False", i);
+        }
         cur_line[i] = 0;
         reversible[i] = codestream->get_coc(i)->is_reversible();
       }
@@ -311,8 +337,12 @@ namespace ojph {
     //////////////////////////////////////////////////////////////////////////
     bool tile::push(line_buf *line, ui32 comp_num)
     {
-      constexpr ui8 type3 = 
+      constexpr ui8 type2 =
+        param_nlt::nonlinearity::OJPH_NLT_LUT_STYLE_NLT;
+      constexpr ui8 type3 =
         param_nlt::nonlinearity::OJPH_NLT_BINARY_COMPLEMENT_NLT;
+      constexpr ui8 type4 =
+        param_nlt::nonlinearity::OJPH_NLT_BINARY_COMPLEMENT_PLUS_LUT;
 
       assert(comp_num < num_comps);
       if (cur_line[comp_num] >= comp_rects[comp_num].siz.h)
@@ -329,23 +359,34 @@ namespace ojph {
         if (reversible[comp_num])
         {
           si64 shift = (si64)1 << (num_bits[comp_num] - 1);
-          if (is_signed[comp_num] && nlt_type3[comp_num] == type3)
-            rev_convert_nlt_type3(line, line_offsets[comp_num],
-              tc, 0, shift + 1, comp_width);
-          else {
+          if (nlt_ptr[comp_num] == NULL) {
             shift = is_signed[comp_num] ? 0 : -shift;
-            rev_convert(line, line_offsets[comp_num], tc, 0, 
+            rev_convert(line, line_offsets[comp_num], tc, 0,
               shift, comp_width);
           }
+          else if (is_signed[comp_num] &&
+            nlt_ptr[comp_num]->get_type() == type3)
+            rev_convert_nlt_type3(line, line_offsets[comp_num],
+              tc, 0, shift + 1, comp_width);
+          else if (nlt_ptr[comp_num]->get_type() == type2 ||
+            nlt_ptr[comp_num]->get_type() == type4)
+            rev_encode_nlt(line, line_offsets[comp_num], tc,
+              num_bits[comp_num], is_signed[comp_num], comp_width,
+              nlt_ptr[comp_num]);
         }
         else
         {
-          if (nlt_type3[comp_num] == type3)
-            irv_convert_to_float_nlt_type3(line, line_offsets[comp_num],
-              tc, num_bits[comp_num], is_signed[comp_num], comp_width);
-          else
+          if (nlt_ptr[comp_num] == NULL)
             irv_convert_to_float(line, line_offsets[comp_num],
               tc, num_bits[comp_num], is_signed[comp_num], comp_width);
+          else if (nlt_ptr[comp_num]->get_type() == type3)
+            irv_convert_to_float_nlt_type3(line, line_offsets[comp_num],
+              tc, num_bits[comp_num], is_signed[comp_num], comp_width);
+          else if (nlt_ptr[comp_num]->get_type() == type2 ||
+            nlt_ptr[comp_num]->get_type() == type4)
+            irv_convert_to_float_nlt(line, line_offsets[comp_num],
+              tc, num_bits[comp_num], is_signed[comp_num], comp_width,
+              nlt_ptr[comp_num]);
         }
         comps[comp_num].push_line();
       }
@@ -355,14 +396,20 @@ namespace ojph {
         ui32 comp_width = comp_rects[comp_num].siz.w;
         if (reversible[comp_num])
         {
-          if (is_signed[comp_num] && nlt_type3[comp_num] == type3)
-            rev_convert_nlt_type3(line, line_offsets[comp_num], 
-              lines + comp_num, 0, shift + 1, comp_width);            
-          else {
+          if (nlt_ptr[comp_num] == NULL) {
             shift = is_signed[comp_num] ? 0 : -shift;
-            rev_convert(line, line_offsets[comp_num], lines + comp_num, 0, 
+            rev_convert(line, line_offsets[comp_num], lines + comp_num, 0,
               shift, comp_width);
           }
+          else if (is_signed[comp_num] &&
+            nlt_ptr[comp_num]->get_type() == type3)
+            rev_convert_nlt_type3(line, line_offsets[comp_num],
+              lines + comp_num, 0, shift + 1, comp_width);
+          else if (nlt_ptr[comp_num]->get_type() == type2 ||
+            nlt_ptr[comp_num]->get_type() == type4)
+            rev_encode_nlt(line, line_offsets[comp_num],
+              lines + comp_num, num_bits[comp_num],
+              is_signed[comp_num], comp_width, nlt_ptr[comp_num]);
 
           if (comp_num == 2)
           { // reversible color transform
@@ -377,14 +424,19 @@ namespace ojph {
         }
         else
         {
-          if (nlt_type3[comp_num] == type3)
-            irv_convert_to_float_nlt_type3(line, line_offsets[comp_num],
-              lines + comp_num, num_bits[comp_num], is_signed[comp_num], 
-              comp_width);
-          else
+          if (nlt_ptr[comp_num] == NULL)
             irv_convert_to_float(line, line_offsets[comp_num],
-              lines + comp_num, num_bits[comp_num], is_signed[comp_num], 
+              lines + comp_num, num_bits[comp_num], is_signed[comp_num],
               comp_width);
+          else if (nlt_ptr[comp_num]->get_type() == type3)
+            irv_convert_to_float_nlt_type3(line, line_offsets[comp_num],
+              lines + comp_num, num_bits[comp_num], is_signed[comp_num],
+              comp_width);
+          else if (nlt_ptr[comp_num]->get_type() == type2 ||
+            nlt_ptr[comp_num]->get_type() == type4)
+            irv_convert_to_float_nlt(line, line_offsets[comp_num],
+              lines + comp_num, num_bits[comp_num], is_signed[comp_num],
+              comp_width, nlt_ptr[comp_num]);
           if (comp_num == 2)
           { // irreversible color transform
             ict_forward(lines[0].f32, lines[1].f32, lines[2].f32,
@@ -404,8 +456,12 @@ namespace ojph {
     //////////////////////////////////////////////////////////////////////////
     bool tile::pull(line_buf* tgt_line, ui32 comp_num)
     {
-      constexpr ui8 type3 = 
+      constexpr ui8 type2 =
+        param_nlt::nonlinearity::OJPH_NLT_LUT_STYLE_NLT;
+      constexpr ui8 type3 =
         param_nlt::nonlinearity::OJPH_NLT_BINARY_COMPLEMENT_NLT;
+      constexpr ui8 type4 =
+        param_nlt::nonlinearity::OJPH_NLT_BINARY_COMPLEMENT_PLUS_LUT;
 
       assert(comp_num < num_comps);
       if (cur_line[comp_num] >= recon_comp_rects[comp_num].siz.h)
@@ -413,38 +469,51 @@ namespace ojph {
 
       cur_line[comp_num]++;
 
+      ui32 comp_width = recon_comp_rects[comp_num].siz.w;
+      if (comp_width == 0)
+        return true; // nothing to pull, but not an error
+
       if (!employ_color_transform || num_comps == 1)
       {
         line_buf *src_line = comps[comp_num].pull_line();
-        ui32 comp_width = recon_comp_rects[comp_num].siz.w;
         if (reversible[comp_num])
         {
           si64 shift = (si64)1 << (num_bits[comp_num] - 1);
-          if (is_signed[comp_num] && nlt_type3[comp_num] == type3)
-            rev_convert_nlt_type3(src_line, 0, tgt_line, 
-              line_offsets[comp_num], shift + 1, comp_width);
-          else {
+          if (nlt_ptr[comp_num] == NULL) {
             shift = is_signed[comp_num] ? 0 : shift;
-            rev_convert(src_line, 0, tgt_line, 
+            rev_convert(src_line, 0, tgt_line,
               line_offsets[comp_num], shift, comp_width);
           }
+          else if (is_signed[comp_num] &&
+            nlt_ptr[comp_num]->get_type() == type3)
+            rev_convert_nlt_type3(src_line, 0, tgt_line,
+              line_offsets[comp_num], shift + 1, comp_width);
+          else if (nlt_ptr[comp_num]->get_type() == type2 ||
+            nlt_ptr[comp_num]->get_type() == type4)
+            rev_decode_nlt(src_line, 0, tgt_line,
+              line_offsets[comp_num], num_bits[comp_num],
+              is_signed[comp_num], comp_width, nlt_ptr[comp_num]);
         }
         else
         {
-          if (nlt_type3[comp_num] == type3)
-            irv_convert_to_integer_nlt_type3(src_line, tgt_line, 
-              line_offsets[comp_num], num_bits[comp_num], 
+          if (nlt_ptr[comp_num] == NULL)
+            irv_convert_to_integer(src_line, tgt_line,
+              line_offsets[comp_num], num_bits[comp_num],
               is_signed[comp_num], comp_width);
-          else
-            irv_convert_to_integer(src_line, tgt_line, 
-              line_offsets[comp_num], num_bits[comp_num], 
+          else if (nlt_ptr[comp_num]->get_type() == type3)
+            irv_convert_to_integer_nlt_type3(src_line, tgt_line,
+              line_offsets[comp_num], num_bits[comp_num],
               is_signed[comp_num], comp_width);
+          else if (nlt_ptr[comp_num]->get_type() == type2 ||
+            nlt_ptr[comp_num]->get_type() == type4)
+            irv_convert_to_integer_nlt(src_line, tgt_line,
+              line_offsets[comp_num], num_bits[comp_num],
+              is_signed[comp_num], comp_width, nlt_ptr[comp_num]);
         }
       }
       else
       {
         assert(num_comps >= 3);
-        ui32 comp_width = recon_comp_rects[comp_num].siz.w;
         if (comp_num == 0)
         {
           if (reversible[comp_num])
@@ -464,14 +533,20 @@ namespace ojph {
             src_line = lines + comp_num;
           else
             src_line = comps[comp_num].pull_line();
-          if (is_signed[comp_num] && nlt_type3[comp_num] == type3)
-            rev_convert_nlt_type3(src_line, 0, tgt_line, 
-              line_offsets[comp_num], shift + 1, comp_width);
-          else {
+          if (nlt_ptr[comp_num] == NULL) {
             shift = is_signed[comp_num] ? 0 : shift;
-            rev_convert(src_line, 0, tgt_line, 
+            rev_convert(src_line, 0, tgt_line,
               line_offsets[comp_num], shift, comp_width);
           }
+          else if (is_signed[comp_num] &&
+            nlt_ptr[comp_num]->get_type() == type3)
+            rev_convert_nlt_type3(src_line, 0, tgt_line,
+              line_offsets[comp_num], shift + 1, comp_width);
+          else if (nlt_ptr[comp_num]->get_type() == type2 ||
+            nlt_ptr[comp_num]->get_type() == type4)
+            rev_decode_nlt(src_line, 0, tgt_line,
+              line_offsets[comp_num], num_bits[comp_num],
+              is_signed[comp_num], comp_width, nlt_ptr[comp_num]);
         }
         else
         {
@@ -479,15 +554,20 @@ namespace ojph {
           if (comp_num < 3)
             lbp = lines + comp_num;
           else
-            lbp = comps[comp_num].pull_line();            
-          if (nlt_type3[comp_num] == type3)
-            irv_convert_to_integer_nlt_type3(lbp, tgt_line, 
-              line_offsets[comp_num], num_bits[comp_num], 
+            lbp = comps[comp_num].pull_line();
+          if (nlt_ptr[comp_num] == NULL)
+            irv_convert_to_integer(lbp, tgt_line,
+              line_offsets[comp_num], num_bits[comp_num],
               is_signed[comp_num], comp_width);
-          else
-            irv_convert_to_integer(lbp, tgt_line, 
-              line_offsets[comp_num], num_bits[comp_num], 
+          else if (nlt_ptr[comp_num]->get_type() == type3)
+            irv_convert_to_integer_nlt_type3(lbp, tgt_line,
+              line_offsets[comp_num], num_bits[comp_num],
               is_signed[comp_num], comp_width);
+          else if (nlt_ptr[comp_num]->get_type() == type2 ||
+            nlt_ptr[comp_num]->get_type() == type4)
+            irv_convert_to_integer_nlt(lbp, tgt_line,
+              line_offsets[comp_num], num_bits[comp_num], is_signed[comp_num],
+              comp_width, nlt_ptr[comp_num]);
         }
       }
 
@@ -511,48 +591,48 @@ namespace ojph {
         tlm->set_next_pair(sot.get_tile_index(), this->num_bytes);
       }
       else if (tilepart_div == OJPH_TILEPART_RESOLUTIONS)
-      { 
+      {
         assert(prog_order != OJPH_PO_PCRL && prog_order != OJPH_PO_CPRL);
         ui32 max_decs = 0;
         for (ui32 c = 0; c < num_comps; ++c)
           max_decs = ojph_max(max_decs, comps[c].get_num_decompositions());
-        for (ui32 r = 0; r <= max_decs; ++r) 
+        for (ui32 r = 0; r <= max_decs; ++r)
         {
           ui32 bytes = 0;
           for (ui32 c = 0; c < num_comps; ++c)
             bytes += comps[c].get_num_bytes(r);
           tlm->set_next_pair(sot.get_tile_index(), bytes);
         }
-      }      
+      }
       else if (tilepart_div == OJPH_TILEPART_COMPONENTS)
       {
         if (prog_order == OJPH_PO_LRCP || prog_order == OJPH_PO_RLCP)
-        { 
+        {
           ui32 max_decs = 0;
           for (ui32 c = 0; c < num_comps; ++c)
             max_decs = ojph_max(max_decs, comps[c].get_num_decompositions());
-          for (ui32 r = 0; r <= max_decs; ++r) 
+          for (ui32 r = 0; r <= max_decs; ++r)
             for (ui32 c = 0; c < num_comps; ++c)
               if (r <= comps[c].get_num_decompositions())
-                tlm->set_next_pair(sot.get_tile_index(), 
+                tlm->set_next_pair(sot.get_tile_index(),
                                    comps[c].get_num_bytes(r));
         }
         else if (prog_order == OJPH_PO_CPRL)
           for (ui32 c = 0; c < num_comps; ++c)
             tlm->set_next_pair(sot.get_tile_index(), comps[c].get_num_bytes());
-        else 
+        else
           assert(0); // should not be here
       }
-      else 
+      else
       {
         assert(prog_order == OJPH_PO_LRCP || prog_order == OJPH_PO_RLCP);
         ui32 max_decs = 0;
         for (ui32 c = 0; c < num_comps; ++c)
           max_decs = ojph_max(max_decs, comps[c].get_num_decompositions());
-        for (ui32 r = 0; r <= max_decs; ++r) 
+        for (ui32 r = 0; r <= max_decs; ++r)
           for (ui32 c = 0; c < num_comps; ++c)
             if (r <= comps[c].get_num_decompositions())
-              tlm->set_next_pair(sot.get_tile_index(), 
+              tlm->set_next_pair(sot.get_tile_index(),
                                  comps[c].get_num_bytes(r));
       }
     }
@@ -573,7 +653,7 @@ namespace ojph {
           OJPH_ERROR(0x00030081, "Error writing to file");
 
         //write start of data
-        ui16 t = swap_byte(JP2K_MARKER::SOD);
+        ui16 t = swap_bytes_if_le((ui16)JP2K_MARKER::SOD);
         if (!file->write(&t, 2))
           OJPH_ERROR(0x00030082, "Error writing to file");
       }
@@ -588,9 +668,9 @@ namespace ojph {
             for (ui32 c = 0; c < num_comps; ++c)
               comps[c].write_precincts(r, file);
         }
-        else if (tilepart_div == OJPH_TILEPART_RESOLUTIONS) 
+        else if (tilepart_div == OJPH_TILEPART_RESOLUTIONS)
         {
-          for (ui32 r = 0; r <= max_decompositions; ++r) 
+          for (ui32 r = 0; r <= max_decompositions; ++r)
           {
             ui32 bytes = 0;
             for (ui32 c = 0; c < num_comps; ++c)
@@ -601,29 +681,29 @@ namespace ojph {
               OJPH_ERROR(0x00030083, "Error writing to file");
 
             //write start of data
-            ui16 t = swap_byte(JP2K_MARKER::SOD);
+            ui16 t = swap_bytes_if_le((ui16)JP2K_MARKER::SOD);
             if (!file->write(&t, 2))
               OJPH_ERROR(0x00030084, "Error writing to file");
-            
+
             //write precincts
             for (ui32 c = 0; c < num_comps; ++c)
-              comps[c].write_precincts(r, file);              
+              comps[c].write_precincts(r, file);
           }
         }
-        else 
+        else
         {
           ui32 num_tileparts = num_comps * (max_decompositions + 1);
           for (ui32 r = 0; r <= max_decompositions; ++r)
             for (ui32 c = 0; c < num_comps; ++c)
               if (r <= comps[c].get_num_decompositions()) {
                 //write tile header
-                if (!sot.write(file, comps[c].get_num_bytes(r), 
+                if (!sot.write(file, comps[c].get_num_bytes(r),
                                (ui8)(c + r * num_comps), (ui8)num_tileparts))
                   OJPH_ERROR(0x00030085, "Error writing to file");
                 //write start of data
-                ui16 t = swap_byte(JP2K_MARKER::SOD);
+                ui16 t = swap_bytes_if_le((ui16)JP2K_MARKER::SOD);
                 if (!file->write(&t, 2))
-                  OJPH_ERROR(0x00030086, "Error writing to file");                
+                  OJPH_ERROR(0x00030086, "Error writing to file");
                 comps[c].write_precincts(r, file);
               }
         }
@@ -642,7 +722,7 @@ namespace ojph {
               OJPH_ERROR(0x00030087, "Error writing to file");
 
             //write start of data
-            ui16 t = swap_byte(JP2K_MARKER::SOD);
+            ui16 t = swap_bytes_if_le((ui16)JP2K_MARKER::SOD);
             if (!file->write(&t, 2))
               OJPH_ERROR(0x00030088, "Error writing to file");
           }
@@ -717,7 +797,7 @@ namespace ojph {
               OJPH_ERROR(0x0003008A, "Error writing to file");
 
             //write start of data
-            ui16 t = swap_byte(JP2K_MARKER::SOD);
+            ui16 t = swap_bytes_if_le((ui16)JP2K_MARKER::SOD);
             if (!file->write(&t, 2))
               OJPH_ERROR(0x0003008B, "Error writing to file");
           }
@@ -891,6 +971,26 @@ namespace ojph {
           OJPH_INFO(0x00030092, "%s", error)
         else
           OJPH_ERROR(0x00030092, "%s", error)
+      }
+      // The decode path is meant to throw const char* only, but a nested
+      // OJPH_ERROR throws std::runtime_error and the allocators can throw
+      // std::bad_alloc.  These two handlers make sure such throws are also
+      // subject to the resilience setting, instead of unwinding past
+      // parse_tile_header.  In the non-resilient case the throw is passed on
+      // unchanged, because it has already been reported at its origin.
+      catch (const std::exception& error)
+      {
+        if (resilient)
+          OJPH_INFO(0x00030093, "%s", error.what())
+        else
+          throw;
+      }
+      catch (...)
+      {
+        if (resilient)
+          OJPH_INFO(0x00030094, "unknown error while parsing a tile header")
+        else
+          throw;
       }
       file->seek((si64)tile_end_location, infile_base::OJPH_SEEK_SET);
     }

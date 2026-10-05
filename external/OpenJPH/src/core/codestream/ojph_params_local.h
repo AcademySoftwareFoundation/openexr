@@ -217,21 +217,35 @@ namespace ojph {
         cptr[comp_num].YRsiz = (ui8)downsampling.y;
       }
 
-      void check_validity(const param_cod& cod)
-      {
-        this->cod = &cod;
+      void set_image_extent(point dims) { Xsiz = dims.x; Ysiz = dims.y; }
+      point get_image_extent() const { return point(Xsiz, Ysiz); }
+      void set_tile_size(size s) { XTsiz = s.w; YTsiz = s.h; }
+      size get_tile_size() const { return size(XTsiz, YTsiz); }
+      void set_image_offset(point offset)
+      { XOsiz = offset.x; YOsiz = offset.y; }
+      point get_image_offset() const
+      { return point(XOsiz, YOsiz); }
+      void set_tile_offset(point offset)
+      { XTOsiz = offset.x; YTOsiz = offset.y; }
+      point get_tile_offset() const
+      { return point(XTOsiz, YTOsiz); }
 
-        if (XTsiz == 0 && YTsiz == 0)
-        { XTsiz = Xsiz + XOsiz; YTsiz = Ysiz + YOsiz; }
+      void set_cod(const param_cod& cod) { this->cod = &cod; }
+
+      void check_validity()
+      {
         if (Xsiz == 0 || Ysiz == 0 || XTsiz == 0 || YTsiz == 0)
           OJPH_ERROR(0x00040001,
-            "You cannot set image extent nor tile size to zero");
+            "Image extent and/or tile size cannot be zero");
         if (XTOsiz > XOsiz || YTOsiz > YOsiz)
           OJPH_ERROR(0x00040002,
-            "tile offset has to be smaller than image offset");
+            "Tile offset has to be smaller than the image offset");
         if (XTsiz + XTOsiz <= XOsiz || YTsiz + YTOsiz <= YOsiz)
           OJPH_ERROR(0x00040003,
-            "the top left tile must intersect with the image");
+            "The top left tile must intersect with the image");
+        if (Xsiz <= XOsiz || Ysiz <= YOsiz)
+          OJPH_ERROR(0x00040004,
+            "The image extent must be larger than the image offset");
       }
 
       ui16 get_num_components() const { return Csiz; }
@@ -588,6 +602,9 @@ namespace ojph {
       ////////////////////////////////////////
       param_cod* add_coc_object(ui32 comp_idx);
 
+      ///////////////////////////////////////
+      param_cod* get_or_add_coc(ui32 comp_idx);
+
       ////////////////////////////////////////
       const param_atk* access_atk() const { return atk; }
 
@@ -615,8 +632,15 @@ namespace ojph {
         type = top_cod ? COC_MAIN : COD_MAIN;
         Lcod = 0;
         Scod = 0;
+        SPcod = cod_SPcod();  // SPcod is initialized to default values
         next = NULL;
         atk = NULL;
+        // For COC marker segment:
+        // Lcod will be initialized on writing the marker segment to disk
+        // Scod is initialized to 0
+        // SGcod does not exist in COC
+        // SPcoc is initialized to default values
+        // atk is initialized to NULL
         this->top_cod = top_cod;
         this->comp_idx = comp_idx;
       }
@@ -677,6 +701,12 @@ namespace ojph {
         QCC_TILE  = 4   // not implemented
       };
 
+      ////////////////////////////////////////
+      const float QFACTOR_UNSET = 0.0f;
+
+      ////////////////////////////////////////
+      using comp_type = ojph::param_qcd::comp_type;
+
     public:
       param_qcd(param_qcd* top_qcd = NULL, ui16 comp_idx = OJPH_QCD_DEFAULT)
       { avail = NULL; init(top_qcd, comp_idx); }
@@ -693,21 +723,27 @@ namespace ojph {
       }
 
       void check_validity(const param_siz& siz, const param_cod& cod);
+      void make_quant_steps(ui32 comp_num, const param_cod &cod,
+                            const param_siz &siz);
+      bool is_qcc_needed(ui32 comp_num, const param_cod &cod,
+                         const param_siz &siz);
       void set_delta(float delta) { base_delta = delta; }
-      void set_delta(ui32 comp_idx, float delta);
+      void set_qfactor(float qfactor);
       ui32 get_num_guard_bits() const;
       ui32 get_MAGB() const;
       ui32 get_Kmax(const param_dfs* dfs, ui32 num_decompositions,
                     ui32 resolution, ui32 subband) const;
       ui32 propose_precision(const param_cod* cod) const;
       float get_irrev_delta(const param_dfs* dfs,
-                            ui32 num_decompositions,
+                            ui32 num_decompositions, ui32 comp_num,
                             ui32 resolution, ui32 subband) const;
       bool write(outfile_base *file);
       bool write_qcc(outfile_base *file, ui32 num_comps);
       void read(infile_base *file);
       void read_qcc(infile_base *file, ui32 num_comps);
 
+      void set_delta(ui32 comp_idx, float delta);
+      void set_qfactor(ui32 comp_idx, comp_type ctype, float qfactor);
       param_qcd* get_qcc(ui32 comp_idx);
       const param_qcd* get_qcc(ui32 comp_idx) const;
       param_qcd* add_qcc_object(ui32 comp_idx);
@@ -717,12 +753,16 @@ namespace ojph {
       ////////////////////////////////////////
       void init(param_qcd* top_qcd, ui16 comp_idx)
       {
+        is_init = false;
         type = top_qcd ? QCC_MAIN : QCD_MAIN;
         Lqcd = 0;
         Sqcd = 0;
         memset(&SPqcd, 0, sizeof(SPqcd));
         num_subbands = 0;
         base_delta = -1.0f;
+        qfactor = QFACTOR_UNSET;
+        ctype = comp_type::OJPH_COMP_Y;
+        sampling = ojph::point(1, 1);
         enabled = true;
         next = NULL;
         this->top_qcd = top_qcd;
@@ -744,6 +784,7 @@ namespace ojph {
       void set_rev_quant(ui32 num_decomps, ui32 bit_depth,
                          bool is_employing_color_transform);
       void set_irrev_quant(ui32 num_decomps);
+      void encode_SPqcd(ui32 subband_index, float delta);
       ui32 get_largest_Kmax() const;
       bool internal_write_qcc(outfile_base *file, ui32 num_comps);
       void trim_non_existing_components(ui32 num_comps);
@@ -755,6 +796,7 @@ namespace ojph {
 
     private: // QCD variables
       qcd_type type;
+      bool is_init;     // have the quantization steps been generated
       ui16 Lqcd;
       ui8 Sqcd;
       union
@@ -763,11 +805,21 @@ namespace ojph {
         ui16 u16[97];
       } SPqcd;
       ui32 num_subbands;  // number of subbands
-      float base_delta;   // base quantization step size -- all other
-                          // step sizes are derived from it.
       bool enabled;       // enabled if two, and ignored if false
       param_qcd *next;    // pointer to create chains of qcc marker segments
       param_qcd *top_qcd; // pointer to the top QCD (this is the default)
+
+      // variables used to generate the quantization step sizes
+      float base_delta;   // base quantization step size -- all other
+                          // step sizes are derived from it.
+      float qfactor;
+      comp_type ctype;
+      bool is_color_trans;
+      ui32 num_decomps;
+      ui32 bit_depth;
+      bool is_signed;
+      ui32 wavelet_kern;
+      ojph::point sampling;
 
     private: // QCC only variables
       ui16 comp_idx;
@@ -783,13 +835,87 @@ namespace ojph {
     //
     //
     ///////////////////////////////////////////////////////////////////////////
+
+    // nlt_rec for easy exchange and processing of NLT types 2 and 4
+    struct nlt_rec {
+      using nonlinearity = ojph::param_nlt::nonlinearity;
+
+      static ui8 get_bpp(ui32 t) { return (t <= 8) ? 1 : ((t <= 16) ? 2 : 4); }
+      nlt_rec() { points_store = NULL; store_size = 0; init(); }
+      void init() {
+        BDnlt = 0; Tnlt = nonlinearity::OJPH_NLT_UNDEFINED;
+        d_min = d_max = pt_val = num_points = 0; bytes_per_point = 0;
+        marker_points = NULL;
+        // decode
+        dec_points = NULL;
+        fd_min = fd_max = delta = inv_delta = multiplier = 0.0f;
+        // encode
+        enc_points = NULL; enc_num_points = 0;
+      }
+      ui8 get_type() const { return Tnlt; }
+      ui8 get_bit_depth() const { return (ui8)((BDnlt & 0x7F) + 1u); }
+      ui8 get_bpp() const { return get_bpp(pt_val); }
+      bool is_signed() const { return (BDnlt & 0x80) != 0; }
+      ui32 cal_marker_points_size() const
+      { return (ui32)num_points * (ui32)get_bpp(); }
+      ui8 BDnlt;         // Decoded image component bit depth parameter
+      ui8 Tnlt;          // Type of non-linearity
+      ui32 d_min, d_max; // Dmin and Dmax
+      ui32 pt_val;       // Precision of points in bits
+      ui32 num_points;   // number of points in LUT points from 2 to 8192
+      void* marker_points; // pointer to marker points
+      ui8 bytes_per_point;  // number of bytes per point, derived from pt_val
+
+      // point storage
+      void* points_store;// store for all needed storage
+      ui32 store_size;   // storage size in bytes
+
+      // memebers for decoding
+      float* dec_points;     // LUT points for decoding -- must be float
+      float fd_min, fd_max;  // float d_min and d_max
+      float delta, inv_delta;// delta is (dmax-dmin) / (num_points - 1)
+      float multiplier;      // multiplier to convert to final integer
+      ui32 cal_store_size_for_decoding()
+      { // add 2 extra points, one before the dec_points table and one after
+        return (ui32)(num_points + 2u) * (ui32)sizeof(float)
+          + (ui32)num_points * (ui32)get_bpp();
+      }
+      void assign_pointers_for_decoding()
+      { // 2 extra points, one before the dec_points table and one after
+        dec_points = (float*)points_store + 1;  enc_points = NULL;
+        marker_points = (ui8*)dec_points + (num_points + 1) * sizeof(float);
+      }
+      void prepare_for_decoding();
+
+      // memebers for encoding -- we also use some from decoding
+      float* enc_points;     // LUT points for encoding -- must be float
+      ui32 enc_num_points;   // # of points for encoding (larger than decoding)
+      float ft_min, ft_max;  // float d_min and d_max
+      ui32 cal_store_size_for_encoding(ui32 enc_num_points)
+      { // add 2 extra points, one before the enc_num_points table and one after
+        this->enc_num_points = enc_num_points;
+        return (ui32)(enc_num_points + 2u) * (ui32)sizeof(float)
+          + (ui32)num_points * (ui32)get_bpp();
+      }
+      void assign_pointers_for_encoding()
+      { // 2 extra points, one before the enc_num_points table and one after
+        enc_points = (float*)points_store + 1;  dec_points = NULL;
+        marker_points = (ui8*)enc_points + (enc_num_points + 1) * sizeof(float);
+      }
+      void prepare_for_encoding();
+    };
+
     // data structures used by param_nlt
     struct param_nlt
     {
       using special_comp_num = ojph::param_nlt::special_comp_num;
       using nonlinearity = ojph::param_nlt::nonlinearity;
+
     public:
-      param_nlt() { avail = NULL; init(); }
+      param_nlt() {
+        avail = NULL;
+        init();
+      }
       ~param_nlt() { destroy(); }
 
       ////////////////////////////////////////
@@ -802,27 +928,52 @@ namespace ojph {
         this->init();
       }
 
-      void check_validity(param_siz& siz);
+      void check_validity(param_siz& siz, const param_cod& cod);
+
+      ////////////////////////////////////////
+      // Returns the index of the first component that uses a LUT nonlinearity
+      // type (types 2 or 4) with a reversible wavelet, which is not supported
+      // yet, as it makes no sense, becausse the LUT itself is not reversible.
+      // This function returns the first component that has this problem or
+      // or -1 when there is no such component.
+      int find_unsupported_nlt(const param_siz& siz,
+                               const param_cod& cod) const;
+
       void set_nonlinear_transform(ui32 comp_num, ui8 nl_type);
-      bool get_nonlinear_transform(ui32 comp_num, ui8& bit_depth,
-                                   bool& is_signed, ui8& nl_type) const;
+
+      void set_nonlinear_transform(ui32 comp_num,
+                                   ui8 decoded_bit_depth,
+                                   bool decoded_signedness,
+                                   ui32 d_min, ui32 d_max, ui8 pt_val,
+                                   ui16 num_points, void* points, ui8 nl_type);
+
+      bool get_nonlinear_transform(ui32 comp_num,
+                                   ui8& decoded_bit_depth,
+                                   bool& decoded_signedness,
+                                   ui8& nl_type) const;
+
       bool write(outfile_base* file) const;
-      void read(infile_base* file);
+      bool read(infile_base* file);
+
+      const nlt_rec* get_nlt_rec(ui32 comp_num) const;
 
     private:
       ////////////////////////////////////////
       void init()
       {
-        Lnlt = 6;
+        Lnlt = 0;
         Cnlt = special_comp_num::ALL_COMPS; // default
-        BDnlt = 0;
-        Tnlt = nonlinearity::OJPH_NLT_UNDEFINED;
+        rec.init();
         enabled = false; next = NULL;
       }
 
       ////////////////////////////////////////
       void destroy()
       {
+        if (rec.points_store) {
+          delete[] (ui8*)rec.points_store;
+          rec.points_store = NULL;
+        }
         if (avail)
           delete avail;
         if (next) {
@@ -841,10 +992,7 @@ namespace ojph {
     private:
       ui16 Lnlt;         // length of the marker segment excluding marker
       ui16 Cnlt;         // Component involved in the transformation
-      ui8 BDnlt;         // Decoded image component bit depth parameter
-      ui8 Tnlt;          // Type of non-linearity
-      bool enabled;      // true if this object is used
-      param_nlt* next;   // for chaining NLT markers
+      nlt_rec rec;       // NLT properties
 
       // The top level param_nlt object is not allocated, but as part of
       // codestream, and is used to manage allocated next objects.
@@ -852,6 +1000,8 @@ namespace ojph {
       // param_nlt object.
 
     private: // on restart, already allocated param_nlt objs are stored here
+      bool enabled;      // true if this object is used
+      param_nlt* next;   // for chaining NLT markers
       param_nlt* avail;
     };
 
@@ -960,9 +1110,12 @@ namespace ojph {
       bool write(outfile_base *file);
 
     private:
-      ui16 Ltlm;
-      ui8 Ztlm;
-      ui8 Stlm;
+      enum : ui32 {
+        // Ltlm is 16 bits and spans itself, Ztlm, Stlm and 6 bytes per entry
+        MAX_PAIRS_PER_SEG = (65535 - 4) / 6,
+        MAX_SEGMENTS      = 256, // Ztlm is 8 bits
+      };
+
       Ttlm_Ptlm_pair* pairs;
       ui32 num_pairs;
       ui32 next_pair_index;

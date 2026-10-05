@@ -34,19 +34,21 @@ BytesAttribute::BytesAttribute (
     {
         THROW (IEX_NAMESPACE::ArgExc, "Invalid data pointer.");
     }
-    memcpy (
-        (unsigned char*) _data,
-        (const unsigned char*) data,
-        size);
+    if (size > 0)
+        memcpy (
+            (unsigned char*) _data,
+            (const unsigned char*) data,
+            size);
 }
 
 BytesAttribute::BytesAttribute (const BytesAttribute& other)
     : typeHint (other.typeHint), _data (other._data.size ())
 {
-    memcpy (
-        (unsigned char*) _data,
-        (const unsigned char*) other._data,
-        other._data.size ());
+    if (other._data.size () > 0)
+        memcpy (
+            (unsigned char*) _data,
+            (const unsigned char*) other._data,
+            other._data.size ());
 }
 
 // Note the destructor is defined here and not in the header file to

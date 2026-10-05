@@ -18,12 +18,14 @@ openexr_define_library(OpenEXR
     ImfCheckedArithmetic.h
     ImfChromaticities.cpp
     ImfChromaticitiesAttribute.cpp
+    ImfColorMetadata.cpp
     ImfCompositeDeepScanLine.cpp
     ImfCompression.cpp
     ImfCompression.h
     ImfCompressionAttribute.cpp
     ImfCompressor.cpp
     ImfCompressor.h
+    ImfCompressorDeepInternal.h
     ImfContext.cpp
     ImfContextInit.cpp
     ImfConvert.cpp
@@ -125,6 +127,8 @@ openexr_define_library(OpenEXR
     ImfZip.h
     ImfZipCompressor.cpp
     ImfZipCompressor.h
+    ImfZstdCompressor.cpp
+    ImfZstdCompressor.h
   HEADERS
     ImfAcesFile.h
     ImfArray.h
@@ -136,6 +140,7 @@ openexr_define_library(OpenEXR
     ImfChannelListAttribute.h
     ImfChromaticities.h
     ImfChromaticitiesAttribute.h
+    ImfColorMetadata.h
     ImfCompositeDeepScanLine.h
     ImfCompression.h
     ImfCompressionAttribute.h

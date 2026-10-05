@@ -72,6 +72,7 @@
 #endif
 
 #if (GCC_PREREQ(8, 1) || CLANG_PREREQ(6, 0, 10000000) || MSVC_PREREQ(1920)) && \
+	!(CLANG_PREREQ(18, 0, 18000000) && !CLANG_PREREQ(19, 0, 19000000)) && \
 	!defined(LIBDEFLATE_ASSEMBLER_DOES_NOT_SUPPORT_AVX512VNNI)
 /*
  * AVX512VNNI implementation using 256-bit vectors.  This is very similar to the

@@ -909,7 +909,7 @@ static void
 doDecodeScan (exr_context_t f, pixels& p, int xs, int ys)
 {
     exr_chunk_info_t      cinfo;
-    exr_decode_pipeline_t decoder;
+    exr_decode_pipeline_t decoder = EXR_DECODE_PIPELINE_INITIALIZER;
     int32_t               scansperchunk;
     exr_attr_box2i_t      dw;
     bool                  first = true;
@@ -990,7 +990,7 @@ doDecodeTile (exr_context_t f, pixels& p, int xs, int ys)
     int                   y, endy;
     int                   x, endx;
     exr_chunk_info_t      cinfo;
-    exr_decode_pipeline_t decoder;
+    exr_decode_pipeline_t decoder = EXR_DECODE_PIPELINE_INITIALIZER;
     bool                  first = true;
 
     EXRCORE_TEST (xs == 1 && ys == 1);
@@ -1299,9 +1299,13 @@ doWriteRead (
     dataW.max.x = dwx + fw - 1;
     dataW.max.y = dwy + fh - 1;
 
-    std::cout << "  " << pattern << " tiled: " << (tiled ? "yes" : "no")
-              << " sampling " << xs << ", " << ys << " comp " << (int) comp
-              << std::endl;
+    std::string codec;
+    getCompressionNameFromId(Compression(comp), codec);
+
+    std::cout << "  " << std::left << std::setw (9) << pattern
+              << " tiled: " << std::setw (3) << (tiled ? "yes" : "no")
+              << "  sampling " << xs << ", " << ys << "  comp "
+              << codec << " (" << comp << ")" << std::endl;
 
     EXRCORE_TEST_RVAL (exr_start_write (
         &f, filename.c_str (), EXR_WRITE_FILE_DIRECTLY, &cinit));
@@ -1436,6 +1440,7 @@ doWriteRead (
         case EXR_COMPRESSION_RLE:
         case EXR_COMPRESSION_ZIP:
         case EXR_COMPRESSION_ZIPS:
+        case EXR_COMPRESSION_ZSTD:
             restore.compareExact (p, "orig", "C loaded C");
             break;
         case EXR_COMPRESSION_PIZ:
@@ -1757,9 +1762,10 @@ static bool
 read_header_throws (void* buffer, size_t max_sz)
 {
     std::vector<CodestreamChannelInfo> map;
+    HeaderMagic                        magic;
     try
     {
-        read_header (buffer, max_sz, map);
+        read_header (buffer, max_sz, map, magic);
         return false;
     }
     catch (...)
@@ -1781,12 +1787,30 @@ testHTHeaderBounds (const std::string& tempdir)
 
     uint8_t buf[64];
     const size_t hdr_sz =
-        write_header (buf, sizeof (buf), cs_to_file_ch);
+        write_header (buf, sizeof (buf), cs_to_file_ch, HeaderMagic::V1);
     EXRCORE_TEST (hdr_sz > HEADER_SZ);
 
     std::vector<CodestreamChannelInfo> read_map;
-    EXRCORE_TEST (read_header (buf, hdr_sz, read_map) == hdr_sz);
+    HeaderMagic                        read_magic = HeaderMagic::V2;
+    EXRCORE_TEST (read_header (buf, hdr_sz, read_map, read_magic) == hdr_sz);
     EXRCORE_TEST (read_map.size () == 3);
+    EXRCORE_TEST (read_magic == HeaderMagic::V1);
+
+    /* HeaderMagic::V2 round-trips */
+    uint8_t buf_v2[64];
+    EXRCORE_TEST (
+        write_header (buf_v2, sizeof (buf_v2), cs_to_file_ch, HeaderMagic::V2) ==
+        hdr_sz);
+    std::vector<CodestreamChannelInfo> read_map_v2;
+    EXRCORE_TEST (
+        read_header (buf_v2, hdr_sz, read_map_v2, read_magic) == hdr_sz);
+    EXRCORE_TEST (read_magic == HeaderMagic::V2);
+
+    /* unknown magic numbers are rejected */
+    uint8_t bad_magic[64];
+    memcpy (bad_magic, buf, hdr_sz);
+    bad_magic[1] = 'X';
+    EXRCORE_TEST (read_header_throws (bad_magic, hdr_sz));
 
     EXRCORE_TEST (read_header_throws (buf, hdr_sz - 1));
 
@@ -1806,6 +1830,12 @@ testHTHeaderBounds (const std::string& tempdir)
 }
 
 void
+testZstdCompression (const std::string& tempdir)
+{
+    testComp (tempdir, EXR_COMPRESSION_ZSTD);
+}
+
+void
 testDeepNoCompression (const std::string& tempdir)
 {}
 
@@ -1815,4 +1845,8 @@ testDeepZIPCompression (const std::string& tempdir)
 
 void
 testDeepZIPSCompression (const std::string& tempdir)
+{}
+
+void
+testDeepZstdCompression (const std::string& tempdir)
 {}

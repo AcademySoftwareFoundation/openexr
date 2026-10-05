@@ -85,8 +85,8 @@ If you are doing a freestanding build with `-ffreestanding`, you must add
 
 - gcc: v4.9 and later
 - clang: v3.9 and later (upstream), Xcode 8 and later (Apple)
-- MSVC: Visual Studio 2015 and later
-- Other compilers: any other C99-compatible compiler should work, though if your
+- MSVC: Visual Studio 2019 version 16.8 and later
+- Other compilers: any other C11-compatible compiler should work, though if your
   compiler pretends to be gcc, clang, or MSVC, it needs to be sufficiently
   compatible with the compiler it pretends to be.
 
@@ -146,7 +146,7 @@ following bindings:
 * C#: [LibDeflate.NET](https://github.com/jzebedee/LibDeflate.NET)
 * Delphi: [libdeflate-pas](https://github.com/zedxxx/libdeflate-pas)
 * Go: [go-libdeflate](https://github.com/4kills/go-libdeflate)
-* Java: [libdeflate-java](https://github.com/astei/libdeflate-java)
+* Java: [jlibdeflate](https://github.com/fulcrumgenomics/jlibdeflate)
 * Julia: [LibDeflate.jl](https://github.com/jakobnissen/LibDeflate.jl)
 * Nim: [libdeflate-nim](https://github.com/gemesa/libdeflate-nim)
 * Perl: [Gzip::Libdeflate](https://github.com/benkasminbullock/gzip-libdeflate)

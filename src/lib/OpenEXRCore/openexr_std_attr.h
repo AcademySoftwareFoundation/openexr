@@ -24,8 +24,10 @@ extern "C" {
 
 /*
 chromaticities
+colorInteropID
 whiteLuminance
 adoptedNeutral
+acesImageContainerFlag
 xDensity
 owner
 comments
