@@ -890,7 +890,7 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
             encode->channels[file_c].data_type == EXR_PIXEL_HALF ? 16 : 32,
             encode->channels[file_c].data_type != EXR_PIXEL_UINT);
 
-        bpl += encode->channels[file_c].bytes_per_element *
+        bpl += (int64_t) encode->channels[file_c].bytes_per_element *
                encode->channels[file_c].width;
     }
     if (bpl > INT32_MAX || bpl * encode->chunk.height > (int64_t) PTRDIFF_MAX)
@@ -994,7 +994,7 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
                             cur_line = cs.exchange (cur_line, next_comp);
                         }
 
-                        line_pixels += encode->channels[line_c].bytes_per_element *
+                        line_pixels += (int64_t) encode->channels[line_c].bytes_per_element *
                                     encode->channels[line_c].width;
                     }
                 }
