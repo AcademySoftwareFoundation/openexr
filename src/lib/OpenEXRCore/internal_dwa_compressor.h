@@ -916,6 +916,8 @@ DwaCompressor_uncompress (
 
     if (unknownCompressedSize > 0)
     {
+        size_t unknownActualOut;
+
         if (unknownUncompressedSize > me->_planarUncBufferSize[UNKNOWN])
         {
             return EXR_ERR_CORRUPT_CHUNK;
@@ -927,7 +929,18 @@ DwaCompressor_uncompress (
                                    unknownCompressedSize,
                                    me->_planarUncBuffer[UNKNOWN],
                                    unknownUncompressedSize,
-                                   NULL))
+                                   &unknownActualOut))
+        {
+            return EXR_ERR_CORRUPT_CHUNK;
+        }
+
+        /* A short zlib stream (fewer bytes produced than requested) is
+         * reported as success (see translate_deflate_result), leaving
+         * the tail of _planarUncBuffer[UNKNOWN] filled with stale heap
+         * contents that are then copied into the decoded image. Reject
+         * it explicitly instead of trusting the full buffer was written
+         * (see GHSA-frx8-5p4h-j8m7). */
+        if (unknownActualOut != unknownUncompressedSize)
         {
             return EXR_ERR_CORRUPT_CHUNK;
         }
