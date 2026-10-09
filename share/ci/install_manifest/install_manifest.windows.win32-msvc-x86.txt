@@ -1,17 +1,22 @@
 # SPDX-License-Identifier: BSD-3-Clause
-# Copyright (c) Contributors to the OpenEXR Project.
-# cmake -B /__w/openexr/openexr/_build -S /__w/openexr/openexr -DCMAKE_INSTALL_PREFIX=/__w/openexr/openexr/_install -DCMAKE_BUILD_TYPE=Release -DOPENEXR_CXX_STANDARD=17 -DBUILD_SHARED_LIBS=OFF -DOPENEXR_ENABLE_THREADING=ON -DOPENEXR_INSTALL_PKG_CONFIG=ON -DOPENEXR_INSTALL_DOCS=ON -DOPENEXR_BUILD_EXAMPLES=ON -DOPENEXR_BUILD_TOOLS=ON -DOPENEXR_FORCE_INTERNAL_IMATH=OFF -DOPENEXR_FORCE_INTERNAL_DEFLATE=OFF -DOPENEXR_FORCE_INTERNAL_OPENJPH=ON -DBUILD_TESTING=ON -DOPENEXR_RUN_FUZZ_TESTS=OFF -DCMAKE_VERBOSE_MAKEFILE=ON 
-bin/exr2aces
-bin/exrenvmap
-bin/exrheader
-bin/exrinfo
-bin/exrmakepreview
-bin/exrmaketiled
-bin/exrmanifest
-bin/exrmetrics
-bin/exrmultipart
-bin/exrmultiview
-bin/exrstdattr
+# Copyright (c) Contributors to the OpenEXR Project
+# cmake -B . -S ..       -DCMAKE_INSTALL_PREFIX=../_install       -DCMAKE_BUILD_TYPE=Release       -DOPENEXR_CXX_STANDARD=17       -DBUILD_SHARED_LIBS=ON       -DOPENEXR_ENABLE_THREADING=ON       -DOPENEXR_INSTALL_PKG_CONFIG=ON       -DOPENEXR_INSTALL_DOCS=OFF       -DOPENEXR_BUILD_EXAMPLES=ON       -DOPENEXR_BUILD_TOOLS=ON       -DOPENEXR_FORCE_INTERNAL_IMATH=OFF       -DOPENEXR_FORCE_INTERNAL_DEFLATE=OFF       -DBUILD_TESTING=ON       -DOPENEXR_RUN_FUZZ_TESTS='OFF'       -DCMAKE_VERBOSE_MAKEFILE='ON'       -A Win32
+bin/Iex-${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR}.dll
+bin/IlmThread-${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR}.dll
+bin/OpenEXR-${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR}.dll
+bin/OpenEXRCore-${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR}.dll
+bin/OpenEXRUtil-${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR}.dll
+bin/exr2aces.exe
+bin/exrenvmap.exe
+bin/exrheader.exe
+bin/exrinfo.exe
+bin/exrmakepreview.exe
+bin/exrmaketiled.exe
+bin/exrmanifest.exe
+bin/exrmetrics.exe
+bin/exrmultipart.exe
+bin/exrmultiview.exe
+bin/exrstdattr.exe
 include/OpenEXR/Iex.h
 include/OpenEXR/IexBaseExc.h
 include/OpenEXR/IexConfig.h
@@ -162,16 +167,17 @@ include/OpenEXR/openexr_errors.h
 include/OpenEXR/openexr_part.h
 include/OpenEXR/openexr_std_attr.h
 include/OpenEXR/openexr_version.h
-lib64/cmake/OpenEXR/OpenEXRConfig.cmake
-lib64/cmake/OpenEXR/OpenEXRConfigVersion.cmake
-lib64/cmake/OpenEXR/OpenEXRTargets-release.cmake
-lib64/cmake/OpenEXR/OpenEXRTargets.cmake
-lib64/libIex-${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR}.a
-lib64/libIlmThread-${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR}.a
-lib64/libOpenEXR-${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR}.a
-lib64/libOpenEXRCore-${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR}.a
-lib64/libOpenEXRUtil-${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR}.a
-lib64/pkgconfig/OpenEXR.pc
+include/OpenEXR/ImfHTCompressor.h
+lib/Iex-${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR}.lib
+lib/IlmThread-${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR}.lib
+lib/OpenEXR-${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR}.lib
+lib/OpenEXRCore-${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR}.lib
+lib/OpenEXRUtil-${OPENEXR_VERSION_MAJOR}_${OPENEXR_VERSION_MINOR}.lib
+lib/cmake/OpenEXR/OpenEXRConfig.cmake
+lib/cmake/OpenEXR/OpenEXRConfigVersion.cmake
+lib/cmake/OpenEXR/OpenEXRTargets-release.cmake
+lib/cmake/OpenEXR/OpenEXRTargets.cmake
+lib/pkgconfig/OpenEXR.pc
 share/doc/OpenEXR/examples/deepExamples.cpp
 share/doc/OpenEXR/examples/deepExamples.h
 share/doc/OpenEXR/examples/deepTiledExamples.cpp
@@ -194,15 +200,3 @@ share/doc/OpenEXR/examples/rgbaInterfaceExamples.cpp
 share/doc/OpenEXR/examples/rgbaInterfaceExamples.h
 share/doc/OpenEXR/examples/rgbaInterfaceTiledExamples.cpp
 share/doc/OpenEXR/examples/rgbaInterfaceTiledExamples.h
-share/man/man1/exr2aces.1
-share/man/man1/exrcheck.1
-share/man/man1/exrenvmap.1
-share/man/man1/exrheader.1
-share/man/man1/exrinfo.1
-share/man/man1/exrmakepreview.1
-share/man/man1/exrmaketiled.1
-share/man/man1/exrmanifest.1
-share/man/man1/exrmetrics.1
-share/man/man1/exrmultipart.1
-share/man/man1/exrmultiview.1
-share/man/man1/exrstdattr.1

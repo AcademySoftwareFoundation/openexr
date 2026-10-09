@@ -39,3 +39,9 @@ define_openexr_util_tests(
   testIO
   testImageChannel
 )
+
+# "portability" tests: an abbreviated subset of the test suite run by
+# specialty CI jobs (alternate OS/build-variant jobs) to test the
+# behaviors most likely to differ across OS/toolchain/libc.
+# Primary Linux/macOS/Windows jobs run the complete test suite.
+set_tests_properties(OpenEXRUtil.testFlatImage PROPERTIES LABELS portability)

@@ -6,14 +6,29 @@
 
 name: Bazel
 
-# Skip the run on *.md changes and on changes to the website, *except*
-# for "website/src", since that code needs validation.  There's a
-# separate workflow for with website.
+# Skip the run on changes to all cmake-related files (since this is
+# the bazel build) and on changes to the website, *except* for
+# "website/src", since that code needs validation. 
 
 on:
   push:
     paths:
       - '**'
+      - '!ASWF/**'
+      - '!Contrib/**'
+      - '!CODEOWNERS'
+      - '!.mailmap'
+      - '!.git-blame-ignore-revs'
+      - '!.gitignore'
+      - '!sonar-project.properties'
+      - '!pyproject.toml'
+      - '!share/util/**'
+      - '!cmake/**'
+      - '!CMakeLists.txt'
+      - '!**/CMakeLists.txt'
+      - '!CMakePresets.json'
+      - '!docs/**'
+      - '!share/ci/**'
       - '!**.md'
       - '!website/**'
       - 'website/src/**'
@@ -23,6 +38,21 @@ on:
   pull_request:
     paths:
       - '**'
+      - '!ASWF/**'
+      - '!Contrib/**'
+      - '!CODEOWNERS'
+      - '!.mailmap'
+      - '!.git-blame-ignore-revs'
+      - '!.gitignore'
+      - '!sonar-project.properties'
+      - '!pyproject.toml'
+      - '!share/util/**'
+      - '!cmake/**'
+      - '!CMakeLists.txt'
+      - '!**/CMakeLists.txt'
+      - '!CMakePresets.json'
+      - '!docs/**'
+      - '!share/ci/**'
       - '!**.md'
       - '!website/**'
       - 'website/src/**'
@@ -33,9 +63,26 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  # Key on the source branch name (head_ref for pull_request events,
+  # ref_name for push/tag events) rather than github.ref, so a push-triggered
+  # run and the pull_request-triggered run for the same branch share one
+  # concurrency group. Without this, pushing to a branch with an open PR
+  # would fire both a push run (github.ref = refs/heads/<branch>) and a
+  # pull_request run (github.ref = refs/pull/<n>/merge) in *different*
+  # groups, so neither would cancel the other.
+  #
+  # This only matters for branches that live in *this* repo with an open
+  # PR against it, i.e. feature branch merge PRs and dependabot PRs.
+  # contributor's push (which runs in the fork) can never collide with
+
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: ${{ (github.head_ref || github.ref_name) != 'main' }}
+
 jobs:
   build_and_test_ubuntu:
     name: Linux Ubuntu 26.04 Bazel build <GCC 15>
+    if: github.event.pull_request.draft != true
     runs-on: ubuntu-26.04
     
     steps:
@@ -54,6 +101,7 @@ jobs:
 
   build_and_test_windows:
     name: Windows Server 2025 build <Visual Studio 2022>
+    if: github.event.pull_request.draft != true
     runs-on: windows-2025
 
     steps:
@@ -72,6 +120,7 @@ jobs:
 
   build_and_test_macos:
     name: macOS 26 Bazel build <Apple Clang15>
+    if: github.event.pull_request.draft != true
     runs-on: macos-26
 
     steps:

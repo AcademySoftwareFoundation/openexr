@@ -14,7 +14,7 @@ readme = "src/wrappers/python/README.md"
 authors = [
   { name="Contributors to the OpenEXR project", email="info@openexr.com" },
 ]
-requires-python = ">=3.7"
+requires-python = ">=3.11"
 
 dependencies = [
   "numpy>=1.7.0"

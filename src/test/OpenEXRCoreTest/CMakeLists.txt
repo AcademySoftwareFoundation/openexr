@@ -144,3 +144,17 @@ define_openexrcore_tests(
  testDeepZIPSCompression
  testDeepZstdCompression
 )
+
+# "portability" tests: an abbreviated subset of the test suite run by
+# specialty CI jobs (alternate OS/build-variant jobs) to test the
+# behaviors most likely to differ across OS/toolchain/libc.
+# Primary Linux/macOS/Windows jobs run the complete test suite.
+set_tests_properties(
+  OpenEXRCore.testBase
+  OpenEXRCore.testCPUIdent
+  OpenEXRCore.testHalf
+  OpenEXRCore.testXDR
+  OpenEXRCore.testTempContext
+  OpenEXRCore.testStartWriteUTF8
+  PROPERTIES LABELS portability
+)

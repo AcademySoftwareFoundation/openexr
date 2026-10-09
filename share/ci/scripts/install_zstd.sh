@@ -15,6 +15,10 @@ TAG="$1"
 # The sudo is nececessary since the installation goes to /usr/local.
 SUDO=$(command -v sudo >/dev/null 2>&1 && echo sudo || echo "")
 
+# Resolve cmake's absolute path up front: sudo's secure_path can
+# differ from the invoking user's PATH.
+CMAKE=$(command -v cmake)
+
 git clone https://github.com/facebook/zstd
 pushd zstd
 
@@ -22,7 +26,7 @@ git checkout ${TAG}
 
 # zstd's CMake project lives in build/cmake; build out-of-source.
 cmake -S build/cmake -B _build -DCMAKE_BUILD_TYPE=Release
-$SUDO cmake --build _build \
+$SUDO "$CMAKE" --build _build \
       --target install \
       --config Release \
       --parallel 2

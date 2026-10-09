@@ -1,0 +1,579 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright (c) Contributors to the OpenEXR Project.
+
+# The CI that runs on push and pull request, a fast subset of the
+# complete suite.
+#
+# The CI workflow uses steps defined in ci_steps.yml, via the "uses:"
+# directive. Linux, macOS, and Windows all share a common set of
+# configure/build/validate steps.
+#
+# This is the pre-merge workflow: a fast smoke test subset of build
+# variants, plus FreeBSD and a single-version/single-arch Python wheel
+# build, runs on every push/pull_request. Some jobs run a subset of
+# the test suite via the test_category restriction,
+# e.g. 'portability'.
+#
+# The full CI runs in the separate ci_full.yml workflow, scheduled to
+# run weekly on Sunday nights but also triggered by a tag push
+# (release-candidate) or a workflow_dispatch.
+#
+# The expected workflow is:
+
+# - Pushes to branches in local forks and PRs on the main repo trigger
+#   this inexpensive workflow that tests a variety build
+#   configurations on various architectures and tool chains, expecting
+#   that this will catch the vast majority of errors before merging
+#   into main.
+# - This runs the compete test suite on the primary Linux, macOS, and
+#   Windows jobs, but executes a subset of th test suite on other
+#   jobs.
+# 
+# - The full workflow runs weekly and on release candidates, which
+#   runs the complete test suite on everything.
+
+name: CI (pre-merge)
+
+on:
+  push:
+    paths:
+      - '**'
+      - '!ASWF/**'
+      - '!Contrib/**'
+      - '!CODEOWNERS'
+      - '!.mailmap'
+      - '!.git-blame-ignore-revs'
+      - '!.gitignore'
+      - '!sonar-project.properties'
+      - '!share/util/**'
+      - '!**/*bazel*'
+      - '!**.md'
+      - '!website/**'
+      - 'website/src/**'
+      - '!.github/workflows/**'
+      - '.github/workflows/ci_premerge.yml'
+      - '.github/workflows/ci_steps.yml'
+  pull_request:
+    paths:
+      - '**'
+      - '!ASWF/**'
+      - '!Contrib/**'
+      - '!CODEOWNERS'
+      - '!.mailmap'
+      - '!.git-blame-ignore-revs'
+      - '!.gitignore'
+      - '!sonar-project.properties'
+      - '!share/util/**'
+      - '!**/*bazel*'
+      - '!**.md'
+      - '!website/**'
+      - 'website/src/**'
+      - '!.github/workflows/**'
+      - '.github/workflows/ci_premerge.yml'
+      - '.github/workflows/ci_steps.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  # Key on the source branch name (head_ref for pull_request events,
+  # ref_name for push/tag events) rather than github.ref, so a push-triggered
+  # run and the pull_request-triggered run for the same branch share one
+  # concurrency group. Without this, pushing to a branch with an open PR
+  # would fire both a push run (github.ref = refs/heads/<branch>) and a
+  # pull_request run (github.ref = refs/pull/<n>/merge) in *different*
+  # groups, so neither would cancel the other.
+  #
+  # This only matters for branches that live in *this* repo with an open
+  # PR against it, i.e. feature branch merge PRs and dependabot PRs.
+  # contributor's push (which runs in the fork) can never collide with
+
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: ${{ (github.head_ref || github.ref_name) != 'main' }}
+
+# Each job instance has a "name" describing the specific build variant,
+# which appears in the "jobs" listing on the GitHub actions page. The
+# (sanitized) name identifies the reference install manifest in
+# share/ci/install_manifest, e.g. a name of "clang c++20"
+# corresponds to install_manifest.<os>.clang-c-20.txt. The
+# validate_install.py script compares the job's generated
+# install_manifest.txt to the reference file to validate that the
+# proper files have been installed.
+#
+# If you add jobs, you must add a corresponding
+# share/ci/install_manifest file, named after the job's (sanitized)
+# name.
+
+jobs:
+  linux:
+    name: 'Linux: ${{ matrix.name }}'
+    if: github.event.pull_request.draft != true
+    permissions:
+      contents: write  # required by ci_steps (upload-artifact)
+    uses: ./.github/workflows/ci_steps.yml
+    with:
+      # Set values for the "inputs:" as defined in ci_steps.yml
+      # Note the defaults provided here for the builds that don't specify
+      # values.
+      os: ubuntu-latest
+      name: ${{ matrix.name }}
+      # DockerHub: https://hub.docker.com/u/aswf
+      # Source: https://github.com/AcademySoftwareFoundation/aswf-docker
+      container: ${{ matrix.container || format('aswf/ci-openexr:{0}', matrix.vfx-cy || '2027') }}
+      cmake: ${{ matrix.cmake || '3.14.7' }}
+      cxx-standard: ${{ matrix.cxx-standard || '17' }}
+      cxx-compiler: ${{ matrix.cxx-compiler || 'g++' }}
+      cc-compiler: ${{ matrix.cc-compiler || 'gcc' }}
+      build-type: ${{ matrix.build-type || 'Release' }}
+      BUILD_SHARED_LIBS: ${{ matrix.BUILD_SHARED_LIBS || 'ON' }}
+      OPENEXR_ENABLE_THREADING: ${{ matrix.OPENEXR_ENABLE_THREADING || 'ON' }}
+      OPENEXR_INSTALL_PKG_CONFIG: ${{ matrix.OPENEXR_INSTALL_PKG_CONFIG || 'ON' }}
+      OPENEXR_INSTALL_DOCS: ${{ matrix.OPENEXR_INSTALL_DOCS || 'ON' }}
+      OPENEXR_BUILD_EXAMPLES: ${{ matrix.OPENEXR_BUILD_EXAMPLES || 'ON' }}
+      OPENEXR_BUILD_TOOLS: ${{ matrix.OPENEXR_BUILD_TOOLS || 'ON' }}
+      OPENEXR_FORCE_INTERNAL_IMATH: ${{ matrix.OPENEXR_FORCE_INTERNAL_IMATH || 'OFF' }}
+      OPENEXR_IMATH_TAG: ${{ matrix.OPENEXR_IMATH_TAG || '5f27ba266d3ea1565e912570c30b5eafc89959f1' }} # v3.2.3
+      OPENEXR_FORCE_INTERNAL_DEFLATE: ${{ matrix.OPENEXR_FORCE_INTERNAL_DEFLATE || 'OFF' }}
+      OPENEXR_FORCE_INTERNAL_ZSTD: ${{ matrix.OPENEXR_FORCE_INTERNAL_ZSTD || 'OFF' }}
+      OPENEXR_FORCE_INTERNAL_OPENJPH: ${{ matrix.OPENEXR_FORCE_INTERNAL_OPENJPH || 'OFF' }}
+      openjph_version:  ${{ matrix.openjph_version || '0.32.0' }}
+      BUILD_TESTING: ${{ matrix.BUILD_TESTING || 'ON' }}
+      RUN_TESTING: ${{ matrix.RUN_TESTING || 'ON' }}
+      test_category: ${{ matrix.test_category }}
+      namespace: ${{ matrix.namespace }}
+      validate_install: ${{ matrix.validate_install || 'ON' }}
+      configure_install_prefix: ${{ matrix.configure_install_prefix }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+
+          - name: Release
+
+          - name: static
+            BUILD_SHARED_LIBS: 'OFF'
+            test_category: 'portability'
+
+          - name: vendored dependencies
+            OPENEXR_INSTALL_PKG_CONFIG: 'OFF'
+            OPENEXR_INSTALL_DOCS: 'OFF'
+            OPENEXR_BUILD_EXAMPLES: 'OFF'
+            OPENEXR_BUILD_TOOLS: 'OFF'
+            OPENEXR_FORCE_INTERNAL_IMATH: 'ON'
+            OPENEXR_FORCE_INTERNAL_DEFLATE: 'ON'
+            OPENEXR_FORCE_INTERNAL_ZSTD: 'ON'
+            OPENEXR_FORCE_INTERNAL_OPENJPH: 'ON'
+            test_category: 'portability'
+            configure_install_prefix: '.tmp'
+            cmake: 3.15.7
+
+          - name: static vendored dependencies
+            OPENEXR_INSTALL_PKG_CONFIG: 'OFF'
+            OPENEXR_INSTALL_DOCS: 'OFF'
+            OPENEXR_BUILD_EXAMPLES: 'OFF'
+            OPENEXR_BUILD_TOOLS: 'OFF'
+            OPENEXR_FORCE_INTERNAL_IMATH: 'ON'
+            OPENEXR_FORCE_INTERNAL_DEFLATE: 'ON'
+            OPENEXR_FORCE_INTERNAL_ZSTD: 'ON'
+            OPENEXR_FORCE_INTERNAL_OPENJPH: 'ON'
+            BUILD_SHARED_LIBS: 'OFF'
+            test_category: 'portability'
+            configure_install_prefix: '.tmp'
+            cmake: 3.15.7
+
+          - name: custom namespace
+            namespace: 'TEST_NAMESPACE'
+            test_category: 'portability'
+
+          - name: clang
+            cxx-compiler: clang++
+            cc-compiler: clang
+            test_category: 'portability'
+
+          - name: cmake 4
+            cmake: 4.0.3
+            test_category: 'portability'
+
+          - name: clang c++20
+            cxx-compiler: clang++
+            cc-compiler: clang
+            cxx-standard: 20
+            validate_install: OFF
+            test_category: 'portability'
+
+          - name: gcc c++20
+            cxx-standard: 20
+            validate_install: OFF
+            test_category: 'portability'
+
+          - name: vfx2023
+            vfx-cy: 2023
+            test_category: 'portability'
+
+          - name: Fedora Rawhide
+            container: fedora:rawhide
+            cmake: '3.31.6'
+            OPENEXR_FORCE_INTERNAL_IMATH: 'ON'
+            OPENEXR_FORCE_INTERNAL_DEFLATE: 'OFF'
+            OPENEXR_FORCE_INTERNAL_ZSTD: 'OFF'
+            OPENEXR_FORCE_INTERNAL_OPENJPH: 'ON'
+            OPENEXR_INSTALL_DOCS: 'OFF'
+            validate_install: 'OFF'
+            test_category: 'portability'
+
+          - name: Alpine
+            container: alpine:3.21
+            cmake: '3.31.1'
+            OPENEXR_FORCE_INTERNAL_IMATH: 'ON'
+            OPENEXR_FORCE_INTERNAL_DEFLATE: 'ON'
+            OPENEXR_FORCE_INTERNAL_ZSTD: 'ON'
+            OPENEXR_FORCE_INTERNAL_OPENJPH: 'ON'
+            OPENEXR_INSTALL_DOCS: 'OFF'
+            validate_install: 'OFF'
+            test_category: 'portability'
+
+  macOS:
+    name: 'macOS: ${{ matrix.name }}'
+    if: github.event.pull_request.draft != true
+    permissions:
+      contents: write  # required by ci_steps (upload-artifact)
+    uses: ./.github/workflows/ci_steps.yml
+    with:
+      # Set values for the "inputs:" as defined in ci_steps.yml
+      # Note the defaults provided here for the builds that don't specify
+      # values.
+      os: ${{ matrix.os || 'macos-15' }}
+      name: ${{ matrix.name }}
+      cc-compiler: ${{ matrix.cc-compiler || 'clang' }}
+      cxx-compiler: ${{ matrix.cxx-compiler || 'clang++' }}
+      cxx-standard: ${{ matrix.cxx-standard || '17' }}
+      build-type: ${{ matrix.build-type || 'Release' }}
+      BUILD_SHARED_LIBS: ${{ matrix.BUILD_SHARED_LIBS || 'ON' }}
+      OPENEXR_ENABLE_THREADING: ${{ matrix.OPENEXR_ENABLE_THREADING || 'ON' }}
+      OPENEXR_INSTALL_PKG_CONFIG: ${{ matrix.OPENEXR_INSTALL_PKG_CONFIG || 'ON' }}
+      OPENEXR_INSTALL_DOCS: ${{ matrix.OPENEXR_INSTALL_DOCS || 'ON' }}
+      OPENEXR_BUILD_EXAMPLES: ${{ matrix.OPENEXR_BUILD_EXAMPLES || 'ON' }}
+      OPENEXR_BUILD_TOOLS: ${{ matrix.OPENEXR_BUILD_TOOLS || 'ON' }}
+      OPENEXR_FORCE_INTERNAL_IMATH: ${{ matrix.OPENEXR_FORCE_INTERNAL_IMATH || 'OFF' }}
+      OPENEXR_IMATH_TAG: ${{ matrix.OPENEXR_IMATH_TAG || '5f27ba266d3ea1565e912570c30b5eafc89959f1' }} # v3.2.3
+      OPENEXR_FORCE_INTERNAL_DEFLATE: ${{ matrix.OPENEXR_FORCE_INTERNAL_DEFLATE || 'OFF' }}
+      OPENEXR_FORCE_INTERNAL_ZSTD: ${{ matrix.OPENEXR_FORCE_INTERNAL_ZSTD || 'OFF' }}
+      OPENEXR_FORCE_INTERNAL_OPENJPH: ${{ matrix.OPENEXR_FORCE_INTERNAL_OPENJPH || 'OFF' }}
+      openjph_version:  ${{ matrix.openjph_version || '0.32.0' }}
+      CMAKE_OSX_ARCHITECTURES: ${{ matrix.CMAKE_OSX_ARCHITECTURES }}
+      BUILD_TESTING: ${{ matrix.BUILD_TESTING || 'ON' }}
+      RUN_TESTING: ${{ matrix.RUN_TESTING || 'ON' }}
+      test_category: ${{ matrix.test_category }}
+      validate_install: ${{ matrix.validate_install || 'ON' }}
+      configure_install_prefix: ${{ matrix.configure_install_prefix }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+
+          - name: Release
+
+          - name: static
+            BUILD_SHARED_LIBS: 'OFF'
+            test_category: 'portability'
+
+          - name: vendored dependencies
+            OPENEXR_INSTALL_PKG_CONFIG: 'OFF'
+            OPENEXR_INSTALL_DOCS: 'OFF'
+            OPENEXR_BUILD_EXAMPLES: 'OFF'
+            OPENEXR_BUILD_TOOLS: 'OFF'
+            OPENEXR_FORCE_INTERNAL_IMATH: 'ON'
+            OPENEXR_FORCE_INTERNAL_DEFLATE: 'ON'
+            OPENEXR_FORCE_INTERNAL_ZSTD: 'ON'
+            OPENEXR_FORCE_INTERNAL_OPENJPH: 'ON'
+            test_category: 'portability'
+            configure_install_prefix: '.tmp'
+            cmake: 3.15.7
+
+          - name: static vendored dependencies
+            OPENEXR_INSTALL_PKG_CONFIG: 'OFF'
+            OPENEXR_INSTALL_DOCS: 'OFF'
+            OPENEXR_BUILD_EXAMPLES: 'OFF'
+            OPENEXR_BUILD_TOOLS: 'OFF'
+            OPENEXR_FORCE_INTERNAL_IMATH: 'ON'
+            OPENEXR_FORCE_INTERNAL_DEFLATE: 'ON'
+            OPENEXR_FORCE_INTERNAL_ZSTD: 'ON'
+            OPENEXR_FORCE_INTERNAL_OPENJPH: 'ON'
+            BUILD_SHARED_LIBS: 'OFF'
+            test_category: 'portability'
+            configure_install_prefix: '.tmp'
+            cmake: 3.15.7
+
+          - name: clang c++20
+            cxx-standard: 20
+            validate_install: OFF
+            test_category: 'portability'
+
+          - name: gcc
+            cc-compiler: gcc
+            cxx-compiler: g++
+            test_category: 'portability'
+
+          - name: gcc c++20
+            cc-compiler: gcc
+            cxx-compiler: g++
+            cxx-standard: 20
+            validate_install: OFF
+            test_category: 'portability'
+
+  windows:
+    name: 'Windows: ${{ matrix.name }}'
+    if: github.event.pull_request.draft != true
+    permissions:
+      contents: write  # required by ci_steps (upload-artifact)
+    uses: ./.github/workflows/ci_steps.yml
+    with:
+      # Set values for the "inputs:" as defined in ci_steps.yml
+      # Note the defaults provided here for the builds that don't specify
+      # values.
+      os: ${{ matrix.os || 'windows-2022' }}
+      name: ${{ matrix.name }}
+      cxx-standard: ${{ matrix.cxx-standard || '17' }}
+      build-type: ${{ matrix.build-type || 'Release' }}
+      BUILD_SHARED_LIBS: ${{ matrix.BUILD_SHARED_LIBS || 'ON' }}
+      OPENEXR_ENABLE_THREADING: ${{ matrix.OPENEXR_ENABLE_THREADING || 'ON' }}
+      OPENEXR_INSTALL_PKG_CONFIG: ${{ matrix.OPENEXR_INSTALL_PKG_CONFIG || 'ON' }}
+      OPENEXR_INSTALL_DOCS: ${{ matrix.OPENEXR_INSTALL_DOCS || 'OFF' }}
+      OPENEXR_BUILD_EXAMPLES: ${{ matrix.OPENEXR_BUILD_EXAMPLES || 'ON' }}
+      OPENEXR_BUILD_TOOLS: ${{ matrix.OPENEXR_BUILD_TOOLS || 'ON' }}
+      OPENEXR_FORCE_INTERNAL_IMATH: ${{ matrix.OPENEXR_FORCE_INTERNAL_IMATH || 'OFF' }}
+      OPENEXR_IMATH_TAG: ${{ matrix.OPENEXR_IMATH_TAG || '5f27ba266d3ea1565e912570c30b5eafc89959f1' }} # v3.2.3
+      OPENEXR_FORCE_INTERNAL_DEFLATE: ${{ matrix.OPENEXR_FORCE_INTERNAL_DEFLATE || 'OFF' }}
+      OPENEXR_FORCE_INTERNAL_ZSTD: ${{ matrix.OPENEXR_FORCE_INTERNAL_ZSTD || 'OFF' }}
+      OPENEXR_FORCE_INTERNAL_OPENJPH: ${{ matrix.OPENEXR_FORCE_INTERNAL_OPENJPH || 'OFF' }}
+      openjph_version:  ${{ matrix.openjph_version || '0.32.0' }}
+      msystem: ${{ matrix.msystem }}
+      BUILD_TESTING: ${{ matrix.BUILD_TESTING || 'ON' }}
+      RUN_TESTING: ${{ matrix.RUN_TESTING || 'ON' }}
+      test_category: ${{ matrix.test_category }}
+      validate_install: ${{ matrix.validate_install || 'ON' }}
+      configure_install_prefix: ${{ matrix.configure_install_prefix }}
+      CMAKE_GENERATOR_PLATFORM: ${{ matrix.CMAKE_GENERATOR_PLATFORM }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Release
+
+          - name: static
+            BUILD_SHARED_LIBS: 'OFF'
+            test_category: 'portability'
+
+          - name: vendored dependencies
+            OPENEXR_INSTALL_PKG_CONFIG: 'OFF'
+            OPENEXR_INSTALL_DOCS: 'OFF'
+            OPENEXR_BUILD_EXAMPLES: 'OFF'
+            OPENEXR_BUILD_TOOLS: 'OFF'
+            OPENEXR_FORCE_INTERNAL_IMATH: 'ON'
+            OPENEXR_FORCE_INTERNAL_DEFLATE: 'ON'
+            OPENEXR_FORCE_INTERNAL_ZSTD: 'ON'
+            OPENEXR_FORCE_INTERNAL_OPENJPH: 'ON'
+            test_category: 'portability'
+            configure_install_prefix: '.tmp'
+            cmake: 3.15.7
+
+          - name: static vendored dependencies
+            OPENEXR_INSTALL_PKG_CONFIG: 'OFF'
+            OPENEXR_INSTALL_DOCS: 'OFF'
+            OPENEXR_BUILD_EXAMPLES: 'OFF'
+            OPENEXR_BUILD_TOOLS: 'OFF'
+            OPENEXR_FORCE_INTERNAL_IMATH: 'ON'
+            OPENEXR_FORCE_INTERNAL_DEFLATE: 'ON'
+            OPENEXR_FORCE_INTERNAL_ZSTD: 'ON'
+            OPENEXR_FORCE_INTERNAL_OPENJPH: 'ON'
+            BUILD_SHARED_LIBS: 'OFF'
+            test_category: 'portability'
+            configure_install_prefix: '.tmp'
+            cmake: 3.15.7
+
+          - name: win32-MSVC-x86
+            # Validates the 32-bit Windows build using the native MSVC x86
+            # toolset (cmake -A Win32), since MSYS2's MINGW32 environment
+            # (below) is to be deprecated with no replacement.
+            CMAKE_GENERATOR_PLATFORM: Win32
+            test_category: 'portability'
+
+          - name: c++20
+            cxx-standard: 20
+            validate_install: OFF
+            test_category: 'portability'
+
+          - name: clang
+            cxx-compiler: clang++
+            cc-compiler: clang
+            validate_install: OFF
+            test_category: 'portability'
+
+          - name: msys2-mingw32
+            msystem: MINGW32
+            test_category: 'portability'
+
+          - name: msys2-ucrt64
+            msystem: UCRT64
+            test_category: 'portability'
+
+          - name: msys2-clang64
+            msystem: CLANG64
+            validate_install: OFF
+            test_category: 'portability'
+
+  freebsd:
+    name: FreeBSD
+    # Note that vmactions spins up an OS in a VM and executes the run
+    # script via ssh, which is why the usual actions/checkout doesn't
+    # work here.
+    if: github.event.pull_request.draft != true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build and test on FreeBSD
+        uses: vmactions/freebsd-vm@c46abacb49f09938ca4e1702d15d836285d694cc  # v1.5.9
+        with:
+          release: '15.0'
+          envs: GITHUB_REPOSITORY GITHUB_REF GITHUB_SHA
+          usesh: true
+          prepare: |
+            pkg install -y cmake ninja git
+          run: |
+            set -e
+            git clone --depth 1 "https://github.com/${GITHUB_REPOSITORY}.git" src
+            cd src
+            # shallow clone, only the commit that triggered the run, i.e. GITHUB_SHA
+            git fetch --depth 1 origin "${GITHUB_SHA}"
+            git checkout "${GITHUB_SHA}"
+
+            cmake -B _build -S . -G Ninja \
+              -DCMAKE_BUILD_TYPE=Release \
+              -DOPENEXR_FORCE_INTERNAL_IMATH=ON \
+              -DOPENEXR_FORCE_INTERNAL_DEFLATE=ON \
+              -DOPENEXR_FORCE_INTERNAL_ZSTD=ON \
+              -DOPENEXR_FORCE_INTERNAL_OPENJPH=ON \
+              -DBUILD_TESTING=ON
+            cmake --build _build
+
+            # Run "portability" tests only: they test likelihood of
+            # OS/toolchain/libc-dependent behavior
+            ctest --test-dir _build --output-on-failure -L portability
+
+  wheels_build:
+    name: 'Python Wheels: ${{ matrix.os }}-${{ matrix.arch }}'
+    runs-on: ${{ matrix.os }}
+    strategy:
+      # pre-merge: a single python version, one representative
+      # architecture per OS. The full version x architecture matrix
+      # runs in ci_full.yml instead.
+      matrix:
+        include:
+          - os: ubuntu-latest
+            arch: x64
+          - os: macos-latest
+            arch: arm64
+            cibw_archs_macos: arm64
+          - os: windows-latest
+            arch: x64
+            cibw_archs_windows: AMD64
+
+    permissions:
+      contents: read
+      actions: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Install Python
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.x'
+
+      - name: Create sdist
+        # Only create it once.
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        run: pipx run build==1.2.2.post1 --sdist . --outdir wheelhouse
+
+      - name: Build wheel
+        uses: pypa/cibuildwheel@e090b81e30c4d855ea63bf4b6e59204c09a101ae  # v4.2.1
+        with:
+          output-dir: wheelhouse
+        env:
+          # Split macOS arches across runners so artifact merge does not collide on filenames.
+          CIBW_ARCHS_MACOS: ${{ matrix.cibw_archs_macos }}
+          CIBW_ARCHS_WINDOWS: ${{ matrix.cibw_archs_windows }}
+          # Single version on push/PR; cp311 through cp315 in ci_full.yml.
+          CIBW_BUILD: "cp313-*"
+          # Skip 32-bit wheels builds on Windows
+          CIBW_SKIP: "*-win32 *_i686"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: wheels-${{ matrix.os }}-${{ matrix.arch }}
+          path: |
+            ./wheelhouse/*.whl
+            ./wheelhouse/*.tar.gz
+
+  wheels_verify:
+    name: Verify merged wheel artifacts
+    needs: wheels_build
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      actions: read
+
+    steps:
+      - name: Download wheel artifacts separately
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          pattern: wheels-*
+          path: artifacts
+
+      - name: Detect duplicate distribution filenames
+        run: |
+          set -euo pipefail
+
+          mapfile -t dupes < <(
+            find artifacts -type f \( -name '*.whl' -o -name '*.tar.gz' \) -exec basename {} \; \
+              | sort \
+              | uniq -d
+          )
+
+          if ((${#dupes[@]} > 0)); then
+            echo "::error::Duplicate distribution filenames across build artifacts:"
+            printf '  %s\n' "${dupes[@]}"
+            exit 1
+          fi
+
+      - name: Download wheel artifacts (as publish does)
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          pattern: wheels-*
+          merge-multiple: true
+          path: dist
+
+      - name: Verify wheel ZIP integrity
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+
+          wheels=(dist/*.whl)
+          if ((${#wheels[@]} == 0)); then
+            echo "::error::No wheels found in dist/"
+            exit 1
+          fi
+
+          for wheel in "${wheels[@]}"; do
+            echo "Checking $wheel"
+            python3 -m zipfile -t "$wheel"
+          done
+
+      - name: Validate distribution metadata
+        run: pipx run twine==6.1.0 check dist/*

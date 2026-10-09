@@ -15,6 +15,10 @@ TAG="$1"
 # The sudo is nececessary since the installation goes to /usr/local.
 SUDO=$(command -v sudo >/dev/null 2>&1 && echo sudo || echo "")
 
+# Resolve cmake's absolute path up front: sudo's secure_path can
+# differ from the invoking user's PATH.
+CMAKE=$(command -v cmake)
+
 git clone https://github.com/ebiggers/libdeflate
 cd libdeflate
 
@@ -23,7 +27,7 @@ git checkout ${TAG}
 mkdir build
 cd build
 cmake -DCMAKE_BUILD_TYPE=Release ..
-$SUDO cmake --build . \
+$SUDO "$CMAKE" --build . \
       --target install \
       --config Release \
       --parallel 2
