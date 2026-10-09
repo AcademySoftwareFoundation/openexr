@@ -15,9 +15,10 @@ name: CI Steps
 
 on:
   workflow_call:
-    # This inputs receive values via the "with:" section in ci_workflow.yml
+    # This inputs receive values via the "with:" section in
+    # ci_premerge.yml / ci_full.yml
     inputs:
-      build:
+      name:
         type: string
       os:
         type: string
@@ -61,9 +62,13 @@ on:
         type: string
       CMAKE_OSX_ARCHITECTURES:
         type: string
+      CMAKE_GENERATOR_PLATFORM:
+        type: string
       BUILD_TESTING:
         type: string
       RUN_TESTING:
+        type: string
+      test_category:
         type: string
       namespace:
         type: string
@@ -96,6 +101,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
+      - name: Install Build Dependencies (Alpine)
+        # For Alpine, install bash since it's missing from the base image.
+        if: startsWith(inputs.container, 'alpine:')
+        run: |
+          apk add --no-cache build-base cmake git bash wget pkgconf
+        shell: sh
+
       - name: Set Up Directories & Environment
         run: |
           set -x
@@ -110,22 +122,53 @@ jobs:
 
               # remember the install location for Imath, libdeflate, openjph
               PROGRAM_FILES=$(cygpath -u "C:/Program Files (x86)")
-              echo "PROGRAM_FILES=$PROGRAM_FILES" >> $GITHUB_ENV
+              echo "PROGRAM_FILES=$PROGRAM_FILES" >> "$GITHUB_ENV"
           else
               WORKSPACE=$GITHUB_WORKSPACE
           fi
-          echo "WORKSPACE=$WORKSPACE" >> $GITHUB_ENV
+          echo "WORKSPACE=$WORKSPACE" >> "$GITHUB_ENV"
 
           # BUILD_DIR is the CMake build directory
           BUILD_DIR=$WORKSPACE/_build
-          echo "BUILD_DIR=$BUILD_DIR" >> $GITHUB_ENV
+          echo "BUILD_DIR=$BUILD_DIR" >> "$GITHUB_ENV"
 
           # INSTALL_DIR is the CMake install directory
           INSTALL_DIR=$WORKSPACE/_install
-          echo "INSTALL_DIR=$INSTALL_DIR" >> $GITHUB_ENV
+          echo "INSTALL_DIR=$INSTALL_DIR" >> "$GITHUB_ENV"
 
           # Initialize the PATH necessary for the tests on Windows
-          echo "OPENEXR_PATH=$INSTALL_DIR/bin:$INSTALL_DIR/lib" >> $GITHUB_ENV
+          echo "OPENEXR_PATH=$INSTALL_DIR/bin:$INSTALL_DIR/lib" >> "$GITHUB_ENV"
+
+          # SCCACHE_DIR is where sccache stores its compiler cache,
+          # used by the "Cache sccache" step below.
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+              SCCACHE_DIR=$(cygpath -w "$WORKSPACE/.sccache")
+          else
+              SCCACHE_DIR="$WORKSPACE/.sccache"
+          fi
+          echo "SCCACHE_DIR=$SCCACHE_DIR" >> "$GITHUB_ENV"
+
+          # SANITIZED_NAME is the job's "name" input (e.g. "pkgconfig=OFF,
+          # examples=OFF, tools=OFF, docs=OFF, internal deflate"),
+          # lower-cased with runs of non-alphanumeric characters (commas,
+          # spaces, "=", parens, etc.) collapsed to a single "-". Raw
+          # names can't be used directly as cache keys (actions/cache
+          # rejects commas) or safely as filenames, so this sanitized
+          # form is reused below for both the sccache cache key and the
+          # install manifest filename.
+          SANITIZED_NAME=$(echo "${{ inputs.name }}" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9]+/-/g; s/^-+//; s/-+$//')
+          echo "SANITIZED_NAME=$SANITIZED_NAME" >> "$GITHUB_ENV"
+
+          # CMAKE_GENERATOR_PLATFORM (e.g. "Win32" for a 32-bit MSVC
+          # build) is read by CMake's Visual Studio generator as a
+          # default for "-A", so exporting it here as an environment
+          # variable covers not just the main configure below but
+          # also the dependency pre-install scripts (Imath,
+          # libdeflate, zstd, OpenJPH), which each run their own
+          # "cmake -S ... -B ..." without an explicit "-A" flag.
+          if [ -n "${{ inputs.CMAKE_GENERATOR_PLATFORM }}" ]; then
+            echo "CMAKE_GENERATOR_PLATFORM=${{ inputs.CMAKE_GENERATOR_PLATFORM }}" >> "$GITHUB_ENV"
+          fi
 
           # Install gcc for macOS if necessary
           if [[ "${{ inputs.cc-compiler }}" == "gcc" && "$RUNNER_OS" == "macOS" ]]; then
@@ -149,6 +192,67 @@ jobs:
           dnf install -y gcc gcc-c++ cmake make git wget libdeflate-devel
         shell: bash
 
+      - name: Install sccache
+        # sccache speeds up rebuilds by caching compiler output across CI
+        # runs. Skipped for msys2 jobs, where PATH/shell interaction with
+        # msys2's own shell environment hasn't been validated.
+        if: inputs.msystem == ''
+        run: |
+          set -ex
+          SCCACHE_VERSION=0.18.0
+          case "$RUNNER_OS" in
+            Linux)
+              TARGET="$(uname -m)-unknown-linux-musl"
+              ;;
+            macOS)
+              ARCH=$(uname -m)
+              [[ "$ARCH" == "arm64" ]] && ARCH=aarch64
+              TARGET="${ARCH}-apple-darwin"
+              ;;
+            Windows)
+              TARGET="x86_64-pc-windows-msvc"
+              ;;
+            *)
+              echo "::error::Unsupported RUNNER_OS for sccache: $RUNNER_OS"
+              exit 1
+              ;;
+          esac
+
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            TMP_DIR=$(cygpath -u "$RUNNER_TEMP")
+          else
+            TMP_DIR="$RUNNER_TEMP"
+          fi
+          SCCACHE_INSTALL_DIR="$TMP_DIR/sccache"
+          mkdir -p "$SCCACHE_INSTALL_DIR"
+
+          ARCHIVE="sccache-v${SCCACHE_VERSION}-${TARGET}.tar.gz"
+          URL="https://github.com/mozilla/sccache/releases/download/v${SCCACHE_VERSION}/${ARCHIVE}"
+          if [[ "$RUNNER_OS" == "Linux" ]]; then
+            # wget is guaranteed present (installed explicitly for the
+            # Fedora/Alpine container overrides; present by default in
+            # the aswf container).
+            wget -q -O "$TMP_DIR/$ARCHIVE" "$URL"
+          else
+            curl -L --retry 3 -o "$TMP_DIR/$ARCHIVE" "$URL"
+          fi
+          tar -xzf "$TMP_DIR/$ARCHIVE" -C "$SCCACHE_INSTALL_DIR" --strip-components=1
+
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            SCCACHE_INSTALL_DIR=$(cygpath -w "$SCCACHE_INSTALL_DIR")
+          fi
+          echo "$SCCACHE_INSTALL_DIR" >> "$GITHUB_PATH"
+        shell: bash
+
+      - name: Cache sccache
+        if: inputs.msystem == ''
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ env.SCCACHE_DIR }}
+          key: sccache-${{ runner.os }}-${{ env.SANITIZED_NAME }}-${{ github.sha }}
+          restore-keys: |
+            sccache-${{ runner.os }}-${{ env.SANITIZED_NAME }}-
+
       - name: Determine MSYS2 Packages
         if: inputs.msystem != ''
         run: |
@@ -166,7 +270,7 @@ jobs:
           if [[ "${{ inputs.OPENEXR_FORCE_INTERNAL_ZSTD }}" == "OFF" ]]; then
             PACKAGES="$PACKAGES zstd:p"
           fi
-          echo "PACBOY_PACKAGES=$PACKAGES" >> $GITHUB_ENV
+          echo "PACBOY_PACKAGES=$PACKAGES" >> "$GITHUB_ENV"
         shell: bash
 
       - name: Install MSYS2 ${{ inputs.msystem }}
@@ -197,8 +301,8 @@ jobs:
               CTEST=$(find "$PWD" -type f -path "*/bin/ctest" | head -n 1)
             fi
           fi
-          echo CMAKE="$CMAKE" >> $GITHUB_ENV
-          echo CTEST="$CTEST" >> $GITHUB_ENV
+          echo CMAKE="$CMAKE" >> "$GITHUB_ENV"
+          echo CTEST="$CTEST" >> "$GITHUB_ENV"
         shell: bash
 
       - name: Install Imath
@@ -207,7 +311,7 @@ jobs:
         run: |
           set -x
           share/ci/scripts/install_imath.sh "${{ inputs.OPENEXR_IMATH_TAG }}"
-          echo "OPENEXR_PATH=$OPENEXR_PATH:$PROGRAM_FILES/Imath/bin:$PROGRAM_FILES/Imath/lib" >> $GITHUB_ENV
+          echo "OPENEXR_PATH=$OPENEXR_PATH:$PROGRAM_FILES/Imath/bin:$PROGRAM_FILES/Imath/lib" >> "$GITHUB_ENV"
         shell: bash
 
       - name: Install Imath (msys2)
@@ -224,7 +328,7 @@ jobs:
         run: |
           set -x
           share/ci/scripts/install_libdeflate.sh 92e6a0db9fa848d742f9eb286c92afc60f2c3dda # v1.26
-          echo "OPENEXR_PATH=$OPENEXR_PATH:$PROGRAM_FILES/libdeflate/bin:$PROGRAM_FILES/libdeflate/lib" >> $GITHUB_ENV
+          echo "OPENEXR_PATH=$OPENEXR_PATH:$PROGRAM_FILES/libdeflate/bin:$PROGRAM_FILES/libdeflate/lib" >> "$GITHUB_ENV"
         shell: bash
 
       - name: Install zstd
@@ -233,7 +337,7 @@ jobs:
         run: |
           set -x
           share/ci/scripts/install_zstd.sh f8745da6ff1ad1e7bab384bd1f9d742439278e99 # v1.5.7
-          echo "OPENEXR_PATH=$OPENEXR_PATH:$PROGRAM_FILES/zstd/bin:$PROGRAM_FILES/zstd/lib" >> $GITHUB_ENV
+          echo "OPENEXR_PATH=$OPENEXR_PATH:$PROGRAM_FILES/zstd/bin:$PROGRAM_FILES/zstd/lib" >> "$GITHUB_ENV"
         shell: bash
 
       - name: Install OpenJPH
@@ -242,7 +346,7 @@ jobs:
         run: |
           set -x
           share/ci/scripts/install_openjph.sh ${{ inputs.openjph_version }}
-          echo "OPENEXR_PATH=$OPENEXR_PATH:$PROGRAM_FILES/openjph/bin:$PROGRAM_FILES/openjph/lib" >> $GITHUB_ENV
+          echo "OPENEXR_PATH=$OPENEXR_PATH:$PROGRAM_FILES/openjph/bin:$PROGRAM_FILES/openjph/lib" >> "$GITHUB_ENV"
         shell: bash
 
       - name: Install OpenJPH (msys2)
@@ -286,6 +390,10 @@ jobs:
           cmake_args+=("-DBUILD_TESTING=${{ inputs.BUILD_TESTING }}")
           cmake_args+=("-DOPENEXR_RUN_FUZZ_TESTS=OFF")
           cmake_args+=("-DCMAKE_VERBOSE_MAKEFILE=ON")
+          if [ "${{ inputs.msystem }}" == "" ]; then
+            cmake_args+=("-DCMAKE_C_COMPILER_LAUNCHER=sccache")
+            cmake_args+=("-DCMAKE_CXX_COMPILER_LAUNCHER=sccache")
+          fi
           if [ -n "${{ inputs.namespace }}" ]; then
             cmake_args+=("-DOPENEXR_IMF_NAMESPACE=${{ inputs.namespace }}")
             cmake_args+=("-DILMTHREAD_NAMESPACE=${{ inputs.namespace }}")
@@ -302,12 +410,13 @@ jobs:
           quoted_args=$(printf '%q ' "${cmake_args[@]}")
           echo "CMAKE_ARGS=$quoted_args" >> "$GITHUB_ENV"
 
-          # Set the install manifest name to include the os and build number.
-          # e.g. install_manifest.macos.1.txt. Note that $RUNNER_OS is "Linux",
-          # while input.os is "ubuntu".
+          # Set the install manifest name to include the os and the job's
+          # name (sanitized via $SANITIZED_NAME, set in "Set Up
+          # Directories & Environment" above), e.g. a name of
+          # "clang c++20" becomes install_manifest.macos.clang-c-20.txt.
+          # Note that $RUNNER_OS is "Linux", while input.os is "ubuntu".
           os_name=$(echo "${RUNNER_OS}" | tr '[:upper:]' '[:lower:]')  # linux, macos, windows
-          build="${{ inputs.build }}"
-          echo INSTALL_MANIFEST_FILENAME="install_manifest.${os_name}.${build}.txt" >> $GITHUB_ENV
+          echo INSTALL_MANIFEST_FILENAME="install_manifest.${os_name}.${SANITIZED_NAME}.txt" >> "$GITHUB_ENV"
         shell: bash
 
       - name: Configure, Build, Install
@@ -327,6 +436,11 @@ jobs:
           else
             "$CMAKE" --build "$BUILD_DIR" --target install --config ${{ inputs.build-type }}
           fi
+        shell: bash
+
+      - name: Show sccache stats
+        if: inputs.msystem == ''
+        run: sccache --show-stats || true
         shell: bash
 
       - name: Configure, Build, Install (msys2) # requires msys2 shell
@@ -353,10 +467,11 @@ jobs:
         if: runner.os == 'Linux' && inputs.OPENEXR_INSTALL_PKG_CONFIG == 'ON'
         run: |
           set -x
+          ARGS=()
           if [ "${{ inputs.BUILD_SHARED_LIBS }}" == "OFF" ]; then
-            ARGS="-static"
+            ARGS=("-static")
           fi
-          share/ci/scripts/validate_pkgconfig.sh $INSTALL_DIR website/src/exrwriter/exrwriter.cpp $ARGS
+          share/ci/scripts/validate_pkgconfig.sh "$INSTALL_DIR" website/src/exrwriter/exrwriter.cpp "${ARGS[@]}"
         shell: bash
 
       - name: Prepare install_manifest
@@ -366,15 +481,17 @@ jobs:
         run: |
           set -x
           INSTALL_MANIFEST_PATH="$BUILD_DIR/$INSTALL_MANIFEST_FILENAME"
-          echo "# SPDX-License-Identifier: BSD-3-Clause" > $INSTALL_MANIFEST_PATH
-          echo "# Copyright (c) Contributors to the OpenEXR Project." >> $INSTALL_MANIFEST_PATH
-          echo "# cmake ${{ env.CMAKE_ARGS }}" >> $INSTALL_MANIFEST_PATH
-          sort $BUILD_DIR/install_manifest.txt | sed -e "s:^.*/_install/::" >> $INSTALL_MANIFEST_PATH
+          {
+            echo "# SPDX-License-Identifier: BSD-3-Clause"
+            echo "# Copyright (c) Contributors to the OpenEXR Project."
+            echo "# cmake ${{ env.CMAKE_ARGS }}"
+            sort "$BUILD_DIR/install_manifest.txt" | sed -e "s:^.*/_install/::"
+          } > "$INSTALL_MANIFEST_PATH"
           if [[ "$RUNNER_OS" == "Windows" ]]; then
               # upload-artifact expects a windows-style path
-              INSTALL_MANIFEST_PATH=$(cygpath -w $INSTALL_MANIFEST_PATH)
+              INSTALL_MANIFEST_PATH=$(cygpath -w "$INSTALL_MANIFEST_PATH")
           fi
-          echo INSTALL_MANIFEST_PATH=$INSTALL_MANIFEST_PATH >> $GITHUB_ENV
+          echo INSTALL_MANIFEST_PATH="$INSTALL_MANIFEST_PATH" >> "$GITHUB_ENV"
         shell: bash
 
       - name: Upload install_manifest.txt
@@ -408,7 +525,8 @@ jobs:
             OPENEXR_OPENJPH_VERSION_MAJOR \
             OPENEXR_OPENJPH_VERSION_MINOR \
             OPENEXR_OPENJPH_VERSION_PATCH; do
-            export "$var"=$(grep -E "^#define[[:space:]]+$var" "$OpenEXRConfig" | awk '{print $3}')
+            value=$(grep -E "^#define[[:space:]]+$var" "$OpenEXRConfig" | awk '{print $3}')
+            export "$var"="$value"
           done
       
           share/ci/scripts/validate_install.py "$INSTALL_MANIFEST_PATH" "share/ci/install_manifest/$INSTALL_MANIFEST_FILENAME"
@@ -416,20 +534,34 @@ jobs:
 
       - name: Test
         if: inputs.BUILD_TESTING == 'ON' && inputs.RUN_TESTING == 'ON' && inputs.msystem == ''
+        env:
+          TEST_CATEGORY: ${{ inputs.test_category }}
         run: |
           set -x
           if [[ "$RUNNER_OS" == "Windows" ]]; then
             export PATH="$OPENEXR_PATH:$PATH"
           fi
-          "$CTEST" -T Test -C ${{ inputs.build-type }} --test-dir $BUILD_DIR --timeout 7200 --output-on-failure -VV
+          CATEGORY_ARGS=()
+          if [[ -n "$TEST_CATEGORY" ]]; then
+            CATEGORY_ARGS=(-L "$TEST_CATEGORY")
+          fi
+          cd "$BUILD_DIR"
+          "$CTEST" -T Test -C ${{ inputs.build-type }} --timeout 7200 --output-on-failure "${CATEGORY_ARGS[@]}" -VV
         shell: bash
 
       - name: Test (msys2) # requires msys2 shell
         if: inputs.BUILD_TESTING == 'ON' && inputs.RUN_TESTING == 'ON' && inputs.msystem != ''
+        env:
+          TEST_CATEGORY: ${{ inputs.test_category }}
         run: |
           set -x
           export PATH="$OPENEXR_PATH:$PATH"
-          "$CTEST" -T Test -C ${{ inputs.build-type }} --test-dir $BUILD_DIR --timeout 7200 --output-on-failure -VV
+          CATEGORY_ARGS=()
+          if [[ -n "$TEST_CATEGORY" ]]; then
+            CATEGORY_ARGS=(-L "$TEST_CATEGORY")
+          fi
+          cd "$BUILD_DIR"
+          "$CTEST" -T Test -C ${{ inputs.build-type }} --timeout 7200 --output-on-failure "${CATEGORY_ARGS[@]}" -VV
         shell: msys2 {0}
 
       - name: Test website examples
@@ -442,10 +574,10 @@ jobs:
         run: |
           set -x
           EXRWRITER_BUILD_DIR=$WORKSPACE/_build.exrwriter
-          "$CMAKE" -S website/src/exrwriter -B $EXRWRITER_BUILD_DIR \
-                -DCMAKE_PREFIX_PATH=$INSTALL_DIR \
+          "$CMAKE" -S website/src/exrwriter -B "$EXRWRITER_BUILD_DIR" \
+                -DCMAKE_PREFIX_PATH="$INSTALL_DIR" \
                 -DCMAKE_VERBOSE_MAKEFILE=ON
-          "$CMAKE" --build $EXRWRITER_BUILD_DIR --config ${{ inputs.build-type }}
+          "$CMAKE" --build "$EXRWRITER_BUILD_DIR" --config ${{ inputs.build-type }}
           if [[ "$RUNNER_OS" == "Windows" ]]; then
             export PATH="$OPENEXR_PATH:$PATH"
             EXRWRITER=$EXRWRITER_BUILD_DIR/${{ inputs.build-type }}/exrwriter.exe
@@ -461,7 +593,7 @@ jobs:
             actual_output=$("$EXRINFO" stripes.exr)
             if [[ "$actual_output" != "$expected_output" ]]; then
               echo "error: exrwriter produced incorrect results:"
-              echo $actual_output
+              echo "$actual_output"
               exit 1
             fi
           else
@@ -489,6 +621,18 @@ jobs:
           cmake_args=("-B" "$ADD_SUBDIRECTORY_BUILD_DIR" -S "$SRC")
           cmake_args+=("-DCMAKE_POLICY_VERSION_MINIMUM=3.26")
           cmake_args+=("-DCMAKE_VERBOSE_MAKEFILE=ON")
+          # Consolidate every target's runtime output (the exrwriter
+          # executable, OpenEXR's own DLLs, and the DLLs of any
+          # dependency fetched/added as its own subproject, e.g.
+          # Imath, which doesn't otherwise share OpenEXR's output
+          # directory) into one directory. On Windows this is
+          # required so the dynamic loader can find them all at
+          # runtime; relying on the main install's "bin"/"lib"
+          # directories (as below) is not sufficient, since those are
+          # empty of DLLs for a static ("BUILD_SHARED_LIBS=OFF")
+          # build, even though this add_subdirectory project always
+          # builds shared libraries by default.
+          cmake_args+=("-DCMAKE_RUNTIME_OUTPUT_DIRECTORY=$ADD_SUBDIRECTORY_BUILD_DIR/bin")
           if [ -n "${{ inputs.namespace }}" ]; then
             cmake_args+=("-DOPENEXR_IMF_NAMESPACE=${{ inputs.namespace }}")
           fi
@@ -499,14 +643,20 @@ jobs:
           cmake_args+=("-DOPENEXR_BUILD_EXAMPLES=OFF")
           cmake_args+=("-DOPENEXR_BUILD_TOOLS=OFF")
           quoted_args=$(printf '%q ' "${cmake_args[@]}")
+          # shellcheck disable=SC2086 # intentional word-splitting of pre-quoted args
           "$CMAKE" $quoted_args
-          "$CMAKE" --build $ADD_SUBDIRECTORY_BUILD_DIR --config ${{ inputs.build-type }}
-          EXRWRITER=$ADD_SUBDIRECTORY_BUILD_DIR/exrwriter
+          "$CMAKE" --build "$ADD_SUBDIRECTORY_BUILD_DIR" --config ${{ inputs.build-type }}
+          # "bin" matches the CMAKE_RUNTIME_OUTPUT_DIRECTORY set above,
+          # which every target here (including exrwriter) now shares.
           if [[ "$RUNNER_OS" == "Windows" ]]; then
-            export PATH="$OPENEXR_PATH:$PATH"
-            EXRWRITER=$ADD_SUBDIRECTORY_BUILD_DIR/${{ inputs.build-type }}/exrwriter.exe
+            # Put this project's own consolidated DLL output directory
+            # ahead of $OPENEXR_PATH, so its freshly-built DLLs (not
+            # the main install's, which may not exist/match for a
+            # static build) are what's loaded at runtime.
+            export PATH="$ADD_SUBDIRECTORY_BUILD_DIR/bin/${{ inputs.build-type }}:$OPENEXR_PATH:$PATH"
+            EXRWRITER=$ADD_SUBDIRECTORY_BUILD_DIR/bin/${{ inputs.build-type }}/exrwriter.exe
           else
-            EXRWRITER=$ADD_SUBDIRECTORY_BUILD_DIR/exrwriter
+            EXRWRITER=$ADD_SUBDIRECTORY_BUILD_DIR/bin/exrwriter
           fi
           $EXRWRITER
         shell: bash

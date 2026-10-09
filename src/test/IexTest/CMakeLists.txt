@@ -26,3 +26,9 @@ target_compile_features(IexTest
 
 # CMAKE_CROSSCOMPILING_EMULATOR is necessary to support cross-compiling (ex: to win32 from mingw and running tests with wine)
 add_test(NAME OpenEXR.Iex COMMAND ${CMAKE_CROSSCOMPILING_EMULATOR} $<TARGET_FILE:IexTest>)
+
+# "portability" tests: an abbreviated subset of the test suite run by
+# specialty CI jobs (alternate OS/build-variant jobs) to test the
+# behaviors most likely to differ across OS/toolchain/libc.
+# Primary Linux/macOS/Windows jobs run the complete test suite.
+set_tests_properties(OpenEXR.Iex PROPERTIES LABELS portability)

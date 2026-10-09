@@ -15,6 +15,10 @@ TAG="$1"
 # The sudo is nececessary since the installation goes to /usr/local.
 SUDO=$(command -v sudo >/dev/null 2>&1 && echo sudo || echo "")
 
+# Resolve cmake's absolute path up front: sudo's secure_path can
+# differ from the invoking user's PATH.
+CMAKE=$(command -v cmake)
+
 # In an MSYS2 mingw shell, install into $MINGW_PREFIX (e.g. /mingw32)
 # instead of the default /usr/local, so find_package()/pkg_check_modules()
 # locates it the same way it would find a pacboy-installed package.
@@ -30,7 +34,7 @@ git checkout ${TAG}
 
 cd build
 cmake -DOJPH_ENABLE_TIFF_SUPPORT=OFF -DCMAKE_BUILD_TYPE=Release "${PREFIX_ARG[@]}" ..
-$SUDO cmake --build . \
+$SUDO "$CMAKE" --build . \
       --target install \
       --config Release \
       --parallel 2

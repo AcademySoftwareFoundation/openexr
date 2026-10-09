@@ -1,0 +1,16 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright (c) Contributors to the OpenEXR Project
+
+# actionlint infers each strategy.matrix.include entry's type independently,
+# rather than as a union across all entries in the matrix. The CI's matrices are
+# intentionally sparse: not every entry defines every key, and steps read
+# optional keys with a safe fallback, e.g. ${{ matrix.foo || 'default' }}.
+# At runtime, referencing an undefined matrix property evaluates to null and
+# uses the fallback value as it should, but actionlint flags it as a missing
+# property on entries that don't define that key. This is a known
+# false-positive, not a real issue.
+
+paths:
+  .github/workflows/**/*.{yml,yaml}:
+    ignore:
+      - 'property ".+" is not defined in object type \{.+\}'
