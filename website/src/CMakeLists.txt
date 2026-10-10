@@ -59,8 +59,8 @@ target_compile_options(website_src PRIVATE
     $<$<CXX_COMPILER_ID:GNU>:-Wno-unused-variable>
     $<$<CXX_COMPILER_ID:GNU>:-Wno-unused-but-set-variable>
 
-    $<$<CXX_COMPILER_ID:Clang>:-Wno-unused-variable>
-    $<$<CXX_COMPILER_ID:Clang>:-Wno-unused-but-set-variable>
+    $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>>:-Wno-unused-variable>
+    $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>>:-Wno-unused-but-set-variable>
 )
 
 target_link_libraries(website_src PRIVATE OpenEXR::OpenEXR)
