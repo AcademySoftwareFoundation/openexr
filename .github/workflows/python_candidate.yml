@@ -98,6 +98,7 @@ jobs:
 
       - name: Build wheel
         uses: pypa/cibuildwheel@f11181315571b24e4a3c67f1a828532793f2df55  # v4.3.2
+rkflows/python-wheels-publish-test.yml
         with:
           output-dir: wheelhouse
         env:
