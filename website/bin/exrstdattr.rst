@@ -10,7 +10,7 @@ exrstdattr
     exrstdattr [commands] infile outfile
 
 Description
------------
+===========
 
 Read OpenEXR image file infile, set the values of one
 or more attributes in the headers of the file, and save
@@ -18,7 +18,7 @@ the result in outfile.  Infile and outfile must not refer
 to the same file (the program cannot edit an image file "in place").
 
 Options for selecting headers:
-------------------------------
+==============================
 
 .. describe:: -part i
 
@@ -41,7 +41,7 @@ Options for selecting headers:
               attributes in the header of part 2.
 
 Options for setting attribute values:
--------------------------------------
+=====================================
 
 .. describe:: -chromaticities f f f f f f f f
 
@@ -205,7 +205,7 @@ Options for setting attribute values:
               attribute name and value)
 
 Other options:
---------------
+==============
 
 .. describe:: -h, --help    
 

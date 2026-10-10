@@ -14,12 +14,12 @@ exrmultipart
     or: exrmultipart -convert -i infile.exr -o outfile.exr [options]
 
 Description
------------
+===========
 
 Combine or split multipart data
 
 Options:
---------
+========
 
 .. describe:: -override [0/1]
 

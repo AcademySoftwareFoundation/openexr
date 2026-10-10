@@ -10,12 +10,12 @@ exrheader
     exrheader imagefile [imagefile ...]
 
 Description
------------
+===========
 
 Read exr files and print the values of header attributes.
 
 Options:
---------
+========
 
 .. describe:: -h, --help
 

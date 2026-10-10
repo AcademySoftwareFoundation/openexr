@@ -11,6 +11,22 @@ config_setting(
     constraint_values = ["@platforms//os:windows"],
 )
 
+# conf.py reads the project version out of the top-level CMakeLists.txt.
+exports_files(
+    ["CMakeLists.txt"],
+    visibility = ["//website:__pkg__"],
+)
+
+filegroup(
+    name = "OpenEXRCore_doc_srcs",
+    srcs = glob([
+        "src/lib/OpenEXRCore/*.c",
+        "src/lib/OpenEXRCore/*.cpp",
+        "src/lib/OpenEXRCore/*.h",
+    ]),
+    visibility = ["//website:__pkg__"],
+)
+
 expand_template(
     name = "IexConfig",
     out = "src/lib/Iex/IexConfig.h",

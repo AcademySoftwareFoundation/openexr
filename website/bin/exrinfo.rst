@@ -10,12 +10,12 @@ exrinfo
     exrinfo [-v|--verbose] [-a|--all-metadata] [-s|--strict] <filename> [<filename> ...]
 
 Description
------------
+===========
 
 Read exr files and print values of header attributes
 
 Color Space Metadata Warnings
------------------------------
+=============================
 
 For each part, ``exrinfo`` checks the ``colorInteropID`` attribute against
 the other color space metadata and prints a warning to standard error for
@@ -57,7 +57,7 @@ The same checks are available to applications as
 ``Imf::checkColorMetadata()`` and ``exr_check_color_metadata()``.
 
 Options:
---------
+========
 
 .. describe:: -s, --strict
 

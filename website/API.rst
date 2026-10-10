@@ -40,7 +40,6 @@ applications seeking the highest possible performance.
 
 .. toctree::
    :caption: API
-   :maxdepth: 2
               
    HelloWorld
    ReadingAndWritingImageFiles

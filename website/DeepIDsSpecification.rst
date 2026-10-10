@@ -205,7 +205,7 @@ the actual image data. It can be stored using the following mechanisms:
 .. _idmanifest-label:
 
 OpenEXR idmanifest container
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Since OpenEXR 3.0, there is a new standard ``idmanifest`` attribute
 using a ``CompressedIDManifest`` metadata type, specially designed to
@@ -221,13 +221,13 @@ and other related data, to save storage space.
 
 
 OpenEXR string container
-^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 The manifest can be stored in ``string`` or ``stringvector`` attributes,
 but this is not very efficient and may significantly increase file size.
 
 Side-car files
-^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~
 
 Alternatively, the manifest may be stored in a separate file, with an OpenEXR attributes,
 a database or a file naming convention used to associate one or more OpenEXR files
