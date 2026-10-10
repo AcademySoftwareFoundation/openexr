@@ -8,6 +8,10 @@ PYBIND11_VERSION="$1"
 
 SUDO=$(command -v sudo >/dev/null 2>&1 && echo sudo || echo "")
 
+# Resolve cmake's absolute path up front: sudo's secure_path can
+# differ from the invoking user's PATH.
+CMAKE=$(command -v cmake)
+
 git clone https://github.com/pybind/pybind11.git
 cd pybind11
 
@@ -24,7 +28,7 @@ cmake -DCMAKE_BUILD_TYPE=Release \
       -DPYBIND11_INSTALL=ON \
       -DPYBIND11_TEST=OFF \
       ../.
-$SUDO cmake --build . \
+$SUDO "$CMAKE" --build . \
       --target install \
       --config Release \
       --parallel 2
