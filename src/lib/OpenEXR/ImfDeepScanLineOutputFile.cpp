@@ -928,6 +928,16 @@ DeepScanLineOutputFile::initialize (const Header& header)
 
     _data->header.setType (DEEPSCANLINE);
 
+    //
+    // header.sanityCheck() runs before the type is stamped above, so the
+    // deep-data compression restriction is never applied there. Reject any
+    // compression that is not valid for deep data explicitly.
+    //
+    if (!exr_compression_is_valid_for_deep (
+            static_cast<exr_compression_t> (_data->header.compression ())))
+        throw IEX_NAMESPACE::ArgExc (
+            "Compression type in header not valid for deep data");
+
     const Box2i& dataWindow = header.dataWindow ();
 
     _data->currentScanLine = (header.lineOrder () == INCREASING_Y)
