@@ -236,3 +236,18 @@ set_tests_properties(
   OpenEXR.testSharedFrameBuffer
   PROPERTIES LABELS "OpenEXR;portability"
 )
+
+# These tests configure their own dedicated ThreadPool(s) (in addition to,
+# or instead of, the library's default global pool) and so can use many
+# more OS threads than a typical test. Tell ctest's --parallel scheduler
+# how many "slots" each test needs so it won't pack additional tests onto
+# the same cores and cause CPU oversubscription/noisy timing; with no
+# --parallel (serial ctest), PROCESSORS has no effect and these tests run
+# exactly as before.
+set_tests_properties (OpenEXR.testMultiPartThreading PROPERTIES PROCESSORS 32)
+set_tests_properties (
+  OpenEXR.testMultiScanlinePartThreading
+  OpenEXR.testMultiTiledPartThreading
+  PROPERTIES PROCESSORS 2
+)
+
