@@ -31,4 +31,4 @@ add_test(NAME OpenEXR.Iex COMMAND ${CMAKE_CROSSCOMPILING_EMULATOR} $<TARGET_FILE
 # specialty CI jobs (alternate OS/build-variant jobs) to test the
 # behaviors most likely to differ across OS/toolchain/libc.
 # Primary Linux/macOS/Windows jobs run the complete test suite.
-set_tests_properties(OpenEXR.Iex PROPERTIES LABELS portability)
+set_tests_properties(OpenEXR.Iex PROPERTIES LABELS "Iex;portability")

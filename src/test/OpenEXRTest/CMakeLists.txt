@@ -151,6 +151,7 @@ function(DEFINE_OPENEXR_TESTS)
   foreach(curtest IN LISTS ARGN)
     # CMAKE_CROSSCOMPILING_EMULATOR is necessary to support cross-compiling (ex: to win32 from mingw and running tests with wine)
     add_test(NAME OpenEXR.${curtest} COMMAND ${CMAKE_CROSSCOMPILING_EMULATOR} $<TARGET_FILE:OpenEXRTest> ${curtest})
+    set_tests_properties(OpenEXR.${curtest} PROPERTIES LABELS "OpenEXR")
   endforeach()
 endfunction()
 
@@ -233,5 +234,5 @@ set_tests_properties(
   OpenEXR.testMultiScanlinePartThreading
   OpenEXR.testRgbaThreading
   OpenEXR.testSharedFrameBuffer
-  PROPERTIES LABELS portability
+  PROPERTIES LABELS "OpenEXR;portability"
 )

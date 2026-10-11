@@ -63,6 +63,7 @@ function(DEFINE_OPENEXRCORE_TESTS)
   foreach(curtest IN LISTS ARGN)
     # CMAKE_CROSSCOMPILING_EMULATOR is necessary to support cross-compiling (ex: to win32 from mingw and running tests with wine)
     add_test(NAME OpenEXRCore.${curtest} COMMAND ${CMAKE_CROSSCOMPILING_EMULATOR} $<TARGET_FILE:OpenEXRCoreTest> ${curtest})
+    set_tests_properties(OpenEXRCore.${curtest} PROPERTIES LABELS "OpenEXRCore")
   endforeach()
 endfunction()
 
@@ -156,5 +157,5 @@ set_tests_properties(
   OpenEXRCore.testXDR
   OpenEXRCore.testTempContext
   OpenEXRCore.testStartWriteUTF8
-  PROPERTIES LABELS portability
+  PROPERTIES LABELS "OpenEXRCore;portability"
 )
