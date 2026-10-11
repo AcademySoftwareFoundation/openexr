@@ -431,10 +431,10 @@ jobs:
             "$CMAKE" ${{ env.CMAKE_ARGS }}
           fi
           if [ -n "${{ inputs.configure_install_prefix }}" ]; then
-            "$CMAKE" --build "$BUILD_DIR" --config ${{ inputs.build-type }}
+            "$CMAKE" --build "$BUILD_DIR" --config ${{ inputs.build-type }} --parallel
             "$CMAKE" --install "$BUILD_DIR" --prefix "$INSTALL_DIR" --config ${{ inputs.build-type }}
           else
-            "$CMAKE" --build "$BUILD_DIR" --target install --config ${{ inputs.build-type }}
+            "$CMAKE" --build "$BUILD_DIR" --target install --config ${{ inputs.build-type }} --parallel
           fi
         shell: bash
 
@@ -448,6 +448,7 @@ jobs:
         run: |
           set -x
           "$CMAKE" --version
+          echo "nproc=$(nproc)"
           "$CMAKE" ${{ env.CMAKE_ARGS }}
           # Reconfigure in the same build dir to catch Imath include-path
           # regressions on CMake reconfigure (see #2441).
@@ -455,10 +456,10 @@ jobs:
             "$CMAKE" ${{ env.CMAKE_ARGS }}
           fi
           if [ -n "${{ inputs.configure_install_prefix }}" ]; then
-            "$CMAKE" --build "$BUILD_DIR" --config ${{ inputs.build-type }}
+            "$CMAKE" --build "$BUILD_DIR" --config ${{ inputs.build-type }} --parallel
             "$CMAKE" --install "$BUILD_DIR" --prefix "$INSTALL_DIR" --config ${{ inputs.build-type }}
           else
-            "$CMAKE" --build "$BUILD_DIR" --target install --config ${{ inputs.build-type }}
+            "$CMAKE" --build "$BUILD_DIR" --target install --config ${{ inputs.build-type }} --parallel
           fi
         shell: msys2 {0}
 
@@ -546,7 +547,7 @@ jobs:
             CATEGORY_ARGS=(-L "$TEST_CATEGORY")
           fi
           cd "$BUILD_DIR"
-          "$CTEST" -T Test -C ${{ inputs.build-type }} --timeout 7200 --output-on-failure "${CATEGORY_ARGS[@]}" -VV
+          "$CTEST" -T Test -C ${{ inputs.build-type }} --timeout 7200 --output-on-failure "${CATEGORY_ARGS[@]}" --parallel -VV
         shell: bash
 
       - name: Test (msys2) # requires msys2 shell
@@ -561,7 +562,7 @@ jobs:
             CATEGORY_ARGS=(-L "$TEST_CATEGORY")
           fi
           cd "$BUILD_DIR"
-          "$CTEST" -T Test -C ${{ inputs.build-type }} --timeout 7200 --output-on-failure "${CATEGORY_ARGS[@]}" -VV
+          "$CTEST" -T Test -C ${{ inputs.build-type }} --timeout 7200 --output-on-failure "${CATEGORY_ARGS[@]}" --parallel -VV
         shell: msys2 {0}
 
       - name: Test website examples
@@ -577,7 +578,7 @@ jobs:
           "$CMAKE" -S website/src/exrwriter -B "$EXRWRITER_BUILD_DIR" \
                 -DCMAKE_PREFIX_PATH="$INSTALL_DIR" \
                 -DCMAKE_VERBOSE_MAKEFILE=ON
-          "$CMAKE" --build "$EXRWRITER_BUILD_DIR" --config ${{ inputs.build-type }}
+          "$CMAKE" --build "$EXRWRITER_BUILD_DIR" --config ${{ inputs.build-type }} --parallel
           if [[ "$RUNNER_OS" == "Windows" ]]; then
             export PATH="$OPENEXR_PATH:$PATH"
             EXRWRITER=$EXRWRITER_BUILD_DIR/${{ inputs.build-type }}/exrwriter.exe
@@ -645,7 +646,7 @@ jobs:
           quoted_args=$(printf '%q ' "${cmake_args[@]}")
           # shellcheck disable=SC2086 # intentional word-splitting of pre-quoted args
           "$CMAKE" $quoted_args
-          "$CMAKE" --build "$ADD_SUBDIRECTORY_BUILD_DIR" --config ${{ inputs.build-type }}
+          "$CMAKE" --build "$ADD_SUBDIRECTORY_BUILD_DIR" --config ${{ inputs.build-type }} --parallel
           # "bin" matches the CMAKE_RUNTIME_OUTPUT_DIRECTORY set above,
           # which every target here (including exrwriter) now shares.
           if [[ "$RUNNER_OS" == "Windows" ]]; then
