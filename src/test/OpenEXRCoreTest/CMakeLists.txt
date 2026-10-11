@@ -159,3 +159,8 @@ set_tests_properties(
   OpenEXRCore.testStartWriteUTF8
   PROPERTIES LABELS "OpenEXRCore;portability"
 )
+
+# COST hint (measured wall time in seconds from a local full-suite run) so
+# ctest's --parallel scheduler starts this long-running test early. See
+# the longer explanation in OpenEXRTest/CMakeLists.txt.
+set_tests_properties (OpenEXRCore.testDWATable PROPERTIES COST 10)

@@ -63,6 +63,12 @@ if(BUILD_TESTING)
            ${images})
   set_tests_properties(OpenEXR.bin.exrcheck PROPERTIES LABELS "OpenEXR.bin;portability")
 
+  # COST hints (measured wall time in seconds from a local full-suite run)
+  # so ctest's --parallel scheduler starts these long-running tests early.
+  # See the longer explanation in OpenEXRTest/CMakeLists.txt.
+  set_tests_properties (OpenEXR.bin.exrenvmap  PROPERTIES COST 20)
+  set_tests_properties (OpenEXR.bin.exrmetrics PROPERTIES COST 14)
+
 endif()
 
 

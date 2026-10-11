@@ -46,3 +46,8 @@ define_openexr_util_tests(
 # behaviors most likely to differ across OS/toolchain/libc.
 # Primary Linux/macOS/Windows jobs run the complete test suite.
 set_tests_properties(OpenEXRUtil.testFlatImage PROPERTIES LABELS "OpenEXRUtil;portability")
+
+# COST hint (measured wall time in seconds from a local full-suite run) so
+# ctest's --parallel scheduler starts this long-running test early. See
+# the longer explanation in OpenEXRTest/CMakeLists.txt.
+set_tests_properties (OpenEXRUtil.testDeepImage PROPERTIES COST 16)

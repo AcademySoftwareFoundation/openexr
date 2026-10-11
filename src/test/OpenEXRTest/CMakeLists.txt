@@ -251,3 +251,23 @@ set_tests_properties (
   PROPERTIES PROCESSORS 2
 )
 
+# COST hints (measured wall time in seconds from a local full-suite run)
+# for the longest-running tests. CTest's --parallel scheduler prefers to
+# start the highest-COST tests first so they don't become a tail-latency
+# bottleneck at the end of a run; without this, a freshly checked-out CI
+# runner has no CTestCostData.txt history to learn from and schedules
+# tests close to arbitrarily on the first (and, on ephemeral runners,
+# every) run.
+set_tests_properties (OpenEXR.testMultiTiledPartThreading       PROPERTIES COST 55)
+set_tests_properties (OpenEXR.testHuf                           PROPERTIES COST 49)
+set_tests_properties (OpenEXR.testDeepTiledBasic                PROPERTIES COST 41)
+set_tests_properties (OpenEXR.testOptimizedInterleavePatterns   PROPERTIES COST 30)
+set_tests_properties (OpenEXR.testIDManifest                    PROPERTIES COST 28)
+set_tests_properties (OpenEXR.testScanLineApi                   PROPERTIES COST 27)
+set_tests_properties (OpenEXR.testTiledLineOrder                PROPERTIES COST 25)
+set_tests_properties (OpenEXR.testDeepScanLineBasic             PROPERTIES COST 19)
+set_tests_properties (OpenEXR.testMultiPartFileMixingBasic      PROPERTIES COST 14)
+set_tests_properties (OpenEXR.testLargeDataWindowOffsets        PROPERTIES COST 13)
+set_tests_properties (OpenEXR.testCopyDeepScanLine              PROPERTIES COST 13)
+set_tests_properties (OpenEXR.testCompression                   PROPERTIES COST 12)
+
