@@ -424,6 +424,7 @@ jobs:
         run: |
           set -x
           "$CMAKE" --version
+          echo "nproc=$(nproc)"
           "$CMAKE" ${{ env.CMAKE_ARGS }}
           # Reconfigure in the same build dir to catch Imath include-path
           # regressions on CMake reconfigure (see #2441).
