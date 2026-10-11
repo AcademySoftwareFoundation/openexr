@@ -32,7 +32,7 @@
 # - The full workflow runs weekly and on release candidates, which
 #   runs the complete test suite on everything.
 
-name: CI (pre-merge)
+name: Pre-merge Checks
 
 on:
   push:

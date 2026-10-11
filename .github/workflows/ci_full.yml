@@ -6,7 +6,7 @@
 #
 # Runs on a tag push (release candidate) and on a weekly schedule.
 
-name: CI (full)
+name: Full Build
 
 on:
   push:
