@@ -109,12 +109,19 @@ DwaCompressor_construct (
     me->_encode = encode;
     me->_decode = decode;
 
+    exr_const_context_t pctxt =
+        encode ? encode->context : (decode ? decode->context : NULL);
+    me->alloc_fn = pctxt ? pctxt->alloc_fn : internal_exr_alloc;
+    me->free_fn  = pctxt ? pctxt->free_fn : internal_exr_free;
+
     if (encode)
     {
-        exr_const_context_t pctxt = encode->context;
-
-        me->alloc_fn = pctxt ? pctxt->alloc_fn : internal_exr_alloc;
-        me->free_fn  = pctxt ? pctxt->free_fn : internal_exr_free;
+        if (encode->chunk.width <= 0 || encode->chunk.height <= 0 ||
+            encode->chunk.width > (INT32_MAX / 64) ||
+            encode->chunk.height > (INT32_MAX / 64))
+        {
+            return EXR_ERR_CORRUPT_CHUNK;
+        }
 
         me->_channelData = internal_exr_alloc_aligned (
             me->alloc_fn,
@@ -155,10 +162,12 @@ DwaCompressor_construct (
     }
     else
     {
-        exr_const_context_t pctxt = decode->context;
-
-        me->alloc_fn = pctxt ? pctxt->alloc_fn : internal_exr_alloc;
-        me->free_fn  = pctxt ? pctxt->free_fn : internal_exr_free;
+        if (decode->chunk.width <= 0 || decode->chunk.height <= 0 ||
+            decode->chunk.width > (INT32_MAX / 64) ||
+            decode->chunk.height > (INT32_MAX / 64))
+        {
+            return EXR_ERR_CORRUPT_CHUNK;
+        }
 
         me->_channelData = internal_exr_alloc_aligned (
             me->alloc_fn,
@@ -194,6 +203,8 @@ DwaCompressor_construct (
 static void
 DwaCompressor_destroy (DwaCompressor* me)
 {
+    if (!me->free_fn) return;
+
     if (me->_packedAcBuffer) me->free_fn (me->_packedAcBuffer);
     if (me->_packedDcBuffer) me->free_fn (me->_packedDcBuffer);
     if (me->_rleBuffer) me->free_fn (me->_rleBuffer);
@@ -1311,6 +1322,18 @@ exr_result_t
 DwaCompressor_initializeBuffers (DwaCompressor* me, size_t* bufferSize)
 {
     exr_result_t rv = EXR_ERR_SUCCESS;
+
+    if (me->_min[0] > me->_max[0] || me->_min[1] > me->_max[1] ||
+        me->_numScanLines <= 0)
+    {
+        return EXR_ERR_CORRUPT_CHUNK;
+    }
+
+    uint64_t width = (uint64_t) (me->_max[0] - me->_min[0] + 1);
+    if (width > (INT32_MAX / 64) || (uint64_t) me->_numScanLines > (INT32_MAX / 64))
+    {
+        return EXR_ERR_CORRUPT_CHUNK;
+    }
 
     //
     // _outBuffer needs to be big enough to hold all our

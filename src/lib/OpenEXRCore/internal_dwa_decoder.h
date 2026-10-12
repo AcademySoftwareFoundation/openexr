@@ -292,8 +292,43 @@ LossyDctDecoder_execute (
     int                  numComp = d->_channel_decode_data_count;
     DctCoderChannelData* chanData[3];
     int                  lastNonZero = 0;
+    if (d->_width <= 0 || d->_height <= 0 ||
+        d->_width > (INT32_MAX - 7) || d->_height > (INT32_MAX - 7))
+    {
+        return EXR_ERR_CORRUPT_CHUNK;
+    }
+
     int                  numBlocksX  = (d->_width + 7) / 8;
     int                  numBlocksY  = (d->_height + 7) / 8;
+
+    if (numBlocksX <= 0 || numBlocksY <= 0 ||
+        numBlocksX > (INT32_MAX / 64) || numBlocksY > (INT32_MAX / 64))
+    {
+        return EXR_ERR_CORRUPT_CHUNK;
+    }
+
+    if (numComp < 1 || numComp > 3)
+    {
+        return EXR_ERR_CORRUPT_CHUNK;
+    }
+
+    uint64_t totalBlocks = (uint64_t) numBlocksX * (uint64_t) numBlocksY;
+    if (totalBlocks > (UINT64_MAX / (uint64_t) numComp))
+    {
+        return EXR_ERR_CORRUPT_CHUNK;
+    }
+
+    if (d->_remDcCount < ((uint64_t) numComp * totalBlocks))
+    {
+        return EXR_ERR_CORRUPT_CHUNK;
+    }
+
+    if ((size_t) numBlocksX >
+        (SIZE_MAX - _SSE_ALIGNMENT) / (64 * sizeof (uint16_t) * (size_t) numComp))
+    {
+        return EXR_ERR_OUT_OF_MEMORY;
+    }
+
     int                  leftoverX   = d->_width - (numBlocksX - 1) * 8;
     int                  leftoverY   = d->_height - (numBlocksY - 1) * 8;
 
@@ -304,12 +339,6 @@ LossyDctDecoder_execute (
     uint16_t* currDcComp[3];
     uint8_t*  rowBlockHandle;
     uint16_t* rowBlock[3];
-
-    if (d->_remDcCount <
-        ((uint64_t) numComp * (uint64_t) numBlocksX * (uint64_t) numBlocksY))
-    {
-        return EXR_ERR_CORRUPT_CHUNK;
-    }
 
     for (int chan = 0; chan < numComp; ++chan)
     {
@@ -513,13 +542,13 @@ LossyDctDecoder_execute (
                 if (!blockIsConstant)
                 {
                     (*convertFloatToHalf64) (
-                        &rowBlock[comp][blockx * 64], chanData[comp]->_dctData);
+                        &rowBlock[comp][(size_t) blockx * 64], chanData[comp]->_dctData);
                 }
                 else
                 {
 #ifdef IMF_HAVE_SSE2
 
-                    __m128i* dst = (__m128i*) &rowBlock[comp][blockx * 64];
+                    __m128i* dst = (__m128i*) &rowBlock[comp][(size_t) blockx * 64];
 
                     dst[0] = _mm_set1_epi16 (
                         (short) float_to_half (chanData[comp]->_dctData[0]));
@@ -534,7 +563,7 @@ LossyDctDecoder_execute (
 
 #else /* IMF_HAVE_SSE2 */
 
-                    uint16_t* dst = &rowBlock[comp][blockx * 64];
+                    uint16_t* dst = &rowBlock[comp][(size_t) blockx * 64];
 
                     dst[0] = float_to_half (chanData[comp]->_dctData[0]);
 
@@ -661,7 +690,7 @@ LossyDctDecoder_execute (
                     for (int blockx = 0; blockx < numFullBlocksX; ++blockx)
                     {
                         uint16_t* restrict src =
-                            &rowBlock[comp][blockx * 64 + ((y & 0x7) * 8)];
+                            &rowBlock[comp][(size_t) blockx * 64 + ((y & 0x7) * 8)];
 
                         dst[0] = d->_toLinear[src[0]];
                         dst[1] = d->_toLinear[src[1]];
@@ -687,7 +716,7 @@ LossyDctDecoder_execute (
                     for (int blockx = 0; blockx < numFullBlocksX; ++blockx)
                     {
                         uint16_t* src =
-                            &rowBlock[comp][blockx * 64 + ((y & 0x7) * 8)];
+                            &rowBlock[comp][(size_t) blockx * 64 + ((y & 0x7) * 8)];
                         memcpy (dst, src, 8*sizeof(uint16_t));
                         dst += 8;
                     }
@@ -706,7 +735,7 @@ LossyDctDecoder_execute (
                 for (int y = 8 * blocky; y < 8 * blocky + maxY; ++y)
                 {
                     uint16_t* src = (uint16_t*) &rowBlock[comp]
-                                                         [numFullBlocksX * 64 +
+                                                         [(size_t) numFullBlocksX * 64 +
                                                           ((y & 0x7) * 8)];
 
                     uint16_t* dst = (uint16_t*) chanData[comp]->_rows[y];

@@ -30,5 +30,6 @@ void testDeepNoCompression (const std::string& tempdir);
 void testDeepZIPCompression (const std::string& tempdir);
 void testDeepZIPSCompression (const std::string& tempdir);
 void testDeepZstdCompression (const std::string& tempdir);
+void testLossyDctDecoder_whenDimensionsExceedSafeBounds_returnsCorruptChunk (const std::string& tempdir);
 
 #endif // OPENEXR_CORE_TEST_COMPRESSION_H

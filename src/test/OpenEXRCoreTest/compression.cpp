@@ -1850,3 +1850,74 @@ testDeepZIPSCompression (const std::string& tempdir)
 void
 testDeepZstdCompression (const std::string& tempdir)
 {}
+
+void
+testLossyDctDecoder_whenDimensionsExceedSafeBounds_returnsCorruptChunk (
+    const std::string& tempdir)
+{
+    pixels p{IMG_WIDTH, IMG_HEIGHT, IMG_STRIDE_X};
+    p.fillPattern1 ();
+    std::string filename = tempdir + "dwaa_overflow_test.exr";
+
+    int fw  = p._w;
+    int fh  = p._h;
+    int dwx = IMG_DATA_X;
+    int dwy = IMG_DATA_Y;
+
+    exr_context_t             f;
+    exr_context_initializer_t cinit = EXR_DEFAULT_CONTEXT_INITIALIZER;
+    exr_attr_box2i_t          dataW;
+    dataW.min.x = dwx;
+    dataW.min.y = dwy;
+    dataW.max.x = dwx + fw - 1;
+    dataW.max.y = dwy + fh - 1;
+
+    int partidx;
+    EXRCORE_TEST_RVAL (exr_start_write (
+        &f, filename.c_str (), EXR_WRITE_FILE_DIRECTLY, &cinit));
+    EXRCORE_TEST_RVAL (
+        exr_add_part (f, "scan", EXR_STORAGE_SCANLINE, &partidx));
+    EXRCORE_TEST_RVAL (exr_initialize_required_attr_simple (
+        f, partidx, fw, fh, EXR_COMPRESSION_DWAA));
+    EXRCORE_TEST_RVAL (exr_set_data_window (f, partidx, &dataW));
+    EXRCORE_TEST_RVAL (exr_add_channel (
+        f,
+        partidx,
+        "A",
+        EXR_PIXEL_HALF,
+        EXR_PERCEPTUALLY_LINEAR,
+        1,
+        1));
+    EXRCORE_TEST_RVAL (exr_write_header (f));
+    doEncodeScan (f, p, 1, 1);
+    EXRCORE_TEST_RVAL (exr_finish (&f));
+
+    EXRCORE_TEST_RVAL (exr_start_read (&f, filename.c_str (), &cinit));
+
+    exr_chunk_info_t cinfo;
+    EXRCORE_TEST_RVAL (exr_read_scanline_chunk_info (f, 0, dwy, &cinfo));
+
+    exr_decode_pipeline_t decoder = EXR_DECODE_PIPELINE_INITIALIZER;
+    EXRCORE_TEST_RVAL (exr_decoding_initialize (f, 0, &cinfo, &decoder));
+    EXRCORE_TEST_RVAL (
+        exr_decoding_choose_default_routines (f, 0, &decoder));
+
+    /* Test dimension that would cause numBlocksX * 64 integer overflow */
+    decoder.chunk.width = 268435456;
+    exr_result_t rv     = exr_decoding_run (f, 0, &decoder);
+    EXRCORE_TEST (rv == EXR_ERR_CORRUPT_CHUNK);
+
+    /* Test negative width */
+    decoder.chunk.width = -1;
+    rv                  = exr_decoding_run (f, 0, &decoder);
+    EXRCORE_TEST (rv == EXR_ERR_CORRUPT_CHUNK);
+
+    /* Test width near INT32_MAX */
+    decoder.chunk.width = INT32_MAX - 2;
+    rv                  = exr_decoding_run (f, 0, &decoder);
+    EXRCORE_TEST (rv == EXR_ERR_CORRUPT_CHUNK);
+
+    EXRCORE_TEST_RVAL (exr_decoding_destroy (f, &decoder));
+    EXRCORE_TEST_RVAL (exr_finish (&f));
+    remove (filename.c_str ());
+}

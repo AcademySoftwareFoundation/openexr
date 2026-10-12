@@ -224,6 +224,7 @@ main (int argc, char* argv[])
     TEST (testDeepZIPCompression, "core_compression");
     TEST (testDeepZIPSCompression, "core_compression");
     TEST (testDeepZstdCompression, "core_compression");
+    TEST (testLossyDctDecoder_whenDimensionsExceedSafeBounds_returnsCorruptChunk, "core_compression");
 
     if (helpMode)
     {
