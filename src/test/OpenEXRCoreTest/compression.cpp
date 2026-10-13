@@ -1680,15 +1680,96 @@ testPXR24Compression (const std::string& tempdir)
     testComp (tempdir, EXR_COMPRESSION_PXR24);
 }
 
+// B44 stores UINT channels as-is, so a chunk with only UINT channels
+// compresses to exactly its raw size. The reader then treats the chunk
+// as uncompressed, so the encoder must store the original interleaved
+// bytes rather than its per-channel scratch layout.
+static void
+testB44UintRoundTrip (const std::string& tempdir, exr_compression_t comp)
+{
+    const uint32_t a[2] = {1, 2}, b[2] = {3, 4};
+    uint32_t       ar[2] = {0, 0}, br[2] = {0, 0};
+    std::string    fn = tempdir + "b44_uint.exr";
+    exr_context_t  f;
+    int            partidx;
+    int32_t        step;
+
+    EXRCORE_TEST_RVAL (
+        exr_start_write (&f, fn.c_str (), EXR_WRITE_FILE_DIRECTLY, NULL));
+    EXRCORE_TEST_RVAL (
+        exr_add_part (f, "scan", EXR_STORAGE_SCANLINE, &partidx));
+    EXRCORE_TEST_RVAL (
+        exr_initialize_required_attr_simple (f, partidx, 1, 2, comp));
+    EXRCORE_TEST_RVAL (exr_add_channel (
+        f, partidx, "A", EXR_PIXEL_UINT, EXR_PERCEPTUALLY_LOGARITHMIC, 1, 1));
+    EXRCORE_TEST_RVAL (exr_add_channel (
+        f, partidx, "B", EXR_PIXEL_UINT, EXR_PERCEPTUALLY_LOGARITHMIC, 1, 1));
+    EXRCORE_TEST_RVAL (exr_write_header (f));
+    EXRCORE_TEST_RVAL (exr_get_scanlines_per_chunk (f, partidx, &step));
+
+    for (int y = 0; y < 2; y += step)
+    {
+        exr_chunk_info_t      cinfo;
+        exr_encode_pipeline_t encoder = EXR_ENCODE_PIPELINE_INITIALIZER;
+
+        EXRCORE_TEST_RVAL (
+            exr_write_scanline_chunk_info (f, partidx, y, &cinfo));
+        EXRCORE_TEST_RVAL (
+            exr_encoding_initialize (f, partidx, &cinfo, &encoder));
+        for (int c = 0; c < encoder.channel_count; ++c)
+        {
+            const uint32_t* src =
+                (encoder.channels[c].channel_name[0] == 'A' ? a : b) + y;
+            encoder.channels[c].encode_from_ptr   = (const uint8_t*) src;
+            encoder.channels[c].user_pixel_stride = 4;
+            encoder.channels[c].user_line_stride  = 4;
+        }
+        EXRCORE_TEST_RVAL (
+            exr_encoding_choose_default_routines (f, partidx, &encoder));
+        EXRCORE_TEST_RVAL (exr_encoding_run (f, partidx, &encoder));
+        EXRCORE_TEST_RVAL (exr_encoding_destroy (f, &encoder));
+    }
+    EXRCORE_TEST_RVAL (exr_finish (&f));
+
+    EXRCORE_TEST_RVAL (exr_start_read (&f, fn.c_str (), NULL));
+    for (int y = 0; y < 2; y += step)
+    {
+        exr_chunk_info_t      cinfo;
+        exr_decode_pipeline_t decoder = EXR_DECODE_PIPELINE_INITIALIZER;
+
+        EXRCORE_TEST_RVAL (exr_read_scanline_chunk_info (f, 0, y, &cinfo));
+        EXRCORE_TEST_RVAL (exr_decoding_initialize (f, 0, &cinfo, &decoder));
+        for (int c = 0; c < decoder.channel_count; ++c)
+        {
+            uint32_t* dst =
+                (decoder.channels[c].channel_name[0] == 'A' ? ar : br) + y;
+            decoder.channels[c].decode_to_ptr     = (uint8_t*) dst;
+            decoder.channels[c].user_pixel_stride = 4;
+            decoder.channels[c].user_line_stride  = 4;
+        }
+        EXRCORE_TEST_RVAL (
+            exr_decoding_choose_default_routines (f, 0, &decoder));
+        EXRCORE_TEST_RVAL (exr_decoding_run (f, 0, &decoder));
+        EXRCORE_TEST_RVAL (exr_decoding_destroy (f, &decoder));
+    }
+    EXRCORE_TEST_RVAL (exr_finish (&f));
+    remove (fn.c_str ());
+
+    EXRCORE_TEST (ar[0] == 1 && ar[1] == 2);
+    EXRCORE_TEST (br[0] == 3 && br[1] == 4);
+}
+
 void
 testB44Compression (const std::string& tempdir)
 {
+    testB44UintRoundTrip (tempdir, EXR_COMPRESSION_B44);
     testComp (tempdir, EXR_COMPRESSION_B44);
 }
 
 void
 testB44ACompression (const std::string& tempdir)
 {
+    testB44UintRoundTrip (tempdir, EXR_COMPRESSION_B44A);
     testComp (tempdir, EXR_COMPRESSION_B44A);
 }
 

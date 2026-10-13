@@ -492,7 +492,7 @@ compress_b44_impl (exr_encode_pipeline_t* encode, int flat_field)
         scratch += nBytes;
     }
 
-    if (nOut > encode->packed_bytes)
+    if (nOut >= encode->packed_bytes)
     {
         memcpy (
             encode->compressed_buffer,
