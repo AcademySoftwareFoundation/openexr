@@ -8,6 +8,7 @@
 #include "internal_decompress.h"
 #include "internal_coding.h"
 #include "internal_structs.h"
+#include "internal_xdr.h"
 #include <limits.h>
 #include <stdlib.h>
 #include <string.h>
@@ -809,6 +810,40 @@ get_row_sample_count_encode (
     return false;
 }
 
+/** Validates the raw (file-order, cumulative) sample count table the same way
+ *  unpack_sample_table() does, and returns each row's total in \a row_totals.
+ *  unpack_sample_table() only runs after decompression, but the inverse sort
+ *  sizes its offsets from these counts, so they must be checked first. */
+static exr_result_t
+exr_zstd_validate_raw_sample_counts (
+    const exr_decode_pipeline_t* decode, uint64_t* row_totals)
+{
+    const int64_t  w   = decode->chunk.width;
+    const int64_t  h   = decode->chunk.height;
+    const int32_t* tbl = decode->sample_count_table;
+    uint64_t       tot = 0;
+
+    if (!tbl || w <= 0 || h <= 0) return EXR_ERR_INVALID_SAMPLE_DATA;
+    if ((uint64_t) w * (uint64_t) h * sizeof (int32_t) >
+        decode->sample_count_alloc_size)
+        return EXR_ERR_INVALID_SAMPLE_DATA;
+
+    for (int64_t y = 0; y < h; ++y)
+    {
+        int32_t prev = 0;
+        for (int64_t x = 0; x < w; ++x)
+        {
+            int32_t n = (int32_t) one_to_native32 ((uint32_t) tbl[y * w + x]);
+            if (n < prev) return EXR_ERR_INVALID_SAMPLE_DATA;
+            prev = n;
+        }
+        row_totals[y] = (uint64_t) prev;
+        tot += (uint64_t) prev;
+        if (tot >= (uint64_t) INT32_MAX) return EXR_ERR_INVALID_SAMPLE_DATA;
+    }
+    return EXR_ERR_SUCCESS;
+}
+
 /** Per (chunk line, channel): number of samples packed for that channel on that
  *  line — matches default_pack in pack.c (Y subsampling skips lines with 0).
  *  Grid is row-major: index = chunk_line * channel_count + channel_index. */
@@ -1306,7 +1341,14 @@ exr_undo_zstd_v1 (
         (uint64_t*) decode->scratch_buffer_2;
     uint64_t* const sorting_lookup = channel_sample_count_grid + meta_count;
 
-    (void) get_row_sample_count_decode (decode, sorting_lookup);
+    if (grid_scenario == EXR_ZSTD_GRID_DEEP_PIXELS)
+    {
+        exr_result_t cnt_rv =
+            exr_zstd_validate_raw_sample_counts (decode, sorting_lookup);
+        if (cnt_rv != EXR_ERR_SUCCESS) return cnt_rv;
+    }
+    else
+        (void) get_row_sample_count_decode (decode, sorting_lookup);
 
     exr_zstd_fill_channel_sample_count_grid (
         grid_scenario,
@@ -1349,9 +1391,13 @@ exr_undo_zstd_v1 (
         uint64_t grid_total = 0;
         for (int gh = 0; gh < chunk_line_count; ++gh)
             for (int gi = 0; gi < channel_count; ++gi)
+            {
                 grid_total +=
                     channel_sample_count_grid[(size_t) gh * channel_count + gi] *
                     (uint64_t) pack_channels[gi].bytes_per_element;
+                if (grid_total > uncompressed_size)
+                    return EXR_ERR_CORRUPT_CHUNK;
+            }
         if (grid_total != uncompressed_size) return EXR_ERR_CORRUPT_CHUNK;
     }
 
