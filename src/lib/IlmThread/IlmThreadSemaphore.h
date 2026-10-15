@@ -31,7 +31,7 @@
 #        define ILMTHREAD_SEMAPHORE_POSIX 1
 #    elif defined(__APPLE__)
 #        include <AvailabilityMacros.h>
-#        if MAC_OS_X_VERSION_MIN_REQUIRED > 1050 && !defined(__ppc__)
+#        if MAC_OS_X_VERSION_MIN_REQUIRED >= 1060
 #            include <dispatch/dispatch.h>
 #            define ILMTHREAD_SEMAPHORE_OSX 1
 #        else

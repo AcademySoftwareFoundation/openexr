@@ -21,6 +21,10 @@
 #    include <pthread.h>
 #endif
 
+#ifdef __APPLE__
+#include <AvailabilityMacros.h>
+#endif
+
 #if defined(_MSC_VER)
 #    define EXR_ZSTD_THREAD_LOCAL __declspec (thread)
 #else
@@ -224,6 +228,15 @@ ensure_tls_resources (size_t required_size)
 
 #if defined(_WIN32) || defined(_WIN64)
         tls->shuffle_buf = (uint8_t*) _aligned_malloc (aligned_size, 64);
+#elif defined(__APPLE__) && (MAC_OS_X_VERSION_MIN_REQUIRED < 101500)
+        // aligned_alloc is only declared by the macOS 10.15+ SDK and only
+        // exists at runtime from 10.15 on; posix_memalign exists from 10.6 on
+        // and its memory is also released by free ().
+        {
+            void* p = NULL;
+            if (posix_memalign (&p, 64, aligned_size) != 0) p = NULL;
+            tls->shuffle_buf = (uint8_t*) p;
+        }
 #else
         tls->shuffle_buf = (uint8_t*) aligned_alloc (64, aligned_size);
 #endif
@@ -1324,6 +1337,23 @@ exr_undo_zstd_v1 (
      * and violating that would make the first segment's length exceed the
      * destination allocation. */
     if (split > uncompressed_size) return EXR_ERR_CORRUPT_CHUNK;
+
+    /* split only covers the 2-byte (half) channels, so for a part with no
+     * half channels (split == 0) the check above does not bound the
+     * 4-byte (float) channels at all. Compute the full grid total (the
+     * actual number of bytes the inverse sort below will write into
+     * uncompressed_data, sized to uncompressed_size) and reject any
+     * chunk where it does not exactly account for the whole buffer,
+     * before sort2_4ByteChannels_tiled() runs. */
+    {
+        uint64_t grid_total = 0;
+        for (int gh = 0; gh < chunk_line_count; ++gh)
+            for (int gi = 0; gi < channel_count; ++gi)
+                grid_total +=
+                    channel_sample_count_grid[(size_t) gh * channel_count + gi] *
+                    (uint64_t) pack_channels[gi].bytes_per_element;
+        if (grid_total != uncompressed_size) return EXR_ERR_CORRUPT_CHUNK;
+    }
 
     uint64_t  inner_lens[2];
     uint64_t  inner_els[2];

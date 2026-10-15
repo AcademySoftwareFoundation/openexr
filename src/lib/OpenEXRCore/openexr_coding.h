@@ -121,15 +121,20 @@ typedef struct
      */
     int32_t user_line_stride;
 
-    /** This data member has different requirements reading vs
-     * writing. When reading, if this is left as `NULL`, the channel
-     * will be skipped during read and not filled in.  During a write
-     * operation, this pointer is considered const and not
-     * modified. To make this more clear, a union is used here.
-     */
+    /** \private Anonymous unions have no name doxygen can emit, so the
+     * members below carry the documentation instead. */
     union
     {
-        uint8_t*       decode_to_ptr;
+        /** Destination buffer when decoding.
+         *
+         * If this is left as `NULL`, the channel will be skipped
+         * during read and not filled in.
+         */
+        uint8_t* decode_to_ptr;
+        /** Source buffer when encoding.
+         *
+         * This pointer is considered const and is not modified.
+         */
         const uint8_t* encode_from_ptr;
     };
 } exr_coding_channel_info_t;
