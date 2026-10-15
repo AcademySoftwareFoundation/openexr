@@ -451,6 +451,14 @@ typedef enum
  * standard names may use a static string to avoid allocating space
  * for those as necessary with the pointers pointing to static strings
  * (not to be freed). Finally, small values are optimized for.
+ *
+ * The value members below form a union of pointers of different types
+ * that can be used to type pun to an appropriate type for builtins. Do
+ * note that while this looks like a big thing, it is only the size of a
+ * single pointer. These are all pointers into some other data block
+ * storing the value you want, with the exception of the pod types which
+ * are just put in place (i.e. small value optimization). The attribute
+ * type \c type should directly correlate to one of these entries.
  */
 typedef struct
 {
@@ -468,16 +476,8 @@ typedef struct
     /** Enum of the attribute type. */
     exr_attribute_type_t type;
 
-    /** Union of pointers of different types that can be used to type
-     * pun to an appropriate type for builtins. Do note that while
-     * this looks like a big thing, it is only the size of a single
-     * pointer.  These are all pointers into some other data block
-     * storing the value you want, with the exception of the pod types
-     * which are just put in place (i.e. small value optimization).
-     *
-     * The attribute type \c type should directly correlate to one
-     * of these entries.
-     */
+    /** \private Anonymous unions have no name doxygen can emit; the value
+     * members are documented in the struct description above. */
     union
     {
         // NB: not pointers for POD types

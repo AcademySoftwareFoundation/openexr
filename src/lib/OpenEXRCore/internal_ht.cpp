@@ -379,11 +379,7 @@ decode_line (
     }
     else
     {
-        for (int32_t p = 0; p < width; p++, out += sizeof (uint32_t))
-        {
-            uint32_t v = (uint32_t) src[p];
-            memcpy (out, &v, sizeof (v));
-        }
+        memcpy (out, src, (size_t) width * sizeof (uint32_t));
     }
 }
 
@@ -976,18 +972,12 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
                             }
                             else
                             {
-                                for (int32_t p = 0;
-                                     p < encode->channels[file_c].width;
-                                    p++)
-                                {
-                                    /* samples may be unaligned */
-                                    int32_t v;
-                                    memcpy (
-                                        &v,
-                                        line_pixels + (int64_t) p * sizeof (v),
-                                        sizeof (v));
-                                    cur_line->i32[p] = v;
-                                }
+                                /* samples may be unaligned */
+                                memcpy (
+                                    cur_line->i32,
+                                    line_pixels,
+                                    (size_t) encode->channels[file_c].width *
+                                        sizeof (int32_t));
                             }
 
                             assert (next_comp == c);
@@ -1038,16 +1028,11 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
                     }
                     else
                     {
-                        for (int32_t p = 0; p < cw; p++)
-                        {
-                            /* samples may be unaligned */
-                            int32_t v;
-                            memcpy (
-                                &v,
-                                channel_pixels + (int64_t) p * sizeof (v),
-                                sizeof (v));
-                            cur_line->i32[p] = v;
-                        }
+                        /* samples may be unaligned */
+                        memcpy (
+                            cur_line->i32,
+                            channel_pixels,
+                            (size_t) cw * sizeof (int32_t));
                     }
                     for (int32_t p = cw; p < image_width; p++)
                         cur_line->i32[p] = cur_line->i32[cw - 1];

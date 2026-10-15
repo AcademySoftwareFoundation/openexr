@@ -1338,6 +1338,23 @@ exr_undo_zstd_v1 (
      * destination allocation. */
     if (split > uncompressed_size) return EXR_ERR_CORRUPT_CHUNK;
 
+    /* split only covers the 2-byte (half) channels, so for a part with no
+     * half channels (split == 0) the check above does not bound the
+     * 4-byte (float) channels at all. Compute the full grid total (the
+     * actual number of bytes the inverse sort below will write into
+     * uncompressed_data, sized to uncompressed_size) and reject any
+     * chunk where it does not exactly account for the whole buffer,
+     * before sort2_4ByteChannels_tiled() runs. */
+    {
+        uint64_t grid_total = 0;
+        for (int gh = 0; gh < chunk_line_count; ++gh)
+            for (int gi = 0; gi < channel_count; ++gi)
+                grid_total +=
+                    channel_sample_count_grid[(size_t) gh * channel_count + gi] *
+                    (uint64_t) pack_channels[gi].bytes_per_element;
+        if (grid_total != uncompressed_size) return EXR_ERR_CORRUPT_CHUNK;
+    }
+
     uint64_t  inner_lens[2];
     uint64_t  inner_els[2];
     int const n_inner =

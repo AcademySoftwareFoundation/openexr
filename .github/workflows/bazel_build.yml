@@ -35,8 +35,8 @@ permissions:
 
 jobs:
   build_and_test_ubuntu:
-    name: Linux Ubuntu 24.04 Bazel build <GCC 13.3.0>
-    runs-on: ubuntu-24.04
+    name: Linux Ubuntu 26.04 Bazel build <GCC 15>
+    runs-on: ubuntu-26.04
     
     steps:
     - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -45,7 +45,7 @@ jobs:
       uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       with:
         path: "/home/runner/.cache/bazel"
-        key: bazel-ubuntu-24
+        key: bazel-ubuntu-26
 
     - name: Build
       run: |
@@ -71,8 +71,8 @@ jobs:
         bazel test --test_output=errors //...
 
   build_and_test_macos:
-    name: macOS 15 Bazel build <Apple Clang14>
-    runs-on: macos-15
+    name: macOS 26 Bazel build <Apple Clang15>
+    runs-on: macos-26
 
     steps:
     - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -81,7 +81,7 @@ jobs:
       uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       with:
         path: "/home/runner/.cache/bazel"
-        key: bazel-macos-15
+        key: bazel-macos-26
 
     - name: Build
       run: |
