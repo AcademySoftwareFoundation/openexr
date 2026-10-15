@@ -7,6 +7,7 @@
 #include "internal_decompress.h"
 
 #include "internal_coding.h"
+#include "internal_util.h"
 #include "internal_xdr.h"
 
 #include <string.h>
@@ -676,8 +677,14 @@ compute_scratch_buffer_size (
         if (nx % 4) nx += 4 - nx % 4;
         if (ny % 4) ny += 4 - ny % 4;
 
-        comp += (uint64_t) (ny) * (uint64_t) (nx) *
-                (uint64_t) (curc->bytes_per_element);
+        /* guard against a wrapped accumulation producing an
+         * implausibly small scratch requirement relative to what the
+         * decompressor will actually touch (see GHSA-frx8-5p4h-j8m7) */
+        if (checked_mul_accum_u64 (
+                &comp,
+                (uint64_t) ny * (uint64_t) nx,
+                (uint64_t) curc->bytes_per_element))
+            return UINT64_MAX;
     }
     if (comp > ret) ret = comp;
     return ret;
@@ -695,7 +702,8 @@ internal_exr_undo_b44 (
 {
     exr_result_t rv;
     uint64_t     scratch_sz = compute_scratch_buffer_size (decode, uncompressed_size);
-    if (scratch_sz != (size_t) scratch_sz) return EXR_ERR_OUT_OF_MEMORY;
+    if (scratch_sz == UINT64_MAX || scratch_sz != (size_t) scratch_sz)
+        return EXR_ERR_OUT_OF_MEMORY;
     rv = internal_decode_alloc_buffer (
         decode,
         EXR_TRANSCODE_BUFFER_SCRATCH1,
@@ -724,7 +732,8 @@ internal_exr_undo_b44a (
 {
     exr_result_t rv;
     uint64_t     scratch_sz = compute_scratch_buffer_size (decode, uncompressed_size);
-    if (scratch_sz != (size_t) scratch_sz) return EXR_ERR_OUT_OF_MEMORY;
+    if (scratch_sz == UINT64_MAX || scratch_sz != (size_t) scratch_sz)
+        return EXR_ERR_OUT_OF_MEMORY;
     rv = internal_decode_alloc_buffer (
         decode,
         EXR_TRANSCODE_BUFFER_SCRATCH1,
