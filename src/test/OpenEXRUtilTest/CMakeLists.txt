@@ -30,6 +30,7 @@ function(DEFINE_OPENEXR_UTIL_TESTS)
   foreach(curtest IN LISTS ARGN)
     # CMAKE_CROSSCOMPILING_EMULATOR is necessary to support cross-compiling (ex: to win32 from mingw and running tests with wine)
     add_test(NAME OpenEXRUtil.${curtest} COMMAND ${CMAKE_CROSSCOMPILING_EMULATOR} $<TARGET_FILE:OpenEXRUtilTest> ${curtest})
+    set_tests_properties(OpenEXRUtil.${curtest} PROPERTIES LABELS "OpenEXRUtil")
   endforeach()
 endfunction()
 
@@ -39,3 +40,14 @@ define_openexr_util_tests(
   testIO
   testImageChannel
 )
+
+# "portability" tests: an abbreviated subset of the test suite run by
+# specialty CI jobs (alternate OS/build-variant jobs) to test the
+# behaviors most likely to differ across OS/toolchain/libc.
+# Primary Linux/macOS/Windows jobs run the complete test suite.
+set_tests_properties(OpenEXRUtil.testFlatImage PROPERTIES LABELS "OpenEXRUtil;portability")
+
+# COST hint (measured wall time in seconds from a local full-suite run) so
+# ctest's --parallel scheduler starts this long-running test early. See
+# the longer explanation in OpenEXRTest/CMakeLists.txt.
+set_tests_properties (OpenEXRUtil.testDeepImage PROPERTIES COST 16)
