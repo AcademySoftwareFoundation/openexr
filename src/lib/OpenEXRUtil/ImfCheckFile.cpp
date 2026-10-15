@@ -1427,7 +1427,7 @@ readCoreScanlinePart (
 
             if (overflow)
             {
-                frv = EXR_ERR_INVALID_ATTR;
+                frv = EXR_ERR_ARGUMENT_OUT_OF_RANGE;
                 break;
             }
 
