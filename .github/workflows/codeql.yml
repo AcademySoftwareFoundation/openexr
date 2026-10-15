@@ -16,7 +16,18 @@ name: "CodeQL"
 
 on:
   push:
-    branches: [ "main", "**/**" ]
+    # Only main, not every branch: a push-triggered run on a
+    # short-lived branch (e.g. a Dependabot branch updated via the
+    # "Update branch" button) races the branch's deletion when the PR
+    # is merged shortly after. If the in-flight run's SARIF upload
+    # step doesn't finish before the branch is deleted, it fails with
+    # "ref ... not found in this repository", even though the
+    # equivalent push-to-main run (triggered by the merge itself)
+    # succeeds and already captures the results. The pull_request
+    # trigger below still analyzes feature/Dependabot branches and
+    # isn't subject to this race, since it uploads against the PR,
+    # not a branch ref that can disappear out from under it.
+    branches: [ "main" ]
   pull_request:
     branches: [ "main", "**/**" ]
   schedule:
