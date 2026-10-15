@@ -22,9 +22,9 @@ beautifulsoup4==4.15.0 \
     --hash=sha256:288e3ca7d54b06f2ac191970bc275c1939cb46d450b255bf6718b04aa37ab4f7 \
     --hash=sha256:d6f88de62e1d4e38ecb1077eb9724cd0eff29d2a08ca16a401e9b9e93f117cf9
     # via pydata-sphinx-theme
-breathe==5.0.0 \
-    --hash=sha256:9e5c4b2538a3eef9fbcfe9dd966f8f3171d4fd6cbe4976d84578d05f48e09fc3 \
-    --hash=sha256:b6b8d617f8c481c62971afdf8f01af0c865acd29058235dd6e9d241ed2a2f6ae
+breathe==5.1.0 \
+    --hash=sha256:6a81b5fff50fb35b7f6bec1aa1a8621a596ee5ffec453eccd7d5e1f9e682d9a0 \
+    --hash=sha256:ff56af8bfd0b50ebf10c81a07b8a5739787eb015d26b4ba162b6983d6e17c7c3
     # via -r website/requirements.txt
 certifi==2026.7.22 \
     --hash=sha256:62f22742b58a1a33014a2b6b706588a8d7e2a88ae7bd1a6ebe8c992928483775 \
@@ -210,9 +210,9 @@ colorama==0.4.6 \
     # via
     #   -r website/requirements.txt
     #   sphinx
-docutils==0.21.2 \
-    --hash=sha256:3a6b18732edf182daa3cd12775bbb338cf5691468f91eeeb109deff6ebfa986f \
-    --hash=sha256:dafca5b9e384f0e419294eb4d2ff9fa826435bf15f15b7bd45723e8ad76811b2
+docutils==0.23 \
+    --hash=sha256:25d013af9bf23bc1c7b2b093dff4208166c53a94786c9e447808335ef1185fea \
+    --hash=sha256:746f5060322511280a1e50eb76846ed6bf2342984b2ac04dc42caa1a8d78799e
     # via
     #   pydata-sphinx-theme
     #   sphinx
