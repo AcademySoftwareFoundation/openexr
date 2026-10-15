@@ -151,6 +151,7 @@ function(DEFINE_OPENEXR_TESTS)
   foreach(curtest IN LISTS ARGN)
     # CMAKE_CROSSCOMPILING_EMULATOR is necessary to support cross-compiling (ex: to win32 from mingw and running tests with wine)
     add_test(NAME OpenEXR.${curtest} COMMAND ${CMAKE_CROSSCOMPILING_EMULATOR} $<TARGET_FILE:OpenEXRTest> ${curtest})
+    set_tests_properties(OpenEXR.${curtest} PROPERTIES LABELS "OpenEXR")
   endforeach()
 endfunction()
 
@@ -214,3 +215,59 @@ define_openexr_tests(
  testYca
  testIDManifest
 )
+
+# "portability" tests: an abbreviated subset of the test suite run by
+# specialty CI jobs (alternate OS/build-variant jobs) to test the
+# behaviors most likely to differ across OS/toolchain/libc.
+# Primary Linux/macOS/Windows jobs run the complete test suite.
+set_tests_properties(
+  OpenEXR.testCpuId
+  OpenEXR.testNativeFormat
+  OpenEXR.testExistingStreams
+  OpenEXR.testExistingStreamsUTF8
+  OpenEXR.testMagic
+  OpenEXR.testBackwardCompatibility
+  OpenEXR.testPreviewImage
+  OpenEXR.testIsComplete
+  OpenEXR.testRgba
+  OpenEXR.testMultiPartThreading
+  OpenEXR.testMultiScanlinePartThreading
+  OpenEXR.testRgbaThreading
+  OpenEXR.testSharedFrameBuffer
+  PROPERTIES LABELS "OpenEXR;portability"
+)
+
+# These tests configure their own dedicated ThreadPool(s) (in addition to,
+# or instead of, the library's default global pool) and so can use many
+# more OS threads than a typical test. Tell ctest's --parallel scheduler
+# how many "slots" each test needs so it won't pack additional tests onto
+# the same cores and cause CPU oversubscription/noisy timing; with no
+# --parallel (serial ctest), PROCESSORS has no effect and these tests run
+# exactly as before.
+set_tests_properties (OpenEXR.testMultiPartThreading PROPERTIES PROCESSORS 32)
+set_tests_properties (
+  OpenEXR.testMultiScanlinePartThreading
+  OpenEXR.testMultiTiledPartThreading
+  PROPERTIES PROCESSORS 2
+)
+
+# COST hints (measured wall time in seconds from a local full-suite run)
+# for the longest-running tests. CTest's --parallel scheduler prefers to
+# start the highest-COST tests first so they don't become a tail-latency
+# bottleneck at the end of a run; without this, a freshly checked-out CI
+# runner has no CTestCostData.txt history to learn from and schedules
+# tests close to arbitrarily on the first (and, on ephemeral runners,
+# every) run.
+set_tests_properties (OpenEXR.testMultiTiledPartThreading       PROPERTIES COST 55)
+set_tests_properties (OpenEXR.testHuf                           PROPERTIES COST 49)
+set_tests_properties (OpenEXR.testDeepTiledBasic                PROPERTIES COST 41)
+set_tests_properties (OpenEXR.testOptimizedInterleavePatterns   PROPERTIES COST 30)
+set_tests_properties (OpenEXR.testIDManifest                    PROPERTIES COST 28)
+set_tests_properties (OpenEXR.testScanLineApi                   PROPERTIES COST 27)
+set_tests_properties (OpenEXR.testTiledLineOrder                PROPERTIES COST 25)
+set_tests_properties (OpenEXR.testDeepScanLineBasic             PROPERTIES COST 19)
+set_tests_properties (OpenEXR.testMultiPartFileMixingBasic      PROPERTIES COST 14)
+set_tests_properties (OpenEXR.testLargeDataWindowOffsets        PROPERTIES COST 13)
+set_tests_properties (OpenEXR.testCopyDeepScanLine              PROPERTIES COST 13)
+set_tests_properties (OpenEXR.testCompression                   PROPERTIES COST 12)
+
