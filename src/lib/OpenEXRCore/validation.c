@@ -12,6 +12,7 @@
 
 #include <limits.h>
 #include <math.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -414,6 +415,22 @@ validate_channels (
     if (channels->num_channels <= 0)
         return f->report_error (
             f, EXR_ERR_FILE_BAD_HEADER, "At least one channel required");
+
+    /* Internal coding pipeline structures (exr_coding_channel_info_t
+     * descriptor counts, exr_decode/encode_pipeline_t::channel_count)
+     * store the channel count in an int16_t. A channel list larger than
+     * this silently truncates downstream (e.g. 73,728 channels wraps to
+     * 8,192), decoupling the actual channel count from the one used to
+     * size scratch/unpacked buffers and leading to undersized
+     * allocations relative to the data actually unpacked. Reject such
+     * files outright. */
+    if (channels->num_channels > INT16_MAX)
+        return f->print_error (
+            f,
+            EXR_ERR_FILE_BAD_HEADER,
+            "Channel count (%d) exceeds maximum supported value (%d)",
+            channels->num_channels,
+            (int) INT16_MAX);
 
     dw = curpart->data_window;
     w  = (int64_t) dw.max.x - (int64_t) dw.min.x + 1;
