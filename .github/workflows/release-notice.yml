@@ -18,6 +18,24 @@ jobs:
     timeout-minutes: 5
 
     steps:
+    - name: 'Prepare Slack-safe release notes'
+      # Strip the ### Contributors section from the release notes,
+      # since it has raw html that doesn't translate.
+      env:
+        RELEASE_BODY: ${{ github.event.release.body }}
+      run: |
+        # This outputs:
+        #   notes<<DELIMITER
+        #    <release notes w/o contributors
+        #   DELIMITER
+        # which assigns the value to steps.notes.outputs.notes
+        delimiter="EOF_$(date +%s)_$RANDOM"
+        {
+          echo "notes<<$delimiter"
+          printf '%s\n' "$RELEASE_BODY" | sed -n '/^### Contributors$/q;p'
+          echo "$delimiter"
+        } >> "$GITHUB_OUTPUT"
+
     - name: 'Notify Slack #release-announcements'
       id: slack1
       with:
@@ -25,6 +43,7 @@ jobs:
         slack_bot_token: ${{ secrets.SLACK_BOT_TOKEN }}
         slack_channel: "#release-announcements"
         project_logo: "https://artwork.aswf.io/projects/openexr/icon/color/openexr-icon-color.png"
+        release_notes: ${{ steps.notes.outputs.notes }}
       uses: jmertic/slack-release-notifier@4bf7813217739180f89eb869bf769efc07928368 # 20260930
 
     - name: 'Notify Slack #openexr'
@@ -34,6 +53,7 @@ jobs:
         slack_bot_token: ${{ secrets.SLACK_BOT_TOKEN }}
         slack_channel: "#openexr"
         project_logo: "https://artwork.aswf.io/projects/openexr/icon/color/openexr-icon-color.png"
+        release_notes: ${{ steps.notes.outputs.notes }}
       uses: jmertic/slack-release-notifier@4bf7813217739180f89eb869bf769efc07928368 # 20260930
 
       
