@@ -781,21 +781,6 @@ zstd_write_exr_v1 (
 }
 
 bool
-get_row_sample_count_decode (
-    const exr_decode_pipeline_t* decode, uint64_t* row_sample_counts)
-{
-    if (decode->sample_count_valid == 1 && decode->chunk.width > 0)
-    {
-        for (int h = 0; h < decode->chunk.height; ++h)
-            row_sample_counts[h] =
-                (uint64_t) decode
-                    ->sample_count_table[(h + 1) * decode->chunk.width - 1];
-        return true;
-    }
-    return false;
-}
-
-bool
 get_row_sample_count_encode (
     const exr_encode_pipeline_t* encode, uint64_t* row_sample_counts)
 {
@@ -823,9 +808,15 @@ exr_zstd_validate_raw_sample_counts (
     const int32_t* tbl = decode->sample_count_table;
     uint64_t       tot = 0;
 
+    /* An uncompressed table is used in place: sample_count_table points at
+     * packed_sample_count_table and sample_count_alloc_size is 0. */
+    const uint64_t tbl_size =
+        ((const void*) tbl == decode->packed_sample_count_table)
+            ? decode->chunk.sample_count_table_size
+            : (uint64_t) decode->sample_count_alloc_size;
+
     if (!tbl || w <= 0 || h <= 0) return EXR_ERR_INVALID_SAMPLE_DATA;
-    if ((uint64_t) w * (uint64_t) h * sizeof (int32_t) >
-        decode->sample_count_alloc_size)
+    if ((uint64_t) w * (uint64_t) h * sizeof (int32_t) > tbl_size)
         return EXR_ERR_INVALID_SAMPLE_DATA;
 
     for (int64_t y = 0; y < h; ++y)
@@ -1347,8 +1338,6 @@ exr_undo_zstd_v1 (
             exr_zstd_validate_raw_sample_counts (decode, sorting_lookup);
         if (cnt_rv != EXR_ERR_SUCCESS) return cnt_rv;
     }
-    else
-        (void) get_row_sample_count_decode (decode, sorting_lookup);
 
     exr_zstd_fill_channel_sample_count_grid (
         grid_scenario,

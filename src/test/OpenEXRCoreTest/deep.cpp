@@ -496,14 +496,27 @@ testWriteDeep (const std::string& tempdir)
 {}
 
 //
-// A deep tiled ZSTD chunk whose sample count table contains negative counts
-// must be rejected before the pixel data is unsorted, otherwise the inverse
-// sort writes past the unpacked buffer.
+// Writes a deep tiled ZSTD fixture with its sample count table replaced by
+// counts, decodes the tile with the given extra decode flags, and returns the
+// result of exr_decoding_run.
 //
-void
-testDeepZstdNegativeSampleCounts (const std::string& tempdir)
+static exr_result_t
+decodeDeepZstdTile (
+    const std::string& tempdir, const int32_t counts[3], uint16_t decode_flags)
 {
-    static const uint8_t data[] = {
+    //
+    // A single 1x3 deep tile (channels A half, B float), ZSTD compressed. The
+    // 12-byte sample count table (100, 10, -10) is stored uncompressed and
+    // directly precedes the 52-byte ZSTD payload at the end of the file. The
+    // payload unpacks to 200 half + 400 float bytes, so any non-negative counts
+    // summing to 100 describe a valid chunk.
+    //
+    // Because the table is stored uncompressed, default decode flags make the
+    // decoder use it in place (sample_count_table == packed_sample_count_table),
+    // while EXR_DECODE_SAMPLE_COUNTS_AS_INDIVIDUAL makes it decode to a separate
+    // copy.
+    //
+    static const uint8_t deepZstdTileData[] = {
         0x76, 0x2f, 0x31, 0x01, 0x02, 0x08, 0x00, 0x00, 0x63, 0x68, 0x61, 0x6e,
         0x6e, 0x65, 0x6c, 0x73, 0x00, 0x63, 0x68, 0x6c, 0x69, 0x73, 0x74, 0x00,
         0x25, 0x00, 0x00, 0x00, 0x41, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -547,10 +560,22 @@ testDeepZstdNegativeSampleCounts (const std::string& tempdir)
         0x9d, 0x00, 0x00, 0x38, 0xc8, 0x00, 0x41, 0x90, 0x01, 0x00, 0x42, 0x04,
         0x10, 0x00, 0x8c, 0x4a, 0x08, 0x43, 0xa4, 0x77, 0xc0, 0x02};
 
-    std::string fn = tempdir + "deepzstdnegcounts.exr";
+    std::vector<uint8_t> data (
+        deepZstdTileData, deepZstdTileData + sizeof (deepZstdTileData));
+    uint8_t* tbl = data.data () + data.size () - 64;
+    EXRCORE_TEST (tbl[0] == 0x64 && tbl[8] == 0xf6);
+    for (int i = 0; i < 3; ++i)
+    {
+        tbl[i * 4 + 0] = (uint8_t) (counts[i] & 0xff);
+        tbl[i * 4 + 1] = (uint8_t) ((counts[i] >> 8) & 0xff);
+        tbl[i * 4 + 2] = (uint8_t) ((counts[i] >> 16) & 0xff);
+        tbl[i * 4 + 3] = (uint8_t) ((counts[i] >> 24) & 0xff);
+    }
+
+    std::string fn = tempdir + "deepzstdsamplecounts.exr";
     FILE*       fp = fopen (fn.c_str (), "wb");
     EXRCORE_TEST (fp != NULL);
-    EXRCORE_TEST (fwrite (data, 1, sizeof (data), fp) == sizeof (data));
+    EXRCORE_TEST (fwrite (data.data (), 1, data.size (), fp) == data.size ());
     fclose (fp);
 
     exr_context_t             f;
@@ -563,11 +588,46 @@ testDeepZstdNegativeSampleCounts (const std::string& tempdir)
     exr_decode_pipeline_t decoder = EXR_DECODE_PIPELINE_INITIALIZER;
     EXRCORE_TEST_RVAL (exr_read_tile_chunk_info (f, 0, 0, 0, 0, 0, &cinfo));
     EXRCORE_TEST_RVAL (exr_decoding_initialize (f, 0, &cinfo, &decoder));
+    decoder.decode_flags |= decode_flags;
     EXRCORE_TEST_RVAL (exr_decoding_choose_default_routines (f, 0, &decoder));
-    EXRCORE_TEST (
-        exr_decoding_run (f, 0, &decoder) == EXR_ERR_INVALID_SAMPLE_DATA);
+    exr_result_t rv = exr_decoding_run (f, 0, &decoder);
     exr_decoding_destroy (f, &decoder);
     exr_finish (&f);
 
     remove (fn.c_str ());
+    return rv;
+}
+
+//
+// Negative sample counts must be rejected before the pixel data is unsorted,
+// otherwise the inverse sort writes past the unpacked buffer.
+//
+void
+testDeepZstdNegativeSampleCounts (const std::string& tempdir)
+{
+    const int32_t counts[3] = {100, 10, -10};
+
+    EXRCORE_TEST (
+        decodeDeepZstdTile (tempdir, counts, 0) ==
+        EXR_ERR_INVALID_SAMPLE_DATA);
+    EXRCORE_TEST (
+        decodeDeepZstdTile (
+            tempdir, counts, EXR_DECODE_SAMPLE_COUNTS_AS_INDIVIDUAL) ==
+        EXR_ERR_INVALID_SAMPLE_DATA);
+}
+
+//
+// A valid chunk whose sample count table is stored uncompressed must decode.
+//
+void
+testDeepZstdValidSampleCounts (const std::string& tempdir)
+{
+    const int32_t counts[3] = {50, 25, 25};
+
+    EXRCORE_TEST (
+        decodeDeepZstdTile (tempdir, counts, 0) == EXR_ERR_SUCCESS);
+    EXRCORE_TEST (
+        decodeDeepZstdTile (
+            tempdir, counts, EXR_DECODE_SAMPLE_COUNTS_AS_INDIVIDUAL) ==
+        EXR_ERR_SUCCESS);
 }
