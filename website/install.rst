@@ -706,6 +706,13 @@ Component Options
   Build the binary programs (exrheader, exrinfo,
   exrmakepreview, etc). Default is ``ON``.
 
+* ``OPENEXR_ENABLE_THREADING``
+
+  Enable threaded processing of requests. Default is ``ON``.  If
+  ``OFF``, the thread pool and tasks are still used but are processed
+  immediately, and the OpenEXR library may not be thread-safe, so it
+  should only be used by a single thread.
+
 * ``OPENEXR_INSTALL_TOOLS``
 
   Install the binary programs (exrheader, exrinfo,
