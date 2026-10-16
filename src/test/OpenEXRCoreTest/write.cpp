@@ -1405,9 +1405,77 @@ void
 testWriteScans (const std::string& tempdir)
 {}
 
+// Edge tiles must be clipped to the requested level, including levels
+// smaller than the nominal tile size. Tile coordinates are independent
+// of the data window origin.
+static void
+testWriteTileChunkInfo (
+    const std::string&    tempdir,
+    exr_tile_level_mode_t mode,
+    exr_tile_round_mode_t rounding,
+    int                   offset)
+{
+    exr_context_t f;
+    std::string   fn = tempdir + "tile_chunk_info.exr";
+    int           partidx;
+    const int     sizes[] = {6, 3, rounding == EXR_TILE_ROUND_DOWN ? 1 : 2, 1};
+    const int     levels  = mode == EXR_TILE_ONE_LEVEL
+                                ? 1
+                                : (rounding == EXR_TILE_ROUND_DOWN ? 3 : 4);
+    exr_attr_box2i_t dw   = {{-offset, offset}, {5 - offset, 5 + offset}};
+
+    EXRCORE_TEST_RVAL (
+        exr_start_write (&f, fn.c_str (), EXR_WRITE_FILE_DIRECTLY, NULL));
+    EXRCORE_TEST_RVAL (exr_add_part (f, "tiles", EXR_STORAGE_TILED, &partidx));
+    EXRCORE_TEST_RVAL (exr_initialize_required_attr_simple (
+        f, partidx, 6, 6, EXR_COMPRESSION_ZIP));
+    EXRCORE_TEST_RVAL (exr_set_data_window (f, partidx, &dw));
+    EXRCORE_TEST_RVAL (exr_add_channel (
+        f, partidx, "U", EXR_PIXEL_UINT, EXR_PERCEPTUALLY_LOGARITHMIC, 1, 1));
+    EXRCORE_TEST_RVAL (
+        exr_set_tile_descriptor (f, partidx, 2, 2, mode, rounding));
+    EXRCORE_TEST_RVAL (exr_write_header (f));
+
+    for (int ly = 0; ly < levels; ++ly)
+    {
+        for (int lx = 0; lx < levels; ++lx)
+        {
+            if (mode == EXR_TILE_MIPMAP_LEVELS && lx != ly) continue;
+            const int width = sizes[lx], height = sizes[ly];
+            for (int ty = 0; ty < (height + 1) / 2; ++ty)
+            {
+                for (int tx = 0; tx < (width + 1) / 2; ++tx)
+                {
+                    exr_chunk_info_t cinfo;
+                    const int        w = width - tx * 2 > 1 ? 2 : 1;
+                    const int        h = height - ty * 2 > 1 ? 2 : 1;
+                    EXRCORE_TEST_RVAL (exr_write_tile_chunk_info (
+                        f, partidx, tx, ty, lx, ly, &cinfo));
+                    EXRCORE_TEST (cinfo.width == w);
+                    EXRCORE_TEST (cinfo.height == h);
+                    EXRCORE_TEST (
+                        cinfo.unpacked_size == (uint64_t) (w * h * 4));
+                }
+            }
+        }
+    }
+    EXRCORE_TEST_RVAL (exr_finish (&f));
+    remove (fn.c_str ());
+}
+
 void
 testWriteTiles (const std::string& tempdir)
 {
+    const exr_tile_level_mode_t modes[] = {
+        EXR_TILE_ONE_LEVEL, EXR_TILE_MIPMAP_LEVELS, EXR_TILE_RIPMAP_LEVELS};
+    const exr_tile_round_mode_t rounding[] = {
+        EXR_TILE_ROUND_DOWN, EXR_TILE_ROUND_UP};
+    const int offsets[] = {0, 10};
+    for (auto mode: modes)
+        for (auto round: rounding)
+            for (int offset: offsets)
+                testWriteTileChunkInfo (tempdir, mode, round, offset);
+
     exr_context_t             f, outf, testf;
     std::string               outfn = tempdir;
     std::string               fn    = ILM_IMF_TEST_IMAGEDIR;
