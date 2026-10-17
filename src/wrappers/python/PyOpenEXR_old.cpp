@@ -498,12 +498,17 @@ channel (PyObject* self, PyObject* args, PyObject* kw)
         FrameBuffer frameBuffer;
         size_t      xstride = typeSize;
         size_t      ystride = typeSize * width;
+
+        // The offsets are signed: dw.min.x and miny can be negative, and
+        // as unsigned size_t products they would wrap before the division.
+        ptrdiff_t xoffset = (ptrdiff_t) dw.min.x * (ptrdiff_t) xstride / xSampling;
+        ptrdiff_t yoffset = (ptrdiff_t) miny * (ptrdiff_t) ystride / ySampling;
+
         frameBuffer.insert (
             cname,
             Slice (
                 pt,
-                pixels - dw.min.x * xstride / xSampling -
-                    miny * ystride / ySampling,
+                pixels - xoffset - yoffset,
                 xstride,
                 ystride,
                 xSampling,
