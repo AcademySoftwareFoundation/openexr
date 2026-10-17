@@ -170,6 +170,16 @@ jobs:
             echo "CMAKE_GENERATOR_PLATFORM=${{ inputs.CMAKE_GENERATOR_PLATFORM }}" >> "$GITHUB_ENV"
           fi
 
+          # Likewise, CMake initializes CMAKE_OSX_ARCHITECTURES
+          # (e.g. "x86_64;arm64" for a universal2 build) from the
+          # environment variable of the same name, so exporting it
+          # here makes the dependency pre-install scripts build
+          # matching multi-architecture libraries, which OpenEXR then
+          # links against.
+          if [ -n "${{ inputs.CMAKE_OSX_ARCHITECTURES }}" ]; then
+            echo "CMAKE_OSX_ARCHITECTURES=${{ inputs.CMAKE_OSX_ARCHITECTURES }}" >> "$GITHUB_ENV"
+          fi
+
           # Install gcc for macOS if necessary
           if [[ "${{ inputs.cc-compiler }}" == "gcc" && "$RUNNER_OS" == "macOS" ]]; then
             brew install gcc
@@ -404,7 +414,7 @@ jobs:
             cmake_args+=("-DCMAKE_CXX_FLAGS=-msse2 -mfpmath=sse")
           fi
           if [ -n "${{ inputs.CMAKE_OSX_ARCHITECTURES }}" ]; then
-              cmake_args+=("CMAKE_OSX_ARCHITECTURES='${{ inputs.CMAKE_OSX_ARCHITECTURES }}'")
+              cmake_args+=("-DCMAKE_OSX_ARCHITECTURES=${{ inputs.CMAKE_OSX_ARCHITECTURES }}")
           fi
 
           quoted_args=$(printf '%q ' "${cmake_args[@]}")
@@ -572,7 +582,7 @@ jobs:
         # application building against the just-installed openexr
         # libary, to validate the cmake configuration for downstream
         # applications.
-        if: inputs.namespace == '' && inputs.msystem == '' && inputs.OPENEXR_BUILD_EXAMPLES != ''
+        if: inputs.namespace == '' && inputs.msystem == ''
         run: |
           set -x
           EXRWRITER_BUILD_DIR=$WORKSPACE/_build.exrwriter

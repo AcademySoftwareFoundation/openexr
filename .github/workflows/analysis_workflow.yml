@@ -173,8 +173,8 @@ jobs:
           # Fuzz with sanitizer
           - build: 2
             build-descrip: With Sanitizer 
-            cflags: -DCFLAGS='-fsanitize=address'
-            cxxflags: -DCXXFLAGS='-fsanitize=address'
+            cflags: -DCMAKE_C_FLAGS='-fsanitize=address'
+            cxxflags: -DCMAKE_CXX_FLAGS='-fsanitize=address'
     env:
       CXX: g++
       CC: gcc
