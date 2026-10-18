@@ -1007,7 +1007,9 @@ LossyDctEncoder_execute (
 
         for (int y = 0; y < e->_height; ++y)
         {
-            const float* srcXdr = (const float*) chanData[chan]->_rows[y];
+            /* rows may not be 4-byte aligned, so load without a
+             * float pointer dereference */
+            const uint8_t* srcXdr = chanData[chan]->_rows[y];
 
             for (int x = 0; x < e->_width; ++x)
             {
@@ -1015,7 +1017,9 @@ LossyDctEncoder_execute (
                 // Clamp to half ranges, instead of just casting. This
                 // avoids introducing Infs which end up getting zeroed later
                 //
-                float src = one_to_native_float (srcXdr[x]);
+                uint32_t bits = unaligned_load32 (srcXdr + x * sizeof (float));
+                float    src;
+                memcpy (&src, &bits, sizeof (src));
                 if (src > 65504.f)
                     src = 65504.f;
                 else if (src < -65504.f)
