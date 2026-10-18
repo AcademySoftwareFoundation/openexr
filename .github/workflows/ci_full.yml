@@ -4,14 +4,29 @@
 
 # The complete build.
 #
-# Runs on a tag push (release candidate) and on a weekly schedule.
+# Runs on a tag push (release candidate), on a weekly schedule.
+#
+# Also run on any push or pull request that changes this workflow or
+# ci_steps.yml, so changes to the full build are validated before they
+# merge.
 
 name: Full Build
 
 on:
   push:
+    # Path filters are not evaluated for tag pushes, so every tag push
+    # still runs. A branch push runs only when one of these files changes.
+    branches:
+      - '**'
     tags:
       - '**'
+    paths:
+      - '.github/workflows/ci_full.yml'
+      - '.github/workflows/ci_steps.yml'
+  pull_request:
+    paths:
+      - '.github/workflows/ci_full.yml'
+      - '.github/workflows/ci_steps.yml'
   schedule:
     # Every Sunday at 06:15 UTC, i.e. 11:15pm Pacific Time
     - cron: '15 6 * * 0'
