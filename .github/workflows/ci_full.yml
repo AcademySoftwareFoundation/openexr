@@ -148,11 +148,6 @@ jobs:
             cxx-standard: 20
             validate_install: OFF
 
-          - name: outdated OpenJPH
-            openjph_version: '0.31.0'
-            validate_install: 'OFF'
-            BUILD_TESTING: 'OFF'
-
           - name: vfx2026
             vfx-cy: 2026
 
