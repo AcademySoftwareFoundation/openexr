@@ -415,6 +415,10 @@ jobs:
           fi
           if [ -n "${{ inputs.CMAKE_OSX_ARCHITECTURES }}" ]; then
               cmake_args+=("-DCMAKE_OSX_ARCHITECTURES=${{ inputs.CMAKE_OSX_ARCHITECTURES }}")
+              # The pre-installed dependencies in /usr/local are built for
+              # all of the requested architectures, but Homebrew's are
+              # arm64-only and are otherwise found first.
+              cmake_args+=("-DCMAKE_PREFIX_PATH=/usr/local")
           fi
 
           quoted_args=$(printf '%q ' "${cmake_args[@]}")
