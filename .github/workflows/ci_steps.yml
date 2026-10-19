@@ -590,8 +590,14 @@ jobs:
         run: |
           set -x
           EXRWRITER_BUILD_DIR=$WORKSPACE/_build.exrwriter
+          PREFIX_PATH="$INSTALL_DIR"
+          if [ -n "${{ inputs.CMAKE_OSX_ARCHITECTURES }}" ]; then
+              # find the multi-architecture dependencies in /usr/local
+              # before Homebrew's arm64-only ones
+              PREFIX_PATH="$PREFIX_PATH;/usr/local"
+          fi
           "$CMAKE" -S website/src/exrwriter -B "$EXRWRITER_BUILD_DIR" \
-                -DCMAKE_PREFIX_PATH="$INSTALL_DIR" \
+                -DCMAKE_PREFIX_PATH="$PREFIX_PATH" \
                 -DCMAKE_VERBOSE_MAKEFILE=ON
           "$CMAKE" --build "$EXRWRITER_BUILD_DIR" --config ${{ inputs.build-type }} --parallel
           if [[ "$RUNNER_OS" == "Windows" ]]; then
@@ -658,6 +664,11 @@ jobs:
           cmake_args+=("-DOPENEXR_FORCE_INTERNAL_OPENJPH=${{ inputs.OPENEXR_FORCE_INTERNAL_OPENJPH }}")
           cmake_args+=("-DOPENEXR_BUILD_EXAMPLES=OFF")
           cmake_args+=("-DOPENEXR_BUILD_TOOLS=OFF")
+          if [ -n "${{ inputs.CMAKE_OSX_ARCHITECTURES }}" ]; then
+              # find the multi-architecture dependencies in /usr/local
+              # before Homebrew's arm64-only ones
+              cmake_args+=("-DCMAKE_PREFIX_PATH=/usr/local")
+          fi
           quoted_args=$(printf '%q ' "${cmake_args[@]}")
           # shellcheck disable=SC2086 # intentional word-splitting of pre-quoted args
           "$CMAKE" $quoted_args
