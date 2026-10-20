@@ -170,6 +170,16 @@ jobs:
             echo "CMAKE_GENERATOR_PLATFORM=${{ inputs.CMAKE_GENERATOR_PLATFORM }}" >> "$GITHUB_ENV"
           fi
 
+          # Likewise, CMake initializes CMAKE_OSX_ARCHITECTURES
+          # (e.g. "x86_64;arm64" for a universal2 build) from the
+          # environment variable of the same name, so exporting it
+          # here makes the dependency pre-install scripts build
+          # matching multi-architecture libraries, which OpenEXR then
+          # links against.
+          if [ -n "${{ inputs.CMAKE_OSX_ARCHITECTURES }}" ]; then
+            echo "CMAKE_OSX_ARCHITECTURES=${{ inputs.CMAKE_OSX_ARCHITECTURES }}" >> "$GITHUB_ENV"
+          fi
+
           # Install gcc for macOS if necessary
           if [[ "${{ inputs.cc-compiler }}" == "gcc" && "$RUNNER_OS" == "macOS" ]]; then
             brew install gcc
@@ -404,7 +414,11 @@ jobs:
             cmake_args+=("-DCMAKE_CXX_FLAGS=-msse2 -mfpmath=sse")
           fi
           if [ -n "${{ inputs.CMAKE_OSX_ARCHITECTURES }}" ]; then
-              cmake_args+=("CMAKE_OSX_ARCHITECTURES='${{ inputs.CMAKE_OSX_ARCHITECTURES }}'")
+              cmake_args+=("-DCMAKE_OSX_ARCHITECTURES=${{ inputs.CMAKE_OSX_ARCHITECTURES }}")
+              # The pre-installed dependencies in /usr/local are built for
+              # all of the requested architectures, but Homebrew's are
+              # arm64-only and are otherwise found first.
+              cmake_args+=("-DCMAKE_PREFIX_PATH=/usr/local")
           fi
 
           quoted_args=$(printf '%q ' "${cmake_args[@]}")
@@ -572,12 +586,18 @@ jobs:
         # application building against the just-installed openexr
         # libary, to validate the cmake configuration for downstream
         # applications.
-        if: inputs.namespace == '' && inputs.msystem == '' && inputs.OPENEXR_BUILD_EXAMPLES != ''
+        if: inputs.namespace == '' && inputs.msystem == ''
         run: |
           set -x
           EXRWRITER_BUILD_DIR=$WORKSPACE/_build.exrwriter
+          PREFIX_PATH="$INSTALL_DIR"
+          if [ -n "${{ inputs.CMAKE_OSX_ARCHITECTURES }}" ]; then
+              # find the multi-architecture dependencies in /usr/local
+              # before Homebrew's arm64-only ones
+              PREFIX_PATH="$PREFIX_PATH;/usr/local"
+          fi
           "$CMAKE" -S website/src/exrwriter -B "$EXRWRITER_BUILD_DIR" \
-                -DCMAKE_PREFIX_PATH="$INSTALL_DIR" \
+                -DCMAKE_PREFIX_PATH="$PREFIX_PATH" \
                 -DCMAKE_VERBOSE_MAKEFILE=ON
           "$CMAKE" --build "$EXRWRITER_BUILD_DIR" --config ${{ inputs.build-type }} --parallel
           if [[ "$RUNNER_OS" == "Windows" ]]; then
@@ -644,6 +664,11 @@ jobs:
           cmake_args+=("-DOPENEXR_FORCE_INTERNAL_OPENJPH=${{ inputs.OPENEXR_FORCE_INTERNAL_OPENJPH }}")
           cmake_args+=("-DOPENEXR_BUILD_EXAMPLES=OFF")
           cmake_args+=("-DOPENEXR_BUILD_TOOLS=OFF")
+          if [ -n "${{ inputs.CMAKE_OSX_ARCHITECTURES }}" ]; then
+              # find the multi-architecture dependencies in /usr/local
+              # before Homebrew's arm64-only ones
+              cmake_args+=("-DCMAKE_PREFIX_PATH=/usr/local")
+          fi
           quoted_args=$(printf '%q ' "${cmake_args[@]}")
           # shellcheck disable=SC2086 # intentional word-splitting of pre-quoted args
           "$CMAKE" $quoted_args
