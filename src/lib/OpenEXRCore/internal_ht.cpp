@@ -25,74 +25,10 @@
 #include "internal_ht_quality.h"
 #include "internal_legacy_structs.h"
 
-namespace
-{
-/* Every MSVC target is little-endian; GCC and Clang report byte order
- * directly. A constexpr flag (rather than #if) keeps both code paths
- * compiled on every platform, and the unused one is optimized away. */
-#if defined(__BYTE_ORDER__) && defined(__ORDER_BIG_ENDIAN__) &&                \
-    __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-constexpr bool host_is_big_endian = true;
-#else
-constexpr bool host_is_big_endian = false;
-#endif
-
-/* The packed (uncompressed) chunk data is in file order, i.e.
- * little-endian, whatever the host byte order; samples may also be
- * unaligned, since channels of different sizes are packed back to back.
- * These helpers load and store samples explicitly. */
-
-inline uint16_t
-load_le16 (const uint8_t* p)
-{
-    return (uint16_t) (p[0] | (p[1] << 8));
-}
-
-inline uint32_t
-load_le32 (const uint8_t* p)
-{
-    return (uint32_t) p[0] | ((uint32_t) p[1] << 8) |
-           ((uint32_t) p[2] << 16) | ((uint32_t) p[3] << 24);
-}
-
-inline float
-load_le_float (const uint8_t* p)
-{
-    uint32_t bits = load_le32 (p);
-    float    v;
-    memcpy (&v, &bits, sizeof (v));
-    return v;
-}
-
-inline void
-store_le16 (uint8_t* p, uint16_t v)
-{
-    p[0] = (uint8_t) v;
-    p[1] = (uint8_t) (v >> 8);
-}
-
-inline void
-store_le32 (uint8_t* p, uint32_t v)
-{
-    p[0] = (uint8_t) v;
-    p[1] = (uint8_t) (v >> 8);
-    p[2] = (uint8_t) (v >> 16);
-    p[3] = (uint8_t) (v >> 24);
-}
-
-/* Bulk-load little-endian 32-bit samples from (possibly unaligned) packed
- * data into an aligned line buffer: one memcpy, then an in-place swap on
- * big-endian hosts only. */
-inline void
-load_le32_line (int32_t* dst, const uint8_t* src, int32_t count)
-{
-    memcpy (dst, src, (size_t) count * sizeof (int32_t));
-    if (host_is_big_endian)
-        for (int32_t p = 0; p < count; p++)
-            dst[p] = (int32_t) load_le32 (
-                reinterpret_cast<const uint8_t*> (dst + p));
-}
-} // namespace
+/* internal_xdr.h includes <windows.h> on Windows, whose min/max macros
+ * would expand std::numeric_limits<T>::max (); the calls below are
+ * written as (std::numeric_limits<T>::max) () to avoid that. */
+#include "internal_xdr.h"
 
 namespace
 {
@@ -144,8 +80,10 @@ chunk_max_linear_float (
                              x < encode->channels[file_c].width;
                              x++)
                         {
-                            float v = load_le_float (
+                            uint32_t bits = unaligned_load32 (
                                 line_pixels + (int64_t) x * sizeof (float));
+                            float v;
+                            memcpy (&v, &bits, sizeof (v));
                             if (std::isfinite (v))
                             {
                                 double av = std::fabs ((double) v);
@@ -184,7 +122,10 @@ chunk_max_linear_float (
                                    cs_channel_info[c].raster_line_offset;
                 for (int32_t x = 0; x < cw; x++)
                 {
-                    float v = load_le_float (p + (int64_t) x * sizeof (float));
+                    uint32_t bits =
+                        unaligned_load32 (p + (int64_t) x * sizeof (float));
+                    float v;
+                    memcpy (&v, &bits, sizeof (v));
                     if (std::isfinite (v))
                     {
                         double av = std::fabs ((double) v);
@@ -392,7 +333,7 @@ ht_padded_length (int64_t n, int num_decomps)
     const int64_t m = (int64_t) 1 << num_decomps;
     /* smallest n' >= n with n' == 1 (mod m) */
     const int64_t padded = n + (((1 - n) % m) + m) % m;
-    if (padded > (int64_t) std::numeric_limits<int32_t>::max ()) return -1;
+    if (padded > (int64_t) (std::numeric_limits<int32_t>::max) ()) return -1;
     return padded;
 }
 
@@ -422,10 +363,10 @@ decode_line (
     {
         if (legacy_tf)
             for (int32_t p = 0; p < width; p++, out += sizeof (int16_t))
-                store_le16 (out, legacy_int16_to_half (src[p]).bits ());
+                unaligned_store16 (out, legacy_int16_to_half (src[p]).bits ());
         else
             for (int32_t p = 0; p < width; p++, out += sizeof (int16_t))
-                store_le16 (out, (uint16_t) src[p]);
+                unaligned_store16 (out, (uint16_t) src[p]);
     }
     else if (legacy_tf)
     {
@@ -434,17 +375,17 @@ decode_line (
             float    v = legacy_int32_to_float (src[p]);
             uint32_t bits;
             memcpy (&bits, &v, sizeof (bits));
-            store_le32 (out, bits);
+            unaligned_store32 (out, bits);
         }
     }
-    else if (!host_is_big_endian)
+    else if (EXR_HOST_IS_NOT_LITTLE_ENDIAN)
     {
-        memcpy (out, src, (size_t) width * sizeof (uint32_t));
+        for (int32_t p = 0; p < width; p++, out += sizeof (uint32_t))
+            unaligned_store32 (out, (uint32_t) src[p]);
     }
     else
     {
-        for (int32_t p = 0; p < width; p++, out += sizeof (uint32_t))
-            store_le32 (out, (uint32_t) src[p]);
+        memcpy (out, src, (size_t) width * sizeof (uint32_t));
     }
 }
 
@@ -543,7 +484,7 @@ ht_undo_impl (
                 computedoffset += (int64_t) decode->channels[i].width *
                     (int64_t) decode->channels[i].bytes_per_element;
 
-            if (computedoffset > std::numeric_limits<std::size_t>::max())
+            if (computedoffset > (std::numeric_limits<std::size_t>::max) ())
                 return EXR_ERR_CORRUPT_CHUNK;
 
             cs_to_file_ch[cs_i].raster_line_offset = computedoffset;
@@ -1026,16 +967,20 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
                                      p < encode->channels[file_c].width;
                                     p++)
                                 {
-                                    cur_line->i32[p] = (int16_t) load_le16 (
+                                    cur_line->i32[p] = (int16_t) unaligned_load16 (
                                         line_pixels + (int64_t) p * 2);
                                 }
                             }
                             else
                             {
                                 /* samples may be unaligned */
-                                load_le32_line (
+                                memcpy (
                                     cur_line->i32,
                                     line_pixels,
+                                    (size_t) encode->channels[file_c].width *
+                                        sizeof (int32_t));
+                                priv_to_native32 (
+                                    cur_line->i32,
                                     encode->channels[file_c].width);
                             }
 
@@ -1076,14 +1021,18 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
                     {
                         for (int32_t p = 0; p < cw; p++)
                         {
-                            cur_line->i32[p] = (int16_t) load_le16 (
+                            cur_line->i32[p] = (int16_t) unaligned_load16 (
                                 channel_pixels + (int64_t) p * 2);
                         }
                     }
                     else
                     {
                         /* samples may be unaligned */
-                        load_le32_line (cur_line->i32, channel_pixels, cw);
+                        memcpy (
+                            cur_line->i32,
+                            channel_pixels,
+                            (size_t) cw * sizeof (int32_t));
+                        priv_to_native32 (cur_line->i32, cw);
                     }
                     for (int32_t p = cw; p < image_width; p++)
                         cur_line->i32[p] = cur_line->i32[cw - 1];
