@@ -106,6 +106,12 @@ exr_result_t exr_read_chunk (
  * but this is a routine to get the sample count table and the packed
  * data in one go, or if you want to pre-read the sample count data,
  * you can get just that buffer.
+ *
+ * Both buffers are returned as stored in the file. If the part is
+ * compressed, the sample count table is compressed too. If it is not,
+ * the table holds cumulative per-scanline counts as little-endian
+ * 32-bit integers, which callers must convert on big-endian hosts. Use
+ * the decode pipeline to get native-order counts.
  */
 EXR_EXPORT
 exr_result_t exr_read_deep_chunk (

@@ -449,9 +449,15 @@ testReadDeep (const std::string& tempdir)
                 exr_read_deep_chunk (f, 0, &cinfo, &packed[0], &sampdata[0]));
             if (comps[cp] == NO_COMPRESSION)
             {
-                const uint32_t* sampcount =
-                    reinterpret_cast<const uint32_t*> (sampdata.data ());
-                size_t N = sampdata.size () / sizeof (uint32_t);
+                // The table is returned as stored in the file, i.e.
+                // little-endian, so decode it explicitly rather than
+                // reinterpreting it as host-order integers.
+                size_t   N    = sampdata.size () / sizeof (uint32_t);
+                auto     le32 = [&] (size_t i) -> uint32_t {
+                    const uint8_t* b = sampdata.data () + i * 4;
+                    return uint32_t (b[0]) | (uint32_t (b[1]) << 8) |
+                           (uint32_t (b[2]) << 16) | (uint32_t (b[3]) << 24);
+                };
                 EXRCORE_TEST (N == width);
                 size_t bps = 0;
                 for (auto& c: channelTypes)
@@ -460,7 +466,7 @@ testReadDeep (const std::string& tempdir)
                     if (c == 1) bps += sizeof (uint16_t);
                     if (c == 2) bps += sizeof (float);
                 }
-                EXRCORE_TEST (packed.size () == (sampcount[N - 1]) * bps);
+                EXRCORE_TEST (packed.size () == le32 (N - 1) * bps);
             }
 
             EXRCORE_TEST_RVAL (
