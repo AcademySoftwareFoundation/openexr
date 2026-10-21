@@ -716,7 +716,7 @@ exr_zstd_write_exr_frame_prefix (
     size_t    zstd_payload_size,
     uint64_t* out_total)
 {
-    memcpy (out, &MAGIC_NUMBER, sizeof (MAGIC_NUMBER));
+    write_u64_le (out, MAGIC_NUMBER);
     write_u32_le (out + 8, hdr_format);
     write_u32_le (out + 12, hdr_flags);
     write_u64_le (out + 16, (uint64_t) zstd_payload_size);
@@ -786,10 +786,13 @@ get_row_sample_count_encode (
 {
     if (encode->sample_count_alloc_size > 0)
     {
+        /* While compressing, the sample count table is in file order
+         * (little-endian): exr_encoding_run converts it in place before
+         * calling compress_fn, and the C++ API builds it with Xdr. */
         for (int h = 0; h < encode->chunk.height; ++h)
-            row_sample_counts[h] =
-                (uint64_t) encode
-                    ->sample_count_table[(h + 1) * encode->chunk.width - 1];
+            row_sample_counts[h] = (uint64_t) read_u32_le (
+                (const uint8_t*) &encode->sample_count_table
+                    [(h + 1) * encode->chunk.width - 1]);
         return true;
     }
     return false;
