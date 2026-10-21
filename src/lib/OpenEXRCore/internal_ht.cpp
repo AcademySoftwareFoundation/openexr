@@ -27,6 +27,75 @@
 
 namespace
 {
+/* Every MSVC target is little-endian; GCC and Clang report byte order
+ * directly. A constexpr flag (rather than #if) keeps both code paths
+ * compiled on every platform, and the unused one is optimized away. */
+#if defined(__BYTE_ORDER__) && defined(__ORDER_BIG_ENDIAN__) &&                \
+    __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+constexpr bool host_is_big_endian = true;
+#else
+constexpr bool host_is_big_endian = false;
+#endif
+
+/* The packed (uncompressed) chunk data is in file order, i.e.
+ * little-endian, whatever the host byte order; samples may also be
+ * unaligned, since channels of different sizes are packed back to back.
+ * These helpers load and store samples explicitly. */
+
+inline uint16_t
+load_le16 (const uint8_t* p)
+{
+    return (uint16_t) (p[0] | (p[1] << 8));
+}
+
+inline uint32_t
+load_le32 (const uint8_t* p)
+{
+    return (uint32_t) p[0] | ((uint32_t) p[1] << 8) |
+           ((uint32_t) p[2] << 16) | ((uint32_t) p[3] << 24);
+}
+
+inline float
+load_le_float (const uint8_t* p)
+{
+    uint32_t bits = load_le32 (p);
+    float    v;
+    memcpy (&v, &bits, sizeof (v));
+    return v;
+}
+
+inline void
+store_le16 (uint8_t* p, uint16_t v)
+{
+    p[0] = (uint8_t) v;
+    p[1] = (uint8_t) (v >> 8);
+}
+
+inline void
+store_le32 (uint8_t* p, uint32_t v)
+{
+    p[0] = (uint8_t) v;
+    p[1] = (uint8_t) (v >> 8);
+    p[2] = (uint8_t) (v >> 16);
+    p[3] = (uint8_t) (v >> 24);
+}
+
+/* Bulk-load little-endian 32-bit samples from (possibly unaligned) packed
+ * data into an aligned line buffer: one memcpy, then an in-place swap on
+ * big-endian hosts only. */
+inline void
+load_le32_line (int32_t* dst, const uint8_t* src, int32_t count)
+{
+    memcpy (dst, src, (size_t) count * sizeof (int32_t));
+    if (host_is_big_endian)
+        for (int32_t p = 0; p < count; p++)
+            dst[p] = (int32_t) load_le32 (
+                reinterpret_cast<const uint8_t*> (dst + p));
+}
+} // namespace
+
+namespace
+{
 /* NLT type 4 point tables for lossy RGB channels. Most float imagery lies
  * within half's range, so the float table for that range is precomputed;
  * only chunks exceeding it get a table built for their own range. */
@@ -75,12 +144,8 @@ chunk_max_linear_float (
                              x < encode->channels[file_c].width;
                              x++)
                         {
-                            /* samples may be unaligned */
-                            float v;
-                            memcpy (
-                                &v,
-                                line_pixels + (int64_t) x * sizeof (float),
-                                sizeof (float));
+                            float v = load_le_float (
+                                line_pixels + (int64_t) x * sizeof (float));
                             if (std::isfinite (v))
                             {
                                 double av = std::fabs ((double) v);
@@ -119,9 +184,7 @@ chunk_max_linear_float (
                                    cs_channel_info[c].raster_line_offset;
                 for (int32_t x = 0; x < cw; x++)
                 {
-                    /* samples may be unaligned */
-                    float v;
-                    memcpy (&v, p + (int64_t) x * sizeof (float), sizeof (float));
+                    float v = load_le_float (p + (int64_t) x * sizeof (float));
                     if (std::isfinite (v))
                     {
                         double av = std::fabs ((double) v);
@@ -351,35 +414,37 @@ decode_line (
     exr_pixel_type_t  type,
     bool              legacy_tf)
 {
-    /* Channels of different sample sizes are packed back to back, so dst
-     * may not be aligned to the sample size: store samples with memcpy. */
+    /* The output is in file order (little-endian), and channels of
+     * different sample sizes are packed back to back, so dst may not be
+     * aligned to the sample size. */
     uint8_t* out = static_cast<uint8_t*> (dst);
     if (type == EXR_PIXEL_HALF)
     {
         if (legacy_tf)
             for (int32_t p = 0; p < width; p++, out += sizeof (int16_t))
-            {
-                int16_t v = (int16_t) legacy_int16_to_half (src[p]).bits ();
-                memcpy (out, &v, sizeof (v));
-            }
+                store_le16 (out, legacy_int16_to_half (src[p]).bits ());
         else
             for (int32_t p = 0; p < width; p++, out += sizeof (int16_t))
-            {
-                int16_t v = (int16_t) src[p];
-                memcpy (out, &v, sizeof (v));
-            }
+                store_le16 (out, (uint16_t) src[p]);
     }
     else if (legacy_tf)
     {
         for (int32_t p = 0; p < width; p++, out += sizeof (float))
         {
-            float v = legacy_int32_to_float (src[p]);
-            memcpy (out, &v, sizeof (v));
+            float    v = legacy_int32_to_float (src[p]);
+            uint32_t bits;
+            memcpy (&bits, &v, sizeof (bits));
+            store_le32 (out, bits);
         }
+    }
+    else if (!host_is_big_endian)
+    {
+        memcpy (out, src, (size_t) width * sizeof (uint32_t));
     }
     else
     {
-        memcpy (out, src, (size_t) width * sizeof (uint32_t));
+        for (int32_t p = 0; p < width; p++, out += sizeof (uint32_t))
+            store_le32 (out, (uint32_t) src[p]);
     }
 }
 
@@ -961,23 +1026,17 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
                                      p < encode->channels[file_c].width;
                                     p++)
                                 {
-                                    /* samples may be unaligned */
-                                    int16_t v;
-                                    memcpy (
-                                        &v,
-                                        line_pixels + (int64_t) p * sizeof (v),
-                                        sizeof (v));
-                                    cur_line->i32[p] = v;
+                                    cur_line->i32[p] = (int16_t) load_le16 (
+                                        line_pixels + (int64_t) p * 2);
                                 }
                             }
                             else
                             {
                                 /* samples may be unaligned */
-                                memcpy (
+                                load_le32_line (
                                     cur_line->i32,
                                     line_pixels,
-                                    (size_t) encode->channels[file_c].width *
-                                        sizeof (int32_t));
+                                    encode->channels[file_c].width);
                             }
 
                             assert (next_comp == c);
@@ -1017,22 +1076,14 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
                     {
                         for (int32_t p = 0; p < cw; p++)
                         {
-                            /* samples may be unaligned */
-                            int16_t v;
-                            memcpy (
-                                &v,
-                                channel_pixels + (int64_t) p * sizeof (v),
-                                sizeof (v));
-                            cur_line->i32[p] = v;
+                            cur_line->i32[p] = (int16_t) load_le16 (
+                                channel_pixels + (int64_t) p * 2);
                         }
                     }
                     else
                     {
                         /* samples may be unaligned */
-                        memcpy (
-                            cur_line->i32,
-                            channel_pixels,
-                            (size_t) cw * sizeof (int32_t));
+                        load_le32_line (cur_line->i32, channel_pixels, cw);
                     }
                     for (int32_t p = cw; p < image_width; p++)
                         cur_line->i32[p] = cur_line->i32[cw - 1];
