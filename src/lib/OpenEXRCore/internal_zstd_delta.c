@@ -1,39 +1,13 @@
 #include <stdint.h>
 #include <string.h>
 
+#include "internal_xdr.h"
+
 /* The packed data is in file order (little-endian), so the delta is taken
- * on little-endian values. Load and store explicitly so big-endian hosts
- * produce and accept the same bytes as little-endian hosts. On
- * little-endian hosts these compile to plain loads and stores. */
-
-static inline uint16_t
-ld16le (const uint8_t* p)
-{
-    return (uint16_t) (p[0] | (p[1] << 8));
-}
-
-static inline void
-st16le (uint8_t* p, uint16_t v)
-{
-    p[0] = (uint8_t) v;
-    p[1] = (uint8_t) (v >> 8);
-}
-
-static inline uint32_t
-ld32le (const uint8_t* p)
-{
-    return (uint32_t) p[0] | ((uint32_t) p[1] << 8) |
-           ((uint32_t) p[2] << 16) | ((uint32_t) p[3] << 24);
-}
-
-static inline void
-st32le (uint8_t* p, uint32_t v)
-{
-    p[0] = (uint8_t) v;
-    p[1] = (uint8_t) (v >> 8);
-    p[2] = (uint8_t) (v >> 16);
-    p[3] = (uint8_t) (v >> 24);
-}
+ * on little-endian values: unaligned_load / unaligned_store convert
+ * explicitly, so big-endian hosts produce and accept the same bytes as
+ * little-endian hosts. On little-endian hosts they are plain loads and
+ * stores. */
 
 /* ========================================================================= */
 /* SCALAR IMPLEMENTATIONS                                                    */
@@ -45,9 +19,9 @@ delta_encode_row_u16_scalar (uint8_t* p, uint64_t n)
     if (n <= 1) return;
     for (uint64_t k = n - 1; k > 0; --k)
     {
-        uint16_t a = ld16le (p + k * 2);
-        uint16_t b = ld16le (p + (k - 1) * 2);
-        st16le (p + k * 2, (uint16_t) ((unsigned) a - (unsigned) b));
+        uint16_t a = unaligned_load16 (p + k * 2);
+        uint16_t b = unaligned_load16 (p + (k - 1) * 2);
+        unaligned_store16 (p + k * 2, (uint16_t) ((unsigned) a - (unsigned) b));
     }
 }
 
@@ -56,9 +30,9 @@ delta_decode_row_u16_scalar (uint8_t* p, uint64_t n)
 {
     for (uint64_t k = 1; k < n; ++k)
     {
-        uint16_t a = ld16le (p + k * 2);
-        uint16_t b = ld16le (p + (k - 1) * 2);
-        st16le (p + k * 2, (uint16_t) ((unsigned) a + (unsigned) b));
+        uint16_t a = unaligned_load16 (p + k * 2);
+        uint16_t b = unaligned_load16 (p + (k - 1) * 2);
+        unaligned_store16 (p + k * 2, (uint16_t) ((unsigned) a + (unsigned) b));
     }
 }
 
@@ -68,9 +42,9 @@ delta_encode_row_u32_scalar (uint8_t* p, uint64_t n)
     if (n <= 1) return;
     for (uint64_t k = n - 1; k > 0; --k)
     {
-        uint32_t a = ld32le (p + k * 4);
-        uint32_t b = ld32le (p + (k - 1) * 4);
-        st32le (p + k * 4, a - b);
+        uint32_t a = unaligned_load32 (p + k * 4);
+        uint32_t b = unaligned_load32 (p + (k - 1) * 4);
+        unaligned_store32 (p + k * 4, a - b);
     }
 }
 
@@ -79,9 +53,9 @@ delta_decode_row_u32_scalar (uint8_t* p, uint64_t n)
 {
     for (uint64_t k = 1; k < n; ++k)
     {
-        uint32_t a = ld32le (p + k * 4);
-        uint32_t b = ld32le (p + (k - 1) * 4);
-        st32le (p + k * 4, a + b);
+        uint32_t a = unaligned_load32 (p + k * 4);
+        uint32_t b = unaligned_load32 (p + (k - 1) * 4);
+        unaligned_store32 (p + k * 4, a + b);
     }
 }
 
