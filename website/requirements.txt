@@ -5,9 +5,9 @@
 #   pip-compile requirements.txt --generate-hashes -o requirements-lock.txt
 #
 colorama==0.4.6 # necessary on Windows only
-sphinx==8.2.3
-breathe==5.0.0
-pydata-sphinx-theme==0.22.0
+sphinx==9.0.4
+breathe==5.1.0
+pydata-sphinx-theme==0.23.0
 sphinx-design==0.7.0
 sphinx-copybutton==0.5.2
 urllib3>=2.8.0 # transitive via requests; floor for security fixes

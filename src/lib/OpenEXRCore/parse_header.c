@@ -2531,14 +2531,14 @@ internal_exr_compute_chunk_offset_size (exr_priv_part_t curpart)
         for (int c = 0; c < channels->num_channels; ++c)
         {
             /* tiles do not allow x/y sub sampling */
-            uint64_t cunpsz = 0;
-            if (channels->entries[c].pixel_type == EXR_PIXEL_HALF)
-                cunpsz = 2;
-            else
-                cunpsz = 4;
-            cunpsz *= (uint64_t) tiledesc->x_size;
-            cunpsz *= (uint64_t) tiledesc->y_size;
-            unpackedsize += cunpsz;
+            uint64_t cunpsz = (channels->entries[c].pixel_type == EXR_PIXEL_HALF)
+                                  ? 2
+                                  : 4;
+            if (checked_mul_accum_u64 (
+                    &unpackedsize,
+                    cunpsz,
+                    (uint64_t) tiledesc->x_size * (uint64_t) tiledesc->y_size))
+                return -1;
         }
         curpart->unpacked_size_per_chunk = unpackedsize;
         curpart->chan_has_line_sampling  = ((int16_t) hasLineSample);
@@ -2557,16 +2557,17 @@ internal_exr_compute_chunk_offset_size (exr_priv_part_t curpart)
         {
             int xsamp  = channels->entries[c].x_sampling;
             int ysamp  = channels->entries[c].y_sampling;
-            uint64_t cunpsz = 0;
-            if (channels->entries[c].pixel_type == EXR_PIXEL_HALF)
-                cunpsz = 2;
-            else
-                cunpsz = 4;
-            cunpsz *= (uint64_t) compute_sampled_width (w, xsamp, dw.min.x);
-            cunpsz *= (uint64_t) compute_sampled_height (linePerChunk, ysamp, dw.min.y);
+            uint64_t cunpsz = (channels->entries[c].pixel_type == EXR_PIXEL_HALF)
+                                  ? 2
+                                  : 4;
+            uint64_t sampw =
+                (uint64_t) compute_sampled_width ((int) w, xsamp, dw.min.x);
+            uint64_t samph = (uint64_t) compute_sampled_height (
+                linePerChunk, ysamp, dw.min.y);
             if (ysamp > 1)
                 hasLineSample = 1;
-            unpackedsize += cunpsz;
+            if (checked_mul_accum_u64 (&unpackedsize, cunpsz, sampw * samph))
+                return -1;
         }
 
         curpart->unpacked_size_per_chunk = unpackedsize;

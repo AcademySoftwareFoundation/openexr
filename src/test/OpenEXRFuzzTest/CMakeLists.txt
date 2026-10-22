@@ -26,7 +26,7 @@ function(DEFINE_OPENEXR_FUZZ_TESTS)
   foreach(curtest IN LISTS ARGN)
     # CMAKE_CROSSCOMPILING_EMULATOR is necessary to support cross-compiling (ex: to win32 from mingw and running tests with wine)
     add_test(NAME OpenEXR.Fuzz.${curtest} COMMAND ${CMAKE_CROSSCOMPILING_EMULATOR} $<TARGET_FILE:OpenEXRFuzzTest> ${curtest})
-    set_tests_properties(OpenEXR.Fuzz.${curtest} PROPERTIES TIMEOUT 36000)
+    set_tests_properties(OpenEXR.Fuzz.${curtest} PROPERTIES TIMEOUT 36000 LABELS "OpenEXR.Fuzz")
   endforeach()
 endfunction()
   define_openexr_fuzz_tests(
