@@ -49,6 +49,208 @@ vector<int>                    channelTypes;
 Array2D<Array2D<unsigned int>> sampleCountWhole;
 Header                         header;
 
+//
+// A tile area whose 32-bit product wraps to 0 (65536 x 65536) must be
+// rejected when creating the output file, not silently under-allocate.
+//
+void
+deepTiledAreaOverflow (const std::string& tempDir)
+{
+    cout << "deep tiled area overflow" << endl;
+
+    std::string filename = tempDir + "imf_test_deep_tile_overflow.exr";
+    remove (filename.c_str ());
+
+    Header hdr (
+        Box2i (V2i (0, 0), V2i (999, 999)),
+        Box2i (V2i (0, 0), V2i (999, 999)),
+        1,
+        V2f (0, 0),
+        1,
+        INCREASING_Y,
+        NO_COMPRESSION);
+    hdr.channels ().insert ("f", Channel (IMF::FLOAT));
+    hdr.setType (DEEPTILE);
+    hdr.setTileDescription (TileDescription (65536, 65536, ONE_LEVEL));
+
+    bool threw = false;
+    try
+    {
+        DeepTiledOutputFile file (filename.c_str (), hdr, 1);
+    }
+    catch (const IEX_NAMESPACE::ArgExc&)
+    {
+        threw = true;
+    }
+    assert (threw);
+
+    remove (filename.c_str ());
+}
+
+//
+// Deep tiled image where every pixel has sampleCount == 0. Must succeed for
+// every compression valid for deep data.
+//
+void
+readWriteAllZeroSampleCountsDeepTiled (const std::string& tempDir)
+{
+    const int            tw = 16;
+    const int            th = 16;
+    const int            w  = 32;
+    const int            h  = 32;
+    const IMATH_NAMESPACE::Box2i dataWindow (
+        IMATH_NAMESPACE::V2i (0, 0),
+        IMATH_NAMESPACE::V2i (w - 1, h - 1));
+    const IMATH_NAMESPACE::Box2i displayWindow (
+        IMATH_NAMESPACE::V2i (0, 0),
+        IMATH_NAMESPACE::V2i (w * 2 - 1, h * 2 - 1));
+
+    for (int comp = 0; comp < NUM_COMPRESSION_METHODS; ++comp)
+    {
+        Compression c = static_cast<Compression> (comp);
+        if (!isValidDeepCompression (c))
+            continue;
+
+        string compName;
+        getCompressionNameFromId (c, compName);
+        cout << "deep tiled all-zero sampleCounts, codec " << compName << endl;
+
+        std::string filename = tempDir + "imf_test_deep_empty_tiled.exr";
+        remove (filename.c_str ());
+
+        Header hdr (
+            displayWindow,
+            dataWindow,
+            1,
+            IMATH_NAMESPACE::V2f (0, 0),
+            1,
+            INCREASING_Y,
+            c);
+        hdr.channels ().insert ("h", Channel (IMF::HALF));
+        hdr.setType (DEEPTILE);
+        hdr.setTileDescription (TileDescription (tw, th, ONE_LEVEL));
+
+        Array2D<unsigned int> sc;
+        sc.resizeErase (h, w);
+        Array2D<void*> pdata;
+        pdata.resizeErase (h, w);
+        for (int y = 0; y < h; ++y)
+            for (int x = 0; x < w; ++x)
+            {
+                sc[y][x]    = 0;
+                pdata[y][x] = nullptr;
+            }
+
+        const int memOff = dataWindow.min.x + dataWindow.min.y * w;
+        {
+            DeepTiledOutputFile file (filename.c_str (), hdr, 1);
+            DeepFrameBuffer    fb;
+            fb.insertSampleCountSlice (Slice (
+                IMF::UINT,
+                (char*) (&sc[0][0] - memOff),
+                sizeof (unsigned int),
+                sizeof (unsigned int) * w));
+            fb.insert (
+                "h",
+                DeepSlice (
+                    IMF::HALF,
+                    (char*) (&pdata[0][0] - memOff),
+                    sizeof (char*),
+                    sizeof (char*) * w,
+                    sizeof (half)));
+            file.setFrameBuffer (fb);
+
+            for (int ly = 0; ly < file.numYLevels (); ++ly)
+            {
+                for (int lx = 0; lx < file.numXLevels (); ++lx)
+                {
+                    file.writeTiles (
+                        0,
+                        file.numXTiles (lx) - 1,
+                        0,
+                        file.numYTiles (ly) - 1,
+                        lx,
+                        ly);
+                }
+            }
+        }
+
+        DeepTiledInputFile inFile (filename.c_str (), 1);
+        assert (inFile.header ().compression () == c);
+        assert (inFile.header ().type () == DEEPTILE);
+        assert (inFile.header ().channels () == hdr.channels ());
+        assert (inFile.header ().dataWindow () == dataWindow);
+        assert (inFile.header ().tileDescription () == hdr.tileDescription ());
+
+        Array2D<unsigned int> readSc;
+        readSc.resizeErase (h, w);
+        Array2D<void*>      readData;
+        readData.resizeErase (h, w);
+        for (int y = 0; y < h; ++y)
+            for (int x = 0; x < w; ++x)
+                readData[y][x] = nullptr;
+
+        DeepFrameBuffer readFb;
+        readFb.insertSampleCountSlice (Slice (
+            IMF::UINT,
+            (char*) (&readSc[0][0] - memOff),
+            sizeof (unsigned int),
+            sizeof (unsigned int) * w));
+        readFb.insert (
+            "h",
+            DeepSlice (
+                IMF::HALF,
+                (char*) (&readData[0][0] - memOff),
+                sizeof (char*),
+                sizeof (char*) * w,
+                sizeof (half)));
+        inFile.setFrameBuffer (readFb);
+
+        for (int ly = 0; ly < inFile.numYLevels (); ++ly)
+        {
+            for (int lx = 0; lx < inFile.numXLevels (); ++lx)
+            {
+                Box2i dataWindowL = inFile.dataWindowForLevel (lx, ly);
+                inFile.readPixelSampleCounts (
+                    0,
+                    inFile.numXTiles (lx) - 1,
+                    0,
+                    inFile.numYTiles (ly) - 1,
+                    lx,
+                    ly);
+                for (int y = dataWindowL.min.y; y <= dataWindowL.max.y; ++y)
+                {
+                    for (int x = dataWindowL.min.x; x <= dataWindowL.max.x; ++x)
+                    {
+                        int dwy = y - dataWindowL.min.y;
+                        int dwx = x - dataWindowL.min.x;
+                        assert (readSc[dwy][dwx] == 0);
+                    }
+                }
+                inFile.readTiles (
+                    0,
+                    inFile.numXTiles (lx) - 1,
+                    0,
+                    inFile.numYTiles (ly) - 1,
+                    lx,
+                    ly);
+                for (int y = dataWindowL.min.y; y <= dataWindowL.max.y; ++y)
+                {
+                    for (int x = dataWindowL.min.x; x <= dataWindowL.max.x; ++x)
+                    {
+                        int dwy = y - dataWindowL.min.y;
+                        int dwx = x - dataWindowL.min.x;
+                        assert (readSc[dwy][dwx] == 0);
+                        assert (readData[dwy][dwx] == nullptr);
+                    }
+                }
+            }
+        }
+
+        remove (filename.c_str ());
+    }
+}
+
 void
 generateRandomFile (
     int                channelCount,
@@ -919,6 +1121,9 @@ testDeepTiledBasic (const std::string& tempDir)
             readWriteTestWithAbsoluateCoordinates (3, 2, tempDir);
             readWriteTestWithAbsoluateCoordinates (10, 2, tempDir);
         }
+
+        readWriteAllZeroSampleCountsDeepTiled (tempDir);
+        deepTiledAreaOverflow (tempDir);
         ThreadPool::globalThreadPool ().setNumThreads (numThreads);
 
         cout << "ok\n" << endl;
