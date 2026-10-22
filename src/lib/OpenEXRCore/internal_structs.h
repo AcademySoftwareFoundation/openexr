@@ -233,6 +233,8 @@ struct _priv_exr_context_t
     /* cheap array of one */
     exr_priv_part_t  init_part;
     exr_priv_part_t* parts;
+    /* allocated capacity of the parts array, grown geometrically */
+    int part_capacity;
 
     exr_attribute_list_t custom_handlers;
 
