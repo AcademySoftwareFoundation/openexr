@@ -378,14 +378,14 @@ decode_line (
             unaligned_store32 (out, bits);
         }
     }
-    else if (EXR_HOST_IS_NOT_LITTLE_ENDIAN)
-    {
-        for (int32_t p = 0; p < width; p++, out += sizeof (uint32_t))
-            unaligned_store32 (out, (uint32_t) src[p]);
-    }
     else
     {
+#if EXR_HOST_IS_NOT_LITTLE_ENDIAN
+        for (int32_t p = 0; p < width; p++, out += sizeof (uint32_t))
+            unaligned_store32 (out, (uint32_t) src[p]);
+#else
         memcpy (out, src, (size_t) width * sizeof (uint32_t));
+#endif
     }
 }
 
