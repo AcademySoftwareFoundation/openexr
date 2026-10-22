@@ -545,6 +545,10 @@ DwaCompressor_compress (DwaCompressor* me)
                     outBufferSize -
                     (size_t) ((uintptr_t) outDataPtr - (uintptr_t) sizes);
 
+                /* The packed AC buffer is XDR (little-endian), but the
+                 * Huffman coder works on native 16-bit values, as in PIZ. */
+                priv_to_native16 (
+                    me->_packedAcBuffer, (int) *totalAcUncompressedCount);
                 rv = internal_huf_compress (
                     acCompressedSize,
                     outDataPtr,
@@ -553,6 +557,8 @@ DwaCompressor_compress (DwaCompressor* me)
                     *totalAcUncompressedCount,
                     me->_encode->scratch_buffer_1,
                     me->_encode->scratch_alloc_size_1);
+                priv_from_native16 (
+                    me->_packedAcBuffer, (int) *totalAcUncompressedCount);
                 if (rv != EXR_ERR_SUCCESS)
                 {
                     if (rv == EXR_ERR_ARGUMENT_OUT_OF_RANGE)
@@ -975,6 +981,10 @@ DwaCompressor_uncompress (
                     me->_decode->scratch_buffer_1,
                     me->_decode->scratch_alloc_size_1);
                 if (rv != EXR_ERR_SUCCESS) { return rv; }
+                /* Huffman yields native values; the AC stream is XDR
+                   (little-endian) */
+                priv_from_native16 (
+                    me->_packedAcBuffer, (int) totalAcUncompressedCount);
                 break;
 
             case DEFLATE: {
