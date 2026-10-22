@@ -105,6 +105,8 @@ define_openexrcore_tests(
  testReadTiles
  testReadMultiPart
  testReadDeep
+ testDeepZstdNegativeSampleCounts
+ testDeepZstdValidSampleCounts
  testReadUnpack
  testSamplingCalcs
 
