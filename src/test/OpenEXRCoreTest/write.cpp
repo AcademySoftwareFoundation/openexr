@@ -1515,6 +1515,26 @@ testWriteMultiPart (const std::string& tempdir)
     EXRCORE_TEST_RVAL (exr_get_count (outf, &partidx));
     EXRCORE_TEST (partidx == 2);
 
+    // the part table grows geometrically, so exercise several reallocations
+    for (int p = 2; p < 100; ++p)
+    {
+        char name[32];
+        snprintf (name, sizeof (name), "part%d", p);
+        EXRCORE_TEST_RVAL (
+            exr_add_part (outf, name, EXR_STORAGE_SCANLINE, &partidx));
+        EXRCORE_TEST (partidx == p);
+    }
+    EXRCORE_TEST_RVAL (exr_get_count (outf, &partidx));
+    EXRCORE_TEST (partidx == 100);
+    for (int p = 2; p < 100; ++p)
+    {
+        char        name[32];
+        const char* partname = NULL;
+        snprintf (name, sizeof (name), "part%d", p);
+        EXRCORE_TEST_RVAL (exr_get_name (outf, p, &partname));
+        EXRCORE_TEST (partname && strcmp (partname, name) == 0);
+    }
+
     exr_storage_t storage;
     EXRCORE_TEST_RVAL (exr_get_storage (outf, 0, &storage));
     EXRCORE_TEST (storage == EXR_STORAGE_SCANLINE);
