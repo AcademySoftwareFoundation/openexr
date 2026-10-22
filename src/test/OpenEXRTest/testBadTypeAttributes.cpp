@@ -30,8 +30,6 @@
 
 #include <assert.h>
 
-#include "tmpDir.h"
-
 namespace IMF = OPENEXR_IMF_NAMESPACE;
 using namespace IMF;
 using namespace std;
@@ -353,9 +351,13 @@ check (
 }
 
 void
-testWriteBadTypes ()
+testWriteBadTypes (const std::string& tempDir)
 {
-    static const char* tmpfile = IMF_TMP_DIR "badfile.exr";
+    // Use the caller's private per-process temp directory, not the shared
+    // IMF_TMP_DIR location: a fixed filename there would collide with any
+    // other concurrently-running test or process touching the same path.
+    const std::string tmpfileStr = tempDir + "badfile.exr";
+    const char*        tmpfile   = tmpfileStr.c_str ();
 
     // attributes should be added automatically for deep files
     check<DeepScanLineInputFile, DeepScanLineOutputFile> (
@@ -432,7 +434,7 @@ testBadTypeAttributes (const std::string& tempDir)
     cout << "Testing whether bad type attributes are fixed on write... "
          << endl;
 
-    testWriteBadTypes ();
+    testWriteBadTypes (tempDir);
 
     cout << "ok\n" << endl;
 }
