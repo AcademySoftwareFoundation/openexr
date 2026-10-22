@@ -733,4 +733,12 @@ void testSamplingCalcs (const std::string& tempdir)
         for ( int lpc = 0; lpc < 4; ++lpc )
             test_lpc( s, 1000, lines[lpc] );
     }
+
+    // sampling larger than the lines per chunk: most chunks hold no sampled row
+    int bigsamp[] = { 17, 33, 96, 257, 768 };
+    for ( int s: bigsamp )
+    {
+        for ( int lpc = 0; lpc < 4; ++lpc )
+            test_lpc( s, 1000, lines[lpc] );
+    }
 }
