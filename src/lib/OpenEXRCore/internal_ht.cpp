@@ -25,9 +25,6 @@
 #include "internal_ht_quality.h"
 #include "internal_legacy_structs.h"
 
-/* internal_xdr.h includes <windows.h> on Windows, whose min/max macros
- * would expand std::numeric_limits<T>::max (); the calls below are
- * written as (std::numeric_limits<T>::max) () to avoid that. */
 #include "internal_xdr.h"
 
 namespace
@@ -333,7 +330,7 @@ ht_padded_length (int64_t n, int num_decomps)
     const int64_t m = (int64_t) 1 << num_decomps;
     /* smallest n' >= n with n' == 1 (mod m) */
     const int64_t padded = n + (((1 - n) % m) + m) % m;
-    if (padded > (int64_t) (std::numeric_limits<int32_t>::max) ()) return -1;
+    if (padded > (int64_t) std::numeric_limits<int32_t>::max ()) return -1;
     return padded;
 }
 
@@ -380,12 +377,7 @@ decode_line (
     }
     else
     {
-#if EXR_HOST_IS_NOT_LITTLE_ENDIAN
-        for (int32_t p = 0; p < width; p++, out += sizeof (uint32_t))
-            unaligned_store32 (out, (uint32_t) src[p]);
-#else
-        memcpy (out, src, (size_t) width * sizeof (uint32_t));
-#endif
+        unaligned_store32_array (out, (const uint32_t*) src, width);
     }
 }
 
@@ -484,7 +476,7 @@ ht_undo_impl (
                 computedoffset += (int64_t) decode->channels[i].width *
                     (int64_t) decode->channels[i].bytes_per_element;
 
-            if (computedoffset > (std::numeric_limits<std::size_t>::max) ())
+            if (computedoffset > std::numeric_limits<std::size_t>::max ())
                 return EXR_ERR_CORRUPT_CHUNK;
 
             cs_to_file_ch[cs_i].raster_line_offset = computedoffset;
