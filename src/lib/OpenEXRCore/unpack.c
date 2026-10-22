@@ -1076,11 +1076,24 @@ unpack_32bit (exr_decode_pipeline_t* decode)
     return EXR_ERR_SUCCESS;
 }
 
+/* user buffers are native-endian and may be arbitrarily aligned */
+static inline void
+store_native16 (void* dst, uint16_t v)
+{
+    memcpy (dst, &v, sizeof (v));
+}
+
+static inline void
+store_native32 (void* dst, uint32_t v)
+{
+    memcpy (dst, &v, sizeof (v));
+}
+
 #define UNPACK_HALF_TO_HALF_SAMPLES(samps)                                     \
                     const uint16_t* src = (const uint16_t*) srcbuffer;         \
                     for (int s = 0; s < samps; ++s)                            \
                     {                                                          \
-                        *((uint16_t*) cdata) = unaligned_load16 (src);         \
+                        store_native16 (cdata, unaligned_load16 (src));        \
                         ++src;                                                 \
                         cdata += ubpc;                                         \
                     }
@@ -1091,7 +1104,7 @@ unpack_32bit (exr_decode_pipeline_t* decode)
                     {                                                          \
                         uint16_t cval = unaligned_load16 (src);                \
                         ++src;                                                 \
-                        *((float*) cdata) = half_to_float (cval);              \
+                        store_native32 (cdata, half_to_float_int (cval));      \
                         cdata += ubpc;                                         \
                     }
 
@@ -1101,7 +1114,7 @@ unpack_32bit (exr_decode_pipeline_t* decode)
                     {                                                          \
                         uint16_t cval = unaligned_load16 (src);                \
                         ++src;                                                 \
-                        *((uint32_t*) cdata) = half_to_uint (cval);            \
+                        store_native32 (cdata, half_to_uint (cval));           \
                         cdata += ubpc;                                         \
                     }
 
@@ -1111,7 +1124,7 @@ unpack_32bit (exr_decode_pipeline_t* decode)
                     {                                                          \
                         uint32_t fint = unaligned_load32 (src);                \
                         ++src;                                                 \
-                        *((uint16_t*) cdata) = float_to_half_int (fint);       \
+                        store_native16 (cdata, float_to_half_int (fint));      \
                         cdata += ubpc;                                         \
                     }
 
@@ -1119,7 +1132,7 @@ unpack_32bit (exr_decode_pipeline_t* decode)
                     const uint32_t* src = (const uint32_t*) srcbuffer;         \
                     for (int s = 0; s < samps; ++s)                            \
                     {                                                          \
-                        *((uint32_t*) cdata) = unaligned_load32 (src);         \
+                        store_native32 (cdata, unaligned_load32 (src));        \
                         ++src;                                                 \
                         cdata += ubpc;                                         \
                     }
@@ -1130,7 +1143,7 @@ unpack_32bit (exr_decode_pipeline_t* decode)
                     {                                                          \
                         uint32_t fint = unaligned_load32 (src);                \
                         ++src;                                                 \
-                        *((uint32_t*) cdata) = float_to_uint_int (fint);       \
+                        store_native32 (cdata, float_to_uint_int (fint));      \
                         cdata += ubpc;                                         \
                     }
 
@@ -1140,7 +1153,7 @@ unpack_32bit (exr_decode_pipeline_t* decode)
                     {                                                          \
                         uint32_t fint = unaligned_load32 (src);                \
                         ++src;                                                 \
-                        *((uint16_t*) cdata) = uint_to_half (fint);            \
+                        store_native16 (cdata, uint_to_half (fint));           \
                         cdata += ubpc;                                         \
                     }
 
@@ -1150,7 +1163,7 @@ unpack_32bit (exr_decode_pipeline_t* decode)
                     {                                                          \
                         uint32_t fint = unaligned_load32 (src);                \
                         ++src;                                                 \
-                        *((float*) cdata) = uint_to_float (fint);              \
+                        store_native32 (cdata, uint_to_float_int (fint));      \
                         cdata += ubpc;                                         \
                     }
 
@@ -1158,7 +1171,7 @@ unpack_32bit (exr_decode_pipeline_t* decode)
                     const uint32_t* src = (const uint32_t*) srcbuffer;         \
                     for (int s = 0; s < samps; ++s)                            \
                     {                                                          \
-                        *((uint32_t*) cdata) = unaligned_load32 (src);         \
+                        store_native32 (cdata, unaligned_load32 (src));        \
                         ++src;                                                 \
                         cdata += ubpc;                                         \
                     }
