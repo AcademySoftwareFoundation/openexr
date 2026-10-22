@@ -1054,12 +1054,8 @@ LossyDctEncoder_execute (
                 // fit at the edges, mirror.
                 //
                 // Also, convert from linear to nonlinear representation.
-                // Our source is assumed to be XDR, and we need to convert
-                // to NATIVE prior to converting to float.
-                //
-                // If we're converting linear -> nonlinear, assume that the
-                // XDR -> NATIVE conversion is built into the lookup. Otherwise,
-                // we'll need to explicitly do it.
+                // Our source is XDR, so convert it to NATIVE first; the
+                // lookup table maps NATIVE halves to NATIVE halves.
                 //
 
                 for (int y = 0; y < 8; ++y)
@@ -1081,8 +1077,8 @@ LossyDctEncoder_execute (
 
                         h = ((const uint16_t*) (chanData[chan]->_rows)[vy])[vx];
 
+                        h = one_to_native16 (h);
                         if (e->_toNonlinear) { h = e->_toNonlinear[h]; }
-                        else { h = one_to_native16 (h); }
 
                         chanData[chan]->_dctData[y * 8 + x] = half_to_float (h);
                     } // x
@@ -1157,6 +1153,9 @@ LossyDctEncoder_execute (
 // given by the low byte. For example, 0xff03 would be a run
 // of 3 0's, starting at the current location.
 //
+// The AC values, run symbols included, are stored as XDR (little-endian)
+// 16-bit words, like the zigzagged coefficients in block.
+//
 // block is our block of 64 coefficients
 // acPtr a pointer to back the RLE'd values into.
 //
@@ -1223,7 +1222,7 @@ LossyDctEncoder_rleAc (LossyDctEncoder* e, uint16_t* block, uint16_t** acPtr)
             // Signal EOB
             //
 
-            *curAC++ = 0xff00;
+            *curAC++ = one_from_native16 (0xff00);
             e->_numAcComp++;
         }
         else
@@ -1232,7 +1231,7 @@ LossyDctEncoder_rleAc (LossyDctEncoder* e, uint16_t* block, uint16_t** acPtr)
             // Signal normal run
             //
 
-            *curAC++ = (uint16_t) 0xff00 | runLen;
+            *curAC++ = one_from_native16 ((uint16_t) (0xff00 | runLen));
             e->_numAcComp++;
         }
 
