@@ -1108,6 +1108,13 @@ DwaCompressor_uncompress (
         }
     }
 
+    for (int c = 0; c < me->_numChannels; ++c)
+    {
+        ChannelData* cd = &(me->_channelData[c]);
+        if (cd->_dctData._size != (size_t) cd->chan->height)
+            return EXR_ERR_CORRUPT_CHUNK;
+    }
+
     //
     // Setup to decode each block of 3 channels that need to
     // be handled together
