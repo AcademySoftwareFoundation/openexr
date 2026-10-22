@@ -515,13 +515,13 @@ LossyDctDecoder_execute (
                 if (!blockIsConstant)
                 {
                     (*convertFloatToHalf64) (
-                        &rowBlock[comp][(size_t) blockx * 64], chanData[comp]->_dctData);
+                        &rowBlock[comp][(uint64_t) blockx * 64], chanData[comp]->_dctData);
                 }
                 else
                 {
 #ifdef IMF_HAVE_SSE2
 
-                    __m128i* dst = (__m128i*) &rowBlock[comp][(size_t) blockx * 64];
+                    __m128i* dst = (__m128i*) &rowBlock[comp][(uint64_t) blockx * 64];
 
                     dst[0] = _mm_set1_epi16 (
                         (short) float_to_half (chanData[comp]->_dctData[0]));
@@ -536,7 +536,7 @@ LossyDctDecoder_execute (
 
 #else /* IMF_HAVE_SSE2 */
 
-                    uint16_t* dst = &rowBlock[comp][(size_t) blockx * 64];
+                    uint16_t* dst = &rowBlock[comp][(uint64_t) blockx * 64];
 
                     dst[0] = float_to_half (chanData[comp]->_dctData[0]);
 
@@ -666,7 +666,7 @@ LossyDctDecoder_execute (
                     for (int blockx = 0; blockx < numFullBlocksX; ++blockx)
                     {
                         uint16_t* restrict src =
-                            &rowBlock[comp][(size_t) blockx * 64 + ((y & 0x7) * 8)];
+                            &rowBlock[comp][(uint64_t) blockx * 64 + ((y & 0x7) * 8)];
 
                         dst[0] = one_from_native16 (d->_toLinear[src[0]]);
                         dst[1] = one_from_native16 (d->_toLinear[src[1]]);
@@ -692,7 +692,7 @@ LossyDctDecoder_execute (
                     for (int blockx = 0; blockx < numFullBlocksX; ++blockx)
                     {
                         uint16_t* src =
-                            &rowBlock[comp][(size_t) blockx * 64 + ((y & 0x7) * 8)];
+                            &rowBlock[comp][(uint64_t) blockx * 64 + ((y & 0x7) * 8)];
                         memcpy (dst, src, 8*sizeof(uint16_t));
                         priv_from_native16 (dst, 8);
                         dst += 8;
@@ -712,7 +712,7 @@ LossyDctDecoder_execute (
                 for (int y = 8 * blocky; y < 8 * blocky + maxY; ++y)
                 {
                     uint16_t* src = (uint16_t*) &rowBlock[comp]
-                                                         [(size_t) numFullBlocksX * 64 +
+                                                         [(uint64_t) numFullBlocksX * 64 +
                                                           ((y & 0x7) * 8)];
 
                     uint16_t* dst = (uint16_t*) chanData[comp]->_rows[y];
