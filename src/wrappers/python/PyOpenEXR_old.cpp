@@ -501,8 +501,12 @@ channel (PyObject* self, PyObject* args, PyObject* kw)
 
         // The offsets are signed: dw.min.x and miny can be negative, and
         // as unsigned size_t products they would wrap before the division.
-        ptrdiff_t xoffset = (ptrdiff_t) dw.min.x * (ptrdiff_t) xstride / xSampling;
-        ptrdiff_t yoffset = (ptrdiff_t) miny * (ptrdiff_t) ystride / ySampling;
+        // Header::sanityCheck() only bounds dataWindow coordinates to
+        // +/-(INT_MAX/2), so dw.min.x * xstride can exceed the 32-bit
+        // ptrdiff_t range on 32-bit platforms; use int64_t explicitly so
+        // the multiply can't overflow regardless of pointer width.
+        int64_t xoffset = (int64_t) dw.min.x * (int64_t) xstride / xSampling;
+        int64_t yoffset = (int64_t) miny * (int64_t) ystride / ySampling;
 
         frameBuffer.insert (
             cname,
