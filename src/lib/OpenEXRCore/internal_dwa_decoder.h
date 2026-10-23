@@ -136,7 +136,9 @@ LossyDctDecoder_unRleAc (
     while (dctComp < 64)
     {
         if (acComp >= packedAcEnd) { return EXR_ERR_CORRUPT_CHUNK; }
-        val = *acComp;
+        /* the AC stream is XDR; test for run symbols on the native value
+         * and copy coefficients through unchanged (still XDR) */
+        val = one_to_native16 (*acComp);
         if ((val & 0xff00) == 0xff00)
         {
             uint8_t count = val & 0xff;
@@ -151,7 +153,7 @@ LossyDctDecoder_unRleAc (
             // Not a run, just copy over the value
             //
             lnz                   = dctComp;
-            halfZigBlock[dctComp] = val;
+            halfZigBlock[dctComp] = *acComp;
 
             ++dctComp;
         }
@@ -572,6 +574,9 @@ LossyDctDecoder_execute (
 
 #ifdef IMF_HAVE_SSE2
             //
+            // (SSE2 implies a little-endian host, so NATIVE == XDR here and
+            // the results need no byte swapping.)
+            //
             // Handle all the full X blocks, in a fast path with sse2 and
             //
             // test for no-op conversion
@@ -663,15 +668,15 @@ LossyDctDecoder_execute (
                         uint16_t* restrict src =
                             &rowBlock[comp][blockx * 64 + ((y & 0x7) * 8)];
 
-                        dst[0] = d->_toLinear[src[0]];
-                        dst[1] = d->_toLinear[src[1]];
-                        dst[2] = d->_toLinear[src[2]];
-                        dst[3] = d->_toLinear[src[3]];
+                        dst[0] = one_from_native16 (d->_toLinear[src[0]]);
+                        dst[1] = one_from_native16 (d->_toLinear[src[1]]);
+                        dst[2] = one_from_native16 (d->_toLinear[src[2]]);
+                        dst[3] = one_from_native16 (d->_toLinear[src[3]]);
 
-                        dst[4] = d->_toLinear[src[4]];
-                        dst[5] = d->_toLinear[src[5]];
-                        dst[6] = d->_toLinear[src[6]];
-                        dst[7] = d->_toLinear[src[7]];
+                        dst[4] = one_from_native16 (d->_toLinear[src[4]]);
+                        dst[5] = one_from_native16 (d->_toLinear[src[5]]);
+                        dst[6] = one_from_native16 (d->_toLinear[src[6]]);
+                        dst[7] = one_from_native16 (d->_toLinear[src[7]]);
 
                         dst += 8;
                     }
@@ -689,6 +694,7 @@ LossyDctDecoder_execute (
                         uint16_t* src =
                             &rowBlock[comp][blockx * 64 + ((y & 0x7) * 8)];
                         memcpy (dst, src, 8*sizeof(uint16_t));
+                        priv_from_native16 (dst, 8);
                         dst += 8;
                     }
                 }
@@ -717,12 +723,13 @@ LossyDctDecoder_execute (
                     {
                         for (int x = 0; x < maxX; ++x)
                         {
-                            *dst++ = d->_toLinear[*src++];
+                            *dst++ = one_from_native16 (d->_toLinear[*src++]);
                         }
                     }
                     else
                     {
                         memcpy (dst, src, maxX * sizeof(uint16_t));
+                        priv_from_native16 (dst, maxX);
                     }
                 }
             }
