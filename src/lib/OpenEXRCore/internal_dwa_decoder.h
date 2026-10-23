@@ -322,9 +322,15 @@ LossyDctDecoder_execute (
     // Allocate a temp aligned buffer to hold a rows worth of full
     // 8x8 half-float blocks
     //
-    rowBlockHandle = alloc_fn (
-        (size_t) numComp * (size_t) numBlocksX * 64 * sizeof (uint16_t) +
-        _SSE_ALIGNMENT);
+    // (computed in 64 bits: with a 32-bit size_t the product can wrap
+    // and under-allocate for very wide chunks)
+    //
+    uint64_t rowBlockBytes = (uint64_t) numComp * (uint64_t) numBlocksX * 64 *
+                                 sizeof (uint16_t) +
+                             _SSE_ALIGNMENT;
+    if (rowBlockBytes > SIZE_MAX) return EXR_ERR_OUT_OF_MEMORY;
+
+    rowBlockHandle = alloc_fn ((size_t) rowBlockBytes);
     if (!rowBlockHandle) return EXR_ERR_OUT_OF_MEMORY;
 
     rowBlock[0] = (uint16_t*) simd_align_pointer (rowBlockHandle);
