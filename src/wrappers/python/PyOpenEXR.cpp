@@ -1018,8 +1018,9 @@ PyPart::validateCoalescedChannels (
     if (rgbaChannels.empty ())
         return;
 
-    std::map<std::string, PixelType> groupType;
-    std::set<std::string>            coalescedKeys;
+    std::map<std::string, PixelType>   groupType;
+    std::map<std::string, std::string> groupPrefix;
+    std::set<std::string>              coalescedKeys;
 
     for (auto c = channel_list.begin (); c != channel_list.end (); ++c)
     {
@@ -1036,6 +1037,25 @@ PyPart::validateCoalescedChannels (
         char        channel_name;
         if (channelNameToRGBA (channel_list, c.name (), py_channel_name, channel_name) <= 0)
             continue;
+
+        // Distinct channel groups ("R,G,B" and "RGB.R,RGB.G,RGB.B,RGB.A")
+        // can map to the same key, but with different component counts, so
+        // they cannot share one array.
+
+        const std::string fullName (c.name ());
+        const std::string prefix = fullName.substr (0, fullName.size () - 1);
+        auto              pit    = groupPrefix.find (py_channel_name);
+        if (pit == groupPrefix.end ())
+            groupPrefix[py_channel_name] = prefix;
+        else if (pit->second != prefix)
+        {
+            std::stringstream err;
+            err << "cannot coalesce channels into \"" << py_channel_name
+                << "\": channel groups \"" << pit->second << "\" and \""
+                << prefix << "\" map to the same name"
+                << "; use separate_channels=True";
+            throw std::invalid_argument (err.str ());
+        }
 
         coalescedKeys.insert (py_channel_name);
 
