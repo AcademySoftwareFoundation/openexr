@@ -10,5 +10,7 @@ void testOpenDeep (const std::string& tempdir);
 
 void testReadDeep (const std::string& tempdir);
 void testWriteDeep (const std::string& tempdir);
+void testDeepZstdNegativeSampleCounts (const std::string& tempdir);
+void testDeepZstdValidSampleCounts (const std::string& tempdir);
 
 #endif // OPENEXR_CORE_TEST_READ_H
