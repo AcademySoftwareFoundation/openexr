@@ -236,6 +236,36 @@ class TestRGBA(unittest.TestCase):
             if os.path.exists(path):
                 os.remove(path)
 
+    def test_rgb_group_key_collision_rejected(self):
+        # Root "R,G,B" and layer "RGB.R,G,B,A" both coalesce to the key "RGB"
+        # but with 3 and 4 components, which used to overflow the array.
+        dataWindow = ((0, 0), (1, 1))
+        px = np.array([[1.0, 2.0], [3.0, 4.0]], dtype='float32')
+
+        channels = {}
+        for n in ("R", "G", "B", "RGB.R", "RGB.G", "RGB.B", "RGB.A"):
+            channels[n] = px
+        header = {
+            "type": OpenEXR.scanlineimage,
+            "dataWindow": dataWindow,
+        }
+
+        fd, path = tempfile.mkstemp(suffix=".exr")
+        os.close(fd)
+        try:
+            with OpenEXR.File(header, channels) as outfile:
+                outfile.write(path)
+
+            with self.assertRaises(ValueError) as ctx:
+                OpenEXR.File(path)
+            self.assertIn("separate_channels", str(ctx.exception))
+
+            with OpenEXR.File(path, separate_channels=True) as infile:
+                self.assertEqual(len(infile.channels()), 7)
+        finally:
+            if os.path.exists(path):
+                os.remove(path)
+
 if __name__ == '__main__':
     unittest.main()
     print("OK")
