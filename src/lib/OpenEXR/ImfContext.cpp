@@ -492,7 +492,12 @@ Context::header (int partidx) const
                 break;
 
             case EXR_ATTR_CHLIST: {
-                ChannelList& chans = hdr.channels ();
+                // Only the attribute named "channels" is validated by the
+                // core library and describes the pixel data; any other
+                // chlist attribute is kept as an ordinary attribute.
+                const bool   isChannels = !strcmp (cur->name, "channels");
+                ChannelList  other;
+                ChannelList& chans = isChannels ? hdr.channels () : other;
 
                 for (int c = 0; c < cur->chlist->num_channels; ++c)
                 {
@@ -506,6 +511,9 @@ Context::header (int partidx) const
                             curc.y_sampling,
                             curc.p_linear != 0));
                 }
+
+                if (!isChannels)
+                    hdr.insert (cur->name, ChannelListAttribute (other));
                 break;
             }
 
