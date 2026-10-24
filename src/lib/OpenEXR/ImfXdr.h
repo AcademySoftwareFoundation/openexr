@@ -497,18 +497,25 @@ template <class S, class T>
 void
 read (T& in, int64_t& v)
 {
-    signed char b[8];
+    unsigned char b[8];
 
-    readSignedChars<S> (in, b, 8);
+    readUnsignedChars<S> (in, b, 8);
 
-    v = (static_cast<int64_t> (b[0]) & 0x00000000000000ff) |
-        ((static_cast<int64_t> (b[1]) << 8) & 0x000000000000ff00) |
-        ((static_cast<int64_t> (b[2]) << 16) & 0x0000000000ff0000) |
-        ((static_cast<int64_t> (b[3]) << 24) & 0x00000000ff000000) |
-        ((static_cast<int64_t> (b[4]) << 32) & 0x000000ff00000000) |
-        ((static_cast<int64_t> (b[5]) << 40) & 0x0000ff0000000000) |
-        ((static_cast<int64_t> (b[6]) << 48) & 0x00ff000000000000) |
-        (static_cast<int64_t> (b[7]) << 56);
+    //
+    // Assemble the bits unsigned: shifting a sign-extended negative
+    // byte left is undefined behavior.
+    //
+
+    uint64_t u = (static_cast<uint64_t> (b[0])) |
+                 (static_cast<uint64_t> (b[1]) << 8) |
+                 (static_cast<uint64_t> (b[2]) << 16) |
+                 (static_cast<uint64_t> (b[3]) << 24) |
+                 (static_cast<uint64_t> (b[4]) << 32) |
+                 (static_cast<uint64_t> (b[5]) << 40) |
+                 (static_cast<uint64_t> (b[6]) << 48) |
+                 (static_cast<uint64_t> (b[7]) << 56);
+
+    v = static_cast<int64_t> (u);
 }
 
 template <class S, class T>
