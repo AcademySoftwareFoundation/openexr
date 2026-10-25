@@ -22,6 +22,7 @@
 * [Version 3.4.2](#version-342-october-15-2025) October 15, 2025
 * [Version 3.4.1](#version-341-october-8-2025) October 8, 2025
 * [Version 3.4.0](#version-340-september-5-2025) September 5, 2025
+* [Version 3.3.15](#version-3315-october-28-2026) October 28, 2026
 * [Version 3.3.14](#version-3314-august-21-2026) August 21, 2026
 * [Version 3.3.13](#version-3313-august-6-2026) August 6, 2026
 * [Version 3.3.12](#version-3312-june-21-2026) June 21, 2026
@@ -1834,6 +1835,47 @@ JPEG-2000 (HTJ2K)** encoding:
   Fetch master branch of libdeflate on main
 * [1852](https://github.com/AcademySoftwareFoundation/openexr/pull/1852)
   Add an option to use TBB as the global provider
+
+## Version 3.3.15 (October 28, 2026)
+
+Patch release that addresses the following security vulnerabilities:
+
+* ***CVE Pending*** ([GHSA-WHF5-29MJ-GP53](https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-WHF5-29MJ-GP53)) Heap Out-of-Bounds Write via Signed Integer Overflow in DWAA/DWAB `LossyDctDecoder`
+* ***CVE Pending*** ([GHSA-RXWG-X3WX-PGFH](https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-RXWG-X3WX-PGFH)) Heap out-of-bounds write via 32-bit tile-area integer overflow in `DeepTiledOutputFile` (deep-image re-save path) — possible incomplete fix of PR #939
+* ***CVE Pending*** ([GHSA-RJG8-982X-JHC2](https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-RJG8-982X-JHC2)) Uninitialized Heap Memory Disclosure in DWA Decompression via Short zlib Stream Mapped to Success
+* ***CVE Pending*** ([GHSA-J76P-H7GW-VMPF](https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-J76P-H7GW-VMPF)) Heap buffer overflow in the OpenEXR Python bindings when two RGB channel groups coalesce to the same key
+* ***CVE Pending*** ([GHSA-G248-596F-9995](https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-G248-596F-9995)) Unvalidated extra `chlist` header attributes merged into `Header::channels()` cause a heap overflow in `run_fill`
+* ***CVE Pending*** ([GHSA-FRX8-5P4H-J8M7](https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-FRX8-5P4H-J8M7)) Heap OOB Write via Integer Overflow in B44 Chunk Unpacked-Size Computation — Remote Code Execution in OpenEXRCore
+* ***CVE Pending*** ([GHSA-638X-X7MR-89XC](https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-638X-X7MR-89XC)) Out-of-bounds write at an attacker-chosen displacement in legacy Python `InputFile.channel()`
+* ***CVE Pending*** ([GHSA-3CP4-779M-H837](https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-3CP4-779M-H837)) Use-after-free in OpenEXRCore `exr_copy_unset_attributes()` when a channel name exceeds 31 bytes
+
+### Merged Pull Requests
+
+* [2760](https://github.com/AcademySoftwareFoundation/openexr/pull/2760)
+  Fix dangling channels pointer in exr_copy_unset_attributes() (by @cary-ilm/Cary Phillips)
+* [2757](https://github.com/AcademySoftwareFoundation/openexr/pull/2757)
+  Fix unsigned wraparound in legacy Python InputFile.channel() (by @cary-ilm/Cary Phillips)
+* [2749](https://github.com/AcademySoftwareFoundation/openexr/pull/2749)
+  Use size_t block indexing in DWA lossy DCT decoder (by @cary-ilm/Cary Phillips)
+* [2748](https://github.com/AcademySoftwareFoundation/openexr/pull/2748)
+  Fix tile area overflow in DeepTiledOutputFile::initialize (by @cary-ilm/Cary Phillips)
+* [2747](https://github.com/AcademySoftwareFoundation/openexr/pull/2747)
+  Reject Python RGB channel groups that coalesce to the same key (by @cary-ilm/Cary Phillips)
+* [2745](https://github.com/AcademySoftwareFoundation/openexr/pull/2745)
+  Only merge the "channels" chlist attribute into Header::channels() (by @cary-ilm/Cary Phillips)
+* [2744](https://github.com/AcademySoftwareFoundation/openexr/pull/2744)
+  Grow the part table geometrically when adding parts (by @cary-ilm/Cary Phillips)
+* [2718](https://github.com/AcademySoftwareFoundation/openexr/pull/2718)
+  Fix B44 integer overflow OOB write (by @cary-ilm/Cary Phillips)
+* [2717](https://github.com/AcademySoftwareFoundation/openexr/pull/2717)
+  Fix DWA uninitialized heap memory disclosure (by @cary-ilm/Cary Phillips)
+
+### Merged Workflow Pull Requests
+
+* [2711](https://github.com/AcademySoftwareFoundation/openexr/pull/2711)
+  Bump vmactions/freebsd-vm from 1.5.8 to 1.5.9 (by @app/dependabot)
+* [2703](https://github.com/AcademySoftwareFoundation/openexr/pull/2703)
+  Strip Contributors from notes in slack release post (by @cary-ilm/Cary Phillips)
 
 ## Version 3.3.14 (August 21, 2026)
 
