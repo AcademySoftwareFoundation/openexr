@@ -498,12 +498,21 @@ channel (PyObject* self, PyObject* args, PyObject* kw)
         FrameBuffer frameBuffer;
         size_t      xstride = typeSize;
         size_t      ystride = typeSize * width;
+
+        // The offsets are signed: dw.min.x and miny can be negative, and
+        // as unsigned size_t products they would wrap before the division.
+        // Header::sanityCheck() only bounds dataWindow coordinates to
+        // +/-(INT_MAX/2), so dw.min.x * xstride can exceed the 32-bit
+        // ptrdiff_t range on 32-bit platforms; use int64_t explicitly so
+        // the multiply can't overflow regardless of pointer width.
+        int64_t xoffset = (int64_t) dw.min.x * (int64_t) xstride / xSampling;
+        int64_t yoffset = (int64_t) miny * (int64_t) ystride / ySampling;
+
         frameBuffer.insert (
             cname,
             Slice (
                 pt,
-                pixels - dw.min.x * xstride / xSampling -
-                    miny * ystride / ySampling,
+                pixels - xoffset - yoffset,
                 xstride,
                 ystride,
                 xSampling,

@@ -9,6 +9,7 @@
 #include "internal_constants.h"
 #include "internal_memory.h"
 
+#include <limits.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
@@ -178,8 +179,9 @@ internal_exr_destroy_parts (exr_context_t ctxt)
 
     if (ctxt->parts != &(ctxt->init_part)) ctxt->free_fn (ctxt->parts);
     ctxt->init_part = NULL;
-    ctxt->parts     = NULL;
-    ctxt->num_parts = 0;
+    ctxt->parts         = NULL;
+    ctxt->part_capacity = 0;
+    ctxt->num_parts     = 0;
 }
 
 /**************************************/
@@ -191,6 +193,7 @@ internal_exr_add_part (
     int              ncount = f->num_parts + 1;
     exr_priv_part_t  part;
     exr_priv_part_t* nptrs = NULL;
+    int              newcapacity = 0;
 
     if (new_index) *new_index = f->num_parts;
 
@@ -201,18 +204,32 @@ internal_exr_add_part (
         /* also need a pointer to pointer... */
         f->init_part = part;
         nptrs        = &(f->init_part);
+        newcapacity  = 1;
     }
     else
     {
         part = f->alloc_fn (sizeof (struct _priv_exr_part_t));
         if (!part) return f->standard_error (f, EXR_ERR_OUT_OF_MEMORY);
 
-        nptrs = f->alloc_fn (sizeof (exr_priv_part_t) * (size_t) ncount);
-        if (!nptrs)
+        if (ncount > f->part_capacity)
         {
-            f->free_fn (part);
-            return f->standard_error (f, EXR_ERR_OUT_OF_MEMORY);
+            /* grow geometrically so adding N parts is O(N), not O(N^2) */
+            int newcap = f->part_capacity < 4
+                             ? 4
+                             : (f->part_capacity <= INT_MAX / 2
+                                    ? f->part_capacity * 2
+                                    : ncount);
+
+            nptrs = f->alloc_fn (sizeof (exr_priv_part_t) * (size_t) newcap);
+            if (!nptrs)
+            {
+                f->free_fn (part);
+                return f->standard_error (f, EXR_ERR_OUT_OF_MEMORY);
+            }
+            newcapacity = newcap;
         }
+        else
+            nptrs = f->parts;
     }
     memset (part, 0, sizeof (struct _priv_exr_part_t));
 
@@ -231,15 +248,19 @@ internal_exr_add_part (
     part->zstd_compression_level = f->default_zstd_level;
 
     /* put it into the part table */
-    for (int p = 0; p < f->num_parts; ++p)
+    if (nptrs != f->parts)
     {
-        nptrs[p] = f->parts[p];
+        for (int p = 0; p < f->num_parts; ++p)
+        {
+            nptrs[p] = f->parts[p];
+        }
+
+        if (f->parts && f->parts != &(f->init_part)) { f->free_fn (f->parts); }
+        f->parts         = nptrs;
+        f->part_capacity = newcapacity;
     }
     nptrs[f->num_parts] = part;
-
-    if (f->parts && f->parts != &(f->init_part)) { f->free_fn (f->parts); }
-    f->parts     = nptrs;
-    f->num_parts = ncount;
+    f->num_parts        = ncount;
     if (outpart) *outpart = part;
 
     return EXR_ERR_SUCCESS;
@@ -274,7 +295,8 @@ internal_exr_revert_add_part (
         if (ctxt->parts && ctxt->parts != &(ctxt->init_part))
             ctxt->free_fn (ctxt->parts);
 
-        ctxt->parts = NULL;
+        ctxt->parts         = NULL;
+        ctxt->part_capacity = 0;
     }
     ctxt->num_parts = ncount;
 }

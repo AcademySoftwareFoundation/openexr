@@ -111,7 +111,20 @@ makeTempDir ()
 {
     string tempDir;
 
-    IMATH_NAMESPACE::Rand48 rand48 (time ((time_t*) 0));
+    // Seed with time() alone is insufficient: when ctest runs many test
+    // binaries in parallel (--parallel), multiple processes can start
+    // within the same one-second tick and would otherwise compute the
+    // same "random" directory name, causing mkdir() collisions. Mix in
+    // the process ID for per-process uniqueness.
+#ifdef _WIN32
+    IMATH_NAMESPACE::Rand48 rand48 (
+        static_cast<unsigned long int> (time ((time_t*) 0)) ^
+        (static_cast<unsigned long int> (GetCurrentProcessId ()) << 16));
+#else
+    IMATH_NAMESPACE::Rand48 rand48 (
+        static_cast<unsigned long int> (time ((time_t*) 0)) ^
+        (static_cast<unsigned long int> (getpid ()) << 16));
+#endif
     while (true)
     {
 #ifdef _WIN32

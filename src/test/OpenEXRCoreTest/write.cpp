@@ -696,6 +696,64 @@ testWriteBaseHeader (const std::string& tempdir)
     remove (outfn.c_str ());
 }
 
+// Copying a header whose channel name is longer than the destination
+// context allows must fail without leaving a dangling cached channel list.
+static void
+testCopyAttrsLongChannelName (const std::string& tempdir)
+{
+    exr_context_t outf, srcf, dstf;
+    std::string   srcfn = tempdir + "testcopylong.exr";
+    int           partidx;
+    const char*   longname =
+        "ChannelNameThatIsLongerThanThirtyOneBytes_0123456789";
+
+    EXRCORE_TEST_RVAL (exr_start_write (
+        &outf, srcfn.c_str (), EXR_WRITE_FILE_DIRECTLY, NULL));
+    EXRCORE_TEST_RVAL (exr_set_longname_support (outf, 1));
+    EXRCORE_TEST_RVAL (
+        exr_add_part (outf, "src", EXR_STORAGE_SCANLINE, &partidx));
+    EXRCORE_TEST_RVAL (exr_initialize_required_attr_simple (
+        outf, partidx, 1, 1, EXR_COMPRESSION_NONE));
+    EXRCORE_TEST_RVAL (exr_add_channel (
+        outf, partidx, longname, EXR_PIXEL_HALF, EXR_PERCEPTUALLY_LOGARITHMIC, 1, 1));
+    EXRCORE_TEST_RVAL (exr_write_header (outf));
+
+    exr_chunk_info_t      cinfo;
+    exr_encode_pipeline_t encoder;
+    const uint16_t        hval = 0;
+    EXRCORE_TEST_RVAL (exr_write_scanline_chunk_info (outf, 0, 0, &cinfo));
+    EXRCORE_TEST_RVAL (exr_encoding_initialize (outf, 0, &cinfo, &encoder));
+    encoder.channels[0].encode_from_ptr   = (const uint8_t*) &hval;
+    encoder.channels[0].user_pixel_stride = 2;
+    encoder.channels[0].user_line_stride  = 2;
+    EXRCORE_TEST_RVAL (
+        exr_encoding_choose_default_routines (outf, 0, &encoder));
+    EXRCORE_TEST_RVAL (exr_encoding_run (outf, 0, &encoder));
+    EXRCORE_TEST_RVAL (exr_encoding_destroy (outf, &encoder));
+    EXRCORE_TEST_RVAL (exr_finish (&outf));
+
+    EXRCORE_TEST_RVAL (exr_start_read (&srcf, srcfn.c_str (), NULL));
+    EXRCORE_TEST_RVAL (exr_start_write (
+        &dstf, (tempdir + "testcopylong_out.exr").c_str (), EXR_WRITE_FILE_DIRECTLY, NULL));
+    EXRCORE_TEST_RVAL (
+        exr_add_part (dstf, "dst", EXR_STORAGE_SCANLINE, &partidx));
+
+    EXRCORE_TEST (
+        exr_copy_unset_attributes (dstf, partidx, srcf, 0) !=
+        EXR_ERR_SUCCESS);
+
+    // none of these may touch freed memory; the channel list is simply
+    // missing, so it can be repaired by adding a channel
+    EXRCORE_TEST (exr_write_header (dstf) != EXR_ERR_SUCCESS);
+    EXRCORE_TEST_RVAL (exr_add_channel (
+        dstf, partidx, "R", EXR_PIXEL_HALF, EXR_PERCEPTUALLY_LOGARITHMIC, 1, 1));
+
+    EXRCORE_TEST_RVAL (exr_finish (&dstf));
+    EXRCORE_TEST_RVAL (exr_finish (&srcf));
+    remove (srcfn.c_str ());
+    remove ((tempdir + "testcopylong_out.exr").c_str ());
+}
+
 void
 testWriteAttrs (const std::string& tempdir)
 {
@@ -1395,6 +1453,8 @@ testWriteAttrs (const std::string& tempdir)
     EXRCORE_TEST_RVAL (exr_start_read (&outf, outfn.c_str (), &cinit));
     EXRCORE_TEST_RVAL (exr_finish (&outf));
     remove (outfn.c_str ());
+
+    testCopyAttrsLongChannelName (tempdir);
 }
 
 void
@@ -1514,6 +1574,26 @@ testWriteMultiPart (const std::string& tempdir)
     EXRCORE_TEST (partidx == 1);
     EXRCORE_TEST_RVAL (exr_get_count (outf, &partidx));
     EXRCORE_TEST (partidx == 2);
+
+    // the part table grows geometrically, so exercise several reallocations
+    for (int p = 2; p < 100; ++p)
+    {
+        char name[32];
+        snprintf (name, sizeof (name), "part%d", p);
+        EXRCORE_TEST_RVAL (
+            exr_add_part (outf, name, EXR_STORAGE_SCANLINE, &partidx));
+        EXRCORE_TEST (partidx == p);
+    }
+    EXRCORE_TEST_RVAL (exr_get_count (outf, &partidx));
+    EXRCORE_TEST (partidx == 100);
+    for (int p = 2; p < 100; ++p)
+    {
+        char        name[32];
+        const char* partname = NULL;
+        snprintf (name, sizeof (name), "part%d", p);
+        EXRCORE_TEST_RVAL (exr_get_name (outf, p, &partname));
+        EXRCORE_TEST (partname && strcmp (partname, name) == 0);
+    }
 
     exr_storage_t storage;
     EXRCORE_TEST_RVAL (exr_get_storage (outf, 0, &storage));

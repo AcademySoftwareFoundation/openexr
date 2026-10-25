@@ -18,13 +18,13 @@ if(BUILD_TESTING)
            ${CMAKE_CURRENT_SOURCE_DIR}/test_exrinfo.py
            $<TARGET_FILE:exrinfo> ${TEST_IMAGE_DIR} ${OPENEXR_VERSION}
            $<TARGET_FILE:exrstdattr>)
-  set_tests_properties(OpenEXR.bin.exrinfo PROPERTIES LABELS "OpenEXR.bin")
+  set_tests_properties(OpenEXR.bin.exrinfo PROPERTIES LABELS "OpenEXR.bin;portability")
 
   add_test(NAME OpenEXR.bin.exrheader
            COMMAND ${Python3_EXECUTABLE}
            ${CMAKE_CURRENT_SOURCE_DIR}/test_exrheader.py
            $<TARGET_FILE:exrheader> ${TEST_IMAGE_DIR} ${OPENEXR_VERSION})
-  set_tests_properties(OpenEXR.bin.exrheader PROPERTIES LABELS "OpenEXR.bin")
+  set_tests_properties(OpenEXR.bin.exrheader PROPERTIES LABELS "OpenEXR.bin;portability")
 
   set(tests
       exr2aces
@@ -55,13 +55,20 @@ if(BUILD_TESTING)
       ${TEST_IMAGE_DIR}/Flowers.exr
       ${TEST_IMAGE_DIR}/GammaChart.exr
       ${TEST_IMAGE_DIR}/multipart.0001.exr
+      ${TEST_IMAGE_DIR}/11.deep.exr
   )
   add_test(NAME OpenEXR.bin.exrcheck
            COMMAND ${Python3_EXECUTABLE}
            ${CMAKE_CURRENT_SOURCE_DIR}/test_exrcheck.py
            $<TARGET_FILE:exrcheck>
            ${images})
-  set_tests_properties(OpenEXR.bin.exrcheck PROPERTIES LABELS "OpenEXR.bin")
+  set_tests_properties(OpenEXR.bin.exrcheck PROPERTIES LABELS "OpenEXR.bin;portability")
+
+  # COST hints (measured wall time in seconds from a local full-suite run)
+  # so ctest's --parallel scheduler starts these long-running tests early.
+  # See the longer explanation in OpenEXRTest/CMakeLists.txt.
+  set_tests_properties (OpenEXR.bin.exrenvmap  PROPERTIES COST 20)
+  set_tests_properties (OpenEXR.bin.exrmetrics PROPERTIES COST 14)
 
 endif()
 

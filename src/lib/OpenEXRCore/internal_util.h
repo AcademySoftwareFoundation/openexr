@@ -38,7 +38,7 @@ compute_sampled_height (int height, int y_sampling, int start_y)
         }
 
         tmph = height - off;
-        if (tmph == 0) return 0;
+        if (tmph <= 0) return 0;
         --tmph;
         nlines = tmph / y_sampling + 1;
     }
@@ -59,6 +59,28 @@ compute_sampled_width (int width, int x_sampling, int start_x)
     if (x_sampling <= 1) return width;
 
     return (width == 1) ? 1 : (width / x_sampling);
+}
+
+/* Multiplies @p a by @p b and adds the result into @p accum, all as
+ * uint64_t. Returns 1 and leaves @p accum unmodified if either the
+ * multiplication or the subsequent accumulation would overflow a
+ * 64-bit unsigned integer, otherwise returns 0. Used to guard
+ * unpacked / scratch buffer size computations (width * height *
+ * bytes-per-pixel * channel-count) against wraparound on crafted
+ * files with extreme dimensions or channel counts. */
+static inline int
+checked_mul_accum_u64 (uint64_t* accum, uint64_t a, uint64_t b)
+{
+    uint64_t prod, sum;
+
+    if (a != 0 && b > (UINT64_MAX / a)) return 1;
+    prod = a * b;
+
+    sum = *accum + prod;
+    if (sum < *accum) return 1;
+
+    *accum = sum;
+    return 0;
 }
 
 #endif /* OPENEXR_PRIVATE_UTIL_H */

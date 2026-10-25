@@ -1192,6 +1192,17 @@ DeepTiledOutputFile::initialize (const Header& header)
 {
     _data->header = header;
     _data->header.setType (DEEPTILE);
+
+    //
+    // header.sanityCheck() runs before the type is stamped above, so the
+    // deep-data compression restriction is never applied there. Reject any
+    // compression that is not valid for deep data explicitly.
+    //
+    if (!exr_compression_is_valid_for_deep (
+            static_cast<exr_compression_t> (_data->header.compression ())))
+        throw IEX_NAMESPACE::ArgExc (
+            "Compression type in header not valid for deep data");
+
     _data->lineOrder = _data->header.lineOrder ();
 
     //
@@ -1210,21 +1221,24 @@ DeepTiledOutputFile::initialize (const Header& header)
     _data->minY             = dataWindow.min.y;
     _data->maxY             = dataWindow.max.y;
 
-    _data->maxSampleCountTableSize =
-        _data->tileDesc.ySize * _data->tileDesc.xSize * sizeof (int);
+    // widen before multiplying: the 32-bit product of the tile
+    // dimensions can wrap to 0 and bypass the limit below
+    const uint64_t tileArea = static_cast<uint64_t> (_data->tileDesc.ySize) *
+                              static_cast<uint64_t> (_data->tileDesc.xSize);
 
     //
     // impose limit of 2^32 bytes of storage for maxSampleCountTableSize
     // (disallow files with very large tile areas that would otherwise cause excessive memory allocation)
     //
 
-    if (_data->maxSampleCountTableSize >
-        std::numeric_limits<unsigned int>::max ())
+    if (tileArea > std::numeric_limits<unsigned int>::max () / sizeof (int))
     {
         THROW (
             IEX_NAMESPACE::ArgExc,
             "Deep tile size exceeds maximum permitted area");
     }
+
+    _data->maxSampleCountTableSize = tileArea * sizeof (int);
 
     //
     // Precompute level and tile information to speed up utility functions

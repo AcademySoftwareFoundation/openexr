@@ -658,7 +658,7 @@ while on the appropriate `RB-` branch:
 
    Adding the release notes as the tag message is good practice.
 
-   Push the tags. This triggers the `python-wheels-publish-test`
+   Push the tags. This triggers the `python_candidate`
    CI workflow. Confirm it succeeds.
 
    Run the `candidate.py` script to format a
