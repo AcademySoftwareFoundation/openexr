@@ -928,8 +928,7 @@ DeepScanLineOutputFile::initialize (const Header& header)
     // deep-data compression restriction is never applied there. Reject any
     // compression that is not valid for deep data explicitly.
     //
-    if (!exr_compression_is_valid_for_deep (
-            static_cast<exr_compression_t> (_data->header.compression ())))
+    if (!isValidDeepCompression (_data->header.compression ()))
         throw IEX_NAMESPACE::ArgExc (
             "Compression type in header not valid for deep data");
 
