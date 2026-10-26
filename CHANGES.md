@@ -3,6 +3,7 @@
 
 # OpenEXR Release Notes
 
+* [Version 3.5.3](#version-353-october-30-2026) October 30, 2026
 * [Version 3.5.2](#version-352-october-2-2026) October 2, 2026
 * [Version 3.5.1](#version-351-september-25-2026) September 25, 2026
 * [Version 3.5.0](#version-350-september-21-2026) September 21, 2026
@@ -118,6 +119,168 @@
 * [Version 1.0.2](#version-102)
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
+
+## Version 3.5.3 (October 30, 2026)
+
+Patch release that addresses 15 security vulnerabilities, 10 with
+pending CVE IDs, primarily heap buffer overflows and out-of-bounds
+writes triggered by malformed or malicious EXR files — several capable
+of remote code execution. See the Security section below for details.
+
+This release includes no new features or changes in behavior other
+than improved error detection and rejection of invalid input.
+
+As part of this effort, the full test suite now passes cleanly under
+the address, undefined-behavior, and thread sanitizers.
+
+Also in this release:
+
+* Add support for Python 3.15
+* Fix various reading and writing issues on big-endian hosts
+* Fix build issues on macOS < 10.15
+* Fix build issues on powerpc
+* Fix for absolute paths for `libm` in OpenEXRTargets.cmake
+* Fix for running on Windows 7 involving `CreateFile2`
+
+### Security
+
+This release addresses the following security vulnerabilities:
+
+* ***CVE Pending*** ([GHSA-WHF5-29MJ-GP53](https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-WHF5-29MJ-GP53)) Heap Out-of-Bounds Write via Signed Integer Overflow in DWAA/DWAB `LossyDctDecoder`
+* ***CVE Pending*** ([GHSA-VP77-HHRC-M2C3](https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-VP77-HHRC-M2C3)) Subsampled chunk-height miscount: heap overflow in B44 encoder, NULL dereference in DWA decoder/encoder
+* ***CVE Pending*** ([GHSA-RXWG-X3WX-PGFH](https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-RXWG-X3WX-PGFH)) Heap out-of-bounds write via 32-bit tile-area integer overflow in `DeepTiledOutputFile` (deep-image re-save path) — possible incomplete fix of PR #939
+* ***CVE Pending*** ([GHSA-J76P-H7GW-VMPF](https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-J76P-H7GW-VMPF)) Heap buffer overflow in the OpenEXR Python bindings when two RGB channel groups coalesce to the same key
+* ***CVE Pending*** ([GHSA-G248-596F-9995](https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-G248-596F-9995)) Unvalidated extra `chlist` header attributes merged into `Header::channels()` cause a heap overflow in `run_fill`
+* ***CVE Pending*** ([GHSA-FRX8-5P4H-J8M7](https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-FRX8-5P4H-J8M7)) Heap OOB Write via Integer Overflow in B44 Chunk Unpacked-Size Computation — Remote Code Execution in OpenEXRCore
+* ***CVE Pending*** ([GHSA-98RX-QPFV-QCWV](https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-98RX-QPFV-QCWV)) Missing grid-total bound in ZSTD deep decode causes heap out-of-bounds write in OpenEXRCore
+* ***CVE Pending*** ([GHSA-638X-X7MR-89XC](https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-638X-X7MR-89XC)) Out-of-bounds write at an attacker-chosen displacement in legacy `Python InputFile.channel()`
+* ***CVE Pending*** ([GHSA-6358-7H9P-8G5C](https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-6358-7H9P-8G5C)) Heap buffer overflow in OpenEXRCore ZSTD deep decode via unvalidated signed sample counts
+* ***CVE Pending*** ([GHSA-3CP4-779M-H837](https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-3CP4-779M-H837)) Use-after-free in OpenEXRCore `exr_copy_unset_attributes()` when a channel name exceeds 31 bytes
+* ([GHSA-RJG8-982X-JHC2](https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-RJG8-982X-JHC2)) Uninitialized Heap Memory Disclosure in DWA Decompression via Short zlib Stream Mapped to Success
+* ([GHSA-X92J-9982-GJG7](https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-X92J-9982-GJG7)) DWA Encoder `tmpHalfBuffer` Integer Overflow → Undersized Allocation
+* ([GHSA-HRP4-XJP5-CQ7J](https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-HRP4-XJP5-CQ7J)) Misaligned pointer store in `ht_undo_impl()` (HTJ2K decode)
+* ([GHSA-FP76-2FH4-4XWW](https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-FP76-2FH4-4XWW)) Uncontrolled Resource Consumption and O(N^2) Processing Overhead via Unbounded Multipart Header Parsing
+* ([GHSA-HCP5-MX7Q-9642](https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-HCP5-MX7Q-9642)) Null pointer read in the DWA decoder: `compute_sampled_height` counts one row instead of zero when y sampling exceeds the chunk height
+
+### Merged Pull Requests
+
+* [2775](https://github.com/AcademySoftwareFoundation/openexr/pull/2775)
+  Make the OpenEXRTest random number helpers thread-safe (by @cary-ilm/Cary Phillips)
+* [2773](https://github.com/AcademySoftwareFoundation/openexr/pull/2773)
+  share/util/release/log.py treats unrecognized prs as warnings (by @cary-ilm/Cary Phillips)
+* [2770](https://github.com/AcademySoftwareFoundation/openexr/pull/2770)
+  Fix DWA lossy compression on big-endian hosts (by @cary-ilm/Cary Phillips)
+* [2769](https://github.com/AcademySoftwareFoundation/openexr/pull/2769)
+  Fix HTJ2K/LJ2K compression on big-endian hosts (by @cary-ilm/Cary Phillips)
+* [2768](https://github.com/AcademySoftwareFoundation/openexr/pull/2768)
+  Fix the ZSTD codec on big-endian hosts (by @cary-ilm/Cary Phillips)
+* [2763](https://github.com/AcademySoftwareFoundation/openexr/pull/2763)
+  Use unaligned stores for Core unpack destination writes (by @anishagg17/Anish Aggarwal)
+* [2762](https://github.com/AcademySoftwareFoundation/openexr/pull/2762)
+  Fix `compute_sampled_height()` for chunks with no sampled row (by @cary-ilm/Cary Phillips)
+* [2761](https://github.com/AcademySoftwareFoundation/openexr/pull/2761)
+  Update python build and website requirements (by @cary-ilm/Cary Phillips)
+* [2760](https://github.com/AcademySoftwareFoundation/openexr/pull/2760)
+  Fix dangling channels pointer in `exr_copy_unset_attributes()` (by @cary-ilm/Cary Phillips)
+* [2759](https://github.com/AcademySoftwareFoundation/openexr/pull/2759)
+  Fix CI and CMake configuration bugs (by @cary-ilm/Cary Phillips)
+* [2757](https://github.com/AcademySoftwareFoundation/openexr/pull/2757)
+  Fix unsigned wraparound in legacy Python `InputFile.channel()` (by @cary-ilm/Cary Phillips)
+* [2755](https://github.com/AcademySoftwareFoundation/openexr/pull/2755)
+  Validate ZSTD deep sample counts before unsorting pixel data (by @vlazar-ilm/Vlad Lazar)
+* [2754](https://github.com/AcademySoftwareFoundation/openexr/pull/2754)
+  Compile the Python module with `/bigobj` on MSVC (by @cary-ilm/Cary Phillips)
+* [2751](https://github.com/AcademySoftwareFoundation/openexr/pull/2751)
+  Document `OPENEXR_ENABLE_THREADING` in install.rst (by @manish-9245/Manish)
+* [2749](https://github.com/AcademySoftwareFoundation/openexr/pull/2749)
+  Use `size_t` block indexing in DWA lossy DCT decoder (by @cary-ilm/Cary Phillips)
+* [2748](https://github.com/AcademySoftwareFoundation/openexr/pull/2748)
+  Fix tile area overflow in `DeepTiledOutputFile::initialize` (by @cary-ilm/Cary Phillips)
+* [2747](https://github.com/AcademySoftwareFoundation/openexr/pull/2747)
+  Reject Python RGB channel groups that coalesce to the same key (by @cary-ilm/Cary Phillips)
+* [2745](https://github.com/AcademySoftwareFoundation/openexr/pull/2745)
+  Only merge the "channels" chlist attribute into `Header::channels()` (by @cary-ilm/Cary Phillips)
+* [2744](https://github.com/AcademySoftwareFoundation/openexr/pull/2744)
+  Grow the part table geometrically when adding parts (by @cary-ilm/Cary Phillips)
+* [2737](https://github.com/AcademySoftwareFoundation/openexr/pull/2737)
+  Update Joseph Goldstone's TSC listing (by @JGoldstone/Joseph Goldstone)
+* [2726](https://github.com/AcademySoftwareFoundation/openexr/pull/2726)
+  Fix heap OOB read in deep PIZ encoder path (by @kalt2212/Kalt2212)
+* [2719](https://github.com/AcademySoftwareFoundation/openexr/pull/2719)
+  Fix integer overflow in readCoreScanlinePart scanline size accumulation (by @kalt2212/Kalt2212)
+* [2718](https://github.com/AcademySoftwareFoundation/openexr/pull/2718)
+  Fix B44 integer overflow OOB write (by @cary-ilm/Cary Phillips)
+* [2717](https://github.com/AcademySoftwareFoundation/openexr/pull/2717)
+  Fix DWA uninitialized heap memory disclosure (by @cary-ilm/Cary Phillips)
+* [2714](https://github.com/AcademySoftwareFoundation/openexr/pull/2714)
+  website: Add AppleClang to warning suppression for example code (by @cary-ilm/Cary Phillips)
+* [2713](https://github.com/AcademySoftwareFoundation/openexr/pull/2713)
+  bound the ZSTD grid total against uncompressed_size (by @cary-ilm/Cary Phillips)
+* [2712](https://github.com/AcademySoftwareFoundation/openexr/pull/2712)
+  Use `CreateFileW` unconditionally on Windows (by @cary-ilm/Cary Phillips)
+* [2709](https://github.com/AcademySoftwareFoundation/openexr/pull/2709)
+  J2K: fix UB (by @palemieux/Pierre-Anthony Lemieux)
+* [2708](https://github.com/AcademySoftwareFoundation/openexr/pull/2708)
+  J2K: Optimize pixel copy (by @palemieux/Pierre-Anthony Lemieux)
+* [2707](https://github.com/AcademySoftwareFoundation/openexr/pull/2707)
+  internal_zstd.c: fix macOS < 10.15 builds (by @barracuda156/Sergey Fedorov)
+* [2706](https://github.com/AcademySoftwareFoundation/openexr/pull/2706)
+  Re-enable dispatch on 10.6 powerpc (by @barracuda156/Sergey Fedorov)
+* [2699](https://github.com/AcademySoftwareFoundation/openexr/pull/2699)
+  unpack.c: fix data race in `half_to_float_buffer` selection (by @cary-ilm/Cary Phillips)
+* [2698](https://github.com/AcademySoftwareFoundation/openexr/pull/2698)
+  Add missing upper bound check for deep tile sample table size (by @cary-ilm/Cary Phillips)
+* [2697](https://github.com/AcademySoftwareFoundation/openexr/pull/2697)
+  Cast to `size_t` to avoid int overflow in `make_channel_map` (by @cary-ilm/Cary Phillips)
+* [2695](https://github.com/AcademySoftwareFoundation/openexr/pull/2695)
+  J2K: fix misaligned access (by @palemieux/Pierre-Anthony Lemieux)
+* [2686](https://github.com/AcademySoftwareFoundation/openexr/pull/2686)
+  Bazel support: Enable building of website (by @Vertexwahn/Vertexwahn)
+* [2657](https://github.com/AcademySoftwareFoundation/openexr/pull/2657)
+  website: replace Press theme with PyData Sphinx Theme (by @QuantaDude/Abhirup Bhattacharyya)
+* [2546](https://github.com/AcademySoftwareFoundation/openexr/pull/2546)
+  Scikit-build-core fixes (by @LonerDan/Daniel Brát)
+* [1376](https://github.com/AcademySoftwareFoundation/openexr/pull/1376)
+  [cmake] don't `find_library` for `libm` to avoid absolute path in OpenEXRTargets.cmake (by @rosalyntg/Rosalyn Greene)
+
+### Merged Workflow Pull Requests
+
+* [2774](https://github.com/AcademySoftwareFoundation/openexr/pull/2774)
+  Bump the actions-deps group with 3 updates (by @app/dependabot)
+* [2767](https://github.com/AcademySoftwareFoundation/openexr/pull/2767)
+  ci: run the full build when its workflow files change (by @cary-ilm/Cary Phillips)
+* [2764](https://github.com/AcademySoftwareFoundation/openexr/pull/2764)
+  ci: find the multi-arch dependencies in /usr/local for universal2 (by @cary-ilm/Cary Phillips)
+* [2753](https://github.com/AcademySoftwareFoundation/openexr/pull/2753)
+  Add `share/util/run_full_build.sh` to trigger the "Full Build" CI (by @cary-ilm/Cary Phillips)
+* [2752](https://github.com/AcademySoftwareFoundation/openexr/pull/2752)
+  ci: Remove outdated OpenJPH job (by @cary-ilm/Cary Phillips)
+* [2750](https://github.com/AcademySoftwareFoundation/openexr/pull/2750)
+  Bump the actions-deps group with 3 updates (by @app/dependabot)
+* [2739](https://github.com/AcademySoftwareFoundation/openexr/pull/2739)
+  Bump the bazel-deps group with 4 updates (by @app/dependabot)
+* [2735](https://github.com/AcademySoftwareFoundation/openexr/pull/2735)
+  Bump pypa/cibuildwheel from 4.3.0 to 4.3.1 (by @app/dependabot)
+* [2731](https://github.com/AcademySoftwareFoundation/openexr/pull/2731)
+  Bump actions/upload-artifact from 7.0.1 to 7.0.2 (by @app/dependabot)
+* [2730](https://github.com/AcademySoftwareFoundation/openexr/pull/2730)
+  Bump actions/download-artifact from 8.0.1 to 8.0.2 (by @app/dependabot)
+* [2723](https://github.com/AcademySoftwareFoundation/openexr/pull/2723)
+  CI: expand coverage, premerge/full workflows, reduce compute (by @cary-ilm/Cary Phillips)
+* [2722](https://github.com/AcademySoftwareFoundation/openexr/pull/2722)
+  Bump rules_python from 2.3.4 to 2.4.1 (by @app/dependabot)
+* [2721](https://github.com/AcademySoftwareFoundation/openexr/pull/2721)
+  Bump sphinxdocs from 2.3.4 to 2.4.1 (by @app/dependabot)
+* [2720](https://github.com/AcademySoftwareFoundation/openexr/pull/2720)
+  Bump rules_cc from 0.2.25 to 0.2.26 (by @app/dependabot)
+* [2711](https://github.com/AcademySoftwareFoundation/openexr/pull/2711)
+  Bump vmactions/freebsd-vm from 1.5.8 to 1.5.9 (by @app/dependabot)
+* [2703](https://github.com/AcademySoftwareFoundation/openexr/pull/2703)
+  Strip Contributors from notes in slack release post (by @cary-ilm/Cary Phillips)
+* [2696](https://github.com/AcademySoftwareFoundation/openexr/pull/2696)
+  Add support for Python 3.15 (by @cary-ilm/Cary Phillips)
+* [2687](https://github.com/AcademySoftwareFoundation/openexr/pull/2687)
+  Add NetBSD CI workflow and fix NetBSD build/test issues (by @cary-ilm/Cary Phillips)
 
 ## Version 3.5.2 (October 2, 2026)
 
