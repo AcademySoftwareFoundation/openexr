@@ -239,9 +239,9 @@ initTiled (
                     pixelSize += samplesize;
                 }
                 totalPixels += numPixels;
+                tileCount += in.numXTiles (xLevel) * in.numYTiles (yLevel);
                 ++levelIndex;
             }
-            tileCount += in.numXTiles (xLevel) * in.numYTiles (yLevel);
         }
     }
     partSizeData data;
@@ -565,8 +565,8 @@ initAndReadDeepTiled (
     sampleData.resize (numChans);
     channelNumber = 0;
 
-    for (ChannelList::ConstIterator i = in.header ().channels ().begin ();
-         i != in.header ().channels ().end ();
+    for (ChannelList::ConstIterator i = outHeader.channels ().begin ();
+         i != outHeader.channels ().end ();
          ++i)
     {
         int samplesize = pixelTypeSize (i.channel ().type);
@@ -592,10 +592,13 @@ initAndReadDeepTiled (
     }
 
     partSizeData data;
-    data.rawSize    = totalSamples * bytesPerSample + numPixels * sizeof (int);
-    data.pixelCount = numPixels;
-    data.isDeep     = true;
-    data.isTiled    = true;
+    data.rawSize      = totalSamples * bytesPerSample + numPixels * sizeof (int);
+    data.pixelCount   = numPixels;
+    data.tileCount    = in.numXTiles (0) * in.numYTiles (0);
+    data.isDeep       = true;
+    data.isTiled      = true;
+    data.partType     = in.header ().type ();
+    data.compression  = in.header ().compression ();
     data.channelCount = numChans;
     return data;
 }
@@ -1082,7 +1085,7 @@ exrmetrics (
             {
                 // find channel suffix within full channel name (so 'R' in 'layer.R')
                 const char* name = i.name ();
-                const char* dot  = strrchr (name, 'r');
+                const char* dot  = strrchr (name, '.');
                 if (dot) { name = dot + 1; }
 
                 if (pixelMode == PIXELMODE_ALL_HALF ||

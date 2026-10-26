@@ -148,6 +148,7 @@ struct runData
 double
 median (const vector<double>& perf)
 {
+    if (perf.empty ()) { return 0.0; }
     if (perf.size () == 1) { return perf[0]; }
     vector<double> d = perf;
     sort (d.begin (), d.end ());
@@ -158,7 +159,11 @@ void
 printTiming (const vector<double>& perf, ostream& out, bool raw, bool stats)
 {
 
-    if (perf.size () == 0) { return; }
+    if (perf.size () == 0)
+    {
+        out << 0;
+        return;
+    }
 
     if (perf.size () == 1)
     {
