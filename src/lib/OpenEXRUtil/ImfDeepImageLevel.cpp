@@ -133,7 +133,7 @@ DeepImageLevel::insertChannel (
     int           ySampling,
     bool          pLinear)
 {
-    if (xSampling != 1 && ySampling != 1)
+    if (xSampling != 1 || ySampling != 1)
     {
         THROW (
             ArgExc,
