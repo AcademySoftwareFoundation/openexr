@@ -657,6 +657,8 @@ ht_undo_impl (
 
     infile.close ();
 
+    decode->bytes_decompressed = uncompressed_size;
+
     return rv;
 }
 
