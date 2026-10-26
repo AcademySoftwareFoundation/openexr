@@ -38,6 +38,7 @@ compute_sampled_height (int height, int y_sampling, int start_y)
         }
 
         tmph = height - off;
+        /* tmph is negative when the chunk holds none of the sampled rows */
         if (tmph <= 0) return 0;
         --tmph;
         nlines = tmph / y_sampling + 1;
