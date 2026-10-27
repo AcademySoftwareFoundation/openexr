@@ -239,6 +239,27 @@ void
 InputFile::rawPixelData (
     int firstScanLine, const char*& pixelData, int& pixelDataSize)
 {
+    if (!_data->_sFile)
+    {
+        if (_data->_storage == EXR_STORAGE_TILED ||
+            _data->_storage == EXR_STORAGE_DEEP_TILED)
+        {
+            THROW (
+                IEX_NAMESPACE::ArgExc,
+                "Error reading pixel data from image "
+                "file \""
+                    << fileName ()
+                    << "\". Tried to read a raw scanline from a tiled image.");
+        }
+
+        THROW (
+            IEX_NAMESPACE::ArgExc,
+            "Error reading pixel data from image "
+            "file \""
+                << fileName ()
+                << "\". Tried to read a raw scanline from a deep image.");
+    }
+
     _data->_sFile->rawPixelData (firstScanLine, pixelData, pixelDataSize);
 }
 
@@ -246,6 +267,27 @@ void
 InputFile::rawPixelDataToBuffer (
     int scanLine, char* pixelData, int& pixelDataSize) const
 {
+    if (!_data->_sFile)
+    {
+        if (_data->_storage == EXR_STORAGE_TILED ||
+            _data->_storage == EXR_STORAGE_DEEP_TILED)
+        {
+            THROW (
+                IEX_NAMESPACE::ArgExc,
+                "Error reading pixel data from image "
+                "file \""
+                    << fileName ()
+                    << "\". Tried to read a raw scanline from a tiled image.");
+        }
+
+        THROW (
+            IEX_NAMESPACE::ArgExc,
+            "Error reading pixel data from image "
+            "file \""
+                << fileName ()
+                << "\". Tried to read a raw scanline from a deep image.");
+    }
+
     _data->_sFile->rawPixelDataToBuffer (scanLine, pixelData, pixelDataSize);
 }
 
@@ -285,6 +327,15 @@ InputFile::rawTileData (
 TiledInputFile&
 InputFile::asTiledInput (void) const
 {
+    if (!_data->_tFile)
+    {
+        THROW (
+            IEX_NAMESPACE::ArgExc,
+            "Cannot perform a quick pixel copy from image "
+            "file \""
+                << fileName () << "\". The input file is not tiled.");
+    }
+
     return *(_data->_tFile);
 }
 
