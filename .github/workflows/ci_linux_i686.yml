@@ -53,12 +53,22 @@ jobs:
           # OJPH_DISABLE_SSE excludes ojph_codestream_sse.cpp, which is
           # compiled with -msse but uses SSE2-only intrinsics; that mismatch
           # is harmless on x86_64 (SSE2 is baseline there) but fails to build
-          # under -m32, where -msse does not imply SSE2.
+          # under -m32, where -msse does not imply SSE2. Fixed upstream in
+          # OpenJPH commit 8ca3abd ("Don't use SSE2 into SSE code (fix build
+          # buid for i686)"); remove this once the vendored external/OpenJPH
+          # is updated to a release that includes it.
           #
           # OPENEXR_FORCE_INTERNAL_ZSTD avoids linking against the runner's
           # system libzstd, which is amd64-only and incompatible with -m32.
+          #
+          # CMAKE_SYSTEM_PROCESSOR=i686 corrects the internal zstd build's
+          # amd64 vs. i386 detection (src/lib/OpenEXRCore/CMakeLists.txt),
+          # which otherwise still reports the host's x86_64 processor under
+          # -m32 and wrongly includes the amd64-only huf_decompress_amd64.S
+          # assembly file.
           cmake -B _build -S . -G Ninja \
             -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_SYSTEM_PROCESSOR=i686 \
             -DCMAKE_C_FLAGS=-m32 \
             -DCMAKE_CXX_FLAGS=-m32 \
             -DCMAKE_EXE_LINKER_FLAGS=-m32 \
