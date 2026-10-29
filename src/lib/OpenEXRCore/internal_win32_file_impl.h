@@ -301,14 +301,14 @@ default_init_read_file (exr_context_t file)
     wcFn = widen_filename (file, file->filename.str);
     if (wcFn)
     {
-#if defined(_WIN32_WINNT) && (_WIN32_WINNT >= _WIN32_WINNT_WIN8)
-        fd = CreateFile2 (
-            wcFn,
-            GENERIC_READ,
-            FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
-            OPEN_EXISTING,
-            NULL);
-#else
+        //
+        // CreateFile2() is unavailable on Windows 7, and _WIN32_WINNT
+        // reflects the SDK used to compile, not the minimum OS the
+        // resulting binary actually targets/runs on, so it cannot be
+        // used to safely select CreateFile2() over CreateFileW() here.
+        // None of CreateFile2()'s extended functionality is used below,
+        // so just use CreateFileW() unconditionally.
+        //
         fd = CreateFileW (
             wcFn,
             GENERIC_READ,
@@ -317,7 +317,6 @@ default_init_read_file (exr_context_t file)
             OPEN_EXISTING,
             FILE_ATTRIBUTE_NORMAL, /* TBD: use overlapped? | FILE_FLAG_OVERLAPPED */
             NULL);
-#endif
         file->free_fn (wcFn);
 
         if (fd == INVALID_HANDLE_VALUE)
@@ -352,14 +351,8 @@ default_init_write_file (exr_context_t file)
     wcFn = widen_filename (file, outfn);
     if (wcFn)
     {
-#if defined(_WIN32_WINNT) && (_WIN32_WINNT >= _WIN32_WINNT_WIN8)
-        fd = CreateFile2 (
-            wcFn,
-            GENERIC_WRITE | DELETE,
-            FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
-            CREATE_ALWAYS,
-            NULL);
-#else
+        // see default_init_read_file() above for why CreateFileW() is
+        // used unconditionally instead of CreateFile2()
         fd = CreateFileW (
             wcFn,
             GENERIC_WRITE | DELETE,
@@ -368,7 +361,6 @@ default_init_write_file (exr_context_t file)
             CREATE_ALWAYS,
             FILE_ATTRIBUTE_NORMAL, /* TBD: use overlapped? | FILE_FLAG_OVERLAPPED */
             NULL);
-#endif
         file->free_fn (wcFn);
 
         if (fd == INVALID_HANDLE_VALUE)
