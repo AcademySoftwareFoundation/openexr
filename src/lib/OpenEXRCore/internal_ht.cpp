@@ -25,6 +25,8 @@
 #include "internal_ht_quality.h"
 #include "internal_legacy_structs.h"
 
+#include "internal_xdr.h"
+
 namespace
 {
 /* NLT type 4 point tables for lossy RGB channels. Most float imagery lies
@@ -75,12 +77,10 @@ chunk_max_linear_float (
                              x < encode->channels[file_c].width;
                              x++)
                         {
-                            /* samples may be unaligned */
+                            uint32_t bits = unaligned_load32 (
+                                line_pixels + (int64_t) x * sizeof (float));
                             float v;
-                            memcpy (
-                                &v,
-                                line_pixels + (int64_t) x * sizeof (float),
-                                sizeof (float));
+                            memcpy (&v, &bits, sizeof (v));
                             if (std::isfinite (v))
                             {
                                 double av = std::fabs ((double) v);
@@ -119,9 +119,10 @@ chunk_max_linear_float (
                                    cs_channel_info[c].raster_line_offset;
                 for (int32_t x = 0; x < cw; x++)
                 {
-                    /* samples may be unaligned */
+                    uint32_t bits =
+                        unaligned_load32 (p + (int64_t) x * sizeof (float));
                     float v;
-                    memcpy (&v, p + (int64_t) x * sizeof (float), sizeof (float));
+                    memcpy (&v, &bits, sizeof (v));
                     if (std::isfinite (v))
                     {
                         double av = std::fabs ((double) v);
@@ -351,35 +352,32 @@ decode_line (
     exr_pixel_type_t  type,
     bool              legacy_tf)
 {
-    /* Channels of different sample sizes are packed back to back, so dst
-     * may not be aligned to the sample size: store samples with memcpy. */
+    /* The output is in file order (little-endian), and channels of
+     * different sample sizes are packed back to back, so dst may not be
+     * aligned to the sample size. */
     uint8_t* out = static_cast<uint8_t*> (dst);
     if (type == EXR_PIXEL_HALF)
     {
         if (legacy_tf)
             for (int32_t p = 0; p < width; p++, out += sizeof (int16_t))
-            {
-                int16_t v = (int16_t) legacy_int16_to_half (src[p]).bits ();
-                memcpy (out, &v, sizeof (v));
-            }
+                unaligned_store16 (out, legacy_int16_to_half (src[p]).bits ());
         else
             for (int32_t p = 0; p < width; p++, out += sizeof (int16_t))
-            {
-                int16_t v = (int16_t) src[p];
-                memcpy (out, &v, sizeof (v));
-            }
+                unaligned_store16 (out, (uint16_t) src[p]);
     }
     else if (legacy_tf)
     {
         for (int32_t p = 0; p < width; p++, out += sizeof (float))
         {
-            float v = legacy_int32_to_float (src[p]);
-            memcpy (out, &v, sizeof (v));
+            float    v = legacy_int32_to_float (src[p]);
+            uint32_t bits;
+            memcpy (&bits, &v, sizeof (bits));
+            unaligned_store32 (out, bits);
         }
     }
     else
     {
-        memcpy (out, src, (size_t) width * sizeof (uint32_t));
+        unaligned_store32_array (out, (const uint32_t*) src, width);
     }
 }
 
@@ -478,7 +476,7 @@ ht_undo_impl (
                 computedoffset += (int64_t) decode->channels[i].width *
                     (int64_t) decode->channels[i].bytes_per_element;
 
-            if (computedoffset > std::numeric_limits<std::size_t>::max())
+            if (computedoffset > std::numeric_limits<std::size_t>::max ())
                 return EXR_ERR_CORRUPT_CHUNK;
 
             cs_to_file_ch[cs_i].raster_line_offset = computedoffset;
@@ -961,13 +959,8 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
                                      p < encode->channels[file_c].width;
                                     p++)
                                 {
-                                    /* samples may be unaligned */
-                                    int16_t v;
-                                    memcpy (
-                                        &v,
-                                        line_pixels + (int64_t) p * sizeof (v),
-                                        sizeof (v));
-                                    cur_line->i32[p] = v;
+                                    cur_line->i32[p] = (int16_t) unaligned_load16 (
+                                        line_pixels + (int64_t) p * 2);
                                 }
                             }
                             else
@@ -978,6 +971,9 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
                                     line_pixels,
                                     (size_t) encode->channels[file_c].width *
                                         sizeof (int32_t));
+                                priv_to_native32 (
+                                    cur_line->i32,
+                                    encode->channels[file_c].width);
                             }
 
                             assert (next_comp == c);
@@ -1017,13 +1013,8 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
                     {
                         for (int32_t p = 0; p < cw; p++)
                         {
-                            /* samples may be unaligned */
-                            int16_t v;
-                            memcpy (
-                                &v,
-                                channel_pixels + (int64_t) p * sizeof (v),
-                                sizeof (v));
-                            cur_line->i32[p] = v;
+                            cur_line->i32[p] = (int16_t) unaligned_load16 (
+                                channel_pixels + (int64_t) p * 2);
                         }
                     }
                     else
@@ -1033,6 +1024,7 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
                             cur_line->i32,
                             channel_pixels,
                             (size_t) cw * sizeof (int32_t));
+                        priv_to_native32 (cur_line->i32, cw);
                     }
                     for (int32_t p = cw; p < image_width; p++)
                         cur_line->i32[p] = cur_line->i32[cw - 1];

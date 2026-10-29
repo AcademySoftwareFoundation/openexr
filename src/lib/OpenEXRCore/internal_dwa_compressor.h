@@ -545,6 +545,10 @@ DwaCompressor_compress (DwaCompressor* me)
                     outBufferSize -
                     (size_t) ((uintptr_t) outDataPtr - (uintptr_t) sizes);
 
+                /* The packed AC buffer is XDR (little-endian), but the
+                 * Huffman coder works on native 16-bit values, as in PIZ. */
+                priv_to_native16 (
+                    me->_packedAcBuffer, (int) *totalAcUncompressedCount);
                 rv = internal_huf_compress (
                     acCompressedSize,
                     outDataPtr,
@@ -553,6 +557,8 @@ DwaCompressor_compress (DwaCompressor* me)
                     *totalAcUncompressedCount,
                     me->_encode->scratch_buffer_1,
                     me->_encode->scratch_alloc_size_1);
+                priv_from_native16 (
+                    me->_packedAcBuffer, (int) *totalAcUncompressedCount);
                 if (rv != EXR_ERR_SUCCESS)
                 {
                     if (rv == EXR_ERR_ARGUMENT_OUT_OF_RANGE)
@@ -916,6 +922,8 @@ DwaCompressor_uncompress (
 
     if (unknownCompressedSize > 0)
     {
+        size_t unknownActualOut;
+
         if (unknownUncompressedSize > me->_planarUncBufferSize[UNKNOWN])
         {
             return EXR_ERR_CORRUPT_CHUNK;
@@ -927,7 +935,18 @@ DwaCompressor_uncompress (
                                    unknownCompressedSize,
                                    me->_planarUncBuffer[UNKNOWN],
                                    unknownUncompressedSize,
-                                   NULL))
+                                   &unknownActualOut))
+        {
+            return EXR_ERR_CORRUPT_CHUNK;
+        }
+
+        /* A short zlib stream (fewer bytes produced than requested) is
+         * reported as success (see translate_deflate_result), leaving
+         * the tail of _planarUncBuffer[UNKNOWN] filled with stale heap
+         * contents that are then copied into the decoded image. Reject
+         * it explicitly instead of trusting the full buffer was written
+         * (see GHSA-rjg8-982x-jhc2). */
+        if (unknownActualOut != unknownUncompressedSize)
         {
             return EXR_ERR_CORRUPT_CHUNK;
         }
@@ -962,6 +981,10 @@ DwaCompressor_uncompress (
                     me->_decode->scratch_buffer_1,
                     me->_decode->scratch_alloc_size_1);
                 if (rv != EXR_ERR_SUCCESS) { return rv; }
+                /* Huffman yields native values; the AC stream is XDR
+                   (little-endian) */
+                priv_from_native16 (
+                    me->_packedAcBuffer, (int) totalAcUncompressedCount);
                 break;
 
             case DEFLATE: {
@@ -1093,6 +1116,13 @@ DwaCompressor_uncompress (
             outBufferEnd +=
                 (size_t) chan->width * (size_t) chan->bytes_per_element;
         }
+    }
+
+    for (int c = 0; c < me->_numChannels; ++c)
+    {
+        ChannelData* cd = &(me->_channelData[c]);
+        if (cd->_dctData._size != (size_t) cd->chan->height)
+            return EXR_ERR_CORRUPT_CHUNK;
     }
 
     //
