@@ -22,7 +22,7 @@
 * [Version 3.4.2](#version-342-october-15-2025) October 15, 2025
 * [Version 3.4.1](#version-341-october-8-2025) October 8, 2025
 * [Version 3.4.0](#version-340-september-5-2025) September 5, 2025
-* [Version 3.3.15](#version-3315-october-28-2026) October 28, 2026
+* [Version 3.3.15](#version-3315-october-30-2026) October 30, 2026
 * [Version 3.3.14](#version-3314-august-21-2026) August 21, 2026
 * [Version 3.3.13](#version-3313-august-6-2026) August 6, 2026
 * [Version 3.3.12](#version-3312-june-21-2026) June 21, 2026
@@ -1836,7 +1836,7 @@ JPEG-2000 (HTJ2K)** encoding:
 * [1852](https://github.com/AcademySoftwareFoundation/openexr/pull/1852)
   Add an option to use TBB as the global provider
 
-## Version 3.3.15 (October 28, 2026)
+## Version 3.3.15 (October 30, 2026)
 
 Patch release that addresses the following security vulnerabilities:
 
