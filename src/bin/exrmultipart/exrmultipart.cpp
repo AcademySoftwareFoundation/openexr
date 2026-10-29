@@ -490,9 +490,6 @@ combine (
     // do combine
     //
 
-    // early bail if need be
-    MultiPartOutputFile temp (outname, &headers[0], headers.size (), override);
-
     MultiPartOutputFile out (outname, &headers[0], headers.size (), override);
 
     for (size_t p = 0; p < partnums.size (); p++)
