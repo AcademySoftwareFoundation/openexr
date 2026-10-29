@@ -148,7 +148,6 @@ struct runData
 double
 median (const vector<double>& perf)
 {
-    if (perf.empty ()) { return 0.0; }
     if (perf.size () == 1) { return perf[0]; }
     vector<double> d = perf;
     sort (d.begin (), d.end ());
@@ -159,11 +158,7 @@ void
 printTiming (const vector<double>& perf, ostream& out, bool raw, bool stats)
 {
 
-    if (perf.size () == 0)
-    {
-        out << 0;
-        return;
-    }
+    if (perf.size () == 0) { return; }
 
     if (perf.size () == 1)
     {
@@ -216,24 +211,28 @@ printPartStats (
     int              timing,
     bool             partSize,
     bool             raw,
-    bool             stats)
+    bool             stats,
+    bool             output = false)
 {
-    bool output = false;
     if (timing & options::TIME_READ)
     {
-        if (data.sizeData.isDeep)
+        if (data.sizeData.isDeep && !data.countReadPerf.empty ())
         {
+            if (output) { out << ",\n"; }
+            output = true;
             out << indent << "\"count read time\": ";
             printTiming (data.countReadPerf, out, raw, stats);
-            output = true;
         }
-        if (output) { out << ",\n"; }
-        out << indent << "\"read time\": ";
-        printTiming (data.readPerf, out, raw, stats);
-        output = true;
+        if (!data.readPerf.empty ())
+        {
+            if (output) { out << ",\n"; }
+            output = true;
+            out << indent << "\"read time\": ";
+            printTiming (data.readPerf, out, raw, stats);
+        }
     }
 
-    if (timing & options::TIME_WRITE)
+    if ((timing & options::TIME_WRITE) && !data.writePerf.empty ())
     {
         if (output) { out << ",\n"; }
         output = true;
@@ -243,17 +242,20 @@ printPartStats (
 
     if (timing & options::TIME_REREAD)
     {
-        if (data.sizeData.isDeep)
+        if (data.sizeData.isDeep && !data.countRereadPerf.empty ())
         {
             if (output) { out << ",\n"; }
             output = true;
             out << indent << "\"count re-read time\": ";
             printTiming (data.countRereadPerf, out, raw, stats);
         }
-        if (output) { out << ",\n"; }
-        output = true;
-        out << indent << "\"re-read time\": ";
-        printTiming (data.rereadPerf, out, raw, stats);
+        if (!data.rereadPerf.empty ())
+        {
+            if (output) { out << ",\n"; }
+            output = true;
+            out << indent << "\"re-read time\": ";
+            printTiming (data.rereadPerf, out, raw, stats);
+        }
     }
 
     if (partSize)
@@ -397,11 +399,10 @@ jsonStats (
         }
         if (timing)
         {
-            out << ",\n";
             printPartStats (
-                out, run.metrics.totalStats, "      ", timing,false, raw, stats);
+                out, run.metrics.totalStats, "      ", timing, false, raw, stats, true);
         }
-        if (timing && run.metrics.stats.size () > 1)
+        if ((timing || partSize) && run.metrics.stats.size () > 1)
         {
             out << ",\n";
             out << "      \"parts\":\n";
@@ -410,7 +411,7 @@ jsonStats (
             for (size_t part = 0; part < run.metrics.stats.size (); ++part)
             {
                 out << "        {\n";
-                out << "          \"part\": " << part << ",\n";
+                out << "          \"part\": " << part;
 
                 printPartStats (
                     out,
@@ -419,7 +420,8 @@ jsonStats (
                     timing,
                     partSize,
                     raw,
-                    stats);
+                    stats,
+                    true);
                 out << "\n        }";
                 if (part < run.metrics.stats.size () - 1) { out << ','; }
                 out << endl;
@@ -487,25 +489,39 @@ csvStats (ostream& out, list<runData>& data, bool outputSizeData, int timing)
         if (outputSizeData) { out << ',' << run.metrics.outputFileSize; }
         if (timing & options::TIME_READ)
         {
-            if (run.metrics.totalStats.sizeData.isDeep)
+            if (run.metrics.totalStats.sizeData.isDeep &&
+                !run.metrics.totalStats.countReadPerf.empty ())
             {
                 out << ',' << median (run.metrics.totalStats.countReadPerf);
             }
             else { out << ",---"; }
-            out << ',' << median (run.metrics.totalStats.readPerf);
+            if (!run.metrics.totalStats.readPerf.empty ())
+            {
+                out << ',' << median (run.metrics.totalStats.readPerf);
+            }
+            else { out << ",---"; }
         }
         if (timing & options::TIME_WRITE)
         {
-            out << ',' << median (run.metrics.totalStats.writePerf);
+            if (!run.metrics.totalStats.writePerf.empty ())
+            {
+                out << ',' << median (run.metrics.totalStats.writePerf);
+            }
+            else { out << ",---"; }
         }
         if (timing & options::TIME_REREAD)
         {
-            if (run.metrics.totalStats.sizeData.isDeep)
+            if (run.metrics.totalStats.sizeData.isDeep &&
+                !run.metrics.totalStats.countRereadPerf.empty ())
             {
                 out << ',' << median (run.metrics.totalStats.countRereadPerf);
             }
             else { out << ",---"; }
-            out << ',' << median (run.metrics.totalStats.rereadPerf);
+            if (!run.metrics.totalStats.rereadPerf.empty ())
+            {
+                out << ',' << median (run.metrics.totalStats.rereadPerf);
+            }
+            else { out << ",---"; }
         }
         out << "\n";
     }
@@ -560,7 +576,9 @@ main (int argc, char** argv)
                             opts.level,
                             opts.passes,
                             opts.outFile || opts.outputSizeData ||
-                                opts.timing & options::TIME_WRITE,
+                                opts.outputPartSizeOnDisk ||
+                                (opts.timing &
+                                 (options::TIME_WRITE | options::TIME_REREAD)),
                             opts.timing & options::TIME_REREAD,
                             mode,
                             opts.verbose);
@@ -581,7 +599,7 @@ main (int argc, char** argv)
 
     bool showPartSizeOnDisk = opts.outputPartSizeOnDisk && !opts.outFile;
 
-    if (opts.timing || opts.outputSizeData)
+    if (opts.timing || opts.outputSizeData || showPartSizeOnDisk)
     {
 
         if (opts.csv)
@@ -945,7 +963,13 @@ options::parse (int argc, char* argv[])
         return 1;
     }
 
-    if (!outputSizeData && !timing && !outFile)
+    if (passes == 0 && outFile)
+    {
+        cerr << "--passes 0 cannot be used with file output (-o)\n";
+        return 1;
+    }
+
+    if (!outputSizeData && !timing && !outFile && !outputPartSizeOnDisk)
     {
         cerr
             << "Nothing to do: no output file specified, and all performance/size data disabled";

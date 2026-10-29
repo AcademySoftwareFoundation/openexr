@@ -1131,7 +1131,7 @@ exrmetrics (
             DummyOStream        tmp;
             MultiPartOutputFile out (
                 tmp, outHeaders.data (), outHeaders.size ());
-            writeFile (out, parts, metrics, false);
+            writeFile (out, parts, metrics, false, &tmp);
             fileSize = tmp.tellp ();
         }
 
