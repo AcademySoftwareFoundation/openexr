@@ -715,8 +715,8 @@ readDeepTile (T& in, bool reduceMemory, bool reduceTime)
                             {
 
 
-                                in.readPixelSampleCounts (
-                                    x, x, y, y, xlevel, ylevel);
+                                in.readPixelSampleCount (
+                                    x, y, xlevel, ylevel);
 
                                 size_t bufferSize     = 0;
                                 size_t fileBufferSize = 0;
