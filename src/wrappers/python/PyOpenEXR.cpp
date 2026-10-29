@@ -917,7 +917,7 @@ PyPart::writePixels(MultiPartOutputFile& outfile, const Box2i& dw) const
             py::dtype dt = C.pixels.dtype();
             int nrgba = C.pixels.shape(2);
             size_t xStride = dt.itemsize() * nrgba;
-            size_t yStride = xStride * width() / C.xSampling;
+            size_t yStride = xStride * C.pixels.shape(1);
                     
             auto rPtr = basePtr;
             frameBuffer.insert (name_prefix + "R",
@@ -969,9 +969,10 @@ PyPart::writePixels(MultiPartOutputFile& outfile, const Box2i& dw) const
     {
         OutputPart part(outfile, part_index);
         part.setFrameBuffer (frameBuffer);
+        const int numScanLines = dw.max.y - dw.min.y + 1;
         {
             py::gil_scoped_release release;
-            part.writePixels (height());
+            part.writePixels (numScanLines);
         }
     }
     else
@@ -1063,6 +1064,20 @@ PyChannel::insertDeepSlice(DeepFrameBuffer& frameBuffer, const std::string& slic
                     throw std::invalid_argument(err.str());
                 }
                 
+                //
+                // The slice reads nrgba components per sample, so every
+                // pixel's array must have that layout, not just the first.
+                //
+
+                if (a.ndim() != (nrgba > 0 ? 2 : 1) ||
+                    (nrgba > 0 && a.shape(1) != nrgba))
+                {
+                    std::stringstream err;
+                    err << "invalid deep pixel array at " << y << "," << x
+                        << ": all pixels must have the same number of components";
+                    throw std::invalid_argument(err.str());
+                }
+
                 if (py::isinstance<py::array_t<uint32_t>>(a))
                     setSliceDataPtr<uint32_t>(sliceData, a, y, x, channel_offset, UINT);
                 else if (py::isinstance<py::array_t<half>>(a))
@@ -1531,6 +1546,21 @@ PyFile::buildOutputHeaders()
                 else
                     nrgba = C.pixels.shape(2);
 
+                //
+                // The R, G, B (and A) slices index the components of
+                // each pixel, so an array with fewer components would
+                // be read past its end.
+                //
+
+                if (nrgba != 0 && nrgba != 3 && nrgba != 4)
+                {
+                    std::stringstream err;
+                    err << "invalid pixel array for channel \"" << C.name
+                        << "\": RGB/RGBA arrays must have 3 or 4 components, got "
+                        << nrgba;
+                    throw std::invalid_argument(err.str());
+                }
+
                 if (nrgba > 0)
                 {
                     //
@@ -1576,37 +1606,49 @@ PyFile::buildOutputHeaders()
         }
 
         //
-        // When writing from numpy channel buffers, the dataWindow size must
-        // match the pixel array extent (shape[0] = height, shape[1] = width).
-        // Otherwise Slice setup disagrees with the buffer and native code can
-        // fault. Skip when copying pixels from an input file, when there are
-        // no channel buffers, or when any channel uses subsampling (different
-        // size rule than full-res arrays).
+        // When writing from numpy channel buffers, each channel's pixel
+        // array must match the dataWindow size divided by that channel's
+        // sampling (shape[0] = height, shape[1] = width), which is the
+        // shape a subsampled channel has when the file is read. Otherwise
+        // Slice setup disagrees with the buffer and native code reads past
+        // it. Skip when copying pixels from an input file or when there are
+        // no channel buffers.
         //
         if (!(_header_only && _inputFile) && !P.channels.empty())
         {
-            const bool anySubsampling =
-                std::any_of (P.channels.begin(),
-                             P.channels.end(),
-                             [] (const auto& kv)
-                             {
-                                 const auto& ch = kv.second.template cast<const PyChannel&>();
-                                 return ch.xSampling != 1 || ch.ySampling != 1;
-                             });
+            const Box2i& dw = header.dataWindow();
+            const int dwW  = dw.max.x - dw.min.x + 1;
+            const int dwH = dw.max.y - dw.min.y + 1;
 
-            if (!anySubsampling)
+            for (auto c : P.channels)
             {
-                const Box2i& dw = header.dataWindow();
-                const int dwW  = dw.max.x - dw.min.x + 1;
-                const int dwH = dw.max.y - dw.min.y + 1;
+                const auto& C = c.second.cast<const PyChannel&>();
 
-                const V2i dims = P.shape();
-                if (dims[0] != dwH || dims[1] != dwW)
+                if (C.xSampling < 1 || C.ySampling < 1)
+                {
+                    std::stringstream err;
+                    err << "invalid sampling (" << C.xSampling << ", "
+                        << C.ySampling << ") for channel \"" << C.name << "\"";
+                    throw std::invalid_argument(err.str());
+                }
+
+                if (C.pixels.ndim() < 2 || C.pixels.ndim() > 3)
+                    throw std::invalid_argument("error: channel must have a 2D or 3D array");
+
+                const int64_t w = (int64_t (dwW) - 1) / C.xSampling + 1;
+                const int64_t h = (int64_t (dwH) - 1) / C.ySampling + 1;
+
+                if (C.pixels.shape(0) != h || C.pixels.shape(1) != w)
                 {
                     std::stringstream err;
                     err << "dataWindow size (" << dwW << " x " << dwH
-                        << ") does not match pixel array size (" << dims[1]
-                        << " x " << dims[0] << ")";
+                        << ") does not match pixel array size ("
+                        << C.pixels.shape(1) << " x " << C.pixels.shape(0)
+                        << ")";
+                    if (C.xSampling != 1 || C.ySampling != 1)
+                        err << " for channel \"" << C.name << "\" with sampling ("
+                            << C.xSampling << ", " << C.ySampling
+                            << "), expected " << w << " x " << h;
                     throw std::invalid_argument(err.str());
                 }
             }

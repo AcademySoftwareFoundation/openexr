@@ -173,5 +173,47 @@ class TestExceptions(unittest.TestCase):
             with self.assertRaises(ValueError):
                 f.write(tmp.name)
 
+    def test_dataWindow_mismatch_subsampled_pixels(self):
+
+        # A 2x2 subsampled channel over a 16x16 dataWindow needs an 8x8
+        # array; a smaller one would be read past its end.
+
+        px = np.zeros((2, 2), dtype=np.float32)
+        header = {"dataWindow": ((0, 0), (15, 15))}
+        f = OpenEXR.File(header, {"Y": OpenEXR.Channel(px, 2, 2)})
+
+        with tempfile.NamedTemporaryFile(suffix=".exr", delete=True) as tmp:
+            with self.assertRaises(ValueError):
+                f.write(tmp.name)
+
+    def test_rgb_component_count(self):
+
+        # The R, G and B slices read 3 components per pixel.
+
+        rgb = np.zeros((4, 4, 2), dtype=np.float32)
+        f = OpenEXR.File({}, {"RGB": rgb})
+
+        with tempfile.NamedTemporaryFile(suffix=".exr", delete=True) as tmp:
+            with self.assertRaises(ValueError):
+                f.write(tmp.name)
+
+    def test_deep_rgb_component_count(self):
+
+        # Every deep RGB pixel must have the same number of components
+        # as the first one, which sets the sample stride.
+
+        pixels = np.empty((2, 2), dtype=object)
+        for y in range(2):
+            for x in range(2):
+                pixels[y, x] = np.zeros((3, 3), dtype=np.float32)
+        pixels[1, 1] = np.zeros((3, 1), dtype=np.float32)
+        header = {"type": OpenEXR.deepscanline,
+                  "compression": OpenEXR.ZIPS_COMPRESSION}
+        f = OpenEXR.File(header, {"RGB": pixels})
+
+        with tempfile.NamedTemporaryFile(suffix=".exr", delete=True) as tmp:
+            with self.assertRaises(ValueError):
+                f.write(tmp.name)
+
 if __name__ == '__main__':
     unittest.main()

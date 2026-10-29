@@ -389,6 +389,36 @@ class TestUnittest(unittest.TestCase):
 
         os.remove(outfilename)
 
+    def test_write_subsampled(self):
+
+        # Subsampled channels are written from arrays of the sampled
+        # size, the same shape they have when the file is read back.
+
+        width = 10
+        height = 20
+        size = (width // 2) * (height // 2)
+        RY = np.array([i for i in range(0,size)], dtype='f').reshape((height // 2, width // 2))
+        BY = np.array([i*10 for i in range(0,size)], dtype='f').reshape((height // 2, width // 2))
+        RGB = np.array([i for i in range(0,size*3)], dtype='f').reshape((height // 2, width // 2, 3))
+
+        header = { "dataWindow" : ((0,0), (width-1, height-1)),
+                   "displayWindow" : ((0,0), (width-1, height-1)) }
+
+        for channels, separate in [
+                ({ "BY" : OpenEXR.Channel("BY", BY, 2, 2),
+                   "RY" : OpenEXR.Channel("RY", RY, 2, 2) }, True),
+                ({ "RGB" : OpenEXR.Channel("RGB", RGB, 2, 2) }, False)]:
+
+            with OpenEXR.File(header, channels) as outfile:
+                outfilename = mktemp_outfilename()
+                outfile.write(outfilename)
+
+                # Verify reading it back gives the same data
+                with OpenEXR.File(outfilename, separate_channels=separate) as infile:
+                    compare_files(infile, outfile)
+
+            os.remove(outfilename)
+
     def test_modify_in_place(self):
 
         #
