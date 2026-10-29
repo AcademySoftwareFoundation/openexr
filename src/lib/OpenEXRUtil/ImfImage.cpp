@@ -432,6 +432,8 @@ Image::insertChannel (
 {
     try
     {
+        if (_channels.find (name) != _channels.end ()) eraseChannel (name);
+
         _channels[name] = ChannelInfo (type, xSampling, ySampling, pLinear);
 
         for (int y = 0; y < _levels.height (); ++y)

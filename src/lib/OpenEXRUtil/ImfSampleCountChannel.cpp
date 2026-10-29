@@ -169,6 +169,7 @@ SampleCountChannel::set (int x, int y, unsigned int newNumSamples)
             i, _numSamples[i], newNumSamples, _totalSamplesOccupied);
 
         _sampleListPositions[i] = _totalSamplesOccupied;
+        _sampleListSizes[i]     = newSampleListSize;
         _totalSamplesOccupied += newSampleListSize;
         _totalNumSamples += newNumSamples - _numSamples[i];
         _numSamples[i] = newNumSamples;
