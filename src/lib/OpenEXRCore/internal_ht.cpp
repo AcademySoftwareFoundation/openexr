@@ -549,18 +549,26 @@ ht_undo_impl (
             return EXR_ERR_CORRUPT_CHUNK;
     }
 
-    int64_t bpl     = 0;
-    bool is_planar  = false;
+    int64_t  bpl               = 0;
+    uint64_t decompressed_size = 0;
+    bool     is_planar         = false;
     for (int16_t c = 0; c < decode->channel_count; c++)
     {
-        bpl += (int64_t) decode->channels[c].bytes_per_element *
-               (int64_t) decode->channels[c].width;
+        if (decode->channels[c].width < 0 || decode->channels[c].height < 0 ||
+            decode->channels[c].bytes_per_element < 0)
+            return EXR_ERR_CORRUPT_CHUNK;
+        int64_t ch_bpl = (int64_t) decode->channels[c].bytes_per_element *
+                         (int64_t) decode->channels[c].width;
+        bpl += ch_bpl;
+        decompressed_size +=
+            (uint64_t) ch_bpl * (uint64_t) decode->channels[c].height;
         if (decode->channels[c].x_samples > 1 ||
             decode->channels[c].y_samples > 1)
         { is_planar = true; }
     }
     if (bpl > INT32_MAX || bpl * decode->chunk.height > (int64_t) PTRDIFF_MAX)
         return EXR_ERR_CORRUPT_CHUNK;
+    if (decompressed_size != uncompressed_size) return EXR_ERR_CORRUPT_CHUNK;
     if (padded && is_planar) return EXR_ERR_CORRUPT_CHUNK;
     cs.set_planar (is_planar);
 
@@ -656,6 +664,8 @@ ht_undo_impl (
     }
 
     infile.close ();
+
+    decode->bytes_decompressed = uncompressed_size;
 
     return rv;
 }

@@ -677,6 +677,7 @@ decompress_data (
     {
         if (unpackbufptr != packbufptr)
             memcpy (unpackbufptr, packbufptr, unpacksz);
+        decode->bytes_decompressed = unpacksz;
         return EXR_ERR_SUCCESS;
     }
 
