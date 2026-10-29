@@ -447,6 +447,69 @@ jobs:
 
             ctest --test-dir _build --output-on-failure
 
+  linux_i686:
+    name: Linux i686 (-m32)
+    # Build and test OpenEXR as 32-bit x86 (i686) ELF on an amd64 runner
+    # using GCC multilib (-m32). 
+    if: >-
+      github.event_name != 'schedule' ||
+      github.repository == 'AcademySoftwareFoundation/openexr'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Install multilib toolchain
+        run: |
+          set -ex
+          sudo apt-get update
+          sudo apt-get install -y cmake ninja-build \
+            gcc-multilib g++-multilib libc6-dev-i386
+
+      - name: Configure
+        run: |
+          set -ex
+          # OJPH_DISABLE_SSE excludes ojph_codestream_sse.cpp, which is
+          # compiled with -msse but uses SSE2-only intrinsics; that mismatch
+          # is harmless on x86_64 (SSE2 is baseline there) but fails to build
+          # under -m32, where -msse does not imply SSE2. Fixed upstream in
+          # OpenJPH commit 8ca3abd ("Don't use SSE2 into SSE code (fix build
+          # buid for i686)"); remove this once the vendored external/OpenJPH
+          # is updated to a release that includes it.
+          #
+          # OPENEXR_FORCE_INTERNAL_ZSTD avoids linking against the runner's
+          # system libzstd, which is amd64-only and incompatible with -m32.
+          # The amd64-only huf_decompress_amd64.S assembly file that the
+          # internal zstd build would otherwise try to use under -m32 is
+          # excluded by a CMAKE_SIZEOF_VOID_P check in
+          # src/lib/OpenEXRCore/CMakeLists.txt (CMAKE_SYSTEM_PROCESSOR alone
+          # still reports the host's x86_64 processor under -m32).
+          cmake -B _build -S . -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_C_FLAGS=-m32 \
+            -DCMAKE_CXX_FLAGS=-m32 \
+            -DCMAKE_EXE_LINKER_FLAGS=-m32 \
+            -DCMAKE_SHARED_LINKER_FLAGS=-m32 \
+            -DOPENEXR_FORCE_INTERNAL_IMATH=ON \
+            -DOPENEXR_FORCE_INTERNAL_DEFLATE=ON \
+            -DOPENEXR_FORCE_INTERNAL_OPENJPH=ON \
+            -DOPENEXR_FORCE_INTERNAL_ZSTD=ON \
+            -DOJPH_DISABLE_SSE=ON \
+            -DBUILD_TESTING=ON
+        shell: bash
+
+      - name: Build
+        run: |
+          set -ex
+          cmake --build _build --parallel "$(nproc)"
+        shell: bash
+
+      - name: Test
+        run: |
+          set -ex
+          ctest --test-dir _build --output-on-failure --timeout 7200
+        shell: bash
+
   netbsd:
     name: NetBSD
     # Note that vmactions spins up an OS in a VM and executes the run
