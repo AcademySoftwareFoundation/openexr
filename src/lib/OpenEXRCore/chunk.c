@@ -2008,22 +2008,18 @@ exr_write_tile_chunk_info (
     tileh = part->tile_level_tile_size_y[levely];
     if (tiledesc->y_size < (uint32_t) tileh) tileh = (int) tiledesc->y_size;
 
-    if (((int64_t) (tilex) * (int64_t) (tilew) + (int64_t) (tilew) +
-         (int64_t) (part->data_window.min.x) - 1) >
-        (int64_t) (part->data_window.max.x))
+    if (((int64_t) (tilex) * (int64_t) (tilew) + (int64_t) (tilew)) >
+        (int64_t) (part->tile_level_tile_size_x[levelx]))
     {
-        int64_t sz = (int64_t) (part->data_window.max.x) -
-                     (int64_t) (part->data_window.min.x) + 1;
-        tilew = (int) (sz - ((int64_t) (tilex) * (int64_t) (tilew)));
+        int64_t sz = (int64_t) (part->tile_level_tile_size_x[levelx]);
+        tilew      = (int) (sz - ((int64_t) (tilex) * (int64_t) (tilew)));
     }
 
-    if (((int64_t) (tiley) * (int64_t) (tileh) + (int64_t) (tileh) +
-         (int64_t) (part->data_window.min.y) - 1) >
-        (int64_t) (part->data_window.max.y))
+    if (((int64_t) (tiley) * (int64_t) (tileh) + (int64_t) (tileh)) >
+        (int64_t) (part->tile_level_tile_size_y[levely]))
     {
-        int64_t sz = (int64_t) (part->data_window.max.y) -
-                     (int64_t) (part->data_window.min.y) + 1;
-        tileh = (int) (sz - ((int64_t) (tiley) * (int64_t) (tileh)));
+        int64_t sz = (int64_t) (part->tile_level_tile_size_y[levely]);
+        tileh      = (int) (sz - ((int64_t) (tiley) * (int64_t) (tileh)));
     }
 
     *cinfo             = nil;
