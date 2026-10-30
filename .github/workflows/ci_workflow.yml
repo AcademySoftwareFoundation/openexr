@@ -229,10 +229,6 @@ jobs:
             label: macos-15-intel
             os: macos-15-intel
 
-          - build: 7
-            label: macos-14
-            os: macos-14
-
           - build: 8
             label: universal2
             CMAKE_OSX_ARCHITECTURES: "x86_64;arm64"
