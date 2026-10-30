@@ -277,8 +277,8 @@ jobs:
           - name: macos-15-intel
             os: macos-15-intel
 
-          - name: macos-14
-            os: macos-14
+          - name: macos-26
+            os: macos-26
 
           - name: universal2
             CMAKE_OSX_ARCHITECTURES: "x86_64;arm64"
