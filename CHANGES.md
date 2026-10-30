@@ -125,7 +125,10 @@ writes triggered by malformed or malicious EXR files — several capable
 of remote code execution. See the Security section below for details.
 
 This release includes no new features or changes in behavior other
-than improved error detection and rejection of invalid input.
+than improved error detection and rejection of invalid input, except
+for a fix for a regression introduced in v3.4.14 in reading deep
+images on big-endian hosts, due to a byte-order bug that returned an
+incorrect deep sample count table. Little-endian hosts are unaffected.
 
 As part of this effort, the full test suite now passes cleanly under
 the address, undefined-behavior, and thread sanitizers.
