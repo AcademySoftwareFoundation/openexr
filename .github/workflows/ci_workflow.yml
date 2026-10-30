@@ -129,7 +129,7 @@ jobs:
       # Set values for the "inputs:" as defined in ci_steps.yml
       # Note the defaults provided here for the builds that don't specify
       # values.
-      os: ${{ matrix.os || 'macos-14' }}
+      os: ${{ matrix.os || 'macos-15' }}
       build: ${{ matrix.build }}
       cxx-standard: ${{ matrix.cxx-standard || '17' }}
       build-type: ${{ matrix.build-type || 'Release' }}
