@@ -644,6 +644,10 @@ jobs:
       - name: Test
         env:
           QEMU_LD_PREFIX: /usr/s390x-linux-gnu
+          # Skip slow tests since this runs in emulation; heavy
+          # floating-point operations can be 300x slower via QEMU,
+          # hence risk timeout.
+          OPENEXR_SKIP_SLOW_TESTS: 1
         run: ctest --test-dir _build --output-on-failure -j "$(nproc)"
 
   linux_asan_ubsan:
