@@ -83,6 +83,8 @@ ob = Py_InitModule3 (name, methods, doc);
 #include "ImfTimeCodeAttribute.h"
 #include "ImfTimeCode.h"
 
+#include <Imath/ImathFun.h>
+
 #include <string>
 #include <fstream>
 #include <iostream>
@@ -446,7 +448,14 @@ channel (PyObject* self, PyObject* args, PyObject* kw)
     int xSampling = channelPtr->xSampling;
     int ySampling = channelPtr->ySampling;
     int width     = (dw.max.x - dw.min.x + 1) / xSampling;
-    int height    = (maxy - miny + 1) / ySampling;
+
+    // Only scan lines y with y % ySampling == 0 hold samples, and they
+    // are stored at row y / ySampling of the slice. scanLine1 and
+    // scanLine2 need not be multiples of ySampling, so size the buffer
+    // from the first and last sampled line in [miny, maxy].
+    int firstRow = -divp (-miny, ySampling);
+    int lastRow  = divp (maxy, ySampling);
+    int height   = lastRow - firstRow + 1;
 
     size_t typeSize = 0;
     switch (pt)
@@ -506,7 +515,7 @@ channel (PyObject* self, PyObject* args, PyObject* kw)
         // ptrdiff_t range on 32-bit platforms; use int64_t explicitly so
         // the multiply can't overflow regardless of pointer width.
         int64_t xoffset = (int64_t) dw.min.x * (int64_t) xstride / xSampling;
-        int64_t yoffset = (int64_t) miny * (int64_t) ystride / ySampling;
+        int64_t yoffset = (int64_t) firstRow * (int64_t) ystride;
 
         frameBuffer.insert (
             cname,
