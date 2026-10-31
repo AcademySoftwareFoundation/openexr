@@ -17,9 +17,63 @@ News
 
 
 |latest-news-title|
-========================================
+=========================================================
 
 .. _LatestNewsStart:
+
+v3.5.3 is a aatch release that addresses 15 security vulnerabilities,
+10 with pending CVE IDs, primarily heap buffer overflows and
+out-of-bounds writes triggered by malformed or malicious EXR files —
+several capable of remote code execution. 
+
+Patches for the vulnerabilities with pending CVEs have also been
+back-ported to v3.4 and v3.3.
+
+This release includes no new features or changes in behavior other
+than improved error detection and rejection of invalid input, except
+for a fix for a regression introduced in v3.4.14 in reading deep
+images on big-endian hosts, due to a byte-order bug that returned an
+incorrect deep sample count table. Little-endian hosts are unaffected.
+
+As part of this effort, the full test suite now passes cleanly under
+the address, undefined-behavior, and thread sanitizers.
+
+Also in this release:
+
+* Add support for Python 3.15
+* Several diagnostic/correctness fixes across the utility tools
+  (exrmetrics, exrmultipart, exrcheck) and core decompression
+  paths (courtesy of @ssoj13/Alex Khal)
+* Address several long-standing build errors and test failures on i686
+  (32-bit linux) and s390x (big-endian) hosts.
+* Fix build issues on macOS < 10.15
+* Fix build issues on powerpc
+* Fix for absolute paths for ``libm`` in OpenEXRTargets.cmake
+* Fix for running on Windows 7 involving ``CreateFile2``
+
+This release addresses the following security vulnerabilities:
+
+* ***CVE Pending*** (`GHSA-WHF5-29MJ-GP53 <https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-WHF5-29MJ-GP53>`_) Heap Out-of-Bounds Write via Signed Integer Overflow in DWAA/DWAB LossyDctDecoder
+* ***CVE Pending*** (`GHSA-VP77-HHRC-M2C3 <https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-VP77-HHRC-M2C3>`_) Subsampled chunk-height miscount: heap overflow in B44 encoder, NULL dereference in DWA decoder/encoder
+* ***CVE Pending*** (`GHSA-RXWG-X3WX-PGFH <https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-RXWG-X3WX-PGFH>`_) Heap out-of-bounds write via 32-bit tile-area integer overflow in DeepTiledOutputFile (deep-image re-save path) — possible incomplete fix of PR #939
+* ***CVE Pending*** (`GHSA-RJG8-982X-JHC2 <https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-RJG8-982X-JHC2>`_) Uninitialized Heap Memory Disclosure in DWA Decompression via Short zlib Stream Mapped to Success
+* ***CVE Pending*** (`GHSA-J76P-H7GW-VMPF <https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-J76P-H7GW-VMPF>`_) Heap buffer overflow in the OpenEXR Python bindings when two RGB channel groups coalesce to the same key
+* ***CVE Pending*** (`GHSA-G248-596F-9995 <https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-G248-596F-9995>`_) Unvalidated extra ``chlist`` header attributes merged into ``Header::channels()`` cause a heap overflow in ``run_fill``
+* ***CVE Pending*** (`GHSA-FRX8-5P4H-J8M7 <https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-FRX8-5P4H-J8M7>`_) Heap OOB Write via Integer Overflow in B44 Chunk Unpacked-Size Computation — Remote Code Execution in OpenEXRCore
+* ***CVE Pending*** (`GHSA-98RX-QPFV-QCWV <https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-98RX-QPFV-QCWV>`_) Missing grid-total bound in ZSTD deep decode causes heap out-of-bounds write in OpenEXRCore
+* ***CVE Pending*** (`GHSA-638X-X7MR-89XC <https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-638X-X7MR-89XC>`_) Out-of-bounds write at an attacker-chosen displacement in legacy Python InputFile.channel()
+* ***CVE Pending*** (`GHSA-6358-7H9P-8G5C <https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-6358-7H9P-8G5C>`_) Heap buffer overflow in OpenEXRCore ZSTD deep decode via unvalidated signed sample counts
+* ***CVE Pending*** (`GHSA-3CP4-779M-H837 <https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-3CP4-779M-H837>`_) Use-after-free in OpenEXRCore exr_copy_unset_attributes() when a channel name exceeds 31 bytes
+* (`GHSA-RJG8-982X-JHC2 <https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-RJG8-982X-JHC2>`_) Uninitialized Heap Memory Disclosure in DWA Decompression via Short zlib Stream Mapped to Success
+* (`GHSA-X92J-9982-GJG7 <https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-X92J-9982-GJG7>`_) DWA Encoder ``tmpHalfBuffer`` Integer Overflow → Undersized Allocation
+* (`GHSA-HRP4-XJP5-CQ7J <https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-HRP4-XJP5-CQ7J>`_) Misaligned pointer store in ``ht_undo_impl()`` (HTJ2K decode)
+* (`GHSA-FP76-2FH4-4XWW <https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-FP76-2FH4-4XWW>`_) Uncontrolled Resource Consumption and O(N^2) Processing Overhead via Unbounded Multipart Header Parsing
+* (`GHSA-HCP5-MX7Q-9642 <https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-HCP5-MX7Q-9642>`_) Null pointer read in the DWA decoder: ``compute_sampled_height`` counts one row instead of zero when y sampling exceeds the chunk height
+
+.. _LatestNewsEnd:
+
+October 2, 2026 - OpenEXR 3.5.2 Released
+========================================
 
 Patch release that introduces the use of OpenJPH's built-in LUT to
 apply the decode/encode transfer function for lossy LJ2K compression.
@@ -43,7 +97,6 @@ Also in this release:
   compression (#2672)
 * Fix for a failure case in exrcheck involving large images (#2688)
 
-.. _LatestNewsEnd:
 
 September 21, 2026 - OpenEXR 3.5.0 Released
 ===========================================
