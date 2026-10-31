@@ -19,6 +19,7 @@ jobs:
 
     steps:
     - name: 'Prepare Slack-safe release notes'
+      id: notes
       # Strip the ### Contributors section from the release notes,
       # since it has raw html that doesn't translate.
       env:
