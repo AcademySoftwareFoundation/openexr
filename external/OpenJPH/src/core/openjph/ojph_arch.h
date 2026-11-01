@@ -286,9 +286,6 @@ namespace ojph {
   }
 
   /////////////////////////////////////////////////////////////////////////////
-#ifdef OJPH_COMPILER_MSVC
-  #pragma intrinsic(_BitScanForward64)
-#endif
   static inline ui32 count_trailing_zeros(ui64 val)
   {
   #ifdef OJPH_COMPILER_MSVC
