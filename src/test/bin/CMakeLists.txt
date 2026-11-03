@@ -55,6 +55,7 @@ if(BUILD_TESTING)
       ${TEST_IMAGE_DIR}/Flowers.exr
       ${TEST_IMAGE_DIR}/GammaChart.exr
       ${TEST_IMAGE_DIR}/multipart.0001.exr
+      ${TEST_IMAGE_DIR}/11.deep.exr
   )
   add_test(NAME OpenEXR.bin.exrcheck
            COMMAND ${Python3_EXECUTABLE}

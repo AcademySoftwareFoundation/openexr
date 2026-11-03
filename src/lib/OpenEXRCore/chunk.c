@@ -1651,12 +1651,11 @@ exr_read_deep_chunk (
 
     if (rv != EXR_ERR_SUCCESS) return rv;
 
-    /* the on-disk sample count table is little-endian; convert to native so
-     * callers receive host-order counts (matching unpacked pixel data) */
-    if (sample_data && cinfo->sample_count_table_size > 0)
-        priv_to_native32 (
-            sample_data,
-            (int) (cinfo->sample_count_table_size / sizeof (uint32_t)));
+    /* Both buffers are returned exactly as stored in the file, like
+     * exr_read_chunk: the sample count table may be compressed, and when
+     * it isn't, its counts are little-endian. The decode pipeline
+     * (unpack_sample_table) does the conversion to native order, and the
+     * raw chunk readers in the C++ API copy these bytes verbatim. */
 
     if (packed_data && cinfo->packed_size > 0)
     {

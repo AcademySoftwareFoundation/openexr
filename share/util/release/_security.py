@@ -135,8 +135,11 @@ def _gh_pr_text_blocks(pr_number: str) -> list[str]:
         check=False,
     )
     if result.returncode != 0:
-        sys.stderr.write(result.stderr or "gh pr view failed\n")
-        sys.exit(1)
+        sys.stderr.write(
+            f"Warning: gh pr view {pr_number} failed: "
+            f"{result.stderr or 'gh pr view failed'}"
+        )
+        return []
     data = json.loads(result.stdout or "{}")
     blocks: list[str] = []
     body = data.get("body")

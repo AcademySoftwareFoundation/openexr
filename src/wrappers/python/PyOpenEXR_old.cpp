@@ -83,6 +83,8 @@ ob = Py_InitModule3 (name, methods, doc);
 #include "ImfTimeCodeAttribute.h"
 #include "ImfTimeCode.h"
 
+#include <Imath/ImathFun.h>
+
 #include <string>
 #include <fstream>
 #include <iostream>
@@ -446,7 +448,14 @@ channel (PyObject* self, PyObject* args, PyObject* kw)
     int xSampling = channelPtr->xSampling;
     int ySampling = channelPtr->ySampling;
     int width     = (dw.max.x - dw.min.x + 1) / xSampling;
-    int height    = (maxy - miny + 1) / ySampling;
+
+    // Only scan lines y with y % ySampling == 0 hold samples, and they
+    // are stored at row y / ySampling of the slice. scanLine1 and
+    // scanLine2 need not be multiples of ySampling, so size the buffer
+    // from the first and last sampled line in [miny, maxy].
+    int firstRow = -divp (-miny, ySampling);
+    int lastRow  = divp (maxy, ySampling);
+    int height   = lastRow - firstRow + 1;
 
     size_t typeSize = 0;
     switch (pt)
@@ -498,12 +507,21 @@ channel (PyObject* self, PyObject* args, PyObject* kw)
         FrameBuffer frameBuffer;
         size_t      xstride = typeSize;
         size_t      ystride = typeSize * width;
+
+        // The offsets are signed: dw.min.x and miny can be negative, and
+        // as unsigned size_t products they would wrap before the division.
+        // Header::sanityCheck() only bounds dataWindow coordinates to
+        // +/-(INT_MAX/2), so dw.min.x * xstride can exceed the 32-bit
+        // ptrdiff_t range on 32-bit platforms; use int64_t explicitly so
+        // the multiply can't overflow regardless of pointer width.
+        int64_t xoffset = (int64_t) dw.min.x * (int64_t) xstride / xSampling;
+        int64_t yoffset = (int64_t) firstRow * (int64_t) ystride;
+
         frameBuffer.insert (
             cname,
             Slice (
                 pt,
-                pixels - dw.min.x * xstride / xSampling -
-                    miny * ystride / ySampling,
+                pixels - xoffset - yoffset,
                 xstride,
                 ystride,
                 xSampling,

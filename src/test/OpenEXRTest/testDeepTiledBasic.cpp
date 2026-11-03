@@ -52,6 +52,44 @@ Array2D<Array2D<unsigned int>> sampleCountWhole;
 Header                         header;
 
 //
+// A tile area whose 32-bit product wraps to 0 (65536 x 65536) must be
+// rejected when creating the output file, not silently under-allocate.
+//
+void
+deepTiledAreaOverflow (const std::string& tempDir)
+{
+    cout << "deep tiled area overflow" << endl;
+
+    std::string filename = tempDir + "imf_test_deep_tile_overflow.exr";
+    remove (filename.c_str ());
+
+    Header hdr (
+        Box2i (V2i (0, 0), V2i (999, 999)),
+        Box2i (V2i (0, 0), V2i (999, 999)),
+        1,
+        V2f (0, 0),
+        1,
+        INCREASING_Y,
+        NO_COMPRESSION);
+    hdr.channels ().insert ("f", Channel (IMF::FLOAT));
+    hdr.setType (DEEPTILE);
+    hdr.setTileDescription (TileDescription (65536, 65536, ONE_LEVEL));
+
+    bool threw = false;
+    try
+    {
+        DeepTiledOutputFile file (filename.c_str (), hdr, 1);
+    }
+    catch (const IEX_NAMESPACE::ArgExc&)
+    {
+        threw = true;
+    }
+    assert (threw);
+
+    remove (filename.c_str ());
+}
+
+//
 // Deep tiled image where every pixel has sampleCount == 0. Must succeed for
 // every compression valid for deep data.
 //
@@ -1088,7 +1126,7 @@ testDeepTiledBasic (const std::string& tempDir)
         }
 
         readWriteAllZeroSampleCountsDeepTiled (tempDir);
-
+        deepTiledAreaOverflow (tempDir);
         ThreadPool::globalThreadPool ().setNumThreads (numThreads);
 
         cout << "ok\n" << endl;

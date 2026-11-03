@@ -497,8 +497,29 @@ copy_attr (
         default: rv = ctxt->standard_error (ctxt, EXR_ERR_INVALID_ATTR); break;
     }
 
-    if (rv != EXR_ERR_SUCCESS)
+    if (rv != EXR_ERR_SUCCESS && attr)
+    {
+        // the required attributes are cached in the part; don't leave any of
+        // them pointing at the attribute that is about to be freed
+        exr_attribute_t** cached[] = {
+            &part->channels,
+            &part->compression,
+            &part->dataWindow,
+            &part->displayWindow,
+            &part->lineOrder,
+            &part->pixelAspectRatio,
+            &part->screenWindowCenter,
+            &part->screenWindowWidth,
+            &part->tiles,
+            &part->name,
+            &part->type,
+            &part->version,
+            &part->chunkCount};
+        for (size_t i = 0; i < sizeof (cached) / sizeof (cached[0]); ++i)
+            if (*cached[i] == attr) *cached[i] = NULL;
+
         exr_attr_list_remove (ctxt, &(part->attributes), attr);
+    }
 
     return rv;
 }
@@ -552,7 +573,7 @@ exr_copy_unset_attributes (
         else { rv = EXR_ERR_SUCCESS; }
     }
 
-    if (update_tiles)
+    if (update_tiles && rv == EXR_ERR_SUCCESS)
         rv = internal_exr_compute_tile_information (ctxt, part, 1);
 
     if (source != ctxt) internal_exr_unlock (source);

@@ -1,6 +1,14 @@
 #include <stdint.h>
 #include <string.h>
 
+#include "internal_xdr.h"
+
+/* The packed data is in file order (little-endian), so the delta is taken
+ * on little-endian values: unaligned_load / unaligned_store convert
+ * explicitly, so big-endian hosts produce and accept the same bytes as
+ * little-endian hosts. On little-endian hosts they are plain loads and
+ * stores. */
+
 /* ========================================================================= */
 /* SCALAR IMPLEMENTATIONS                                                    */
 /* ========================================================================= */
@@ -11,11 +19,9 @@ delta_encode_row_u16_scalar (uint8_t* p, uint64_t n)
     if (n <= 1) return;
     for (uint64_t k = n - 1; k > 0; --k)
     {
-        uint16_t a, b;
-        memcpy (&a, p + k * 2, 2);
-        memcpy (&b, p + (k - 1) * 2, 2);
-        uint16_t d = (uint16_t) ((unsigned) a - (unsigned) b);
-        memcpy (p + k * 2, &d, 2);
+        uint16_t a = unaligned_load16 (p + k * 2);
+        uint16_t b = unaligned_load16 (p + (k - 1) * 2);
+        unaligned_store16 (p + k * 2, (uint16_t) ((unsigned) a - (unsigned) b));
     }
 }
 
@@ -24,11 +30,9 @@ delta_decode_row_u16_scalar (uint8_t* p, uint64_t n)
 {
     for (uint64_t k = 1; k < n; ++k)
     {
-        uint16_t a, b;
-        memcpy (&a, p + k * 2, 2);
-        memcpy (&b, p + (k - 1) * 2, 2);
-        uint16_t s = (uint16_t) ((unsigned) a + (unsigned) b);
-        memcpy (p + k * 2, &s, 2);
+        uint16_t a = unaligned_load16 (p + k * 2);
+        uint16_t b = unaligned_load16 (p + (k - 1) * 2);
+        unaligned_store16 (p + k * 2, (uint16_t) ((unsigned) a + (unsigned) b));
     }
 }
 
@@ -38,11 +42,9 @@ delta_encode_row_u32_scalar (uint8_t* p, uint64_t n)
     if (n <= 1) return;
     for (uint64_t k = n - 1; k > 0; --k)
     {
-        uint32_t a, b;
-        memcpy (&a, p + k * 4, 4);
-        memcpy (&b, p + (k - 1) * 4, 4);
-        uint32_t d = a - b;
-        memcpy (p + k * 4, &d, 4);
+        uint32_t a = unaligned_load32 (p + k * 4);
+        uint32_t b = unaligned_load32 (p + (k - 1) * 4);
+        unaligned_store32 (p + k * 4, a - b);
     }
 }
 
@@ -51,11 +53,9 @@ delta_decode_row_u32_scalar (uint8_t* p, uint64_t n)
 {
     for (uint64_t k = 1; k < n; ++k)
     {
-        uint32_t a, b;
-        memcpy (&a, p + k * 4, 4);
-        memcpy (&b, p + (k - 1) * 4, 4);
-        uint32_t s = a + b;
-        memcpy (p + k * 4, &s, 4);
+        uint32_t a = unaligned_load32 (p + k * 4);
+        uint32_t b = unaligned_load32 (p + (k - 1) * 4);
+        unaligned_store32 (p + k * 4, a + b);
     }
 }
 

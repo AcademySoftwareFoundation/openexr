@@ -181,7 +181,7 @@ else()
     ${ZSTD_LIB_DIR}/decompress/zstd_decompress.c
     ${ZSTD_LIB_DIR}/decompress/zstd_decompress_block.c)
 
-  if (NOT MSVC AND CMAKE_SYSTEM_PROCESSOR MATCHES "amd64.*|AMD64.*|x86_64.*|X86_64.*")
+  if (NOT MSVC AND CMAKE_SYSTEM_PROCESSOR MATCHES "amd64.*|AMD64.*|x86_64.*|X86_64.*" AND CMAKE_SIZEOF_VOID_P EQUAL 8)
     enable_language(ASM)
     list(APPEND EXR_ZSTD_SOURCES ${ZSTD_LIB_DIR}/decompress/huf_decompress_amd64.S)
   else()

@@ -175,7 +175,7 @@ endif()
 option(OPENEXR_USE_CLANG_TIDY "Check if clang-tidy is available, and enable that" OFF)
 if(OPENEXR_USE_CLANG_TIDY)
   find_program(OPENEXR_CLANG_TIDY_BIN clang-tidy)
-  if(OPENEXR_CLANG_TIDY_BIN-NOTFOUND)
+  if(NOT OPENEXR_CLANG_TIDY_BIN)
     message(FATAL_ERROR "clang-tidy processing requested, but no clang-tidy found")
   endif()
   # TODO: Need to define the list of valid checks and add a file with said list
@@ -206,7 +206,7 @@ if(OPENEXR_ENABLE_THREADING)
   if(OPENEXR_USE_TBB)
     find_package(TBB)
     if(NOT TBB_FOUND)
-      message(FATAL_ERROR "Unable to find the OneTBB cmake library, disable with ILMTHREAD_USE_TBB=OFF or fix TBB install")
+      message(FATAL_ERROR "Unable to find the OneTBB cmake library, disable with OPENEXR_USE_TBB=OFF or fix TBB install")
     endif()
   endif()
 endif()
@@ -531,7 +531,15 @@ endif()
 # Enable SSE2 on 32-bit x86
 ###########################################
 
-if(CMAKE_SYSTEM_PROCESSOR MATCHES "^(i[3-6]86|x86)$" AND NOT MSVC)
+# CMAKE_SYSTEM_PROCESSOR reflects the host's uname, not the actual
+# build target; a 32-bit x86 build made by adding -m32 to a native
+# x86_64 compiler still reports x86_64 there, even though
+# CMAKE_SIZEOF_VOID_P (derived by actually compiling a test program
+# with the real compiler flags) correctly shows a 4-byte pointer. Catch
+# that case explicitly, in addition to a genuine i686/x86 host.
+if((CMAKE_SYSTEM_PROCESSOR MATCHES "^(i[3-6]86|x86)$" OR
+    (CMAKE_SYSTEM_PROCESSOR MATCHES "amd64.*|AMD64.*|x86_64.*|X86_64.*" AND CMAKE_SIZEOF_VOID_P EQUAL 4))
+   AND NOT MSVC)
   include(CheckCCompilerFlag)
   check_c_compiler_flag("-msse2" HAS_SSE2_FLAG)
   if(HAS_SSE2_FLAG)

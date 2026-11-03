@@ -3,13 +3,21 @@
 
 #include "random.h"
 #include <assert.h>
+#include <mutex>
 #include <random>
 
+//
+// The generator is shared, and some tests (e.g. testMultiPartThreading)
+// call these functions from thread pool tasks, so serialize access.
+//
+
 static std::default_random_engine generator;
+static std::mutex                 generatorMutex;
 
 void
 random_reseed (int s)
 {
+    std::lock_guard<std::mutex> lock (generatorMutex);
     generator.seed (s);
 }
 
@@ -19,6 +27,7 @@ random_reseed (int s)
 int
 random_int (int range)
 {
+    std::lock_guard<std::mutex>        lock (generatorMutex);
     std::uniform_int_distribution<int> distribution (0, range - 1);
     int                                i = distribution (generator);
     assert (0 <= i && i < range);
@@ -32,6 +41,7 @@ random_int (int range)
 float
 random_float (float range)
 {
+    std::lock_guard<std::mutex>           lock (generatorMutex);
     std::uniform_real_distribution<float> distribution (0, range);
     float                                 f = distribution (generator);
     assert (0 <= f && f < range);

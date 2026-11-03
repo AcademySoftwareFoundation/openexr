@@ -298,6 +298,19 @@ FastHufDecoder::~FastHufDecoder ()
 // check if needed, and fix the preprocessor magic here.
 //
 
+//
+// The source pointer is not guaranteed to be 8-byte aligned, so load
+// through memcpy rather than dereferencing a uint64_t pointer.
+//
+
+static inline uint64_t
+readUnaligned64 (const unsigned char* c)
+{
+    uint64_t v;
+    memcpy (&v, c, sizeof (v));
+    return v;
+}
+
 #define READ64(c)                                                              \
     ((uint64_t) (c)[0] << 56) | ((uint64_t) (c)[1] << 48) |                    \
         ((uint64_t) (c)[2] << 40) | ((uint64_t) (c)[3] << 32) |                \
@@ -308,14 +321,14 @@ FastHufDecoder::~FastHufDecoder ()
 #    ifdef __INTEL_COMPILER // ICC built-in swap for LE hosts
 #        if defined(__i386__) || defined(__x86_64__)
 #            undef READ64
-#            define READ64(c) _bswap64 (*(const uint64_t*) (c))
+#            define READ64(c) _bswap64 (readUnaligned64 (c))
 #        endif
 
 #    else
 #        ifdef __has_builtin
 #            if __has_builtin(__builtin_bswap64)
 #                undef READ64
-#                define READ64(c) __builtin_bswap64 (*(const uint64_t*) (c))
+#                define READ64(c) __builtin_bswap64 (readUnaligned64 (c))
 #            endif
 #        endif
 #    endif

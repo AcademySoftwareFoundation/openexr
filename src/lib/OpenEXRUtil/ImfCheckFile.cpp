@@ -715,8 +715,8 @@ readDeepTile (T& in, bool reduceMemory, bool reduceTime)
                             {
 
 
-                                in.readPixelSampleCounts (
-                                    x, y, x, y, xlevel, ylevel);
+                                in.readPixelSampleCount (
+                                    x, y, xlevel, ylevel);
 
                                 size_t bufferSize     = 0;
                                 size_t fileBufferSize = 0;
@@ -1113,7 +1113,7 @@ runChecks (T& source, bool reduceMemory, bool reduceTime)
     Header::getMaxImageSize (maxImageWidth, maxImageHeight);
 
     int maxTileWidth, maxTileHeight;
-    Header::getMaxImageSize (maxTileWidth, maxTileHeight);
+    Header::getMaxTileSize (maxTileWidth, maxTileHeight);
 
     if (reduceMemory || reduceTime)
     {
@@ -1405,7 +1405,8 @@ readCoreScanlinePart (
             rv = exr_decoding_initialize (f, part, &cinfo, &decoder);
             if (rv != EXR_ERR_SUCCESS) break;
 
-            uint64_t bytes = 0;
+            uint64_t bytes    = 0;
+            bool     overflow = false;
             for (int c = 0; c < decoder.channel_count; c++)
             {
                 exr_coding_channel_info_t& outc = decoder.channels[c];
@@ -1413,8 +1414,21 @@ readCoreScanlinePart (
                 outc.decode_to_ptr     = (uint8_t*) 0x1000;
                 outc.user_pixel_stride = outc.user_bytes_per_element;
                 outc.user_line_stride  = outc.user_pixel_stride * width;
-                bytes += width * (uint64_t) outc.user_bytes_per_element *
-                         (uint64_t) lines_per_chunk;
+                if (!accumOverflowSafe (
+                        bytes,
+                        width,
+                        (uint64_t) outc.user_bytes_per_element,
+                        (uint64_t) lines_per_chunk))
+                {
+                    overflow = true;
+                    break;
+                }
+            }
+
+            if (overflow)
+            {
+                frv = EXR_ERR_ARGUMENT_OUT_OF_RANGE;
+                break;
             }
 
             doread = true;

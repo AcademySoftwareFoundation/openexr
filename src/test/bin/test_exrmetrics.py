@@ -77,4 +77,23 @@ result = do_run ([exrmetrics, test_images["multipart"], "--part-disk-size"])
 data = json.loads(result.stdout)
 assert(len(data)==1),"\n Unexpected list size in JSON object"
 
+# test --passes 0 omits untested write/re-read timing from JSON and rejects -o
+for time in ["none", "read", "write", "reread", "read,write,reread"]:
+    result = do_run ([exrmetrics, test_images["Flowers"], "--passes", "0", "--time", time])
+    if len(result.stdout):
+        data = json.loads(result.stdout)
+        assert len(data) == 1
+        m = data[0]["metrics"][0]
+        assert "write time" not in m
+        assert "re-read time" not in m
+        if "read" in time.split(","):
+            assert "read time" in m
+
+result = do_run ([exrmetrics, test_images["Flowers"], "--passes", "0", "-o", outimage], True)
+
+# test --time reread --no-size without -o
+result = do_run ([exrmetrics, test_images["Flowers"], "--time", "reread", "--no-size"])
+data = json.loads(result.stdout)
+assert "re-read time" in data[0]["metrics"][0]
+
 print("success")

@@ -32,11 +32,10 @@ static once_flag dwa_tables_once = ONCE_FLAG_INIT;
 //    ln(linear)/ln(e^2.2) + 1    \ otherwise
 //
 //
-// toNonlinear[] needs to take in XDR format half float values,
-// and output NATIVE format float.
-//
-// toLinear[] does the opposite - takes in NATIVE half and
-// outputs XDR half values.
+// Both tables map NATIVE half values to NATIVE half values. Callers
+// convert to and from XDR (little-endian) around the lookup: the encoder
+// converts its XDR input to NATIVE before toNonlinear[], and the decoder
+// converts the result of toLinear[] back to XDR.
 //
 
 static inline uint16_t

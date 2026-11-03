@@ -191,6 +191,8 @@ main (int argc, char* argv[])
     TEST (testReadTiles, "core_read");
     TEST (testReadMultiPart, "core_read");
     TEST (testReadDeep, "core_read");
+    TEST (testDeepZstdNegativeSampleCounts, "core_read");
+    TEST (testDeepZstdValidSampleCounts, "core_read");
     TEST (testReadUnpack, "core_read");
     TEST (testSamplingCalcs, "core_read");
 

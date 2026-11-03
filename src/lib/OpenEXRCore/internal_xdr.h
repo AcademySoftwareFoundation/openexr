@@ -19,6 +19,12 @@
 #elif defined(_WIN32) || defined(_WIN64)
 
 #    include <stdlib.h>
+/* Prevent windows.h from defining the min/max macros, which would
+ * otherwise expand any call to std::numeric_limits<T>::max ()/min (). */
+#    ifdef NOMINMAX
+#        undef NOMINMAX
+#    endif
+#    define NOMINMAX
 #    include <windows.h>
 #    define EXR_HOST_IS_NOT_LITTLE_ENDIAN (BYTE_ORDER != LITTLE_ENDIAN)
 #    if EXR_HOST_IS_NOT_LITTLE_ENDIAN
@@ -278,6 +284,23 @@ unaligned_load32 (const void* src)
     uint32_t tmp;
     memcpy (&tmp, src, 4);
     return one_to_native32 (tmp);
+}
+
+/**************************************/
+
+/* Copies an array of native-order 32-bit values into a possibly-unaligned,
+ * little-endian (file order) destination buffer. A no-op byte-swap on
+ * little-endian hosts, so this degrades to a single memcpy there. */
+static inline void
+unaligned_store32_array (void* dst, const uint32_t* src, int n)
+{
+#if EXR_HOST_IS_NOT_LITTLE_ENDIAN
+    uint8_t* out = (uint8_t*) dst;
+    for (int i = 0; i < n; ++i, out += sizeof (uint32_t))
+        unaligned_store32 (out, src[i]);
+#else
+    memcpy (dst, src, (size_t) n * sizeof (uint32_t));
+#endif
 }
 
 #endif /* OPENEXR_PRIVATE_XDR_H */

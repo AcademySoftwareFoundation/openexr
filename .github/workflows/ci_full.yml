@@ -4,14 +4,29 @@
 
 # The complete build.
 #
-# Runs on a tag push (release candidate) and on a weekly schedule.
+# Runs on a tag push (release candidate), on a weekly schedule.
+#
+# Also run on any push or pull request that changes this workflow or
+# ci_steps.yml, so changes to the full build are validated before they
+# merge.
 
 name: Full Build
 
 on:
   push:
+    # Path filters are not evaluated for tag pushes, so every tag push
+    # still runs. A branch push runs only when one of these files changes.
+    branches:
+      - '**'
     tags:
       - '**'
+    paths:
+      - '.github/workflows/ci_full.yml'
+      - '.github/workflows/ci_steps.yml'
+  pull_request:
+    paths:
+      - '.github/workflows/ci_full.yml'
+      - '.github/workflows/ci_steps.yml'
   schedule:
     # Every Sunday at 06:15 UTC, i.e. 11:15pm Pacific Time
     - cron: '15 6 * * 0'
@@ -148,11 +163,6 @@ jobs:
             cxx-standard: 20
             validate_install: OFF
 
-          - name: outdated OpenJPH
-            openjph_version: '0.31.0'
-            validate_install: 'OFF'
-            BUILD_TESTING: 'OFF'
-
           - name: vfx2026
             vfx-cy: 2026
 
@@ -267,8 +277,8 @@ jobs:
           - name: macos-15-intel
             os: macos-15-intel
 
-          - name: macos-14
-            os: macos-14
+          - name: macos-26
+            os: macos-26
 
           - name: universal2
             CMAKE_OSX_ARCHITECTURES: "x86_64;arm64"
@@ -437,6 +447,69 @@ jobs:
 
             ctest --test-dir _build --output-on-failure
 
+  linux_i686:
+    name: Linux i686 (-m32)
+    # Build and test OpenEXR as 32-bit x86 (i686) ELF on an amd64 runner
+    # using GCC multilib (-m32). 
+    if: >-
+      github.event_name != 'schedule' ||
+      github.repository == 'AcademySoftwareFoundation/openexr'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Install multilib toolchain
+        run: |
+          set -ex
+          sudo apt-get update
+          sudo apt-get install -y cmake ninja-build \
+            gcc-multilib g++-multilib libc6-dev-i386
+
+      - name: Configure
+        run: |
+          set -ex
+          # OJPH_DISABLE_SSE excludes ojph_codestream_sse.cpp, which is
+          # compiled with -msse but uses SSE2-only intrinsics; that mismatch
+          # is harmless on x86_64 (SSE2 is baseline there) but fails to build
+          # under -m32, where -msse does not imply SSE2. Fixed upstream in
+          # OpenJPH commit 8ca3abd ("Don't use SSE2 into SSE code (fix build
+          # buid for i686)"); remove this once the vendored external/OpenJPH
+          # is updated to a release that includes it.
+          #
+          # OPENEXR_FORCE_INTERNAL_ZSTD avoids linking against the runner's
+          # system libzstd, which is amd64-only and incompatible with -m32.
+          # The amd64-only huf_decompress_amd64.S assembly file that the
+          # internal zstd build would otherwise try to use under -m32 is
+          # excluded by a CMAKE_SIZEOF_VOID_P check in
+          # src/lib/OpenEXRCore/CMakeLists.txt (CMAKE_SYSTEM_PROCESSOR alone
+          # still reports the host's x86_64 processor under -m32).
+          cmake -B _build -S . -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_C_FLAGS=-m32 \
+            -DCMAKE_CXX_FLAGS=-m32 \
+            -DCMAKE_EXE_LINKER_FLAGS=-m32 \
+            -DCMAKE_SHARED_LINKER_FLAGS=-m32 \
+            -DOPENEXR_FORCE_INTERNAL_IMATH=ON \
+            -DOPENEXR_FORCE_INTERNAL_DEFLATE=ON \
+            -DOPENEXR_FORCE_INTERNAL_OPENJPH=ON \
+            -DOPENEXR_FORCE_INTERNAL_ZSTD=ON \
+            -DOJPH_DISABLE_SSE=ON \
+            -DBUILD_TESTING=ON
+        shell: bash
+
+      - name: Build
+        run: |
+          set -ex
+          cmake --build _build --parallel "$(nproc)"
+        shell: bash
+
+      - name: Test
+        run: |
+          set -ex
+          ctest --test-dir _build --output-on-failure --timeout 7200
+        shell: bash
+
   netbsd:
     name: NetBSD
     # Note that vmactions spins up an OS in a VM and executes the run
@@ -494,7 +567,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Build and test on OpenBSD
-        uses: vmactions/openbsd-vm@5f7b2c933b8846a138361d6843c52af4bef5d945  # v1.4.8
+        uses: vmactions/openbsd-vm@f1ca8bc8ecc5b6ef7218e5b914836e067e1546d3  # v1.4.9
         with:
           release: '7.9'
           envs: GITHUB_REPOSITORY GITHUB_REF GITHUB_SHA
@@ -518,6 +591,185 @@ jobs:
             cmake --build _build
 
             ctest --test-dir _build --output-on-failure
+
+  linux_s390x:
+    name: 'Linux: s390x big-endian (QEMU)'
+    # Cross-compile for s390x and run the test suite under QEMU
+    # user-mode emulation, to exercise the big-endian code paths.
+    # Ctest runs every test binary through qemu-s390x. The OpenEXR.bin
+    # tests launch the binaries themselves, so qemu-user-binfmt
+    # registers QEMU with the kernel to run s390x executables
+    # transparently, with QEMU_LD_PREFIX locating the s390x dynamic
+    # loader and libraries.
+    if: >-
+      github.event_name != 'schedule' ||
+      github.repository == 'AcademySoftwareFoundation/openexr'
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Install s390x cross toolchain and QEMU
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            g++-s390x-linux-gnu qemu-user qemu-user-binfmt ninja-build
+
+      - name: Configure
+        run: |
+          cmake -B _build -S . -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_SYSTEM_NAME=Linux \
+            -DCMAKE_SYSTEM_PROCESSOR=s390x \
+            -DCMAKE_C_COMPILER=s390x-linux-gnu-gcc \
+            -DCMAKE_CXX_COMPILER=s390x-linux-gnu-g++ \
+            -DCMAKE_FIND_ROOT_PATH=/usr/s390x-linux-gnu \
+            -DCMAKE_FIND_ROOT_PATH_MODE_PROGRAM=NEVER \
+            -DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=ONLY \
+            -DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=ONLY \
+            -DCMAKE_FIND_ROOT_PATH_MODE_PACKAGE=ONLY \
+            "-DCMAKE_CROSSCOMPILING_EMULATOR=qemu-s390x;-L;/usr/s390x-linux-gnu" \
+            -DOPENEXR_FORCE_INTERNAL_IMATH=ON \
+            -DOPENEXR_FORCE_INTERNAL_DEFLATE=ON \
+            -DOPENEXR_FORCE_INTERNAL_ZSTD=ON \
+            -DOPENEXR_FORCE_INTERNAL_OPENJPH=ON \
+            -DOPENEXR_BUILD_PYTHON=OFF \
+            -DOPENEXR_BUILD_EXAMPLES=OFF \
+            -DOPENEXR_INSTALL_DOCS=OFF \
+            -DBUILD_TESTING=ON
+
+      - name: Build
+        run: cmake --build _build
+
+      - name: Test
+        env:
+          QEMU_LD_PREFIX: /usr/s390x-linux-gnu
+          # Skip slow tests since this runs in emulation; heavy
+          # floating-point operations can be 300x slower via QEMU,
+          # hence risk timeout.
+          OPENEXR_SKIP_SLOW_TESTS: 1
+        run: ctest --test-dir _build --output-on-failure -j "$(nproc)"
+
+  linux_asan_ubsan:
+    name: 'Linux: ASan + UBSan'
+    # Builds with the Address and Undefined Behavior Sanitizers and runs
+    # the test suite, failing on the first report. ASan catches buffer
+    # overflows, use-after-free and double frees; UBSan catches
+    # misaligned loads and stores (which x86-64, ARM64 and s390x all
+    # tolerate in hardware, so no other job detects them), signed
+    # overflow, invalid shifts and other undefined behavior.
+    # _GLIBCXX_ASSERTIONS adds bounds checks to the C++ standard library
+    # containers. Leak detection is off for now: the tests are not
+    # leak-clean. Dependencies are built internally so they are
+    # instrumented too.
+    if: >-
+      github.event_name != 'schedule' ||
+      github.repository == 'AcademySoftwareFoundation/openexr'
+    runs-on: ubuntu-24.04
+    env:
+      ASAN_OPTIONS: detect_leaks=0
+      UBSAN_OPTIONS: print_stacktrace=1
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Install build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends ninja-build
+
+      - name: Reduce ASLR entropy for the sanitizer runtimes
+        # The runner's vm.mmap_rnd_bits=32 makes GCC 13's sanitizer
+        # runtimes fail to map their shadow memory.
+        run: sudo sysctl -w vm.mmap_rnd_bits=28
+
+      - name: Configure
+        run: |
+          SAN="-fsanitize=address,undefined -fno-sanitize-recover=undefined -fno-omit-frame-pointer"
+          cmake -B _build -S . -G Ninja \
+            -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+            -DCMAKE_C_COMPILER=gcc \
+            -DCMAKE_CXX_COMPILER=g++ \
+            "-DCMAKE_C_FLAGS=${SAN}" \
+            "-DCMAKE_CXX_FLAGS=${SAN} -D_GLIBCXX_ASSERTIONS" \
+            -DCMAKE_EXE_LINKER_FLAGS=-fsanitize=address,undefined \
+            -DCMAKE_SHARED_LINKER_FLAGS=-fsanitize=address,undefined \
+            -DOPENEXR_FORCE_INTERNAL_IMATH=ON \
+            -DOPENEXR_FORCE_INTERNAL_DEFLATE=ON \
+            -DOPENEXR_FORCE_INTERNAL_ZSTD=ON \
+            -DOPENEXR_FORCE_INTERNAL_OPENJPH=ON \
+            -DOPENEXR_BUILD_PYTHON=OFF \
+            -DOPENEXR_BUILD_EXAMPLES=OFF \
+            -DOPENEXR_INSTALL_DOCS=OFF \
+            -DBUILD_TESTING=ON
+
+      - name: Build
+        run: cmake --build _build
+
+      - name: Test
+        run: ctest --test-dir _build --output-on-failure -j "$(nproc)"
+
+  linux_tsan:
+    name: 'Linux: TSan'
+    # Builds with the Thread Sanitizer and runs the threading tests,
+    # failing on the first data race. ThreadSanitizer cannot be combined
+    # with ASan, hence a separate job; it runs only the tests that
+    # exercise concurrent reads and writes, since the rest of the suite
+    # is single-threaded. _GLIBCXX_ASSERTIONS adds bounds checks to the
+    # C++ standard library containers.
+    if: >-
+      github.event_name != 'schedule' ||
+      github.repository == 'AcademySoftwareFoundation/openexr'
+    runs-on: ubuntu-24.04
+    env:
+      # The suppressions file lists the known benign races, each with
+      # its justification.
+      TSAN_OPTIONS: >-
+        halt_on_error=1 second_deadlock_stack=1
+        suppressions=${{ github.workspace }}/share/ci/tsan_suppressions.txt
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Install build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends ninja-build
+
+      - name: Reduce ASLR entropy for the sanitizer runtimes
+        # The runner's vm.mmap_rnd_bits=32 makes GCC 13's TSan runtime
+        # fail with "unexpected memory mapping".
+        run: sudo sysctl -w vm.mmap_rnd_bits=28
+
+      - name: Configure
+        run: |
+          SAN="-fsanitize=thread -fno-omit-frame-pointer"
+          cmake -B _build -S . -G Ninja \
+            -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+            -DCMAKE_C_COMPILER=gcc \
+            -DCMAKE_CXX_COMPILER=g++ \
+            "-DCMAKE_C_FLAGS=${SAN}" \
+            "-DCMAKE_CXX_FLAGS=${SAN} -D_GLIBCXX_ASSERTIONS" \
+            -DCMAKE_EXE_LINKER_FLAGS=-fsanitize=thread \
+            -DCMAKE_SHARED_LINKER_FLAGS=-fsanitize=thread \
+            -DOPENEXR_FORCE_INTERNAL_IMATH=ON \
+            -DOPENEXR_FORCE_INTERNAL_DEFLATE=ON \
+            -DOPENEXR_FORCE_INTERNAL_ZSTD=ON \
+            -DOPENEXR_FORCE_INTERNAL_OPENJPH=ON \
+            -DOPENEXR_BUILD_PYTHON=OFF \
+            -DOPENEXR_BUILD_EXAMPLES=OFF \
+            -DOPENEXR_INSTALL_DOCS=OFF \
+            -DBUILD_TESTING=ON
+
+      - name: Build
+        run: cmake --build _build
+
+      - name: Test
+        # OpenEXR.testMultiPartThreading, testMultiScanlinePartThreading,
+        # testMultiTiledPartThreading and testRgbaThreading
+        # testMultiTiledPartThreading alone can take over 20 minutes under
+        # TSan, longer than ctest's default per-test timeout.
+        run: ctest --test-dir _build --output-on-failure -j "$(nproc)" --timeout 3600 -R 'Threading$'
 
   wheels_build:
     name: 'Python Wheels: ${{ matrix.os }}-${{ matrix.arch }}'
@@ -556,7 +808,7 @@ jobs:
 
       - name: Install Python
         if: ${{ matrix.os == 'ubuntu-latest' }}
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: '3.x'
 
@@ -566,7 +818,7 @@ jobs:
         run: pipx run build==1.2.2.post1 --sdist . --outdir wheelhouse
 
       - name: Build wheel
-        uses: pypa/cibuildwheel@b3395e271a35f73dad77f21802abe9b986dfe299  # v4.3.1
+        uses: pypa/cibuildwheel@f9b966cfadf4109556cadc5bb39ddb72d0ce664e  # v4.3.5
         with:
           output-dir: wheelhouse
         env:

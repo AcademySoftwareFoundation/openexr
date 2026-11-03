@@ -185,6 +185,8 @@ DeepScanLineInputFile::DeepScanLineInputFile (InputPartData* part)
     : _ctxt (part->context),
       _data (std::make_shared<Data> (&_ctxt, part->partNumber, part->numThreads))
 {
+    _data->header        = part->header;
+    _data->header_filled = true;
     _data->initialize ();
 }
 
