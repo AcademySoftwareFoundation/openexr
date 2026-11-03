@@ -198,6 +198,35 @@ def test_types():
 
 testList.append(("test_types", test_types))
 
+#
+# Read a y-subsampled channel over scan line ranges that don't start or
+# end on a multiple of ySampling.
+#
+
+def test_channel_subsampled_range():
+    width = 8
+    height = 12
+    ySampling = 3
+    rows = height // ySampling
+    original = list(range(width * rows))
+
+    hdr = OpenEXR.Header(width, height)
+    hdr['channels'] = {'Y': Imath.Channel(FLOAT, 1, ySampling)}
+    x = OpenEXR.OutputFile(f"{test_dir}/subsampled.exr", hdr)
+    x.writePixels({'Y': array('f', original).tobytes()})
+    x.close()
+
+    xin = OpenEXR.InputFile(f"{test_dir}/subsampled.exr")
+    for y1, y2 in [(0, 11), (0, 6), (1, 4), (2, 9), (4, 11)]:
+        # sampled scan lines y1 <= y <= y2 are stored in rows y / ySampling
+        r1 = (y1 + ySampling - 1) // ySampling
+        r2 = y2 // ySampling
+        data = xin.channel('Y', scanLine1 = y1, scanLine2 = y2)
+        assert array('f', data).tolist() == original[r1 * width:(r2 + 1) * width]
+    os.remove(f"{test_dir}/subsampled.exr")
+
+testList.append(("test_channel_subsampled_range", test_channel_subsampled_range))
+
 def test_invalid_pixeltype():
     oexr = OpenEXR.InputFile(f"{test_dir}/write.exr")
     FLOAT = Imath.PixelType.FLOAT
