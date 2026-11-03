@@ -265,7 +265,7 @@ DwaCompressor_compress (DwaCompressor* me)
 
     rv = internal_encode_alloc_buffer (
         me->_encode,
-        EXR_TRANSCODE_BUFFER_SCRATCH1,
+        EXR_TRANSCODE_BUFFER_COMPRESSED,
         &(me->_encode->compressed_buffer),
         &(me->_encode->compressed_alloc_size),
         outBufferSize);
