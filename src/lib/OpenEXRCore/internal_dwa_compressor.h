@@ -277,8 +277,7 @@ DwaCompressor_compress (DwaCompressor* me)
     //
     // Zero all the numbers in the chunk header
     //
-    //    memset (sizes, 0, NUM_SIZES_SINGLE * sizeof (uint64_t));
-    memset (sizes, 0, me->_encode->compressed_alloc_size);
+    memset (sizes, 0, NUM_SIZES_SINGLE * sizeof (uint64_t));
 
 #define OBIDX(x) (uint64_t*) (sizes + x)
 
