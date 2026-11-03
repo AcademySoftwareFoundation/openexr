@@ -33,7 +33,15 @@ cd OpenJPH
 git checkout ${TAG}
 
 cd build
-cmake -DOJPH_ENABLE_TIFF_SUPPORT=OFF -DCMAKE_BUILD_TYPE=Release "${PREFIX_ARG[@]}" ..
+# Force CMAKE_INSTALL_LIBDIR=lib to match the libdir used by any
+# OpenJPH already baked into the CI container's base image. Without
+# this, GNUInstallDirs may default to lib64 on some distros, causing
+# this install to land in a different directory than a pre-existing
+# one. Since headers are installed to a single shared include
+# directory regardless of libdir, that split leaves stale, mismatched
+# headers and libraries installed side by side.
+cmake -DOJPH_ENABLE_TIFF_SUPPORT=OFF -DCMAKE_BUILD_TYPE=Release \
+      -DCMAKE_INSTALL_LIBDIR=lib "${PREFIX_ARG[@]}" ..
 $SUDO "$CMAKE" --build . \
       --target install \
       --config Release \
