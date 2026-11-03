@@ -176,6 +176,15 @@ struct OutputFile::Data
     inline LineBuffer* getLineBuffer (int number); // hash function from line
                                                    // buffer indices into our
                                                    // vector of line buffers
+
+    void resetLineBuffers ()
+    {
+        for (size_t i = 0; i < lineBuffers.size (); i++)
+        {
+            delete lineBuffers[i];
+            lineBuffers[i] = nullptr;
+        }
+    }
 };
 
 OutputFile::Data::Data (int numThreads)
@@ -194,8 +203,7 @@ OutputFile::Data::Data (int numThreads)
 
 OutputFile::Data::~Data ()
 {
-    for (size_t i = 0; i < lineBuffers.size (); i++)
-        delete lineBuffers[i];
+    resetLineBuffers ();
 }
 
 LineBuffer*
@@ -1218,6 +1226,9 @@ OutputFile::writePixels (int numScanLines)
         }
 
         if (exception) throw IEX_NAMESPACE::IoExc (*exception);
+
+        if (_data->missingScanLines == 0)
+            _data->resetLineBuffers ();
     }
     catch (IEX_NAMESPACE::BaseExc& e)
     {
