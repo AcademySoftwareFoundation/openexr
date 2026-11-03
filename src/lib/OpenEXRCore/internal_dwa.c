@@ -127,24 +127,18 @@ internal_exr_apply_dwaa (exr_encode_pipeline_t* encode)
 {
     exr_result_t  rv;
     DwaCompressor dwaa;
-    rv = internal_encode_alloc_buffer (
-        encode,
-        EXR_TRANSCODE_BUFFER_SCRATCH1,
-        &(encode->scratch_buffer_1),
-        &(encode->scratch_alloc_size_1),
-        internal_exr_huf_compress_spare_bytes ());
-    if (rv == EXR_ERR_SUCCESS)
-    {
-        exr_storage_t st = (exr_storage_t)encode->chunk.type;
-        AcCompression accomp = STATIC_HUFFMAN;
-        /* C++ had this discrepancy between encoders for tiled vs scanline */
-        if (st == EXR_STORAGE_TILED || st == EXR_STORAGE_DEEP_TILED)
-            accomp = DEFLATE;
-        rv = DwaCompressor_construct (&dwaa, accomp, encode, NULL);
-        if (rv == EXR_ERR_SUCCESS) rv = DwaCompressor_compress (&dwaa);
+    exr_storage_t st = (exr_storage_t)encode->chunk.type;
+    AcCompression accomp = STATIC_HUFFMAN;
 
-        DwaCompressor_destroy (&dwaa);
-    }
+    /* C++ had this discrepancy between encoders for tiled vs scanline */
+    if (st == EXR_STORAGE_TILED || st == EXR_STORAGE_DEEP_TILED)
+        accomp = DEFLATE;
+
+    rv = DwaCompressor_construct (&dwaa, accomp, encode, NULL);
+
+    if (rv == EXR_ERR_SUCCESS) rv = DwaCompressor_compress (&dwaa);
+
+    DwaCompressor_destroy (&dwaa);
 
     return rv;
 }
@@ -157,19 +151,11 @@ internal_exr_apply_dwab (exr_encode_pipeline_t* encode)
     exr_result_t  rv;
     DwaCompressor dwab;
 
-    rv = internal_encode_alloc_buffer (
-        encode,
-        EXR_TRANSCODE_BUFFER_SCRATCH1,
-        &(encode->scratch_buffer_1),
-        &(encode->scratch_alloc_size_1),
-        internal_exr_huf_compress_spare_bytes ());
-    if (rv == EXR_ERR_SUCCESS)
-    {
-        rv = DwaCompressor_construct (&dwab, STATIC_HUFFMAN, encode, NULL);
-        if (rv == EXR_ERR_SUCCESS) rv = DwaCompressor_compress (&dwab);
+    rv = DwaCompressor_construct (&dwab, STATIC_HUFFMAN, encode, NULL);
 
-        DwaCompressor_destroy (&dwab);
-    }
+    if (rv == EXR_ERR_SUCCESS) rv = DwaCompressor_compress (&dwab);
+
+    DwaCompressor_destroy (&dwab);
 
     return rv;
 }
@@ -185,30 +171,22 @@ internal_exr_undo_dwaa (
     exr_result_t  rv;
     DwaCompressor dwaa;
 
-    rv = internal_decode_alloc_buffer (
-        decode,
-        EXR_TRANSCODE_BUFFER_SCRATCH1,
-        &(decode->scratch_buffer_1),
-        &(decode->scratch_alloc_size_1),
-        internal_exr_huf_decompress_spare_bytes ());
+    /*
+     * decompression doesn't pay attention to the acCompression flag
+     * but if it ever needs to, match above discrepancy scanline vs tile
+     */
+    rv = DwaCompressor_construct (&dwaa, STATIC_HUFFMAN, NULL, decode);
     if (rv == EXR_ERR_SUCCESS)
-    {
-        /*
-         * decompression doesn't pay attention to the acCompression flag
-         * but if it ever needs to, match above discrepancy scanline vs tile
-         */
-        rv = DwaCompressor_construct (&dwaa, STATIC_HUFFMAN, NULL, decode);
-        if (rv == EXR_ERR_SUCCESS)
-            rv = DwaCompressor_uncompress (
-                &dwaa,
-                compressed_data,
-                comp_buf_size,
-                uncompressed_data,
-                uncompressed_size);
+        rv = DwaCompressor_uncompress (
+            &dwaa,
+            compressed_data,
+            comp_buf_size,
+            uncompressed_data,
+            uncompressed_size);
 
-        DwaCompressor_destroy (&dwaa);
-    }
-    decode->bytes_decompressed = uncompressed_size;
+    DwaCompressor_destroy (&dwaa);
+
+    decode->bytes_decompressed = (rv == EXR_ERR_SUCCESS) ? uncompressed_size : 0;
 
     return rv;
 }
@@ -224,26 +202,17 @@ internal_exr_undo_dwab (
     exr_result_t  rv;
     DwaCompressor dwab;
 
-    rv = internal_decode_alloc_buffer (
-        decode,
-        EXR_TRANSCODE_BUFFER_SCRATCH1,
-        &(decode->scratch_buffer_1),
-        &(decode->scratch_alloc_size_1),
-        internal_exr_huf_decompress_spare_bytes ());
+    rv = DwaCompressor_construct (&dwab, STATIC_HUFFMAN, NULL, decode);
     if (rv == EXR_ERR_SUCCESS)
-    {
-        rv = DwaCompressor_construct (&dwab, STATIC_HUFFMAN, NULL, decode);
-        if (rv == EXR_ERR_SUCCESS)
-            rv = DwaCompressor_uncompress (
-                &dwab,
-                compressed_data,
-                comp_buf_size,
-                uncompressed_data,
-                uncompressed_size);
+        rv = DwaCompressor_uncompress (
+            &dwab,
+            compressed_data,
+            comp_buf_size,
+            uncompressed_data,
+            uncompressed_size);
 
-        DwaCompressor_destroy (&dwab);
-    }
-    decode->bytes_decompressed = uncompressed_size;
+    DwaCompressor_destroy (&dwab);
+    decode->bytes_decompressed = (rv == EXR_ERR_SUCCESS) ? uncompressed_size : 0;
 
     return rv;
 }
