@@ -182,9 +182,13 @@ class TestExceptions(unittest.TestCase):
         header = {"dataWindow": ((0, 0), (15, 15))}
         f = OpenEXR.File(header, {"Y": OpenEXR.Channel(px, 2, 2)})
 
-        with tempfile.NamedTemporaryFile(suffix=".exr", delete=True) as tmp:
+        tmp = tempfile.NamedTemporaryFile(suffix=".exr", delete=False)
+        tmp.close()
+        try:
             with self.assertRaises(ValueError):
                 f.write(tmp.name)
+        finally:
+            os.remove(tmp.name)
 
     def test_rgb_component_count(self):
 
@@ -193,9 +197,13 @@ class TestExceptions(unittest.TestCase):
         rgb = np.zeros((4, 4, 2), dtype=np.float32)
         f = OpenEXR.File({}, {"RGB": rgb})
 
-        with tempfile.NamedTemporaryFile(suffix=".exr", delete=True) as tmp:
+        tmp = tempfile.NamedTemporaryFile(suffix=".exr", delete=False)
+        tmp.close()
+        try:
             with self.assertRaises(ValueError):
                 f.write(tmp.name)
+        finally:
+            os.remove(tmp.name)
 
     def test_deep_rgb_component_count(self):
 
@@ -211,9 +219,13 @@ class TestExceptions(unittest.TestCase):
                   "compression": OpenEXR.ZIPS_COMPRESSION}
         f = OpenEXR.File(header, {"RGB": pixels})
 
-        with tempfile.NamedTemporaryFile(suffix=".exr", delete=True) as tmp:
+        tmp = tempfile.NamedTemporaryFile(suffix=".exr", delete=False)
+        tmp.close()
+        try:
             with self.assertRaises(ValueError):
                 f.write(tmp.name)
+        finally:
+            os.remove(tmp.name)
 
 if __name__ == '__main__':
     unittest.main()
