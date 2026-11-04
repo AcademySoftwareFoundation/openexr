@@ -296,6 +296,8 @@ cc_library(
                 "-pthread",
             ],
         }),
+    # 64-bit off_t on 32-bit glibc hosts; see src/lib/OpenEXRCore/CMakeLists.txt
+    local_defines = ["_FILE_OFFSET_BITS=64"],
     visibility = ["//visibility:public"],
     deps = [
         "@zstd//:zstd",

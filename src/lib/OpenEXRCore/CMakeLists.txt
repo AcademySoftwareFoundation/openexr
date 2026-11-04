@@ -121,6 +121,13 @@ openexr_define_library(OpenEXRCore
     Imath::Imath
   )
 
+# The POSIX file I/O (internal_posix_file_impl.h) passes offsets and file
+# sizes through off_t. On 32-bit glibc hosts, off_t is 32 bits unless
+# compiled with _FILE_OFFSET_BITS=64, so without it, files of 2 GiB or more
+# fail. This used to come indirectly, from OpenJPH's PUBLIC compile
+# definitions. It's PRIVATE since no public OpenEXRCore header uses off_t.
+target_compile_definitions(OpenEXRCore PRIVATE _FILE_OFFSET_BITS=64)
+
 if (DEFINED EXR_DEFLATE_LIB)
   if (BUILD_SHARED_LIBS)
     target_link_libraries(OpenEXRCore PRIVATE ${EXR_DEFLATE_LIB})
