@@ -24,6 +24,17 @@ cd libdeflate
 
 git checkout ${TAG}
 
+# Record the release version this SHA corresponds to, derived from
+# the matching git tag rather than hand-maintained separately, for
+# the "Validate dependencies" CI step to check against what cmake
+# actually found.
+if [ -n "${GITHUB_ENV:-}" ]; then
+  VERSION=$(git describe --tags --exact-match 2>/dev/null || true)
+  if [ -n "$VERSION" ]; then
+    echo "DEFLATE_VERSION=${VERSION#v}" >> "$GITHUB_ENV"
+  fi
+fi
+
 mkdir build
 cd build
 cmake -DCMAKE_BUILD_TYPE=Release ..
