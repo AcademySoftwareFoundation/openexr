@@ -1113,7 +1113,7 @@ runChecks (T& source, bool reduceMemory, bool reduceTime)
     Header::getMaxImageSize (maxImageWidth, maxImageHeight);
 
     int maxTileWidth, maxTileHeight;
-    Header::getMaxImageSize (maxTileWidth, maxTileHeight);
+    Header::getMaxTileSize (maxTileWidth, maxTileHeight);
 
     if (reduceMemory || reduceTime)
     {

@@ -1,0 +1,16 @@
+# ThreadSanitizer suppressions for the linux_tsan CI job.
+#
+# Each entry must name a specific, understood, benign race. Do not add
+# broad patterns: anything suppressed here is no longer checked.
+
+# libdeflate (external/deflate) selects a CPU-specific implementation on
+# first use: a volatile function pointer starts out pointing at a
+# dispatch routine, which stores the chosen implementation into it.
+# Threads that race on the first call all store the same value, which is
+# benign by design upstream.
+race:dispatch_adler32
+race:libdeflate_adler32
+race:dispatch_crc32
+race:libdeflate_crc32
+race:dispatch_decomp
+race:libdeflate_deflate_decompress_ex

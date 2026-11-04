@@ -1448,6 +1448,8 @@ exr_undo_zstd_v1 (
         (char*) uncompressed_data,
         sorting_lookup);
 
+    decode->bytes_decompressed = uncompressed_size;
+
     return EXR_ERR_SUCCESS;
 }
 
@@ -1459,7 +1461,11 @@ internal_exr_undo_zstd (
     void*                  uncompressed_data,
     uint64_t               uncompressed_size)
 {
-    if (comp_buf_size == 0) return EXR_ERR_SUCCESS;
+    if (comp_buf_size == 0)
+    {
+        decode->bytes_decompressed = 0;
+        return EXR_ERR_SUCCESS;
+    }
 
     const uint8_t* hdr = (const uint8_t*) compressed_data;
 
@@ -1471,6 +1477,7 @@ internal_exr_undo_zstd (
     {
         if (comp_buf_size != uncompressed_size) return EXR_ERR_CORRUPT_CHUNK;
         memcpy (uncompressed_data, compressed_data, (size_t) comp_buf_size);
+        decode->bytes_decompressed = uncompressed_size;
         return EXR_ERR_SUCCESS;
     }
 

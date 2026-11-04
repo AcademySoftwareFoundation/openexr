@@ -8,14 +8,19 @@
 #    undef NDEBUG
 #endif
 
+#include "ImfChannelList.h"
 #include "ImfCompression.h"
 #include "ImfCompressor.h"
 #include "ImfHeader.h"
+#include "ImfTileDescriptionAttribute.h"
 #include "openexr_compression.h"
 
+#include <algorithm>
 #include <cassert>
+#include <cstdint>
 #include <iostream>
 #include <memory>
+#include <vector>
 
 using namespace OPENEXR_IMF_NAMESPACE;
 using namespace std;
@@ -125,12 +130,17 @@ testCompressionApi (const string& tempDir)
             {ZSTD_COMPRESSION,   EXR_COMPRESSION_ZSTD,    zstdLinesPerChunk, true},
         };
 
-        const size_t maxScanLineSize = 1024;
+        const int    width           = 32;
+        const int    height          = 32;
+        const size_t maxScanLineSize = width * 3 * sizeof (uint16_t);
 
         for (const auto& tc : testCases)
         {
-            Header hdr;
+            Header hdr (width, height);
             hdr.compression () = tc.compression;
+            hdr.channels ().insert ("R", Channel (HALF));
+            hdr.channels ().insert ("G", Channel (HALF));
+            hdr.channels ().insert ("B", Channel (HALF));
 
             std::unique_ptr<Compressor> comp (
                 newCompressor (tc.compression, maxScanLineSize, hdr));
@@ -142,6 +152,90 @@ testCompressionApi (const string& tempDir)
                 assert (comp->compressionType () == tc.exrCompression);
                 int coreScanlines = exr_compression_lines_per_chunk (exr_compression_t(tc.compression));
                 assert (coreScanlines == tc.expectedScanlines);
+
+                const int chunkLines = std::min (height, comp->numScanLines ());
+                const int chunkBytes =
+                    static_cast<int> (chunkLines * maxScanLineSize);
+                std::vector<char> inBuf (chunkBytes, 0);
+
+                const char* compressedPtr  = nullptr;
+                int         compressedSize = comp->compress (
+                    inBuf.data (), chunkBytes, 0, compressedPtr);
+                assert (compressedSize > 0);
+                assert (compressedPtr != nullptr);
+
+                std::vector<char> compressedCopy (
+                    compressedPtr, compressedPtr + compressedSize);
+                const char* uncompressedPtr  = nullptr;
+                int         uncompressedSize = comp->uncompress (
+                    compressedCopy.data (), compressedSize, 0, uncompressedPtr);
+                assert (uncompressedSize == chunkBytes);
+                assert (uncompressedPtr != nullptr);
+
+                // Also verify the raw-chunk fallback path when packed_size == unpacked_size.
+                uncompressedPtr  = nullptr;
+                uncompressedSize = comp->uncompress (
+                    inBuf.data (), chunkBytes, 0, uncompressedPtr);
+                assert (uncompressedSize == chunkBytes);
+                assert (uncompressedPtr != nullptr);
+
+                if (tc.compression == HTJ2K256_COMPRESSION ||
+                    tc.compression == HTJ2K32_COMPRESSION ||
+                    tc.compression == LJ2K_COMPRESSION)
+                {
+                    comp->setStorageType (EXR_STORAGE_DEEP_SCANLINE);
+                    comp->setExpectedSize (static_cast<size_t> (chunkBytes + 2));
+                    bool threw = false;
+                    try
+                    {
+                        comp->uncompress (
+                            compressedCopy.data (),
+                            compressedSize,
+                            0,
+                            uncompressedPtr);
+                    }
+                    catch (const std::exception&)
+                    {
+                        threw = true;
+                    }
+                    assert (threw);
+                }
+
+                Header tileHdr (width, height);
+                tileHdr.compression () = tc.compression;
+                tileHdr.channels ().insert ("R", Channel (HALF));
+                tileHdr.channels ().insert ("G", Channel (HALF));
+                tileHdr.channels ().insert ("B", Channel (HALF));
+                tileHdr.setTileDescription (
+                    TileDescription (width, height, ONE_LEVEL));
+
+                std::unique_ptr<Compressor> tileComp (newTileCompressor (
+                    tc.compression, maxScanLineSize, height, tileHdr));
+                assert (tileComp != nullptr);
+
+                const int tileBytes =
+                    static_cast<int> (height * maxScanLineSize);
+                std::vector<char>      tileInBuf (tileBytes, 0);
+                IMATH_NAMESPACE::Box2i tileRange (
+                    IMATH_NAMESPACE::V2i (0, 0),
+                    IMATH_NAMESPACE::V2i (width - 1, height - 1));
+
+                compressedPtr  = nullptr;
+                compressedSize = tileComp->compressTile (
+                    tileInBuf.data (), tileBytes, tileRange, compressedPtr);
+                assert (compressedSize > 0);
+                assert (compressedPtr != nullptr);
+
+                compressedCopy.assign (
+                    compressedPtr, compressedPtr + compressedSize);
+                uncompressedPtr  = nullptr;
+                uncompressedSize = tileComp->uncompressTile (
+                    compressedCopy.data (),
+                    compressedSize,
+                    tileRange,
+                    uncompressedPtr);
+                assert (uncompressedSize == tileBytes);
+                assert (uncompressedPtr != nullptr);
             }
             else
             {
