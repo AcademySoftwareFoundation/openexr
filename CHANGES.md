@@ -3,6 +3,7 @@
 
 # OpenEXR Release Notes
 
+* [Version 3.4.18](#version-3418-november-7-2026) November 7, 2026
 * [Version 3.4.17](#version-3417-october-30-2026) October 30 2026
 * [Version 3.4.16](#version-3416-september-28-2026) September 28, 2026
 * [Version 3.4.15](#version-3415-august-21-2026) August 21, 2026
@@ -108,6 +109,20 @@
 * [Version 1.0.2](#version-102)
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
+
+## Version 3.4.18 (November 7, 2026)
+
+Patch release that addresses a regression introduced in v3.3.0 that leads
+to excessive memory usage during write, especially with DWA
+compression (Issue
+[#2791](https://github.com/AcademySoftwareFoundation/openexr/issues/2791)).
+
+### Merged Pull Requests
+
+* [2809](https://github.com/AcademySoftwareFoundation/openexr/pull/2809)
+  Reduce write memory (by @kdt3rd/Kimball Thurston)
+* [2794](https://github.com/AcademySoftwareFoundation/openexr/pull/2794)
+  Only zero the DWA chunk header instead of the full output buffer (by @vlazar-ilm/Vlad Lazar)
 
 ## Version 3.4.17 (October 30, 2026)
 
