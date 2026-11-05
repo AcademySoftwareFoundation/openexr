@@ -3,6 +3,7 @@
 
 # OpenEXR Release Notes
 
+* [Version 3.5.4](#version-354-november-7-2026) November 7, 2026
 * [Version 3.5.3](#version-353-october-30-2026) October 30, 2026
 * [Version 3.5.2](#version-352-october-2-2026) October 2, 2026
 * [Version 3.5.1](#version-351-september-25-2026) September 25, 2026
@@ -121,6 +122,36 @@
 * [Version 1.0.2](#version-102)
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
+
+## Version 3.5.4 (November 7, 2026)
+
+### Merged Pull Requests
+
+* [2809](https://github.com/AcademySoftwareFoundation/openexr/pull/2809)
+  Reduce write memory (by @kdt3rd/Kimball Thurston)
+* [2802](https://github.com/AcademySoftwareFoundation/openexr/pull/2802)
+  Use unaligned stores in the flat unpack fast paths (by @Ar-maan05/Armaan Sandhu)
+* [2798](https://github.com/AcademySoftwareFoundation/openexr/pull/2798)
+  Fix heap overflow in legacy Python InputFile.channel() with ySampling (by @Dilshad-Tanvi)
+* [2796](https://github.com/AcademySoftwareFoundation/openexr/pull/2796)
+  exrenvmap test: shrink output size and skip blur under QEMU emulation (by @cary-ilm/Cary Phillips)
+* [2794](https://github.com/AcademySoftwareFoundation/openexr/pull/2794)
+  Only zero the DWA chunk header instead of the full output buffer (by @vlazar-ilm/Vlad Lazar)
+* [2792](https://github.com/AcademySoftwareFoundation/openexr/pull/2792)
+  Fix Python File.write() over-reads for subsampled and RGB pixel arrays (by @Dilshad-Tanvi)
+* [2758](https://github.com/AcademySoftwareFoundation/openexr/pull/2758)
+  Fix tile chunk extents at reduced-resolution edges (by @vera-rubin/Nathan Chandrasekar)
+* [2734](https://github.com/AcademySoftwareFoundation/openexr/pull/2734)
+  Fix B44/B44A raw fallback when compressed size equals raw size (by @vera-rubin/Nathan Chandrasekar)
+
+### Merged Workflow Pull Requests
+
+* [2799](https://github.com/AcademySoftwareFoundation/openexr/pull/2799)
+  Fix missing step id breaking Slack release notifications (by @cary-ilm/Cary Phillips)
+* [2797](https://github.com/AcademySoftwareFoundation/openexr/pull/2797)
+  Bump the bazel-deps group with 3 updates (by @app/dependabot)
+* [2793](https://github.com/AcademySoftwareFoundation/openexr/pull/2793)
+  Bump the actions-deps group across 1 directory with 2 updates (by @app/dependabot)
 
 ## Version 3.5.3 (October 30, 2026)
 
