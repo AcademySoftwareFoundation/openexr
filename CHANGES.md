@@ -25,6 +25,7 @@
 * [Version 3.4.2](#version-342-october-15-2025) October 15, 2025
 * [Version 3.4.1](#version-341-october-8-2025) October 8, 2025
 * [Version 3.4.0](#version-340-september-5-2025) September 5, 2025
+* [Version 3.3.16](#version-3316-november-7-2026) November 7, 2026
 * [Version 3.3.15](#version-3315-october-30-2026) October 30, 2026
 * [Version 3.3.14](#version-3314-august-21-2026) August 21, 2026
 * [Version 3.3.13](#version-3313-august-6-2026) August 6, 2026
@@ -2111,6 +2112,20 @@ JPEG-2000 (HTJ2K)** encoding:
   Fetch master branch of libdeflate on main
 * [1852](https://github.com/AcademySoftwareFoundation/openexr/pull/1852)
   Add an option to use TBB as the global provider
+
+## Version 3.3.16 (November 7, 2026)
+
+Patch release that addresses a regression introduced in v3.3.0 that leads
+to excessive memory usage during write, especially with DWA
+compression (Issue
+[#2791](https://github.com/AcademySoftwareFoundation/openexr/issues/2791)).
+
+### Merged Pull Requests
+
+* [2809](https://github.com/AcademySoftwareFoundation/openexr/pull/2809)
+  Reduce write memory (by @kdt3rd/Kimball Thurston)
+* [2794](https://github.com/AcademySoftwareFoundation/openexr/pull/2794)
+  Only zero the DWA chunk header instead of the full output buffer (by @vlazar-ilm/Vlad Lazar)
 
 ## Version 3.3.15 (October 30, 2026)
 
