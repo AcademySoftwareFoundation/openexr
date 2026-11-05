@@ -7,6 +7,7 @@
 * [Version 3.5.2](#version-352-october-2-2026) October 2, 2026
 * [Version 3.5.1](#version-351-september-25-2026) September 25, 2026
 * [Version 3.5.0](#version-350-september-21-2026) September 21, 2026
+* [Version 3.4.18](#version-3418-november-7-2026) November 7, 2026
 * [Version 3.4.17](#version-3417-october-30-2026) October 30 2026
 * [Version 3.4.16](#version-3416-september-28-2026) September 28, 2026
 * [Version 3.4.15](#version-3415-august-21-2026) August 21, 2026
@@ -731,6 +732,20 @@ This release addresses the following security vulnerabilities:
   Bump openjph from 0.25.2 to 0.25.3 (by @app/dependabot)
 * [2179](https://github.com/AcademySoftwareFoundation/openexr/pull/2179)
   Bump readthedocs/actions from 1.2 to 1.5 (by @app/dependabot)
+
+## Version 3.4.18 (November 7, 2026)
+
+Patch release that addresses a regression introduced in v3.3.0 that leads
+to excessive memory usage during write, especially with DWA
+compression (Issue
+[#2791](https://github.com/AcademySoftwareFoundation/openexr/issues/2791)).
+
+### Merged Pull Requests
+
+* [2809](https://github.com/AcademySoftwareFoundation/openexr/pull/2809)
+  Reduce write memory (by @kdt3rd/Kimball Thurston)
+* [2794](https://github.com/AcademySoftwareFoundation/openexr/pull/2794)
+  Only zero the DWA chunk header instead of the full output buffer (by @vlazar-ilm/Vlad Lazar)
 
 ## Version 3.4.17 (October 30, 2026)
 
