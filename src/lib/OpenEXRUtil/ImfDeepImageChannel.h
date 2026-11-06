@@ -218,14 +218,14 @@ template <class T>
 inline T*
 TypedDeepImageChannel<T>::operator() (int x, int y)
 {
-    return _base[y * pixelsPerRow () + x];
+    return _base[static_cast<ptrdiff_t> (y) * pixelsPerRow () + x];
 }
 
 template <class T>
 inline const T*
 TypedDeepImageChannel<T>::operator() (int x, int y) const
 {
-    return _base[y * pixelsPerRow () + x];
+    return _base[static_cast<ptrdiff_t> (y) * pixelsPerRow () + x];
 }
 
 template <class T>
@@ -233,7 +233,7 @@ inline T*
 TypedDeepImageChannel<T>::at (int x, int y)
 {
     boundsCheck (x, y);
-    return _base[y * pixelsPerRow () + x];
+    return _base[static_cast<ptrdiff_t> (y) * pixelsPerRow () + x];
 }
 
 template <class T>
@@ -241,21 +241,21 @@ inline const T*
 TypedDeepImageChannel<T>::at (int x, int y) const
 {
     boundsCheck (x, y);
-    return _base[y * pixelsPerRow () + x];
+    return _base[static_cast<ptrdiff_t> (y) * pixelsPerRow () + x];
 }
 
 template <class T>
 inline T* const*
 TypedDeepImageChannel<T>::row (int r)
 {
-    return _sampleListPointers + r * pixelsPerRow ();
+    return _sampleListPointers + static_cast<ptrdiff_t> (r) * pixelsPerRow ();
 }
 
 template <class T>
 inline const T* const*
 TypedDeepImageChannel<T>::row (int r) const
 {
-    return _sampleListPointers + r * pixelsPerRow ();
+    return _sampleListPointers + static_cast<ptrdiff_t> (r) * pixelsPerRow ();
 }
 
 #ifndef COMPILING_IMF_DEEP_IMAGE_CHANNEL
