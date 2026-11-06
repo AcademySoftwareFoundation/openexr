@@ -135,6 +135,8 @@ This release addresses the following security vulnerabilities:
 
 ### Merged Pull Requests
 
+* [2818](https://github.com/AcademySoftwareFoundation/openexr/pull/2818)
+  Remove test_write_overflow (by @cary-ilm/Cary Phillips)
 * [2817](https://github.com/AcademySoftwareFoundation/openexr/pull/2817)
   Fix integer overflow in legacy Python OutputFile.writePixels() (by @cary-ilm/Cary Phillips)
 * [2816](https://github.com/AcademySoftwareFoundation/openexr/pull/2816)
