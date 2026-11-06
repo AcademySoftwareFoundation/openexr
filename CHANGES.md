@@ -740,27 +740,23 @@ to excessive memory usage during write, especially with DWA
 compression (Issue
 [#2791](https://github.com/AcademySoftwareFoundation/openexr/issues/2791)).
 
-
-### Security
-
-This release addresses the following security vulnerabilities:
+This release also addresses the following security vulnerabilities:
 
 * ***CVE Pending*** ([GHSA-PP92-4RV3-WFQ6](https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-PP92-4RV3-WFQ6)) OpenEXR: a signed-int data-window-origin overflow in the OpenEXRUtil Image API turns `Imf::loadImage` into an attacker-steered out-of-bounds write
-* ***CVE Pending*** ([GHSA-2V77-PVHX-25C3](https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-2V77-PVHX-25C3)) Integer overflow in legacy OpenEXR.OutputFile.writePixels() causes heap over-read
+* ***CVE Pending*** ([GHSA-2V77-PVHX-25C3](https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-2V77-PVHX-25C3)) Integer overflow in legacy `OpenEXR.OutputFile.writePixels()` causes heap over-read
 
 ### Merged Pull Requests
 
+* [2818](https://github.com/AcademySoftwareFoundation/openexr/pull/2818)
+  Remove test_write_overflow (by @cary-ilm/Cary Phillips)
 * [2817](https://github.com/AcademySoftwareFoundation/openexr/pull/2817)
-  Fix integer overflow in legacy Python OutputFile.writePixels() (by @cary-ilm/Cary Phillips)
+  Fix integer overflow in legacy Python `OutputFile.writePixels()` (by @cary-ilm/Cary Phillips)
 * [2816](https://github.com/AcademySoftwareFoundation/openexr/pull/2816)
   Fix integer overflow in OpenEXRUtil Image channel base pointers (by @cary-ilm/Cary Phillips)
 * [2809](https://github.com/AcademySoftwareFoundation/openexr/pull/2809)
   Reduce write memory (by @kdt3rd/Kimball Thurston)
 * [2794](https://github.com/AcademySoftwareFoundation/openexr/pull/2794)
   Only zero the DWA chunk header instead of the full output buffer (by @vlazar-ilm/Vlad Lazar)
-
-### Merged Workflow Pull Requests
-
 
 ## Version 3.4.17 (October 30, 2026)
 
