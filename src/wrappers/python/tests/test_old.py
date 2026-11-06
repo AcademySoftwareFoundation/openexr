@@ -195,6 +195,71 @@ def test_types():
 
 testList.append(("test_types", test_types))
 
+#
+# Read a y-subsampled channel over scan line ranges that don't start or
+# end on a multiple of ySampling.
+#
+
+def test_channel_subsampled_range():
+    width = 8
+    height = 12
+    ySampling = 3
+    rows = height // ySampling
+    original = list(range(width * rows))
+
+    hdr = OpenEXR.Header(width, height)
+    hdr['channels'] = {'Y': Imath.Channel(FLOAT, 1, ySampling)}
+    x = OpenEXR.OutputFile(f"{test_dir}/subsampled.exr", hdr)
+    x.writePixels({'Y': array('f', original).tobytes()})
+    x.close()
+
+    xin = OpenEXR.InputFile(f"{test_dir}/subsampled.exr")
+    for y1, y2 in [(0, 11), (0, 6), (1, 4), (2, 9), (4, 11)]:
+        # sampled scan lines y1 <= y <= y2 are stored in rows y / ySampling
+        r1 = (y1 + ySampling - 1) // ySampling
+        r2 = y2 // ySampling
+        data = xin.channel('Y', scanLine1 = y1, scanLine2 = y2)
+        assert array('f', data).tolist() == original[r1 * width:(r2 + 1) * width]
+    os.remove(f"{test_dir}/subsampled.exr")
+
+testList.append(("test_channel_subsampled_range", test_channel_subsampled_range))
+
+#
+# writePixels() must not let a dataWindow wide enough to overflow the
+# 32-bit scanline-stride arithmetic slip an undersized buffer past the
+# size check (a heap over-read on the write path, the counterpart of the
+# channel() read-path overflow guard).
+#
+
+def test_write_overflow():
+    # width = 1073741822 - (-2) + 1 = 1073741825; 4 * width wraps a signed
+    # 32-bit int to 4, so an unguarded stride would accept a 4-byte buffer.
+    dw = Imath.Box2i(Imath.V2i(-2, 0), Imath.V2i(1073741822, 0))
+    hdr = {
+        "dataWindow": dw,
+        "displayWindow": dw,
+        "channels": {"R": Imath.Channel(FLOAT)},
+        "compression": Imath.Compression(Imath.Compression.NO_COMPRESSION),
+        "lineOrder": Imath.LineOrder(Imath.LineOrder.INCREASING_Y),
+    }
+    out = OpenEXR.OutputFile(f"{test_dir}/overflow.exr", hdr)
+    try:
+        # The real scanline is 4 * 1073741825 bytes, so a 4-byte buffer
+        # must be rejected rather than read past the end of it.
+        caught = False
+        try:
+            out.writePixels({"R": b"\x00\x00\x00\x00"})
+        except (TypeError, OverflowError):
+            caught = True
+        assert caught, "undersized buffer accepted for an overflow-width image"
+    finally:
+        try:
+            os.remove(f"{test_dir}/overflow.exr")
+        except OSError:
+            pass
+
+testList.append(("test_write_overflow", test_write_overflow))
+
 def test_invalid_pixeltype():
     oexr = OpenEXR.InputFile(f"{test_dir}/write.exr")
     FLOAT = Imath.PixelType.FLOAT
