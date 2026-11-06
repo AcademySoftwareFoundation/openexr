@@ -1167,10 +1167,40 @@ outwrite (PyObject* self, PyObject* args)
             }
             int   xSampling = i.channel ().xSampling;
             int   ySampling = i.channel ().ySampling;
-            int   yStride   = typeSize * width;
             char* srcPixels;
-            int   expectedSize = (height * yStride) / (xSampling * ySampling);
             Py_ssize_t bufferSize;
+
+            if (width <= 0 || height <= 0 || xSampling <= 0 || ySampling <= 0)
+            {
+                releaseviews (views);
+                PyErr_SetString (
+                    PyExc_ValueError, "Invalid image dimensions");
+                return NULL;
+            }
+
+            // Compute the scanline stride and expected buffer size in a
+            // wide type with an overflow check, so a large dataWindow
+            // can't wrap the size validation below and let an undersized
+            // buffer through (the same guard channel()/channels() use on
+            // the read path).
+            Py_ssize_t total;
+            if (!safe_ssize_mult (typeSize, width, height, total))
+            {
+                releaseviews (views);
+                PyErr_Format (
+                    PyExc_OverflowError,
+                    "Integer overflow computing buffer size for channel "
+                    "'%s': width=%d height=%d typeSize=%d",
+                    i.name (),
+                    width,
+                    height,
+                    typeSize);
+                return NULL;
+            }
+            // height >= 1, so yStride = typeSize * width <= total and is
+            // likewise in range.
+            Py_ssize_t yStride      = (Py_ssize_t) typeSize * width;
+            Py_ssize_t expectedSize = total / ((Py_ssize_t) xSampling * ySampling);
 
             if (PyString_Check (channel_spec))
             {
@@ -1209,7 +1239,7 @@ outwrite (PyObject* self, PyObject* args)
                 releaseviews (views);
                 PyErr_Format (
                     PyExc_TypeError,
-                    "Data for channel '%s' should have size %zu but got %zu",
+                    "Data for channel '%s' should have size %zd but got %zd",
                     i.name (),
                     expectedSize,
                     bufferSize);
@@ -1220,10 +1250,11 @@ outwrite (PyObject* self, PyObject* args)
                 i.name (), // name
                 Slice (
                     pt, // type
-                    srcPixels - dw.min.x * typeSize / xSampling -
-                        currentScanLine * yStride / ySampling, // base
-                    typeSize,                                  // xStride
-                    yStride,                                   // yStride
+                    srcPixels -
+                        (Py_ssize_t) dw.min.x * typeSize / xSampling -
+                        (Py_ssize_t) currentScanLine * yStride / ySampling, // base
+                    typeSize,                                               // xStride
+                    yStride,                                                // yStride
                     xSampling,
                     ySampling)); // subsampling
         }
