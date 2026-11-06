@@ -596,6 +596,49 @@ testResizeInvalidDataWindow ()
     img.resize (Box2i (V2i (0, 0), V2i (1, 1)), ONE_LEVEL, ROUND_DOWN);
 }
 
+//
+// A data window with a large y origin: min.y * pixelsPerRow() overflows
+// a 32-bit int (8 * 268435456 == 2^31), which used to wrap the virtual
+// base pointer and send the scanline decoder's write ~8 GiB outside the
+// channel allocation. The write path (saveFlatScanLineImage) and the
+// read-back (loadFlatImage) must both land in the real allocation.
+//
+
+void
+testOriginOverflow ()
+{
+    cout << "    large data-window origin (base-pointer overflow)" << endl;
+
+    const int minY   = 268435456; // 2^28; 8 * minY == 2^31 overflows int
+    const int width  = 8;
+    const int height = 8;
+    Box2i dataWindow (V2i (0, minY), V2i (width - 1, minY + height - 1));
+
+    FlatImage img1;
+    img1.resize (dataWindow);
+    img1.insertChannel ("Y", HALF, 1, 1, false);
+
+    TypedFlatImageChannel<half>& c1 = img1.level ().typedChannel<half> ("Y");
+    for (int y = dataWindow.min.y; y <= dataWindow.max.y; ++y)
+        for (int x = dataWindow.min.x; x <= dataWindow.max.x; ++x)
+            c1.at (x, y) =
+                half (static_cast<float> ((x + 1) * 100 + (y - minY)));
+
+    const string fileName = "originOverflow.exr";
+    saveFlatScanLineImage (fileName, img1);
+
+    FlatImage img2;
+    loadFlatImage (fileName, img2);
+
+    assert (img2.dataWindow () == dataWindow);
+    TypedFlatImageChannel<half>& c2 = img2.level ().typedChannel<half> ("Y");
+    for (int y = dataWindow.min.y; y <= dataWindow.max.y; ++y)
+        for (int x = dataWindow.min.x; x <= dataWindow.max.x; ++x)
+            assert (c2.at (x, y) == c1.at (x, y));
+
+    remove (fileName.c_str ());
+}
+
 } // namespace
 
 void
@@ -612,6 +655,7 @@ testFlatImage (const string& tempDir)
         testRenameChannel ();
         testRenameChannels ();
         testResizeInvalidDataWindow ();
+        testOriginOverflow ();
 
         cout << "ok\n" << endl;
     }
