@@ -126,9 +126,18 @@ template <class T>
 void
 TypedFlatImageChannel<T>::resetBasePointer ()
 {
+    //
+    // Compute the virtual base pointer in ptrdiff_t. dataWindow origins
+    // are bounded by Header::sanityCheck(), but min.y * pixelsPerRow()
+    // overflows a 32-bit int for a large origin, which would leave _base
+    // wrong by a multiple of 2^32 elements: the decoder adds the origin
+    // offset back in 64-bit, so the two would not cancel.
+    //
+
     _base = _pixels -
-            (level ().dataWindow ().min.y / ySampling ()) * pixelsPerRow () -
-            (level ().dataWindow ().min.x / xSampling ());
+            static_cast<ptrdiff_t> (level ().dataWindow ().min.y / ySampling ()) *
+                static_cast<ptrdiff_t> (pixelsPerRow ()) -
+            static_cast<ptrdiff_t> (level ().dataWindow ().min.x / xSampling ());
 }
 
 template class IMFUTIL_EXPORT_TEMPLATE_INSTANCE TypedFlatImageChannel<half>;
