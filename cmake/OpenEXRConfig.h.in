@@ -36,6 +36,9 @@
 #define OPENEXR_ZSTD_VERSION_MINOR @zstd_VERSION_MINOR@
 #define OPENEXR_ZSTD_VERSION_PATCH @zstd_VERSION_PATCH@
 
+#define OPENEXR_DEFLATE_VERSION_MAJOR @deflate_VERSION_MAJOR@
+#define OPENEXR_DEFLATE_VERSION_MINOR @deflate_VERSION_MINOR@
+
 //
 // Options / configuration based on O.S. / compiler
 /////////////////////
