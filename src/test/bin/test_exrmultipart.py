@@ -53,6 +53,14 @@ result = do_run ([exrmultipart, "-convert", "-i", test_images["singlepart"], "-o
 
 result = do_run  ([exrinfo, outimage])
 
+# convert single-part tiled and deep files: -convert must
+# preserve the pixel type instead of failing with a type-mismatch error.
+for image_name, image_type in [("WavyLinesLatLong.exr", "tiledimage"),
+                               ("42.deep.exr", "deepscanline")]:
+    result = do_run ([exrmultipart, "-convert", "-i", f"{image_dir}/{image_name}", "-o", outimage])
+    result = do_run ([exrinfo, outimage])
+    assert f"type: '{image_type}'" in result.stdout
+
 # separate
 
 # get part names from the multipart image
