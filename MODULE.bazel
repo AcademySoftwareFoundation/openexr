@@ -15,8 +15,8 @@ bazel_dep(name = "zstd", version = "1.5.7.bcr.3")
 
 # Documentation (Doxygen + Sphinx/Breathe), see //website:docs.
 bazel_dep(name = "rules_doxygen", version = "2.7.0", dev_dependency = True)
-bazel_dep(name = "rules_python", version = "2.4.5", dev_dependency = True)
-bazel_dep(name = "sphinxdocs", version = "2.4.5", dev_dependency = True)
+bazel_dep(name = "rules_python", version = "2.4.6", dev_dependency = True)
+bazel_dep(name = "sphinxdocs", version = "2.4.6", dev_dependency = True)
 
 doxygen_extension = use_extension(
     "@rules_doxygen//:extensions.bzl",
