@@ -570,7 +570,7 @@ namespace ojph {
         if (even)
           ldst->i32[0] = src->i32[0];
         else
-          hdst->i32[0] = src->i32[0] << 1;
+          hdst->i32[0] = src->i32[0] * 2;
       }
     }
 
@@ -719,7 +719,7 @@ namespace ojph {
         if (even)
           ldst->i64[0] = src->i64[0];
         else
-          hdst->i64[0] = src->i64[0] << 1;
+          hdst->i64[0] = src->i64[0] * 2;
       }
     }
 

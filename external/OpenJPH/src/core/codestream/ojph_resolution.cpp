@@ -617,14 +617,14 @@ namespace ojph {
             {
               si32* sp = aug->line->i32;
               for (ui32 i = width; i > 0; --i)
-                *sp++ <<= 1;
+                *sp++ *= 2;
             }
             else
             {
               assert(aug->line->flags & line_buf::LFT_64BIT);
               si64* sp = aug->line->i64;
               for (ui32 i = width; i > 0; --i)
-                *sp++ <<= 1;
+                *sp++ *= 2;
             }
             // horizontal transform
             rev_horz_ana(atk, bands[2].get_line(),

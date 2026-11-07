@@ -47,9 +47,9 @@ namespace ojph {
     //////////////////////////////////////////////////////////////////////////
     void sse_mem_clear(void* addr, size_t count)
     {
-      __m128i zero = _mm_setzero_si128();
+      __m128 zero = _mm_setzero_ps();
       for (size_t i = 0; i < count; i += 16, addr = (char*)addr + 16)
-        _mm_storeu_si128((__m128i*)addr, zero);
+        _mm_storeu_ps((float*)addr, zero);
     }
   }
 }
