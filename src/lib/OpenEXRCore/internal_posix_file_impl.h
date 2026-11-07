@@ -21,6 +21,17 @@
 #include <stdlib.h>
 #include <string.h>
 
+/* Offsets and file sizes go through off_t (pread, pwrite, lseek, fstat),
+ * which must be 64 bits for files of 2 GiB or more. On 32-bit glibc hosts,
+ * that takes _FILE_OFFSET_BITS=64, which the build defines (see
+ * src/lib/OpenEXRCore/CMakeLists.txt); other C libraries' off_t is 64 bits
+ * regardless, or has no such switch. */
+#if defined(__GLIBC__)
+_Static_assert (
+    sizeof (off_t) >= 8,
+    "OpenEXRCore needs a 64-bit off_t: compile with -D_FILE_OFFSET_BITS=64");
+#endif
+
 #if defined __USE_UNIX98 || defined __USE_XOPEN2K8 ||                          \
     (defined(_XOPEN_VERSION) && _XOPEN_VERSION >= 400)
 #    define CAN_USE_PREAD 1
