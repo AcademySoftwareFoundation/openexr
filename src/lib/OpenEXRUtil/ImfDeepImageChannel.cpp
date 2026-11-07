@@ -270,9 +270,16 @@ template <class T>
 void
 TypedDeepImageChannel<T>::resetBasePointer ()
 {
+    //
+    // Compute the virtual base pointer in ptrdiff_t: min.y * pixelsPerRow()
+    // overflows a 32-bit int for a large dataWindow origin (see
+    // TypedFlatImageChannel::resetBasePointer).
+    //
+
     _base = _sampleListPointers -
-            level ().dataWindow ().min.y * pixelsPerRow () -
-            level ().dataWindow ().min.x;
+            static_cast<ptrdiff_t> (level ().dataWindow ().min.y) *
+                static_cast<ptrdiff_t> (pixelsPerRow ()) -
+            static_cast<ptrdiff_t> (level ().dataWindow ().min.x);
 }
 
 template <>

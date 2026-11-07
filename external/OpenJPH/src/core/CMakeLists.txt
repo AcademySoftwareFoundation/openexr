@@ -161,6 +161,17 @@ if (NOT DEFINED OJPH_LIB_TYPE)
 endif()
 add_library(openjph ${OJPH_LIB_TYPE} ${SOURCES})
 
+## The library uses std::call_once.  On platforms where threads live in a
+## separate library (glibc < 2.34) that library must be linked in, otherwise
+## std::call_once throws std::system_error at runtime.  The pthread references
+## emitted by libstdc++ are weak, so --as-needed drops the library; force it.
+find_package(Threads REQUIRED)
+if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+  target_link_libraries(openjph PUBLIC "-Wl,--no-as-needed" Threads::Threads)
+else()
+  target_link_libraries(openjph PUBLIC Threads::Threads)
+endif()
+
 ## The option BUILD_SHARED_LIBS
 if (BUILD_SHARED_LIBS AND WIN32)
   target_compile_definitions(openjph PRIVATE OJPH_BUILD_SHARED_LIBRARY)

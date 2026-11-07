@@ -303,20 +303,20 @@ SampleCountChannel::sampleBufferSize () const
 inline const unsigned int&
 SampleCountChannel::operator() (int x, int y) const
 {
-    return _base[y * pixelsPerRow () + x];
+    return _base[static_cast<ptrdiff_t> (y) * pixelsPerRow () + x];
 }
 
 inline const unsigned int&
 SampleCountChannel::at (int x, int y) const
 {
     boundsCheck (x, y);
-    return _base[y * pixelsPerRow () + x];
+    return _base[static_cast<ptrdiff_t> (y) * pixelsPerRow () + x];
 }
 
 inline const unsigned int*
 SampleCountChannel::row (int n) const
 {
-    return _numSamples + n * pixelsPerRow ();
+    return _numSamples + static_cast<ptrdiff_t> (n) * pixelsPerRow ();
 }
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
