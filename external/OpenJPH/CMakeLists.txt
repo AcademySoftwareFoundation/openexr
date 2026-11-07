@@ -113,10 +113,32 @@ set(CMAKE_CXX_FLAGS_ASAN
   CACHE STRING "Flags used by the C++ compiler during AddressSanitizer builds."
   FORCE)
 
+## Set build flags for UndefinedBehaviorSanitizer (UBSAN)
+# these are used when the user sets -DCMAKE_BUILD_TYPE=ubsan i.e ("cmake .. -DCMAKE_BUILD_TYPE=ubsan")
+# -fno-sanitize-recover makes undefined behaviour abort the program, so that
+# a test that triggers it fails rather than only printing a message
+set(CMAKE_CXX_FLAGS_UBSAN
+  "-fsanitize=undefined -fno-sanitize-recover=undefined -fno-omit-frame-pointer -g -O1"
+  CACHE STRING "Flags used by the C++ compiler during UndefinedBehaviorSanitizer builds."
+  FORCE)
+set(CMAKE_C_FLAGS_UBSAN
+  "${CMAKE_CXX_FLAGS_UBSAN}"
+  CACHE STRING "Flags used by the C compiler during UndefinedBehaviorSanitizer builds."
+  FORCE)
+set(CMAKE_EXE_LINKER_FLAGS_UBSAN
+  "-fsanitize=undefined"
+  CACHE STRING "Linker flags used to create executables during UndefinedBehaviorSanitizer builds."
+  FORCE)
+set(CMAKE_SHARED_LINKER_FLAGS_UBSAN
+  "-fsanitize=undefined"
+  CACHE STRING "Linker flags used to create shared libraries during UndefinedBehaviorSanitizer builds."
+  FORCE)
+
 ## Build type
 if (NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE "Release")
   message(STATUS "To use AddressSanitizer, use \"cmake .. -DCMAKE_BUILD_TYPE=asan\"" )
+  message(STATUS "To use UndefinedBehaviorSanitizer, use \"cmake .. -DCMAKE_BUILD_TYPE=ubsan\"" )
 endif()
 message(STATUS "Building ${CMAKE_BUILD_TYPE}")
 
