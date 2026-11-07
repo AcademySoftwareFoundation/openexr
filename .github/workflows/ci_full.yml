@@ -90,7 +90,7 @@ jobs:
       OPENEXR_FORCE_INTERNAL_DEFLATE: ${{ matrix.OPENEXR_FORCE_INTERNAL_DEFLATE || 'OFF' }}
       OPENEXR_FORCE_INTERNAL_ZSTD: ${{ matrix.OPENEXR_FORCE_INTERNAL_ZSTD || 'OFF' }}
       OPENEXR_FORCE_INTERNAL_OPENJPH: ${{ matrix.OPENEXR_FORCE_INTERNAL_OPENJPH || 'OFF' }}
-      openjph_version:  ${{ matrix.openjph_version || '0.32.0' }}
+      openjph_version:  ${{ matrix.openjph_version || '0.33.0' }}
       BUILD_TESTING: ${{ matrix.BUILD_TESTING || 'ON' }}
       RUN_TESTING: ${{ matrix.RUN_TESTING || 'ON' }}
       namespace: ${{ matrix.namespace }}
@@ -140,6 +140,9 @@ jobs:
             configure_install_prefix: '.tmp'
             cmake: 3.15.7
 
+          - name: OpenJPH 0.32.0
+            openjph_version: 0.32.0
+            
           - name: custom namespace
             namespace: 'TEST_NAMESPACE'
             # The namespace is purely a compile-time symbol-naming concern;
@@ -224,7 +227,7 @@ jobs:
       OPENEXR_FORCE_INTERNAL_DEFLATE: ${{ matrix.OPENEXR_FORCE_INTERNAL_DEFLATE || 'OFF' }}
       OPENEXR_FORCE_INTERNAL_ZSTD: ${{ matrix.OPENEXR_FORCE_INTERNAL_ZSTD || 'OFF' }}
       OPENEXR_FORCE_INTERNAL_OPENJPH: ${{ matrix.OPENEXR_FORCE_INTERNAL_OPENJPH || 'OFF' }}
-      openjph_version:  ${{ matrix.openjph_version || '0.32.0' }}
+      openjph_version:  ${{ matrix.openjph_version || '0.33.0' }}
       CMAKE_OSX_ARCHITECTURES: ${{ matrix.CMAKE_OSX_ARCHITECTURES }}
       BUILD_TESTING: ${{ matrix.BUILD_TESTING || 'ON' }}
       RUN_TESTING: ${{ matrix.RUN_TESTING || 'ON' }}
@@ -274,6 +277,9 @@ jobs:
             configure_install_prefix: '.tmp'
             cmake: 3.15.7
 
+          - name: OpenJPH 0.32.0
+            openjph_version: 0.32.0
+            
           - name: macos-15-intel
             os: macos-15-intel
 
@@ -324,7 +330,7 @@ jobs:
       OPENEXR_FORCE_INTERNAL_DEFLATE: ${{ matrix.OPENEXR_FORCE_INTERNAL_DEFLATE || 'OFF' }}
       OPENEXR_FORCE_INTERNAL_ZSTD: ${{ matrix.OPENEXR_FORCE_INTERNAL_ZSTD || 'OFF' }}
       OPENEXR_FORCE_INTERNAL_OPENJPH: ${{ matrix.OPENEXR_FORCE_INTERNAL_OPENJPH || 'OFF' }}
-      openjph_version:  ${{ matrix.openjph_version || '0.32.0' }}
+      openjph_version:  ${{ matrix.openjph_version || '0.33.0' }}
       msystem: ${{ matrix.msystem }}
       BUILD_TESTING: ${{ matrix.BUILD_TESTING || 'ON' }}
       RUN_TESTING: ${{ matrix.RUN_TESTING || 'ON' }}
@@ -374,6 +380,9 @@ jobs:
             configure_install_prefix: '.tmp'
             cmake: 3.15.7 
 
+          - name: OpenJPH 0.32.0
+            openjph_version: 0.32.0
+            
           - name: win32-MSVC-x86
             # Validates the 32-bit Windows build using the native MSVC x86
             # toolset (cmake -A Win32), since MSYS2's MINGW32 environment

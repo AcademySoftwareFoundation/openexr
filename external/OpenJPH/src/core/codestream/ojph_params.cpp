@@ -416,6 +416,13 @@ namespace ojph {
   }
 
   //////////////////////////////////////////////////////////////////////////
+  void param_qcd::set_irrev_quant(float delta, size_t num_weights,
+                                  const float weights[])
+  {
+    state->set_delta(delta, num_weights, weights);
+  }
+
+  //////////////////////////////////////////////////////////////////////////
   void param_qcd::set_qfactor(float qfactor) {
     state->set_qfactor(qfactor);
   }
@@ -424,6 +431,13 @@ namespace ojph {
   void param_qcd::set_irrev_quant(ui32 comp_idx, float delta)
   {
     state->set_delta(comp_idx, delta);
+  }
+
+  //////////////////////////////////////////////////////////////////////////
+  void param_qcd::set_irrev_quant(ui32 comp_idx, float delta,
+                                  size_t num_weights, const float weights[])
+  {
+    state->set_delta(comp_idx, delta, num_weights, weights);
   }
 
   //////////////////////////////////////////////////////////////////////////
@@ -452,10 +466,13 @@ namespace ojph {
                                           bool decoded_signedness,
                                           ui32 d_min, ui32 d_max, ui8 pt_val,
                                           ui16 num_points, void* points,
-                                          ui8 nl_type)
+                                          ui8 nl_type,
+                                          bool approx_encoding_nlt,
+                                          ui32 num_enc_points)
   {
     state->set_nonlinear_transform(comp_num, decoded_bit_depth,
-      decoded_signedness, d_min, d_max, pt_val, num_points, points, nl_type);
+      decoded_signedness, d_min, d_max, pt_val, num_points, points, nl_type,
+      approx_encoding_nlt, num_enc_points);
   }
 
   ////////////////////////////////////////////////////////////////////////////
@@ -953,8 +970,10 @@ namespace ojph {
       point factor(1u << skipped_resolutions, 1u << skipped_resolutions);
       const param_cod* cdp = cod->get_coc(comp_num);
       if (dfs && cdp && cdp->is_dfs_defined()) {
-        const param_dfs* d = dfs->get_dfs(cdp->get_dfs_index());
-        factor = d->get_res_downsamp(skipped_resolutions);
+        ui16 dfs_idx = cdp->get_dfs_index();
+        const param_dfs* d = dfs->get_dfs(dfs_idx);
+        if (d != NULL)
+          factor = d->get_res_downsamp(skipped_resolutions);
       }
       factor.x *= (ui32)cptr[comp_num].XRsiz;
       factor.y *= (ui32)cptr[comp_num].YRsiz;
@@ -1454,7 +1473,7 @@ namespace ojph {
                                      const param_siz &siz)
     {
       if (this->is_init)
-        OJPH_ERROR(0x00040001, "Quantization step sizes already initialized.");
+        OJPH_ERROR(0x000501C1, "Quantization step sizes already initialized.");
 
       this->is_init = true;
 
@@ -1465,6 +1484,20 @@ namespace ojph {
       this->wavelet_kern = cod.get_wavelet_kern();
       this->sampling = siz.get_downsampling(comp_num);
       this->num_subbands = 1 + 3 * this->num_decomps;
+
+      if (this->num_weights != 0)
+      {
+        if (this->wavelet_kern != param_cod::DWT_IRV97)
+          OJPH_ERROR(0x000501C2, "Quantization weights for component %d can "
+            "only be used with the irreversible transform.", comp_num);
+        if (this->qfactor != QFACTOR_UNSET)
+          OJPH_ERROR(0x000501C3, "Quantization weights for component %d "
+            "cannot be used together with qfactor.", comp_num);
+        if (this->num_weights != this->num_subbands)
+          OJPH_ERROR(0x000501C4, "Component %d has %d quantization weights, "
+            "but %d are needed for %d decomposition levels.", comp_num,
+            this->num_weights, this->num_subbands, this->num_decomps);
+      }
 
       if (this->wavelet_kern == param_cod::DWT_REV53)
         this->set_rev_quant(this->num_decomps, this->bit_depth,
@@ -1477,7 +1510,7 @@ namespace ojph {
           this->base_delta = 1.0f / (float)(1 << t);
         }
         else if (qfactor != QFACTOR_UNSET)
-          OJPH_WARN(0x00040002, "qstep for component %d is ignored, because "
+          OJPH_WARN(0x000501C5, "qstep for component %d is ignored, because "
             "qfactor is set.", comp_num);
 
         this->set_irrev_quant(this->num_decomps);
@@ -1489,7 +1522,7 @@ namespace ojph {
                                   const param_siz &siz)
     {
       if (! this->is_init)
-        OJPH_ERROR(0x00040001, "Quantization step sizes not initialized.");
+        OJPH_ERROR(0x000501D1, "Quantization step sizes not initialized.");
 
       return this->num_decomps != cod.get_num_decompositions() ||
               this->bit_depth != siz.get_bit_depth(comp_num) ||
@@ -1589,11 +1622,24 @@ namespace ojph {
         weights = visual_weights::get_weights(format, this->ctype);
       }
 
+      // returns sqrt(w_b), the square root of the weight, for a decomposition
+      // level and subband (0:LL, 1:HL, 2:LH, 3:HH); coefficients are ordered
+      // {LH1, HL1, HH1, ..., LLN}
+      auto get_sqrt_weight = [&](ui32 d, ui32 sb) -> float
+      {
+        if (num_weights == 0)
+          return visual_weights::get_weight(weights, d, sb);
+        if (sb == 0)
+          return this->weights[num_weights - 1];
+        static const ui32 pos[4] = { 0, 1, 0, 2 };
+        return this->weights[(d - 1) * 3 + pos[sb]];
+      };
+
       // LL band
       ui32 b = 0;
       float w_b;
       float gain_l = sqrt_energy_gains::get_gain_l(num_decomps, false);
-      w_b = visual_weights::get_weight(weights, num_decomps, b);
+      w_b = get_sqrt_weight(num_decomps, b);
       w_b = std::pow(w_b, power);
       encode_SPqcd(b++, delta_ref / (gain_l * gain_l * g_c * w_b));
 
@@ -1604,13 +1650,13 @@ namespace ojph {
         float gain_l = sqrt_energy_gains::get_gain_l(d, false);
         float gain_h = sqrt_energy_gains::get_gain_h(d - 1, false);
 
-        w_b = visual_weights::get_weight(weights, d, 1);
+        w_b = get_sqrt_weight(d, 1);
         w_b = std::pow(w_b, power);
         encode_SPqcd(b++, delta_ref / (gain_h * gain_l * g_c * w_b));
-        w_b = visual_weights::get_weight(weights, d, 2);
+        w_b = get_sqrt_weight(d, 2);
         w_b = std::pow(w_b, power);
         encode_SPqcd(b++, delta_ref / (gain_l * gain_h * g_c * w_b));
-        w_b = visual_weights::get_weight(weights, d, 3);
+        w_b = get_sqrt_weight(d, 3);
         w_b = std::pow(w_b, power);
         encode_SPqcd(b++, delta_ref / (gain_h * gain_h * g_c * w_b));
       }
@@ -1931,7 +1977,7 @@ namespace ojph {
         if (num_subbands == 0)
           OJPH_ERROR(0x0005008A, "QCD marker segment that specifies no "
             "quantization informtion");
-        if (num_subbands > 97 || Lqcd != 3 + num_subbands)
+        if (num_subbands > MAX_SUBBAND_COUNT || Lqcd != 3 + num_subbands)
           OJPH_ERROR(0x00050083, "wrong Lqcd value of %d in QCD marker", Lqcd);
         for (ui32 i = 0; i < num_subbands; ++i)
           if (file->read(&SPqcd.u8[i], 1) != 1)
@@ -1951,7 +1997,7 @@ namespace ojph {
         if (num_subbands == 0)
           OJPH_ERROR(0x0005008B, "QCD marker segment that specifies no "
             "quantization informtion");
-        if (num_subbands > 97 || Lqcd != 3 + 2 * num_subbands)
+        if (num_subbands > MAX_SUBBAND_COUNT || Lqcd != 3 + 2 * num_subbands)
           OJPH_ERROR(0x00050086, "wrong Lqcd value of %d in QCD marker", Lqcd);
         for (ui32 i = 0; i < num_subbands; ++i)
         {
@@ -1992,7 +2038,7 @@ namespace ojph {
         if (num_subbands == 0)
           OJPH_ERROR(0x000500AC, "QCC marker segment that specifies no "
             "quantization informtion");
-        if (num_subbands > 97 || Lqcd != offset + num_subbands)
+        if (num_subbands > MAX_SUBBAND_COUNT || Lqcd != offset + num_subbands)
           OJPH_ERROR(0x000500A5, "wrong Lqcd value of %d in QCC marker", Lqcd);
         for (ui32 i = 0; i < num_subbands; ++i)
           if (file->read(&SPqcd.u8[i], 1) != 1)
@@ -2012,7 +2058,7 @@ namespace ojph {
         if (num_subbands == 0)
           OJPH_ERROR(0x000500AD, "QCC marker segment that specifies no "
             "quantization informtion");
-        if (num_subbands > 97 || Lqcd != offset + 2 * num_subbands)
+        if (num_subbands>MAX_SUBBAND_COUNT || Lqcd != offset + 2*num_subbands)
           OJPH_ERROR(0x000500A8, "wrong Lqcc value of %d in QCC marker", Lqcd);
         for (ui32 i = 0; i < num_subbands; ++i)
         {
@@ -2030,9 +2076,35 @@ namespace ojph {
     {
       assert(type == QCD_MAIN);
       param_qcd *p = get_qcc(comp_idx);
-      if (p == NULL)
+      if (p == this)
         p = add_qcc_object(comp_idx);
       p->set_delta(delta);
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    void param_qcd::set_weights(size_t num_weights, const float *weights)
+    {
+      if (weights == NULL || num_weights==0 || num_weights > MAX_SUBBAND_COUNT)
+        OJPH_ERROR(0x000501A1, "The number of quantization weights must be "
+          "between 1 and %d, but %zu were provided.",
+          MAX_SUBBAND_COUNT, num_weights);
+      for (size_t i = 0; i < num_weights; ++i)
+        if (!(weights[i] > 0.0f))
+          OJPH_ERROR(0x000501A2, "Quantization weights must be positive.");
+      memcpy(this->weights, weights, num_weights * sizeof(float));
+      this->num_weights = (ui32)num_weights;
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    void param_qcd::set_delta(ui32 comp_idx, float delta,
+                              size_t num_weights, const float *weights)
+    {
+      assert(type == QCD_MAIN);
+      param_qcd *p = get_qcc(comp_idx);
+      if (p == this)
+        p = add_qcc_object(comp_idx);
+      p->set_delta(delta);
+      p->set_weights(num_weights, weights);
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -2110,7 +2182,7 @@ namespace ojph {
       delta = (fd_max - fd_min) / (float)(num_points - 1);
       inv_delta = (float)(num_points - 1) / (fd_max - fd_min);
       multiplier = (float)(1ull << get_bit_depth());
-      float divider = 1 / multiplier;
+      float divider = (float)(1.0 / (double)(1ull << get_bit_depth()));
       if (bytes_per_point == 1) {
         ui8* sp = (ui8*)marker_points;
         float* dp = dec_points;
@@ -2140,94 +2212,139 @@ namespace ojph {
     }
 
     //////////////////////////////////////////////////////////////////////////
-    void nlt_rec::prepare_for_encoding()
+    template<typename T>
+    static inline void
+    prepare_for_encoding_approx_for_type(const void* marker_points, float div,
+      float& ft_min, float& ft_max, float& delta, float& inv_delta,
+      float fd_min, float fd_max, ui32 num_points, ui32 enc_num_points,
+      float* approx_enc_points)
+    {
+      const T* p = (const T*)marker_points;
+      ft_min = (float)p[0] * div;
+      ft_max = (float)p[num_points - 1] * div;
+      delta = (ft_max - ft_min) / (float)(enc_num_points - 1);
+      inv_delta = (float)(enc_num_points - 1) / (ft_max - ft_min);
+
+      ui32 k = 0;
+      float y_k = (float)p[k] * div, y_kp1 = (float)p[k + 1] * div;
+      float dt = (fd_max - fd_min) / (float)(num_points - 1);
+      float d_k = fd_min, d_kp1 = fd_min + dt;
+      for (ui32 i = 1; i < enc_num_points - 1; ++i)
+      {
+        float z = ft_min + (float)i * delta;
+        while (k + 1 < num_points - 1 && z >= y_kp1)
+        {
+          ++k;
+          d_k   = d_kp1;
+          d_kp1 = fd_min + (float)(k + 1) * dt;
+          y_k   = y_kp1;
+          y_kp1 = (float)p[k + 1] * div;
+        }
+        approx_enc_points[i] = d_k + (z - y_k) * dt / (y_kp1 - y_k);
+      }
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    void nlt_rec::prepare_for_encoding_approx()
     {
       double d = 1.0 / (double)((1ull << 32) - 1);
       fd_min = (float)((double)d_min * d);
       fd_max = (float)((double)d_max * d);
 
+      // enc_points holds positions in the domain of the LUT, whose first
+      // and last entries are fd_min and fd_max, not LUT values
+      approx_enc_points[-2] = fd_min;
+      approx_enc_points[-1] = fd_min;
+      approx_enc_points[ 0] = fd_min;
+      approx_enc_points[enc_num_points - 1] = fd_max;
+      approx_enc_points[enc_num_points] = fd_max;
+      approx_enc_points[enc_num_points + 1] = fd_max;
+
       // create lookup table for encoding
-      float mul = (float)(1ull << pt_val);
+      float mul = (float)((1ull << pt_val) - 1);
       float div = 1.0f / mul;
       if (bytes_per_point == 1)
-      {
-        ui8* p = (ui8*)marker_points;
-        enc_points[-1] = enc_points[0] = ft_min = (float)p[0] * div;
-        ft_max = (float)p[num_points - 1] * div;
-        enc_points[enc_num_points] = enc_points[enc_num_points - 1] = ft_max;
-        delta = (ft_max - ft_min) / (float)(enc_num_points - 1);
-        inv_delta = (float)(enc_num_points - 1) / (ft_max - ft_min);
+        prepare_for_encoding_approx_for_type<ui8>(marker_points, div,
+          ft_min, ft_max, delta, inv_delta,
+          fd_min, fd_max, num_points, enc_num_points,
+          approx_enc_points);
+      else if (bytes_per_point == 2)
+        prepare_for_encoding_approx_for_type<ui16>(marker_points, div,
+          ft_min, ft_max, delta, inv_delta,
+          fd_min, fd_max, num_points, enc_num_points,
+          approx_enc_points);
+      else if (bytes_per_point == 4)
+        prepare_for_encoding_approx_for_type<ui32>(marker_points, div,
+          ft_min, ft_max, delta, inv_delta,
+          fd_min, fd_max, num_points, enc_num_points,
+          approx_enc_points);
 
-        ui32 k = 0;
-        float y_k = (float)p[k] * div, y_kp1 = (float)p[k + 1] * div;
-        float dt = (fd_max - fd_min) / (float)(num_points - 1);
-        float d_k = fd_min, d_kp1 = fd_min + dt;
-        for (ui32 i = 1; i < enc_num_points - 1; ++i)
-        {
-          float z = ft_min + (float)i * delta;
-          while (k + 1 < num_points - 1 && z >= y_kp1)
-          {
-            ++k;
-            d_k   = d_kp1;
-            d_kp1 = fd_min + (float)(k + 1) * dt;
-            y_k   = y_kp1;
-            y_kp1 = (float)p[k + 1] * div;
-          }
-          enc_points[i] = d_k + (z - y_k) * dt / (y_kp1 - y_k);
-        }
+      multiplier = (float)(1.0 / (double)(1ull << get_bit_depth()));
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    void nlt_rec::prepare_for_encoding_precise()
+    {
+      double d = 1.0 / (double)((1ull << 32) - 1);
+      fd_min = (float)((double)d_min * d);
+      fd_max = (float)((double)d_max * d);
+
+      float mul = (float)((1ull << pt_val) - 1);
+      float div = 1.0f / mul;
+
+      // convert decoder lookup table to floats
+      if (bytes_per_point == 1) {
+        const ui8* p = (const ui8*)marker_points;
+        for (ui32 i = 0; i < num_points; ++i)
+          precise_dec_lut[i] = (float)p[i] * div;
+        ft_min = precise_dec_lut[0];
+        ft_max = precise_dec_lut[num_points - 1];
       }
       else if (bytes_per_point == 2) {
-        ui16* p = (ui16*)marker_points;
-        enc_points[-1] = enc_points[0] = ft_min = (float)p[0] * div;
-        ft_max = (float)p[num_points - 1] * div;
-        enc_points[enc_num_points] = enc_points[enc_num_points - 1] = ft_max;
-        delta = (ft_max - ft_min) / (float)(enc_num_points - 1);
-        inv_delta = (float)(enc_num_points - 1) / (ft_max - ft_min);
-
-        ui32 k = 0;
-        float y_k = (float)p[k] * div, y_kp1 = (float)p[k + 1] * div;
-        float dt = (fd_max - fd_min) / (float)(num_points - 1);
-        float d_k = fd_min, d_kp1 = fd_min + dt;
-        for (ui32 i = 1; i < enc_num_points - 1; ++i)
-        {
-          float z = ft_min + (float)i * delta;
-          while (k + 1 < num_points - 1 && z >= y_kp1)
-          {
-            ++k;
-            d_k   = d_kp1;
-            d_kp1 = fd_min + (float)(k + 1) * dt;
-            y_k   = y_kp1;
-            y_kp1 = (float)p[k + 1] * div;
-          }
-          enc_points[i] = d_k + (z - y_k) * dt / (y_kp1 - y_k);
-        }
+        const ui16* p = (const ui16*)marker_points;
+        for (ui32 i = 0; i < num_points; ++i)
+          precise_dec_lut[i] = (float)p[i] * div;
+        ft_min = precise_dec_lut[0];
+        ft_max = precise_dec_lut[num_points - 1];
       }
       else if (bytes_per_point == 4) {
-        ui32* p = (ui32*)marker_points;
-        enc_points[-1] = enc_points[0] = ft_min = (float)p[0] * div;
-        ft_max = (float)p[num_points - 1] * div;
-        enc_points[enc_num_points] = enc_points[enc_num_points - 1] = ft_max;
-        delta = (ft_max - ft_min) / (float)(enc_num_points - 1);
-        inv_delta = (float)(enc_num_points - 1) / (ft_max - ft_min);
-
-        ui32 k = 0;
-        float y_k = (float)p[k] * div, y_kp1 = (float)p[k + 1] * div;
-        float dt = (fd_max - fd_min) / (float)(num_points - 1);
-        float d_k = fd_min, d_kp1 = fd_min + dt;
-        for (ui32 i = 1; i < enc_num_points - 1; ++i)
-        {
-          float z = ft_min + (float)i * delta;
-          while (k + 1 < num_points - 1 && z >= y_kp1)
-          {
-            ++k;
-            d_k   = d_kp1;
-            d_kp1 = fd_min + (float)(k + 1) * dt;
-            y_k   = y_kp1;
-            y_kp1 = (float)p[k + 1] * div;
-          }
-          enc_points[i] = d_k + (z - y_k) * dt / (y_kp1 - y_k);;
-        }
+        const ui32* p = (const ui32*)marker_points;
+        for (ui32 i = 0; i < num_points; ++i)
+          precise_dec_lut[i] = (float)p[i] * div;
+        ft_min = precise_dec_lut[0];
+        ft_max = precise_dec_lut[num_points - 1];
       }
+      precise_dec_lut[-2] = precise_dec_lut[0];
+      precise_dec_lut[-1] = precise_dec_lut[0];
+      precise_dec_lut[num_points]     = precise_dec_lut[num_points - 1];
+      precise_dec_lut[num_points + 1] = precise_dec_lut[num_points - 1];
+      delta = (fd_max - fd_min) / (float)(num_points - 1);
+      inv_delta = (float)(enc_num_points - 1) / (ft_max - ft_min);
+
+      multiplier = (float)(1.0 / (double)(1ull << get_bit_depth()));
+
+      // find index into decoder lookup table
+      float td = (ft_max - ft_min) / (float)(enc_num_points - 1);
+      precise_max_steps = 0;
+      ui16 k = 0, old_k = 0;
+      for (ui32 i = 0; i < enc_num_points; ++i)
+      {
+        float z = ft_min + (float)i * td;
+        while (k < num_points - 1 && z >= precise_dec_lut[k + 1])
+          ++k;
+        precise_enc_dec_indices[i] = k;
+        precise_max_steps = ojph_max(precise_max_steps, (ui32)(k - old_k));
+        old_k = k;
+      }
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    void nlt_rec::prepare_for_encoding()
+    {
+      if (approx_encoding_nlt)
+        prepare_for_encoding_approx();
+      else
+        prepare_for_encoding_precise();
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -2377,7 +2494,9 @@ namespace ojph {
                                             bool decoded_signedness,
                                             ui32 d_min, ui32 d_max, ui8 pt_val,
                                             ui16 num_points, void* points,
-                                            ui8 nl_type)
+                                            ui8 nl_type,
+                                            bool approx_encoding_nlt,
+                                            ui32 num_enc_points)
     {
       if (nl_type != ojph::param_nlt::OJPH_NLT_LUT_STYLE_NLT &&
           nl_type != ojph::param_nlt::OJPH_NLT_BINARY_COMPLEMENT_PLUS_LUT)
@@ -2399,6 +2518,8 @@ namespace ojph {
           "to 2 and smaller or equal to 8192 -- the code will convert this "
           "number to a number in the range 1 to 8191 for the NLT marker "
           "segement; you provided %d", num_points);
+      if (num_enc_points == 1)
+        OJPH_ERROR(0x000501AA, "The num_enc_points cannot be 1");
 
       param_nlt* p = get_nlt_object(comp_num);
       if (p == NULL)
@@ -2414,6 +2535,7 @@ namespace ojph {
       p->rec.pt_val = pt_val;
       p->rec.num_points = num_points;
       p->rec.bytes_per_point = p->rec.get_bpp(pt_val);
+      p->rec.approx_encoding_nlt = approx_encoding_nlt;
 
       // Check that the LUT has increasing entries or has almost flat segments
       ui32 v_min = 0, v_max = 0;
@@ -2464,22 +2586,27 @@ namespace ojph {
         assert(0);
 
       // find ceil of the ratio to a power of 2
-      ui32 ienc_pnts;
-      float enc_pnts = std::ceil((float)(v_max-v_min) / (float)(smallest_gap));
-      if (enc_pnts > 8192.0f)
+      ui32 ienc_pnts = num_enc_points;
+      if (num_enc_points == 0)
       {
-        ienc_pnts = 8192;
-        OJPH_WARN(0x000501A1, "Encoding with LUT is performed with an "
-          "encoding LUT, derived from the LUT you provided; however, "
-          "because the provided LUT has almost flat segment or segments, "
-          "these are hard to invert.  We are limiting the encoding "
-          "LUT to 8192 entries, which means that some segment of the "
-          "LUT table might be ignored during encoding.")
-      }
-      else {
-        ienc_pnts = (ui32)enc_pnts;
-        ienc_pnts = 32 - count_leading_zeros(ienc_pnts);
-        ienc_pnts = 1u << ienc_pnts;
+        float enc_pnts =
+          std::ceil((float)(v_max-v_min) / (float)(smallest_gap));
+        if (enc_pnts > 8192.0f)
+        {
+          ienc_pnts = 8192;
+          OJPH_WARN(0x000501A1, "Encoding with LUT is performed with an "
+            "encoding LUT, derived from the LUT you provided; however, "
+            "because the provided LUT has almost flat segment or segments, "
+            "these are hard to invert.  We are limiting the encoding "
+            "LUT to 8192 entries, which means that some segment of the "
+            "LUT table might be ignored during encoding.")
+        }
+        else {
+          ienc_pnts = (ui32)enc_pnts;
+          ienc_pnts = 32 - count_leading_zeros(ienc_pnts);
+          ienc_pnts = 1u << ienc_pnts;
+          ienc_pnts = ojph_max(ienc_pnts, 2);
+        }
       }
 
       ui32 len = p->rec.cal_store_size_for_encoding(ienc_pnts);
@@ -2605,6 +2732,8 @@ namespace ojph {
       result &= file->read(&buf2_comp, sizeof(ui16)) == sizeof(ui16);
       result &= file->read(&buf1_BDnlt, sizeof(ui8)) == sizeof(ui8);
       result &= file->read(&buf1_Tnlt, sizeof(ui8)) == sizeof(ui8);
+      if (result == false)
+        OJPH_ERROR(0x000501E1, "Error reading NLT marker, Location 1");
 
       if (buf1_Tnlt != nonlinearity::OJPH_NLT_NO_NLT &&
         buf1_Tnlt != nonlinearity::OJPH_NLT_BINARY_COMPLEMENT_NLT &&
@@ -2651,6 +2780,8 @@ namespace ojph {
         result &= file->read(&buf4_d_min, sizeof(ui32)) == sizeof(ui32);
         result &= file->read(&buf4_d_max, sizeof(ui32)) == sizeof(ui32);
         result &= file->read(&buf_pt_val, sizeof(ui8)) == sizeof(ui8);
+        if (result == false)
+          OJPH_ERROR(0x000501E2, "Error reading NLT marker, Location 2");
 
         buf2_num_points = swap_bytes_if_le(buf2_num_points);
         buf4_d_min = swap_bytes_if_le(buf4_d_min);
@@ -2688,7 +2819,9 @@ namespace ojph {
         p->rec.assign_pointers_for_decoding();
 
         if (p->rec.bytes_per_point == 1)
-          result &= file->read(p->rec.marker_points, len) == len;
+          result &=
+            file->read(p->rec.marker_points, p->rec.num_points)
+              == p->rec.num_points;
         else if (p->rec.bytes_per_point == 2)
         {
           ui16 buf2;
@@ -2713,6 +2846,9 @@ namespace ojph {
         }
         p->rec.prepare_for_decoding();
       }
+
+      if (result == false)
+        OJPH_ERROR(0x000501E3, "Error reading NLT marker, Location 3");
 
       return result;
     }

@@ -295,7 +295,7 @@ namespace ojph {
 
       if (rec->is_signed())
       {
-        const si32 bias = (si32)((1ULL << (rec->get_bit_depth() - 1)) + 1);
+        const ui32 bias = (ui32)(1ULL << (rec->get_bit_depth() - 1)) + 1u;
         const float half = (float)(1ULL << (rec->get_bit_depth() - 1));
         for (int i = (int)width; i > 0; --i) {
           float t = *sp++ + 0.5f; // convert to [0, 1]
@@ -309,7 +309,7 @@ namespace ojph {
 
           si32 v = ojph_round(z * mul - half);
           if (NLT_TYPE == 4)
-            v = (v >= 0) ? v : (- v - bias);
+            v = (v >= 0) ? v : (si32)(-(ui32)v - bias);
           *dp++ = v;
         }
       }
@@ -366,32 +366,35 @@ namespace ojph {
              (dst_line->flags & line_buf::LFT_32BIT) &&
              (dst_line->flags & line_buf::LFT_INTEGER) == 0);
       ojph_unused(is_signed);
+      ojph_unused(bit_depth);
 
       assert(bit_depth <= 32);
-      float mul = (float)(1.0 / (double)(1ULL << bit_depth));
-      float d_min = rec->ft_min;
-      float d_max = rec->ft_max;
+      float mul = rec->multiplier;
+      float ft_min = rec->ft_min;
+      float ft_max = rec->ft_max;
       float delta = rec->delta;
       float inv_delta = rec->inv_delta;
-      float* lut = rec->enc_points;
+      float* lut = rec->approx_enc_points;
 
       const si32* sp = src_line->i32 + src_line_offset;
       float* dp = dst_line->f32;
       if (rec->is_signed())
       {
-        const si32 bias = (si32)((1ULL << (rec->get_bit_depth() - 1)) + 1);
+        const ui32 bias = (ui32)(1ULL << (rec->get_bit_depth() - 1)) + 1u;
         for (int i = (int)width; i > 0; --i) {
           si32 v = *sp++;
           if (NLT_TYPE == 4)
-            v = (v >= 0) ? v : (- v - bias);
+            v = (v >= 0) ? v : (si32)(-(ui32)v - bias);
           float t = (float)v * mul + 0.5f;  // convert to [0, 1]
-          t = ojph_max(t, d_min);
-          t = ojph_min(t, d_max);
-          ui32 k = (ui32)floorf((t - d_min) * inv_delta);
-          float d_k = d_min + (float)k * delta;
+
+          t = ojph_max(t, ft_min);
+          t = ojph_min(t, ft_max);
+          ui32 k = (ui32)floorf((t - ft_min) * inv_delta);
+          float d_k = ft_min + (float)k * delta;
           float t_k = lut[k];
           float t_kp1 = lut[k + 1];
           float y = t_k + (t - d_k) * inv_delta * (t_kp1 - t_k);
+
           *dp++ = y - 0.5f;
         }
       }
@@ -400,13 +403,195 @@ namespace ojph {
         for (int i = (int)width; i > 0; --i) {
           si32 v = *sp++;
           float t = (float)v * mul;  // it is in [0, 1]
-          t = ojph_max(t, d_min);
-          t = ojph_min(t, d_max);
-          ui32 k = (ui32)floorf((t - d_min) * inv_delta);
-          float d_k = d_min + (float)k * delta;
+
+          t = ojph_max(t, ft_min);
+          t = ojph_min(t, ft_max);
+          ui32 k = (ui32)floorf((t - ft_min) * inv_delta);
+          float d_k = ft_min + (float)k * delta;
           float t_k = lut[k];
           float t_kp1 = lut[k + 1];
           float y = t_k + (t - d_k) * inv_delta * (t_kp1 - t_k);
+
+          *dp++ = y - 0.5f;
+        }
+      }
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    // The precise inverse of the look-up table, for a table whose derived
+    // version is fine enough that one step of it crosses at most one entry of
+    // the table that was supplied.  The entry that a value falls in is found
+    // with the same arithmetic that the approximation above uses, and the
+    // entry after that is looked at as well, to catch the values that fall
+    // past the entry that was found.
+    //////////////////////////////////////////////////////////////////////////
+    template<int NLT_TYPE>
+    static inline
+    void local_gen_irv_convert_to_float_nlt2or4_precise_1step(
+      const line_buf *src_line, ui32 src_line_offset, line_buf *dst_line,
+      ui32 bit_depth, bool is_signed, ui32 width, const nlt_rec* rec)
+    {
+      assert((src_line->flags & line_buf::LFT_32BIT) &&
+             (src_line->flags & line_buf::LFT_INTEGER) &&
+             (dst_line->flags & line_buf::LFT_32BIT) &&
+             (dst_line->flags & line_buf::LFT_INTEGER) == 0);
+      ojph_unused(is_signed);
+      ojph_unused(bit_depth);
+
+      assert(bit_depth <= 32);
+      float mul = rec->multiplier;
+      float ft_min = rec->ft_min;
+      float ft_max = rec->ft_max;
+      float fd_min = rec->fd_min;
+      float delta = rec->delta;
+      float inv_delta = rec->inv_delta;
+      ui16* indices= rec->precise_enc_dec_indices;
+      float* lut = rec->precise_dec_lut;
+
+      const si32* sp = src_line->i32 + src_line_offset;
+      float* dp = dst_line->f32;
+      if (rec->is_signed())
+      {
+        const ui32 bias = (ui32)(1ULL << (rec->get_bit_depth() - 1)) + 1u;
+        for (int i = (int)width; i > 0; --i) {
+          si32 v = *sp++;
+          if (NLT_TYPE == 4)
+            v = (v >= 0) ? v : (si32)(-(ui32)v - bias);
+          float t = (float)v * mul + 0.5f;  // convert to [0, 1]
+
+          t = ojph_max(t, ft_min);
+          t = ojph_min(t, ft_max);
+          ui32 k = (ui32)floorf((t - ft_min) * inv_delta);
+          k = indices[k];
+          float y0 = lut[k];      // lookup 0
+          float y1 = lut[k + 1];  // lookup 1
+          float y2 = lut[k + 2];  // lookup 2: one-step search
+          if (t > y1)
+          { y0 = y1; y1 = y2; ++k; }
+          float y = fd_min + (float)k * delta +
+            (y1 > y0 ? (t - y0) * delta / (y1 - y0) : 0.0f);
+
+          *dp++ = y - 0.5f;
+        }
+      }
+      else
+      {
+        for (int i = (int)width; i > 0; --i) {
+          si32 v = *sp++;
+          float t = (float)v * mul;  // it is in [0, 1]
+
+          t = ojph_max(t, ft_min);
+          t = ojph_min(t, ft_max);
+          ui32 k = (ui32)floorf((t - ft_min) * inv_delta);
+          k = indices[k];
+          float y0 = lut[k];      // lookup 0
+          float y1 = lut[k + 1];  // lookup 1
+          float y2 = lut[k + 2];  // lookup 2: one-step search
+          if (t > y1)
+          { y0 = y1; y1 = y2; ++k; }
+          float y = fd_min + (float)k * delta +
+            (y1 > y0 ? (t - y0) * delta / (y1 - y0) : 0.0f);
+
+          *dp++ = y - 0.5f;
+        }
+      }
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    // The precise inverse of the look-up table, for a table whose derived
+    // version is coarse enough that one step of it can cross more than one
+    // entry of the table that was supplied.  The entry that a value falls in
+    // then has to be found by searching, which does not vectorize.  This is
+    // the implementation that the SIMD versions in ojph_colour_sse2.cpp and
+    // ojph_colour_avx2.cpp copy, so keep those in step when this changes.
+    //////////////////////////////////////////////////////////////////////////
+    template<int NLT_TYPE>
+    static inline
+    void local_gen_irv_convert_to_float_nlt2or4_precise_search(
+      const line_buf *src_line, ui32 src_line_offset, line_buf *dst_line,
+      ui32 bit_depth, bool is_signed, ui32 width, const nlt_rec* rec)
+    {
+      assert((src_line->flags & line_buf::LFT_32BIT) &&
+             (src_line->flags & line_buf::LFT_INTEGER) &&
+             (dst_line->flags & line_buf::LFT_32BIT) &&
+             (dst_line->flags & line_buf::LFT_INTEGER) == 0);
+      ojph_unused(is_signed);
+      ojph_unused(bit_depth);
+
+      assert(bit_depth <= 32);
+      assert(rec->precise_max_steps > 1);
+      float mul = rec->multiplier;
+      float ft_min = rec->ft_min;
+      float ft_max = rec->ft_max;
+      float fd_min = rec->fd_min;
+      float delta = rec->delta;
+      float inv_delta = rec->inv_delta;
+      ui16* indices= rec->precise_enc_dec_indices;
+      float* lut = rec->precise_dec_lut;
+      ui32 num_points = rec->num_points;
+
+      const si32* sp = src_line->i32 + src_line_offset;
+      float* dp = dst_line->f32;
+      if (rec->is_signed())
+      {
+        const ui32 bias = (ui32)(1ULL << (rec->get_bit_depth() - 1)) + 1u;
+        for (int i = (int)width; i > 0; --i) {
+          si32 v = *sp++;
+          if (NLT_TYPE == 4)
+            v = (v >= 0) ? v : (si32)(-(ui32)v - bias);
+          float t = (float)v * mul + 0.5f;  // convert to [0, 1]
+
+          t = ojph_max(t, ft_min);
+          t = ojph_min(t, ft_max);
+          ui32 k = (ui32)floorf((t - ft_min) * inv_delta);
+          k = indices[k];
+
+          ui32 lo = k;
+          ui32 hi = ojph_min(k + rec->precise_max_steps + 1, num_points);
+          while (hi - lo > 1)
+          {
+            ui32 mid = (lo + hi) >> 1;
+            if (t >= lut[mid])
+              lo = mid;
+            else
+              hi = mid;
+          }
+
+          float y0 = lut[lo];
+          float y1 = lut[hi];
+          float y = fd_min + (float)lo * delta +
+            (y1 > y0 ? (t - y0) * delta / (y1 - y0) : 0.0f);
+
+          *dp++ = y - 0.5f;
+        }
+      }
+      else
+      {
+        for (int i = (int)width; i > 0; --i) {
+          si32 v = *sp++;
+          float t = (float)v * mul;  // it is in [0, 1]
+
+          t = ojph_max(t, ft_min);
+          t = ojph_min(t, ft_max);
+          ui32 k = (ui32)floorf((t - ft_min) * inv_delta);
+          k = indices[k];
+
+          ui32 lo = k;
+          ui32 hi = ojph_min(k + rec->precise_max_steps + 1, num_points);
+          while (hi - lo > 1)
+          {
+            ui32 mid = (lo + hi) >> 1;
+            if (t >= lut[mid])
+              lo = mid;
+            else
+              hi = mid;
+          }
+
+          float y0 = lut[lo];
+          float y1 = lut[hi];
+          float y = fd_min + (float)lo * delta +
+            (y1 > y0 ? (t - y0) * delta / (y1 - y0) : 0.0f);
+
           *dp++ = y - 0.5f;
         }
       }
@@ -423,14 +608,32 @@ namespace ojph {
       //     src_line_offset, dst_line, bit_depth, is_signed, width);
       // else
       if (rec->get_type() == nl::OJPH_NLT_LUT_STYLE_NLT)
-        local_gen_irv_convert_to_float_nlt2or4<2>(src_line,
-          src_line_offset, dst_line, bit_depth, is_signed, width, rec);
+      {
+        if (rec->approx_encoding_nlt)
+          local_gen_irv_convert_to_float_nlt2or4<2>(src_line,
+            src_line_offset, dst_line, bit_depth, is_signed, width, rec);
+        else if (rec->precise_max_steps == 1)
+          local_gen_irv_convert_to_float_nlt2or4_precise_1step<2>(src_line,
+            src_line_offset, dst_line, bit_depth, is_signed, width, rec);
+        else
+          local_gen_irv_convert_to_float_nlt2or4_precise_search<2>(src_line,
+            src_line_offset, dst_line, bit_depth, is_signed, width, rec);
+      }
       // else if (rec->get_type() == nl::OJPH_NLT_BINARY_COMPLEMENT_NLT)
       //   local_gen_irv_convert_to_float_nlt0or3<true>(src_line,
       //     src_line_offset, dst_line, bit_depth, is_signed, width);
       else if (rec->get_type() == nl::OJPH_NLT_BINARY_COMPLEMENT_PLUS_LUT)
-        local_gen_irv_convert_to_float_nlt2or4<4>(src_line,
-          src_line_offset, dst_line, bit_depth, is_signed, width, rec);
+      {
+        if (rec->approx_encoding_nlt)
+          local_gen_irv_convert_to_float_nlt2or4<4>(src_line,
+            src_line_offset, dst_line, bit_depth, is_signed, width, rec);
+        else if (rec->precise_max_steps == 1)
+          local_gen_irv_convert_to_float_nlt2or4_precise_1step<4>(src_line,
+            src_line_offset, dst_line, bit_depth, is_signed, width, rec);
+        else
+          local_gen_irv_convert_to_float_nlt2or4_precise_search<4>(src_line,
+            src_line_offset, dst_line, bit_depth, is_signed, width, rec);
+      }
       else
         assert(0);
     }
@@ -586,14 +789,14 @@ namespace ojph {
 
       if (is_signed)
       {
-        const si32 bias = (si32)((1ULL << (bit_depth - 1)) + 1);
+        const ui32 bias = (ui32)(1ULL << (bit_depth - 1)) + 1u;
         for (int i = (int)width; i > 0; --i) {
           float t = *sp++ * mul;
           si32 v = ojph_round(t);
           v = t >= fl_low_lim ? v : s32_low_lim;
           v = t <  fl_up_lim  ? v : s32_up_lim;
           if (NLT_TYPE3)
-            v = (v >= 0) ? v : (- v - bias);
+            v = (v >= 0) ? v : (si32)(-(ui32)v - bias);
           *dp++ = v;
         }
       }
@@ -647,11 +850,11 @@ namespace ojph {
       float* dp = dst_line->f32;
       if (is_signed)
       {
-        const si32 bias = (si32)((1ULL << (bit_depth - 1)) + 1);
+        const ui32 bias = (ui32)(1ULL << (bit_depth - 1)) + 1u;
         for (int i = (int)width; i > 0; --i) {
           si32 v = *sp++;
           if (NLT_TYPE3)
-            v = (v >= 0) ? v : (- v - bias);
+            v = (v >= 0) ? v : (si32)(-(ui32)v - bias);
           *dp++ = (float)v * mul;
         }
       }
@@ -709,7 +912,7 @@ namespace ojph {
         for (ui32 i = repeat; i > 0; --i)
         {
           si32 rr = *rp++, gg = *gp++, bb = *bp++;
-          *yp++ = (rr + (gg << 1) + bb) >> 2;
+          *yp++ = (rr + 2 * gg + bb) >> 2;
           *cbp++ = (bb - gg);
           *crp++ = (rr - gg);
         }
@@ -727,7 +930,7 @@ namespace ojph {
         for (ui32 i = repeat; i > 0; --i)
         {
           si64 rr = *rp++, gg = *gp++, bb = *bp++;
-          *yp++ = (rr + (gg << 1) + bb) >> 2;
+          *yp++ = (rr + 2 * gg + bb) >> 2;
           *cbp++ = (bb - gg);
           *crp++ = (rr - gg);
         }
