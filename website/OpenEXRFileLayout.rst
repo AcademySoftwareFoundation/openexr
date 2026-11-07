@@ -542,11 +542,19 @@ deep data OpenEXR files.
      - ``tileDesc``
      - Required for parts of type ``tiledimage`` and ``deeptile``.
 
+**Shared attributes:** When the multipart bit (12) is set, the
+``displayWindow``, ``pixelAspectRatio``, ``timecode`` and
+``chromaticities`` attributes, if present, must have the same value in
+every part's header. Readers may reject a file in which these
+attributes differ between parts. Writers should ensure the same value
+is written for these attributes in every part's header.
+
 Deep Data Header Attributes
 ---------------------------
 
-These attributes are required in the header for all files which contain
-deep data (deepscanline or deeptile):
+These attributes may appear in the header of files which contain deep
+data (deepscanline or deeptile); unless noted otherwise, they are
+required:
 
 .. list-table::
    :header-rows: 1
@@ -560,13 +568,14 @@ deep data (deepscanline or deeptile):
      - Required for parts of type tiledimage and deeptile.
    * - ``maxSamplesPerPixel``
      - ``int``
-     - Required for deep data (deepscanline and deeptile) parts.
-       **Note:** Since the value of ``maxSamplesPerPixel`` maybe be unknown at
-       the time of opening the file, the value “\ *-1*\ ” is written to the file
-       to indicate an unknown value. When the file is closed, this will be
-       overwritten with the correct value. If file writing does not complete
-       correctly due to an error, the value *-1* will remain. In this case, the
-       value must be derived by decoding each chunk in the part. 
+     - Optional for deep data (deepscanline and deeptile) parts. If
+       present, it is an upper bound on the number of samples in any one
+       pixel in the part; the value “\ *-1*\ ” indicates that the bound was
+       unknown when the file was written. If absent, the bound is
+       likewise unknown, equivalent to a value of *-1*. Readers must not
+       assume this attribute is present, and must derive the actual
+       sample counts from each chunk's sample count table rather than
+       relying on this attribute.
    * - ``version``
      - ``int``
      - Should be set to ``1``. It will be changed if the format is updated. 
