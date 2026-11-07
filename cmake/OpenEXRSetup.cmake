@@ -193,17 +193,15 @@ endif()
 ###############################
 # Dependent libraries
 
-# Look for Threads even when OPENEXR_ENABLE_THREADING is OFF: besides
-# adding the thread flags to the pkg-config package, OpenJPH 0.33.0's
-# exported target links to Threads::Threads without its config looking
-# for it, so find_package(openjph) below fails without it.
-if(NOT TARGET Threads::Threads)
-  set(THREADS_PREFER_PTHREAD_FLAG ON)
-  find_package(Threads)
-endif()
+# so we know how to add the thread stuff to the pkg-config package
+# which is the only (but good) reason.
 if(OPENEXR_ENABLE_THREADING)
-  if(NOT Threads_FOUND)
-    message(FATAL_ERROR "Unable to find a threading library, disable with OPENEXR_ENABLE_THREADING=OFF")
+  if(NOT TARGET Threads::Threads)
+    set(THREADS_PREFER_PTHREAD_FLAG ON)
+    find_package(Threads)
+    if(NOT Threads_FOUND)
+      message(FATAL_ERROR "Unable to find a threading library, disable with OPENEXR_ENABLE_THREADING=OFF")
+    endif()
   endif()
   if(OPENEXR_USE_TBB)
     find_package(TBB)
@@ -275,6 +273,22 @@ set(OPENEXR_USE_INTERNAL_OPENJPH 0 CACHE INTERNAL
     "Whether OpenEXR bundles vendored OpenJPH into OpenEXRCore (0 or 1)")
 
 if (NOT OPENEXR_FORCE_INTERNAL_OPENJPH)
+  # Workaround for OpenJPH 0.33.0: its exported CMake target links to
+  # Threads::Threads, but its installed package config does not
+  # find_dependency(Threads), so the find_package(openjph) below errors out
+  # on a missing Threads::Threads target when OpenEXR has not already
+  # created it (e.g. with OPENEXR_ENABLE_THREADING=OFF). Define it here.
+  #
+  # The upstream fix is https://github.com/aous72/OpenJPH/pull/420. This
+  # shim can be removed once OpenEXR's minimum OpenJPH
+  # (OPENEXR_MINIMUM_OPENJPH_VERSION) is a release that includes it. Note
+  # that the OpenEXR 3.5 release cannot raise that minimum, so this must
+  # stay for as long as 3.5 is supported.
+  if(NOT TARGET Threads::Threads)
+    set(THREADS_PREFER_PTHREAD_FLAG ON)
+    find_package(Threads)
+  endif()
+
   # Installed OpenJPH versions that are too old, for the warning below
   set(_openexr_openjph_rejected)
 
