@@ -139,7 +139,7 @@ jobs:
             cmake: 3.15.7
 
           - name: OpenJPH 0.32.0
-            openjph_version: 0.32.0
+            openjph_sha: 23c422895ce6c3a156935222e4715ee0b7be952c # 0.32.0
             
           - name: custom namespace
             namespace: 'TEST_NAMESPACE'
