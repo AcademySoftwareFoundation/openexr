@@ -121,6 +121,13 @@ openexr_define_library(OpenEXRCore
     Imath::Imath
   )
 
+# The POSIX file I/O (internal_posix_file_impl.h) passes offsets and file
+# sizes through off_t. On 32-bit glibc hosts, off_t is 32 bits unless
+# compiled with _FILE_OFFSET_BITS=64, so without it, files of 2 GiB or more
+# fail. This used to come indirectly, from OpenJPH's PUBLIC compile
+# definitions. It's PRIVATE since no public OpenEXRCore header uses off_t.
+target_compile_definitions(OpenEXRCore PRIVATE _FILE_OFFSET_BITS=64)
+
 if (DEFINED EXR_DEFLATE_LIB)
   if (BUILD_SHARED_LIBS)
     target_link_libraries(OpenEXRCore PRIVATE ${EXR_DEFLATE_LIB})
@@ -189,6 +196,14 @@ else()
       COMPILE_DEFINITIONS ZSTD_DISABLE_ASM)
   endif()
 
+  # zstd.h and zstd_errors.h give the zstd API default visibility, which
+  # overrides OpenEXRCore's hidden visibility, so a shared OpenEXRCore
+  # would export the vendored zstd's API (and could interpose another
+  # zstd in the same process). Empty ZSTDLIB_VISIBILITY and
+  # ZSTDERRORLIB_VISIBILITY make zstd leave the visibility alone.
+  set_property(SOURCE ${EXR_ZSTD_SOURCES} internal_zstd.c APPEND PROPERTY
+    COMPILE_DEFINITIONS ZSTDLIB_VISIBILITY= ZSTDERRORLIB_VISIBILITY=)
+
   target_sources(OpenEXRCore PRIVATE ${EXR_ZSTD_SOURCES})
   target_include_directories(OpenEXRCore PRIVATE ${ZSTD_LIB_DIR})
 
@@ -225,7 +240,34 @@ else()
   )
   target_include_directories(OpenEXRCore PRIVATE ${OPENJPH_SOURCE_DIR}/src/core)
 
+  # Hidden visibility keeps the vendored OpenJPH out of a shared
+  # OpenEXRCore's exported symbols, but in a static libOpenEXRCore.a its
+  # symbols are still global and clash with any other OpenJPH linked into
+  # the same program. All of OpenJPH's C++ is in namespace
+  # ojph: rename it to OpenEXR's internal namespace with an _ojph
+  # suffix (e.g. Imf_4_0_ojph). The two C functions get the same
+  # prefix. This must apply both to OpenJPH itself and to the OpenEXRCore
+  # sources that use it, and only to those.
+
+  set(_openexr_ojph_ns ${OPENEXR_INTERNAL_IMF_NAMESPACE}_ojph)
+  set(_openexr_ojph_renames
+    ojph=${_openexr_ojph_ns}
+    ojph_aligned_malloc=${_openexr_ojph_ns}_aligned_malloc
+    ojph_aligned_free=${_openexr_ojph_ns}_aligned_free)
+  target_compile_definitions(openjph PRIVATE ${_openexr_ojph_renames})
+  set_property(SOURCE internal_ht.cpp internal_ht_common.cpp
+    APPEND PROPERTY COMPILE_DEFINITIONS ${_openexr_ojph_renames})
+  unset(_openexr_ojph_ns)
+  unset(_openexr_ojph_renames)
+
   target_sources(OpenEXRCore PRIVATE $<TARGET_OBJECTS:openjph>)
+
+  # OpenEXRCore pulls in openjph's compiled objects directly via
+  # $<TARGET_OBJECTS:openjph> rather than linking against the openjph
+  # target, so openjph's PUBLIC compile definitions aren't automatically
+  # propagated as they would be via target_link_libraries(). Forward them
+  # explicitly to all of OpenEXRCore, as target_link_libraries() would,
+  # not just the sources that include OpenJPH headers.
   get_target_property(_openexr_ojph_iface_defs openjph INTERFACE_COMPILE_DEFINITIONS)
   if (_openexr_ojph_iface_defs)
     target_compile_definitions(OpenEXRCore PRIVATE ${_openexr_ojph_iface_defs})

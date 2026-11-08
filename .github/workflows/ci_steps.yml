@@ -50,16 +50,33 @@ on:
         type: string
       OPENEXR_FORCE_INTERNAL_IMATH:
         type: string
+      # Every external dependency below is pinned by a SHA: the actual
+      # git ref fetched/installed, which unlike a tag is immutable and
+      # thus safer. The SHA is expected to correspond to a tagged
+      # GitHub release; the "Install <dep>" steps derive that
+      # release's version directly from the SHA's matching git tag
+      # (via `git describe --tags --exact-match`) for the "Validate
+      # dependencies" step below to check against what cmake actually
+      # found, to guard against accidentally and silently falling back
+      # to the vendored copy.
       OPENEXR_IMATH_TAG:
         type: string
+        default: 5f27ba266d3ea1565e912570c30b5eafc89959f1 # v3.2.3
       OPENEXR_FORCE_INTERNAL_DEFLATE:
         type: string
+      deflate_sha:
+        type: string
+        default: 92e6a0db9fa848d742f9eb286c92afc60f2c3dda # v1.26
       OPENEXR_FORCE_INTERNAL_ZSTD:
         type: string
+      zstd_sha:
+        type: string
+        default: f8745da6ff1ad1e7bab384bd1f9d742439278e99 # v1.5.7
       OPENEXR_FORCE_INTERNAL_OPENJPH:
         type: string
-      openjph_version:
+      openjph_sha:
         type: string
+        default: 23c422895ce6c3a156935222e4715ee0b7be952c # 0.32.0
       CMAKE_OSX_ARCHITECTURES:
         type: string
       CMAKE_GENERATOR_PLATFORM:
@@ -102,10 +119,12 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Install Build Dependencies (Alpine)
-        # For Alpine, install bash since it's missing from the base image.
+        # For Alpine, install bash since it's missing from the base
+        # image, and python3, needed by the "Validate dependencies"
+        # step below.
         if: startsWith(inputs.container, 'alpine:')
         run: |
-          apk add --no-cache build-base cmake git bash wget pkgconf
+          apk add --no-cache build-base cmake git bash wget pkgconf python3
         shell: sh
 
       - name: Set Up Directories & Environment
@@ -197,9 +216,10 @@ jobs:
         shell: bash
 
       - name: Install Build Dependencies (Fedora)
+        # python3 is needed by the "Validate dependencies" step below.
         if: startsWith(inputs.container, 'fedora:')
         run: |
-          dnf install -y gcc gcc-c++ cmake make git wget libdeflate-devel
+          dnf install -y gcc gcc-c++ cmake make git wget libdeflate-devel python3
         shell: bash
 
       - name: Install sccache
@@ -316,7 +336,11 @@ jobs:
         shell: bash
 
       - name: Install Imath
-        # Pre-install Imath so the builds validate that find_package sees the external installation
+        # Pre-install Imath so the builds validate that find_package
+        # sees the external installation. The script itself records
+        # the release version this SHA corresponds to (IMATH_VERSION),
+        # which "Validate dependencies" below uses to confirm cmake
+        # actually found it.
         if: inputs.OPENEXR_FORCE_INTERNAL_IMATH == 'OFF' && inputs.msystem == ''
         run: |
           set -x
@@ -333,29 +357,38 @@ jobs:
         shell: msys2 {0}
 
       - name: Install libdeflate
-        # Pre-install libdeflate so the builds validate that find_package sees the external installation
+        # Pre-install libdeflate so the builds validate that find_package sees the external installation.
+        # The script itself records the release version this SHA
+        # corresponds to (DEFLATE_VERSION), which "Validate
+        # dependencies" below uses to confirm cmake actually found it.
         if: inputs.OPENEXR_FORCE_INTERNAL_DEFLATE == 'OFF' && inputs.msystem == ''
         run: |
           set -x
-          share/ci/scripts/install_libdeflate.sh 92e6a0db9fa848d742f9eb286c92afc60f2c3dda # v1.26
+          share/ci/scripts/install_libdeflate.sh ${{ inputs.deflate_sha }}
           echo "OPENEXR_PATH=$OPENEXR_PATH:$PROGRAM_FILES/libdeflate/bin:$PROGRAM_FILES/libdeflate/lib" >> "$GITHUB_ENV"
         shell: bash
 
       - name: Install zstd
-        # Pre-install zstd so the builds validate that find_package sees the external installation
+        # Pre-install zstd so the builds validate that find_package sees the external installation.
+        # The script itself records the release version this SHA
+        # corresponds to (ZSTD_VERSION), which "Validate dependencies"
+        # below uses to confirm cmake actually found it.
         if: inputs.OPENEXR_FORCE_INTERNAL_ZSTD == 'OFF' && inputs.msystem == ''
         run: |
           set -x
-          share/ci/scripts/install_zstd.sh f8745da6ff1ad1e7bab384bd1f9d742439278e99 # v1.5.7
+          share/ci/scripts/install_zstd.sh ${{ inputs.zstd_sha }}
           echo "OPENEXR_PATH=$OPENEXR_PATH:$PROGRAM_FILES/zstd/bin:$PROGRAM_FILES/zstd/lib" >> "$GITHUB_ENV"
         shell: bash
 
       - name: Install OpenJPH
-        # Pre-install OpenJPH so the builds validate finding the external installation
+        # Pre-install OpenJPH so the builds validate finding the external installation.
+        # The script itself records the release version this SHA
+        # corresponds to (OPENJPH_VERSION), which "Validate
+        # dependencies" below uses to confirm cmake actually found it.
         if: inputs.OPENEXR_FORCE_INTERNAL_OPENJPH == 'OFF' && inputs.msystem == ''
         run: |
           set -x
-          share/ci/scripts/install_openjph.sh ${{ inputs.openjph_version }}
+          share/ci/scripts/install_openjph.sh ${{ inputs.openjph_sha }}
           echo "OPENEXR_PATH=$OPENEXR_PATH:$PROGRAM_FILES/openjph/bin:$PROGRAM_FILES/openjph/lib" >> "$GITHUB_ENV"
         shell: bash
 
@@ -364,7 +397,7 @@ jobs:
         if: inputs.OPENEXR_FORCE_INTERNAL_OPENJPH == 'OFF' && inputs.msystem == 'MINGW32'
         run: |
           set -x
-          share/ci/scripts/install_openjph.sh ${{ inputs.openjph_version }}
+          share/ci/scripts/install_openjph.sh ${{ inputs.openjph_sha }}
         shell: msys2 {0}
 
       - name: Install help2man
@@ -433,18 +466,86 @@ jobs:
           echo INSTALL_MANIFEST_FILENAME="install_manifest.${os_name}.${SANITIZED_NAME}.txt" >> "$GITHUB_ENV"
         shell: bash
 
-      - name: Configure, Build, Install
+      - name: Configure
         if: inputs.msystem == ''
         run: |
           set -x
           "$CMAKE" --version
-          echo "nproc=$(nproc)"
           "$CMAKE" ${{ env.CMAKE_ARGS }}
           # Reconfigure in the same build dir to catch Imath include-path
           # regressions on CMake reconfigure (see #2441).
           if [ "${{ inputs.OPENEXR_FORCE_INTERNAL_IMATH }}" == "ON" ]; then
             "$CMAKE" ${{ env.CMAKE_ARGS }}
           fi
+        shell: bash
+
+      - name: Configure (msys2) # requires msys2 shell
+        if: inputs.msystem != ''
+        run: |
+          set -x
+          "$CMAKE" --version
+          "$CMAKE" ${{ env.CMAKE_ARGS }}
+          # Reconfigure in the same build dir to catch Imath include-path
+          # regressions on CMake reconfigure (see #2441).
+          if [ "${{ inputs.OPENEXR_FORCE_INTERNAL_IMATH }}" == "ON" ]; then
+            "$CMAKE" ${{ env.CMAKE_ARGS }}
+          fi
+        shell: msys2 {0}
+
+      - name: Validate dependencies
+        # Confirm that the configure found the dependencies (Imath,
+        # libdeflate, zstd, OpenJPH) this job installed, rather than
+        # silently falling back to a vendored copy or picking up another
+        # installed version of one (see #2806). This reads what CMake
+        # decided from the generated config headers, and runs before the
+        # build so a mismatch fails the job early.
+        run: |
+          set -x
+          IMATH_VERSION_ARG=()
+          OPENJPH_VERSION_ARG=()
+          # MSYS2 ucrt64/clang64 jobs install Imath and OpenJPH via
+          # pacman packages (see "Determine MSYS2 Packages" above),
+          # so $IMATH_VERSION/$OPENJPH_VERSION (set by the "Install
+          # ..." steps themselves when they run) aren't set: it's
+          # whatever version MSYS2 currently packages. MINGW32 has no
+          # package for either, so it installs both from source via
+          # the scripts, same as non-MSYS2 jobs. So only check the
+          # exact version where CI actually controls it.
+          if [[ "${{ inputs.OPENEXR_FORCE_INTERNAL_IMATH }}" == "OFF" && \
+                ( "${{ inputs.msystem }}" == "" || "${{ inputs.msystem }}" == "MINGW32" ) ]]; then
+            IMATH_VERSION_ARG=(--imath-version "$IMATH_VERSION")
+          fi
+          if [[ "${{ inputs.OPENEXR_FORCE_INTERNAL_OPENJPH }}" == "OFF" && \
+                ( "${{ inputs.msystem }}" == "" || "${{ inputs.msystem }}" == "MINGW32" ) ]]; then
+            OPENJPH_VERSION_ARG=(--openjph-version "$OPENJPH_VERSION")
+          fi
+          DEFLATE_VERSION_ARG=()
+          ZSTD_VERSION_ARG=()
+          # All MSYS2 shells, including MINGW32, install libdeflate
+          # and zstd via pacman packages, so CI never controls their
+          # exact version there either.
+          if [[ "${{ inputs.OPENEXR_FORCE_INTERNAL_DEFLATE }}" == "OFF" && "${{ inputs.msystem }}" == "" ]]; then
+            DEFLATE_VERSION_ARG=(--deflate-version "$DEFLATE_VERSION")
+          fi
+          if [[ "${{ inputs.OPENEXR_FORCE_INTERNAL_ZSTD }}" == "OFF" && "${{ inputs.msystem }}" == "" ]]; then
+            ZSTD_VERSION_ARG=(--zstd-version "$ZSTD_VERSION")
+          fi
+          share/ci/scripts/validate_dependencies.py "$BUILD_DIR" \
+            --force-internal-imath "${{ inputs.OPENEXR_FORCE_INTERNAL_IMATH }}" \
+            --force-internal-deflate "${{ inputs.OPENEXR_FORCE_INTERNAL_DEFLATE }}" \
+            --force-internal-zstd "${{ inputs.OPENEXR_FORCE_INTERNAL_ZSTD }}" \
+            --force-internal-openjph "${{ inputs.OPENEXR_FORCE_INTERNAL_OPENJPH }}" \
+            "${IMATH_VERSION_ARG[@]}" \
+            "${DEFLATE_VERSION_ARG[@]}" \
+            "${ZSTD_VERSION_ARG[@]}" \
+            "${OPENJPH_VERSION_ARG[@]}"
+        shell: bash
+
+      - name: Build, Install
+        if: inputs.msystem == ''
+        run: |
+          set -x
+          echo "nproc=$(nproc)"
           if [ -n "${{ inputs.configure_install_prefix }}" ]; then
             "$CMAKE" --build "$BUILD_DIR" --config ${{ inputs.build-type }} --parallel
             "$CMAKE" --install "$BUILD_DIR" --prefix "$INSTALL_DIR" --config ${{ inputs.build-type }}
@@ -458,18 +559,11 @@ jobs:
         run: sccache --show-stats || true
         shell: bash
 
-      - name: Configure, Build, Install (msys2) # requires msys2 shell
+      - name: Build, Install (msys2) # requires msys2 shell
         if: inputs.msystem != ''
         run: |
           set -x
-          "$CMAKE" --version
           echo "nproc=$(nproc)"
-          "$CMAKE" ${{ env.CMAKE_ARGS }}
-          # Reconfigure in the same build dir to catch Imath include-path
-          # regressions on CMake reconfigure (see #2441).
-          if [ "${{ inputs.OPENEXR_FORCE_INTERNAL_IMATH }}" == "ON" ]; then
-            "$CMAKE" ${{ env.CMAKE_ARGS }}
-          fi
           if [ -n "${{ inputs.configure_install_prefix }}" ]; then
             "$CMAKE" --build "$BUILD_DIR" --config ${{ inputs.build-type }} --parallel
             "$CMAKE" --install "$BUILD_DIR" --prefix "$INSTALL_DIR" --config ${{ inputs.build-type }}

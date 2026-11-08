@@ -32,8 +32,27 @@ cd OpenJPH
 
 git checkout ${TAG}
 
+# Record the release version this SHA corresponds to, derived from
+# the matching git tag rather than hand-maintained separately, for
+# the "Validate dependencies" CI step to check against what cmake
+# actually found.
+if [ -n "${GITHUB_ENV:-}" ]; then
+  VERSION=$(git describe --tags --exact-match 2>/dev/null || true)
+  if [ -n "$VERSION" ]; then
+    echo "OPENJPH_VERSION=${VERSION#v}" >> "$GITHUB_ENV"
+  fi
+fi
+
 cd build
-cmake -DOJPH_ENABLE_TIFF_SUPPORT=OFF -DCMAKE_BUILD_TYPE=Release "${PREFIX_ARG[@]}" ..
+# Force CMAKE_INSTALL_LIBDIR=lib to match the libdir used by any
+# OpenJPH already baked into the CI container's base image. Without
+# this, GNUInstallDirs may default to lib64 on some distros, causing
+# this install to land in a different directory than a pre-existing
+# one. Since headers are installed to a single shared include
+# directory regardless of libdir, that split leaves stale, mismatched
+# headers and libraries installed side by side.
+cmake -DOJPH_ENABLE_TIFF_SUPPORT=OFF -DCMAKE_BUILD_TYPE=Release \
+      -DCMAKE_INSTALL_LIBDIR=lib "${PREFIX_ARG[@]}" ..
 $SUDO "$CMAKE" --build . \
       --target install \
       --config Release \
