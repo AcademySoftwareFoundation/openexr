@@ -267,12 +267,56 @@ endif()
 #######################################
 
 option(OPENEXR_FORCE_INTERNAL_OPENJPH "Force downloading OpenJPH from a git repo" OFF)
+set(OPENEXR_MINIMUM_OPENJPH_VERSION 0.32.0)
 
 set(OPENEXR_USE_INTERNAL_OPENJPH 0 CACHE INTERNAL
     "Whether OpenEXR bundles vendored OpenJPH into OpenEXRCore (0 or 1)")
 
 if (NOT OPENEXR_FORCE_INTERNAL_OPENJPH)
-  find_package(openjph 0.32.0 CONFIG QUIET)
+  # Workaround for OpenJPH 0.33.0: its exported CMake target links to
+  # Threads::Threads, but its installed package config does not
+  # find_dependency(Threads), so the find_package(openjph) below errors out
+  # on a missing Threads::Threads target when OpenEXR has not already
+  # created it (e.g. with OPENEXR_ENABLE_THREADING=OFF). Define it here.
+  #
+  # The upstream fix is https://github.com/aous72/OpenJPH/pull/420. This
+  # shim can be removed once OpenEXR's minimum OpenJPH
+  # (OPENEXR_MINIMUM_OPENJPH_VERSION) is a release that includes it. Note
+  # that the OpenEXR 3.5 release cannot raise that minimum, so this must
+  # stay for as long as 3.5 is supported.
+  if(NOT TARGET Threads::Threads)
+    set(THREADS_PREFER_PTHREAD_FLAG ON)
+    find_package(Threads)
+  endif()
+
+  # Installed OpenJPH versions that are too old, for the warning below
+  set(_openexr_openjph_rejected)
+
+  find_package(openjph ${OPENEXR_MINIMUM_OPENJPH_VERSION} CONFIG QUIET)
+  if(NOT openjph_FOUND)
+    # OpenJPH's config version file accepts only the requested
+    # major.minor version (SameMinorVersion), so the call above rejects
+    # a newer OpenJPH, e.g. 0.33.0 (#2806). Retry with the newest
+    # version that call considered that's new enough. Don't instead
+    # find_package() without a version and check it here: that loads
+    # the package, and the imported openjph target it defines would
+    # clash with the vendored one if the version is then rejected.
+    set(_openexr_openjph_version)
+    foreach(_v IN LISTS openjph_CONSIDERED_VERSIONS)
+      if(_v VERSION_GREATER_EQUAL OPENEXR_MINIMUM_OPENJPH_VERSION)
+        if(NOT _openexr_openjph_version OR _v VERSION_GREATER _openexr_openjph_version)
+          set(_openexr_openjph_version ${_v})
+        endif()
+      elseif(_v)
+        list(APPEND _openexr_openjph_rejected ${_v})
+      endif()
+    endforeach()
+    if(_openexr_openjph_version)
+      find_package(openjph ${_openexr_openjph_version} CONFIG QUIET)
+    endif()
+    unset(_openexr_openjph_version)
+  endif()
+
   if(openjph_FOUND)
     message(STATUS "Using OpenJPH ${openjph_VERSION} from ${openjph_DIR}")
     set(EXR_OPENJPH_LIB openjph)
@@ -281,19 +325,37 @@ if (NOT OPENEXR_FORCE_INTERNAL_OPENJPH)
     find_package(PkgConfig)
     if(PKG_CONFIG_FOUND)
       include(FindPkgConfig)
-      pkg_check_modules(openjph IMPORTED_TARGET GLOBAL QUIET openjph=0.32.0)
+      pkg_check_modules(openjph IMPORTED_TARGET GLOBAL QUIET
+                        "openjph>=${OPENEXR_MINIMUM_OPENJPH_VERSION}")
       if(openjph_FOUND)
         set(EXR_OPENJPH_LIB PkgConfig::openjph)
         message(STATUS "Using OpenJPH ${openjph_VERSION} from ${openjph_LINK_LIBRARIES}")
+      else()
+        pkg_check_modules(_openexr_openjph_any QUIET openjph)
+        if(_openexr_openjph_any_FOUND)
+          list(APPEND _openexr_openjph_rejected ${_openexr_openjph_any_VERSION})
+        endif()
       endif()
     endif()
   endif()
+
+  if(NOT EXR_OPENJPH_LIB AND _openexr_openjph_rejected)
+    list(REMOVE_DUPLICATES _openexr_openjph_rejected)
+    list(JOIN _openexr_openjph_rejected ", " _openexr_openjph_rejected)
+    message(WARNING
+      "Found OpenJPH ${_openexr_openjph_rejected}, but OpenEXR requires "
+      "${OPENEXR_MINIMUM_OPENJPH_VERSION} or newer, so it's using its "
+      "vendored OpenJPH instead. Install a newer OpenJPH, or set "
+      "OPENEXR_FORCE_INTERNAL_OPENJPH=ON to use the vendored one "
+      "without this warning.")
+  endif()
+  unset(_openexr_openjph_rejected)
 endif()
 
 if(EXR_OPENJPH_LIB)
   # Using external library
   # For OpenEXR.pc.in for static build
-  set(EXR_OPENJPH_PKGCONFIG_REQUIRES "openjph >= 0.32.0")
+  set(EXR_OPENJPH_PKGCONFIG_REQUIRES "openjph >= ${OPENEXR_MINIMUM_OPENJPH_VERSION}")
 else()
   # Using internal openjph
   set(OPENEXR_USE_INTERNAL_OPENJPH 1 CACHE INTERNAL
@@ -426,7 +488,8 @@ if(NOT OPENEXR_FORCE_INTERNAL_ZSTD)
     find_package(PkgConfig)
     if(PKG_CONFIG_FOUND)
       include(FindPkgConfig)
-      pkg_check_modules(libzstd IMPORTED_TARGET GLOBAL QUIET libzstd)
+      pkg_check_modules(libzstd IMPORTED_TARGET GLOBAL QUIET
+                        "libzstd>=${OPENEXR_MINIMUM_ZSTD_VERSION}")
       if(libzstd_FOUND)
         set(EXR_ZSTD_LIB PkgConfig::libzstd)
         set(EXR_ZSTD_VERSION ${libzstd_VERSION})
