@@ -542,11 +542,33 @@ deep data OpenEXR files.
      - ``tileDesc``
      - Required for parts of type ``tiledimage`` and ``deeptile``.
 
+**Shared attributes:** 
+
+* `displayWindow` and `pixelAspectRatio` are required attributes that
+  must be present in every part, and must be the same for all parts.
+  
+* `timecode` and `chromaticities` are optional. All parts that have a
+  `timecode` or `chromaticities` attribute must have the same
+  value. Any part which omits the value is treated as having it set to
+  the same value as the parts which define it, or as undefined/unknown
+  for the whole file if no part specifies it.
+
+* `chromaticities` is superseded by `colorInteropID`. `colorInteropID`
+  is now the preferred mechanism for indicating the color space of RGB
+  images. 
+
+Standard practice is that attributes that apply to all parts of the
+file are specified in part 0. Optional attributes need not be
+duplicated in subsequent parts. Attributes that are specified in
+subsequent parts are generally treated as applying only to that part.
+
+
 Deep Data Header Attributes
 ---------------------------
 
-These attributes are required in the header for all files which contain
-deep data (deepscanline or deeptile):
+These attributes may appear in the header of files which contain deep
+data (deepscanline or deeptile); unless noted otherwise, they are
+required:
 
 .. list-table::
    :header-rows: 1
@@ -560,13 +582,7 @@ deep data (deepscanline or deeptile):
      - Required for parts of type tiledimage and deeptile.
    * - ``maxSamplesPerPixel``
      - ``int``
-     - Required for deep data (deepscanline and deeptile) parts.
-       **Note:** Since the value of ``maxSamplesPerPixel`` maybe be unknown at
-       the time of opening the file, the value “\ *-1*\ ” is written to the file
-       to indicate an unknown value. When the file is closed, this will be
-       overwritten with the correct value. If file writing does not complete
-       correctly due to an error, the value *-1* will remain. In this case, the
-       value must be derived by decoding each chunk in the part. 
+     - This is deprecated. The value is ignored. 
    * - ``version``
      - ``int``
      - Should be set to ``1``. It will be changed if the format is updated. 
