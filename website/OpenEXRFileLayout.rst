@@ -542,12 +542,26 @@ deep data OpenEXR files.
      - ``tileDesc``
      - Required for parts of type ``tiledimage`` and ``deeptile``.
 
-**Shared attributes:** When the multipart bit (12) is set, the
-``displayWindow``, ``pixelAspectRatio``, ``timecode`` and
-``chromaticities`` attributes, if present, must have the same value in
-every part's header. Readers may reject a file in which these
-attributes differ between parts. Writers should ensure the same value
-is written for these attributes in every part's header.
+**Shared attributes:** 
+
+* `displayWindow` and `pixelAspectRatio` are required attributes that
+  must be present in every part, and must be the same for all parts.
+  
+* `timecode` and `chromaticities` are optional. All parts that have a
+  `timecode` or `chromaticities` attribute must have the same
+  value. Any part which omits the value is treated as having it set to
+  the same value as the parts which define it, or as undefined/unknown
+  for the whole file if no part specifies it.
+
+* `chromaticities` is superseded by `colorInteropID`. `colorInteropID`
+  is now the preferred mechanism for indicating the color space of RGB
+  images. 
+
+Standard practice is that attributes that apply to all parts of the
+file are specified in part 0. Optional attributes need not be
+duplicated in subsequent parts. Attributes that are specified in
+subsequent parts are generally treated as applying only to that part.
+
 
 Deep Data Header Attributes
 ---------------------------
@@ -568,14 +582,7 @@ required:
      - Required for parts of type tiledimage and deeptile.
    * - ``maxSamplesPerPixel``
      - ``int``
-     - Optional for deep data (deepscanline and deeptile) parts. If
-       present, it is an upper bound on the number of samples in any one
-       pixel in the part; the value “\ *-1*\ ” indicates that the bound was
-       unknown when the file was written. If absent, the bound is
-       likewise unknown, equivalent to a value of *-1*. Readers must not
-       assume this attribute is present, and must derive the actual
-       sample counts from each chunk's sample count table rather than
-       relying on this attribute.
+     - This is deprecated. The value is ignored. 
    * - ``version``
      - ``int``
      - Should be set to ``1``. It will be changed if the format is updated. 
