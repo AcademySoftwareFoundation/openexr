@@ -36,6 +36,22 @@ if ("@EXR_OPENJPH_LIB@" STREQUAL "PkgConfig::openjph")
     openexr_find_pkgconfig_dependency(openjph "openjph=@openjph_VERSION@")
   endif()
 elseif (NOT @OPENEXR_USE_INTERNAL_OPENJPH@)
+  # Workaround for OpenJPH 0.33.0: its exported CMake target links to
+  # Threads::Threads, but its package config does not find_dependency(Threads),
+  # so the find_dependency(openjph) below fails in a consuming project that has
+  # not already found Threads. That includes an OpenEXR built with
+  # OPENEXR_ENABLE_THREADING=OFF (the block above did not look for Threads) and
+  # any downstream project that does not use threads itself. Define it here.
+  #
+  # This mirrors the equivalent build-time workaround in OpenEXRSetup.cmake.
+  # Remove once OpenEXR's minimum OpenJPH is a release that includes the
+  # upstream fix, https://github.com/aous72/OpenJPH/pull/420. Note that the
+  # OpenEXR 3.5 release cannot raise that minimum, so this must stay for as
+  # long as 3.5 is supported.
+  if (NOT TARGET Threads::Threads)
+    set(THREADS_PREFER_PTHREAD_FLAG ON)
+    find_dependency(Threads)
+  endif()
   find_dependency(openjph)
 endif()
 
