@@ -169,14 +169,16 @@ template <class T>
 inline T&
 TypedFlatImageChannel<T>::operator() (int x, int y)
 {
-    return _base[(y / ySampling ()) * pixelsPerRow () + (x / xSampling ())];
+    return _base[static_cast<ptrdiff_t> (y / ySampling ()) * pixelsPerRow () +
+                  (x / xSampling ())];
 }
 
 template <class T>
 inline const T&
 TypedFlatImageChannel<T>::operator() (int x, int y) const
 {
-    return _base[(y / ySampling ()) * pixelsPerRow () + (x / xSampling ())];
+    return _base[static_cast<ptrdiff_t> (y / ySampling ()) * pixelsPerRow () +
+                  (x / xSampling ())];
 }
 
 template <class T>
@@ -184,7 +186,8 @@ inline T&
 TypedFlatImageChannel<T>::at (int x, int y)
 {
     boundsCheck (x, y);
-    return _base[(y / ySampling ()) * pixelsPerRow () + (x / xSampling ())];
+    return _base[static_cast<ptrdiff_t> (y / ySampling ()) * pixelsPerRow () +
+                  (x / xSampling ())];
 }
 
 template <class T>
@@ -192,21 +195,22 @@ inline const T&
 TypedFlatImageChannel<T>::at (int x, int y) const
 {
     boundsCheck (x, y);
-    return _base[(y / ySampling ()) * pixelsPerRow () + (x / xSampling ())];
+    return _base[static_cast<ptrdiff_t> (y / ySampling ()) * pixelsPerRow () +
+                  (x / xSampling ())];
 }
 
 template <class T>
 inline T*
 TypedFlatImageChannel<T>::row (int r)
 {
-    return _pixels + r * pixelsPerRow ();
+    return _pixels + static_cast<ptrdiff_t> (r) * pixelsPerRow ();
 }
 
 template <class T>
 inline const T*
 TypedFlatImageChannel<T>::row (int n) const
 {
-    return _pixels + n * pixelsPerRow ();
+    return _pixels + static_cast<ptrdiff_t> (n) * pixelsPerRow ();
 }
 
 #ifndef COMPILING_IMF_FLAT_IMAGE_CHANNEL

@@ -196,6 +196,19 @@ namespace ojph {
     void set_irrev_quant(float delta);
 
     /**
+     * @brief Set the irreversible reference quantization step size `delta_r`
+     *        and weight coefficients `sqrt(w_b)` for all components
+     *
+     * @sa set_irrev_quant(ui32, float, float*, size_t)
+     *
+     * @param delta Reference quantization step size `delta_r`
+     * @param num_weights Number of coefficients in weights
+     * @param weights Array of weight coefficients `sqrt(w_b)` in subband order
+     */
+    void set_irrev_quant(float delta, size_t num_weights,
+                         const float weights[]);
+
+    /**
      * @brief Sets Qfactor
      *
      * This is a top level Qfactor; it will automatically set the qfactor;
@@ -214,6 +227,26 @@ namespace ojph {
      *                1 (worst quality) and 100 (best quality)
      */
     void set_qfactor(float qfactor);
+
+    /**
+     * @brief Set the irreversible reference quantization step size `delta_r`
+     *        and weight coefficients `sqrt(w_b)` for a specific component.
+     *
+     * The quantization step size `delta_b` for subband `b` is given by:
+     * `delta_b = delta_r / sqrt(G_b * w_b * M_c)` where `G_b` is the energy
+     * gain factor for the sub-band synthesis operator, `w_b` is the visual
+     * weight, and `M_c` accounts for the gain from the MCT/ICT. The `b`
+     * corresponds to the subband order:
+     *
+     * `{LH1, HL1, HH1, LH2, HL2, HH2 … , HHN, LLN}`
+     *
+     * @param comp_idx Target component
+     * @param delta Reference quantization step size `delta_r`
+     * @param num_weights Number of coefficients in weights
+     * @param weights Array of weight coefficients `sqrt(w_b)` in subband order
+     */
+    void set_irrev_quant(ui32 comp_idx, float delta, size_t num_weights,
+                         const float weights[]);
 
     /**
      * @brief Set the irreversible quantization base delta for a specific
@@ -367,11 +400,38 @@ namespace ojph {
      * @param nlt_type: desired non-linearity from enum nonlinearity, only
      *        OJPH_NLT_LUT_STYLE_NLT and OJPH_NLT_BINARY_COMPLEMENT_PLUS_LUT
      *        are allowed
+     * @param approx_encoding_nlt: Selects how the non-linearity is represented
+     *        during encoding; the encoding process can either use
+     *        a fast approximate representation of the LUT during encoding, or
+     *        use the decoder's LUT directly (which we name `precise`).
+     *        Set this option to true to use the fast approximate
+     *        representation of the non‑linearity or set it to false for the
+     *        encoder to directly use the decoder's LUT. The precise approach
+     *        is accurate up to floating‑point rounding errors but is slower
+     *        than the approximate method. For LUTs that have near‑flat
+     *        sections, the precise encoding can be considerably slower; a
+     *        warning is issued if this occurs.
+     * @param num_enc_points: sets the number of points to use in the encoding
+     *        LUT.  For the approximate method, the more points you have the
+     *        more accurate representation of the LUT is.
+     *        The precise encoding process is basically a search to find the
+     *        closest no-larger entry in the decoder's LUT. We improve
+     *        performance of this slow search operation by using an encoder LUT
+     *        with num_enc_points entries.  If the num_enc_points is large
+     *        enough such that each edge in the decoder's LUT is accessed by
+     *        at least one entry in the encoder's LUT, a quick one step search
+     *        is sufficient; otherwise, we need multiple steps.
+     *        The one-step search is accelerated using SIMD instructions where
+     *        applicable, while it is not clear how useful it would be
+     *        to accelerate multi-step searches, so it was not implemented it.
+     *        If unsure set it to 0, and let the function call decide.
      */
-    void set_nonlinear_transform(ui32 comp_num,
-                                 ui8 decoded_bit_depth, bool decoded_signedness,
-                                 ui32 d_min, ui32 d_max, ui8 pt_val,
-                                 ui16 num_points, void* points, ui8 nl_type);
+    void set_nonlinear_transform(ui32 comp_num, ui8 decoded_bit_depth,
+                                 bool decoded_signedness, ui32 d_min,
+                                 ui32 d_max, ui8 pt_val, ui16 num_points,
+                                 void* points, ui8 nl_type,
+                                 bool approx_encoding_nlt = false,
+                                 ui32 num_enc_points = 0);
 
     /*************************************************************************
      * @brief get the nonlinearity type associated with comp_num, which

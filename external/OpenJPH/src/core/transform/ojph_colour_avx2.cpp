@@ -369,8 +369,8 @@ namespace ojph {
       si32* dp = dst_line->i32 + dst_line_offset;
 
       __m256 mul = _mm256_set1_ps(rec->multiplier);
-      __m256 d_min = _mm256_set1_ps(rec->fd_min);
-      __m256 d_max = _mm256_set1_ps(rec->fd_max);
+      __m256 fd_min = _mm256_set1_ps(rec->fd_min);
+      __m256 fd_max = _mm256_set1_ps(rec->fd_max);
       __m256 delta = _mm256_set1_ps(rec->delta);
       __m256 inv_delta = _mm256_set1_ps(rec->inv_delta);
       const float* lut = rec->dec_points;
@@ -388,11 +388,11 @@ namespace ojph {
         for (int i = (int)width; i > 0; i -= 8, sp += 8, dp += 8) {
           __m256 t = _mm256_loadu_ps(sp);
           t = _mm256_add_ps(t, half_ps);                 // convert to [0, 1]
-          t = _mm256_max_ps(t, d_min);
-          t = _mm256_min_ps(t, d_max);
+          t = _mm256_max_ps(t, fd_min);
+          t = _mm256_min_ps(t, fd_max);
           __m256i k = _mm256_cvttps_epi32(
-            _mm256_mul_ps(_mm256_sub_ps(t, d_min), inv_delta));
-          __m256 d_k = _mm256_add_ps(d_min,
+            _mm256_mul_ps(_mm256_sub_ps(t, fd_min), inv_delta));
+          __m256 d_k = _mm256_add_ps(fd_min,
             _mm256_mul_ps(_mm256_cvtepi32_ps(k), delta));
           __m256 t_k = _mm256_i32gather_ps(lut, k, 4);
           __m256 t_kp1 = _mm256_i32gather_ps(lut, _mm256_add_epi32(k, one), 4);
@@ -417,11 +417,11 @@ namespace ojph {
         for (int i = (int)width; i > 0; i -= 8, sp += 8, dp += 8) {
           __m256 t = _mm256_loadu_ps(sp);
           t = _mm256_add_ps(t, half_ps);                 // convert to [0, 1]
-          t = _mm256_max_ps(t, d_min);
-          t = _mm256_min_ps(t, d_max);
+          t = _mm256_max_ps(t, fd_min);
+          t = _mm256_min_ps(t, fd_max);
           __m256i k = _mm256_cvttps_epi32(
-            _mm256_mul_ps(_mm256_sub_ps(t, d_min), inv_delta));
-          __m256 d_k = _mm256_add_ps(d_min,
+            _mm256_mul_ps(_mm256_sub_ps(t, fd_min), inv_delta));
+          __m256 d_k = _mm256_add_ps(fd_min,
             _mm256_mul_ps(_mm256_cvtepi32_ps(k), delta));
           __m256 t_k = _mm256_i32gather_ps(lut, k, 4);
           __m256 t_kp1 =
@@ -527,18 +527,20 @@ namespace ojph {
       ui32 bit_depth, bool is_signed, ui32 width, const nlt_rec* rec)
     {
       ojph_unused(is_signed);
+      ojph_unused(bit_depth);
+
       assert((src_line->flags & line_buf::LFT_32BIT) &&
              (src_line->flags & line_buf::LFT_INTEGER) &&
              (dst_line->flags & line_buf::LFT_32BIT) &&
              (dst_line->flags & line_buf::LFT_INTEGER) == 0);
 
       assert(bit_depth <= 32);
-      __m256 mul = _mm256_set1_ps((float)(1.0 / (double)(1ULL << bit_depth)));
-      __m256 d_min = _mm256_set1_ps(rec->ft_min);
-      __m256 d_max = _mm256_set1_ps(rec->ft_max);
+      __m256 mul = _mm256_set1_ps(rec->multiplier);
+      __m256 ft_min = _mm256_set1_ps(rec->ft_min);
+      __m256 ft_max = _mm256_set1_ps(rec->ft_max);
       __m256 delta = _mm256_set1_ps(rec->delta);
       __m256 inv_delta = _mm256_set1_ps(rec->inv_delta);
-      const float* lut = rec->enc_points;
+      const float* lut = rec->approx_enc_points;
 
       __m256 half_ps = _mm256_set1_ps(0.5f);
       __m256i one = _mm256_set1_epi32(1);
@@ -562,11 +564,11 @@ namespace ojph {
           }
           __m256 t = _mm256_add_ps(                  // convert to [0, 1]
             _mm256_mul_ps(_mm256_cvtepi32_ps(v), mul), half_ps);
-          t = _mm256_max_ps(t, d_min);
-          t = _mm256_min_ps(t, d_max);
+          t = _mm256_max_ps(t, ft_min);
+          t = _mm256_min_ps(t, ft_max);
           __m256i k = _mm256_cvttps_epi32(
-            _mm256_mul_ps(_mm256_sub_ps(t, d_min), inv_delta));
-          __m256 d_k = _mm256_add_ps(d_min,
+            _mm256_mul_ps(_mm256_sub_ps(t, ft_min), inv_delta));
+          __m256 d_k = _mm256_add_ps(ft_min,
             _mm256_mul_ps(_mm256_cvtepi32_ps(k), delta));
           __m256 t_k = _mm256_i32gather_ps(lut, k, 4);
           __m256 t_kp1 =
@@ -582,11 +584,11 @@ namespace ojph {
         for (int i = (int)width; i > 0; i -= 8, sp += 8, dp += 8) {
           __m256i v = _mm256_loadu_si256((__m256i*)sp);
           __m256 t = _mm256_mul_ps(_mm256_cvtepi32_ps(v), mul);  // in [0, 1]
-          t = _mm256_max_ps(t, d_min);
-          t = _mm256_min_ps(t, d_max);
+          t = _mm256_max_ps(t, ft_min);
+          t = _mm256_min_ps(t, ft_max);
           __m256i k = _mm256_cvttps_epi32(
-            _mm256_mul_ps(_mm256_sub_ps(t, d_min), inv_delta));
-          __m256 d_k = _mm256_add_ps(d_min,
+            _mm256_mul_ps(_mm256_sub_ps(t, ft_min), inv_delta));
+          __m256 d_k = _mm256_add_ps(ft_min,
             _mm256_mul_ps(_mm256_cvtepi32_ps(k), delta));
           __m256 t_k = _mm256_i32gather_ps(lut, k, 4);
           __m256 t_kp1 =
@@ -600,17 +602,314 @@ namespace ojph {
     }
 
     //////////////////////////////////////////////////////////////////////////
+    // The precise inverse of the look-up table, for a table whose derived
+    // version is fine enough that one step of it crosses at most one entry of
+    // the table that was supplied.  The entry that a value falls in is found
+    // with the same arithmetic that the approximation above uses, and the
+    // entry after that is looked at as well, to catch the values that fall
+    // past the entry that was found.
+    //////////////////////////////////////////////////////////////////////////
+    template<int NLT_TYPE>
+    static inline
+    void local_avx2_irv_convert_to_float_nlt2or4_precise_1step(
+      const line_buf *src_line, ui32 src_line_offset, line_buf *dst_line,
+      ui32 bit_depth, bool is_signed, ui32 width, const nlt_rec* rec)
+    {
+      ojph_unused(is_signed);
+      ojph_unused(bit_depth);
+
+      assert((src_line->flags & line_buf::LFT_32BIT) &&
+             (src_line->flags & line_buf::LFT_INTEGER) &&
+             (dst_line->flags & line_buf::LFT_32BIT) &&
+             (dst_line->flags & line_buf::LFT_INTEGER) == 0);
+
+      assert(bit_depth <= 32);
+      __m256 mul = _mm256_set1_ps(rec->multiplier);
+      __m256 ft_min = _mm256_set1_ps(rec->ft_min);
+      __m256 ft_max = _mm256_set1_ps(rec->ft_max);
+      __m256 fd_min = _mm256_set1_ps(rec->fd_min);
+      __m256 delta = _mm256_set1_ps(rec->delta);
+      __m256 inv_delta = _mm256_set1_ps(rec->inv_delta);
+      const float* lut = rec->precise_dec_lut;
+      const ui16* indices = rec->precise_enc_dec_indices;
+
+      __m256 half_ps = _mm256_set1_ps(0.5f);
+      __m256 one_ps = _mm256_set1_ps(1.0f);
+      __m256 zero_ps = _mm256_setzero_ps();
+      __m256i one = _mm256_set1_epi32(1);
+      __m256i two = _mm256_set1_epi32(2);
+      __m256i low16 = _mm256_set1_epi32(0xFFFF);
+
+      const si32* sp = src_line->i32 + src_line_offset;
+      float* dp = dst_line->f32;
+      if (rec->is_signed())
+      {
+        __m256i bias =
+          _mm256_set1_epi32(-(si32)((1ULL << (rec->get_bit_depth() - 1)) + 1));
+        __m256i zero = _mm256_setzero_si256();
+        for (int i = (int)width; i > 0; i -= 8, sp += 8, dp += 8) {
+          __m256i v = _mm256_loadu_si256((__m256i*)sp);
+          if (NLT_TYPE == 4)
+          {
+            __m256i c = _mm256_cmpgt_epi32(zero, v); // 0xFFFFFFFF for -ve val
+            __m256i neg = _mm256_sub_epi32(bias, v); // - bias - value
+            neg = _mm256_and_si256(c, neg);          // keep only - bias - val
+            v = _mm256_andnot_si256(c, v);           // keep only +ve or 0
+            v = _mm256_or_si256(neg, v);             // combine
+          }
+          __m256 t = _mm256_add_ps(                  // convert to [0, 1]
+            _mm256_mul_ps(_mm256_cvtepi32_ps(v), mul), half_ps);
+          t = _mm256_max_ps(t, ft_min);
+          t = _mm256_min_ps(t, ft_max);
+          __m256i kk = _mm256_cvttps_epi32(
+            _mm256_mul_ps(_mm256_sub_ps(t, ft_min), inv_delta));
+          // the indices are 16 bits wide, so gather 32 bits at a stride of
+          // two and keep the low half of each; the two entries that are read
+          // past the end of the indices are part of their allocation
+          __m256i k = _mm256_and_si256(
+            _mm256_i32gather_epi32((const int*)indices, kk, 2), low16);
+          __m256 y0 = _mm256_i32gather_ps(lut, k, 4);
+          __m256 y1 = _mm256_i32gather_ps(lut, _mm256_add_epi32(k, one), 4);
+          __m256 y2 = _mm256_i32gather_ps(lut, _mm256_add_epi32(k, two), 4);
+          // one step of search: a value that falls past the entry that was
+          // found belongs to the entry after it
+          __m256 adv = _mm256_cmp_ps(t, y1, _CMP_GT_OQ);
+          y0 = _mm256_blendv_ps(y0, y1, adv);
+          y1 = _mm256_blendv_ps(y1, y2, adv);
+          k = _mm256_add_epi32(k,
+            _mm256_and_si256(_mm256_castps_si256(adv), one));
+          // interpolate, but only over a segment that has a width; the last
+          // entry of the table is repeated, and a segment without a width
+          // contributes nothing
+          __m256 den = _mm256_sub_ps(y1, y0);
+          __m256 has = _mm256_cmp_ps(den, zero_ps, _CMP_GT_OQ);
+          den = _mm256_blendv_ps(one_ps, den, has);
+          __m256 y = _mm256_add_ps(
+            _mm256_add_ps(fd_min,
+              _mm256_mul_ps(_mm256_cvtepi32_ps(k), delta)),
+            _mm256_and_ps(_mm256_div_ps(
+              _mm256_mul_ps(_mm256_sub_ps(t, y0), delta), den), has));
+          _mm256_storeu_ps(dp, _mm256_sub_ps(y, half_ps));
+        }
+      }
+      else
+      {
+        for (int i = (int)width; i > 0; i -= 8, sp += 8, dp += 8) {
+          __m256i v = _mm256_loadu_si256((__m256i*)sp);
+          __m256 t = _mm256_mul_ps(_mm256_cvtepi32_ps(v), mul);  // in [0, 1]
+          t = _mm256_max_ps(t, ft_min);
+          t = _mm256_min_ps(t, ft_max);
+          __m256i kk = _mm256_cvttps_epi32(
+            _mm256_mul_ps(_mm256_sub_ps(t, ft_min), inv_delta));
+          // the indices are 16 bits wide, so gather 32 bits at a stride of
+          // two and keep the low half of each; the two entries that are read
+          // past the end of the indices are part of their allocation
+          __m256i k = _mm256_and_si256(
+            _mm256_i32gather_epi32((const int*)indices, kk, 2), low16);
+          __m256 y0 = _mm256_i32gather_ps(lut, k, 4);
+          __m256 y1 = _mm256_i32gather_ps(lut, _mm256_add_epi32(k, one), 4);
+          __m256 y2 = _mm256_i32gather_ps(lut, _mm256_add_epi32(k, two), 4);
+          // one step of search: a value that falls past the entry that was
+          // found belongs to the entry after it
+          __m256 adv = _mm256_cmp_ps(t, y1, _CMP_GT_OQ);
+          y0 = _mm256_blendv_ps(y0, y1, adv);
+          y1 = _mm256_blendv_ps(y1, y2, adv);
+          k = _mm256_add_epi32(k,
+            _mm256_and_si256(_mm256_castps_si256(adv), one));
+          // interpolate, but only over a segment that has a width; the last
+          // entry of the table is repeated, and a segment without a width
+          // contributes nothing
+          __m256 den = _mm256_sub_ps(y1, y0);
+          __m256 has = _mm256_cmp_ps(den, zero_ps, _CMP_GT_OQ);
+          den = _mm256_blendv_ps(one_ps, den, has);
+          __m256 y = _mm256_add_ps(
+            _mm256_add_ps(fd_min,
+              _mm256_mul_ps(_mm256_cvtepi32_ps(k), delta)),
+            _mm256_and_ps(_mm256_div_ps(
+              _mm256_mul_ps(_mm256_sub_ps(t, y0), delta), den), has));
+          _mm256_storeu_ps(dp, _mm256_sub_ps(y, half_ps));
+        }
+      }
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    // The precise inverse of the look-up table, for a table whose derived
+    // version is coarse enough that one step of it can cross more than one
+    // entry of the table that was supplied.  The entry that a value falls in
+    // is found with a fixed-depth binary search over the entries the step can
+    // reach; the depth is the worst case, ceil(log2(precise_max_steps + 1)),
+    // so every lane performs the same number of steps.  This mirrors
+    // local_gen_irv_convert_to_float_nlt2or4_precise_search in ojph_colour.cpp,
+    // so keep the two in step when that one changes.
+    //////////////////////////////////////////////////////////////////////////
+    template<int NLT_TYPE>
+    static inline
+    void local_avx2_irv_convert_to_float_nlt2or4_precise_search(
+      const line_buf *src_line, ui32 src_line_offset, line_buf *dst_line,
+      ui32 bit_depth, bool is_signed, ui32 width, const nlt_rec* rec)
+    {
+      ojph_unused(is_signed);
+      ojph_unused(bit_depth);
+
+      assert((src_line->flags & line_buf::LFT_32BIT) &&
+             (src_line->flags & line_buf::LFT_INTEGER) &&
+             (dst_line->flags & line_buf::LFT_32BIT) &&
+             (dst_line->flags & line_buf::LFT_INTEGER) == 0);
+
+      assert(bit_depth <= 32);
+      assert(rec->precise_max_steps > 1);
+      __m256 mul = _mm256_set1_ps(rec->multiplier);
+      __m256 ft_min = _mm256_set1_ps(rec->ft_min);
+      __m256 ft_max = _mm256_set1_ps(rec->ft_max);
+      __m256 fd_min = _mm256_set1_ps(rec->fd_min);
+      __m256 delta = _mm256_set1_ps(rec->delta);
+      __m256 inv_delta = _mm256_set1_ps(rec->inv_delta);
+      const float* lut = rec->precise_dec_lut;
+      const ui16* indices = rec->precise_enc_dec_indices;
+      ui32 num_points = rec->num_points;
+
+      // the search interval is at most precise_max_steps + 1 entries wide;
+      // run the worst-case number of binary-search steps on every lane,
+      // which is ceil(log2(span))
+      ui32 span = rec->precise_max_steps + 1;
+      int steps = 32 - (int)count_leading_zeros(rec->precise_max_steps);
+
+      __m256 half_ps = _mm256_set1_ps(0.5f);
+      __m256 one_ps = _mm256_set1_ps(1.0f);
+      __m256 zero_ps = _mm256_setzero_ps();
+      __m256i low16 = _mm256_set1_epi32(0xFFFF);
+      __m256i span_epi32 = _mm256_set1_epi32((si32)span);
+      __m256i num_epi32 = _mm256_set1_epi32((si32)num_points);
+
+      const si32* sp = src_line->i32 + src_line_offset;
+      float* dp = dst_line->f32;
+      if (rec->is_signed())
+      {
+        __m256i bias =
+          _mm256_set1_epi32(-(si32)((1ULL << (rec->get_bit_depth() - 1)) + 1));
+        __m256i zero = _mm256_setzero_si256();
+        for (int i = (int)width; i > 0; i -= 8, sp += 8, dp += 8) {
+          __m256i v = _mm256_loadu_si256((__m256i*)sp);
+          if (NLT_TYPE == 4)
+          {
+            __m256i c = _mm256_cmpgt_epi32(zero, v); // 0xFFFFFFFF for -ve val
+            __m256i neg = _mm256_sub_epi32(bias, v); // - bias - value
+            neg = _mm256_and_si256(c, neg);          // keep only - bias - val
+            v = _mm256_andnot_si256(c, v);           // keep only +ve or 0
+            v = _mm256_or_si256(neg, v);             // combine
+          }
+          __m256 t = _mm256_add_ps(                  // convert to [0, 1]
+            _mm256_mul_ps(_mm256_cvtepi32_ps(v), mul), half_ps);
+          t = _mm256_max_ps(t, ft_min);
+          t = _mm256_min_ps(t, ft_max);
+          __m256i kk = _mm256_cvttps_epi32(
+            _mm256_mul_ps(_mm256_sub_ps(t, ft_min), inv_delta));
+          // the indices are 16 bits wide, so gather 32 bits at a stride of
+          // two and keep the low half of each; the two entries that are read
+          // past the end of the indices are part of their allocation
+          __m256i lo = _mm256_and_si256(
+            _mm256_i32gather_epi32((const int*)indices, kk, 2), low16);
+          __m256i hi = _mm256_min_epi32(
+            _mm256_add_epi32(lo, span_epi32), num_epi32);
+
+          for (int step = 0; step < steps; ++step)
+          {
+            __m256i mid = _mm256_srli_epi32(_mm256_add_epi32(lo, hi), 1);
+            __m256 lmid = _mm256_i32gather_ps(lut, mid, 4);
+            __m256 ge = _mm256_cmp_ps(t, lmid, _CMP_GE_OQ);
+            __m256i g = _mm256_castps_si256(ge);
+            lo = _mm256_blendv_epi8(lo, mid, g);
+            hi = _mm256_blendv_epi8(mid, hi, g);
+          }
+
+          __m256 y0 = _mm256_i32gather_ps(lut, lo, 4);
+          __m256 y1 = _mm256_i32gather_ps(lut, hi, 4);
+          // interpolate, but only over a segment that has a width; the last
+          // entry of the table is repeated, and a segment without a width
+          // contributes nothing
+          __m256 den = _mm256_sub_ps(y1, y0);
+          __m256 has = _mm256_cmp_ps(den, zero_ps, _CMP_GT_OQ);
+          den = _mm256_blendv_ps(one_ps, den, has);
+          __m256 y = _mm256_add_ps(
+            _mm256_add_ps(fd_min,
+              _mm256_mul_ps(_mm256_cvtepi32_ps(lo), delta)),
+            _mm256_and_ps(_mm256_div_ps(
+              _mm256_mul_ps(_mm256_sub_ps(t, y0), delta), den), has));
+          _mm256_storeu_ps(dp, _mm256_sub_ps(y, half_ps));
+        }
+      }
+      else
+      {
+        for (int i = (int)width; i > 0; i -= 8, sp += 8, dp += 8) {
+          __m256i v = _mm256_loadu_si256((__m256i*)sp);
+          __m256 t = _mm256_mul_ps(_mm256_cvtepi32_ps(v), mul);  // in [0, 1]
+          t = _mm256_max_ps(t, ft_min);
+          t = _mm256_min_ps(t, ft_max);
+          __m256i kk = _mm256_cvttps_epi32(
+            _mm256_mul_ps(_mm256_sub_ps(t, ft_min), inv_delta));
+          // the indices are 16 bits wide, so gather 32 bits at a stride of
+          // two and keep the low half of each; the two entries that are read
+          // past the end of the indices are part of their allocation
+          __m256i lo = _mm256_and_si256(
+            _mm256_i32gather_epi32((const int*)indices, kk, 2), low16);
+          __m256i hi = _mm256_min_epi32(
+            _mm256_add_epi32(lo, span_epi32), num_epi32);
+
+          for (int step = 0; step < steps; ++step)
+          {
+            __m256i mid = _mm256_srli_epi32(_mm256_add_epi32(lo, hi), 1);
+            __m256 lmid = _mm256_i32gather_ps(lut, mid, 4);
+            __m256 ge = _mm256_cmp_ps(t, lmid, _CMP_GE_OQ);
+            __m256i g = _mm256_castps_si256(ge);
+            lo = _mm256_blendv_epi8(lo, mid, g);
+            hi = _mm256_blendv_epi8(mid, hi, g);
+          }
+
+          __m256 y0 = _mm256_i32gather_ps(lut, lo, 4);
+          __m256 y1 = _mm256_i32gather_ps(lut, hi, 4);
+          __m256 den = _mm256_sub_ps(y1, y0);
+          __m256 has = _mm256_cmp_ps(den, zero_ps, _CMP_GT_OQ);
+          den = _mm256_blendv_ps(one_ps, den, has);
+          __m256 y = _mm256_add_ps(
+            _mm256_add_ps(fd_min,
+              _mm256_mul_ps(_mm256_cvtepi32_ps(lo), delta)),
+            _mm256_and_ps(_mm256_div_ps(
+              _mm256_mul_ps(_mm256_sub_ps(t, y0), delta), den), has));
+          _mm256_storeu_ps(dp, _mm256_sub_ps(y, half_ps));
+        }
+      }
+    }
+
+    //////////////////////////////////////////////////////////////////////////
     void avx2_irv_convert_to_float_nlt(const line_buf *src_line,
       ui32 src_line_offset, line_buf *dst_line,
       ui32 bit_depth, bool is_signed, ui32 width, const nlt_rec* rec)
     {
       using nl = nlt_rec::nonlinearity;
       if (rec->get_type() == nl::OJPH_NLT_LUT_STYLE_NLT)
-        local_avx2_irv_convert_to_float_nlt2or4<2>(src_line,
-          src_line_offset, dst_line, bit_depth, is_signed, width, rec);
+      {
+        if (rec->approx_encoding_nlt)
+          local_avx2_irv_convert_to_float_nlt2or4<2>(src_line,
+            src_line_offset, dst_line, bit_depth, is_signed, width, rec);
+        else if (rec->precise_max_steps == 1)
+          local_avx2_irv_convert_to_float_nlt2or4_precise_1step<2>(src_line,
+            src_line_offset, dst_line, bit_depth, is_signed, width, rec);
+        else
+          local_avx2_irv_convert_to_float_nlt2or4_precise_search<2>(src_line,
+            src_line_offset, dst_line, bit_depth, is_signed, width, rec);
+      }
       else if (rec->get_type() == nl::OJPH_NLT_BINARY_COMPLEMENT_PLUS_LUT)
-        local_avx2_irv_convert_to_float_nlt2or4<4>(src_line,
-          src_line_offset, dst_line, bit_depth, is_signed, width, rec);
+      {
+        if (rec->approx_encoding_nlt)
+          local_avx2_irv_convert_to_float_nlt2or4<4>(src_line,
+            src_line_offset, dst_line, bit_depth, is_signed, width, rec);
+        else if (rec->precise_max_steps == 1)
+          local_avx2_irv_convert_to_float_nlt2or4_precise_1step<4>(src_line,
+            src_line_offset, dst_line, bit_depth, is_signed, width, rec);
+        else
+          local_avx2_irv_convert_to_float_nlt2or4_precise_search<4>(src_line,
+            src_line_offset, dst_line, bit_depth, is_signed, width, rec);
+      }
       else
         assert(0);
     }

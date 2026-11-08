@@ -772,6 +772,64 @@ testRoundListSizeUpLimits ()
     });
 }
 
+//
+// A data window with a large y origin: min.y * pixelsPerRow() overflows
+// a 32-bit int, which used to wrap the virtual base pointers of both the
+// sample-count channel and the deep sample channels, sending the decode
+// writes far outside their allocations. Round-tripping through
+// saveDeepScanLineImage/loadDeepImage must land in the real allocations.
+//
+
+void
+testOriginOverflow ()
+{
+    cout << "large data-window origin (base-pointer overflow)" << endl;
+
+    const int minY   = 268435456; // 2^28; 8 * minY == 2^31 overflows int
+    const int width  = 8;
+    const int height = 8;
+    Box2i dataWindow (V2i (0, minY), V2i (width - 1, minY + height - 1));
+
+    DeepImage img1;
+    img1.resize (dataWindow, ONE_LEVEL, ROUND_DOWN);
+    img1.insertChannel ("F", FLOAT, 1, 1, false);
+
+    DeepImageLevel&     level1 = img1.level ();
+    DeepFloatChannel&   c1     = level1.typedChannel<float> ("F");
+    SampleCountChannel& scc1   = level1.sampleCounts ();
+
+    for (int y = dataWindow.min.y; y <= dataWindow.max.y; ++y)
+        for (int x = dataWindow.min.x; x <= dataWindow.max.x; ++x)
+        {
+            int n = (x + y - minY) % 3 + 1;
+            scc1.set (x, y, n);
+            for (int j = 0; j < n; ++j)
+                c1 (x, y)[j] =
+                    static_cast<float> ((x + 1) * 100 + (y - minY) * 10 + j);
+        }
+
+    const string fileName = "deepOriginOverflow.exr";
+    saveDeepScanLineImage (fileName, img1);
+
+    DeepImage img2;
+    loadDeepImage (fileName, img2);
+
+    assert (img2.dataWindow () == dataWindow);
+    DeepImageLevel&   level2 = img2.level ();
+    DeepFloatChannel& c2     = level2.typedChannel<float> ("F");
+
+    for (int y = dataWindow.min.y; y <= dataWindow.max.y; ++y)
+        for (int x = dataWindow.min.x; x <= dataWindow.max.x; ++x)
+        {
+            int n = scc1.at (x, y);
+            assert (level2.sampleCounts ().at (x, y) == n);
+            for (int j = 0; j < n; ++j)
+                assert (c2 (x, y)[j] == c1 (x, y)[j]);
+        }
+
+    remove (fileName.c_str ());
+}
+
 } // namespace
 
 void
@@ -791,6 +849,7 @@ testDeepImage (const string& tempDir)
         testCropping (tempDir + "deepCropped.exr");
         testRenameChannel ();
         testRenameChannels ();
+        testOriginOverflow ();
 
         cout << "ok\n" << endl;
     }

@@ -61,11 +61,14 @@ namespace ojph {
       assert(byte_alignment / sizeof(ui32) > 1);
       const ui32 f = byte_alignment / sizeof(ui32) - 1;
       ui32 stride = (nominal.w + f) & ~f; // a multiple of 8
+      // the HT cleanup pass writes two rows per quad row, so the sample
+      // buffer must hold an even number of rows
+      ui32 rows = (nominal.h + 1u) & ~1u;
 
       if (precision <= 32)
-        allocator->pre_alloc_data<ui32>(nominal.h * (size_t)stride, 0);
+        allocator->pre_alloc_data<ui32>(rows * (size_t)stride, 0);
       else
-        allocator->pre_alloc_data<ui64>(nominal.h * (size_t)stride, 0);
+        allocator->pre_alloc_data<ui64>(rows * (size_t)stride, 0);
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -80,7 +83,9 @@ namespace ojph {
 
       const ui32 f = byte_alignment / sizeof(ui32) - 1;
       this->stride = (nominal.w + f) & ~f; // a multiple of 8
-      this->buf_size = this->stride * nominal.h;
+      // the HT cleanup pass writes two rows per quad row, so the sample
+      // buffer must hold an even number of rows
+      this->buf_size = this->stride * ((nominal.h + 1u) & ~1u);
 
       if (precision <= 32) {
         this->precision = BUF32;

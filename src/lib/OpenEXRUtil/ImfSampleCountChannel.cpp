@@ -123,7 +123,11 @@ SampleCountChannel::set (int x, int y, unsigned int newNumSamples)
 
     boundsCheck (x, y);
 
-    size_t i = (_base + y * pixelsPerRow () + x) - _numSamples;
+    // y * pixelsPerRow() must be computed in ptrdiff_t: a large
+    // dataWindow origin overflows it as a 32-bit int (see
+    // resetBasePointer), giving a wild index i.
+    size_t i =
+        (_base + static_cast<ptrdiff_t> (y) * pixelsPerRow () + x) - _numSamples;
 
     if (newNumSamples <= _numSamples[i])
     {
@@ -344,8 +348,16 @@ SampleCountChannel::resize ()
 void
 SampleCountChannel::resetBasePointer ()
 {
-    _base = _numSamples - level ().dataWindow ().min.y * pixelsPerRow () -
-            level ().dataWindow ().min.x;
+    //
+    // Compute the virtual base pointer in ptrdiff_t: min.y * pixelsPerRow()
+    // overflows a 32-bit int for a large dataWindow origin (see
+    // TypedFlatImageChannel::resetBasePointer).
+    //
+
+    _base = _numSamples -
+            static_cast<ptrdiff_t> (level ().dataWindow ().min.y) *
+                static_cast<ptrdiff_t> (pixelsPerRow ()) -
+            static_cast<ptrdiff_t> (level ().dataWindow ().min.x);
 }
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT
