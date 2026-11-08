@@ -166,3 +166,18 @@ set_tests_properties(
 # ctest's --parallel scheduler starts this long-running test early. See
 # the longer explanation in OpenEXRTest/CMakeLists.txt.
 set_tests_properties (OpenEXRCore.testDWATable PROPERTIES COST 10)
+
+# A static OpenEXRCore with the vendored OpenJPH must not define its
+# symbols under their own names (see check_vendored_symbols.cmake). Labeled
+# "portability" so the static, vendored-dependency CI jobs, which run only
+# that subset, include it.
+get_target_property(_openexrcore_type OpenEXRCore TYPE)
+if (_openexrcore_type STREQUAL "STATIC_LIBRARY" AND OPENEXR_USE_INTERNAL_OPENJPH
+    AND CMAKE_NM AND NOT MSVC)
+  add_test(NAME OpenEXRCore.vendoredSymbols
+    COMMAND ${CMAKE_COMMAND} -DNM=${CMAKE_NM} -DLIB=$<TARGET_FILE:OpenEXRCore>
+            -P ${CMAKE_CURRENT_SOURCE_DIR}/check_vendored_symbols.cmake)
+  set_tests_properties(OpenEXRCore.vendoredSymbols
+    PROPERTIES LABELS "OpenEXRCore;portability")
+endif()
+unset(_openexrcore_type)
