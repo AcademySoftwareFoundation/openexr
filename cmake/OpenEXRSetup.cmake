@@ -249,12 +249,26 @@ if(EXR_DEFLATE_LIB)
   message(STATUS "Using externally provided libdeflate: ${EXR_DEFLATE_VERSION}")
   # For OpenEXR.pc.in for static build
   set(EXR_DEFLATE_PKGCONFIG_REQUIRES "libdeflate >= ${EXR_DEFLATE_VERSION}")
+  string(REGEX MATCH "^([0-9]+)\\.([0-9]+)" _deflate_version_match "${EXR_DEFLATE_VERSION}")
+  set(deflate_VERSION_MAJOR "${CMAKE_MATCH_1}")
+  set(deflate_VERSION_MINOR "${CMAKE_MATCH_2}")
 else()
   # Using internal deflate
   if(OPENEXR_FORCE_INTERNAL_DEFLATE)
     message(STATUS "libdeflate forced internal, using vendored code")
   else()
     message(STATUS "libdeflate was not found, using vendored code")
+  endif()
+
+  # extract the libdeflate version variables from libdeflate.h
+  set(deflate_version "${CMAKE_CURRENT_SOURCE_DIR}/external/deflate/libdeflate.h")
+  if(EXISTS "${deflate_version}")
+    file(STRINGS "${deflate_version}" _deflate_major REGEX "#define LIBDEFLATE_VERSION_MAJOR")
+    file(STRINGS "${deflate_version}" _deflate_minor REGEX "#define LIBDEFLATE_VERSION_MINOR")
+    string(REGEX REPLACE ".*LIBDEFLATE_VERSION_MAJOR[ \t]+([0-9]+).*" "\\1" deflate_VERSION_MAJOR "${_deflate_major}")
+    string(REGEX REPLACE ".*LIBDEFLATE_VERSION_MINOR[ \t]+([0-9]+).*" "\\1" deflate_VERSION_MINOR "${_deflate_minor}")
+  else()
+    message(STATUS "can't find libdeflate.h: ${deflate_version}")
   endif()
 
   set (OPENEXR_USE_INTERNAL_DEFLATE ON)
@@ -396,6 +410,7 @@ endif()
 #######################################
 
 option(OPENEXR_FORCE_INTERNAL_IMATH "Force using an internal imath" OFF)
+set(OPENEXR_USE_INTERNAL_IMATH OFF)
 # Check to see if Imath is installed outside of the current build directory.
 set(OPENEXR_IMATH_REPO "https://github.com/AcademySoftwareFoundation/Imath.git" CACHE STRING "Repo for auto-build of Imath")
 set(OPENEXR_IMATH_TAG "main" CACHE STRING "Tag for auto-build of Imath (branch, tag, or SHA)")
@@ -412,6 +427,7 @@ if(NOT TARGET Imath::Imath AND NOT Imath_FOUND)
   else()
     message(STATUS "Imath was not found, fetching from ${OPENEXR_IMATH_REPO} @ ${OPENEXR_IMATH_TAG}")
   endif()
+  set(OPENEXR_USE_INTERNAL_IMATH ON)
   include(FetchContent)
   FetchContent_Declare(Imath
     GIT_REPOSITORY "${OPENEXR_IMATH_REPO}"
