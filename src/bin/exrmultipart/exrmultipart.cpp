@@ -305,6 +305,50 @@ convert (
 
     make_unique_names (output_headers);
 
+    //
+    // The pixel-copying code below reads and writes through scanline
+    // InputPart / OutputPart, so it only handles scanline images.  A tiled
+    // or deep input that maps to a single output part (i.e. there are no
+    // views to split apart) is just a faithful re-container into an
+    // EXR-2.0 file, which the copy_* helpers used by -combine and -separate
+    // already handle for every pixel type.  Dispatch to those here, and
+    // reject only the case the scanline path genuinely cannot express:
+    // splitting the views of a tiled or deep file into separate parts.
+    //
+    const string input_type = infile.header (0).type ();
+
+    if (input_type != SCANLINEIMAGE)
+    {
+        if (parts != 1)
+            throw invalid_argument (
+                "cannot convert this file: splitting the views of a tiled "
+                "or deep image into separate parts is only supported for "
+                "scanline images");
+
+        //
+        // Single output part: the channels are not remapped (there are no
+        // views), so copy them verbatim and let the type-appropriate helper
+        // copy the pixels.
+        //
+        output_headers[0].channels () = infile.header (0).channels ();
+
+        MultiPartOutputFile outfile (
+            outname, &output_headers[0], output_headers.size ());
+
+        if (input_type == TILEDIMAGE)
+            copy_tile (infile, outfile, 0, 0);
+        else if (input_type == DEEPSCANLINE)
+            copy_scanlinedeep (infile, outfile, 0, 0);
+        else if (input_type == DEEPTILE)
+            copy_tiledeep (infile, outfile, 0, 0);
+        else
+            throw invalid_argument (
+                "cannot convert input of unknown type '" + input_type +
+                "'");
+
+        return;
+    }
+
     const ChannelList& in_chanlist = infile.header (0).channels ();
 
     int channel_count = 0;
