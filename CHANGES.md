@@ -16,6 +16,7 @@
 * [Version 3.4.2](#version-342-october-15-2025) October 15, 2025
 * [Version 3.4.1](#version-341-october-8-2025) October 8, 2025
 * [Version 3.4.0](#version-340-september-5-2025) September 5, 2025
+* [Version 3.3.17](#version-3317-november-11-2026) November 11, 2026
 * [Version 3.3.16](#version-3316-november-7-2026) November 7, 2026
 * [Version 3.3.15](#version-3315-october-30-2026) October 30, 2026
 * [Version 3.3.14](#version-3314-august-21-2026) August 21, 2026
@@ -1034,6 +1035,18 @@ Bazel Support: Use Imath and libdeflate live at head
 Fetch master branch of libdeflate on main
 * [1852](https://github.com/AcademySoftwareFoundation/openexr/pull/1852)
 Add an option to use TBB as the global provider
+
+## Version 3.3.17 (November 11, 2026)
+
+### Merged Pull Requests
+
+
+### Merged Workflow Pull Requests
+
+* [2835](https://github.com/AcademySoftwareFoundation/openexr/pull/2835)
+  release-notice: add workflow_dispatch to send announcements manually (by @cary-ilm/Cary Phillips)
+* [2799](https://github.com/AcademySoftwareFoundation/openexr/pull/2799)
+  Fix missing step id breaking Slack release notifications (by @cary-ilm/Cary Phillips)
 
 ## Version 3.3.16 (November 7, 2026)
 
