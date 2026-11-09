@@ -8,6 +8,15 @@ on:
     types:
       - published
       # published should cover both 'released' and 'prereleased'
+  # Allow re-sending the announcement manually, e.g. if the release
+  # event run failed. Provide the tag of an already-published release;
+  # the notes, title, and URL are fetched from that release.
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag of the published release to announce (e.g. v3.4.18)'
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -20,16 +29,36 @@ jobs:
     steps:
     - name: 'Prepare Slack-safe release notes'
       id: notes
-      # Strip the ### Contributors section from the release notes,
-      # since it has raw html that doesn't translate.
+      # Resolve the release (from the triggering release event, or from
+      # the tag given to workflow_dispatch) and strip the ### Contributors
+      # section from the notes, since it has raw html that doesn't translate.
       env:
+        GH_TOKEN: ${{ github.token }}
+        REPO: ${{ github.repository }}
+        EVENT_NAME: ${{ github.event_name }}
+        INPUT_TAG: ${{ github.event.inputs.tag }}
+        RELEASE_NAME: ${{ github.event.release.name }}
+        RELEASE_URL: ${{ github.event.release.html_url }}
         RELEASE_BODY: ${{ github.event.release.body }}
       run: |
-        # This outputs:
+        # For a manual run, github.event.release is empty, so fetch the
+        # release details for the requested tag from the API instead.
+        if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+          release_json=$(gh release view "$INPUT_TAG" --repo "$REPO" --json name,url,body)
+          RELEASE_NAME=$(printf '%s' "$release_json" | jq -r '.name')
+          RELEASE_URL=$(printf '%s' "$release_json" | jq -r '.url')
+          RELEASE_BODY=$(printf '%s' "$release_json" | jq -r '.body')
+        fi
+
+        # This outputs version, url, and:
         #   notes<<DELIMITER
         #    <release notes w/o contributors
         #   DELIMITER
-        # which assigns the value to steps.notes.outputs.notes
+        # which assigns the values to steps.notes.outputs.*
+        {
+          echo "version=$RELEASE_NAME"
+          echo "url=$RELEASE_URL"
+        } >> "$GITHUB_OUTPUT"
         delimiter="EOF_$(date +%s)_$RANDOM"
         {
           echo "notes<<$delimiter"
@@ -44,6 +73,8 @@ jobs:
         slack_bot_token: ${{ secrets.SLACK_BOT_TOKEN }}
         slack_channel: "#release-announcements"
         project_logo: "https://artwork.aswf.io/projects/openexr/icon/color/openexr-icon-color.png"
+        release_version: ${{ steps.notes.outputs.version }}
+        release_url: ${{ steps.notes.outputs.url }}
         release_notes: ${{ steps.notes.outputs.notes }}
       uses: jmertic/slack-release-notifier@4bf7813217739180f89eb869bf769efc07928368 # 20260930
 
@@ -54,6 +85,8 @@ jobs:
         slack_bot_token: ${{ secrets.SLACK_BOT_TOKEN }}
         slack_channel: "#openexr"
         project_logo: "https://artwork.aswf.io/projects/openexr/icon/color/openexr-icon-color.png"
+        release_version: ${{ steps.notes.outputs.version }}
+        release_url: ${{ steps.notes.outputs.url }}
         release_notes: ${{ steps.notes.outputs.notes }}
       uses: jmertic/slack-release-notifier@4bf7813217739180f89eb869bf769efc07928368 # 20260930
 
