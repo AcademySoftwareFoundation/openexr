@@ -17,16 +17,16 @@ News
 
 
 |latest-news-title|
-==========================================
+=====================================================
 
 .. _LatestNewsStart:
 
-Patch release that addresses a regression introduced in v3.3.0 that leads
+Patch releases that addresses a regression introduced in v3.3.0 that leads
 to excessive memory usage during write, especially with DWA
 compression (Issue
 `#2791 <https://github.com/AcademySoftwareFoundation/openexr/issues/2791>`_).
 
-This release also addresses the following security vulnerabilities:
+These releases also addresses the following security vulnerabilities:
 
 * ***CVE Pending*** (`GHSA-PP92-4RV3-WFQ6 <https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-PP92-4RV3-WFQ6>`_) OpenEXR: a signed-int data-window-origin overflow in the OpenEXRUtil Image API turns ``Imf::loadImage`` into an attacker-steered out-of-bounds write
 * ***CVE Pending*** (`GHSA-2V77-PVHX-25C3 <https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-2V77-PVHX-25C3>`_) Integer overflow in legacy ``OpenEXR.OutputFile.writePixels()`` causes heap over-read
