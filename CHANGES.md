@@ -3,6 +3,7 @@
 
 # OpenEXR Release Notes
 
+* [Version 3.4.19](#version-3419-november-11-2026) November 11, 2026
 * [Version 3.4.18](#version-3418-november-7-2026) November 7, 2026
 * [Version 3.4.17](#version-3417-october-30-2026) October 30 2026
 * [Version 3.4.16](#version-3416-september-28-2026) September 28, 2026
@@ -109,6 +110,18 @@
 * [Version 1.0.2](#version-102)
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
+
+## Version 3.4.19 (November 11, 2026)
+
+### Merged Pull Requests
+
+
+### Merged Workflow Pull Requests
+
+* [2835](https://github.com/AcademySoftwareFoundation/openexr/pull/2835)
+  release-notice: add workflow_dispatch to send announcements manually (by @cary-ilm/Cary Phillips)
+* [2799](https://github.com/AcademySoftwareFoundation/openexr/pull/2799)
+  Fix missing step id breaking Slack release notifications (by @cary-ilm/Cary Phillips)
 
 ## Version 3.4.18 (November 7, 2026)
 
