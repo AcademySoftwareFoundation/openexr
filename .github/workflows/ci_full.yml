@@ -89,6 +89,7 @@ jobs:
       OPENEXR_FORCE_INTERNAL_DEFLATE: ${{ matrix.OPENEXR_FORCE_INTERNAL_DEFLATE || 'OFF' }}
       OPENEXR_FORCE_INTERNAL_ZSTD: ${{ matrix.OPENEXR_FORCE_INTERNAL_ZSTD || 'OFF' }}
       OPENEXR_FORCE_INTERNAL_OPENJPH: ${{ matrix.OPENEXR_FORCE_INTERNAL_OPENJPH || 'OFF' }}
+      openjph_sha: ${{ matrix.openjph_sha || '345a8bcd1c7a3908e3870797057277660a412073' }} # default 0.33.0
       BUILD_TESTING: ${{ matrix.BUILD_TESTING || 'ON' }}
       RUN_TESTING: ${{ matrix.RUN_TESTING || 'ON' }}
       namespace: ${{ matrix.namespace }}
@@ -225,6 +226,7 @@ jobs:
       OPENEXR_FORCE_INTERNAL_ZSTD: ${{ matrix.OPENEXR_FORCE_INTERNAL_ZSTD || 'OFF' }}
       OPENEXR_FORCE_INTERNAL_OPENJPH: ${{ matrix.OPENEXR_FORCE_INTERNAL_OPENJPH || 'OFF' }}
       CMAKE_OSX_ARCHITECTURES: ${{ matrix.CMAKE_OSX_ARCHITECTURES }}
+      openjph_sha: ${{ matrix.openjph_sha || '345a8bcd1c7a3908e3870797057277660a412073' }} # default 0.33.0
       BUILD_TESTING: ${{ matrix.BUILD_TESTING || 'ON' }}
       RUN_TESTING: ${{ matrix.RUN_TESTING || 'ON' }}
       validate_install: ${{ matrix.validate_install || 'ON' }}
@@ -274,8 +276,8 @@ jobs:
             cmake: 3.15.7
 
           - name: OpenJPH 0.32.0
-            openjph_version: 0.32.0
-            
+            openjph_sha: 23c422895ce6c3a156935222e4715ee0b7be952c # 0.32.0
+
           - name: macos-15-intel
             os: macos-15-intel
 
@@ -331,6 +333,7 @@ jobs:
       validate_install: ${{ matrix.validate_install || 'ON' }}
       configure_install_prefix: ${{ matrix.configure_install_prefix }}
       CMAKE_GENERATOR_PLATFORM: ${{ matrix.CMAKE_GENERATOR_PLATFORM }}
+      openjph_sha: ${{ matrix.openjph_sha || '345a8bcd1c7a3908e3870797057277660a412073' }} # default 0.33.0
 
     strategy:
       fail-fast: false
@@ -375,8 +378,8 @@ jobs:
             cmake: 3.15.7 
 
           - name: OpenJPH 0.32.0
-            openjph_version: 0.32.0
-            
+            openjph_sha: 23c422895ce6c3a156935222e4715ee0b7be952c # 0.32.0
+
           - name: win32-MSVC-x86
             # Validates the 32-bit Windows build using the native MSVC x86
             # toolset (cmake -A Win32), since MSYS2's MINGW32 environment
@@ -524,7 +527,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Build and test on NetBSD
-        uses: vmactions/netbsd-vm@c8a0d7ddb84619a7a8cc4e652efa7950b3fd9f92 # v1.5.2
+        uses: vmactions/netbsd-vm@5957cf330aef2e6ddc63c604364c99ce2e02b91d # v1.5.3
         with:
           release: '10.2'
           envs: GITHUB_REPOSITORY GITHUB_REF GITHUB_SHA
