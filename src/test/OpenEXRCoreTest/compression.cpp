@@ -1855,10 +1855,62 @@ read_header_throws (void* buffer, size_t max_sz)
     }
 }
 
+static bool
+write_header_throws_range (
+    uint8_t* buffer, size_t max_sz, const std::vector<CodestreamChannelInfo>& map)
+{
+    try
+    {
+        write_header (buffer, max_sz, map, HeaderMagic::V1);
+        return false;
+    }
+    catch (const std::range_error&)
+    {
+        return true;
+    }
+}
+
+static void
+testHTSmallChunkUncompressed (
+    const std::string& tempdir, exr_compression_t comp, exr_pixel_type_t type)
+{
+    /* a 1x1 image with one HALF or FLOAT channel is smaller than the
+     * HTJ2K chunk header, so the chunk is stored uncompressed */
+    uint8_t               src[4] = {1, 2, 3, 4};
+    std::string           fn     = tempdir + "ht_small_chunk.exr";
+    exr_context_t         f;
+    int                   partidx;
+    exr_chunk_info_t      cinfo;
+    exr_encode_pipeline_t encoder = EXR_ENCODE_PIPELINE_INITIALIZER;
+
+    EXRCORE_TEST_RVAL (
+        exr_start_write (&f, fn.c_str (), EXR_WRITE_FILE_DIRECTLY, NULL));
+    EXRCORE_TEST_RVAL (
+        exr_add_part (f, "scan", EXR_STORAGE_SCANLINE, &partidx));
+    EXRCORE_TEST_RVAL (
+        exr_initialize_required_attr_simple (f, partidx, 1, 1, comp));
+    EXRCORE_TEST_RVAL (exr_add_channel (
+        f, partidx, "Y", type, EXR_PERCEPTUALLY_LOGARITHMIC, 1, 1));
+    EXRCORE_TEST_RVAL (exr_write_header (f));
+    EXRCORE_TEST_RVAL (exr_write_scanline_chunk_info (f, partidx, 0, &cinfo));
+    EXRCORE_TEST_RVAL (exr_encoding_initialize (f, partidx, &cinfo, &encoder));
+    encoder.channels[0].encode_from_ptr   = src;
+    encoder.channels[0].user_pixel_stride = type == EXR_PIXEL_HALF ? 2 : 4;
+    encoder.channels[0].user_line_stride  = type == EXR_PIXEL_HALF ? 2 : 4;
+    EXRCORE_TEST_RVAL (
+        exr_encoding_choose_default_routines (f, partidx, &encoder));
+    EXRCORE_TEST_RVAL (exr_encoding_run (f, partidx, &encoder));
+
+    EXRCORE_TEST (encoder.compressed_bytes == encoder.packed_bytes);
+
+    EXRCORE_TEST_RVAL (exr_encoding_destroy (f, &encoder));
+    EXRCORE_TEST_RVAL (exr_finish (&f));
+    remove (fn.c_str ());
+}
+
 void
 testHTHeaderBounds (const std::string& tempdir)
 {
-    (void) tempdir;
 
     exr_coding_channel_info_t channels[] = {
         { "R" }, { "G" }, { "B" }
@@ -1908,6 +1960,22 @@ testHTHeaderBounds (const std::string& tempdir)
     bad_nch[HEADER_SZ]     = 0;
     bad_nch[HEADER_SZ + 1] = 32;
     EXRCORE_TEST (read_header_throws (bad_nch, hdr_sz));
+
+    /* chunks smaller than the header (e.g. a single HALF or FLOAT
+     * sample) must be rejected, so the encoder falls back to storing
+     * the chunk uncompressed */
+    for (size_t sz = 0; sz < hdr_sz; sz++)
+        EXRCORE_TEST (write_header_throws_range (buf, sz, cs_to_file_ch));
+
+    /* and end to end, the encoder stores such chunks uncompressed */
+    testHTSmallChunkUncompressed (
+        tempdir, EXR_COMPRESSION_HTJ2K256, EXR_PIXEL_HALF);
+    testHTSmallChunkUncompressed (
+        tempdir, EXR_COMPRESSION_HTJ2K256, EXR_PIXEL_FLOAT);
+    testHTSmallChunkUncompressed (
+        tempdir, EXR_COMPRESSION_HTJ2K32, EXR_PIXEL_HALF);
+    testHTSmallChunkUncompressed (
+        tempdir, EXR_COMPRESSION_HTJ2K32, EXR_PIXEL_FLOAT);
 }
 
 void
