@@ -17,9 +17,205 @@ News
 
 
 |latest-news-title|
-==========================================================
+=====================================================
 
 .. _LatestNewsStart:
+
+Patch releases that addresses a regression introduced in v3.3.0 that leads
+to excessive memory usage during write, especially with DWA
+compression (Issue
+`#2791 <https://github.com/AcademySoftwareFoundation/openexr/issues/2791>`_).
+
+These releases also addresses the following security vulnerabilities:
+
+* ***CVE Pending*** (`GHSA-PP92-4RV3-WFQ6 <https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-PP92-4RV3-WFQ6>`_) OpenEXR: a signed-int data-window-origin overflow in the OpenEXRUtil Image API turns ``Imf::loadImage`` into an attacker-steered out-of-bounds write
+* ***CVE Pending*** (`GHSA-2V77-PVHX-25C3 <https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-2V77-PVHX-25C3>`_) Integer overflow in legacy ``OpenEXR.OutputFile.writePixels()`` causes heap over-read
+
+.. _LatestNewsEnd:
+
+October 30, 2026 - OpenEXR 3.5.3, 3.4.17, 3.3.15 Released
+=========================================================
+
+v3.5.3 is a aatch release that addresses 15 security vulnerabilities,
+10 with pending CVE IDs, primarily heap buffer overflows and
+out-of-bounds writes triggered by malformed or malicious EXR files —
+several capable of remote code execution. 
+
+Patches for the vulnerabilities with pending CVEs have also been
+back-ported to v3.4 and v3.3.
+
+This release includes no new features or changes in behavior other
+than improved error detection and rejection of invalid input, except
+for a fix for a regression introduced in v3.4.14 in reading deep
+images on big-endian hosts, due to a byte-order bug that returned an
+incorrect deep sample count table. Little-endian hosts are unaffected.
+
+As part of this effort, the full test suite now passes cleanly under
+the address, undefined-behavior, and thread sanitizers.
+
+Also in this release:
+
+* Add support for Python 3.15
+* Several diagnostic/correctness fixes across the utility tools
+  (exrmetrics, exrmultipart, exrcheck) and core decompression
+  paths (courtesy of @ssoj13/Alex Khal)
+* Address several long-standing build errors and test failures on i686
+  (32-bit linux) and s390x (big-endian) hosts.
+* Fix build issues on macOS < 10.15
+* Fix build issues on powerpc
+* Fix for absolute paths for ``libm`` in OpenEXRTargets.cmake
+* Fix for running on Windows 7 involving ``CreateFile2``
+
+This release addresses the following security vulnerabilities:
+
+* ***CVE Pending*** (`GHSA-WHF5-29MJ-GP53 <https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-WHF5-29MJ-GP53>`_) Heap Out-of-Bounds Write via Signed Integer Overflow in DWAA/DWAB LossyDctDecoder
+* ***CVE Pending*** (`GHSA-VP77-HHRC-M2C3 <https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-VP77-HHRC-M2C3>`_) Subsampled chunk-height miscount: heap overflow in B44 encoder, NULL dereference in DWA decoder/encoder
+* ***CVE Pending*** (`GHSA-RXWG-X3WX-PGFH <https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-RXWG-X3WX-PGFH>`_) Heap out-of-bounds write via 32-bit tile-area integer overflow in DeepTiledOutputFile (deep-image re-save path) — possible incomplete fix of PR #939
+* ***CVE Pending*** (`GHSA-RJG8-982X-JHC2 <https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-RJG8-982X-JHC2>`_) Uninitialized Heap Memory Disclosure in DWA Decompression via Short zlib Stream Mapped to Success
+* ***CVE Pending*** (`GHSA-J76P-H7GW-VMPF <https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-J76P-H7GW-VMPF>`_) Heap buffer overflow in the OpenEXR Python bindings when two RGB channel groups coalesce to the same key
+* ***CVE Pending*** (`GHSA-G248-596F-9995 <https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-G248-596F-9995>`_) Unvalidated extra ``chlist`` header attributes merged into ``Header::channels()`` cause a heap overflow in ``run_fill``
+* ***CVE Pending*** (`GHSA-FRX8-5P4H-J8M7 <https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-FRX8-5P4H-J8M7>`_) Heap OOB Write via Integer Overflow in B44 Chunk Unpacked-Size Computation — Remote Code Execution in OpenEXRCore
+* ***CVE Pending*** (`GHSA-98RX-QPFV-QCWV <https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-98RX-QPFV-QCWV>`_) Missing grid-total bound in ZSTD deep decode causes heap out-of-bounds write in OpenEXRCore
+* ***CVE Pending*** (`GHSA-638X-X7MR-89XC <https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-638X-X7MR-89XC>`_) Out-of-bounds write at an attacker-chosen displacement in legacy Python InputFile.channel()
+* ***CVE Pending*** (`GHSA-6358-7H9P-8G5C <https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-6358-7H9P-8G5C>`_) Heap buffer overflow in OpenEXRCore ZSTD deep decode via unvalidated signed sample counts
+* ***CVE Pending*** (`GHSA-3CP4-779M-H837 <https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-3CP4-779M-H837>`_) Use-after-free in OpenEXRCore exr_copy_unset_attributes() when a channel name exceeds 31 bytes
+* (`GHSA-RJG8-982X-JHC2 <https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-RJG8-982X-JHC2>`_) Uninitialized Heap Memory Disclosure in DWA Decompression via Short zlib Stream Mapped to Success
+* (`GHSA-X92J-9982-GJG7 <https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-X92J-9982-GJG7>`_) DWA Encoder ``tmpHalfBuffer`` Integer Overflow → Undersized Allocation
+* (`GHSA-HRP4-XJP5-CQ7J <https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-HRP4-XJP5-CQ7J>`_) Misaligned pointer store in ``ht_undo_impl()`` (HTJ2K decode)
+* (`GHSA-FP76-2FH4-4XWW <https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-FP76-2FH4-4XWW>`_) Uncontrolled Resource Consumption and O(N^2) Processing Overhead via Unbounded Multipart Header Parsing
+* (`GHSA-HCP5-MX7Q-9642 <https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-HCP5-MX7Q-9642>`_) Null pointer read in the DWA decoder: ``compute_sampled_height`` counts one row instead of zero when y sampling exceeds the chunk height
+
+
+October 2, 2026 - OpenEXR 3.5.2 Released
+========================================
+
+Patch release that introduces the use of OpenJPH's built-in LUT to
+apply the decode/encode transfer function for lossy LJ2K compression.
+
+⚠️ WARNING: EXR files written by OpenEXR v3.5.0 and v3.5.1
+using lossy LJ2K compression lack the LUT in their codestream and
+should be regenerated. This v3.5.2 release includes a backwards
+compatibility fallback so that such files can be successfully decoded,
+but for best results, please regenerate any files using LJ2K written
+by v3.5.0 and v3.5.1. Note that this was incorrectly reported as being
+included in v3.5.0.
+
+Also in this release:
+
+* Prebuilt wheels Python 3.14.
+* Fix for a bug when when statically linking when libdeflate, zstd, or
+  OpenJPH is found via pkg-config rather than CMake config (#2673).
+* Pin the ``IMATH_TAG`` to ``v3.2.3``; it was previously incorrectly set to ``main``.
+* Pin the JPEG 2000 progression order to RPCL and adds TLM markers to
+  allow efficient random access to resolution layers for J2K
+  compression (#2672)
+* Fix for a failure case in exrcheck involving large images (#2688)
+
+
+September 21, 2026 - OpenEXR 3.5.0 Released
+===========================================
+
+* Support for lossless compression via
+  `Zstandard <https://github.com/facebook/zstd>`_
+
+  - Introduces ``ZSTD_COMPRESSION/EXR_COMPRESSION_ZSTD`` enum
+  - Features a custom data prep stage that includes ByteShuffle,
+    optional Delta Encoding, and custom data reordering.
+  - Universal lossless support: Works for all image types (including
+    Deep) and supports all OpenEXR pixel/data types.
+  - Deep image gains: Extensive testing with Deep scanlines shows a
+    20–30% size reduction compared to ZIPS based on image channels
+    (with the best gains on Deep Alpha and Deep ID).
+  - Flat image file size: Achieves comparable compressed sizes to ZIPS.
+  - Flat image speed: Delivers slightly faster compression and
+    decompression speeds compared to ZIPS
+  - Introduces a new dependency on the zstd library; a vendored
+    version (v1.5.7) is provided as a fallback if no installed version
+    is present.
+
+* Support for lossy compression based on the High Throughput JPEG 2000
+  (HTJ2K) standard.
+
+  - The LJ2K compressor uses the same JPEG 2000 constraints and codec
+    library (OpenJPH) as HTJ2K256, but with lossy coding, producing
+    smaller files at the cost of distortion.
+
+  - LJ2K should generally offer reduced file sizes and higher
+    throughput compared to DWA.
+
+  - Currently supports 16-bit HALF, 32-bit FLOAT and 32-bit UINT
+    channels. Lossy coding is currently applied only to RGB channels;
+    other channels are losslessly coded.
+
+  - The amount of distortion is controlled via a quality level
+    parameter that ranges from 1 to 150. 
+
+  - As with DWA, lossy RGB channels are first transformed to a
+    non-linear preceptual domain before coding. The transformation is
+    log-based when the sample's magnitude is greater than 1, and
+    power-law otherwise.
+
+* Improved support for the ``colorInteropID`` standard attribute as a
+  mechanism to identify the color space of the RGB images:
+
+  - Added support for ``colorInteropID`` to command-line tool ``exrstdattr``.
+  - Added API functions to validate color metadata in the header to both the C++ and core APIs.
+  - Extended the exrinfo command-line tool to print warnings regarding header color metadata.
+  - Added helper functions to convert between chromaticities and ``colorInteropID``.
+  - Added Python bindings for all new functions.
+  - See `An ID for Color
+    Interop <https://github.com/AcademySoftwareFoundation/ColorInterop/blob/main/Recommendations/03_ColorInteropID/ColorInteropID.md>`_
+    and `Identifying the Color Space of OpenEXR
+    Files <https://github.com/AcademySoftwareFoundation/ColorInterop/blob/main/Recommendations/04_OpenEXRFiles/OpenEXRFiles.md>`_
+    for details. 
+
+* Support for a cache for a (de)compression context in the core decode pipeline.
+
+  - This is a backwards compatible change (i.e. older versions of code
+    compiled against previous headers will still work), with the
+    exception that it does add the requirement that application code
+    actually use the provided initializer when defining
+    ``exr_decode_pipeline_t`` objects. 
+
+* For the OpenEXR python module:
+  - Support for the ``idManifest`` attribute and object
+  - Support for multithreaded read and write
+  - Support for reading/writing from/to ``BytesIO`` object
+  - Add ``setMaxImageSize/setMaxTileSize`` functions
+
+* Other changes:
+
+  - ``AcesInputFile/AcesOutputFile`` and ``exr2aces`` as marked as
+    deprecated and will be removed in a future release.
+  - Improved handling of many channels
+  - All Imath headers are now included internally via ``#include <Imath/...>``
+  - Remove ``iex_debugTrap()`` function (was not used)
+  - Improved ``ChannelList`` Iterator API
+  - Fixed a bug that with DWA compression that could silently produce
+    corrupted files. 
+
+* Also of note:
+
+  - The vendored version of deflate is 1.26
+  - The vendored version of OpenJPH is 0.32.0
+  - The minimum required version of OpenJPH is 0.32.0
+  
+### Security
+
+This release addresses the following security vulnerabilities:
+
+* OSS-Fuzz `514487287 <https://issues.oss-fuzz.com/issues/514487287>`_
+  Floating-point-exception in ``part_exceeds_memory_limits``
+* OSS-Fuzz `514423826 <https://issues.oss-fuzz.com/issues/514423826>`_
+  Divide-by-zero in ``part_exceeds_memory_limits``
+* OSS-Fuzz `513282267 <https://issues.oss-fuzz.com/issues/513282267>`_
+  Timeout in ``openexr_exrgaps_fuzzer``
+* OSS-Fuzz `512988066 <https://issues.oss-fuzz.com/issues/512988066>`_
+  Out-of-memory in ``openexr_exrgaps_fuzzer``
+
+
+August 21, 2026 - OpenEXR 3.4.15, 3.3.14, 3.2.12 Released
+=========================================================
 
 v3.4.15, v3.3.14, and v3.2.12 fix two memory issues when parsing
 IDManifests. Corrupt or maliciously formed OpenEXR images could
@@ -31,8 +227,6 @@ CVEs have been requested for these issues.
 
 The v3.4.15 release also fixes a missing export for Windows builds,
 and reduces compiler warnings when compiling example code.
-
-.. _LatestNewsEnd:
 
 August 6, 2026 - OpenEXR 3.4.14, 3.3.13, v3.2.11 Released
 =========================================================
