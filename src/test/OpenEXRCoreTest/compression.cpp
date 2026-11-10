@@ -1855,6 +1855,21 @@ read_header_throws (void* buffer, size_t max_sz)
     }
 }
 
+static bool
+write_header_throws_range (
+    uint8_t* buffer, size_t max_sz, const std::vector<CodestreamChannelInfo>& map)
+{
+    try
+    {
+        write_header (buffer, max_sz, map, HeaderMagic::V1);
+        return false;
+    }
+    catch (const std::range_error&)
+    {
+        return true;
+    }
+}
+
 void
 testHTHeaderBounds (const std::string& tempdir)
 {
@@ -1908,6 +1923,12 @@ testHTHeaderBounds (const std::string& tempdir)
     bad_nch[HEADER_SZ]     = 0;
     bad_nch[HEADER_SZ + 1] = 32;
     EXRCORE_TEST (read_header_throws (bad_nch, hdr_sz));
+
+    /* chunks smaller than the header (e.g. a single HALF or FLOAT
+     * sample) must be rejected, so the encoder falls back to storing
+     * the chunk uncompressed */
+    for (size_t sz = 0; sz < hdr_sz; sz++)
+        EXRCORE_TEST (write_header_throws_range (buf, sz, cs_to_file_ch));
 }
 
 void
