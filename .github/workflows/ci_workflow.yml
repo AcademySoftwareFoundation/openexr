@@ -309,16 +309,7 @@ jobs:
             label: vfx2023
             os: windows-2022
 
-            # Build w/msys2, mingw32 and ucrt64, shared and static.
-
-          - build: 7
-            label: msys2-mingw32
-            msystem: MINGW32
-
-          - build: 8
-            label: msys2-mingw32, static
-            msystem: MINGW32
-            BUILD_SHARED_LIBS: 'OFF'
+            # Build w/msys2 ucrt64, shared and static.
 
           - build: 9
             label: msys2-ucrt64
