@@ -381,20 +381,11 @@ jobs:
             openjph_sha: 23c422895ce6c3a156935222e4715ee0b7be952c # 0.32.0
 
           - name: win32-MSVC-x86
-            # Validates the 32-bit Windows build using the native MSVC x86
-            # toolset (cmake -A Win32), since MSYS2's MINGW32 environment
-            # (below) is deprecated with no replacement.
             CMAKE_GENERATOR_PLATFORM: Win32
+            test_category: 'portability'
 
           - name: vfx2023
             os: windows-2022
-
-          - name: msys2-mingw32
-            msystem: MINGW32
-
-          - name: msys2-mingw32, static
-            msystem: MINGW32
-            BUILD_SHARED_LIBS: 'OFF'
 
           - name: msys2-ucrt64
             msystem: UCRT64
