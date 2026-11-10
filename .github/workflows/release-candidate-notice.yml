@@ -4,7 +4,7 @@
 name: Publish Release Candidate Notice to ASWF Slack
 
 # Announce a staged release candidate to Slack when a tag of the form
-# v<major>.<minor>.<patch>-rc<n> is pushed. The tag is created by
+# v<major>.<minor>.<patch>-rc or -rc<n> is pushed. The tag is created by
 # share/util/release/tag.py, whose annotated-tag message is:
 #
 #   <tag> - <Month Day, Year>
@@ -16,6 +16,7 @@ name: Publish Release Candidate Notice to ASWF Slack
 on:
   push:
     tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+-rc'
       - 'v[0-9]+.[0-9]+.[0-9]+-rc[0-9]+'
   # Allow re-sending the announcement manually, e.g. if the push run
   # failed. Provide the rc tag of an already-pushed candidate.
@@ -69,11 +70,19 @@ jobs:
         tag = sys.argv[1]
         msg = os.environ["TAG_MESSAGE"]
         repo = os.environ["REPO"]
+
+        # Signed tags (git tag -s) carry a PGP/SSH signature block appended
+        # to the message; drop it so it is not announced as release notes.
+        msg = re.split(
+            r"\n-----BEGIN [A-Z0-9 ]+SIGNATURE-----", msg, maxsplit=1
+        )[0].rstrip("\n")
+
         lines = msg.splitlines()
         first = lines[0] if lines else ""
 
-        # Release version: the rc tag without the -rc<n> suffix (v3.5.4).
-        version = re.sub(r"-rc\d+$", "", tag)
+        # Release version: the rc tag without the -rc or -rc<n> suffix
+        # (e.g. v3.5.4-rc or v3.5.4-rc2 -> v3.5.4).
+        version = re.sub(r"-rc\d*$", "", tag)
 
         # Scheduled date: the trailing "Month Day" of a "<tag> - <Month Day,
         # Year>" first line (as written by tag.py), with the year dropped.
@@ -104,9 +113,9 @@ jobs:
         # link (<url|text>) so it is clickable to the release tag page. The
         # "scheduled for release" clause is included only when a date is
         # known. Collapse any whitespace so the title is a single line.
-        sentence = f"{version} is tagged for release at <{url}|{tag}>"
+        sentence = f"{version} release candidate is staged at <{url}|{tag}>"
         if date:
-            sentence += f" and is scheduled for release on {date}"
+            sentence += f", scheduled for release on {date}"
         version_line = " ".join(sentence.split())
 
         # The action always renders an attachment from release_notes and
