@@ -34,8 +34,17 @@ for gcno in $(find $build -name "*.gcno" -type f); do
 
     if [ -f "$dependency_file" ]; then
 
-        source_file=$(head -2 $dependency_file | tail -1 | sed -e 's/ //' -e 's/ \\//') 
-        gcov -l -p -o $object_directory $source_file 
+        # The compiled source file is the first prerequisite listed in the
+        # .o.d file, i.e. the first token after the "target:" preamble. The
+        # remaining prerequisites are headers (e.g. /usr/include/stdc-predef.h)
+        # and must not be passed to gcov, which would otherwise fail looking
+        # for their non-existent .gcno/.gcda files. Depending on the compiler,
+        # the source and the first header may share a line, so extract only
+        # the first prerequisite token rather than taking a whole line.
+        source_file=$(awk 'NR==1 { sub(/^[^:]*:/, "") }
+                           { for (i = 1; i <= NF; i++)
+                                 if ($i != "\\") { print $i; exit } }' "$dependency_file")
+        gcov -l -p -o "$object_directory" "$source_file"
     fi
 done
 
