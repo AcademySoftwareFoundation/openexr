@@ -1228,13 +1228,12 @@ void TileProcess::copy_sample_count (
     ptr += int64_t (xOffset) * int64_t (s.xStride);
     ptr += int64_t (yOffset) * int64_t (s.yStride);
 
-    int64_t xS = int64_t (s.xStride);
-    int64_t yS = int64_t (s.yStride);
+    int64_t xS (s.xStride);
+    int64_t yS (s.yStride);
 
-    for ( int y = 0; y < cinfo.height; ++y )
+    for ( int64_t y = 0; y < static_cast<int64_t>(cinfo.height); ++y )
     {
-        const int32_t* counts =
-            decoder.sample_count_table + (int64_t) y * (int64_t) cinfo.width;
+        const int32_t* counts = decoder.sample_count_table + y * cinfo.width;
 
         if (xS == sizeof(int32_t))
         {
