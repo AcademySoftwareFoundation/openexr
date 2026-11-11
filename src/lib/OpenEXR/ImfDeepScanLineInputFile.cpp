@@ -1020,7 +1020,8 @@ void ScanLineProcess::copy_sample_count (
 
     for ( int y = decoder.user_line_begin_skip; y < end; ++y )
     {
-        const int32_t* counts = decoder.sample_count_table + y * cinfo.width;
+        const int32_t* counts =
+            decoder.sample_count_table + (int64_t) y * (int64_t) cinfo.width;
         uint8_t*       ptr;
 
         ptr = reinterpret_cast<uint8_t*> (scslice.base);

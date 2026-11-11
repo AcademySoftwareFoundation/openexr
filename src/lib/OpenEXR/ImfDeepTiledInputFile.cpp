@@ -1233,7 +1233,8 @@ void TileProcess::copy_sample_count (
 
     for ( int y = 0; y < cinfo.height; ++y )
     {
-        const int32_t* counts = decoder.sample_count_table + y * cinfo.width;
+        const int32_t* counts =
+            decoder.sample_count_table + (int64_t) y * (int64_t) cinfo.width;
 
         if (xS == sizeof(int32_t))
         {
