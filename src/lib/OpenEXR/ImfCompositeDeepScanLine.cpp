@@ -335,9 +335,9 @@ composite_line (
     DeepCompositing      d; // fallback compositing engine
     DeepCompositing*     comp = _Data->_comp ? _Data->_comp : &d;
 
-    int64_t pixel =
-        (int64_t) (y - start) *
-        (int64_t) (_Data->_dataWindow.max.x + 1 - _Data->_dataWindow.min.x);
+    int64_t pixel = (static_cast<int64_t> (y) - start) *
+                    (static_cast<int64_t> (_Data->_dataWindow.max.x) + 1 -
+                     _Data->_dataWindow.min.x);
 
     for (int x = _Data->_dataWindow.min.x; x <= _Data->_dataWindow.max.x; x++)
     {
