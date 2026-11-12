@@ -20,3 +20,14 @@ updates:
     schedule:
       day: "monday"
       interval: "weekly"
+
+  - package-ecosystem: "bazel"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      # Batch all MODULE.bazel bumps from a given run into a single PR,
+      # instead of one PR per dependency.
+      bazel-deps:
+        patterns:
+          - "*"
