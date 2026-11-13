@@ -3,10 +3,12 @@
 
 # OpenEXR Release Notes
 
+* [Version 3.5.4](#version-354-november-11-2026) November 11, 2026
 * [Version 3.5.3](#version-353-october-30-2026) October 30, 2026
 * [Version 3.5.2](#version-352-october-2-2026) October 2, 2026
 * [Version 3.5.1](#version-351-september-25-2026) September 25, 2026
 * [Version 3.5.0](#version-350-september-21-2026) September 21, 2026
+* [Version 3.4.18](#version-3418-november-7-2026) November 7, 2026
 * [Version 3.4.17](#version-3417-october-30-2026) October 30 2026
 * [Version 3.4.16](#version-3416-september-28-2026) September 28, 2026
 * [Version 3.4.15](#version-3415-august-21-2026) August 21, 2026
@@ -25,6 +27,7 @@
 * [Version 3.4.2](#version-342-october-15-2025) October 15, 2025
 * [Version 3.4.1](#version-341-october-8-2025) October 8, 2025
 * [Version 3.4.0](#version-340-september-5-2025) September 5, 2025
+* [Version 3.3.16](#version-3316-november-7-2026) November 7, 2026
 * [Version 3.3.15](#version-3315-october-30-2026) October 30, 2026
 * [Version 3.3.14](#version-3314-august-21-2026) August 21, 2026
 * [Version 3.3.13](#version-3313-august-6-2026) August 6, 2026
@@ -119,6 +122,93 @@
 * [Version 1.0.2](#version-102)
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
+
+## Version 3.5.4 (November 11, 2026)
+
+Patch release that addresses several build and security issues, and
+also fixes a regression introduced in v3.3.0 that leads to excessive
+memory usage during write, especially with DWA compression (Issue
+[#2791](https://github.com/AcademySoftwareFoundation/openexr/issues/2791)).
+
+* Fix a configuration issue with OpenJPH 0.33.0 that caused it to
+  silently and incorrectly fall back to the vendored version (PR
+  [#2813](https://github.com/AcademySoftwareFoundation/openexr/pull/2813))
+* The vendored OpenJPH is now built in a custom namespace to avoid
+  symbol collision with other versions when built statically ([2811](https://github.com/AcademySoftwareFoundation/openexr/pull/2811))
+  built statically, 
+* The vendored OpenJPH version is now 0.33.0.
+* Fix `exrmultipart -convert` on tiled and deep single-part files
+* `OPENEXR_USE_INTERNAL_IMATH/OPENJPH` are are now included in
+  `OpenEXRConfig.h` alongside `OPENEXR_USE_INTERNAL_DEFLATE/ZSTD`.
+* 32-bit glibc builds now guarantee support for files of size 2GiB or
+  more ([2812](https://github.com/AcademySoftwareFoundation/openexr/pull/2812))
+
+This release addresses the following security vulnerabilities:
+
+* ***CVE Pending*** ([GHSA-PP92-4RV3-WFQ6](https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-PP92-4RV3-WFQ6)) OpenEXR: a signed-int data-window-origin overflow in the OpenEXRUtil Image API turns `Imf::loadImage` into an attacker-steered out-of-bounds write
+* ***CVE Pending*** ([GHSA-2V77-PVHX-25C3](https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-2V77-PVHX-25C3)) Integer overflow in legacy OpenEXR.OutputFile.writePixels() causes heap over-read
+
+### Merged Pull Requests
+
+* [2828](https://github.com/AcademySoftwareFoundation/openexr/pull/2828)
+  Add `OPENEXR_USE_INTERNAL_IMATH/OPENJPH` to BUILD.bazel (by @cary-ilm/Cary Phillips)
+* [2826](https://github.com/AcademySoftwareFoundation/openexr/pull/2826)
+  Find Threads in installed config before OpenJPH (by @cary-ilm/Cary Phillips)
+* [2824](https://github.com/AcademySoftwareFoundation/openexr/pull/2824)
+  Docs: make `maxSamplesPerPixel` optional for deep parts (by @cary-ilm/Cary Phillips)
+* [2823](https://github.com/AcademySoftwareFoundation/openexr/pull/2823)
+  Fix `exrmultipart -convert` on tiled and deep single-part files (by @cary-ilm/Cary Phillips)
+* [2818](https://github.com/AcademySoftwareFoundation/openexr/pull/2818)
+  Remove `test_write_overflow` (by @cary-ilm/Cary Phillips)
+* [2817](https://github.com/AcademySoftwareFoundation/openexr/pull/2817)
+  Fix integer overflow in legacy Python `OutputFile.writePixels()` (by @cary-ilm/Cary Phillips)
+* [2816](https://github.com/AcademySoftwareFoundation/openexr/pull/2816)
+  Fix integer overflow in OpenEXRUtil Image channel base pointers (by @cary-ilm/Cary Phillips)
+* [2814](https://github.com/AcademySoftwareFoundation/openexr/pull/2814)
+  CI: validate that the build uses the dependencies the job installed (by @cary-ilm/Cary Phillips)
+* [2813](https://github.com/AcademySoftwareFoundation/openexr/pull/2813)
+  Accept a newer OpenJPH, and warn when an installed one is too old (by @cary-ilm/Cary Phillips)
+* [2812](https://github.com/AcademySoftwareFoundation/openexr/pull/2812)
+  Define `_FILE_OFFSET_BITS=64` for OpenEXRCore explicitly (by @cary-ilm/Cary Phillips)
+* [2811](https://github.com/AcademySoftwareFoundation/openexr/pull/2811)
+  Rename vendored OpenJPH namespace, and hide zstd visibility (by @cary-ilm/Cary Phillips)
+* [2809](https://github.com/AcademySoftwareFoundation/openexr/pull/2809)
+  Reduce write memory (by @kdt3rd/Kimball Thurston)
+* [2808](https://github.com/AcademySoftwareFoundation/openexr/pull/2808)
+  Bump OpenJPH version to 0.33.0 (by @cary-ilm/Cary Phillips)
+* [2802](https://github.com/AcademySoftwareFoundation/openexr/pull/2802)
+  Use unaligned stores in the flat unpack fast paths (by @Ar-maan05/Armaan Sandhu)
+* [2798](https://github.com/AcademySoftwareFoundation/openexr/pull/2798)
+  Fix heap overflow in legacy Python `InputFile.channel()` with ySampling (by @Dilshad-Tanvi)
+* [2796](https://github.com/AcademySoftwareFoundation/openexr/pull/2796)
+  exrenvmap test: shrink output size and skip blur under QEMU emulation (by @cary-ilm/Cary Phillips)
+* [2794](https://github.com/AcademySoftwareFoundation/openexr/pull/2794)
+  Only zero the DWA chunk header instead of the full output buffer (by @vlazar-ilm/Vlad Lazar)
+* [2792](https://github.com/AcademySoftwareFoundation/openexr/pull/2792)
+  Fix `Python File.write()` over-reads for subsampled and RGB pixel arrays (by @Dilshad-Tanvi)
+* [2758](https://github.com/AcademySoftwareFoundation/openexr/pull/2758)
+  Fix tile chunk extents at reduced-resolution edges (by @vera-rubin/Nathan Chandrasekar)
+* [2734](https://github.com/AcademySoftwareFoundation/openexr/pull/2734)
+  Fix B44/B44A raw fallback when compressed size equals raw size (by @vera-rubin/Nathan Chandrasekar)
+
+### Merged Workflow Pull Requests
+
+* [2835](https://github.com/AcademySoftwareFoundation/openexr/pull/2835)
+  release-notice: add workflow_dispatch to send announcements manually (by @cary-ilm/Cary Phillips)
+* [2834](https://github.com/AcademySoftwareFoundation/openexr/pull/2834)
+  ci: add `openjph_sha` to `ci_full/ci_premerge` with: blocks (by @cary-ilm/Cary Phillips)
+* [2832](https://github.com/AcademySoftwareFoundation/openexr/pull/2832)
+  Bump the actions-deps group across 1 directory with 2 updates (by @app/dependabot)
+* [2827](https://github.com/AcademySoftwareFoundation/openexr/pull/2827)
+  Bump CI's default OpenJPH to 0.33.0 (by @cary-ilm/Cary Phillips)
+* [2822](https://github.com/AcademySoftwareFoundation/openexr/pull/2822)
+  Bump the bazel-deps group with 2 updates (by @app/dependabot)
+* [2799](https://github.com/AcademySoftwareFoundation/openexr/pull/2799)
+  Fix missing step id breaking Slack release notifications (by @cary-ilm/Cary Phillips)
+* [2797](https://github.com/AcademySoftwareFoundation/openexr/pull/2797)
+  Bump the bazel-deps group with 3 updates (by @app/dependabot)
+* [2793](https://github.com/AcademySoftwareFoundation/openexr/pull/2793)
+  Bump the actions-deps group across 1 directory with 2 updates (by @app/dependabot)
 
 ## Version 3.5.3 (October 30, 2026)
 
@@ -730,6 +820,31 @@ This release addresses the following security vulnerabilities:
   Bump openjph from 0.25.2 to 0.25.3 (by @app/dependabot)
 * [2179](https://github.com/AcademySoftwareFoundation/openexr/pull/2179)
   Bump readthedocs/actions from 1.2 to 1.5 (by @app/dependabot)
+
+## Version 3.4.18 (November 7, 2026)
+
+Patch release that addresses a regression introduced in v3.3.0 that leads
+to excessive memory usage during write, especially with DWA
+compression (Issue
+[#2791](https://github.com/AcademySoftwareFoundation/openexr/issues/2791)).
+
+This release also addresses the following security vulnerabilities:
+
+* ***CVE Pending*** ([GHSA-PP92-4RV3-WFQ6](https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-PP92-4RV3-WFQ6)) OpenEXR: a signed-int data-window-origin overflow in the OpenEXRUtil Image API turns `Imf::loadImage` into an attacker-steered out-of-bounds write
+* ***CVE Pending*** ([GHSA-2V77-PVHX-25C3](https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-2V77-PVHX-25C3)) Integer overflow in legacy `OpenEXR.OutputFile.writePixels()` causes heap over-read
+
+### Merged Pull Requests
+
+* [2818](https://github.com/AcademySoftwareFoundation/openexr/pull/2818)
+  Remove test_write_overflow (by @cary-ilm/Cary Phillips)
+* [2817](https://github.com/AcademySoftwareFoundation/openexr/pull/2817)
+  Fix integer overflow in legacy Python `OutputFile.writePixels()` (by @cary-ilm/Cary Phillips)
+* [2816](https://github.com/AcademySoftwareFoundation/openexr/pull/2816)
+  Fix integer overflow in OpenEXRUtil Image channel base pointers (by @cary-ilm/Cary Phillips)
+* [2809](https://github.com/AcademySoftwareFoundation/openexr/pull/2809)
+  Reduce write memory (by @kdt3rd/Kimball Thurston)
+* [2794](https://github.com/AcademySoftwareFoundation/openexr/pull/2794)
+  Only zero the DWA chunk header instead of the full output buffer (by @vlazar-ilm/Vlad Lazar)
 
 ## Version 3.4.17 (October 30, 2026)
 
@@ -2111,6 +2226,31 @@ JPEG-2000 (HTJ2K)** encoding:
   Fetch master branch of libdeflate on main
 * [1852](https://github.com/AcademySoftwareFoundation/openexr/pull/1852)
   Add an option to use TBB as the global provider
+
+## Version 3.3.16 (November 7, 2026)
+
+Patch release that addresses a regression introduced in v3.3.0 that leads
+to excessive memory usage during write, especially with DWA
+compression (Issue
+[#2791](https://github.com/AcademySoftwareFoundation/openexr/issues/2791)).
+
+This release also addresses the following security vulnerabilities:
+
+* ***CVE Pending*** ([GHSA-PP92-4RV3-WFQ6](https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-PP92-4RV3-WFQ6)) OpenEXR: a signed-int data-window-origin overflow in the OpenEXRUtil Image API turns `Imf::loadImage` into an attacker-steered out-of-bounds write
+* ***CVE Pending*** ([GHSA-2V77-PVHX-25C3](https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-2V77-PVHX-25C3)) Integer overflow in legacy `OpenEXR.OutputFile.writePixels()` causes heap over-read
+
+### Merged Pull Requests
+
+* [2818](https://github.com/AcademySoftwareFoundation/openexr/pull/2818)
+  Remove test_write_overflow (by @cary-ilm/Cary Phillips)
+* [2817](https://github.com/AcademySoftwareFoundation/openexr/pull/2817)
+  Fix integer overflow in legacy Python `OutputFile.writePixels()` (by @cary-ilm/Cary Phillips)
+* [2816](https://github.com/AcademySoftwareFoundation/openexr/pull/2816)
+  Fix integer overflow in OpenEXRUtil Image channel base pointers (by @cary-ilm/Cary Phillips)
+* [2809](https://github.com/AcademySoftwareFoundation/openexr/pull/2809)
+  Reduce write memory (by @kdt3rd/Kimball Thurston)
+* [2794](https://github.com/AcademySoftwareFoundation/openexr/pull/2794)
+  Only zero the DWA chunk header instead of the full output buffer (by @vlazar-ilm/Vlad Lazar)
 
 ## Version 3.3.15 (October 30, 2026)
 

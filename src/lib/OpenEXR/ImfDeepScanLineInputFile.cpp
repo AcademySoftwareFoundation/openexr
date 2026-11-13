@@ -1014,11 +1014,11 @@ void ScanLineProcess::copy_sample_count (
             "The type of sample count slice should be UINT.");
     }
 
-    int     end = cinfo.height - decoder.user_line_end_ignore;
-    int64_t xS = int64_t (scslice.xStride);
-    int64_t yS = int64_t (scslice.yStride);
+    int64_t end = cinfo.height - decoder.user_line_end_ignore;
+    int64_t xS (scslice.xStride);
+    int64_t yS (scslice.yStride);
 
-    for ( int y = decoder.user_line_begin_skip; y < end; ++y )
+    for ( int64_t y = decoder.user_line_begin_skip; y < end; ++y )
     {
         const int32_t* counts = decoder.sample_count_table + y * cinfo.width;
         uint8_t*       ptr;
@@ -1028,7 +1028,7 @@ void ScanLineProcess::copy_sample_count (
         /* y is chunk-relative (same indexing as sample_count_table rows);
          * fbY is the first requested absolute line and may be mid-chunk. 
          This allows for multi-scanline deep codecs to work. */
-        ptr += (int64_t (cinfo.start_y) + int64_t (y)) * yS;
+        ptr += (cinfo.start_y + y) * yS;
 
         if (xS == sizeof(int32_t))
         {
