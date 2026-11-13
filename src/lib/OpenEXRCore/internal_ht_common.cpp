@@ -290,6 +290,11 @@ write_header (
     const std::vector<CodestreamChannelInfo>& map,
     HeaderMagic                               magic)
 {
+    /* chunks can be smaller than the fixed header (a single HALF or
+     * FLOAT sample), so check before computing the payload space */
+    if (max_sz < HEADER_SZ)
+        throw std::range_error ("Insufficient space for HTJ2K chunk header");
+
     MemoryWriter       payload (buffer + HEADER_SZ, max_sz - HEADER_SZ);
     payload.push_uint16 (map.size ());
     for (size_t i = 0; i < map.size (); i++)
