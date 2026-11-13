@@ -3,6 +3,7 @@
 
 # OpenEXR Release Notes
 
+* [Version 3.5.5](#version-355-november-15-2026) November 15, 2026
 * [Version 3.5.4](#version-354-november-11-2026) November 11, 2026
 * [Version 3.5.3](#version-353-october-30-2026) October 30, 2026
 * [Version 3.5.2](#version-352-october-2-2026) October 2, 2026
@@ -122,6 +123,44 @@
 * [Version 1.0.2](#version-102)
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
+
+## Version 3.5.5 (November 15, 2026)
+
+
+### Security
+
+This release addresses the following security vulnerabilities:
+
+* ***CVE Pending*** ([GHSA-HJW7-CQX6-RWQ5](https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-HJW7-CQX6-RWQ5)) Integer overflow in CompositeDeepScanLine pixel index causes heap out-of-bounds access
+
+### Merged Pull Requests
+
+* [2844](https://github.com/AcademySoftwareFoundation/openexr/pull/2844)
+  Use 64-bit arithmetic for CompositeDeepScanLine pixel index (by @cary-ilm/Cary Phillips)
+* [2843](https://github.com/AcademySoftwareFoundation/openexr/pull/2843)
+  Use 64-bit arithmetic for deep sample-count table offset (by @cary-ilm/Cary Phillips)
+* [2829](https://github.com/AcademySoftwareFoundation/openexr/pull/2829)
+  Support splitting tiled multiview images (by @1cbyc/Isaac Emmanuel)
+
+### Merged Documentation Pull Requests
+
+* [2836](https://github.com/AcademySoftwareFoundation/openexr/pull/2836)
+  release notes and news for v3.3.16 and v3.4.18 (by @cary-ilm/Cary Phillips)
+
+### Merged Workflow Pull Requests
+
+* [2847](https://github.com/AcademySoftwareFoundation/openexr/pull/2847)
+  Bump rules_cc from 0.2.27 to 0.2.28 in the bazel-deps group (by @app/dependabot)
+* [2846](https://github.com/AcademySoftwareFoundation/openexr/pull/2846)
+  Revert slack-release-notifier to last good 20260930 release (by @cary-ilm/Cary Phillips)
+* [2842](https://github.com/AcademySoftwareFoundation/openexr/pull/2842)
+  Bump jmertic/slack-release-notifier from 20260930 to 20261106 in the actions-deps group (by @app/dependabot)
+* [2840](https://github.com/AcademySoftwareFoundation/openexr/pull/2840)
+  ci: remove the deprecated MSYS2 MINGW32 jobs (by @cary-ilm/Cary Phillips)
+* [2839](https://github.com/AcademySoftwareFoundation/openexr/pull/2839)
+  release-candidate-notice: reword to 'staged', strip signature, handle -rc (by @cary-ilm/Cary Phillips)
+* [2837](https://github.com/AcademySoftwareFoundation/openexr/pull/2837)
+  Add release candidate Slack notifier workflow (by @cary-ilm/Cary Phillips)
 
 ## Version 3.5.4 (November 11, 2026)
 
