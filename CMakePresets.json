@@ -45,6 +45,24 @@
                 "OPENEXR_BUILD_EXAMPLES": "ON",
                 "OPENEXR_BUILD_PYTHON": "ON"
             }
+        },
+        {
+            "name": "coverage",
+            "displayName": "Coverage (gcov instrumentation)",
+            "description": "Debug build instrumented for gcov line coverage, as used by the SonarCloud Analysis workflow",
+            "generator": "Unix Makefiles",
+            "binaryDir": "${sourceDir}/_build/coverage",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_CXX_FLAGS": "-g -O0 -fprofile-arcs -ftest-coverage",
+                "CMAKE_C_FLAGS": "-g -O0 -fprofile-arcs -ftest-coverage",
+                "CMAKE_CXX_OUTPUT_EXTENSION_REPLACE": "ON",
+                "CMAKE_C_OUTPUT_EXTENSION_REPLACE": "ON",
+                "CMAKE_EXE_LINKER_FLAGS": "-lgcov",
+                "BUILD_SHARED_LIBS": "OFF",
+                "OPENEXR_BUILD_TOOLS": "ON",
+                "OPENEXR_RUN_FUZZ_TESTS": "OFF"
+            }
         }
     ]
 }
