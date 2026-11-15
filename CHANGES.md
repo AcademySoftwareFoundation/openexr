@@ -135,10 +135,16 @@ This release addresses the following security vulnerabilities:
 
 ### Merged Pull Requests
 
+* [2857](https://github.com/AcademySoftwareFoundation/openexr/pull/2857)
+  reject zero-length deep scanline sample-count table (by @cary-ilm/Cary Phillips)
+* [2856](https://github.com/AcademySoftwareFoundation/openexr/pull/2856)
+  Update openjph dependency version to 0.33.0 (by @Vertexwahn/Vertexwahn)
 * [2844](https://github.com/AcademySoftwareFoundation/openexr/pull/2844)
   Use 64-bit arithmetic for CompositeDeepScanLine pixel index (by @cary-ilm/Cary Phillips)
 * [2843](https://github.com/AcademySoftwareFoundation/openexr/pull/2843)
   Use 64-bit arithmetic for deep sample-count table offset (by @cary-ilm/Cary Phillips)
+* [2838](https://github.com/AcademySoftwareFoundation/openexr/pull/2838)
+  Check the buffer size in the HTJ2K write_header (by @Ar-maan05/Armaan Sandhu)
 * [2829](https://github.com/AcademySoftwareFoundation/openexr/pull/2829)
   Support splitting tiled multiview images (by @1cbyc/Isaac Emmanuel)
 
