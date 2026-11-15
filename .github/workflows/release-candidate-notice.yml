@@ -1,0 +1,148 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright (c) Contributors to the OpenEXR Project.
+
+name: Publish Release Candidate Notice to ASWF Slack
+
+# Announce a staged release candidate to Slack when a tag of the form
+# v<major>.<minor>.<patch>-rc or -rc<n> is pushed. The tag is created by
+# share/util/release/tag.py, whose annotated-tag message is:
+#
+#   <tag> - <Month Day, Year>
+#   <release notes>
+#
+# i.e. the first line carries the scheduled release date and the rest is
+# the release notes from CHANGES.md.
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+-rc'
+      - 'v[0-9]+.[0-9]+.[0-9]+-rc[0-9]+'
+  # Allow re-sending the announcement manually, e.g. if the push run
+  # failed. Provide the rc tag of an already-pushed candidate.
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release-candidate tag to announce (e.g. v3.5.4-rc2)'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+    - name: 'Extract release-candidate details'
+      id: rc
+      # Read the annotated tag object (title line with the scheduled date,
+      # plus the release notes) and build the Slack title and notes. The
+      # ### Contributors section is stripped since its raw html does not
+      # translate to Slack. The notes are rendered as-is: tag.py is expected
+      # to have already reflowed them (each paragraph a single line) so Slack
+      # can wrap them naturally. Tags that lack an embedded date and/or notes
+      # (e.g. a lightweight tag, or one not created by tag.py) are tolerated:
+      # the announcement is still posted, just without those parts.
+      env:
+        GH_TOKEN: ${{ github.token }}
+        REPO: ${{ github.repository }}
+        TAG: ${{ github.event.inputs.tag || github.ref_name }}
+      run: |
+        set -euo pipefail
+
+        # Only annotated tags carry the message written by tag.py; for any
+        # other kind of tag there is simply no embedded date or notes.
+        obj_type=$(gh api "repos/$REPO/git/ref/tags/$TAG" --jq '.object.type')
+        if [ "$obj_type" = "tag" ]; then
+          obj_sha=$(gh api "repos/$REPO/git/ref/tags/$TAG" --jq '.object.sha')
+          TAG_MESSAGE=$(gh api "repos/$REPO/git/tags/$obj_sha" --jq '.message')
+        else
+          TAG_MESSAGE=""
+        fi
+        export TAG_MESSAGE
+
+        python3 - "$TAG" <<'PY' >> "$GITHUB_OUTPUT"
+        import os, re, sys
+
+        tag = sys.argv[1]
+        msg = os.environ["TAG_MESSAGE"]
+        repo = os.environ["REPO"]
+
+        # Signed tags (git tag -s) carry a PGP/SSH signature block appended
+        # to the message; drop it so it is not announced as release notes.
+        msg = re.split(
+            r"\n-----BEGIN [A-Z0-9 ]+SIGNATURE-----", msg, maxsplit=1
+        )[0].rstrip("\n")
+
+        lines = msg.splitlines()
+        first = lines[0] if lines else ""
+
+        # Release version: the rc tag without the -rc or -rc<n> suffix
+        # (e.g. v3.5.4-rc or v3.5.4-rc2 -> v3.5.4).
+        version = re.sub(r"-rc\d*$", "", tag)
+
+        # Scheduled date: the trailing "Month Day" of a "<tag> - <Month Day,
+        # Year>" first line (as written by tag.py), with the year dropped.
+        # Absent that header line, there is no date and the whole message is
+        # treated as notes.
+        date = ""
+        if first.startswith(tag) and " - " in first:
+            date = re.sub(r",\s*\d{4}\s*$", "", first.split(" - ", 1)[1].strip()).strip()
+            body_lines = lines[1:]
+        else:
+            body_lines = lines
+
+        # Release notes: everything after the title line, up to (but not
+        # including) the ### Contributors section. The lines are rendered
+        # as-is (tag.py reflows them so each paragraph is a single line).
+        notes_lines = []
+        for line in body_lines:
+            if line.strip() == "### Contributors":
+                break
+            notes_lines.append(line)
+        notes = "\n".join(notes_lines).strip("\n")
+
+        url = f"https://github.com/{repo}/releases/tag/{tag}"
+
+        # The notifier renders the title as a bold mrkdwn string
+        # "*<project_name> <release_version>*", so release_version carries
+        # the rest of the sentence. The rc tag is emitted as a Slack mrkdwn
+        # link (<url|text>) so it is clickable to the release tag page. The
+        # "scheduled for release" clause is included only when a date is
+        # known. Collapse any whitespace so the title is a single line.
+        sentence = f"{version} release candidate is staged at <{url}|{tag}>"
+        if date:
+            sentence += f", scheduled for release on {date}"
+        version_line = " ".join(sentence.split())
+
+        # The action always renders an attachment from release_notes and
+        # Slack rejects an empty one, so fall back to a link when the tag
+        # carries no notes.
+        if not notes.strip():
+            notes = f"See <{url}|the release page> for details."
+
+        def emit(name: str, value: str) -> None:
+            delimiter = f"EOF_{name}_{os.getpid()}"
+            print(f"{name}<<{delimiter}")
+            print(value)
+            print(delimiter)
+
+        emit("version_line", version_line)
+        emit("url", url)
+        emit("notes", notes)
+        PY
+
+    - name: 'Notify Slack #openexr'
+      id: slack
+      with:
+        project_name: "OpenEXR"
+        slack_bot_token: ${{ secrets.SLACK_BOT_TOKEN }}
+        slack_channel: "#openexr"
+        project_logo: "https://artwork.aswf.io/projects/openexr/icon/color/openexr-icon-color.png"
+        release_version: ${{ steps.rc.outputs.version_line }}
+        release_url: ${{ steps.rc.outputs.url }}
+        release_notes: ${{ steps.rc.outputs.notes }}
+      uses: jmertic/slack-release-notifier@4bf7813217739180f89eb869bf769efc07928368 # 20260930

@@ -3,13 +3,16 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) Contributors to the OpenEXR Project.
 
-import sys, os, tempfile, atexit
+import sys, os, tempfile, atexit, json
 from do_run import do_run
 
 print(f"testing exrmultipart: {' '.join(sys.argv)}")
 
 exrmultipart = sys.argv[1]
 exrinfo = sys.argv[2]
+exrmultiview = os.path.join(os.path.dirname(exrmultipart), "exrmultiview")
+exrmaketiled = os.path.join(os.path.dirname(exrmultipart), "exrmaketiled")
+exrmetrics = os.path.join(os.path.dirname(exrmultipart), "exrmetrics")
 image_dir = sys.argv[3]
 version = sys.argv[4]
 
@@ -61,6 +64,37 @@ for image_name, image_type in [("WavyLinesLatLong.exr", "tiledimage"),
     result = do_run ([exrinfo, outimage])
     assert f"type: '{image_type}'" in result.stdout
 
+# Convert single-level, mipmapped, and ripmapped multiview images into one
+# tiled part per view. exrmetrics reads, rewrites, and rereads every level, so
+# this also checks that the output pixel data is complete and decodable.
+with tempfile.TemporaryDirectory() as tempdir:
+    multiview = f"{tempdir}/multiview.exr"
+    do_run ([exrmultiview,
+             "left", f"{image_dir}/GammaChart.exr",
+             "right", f"{image_dir}/GrayRampsHorizontal.exr",
+             multiview])
+    for option, level_mode in [("-o", "single image"),
+                               ("-m", "mipmap"),
+                               ("-r", "ripmap")]:
+        tiled = f"{tempdir}/multiview-{level_mode}.exr"
+        split = f"{tempdir}/split-{level_mode}.exr"
+        do_run ([exrmaketiled, option, multiview, tiled])
+        do_run ([exrmultipart, "-convert", "-i", tiled, "-o", split])
+        result = do_run ([exrinfo, split])
+        assert result.stdout.count("\n part ") == 2
+        assert result.stdout.count("type: 'tiledimage'") == 2
+        assert result.stdout.count(f"({level_mode})") == 2
+        assert "'right.Y'" not in result.stdout
+        assert "'Y': half samp 1 1" in result.stdout
+
+        result = do_run ([exrmetrics, split])
+        metrics = json.loads(result.stdout)
+        assert len(metrics) == 1
+        assert len(metrics[0]["parts"]) == 2
+        assert all(part["pixels"] > 0 for part in metrics[0]["parts"])
+        assert all(part["total raw size"] > 0
+                   for part in metrics[0]["parts"])
+
 # separate
 
 # get part names from the multipart image
@@ -86,4 +120,3 @@ with tempfile.TemporaryDirectory() as tempdir:
         assert part_names[part_number] == part_name
 
 print("success")
-

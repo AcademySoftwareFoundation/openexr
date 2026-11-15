@@ -389,9 +389,6 @@ jobs:
             cmake: 3.15.7
 
           - name: win32-MSVC-x86
-            # Validates the 32-bit Windows build using the native MSVC x86
-            # toolset (cmake -A Win32), since MSYS2's MINGW32 environment
-            # (below) is to be deprecated with no replacement.
             CMAKE_GENERATOR_PLATFORM: Win32
             test_category: 'portability'
 
@@ -404,10 +401,6 @@ jobs:
             cxx-compiler: clang++
             cc-compiler: clang
             validate_install: OFF
-            test_category: 'portability'
-
-          - name: msys2-mingw32
-            msystem: MINGW32
             test_category: 'portability'
 
           - name: msys2-ucrt64

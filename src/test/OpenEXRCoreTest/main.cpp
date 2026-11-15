@@ -193,6 +193,7 @@ main (int argc, char* argv[])
     TEST (testReadDeep, "core_read");
     TEST (testDeepZstdNegativeSampleCounts, "core_read");
     TEST (testDeepZstdValidSampleCounts, "core_read");
+    TEST (testDeepScanlineZeroSampleCountLeader, "core_read");
     TEST (testReadUnpack, "core_read");
     TEST (testSamplingCalcs, "core_read");
 

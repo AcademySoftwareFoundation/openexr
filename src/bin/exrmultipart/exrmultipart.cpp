@@ -22,7 +22,9 @@
 #include "ImfPartType.h"
 #include "ImfStringAttribute.h"
 #include "ImfTiledInputPart.h"
+#include "ImfTiledMisc.h"
 #include "ImfTiledOutputPart.h"
+#include "ImfTileDescription.h"
 #include "ImfMisc.h"
 #include "OpenEXRConfig.h"
 
@@ -305,47 +307,26 @@ convert (
 
     make_unique_names (output_headers);
 
-    //
-    // The pixel-copying code below reads and writes through scanline
-    // InputPart / OutputPart, so it only handles scanline images.  A tiled
-    // or deep input that maps to a single output part (i.e. there are no
-    // views to split apart) is just a faithful re-container into an
-    // EXR-2.0 file, which the copy_* helpers used by -combine and -separate
-    // already handle for every pixel type.  Dispatch to those here, and
-    // reject only the case the scanline path genuinely cannot express:
-    // splitting the views of a tiled or deep file into separate parts.
-    //
     const string input_type = infile.header (0).type ();
 
-    if (input_type != SCANLINEIMAGE)
+    if (input_type != SCANLINEIMAGE && input_type != TILEDIMAGE)
     {
         if (parts != 1)
             throw invalid_argument (
-                "cannot convert this file: splitting the views of a tiled "
-                "or deep image into separate parts is only supported for "
-                "scanline images");
+                "cannot convert this file: splitting the views of a deep "
+                "image into separate parts is not supported");
 
-        //
-        // Single output part: the channels are not remapped (there are no
-        // views), so copy them verbatim and let the type-appropriate helper
-        // copy the pixels.
-        //
         output_headers[0].channels () = infile.header (0).channels ();
-
         MultiPartOutputFile outfile (
-            outname, &output_headers[0], output_headers.size ());
+            outname, output_headers.data (), output_headers.size ());
 
-        if (input_type == TILEDIMAGE)
-            copy_tile (infile, outfile, 0, 0);
-        else if (input_type == DEEPSCANLINE)
+        if (input_type == DEEPSCANLINE)
             copy_scanlinedeep (infile, outfile, 0, 0);
         else if (input_type == DEEPTILE)
             copy_tiledeep (infile, outfile, 0, 0);
         else
             throw invalid_argument (
-                "cannot convert input of unknown type '" + input_type +
-                "'");
-
+                "cannot convert input of unknown type '" + input_type + "'");
         return;
     }
 
@@ -357,6 +338,119 @@ convert (
          ++i)
     {
         ++channel_count;
+    }
+
+    // Set up the remapped channel lists before allocating type-specific
+    // frame buffers below.
+    for (size_t i = 0; i < input_channels.size (); i++)
+    {
+        int                        part = output_channels[i].part_number;
+        ChannelList::ConstIterator chan =
+            in_chanlist.find (input_channels[i].internal_name);
+        Header& h = output_headers[part];
+        h.channels ().insert (output_channels[i].name, chan.channel ());
+
+        if (output_channels[i].view != "")
+        {
+            h.setView (output_channels[i].view);
+        }
+    }
+
+    if (input_type == TILEDIMAGE)
+    {
+        TiledInputPart inpart (infile, 0);
+        const TileDescription& tiles = infile.header (0).tileDescription ();
+        vector<vector<vector<char>>> channelstore;
+        vector<FrameBuffer>          input_framebuffers;
+        vector<vector<FrameBuffer>>  output_buffers (parts);
+
+        int level_count = tiles.mode == RIPMAP_LEVELS
+                              ? inpart.numXLevels () * inpart.numYLevels ()
+                              : inpart.numLevels ();
+        channelstore.resize (level_count);
+        input_framebuffers.resize (level_count);
+        for (int p = 0; p < parts; ++p)
+            output_buffers[p].resize (level_count);
+
+        int level = 0;
+        for (int lx = 0; lx < inpart.numXLevels (); ++lx)
+        {
+            for (int ly = 0; ly < inpart.numYLevels (); ++ly)
+            {
+                if (tiles.mode != RIPMAP_LEVELS && lx != ly) continue;
+
+                Box2i dw = dataWindowForLevel (
+                    tiles,
+                    infile.header (0).dataWindow ().min.x,
+                    infile.header (0).dataWindow ().max.x,
+                    infile.header (0).dataWindow ().min.y,
+                    infile.header (0).dataWindow ().max.y,
+                    lx,
+                    ly);
+                int64_t width = static_cast<int64_t> (dw.size ().x) + 1;
+                int64_t count = width *
+                                (static_cast<int64_t> (dw.size ().y) + 1);
+                int64_t base = static_cast<int64_t> (dw.min.y) * width +
+                               static_cast<int64_t> (dw.min.x);
+                channelstore[level].resize (input_channels.size ());
+
+                for (size_t i = 0; i < input_channels.size (); ++i)
+                {
+                    ChannelList::ConstIterator chan =
+                        in_chanlist.find (input_channels[i].internal_name);
+                    size_t samplesize = pixelTypeSize (chan.channel ().type);
+                    channelstore[level][i].resize (
+                        vectorSize (count, samplesize));
+                    char* base_ptr = channelstore[level][i].data () -
+                                     base * samplesize;
+                    Slice slice (
+                        chan.channel ().type,
+                        base_ptr,
+                        samplesize,
+                        width * samplesize,
+                        chan.channel ().xSampling,
+                        chan.channel ().ySampling);
+                    input_framebuffers[level].insert (
+                        input_channels[i].internal_name, slice);
+                    output_buffers[output_channels[i].part_number][level]
+                        .insert (output_channels[i].name, slice);
+                }
+                ++level;
+            }
+        }
+
+        MultiPartOutputFile outfile (
+            outname, output_headers.data (), output_headers.size ());
+        level = 0;
+        for (int lx = 0; lx < inpart.numXLevels (); ++lx)
+        {
+            for (int ly = 0; ly < inpart.numYLevels (); ++ly)
+            {
+                if (tiles.mode != RIPMAP_LEVELS && lx != ly) continue;
+                inpart.setFrameBuffer (input_framebuffers[level]);
+                inpart.readTiles (
+                    0,
+                    inpart.numXTiles (lx) - 1,
+                    0,
+                    inpart.numYTiles (ly) - 1,
+                    lx,
+                    ly);
+                for (int p = 0; p < parts; ++p)
+                {
+                    TiledOutputPart outpart (outfile, p);
+                    outpart.setFrameBuffer (output_buffers[p][level]);
+                    outpart.writeTiles (
+                        0,
+                        outpart.numXTiles (lx) - 1,
+                        0,
+                        outpart.numYTiles (ly) - 1,
+                        lx,
+                        ly);
+                }
+                ++level;
+            }
+        }
+        return;
     }
 
     Box2i dataWindow  = infile.header (0).dataWindow ();
@@ -379,17 +473,10 @@ convert (
     //
     for (size_t i = 0; i < input_channels.size (); i++)
     {
-        // read the part we should be writing channel into, insert into header
+        // read the part we should be writing channel into
         int                        part = output_channels[i].part_number;
         ChannelList::ConstIterator chan =
             in_chanlist.find (input_channels[i].internal_name);
-        Header& h = output_headers[part];
-        h.channels ().insert (output_channels[i].name, chan.channel ());
-
-        if (output_channels[i].view != "")
-        {
-            h.setView (output_channels[i].view);
-        }
 
         // compute size of channel
         size_t samplesize = sizeof (float);

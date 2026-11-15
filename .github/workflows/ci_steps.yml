@@ -287,11 +287,10 @@ jobs:
         if: inputs.msystem != ''
         run: |
           PACKAGES="cc:p cmake:p"
-          # mingw32 has no package for imath and openjph
-          if [[ "${{ inputs.OPENEXR_FORCE_INTERNAL_IMATH }}" == "OFF" && "${{ inputs.msystem }}" != "MINGW32" ]]; then
+          if [[ "${{ inputs.OPENEXR_FORCE_INTERNAL_IMATH }}" == "OFF" ]]; then
             PACKAGES="$PACKAGES imath:p"
           fi
-          if [[ "${{ inputs.OPENEXR_FORCE_INTERNAL_OPENJPH }}" == "OFF" && "${{ inputs.msystem }}" != "MINGW32" ]]; then
+          if [[ "${{ inputs.OPENEXR_FORCE_INTERNAL_OPENJPH }}" == "OFF" ]]; then
             PACKAGES="$PACKAGES openjph:p"
           fi
           if [[ "${{ inputs.OPENEXR_FORCE_INTERNAL_DEFLATE }}" == "OFF" ]]; then
@@ -348,14 +347,6 @@ jobs:
           echo "OPENEXR_PATH=$OPENEXR_PATH:$PROGRAM_FILES/Imath/bin:$PROGRAM_FILES/Imath/lib" >> "$GITHUB_ENV"
         shell: bash
 
-      - name: Install Imath (msys2)
-        # mingw32 has no package for imath, so install manually
-        if: inputs.OPENEXR_FORCE_INTERNAL_IMATH == 'OFF' && inputs.msystem == 'MINGW32'
-        run: |
-          set -x
-          share/ci/scripts/install_imath.sh "${{ inputs.OPENEXR_IMATH_TAG }}"
-        shell: msys2 {0}
-
       - name: Install libdeflate
         # Pre-install libdeflate so the builds validate that find_package sees the external installation.
         # The script itself records the release version this SHA
@@ -391,14 +382,6 @@ jobs:
           share/ci/scripts/install_openjph.sh ${{ inputs.openjph_sha }}
           echo "OPENEXR_PATH=$OPENEXR_PATH:$PROGRAM_FILES/openjph/bin:$PROGRAM_FILES/openjph/lib" >> "$GITHUB_ENV"
         shell: bash
-
-      - name: Install OpenJPH (msys2)
-        # mingw32 has no package for openjph, so install manually
-        if: inputs.OPENEXR_FORCE_INTERNAL_OPENJPH == 'OFF' && inputs.msystem == 'MINGW32'
-        run: |
-          set -x
-          share/ci/scripts/install_openjph.sh ${{ inputs.openjph_sha }}
-        shell: msys2 {0}
 
       - name: Install help2man
         # TODO: this could go in the ASWF Linux docker
@@ -441,10 +424,6 @@ jobs:
             cmake_args+=("-DOPENEXR_IMF_NAMESPACE=${{ inputs.namespace }}")
             cmake_args+=("-DILMTHREAD_NAMESPACE=${{ inputs.namespace }}")
             cmake_args+=("-DIEX_NAMESPACE=${{ inputs.namespace }}")
-          fi
-          if [ "${{ inputs.msystem }}" == "MINGW32" ]; then
-            cmake_args+=("-DCMAKE_C_FLAGS=-msse2 -mfpmath=sse")
-            cmake_args+=("-DCMAKE_CXX_FLAGS=-msse2 -mfpmath=sse")
           fi
           if [ -n "${{ inputs.CMAKE_OSX_ARCHITECTURES }}" ]; then
               cmake_args+=("-DCMAKE_OSX_ARCHITECTURES=${{ inputs.CMAKE_OSX_ARCHITECTURES }}")
@@ -505,25 +484,22 @@ jobs:
           OPENJPH_VERSION_ARG=()
           # MSYS2 ucrt64/clang64 jobs install Imath and OpenJPH via
           # pacman packages (see "Determine MSYS2 Packages" above),
-          # so $IMATH_VERSION/$OPENJPH_VERSION (set by the "Install
-          # ..." steps themselves when they run) aren't set: it's
-          # whatever version MSYS2 currently packages. MINGW32 has no
-          # package for either, so it installs both from source via
-          # the scripts, same as non-MSYS2 jobs. So only check the
-          # exact version where CI actually controls it.
+          # so $IMATH_VERSION/$OPENJPH_VERSION aren't set to a value CI
+          # controls: it's whatever version MSYS2 currently packages. So
+          # only check the exact version for the non-MSYS2 jobs, which
+          # install from source via the scripts.
           if [[ "${{ inputs.OPENEXR_FORCE_INTERNAL_IMATH }}" == "OFF" && \
-                ( "${{ inputs.msystem }}" == "" || "${{ inputs.msystem }}" == "MINGW32" ) ]]; then
+                "${{ inputs.msystem }}" == "" ]]; then
             IMATH_VERSION_ARG=(--imath-version "$IMATH_VERSION")
           fi
           if [[ "${{ inputs.OPENEXR_FORCE_INTERNAL_OPENJPH }}" == "OFF" && \
-                ( "${{ inputs.msystem }}" == "" || "${{ inputs.msystem }}" == "MINGW32" ) ]]; then
+                "${{ inputs.msystem }}" == "" ]]; then
             OPENJPH_VERSION_ARG=(--openjph-version "$OPENJPH_VERSION")
           fi
           DEFLATE_VERSION_ARG=()
           ZSTD_VERSION_ARG=()
-          # All MSYS2 shells, including MINGW32, install libdeflate
-          # and zstd via pacman packages, so CI never controls their
-          # exact version there either.
+          # All MSYS2 shells install libdeflate and zstd via pacman
+          # packages, so CI never controls their exact version there either.
           if [[ "${{ inputs.OPENEXR_FORCE_INTERNAL_DEFLATE }}" == "OFF" && "${{ inputs.msystem }}" == "" ]]; then
             DEFLATE_VERSION_ARG=(--deflate-version "$DEFLATE_VERSION")
           fi
