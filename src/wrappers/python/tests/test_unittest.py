@@ -419,6 +419,69 @@ class TestUnittest(unittest.TestCase):
 
             os.remove(outfilename)
 
+    def test_write_noncontiguous(self):
+
+        # Transposed, sliced, and reversed numpy views have strides that
+        # differ from C order; they must be written as they appear in
+        # Python, not read as if they were contiguous.
+
+        buf = np.arange(64, dtype='f').reshape(8, 8)
+        Y = buf[:4, :4][::-1]
+        RGB = np.arange(48, dtype='f').reshape(4, 4, 3)[:, ::-1]
+        Z = buf[:4, :4].T
+
+        M = np.arange(16, dtype='f').reshape(4, 4)[::-1, ::-1]
+        V = np.array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0], dtype='f')[::-2]
+
+        dt = np.dtype({
+            "names": ["r", "g", "b", "a"],
+            "formats": ["u1", "u1", "u1", "u1"],
+            "offsets": [0, 1, 2, 3],
+        })
+        P = np.array([(i,i,i,i) for i in range(0,16)], dtype=dt).reshape((4,4))[::-1]
+
+        header = { "compression" : OpenEXR.NO_COMPRESSION,
+                   "m44f" : M,
+                   "v3f" : V,
+                   "preview" : OpenEXR.PreviewImage(P) }
+        channels = { "Y" : Y, "RGB" : RGB, "Z" : Z }
+
+        outfilename = mktemp_outfilename()
+        with OpenEXR.File(header, channels) as outfile:
+            outfile.write(outfilename)
+
+        with OpenEXR.File(outfilename, separate_channels=False) as infile:
+            assert np.array_equal(infile.channels()["Y"].pixels, Y)
+            assert np.array_equal(infile.channels()["RGB"].pixels, RGB)
+            assert np.array_equal(infile.channels()["Z"].pixels, Z)
+            assert np.array_equal(infile.header()["m44f"], M)
+            assert np.array_equal(infile.header()["v3f"], V)
+            assert preview_pixels_equal(infile.header()["preview"].pixels, P)
+
+        os.remove(outfilename)
+
+        # Deep pixels, and the object array that holds them
+
+        D = np.empty((2, 4), dtype=object)
+        for y in range(2):
+            for x in range(4):
+                D[y, x] = np.arange(4, dtype='f')[::-1] + 10 * (4 * y + x)
+        D = D[:, ::2]
+
+        header = { "compression" : OpenEXR.NO_COMPRESSION,
+                   "type" : OpenEXR.deepscanline }
+
+        with OpenEXR.File(header, { "Z" : D }) as outfile:
+            outfile.write(outfilename)
+
+        with OpenEXR.File(outfilename) as infile:
+            Q = infile.channels()["Z"].pixels
+            for y in range(2):
+                for x in range(2):
+                    assert np.array_equal(Q[y, x], D[y, x])
+
+        os.remove(outfilename)
+
     def test_modify_in_place(self):
 
         #
