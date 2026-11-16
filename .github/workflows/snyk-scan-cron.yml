@@ -17,9 +17,9 @@ jobs:
     runs-on: ubuntu-latest
     if: github.repository == 'AcademySoftwareFoundation/openexr'
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@v7.0.1
 
-      - uses: snyk/actions/setup@9adf32b1121593767fc3c057af55b55db032dc04 # v1.0.0
+      - uses: snyk/actions/setup@v1.0.0
         id: snyk
 
       - name: Snyk version
