@@ -76,7 +76,7 @@ jobs:
         release_version: ${{ steps.notes.outputs.version }}
         release_url: ${{ steps.notes.outputs.url }}
         release_notes: ${{ steps.notes.outputs.notes }}
-      uses: jmertic/slack-release-notifier@4bf7813217739180f89eb869bf769efc07928368 # 20260930
+      uses: jmertic/slack-release-notifier@002909160ed31f9c0fa15df4fe02d768d16a9dc6 # 20261112
 
     - name: 'Notify Slack #openexr'
       id: slack2
@@ -88,6 +88,6 @@ jobs:
         release_version: ${{ steps.notes.outputs.version }}
         release_url: ${{ steps.notes.outputs.url }}
         release_notes: ${{ steps.notes.outputs.notes }}
-      uses: jmertic/slack-release-notifier@4bf7813217739180f89eb869bf769efc07928368 # 20260930
+      uses: jmertic/slack-release-notifier@002909160ed31f9c0fa15df4fe02d768d16a9dc6 # 20261112
 
       

@@ -609,16 +609,16 @@ exr_decoding_run (
          part->storage_mode == EXR_STORAGE_DEEP_TILED))
     {
         if (part->comp_type != EXR_COMPRESSION_NONE &&
-            decode->packed_sample_count_table == NULL &&
+            decode->chunk.sample_count_table_size == 0 &&
             decode->sample_count_table != NULL)
         {
-            /* A compressed deep chunk declared a zero-length (absent)
-             * packed sample-count table, so decompress_data() above was
-             * never invoked and decode->sample_count_table, which was
-             * allocated to hold the full decompressed table, was left
-             * uninitialized. Treat an absent table as all-zero sample
-             * counts instead of reading uninitialized heap memory in
-             * unpack_sample_table().
+            /* A compressed deep chunk declared a zero-length packed
+             * sample-count table, so decompress_data() above was a no-op and
+             * decode->sample_count_table was left holding whatever the
+             * buffer contained: either freshly-allocated memory or the
+             * previous chunk's counts, because
+             * decode->packed_sample_count_table still points at the prior
+             * chunk's table. Treat an absent table as all-zero sample counts.
              */
             memset (
                 decode->sample_count_table,
