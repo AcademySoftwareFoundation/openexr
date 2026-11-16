@@ -116,7 +116,7 @@ jobs:
     steps:
 
       - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        uses: actions/checkout@v7.0.1
 
       - name: Install Build Dependencies (Alpine)
         # For Alpine, install bash since it's missing from the base
@@ -276,7 +276,7 @@ jobs:
 
       - name: Cache sccache
         if: inputs.msystem == ''
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        uses: actions/cache@v6.1.0
         with:
           path: ${{ env.SCCACHE_DIR }}
           key: sccache-${{ runner.os }}-${{ env.SANITIZED_NAME }}-${{ github.sha }}
@@ -304,7 +304,7 @@ jobs:
 
       - name: Install MSYS2 ${{ inputs.msystem }}
         if: inputs.msystem != ''
-        uses: msys2/setup-msys2@ec48f7c5447b3140e2b088413ae3a55687bccb6e # v2.33.0
+        uses: msys2/setup-msys2@v2.33.0
         with:
           msystem: ${{ inputs.msystem }}
           update: true
@@ -582,7 +582,7 @@ jobs:
 
       - name: Upload install_manifest.txt
         # Upload the manifest to make it possible to download for inspection and debugging
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        uses: actions/upload-artifact@v7.0.2
         with:
           name: ${{ env.INSTALL_MANIFEST_FILENAME }}
           path: ${{ env.INSTALL_MANIFEST_PATH }}
