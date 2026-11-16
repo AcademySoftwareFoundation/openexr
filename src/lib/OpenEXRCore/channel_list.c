@@ -139,26 +139,26 @@ exr_attr_chlist_add_with_length (
             ysamp,
             name);
 
-    insertpos = 0;
-    olist     = EXR_CONST_CAST (exr_attr_chlist_entry_t*, clist->entries);
-    for (int32_t c = 0; c < clist->num_channels; ++c)
+    olist = EXR_CONST_CAST (exr_attr_chlist_entry_t*, clist->entries);
     {
-        int ord = strcmp (name, olist[c].name.str);
-        if (ord < 0)
+        /* binary search for the first entry that sorts after name */
+        int32_t lo = 0, hi = clist->num_channels;
+        while (lo < hi)
         {
-            insertpos = c;
-            break;
+            int32_t mid = lo + (hi - lo) / 2;
+            int     ord = strcmp (name, olist[mid].name.str);
+            if (ord == 0)
+                return ctxt->print_error (
+                    ctxt,
+                    EXR_ERR_INVALID_ARGUMENT,
+                    "Attempt to add duplicate channel '%s' to channel list",
+                    name);
+            if (ord < 0)
+                hi = mid;
+            else
+                lo = mid + 1;
         }
-        else if (ord == 0)
-        {
-            return ctxt->print_error (
-                ctxt,
-                EXR_ERR_INVALID_ARGUMENT,
-                "Attempt to add duplicate channel '%s' to channel list",
-                name);
-        }
-        else
-            insertpos = c + 1;
+        insertpos = (int) lo;
     }
 
     /* temporarily use newcount as a return value check */
@@ -201,17 +201,29 @@ exr_attr_chlist_add_with_length (
      * complex logic to avoid overwrites, find where we will insert
      * and copy entries after that first */
 
-    /* shift old entries further first */
-    for (int i = newcount - 1; i > insertpos; --i)
-        nlist[i] = olist[i - 1];
-    nlist[insertpos] = nent;
-    if (olist && nlist != olist)
+    if (olist)
     {
-        for (int i = 0; i < insertpos; ++i)
-            nlist[i] = olist[i];
+        size_t nhead = (size_t) insertpos;
+        size_t ntail = (size_t) (clist->num_channels - insertpos);
 
-        ctxt->free_fn (olist);
+        if (nlist == olist)
+        {
+            memmove (
+                nlist + insertpos + 1,
+                olist + insertpos,
+                ntail * sizeof (*nlist));
+        }
+        else
+        {
+            memcpy (nlist, olist, nhead * sizeof (*nlist));
+            memcpy (
+                nlist + insertpos + 1,
+                olist + insertpos,
+                ntail * sizeof (*nlist));
+            ctxt->free_fn (olist);
+        }
     }
+    nlist[insertpos] = nent;
 
     clist->num_channels = newcount;
     clist->entries      = nlist;

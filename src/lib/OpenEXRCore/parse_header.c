@@ -403,6 +403,19 @@ extract_attr_chlist (
         if (ptype < 0 || ptype > (int)EXR_PIXEL_LAST_TYPE)
             ptype = (int)EXR_PIXEL_LAST_TYPE;
 
+        /* validation rejects more than INT16_MAX channels, so stop
+         * before spending time inserting more */
+        if (attrdata->num_channels >= INT16_MAX)
+        {
+            rv = ctxt->print_error (
+                ctxt,
+                EXR_ERR_INVALID_ARGUMENT,
+                "Too many channels in '%s' (max %d)",
+                aname,
+                (int) INT16_MAX);
+            break;
+        }
+
         rv = exr_attr_chlist_add_with_length (
             ctxt,
             attrdata,
