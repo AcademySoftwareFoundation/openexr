@@ -363,6 +363,10 @@ extract_attr_chlist (
     uint8_t      flags[4];
     int32_t      maxlen = ctxt->max_name_length;
     exr_result_t rv;
+    uint64_t     attrend, curpos;
+
+    attrend = scratch->fileoff - (uint64_t) scratch->navail;
+    if (attrsz > 0) attrend += (uint64_t) attrsz;
 
     rv = check_bad_attrsz (scratch, attrsz, 1, aname, tname, &chlen);
 
@@ -413,7 +417,11 @@ extract_attr_chlist (
             xsamp,
             ysamp);
     }
-    scratch->sequential_skip (scratch, attrsz);
+
+    /* a failed read may have consumed part of the value, so skip by position */
+    curpos = scratch->fileoff - (uint64_t) scratch->navail;
+    if (curpos < attrend)
+        scratch->sequential_skip (scratch, (int32_t) (attrend - curpos));
     return rv;
 }
 
@@ -882,7 +890,7 @@ extract_attr_preview (
 
     sz[0] = one_to_native32 (sz[0]);
     sz[1] = one_to_native32 (sz[1]);
-    bytes = 4 * sz[0] * sz[1];
+    bytes = 4 * (uint64_t) sz[0] * (uint64_t) sz[1];
     if ((uint64_t) attrsz != (8 + bytes))
         return ctxt->print_error (
             ctxt,
@@ -2037,50 +2045,17 @@ check_req_attr (
 /**************************************/
 
 static exr_result_t
-pull_attr (
+pull_attr_value (
     exr_context_t                     ctxt,
     exr_priv_part_t                   curpart,
-    uint8_t                           init_byte,
-    struct _internal_exr_seq_scratch* scratch)
+    struct _internal_exr_seq_scratch* scratch,
+    const char*                       name,
+    const char*                       type,
+    int32_t                           attrsz)
 {
-    char             name[256], type[256];
     exr_result_t     rv;
-    int32_t          namelen = 0, typelen = 0;
-    int32_t          attrsz = 0;
     exr_attribute_t* nattr  = NULL;
     uint8_t*         strptr = NULL;
-    const int32_t    maxlen = ctxt->max_name_length;
-
-    name[0] = (char) init_byte;
-    namelen = 1;
-
-    rv = read_text (name, &namelen, maxlen, scratch, "attribute name");
-    if (rv != EXR_ERR_SUCCESS) return rv;
-    rv = read_text (type, &typelen, maxlen, scratch, "attribute type");
-    if (rv != EXR_ERR_SUCCESS) return rv;
-
-    if (namelen == 0)
-        return ctxt->report_error (
-            ctxt,
-            EXR_ERR_FILE_BAD_HEADER,
-            "Invalid empty string encountered parsing attribute name");
-
-    if (typelen == 0)
-        return ctxt->print_error (
-            ctxt,
-            EXR_ERR_FILE_BAD_HEADER,
-            "Invalid empty string encountered parsing attribute type for attribute '%s'",
-            name);
-
-    rv = scratch->sequential_read (scratch, &attrsz, sizeof (int32_t));
-    if (rv != EXR_ERR_SUCCESS)
-        return ctxt->print_error (
-            ctxt,
-            rv,
-            "Unable to read attribute size for attribute '%s', type '%s'",
-            name,
-            type);
-    attrsz = (int32_t) one_to_native32 ((uint32_t) attrsz);
 
     rv = check_req_attr (ctxt, curpart, scratch, name, type, attrsz);
     if (rv != EXR_ERR_UNKNOWN) return rv;
@@ -2286,6 +2261,73 @@ pull_attr (
         exr_attr_list_remove (ctxt, &(curpart->attributes), nattr);
     }
 
+    return rv;
+}
+
+/**************************************/
+
+static exr_result_t
+pull_attr (
+    exr_context_t                     ctxt,
+    exr_priv_part_t                   curpart,
+    uint8_t                           init_byte,
+    struct _internal_exr_seq_scratch* scratch)
+{
+    char             name[256], type[256];
+    exr_result_t     rv;
+    int32_t          namelen = 0, typelen = 0;
+    int32_t          attrsz = 0;
+    uint64_t         attrstart, attrend, curpos;
+    const int32_t    maxlen = ctxt->max_name_length;
+
+    name[0] = (char) init_byte;
+    namelen = 1;
+
+    rv = read_text (name, &namelen, maxlen, scratch, "attribute name");
+    if (rv != EXR_ERR_SUCCESS) return rv;
+    rv = read_text (type, &typelen, maxlen, scratch, "attribute type");
+    if (rv != EXR_ERR_SUCCESS) return rv;
+
+    if (namelen == 0)
+        return ctxt->report_error (
+            ctxt,
+            EXR_ERR_FILE_BAD_HEADER,
+            "Invalid empty string encountered parsing attribute name");
+
+    if (typelen == 0)
+        return ctxt->print_error (
+            ctxt,
+            EXR_ERR_FILE_BAD_HEADER,
+            "Invalid empty string encountered parsing attribute type for attribute '%s'",
+            name);
+
+    rv = scratch->sequential_read (scratch, &attrsz, sizeof (int32_t));
+    if (rv != EXR_ERR_SUCCESS)
+        return ctxt->print_error (
+            ctxt,
+            rv,
+            "Unable to read attribute size for attribute '%s', type '%s'",
+            name,
+            type);
+    attrsz = (int32_t) one_to_native32 ((uint32_t) attrsz);
+
+    /* absolute file position of the start of the attribute value */
+    attrstart = scratch->fileoff - (uint64_t) scratch->navail;
+
+    rv = pull_attr_value (ctxt, curpart, scratch, name, type, attrsz);
+    if (rv != EXR_ERR_SUCCESS && attrsz > 0)
+    {
+        /*
+         * The extractors may have consumed only part of the declared
+         * value when validation failed. In non-strict mode parsing
+         * continues with the next attribute, so skip whatever is left of
+         * this one to stay aligned with the file structure.
+         */
+        attrend = attrstart + (uint64_t) attrsz;
+        curpos  = scratch->fileoff - (uint64_t) scratch->navail;
+        if (curpos < attrend)
+            scratch->sequential_skip (scratch, (int32_t) (attrend - curpos));
+    }
     return rv;
 }
 
