@@ -81,11 +81,11 @@ RgbaLut::apply (
     int                           yStride,
     const IMATH_NAMESPACE::Box2i& dataWindow) const
 {
-    base += dataWindow.min.y * yStride;
+    base += static_cast<ptrdiff_t> (dataWindow.min.y) * yStride;
 
     for (int y = dataWindow.min.y; y <= dataWindow.max.y; ++y)
     {
-        Rgba* pixel = base + dataWindow.min.x * xStride;
+        Rgba* pixel = base + static_cast<ptrdiff_t> (dataWindow.min.x) * xStride;
 
         for (int x = dataWindow.min.x; x <= dataWindow.max.x; ++x)
         {
