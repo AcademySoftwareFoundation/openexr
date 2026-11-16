@@ -412,9 +412,9 @@ snowballstemmer==3.1.1 \
     --hash=sha256:7e207fa178741da09cdee59d3ecec3827ad5f92b1fc5c9ff3755b639f71f5752 \
     --hash=sha256:e07bbc54a0d798fe6010a12398422e62a8bfbba95c394fd0956ef58cb4d3e260
     # via sphinx
-soupsieve==3.0.4 \
-    --hash=sha256:8412826614f9c632227067d0985aeb9f584bd15efc852955430e097a9fe7afbf \
-    --hash=sha256:924fab84ae21604c19e175e1f39815eb6fa83ba23836e09e9de180925e5bc4c0
+soupsieve==4.1 \
+    --hash=sha256:ca9abf7126667010d8f6e9b39bfc1bc3b23c8aed9bcb0f54a754dde969bb8aab \
+    --hash=sha256:e4d667b3974ce6e038e7390486b8093369854a1d345ffdd4c121dfc4a782e809
     # via beautifulsoup4
 sphinx==9.2.0 \
     --hash=sha256:4c3ec13b612712c0d3ce4cbdd9e3eb91e68577e07a8e31f32f21cf178453578c \
@@ -429,9 +429,9 @@ sphinx-copybutton==0.5.2 \
     --hash=sha256:4cf17c82fb9646d1bc9ca92ac280813a3b605d8c421225fd9913154103ee1fbd \
     --hash=sha256:fb543fd386d917746c9a2c50360c7905b605726b9355cd26e9974857afeae06e
     # via -r website/requirements.txt
-sphinx-design==0.7.0 \
-    --hash=sha256:d2a3f5b19c24b916adb52f97c5f00efab4009ca337812001109084a740ec9b7a \
-    --hash=sha256:f82bf179951d58f55dca78ab3706aeafa496b741a91b1911d371441127d64282
+sphinx-design==0.8.0 \
+    --hash=sha256:57fa4d96378525122947ab6109c6e490190e3119dc10f3e3adf6b71444bf3bb4 \
+    --hash=sha256:861fecb064c3da5ff48031a237692ccb7c2e671f8c4aa84d4b9eef3cb8fd9c91
     # via -r website/requirements.txt
 sphinxcontrib-applehelp==2.0.0 \
     --hash=sha256:2f29ef331735ce958efa4734873f084941970894c6090408b079c61b2e1c06d1 \
