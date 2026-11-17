@@ -1,0 +1,159 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright (c) Contributors to the OpenEXR Project.
+
+# Code coverage, independent of SonarCloud.
+#
+# Builds with OPENEXR_ENABLE_COVERAGE, runs the full test suite, and
+# produces a gcovr report (see cmake/coverage.cmake and gcovr.cfg; the
+# same report can be generated locally with the "coverage" target).
+# This takes a long time (the unoptimized, instrumented build plus the
+# complete test suite), so it does not run on every push or pull
+# request. It runs:
+#
+# - weekly, on a schedule alongside the full build (ci_full.yml), on
+#   the upstream repo only;
+# - on demand, via workflow_dispatch on any branch ("Run workflow" in
+#   the Actions tab, or "gh workflow run coverage.yml --ref <branch>");
+# - on a pull request when a maintainer applies the "coverage" label,
+#   e.g. for a PR designed to expand coverage.
+#
+# Every run uploads the HTML report as the "coverage-report" artifact
+# (download and open index.html) and writes the overall percentages to
+# the job summary. A pull request run, or a manual run on a branch
+# other than the base, also gets a "changed lines" coverage table in
+# the job summary, from diff-cover, against the base branch. Only
+# artifacts and the job summary are used, so it also works for PRs from
+# forks, which can't be given comments or write access.
+#
+# A run on main (scheduled or manual) publishes the HTML report to
+# GitHub Pages. This requires Pages to be enabled in the repository
+# settings with "Source: GitHub Actions".
+
+name: Coverage
+
+on:
+  schedule:
+    # Every Sunday at 07:15 UTC, an hour after the full build starts
+    - cron: '15 7 * * 0'
+  pull_request:
+    types: [labeled]
+  workflow_dispatch:
+    inputs:
+      base:
+        description: 'Branch to compare against for changed-line coverage'
+        required: false
+        default: 'main'
+        type: string
+
+permissions:
+  contents: read
+
+# Don't cancel a run in progress: on a pull request, applying any other
+# label starts a (skipped) run in the same group and would cancel it.
+concurrency:
+  group: coverage-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  coverage:
+    name: Coverage
+    # On the weekly schedule, only run on the upstream repo, so forks
+    # with Actions enabled don't incur their own compute every week.
+    # A pull request runs only when the "coverage" label is applied.
+    if: >-
+      (github.event_name != 'schedule' || github.repository == 'AcademySoftwareFoundation/openexr') &&
+      (github.event_name != 'pull_request' || github.event.label.name == 'coverage')
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # diff-cover needs the history to compare against the base branch
+          fetch-depth: 0
+
+      - name: Install gcovr and diff-cover
+        run: |
+          python3 -m venv "$RUNNER_TEMP/venv"
+          "$RUNNER_TEMP/venv/bin/pip" install --require-hashes \
+            -r share/ci/requirements/coverage.txt
+          echo "$RUNNER_TEMP/venv/bin" >> "$GITHUB_PATH"
+
+      - name: Configure
+        run: |
+          cmake -S . -B build \
+            -DCMAKE_BUILD_TYPE=Debug \
+            -DOPENEXR_ENABLE_COVERAGE=ON \
+            -DOPENEXR_FORCE_INTERNAL_IMATH=ON \
+            -DOPENEXR_FORCE_INTERNAL_DEFLATE=ON \
+            -DOPENEXR_FORCE_INTERNAL_ZSTD=ON \
+            -DOPENEXR_FORCE_INTERNAL_OPENJPH=ON \
+            -DOPENEXR_BUILD_EXAMPLES=OFF \
+            -DOPENEXR_INSTALL_DOCS=OFF
+
+      - name: Build
+        # An unbounded -j runs out of memory on the runner.
+        run: cmake --build build --parallel "$(nproc)"
+
+      - name: Test and generate report
+        run: cmake --build build --target coverage
+
+      - name: Summarize coverage
+        run: |
+          python3 - <<'EOF' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          s = json.load(open("build/coverage/summary.json"))
+          print("## Coverage\n")
+          print("| | Covered | Total | % |")
+          print("|---|---:|---:|---:|")
+          for k in ("line", "function", "branch"):
+              print(f"| {k}s | {s[k + '_covered']} | {s[k + '_total']} "
+                    f"| {s[k + '_percent']:.1f} |")
+          EOF
+
+      - name: Coverage of changed lines
+        if: >-
+          github.event_name == 'pull_request' ||
+          (github.event_name == 'workflow_dispatch' && github.ref_name != inputs.base)
+        env:
+          BASE_REF: ${{ github.base_ref || inputs.base }}
+        run: |
+          # Informational only: the PR is not failed for low coverage.
+          diff-cover build/coverage/coverage.xml \
+            --compare-branch="origin/$BASE_REF" \
+            --format markdown:diff-coverage.md || true
+          {
+            echo "## Coverage of lines changed by this PR"
+            echo
+            cat diff-coverage.md
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload report
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: coverage-report
+          path: build/coverage
+          retention-days: 30
+
+      - name: Upload Pages artifact
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: build/coverage
+
+  publish:
+    name: Publish to GitHub Pages
+    needs: coverage
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - name: Deploy
+        id: deploy
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1

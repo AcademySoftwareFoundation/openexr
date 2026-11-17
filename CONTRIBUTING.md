@@ -323,6 +323,27 @@ The test should should be run, via:
 
 before submitting a pull request.
 
+To see which lines of the library the tests exercise, configure a
+separate build with coverage enabled (requires `gcovr`, installed via
+`pip install gcovr`):
+
+    cmake -B _cov -DCMAKE_BUILD_TYPE=Debug -DOPENEXR_ENABLE_COVERAGE=ON
+    cmake --build _cov
+    cmake --build _cov --target coverage
+
+and open `_cov/coverage/index.html`. The `coverage-report` target
+regenerates the report from existing results without re-running the
+tests, and `coverage-clean` resets the accumulated results. To limit
+the run, run `ctest` yourself, e.g. `ctest --test-dir _cov -R
+OpenEXRCore`, followed by the `coverage-report` target. The files
+measured are configured in `gcovr.cfg`.
+
+The Coverage workflow does the same in CI. It runs weekly, on demand,
+and on a pull request when a maintainer applies the `coverage` label.
+The run's summary page shows overall coverage and, for a pull request
+or a branch, the coverage of the changed lines. The report for `main`
+is published to the repository's GitHub Pages site.
+
 In addition, the ``OpenEXRFuzzTest`` project validates the library by
 feeding it corrupted input data. This test is time-consuming (possible
 over 24 hours), so it will only be run occasionally, but it must
