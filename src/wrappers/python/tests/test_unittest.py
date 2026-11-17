@@ -1118,6 +1118,27 @@ class TestUnittest(unittest.TestCase):
         if os.path.isfile(outfilename):
             os.remove(outfilename)
 
+    def test_noncontiguous_channels(self):
+        # From issue #1929 of writing noncontiguous NumPy arrays
+        shape = (4, 4)
+        n_channels = 3
+        #n_channels = 100
+
+        channels_np = np.zeros((*shape, n_channels), dtype=np.float32)
+        channels_np += np.arange(n_channels)
+
+        # This slice assignment creates noncontiguous arrays.
+        channels = {}
+        for i in range(n_channels):
+            channels[f"chan{i}"] = channels_np[:, :, i] 
+
+        header = {"compression" : OpenEXR.RLE_COMPRESSION, "type" : OpenEXR.scanlineimage}
+        with OpenEXR.File(header, channels) as outfile:
+            outfile.write("tmp.exr")
+
+        with OpenEXR.File("tmp.exr") as infile:
+            chan1_np = infile.channels()["chan1"].pixels[:]
+            np.testing.assert_array_equal(channels_np[:, :, 1], chan1_np)
 
 if __name__ == '__main__':
     unittest.main()

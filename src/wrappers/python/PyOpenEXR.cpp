@@ -898,6 +898,11 @@ PyPart::writePixels(MultiPartOutputFile& outfile, const Box2i& dw) const
         auto C = c.second.cast<const PyChannel&>();
 
         auto pixelType = C.pixelType();
+        py::buffer_info buf = C.pixels.request();
+        auto basePtr = static_cast<uint8_t*>(buf.ptr);
+        py::dtype dt = C.pixels.dtype();
+        size_t xStride = buf.strides[1];
+        size_t yStride = buf.strides[0];
             
         if (C.pixels.ndim() == 3)
         {
@@ -911,14 +916,9 @@ PyPart::writePixels(MultiPartOutputFile& outfile, const Box2i& dw) const
                 name_prefix = "";
             else
                 name_prefix = C.name + ".";
-                
-            py::buffer_info buf = C.pixels.request();
-            auto basePtr = static_cast<uint8_t*>(buf.ptr);
-            py::dtype dt = C.pixels.dtype();
+        
             int nrgba = C.pixels.shape(2);
-            size_t xStride = dt.itemsize() * nrgba;
-            size_t yStride = xStride * C.pixels.shape(1);
-                    
+                
             auto rPtr = basePtr;
             frameBuffer.insert (name_prefix + "R",
                                 Slice::Make (pixelType,
@@ -958,8 +958,9 @@ PyPart::writePixels(MultiPartOutputFile& outfile, const Box2i& dw) const
         {
             frameBuffer.insert (C.name,
                                 Slice::Make (pixelType,
-                                             static_cast<void*>(C.pixels.request().ptr),
-                                             dw, 0, 0,
+                                             basePtr,
+                                             dw,
+                                             xStride, yStride,
                                              C.xSampling,
                                              C.ySampling));
         }
