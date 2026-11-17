@@ -227,6 +227,28 @@ def test_channel_subsampled_range():
 
 testList.append(("test_channel_subsampled_range", test_channel_subsampled_range))
 
+#
+# Write an x/y-subsampled channel: the buffer holds width / xSampling
+# samples per row.
+#
+
+def test_write_subsampled():
+    width = 8
+    height = 8
+    original = list(range((width // 2) * (height // 2)))
+
+    hdr = OpenEXR.Header(width, height)
+    hdr['channels'] = {'C': Imath.Channel(FLOAT, 2, 2)}
+    x = OpenEXR.OutputFile(f"{test_dir}/subsampled.exr", hdr)
+    x.writePixels({'C': array('f', original).tobytes()})
+    x.close()
+
+    xin = OpenEXR.InputFile(f"{test_dir}/subsampled.exr")
+    assert array('f', xin.channel('C')).tolist() == original
+    os.remove(f"{test_dir}/subsampled.exr")
+
+testList.append(("test_write_subsampled", test_write_subsampled))
+
 def test_invalid_pixeltype():
     oexr = OpenEXR.InputFile(f"{test_dir}/write.exr")
     FLOAT = Imath.PixelType.FLOAT
