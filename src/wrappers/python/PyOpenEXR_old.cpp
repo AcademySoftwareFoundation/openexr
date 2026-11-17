@@ -1206,9 +1206,10 @@ outwrite (PyObject* self, PyObject* args)
                     typeSize);
                 return NULL;
             }
-            // height >= 1, so yStride = typeSize * width <= total and is
-            // likewise in range.
-            Py_ssize_t yStride      = (Py_ssize_t) typeSize * width;
+            // The caller's buffer holds width / xSampling samples per
+            // row, so that is the row pitch. height >= 1, so yStride <=
+            // total and is likewise in range.
+            Py_ssize_t yStride      = (Py_ssize_t) typeSize * (width / xSampling);
             Py_ssize_t expectedSize = total / ((Py_ssize_t) xSampling * ySampling);
 
             if (PyString_Check (channel_spec))
