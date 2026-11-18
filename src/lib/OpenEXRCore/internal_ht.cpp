@@ -29,14 +29,6 @@
 
 namespace
 {
-/* NLT type 4 point tables for lossy RGB channels. Most float imagery lies
- * within half's range, so the float table for that range is precomputed;
- * only chunks exceeding it get a table built for their own range. */
-const int32_t float_nlt_lut_points = 257;
-const std::vector<uint16_t> half_nlt_lut = build_nlt_lut_16 (513);
-const std::vector<uint32_t> float_nlt_lut_half_range =
-    build_nlt_lut_32 (float_nlt_lut_points, HALF_MAX);
-
 /* Returns the range the float NLT table has to cover for a chunk: half's
  * max unless the chunk's RGB samples exceed it. */
 double
@@ -850,6 +842,13 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
         cod.set_reversible (true);
     }
 
+    /* NLT type 4 point tables for lossy RGB channels. Most float imagery lies
+     * within half's range, so the float table for that range is precomputed;
+     * only chunks exceeding it get a table built for their own range. */
+    static constexpr int32_t           float_nlt_lut_points = 257;
+    static const std::vector<uint32_t> float_nlt_lut_half_range =
+        build_nlt_lut_32 (float_nlt_lut_points, HALF_MAX);
+
     const std::vector<uint32_t>* float_nlt_lut = &float_nlt_lut_half_range;
     std::vector<uint32_t>        float_nlt_lut_chunk;
     /* Only compute the float LUT if the max sample value is greater than HALF_MAX. */
@@ -873,11 +872,15 @@ ht_apply_impl (exr_encode_pipeline_t* encode)
         {
             /* OpenJPH's Type 4 NLT LUT is used*/
             if (encode->channels[file_c].data_type == EXR_PIXEL_HALF)
+            {
+                static const std::vector<uint16_t> half_nlt_lut =
+                    build_nlt_lut_16 (513);
                 nlt.set_nonlinear_transform (
                     c, 16, true, 0u, 0xFFFFFFFFu, 16,
                     (ojph::ui16) half_nlt_lut.size (),
                     (void*) half_nlt_lut.data (),
                     ojph::param_nlt::nonlinearity::OJPH_NLT_BINARY_COMPLEMENT_PLUS_LUT);
+            }
             else
                 nlt.set_nonlinear_transform (
                     c, 32, true, 0u, 0xFFFFFFFFu, 32,
