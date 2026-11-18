@@ -40,7 +40,7 @@ jobs:
       id: rc
       # Read the annotated tag object (title line with the scheduled date,
       # plus the release notes) and build the Slack title and notes. The
-      # ### Contributors section is stripped since its raw html does not
+      # Contributors section is stripped since its raw html does not
       # translate to Slack. The notes are rendered as-is: tag.py is expected
       # to have already reflowed them (each paragraph a single line) so Slack
       # can wrap them naturally. Tags that lack an embedded date and/or notes
@@ -96,11 +96,11 @@ jobs:
             body_lines = lines
 
         # Release notes: everything after the title line, up to (but not
-        # including) the ### Contributors section. The lines are rendered
+        # including) the Contributors section. The lines are rendered
         # as-is (tag.py reflows them so each paragraph is a single line).
         notes_lines = []
         for line in body_lines:
-            if line.strip() == "### Contributors":
+            if re.match(r"#+\s*Contributors\s*$", line):
                 break
             notes_lines.append(line)
         notes = "\n".join(notes_lines).strip("\n")

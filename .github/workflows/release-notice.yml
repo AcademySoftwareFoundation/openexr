@@ -30,7 +30,7 @@ jobs:
     - name: 'Prepare Slack-safe release notes'
       id: notes
       # Resolve the release (from the triggering release event, or from
-      # the tag given to workflow_dispatch) and strip the ### Contributors
+      # the tag given to workflow_dispatch) and strip the Contributors
       # section from the notes, since it has raw html that doesn't translate.
       env:
         GH_TOKEN: ${{ github.token }}
@@ -62,7 +62,7 @@ jobs:
         delimiter="EOF_$(date +%s)_$RANDOM"
         {
           echo "notes<<$delimiter"
-          printf '%s\n' "$RELEASE_BODY" | sed -n '/^### Contributors$/q;p'
+          printf '%s\n' "$RELEASE_BODY" | sed -n '/^#\{1,\}[[:space:]]*Contributors[[:space:]]*$/q;p'
           echo "$delimiter"
         } >> "$GITHUB_OUTPUT"
 
