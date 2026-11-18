@@ -1146,10 +1146,11 @@ outwrite (PyObject* self, PyObject* args)
     int currentScanLine = file->currentScanLine ();
     if (file->header ().lineOrder () == DECREASING_Y)
     {
-        // With DECREASING_Y, currentScanLine() returns the maximum Y value of
-        // the window on the first call, and decrements at each scan line.
-        // We have to adjust to point to the correct address in the client buffer.
-        currentScanLine = dw.max.y - currentScanLine + dw.min.y;
+        // With DECREASING_Y, currentScanLine() is the highest line not yet
+        // written, and writePixels(height) writes lines currentScanLine -
+        // height + 1 through currentScanLine. The client buffer holds those
+        // lines top to bottom, so its first row is the lowest of them.
+        currentScanLine = currentScanLine - height + 1;
     }
 
     FrameBuffer            frameBuffer;
