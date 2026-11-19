@@ -15,6 +15,7 @@
 #include <iomanip>
 #include <iostream>
 #include <memory>
+#include <vector>
 
 static void
 err_cb (exr_const_context_t f, int code, const char* msg)
@@ -624,6 +625,55 @@ testReadUnpack (const std::string& tempdir)
         /* TODO: add actual comparison against C++ library */
 
         EXRCORE_TEST_RVAL (exr_decoding_destroy (f, &decoder));
+    }
+
+    {
+        /* Without a type change the uncompressed tile is read straight
+         * into the user buffers, which must still honor
+         * user_line_begin_skip / user_line_end_ignore. */
+        const int            w = cinfo.width, h = cinfo.height;
+        const int            skip = 5, keep = 10;
+        std::vector<uint8_t> gfull (w * h * 2), zfull (w * h * 4);
+        std::vector<uint8_t> gpart (w * h * 2, 0xAB), zpart (w * h * 4, 0xAB);
+
+        for (int pass = 0; pass < 2; ++pass)
+        {
+            exr_decode_pipeline_t decoder = EXR_DECODE_PIPELINE_INITIALIZER;
+            EXRCORE_TEST_RVAL (
+                exr_decoding_initialize (f, 0, &cinfo, &decoder));
+
+            decoder.channels[0].decode_to_ptr          = pass ? gpart.data ()
+                                                              : gfull.data ();
+            decoder.channels[0].user_pixel_stride      = 2;
+            decoder.channels[0].user_line_stride       = 2 * w;
+            decoder.channels[0].user_bytes_per_element = 2;
+            decoder.channels[0].user_data_type         = EXR_PIXEL_HALF;
+            decoder.channels[1].decode_to_ptr          = pass ? zpart.data ()
+                                                              : zfull.data ();
+            decoder.channels[1].user_pixel_stride      = 4;
+            decoder.channels[1].user_line_stride       = 4 * w;
+            decoder.channels[1].user_bytes_per_element = 4;
+            decoder.channels[1].user_data_type         = EXR_PIXEL_FLOAT;
+            if (pass)
+            {
+                decoder.user_line_begin_skip = skip;
+                decoder.user_line_end_ignore = h - skip - keep;
+            }
+
+            EXRCORE_TEST_RVAL (
+                exr_decoding_choose_default_routines (f, 0, &decoder));
+            EXRCORE_TEST_RVAL (exr_decoding_run (f, 0, &decoder));
+            EXRCORE_TEST_RVAL (exr_decoding_destroy (f, &decoder));
+        }
+
+        EXRCORE_TEST (
+            0 == memcmp (gpart.data (), &gfull[skip * w * 2], keep * w * 2));
+        EXRCORE_TEST (
+            0 == memcmp (zpart.data (), &zfull[skip * w * 4], keep * w * 4));
+        for (size_t i = keep * w * 2; i < gpart.size (); ++i)
+            EXRCORE_TEST (gpart[i] == 0xAB);
+        for (size_t i = keep * w * 4; i < zpart.size (); ++i)
+            EXRCORE_TEST (zpart[i] == 0xAB);
     }
 
     exr_finish (&f);
