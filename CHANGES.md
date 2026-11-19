@@ -135,6 +135,14 @@ This release addresses the following security vulnerabilities:
 
 ### Merged Pull Requests
 
+* [2876](https://github.com/AcademySoftwareFoundation/openexr/pull/2876)
+  Fix DECREASING_Y chunk offset in legacy Python OutputFile.writePixels() (by @Dilshad-Tanvi)
+* [2871](https://github.com/AcademySoftwareFoundation/openexr/pull/2871)
+  Move the LJ2K lookups from the global scope to the place they are used (by @vlazar-ilm/Vlad Lazar)
+* [2870](https://github.com/AcademySoftwareFoundation/openexr/pull/2870)
+  Fix x-subsampled row stride in legacy Python OutputFile.writePixels() (by @Dilshad-Tanvi)
+* [2861](https://github.com/AcademySoftwareFoundation/openexr/pull/2861)
+  Fix signed integer overflow of data-window origin in RgbaLut::apply (by @cary-ilm/Cary Phillips)
 * [2857](https://github.com/AcademySoftwareFoundation/openexr/pull/2857)
   reject zero-length deep scanline sample-count table (by @cary-ilm/Cary Phillips)
 * [2856](https://github.com/AcademySoftwareFoundation/openexr/pull/2856)
@@ -155,6 +163,14 @@ This release addresses the following security vulnerabilities:
 
 ### Merged Workflow Pull Requests
 
+* [2873](https://github.com/AcademySoftwareFoundation/openexr/pull/2873)
+  Move slack-release-notifier to linuxfoundation/slack-release-notifier (by @cary-ilm/Cary Phillips)
+* [2863](https://github.com/AcademySoftwareFoundation/openexr/pull/2863)
+  Bump the actions-deps group with 2 updates (by @app/dependabot)
+* [2862](https://github.com/AcademySoftwareFoundation/openexr/pull/2862)
+  Bump the python-module-deps group with 2 updates (by @app/dependabot)
+* [2860](https://github.com/AcademySoftwareFoundation/openexr/pull/2860)
+  ci: add QEMU armv7 32-bit emulated test job (by @cary-ilm/Cary Phillips)
 * [2847](https://github.com/AcademySoftwareFoundation/openexr/pull/2847)
   Bump rules_cc from 0.2.27 to 0.2.28 in the bazel-deps group (by @app/dependabot)
 * [2846](https://github.com/AcademySoftwareFoundation/openexr/pull/2846)
