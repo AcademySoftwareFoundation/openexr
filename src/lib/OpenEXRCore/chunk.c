@@ -1006,7 +1006,8 @@ exr_read_scanline_chunk_info (
         if (rv != EXR_ERR_SUCCESS) { return rv; }
         priv_to_native64 (ddata, 3);
 
-        if (ddata[0] < 0 || ddata[0] > (int64_t) INT_MAX)
+        if (ddata[0] < 0 || ddata[0] > (int64_t) INT_MAX ||
+            (ddata[0] == 0 && (ddata[1] != 0 || ddata[2] != 0)))
         {
             return ctxt->print_error (
                 ctxt,
@@ -1016,7 +1017,8 @@ exr_read_scanline_chunk_info (
                 cidx,
                 ddata[0]);
         }
-        if (ddata[1] < 0 || ddata[1] > (int64_t) INT_MAX)
+        if (ddata[1] < 0 || ddata[1] > (int64_t) INT_MAX ||
+            (ddata[1] == 0 && ddata[2] != 0))
         {
             return ctxt->print_error (
                 ctxt,
@@ -1026,7 +1028,8 @@ exr_read_scanline_chunk_info (
                 cidx,
                 ddata[1]);
         }
-        if (ddata[2] < 0 || ddata[2] > (int64_t) INT_MAX)
+        if (ddata[2] < 0 || ddata[2] > (int64_t) INT_MAX ||
+            (ddata[2] == 0 && ddata[1] != 0))
         {
             return ctxt->print_error (
                 ctxt,
