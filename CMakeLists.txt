@@ -60,6 +60,7 @@ endif()
 
 include(cmake/LibraryDefine.cmake)
 include(cmake/OpenEXRSetup.cmake)
+include(cmake/coverage.cmake)
 add_subdirectory(cmake)
 message(STATUS "Configure ${OPENEXR_PACKAGE_NAME}, library API version: ${OPENEXR_LIB_VERSION}")
 
