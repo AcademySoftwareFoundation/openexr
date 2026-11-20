@@ -840,6 +840,8 @@ This release addresses the following security vulnerabilities:
 
 ### Merged Workflow Pull Requests
 
+* [2873](https://github.com/AcademySoftwareFoundation/openexr/pull/2873)
+  Move slack-release-notifier to linuxfoundation/slack-release-notifier (by @cary-ilm/Cary Phillips)
 * [2846](https://github.com/AcademySoftwareFoundation/openexr/pull/2846)
   Revert slack-release-notifier to last good 20260930 release (by @cary-ilm/Cary Phillips)
 * [2842](https://github.com/AcademySoftwareFoundation/openexr/pull/2842)
