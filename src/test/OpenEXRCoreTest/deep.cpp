@@ -637,3 +637,54 @@ testDeepZstdValidSampleCounts (const std::string& tempdir)
             tempdir, counts, EXR_DECODE_SAMPLE_COUNTS_AS_INDIVIDUAL) ==
         EXR_ERR_SUCCESS);
 }
+
+//
+// A compressed deep *scanline* chunk must not declare a zero-length sample
+// count table (ddata[0] == 0) together with a non-zero packed/unpacked size.
+// The tiled leader (exr_read_tile_chunk_info) already rejects this; the
+// scanline leader must too. Without the check, a reused decode pipeline keeps
+// the previous chunk's packed_sample_count_table pointer, so the absent table
+// is unpacked from stale counts and readPixelSampleCounts()/readPixels()
+// disagree -- a heap overflow in caller-allocated deep sample buffers.
+//
+void
+testDeepScanlineZeroSampleCountLeader (const std::string& tempdir)
+{
+    std::string fn = tempdir + "deepscanzerotable.exr";
+    generateRandomScanFile (fn, 3, ZIPS_COMPRESSION);
+
+    exr_context_initializer_t cinit = EXR_DEFAULT_CONTEXT_INITIALIZER;
+    cinit.error_handler_fn          = &err_cb;
+
+    // Every generated scanline carries at least one sample per pixel, so the
+    // middle chunk's leader has non-zero sample-count-table / packed /
+    // unpacked sizes. Record the file position of its ddata[0] field, which
+    // the leader stores as the first of three int64 values immediately before
+    // sample_count_data_offset.
+    const int        targetY = minY + height / 2;
+    exr_context_t    f;
+    exr_chunk_info_t cinfo;
+    EXRCORE_TEST_RVAL (exr_start_read (&f, fn.c_str (), &cinit));
+    EXRCORE_TEST_RVAL (exr_read_scanline_chunk_info (f, 0, targetY, &cinfo));
+    EXRCORE_TEST (cinfo.sample_count_table_size > 0);
+    EXRCORE_TEST (cinfo.unpacked_size > 0);
+    uint64_t leaderPos =
+        cinfo.sample_count_data_offset - 3 * (uint64_t) sizeof (int64_t);
+    exr_finish (&f);
+
+    // Overwrite ddata[0] with zero, leaving the packed/unpacked sizes intact.
+    FILE* fp = fopen (fn.c_str (), "r+b");
+    EXRCORE_TEST (fp != NULL);
+    EXRCORE_TEST (fseek (fp, (long) leaderPos, SEEK_SET) == 0);
+    const uint8_t zero[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+    EXRCORE_TEST (fwrite (zero, 1, sizeof (zero), fp) == sizeof (zero));
+    fclose (fp);
+
+    // The corrupt leader must be rejected at parse time.
+    EXRCORE_TEST_RVAL (exr_start_read (&f, fn.c_str (), &cinit));
+    exr_result_t rv = exr_read_scanline_chunk_info (f, 0, targetY, &cinfo);
+    exr_finish (&f);
+    remove (fn.c_str ());
+
+    EXRCORE_TEST (rv == EXR_ERR_BAD_CHUNK_LEADER);
+}
