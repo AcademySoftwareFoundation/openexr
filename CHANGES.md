@@ -3,6 +3,7 @@
 
 # OpenEXR Release Notes
 
+* [Version 3.5.5](#version-355-november-22-2026) November 22, 2026
 * [Version 3.5.4](#version-354-november-11-2026) November 11, 2026
 * [Version 3.5.3](#version-353-october-30-2026) October 30, 2026
 * [Version 3.5.2](#version-352-october-2-2026) October 2, 2026
@@ -124,6 +125,105 @@
 * [Version 1.0.2](#version-102)
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
+
+## Version 3.5.5 (November 22, 2026)
+
+Patch release of OpenEXR v3.5 that fixes several bugs, most involving
+corrupt or malformed input files that could trigger out-of-bounds
+issues on read:
+
+* Hardened header parsing: the parser now properly cleans up after a failed
+  attribute read
+  ([2868](https://github.com/AcademySoftwareFoundation/openexr/pull/2868))
+* Fixed handling of corrupt DWA-compressed images
+  ([2866](https://github.com/AcademySoftwareFoundation/openexr/pull/2866))
+* Fixed integer overflow bugs in `RgbaLut::apply`, deep sample-count
+  table offsets, and the `CompositeDeepScanLine` pixel index
+  ([2861](https://github.com/AcademySoftwareFoundation/openexr/pull/2861),
+  [2843](https://github.com/AcademySoftwareFoundation/openexr/pull/2843),
+  [2844](https://github.com/AcademySoftwareFoundation/openexr/pull/2844))
+* Zero-length deep scanline sample-count tables are now rejected
+  ([2857](https://github.com/AcademySoftwareFoundation/openexr/pull/2857))
+* Added a buffer-size check in the HTJ2K header writer
+  ([2838](https://github.com/AcademySoftwareFoundation/openexr/pull/2838))
+* Fixed `DECREASING_Y` chunk offsets and x-subsampled row stride in the
+  legacy Python `OutputFile.writePixels()`
+  ([2876](https://github.com/AcademySoftwareFoundation/openexr/pull/2876),
+  [2870](https://github.com/AcademySoftwareFoundation/openexr/pull/2870))
+
+Also:
+
+* Lossy HTJ2K LUTs are now computed on demand rather than at startup
+  ([2871](https://github.com/AcademySoftwareFoundation/openexr/pull/2871))
+* `exrmultipart` now supports splitting tiled multiview images
+  ([2829](https://github.com/AcademySoftwareFoundation/openexr/pull/2829))
+* Updated the Bazel build's OpenJPH dependency to v0.33.0
+  ([2856](https://github.com/AcademySoftwareFoundation/openexr/pull/2856))
+* CI now builds and tests the Python bindings under ASan + UBSan, and
+  adds an emulated 32-bit armv7 test job
+  ([2865](https://github.com/AcademySoftwareFoundation/openexr/pull/2865),
+  [2860](https://github.com/AcademySoftwareFoundation/openexr/pull/2860))
+
+This release addresses the following security vulnerability:
+
+* ***CVE Pending*** ([GHSA-HJW7-CQX6-RWQ5](https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-HJW7-CQX6-RWQ5)) Integer overflow in CompositeDeepScanLine pixel index causes heap out-of-bounds access
+
+### Merged Pull Requests
+
+* [2876](https://github.com/AcademySoftwareFoundation/openexr/pull/2876)
+  Fix DECREASING_Y chunk offset in legacy Python OutputFile.writePixels() (by @Dilshad-Tanvi)
+* [2871](https://github.com/AcademySoftwareFoundation/openexr/pull/2871)
+  Move the LJ2K lookups from the global scope to the place they are used (by @vlazar-ilm/Vlad Lazar)
+* [2870](https://github.com/AcademySoftwareFoundation/openexr/pull/2870)
+  Fix x-subsampled row stride in legacy Python OutputFile.writePixels() (by @Dilshad-Tanvi)
+* [2868](https://github.com/AcademySoftwareFoundation/openexr/pull/2868)
+  Resync header parser after failed attribute validation (by @cary-ilm/Cary Phillips)
+* [2866](https://github.com/AcademySoftwareFoundation/openexr/pull/2866)
+  Fix DWA Huffman fallback copying buffer capacity instead of data length (by @cary-ilm/Cary Phillips)
+* [2861](https://github.com/AcademySoftwareFoundation/openexr/pull/2861)
+  Fix signed integer overflow of data-window origin in RgbaLut::apply (by @cary-ilm/Cary Phillips)
+* [2857](https://github.com/AcademySoftwareFoundation/openexr/pull/2857)
+  reject zero-length deep scanline sample-count table (by @cary-ilm/Cary Phillips)
+* [2856](https://github.com/AcademySoftwareFoundation/openexr/pull/2856)
+  Update openjph dependency version to 0.33.0 (by @Vertexwahn/Vertexwahn)
+* [2844](https://github.com/AcademySoftwareFoundation/openexr/pull/2844)
+  Use 64-bit arithmetic for CompositeDeepScanLine pixel index (by @cary-ilm/Cary Phillips)
+* [2843](https://github.com/AcademySoftwareFoundation/openexr/pull/2843)
+  Use 64-bit arithmetic for deep sample-count table offset (by @cary-ilm/Cary Phillips)
+* [2838](https://github.com/AcademySoftwareFoundation/openexr/pull/2838)
+  Check the buffer size in the HTJ2K write_header (by @Ar-maan05/Armaan Sandhu)
+* [2829](https://github.com/AcademySoftwareFoundation/openexr/pull/2829)
+  Support splitting tiled multiview images (by @1cbyc/Isaac Emmanuel)
+
+### Merged Documentation Pull Requests
+
+* [2836](https://github.com/AcademySoftwareFoundation/openexr/pull/2836)
+  release notes and news for v3.3.16 and v3.4.18 (by @cary-ilm/Cary Phillips)
+
+### Merged Workflow Pull Requests
+
+* [2873](https://github.com/AcademySoftwareFoundation/openexr/pull/2873)
+  Move slack-release-notifier to linuxfoundation/slack-release-notifier (by @cary-ilm/Cary Phillips)
+* [2865](https://github.com/AcademySoftwareFoundation/openexr/pull/2865)
+  ci: build and test the Python bindings under ASan + UBSan (by @cary-ilm/Cary Phillips)
+* [2863](https://github.com/AcademySoftwareFoundation/openexr/pull/2863)
+  Bump the actions-deps group with 2 updates (by @app/dependabot)
+* [2862](https://github.com/AcademySoftwareFoundation/openexr/pull/2862)
+  Bump the python-module-deps group with 2 updates (by @app/dependabot)
+* [2860](https://github.com/AcademySoftwareFoundation/openexr/pull/2860)
+  ci: add QEMU armv7 32-bit emulated test job (by @cary-ilm/Cary Phillips)
+* [2847](https://github.com/AcademySoftwareFoundation/openexr/pull/2847)
+  Bump rules_cc from 0.2.27 to 0.2.28 in the bazel-deps group (by @app/dependabot)
+* [2846](https://github.com/AcademySoftwareFoundation/openexr/pull/2846)
+  Revert slack-release-notifier to last good 20260930 release (by @cary-ilm/Cary Phillips)
+* [2842](https://github.com/AcademySoftwareFoundation/openexr/pull/2842)
+  Bump jmertic/slack-release-notifier from 20260930 to 20261106 in the actions-deps group (by @app/dependabot)
+* [2840](https://github.com/AcademySoftwareFoundation/openexr/pull/2840)
+  ci: remove the deprecated MSYS2 MINGW32 jobs (by @cary-ilm/Cary Phillips)
+* [2839](https://github.com/AcademySoftwareFoundation/openexr/pull/2839)
+  release-candidate-notice: reword to 'staged', strip signature, handle -rc (by @cary-ilm/Cary Phillips)
+* [2837](https://github.com/AcademySoftwareFoundation/openexr/pull/2837)
+  Add release candidate Slack notifier workflow (by @cary-ilm/Cary Phillips)
 
 ## Version 3.5.4 (November 11, 2026)
 
