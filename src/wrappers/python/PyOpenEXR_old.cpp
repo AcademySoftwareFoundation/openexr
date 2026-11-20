@@ -1146,10 +1146,11 @@ outwrite (PyObject* self, PyObject* args)
     int currentScanLine = file->currentScanLine ();
     if (file->header ().lineOrder () == DECREASING_Y)
     {
-        // With DECREASING_Y, currentScanLine() returns the maximum Y value of
-        // the window on the first call, and decrements at each scan line.
-        // We have to adjust to point to the correct address in the client buffer.
-        currentScanLine = dw.max.y - currentScanLine + dw.min.y;
+        // With DECREASING_Y, currentScanLine() is the highest line not yet
+        // written, and writePixels(height) writes lines currentScanLine -
+        // height + 1 through currentScanLine. The client buffer holds those
+        // lines top to bottom, so its first row is the lowest of them.
+        currentScanLine = currentScanLine - height + 1;
     }
 
     FrameBuffer            frameBuffer;
@@ -1206,9 +1207,10 @@ outwrite (PyObject* self, PyObject* args)
                     typeSize);
                 return NULL;
             }
-            // height >= 1, so yStride = typeSize * width <= total and is
-            // likewise in range.
-            Py_ssize_t yStride      = (Py_ssize_t) typeSize * width;
+            // The caller's buffer holds width / xSampling samples per
+            // row, so that is the row pitch. height >= 1, so yStride <=
+            // total and is likewise in range.
+            Py_ssize_t yStride      = (Py_ssize_t) typeSize * (width / xSampling);
             Py_ssize_t expectedSize = total / ((Py_ssize_t) xSampling * ySampling);
 
             if (PyString_Check (channel_spec))
