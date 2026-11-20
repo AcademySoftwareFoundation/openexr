@@ -536,22 +536,30 @@ add_to_list (
         list->entries        = attrs;
         list->sorted_entries = sorted_attrs;
     }
-    attrs[cattrsz]        = nattr;
-    sorted_attrs[cattrsz] = nattr;
-    insertpos             = cattrsz - 1;
+    attrs[cattrsz] = nattr;
 
-    // FYI: qsort is shockingly slow, just do a quick search and
-    // bubble it up until it's in the correct location
-    while (insertpos >= 0)
+    // Binary search for the first entry that sorts after the new name,
+    // then shift the tail in one move, so that adversarial (e.g.
+    // descending) name orders do not cost a string compare per shifted
+    // entry.
     {
-        exr_attribute_t* prev = sorted_attrs[insertpos];
-
-        if (strcmp (nattr->name, prev->name) >= 0) break;
-
-        sorted_attrs[insertpos + 1] = prev;
-        sorted_attrs[insertpos]     = nattr;
-        --insertpos;
+        int lo = 0, hi = cattrsz;
+        while (lo < hi)
+        {
+            int mid = lo + (hi - lo) / 2;
+            if (strcmp (nattr->name, sorted_attrs[mid]->name) >= 0)
+                lo = mid + 1;
+            else
+                hi = mid;
+        }
+        insertpos = lo;
     }
+    if (insertpos < cattrsz)
+        memmove (
+            sorted_attrs + insertpos + 1,
+            sorted_attrs + insertpos,
+            sizeof (exr_attribute_t*) * (size_t) (cattrsz - insertpos));
+    sorted_attrs[insertpos] = nattr;
 
     list->num_attributes = nattrsz;
     rv                   = attr_init (ctxt, nattr);
