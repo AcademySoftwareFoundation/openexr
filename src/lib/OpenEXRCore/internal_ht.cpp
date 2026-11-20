@@ -435,7 +435,10 @@ ht_undo_impl (
            also valid */
         if (ctxt->magic != HeaderMagic::V1 &&
             !(comp == EXR_COMPRESSION_LJ2K && ctxt->magic == HeaderMagic::V2))
+        {
+            cs_to_file_ch.clear ();
             return EXR_ERR_CORRUPT_CHUNK;
+        }
     }
     else
     {
@@ -450,15 +453,25 @@ ht_undo_impl (
             return EXR_ERR_CORRUPT_CHUNK;
     }
 
+    /* Clear the cached map on the failures below as well: the header is only
+       re-read when the map size doesn't match, so leaving it filled would let
+       the next chunk skip its own header checks. */
+
     /* this should never be true since read_header() throws an exception if the
        header is larger than comp_buf_size */
     if (ctxt->header_sz > comp_buf_size)
+    {
+        cs_to_file_ch.clear ();
         return EXR_ERR_CORRUPT_CHUNK;
+    }
 
     // the compressed buffer size might change, so can't cache the codestream_sz
     const uint64_t codestream_sz = comp_buf_size - ctxt->header_sz;
     if (codestream_sz == 0)
+    {
+        cs_to_file_ch.clear ();
         return EXR_ERR_CORRUPT_CHUNK;
+    }
 
     if (static_cast<std::size_t>(decode->channel_count) != cs_to_file_ch.size ())
         return EXR_ERR_CORRUPT_CHUNK;

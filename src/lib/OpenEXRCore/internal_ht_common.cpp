@@ -332,22 +332,26 @@ read_header (
         throw std::runtime_error (
             "HTJ2K chunk header length is larger than the chunk size.");
 
-    /* Build the map in a local vector and only hand it to the caller once
-     * every entry has been validated: the decoder caches the map across
-     * chunks, so a partially filled map left behind by a throw would be
-     * reused with file_index == -1 entries. */
-    std::vector<CodestreamChannelInfo> parsed (
-        header.pull_uint16 (), {visual, -1, 0, 0});
-    for (size_t i = 0; i < parsed.size (); i++)
+    try
     {
-        uint16_t file_index = header.pull_uint16 ();
-        if (file_index >= parsed.size() || parsed.at (file_index).scratch > 0)
-            throw std::runtime_error (
-                "HTJ2K chunk header contains invalid file_index values.");
-        parsed.at (i).file_index = file_index;
-        parsed.at (file_index).scratch = 1;
+        map.resize (header.pull_uint16 (), {visual, -1, 0, 0});
+        for (size_t i = 0; i < map.size (); i++)
+        {
+            uint16_t file_index = header.pull_uint16 ();
+            if (file_index >= map.size () || map.at (file_index).scratch > 0)
+                throw std::runtime_error (
+                    "HTJ2K chunk header contains invalid file_index values.");
+            map.at (i).file_index = file_index;
+            map.at (file_index).scratch = 1;
+        }
+    }
+    catch (...)
+    {
+        // Leave the caller's cache empty on failure: the decoder keeps
+        // the map across chunks, so a partial one would be reused.
+        map.clear ();
+        throw;
     }
 
-    map.swap (parsed);
     return prefix_sz + payload_sz;
 }
