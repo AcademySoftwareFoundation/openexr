@@ -30,7 +30,7 @@ jobs:
     - name: 'Prepare Slack-safe release notes'
       id: notes
       # Resolve the release (from the triggering release event, or from
-      # the tag given to workflow_dispatch) and strip the ### Contributors
+      # the tag given to workflow_dispatch) and strip the Contributors
       # section from the notes, since it has raw html that doesn't translate.
       env:
         GH_TOKEN: ${{ github.token }}
@@ -62,7 +62,7 @@ jobs:
         delimiter="EOF_$(date +%s)_$RANDOM"
         {
           echo "notes<<$delimiter"
-          printf '%s\n' "$RELEASE_BODY" | sed -n '/^### Contributors$/q;p'
+          printf '%s\n' "$RELEASE_BODY" | sed -n '/^#\{1,\}[[:space:]]*Contributors[[:space:]]*$/q;p'
           echo "$delimiter"
         } >> "$GITHUB_OUTPUT"
 
@@ -76,7 +76,7 @@ jobs:
         release_version: ${{ steps.notes.outputs.version }}
         release_url: ${{ steps.notes.outputs.url }}
         release_notes: ${{ steps.notes.outputs.notes }}
-      uses: jmertic/slack-release-notifier@4bf7813217739180f89eb869bf769efc07928368 # 20260930
+      uses: linuxfoundation/slack-release-notifier@4dcaff18c5356db866557089a4b234c1d7e49c55 # 20261117
 
     - name: 'Notify Slack #openexr'
       id: slack2
@@ -88,6 +88,6 @@ jobs:
         release_version: ${{ steps.notes.outputs.version }}
         release_url: ${{ steps.notes.outputs.url }}
         release_notes: ${{ steps.notes.outputs.notes }}
-      uses: jmertic/slack-release-notifier@4bf7813217739180f89eb869bf769efc07928368 # 20260930
+      uses: linuxfoundation/slack-release-notifier@4dcaff18c5356db866557089a4b234c1d7e49c55 # 20261117
 
       

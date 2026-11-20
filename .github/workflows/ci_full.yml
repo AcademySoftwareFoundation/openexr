@@ -418,7 +418,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Build and test on FreeBSD
-        uses: vmactions/freebsd-vm@c46abacb49f09938ca4e1702d15d836285d694cc  # v1.5.9
+        uses: vmactions/freebsd-vm@811efaaac0668df8bfb8308c3ec997b5ab50037b  # v1.6.0
         with:
           release: '15.0'
           envs: GITHUB_REPOSITORY GITHUB_REF GITHUB_SHA
@@ -645,6 +645,59 @@ jobs:
       - name: Test
         env:
           QEMU_LD_PREFIX: /usr/s390x-linux-gnu
+          # Skip slow tests since this runs in emulation; heavy
+          # floating-point operations can be 300x slower via QEMU,
+          # hence risk timeout.
+          OPENEXR_SKIP_SLOW_TESTS: 1
+        run: ctest --test-dir _build --output-on-failure -j "$(nproc)"
+
+  linux_armv7:
+    name: 'Linux: armv7 32-bit (QEMU)'
+    # Cross-compile for 32-bit ARM (arm-linux-gnueabihf, armv7-a
+    # hard-float) and run the test suite under QEMU user-mode emulation.
+    if: >-
+      github.event_name != 'schedule' ||
+      github.repository == 'AcademySoftwareFoundation/openexr'
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Install armhf cross toolchain and QEMU
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            g++-arm-linux-gnueabihf qemu-user qemu-user-binfmt ninja-build
+
+      - name: Configure
+        run: |
+          cmake -B _build -S . -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_SYSTEM_NAME=Linux \
+            -DCMAKE_SYSTEM_PROCESSOR=arm \
+            -DCMAKE_C_COMPILER=arm-linux-gnueabihf-gcc \
+            -DCMAKE_CXX_COMPILER=arm-linux-gnueabihf-g++ \
+            -DCMAKE_FIND_ROOT_PATH=/usr/arm-linux-gnueabihf \
+            -DCMAKE_FIND_ROOT_PATH_MODE_PROGRAM=NEVER \
+            -DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=ONLY \
+            -DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=ONLY \
+            -DCMAKE_FIND_ROOT_PATH_MODE_PACKAGE=ONLY \
+            "-DCMAKE_CROSSCOMPILING_EMULATOR=qemu-arm;-L;/usr/arm-linux-gnueabihf" \
+            -DOPENEXR_FORCE_INTERNAL_IMATH=ON \
+            -DOPENEXR_FORCE_INTERNAL_DEFLATE=ON \
+            -DOPENEXR_FORCE_INTERNAL_ZSTD=ON \
+            -DOPENEXR_FORCE_INTERNAL_OPENJPH=ON \
+            -DOPENEXR_BUILD_PYTHON=OFF \
+            -DOPENEXR_BUILD_EXAMPLES=OFF \
+            -DOPENEXR_INSTALL_DOCS=OFF \
+            -DBUILD_TESTING=ON
+
+      - name: Build
+        run: cmake --build _build
+
+      - name: Test
+        env:
+          QEMU_LD_PREFIX: /usr/arm-linux-gnueabihf
           # Skip slow tests since this runs in emulation; heavy
           # floating-point operations can be 300x slower via QEMU,
           # hence risk timeout.
