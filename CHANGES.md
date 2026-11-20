@@ -924,39 +924,6 @@ releases on more modern major/minor release streams.
 * [2799](https://github.com/AcademySoftwareFoundation/openexr/pull/2799)
   Fix missing step id breaking Slack release notifications (by @cary-ilm/Cary Phillips)
 
-## Version 3.4.19 (November 22, 2026)
-
-Patch release for OpenEXR v3.4 that addresses the following security
-vulnerabilities:
-
-* ***CVE Pending*** ([GHSA-HJW7-CQX6-RWQ5](https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-HJW7-CQX6-RWQ5)) Integer overflow in CompositeDeepScanLine pixel index causes heap out-of-bounds access
-* ***CVE Pending*** ([GHSA-HRP4-XJP5-CQ7J](https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-HRP4-XJP5-CQ7J))
-Misaligned pointer store in ht_undo_impl() (HTJ2K decode, internal_ht.cpp)
-
-### Merged Pull Requests
-
-* [2844](https://github.com/AcademySoftwareFoundation/openexr/pull/2844)
-  Use 64-bit arithmetic for CompositeDeepScanLine pixel index (by @cary-ilm/Cary Phillips)
-* [2695](https://github.com/AcademySoftwareFoundation/openexr/pull/2695)
-  J2K: fix misaligned access (by @palemieux/Pierre-Anthony Lemieux)
-
-### Merged Workflow Pull Requests
-
-* [2873](https://github.com/AcademySoftwareFoundation/openexr/pull/2873)
-  Move slack-release-notifier to linuxfoundation/slack-release-notifier (by @cary-ilm/Cary Phillips)
-* [2846](https://github.com/AcademySoftwareFoundation/openexr/pull/2846)
-  Revert slack-release-notifier to last good 20260930 release (by @cary-ilm/Cary Phillips)
-* [2842](https://github.com/AcademySoftwareFoundation/openexr/pull/2842)
-  Bump jmertic/slack-release-notifier from 20260930 to 20261106 in the actions-deps group (by @app/dependabot)
-* [2839](https://github.com/AcademySoftwareFoundation/openexr/pull/2839)
-  release-candidate-notice: reword to 'staged', strip signature, handle -rc (by @cary-ilm/Cary Phillips)
-* [2837](https://github.com/AcademySoftwareFoundation/openexr/pull/2837)
-  Add release candidate Slack notifier workflow (by @cary-ilm/Cary Phillips)
-* [2835](https://github.com/AcademySoftwareFoundation/openexr/pull/2835)
-  release-notice: add workflow_dispatch to send announcements manually (by @cary-ilm/Cary Phillips)
-* [2799](https://github.com/AcademySoftwareFoundation/openexr/pull/2799)
-  Fix missing step id breaking Slack release notifications (by @cary-ilm/Cary Phillips)
-
 ## Version 3.4.18 (November 7, 2026)
 
 Patch release that addresses a regression introduced in v3.3.0 that leads
