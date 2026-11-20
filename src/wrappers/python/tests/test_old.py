@@ -227,6 +227,28 @@ def test_channel_subsampled_range():
 
 testList.append(("test_channel_subsampled_range", test_channel_subsampled_range))
 
+#
+# Write an x/y-subsampled channel: the buffer holds width / xSampling
+# samples per row.
+#
+
+def test_write_subsampled():
+    width = 8
+    height = 8
+    original = list(range((width // 2) * (height // 2)))
+
+    hdr = OpenEXR.Header(width, height)
+    hdr['channels'] = {'C': Imath.Channel(FLOAT, 2, 2)}
+    x = OpenEXR.OutputFile(f"{test_dir}/subsampled.exr", hdr)
+    x.writePixels({'C': array('f', original).tobytes()})
+    x.close()
+
+    xin = OpenEXR.InputFile(f"{test_dir}/subsampled.exr")
+    assert array('f', xin.channel('C')).tolist() == original
+    os.remove(f"{test_dir}/subsampled.exr")
+
+testList.append(("test_write_subsampled", test_write_subsampled))
+
 def test_invalid_pixeltype():
     oexr = OpenEXR.InputFile(f"{test_dir}/write.exr")
     FLOAT = Imath.PixelType.FLOAT
@@ -289,6 +311,36 @@ def test_write_chunk():
     os.remove(f"{test_dir}/out1.exr")
 
 testList.append(("test_write_chunk", test_write_chunk))
+
+#
+# Same as test_write_chunk, for a DECREASING_Y image. The chunks are
+# written bottom to top, each holding its lines top to bottom.
+#
+
+def test_write_chunk_decreasing():
+    for w,h,step in [(100, 10, 1), (64,48,6), (1, 100, 2), (640, 480, 4)]:
+        data = array('f', [ random.random() for x in range(w * h) ]).tobytes()
+
+        hdr = OpenEXR.Header(w,h)
+        hdr['lineOrder'] = Imath.LineOrder(Imath.LineOrder.DECREASING_Y)
+        x = OpenEXR.OutputFile(f"{test_dir}/out0.exr", hdr)
+        x.writePixels({'R': data, 'G': data, 'B': data})
+        x.close()
+
+        hdr = OpenEXR.Header(w,h)
+        hdr['lineOrder'] = Imath.LineOrder(Imath.LineOrder.DECREASING_Y)
+        x = OpenEXR.OutputFile(f"{test_dir}/out1.exr", hdr)
+        for y in range(h - step, -1, -step):
+            subdata = data[y * w * 4:(y+step) * w * 4]
+            x.writePixels({'R': subdata, 'G': subdata, 'B': subdata}, step)
+        x.close()
+
+        assert load_red(f"{test_dir}/out0.exr") == data
+        assert load_red(f"{test_dir}/out1.exr") == data
+    os.remove(f"{test_dir}/out0.exr")
+    os.remove(f"{test_dir}/out1.exr")
+
+testList.append(("test_write_chunk_decreasing", test_write_chunk_decreasing))
 
 for test in testList:
     funcName = test[0]

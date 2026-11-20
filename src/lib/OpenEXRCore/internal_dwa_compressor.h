@@ -571,12 +571,23 @@ DwaCompressor_compress (DwaCompressor* me)
                 {
                     if (rv == EXR_ERR_ARGUMENT_OUT_OF_RANGE)
                     {
+                        //
+                        // Huffman coding could not fit the AC data in the
+                        // output buffer, so fall back to storing the raw
+                        // packed buffer. Copy exactly packed_bytes (the
+                        // current chunk's data length), not
+                        // packed_alloc_size (the buffer's allocation
+                        // capacity, a high-water mark reused across
+                        // chunks). Copying the capacity would append stale
+                        // heap bytes beyond the chunk's data and record
+                        // them as valid output.
+                        //
                         memcpy (
                             me->_encode->compressed_buffer,
                             me->_encode->packed_buffer,
-                            me->_encode->packed_alloc_size);
+                            me->_encode->packed_bytes);
                         me->_encode->compressed_bytes =
-                            me->_encode->packed_alloc_size;
+                            me->_encode->packed_bytes;
                         return EXR_ERR_SUCCESS;
                     }
                     return rv;
