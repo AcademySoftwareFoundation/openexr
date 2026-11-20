@@ -3,7 +3,7 @@
 
 # OpenEXR Release Notes
 
-* [Version 3.5.5](#version-355-november-15-2026) November 15, 2026
+* [Version 3.5.5](#version-355-november-22-2026) November 22, 2026
 * [Version 3.5.4](#version-354-november-11-2026) November 11, 2026
 * [Version 3.5.3](#version-353-october-30-2026) October 30, 2026
 * [Version 3.5.2](#version-352-october-2-2026) October 2, 2026
@@ -124,12 +124,45 @@
 * [Version 1.0.1](#version-101)
 * [Version 1.0](#version-10)
 
-## Version 3.5.5 (November 15, 2026)
+## Version 3.5.5 (November 22, 2026)
 
+Patch release of OpenEXR v3.5 that fixes several bugs, most involving
+corrupt or malformed input files that could trigger out-of-bounds
+issues on read:
 
-### Security
+* Hardened header parsing: the parser now properly cleans up after a failed
+  attribute read
+  ([2868](https://github.com/AcademySoftwareFoundation/openexr/pull/2868))
+* Fixed handling of corrupt DWA-compressed images
+  ([2866](https://github.com/AcademySoftwareFoundation/openexr/pull/2866))
+* Fixed integer overflow bugs in `RgbaLut::apply`, deep sample-count
+  table offsets, and the `CompositeDeepScanLine` pixel index
+  ([2861](https://github.com/AcademySoftwareFoundation/openexr/pull/2861),
+  [2843](https://github.com/AcademySoftwareFoundation/openexr/pull/2843),
+  [2844](https://github.com/AcademySoftwareFoundation/openexr/pull/2844))
+* Zero-length deep scanline sample-count tables are now rejected
+  ([2857](https://github.com/AcademySoftwareFoundation/openexr/pull/2857))
+* Added a buffer-size check in the HTJ2K header writer
+  ([2838](https://github.com/AcademySoftwareFoundation/openexr/pull/2838))
+* Fixed `DECREASING_Y` chunk offsets and x-subsampled row stride in the
+  legacy Python `OutputFile.writePixels()`
+  ([2876](https://github.com/AcademySoftwareFoundation/openexr/pull/2876),
+  [2870](https://github.com/AcademySoftwareFoundation/openexr/pull/2870))
 
-This release addresses the following security vulnerabilities:
+Also:
+
+* Lossy HTJ2K LUTs are now computed on demand rather than at startup
+  ([2871](https://github.com/AcademySoftwareFoundation/openexr/pull/2871))
+* `exrmultipart` now supports splitting tiled multiview images
+  ([2829](https://github.com/AcademySoftwareFoundation/openexr/pull/2829))
+* Updated the Bazel build's OpenJPH dependency to v0.33.0
+  ([2856](https://github.com/AcademySoftwareFoundation/openexr/pull/2856))
+* CI now builds and tests the Python bindings under ASan + UBSan, and
+  adds an emulated 32-bit armv7 test job
+  ([2865](https://github.com/AcademySoftwareFoundation/openexr/pull/2865),
+  [2860](https://github.com/AcademySoftwareFoundation/openexr/pull/2860))
+
+This release addresses the following security vulnerability:
 
 * ***CVE Pending*** ([GHSA-HJW7-CQX6-RWQ5](https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-HJW7-CQX6-RWQ5)) Integer overflow in CompositeDeepScanLine pixel index causes heap out-of-bounds access
 
@@ -141,6 +174,10 @@ This release addresses the following security vulnerabilities:
   Move the LJ2K lookups from the global scope to the place they are used (by @vlazar-ilm/Vlad Lazar)
 * [2870](https://github.com/AcademySoftwareFoundation/openexr/pull/2870)
   Fix x-subsampled row stride in legacy Python OutputFile.writePixels() (by @Dilshad-Tanvi)
+* [2868](https://github.com/AcademySoftwareFoundation/openexr/pull/2868)
+  Resync header parser after failed attribute validation (by @cary-ilm/Cary Phillips)
+* [2866](https://github.com/AcademySoftwareFoundation/openexr/pull/2866)
+  Fix DWA Huffman fallback copying buffer capacity instead of data length (by @cary-ilm/Cary Phillips)
 * [2861](https://github.com/AcademySoftwareFoundation/openexr/pull/2861)
   Fix signed integer overflow of data-window origin in RgbaLut::apply (by @cary-ilm/Cary Phillips)
 * [2857](https://github.com/AcademySoftwareFoundation/openexr/pull/2857)
@@ -165,6 +202,8 @@ This release addresses the following security vulnerabilities:
 
 * [2873](https://github.com/AcademySoftwareFoundation/openexr/pull/2873)
   Move slack-release-notifier to linuxfoundation/slack-release-notifier (by @cary-ilm/Cary Phillips)
+* [2865](https://github.com/AcademySoftwareFoundation/openexr/pull/2865)
+  ci: build and test the Python bindings under ASan + UBSan (by @cary-ilm/Cary Phillips)
 * [2863](https://github.com/AcademySoftwareFoundation/openexr/pull/2863)
   Bump the actions-deps group with 2 updates (by @app/dependabot)
 * [2862](https://github.com/AcademySoftwareFoundation/openexr/pull/2862)
