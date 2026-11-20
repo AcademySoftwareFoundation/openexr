@@ -742,6 +742,111 @@ writeRead (
         true);
 }
 
+void
+testTileCoordsFill (const std::string& tempDir)
+{
+    //
+    // Read a tiled file one scan line at a time into slices with
+    // yTileCoords set, sized for a single row of tiles. Channels that
+    // are not in the file ("Z") must be filled at the same tile-relative
+    // rows as channels that are ("H").
+    //
+
+    cout << "Testing yTileCoords fill slices on a tiled file" << endl;
+
+    std::string fn = tempDir + "imf_test_tile_coords_fill.exr";
+
+    const int W  = 16;
+    const int H  = 12;
+    const int DX = -3;
+    const int DY = 5;
+    const int TX = 8;
+    const int TY = 4;
+
+    Array2D<half> ph (H, W);
+    for (int y = 0; y < H; ++y)
+        for (int x = 0; x < W; ++x)
+            ph[y][x] = half (float (y * W + x));
+
+    {
+        Header hdr (
+            Box2i (V2i (0, 0), V2i (W - 1, H - 1)),
+            Box2i (V2i (DX, DY), V2i (DX + W - 1, DY + H - 1)));
+        hdr.channels ().insert ("H", Channel (IMF::HALF));
+        hdr.setTileDescription (TileDescription (TX, TY, ONE_LEVEL));
+
+        TiledOutputFile out (fn.c_str (), hdr);
+        FrameBuffer     fb;
+        fb.insert (
+            "H",
+            Slice (
+                IMF::HALF,
+                (char*) &ph[-DY][-DX],
+                sizeof (ph[0][0]),
+                sizeof (ph[0][0]) * W));
+        out.setFrameBuffer (fb);
+        out.writeTiles (0, out.numXTiles () - 1, 0, out.numYTiles () - 1);
+    }
+
+    {
+        InputFile in (fn.c_str ());
+
+        Array2D<half> hrow (TY, W);
+        Array2D<half> zrow (TY, W);
+
+        const half fillZ = 3.5;
+
+        FrameBuffer fb;
+        fb.insert (
+            "H",
+            Slice (
+                IMF::HALF,
+                (char*) &hrow[0][-DX],
+                sizeof (hrow[0][0]),
+                sizeof (hrow[0][0]) * W,
+                1,
+                1,
+                0.0,
+                false,
+                true));
+        fb.insert (
+            "Z",
+            Slice (
+                IMF::HALF,
+                (char*) &zrow[0][-DX],
+                sizeof (zrow[0][0]),
+                sizeof (zrow[0][0]) * W,
+                1,
+                1,
+                fillZ,
+                false,
+                true));
+        in.setFrameBuffer (fb);
+
+        for (int ty = 0; ty < H / TY; ++ty)
+        {
+            for (int y = 0; y < TY; ++y)
+                for (int x = 0; x < W; ++x)
+                {
+                    hrow[y][x] = 0;
+                    zrow[y][x] = 0;
+                }
+
+            for (int y = 0; y < TY; ++y)
+                in.readPixels (DY + ty * TY + y);
+
+            for (int y = 0; y < TY; ++y)
+                for (int x = 0; x < W; ++x)
+                {
+                    assert (hrow[y][x] == ph[ty * TY + y][x]);
+                    assert (zrow[y][x] == fillZ);
+                }
+        }
+    }
+
+    remove (fn.c_str ());
+}
+
 int
 testReread()
 {
@@ -976,4 +1081,6 @@ testScanLineApi (const std::string& tempDir)
         cerr << "ERROR -- caught exception: " << e.what () << endl;
         assert (false);
     }
+
+    testTileCoordsFill (tempDir);
 }
