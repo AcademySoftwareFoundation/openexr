@@ -27,7 +27,7 @@
 * [Version 3.4.2](#version-342-october-15-2025) October 15, 2025
 * [Version 3.4.1](#version-341-october-8-2025) October 8, 2025
 * [Version 3.4.0](#version-340-september-5-2025) September 5, 2025
-* [Version 3.3.17](#version-3317-november-15-2026) November 15, 2026
+* [Version 3.3.17](#version-3317-november-21-2026) November 21, 2026
 * [Version 3.3.16](#version-3316-november-7-2026) November 7, 2026
 * [Version 3.3.15](#version-3315-october-30-2026) October 30, 2026
 * [Version 3.3.14](#version-3314-august-21-2026) August 21, 2026
@@ -2228,12 +2228,9 @@ JPEG-2000 (HTJ2K)** encoding:
 * [1852](https://github.com/AcademySoftwareFoundation/openexr/pull/1852)
   Add an option to use TBB as the global provider
 
-## Version 3.3.17 (November 15, 2026)
+## Version 3.3.17 (November 21, 2026)
 
-
-### Security
-
-This release addresses the following security vulnerabilities:
+Patch release for OpenEXR v3.3 that addresses a security vulnerability:
 
 * ***CVE Pending*** ([GHSA-HJW7-CQX6-RWQ5](https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-HJW7-CQX6-RWQ5)) Integer overflow in CompositeDeepScanLine pixel index causes heap out-of-bounds access
 
