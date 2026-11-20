@@ -49,7 +49,7 @@
         {
             "name": "coverage",
             "displayName": "Coverage (gcov instrumentation)",
-            "description": "Debug build instrumented for gcov line coverage, as used by the SonarCloud Analysis workflow",
+            "description": "Debug build instrumented for gcov line coverage, as used by the SonarCloud workflow",
             "generator": "Unix Makefiles",
             "binaryDir": "${sourceDir}/_build/coverage",
             "cacheVariables": {
