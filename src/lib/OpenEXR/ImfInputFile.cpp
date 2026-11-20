@@ -609,7 +609,7 @@ InputFile::Data::bufferedReadPixels (int scanLine1, int scanLine2)
                 }
             }
             fillBuffer (k, minYThisRow, maxYThisRow,
-                        dataWindow.min.y, xStart, width);
+                        tileRange.min.y, xStart, width);
         }
     }
 }
