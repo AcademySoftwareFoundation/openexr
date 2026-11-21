@@ -93,7 +93,7 @@ static exr_result_t
 read_uncompressed_direct (exr_decode_pipeline_t* decode)
 {
     exr_result_t        rv;
-    int                 height, start_y;
+    int                 height, start_y, uls;
     uint64_t            dataoffset, toread;
     uint8_t*            cdata;
     exr_const_context_t ctxt = decode->context;
@@ -110,7 +110,11 @@ read_uncompressed_direct (exr_decode_pipeline_t* decode)
 
     dataoffset = decode->chunk.data_offset;
 
-    height  = decode->chunk.height;
+    /* same line selection as generic_unpack: the user pointer is at
+     * line user_line_begin_skip and the last user_line_end_ignore
+     * lines are not wanted */
+    uls     = decode->user_line_begin_skip;
+    height  = decode->chunk.height - decode->user_line_end_ignore;
     start_y = decode->chunk.start_y;
     for (int y = 0; y < height; ++y)
     {
@@ -127,11 +131,26 @@ read_uncompressed_direct (exr_decode_pipeline_t* decode)
             if (decc->y_samples > 1)
             {
                 if (((start_y + y) % decc->y_samples) != 0) continue;
+                if (y < uls)
+                {
+                    dataoffset += toread;
+                    continue;
+                }
                 cdata +=
-                    ((uint64_t) (y / decc->y_samples) *
+                    ((uint64_t) ((start_y + y) / decc->y_samples -
+                                 (start_y + uls) / decc->y_samples) *
                      (uint64_t) decc->user_line_stride);
             }
-            else { cdata += (uint64_t) y * (uint64_t) decc->user_line_stride; }
+            else
+            {
+                if (y < uls)
+                {
+                    dataoffset += toread;
+                    continue;
+                }
+                cdata +=
+                    (uint64_t) (y - uls) * (uint64_t) decc->user_line_stride;
+            }
 
             /* actual read into the output pointer */
             rv = ctxt->do_read (
