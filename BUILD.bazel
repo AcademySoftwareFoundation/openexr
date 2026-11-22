@@ -5,10 +5,10 @@ load("@bazel_skylib//rules:expand_template.bzl", "expand_template")
 load("@package_metadata//licenses/rules:license.bzl", "license")
 load("@package_metadata//purl:purl.bzl", "purl")
 load("@package_metadata//rules:package_metadata.bzl", "package_metadata")
-load("@rules_python//python:defs.bzl", "py_binary")
 load("@rules_cc//cc:cc_binary.bzl", "cc_binary")
 load("@rules_cc//cc:cc_test.bzl", "cc_test")
 load("@rules_cc//cc:defs.bzl", "cc_library")
+load("@rules_python//python:defs.bzl", "py_binary")
 
 package(default_package_metadata = [":package_metadata"])
 
@@ -39,8 +39,8 @@ config_setting(
 py_binary(
     name = "generate_config_header",
     srcs = ["bazel/generate_bazel_config.py"],
-    main = "bazel/generate_bazel_config.py",
     legacy_create_init = 0,
+    main = "bazel/generate_bazel_config.py",
 )
 
 # conf.py reads the project version out of the top-level CMakeLists.txt.
@@ -75,9 +75,9 @@ genrule(
         ":IexConfigTemplate",
         "src/lib/OpenEXRCore/openexr_version.h",
     ],
-    tools = [":generate_config_header"],
     outs = ["src/lib/Iex/IexConfig.h"],
     cmd = "\"$(location :generate_config_header)\" --config iex --version-header \"$(location src/lib/OpenEXRCore/openexr_version.h)\" --template \"$(location :IexConfigTemplate)\" --output \"$@\"",
+    tools = [":generate_config_header"],
 )
 
 expand_template(
@@ -110,9 +110,9 @@ genrule(
         ":IlmThreadConfigTemplate",
         "src/lib/OpenEXRCore/openexr_version.h",
     ],
-    tools = [":generate_config_header"],
     outs = ["src/lib/IlmThread/IlmThreadConfig.h"],
     cmd = "\"$(location :generate_config_header)\" --config ilmthread --version-header \"$(location src/lib/OpenEXRCore/openexr_version.h)\" --template \"$(location :IlmThreadConfigTemplate)\" --output \"$@\"",
+    tools = [":generate_config_header"],
 )
 
 expand_template(
@@ -135,9 +135,9 @@ genrule(
         ":OpenEXRConfigTemplate",
         "src/lib/OpenEXRCore/openexr_version.h",
     ],
-    tools = [":generate_config_header"],
     outs = ["src/lib/OpenEXR/OpenEXRConfig.h"],
     cmd = "\"$(location :generate_config_header)\" --config openexr --version-header \"$(location src/lib/OpenEXRCore/openexr_version.h)\" --template \"$(location :OpenEXRConfigTemplate)\" --output \"$@\"",
+    tools = [":generate_config_header"],
 )
 
 expand_template(
@@ -358,10 +358,10 @@ cc_library(
     local_defines = ["_FILE_OFFSET_BITS=64"],
     visibility = ["//visibility:public"],
     deps = [
-        "@zstd//:zstd",
         "@imath",
         "@libdeflate//:deflate",
         "@openjph",
+        "@zstd",
     ],
 )
 
@@ -609,11 +609,11 @@ cc_library(
         }),
     visibility = ["//visibility:public"],
     deps = [
-        "@zstd//:zstd",
         ":IlmThread",
         ":OpenEXRCore",
         "@imath",
         "@openjph",
+        "@zstd",
     ],
 )
 
@@ -686,6 +686,26 @@ cc_test(
     deps = [
         ":Iex",
     ],
+)
+
+cc_test(
+    name = "OpenEXRTest",
+    timeout = "long",
+    srcs = glob(
+        [
+            "src/test/OpenEXRTest/*.cpp",
+            "src/test/OpenEXRTest/*.h",
+        ],
+        exclude = [
+            "src/test/OpenEXRTest/testMalformedImages.cpp",
+            "src/test/OpenEXRTest/testMalformedImages.h",
+        ],
+    ),
+    data = glob(["src/test/OpenEXRTest/*.exr"]),
+    includes = ["src/test/OpenEXRTest"],
+    local_defines = ["ILM_IMF_TEST_IMAGEDIR=\\\"src/test/OpenEXRTest/\\\""],
+    tags = ["manual"],  # This test is not build and executed in the CI
+    deps = [":OpenEXR"],
 )
 
 cc_binary(
@@ -763,9 +783,9 @@ cc_binary(
 cc_binary(
     name = "exrmetrics",
     srcs = [
+        "src/bin/exrmetrics/exrmetrics.cpp",
         "src/bin/exrmetrics/exrmetrics.h",
         "src/bin/exrmetrics/main.cpp",
-        "src/bin/exrmetrics/exrmetrics.cpp",
     ],
     includes = ["src/bin/exrmetrics"],
     deps = [

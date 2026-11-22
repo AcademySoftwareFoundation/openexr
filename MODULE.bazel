@@ -57,7 +57,6 @@ doxygen_extension.configuration(
     sha256 = "f473c0f76cc969309b86c0f441934e844bc9c049112ae3482678bd45a7c8a28c",
     version = "1.16.1",
 )
-
 use_repo(doxygen_extension, "doxygen")
 
 PYTHON_VERSION = "3.14"
