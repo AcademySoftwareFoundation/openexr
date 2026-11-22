@@ -88,11 +88,14 @@ jobs:
     steps:
     - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-    - name: Mount Bazel cache
-      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+    - uses: bazel-contrib/setup-bazel@f34d6a05eae3c24acab7fa54587492daeaeffdab # v0.19.2
       with:
-        path: "/home/runner/.cache/bazel"
-        key: bazel-ubuntu-26
+        # Avoid downloading Bazel every time.
+        bazelisk-cache: true
+        # Store build cache per workflow.
+        disk-cache: bazel-ubuntu-26
+        # Share repository cache between workflows.
+        repository-cache: true
 
     - name: Build
       run: |
@@ -107,11 +110,14 @@ jobs:
     steps:
     - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-    - name: Mount Bazel cache
-      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+    - uses: bazel-contrib/setup-bazel@f34d6a05eae3c24acab7fa54587492daeaeffdab # v0.19.2
       with:
-        path: "/home/runner/.cache/bazel"
-        key: bazel-windows-2025
+        # Avoid downloading Bazel every time.
+        bazelisk-cache: true
+        # Store build cache per workflow.
+        disk-cache: bazel-windows-2025
+        # Share repository cache between workflows.
+        repository-cache: true
 
     - name: Build
       run: |
@@ -126,11 +132,14 @@ jobs:
     steps:
     - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-    - name: Mount Bazel cache
-      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+    - uses: bazel-contrib/setup-bazel@f34d6a05eae3c24acab7fa54587492daeaeffdab # v0.19.2
       with:
-        path: "/home/runner/.cache/bazel"
-        key: bazel-macos-26
+        # Avoid downloading Bazel every time.
+        bazelisk-cache: true
+        # Store build cache per workflow.
+        disk-cache: bazel-macos-26
+        # Share repository cache between workflows.
+        repository-cache: true
 
     - name: Build
       run: |
