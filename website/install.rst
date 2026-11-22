@@ -814,3 +814,35 @@ initial generation:
 
     % cmake -G “Ninja” ..
 
+Bazel
+-----
+
+OpenEXR can also be built via `Bazel <https://bazel.build>`_:
+
+.. code-block:: bash
+
+    bazel build //:OpenEXR
+
+Run a tool with ``bazel run``. Put ``--`` before the tool's arguments, for example:
+
+.. code-block:: bash
+
+    bazel run //:exrheader -- image.exr
+    bazel run //:exrinfo -- image.exr
+
+Replace the target name with another tool, such as ``exrmaketiled``,
+``exrmetrics``, ``exrmakepreview``, ``exrmultiview``, ``exrmultipart``,
+``exrcheck``, ``exrmanifest``, ``exr2aces``, ``exrenvmap``, or
+``exrstdattr``.
+
+Build the website documentation with:
+
+.. code-block:: bash
+
+    bazel build //website:docs
+
+To serve the generated documentation locally, run:
+
+.. code-block:: bash
+
+    bazel run //website:docs.serve
