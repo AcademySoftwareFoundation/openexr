@@ -7,6 +7,7 @@ from pathlib import Path
 
 
 VERSION_FIELDS = ("MAJOR", "MINOR", "PATCH")
+VERSION_RELEASE_TYPE = "-dev"
 
 
 def read_version(path):
@@ -40,12 +41,14 @@ def substitutions(config, version):
     return {
         "@OPENEXR_INTERNAL_IMF_NAMESPACE@": f"Imf_{major}_{minor}",
         "@OPENEXR_LIB_VERSION@": f"99.{version_string}",
-        "@OPENEXR_PACKAGE_NAME@": f"OpenEXR {version_string}",
+        "@OPENEXR_PACKAGE_NAME@": (
+            f"OpenEXR {version_string}{VERSION_RELEASE_TYPE}"
+        ),
         "@OPENEXR_VERSION@": version_string,
         "@OPENEXR_VERSION_MAJOR@": major,
         "@OPENEXR_VERSION_MINOR@": minor,
         "@OPENEXR_VERSION_PATCH@": patch,
-        "@OPENEXR_VERSION_RELEASE_TYPE@": "",
+        "@OPENEXR_VERSION_RELEASE_TYPE@": VERSION_RELEASE_TYPE,
     }
 
 
