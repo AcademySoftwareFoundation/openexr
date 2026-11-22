@@ -617,6 +617,59 @@ cc_library(
     ],
 )
 
+cc_library(
+    name = "OpenEXRUtil",
+    srcs = [
+        "src/lib/OpenEXRUtil/ImfCheckFile.cpp",
+        "src/lib/OpenEXRUtil/ImfDeepImage.cpp",
+        "src/lib/OpenEXRUtil/ImfDeepImageChannel.cpp",
+        "src/lib/OpenEXRUtil/ImfDeepImageIO.cpp",
+        "src/lib/OpenEXRUtil/ImfDeepImageLevel.cpp",
+        "src/lib/OpenEXRUtil/ImfFlatImage.cpp",
+        "src/lib/OpenEXRUtil/ImfFlatImageChannel.cpp",
+        "src/lib/OpenEXRUtil/ImfFlatImageIO.cpp",
+        "src/lib/OpenEXRUtil/ImfFlatImageLevel.cpp",
+        "src/lib/OpenEXRUtil/ImfImage.cpp",
+        "src/lib/OpenEXRUtil/ImfImageChannel.cpp",
+        "src/lib/OpenEXRUtil/ImfImageDataWindow.cpp",
+        "src/lib/OpenEXRUtil/ImfImageIO.cpp",
+        "src/lib/OpenEXRUtil/ImfImageLevel.cpp",
+        "src/lib/OpenEXRUtil/ImfSampleCountChannel.cpp",
+    ],
+    hdrs = [
+        "src/lib/OpenEXRUtil/ImfCheckFile.h",
+        "src/lib/OpenEXRUtil/ImfDeepImage.h",
+        "src/lib/OpenEXRUtil/ImfDeepImageChannel.h",
+        "src/lib/OpenEXRUtil/ImfDeepImageIO.h",
+        "src/lib/OpenEXRUtil/ImfDeepImageLevel.h",
+        "src/lib/OpenEXRUtil/ImfFlatImage.h",
+        "src/lib/OpenEXRUtil/ImfFlatImageChannel.h",
+        "src/lib/OpenEXRUtil/ImfFlatImageIO.h",
+        "src/lib/OpenEXRUtil/ImfFlatImageLevel.h",
+        "src/lib/OpenEXRUtil/ImfImage.h",
+        "src/lib/OpenEXRUtil/ImfImageChannel.h",
+        "src/lib/OpenEXRUtil/ImfImageChannelRenaming.h",
+        "src/lib/OpenEXRUtil/ImfImageDataWindow.h",
+        "src/lib/OpenEXRUtil/ImfImageIO.h",
+        "src/lib/OpenEXRUtil/ImfImageLevel.h",
+        "src/lib/OpenEXRUtil/ImfSampleCountChannel.h",
+        "src/lib/OpenEXRUtil/ImfUtilExport.h",
+    ],
+    features = select({
+        ":windows": ["windows_export_all_symbols"],
+        "//conditions:default": [],
+    }),
+    includes = [
+        "src/lib",
+        "src/lib/OpenEXRUtil",
+    ],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":OpenEXR",
+        ":OpenEXRCore",
+    ],
+)
+
 cc_test(
     name = "IexTest",
     srcs = [
@@ -640,6 +693,7 @@ cc_binary(
     srcs = ["src/bin/exr2aces/main.cpp"],
     deps = [
         ":OpenEXR",
+        ":OpenEXRUtil",
     ],
 )
 
@@ -648,6 +702,7 @@ cc_binary(
     srcs = ["src/bin/exrheader/main.cpp"],
     deps = [
         ":OpenEXR",
+        ":OpenEXRUtil",
     ],
 )
 
@@ -667,6 +722,7 @@ cc_binary(
     ],
     deps = [
         ":OpenEXR",
+        ":OpenEXRUtil",
     ],
 )
 
@@ -675,6 +731,7 @@ cc_binary(
     srcs = ["src/bin/exrstdattr/main.cpp"],
     deps = [
         ":OpenEXR",
+        ":OpenEXRUtil",
     ],
 )
 
