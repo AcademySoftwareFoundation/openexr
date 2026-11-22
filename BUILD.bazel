@@ -5,6 +5,7 @@ load("@bazel_skylib//rules:expand_template.bzl", "expand_template")
 load("@package_metadata//licenses/rules:license.bzl", "license")
 load("@package_metadata//purl:purl.bzl", "purl")
 load("@package_metadata//rules:package_metadata.bzl", "package_metadata")
+load("@rules_python//python:defs.bzl", "py_binary")
 load("@rules_cc//cc:cc_binary.bzl", "cc_binary")
 load("@rules_cc//cc:cc_test.bzl", "cc_test")
 load("@rules_cc//cc:defs.bzl", "cc_library")
@@ -35,6 +36,13 @@ config_setting(
     constraint_values = ["@platforms//os:windows"],
 )
 
+py_binary(
+    name = "generate_config_header",
+    srcs = ["bazel/generate_bazel_config.py"],
+    main = "bazel/generate_bazel_config.py",
+    legacy_create_init = 0,
+)
+
 # conf.py reads the project version out of the top-level CMakeLists.txt.
 exports_files(
     ["CMakeLists.txt"],
@@ -52,14 +60,24 @@ filegroup(
 )
 
 expand_template(
-    name = "IexConfig",
-    out = "src/lib/Iex/IexConfig.h",
+    name = "IexConfigTemplate",
+    out = "src/lib/Iex/IexConfig.template.h",
     substitutions = {
-        "@IEX_INTERNAL_NAMESPACE@": "Iex_3_4",
         "@IEX_NAMESPACE_CUSTOM@": "0",
         "@IEX_NAMESPACE@": "Iex",
     },
     template = "cmake/IexConfig.h.in",
+)
+
+genrule(
+    name = "IexConfig",
+    srcs = [
+        ":IexConfigTemplate",
+        "src/lib/OpenEXRCore/openexr_version.h",
+    ],
+    tools = [":generate_config_header"],
+    outs = ["src/lib/Iex/IexConfig.h"],
+    cmd = "\"$(location :generate_config_header)\" --config iex --version-header \"$(location src/lib/OpenEXRCore/openexr_version.h)\" --template \"$(location :IexConfigTemplate)\" --output \"$@\"",
 )
 
 expand_template(
@@ -74,10 +92,9 @@ expand_template(
 )
 
 expand_template(
-    name = "IlmThreadConfig",
-    out = "src/lib/IlmThread/IlmThreadConfig.h",
+    name = "IlmThreadConfigTemplate",
+    out = "src/lib/IlmThread/IlmThreadConfig.template.h",
     substitutions = {
-        "@ILMTHREAD_INTERNAL_NAMESPACE@": "IlmThread_3_4",
         "@ILMTHREAD_NAMESPACE_CUSTOM@": "0",
         "@ILMTHREAD_NAMESPACE@": "IlmThread",
         "#cmakedefine01 ILMTHREAD_HAVE_POSIX_SEMAPHORES": "#define ILMTHREAD_HAVE_POSIX_SEMAPHORES 0",
@@ -87,25 +104,40 @@ expand_template(
     template = "cmake/IlmThreadConfig.h.in",
 )
 
+genrule(
+    name = "IlmThreadConfig",
+    srcs = [
+        ":IlmThreadConfigTemplate",
+        "src/lib/OpenEXRCore/openexr_version.h",
+    ],
+    tools = [":generate_config_header"],
+    outs = ["src/lib/IlmThread/IlmThreadConfig.h"],
+    cmd = "\"$(location :generate_config_header)\" --config ilmthread --version-header \"$(location src/lib/OpenEXRCore/openexr_version.h)\" --template \"$(location :IlmThreadConfigTemplate)\" --output \"$@\"",
+)
+
 expand_template(
-    name = "OpenEXRConfig",
-    out = "src/lib/OpenEXR/OpenEXRConfig.h",
+    name = "OpenEXRConfigTemplate",
+    out = "src/lib/OpenEXR/OpenEXRConfig.template.h",
     substitutions = {
         "@OPENEXR_IMF_NAMESPACE@": "Imf",
-        "@OPENEXR_INTERNAL_IMF_NAMESPACE@": "Imf_3_4",
-        "@OPENEXR_LIB_VERSION@": "3.5.0",
-        "@OPENEXR_NAMESPACE_CUSTOM@": "3.5.0",
-        "@OPENEXR_PACKAGE_NAME@": "OpenEXR 3.5.0",
-        "@OPENEXR_VERSION_EXTRA@": "",
-        "@OPENEXR_VERSION@": "3.5.0",
-        "@OPENEXR_VERSION_MAJOR@": "3",
-        "@OPENEXR_VERSION_MINOR@": "5",
-        "@OPENEXR_VERSION_PATCH@": "0",
+        "@OPENEXR_LIB_SOVERSION@": "99",
+        "@OPENEXR_NAMESPACE_CUSTOM@": "0",
         "#cmakedefine OPENEXR_ENABLE_API_VISIBILITY": "#define OPENEXR_ENABLE_API_VISIBILITY",
         "#cmakedefine OPENEXR_CORE_FUNCTIONS_EMBEDDED": "/* #undef OPENEXR_CORE_FUNCTIONS_EMBEDDED */",
         "#cmakedefine OPENEXR_HAVE_LARGE_STACK 1": "/* #undef OPENEXR_HAVE_LARGE_STACK */",
     },
     template = "cmake/OpenEXRConfig.h.in",
+)
+
+genrule(
+    name = "OpenEXRConfig",
+    srcs = [
+        ":OpenEXRConfigTemplate",
+        "src/lib/OpenEXRCore/openexr_version.h",
+    ],
+    tools = [":generate_config_header"],
+    outs = ["src/lib/OpenEXR/OpenEXRConfig.h"],
+    cmd = "\"$(location :generate_config_header)\" --config openexr --version-header \"$(location src/lib/OpenEXRCore/openexr_version.h)\" --template \"$(location :OpenEXRConfigTemplate)\" --output \"$@\"",
 )
 
 expand_template(

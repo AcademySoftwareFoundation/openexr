@@ -12,12 +12,19 @@ bazel_dep(name = "openjph", version = "0.33.0")
 bazel_dep(name = "package_metadata", version = "0.0.15")
 bazel_dep(name = "platforms", version = "1.1.0")
 bazel_dep(name = "rules_cc", version = "0.2.28")
+bazel_dep(name = "rules_python", version = "2.4.6")
 bazel_dep(name = "zstd", version = "1.5.7.bcr.3")
 
 # Documentation (Doxygen + Sphinx/Breathe), see //website:docs.
 bazel_dep(name = "rules_doxygen", version = "2.7.0", dev_dependency = True)
-bazel_dep(name = "rules_python", version = "2.4.6", dev_dependency = True)
 bazel_dep(name = "sphinxdocs", version = "2.4.6", dev_dependency = True)
+
+rules_python_config = use_extension(
+    "@rules_python//python/extensions:config.bzl",
+    "config",
+    dev_dependency = True,
+)
+rules_python_config.explicit_init_py(default = True)
 
 doxygen_extension = use_extension(
     "@rules_doxygen//:extensions.bzl",
