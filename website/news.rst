@@ -17,25 +17,76 @@ News
 
 
 |latest-news-title|
-===========================================
+==========================================================
 
 .. _LatestNewsStart:
 
-Patch release for OpenEXR v3.4 that addresses the following security
-vulnerabilities:
+OpenEXR v3.3.5 is a patch release that fixes several bugs, most involving
+corrupt or malformed input files that could trigger out-of-bounds
+issues on read:
 
-* ***CVE Pending*** (`GHSA-HJW7-CQX6-RWQ5 <https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-HJW7-CQX6-RWQ5>`_) Integer overflow in CompositeDeepScanLine pixel index causes heap out-of-bounds access
-* ***CVE Pending*** (`GHSA-HRP4-XJP5-CQ7J <https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-HRP4-XJP5-CQ7J>`_)
-Misaligned pointer store in ht_undo_impl() (HTJ2K decode, internal_ht.cpp)
+* Hardened header parsing: the parser now properly cleans up after a failed
+  attribute read
+  (`2868 <https://github.com/AcademySoftwareFoundation/openexr/pull/2868>`_)
+* Fixed handling of corrupt DWA-compressed images
+  (`2866 <https://github.com/AcademySoftwareFoundation/openexr/pull/2866>`_)
+* Fixed integer overflow bugs in ``RgbaLut::apply``, deep sample-count
+  table offsets, and the ``CompositeDeepScanLine`` pixel index
+  (`2861 <https://github.com/AcademySoftwareFoundation/openexr/pull/2861>`_,
+  `2843 <https://github.com/AcademySoftwareFoundation/openexr/pull/2843>`_,
+  `2844 <https://github.com/AcademySoftwareFoundation/openexr/pull/2844>`_)
+* Zero-length deep scanline sample-count tables are now rejected
+  (`2857 <https://github.com/AcademySoftwareFoundation/openexr/pull/2857>`_)
+* Added a buffer-size check in the HTJ2K header writer
+  (`2838 <https://github.com/AcademySoftwareFoundation/openexr/pull/2838>`_)
+* Fixed ``DECREASING_Y`` chunk offsets and x-subsampled row stride in the
+  legacy Python ``OutputFile.writePixels()``
+  (`2876 <https://github.com/AcademySoftwareFoundation/openexr/pull/2876>`_,
+  `2870 <https://github.com/AcademySoftwareFoundation/openexr/pull/2870>`_)
+
+Also:
+
+* Lossy HTJ2K LUTs are now computed on demand rather than at startup
+  (`2871 <https://github.com/AcademySoftwareFoundation/openexr/pull/2871>`_)
+* ``exrmultipart`` now supports splitting tiled multiview images
+  (`2829 <https://github.com/AcademySoftwareFoundation/openexr/pull/2829>`_)
+* Updated the Bazel build's OpenJPH dependency to v0.33.0
+  (`2856 <https://github.com/AcademySoftwareFoundation/openexr/pull/2856>`_)
+* CI now builds and tests the Python bindings under ASan + UBSan, and
+  adds an emulated 32-bit armv7 test job
+  (`2865 <https://github.com/AcademySoftwareFoundation/openexr/pull/2865>`_,
+  `2860 <https://github.com/AcademySoftwareFoundation/openexr/pull/2860>`_)
+
+This release addresses the following security vulnerability:
+
+* ***CVE Pending*** (`GHSA-HJW7-CQX6-RWQ5
+  <https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-HJW7-CQX6-RWQ5>`_)
+  Integer overflow in CompositeDeepScanLine pixel index causes heap
+  out-of-bounds access
+
+OpenEXR v3.4.19 is a patch release for OpenEXR v3.4 that addresses the
+following security vulnerabilities:
+
+* ***CVE Pending*** (`GHSA-HJW7-CQX6-RWQ5
+  <https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-HJW7-CQX6-RWQ5>`_)
+  Integer overflow in CompositeDeepScanLine pixel index causes heap
+  out-of-bounds access
+
+* ***CVE Pending*** (`GHSA-HRP4-XJP5-CQ7J
+  <https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-HRP4-XJP5-CQ7J>`_)
+  Misaligned pointer store in ht_undo_impl() (HTJ2K decode,
+  internal_ht.cpp)
+
+
+OpenEXR v3.3.17 is a patch release for OpenEXR v3.3 that addresses a
+security vulnerability:
+
+* ***CVE Pending*** (`GHSA-HJW7-CQX6-RWQ5
+  <https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-HJW7-CQX6-RWQ5>`_)
+  Integer overflow in CompositeDeepScanLine pixel index causes heap
+  out-of-bounds access
 
 .. _LatestNewsEnd:
-
-November 22, 2026 - OpenEXR 3.3.17 Released
-===========================================
-
-Patch release for OpenEXR v3.3 that addresses a security vulnerability:
-
-* ***CVE Pending*** (`GHSA-HJW7-CQX6-RWQ5 <https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-HJW7-CQX6-RWQ5>`_) Integer overflow in CompositeDeepScanLine pixel index causes heap out-of-bounds access
 
 
 November 11, 2026 - OpenEXR 3.5.4 Released
