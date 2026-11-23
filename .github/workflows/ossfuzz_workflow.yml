@@ -8,6 +8,8 @@ name: OSS-Fuzz
 
 on:
   push:
+    # Only main: release branches and tags don't run the fuzzers.
+    branches: [main]
     paths:
       - '**'
       - '!ASWF/**'
@@ -26,6 +28,7 @@ on:
       - '!.github/workflows/**'
       - '.github/workflows/ossfuzz_workflow.yml'
   pull_request:
+    branches: [main]
     paths:
       - '**'
       - '!ASWF/**'
