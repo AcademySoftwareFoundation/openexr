@@ -17,9 +17,18 @@ News
 
 
 |latest-news-title|
-==========================================
+===========================================
 
 .. _LatestNewsStart:
+
+Patch release for OpenEXR v3.3 that addresses a security vulnerability:
+
+* ***CVE Pending*** (`GHSA-HJW7-CQX6-RWQ5 <https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-HJW7-CQX6-RWQ5>`_) Integer overflow in CompositeDeepScanLine pixel index causes heap out-of-bounds access
+
+.. _LatestNewsEnd:
+
+November 11, 2026 - OpenEXR 3.5.4 Released
+==========================================
 
 Patch release that addresses several build and security issues, and
 also fixes a regression introduced in v3.3.0 that leads to excessive
@@ -44,7 +53,6 @@ This release addresses the following security vulnerabilities:
 * ***CVE Pending*** (`GHSA-PP92-4RV3-WFQ6 <https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-PP92-4RV3-WFQ6>`_) OpenEXR: a signed-int data-window-origin overflow in the OpenEXRUtil Image API turns ``Imf::loadImage`` into an attacker-steered out-of-bounds write
 * ***CVE Pending*** (`GHSA-2V77-PVHX-25C3 <https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-2V77-PVHX-25C3>`_) Integer overflow in legacy OpenEXR.OutputFile.writePixels() causes heap over-read
 
-.. _LatestNewsEnd:
 
 November 7, 2026 - OpenEXR 3.3.16 and 3.4.18 Released
 =====================================================
