@@ -21,11 +21,22 @@ News
 
 .. _LatestNewsStart:
 
+Patch release for OpenEXR v3.4 that addresses the following security
+vulnerabilities:
+
+* ***CVE Pending*** (`GHSA-HJW7-CQX6-RWQ5 <https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-HJW7-CQX6-RWQ5>`_) Integer overflow in CompositeDeepScanLine pixel index causes heap out-of-bounds access
+* ***CVE Pending*** (`GHSA-HRP4-XJP5-CQ7J <https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-HRP4-XJP5-CQ7J>`_)
+Misaligned pointer store in ht_undo_impl() (HTJ2K decode, internal_ht.cpp)
+
+.. _LatestNewsEnd:
+
+November 22, 2026 - OpenEXR 3.3.17 Released
+===========================================
+
 Patch release for OpenEXR v3.3 that addresses a security vulnerability:
 
 * ***CVE Pending*** (`GHSA-HJW7-CQX6-RWQ5 <https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-HJW7-CQX6-RWQ5>`_) Integer overflow in CompositeDeepScanLine pixel index causes heap out-of-bounds access
 
-.. _LatestNewsEnd:
 
 November 11, 2026 - OpenEXR 3.5.4 Released
 ==========================================
