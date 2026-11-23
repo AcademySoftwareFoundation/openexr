@@ -248,6 +248,8 @@ exr_result_t internal_exr_decode_uncompress_buffer (
         if (decode->compression_context == NULL)
         {
             decode->compression_context = create_deflate_context (decode->context);
+            if (decode->compression_context == NULL)
+                return EXR_ERR_OUT_OF_MEMORY;
             decode->free_compression_context = &internal_free_zip_context;
         }
         decomp = decode->compression_context;
