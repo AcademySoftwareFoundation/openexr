@@ -100,11 +100,21 @@ struct ScanLineInputFile::Data
     // TODO: remove once we can remove deprecated API
     std::vector<char> _pixel_data_scratch;
 
-    void readPixels (const FrameBuffer &fb, int scanLine1, int scanLine2);
+    void prepFillList (const FrameBuffer &fb, std::vector<Slice> &fill);
+
+    void readPixels (
+        const FrameBuffer        &fb,
+        const std::vector<Slice> &fill,
+        int                       scanLine1,
+        int                       scanLine2,
+        bool                      useSingleScan);
 
     // only keep a single stash of a scanline for things which
     // are reading one-scanline at a time. if we try to keep a
-    // multi-threaded stash of scanlines, memory grows too rapidly
+    // multi-threaded stash of scanlines, memory grows too rapidly.
+    // the stashed decoder's unpack routines were chosen for the
+    // frame buffer given to setFrameBuffer, so it is only used
+    // when reading into that frame buffer
     std::unique_ptr<ScanLineProcess> singleScan;
     std::unique_ptr<ScanLineProcess> checkoutScan ()
     {
@@ -137,11 +147,13 @@ struct ScanLineInputFile::Data
             Data*                   ifd,
             ScanLineProcessGroup*   lineg,
             const FrameBuffer*      outfb,
+            const std::vector<Slice>* outfill,
             const exr_chunk_info_t& cinfo,
             int                     fby,
             int                     endScan)
             : Task (group)
             , _outfb (outfb)
+            , _outfill (outfill)
             , _ifd (ifd)
             , _fby (fby)
             , _last_fby (endScan)
@@ -162,6 +174,7 @@ struct ScanLineInputFile::Data
         void run_decode ();
 
         const FrameBuffer*    _outfb;
+        const std::vector<Slice>* _outfill;
         Data*                 _ifd;
         int                   _fby;
         int                   _last_fby;
@@ -245,37 +258,8 @@ ScanLineInputFile::setFrameBuffer (const FrameBuffer& frameBuffer)
 #if ILMTHREAD_THREADING_ENABLED
     std::lock_guard<std::mutex> lock (_data->_mx);
 #endif
-    _data->fill_list.clear ();
     _data->singleScan.reset();
-
-    for (FrameBuffer::ConstIterator j = frameBuffer.begin ();
-         j != frameBuffer.end ();
-         ++j)
-    {
-        const exr_attr_chlist_entry_t* curc = _ctxt.findChannel (
-            _data->partNumber, j.name ());
-
-        if (!curc)
-        {
-            _data->fill_list.push_back (j.slice ());
-            continue;
-        }
-
-        if (curc->x_sampling != j.slice ().xSampling ||
-            curc->y_sampling != j.slice ().ySampling)
-            THROW (
-                IEX_NAMESPACE::ArgExc,
-                "X and/or y subsampling factors "
-                "of \""
-                    << j.name ()
-                    << "\" channel "
-                       "of input file \""
-                    << fileName ()
-                    << "\" are "
-                       "not compatible with the frame buffer's "
-                       "subsampling factors.");
-    }
-
+    _data->prepFillList (frameBuffer, _data->fill_list);
     _data->frameBuffer = frameBuffer;
 }
 
@@ -306,14 +290,20 @@ ScanLineInputFile::isOptimizationEnabled () const
 void
 ScanLineInputFile::readPixels (int scanLine1, int scanLine2)
 {
-    _data->readPixels (frameBuffer (), scanLine1, scanLine2);
+    _data->readPixels (
+        frameBuffer (), _data->fill_list, scanLine1, scanLine2, true);
 }
 
 void
 ScanLineInputFile::readPixels (
     const FrameBuffer& frame, int scanLine1, int scanLine2)
 {
-    _data->readPixels (frame, scanLine1, scanLine2);
+    // frame has not been through setFrameBuffer, so check it and
+    // build its fill list here, and don't use the stashed decoder,
+    // whose unpack routines were chosen for a different frame buffer
+    std::vector<Slice> fill;
+    _data->prepFillList (frame, fill);
+    _data->readPixels (frame, fill, scanLine1, scanLine2, false);
 }
 
 ////////////////////////////////////////
@@ -413,8 +403,46 @@ ScanLineInputFile::rawPixelDataToBuffer (
 
 ////////////////////////////////////////
 
+void ScanLineInputFile::Data::prepFillList (
+    const FrameBuffer &fb, std::vector<Slice> &fill)
+{
+    fill.clear ();
+
+    for (FrameBuffer::ConstIterator j = fb.begin (); j != fb.end (); ++j)
+    {
+        const exr_attr_chlist_entry_t* curc = _ctxt->findChannel (
+            partNumber, j.name ());
+
+        if (!curc)
+        {
+            fill.push_back (j.slice ());
+            continue;
+        }
+
+        if (curc->x_sampling != j.slice ().xSampling ||
+            curc->y_sampling != j.slice ().ySampling)
+            THROW (
+                IEX_NAMESPACE::ArgExc,
+                "X and/or y subsampling factors "
+                "of \""
+                    << j.name ()
+                    << "\" channel "
+                       "of input file \""
+                    << _ctxt->fileName ()
+                    << "\" are "
+                       "not compatible with the frame buffer's "
+                       "subsampling factors.");
+    }
+}
+
+////////////////////////////////////////
+
 void ScanLineInputFile::Data::readPixels (
-    const FrameBuffer &fb, int scanLine1, int scanLine2)
+    const FrameBuffer        &fb,
+    const std::vector<Slice> &fill,
+    int                       scanLine1,
+    int                       scanLine2,
+    bool                      useSingleScan)
 {
     exr_attr_box2i_t dw = _ctxt->dataWindow (partNumber);
     exr_chunk_info_t cinfo;
@@ -465,7 +493,7 @@ void ScanLineInputFile::Data::readPixels (
                     throw IEX_NAMESPACE::InputExc ("Unable to query scanline information");
 
                 ILMTHREAD_NAMESPACE::ThreadPool::addGlobalTask (
-                    new LineBufferTask (&tg, this, &sg, &fb, cinfo, y, scanLine2) );
+                    new LineBufferTask (&tg, this, &sg, &fb, &fill, cinfo, y, scanLine2) );
 
                 y += scansperchunk - (y - cinfo.start_y);
             }
@@ -476,7 +504,9 @@ void ScanLineInputFile::Data::readPixels (
     else
 #endif
     {
-        std::unique_ptr<ScanLineProcess> sp = checkoutScan ();
+        std::unique_ptr<ScanLineProcess> sp =
+            useSingleScan ? checkoutScan ()
+                          : std::make_unique<ScanLineProcess> ();
 
         for (int y = scanLine1; y <= scanLine2; )
         {
@@ -495,7 +525,7 @@ void ScanLineInputFile::Data::readPixels (
                     &fb,
                     y,
                     scanLine2,
-                    fill_list);
+                    fill);
             }
             else
             {
@@ -506,13 +536,13 @@ void ScanLineInputFile::Data::readPixels (
                     &fb,
                     y,
                     scanLine2,
-                    fill_list);
+                    fill);
             }
 
             y += scansperchunk - (y - cinfo.start_y);
         }
 
-        checkinScan (sp);
+        if (useSingleScan) checkinScan (sp);
     }
 }
 
@@ -529,7 +559,7 @@ void ScanLineInputFile::Data::LineBufferTask::execute ()
             _outfb,
             _fby,
             _last_fby,
-            _ifd->fill_list);
+            *_outfill);
     }
     catch (std::exception &e)
     {
