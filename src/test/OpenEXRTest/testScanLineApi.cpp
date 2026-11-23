@@ -25,6 +25,7 @@
 
 #include <Imath/ImathRandom.h>
 
+#include <algorithm>
 #include <iostream>
 #include <assert.h>
 #include <math.h>
@@ -746,10 +747,13 @@ void
 testTileCoordsFill (const std::string& tempDir)
 {
     //
-    // Read a tiled file one scan line at a time into slices with
+    // Read a tiled file through the scan line API into slices with
     // yTileCoords set, sized for a single row of tiles. Channels that
     // are not in the file ("Z") must be filled at the same tile-relative
-    // rows as channels that are ("H").
+    // rows as channels that are ("H"). The data window is walked in
+    // ranges of 1 to TY scan lines, forwards and backwards, so ranges
+    // straddle rows of tiles and the first line accessed in a row of
+    // tiles isn't always its topmost line.
     //
 
     cout << "Testing yTileCoords fill slices on a tiled file" << endl;
@@ -823,24 +827,60 @@ testTileCoordsFill (const std::string& tempDir)
                 true));
         in.setFrameBuffer (fb);
 
-        for (int ty = 0; ty < H / TY; ++ty)
+        //
+        // A range of at most TY lines lands on distinct rows of the
+        // one-tile-row buffers, so after each readPixels call every
+        // buffer row that was touched must hold the line it was given
+        // and the other rows must be unchanged.
+        //
+
+        Array2D<half> expectH (TY, W);
+        Array2D<half> expectZ (TY, W);
+
+        for (int backwards = 0; backwards < 2; ++backwards)
         {
-            for (int y = 0; y < TY; ++y)
-                for (int x = 0; x < W; ++x)
-                {
-                    hrow[y][x] = 0;
-                    zrow[y][x] = 0;
-                }
+            for (int step = 1; step <= TY; ++step)
+            {
+                for (int y = 0; y < TY; ++y)
+                    for (int x = 0; x < W; ++x)
+                    {
+                        hrow[y][x]    = 0;
+                        zrow[y][x]    = 0;
+                        expectH[y][x] = 0;
+                        expectZ[y][x] = 0;
+                    }
 
-            for (int y = 0; y < TY; ++y)
-                in.readPixels (DY + ty * TY + y);
-
-            for (int y = 0; y < TY; ++y)
-                for (int x = 0; x < W; ++x)
+                for (int i = 0; i < H; i += step)
                 {
-                    assert (hrow[y][x] == ph[ty * TY + y][x]);
-                    assert (zrow[y][x] == fillZ);
+                    int lo = i;
+                    int hi = std::min (i + step - 1, H - 1);
+
+                    if (backwards)
+                    {
+                        lo = std::max (H - i - step, 0);
+                        hi = H - 1 - i;
+                    }
+
+                    for (int y = lo; y <= hi; ++y)
+                        for (int x = 0; x < W; ++x)
+                        {
+                            expectH[y % TY][x] = ph[y][x];
+                            expectZ[y % TY][x] = fillZ;
+                        }
+
+                    if (backwards)
+                        in.readPixels (DY + hi, DY + lo);
+                    else
+                        in.readPixels (DY + lo, DY + hi);
+
+                    for (int y = 0; y < TY; ++y)
+                        for (int x = 0; x < W; ++x)
+                        {
+                            assert (hrow[y][x] == expectH[y][x]);
+                            assert (zrow[y][x] == expectZ[y][x]);
+                        }
                 }
+            }
         }
     }
 
