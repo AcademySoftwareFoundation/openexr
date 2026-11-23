@@ -659,6 +659,23 @@ exr_compress_chunk (exr_encode_pipeline_t* encode)
 /**************************************/
 /**************************************/
 
+/* A chunk that fails to decompress can leave whatever the codec keeps in
+ * compression_context in an unknown state (a partially parsed HTJ2K
+ * channel map, for example), and the codecs assume a cached context is
+ * consistent with the chunk they are decoding. Release it so the next
+ * chunk starts from a fresh one. */
+static void
+reset_compression_context (exr_decode_pipeline_t* decode)
+{
+    if (decode->pipe_size >= sizeof (exr_decode_pipeline_v2_t) &&
+        decode->compression_context && decode->free_compression_context)
+    {
+        decode->free_compression_context (decode);
+        decode->compression_context      = NULL;
+        decode->free_compression_context = NULL;
+    }
+}
+
 static exr_result_t
 decompress_data (
     exr_const_context_t     ctxt,
@@ -740,6 +757,8 @@ decompress_data (
                 "Compression technique 0x%02X invalid",
                 ctype);
     }
+
+    if (rv != EXR_ERR_SUCCESS) reset_compression_context (decode);
 
     return rv;
 }
