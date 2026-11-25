@@ -220,13 +220,13 @@ compression; and [zstd](https://github.com/facebook/zstd), which
 implements Zstandard compression.
 
 The project uses
-[Snyk](https://github.com/AcademySoftwareFoundation/openexr/blob/main/.github/workflows/snyk-scan-pr.yml)
+[Snyk](https://github.com/AcademySoftwareFoundation/openexr/blob/main/.github/workflows/snyk-scan-cron.yml)
 to scan for dependency vulnerability.
 
 ### Potential Vulnerabilities
 
 Potential entry points are images being loaded using the
-library. Malformed images could caused issues such as heap buffer
+library. Malformed images could cause issues such as heap buffer
 overflows, out-of-memory faults, or segmentation faults that could be
 exploitable as denial-of-service attacks.
 
@@ -248,7 +248,7 @@ on another with more memory.
 
 The OpenEXR library provides 
 `Imf::Header::setMaxImageSize(int maxWidth,int maxHeight)` and
-`Imf::Header:"setMaxTileSize(int maxWidth,int maxHeight)` (and
+`Imf::Header::setMaxTileSize(int maxWidth,int maxHeight)` (and
 `exr_set_default_maximum_image_size()` and
 `exr_set_default_maximum_tile_size()` in OpenEXRCore) to allow
 applications to reject files with dimensions exceeding a configurable
@@ -285,7 +285,7 @@ to a file-format I/O library:
   the file size, the declared part, and format limits before it is used
   to read, allocate, or index. The C++ API is built on this same layer.
 
-- **Fail-safe defaults.** Validation failures are reported through
+- **Fail-safe behavior.** Validation failures are reported through
   error codes or exceptions and the operation fails rather than
   continuing with partially valid data. Applications reading untrusted
   files should enable strict header validation
@@ -427,13 +427,15 @@ embeds the library, and the data it processes.
   over-privileged workflow token, used to inject code into a release
   (see "CI and Release Infrastructure").
 
-**Out of scope.** Because OpenEXR files store image pixel data
-compressed, a image of large width and height can be represented by an
-file that is small on disk. Allocation failures that are proportional
-to image dimensions declared in a valid file (see "Image Size Limits
-and Out-of-Memory Failures"); the security of the embedding
-application and operating system; confidentiality, since the library
-implements no cryptography.
+**Out of scope.**
+
+- Allocation failures proportional to the image dimensions declared in
+  a valid file (see "Image Size Limits and Out-of-Memory
+  Failures"). Because pixel data is stored compressed, an image with a
+  large width and height can be represented by a file that is small on
+  disk.
+- The security of the embedding application and operating system.
+- Confidentiality, since the library implements no cryptography.
 
 ### Trust boundaries
 
@@ -456,7 +458,7 @@ implements no cryptography.
    maintainer before they are merged, and release artifacts are signed
    (see "Signed Releases").
 
-### Secure design principles
+### Applying the principles
 
 The argument that secure design principles are applied is the "Secure
 Design Principles" section above: minimized attack surface, least
@@ -479,7 +481,7 @@ are listed below, with mitigations:
 | NULL dereference, use after free, double free (CWE-476, CWE-416, CWE-415) | Allocation failures are checked and reported as errors; Valgrind and AddressSanitizer runs in CI. |
 | Uncontrolled resource consumption (CWE-400, CWE-770) | Configurable maximum image and tile size; fuzzing for hangs. |
 | Undefined behavior (CWE-758) | UndefinedBehaviorSanitizer runs in CI. |
-| Vulnerable dependency (CWE-1395) | Three codec dependencies, scanned by Snyk, with versions pinned in the build. |
+| Vulnerable dependency (CWE-1395) | Three codec dependencies (libdeflate, OpenJPH, zstd), scanned by Snyk and vendored in `external/` at pinned release version SHA. |
 | Tampering with releases or the build | Signed releases, GitHub Actions pinned by commit SHA, and reproducible builds (see "Reproducible Builds" in the website's install guide). |
 
 The countermeasures are checked via CI:
@@ -487,12 +489,32 @@ The countermeasures are checked via CI:
 - OSS-Fuzz continuous fuzzing, and the in-tree fuzz tests;
 - CodeQL and SonarCloud static analysis, and Valgrind;
 - AddressSanitizer and UndefinedBehaviorSanitizer CI jobs;
-- code coverage measurement;
+- code coverage measurement.
 
-Maintainers review and approve every core change.
+All critical software changes are reviewed and approved by at least one
+maintainer before they are merged.
 
 Each reported GitHub Security Advisory is fixed. Vulnerabilities that
-mee the criteria above are assigned CVE identifiers and listed under
+meet the criteria in "CVE Assignment" above are assigned CVE identifiers and listed under
 "Known Vulnerabilities" above, so the weakness classes found in
 practice are tracked.
 
+### Residual risks
+
+The assurance case does not claim that OpenEXR is free of
+vulnerabilities. The remaining risks are:
+
+- Image and tile size limits are opt-in, so an application that does
+  not set them can be exhausted of memory by a file that declares very
+  large dimensions.
+- Fuzz testing covers only small inputs, so it cannot rule out flaws
+  that need large files to trigger.
+- The codec libraries (libdeflate, OpenJPH, zstd) are trusted as part
+  of the input path. The library checks the sizes they produce, but
+  not their internal correctness.
+- A single maintainer's approval is sufficient to merge a change, so
+  review depends on that maintainer's diligence.
+
+These risks are accepted to preserve compatibility with existing files
+and to keep the project's review process lightweight, and they are
+reduced by the countermeasures above.
