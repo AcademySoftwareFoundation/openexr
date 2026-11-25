@@ -43,7 +43,7 @@ wheel.expand-macos-universal-tags = true
 sdist.exclude = [".github", "src/examples", "ASWF", "bazel", "share"]
 
 # Only build the PyOpenEXR (cmake --build --target PyOpenEXR).
-build.targets = ["PyOpenEXR"]
+build.targets = ["PyOpenEXR", "exrheader"]
 # Only install the "python" component (cmake --install --component python).
 # This makes sure that only files marked as "python" component are installed.
 install.components = ["python"]
@@ -62,7 +62,7 @@ metadata.version.provider-path = "./src/wrappers/python"
 OPENEXR_INSTALL = 'OFF'
 OPENEXR_BUILD_PYTHON = 'ON'
 OPENEXR_BUILD_EXAMPLES = 'OFF'
-OPENEXR_BUILD_TOOLS = 'OFF'
+OPENEXR_BUILD_TOOLS = 'ON'
 OPENEXR_INSTALL_TOOLS = 'OFF'
 OPENEXR_INSTALL_DEVELOPER_TOOLS = 'OFF'
 OPENEXR_INSTALL_PKG_CONFIG = 'OFF'
@@ -77,7 +77,7 @@ CMAKE_POSITION_INDEPENDENT_CODE = 'ON'
 CMAKE_VERBOSE_MAKEFILE = 'ON'
 
 [tool.cibuildwheel]
-test-command = "pytest -s {project}/src/wrappers/python/tests"
+test-command = ["exrheader --version", "pytest -s {project}/src/wrappers/python/tests"]
 test-requires = ["numpy"]
 test-extras = ["test"]
 test-skip = ["*universal2:arm64"]
