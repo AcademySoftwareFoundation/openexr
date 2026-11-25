@@ -263,16 +263,19 @@ to a file-format I/O library:
 
 - **Economy of mechanism / minimized attack surface.** The library
   implements no network protocols, services, authentication, plugins,
-  or configuration files, and treats all file contents as image data,
-  never as executable code. It depends on Imath for basic math
-  constructs and has three external dependencies that implement
-  compression codecs: libdeflate, OpenJPH, and zstd. It performs file
-  access only for the paths the application requests.
+  or configuration files, and treats all file contents as image pixel
+  data and image metadata, never as executable code. There are no
+  intentional mechanisms for OpenEXR to interpret attributes or image
+  data as instructions to be executed as code. It depends on Imath for
+  basic math constructs and has three external dependencies that
+  implement compression codecs: libdeflate, OpenJPH, and zstd. It
+  performs file access only for the paths the application requests.
 
 - **Least privilege.** The library requires no privileges beyond
   reading and writing the files an application asks it to open. It
   never changes permissions, spawns processes, or reads credentials,
-  and neither it nor its tools are installed setuid.
+  and neither it nor its tools are installed setuid; none of the
+  installed tools require special execution privileges.
 
 - **Complete mediation.** All file access goes through a single I/O
   layer in OpenEXRCore (the context's read/write callbacks, which can
@@ -290,8 +293,9 @@ to a file-format I/O library:
   Failures" above.
 
 - **Open design.** The EXR file format and the implementation are
-  public and open source, so security does not depend on secrecy of the
-  design.
+  public and open source, so security does not depend on secrecy of
+  the design.  Security may be audited directly based on the design
+  documentation and source code.
 
 - **Defense in depth.** Robustness does not rely on any single
   control: input validation, continuous fuzzing (OSS-Fuzz), static
@@ -339,7 +343,8 @@ OpenEXR is downloadable and buildable by C/C++ source via GitHub. Only
 members of the project's Technical Steering Committee, all veteran
 software engineers at major motion picture studios or vendors, have
 write permissions on the source code repository. All critical software
-changes are reviewed by at least one maintainer before they are merged.
+changes are reviewed and approved by at least one maintainer before
+they are merged.
 
 The library is distributed in binary form via many common package
 managers across all platforms.
@@ -369,11 +374,20 @@ be verifiable.
 **Assets.** The integrity and availability of the application that
 embeds the library, and the data it processes.
 
-**Attacker.** Anyone able to supply an EXR file (a downloaded image, a
-shared asset, a file from a third-party tool) to an application using
-OpenEXR. The attacker controls every byte of the file and needs no
-credentials. The library has no authentication, network, or multi-user
-features, so there is no other attack channel.
+**Attackers considered.**
+
+- Anyone able to supply an EXR file to an application using OpenEXR as
+  an input image format. The attacker controls every byte of the file
+  and needs no credentials. The library has no authentication,
+  network, or multi-user features, so there is no other attack
+  channel.
+- A malicious actor targeting the project's infrastructure, rather than
+  an application that uses OpenEXR: someone who tries to subvert the
+  repository by submitting malicious code or dependency changes, or to
+  compromise the CI/CD pipeline, build environment, or release process
+  in order to tamper with the source or the released artifacts. Such an
+  attack could reach every user of a release, regardless of how
+  carefully an application handles untrusted files.
 
 **Threats considered.**
 
@@ -385,11 +399,13 @@ features, so there is no other attack channel.
 - Compromised or tampered release artifacts, or a vulnerable
   dependency.
 
-**Out of scope.** Allocation failures that are proportional to image
-dimensions declared in a valid file (see "Image Size Limits and
-Out-of-Memory Failures"); the security of the embedding application
-and operating system; confidentiality, since the library implements
-no cryptography.
+**Out of scope.** Because OpenEXR files store image pixel data
+compressed, a image of large width and height can be represented by an
+file that is small on disk. Allocation failures that are proportional
+to image dimensions declared in a valid file (see "Image Size Limits
+and Out-of-Memory Failures"); the security of the embedding
+application and operating system; confidentiality, since the library
+implements no cryptography.
 
 ### Trust boundaries
 
@@ -425,8 +441,8 @@ validation.
 
 ### Common implementation weaknesses
 
-The weaknesses that matter for a binary-format parser written in C and
-C++ are listed below, with the countermeasures.
+Identified weaknesses for a binary-format parser written in C and C++
+are listed below, with mitigations:
 
 | Weakness | Countermeasure |
 |---|---|
@@ -438,20 +454,17 @@ C++ are listed below, with the countermeasures.
 | Vulnerable dependency (CWE-1395) | Three codec dependencies, scanned by Snyk, with versions pinned in the build. |
 | Tampering with releases or the build | Signed releases, GitHub Actions pinned by commit SHA, and reproducible builds (see "Reproducible Builds" in the website's install guide). |
 
-The countermeasures are checked continuously:
+The countermeasures are checked via CI:
 
 - OSS-Fuzz continuous fuzzing, and the in-tree fuzz tests;
 - CodeQL and SonarCloud static analysis, and Valgrind;
 - AddressSanitizer and UndefinedBehaviorSanitizer CI jobs;
 - code coverage measurement;
-- maintainer review of every change.
 
-Each reported vulnerability is fixed, assigned a GitHub security
-advisory, and listed under "Known Vulnerabilities" above, so the
-weakness classes found in practice are tracked.
+Maintainers review and approve every core change.
 
-### Residual risk
+Each reported GitHub Security Advisory is fixed. Vulnerabilities that
+mee the criteria above are assigned CVE identifiers and listed under
+"Known Vulnerabilities" above, so the weakness classes found in
+practice are tracked.
 
-Fuzzing covers small inputs and is not exhaustive, and the library is
-written in C and C++, so memory-safety bugs remain possible. They are
-handled through the vulnerability reporting process above.
