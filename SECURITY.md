@@ -275,7 +275,8 @@ to a file-format I/O library:
   reading and writing the files an application asks it to open. It
   never changes permissions, spawns processes, or reads credentials,
   and neither it nor its tools are installed setuid; none of the
-  installed tools require special execution privileges.
+  OpenEXR tool programs are installed to execute with special
+  privileges.
 
 - **Complete mediation.** All file access goes through a single I/O
   layer in OpenEXRCore (the context's read/write callbacks, which can
@@ -336,6 +337,29 @@ tool.
 The project also uses the [OSS
 Fuzz](https://bugs.chromium.org/p/oss-fuzz) service for continuous
 fuzz testing.
+
+#### CI and Release Infrastructure
+
+The project hardens its build and release infrastructure against
+tampering:
+
+- Every third-party GitHub Action is pinned to a full commit SHA, not a
+  mutable tag, and Dependabot proposes updates daily so that each
+  change is reviewed before it is adopted.
+- Every workflow declares its `GITHUB_TOKEN` permissions explicitly,
+  read-only by default. Write access is granted only to the specific
+  jobs that need it, such as signing and uploading a release.
+- Secrets are used only by the few workflows that require them, such as
+  code-analysis and release notifications. No workflow uses
+  `pull_request_target`, so code from a pull request does not run with
+  access to repository secrets.
+- Release tarballs are signed with Sigstore by a workflow, so their
+  origin is verifiable (see "Signed Releases").
+- The [OpenSSF Scorecard](https://securityscorecards.dev) workflow
+  audits the repository's security practices weekly, and CodeQL
+  analyzes the code on a schedule.
+- Workflow files are changed through the same review as source code,
+  by at least one maintainer.
 
 #### Development Cycle and Distribution
 
@@ -398,6 +422,10 @@ embeds the library, and the data it processes.
   exhaustion from a small crafted file.
 - Compromised or tampered release artifacts, or a vulnerable
   dependency.
+- Compromise of the CI/CD pipeline or release process, such as a
+  malicious or hijacked GitHub Action, leaked credentials, or an
+  over-privileged workflow token, used to inject code into a release
+  (see "CI and Release Infrastructure").
 
 **Out of scope.** Because OpenEXR files store image pixel data
 compressed, a image of large width and height can be represented by an
