@@ -16,8 +16,11 @@ on:
   push:
     # Path filters are not evaluated for tag pushes, so every tag push
     # still runs. A branch push runs only when one of these files changes.
+    # Dependabot branches also open a PR, which runs the pull_request
+    # trigger below; a push run would only duplicate it.
     branches:
       - '**'
+      - '!dependabot/**'
     tags:
       - '**'
     paths:
