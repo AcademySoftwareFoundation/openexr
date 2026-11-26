@@ -793,39 +793,10 @@ testTileCoordsFill (const std::string& tempDir)
     }
 
     {
-        InputFile in (fn.c_str ());
-
         Array2D<half> hrow (TY, W);
         Array2D<half> zrow (TY, W);
 
         const half fillZ = 3.5;
-
-        FrameBuffer fb;
-        fb.insert (
-            "H",
-            Slice (
-                IMF::HALF,
-                (char*) &hrow[0][-DX],
-                sizeof (hrow[0][0]),
-                sizeof (hrow[0][0]) * W,
-                1,
-                1,
-                0.0,
-                false,
-                true));
-        fb.insert (
-            "Z",
-            Slice (
-                IMF::HALF,
-                (char*) &zrow[0][-DX],
-                sizeof (zrow[0][0]),
-                sizeof (zrow[0][0]) * W,
-                1,
-                1,
-                fillZ,
-                false,
-                true));
-        in.setFrameBuffer (fb);
 
         //
         // A range of at most TY lines lands on distinct rows of the
@@ -849,6 +820,40 @@ testTileCoordsFill (const std::string& tempDir)
                         expectH[y][x] = 0;
                         expectZ[y][x] = 0;
                     }
+
+                //
+                // A fresh InputFile for every pass, so each one starts
+                // with an empty tile cache.
+                //
+
+                InputFile in (fn.c_str ());
+
+                FrameBuffer fb;
+                fb.insert (
+                    "H",
+                    Slice (
+                        IMF::HALF,
+                        (char*) &hrow[0][-DX],
+                        sizeof (hrow[0][0]),
+                        sizeof (hrow[0][0]) * W,
+                        1,
+                        1,
+                        0.0,
+                        false,
+                        true));
+                fb.insert (
+                    "Z",
+                    Slice (
+                        IMF::HALF,
+                        (char*) &zrow[0][-DX],
+                        sizeof (zrow[0][0]),
+                        sizeof (zrow[0][0]) * W,
+                        1,
+                        1,
+                        fillZ,
+                        false,
+                        true));
+                in.setFrameBuffer (fb);
 
                 for (int i = 0; i < H; i += step)
                 {
