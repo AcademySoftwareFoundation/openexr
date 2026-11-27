@@ -23,6 +23,8 @@ on:
   push:
     branches-ignore:
       - RB-*
+      # Dependabot branches also run the pull_request trigger below.
+      - 'dependabot/**'
     paths:
       - 'website/**'
       - '.github/workflows/website.yml'
