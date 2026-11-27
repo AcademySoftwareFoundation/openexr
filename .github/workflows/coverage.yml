@@ -14,6 +14,7 @@
 #   the upstream repo only;
 # - on demand, via workflow_dispatch on any branch ("Run workflow" in
 #   the Actions tab, or "gh workflow run coverage.yml --ref <branch>");
+# - on a push that changes this workflow file;
 # - on a pull request when a maintainer applies the "coverage" label,
 #   e.g. for a PR designed to expand coverage.
 #
@@ -30,6 +31,11 @@
 name: Coverage
 
 on:
+  push:
+    # A branch push runs only when this workflow itself changes, so
+    # edits to it are validated (and a merge to main refreshes Codecov).
+    paths:
+      - '.github/workflows/coverage.yml'
   schedule:
     # Every Sunday at 07:15 UTC, an hour after the full build starts
     - cron: '15 7 * * 0'
@@ -93,8 +99,16 @@ jobs:
         # An unbounded -j runs out of memory on the runner.
         run: cmake --build build --parallel "$(nproc)"
 
-      - name: Test and generate report
-        run: cmake --build build --target coverage
+      - name: Test
+        id: test
+        # A failing or timed-out test should not discard the coverage the
+        # other tests produced; the report is generated and uploaded
+        # regardless, and the run is marked failed at the end.
+        continue-on-error: true
+        run: ctest --test-dir build --output-on-failure
+
+      - name: Generate report
+        run: cmake --build build --target coverage-report
 
       - name: Summarize coverage
         run: |
@@ -120,7 +134,17 @@ jobs:
         uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         with:
           files: build/coverage/coverage.xml
+          # Upload only the gcovr report. Left to search, the action also
+          # runs gcov on every .gcno in the build tree, which pulls in
+          # external/ and other code that gcovr.cfg excludes.
+          disable_search: true
           token: ${{ secrets.CODECOV_TOKEN }}
           # The report is also available as an artifact; a Codecov outage
           # should not fail the run.
           fail_ci_if_error: false
+
+      - name: Fail if tests failed
+        if: steps.test.outcome == 'failure'
+        run: |
+          echo "::error::Tests failed; the coverage report was still generated and uploaded."
+          exit 1
