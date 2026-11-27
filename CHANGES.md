@@ -356,9 +356,9 @@ This release addresses the following security vulnerabilities:
 * ***CVE Pending*** ([GHSA-638X-X7MR-89XC](https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-638X-X7MR-89XC)) Out-of-bounds write at an attacker-chosen displacement in legacy Python InputFile.channel()
 * ***CVE Pending*** ([GHSA-6358-7H9P-8G5C](https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-6358-7H9P-8G5C)) Heap buffer overflow in OpenEXRCore ZSTD deep decode via unvalidated signed sample counts
 * ***CVE Pending*** ([GHSA-3CP4-779M-H837](https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-3CP4-779M-H837)) Use-after-free in OpenEXRCore exr_copy_unset_attributes() when a channel name exceeds 31 bytes
+* ***[CVE-2026-133466](https://www.cve.org/CVERecord?id=CVE-2026-133466)*** ([GHSA-HRP4-XJP5-CQ7J](https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-HRP4-XJP5-CQ7J)) Misaligned pointer store in `ht_undo_impl()` (HTJ2K decode)
 * ([GHSA-RJG8-982X-JHC2](https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-RJG8-982X-JHC2)) Uninitialized Heap Memory Disclosure in DWA Decompression via Short zlib Stream Mapped to Success
 * ([GHSA-X92J-9982-GJG7](https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-X92J-9982-GJG7)) DWA Encoder `tmpHalfBuffer` Integer Overflow → Undersized Allocation
-* ([GHSA-HRP4-XJP5-CQ7J](https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-HRP4-XJP5-CQ7J)) Misaligned pointer store in `ht_undo_impl()` (HTJ2K decode)
 * ([GHSA-FP76-2FH4-4XWW](https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-FP76-2FH4-4XWW)) Uncontrolled Resource Consumption and O(N^2) Processing Overhead via Unbounded Multipart Header Parsing
 * ([GHSA-HCP5-MX7Q-9642](https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-HCP5-MX7Q-9642)) Null pointer read in the DWA decoder: `compute_sampled_height` counts one row instead of zero when y sampling exceeds the chunk height
 
@@ -929,7 +929,7 @@ Patch release for OpenEXR v3.4 that addresses the following security
 vulnerabilities:
 
 * ***CVE Pending*** ([GHSA-HJW7-CQX6-RWQ5](https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-HJW7-CQX6-RWQ5)) Integer overflow in CompositeDeepScanLine pixel index causes heap out-of-bounds access
-* ***CVE Pending*** ([GHSA-HRP4-XJP5-CQ7J](https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-HRP4-XJP5-CQ7J))
+* ***[CVE-2026-133466](https://www.cve.org/CVERecord?id=CVE-2026-133466)*** ([GHSA-HRP4-XJP5-CQ7J](https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-HRP4-XJP5-CQ7J))
 Misaligned pointer store in ht_undo_impl() (HTJ2K decode, internal_ht.cpp)
 
 ### Merged Pull Requests
