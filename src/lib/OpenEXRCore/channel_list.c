@@ -82,7 +82,7 @@ exr_attr_chlist_add_with_length (
 {
     exr_attr_chlist_entry_t  nent = {{0}};
     exr_attr_chlist_entry_t *nlist, *olist;
-    int                      newcount, insertpos;
+    int                      newcount, insertpos, hi, ord;
     int32_t                  maxlen;
     exr_result_t             rv;
 
@@ -139,17 +139,38 @@ exr_attr_chlist_add_with_length (
             ysamp,
             name);
 
+    olist = EXR_CONST_CAST (exr_attr_chlist_entry_t*, clist->entries);
+
+    /*
+     * binary search to find where to insert the channel. channels are
+     * supposed to be ordered lexically, so assume that the user and
+     * parsing is doing that normally, so do a modified binary search with
+     * a test of the last value first.
+     */
+    hi        = clist->num_channels - 1;
     insertpos = 0;
-    olist     = EXR_CONST_CAST (exr_attr_chlist_entry_t*, clist->entries);
-    for (int32_t c = 0; c < clist->num_channels; ++c)
+    if (hi >= 0)
     {
-        int ord = strcmp (name, olist[c].name.str);
-        if (ord < 0)
+        ord = strcmp (name, olist[hi].name.str);
+        if (ord > 0)
+            insertpos = clist->num_channels;
+        else if (ord < 0)
         {
-            insertpos = c;
-            break;
+            int lo = 0;
+            while (lo < hi)
+            {
+                int mid = lo + (hi - lo) / 2;
+                ord = strcmp (name, olist[mid].name.str);
+                if (ord == 0)
+                    break;
+                if (ord < 0)
+                    hi = mid;
+                else
+                    lo = mid + 1;
+            }
+            insertpos = lo;
         }
-        else if (ord == 0)
+        if (ord == 0)
         {
             return ctxt->print_error (
                 ctxt,
@@ -157,8 +178,20 @@ exr_attr_chlist_add_with_length (
                 "Attempt to add duplicate channel '%s' to channel list",
                 name);
         }
-        else
-            insertpos = c + 1;
+    }
+
+    /*
+     * validation checks for INT16_MAX channels since that is an encoding/decoding pipe limit
+     * to keep structs smaller. If that changes, update here and validation.c
+     */
+    if (clist->num_channels >= INT16_MAX)
+    {
+        return ctxt->print_error (
+            ctxt,
+            EXR_ERR_INVALID_ARGUMENT,
+            "Channel count (%d) exceeds maximum supported value (%d)",
+            clist->num_channels + 1,
+            (int) INT16_MAX);
     }
 
     /* temporarily use newcount as a return value check */
@@ -175,13 +208,6 @@ exr_attr_chlist_add_with_length (
     {
         int nsz;
 
-        /* perhaps an arbitrary limit, but that is a LOT of channels */
-        if (clist->num_alloced >= (INT32_MAX / 2))
-        {
-            exr_attr_string_destroy (ctxt, &(nent.name));
-            return ctxt->standard_error (ctxt, EXR_ERR_OUT_OF_MEMORY);
-        }
-
         nsz = clist->num_alloced * 2;
 
         if (newcount > nsz) nsz = newcount + 1;
@@ -195,24 +221,34 @@ exr_attr_chlist_add_with_length (
         clist->num_alloced = nsz;
     }
     else
-        nlist = EXR_CONST_CAST (exr_attr_chlist_entry_t*, clist->entries);
+        nlist = olist;
 
     /* since we can re-use same memory, have to have slightly more
      * complex logic to avoid overwrites, find where we will insert
      * and copy entries after that first */
 
-    /* shift old entries further first */
-    for (int i = newcount - 1; i > insertpos; --i)
-        nlist[i] = olist[i - 1];
-    nlist[insertpos] = nent;
-    if (olist && nlist != olist)
+    if (olist)
     {
-        for (int i = 0; i < insertpos; ++i)
-            nlist[i] = olist[i];
+        size_t ntail = (size_t) (clist->num_channels - insertpos);
 
-        ctxt->free_fn (olist);
+        if (nlist != olist)
+        {
+            size_t nhead = (size_t) insertpos;
+
+            memcpy (nlist, olist, sizeof(*nlist) * nhead);
+            memcpy (nlist + insertpos + 1,
+                    olist + insertpos,
+                    sizeof(*nlist) * ntail);
+            ctxt->free_fn (olist);
+        }
+        else
+        {
+            memmove (nlist + insertpos + 1,
+                     olist + insertpos, /* it's the same list! */
+                     sizeof(*nlist) * ntail);
+        }
     }
-
+    nlist[insertpos]    = nent;
     clist->num_channels = newcount;
     clist->entries      = nlist;
 

@@ -423,7 +423,10 @@ validate_channels (
      * 8,192), decoupling the actual channel count from the one used to
      * size scratch/unpacked buffers and leading to undersized
      * allocations relative to the data actually unpacked. Reject such
-     * files outright. */
+     * files outright.
+     *
+     * NB: If this changes, update channel_list.c check as well
+     */
     if (channels->num_channels > INT16_MAX)
         return f->print_error (
             f,
