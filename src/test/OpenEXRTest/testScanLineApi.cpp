@@ -9,6 +9,8 @@
 
 #include "IlmThread.h"
 
+#include "Iex.h"
+
 #include "ImfArray.h"
 #include "ImfChannelList.h"
 #include "ImfInputFile.h"
@@ -811,12 +813,129 @@ testReread()
     return 0;
 }
 
+void
+testRereadFrameBuffer (const std::string& tempDir)
+{
+    //
+    // readPixels(frameBuffer, y1, y2) must treat its frame buffer the
+    // way setFrameBuffer() does: check the subsampling, fill the
+    // frame buffer's own missing channels, and not reuse a decoder set
+    // up for a different frame buffer.
+    //
+
+    cout << "Testing readPixels with a frame buffer argument" << endl;
+
+    const int   W    = 16;
+    const int   H    = 32;
+    std::string path = tempDir + "imf_test_reread_fb.exr";
+
+    {
+        Header hdr (W, H);
+        hdr.compression () = ZIP_COMPRESSION; // 16 lines per chunk
+        hdr.channels ().insert ("R", Channel (HALF));
+        hdr.channels ().insert ("G", Channel (HALF));
+        hdr.channels ().insert ("B", Channel (HALF));
+
+        vector<half> r (W * H, half (1.f));
+        vector<half> g (W * H, half (2.f));
+        vector<half> b (W * H, half (3.f));
+
+        FrameBuffer fb;
+        fb.insert ("R", Slice (HALF, (char*) r.data (), 2, 2 * W));
+        fb.insert ("G", Slice (HALF, (char*) g.data (), 2, 2 * W));
+        fb.insert ("B", Slice (HALF, (char*) b.data (), 2, 2 * W));
+
+        OutputFile out (path.c_str (), hdr);
+        out.setFrameBuffer (fb);
+        out.writePixels (H);
+    }
+
+    InputFile in (path.c_str (), 0);
+
+    //
+    // Read a line as interleaved FLOAT RGB, then another line of the
+    // same chunk as interleaved HALF RGB, into a buffer with a guard
+    // region after the line.
+    //
+
+    vector<float> f (3 * W);
+    FrameBuffer   ffb;
+    ffb.insert ("R", Slice (FLOAT, (char*) &f[0], 12, 0));
+    ffb.insert ("G", Slice (FLOAT, (char*) &f[1], 12, 0));
+    ffb.insert ("B", Slice (FLOAT, (char*) &f[2], 12, 0));
+    in.readPixels (ffb, 0, 0);
+    assert (f[0] == 1.f && f[1] == 2.f && f[2] == 3.f);
+
+    vector<half> h (6 * W, half (-1.f));
+    FrameBuffer  hfb;
+    hfb.insert ("R", Slice (HALF, (char*) &h[0], 6, 0));
+    hfb.insert ("G", Slice (HALF, (char*) &h[1], 6, 0));
+    hfb.insert ("B", Slice (HALF, (char*) &h[2], 6, 0));
+    in.readPixels (hfb, 1, 1);
+    for (int x = 0; x < W; ++x)
+    {
+        assert (h[3 * x + 0] == half (1.f));
+        assert (h[3 * x + 1] == half (2.f));
+        assert (h[3 * x + 2] == half (3.f));
+    }
+    for (int i = 3 * W; i < 6 * W; ++i)
+        assert (h[i] == half (-1.f));
+
+    //
+    // Missing channels are filled in the frame buffer being read into,
+    // not in the one last passed to setFrameBuffer().
+    //
+
+    vector<half> g1 (W), a1 (W), g2 (W), a2 (W);
+    FrameBuffer  fb1;
+    fb1.insert ("G", Slice (HALF, (char*) g1.data (), 2, 0));
+    fb1.insert ("A", Slice (HALF, (char*) a1.data (), 2, 0, 1, 1, 0.25));
+    in.setFrameBuffer (fb1);
+    in.readPixels (0);
+    assert (a1[0] == half (0.25f));
+
+    a1.assign (W, half (0.f));
+    FrameBuffer fb2;
+    fb2.insert ("G", Slice (HALF, (char*) g2.data (), 2, 0));
+    fb2.insert ("A", Slice (HALF, (char*) a2.data (), 2, 0, 1, 1, 0.5));
+    in.readPixels (fb2, 20, 20);
+    assert (g2[0] == half (2.f));
+    for (int x = 0; x < W; ++x)
+    {
+        assert (a1[x] == half (0.f));
+        assert (a2[x] == half (0.5f));
+    }
+
+    //
+    // A 2x2 subsampled slice for a channel that isn't subsampled in
+    // the file is rejected, as setFrameBuffer() rejects it.
+    //
+
+    vector<half> rs (W * H);
+    FrameBuffer  sfb;
+    sfb.insert ("R", Slice (HALF, (char*) rs.data (), 2, W, 2, 2));
+
+    bool caught = false;
+    try
+    {
+        in.readPixels (sfb, 0, H - 1);
+    }
+    catch (const IEX_NAMESPACE::ArgExc&)
+    {
+        caught = true;
+    }
+    assert (caught);
+
+    remove (path.c_str ());
+}
+
 } // namespace
 
 void
 testScanLineApi (const std::string& tempDir)
 {
     testReread();
+    testRereadFrameBuffer (tempDir);
 
     try
     {
