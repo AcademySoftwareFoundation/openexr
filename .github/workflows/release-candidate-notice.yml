@@ -145,4 +145,4 @@ jobs:
         release_version: ${{ steps.rc.outputs.version_line }}
         release_url: ${{ steps.rc.outputs.url }}
         release_notes: ${{ steps.rc.outputs.notes }}
-      uses: linuxfoundation/slack-release-notifier@3175c5a526af7aa9ffd458241f9d28de81363b69 # 20261119
+      uses: linuxfoundation/slack-release-notifier@20261119
