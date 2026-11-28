@@ -44,6 +44,12 @@ endif()
 add_compile_options(--coverage -O0 -g)
 add_link_options(--coverage)
 
+# The tests are multi-threaded; with the default non-atomic counter updates,
+# racing threads corrupt the counts (negative or wrapped hits in gcovr).
+if(CMAKE_C_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  add_compile_options(-fprofile-update=atomic)
+endif()
+
 find_program(GCOVR_EXE NAMES gcovr DOC "Path to gcovr executable")
 if(NOT GCOVR_EXE)
   message(WARNING

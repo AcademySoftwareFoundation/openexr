@@ -5,6 +5,11 @@
 # (.github/workflows/coverage.yml), which measures only the library
 # (see gcovr.cfg).
 
+# Never report on vendored or test code, whatever the uploaded reports contain.
+ignore:
+  - "external/"
+  - "src/test/"
+
 coverage:
   status:
     # Informational: report coverage, but never fail a pull request.

@@ -339,7 +339,8 @@ OpenEXRCore`, followed by the `coverage-report` target. The files
 measured are configured in `gcovr.cfg`.
 
 The Coverage workflow does the same in CI. It runs weekly, on demand,
-and on a pull request when a maintainer applies the `coverage` label.
+on a push that changes the workflow itself, and on a pull request when a
+maintainer applies the `coverage` label.
 The run's summary page shows overall coverage, and the HTML report is
 attached as an artifact. The results are also uploaded to
 [Codecov](https://app.codecov.io/gh/AcademySoftwareFoundation/openexr),
