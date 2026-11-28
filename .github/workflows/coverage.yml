@@ -1,0 +1,150 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright (c) Contributors to the OpenEXR Project.
+
+# Code coverage, independent of SonarCloud, reported to Codecov.
+#
+# Builds with OPENEXR_ENABLE_COVERAGE, runs the full test suite, and
+# produces a gcovr report (see cmake/coverage.cmake and gcovr.cfg; the
+# same report can be generated locally with the "coverage" target).
+# This takes a long time (the unoptimized, instrumented build plus the
+# complete test suite), so it does not run on every push or pull
+# request. It runs:
+#
+# - weekly, on a schedule alongside the full build (ci_full.yml), on
+#   the upstream repo only;
+# - on demand, via workflow_dispatch on any branch ("Run workflow" in
+#   the Actions tab, or "gh workflow run coverage.yml --ref <branch>");
+# - on a push that changes this workflow file;
+# - on a pull request when a maintainer applies the "coverage" label,
+#   e.g. for a PR designed to expand coverage.
+#
+# Every run uploads the HTML report as the "coverage-report" artifact
+# (download and open index.html), writes the overall percentages to the
+# job summary, and uploads the Cobertura XML report to Codecov
+# (https://app.codecov.io/gh/AcademySoftwareFoundation/openexr), which
+# shows the coverage history of main and, for a pull request, the
+# coverage of the changed lines (see codecov.yml). The upload uses the
+# organization's CODECOV_TOKEN secret; a pull request from a fork has
+# no access to secrets, so it uploads without a token, which Codecov
+# supports for forks of public repositories.
+
+name: Coverage
+
+on:
+  push:
+    # A branch push runs only when this workflow itself changes, so
+    # edits to it are validated (and a merge to main refreshes Codecov).
+    paths:
+      - '.github/workflows/coverage.yml'
+  schedule:
+    # Every Sunday at 07:15 UTC, an hour after the full build starts
+    - cron: '15 7 * * 0'
+  pull_request:
+    types: [labeled]
+  workflow_dispatch:
+    inputs:
+      base:
+        description: 'Branch to compare against for changed-line coverage'
+        required: false
+        default: 'main'
+        type: string
+
+permissions:
+  contents: read
+
+# Don't cancel a run in progress: on a pull request, applying any other
+# label starts a (skipped) run in the same group and would cancel it.
+concurrency:
+  group: coverage-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  coverage:
+    name: Coverage
+    # On the weekly schedule, only run on the upstream repo, so forks
+    # with Actions enabled don't incur their own compute every week.
+    # A pull request runs only when the "coverage" label is applied.
+    if: >-
+      (github.event_name != 'schedule' || github.repository == 'AcademySoftwareFoundation/openexr') &&
+      (github.event_name != 'pull_request' || github.event.label.name == 'coverage')
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 1
+
+      - name: Install gcovr
+        run: |
+          python3 -m venv "$RUNNER_TEMP/venv"
+          "$RUNNER_TEMP/venv/bin/pip" install --require-hashes \
+            -r share/ci/requirements/coverage.txt
+          echo "$RUNNER_TEMP/venv/bin" >> "$GITHUB_PATH"
+
+      - name: Configure
+        run: |
+          cmake -S . -B build \
+            -DCMAKE_BUILD_TYPE=Debug \
+            -DOPENEXR_ENABLE_COVERAGE=ON \
+            -DOPENEXR_FORCE_INTERNAL_IMATH=ON \
+            -DOPENEXR_FORCE_INTERNAL_DEFLATE=ON \
+            -DOPENEXR_FORCE_INTERNAL_ZSTD=ON \
+            -DOPENEXR_FORCE_INTERNAL_OPENJPH=ON \
+            -DOPENEXR_BUILD_EXAMPLES=OFF \
+            -DOPENEXR_INSTALL_DOCS=OFF
+
+      - name: Build
+        # An unbounded -j runs out of memory on the runner.
+        run: cmake --build build --parallel "$(nproc)"
+
+      - name: Test
+        id: test
+        # A failing or timed-out test should not discard the coverage the
+        # other tests produced; the report is generated and uploaded
+        # regardless, and the run is marked failed at the end.
+        continue-on-error: true
+        run: ctest --test-dir build --output-on-failure
+
+      - name: Generate report
+        run: cmake --build build --target coverage-report
+
+      - name: Summarize coverage
+        run: |
+          python3 - <<'EOF' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          s = json.load(open("build/coverage/summary.json"))
+          print("## Coverage\n")
+          print("| | Covered | Total | % |")
+          print("|---|---:|---:|---:|")
+          for k in ("line", "function", "branch"):
+              print(f"| {k}s | {s[k + '_covered']} | {s[k + '_total']} "
+                    f"| {s[k + '_percent']:.1f} |")
+          EOF
+
+      - name: Upload report
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: coverage-report
+          path: build/coverage
+          retention-days: 30
+
+      - name: Upload to Codecov
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
+        with:
+          files: build/coverage/coverage.xml
+          # Upload only the gcovr report. Left to search, the action also
+          # runs gcov on every .gcno in the build tree, which pulls in
+          # external/ and other code that gcovr.cfg excludes.
+          disable_search: true
+          token: ${{ secrets.CODECOV_TOKEN }}
+          # The report is also available as an artifact; a Codecov outage
+          # should not fail the run.
+          fail_ci_if_error: false
+
+      - name: Fail if tests failed
+        if: steps.test.outcome == 'failure'
+        run: |
+          echo "::error::Tests failed; the coverage report was still generated and uploaded."
+          exit 1

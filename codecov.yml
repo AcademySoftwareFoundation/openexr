@@ -1,0 +1,26 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright (c) Contributors to the OpenEXR Project.
+
+# Codecov configuration. Coverage reports come from the Coverage workflow
+# (.github/workflows/coverage.yml), which measures only the library
+# (see gcovr.cfg).
+
+# Never report on vendored or test code, whatever the uploaded reports contain.
+ignore:
+  - "external/"
+  - "src/test/"
+
+coverage:
+  status:
+    # Informational: report coverage, but never fail a pull request.
+    project:
+      default:
+        informational: true
+    patch:
+      default:
+        informational: true
+
+comment:
+  # Post a summary on pull requests that have a coverage run.
+  layout: "condensed_header, condensed_files, condensed_footer"
+  require_changes: false

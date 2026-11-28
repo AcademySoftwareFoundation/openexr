@@ -50,6 +50,7 @@ of the library.
 
 | CVE | Affected Versions | Patched Versions |
 | --- | ----------------- | ---------------- |
+| [CVE-2026-133466](https://www.cve.org/CVERecord?id=CVE-2026-133466) | 3.4.0–3.4.18, 3.5.0–3.5.2 | 3.4.19, 3.5.3 |
 | [CVE-2026-68514](https://www.cve.org/CVERecord?id=CVE-2026-68514) | 3.3.0–3.3.12, 3.4.0–3.4.13 | 3.3.13, 3.4.14 |
 | [CVE-2026-68513](https://www.cve.org/CVERecord?id=CVE-2026-68513) | 3.3.0–3.3.12, 3.4.0–3.4.13 | 3.3.13, 3.4.14 |
 | [CVE-2026-62986](https://www.cve.org/CVERecord?id=CVE-2026-62986) | 3.3.0–3.3.12, 3.4.0–3.4.13 | 3.3.13, 3.4.14 |

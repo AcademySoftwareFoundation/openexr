@@ -16,8 +16,11 @@ on:
   push:
     # Path filters are not evaluated for tag pushes, so every tag push
     # still runs. A branch push runs only when one of these files changes.
+    # Dependabot branches also open a PR, which runs the pull_request
+    # trigger below; a push run would only duplicate it.
     branches:
       - '**'
+      - '!dependabot/**'
     tags:
       - '**'
     paths:
@@ -716,6 +719,15 @@ jobs:
     # containers. Leak detection is off for now: the tests are not
     # leak-clean. Dependencies are built internally so they are
     # instrumented too.
+    #
+    # The Python bindings are built and tested here as well. The
+    # hand-written pointer and stride arithmetic in the pybind11 wrapper
+    # (numpy buffer handling, strided and reversed array views) is
+    # exactly the kind of code ASan and UBSan catch, and no other job
+    # exercises it under a sanitizer. The interpreter itself is not
+    # instrumented, so the pytest step preloads the ASan runtime; without
+    # it, loading the instrumented module aborts with "ASan runtime does
+    # not come first in initial library list".
     if: >-
       github.event_name != 'schedule' ||
       github.repository == 'AcademySoftwareFoundation/openexr'
@@ -730,7 +742,8 @@ jobs:
       - name: Install build tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends ninja-build
+          sudo apt-get install -y --no-install-recommends \
+            ninja-build pybind11-dev python3-dev python3-numpy python3-pytest
 
       - name: Reduce ASLR entropy for the sanitizer runtimes
         # The runner's vm.mmap_rnd_bits=32 makes GCC 13's sanitizer
@@ -752,7 +765,7 @@ jobs:
             -DOPENEXR_FORCE_INTERNAL_DEFLATE=ON \
             -DOPENEXR_FORCE_INTERNAL_ZSTD=ON \
             -DOPENEXR_FORCE_INTERNAL_OPENJPH=ON \
-            -DOPENEXR_BUILD_PYTHON=OFF \
+            -DOPENEXR_BUILD_PYTHON=ON \
             -DOPENEXR_BUILD_EXAMPLES=OFF \
             -DOPENEXR_INSTALL_DOCS=OFF \
             -DBUILD_TESTING=ON
@@ -761,7 +774,16 @@ jobs:
         run: cmake --build _build
 
       - name: Test
-        run: ctest --test-dir _build --output-on-failure -j "$(nproc)"
+        # The Python test loads the sanitized extension module into the
+        # uninstrumented interpreter, so the ASan runtime must be
+        # preloaded to come first. libstdc++ is preloaded alongside it so
+        # the __cxa_throw interceptor can resolve the real symbol;
+        # otherwise the first C++ exception (the tests open a bad path on
+        # purpose) aborts with a sanitizer CHECK failure. This is
+        # harmless for the C++ tests, which already link both.
+        run: |
+          export LD_PRELOAD="$(gcc -print-file-name=libasan.so):$(g++ -print-file-name=libstdc++.so.6)"
+          ctest --test-dir _build --output-on-failure -j "$(nproc)"
 
   linux_tsan:
     name: 'Linux: TSan'
