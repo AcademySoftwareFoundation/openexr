@@ -500,8 +500,7 @@ static exr_result_t
 add_to_list (
     exr_context_t         ctxt,
     exr_attribute_list_t* list,
-    exr_attribute_t*      nattr,
-    const char*           name)
+    exr_attribute_t*      nattr)
 {
     int               cattrsz = list->num_attributes;
     int               nattrsz = cattrsz + 1;
@@ -510,7 +509,31 @@ add_to_list (
     exr_attribute_t** sorted_attrs = list->sorted_entries;
     exr_result_t      rv           = EXR_ERR_SUCCESS;
 
-    (void) name;
+    /*
+     * binary search to find the first entry. However, most times the
+     * attributes are stored in the file in alphabetical order becaues
+     * the c++ header object always had a map, and inserted by sorted
+     * list. Which means that most of the time, we are adding to the
+     * end. as such, special case the implementation of binary search
+     * to test the last entry first, and search across n-1 attr if
+     * that fails.
+     */
+    int lo = 0, hi = cattrsz - 1;
+    if (hi >= 0 && strcmp (nattr->name, sorted_attrs[hi]->name) >= 0)
+        insertpos = cattrsz;
+    else
+    {
+        while (lo < hi)
+        {
+            int mid = lo + (hi - lo) / 2;
+            if (strcmp (nattr->name, sorted_attrs[mid]->name) >= 0)
+                lo = mid + 1;
+            else
+                hi = mid;
+        }
+        insertpos = lo;
+    }
+
     if (nattrsz > list->num_alloced)
     {
         size_t nsize = (size_t) (list->num_alloced) * 2;
@@ -526,31 +549,33 @@ add_to_list (
         list->num_alloced = (int32_t) nsize;
         sorted_attrs      = attrs + nsize;
 
-        for (int i = 0; i < cattrsz; ++i)
+        memcpy (attrs, list->entries, sizeof(exr_attribute_t*) * cattrsz);
+        attrs[cattrsz] = nattr;
+
+        if (insertpos > 0)
         {
-            attrs[i]        = list->entries[i];
-            sorted_attrs[i] = list->sorted_entries[i];
+            memcpy (sorted_attrs, list->sorted_entries, sizeof(exr_attribute_t*) * insertpos);
+        }
+        sorted_attrs[insertpos] = nattr;
+        if (insertpos < cattrsz)
+        {
+            memcpy (sorted_attrs + insertpos + 1, list->sorted_entries + insertpos,
+                    sizeof(exr_attribute_t*) * (cattrsz - insertpos));
         }
 
         if (list->entries) ctxt->free_fn (list->entries);
         list->entries        = attrs;
         list->sorted_entries = sorted_attrs;
     }
-    attrs[cattrsz]        = nattr;
-    sorted_attrs[cattrsz] = nattr;
-    insertpos             = cattrsz - 1;
-
-    // FYI: qsort is shockingly slow, just do a quick search and
-    // bubble it up until it's in the correct location
-    while (insertpos >= 0)
+    else
     {
-        exr_attribute_t* prev = sorted_attrs[insertpos];
-
-        if (strcmp (nattr->name, prev->name) >= 0) break;
-
-        sorted_attrs[insertpos + 1] = prev;
-        sorted_attrs[insertpos]     = nattr;
-        --insertpos;
+        attrs[cattrsz] = nattr;
+        if (insertpos < cattrsz)
+            memmove (
+                sorted_attrs + insertpos + 1,
+                sorted_attrs + insertpos,
+                sizeof (exr_attribute_t*) * (size_t) (cattrsz - insertpos));
+        sorted_attrs[insertpos] = nattr;
     }
 
     list->num_attributes = nattrsz;
@@ -867,7 +892,7 @@ exr_attr_list_add_by_type (
 
         if (rval == EXR_ERR_SUCCESS) nattr->type = EXR_ATTR_OPAQUE;
     }
-    if (rval == EXR_ERR_SUCCESS) rval = add_to_list (ctxt, list, nattr, name);
+    if (rval == EXR_ERR_SUCCESS) rval = add_to_list (ctxt, list, nattr);
     if (rval == EXR_ERR_SUCCESS)
     {
         *attr = nattr;
@@ -963,7 +988,7 @@ exr_attr_list_add (
         nattr->type_name        = known->name;
         nattr->type_name_length = (uint8_t) known->name_len;
         nattr->type             = known->type;
-        rval                    = add_to_list (ctxt, list, nattr, name);
+        rval                    = add_to_list (ctxt, list, nattr);
     }
 
     if (rval == EXR_ERR_SUCCESS)
@@ -1061,7 +1086,7 @@ exr_attr_list_add_static_name (
         nattr->name_length      = (uint8_t) nlen;
         nattr->type_name_length = (uint8_t) known->name_len;
         nattr->type             = known->type;
-        rval                    = add_to_list (ctxt, list, nattr, name);
+        rval                    = add_to_list (ctxt, list, nattr);
     }
 
     if (rval == EXR_ERR_SUCCESS)
