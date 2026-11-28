@@ -1961,6 +1961,25 @@ testHTHeaderBounds (const std::string& tempdir)
     bad_nch[HEADER_SZ + 1] = 32;
     EXRCORE_TEST (read_header_throws (bad_nch, hdr_sz));
 
+    /* a channel map rejected part way through must not be handed back
+     * partially filled: the decoder caches it across chunks */
+    uint8_t bad_index[64];
+    memcpy (bad_index, buf, hdr_sz);
+    bad_index[HEADER_SZ + 4] = 0xff;
+    bad_index[HEADER_SZ + 5] = 0xff;
+    std::vector<CodestreamChannelInfo> partial_map;
+    bool                               threw = false;
+    try
+    {
+        read_header (bad_index, hdr_sz, partial_map, read_magic);
+    }
+    catch (...)
+    {
+        threw = true;
+    }
+    EXRCORE_TEST (threw);
+    EXRCORE_TEST (partial_map.empty ());
+
     /* chunks smaller than the header (e.g. a single HALF or FLOAT
      * sample) must be rejected, so the encoder falls back to storing
      * the chunk uncompressed */

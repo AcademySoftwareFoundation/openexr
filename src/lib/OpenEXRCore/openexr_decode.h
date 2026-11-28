@@ -281,6 +281,9 @@ typedef struct _exr_decode_pipeline
      * compression changes during an update, the \ref free_compression_context
      * function will be invoked. If that free routine is not provided,
      * memory may leak.
+     *
+     * The context is also released when a chunk fails to decompress, so a
+     * codec never sees state left behind by a failed chunk.
      */
     void* compression_context;
 
