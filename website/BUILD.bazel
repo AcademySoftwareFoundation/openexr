@@ -12,6 +12,7 @@ exports_files(["requirements-lock.txt"])
 doxygen(
     name = "doxygen",
     srcs = ["//:OpenEXRCore_doc_srcs"],
+    outs = ["xml"],
     case_sense_names = False,
     configurations = [
         "PREDEFINED = IEX_EXPORT=\"\" \\",
@@ -49,7 +50,6 @@ doxygen(
     generate_xml = True,
     javadoc_autobrief = True,
     macro_expansion = True,
-    outs = ["xml"],
     project_name = "OpenEXR",
     quiet = True,
     recursive = True,
