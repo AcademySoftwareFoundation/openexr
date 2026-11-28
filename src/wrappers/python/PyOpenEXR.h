@@ -209,7 +209,8 @@ public:
                                            size_t height, size_t width, int nrgba,
                                            int dw_offset, int channel_offset,
                                            Array2D<unsigned int>& sampleCount,
-                                           std::vector<std::shared_ptr<Array2DVoidPtr>>& slice_datas) const;
+                                           std::vector<std::shared_ptr<Array2DVoidPtr>>& slice_datas,
+                                           std::vector<py::array>& pixel_arrays) const;
 };
     
 class PyPreviewImage
@@ -230,7 +231,7 @@ public:
 
     inline bool operator==(const PyPreviewImage& other) const;
 
-    py::array_t<PreviewRgba> pixels;
+    py::array_t<PreviewRgba,style> pixels;
 };
     
 inline std::ostream&

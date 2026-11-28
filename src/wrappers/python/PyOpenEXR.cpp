@@ -888,14 +888,35 @@ PyPart::readDeepPixels(MultiPartInputFile& infile, const std::string& type, cons
     }
 }
 
+//
+// The frame buffer slices address numpy arrays through a raw pointer
+// with C-order strides, so a transposed, sliced, or reversed array
+// has to be copied to C order first. Returns the array itself if it
+// already is.
+//
+
+py::array
+cContiguousArray(const py::handle& h)
+{
+    auto a = py::array::ensure(h, py::array::c_style);
+    if (!a)
+        throw std::runtime_error("unable to make a C-contiguous copy of the pixel array");
+    return a;
+}
+
 void
 PyPart::writePixels(MultiPartOutputFile& outfile, const Box2i& dw) const
 {
     FrameBuffer frameBuffer;
+
+    // Keeps any contiguous copies alive until the pixels are written.
+    std::vector<py::array> pixelArrays;
         
     for (auto c : channels)
     {
         auto C = c.second.cast<const PyChannel&>();
+        C.pixels = cContiguousArray(C.pixels);
+        pixelArrays.push_back(C.pixels);
 
         auto pixelType = C.pixelType();
             
@@ -1010,7 +1031,8 @@ PyChannel::setSliceDataPtr(Array2DVoidPtr& sliceData,const py::array& a, size_t 
 int
 get_deep_nrgba(const py::array& pixels)
 {
-    const py::object* pixel_objects = static_cast<const py::object*>(pixels.data());
+    auto objects = cContiguousArray(pixels);
+    const py::object* pixel_objects = static_cast<const py::object*>(objects.data());
 
     size_t height = pixels.shape(0);
     size_t width = pixels.shape(1);
@@ -1034,13 +1056,15 @@ void
 PyChannel::insertDeepSlice(DeepFrameBuffer& frameBuffer, const std::string& slice_name,
                            size_t height, size_t width, int nrgba, int dw_offset, int channel_offset,
                            Array2D<unsigned int>& sampleCount,
-                           std::vector<std::shared_ptr<Array2DVoidPtr>>& sliceDatas) const
+                           std::vector<std::shared_ptr<Array2DVoidPtr>>& sliceDatas,
+                           std::vector<py::array>& pixelArrays) const
 {
     Array2DVoidPtr* sliceDataPtr = new Array2DVoidPtr(height, width);
     Array2DVoidPtr& sliceData(*sliceDataPtr);
     sliceDatas.push_back(std::shared_ptr<Array2DVoidPtr>(sliceDataPtr));
 
-    auto pixel_objects = static_cast<const py::object*>(pixels.data());
+    auto objects = cContiguousArray(pixels);
+    auto pixel_objects = static_cast<const py::object*>(objects.data());
 
     for (size_t y=0; y<height; y++)
         for (size_t x=0; x<width; x++)
@@ -1053,7 +1077,9 @@ PyChannel::insertDeepSlice(DeepFrameBuffer& frameBuffer, const std::string& slic
             
             if (py::isinstance<py::array>(object))
             {
-                auto a = object.cast<py::array>();
+                auto a = cContiguousArray(object);
+                if (!a.is(object))
+                    pixelArrays.push_back(a);
                 if (sampleCount[y][x] == 0)
                     sampleCount[y][x] = a.shape(0);
                 else if (sampleCount[y][x] != a.shape(0))
@@ -1154,6 +1180,7 @@ PyPart::writeDeepPixels(MultiPartOutputFile& outfile, const Box2i& dw) const
                                                sizeof (unsigned int) * width)); // yStride
 
     std::vector<std::shared_ptr<Array2DVoidPtr>> sliceDatas;
+    std::vector<py::array> pixelArrays;
 
     for (auto c : channels)
     {
@@ -1166,18 +1193,18 @@ PyPart::writeDeepPixels(MultiPartOutputFile& outfile, const Box2i& dw) const
         
         int nrgba = get_deep_nrgba(C.pixels);
         if (nrgba == 0)
-            C.insertDeepSlice(frameBuffer, C.name, height, width, nrgba, dw_offset, 0, sampleCount, sliceDatas);
+            C.insertDeepSlice(frameBuffer, C.name, height, width, nrgba, dw_offset, 0, sampleCount, sliceDatas, pixelArrays);
         else
         {
             std::string name_prefix = "";
             if (C.name != "RGB" && C.name != "RGBA")
                 name_prefix = C.name + ".";
 
-            C.insertDeepSlice(frameBuffer, name_prefix+"R", height, width, nrgba, dw_offset, 0, sampleCount, sliceDatas);
-            C.insertDeepSlice(frameBuffer, name_prefix+"G", height, width, nrgba, dw_offset, 1, sampleCount, sliceDatas);
-            C.insertDeepSlice(frameBuffer, name_prefix+"B", height, width, nrgba, dw_offset, 2, sampleCount, sliceDatas);
+            C.insertDeepSlice(frameBuffer, name_prefix+"R", height, width, nrgba, dw_offset, 0, sampleCount, sliceDatas, pixelArrays);
+            C.insertDeepSlice(frameBuffer, name_prefix+"G", height, width, nrgba, dw_offset, 1, sampleCount, sliceDatas, pixelArrays);
+            C.insertDeepSlice(frameBuffer, name_prefix+"B", height, width, nrgba, dw_offset, 2, sampleCount, sliceDatas, pixelArrays);
             if (nrgba == 4)
-                C.insertDeepSlice(frameBuffer, name_prefix+"A", height, width, nrgba, dw_offset, 3, sampleCount, sliceDatas);
+                C.insertDeepSlice(frameBuffer, name_prefix+"A", height, width, nrgba, dw_offset, 3, sampleCount, sliceDatas, pixelArrays);
         }
     }
 
@@ -2171,7 +2198,7 @@ objectToV2(const py::object& object, Vec2<T>& v)
     }
     else if (py::isinstance<py::array_t<T>>(object))
     {
-        auto a = object.cast<py::array_t<T>>();
+        auto a = object.cast<py::array_t<T, py::array::c_style | py::array::forcecast>>();
         if (a.ndim() == 1 && a.size() == 2)
         {
             auto p = static_cast<T*>(a.request().ptr);
@@ -2201,7 +2228,7 @@ objectToV2d(const py::object& object, V2d& v)
 {
     if (py::isinstance<py::array_t<double>>(object))
     {
-        auto a = object.cast<py::array_t<double>>();
+        auto a = object.cast<py::array_t<double, py::array::c_style | py::array::forcecast>>();
         if (a.ndim() == 1 && a.size() == 2)
         {
             auto p = static_cast<double*>(a.request().ptr);
@@ -2233,7 +2260,7 @@ objectToV3(const py::object& object, Vec3<T>& v)
     }
     else if (py::isinstance<py::array_t<T>>(object))
     {
-        auto a = object.cast<py::array_t<T>>();
+        auto a = object.cast<py::array_t<T, py::array::c_style | py::array::forcecast>>();
         if (a.ndim() == 1 && a.size() == 3)
         {
             auto p = static_cast<T*>(a.request().ptr);
@@ -2264,7 +2291,7 @@ objectToV3d(const py::object& object, V3d& v)
 {
     if (py::isinstance<py::array_t<double>>(object))
     {
-        auto a = object.cast<py::array_t<double>>();
+        auto a = object.cast<py::array_t<double, py::array::c_style | py::array::forcecast>>();
         if (a.ndim() == 1 && a.size() == 3)
         {
             auto p = static_cast<double*>(a.request().ptr);
@@ -2283,7 +2310,7 @@ objectToM33(const py::object& object, Matrix33<T>& m)
 {
     if (py::isinstance<py::array_t<T>>(object))
     {
-        auto a = object.cast<py::array_t<T>>();
+        auto a = object.cast<py::array_t<T, py::array::c_style | py::array::forcecast>>();
         if (a.ndim() == 2 && a.shape(0) == 3 && a.shape(1) == 3)
         {
             py::buffer_info buf = a.request();
@@ -2303,7 +2330,7 @@ objectToM44(const py::object& object, Matrix44<T>& m)
 {
     if (py::isinstance<py::array_t<T>>(object))
     {
-        auto a = object.cast<py::array_t<T>>();
+        auto a = object.cast<py::array_t<T, py::array::c_style | py::array::forcecast>>();
         if (a.ndim() == 2 && a.shape(0) == 4 && a.shape(1) == 4)
         {
             py::buffer_info buf = a.request();
@@ -2771,7 +2798,8 @@ PyChannel::validatePixelArray()
         auto height = pixels.shape(0);
         auto width = pixels.shape(1);
 
-        auto pixel_objects = static_cast<py::object*>(pixels.mutable_data());
+        auto objects = cContiguousArray(pixels);
+        auto pixel_objects = static_cast<const py::object*>(objects.data());
 
         for (decltype(height) y=0; y<height; y++)
             for (decltype(width) x=0; x<width; x++)
