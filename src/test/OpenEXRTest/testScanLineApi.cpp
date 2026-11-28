@@ -27,6 +27,7 @@
 
 #include <Imath/ImathRandom.h>
 
+#include <algorithm>
 #include <iostream>
 #include <assert.h>
 #include <math.h>
@@ -744,6 +745,155 @@ writeRead (
         true);
 }
 
+void
+testTileCoordsFill (const std::string& tempDir)
+{
+    //
+    // Read a tiled file through the scan line API into slices with
+    // yTileCoords set, sized for a single row of tiles. Channels that
+    // are not in the file ("Z") must be filled at the same tile-relative
+    // rows as channels that are ("H"). The data window is walked in
+    // ranges of 1 to TY scan lines, forwards and backwards, so ranges
+    // straddle rows of tiles and the first line accessed in a row of
+    // tiles isn't always its topmost line.
+    //
+
+    cout << "Testing yTileCoords fill slices on a tiled file" << endl;
+
+    std::string fn = tempDir + "imf_test_tile_coords_fill.exr";
+
+    const int W  = 16;
+    const int H  = 12;
+    const int DX = -3;
+    const int DY = 5;
+    const int TX = 8;
+    const int TY = 4;
+
+    Array2D<half> ph (H, W);
+    for (int y = 0; y < H; ++y)
+        for (int x = 0; x < W; ++x)
+            ph[y][x] = half (float (y * W + x));
+
+    {
+        Header hdr (
+            Box2i (V2i (0, 0), V2i (W - 1, H - 1)),
+            Box2i (V2i (DX, DY), V2i (DX + W - 1, DY + H - 1)));
+        hdr.channels ().insert ("H", Channel (IMF::HALF));
+        hdr.setTileDescription (TileDescription (TX, TY, ONE_LEVEL));
+
+        TiledOutputFile out (fn.c_str (), hdr);
+        FrameBuffer     fb;
+        fb.insert (
+            "H",
+            Slice (
+                IMF::HALF,
+                (char*) &ph[-DY][-DX],
+                sizeof (ph[0][0]),
+                sizeof (ph[0][0]) * W));
+        out.setFrameBuffer (fb);
+        out.writeTiles (0, out.numXTiles () - 1, 0, out.numYTiles () - 1);
+    }
+
+    {
+        Array2D<half> hrow (TY, W);
+        Array2D<half> zrow (TY, W);
+
+        const half fillZ = 3.5;
+
+        //
+        // A range of at most TY lines lands on distinct rows of the
+        // one-tile-row buffers, so after each readPixels call every
+        // buffer row that was touched must hold the line it was given
+        // and the other rows must be unchanged.
+        //
+
+        Array2D<half> expectH (TY, W);
+        Array2D<half> expectZ (TY, W);
+
+        for (int backwards = 0; backwards < 2; ++backwards)
+        {
+            for (int step = 1; step <= TY; ++step)
+            {
+                for (int y = 0; y < TY; ++y)
+                    for (int x = 0; x < W; ++x)
+                    {
+                        hrow[y][x]    = 0;
+                        zrow[y][x]    = 0;
+                        expectH[y][x] = 0;
+                        expectZ[y][x] = 0;
+                    }
+
+                //
+                // A fresh InputFile for every pass, so each one starts
+                // with an empty tile cache.
+                //
+
+                InputFile in (fn.c_str ());
+
+                FrameBuffer fb;
+                fb.insert (
+                    "H",
+                    Slice (
+                        IMF::HALF,
+                        (char*) &hrow[0][-DX],
+                        sizeof (hrow[0][0]),
+                        sizeof (hrow[0][0]) * W,
+                        1,
+                        1,
+                        0.0,
+                        false,
+                        true));
+                fb.insert (
+                    "Z",
+                    Slice (
+                        IMF::HALF,
+                        (char*) &zrow[0][-DX],
+                        sizeof (zrow[0][0]),
+                        sizeof (zrow[0][0]) * W,
+                        1,
+                        1,
+                        fillZ,
+                        false,
+                        true));
+                in.setFrameBuffer (fb);
+
+                for (int i = 0; i < H; i += step)
+                {
+                    int lo = i;
+                    int hi = std::min (i + step - 1, H - 1);
+
+                    if (backwards)
+                    {
+                        lo = std::max (H - i - step, 0);
+                        hi = H - 1 - i;
+                    }
+
+                    for (int y = lo; y <= hi; ++y)
+                        for (int x = 0; x < W; ++x)
+                        {
+                            expectH[y % TY][x] = ph[y][x];
+                            expectZ[y % TY][x] = fillZ;
+                        }
+
+                    if (backwards)
+                        in.readPixels (DY + hi, DY + lo);
+                    else
+                        in.readPixels (DY + lo, DY + hi);
+
+                    for (int y = 0; y < TY; ++y)
+                        for (int x = 0; x < W; ++x)
+                        {
+                            assert (hrow[y][x] == expectH[y][x]);
+                            assert (zrow[y][x] == expectZ[y][x]);
+                        }
+                }
+            }
+        }
+    }
+
+    remove (fn.c_str ());
+}
+
 int
 testReread()
 {
@@ -1095,4 +1245,6 @@ testScanLineApi (const std::string& tempDir)
         cerr << "ERROR -- caught exception: " << e.what () << endl;
         assert (false);
     }
+
+    testTileCoordsFill (tempDir);
 }
