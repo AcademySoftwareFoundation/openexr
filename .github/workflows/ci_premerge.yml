@@ -36,6 +36,11 @@ name: Pre-merge Checks
 
 on:
   push:
+    # Dependabot branches live in this repo, so they also open a PR. The
+    # pull_request run covers them; a push run would only duplicate it
+    # (or be cancelled, leaving a misleading failed check).
+    branches-ignore:
+      - 'dependabot/**'
     paths:
       - '**'
       - '!ASWF/**'
