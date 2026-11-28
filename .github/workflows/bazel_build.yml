@@ -93,11 +93,14 @@ jobs:
     steps:
     - uses: actions/checkout@v7.0.1
 
-    - name: Mount Bazel cache
-      uses: actions/cache@v6.1.0
+    - uses: bazel-contrib/setup-bazel@0.19.2
       with:
-        path: "/home/runner/.cache/bazel"
-        key: bazel-ubuntu-26
+        # Avoid downloading Bazel every time.
+        bazelisk-cache: true
+        # Store build cache per workflow.
+        disk-cache: bazel-ubuntu-26
+        # Share repository cache between workflows.
+        repository-cache: true
 
     - name: Build
       run: |
@@ -112,11 +115,14 @@ jobs:
     steps:
     - uses: actions/checkout@v7.0.1
 
-    - name: Mount Bazel cache
-      uses: actions/cache@v6.1.0
+    - uses: bazel-contrib/setup-bazel@0.19.2
       with:
-        path: "/home/runner/.cache/bazel"
-        key: bazel-windows-2025
+        # Avoid downloading Bazel every time.
+        bazelisk-cache: true
+        # Store build cache per workflow.
+        disk-cache: bazel-windows-2025
+        # Share repository cache between workflows.
+        repository-cache: true
 
     - name: Build
       run: |
@@ -131,11 +137,14 @@ jobs:
     steps:
     - uses: actions/checkout@v7.0.1
 
-    - name: Mount Bazel cache
-      uses: actions/cache@v6.1.0
+    - uses: bazel-contrib/setup-bazel@0.19.2
       with:
-        path: "/home/runner/.cache/bazel"
-        key: bazel-macos-26
+        # Avoid downloading Bazel every time.
+        bazelisk-cache: true
+        # Store build cache per workflow.
+        disk-cache: bazel-macos-26
+        # Share repository cache between workflows.
+        repository-cache: true
 
     - name: Build
       run: |

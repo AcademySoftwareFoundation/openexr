@@ -213,19 +213,21 @@ documented here for OpenEXR itself. The core Imath library has no
 external dependencies. The Imath python bindings depend on python and
 boost.
 
-The only
-external library dependency of OpenEXR is
+OpenEXR has three external codec dependencies:
 [libdeflate](https://github.com/ebiggers/libdeflate), which implements
-standard deflate/zlib/gzip compression and decompression.
+standard deflate/zlib/gzip compression and decompression;
+[OpenJPH](https://github.com/aous72/OpenJPH), which implements HTJ2K
+compression; and [zstd](https://github.com/facebook/zstd), which
+implements Zstandard compression.
 
 The project uses
-[Snyk](https://github.com/AcademySoftwareFoundation/openexr/blob/main/.github/workflows/snyk-scan-pr.yml)
+[Snyk](https://github.com/AcademySoftwareFoundation/openexr/blob/main/.github/workflows/snyk-scan-cron.yml)
 to scan for dependency vulnerability.
 
 ### Potential Vulnerabilities
 
 Potential entry points are images being loaded using the
-library. Malformed images could caused issues such as heap buffer
+library. Malformed images could cause issues such as heap buffer
 overflows, out-of-memory faults, or segmentation faults that could be
 exploitable as denial-of-service attacks.
 
@@ -247,13 +249,75 @@ on another with more memory.
 
 The OpenEXR library provides 
 `Imf::Header::setMaxImageSize(int maxWidth,int maxHeight)` and
-`Imf::Header:"setMaxTileSize(int maxWidth,int maxHeight)` (and
+`Imf::Header::setMaxTileSize(int maxWidth,int maxHeight)` (and
 `exr_set_default_maximum_image_size()` and
 `exr_set_default_maximum_tile_size()` in OpenEXRCore) to allow
 applications to reject files with dimensions exceeding a configurable
 limit before any large allocation occurs. Applications processing
 untrusted EXR files should set these limits to values appropriate for
 their deployment environment.
+
+### Secure Design Principles
+
+The project applies secure design principles where they are applicable
+to a file-format I/O library:
+
+- **Economy of mechanism / minimized attack surface.** The library
+  implements no network protocols, services, authentication, plugins,
+  or configuration files, and treats all file contents as image pixel
+  data and image metadata, never as executable code. There are no
+  intentional mechanisms for OpenEXR to interpret attributes or image
+  data as instructions to be executed as code. It depends on Imath for
+  basic math constructs and has three external dependencies that
+  implement compression codecs: libdeflate, OpenJPH, and zstd. It
+  performs file access only for the paths the application requests.
+
+- **Least privilege.** The library requires no privileges beyond
+  reading and writing the files an application asks it to open. It
+  never changes permissions, spawns processes, or reads credentials,
+  and neither it nor its tools are installed setuid; none of the
+  OpenEXR tool programs are installed to execute with special
+  privileges.
+
+- **Complete mediation.** All file access goes through a single I/O
+  layer in OpenEXRCore (the context's read/write callbacks, which can
+  also be replaced to mediate access to non-file sources). Every size,
+  count, offset, and dimension read from a file is validated against
+  the file size, the declared part, and format limits before it is used
+  to read, allocate, or index. The C++ API is built on this same layer.
+
+- **Fail-safe behavior.** Validation failures are reported through
+  error codes or exceptions and the operation fails rather than
+  continuing with partially valid data. Applications reading untrusted
+  files should enable strict header validation
+  (`EXR_CONTEXT_FLAG_STRICT_HEADER`) and set image and tile size
+  limits as described under "Image Size Limits and Out-of-Memory
+  Failures" above.
+
+- **Open design.** The EXR file format and the implementation are
+  public and open source, so security does not depend on secrecy of
+  the design.  Security may be audited directly based on the design
+  documentation and source code.
+
+- **Defense in depth.** Robustness does not rely on any single
+  control: input validation, continuous fuzzing (OSS-Fuzz), static
+  analysis (CodeQL), memory-error testing (Valgrind), OpenSSF
+  Scorecard monitoring, code review, and signed releases are used
+  together, as described below.
+
+- **Psychological acceptability.** Security-relevant behavior (strict
+  mode, size limits) is exposed through the same ordinary API that
+  applications already use to open files, with documented defaults,
+  rather than through separate mechanisms.
+
+The principle of separation of privilege does not apply, since the
+library has no authentication, authorization, or multi-user mechanisms
+of its own; those are left to the operating system and the embedding
+application.
+
+Where principles conflict, the project favors compatibility with the
+existing file format over stricter defaults, which is why image and
+tile size limits are opt-in by the application.
 
 ### Hardening
 
@@ -275,13 +339,183 @@ The project also uses the [OSS
 Fuzz](https://bugs.chromium.org/p/oss-fuzz) service for continuous
 fuzz testing.
 
+#### CI and Release Infrastructure
+
+The project hardens its build and release infrastructure against
+tampering:
+
+- Every third-party GitHub Action is pinned to a full commit SHA, not a
+  mutable tag, and Dependabot proposes updates daily so that each
+  change is reviewed before it is adopted.
+- Every workflow declares its `GITHUB_TOKEN` permissions explicitly,
+  read-only by default. Write access is granted only to the specific
+  jobs that need it, such as signing and uploading a release.
+- Secrets are used only by the few workflows that require them, such as
+  code-analysis and release notifications. No workflow uses
+  `pull_request_target`, so code from a pull request does not run with
+  access to repository secrets.
+- Release tarballs are signed with Sigstore by a workflow, so their
+  origin is verifiable (see "Signed Releases").
+- The [OpenSSF Scorecard](https://securityscorecards.dev) workflow
+  audits the repository's security practices weekly, and CodeQL
+  analyzes the code on a schedule.
+- Workflow files are changed through the same review as source code,
+  by at least one maintainer.
+
 #### Development Cycle and Distribution
 
 OpenEXR is downloadable and buildable by C/C++ source via GitHub. Only
 members of the project's Technical Steering Committee, all veteran
 software engineers at major motion picture studios or vendors, have
 write permissions on the source code repository. All critical software
-changes are reviewed by multiple TSC members.
+changes are reviewed and approved by at least one maintainer before
+they are merged.
 
 The library is distributed in binary form via many common package
 managers across all platforms.
+
+## Assurance Case
+
+This section argues that OpenEXR meets its security requirements. It
+builds on "Security Expectations" and "Secure Design Principles" above.
+
+### Security requirements
+
+When reading a file, the library must:
+
+1. never read or write memory outside the buffers it owns, however
+   malformed the input;
+2. never execute data from a file;
+3. fail with an error or exception, not crash or hang, on any invalid
+   input, and not fall back to guessing;
+4. never access anything beyond the file paths the application
+   requests.
+
+The released artifacts must come from the project's reviewed source and
+be verifiable.
+
+### Threat model
+
+**Assets.** The integrity and availability of the application that
+embeds the library, and the data it processes.
+
+**Attackers considered.**
+
+- Anyone able to supply an EXR file to an application using OpenEXR as
+  an input image format. The attacker controls every byte of the file
+  and needs no credentials. The library has no authentication,
+  network, or multi-user features, so there is no other attack
+  channel.
+- A malicious actor targeting the project's infrastructure, rather than
+  an application that uses OpenEXR: someone who tries to subvert the
+  repository by submitting malicious code or dependency changes, or to
+  compromise the CI/CD pipeline, build environment, or release process
+  in order to tamper with the source or the released artifacts. Such an
+  attack could reach every user of a release, regardless of how
+  carefully an application handles untrusted files.
+
+**Threats considered.**
+
+- Memory-safety violations (out-of-bounds read or write, use after
+  free, integer overflow leading to an undersized allocation) caused
+  by crafted sizes, counts, offsets, or compressed data.
+- Denial of service: crashes, infinite loops, or memory or CPU
+  exhaustion from a small crafted file.
+- Compromised or tampered release artifacts, or a vulnerable
+  dependency.
+- Compromise of the CI/CD pipeline or release process, such as a
+  malicious or hijacked GitHub Action, leaked credentials, or an
+  over-privileged workflow token, used to inject code into a release
+  (see "CI and Release Infrastructure").
+
+**Out of scope.**
+
+- Allocation failures proportional to the image dimensions declared in
+  a valid file (see "Image Size Limits and Out-of-Memory
+  Failures"). Because pixel data is stored compressed, an image with a
+  large width and height can be represented by a file that is small on
+  disk.
+- The security of the embedding application and operating system.
+- Confidentiality, since the library implements no cryptography.
+
+### Trust boundaries
+
+1. **File contents (untrusted) to library.** Every byte of an input
+   file is untrusted. This is the only boundary that carries attacker
+   data. It is mediated by one I/O layer in OpenEXRCore (see "Complete
+   mediation" above); the C++ API, the Python bindings, and the tools
+   all sit on top of that layer.
+2. **Application to library (trusted).** The application is trusted to
+   choose which files to open, set image and tile size limits, and
+   enable strict header validation. Applications reading untrusted
+   files are expected to do so.
+3. **Library to dependencies.** Imath (maintained by this project) and
+   the three codec libraries, libdeflate, OpenJPH, and zstd, are the
+   only dependencies. The codecs receive compressed data from the file
+   and are treated as part of the input path; the library checks the
+   sizes they produce.
+4. **Source to release.** Only members of the Technical Steering
+   Committee may write to the repository, changes are reviewed by a
+   maintainer before they are merged, and release artifacts are signed
+   (see "Signed Releases").
+
+### Applying the principles
+
+The argument that secure design principles are applied is the "Secure
+Design Principles" section above: minimized attack surface, least
+privilege, complete mediation, fail-safe defaults, open design,
+defense in depth, and psychological acceptability. The documented
+trade-off is that image and tile size limits are opt-in by the
+application, to preserve compatibility with existing files. Applications
+that handle untrusted files should set them and enable strict header
+validation.
+
+### Common implementation weaknesses
+
+Identified weaknesses for a binary-format parser written in C and C++
+are listed below, with mitigations:
+
+| Weakness | Countermeasure |
+|---|---|
+| Out-of-bounds read or write (CWE-125, CWE-787) | Offsets, sizes, and counts read from the file are validated against the file size and the part before use; tested by fuzzing and AddressSanitizer. |
+| Integer overflow leading to undersized buffers (CWE-190, CWE-680) | Size computations use 64-bit arithmetic and overflow-checked helpers (e.g. `internal_util.h`). |
+| NULL dereference, use after free, double free (CWE-476, CWE-416, CWE-415) | Allocation failures are checked and reported as errors; Valgrind and AddressSanitizer runs in CI. |
+| Uncontrolled resource consumption (CWE-400, CWE-770) | Configurable maximum image and tile size; fuzzing for hangs. |
+| Undefined behavior (CWE-758) | UndefinedBehaviorSanitizer runs in CI. |
+| Vulnerable dependency (CWE-1395) | Three codec dependencies (libdeflate, OpenJPH, zstd), scanned by Snyk and vendored in `external/` at pinned release version SHA. |
+| Tampering with releases or the build | Signed releases, GitHub Actions pinned by commit SHA, and reproducible builds (see "Reproducible Builds" in the website's install guide). |
+
+The countermeasures are checked via CI:
+
+- OSS-Fuzz continuous fuzzing, and the in-tree fuzz tests;
+- CodeQL and SonarCloud static analysis, and Valgrind;
+- AddressSanitizer and UndefinedBehaviorSanitizer CI jobs;
+- code coverage measurement.
+
+All critical software changes are reviewed and approved by at least one
+maintainer before they are merged.
+
+Each reported GitHub Security Advisory is fixed. Vulnerabilities that
+meet the criteria in "CVE Assignment" above are assigned CVE identifiers and listed under
+"Known Vulnerabilities" above, so the weakness classes found in
+practice are tracked.
+
+### Residual risks
+
+The assurance case does not claim that OpenEXR is free of
+vulnerabilities. The remaining risks are:
+
+- Image and tile size limits are opt-in, so an application that does
+  not set them can be exhausted of memory by a file that declares very
+  large dimensions.
+- Fuzz testing covers only small inputs, so it cannot rule out flaws
+  that need large files to trigger.
+- The codec libraries (libdeflate, OpenJPH, zstd) are trusted as part
+  of the input path. The library checks the sizes they produce, but
+  not their internal correctness.
+- A single maintainer's approval is sufficient to merge a change, so
+  review depends on that maintainer's diligence.
+
+These risks are accepted to preserve compatibility with existing files
+and to keep the project's review process lightweight, and they are
+reduced by the countermeasures above.

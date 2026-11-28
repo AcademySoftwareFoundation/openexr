@@ -302,10 +302,10 @@ cc_library(
     local_defines = ["_FILE_OFFSET_BITS=64"],
     visibility = ["//visibility:public"],
     deps = [
-        "@zstd//:zstd",
         "@imath",
         "@libdeflate//:deflate",
         "@openjph",
+        "@zstd",
     ],
 )
 
@@ -553,11 +553,64 @@ cc_library(
         }),
     visibility = ["//visibility:public"],
     deps = [
-        "@zstd//:zstd",
         ":IlmThread",
         ":OpenEXRCore",
         "@imath",
         "@openjph",
+        "@zstd",
+    ],
+)
+
+cc_library(
+    name = "OpenEXRUtil",
+    srcs = [
+        "src/lib/OpenEXRUtil/ImfCheckFile.cpp",
+        "src/lib/OpenEXRUtil/ImfDeepImage.cpp",
+        "src/lib/OpenEXRUtil/ImfDeepImageChannel.cpp",
+        "src/lib/OpenEXRUtil/ImfDeepImageIO.cpp",
+        "src/lib/OpenEXRUtil/ImfDeepImageLevel.cpp",
+        "src/lib/OpenEXRUtil/ImfFlatImage.cpp",
+        "src/lib/OpenEXRUtil/ImfFlatImageChannel.cpp",
+        "src/lib/OpenEXRUtil/ImfFlatImageIO.cpp",
+        "src/lib/OpenEXRUtil/ImfFlatImageLevel.cpp",
+        "src/lib/OpenEXRUtil/ImfImage.cpp",
+        "src/lib/OpenEXRUtil/ImfImageChannel.cpp",
+        "src/lib/OpenEXRUtil/ImfImageDataWindow.cpp",
+        "src/lib/OpenEXRUtil/ImfImageIO.cpp",
+        "src/lib/OpenEXRUtil/ImfImageLevel.cpp",
+        "src/lib/OpenEXRUtil/ImfSampleCountChannel.cpp",
+    ],
+    hdrs = [
+        "src/lib/OpenEXRUtil/ImfCheckFile.h",
+        "src/lib/OpenEXRUtil/ImfDeepImage.h",
+        "src/lib/OpenEXRUtil/ImfDeepImageChannel.h",
+        "src/lib/OpenEXRUtil/ImfDeepImageIO.h",
+        "src/lib/OpenEXRUtil/ImfDeepImageLevel.h",
+        "src/lib/OpenEXRUtil/ImfFlatImage.h",
+        "src/lib/OpenEXRUtil/ImfFlatImageChannel.h",
+        "src/lib/OpenEXRUtil/ImfFlatImageIO.h",
+        "src/lib/OpenEXRUtil/ImfFlatImageLevel.h",
+        "src/lib/OpenEXRUtil/ImfImage.h",
+        "src/lib/OpenEXRUtil/ImfImageChannel.h",
+        "src/lib/OpenEXRUtil/ImfImageChannelRenaming.h",
+        "src/lib/OpenEXRUtil/ImfImageDataWindow.h",
+        "src/lib/OpenEXRUtil/ImfImageIO.h",
+        "src/lib/OpenEXRUtil/ImfImageLevel.h",
+        "src/lib/OpenEXRUtil/ImfSampleCountChannel.h",
+        "src/lib/OpenEXRUtil/ImfUtilExport.h",
+    ],
+    features = select({
+        ":windows": ["windows_export_all_symbols"],
+        "//conditions:default": [],
+    }),
+    includes = [
+        "src/lib",
+        "src/lib/OpenEXRUtil",
+    ],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":OpenEXR",
+        ":OpenEXRCore",
     ],
 )
 
@@ -619,6 +672,96 @@ cc_binary(
     srcs = ["src/bin/exrstdattr/main.cpp"],
     deps = [
         ":OpenEXR",
+    ],
+)
+
+cc_binary(
+    name = "exrinfo",
+    srcs = ["src/bin/exrinfo/main.c"],
+    deps = [
+        ":OpenEXR",
+    ],
+)
+
+cc_binary(
+    name = "exrmaketiled",
+    srcs = [
+        "src/bin/exrmaketiled/Image.cpp",
+        "src/bin/exrmaketiled/Image.h",
+        "src/bin/exrmaketiled/main.cpp",
+        "src/bin/exrmaketiled/makeTiled.cpp",
+        "src/bin/exrmaketiled/makeTiled.h",
+        "src/bin/exrmaketiled/namespaceAlias.h",
+    ],
+    deps = [
+        ":OpenEXR",
+    ],
+)
+
+cc_binary(
+    name = "exrmetrics",
+    srcs = [
+        "src/bin/exrmetrics/exrmetrics.cpp",
+        "src/bin/exrmetrics/exrmetrics.h",
+        "src/bin/exrmetrics/main.cpp",
+    ],
+    includes = ["src/bin/exrmetrics"],
+    deps = [
+        ":OpenEXR",
+    ],
+)
+
+cc_binary(
+    name = "exrmakepreview",
+    srcs = [
+        "src/bin/exrmakepreview/main.cpp",
+        "src/bin/exrmakepreview/makePreview.cpp",
+        "src/bin/exrmakepreview/makePreview.h",
+    ],
+    deps = [
+        ":OpenEXR",
+    ],
+)
+
+cc_binary(
+    name = "exrmultiview",
+    srcs = [
+        "src/bin/exrmultiview/Image.cpp",
+        "src/bin/exrmultiview/Image.h",
+        "src/bin/exrmultiview/main.cpp",
+        "src/bin/exrmultiview/makeMultiView.cpp",
+        "src/bin/exrmultiview/makeMultiView.h",
+        "src/bin/exrmultiview/namespaceAlias.h",
+    ],
+    deps = [
+        ":OpenEXR",
+    ],
+)
+
+cc_binary(
+    name = "exrmultipart",
+    srcs = ["src/bin/exrmultipart/exrmultipart.cpp"],
+    deps = [
+        ":OpenEXR",
+        ":OpenEXRUtil",
+    ],
+)
+
+cc_binary(
+    name = "exrcheck",
+    srcs = ["src/bin/exrcheck/main.cpp"],
+    deps = [
+        ":OpenEXR",
+        ":OpenEXRUtil",
+    ],
+)
+
+cc_binary(
+    name = "exrmanifest",
+    srcs = ["src/bin/exrmanifest/main.cpp"],
+    deps = [
+        ":OpenEXR",
+        ":OpenEXRUtil",
     ],
 )
 
